@@ -24,7 +24,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 
 #include "map_data.h"
 #include "slab_data.h"
@@ -161,7 +160,7 @@ void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, 
     if (gold_idx != -1)
     {
         struct GoldLookup* gldlook = get_gold_lookup(gold_idx);
-        LbMemorySet(gldlook, 0, sizeof(struct GoldLookup));
+        memset(gldlook, 0, sizeof(struct GoldLookup));
         gldlook->flags |= 0x01;
         gldlook->stl_x = slab_subtile_center(gld_v1 / gld_v3);
         gldlook->stl_y = slab_subtile_center(gld_v2 / gld_v3);
@@ -183,7 +182,7 @@ void check_map_for_gold(void)
     SYNCDBG(8,"Starting");
     for (long i = 0; i < GOLD_LOOKUP_COUNT; i++)
     {
-        LbMemorySet(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
+        memset(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
     }
     // Make a map with treasure areas marked
     unsigned char* treasure_map = (unsigned char*)big_scratch;

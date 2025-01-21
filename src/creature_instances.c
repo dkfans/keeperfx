@@ -103,7 +103,7 @@ Creature_Instf_Func creature_instances_func_list[] = {
   instf_destroy,
   instf_dig,
   instf_eat,
-  instf_fart,
+  NULL,
   instf_first_person_do_imp_task,
   instf_pretty_path, //[10]
   instf_reinforce,
@@ -124,6 +124,8 @@ const struct NamedCommand creature_instances_validate_func_type[] = {
     {"validate_target_benefits_from_higher_altitude",           8},
     {"validate_target_benefits_from_offensive",                 9},
     {"validate_target_benefits_from_wind",                      10},
+    {"validate_target_non_idle",                                11},
+    {"validate_target_takes_gas_damage",                        12},
     {NULL, 0},
 };
 
@@ -139,6 +141,8 @@ Creature_Validate_Func creature_instances_validate_func_list[] = {
     validate_target_benefits_from_higher_altitude,
     validate_target_benefits_from_offensive,
     validate_target_benefits_from_wind,
+    validate_target_non_idle,
+    validate_target_takes_gas_damage,
     NULL,
 };
 
@@ -327,10 +331,15 @@ TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
     return (((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0) && ((inst_inf->instance_property_flags & InstPF_Destructive) != 0) && !(inst_inf->instance_property_flags & InstPF_Dangerous));
 }
 
-TbBool instance_is_quick_range_weapon(CrInstance inum)
+/**
+ * Informs whether the creature has an instance which can be used when going postal.
+ * Going Postal is the behavior where creatures attack others at their job, like warlocks in the library
+  * @return True if it has a postal_priority value > 0.
+ */
+TbBool instance_is_used_for_going_postal(CrInstance inum)
 {
     struct InstanceInfo* inst_inf = creature_instance_info_get(inum);
-    return (((inst_inf->instance_property_flags & InstPF_RangedAttack) != 0) && ((inst_inf->instance_property_flags & InstPF_Quick) != 0));
+    return (inst_inf->postal_priority > 0);
 }
 
 TbBool instance_is_melee_attack(CrInstance inum)
@@ -402,7 +411,7 @@ TbBool creature_has_ranged_object_weapon(const struct Thing *creatng)
     return false;
 }
 
-TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
+TbBool creature_has_weapon_for_postal(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -410,7 +419,7 @@ TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
     {
         if (cctrl->instance_available[inum])
         {
-            if (instance_is_quick_range_weapon(inum))
+            if (instance_is_used_for_going_postal(inum))
                 return true;
         }
     }
@@ -444,6 +453,17 @@ void process_creature_instance(struct Thing *thing)
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     SYNCDBG(19, "Starting for %s index %d instance %d", thing_model_name(thing), (int)thing->index, (int)cctrl->instance_id);
+    if (cctrl->inst_turn >= cctrl->inst_total_turns)
+    {
+        if (!cctrl->inst_repeat)
+        {
+            SYNCDBG(18,"Finalize %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
+            cctrl->instance_id = CrInst_NULL;
+            thing->creature.volley_fire = false;
+            return;
+        }
+    }
+    cctrl->inst_repeat = 0;
     if (cctrl->instance_id != CrInst_NULL)
     {
         cctrl->inst_turn++;
@@ -460,17 +480,9 @@ void process_creature_instance(struct Thing *thing)
                 }
             }
         }
-        if (cctrl->inst_turn >= cctrl->inst_total_turns)
+        if (cctrl->inst_repeat)
         {
-            if (cctrl->inst_repeat)
-            {
-                cctrl->inst_turn--;
-                cctrl->inst_repeat = 0;
-                return;
-            }
-            SYNCDBG(18,"Finalize %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
-            cctrl->instance_id = CrInst_NULL;
-            thing->creature.volley_fire = false;
+            cctrl->inst_turn--;
         }
         cctrl->inst_repeat = 0;
     }
@@ -793,6 +805,11 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
         ERRORLOG("The %s index %d is not on room",thing_model_name(creatng),(int)creatng->index);
         return 0;
     }
+    if (room_cannot_vandalise(room->kind))
+    {
+        set_start_state(creatng);
+        return 0; // Stop the creature from vandalizing the room if the player managed to move it from a breakable room to one that cannot be vandalized.
+    }
     SYNCDBG(8,"Executing for %s index %d",thing_model_name(creatng),(int)creatng->index);
     struct SlabMap* slb = get_slabmap_thing_is_on(creatng);
     if (slb->health > 2)
@@ -867,19 +884,6 @@ long instf_eat(struct Thing *creatng, long *param)
         cctrl->hunger_amount--;
     apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
     cctrl->hunger_level = 0;
-    return 1;
-}
-
-long instf_fart(struct Thing *creatng, long *param)
-{
-    TRACE_THING(creatng);
-    struct Thing* efftng = create_effect(&creatng->mappos, TngEff_Gas3, creatng->owner);
-    if (!thing_is_invalid(efftng))
-        efftng->shot_effect.hit_type = THit_CrtrsOnlyNotOwn;
-    thing_play_sample(creatng,94+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-    // Start cooldown after fart created
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 1;
 }
 
@@ -1190,8 +1194,8 @@ TbBool validate_source_basic
 
     if (!creature_instance_is_available(source, inst_idx) ||
         !creature_instance_has_reset(source, inst_idx) ||
-        ((cctrl->stateblock_flags & CCSpl_Freeze) != 0) ||
-        creature_is_fleeing_combat(source) || creature_affected_by_spell(source, SplK_Chicken) ||
+        creature_under_spell_effect(source, CSAfF_Freeze) ||
+        creature_is_fleeing_combat(source) || creature_under_spell_effect(source, CSAfF_Chicken) ||
         creature_is_being_unconscious(source) || creature_is_dying(source) ||
         thing_is_picked_up(source) || creature_is_being_dropped(source) ||
         creature_is_being_sacrificed(source) || creature_is_being_summoned(source))
@@ -1309,6 +1313,34 @@ TbBool validate_target_generic
     return true;
 }
 
+
+/**
+ * @brief Check if the given creature can be the target of the specified spell by checking if it is non-idle.
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
+ * @return TbBool True if the creature can be, false if otherwise.
+ */
+TbBool validate_target_non_idle(struct Thing* source, struct Thing* target, CrInstance inst_idx, int32_t param1,int32_t param2)
+{
+    if (!validate_target_generic(source, target, inst_idx, param1, param2))
+    {
+        return false;
+    }
+    struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
+    struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
+    long state_type = get_creature_state_type(target);
+    if ((state_type != CrStTyp_Idle)
+    && !creature_under_spell_effect(target, spconf->spell_flags)
+    && !creature_is_immune_to_spell_effect(target, spconf->spell_flags))
+    {
+        return true;
+    }
+    return false;
+}
+
 /**
  * @brief Check if the given creature can be the target of the specified spell when the creature
  * is in prison/torture room.
@@ -1336,9 +1368,10 @@ TbBool validate_target_even_in_prison
     }
 
     struct InstanceInfo* inst_inf = creature_instance_info_get(inst_idx);
-    SpellKind spl_idx = inst_inf->func_params[0];
-    struct SpellConfig* spconf = get_spell_config(spl_idx);
-    if (spell_config_is_invalid(spconf) || creature_affected_by_spell(target, spl_idx))
+    struct SpellConfig *spconf = get_spell_config(inst_inf->func_params[0]);
+    if (spell_config_is_invalid(spconf)
+    || creature_under_spell_effect(target, spconf->spell_flags)
+    || creature_is_immune_to_spell_effect(target, spconf->spell_flags))
     {
         // If this instance has wrong spell, or the target has been affected by this spell, return false.
         SYNCDBG(12, "%s(%d) is not a valid target for %s because it has been affected by the spell.",
@@ -1442,14 +1475,13 @@ TbBool validate_target_benefits_from_defensive
         ERRORLOG("Invalid creature control");
         return false;
     }
-    // As long as the target is fighting, return true, no matter what thing the target is attacking.
-    // Even if the target is attacking a door or dungeon heart, it still needs defensive buffs because
-    // the hostile keepers can use keeper offensive spells.
-    if (cctrl->combat_flags == 0)
+    // When the target is fighting creatures, return true because it needs defensive buffs. 
+    // Doors and Hearts do not fight back, and keepers only defend by dropping units.
+    if (any_flag_is_set(cctrl->combat_flags, (CmbtF_Melee|CmbtF_Ranged|CmbtF_Waiting)))
     {
-        return false; // Not in any combat.
+        return true; // In combat with creatures.
     }
-    return true;
+    return false;
 }
 
 /**
@@ -1475,8 +1507,9 @@ TbBool validate_target_benefits_from_higher_altitude
     {
         return false;
     }
-    // Water or lava. Flying on water is beneficial because the target can go on a Guard Post.
-    if (subtile_is_liquid(target->mappos.x.stl.num, target->mappos.y.stl.num))
+    long state_type = get_creature_state_type(target);
+    //Flyin in water has no advantage, since creatures will not fly over guardposts anyway.
+    if ((state_type != CrStTyp_Idle) || terrain_toxic_for_creature_at_position(source, coord_subtile(source->mappos.x.val), coord_subtile(source->mappos.y.val)))
     {
         return true;
     }
@@ -1548,7 +1581,7 @@ TbBool validate_target_benefits_from_wind
         ERRORLOG("Invalid creature control");
         return false;
     }
-    if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
+    if (creature_under_spell_effect(target, CSAfF_PoisonCloud))
     {
         return true;
     }
@@ -1559,6 +1592,34 @@ TbBool validate_target_benefits_from_wind
         return true;
     }
 
+    return false;
+}
+
+
+/**
+ * @brief The classic condition to determine if wind is used.
+ *
+ * @param source The source creature
+ * @param target The target creature
+ * @param inst_idx  The spell instance index
+ * @param param1 Optional 1st parameter.
+ * @param param2 Optional 2nd parameter.
+ * @return TbBool True if the creature can, false if otherwise.
+ */
+TbBool validate_target_takes_gas_damage(struct Thing* source, struct Thing* target, CrInstance inst_idx, int32_t param1, int32_t param2)
+{
+    // Note that we don't need to call validate_target_generic or validate_target_basic because
+    // Wind isn't SELF_BUFF. It doesn't require a target, the target parameter is just the source.
+    struct CreatureControl* cctrl = creature_control_get_from_thing(target);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control");
+        return false;
+    }
+    if (creature_under_spell_effect(target, CSAfF_PoisonCloud))
+    {
+        return true;
+    }
     return false;
 }
 

@@ -89,7 +89,7 @@ struct AsianFontWindow {
 extern short dbc_language;
 extern TbBool dbc_enabled;
 extern TbBool dbc_initialized;
-extern const struct TbSprite *lbFontPtr;
+extern const struct TbSpriteSheet *lbFontPtr;
 
 /******************************************************************************/
 
@@ -105,7 +105,7 @@ int LbTextLineHeight(void);
 int LbTextSetWindow(int posx, int posy, int width, int height);
 TbResult LbTextSetJustifyWindow(int pos_x, int pos_y, int width);
 TbResult LbTextSetClipWindow(int x1, int y1, int x2, int y2);
-TbBool LbTextSetFont(const struct TbSprite *font);
+TbBool LbTextSetFont(const struct TbSpriteSheet *font);
 unsigned char LbTextGetFontFaceColor(void);
 unsigned char LbTextGetFontBackColor(void);
 int LbTextStringWidth(const char *str);
@@ -128,10 +128,10 @@ long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_co
 long LbGetJustifiedCharHeight(long all_lines_height, long spr_height, long lines_count, unsigned short fdflags);
 
 // Function which require font sprites as parameter
-int LbSprFontWordWidth(const struct TbSprite *font,const char *text);
-int LbSprFontCharWidth(const struct TbSprite *font,const unsigned long chr);
-int LbSprFontCharHeight(const struct TbSprite *font,const unsigned long chr);
-const struct TbSprite *LbFontCharSprite(const struct TbSprite *font,const unsigned long chr);
+int LbSprFontWordWidth(const struct TbSpriteSheet * font, const char * text);
+int LbSprFontCharWidth(const struct TbSpriteSheet * font, const unsigned long chr);
+int LbSprFontCharHeight(const struct TbSpriteSheet * font,const unsigned long chr);
+const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, const unsigned long chr);
 
 void LbTextUseByteCoding(TbBool is_enabled);
 long text_string_height(int units_per_px, const char *text);

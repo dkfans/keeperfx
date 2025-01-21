@@ -165,18 +165,31 @@ TbBool creature_can_see_combat_path(const struct Thing *creatng, const struct Th
 
 TbBool creature_will_do_combat(const struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    // Creature turned to chicken is defenseless
-    if (creature_affected_by_spell(thing, SplK_Chicken))
-        return false;
-    // Neutral creatures won't fight
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    // Neutral creatures won't fight.
     if (is_neutral_thing(thing))
+    {
         return false;
-    if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0)
+    }
+    // Creature turned to chicken is defenseless.
+    if (creature_under_spell_effect(thing, CSAfF_Chicken))
+    {
         return false;
-    // Frozen creature cannot attack
-    if (creature_affected_by_spell(thing, SplK_Freeze))
+    }
+    // Frozen creature cannot attack.
+    if (creature_under_spell_effect(thing, CSAfF_Freeze))
+    {
         return false;
+    }
+    // Creature affected with fear won't fight.
+    if (creature_under_spell_effect(thing, CSAfF_Fear))
+    {
+        return false;
+    }
+    if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
+    {
+        return false;
+    }
     return can_change_from_state_to(thing, thing->active_state, CrSt_CreatureInCombat);
 }
 
@@ -232,7 +245,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     // Neutral creatures are not easily scared, as they shouldn't have enemies
     if (is_neutral_thing(creatng))
         return false;
-    if (creature_affected_by_spell(enmtng, SplK_TimeBomb))
+    if (creature_under_spell_effect(enmtng, CSAfF_Timebomb))
     {
         if (creature_has_ranged_weapon(creatng) == false)
         {
@@ -276,6 +289,9 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     {
         return false;
     }
+    // Accept 0 as a way to disable fear of stronger creatures
+    if (crstat->fear_stronger == 0)
+        return false;
     // If the enemy is way stronger, a creature may be scared anyway
     fear = crstat->fear_stronger;
     long long enmstrength = LbSqrL(project_melee_damage(enmtng)) * (enmstat->fearsome_factor) / 100 * ((long long)enmaxhealth + (long long)enmtng->health) / 2;
@@ -1323,7 +1339,11 @@ short creature_combat_flee(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     GameTurnDelta turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->flee_start_turn;
-    if (get_chessboard_distance(&creatng->mappos, &cctrl->flee_pos) >= 1536)
+    if (cctrl->flee_start_turn == 0)
+    {
+        turns_in_flee = 0;
+    }
+    if (get_chessboard_distance(&creatng->mappos, &cctrl->flee_pos) >= slab_coord(2))
     {
         SYNCDBG(8,"Starting distant flee for %s index %d",thing_model_name(creatng),(int)creatng->index);
         if (has_melee_combat_attackers(creatng) || has_ranged_combat_attackers(creatng)
@@ -1337,7 +1357,7 @@ short creature_combat_flee(struct Thing *creatng)
             }
             cctrl->flee_start_turn = game.play_gameturn;
         } else
-        if (turns_in_flee <= game.conf.rules.creature.game_turns_in_flee)
+        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_under_spell_effect(creatng, CSAfF_Fear))
         {
             GameTurnDelta escape_turns = (game.conf.rules.creature.game_turns_in_flee >> 2);
             if (escape_turns <= 50)
@@ -1372,7 +1392,7 @@ short creature_combat_flee(struct Thing *creatng)
                 return 1;
             }
         }
-        if (turns_in_flee <= game.conf.rules.creature.game_turns_in_flee)
+        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_under_spell_effect(creatng, CSAfF_Fear))
         {
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
                 creatng->continue_state = CrSt_CreatureCombatFlee;
@@ -1781,16 +1801,6 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
     return thing_in_field_of_view(thing, enmtng);
 }
 
-#define INSTANCE_RET_IF_AVAIL(thing, inst_id) \
-    if (creature_instance_is_available(thing, inst_id) \
-      && creature_instance_has_reset(thing, inst_id)) { \
-        return inst_id; \
-    }
-#define INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, inst_id) \
-    if (creature_instance_is_available(thing, inst_id)) { \
-        return -inst_id; \
-    }
-
 TbBool creature_would_benefit_from_healing(const struct Thing* thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -1852,29 +1862,107 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     return CrInst_NULL;
 }
 
-CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing)
+// Static array to store the IDs of "postal" instances
+static CrInstance postal_inststance[INSTANCE_TYPES_MAX];
+// Counter for the number of "postal" instances found
+static short postal_inst_num = 0;
+// Flag to indicate if the cache has been initialized
+static TbBool initial = false;
+
+/** @brief Retrieves a random available "postal" instance within range for a given creature.
+ * 
+ * On the first call, the function creates a cache of all available "postal" instances.
+ * It then loops through the cache to find instances available for the creature and fitting within the given range.
+ * These available instances are added to a list.
+ * The function then chooses a random instance from this list.
+ * 
+ * @param thing Pointer to the creature for which the instance is to be retrieved.
+ * @param dist Distance to the target.
+ * @return A random available "postal" CrInstance for the given range
+ */
+CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long dist)
 {
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_FIREBALL);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_FIRE_ARROW);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_MISSILE);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_NAVIGATING_MISSILE);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_LIGHTNING);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_HAILSTORM);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_GRENADE);
-    INSTANCE_RET_IF_AVAIL(thing, CrInst_POISON_CLOUD);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_FIREBALL);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_FIRE_ARROW);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_MISSILE);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_NAVIGATING_MISSILE);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_LIGHTNING);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_HAILSTORM);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_GRENADE);
-    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_POISON_CLOUD);
-    return CrInst_NULL;
+    struct InstanceInfo* inst_inf;
+
+        // Initialize the cache only once
+        if (!initial)
+        {
+            // Loop through all available instances
+            for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
+            {
+                inst_inf = creature_instance_info_get(i);
+                    // Check if the instance has a positive postal_priority
+                    if (inst_inf->postal_priority > 0)
+                    {
+                        // Ensure we don't exceed the maximum array size
+                        if (postal_inst_num < INSTANCE_TYPES_MAX) 
+                        {
+                            // Add the instance ID to the cache
+                            postal_inststance[postal_inst_num++] = i;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+            }
+            // Mark the cache as initialized
+            initial = true;
+        }
+
+    //List of usable instances
+    CrInstance av_postal_inst[INSTANCE_TYPES_MAX];
+    short av_postal_inst_num = 0;
+    char highest_prio = 0;
+    // Loop through the cached postal instances
+    for (short j = 0; j < postal_inst_num; j++)
+    {
+        inst_inf = creature_instance_info_get(postal_inststance[j]);
+
+        // Check if the instance is available
+        if (creature_instance_is_available(thing, postal_inststance[j]))
+        {
+            // If this instance has higher priority than current highest, reset the list
+            if (inst_inf->postal_priority > highest_prio)
+            {
+                highest_prio = inst_inf->postal_priority;
+                av_postal_inst_num = 0; // Clear the list as we found a higher priority
+            }
+
+            // If this instance matches the highest priority, check further conditions
+            if (inst_inf->postal_priority == highest_prio)
+            {
+                // Check if the instance is reset and in range
+                if (creature_instance_has_reset(thing, postal_inststance[j]) &&
+                    inst_inf->range_min <= dist && dist <= inst_inf->range_max)
+                {
+                    // Add to the list of available instances
+                    av_postal_inst[av_postal_inst_num++] = postal_inststance[j];
+                }
+            }
+        }
+    }
+
+    // Choose a random index from the list of usable instances
+    if (av_postal_inst_num > 0)
+    {
+        short rand_inst_idx = CREATURE_RANDOM(thing, av_postal_inst_num);
+        return av_postal_inst[rand_inst_idx];
+    }
+    else
+    {
+    // Return NULL if no suitable instance is found 
+        return CrInst_NULL;
+    }
 }
 
-#undef INSTANCE_RET_IF_AVAIL
-#undef INSTANCE_RET_NEG_IF_AVAIL_ONLY
+void reset_postal_instance_cache()
+{
+    // Reset the cache variables
+    postal_inst_num = 0;
+    initial = false;
+    memset(postal_inststance, 0, sizeof(postal_inststance));
+}
+
 
 /**
  * Gives combat weapon instance from given array which matches given distance.
@@ -3413,9 +3501,8 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
         shot_model = inst_inf->func_params[0];
     }
     long damage = project_creature_shot_damage(firing, shot_model);
-    // Adjust the damage with target creature defense
-    struct CreatureControl* cctrl = creature_control_get_from_thing(firing);
-    long dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
+    // Adjust the damage with target creature defense.
+    long dexterity = calculate_correct_creature_dexterity(firing);
     damage = project_damage_of_melee_shot(dexterity, damage, target);
     return damage;
 }

@@ -48,7 +48,7 @@ extern "C" {
 #define MAX_THINGS_IN_HAND          64
 #define TURN_TIMERS_COUNT           8
 #define SCRIPT_FLAGS_COUNT          8
-#define MAX_SOE_RADIUS              26
+#define MAX_SOE_RADIUS              13
 #define CREATURE_GUI_JOBS_COUNT     3
 #define CUSTOM_BOX_COUNT            256
 #define FX_LINES_COUNT              32
@@ -120,7 +120,7 @@ struct TrapInfo
 
 struct BoxInfo
 {
-    uint8_t               activated[CUSTOM_BOX_COUNT];
+    uint16_t              activated[CUSTOM_BOX_COUNT];
 };
 
 struct ComputerInfo
@@ -284,7 +284,10 @@ struct Dungeon {
     struct Modifiers      modifier;
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;
+    struct BoxInfo        trap_info;
     struct Coord3d        last_combat_location;
+    struct Coord3d        last_eventful_death_location;
+    struct Coord3d        last_trap_event_location;
     int                   creature_awarded[CREATURE_TYPES_MAX];
     unsigned char         creature_entrance_level;
     unsigned long         evil_creatures_converted;

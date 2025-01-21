@@ -23,7 +23,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <io.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -35,7 +34,6 @@
 
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
-#include "bflib_memory.h"
 #include "globals.h"
 #include "post_inc.h"
 
@@ -452,8 +450,9 @@ long LbFileLengthRnc(const char *fname)
 {
     long flength;
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if ( handle == -1 )
+    if (!handle) {
         return -1;
+    }
 #if (BFDEBUG_LEVEL > 19)
     LbSyncLog("%s: file opened\n", fname);
 #endif
@@ -469,7 +468,7 @@ long LbFileLengthRnc(const char *fname)
     if (header.signature == RNC_SIGNATURE)
     {
 #if (BFDEBUG_LEVEL > 19)
-        LbSyncLog("%s: file size from RNC header: %ld bytes\n", fname, header.packed_size);
+        LbSyncLog("%s: file size from RNC header: %u bytes\n", fname, header.packed_size);
 #endif
         flength = ntohl(header.unpacked_size);
     } else {
@@ -496,28 +495,28 @@ long UnpackM1(void * buffer, ulong bufsize)
     header.packed_crc32 = ntohs(header.packed_crc32);
     header.unpacked_size = ntohl(header.unpacked_size);
     header.unpacked_crc32 = ntohs(header.unpacked_crc32);
-    void * unpacked = LbMemoryAlloc(header.unpacked_size);
+    void * unpacked = calloc(header.unpacked_size, 1);
     if (unpacked==NULL) return -1;
     retcode = rnc_unpack(buffer, unpacked, 0);
     if (header.unpacked_size > bufsize) {
-        LbMemoryCopy(buffer, unpacked, bufsize);
+        memcpy(buffer, unpacked, bufsize);
     } else {
-        LbMemoryCopy(buffer, unpacked, header.unpacked_size);
+        memcpy(buffer, unpacked, header.unpacked_size);
     }
-    LbMemoryFree(unpacked);
+    free(unpacked);
     return retcode;
 }
 
 long LbFileLoadAt(const char *fname, void *buffer)
 {
   long filelength = LbFileLengthRnc(fname);
-  TbFileHandle handle=-1;
+  TbFileHandle handle = NULL;
   if (filelength!=-1)
   {
       handle = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
   }
   int read_status=-1;
-  if (handle!=-1)
+  if (handle)
   {
       read_status=LbFileRead(handle, buffer, filelength);
       LbFileClose(handle);
@@ -546,8 +545,9 @@ long LbFileLoadAt(const char *fname, void *buffer)
 long LbFileSaveAt(const char *fname, const void *buffer,unsigned long len)
 {
   TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-  if ( handle == -1 )
+  if (!handle) {
     return -1;
+  }
   int result=LbFileWrite(handle,buffer,len);
   LbFileClose(handle);
   return result;

@@ -24,7 +24,7 @@
 
 #include "config.h"
 
-#define MAX_SACRIFICE_VICTIMS 20
+#define MAX_SACRIFICE_VICTIMS 6
 #define MAX_SACRIFICE_RECIPES 100
 
 #ifdef __cplusplus
@@ -120,7 +120,7 @@ struct CreatureRulesConfig {
     unsigned long flee_zone_radius;
     GameTurnDelta game_turns_in_flee;
     unsigned short game_turns_unconscious;
-    long critical_health_permil;
+    HitPoints critical_health_permil;
     unsigned char stun_enemy_chance_evil;
     unsigned char stun_enemy_chance_good;
 };

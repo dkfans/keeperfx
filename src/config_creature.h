@@ -31,35 +31,36 @@
 extern "C" {
 #endif
 
-#define CREATURE_NONE 255
-#define CREATURE_ANY  254
-#define CREATURE_NOT_A_DIGGER  253
-#define CREATURE_DIGGER  252
+#define CREATURE_NONE            255
+#define CREATURE_ANY             254
+#define CREATURE_NOT_A_DIGGER    253
+#define CREATURE_DIGGER          252
 
 /** Percentage of creature parameter increase for every experience level.
  *  Used as default value, should be replaced in config file. */
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
 /******************************************************************************/
 enum CreatureModelFlags {
-    CMF_IsSpecDigger     = 0x00001, // Imp and Tunneller.
-    CMF_IsArachnid       = 0x00002, // simply, Spider.
-    CMF_IsDiptera        = 0x00004, // simply, Fly.
-    CMF_IsLordOTLand     = 0x00008, // simply, Knight.
-    CMF_IsSpectator      = 0x00010, // simply, Floating Spirit.
-    CMF_IsEvil           = 0x00020, // All evil creatures.
-    CMF_NeverChickens    = 0x00040, // Cannot be affected by Chicken (for Avatar).
-    CMF_ImmuneToBoulder  = 0x00080, // Boulder traps are destroyed at the moment they touch the creature.
-    CMF_NoCorpseRotting  = 0x00100, // Corpse cannot rot in graveyard.
-    CMF_NoEnmHeartAttack = 0x00200, // Creature will not attack enemy heart on sight.
-    CMF_Trembling        = 0x00400, // Creature causes ground to tremble when dropped.
-    CMF_Female           = 0x00800, // Creature is female.
-    CMF_Insect           = 0x01000, // Creature is kind of insect.
-    CMF_OneOfKind        = 0x02000, // Only one creature of that kind may exist on one level. Unit name is type name.
-    CMF_NoImprisonment   = 0x04000, // Creature will not faint.
-    CMF_NeverSick        = 0x08000, // Creature will not get disease.
-    CMF_NoResurrect      = 0x10000, // Creature will not resurrect.
-    CMF_NoTransfer       = 0x20000, // Creature cannot be transferred.
-    CMF_Fat              = 0x40000, // Creature to fat too walk a full animation
+    CMF_IsSpecDigger     = 0x000001, // Imp and Tunneller.
+    CMF_IsArachnid       = 0x000002, // Simply, Spider.
+    CMF_IsDiptera        = 0x000004, // Simply, Fly.
+    CMF_IsLordOfLand     = 0x000008, // Simply, Knight and Avatar.
+    CMF_IsSpectator      = 0x000010, // Simply, Floating Spirit.
+    CMF_IsEvil           = 0x000020, // All evil creatures.
+    CMF_ImmuneToBoulder  = 0x000040, // Boulder traps are destroyed at the moment they touch the creature.
+    CMF_NoCorpseRotting  = 0x000080, // Corpse cannot rot in graveyard.
+    CMF_NoEnmHeartAttack = 0x000100, // Creature will not attack enemy heart on sight.
+    CMF_Trembling        = 0x000200, // Creature causes ground to tremble when dropped.
+    CMF_Fat              = 0x000400, // Creature too fat to walk a full animation.
+    CMF_Female           = 0x000800, // Creature is female.
+    CMF_Insect           = 0x001000, // Creature is kind of insect.
+    CMF_OneOfKind        = 0x002000, // Only one creature of that kind may exist on one level. Unit name is type name.
+    CMF_NoImprisonment   = 0x004000, // Creature will not faint.
+    CMF_NoResurrect      = 0x008000, // Creature will not resurrect.
+    CMF_NoTransfer       = 0x010000, // Creature cannot be transferred.
+    CMF_NoStealHero      = 0x020000, // Prevent the creature from being stolen with the Steal Hero special.
+    CMF_PreferSteal      = 0x040000, // The creature can be generated from Steal Hero special if there's nothing to steal.
+    CMF_EventfulDeath    = 0x080000, // The LAST_DEATH_EVENT[] script location is updated on death.
 };
 
 // Before C23 standard, we cannot specify the underlaying type (in this case we want 64bit int) of enum.
@@ -146,7 +147,7 @@ enum InstancePropertiesFlags {
     InstPF_RangedDebuff       = 0x0010,
     InstPF_Dangerous          = 0x0020,
     InstPF_Destructive        = 0x0040,
-    InstPF_Quick              = 0x0080,
+    InstPF_Unused             = 0x0080, //Quick
     InstPF_Disarming          = 0x0100,
     InstPF_UsesSwipe          = 0x0200,
     InstPF_RangedBuff         = 0x0400,
@@ -265,18 +266,26 @@ extern struct NamedCommand angerjob_desc[];
 extern struct NamedCommand creaturejob_desc[];
 extern struct NamedCommand attackpref_desc[];
 extern struct NamedCommand instance_desc[];
+extern struct NamedCommand lenses_desc[];
 extern const struct NamedCommand creatmodel_attributes_commands[];
 extern const struct NamedCommand creatmodel_jobs_commands[];
 extern const struct NamedCommand creatmodel_attraction_commands[];
 extern const struct NamedCommand creatmodel_sounds_commands[];
 extern const struct NamedCommand creatmodel_sprite_commands[];
 extern const struct NamedCommand creature_graphics_desc[];
+extern const struct NamedCommand creatmodel_annoyance_commands[];
+extern const struct NamedCommand creatmodel_experience_commands[];
+extern const struct NamedCommand creatmodel_senses_commands[];
+extern const struct NamedCommand creatmodel_appearance_commands[];
+extern const struct NamedCommand creature_deathkind_desc[];
 extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
 void check_and_auto_fix_stats(void);
+void init_creature_model_stats(void);
+void init_creature_model_graphics(void);
 const char *creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
 const char *creature_own_name(const struct Thing *creatng);

@@ -61,7 +61,7 @@ TbBool creature_able_to_eat(const struct Thing *creatng)
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if (creature_stats_invalid(crstat))
         return false;
-    return ((crstat->hunger_rate > 0) && (crstat->hunger_fill > 0));
+    return ((crstat->hunger_rate > 0) || (crstat->hunger_fill > 0));
 }
 
 TbBool hunger_is_creature_hungry(const struct Thing *creatng)
@@ -186,7 +186,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
     if (near_food_tng->class_id == TCls_Creature)
     {
         cctrl = creature_control_get_from_thing(near_food_tng);
-        cctrl->stateblock_flags |= CCSpl_ChickenRel;
+        set_flag(cctrl->stateblock_flags, CCSpl_ChickenRel);
     } else
     {
         near_food_tng->food.byte_15 = 255;

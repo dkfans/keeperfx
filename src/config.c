@@ -23,7 +23,6 @@
 #include <stdarg.h>
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
@@ -34,6 +33,7 @@
 #include "bflib_sound.h"
 #include "sounds.h"
 #include "engine_render.h"
+#include "bflib_fmvids.h"
 
 #include "config_campaigns.h"
 #include "front_simple.h"
@@ -167,25 +167,25 @@ const struct NamedCommand logicval_type[] = {
   };
 
   const struct NamedCommand vidscale_type[] = {
-  {"OFF",          256}, // = 0x100 = No scaling of Smacker Video
-  {"DISABLED",     256},
-  {"FALSE",        256},
-  {"NO",           256},
-  {"0",            256},
-  {"FIT",           16}, // = 0x10 = SMK_FullscreenFit - fit to fullscreen, using letterbox and pillarbox as necessary
-  {"ON",            16}, // Duplicate of FIT, for legacy reasons
-  {"ENABLED",       16},
-  {"TRUE",          16},
-  {"YES",           16},
-  {"1",             16},
-  {"STRETCH",       32}, // = 0x20 = SMK_FullscreenStretch  - stretch to fullscreen - ignores aspect ratio difference between source and destination
-  {"CROP",          64}, // = 0x40 = SMK_FullscreenCrop - fill fullscreen and crop - no letterbox or pillarbox
-  {"4BY3",          48}, // = 0x10 & 0x20 = [Aspect Ratio correction mode] - stretch 320x200 to 4:3 (i.e. increase height by 1.2)
-  {"PIXELPERFECT",  80}, // = 0x10 & 0x40 = integer multiple scale only (FIT)
-  {"4BY3PP",       112}, // = 0x10 & 0x20 & 0x40 = integer multiple scale only (4BY3)
-  {NULL,             0},
+  {"OFF",          0}, // No scaling of Smacker Video
+  {"DISABLED",     0},
+  {"FALSE",        0},
+  {"NO",           0},
+  {"0",            0},
+  {"FIT",          SMK_FullscreenFit}, // Fit to fullscreen, using letterbox and pillarbox as necessary
+  {"ON",           SMK_FullscreenFit}, // Duplicate of FIT, for legacy reasons
+  {"ENABLED",      SMK_FullscreenFit},
+  {"TRUE",         SMK_FullscreenFit},
+  {"YES",          SMK_FullscreenFit},
+  {"1",            SMK_FullscreenFit},
+  {"STRETCH",      SMK_FullscreenStretch}, // Stretch to fullscreen - ignores aspect ratio difference between source and destination
+  {"CROP",         SMK_FullscreenCrop}, // Fill fullscreen and crop - no letterbox or pillarbox
+  {"4BY3",         SMK_FullscreenFit | SMK_FullscreenStretch}, // [Aspect Ratio correction mode] - stretch 320x200 to 4:3 (i.e. increase height by 1.2)
+  {"PIXELPERFECT", SMK_FullscreenFit | SMK_FullscreenCrop}, // integer multiple scale only (FIT)
+  {"4BY3PP",       SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop}, // integer multiple scale only (4BY3)
+  {NULL,           0},
   };
-unsigned int vid_scale_flags = 0;
+unsigned int vid_scale_flags = SMK_FullscreenFit;
 
 unsigned long features_enabled = 0;
 /** Line number, used when loading text files. */
@@ -201,29 +201,6 @@ short is_near_new_moon = 0;
 }
 #endif
 /******************************************************************************/
-/**
- * Updates enabled features flags. Returns true if ALL features are enabled.
- * @param mem_size Amount of memory available for the game.
- * @return
- */
-TbBool update_features(unsigned long uf_mem_size)
-{
-    short result = false;
-    if (uf_mem_size >= 32)
-    {
-        result = true;
-        features_enabled |= Ft_HiResCreatr;
-  }
-  if (uf_mem_size >= 16)
-  {
-    features_enabled |= Ft_EyeLens;
-    features_enabled |= Ft_HiResVideo;
-    features_enabled |= Ft_BigPointer;
-    features_enabled |= Ft_AdvAmbSound;
-  }
-  SYNCMSG("Memory-demanding features %s.",result?"enabled":"disabled");
-  return result;
-}
 
 /**
  * Returns if the censorship is on. This mostly affects blood.
@@ -643,12 +620,12 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
 
                 if( k < commands[i].min)
                 {
-                    CONFWRNLOG("field '%s' smaller then min value '%d', was '%d'",commands[i].name,commands[i].min,k);
+                    CONFWRNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",commands[i].name,commands[i].min,k);
                     k = commands[i].min;
                 }
                 else if( k > commands[i].max)
                 {
-                    CONFWRNLOG("field '%s' bigger then max value '%d', was '%d'",commands[i].name,commands[i].max,k);
+                    CONFWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",commands[i].name,commands[i].max,k);
                     k = commands[i].max;
                 }
                 
@@ -826,7 +803,7 @@ const char *get_conf_parameter_text(const struct NamedCommand commands[],int num
             return commands[i].name;
         i++;
   }
-  return lbEmptyString;
+  return "";
 }
 
 /**
@@ -978,14 +955,14 @@ short load_configuration(void)
     WARNMSG("%s file \"%s\" is too large.",config_textname,sname);
     return false;
   }
-  char* buf = (char*)LbMemoryAlloc(len + 256);
+  char* buf = (char*)calloc(len + 256, 1);
   if (buf == NULL)
     return false;
   // Loading file data
   len = LbFileLoadAt(fname, buf);
   if (len>0)
   {
-    SYNCDBG(7,"Processing %s file, %d bytes",config_textname,len);
+    SYNCDBG(7,"Processing %s file, %ld bytes",config_textname,len);
     buf[len] = '\0';
     // Set text line number - we don't have blocks so we need to initialize it manually
     text_line_number = 1;
@@ -1177,12 +1154,12 @@ short load_configuration(void)
           break;
       case 14: // Resize Movies
           i = recognize_conf_parameter(buf,&pos,len,vidscale_type);
-          if (i <= 0 || i > 256)
+          if (i < 0)
           {
             CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
-          if (i < 256) {
+          if (i > 0) {
             features_enabled |= Ft_Resizemovies;
             vid_scale_flags = i;
           }
@@ -1195,7 +1172,7 @@ short load_configuration(void)
           {
             i = atoi(word_buf);
           }
-          if ((i > 0) && (i <= 50)) {
+          if ((i > 0) && (i < MUSIC_TRACKS_COUNT)) {
               max_track = i;
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
@@ -1337,8 +1314,8 @@ short load_configuration(void)
           }
           if ((i >= 0) && (i <= 32768)) {
               if (i > 100) {i = 100;}
-              zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
-              frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
+              zoom_distance_setting = LbLerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
+              frontview_zoom_distance_setting = LbLerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
@@ -1430,7 +1407,7 @@ short load_configuration(void)
   }
   SYNCDBG(7,"Config loaded");
   // Freeing
-  LbMemoryFree(buf);
+  free(buf);
   // Updating game according to loaded settings
   switch (install_info.lang_id)
   {
@@ -1466,7 +1443,7 @@ short load_configuration(void)
 }
 
 /** CmdLine overrides allow settings from the command line to override the default settings, or those set in the config file.
- * 
+ *
  * See enum CmdLineOverrides and struct StartupParameters -> TbBool overrides[CMDLINE_OVERRIDES].
  */
 void process_cmdline_overrides(void)
@@ -1669,7 +1646,7 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
        WARNMSG("File \"%s\" doesn't exist or is too small.", fname);
        return NULL;
   }
-  unsigned char* buf = LbMemoryAlloc(fsize + 16);
+  unsigned char* buf = calloc(fsize + 16, 1);
   if (buf == NULL)
   {
     WARNMSG("Can't allocate %ld bytes to load \"%s\".",fsize,fname);
@@ -1679,10 +1656,10 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   if (fsize < *ldsize)
   {
     WARNMSG("Reading file \"%s\" failed.",fname);
-    LbMemoryFree(buf);
+    free(buf);
     return NULL;
   }
-  LbMemorySet(buf+fsize, '\0', 15);
+  memset(buf+fsize, '\0', 15);
   *ldsize = fsize;
   return buf;
 }
@@ -1780,12 +1757,12 @@ TbBool load_high_score_table(void)
     long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
     if (arr_size <= 0)
     {
-        LbMemoryFree(campaign.hiscore_table);
+        free(campaign.hiscore_table);
         campaign.hiscore_table = NULL;
         return true;
     }
     if (campaign.hiscore_table == NULL)
-        campaign.hiscore_table = (struct HighScore *)LbMemoryAlloc(arr_size);
+        campaign.hiscore_table = (struct HighScore *)calloc(arr_size, 1);
     if (LbFileLengthRnc(fname) != arr_size)
         return false;
     if (campaign.hiscore_table == NULL)
@@ -1819,7 +1796,7 @@ TbBool create_empty_high_score_table(void)
   int nlevel = 1 * VISIBLE_HIGH_SCORES_COUNT;
   long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
   if (campaign.hiscore_table == NULL)
-    campaign.hiscore_table = (struct HighScore *)LbMemoryAlloc(arr_size);
+    campaign.hiscore_table = (struct HighScore *)calloc(arr_size, 1);
   if (campaign.hiscore_table == NULL)
     return false;
   for (i=0; i < VISIBLE_HIGH_SCORES_COUNT; i++)
@@ -2052,7 +2029,7 @@ TbBool reset_credits(struct CreditsItem *credits)
 {
     for (long i = 0; i < CAMPAIGN_CREDITS_COUNT; i++)
     {
-        LbMemorySet(&credits[i], 0, sizeof(struct CreditsItem));
+        memset(&credits[i], 0, sizeof(struct CreditsItem));
         credits[i].kind = CIK_None;
   }
   return true;
@@ -2162,7 +2139,7 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
     ERRORLOG("Campaign Credits file \"%s\" does not exist or can't be opened",campgn->credits_fname);
     return false;
   }
-  campgn->credits_data = (char *)LbMemoryAlloc(filelen + 256);
+  campgn->credits_data = (char *)calloc(filelen + 256, 1);
   if (campgn->credits_data == NULL)
   {
     ERRORLOG("Can't allocate memory for Campaign Credits file \"%s\"",campgn->credits_fname);
@@ -2680,11 +2657,11 @@ short is_freeplay_level(LevelNumber lvnum)
   {
     if (campaign.freeplay_levels[i] == lvnum)
     {
-        SYNCDBG(18,"%d is freeplay",lvnum);
+        SYNCDBG(18,"%ld is freeplay",lvnum);
         return true;
     }
   }
-  SYNCDBG(18,"%d is NOT freeplay",lvnum);
+  SYNCDBG(18,"%ld is NOT freeplay",lvnum);
   return false;
 }
 /******************************************************************************/

@@ -48,7 +48,7 @@ enum HandAnims {
 struct PowerHandConfigStats {
     char  code_name[COMMAND_WORD_LEN];
     short anim_idx[NUM_ANIMS_PER_VARIANT];
-    short anim_speed[NUM_ANIMS_PER_VARIANT];;
+    short anim_speed[NUM_ANIMS_PER_VARIANT];
 };
 
 struct PowerHandConfig {

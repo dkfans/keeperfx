@@ -140,6 +140,7 @@ struct RoomConfigStats {
     TextStringId tooltip_stridx;
     long creature_creation_model;
     SlabKind assigned_slab;
+    SlabKind synergy_slab;
     char storage_height;
     unsigned long flags;
     RoomRole roles;
@@ -177,7 +178,7 @@ extern const struct NamedCommand terrain_room_properties_commands[];
 extern const struct NamedCommand room_roles_desc[];
 extern const struct NamedCommand terrain_room_total_capacity_func_type[];
 extern const struct NamedCommand terrain_room_used_capacity_func_type[];
-extern Room_Update_Func terrain_room_total_capacity_func_list[8];
+extern Room_Update_Func terrain_room_total_capacity_func_list[13];
 extern Room_Update_Func terrain_room_used_capacity_func_list[10];
 
 /******************************************************************************/

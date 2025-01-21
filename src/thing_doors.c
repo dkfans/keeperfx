@@ -131,18 +131,54 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     {
         doortng->clipbox_size_xy = 3*COORD_PER_STL;
     }
-
     add_thing_to_its_class_list(doortng);
     place_thing_in_mapwho(doortng);
     check_if_enemy_can_see_placement_of_hidden_door(doortng);
     place_animating_slab_type_on_map(doorst->slbkind[orient], 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
     ceiling_partially_recompute_heights(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
-    //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+2,stl_y+2);
-    if ( game.neutral_player_num != plyr_idx )
-        ++game.dungeon[plyr_idx].total_doors;
+    if (nav_map_initialised) // Can't update triangulation before map start
+    {
+        update_navigation_triangulation(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
+    }
+    ++game.dungeon[plyr_idx].total_doors;
     return doortng; 
 }
 
+/**
+ * Hides all secret door keys
+ */
+void init_keys()
+{
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
+    for (int i = slist->index; i > 0;)
+    {
+        struct Thing* keytng = thing_get(i);
+        i = keytng->next_of_class;
+        if (keytng->model != ObjMdl_SpinningKey)
+        {
+            continue;
+        }
+        TRACE_THING(keytng);
+        struct Thing* doortng = find_base_thing_on_mapwho(TCls_Door, 0, keytng->mappos.x.stl.num, keytng->mappos.y.stl.num);
+        if (thing_is_invalid(doortng))
+        {
+            WARNLOG("Key (%d) has no door on position (%d,%d)", keytng->index, keytng->mappos.x.stl.num, keytng->mappos.y.stl.num);
+            continue;
+        }
+        struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
+        if (flag_is_set(doorst->model_flags, DoMF_Secret))
+        {
+            if (is_my_player_number(doortng->owner)) //On map init doors are never revealed
+            {
+                set_flag(keytng->rendering_flags,TRF_Transpar_4);
+            }
+            else
+            {
+                set_flag(keytng->rendering_flags,TRF_Invisible);
+            }
+        }
+    }
+}
 
 TbBool remove_key_on_door(struct Thing *thing)
 {
@@ -158,6 +194,19 @@ TbBool add_key_on_door(struct Thing *thing)
     struct Thing* keytng = create_object(&thing->mappos, ObjMdl_SpinningKey, thing->owner, 0);
     if (thing_is_invalid(keytng))
       return false;
+    struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+    if (flag_is_set(doorst->model_flags, DoMF_Secret))
+    {
+        if (is_my_player_number(thing->owner) || !door_is_hidden_to_player(thing,my_player_number))
+        {
+            clear_flag(keytng->rendering_flags,TRF_Transpar_Flags);
+            set_flag(keytng->rendering_flags,TRF_Transpar_4);
+        }
+        else
+        {
+            set_flag(keytng->rendering_flags, TRF_Invisible);
+        }
+    }
     keytng->mappos.x.stl.pos = COORD_PER_STL/2;
     keytng->mappos.y.stl.pos = COORD_PER_STL/2;
     keytng->mappos.z.stl.num = 5;
@@ -239,6 +288,8 @@ long destroy_door(struct Thing *doortng)
         if (!player_exists(player))
             continue;
         struct Thing* thing = thing_get(player->controlled_thing_idx);
+        if (thing == INVALID_THING)
+            continue;
         MapCoordDelta dist = get_chessboard_distance(&pos, &thing->mappos);
         long sight_stl = slab_subtile(get_explore_sight_distance_in_slabs(thing), 0);
         if (dist <= subtile_coord(sight_stl,0)) {
@@ -400,7 +451,7 @@ static void check_if_enemy_can_see_placement_of_hidden_door(struct Thing *doortn
 TbBool door_is_hidden_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
 {
     struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
-    if((plyr_idx != doortng->owner) && (doorst->model_flags & DoMF_Secret))
+    if((plyr_idx != doortng->owner) && flag_is_set(doorst->model_flags,DoMF_Secret))
     {
         return !flag_is_set(doortng->door.revealed,to_flag(plyr_idx));
     }
@@ -412,6 +463,12 @@ void reveal_secret_door_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
     if(!door_is_hidden_to_player(doortng,plyr_idx))
     {
         return;
+    }
+    struct Thing* keytng = find_base_thing_on_mapwho(TCls_Object, ObjMdl_SpinningKey, doortng->mappos.x.stl.num, doortng->mappos.y.stl.num);
+    if (is_my_player_number(plyr_idx)) //reveal key too
+    {
+        clear_flag(keytng->rendering_flags, TRF_Invisible);
+        set_flag(keytng->rendering_flags, TRF_Transpar_4);
     }
     event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorDiscovered, plyr_idx, 0);
     event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorSpotted, doortng->owner, 0);

@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
-#include "bflib_memory.h"
 #include "creature_control.h"
 #include "creature_instances.h"
 #include "creature_states.h"

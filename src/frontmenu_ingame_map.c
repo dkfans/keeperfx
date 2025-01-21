@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
@@ -812,7 +811,6 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
 void panel_map_update(long x, long y, long w, long h)
 {
     SYNCDBG(17,"Starting for rect (%ld,%ld) at (%ld,%ld)",w,h,x,y);
-    struct PlayerInfo *player = get_my_player();
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     for (stl_y = y; stl_y < y + h; stl_y++)
@@ -825,7 +823,7 @@ void panel_map_update(long x, long y, long w, long h)
                 break;
             if (subtile_has_slab(stl_x, stl_y))
             {
-                panel_map_update_subtile(player->id_number, stl_x, stl_y);
+                panel_map_update_subtile(my_player_number, stl_x, stl_y); //player->id number is still unitialized when this function is called at level start
             }
         }
     }
@@ -947,12 +945,12 @@ void setup_background(long units_per_px)
     if (MapDiagonalLength != 2*(PANEL_MAP_RADIUS*units_per_px/16))
     {
         MapDiagonalLength = 2*(PANEL_MAP_RADIUS*units_per_px/16);
-        LbMemoryFree(MapBackground);
-        MapBackground = LbMemoryAlloc(MapDiagonalLength*MapDiagonalLength*sizeof(TbPixel));
-        LbMemoryFree(MapShapeStart);
-        MapShapeStart = (long *)LbMemoryAlloc(MapDiagonalLength*sizeof(long));
-        LbMemoryFree(MapShapeEnd);
-        MapShapeEnd = (long *)LbMemoryAlloc(MapDiagonalLength*sizeof(long));
+        free(MapBackground);
+        MapBackground = calloc(MapDiagonalLength*MapDiagonalLength, sizeof(TbPixel));
+        free(MapShapeStart);
+        MapShapeStart = (long *)calloc(MapDiagonalLength, sizeof(long));
+        free(MapShapeEnd);
+        MapShapeEnd = (long *)calloc(MapDiagonalLength, sizeof(long));
     }
     if ((MapBackground == NULL) || (MapShapeStart == NULL) || (MapShapeEnd == NULL)) {
         MapDiagonalLength = 0;
