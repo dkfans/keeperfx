@@ -7630,7 +7630,7 @@ static void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, stru
         sp_y = kspos_y;
         sp_dy = (src_dy * scale) >> 5;
         sp_dx = (src_dx * scale) >> 5;
-        SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     } else
     {
         sp_x = kspos_x;
@@ -7668,7 +7668,7 @@ static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct Kee
         sp_y = kspos_y;
         sp_dy = (src_dy * scale) >> 5;
         sp_dx = (src_dx * scale) >> 5;
-        SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     } else
     {
         sp_x = kspos_x;
@@ -7707,7 +7707,7 @@ static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct Ke
         sp_y = kspos_y + ((scale * y) >> 5);
         sp_dy = (src_dy * scale) >> 5;
         sp_dx = (src_dx * scale) >> 5;
-        SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     } else
     {
         sp_x = kspos_x + ((scale * x) >> 5);
@@ -7747,7 +7747,7 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
         sp_y = kspos_y + ((scale * y) >> 5);
         sp_dy = (src_dy * scale) >> 5;
         sp_dx = (src_dx * scale) >> 5;
-        SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     } else
     {
         sp_x = kspos_x + ((scale * x) >> 5);

@@ -62,7 +62,6 @@ unsigned char *dither_map;
 unsigned char *dither_end;
 unsigned char *lbSpriteReMapPtr;
 long scale_up;
-long alpha_scale_up;
 /******************************************************************************/
 /**  Prints horizontal or vertical line on current graphics window.
  *  Does no screen locking - screen must be lock before and unlocked
@@ -1935,33 +1934,6 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
     } else
     // Normally it would be enough to check if ((dheight+y) >= gheight), but our simple rounding may enlarge the image
     if ((y < 0) || ((dheight+sheight+y) >= gheight))
-    {
-        LbSpriteSetScalingHeightClippedArray(ysteps_array, y, min(sheight, SPRITE_SCALING_YSTEPS), dheight, gheight);
-    } else {
-        LbSpriteSetScalingHeightSimpleArray(ysteps_array, y, min(sheight, SPRITE_SCALING_YSTEPS), dheight);
-    }
-}
-
-void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight)
-{
-    long gwidth = lbDisplay.GraphicsWindowWidth;
-    long gheight = lbDisplay.GraphicsWindowHeight;
-    alpha_scale_up = true;
-    if ((dwidth <= swidth) && (dheight <= sheight))
-        alpha_scale_up = false;
-    if ((swidth <= 0) || (dwidth <= 0)) {
-        LbSpriteClearScalingWidthArray(xsteps_array, SPRITE_SCALING_XSTEPS);
-    } else
-    if ((x < 0) || ((dwidth+x) >= gwidth))
-    {
-        LbSpriteSetScalingWidthClippedArray(xsteps_array, x, min(swidth, SPRITE_SCALING_XSTEPS), dwidth, gwidth);
-    } else {
-        LbSpriteSetScalingWidthSimpleArray(xsteps_array, x, min(swidth, SPRITE_SCALING_XSTEPS), dwidth);
-    }
-    if ((sheight <= 0) || (dheight <= 0)) {
-        LbSpriteClearScalingHeightArray(ysteps_array, SPRITE_SCALING_YSTEPS);
-    } else
-    if ((y < 0) || ((dheight+y) >= gheight))
     {
         LbSpriteSetScalingHeightClippedArray(ysteps_array, y, min(sheight, SPRITE_SCALING_YSTEPS), dheight, gheight);
     } else {

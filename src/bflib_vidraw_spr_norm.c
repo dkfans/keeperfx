@@ -1406,13 +1406,13 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSprit
 
 /**
  * Draws an alpha-blended scaled sprite on current graphics window at given position.
- * Requires SetAlphaScalingData() to be called before.
+ * Requires LbSpriteSetScalingData() to be called before.
  *
  * @param posx The X coord within current graphics window.
  * @param posy The Y coord within current graphics window.
  * @param sprite The source sprite.
  * @return Gives 0 on success.
- * @see SetAlphaScalingData()
+ * @see LbSpriteSetScalingData()
  */
 TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite)
 {
@@ -1451,7 +1451,7 @@ TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *
         outbuf = &lbDisplay.GraphicsWindowPtr[gspos_x + lbDisplay.GraphicsScreenWidth * gspos_y];
         outheight = lbDisplay.GraphicsScreenHeight;
     }
-    if ( alpha_scale_up )
+    if ( scale_up )
     {
         if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
         {
