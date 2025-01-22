@@ -30,6 +30,8 @@
 extern "C" {
 #endif
 
+void open_cdrom(void);
+void close_cdrom(void);
 void FreeAudio(void);
 void SetRedbookVolume(SoundVolume);
 void SetSoundMasterVolume(SoundVolume);

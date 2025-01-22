@@ -137,6 +137,7 @@ obj/bflib_vidraw_spr_norm.o \
 obj/bflib_vidraw_spr_onec.o \
 obj/bflib_vidraw_spr_remp.o \
 obj/bflib_vidsurface.o \
+obj/cdrom.o \
 obj/config.o \
 obj/config_campaigns.o \
 obj/config_creature.o \

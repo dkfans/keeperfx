@@ -14,6 +14,7 @@
 #include <string>
 #include <utility>
 #include <array>
+
 #include "post_inc.h"
 
 namespace {
@@ -35,7 +36,6 @@ using ALCdevice_ptr = std::unique_ptr<ALCdevice, device_deleter>;
 using ALCcontext_ptr = std::unique_ptr<ALCcontext, context_deleter>;
 
 SoundVolume g_master_volume = 0;
-SoundVolume g_redbook_volume = 0;
 SoundVolume g_music_volume = 0;
 ALCdevice_ptr g_openal_device;
 ALCcontext_ptr g_openal_context;
@@ -409,15 +409,12 @@ void load_sound_banks() {
 } // local
 
 extern "C" void FreeAudio() {
+	close_cdrom();
 	g_sources.clear();
 	g_banks[0].clear();
 	g_banks[1].clear();
 	g_openal_context = nullptr;
 	g_openal_device = nullptr;
-}
-
-extern "C" void SetRedbookVolume(SoundVolume value) {
-	g_redbook_volume = value;
 }
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
@@ -439,18 +436,6 @@ extern "C" void SetMusicMasterVolume(SoundVolume value) {
 
 extern "C" TbBool GetSoundInstalled() {
 	return g_openal_device && g_openal_context;
-}
-
-extern "C" void PlayRedbookTrack(int) {
-	// TODO
-}
-
-extern "C" void PauseRedbookTrack() {
-	// TODO
-}
-
-extern "C" void ResumeRedbookTrack() {
-	// TODO
 }
 
 extern "C" void MonitorStreamedSoundTrack() {
@@ -489,6 +474,7 @@ extern "C" void StopAllSamples() {
 
 extern "C" TbBool InitAudio(const SoundSettings * settings) {
 	try {
+		open_cdrom();
 		if (SoundDisabled) {
 			LbWarnLog("Sound is disabled, skipping OpenAL initialization");
 			return false;
