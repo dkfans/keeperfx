@@ -6852,20 +6852,19 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     case 1:
         if (player_is_roaming(plyr_idx))
         {
-            thing->mappos.z.val = get_ceiling_height(&thing->mappos);
-            create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
             if (init)
             {
                 init_creature_state(thing);
             }
             else
             {
+                thing->mappos.z.val = get_ceiling_height(&thing->mappos);
+                create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
                 initialise_thing_state(thing, CrSt_CreatureHeroEntering);
+                set_flag(thing->rendering_flags, TRF_Invisible);
+                struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                cctrl->countdown = 24;
             }
-
-            set_flag(thing->rendering_flags, TRF_Invisible);
-            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            cctrl->countdown = 24;
         }
         break;
     default:
