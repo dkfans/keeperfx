@@ -862,20 +862,21 @@ void process_ruled_payday_advances(GoldAmount salary, struct Thing *creatng, str
 /**
  * @brief Add gold from hand to the creature's pocket if the pocket gold rule is active.
  */
-void handle_pocket_gold_rule(GoldAmount* tribute, struct Thing* creatng, struct CreatureStats* crstat, struct CreatureControl* cctrl)
+GoldAmount handle_pocket_gold_rule(GoldAmount tribute, struct Thing* creatng, struct CreatureStats* crstat, struct CreatureControl* cctrl)
 {
     GoldAmount fill_space = crstat->gold_hold - creatng->creature.gold_carried;
     //fill the pockets
-    if(*tribute < fill_space)
+    if(tribute < fill_space)
     {
-        creatng->creature.gold_carried += *tribute;
+        creatng->creature.gold_carried += tribute;
     }
     //pocket ist full
     else
     {
         creatng->creature.gold_carried = crstat->gold_hold;
-        *tribute -= fill_space;
+        return (tribute -= fill_space);
     }
+    return 0;
 }
 
 /**
@@ -888,15 +889,18 @@ void handle_pocket_gold_rule(GoldAmount* tribute, struct Thing* creatng, struct 
  * @param tribute The incoming tribute.
  * @param cctrl Pointer to the CreatureControl structure.
  * @param during_payday Indicates whether the function is called during a payday.
+ *
+ * @
  */
-void creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct Thing* creatng, struct CreatureStats* crstat, struct CreatureControl* cctrl, TbBool during_payday)
+GoldAmount creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct Thing* creatng, struct CreatureStats* crstat, struct CreatureControl* cctrl, TbBool during_payday)
 {
+    GoldAmount remainingTribute = 0;
     if (!game.conf.rules.game.accept_partial_payday)
     {
         //if rule active
         //add tribute to the gold carried by the creature
         if(game.conf.rules.game.pocket_gold){
-            handle_pocket_gold_rule(&tribute, creatng, crstat, cctrl);
+           remainingTribute = handle_pocket_gold_rule(tribute, creatng, crstat, cctrl);
 
             // paid_wage equals the amount of gold in the pocket
             cctrl->paid_wage = creatng->creature.gold_carried;
@@ -933,7 +937,7 @@ void creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct Thing* 
     {
         //if pocket rule active, add tribute to the gold carried by the creature
         if(game.conf.rules.game.pocket_gold){
-            handle_pocket_gold_rule(&tribute, creatng, crstat, cctrl);
+           remainingTribute = handle_pocket_gold_rule(tribute, creatng, crstat, cctrl);
         }
         if (during_payday)
         {
@@ -949,6 +953,7 @@ void creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct Thing* 
             }
         }
     }
+    return remainingTribute;
 }
 
 long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct Thing *creatng)
@@ -968,17 +973,12 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     pos.z.val = creatng->mappos.z.val;
     pos.z.val = get_ceiling_height_at(&pos);
     TbBool during_payday = creature_is_taking_salary_activity(creatng);
+    //process the gold dropped on the creature, considering the rules
+    GoldAmount remainingTribute = creature_get_handgold(salary, tribute, creatng, crstat, cctrl, during_payday);
     if (during_payday && cctrl->paydays_owed > 0)
     {
-        creature_get_handgold(salary, tribute, creatng, crstat, cctrl, during_payday);
         set_start_state(creatng);
     }
-    //not during payday
-    else
-    {
-        creature_get_handgold(salary, tribute, creatng, crstat, cctrl, during_payday);
-    }
-
     drop_gold_coins(&pos, 0, plyr_idx);
     if (tribute >= salary)
     {
@@ -992,7 +992,27 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     {
         thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
     }
-    anger_apply_anger_to_creature_all_types(creatng, (crstat->annoy_got_wage * tribute / salary * 2));
+    //pocket rule us another logic to calculate the happiness reward
+    if(game.conf.rules.game.pocket_gold)
+    {
+        //if the pocket got filled, remain tribute doubles the happiness reward
+        if (remainingTribute > 0)
+        {
+            long happiness = (crstat->annoy_got_wage * remainingTribute / salary * 2) + (crstat->annoy_got_wage * (tribute - remainingTribute) / salary);
+            anger_apply_anger_to_creature_all_types(creatng, happiness);
+        }
+        //only single happiness reward if pocket is not full
+        else
+        {
+            anger_apply_anger_to_creature_all_types( creatng, crstat->annoy_got_wage * tribute / salary);
+        }
+    }
+    //default
+    else
+    {
+        //double happiness reward for tribute
+        anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_got_wage * tribute / salary * 2);
+    }
     if (game.conf.rules.game.classic_bugs_flags & ClscBug_FullyHappyWithGold)
     {
         anger_set_creature_anger_all_types(creatng, 0);

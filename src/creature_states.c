@@ -4976,16 +4976,17 @@ TbBool process_custom_salary(struct Thing *creatng)
             {
                 cctrl->paydays_owed--;
                 cctrl->paid_wage = 0;
+                struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, salary);
                 if(game.conf.rules.game.accept_partial_payday)
                 {
-                    struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, creatng->creature.gold_carried);
+                    efftng = create_price_effect(&creatng->mappos, creatng->owner, creatng->creature.gold_carried);
                 }
                 creatng->creature.gold_carried -= salary;
-                if (creatng->creature.gold_carried < 0) {
+                if (creatng->creature.gold_carried < 0)
+                {
                     creatng->creature.gold_carried = 0;
                 }
                 set_start_state(creatng);
-                struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, salary);
                 thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 dungeon->lvstats.salary_cost += salary;
                 return 1;
