@@ -207,7 +207,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
  * @param destination: The desitination of the disk task.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destination)
+TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, TbMapLocation destination)
 {
     struct Computer2* comp = get_computer_player(plyr_idx);
     long orig_x, orig_y = 0;
@@ -217,7 +217,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     find_map_location_coords(origin, &orig_x, &orig_y, plyr_idx, __func__);
     if ((orig_x == 0) && (orig_y == 0))
     {
-        WARNLOG("Can't decode origin location %ld", origin);
+        WARNLOG("Can't decode origin location %d", origin);
         return Lb_FAIL;
     }
     struct Coord3d startpos;
@@ -229,7 +229,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     find_map_location_coords(destination, &dest_x, &dest_y, plyr_idx, __func__);
     if ((dest_x == 0) && (dest_y == 0))
     {
-        WARNLOG("Can't decode destination location %ld", destination);
+        WARNLOG("Can't decode destination location %d", destination);
         return Lb_FAIL;
     }
     struct Coord3d endpos;
@@ -275,13 +275,13 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
  */
 TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation target, long fml_bytes)
 {
-    SYNCDBG(0, "Using power at location of type %lu", target);
+    SYNCDBG(0, "Using power at location of type %d", target);
     long x = 0;
     long y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x == 0) && (y == 0))
     {
-        WARNLOG("Can't decode location %lu", target);
+        WARNLOG("Can't decode location %d", target);
         return Lb_FAIL;
     }
     return script_use_power_at_pos(plyr_idx, x, y, fml_bytes);

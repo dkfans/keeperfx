@@ -6762,7 +6762,7 @@ void illuminate_creature(struct Thing *creatng)
     lgt->radius <<= 1;
 }
 
-struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, TbBool init)
+struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, unsigned char type)
 {
     long effect;
     long i = get_map_location_longval(location);
@@ -6887,7 +6887,7 @@ struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmod
     return creatng;
 }
 
-void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long location, long copies_num, long carried_gold, CrtrExpLevel crtr_level, TbBool init)
+void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long copies_num, long carried_gold, CrtrExpLevel crtr_level, unsigned char type)
 {
     for (long i = 0; i < copies_num; i++)
     {

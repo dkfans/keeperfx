@@ -1894,7 +1894,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
 }
 
 // TODO: replace this function by find_location_pos
-void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name)
+void find_map_location_coords(TbMapLocation location, long *x, long *y, int plyr_idx, const char *func_name)
 {
     struct ActionPoint *apt;
     struct Thing *thing;
@@ -1903,7 +1903,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
     long pos_x;
     long pos_y;
     long i;
-    SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, *x, *y);
+    SYNCDBG(15,"From %s; Location %d, pos(%ld,%ld)",func_name, location, *x, *y);
     pos_y = 0;
     pos_x = 0;
     i = get_map_location_longval(location);
@@ -1971,14 +1971,14 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
     case MLoc_DOORKIND:
     case MLoc_TRAPKIND:
     default:
-          WARNMSG("%s: Unsupported location, %lu.",func_name,location);
+          WARNMSG("%s: Unsupported location, %d.",func_name,location);
         break;
     }
     *y = pos_y;
     *x = pos_x;
 }
 
-void set_general_information(long msg_id, long target, long x, long y)
+void set_general_information(long msg_id, TbMapLocation target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -1995,7 +1995,7 @@ void set_general_information(long msg_id, long target, long x, long y)
     event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
-void set_quick_information(long msg_id, long target, long x, long y)
+void set_quick_information(long msg_id, TbMapLocation target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -2012,12 +2012,12 @@ void set_quick_information(long msg_id, long target, long x, long y)
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }
 
-void set_general_objective(long msg_id, long target, long x, long y)
+void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
 {
     process_objective(get_string(msg_id), target, x, y);
 }
 
-void process_objective(const char *msg_text, long target, long x, long y)
+void process_objective(const char *msg_text, TbMapLocation target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x;

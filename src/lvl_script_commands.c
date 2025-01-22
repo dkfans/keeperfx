@@ -4826,14 +4826,14 @@ static void reveal_map_location_check(const struct ScriptLine *scline)
 static void reveal_map_location_process(struct ScriptContext *context)
 {
     TbMapLocation target = context->value->longs[0];
-    SYNCDBG(0, "Revealing location type %lu", target);
+    SYNCDBG(0, "Revealing location type %d", target);
     long x = 0;
     long y = 0;
     long r = context->value->longs[1];
     find_map_location_coords(target, &x, &y, context->player_idx, __func__);
     if ((x == 0) && (y == 0))
     {
-        WARNLOG("Can't decode location %lu", target);
+        WARNLOG("Can't decode location %d", target);
         return;
     }
     if (r == -1)

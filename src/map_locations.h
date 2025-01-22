@@ -29,7 +29,7 @@ extern "C" {
 /******************************************************************************/
 
 
-typedef unsigned long TbMapLocation;
+typedef unsigned short TbMapLocation;
 
 enum MapLocationTypes {
     MLoc_NONE = 0,
