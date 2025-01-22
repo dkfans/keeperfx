@@ -7188,11 +7188,11 @@ static void create_status_box_element(struct Thing *thing, long a2, long a3, lon
 static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long zoom, long orient, long lightness, long marked_mode, long bckt_idx)
 {
     struct BucketKindTexturedQuad *poly;
-    if (bckt_idx >= BUCKETS_COUNT)
+    if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
+    } else if (bckt_idx < 0) {
       bckt_idx = 0;
+    }
     poly = (struct BucketKindTexturedQuad *)getpoly;
     getpoly += sizeof(struct BucketKindTexturedQuad);
     poly->b.next = buckets[bckt_idx];
@@ -7215,11 +7215,11 @@ static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long
 static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long zoom_x, long zoom_y, long orient, long lg0, long lg1, long lg2, long lg3, long bckt_idx)
 {
     struct BucketKindTexturedQuad *poly;
-    if (bckt_idx >= BUCKETS_COUNT)
+    if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
+    } else if (bckt_idx < 0) {
       bckt_idx = 0;
+    }
     poly = (struct BucketKindTexturedQuad *)getpoly;
     getpoly += sizeof(struct BucketKindTexturedQuad);
     poly->b.next = buckets[bckt_idx];
@@ -7242,11 +7242,11 @@ static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long
 static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
 {
     struct BucketKindFloatingGoldText *poly;
-    if (bckt_idx >= BUCKETS_COUNT)
+    if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
+    } else if (bckt_idx < 0) {
       bckt_idx = 0;
+    }
     poly = (struct BucketKindFloatingGoldText *)getpoly;
     getpoly += sizeof(struct BucketKindFloatingGoldText);
     poly->b.next = buckets[bckt_idx];
@@ -7263,11 +7263,11 @@ static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
 static void add_room_flag_pole_to_polypool(long x, long y, long room_idx, long bckt_idx)
 {
     struct BucketKindRoomFlag *poly;
-    if (bckt_idx >= BUCKETS_COUNT)
+    if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
+    } else if (bckt_idx < 0) {
       bckt_idx = 0;
+    }
     poly = (struct BucketKindRoomFlag *)getpoly;
     getpoly += sizeof(struct BucketKindRoomFlag);
     poly->b.next = buckets[bckt_idx];
@@ -7284,11 +7284,11 @@ static void add_room_flag_pole_to_polypool(long x, long y, long room_idx, long b
 static void add_room_flag_top_to_polypool(long x, long y, long room_idx, long bckt_idx)
 {
     struct BucketKindRoomFlag *poly;
-    if (bckt_idx >= BUCKETS_COUNT)
+    if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
+    } else if (bckt_idx < 0) {
       bckt_idx = 0;
+    }
     poly = (struct BucketKindRoomFlag *)getpoly;
     getpoly += sizeof(struct BucketKindRoomFlag);
     poly->b.next = buckets[bckt_idx];
