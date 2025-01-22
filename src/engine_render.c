@@ -422,7 +422,6 @@ static int water_wibble_angle = 0;
 static float render_water_wibble = 0; // Rendering float
 static unsigned long render_problems;
 static long render_prob_kind;
-static long sp_x, sp_y, sp_dx, sp_dy;
 
 Offset vert_offset[3];
 Offset hori_offset[3];
@@ -7616,24 +7615,18 @@ static void set_thing_pointed_at(struct Thing *thing)
 
 static void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
 {
-    long x;
-    long y;
-    long src_dy;
-    long src_dx;
-    src_dy = (long)kspr->FrameHeight;
-    src_dx = (long)kspr->FrameWidth;
-    x = src_dx - (long)kspr->FrameOffsW - (long)kspr->SWidth;
-    y = kspr->FrameOffsH;
-    sp_x = kspos_x;
-    sp_y = kspos_y;
-    sp_dy = (src_dy * scale) >> 5;
-    sp_dx = (src_dx * scale) >> 5;
-    LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+    long src_dy = (long)kspr->FrameHeight;
+    long src_dx = (long)kspr->FrameWidth;
+    long x = src_dx - (long)kspr->FrameOffsW - (long)kspr->SWidth;
+    long y = kspr->FrameOffsH;
+    long sp_dy = (src_dy * scale) >> 5;
+    long sp_dx = (src_dx * scale) >> 5;
+    LbSpriteSetScalingData(kspos_x, kspos_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
-      if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
+      if ( (pointer_x >= kspos_x) && (pointer_x <= sp_dx + kspos_x) )
       {
-          if ( (pointer_y >= sp_y) && (pointer_y <= sp_dy + sp_y) )
+          if ( (pointer_y >= kspos_y) && (pointer_y <= sp_dy + kspos_y) )
           {
               set_thing_pointed_at(thing_being_displayed);
           }
@@ -7644,24 +7637,18 @@ static void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, stru
 
 static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
 {
-    long x;
-    long y;
-    long src_dy;
-    long src_dx;
-    src_dy = (long)kspr->FrameHeight;
-    src_dx = (long)kspr->FrameWidth;
-    x = kspr->FrameOffsW;
-    y = kspr->FrameOffsH;
-    sp_x = kspos_x;
-    sp_y = kspos_y;
-    sp_dy = (src_dy * scale) >> 5;
-    sp_dx = (src_dx * scale) >> 5;
-    LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+    long src_dy = (long)kspr->FrameHeight;
+    long src_dx = (long)kspr->FrameWidth;
+    long x = kspr->FrameOffsW;
+    long y = kspr->FrameOffsH;
+    long sp_dy = (src_dy * scale) >> 5;
+    long sp_dx = (src_dx * scale) >> 5;
+    LbSpriteSetScalingData(kspos_x, kspos_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
-      if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
+      if ( (pointer_x >= kspos_x) && (pointer_x <= sp_dx + kspos_x) )
       {
-          if ( (pointer_y >= sp_y) && (pointer_y <= sp_dy + sp_y) )
+          if ( (pointer_y >= kspos_y) && (pointer_y <= sp_dy + kspos_y) )
           {
               set_thing_pointed_at(thing_being_displayed);
           }
@@ -7672,19 +7659,15 @@ static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct Kee
 
 static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
 {
-    long x;
-    long y;
-    long src_dy;
-    long src_dx;
     SYNCDBG(18,"Starting");
-    src_dy = (long)kspr->SHeight;
-    src_dx = (long)kspr->SWidth;
-    x = (long)kspr->FrameWidth - (long)kspr->FrameOffsW - src_dx;
-    y = kspr->FrameOffsH;
-    sp_x = kspos_x + ((scale * x) >> 5);
-    sp_y = kspos_y + ((scale * y) >> 5);
-    sp_dy = (src_dy * scale) >> 5;
-    sp_dx = (src_dx * scale) >> 5;
+    long src_dy = (long)kspr->SHeight;
+    long src_dx = (long)kspr->SWidth;
+    long x = (long)kspr->FrameWidth - (long)kspr->FrameOffsW - src_dx;
+    long y = kspr->FrameOffsH;
+    long sp_x = kspos_x + ((scale * x) >> 5);
+    long sp_y = kspos_y + ((scale * y) >> 5);
+    long sp_dy = (src_dy * scale) >> 5;
+    long sp_dx = (src_dx * scale) >> 5;
     LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
@@ -7702,19 +7685,15 @@ static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct Ke
 
 static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
 {
-    long x;
-    long y;
-    long src_dy;
-    long src_dx;
     SYNCDBG(18,"Starting");
-    src_dy = (long)kspr->SHeight;
-    src_dx = (long)kspr->SWidth;
-    x = kspr->FrameOffsW;
-    y = kspr->FrameOffsH;
-    sp_x = kspos_x + ((scale * x) >> 5);
-    sp_y = kspos_y + ((scale * y) >> 5);
-    sp_dy = (src_dy * scale) >> 5;
-    sp_dx = (src_dx * scale) >> 5;
+    long src_dy = (long)kspr->SHeight;
+    long src_dx = (long)kspr->SWidth;
+    long x = kspr->FrameOffsW;
+    long y = kspr->FrameOffsH;
+    long sp_x = kspos_x + ((scale * x) >> 5);
+    long sp_y = kspos_y + ((scale * y) >> 5);
+    long sp_dy = (src_dy * scale) >> 5;
+    long sp_dx = (src_dx * scale) >> 5;
     LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
