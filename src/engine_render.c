@@ -5742,11 +5742,6 @@ static void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
     }
 }
 
-static void draw_map_who(struct BucketKindRotableSprite *spr)
-{
-    // empty
-}
-
 static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
 {
     struct XYZ coord_a;
@@ -6672,7 +6667,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 trig(&point_a, &point_b, &point_c);
                 break;
             case QK_RotableSprite: // Possibly unused
-                draw_map_who(item.rotableSprite);
+                // draw_map_who did nothing
                 break;
             case QK_PolygonNearFP: // 'Near' textured polygons (closer to camera) in 1st person view
                 draw_unkn09(item.polygonNearFP);
@@ -7188,11 +7183,6 @@ static void create_status_box_element(struct Thing *thing, long a2, long a3, lon
         poly->y = a3 / pixel_size;
     }
     poly->z = a4;
-}
-
-static void create_fast_view_status_box(struct Thing *thing, long x, long y)
-{
-    create_status_box_element(thing, x, y, y, 1);
 }
 
 static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long zoom, long orient, long lightness, long marked_mode, long bckt_idx)
@@ -8918,7 +8908,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
             add_thing_sprite_to_polypool(thing, cx, cy, cy, cz-3);
             if ((thing->class_id == TCls_Creature) && is_free_space_in_poly_pool(1))
             {
-              create_fast_view_status_box(thing, cx, cy);
+                create_status_box_element(thing, cx, cy, cy, 1);
             }
         }
         break;
