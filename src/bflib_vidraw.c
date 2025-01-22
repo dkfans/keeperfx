@@ -51,8 +51,6 @@ struct TbSpriteDrawData {
 /******************************************************************************/
 long xsteps_array[2*SPRITE_SCALING_XSTEPS];
 long ysteps_array[2*SPRITE_SCALING_YSTEPS];
-long alpha_xsteps_array[2*SPRITE_SCALING_XSTEPS];
-long alpha_ysteps_array[2*SPRITE_SCALING_YSTEPS];
 
 unsigned char *poly_screen;
 unsigned char *vec_screen;
@@ -1952,22 +1950,22 @@ void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth,
     if ((dwidth <= swidth) && (dheight <= sheight))
         alpha_scale_up = false;
     if ((swidth <= 0) || (dwidth <= 0)) {
-        LbSpriteClearScalingWidthArray(alpha_xsteps_array, SPRITE_SCALING_XSTEPS);
+        LbSpriteClearScalingWidthArray(xsteps_array, SPRITE_SCALING_XSTEPS);
     } else
     if ((x < 0) || ((dwidth+x) >= gwidth))
     {
-        LbSpriteSetScalingWidthClippedArray(alpha_xsteps_array, x, min(swidth, SPRITE_SCALING_XSTEPS), dwidth, gwidth);
+        LbSpriteSetScalingWidthClippedArray(xsteps_array, x, min(swidth, SPRITE_SCALING_XSTEPS), dwidth, gwidth);
     } else {
-        LbSpriteSetScalingWidthSimpleArray(alpha_xsteps_array, x, min(swidth, SPRITE_SCALING_XSTEPS), dwidth);
+        LbSpriteSetScalingWidthSimpleArray(xsteps_array, x, min(swidth, SPRITE_SCALING_XSTEPS), dwidth);
     }
     if ((sheight <= 0) || (dheight <= 0)) {
-        LbSpriteClearScalingHeightArray(alpha_ysteps_array, SPRITE_SCALING_YSTEPS);
+        LbSpriteClearScalingHeightArray(ysteps_array, SPRITE_SCALING_YSTEPS);
     } else
     if ((y < 0) || ((dheight+y) >= gheight))
     {
-        LbSpriteSetScalingHeightClippedArray(alpha_ysteps_array, y, min(sheight, SPRITE_SCALING_YSTEPS), dheight, gheight);
+        LbSpriteSetScalingHeightClippedArray(ysteps_array, y, min(sheight, SPRITE_SCALING_YSTEPS), dheight, gheight);
     } else {
-        LbSpriteSetScalingHeightSimpleArray(alpha_ysteps_array, y, min(sheight, SPRITE_SCALING_YSTEPS), dheight);
+        LbSpriteSetScalingHeightSimpleArray(ysteps_array, y, min(sheight, SPRITE_SCALING_YSTEPS), dheight);
     }
 }
 

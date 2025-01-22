@@ -40,8 +40,6 @@ extern "C" {
 /******************************************************************************/
 extern long xsteps_array[2*SPRITE_SCALING_XSTEPS];
 extern long ysteps_array[2*SPRITE_SCALING_YSTEPS];
-extern long alpha_xsteps_array[2*SPRITE_SCALING_XSTEPS];
-extern long alpha_ysteps_array[2*SPRITE_SCALING_YSTEPS];
 /******************************************************************************/
 void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len);
 // The functions below are from colour remap version of the routine - rhey're used for shadows
@@ -1436,8 +1434,8 @@ TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *
             sposy = sprite->SHeight + posy - 1;
             scanline = -lbDisplay.GraphicsScreenWidth;
         }
-        xstep = &alpha_xsteps_array[2 * sposx];
-        ystep = &alpha_ysteps_array[2 * sposy];
+        xstep = &xsteps_array[2 * sposx];
+        ystep = &ysteps_array[2 * sposy];
     }
     uchar *outbuf;
     int outheight;

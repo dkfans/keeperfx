@@ -40,8 +40,6 @@ extern "C" {
 /******************************************************************************/
 extern long xsteps_array[2*SPRITE_SCALING_XSTEPS];
 extern long ysteps_array[2*SPRITE_SCALING_YSTEPS];
-extern long alpha_xsteps_array[2*SPRITE_SCALING_XSTEPS];
-extern long alpha_ysteps_array[2*SPRITE_SCALING_YSTEPS];
 /******************************************************************************/
 void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len);
 /******************************************************************************/
