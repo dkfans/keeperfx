@@ -1774,14 +1774,6 @@ void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth,
     } while (w > 0);
 }
 
-void LbSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
-    if (swidth > SPRITE_SCALING_XSTEPS)
-        swidth = SPRITE_SCALING_XSTEPS;
-    LbSpriteSetScalingWidthClippedArray(xsteps_array, x, swidth, dwidth, gwidth);
-}
-
 void LbSpriteSetAlphaScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
 {
     SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
@@ -2002,7 +1994,7 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
     // Normally it would be enough to check if ((dwidth+y) >= gwidth), but due to rounding we need to add swidth
     if ((x < 0) || ((dwidth+swidth+x) >= gwidth))
     {
-        LbSpriteSetScalingWidthClipped(x, swidth, dwidth, gwidth);
+        LbSpriteSetScalingWidthClippedArray(xsteps_array, x, min(swidth, SPRITE_SCALING_XSTEPS), dwidth, gwidth);
     } else {
         LbSpriteSetScalingWidthSimple(x, swidth, dwidth);
     }
