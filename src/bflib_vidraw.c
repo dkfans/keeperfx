@@ -1913,11 +1913,6 @@ void LbSpriteClearScalingHeightArray(long * ysteps_arr, long sheight)
     }
 }
 
-void LbSpriteClearAlphaScalingHeight(void)
-{
-    LbSpriteClearScalingHeightArray(alpha_ysteps_array, SPRITE_SCALING_YSTEPS);
-}
-
 /**
  * Sets scaling data for drawing scaled sprites.
  * @param x Position of the sprite in output buffer, X coord.
@@ -1974,7 +1969,7 @@ void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth,
         LbSpriteSetScalingWidthSimpleArray(alpha_xsteps_array, x, min(swidth, SPRITE_SCALING_XSTEPS), dwidth);
     }
     if ((sheight <= 0) || (dheight <= 0)) {
-        LbSpriteClearAlphaScalingHeight();
+        LbSpriteClearScalingHeightArray(alpha_ysteps_array, SPRITE_SCALING_YSTEPS);
     } else
     if ((y < 0) || ((dheight+y) >= gheight))
     {
