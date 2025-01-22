@@ -1849,11 +1849,6 @@ void LbSpriteClearScalingWidth(void)
     LbSpriteClearScalingWidthArray(xsteps_array, SPRITE_SCALING_XSTEPS);
 }
 
-void LbSpriteClearAlphaScalingWidth(void)
-{
-    LbSpriteClearScalingWidthArray(alpha_xsteps_array, SPRITE_SCALING_XSTEPS);
-}
-
 /**
  * Sets Y scaling array for drawing scaled sprites.
  * The Y scaling array contains position and length of each line of pixels of the sprite on destination buffer.
@@ -2036,7 +2031,7 @@ void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth,
     if ((dwidth <= swidth) && (dheight <= sheight))
         alpha_scale_up = false;
     if ((swidth <= 0) || (dwidth <= 0)) {
-        LbSpriteClearAlphaScalingWidth();
+        LbSpriteClearScalingWidthArray(alpha_xsteps_array, SPRITE_SCALING_XSTEPS);
     } else
     if ((x < 0) || ((dwidth+x) >= gwidth))
     {
