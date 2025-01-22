@@ -254,17 +254,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       trapst = get_trap_model_stats(thing->model);
       if ((trapst->slappable > 0) && trap_is_active(thing))
       {
-          struct Thing* trgtng = INVALID_THING;
-          shotst = get_shot_model_stats(trapst->created_itm_model);
-          if (trapst->slappable == 1)
-          {
-              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
-          } else
-          if (trapst->slappable == 2)
-          {
-              trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(thing);
-              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
-          }
+          activate_trap_by_slap(player, thing);
       }
       break;
       case TCls_Object:

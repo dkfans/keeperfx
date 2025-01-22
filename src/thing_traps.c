@@ -629,6 +629,56 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     }
 }
 
+void activate_trap_by_slap(struct PlayerInfo *player, struct Thing* traptng)
+{
+    struct Thing* trgtng = INVALID_THING;
+    struct TrapConfigStats* trapst = get_trap_model_stats(traptng->model);
+    TbBool special_case = false;
+
+    if (trapst->slappable == 2)
+    {
+        trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(traptng);
+        activate_trap(traptng, trgtng);
+    }
+    if (trapst->slappable == 1)
+    {
+        switch (trapst->activation_type)
+        {
+        case TrpAcT_EffectonTrap:
+        case TrpAcT_ShotonTrap:
+        case TrpAcT_SlabChange:
+        case TrpAcT_CreatureSpawn:
+        case TrpAcT_Power:
+            activate_trap(traptng, trgtng);
+            break;
+        default:
+            special_case = true;
+            break;
+        }
+
+        if (special_case == true)
+        {
+            traptng->trap.revealed = 1;
+            if (trapst->notify == true)
+            {
+                event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
+            }
+            thing_play_sample(traptng, trapst->trigger_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+
+            switch (trapst->activation_type)
+            {
+            case TrpAcT_HeadforTarget90:
+            case TrpAcT_CreatureShot:
+                external_activate_trap_shot_at_angle(traptng, player->acamera->orient_a, trgtng);
+                break;
+            default:
+                ERRORLOG("Illegal trap activation type %d (idx=%d)", (int)trapst->activation_type, traptng->index);
+                break;
+            }
+        }
+    }
+}
+
 TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *traptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing **found_thing)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);

@@ -93,6 +93,7 @@ TbBool rearm_trap(struct Thing *traptng);
 TngUpdateRet update_trap(struct Thing *thing);
 void init_traps(void);
 void activate_trap(struct Thing *traptng, struct Thing *creatng);
+void activate_trap_by_slap(struct PlayerInfo* player, struct Thing* traptng);
 
 unsigned long remove_trap(struct Thing *traptng, long *sell_value);
 unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
