@@ -1913,11 +1913,6 @@ void LbSpriteClearScalingHeightArray(long * ysteps_arr, long sheight)
     }
 }
 
-void LbSpriteClearScalingHeight(void)
-{
-    LbSpriteClearScalingHeightArray(ysteps_array, SPRITE_SCALING_YSTEPS);
-}
-
 void LbSpriteClearAlphaScalingHeight(void)
 {
     LbSpriteClearScalingHeightArray(alpha_ysteps_array, SPRITE_SCALING_YSTEPS);
@@ -1951,7 +1946,7 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
         LbSpriteSetScalingWidthSimpleArray(xsteps_array, x, min(swidth, SPRITE_SCALING_XSTEPS), dwidth);
     }
     if ((sheight <= 0) || (dheight <= 0)) {
-        LbSpriteClearScalingHeight();
+        LbSpriteClearScalingHeightArray(ysteps_array, SPRITE_SCALING_YSTEPS);
     } else
     // Normally it would be enough to check if ((dheight+y) >= gheight), but our simple rounding may enlarge the image
     if ((y < 0) || ((dheight+sheight+y) >= gheight))
