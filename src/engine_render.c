@@ -7624,21 +7624,11 @@ static void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, stru
     src_dx = (long)kspr->FrameWidth;
     x = src_dx - (long)kspr->FrameOffsW - (long)kspr->SWidth;
     y = kspr->FrameOffsH;
-    if ( EngineSpriteDrawUsingAlpha )
-    {
-        sp_x = kspos_x;
-        sp_y = kspos_y;
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    } else
-    {
-        sp_x = kspos_x;
-        sp_y = kspos_y;
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    }
+    sp_x = kspos_x;
+    sp_y = kspos_y;
+    sp_dy = (src_dy * scale) >> 5;
+    sp_dx = (src_dx * scale) >> 5;
+    LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
       if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
@@ -7662,21 +7652,11 @@ static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct Kee
     src_dx = (long)kspr->FrameWidth;
     x = kspr->FrameOffsW;
     y = kspr->FrameOffsH;
-    if ( EngineSpriteDrawUsingAlpha )
-    {
-        sp_x = kspos_x;
-        sp_y = kspos_y;
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    } else
-    {
-        sp_x = kspos_x;
-        sp_y = kspos_y;
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    }
+    sp_x = kspos_x;
+    sp_y = kspos_y;
+    sp_dy = (src_dy * scale) >> 5;
+    sp_dx = (src_dx * scale) >> 5;
+    LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
       if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
@@ -7701,21 +7681,11 @@ static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct Ke
     src_dx = (long)kspr->SWidth;
     x = (long)kspr->FrameWidth - (long)kspr->FrameOffsW - src_dx;
     y = kspr->FrameOffsH;
-    if ( EngineSpriteDrawUsingAlpha )
-    {
-        sp_x = kspos_x + ((scale * x) >> 5);
-        sp_y = kspos_y + ((scale * y) >> 5);
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    } else
-    {
-        sp_x = kspos_x + ((scale * x) >> 5);
-        sp_y = kspos_y + ((scale * y) >> 5);
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    }
+    sp_x = kspos_x + ((scale * x) >> 5);
+    sp_y = kspos_y + ((scale * y) >> 5);
+    sp_dy = (src_dy * scale) >> 5;
+    sp_dx = (src_dx * scale) >> 5;
+    LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
       if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
@@ -7741,21 +7711,11 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
     src_dx = (long)kspr->SWidth;
     x = kspr->FrameOffsW;
     y = kspr->FrameOffsH;
-    if ( EngineSpriteDrawUsingAlpha )
-    {
-        sp_x = kspos_x + ((scale * x) >> 5);
-        sp_y = kspos_y + ((scale * y) >> 5);
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    } else
-    {
-        sp_x = kspos_x + ((scale * x) >> 5);
-        sp_y = kspos_y + ((scale * y) >> 5);
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    }
+    sp_x = kspos_x + ((scale * x) >> 5);
+    sp_y = kspos_y + ((scale * y) >> 5);
+    sp_dy = (src_dy * scale) >> 5;
+    sp_dx = (src_dx * scale) >> 5;
+    LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
         if ( (pointer_x >= x) && (pointer_x <= sp_dx + x) )
