@@ -1844,11 +1844,6 @@ void LbSpriteClearScalingWidthArray(long * xsteps_arr, long swidth)
     }
 }
 
-void LbSpriteClearScalingWidth(void)
-{
-    LbSpriteClearScalingWidthArray(xsteps_array, SPRITE_SCALING_XSTEPS);
-}
-
 /**
  * Sets Y scaling array for drawing scaled sprites.
  * The Y scaling array contains position and length of each line of pixels of the sprite on destination buffer.
@@ -2002,7 +1997,7 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
         scale_up = false;
     // Checking whether to select simple scaling creation, or more comprehensive one - with clipping
     if ((swidth <= 0) || (dwidth <= 0)) {
-        LbSpriteClearScalingWidth();
+        LbSpriteClearScalingWidthArray(xsteps_array, SPRITE_SCALING_XSTEPS);
     } else
     // Normally it would be enough to check if ((dwidth+y) >= gwidth), but due to rounding we need to add swidth
     if ((x < 0) || ((dwidth+swidth+x) >= gwidth))
