@@ -2444,6 +2444,38 @@ void LbDrawCircle(long x, long y, long radius, TbPixel colour)
         LbDrawCircleFilled(x, y, radius, colour);
 }
 
+void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, long **xstep, long **ystep, int *scanline)
+{
+    long sposx;
+    long sposy;
+    sposx = posx;
+    sposy = posy;
+    (*scanline) = lbDisplay.GraphicsScreenWidth;
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0) {
+        sposx = src_buf->width + posx - 1;
+    }
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0) {
+        sposy = src_buf->height + posy - 1;
+        (*scanline) = -lbDisplay.GraphicsScreenWidth;
+    }
+    (*xstep) = &xsteps_array[2 * sposx];
+    (*ystep) = &ysteps_array[2 * sposy];
+}
+
+void setup_outbuf(const long *xstep, const long *ystep, uchar **outbuf, int *outheight)
+{
+    int gspos_x;
+    int gspos_y;
+    gspos_y = ystep[0];
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0)
+        gspos_y += ystep[1] - 1;
+    gspos_x = xstep[0];
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+        gspos_x += xstep[1] - 1;
+    (*outbuf) = &lbDisplay.GraphicsWindowPtr[gspos_x + lbDisplay.GraphicsScreenWidth * gspos_y];
+    (*outheight) = lbDisplay.GraphicsScreenHeight;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -173,6 +173,8 @@ void LbDrawCircle(long x, long y, long radius, TbPixel colour);
 
 void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
         unsigned int line_len, unsigned int width, unsigned int height);
+void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, long **xstep, long **ystep, int *scanline);
+void setup_outbuf(const long *xstep, const long *ystep, uchar **outbuf, int *outheight);
 TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSprite *sprite);
 TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct TbSprite *sprite, const TbPixel *cmap);
 TbResult LbSpriteDrawOneColourUsingScalingData(long posx, long posy, const struct TbSprite *sprite, TbPixel colour);
