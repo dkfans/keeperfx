@@ -1875,14 +1875,6 @@ void LbSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gh
     LbSpriteSetScalingHeightClippedArray(ysteps_array, y, sheight, dheight, gheight);
 }
 
-void LbSpriteSetAlphaScalingHeightClipped(long y, long sheight, long dheight, long gheight)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
-    if (sheight > SPRITE_SCALING_YSTEPS)
-        sheight = SPRITE_SCALING_YSTEPS;
-    LbSpriteSetScalingHeightClippedArray(alpha_ysteps_array, y, sheight, dheight, gheight);
-}
-
 void LbSpriteSetScalingHeightSimpleArray(long * ysteps_arr, long y, long sheight, long dheight)
 {
     long *pheight;
@@ -2007,7 +1999,7 @@ void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth,
     } else
     if ((y < 0) || ((dheight+y) >= gheight))
     {
-        LbSpriteSetAlphaScalingHeightClipped(y, sheight, dheight, gheight);
+        LbSpriteSetScalingHeightClippedArray(alpha_ysteps_array, y, min(sheight, SPRITE_SCALING_YSTEPS), dheight, gheight);
     } else {
         LbSpriteSetAlphaScalingHeightSimple(y, sheight, dheight);
     }
