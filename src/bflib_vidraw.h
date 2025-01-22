@@ -171,7 +171,6 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
 
 void LbDrawPixel(long x, long y, TbPixel colour);
 void LbDrawCircle(long x, long y, long radius, TbPixel colour);
-TbResult LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour);
 
 void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
         unsigned int line_len, unsigned int width, unsigned int height);
