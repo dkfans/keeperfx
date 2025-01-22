@@ -1867,14 +1867,6 @@ void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheigh
     } while (h > 0);
 }
 
-void LbSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gheight)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
-    if (sheight > SPRITE_SCALING_YSTEPS)
-        sheight = SPRITE_SCALING_YSTEPS;
-    LbSpriteSetScalingHeightClippedArray(ysteps_array, y, sheight, dheight, gheight);
-}
-
 void LbSpriteSetScalingHeightSimpleArray(long * ysteps_arr, long y, long sheight, long dheight)
 {
     long *pheight;
@@ -1946,7 +1938,7 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
     // Normally it would be enough to check if ((dheight+y) >= gheight), but our simple rounding may enlarge the image
     if ((y < 0) || ((dheight+sheight+y) >= gheight))
     {
-        LbSpriteSetScalingHeightClipped(y, sheight, dheight, gheight);
+        LbSpriteSetScalingHeightClippedArray(ysteps_array, y, min(sheight, SPRITE_SCALING_YSTEPS), dheight, gheight);
     } else {
         LbSpriteSetScalingHeightSimpleArray(ysteps_array, y, min(sheight, SPRITE_SCALING_YSTEPS), dheight);
     }
