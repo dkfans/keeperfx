@@ -7564,44 +7564,37 @@ static long heap_manage_keepersprite(unsigned short kspr_idx)
     return result;
 }
 
-static void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
+static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, long kspr_idx)
 {
-    struct TbSprite sprite;
-    long cut_w;
-    long cut_h;
-    TbSpriteData *kspr_item;
     if ((kspr_idx < 0)
         || ((kspr_idx >= KEEPSPRITE_LENGTH) && (kspr_idx < KEEPERSPRITE_ADD_OFFSET))
         || (kspr_idx > (KEEPERSPRITE_ADD_NUM + KEEPERSPRITE_ADD_OFFSET))) {
-        WARNDBG(9,"Invalid KeeperSprite %ld at (%ld,%ld) size (%ld,%ld) alpha %d",kspr_idx,x,y,w,h,(int)EngineSpriteDrawUsingAlpha);
+        WARNDBG(9,"Invalid KeeperSprite %ld at (%ld,%ld) size (%ld,%ld) alpha %d",
+            kspr_idx, x, y, kspr->SWidth, kspr->SHeight, (int)EngineSpriteDrawUsingAlpha);
         return;
     }
-    SYNCDBG(17,"Drawing %ld at (%ld,%ld) size (%ld,%ld) alpha %d",kspr_idx,x,y,w,h,(int)EngineSpriteDrawUsingAlpha);
-    cut_w = w;
-    cut_h = h - water_source_cutoff;
-    if (cut_h <= 0) {
+    SYNCDBG(17,"Drawing %ld at (%ld,%ld) size (%ld,%ld) alpha %d",
+        kspr_idx, x, y, kspr->SWidth, kspr->SHeight, (int)EngineSpriteDrawUsingAlpha);
+    const long clipped_height = kspr->SHeight - water_source_cutoff;
+    if (clipped_height <= 0) {
         return;
     }
-    if (kspr_idx < KEEPERSPRITE_ADD_OFFSET)
-        kspr_item = keepsprite[kspr_idx];
-    else
-        kspr_item = &keepersprite_add[kspr_idx - KEEPERSPRITE_ADD_OFFSET];
-
-    sprite.SWidth = cut_w;
-    sprite.SHeight = cut_h;
-    if (kspr_item != NULL) {
-        sprite.Data = *kspr_item;
-    } else {
-        sprite.Data = NULL;
-    }
-    if (sprite.Data == NULL) {
+    const TbSpriteData * sprite_data_ptr = (kspr_idx < KEEPERSPRITE_ADD_OFFSET) ?
+        keepsprite[kspr_idx] : &keepersprite_add[kspr_idx - KEEPERSPRITE_ADD_OFFSET];
+    if (sprite_data_ptr == NULL || *sprite_data_ptr == NULL) {
         WARNDBG(9,"Unallocated KeeperSprite %ld can't be drawn at (%ld,%ld)",kspr_idx,x,y);
         return;
     }
+    const struct TbSourceBuffer buffer = {
+        *sprite_data_ptr,
+        kspr->SWidth,
+        clipped_height,
+        kspr->SWidth,
+    };
     if ( EngineSpriteDrawUsingAlpha ) {
-        DrawAlphaSpriteUsingScalingData(x, y, &sprite);
+        DrawAlphaSpriteUsingScalingData(x, y, &buffer);
     } else {
-        LbSpriteDrawUsingScalingData(x, y, &sprite);
+        LbSpriteDrawUsingScalingData(x, y, &buffer);
     }
     SYNCDBG(18,"Finished");
 }
@@ -7632,7 +7625,7 @@ static void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, stru
           }
       }
     }
-    draw_keepersprite(x, y, kspr->SWidth, kspr->SHeight, kspr_idx);
+    draw_keepersprite(x, y, kspr, kspr_idx);
 }
 
 static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
@@ -7654,7 +7647,7 @@ static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct Kee
           }
       }
     }
-    draw_keepersprite(x, y, kspr->SWidth, kspr->SHeight, kspr_idx);
+    draw_keepersprite(x, y, kspr, kspr_idx);
 }
 
 static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
@@ -7679,7 +7672,7 @@ static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct Ke
           }
       }
     }
-    draw_keepersprite(0, 0, kspr->SWidth, kspr->SHeight, kspr_idx);
+    draw_keepersprite(0, 0, kspr, kspr_idx);
     SYNCDBG(18,"Finished");
 }
 
@@ -7705,7 +7698,7 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
             }
         }
     }
-    draw_keepersprite(0, 0, kspr->SWidth, kspr->SHeight, kspr_idx);
+    draw_keepersprite(0, 0, kspr, kspr_idx);
     SYNCDBG(18,"Finished");
 }
 

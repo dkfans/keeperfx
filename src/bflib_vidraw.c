@@ -1949,7 +1949,13 @@ TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite,
     if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
         lbSpriteReMapPtr = lbDisplay.FadeTable + ((lbDisplay.FadeStep & 0x3F) << 8);
     LbSpriteSetScalingData(xpos, ypos, sprite->SWidth, sprite->SHeight, dest_width, dest_height);
-    return LbSpriteDrawUsingScalingData(0, 0, sprite);
+    const struct TbSourceBuffer buffer = {
+        sprite->Data,
+        sprite->SWidth,
+        sprite->SHeight,
+        sprite->SWidth,
+    };
+    return LbSpriteDrawUsingScalingData(0, 0, &buffer);
 }
 
 TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour)
@@ -1971,7 +1977,13 @@ int LbSpriteDrawScaledRemap(long xpos, long ypos, const struct TbSprite *sprite,
     if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
         lbSpriteReMapPtr = lbDisplay.FadeTable + ((lbDisplay.FadeStep & 0x3F) << 8);
     LbSpriteSetScalingData(xpos, ypos, sprite->SWidth, sprite->SHeight, dest_width, dest_height);
-    return LbSpriteDrawRemapUsingScalingData(0, 0, sprite, cmap);
+    const struct TbSourceBuffer buffer = {
+        sprite->Data,
+        sprite->SWidth,
+        sprite->SHeight,
+        sprite->SWidth,
+    };
+    return LbSpriteDrawRemapUsingScalingData(0, 0, &buffer, cmap);
 }
 
 
