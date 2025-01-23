@@ -119,7 +119,7 @@ static void command_add_party_to_level(long plr_range_id, const char *prtname, c
     }
 }
 
-static void command_add_creature_to_level(long plr_range_id, const char *crtr_name, const char *locname, long ncopies, long crtr_level, long carried_gold, TbBool init)
+static void command_add_creature_to_level(long plr_range_id, const char *crtr_name, const char *locname, long ncopies, long crtr_level, long carried_gold, const char *spawn_type)
 {
     TbMapLocation location;
     if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
@@ -158,27 +158,19 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
         return;
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
-        script_process_new_creatures(plr_id, crtr_id, location, ncopies, carried_gold, crtr_level-1, init);
+        script_process_new_creatures(plr_id, crtr_id, location, ncopies, carried_gold, crtr_level-1, spawn_type_id);
     } else
     {
         struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        if (init)
-        {
-            pr_trig->flags = TrgF_CREATE_CREATURE_TO_ROOM;
-        }
-        else
-        {
-            pr_trig->flags = TrgF_CREATE_CREATURE;
-        }
-        
+        pr_trig->flags = TrgF_CREATE_CREATURE;  
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
-
         pr_trig->plyr_idx = plr_id;
         pr_trig->creatr_id = crtr_id;
         pr_trig->crtr_level = crtr_level-1;
         pr_trig->carried_gold = carried_gold;
         pr_trig->location = location;
         pr_trig->ncopies = ncopies;
+        pr_trig->spawn_type = spawn_type_id;
         pr_trig->condit_idx = get_script_current_condition();
         gameadd.script.party_triggers_num++;
     }
@@ -1327,10 +1319,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_add_party_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
         break;
     case Cmd_ADD_CREATURE_TO_LEVEL:
-        command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5], false);
-        break;
-    case Cmd_ADD_CREATURE_TO_LEVEL_AND_INIT:
-        command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5], true);
+        command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5], scline->tp[6]);
         break;
     case Cmd_ENDIF:
         pop_condition();

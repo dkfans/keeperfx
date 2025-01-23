@@ -6853,6 +6853,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         if (player_is_roaming(plyr_idx))
         {
             if (init)
+            if (spawn_type)
             {
                 init_creature_state(thing);
             }

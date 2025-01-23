@@ -1253,13 +1253,7 @@ static void process_party(struct PartyTrigger* pr_trig)
         break;
     case TrgF_CREATE_CREATURE:
         SCRIPTDBG(6, "Adding creature %ld", n);
-        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
-            pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level, false);
-        break;
-    case TrgF_CREATE_CREATURE_TO_ROOM:
-        SCRIPTDBG(6, "Adding creature %ld and initialize", n);
-        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
-            pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level, true);
+        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location, pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level, pr_trig->spawn_type);
         break;
     }
 }
