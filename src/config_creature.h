@@ -169,6 +169,14 @@ enum CreatureAttackType {
     AttckT_Ranged,
 };
 
+enum CreatureSpawnType {
+    SpwnT_Default = 0, 
+    SpwnT_None,
+    SpwnT_Jump,
+    SpwnT_Fall,
+    SpwnT_Initialize
+};
+
 /******************************************************************************/
 #pragma pack(1)
 

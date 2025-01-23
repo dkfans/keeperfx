@@ -147,7 +147,15 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
     }
-    long spawn_type_id = get_rid(spawn_type_desc, spawn_type);
+    long spawn_type_id;
+    if ((strcmp(spawn_type, "") == 0))
+    {
+        spawn_type_id = SpwnT_Default;
+    }
+    else
+    {
+        spawn_type_id = get_rid(spawn_type_desc, spawn_type);
+    }
     if (spawn_type_id == -1)
     {
         SCRPTERRLOG("Unknown spawn type, '%s'", spawn_type);

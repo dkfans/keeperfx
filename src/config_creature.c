@@ -203,13 +203,13 @@ const struct NamedCommand instance_range_desc[] = {
 };
 
 const struct NamedCommand spawn_type_desc[] = {
-  {"DEFAULT",         0},
-  {"NONE",            1},
-  {"JUMP",            2},
-  {"FALL",            3},
-  {"INIT",            4},
-  {"INITIALIZE",      5},
-  {NULL,             -1},
+  {"DEFAULT",         SpwnT_Default     },
+  {"NONE",            SpwnT_None        },
+  {"JUMP",            SpwnT_Jump        },
+  {"FALL",            SpwnT_Fall        },
+  {"INIT",            SpwnT_Initialize  },
+  {"INITIALIZE",      SpwnT_Initialize  },
+  {NULL,             -1                 },
 };
 
 /******************************************************************************/
