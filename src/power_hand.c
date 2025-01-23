@@ -971,7 +971,9 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
     pos.z.val = creatng->mappos.z.val;
+    //gold falls from the hand
     pos.z.val = get_ceiling_height_at(&pos);
+    //creature is in payday state
     TbBool during_payday = creature_is_taking_salary_activity(creatng);
     //process the gold dropped on the creature, considering the rules
     GoldAmount remainingTribute = creature_get_handgold(salary, tribute, creatng, crstat, cctrl, during_payday);
@@ -979,7 +981,9 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     {
         set_start_state(creatng);
     }
+    //visual effect for falling gold coins
     drop_gold_coins(&pos, 0, plyr_idx);
+    //sound effects
     if (tribute >= salary)
     {
         thing_play_sample(creatng, 34, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -992,31 +996,47 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     {
         thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS/2);
     }
-    //pocket rule us another logic to calculate the happiness reward
+    long happiness = 0;
+    //pocket_gold rule is active
     if(game.conf.rules.game.pocket_gold)
     {
-        //if the pocket got filled, remain tribute doubles the happiness reward
+        //if the tribute doesn't fit entirely in the pocket
         if (remainingTribute > 0)
         {
-            long happiness = (crstat->annoy_got_wage * remainingTribute / salary * 2) + (crstat->annoy_got_wage * (tribute - remainingTribute) / salary);
+            // Calculate the portion of tribute that was successfully added to the pocket
+            long usedTrib = tribute - remainingTribute;
+            // Calculate the base happiness value based on the ratio of tribute to salary
+            long baseHap = crstat->annoy_got_wage / salary;
+            // Calculate single happiness from the tribute that fits into the pocket
+            long hapFit = baseHap * usedTrib;
+            // Calculate double happiness from the remaining tribute
+            long hapRem = baseHap * remainingTribute * 2;
+            // Sum both happiness contributions
+            happiness = hapFit + hapRem;
+            // Apply the calculated happiness to the creature
             anger_apply_anger_to_creature_all_types(creatng, happiness);
         }
-        //only single happiness reward if pocket is not full
+        // If the entire tribute fits into the creature's pocket
         else
         {
-            anger_apply_anger_to_creature_all_types( creatng, crstat->annoy_got_wage * tribute / salary);
+            // Calculate single happiness from the tribute that fits into the pocket
+            happiness = crstat->annoy_got_wage * tribute / salary;
+            anger_apply_anger_to_creature_all_types( creatng, happiness);
         }
     }
-    //default
+    //default/no pocket_gold rule
     else
     {
-        //double happiness reward for tribute
-        anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_got_wage * tribute / salary * 2);
+        // Calculate double happiness from the entaire tribute
+        happiness = crstat->annoy_got_wage * tribute / salary * 2;
+        anger_apply_anger_to_creature_all_types(creatng, happiness);
     }
+    //classic_bug handling
     if (game.conf.rules.game.classic_bugs_flags & ClscBug_FullyHappyWithGold)
     {
         anger_set_creature_anger_all_types(creatng, 0);
     }
+    //creature start celebrating animation
     if (can_change_from_state_to(creatng, get_creature_state_besides_interruptions(creatng), CrSt_CreatureBeHappy))
     {
         if (external_set_thing_state(creatng, CrSt_CreatureBeHappy)) {

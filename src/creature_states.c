@@ -4956,49 +4956,70 @@ long creature_setup_head_for_treasure_room_door(struct Thing *creatng, struct Ro
 
 /**
  * @brief
- * used if take_pay_from_pocket rule is activated
+ * Used if take_pay_from_pocket rule is activated
+ *
  * Attempts to deduct the creature's salary from its carried gold.
- * If partial paydays are allowed, the function subtracts as much as possible
- * from the creature's pocket. Otherwise, it tries to cover the full salary
+ *
+ * - If partial paydays are allowed, the function subtracts as much as possible
+ * from the creature's pocket.
+ *
+ * - Otherwise, it tries to cover the full salary
  * from the pocket and, if not enough, from the dungeon.
- * Returns true if enough gold is taken from the creature itself.
  * @param creatng
+ * @return TbBool Returns true if enough gold is taken from the creature to handle the entaire payday
  */
 TbBool process_custom_salary(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    // Calculate the correct salary for the creature.
     GoldAmount salary = calculate_correct_creature_pay(creatng);
+    // Subtract any already given gold from the salary
     salary -= cctrl->paid_wage;
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
         if(creatng->creature.gold_carried > 0)
         {
+            //Creature has enough gold to cover the salary or partial paydays are allowed.
             if((creatng->creature.gold_carried >= salary) || (game.conf.rules.game.accept_partial_payday))
             {
+                //Reduce the number of paydays owed
                 cctrl->paydays_owed--;
+                //Reset already given gold
                 cctrl->paid_wage = 0;
-                struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, salary);
-                if(game.conf.rules.game.accept_partial_payday)
+                //Visual effect
+                struct Thing* efftng;
+                if(game.conf.rules.game.accept_partial_payday && (salary > creatng->creature.gold_carried))
                 {
                     efftng = create_price_effect(&creatng->mappos, creatng->owner, creatng->creature.gold_carried);
                 }
+                else
+                {
+                    efftng = create_price_effect(&creatng->mappos, creatng->owner, salary);
+                }
+                //Take the salary from the creature pocket
                 creatng->creature.gold_carried -= salary;
+                //Ensure that the creature's gold carried does not drop below zero.
                 if (creatng->creature.gold_carried < 0)
                 {
                     creatng->creature.gold_carried = 0;
                 }
                 set_start_state(creatng);
+                //Play sound effect
                 thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 dungeon->lvstats.salary_cost += salary;
                 return 1;
             }
-            //continue to take the remaining salary from the dungeon
+            //Continue to take the remaining salary from the dungeon
             else
             {
-                salary -= creatng->creature.gold_carried;
-                cctrl->paid_wage += salary;
+                //Add carried gold to already paid gold
+                cctrl->paid_wage += creatng->creature.gold_carried;
+                //Visual effect
                 struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, creatng->creature.gold_carried);
+                //Sound effect
                 thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                //Reset carried gold
                 creatng->creature.gold_carried = 0;
+                //Creature continues to try to take the salary from the dungeon
                 return 0;
             }
         }
