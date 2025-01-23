@@ -6820,7 +6820,6 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         return INVALID_THING;
     }
     struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, TCls_Creature, crmodel, plyr_idx);
-    JUSTLOG("testlog: create thing of model %s", thing_model_name(thing));
     if (thing_is_invalid(thing))
     {
         ERRORLOG("Couldn't create %s at location %d", creature_code_name(crmodel), (int)location);
@@ -6882,10 +6881,7 @@ struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmod
 {
     struct Thing* creatng = script_create_creature_at_location(plyr_idx, crmodel, location, spawn_type);
     if (thing_is_invalid(creatng))
-    {
-        JUSTLOG("TESTLOG: Failed to create creature of model %s", creature_code_name(crmodel));
         return INVALID_THING;
-    }
     creatng->creature.gold_carried = carried_gold;
     init_creature_level(creatng, crtr_level);
     return creatng;

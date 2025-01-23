@@ -168,8 +168,9 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
     } else
     {
         struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        pr_trig->flags = TrgF_CREATE_CREATURE;  
+        pr_trig->flags = TrgF_CREATE_CREATURE;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
+
         pr_trig->plyr_idx = plr_id;
         pr_trig->creatr_id = crtr_id;
         pr_trig->crtr_level = crtr_level-1;

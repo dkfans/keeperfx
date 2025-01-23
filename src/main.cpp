@@ -1903,7 +1903,7 @@ void find_map_location_coords(TbMapLocation location, long *x, long *y, int plyr
     long pos_x;
     long pos_y;
     long i;
-    SYNCDBG(15,"From %s; Location %d, pos(%ld,%ld)",func_name, location, *x, *y);
+    SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, *x, *y);
     pos_y = 0;
     pos_x = 0;
     i = get_map_location_longval(location);
@@ -1971,7 +1971,7 @@ void find_map_location_coords(TbMapLocation location, long *x, long *y, int plyr
     case MLoc_DOORKIND:
     case MLoc_TRAPKIND:
     default:
-          WARNMSG("%s: Unsupported location, %ld.",func_name,location);
+          WARNMSG("%s: Unsupported location, %lu.",func_name,location);
         break;
     }
     *y = pos_y;

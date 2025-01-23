@@ -190,7 +190,6 @@ enum TbScriptCommands {
     Cmd_PLACE_DOOR                         = 177,
     Cmd_PLACE_TRAP                         = 178,
     Cmd_LOCK_POSSESSION                    = 179,
-    Cmd_ADD_CREATURE_TO_LEVEL_AND_INIT     = 180,
 };
 
 struct ScriptLine {
