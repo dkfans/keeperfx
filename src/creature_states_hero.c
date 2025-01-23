@@ -1302,7 +1302,7 @@ TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatn
 struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold)
 {
     ThingModel diggerkind = get_players_special_digger_model(plyr_idx);
-    struct Thing* creatng = script_create_creature_at_location(plyr_idx, diggerkind, location, false);
+    struct Thing* creatng = script_create_creature_at_location(plyr_idx, diggerkind, location, 0);
     if (thing_is_invalid(creatng))
         return INVALID_THING;
     creatng->creature.gold_carried = carried_gold;

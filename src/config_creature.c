@@ -202,6 +202,16 @@ const struct NamedCommand instance_range_desc[] = {
   {NULL,                -1},
 };
 
+const struct NamedCommand spawn_type_desc[] = {
+  {"DEFAULT",         0},
+  {"NONE",            1},
+  {"JUMP",            2},
+  {"FALL",            3},
+  {"INIT",            4},
+  {"INITIALIZE",      5},
+  {NULL,             -1},
+};
+
 /******************************************************************************/
 struct NamedCommand creature_desc[CREATURE_TYPES_MAX];
 struct NamedCommand instance_desc[INSTANCE_TYPES_MAX];
