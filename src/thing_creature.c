@@ -6846,6 +6846,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     {
     case SpwnT_Default:
     case SpwnT_None:
+        // no special behavior
         break;
     case SpwnT_Jump:
         set_flag(thing->movement_flags, TMvF_MagicFall);
