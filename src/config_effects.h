@@ -87,14 +87,14 @@ struct EffectElementConfigStats {
     short sprite_idx;
     short sprite_size_min;
     short sprite_size_max;
-    unsigned char rendering_flag;
+    unsigned char animate_once;
     unsigned short sprite_speed_min;
     unsigned short sprite_speed_max;
     TbBool animate_on_floor;
     TbBool unshaded;
     unsigned char transparent;  // transparency flags in bits 4-5
     TbBool movable;
-    unsigned char movement_flags;
+    unsigned char through_walls;
     unsigned char size_change; /**< See enum ThingSizeChange. */
     unsigned char fall_acceleration;
     short inertia_floor;
