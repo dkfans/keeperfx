@@ -97,13 +97,10 @@ struct PartyTrigger {
   };
   union
   {
-      union
-      {
-          TbMapLocation location;
-          unsigned char spawn_type;
-      };
+      TbMapLocation location;
       unsigned long countdown;
   };
+  char spawn_type;
   unsigned char crtr_level;
   unsigned short carried_gold;
   union

@@ -1971,7 +1971,7 @@ void find_map_location_coords(TbMapLocation location, long *x, long *y, int plyr
     case MLoc_DOORKIND:
     case MLoc_TRAPKIND:
     default:
-          WARNMSG("%s: Unsupported location, %d.",func_name,location);
+          WARNMSG("%s: Unsupported location, %ld.",func_name,location);
         break;
     }
     *y = pos_y;
