@@ -112,7 +112,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
         set_flag_value(thing->rendering_flags, TRF_Unshaded, eestat->unshaded);
         thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparent)) & (TRF_Transpar_Flags);
-        set_flag_value(thing->rendering_flags, TRF_AnimateOnce, eestat->rendering_flag);
+        set_flag_value(thing->rendering_flags, TRF_AnimateOnce, eestat->animate_once);
     } else
     {
         set_flag(thing->rendering_flags, TRF_Invisible);
@@ -122,7 +122,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
     thing->movement_flags |= TMvF_Unknown08;
-    set_flag_value(thing->movement_flags, TMvF_Unknown10, eestat->movement_flags);
+    set_flag_value(thing->movement_flags, TMvF_GoThroughWalls, eestat->through_walls);
     thing->creation_turn = game.play_gameturn;
 
     if (eestat->lifespan > 0)
@@ -382,7 +382,7 @@ TngUpdateRet move_effect_element(struct Thing *thing)
     if ( positions_equivalent(&thing->mappos, &pos) ) {
         return TUFRet_Unchanged;
     }
-    if (!flag_is_set(thing->movement_flags,TMvF_Unknown10))
+    if (!flag_is_set(thing->movement_flags,TMvF_GoThroughWalls))
     {
         if (!within_map_limits)
         {
@@ -404,7 +404,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     int speed = eestat->sprite_speed_min + EFFECT_RANDOM(thing, eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
     int scale = eestat->sprite_size_min + EFFECT_RANDOM(thing, eestat->sprite_size_max - eestat->sprite_size_min + 1);
     thing->model = nmodel;
-    set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->rendering_flag, 0, ODC_Default);
+    set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->animate_once, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * eestat->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Transpar_8 * eestat->transparent) & (TRF_Transpar_Flags);
     thing->fall_acceleration = eestat->fall_acceleration;

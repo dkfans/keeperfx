@@ -3791,7 +3791,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
       {
         thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->sound_priority, FULL_LOUDNESS);
       }
-      set_flag_value(shotng->movement_flags, TMvF_Unknown10, flag1);
+      set_flag_value(shotng->movement_flags, TMvF_GoThroughWalls, flag1);
     }
 }
 
