@@ -834,9 +834,9 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
     }
 }
 /**
- * @brief processes payday advances with actived rules
+ * @brief Processes payday advances from hand gold.
  */
-void process_ruled_payday_advances(GoldAmount salary, struct Thing *creatng, struct CreatureControl *cctrl, struct CreatureStats *crstat)
+void process_payday_advances(GoldAmount salary, struct Thing *creatng, struct CreatureControl *cctrl, struct CreatureStats *crstat)
 {
     GoldAmount complete_cost = 0;
     int paid = cctrl->paid_wage / salary;
@@ -850,7 +850,7 @@ void process_ruled_payday_advances(GoldAmount salary, struct Thing *creatng, str
         cctrl->paydays_advanced += paid;
     }
     complete_cost = paid * salary;
-    // Reduce the amount of gold for all paid advanced paydays
+    // reduce the amount of gold for all paid advanced paydays
     cctrl->paid_wage -= complete_cost;
      //if pocket rule is active, reduce the amount of gold in the pocket
     if(game.conf.rules.game.pocket_gold)
@@ -908,7 +908,7 @@ GoldAmount creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct T
         // pocket rule deactivated
         else
         {
-            // Add tribute to the paid wage
+            // add tribute to the paid wage
             cctrl->paid_wage += tribute;
         }
         // process the tribute during payday
@@ -921,15 +921,15 @@ GoldAmount creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct T
             }
             else
             {
-                // Decrement paydays owed if during payday and sufficient wage is paid
+                // reduce paydays owed if during payday and sufficient wage is paid
                 cctrl->paydays_owed--;
             }
-            process_ruled_payday_advances(salary, creatng, cctrl, crstat);
+            process_payday_advances(salary, creatng, cctrl, crstat);
 
         }
         else if (cctrl->paid_wage >= salary)
         {
-        process_ruled_payday_advances(salary, creatng, cctrl, crstat);
+        processpayday_advances(salary, creatng, cctrl, crstat);
         }
     }
 
@@ -941,12 +941,12 @@ GoldAmount creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct T
         }
         if (during_payday)
         {
-            // During payday, decrement paydays owed
+            // suring payday, decrement paydays owed
             cctrl->paydays_owed--;
         }
         else
         {
-            // Not during payday, increment paydays_advanced if possible
+            // not during payday, increment paydays_advanced if possible
             if (cctrl->paydays_advanced < game.conf.rules.game.max_paydays_advanced)
             {
                 cctrl->paydays_advanced++;
@@ -973,12 +973,13 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     pos.z.val = creatng->mappos.z.val;
     //gold falls from the hand
     pos.z.val = get_ceiling_height_at(&pos);
-    //creature is in payday state
-    TbBool during_payday = creature_is_taking_salary_activity(creatng);
+    //creature is in need of a salary (to ensure all states are affected)
+    TbBool during_payday = (cctrl->paydays_owed > 0); // creature_take_salary
     //process the gold dropped on the creature, considering the rules
     GoldAmount remainingTribute = creature_get_handgold(salary, tribute, creatng, crstat, cctrl, during_payday);
-    if (during_payday && cctrl->paydays_owed > 0)
+    if (during_payday && cctrl->paydays_owed == 0)
     {
+        // end payday states
         set_start_state(creatng);
     }
     //visual effect for falling gold coins
@@ -1003,23 +1004,23 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
         //if the tribute doesn't fit entirely in the pocket
         if (remainingTribute > 0)
         {
-            // Calculate the portion of tribute that was successfully added to the pocket
+            // calculate the portion of tribute that was successfully added to the pocket
             long usedTrib = tribute - remainingTribute;
-            // Calculate the base happiness value based on the ratio of tribute to salary
+            // calculate the base happiness value based on the ratio of tribute to salary
             long baseHap = crstat->annoy_got_wage / salary;
-            // Calculate single happiness from the tribute that fits into the pocket
+            // calculate single happiness from the tribute that fits into the pocket
             long hapFit = baseHap * usedTrib;
-            // Calculate double happiness from the remaining tribute
+            // calculate double happiness from the remaining tribute
             long hapRem = baseHap * remainingTribute * 2;
-            // Sum both happiness contributions
+            // sum both happiness contributions
             happiness = hapFit + hapRem;
-            // Apply the calculated happiness to the creature
+            // apply the calculated happiness to the creature
             anger_apply_anger_to_creature_all_types(creatng, happiness);
         }
-        // If the entire tribute fits into the creature's pocket
+        // if the entire tribute fits into the creature's pocket
         else
         {
-            // Calculate single happiness from the tribute that fits into the pocket
+            // calculate single happiness from the tribute that fits into the pocket
             happiness = crstat->annoy_got_wage * tribute / salary;
             anger_apply_anger_to_creature_all_types( creatng, happiness);
         }
@@ -1027,7 +1028,7 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     //default/no pocket_gold rule
     else
     {
-        // Calculate double happiness from the entaire tribute
+        // calculate double happiness from the entaire tribute
         happiness = crstat->annoy_got_wage * tribute / salary * 2;
         anger_apply_anger_to_creature_all_types(creatng, happiness);
     }

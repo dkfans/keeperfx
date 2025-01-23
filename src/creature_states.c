@@ -3036,7 +3036,7 @@ short creature_take_salary(struct Thing *creatng)
         return 1;
     }
     // Creature take salary first out of her own pocket
-        if(game.conf.rules.game.take_pay_from_pocket){
+        if(game.conf.rules.game.take_pay_from_pocket || !game.conf.rules.game.accept_partial_payday){
         salary -= cctrl->paid_wage;
         cctrl->paid_wage = 0;
     }
