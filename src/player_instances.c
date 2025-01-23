@@ -255,6 +255,17 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       if ((trapst->slappable > 0) && trap_is_active(thing))
       {
           activate_trap_by_slap(player, thing);
+
+          struct Dungeon* dungeon = get_dungeon(thing->owner);
+          if (!dungeon_invalid(dungeon))
+          {
+              dungeon->trap_info.activated[thing->trap.flag_number]++;
+              if (thing->trap.flag_number > 0)
+              {
+                  memcpy(&dungeon->last_trap_event_location, &thing->mappos, sizeof(struct Coord3d));
+              }
+          }
+          process_trap_charge(thing);
       }
       break;
       case TCls_Object:

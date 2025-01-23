@@ -1139,7 +1139,6 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, short angle, stru
         && (trapst->activation_type != TrpAcT_HeadforTarget90))
     {
         activate_trap(thing, trgtng);
-        process_trap_charge(thing);
         if (thing->trap.num_shots != INFINITE_CHARGES)
         {
             if (thing->trap.num_shots > 0) {
