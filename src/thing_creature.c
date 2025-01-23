@@ -6848,14 +6848,6 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     case SpwnT_None:
         break;
     case SpwnT_Jump:
-        thing->mappos.z.val = get_ceiling_height(&thing->mappos);
-        create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
-        initialise_thing_state(thing, CrSt_CreatureHeroEntering);
-        set_flag(thing->rendering_flags, TRF_Invisible);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        cctrl->countdown = 24;
-        break;
-    case SpwnT_Fall:
         set_flag(thing->movement_flags, TMvF_MagicFall);
         thing->veloc_push_add.x.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
         thing->veloc_push_add.y.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
@@ -6868,6 +6860,14 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             thing->veloc_push_add.z.val += PLAYER_RANDOM(plyr_idx, 96) + 80;
         }
         set_flag(thing->state_flags, TF1_PushAdd);
+        break;
+    case SpwnT_Fall:
+        thing->mappos.z.val = get_ceiling_height(&thing->mappos);
+        create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
+        initialise_thing_state(thing, CrSt_CreatureHeroEntering);
+        set_flag(thing->rendering_flags, TRF_Invisible);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        cctrl->countdown = 24;
         break;
     case SpwnT_Initialize:
         init_creature_state(thing);
