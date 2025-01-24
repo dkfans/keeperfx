@@ -4,13 +4,6 @@
 /pkg
 /gfx
 /sfx
-/tools/peresec
-/tools/png2bestpal
-/tools/png2ico
-/tools/pngpal2raw
-/tools/po2ngdat
-/tools/rnctools
-/tools/sndbanker
 /config/fxdata/*.dat
 /config/fxdata/*.fon
 .vs/
@@ -26,10 +19,4 @@ docs/latex
 *.Tpo
 res/keeperfx_icon.ico
 .header_checksum
-/deps/enet
-/deps/zlib
-/deps/spng
-/deps/astronomy
-/deps/centijson
-/deps/ffmpeg
 /deps/*.tar.gz

@@ -1,0 +1,36 @@
+[submodule "deps/astronomy"]
+	path = deps/astronomy
+	url = https://github.com/cosinekitty/astronomy
+[submodule "deps/centijson"]
+	path = deps/centijson
+	url = https://github.com/mity/centijson
+[submodule "deps/findfirst"]
+	path = deps/findfirst
+	url = https://github.com/mathieuturcotte/findfirst
+[submodule "deps/libbcrypt"]
+	path = deps/libbcrypt
+	url = https://github.com/rg3/libbcrypt
+[submodule "deps/CUnit-2.1-3"]
+	path = deps/CUnit-2.1-3
+	url = https://github.com/jacklicn/CUnit
+[submodule "tools/png2ico"]
+	path = tools/png2ico
+	url = https://github.com/dkfans/png2ico
+[submodule "tools/peresec"]
+	path = tools/peresec
+	url = https://github.com/dkfans/peresec
+[submodule "tools/png2bestpal"]
+	path = tools/png2bestpal
+	url = https://github.com/dkfans/png2bestpal
+[submodule "tools/pngpal2raw"]
+	path = tools/pngpal2raw
+	url = https://github.com/dkfans/pngpal2raw
+[submodule "tools/po2ngdat"]
+	path = tools/po2ngdat
+	url = https://github.com/dkfans/po2ngdat
+[submodule "tools/rnctools"]
+	path = tools/rnctools
+	url = https://github.com/dkfans/rnctools
+[submodule "tools/sndbanker"]
+	path = tools/sndbanker
+	url = https://github.com/dkfans/sndbanker

@@ -5,10 +5,14 @@ if (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
     message(FATAL_ERROR "Do not build in the root. Create a bin directory and remove ${CMAKE_SOURCE_DIR}/CMakeCache.txt")
 endif ()
 
-project(keeperfx C CXX)
+project(keeperfx LANGUAGES C CXX)
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
+
+include(GNUInstallDirs)
+include(FindPkgConfig)
+include(FindGit)
 
 # Get the abbreviated commit Id of the head.
 find_package(Git REQUIRED)
@@ -28,12 +32,28 @@ set(KEEPERFX_VER_DEFS_H_OUT ${CMAKE_BINARY_DIR}/ver_defs.h)
 configure_file(${KEEPERFX_VER_DEFS_H_IN} ${KEEPERFX_VER_DEFS_H_OUT})
 
 # Add binary dir to the include paths, so ver_defs.h can be found.
-include_directories($(${CMAKE_BINARY_DIR}))
+include_directories($<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 
+option(BFLIB_BACKEND_SWRAST "The Software Rasterizer framework to use" SDL2)
+option(BFLIB_BACKEND_OPENGL "The OpenGL platform framework to use"     SDL2)
+set(DEBUG_LEVEL 0 CACHE STRING "Debug level")
+if(NOT DEBUG_LEVEL MATCHES "^[0-9]+$")
+	message(FATAL_ERROR "DEBUG_LEVEL must be number from 0 to 10")
+endif()
+
+find_package(PkgConfig REQUIRED)
+find_package(ZLIB REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(SDL2_image CONFIG REQUIRED)
 find_package(SDL2_mixer CONFIG REQUIRED)
 find_package(SDL2_net CONFIG REQUIRED)
+pkg_check_modules(MINIZIP IMPORTED_TARGET REQUIRED minizip)
+pkg_check_modules(SPNG IMPORTED_TARGET REQUIRED spng)
+pkg_check_modules(AVFORMAT IMPORTED_TARGET REQUIRED libavformat)
+pkg_check_modules(AVCODEC IMPORTED_TARGET REQUIRED libavcodec)
+pkg_check_modules(AVUTIL IMPORTED_TARGET REQUIRED libavutil)
+pkg_check_modules(SWRESAMPLE IMPORTED_TARGET REQUIRED libswresample)
+pkg_check_modules(ENET IMPORTED_TARGET REQUIRED libenet)
 
 # Global definitions.
 add_compile_definitions(_CRT_NONSTDC_NO_WARNINGS _CRT_SECURE_NO_WARNINGS)
@@ -45,59 +65,20 @@ file(GLOB_RECURSE KEEPERFX_SOURCES_CXX "src/*.cpp")
 add_compile_definitions("DEBUG=$<IF:$<CONFIG:Debug>,1,0>")
 add_compile_definitions("SPNG_STATIC=1")
 
-# Add two executable targets: keeperfx and keeperfx_hvlog.
-add_executable(keeperfx ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
-
-target_compile_definitions(keeperfx PUBLIC BFDEBUG_LEVEL=0)
-target_sources(keeperfx PRIVATE "res/keeperfx_stdres.rc")
-
-add_executable(keeperfx_hvlog ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
-
-target_compile_definitions(keeperfx_hvlog PUBLIC BFDEBUG_LEVEL=10)
-target_sources(keeperfx_hvlog PRIVATE "res/keeperfx_stdres.rc")
-
 message(STATUS "We are using ${CMAKE_CXX_COMPILER_ID}")
+set(WARNFLAGS -Wall -W -Wshadow -Werror -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-error=attributes -Wno-error=int-conversion)
+set(GNU_COMPILER_FLAG -march=native -O0 -g)
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -Wimplicit)
 
-# The default bfd linker in MinGW is extremely slow. LLVM linker (LLD) is much much faster.
-set_property(TARGET keeperfx PROPERTY LINKER_TYPE LLD)
-set_property(TARGET keeperfx_hvlog PROPERTY LINKER_TYPE LLD)
-
-set(WARNFLAGS -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas -Werror)
-set(GNU_COMPILER_FLAG -march=x86-64 -fno-omit-frame-pointer -fmessage-length=0)
-set(GNU_LINK_FLAG -mwindows -Wl,--enable-auto-import)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wimplicit")
+# Add two executable targets: keeperfx.
+add_executable(keeperfx ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
+target_compile_definitions(keeperfx PUBLIC BFDEBUG_LEVEL=${DEBUG_LEVEL})
+target_sources(keeperfx PRIVATE "res/keeperfx_stdres.rc")
 target_compile_options(keeperfx PRIVATE ${WARNFLAGS} ${GNU_COMPILER_FLAG})
-target_compile_options(keeperfx_hvlog PRIVATE ${WARNFLAGS} ${GNU_COMPILER_FLAG})
+target_include_directories(keeperfx PUBLIC ZLIB PkgConfig::MINIZIP SDL2::SDL2 SDL2_mixer SDL2_net::SDL2_net SDL2_image::SDL2_image PkgConfig::ENET PkgConfig::AVUTIL PkgConfig::AVFORMAT PkgConfig::SWRESAMPLE PkgConfig::AVCODEC PkgConfig::SPNG)
 target_link_options(keeperfx PRIVATE ${GNU_LINK_FLAG} -Wl,-Map,keeperfx.map)
-target_link_options(keeperfx_hvlog PRIVATE ${GNU_LINK_FLAG} -Wl,-Map,keeperfx_hvlog.map)
-target_link_libraries (keeperfx PUBLIC -static stdc++ winpthread -dynamic)
-target_link_libraries (keeperfx_hvlog PUBLIC -static stdc++ winpthread -dynamic)
+target_link_libraries(keeperfx PUBLIC ZLIB::ZLIB PkgConfig::MINIZIP SDL2::SDL2 SDL2_mixer::SDL2_mixer SDL2_net::SDL2_net SDL2_image::SDL2_image PkgConfig::ENET PkgConfig::AVUTIL PkgConfig::AVFORMAT PkgConfig::SWRESAMPLE PkgConfig::AVCODEC PkgConfig::SPNG)
 
-# System libraries.
-target_link_libraries(keeperfx PRIVATE imagehlp dbghelp)
-target_link_libraries(keeperfx_hvlog PRIVATE imagehlp dbghelp)
-
-# Go into submodules.
 add_subdirectory(deps)
 add_subdirectory(tools)
 
-# External libraries.
-target_link_libraries(keeperfx
-    PRIVATE
-    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
-target_link_libraries(keeperfx
-    PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
-target_link_libraries(keeperfx
-    PRIVATE $<IF:$<TARGET_EXISTS:SDL2_net::SDL2_net>,SDL2_net::SDL2_net,SDL2_net::SDL2_net-static>)
-target_link_libraries(keeperfx
-    PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
-
-target_link_libraries(keeperfx_hvlog
-    PRIVATE
-    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
-target_link_libraries(keeperfx_hvlog
-    PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::SDL2_mixer>,SDL2_mixer::SDL2_mixer,SDL2_mixer::SDL2_mixer-static>)
-target_link_libraries(keeperfx_hvlog
-    PRIVATE $<IF:$<TARGET_EXISTS:SDL2_net::SDL2_net>,SDL2_net::SDL2_net,SDL2_net::SDL2_net-static>)
-target_link_libraries(keeperfx_hvlog
-    PRIVATE $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
