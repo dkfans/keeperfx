@@ -6680,12 +6680,16 @@ void illuminate_creature(struct Thing *creatng)
     lgt->radius <<= 1;
 }
 
-struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)
+struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, char spawn_type)
 {
-    long effect;
     long i = get_map_location_longval(location);
     struct Coord3d pos;
-    TbBool fall_from_gate = false;
+
+    if (!creature_count_below_map_limit(0))
+    {
+        WARNLOG("Could not create creature %s from script to due to creature limit", creature_code_name(crmodel));
+        return INVALID_THING;
+    }
 
     switch (get_map_location_type(location))
     {
@@ -6694,29 +6698,39 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         {
             return INVALID_THING;
         }
-        effect = 1;
+        if (spawn_type == SpwnT_Default)
+        {
+            if (player_is_roaming(plyr_idx))
+            {
+                spawn_type = SpwnT_Fall;
+            }
+            else
+            {
+                spawn_type = SpwnT_None;
+            }
+        }
         break;
     case MLoc_HEROGATE:
         if (!get_coords_at_hero_door(&pos, i, 1))
         {
             return INVALID_THING;
         }
-        effect = 0;
-        fall_from_gate = true;
+        if (spawn_type == SpwnT_Default)
+        {
+            spawn_type = SpwnT_Jump;
+        }
         break;
     case MLoc_PLAYERSHEART:
         if (!get_coords_at_dungeon_heart(&pos, i))
         {
             return INVALID_THING;
         }
-        effect = 0;
         break;
     case MLoc_METALOCATION:
         if (!get_coords_at_meta_action(&pos, plyr_idx, i))
         {
             return INVALID_THING;
         }
-        effect = 0;
         break;
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
@@ -6728,15 +6742,9 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     case MLoc_TRAPKIND:
     case MLoc_NONE:
     default:
-        effect = 0;
         return INVALID_THING;
     }
 
-    if (!creature_count_below_map_limit(0))
-    {
-        WARNLOG("Could not create creature %s from script to due to creature limit", creature_code_name(crmodel));
-        return INVALID_THING;
-    }
     struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, TCls_Creature, crmodel, plyr_idx);
     if (thing_is_invalid(thing))
     {
@@ -6744,8 +6752,21 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             // Error is already logged
         return INVALID_THING;
     }
-    if (fall_from_gate)
+
+    // Lord of the land random speech message.
+    if (flag_is_set(get_creature_model_flags(thing), CMF_IsLordOfLand))
     {
+        output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
+        output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DELAY_LORD, 1);
+    }
+
+    switch (spawn_type)
+    {
+    case SpwnT_Default:
+    case SpwnT_None:
+        // no special behavior
+        break;
+    case SpwnT_Jump:
         set_flag(thing->movement_flags, TMvF_MagicFall);
         thing->veloc_push_add.x.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
         thing->veloc_push_add.y.val += PLAYER_RANDOM(plyr_idx, 193) - 96;
@@ -6758,34 +6779,28 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             thing->veloc_push_add.z.val += PLAYER_RANDOM(plyr_idx, 96) + 80;
         }
         set_flag(thing->state_flags, TF1_PushAdd);
-    }
-    // Lord of the land random speech message.
-    if ((get_creature_model_flags(thing) & CMF_IsLordOfLand) != 0)
-    {
-        output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
-        output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DELAY_LORD, 1);
-    }
-    switch (effect)
-    {
-    case 1:
-        if (player_is_roaming(plyr_idx))
-        {
-            thing->mappos.z.val = get_ceiling_height(&thing->mappos);
-            create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
-            initialise_thing_state(thing, CrSt_CreatureHeroEntering);
-            set_flag(thing->rendering_flags, TRF_Invisible);
-            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            cctrl->countdown = 24;
-        }
+        break;
+    case SpwnT_Fall:
+        thing->mappos.z.val = get_ceiling_height(&thing->mappos);
+        create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
+        initialise_thing_state(thing, CrSt_CreatureHeroEntering);
+        set_flag(thing->rendering_flags, TRF_Invisible);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        cctrl->countdown = 24;
+        break;
+    case SpwnT_Initialize:
+        init_creature_state(thing);
+        break;
     default:
+        ERRORLOG("Invalid spawn type %d", spawn_type);
         break;
     }
     return thing;
 }
 
-struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, CrtrExpLevel crtr_level)
+struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, CrtrExpLevel crtr_level, char spawn_type)
 {
-    struct Thing* creatng = script_create_creature_at_location(plyr_idx, crmodel, location);
+    struct Thing* creatng = script_create_creature_at_location(plyr_idx, crmodel, location, spawn_type);
     if (thing_is_invalid(creatng))
         return INVALID_THING;
     creatng->creature.gold_carried = carried_gold;
@@ -6793,11 +6808,11 @@ struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmod
     return creatng;
 }
 
-void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long location, long copies_num, long carried_gold, CrtrExpLevel crtr_level)
+void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long copies_num, long carried_gold, CrtrExpLevel crtr_level, char spawn_type)
 {
     for (long i = 0; i < copies_num; i++)
     {
-        script_create_new_creature(plyr_idx, crmodel, location, carried_gold, crtr_level);
+        script_create_new_creature(plyr_idx, crmodel, location, carried_gold, crtr_level, spawn_type);
     }
 }
 
