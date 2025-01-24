@@ -4170,6 +4170,11 @@ TbBool process_creature_hunger(struct Thing *thing)
     return false;
 }
 
+TbBool trap_will_attack_creature(const struct Thing* fightng, const struct Thing* enmtng)
+{
+    return true;
+}
+
 /**
  * Checks if creatures can attack each other.
  * Note that this function does not include full check from players_are_enemies(),
