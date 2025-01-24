@@ -929,7 +929,7 @@ GoldAmount creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct T
         }
         else if (cctrl->paid_wage >= salary)
         {
-        processpayday_advances(salary, creatng, cctrl, crstat);
+            process_payday_advances(salary, creatng, cctrl, crstat);
         }
     }
 
