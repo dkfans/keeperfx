@@ -6702,7 +6702,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         {
             if (player_is_roaming(plyr_idx))
             {
-                spawn_type = SpwnT_Jump;
+                spawn_type = SpwnT_Fall;
             }
             else
             {
@@ -6717,7 +6717,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         }
         if (spawn_type == SpwnT_Default)
         {
-            spawn_type = SpwnT_Fall;
+            spawn_type = SpwnT_Jump;
         }
         break;
     case MLoc_PLAYERSHEART:
