@@ -1570,7 +1570,7 @@ void terminate_all_actives_damage_over_time_spell_effects(struct Thing *thing)
     }
 }
 
-/* Clears spell effect on a thing. 
+/* Clears spell effect on a thing.
  * It first checks for an active spell match and terminates the associated spell.
  * If no exact match is found, it clears only the flag without affecting others.
  * This ensures that spells with multiple flags remain intact.
@@ -2377,6 +2377,8 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
     if (object_is_gold_laying_on_ground(tgthing))
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        GoldAmount salary = crstat->pay;
+        GoldAmount gold = tgthing->valuable.gold_stored;
         if (tgthing->valuable.gold_stored > 0)
         {
             if (creatng->creature.gold_carried < crstat->gold_hold)
@@ -2385,20 +2387,19 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
                 {
                     long k = crstat->gold_hold - creatng->creature.gold_carried;
                     creatng->creature.gold_carried += k;
-                    tgthing->valuable.gold_stored -= k;
+                    gold -= k;
                 } else
                 {
                     creatng->creature.gold_carried += tgthing->valuable.gold_stored;
                     delete_thing_structure(tgthing, 0);
                 }
-                thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-            }
+                thing_play_sample(creatng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);           }
+                anger_apply_anger_to_creature(creatng, crstat->annoy_got_wage * gold / salary, AngR_NotPaid, 1);
         } else
         {
             ERRORLOG("GoldPile with no gold!");
             delete_thing_structure(tgthing, 0);
         }
-        anger_apply_anger_to_creature(creatng, crstat->annoy_got_wage, AngR_NotPaid, 1);
         return true;
     }
     if (thing_can_be_eaten(tgthing) && creature_able_to_eat(creatng))
@@ -3142,7 +3143,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
     ThingModel crmodel = thing->model;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if (!thing_exists(thing)) 
+    if (!thing_exists(thing))
     {
         set_flag(flags,CrDed_NoEffects);
     }
