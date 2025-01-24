@@ -355,11 +355,11 @@ void check_and_auto_fix_stats(void)
         }
         if (crstat->grow_up > 0)
         {
-          if ( (crstat->grow_up_level < 1) || (crstat->grow_up_level > CREATURE_MAX_LEVEL) )
-          {
-              ERRORLOG("Creature model %d (%s) GrowUp & GrowUpLevel invalid - Fixing", (int)model, creature_code_name(model));
-              crstat->grow_up_level = 1;
-          }
+            if (crstat->grow_up_level > CREATURE_MAX_LEVEL)
+            {
+                ERRORLOG("Creature model %d (%s) GrowUp & GrowUpLevel invalid - Fixing", (int)model, creature_code_name(model));
+                crstat->grow_up_level = CREATURE_MAX_LEVEL;
+            }
         }
         if (crstat->rebirth > CREATURE_MAX_LEVEL)
         {

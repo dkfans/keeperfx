@@ -95,6 +95,10 @@ We welcome contributions from the community to improve and expand KeeperFX.
 - Contribute code by creating pull requests. 
 
 
+## Code Signing Policy
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+
+
 ## License
 This project is licensed under the [GNU General Public License v2.0](LICENSE).
 Feel free to use, modify, and distribute it according to the terms of this license.
