@@ -1761,29 +1761,29 @@ void gui_activity_background(struct GuiMenu *gmnu)
         activity_list[4*i+0] = 0;
         activity_list[4*i+1] = 0;
         activity_list[4*i+2] = 0;
-        for (int n = 0; n < 15; n++)
+        for (int n = 0; n < STATE_TYPES_COUNT; n++)
         {
-            int job_idx = state_type_to_gui_state[n];
-            switch (job_idx)
+            int gui_state_idx = state_type_to_gui_state[n];
+            switch (gui_state_idx)
             {
-            case 0:
-                activity_list[4*i+0] += dungeon->field_64[crmodel][n];
+            case CrGUIJob_Wandering:
+                activity_list[4*i+0] += dungeon->crmodel_state_type_count[crmodel][n];
                 break;
-            case 1:
-                activity_list[4*i+1] += dungeon->field_64[crmodel][n];
+            case CrGUIJob_Working:
+                activity_list[4*i+1] += dungeon->crmodel_state_type_count[crmodel][n];
                 break;
-            case 2:
-                activity_list[4*i+2] += dungeon->field_64[crmodel][n];
+            case CrGUIJob_Fighting:
+                activity_list[4*i+2] += dungeon->crmodel_state_type_count[crmodel][n];
                 break;
             default:
-                ERRORLOG("Outranged GUI state value %d",(int)job_idx);
+                ERRORLOG("Outranged GUI state value %d",(int)gui_state_idx);
                 break;
             }
         }
     }
-    int mm_units_per_px = (gmnu->width * 16 + 140 / 2) / 140;
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    LbDrawBox(gmnu->pos_x + scale_value_for_resolution_with_upp(2, mm_units_per_px), gmnu->pos_y + scale_value_for_resolution_with_upp(218, mm_units_per_px), scale_value_for_resolution_with_upp(134, mm_units_per_px), scale_value_for_resolution_with_upp(24, mm_units_per_px), colours[0][0][0]);
+    LbDrawBox(gmnu->pos_x + scale_ui_value(2),gmnu->pos_y + scale_ui_value(218),scale_ui_value(134),scale_ui_value(24),colours[0][0][0]);
+
     lbDisplay.DrawFlags = flg_mem;
 }
 

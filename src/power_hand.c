@@ -960,7 +960,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     // Check if drop position is allowed
     struct Thing *droptng = thing_get(dungeon->things_in_hand[0]);
-    if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, thing_is_creature_special_digger(droptng))) {
+    if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, thing_is_creature_digger(droptng))) {
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
         {
@@ -1537,7 +1537,7 @@ short can_place_thing_here(struct Thing *thing, long stl_x, long stl_y, long dng
 {
     struct Coord3d pos;
     TbBool is_digger;
-    is_digger = thing_is_creature_special_digger(thing);
+    is_digger = thing_is_creature_digger(thing);
     if (!can_drop_thing_here(stl_x, stl_y, dngn_idx, is_digger))
       return false;
     pos.x.val = subtile_coord_center(stl_x);

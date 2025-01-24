@@ -479,8 +479,8 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
  * - 1: Working.
  * - 2: Fighting.
  */
-long const state_type_to_gui_state[] = {
-    0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 0, 2, 2, 1, 1, 0,
+long const state_type_to_gui_state[STATE_TYPES_COUNT] = {
+    0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 0, 2, 2, 1, 1,
 };
 
 /******************************************************************************/
@@ -1539,7 +1539,7 @@ short creature_being_dropped(struct Thing *creatng)
     if (!creature_under_spell_effect(creatng, CSAfF_Chicken))
     {
         // Special tasks for diggers
-        if ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) != 0)
+        if (thing_is_creature_digger(creatng))
         {
             if ((slabmap_owner(slb) == creatng->owner) || (slabmap_owner(slb) == game.neutral_player_num))
             {
@@ -3728,7 +3728,7 @@ CrCheckRet move_check_persuade(struct Thing *creatng)
                       !thing_is_invalid(i);
                       i = thing_get(i->next_on_mapblk) )
                 {
-                    if (i->owner != creatng->owner || !thing_is_creature(i) || i == creatng || i->model == get_players_special_digger_model(creatng->owner))
+                    if (i->owner != creatng->owner || !thing_is_creature(i) || i == creatng || creature_is_for_dungeon_diggers_list(i))
                         continue;
                     i_leader = get_group_leader(i);
                     if (i_leader)
@@ -4825,7 +4825,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     if (player->victory_state == VicS_LostLevel)
     {
         // TODO: Correctly deal with possession of creatures not owned by the player
-        if (thing->model != get_players_special_digger_model(player->id_number))
+        if (!creature_is_for_dungeon_diggers_list(thing))
         {
             cleanup_current_thing_state(thing);
             initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
