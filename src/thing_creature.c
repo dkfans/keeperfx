@@ -7574,7 +7574,7 @@ ThingModel get_random_appropriate_creature_kind(ThingModel original_model)
         }
         // Exclude same creature kind, spectators and diggers.
         newconf = &game.conf.crtr_conf.model[random_model];
-        if ((random_model == original_model) || (any_flag_is_set(newconf->model_flags, CMF_IsSpectator|CMF_IsSpecDigger|CMF_IsDiggingCreature)))
+        if ((random_model == original_model) || (any_flag_is_set(newconf->model_flags, (CMF_IsSpectator|CMF_IsSpecDigger|CMF_IsDiggingCreature))))
         {
             continue;
         }
