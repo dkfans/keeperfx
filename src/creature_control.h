@@ -32,21 +32,21 @@
 extern "C" {
 #endif
 
-#define CREATURE_TYPES_MAX 128
-#define CREATURE_STATES_MAX 256
+#define CREATURE_TYPES_MAX                128
+#define CREATURE_STATES_MAX               256
 
-#define MAX_SIZEXY            768
+#define MAX_SIZEXY                        768
 /** Max amount of spells casted at the creature at once. */
-#define CREATURE_MAX_SPELLS_CASTED_AT 5
-/** Number of possible melee combat opponents. */
-#define COMBAT_MELEE_OPPONENTS_LIMIT       4
-/** Number of possible range combat opponents. */
-#define COMBAT_RANGED_OPPONENTS_LIMIT      4
+#define CREATURE_MAX_SPELLS_CASTED_AT       5
+/** Absolute max number of possible melee combat opponents. Actual max is game.conf.rules.creature.max_melee_opponents. */
+#define COMBAT_MELEE_OPPONENTS_LIMIT       32
+/** Absolute max number of possible ranged combat opponents. Actual max is game.conf.rules.creature.max_ranged_opponents. */
+#define COMBAT_RANGED_OPPONENTS_LIMIT      32
 /** Amount of instances. */
 /** Max amount of rooms needed for a creature to be attracted to a dungeon. */
-#define ENTRANCE_ROOMS_COUNT               3
-#define INSTANCE_TYPES_MAX 2000
-#define LAIR_ENEMY_MAX 5
+#define ENTRANCE_ROOMS_COUNT                3
+#define INSTANCE_TYPES_MAX               2000
+#define LAIR_ENEMY_MAX                      5
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
