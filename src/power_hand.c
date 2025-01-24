@@ -937,7 +937,8 @@ GoldAmount creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct T
     {
         //if pocket rule active, add tribute to the gold carried by the creature
         if(game.conf.rules.game.pocket_gold){
-           remainingTribute = handle_pocket_gold_rule(tribute, creatng, crstat, cctrl);
+            remainingTribute = handle_pocket_gold_rule(tribute, creatng, crstat, cctrl);
+            creatng->creature.gold_carried = 0;
         }
         if (during_payday)
         {
