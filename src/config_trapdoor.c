@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_sound.h"
@@ -116,6 +115,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"DETECTINVISIBLE",        50},
   {"INSTANTPLACEMENT",       51},
   {"REMOVEONCEDEPLETED",     52},
+  {"FLAGNUMBER",             53},
   {NULL,                      0},
 };
 
@@ -187,7 +187,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       for (int i=0; i < TRAPDOOR_TYPES_MAX; i++)
       {
           trapst = &game.conf.trapdoor_conf.trap_cfgstats[i];
-          LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
+          memset(trapst->code_name, 0, COMMAND_WORD_LEN);
           trapst->name_stridx = GUIStr_Empty;
           trapst->tooltip_stridx = GUIStr_Empty;
           trapst->bigsym_sprite_idx = 0;
@@ -225,6 +225,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->unanimated = 0;
           trapst->unshaded = 0;
           trapst->random_start_frame = 0;
+          trapst->flag_number = 0;
           trapst->light_radius = 0;
           trapst->light_intensity = 0;
           trapst->light_flag = 0;
@@ -248,7 +249,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
   const char * blockname = NULL;
   int blocknamelen = 0;
   long pos = 0;
-  int k = 0;
+  long k = 0;
   while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
     // look for blocks starting with "trap", followed by one or more digits
@@ -405,21 +406,17 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 10: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              trapst->bigsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              trapst->bigsym_sprite_idx = get_icon_id(word_buf);
+              if (trapst->bigsym_sprite_idx != bad_icon_id)
               {
-                  trapst->bigsym_sprite_idx = k;
                   n++;
               }
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              trapst->medsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              trapst->medsym_sprite_idx = get_icon_id(word_buf);
+              if (trapst->medsym_sprite_idx != bad_icon_id)
               {
-                  trapst->medsym_sprite_idx = k;
                   n++;
               }
           }
@@ -432,16 +429,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 11: // POINTERSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              trapst->pointer_sprite_idx = get_icon_id(word_buf);
+              if (trapst->pointer_sprite_idx != bad_icon_id)
               {
-                  trapst->pointer_sprite_idx = k;
                   n++;
               }
           }
           if (n < 1)
           {
-            trapst->pointer_sprite_idx = bad_icon_id;
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
                 COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
@@ -1200,6 +1195,22 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
+      case 53: // FLAGNUMBER
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if ((k >= 0) && (k <= UCHAR_MAX))
+              {
+                  trapst->flag_number = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
@@ -1227,7 +1238,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       for (int i=0; i < TRAPDOOR_TYPES_MAX; i++)
       {
           doorst = &game.conf.trapdoor_conf.door_cfgstats[i];
-          LbMemorySet(doorst->code_name, 0, COMMAND_WORD_LEN);
+          memset(doorst->code_name, 0, COMMAND_WORD_LEN);
           doorst->name_stridx = GUIStr_Empty;
           doorst->tooltip_stridx = GUIStr_Empty;
           doorst->bigsym_sprite_idx = 0;
@@ -1325,21 +1336,17 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       case 4: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              doorst->bigsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              doorst->bigsym_sprite_idx = get_icon_id(word_buf);
+              if (doorst->bigsym_sprite_idx != bad_icon_id)
               {
-                  doorst->bigsym_sprite_idx = k;
                   n++;
               }
           }
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              doorst->medsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              doorst->medsym_sprite_idx = get_icon_id(word_buf);
+              if (doorst->medsym_sprite_idx != bad_icon_id)
               {
-                  doorst->medsym_sprite_idx = k;
                   n++;
               }
           }
@@ -1352,16 +1359,14 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       case 5: // POINTERSPRITES
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              doorst->pointer_sprite_idx = get_icon_id(word_buf);
+              if (doorst->pointer_sprite_idx != bad_icon_id)
               {
-                  doorst->pointer_sprite_idx = k;
                   n++;
               }
           }
           if (n < 1)
           {
-              doorst->pointer_sprite_idx = bad_icon_id;
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
@@ -1585,7 +1590,7 @@ TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsign
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     
@@ -1618,7 +1623,7 @@ TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsign
             WARNMSG("Parsing %s file \"%s\" door blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     SYNCDBG(19,"Done");
     return result;
 }

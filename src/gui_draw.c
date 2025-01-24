@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_planar.h"
@@ -462,7 +461,7 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
     unsigned long flgmem = lbDisplay.DrawFlags;
     long cursor_pos = -1;
     static char dtext[TEXT_BUFFER_LENGTH];
-    LbStringCopy(dtext, text, TEXT_BUFFER_LENGTH);
+    snprintf(dtext, TEXT_BUFFER_LENGTH, "%s", text);
     if ((gbtn->gbtype == LbBtnT_EditBox) && (gbtn == input_button))
     {
         cursor_type++;

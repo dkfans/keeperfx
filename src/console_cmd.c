@@ -46,6 +46,7 @@
 #include "gui_msgs.h"
 #include "gui_soundmsgs.h"
 #include "keeperfx.hpp"
+#include "lvl_script_lib.h"
 #include "map_blocks.h"
 #include "map_columns.h"
 #include "map_utils.h"
@@ -1663,7 +1664,8 @@ TbBool cmd_freeze_creature(PlayerNumber plyr_idx, char * args)
         return false;
     }
     thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, SplK_Freeze, 8);
+    // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
+    apply_spell_effect_to_thing(thing, 3, 8, plyr_idx); // 3 was 'SplK_Freeze' in the enum.
     return true;
 }
 
@@ -1678,7 +1680,8 @@ TbBool cmd_slow_creature(PlayerNumber plyr_idx, char * args)
         return false;
     }
     thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-    apply_spell_effect_to_thing(thing, SplK_Slow, 8);
+    // Not sure how to handle this yet, for now simply hardcode the intended spell kind with a number.
+    apply_spell_effect_to_thing(thing, 12, 8, plyr_idx); // 12 was 'SplK_Slow' in the enum.
     return true;
 }
 
@@ -1852,6 +1855,45 @@ TbBool cmd_speech_test(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
+{
+    char * pr2str = strsep(&args, " ");
+    int plr_start;
+    int plr_end;
+    PlayerNumber plr_range_id = get_player_number_for_command(pr2str);
+    get_players_range(plr_range_id, &plr_start, &plr_end);
+    
+    char * pr3str = strsep(&args, " ");
+    char colour_idx = get_rid(cmpgn_human_player_options, pr3str);
+    if (plr_start >= 0)
+    {
+            for (PlayerNumber plyr_id = plr_start; plyr_id < plr_end; plyr_id++)
+            {
+                if (plyr_id == PLAYER_NEUTRAL)
+                {
+                    continue;
+                }
+                set_player_colour(plyr_id, (unsigned char)colour_idx);
+            }
+            return true;
+    }
+    return false;
+}
+
+TbBool cmd_possession_lock(PlayerNumber plyr_idx, char * args)
+{
+    struct PlayerInfo * player = get_player(plyr_idx);
+    player->possession_lock = true;
+    return true;
+}
+
+TbBool cmd_possession_unlock(PlayerNumber plyr_idx, char * args)
+{
+    struct PlayerInfo * player = get_player(plyr_idx);
+    player->possession_lock = false;
+    return true;
+}
+
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
     struct ConsoleCommand {
@@ -1951,6 +1993,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
         { "herogate.zoomto", cmd_zoom_to_hero_gate },
         { "sound.test", cmd_sound_test },
         { "speech.test", cmd_speech_test },
+        { "player.color", cmd_player_colour},
+        { "player.colour", cmd_player_colour},
+        { "possession.lock", cmd_possession_lock},
+        { "possession.unlock", cmd_possession_unlock},
     };
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");

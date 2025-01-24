@@ -22,7 +22,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -31,6 +30,7 @@
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
 #include "map_data.h"
+#include "music_player.h"
 
 #include "game_merge.h"
 #include "post_inc.h"
@@ -64,6 +64,7 @@ const struct NamedCommand cmpgn_common_commands[] = {
   {"HUMAN_PLAYER",       19},
   {"NAME_TEXT_ID",       20},
   {"ASSIGN_CPU_KEEPERS", 21},
+  {"SOUNDTRACK",         22},
   {NULL,                  0},
   };
 
@@ -130,22 +131,22 @@ struct CampaignsList mappacks_list;
  */
 TbBool free_campaign(struct GameCampaign *campgn)
 {
-  LbMemoryFree(campgn->lvinfos);
-  LbMemoryFree(campgn->hiscore_table);
-  LbMemoryFree(campgn->strings_data);
-  LbMemoryFree(campgn->credits_data);
+  free(campgn->lvinfos);
+  free(campgn->hiscore_table);
+  free(campgn->strings_data);
+  free(campgn->credits_data);
   return true;
 }
 
 void clear_level_info(struct LevelInformation *lvinfo)
 {
-  LbMemorySet(lvinfo,0,sizeof(struct LevelInformation));
+  memset(lvinfo,0,sizeof(struct LevelInformation));
   lvinfo->lvnum = 0;
-  LbMemorySet(lvinfo->name, 0, LINEMSG_SIZE);
-  LbMemorySet(lvinfo->speech_before, 0, DISKPATH_SIZE);
-  LbMemorySet(lvinfo->speech_after, 0, DISKPATH_SIZE);
-  LbMemorySet(lvinfo->land_view, 0, DISKPATH_SIZE);
-  LbMemorySet(lvinfo->land_window, 0, DISKPATH_SIZE);
+  memset(lvinfo->name, 0, LINEMSG_SIZE);
+  memset(lvinfo->speech_before, 0, DISKPATH_SIZE);
+  memset(lvinfo->speech_after, 0, DISKPATH_SIZE);
+  memset(lvinfo->land_view, 0, DISKPATH_SIZE);
+  memset(lvinfo->land_window, 0, DISKPATH_SIZE);
   lvinfo->name_stridx = 0;
   lvinfo->players = 1;
   lvinfo->ensign_x = (LANDVIEW_MAP_WIDTH>>1);
@@ -166,14 +167,14 @@ TbBool clear_campaign(struct GameCampaign *campgn)
 {
   int i;
   SYNCDBG(10,"Starting");
-  LbMemorySet(campgn->name,0,LINEMSG_SIZE);
-  LbMemorySet(campgn->fname,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->levels_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->speech_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->land_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->creatures_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->configs_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->media_location,0,DISKPATH_SIZE);
+  memset(campgn->name,0,LINEMSG_SIZE);
+  memset(campgn->fname,0,DISKPATH_SIZE);
+  memset(campgn->levels_location,0,DISKPATH_SIZE);
+  memset(campgn->speech_location,0,DISKPATH_SIZE);
+  memset(campgn->land_location,0,DISKPATH_SIZE);
+  memset(campgn->creatures_location,0,DISKPATH_SIZE);
+  memset(campgn->configs_location,0,DISKPATH_SIZE);
+  memset(campgn->media_location,0,DISKPATH_SIZE);
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
     campgn->single_levels[i] = 0;
@@ -202,24 +203,26 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   campgn->lvinfos = NULL;
   campgn->ambient_good = 0;
   campgn->ambient_bad = 0;
-  LbMemorySet(campgn->land_view_start,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->land_window_start,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->land_view_end,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->land_window_end,0,DISKPATH_SIZE);
+  memset(campgn->land_view_start,0,DISKPATH_SIZE);
+  memset(campgn->land_window_start,0,DISKPATH_SIZE);
+  memset(campgn->land_view_end,0,DISKPATH_SIZE);
+  memset(campgn->land_window_end,0,DISKPATH_SIZE);
   campgn->land_markers = LndMk_ENSIGNS;
-  LbMemorySet(campgn->movie_intro_fname,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->movie_outro_fname,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->strings_fname,0,DISKPATH_SIZE);
+  memset(campgn->movie_intro_fname,0,DISKPATH_SIZE);
+  memset(campgn->movie_outro_fname,0,DISKPATH_SIZE);
+  memset(campgn->strings_fname,0,DISKPATH_SIZE);
   campgn->strings_data = NULL;
   reset_strings(campgn->strings, STRINGS_MAX);
-  LbMemorySet(campgn->hiscore_fname,0,DISKPATH_SIZE);
+  memset(campgn->hiscore_fname,0,DISKPATH_SIZE);
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = 0;
-  LbMemorySet(campgn->credits_fname,0,DISKPATH_SIZE);
+  memset(campgn->credits_fname,0,DISKPATH_SIZE);
   campgn->credits_data = NULL;
   reset_credits(campgn->credits);
   campgn->human_player = -1;
   campgn->assignCpuKeepers = 0;
+  memset(campgn->soundtrack_fname,0,DISKPATH_SIZE);
+  campgn->music_track = 0;
   return true;
 }
 
@@ -347,8 +350,8 @@ struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, Level
 TbBool init_level_info_entries(struct GameCampaign *campgn, long num_entries)
 {
     if (campgn->lvinfos != NULL)
-      LbMemoryFree(campgn->lvinfos);
-    campgn->lvinfos = (struct LevelInformation *)LbMemoryAlloc(num_entries*sizeof(struct LevelInformation));
+      free(campgn->lvinfos);
+    campgn->lvinfos = (struct LevelInformation *)calloc(num_entries, sizeof(struct LevelInformation));
     if (campgn->lvinfos == NULL)
     {
       WARNMSG("Can't allocate memory for LevelInformation list.");
@@ -367,7 +370,7 @@ TbBool grow_level_info_entries(struct GameCampaign *campgn, long add_entries)
 {
     long i = campgn->lvinfos_count;
     long num_entries = campgn->lvinfos_count + add_entries;
-    campgn->lvinfos = (struct LevelInformation*)LbMemoryGrow(campgn->lvinfos, num_entries * sizeof(struct LevelInformation));
+    campgn->lvinfos = (struct LevelInformation*)realloc(campgn->lvinfos, num_entries * sizeof(struct LevelInformation));
     if (campgn->lvinfos == NULL)
     {
         WARNMSG("Can't enlarge memory for LevelInformation list.");
@@ -386,7 +389,7 @@ TbBool grow_level_info_entries(struct GameCampaign *campgn, long add_entries)
 TbBool free_level_info_entries(struct GameCampaign *campgn)
 {
   if (campgn->lvinfos != NULL)
-    LbMemoryFree(campgn->lvinfos);
+    free(campgn->lvinfos);
   campgn->lvinfos = NULL;
   campgn->lvinfos_count = 0;
   return true;
@@ -395,7 +398,7 @@ TbBool free_level_info_entries(struct GameCampaign *campgn)
 short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long len, const char* config_textname)
 {
   // Initialize block data in campaign
-  LbMemoryFree(campgn->hiscore_table);
+  free(campgn->hiscore_table);
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = VISIBLE_HIGH_SCORES_COUNT;
   campgn->human_player = 0;
@@ -429,7 +432,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           }
           else
           {
-              LbStringCopy(campgn->display_name,campgn->name,LINEMSG_SIZE);
+              snprintf(campgn->display_name, LINEMSG_SIZE, "%s", campgn->name);
           }
           break;
       case 2: // SINGLE_LEVELS
@@ -663,7 +666,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
                 if (k > 0) {
                     const char* newname = get_string(STRINGS_MAX+k);
                     if (strcasecmp(newname,"") != 0) {
-                        LbStringCopy(campgn->display_name,newname,LINEMSG_SIZE); // use the index provided in the config file to get a specific UI string
+                        snprintf(campgn->display_name, LINEMSG_SIZE, "%s", newname); // use the index provided in the config file to get a specific UI string
                     }
                     else {
                     CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file. NAME_TEXT_ID is too high, NAME used instead.",
@@ -684,6 +687,14 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           }
           else if (i < 2) { // ASSIGN_CPU_KEEPERS = ON
               campgn->assignCpuKeepers = 1;
+          }
+          break;
+      case 22: // SOUNDTRACK
+          i = get_conf_parameter_whole(buf,&pos,len,campgn->soundtrack_fname,DISKPATH_SIZE);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file.",
+                COMMAND_TEXT(cmd_num), campgn->name, config_textname);
           }
           break;
       case ccr_comment:
@@ -1057,8 +1068,8 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
 {
     // Preparing campaign file name and checking the file
     clear_campaign(campgn);
-    LbStringCopy(campgn->fname,cmpgn_fname,DISKPATH_SIZE);
-    LbStringCopy(campgn->name,cmpgn_fname,DISKPATH_SIZE);
+    snprintf(campgn->fname, DISKPATH_SIZE, "%s", cmpgn_fname);
+    snprintf(campgn->name, DISKPATH_SIZE, "%s", cmpgn_fname);
     SYNCDBG(0,"%s campaign file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
     char* fname = prepare_file_path(fgroup, cmpgn_fname);
     long len = LbFileLengthRnc(fname);
@@ -1072,7 +1083,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
         WARNMSG("Campaign file \"%s\" is too large.",cmpgn_fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
       return false;
     // Loading file data
@@ -1103,13 +1114,14 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
           WARNMSG("Parsing campaign file \"%s\" map blocks failed.",cmpgn_fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     if ((flags & CnfLd_ListOnly) == 0)
     {
         setup_campaign_strings_data(campgn);
         if (fgroup == FGrp_Campgn) {
             setup_campaign_credits_data(campgn);
         }
+        load_campaign_soundtrack(campgn);
     }
     if (result && fgroup == FGrp_Campgn)
         return (campgn->single_levels_count > 0) || (campgn->multi_levels_count > 0);
@@ -1172,8 +1184,8 @@ TbBool is_campaign_loaded(void)
 TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries)
 {
     if (clist->items != NULL)
-        LbMemoryFree(clist->items);
-    clist->items = (struct GameCampaign *)LbMemoryAlloc(num_entries*sizeof(struct GameCampaign));
+        free(clist->items);
+    clist->items = (struct GameCampaign *)calloc(num_entries, sizeof(struct GameCampaign));
     if (clist->items == NULL)
     {
         WARNMSG("Can't allocate memory for GameCampaigns list.");
@@ -1195,7 +1207,7 @@ TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries
 {
     long i = clist->items_count;
     long num_entries = clist->items_count + add_entries;
-    clist->items = (struct GameCampaign *)LbMemoryGrow(clist->items, num_entries*sizeof(struct GameCampaign));
+    clist->items = (struct GameCampaign *)realloc(clist->items, num_entries*sizeof(struct GameCampaign));
     if (clist->items == NULL)
     {
         WARNMSG("Can't enlarge memory for GameCampaigns list.");
@@ -1217,7 +1229,7 @@ TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries
 TbBool free_campaigns_list_entries(struct CampaignsList *clist)
 {
   if (clist->items != NULL)
-    LbMemoryFree(clist->items);
+    free(clist->items);
   clist->items = NULL;
   clist->items_count = 0;
   return true;
@@ -1258,9 +1270,9 @@ TbBool swap_campaigns_in_list(struct CampaignsList *clist, int idx1, int idx2)
     if ((idx1 < 0) || (idx1 >= clist->items_num) || (idx2 < 0) || (idx2 >= clist->items_num))
       return false;
     struct GameCampaign campbuf;
-    LbMemoryCopy(&campbuf, &clist->items[idx1], sizeof(struct GameCampaign));
-    LbMemoryCopy(&clist->items[idx1],&clist->items[idx2],sizeof(struct GameCampaign));
-    LbMemoryCopy(&clist->items[idx2],&campbuf,sizeof(struct GameCampaign));
+    memcpy(&campbuf, &clist->items[idx1], sizeof(struct GameCampaign));
+    memcpy(&clist->items[idx1],&clist->items[idx2],sizeof(struct GameCampaign));
+    memcpy(&clist->items[idx2],&campbuf,sizeof(struct GameCampaign));
     return true;
 }
 
@@ -1406,8 +1418,8 @@ TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
 TbBool check_lif_files_in_mappack(struct GameCampaign *campgn)
 {
     struct GameCampaign campbuf;
-    LbMemoryCopy(&campbuf, &campaign, sizeof(struct GameCampaign));
-    LbMemoryCopy(&campaign, campgn, sizeof(struct GameCampaign));
+    memcpy(&campbuf, &campaign, sizeof(struct GameCampaign));
+    memcpy(&campaign, campgn, sizeof(struct GameCampaign));
     find_and_load_lif_files();
     find_and_load_lof_files();
     TbBool result  = (campaign.freeplay_levels_count != 0);
@@ -1415,8 +1427,8 @@ TbBool check_lif_files_in_mappack(struct GameCampaign *campgn)
         // Could be either: no valid levels in LEVELS_LOCATION, no LEVELS_LOCATION specified, or LEVELS_LOCATION does not exist
         WARNMSG("Couldn't load Map Pack \"%s\", no .LIF files could be found.", campgn->fname);
     }
-    LbMemoryCopy(campgn, &campaign, sizeof(struct GameCampaign));
-    LbMemoryCopy(&campaign, &campbuf, sizeof(struct GameCampaign));
+    memcpy(campgn, &campaign, sizeof(struct GameCampaign));
+    memcpy(&campaign, &campbuf, sizeof(struct GameCampaign));
     return result;
 }
 

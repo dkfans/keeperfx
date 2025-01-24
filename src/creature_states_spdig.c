@@ -1502,17 +1502,21 @@ short imp_toking(struct Thing *creatng)
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
-        if ( CREATURE_RANDOM(creatng, 8) )
+        if (CREATURE_RANDOM(creatng, 8))
+        {
             set_creature_instance(creatng, CrInst_RELAXING, 0, 0);
+        }
         else
+        {
             set_creature_instance(creatng, CrInst_TOKING, 0, 0);
+        }
     }
-    
     if ((cctrl->instance_id == CrInst_TOKING) && (cctrl->inst_turn == cctrl->inst_action_turns))
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        if (crstat->toking_recovery != 0) {
-            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel, creatng->owner);
+        if (crstat->toking_recovery != 0)
+        {
+            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel);
             apply_health_to_thing_and_display_health(creatng, recover);
         }
     }

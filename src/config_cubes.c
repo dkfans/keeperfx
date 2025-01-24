@@ -18,7 +18,6 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "globals.h"
@@ -76,7 +75,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
         for (int i = 0; i < CUBE_ITEMS_MAX; i++)
         {
             cubest = &game.conf.cube_conf.cube_cfgstats[i];
-            LbMemorySet(cubest->code_name, 0, COMMAND_WORD_LEN);
+            memset(cubest->code_name, 0, COMMAND_WORD_LEN);
             cube_desc[i].name = cubest->code_name;
             cube_desc[i].num = i;
         }
@@ -265,7 +264,7 @@ TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned 
         }
         return false;
     }
-    char *buf = (char *)LbMemoryAlloc(len + 256);
+    char *buf = (char *)calloc(len + 256, 1);
     if (buf == NULL)
     {
         return false;
@@ -287,7 +286,7 @@ TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned 
         }
     }
     // Freeing and exiting.
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

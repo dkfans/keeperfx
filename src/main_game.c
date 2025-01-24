@@ -17,7 +17,6 @@
 #include "bflib_coroutine.h"
 #include "bflib_datetm.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "bflib_sound.h"
 
 #include "config_compp.h"
@@ -148,8 +147,8 @@ static void init_level(void)
 {
     SYNCDBG(6,"Starting");
     struct IntralevelData transfer_mem;
-    //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
-    LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
+    //memcpy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
+    memcpy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
     clear_flag(game.system_flags, GSF_RunAfterVictory);
     free_swipe_graphic();
@@ -202,9 +201,8 @@ static void init_level(void)
             JUSTMSG("Unable to load script level %lu from %s", get_selected_level_number(), campaign.name);
         }
     }
-
     init_navigation();
-    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
+    snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     light_set_lights_on(1);
     {
         for (size_t i = 0; i < PLAYERS_COUNT; i++)
@@ -218,8 +216,8 @@ static void init_level(void)
         }
     }
     game.numfield_D |= GNFldD_Unkn04;
-    //LbMemoryCopy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
-    LbMemoryCopy(&intralvl,&transfer_mem,sizeof(struct IntralevelData));
+    //memcpy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
+    memcpy(&intralvl,&transfer_mem,sizeof(struct IntralevelData));
     event_initialise_all();
     battle_initialise();
     ambient_sound_prepare();

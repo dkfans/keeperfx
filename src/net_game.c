@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
-#include "bflib_memory.h"
 #include "bflib_network.h"
 
 #include "player_data.h"
@@ -55,7 +54,7 @@ short setup_network_service(int srvidx)
   struct ServiceInitData *init_data = NULL;
   clear_flag(game.flags_font, FFlg_unk10);
   SYNCMSG("Initializing 4-players type %d network",srvidx);
-  LbMemorySet(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
+  memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
   if ( LbNetwork_Init(srvidx, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )
   {
     if (srvidx > NS_ENET_UDP)

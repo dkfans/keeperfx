@@ -203,9 +203,9 @@ TbBool creature_has_job(const struct Thing *thing, CreatureJob job_kind)
 TbBool creature_free_for_anger_job(struct Thing *creatng)
 {
     return !creature_affected_by_call_to_arms(creatng)
-        && !player_uses_power_obey(creatng->owner)
-        && !creature_affected_by_spell(creatng, SplK_Chicken)
-        && !thing_is_picked_up(creatng) && !is_thing_directly_controlled(creatng);
+    && !player_uses_power_obey(creatng->owner)
+    && !creature_under_spell_effect(creatng, CSAfF_Chicken)
+    && !thing_is_picked_up(creatng) && !is_thing_directly_controlled(creatng);
 }
 
 TbBool attempt_anger_job_destroy_rooms(struct Thing *creatng)
@@ -320,12 +320,13 @@ TbBool attempt_anger_job_damage_walls(struct Thing *creatng)
 TbBool attempt_anger_job_mad_psycho(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    if (!external_set_thing_state(creatng, CrSt_MadKillingPsycho)) {
+    if (!external_set_thing_state(creatng, CrSt_MadKillingPsycho))
+    {
         return false;
     }
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->spell_flags |= CSAfF_MadKilling;
-    cctrl->mad_psycho.byte_9A = 0;
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    // Mad Psycho's anger job bypasses immunity.
+    set_flag(cctrl->spell_flags, CSAfF_MadKilling);
     return true;
 }
 
@@ -686,7 +687,8 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
         return false;
     }
     // Don't allow creatures changed to chickens to have any job assigned, besides those specifically marked
-    if (creature_affected_by_spell(creatng, SplK_Chicken) && ((get_flags_for_job(new_job) & JoKF_AllowChickenized) == 0))
+    if (creature_under_spell_effect(creatng, CSAfF_Chicken)
+    && !flag_is_set(get_flags_for_job(new_job), JoKF_AllowChickenized))
     {
         SYNCDBG(13,"Cannot assign %s for %s index %d owner %d; under chicken spell",creature_job_code_name(new_job),thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;
@@ -865,7 +867,8 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
         return false;
     }
     // Don't allow creatures changed to chickens to have any job assigned, besides those specifically marked
-    if (creature_affected_by_spell(creatng, SplK_Chicken) && ((get_flags_for_job(new_job) & JoKF_AllowChickenized) == 0))
+    if (creature_under_spell_effect(creatng, CSAfF_Chicken)
+    && !flag_is_set(get_flags_for_job(new_job), JoKF_AllowChickenized))
     {
         SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; under chicken spell",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         return false;

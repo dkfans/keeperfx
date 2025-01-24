@@ -19,7 +19,6 @@
 
 #include "bflib_coroutine.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
@@ -316,7 +315,7 @@ void process_keeper_spell_aura(struct Thing *thing)
     pos.y.val = thing->mappos.y.val - (delta_y >> 8);
     pos.z.val = thing->mappos.z.val;
 
-    create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner);
+    create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner, thing->index);
 }
 
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
@@ -547,7 +546,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
     return 0; // Default: No collision OR boulder destroyed on door
 }
 
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model)
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model, ThingIndex parent_idx)
 {
   MapCoordDelta dist_x;
   MapCoordDelta dist_y;
@@ -643,7 +642,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
                 {
                     struct Thing *eelemtng;
 
-                    eelemtng = create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num);
+                    eelemtng = create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num, parent_idx);
                     if (!thing_is_invalid(eelemtng)) {
                         eelemtng->sprite_size = sprsize >> 8;
                     }
@@ -721,7 +720,7 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             tngpos.z.val = curpos.z.val + deviat_z;
             if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
             {
-                create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num);
+                create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num, 0);
             }
             if (UNSYNC_RANDOM(6) >= 3) {
                 deviat_x -= 32;
@@ -987,9 +986,13 @@ short setup_game(void)
       }
   #endif
 
-  update_memory_constraits();
-  // Enable features that require more resources
-  update_features(mem_size);
+  // Enable features that require more than 32 megs of memory
+  features_enabled |= Ft_HiResCreatr;
+  // Enable features that require more than 16 megs of memory
+  features_enabled |= Ft_EyeLens;
+  features_enabled |= Ft_HiResVideo;
+  features_enabled |= Ft_BigPointer;
+  features_enabled |= Ft_AdvAmbSound;
 
   // Default feature settings (in case the options are absent from keeperfx.cfg)
   features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
@@ -1557,7 +1560,7 @@ void reinit_level_after_load(void)
     update_room_tab_to_config();
     update_powers_tab_to_config();
     update_trap_tab_to_config();
-    load_texture_map_file(game.texture_id);
+    load_texture_map_file(game.texture_id, get_loaded_level_number(), get_level_fgroup(get_loaded_level_number()));
     init_animating_texture_maps();
     init_gui();
     reset_gui_based_on_player_mode();
@@ -1623,15 +1626,15 @@ void clear_computer(void)
     SYNCDBG(8,"Starting");
     for (i=0; i < COMPUTER_TASKS_COUNT; i++)
     {
-        LbMemorySet(&game.computer_task[i], 0, sizeof(struct ComputerTask));
+        memset(&game.computer_task[i], 0, sizeof(struct ComputerTask));
     }
     for (i=0; i < GOLD_LOOKUP_COUNT; i++)
     {
-        LbMemorySet(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
+        memset(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
     }
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-        LbMemorySet(&game.computer[i], 0, sizeof(struct Computer2));
+        memset(&game.computer[i], 0, sizeof(struct Computer2));
     }
 }
 
@@ -1667,13 +1670,13 @@ void clear_players_for_save(void)
       id_mem = player->id_number;
       mem2 = player->is_active;
       memflg = player->allocflags;
-      LbMemoryCopy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
+      memcpy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = id_mem;
       player->is_active = mem2;
       set_flag_value(player->allocflags, PlaF_Allocated, ((memflg & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((memflg & PlaF_CompCtrl) != 0));
-      LbMemoryCopy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
+      memcpy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
       player->acamera = &player->cameras[CamIV_FirstPerson];
     }
 }
@@ -2565,7 +2568,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
     }
     if (thing_is_creature(thing))
     {
-        apply_damage_to_thing_and_display_health(thing, param->num2, DmgT_Physical, param->num1);
+        apply_damage_to_thing_and_display_health(thing, param->num2, param->num1);
         if ((thing->health >= 0) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             if (((thing->alloc_flags & TAlF_IsControlled) == 0) && !creature_is_kept_in_custody(thing))
@@ -3915,7 +3918,7 @@ short reset_game(void)
     free_gui_strings_data();
     free_level_strings_data();
     FreeAudio();
-    return LbMemoryReset();
+    return 1;
 }
 
 short process_command_line(unsigned short argc, char *argv[])

@@ -24,7 +24,6 @@
 #include <stdio.h>
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
@@ -85,7 +84,7 @@ long S3DInit(void)
     // Clear emitters memory
     delete_all_sound_emitters();
     // Reset sound receiver data
-    LbMemorySet(&Receiver, 0, sizeof(struct SoundReceiver));
+    memset(&Receiver, 0, sizeof(struct SoundReceiver));
     S3DSetSoundReceiverPosition(0, 0, 0);
     S3DSetSoundReceiverOrientation(0, 0, 0);
     S3DSetSoundReceiverSensitivity(64);
@@ -716,7 +715,7 @@ void delete_sound_emitter(SoundEmitterID idx)
     if (S3DEmitterIsAllocated(idx))
     {
         struct SoundEmitter* emit = S3DGetSoundEmitter(idx);
-        LbMemorySet(emit, 0, sizeof(struct SoundEmitter));
+        memset(emit, 0, sizeof(struct SoundEmitter));
     }
 }
 
@@ -729,7 +728,7 @@ void delete_all_sound_emitters(void)
     for (long i = 0; i < SOUND_EMITTERS_MAX; i++)
     {
         struct SoundEmitter* emit = &emitter[i];
-        LbMemorySet(emit, 0, sizeof(struct SoundEmitter));
+        memset(emit, 0, sizeof(struct SoundEmitter));
     }
 }
 
@@ -738,7 +737,7 @@ void init_sample_list(void)
     for (long i = 0; i < SOUNDS_MAX_COUNT; i++)
     {
         struct S3DSample* sample = &SampleList[i];
-        LbMemorySet(sample, 0, sizeof(struct S3DSample));
+        memset(sample, 0, sizeof(struct S3DSample));
     }
 }
 
@@ -813,7 +812,6 @@ struct SampleInfo *play_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id,
 
     struct SampleTable* smp_table = sample_table_get(smptbl_id, bank_id);
     if (smp_table == NULL) {
-        ERRORLOG("Sample table not loaded");
         return NULL;
     }
     // Start the play

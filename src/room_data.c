@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
-#include "bflib_memory.h"
 #include "config_creature.h"
 #include "power_specials.h"
 #include "room_garden.h"
@@ -550,7 +549,7 @@ void delete_room_structure(struct Room *room)
                   secroom->next_of_owner = room->next_of_owner;
           }
       }
-      LbMemorySet(room, 0, sizeof(struct Room));
+      memset(room, 0, sizeof(struct Room));
     }
 }
 
@@ -1028,7 +1027,7 @@ struct Room *allocate_free_room_structure(void)
         struct Room* room = &game.rooms[i];
         if ((room->alloc_flags & 0x01) == 0)
         {
-            LbMemorySet(room, 0, sizeof(struct Room));
+            memset(room, 0, sizeof(struct Room));
             room->alloc_flags |= 0x01;
             room->index = i;
             return room;
@@ -1639,8 +1638,8 @@ TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Ro
             // In case we will select a column on that subtile, do 3 tries
             for (int k = 0; k < 3; k++)
             {
-                pos->x.val = subtile_coord(slab_subtile(slb_x,0),CREATURE_RANDOM(thing, STL_PER_SLB*COORD_PER_STL));
-                pos->y.val = subtile_coord(slab_subtile(slb_y,0),CREATURE_RANDOM(thing, STL_PER_SLB*COORD_PER_STL));
+                pos->x.val = subtile_coord(slab_subtile(slb_x,0),CREATURE_RANDOM(thing, COORD_PER_SLB));
+                pos->y.val = subtile_coord(slab_subtile(slb_y,0),CREATURE_RANDOM(thing, COORD_PER_SLB));
                 pos->z.val = subtile_coord(1,0);
                 struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
                 if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((mapblk->flags & SlbAtFlg_IsDoor) == 0)

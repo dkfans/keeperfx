@@ -22,7 +22,6 @@
 #include "game_legacy.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -129,7 +128,7 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
         arr_size = sizeof(game.conf.crtr_conf.states)/sizeof(game.conf.crtr_conf.states[0]);
         for (i=0; i < arr_size; i++)
         {
-            LbMemorySet(game.conf.crtr_conf.states[i].name, 0, COMMAND_WORD_LEN);
+            memset(game.conf.crtr_conf.states[i].name, 0, COMMAND_WORD_LEN);
             if (i < game.conf.crtr_conf.states_count)
             {
                 creatrstate_desc[i].name = game.conf.crtr_conf.states[i].name;
@@ -209,7 +208,7 @@ TbBool load_creaturestates_config_file(const char *textname, const char *fname, 
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     // Loading file data
@@ -233,7 +232,7 @@ TbBool load_creaturestates_config_file(const char *textname, const char *fname, 
           WARNMSG("Parsing %s file \"%s\" state blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     return result;
 }
 

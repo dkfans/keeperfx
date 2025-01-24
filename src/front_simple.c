@@ -23,7 +23,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
@@ -148,14 +147,14 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
     for (sh = 0; sh < sph; sh++)
     {
         dst = dst_buf + (sh)*scanline;
-        LbMemorySet(dst, 0, scanline);
+        memset(dst, 0, scanline);
   }
   // Clearing bottom of the canvas
   // (Note: it must be done before drawing, to make sure we won't overwrite last line)
   for (sh=sph+dst_height; sh<nlines; sh++)
   {
       dst = dst_buf + (sh)*scanline;
-      LbMemorySet(dst, 0, scanline);
+      memset(dst, 0, scanline);
   }
   // Now drawing
   int dhstart = sph;
@@ -171,7 +170,7 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
           dst = dst_buf + (dhstart+k)*scanline;
           int dwstart = spw;
           if (dwstart > 0) {
-              LbMemorySet(dst, 0, dwstart);
+              memset(dst, 0, dwstart);
           }
           for (sw=0; sw<src_width; sw++)
           {
@@ -186,7 +185,7 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
               dwstart = dwend;
           }
           if (dwstart < scanline) {
-              LbMemorySet(dst+dwstart, 0, scanline-dwstart);
+              memset(dst+dwstart, 0, scanline-dwstart);
           }
       }
       dhstart = dhend;
@@ -292,7 +291,7 @@ TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int 
  */
 short clear_bitmap_screen(struct ActiveBitmap *actv_bmp)
 {
-  LbMemorySet(actv_bmp, 0, sizeof(struct ActiveBitmap));
+  memset(actv_bmp, 0, sizeof(struct ActiveBitmap));
   return true;
 }
 
@@ -302,8 +301,8 @@ short clear_bitmap_screen(struct ActiveBitmap *actv_bmp)
  */
 short free_bitmap_screen(struct ActiveBitmap *actv_bmp)
 {
-  LbMemoryFree(actv_bmp->raw_data);
-  LbMemoryFree(actv_bmp->pal_data);
+  free(actv_bmp->raw_data);
+  free(actv_bmp->pal_data);
   return clear_bitmap_screen(actv_bmp);
 }
 
@@ -346,7 +345,7 @@ TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   if (buf == NULL)
   {
     ERRORLOG("Couldn't load raw bitmap file for %s screen",rbmp->name);
-    LbMemoryFree(actv_bmp->pal_data);
+    free(actv_bmp->pal_data);
     clear_bitmap_screen(actv_bmp);
     return false;
   }

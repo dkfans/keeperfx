@@ -112,7 +112,6 @@ obj/bflib_inputctrl.o \
 obj/bflib_keybrd.o \
 obj/bflib_main.o \
 obj/bflib_math.o \
-obj/bflib_memory.o \
 obj/bflib_mouse.o \
 obj/bflib_mshandler.o \
 obj/bflib_mspointer.o \

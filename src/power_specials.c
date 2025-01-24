@@ -330,7 +330,7 @@ void make_safe(struct PlayerInfo *player)
                 if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x-1, slb_y))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x - 1, slb_y);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x-1,0), slab_subtile(slb_y,0), plyr_idx, 1);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x-1,0), slab_subtile(slb_y,0), plyr_idx, 0);
                     do_slab_efficiency_alteration(slb_x-1, slb_y);
                     fill_in_reinforced_corners(plyr_idx, slb_x-1, slb_y);
                 }
@@ -353,7 +353,7 @@ void make_safe(struct PlayerInfo *player)
                 if ((slbattr->category == SlbAtCtg_FriableDirt) &&  slab_by_players_land(plyr_idx, slb_x+1, slb_y))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x + 1, slb_y);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x+1,0), slab_subtile(slb_y,0), plyr_idx, 1u);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x+1,0), slab_subtile(slb_y,0), plyr_idx, 0);
                     do_slab_efficiency_alteration(slb_x+1, slb_y);
                     fill_in_reinforced_corners(plyr_idx, slb_x+1, slb_y);
                 }
@@ -376,7 +376,7 @@ void make_safe(struct PlayerInfo *player)
                 if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y-1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y - 1);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y-1,0), plyr_idx, 1);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y-1,0), plyr_idx, 0);
                     do_slab_efficiency_alteration(slb_x, slb_y-1);
                     fill_in_reinforced_corners(plyr_idx, slb_x, slb_y-1);
                 }
@@ -399,7 +399,7 @@ void make_safe(struct PlayerInfo *player)
                 if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y+1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y + 1);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y+1,0), plyr_idx, 1);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y+1,0), plyr_idx, 0);
                     do_slab_efficiency_alteration(slb_x, slb_y+1);
                     fill_in_reinforced_corners(plyr_idx, slb_x, slb_y+1);
                 }
@@ -585,7 +585,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             {
                 output_message(specst->speech, 0, true);
             }
-            create_used_effect_or_element(&pos, specst->effect_id, player->id_number);
+            create_used_effect_or_element(&pos, specst->effect_id, player->id_number, cratetng->index);
         }
     }
 }
@@ -609,7 +609,7 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
           output_message(SMsg_CommonAcknowledge, 0, true);
     }
     struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
-    create_used_effect_or_element(&boxtng->mappos, specst->effect_id, owner);
+    create_used_effect_or_element(&boxtng->mappos, specst->effect_id, owner, boxtng->index);
     remove_events_thing_is_attached_to(boxtng);
     force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
     if ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
@@ -651,7 +651,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     if (!from_script)
     {
         struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_TrnsfrCrtr);
-        create_used_effect_or_element(&boxtng->mappos, specst->effect_id, plyr_idx);
+        create_used_effect_or_element(&boxtng->mappos, specst->effect_id, plyr_idx, boxtng->index);
         remove_events_thing_is_attached_to(boxtng);
         force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
         delete_thing_structure(boxtng, 0);
