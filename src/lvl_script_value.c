@@ -207,7 +207,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
  * @param destination: The desitination of the disk task.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destination)
+TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, TbMapLocation destination)
 {
     struct Computer2* comp = get_computer_player(plyr_idx);
     long orig_x, orig_y = 0;

@@ -170,6 +170,14 @@ enum CreatureAttackType {
     AttckT_Ranged,
 };
 
+enum CreatureSpawnType {
+    SpwnT_None = 0,
+    SpwnT_Default, 
+    SpwnT_Jump,
+    SpwnT_Fall,
+    SpwnT_Initialize
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -279,6 +287,7 @@ extern const struct NamedCommand creatmodel_experience_commands[];
 extern const struct NamedCommand creatmodel_senses_commands[];
 extern const struct NamedCommand creatmodel_appearance_commands[];
 extern const struct NamedCommand creature_deathkind_desc[];
+extern const struct NamedCommand spawn_type_desc[];
 extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
