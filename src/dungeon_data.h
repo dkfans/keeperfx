@@ -194,7 +194,7 @@ struct Dungeon {
     short creatures_scavenge_lost;
     long scavenge_turn_points[CREATURE_TYPES_MAX];
     short scavenge_targets[CREATURE_TYPES_MAX];
-    int creature_max_level[CREATURE_TYPES_MAX];
+    CrtrExpLevel creature_max_level[CREATURE_TYPES_MAX];
     unsigned short creatures_annoyed;
     unsigned short battles_lost;
     unsigned short battles_won;
@@ -289,7 +289,7 @@ struct Dungeon {
     struct Coord3d        last_eventful_death_location;
     struct Coord3d        last_trap_event_location;
     int                   creature_awarded[CREATURE_TYPES_MAX];
-    unsigned char         creature_entrance_level;
+    CrtrExpLevel          creature_entrance_level;
     unsigned long         evil_creatures_converted;
     unsigned long         good_creatures_converted;
     unsigned long         creatures_transferred;

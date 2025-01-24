@@ -169,7 +169,7 @@ const struct NamedField rules_rooms_named_fields[] = {
   {"PRISONBREAKCHANCE",                   &game.conf.rules.rooms.prison_break_chance,              var_type(game.conf.rules.rooms.prison_break_chance             ),        0,           ULONG_MAX},
   {"TORTUREDEATHCHANCE",                  &game.conf.rules.rooms.torture_death_chance,             var_type(game.conf.rules.rooms.torture_death_chance            ),        0,                 100},
   {"BARRACKMAXPARTYSIZE",                 &game.conf.rules.rooms.barrack_max_party_size,           var_type(game.conf.rules.rooms.barrack_max_party_size          ),        0, GROUP_MEMBERS_COUNT},
-  {"TRAININGROOMMAXLEVEL",                &game.conf.rules.rooms.training_room_max_level,          var_type(game.conf.rules.rooms.training_room_max_level         ),        0,                  11},
+  {"TRAININGROOMMAXLEVEL",                &game.conf.rules.rooms.training_room_max_level,          var_type(game.conf.rules.rooms.training_room_max_level         ),        0,CREATURE_MAX_LEVEL+1},
   {NULL,                                  NULL,                                                                                                                   0,        0,                   0},
 };
 

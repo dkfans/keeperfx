@@ -417,7 +417,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     return Lb_OK;
 }
 
-TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
+TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, CrtrExpLevel alevel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2)
 {
     TbResult result;
@@ -3842,7 +3842,7 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
 
 //Task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units.
 //Not to be confused with check_for_accelerate which cast speed outside of combat.
-TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
+TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, CrtrExpLevel splevel)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -3860,7 +3860,7 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
     return true;
 }
 
-TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, int splevel, int gaction)
+TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, CrtrExpLevel splevel, int gaction)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");

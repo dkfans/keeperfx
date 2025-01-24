@@ -55,30 +55,30 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
 TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwkind);
 
-GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
-GoldAmount compute_lowest_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
+GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, CrtrExpLevel pwlevel);
+GoldAmount compute_lowest_power_price(PlayerNumber plyr_idx, PowerKind pwkind, CrtrExpLevel pwlevel);
 long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind);
 TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coord3d *pos);
-TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
+TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, CrtrExpLevel pwlevel);
 int get_power_overcharge_level(struct PlayerInfo *player);
 TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx);
 void process_dungeon_power_magic(void);
 
 TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
+    CrtrExpLevel splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
 
 TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long mod_flags);
+    CrtrExpLevel splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long mod_flags);
 TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind spl_idx,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags, unsigned long mod_flags);
-TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx, unsigned short splevel, unsigned long allow_flags);
-void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx, ThingIndex thing_idx, long splevel);
+    CrtrExpLevel splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags, unsigned long mod_flags);
+TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx, CrtrExpLevel splevel, unsigned long allow_flags);
+void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx, ThingIndex thing_idx, CrtrExpLevel splevel);
 
 TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
+    CrtrExpLevel splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
 TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind spl_idx,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags, unsigned long mod_flags);
-TbResult magic_use_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx, unsigned short splevel, unsigned long mod_flags);
+    CrtrExpLevel splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags, unsigned long mod_flags);
+TbResult magic_use_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx, CrtrExpLevel splevel, unsigned long mod_flags);
 
 void slap_creature(struct PlayerInfo *player, struct Thing *thing);
 void update_power_sight_explored(struct PlayerInfo *player);
