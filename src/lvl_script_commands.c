@@ -583,7 +583,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
     int i = dungeon->creatr_list_start;
-    if ((crmodel == get_players_special_digger_model(plyr_idx)) || (crmodel == CREATURE_DIGGER))
+    if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,crmodel))
     {
         i = dungeon->digger_list_start;
     }
@@ -2194,22 +2194,22 @@ static void set_hand_rule_process(struct ScriptContext* context)
     long param = context->value->shorts[4];
     long crtr_id_start = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? 0 : crtr_id;
     long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
-    ThingModel digger_model;
 
     struct Dungeon* dungeon;
-    for (int i = context->plr_start; i < context->plr_end; i++)
+    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
-        digger_model = get_players_special_digger_model(i);
         for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
         {
+
+            //todo maybe should use creature_model_matches_model somewhere?
             if (crtr_id == CREATURE_NOT_A_DIGGER)
             {
-                if (ci == digger_model)
+                if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,ci))
                 {
                     continue;
                 }
             }
-            dungeon = get_dungeon(i);
+            dungeon = get_dungeon(plyr_idx);
             if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
             {
                 dungeon->hand_rules[ci][hand_rule_slot].enabled = 1;
@@ -7474,12 +7474,6 @@ static void swap_creature_check(const struct ScriptLine* scline)
     ThingModel ncrt_id = scline->np[0];
     ThingModel crtr_id = scline->np[1];
 
-    struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_id];
-    if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
-    {
-        SCRPTERRLOG("Unable to swap special diggers");
-        DEALLOCATE_SCRIPT_VALUE;
-    }
     value->shorts[0] = ncrt_id;
     value->shorts[1] = crtr_id;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -7493,6 +7487,46 @@ static void swap_creature_process(struct ScriptContext* context)
     if (!swap_creature(ncrt_id, crtr_id))
     {
         SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", creature_code_name(ncrt_id), creature_code_name(crtr_id));
+    }
+    recalculate_all_creature_digger_lists();
+}
+
+static void set_digger_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    ThingModel crtr_id = get_rid(creature_desc, scline->tp[1]);
+   
+    if (crtr_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        return;
+    }
+
+    value->shorts[0] = crtr_id;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_digger_process(struct ScriptContext* context)
+{
+    ThingModel new_dig_model = context->value->shorts[0];
+    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+    {
+        ThingModel old_dig_model = get_players_special_digger_model(plyr_idx);
+        if (old_dig_model == new_dig_model)
+        {
+            continue;
+        }
+        struct PlayerInfo* player = get_player(plyr_idx);
+
+        player->special_digger = context->value->shorts[0];
+
+        for (size_t i = 0; i < CREATURE_TYPES_MAX; i++)
+        {
+            if (breed_activities[i] == old_dig_model)
+                breed_activities[i] = new_dig_model;
+            else if (breed_activities[i] == new_dig_model)
+                breed_activities[i] = old_dig_model;
+        }
     }
 }
 
@@ -7659,6 +7693,7 @@ const struct CommandDesc command_desc[] = {
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
   {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNpa  ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
   {"LOCK_POSSESSION",                   "PB!     ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
+  {"SET_DIGGER",                        "PC      ", Cmd_SET_DIGGER , &set_digger_check, &set_digger_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

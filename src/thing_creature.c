@@ -152,24 +152,20 @@ TbBool thing_can_be_controlled_as_passenger(struct Thing *thing)
 
 TbBool creature_is_for_dungeon_diggers_list(const struct Thing *creatng)
 {
-    //TODO DIGGERS For now, only player-specific and non-hero special diggers are on the diggers list
-    if (is_hero_thing(creatng))
-        return false;
-    return (creatng->model == get_players_special_digger_model(creatng->owner));
-    //struct CreatureModelConfig *crconf;
-    //crconf = &game.conf.crtr_conf.model[creatng->model];
-    //return  ((crconf->model_flags & CMF_IsSpecDigger) != 0);
+    return creature_kind_is_for_dungeon_diggers_list(creatng->owner,creatng->model);
 }
 
 TbBool creature_kind_is_for_dungeon_diggers_list(PlayerNumber plyr_idx, ThingModel crmodel)
 {
-    //TODO DIGGERS For now, only player-specific and non-hero special diggers are on the diggers list
     if (player_is_roaming(plyr_idx))
         return false;
-    return (crmodel == get_players_special_digger_model(plyr_idx));
-    //struct CreatureModelConfig *crconf;
-    //crconf = &game.conf.crtr_conf.model[crmodel];
-    //is_spec_digger = ((crconf->model_flags & CMF_IsSpecDigger) != 0);
+
+    if (crmodel == CREATURE_DIGGER)
+        return true;
+
+    struct CreatureModelConfig *crconf;
+    crconf = &game.conf.crtr_conf.model[crmodel];
+    return flag_is_set(crconf->model_flags,CMF_IsSpecDigger);
 }
 
 /**
@@ -2283,7 +2279,7 @@ void update_creature_count(struct Thing *creatng)
         return;
     }
     int statyp = get_creature_state_type(creatng);
-    dungeon->field_64[creatng->model][statyp]++;
+    dungeon->crmodel_state_type_count[creatng->model][statyp]++;
     int job_idx = get_creature_gui_job(creatng);
     if (can_thing_be_picked_up_by_player(creatng, creatng->owner))
     {
@@ -2503,7 +2499,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     }
 
     // Creatures that are not special diggers will pick up any nearby gold or food
-    if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & CMF_IsSpecDigger) == 0))
+    if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) == 0))
     {
         if (!creature_is_being_unconscious(thing) && !creature_is_dying(thing) &&
             !thing_is_picked_up(thing) && !creature_is_being_dropped(thing))
@@ -4410,6 +4406,29 @@ void set_first_creature(struct Thing *creatng)
     }
 }
 
+void recalculate_all_creature_digger_lists()
+{
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+         recalculate_player_creature_digger_lists(plyr_idx);
+    }
+
+    for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
+    {
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
+        struct CreatureStats *crstat = creature_stats_get(crtr_model);
+        if ((crconf->model_flags & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0)
+        {
+            crstat->evil_start_state = CrSt_ImpDoingNothing;
+            crstat->good_start_state = CrSt_TunnellerDoingNothing;
+        } else
+        {
+            crstat->evil_start_state = CrSt_CreatureDoingNothing;
+            crstat->good_start_state = CrSt_GoodDoingNothing;
+        }
+    }
+}
+
 void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
 {
     ThingIndex previous_digger = 0;
@@ -4578,11 +4597,11 @@ TbBool thing_is_dead_creature(const struct Thing *thing)
  * @param thing The thing to be checked.
  * @return True if the thing is creature and special digger, false otherwise.
  */
-TbBool thing_is_creature_special_digger(const struct Thing *thing)
+TbBool thing_is_creature_digger(const struct Thing *thing)
 {
   if (!thing_is_creature(thing))
     return false;
-  return ((get_creature_model_flags(thing) & CMF_IsSpecDigger) != 0);
+  return ((get_creature_model_flags(thing) & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0);
 }
 
 /** Returns if a thing the creature type set as spectator, normally the floating spirit.
@@ -7585,7 +7604,7 @@ ThingModel get_random_appropriate_creature_kind(ThingModel original_model)
         }
         // Exclude same creature kind, spectators and diggers.
         newconf = &game.conf.crtr_conf.model[random_model];
-        if ((random_model == original_model) || (flag_is_set(newconf->model_flags, CMF_IsSpectator)) || (flag_is_set(newconf->model_flags, CMF_IsSpecDigger)))
+        if ((random_model == original_model) || (any_flag_is_set(newconf->model_flags, (CMF_IsSpectator|CMF_IsSpecDigger|CMF_IsDiggingCreature))))
         {
             continue;
         }

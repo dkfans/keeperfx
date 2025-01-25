@@ -144,6 +144,7 @@ void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
 long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
 void recalculate_player_creature_digger_lists(PlayerNumber plr_idx);
+void recalculate_all_creature_digger_lists();
 
 TbBool creature_has_lair_room(const struct Thing *creatng);
 struct Room *get_creature_lair_room(const struct Thing *creatng);
@@ -225,7 +226,7 @@ TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);
-TbBool thing_is_creature_special_digger(const struct Thing *thing);
+TbBool thing_is_creature_digger(const struct Thing *thing);
 TbBool thing_is_creature_spectator(const struct Thing *thing);
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_is_invisible(const struct Thing *thing);

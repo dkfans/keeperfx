@@ -41,26 +41,27 @@ extern "C" {
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
 /******************************************************************************/
 enum CreatureModelFlags {
-    CMF_IsSpecDigger     = 0x000001, // Imp and Tunneller.
-    CMF_IsArachnid       = 0x000002, // Simply, Spider.
-    CMF_IsDiptera        = 0x000004, // Simply, Fly.
-    CMF_IsLordOfLand     = 0x000008, // Simply, Knight and Avatar.
-    CMF_IsSpectator      = 0x000010, // Simply, Floating Spirit.
-    CMF_IsEvil           = 0x000020, // All evil creatures.
-    CMF_ImmuneToBoulder  = 0x000040, // Boulder traps are destroyed at the moment they touch the creature.
-    CMF_NoCorpseRotting  = 0x000080, // Corpse cannot rot in graveyard.
-    CMF_NoEnmHeartAttack = 0x000100, // Creature will not attack enemy heart on sight.
-    CMF_Trembling        = 0x000200, // Creature causes ground to tremble when dropped.
-    CMF_Fat              = 0x000400, // Creature too fat to walk a full animation.
-    CMF_Female           = 0x000800, // Creature is female.
-    CMF_Insect           = 0x001000, // Creature is kind of insect.
-    CMF_OneOfKind        = 0x002000, // Only one creature of that kind may exist on one level. Unit name is type name.
-    CMF_NoImprisonment   = 0x004000, // Creature will not faint.
-    CMF_NoResurrect      = 0x008000, // Creature will not resurrect.
-    CMF_NoTransfer       = 0x010000, // Creature cannot be transferred.
-    CMF_NoStealHero      = 0x020000, // Prevent the creature from being stolen with the Steal Hero special.
-    CMF_PreferSteal      = 0x040000, // The creature can be generated from Steal Hero special if there's nothing to steal.
-    CMF_EventfulDeath    = 0x080000, // The LAST_DEATH_EVENT[] script location is updated on death.
+    CMF_IsSpecDigger      = 0x000001, // is a dedicated digger that doesn't do things normal units do (like imp)
+    CMF_IsArachnid        = 0x000002, // Simply, Spider.
+    CMF_IsDiptera         = 0x000004, // Simply, Fly.
+    CMF_IsLordOfLand      = 0x000008, // Simply, Knight and Avatar.
+    CMF_IsSpectator       = 0x000010, // Simply, Floating Spirit.
+    CMF_IsEvil            = 0x000020, // All evil creatures.
+    CMF_ImmuneToBoulder   = 0x000040, // Boulder traps are destroyed at the moment they touch the creature.
+    CMF_NoCorpseRotting   = 0x000080, // Corpse cannot rot in graveyard.
+    CMF_NoEnmHeartAttack  = 0x000100, // Creature will not attack enemy heart on sight.
+    CMF_Trembling         = 0x000200, // Creature causes ground to tremble when dropped.
+    CMF_Fat               = 0x000400, // Creature too fat to walk a full animation.
+    CMF_Female            = 0x000800, // Creature is female.
+    CMF_Insect            = 0x001000, // Creature is kind of insect.
+    CMF_OneOfKind         = 0x002000, // Only one creature of that kind may exist on one level. Unit name is type name.
+    CMF_NoImprisonment    = 0x004000, // Creature will not faint.
+    CMF_NoResurrect       = 0x008000, // Creature will not resurrect.
+    CMF_NoTransfer        = 0x010000, // Creature cannot be transferred.
+    CMF_NoStealHero       = 0x020000, // Prevent the creature from being stolen with the Steal Hero special.
+    CMF_PreferSteal       = 0x040000, // The creature can be generated from Steal Hero special if there's nothing to steal.
+    CMF_EventfulDeath     = 0x080000, // The LAST_DEATH_EVENT[] script location is updated on death.
+    CMF_IsDiggingCreature = 0x100000, // unit still counts as a regular creature but can also do digger tasks (like tunneler)
 };
 
 // Before C23 standard, we cannot specify the underlaying type (in this case we want 64bit int) of enum.

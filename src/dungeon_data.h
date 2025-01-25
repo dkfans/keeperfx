@@ -36,6 +36,8 @@
 #include "thing_traps.h"
 #include "roomspace.h"
 #include "config_creature.h"
+#include "creature_states.h"
+
 #include "power_hand.h"
 
 #ifdef __cplusplus
@@ -154,7 +156,7 @@ struct Dungeon {
     unsigned short num_summon;
     ThingIndex things_in_hand[MAX_THINGS_IN_HAND];
     unsigned char num_things_in_hand;
-    unsigned short field_64[CREATURE_TYPES_MAX][15];
+    unsigned short crmodel_state_type_count[CREATURE_TYPES_MAX][STATE_TYPES_COUNT];
     unsigned short guijob_all_creatrs_count[CREATURE_TYPES_MAX][3];
     unsigned short guijob_angry_creatrs_count[CREATURE_TYPES_MAX][3];
     int sight_casted_gameturn;
