@@ -4412,6 +4412,21 @@ void recalculate_all_creature_digger_lists()
     {
          recalculate_player_creature_digger_lists(plyr_idx);
     }
+
+    for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
+    {
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
+        struct CreatureStats *crstat = creature_stats_get(crtr_model);
+        if ((crconf->model_flags & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0)
+        {
+            crstat->evil_start_state = CrSt_ImpDoingNothing;
+            crstat->good_start_state = CrSt_TunnellerDoingNothing;
+        } else
+        {
+            crstat->evil_start_state = CrSt_CreatureDoingNothing;
+            crstat->good_start_state = CrSt_GoodDoingNothing;
+        }
+    }
 }
 
 void recalculate_player_creature_digger_lists(PlayerNumber plr_idx)
