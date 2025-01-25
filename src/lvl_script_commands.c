@@ -4682,34 +4682,57 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
     }
 }
 
-static void set_box_tooltip(const struct ScriptLine *scline)
+static void set_box_tooltip_check(const struct ScriptLine* scline)
 {
-  if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
-  {
-    SCRPTERRLOG("Invalid CUSTOM_BOX number (%ld)", scline->np[0]);
-    return;
-  }
-  int idx = scline->np[0];
-  if (strlen(scline->tp[1]) >= MESSAGE_TEXT_LEN)
-  {
-      SCRPTWRNLOG("Tooltip TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
-  }
-  if ((gameadd.box_tooltip[idx][0] != '\0') && (strcmp(gameadd.box_tooltip[idx], scline->tp[1]) != 0))
-  {
-      SCRPTWRNLOG("Box tooltip #%d overwritten by different text", idx);
-  }
-  snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
+    {
+        SCRPTERRLOG("Invalid CUSTOM_BOX number (%ld)", scline->np[0]);
+        DEALLOCATE_SCRIPT_VALUE;
+    }
+    value->shorts[0] = scline->np[0];
+
+    if (strlen(scline->tp[1]) >= MESSAGE_TEXT_LEN)
+    {
+        SCRPTWRNLOG("Tooltip TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
+    }
+    value->strs[2] = script_strdup(scline->tp[1]);
+    if (value->strs[2] == NULL)
+    {
+        SCRPTERRLOG("Run out script strings space");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void set_box_tooltip_id(const struct ScriptLine *scline)
+
+static void set_box_tooltip_process(struct ScriptContext* context)
 {
-  if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
-  {
-    SCRPTERRLOG("Invalid CUSTOM_BOX number (%ld)", scline->np[0]);
-    return;
-  }
-  int idx = scline->np[0];
-  snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", get_string(scline->np[1]));
+    int idx = context->value->shorts[0];
+    snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", context->value->strs[2]);
+}
+
+static void set_box_tooltip_id_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
+    {
+        SCRPTERRLOG("Invalid CUSTOM_BOX number (%ld)", scline->np[0]);
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
+    value->shorts[0] = scline->np[0];
+    value->shorts[1] = scline->np[1];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_box_tooltip_id_process(struct ScriptContext* context)
+{
+    int idx = context->value->shorts[0];
+    int string = context->value->shorts[1];
+    snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", get_string(string));
 }
 
 static void change_slab_owner_check(const struct ScriptLine *scline)
@@ -7580,8 +7603,8 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_CONFIGURATION",        "CAAaa   ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
-  {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
-  {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id, &null_process},
+  {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip_check, &set_box_tooltip_process},
+  {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id_check, &set_box_tooltip_id_process},
   {"CHANGE_SLAB_OWNER",                 "NNPa    ", Cmd_CHANGE_SLAB_OWNER, &change_slab_owner_check, &change_slab_owner_process},
   {"CHANGE_SLAB_TYPE",                  "NNSa    ", Cmd_CHANGE_SLAB_TYPE, &change_slab_type_check, &change_slab_type_process},
   {"CREATE_EFFECTS_LINE",               "LLNNNA  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
