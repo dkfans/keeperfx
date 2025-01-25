@@ -809,6 +809,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               clear_flag(crconf->model_flags, CMF_EventfulDeath);
           }
           break;
+      case 35: // DIGGING_CREATURE
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags, CMF_IsDiggingCreature);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags, CMF_IsDiggingCreature);
+          }
+          break;
       default:
           SCRPTERRLOG("Unknown creature property '%ld'", val3);
           break;
