@@ -1298,11 +1298,10 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
 
 void update_creatr_model_activities_list(TbBool force_update)
 {
-    static TbBool needs_resort = false;
+    static TbBool needs_resort = true; // Force initial sorting
     struct Dungeon* dungeon = get_my_dungeon();
     ThingModel crmodel;
     int num_breeds = no_of_breeds_owned;
-    ThingModel special_digger = get_players_special_digger_model(my_player_number);
 
     // Check for changes and update the list
     for (crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
@@ -1332,7 +1331,7 @@ void update_creatr_model_activities_list(TbBool force_update)
     for (crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] <= 0)
-            && (crmodel != special_digger))
+            && (crmodel != get_players_special_digger_model(my_player_number)))
         {
             for (int i = 0; i < num_breeds; i++)
             {
@@ -1356,15 +1355,14 @@ void update_creatr_model_activities_list(TbBool force_update)
     // Perform sorting only if needed
     if (needs_resort || force_update)
     {
-        // Sort everything except the first element (special digger)
-        qsort(&breed_activities[1], num_breeds - 1, sizeof(ThingModel),
+        qsort(breed_activities, num_breeds, sizeof(ThingModel),
             [](const void* a, const void* b) {
-                ThingModel model_a = *(ThingModel*)a;
-                ThingModel model_b = *(ThingModel*)b;
-                struct CreatureModelConfig* crconf_a = &game.conf.crtr_conf.model[model_a];
-                struct CreatureModelConfig* crconf_b = &game.conf.crtr_conf.model[model_b];
+                struct CreatureModelConfig* crconf_a = &game.conf.crtr_conf.model[*(ThingModel*)a];
+                struct CreatureModelConfig* crconf_b = &game.conf.crtr_conf.model[*(ThingModel*)b];
+
                 TbBool is_digger_a = any_flag_is_set(crconf_a->model_flags, (CMF_IsDiggingCreature | CMF_IsSpecDigger));
                 TbBool is_digger_b = any_flag_is_set(crconf_b->model_flags, (CMF_IsDiggingCreature | CMF_IsSpecDigger));
+
                 return (is_digger_b - is_digger_a); // Place diggers first
             });
 
