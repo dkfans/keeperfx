@@ -2805,7 +2805,7 @@ short get_gui_inputs(short gameplay_on)
   gui_trap_type_highlighted = -1;
   gui_creature_type_highlighted = -1;
   if (gameplay_on) {
-      update_creatr_model_activities_list(0);
+      update_creatr_model_activities_list();
       maintain_my_battle_list();
   }
   if (!lbDisplay.MLeftButton)

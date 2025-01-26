@@ -1296,15 +1296,15 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
     return result;
 }
 
-void update_creatr_model_activities_list(TbBool force_update)
+void update_creatr_model_activities_list(void)
 {
-    static TbBool needs_resort = true; // Force initial sorting
-    struct Dungeon* dungeon = get_my_dungeon();
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
     ThingModel crmodel;
-    int num_breeds = no_of_breeds_owned;
-
-    // Check for changes and update the list
-    for (crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
+    int num_breeds;
+    num_breeds = no_of_breeds_owned;
+    // Add to breed activities
+    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] > 0)
             && (crmodel != get_players_spectator_model(my_player_number)))
@@ -1322,54 +1322,45 @@ void update_creatr_model_activities_list(TbBool force_update)
             {
                 breed_activities[num_breeds] = crmodel;
                 num_breeds++;
-                needs_resort = true;
             }
         }
     }
-
+    // Reorder breed activities to ensure diggers are correctly positioned
+    int write_idx = 1;
+    for (int i = 1; i < num_breeds; i++)
+    {
+        struct CreatureModelConfig* crconf;
+        crconf = &game.conf.crtr_conf.model[breed_activities[i]];
+        if (any_flag_is_set(crconf->model_flags, (CMF_IsDiggingCreature|CMF_IsSpecDigger)))
+        {
+            ThingModel temp = breed_activities[i];
+            memmove(&breed_activities[write_idx + 1], &breed_activities[write_idx], (i - write_idx) * sizeof(ThingModel));
+            breed_activities[write_idx] = temp;
+            write_idx++;
+        }
+    }
     // Remove from breed activities
-    for (crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
+    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] <= 0)
-            && (crmodel != get_players_special_digger_model(my_player_number)))
+          && (crmodel != get_players_special_digger_model(my_player_number)))
         {
             for (int i = 0; i < num_breeds; i++)
             {
                 if (breed_activities[i] == crmodel)
                 {
-                    for (; i < num_breeds - 1; i++)
-                    {
-                        breed_activities[i] = breed_activities[i + 1];
+                    for (; i < num_breeds-1;  i++) {
+                        breed_activities[i] = breed_activities[i+1];
                     }
                     num_breeds--;
-                    breed_activities[num_breeds] = 0;
-                    needs_resort = true;
+                    breed_activities[i] = 0;
                     break;
                 }
             }
         }
-    }
-
-    no_of_breeds_owned = num_breeds;
-
-    // Perform sorting only if needed
-    if (needs_resort || force_update)
-    {
-        qsort(breed_activities, num_breeds, sizeof(ThingModel),
-            [](const void* a, const void* b) {
-                struct CreatureModelConfig* crconf_a = &game.conf.crtr_conf.model[*(ThingModel*)a];
-                struct CreatureModelConfig* crconf_b = &game.conf.crtr_conf.model[*(ThingModel*)b];
-
-                TbBool is_digger_a = any_flag_is_set(crconf_a->model_flags, (CMF_IsDiggingCreature | CMF_IsSpecDigger));
-                TbBool is_digger_b = any_flag_is_set(crconf_b->model_flags, (CMF_IsDiggingCreature | CMF_IsSpecDigger));
-
-                return (is_digger_b - is_digger_a); // Place diggers first
-            });
-
-        needs_resort = false;
+        no_of_breeds_owned = num_breeds;
     }
 }
-
 
 void toggle_hero_health_flowers(void)
 {

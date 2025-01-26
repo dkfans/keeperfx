@@ -580,7 +580,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               clear_flag(crconf->model_flags,CMF_IsSpecDigger);
           }
           recalculate_all_creature_digger_lists();
-          update_creatr_model_activities_list(1);
           break;
       case 11: // ARACHNID
           if (val4 >= 1)
@@ -819,7 +818,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               clear_flag(crconf->model_flags, CMF_IsDiggingCreature);
           }
-          update_creatr_model_activities_list(1);
           break;
       default:
           SCRPTERRLOG("Unknown creature property '%ld'", val3);
