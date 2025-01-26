@@ -7489,6 +7489,7 @@ static void swap_creature_process(struct ScriptContext* context)
         SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", creature_code_name(ncrt_id), creature_code_name(crtr_id));
     }
     recalculate_all_creature_digger_lists();
+    update_creatr_model_activities_list(1);
 }
 
 static void set_digger_check(const struct ScriptLine* scline)
@@ -7528,6 +7529,7 @@ static void set_digger_process(struct ScriptContext* context)
                 breed_activities[i] = old_dig_model;
         }
     }
+    update_creatr_model_activities_list(1);
 }
 
 /**
