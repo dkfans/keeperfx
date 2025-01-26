@@ -7523,10 +7523,12 @@ static void set_digger_process(struct ScriptContext* context)
 
         for (size_t i = 0; i < CREATURE_TYPES_MAX; i++)
         {
-            if (breed_activities[i] == old_dig_model)
-                breed_activities[i] = new_dig_model;
-            else if (breed_activities[i] == new_dig_model)
+            if (breed_activities[i] == new_dig_model)
+            {
                 breed_activities[i] = old_dig_model;
+                breed_activities[0] = new_dig_model;
+                break;
+            }
         }
     }
     update_creatr_model_activities_list(1);
