@@ -2203,7 +2203,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
     }
     if (creatng->owner == slabmap_owner(slb))
     {
-        if (thing_is_creature_digger(creatng)) 
+        if (thing_is_creature_digger(creatng))
         {
             if (creature_is_for_dungeon_diggers_list(creatng))
             {

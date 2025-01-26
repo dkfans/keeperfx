@@ -1309,12 +1309,12 @@ void update_creatr_model_activities_list(void)
         if ((dungeon->owned_creatures_of_model[crmodel] > 0)
             && (crmodel != get_players_spectator_model(my_player_number)))
         {
-            int found = 0;
+            TbBool found = false;
             for (int i = 0; i < num_breeds; i++)
             {
                 if (breed_activities[i] == crmodel)
                 {
-                    found = 1;
+                    found = true;
                     break;
                 }
             }
