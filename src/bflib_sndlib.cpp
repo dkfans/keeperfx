@@ -382,7 +382,7 @@ std::vector<sound_sample> load_sound_bank(const char * filename) {
 		stream.seekg(directory.first_data_offset + sample.field_12, std::ios::beg);
 		buffers.emplace_back(sample.filename, sample.sfxid, wave_file(stream));
 	}
-	LbJustLog("Loaded %d sound samples from %s", buffers.size(), filename);
+	JUSTLOG("Loaded %d sound samples from %s", buffers.size(), filename);
 	return buffers;
 }
 
@@ -409,7 +409,6 @@ void load_sound_banks() {
 } // local
 
 extern "C" void FreeAudio() {
-	close_cdrom();
 	g_sources.clear();
 	g_banks[0].clear();
 	g_banks[1].clear();
@@ -474,7 +473,6 @@ extern "C" void StopAllSamples() {
 
 extern "C" TbBool InitAudio(const SoundSettings * settings) {
 	try {
-		open_cdrom();
 		if (SoundDisabled) {
 			LbWarnLog("Sound is disabled, skipping OpenAL initialization");
 			return false;
