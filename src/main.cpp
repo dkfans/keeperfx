@@ -1296,15 +1296,15 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
     return result;
 }
 
-void update_creatr_model_activities_list(void)
+void update_creatr_model_activities_list(TbBool forced)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_my_dungeon();
+    struct Dungeon *dungeon = get_my_dungeon();
     ThingModel crmodel;
-    int num_breeds;
-    num_breeds = no_of_breeds_owned;
+    int num_breeds = no_of_breeds_owned;
+    TbBool changed = false;
+
     // Add to breed activities
-    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
+    for (crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] > 0)
             && (crmodel != get_players_spectator_model(my_player_number)))
@@ -1320,27 +1320,15 @@ void update_creatr_model_activities_list(void)
             }
             if (!found)
             {
+                changed = true;
                 breed_activities[num_breeds] = crmodel;
                 num_breeds++;
             }
         }
     }
-    // Reorder breed activities to ensure diggers are correctly positioned
-    int write_idx = 1;
-    for (int i = 1; i < num_breeds; i++)
-    {
-        struct CreatureModelConfig* crconf;
-        crconf = &game.conf.crtr_conf.model[breed_activities[i]];
-        if (any_flag_is_set(crconf->model_flags, (CMF_IsDiggingCreature|CMF_IsSpecDigger)))
-        {
-            ThingModel temp = breed_activities[i];
-            memmove(&breed_activities[write_idx + 1], &breed_activities[write_idx], (i - write_idx) * sizeof(ThingModel));
-            breed_activities[write_idx] = temp;
-            write_idx++;
-        }
-    }
+
     // Remove from breed activities
-    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
+    for (crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] <= 0)
           && (crmodel != get_players_special_digger_model(my_player_number)))
@@ -1352,6 +1340,7 @@ void update_creatr_model_activities_list(void)
                     for (; i < num_breeds-1;  i++) {
                         breed_activities[i] = breed_activities[i+1];
                     }
+                    changed = true;
                     num_breeds--;
                     breed_activities[i] = 0;
                     break;
@@ -1359,6 +1348,25 @@ void update_creatr_model_activities_list(void)
             }
         }
         no_of_breeds_owned = num_breeds;
+    }
+
+    // Reorder breed activities to ensure diggers are correctly positioned
+    if (changed || forced)
+    {
+        struct CreatureModelConfig* crconf;
+        ThingModel temp;
+        int write_idx = 1;
+        for (int i = 1; i < num_breeds; i++)
+        {
+            crconf = &game.conf.crtr_conf.model[breed_activities[i]];
+            if (any_flag_is_set(crconf->model_flags, (CMF_IsDiggingCreature | CMF_IsSpecDigger)))
+            {
+                temp = breed_activities[i];
+                memmove(&breed_activities[write_idx + 1], &breed_activities[write_idx], (i - write_idx) * sizeof(ThingModel));
+                breed_activities[write_idx] = temp;
+                write_idx++;
+            }
+        }
     }
 }
 
