@@ -42,7 +42,7 @@ extern "C" {
 
 #define SENSIBLE_GOLD 99999999
 
-#define EXTERNAL_SOUNDS_COUNT 32
+#define EXTERNAL_SOUNDS_COUNT 64
 
 enum ScriptOperator {
     SOpr_SET = 1,
