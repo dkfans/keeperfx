@@ -61,6 +61,12 @@ bool mci_resume(MCIDEVICEID device_id) {
 	return result == 0;
 }
 
+bool mci_stop(MCIDEVICEID device_id) {
+    MCI_GENERIC_PARMS params = {};
+    const auto result = mciSendCommand(device_id, MCI_STOP, 0, (DWORD_PTR) &params);
+	return result == 0;
+}
+
 int mci_status(MCIDEVICEID device_id, int what) {
     MCI_STATUS_PARMS params = {};
     params.dwItem = what;
@@ -117,5 +123,11 @@ extern "C" void PauseRedbookTrack() {
 extern "C" void ResumeRedbookTrack() {
 	if (open_redbook_device()) {
 		mci_resume(g_redbook_device);
+	}
+}
+
+extern "C" void StopRedbookTrack() {
+	if (open_redbook_device()) {
+		mci_stop(g_redbook_device);
 	}
 }

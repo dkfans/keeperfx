@@ -451,10 +451,6 @@ extern "C" void MonitorStreamedSoundTrack() {
 	}
 }
 
-extern "C" void StopRedbookTrack() {
-	// TODO
-}
-
 extern "C" void * GetSoundDriver() {
 	// This just needs to return any non-null pointer. FMV library appears to have standalone audio
 	static int dummy = 0;
