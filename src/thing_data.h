@@ -100,7 +100,7 @@ enum ThingMovementFlags {
     TMvF_IsOnLava           = 0x002, // The creature is walking on lava.
     TMvF_BeingSacrificed    = 0x004, // For creature falling in the temple pool, this informs its sacrificed state.
     TMvF_Unknown08          = 0x008, // thing->veloc_base.z.val = 0;
-    TMvF_Unknown10          = 0x010, // Stopped by walls?
+    TMvF_GoThroughWalls     = 0x010,
     TMvF_Flying             = 0x020, // The creature is flying and can navigate in the air.
     TMvF_Immobile           = 0x040, // The creature cannot move.
     TMvF_IsOnSnow           = 0x080, // The creature leaves footprints on snow path.

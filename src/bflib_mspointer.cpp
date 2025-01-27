@@ -41,11 +41,6 @@ volatile TbBool lbPointerAdvancedDraw;
 long cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
 long cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
 /******************************************************************************/
-// function used for actual drawing
-extern "C" {
-TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite);
-}
-/******************************************************************************/
 
 void LbCursorSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
 {
@@ -114,7 +109,13 @@ static long PointerDraw(long x, long y, const struct TbSprite *spr, TbPixel *out
         ystep = &cursor_ysteps_array[0];
     }
     outbuf = &outbuf[xstep[0] + scanline * ystep[0]];
-    return LbSpriteDrawUsingScalingUpDataSolidLR(outbuf, scanline, lbDisplay.MouseWindowHeight, xstep, ystep, spr);
+    const struct TbSourceBuffer buffer = {
+        spr->Data,
+        spr->SWidth,
+        spr->SHeight,
+        spr->SWidth,
+    };
+    return LbSpriteDrawUsingScalingUpDataSolidLR(outbuf, scanline, lbDisplay.MouseWindowHeight, xstep, ystep, &buffer);
 }
 
 // Methods

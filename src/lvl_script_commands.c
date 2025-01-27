@@ -583,7 +583,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
     int i = dungeon->creatr_list_start;
-    if ((crmodel == get_players_special_digger_model(plyr_idx)) || (crmodel == CREATURE_DIGGER))
+    if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,crmodel))
     {
         i = dungeon->digger_list_start;
     }
@@ -2194,22 +2194,22 @@ static void set_hand_rule_process(struct ScriptContext* context)
     long param = context->value->shorts[4];
     long crtr_id_start = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? 0 : crtr_id;
     long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
-    ThingModel digger_model;
 
     struct Dungeon* dungeon;
-    for (int i = context->plr_start; i < context->plr_end; i++)
+    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
-        digger_model = get_players_special_digger_model(i);
         for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
         {
+
+            //todo maybe should use creature_model_matches_model somewhere?
             if (crtr_id == CREATURE_NOT_A_DIGGER)
             {
-                if (ci == digger_model)
+                if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,ci))
                 {
                     continue;
                 }
             }
-            dungeon = get_dungeon(i);
+            dungeon = get_dungeon(plyr_idx);
             if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
             {
                 dungeon->hand_rules[ci][hand_rule_slot].enabled = 1;
@@ -4682,34 +4682,57 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
     }
 }
 
-static void set_box_tooltip(const struct ScriptLine *scline)
+static void set_box_tooltip_check(const struct ScriptLine* scline)
 {
-  if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
-  {
-    SCRPTERRLOG("Invalid CUSTOM_BOX number (%ld)", scline->np[0]);
-    return;
-  }
-  int idx = scline->np[0];
-  if (strlen(scline->tp[1]) >= MESSAGE_TEXT_LEN)
-  {
-      SCRPTWRNLOG("Tooltip TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
-  }
-  if ((gameadd.box_tooltip[idx][0] != '\0') && (strcmp(gameadd.box_tooltip[idx], scline->tp[1]) != 0))
-  {
-      SCRPTWRNLOG("Box tooltip #%d overwritten by different text", idx);
-  }
-  snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
+    {
+        SCRPTERRLOG("Invalid CUSTOM_BOX number (%ld)", scline->np[0]);
+        DEALLOCATE_SCRIPT_VALUE;
+    }
+    value->shorts[0] = scline->np[0];
+
+    if (strlen(scline->tp[1]) >= MESSAGE_TEXT_LEN)
+    {
+        SCRPTWRNLOG("Tooltip TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
+    }
+    value->strs[2] = script_strdup(scline->tp[1]);
+    if (value->strs[2] == NULL)
+    {
+        SCRPTERRLOG("Run out script strings space");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void set_box_tooltip_id(const struct ScriptLine *scline)
+
+static void set_box_tooltip_process(struct ScriptContext* context)
 {
-  if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
-  {
-    SCRPTERRLOG("Invalid CUSTOM_BOX number (%ld)", scline->np[0]);
-    return;
-  }
-  int idx = scline->np[0];
-  snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", get_string(scline->np[1]));
+    int idx = context->value->shorts[0];
+    snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", context->value->strs[2]);
+}
+
+static void set_box_tooltip_id_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    if ((scline->np[0] < 0) || (scline->np[0] >= CUSTOM_BOX_COUNT))
+    {
+        SCRPTERRLOG("Invalid CUSTOM_BOX number (%ld)", scline->np[0]);
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
+    value->shorts[0] = scline->np[0];
+    value->shorts[1] = scline->np[1];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_box_tooltip_id_process(struct ScriptContext* context)
+{
+    int idx = context->value->shorts[0];
+    int string = context->value->shorts[1];
+    snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", get_string(string));
 }
 
 static void change_slab_owner_check(const struct ScriptLine *scline)
@@ -7451,12 +7474,6 @@ static void swap_creature_check(const struct ScriptLine* scline)
     ThingModel ncrt_id = scline->np[0];
     ThingModel crtr_id = scline->np[1];
 
-    struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_id];
-    if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
-    {
-        SCRPTERRLOG("Unable to swap special diggers");
-        DEALLOCATE_SCRIPT_VALUE;
-    }
     value->shorts[0] = ncrt_id;
     value->shorts[1] = crtr_id;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -7471,6 +7488,46 @@ static void swap_creature_process(struct ScriptContext* context)
     {
         SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", creature_code_name(ncrt_id), creature_code_name(crtr_id));
     }
+    recalculate_all_creature_digger_lists();
+}
+
+static void set_digger_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    ThingModel crtr_id = get_rid(creature_desc, scline->tp[1]);
+   
+    if (crtr_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        return;
+    }
+
+    value->shorts[0] = crtr_id;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_digger_process(struct ScriptContext* context)
+{
+    ThingModel new_dig_model = context->value->shorts[0];
+    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+    {
+        ThingModel old_dig_model = get_players_special_digger_model(plyr_idx);
+        if (old_dig_model == new_dig_model)
+        {
+            continue;
+        }
+        struct PlayerInfo* player = get_player(plyr_idx);
+
+        player->special_digger = context->value->shorts[0];
+
+        for (size_t i = 0; i < CREATURE_TYPES_MAX; i++)
+        {
+            if (breed_activities[i] == old_dig_model)
+                breed_activities[i] = new_dig_model;
+            else if (breed_activities[i] == new_dig_model)
+                breed_activities[i] = old_dig_model;
+        }
+    }
 }
 
 /**
@@ -7483,7 +7540,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_PARTY",                      "ACNNAN  ", Cmd_ADD_TO_PARTY, &add_to_party_check, NULL},
   {"DELETE_FROM_PARTY",                 "ACN     ", Cmd_DELETE_FROM_PARTY, &delete_from_party_check, NULL},
   {"ADD_PARTY_TO_LEVEL",                "PAAN    ", Cmd_ADD_PARTY_TO_LEVEL, NULL, NULL},
-  {"ADD_CREATURE_TO_LEVEL",             "PCANNN  ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
+  {"ADD_CREATURE_TO_LEVEL",             "PCANNNa ", Cmd_ADD_CREATURE_TO_LEVEL, NULL, NULL},
   {"ADD_OBJECT_TO_LEVEL",               "AANpa   ", Cmd_ADD_OBJECT_TO_LEVEL, &add_object_to_level_check, &add_object_to_level_process},
   {"IF",                                "PAOAa   ", Cmd_IF, &if_check, NULL},
   {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
@@ -7580,8 +7637,8 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_CONFIGURATION",        "CAAaa   ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
-  {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
-  {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id, &null_process},
+  {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip_check, &set_box_tooltip_process},
+  {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id_check, &set_box_tooltip_id_process},
   {"CHANGE_SLAB_OWNER",                 "NNPa    ", Cmd_CHANGE_SLAB_OWNER, &change_slab_owner_check, &change_slab_owner_process},
   {"CHANGE_SLAB_TYPE",                  "NNSa    ", Cmd_CHANGE_SLAB_TYPE, &change_slab_type_check, &change_slab_type_process},
   {"CREATE_EFFECTS_LINE",               "LLNNNA  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
@@ -7636,6 +7693,7 @@ const struct CommandDesc command_desc[] = {
   {"CHANGE_SLAB_TEXTURE",               "NNAa    ", Cmd_CHANGE_SLAB_TEXTURE , &change_slab_texture_check, &change_slab_texture_process},
   {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNpa  ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
   {"LOCK_POSSESSION",                   "PB!     ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
+  {"SET_DIGGER",                        "PC      ", Cmd_SET_DIGGER , &set_digger_check, &set_digger_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

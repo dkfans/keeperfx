@@ -1894,7 +1894,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
 }
 
 // TODO: replace this function by find_location_pos
-void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name)
+void find_map_location_coords(TbMapLocation location, long *x, long *y, int plyr_idx, const char *func_name)
 {
     struct ActionPoint *apt;
     struct Thing *thing;
@@ -1978,7 +1978,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
     *x = pos_x;
 }
 
-void set_general_information(long msg_id, long target, long x, long y)
+void set_general_information(long msg_id, TbMapLocation target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -1995,7 +1995,7 @@ void set_general_information(long msg_id, long target, long x, long y)
     event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
-void set_quick_information(long msg_id, long target, long x, long y)
+void set_quick_information(long msg_id, TbMapLocation target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -2012,12 +2012,12 @@ void set_quick_information(long msg_id, long target, long x, long y)
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }
 
-void set_general_objective(long msg_id, long target, long x, long y)
+void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
 {
     process_objective(get_string(msg_id), target, x, y);
 }
 
-void process_objective(const char *msg_text, long target, long x, long y)
+void process_objective(const char *msg_text, TbMapLocation target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -2552,7 +2552,7 @@ int clear_active_dungeons_stats(void)
       dungeon = get_dungeon(i);
       if (dungeon_invalid(dungeon))
           break;
-      memset((char *)dungeon->field_64, 0, game.conf.crtr_conf.model_count * 15 * sizeof(unsigned short));
+      memset((char *)dungeon->crmodel_state_type_count, 0, game.conf.crtr_conf.model_count * STATE_TYPES_COUNT * sizeof(unsigned short));
       memset((char *)dungeon->guijob_all_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
       memset((char *)dungeon->guijob_angry_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
   }

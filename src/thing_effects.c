@@ -112,7 +112,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
         set_flag_value(thing->rendering_flags, TRF_Unshaded, eestat->unshaded);
         thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparent)) & (TRF_Transpar_Flags);
-        set_flag_value(thing->rendering_flags, TRF_AnimateOnce, eestat->rendering_flag);
+        set_flag_value(thing->rendering_flags, TRF_AnimateOnce, eestat->animate_once);
     } else
     {
         set_flag(thing->rendering_flags, TRF_Invisible);
@@ -122,7 +122,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
     thing->movement_flags |= TMvF_Unknown08;
-    set_flag_value(thing->movement_flags, TMvF_Unknown10, eestat->movement_flags);
+    set_flag_value(thing->movement_flags, TMvF_GoThroughWalls, eestat->through_walls);
     thing->creation_turn = game.play_gameturn;
 
     if (eestat->lifespan > 0)
@@ -382,7 +382,7 @@ TngUpdateRet move_effect_element(struct Thing *thing)
     if ( positions_equivalent(&thing->mappos, &pos) ) {
         return TUFRet_Unchanged;
     }
-    if (!flag_is_set(thing->movement_flags,TMvF_Unknown10))
+    if (!flag_is_set(thing->movement_flags,TMvF_GoThroughWalls))
     {
         if (!within_map_limits)
         {
@@ -393,6 +393,7 @@ TngUpdateRet move_effect_element(struct Thing *thing)
             move_effect_blocked(thing, &thing->mappos, &pos);
         }
     }
+    thing->move_angle_xy = get_angle_xy_to(&thing->mappos, &pos);
     move_thing_in_map(thing, &pos);
     return TUFRet_Modified;
 }
@@ -404,7 +405,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     int speed = eestat->sprite_speed_min + EFFECT_RANDOM(thing, eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
     int scale = eestat->sprite_size_min + EFFECT_RANDOM(thing, eestat->sprite_size_max - eestat->sprite_size_min + 1);
     thing->model = nmodel;
-    set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->rendering_flag, 0, ODC_Default);
+    set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->animate_once, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * eestat->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Transpar_8 * eestat->transparent) & (TRF_Transpar_Flags);
     thing->fall_acceleration = eestat->fall_acceleration;
@@ -462,8 +463,10 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     i = eestats->subeffect_delay;
     if (i > 0)
     {
-      if (((elemtng->creation_turn - game.play_gameturn) % i) == 0) {
-          create_effect_element(&elemtng->mappos, eestats->subeffect_model, elemtng->owner);
+      if (((elemtng->creation_turn - game.play_gameturn) % i) == 0) 
+      {
+          struct Thing *subeff = create_effect_element(&elemtng->mappos, eestats->subeffect_model, elemtng->owner);
+          subeff->move_angle_xy = elemtng->move_angle_xy;
       }
     }
     switch (eestats->move_type)
@@ -689,8 +692,8 @@ void effect_generate_effect_elements(const struct Thing *thing)
             TRACE_THING(elemtng);
             if (thing_is_invalid(elemtng))
                 break;
-            arg = EFFECT_RANDOM(thing, 0x800);
-            argZ = EFFECT_RANDOM(thing, 0x400);
+            arg = EFFECT_RANDOM(thing, LbFPMath_TAU);
+            argZ = EFFECT_RANDOM(thing, LbFPMath_PI);
             // Setting XY acceleration
             long k = abs(effcst->accel_xy_max - effcst->accel_xy_min);
             if (k <= 1) k = 1;
@@ -703,6 +706,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
             mag = effcst->accel_z_min + EFFECT_RANDOM(thing, k);
             elemtng->veloc_push_add.z.val += distance_with_angle_to_coord_z(mag,argZ);
             elemtng->state_flags |= TF1_PushAdd;
+            elemtng->move_angle_xy = LbArcTanAngle(elemtng->veloc_push_add.x.val, elemtng->veloc_push_add.y.val) & LbFPMath_AngleMask;
         }
         break;
     }
@@ -717,9 +721,10 @@ void effect_generate_effect_elements(const struct Thing *thing)
             arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
+            elemtng->move_angle_xy = thing->move_angle_xy;
             TRACE_THING(elemtng);
             SYNCDBG(18,"Created %s",thing_model_name(elemtng));
-            k += 2048;
+            k += LbFPMath_TAU;
         }
         break;
     }
@@ -734,8 +739,9 @@ void effect_generate_effect_elements(const struct Thing *thing)
             arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, 16*mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
+            elemtng->move_angle_xy = arg;
             TRACE_THING(elemtng);
-            k += 2048;
+            k += LbFPMath_TAU;
         }
         break;
     }
