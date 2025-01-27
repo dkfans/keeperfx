@@ -406,6 +406,28 @@ void load_sound_banks() {
 	g_banks[1] = load_sound_bank(spc_fname);
 }
 
+void print_device_info() {
+	if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATE_ALL_EXT")) {
+		const auto devices = alcGetString(nullptr, ALC_ALL_DEVICES_SPECIFIER);
+		JUSTLOG("Available audio devices:");
+		for (auto device = devices; device[0] != 0; device += strlen(device)) {
+			JUSTLOG("  %s", device);
+		}
+		const auto default_device = alcGetString(nullptr, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
+		JUSTLOG("Default audio device: %s", default_device);
+	} else if (alcIsExtensionPresent(nullptr, "ALC_ENUMERATION_EXT")) {
+		const auto devices = alcGetString(nullptr, ALC_DEVICE_SPECIFIER);
+		JUSTLOG("Available audio devices:");
+		for (auto device = devices; device[0] != 0; device += strlen(device)) {
+			JUSTLOG("  %s", device);
+		}
+		const auto default_device = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
+		JUSTLOG("Default audio device: %s", default_device);
+	} else {
+		// Cannot enumerate devices :(
+	}
+}
+
 } // local
 
 extern "C" void FreeAudio() {
@@ -477,9 +499,10 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 			LbWarnLog("OpenAL already initialized");
 			return true;
 		}
+		print_device_info();
 		ALCdevice_ptr device(alcOpenDevice(nullptr));
 		if (!device) {
-			throw openal_error("Cannot open device");
+			throw openal_error("Cannot open default audio device");
 		}
 		ALCcontext_ptr context(alcCreateContext(device.get(), nullptr));
 		if (!context) {
