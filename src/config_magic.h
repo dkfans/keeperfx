@@ -306,6 +306,7 @@ struct ShotConfigStats {
     unsigned short periodical;
     short spread_xy;
     short spread_z;
+    short spread_circular;
     short speed_deviation;
 };
 
