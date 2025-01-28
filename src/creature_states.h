@@ -21,12 +21,12 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
-#include "dungeon_data.h"
 
 /** Count of creature states, originally 147. */
 #define CREATURE_STATES_COUNT CrSt_ListEnd
 
 #define FIGHT_FEAR_DELAY 160
+#define STATE_TYPES_COUNT CrStTyp_ListEnd
 
 #ifdef __cplusplus
 extern "C" {
