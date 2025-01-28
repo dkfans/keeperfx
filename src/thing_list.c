@@ -241,31 +241,6 @@ void add_thing_to_its_class_list(struct Thing *thing)
  * @param param Parameters exchanged between filter calls.
  * @param maximizer Previous value which made a thing pass the filter.
  */
-long near_map_block_thing_filter_not_specdigger(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
-{
-    if (thing->class_id == TCls_Creature)
-    {
-        if ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
-        {
-            // Prepare reference Coord3d struct for distance computation
-            struct Coord3d refpos;
-            refpos.x.val = param->num1;
-            refpos.y.val = param->num2;
-            refpos.z.val = 0;
-            // This function should return max value when the distance is minimal, so:
-            return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
-        }
-    }
-    // If conditions are not met, return -1 to be sure thing will not be returned.
-    return -1;
-}
-
-/**
- * Filter function.
- * @param thing The thing being checked.
- * @param param Parameters exchanged between filter calls.
- * @param maximizer Previous value which made a thing pass the filter.
- */
 long near_map_block_thing_filter_call_bool_filter(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
@@ -322,8 +297,8 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
                             {
                                 if (creature_is_invisible(thing))
                                 {
-                                    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
-                                    if (trapstat->detect_invisible == 0)
+                                    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+                                    if (trapst->detect_invisible == 0)
                                     {
                                         return -1;
                                     }
@@ -449,7 +424,7 @@ long near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger(c
     {
         if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
-            if ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
+            if ((get_creature_model_flags(thing) & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) == 0)
             {
                 // Prepare reference Coord3d struct for distance computation
                 struct Coord3d refpos;
@@ -580,14 +555,6 @@ long near_map_block_thing_filter_can_be_keeper_power_target(const struct Thing *
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
-}
-
-/** Deprecated filter function. */
-long creature_near_filter_is_enemy_of_and_not_specdigger(const struct Thing *thing, FilterParam plyr_idx)
-{
-    if (thing->owner == plyr_idx)
-      return false;
-    return ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0);
 }
 
 long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam plyr_idx)
@@ -769,7 +736,7 @@ long anywhere_thing_filter_is_food_available_to_eat_and_owned_by(const struct Th
     }
     if (thing->class_id == TCls_Creature)
     {
-        if (creature_affected_by_spell(thing,SplK_Chicken) && (thing->health > 0))
+        if (creature_under_spell_effect(thing, CSAfF_Chicken) && (thing->health > 0))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -1194,6 +1161,7 @@ void update_things(void)
     update_things_sounds_in_list(&game.thing_lists[TngList_AmbientSnds]);
     update_cave_in_things();
     player_packet_checksum_add(my_player_number,sum,"things");
+    game.map_changed_for_nagivation = 0;
     SYNCDBG(9,"Finished");
 }
 
@@ -1913,8 +1881,8 @@ struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber ply
 
 struct Thing* get_nearest_enemy_creature_in_sight_and_range_of_trap(struct Thing* traptng)
 {
-    const struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
-    struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
+    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+    struct ShotConfigStats* shotst = get_shot_model_stats(trapst->created_itm_model);
 
     SYNCDBG(19, "Starting");
     Thing_Maximizer_Filter filter = near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap;
@@ -2089,7 +2057,7 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
     for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
     {
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
-        if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
+        if ((crconf->model_flags & CMF_IsLordOfLand) != 0)
         {
             struct Thing* thing = creature_of_model_in_prison_or_tortured(crtr_model);
             if (!thing_is_invalid(thing))
@@ -2109,7 +2077,7 @@ struct Thing *lord_of_the_land_find(void)
     for (long crtr_model = 1; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
     {
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
-        if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
+        if ((crconf->model_flags & CMF_IsLordOfLand) != 0)
         {
             int i = creature_of_model_find_first(crtr_model);
             if (i > 0)
@@ -2185,7 +2153,7 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
             HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 2, max_dist / 2, distance);
             if (damage != 0)
             {
-                apply_damage_to_thing_and_display_health(tngdst, damage, DmgT_Electric, owner);
+                apply_damage_to_thing_and_display_health(tngdst, damage, owner);
                 affected = true;
             }
         }
@@ -2219,7 +2187,7 @@ long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_p
         {
             if (thing->owner != immune_plyr_idx)
             {
-              if (!creature_affected_by_spell(thing, SplK_Armour))
+              if (!creature_under_spell_effect(thing, CSAfF_Armour))
               {
                   if (electricity_affecting_thing(INVALID_THING, thing, pos, range, max_damage, immune_plyr_idx))
                       naffected++;
@@ -3454,7 +3422,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
             return false;
         // Armour spell may prevent from hitting
         if ((hit_targets & HitTF_ArmourAffctdCreatrs) == 0) {
-            if (creature_affected_by_spell(thing, SplK_Armour))
+            if (creature_under_spell_effect(thing, CSAfF_Armour))
                 return false;
         }
         // Prevent Damage flag may be either respected or ignored
@@ -3773,24 +3741,6 @@ struct Thing* get_player_creature_in_range_around_own_heart(PlayerNumber plyr_id
     return INVALID_THING;
 }
 
-/** Finds creature on revealed subtiles around given position, who is not special digger.
- *
- * @param pos_x Position to search around X coord.
- * @param pos_y Position to search around Y coord.
- * @param plyr_idx Player whose revealed subtiles around will be searched.
- * @return The creature thing pointer, or invalid thing pointer if not found.
- */
-struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx)
-{
-    SYNCDBG(19,"Starting");
-    Thing_Maximizer_Filter filter = near_map_block_thing_filter_not_specdigger;
-    struct CompoundTngFilterParam param;
-    param.plyr_idx = plyr_idx;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
-    return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
-}
-
 /** Finds thing on revealed subtiles around given position, which matches given bool filter.
  *
  * @param pos_x Position to search around X coord.
@@ -3812,25 +3762,6 @@ struct Thing *get_object_around_owned_by_and_matching_bool_filter(MapCoord pos_x
     return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, 9, filter, &param);
 }
 
-/** Finds creature on revealed subtiles around given position, who is not special digger and is enemy to given player.
- *
- * @param pos_x Position to search around X coord.
- * @param pos_y Position to search around Y coord.
- * @param plyr_idx Player whose revealed subtiles around will be searched.
- * @return The creature thing pointer, or invalid thing pointer if not found.
- */
-struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx)
-{
-    SYNCDBG(19,"Starting");
-    //return get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_specdigger, plyr_idx);
-    Thing_Maximizer_Filter filter = near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger;
-    struct CompoundTngFilterParam param;
-    param.plyr_idx = plyr_idx;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
-    return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
-}
-
 /** Finds creature on subtiles in range around given position, who is not special digger and is enemy to given player, able to attack.
  *
  * @param pos_x Position to search around X coord.
@@ -3842,7 +3773,6 @@ struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_
 struct Thing *get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, long distance_stl, PlayerNumber plyr_idx)
 {
     SYNCDBG(19,"Starting");
-    //return get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_specdigger, plyr_idx);
     Thing_Maximizer_Filter filter = near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger;
     struct CompoundTngFilterParam param;
     param.plyr_idx = plyr_idx;

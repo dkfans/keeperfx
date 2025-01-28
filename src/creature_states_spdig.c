@@ -1020,9 +1020,16 @@ short imp_birth(struct Thing *thing)
     {
         // If the creature has flight ability, make sure it returns to flying state
         restore_creature_flight_flag(thing);
-        if (!check_out_available_spdigger_drop_tasks(thing)) {
-            set_start_state(thing);
+        if (thing_is_creature_digger(thing))
+        {
+            if (!check_out_available_spdigger_drop_tasks(thing)) {
+                set_start_state(thing);
+            }
         }
+        else
+        {
+            set_start_state(thing);
+        }            
         return 1;
     }
     long i = game.play_gameturn - thing->creation_turn;
@@ -1194,7 +1201,7 @@ short imp_doing_nothing(struct Thing *spdigtng)
 {
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(spdigtng),(int)spdigtng->index);
     TRACE_THING(spdigtng);
-    if (!thing_is_creature_special_digger(spdigtng))
+    if (!thing_is_creature_digger(spdigtng))
     {
         ERRORLOG("Non digger thing %ld, %s, owner %ld - reset",(long)spdigtng->index,thing_model_name(spdigtng),(long)spdigtng->owner);
         set_start_state(spdigtng);
@@ -1272,23 +1279,23 @@ short imp_drops_gold(struct Thing *spdigtng)
     if ( (gold_added > 0) || (gold_created) )
     {
         thing_play_sample(spdigtng, UNSYNC_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        if (game.conf.rules.workers.digger_work_experience != 0)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
+            cctrl->exp_points += digger_work_experience(spdigtng);
+            check_experience_upgrade(spdigtng);
+        }
     }
     else
     {
         if (is_thing_directly_controlled_by_player(spdigtng, my_player_number))
         {
             play_non_3d_sample(119);
+            internal_set_thing_state(spdigtng, state);
+            return 1;
         }
-        internal_set_thing_state(spdigtng, state);
-        return 1;
     }
-    if (game.conf.rules.workers.digger_work_experience != 0)
-    {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-        cctrl->exp_points += digger_work_experience(spdigtng);
-        check_experience_upgrade(spdigtng);
-    }
-    if ((spdigtng->creature.gold_carried != 0) && (room->used_capacity < room->total_capacity))
+    if ((spdigtng->creature.gold_carried > 0) && (room->used_capacity < room->total_capacity))
     {
         if ((spdigtng->alloc_flags & TAlF_IsControlled) == 0)
         {
@@ -1495,17 +1502,21 @@ short imp_toking(struct Thing *creatng)
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
-        if ( CREATURE_RANDOM(creatng, 8) )
+        if (CREATURE_RANDOM(creatng, 8))
+        {
             set_creature_instance(creatng, CrInst_RELAXING, 0, 0);
+        }
         else
+        {
             set_creature_instance(creatng, CrInst_TOKING, 0, 0);
+        }
     }
-    
     if ((cctrl->instance_id == CrInst_TOKING) && (cctrl->inst_turn == cctrl->inst_action_turns))
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        if (crstat->toking_recovery != 0) {
-            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel, creatng->owner);
+        if (crstat->toking_recovery != 0)
+        {
+            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel);
             apply_health_to_thing_and_display_health(creatng, recover);
         }
     }

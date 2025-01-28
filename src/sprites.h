@@ -742,13 +742,12 @@ enum GUIPanelSprite {
     GPS_message_rpanel_msg_exclam2_std = 777,
     GPS_message_rpanel_msg_payday_act = 778,
     GPS_message_rpanel_msg_payday_std = 779,
-    
+
     GPS_message_rpanel_msg_alarm_act = 800,
     GPS_message_rpanel_msg_alarm_std = 801,
 
     GUI_PANEL_SPRITES_COUNT = 900,
     GUI_PANEL_SPRITES_NEW = 512,
-    NEW_GUI_PANEL_SPRITES_COUNT = GUI_PANEL_SPRITES_COUNT + GUI_PANEL_SPRITES_NEW,
 };
 
 // Based on frontend-64/filelist_frontbit.txt

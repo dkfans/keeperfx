@@ -149,8 +149,18 @@ void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
             k++;
             continue;
         }
+        struct CreatureControl* newcctrl = creature_control_get_from_thing(tncopy);
         set_creature_level(tncopy, cctrl->explevel);
         tncopy->health = thing->health;
+        newcctrl->exp_points = cctrl->exp_points;
+        newcctrl->blood_type = cctrl->blood_type;
+        newcctrl->hunger_level = cctrl->hunger_level;
+        newcctrl->paydays_owed = cctrl->paydays_owed;
+        newcctrl->paydays_advanced = cctrl->paydays_advanced;
+        for (unsigned char al = 0; al < AngR_ListEnd; al++)
+        {
+            newcctrl->annoyance_level[al] = cctrl->annoyance_level[al];
+        }
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
@@ -235,37 +245,31 @@ void increase_level(struct PlayerInfo *player, int count)
         }
         level_up_familiar(famlrtng);
         i++;
-    }    
+    }
 }
 
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 {
-    //TODO CONFIG creature models dependency; put them in config files
-    static ThingModel skip_steal_models[] = {6, 7};//6 = KNIGHT, 7 = AVATAR
-    static ThingModel prefer_steal_models[] = {3, 12};//3 = ARCHER, 12 = THIEF
     struct Thing* herotng = INVALID_THING;
     int heronum;
     ThingIndex tng_idx;
-    SYNCDBG(8,"Starting");
-
+    SYNCDBG(8, "Starting");
     int rand_offset = GAME_RANDOM(PLAYERS_COUNT);
-
     for (size_t j = 0; j < PLAYERS_COUNT; j++)
     {
         PlayerNumber roam_plr_idx = (j + rand_offset) % PLAYERS_COUNT;
-        if(!player_is_roaming(roam_plr_idx))
+        if ((!player_is_roaming(roam_plr_idx)) || (!players_are_enemies(player->id_number, roam_plr_idx)))
             continue;
-
         struct Dungeon* herodngn = get_players_num_dungeon(roam_plr_idx);
         unsigned long k = 0;
         if (herodngn->num_active_creatrs > 0) {
             heronum = PLAYER_RANDOM(roam_plr_idx, herodngn->num_active_creatrs);
             tng_idx = herodngn->creatr_list_start;
-            SYNCDBG(4,"Selecting random creature %d out of %d heroes",(int)heronum,(int)herodngn->num_active_creatrs);
+            SYNCDBG(4, "Selecting random creature %d out of %d heroes", (int)heronum, (int)herodngn->num_active_creatrs);
         } else {
             heronum = 0;
             tng_idx = 0;
-            SYNCDBG(4,"No heroes on map, skipping selection");
+            SYNCDBG(4, "No heroes on map, skipping selection");
         }
         while (tng_idx != 0)
         {
@@ -278,18 +282,11 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
                 break;
             }
             tng_idx = cctrl->players_next_creature_idx;
-            // Thing list loop body
-            TbBool heroallow = true;
-            for (ThingModel skipidx = 0; skipidx < sizeof(skip_steal_models) / sizeof(skip_steal_models[0]); skipidx++)
-            {
-                if (thing->model == skip_steal_models[skipidx]) {
-                    heroallow = false;
-                }
-            }
-            if (heroallow) {
+            // Thing list loop body.
+            if (!flag_is_set(get_creature_model_flags(thing), CMF_NoStealHero)) {
                 herotng = thing;
             }
-            // If we've reached requested hero number, return either current hero on previously selected one
+            // If we've reached requested hero number, return either current hero on previously selected one.
             if ((heronum <= 0) && thing_is_creature(herotng)) {
                 break;
             }
@@ -297,7 +294,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
             if (tng_idx == 0) {
                 tng_idx = herodngn->creatr_list_start;
             }
-            // Thing list loop body ends
+            // Thing list loop body ends.
             k++;
             if (k > CREATURES_COUNT)
             {
@@ -306,14 +303,12 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
             }
         }
     }
-
-
     if (!thing_is_invalid(herotng))
     {
         move_thing_in_map(herotng, pos);
         reset_interpolation_of_thing(herotng);
         change_creature_owner(herotng, player->id_number);
-        SYNCDBG(3,"Converted %s to owner %d",thing_model_name(herotng),(int)player->id_number);
+        SYNCDBG(3, "Converted %s to owner %d", thing_model_name(herotng), (int)player->id_number);
     }
     else
     {
@@ -322,11 +317,16 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
             SYNCDBG(7, "Failed to generate a stolen hero due to map creature limit");
             return false;
         }
-        unsigned char steal_idx = GAME_RANDOM(sizeof(prefer_steal_models)/sizeof(prefer_steal_models[0]));
-        struct Thing* creatng = create_creature(pos, prefer_steal_models[steal_idx], player->id_number);
+        ThingModel crkind = get_random_creature_kind_with_model_flags(CMF_PreferSteal);
+        if (crkind == -1)
+        {
+            SYNCDBG(7, "Failed to generate a stolen hero due to lack of model with the property");
+            return false;
+        }
+        struct Thing* creatng = create_creature(pos, crkind, player->id_number);
         if (thing_is_invalid(creatng))
             return false;
-        SYNCDBG(3,"Created %s owner %d",thing_model_name(creatng),(int)player->id_number);
+        SYNCDBG(3, "Created %s owner %d", thing_model_name(creatng), (int)player->id_number);
     }
     return true;
 }
@@ -377,7 +377,7 @@ void make_safe(struct PlayerInfo *player)
                 if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x-1, slb_y))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x - 1, slb_y);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x-1,0), slab_subtile(slb_y,0), plyr_idx, 1);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x-1,0), slab_subtile(slb_y,0), plyr_idx, 0);
                     do_slab_efficiency_alteration(slb_x-1, slb_y);
                     fill_in_reinforced_corners(plyr_idx, slb_x-1, slb_y);
                 }
@@ -400,7 +400,7 @@ void make_safe(struct PlayerInfo *player)
                 if ((slbattr->category == SlbAtCtg_FriableDirt) &&  slab_by_players_land(plyr_idx, slb_x+1, slb_y))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x + 1, slb_y);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x+1,0), slab_subtile(slb_y,0), plyr_idx, 1u);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x+1,0), slab_subtile(slb_y,0), plyr_idx, 0);
                     do_slab_efficiency_alteration(slb_x+1, slb_y);
                     fill_in_reinforced_corners(plyr_idx, slb_x+1, slb_y);
                 }
@@ -423,7 +423,7 @@ void make_safe(struct PlayerInfo *player)
                 if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y-1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y - 1);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y-1,0), plyr_idx, 1);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y-1,0), plyr_idx, 0);
                     do_slab_efficiency_alteration(slb_x, slb_y-1);
                     fill_in_reinforced_corners(plyr_idx, slb_x, slb_y-1);
                 }
@@ -446,7 +446,7 @@ void make_safe(struct PlayerInfo *player)
                 if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y+1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y + 1);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y+1,0), plyr_idx, 1);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y+1,0), plyr_idx, 0);
                     do_slab_efficiency_alteration(slb_x, slb_y+1);
                     fill_in_reinforced_corners(plyr_idx, slb_x, slb_y+1);
                 }
@@ -485,7 +485,7 @@ void make_unsafe(PlayerNumber plyr_idx)
             if (slabmap_owner(slb) == plyr_idx)
             {
                 slbattr = get_slab_attrs(slb);
-                if ((slbattr->category == SlbAtCtg_FortifiedWall))
+                if (slbattr->category == SlbAtCtg_FortifiedWall)
                 {
                     SlabKind newslab = choose_rock_type(plyr_idx, slb_x, slb_y);
                     dungeon = get_dungeon(plyr_idx);
@@ -608,7 +608,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             {
                 if (gameadd.current_player_turn == game.play_gameturn)
                 {
-                    WARNLOG("box activation rejected turn:%d", gameadd.current_player_turn);
+                    WARNLOG("box activation rejected turn:%lu", gameadd.current_player_turn);
                     // If two players suddenly activated box at same turn it is not that we want to
                     return;
                 }
@@ -634,7 +634,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             {
                 output_message(specst->speech, 0, true);
             }
-            create_used_effect_or_element(&pos, specst->effect_id, player->id_number);
+            create_used_effect_or_element(&pos, specst->effect_id, player->id_number, cratetng->index);
         }
     }
 }
@@ -658,7 +658,7 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
           output_message(SMsg_CommonAcknowledge, 0, true);
     }
     struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
-    create_used_effect_or_element(&boxtng->mappos, specst->effect_id, owner);
+    create_used_effect_or_element(&boxtng->mappos, specst->effect_id, owner, boxtng->index);
     remove_events_thing_is_attached_to(boxtng);
     force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
     if ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
@@ -700,7 +700,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     if (!from_script)
     {
         struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_TrnsfrCrtr);
-        create_used_effect_or_element(&boxtng->mappos, specst->effect_id, plyr_idx);
+        create_used_effect_or_element(&boxtng->mappos, specst->effect_id, plyr_idx, boxtng->index);
         remove_events_thing_is_attached_to(boxtng);
         force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
         delete_thing_structure(boxtng, 0);

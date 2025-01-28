@@ -68,6 +68,7 @@ enum CreatureSoundTypes {
     CrSnd_Die       = 9,
     CrSnd_Foot      = 10,
     CrSnd_Fight     = 11,
+    CrSnd_Piss      = 12,
 };
 
 enum CreatureControlFlags {
@@ -81,15 +82,11 @@ enum CreatureControlFlags {
     CCFlg_Unknown80     = 0x80,
 };
 
+/* The creature will not move if any of these flags are set. */
 enum CreatureControlSpells {
-    CCSpl_ChickenRel    = 0x01,// This is something related to chicken spell, but the spell itself is CSAfF_Chicken
-    CCSpl_Freeze        = 0x02,
-    CCSpl_Teleport      = 0x04,
-    CCSpl_Unknown08     = 0x08,
-    CCSpl_Unknown10     = 0x10,
-    CCSpl_Unknown20     = 0x20,
-    CCSpl_Unknown40     = 0x40,
-    CCSpl_Unknown80     = 0x80,
+    CCSpl_ChickenRel    = 0x01, // This is something related to chicken spell, but the spell itself is CSAfF_Chicken.
+    CCSpl_Freeze        = 0x02, // Related to CSAfF_Freeze.
+    CCSpl_Teleport      = 0x04, // Related to CSAfF_Teleport.
 };
 
 enum CreatureControlMoodFlags {
@@ -134,24 +131,27 @@ enum ObjectCombatStates {
 };
 
 struct CastedSpellData {
-    unsigned char spkind;
-    short duration;
+    SpellKind spkind;
+    GameTurnDelta duration;
+    CrtrExpLevel caster_level;
+    PlayerNumber caster_owner;
 };
 
 struct CreatureControl {
-    unsigned short index;
+    CctrlIndex index;
     unsigned char flgfield_1;
     unsigned char flgfield_2;
     unsigned char combat_flags;
     unsigned char party_objective;
+    unsigned char original_party_objective;
     unsigned long wait_to_turn;
     short distance_to_destination;
     ThingIndex opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
     ThingIndex opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
     unsigned char opponents_melee_count;
     unsigned char opponents_ranged_count;
-    unsigned short players_prev_creature_idx;
-    unsigned short players_next_creature_idx;
+    ThingIndex players_prev_creature_idx;
+    ThingIndex players_next_creature_idx;
     unsigned short slap_turns;
     unsigned char explevel;
     long exp_points;
@@ -181,9 +181,9 @@ unsigned char sound_flag;
     /** Index of a thing being dragged by the creature, or index of a thing which is dragging this thing.
      *  Specific case is determined by flags. */
     short dragtng_idx;
-    unsigned short arming_thing_id;
-    unsigned short pickup_object_id;
-    unsigned short pickup_creature_id;
+    ThingIndex arming_thing_id;
+    ThingIndex pickup_object_id;
+    ThingIndex pickup_creature_id;
     unsigned short next_in_group;
     unsigned short prev_in_group;
     unsigned long group_info;// offset 7A
@@ -238,8 +238,8 @@ unsigned char sound_flag;
   union {
   struct {
     GameTurn start_gameturn;
-    GameTurn gameturn_9Ex;
-    GameTurn gameturn_A2x;
+    GameTurn state_start_turn;
+    GameTurn torturer_start_turn;
     ThingIndex assigned_torturer;
     unsigned char vis_state;
   } tortured;
@@ -276,7 +276,7 @@ unsigned char sound_flag;
     GameTurn last_mood_sound_turn;
   } imprison;
   struct {
-    unsigned char byte_9A;
+    unsigned char job_stage;
     unsigned char swing_weapon_counter;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -307,22 +307,14 @@ unsigned char sound_flag;
     short word_9A;
     short word_9C;
   }sacrifice;
-  struct {
-    unsigned char byte_9A;
-  }mad_psycho;
-
-  struct {
-    unsigned char byte_9A;
-  }unknown_state;
-
-
 
   };
     unsigned char fight_til_death;
     TbBool field_AA;
+    TbBool called_to_arms;
+    TbBool exp_level_up;
     unsigned char stateblock_flags;
-    unsigned long spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
-    unsigned char field_AE;
+    unsigned long spell_flags;
     short force_visible;
     unsigned char frozen_on_hit;
     long last_piss_turn;
@@ -366,7 +358,7 @@ unsigned char sound_flag;
     unsigned char continue_state_bkp;
     unsigned char cowers_from_slap_turns;
     short conscious_back_turns;
-    short countdown_282; // signed
+    short countdown; // signed
     unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
@@ -376,8 +368,8 @@ unsigned char sound_flag;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;
-    short spell_aura;
-    short spell_aura_duration;
+    EffectOrEffElModel spell_aura;
+    GameTurnDelta spell_aura_duration;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
@@ -412,8 +404,11 @@ unsigned char sound_flag;
     TbBool timebomb_death;
     GameTurn unsummon_turn;
     ThingIndex summoner_idx;
-    long summon_spl_idx;
+    SpellKind summon_spl_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
+    SpellKind active_disease_spell;
+    SpellKind active_teleport_spell;
+    SpellKind active_timebomb_spell;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -424,7 +419,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     HitPoints health;
     unsigned char heal_requirement;
     unsigned char heal_threshold;
-    unsigned char strength;
+    unsigned short strength;
     unsigned char armour;
     unsigned char dexterity;
     unsigned char fear_wounded;
@@ -447,7 +442,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned long to_level[CREATURE_MAX_LEVEL];
     unsigned char base_speed;
     ThingModel grow_up;
-    unsigned char grow_up_level;
+    CrtrExpLevel grow_up_level;
     TbBool entrance_force;
     short max_turning_speed;
     short base_eye_height;
@@ -461,7 +456,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short walking_anim_speed;
     TbBool flying;
     TbBool fixed_anim_speed;
-    TbBool immune_to_gas;
     unsigned char attack_preference;
     short field_of_view;
     /** Instance identifiers of the instances creature can learn. */
@@ -512,7 +506,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool can_see_invisible;
     TbBool can_go_locked_doors;
     TbBool bleeds;
-    TbBool affected_by_wind;
     short annoy_eat_food;
     short annoy_in_hand;
     short damage_to_boulder;
@@ -532,6 +525,9 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short good_start_state;
     unsigned char natural_death_kind;
     unsigned char swipe_idx;
+    ThingModel prison_kind;
+    ThingModel torture_kind;
+    unsigned long immunity_flags;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 
@@ -557,6 +553,7 @@ struct CreatureSounds {
     struct CreatureSound torture;
     struct CreatureSound slap;
     struct CreatureSound fight;
+    struct CreatureSound piss;
 };
 
 extern int creature_swap_idx[CREATURE_TYPES_MAX];

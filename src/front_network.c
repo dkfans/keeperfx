@@ -28,7 +28,6 @@
 #include "bflib_keybrd.h"
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"
-#include "bflib_memory.h"
 #include "bflib_datetm.h"
 #include "bflib_fileio.h"
 
@@ -214,12 +213,12 @@ static void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *
     }
     if (strcasecmp("TCP", netcdat->svc_name) == 0)
     {
-        LbStringCopy(net_service[net_number_of_services], "TCP/IP", NET_MESSAGE_LEN);//TODO TRANSLATION put this in GUI strings
+        snprintf(net_service[net_number_of_services], NET_MESSAGE_LEN, "%s", "TCP/IP");//TODO TRANSLATION put this in GUI strings
         net_number_of_services++;
     }
     else if (strcasecmp("ENET/UDP", netcdat->svc_name) == 0)
     {
-        LbStringCopy(net_service[net_number_of_services], netcdat->svc_name, NET_MESSAGE_LEN);//TODO TRANSLATION put this in GUI strings
+        snprintf(net_service[net_number_of_services], NET_MESSAGE_LEN, "%s", netcdat->svc_name);//TODO TRANSLATION put this in GUI strings
         net_number_of_services++;
     } else
     {
@@ -235,7 +234,7 @@ void frontnet_session_update(void)
     if (LbTimerClock() >= last_enum_sessions)
     {
       net_number_of_sessions = 0;
-      LbMemorySet(net_session, 0, sizeof(net_session));
+      memset(net_session, 0, sizeof(net_session));
       if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
         ERRORLOG("LbNetwork_EnumerateSessions() failed");
       last_enum_sessions = LbTimerClock();
@@ -281,7 +280,7 @@ void frontnet_session_update(void)
     if (LbTimerClock() >= last_enum_players)
     {
       net_number_of_enum_players = 0;
-      LbMemorySet(net_player, 0, sizeof(net_player));
+      memset(net_player, 0, sizeof(net_player));
       if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
       {
         net_session_index_active = -1;
@@ -311,7 +310,7 @@ void frontnet_rewite_net_messages(void)
     long k = 0;
     long i = net_number_of_messages;
     for (i=0; i < NET_MESSAGES_COUNT; i++)
-      LbMemorySet(&lmsg[i], 0, sizeof(struct NetMessage));
+      memset(&lmsg[i], 0, sizeof(struct NetMessage));
     for (i=0; i < net_number_of_messages; i++)
     {
         struct NetMessage* nmsg = &net_message[i];
@@ -333,7 +332,7 @@ void frontnet_start_update(void)
     if (LbTimerClock() >= player_last_time+200)
     {
       net_number_of_enum_players = 0;
-      LbMemorySet(net_player, 0, sizeof(net_player));
+      memset(net_player, 0, sizeof(net_player));
       if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
       {
         ERRORLOG("LbNetwork_EnumeratePlayers() failed");
@@ -368,7 +367,7 @@ void net_load_config_file(void)
     // Try to load the config file
     char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (handle != -1)
+    if (handle)
     {
       if (LbFileRead(handle, &net_config_info, sizeof(net_config_info)) == sizeof(net_config_info))
       {
@@ -378,8 +377,8 @@ void net_load_config_file(void)
       LbFileClose(handle);
     }
     // If can't load, then use default config
-    LbMemoryCopy(&net_config_info, &default_net_config_info, sizeof(net_config_info));
-    LbStringCopy(net_config_info.net_player_name, get_string(GUIStr_MnuNoName), 20);
+    memcpy(&net_config_info, &default_net_config_info, sizeof(net_config_info));
+    snprintf(net_config_info.net_player_name, sizeof(net_config_info.net_player_name), "%s", get_string(GUIStr_MnuNoName));
 }
 
 void net_write_config_file(void)
@@ -387,7 +386,7 @@ void net_write_config_file(void)
     // Try to load the config file
     char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-    if (handle != -1)
+    if (handle)
     {
         LbFileWrite(handle, &net_config_info, sizeof(net_config_info));
         LbFileClose(handle);
@@ -397,7 +396,7 @@ void net_write_config_file(void)
 void frontnet_service_setup(void)
 {
     net_number_of_services = 0;
-    LbMemorySet(net_service, 0, sizeof(net_service));
+    memset(net_service, 0, sizeof(net_service));
     // Create list of available services
     if (LbNetwork_EnumerateServices(enum_services_callback, NULL)) {
         ERRORLOG("LbNetwork_EnumerateServices() failed");
@@ -405,7 +404,7 @@ void frontnet_service_setup(void)
     // Create skirmish option if it should be enabled
     if ((game.system_flags & GSF_AllowOnePlayer) != 0)
     {
-        LbStringCopy(net_service[net_number_of_services], get_string(GUIStr_Net1Player), NET_SERVICE_LEN);
+        snprintf(net_service[net_number_of_services], NET_SERVICE_LEN, "%s", get_string(GUIStr_Net1Player));
         net_number_of_services++;
     }
     net_load_config_file();

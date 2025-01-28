@@ -162,7 +162,7 @@ int api_init_server()
     }
     else
     {
-        JUSTLOG("API server starting on port: %ld", api_port);
+        JUSTLOG("API server starting on port: %u", api_port);
     }
 
     if (SDLNet_Init() < 0)
@@ -666,7 +666,7 @@ int api_unsubscribe_event(const char *event_name)
     return false;
 }
 
-int api_is_subscribed_to_var(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
+int api_is_subscribed_to_var(PlayerNumber plyr_idx, unsigned char valtype, short validx)
 {
     // Look up if we are subscribed to updates of this variable
     int api_sub_found_count = 0;
@@ -705,7 +705,7 @@ int api_is_subscribed_to_var(PlayerNumber plyr_idx, unsigned char valtype, unsig
     return false;
 }
 
-int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char valtype, unsigned char validx)
+int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char valtype, short validx)
 {
     JUSTLOG("Sub: %d, %d, %d", plyr_idx, valtype, validx);
 
@@ -748,7 +748,7 @@ int api_subscribe_var(PlayerNumber plyr_idx, const char *var_name, unsigned char
     return false;
 }
 
-int api_unsubscribe_var(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
+int api_unsubscribe_var(PlayerNumber plyr_idx, unsigned char valtype, short validx)
 {
     // First make sure we are actually subscribed to this var
     if (api_is_subscribed_to_var(plyr_idx, valtype, validx) == false)
@@ -1289,6 +1289,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
             variable_type != SVar_FLAG &&
             variable_type != SVar_CAMPAIGN_FLAG &&
             variable_type != SVar_BOX_ACTIVATED &&
+            variable_type != SVar_TRAP_ACTIVATED &&
             variable_type != SVar_SACRIFICED &&
             variable_type != SVar_REWARDED)
         {
@@ -1425,14 +1426,16 @@ void api_process_multipart_json(const char *buffer, int buf_size)
             {
                 // Extract the JSON object from buffer[start] to buffer[i+1]
                 int json_length = i - start + 1;
-                char json_string[json_length + 1]; // +1 for null terminator
+                //char json_string[json_length + 1]; // +1 for null terminator
+                char* json_string = (char*)malloc((json_length + 1) * sizeof(char));
+                if (!json_string) return;
                 strncpy(json_string, buffer + start, json_length);
                 json_string[json_length] = '\0';
 
                 // Process the extracted JSON object
                 JUSTLOG("Received message from client: %s", json_string);
                 api_process_buffer(json_string, json_length);
-
+                free(json_string);
                 // Reset start to look for the next JSON object
                 start = -1;
             }

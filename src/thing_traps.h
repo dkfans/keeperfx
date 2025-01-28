@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-/******************************************************************************/
+
 #pragma pack(1)
 #define INFINITE_CHARGES 255
 
@@ -67,39 +67,8 @@ enum TrapActivationTypes {
 
 struct Thing;
 
-/** Also see TrapConfigStats
-*/
-struct TrapStats {
-    HitPoints health;
-    unsigned long sprite_anim_idx;
-    unsigned long recharge_sprite_anim_idx;
-    unsigned long attack_sprite_anim_idx;
-    unsigned long sprite_size_max;
-    unsigned char unanimated;
-    unsigned long anim_speed;
-    unsigned char unshaded;
-    unsigned char transparency_flag; // Transparency in lower 2 bits.
-    unsigned char random_start_frame;
-    short size_xy;
-    short size_z;
-    unsigned char trigger_type;
-    unsigned char activation_type;
-    unsigned short created_itm_model; // Shot model, effect model, slab kind.
-    unsigned char hit_type;
-    short light_radius; // Creates light if not null.
-    unsigned char light_intensity;
-    unsigned char light_flag;
-    struct ComponentVector shotvector;
-    unsigned short shot_shift_x;
-    unsigned short shot_shift_y;
-    unsigned short shot_shift_z;
-    unsigned short initial_delay; // Trap is placed on reload phase, value in game turns.
-    unsigned char detect_invisible;
-};
-
-/******************************************************************************/
-
 #pragma pack()
+
 /******************************************************************************/
 TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_has_sellable_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
@@ -124,6 +93,8 @@ TbBool rearm_trap(struct Thing *traptng);
 TngUpdateRet update_trap(struct Thing *thing);
 void init_traps(void);
 void activate_trap(struct Thing *traptng, struct Thing *creatng);
+void activate_trap_by_slap(struct PlayerInfo* player, struct Thing* traptng);
+void process_trap_charge(struct Thing* traptng);
 
 unsigned long remove_trap(struct Thing *traptng, long *sell_value);
 unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);

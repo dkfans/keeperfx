@@ -97,9 +97,10 @@ struct PartyTrigger {
   };
   union
   {
-      unsigned long location;
+      TbMapLocation location;
       unsigned long countdown;
   };
+  char spawn_type;
   unsigned char crtr_level;
   unsigned short carried_gold;
   union
@@ -126,7 +127,9 @@ struct ScriptValue {
     char chars[32];
     short shorts[16];
     long longs[8];
+    long long longlongs[4];
     unsigned long ulongs[8];
+    unsigned long long ulonglongs[4];
     unsigned char* ustrs[8];
     char* strs[8];
   };
@@ -202,7 +205,7 @@ TbBool script_scan_line(char *line,TbBool preloaded, long file_version);
 TbBool preload_script(long lvnum);
 /******************************************************************************/
 
-long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
+long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short validx);
 void process_level_script(void);
 /******************************************************************************/
 #ifdef __cplusplus

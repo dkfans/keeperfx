@@ -177,7 +177,7 @@ enum TbScriptCommands {
     Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL      = 164,
     Cmd_SET_EFFECT_GENERATOR_CONFIGURATION = 165,
     Cmd_SET_POWER_CONFIGURATION            = 166,
-    Cmd_SET_PLAYER_COLOR                   = 167,
+    Cmd_SET_PLAYER_COLOUR                  = 167,
     Cmd_MAKE_UNSAFE                        = 168,
     Cmd_LEVEL_UP_PLAYERS_CREATURES         = 169,
     Cmd_SET_INCREASE_ON_EXPERIENCE         = 170,
@@ -187,6 +187,10 @@ enum TbScriptCommands {
     Cmd_CHANGE_SLAB_TEXTURE                = 174,
     Cmd_MOVE_PLAYER_CAMERA_TO              = 175,
     Cmd_ADD_OBJECT_TO_LEVEL_AT_POS         = 176,
+    Cmd_PLACE_DOOR                         = 177,
+    Cmd_PLACE_TRAP                         = 178,
+    Cmd_LOCK_POSSESSION                    = 179,
+    Cmd_SET_DIGGER                         = 180,
 };
 
 struct ScriptLine {
@@ -267,6 +271,7 @@ enum ScriptVariables {
   SVar_TOTAL_SALARY                    = 64,
   SVar_CURRENT_SALARY                  = 65,
   SVar_BOX_ACTIVATED                   = 66,
+  SVar_TRAP_ACTIVATED                  = 86,
   SVar_SACRIFICED                      = 67,  // Per model
   SVar_REWARDED                        = 68,  // Per model
   SVar_EVIL_CREATURES_CONVERTED        = 69,
@@ -317,7 +322,7 @@ extern const struct NamedCommand texture_pack_desc[];
 
 ThingModel parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
-struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx);
+struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx, short move_angle);
 struct Thing* script_process_new_effectgen(ThingModel crmodel, TbMapLocation location, long range);
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4);

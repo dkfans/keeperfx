@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#include "bflib_memory.h"
 #include "thing_data.h"
 #include "thing_stats.h"
 #include "thing_list.h"
@@ -98,7 +97,7 @@ TbBool corpse_ready_for_collection(const struct Thing* thing)
         return false;
     if (thing_is_dragged_or_pulled(thing))
         return false;
-    if (thing->active_state != DCrSt_RigorMortis)
+    if (thing->active_state != DCrSt_Dead)
         return false;
     return true;
 }
@@ -224,7 +223,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     long corpse_age;
     if ((thing->alloc_flags & TAlF_IsDragged) == 0)
     {
-        if (thing->active_state == DCrSt_DramaticDying)
+        if (thing->active_state == DCrSt_Dying)
         {
             struct Coord3d pos;
             pos.x.val = thing->mappos.x.val;
@@ -237,8 +236,8 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             if (thing->health > 0)
                 thing->health--;
             if (thing->health <= 0) {
-                thing->active_state = DCrSt_RigorMortis;
-                long i = get_creature_anim(thing, 16);
+                thing->active_state = DCrSt_Dead;
+                long i = get_creature_anim(thing, CGI_DropDead);
                 set_thing_draw(thing, i, 64, -1, 1, 0, ODC_Default);
             }
         } else
@@ -372,7 +371,7 @@ TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel c
     {
         for (long i = rmpos; i < DEAD_CREATURES_MAX_COUNT - 1; i++)
         {
-            LbMemoryCopy(&dungeon->dead_creatures[i], &dungeon->dead_creatures[i + 1], sizeof(struct CreatureStorage));
+            memcpy(&dungeon->dead_creatures[i], &dungeon->dead_creatures[i + 1], sizeof(struct CreatureStorage));
         }
         cstore = &dungeon->dead_creatures[DEAD_CREATURES_MAX_COUNT - 1];
         cstore->model = 0;
@@ -466,14 +465,14 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     unsigned long k;
     switch (crpscondition)
     {
-    case DCrSt_RigorMortis:
-        thing->active_state = DCrSt_RigorMortis;
-        k = get_creature_anim(thing, 17);
+    case DCrSt_Dead:
+        thing->active_state = DCrSt_Dead;
+        k = get_creature_anim(thing, CGI_DeadSplat);
         set_thing_draw(thing, k, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
         break;
     default:
-        thing->active_state = DCrSt_DramaticDying;
-        k = get_creature_anim(thing, 15);
+        thing->active_state = DCrSt_Dying;
+        k = get_creature_anim(thing, CGI_Scream);
         set_thing_draw(thing, k, 128, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
         thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
         play_creature_sound(thing, CrSnd_Die, 3, 0);
@@ -531,7 +530,7 @@ void delete_corpse(struct Thing *deadtng)
     struct CreatureStats* crstat = creature_stats_get(deadtng->model);
     if (crstat->corpse_vanish_effect != 0)
     {
-        create_used_effect_or_element(&deadtng->mappos, crstat->corpse_vanish_effect, deadtng->owner);
+        create_used_effect_or_element(&deadtng->mappos, crstat->corpse_vanish_effect, deadtng->owner, deadtng->index);
     }
     delete_thing_structure(deadtng, 0);
 }

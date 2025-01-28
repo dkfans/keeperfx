@@ -25,7 +25,7 @@
 #include "bflib_planar.h"
 #include "bflib_vidraw.h"
 #include "bflib_sound.h"
-
+#include "custom_sprites.h"
 #include "magic.h"
 #include "power_specials.h"
 #include "power_process.h"
@@ -60,6 +60,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "sprites.h"
+#include "frontmenu_ingame_tabs.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -546,8 +547,7 @@ void draw_power_hand(void)
     // Scale factor
     int ps_units_per_px;
     {
-        struct TbSprite *spr;
-        spr = &gui_panel_sprites[GPS_trapdoor_bonus_box_std_s]; // Use dungeon special box as reference
+        const struct TbSprite *spr = get_panel_sprite(GPS_trapdoor_bonus_box_std_s); // Use dungeon special box as reference
         ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
     }
     // Now draw
@@ -627,7 +627,7 @@ void draw_power_hand(void)
         switch (picktng->class_id)
         {
         case TCls_Creature:
-            if (!creature_affected_by_spell(picktng, SplK_Chicken))
+            if (!creature_under_spell_effect(picktng, CSAfF_Chicken))
             {
                 pickoffs = get_creature_picked_up_offset(picktng);
                 inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x*global_hand_scale);
@@ -891,7 +891,7 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     {
         if (external_set_thing_state(creatng, CrSt_CreatureBeHappy)) {
             cctrl = creature_control_get_from_thing(creatng);
-            cctrl->countdown_282 = 50;
+            cctrl->countdown = 50;
         }
     }
     return 1;
@@ -933,7 +933,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         }
         dungeon->last_creature_dropped_gameturn = game.play_gameturn;
         struct CreatureStats* crstat = creature_stats_get(droptng->model);
-        if ( (crstat->illuminated) || (creature_affected_by_spell(droptng, SplK_Light)) )
+        if ((crstat->illuminated) || (creature_under_spell_effect(droptng, CSAfF_Light)))
         {
             illuminate_creature(droptng);
         }
@@ -960,7 +960,7 @@ short dump_first_held_thing_on_map(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     // Check if drop position is allowed
     struct Thing *droptng = thing_get(dungeon->things_in_hand[0]);
-    if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, thing_is_creature_special_digger(droptng))) {
+    if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, thing_is_creature_digger(droptng))) {
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
         {
@@ -1124,17 +1124,19 @@ void draw_mini_things_in_hand(long x, long y)
     struct Dungeon *dungeon = get_my_dungeon();
     int i;
     int expshift_x;
+    int flash_color;
     // Scale factor
     int ps_units_per_px;
     {
-        struct TbSprite *spr = &gui_panel_sprites[GPS_trapdoor_bonus_box_std_s]; // Use dungeon special box as reference
+        const struct TbSprite *spr = get_panel_sprite(GPS_trapdoor_bonus_box_std_s); // Use dungeon special box as reference
         ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
     }
     unsigned long spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);
-    if ((spr_idx > 0) && (spr_idx < GUI_PANEL_SPRITES_COUNT))
-        i = gui_panel_sprites[spr_idx].SWidth - button_sprite[GBS_creature_flower_level_01].SWidth;
-    else
+    if ((spr_idx > 0) && (spr_idx < GUI_PANEL_SPRITES_COUNT)) {
+        i = get_panel_sprite(spr_idx)->SWidth - get_button_sprite(GBS_creature_flower_level_01)->SWidth;
+    } else {
         i = 0;
+    }
     long scrbase_x = x;
     long scrbase_y = y - scale_ui_value(58);
     expshift_x = scale_ui_value(abs(i)) / 2;
@@ -1151,6 +1153,7 @@ void draw_mini_things_in_hand(long x, long y)
         if (!thing_exists(thing)) {
             continue;
         }
+        flash_color = get_player_color_idx(thing->owner);
         int scrpos_x;
         int scrpos_y;
         int shift_y;
@@ -1169,13 +1172,55 @@ void draw_mini_things_in_hand(long x, long y)
                 scrpos_y = scrbase_y + scale_ui_value(18) * irow;
                 // Draw creature symbol
                 draw_gui_panel_sprite_left(scrpos_x, scrpos_y, ps_units_per_px, spr_idx);
+                char ownshift_y;
                 if (MyScreenHeight < 400)
                 {
-                    char expshift_y = (irow == 1) ? 32 : -6;                   
+                    char expshift_y = (irow > 0) ? 32 : -6;
                     draw_button_sprite_left(scrpos_x, scrpos_y + scale_ui_value(expshift_y), ps_units_per_px, expspr_idx);
+                    if (thing->owner != my_player_number)
+                    {
+                        ownshift_y = (irow == 0) ? 1 : 56;
+                        LbDrawCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_path_colours[flash_color]);
+                    }
                 }
                 else
                 {
+                    ownshift_y = (irow > 0) ? 44 : 10;
+                    if (thing->owner != my_player_number)
+                    {
+                        long relative_window_a = lbDisplay.GraphicsScreenWidth;
+                        long relative_window_b = lbDisplay.GraphicsScreenHeight;
+                        short n = min(scale_ui_value(1),4);
+                        ScreenCoord coord_y = scrpos_y + scale_ui_value(ownshift_y);
+                        ScreenCoord draw_y;
+                        ScreenCoord draw_x;
+                        for (int p = 0; p < (n*n); p++)
+                        {
+                            draw_y = coord_y + draw_square[p].delta_y;
+                            if (draw_y >= 0)
+                            {
+                                draw_x = scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x;
+                                // Draw the pixel if it's within the bounds of the window
+                                if ((draw_x >= 0) && (draw_x < relative_window_a) && (draw_y < relative_window_b))
+                                {
+                                    LbDrawPixel(draw_x, draw_y, player_flash_colours[flash_color]);
+                                }
+                            }
+                        }
+                        for (int p = (n * n); p < (n * n)+(4 * n + 4); p++)
+                        {
+                            draw_y = coord_y + draw_square[p].delta_y;
+                            if (draw_y >= 0)
+                            {
+                                draw_x = scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x;
+                                // Draw the pixel if it's within the bounds of the window
+                                if ((draw_x >= 0) && (draw_x < relative_window_a) && (draw_y < relative_window_b))
+                                {
+                                    LbDrawPixel(draw_x, draw_y, player_path_colours[flash_color]);
+                                }
+                            }
+                        }
+                    }
                     // Draw exp level
                     draw_button_sprite_left(scrpos_x + expshift_x, scrpos_y + scale_ui_value(shift_y), ps_units_per_px, expspr_idx);
                 }
@@ -1278,7 +1323,7 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
 void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long explevel)
 {
   struct Dungeon *dungeon;
-  SYNCLOG("Player %d sacrificed %s exp level %d",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model),explevel);
+  SYNCLOG("Player %d sacrificed %s exp level %ld",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model),explevel);
   if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
   {
     ERRORLOG("Player %d cannot sacrifice %s",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model));
@@ -1316,10 +1361,14 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             return false;
         }
         //Removing combat is called in insert_thing_into_power_hand_list(), so we don't have to do it here
-        if (creature_affected_by_spell(thing, SplK_Chicken))
-            i = convert_td_iso(122);
+        if (creature_under_spell_effect(thing, CSAfF_Chicken))
+        {
+            i = convert_td_iso(122); // Hardcoded value, 122 is grabbed chicken.
+        }
         else
-            i = get_creature_anim(thing, 9);
+        {
+            i = get_creature_anim(thing, CGI_PowerGrab);
+        }
         set_thing_draw(thing, i, 256, -1, -1, 0, ODC_Default);
     } else
     if (thing_is_object(thing))
@@ -1490,7 +1539,7 @@ short can_place_thing_here(struct Thing *thing, long stl_x, long stl_y, long dng
 {
     struct Coord3d pos;
     TbBool is_digger;
-    is_digger = thing_is_creature_special_digger(thing);
+    is_digger = thing_is_creature_digger(thing);
     if (!can_drop_thing_here(stl_x, stl_y, dngn_idx, is_digger))
       return false;
     pos.x.val = subtile_coord_center(stl_x);
@@ -1556,7 +1605,8 @@ static TbBool hand_rule_at_action_point(struct HandRule *hand_rule, const struct
 
 static TbBool hand_rule_affected_by(struct HandRule *hand_rule, const struct Thing *thing)
 {
-    return (creature_affected_by_spell(thing, hand_rule->param)) ? !hand_rule->allow : !!hand_rule->allow;
+    struct SpellConfig *spconf = get_spell_config(hand_rule->param);
+    return (creature_under_spell_effect(thing, spconf->spell_flags)) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
 static TbBool hand_rule_wandering(struct HandRule *hand_rule, const struct Thing *thing)
