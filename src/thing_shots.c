@@ -885,6 +885,16 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
         if (((trapst->unstable == 1) && !(shotst->model_flags & ShMF_Disarming)) || trapst->unstable == 2)
         {
             activate_trap(target, target);
+            struct Dungeon* dungeon = get_dungeon(target->owner);
+            if (!dungeon_invalid(dungeon))
+            {
+                dungeon->trap_info.activated[target->trap.flag_number]++;
+                if (target->trap.flag_number > 0)
+                {
+                    memcpy(&dungeon->last_trap_event_location, &target->mappos, sizeof(struct Coord3d));
+                }
+            }
+            process_trap_charge(target);
         }
     }
     if (shotst->destroy_on_first_hit) {
@@ -1642,7 +1652,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
             }
         }
     }
-    if ((shotng->movement_flags & TMvF_Unknown10) != 0)
+    if (flag_is_set(shotng->movement_flags,TMvF_GoThroughWalls))
     {
       if ((shotst->model_flags & ShMF_StrengthBased) && thing_in_wall_at(shotng, &pos)) {
           if (shot_hit_door_at(shotng, &pos)) {
