@@ -202,6 +202,21 @@ const struct NamedCommand instance_range_desc[] = {
   {NULL,                -1},
 };
 
+const struct NamedCommand spawn_type_desc[] = {
+  {"NONE",            SpwnT_None        },
+  {"0",               SpwnT_None        },
+  {"DEFAULT",         SpwnT_Default     },
+  {"1",               SpwnT_Default     },
+  {"JUMP",            SpwnT_Jump        },
+  {"2",               SpwnT_Jump        },
+  {"FALL",            SpwnT_Fall        },
+  {"3",               SpwnT_Fall        },
+  {"INIT",            SpwnT_Initialize  },
+  {"INITIALIZE",      SpwnT_Initialize  },
+  {"4",               SpwnT_Initialize  },
+  {NULL,             -1                 },
+};
+
 /******************************************************************************/
 struct NamedCommand creature_desc[CREATURE_TYPES_MAX];
 struct NamedCommand instance_desc[INSTANCE_TYPES_MAX];
@@ -340,11 +355,11 @@ void check_and_auto_fix_stats(void)
         }
         if (crstat->grow_up > 0)
         {
-          if ( (crstat->grow_up_level < 1) || (crstat->grow_up_level > CREATURE_MAX_LEVEL) )
-          {
-              ERRORLOG("Creature model %d (%s) GrowUp & GrowUpLevel invalid - Fixing", (int)model, creature_code_name(model));
-              crstat->grow_up_level = 1;
-          }
+            if (crstat->grow_up_level > CREATURE_MAX_LEVEL)
+            {
+                ERRORLOG("Creature model %d (%s) GrowUp & GrowUpLevel invalid - Fixing", (int)model, creature_code_name(model));
+                crstat->grow_up_level = CREATURE_MAX_LEVEL;
+            }
         }
         if (crstat->rebirth > CREATURE_MAX_LEVEL)
         {
@@ -1990,6 +2005,11 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
 
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx)
 {
+    struct PlayerInfo* player = get_player(plyr_idx);
+
+    if(player->special_digger != 0)
+        return player->special_digger;
+
     ThingModel crmodel;
 
     if (player_is_roaming(plyr_idx))
@@ -2183,9 +2203,9 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
     }
     if (creatng->owner == slabmap_owner(slb))
     {
-        if (thing_is_creature_special_digger(creatng))
+        if (thing_is_creature_digger(creatng))
         {
-            if (creatng->model == get_players_special_digger_model(creatng->owner))
+            if (creature_is_for_dungeon_diggers_list(creatng))
             {
                 required_kind_flags |= JoKF_OwnedDiggers;
             }
@@ -2208,7 +2228,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
         }
     } else
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+        if (creature_is_for_dungeon_diggers_list(creatng)) {
             required_kind_flags |= JoKF_EnemyDiggers;
         } else {
             required_kind_flags |= JoKF_EnemyCreatures;

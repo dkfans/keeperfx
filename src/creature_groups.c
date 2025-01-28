@@ -324,7 +324,7 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
 static short creature_could_be_lead_digger(struct Thing* creatng, struct CreatureControl* cctrl)
 {
     short potential_leader = 0;
-    if (thing_is_creature_special_digger(creatng))
+    if (thing_is_creature_digger(creatng))
     {
         if (cctrl->party_objective != CHeroTsk_DefendParty)
         {
@@ -406,7 +406,7 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
         TRACE_THING(ctng);
         if (has_digger > 0)
         {
-            is_digger = thing_is_creature_special_digger(ctng);
+            is_digger = thing_is_creature_digger(ctng);
         }
         cctrl = creature_control_get_from_thing(ctng);
         struct CreatureControl* bcctrl = creature_control_get_from_thing(best_creatng);
@@ -903,7 +903,7 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
               break;
           }
           struct PartyMember* member = &(party->members[k]);
-          struct Thing* thing = script_create_new_creature(plyr_idx, member->crtr_kind, location, member->carried_gold, member->crtr_level);
+          struct Thing* thing = script_create_new_creature(plyr_idx, member->crtr_kind, location, member->carried_gold, member->crtr_level, SpwnT_Default);
           if (!thing_is_invalid(thing))
           {
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);

@@ -144,6 +144,7 @@ void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
 long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
 void recalculate_player_creature_digger_lists(PlayerNumber plr_idx);
+void recalculate_all_creature_digger_lists();
 
 TbBool creature_has_lair_room(const struct Thing *creatng);
 struct Room *get_creature_lair_room(const struct Thing *creatng);
@@ -225,7 +226,7 @@ TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);
-TbBool thing_is_creature_special_digger(const struct Thing *thing);
+TbBool thing_is_creature_digger(const struct Thing *thing);
 TbBool thing_is_creature_spectator(const struct Thing *thing);
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_is_invisible(const struct Thing *thing);
@@ -233,13 +234,15 @@ TbBool creature_can_see_invisible(const struct Thing *thing);
 TbBool creature_can_be_transferred(const struct Thing* thing);
 HitPoints get_creature_health_permil(const struct Thing *thing);
 /******************************************************************************/
-struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, CrtrExpLevel crtr_level);
-struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location);
-void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long location, long copies_num, long carried_gold, CrtrExpLevel crtr_level);
+struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, CrtrExpLevel crtr_level, char spawn_type);
+struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, char spawn_type);
+void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long copies_num, long carried_gold, CrtrExpLevel crtr_level, char spawn_type);
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
 /******************************************************************************/
 void throw_out_gold(struct Thing* thing, long amount);
 ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags);
+ThingModel get_random_appropriate_creature_kind(ThingModel original_model);
+TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLevel grow_up_level);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -211,7 +211,7 @@ void process_disease(struct Thing *creatng)
                 // Per thing code.
                 tngcctrl = creature_control_get_from_thing(thing);
                 if (thing_is_creature(thing)
-                && !thing_is_creature_special_digger(thing)
+                && !creature_is_for_dungeon_diggers_list(thing)
                 && (thing->owner != cctrl->disease_caster_plyridx)
                 && !creature_under_spell_effect(thing, CSAfF_Disease)
                 && !creature_is_immune_to_spell_effect(thing, CSAfF_Disease)
