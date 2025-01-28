@@ -295,8 +295,8 @@ struct Thing* ftest_util_create_creature(MapCoord x, MapCoord y, PlayerNumber ow
     remove_first_creature(thing);
     set_first_creature(thing);
     set_start_state(thing);
-    CrtrExpLevel lv = GAME_RANDOM(max_level);
-    set_creature_level(thing, lv);
+    CrtrExpLevel exp_level = GAME_RANDOM(max_level);
+    set_creature_level(thing, exp_level);
     return thing;
 }
 
