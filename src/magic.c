@@ -1037,7 +1037,7 @@ void turn_off_power_obey(PlayerNumber plyr_idx)
 void turn_off_power_sight_of_evil(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
-    long spl_lev;
+    KeepPwrLevel power_level;
     long cit;
     long i;
     long imax;
@@ -1046,17 +1046,17 @@ void turn_off_power_sight_of_evil(PlayerNumber plyr_idx)
     dungeon = get_players_num_dungeon(plyr_idx);
     const struct MagicStats *pwrdynst;
     pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
-    spl_lev = dungeon->sight_casted_power_level;
-    if (spl_lev > POWER_MAX_LEVEL)
-        spl_lev = POWER_MAX_LEVEL;
+    power_level = dungeon->sight_casted_power_level;
+    if (power_level > POWER_MAX_LEVEL)
+        power_level = POWER_MAX_LEVEL;
     i = game.play_gameturn - dungeon->sight_casted_gameturn;
-    imax = abs(pwrdynst->strength[spl_lev]/4) >> 2;
+    imax = abs(pwrdynst->strength[power_level]/4) >> 2;
     if (i > imax)
         i = imax;
     if (i < 0)
         i = 0;
-    n = game.play_gameturn - pwrdynst->strength[spl_lev];
-    cit = power_sight_close_instance_time[spl_lev];
+    n = game.play_gameturn - pwrdynst->strength[power_level];
+    cit = power_sight_close_instance_time[power_level];
     k = imax / cit;
     if (k < 1) k = 1;
     dungeon->sight_casted_gameturn = n + i/k - cit;
