@@ -207,7 +207,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
  * @param destination: The desitination of the disk task.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destination)
+TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, TbMapLocation destination)
 {
     struct Computer2* comp = get_computer_player(plyr_idx);
     long orig_x, orig_y = 0;
@@ -579,6 +579,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               clear_flag(crconf->model_flags,CMF_IsSpecDigger);
           }
+          recalculate_all_creature_digger_lists();
           break;
       case 11: // ARACHNID
           if (val4 >= 1)
@@ -806,6 +807,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           else
           {
               clear_flag(crconf->model_flags, CMF_EventfulDeath);
+          }
+          break;
+      case 35: // DIGGING_CREATURE
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags, CMF_IsDiggingCreature);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags, CMF_IsDiggingCreature);
           }
           break;
       default:
