@@ -1795,7 +1795,7 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
     if (enmdist < subtile_coord(3,0)) {
         creature_retreat_from_combat(thing, enmtng, nstat, 1);
     } else
-    if (enmdist > compute_creature_attack_range(subtile_coord(8,0), 0, cctrl->explevel)) {
+    if (enmdist > compute_creature_attack_range(subtile_coord(8,0), 0, cctrl->exp_level)) {
         creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0);
     }
     return thing_in_field_of_view(thing, enmtng);

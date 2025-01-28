@@ -67,7 +67,7 @@ struct ComputerSpells {
     char gaction;
     char require_owned_ground;
     int repeat_num;
-    CrtrExpLevel pwlevel;
+    KeepPwrLevel power_level;
     int amount_able;
 };
 /******************************************************************************/
@@ -116,7 +116,7 @@ Comp_Event_Func computer_event_func_list[] = {
   NULL,
 };
 
-//PowerKind pwkind; char gaction; char require_owned_ground; int repeat_num; CrtrExpLevel pwlevel; int amount_able;
+//PowerKind pwkind; char gaction; char require_owned_ground; int repeat_num; KeepPwrLevel power_level; int amount_able;
 struct ComputerSpells computer_attack_spells[] = {
   {PwrK_DISEASE,   GA_UsePwrDisease,   1,  1, 2, 4},
   {PwrK_LIGHTNING, GA_UsePwrLightning, 0,  1, 8, 2},
@@ -482,27 +482,12 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
     {
         repeat_num = cevent->param2;
     }
-    CrtrExpLevel splevel = caspl->pwlevel;
-    /* if (splevel < 0)
-    {
-        repeat_num = cevent->param1; <- Did this ever happen? What is it supposed to do?
-        But splevel couldn't be < 0 anyway regardless of the type change:
-        struct ComputerSpells computer_attack_spells[] = {
-          {PwrK_DISEASE,   GA_UsePwrDisease,   1,  1, 2, 4},
-          {PwrK_LIGHTNING, GA_UsePwrLightning, 0,  1, 8, 2},
-          {PwrK_CHICKEN,   GA_UsePwrChicken,   1,  1, 2, 1},
-          {PwrK_FREEZE,    GA_UsePwrFreeze,    1,  1, 1, 1},
-          {PwrK_SLOW,      GA_UsePwrSlow,      1,  1, 1, 1},
-          {PwrK_LIGHTNING, GA_UsePwrLightning, 0, -1, 1, 1},
-          {PwrK_None,      GA_None,            0,  0, 0, 0},
-        };
-        ^->According to this 'caspl->pwlevel' is either 0, 1, 2 or 8.
-    } */
+    KeepPwrLevel power_level = caspl->power_level;
     int gaction = caspl->gaction;
     if (!is_task_in_progress(comp, CTT_AttackMagic))
     {
         // Create the new task
-        if (!create_task_attack_magic(comp, creatng, pwkind, repeat_num, splevel, gaction)) {
+        if (!create_task_attack_magic(comp, creatng, pwkind, repeat_num, power_level, gaction)) {
             return CTaskRet_Unk4;
         }
     }

@@ -324,8 +324,8 @@ TbBool packets_process_cheats(
             player->thing_under_hand = thing->index;
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                CrtrExpLevel splevel = get_power_overcharge_level(player);
-                magic_use_power_direct(plyr_idx,pwkind,splevel,stl_x,stl_y,thing,PwMod_CastForFree);
+                KeepPwrLevel power_level = get_power_overcharge_level(player);
+                magic_use_power_direct(plyr_idx,pwkind,power_level,stl_x,stl_y,thing,PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
@@ -505,7 +505,7 @@ TbBool packets_process_cheats(
                             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
                             if (!creature_control_invalid(cctrl))
                             {
-                                set_creature_level(thing, cctrl->explevel-1);
+                                set_creature_level(thing, cctrl->exp_level-1);
                             }
                             break;
                         }

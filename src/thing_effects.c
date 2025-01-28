@@ -196,7 +196,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         dturn = game.play_gameturn - thing->creation_turn;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 80; //effect is 25% larger than unit
 
         struct EffectElementConfigStats* eestat = get_effect_element_model_stats(TngEffElm_FlashBall1);
         unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
@@ -224,7 +224,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if (creature_under_spell_effect(thing, CSAfF_Slow))
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 80; //effect is 20% smaller than unit
         int i = cor_z_max / 64; //64 is the vertical speed of the circle.
         if (i <= 1)
           i = 1;
@@ -1016,7 +1016,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     CrtrExpLevel spell_level = 0;
                     if (!creature_control_invalid(scctrl))
                     {
-                        spell_level = scctrl->explevel;
+                        spell_level = scctrl->exp_level;
                     }
                     apply_spell_effect_to_thing(tngdst, shotst->cast_spell_kind, spell_level, owner);
                     struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
@@ -1436,7 +1436,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     {
                         struct CreatureControl *srcctrl;
                         srcctrl = creature_control_get_from_thing(tngsrc);
-                        apply_spell_effect_to_thing(tngdst, spell_idx, srcctrl->explevel, tngsrc->owner);
+                        apply_spell_effect_to_thing(tngdst, spell_idx, srcctrl->exp_level, tngsrc->owner);
                     }
                     break;
                 case AAffT_GasEffect:
@@ -1445,7 +1445,7 @@ TbBool poison_cloud_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, 
                     {
                         struct CreatureControl *srcctrl;
                         srcctrl = creature_control_get_from_thing(tngsrc);
-                        apply_spell_effect_to_thing(tngdst, spell_idx, srcctrl->explevel, tngsrc->owner);
+                        apply_spell_effect_to_thing(tngdst, spell_idx, srcctrl->exp_level, tngsrc->owner);
                     }
                     break;
                 default:

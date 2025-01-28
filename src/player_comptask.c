@@ -282,7 +282,7 @@ void suspend_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
     remove_task(comp, ctask);
 }
 
-TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
+TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel power_level,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2)
 {
     struct Dungeon *dungeon;
@@ -318,18 +318,18 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
             return Lb_FAIL;
         return Lb_SUCCESS;
     case GA_UseMkDigger:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_MKDIGGER, alevel, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_MKDIGGER, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
     case GA_UsePwrSight:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_SIGHT, alevel, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_SIGHT, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
     case GA_UsePwrObey:
-        return magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, alevel, PwMod_Default);
+        return magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, power_level, PwMod_Default);
     case GA_UsePwrHealCrtr:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_HEALCRTR, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_HEALCRTR, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrCall2Arms:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CALL2ARMS, alevel, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CALL2ARMS, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
     case GA_UsePwrCaveIn:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CAVEIN, alevel, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CAVEIN, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
     case GA_StopPwrCall2Arms:
         turn_off_power_call_to_arms(plyr_idx);
         return Lb_SUCCESS;
@@ -373,43 +373,43 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_SellDoor:
         return player_sell_door_at_subtile(plyr_idx, stl_x, stl_y);
     case GA_UsePwrLightning:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, alevel, stl_x, stl_y, PwCast_None, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, power_level, stl_x, stl_y, PwCast_None, PwMod_Default);
     case GA_UsePwrSpeedUp:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_SPEEDCRTR, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_SPEEDCRTR, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrArmour:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_PROTECT, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_PROTECT, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrRebound:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_REBOUND, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_REBOUND, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrConceal:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_CONCEAL, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_CONCEAL, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrFlight:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_FLIGHT, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_FLIGHT, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrVision:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_VISION, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_VISION, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrHoldAudnc:
-        return magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, alevel, PwMod_Default);
+        return magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, power_level, PwMod_Default);
     case GA_UsePwrDisease:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_DISEASE, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_DISEASE, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrChicken:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_CHICKEN, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_CHICKEN, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrFreeze:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_FREEZE, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_FREEZE, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrSlow:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLOW, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLOW, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UseSlap:
     case GA_UsePwrSlap:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, power_level, stl_x, stl_y, thing, PwMod_Default);
     default:
         ERRORLOG("Unknown game action %d", (int)gaction);
         break;
@@ -417,11 +417,11 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     return Lb_OK;
 }
 
-TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, CrtrExpLevel alevel,
+TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel power_level,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2)
 {
     TbResult result;
-    result = game_action(plyr_idx, gaction, alevel, stl_x, stl_y, param1, param2);
+    result = game_action(plyr_idx, gaction, power_level, stl_x, stl_y, param1, param2);
     if (result > Lb_OK) {
         comp->tasks_did--;
     }
@@ -2360,9 +2360,9 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
 
         if ( prefer_high_scoring )
         {
-            if ( game.creature_scores[i->model].value[cctrl->explevel] < highest_score && !thing_is_invalid(thing) )
+            if ( game.creature_scores[i->model].value[cctrl->exp_level] < highest_score && !thing_is_invalid(thing) )
                 continue;
-            highest_score = game.creature_scores[i->model].value[cctrl->explevel];
+            highest_score = game.creature_scores[i->model].value[cctrl->exp_level];
         }
         thing = i;
     }
@@ -2523,10 +2523,10 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
                         switch (room->kind)
                         {
                         case RoK_LIBRARY:
-                            score = compute_creature_work_value(crstat->research_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+                            score = compute_creature_work_value(crstat->research_value*256, ROOM_EFFICIENCY_MAX, cctrl->exp_level);
                             break;
                         case RoK_WORKSHOP:
-                            score = compute_creature_work_value(crstat->manufacture_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+                            score = compute_creature_work_value(crstat->manufacture_value*256, ROOM_EFFICIENCY_MAX, cctrl->exp_level);
                             break;
                         case RoK_TRAINING:
                             score = get_creature_thing_score(thing);
@@ -2838,7 +2838,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
                             {
                                 struct PerExpLevelValues* expvalues;
                                 expvalues = &game.creature_scores[thing->model];
-                                long expval = expvalues->value[cctrl->explevel];
+                                long expval = expvalues->value[cctrl->exp_level];
                                 HitPoints healthprm = get_creature_health_permil(thing);
                                 HitPoints new_factor = healthprm * expval / 1000;
                                 if ((new_factor > best_factor) && (healthprm > 20))
@@ -3109,47 +3109,47 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         remove_task(comp, ctask);
         return CTaskRet_Unk4;
     }
-    if (computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 1)
+    if (computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.power_level, 1)
     && !creature_under_spell_effect(creatng, CSAfF_Speed)
     && !creature_is_immune_to_spell_effect(creatng, CSAfF_Speed))
     {
-        if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, ctask->attack_magic.power_level, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1)
+    else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.power_level, 1)
     && !creature_under_spell_effect(creatng, CSAfF_Armour)
     && !creature_is_immune_to_spell_effect(creatng, CSAfF_Armour))
     {
-        if (try_game_action(comp, dungeon->owner, GA_UsePwrArmour, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrArmour, ctask->attack_magic.power_level, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1)
+    else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.power_level, 1)
     && !creature_under_spell_effect(creatng, CSAfF_Rebound)
     && !creature_is_immune_to_spell_effect(creatng, CSAfF_Rebound))
     {
-        if (try_game_action(comp, dungeon->owner, GA_UsePwrRebound, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrRebound, ctask->attack_magic.power_level, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1)
+    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.power_level, 1)
     && !creature_under_spell_effect(creatng, CSAfF_Flying)
     && !creature_is_immune_to_spell_effect(creatng, CSAfF_Flying))
     {
-        if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, ctask->attack_magic.power_level, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.splevel, 1)
+    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.power_level, 1)
     && !creature_under_spell_effect(creatng, CSAfF_Sight)
     && !creature_is_immune_to_spell_effect(creatng, CSAfF_Sight))
     {
-        if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, ctask->attack_magic.power_level, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
@@ -3236,11 +3236,11 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     // Note that can_cast_spell() shouldn't be needed here - should
     // be checked in the function which adds the task
-    if (!computer_able_to_use_power(comp, ctask->attack_magic.pwkind, ctask->attack_magic.splevel, 1)) {
+    if (!computer_able_to_use_power(comp, ctask->attack_magic.pwkind, ctask->attack_magic.power_level, 1)) {
         return CTaskRet_Unk4;
     }
     TbResult ret;
-    ret = try_game_action(comp, dungeon->owner, ctask->attack_magic.gaction, ctask->attack_magic.splevel,
+    ret = try_game_action(comp, dungeon->owner, ctask->attack_magic.gaction, ctask->attack_magic.power_level,
         thing->mappos.x.stl.num, thing->mappos.y.stl.num, ctask->attack_magic.target_thing_idx, 0);
     if (ret <= Lb_OK)
         return CTaskRet_Unk4;
@@ -3842,7 +3842,7 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
 
 //Task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units.
 //Not to be confused with check_for_accelerate which cast speed outside of combat.
-TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, CrtrExpLevel splevel)
+TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, KeepPwrLevel power_level)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -3855,12 +3855,12 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
     }
     ctask->ttype = CTT_MagicSpeedUp;
     ctask->attack_magic.target_thing_idx = creatng->index;
-    ctask->attack_magic.splevel = splevel;
+    ctask->attack_magic.power_level = power_level;
     ctask->created_turn = game.play_gameturn;
     return true;
 }
 
-TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, CrtrExpLevel splevel, int gaction)
+TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, KeepPwrLevel power_level, int gaction)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -3876,7 +3876,7 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
     }
     ctask->ttype = CTT_AttackMagic;
     ctask->attack_magic.target_thing_idx = creatng->index;
-    ctask->attack_magic.splevel = splevel;
+    ctask->attack_magic.power_level = power_level;
     ctask->attack_magic.repeat_num = repeat_num;
     ctask->attack_magic.gaction = gaction;
     ctask->attack_magic.pwkind = pwkind;

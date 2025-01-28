@@ -190,7 +190,7 @@ short state_cleanup_in_temple(struct Thing *creatng)
     return 1;
 }
 
-TbBool summon_creature(long model, struct Coord3d *pos, long owner, CrtrExpLevel explevel)
+TbBool summon_creature(long model, struct Coord3d *pos, long owner, CrtrExpLevel exp_level)
 {
     SYNCDBG(4,"Creating model %ld for player %ld",model,owner);
     if (!creature_count_below_map_limit(0))
@@ -204,7 +204,7 @@ TbBool summon_creature(long model, struct Coord3d *pos, long owner, CrtrExpLevel
         ERRORLOG("Could not create creature");
         return false;
     }
-    init_creature_level(thing, explevel);
+    init_creature_level(thing, exp_level);
     internal_set_thing_state(thing, CrSt_CreatureBeingSummoned);
     thing->movement_flags |= TMvF_BeingSacrificed;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -345,7 +345,7 @@ long force_complete_current_manufacturing(long plyr_idx)
     return 0;
 }
 
-void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long spl_idx, long overchrg)
+void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel, long spl_idx, CrtrExpLevel overchrg)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -486,7 +486,7 @@ TbBool tally_sacrificed_imps(PlayerNumber plyr_idx, short count)
     return true;
 }
 
-long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, long sacfunc, CrtrExpLevel explevel)
+long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, long sacfunc, CrtrExpLevel exp_level)
 {
   switch (sacfunc)
   {
@@ -520,7 +520,7 @@ long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, l
   }
 }
 
-long creature_sacrifice_average_explevel(struct Dungeon *dungeon, struct SacrificeRecipe *sac)
+long creature_sacrifice_average_exp_level(struct Dungeon *dungeon, struct SacrificeRecipe *sac)
 {
     long num = 0;
     long exp = 0;
@@ -615,12 +615,12 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
       if (sacrifice_victim_conditions_met(dungeon, sac))
       {
         SYNCDBG(6,"Sacrifice recipe %d condition met, action %d for player %d",(int)(sac-&game.conf.rules.sacrifices.sacrifice_recipes[0]),(int)sac->action,(int)plyr_idx);
-        CrtrExpLevel explevel = creature_sacrifice_average_explevel(dungeon, sac);
+        CrtrExpLevel exp_level = creature_sacrifice_average_exp_level(dungeon, sac);
         switch (sac->action)
         {
         case SacA_MkCreature:
-            if (explevel >= CREATURE_MAX_LEVEL) explevel = CREATURE_MAX_LEVEL-1;
-            if ( summon_creature(sac->param, pos, plyr_idx, explevel) )
+            if (exp_level >= CREATURE_MAX_LEVEL) exp_level = CREATURE_MAX_LEVEL-1;
+            if ( summon_creature(sac->param, pos, plyr_idx, exp_level) )
             {
                 dungeon->lvstats.creatures_from_sacrifice++;
                 dungeon->creature_awarded[sac->param]++;
@@ -628,24 +628,24 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
             ret = SacR_Awarded;
             break;
         case SacA_MkGoodHero:
-            if (explevel >= CREATURE_MAX_LEVEL) explevel = CREATURE_MAX_LEVEL-1;
-            if ( summon_creature(sac->param, pos, 4, explevel) )
+            if (exp_level >= CREATURE_MAX_LEVEL) exp_level = CREATURE_MAX_LEVEL-1;
+            if ( summon_creature(sac->param, pos, 4, exp_level) )
               dungeon->lvstats.creatures_from_sacrifice++;
             ret = SacR_Punished;
             break;
         case SacA_NegSpellAll:
-            if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
-            apply_spell_effect_to_players_creatures(plyr_idx, CREATURE_NOT_A_DIGGER, sac->param, explevel);
+            if (exp_level > SPELL_MAX_LEVEL) exp_level = SPELL_MAX_LEVEL;
+            apply_spell_effect_to_players_creatures(plyr_idx, CREATURE_NOT_A_DIGGER, sac->param, exp_level);
             ret = SacR_Punished;
             break;
         case SacA_PosSpellAll:
-            if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
-            apply_spell_effect_to_players_creatures(plyr_idx, CREATURE_NOT_A_DIGGER, sac->param, explevel);
+            if (exp_level > SPELL_MAX_LEVEL) exp_level = SPELL_MAX_LEVEL;
+            apply_spell_effect_to_players_creatures(plyr_idx, CREATURE_NOT_A_DIGGER, sac->param, exp_level);
             ret = SacR_Awarded;
             break;
         case SacA_NegUniqFunc:
         case SacA_PosUniqFunc:
-            ret = create_sacrifice_unique_award(pos, plyr_idx, sac->param, explevel);
+            ret = create_sacrifice_unique_award(pos, plyr_idx, sac->param, exp_level);
             break;
         case SacA_CustomReward:
             if (sac->param > 0) // Zero means do nothing
@@ -730,7 +730,7 @@ short creature_being_sacrificed(struct Thing *thing)
     }
     struct SlabMap* slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     long owner = slabmap_owner(slb);
-    add_creature_to_sacrifice_list(owner, thing->model, cctrl->explevel);
+    add_creature_to_sacrifice_list(owner, thing->model, cctrl->exp_level);
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;

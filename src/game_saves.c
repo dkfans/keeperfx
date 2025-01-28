@@ -614,7 +614,7 @@ short load_continue_game(void)
     return true;
 }
 
-TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, CrtrExpLevel explevel, char *name)
+TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, CrtrExpLevel exp_level, char *name)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
@@ -626,7 +626,7 @@ TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, CrtrExpL
     short i = dungeon->creatures_transferred; //makes sure it fits 255 units
 
     intralvl.transferred_creatures[plyr_idx][i].model = model;
-    intralvl.transferred_creatures[plyr_idx][i].explevel = explevel;
+    intralvl.transferred_creatures[plyr_idx][i].exp_level = exp_level;
     strcpy(intralvl.transferred_creatures[plyr_idx][i].creature_name, name);
     return true;
 }
@@ -638,7 +638,7 @@ void clear_transfered_creatures(void)
         for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
         {
             intralvl.transferred_creatures[p][i].model = 0;
-            intralvl.transferred_creatures[p][i].explevel = 0;
+            intralvl.transferred_creatures[p][i].exp_level = 0;
         }
     }
 }

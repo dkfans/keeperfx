@@ -94,7 +94,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     SYNCDBG(8,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
     struct Thing* castng = INVALID_THING;
     struct PlayerInfo* myplyr = get_my_player();
-    CrtrExpLevel spell_level;
+    KeepPwrLevel power_level;
     long damage;
     // Identify the creator of the shot
     if (shotng->index != shotng->parent_idx) {
@@ -108,7 +108,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         // Caster may have leveled up, or even may be already dead
         // But currently shot do not store its level, so we don't really have a choice
         struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
-        long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel);
+        long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->exp_level);
         if (flag_is_set(shotst->model_flags, ShMF_StrengthBased))
         {
             if (shotst->area_damage == 0)
@@ -122,7 +122,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         }
         else
         {
-            damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, castng);
+            damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->exp_level, castng);
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets);
@@ -148,12 +148,12 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         }
         break;
     case ShM_TrapTNT:
-        spell_level = shotng->shot.damage;
-        if (spell_level > SPELL_MAX_LEVEL)
+        power_level = shotng->shot.damage;
+        if (power_level > SPELL_MAX_LEVEL)
         {
-            spell_level = SPELL_MAX_LEVEL;
+            power_level = SPELL_MAX_LEVEL;
         }
-        magic_use_power_direct(shotng->owner, PwrK_DESTRWALLS, spell_level, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num,INVALID_THING, PwMod_CastForFree);
+        magic_use_power_direct(shotng->owner, PwrK_DESTRWALLS, power_level, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num,INVALID_THING, PwMod_CastForFree);
         break;
     default:
         break;
@@ -782,14 +782,14 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     return false;
 }
 
-TbBool apply_shot_experience(struct Thing *shooter, long exp_factor, CrtrExpLevel crlevel, long shot_model)
+TbBool apply_shot_experience(struct Thing *shooter, long exp_factor, CrtrExpLevel exp_level, long shot_model)
 {
     if (!creature_can_gain_experience(shooter))
         return false;
     struct CreatureControl* shcctrl = creature_control_get_from_thing(shooter);
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     long exp_mag = shotst->experience_given_to_shooter;
-    long exp_gained = (exp_mag * (exp_factor + game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp * exp_factor * (long)crlevel / 100) << 8) / 256;
+    long exp_gained = (exp_mag * (exp_factor + game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp * exp_factor * (long)exp_level / 100) << 8) / 256;
     shcctrl->prev_exp_points = shcctrl->exp_points;
     shcctrl->exp_points += exp_gained;
     if ( check_experience_upgrade(shooter) ) {
@@ -803,7 +803,7 @@ TbBool apply_shot_experience_from_hitting_creature(struct Thing *shooter, struct
 {
     struct CreatureControl* tgcctrl = creature_control_get_from_thing(target);
     struct CreatureStats* tgcrstat = creature_stats_get_from_thing(target);
-    return apply_shot_experience(shooter, tgcrstat->exp_for_hitting, tgcctrl->explevel, shot_model);
+    return apply_shot_experience(shooter, tgcrstat->exp_for_hitting, tgcctrl->exp_level, shot_model);
 }
 
 long shot_kill_object(struct Thing *shotng, struct Thing *target)
@@ -1168,7 +1168,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
             CrtrExpLevel spell_level = 0;
             if (!creature_control_invalid(scctrl))
             {
-                spell_level = scctrl->explevel;
+                spell_level = scctrl->exp_level;
             }
             apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, spell_level, shotng->owner);
             struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
@@ -1306,7 +1306,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             else
             {
                 struct CreatureControl* cctrl = creature_control_get_from_thing(killertng);
-                short target_center = (killertng->solid_size_z + ((killertng->solid_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100)) / 2;
+                short target_center = (killertng->solid_size_z + ((killertng->solid_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100)) / 2;
                 pos2.z.val = target_center + killertng->mappos.z.val;
             }
             clear_thing_acceleration(shotng);
@@ -1366,7 +1366,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         CrtrExpLevel spell_level = 0;
         if (!creature_control_invalid(scctrl))
         {
-            spell_level = scctrl->explevel;
+            spell_level = scctrl->exp_level;
         }
         apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, spell_level, shotng->owner);
         struct SpellConfig *spconf = get_spell_config(shotst->cast_spell_kind);
@@ -1829,7 +1829,7 @@ TngUpdateRet update_shot(struct Thing *thing)
         case ShUL_TrapLightning:
             if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
             {
-              thing->shot.spell_level = 5;
+              thing->shot.shot_level = 5;
               god_lightning_choose_next_creature(thing);
               target = thing_get(thing->shot.target_idx);
               if (thing_exists(target))

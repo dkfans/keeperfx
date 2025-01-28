@@ -217,7 +217,7 @@ void process_disease(struct Thing *creatng)
                 && !creature_is_immune_to_spell_effect(thing, CSAfF_Disease)
                 && (cctrl->disease_caster_plyridx != game.neutral_player_num))
                 { // Apply the spell kind stored in 'active_disease_spell'.
-                    apply_spell_effect_to_thing(thing, cctrl->active_disease_spell, cctrl->explevel, creatng->owner);
+                    apply_spell_effect_to_thing(thing, cctrl->active_disease_spell, cctrl->exp_level, creatng->owner);
                     tngcctrl->disease_caster_plyridx = cctrl->disease_caster_plyridx;
                 }
                 // Per thing code ends.
@@ -345,10 +345,10 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
             if (dist < best_dist)
             {
                 const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
-                CrtrExpLevel spell_lev = shotng->shot.spell_level;
-                if (spell_lev > POWER_MAX_LEVEL)
-                    spell_lev = POWER_MAX_LEVEL;
-                if (subtile_coord(pwrdynst->strength[spell_lev],0) > dist)
+                KeepPwrLevel power_level = shotng->shot.shot_level;
+                if (power_level > POWER_MAX_LEVEL)
+                    power_level = POWER_MAX_LEVEL;
+                if (subtile_coord(pwrdynst->strength[power_level],0) > dist)
                 {
                     if (line_of_sight_2d(&shotng->mappos, &thing->mappos)) {
                         best_dist = dist;
@@ -749,8 +749,8 @@ void timebomb_explode(struct Thing *creatng)
     if (shotst->area_range != 0)
     {
         struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
-        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel) * weight) / WEIGHT_DIVISOR;
-        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, creatng) * weight) / WEIGHT_DIVISOR;
+        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->exp_level) * weight) / WEIGHT_DIVISOR;
+        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->exp_level, creatng) * weight) / WEIGHT_DIVISOR;
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(creatng, &creatng->mappos, dist, damage, (shotst->area_blow * weight) / WEIGHT_DIVISOR, hit_targets);
     }

@@ -1529,7 +1529,7 @@ static TngUpdateRet object_update_object_scale(struct Thing *objtng)
     int spr_size;
     int start_frame = objtng->current_frame;
     if (objtng->lair.belongs_to) {
-        spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * cctrl->explevel * game.conf.crtr_conf.exp.size_increase_on_exp) / 100;
+        spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * cctrl->exp_level * game.conf.crtr_conf.exp.size_increase_on_exp) / 100;
     } else {
         spr_size = objst->sprite_size_max;
     }
