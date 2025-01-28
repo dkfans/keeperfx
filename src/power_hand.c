@@ -1124,6 +1124,7 @@ void draw_mini_things_in_hand(long x, long y)
     struct Dungeon *dungeon = get_my_dungeon();
     int i;
     int expshift_x;
+    int flash_color;
     // Scale factor
     int ps_units_per_px;
     {
@@ -1152,6 +1153,7 @@ void draw_mini_things_in_hand(long x, long y)
         if (!thing_exists(thing)) {
             continue;
         }
+        flash_color = get_player_color_idx(thing->owner);
         int scrpos_x;
         int scrpos_y;
         int shift_y;
@@ -1178,7 +1180,7 @@ void draw_mini_things_in_hand(long x, long y)
                     if (thing->owner != my_player_number)
                     {
                         ownshift_y = (irow == 0) ? 1 : 56;
-                        LbDrawCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_path_colours[thing->owner]);
+                        LbDrawCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_path_colours[flash_color]);
                     }
                 }
                 else
@@ -1201,7 +1203,7 @@ void draw_mini_things_in_hand(long x, long y)
                                 // Draw the pixel if it's within the bounds of the window
                                 if ((draw_x >= 0) && (draw_x < relative_window_a) && (draw_y < relative_window_b))
                                 {
-                                    LbDrawPixel(draw_x, draw_y, player_flash_colours[thing->owner]);
+                                    LbDrawPixel(draw_x, draw_y, player_flash_colours[flash_color]);
                                 }
                             }
                         }
@@ -1214,7 +1216,7 @@ void draw_mini_things_in_hand(long x, long y)
                                 // Draw the pixel if it's within the bounds of the window
                                 if ((draw_x >= 0) && (draw_x < relative_window_a) && (draw_y < relative_window_b))
                                 {
-                                    LbDrawPixel(draw_x, draw_y, player_path_colours[thing->owner]);
+                                    LbDrawPixel(draw_x, draw_y, player_path_colours[flash_color]);
                                 }
                             }
                         }
