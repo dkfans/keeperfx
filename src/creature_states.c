@@ -4187,11 +4187,11 @@ TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thi
  * @param fightng The first creature to check.
  * @param enmtng The second creature to check.
  * @returns 'true' if both creatures are hostile towards each other.
- * @returns 'false' if either creature is not hostile towards the other, or if they are allies under any of the following conditions:
- * - Both creatures are influenced by "Call to Arms".
- * - Both creatures are members of a group.
+ * @returns 'false' if either creature is not hostile towards the other, or if either met any of the following conditions:
+ * - Either creature is influenced by 'Call to Arms'.
+ * - Either creature is member of a group/party.
  * - Either creature is currently working. */
-TbBool creature_is_hostile_to_creatur(const struct Thing *fightng, const struct Thing *enmtng)
+TbBool creature_is_hostile_to_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
     // Creatures cannot be hostile towards allies if influenced by CTA.
     if (creature_affected_by_call_to_arms(fightng) || creature_affected_by_call_to_arms(enmtng))
@@ -4240,7 +4240,7 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
     }
     struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-    if ((players_creatures_tolerate_each_other(fightng->owner, enmtng->owner)) && (!creature_is_hostile_to_creatur(fightng, enmtng)))
+    if ((players_creatures_tolerate_each_other(fightng->owner, enmtng->owner)) && (!creature_is_hostile_to_creature(fightng, enmtng)))
     {
         if ((!creature_under_spell_effect(fightng, CSAfF_MadKilling))
         && (!creature_under_spell_effect(enmtng, CSAfF_MadKilling)))
