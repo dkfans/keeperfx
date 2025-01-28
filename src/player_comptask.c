@@ -3936,7 +3936,7 @@ long process_tasks(struct Computer2 *comp)
  * @param destination: The desitination of the disk task.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destination)
+TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, TbMapLocation destination)
 {
     struct Computer2* comp = get_computer_player(plyr_idx);
     long orig_x, orig_y = 0;
@@ -3946,7 +3946,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     find_map_location_coords(origin, &orig_x, &orig_y, plyr_idx, __func__);
     if ((orig_x == 0) && (orig_y == 0))
     {
-        WARNLOG("Can't decode origin location %d", origin);
+        WARNLOG("Can't decode origin location %ld", origin);
         return Lb_FAIL;
     }
     struct Coord3d startpos;
@@ -3958,7 +3958,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     find_map_location_coords(destination, &dest_x, &dest_y, plyr_idx, __func__);
     if ((dest_x == 0) && (dest_y == 0))
     {
-        WARNLOG("Can't decode destination location %d", destination);
+        WARNLOG("Can't decode destination location %ld", destination);
         return Lb_FAIL;
     }
     struct Coord3d endpos;

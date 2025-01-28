@@ -85,7 +85,7 @@ const char *thing_classes[] = {
 /******************************************************************************/
 const char *thing_class_code_name(ThingClass class_id)
 {
-    if ((class_id < 0) || (class_id >= sizeof(thing_classes)/sizeof(thing_classes[0])))
+    if ((class_id >= sizeof(thing_classes)/sizeof(thing_classes[0])))
     {
         return "INVALID";
     }

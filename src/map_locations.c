@@ -644,7 +644,7 @@ TbBool get_map_heading_id_f(const char *headname, long target, TbMapLocation *lo
 }
 
 // TODO: replace this function by find_location_pos
-void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name)
+void find_map_location_coords(TbMapLocation location, long *x, long *y, int plyr_idx, const char *func_name)
 {
     struct ActionPoint *apt;
     struct Thing *thing;
@@ -667,7 +667,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = apt->mappos.y.stl.num;
           pos_x = apt->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Action Point %d location not found",func_name,i);
+          WARNMSG("%s: Action Point %ld location not found",func_name,i);
         break;
     case MLoc_HEROGATE:
         thing = find_hero_gate_of_number(i);
@@ -676,7 +676,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Hero Gate %d location not found",func_name,i);
+          WARNMSG("%s: Hero Gate %ld location not found",func_name,i);
         break;
     case MLoc_PLAYERSHEART:
         if (i < PLAYERS_COUNT)
@@ -689,7 +689,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Dungeon Heart location for player %d not found",func_name,i);
+          WARNMSG("%s: Dungeon Heart location for player %ld not found",func_name,i);
         break;
     case MLoc_NONE:
         pos_y = *y;
@@ -702,7 +702,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
           pos_y = thing->mappos.y.stl.num;
           pos_x = thing->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Thing %d location not found",func_name,i);
+          WARNMSG("%s: Thing %ld location not found",func_name,i);
         break;
     case MLoc_METALOCATION:
         if (get_coords_at_meta_action(&pos, plyr_idx, i))
@@ -711,12 +711,8 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
             pos_y = pos.y.stl.num;
         }
         else
-          WARNMSG("%s: Metalocation not found %d",func_name,i);
+          WARNMSG("%s: Metalocation not found %ld",func_name,i);
         break;
-    case MLoc_COORDS:
-        pos_x = location >> 20;
-        pos_y = (location >> 8) & 0xFFF;
-      break;
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
     case MLoc_ROOMKIND:
@@ -731,6 +727,7 @@ void find_map_location_coords(long location, long *x, long *y, int plyr_idx, con
     *y = pos_y;
     *x = pos_x;
 }
+
 
 /******************************************************************************/
 #ifdef __cplusplus

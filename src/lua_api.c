@@ -116,7 +116,7 @@ static int lua_ADD_CREATURE_TO_POOL(lua_State *L)
     long crtr_model = luaL_checkNamedCommand(L,1,creature_desc);
     long amount     = luaL_checkinteger(L, 2);
 
-    add_creature_to_pool(crtr_model, amount, false);
+    add_creature_to_pool(crtr_model, amount);
     return 0;
 }
 
@@ -273,6 +273,7 @@ static int lua_ADD_CREATURE_TO_LEVEL(lua_State *L)
     long ncopies           = luaL_checkinteger(L, 4);
     long crtr_level        = luaL_checkinteger(L, 5);
     long carried_gold      = luaL_checkinteger(L, 6);
+    long spawn_type        = SpwnT_Default;
 
     if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
     {
@@ -291,7 +292,7 @@ static int lua_ADD_CREATURE_TO_LEVEL(lua_State *L)
 
     for (long i = 0; i < ncopies; i++)
     {
-        lua_pushThing(L,script_create_new_creature(plr_idx, crtr_id, location, carried_gold, crtr_level-1));
+        lua_pushThing(L,script_create_new_creature(plr_idx, crtr_id, location, carried_gold, crtr_level-1,spawn_type));
     }
     return ncopies;
 }
@@ -359,7 +360,7 @@ static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
     long prty_id                 = luaL_checkParty(L,  2);
     TbMapLocation spawn_location = luaL_checkLocation(L,  3);
     TbMapLocation head_for       = luaL_checkHeadingLocation(L,4); // checks 2 params
-    long target                  = luaL_checkinteger(L, 6);
+    //long target                  = luaL_checkinteger(L, 6);//todo check why this is unused
     long crtr_level              = luaL_checkCrtLevel(L, 7);
     GoldAmount carried_gold      = luaL_checkinteger(L, 8);
 
@@ -487,8 +488,9 @@ static int lua_ADD_OBJECT_TO_LEVEL(lua_State *L)
     long stl_y             = luaL_checkstl_y(L, 3);
     long arg               = lua_tointeger(L,4);
     PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 5);
+    short angle            = lua_tointeger(L, 6);
 
-    lua_pushThing(L,script_process_new_object(obj_id, stl_x, stl_y, arg, plr_idx));
+    lua_pushThing(L,script_process_new_object(obj_id, stl_x, stl_y, arg, plr_idx,angle));
     return 1;
 }
 static int lua_ADD_EFFECT_GENERATOR_TO_LEVEL(lua_State *L)
@@ -615,11 +617,8 @@ static int lua_COMPUTER_DIG_TO_LOCATION(lua_State *L)
     script_computer_dig_to_location(plr_idx, origin, destination);
     return 0;
 }
-static int lua_SET_COMPUTER_PROCESS(lua_State *L)
-{
-    
-  
-}
+
+//static int lua_SET_COMPUTER_PROCESS(lua_State *L)
 //static int lua_SET_COMPUTER_CHECKS(lua_State *L)
 //static int lua_SET_COMPUTER_GLOBALS(lua_State *L)
 //static int lua_SET_COMPUTER_EVENT(lua_State *L)
@@ -785,9 +784,9 @@ static const luaL_Reg global_methods[] = {
 //Script flow control
    {"WIN_GAME"                             ,lua_WIN_GAME                        },
    {"LOSE_GAME"                            ,lua_LOSE_GAME                       },
-/*
-   {"COUNT_CREATURES_AT_ACTION_POINT"      ,lua_COUNT_CREATURES_AT_ACTION_POINT },
+//   {"COUNT_CREATURES_AT_ACTION_POINT"      ,lua_COUNT_CREATURES_AT_ACTION_POINT },
    {"SET_TIMER"                            ,lua_SET_TIMER                       },
+/*
    {"ADD_TO_TIMER"                         ,lua_ADD_TO_TIMER                    },
    {"DISPLAY_TIMER"                        ,lua_DISPLAY_TIMER                   },
    {"HIDE_TIMER"                           ,lua_HIDE_TIMER                      },
@@ -819,7 +818,7 @@ static const luaL_Reg global_methods[] = {
    //{"HEART_LOST_QUICK_OBJECTIVE"           ,lua_HEART_LOST_QUICK_OBJECTIVE      },
    //{"PLAY_MESSAGE"                         ,lua_PLAY_MESSAGE                    },
    {"TUTORIAL_FLASH_BUTTON"                ,lua_TUTORIAL_FLASH_BUTTON           },
-   //{"DISPLAY_COUNTDOWN"                    ,lua_DISPLAY_COUNTDOWN               },
+   {"DISPLAY_COUNTDOWN"                    ,lua_DISPLAY_COUNTDOWN               },
    //{"DISPLAY_VARIABLE"                     ,lua_DISPLAY_VARIABLE                },
    //{"HIDE_VARIABLE"                        ,lua_HIDE_VARIABLE                   },
 
@@ -848,14 +847,16 @@ static const luaL_Reg global_methods[] = {
    {"SET_ROOM_CONFIGURATION"               ,lua_SET_ROOM_CONFIGURATION          },
    {"SET_SACRIFICE_RECIPE"                 ,lua_SET_SACRIFICE_RECIPE            },
    {"REMOVE_SACRIFICE_RECIPE"              ,lua_REMOVE_SACRIFICE_RECIPE         },
+   */
    {"SET_MUSIC"                            ,lua_SET_MUSIC                       },
 
+
 //Manipulating Creature stats
-   {"SET_CREATURE_INSTANCE"                ,lua_SET_CREATURE_INSTANCE           },
+   //{"SET_CREATURE_INSTANCE"                ,lua_SET_CREATURE_INSTANCE           },
    {"SET_CREATURE_MAX_LEVEL"               ,lua_SET_CREATURE_MAX_LEVEL          },
-   {"SET_CREATURE_PROPERTY"                ,lua_SET_CREATURE_PROPERTY           },
-   {"SET_CREATURE_TENDENCIES"              ,lua_SET_CREATURE_TENDENCIES         },
-   {"CREATURE_ENTRANCE_LEVEL"              ,lua_CREATURE_ENTRANCE_LEVEL         },
+   //{"SET_CREATURE_PROPERTY"                ,lua_SET_CREATURE_PROPERTY           },
+   //{"SET_CREATURE_TENDENCIES"              ,lua_SET_CREATURE_TENDENCIES         },
+   //{"CREATURE_ENTRANCE_LEVEL"              ,lua_CREATURE_ENTRANCE_LEVEL         },
 
 
 //Manipulating Research
@@ -865,11 +866,11 @@ static const luaL_Reg global_methods[] = {
 
 //Tweaking computer players
    {"COMPUTER_DIG_TO_LOCATION"             ,lua_COMPUTER_DIG_TO_LOCATION        },
-   {"SET_COMPUTER_PROCESS"                 ,lua_SET_COMPUTER_PROCESS            },
-   {"SET_COMPUTER_CHECKS"                  ,lua_SET_COMPUTER_CHECKS             },
-   {"SET_COMPUTER_GLOBALS"                 ,lua_SET_COMPUTER_GLOBALS            },
-   {"SET_COMPUTER_EVENT"                   ,lua_SET_COMPUTER_EVENT              },
-
+   //{"SET_COMPUTER_PROCESS"                 ,lua_SET_COMPUTER_PROCESS            },
+   //{"SET_COMPUTER_CHECKS"                  ,lua_SET_COMPUTER_CHECKS             },
+   //{"SET_COMPUTER_GLOBALS"                 ,lua_SET_COMPUTER_GLOBALS            },
+   //{"SET_COMPUTER_EVENT"                   ,lua_SET_COMPUTER_EVENT              },
+/*
 //Specials
    {"USE_SPECIAL_INCREASE_LEVEL"           ,lua_USE_SPECIAL_INCREASE_LEVEL      },
    {"USE_SPECIAL_MULTIPLY_CREATURES"       ,lua_USE_SPECIAL_MULTIPLY_CREATURES  },
@@ -905,11 +906,11 @@ static const luaL_Reg global_methods[] = {
     {"getThingByIdx", lua_get_thing_by_idx},
     {"get_things_of_class", lua_get_things_of_class},
 };
-
+/*
 static const luaL_Reg game_meta[] = {
     {NULL, NULL}
 };
-
+*/
 static void global_register(lua_State *L)
 {
     //luaL_newlib(L, global_methods);

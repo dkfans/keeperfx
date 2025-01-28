@@ -2244,13 +2244,13 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
  */
 TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation target, long fml_bytes)
 {
-    SYNCDBG(0, "Using power at location of type %d", target);
+    SYNCDBG(0, "Using power at location of type %lu", target);
     long x = 0;
     long y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x == 0) && (y == 0))
     {
-        WARNLOG("Can't decode location %d", target);
+        WARNLOG("Can't decode location %lu", target);
         return Lb_FAIL;
     }
     return script_use_power_at_pos(plyr_idx, x, y, fml_bytes);
@@ -2279,52 +2279,31 @@ TbResult script_use_power(PlayerNumber plyr_idx, PowerKind power_kind, char free
 TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use spell on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
+    if (thing_is_invalid(thing))
+    {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
-    const struct SpellConfig* spconf = get_spell_config(spkind);
-
-    if (spconf->caster_affected ||
-            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These two should be also marked at configs somehow?
-            ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
-            ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
-    {
+    struct SpellConfig *spconf = get_spell_config(spkind);
+    if (!creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
+    { // Immunity is handled in 'apply_spell_effect_to_thing', but this command plays sounds, so check for it.
         if (thing_is_picked_up(thing))
         {
-            SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
+            SYNCDBG(5, "Found creature to cast the spell on but it is being held.");
             return Lb_FAIL;
         }
-        unsigned short sound;
-        if (spconf->caster_affected)
-        {
-            sound = spconf->caster_affect_sound;
-        }
-        else if ( (spkind == SplK_Freeze) || (spkind == SplK_Slow) )
-        {
-            sound = 50;
-        }
-        else if (spkind == SplK_Disease)
-        {
-            sound = 59;
-        }
-        else if (spkind == SplK_Chicken)
-        {
-            sound = 109;
-        }
-        else
-        {
-            sound = 0;
-        }
         long splevel = fmcl_bytes & 255;
-        thing_play_sample(thing, sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-        apply_spell_effect_to_thing(thing, spkind, splevel);
-        if (spkind == SplK_Disease)
+        if (spconf->caster_affect_sound)
+        {
+            thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+        }
+        apply_spell_effect_to_thing(thing, spkind, splevel, plyr_idx);
+        if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {
             struct CreatureControl *cctrl;
             cctrl = creature_control_get_from_thing(thing);
-            cctrl->disease_caster_plyridx = game.neutral_player_num;
+            cctrl->disease_caster_plyridx = game.neutral_player_num; // Does not spread.
         }
         return Lb_SUCCESS;
     }

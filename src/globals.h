@@ -282,6 +282,7 @@ typedef unsigned char PlayerState;
 typedef unsigned short CctrlIndex;
 /** index to a function, positive for C functions, negative for lua functions*/
 typedef short FuncIdx;
+typedef unsigned long TbMapLocation;
 
 
 /**

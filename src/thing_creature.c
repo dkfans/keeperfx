@@ -6701,12 +6701,16 @@ void illuminate_creature(struct Thing *creatng)
 
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, char spawn_type)
 {
-    long i = get_map_location_longval(location);
     struct Coord3d pos;
 
     if (!creature_count_below_map_limit(0))
     {
         WARNLOG("Could not create creature %s from script to due to creature limit", creature_code_name(crmodel));
+        return INVALID_THING;
+    }
+
+    if (!get_coords_at_location(&pos, location,false))
+    {
         return INVALID_THING;
     }
 
@@ -6723,15 +6727,11 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             {
                 spawn_type = SpwnT_None;
             }
+            break;
         case MLoc_HEROGATE:
             spawn_type = SpwnT_Jump;
             break;
         }
-    }
-
-    if (!get_coords_at_location(&pos, location,false))
-    {
-        return INVALID_THING;
     }
 
     struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, TCls_Creature, crmodel, plyr_idx);

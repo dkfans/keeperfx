@@ -1916,7 +1916,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-void set_general_information(long msg_id, long target, long x, long y)
+void set_general_information(long msg_id, TbMapLocation target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x;

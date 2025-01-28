@@ -622,7 +622,7 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
 TbBool create_task_magic_flight_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
 TbBool create_task_magic_vision_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
 TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, int splevel, int gaction);
-TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destination);
+TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, TbMapLocation destination);
 
 TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount);
 long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrole);
