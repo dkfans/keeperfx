@@ -238,6 +238,7 @@ struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmod
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, char spawn_type);
 void script_process_new_creatures(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long copies_num, long carried_gold, CrtrExpLevel crtr_level, char spawn_type);
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria);
 /******************************************************************************/
 void throw_out_gold(struct Thing* thing, long amount);
 ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags);

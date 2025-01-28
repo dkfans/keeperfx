@@ -280,6 +280,9 @@ typedef int8_t SmallAroundIndex;
 /** a player state as defined in config_players*/
 typedef unsigned char PlayerState;
 typedef unsigned short CctrlIndex;
+/** index to a function, positive for C functions, negative for lua functions*/
+typedef short FuncIdx;
+typedef unsigned long TbMapLocation;
 
 
 /**
