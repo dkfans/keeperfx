@@ -427,7 +427,7 @@ PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEv
         }
 
         // Only cast lightning on imps, don't waste expensive chicken or disease spells
-        if ((thing_is_creature_special_digger(creatng)) && (caspl->pwkind != PwrK_LIGHTNING))
+        if ((thing_is_creature_digger(creatng)) && (caspl->pwkind != PwrK_LIGHTNING))
         {
             i++;
             continue;

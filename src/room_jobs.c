@@ -395,7 +395,7 @@ TbBool room_is_correct_to_perform_job(const struct Thing *creatng, const struct 
     }
     if (creatng->owner == room->owner)
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+        if (creature_is_for_dungeon_diggers_list(creatng)) {
             if ((get_flags_for_job(jobpref) & JoKF_OwnedDiggers) == 0)
                 return false;
         } else {
@@ -404,7 +404,7 @@ TbBool room_is_correct_to_perform_job(const struct Thing *creatng, const struct 
         }
     } else
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+        if (creature_is_for_dungeon_diggers_list(creatng)) {
             if ((get_flags_for_job(jobpref) & JoKF_EnemyDiggers) == 0)
                 return false;
         } else {
