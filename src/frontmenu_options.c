@@ -317,7 +317,6 @@ void gui_set_sound_volume(struct GuiButton *gbtn)
     settings.sound_volume = new_val;
     save_settings();
     SetSoundMasterVolume(new_val);
-    SetMusicMasterVolume(new_val);
     for (int i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
     {
         if (Ext_Sounds[i] != NULL)
@@ -332,6 +331,7 @@ void gui_set_music_volume(struct GuiButton *gbtn)
     settings.redbook_volume = make_audio_slider_nonlinear(gbtn->content.lval);
     save_settings();
     SetMusicPlayerVolume(settings.redbook_volume);
+    SetMusicMasterVolume(settings.redbook_volume);
 }
 
 void gui_set_mentor_volume(struct GuiButton *gbtn)
