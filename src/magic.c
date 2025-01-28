@@ -59,6 +59,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "creature_instances.h"
+#include "map_locations.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -2199,6 +2200,132 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
   }
   return (i < POWER_MAX_LEVEL);
 }
+
+/**
+ * Casts spell at a location set by subtiles.
+ * @param plyr_idx caster player.
+ * @param stl_x subtile's x position.
+ * @param stl_y subtile's y position
+ * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long fml_bytes)
+{
+    char is_free = (fml_bytes >> 16) != 0;
+    PowerKind powerKind = (fml_bytes >> 8) & 255;
+    long splevel = fml_bytes & 255;
+
+    unsigned long allow_flags = PwCast_AllGround | PwCast_Unrevealed;
+    unsigned long mod_flags = 0;
+    if (is_free)
+        set_flag(mod_flags,PwMod_CastForFree);
+
+    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, allow_flags, mod_flags);
+}
+
+/**
+ * Casts spell at a location set by action point/hero gate.
+ * @param plyr_idx caster player.
+ * @param target action point/hero gate.
+ * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation target, long fml_bytes)
+{
+    SYNCDBG(0, "Using power at location of type %lu", target);
+    long x = 0;
+    long y = 0;
+    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
+    if ((x == 0) && (y == 0))
+    {
+        WARNLOG("Can't decode location %lu", target);
+        return Lb_FAIL;
+    }
+    return script_use_power_at_pos(plyr_idx, x, y, fml_bytes);
+}
+
+/**
+ * Casts a spell for player.
+ * @param plyr_idx caster player.
+ * @param power_kind the spell: magic id.
+ * @param free cast for free flag.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_power(PlayerNumber plyr_idx, PowerKind power_kind, char free)
+{
+    return magic_use_power_on_level(plyr_idx, power_kind, 1, free != 0 ? PwMod_CastForFree : 0); // splevel gets ignored anyway -> pass 1
+}
+
+/**
+ * Cast a spell on a creature which meets given criteria.
+ * @param plyr_idx The player whose creature will be affected.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
+{
+    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    if (thing_is_invalid(thing))
+    {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
+        return Lb_FAIL;
+    }
+    SpellKind spkind = (fmcl_bytes >> 8) & 255;
+    struct SpellConfig *spconf = get_spell_config(spkind);
+    if (!creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
+    { // Immunity is handled in 'apply_spell_effect_to_thing', but this command plays sounds, so check for it.
+        if (thing_is_picked_up(thing))
+        {
+            SYNCDBG(5, "Found creature to cast the spell on but it is being held.");
+            return Lb_FAIL;
+        }
+        long splevel = fmcl_bytes & 255;
+        if (spconf->caster_affect_sound)
+        {
+            thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+        }
+        apply_spell_effect_to_thing(thing, spkind, splevel, plyr_idx);
+        if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
+        {
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(thing);
+            cctrl->disease_caster_plyridx = game.neutral_player_num; // Does not spread.
+        }
+        return Lb_SUCCESS;
+    }
+    else
+    {
+        SCRPTERRLOG("Spell not supported for this command: %d", (int)spkind);
+        return Lb_FAIL;
+    }
+}
+
+/**
+ * Cast a keeper power on a creature which meets given criteria.
+ * @param plyr_idx The player whose creature will be affected.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_power_on_creature_matching_criterion(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
+{
+    struct Thing* thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    if (thing_is_invalid(thing)) {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use power on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
+        return Lb_FAIL;
+    }
+
+    char is_free = (fmcl_bytes >> 24) != 0;
+    PowerKind pwkind = (fmcl_bytes >> 16) & 255;
+    PlayerNumber caster = (fmcl_bytes >> 8) & 255;
+    long splevel = fmcl_bytes & 255;
+    return script_use_power_on_creature(thing, pwkind, splevel, caster, is_free);
+}
+
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
