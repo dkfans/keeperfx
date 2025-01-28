@@ -161,13 +161,13 @@ struct Dungeon {
     unsigned short guijob_angry_creatrs_count[CREATURE_TYPES_MAX][3];
     int sight_casted_gameturn;
     short sight_casted_thing_idx;
-    unsigned char sight_casted_splevel;
+    KeepPwrLevel sight_casted_power_level;
     MapSubtlCoord sight_casted_stl_x;
     MapSubtlCoord sight_casted_stl_y;
     unsigned char soe_explored_flags[2*MAX_SOE_RADIUS][2*MAX_SOE_RADIUS];
     MapSubtlCoord cta_stl_x;
     MapSubtlCoord cta_stl_y;
-    unsigned char cta_splevel;
+    KeepPwrLevel cta_power_level;
     unsigned long cta_start_turn;
     TbBool cta_free;
     unsigned long must_obey_turn;
