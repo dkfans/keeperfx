@@ -818,7 +818,7 @@ static void add_to_party_check(const struct ScriptLine *scline)
       SCRPTERRLOG("Unknown party member objective, '%s'", scline->tp[4]);
       return;
     }
-  //SCRPTLOG("Party '%s' member kind %d, level %d",prtname,crtr_id,crtr_level);
+  //SCRPTLOG("Party '%s' member kind %d, level %d",prtname,crtr_id,exp_level);
 
     if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
@@ -830,7 +830,7 @@ static void add_to_party_check(const struct ScriptLine *scline)
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->party_id = party_id;
         pr_trig->creatr_id = crtr_id;
-        pr_trig->crtr_level = scline->np[2];
+        pr_trig->exp_level = scline->np[2];
         pr_trig->carried_gold = scline->np[3];
         pr_trig->objectv = objective_id;
         pr_trig->countdown = scline->np[5];
@@ -864,7 +864,7 @@ static void delete_from_party_check(const struct ScriptLine *scline)
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->party_id = party_id;
         pr_trig->creatr_id = creature_id;
-        pr_trig->crtr_level = scline->np[2];
+        pr_trig->exp_level = scline->np[2];
         pr_trig->condit_idx = get_script_current_condition();
 
         gameadd.script.party_triggers_num++;
@@ -1035,7 +1035,7 @@ static int script_transfer_creature(PlayerNumber plyr_idx, ThingModel crmodel, l
             break;
         }
 
-        if (add_transfered_creature(plyr_idx, thing->model, cctrl->explevel, cctrl->creature_name))
+        if (add_transfered_creature(plyr_idx, thing->model, cctrl->exp_level, cctrl->creature_name))
         {
             transferred++;
             dungeon = get_dungeon(plyr_idx);
@@ -4980,7 +4980,7 @@ static void use_spell_on_players_creatures_check(const struct ScriptLine *scline
     }
     const char *mag_name = scline->tp[2];
     short mag_id = get_rid(spell_desc, mag_name);
-    short splevel = scline->np[3];
+    CrtrExpLevel spell_level = scline->np[3];
     if (mag_id == -1)
     {
         SCRPTERRLOG("Invalid spell: %s", mag_name);
@@ -4989,21 +4989,21 @@ static void use_spell_on_players_creatures_check(const struct ScriptLine *scline
     struct SpellConfig *spconf = get_spell_config(mag_id);
     if (spconf->linked_power) // Only check for spells linked to a keeper power.
     {
-        if (splevel < 1)
+        if (spell_level < 1)
         {
-            SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, splevel);
-            splevel = 1;
+            SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, spell_level);
+            spell_level = 1;
         }
-        if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) // Creatures cast spells from level 1 to 10.
+        if (spell_level > (MAGIC_OVERCHARGE_LEVELS + 1)) // Creatures cast spells from level 1 to 10.
         {
-            SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
-            splevel = MAGIC_OVERCHARGE_LEVELS;
+            SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, spell_level, (MAGIC_OVERCHARGE_LEVELS + 1));
+            spell_level = MAGIC_OVERCHARGE_LEVELS;
         }
     }
-    splevel--;
+    spell_level--;
     value->shorts[1] = crtr_id;
     value->shorts[2] = mag_id;
-    value->shorts[3] = splevel;
+    value->shorts[3] = spell_level;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -5011,7 +5011,7 @@ static void use_spell_on_players_creatures_process(struct ScriptContext *context
 {
     long crmodel = context->value->shorts[1];
     long spell_idx = context->value->shorts[2];
-    long overchrg = context->value->shorts[3];
+    CrtrExpLevel overchrg = context->value->shorts[3];
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
         apply_spell_effect_to_players_creatures(i, crmodel, spell_idx, overchrg);
@@ -5025,7 +5025,7 @@ static void use_power_on_players_creatures_check(const struct ScriptLine* scline
     PlayerNumber caster_player = scline->np[2];
     const char* pwr_name = scline->tp[3];
     short pwr_id = get_rid(power_desc, pwr_name);
-    short splevel = scline->np[4];
+    KeepPwrLevel power_level = scline->np[4];
     short free = scline->np[5];
     if (free == -1)
     {
@@ -5066,12 +5066,12 @@ static void use_power_on_players_creatures_check(const struct ScriptLine* scline
     case PwrK_CAVEIN:
     case PwrK_SIGHT:
     case PwrK_TIMEBOMB:
-        if ((splevel < 1) || (splevel > MAGIC_OVERCHARGE_LEVELS))
+        if ((power_level < 1) || (power_level > MAGIC_OVERCHARGE_LEVELS))
         {
-            SCRPTERRLOG("Power %s level %d out of range. Acceptible values are %d~%d", pwr_name, splevel, 1, MAGIC_OVERCHARGE_LEVELS);
+            SCRPTERRLOG("Power %s level %d out of range. Acceptible values are %d~%d", pwr_name, power_level, 1, MAGIC_OVERCHARGE_LEVELS);
             DEALLOCATE_SCRIPT_VALUE
         }
-        splevel--; // transform human 1~9 range into computer 0~8 range
+        power_level--; // transform human 1~9 range into computer 0~8 range
         break;
     case PwrK_SLAP:
     case PwrK_MKDIGGER:
@@ -5082,7 +5082,7 @@ static void use_power_on_players_creatures_check(const struct ScriptLine* scline
     }
     value->shorts[1] = crtr_id;
     value->shorts[2] = pwr_id;
-    value->shorts[3] = splevel;
+    value->shorts[3] = power_level;
     value->shorts[4] = caster_player;
     value->shorts[5] = free;
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -5096,7 +5096,7 @@ static void use_power_on_players_creatures_check(const struct ScriptLine* scline
  * @param caster The player number of the player who is made to cast the spell.
  * @param free If gold is used when casting the spell. It will fail to cast if it is not free and money is not available.
  */
-void cast_power_on_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel, short pwr_idx, short overchrg, PlayerNumber caster, TbBool free)
+void cast_power_on_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel, short pwr_idx, KeepPwrLevel overchrg, PlayerNumber caster, TbBool free)
 {
     SYNCDBG(8, "Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -5145,7 +5145,7 @@ static void use_power_on_players_creatures_process(struct ScriptContext* context
 {
     short crmodel = context->value->shorts[1];
     short pwr_idx = context->value->shorts[2];
-    short overchrg = context->value->shorts[3];
+    KeepPwrLevel overchrg = context->value->shorts[3];
     PlayerNumber caster = context->value->shorts[4];
     TbBool free = context->value->shorts[5];
 
@@ -5916,7 +5916,7 @@ static void add_effectgen_to_level_process(struct ScriptContext* context)
         pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
         pr_trig->plyr_idx = 0; //not needed
         pr_trig->creatr_id = 0; //not needed
-        pr_trig->crtr_level = gen_id;
+        pr_trig->exp_level = gen_id;
         pr_trig->carried_gold = range;
         pr_trig->location = location;
         pr_trig->ncopies = 1;

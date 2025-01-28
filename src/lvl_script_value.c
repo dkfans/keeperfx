@@ -150,8 +150,8 @@ TbResult script_use_power_on_creature_matching_criterion(PlayerNumber plyr_idx, 
     char is_free = (fmcl_bytes >> 24) != 0;
     PowerKind pwkind = (fmcl_bytes >> 16) & 255;
     PlayerNumber caster = (fmcl_bytes >> 8) & 255;
-    long splevel = fmcl_bytes & 255;
-    return script_use_power_on_creature(thing, pwkind, splevel, caster, is_free);
+    KeepPwrLevel power_level = fmcl_bytes & 255;
+    return script_use_power_on_creature(thing, pwkind, power_level, caster, is_free);
 }
 
 /**
@@ -179,12 +179,12 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
             SYNCDBG(5, "Found creature to cast the spell on but it is being held.");
             return Lb_FAIL;
         }
-        long splevel = fmcl_bytes & 255;
+        CrtrExpLevel spell_level = fmcl_bytes & 255;
         if (spconf->caster_affect_sound)
         {
             thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         }
-        apply_spell_effect_to_thing(thing, spkind, splevel, plyr_idx);
+        apply_spell_effect_to_thing(thing, spkind, spell_level, plyr_idx);
         if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
         {
             struct CreatureControl *cctrl;
@@ -256,14 +256,14 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
 {
     char is_free = (fml_bytes >> 16) != 0;
     PowerKind powerKind = (fml_bytes >> 8) & 255;
-    long splevel = fml_bytes & 255;
+    KeepPwrLevel power_level = fml_bytes & 255;
 
     unsigned long allow_flags = PwCast_AllGround | PwCast_Unrevealed;
     unsigned long mod_flags = 0;
     if (is_free)
         set_flag(mod_flags,PwMod_CastForFree);
 
-    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, allow_flags, mod_flags);
+    return magic_use_power_on_subtile(plyr_idx, powerKind, power_level, stl_x, stl_y, allow_flags, mod_flags);
 }
 
 /**
@@ -296,7 +296,7 @@ TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation targe
  */
 TbResult script_use_power(PlayerNumber plyr_idx, PowerKind power_kind, char free)
 {
-    return magic_use_power_on_level(plyr_idx, power_kind, 1, free != 0 ? PwMod_CastForFree : 0); // splevel gets ignored anyway -> pass 1
+    return magic_use_power_on_level(plyr_idx, power_kind, 1, free != 0 ? PwMod_CastForFree : 0); // power_level gets ignored anyway -> pass 1
 }
 
 /**

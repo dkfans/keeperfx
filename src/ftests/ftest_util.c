@@ -230,7 +230,7 @@ TbBool ftest_util_move_camera_to_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, Pl
     return ftest_util_move_camera(target.x.val, target.y.val, plyr_idx);
 }
 
-struct Thing* ftest_util_create_random_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv)
+struct Thing* ftest_util_create_random_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_level)
 {
     ThingModel crmodel;
     while (1) {
@@ -265,12 +265,12 @@ struct Thing* ftest_util_create_random_creature(MapCoord x, MapCoord y, PlayerNu
     remove_first_creature(thing);
     set_first_creature(thing);
     set_start_state(thing);
-    CrtrExpLevel lv = GAME_RANDOM(max_lv);
-    set_creature_level(thing, lv);
+    CrtrExpLevel exp_level = GAME_RANDOM(max_level);
+    set_creature_level(thing, exp_level);
     return thing;
 }
 
-struct Thing* ftest_util_create_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv, ThingModel creature_model)
+struct Thing* ftest_util_create_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_level, ThingModel creature_model)
 {
     struct Coord3d pos;
     pos.x.val = x;
@@ -295,8 +295,8 @@ struct Thing* ftest_util_create_creature(MapCoord x, MapCoord y, PlayerNumber ow
     remove_first_creature(thing);
     set_first_creature(thing);
     set_start_state(thing);
-    CrtrExpLevel lv = GAME_RANDOM(max_lv);
-    set_creature_level(thing, lv);
+    CrtrExpLevel exp_level = GAME_RANDOM(max_level);
+    set_creature_level(thing, exp_level);
     return thing;
 }
 
@@ -424,7 +424,7 @@ TbBool ftest_util_action__create_and_fill_torture_room(struct FTestActionArgs* c
     struct Coord3d center_of_room_pos;
     set_coords_to_slab_center(&center_of_room_pos, room_start_x + vars->room_width/2, room_start_y + vars->room_height);
 
-    struct Thing* torture_victim = ftest_util_create_creature(center_of_room_pos.x.val, center_of_room_pos.y.val, vars->victim_player_owner, vars->victim_max_lv, vars->victim_creature_model);
+    struct Thing* torture_victim = ftest_util_create_creature(center_of_room_pos.x.val, center_of_room_pos.y.val, vars->victim_player_owner, vars->victim_max_level, vars->victim_creature_model);
     if(thing_is_invalid(torture_victim))
     {
         FTEST_FAIL_TEST("Cannot create creature %s at (%ld,%ld)",creature_code_name(vars->victim_creature_model), center_of_room_pos.x.val, center_of_room_pos.y.val);

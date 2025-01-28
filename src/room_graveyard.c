@@ -85,7 +85,7 @@ void reposition_all_bodies_in_room_on_subtile(struct Room *room, MapSubtlCoord s
         {
             ThingModel crkind = thing->model;
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            if (!store_creature_reposition_entry(rrepos, crkind, cctrl->explevel)) {
+            if (!store_creature_reposition_entry(rrepos, crkind, cctrl->exp_level)) {
                 WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
             }
             delete_thing_structure(thing, 0);
@@ -114,14 +114,14 @@ TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubt
             pos.x.val = subtile_coord_center(stl_x);
             pos.y.val = subtile_coord_center(stl_y);
             pos.z.val = 0;
-            struct Thing* bodytng = create_dead_creature(&pos, rrepos->models[ri], 0, room->owner, rrepos->explevels[ri]);
+            struct Thing* bodytng = create_dead_creature(&pos, rrepos->models[ri], 0, room->owner, rrepos->exp_level[ri]);
             if (!thing_is_invalid(bodytng))
             {
                 bodytng->corpse.laid_to_rest = 1;
                 bodytng->health = game.conf.rules.rooms.graveyard_convert_time;
                 rrepos->used--;
                 rrepos->models[ri] = 0;
-                rrepos->explevels[ri] = 0;
+                rrepos->exp_level[ri] = 0;
                 return true;
             }
         }

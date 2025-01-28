@@ -1516,7 +1516,7 @@ short imp_toking(struct Thing *creatng)
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
         if (crstat->toking_recovery != 0)
         {
-            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel);
+            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->exp_level);
             apply_health_to_thing_and_display_health(creatng, recover);
         }
     }

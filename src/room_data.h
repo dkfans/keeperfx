@@ -141,7 +141,7 @@ struct Room {
 struct RoomReposition {
     int used;
     ThingModel models[ROOM_REPOSITION_COUNT];
-    CrtrExpLevel explevels[ROOM_REPOSITION_COUNT];
+    CrtrExpLevel exp_level[ROOM_REPOSITION_COUNT];
 };
 
 #define INVALID_ROOM (&game.rooms[0])
@@ -253,7 +253,7 @@ void redraw_slab_map_elements(MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel);
 void init_reposition_struct(struct RoomReposition * rrepos);
-TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel explevel);
+TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel exp_level);
 /******************************************************************************/
 #ifdef __cplusplus
 }

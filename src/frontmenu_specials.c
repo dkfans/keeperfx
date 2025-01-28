@@ -132,7 +132,7 @@ void select_resurrect_creature(struct GuiButton *gbtn)
     {
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
         struct Packet* pckt = get_packet(my_player_number);
-        set_packet_action(pckt, PckA_ResurrectCrtr, dungeon_special_selected, dungeon->owner | (cstore->model << 4) | (cstore->explevel << 12), 0, 0);
+        set_packet_action(pckt, PckA_ResurrectCrtr, dungeon_special_selected, dungeon->owner | (cstore->model << 4) | (cstore->exp_level << 12), 0, 0);
         turn_off_menu(GMnu_RESURRECT_CREATURE);
     }
 }
@@ -207,11 +207,11 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
         if ( (MyScreenHeight < 400) && (dbc_language == 1) )
         {
-            LbTextDrawResizedFmt(0, h, tx_units_per_px, "%u", (cstore->explevel+1));
+            LbTextDrawResizedFmt(0, h, tx_units_per_px, "%u", (cstore->exp_level+1));
         }
         else
         {
-            LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cstore->explevel+1));
+            LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cstore->exp_level+1));
         }
     }
     lbDisplay.DrawFlags = flg_mem;
@@ -338,11 +338,11 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
         if ( (MyScreenHeight < 400) && (dbc_language == 1) )
         {
-            LbTextDrawResizedFmt(0, h, tx_units_per_px, "%u", (cctrl->explevel+1));
+            LbTextDrawResizedFmt(0, h, tx_units_per_px, "%u", (cctrl->exp_level+1));
         }
         else
         {
-            LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cctrl->explevel+1));
+            LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cctrl->exp_level+1));
         }
     }
     lbDisplay.DrawFlags = flgmem;

@@ -1793,7 +1793,7 @@ TbBool create_empty_high_score_table(void)
 {
   int i;
   int npoints = 100 * VISIBLE_HIGH_SCORES_COUNT;
-  int nlevel = 1 * VISIBLE_HIGH_SCORES_COUNT;
+  int nmap = 1 * VISIBLE_HIGH_SCORES_COUNT;
   long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
   if (campaign.hiscore_table == NULL)
     campaign.hiscore_table = (struct HighScore *)calloc(arr_size, 1);
@@ -1804,9 +1804,9 @@ TbBool create_empty_high_score_table(void)
     if (i >= campaign.hiscore_count) break;
     sprintf(campaign.hiscore_table[i].name, "Bullfrog");
     campaign.hiscore_table[i].score = npoints;
-    campaign.hiscore_table[i].lvnum = nlevel;
+    campaign.hiscore_table[i].lvnum = nmap;
     npoints -= 100;
-    nlevel -= 1;
+    nmap -= 1;
   }
   while (i < campaign.hiscore_count)
   {

@@ -235,7 +235,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     TbBool high_res = (MyScreenHeight >= 400);
     curscr_y = (scr_y - ((spr->SHeight*bs_units_per_px/16) >> (unsigned char)high_res));
     curscr_x = (scr_x - ((spr->SWidth*bs_units_per_px/16) >> (unsigned char)high_res));
-    spr = get_button_sprite(GBS_creature_flower_level_01 + cctrl->explevel);
+    spr = get_button_sprite(GBS_creature_flower_level_01 + cctrl->exp_level);
     LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
 }
 

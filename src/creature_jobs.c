@@ -333,7 +333,7 @@ TbBool attempt_anger_job_mad_psycho(struct Thing *creatng)
 TbBool attempt_anger_job_persuade(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->explevel <= 5) {
+    if (cctrl->exp_level <= 5) {
         return false;
     }
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreaturePersuade)) {

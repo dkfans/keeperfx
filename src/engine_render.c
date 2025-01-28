@@ -4004,7 +4004,7 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
     const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     short offset = thing->clipbox_size_z + crstat->status_offset;
-    offset += (offset * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    offset += (offset * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
     coord.y += offset;
     rotpers(&coord, &camera_matrix);
 
@@ -5302,8 +5302,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     health_spridx = 0;
     state_spridx = 0;
 
-    CrtrExpLevel exp;
-    exp = min(cctrl->explevel, 9);
+    CrtrExpLevel exp_level = min(cctrl->exp_level, 9);
     if (cam->view_mode != PVM_ParchmentView)
     {
         fill_status_sprite_indexes(thing, cctrl, &health_spridx, &state_spridx, &anger_spridx);
@@ -5409,7 +5408,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
                 h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
                 LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
             }
-            spr = get_button_sprite(GBS_creature_flower_level_01 + exp);
+            spr = get_button_sprite(GBS_creature_flower_level_01 + exp_level);
             w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
             h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
             LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
