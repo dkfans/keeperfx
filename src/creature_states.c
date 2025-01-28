@@ -4183,7 +4183,7 @@ TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thi
     return false;
 }
 
-/* Determines if two creatures are hostile towards each other.
+/* Determines if two creatures will fight each other even when allied.
  * @param fightng The first creature to check.
  * @param enmtng The second creature to check.
  * @returns 'true' if either creature is hostile towards the other.
