@@ -1692,7 +1692,7 @@ static TngUpdateRet object_update_power_lightning(struct Thing *objtng)
         variation++;
     }
     const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
-    if (exist_turns > abs(pwrdynst->strength[objtng->lightning.spell_level]))
+    if (exist_turns > abs(pwrdynst->strength[objtng->lightning.power_level]))
     {
         delete_thing_structure(objtng, 0);
         return TUFRet_Deleted;
