@@ -4186,8 +4186,8 @@ TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thi
 /* Determines if two creatures are hostile towards each other.
  * @param fightng The first creature to check.
  * @param enmtng The second creature to check.
- * @returns 'true' if both creatures are hostile towards each other.
- * @returns 'false' if either creature is not hostile towards the other, or if either met any of the following conditions:
+ * @returns 'true' if either creature is hostile towards the other.
+ * @returns 'false' if both creatures are not hostile towards each other, or if either met any of the following conditions:
  * - Either creature is influenced by 'Call to Arms'.
  * - Either creature is member of a group/party.
  * - Either creature is currently working. */
