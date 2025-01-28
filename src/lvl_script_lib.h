@@ -295,13 +295,31 @@ enum ScriptVariables {
 
 
 
-
+extern const struct NamedCommand player_desc[];
+extern const struct NamedCommand controls_variable_desc[];
+extern const struct NamedCommand timer_desc[];
+extern const struct NamedCommand flag_desc[];
+extern const struct NamedCommand hand_rule_desc[];
+extern const struct NamedCommand rule_slot_desc[];
+extern const struct NamedCommand rule_action_desc[];
+extern const struct NamedCommand hero_objective_desc[];
+extern const struct NamedCommand msgtype_desc[];
+extern const struct NamedCommand tendency_desc[];
+extern const struct NamedCommand creature_select_criteria_desc[];
+extern const struct NamedCommand trap_config_desc[];
+extern const struct NamedCommand gui_button_group_desc[];
+extern const struct NamedCommand campaign_flag_desc[];
+extern const struct NamedCommand script_operator_desc[];
+extern const struct NamedCommand variable_desc[];
+extern const struct NamedCommand dk1_variable_desc[];
+extern const struct NamedCommand fill_desc[];
+extern const struct NamedCommand set_door_desc[];
+extern const struct NamedCommand texture_pack_desc[];
 
 // 1/4 turn minimal
 #define FX_LINE_TIME_PARTS 4
 
 
-struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria);
 ThingModel parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
 struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx, short move_angle);
