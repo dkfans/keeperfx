@@ -38,7 +38,7 @@ FuncIdx get_function_idx(const char *func_name, const struct NamedCommand *Cfunc
     return 0;
 }
 
-char *get_function_name(FuncIdx func_idx) {
+static char *get_function_name(FuncIdx func_idx) {
     if (func_idx >= 0 || func_idx <= -LUA_FUNCS_MAX) {
         ERRORLOG("Invalid function index: %d", func_idx);
         return NULL;
@@ -52,7 +52,7 @@ TbResult luafunc_magic_use_power(FuncIdx func_idx, PlayerNumber plyr_idx, PowerK
     const char *func_name = get_function_name(func_idx);
     if (!func_name) {
         ERRORLOG("Invalid function index: %d", func_idx);
-        return -1; // Indicate an error
+        return Lb_FAIL; // Indicate an error
     }
 
     lua_getglobal(Lvl_script, func_name);
