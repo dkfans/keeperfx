@@ -48,21 +48,6 @@ extern const struct CommandDesc command_desc[];
 extern const struct CommandDesc dk1_command_desc[];
 
 
-/******************************************************************************/
-/**
- * Reads word from 'line' into 'param'. Sets if 'line_end' was reached.
- * @param line The input line position pointer.
- * @param param Output parameter acquired from the line.
- * @param parth_level Paraenesis level within the line, set to -1 on EOLN.
- */
-
-
-static void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w, long h)
-{
-  SYNCDBG(0,"Revealing around (%ld,%ld)",x,y);
-  reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
-}
-
 /**
  * Kills a creature which meets given criteria.
  * @param plyr_idx The player whose creature will be affected.

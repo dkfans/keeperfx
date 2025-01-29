@@ -645,6 +645,27 @@ void reveal_map_rect(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
         }
 }
 
+/******************************************************************************/
+/**
+ * Reads word from 'line' into 'param'. Sets if 'line_end' was reached.
+ * @param line The input line position pointer.
+ * @param param Output parameter acquired from the line.
+ * @param parth_level Paraenesis level within the line, set to -1 on EOLN.
+ */
+
+
+void player_reveal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h)
+{
+  SYNCDBG(0,"Revealing around (%ld,%ld)",x,y);
+  reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
+}
+
+void player_conceal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h, TbBool all)
+{
+  SYNCDBG(0,"Revealing around (%ld,%ld)",x,y);
+  conceal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1),all);
+}
+
 /**
  * Reveals map subtiles rectangle for given player.
  */
