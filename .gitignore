@@ -33,3 +33,4 @@ res/keeperfx_icon.ico
 /deps/centijson
 /deps/ffmpeg
 /deps/*.tar.gz
+.venv/
