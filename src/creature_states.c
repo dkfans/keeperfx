@@ -59,7 +59,7 @@
 #include "player_instances.h"
 #include "player_computer.h"
 #include "thing_traps.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "sounds.h"
 #include "game_legacy.h"
 #include "sprites.h"

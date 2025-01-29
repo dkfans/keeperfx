@@ -104,7 +104,7 @@
 #include "creature_states_mood.h"
 #include "lens_api.h"
 #include "light_data.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "power_process.h"
 #include "power_hand.h"
 #include "game_merge.h"

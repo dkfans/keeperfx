@@ -23,7 +23,7 @@
 #include "dungeon_data.h"
 #include "lvl_filesdk1.h"
 #include "creature_states_pray.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "config_creature.h"
 #include "gui_msgs.h"
 #include "post_inc.h"

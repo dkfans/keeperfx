@@ -1,7 +1,7 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file magic.c
+/** @file magic_powers.c
  *     magic support functions.
  * @par Purpose:
  *     Functions to magic.
@@ -17,7 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "magic.h"
+#include "magic_powers.h"
 
 #include "globals.h"
 #include "bflib_basics.h"

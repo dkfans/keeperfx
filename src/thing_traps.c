@@ -32,7 +32,7 @@
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_shots.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "room_util.h"

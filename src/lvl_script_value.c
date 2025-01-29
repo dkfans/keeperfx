@@ -22,7 +22,7 @@
 #include "map_data.h"
 #include "map_locations.h"
 #include "player_data.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "keeperfx.hpp"
 #include "lvl_filesdk1.h"
 #include "power_hand.h"

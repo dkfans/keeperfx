@@ -37,7 +37,7 @@
 #include "creature_senses.h"
 #include "spdigger_stack.h"
 #include "power_hand.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_utils.h"
 #include "config_creature.h"
 #include "config_magic.h"

@@ -1,8 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file magic.h
- *     Header file for magic.c.
+/** @file magic_powers.h
+ *     Header file for magic_powers.c.
  * @par Purpose:
  *     magic functions.
  * @par Comment:
