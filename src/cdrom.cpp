@@ -89,6 +89,7 @@ bool open_redbook_device() {
 				if (num_tracks > 0) {
 					JUSTLOG("Using cdrom drive %s for music", drive);
 					g_redbook_device = device_id;
+					mci_set_time_format(device_id);
 					return true;
 				}
 				mci_close(device_id);
@@ -109,25 +110,44 @@ extern "C" void SetRedbookVolume(SoundVolume value) {
 
 extern "C" void PlayRedbookTrack(int track) {
 	if (open_redbook_device()) {
-		mci_set_time_format(g_redbook_device);
+		const auto mode = mci_status(g_redbook_device, MCI_STATUS_MODE);
+		if (mode == MCI_MODE_OPEN || mode == MCI_MODE_NOT_READY) {
+			return; // door open or no disk
+		}
+		const auto current_track = mci_status(g_redbook_device, MCI_STATUS_CURRENT_TRACK);
+		if (current_track == track && (mode == MCI_MODE_PLAY || mode == MCI_MODE_SEEK)) {
+			return; // already playing or seeking to requested track
+		}
 		mci_play(g_redbook_device, track);
 	}
 }
 
 extern "C" void PauseRedbookTrack() {
 	if (open_redbook_device()) {
+		const auto mode = mci_status(g_redbook_device, MCI_STATUS_MODE);
+		if (!(mode == MCI_MODE_PLAY || MCI_MODE_SEEK)) {
+			return; // not currently playing or about to play
+		}
 		mci_pause(g_redbook_device);
 	}
 }
 
 extern "C" void ResumeRedbookTrack() {
 	if (open_redbook_device()) {
+		const auto mode = mci_status(g_redbook_device, MCI_STATUS_MODE);
+		if (!(mode == MCI_MODE_PAUSE)) {
+			return; // not currently paused
+		}
 		mci_resume(g_redbook_device);
 	}
 }
 
 extern "C" void StopRedbookTrack() {
 	if (open_redbook_device()) {
+		const auto mode = mci_status(g_redbook_device, MCI_STATUS_MODE);
+		if (!(mode == MCI_MODE_PLAY || mode == MCI_MODE_PAUSE || mode == MCI_MODE_SEEK)) {
+			return; // not currently playing, paused or about to play
+		}
 		mci_stop(g_redbook_device);
 	}
 }
