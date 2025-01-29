@@ -1163,7 +1163,7 @@ void draw_mini_things_in_hand(long x, long y)
             if (spr_idx > 0)
             {
                 struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-                int expspr_idx = GBS_creature_flower_level_01 + cctrl->explevel;
+                int expspr_idx = GBS_creature_flower_level_01 + cctrl->exp_level;
                 if (irow > 0)
                     shift_y = 40;
                 else
@@ -1320,13 +1320,13 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     return 1;
 }
 
-void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long explevel)
+void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, CrtrExpLevel exp_level)
 {
   struct Dungeon *dungeon;
-  SYNCLOG("Player %d sacrificed %s exp level %ld",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model),explevel);
+  SYNCLOG("Player %d sacrificed %s exp level %d", (int)plyr_idx, thing_class_and_model_name(TCls_Creature, model), (int)exp_level);
   if ((plyr_idx < 0) || (plyr_idx >= DUNGEONS_COUNT))
   {
-    ERRORLOG("Player %d cannot sacrifice %s",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model));
+    ERRORLOG("Player %d cannot sacrifice %s", (int)plyr_idx, thing_class_and_model_name(TCls_Creature, model));
     return;
   }
   if ((model < 0) || (model >= game.conf.crtr_conf.model_count))
@@ -1336,7 +1336,7 @@ void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long expl
   }
   dungeon = get_dungeon(plyr_idx);
   dungeon->creature_sacrifice[model]++;
-  dungeon->creature_sacrifice_exp[model] += explevel+1;
+  dungeon->creature_sacrifice_exp[model] += exp_level+1;
   dungeon->lvstats.creatures_sacrificed++;
 }
 
@@ -1583,13 +1583,13 @@ static TbBool hand_rule_dropped_time_higher(struct HandRule* hand_rule, const st
 static TbBool hand_rule_lvl_lower(struct HandRule *hand_rule, const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    return (cctrl->explevel + 1 < hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
+    return (cctrl->exp_level + 1 < hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
 static TbBool hand_rule_lvl_higher(struct HandRule *hand_rule, const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    return (cctrl->explevel + 1 > hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
+    return (cctrl->exp_level + 1 > hand_rule->param) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
 static TbBool hand_rule_at_action_point(struct HandRule *hand_rule, const struct Thing *thing)
