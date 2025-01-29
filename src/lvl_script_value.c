@@ -132,7 +132,6 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
 }
 
 /**
-
  * Processes given VALUE immediately.
  * This processes given script command. It is used to process VALUEs at start when they have
  * no conditions, or during the gameplay when conditions are met.
