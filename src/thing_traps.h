@@ -101,7 +101,7 @@ unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, l
 unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, short angle, struct Thing *trgtng);
-void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, char shot_lvl, short angle_xy);
+void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, CrtrExpLevel shot_level, short angle_xy);
 
 /******************************************************************************/
 #ifdef __cplusplus
