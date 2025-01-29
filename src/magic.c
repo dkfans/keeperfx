@@ -2253,19 +2253,19 @@ TbResult script_use_power(PlayerNumber plyr_idx, PowerKind power_kind, char free
 }
 
 /**
- * Cast a power on a creature which meets given criteria.
+ * Cast a spell on a creature which meets given criteria.
  * @param plyr_idx The player whose creature will be affected.
  * @param crmodel Model of the creature to find.
  * @param criteria Criteria, from CreatureSelectCriteria enumeration.
- * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=power level.
- * @return TbResult whether the power was successfully cast
+ * @param fmcl_bytes encoded bytes: f=cast for free flag,m=spell kind,c=caster player index,l=spell level.
+ * @return TbResult whether the spell was successfully cast
  */
 TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing))
     {
-        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use power on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
@@ -2274,7 +2274,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
     { // Immunity is handled in 'apply_spell_effect_to_thing', but this command plays sounds, so check for it.
         if (thing_is_picked_up(thing))
         {
-            SYNCDBG(5, "Found creature to cast the power on but it is being held.");
+            SYNCDBG(5, "Found creature to cast the spell on but it is being held.");
             return Lb_FAIL;
         }
         CrtrExpLevel spell_level = fmcl_bytes & 255;
@@ -2293,7 +2293,6 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
     }
     else
     {
-        SCRPTERRLOG("power not supported for this command: %d", (int)spkind);
         return Lb_FAIL;
     }
 }
