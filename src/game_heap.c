@@ -220,7 +220,9 @@ TbBool setup_heaps(void)
     {
       // Prepare sound sample bank file names
       char snd_fname[2048];
-      prepare_file_path_buf(snd_fname, FGrp_LrgSound, sound_fname);
+      prepare_file_path_buf(snd_fname, FGrp_CmpgConfig, sound_fname);
+      if (!LbFileExists(snd_fname))
+          prepare_file_path_buf(snd_fname, FGrp_LrgSound, sound_fname);
       // language-specific speech file
       char* spc_fname = prepare_file_fmtpath(FGrp_LrgSound, "speech_%s.dat", get_language_lwrstr(install_info.lang_id));
       // default speech file
