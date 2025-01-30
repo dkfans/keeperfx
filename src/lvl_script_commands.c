@@ -5771,12 +5771,12 @@ static void play_message_process(struct ScriptContext *context)
             {
                 case 1: // speech message
                 {
-                    play_streamed_sample(filename, settings.mentor_volume, 0);
+                    play_streamed_sample(filename, settings.mentor_volume);
                     break;
                 }
                 case 2: // sound effect
                 {
-                    play_streamed_sample(filename, settings.sound_volume, 0);
+                    play_streamed_sample(filename, settings.sound_volume);
                     break;
                 }
             }

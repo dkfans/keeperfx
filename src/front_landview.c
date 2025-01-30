@@ -705,7 +705,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
     playing_speech_lvnum = lvnum;
     SYNCMSG("Playing %s", fname);
     //volume is overwritten in update_frontmap_ambient_sound
-    return play_streamed_sample(fname, settings.sound_volume, 0);
+    return play_streamed_sample(fname, settings.sound_volume);
 }
 
 TbBool set_pointer_graphic_spland(long frame)

@@ -653,7 +653,7 @@ void ShutDownSDLAudio()
     }
 }
 
-TbBool play_streamed_sample(char* fname, int volume, int loops)
+TbBool play_streamed_sample(char* fname, int volume)
 {
     if (!SoundDisabled)
     {
@@ -666,7 +666,7 @@ TbBool play_streamed_sample(char* fname, int volume, int loops)
         if (streamed_sample != NULL)
         {
             Mix_VolumeChunk(streamed_sample, volume);
-            if (Mix_PlayChannel(DESCRIPTION_CHANNEL, streamed_sample, loops) == -1)
+            if (Mix_PlayChannel(DESCRIPTION_CHANNEL, streamed_sample, 0) == -1)
             {
                 ERRORLOG("Could not play sound %s: %s", fname, Mix_GetError());
                 return false;

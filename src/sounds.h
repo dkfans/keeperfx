@@ -90,7 +90,7 @@ void update_first_person_object_ambience(struct Thing *thing);
 
 int InitialiseSDLAudio();
 void ShutDownSDLAudio();
-TbBool play_streamed_sample(char* fname, int volume, int loops);
+TbBool play_streamed_sample(char* fname, int volume);
 void stop_streamed_sample();
 /******************************************************************************/
 #ifdef __cplusplus
