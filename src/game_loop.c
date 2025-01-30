@@ -28,7 +28,6 @@
 #include "room_workshop.h"
 #include "map_columns.h"
 #include "creature_states.h"
-#include "magic.h"
 #include "map_blocks.h"
 #include "magic_powers.h"
 #include "game_merge.h"
