@@ -311,11 +311,11 @@ short researching(struct Thing *thing)
     thing->continue_state = get_continue_state_for_job(Job_RESEARCH);
     cctrl->turns_at_job = 0;
     cctrl->research.job_stage = 3;
-    if (cctrl->explevel < 3)
+    if (cctrl->exp_level < 3)
     {
         create_effect(&thing->mappos, TngEff_RoomSparkeSmall, thing->owner);
     } else
-    if (cctrl->explevel < 6)
+    if (cctrl->exp_level < 6)
     {
         create_effect(&thing->mappos, TngEff_RoomSparkeMedium, thing->owner);
     } else
