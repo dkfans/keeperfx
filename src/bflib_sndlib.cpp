@@ -461,10 +461,10 @@ void SDLCALL on_channel_finished(int channel) {
 		return;
 	}
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
+	Mix_FreeChunk(g_streamed_sample);
+	g_streamed_sample = nullptr;
 	while (true) {
 		if (g_queued_samples.empty()) {
-			Mix_FreeChunk(g_streamed_sample);
-			g_streamed_sample = nullptr;
 			return;
 		}
 		const auto & sample = g_queued_samples.back();
