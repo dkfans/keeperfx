@@ -1320,14 +1320,13 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         strcat(tmp, "|");
         strcat(tmp,scline->tp[3]);
         value->strs[2] = script_strdup(tmp); // first\0second
-        value->strs[2][strlen(scline->tp[2])] = 0;
         free(tmp);
-        if (value->strs[2] == NULL)
-        {
+        if (value->strs[2] == NULL) {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
+        value->strs[2][strlen(scline->tp[2])] = 0;
     }
     else if (roomvar == 5) // PanelTabIndex
     {
@@ -2353,14 +2352,13 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
         strcat(tmp, "|");
         strcat(tmp,scline->tp[3]);
         value->strs[2] = script_strdup(tmp); // first\0second
-        value->strs[2][strlen(scline->tp[2])] = 0;
         free(tmp);
-        if (value->strs[2] == NULL)
-        {
+        if (value->strs[2] == NULL) {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
+        value->strs[2][strlen(scline->tp[2])] = 0;
     }
     else if (doorvar != 5) // Not PointerSprites
     {
@@ -7226,6 +7224,11 @@ static void set_computer_process_check(const struct ScriptLine* scline)
     value->longs[4] = scline->np[5];
     value->longs[5] = scline->np[6];
     value->strs[6] = script_strdup(scline->tp[1]);
+    if (value->strs[6] == NULL) {
+        SCRPTERRLOG("Run out script strings space");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -7295,6 +7298,11 @@ static void set_computer_checks_check(const struct ScriptLine* scline)
     value->longs[4] = scline->np[5];
     value->longs[5] = scline->np[6];
     value->strs[6] = script_strdup(scline->tp[1]);
+    if (value->strs[6] == NULL) {
+        SCRPTERRLOG("Run out script strings space");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -7369,6 +7377,11 @@ static void set_computer_event_check(const struct ScriptLine* scline)
     value->longs[4] = scline->np[5];
     value->longs[5] = scline->np[6];
     value->strs[6] = script_strdup(scline->tp[1]);
+    if (value->strs[6] == NULL) {
+        SCRPTERRLOG("Run out script strings space");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
