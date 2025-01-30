@@ -358,7 +358,7 @@ void init_reposition_struct(struct RoomReposition * rrepos)
     for (long i = 0; i < ROOM_REPOSITION_COUNT; i++)
     {
         rrepos->models[i] = 0;
-        rrepos->explevels[i] = 0;
+        rrepos->exp_level[i] = 0;
     }
 }
 
@@ -389,7 +389,7 @@ TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmode
     return true;
 }
 
-TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel explevel)
+TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel exp_level)
 {
     rrepos->used++;
     if (rrepos->used > ROOM_REPOSITION_COUNT)
@@ -402,7 +402,7 @@ TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingMode
     {
         if (rrepos->models[ri] == 0) {
             rrepos->models[ri] = tngmodel;
-            rrepos->explevels[ri] = explevel;
+            rrepos->exp_level[ri] = exp_level;
             break;
         }
     }

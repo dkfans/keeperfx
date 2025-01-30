@@ -150,7 +150,7 @@ void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start
             continue;
         }
         struct CreatureControl* newcctrl = creature_control_get_from_thing(tncopy);
-        set_creature_level(tncopy, cctrl->explevel);
+        set_creature_level(tncopy, cctrl->exp_level);
         tncopy->health = thing->health;
         newcctrl->exp_points = cctrl->exp_points;
         newcctrl->blood_type = cctrl->blood_type;
@@ -639,7 +639,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
     }
 }
 
-void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crmodel, unsigned char crlevel)
+void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crmodel, CrtrExpLevel exp_level)
 {
     if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_Resurrect) ) {
         ERRORMSG("Invalid resurrect box object!");
@@ -653,7 +653,7 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
     struct Thing* creatng = create_creature(&boxtng->mappos, crmodel, owner);
     if (!thing_is_invalid(creatng))
     {
-        init_creature_level(creatng, crlevel);
+        init_creature_level(creatng, exp_level);
         if (is_my_player_number(owner))
           output_message(SMsg_CommonAcknowledge, 0, true);
     }
@@ -662,7 +662,7 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
     remove_events_thing_is_attached_to(boxtng);
     force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
     if ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
-        remove_item_from_dead_creature_list(get_players_num_dungeon(owner), crmodel, crlevel);
+        remove_item_from_dead_creature_list(get_players_num_dungeon(owner), crmodel, exp_level);
     }
     delete_thing_structure(boxtng, 0);
 }
@@ -691,7 +691,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     }
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(transftng);
-    if (add_transfered_creature(plyr_idx, transftng->model, cctrl->explevel,cctrl->creature_name))
+    if (add_transfered_creature(plyr_idx, transftng->model, cctrl->exp_level,cctrl->creature_name))
     {
         dungeon->creatures_transferred++;
     }
@@ -781,7 +781,7 @@ long create_transferred_creatures_on_level(void)
                 {
                     continue;
                 }
-                init_creature_level(creatng, intralvl.transferred_creatures[p][i].explevel);
+                init_creature_level(creatng, intralvl.transferred_creatures[p][i].exp_level);
                 cctrl = creature_control_get_from_thing(creatng);
                 strcpy(cctrl->creature_name, intralvl.transferred_creatures[p][i].creature_name);
                 creature_created++;

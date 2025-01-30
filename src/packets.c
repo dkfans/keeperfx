@@ -173,7 +173,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
         {
             case OcC_CallToArms_expand:
                 if (player_uses_power_call_to_arms(plyr_idx))
-                    player->cast_expand_level = (dungeon->cta_splevel << 2);
+                    player->cast_expand_level = (dungeon->cta_power_level << 2);
                 else
                     update_power_overcharge(player, player->chosen_power_kind);
                 break;
