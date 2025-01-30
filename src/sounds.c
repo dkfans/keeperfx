@@ -489,26 +489,6 @@ void sound_reinit_after_load(void)
     }
     ambient_sound_stop();
     init_messages();
-    free_sound_chunks();
-    for (unsigned int sample = 0; sample <= EXTERNAL_SOUNDS_COUNT; sample++)
-    {
-        char *sound = &game.loaded_sound[sample][0];
-        if (sound[0] != '\0')
-        {
-            char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", sound);
-            Ext_Sounds[sample] = Mix_LoadWAV(fname);
-            if (Ext_Sounds[sample] != NULL)
-            {
-                Mix_VolumeChunk(Ext_Sounds[sample], settings.sound_volume);
-                SYNCLOG("Loaded sound file %s into slot %u.", fname, sample);
-                game.sounds_count++;
-            }
-            else
-            {
-                ERRORLOG("Could not reload sound %s (slot %u): %s", fname, sample, Mix_GetError());
-            }
-        }
-    }
 }
 
 void stop_thing_playing_sample(struct Thing *thing, SoundSmplTblID smpl_idx)
@@ -670,28 +650,6 @@ void ShutDownSDLAudio()
     while (Mix_Init(0))
     {
         Mix_Quit();
-    }
-}
-
-void free_sound_chunks()
-{
-    Mix_HaltChannel(-1);
-    for (int i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
-    {
-        if (Ext_Sounds[i] != NULL)
-        {
-            Mix_FreeChunk(Ext_Sounds[i]);
-            Ext_Sounds[i] = NULL;
-        }
-    }
-    game.sounds_count = 0;
-}
-
-void play_external_sound_sample(unsigned char smpl_id)
-{
-    if (Mix_PlayChannel(-1, Ext_Sounds[smpl_id], 0) == -1)
-    {
-        ERRORLOG("Could not play sound %s: %s", &game.loaded_sound[smpl_id][0], Mix_GetError());
     }
 }
 

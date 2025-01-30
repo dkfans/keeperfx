@@ -546,8 +546,6 @@ const struct NamedCommand texture_pack_desc[] = {
   {NULL,           0},
 };
 
-Mix_Chunk* Ext_Sounds[EXTERNAL_SOUNDS_COUNT + 1];
-
 static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
 {
     const char *a = (const char*)ptr_a;
@@ -5736,63 +5734,32 @@ static void play_message_check(const struct ScriptLine *scline)
     else
     {
         value->bytes[4] = 1;
-        for (unsigned char i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
-        {
-            if (strcmp(scline->tp[2], game.loaded_sound[i]) == 0)
-            {
-                value->bytes[2] = i;
-                PROCESS_SCRIPT_VALUE(scline->command);
-                return;
-            }
-        }
-        if (game.sounds_count >= (EXTERNAL_SOUNDS_COUNT))
-        {
-            SCRPTERRLOG("All external sounds slots are used.");
-            return;
-        }
-        unsigned char slot = game.sounds_count + 1;
-        if (sprintf(&game.loaded_sound[slot][0], "%s", script_strdup(scline->tp[2])) < 0)
-        {
-            SCRPTERRLOG("Unable to store filename for external sound %s", scline->tp[1]);
-            return;
-        }
-        char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", &game.loaded_sound[slot][0]);
-        Ext_Sounds[slot] = Mix_LoadWAV(fname);
-        if (Ext_Sounds[slot] == NULL)
-        {
-            SCRPTERRLOG("Could not load sound %s: %s", fname, Mix_GetError());
+        value->strs[2] = script_strdup(scline->tp[2]);
+        if (value->strs[2] == NULL) {
+            SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        game.sounds_count++;
-        SCRPTLOG("Loaded sound file %s into slot %u.", fname, slot);
-        value->bytes[2] = slot;
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void play_message_process(struct ScriptContext *context)
 {
-    unsigned char volume = settings.sound_volume;
-    unsigned char msgtype_id = context->value->chars[1];
-    unsigned char slot = context->value->bytes[2];
-    TbBool external = context->value->bytes[4];
-    if (msgtype_id == 1) // SPEECH
-    {
-        volume = settings.mentor_volume;
-    }
+    const char msgtype_id = context->value->chars[1];
     if ((context->value->chars[0] == my_player_number) || (context->value->chars[0] == ALL_PLAYERS))
     {
-        if (!external)
+        const TbBool param_is_string = context->value->bytes[4];
+        if (!param_is_string)
         {
-            switch (msgtype_id) // Speech or Sound
+            switch (msgtype_id)
             {
-                case 1:
+                case 1: // speech message
                 {
                     output_message(context->value->shorts[1], 0, true);
                     break;
                 }
-                case 2:
+                case 2: // sound effect
                 {
                     play_non_3d_sample(context->value->shorts[1]);
                     break;
@@ -5801,24 +5768,18 @@ static void play_message_process(struct ScriptContext *context)
         }
         else
         {
-            if (!SoundDisabled)
+            const char * filename = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", context->value->strs[2]);
+            switch (msgtype_id)
             {
-                switch (context->value->chars[1])
+                case 1: // speech message
                 {
-                    case 1:
-                    {
-                        if (Ext_Sounds[slot] != NULL)
-                        {
-                            Mix_VolumeChunk(Ext_Sounds[slot], volume);
-                        }
-                        output_message(-context->value->bytes[2], 0, true);
-                        break;
-                    }
-                    case 2:
-                    {
-                        play_external_sound_sample(context->value->bytes[2]);
-                        break;
-                    }
+                    play_streamed_sample(filename, settings.mentor_volume, 0);
+                    break;
+                }
+                case 2: // sound effect
+                {
+                    play_streamed_sample(filename, settings.sound_volume, 0);
+                    break;
                 }
             }
         }

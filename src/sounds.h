@@ -90,8 +90,6 @@ void update_first_person_object_ambience(struct Thing *thing);
 
 int InitialiseSDLAudio();
 void ShutDownSDLAudio();
-void free_sound_chunks();
-void play_external_sound_sample(unsigned char smpl_id);
 TbBool play_streamed_sample(char* fname, int volume, int loops);
 void stop_streamed_sample();
 /******************************************************************************/

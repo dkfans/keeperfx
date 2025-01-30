@@ -3813,8 +3813,6 @@ void game_loop(void)
       LbScreenSwap();
       StopMusicPlayer();
       free_custom_music();
-      free_sound_chunks();
-      memset(&game.loaded_sound,0,DISKPATH_SIZE * EXTERNAL_SOUNDS_COUNT+1);
       free_level_strings_data();
       turn_off_all_menus();
       delete_all_structures();
