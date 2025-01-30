@@ -333,7 +333,7 @@ TbBool attempt_anger_job_mad_psycho(struct Thing *creatng)
 TbBool attempt_anger_job_persuade(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->explevel <= 5) {
+    if (cctrl->exp_level <= 5) {
         return false;
     }
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreaturePersuade)) {
@@ -496,7 +496,7 @@ TbBool is_correct_owner_to_perform_job(const struct Thing *creatng, PlayerNumber
     // We need to check for it later in upper function, because lack of related room may generate message for the player
     if (creatng->owner == plyr_idx)
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+        if (creature_is_for_dungeon_diggers_list(creatng)) {
             if ((get_flags_for_job(new_job) & JoKF_OwnedDiggers) == 0)
                 return false;
         } else {
@@ -505,7 +505,7 @@ TbBool is_correct_owner_to_perform_job(const struct Thing *creatng, PlayerNumber
         }
     } else
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+        if (creature_is_for_dungeon_diggers_list(creatng)) {
             if ((get_flags_for_job(new_job) & JoKF_EnemyDiggers) == 0)
                 return false;
         } else {
@@ -995,7 +995,7 @@ TbBool attempt_job_work_in_room_near_pos(struct Thing *creatng, MapSubtlCoord st
     }
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
     cctrl->target_room_id = room->index;
-    if (thing_is_creature_special_digger(creatng))
+    if (thing_is_creature_digger(creatng))
     {
         cctrl->digger.task_repeats = 0;
         cctrl->job_assigned = new_job;
@@ -1020,7 +1020,7 @@ TbBool attempt_job_work_in_room_and_cure_near_pos(struct Thing *creatng, MapSubt
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
     cctrl->target_room_id = room->index;
     process_temple_cure(creatng);
-    if (thing_is_creature_special_digger(creatng))
+    if (thing_is_creature_digger(creatng))
     {
         cctrl->digger.task_repeats = 0;
         cctrl->job_assigned = new_job;

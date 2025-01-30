@@ -104,7 +104,7 @@
 #include "creature_states_mood.h"
 #include "lens_api.h"
 #include "light_data.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "power_process.h"
 #include "power_hand.h"
 #include "game_merge.h"
@@ -1296,48 +1296,51 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
     return result;
 }
 
-void update_creatr_model_activities_list(void)
+void update_creatr_model_activities_list(TbBool forced)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_my_dungeon();
+    struct Dungeon *dungeon = get_my_dungeon();
     ThingModel crmodel;
-    int num_breeds;
-    num_breeds = no_of_breeds_owned;
+    int num_breeds = no_of_breeds_owned;
+    TbBool changed = false;
+
     // Add to breed activities
-    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
+    for (crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] > 0)
             && (crmodel != get_players_spectator_model(my_player_number)))
         {
-            int i;
-            for (i=0; i < num_breeds; i++)
+            TbBool found = false;
+            for (int i = 0; i < num_breeds; i++)
             {
                 if (breed_activities[i] == crmodel)
                 {
+                    found = true;
                     break;
                 }
             }
-            if (num_breeds == i)
+            if (!found)
             {
-                breed_activities[i] = crmodel;
+                changed = true;
+                breed_activities[num_breeds] = crmodel;
                 num_breeds++;
             }
         }
     }
+
     // Remove from breed activities
-    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
+    for (crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] <= 0)
           && (crmodel != get_players_special_digger_model(my_player_number)))
         {
-            int i;
-            for (i=0; i < num_breeds; i++)
+            for (int i = 0; i < num_breeds; i++)
             {
                 if (breed_activities[i] == crmodel)
                 {
                     for (; i < num_breeds-1;  i++) {
                         breed_activities[i] = breed_activities[i+1];
                     }
+                    changed = true;
                     num_breeds--;
                     breed_activities[i] = 0;
                     break;
@@ -1345,6 +1348,25 @@ void update_creatr_model_activities_list(void)
             }
         }
         no_of_breeds_owned = num_breeds;
+    }
+
+    // Reorder breed activities to ensure diggers are correctly positioned
+    if (changed || forced)
+    {
+        struct CreatureModelConfig* crconf;
+        ThingModel temp;
+        int write_idx = 1;
+        for (int i = 1; i < num_breeds; i++)
+        {
+            crconf = &game.conf.crtr_conf.model[breed_activities[i]];
+            if (any_flag_is_set(crconf->model_flags, (CMF_IsDiggingCreature | CMF_IsSpecDigger)))
+            {
+                temp = breed_activities[i];
+                memmove(&breed_activities[write_idx + 1], &breed_activities[write_idx], (i - write_idx) * sizeof(ThingModel));
+                breed_activities[write_idx] = temp;
+                write_idx++;
+            }
+        }
     }
 }
 
@@ -1893,92 +1915,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-// TODO: replace this function by find_location_pos
-void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name)
-{
-    struct ActionPoint *apt;
-    struct Thing *thing;
-    struct Coord3d pos;
-
-    long pos_x;
-    long pos_y;
-    long i;
-    SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, *x, *y);
-    pos_y = 0;
-    pos_x = 0;
-    i = get_map_location_longval(location);
-    switch (get_map_location_type(location))
-    {
-    case MLoc_ACTIONPOINT:
-        // Location stores action point index
-        apt = action_point_get(i);
-        if (!action_point_is_invalid(apt))
-        {
-          pos_y = apt->mappos.y.stl.num;
-          pos_x = apt->mappos.x.stl.num;
-        } else
-          WARNMSG("%s: Action Point %ld location not found",func_name,i);
-        break;
-    case MLoc_HEROGATE:
-        thing = find_hero_gate_of_number(i);
-        if (!thing_is_invalid(thing))
-        {
-          pos_y = thing->mappos.y.stl.num;
-          pos_x = thing->mappos.x.stl.num;
-        } else
-          WARNMSG("%s: Hero Gate %ld location not found",func_name,i);
-        break;
-    case MLoc_PLAYERSHEART:
-        if (i < PLAYERS_COUNT)
-        {
-            thing = get_player_soul_container(i);
-        } else
-          thing = INVALID_THING;
-        if (!thing_is_invalid(thing))
-        {
-          pos_y = thing->mappos.y.stl.num;
-          pos_x = thing->mappos.x.stl.num;
-        } else
-          WARNMSG("%s: Dungeon Heart location for player %ld not found",func_name,i);
-        break;
-    case MLoc_NONE:
-        pos_y = *y;
-        pos_x = *x;
-        break;
-    case MLoc_THING:
-        thing = thing_get(i);
-        if (!thing_is_invalid(thing))
-        {
-          pos_y = thing->mappos.y.stl.num;
-          pos_x = thing->mappos.x.stl.num;
-        } else
-          WARNMSG("%s: Thing %ld location not found",func_name,i);
-        break;
-    case MLoc_METALOCATION:
-        if (get_coords_at_meta_action(&pos, plyr_idx, i))
-        {
-            pos_x = pos.x.stl.num;
-            pos_y = pos.y.stl.num;
-        }
-        else
-          WARNMSG("%s: Metalocation not found %ld",func_name,i);
-        break;
-    case MLoc_CREATUREKIND:
-    case MLoc_OBJECTKIND:
-    case MLoc_ROOMKIND:
-    case MLoc_PLAYERSDUNGEON:
-    case MLoc_APPROPRTDUNGEON:
-    case MLoc_DOORKIND:
-    case MLoc_TRAPKIND:
-    default:
-          WARNMSG("%s: Unsupported location, %lu.",func_name,location);
-        break;
-    }
-    *y = pos_y;
-    *x = pos_x;
-}
-
-void set_general_information(long msg_id, long target, long x, long y)
+void set_general_information(long msg_id, TbMapLocation target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -1995,7 +1932,7 @@ void set_general_information(long msg_id, long target, long x, long y)
     event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
-void set_quick_information(long msg_id, long target, long x, long y)
+void set_quick_information(long msg_id, TbMapLocation target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -2012,12 +1949,12 @@ void set_quick_information(long msg_id, long target, long x, long y)
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }
 
-void set_general_objective(long msg_id, long target, long x, long y)
+void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
 {
     process_objective(get_string(msg_id), target, x, y);
 }
 
-void process_objective(const char *msg_text, long target, long x, long y)
+void process_objective(const char *msg_text, TbMapLocation target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -2552,7 +2489,7 @@ int clear_active_dungeons_stats(void)
       dungeon = get_dungeon(i);
       if (dungeon_invalid(dungeon))
           break;
-      memset((char *)dungeon->field_64, 0, game.conf.crtr_conf.model_count * 15 * sizeof(unsigned short));
+      memset((char *)dungeon->crmodel_state_type_count, 0, game.conf.crtr_conf.model_count * STATE_TYPES_COUNT * sizeof(unsigned short));
       memset((char *)dungeon->guijob_all_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
       memset((char *)dungeon->guijob_angry_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
   }
@@ -3737,7 +3674,6 @@ static TbBool wait_at_frontend(void)
       if (!SoundDisabled)
       {
         process_3d_sounds();
-        process_sound_heap();
         MonitorStreamedSoundTrack();
       }
 
@@ -4241,9 +4177,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
-
-    init_miles_sound_system();
-
     srand(LbTimerClock());
 
 #ifdef FUNCTESTING
@@ -4315,7 +4248,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 
     LbErrorLogClose();
     steam_api_shutdown();
-    unload_miles_sound_system();
     return 0;
 }
 

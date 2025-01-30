@@ -130,7 +130,7 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
     for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
-        if (!thing_is_invalid(enmtng) && !thing_is_creature_special_digger(enmtng))
+        if (!thing_is_invalid(enmtng) && !thing_is_creature_digger(enmtng))
         {
             if (players_are_enemies(fightng->owner,enmtng->owner)) {
                 return true;
@@ -141,7 +141,7 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
     for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
-        if (!thing_is_invalid(enmtng) && !thing_is_creature_special_digger(enmtng))
+        if (!thing_is_invalid(enmtng) && !thing_is_creature_digger(enmtng))
         {
             if (players_are_enemies(fightng->owner,enmtng->owner)) {
                 return true;
@@ -1795,7 +1795,7 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
     if (enmdist < subtile_coord(3,0)) {
         creature_retreat_from_combat(thing, enmtng, nstat, 1);
     } else
-    if (enmdist > compute_creature_attack_range(subtile_coord(8,0), 0, cctrl->explevel)) {
+    if (enmdist > compute_creature_attack_range(subtile_coord(8,0), 0, cctrl->exp_level)) {
         creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0);
     }
     return thing_in_field_of_view(thing, enmtng);

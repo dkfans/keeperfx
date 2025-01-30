@@ -30,6 +30,7 @@
 #include "creature_states.h"
 #include "magic.h"
 #include "map_blocks.h"
+#include "magic_powers.h"
 #include "game_merge.h"
 #include "sounds.h"
 #include "game_legacy.h"

@@ -59,7 +59,7 @@
 #include "player_instances.h"
 #include "player_computer.h"
 #include "thing_traps.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "sounds.h"
 #include "game_legacy.h"
 #include "sprites.h"
@@ -479,8 +479,8 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
  * - 1: Working.
  * - 2: Fighting.
  */
-long const state_type_to_gui_state[] = {
-    0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 0, 2, 2, 1, 1, 0,
+long const state_type_to_gui_state[STATE_TYPES_COUNT] = {
+    0, 1, 0, 0, 0, 2, 0, 0, 1, 0, 0, 2, 2, 1, 1,
 };
 
 /******************************************************************************/
@@ -1539,7 +1539,7 @@ short creature_being_dropped(struct Thing *creatng)
     if (!creature_under_spell_effect(creatng, CSAfF_Chicken))
     {
         // Special tasks for diggers
-        if ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) != 0)
+        if (thing_is_creature_digger(creatng))
         {
             if ((slabmap_owner(slb) == creatng->owner) || (slabmap_owner(slb) == game.neutral_player_num))
             {
@@ -1680,7 +1680,7 @@ void set_creature_size_stuff(struct Thing *creatng)
     }
     else
     {
-        creatng->sprite_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+        creatng->sprite_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
     }
 }
 
@@ -1700,7 +1700,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         struct Thing *efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
-            long n = (10 - cctrl->countdown) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
+            long n = (10 - cctrl->countdown) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, ODC_Default);
             clear_flag(efftng->rendering_flags, TRF_Transpar_Flags);
@@ -3728,7 +3728,7 @@ CrCheckRet move_check_persuade(struct Thing *creatng)
                       !thing_is_invalid(i);
                       i = thing_get(i->next_on_mapblk) )
                 {
-                    if (i->owner != creatng->owner || !thing_is_creature(i) || i == creatng || i->model == get_players_special_digger_model(creatng->owner))
+                    if (i->owner != creatng->owner || !thing_is_creature(i) || i == creatng || creature_is_for_dungeon_diggers_list(i))
                         continue;
                     i_leader = get_group_leader(i);
                     if (i_leader)
@@ -4624,15 +4624,15 @@ TbBool check_experience_upgrade(struct Thing *thing)
     struct Dungeon *dungeon = get_dungeon(thing->owner);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
-    long i = crstat->to_level[cctrl->explevel] << 8;
+    long i = crstat->to_level[cctrl->exp_level] << 8;
     if (cctrl->exp_points < i)
     {
         return false;
     }
     cctrl->exp_points -= i;
-    if (cctrl->explevel < dungeon->creature_max_level[thing->model])
+    if (cctrl->exp_level < dungeon->creature_max_level[thing->model])
     {
-        if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
+        if ((cctrl->exp_level < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
         {
             cctrl->exp_level_up = true;
         }
@@ -4825,7 +4825,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     if (player->victory_state == VicS_LostLevel)
     {
         // TODO: Correctly deal with possession of creatures not owned by the player
-        if (thing->model != get_players_special_digger_model(player->id_number))
+        if (!creature_is_for_dungeon_diggers_list(thing))
         {
             cleanup_current_thing_state(thing);
             initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);

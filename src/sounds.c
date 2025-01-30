@@ -373,7 +373,6 @@ void update_player_sounds(void)
     if ( !SoundDisabled ) {
         if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) ) {
             MonitorStreamedSoundTrack();
-            process_sound_heap();
         }
     }
     SYNCDBG(9,"Finished");
@@ -387,156 +386,19 @@ void process_3d_sounds(void)
     process_sound_emitters();
 }
 
-// This function marks not playing samples (to remove them from heap MB)
-void process_sound_heap(void)
-{
-    long i = 0;
-    SYNCDBG(9,"Starting");
-    struct SampleInfo* smpinfo_last = GetLastSampleInfoStructure();
-    if (smpinfo_last == NULL) {
-        return;
-    }
-    for (struct SampleInfo* smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
-    {
-      if ( (smpinfo->mss_id != 0) && ((smpinfo->flags_17 & 0x01) != 0) )
-      {
-          if ( IsSamplePlaying(smpinfo->mss_id) )
-          {
-              i++;
-          } else
-          {
-              smpinfo->flags_17 &= ~0x01;
-              smpinfo->flags_17 &= ~0x04;
-          }
-      }
-    }
-    SYNCDBG(9,"Done (%ld playing yet)", i);
-}
-
-void free_sound_bank(struct SampleTable * samples, int sample_count) {
-    if (samples) {
-        for (int i = 0; i < sample_count; ++i) {
-            free(samples[i].snd_buf);
-        }
-        free(samples);
-    }
-}
-
-struct SampleTable * parse_sound_file(TbFileHandle fileh, long * nsamples, long a5)
-{
-    int directory_index;
-    switch ( a5 )
-    {
-    case 1610:
-        directory_index = 5;
-        break;
-    case 822:
-        directory_index = 6;
-        break;
-    case 811:
-        directory_index = 7;
-        break;
-    case 800:
-        directory_index = 8;
-        break;
-    case 1611:
-        directory_index = 4;
-        break;
-    case 1620:
-        directory_index = 3;
-        break;
-    case 1622:
-        directory_index = 2;
-        break;
-    case 1640:
-        directory_index = 1;
-        break;
-    case 1644:
-        directory_index = 0;
-        break;
-    default:
-        return NULL;
-    }
-    long fsize = LbFileLengthHandle(fileh);
-    if (fsize < 4) {
-        return NULL;
-    } else if (LbFileSeek(fileh, -4, Lb_FILE_SEEK_END) < 0) {
-        return NULL;
-    }
-    int head_offset;
-    if (LbFileRead(fileh, &head_offset, sizeof(head_offset)) < sizeof(head_offset)) {
-        return NULL;
-    }
-    head_offset = read_int32_le_buf((unsigned char *) &head_offset);
-    if (head_offset > fsize) {
-        return NULL;
-    } else  if (LbFileSeek(fileh, head_offset, Lb_FILE_SEEK_BEGINNING) < 0) {
-        return NULL;
-    }
-    struct SoundBankHead bhead;
-    if (LbFileRead(fileh, &bhead, sizeof(bhead)) < sizeof(bhead)) {
-        return NULL;
-    }
-    struct SoundBankEntry bentries[9];
-    if (LbFileRead(fileh, bentries, sizeof(bentries)) < sizeof(bentries)) {
-        return NULL;
-    }
-    struct SoundBankEntry * directory = &bentries[directory_index];
-    if (directory->field_0 == 0) {
-        return NULL;
-    } else if (directory->field_8 == 0) {
-        return NULL;
-    }
-    int sample_count = directory->field_8 / sizeof(struct SoundBankSample);
-    if (sizeof(struct SampleTable) * sample_count >= head_offset) {
-        return NULL;
-    } else if (LbFileSeek(fileh, directory->field_0, Lb_FILE_SEEK_BEGINNING) < 0) {
-        return NULL;
-    }
-    struct SampleTable * samples = (struct SampleTable *) calloc(sample_count, sizeof(struct SampleTable));
-    struct SoundBankSample sample;
-    for (int i = 0; i < sample_count; ++i) {
-        if (LbFileSeek(fileh, directory->field_0 + (sizeof(sample) * i), Lb_FILE_SEEK_BEGINNING) < 0) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        } else if (LbFileRead(fileh, &sample, sizeof(sample)) < sizeof(sample)) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        } else if (LbFileSeek(fileh, directory->field_4 + sample.field_12, Lb_FILE_SEEK_BEGINNING) < 0) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        }
-        samples[i].snd_buf = (SndData) calloc(sample.data_size, 1);
-        if (!samples[i].snd_buf) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        }
-        if (LbFileRead(fileh, samples[i].snd_buf, sample.data_size) < sample.data_size) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        }
-        snprintf(samples[i].name, sizeof(samples[i].name), "%s", sample.filename);
-        samples[i].data_size = sample.data_size;
-        samples[i].sfxid = sample.sfxid;
-    }
-    *nsamples = sample_count;
-    return samples;
-}
-
 TbBool init_sound(void)
 {
     SYNCDBG(8,"Starting");
     if (SoundDisabled)
       return false;
     struct SoundSettings* snd_settng = &game.sound_settings;
-    SetupAudioOptionDefaults(snd_settng);
     snd_settng->flags = SndSetting_Sound;
     snd_settng->sound_type = 1622;
     snd_settng->sound_data_path = sound_dir;
     snd_settng->dir3 = sound_dir;
     snd_settng->field_12 = 1;
     snd_settng->stereo = 1;
-    snd_settng->max_number_of_samples = 16;
+    snd_settng->max_number_of_samples = 100;
     snd_settng->danger_music = 0;
     snd_settng->no_load_music = 1;
     snd_settng->no_load_sounds = 1;
@@ -555,58 +417,6 @@ TbBool init_sound(void)
     S3DInit();
     S3DSetNumberOfSounds(snd_settng->max_number_of_samples);
     S3DSetMaximumSoundDistance(5120);
-    return true;
-}
-
-TbBool init_first_bank(const char * snd_fname, long a5)
-{
-    TbFileHandle handle = LbFileOpen(snd_fname,Lb_FILE_MODE_READ_ONLY);
-    if (!handle) {
-        ERRORLOG("Couldn't open primary sound bank file \"%s\"",snd_fname);
-        return false;
-    }
-    free_sound_bank(sample_table, samples_in_bank);
-    samples_in_bank = 0;
-    sample_table = parse_sound_file(handle, &samples_in_bank, a5);
-    if (!sample_table) {
-        ERRORLOG("Couldn't parse sound bank file \"%s\"",snd_fname);
-        return false;
-    }
-    SYNCLOG("Loaded %ld sound samples into bank 0", samples_in_bank);
-    return true;
-}
-
-TbBool init_second_bank(const char * spc_fname, long a5)
-{
-    TbFileHandle handle = LbFileOpen(spc_fname,Lb_FILE_MODE_READ_ONLY);
-    if (!handle) {
-        LbFileClose(handle);
-        ERRORLOG("Couldn't open secondary sound bank file \"%s\"",spc_fname);
-        return false;
-    }
-    free_sound_bank(sample_table2, samples_in_bank2);
-    samples_in_bank2 = 0;
-    sample_table2 = parse_sound_file(handle, &samples_in_bank2, a5);
-    if (!sample_table2) {
-        LbFileClose(handle);
-        ERRORLOG("Couldn't parse sound bank file \"%s\"",spc_fname);
-        return false;
-    }
-    LbFileClose(handle);
-    SYNCLOG("Loaded %ld sound samples into bank 1", samples_in_bank2);
-    return true;
-}
-
-TbBool init_sound_banks(char *snd_fname, char *spc_fname, long a5)
-{
-    SYNCDBG(8,"Starting");
-    using_two_banks = 0;
-    if (!init_first_bank(snd_fname, a5)) {
-        return false;
-    } else if (!init_second_bank(spc_fname, a5)) {
-        return false;
-    }
-    using_two_banks = 1;
     return true;
 }
 

@@ -48,7 +48,7 @@
 #include "game_saves.h"
 #include "game_legacy.h"
 #include "frontend.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"

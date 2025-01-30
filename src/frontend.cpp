@@ -73,7 +73,7 @@
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "power_hand.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "player_instances.h"
 #include "player_utils.h"
 #include "config_players.h"
