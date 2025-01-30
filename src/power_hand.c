@@ -26,7 +26,7 @@
 #include "bflib_vidraw.h"
 #include "bflib_sound.h"
 #include "custom_sprites.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "power_specials.h"
 #include "power_process.h"
 #include "player_data.h"

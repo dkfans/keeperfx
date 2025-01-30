@@ -250,7 +250,7 @@ obj/lvl_script_commands_old.o \
 obj/lvl_script_lib.o \
 obj/lvl_script_conditions.o \
 obj/lvl_script_value.o \
-obj/magic.o \
+obj/magic_powers.o \
 obj/main_game.o \
 obj/map_blocks.o \
 obj/map_columns.o \

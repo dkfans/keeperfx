@@ -45,7 +45,7 @@
 #include "player_utils.h"
 #include "config_players.h"
 #include "room_workshop.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "engine_arrays.h"
