@@ -3758,7 +3758,6 @@ static TbBool wait_at_frontend(void)
       if (!SoundDisabled)
       {
         process_3d_sounds();
-        process_sound_heap();
         MonitorStreamedSoundTrack();
       }
 
@@ -4262,9 +4261,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
-
-    init_miles_sound_system();
-
     srand(LbTimerClock());
 
 #ifdef FUNCTESTING
@@ -4336,7 +4332,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 
     LbErrorLogClose();
     steam_api_shutdown();
-    unload_miles_sound_system();
     return 0;
 }
 
