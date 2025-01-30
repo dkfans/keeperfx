@@ -32,7 +32,7 @@
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_shots.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "room_util.h"
@@ -1233,7 +1233,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     return false;
 }
 
-void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, char shot_lvl, short angle_xy)
+void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, CrtrExpLevel shot_level, short angle_xy)
 {
     struct Thing* shotng;
     struct ComponentVector cvect;

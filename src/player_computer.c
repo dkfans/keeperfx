@@ -36,7 +36,7 @@
 #include "creature_states.h"
 #include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_utils.h"
 #include "thing_traps.h"
 #include "thing_navigate.h"
@@ -1095,7 +1095,7 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                     struct CreatureStats* crstat = creature_stats_get_from_thing(i);
                     if (crstat->health > 0)
                     {
-                        if (100 * i->health / (game.conf.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20)
+                        if (100 * i->health / (game.conf.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->exp_level / 100 + crstat->health) > 20)
                         {
                             ++count;
                         }
@@ -1172,22 +1172,20 @@ TbBool computer_find_safe_non_solid_block(const struct Computer2* comp, struct C
  * Originally was computer_able_to_use_magic(), returning 0..4.
  * @param comp
  * @param pwkind
- * @param pwlevel
+ * @param power_level
  * @param amount
  * @return
  */
-TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount)
+TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, KeepPwrLevel power_level, long amount)
 {
     struct Dungeon* dungeon = comp->dungeon;
     if (!is_power_available(dungeon->owner, pwkind)) {
         return false;
     }
-    if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
-        pwlevel = MAGIC_OVERCHARGE_LEVELS;
-    if (pwlevel < 0)
-        pwlevel = 0;
+    if (power_level >= MAGIC_OVERCHARGE_LEVELS)
+        power_level = MAGIC_OVERCHARGE_LEVELS;
     GoldAmount money = get_computer_money_less_cost(comp);
-    GoldAmount price = compute_power_price(dungeon->owner, pwkind, pwlevel);
+    GoldAmount price = compute_power_price(dungeon->owner, pwkind, power_level);
     if ((price > 0) && (amount * price > money)) {
         return false;
     }

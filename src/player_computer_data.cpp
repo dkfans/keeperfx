@@ -35,7 +35,7 @@
 #include "creature_states.h"
 #include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "thing_traps.h"
 #include "thing_navigate.h"
 #include "player_complookup.h"

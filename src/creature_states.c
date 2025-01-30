@@ -59,7 +59,7 @@
 #include "player_instances.h"
 #include "player_computer.h"
 #include "thing_traps.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "sounds.h"
 #include "game_legacy.h"
 #include "sprites.h"
@@ -1680,7 +1680,7 @@ void set_creature_size_stuff(struct Thing *creatng)
     }
     else
     {
-        creatng->sprite_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+        creatng->sprite_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
     }
 }
 
@@ -1700,7 +1700,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         struct Thing *efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
-            long n = (10 - cctrl->countdown) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
+            long n = (10 - cctrl->countdown) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, ODC_Default);
             clear_flag(efftng->rendering_flags, TRF_Transpar_Flags);
@@ -4624,15 +4624,15 @@ TbBool check_experience_upgrade(struct Thing *thing)
     struct Dungeon *dungeon = get_dungeon(thing->owner);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
-    long i = crstat->to_level[cctrl->explevel] << 8;
+    long i = crstat->to_level[cctrl->exp_level] << 8;
     if (cctrl->exp_points < i)
     {
         return false;
     }
     cctrl->exp_points -= i;
-    if (cctrl->explevel < dungeon->creature_max_level[thing->model])
+    if (cctrl->exp_level < dungeon->creature_max_level[thing->model])
     {
-        if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
+        if ((cctrl->exp_level < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
         {
             cctrl->exp_level_up = true;
         }

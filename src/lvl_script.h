@@ -82,7 +82,7 @@ struct TunnellerTrigger {
   unsigned long location;
   unsigned long heading; // originally was 'target'
   long carried_gold;
-  unsigned char crtr_level;
+  CrtrExpLevel exp_level;
   char party_id;
 };
 
@@ -101,7 +101,7 @@ struct PartyTrigger {
       unsigned long countdown;
   };
   char spawn_type;
-  unsigned char crtr_level;
+  CrtrExpLevel exp_level;
   unsigned short carried_gold;
   union
   {
