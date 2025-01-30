@@ -105,7 +105,7 @@
 #include "creature_states_mood.h"
 #include "lens_api.h"
 #include "light_data.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "power_process.h"
 #include "power_hand.h"
 #include "game_merge.h"
@@ -3675,7 +3675,6 @@ static TbBool wait_at_frontend(void)
       if (!SoundDisabled)
       {
         process_3d_sounds();
-        process_sound_heap();
         MonitorStreamedSoundTrack();
       }
 
@@ -4179,9 +4178,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
-
-    init_miles_sound_system();
-
     srand(LbTimerClock());
 
 #ifdef FUNCTESTING
@@ -4253,7 +4249,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 
     LbErrorLogClose();
     steam_api_shutdown();
-    unload_miles_sound_system();
     return 0;
 }
 

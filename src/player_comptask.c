@@ -39,7 +39,7 @@
 #include "creature_states_lair.h"
 #include "creature_states_combt.h"
 #include "creature_states_mood.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "thing_traps.h"
 #include "thing_physics.h"
 #include "thing_effects.h"

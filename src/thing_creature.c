@@ -67,7 +67,7 @@
 #include "kjm_input.h"
 #include "lens_api.h"
 #include "light_data.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "player_instances.h"
@@ -5377,7 +5377,7 @@ struct Thing *find_creature_dragging_thing(const struct Thing *dragtng)
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-static struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
+struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
 {
     Thing_Maximizer_Filter filter;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -5420,7 +5420,7 @@ static struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(lo
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-static struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
+struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check)
 {
     Thing_Maximizer_Filter filter;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -7435,7 +7435,7 @@ static long filter_criteria_loc(long desc_type)
     return desc_type >> 4;
 }
 
-struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria)
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria)
 {
     switch (filter_criteria_type(criteria))
     {
@@ -7730,6 +7730,51 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
     }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NoUnconscious | CrDed_NotReallyDying);
     return true;
+}
+
+/**
+ * Cast a spell on a creature which meets given criteria.
+ * @param plyr_idx The player whose creature will be affected.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @param fmcl_bytes encoded bytes: f=cast for free flag,m=spell kind,c=caster player index,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
+{
+    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    if (thing_is_invalid(thing))
+    {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
+        return Lb_FAIL;
+    }
+    SpellKind spkind = (fmcl_bytes >> 8) & 255;
+    struct SpellConfig *spconf = get_spell_config(spkind);
+    if (!creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
+    { // Immunity is handled in 'apply_spell_effect_to_thing', but this command plays sounds, so check for it.
+        if (thing_is_picked_up(thing))
+        {
+            SYNCDBG(5, "Found creature to cast the spell on but it is being held.");
+            return Lb_FAIL;
+        }
+        CrtrExpLevel spell_level = fmcl_bytes & 255;
+        if (spconf->caster_affect_sound)
+        {
+            thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+        }
+        apply_spell_effect_to_thing(thing, spkind, spell_level, plyr_idx);
+        if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
+        {
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(thing);
+            cctrl->disease_caster_plyridx = game.neutral_player_num; // Does not spread.
+        }
+        return Lb_SUCCESS;
+    }
+    else
+    {
+        return Lb_FAIL;
+    }
 }
 
 /******************************************************************************/

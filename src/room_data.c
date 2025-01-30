@@ -48,7 +48,7 @@
 #include "creature_states.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "room_util.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"

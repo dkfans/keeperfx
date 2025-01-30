@@ -72,7 +72,7 @@
 #include "room_data.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "light_data.h"
