@@ -44,7 +44,8 @@ bool mci_play(MCIDEVICEID device_id, int track) {
     MCI_PLAY_PARMS params = {};
     params.dwFrom = MCI_MAKE_TMSF(track, 0, 0, 0);
     params.dwTo = MCI_MAKE_TMSF(track + 1, 0, 0, 0);
-    const auto flags = MCI_FROM | MCI_TO;
+	params.dwCallback = (DWORD_PTR) GetDesktopWindow();
+    const auto flags = MCI_FROM | MCI_TO | MCI_NOTIFY;
     const auto result = mciSendCommand(device_id, MCI_PLAY, flags, (DWORD_PTR) &params);
     return result == 0;
 }
