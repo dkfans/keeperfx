@@ -6,6 +6,8 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -14,7 +16,8 @@
 #include <string>
 #include <utility>
 #include <array>
-
+#include <queue>
+#include <mutex>
 #include "post_inc.h"
 
 namespace {
@@ -428,6 +431,50 @@ void print_device_info() {
 	}
 }
 
+Mix_Chunk * g_streamed_sample = nullptr;
+std::mutex g_mix_mutex;
+
+struct queued_sample {
+	std::string fname;
+	SoundVolume volume;
+};
+
+std::queue<queued_sample> g_queued_samples;
+
+TbBool actually_play_streamed_sample(const char * fname, SoundVolume volume) {
+	g_streamed_sample = Mix_LoadWAV(fname);
+	if (g_streamed_sample == NULL) {
+		ERRORLOG("Cannot load \"%s\": %s", fname, Mix_GetError());
+		return false;
+	}
+	// SoundVolume ranges 0..255 but MIX_MAX_VOLUME ranges 0..128
+	Mix_VolumeChunk(g_streamed_sample, volume / 2);
+	if (Mix_PlayChannel(MIX_SPEECH_CHANNEL, g_streamed_sample, 0) == -1) {
+		ERRORLOG("Cannot play \"%s\": %s", fname, Mix_GetError());
+		return false;
+	}
+	return true;
+}
+
+void SDLCALL on_channel_finished(int channel) {
+	if (channel != MIX_SPEECH_CHANNEL) {
+		return;
+	}
+	std::lock_guard<std::mutex> guard(g_mix_mutex);
+	while (true) {
+		if (g_queued_samples.empty()) {
+			Mix_FreeChunk(g_streamed_sample);
+			g_streamed_sample = nullptr;
+			return;
+		}
+		const auto & sample = g_queued_samples.back();
+		g_queued_samples.pop();
+		if (actually_play_streamed_sample(sample.fname.c_str(), sample.volume)) {
+			return;
+		}
+	}
+}
+
 } // local
 
 extern "C" void FreeAudio() {
@@ -638,4 +685,76 @@ extern "C" SoundSFXID get_sample_sfxid(SoundSmplTblID smptbl_id, SoundBankID ban
 		return 0;
 	}
 	return g_banks[bank_id][smptbl_id].sfx_id;
+}
+
+extern "C" int InitialiseSDLAudio()
+{
+	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+		ERRORLOG("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
+		return 0;
+	}
+	int flags = Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3);
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
+	{
+		ERRORLOG("Could not open audio device for SDL mixer: %s", Mix_GetError());
+		Mix_Quit();
+		return 0;
+	}
+	Mix_ReserveChannels(1); // reserve for external speech samples
+	Mix_ChannelFinished(on_channel_finished); // register callback so we can do things
+	return flags;
+}
+
+extern "C" void ShutDownSDLAudio()
+{
+	int frequency, channels;
+	unsigned short format;
+	int i = Mix_QuerySpec(&frequency, &format, &channels);
+	if (i == 0)
+	{
+		ERRORLOG("Could not query SDL mixer: %s", Mix_GetError());
+	}
+	while (i > 0)
+	{
+		Mix_CloseAudio();
+		i--;
+	}
+	while (Mix_Init(0))
+	{
+		Mix_Quit();
+	}
+}
+
+extern "C" TbBool play_streamed_sample(const char* fname, SoundVolume volume)
+{
+	if (SoundDisabled || fname == NULL || fname[0] == 0) {
+		return false;
+	}
+	std::lock_guard<std::mutex> guard(g_mix_mutex);
+	if (speech_sample_playing()) {
+		try {
+			g_queued_samples.emplace(queued_sample{fname, volume});
+			return true;
+		} catch (const std::exception & e) {
+			ERRORLOG("Cannot add sample to queue: %s", e.what());
+			return false;
+		}
+	}
+	return actually_play_streamed_sample(fname, volume);
+}
+
+extern "C" void stop_streamed_samples()
+{
+	{
+		// this is intentionally in its own scope to prevent double-locking the mutex
+		std::lock_guard<std::mutex> guard(g_mix_mutex);
+		// there is no clear() for some reason, sigh...
+		while (!g_queued_samples.empty()) g_queued_samples.pop();
+	}
+	Mix_HaltChannel(MIX_SPEECH_CHANNEL);
+}
+
+extern "C" void set_streamed_sample_volume(SoundVolume volume) {
+	// SoundVolume ranges 0..255 but MIX_MAX_VOLUME ranges 0..128
+	Mix_VolumeChunk(g_streamed_sample, volume / 2);
 }

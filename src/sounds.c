@@ -66,7 +66,6 @@ char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
 int sdl_flags = 0;
-Mix_Chunk* streamed_sample;
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitch pitch, char fil1D, unsigned char ctype, unsigned char flags, long priority, SoundVolume loudness)
 {
@@ -616,81 +615,6 @@ void update_first_person_object_ambience(struct Thing *thing)
     ambience_timer = (ambience_timer + 1) % 4;
 }
 
-int InitialiseSDLAudio()
-{
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-        ERRORLOG("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
-        return 0;
-    }
-    int flags = Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3);
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
-    {
-        ERRORLOG("Could not open audio device for SDL mixer: %s", Mix_GetError());
-        Mix_Quit();
-        return 0;
-    }
-    Mix_ReserveChannels(1); // reserve for external speech samples
-    return flags;
-}
-
-void ShutDownSDLAudio()
-{
-    int frequency, channels;
-    unsigned short format;
-    int i = Mix_QuerySpec(&frequency, &format, &channels);
-    if (i == 0)
-    {
-        ERRORLOG("Could not query SDL mixer: %s", Mix_GetError());
-    }
-    while (i > 0)
-    {
-        Mix_CloseAudio();
-        i--;
-    }
-    while (Mix_Init(0))
-    {
-        Mix_Quit();
-    }
-}
-
-TbBool play_streamed_sample(char* fname, int volume)
-{
-    if (!SoundDisabled)
-    {
-        if (streamed_sample != NULL)
-        {
-            WARNLOG("Overwriting loaded sample.");
-            stop_streamed_sample();
-        }
-        streamed_sample = Mix_LoadWAV(fname);
-        if (streamed_sample != NULL)
-        {
-            Mix_VolumeChunk(streamed_sample, volume);
-            if (Mix_PlayChannel(DESCRIPTION_CHANNEL, streamed_sample, 0) == -1)
-            {
-                ERRORLOG("Could not play sound %s: %s", fname, Mix_GetError());
-                return false;
-            }
-        }
-        else
-        {
-            ERRORLOG("Could not load sound %s: %s", fname, Mix_GetError());
-            return false;
-        }
-        return true;
-    }
-    return false;
-}
-
-void stop_streamed_sample()
-{
-    Mix_HaltChannel(DESCRIPTION_CHANNEL);
-    if (streamed_sample != NULL)
-    {
-        Mix_FreeChunk(streamed_sample);
-        streamed_sample = NULL;
-    }
-}
 /******************************************************************************/
 #ifdef __cplusplus
 }
