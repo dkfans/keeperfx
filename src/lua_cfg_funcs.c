@@ -4,7 +4,7 @@
 #include "lua_base.h"
 #include "lua_params.h"
 #include "game_legacy.h"
-#include "magic.h"
+#include "magic_powers.h"
 
 #include "post_inc.h"
 
