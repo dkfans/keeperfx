@@ -37,6 +37,7 @@
 #include "config_objects.h"
 #include "config_rules.h"
 #include "config_players.h"
+#include "config_terrain.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_traps.h"
@@ -215,7 +216,7 @@ char numfield_1A;
     PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
-    HitPoints block_health[9];
+    HitPoints block_health[HEALTH_BLOCKS];
     unsigned short generate_speed;
     unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;

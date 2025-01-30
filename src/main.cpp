@@ -2696,6 +2696,7 @@ void update(void)
         update_creature_pool_state();
         if ((game.play_gameturn & 0x01) != 0)
             update_animating_texture_maps();
+        update_terrain();
         update_things();
         process_rooms();
         process_dungeons();
