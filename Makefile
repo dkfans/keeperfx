@@ -585,7 +585,7 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson
+	#-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson
 	-$(RM) libexterns
 
 deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal:
