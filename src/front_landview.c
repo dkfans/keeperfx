@@ -275,7 +275,7 @@ void update_frontmap_ambient_sound(void)
     {
       SetSampleVolume(0, campaign.ambient_good, settings.sound_volume *map_sound_fade/256);
     }
-    Mix_VolumeChunk(streamed_sample, settings.sound_volume *map_sound_fade/256);
+    set_streamed_sample_volume(settings.sound_volume *map_sound_fade/256);
     SetMusicPlayerVolume(map_sound_fade*(long)settings.redbook_volume/256);
   } else
   {
@@ -285,7 +285,7 @@ void update_frontmap_ambient_sound(void)
       SetSampleVolume(0, campaign.ambient_bad, 0);
     }
     SetMusicPlayerVolume(0);
-    Mix_VolumeChunk(streamed_sample, 0);
+    set_streamed_sample_volume(0);
   }
 }
 
@@ -645,7 +645,7 @@ TbBool stop_description_speech(void)
         playing_good_descriptive_speech = 0;
         playing_bad_descriptive_speech = 0;
         playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
-        stop_streamed_sample();
+        stop_streamed_samples();
         return true;
     }
     return false;
@@ -705,7 +705,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
     playing_speech_lvnum = lvnum;
     SYNCMSG("Playing %s", fname);
     //volume is overwritten in update_frontmap_ambient_sound
-    return play_streamed_sample(fname, settings.sound_volume, 0);
+    return play_streamed_sample(fname, settings.sound_volume);
 }
 
 TbBool set_pointer_graphic_spland(long frame)
@@ -1590,7 +1590,7 @@ long frontmap_update(void)
   }
   if (playing_good_descriptive_speech)
   {
-    if (!Mix_Playing(DESCRIPTION_CHANNEL))
+    if (!Mix_Playing(MIX_SPEECH_CHANNEL))
     {
       playing_good_descriptive_speech = 0;
 //      playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;

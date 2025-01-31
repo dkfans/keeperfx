@@ -327,7 +327,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
 void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
-    stop_streamed_sample();
+    stop_streamed_samples();
     unsigned int flgmem;
     struct PlayerInfo *player;
     setup_count_players();
