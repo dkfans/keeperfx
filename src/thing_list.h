@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "thing_data.h"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -186,6 +187,7 @@ struct Things {
 /******************************************************************************/
 extern Thing_Class_Func class_functions[];
 extern unsigned long thing_create_errors;
+extern const struct NamedCommand class_commands[];
 /******************************************************************************/
 void add_thing_to_list(struct Thing *thing, struct StructureList *list);
 void remove_thing_from_list(struct Thing *thing, struct StructureList *slist);
@@ -207,8 +209,6 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
 struct Thing* get_player_list_nth_creature_with_property(long thing_idx, unsigned long crmodelflag, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
 struct Thing *get_random_players_creature_of_model_on_territory(PlayerNumber plyr_idx, ThingModel crmodel,int friendly);
-struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check);
-struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check);
 long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Thing_Bool_Modifier do_cb);
 TbBool heal_completely_all_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel);
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx);

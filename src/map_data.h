@@ -142,6 +142,8 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
 void clear_dig_for_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void clear_slab_dig(long a1, long a2, char a3);
 
+void player_reveal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h);
+void player_conceal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h, TbBool all);
 void reveal_map_rect(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all);

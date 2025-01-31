@@ -60,6 +60,7 @@
 #include "config_creature.h"
 #include "config_compp.h"
 #include "config_effects.h"
+#include "lua_triggers.h"
 #include "lvl_script.h"
 #include "lvl_filesdk1.h"
 #include "thing_list.h"
@@ -2704,6 +2705,7 @@ void update(void)
         event_process_events();
         update_all_events();
         process_level_script();
+        lua_game_tick();
         if ((game.numfield_D & GNFldD_Unkn04) != 0)
             process_computer_players2();
         process_players();
