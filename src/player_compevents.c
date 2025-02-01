@@ -27,7 +27,7 @@
 #include "bflib_math.h"
 
 #include "config.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "player_instances.h"
 #include "config_terrain.h"
 #include "creature_instances.h"

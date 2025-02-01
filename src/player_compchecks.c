@@ -34,7 +34,7 @@
 #include "creature_states.h"
 #include "creature_states_mood.h"
 #include "spdigger_stack.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "dungeon_data.h"
