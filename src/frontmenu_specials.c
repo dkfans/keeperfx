@@ -163,7 +163,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         {
             x = gbtn->scr_pos_x - (spr->SWidth / 4);
         }
-        LbSpriteDrawResized(x, gbtn->scr_pos_y - (19 * units_per_pixel / 16), tx_units_per_px, spr);
+        LbSpriteDrawResized(x, gbtn->scr_pos_y - (19 * tx_units_per_px / 16), tx_units_per_px, spr);
         int adjust;
         int ratio = (MyScreenWidth / 640);
         if (ratio == 0)
@@ -294,7 +294,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         {
             x = gbtn->scr_pos_x - (spr->SWidth / 4);
         }
-        LbSpriteDrawResized(x, gbtn->scr_pos_y - (19 * units_per_pixel / 16), tx_units_per_px, spr);
+        LbSpriteDrawResized(x, gbtn->scr_pos_y - (19 * tx_units_per_px/16), tx_units_per_px, spr);
         int adjust;
         int ratio = (MyScreenWidth / 640);
         if (ratio == 0)
