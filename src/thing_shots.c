@@ -35,7 +35,7 @@
 #include "front_simple.h"
 #include "thing_stats.h"
 #include "map_blocks.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "room_garden.h"
 #include "config_creature.h"
 #include "config_terrain.h"

@@ -32,7 +32,7 @@
 #include "creature_battle.h"
 #include "creature_graphics.h"
 #include "config_creature.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "gui_draw.h"
 #include "gui_frontbtns.h"
 #include "gui_frontmenu.h"
