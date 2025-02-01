@@ -701,68 +701,57 @@ static int lua_SET_GAME_RULE(lua_State *L)
 //{
 //
 //}
-/*
 static int lua_SET_SACRIFICE_RECIPE(lua_State *L)
 {
-    int action = luaL_checkNamedCommand(L,1,rules_sacrifices_commands);
 
-    long param;
-    if ((value->sac.action == SacA_CustomPunish) || (value->sac.action == SacA_CustomReward))
+    int command = luaL_checkNamedCommand(L,1,rules_sacrifices_commands);
+    const char * reward_str = luaL_checkstring(L,1);
+    int reward =  0;
+    ThingModel victims[MAX_SACRIFICE_VICTIMS];
+    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
-        param = get_id(flag_desc, scline->tp[1]) + 1;
+        long crtr_model  = luaL_optNamedCommand(L,i + 1,creature_desc);
+        victims[i] = crtr_model;
+    }
+
+
+    if ((command == SacA_CustomPunish) || (command == SacA_CustomReward))
+    {
+        reward = get_id(flag_desc, reward_str) + 1;
     }
     else
     {
-        param = get_id(creature_desc, scline->tp[1]);
-        if (param == -1)
+        reward = get_id(creature_desc, reward_str);
+        if (reward == -1)
         {
-            param = get_id(sacrifice_unique_desc, scline->tp[1]);
+            reward = get_id(sacrifice_unique_desc, reward_str);
         }
-        if (param == -1)
+        if (reward == -1)
         {
-            param = get_id(spell_desc, scline->tp[1]);
+            reward = get_id(spell_desc, reward_str);
         }
     }
-    if (param == -1 && (strcmp(scline->tp[1], "NONE") == 0))
+    if (reward == -1 && (strcmp(reward_str, "NONE") == 0))
     {
-        param = 0;
+        reward = 0;
     }
 
-    if (param < 0)
+    if (reward < 0)
     {
-        param = 0;
-        value->sac.action = SacA_None;
-        SCRPTERRLOG("Unexpected parameter:%s", scline->tp[1]);
+        reward = 0;
+        command = SacA_None;
+        luaL_error(L,"Unexpected parameter:%s", reward_str);
     }
-    value->sac.param = param;
 
-    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
-    {
-       long vi = get_rid(creature_desc, scline->tp[i + 2]);
-       if (vi < 0)
-         vi = 0;
-       value->sac.victims[i] = vi;
-    }
-    qsort(value->sac.victims, MAX_SACRIFICE_VICTIMS, sizeof(value->sac.victims[0]), &sac_compare_fn);
-
-    PROCESS_SCRIPT_VALUE(scline->command);
-
-    long victims[MAX_SACRIFICE_VICTIMS];
-    struct Coord3d pos;
-    int param = context->value->sac.param;
-    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
-    {
-        victims[i] = context->value->sac.victims[i];
-    }
-    script_set_sacrifice_recipe(action, param, victims, context->player_idx);
+    script_set_sacrifice_recipe(command, reward, victims, 0);
+    return 0;
 
 }
-*/
 
 static int lua_REMOVE_SACRIFICE_RECIPE(lua_State *L)
 {
-    int action = SacA_None;
-    int param =  0;
+    int command = SacA_None;
+    int reward =  0;
     ThingModel victims[MAX_SACRIFICE_VICTIMS];
 
     for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
@@ -771,7 +760,7 @@ static int lua_REMOVE_SACRIFICE_RECIPE(lua_State *L)
         victims[i] = crtr_model;
     }
 
-    script_set_sacrifice_recipe(action, param, victims, 0);
+    script_set_sacrifice_recipe(command, reward, victims, 0);
     return 0;
 
 }
@@ -1102,8 +1091,8 @@ static const luaL_Reg global_methods[] = {
    {"SWAP_CREATURE"                        ,lua_SWAP_CREATURE                   },
    {"NEW_ROOM_TYPE"                        ,lua_NEW_ROOM_TYPE                   },
    {"SET_ROOM_CONFIGURATION"               ,lua_SET_ROOM_CONFIGURATION          },
-   {"SET_SACRIFICE_RECIPE"                 ,lua_SET_SACRIFICE_RECIPE            },
    */
+   {"SET_SACRIFICE_RECIPE"                 ,lua_SET_SACRIFICE_RECIPE            },
    {"REMOVE_SACRIFICE_RECIPE"              ,lua_REMOVE_SACRIFICE_RECIPE         },
    {"SET_MUSIC"                            ,lua_SET_MUSIC                       },
 
