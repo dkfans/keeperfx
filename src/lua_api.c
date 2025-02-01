@@ -754,7 +754,7 @@ static int lua_SET_SACRIFICE_RECIPE(lua_State *L)
     {
         victims[i] = context->value->sac.victims[i];
     }
-    script_set_sacrifice_recipe(action, param, victims, context->player_idx, pos);
+    script_set_sacrifice_recipe(action, param, victims, context->player_idx);
 
 }
 */
@@ -771,8 +771,7 @@ static int lua_REMOVE_SACRIFICE_RECIPE(lua_State *L)
         victims[i] = crtr_model;
     }
 
-    struct Coord3d pos;
-    script_set_sacrifice_recipe(action, param, victims, 0, pos);
+    script_set_sacrifice_recipe(action, param, victims, 0);
     return 0;
 
 }

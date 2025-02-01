@@ -4618,7 +4618,6 @@ static void remove_sacrifice_recipe_check(const struct ScriptLine *scline)
 static void set_sacrifice_recipe_process(struct ScriptContext *context)
 {
     ThingModel victims[MAX_SACRIFICE_VICTIMS];
-    struct Coord3d pos;
     int action = context->value->sac.action;
     int param = context->value->sac.param;
 
@@ -4627,7 +4626,7 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
         victims[i] = context->value->sac.victims[i];
     }
 
-    script_set_sacrifice_recipe(action, param, victims, context->player_idx, pos);
+    script_set_sacrifice_recipe(action, param, victims, context->player_idx);
 }
 
 static void set_box_tooltip_check(const struct ScriptLine* scline)

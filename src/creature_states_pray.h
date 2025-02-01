@@ -51,7 +51,7 @@ TbBool add_anger_to_all_creatures_of_player(PlayerNumber plyr_idx, short percent
 TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
 void process_sacrifice_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner, TbBool partial);
 
-void script_set_sacrifice_recipe(const int action, const int param, ThingModel* victims, PlayerNumber player_idx, struct Coord3d pos);
+void script_set_sacrifice_recipe(const int action, const int param, ThingModel* victims, PlayerNumber player_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

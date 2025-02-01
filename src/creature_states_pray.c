@@ -875,7 +875,7 @@ static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
     return *a < *b;
 }
 
-void script_set_sacrifice_recipe(const int action, const int param, ThingModel* victims, PlayerNumber player_idx, struct Coord3d pos)
+void script_set_sacrifice_recipe(const int action, const int param, ThingModel* victims, PlayerNumber player_idx)
 {
     qsort(victims, MAX_SACRIFICE_VICTIMS, sizeof(ThingModel), &sac_compare_fn);
     for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
