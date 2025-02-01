@@ -553,7 +553,7 @@ void creature_sacrifice_reset(struct Dungeon *dungeon, struct SacrificeRecipe *s
   }
 }
 
-long sacrifice_victim_model_count(struct SacrificeRecipe *sac, long model)
+static long sacrifice_victim_model_count(struct SacrificeRecipe *sac, ThingModel model)
 {
     long k = 0;
     for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
@@ -567,10 +567,9 @@ long sacrifice_victim_model_count(struct SacrificeRecipe *sac, long model)
 TbBool sacrifice_victim_conditions_met(struct Dungeon *dungeon, struct SacrificeRecipe *sac)
 {
     // Some models may be checked more than once; dut we don't really care...
-    // Some models may be checked more than once; but we don't really care...
     for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
-        long model = sac->victims[i];
+        ThingModel model = sac->victims[i];
         if (model < 1)
             continue;
         long required = sacrifice_victim_model_count(sac, model);
@@ -581,7 +580,7 @@ TbBool sacrifice_victim_conditions_met(struct Dungeon *dungeon, struct Sacrifice
   return true;
 }
 
-long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_idx)
+long process_sacrifice_award(struct Coord3d *pos, ThingModel model, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
@@ -676,7 +675,7 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
   return ret;
 }
 
-void process_sacrifice_creature(struct Coord3d *pos, int model, int owner, TbBool partial)
+void process_sacrifice_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner, TbBool partial)
 {
     long award = process_sacrifice_award(pos, model, owner);
     if (is_my_player_number(owner))
@@ -868,4 +867,72 @@ TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
 
     return true;
 }
+
+static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
+{
+    const char *a = (const char*)ptr_a;
+    const char *b = (const char*)ptr_b;
+    return *a < *b;
+}
+
+void script_set_sacrifice_recipe(const int action, const int param, ThingModel* victims, PlayerNumber player_idx, struct Coord3d pos)
+{
+    qsort(victims, MAX_SACRIFICE_VICTIMS, sizeof(ThingModel), &sac_compare_fn);
+    for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
+    {
+        struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
+        if (sac->action == (long)SacA_None)
+        {
+            break;
+        }
+        if (memcmp(victims, sac->victims, MAX_SACRIFICE_VICTIMS * sizeof(char)) == 0)
+        {
+            sac->action = action;
+            sac->param = param;
+            if (action == (long)SacA_None)
+            {
+                // Remove empty slot and shift remaining elements
+                int index = sac - game.conf.rules.sacrifices.sacrifice_recipes;
+                int remaining = MAX_SACRIFICE_RECIPES - index - 1;
+                if (remaining > 0)
+                {
+                    memmove(sac, sac + 1, remaining * sizeof(*sac));
+                }
+            }
+            return;
+        }
+    }
+
+    if (action == (long)SacA_None) // No rule found to remove
+    {
+        WARNLOG("Unable to find sacrifice rule to remove");
+        return;
+    }
+
+    struct SacrificeRecipe* sac = get_unused_sacrifice_recipe_slot();
+    if (!sac)  // Properly check for NULL
+    {
+        ERRORLOG("No free sacrifice rules");
+        return;
+    }
+
+    memcpy(sac->victims, victims, MAX_SACRIFICE_VICTIMS * sizeof(int));
+    sac->action = action;
+    sac->param = param;
+
+    struct Coord3d temple_pos;
+    if (find_temple_pool(player_idx, &temple_pos))
+    {
+        // Process the sacrifice if the pool already matches
+        for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+        {
+            if (victims[i] == 0)
+                break;
+            process_sacrifice_creature(&temple_pos, victims[i], player_idx, false);
+        }
+    }
+}
+
+
+
 /******************************************************************************/

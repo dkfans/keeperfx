@@ -52,6 +52,13 @@ long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * 
 
 }
 
+long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc)
+{
+    if (lua_isnone(L,index))
+        return 0;
+    return luaL_checkNamedCommand(L,index,commanddesc);
+}
+
 struct Thing *luaL_checkThing(lua_State *L, int index)
 {
     if (!lua_istable(L, index)) {
@@ -234,9 +241,6 @@ unsigned char luaL_checkParty(lua_State *L, int index)
     }
     return prty_id;
 }
-
-
-
 
 
 /***************************************************************************************************/

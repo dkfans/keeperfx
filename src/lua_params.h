@@ -32,6 +32,7 @@ struct PlayerRange
 };
 
 /****   Inputs  *******/
+long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
 long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
 struct Thing *luaL_checkThing(lua_State *L, int index);
 TbMapLocation luaL_checkLocation(lua_State *L, int index);

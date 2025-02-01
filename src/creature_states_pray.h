@@ -49,7 +49,9 @@ void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel c
 TbBool add_anger_to_all_creatures_of_player(PlayerNumber plyr_idx, short percentage);
 
 TbBool find_temple_pool(int player_idx, struct Coord3d *pos);
-void process_sacrifice_creature(struct Coord3d *pos, int model, int owner, TbBool partial);
+void process_sacrifice_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner, TbBool partial);
+
+void script_set_sacrifice_recipe(const int action, const int param, ThingModel* victims, PlayerNumber player_idx, struct Coord3d pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }

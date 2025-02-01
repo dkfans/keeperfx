@@ -8,6 +8,7 @@
 #include "globals.h"
 #include "thing_data.h"
 #include "creature_states.h"
+#include "creature_states_pray.h"
 #include "gui_msgs.h"
 #include "thing_navigate.h"
 #include "map_data.h"
@@ -608,8 +609,87 @@ static int lua_ADD_EFFECT_GENERATOR_TO_LEVEL(lua_State *L)
 
 
 //Manipulating Configs
+/*
+static int lua_SET_GAME_RULE(lua_State *L)
+{
+    const char *ruledesc = lua_tostring(L, 1);
+    long rulevalue = luaL_checkinteger(L, 2);
 
-//static int lua_SET_GAME_RULE(lua_State *L)
+    long rulegroup = 0;
+
+    long ruledesc_id = get_id(special_game_rules_desc, ruledesc);
+    if (ruledesc_id != -1)
+    {
+        rulegroup = -1;
+        switch (ruledesc)
+        {
+        case 1: // PreserveClassicBugs
+            // this one is a special case because in the cfg it's not done trough number
+            if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
+            {
+                SCRPTERRLOG("Game Rule '%s' value %ld out of range", scline->tp[0], ruleval);
+                return;
+            }
+            game.conf.rules.game.classic_bugs_flags = rulevalue;
+            break;
+        case 2: // AlliesShareVision
+            // this one is a special case because it updates minimap
+            SCRIPTDBG(7, "Changing Game Rule '%s' from %d to %ld", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
+            game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
+            panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+            break;
+        case 3: // MapCreatureLimit
+            // this one is a special case because it needs to kill of additional creatures
+            SCRIPTDBG(7, "Changing Game Rule '%s' from %u to %ld", rulename, game.conf.rules.game.creatures_count, rulevalue);
+            game.conf.rules.game.creatures_count = rulevalue;
+            short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
+            if (count > 0)
+            {
+                SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die", count);
+            }
+            break;
+        default:
+            WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
+            break;
+        }
+        switch (ruledesc_id)
+        {
+        case 1: // PreserveClassicBugs
+                // this one is a special case because in the cfg it's not done trough number
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < sizeof(ruleblocks) / sizeof(ruleblocks[0]); i++)
+        {
+            ruledesc = get_named_field_id(ruleblocks[i], scline->tp[0]);
+            if (ruledesc != -1)
+            {
+                rulegroup = i;
+                if (ruleval < (ruleblocks[i] + ruledesc)->min)
+                {
+                    ruleval = (ruleblocks[i] + ruledesc)->min;
+                    SCRPTERRLOG("Game Rule '%s' value %ld is smaller then minimum of %I64d", scline->tp[0], ruleval, (ruleblocks[i] + ruledesc)->min);
+                }
+                else if (ruleval > (ruleblocks[i] + ruledesc)->max)
+                {
+                    ruleval = (ruleblocks[i] + ruledesc)->max;
+                    SCRPTERRLOG("Game Rule '%s' value %ld is bigger then maximum of %I64d", scline->tp[0], ruleval, (ruleblocks[i] + ruledesc)->max);
+                }
+                break;
+                assign_named_field_value((ruleblocks[i] + ruledesc), rulevalue);
+            }
+        }
+    }
+
+    if (ruledesc == -1)
+    {
+        luaL_argerror(L, 2, "Unknown Game Rule");
+        return 0;
+    }
+}
+
+*/
 //static int lua_SET_HAND_RULE(lua_State *L)
 //static int lua_SET_DOOR_CONFIGURATION(lua_State *L)
 //static int lua_SET_OBJECT_CONFIGURATION(lua_State *L)
@@ -618,8 +698,84 @@ static int lua_ADD_EFFECT_GENERATOR_TO_LEVEL(lua_State *L)
 //static int lua_SET_EFFECT_GENERATOR_CONFIGURATION(lua_State *L)
 //static int lua_SET_POWER_CONFIGURATION(lua_State *L)
 //static int lua_SWAP_CREATURE(lua_State *L)
-//static int lua_SET_SACRIFICE_RECIPE(lua_State *L)
-//static int lua_REMOVE_SACRIFICE_RECIPE(lua_State *L)
+//{
+//
+//}
+/*
+static int lua_SET_SACRIFICE_RECIPE(lua_State *L)
+{
+    int action = luaL_checkNamedCommand(L,1,rules_sacrifices_commands);
+
+    long param;
+    if ((value->sac.action == SacA_CustomPunish) || (value->sac.action == SacA_CustomReward))
+    {
+        param = get_id(flag_desc, scline->tp[1]) + 1;
+    }
+    else
+    {
+        param = get_id(creature_desc, scline->tp[1]);
+        if (param == -1)
+        {
+            param = get_id(sacrifice_unique_desc, scline->tp[1]);
+        }
+        if (param == -1)
+        {
+            param = get_id(spell_desc, scline->tp[1]);
+        }
+    }
+    if (param == -1 && (strcmp(scline->tp[1], "NONE") == 0))
+    {
+        param = 0;
+    }
+
+    if (param < 0)
+    {
+        param = 0;
+        value->sac.action = SacA_None;
+        SCRPTERRLOG("Unexpected parameter:%s", scline->tp[1]);
+    }
+    value->sac.param = param;
+
+    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+    {
+       long vi = get_rid(creature_desc, scline->tp[i + 2]);
+       if (vi < 0)
+         vi = 0;
+       value->sac.victims[i] = vi;
+    }
+    qsort(value->sac.victims, MAX_SACRIFICE_VICTIMS, sizeof(value->sac.victims[0]), &sac_compare_fn);
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+
+    long victims[MAX_SACRIFICE_VICTIMS];
+    struct Coord3d pos;
+    int param = context->value->sac.param;
+    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+    {
+        victims[i] = context->value->sac.victims[i];
+    }
+    script_set_sacrifice_recipe(action, param, victims, context->player_idx, pos);
+
+}
+*/
+
+static int lua_REMOVE_SACRIFICE_RECIPE(lua_State *L)
+{
+    int action = SacA_None;
+    int param =  0;
+    ThingModel victims[MAX_SACRIFICE_VICTIMS];
+
+    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+    {
+        long crtr_model  = luaL_optNamedCommand(L,i + 1,creature_desc);
+        victims[i] = crtr_model;
+    }
+
+    struct Coord3d pos;
+    script_set_sacrifice_recipe(action, param, victims, 0, pos);
+    return 0;
+
+}
 
 //Manipulating Creature stats
 
@@ -948,8 +1104,8 @@ static const luaL_Reg global_methods[] = {
    {"NEW_ROOM_TYPE"                        ,lua_NEW_ROOM_TYPE                   },
    {"SET_ROOM_CONFIGURATION"               ,lua_SET_ROOM_CONFIGURATION          },
    {"SET_SACRIFICE_RECIPE"                 ,lua_SET_SACRIFICE_RECIPE            },
-   {"REMOVE_SACRIFICE_RECIPE"              ,lua_REMOVE_SACRIFICE_RECIPE         },
    */
+   {"REMOVE_SACRIFICE_RECIPE"              ,lua_REMOVE_SACRIFICE_RECIPE         },
    {"SET_MUSIC"                            ,lua_SET_MUSIC                       },
 
 

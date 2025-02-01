@@ -548,15 +548,6 @@ const struct NamedCommand texture_pack_desc[] = {
 
 Mix_Chunk* Ext_Sounds[EXTERNAL_SOUNDS_COUNT + 1];
 
-static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
-{
-    const char *a = (const char*)ptr_a;
-    const char *b = (const char*)ptr_b;
-    return *a < *b;
-}
-
-
-
 // For dynamic strings
 static char* script_strdup(const char *src)
 {
@@ -4602,7 +4593,6 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
          vi = 0;
        value->sac.victims[i] = vi;
     }
-    qsort(value->sac.victims, MAX_SACRIFICE_VICTIMS, sizeof(value->sac.victims[0]), &sac_compare_fn);
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -4621,65 +4611,23 @@ static void remove_sacrifice_recipe_check(const struct ScriptLine *scline)
          vi = 0;
        value->sac.victims[i] = vi;
     }
-    qsort(value->sac.victims, MAX_SACRIFICE_VICTIMS, sizeof(value->sac.victims[0]), &sac_compare_fn);
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_sacrifice_recipe_process(struct ScriptContext *context)
 {
-    long victims[MAX_SACRIFICE_VICTIMS];
+    ThingModel victims[MAX_SACRIFICE_VICTIMS];
     struct Coord3d pos;
     int action = context->value->sac.action;
     int param = context->value->sac.param;
+
     for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
         victims[i] = context->value->sac.victims[i];
     }
-    for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
-    {
-        struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
-        if (sac->action == (long)SacA_None)
-        {
-            break;
-        }
-        if (memcmp(victims, sac->victims, sizeof(victims)) == 0)
-        {
-            sac->action = action;
-            sac->param = param;
-            if (action == (long)SacA_None)
-            {
-                // remove empty space
-                memmove(sac, sac + 1, (MAX_SACRIFICE_RECIPES - 1 - (sac - &game.conf.rules.sacrifices.sacrifice_recipes[0])) * sizeof(*sac));
-            }
-            return;
-        }
-    }
-    if (action == (long)SacA_None) // No rule found
-    {
-        WARNLOG("Unable to find sacrifice rule to remove");
-        return;
-    }
-    struct SacrificeRecipe* sac = get_unused_sacrifice_recipe_slot();
-    if (sac == &game.conf.rules.sacrifices.sacrifice_recipes[0])
-    {
-        ERRORLOG("No free sacrifice rules");
-        return;
-    }
-    memcpy(sac->victims, victims, sizeof(victims));
-    sac->action = action;
-    sac->param = param;
 
-    if (find_temple_pool(context->player_idx, &pos))
-    {
-        // Check if sacrifice pool already matches
-        for (int i = 0; i < sizeof(victims); i++)
-        {
-            if (victims[i] == 0)
-                break;
-            process_sacrifice_creature(&pos, victims[i], context->player_idx, false);
-        }
-    }
+    script_set_sacrifice_recipe(action, param, victims, context->player_idx, pos);
 }
 
 static void set_box_tooltip_check(const struct ScriptLine* scline)
