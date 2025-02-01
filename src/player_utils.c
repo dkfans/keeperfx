@@ -48,7 +48,7 @@
 #include "game_saves.h"
 #include "game_legacy.h"
 #include "frontend.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"
@@ -561,9 +561,9 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     {
         { 0, 0},
         { 1,-1},
-        { 1, 1},
-        {-1, 1},
         {-1,-1},
+        {-1, 1},
+        { 1, 1},
         { 0, 0}
     };
 

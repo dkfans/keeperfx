@@ -293,7 +293,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     return move_dead_creature(thing);;
 }
 
-long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
+long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, CrtrExpLevel exp_level)
 {
     if (dungeon_invalid(dungeon))
         return -1;
@@ -301,7 +301,7 @@ long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel
     while (i >= 0)
     {
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
-        if ((cstore->model == crmodel) && (cstore->explevel == crlevel))
+        if ((cstore->model == crmodel) && (cstore->exp_level == exp_level))
         {
           return i;
         }
@@ -310,7 +310,7 @@ long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel
     return -1;
 }
 
-TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
+TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, CrtrExpLevel exp_level)
 {
     SYNCDBG(18,"Starting");
     if (dungeon_invalid(dungeon))
@@ -319,7 +319,7 @@ TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmode
         return false;
     }
     // Check if the creature of same type is in list
-    long i = find_item_in_dead_creature_list(dungeon, crmodel, crlevel);
+    long i = find_item_in_dead_creature_list(dungeon, crmodel, exp_level);
     struct CreatureStorage* cstore;
     if (i >= 0)
     {
@@ -342,13 +342,13 @@ TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmode
     }
     cstore = &dungeon->dead_creatures[i];
     cstore->model = crmodel;
-    cstore->explevel = crlevel;
+    cstore->exp_level = exp_level;
     cstore->count = 0;
     SYNCDBG(19,"Finished");
     return true;
 }
 
-TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
+TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, CrtrExpLevel exp_level)
 {
     SYNCDBG(18,"Starting");
     if (dungeon_invalid(dungeon))
@@ -357,7 +357,7 @@ TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel c
         return false;
     }
     struct CreatureStorage* cstore;
-    long rmpos = find_item_in_dead_creature_list(dungeon, crmodel, crlevel);
+    long rmpos = find_item_in_dead_creature_list(dungeon, crmodel, exp_level);
     if (rmpos < 0)
     {
         return false;
@@ -375,7 +375,7 @@ TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel c
         }
         cstore = &dungeon->dead_creatures[DEAD_CREATURES_MAX_COUNT - 1];
         cstore->model = 0;
-        cstore->explevel = 0;
+        cstore->exp_level = 0;
         if (dungeon->dead_creature_idx > 0)
         {
             dungeon->dead_creature_idx--;
@@ -397,7 +397,7 @@ TbBool update_dead_creatures_list(struct Dungeon *dungeon, const struct Thing *t
         WARNLOG("Invalid victim creature control");
         return false;
     }
-    return add_item_to_dead_creature_list(dungeon, cctrl->original_model, cctrl->explevel);
+    return add_item_to_dead_creature_list(dungeon, cctrl->original_model, cctrl->exp_level);
 }
 
 TbBool creature_can_be_resurrected(const struct Thing* thing)
@@ -422,7 +422,7 @@ TbBool update_dead_creatures_list_for_owner(const struct Thing *thing)
     return update_dead_creatures_list(dungeon, thing);
 }
 
-struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short crpscondition, unsigned short owner, long explevel)
+struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short crpscondition, unsigned short owner, CrtrExpLevel exp_level)
 {
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
@@ -440,7 +440,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->model = model;
     thing->parent_idx = thing->index;
     thing->owner = owner;
-    thing->corpse.exp_level = explevel;
+    thing->corpse.exp_level = exp_level;
     thing->mappos.x.val = pos->x.val;
     thing->mappos.y.val = pos->y.val;
     thing->mappos.z.val = 0;
@@ -500,11 +500,11 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
     long prev_idx = thing->index;
     short angle = thing->move_angle_xy;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    long explevel = cctrl->explevel;
+    CrtrExpLevel exp_level = cctrl->exp_level;
     struct PlayerInfo* player = NULL;
     remove_creature_score_from_owner(thing);
     delete_thing_structure(thing, 0);
-    struct Thing* deadtng = create_dead_creature(&pos, crmodel, crpscondition, owner, explevel);
+    struct Thing* deadtng = create_dead_creature(&pos, crmodel, crpscondition, owner, exp_level);
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Could not create dead thing while killing %s index %d owned by player %d.",creature_code_name(crmodel),(int)prev_idx,(int)owner);

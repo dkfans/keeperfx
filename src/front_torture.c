@@ -357,7 +357,7 @@ void fronttorture_update(void)
             {
                 volume = 0;
                 doorsnd->field_4 = 0;
-                StopSample(0, door->smptbl_id);
+                stop_sample(0, door->smptbl_id, 0);
             } else
             if (volume >= 127)
             {

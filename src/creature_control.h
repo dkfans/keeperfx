@@ -154,7 +154,7 @@ struct CreatureControl {
     ThingIndex players_prev_creature_idx;
     ThingIndex players_next_creature_idx;
     unsigned short slap_turns;
-    CrtrExpLevel explevel;
+    CrtrExpLevel exp_level;
     long exp_points;
     long prev_exp_points;
     struct Coord3d moveto_pos;

@@ -56,7 +56,7 @@
 #include "config_players.h"
 #include "config_magic.h"
 #include "config_spritecolors.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "game_merge.h"
 #include "game_legacy.h"
 #include "creature_instances.h"

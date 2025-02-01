@@ -34,7 +34,7 @@
 #include "creature_states.h"
 #include "creature_states_mood.h"
 #include "spdigger_stack.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "dungeon_data.h"
@@ -429,7 +429,7 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
         // Let us estimate value of the creature in gold
         long priority = thing->creature.gold_carried;             // base value
         priority += param->num1 * thing->health / crstat->health; // full health valued at this many gold
-        priority += 10000 * cctrl->explevel; // experience earned by the creature has a big value
+        priority += 10000 * cctrl->exp_level; // experience earned by the creature has a big value
         if (get_creature_state_type(thing) == CrStTyp_Work)
             priority += 500; // aborted work valued at this many gold
         if (anger_is_creature_angry(thing))
@@ -493,7 +493,7 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
 	{
         struct Thing* creatng = find_creature_for_sacrifice(comp, game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model);
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        if (!thing_is_invalid(creatng) && (cctrl->explevel < 2))
+        if (!thing_is_invalid(creatng) && (cctrl->exp_level < 2))
 		{
 		    SYNCDBG(18, "Got digger to sacrifice, %s index %d owner %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
 	        if (creature_can_do_job_for_player(creatng, dungeon->owner, Job_TEMPLE_SACRIFICE, JobChk_None))

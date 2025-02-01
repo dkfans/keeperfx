@@ -301,7 +301,6 @@ enum ScriptVariables {
 #define FX_LINE_TIME_PARTS 4
 
 
-struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria);
 ThingModel parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
 struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx, short move_angle);
@@ -319,7 +318,7 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
 void get_player_number_from_value(const char* txt, char* id, char* type);
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
 TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num);
-TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, short splevel, PlayerNumber caster, TbBool is_free);
+TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, KeepPwrLevel power_level, PlayerNumber caster, TbBool is_free);
 
 #define ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id) \
     struct ScriptValue tmp_value = {0}; \

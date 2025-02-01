@@ -339,13 +339,13 @@ TbBool creature_can_gain_experience(const struct Thing *thing)
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // Creatures which reached players max level can't be trained.
-    if (cctrl->explevel >= dungeon->creature_max_level[cctrl->original_model])
+    if (cctrl->exp_level >= dungeon->creature_max_level[cctrl->original_model])
     {
         return false;
     }
     // Creatures which reached absolute max level and have no grow up creature.
     struct CreatureStats* crstat = creature_stats_get(cctrl->original_model);
-    if ((cctrl->explevel >= (CREATURE_MAX_LEVEL-1)) && (crstat->grow_up == 0))
+    if ((cctrl->exp_level >= (CREATURE_MAX_LEVEL-1)) && (crstat->grow_up == 0))
     {
         return false;
     }

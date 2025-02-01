@@ -221,11 +221,11 @@ void creature_increase_available_instances(struct Thing *thing)
         int k = crstat->learned_instance_id[i];
         if (k > 0)
         {
-            if (crstat->learned_instance_level[i] <= cctrl->explevel+1)
+            if (crstat->learned_instance_level[i] <= cctrl->exp_level+1)
             {
                 cctrl->instance_available[k] = true;
             }
-            else if ((crstat->learned_instance_level[i] > cctrl->explevel+1) && !(game.conf.rules.game.classic_bugs_flags & ClscBug_RebirthKeepsSpells))
+            else if ((crstat->learned_instance_level[i] > cctrl->exp_level+1) && !(game.conf.rules.game.classic_bugs_flags & ClscBug_RebirthKeepsSpells))
             {
                 cctrl->instance_available[k] = false;
             }
@@ -580,11 +580,11 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
 
     if (target != NULL)
     {
-        creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->explevel);
+        creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->exp_level);
     }
     else
     {
-        creature_cast_spell(creatng, spl_idx, cctrl->explevel, cctrl->targtstl_x, cctrl->targtstl_y);
+        creature_cast_spell(creatng, spl_idx, cctrl->exp_level, cctrl->targtstl_x, cctrl->targtstl_y);
     }
 
     // Start cooldown after spell effect activates
