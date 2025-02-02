@@ -673,6 +673,6 @@ extern "C" SoundSFXID get_sample_sfxid(SoundSmplTblID smptbl_id, SoundBankID ban
 	return g_banks[bank_id][smptbl_id].sfx_id;
 }
 
-extern "C" void enable_bbking_mode() {
-	g_bb_king_mode |= true;
+extern "C" void toggle_bbking_mode() {
+	g_bb_king_mode = !g_bb_king_mode;
 }

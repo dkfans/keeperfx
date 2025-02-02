@@ -168,7 +168,7 @@ void input_eastegg(void)
       state = input_eastegg_keycodes(&length, allow, &eastegg_bbking_codes);
       if (length == eastegg_bbking_codes.length) {
         play_non_3d_sample(159);
-        enable_bbking_mode();
+        toggle_bbking_mode();
       }
     }
     // Maintain the SKEKSIS cheat
