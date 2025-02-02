@@ -605,6 +605,8 @@ extern "C" SoundMilesID play_sample(
 	} else if (bank_id > g_banks.size()) {
 		LbErrorLog("Can't play sample %d from bank %u, invalid bank ID", smptbl_id, bank_id);
 		return 0;
+	} else if (smptbl_id == 0) {
+		return 0; // silently ignore
 	} else if (smptbl_id <= 0 || smptbl_id >= g_banks[bank_id].size()) {
 		LbErrorLog("Can't play sample %d from bank %u, invalid sample ID", smptbl_id, bank_id);
 		return 0;
