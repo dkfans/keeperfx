@@ -601,6 +601,9 @@ extern "C" SoundMilesID play_sample(
 	try {
 		for (auto & source : g_sources) {
 			if (source.emit_id == 0) {
+				source.gain(volume);
+				source.pan(pan);
+				source.pitch(pitch);
 				source.play(g_banks[bank_id][smptbl_id].buffer);
 				source.emit_id = emit_id;
 				source.smptbl_id = smptbl_id;
