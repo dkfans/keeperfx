@@ -487,6 +487,7 @@ void sound_reinit_after_load(void)
         Non3DEmitter = 0;
     }
     ambient_sound_stop();
+    stop_streamed_samples();
     init_messages();
 }
 

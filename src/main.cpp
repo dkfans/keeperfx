@@ -3813,6 +3813,7 @@ void game_loop(void)
       LbScreenSwap();
       StopMusicPlayer();
       free_custom_music();
+      stop_streamed_samples();
       free_level_strings_data();
       turn_off_all_menus();
       delete_all_structures();
