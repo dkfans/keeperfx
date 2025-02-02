@@ -284,11 +284,60 @@ static int lua_SET_TIMER(lua_State *L)
     return 0;
 }
 
-//static int lua_ADD_TO_TIMER(lua_State *L)
-//static int lua_DISPLAY_TIMER(lua_State *L)
-//static int lua_HIDE_TIMER(lua_State *L)
-//static int lua_BONUS_LEVEL_TIME(lua_State *L)
-//static int lua_ADD_BONUS_TIME(lua_State *L)
+static int lua_ADD_TO_TIMER(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long timr_id              = luaL_checkNamedCommand(L,2,timer_desc);
+    long amount               = luaL_checkinteger(L, 3);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        add_to_script_timer(i, timr_id, amount);
+    }
+    return 0;
+}
+static int lua_DISPLAY_TIMER(lua_State *L)
+{
+    PlayerNumber player_id = luaL_checkPlayerSingle(L, 1);
+    long timr_id              = luaL_checkNamedCommand(L,2,timer_desc);
+    long display              = luaL_checkinteger(L, 3);
+
+    gameadd.script_player = player_id;
+    gameadd.script_timer_id = timr_id;
+    gameadd.script_timer_limit = 0;
+    gameadd.timer_real = display;
+    game.flags_gui |= GGUI_ScriptTimer;
+    return 0;
+}
+
+static int lua_HIDE_TIMER(lua_State *L)
+{
+    game.flags_gui &= ~GGUI_ScriptTimer;
+    return 0;
+}
+static int lua_BONUS_LEVEL_TIME(lua_State *L)
+{
+    GameTurn turns = luaL_checkinteger(L, 1);
+    TbBool clocktime = lua_toboolean(L, 2);
+    if (turns > 0)
+    {
+        game.bonus_time = game.play_gameturn + turns;
+        set_flag(game.flags_gui, GGUI_CountdownTimer);
+    }
+    else
+    {
+        game.bonus_time = 0;
+        clear_flag(game.flags_gui, GGUI_CountdownTimer);
+    }
+    gameadd.timer_real = clocktime;
+    return 0;
+}
+static int lua_ADD_BONUS_TIME(lua_State *L)
+{
+    GameTurnDelta turns = luaL_checkinteger(L, 1);
+    game.bonus_time += turns;
+    return 0;
+}
 
 
 //Adding New Creatures and Parties to the Level
@@ -1032,13 +1081,12 @@ static const luaL_Reg global_methods[] = {
    {"LOSE_GAME"                            ,lua_LOSE_GAME                       },
    {"COUNT_CREATURES_AT_ACTION_POINT"      ,lua_COUNT_CREATURES_AT_ACTION_POINT },
    {"SET_TIMER"                            ,lua_SET_TIMER                       },
-/*
    {"ADD_TO_TIMER"                         ,lua_ADD_TO_TIMER                    },
    {"DISPLAY_TIMER"                        ,lua_DISPLAY_TIMER                   },
    {"HIDE_TIMER"                           ,lua_HIDE_TIMER                      },
    {"BONUS_LEVEL_TIME"                     ,lua_BONUS_LEVEL_TIME                },
    {"ADD_BONUS_TIME"                       ,lua_ADD_BONUS_TIME                  },
-*/
+
 //Adding New Creatures and Parties to the Level
    {"ADD_CREATURE_TO_LEVEL"                ,lua_ADD_CREATURE_TO_LEVEL           },
    {"ADD_TUNNELLER_TO_LEVEL"               ,lua_ADD_TUNNELLER_TO_LEVEL          },
