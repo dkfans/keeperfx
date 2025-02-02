@@ -169,6 +169,7 @@ void input_eastegg(void)
       if (length == eastegg_bbking_codes.length) {
         play_non_3d_sample(159);
         toggle_bbking_mode();
+        length = 0; // prevent re-trigger
       }
     }
     // Maintain the SKEKSIS cheat
