@@ -42,6 +42,10 @@ ALCdevice_ptr g_openal_device;
 ALCcontext_ptr g_openal_context;
 bool g_bb_king_mode = false;
 
+enum source_flags {
+	bb_king_mode = 1,
+};
+
 const char * alErrorStr(ALenum code) {
 	switch (code) {
 		case AL_NO_ERROR: return "No error";
@@ -98,6 +102,7 @@ public:
 	SoundEmitterID emit_id = 0;
 	SoundSmplTblID smptbl_id = 0;
 	SoundBankID bank_id = 0;
+	int flags = 0;
 
 	openal_source() {
 		ALuint sources[1];
@@ -574,14 +579,14 @@ extern "C" void SetSamplePan(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, S
 }
 
 extern "C" void SetSamplePitch(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundPitch pitch) {
-	if (g_bb_king_mode) {
-		// ben enjoyed dofi's stream so much I made this an easter egg
-		return;
-	}
 	for (auto & source : g_sources) {
 		if (source.emit_id == emit_id && source.smptbl_id == smptbl_id) {
 			try {
-				source.pitch(pitch);
+				if (source.flags & bb_king_mode) {
+					return; // ben enjoyed dofi's stream so much I made random pitch an easter egg
+				} else {
+					source.pitch(pitch);
+				}
 			} catch (const std::exception & e) {
 				LbErrorLog("%s", e.what());
 			}
@@ -617,8 +622,14 @@ extern "C" SoundMilesID play_sample(
 				source.gain(volume);
 				source.pan(pan);
 				if (g_bb_king_mode) {
-					// ben enjoyed dofi's stream so much I made this an easter egg
-					source.pitch((NORMAL_PITCH / 2) + UNSYNC_RANDOM(NORMAL_PITCH));
+					// ben enjoyed dofi's stream so much I made random pitch an easter egg
+					if (UNSYNC_RANDOM(10) > 7) { // ~30% of the time
+						source.flags |= bb_king_mode;
+						source.pitch((NORMAL_PITCH / 2) + UNSYNC_RANDOM(NORMAL_PITCH));
+					} else {
+						source.flags &= ~bb_king_mode;
+						source.pitch(pitch);
+					}
 				} else {
 					source.pitch(pitch);
 				}
