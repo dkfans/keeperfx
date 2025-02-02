@@ -296,40 +296,40 @@ void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, lo
     lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
     if (style_type == ROUNDSLAB64K_LIGHT) {
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-        LbDrawBox(pos_x + 4*units_per_px/16, pos_y + 4*units_per_px/16, width - 8*units_per_px/16, height - 8*units_per_px/16, 1);
+        LbDrawBox(pos_x + scale_ui_value_lofi(4), pos_y + scale_ui_value_lofi(4), width - scale_ui_value_lofi(8), height - scale_ui_value_lofi(8), 1);
         lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     } else {
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-        LbDrawBox(pos_x + 4*units_per_px/16, pos_y + 4*units_per_px/16, width - 8*units_per_px/16, height - 8*units_per_px/16, 1);
+        LbDrawBox(pos_x + scale_ui_value_lofi(4), pos_y + scale_ui_value_lofi(4), width - scale_ui_value_lofi(8), height - scale_ui_value_lofi(8), 1);
         lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
     }
     int x;
     int y;
     const struct TbSprite* spr = get_panel_sprite(GPS_message_frame_thin_hex_ct);
-    int ps_units_per_spr = 26*units_per_px/spr->SWidth;
+    int ps_units_per_spr = scale_ui_value_lofi(416)/spr->SWidth;
     long i;
-    for (i = 0; i < width - 68*units_per_px/16; i += 26*units_per_px/16)
+    for (i = 0; i < width - scale_ui_value_lofi(68); i += scale_ui_value_lofi(26))
     {
-        x = pos_x + i + 34*units_per_px/16;
+        x = pos_x + i + scale_ui_value_lofi(34);
         y = pos_y;
         spr = get_panel_sprite(GPS_message_frame_thin_hex_ct);
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
-        y += height - 4*units_per_px/16;
+        y += height - scale_ui_value_lofi(4);
         spr = get_panel_sprite(GPS_message_frame_thin_hex_cb);
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
     }
-    for (i = 0; i < height - 56*units_per_px/16; i += 20*units_per_px/16)
+    for (i = 0; i < height - scale_ui_value_lofi(56); i += scale_ui_value_lofi(20))
     {
         x = pos_x;
-        y = pos_y + i + 28*units_per_px/16;
+        y = pos_y + i + scale_ui_value_lofi(28);
         spr = get_panel_sprite(GPS_message_frame_thin_hex_cr);
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
-        x += width - 4*units_per_px/16;
+        x += width - scale_ui_value_lofi(4);
         spr = get_panel_sprite(GPS_message_frame_thin_hex_cl);
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
     }
-    x = pos_x + width - 34*units_per_px/16;
-    y = pos_y + height - 28*units_per_px/16;
+    x = pos_x + width - scale_ui_value_lofi(34);
+    y = pos_y + height - scale_ui_value_lofi(28);
     spr = get_panel_sprite(GPS_message_frame_thin_hex_tl);
     LbSpriteDrawResized(pos_x, pos_y, ps_units_per_spr, spr);
     spr = get_panel_sprite(GPS_message_frame_thin_hex_tr);
