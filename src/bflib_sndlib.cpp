@@ -156,7 +156,8 @@ public:
 	}
 
 	void pan(SoundPan pan) {
-		alSource3f(id, AL_POSITION, -(float(64 - pan) / 64), 0, 0);
+		// convert 0..128 (where 64 is center) to -1.0..1.0 and then reduce stereo separation by 20%
+		alSource3f(id, AL_POSITION, (-(float(64 - pan) / 64)) * 0.8f, 0, 0);
 		const auto errcode = alGetError();
 		if (errcode != AL_NO_ERROR) {
 			throw openal_error("Cannot set position", errcode);
