@@ -146,7 +146,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     struct Dungeon* dungeon = get_my_dungeon();
     int i = selected_resurrect_creature(dungeon, gbtn);
-    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : ((gbtn->height * 22 / 26) * 16) / LbTextLineHeight();
+    int tx_units_per_px = scale_ui_value_lofi(16);
     if (i != -1)
     {
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
@@ -154,16 +154,13 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(cstore->model, CGI_HandSymbol);
         const struct TbSprite* spr = get_panel_sprite(spr_idx);
-        int x;
+        int x = gbtn->scr_pos_x - (spr->SWidth / 4);
+        int y = gbtn->scr_pos_y - (19 * tx_units_per_px / 16);
         if (MyScreenWidth <= 640)
         {
-            x = gbtn->scr_pos_x - (spr->SWidth / 8);
+            y = gbtn->scr_pos_y - (19 * tx_units_per_px / 32);
         }
-        else
-        {
-            x = gbtn->scr_pos_x - (spr->SWidth / 4);
-        }
-        LbSpriteDrawResized(x, gbtn->scr_pos_y - (19 * tx_units_per_px / 16), tx_units_per_px, spr);
+        LbSpriteDrawResized(x, y, tx_units_per_px, spr);
         int adjust;
         int ratio = (MyScreenWidth / 640);
         if (ratio == 0)
@@ -273,7 +270,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
     struct Dungeon* dungeon = get_my_dungeon();
     struct Thing* thing = INVALID_THING;
     int listitm_idx = selected_transfer_creature(dungeon, gbtn);
-    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : ((gbtn->height * 22 / 26) * 16) / LbTextLineHeight();
+    int tx_units_per_px = scale_ui_value_lofi(16);
     if (listitm_idx != -1)
     {
         thing = get_player_list_nth_creature_with_property(dungeon->creatr_list_start, CMF_NoTransfer, listitm_idx);
@@ -285,16 +282,13 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
         const struct TbSprite* spr = get_panel_sprite(spr_idx);
-        int x;
+        int x = gbtn->scr_pos_x - (spr->SWidth / 4);
+        int y = gbtn->scr_pos_y - (19 * tx_units_per_px / 16);
         if (MyScreenWidth <= 640)
         {
-            x = gbtn->scr_pos_x - (spr->SWidth / 8);
+            y = gbtn->scr_pos_y - (19 * tx_units_per_px / 32);
         }
-        else
-        {
-            x = gbtn->scr_pos_x - (spr->SWidth / 4);
-        }
-        LbSpriteDrawResized(x, gbtn->scr_pos_y - (19 * tx_units_per_px/16), tx_units_per_px, spr);
+        LbSpriteDrawResized(x, y, tx_units_per_px, spr);
         int adjust;
         int ratio = (MyScreenWidth / 640);
         if (ratio == 0)
