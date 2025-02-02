@@ -156,7 +156,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         const struct TbSprite* spr = get_panel_sprite(spr_idx);
         int x = gbtn->scr_pos_x - (spr->SWidth / 4);
         int y = gbtn->scr_pos_y - (19 * tx_units_per_px / 16);
-        if (MyScreenWidth <= 640)
+        if (LbGraphicsScreenHeight() < 400)
         {
             y = gbtn->scr_pos_y - (19 * tx_units_per_px / 32);
         }
@@ -284,7 +284,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         const struct TbSprite* spr = get_panel_sprite(spr_idx);
         int x = gbtn->scr_pos_x - (spr->SWidth / 4);
         int y = gbtn->scr_pos_y - (19 * tx_units_per_px / 16);
-        if (MyScreenWidth <= 640)
+        if (LbGraphicsScreenHeight() < 400)
         {
             y = gbtn->scr_pos_y - (19 * tx_units_per_px / 32);
         }
