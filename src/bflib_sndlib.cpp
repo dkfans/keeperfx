@@ -1,6 +1,7 @@
 #include "pre_inc.h"
 #include "config.h"
 #include "bflib_sndlib.h"
+#include "bflib_datetm.h"
 #include "bflib_sound.h"
 #include "bflib_fileio.h"
 #include <AL/al.h>
@@ -39,6 +40,7 @@ SoundVolume g_master_volume = 0;
 SoundVolume g_music_volume = 0;
 ALCdevice_ptr g_openal_device;
 ALCcontext_ptr g_openal_context;
+bool g_is_feb_1 = false;
 
 const char * alErrorStr(ALenum code) {
 	switch (code) {
@@ -491,6 +493,9 @@ extern "C" void StopAllSamples() {
 
 extern "C" TbBool InitAudio(const SoundSettings * settings) {
 	try {
+		TbDate date;
+		LbDate(&date);
+		g_is_feb_1 = (date.Day == 1) && (date.Month = 2);
 		if (SoundDisabled) {
 			LbWarnLog("Sound is disabled, skipping OpenAL initialization");
 			return false;
@@ -567,6 +572,10 @@ extern "C" void SetSamplePan(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, S
 }
 
 extern "C" void SetSamplePitch(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundPitch pitch) {
+	if (g_is_feb_1) {
+		// ben enjoyed dofi's stream so much I made this an easter egg
+		return;
+	}
 	for (auto & source : g_sources) {
 		if (source.emit_id == emit_id && source.smptbl_id == smptbl_id) {
 			try {
@@ -603,7 +612,12 @@ extern "C" SoundMilesID play_sample(
 			if (source.emit_id == 0) {
 				source.gain(volume);
 				source.pan(pan);
-				source.pitch(pitch);
+				if (g_is_feb_1) {
+					// ben enjoyed dofi's stream so much I made this an easter egg
+					source.pitch((NORMAL_PITCH / 2) + UNSYNC_RANDOM(NORMAL_PITCH));
+				} else {
+					source.pitch(pitch);
+				}
 				source.play(g_banks[bank_id][smptbl_id].buffer);
 				source.emit_id = emit_id;
 				source.smptbl_id = smptbl_id;
