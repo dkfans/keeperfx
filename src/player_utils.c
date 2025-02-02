@@ -561,9 +561,9 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     {
         { 0, 0},
         { 1,-1},
-        { 1, 1},
-        {-1, 1},
         {-1,-1},
+        {-1, 1},
+        { 1, 1},
         { 0, 0}
     };
 
