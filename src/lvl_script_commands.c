@@ -4408,8 +4408,7 @@ static void display_timer_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unknown timer, '%s'", timrname);
         return;
     }
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->bytes[0] = (unsigned char)scline->np[0];
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     value->bytes[1] = timr_id;
     value->longs[1] = 0;
     value->bytes[2] = (TbBool)scline->np[2];
@@ -4418,7 +4417,7 @@ static void display_timer_check(const struct ScriptLine *scline)
 
 static void display_timer_process(struct ScriptContext *context)
 {
-    gameadd.script_player = context->value->bytes[0];
+    gameadd.script_player = context->player_idx;
     gameadd.script_timer_id = context->value->bytes[1];
     gameadd.script_timer_limit = context->value->longs[1];
     gameadd.timer_real = context->value->bytes[2];
