@@ -2611,7 +2611,7 @@ static void add_heart_health_process(struct ScriptContext *context)
 
 static void lock_possession_check(const struct ScriptLine* scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     short locked = scline->np[1];
     if (locked == -1)
     {
@@ -2630,14 +2630,10 @@ static void lock_possession_check(const struct ScriptLine* scline)
 
 static void lock_possession_process(struct ScriptContext* context)
 {
-    struct PlayerInfo *player;
-    for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
+    struct PlayerInfo *player = get_player(context->player_idx);
+    if (player_exists(player))
     {
-        player = get_player(plyridx);
-        if (player_exists(player))
-        {
-            player->possession_lock = context->value->chars[1];
-        }
+        player->possession_lock = context->value->chars[1];
     }
 }
 
