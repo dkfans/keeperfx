@@ -6594,53 +6594,51 @@ static void set_player_modifier_process(struct ScriptContext* context)
     #if (BFDEBUG_LEVEL > 0)
         const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
     #endif
-    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+    PlayerNumber plyr_idx = context->player_idx;
+    dungeon = get_dungeon(plyr_idx);
+    switch (mdfrdesc)
     {
-        dungeon = get_dungeon(plyr_idx);
-        switch (mdfrdesc)
-        {
-            case 1: // Health
-                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.health, mdfrval);
-                dungeon->modifier.health = mdfrval;
-                do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_relative_creature_health);
-                break;
-            case 2: // Strength
-                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.strength, mdfrval);
-                dungeon->modifier.strength = mdfrval;
-                break;
-            case 3: // Armour
-                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.armour, mdfrval);
-                dungeon->modifier.armour = mdfrval;
-                break;
-            case 4: // SpellDamage
-                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.spell_damage, mdfrval);
-                dungeon->modifier.spell_damage = mdfrval;
-                break;
-            case 5: // Speed
-                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.speed, mdfrval);
-                dungeon->modifier.speed = mdfrval;
-                do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_creature_speed);
-                break;
-            case 6: // Salary
-                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.pay, mdfrval);
-                dungeon->modifier.pay = mdfrval;
-                break;
-            case 7: // TrainingCost
-                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.training_cost, mdfrval);
-                dungeon->modifier.training_cost = mdfrval;
-                break;
-            case 8: // ScavengingCost
-                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.scavenging_cost, mdfrval);
-                dungeon->modifier.scavenging_cost = mdfrval;
-                break;
-            case 9: // Loyalty
-                SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.loyalty, mdfrval);
-                dungeon->modifier.loyalty = mdfrval;
-                break;
-            default:
-                WARNMSG("Unsupported Player Modifier, command %d.", mdfrdesc);
-                break;
-        }
+        case 1: // Health
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.health, mdfrval);
+            dungeon->modifier.health = mdfrval;
+            do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_relative_creature_health);
+            break;
+        case 2: // Strength
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.strength, mdfrval);
+            dungeon->modifier.strength = mdfrval;
+            break;
+        case 3: // Armour
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.armour, mdfrval);
+            dungeon->modifier.armour = mdfrval;
+            break;
+        case 4: // SpellDamage
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.spell_damage, mdfrval);
+            dungeon->modifier.spell_damage = mdfrval;
+            break;
+        case 5: // Speed
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.speed, mdfrval);
+            dungeon->modifier.speed = mdfrval;
+            do_to_players_all_creatures_of_model(plyr_idx, CREATURE_ANY, update_creature_speed);
+            break;
+        case 6: // Salary
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.pay, mdfrval);
+            dungeon->modifier.pay = mdfrval;
+            break;
+        case 7: // TrainingCost
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.training_cost, mdfrval);
+            dungeon->modifier.training_cost = mdfrval;
+            break;
+        case 8: // ScavengingCost
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.scavenging_cost, mdfrval);
+            dungeon->modifier.scavenging_cost = mdfrval;
+            break;
+        case 9: // Loyalty
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.loyalty, mdfrval);
+            dungeon->modifier.loyalty = mdfrval;
+            break;
+        default:
+            WARNMSG("Unsupported Player Modifier, command %d.", mdfrdesc);
+            break;
     }
 }
 
