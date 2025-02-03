@@ -4433,8 +4433,7 @@ static void add_to_timer_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unknown timer, '%s'", timrname);
         return;
     }
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->longs[0] = scline->np[0];
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     value->longs[1] = timr_id;
     value->longs[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -4442,7 +4441,7 @@ static void add_to_timer_check(const struct ScriptLine *scline)
 
 static void add_to_timer_process(struct ScriptContext *context)
 {
-   add_to_script_timer(context->value->longs[0], context->value->longs[1], context->value->longs[2]);
+   add_to_script_timer(context->player_idx, context->value->longs[1], context->value->longs[2]);
 }
 
 static void add_bonus_time_check(const struct ScriptLine *scline)
