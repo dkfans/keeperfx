@@ -5126,29 +5126,13 @@ static void set_creature_instance_check(const struct ScriptLine *scline)
 
 static void set_creature_instance_process(struct ScriptContext *context)
 {
-    struct CreatureStats *crstat = creature_stats_get(context->value->bytes[0]);
-    if (!creature_stats_invalid(crstat))
-    {
-        CrInstance old_instance = crstat->learned_instance_id[context->value->bytes[1] - 1];
-        crstat->learned_instance_id[context->value->bytes[1] - 1] = context->value->bytes[2];
-        crstat->learned_instance_level[context->value->bytes[1] - 1] = context->value->bytes[3];
-        for (short i = 0; i < THINGS_COUNT; i++)
-        {
-            struct Thing* thing = thing_get(i);
-            if (thing_is_creature(thing))
-            {
-                if (thing->model == context->value->bytes[0])
-                {
-                    if (old_instance != CrInst_NULL)
-                    {
-                        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                        cctrl->instance_available[old_instance] = false;
-                    }
-                    creature_increase_available_instances(thing);
-                }
-            }
-        }
-    }
+    ThingModel crmodel = context->value->bytes[0];
+    int slot = context->value->bytes[1];
+    int instance = context->value->bytes[2];
+    unsigned char level = context->value->bytes[3];
+
+    script_set_creature_instance(crmodel, slot, instance, level);
+
 }
 
 

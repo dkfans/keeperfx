@@ -917,7 +917,16 @@ static int lua_REMOVE_SACRIFICE_RECIPE(lua_State *L)
 //Manipulating Creature stats
 
 
-//static int lua_SET_CREATURE_INSTANCE(lua_State *L)
+static int lua_SET_CREATURE_INSTANCE(lua_State *L)
+{
+    ThingModel crmodel = luaL_checkNamedCommand(L,1,creature_desc);
+    int slot = luaL_checkinteger(L, 2);
+    int instance = luaL_checkinteger(L, 3);
+    unsigned char level = luaL_checkinteger(L, 4);
+
+    script_set_creature_instance(crmodel, slot, instance, level);
+    return 0;
+}
 
 static int lua_SET_CREATURE_MAX_LEVEL(lua_State *L)
 {
@@ -1287,7 +1296,7 @@ static const luaL_Reg global_methods[] = {
 
 
 //Manipulating Creature stats
-   //{"SET_CREATURE_INSTANCE"                ,lua_SET_CREATURE_INSTANCE           },
+   {"SET_CREATURE_INSTANCE"                ,lua_SET_CREATURE_INSTANCE           },
    {"SET_CREATURE_MAX_LEVEL"               ,lua_SET_CREATURE_MAX_LEVEL          },
    //{"SET_CREATURE_PROPERTY"                ,lua_SET_CREATURE_PROPERTY           },
    //{"SET_CREATURE_TENDENCIES"              ,lua_SET_CREATURE_TENDENCIES         },

@@ -1829,4 +1829,32 @@ TbBool search_target_ranged_heal
     return ok;
 }
 
+void script_set_creature_instance(ThingModel crmodel, short slot, int instance, short level)
+{
+    struct CreatureStats *crstat = creature_stats_get(crmodel);
+
+    if (!creature_stats_invalid(crstat))
+    {
+        CrInstance old_instance = crstat->learned_instance_id[slot - 1];
+        crstat->learned_instance_id[slot - 1] = instance;
+        crstat->learned_instance_level[slot - 1] = level;
+        for (short i = 0; i < THINGS_COUNT; i++)
+        {
+            struct Thing* thing = thing_get(i);
+            if (thing_is_creature(thing))
+            {
+                if (thing->model == crmodel)
+                {
+                    if (old_instance != CrInst_NULL)
+                    {
+                        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                        cctrl->instance_available[old_instance] = false;
+                    }
+                    creature_increase_available_instances(thing);
+                }
+            }
+        }
+    }
+}
+
 /******************************************************************************/
