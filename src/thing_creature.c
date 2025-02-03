@@ -6251,22 +6251,24 @@ void process_cube_spell_effect_on_thing(struct Thing *thing, int cube_kind)
         if (!affected)
         {
             PlayerNumber plyr_idx = get_slab_owner_thing_is_on(thing);
-            if (cube_castability_can_target_creature(thing, plyr_idx, cubest->castability_flags)
-            && !creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
-            // Even though immunity is handled in 'apply_spell_effect_to_thing', check it here to prevent sound effects.
+            if (cube_castability_can_target_creature(thing, plyr_idx, cubest->castability_flags))
             {
                 struct SpellConfig* spconf = get_spell_config(cubest->spell_effect);
-                if (spconf->caster_affect_sound > 0)
+                // Even though immunity is handled in 'apply_spell_effect_to_thing', check it here to prevent sound effects.
+                if (!creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
                 {
-                    thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-                }
-                if (cubest->spell_level > 0)
-                {
-                    apply_spell_effect_to_thing(thing, cubest->spell_effect, cubest->spell_level-1, plyr_idx);
-                }
-                else
-                {
-                    apply_spell_effect_to_thing(thing, cubest->spell_effect, cctrl->exp_level, plyr_idx);
+                    if (spconf->caster_affect_sound > 0)
+                    {
+                        thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+                    }
+                    if (cubest->spell_level > 0)
+                    {
+                        apply_spell_effect_to_thing(thing, cubest->spell_effect, cubest->spell_level-1, plyr_idx);
+                    }
+                    else
+                    {
+                        apply_spell_effect_to_thing(thing, cubest->spell_effect, cctrl->exp_level, plyr_idx);
+                    }
                 }
             }
         }
