@@ -1050,9 +1050,9 @@ static int script_transfer_creature(PlayerNumber plyr_idx, ThingModel crmodel, l
 
 static void special_transfer_creature_process(struct ScriptContext* context)
 {
-    if ((my_player_number >= context->plr_start) && (my_player_number < context->plr_end))
+    if (my_player_number == context->player_idx)
     {
-        struct Thing *heartng = get_player_soul_container(context->plr_start);
+        struct Thing *heartng = get_player_soul_container(context->player_idx);
         struct PlayerInfo* player = get_my_player();
         start_transfer_creature(player, heartng);
     }
