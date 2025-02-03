@@ -5750,7 +5750,6 @@ static void play_message_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unrecognized message type: '%s'", scline->tp[1]);
         return;
     }
-    value->chars[0] = scline->np[0];
     value->chars[1] = msgtype_id;
     if (parameter_is_number(scline->tp[2]))
     {
@@ -5805,7 +5804,7 @@ static void play_message_process(struct ScriptContext *context)
     {
         volume = settings.mentor_volume;
     }
-    if ((context->value->chars[0] == my_player_number) || (context->value->chars[0] == ALL_PLAYERS))
+    if (context->player_idx == my_player_number)
     {
         if (!external)
         {
