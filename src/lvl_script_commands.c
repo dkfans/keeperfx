@@ -1651,7 +1651,7 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     value->chars[3] = flag_player_id;
     value->shorts[2] = flag_id;
     value->chars[6] = flag_type;
-    value->longs[0] = player_id;
+    value->longs[3] = player_id;
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -2268,7 +2268,7 @@ static void count_creatures_at_action_point_process(struct ScriptContext* contex
     long flag_player_id = context->value->chars[3];
     long flag_id = context->value->shorts[2];
     long flag_type = context->value->chars[6];
-    PlayerNumber player_id = context->value->longs[0];
+    PlayerNumber player_id = context->value->longs[3];
 
     long sum = 0;
 
