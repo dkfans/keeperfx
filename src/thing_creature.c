@@ -6251,7 +6251,9 @@ void process_cube_spell_effect_on_thing(struct Thing *thing, int cube_kind)
         if (!affected)
         {
             PlayerNumber plyr_idx = get_slab_owner_thing_is_on(thing);
-            if (cube_castability_can_target_creature(thing, plyr_idx, cubest->castability_flags))
+            if (cube_castability_can_target_creature(thing, plyr_idx, cubest->castability_flags)
+            && !creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
+            // Even though immunity is handled in 'apply_spell_effect_to_thing', check it here to prevent sound effects.
             {
                 struct SpellConfig* spconf = get_spell_config(cubest->spell_effect);
                 if (spconf->caster_affect_sound > 0)
