@@ -900,7 +900,7 @@ static void display_objective_check(const struct ScriptLine *scline)
 
 static void display_objective_process(struct ScriptContext *context)
 {
-    if ( (my_player_number >= context->plr_start) && (my_player_number < context->plr_end) )
+    if (my_player_number == context->player_idx)
     {
         set_general_objective(context->value->longs[0],
         context->value->longs[1],
