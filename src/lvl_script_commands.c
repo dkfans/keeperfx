@@ -5171,11 +5171,7 @@ static void use_power_on_players_creatures_process(struct ScriptContext* context
     KeepPwrLevel overchrg = context->value->shorts[3];
     PlayerNumber caster = context->value->shorts[4];
     TbBool free = context->value->shorts[5];
-
-    for (int i = context->plr_start; i < context->plr_end; i++)
-    {
-        cast_power_on_players_creatures(i, crmodel, pwr_idx, overchrg, caster, free);
-    }
+    cast_power_on_players_creatures(context->player_idx, crmodel, pwr_idx, overchrg, caster, free);
 }
 
 static void set_creature_instance_check(const struct ScriptLine *scline)
