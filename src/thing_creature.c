@@ -6237,6 +6237,7 @@ void process_cube_spell_effect_on_thing(struct Thing *thing, int cube_kind)
     if (cubest->spell_effect > 0)
     {
         // Check if already affected.
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         TbBool affected = false;
         for (int k = 0; k < CREATURE_MAX_SPELLS_CASTED_AT; k++)
         {
@@ -6285,7 +6286,7 @@ void process_landscape_affecting_creature(struct Thing *thing)
     cctrl->corpse_to_piss_on = 0;
     int stl_idx = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     int cube_kind = get_top_cube_at_pos(stl_idx);
-    process_thing_with_cube_effect(thing, cube_kind);
+    process_cube_spell_effect_on_thing(thing, cube_kind);
     unsigned long navheight = get_navigation_map_floor_height(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (subtile_coord(navheight, 0) == thing->mappos.z.val)
     {
