@@ -2192,30 +2192,28 @@ static void set_hand_rule_process(struct ScriptContext* context)
     long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
 
     struct Dungeon* dungeon;
-    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+    PlayerNumber plyr_idx = context->player_idx;
+    for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
     {
-        for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
-        {
 
-            //todo maybe should use creature_model_matches_model somewhere?
-            if (crtr_id == CREATURE_NOT_A_DIGGER)
+        //todo maybe should use creature_model_matches_model somewhere?
+        if (crtr_id == CREATURE_NOT_A_DIGGER)
+        {
+            if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,ci))
             {
-                if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,ci))
-                {
-                    continue;
-                }
+                continue;
             }
-            dungeon = get_dungeon(plyr_idx);
-            if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
-            {
-                dungeon->hand_rules[ci][hand_rule_slot].enabled = 1;
-                dungeon->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
-                dungeon->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
-                dungeon->hand_rules[ci][hand_rule_slot].param = param;
-            } else
-            {
-                dungeon->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
-            }
+        }
+        dungeon = get_dungeon(plyr_idx);
+        if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
+        {
+            dungeon->hand_rules[ci][hand_rule_slot].enabled = 1;
+            dungeon->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
+            dungeon->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
+            dungeon->hand_rules[ci][hand_rule_slot].param = param;
+        } else
+        {
+            dungeon->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
         }
     }
 }
