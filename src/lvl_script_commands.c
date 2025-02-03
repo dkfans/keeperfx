@@ -2883,19 +2883,16 @@ static void place_trap_process(struct ScriptContext* context)
     MapSubtlCoord stl_x = context->value->shorts[2];
     MapSubtlCoord stl_y = context->value->shorts[3];
     TbBool free = context->value->shorts[4];
-
-    for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
+    PlayerNumber plyridx = context->player_idx;
+    if (can_place_trap_on(plyridx, stl_x, stl_y, trapkind))
     {
-        if (can_place_trap_on(plyridx, stl_x, stl_y, trapkind))
+        if (free)
         {
-            if (free)
-            {
-                player_place_trap_without_check_at(stl_x, stl_y, plyridx, trapkind, free);
-            }
-            else
-            {
-                player_place_trap_at(stl_x, stl_y, plyridx, trapkind);
-            }
+            player_place_trap_without_check_at(stl_x, stl_y, plyridx, trapkind, free);
+        }
+        else
+        {
+            player_place_trap_at(stl_x, stl_y, plyridx, trapkind);
         }
     }
 }
