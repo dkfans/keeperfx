@@ -5844,11 +5844,8 @@ static void set_power_hand_process(struct ScriptContext *context)
 {
     long hand_idx = context->value->shorts[0];
     struct PlayerInfo * player;
-    for (int i = context->plr_start; i < context->plr_end; i++)
-    {
-        player = get_player(i);
-        player->hand_idx = hand_idx;
-    }
+    player = get_player(context->player_idx);
+    player->hand_idx = hand_idx;
 }
 
 static void add_effectgen_to_level_check(const struct ScriptLine* scline)
