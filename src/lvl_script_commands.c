@@ -2225,43 +2225,40 @@ static void move_creature_process(struct ScriptContext* context)
     long effect_id = context->value->shorts[4];
     long count = context->value->bytes[10];
     long crmodel = context->value->bytes[11];
-
-    for (int i = context->plr_start; i < context->plr_end; i++)
+    PlayerNumber plyr_idx = context->player_idx;
+    for (int i = 0; i < count; i++)
     {
-        for (int count_i = 0; count_i < count; count_i++)
-        {
-            struct Thing *thing = script_get_creature_by_criteria(i, crmodel, select_id);
-            if (thing_is_invalid(thing) || thing_is_picked_up(thing)) {
-                continue;
-            }
-
-            if (effect_id < 0)
-            {
-                effect_id = ball_puff_effects[thing->owner];
-            }
-
-            struct Coord3d pos;
-            if(!get_coords_at_location(&pos,location,false)) {
-                SYNCDBG(5,"No valid coords for location %d",(int)location);
-                return;
-            }
-            struct CreatureControl *cctrl;
-            cctrl = creature_control_get_from_thing(thing);
-
-            if (effect_id > 0)
-            {
-                create_effect(&thing->mappos, effect_id, game.neutral_player_num);
-                create_effect(&pos, effect_id, game.neutral_player_num);
-            }
-            move_thing_in_map(thing, &pos);
-            reset_interpolation_of_thing(thing);
-            if (!is_thing_some_way_controlled(thing))
-            {
-                initialise_thing_state(thing, CrSt_CreatureDoingNothing);
-            }
-            cctrl->turns_at_job = -1;
-            check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, select_id);
+        if (thing_is_invalid(thing) || thing_is_picked_up(thing)) {
+            continue;
         }
+
+        if (effect_id < 0)
+        {
+            effect_id = ball_puff_effects[thing->owner];
+        }
+
+        struct Coord3d pos;
+        if(!get_coords_at_location(&pos,location,false)) {
+            SYNCDBG(5,"No valid coords for location %d",(int)location);
+            return;
+        }
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+
+        if (effect_id > 0)
+        {
+            create_effect(&thing->mappos, effect_id, game.neutral_player_num);
+            create_effect(&pos, effect_id, game.neutral_player_num);
+        }
+        move_thing_in_map(thing, &pos);
+        reset_interpolation_of_thing(thing);
+        if (!is_thing_some_way_controlled(thing))
+        {
+            initialise_thing_state(thing, CrSt_CreatureDoingNothing);
+        }
+        cctrl->turns_at_job = -1;
+        check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     }
 }
 
