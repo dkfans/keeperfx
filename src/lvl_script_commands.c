@@ -1626,8 +1626,9 @@ static void move_creature_check(const struct ScriptLine* scline)
 
 static void count_creatures_at_action_point_check(const struct ScriptLine* scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
+    PlayerNumber player_id = scline->np[1];
     long crmodel = parse_creature_name(scline->tp[2]);
     if (crmodel == CREATURE_NONE)
     {
@@ -1650,6 +1651,7 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     value->chars[3] = flag_player_id;
     value->shorts[2] = flag_id;
     value->chars[6] = flag_type;
+    value->longs[0] = player_id;
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -2266,11 +2268,22 @@ static void count_creatures_at_action_point_process(struct ScriptContext* contex
     long flag_player_id = context->value->chars[3];
     long flag_id = context->value->shorts[2];
     long flag_type = context->value->chars[6];
+    PlayerNumber player_id = context->value->longs[0];
 
     long sum = 0;
-    for (int i = context->plr_start; i < context->plr_end; i++) {
-        sum += count_player_creatures_of_model_in_action_point(i, crmodel, action_point_number_to_index(ap_num));
+
+    if (player_id == ALL_PLAYERS)
+    {
+        for (int i = 0; i < PLAYERS_COUNT; i++)
+        {
+            sum += count_player_creatures_of_model_in_action_point(i, crmodel, action_point_number_to_index(ap_num));
+        }
     }
+    else
+    {
+        sum = count_player_creatures_of_model_in_action_point(player_id, crmodel, action_point_number_to_index(ap_num));
+    }
+
     set_variable(flag_player_id, flag_type, flag_id, sum);
 }
 
