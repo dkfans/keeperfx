@@ -1070,13 +1070,11 @@ static void script_transfer_creature_check(const struct ScriptLine* scline)
     if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
-        DEALLOCATE_SCRIPT_VALUE
         return;
     }
     long select_id = parse_criteria(scline->tp[2]);
     if (select_id == -1) {
         SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[2]);
-        DEALLOCATE_SCRIPT_VALUE
         return;
     }
     if (scline->np[3] == '\0')
