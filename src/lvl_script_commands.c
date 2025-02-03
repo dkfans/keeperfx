@@ -1065,7 +1065,6 @@ static void special_transfer_creature_check(const struct ScriptLine* scline)
 
 static void script_transfer_creature_check(const struct ScriptLine* scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0])
     long crtr_id = parse_creature_name(scline->tp[1]);
     long count = scline->np[3];
     if (crtr_id == CREATURE_NONE)
