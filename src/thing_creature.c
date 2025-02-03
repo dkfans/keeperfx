@@ -6264,7 +6264,7 @@ void process_cube_spell_effect_on_thing(struct Thing *thing, int cube_kind)
                 }
                 else
                 {
-                    apply_spell_effect_to_thing(thing, cubest->spell_effect, cctrl->explevel, plyr_idx);
+                    apply_spell_effect_to_thing(thing, cubest->spell_effect, cctrl->exp_level, plyr_idx);
                 }
             }
         }
