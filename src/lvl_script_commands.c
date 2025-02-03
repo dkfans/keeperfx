@@ -2811,30 +2811,27 @@ static void place_door_process(struct ScriptContext* context)
     TbBool locked = context->value->shorts[4];
     TbBool free = context->value->shorts[5];
     TbBool success;
-
-    for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
+    PlayerNumber plyridx = context->player_idx;
+    if (tag_cursor_blocks_place_door(plyridx, stl_x, stl_y))
     {
-        if (tag_cursor_blocks_place_door(plyridx, stl_x, stl_y))
+        if (!free)
         {
-            if (!free)
+            if (!is_door_placeable(plyridx, doorkind))
             {
-                if (!is_door_placeable(plyridx, doorkind))
-                {
-                    continue;
-                }
+                return;
             }
-            success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind, free);
-            if (success)
+        }
+        success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind, free);
+        if (success)
+        {
+            delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
+            remove_dead_creatures_from_slab(slb_x, slb_y);
+            if (locked)
             {
-                delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
-                remove_dead_creatures_from_slab(slb_x, slb_y);
-                if (locked)
+                struct Thing* doortng = get_door_for_position(stl_x, stl_y);
+                if (!thing_is_invalid(doortng))
                 {
-                    struct Thing* doortng = get_door_for_position(stl_x, stl_y);
-                    if (!thing_is_invalid(doortng))
-                    {
-                        lock_door(doortng);
-                    }
+                    lock_door(doortng);
                 }
             }
         }
