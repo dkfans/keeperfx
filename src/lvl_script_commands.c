@@ -5029,10 +5029,7 @@ static void use_spell_on_players_creatures_process(struct ScriptContext *context
     long crmodel = context->value->shorts[1];
     long spell_idx = context->value->shorts[2];
     CrtrExpLevel overchrg = context->value->shorts[3];
-    for (int i = context->plr_start; i < context->plr_end; i++)
-    {
-        apply_spell_effect_to_players_creatures(i, crmodel, spell_idx, overchrg);
-    }
+    apply_spell_effect_to_players_creatures(context->player_idx, crmodel, spell_idx, overchrg);
 }
 
 static void use_power_on_players_creatures_check(const struct ScriptLine* scline)
