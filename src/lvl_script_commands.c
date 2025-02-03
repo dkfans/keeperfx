@@ -6356,14 +6356,11 @@ static void set_player_colour_check(const struct ScriptLine *scline)
 
 static void set_player_colour_process(struct ScriptContext *context)
 {
-    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+    if (context->player_idx == PLAYER_NEUTRAL)
     {
-        if (plyr_idx == PLAYER_NEUTRAL)
-        {
-            continue;
-        }
-        set_player_colour(plyr_idx , context->value->bytes[0]);
+        return;
     }
+    set_player_colour(context->player_idx, context->value->bytes[0]);
 }
 
 static void set_game_rule_check(const struct ScriptLine* scline)
