@@ -164,9 +164,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   {
       // TODO: move two functions up
       struct ScriptContext context;
-      context.plr_start = plr_start;
-      context.plr_end = plr_end;
-      // TODO: this should be checked for sanity
+      
       for (i=plr_start; i < plr_end; i++)
       {
           context.player_idx = i;
