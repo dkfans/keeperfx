@@ -2579,8 +2579,7 @@ static void set_heart_health_process(struct ScriptContext *context)
 
 static void add_heart_health_check(const struct ScriptLine *scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->longs[0] = scline->np[0];
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     value->longs[1] = scline->np[1];
     value->longs[2] = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -2588,7 +2587,7 @@ static void add_heart_health_check(const struct ScriptLine *scline)
 
 static void add_heart_health_process(struct ScriptContext *context)
 {
-    struct Thing* heartng = get_player_soul_container(context->value->longs[0]);
+    struct Thing* heartng = get_player_soul_container(context->player_idx);
     if (!thing_is_invalid(heartng))
     {
         struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
