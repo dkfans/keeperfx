@@ -1065,16 +1065,19 @@ static void special_transfer_creature_check(const struct ScriptLine* scline)
 
 static void script_transfer_creature_check(const struct ScriptLine* scline)
 {
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0])
     long crtr_id = parse_creature_name(scline->tp[1]);
     long count = scline->np[3];
     if (crtr_id == CREATURE_NONE)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
         return;
     }
     long select_id = parse_criteria(scline->tp[2]);
     if (select_id == -1) {
         SCRPTERRLOG("Unknown select criteria, '%s'", scline->tp[2]);
+        DEALLOCATE_SCRIPT_VALUE
         return;
     }
     if (scline->np[3] == '\0')
@@ -1095,10 +1098,7 @@ static void script_transfer_creature_check(const struct ScriptLine* scline)
 
 static void script_transfer_creature_process(struct ScriptContext* context)
 {
-    for (int i = context->plr_start; i < context->plr_end; i++)
-    {
-        script_transfer_creature(i, context->value->longs[0], context->value->longs[1], context->value->longs[2]);
-    }
+    script_transfer_creature(context->player_idx, context->value->longs[0], context->value->longs[1], context->value->longs[2]);
 }
 
 static void change_creatures_annoyance_check(const struct ScriptLine* scline)
