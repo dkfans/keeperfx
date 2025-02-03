@@ -213,39 +213,39 @@ void draw_ornate_slab64k(long pos_x, long pos_y, int units_per_px, long width, l
 {
     draw_slab64k_background(pos_x, pos_y, width, height);
     const struct TbSprite* spr = get_button_sprite(GBS_parchment_map_frame_deco_a_tl);
-    int bs_units_per_spr = scale_ui_value_lofi(2048)/spr->SWidth;
+    int bs_units_per_spr = scale_ui_value(2048/spr->SWidth);
     int i;
-    for (i= scale_ui_value_lofi(10); i < width- scale_ui_value_lofi(12); i+= scale_ui_value_lofi(32))
+    for (i= scale_ui_value(10); i < width- scale_ui_value(12); i+= scale_ui_value(32))
     {
         spr = get_button_sprite(GBS_borders_frame_thin_tc);
-        LbSpriteDrawResized(pos_x + i, pos_y - scale_ui_value_lofi(4), bs_units_per_spr, spr);
+        LbSpriteDrawResized(pos_x + i, pos_y - scale_ui_value(4), bs_units_per_spr, spr);
         spr = get_button_sprite(GBS_borders_frame_thin_bc);
         LbSpriteDrawResized(pos_x + i, pos_y + height, bs_units_per_spr, spr);
     }
-    for (i= scale_ui_value_lofi(10); i < height- scale_ui_value_lofi(16); i+= scale_ui_value_lofi(32))
+    for (i= scale_ui_value(10); i < height- scale_ui_value(16); i+= scale_ui_value(32))
     {
         spr = get_button_sprite(GBS_borders_frame_thin_ml);
-        LbSpriteDrawResized(pos_x - scale_ui_value_lofi(4), pos_y + i, bs_units_per_spr, spr);
+        LbSpriteDrawResized(pos_x - scale_ui_value(4), pos_y + i, bs_units_per_spr, spr);
         spr = get_button_sprite(GBS_borders_frame_thin_mr);
         LbSpriteDrawResized(pos_x + width, pos_y + i, bs_units_per_spr, spr);
     }
     spr = get_button_sprite(GBS_borders_frame_thin_tl);
-    LbSpriteDrawResized(pos_x - scale_ui_value_lofi(4), pos_y - scale_ui_value_lofi(4), bs_units_per_spr, spr);
+    LbSpriteDrawResized(pos_x - scale_ui_value(4), pos_y - scale_ui_value(4), bs_units_per_spr, spr);
     spr = get_button_sprite(GBS_borders_frame_thin_tr);
-    LbSpriteDrawResized(pos_x + width - scale_ui_value_lofi(28), pos_y - scale_ui_value_lofi(4), bs_units_per_spr, spr);
+    LbSpriteDrawResized(pos_x + width - scale_ui_value(28), pos_y - scale_ui_value(4), bs_units_per_spr, spr);
     spr = get_button_sprite(GBS_borders_frame_thin_bl);
-    LbSpriteDrawResized(pos_x - scale_ui_value_lofi(4), pos_y + height - scale_ui_value_lofi(28), bs_units_per_spr, spr);
+    LbSpriteDrawResized(pos_x - scale_ui_value(4), pos_y + height - scale_ui_value(28), bs_units_per_spr, spr);
     spr = get_button_sprite(GBS_borders_frame_thin_br);
-    LbSpriteDrawResized(pos_x + width - scale_ui_value_lofi(28), pos_y + height - scale_ui_value_lofi(28), bs_units_per_spr, spr);
+    LbSpriteDrawResized(pos_x + width - scale_ui_value(28), pos_y + height - scale_ui_value(28), bs_units_per_spr, spr);
     spr = get_button_sprite(GBS_parchment_map_frame_deco_a_tl);
-    LbSpriteDrawResized(pos_x - scale_ui_value_lofi(32), pos_y - scale_ui_value_lofi(14), bs_units_per_spr, spr);
+    LbSpriteDrawResized(pos_x - scale_ui_value(32), pos_y - scale_ui_value(14), bs_units_per_spr, spr);
     spr = get_button_sprite(GBS_parchment_map_frame_deco_a_bl);
-    LbSpriteDrawResized(pos_x - scale_ui_value_lofi(34), pos_y + height - scale_ui_value_lofi(78), bs_units_per_spr, spr);
+    LbSpriteDrawResized(pos_x - scale_ui_value(34), pos_y + height - scale_ui_value(78), bs_units_per_spr, spr);
     lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
     spr = get_button_sprite(GBS_parchment_map_frame_deco_a_tl);
-    LbSpriteDrawResized(pos_x + width - scale_ui_value_lofi(96), pos_y - scale_ui_value_lofi(14), bs_units_per_spr, spr);
+    LbSpriteDrawResized(pos_x + width - scale_ui_value(96), pos_y - scale_ui_value(14), bs_units_per_spr, spr);
     spr = get_button_sprite(GBS_parchment_map_frame_deco_a_bl);
-    LbSpriteDrawResized(pos_x + width - scale_ui_value_lofi(92), pos_y + height - scale_ui_value_lofi(78), bs_units_per_spr, spr);
+    LbSpriteDrawResized(pos_x + width - scale_ui_value(92), pos_y + height - scale_ui_value(78), bs_units_per_spr, spr);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
 }
 
