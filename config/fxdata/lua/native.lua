@@ -525,7 +525,7 @@ function PLACE_TRAP(player,trapname,subtile_x,subtile_y,free) end
 ------------------------
 --Manipulating Configs--
 ------------------------
-
+--[[
 ---Allows you to make changes to door values set in rules.cfg
 ---@param rulename string
 ---@param val1 integer
@@ -586,7 +586,7 @@ function SET_ROOM_CONFIGURATION(room_type,property,value,value2,value3) end
 function SET_SACRIFICE_RECIPE() end
 function REMOVE_SACRIFICE_RECIPE() end
 
-
+]]
 -------------------------------
 --Manipulating Creature stats-
 -------------------------------
@@ -633,7 +633,7 @@ function RESEARCH_ORDER(player,research_type,room_or_spell,research_value) end
 
 
 
-
+--[[
 ----------------------------------------
 --Tweaking players--
 ----------------------------------------
@@ -660,7 +660,7 @@ function SET_PLAYER_MODIFIER(player,modifier,value) end
 ---@param value integer
 function ADD_TO_PLAYER_MODIFIER(player,modifier,value) end
 
-
+--]]
 
 
 -----------------------------
@@ -672,6 +672,8 @@ function ADD_TO_PLAYER_MODIFIER(player,modifier,value) end
 ---@param origin location The origin location, e.g. PLAYER1 or 1 to go from an action point.
 ---@param destination location The location to dig to, e.g. PLAYER0.
 function COMPUTER_DIG_TO_LOCATION(player,origin,destination) end
+
+--[[
 
 ---Allows the player to configure the behavior of an AI for specific criteria.
 ---@param player playersingle the AI player affected
@@ -827,6 +829,7 @@ function SET_CREATURE_TENDENCIES(player,tendency,value) end
 ---@param player Player
 ---@param level integer
 function CREATURE_ENTRANCE_LEVEL(player,level) end
+]]
 
 ---Makes a player unable to exit possession mode. Does not start possession.
 ---@param player playersingle The player’s name, e.g. PLAYER1, that will be unable to exit possession.

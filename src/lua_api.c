@@ -1131,15 +1131,13 @@ static int lua_HIDE_HERO_GATE(lua_State *L)
 
 static int lua_get_creature_near(lua_State *L)
 {
-    // the arguments lua passes to the C code
-    int stl_x = lua_tointeger(L, 1); // the last number is the position of the argument, just increment these
-    int stl_y = lua_tointeger(L, 2);
+    MapSubtlCoord stl_x = luaL_checkstl_x(L, 1);
+    MapSubtlCoord stl_y = luaL_checkstl_y(L, 2);
 
     struct Thing *thing = get_creature_near(stl_x * COORD_PER_STL, stl_y * COORD_PER_STL);
 
-    // arguments you push back to lua
     lua_pushThing(L, thing);
-    return 1; // return value is the amount of args you push back
+    return 1;
 }
 
 static int lua_get_thing_by_idx(lua_State *L)
@@ -1292,7 +1290,6 @@ static const luaL_Reg global_methods[] = {
    //{"SET_ROOM_CONFIGURATION"               ,lua_SET_ROOM_CONFIGURATION          },
    {"SET_SACRIFICE_RECIPE"                 ,lua_SET_SACRIFICE_RECIPE            },
    {"REMOVE_SACRIFICE_RECIPE"              ,lua_REMOVE_SACRIFICE_RECIPE         },
-   {"SET_MUSIC"                            ,lua_SET_MUSIC                       },
 
 
 //Manipulating Creature stats
@@ -1341,6 +1338,7 @@ static const luaL_Reg global_methods[] = {
    {"SET_HAND_GRAPHIC"                     ,lua_SET_HAND_GRAPHIC                },
    {"SET_INCREASE_ON_EXPERIENCE"           ,lua_SET_INCREASE_ON_EXPERIENCE      },
 */
+   {"SET_MUSIC"                            ,lua_SET_MUSIC                       },
    {"ZOOM_TO_LOCATION"                     ,lua_ZOOM_TO_LOCATION                },
    {"LOCK_POSSESSION"                      ,lua_LOCK_POSSESSION                 },
    {"SET_DIGGER"                           ,lua_SET_DIGGER                      },
