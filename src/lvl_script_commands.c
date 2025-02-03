@@ -4496,8 +4496,7 @@ static void display_countdown_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unknown timer, '%s'", timrname);
         return;
     }
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->bytes[0] = (unsigned char)scline->np[0];
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     value->bytes[1] = timr_id;
     value->longs[1] = scline->np[2];
     value->bytes[2] = (TbBool)scline->np[3];
