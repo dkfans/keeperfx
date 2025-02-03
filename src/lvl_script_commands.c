@@ -992,7 +992,6 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    value->plyr_range = scline->np[0];
     value->shorts[1] = start_x;
     value->shorts[2] = end_x;
     value->shorts[3] = start_y;
