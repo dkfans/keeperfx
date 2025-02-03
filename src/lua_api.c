@@ -546,9 +546,25 @@ static int lua_DISPLAY_COUNTDOWN(lua_State *L)
     game.flags_gui |= GGUI_ScriptTimer;
     return 0;    
 }
-//static int lua_DISPLAY_VARIABLE(lua_State *L)
-//static int lua_HIDE_VARIABLE(lua_State *L)
 
+static int lua_DISPLAY_VARIABLE(lua_State *L)
+{
+    PlayerNumber player   = luaL_checkPlayerSingle(L, 1);
+    int variable = luaL_checkinteger(L,2);
+    int target = luaL_checkinteger(L,3);
+
+    gameadd.script_player = player;
+    gameadd.script_value_type = variable;
+    gameadd.script_value_id = target;
+    game.flags_gui |= GGUI_Variable;
+    return 0;
+}
+
+static int lua_HIDE_VARIABLE(lua_State *L)
+{
+    game.flags_gui &= ~GGUI_Variable;
+    return 0;
+}
 
 //Manipulating Map
 
@@ -656,7 +672,40 @@ static int lua_ADD_EFFECT_GENERATOR_TO_LEVEL(lua_State *L)
 }
 
 
+/*
+static int lua_PLACE_DOOR(lua_State *L)
+{
+    PlayerNumber player_idx = luaL_checkPlayerSingle(L,1);
+    long door_id = luaL_checkNamedCommand(L,2,door_desc);
+    MapSlabCoord slb_x = luaL_checkslb_x(L,3);
+    MapSlabCoord slb_y = luaL_checkslb_y(L,4);
+    TbBool locked = lua_toboolean(L,5);
+    TbBool free = lua_toboolean(L,6);
 
+
+}
+
+static int lua_PLACE_TRAP(lua_State *L)
+{
+    PlayerNumber player_idx = luaL_checkPlayerSingle(L,1);
+    long trap_id = luaL_checkNamedCommand(L,2,trap_desc);
+    MapSubtlCoord stl_x = luaL_checkstl_x(L,3);
+    MapSubtlCoord stl_y = luaL_checkstl_y(L,4);
+    TbBool free = lua_toboolean(L,5);
+
+    struct Thing* traptng = script_process_new_object(trap_id, stl_x, stl_y, 0, player_idx, 0);
+    if (thing_is_invalid(traptng))
+    {
+        SCRPTERRLOG("Failed to create trap");
+        return 0;
+    }
+    if (free)
+        set_trap_free(traptng);
+    return 0;
+}
+
+
+*/
 //Manipulating Configs
 /*
 static int lua_SET_GAME_RULE(lua_State *L)
@@ -739,17 +788,68 @@ static int lua_SET_GAME_RULE(lua_State *L)
 }
 
 */
-//static int lua_SET_HAND_RULE(lua_State *L)
+/*
+// SET_HAND_RULE([player],[creature],[rule_slot],[rule_action],[rule]*,[param]*)
+static int lua_SET_HAND_RULE(lua_State *L)
+{
+    PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
+    long crtr_id = luaL_checkNamedCommand(L,2,creature_desc);
+    long rule_slot = luaL_checkinteger(L, 3);
+    long rule_action = luaL_checkNamedCommand(L,4,rule_action_desc);
+    long rule = luaL_checkNamedCommand(L,4,rule_action_desc);
+    long param = luaL_integer(L, 5);
+    
+    long crtr_id_start = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? 0 : crtr_id;
+    long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
+
+    struct Dungeon* dungeon;
+    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+    {
+        for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
+        {
+
+            //todo maybe should use creature_model_matches_model somewhere?
+            if (crtr_id == CREATURE_NOT_A_DIGGER)
+            {
+                if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,ci))
+                {
+                    continue;
+                }
+            }
+            dungeon = get_dungeon(plyr_idx);
+            if (rule_action == HandRuleAction_Allow || rule_action == HandRuleAction_Deny)
+            {
+                dungeon->hand_rules[ci][rule_slot].enabled = 1;
+                dungeon->hand_rules[ci][rule_slot].type = rule_action;
+                dungeon->hand_rules[ci][rule_slot].allow = rule_action;
+                dungeon->hand_rules[ci][rule_slot].param = param;
+            } else
+            {
+                dungeon->hand_rules[ci][rule_slot].enabled = rule_action == HandRuleAction_Enable;
+            }
+        }
+    }
+
+}
+*/
+
 //static int lua_SET_DOOR_CONFIGURATION(lua_State *L)
 //static int lua_SET_OBJECT_CONFIGURATION(lua_State *L)
 //static int lua_SET_TRAP_CONFIGURATION(lua_State *L)
 //static int lua_SET_CREATURE_CONFIGURATION(lua_State *L)
 //static int lua_SET_EFFECT_GENERATOR_CONFIGURATION(lua_State *L)
 //static int lua_SET_POWER_CONFIGURATION(lua_State *L)
-//static int lua_SWAP_CREATURE(lua_State *L)
-//{
-//
-//}
+
+
+static int lua_SWAP_CREATURE(lua_State *L)
+{
+    long crtr_id1 = luaL_checkNamedCommand(L,1,creature_desc);
+    long crtr_id2 = luaL_checkNamedCommand(L,2,creature_desc);
+
+    swap_creature(crtr_id1, crtr_id2);
+    return 0;
+}
+
 static int lua_SET_SACRIFICE_RECIPE(lua_State *L)
 {
 
@@ -952,6 +1052,48 @@ static int lua_SET_MUSIC(lua_State *L)
 }
 
 
+static int lua_ZOOM_TO_LOCATION(lua_State *L)
+{
+    PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
+    TbMapLocation location = luaL_checkLocation(L,  2);
+    struct Coord3d pos;
+    
+    find_location_pos(location, player_idx, &pos, __func__);
+    set_player_zoom_to_position(get_player(player_idx),&pos);
+
+    return 0;
+}
+
+static int lua_LOCK_POSSESSION(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    TbBool locked = lua_toboolean(L, 2);
+
+    struct PlayerInfo *player;
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        player = get_player(i);
+        if (player_exists(player))
+        {
+            player->possession_lock = locked;
+        }
+    }
+
+    return 0;
+}
+
+static int lua_SET_DIGGER(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long new_dig_model = luaL_checkNamedCommand(L,2,creature_desc);
+
+    for (PlayerNumber plyr_idx = player_range.start_idx; plyr_idx <= player_range.end_idx; plyr_idx++)
+    {
+        update_players_special_digger_model(plyr_idx, new_dig_model);
+    }
+    return 0;
+}
+
 /*
 static int lua_MESSAGE(lua_State *L)
 static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
@@ -1113,8 +1255,8 @@ static const luaL_Reg global_methods[] = {
    //{"PLAY_MESSAGE"                         ,lua_PLAY_MESSAGE                    },
    {"TUTORIAL_FLASH_BUTTON"                ,lua_TUTORIAL_FLASH_BUTTON           },
    {"DISPLAY_COUNTDOWN"                    ,lua_DISPLAY_COUNTDOWN               },
-   //{"DISPLAY_VARIABLE"                     ,lua_DISPLAY_VARIABLE                },
-   //{"HIDE_VARIABLE"                        ,lua_HIDE_VARIABLE                   },
+   {"DISPLAY_VARIABLE"                     ,lua_DISPLAY_VARIABLE                },
+   {"HIDE_VARIABLE"                        ,lua_HIDE_VARIABLE                   },
 
 //Manipulating Map
    {"REVEAL_MAP_LOCATION"                  ,lua_REVEAL_MAP_LOCATION             },
@@ -1123,23 +1265,22 @@ static const luaL_Reg global_methods[] = {
    {"SET_DOOR"                             ,lua_SET_DOOR                        },
    {"ADD_OBJECT_TO_LEVEL"                  ,lua_ADD_OBJECT_TO_LEVEL             },
    {"ADD_EFFECT_GENERATOR_TO_LEVEL"        ,lua_ADD_EFFECT_GENERATOR_TO_LEVEL   },
-/*
+
 //Manipulating Configs
-   {"SET_GAME_RULE"                        ,lua_SET_GAME_RULE                   },
-   {"SET_HAND_RULE"                        ,lua_SET_HAND_RULE                   },
-   {"SET_DOOR_CONFIGURATION"               ,lua_SET_DOOR_CONFIGURATION          },
-   {"NEW_OBJECT_TYPE"                      ,lua_NEW_OBJECT_TYPE                 },
-   {"SET_OBJECT_CONFIGURATION"             ,lua_SET_OBJECT_CONFIGURATION        },
-   {"NEW_TRAP_TYPE"                        ,lua_NEW_TRAP_TYPE                   },
-   {"SET_TRAP_CONFIGURATION"               ,lua_SET_TRAP_CONFIGURATION          },
-   {"NEW_CREATURE_TYPE"                    ,lua_NEW_CREATURE_TYPE               },
-   {"SET_CREATURE_CONFIGURATION"           ,lua_SET_CREATURE_CONFIGURATION      },
-   {"SET_EFFECT_GENERATOR_CONFIGURATION"   ,lua_SET_EFFECT_GENERATOR_CONFIGURATI},
-   {"SET_POWER_CONFIGURATION"              ,lua_SET_POWER_CONFIGURATION         },
+   //{"SET_GAME_RULE"                        ,lua_SET_GAME_RULE                   },
+   //{"SET_HAND_RULE"                        ,lua_SET_HAND_RULE                   },
+   //{"SET_DOOR_CONFIGURATION"               ,lua_SET_DOOR_CONFIGURATION          },
+   //{"NEW_OBJECT_TYPE"                      ,lua_NEW_OBJECT_TYPE                 },
+   //{"SET_OBJECT_CONFIGURATION"             ,lua_SET_OBJECT_CONFIGURATION        },
+   //{"NEW_TRAP_TYPE"                        ,lua_NEW_TRAP_TYPE                   },
+   //{"SET_TRAP_CONFIGURATION"               ,lua_SET_TRAP_CONFIGURATION          },
+   //{"NEW_CREATURE_TYPE"                    ,lua_NEW_CREATURE_TYPE               },
+   //{"SET_CREATURE_CONFIGURATION"           ,lua_SET_CREATURE_CONFIGURATION      },
+   //{"SET_EFFECT_GENERATOR_CONFIGURATION"   ,lua_SET_EFFECT_GENERATOR_CONFIGURATI},
+   //{"SET_POWER_CONFIGURATION"              ,lua_SET_POWER_CONFIGURATION         },
    {"SWAP_CREATURE"                        ,lua_SWAP_CREATURE                   },
-   {"NEW_ROOM_TYPE"                        ,lua_NEW_ROOM_TYPE                   },
-   {"SET_ROOM_CONFIGURATION"               ,lua_SET_ROOM_CONFIGURATION          },
-   */
+   //{"NEW_ROOM_TYPE"                        ,lua_NEW_ROOM_TYPE                   },
+   //{"SET_ROOM_CONFIGURATION"               ,lua_SET_ROOM_CONFIGURATION          },
    {"SET_SACRIFICE_RECIPE"                 ,lua_SET_SACRIFICE_RECIPE            },
    {"REMOVE_SACRIFICE_RECIPE"              ,lua_REMOVE_SACRIFICE_RECIPE         },
    {"SET_MUSIC"                            ,lua_SET_MUSIC                       },
@@ -1191,6 +1332,9 @@ static const luaL_Reg global_methods[] = {
    {"SET_HAND_GRAPHIC"                     ,lua_SET_HAND_GRAPHIC                },
    {"SET_INCREASE_ON_EXPERIENCE"           ,lua_SET_INCREASE_ON_EXPERIENCE      },
 */
+   {"ZOOM_TO_LOCATION"                     ,lua_ZOOM_TO_LOCATION                },
+   {"LOCK_POSSESSION"                      ,lua_LOCK_POSSESSION                 },
+   {"SET_DIGGER"                           ,lua_SET_DIGGER                      },
 
 //debug stuff
    {"print"           ,lua_print      },

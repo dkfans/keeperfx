@@ -505,6 +505,23 @@ function CHANGE_SLAB_TEXTURE(slab_x,slab_y,texture,fill) end
 ---@param slab_y integer The y coordinate of the door. Range 0-85 on a normal sized map.
 function SET_DOOR(lock_state,slab_x,slab_y) end
 
+---Places a door through the script. It needs to be placed on a valid and explored location.
+---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
+---@param doorname door_type The name of the door as defined in trapdoor.cfg.
+---@param slab_x integer The x coordinate of the door. Range 0-85 on a normal sized map.
+---@param slab_y integer The y coordinate of the door. Range 0-85 on a normal sized map.
+---@param locked boolean Whether the door is locked or not.
+---@param free boolean Whether the door is free or not.
+function PLACE_DOOR(player,doorname,slab_x,slab_y,locked,free) end
+
+---Places a trap through the script. It needs to be placed on a valid and explored location.
+---@param player playerrange The player’s name, e.g. PLAYER1. See players section for more information.
+---@param trapname trap_type The name of the trap as defined in trapdoor.cfg.
+---@param subtile_x integer The x coordinate of the trap. Range 1-254 on a normal sized map.
+---@param subtile_y integer The y coordinate of the trap. Range 1-254 on a normal sized map.
+---@param free boolean Whether the trap is free or not.
+function PLACE_TRAP(player,trapname,subtile_x,subtile_y,free) end
+
 ------------------------
 --Manipulating Configs--
 ------------------------
@@ -730,6 +747,11 @@ function CREATE_EFFECTS_LINE(origin,destination,curvature,distance, speed, effec
 --other-
 ---------
 
+---Moves the camera of a player to a specific location like an action point.
+---@param player playersingle
+---@param location location The location the camera will zoom to.
+function ZOOM_TO_LOCATION(player,location) end
+
 ---Casts an untargeted keeper power.
 ---@param caster_player Player
 ---@param power_name power_kind
@@ -762,7 +784,16 @@ function LOCATE_HIDDEN_WORLD() end
 function MAKE_SAFE(player) end
 function MAKE_UNSAFE(player) end
 
+---Changes the sprite of the power hand to a different one.
+---@param player playersingle The name of the player who's hand is changed.
+---@param hand string The name of the hand, as defined in powerhands.toml.
 function SET_HAND_GRAPHIC(player,hand) end
+
+---Allows you to make change to "IncreaseOnExp" variable, originally set in creature.cfg. 
+---@param valname string The name of the variable you want to change. Accepts 'SizeIncreaseOnExp', 'PayIncreaseOnExp', 'SpellDamageIncreaseOnExp', 'RangeIncreaseOnExp', 'JobValueIncreaseOnExp', 'HealthIncreaseOnExp', 'StrengthIncreaseOnExp', 'DexterityIncreaseOnExp', 'DefenseIncreaseOnExp', 'LoyaltyIncreaseOnExp', 'ExpForHittingIncreaseOnExp', 'TrainingCostIncreaseOnExp', 'ScavengingCostIncreaseOnExp'.
+---@param valnum integer The value you want to give it. 0 for no increase on experience. Range 0..32767.
+function SET_INCREASE_ON_EXPERIENCE(valname,valnum) end
+
 
 ---Chooses what music track to play
 ---@param track_number integer  The music track to be played. Numbers 2~7 select from original tracks, or a file name(between parenthesis) to set custom music.
@@ -797,8 +828,15 @@ function SET_CREATURE_TENDENCIES(player,tendency,value) end
 ---@param level integer
 function CREATURE_ENTRANCE_LEVEL(player,level) end
 
+---Makes a player unable to exit possession mode. Does not start possession.
+---@param player playersingle The player’s name, e.g. PLAYER1, that will be unable to exit possession.
+---@param locked boolean  Boolean, accepts LOCKED (1) or UNLOCKED (0). When true locks the player in possession, when false allows the player to exit again.
+function LOCK_POSSESSION(player,locked) end
 
-
+---Determines which digger creature takes the top spot in the creature menu.
+---@param player playerrange The player’s name, e.g. PLAYER1, that will get a different main digger.
+---@param creature creature_type The type of creature that will be the main digger.
+function SET_DIGGER(player,creature) end
 
 -------------------------------------------------------
 --functions only available in lua
@@ -856,3 +894,9 @@ function CHANGE_CREATURE_OWNER(creature,new_owner) end
 ---@param operation any
 ---@param annoyance integer
 function CHANGE_CREATURES_ANNOYANCE(player,creature,operation,annoyance) end
+
+---Levels up all creatures of a specific kind for the player.
+---@param player playerrange The name of the player who gets leveled up creatures, e.g. PLAYER1.
+---@param creature creature_type Creature model that will level up. Accepts 'ANY_CREATURE'.
+---@param count integer The amount of times the creature levels up. Accepts negative values to level down.
+function LEVEL_UP_PLAYERS_CREATURES(player,creature,count) end

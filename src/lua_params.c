@@ -134,25 +134,30 @@ TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index)
     return location;
 }
 
-struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
+PlayerNumber luaL_checkPlayerRangeId(lua_State *L, int index)
 {
-    struct PlayerRange playerRange = {0,0};
     if (lua_istable(L, index))
     {
         lua_getfield(L, index, "playerId");
         if (lua_isnumber(L, -1)) {
             int i = lua_tointeger(L, -1);
-            playerRange.start_idx = i;
-            playerRange.end_idx   = i;
-            return playerRange;
+            return i;
         }
         luaL_error(L, "Expected table to be of class Player");
-        return playerRange;
+        return -1;
     }
 
     const char* plrname = lua_tostring(L, index);
 
-    long plr_range_id = get_id(player_desc, plrname);
+    return get_id(player_desc, plrname);
+}
+
+struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
+{
+    struct PlayerRange playerRange = {0,0};
+
+    long plr_range_id = luaL_checkPlayerRangeId(L,index);
+
     if (plr_range_id == ALL_PLAYERS)
     {
         playerRange.start_idx = 0;
@@ -169,13 +174,14 @@ struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
 
 PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
 {
-    struct PlayerRange playerRange = luaL_checkPlayerRange(L,index);
-    if(playerRange.start_idx != playerRange.end_idx)
+    PlayerNumber playerId = luaL_checkPlayerRangeId(L,index);
+    if(playerId == ALL_PLAYERS)
     {
         luaL_argerror (L,index,"player range not supported for this command");
     }
-    return playerRange.start_idx;
+    return playerId;
 }
+
 
 MapSubtlCoord luaL_checkstl_x(lua_State *L, int index)
 {
