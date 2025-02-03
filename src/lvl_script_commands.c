@@ -4943,47 +4943,44 @@ static void level_up_players_creatures_process(struct ScriptContext* context)
 {
     long crmodel = context->value->shorts[1];
     long count = context->value->shorts[2];
+    PlayerNumber plyridx = context->player_idx;
+    struct Dungeon* dungeon = get_players_num_dungeon(plyridx);
+    unsigned long k = 0;
 
-    for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
+    TbBool need_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(dungeon->owner, crmodel);
+    struct Thing* thing = INVALID_THING;
+    int i;
+    if ((!need_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
     {
-        struct Dungeon* dungeon = get_players_num_dungeon(plyridx);
-        unsigned long k = 0;
+        i = dungeon->creatr_list_start;
+    }
+    else
+    {
+        i = dungeon->digger_list_start;
+    }
 
-        TbBool need_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(dungeon->owner, crmodel);
-        struct Thing* thing = INVALID_THING;
-        int i;
-        if ((!need_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
-            i = dungeon->creatr_list_start;
+            ERRORLOG("Jump to invalid creature detected");
+            break;
         }
-        else
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (creature_matches_model(thing, crmodel))
         {
-            i = dungeon->digger_list_start;
+            creature_change_multiple_levels(thing, count);
         }
-
-        while (i != 0)
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
         {
-            thing = thing_get(i);
-            TRACE_THING(thing);
-            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-            {
-                ERRORLOG("Jump to invalid creature detected");
-                break;
-            }
-            i = cctrl->players_next_creature_idx;
-            // Thing list loop body
-            if (creature_matches_model(thing, crmodel))
-            {
-                creature_change_multiple_levels(thing, count);
-            }
-            // Thing list loop body ends
-            k++;
-            if (k > CREATURES_COUNT)
-            {
-                ERRORLOG("Infinite loop detected when sweeping creatures list");
-                break;
-            }
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
         }
     }
     SYNCDBG(19, "Finished");
