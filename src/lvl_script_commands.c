@@ -6832,47 +6832,44 @@ static void set_creature_max_level_process(struct ScriptContext* context)
     struct Dungeon* dungeon;
     short crtr_id = context->value->shorts[0];
     short crtr_lvl = context->value->shorts[1];
-    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+    PlayerNumber plyr_idx = context->player_idx;
+    if (plyr_idx != game.neutral_player_num)
     {
-        if (plyr_idx != game.neutral_player_num)
+        dungeon = get_dungeon(plyr_idx);
+        if (!is_creature_model_wildcard(crtr_id))
         {
-            dungeon = get_dungeon(plyr_idx);
-            if (!is_creature_model_wildcard(crtr_id))
-            {
-                if (crtr_id < game.conf.crtr_conf.model_count) {
-                    if (crtr_lvl < 0)
-                    {
-                        crtr_lvl = CREATURE_MAX_LEVEL + 1;
-                        dungeon->creature_max_level[crtr_id] = crtr_lvl;
-                        SCRIPTDBG(7,"Max level of creature '%s' set to default for player %d.", creature_code_name(crtr_id), (int)plyr_idx);
-                    } else {
-                        dungeon->creature_max_level[crtr_id] = crtr_lvl-1;
-                        SCRIPTDBG(7,"Max level of creature '%s' set to %d for player %d.", creature_code_name(crtr_id), crtr_lvl, (int)plyr_idx);
-                    }
-                }
-            } else
-            {
-                for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
+            if (crtr_id < game.conf.crtr_conf.model_count) {
+                if (crtr_lvl < 0)
                 {
-                    if (creature_model_matches_model(i, plyr_idx , crtr_id))
-                    {
-                        if (crtr_lvl < 0)
-                        {
-                            crtr_lvl = CREATURE_MAX_LEVEL + 1;
-                            dungeon->creature_max_level[i] = crtr_lvl;
-                            SCRIPTDBG(7,"Max level of creature '%s' set to default for player %d.", creature_code_name(i), (int)plyr_idx);
-                        } else {
-                            dungeon->creature_max_level[i] = crtr_lvl-1;
-                            SCRIPTDBG(7,"Max level of creature '%s' set to %d for player %d.", creature_code_name(i), crtr_lvl, (int)plyr_idx);
-                        }
-                    }
+                    crtr_lvl = CREATURE_MAX_LEVEL + 1;
+                    dungeon->creature_max_level[crtr_id] = crtr_lvl;
+                    SCRIPTDBG(7,"Max level of creature '%s' set to default for player %d.", creature_code_name(crtr_id), (int)plyr_idx);
+                } else {
+                    dungeon->creature_max_level[crtr_id] = crtr_lvl-1;
+                    SCRIPTDBG(7,"Max level of creature '%s' set to %d for player %d.", creature_code_name(crtr_id), crtr_lvl, (int)plyr_idx);
                 }
             }
         } else
         {
-            SCRPTERRLOG("Unable to manipulate max level of creature '%s', player %d has no dungeon.", creature_code_name(crtr_id), (int)plyr_idx);
-            break;
+            for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
+            {
+                if (creature_model_matches_model(i, plyr_idx , crtr_id))
+                {
+                    if (crtr_lvl < 0)
+                    {
+                        crtr_lvl = CREATURE_MAX_LEVEL + 1;
+                        dungeon->creature_max_level[i] = crtr_lvl;
+                        SCRIPTDBG(7,"Max level of creature '%s' set to default for player %d.", creature_code_name(i), (int)plyr_idx);
+                    } else {
+                        dungeon->creature_max_level[i] = crtr_lvl-1;
+                        SCRIPTDBG(7,"Max level of creature '%s' set to %d for player %d.", creature_code_name(i), crtr_lvl, (int)plyr_idx);
+                    }
+                }
+            }
         }
+    } else
+    {
+        SCRPTERRLOG("Unable to manipulate max level of creature '%s', player %d has no dungeon.", creature_code_name(crtr_id), (int)plyr_idx);
     }
 }
 
