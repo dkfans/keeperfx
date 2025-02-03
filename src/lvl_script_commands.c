@@ -4464,8 +4464,7 @@ static void display_variable_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unknown variable, '%s'", scline->tp[1]);
         return;
     }
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->bytes[0] = scline->np[0];
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     value->bytes[1] = scline->np[3];
     value->bytes[2] = varib_type;
     value->longs[1] = varib_id;
@@ -4475,7 +4474,7 @@ static void display_variable_check(const struct ScriptLine *scline)
 
 static void display_variable_process(struct ScriptContext *context)
 {
-   gameadd.script_player = context->value->bytes[0];
+   gameadd.script_player = context->player_idx;
    gameadd.script_value_type = context->value->bytes[2];
    gameadd.script_value_id = context->value->longs[1];
    gameadd.script_variable_target = context->value->longs[2];
