@@ -6149,8 +6149,9 @@ void process_magic_fall_effect(struct Thing *thing)
 
 TbBool cube_castability_can_target_creature(struct Thing *thing, PlayerNumber plyr_idx, unsigned short castability_flags)
 {
-    // Exclude spectators immediately.
-    if (flag_is_set(get_creature_model_flags(thing), CMF_IsSpectator))
+    // Exclude 'castability_flags == 0' or spectators immediately.
+    if ((castability_flags == 0)
+    || flag_is_set(get_creature_model_flags(thing), CMF_IsSpectator))
     {
         return false;
     }
@@ -6184,8 +6185,8 @@ TbBool cube_castability_can_target_creature(struct Thing *thing, PlayerNumber pl
             return false;
         }
     }
-    // Handle flying-related flags.
-    if (flag_is_set(thing->movement_flags, TMvF_Flying))
+    // Handle flying-related flags. A creature is considered flying if its z-position is above floor height at x/y coordinates. Relevant for possession.
+    if (thing->mappos.z.val > subtile_coord(get_navigation_map_floor_height(thing->mappos.x.stl.num, thing->mappos.y.stl.num), 0))
     {
         if (flag_is_set(castability_flags, CCF_NotFlying))
         {
@@ -6228,6 +6229,46 @@ TbBool cube_castability_can_target_creature(struct Thing *thing, PlayerNumber pl
     return false;
 }
 
+void process_cube_spell_effect_on_thing(struct Thing *thing, int cube_kind)
+{
+    // Cubes can apply spell effect if set.
+    struct CubeConfigStats* cubest = get_cube_model_stats(cube_kind);
+    if (cubest->spell_effect > 0)
+    {
+        // Check if already affected.
+        TbBool affected = false;
+        for (int k = 0; k < CREATURE_MAX_SPELLS_CASTED_AT; k++)
+        {
+            if (cctrl->casted_spells[k].spkind == cubest->spell_effect)
+            {
+                affected = true;
+                break;
+            }
+        }
+        // Do not cast if already affected.
+        if (!affected)
+        {
+            PlayerNumber plyr_idx = get_slab_owner_thing_is_on(thing);
+            if (cube_castability_can_target_creature(thing, plyr_idx, cubest->castability_flags))
+            {
+                struct SpellConfig* spconf = get_spell_config(cubest->spell_effect);
+                if (spconf->caster_affect_sound > 0)
+                {
+                    thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+                }
+                if (cubest->spell_level > 0)
+                {
+                    apply_spell_effect_to_thing(thing, cubest->spell_effect, cubest->spell_level-1, plyr_idx);
+                }
+                else
+                {
+                    apply_spell_effect_to_thing(thing, cubest->spell_effect, cctrl->explevel, plyr_idx);
+                }
+            }
+        }
+    }
+}
+
 void process_landscape_affecting_creature(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
@@ -6242,55 +6283,20 @@ void process_landscape_affecting_creature(struct Thing *thing)
     }
     cctrl->corpse_to_piss_on = 0;
     int stl_idx = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    int cube_kind = get_top_cube_at_pos(stl_idx);
+    process_thing_with_cube_effect(thing, cube_kind);
     unsigned long navheight = get_navigation_map_floor_height(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (subtile_coord(navheight, 0) == thing->mappos.z.val)
     {
-        int i = get_top_cube_at_pos(stl_idx);
-        if (cube_is_lava(i))
+        if (cube_is_lava(cube_kind))
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
             apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1);
             set_flag(thing->movement_flags, TMvF_IsOnLava);
         }
-        else if (cube_is_water(i))
+        else if (cube_is_water(cube_kind))
         {
             set_flag(thing->movement_flags, TMvF_IsOnWater);
-        }
-        // Cubes can apply spell effect if set.
-        struct CubeConfigStats* cubest = get_cube_model_stats(i);
-        if (cubest->spell_effect > 0)
-        {
-            // Check if already affected.
-            TbBool affected = false;
-            for (int k = 0; k < CREATURE_MAX_SPELLS_CASTED_AT; k++)
-            {
-                if (cctrl->casted_spells[k].spkind == cubest->spell_effect)
-                {
-                    affected = true;
-                    break;
-                }
-            }
-            // Do not cast if already affected.
-            if (!affected)
-            {
-                PlayerNumber plyr_idx = get_slab_owner_thing_is_on(thing);
-                if (cube_castability_can_target_creature(thing, plyr_idx, cubest->castability_flags))
-                {
-                    struct SpellConfig* spconf = get_spell_config(cubest->spell_effect);
-                    if (spconf->caster_affect_sound > 0)
-                    {
-                        thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-                    }
-                    if (cubest->spell_level > 0)
-                    {
-                        apply_spell_effect_to_thing(thing, cubest->spell_effect, cubest->spell_level-1, plyr_idx);
-                    }
-                    else
-                    {
-                        apply_spell_effect_to_thing(thing, cubest->spell_effect, cctrl->explevel, plyr_idx);
-                    }
-                }
-            }
         }
         process_creature_leave_footsteps(thing);
         process_creature_standing_on_corpses_at(thing, &thing->mappos);
