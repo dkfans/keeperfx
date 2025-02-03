@@ -7487,25 +7487,23 @@ static void set_digger_check(const struct ScriptLine* scline)
 static void set_digger_process(struct ScriptContext* context)
 {
     ThingModel new_dig_model = context->value->shorts[0];
-    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+    PlayerNumber plyr_idx = context->player_idx;
+    ThingModel old_dig_model = get_players_special_digger_model(plyr_idx);
+    if (old_dig_model == new_dig_model)
     {
-        ThingModel old_dig_model = get_players_special_digger_model(plyr_idx);
-        if (old_dig_model == new_dig_model)
-        {
-            continue;
-        }
-        struct PlayerInfo* player = get_player(plyr_idx);
-
-        player->special_digger = context->value->shorts[0];
-        for (size_t i = 0; i < CREATURE_TYPES_MAX; i++)
-        {
-            if (breed_activities[i] == old_dig_model)
-                breed_activities[i] = new_dig_model;
-            else if (breed_activities[i] == new_dig_model)
-                breed_activities[i] = old_dig_model;
-        }
-        update_creatr_model_activities_list(1);
+        return;
     }
+    struct PlayerInfo* player = get_player(plyr_idx);
+
+    player->special_digger = context->value->shorts[0];
+    for (size_t i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        if (breed_activities[i] == old_dig_model)
+            breed_activities[i] = new_dig_model;
+        else if (breed_activities[i] == new_dig_model)
+            breed_activities[i] = old_dig_model;
+    }
+    update_creatr_model_activities_list(1);
 }
 
 /**
