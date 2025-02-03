@@ -410,7 +410,7 @@ function ADD_PARTY_TO_LEVEL(owner,party_name,location,ncopies) end
 --------------------------------------------------
 --Displaying information and affecting interface--
 --------------------------------------------------
-
+--[[
 function QUICK_OBJECTIVE(a,objective,where) end
 function QUICK_INFORMATION() end
 
@@ -455,7 +455,7 @@ function HEART_LOST_QUICK_OBJECTIVE() end
 function HEART_LOST_OBJECTIVE() end
 function QUICK_MESSAGE() end
 
-
+]]
 --------------------
 --Manipulating Map-
 --------------------
