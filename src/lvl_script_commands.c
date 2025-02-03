@@ -5590,28 +5590,24 @@ static void set_texture_process(struct ScriptContext *context)
 {
     long texture_id = context->value->shorts[0];
     struct Dungeon* dungeon;
-    for (int i = context->plr_start; i < context->plr_end; i++)
+    PlayerNumber plyr_idx = context->player_idx;
+    dungeon = get_dungeon(plyr_idx);
+    dungeon->texture_pack = texture_id;
+
+    for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
-        dungeon = get_dungeon(i);
-        dungeon->texture_pack = texture_id;
-
-
-
-        for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+        for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
-            for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+            struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+            if (slabmap_owner(slb) == plyr_idx)
             {
-                struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
-                if (slabmap_owner(slb) == i)
+                if (texture_id == 0)
                 {
-                    if (texture_id == 0)
-                    {
-                        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
-                    }
-                    else
-                    {
-                        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
-                    }
+                    gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
+                }
+                else
+                {
+                    gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
                 }
             }
         }
