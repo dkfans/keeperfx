@@ -1120,10 +1120,7 @@ static void change_creatures_annoyance_check(const struct ScriptLine* scline)
 
 static void change_creatures_annoyance_process(struct ScriptContext* context)
 {
-    for (int i = context->plr_start; i < context->plr_end; i++)
-    {
-        script_change_creatures_annoyance(i, context->value->longs[0], context->value->longs[1], context->value->longs[2]);
-    }
+    script_change_creatures_annoyance(context->player_idx, context->value->longs[0], context->value->longs[1], context->value->longs[2]);
 }
 
 static void set_trap_configuration_check(const struct ScriptLine* scline)
