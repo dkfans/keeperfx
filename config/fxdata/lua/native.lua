@@ -599,7 +599,7 @@ function REMOVE_SACRIFICE_RECIPE(creature, ...) end
 --Manipulating Creature stats-
 -------------------------------
 
-function SET_CREATURE_INSTANCE(player,creature,max experience) end
+function SET_CREATURE_INSTANCE() end
 
 function SWAP_CREATURE() end
 
@@ -828,6 +828,8 @@ function MOVE_CREATURE() end
 ---@param texture string The name or number of the texture to use for the player, like 'STONE_FACE'. Accepts 'None' or '-1'.
 function SET_TEXTURE(player,texture) end
 
+]]
+
 ---Place any object at a specific place on the map
 ---@param object object_type The object name from fxdata\objects.cfg
 ---@param location location
@@ -836,6 +838,7 @@ function SET_TEXTURE(player,texture) end
 ---@return Thing object
 function ADD_OBJECT_TO_LEVEL(object,location,property,player) local ob return ob end
 
+--[[
 ---Allows to set tendencies: IMPRISON and FLEE, for a player's creatures.
 ---@param player Player
 ---@param tendency "IMPRISON"|"FLEE"
