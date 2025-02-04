@@ -2172,39 +2172,14 @@ static void set_room_configuration_process(struct ScriptContext *context)
 
 static void set_hand_rule_process(struct ScriptContext* context)
 {
+    PlayerNumber plyr_idx = context->player_idx;
     long crtr_id = context->value->shorts[0];
     long hand_rule_action = context->value->shorts[1];
     long hand_rule_slot = context->value->shorts[2];
     long hand_rule_type = context->value->shorts[3];
     long param = context->value->shorts[4];
-    long crtr_id_start = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? 0 : crtr_id;
-    long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
 
-    struct Dungeon* dungeon;
-    PlayerNumber plyr_idx = context->player_idx;
-    for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
-    {
-
-        //todo maybe should use creature_model_matches_model somewhere?
-        if (crtr_id == CREATURE_NOT_A_DIGGER)
-        {
-            if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,ci))
-            {
-                continue;
-            }
-        }
-        dungeon = get_dungeon(plyr_idx);
-        if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
-        {
-            dungeon->hand_rules[ci][hand_rule_slot].enabled = 1;
-            dungeon->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
-            dungeon->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
-            dungeon->hand_rules[ci][hand_rule_slot].param = param;
-        } else
-        {
-            dungeon->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
-        }
-    }
+    script_set_hand_rule(plyr_idx, crtr_id, hand_rule_action, hand_rule_slot, hand_rule_type, param);
 }
 
 static void move_creature_process(struct ScriptContext* context)

@@ -780,8 +780,7 @@ static int lua_SET_GAME_RULE(lua_State *L)
 }
 
 */
-/*
-// SET_HAND_RULE([player],[creature],[rule_slot],[rule_action],[rule]*,[param]*)
+
 static int lua_SET_HAND_RULE(lua_State *L)
 {
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
@@ -789,41 +788,12 @@ static int lua_SET_HAND_RULE(lua_State *L)
     long rule_slot = luaL_checkinteger(L, 3);
     long rule_action = luaL_checkNamedCommand(L,4,rule_action_desc);
     long rule = luaL_checkNamedCommand(L,4,rule_action_desc);
-    long param = luaL_integer(L, 5);
+    long param = luaL_checkinteger(L, 5);
     
-    long crtr_id_start = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? 0 : crtr_id;
-    long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
-
-    struct Dungeon* dungeon;
-    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
-    {
-        for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
-        {
-
-            //todo maybe should use creature_model_matches_model somewhere?
-            if (crtr_id == CREATURE_NOT_A_DIGGER)
-            {
-                if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,ci))
-                {
-                    continue;
-                }
-            }
-            dungeon = get_dungeon(plyr_idx);
-            if (rule_action == HandRuleAction_Allow || rule_action == HandRuleAction_Deny)
-            {
-                dungeon->hand_rules[ci][rule_slot].enabled = 1;
-                dungeon->hand_rules[ci][rule_slot].type = rule_action;
-                dungeon->hand_rules[ci][rule_slot].allow = rule_action;
-                dungeon->hand_rules[ci][rule_slot].param = param;
-            } else
-            {
-                dungeon->hand_rules[ci][rule_slot].enabled = rule_action == HandRuleAction_Enable;
-            }
-        }
-    }
-
+    script_set_hand_rule(player_idx, crtr_id, rule_action, rule_slot, rule, param);
+    return 0;
 }
-*/
+
 
 //static int lua_SET_DOOR_CONFIGURATION(lua_State *L)
 //static int lua_SET_OBJECT_CONFIGURATION(lua_State *L)
@@ -1033,11 +1003,6 @@ static int lua_COMPUTER_DIG_TO_LOCATION(lua_State *L)
 //static int lua_CREATE_EFFECT(lua_State *L)
 //static int lua_CREATE_EFFECT_AT_POS(lua_State *L)
 //static int lua_CREATE_EFFECTS_LINE(lua_State *L)
-
-
-
-
-
 
 
 
@@ -1271,7 +1236,7 @@ static const luaL_Reg global_methods[] = {
 
 //Manipulating Configs
    //{"SET_GAME_RULE"                        ,lua_SET_GAME_RULE                   },
-   //{"SET_HAND_RULE"                        ,lua_SET_HAND_RULE                   },
+   {"SET_HAND_RULE"                        ,lua_SET_HAND_RULE                   },
    //{"SET_DOOR_CONFIGURATION"               ,lua_SET_DOOR_CONFIGURATION          },
    //{"NEW_OBJECT_TYPE"                      ,lua_NEW_OBJECT_TYPE                 },
    //{"SET_OBJECT_CONFIGURATION"             ,lua_SET_OBJECT_CONFIGURATION        },

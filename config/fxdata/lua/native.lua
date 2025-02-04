@@ -583,13 +583,23 @@ function SET_POWER_CONFIGURATION(power_kind,property,value,value2) end
 ---@param value3 any
 function SET_ROOM_CONFIGURATION(room_type,property,value,value2,value3) end
 
-function SET_SACRIFICE_RECIPE() end
-function REMOVE_SACRIFICE_RECIPE() end
-
 ]]
+
+---Creates or modifies a Temple recipe.
+---@param command string The possible commands as listed in the sacrifices section in rules.cfg. Additionally, CUSTOMREWARD and CUSTOMPUNISH may be used. These play the respective sounds, and may increase the flag as configured for the reward parameter.
+---@param reward string The Creature, Spell or Unique function that is triggered when the Sacrifice completes, as seen in rules.cfg. Use FLAG0-FLAG7 to indicate which flag is raised when a player completes the sacrifice.
+---@param creature creature_type [creature1] to [creature5] are creature names, like HORNY. Only the first one is mandatory.
+function SET_SACRIFICE_RECIPE(command, reward, creature, ...) end
+
+---Removes a Temple recipe.
+---@param creature creature_type Where [creature2] to [creature5] are only needed when they are used in the recipe.
+function REMOVE_SACRIFICE_RECIPE(creature, ...) end
+
 -------------------------------
 --Manipulating Creature stats-
 -------------------------------
+
+function SET_CREATURE_INSTANCE(player,creature,max experience) end
 
 function SWAP_CREATURE() end
 
@@ -796,6 +806,7 @@ function SET_HAND_GRAPHIC(player,hand) end
 ---@param valnum integer The value you want to give it. 0 for no increase on experience. Range 0..32767.
 function SET_INCREASE_ON_EXPERIENCE(valname,valnum) end
 
+]]
 
 ---Chooses what music track to play
 ---@param track_number integer  The music track to be played. Numbers 2~7 select from original tracks, or a file name(between parenthesis) to set custom music.
@@ -803,7 +814,13 @@ function SET_MUSIC(track_number) end
 
 function SET_CREATURE_INSTANCE() end
 function SET_HAND_RULE() end
+
+
+
+--[[
 function MOVE_CREATURE() end
+
+
 
 
 ---Changes the slabs belonging to a specific player to a custom texture

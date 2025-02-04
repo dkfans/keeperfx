@@ -1797,16 +1797,6 @@ void reset_creature_max_levels(void)
     }
 }
 
-void reset_hand_rules(void)
-{
-    struct Dungeon* dungeon;
-    for (int i = 0; i < DUNGEONS_COUNT; i++)
-    {
-        dungeon = get_dungeon(i);
-        memset(dungeon->hand_rules, 0, sizeof(dungeon->hand_rules));
-    }
-}
-
 void change_engine_window_relative_size(long w_delta, long h_delta)
 {
     struct PlayerInfo *myplyr;
