@@ -158,7 +158,8 @@ IF_ACTION_POINT(2,PLAYER0)
 ENDIF
 
 IF_ACTION_POINT(3,PLAYER0)
-	QUICK_INFORMATION(6,"You have entered the sacred chamber of the heroes which holds an artifact of great power. The good gods have sent a mighty force to stop you from stealing it.")
+	REM "You have entered the sacred chamber of the heroes which holds an artifact of great power. The good gods have sent a mighty force to stop you from stealing it."
+	DISPLAY_INFORMATION(123)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,THREE,3,1)
 ENDIF
 
@@ -176,15 +177,18 @@ ENDIF
 
 
 
-QUICK_OBJECTIVE(1,"A volcanic eruption has completely devastated this realm and destroyed your dungeon. Most of your creatures got buried alive by debris and the remaining ones got captured by the heroes and hidden in their secret caves. Fortunately, you still have one creature left. The enemy keepers are still weak, but are quickly getting stronger. Hurry up and free your captured creatures to dominate this realm again.")
+REM "A volcanic eruption has completely devastated this realm and destroyed your dungeon. Most of your creatures got buried alive by debris and the remaining ones got captured by the heroes and hidden in their secret caves. Fortunately, you still have one creature left. The enemy keepers are still weak, but are quickly getting stronger. Hurry up and free your captured creatures to dominate this realm again."
+DISPLAY_OBJECTIVE(124)
 
 IF(PLAYER_GOOD,GAME_TURN >= 200)
-	QUICK_INFORMATION(2,"Keep this ghost alive at all costs. His abilities are the key to free your creatures and rebuild your dungeon.")
+	REM "Keep this ghost alive at all costs. His abilities are the key to free your creatures and rebuild your dungeon."
+	DISPLAY_INFORMATION(125)
 ENDIF
 
 
 IF(PLAYER0,IMP > 0)
-	QUICK_INFORMATION(3,"Well done, Keeper! With these Imps you can rebuild your dungeon. Perhaps now is a good time to attack the heroes' dungeon heart. There are rumors that it is still very weak due to the volcanic eruption. Maybe even your little ghost is strong enough to destroy it. It is located to the east of your dungeon.")
+	REM "Well done, Keeper! With these Imps you can rebuild your dungeon. Perhaps now is a good time to attack the heroes' dungeon heart. There are rumors that it is still very weak due to the volcanic eruption. Maybe even your little ghost is strong enough to destroy it. It is located to the east of your dungeon."
+	DISPLAY_INFORMATION(126)
 ENDIF
 
 
@@ -201,12 +205,14 @@ ENDIF
 
 
 REM special box ***********
-SET_BOX_TOOLTIP(1, "Mjollnir: Hammer of Thor.")
+REM "Mjollnir: Hammer of Thor."
+SET_BOX_TOOLTIP_ID(1,127)
 
 IF(PLAYER0, BOX1_ACTIVATED > 0)
 	TUTORIAL_FLASH_BUTTON(25,0)
 	MAGIC_AVAILABLE(PLAYER0,POWER_LIGHTNING,1,1)
-	QUICK_INFORMATION(5,"You can feel the power of the thunder god Thor coursing through your veins. You are now able to cast Lightning Strike!")
+	REM "You can feel the power of the thunder god Thor coursing through your veins. You are now able to cast Lightning Strike!"
+	DISPLAY_INFORMATION(128)
 ENDIF
 
 
@@ -214,7 +220,8 @@ ENDIF
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
 	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
 	TUTORIAL_FLASH_BUTTON(18,200)
-	QUICK_INFORMATION(4,"Destroying the heroes' dungeon heart has given you the ability to build bridges again. There are probably more of your creatures hidden somewhere in this realm. Try to free them or maybe claim an entrance from one of the enemy keepers to build an army.")
+	REM "Destroying the heroes' dungeon heart has given you the ability to build bridges again. There are probably more of your creatures hidden somewhere in this realm. Try to free them or maybe claim an entrance from one of the enemy keepers to build an army."
+	DISPLAY_INFORMATION(129)
 ENDIF
 
 
