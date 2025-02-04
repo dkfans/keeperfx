@@ -4685,14 +4685,17 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
     sac->action = action;
     sac->param = param;
 
-    if (find_temple_pool(context->player_idx, &pos))
+    // Check if sacrifice pool already matches
+    for (int j = 0; j < DUNGEONS_COUNT; j++)
     {
-        // Check if sacrifice pool already matches
-        for (int i = 0; i < sizeof(victims); i++)
+        if (find_temple_pool(j, &pos))
         {
-            if (victims[i] == 0)
-                break;
-            process_sacrifice_creature(&pos, victims[i], context->player_idx, false);
+            for (int i = 0; i < sizeof(victims); i++)
+            {
+                if (victims[i] == 0)
+                    break;
+                process_sacrifice_creature(&pos, victims[i], j, false);
+            }
         }
     }
 }
