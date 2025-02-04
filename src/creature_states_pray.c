@@ -876,7 +876,7 @@ static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
     return *a < *b;
 }
 
-void script_set_sacrifice_recipe(const int action, const int param, ThingModel* victims, PlayerNumber player_idx)
+void script_set_sacrifice_recipe(const int action, const int param, ThingModel* victims)
 {
     qsort(victims, MAX_SACRIFICE_VICTIMS, sizeof(ThingModel), &sac_compare_fn);
     for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
@@ -922,14 +922,17 @@ void script_set_sacrifice_recipe(const int action, const int param, ThingModel* 
     sac->param = param;
 
     struct Coord3d temple_pos;
-    if (find_temple_pool(player_idx, &temple_pos))
+    for (int player_idx = 0; player_idx < DUNGEONS_COUNT; j++)
     {
-        // Process the sacrifice if the pool already matches
-        for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+        if (find_temple_pool(player_idx, &temple_pos))
         {
-            if (victims[i] == 0)
-                break;
-            process_sacrifice_creature(&temple_pos, victims[i], player_idx, false);
+            // Process the sacrifice if the pool already matches
+            for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+            {
+                if (victims[i] == 0)
+                    break;
+                process_sacrifice_creature(&temple_pos, victims[i], player_idx, false);
+            }
         }
     }
 }
