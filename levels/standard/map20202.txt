@@ -87,7 +87,7 @@ DOOR_AVAILABLE(ALL_PLAYERS,BRACED,1,0)
 DOOR_AVAILABLE(ALL_PLAYERS,STEEL,1,0)
 
 REM -- Heroes heart is destroyed
-IF(PLAYER_GOOD,DUNGEON_DESTROYED==1)
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
 
     REM -- Bridge becomes available
     ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
@@ -103,14 +103,14 @@ IF(PLAYER_GOOD,DUNGEON_DESTROYED==1)
 ENDIF
 
 REM -- Win condition -> Kill Yellow and Heroes Heart
-IF(PLAYER3,DUNGEON_DESTROYED==1)
-    IF(PLAYER_GOOD,DUNGEON_DESTROYED==1)
+IF(PLAYER3,DUNGEON_DESTROYED == 1)
+    IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
         WIN_GAME
     ENDIF
 ENDIF
 
 REM -- Lose condition
-IF(PLAYER0,DUNGEON_DESTROYED==1)
+IF(PLAYER0,DUNGEON_DESTROYED == 1)
     LOSE_GAME
 ENDIF
 
@@ -124,7 +124,7 @@ REM -- Show Objective
 QUICK_OBJECTIVE(0,"It seems you've taken an interest in this volcano, Keeper. The other keeper here has no idea you've arrived, nor do those pesky heroes. You'll have to make due without much space in order to obliterate your opponents.")
 
 REM -- Show blocked magic message
-IF_AVAILABLE(PLAYER0,RESEARCH>=1)
+IF_AVAILABLE(PLAYER0,RESEARCH >= 1)
     QUICK_INFORMATION(1,"Those pretentious heroes have found a way to block all dark research. Destroy them.",PLAYER_GOOD)
 ENDIF
 

@@ -211,23 +211,23 @@ ENDIF
 
 
 
-IF(PLAYER_GOOD,DUNGEON_DESTROYED==1)
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
 	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
-	TUTORIAL_FLASH_BUTTON(18,0)
+	TUTORIAL_FLASH_BUTTON(18,200)
 	QUICK_INFORMATION(4,"Destroying the heroes' dungeon heart has given you the ability to build bridges again. There are probably more of your creatures hidden somewhere in this realm. Try to free them or maybe claim an entrance from one of the enemy keepers to build an army.")
 ENDIF
 
 
 REM Give enemy keeper bridge when enemy keepers are killed
-IF(PLAYER3,DUNGEON_DESTROYED==1)
+IF(PLAYER3,DUNGEON_DESTROYED == 1)
 	ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
 ENDIF
 
-IF(PLAYER2,DUNGEON_DESTROYED==1)
+IF(PLAYER2,DUNGEON_DESTROYED == 1)
 	ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
 ENDIF
 
-IF(PLAYER1,DUNGEON_DESTROYED==1)
+IF(PLAYER1,DUNGEON_DESTROYED == 1)
 	ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
 ENDIF
 
