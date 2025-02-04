@@ -1329,6 +1329,21 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
     }
 }
 
+void script_place_trap(PlayerNumber plyridx, ThingModel trapkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool free)
+{
+    if (can_place_trap_on(plyridx, stl_x, stl_y, trapkind))
+    {
+        if (free)
+        {
+            player_place_trap_without_check_at(stl_x, stl_y, plyridx, trapkind, free);
+        }
+        else
+        {
+            player_place_trap_at(stl_x, stl_y, plyridx, trapkind);
+        }
+    }
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

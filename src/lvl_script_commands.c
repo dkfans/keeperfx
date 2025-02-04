@@ -2790,38 +2790,13 @@ static void place_door_check(const struct ScriptLine* scline)
 static void place_door_process(struct ScriptContext* context)
 {
     ThingModel doorkind = context->value->shorts[1];
-    MapCoord slb_x = context->value->shorts[2];
-    MapCoord slb_y = context->value->shorts[3];
-    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
-    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    MapSlabCoord slb_x = context->value->shorts[2];
+    MapSlabCoord slb_y = context->value->shorts[3];
     TbBool locked = context->value->shorts[4];
     TbBool free = context->value->shorts[5];
-    TbBool success;
     PlayerNumber plyridx = context->player_idx;
-    if (tag_cursor_blocks_place_door(plyridx, stl_x, stl_y))
-    {
-        if (!free)
-        {
-            if (!is_door_placeable(plyridx, doorkind))
-            {
-                return;
-            }
-        }
-        success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind, free);
-        if (success)
-        {
-            delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
-            remove_dead_creatures_from_slab(slb_x, slb_y);
-            if (locked)
-            {
-                struct Thing* doortng = get_door_for_position(stl_x, stl_y);
-                if (!thing_is_invalid(doortng))
-                {
-                    lock_door(doortng);
-                }
-            }
-        }
-    }
+
+    script_place_door(plyridx, doorkind, slb_x, slb_y, locked, free);
 }
 
 static void place_trap_check(const struct ScriptLine* scline)
@@ -2870,17 +2845,8 @@ static void place_trap_process(struct ScriptContext* context)
     MapSubtlCoord stl_y = context->value->shorts[3];
     TbBool free = context->value->shorts[4];
     PlayerNumber plyridx = context->player_idx;
-    if (can_place_trap_on(plyridx, stl_x, stl_y, trapkind))
-    {
-        if (free)
-        {
-            player_place_trap_without_check_at(stl_x, stl_y, plyridx, trapkind, free);
-        }
-        else
-        {
-            player_place_trap_at(stl_x, stl_y, plyridx, trapkind);
-        }
-    }
+    script_place_trap(plyridx, trapkind, stl_x, stl_y, free);
+
 }
 
 static void create_effects_line_check(const struct ScriptLine *scline)

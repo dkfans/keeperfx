@@ -784,4 +784,36 @@ void update_all_door_stats()
         thing->health = doorst->health;
     }
 }
+
+void script_place_door(PlayerNumber plyridx, ThingModel doorkind, MapSlabCoord slb_x, MapSlabCoord slb_y, TbBool locked, TbBool free)
+{
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    TbBool success;
+
+    if (tag_cursor_blocks_place_door(plyridx, stl_x, stl_y))
+    {
+        if (!free)
+        {
+            if (!is_door_placeable(plyridx, doorkind))
+            {
+                return;
+            }
+        }
+        success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind, free);
+        if (success)
+        {
+            delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
+            remove_dead_creatures_from_slab(slb_x, slb_y);
+            if (locked)
+            {
+                struct Thing* doortng = get_door_for_position(stl_x, stl_y);
+                if (!thing_is_invalid(doortng))
+                {
+                    lock_door(doortng);
+                }
+            }
+        }
+    }
+}
 /******************************************************************************/

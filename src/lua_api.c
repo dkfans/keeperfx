@@ -671,41 +671,31 @@ static int lua_ADD_EFFECT_GENERATOR_TO_LEVEL(lua_State *L)
     return 1;
 }
 
-
-/*
 static int lua_PLACE_DOOR(lua_State *L)
 {
-    PlayerNumber player_idx = luaL_checkPlayerSingle(L,1);
-    long door_id = luaL_checkNamedCommand(L,2,door_desc);
+    PlayerNumber plyridx = luaL_checkPlayerSingle(L,1);
+    long doorkind = luaL_checkNamedCommand(L,2,door_desc);
     MapSlabCoord slb_x = luaL_checkslb_x(L,3);
     MapSlabCoord slb_y = luaL_checkslb_y(L,4);
     TbBool locked = lua_toboolean(L,5);
     TbBool free = lua_toboolean(L,6);
 
-
+    script_place_door(plyridx, doorkind, slb_x, slb_y, locked, free);
 }
 
 static int lua_PLACE_TRAP(lua_State *L)
 {
-    PlayerNumber player_idx = luaL_checkPlayerSingle(L,1);
-    long trap_id = luaL_checkNamedCommand(L,2,trap_desc);
+    PlayerNumber plyridx = luaL_checkPlayerSingle(L,1);
+    long trapkind = luaL_checkNamedCommand(L,2,trap_desc);
     MapSubtlCoord stl_x = luaL_checkstl_x(L,3);
     MapSubtlCoord stl_y = luaL_checkstl_y(L,4);
     TbBool free = lua_toboolean(L,5);
 
-    struct Thing* traptng = script_process_new_object(trap_id, stl_x, stl_y, 0, player_idx, 0);
-    if (thing_is_invalid(traptng))
-    {
-        SCRPTERRLOG("Failed to create trap");
-        return 0;
-    }
-    if (free)
-        set_trap_free(traptng);
-    return 0;
+    script_place_trap(plyridx, trapkind, stl_x, stl_y, free);
 }
 
 
-*/
+
 //Manipulating Configs
 /*
 static int lua_SET_GAME_RULE(lua_State *L)
@@ -1272,6 +1262,10 @@ static const luaL_Reg global_methods[] = {
    {"SET_DOOR"                             ,lua_SET_DOOR                        },
    {"ADD_OBJECT_TO_LEVEL"                  ,lua_ADD_OBJECT_TO_LEVEL             },
    {"ADD_EFFECT_GENERATOR_TO_LEVEL"        ,lua_ADD_EFFECT_GENERATOR_TO_LEVEL   },
+   {"PLACE_DOOR"                           ,lua_PLACE_DOOR                      },
+   {"PLACE_TRAP"                           ,lua_PLACE_TRAP                      },
+   
+   
 
 //Manipulating Configs
    //{"SET_GAME_RULE"                        ,lua_SET_GAME_RULE                   },
