@@ -681,6 +681,7 @@ static int lua_PLACE_DOOR(lua_State *L)
     TbBool free = lua_toboolean(L,6);
 
     script_place_door(plyridx, doorkind, slb_x, slb_y, locked, free);
+    return 0;
 }
 
 static int lua_PLACE_TRAP(lua_State *L)
@@ -692,6 +693,7 @@ static int lua_PLACE_TRAP(lua_State *L)
     TbBool free = lua_toboolean(L,5);
 
     script_place_trap(plyridx, trapkind, stl_x, stl_y, free);
+    return 0;
 }
 
 
@@ -882,7 +884,7 @@ static int lua_SET_SACRIFICE_RECIPE(lua_State *L)
         luaL_error(L,"Unexpected parameter:%s", reward_str);
     }
 
-    script_set_sacrifice_recipe(command, reward, victims, 0);
+    script_set_sacrifice_recipe(command, reward, victims);
     return 0;
 
 }
@@ -899,7 +901,7 @@ static int lua_REMOVE_SACRIFICE_RECIPE(lua_State *L)
         victims[i] = crtr_model;
     }
 
-    script_set_sacrifice_recipe(command, reward, victims, 0);
+    script_set_sacrifice_recipe(command, reward, victims);
     return 0;
 
 }

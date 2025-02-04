@@ -24,6 +24,7 @@
 
 #include "bflib_math.h"
 #include "bflib_planar.h"
+#include "cursor_tag.h"
 #include "thing_objects.h"
 #include "thing_list.h"
 #include "thing_stats.h"
@@ -39,6 +40,7 @@
 #include "gui_topmsg.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus

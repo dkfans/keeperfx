@@ -29,7 +29,6 @@
 #include "creature_states.h"
 #include "creature_states_mood.h"
 #include "creature_states_pray.h"
-#include "cursor_tag.h"
 #include "custom_sprites.h"
 #include "dungeon_data.h"
 #include "frontmenu_ingame_map.h"

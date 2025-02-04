@@ -922,7 +922,7 @@ void script_set_sacrifice_recipe(const int action, const int param, ThingModel* 
     sac->param = param;
 
     struct Coord3d temple_pos;
-    for (int player_idx = 0; player_idx < DUNGEONS_COUNT; j++)
+    for (int player_idx = 0; player_idx < DUNGEONS_COUNT; player_idx++)
     {
         if (find_temple_pool(player_idx, &temple_pos))
         {

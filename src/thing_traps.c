@@ -24,6 +24,7 @@
 #include "bflib_math.h"
 #include "bflib_planar.h"
 
+#include "cursor_tag.h"
 #include "thing_data.h"
 #include "creature_states_combt.h"
 #include "config_creature.h"
@@ -45,6 +46,7 @@
 #include "keeperfx.hpp"
 #include "creature_senses.h"
 #include "cursor_tag.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
