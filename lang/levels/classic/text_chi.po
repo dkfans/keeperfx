@@ -548,3 +548,8 @@ msgstr "太阳鸟鸣反向对战"
 msgctxt "Level name"
 msgid "Syndika"
 msgstr "辛迪加"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Under Kagi Juuji Shrine"
+msgstr "钥十字神社之下"
