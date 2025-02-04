@@ -7429,11 +7429,8 @@ static void set_digger_process(struct ScriptContext* context)
 {
     ThingModel new_dig_model = context->value->shorts[0];
     PlayerNumber plyr_idx = context->player_idx;
-    ThingModel old_dig_model = get_players_special_digger_model(plyr_idx);
-    if (old_dig_model == new_dig_model)
-    {
-        update_players_special_digger_model(plyr_idx, new_dig_model);
-    }
+    
+    update_players_special_digger_model(plyr_idx, new_dig_model);
 }
 
 /**
