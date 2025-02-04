@@ -89,6 +89,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"PRISONKIND",         35},
   {"TORTUREKIND",        36},
   {"SPELLIMMUNITY",      37},
+  {"HOSTILETOWARDS",     38},
   {NULL,                  0},
   };
 
@@ -896,6 +897,38 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
             }
             break;
         }
+        case 38: // HOSTILETOWARDS
+            for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+            {
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    k = get_id(creature_desc, word_buf);
+                    if (k >= 0)
+                    {
+                        crstat->hostile_towards[i] = k;
+                        n++;
+                    }
+                    else if (0 == strcmp(word_buf, "ANY_CREATURE"))
+                    {
+                        crstat->hostile_towards[i] = CREATURE_ANY;
+                        n++;
+                    }
+                    else
+                    {
+                        crstat->hostile_towards[i] = 0;
+                        if (strcasecmp(word_buf, "NULL") == 0)
+                        {
+                            n++;
+                        }
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+            }
+            break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
