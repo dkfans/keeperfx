@@ -63,8 +63,6 @@ struct PartyTrigger;
 
 struct ScriptContext
 {
-    int plr_start;
-    int plr_end;
     int player_idx;
 
     union {
