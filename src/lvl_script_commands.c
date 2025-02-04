@@ -4641,7 +4641,7 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
         victims[i] = context->value->sac.victims[i];
     }
 
-    script_set_sacrifice_recipe(action, param, victims, context->player_idx);
+    script_set_sacrifice_recipe(action, param, victims);
 }
 
 static void set_box_tooltip_check(const struct ScriptLine* scline)

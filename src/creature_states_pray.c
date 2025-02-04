@@ -822,7 +822,8 @@ TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
     struct Room *best_room = NULL;
     long max_value = 0;
     struct Dungeon *dungeon = get_dungeon(player_idx);
-
+    if (dungeon == INVALID_DUNGEON)
+        return false;
 
     for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
