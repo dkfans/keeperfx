@@ -163,7 +163,21 @@ TbBool creature_model_is_lair_enemy(const ThingModel lair_enemy[LAIR_ENEMY_MAX],
     for (int i = 0; i < LAIR_ENEMY_MAX; i++)
     {
         if (lair_enemy[i] == crmodel)
+        {
             return true;
+        }
+    }
+    return false;
+}
+
+TbBool creature_model_is_hostile_towards(const ThingModel hostile_towards[CREATURE_TYPES_MAX], ThingModel crmodel)
+{
+    for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        if (hostile_towards[i] == crmodel)
+        {
+            return true;
+        }
     }
     return false;
 }
@@ -209,7 +223,8 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
                             {
                                 room_has_units_of_different_kind = true;
                             }
-                            if (creature_model_is_lair_enemy(crstat->lair_enemy, model))
+                            if (creature_model_is_lair_enemy(crstat->lair_enemy, model)
+                            || creature_model_is_hostile_towards(crstat->hostile_towards, model))
                             {
                                 room_has_lair_enemy = true;
                             }

@@ -131,7 +131,7 @@ static TbBool load_one_file(unsigned long tmapidx,char letter, void *dst, LevelN
 
     if (!LbFileExists(fname))
     {
-        WARNMSG("Texture file \"%s\" doesn't exist.",fname);
+        SYNCDBG(10, "Texture file \"%s\" doesn't exist.",fname);
         return false;
     }
     
@@ -140,6 +140,7 @@ static TbBool load_one_file(unsigned long tmapidx,char letter, void *dst, LevelN
         WARNMSG("Texture file \"%s\" can't be loaded or is too small.",fname);
         return false;
     }
+    SYNCDBG(6, "Texture file \"%s\" succesfully loaded.", fname);
     return true;
 }
 
