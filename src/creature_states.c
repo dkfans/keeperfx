@@ -4170,60 +4170,108 @@ TbBool process_creature_hunger(struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
+{
+    struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
+    for (int i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        if ((crstat->hostile_towards[i] == enmtng->model) || (crstat->hostile_towards[i] == CREATURE_ANY))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* Determines if two creatures will fight each other even when allied.
+ * @param fightng The first creature to check.
+ * @param enmtng The second creature to check.
+ * @returns 'true' if either creature is hostile towards the other.
+ * @returns 'false' if both creatures are not hostile towards each other, or if either met any of the following conditions:
+ * - Either creature is influenced by 'Call to Arms'.
+ * - Either creature is member of a group/party. */
+TbBool creature_is_hostile_to_creature(const struct Thing *fightng, const struct Thing *enmtng)
+{
+    // Creatures cannot be hostile towards allies if influenced by CTA.
+    if (creature_affected_by_call_to_arms(fightng) || creature_affected_by_call_to_arms(enmtng))
+    {
+        return false;
+    }
+    // Creatures cannot be hostile towards allies if they are part of a group.
+    if (creature_is_group_member(fightng) || creature_is_group_member(enmtng))
+    {
+        return false;
+    }
+    // Lastly, check if neither creature has hostility set towards the other.
+    if (!creature_is_hostile_towards(fightng, enmtng) && !creature_is_hostile_towards(enmtng, fightng))
+    {
+        return false;
+    }
+    return true;
+}
+
 /**
  * Checks if creatures can attack each other.
- * Note that this function does not include full check from players_are_enemies(),
- *  so both should be used when applicable.
- * @param tng1
- * @param tng2
+ * Note that this function does not include full check from players_are_enemies(), so both should be used when applicable.
+ * @param fightng
+ * @param enmtng
  * @return
  * @see players_are_enemies()
  */
 TbBool creature_will_attack_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng)) {
+    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng))
+    {
         return false;
     }
-    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)) {
+    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng))
+    {
         return false;
     }
-    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng)) {
+    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng))
+    {
         return false;
     }
     struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-    if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
+    if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner) && !creature_is_hostile_to_creature(fightng, enmtng))
     {
         if ((!creature_under_spell_effect(fightng, CSAfF_MadKilling))
         && (!creature_under_spell_effect(enmtng, CSAfF_MadKilling)))
         {
-            if (fighctrl->combat_flags == 0) {
+            if (fighctrl->combat_flags == 0)
+            {
                 return false;
             }
             struct Thing* tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
             TRACE_THING(tmptng);
-            if (tmptng->index != enmtng->index) {
+            if (tmptng->index != enmtng->index)
+            {
                 return false;
             }
         }
-        // No self fight
-        if (enmtng->index == fightng->index) {
-            return false;
-        }
     }
-    // No fight when creature in custody
+    // No self fight.
+    if (enmtng->index == fightng->index)
+    {
+        return false;
+    }
+    // No fight when creature in custody.
     if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
-     || creature_is_kept_in_custody_by_player(enmtng, fightng->owner)) {
+    || creature_is_kept_in_custody_by_player(enmtng, fightng->owner))
+    {
         return false;
     }
-    // No fight while dropping
-    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng)) {
+    // No fight while dropping.
+    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng))
+    {
         return false;
     }
-    // Final check - if creature is in control and can see the enemy - fight
+    // Final check - if creature is in control and can see the enemy - fight.
     if ((creature_control_exists(enmctrl)) && ((enmctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
     {
-        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng)) {
+        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng))
+        {
             return true;
         }
     }
@@ -4232,10 +4280,8 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
 
 /**
  * Checks if creatures can attack each other.
- * This variant loosens conditions if first creature is fighting till death, besides
- * that it is identical to creature_will_attack_creature().
- * Note that this function does not include full check from players_are_enemies(),
- *  so both should be used when applicable.
+ * This variant loosens conditions if first creature is fighting till death, besides that it is identical to creature_will_attack_creature().
+ * Note that this function does not include full check from players_are_enemies(), so both should be used when applicable.
  * @param fightng
  * @param enmtng
  * @return
@@ -4244,19 +4290,21 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
  */
 TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)) {
+    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng))
+    {
         return false;
     }
-    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng)) {
+    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng))
+    {
         return false;
     }
-    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng)) {
+    if (creature_is_leaving_and_cannot_be_stopped(fightng) || creature_is_leaving_and_cannot_be_stopped(enmtng))
+    {
         return false;
     }
     struct CreatureControl* fighctrl = creature_control_get_from_thing(fightng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-
-    if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
+    if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner) && !creature_is_hostile_to_creature(fightng, enmtng))
     {
         if ((fighctrl->fight_til_death == 0) // This differs in creature_will_attack_creature()
         && (!creature_under_spell_effect(fightng, CSAfF_MadKilling))
@@ -4264,28 +4312,33 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng,
         {
             struct Thing* tmptng = thing_get(fighctrl->combat.battle_enemy_idx);
             TRACE_THING(tmptng);
-            if ((fighctrl->combat_flags == 0) || (tmptng->index != enmtng->index)) {
+            if ((fighctrl->combat_flags == 0) || (tmptng->index != enmtng->index))
+            {
                 return false;
             }
         }
-        // No self fight
-        if (enmtng->index == fightng->index) {
-            return false;
-        }
     }
-    // No fight when creature in custody
+    // No self fight.
+    if (enmtng->index == fightng->index)
+    {
+        return false;
+    }
+    // No fight when creature in custody.
     if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
-     || creature_is_kept_in_custody_by_player(enmtng, fightng->owner)) {
+    || creature_is_kept_in_custody_by_player(enmtng, fightng->owner))
+    {
         return false;
     }
-    // No fight while dropping
-    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng)) {
+    // No fight while dropping.
+    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng))
+    {
         return false;
     }
-    // Final check - if creature is in control and can see the enemy - fight
+    // Final check - if creature is in control and can see the enemy - fight.
     if ((creature_control_exists(enmctrl)) && ((enmctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
     {
-        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng)) {
+        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng))
+        {
             return true;
         }
     }
