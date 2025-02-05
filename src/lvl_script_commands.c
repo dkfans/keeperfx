@@ -1217,10 +1217,10 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
     }
     else if (trapvar == 46) // FlameAnimationOffset
     {
-        value->chars[8] = atoi(scline->tp[2]);
-        value->chars[9] = scline->np[3];
-        value->chars[10] = scline->np[4];
-        value->chars[11] = scline->np[5];
+        value->longs[1]  = atoi(scline->tp[2]);
+        value->shorts[4] = scline->np[3];
+        value->shorts[5] = scline->np[4];
+        value->shorts[6] = scline->np[5];
     }
     else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39) && (trapvar != 40))  // PointerSprites && AnimationIDs
     {
@@ -1797,59 +1797,30 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     create_manufacture_array_from_trapdoor_data();
 }
 
-void refresh_trap_anim(long trap_id)
-{
-    int k = 0;
-    const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
-    struct TrapConfigStats *trapst_old = get_trap_model_stats(trap_id);
-    struct TrapConfigStats *trapst_new;
-    int i = slist->index;
-    while (i != 0)
-    {
-        struct Thing* traptng = thing_get(i);
-        if (thing_is_invalid(traptng))
-        {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
-        }
-        i = traptng->next_of_class;
-        // Per thing code.
-        if (traptng->model == trap_id)
-        {
-            if ((traptng->trap.wait_for_rearm == true) || (trapst_old->recharge_sprite_anim_idx == 0))
-            {
-                traptng->anim_sprite = trapst_old->sprite_anim_idx;
-            }
-            else
-            {
-                traptng->anim_sprite = trapst_old->recharge_sprite_anim_idx;
-            }
-            trapst_new = get_trap_model_stats(traptng->model);
-            char start_frame;
-            if (trapst_new->random_start_frame) {
-                start_frame = -1;
-            }
-            else {
-                start_frame = 0;
-            }
-            set_thing_draw(traptng, trapst_new->sprite_anim_idx, trapst_new->anim_speed, trapst_new->sprite_size_max, trapst_new->unanimated, start_frame, ODC_Default);
-        }
-        // Per thing code ends.
-        k++;
-        if (k > slist->index)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-    }
-}
-
 static void set_trap_configuration_process(struct ScriptContext *context)
 {
     long trap_type = context->value->shorts[0];
-    long value = context->value->ulongs[1];
+    long property = context->value->shorts[1];
+    long value = context->value->longs[1];
     short value2 = context->value->shorts[4];
     short value3 = context->value->shorts[5];
+    short value4 = context->value->shorts[6];
+
+    char *valuestr = context->value->strs[2];
+
+    if (property == 3)
+    {
+        value = get_icon_id(valuestr);
+        value2 = get_icon_id(valuestr + strlen(valuestr) + 1);
+    }else if (property == 4)
+    {
+        value = get_icon_id(valuestr);
+    }else if (property == 12 || property == 39 || property == 40 || property == 44)
+    {
+        value = get_anim_id_(valuestr);
+    }
+
+    script_set_trap_configuration(trap_type, property, value, value2, value3, value4);
 
 
 }
@@ -2173,6 +2144,16 @@ static void set_door_configuration_process(struct ScriptContext *context)
     short property = context->value->shorts[1];
     short value = context->value->longs[1];
     short value2 = context->value->shorts[4];
+    const char* valuestr = context->value->strs[2];
+
+    if (property == 4)
+    {
+        value = get_icon_id(valuestr);
+        value2 = get_icon_id(valuestr + strlen(valuestr) + 1);
+    }else if (property == 5)
+    {
+        value = get_icon_id(valuestr);
+    }
 
     script_set_door_configuration(door_type,property, value, value2);
 }

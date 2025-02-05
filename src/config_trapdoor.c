@@ -33,6 +33,7 @@
 #include "config_players.h"
 #include "game_legacy.h"
 #include "custom_sprites.h"
+#include "frontmenu_ingame_tabs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1968,7 +1969,54 @@ TbBool make_available_all_traps(PlayerNumber plyr_idx)
   return true;
 }
 
-void script_set_door_configuration(ThingModel door_type, short property, short value, short value2)
+static void refresh_trap_anim(long trap_id)
+{
+    int k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
+    struct TrapConfigStats *trapst_old = get_trap_model_stats(trap_id);
+    struct TrapConfigStats *trapst_new;
+    int i = slist->index;
+    while (i != 0)
+    {
+        struct Thing* traptng = thing_get(i);
+        if (thing_is_invalid(traptng))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = traptng->next_of_class;
+        // Per thing code.
+        if (traptng->model == trap_id)
+        {
+            if ((traptng->trap.wait_for_rearm == true) || (trapst_old->recharge_sprite_anim_idx == 0))
+            {
+                traptng->anim_sprite = trapst_old->sprite_anim_idx;
+            }
+            else
+            {
+                traptng->anim_sprite = trapst_old->recharge_sprite_anim_idx;
+            }
+            trapst_new = get_trap_model_stats(traptng->model);
+            char start_frame;
+            if (trapst_new->random_start_frame) {
+                start_frame = -1;
+            }
+            else {
+                start_frame = 0;
+            }
+            set_thing_draw(traptng, trapst_new->sprite_anim_idx, trapst_new->anim_speed, trapst_new->sprite_size_max, trapst_new->unanimated, start_frame, ODC_Default);
+        }
+        // Per thing code ends.
+        k++;
+        if (k > slist->index)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+}
+
+void script_set_door_configuration(ThingModel door_type, short property, long value, long value2)
 {
     struct DoorConfigStats *doorst = get_door_model_stats(door_type);
     struct ManufactureData *manufctr = get_manufacture_data(game.conf.trapdoor_conf.trap_types_count - 1 + door_type);
@@ -1984,15 +2032,15 @@ void script_set_door_configuration(ThingModel door_type, short property, short v
             break;
         case 4: //SymbolSprites
             {
-                doorst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
-                doorst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
+                doorst->bigsym_sprite_idx = value; // First
+                doorst->medsym_sprite_idx = value2; // Second
                 manufctr->bigsym_sprite_idx = doorst->bigsym_sprite_idx;
                 manufctr->medsym_sprite_idx = doorst->medsym_sprite_idx;
                 update_trap_tab_to_config();
             }
             break;
         case 5: // PointerSprites
-            doorst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
+            doorst->pointer_sprite_idx = value;
             update_trap_tab_to_config();
             break;
         case 6: // PanelTabIndex
@@ -2048,18 +2096,17 @@ void script_set_door_configuration(ThingModel door_type, short property, short v
             }
             break;
         default:
-            WARNMSG("Unsupported Door configuration, variable %d.", context->value->shorts[1]);
+            WARNMSG("Unsupported Door configuration, variable %d.", property);
             break;
     }
 }
 
-void script_set_trap_configuration(ThingModel trap_type, short property, short value, short value2, short value3, short value4)
+void script_set_trap_configuration(ThingModel trap_type, short property, long value, long value2, long value3, long value4)
 {
     struct TrapConfigStats *trapst = get_trap_model_stats(trap_type);
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
-    struct ObjectConfigStats obj_tmp;
     int old_value, old_value2;
-    switch (context->value->shorts[1])
+    switch (property)
     {
         case 1: // NameTextID
             trapst->name_stridx = value;
@@ -2077,8 +2124,8 @@ void script_set_trap_configuration(ThingModel trap_type, short property, short v
         {
             old_value = trapst->medsym_sprite_idx;
             old_value2 = trapst->bigsym_sprite_idx;
-            trapst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
-            trapst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
+            trapst->bigsym_sprite_idx = value; // First
+            trapst->medsym_sprite_idx = value2; // Second
             manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
             manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
             if ( (trapst->medsym_sprite_idx != old_value) || (trapst->bigsym_sprite_idx != old_value2) )
@@ -2089,7 +2136,7 @@ void script_set_trap_configuration(ThingModel trap_type, short property, short v
             break;
         case 4: // PointerSprites
             old_value = trapst->pointer_sprite_idx;
-            trapst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
+            trapst->pointer_sprite_idx = value;
             if (trapst->pointer_sprite_idx != old_value)
             {
                 update_trap_tab_to_config();
@@ -2125,7 +2172,7 @@ void script_set_trap_configuration(ThingModel trap_type, short property, short v
             trapst->selling_value = value;
             break;
         case 12: // AnimationID
-            trapst->sprite_anim_idx = get_anim_id_(context->value->strs[2]);
+            trapst->sprite_anim_idx = value;
             refresh_trap_anim(trap_type);
             break;
         case 13: // ModelSize
@@ -2215,11 +2262,11 @@ void script_set_trap_configuration(ThingModel trap_type, short property, short v
             trapst->trigger_sound_idx = value;
             break;
         case 39: // RechargeAnimationID
-            trapst->recharge_sprite_anim_idx = get_anim_id(context->value->strs[2], &obj_tmp);
+            trapst->recharge_sprite_anim_idx = value;
             refresh_trap_anim(trap_type);
             break;
         case 40: // AttackAnimationID
-            trapst->attack_sprite_anim_idx = get_anim_id(context->value->strs[2], &obj_tmp);
+            trapst->attack_sprite_anim_idx = value;
             break;
         case 41: // DestroyedEffect
             trapst->destroyed_effect = value;
@@ -2231,7 +2278,7 @@ void script_set_trap_configuration(ThingModel trap_type, short property, short v
             trapst->place_on_subtile = value;
             break;
         case 44: // FlameAnimationID
-            trapst->flame.animation_id = get_anim_id(context->value->strs[2], &obj_tmp);
+            trapst->flame.animation_id = value;
             refresh_trap_anim(trap_type);
             break;
         case 45: // FlameAnimationSpeed
@@ -2241,10 +2288,10 @@ void script_set_trap_configuration(ThingModel trap_type, short property, short v
             trapst->flame.sprite_size = value;
             break;
         case 47: // FlameAnimationOffset
-            trapst->flame.fp_add_x = context->value->chars[8];
-            trapst->flame.fp_add_y = context->value->chars[9];
-            trapst->flame.td_add_x = context->value->chars[10];
-            trapst->flame.td_add_y = context->value->chars[11];
+            trapst->flame.fp_add_x = value;
+            trapst->flame.fp_add_y = value2;
+            trapst->flame.td_add_x = value3;
+            trapst->flame.td_add_y = value4;
             break;
         case 48: // FlameTransparencyFlags
             trapst->flame.transparency_flags = value << 4;
@@ -2262,7 +2309,7 @@ void script_set_trap_configuration(ThingModel trap_type, short property, short v
             trapst->flag_number = value;
             break;
         default:
-            WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
+            WARNMSG("Unsupported Trap configuration, variable %d.", property);
             break;
     }
 }

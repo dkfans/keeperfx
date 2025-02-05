@@ -523,8 +523,8 @@ static int lua_DISPLAY_MESSAGE(lua_State *L)
 {
     int msg_id = luaL_checkinteger(L, 1);
     const char *msg =  get_string(msg_id);
-    long id;
-    long type;
+    char id;
+    char type;
     luaL_checkMessageIcon(L, 1, &type, &id);
 
     message_add(type,id, msg);
@@ -535,8 +535,8 @@ static int lua_DISPLAY_MESSAGE(lua_State *L)
 static int lua_QUICK_MESSAGE(lua_State *L)
 {
     const char *msg = lua_tostring(L, 1);
-    long id;
-    long type;
+    char id;
+    char type;
     luaL_checkMessageIcon(L, 1, &type, &id);
 
     message_add(type,id, msg);
@@ -825,21 +825,25 @@ static int lua_SET_DOOR_CONFIGURATION(lua_State *L)
     short property       = luaL_checkNamedCommand(L,2,trapdoor_door_commands);
     //todo values it also accept strings depending on the property above
     short value          = luaL_checkinteger(L, 3);
-    short value2         = luaL_optinteger(L, 4);
+    short value2         = lua_tointeger(L, 4);
 
     script_set_door_configuration(door_type,property, value, value2);
+    return 0;
 }
 
+/*
 static int lua_SET_OBJECT_CONFIGURATION(lua_State *L)
 {
     ThingModel object_type = luaL_checkNamedCommand(L,1,object_desc);
     short property         = luaL_checkNamedCommand(L,2,objects_object_commands);
     //todo values it also accept strings depending on the property above
     short value            = luaL_checkinteger(L, 3);
-    short value2           = luaL_optinteger(L, 4);
+    short value2           = lua_tointeger(L, 4);
 
-    script_set_object_configuration(object_type,property, value, value2);
+    //script_set_object_configuration(object_type,property, value, value2);
+    return 0;
 }
+*/
 
 static int lua_SET_TRAP_CONFIGURATION(lua_State *L)
 {
@@ -847,12 +851,13 @@ static int lua_SET_TRAP_CONFIGURATION(lua_State *L)
     short property       = luaL_checkNamedCommand(L,2,trapdoor_door_commands);
     //todo values it also accept strings depending on the property above
     short value          = luaL_checkinteger(L, 3);
-    short value2         = luaL_optinteger(L, 4);
-    short value3         = luaL_optinteger(L, 5);
-    short value4         = luaL_optinteger(L, 6);
+    short value2         = lua_tointeger(L, 4);
+    short value3         = lua_tointeger(L, 5);
+    short value4         = lua_tointeger(L, 6);
 
 
     script_set_trap_configuration(trap_type,property, value, value2, value3, value4);
+    return 0;
 }
 
 //static int lua_SET_CREATURE_CONFIGURATION(lua_State *L)
@@ -1282,11 +1287,11 @@ static const luaL_Reg global_methods[] = {
 //Manipulating Configs
    //{"SET_GAME_RULE"                        ,lua_SET_GAME_RULE                   },
    {"SET_HAND_RULE"                        ,lua_SET_HAND_RULE                   },
-   //{"SET_DOOR_CONFIGURATION"               ,lua_SET_DOOR_CONFIGURATION          },
+   {"SET_DOOR_CONFIGURATION"               ,lua_SET_DOOR_CONFIGURATION          },
    //{"NEW_OBJECT_TYPE"                      ,lua_NEW_OBJECT_TYPE                 },
    //{"SET_OBJECT_CONFIGURATION"             ,lua_SET_OBJECT_CONFIGURATION        },
    //{"NEW_TRAP_TYPE"                        ,lua_NEW_TRAP_TYPE                   },
-   //{"SET_TRAP_CONFIGURATION"               ,lua_SET_TRAP_CONFIGURATION          },
+   {"SET_TRAP_CONFIGURATION"               ,lua_SET_TRAP_CONFIGURATION          },
    //{"NEW_CREATURE_TYPE"                    ,lua_NEW_CREATURE_TYPE               },
    //{"SET_CREATURE_CONFIGURATION"           ,lua_SET_CREATURE_CONFIGURATION      },
    //{"SET_EFFECT_GENERATOR_CONFIGURATION"   ,lua_SET_EFFECT_GENERATOR_CONFIGURATI},
@@ -1353,7 +1358,6 @@ static const luaL_Reg global_methods[] = {
    {"print"           ,lua_print      },
 
     {"GetCreatureNear", lua_get_creature_near},
-    {"SendChatMessage", send_chat_message},
     {"getThingByIdx", lua_get_thing_by_idx},
     {"get_things_of_class", lua_get_things_of_class},
 };
