@@ -48,6 +48,7 @@ SoundVolume GetCurrentSoundMasterVolume(void);
 void SetSampleVolume(SoundEmitterID, SoundSmplTblID, SoundVolume);
 void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan);
 void SetSamplePitch(SoundEmitterID, SoundSmplTblID, SoundPitch);
+void toggle_bbking_mode(void);
 
 #ifdef __cplusplus
 }

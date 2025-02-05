@@ -486,8 +486,8 @@ void gui_pretty_background(struct GuiMenu *gmnu)
     switch (gmnu->visual_state)
     {
     case 1:
-        width = fade_w * (gmnu->menu_init->fade_time - gmnu->fade_time) + 86*units_per_pixel/16;
-        height = fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time) + 64*units_per_pixel/16;
+        width = fade_w * (gmnu->menu_init->fade_time - gmnu->fade_time) + scale_ui_value_lofi(86);
+        height = fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time) + scale_ui_value_lofi(64);
         px = gmnu->pos_x + gmnu->width/2 - width/2;
         py = gmnu->pos_y + gmnu->height/2 - height/2;
         draw_ornate_slab_outline64k(px, py, units_per_pixel, width, height);
