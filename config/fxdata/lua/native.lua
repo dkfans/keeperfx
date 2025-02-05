@@ -429,8 +429,17 @@ function DISPLAY_INFORMATION(msg_id,zoom_location) end
 ---@param type "SPEECH"|"SOUND" If it is a sound effect or a speech. Speeches queue, sounds play at the same time.
 ---@param sound integer The sound file to be played. Use numbers(ID's) to play sounds from the original .dat files, or a file name(between parenthesis) to play custom sounds.
 function PLAY_MESSAGE(player,type,sound) end
+]]
 
-function DISPLAY_VARIABLE() end
+---Displays a script variable on screen.
+---@param player Player The player’s name, e.g. PLAYER1.
+---@param variable string  The variable that is to be exported, e.g. SKELETONS_RAISED. See variable of the og dk script for more info
+---@param target? integer If set, it would show the difference between the current amount, and the target amount.
+---@param target_type? integer Can be set to 0, 1 or 2. Set to 0 it displays how much more you need to reach the target, 1 displays how many you need to lose to reach the target, 2 is like 0 but shows negative values too.
+function DISPLAY_VARIABLE(player, variable, target, target_type) end
+
+---Hides the variable that has been made visible with DISPLAY_VARIABLE
+function HIDE_VARIABLE() end
 
 --- Displays on screen how long a specific script timer reaches the target turn.
 --- @param player Player The player’s name, e.g. PLAYER1.
@@ -438,8 +447,6 @@ function DISPLAY_VARIABLE() end
 --- @param target integer Show the difference between the current timer value, and the target timer value.
 --- @param clocktime? boolean Set to true to display the countdown in hours/minutes/seconds. Set to 0 or don't add the param to display turns.
 function DISPLAY_COUNTDOWN(player,timer,target,clocktime) end
-
-]]
 
 ---Displays one of the text messages from language-specific strings banks as a chat message, with a specific unit or player shown as the sender. It disappears automatically after some time.
 ---@param msg_id integer The number of the message, assigned to it in .po or .pot translation file.
@@ -451,14 +458,14 @@ function DISPLAY_MESSAGE(msg_id,icon) end
 ---@param icon string|Player|Creature The name of the player, creature, creature spell, Keeper spell, creature instance, room, or query icon that is shown as the sender of the message. Accepts None for no icon.
 function QUICK_MESSAGE(msg,icon) end
 
---[[
+
 ---Flashes a button on the toolar until the player selects it.
 ---@param button integer Id of the button.
 ---@param gameturns integer how long the button should flash for in 1/20th of a secon.
 function TUTORIAL_FLASH_BUTTON(button,gameturns) end
 
+--[[
 
-function HIDE_VARIABLE() end
 function HEART_LOST_QUICK_OBJECTIVE() end
 function HEART_LOST_OBJECTIVE() end
 
