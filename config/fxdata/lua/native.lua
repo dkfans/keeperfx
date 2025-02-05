@@ -439,11 +439,19 @@ function DISPLAY_VARIABLE() end
 --- @param clocktime? boolean Set to true to display the countdown in hours/minutes/seconds. Set to 0 or don't add the param to display turns.
 function DISPLAY_COUNTDOWN(player,timer,target,clocktime) end
 
----Displays one of the text messages from language-specific strings banks as a chat message, with a specific unit or player shown as the sender. It disappears automatically after some time.
----@param msg integer The number of the message, assigned to it in .po or .pot translation file.
----@param icon string|Player The name of the player, creature, creature spell, Keeper spell, creature instance, room, or query icon that is shown as the sender of the message. Accepts None for no icon.
-function DISPLAY_MESSAGE(msg,icon) end
+]]
 
+---Displays one of the text messages from language-specific strings banks as a chat message, with a specific unit or player shown as the sender. It disappears automatically after some time.
+---@param msg_id integer The number of the message, assigned to it in .po or .pot translation file.
+---@param icon string|Player|Creature The name of the player, creature, creature spell, Keeper spell, creature instance, room, or query icon that is shown as the sender of the message. Accepts None for no icon.
+function DISPLAY_MESSAGE(msg_id,icon) end
+
+---Works like DISPLAY_MESSAGE, but instead of using a string from translations, allows to type it directly.
+---@param msg string The chat message as a string
+---@param icon string|Player|Creature The name of the player, creature, creature spell, Keeper spell, creature instance, room, or query icon that is shown as the sender of the message. Accepts None for no icon.
+function QUICK_MESSAGE(msg,icon) end
+
+--[[
 ---Flashes a button on the toolar until the player selects it.
 ---@param button integer Id of the button.
 ---@param gameturns integer how long the button should flash for in 1/20th of a secon.
@@ -453,7 +461,7 @@ function TUTORIAL_FLASH_BUTTON(button,gameturns) end
 function HIDE_VARIABLE() end
 function HEART_LOST_QUICK_OBJECTIVE() end
 function HEART_LOST_OBJECTIVE() end
-function QUICK_MESSAGE() end
+
 
 ]]
 --------------------

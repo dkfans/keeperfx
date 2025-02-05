@@ -28,6 +28,71 @@
 
 
 
+TbBool luaL_isThing(lua_State *L, int index)
+{
+    if (!lua_istable(L, index)) {
+        return false;
+    }
+
+    // Get idx field
+    lua_getfield(L, index, "ThingIndex");
+    if (!lua_isnumber(L, -1)) {
+        return false;
+    }
+    int idx = lua_tointeger(L, -1);
+    lua_pop(L, 1);  // Pop the idx value off the stack
+
+    // Get creation_turn field
+    lua_getfield(L, index, "creation_turn");
+    if (!lua_isnumber(L, -1)) {
+        return false;
+    }
+    int creation_turn = lua_tointeger(L, -1);
+    lua_pop(L, 1);  // Pop the creation_turn value off the stack
+
+    struct Thing* thing = thing_get(idx);
+    if (thing_is_invalid(thing) || thing->creation_turn != creation_turn) {
+        return false;
+    }
+    return true;
+}
+
+TbBool luaL_isCreature(lua_State *L, int index)
+{
+    if (!luaL_isThing(L, index)) {
+        return false;
+    }
+
+    struct Thing *thing = luaL_checkThing(L, index);
+    if (thing->class_id != TCls_Creature)
+    {
+        return false;
+    }
+    return true;
+}
+
+TbBool luaL_isPlayer(lua_State *L, int index)
+{
+    if(lua_isstring(L, index))
+    {
+        const char* plrname = lua_tostring(L, index);
+        return get_id(player_desc, plrname) != -1;
+    }
+    else if (lua_istable(L, index))
+    {
+        lua_getfield(L, index, "playerId");
+        if (lua_isnumber(L, -1)) {
+            return true;
+        }
+        return false;
+    }
+
+    return false;
+}
+
+
+
+
 /***************************************************************************************************/
 /************    Inputs   **************************************************************************/
 /***************************************************************************************************/
@@ -257,6 +322,41 @@ unsigned char luaL_checkParty(lua_State *L, int index)
         return luaL_argerror(L, index, lua_pushfstring(L, "Party of requested name, '%s', is not defined", party_name));
     }
     return prty_id;
+}
+
+
+
+void luaL_checkMessageIcon(lua_State *L, int index, char* type, char* id)
+{
+    if (lua_isnone(L, index))
+    {
+        *id = 0;
+        *type = MsgType_Blank;
+        return;
+    }
+    else if (luaL_isCreature(L, index))
+    {
+        struct Thing *thing = luaL_checkCreature(L, index);
+        *id = thing->model;
+        *type = MsgType_Creature;
+        return;
+    }
+    else if(luaL_isPlayer(L, index))
+    {
+        PlayerNumber plr_idx = luaL_checkPlayerRangeId(L, index);
+        *id = plr_idx;
+        *type = MsgType_Player;
+        return;
+    }
+    else if (lua_isstring(L, index))
+    {
+        const char *icon_text = lua_tostring(L,  index);
+        get_chat_icon_from_value(icon_text, id, type);
+        return;
+    }
+
+    luaL_argerror(L, index, "Message icon param not recognised");
+    
 }
 
 

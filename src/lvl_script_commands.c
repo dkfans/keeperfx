@@ -6756,7 +6756,7 @@ static void quick_message_check(const struct ScriptLine* scline)
     }
     snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
     value->longs[0]= scline->np[0];
-    get_player_number_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
+    get_chat_icon_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -6769,7 +6769,7 @@ static void display_message_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->ulongs[0] = scline->np[0];
-    get_player_number_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
+    get_chat_icon_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 

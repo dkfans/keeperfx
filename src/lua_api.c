@@ -518,8 +518,32 @@ static int lua_DISPLAY_INFORMATION_WITH_POS(lua_State *L)
 //static int lua_QUICK_INFORMATION(lua_State *L)
 //static int lua_QUICK_OBJECTIVE_WITH_POS(lua_State *L)
 //static int lua_QUICK_INFORMATION_WITH_POS(lua_State *L)
-//static int lua_DISPLAY_MESSAGE(lua_State *L)
-//static int lua_QUICK_MESSAGE(lua_State *L)
+
+static int lua_DISPLAY_MESSAGE(lua_State *L)
+{
+    int msg_id = luaL_checkinteger(L, 1);
+    const char *msg =  get_string(msg_id);
+    long id;
+    long type;
+    luaL_checkMessageIcon(L, 1, &type, &id);
+
+    message_add(type,id, msg);
+
+    return 0;
+}
+
+static int lua_QUICK_MESSAGE(lua_State *L)
+{
+    const char *msg = lua_tostring(L, 1);
+    long id;
+    long type;
+    luaL_checkMessageIcon(L, 1, &type, &id);
+
+    message_add(type,id, msg);
+
+    return 0;
+}
+
 //static int lua_HEART_LOST_OBJECTIVE(lua_State *L)
 //static int lua_HEART_LOST_QUICK_OBJECTIVE(lua_State *L)
 //static int lua_PLAY_MESSAGE(lua_State *L)
@@ -1109,18 +1133,6 @@ static int lua_get_thing_by_idx(lua_State *L)
     return 1;
 }
 
-static int send_chat_message(lua_State *L)
-{
-    int plyr_idx = luaL_checkPlayerSingle(L, 1);
-    const char *msg = lua_tostring(L, 2);
-
-    char type = MsgType_Player;
-
-    message_add(type,plyr_idx, msg);
-
-    return 0;
-}
-
 static int lua_print(lua_State *L)
 {
     const char* msg = lua_tostring(L, 1);
@@ -1212,8 +1224,8 @@ static const luaL_Reg global_methods[] = {
    //{"QUICK_OBJECTIVE_WITH_POS"             ,lua_QUICK_OBJECTIVE_WITH_POS        },
    //{"QUICK_INFORMATION"                    ,lua_QUICK_INFORMATION               },
    //{"QUICK_INFORMATION_WITH_POS"           ,lua_QUICK_INFORMATION_WITH_POS      },
-   //{"DISPLAY_MESSAGE"                      ,lua_DISPLAY_MESSAGE                 },
-   //{"QUICK_MESSAGE"                        ,lua_QUICK_MESSAGE                   },
+   {"DISPLAY_MESSAGE"                      ,lua_DISPLAY_MESSAGE                 },
+   {"QUICK_MESSAGE"                        ,lua_QUICK_MESSAGE                   },
    //{"HEART_LOST_OBJECTIVE"                 ,lua_HEART_LOST_OBJECTIVE            },
    //{"HEART_LOST_QUICK_OBJECTIVE"           ,lua_HEART_LOST_QUICK_OBJECTIVE      },
    //{"PLAY_MESSAGE"                         ,lua_PLAY_MESSAGE                    },
