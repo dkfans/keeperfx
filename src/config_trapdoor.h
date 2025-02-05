@@ -167,6 +167,9 @@ TbBool create_manufacture_array_from_trapdoor_data(void);
 TbBool make_available_all_doors(PlayerNumber plyr_idx);
 TbBool make_available_all_traps(PlayerNumber plyr_idx);
 
+void script_set_door_configuration(ThingModel door_type, short property, short value, short value2);
+void script_set_trap_configuration(ThingModel trap_type, short property, short value, short value2, short value3, short value4);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

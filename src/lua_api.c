@@ -819,9 +819,42 @@ static int lua_SET_HAND_RULE(lua_State *L)
 }
 
 
-//static int lua_SET_DOOR_CONFIGURATION(lua_State *L)
-//static int lua_SET_OBJECT_CONFIGURATION(lua_State *L)
-//static int lua_SET_TRAP_CONFIGURATION(lua_State *L)
+static int lua_SET_DOOR_CONFIGURATION(lua_State *L)
+{
+    ThingModel door_type = luaL_checkNamedCommand(L,1,door_desc);
+    short property       = luaL_checkNamedCommand(L,2,trapdoor_door_commands);
+    //todo values it also accept strings depending on the property above
+    short value          = luaL_checkinteger(L, 3);
+    short value2         = luaL_optinteger(L, 4);
+
+    script_set_door_configuration(door_type,property, value, value2);
+}
+
+static int lua_SET_OBJECT_CONFIGURATION(lua_State *L)
+{
+    ThingModel object_type = luaL_checkNamedCommand(L,1,object_desc);
+    short property         = luaL_checkNamedCommand(L,2,objects_object_commands);
+    //todo values it also accept strings depending on the property above
+    short value            = luaL_checkinteger(L, 3);
+    short value2           = luaL_optinteger(L, 4);
+
+    script_set_object_configuration(object_type,property, value, value2);
+}
+
+static int lua_SET_TRAP_CONFIGURATION(lua_State *L)
+{
+    ThingModel trap_type = luaL_checkNamedCommand(L,1,trap_desc);
+    short property       = luaL_checkNamedCommand(L,2,trapdoor_door_commands);
+    //todo values it also accept strings depending on the property above
+    short value          = luaL_checkinteger(L, 3);
+    short value2         = luaL_optinteger(L, 4);
+    short value3         = luaL_optinteger(L, 5);
+    short value4         = luaL_optinteger(L, 6);
+
+
+    script_set_trap_configuration(trap_type,property, value, value2, value3, value4);
+}
+
 //static int lua_SET_CREATURE_CONFIGURATION(lua_State *L)
 //static int lua_SET_EFFECT_GENERATOR_CONFIGURATION(lua_State *L)
 //static int lua_SET_POWER_CONFIGURATION(lua_State *L)
