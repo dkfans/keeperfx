@@ -378,7 +378,12 @@ EffectOrEffElModel luaL_checkEffectOrEffElModel(lua_State *L, int index)
     return 0;
 }
     
-
+long luaL_checkIntMinMax(lua_State *L, int index,long min, long max)
+{
+    long val = luaL_checkinteger(L,index);
+    luaL_argcheck(L, min <= val && val <= max, index, "value out of range");
+    return val;
+}
 
 /***************************************************************************************************/
 /************    Outputs   *************************************************************************/

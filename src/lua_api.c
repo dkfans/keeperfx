@@ -518,10 +518,47 @@ static int lua_DISPLAY_INFORMATION_WITH_POS(lua_State *L)
     return 0;
 }
 
-//static int lua_QUICK_OBJECTIVE(lua_State *L)
-//static int lua_QUICK_INFORMATION(lua_State *L)
-//static int lua_QUICK_OBJECTIVE_WITH_POS(lua_State *L)
-//static int lua_QUICK_INFORMATION_WITH_POS(lua_State *L)
+static int lua_QUICK_OBJECTIVE(lua_State *L)
+{
+    const char *msg_text = lua_tostring(L, 1);
+    TbMapLocation target = luaL_checkLocation(L, 2);
+
+    process_objective(msg_text, target, 0, 0);
+    return 0;
+}
+
+static int lua_QUICK_INFORMATION(lua_State *L)
+{
+    long slot = luaL_checkIntMinMax(L, 1, 0,QUICK_MESSAGES_COUNT-1);
+    const char *msg_text = lua_tostring(L, 2);
+    TbMapLocation target = luaL_checkLocation(L, 3);
+    snprintf(gameadd.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
+
+    set_quick_information(slot, target, 0, 0);
+    return 0;
+}
+
+static int lua_QUICK_OBJECTIVE_WITH_POS(lua_State *L)
+{
+    const char *msg_text = lua_tostring(L, 1);
+    MapSubtlCoord stl_x = luaL_checkstl_x(L, 3);
+    MapSubtlCoord stl_y = luaL_checkstl_y(L, 4);
+
+    process_objective(msg_text, 0, stl_x, stl_y);
+    return 0;
+}
+
+static int lua_QUICK_INFORMATION_WITH_POS(lua_State *L)
+{
+    long slot = luaL_checkIntMinMax(L, 1, 0,QUICK_MESSAGES_COUNT-1);
+    const char *msg_text = lua_tostring(L, 2);
+    MapSubtlCoord stl_x = luaL_checkstl_x(L, 3);
+    MapSubtlCoord stl_y = luaL_checkstl_y(L, 4);
+    snprintf(gameadd.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
+
+    set_quick_information(slot, 0, stl_x, stl_y);
+    return 0;
+}
 
 static int lua_DISPLAY_MESSAGE(lua_State *L)
 {
@@ -548,9 +585,33 @@ static int lua_QUICK_MESSAGE(lua_State *L)
     return 0;
 }
 
-//static int lua_HEART_LOST_OBJECTIVE(lua_State *L)
-//static int lua_HEART_LOST_QUICK_OBJECTIVE(lua_State *L)
+static int lua_HEART_LOST_OBJECTIVE(lua_State *L)
+{
+    long message_id = luaL_checkinteger(L, 1);
+    TbMapLocation target = luaL_checkLocation(L, 2);
+
+    gameadd.heart_lost_display_message = true;
+    gameadd.heart_lost_quick_message = false;
+    gameadd.heart_lost_message_id = message_id;
+    gameadd.heart_lost_message_target = target; 
+    return 0;
+}
+static int lua_HEART_LOST_QUICK_OBJECTIVE(lua_State *L)
+{
+    long slot = luaL_checkIntMinMax(L, 1, 0,QUICK_MESSAGES_COUNT-1);
+    const char *msg = lua_tostring(L, 2);
+    TbMapLocation target = luaL_checkLocation(L, 3);
+
+    snprintf(gameadd.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg);
+
+    gameadd.heart_lost_display_message = true;
+    gameadd.heart_lost_quick_message = true;
+    gameadd.heart_lost_message_id = slot;
+    gameadd.heart_lost_message_target = target; 
+    return 0;
+}
 //static int lua_PLAY_MESSAGE(lua_State *L)
+
 static int lua_TUTORIAL_FLASH_BUTTON(lua_State *L)
 {
     long          button    = luaL_checkinteger(L, 1);
@@ -1432,15 +1493,14 @@ static const luaL_Reg global_methods[] = {
    {"DISPLAY_OBJECTIVE_WITH_POS"           ,lua_DISPLAY_OBJECTIVE_WITH_POS      },
    {"DISPLAY_INFORMATION"                  ,lua_DISPLAY_INFORMATION             },
    {"DISPLAY_INFORMATION_WITH_POS"         ,lua_DISPLAY_INFORMATION_WITH_POS    },
-
-   //{"QUICK_OBJECTIVE"                      ,lua_QUICK_OBJECTIVE                 },
-   //{"QUICK_OBJECTIVE_WITH_POS"             ,lua_QUICK_OBJECTIVE_WITH_POS        },
-   //{"QUICK_INFORMATION"                    ,lua_QUICK_INFORMATION               },
-   //{"QUICK_INFORMATION_WITH_POS"           ,lua_QUICK_INFORMATION_WITH_POS      },
+   {"QUICK_OBJECTIVE"                      ,lua_QUICK_OBJECTIVE                 },
+   {"QUICK_OBJECTIVE_WITH_POS"             ,lua_QUICK_OBJECTIVE_WITH_POS        },
+   {"QUICK_INFORMATION"                    ,lua_QUICK_INFORMATION               },
+   {"QUICK_INFORMATION_WITH_POS"           ,lua_QUICK_INFORMATION_WITH_POS      },
    {"DISPLAY_MESSAGE"                      ,lua_DISPLAY_MESSAGE                 },
    {"QUICK_MESSAGE"                        ,lua_QUICK_MESSAGE                   },
-   //{"HEART_LOST_OBJECTIVE"                 ,lua_HEART_LOST_OBJECTIVE            },
-   //{"HEART_LOST_QUICK_OBJECTIVE"           ,lua_HEART_LOST_QUICK_OBJECTIVE      },
+   {"HEART_LOST_OBJECTIVE"                 ,lua_HEART_LOST_OBJECTIVE            },
+   {"HEART_LOST_QUICK_OBJECTIVE"           ,lua_HEART_LOST_QUICK_OBJECTIVE      },
    //{"PLAY_MESSAGE"                         ,lua_PLAY_MESSAGE                    },
    {"TUTORIAL_FLASH_BUTTON"                ,lua_TUTORIAL_FLASH_BUTTON           },
    {"DISPLAY_COUNTDOWN"                    ,lua_DISPLAY_COUNTDOWN               },

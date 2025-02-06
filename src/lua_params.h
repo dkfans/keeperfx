@@ -49,6 +49,7 @@ unsigned char luaL_checkCrtLevel(lua_State *L, int index);
 unsigned char luaL_checkParty(lua_State *L, int index);
 void luaL_checkMessageIcon(lua_State *L, int index, char* type, char* id);
 EffectOrEffElModel luaL_checkEffectOrEffElModel(lua_State *L, int index);
+long luaL_checkIntMinMax(lua_State *L, int index,long min, long max);
 
 /****   Outputs  *******/
 void lua_pushThing(lua_State *L, struct Thing* thing);
