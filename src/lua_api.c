@@ -1126,8 +1126,35 @@ static int lua_SET_BOX_TOOLTIP_ID(lua_State *L)
 
 
 //Effects
-//static int lua_CREATE_EFFECT(lua_State *L)
-//static int lua_CREATE_EFFECT_AT_POS(lua_State *L)
+static int lua_CREATE_EFFECT(lua_State *L)
+{
+    EffectOrEffElModel effect_id = luaL_checkEffectOrEffElModel(L,1);
+    TbMapLocation location = luaL_checkLocation(L,  2);
+    long height = luaL_checkinteger(L, 3);
+
+    struct Coord3d pos;
+    if (!get_coords_at_location(&pos, location,true))
+    {
+        return;
+    }
+
+    lua_pushThing(L,script_create_effect(pos, effect_id, height));
+    return 1;
+}
+
+static int lua_CREATE_EFFECT_AT_POS(lua_State *L)
+{
+    EffectOrEffElModel effect_id = luaL_checkEffectOrEffElModel(L,1);
+    MapSubtlCoord stl_x = luaL_checkstl_x(L, 2);
+    MapSubtlCoord stl_y = luaL_checkstl_y(L, 3);
+    long height = luaL_checkinteger(L, 4);
+
+    struct Coord3d pos;
+    set_coords_to_subtile_center(&pos, stl_x, stl_y, 0);
+    pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
+    lua_pushThing(L,script_create_effect(pos, effect_id, height));
+    return 1;
+}
 //static int lua_CREATE_EFFECTS_LINE(lua_State *L)
 
 

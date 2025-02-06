@@ -774,7 +774,7 @@ function MAKE_SAFE(player) end
 ---@param player any
 function MAKE_UNSAFE(player) end
 
---[[
+
 
 ---------
 --effect-
@@ -784,9 +784,18 @@ function MAKE_UNSAFE(player) end
 ---@param effect effect_type|effect_element_type|integer
 ---@param location location
 ---@param height integer The z-position of the effect. However, when using EFFECTELEMENT_PRICE as the 'effect' parameter, this is the gold amount displayed instead.
----@return Thing effect the created effect
+---@return Thing effect the created effect or effect element
 function CREATE_EFFECT(effect,location,height) local ef return ef end
 
+---Create an Effect at a location.
+---@param effect effect_type|effect_element_type|integer
+---@param stl_x integer
+---@param stl_y integer
+---@param height integer The z-position of the effect. However, when using EFFECTELEMENT_PRICE as the 'effect' parameter, this is the gold amount displayed instead.
+---@return Thing effect the created effect or effect element
+function CREATE_EFFECT_AT_POS(effect,stl_x,stl_y,height) local ef return ef end
+
+--[[
 ---Spawns an effect multiple times, forming a line.
 function CREATE_EFFECTS_LINE(origin,destination,curvature,distance, speed, effect) end
 

@@ -2163,27 +2163,8 @@ static void create_effect_at_pos_process(struct ScriptContext* context)
     struct Coord3d pos;
     set_coords_to_subtile_center(&pos, context->value->shorts[1], context->value->shorts[2], 0);
     pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
-    TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
-    if (Price)
-    {
-        pos.z.val += 128;
-    }
-    else
-    {
-        pos.z.val += context->value->longs[2];
-    }
-    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num, 0);
-    if (!thing_is_invalid(efftng))
-    {
-        if (thing_in_wall_at(efftng, &efftng->mappos))
-        {
-            move_creature_to_nearest_valid_position(efftng);
-        }
-        if (Price)
-        {
-            efftng->price_effect.number = context->value->longs[2];
-        }
-    }
+    script_create_effect(pos,context->value->shorts[0],context->value->longs[2])
+
 }
 
 static void create_effect_process(struct ScriptContext *context)
@@ -2192,28 +2173,10 @@ static void create_effect_process(struct ScriptContext *context)
     if (!get_coords_at_location(&pos, context->value->ulongs[1],true))
     {
         SCRPTWRNLOG("Could not find location %lu to create effect", context->value->ulongs[1]);
+        return;
     }
-    TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
-    if (Price)
-    {
-        pos.z.val += 128;
-    }
-    else
-    {
-        pos.z.val += context->value->longs[2];
-    }
-    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num, 0);
-    if (!thing_is_invalid(efftng))
-    {
-        if (thing_in_wall_at(efftng, &efftng->mappos))
-        {
-            move_creature_to_nearest_valid_position(efftng);
-        }
-        if (Price)
-        {
-            efftng->price_effect.number = context->value->longs[2];
-        }
-    }
+    script_create_effect(pos,context->value->shorts[0],context->value->longs[2])
+
 }
 
 static void set_heart_health_check(const struct ScriptLine *scline)
