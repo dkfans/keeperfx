@@ -1,6 +1,7 @@
 #include "pre_inc.h"
 #include "config.h"
 #include "bflib_sndlib.h"
+#include "bflib_datetm.h"
 #include "bflib_sound.h"
 #include "bflib_fileio.h"
 #include <AL/al.h>
@@ -39,6 +40,11 @@ SoundVolume g_master_volume = 0;
 SoundVolume g_music_volume = 0;
 ALCdevice_ptr g_openal_device;
 ALCcontext_ptr g_openal_context;
+bool g_bb_king_mode = false;
+
+enum source_flags {
+	bb_king_mode = 1,
+};
 
 const char * alErrorStr(ALenum code) {
 	switch (code) {
@@ -96,6 +102,7 @@ public:
 	SoundEmitterID emit_id = 0;
 	SoundSmplTblID smptbl_id = 0;
 	SoundBankID bank_id = 0;
+	int flags = 0;
 
 	openal_source() {
 		ALuint sources[1];
@@ -149,7 +156,8 @@ public:
 	}
 
 	void pan(SoundPan pan) {
-		alSource3f(id, AL_POSITION, -(float(64 - pan) / 64), 0, 0);
+		// convert 0..128 (where 64 is center) to -1.0..1.0 and then reduce stereo separation by 20%
+		alSource3f(id, AL_POSITION, (-(float(64 - pan) / 64)) * 0.8f, 0, 0);
 		const auto errcode = alGetError();
 		if (errcode != AL_NO_ERROR) {
 			throw openal_error("Cannot set position", errcode);
@@ -491,6 +499,11 @@ extern "C" void StopAllSamples() {
 
 extern "C" TbBool InitAudio(const SoundSettings * settings) {
 	try {
+		if (game.flags_font & FFlg_AlexCheat) {
+			TbDate date;
+			LbDate(&date);
+			g_bb_king_mode |= ((date.Day == 1) && (date.Month = 2));
+		}
 		if (SoundDisabled) {
 			LbWarnLog("Sound is disabled, skipping OpenAL initialization");
 			return false;
@@ -570,7 +583,11 @@ extern "C" void SetSamplePitch(SoundEmitterID emit_id, SoundSmplTblID smptbl_id,
 	for (auto & source : g_sources) {
 		if (source.emit_id == emit_id && source.smptbl_id == smptbl_id) {
 			try {
-				source.pitch(pitch);
+				if (source.flags & bb_king_mode) {
+					return; // ben enjoyed dofi's stream so much I made random pitch an easter egg
+				} else {
+					source.pitch(pitch);
+				}
 			} catch (const std::exception & e) {
 				LbErrorLog("%s", e.what());
 			}
@@ -594,6 +611,8 @@ extern "C" SoundMilesID play_sample(
 	} else if (bank_id > g_banks.size()) {
 		LbErrorLog("Can't play sample %d from bank %u, invalid bank ID", smptbl_id, bank_id);
 		return 0;
+	} else if (smptbl_id == 0) {
+		return 0; // silently ignore
 	} else if (smptbl_id <= 0 || smptbl_id >= g_banks[bank_id].size()) {
 		LbErrorLog("Can't play sample %d from bank %u, invalid sample ID", smptbl_id, bank_id);
 		return 0;
@@ -601,6 +620,20 @@ extern "C" SoundMilesID play_sample(
 	try {
 		for (auto & source : g_sources) {
 			if (source.emit_id == 0) {
+				source.gain(volume);
+				source.pan(pan);
+				if (g_bb_king_mode) {
+					// ben enjoyed dofi's stream so much I made random pitch an easter egg
+					if (UNSYNC_RANDOM(10) > 7) { // ~30% of the time
+						source.flags |= bb_king_mode;
+						source.pitch((NORMAL_PITCH / 2) + UNSYNC_RANDOM(NORMAL_PITCH));
+					} else {
+						source.flags &= ~bb_king_mode;
+						source.pitch(pitch);
+					}
+				} else {
+					source.pitch(pitch);
+				}
 				source.play(g_banks[bank_id][smptbl_id].buffer);
 				source.emit_id = emit_id;
 				source.smptbl_id = smptbl_id;
@@ -638,4 +671,8 @@ extern "C" SoundSFXID get_sample_sfxid(SoundSmplTblID smptbl_id, SoundBankID ban
 		return 0;
 	}
 	return g_banks[bank_id][smptbl_id].sfx_id;
+}
+
+extern "C" void toggle_bbking_mode() {
+	g_bb_king_mode = !g_bb_king_mode;
 }
