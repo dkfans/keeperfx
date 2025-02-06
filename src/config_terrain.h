@@ -32,6 +32,7 @@ extern "C" {
 
 #define TERRAIN_ITEMS_MAX    256
 #define SLABSETS_PER_SLAB   (9*3+1)
+#define HEALTH_BLOCKS 10
 
 
 /******************************************************************************/
@@ -124,6 +125,11 @@ struct SlabAttr {
     unsigned char wlb_type;
     unsigned char is_ownable;
     unsigned char indestructible;
+    HitPoints health_loss;
+    GameTurn damage_turns;
+    SlabKind turn_to;
+    ThingModel transform_effect;
+    TbBool transform_effect_mode;
 };
 
 #pragma pack()

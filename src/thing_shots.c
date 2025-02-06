@@ -445,7 +445,14 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
         {
             if (!slab_kind_is_indestructible(slb->kind))
             {
-                slb->health -= damage;
+                if (slb->kind != SlbT_DAMAGEDWALL)
+                {
+                    slb->health -= damage;
+                }
+                else
+                {
+                    slb->health = 0;
+                }
             }
             if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
             {

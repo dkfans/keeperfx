@@ -10285,3 +10285,27 @@ SolidMask = 25
 FloorTexture = 179
 Orientation = 0
 Cubes = [148,0,0,481,160,0,0,0]
+
+[column1286]
+Lintel = 0
+Height = 5
+SolidMask = 31
+FloorTexture = 27
+Orientation = 0
+Cubes = [117, 72, 123, 120, 77, 0, 0, 0]
+
+[column1287]
+Lintel = 0
+Height = 5
+SolidMask = 31
+FloorTexture = 27
+Orientation = 0
+Cubes = [117, 72, 124, 121, 77, 0, 0, 0]
+
+[column1288]
+Lintel = 0
+Height = 5
+SolidMask = 31
+FloorTexture = 27
+Orientation = 0
+Cubes = [117, 72, 125, 122, 77, 0, 0, 0]
