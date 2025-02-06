@@ -208,3 +208,39 @@ frames = [1047,1047,1048,1048,1049,1049,1050,1050]
 [texture594]
 name = "dense_gold3"
 frames = [1051,1051,1052,1052,1053,1053,1054,1054]
+
+[texture595]
+name = "dense_gold_near_lava"
+frames = [1055,1056,1056,1057,1057,1058,1058,1055]
+
+[texture596]
+name = "dense_gold_near_lava2"
+frames = [1057,1058,1058,1055,1055,1056,1056,1057]
+
+[texture597]
+name = "dense_gold_near_lava3"
+frames = [1056,1056,1057,1057,1058,1058,1055,1055]
+
+[texture598]
+name = "intermediate_gold"
+frames = [1059,1059,1060,1060,1061,1061,1062,1062]
+
+[texture599]
+name = "intermediate_gold2"
+frames = [1063,1063,1064,1064,1065,1065,1066,1066]
+
+[texture600]
+name = "intermediate_gold3"
+frames = [1067,1067,1068,1068,1069,1069,1070,1070]
+
+[texture601]
+name = "intermediate_gold_near_lava"
+frames = [1071,1072,1072,10737,1073,1074,1074,1071]
+
+[texture602]
+name = "intermediate_gold_near_lava2"
+frames = [1073,1074,1074,1071,1071,1072,1072,1073]
+
+[texture603]
+name = "intermediate_gold_near_lava3"
+frames = [1072,1072,1073,1073,1074,1074,1071,1071]
