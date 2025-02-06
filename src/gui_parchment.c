@@ -231,15 +231,10 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
     {
         pixval = background;
     } else
-    if (slb->kind == SlbT_GOLD)
+    if ((slb->kind == SlbT_GOLD) || (slb->kind == SlbT_DENSEGOLD))
     {
         pixval = pixmap.ghost[background + 0x8C00];
     } else
-    if (slb->kind == SlbT_DENSEGOLD)
-    {
-        pixval = pixmap.ghost[background + 0x8E00];
-    }
-    else
     if (slb->kind == SlbT_GEMS)
     {
         pixval = 102 + (pixmap.ghost[background] >> 6);
