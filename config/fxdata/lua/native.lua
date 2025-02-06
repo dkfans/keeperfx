@@ -798,6 +798,7 @@ function CREATE_EFFECT_AT_POS(effect,stl_x,stl_y,height) local ef return ef end
 --[[
 ---Spawns an effect multiple times, forming a line.
 function CREATE_EFFECTS_LINE(origin,destination,curvature,distance, speed, effect) end
+]]
 
 ---------
 --other-
@@ -830,6 +831,7 @@ function USE_POWER_AT_LOCATION(caster_player,location,power_name,power_level,fre
 ---@param free boolean
 function USE_POWER_ON_CREATURE(player,creature,caster_player,power_name,power_level,free) end
 
+--[[
 ---Casts a unit spell on a specific creature. Only abilities with actual spell effects can be used. So Freeze yes, Fireball, no.
 ---@param creature Creature
 ---@param spell spell_type
@@ -845,8 +847,8 @@ function SET_HAND_GRAPHIC(player,hand) end
 ---@param valname string The name of the variable you want to change. Accepts 'SizeIncreaseOnExp', 'PayIncreaseOnExp', 'SpellDamageIncreaseOnExp', 'RangeIncreaseOnExp', 'JobValueIncreaseOnExp', 'HealthIncreaseOnExp', 'StrengthIncreaseOnExp', 'DexterityIncreaseOnExp', 'DefenseIncreaseOnExp', 'LoyaltyIncreaseOnExp', 'ExpForHittingIncreaseOnExp', 'TrainingCostIncreaseOnExp', 'ScavengingCostIncreaseOnExp'.
 ---@param valnum integer The value you want to give it. 0 for no increase on experience. Range 0..32767.
 function SET_INCREASE_ON_EXPERIENCE(valname,valnum) end
-
 ]]
+
 
 ---Chooses what music track to play
 ---@param track_number integer  The music track to be played. Numbers 2~7 select from original tracks, or a file name(between parenthesis) to set custom music.

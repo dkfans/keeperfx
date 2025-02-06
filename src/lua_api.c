@@ -20,6 +20,7 @@
 #include "music_player.h"
 #include "power_specials.h"
 #include "thing_effects.h"
+#include "magic_powers.h"
 
 #include "lua_base.h"
 #include "lua_params.h"
@@ -1126,6 +1127,12 @@ static int lua_SET_BOX_TOOLTIP_ID(lua_State *L)
     return 0;
 }
 
+static int lua_LOCATE_HIDDEN_WORLD(lua_State *L)
+{
+    script_locate_hidden_world();
+    return 0;
+}
+
 
 
 //Effects
@@ -1216,19 +1223,81 @@ static int lua_SET_DIGGER(lua_State *L)
     return 0;
 }
 
-/*
-static int lua_MESSAGE(lua_State *L)
-static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
 static int lua_USE_POWER_ON_CREATURE(lua_State *L)
+{
+    struct Thing *thing = luaL_checkThing(L, 1);
+    long pwkind = luaL_checkNamedCommand(L,2,power_desc);
+    long power_level = luaL_checkinteger(L, 3);
+    PlayerNumber caster = luaL_checkPlayerSingle(L, 4);
+    TbBool is_free = lua_toboolean(L, 5);
+
+    script_use_power_on_creature(thing, pwkind, power_level, caster, is_free);
+    return 0;
+}
+
 static int lua_USE_POWER_AT_POS(lua_State *L)
-static int lua_USE_POWER_AT_SUBTILE(lua_State *L)
+{
+    PlayerNumber caster = luaL_checkPlayerSingle(L, 1);
+    MapSubtlCoord stl_x = luaL_checkstl_x(L, 2);
+    MapSubtlCoord stl_y = luaL_checkstl_y(L, 3);
+    PowerKind pwkind = luaL_checkNamedCommand(L,4,power_desc);
+    KeepPwrLevel power_level = luaL_checkinteger(L, 5);
+    TbBool is_free = lua_toboolean(L, 6);
+
+    unsigned long allow_flags = PwCast_AllGround | PwCast_Unrevealed;
+    unsigned long mod_flags = 0;
+    if (is_free)
+        set_flag(mod_flags,PwMod_CastForFree);
+
+    magic_use_power_on_subtile(caster, pwkind, power_level, stl_x, stl_y, allow_flags, mod_flags);
+    return 0;
+}
+
 static int lua_USE_POWER_AT_LOCATION(lua_State *L)
+{
+    PlayerNumber caster = luaL_checkPlayerSingle(L, 1);
+    TbMapLocation location = luaL_checkLocation(L, 2);
+    PowerKind pwkind = luaL_checkNamedCommand(L,3,power_desc);
+    KeepPwrLevel power_level = luaL_checkinteger(L, 4);
+    TbBool is_free = lua_toboolean(L, 5);
+
+    MapSubtlCoord stl_x = 0;
+    MapSubtlCoord stl_y = 0;
+    find_map_location_coords(location, &stl_x, &stl_y, caster, __func__);
+
+    unsigned long allow_flags = PwCast_AllGround | PwCast_Unrevealed;
+    unsigned long mod_flags = 0;
+    if (is_free)
+        set_flag(mod_flags,PwMod_CastForFree);
+
+    magic_use_power_on_subtile(caster, pwkind, power_level, stl_x, stl_y, allow_flags, mod_flags);
+    return 0;
+}
+
 static int lua_USE_POWER(lua_State *L)
+{
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
+    PowerKind power_kind = luaL_checkNamedCommand(L,2,power_desc);
+    TbBool free = lua_toboolean(L, 3);
 
-static int lua_USE_SPECIAL_LOCATE_HIDDEN_WORLD"
+    script_use_power(plyr_idx,power_kind,free);
+    return 0;
+}
+
 static int lua_USE_SPECIAL_TRANSFER_CREATURE(lua_State *L)
+{
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
+    if (plyr_idx == my_player_number)
+    {
+        struct Thing *heartng = get_player_soul_container(plyr_idx);
+        struct PlayerInfo* player = get_my_player();
+        start_transfer_creature(player, heartng);
+    }
+    return 0;
+}
 
-
+/*
+static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
 static int lua_CHANGE_SLAB_OWNER(lua_State *L)
 static int lua_CHANGE_SLAB_TYPE(lua_State *L)
 static int lua_USE_SPELL_ON_CREATURE(lua_State *L)
@@ -1264,6 +1333,18 @@ static int lua_get_thing_by_idx(lua_State *L)
     lua_pushThing(L, thing);
     return 1;
 }
+
+static int lua_get_creature_by_criterion(lua_State *L)
+{
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
+    ThingModel crmodel = luaL_checkNamedCommand(L,2,creature_desc);
+    long criteria = luaL_checkNamedCommand(L,3,creature_select_criteria_desc);
+
+    struct Thing* thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    lua_pushThing(L, thing);
+    return 1;
+}
+
 
 static int lua_print(lua_State *L)
 {
@@ -1419,39 +1500,39 @@ static const luaL_Reg global_methods[] = {
 //Specials
    {"USE_SPECIAL_INCREASE_LEVEL"           ,lua_USE_SPECIAL_INCREASE_LEVEL      },
    {"USE_SPECIAL_MULTIPLY_CREATURES"       ,lua_USE_SPECIAL_MULTIPLY_CREATURES  },
-   //{"USE_SPECIAL_TRANSFER_CREATURE"        ,lua_USE_SPECIAL_TRANSFER_CREATURE   },
+   {"USE_SPECIAL_TRANSFER_CREATURE"        ,lua_USE_SPECIAL_TRANSFER_CREATURE   },
    {"SET_BOX_TOOLTIP"                      ,lua_SET_BOX_TOOLTIP                 },
    {"SET_BOX_TOOLTIP_ID"                   ,lua_SET_BOX_TOOLTIP_ID              },
    {"MAKE_SAFE"                            ,lua_MAKE_SAFE                       },
    {"MAKE_UNSAFE"                          ,lua_MAKE_UNSAFE                     },
+   {"LOCATE_HIDDEN_WORLD"                  ,lua_LOCATE_HIDDEN_WORLD             },
 
 //Effects
-   {"CREATE_EFFECT"                        ,lua_CREATE_EFFECT                   },
-   {"CREATE_EFFECT_AT_POS"                 ,lua_CREATE_EFFECT_AT_POS            },
-/*
-   {"CREATE_EFFECTS_LINE"                  ,lua_CREATE_EFFECTS_LINE             },
+    {"CREATE_EFFECT"                        ,lua_CREATE_EFFECT                   },
+    {"CREATE_EFFECT_AT_POS"                 ,lua_CREATE_EFFECT_AT_POS            },
+
+    //{"CREATE_EFFECTS_LINE"                  ,lua_CREATE_EFFECTS_LINE             },
 
 //Other
-   {"USE_POWER"                            ,lua_USE_POWER                       },
-   {"USE_POWER_AT_LOCATION"                ,lua_USE_POWER_AT_LOCATION           },
-   {"USE_POWER_AT_POS"                     ,lua_USE_POWER_AT_POS                },
-   {"USE_POWER_ON_CREATURE"                ,lua_USE_POWER_ON_CREATURE           },
-   {"USE_SPELL_ON_CREATURE"                ,lua_USE_SPELL_ON_CREATURE           },
-   {"USE_SPELL_ON_PLAYERS_CREATURES"       ,lua_USE_SPELL_ON_PLAYERS_CREATURES  },
-   {"USE_POWER_ON_PLAYERS_CREATURES"       ,lua_USE_POWER_ON_PLAYERS_CREATURES  },
-   {"LOCATE_HIDDEN_WORLD"                  ,lua_LOCATE_HIDDEN_WORLD             },
-   {"SET_HAND_GRAPHIC"                     ,lua_SET_HAND_GRAPHIC                },
-   {"SET_INCREASE_ON_EXPERIENCE"           ,lua_SET_INCREASE_ON_EXPERIENCE      },
-*/
-   {"SET_MUSIC"                            ,lua_SET_MUSIC                       },
-   {"ZOOM_TO_LOCATION"                     ,lua_ZOOM_TO_LOCATION                },
-   {"LOCK_POSSESSION"                      ,lua_LOCK_POSSESSION                 },
-   {"SET_DIGGER"                           ,lua_SET_DIGGER                      },
+    {"USE_POWER"                            ,lua_USE_POWER                       },
+    {"USE_POWER_AT_LOCATION"                ,lua_USE_POWER_AT_LOCATION           },
+    {"USE_POWER_AT_POS"                     ,lua_USE_POWER_AT_POS                },
+    {"USE_POWER_ON_CREATURE"                ,lua_USE_POWER_ON_CREATURE           },
+    //{"USE_SPELL_ON_CREATURE"                ,lua_USE_SPELL_ON_CREATURE           },
+    //{"USE_SPELL_ON_PLAYERS_CREATURES"       ,lua_USE_SPELL_ON_PLAYERS_CREATURES  },
+    //{"USE_POWER_ON_PLAYERS_CREATURES"       ,lua_USE_POWER_ON_PLAYERS_CREATURES  },
+    //{"SET_HAND_GRAPHIC"                     ,lua_SET_HAND_GRAPHIC                },
+    //{"SET_INCREASE_ON_EXPERIENCE"           ,lua_SET_INCREASE_ON_EXPERIENCE      },
+    {"SET_MUSIC"                            ,lua_SET_MUSIC                       },
+    {"ZOOM_TO_LOCATION"                     ,lua_ZOOM_TO_LOCATION                },
+    {"LOCK_POSSESSION"                      ,lua_LOCK_POSSESSION                 },
+    {"SET_DIGGER"                           ,lua_SET_DIGGER                      },
 
 //debug stuff
-   {"print"           ,lua_print      },
+    {"print"           ,lua_print      },
 
     {"GetCreatureNear", lua_get_creature_near},
+    {"getCreatureByCriterion", lua_get_creature_by_criterion},
     {"getThingByIdx", lua_get_thing_by_idx},
     {"get_things_of_class", lua_get_things_of_class},
 };
