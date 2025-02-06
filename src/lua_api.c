@@ -1053,11 +1053,75 @@ static int lua_COMPUTER_DIG_TO_LOCATION(lua_State *L)
 
 
 //Specials
-//static int lua_USE_SPECIAL_INCREASE_LEVEL(lua_State *L)
-//static int lua_USE_SPECIAL_MULTIPLY_CREATURES",
-//static int lua_USE_SPECIAL_MAKE_SAFE(lua_State *L)
-//static int lua_SET_BOX_TOOLTIP(lua_State *L)
-//static int lua_SET_BOX_TOOLTIP_ID(lua_State *L)
+static int lua_USE_SPECIAL_INCREASE_LEVEL(lua_State *L)
+{
+    PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    char count;
+    if(lua_isnone(L,2))
+    {
+        count = 1;
+    }
+    else
+    {
+        count = luaL_checkinteger(L, 2);
+    }
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        script_use_special_increase_level(i,count);
+    }
+    return 0;
+}
+
+static int lua_USE_SPECIAL_MULTIPLY_CREATURES(lua_State *L)
+{
+    PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        script_use_special_multiply_creatures(i);
+    }
+    return 0;
+}
+
+static int lua_MAKE_SAFE(lua_State *L)
+{
+    PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        script_make_safe(i);
+    }
+    return 0;
+}
+
+static int lua_MAKE_UNSAFE(lua_State *L)
+{
+    PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        script_make_unsafe(i);
+    }
+    return 0;
+}
+
+static int lua_SET_BOX_TOOLTIP(lua_State *L)
+{
+    long box_id = luaL_checkinteger(L, 1);
+    const char* tooltip = luaL_checkstring(L, 2);
+
+    snprintf(gameadd.box_tooltip[box_id], MESSAGE_TEXT_LEN, "%s", tooltip);
+    return 0;
+}
+static int lua_SET_BOX_TOOLTIP_ID(lua_State *L)
+{
+    long box_id = luaL_checkinteger(L, 1);
+    long tooltip_id = luaL_checkinteger(L, 2);
+
+    snprintf(gameadd.box_tooltip[box_id], MESSAGE_TEXT_LEN, "%s", get_string(tooltip_id));
+    return 0;
+}
 
 
 
@@ -1322,13 +1386,15 @@ static const luaL_Reg global_methods[] = {
    //{"SET_COMPUTER_CHECKS"                  ,lua_SET_COMPUTER_CHECKS             },
    //{"SET_COMPUTER_GLOBALS"                 ,lua_SET_COMPUTER_GLOBALS            },
    //{"SET_COMPUTER_EVENT"                   ,lua_SET_COMPUTER_EVENT              },
-/*
 //Specials
-   {"USE_SPECIAL_INCREASE_LEVEL"           ,lua_USE_SPECIAL_INCREASE_LEVEL      },
-   {"USE_SPECIAL_MULTIPLY_CREATURES"       ,lua_USE_SPECIAL_MULTIPLY_CREATURES  },
-   {"USE_SPECIAL_TRANSFER_CREATURE"        ,lua_USE_SPECIAL_TRANSFER_CREATURE   },
+   //{"USE_SPECIAL_INCREASE_LEVEL"           ,lua_USE_SPECIAL_INCREASE_LEVEL      },
+   //{"USE_SPECIAL_MULTIPLY_CREATURES"       ,lua_USE_SPECIAL_MULTIPLY_CREATURES  },
+   //{"USE_SPECIAL_TRANSFER_CREATURE"        ,lua_USE_SPECIAL_TRANSFER_CREATURE   },
    {"SET_BOX_TOOLTIP"                      ,lua_SET_BOX_TOOLTIP                 },
    {"SET_BOX_TOOLTIP_ID"                   ,lua_SET_BOX_TOOLTIP_ID              },
+   {"MAKE_SAFE"                            ,lua_MAKE_SAFE                       },
+   {"MAKE_UNSAFE"                          ,lua_MAKE_UNSAFE                     },
+/*
 
 //Effects
    {"CREATE_EFFECT"                        ,lua_CREATE_EFFECT                   },
@@ -1344,8 +1410,6 @@ static const luaL_Reg global_methods[] = {
    {"USE_SPELL_ON_PLAYERS_CREATURES"       ,lua_USE_SPELL_ON_PLAYERS_CREATURES  },
    {"USE_POWER_ON_PLAYERS_CREATURES"       ,lua_USE_POWER_ON_PLAYERS_CREATURES  },
    {"LOCATE_HIDDEN_WORLD"                  ,lua_LOCATE_HIDDEN_WORLD             },
-   {"MAKE_SAFE"                            ,lua_MAKE_SAFE                       },
-   {"MAKE_UNSAFE"                          ,lua_MAKE_UNSAFE                     },
    {"SET_HAND_GRAPHIC"                     ,lua_SET_HAND_GRAPHIC                },
    {"SET_INCREASE_ON_EXPERIENCE"           ,lua_SET_INCREASE_ON_EXPERIENCE      },
 */

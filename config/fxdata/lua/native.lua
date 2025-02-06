@@ -732,7 +732,7 @@ function SET_COMPUTER_EVENT(player,event_name,data1,data2) end
 ---@param data1 string ,data2,data3,data4 These parameters can have different meaning for different values of "process name".
 function SET_COMPUTER_PROCESS(player,process_name,priority,data1,data2,data3,data4) end
 
-
+]]
 
 
 ------------
@@ -741,20 +741,40 @@ function SET_COMPUTER_PROCESS(player,process_name,priority,data1,data2,data3,dat
 
 ---Activates the effect of an 'Increase Level' dungeon special.
 ---@param player Player
----@param count integer How many times the special is activated. Accepts negative values.
+---@param count? integer How many times the special is activated. Accepts negative values.
 function USE_SPECIAL_INCREASE_LEVEL(player,count) end
 
+---Activates the effect of an 'Multiply Creatures' dungeon special.
+---@param player Player
+---@param count integer How many times the special is activated.
 function USE_SPECIAL_MULTIPLY_CREATURES(player,count) end
 
+---Opens the transfer creature special menu for the player, allowing the transfer of a creature.
+---@param player any
 function USE_SPECIAL_TRANSFER_CREATURE(player) end
 
 ---Creates a custom tooltip for Custom special boxes.
 ---@param boxnumber integer The ID of the custom box. With a new ADiKtEd or the ADD_OBJECT_TO_LEVEL command you can set a number. Multiple boxes may have the same number, and they will get the same tooltip and functionality.
 ---@param tooltip string The text that will displayed when you hover your mouse over the Special box.
 function SET_BOX_TOOLTIP(boxnumber,tooltip) end
-function SET_BOX_TOOLTIP_ID() end
 
+---Sets a Tooltip on a custom special box, with a text from the language files.
+---@param boxnumber integer The ID of the custom box.
+---@param TooltipTextID integer The number of the message, assigned to it in .po or .pot translation file.
+function SET_BOX_TOOLTIP_ID(boxnumber,TooltipTextID) end
 
+---Has the same effect as a 'Locate Hidden World' dungeon special.
+function LOCATE_HIDDEN_WORLD() end
+
+---fortifies all of the Dungeon Wall of target player.
+---@param player Player
+function MAKE_SAFE(player) end
+
+---Removes all the fortifications of the Dungeon Wall of target player.
+---@param player any
+function MAKE_UNSAFE(player) end
+
+--[[
 
 ---------
 --effect-
@@ -806,10 +826,6 @@ function USE_POWER_ON_CREATURE(player,creature,caster_player,power_name,power_le
 ---@param spell spell_type
 ---@param spell_level integer
 function USE_SPELL_ON_CREATURE(creature,spell,spell_level) end
-
-function LOCATE_HIDDEN_WORLD() end
-function MAKE_SAFE(player) end
-function MAKE_UNSAFE(player) end
 
 ---Changes the sprite of the power hand to a different one.
 ---@param player playersingle The name of the player who's hand is changed.
