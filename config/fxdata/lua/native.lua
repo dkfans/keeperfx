@@ -410,9 +410,17 @@ function ADD_PARTY_TO_LEVEL(owner,party_name,location,ncopies) end
 --------------------------------------------------
 --Displaying information and affecting interface--
 --------------------------------------------------
---[[
-function QUICK_OBJECTIVE(a,objective,where) end
-function QUICK_INFORMATION() end
+
+---Works like DISPLAY_OBJECTIVE, but instead of using a string from translations, allows to type it directly.
+---@param slot integer
+---@param message string
+---@param zoom_location location
+function QUICK_OBJECTIVE(slot,message,zoom_location) end
+
+---@param slot integer
+---@param message string
+---@param zoom_location location
+function QUICK_INFORMATION(slot,message,zoom_location) end
 
 ---Displays one of the text messages stored in gtext_***.dat in an Objective Box.
 ---This file comes in various language version, so messages from it are always in the language configured in the settings.
@@ -423,7 +431,7 @@ function DISPLAY_OBJECTIVE(msg_id,zoom_location) end
 ---@param msg_id integer
 ---@param zoom_location? location
 function DISPLAY_INFORMATION(msg_id,zoom_location) end
-
+--[[
 ---Plays a sound message or sound effect.
 ---@param player Player The name of the player who gets to hear the sound.
 ---@param type "SPEECH"|"SOUND" If it is a sound effect or a speech. Speeches queue, sounds play at the same time.
@@ -464,14 +472,17 @@ function QUICK_MESSAGE(msg,icon) end
 ---@param gameturns integer how long the button should flash for in 1/20th of a secon.
 function TUTORIAL_FLASH_BUTTON(button,gameturns) end
 
---[[
+---Displays an Objective message when the player lost his Dungeon Heart
+---@param msg string The message of the objective.
+---@param zoom_location location The location to zoom to when the message is displayed.
+function HEART_LOST_QUICK_OBJECTIVE(msg,zoom_location) end
 
-function HEART_LOST_QUICK_OBJECTIVE() end
-function HEART_LOST_OBJECTIVE() end
+---Displays an Objective message when the player lost his Dungeon Heart
+---@param msg_id integer The number of the message, assigned to it in .po or .pot translation file.
+---@param zoom_location location The location to zoom to when the message is displayed.
+function HEART_LOST_OBJECTIVE(msg_id,zoom_location) end
 
-
-]]
---------------------
+-----------------
 --Manipulating Map-
 --------------------
 
@@ -545,7 +556,7 @@ function PLACE_TRAP(player,trapname,subtile_x,subtile_y,free) end
 ---@param rulename string
 ---@param val1 integer
 function SET_GAME_RULE(rulename,val1) end
-
+]]
 ---Allows you to make changes to door values set in trapdoor.cfg. Look in that file for explanations on the numbers.
 ---@param doorname door_type The name of the door as defined in trapdoor.cfg
 ---@param property string The name of the door property you want to change, as found in trapdoor.cfg. E.g. ManufactureRequired.
@@ -561,7 +572,7 @@ function SET_DOOR_CONFIGURATION(doorname,property,value,value2) end
 ---@param value2? integer
 ---@param value3? integer
 function SET_TRAP_CONFIGURATION(trapname,property,value,value2,value3) end
-
+--[[
 ---comment
 ---@param objectname object_type
 ---@param property string
