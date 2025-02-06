@@ -44,6 +44,7 @@
 #include "console_cmd.h"
 #include "custom_sprites.h"
 #include "lvl_script_lib.h"
+#include "keeperfx.hpp"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -2685,6 +2686,9 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
         }
         do_to_players_all_creatures_of_model(plyr_idx, crtr_id, process_job_stress_and_going_postal);
     }
+    
+    recalculate_all_creature_digger_lists();
+    update_creatr_model_activities_list(1);
 
     return true;
 }
