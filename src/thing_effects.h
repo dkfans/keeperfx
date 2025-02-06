@@ -283,6 +283,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing);
 TbBool destroy_effect_thing(struct Thing *thing);
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price);
 
+struct Thing *script_create_effect(struct Coord3d *pos, EffectOrEffElModel mdl, long val);
+
 TbBool area_effect_can_affect_thing(const struct Thing *thing, HitTargetFlags hit_targets, PlayerNumber shot_owner);
 long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
     HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets);

@@ -2163,7 +2163,7 @@ static void create_effect_at_pos_process(struct ScriptContext* context)
     struct Coord3d pos;
     set_coords_to_subtile_center(&pos, context->value->shorts[1], context->value->shorts[2], 0);
     pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
-    script_create_effect(pos,context->value->shorts[0],context->value->longs[2])
+    script_create_effect(&pos,context->value->shorts[0],context->value->longs[2]);
 
 }
 
@@ -2175,7 +2175,7 @@ static void create_effect_process(struct ScriptContext *context)
         SCRPTWRNLOG("Could not find location %lu to create effect", context->value->ulongs[1]);
         return;
     }
-    script_create_effect(pos,context->value->shorts[0],context->value->longs[2])
+    script_create_effect(&pos,context->value->shorts[0],context->value->longs[2]);
 
 }
 

@@ -18,6 +18,9 @@
 #include "room_library.h"
 #include "keeperfx.hpp"
 #include "music_player.h"
+#include "power_specials.h"
+#include "thing_effects.h"
+
 #include "lua_base.h"
 #include "lua_params.h"
 
@@ -1055,7 +1058,7 @@ static int lua_COMPUTER_DIG_TO_LOCATION(lua_State *L)
 //Specials
 static int lua_USE_SPECIAL_INCREASE_LEVEL(lua_State *L)
 {
-    PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     char count;
     if(lua_isnone(L,2))
     {
@@ -1075,7 +1078,7 @@ static int lua_USE_SPECIAL_INCREASE_LEVEL(lua_State *L)
 
 static int lua_USE_SPECIAL_MULTIPLY_CREATURES(lua_State *L)
 {
-    PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
 
     for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
     {
@@ -1086,7 +1089,7 @@ static int lua_USE_SPECIAL_MULTIPLY_CREATURES(lua_State *L)
 
 static int lua_MAKE_SAFE(lua_State *L)
 {
-    PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
 
     for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
     {
@@ -1097,7 +1100,7 @@ static int lua_MAKE_SAFE(lua_State *L)
 
 static int lua_MAKE_UNSAFE(lua_State *L)
 {
-    PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
 
     for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
     {
@@ -1135,10 +1138,10 @@ static int lua_CREATE_EFFECT(lua_State *L)
     struct Coord3d pos;
     if (!get_coords_at_location(&pos, location,true))
     {
-        return;
+        return 0;
     }
 
-    lua_pushThing(L,script_create_effect(pos, effect_id, height));
+    lua_pushThing(L,script_create_effect(&pos, effect_id, height));
     return 1;
 }
 
@@ -1152,7 +1155,7 @@ static int lua_CREATE_EFFECT_AT_POS(lua_State *L)
     struct Coord3d pos;
     set_coords_to_subtile_center(&pos, stl_x, stl_y, 0);
     pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
-    lua_pushThing(L,script_create_effect(pos, effect_id, height));
+    lua_pushThing(L,script_create_effect(&pos, effect_id, height));
     return 1;
 }
 //static int lua_CREATE_EFFECTS_LINE(lua_State *L)
@@ -1414,18 +1417,18 @@ static const luaL_Reg global_methods[] = {
    //{"SET_COMPUTER_GLOBALS"                 ,lua_SET_COMPUTER_GLOBALS            },
    //{"SET_COMPUTER_EVENT"                   ,lua_SET_COMPUTER_EVENT              },
 //Specials
-   //{"USE_SPECIAL_INCREASE_LEVEL"           ,lua_USE_SPECIAL_INCREASE_LEVEL      },
-   //{"USE_SPECIAL_MULTIPLY_CREATURES"       ,lua_USE_SPECIAL_MULTIPLY_CREATURES  },
+   {"USE_SPECIAL_INCREASE_LEVEL"           ,lua_USE_SPECIAL_INCREASE_LEVEL      },
+   {"USE_SPECIAL_MULTIPLY_CREATURES"       ,lua_USE_SPECIAL_MULTIPLY_CREATURES  },
    //{"USE_SPECIAL_TRANSFER_CREATURE"        ,lua_USE_SPECIAL_TRANSFER_CREATURE   },
    {"SET_BOX_TOOLTIP"                      ,lua_SET_BOX_TOOLTIP                 },
    {"SET_BOX_TOOLTIP_ID"                   ,lua_SET_BOX_TOOLTIP_ID              },
    {"MAKE_SAFE"                            ,lua_MAKE_SAFE                       },
    {"MAKE_UNSAFE"                          ,lua_MAKE_UNSAFE                     },
-/*
 
 //Effects
    {"CREATE_EFFECT"                        ,lua_CREATE_EFFECT                   },
    {"CREATE_EFFECT_AT_POS"                 ,lua_CREATE_EFFECT_AT_POS            },
+/*
    {"CREATE_EFFECTS_LINE"                  ,lua_CREATE_EFFECTS_LINE             },
 
 //Other

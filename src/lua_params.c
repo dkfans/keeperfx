@@ -359,6 +359,26 @@ void luaL_checkMessageIcon(lua_State *L, int index, char* type, char* id)
     
 }
 
+EffectOrEffElModel luaL_checkEffectOrEffElModel(lua_State *L, int index)
+{
+    if (lua_isnumber(L, index))
+    {
+        return lua_tointeger(L, index);
+    }
+    else if(lua_isstring(L, index))
+    {
+        const char* text = lua_tostring(L, index);
+        long id = effect_or_effect_element_id(text);
+
+        luaL_argcheck(L,id != 0,index,"invalid effect option");
+
+        return id;
+    }
+    luaL_error(L,"invalid effect option");
+    return 0;
+}
+    
+
 
 /***************************************************************************************************/
 /************    Outputs   *************************************************************************/

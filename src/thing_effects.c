@@ -1598,18 +1598,18 @@ struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long
     return elemtng;
 }
 
-struct Thing *script_create_effect(const struct Coord3d *pos, EffectOrEffElModel mdl, long val)
+struct Thing *script_create_effect(struct Coord3d *pos, EffectOrEffElModel mdl, long val)
 {
     TbBool Price = (mdl == -(TngEffElm_Price));
     if (Price)
     {
-        pos.z.val += 128;
+        pos->z.val += 128;
     }
     else
     {
-        pos.z.val += val;
+        pos->z.val += val;
     }
-    struct Thing* efftng = create_used_effect_or_element(&pos, mdl, game.neutral_player_num, 0);
+    struct Thing* efftng = create_used_effect_or_element(pos, mdl, game.neutral_player_num, 0);
     if (!thing_is_invalid(efftng))
     {
         if (thing_in_wall_at(efftng, &efftng->mappos))
@@ -1618,7 +1618,7 @@ struct Thing *script_create_effect(const struct Coord3d *pos, EffectOrEffElModel
         }
         if (Price)
         {
-            efftng->price_effect.number = price;
+            efftng->price_effect.number = val;
         }
     }
     return efftng;
