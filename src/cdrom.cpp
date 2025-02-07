@@ -96,7 +96,6 @@ bool open_redbook_device() {
 				mci_close(device_id);
 			}
 		}
-		JUSTLOG("No cdrom drives found with a disk in it");
 		return false;
 	}
 	return true;
