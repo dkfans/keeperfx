@@ -7129,3 +7129,13 @@ msgstr "Porta di Mida"
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
 msgstr "Porta di Mida: Questa porta consuma oro del suo proprietario per rimanere indistruttibile. RMB zoom."
+
+#: guitext:1078
+msgctxt "Game controls"
+msgid "Ascend"
+msgstr ""
+
+#: guitext:1079
+msgctxt "Game controls"
+msgid "Descend"
+msgstr ""

@@ -5901,6 +5901,19 @@ TbBool update_controlled_creature_movement(struct Thing *thing)
             cctrl->moveaccel.x.val += distance_with_angle_to_coord_x(cctrl->orthogn_speed, thing->move_angle_xy - LbFPMath_PI/2);
             cctrl->moveaccel.y.val += distance_with_angle_to_coord_y(cctrl->orthogn_speed, thing->move_angle_xy - LbFPMath_PI/2);
         }
+        if (cctrl->vertical_speed != 0)
+        {
+            MapCoord floor_height, ceiling_height;
+            get_floor_and_ceiling_height_under_thing_at(thing, &thing->mappos, &floor_height, &ceiling_height);
+            if ( (thing->mappos.z.val >= floor_height) && (thing->mappos.z.val <= ceiling_height) )
+            {
+                cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->vertical_speed, thing->move_angle_z);
+            }
+            else
+            {
+                cctrl->moveaccel.z.val = 0;
+            }
+        }
     } else
     {
         if (cctrl->move_speed != 0)
@@ -6417,13 +6430,17 @@ TngUpdateRet update_creature(struct Thing *thing)
     move_creature(thing);
     if (flag_is_set(thing->alloc_flags, TAlF_IsControlled))
     {
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_Unknown40))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveY))
         {
             cctrl->move_speed /= 2;
         }
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_Unknown80))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveX))
         {
             cctrl->orthogn_speed /= 2;
+        }
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveZ))
+        {
+            cctrl->vertical_speed /= 2;
         }
     }
     else
@@ -6492,7 +6509,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->moveaccel.y.val = 0;
     cctrl->moveaccel.z.val = 0;
     // Clear flags and process spell effects.
-    clear_flag(cctrl->flgfield_1, CCFlg_Unknown40 | CCFlg_Unknown80);
+    clear_flag(cctrl->flgfield_1, CCFlg_MoveY | CCFlg_MoveX | CCFlg_MoveZ);
     clear_flag(cctrl->spell_flags, CSAfF_PoisonCloud | CSAfF_Wind);
     process_thing_spell_effects(thing);
     process_timebomb(thing);

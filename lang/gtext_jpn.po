@@ -6975,3 +6975,13 @@ msgstr "ミダースのドア"
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
 msgstr "ミダースのドア： 完全に不滅であるために、所有者の財宝を消費する。"
+
+#: guitext:1078
+msgctxt "Game controls"
+msgid "Ascend"
+msgstr "上昇"
+
+#: guitext:1079
+msgctxt "Game controls"
+msgid "Descend"
+msgstr "下降"
