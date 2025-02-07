@@ -7732,22 +7732,8 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
     return true;
 }
 
-/**
- * Cast a spell on a creature which meets given criteria.
- * @param plyr_idx The player whose creature will be affected.
- * @param crmodel Model of the creature to find.
- * @param criteria Criteria, from CreatureSelectCriteria enumeration.
- * @param fmcl_bytes encoded bytes: f=cast for free flag,m=spell kind,c=caster player index,l=spell level.
- * @return TbResult whether the spell was successfully cast
- */
-TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
+TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, long fmcl_bytes)
 {
-    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing))
-    {
-        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
-        return Lb_FAIL;
-    }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
     struct SpellConfig *spconf = get_spell_config(spkind);
     if (!creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
@@ -7774,6 +7760,68 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
     else
     {
         return Lb_FAIL;
+    }
+}
+
+/**
+ * Cast a spell on a creature which meets given criteria.
+ * @param plyr_idx The player whose creature will be affected.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @param fmcl_bytes encoded bytes: f=cast for free flag,m=spell kind,c=caster player index,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_spell_on_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
+{
+    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    if (thing_is_invalid(thing))
+    {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
+        return Lb_FAIL;
+    }
+    return script_use_spell_on_creature(plyr_idx, thing, fmcl_bytes);
+}
+
+void script_move_creature(struct Thing* thing, TbMapLocation location, ThingModel effect_id)
+{
+    
+    if (effect_id < 0)
+    {
+        effect_id = ball_puff_effects[thing->owner];
+    }
+
+    struct Coord3d pos;
+    if(!get_coords_at_location(&pos,location,false)) {
+        SYNCDBG(5,"No valid coords for location %d",(int)location);
+        return;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+
+    if (effect_id > 0)
+    {
+        create_effect(&thing->mappos, effect_id, game.neutral_player_num);
+        create_effect(&pos, effect_id, game.neutral_player_num);
+    }
+    move_thing_in_map(thing, &pos);
+    reset_interpolation_of_thing(thing);
+    if (!is_thing_some_way_controlled(thing))
+    {
+        initialise_thing_state(thing, CrSt_CreatureDoingNothing);
+    }
+    cctrl->turns_at_job = -1;
+    check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+}
+
+void script_move_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long select_id, TbMapLocation location, ThingModel effect_id, long count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, select_id);
+        if (thing_is_invalid(thing) || thing_is_picked_up(thing)) {
+            continue;
+        }
+        script_move_creature(thing, location, effect_id);
     }
 }
 

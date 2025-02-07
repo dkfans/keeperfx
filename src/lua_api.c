@@ -16,9 +16,11 @@
 #include "player_utils.h"
 #include "lvl_script_lib.h"
 #include "room_library.h"
+#include "room_util.h"
 #include "keeperfx.hpp"
 #include "music_player.h"
 #include "power_specials.h"
+#include "thing_creature.h"
 #include "thing_effects.h"
 #include "magic_powers.h"
 
@@ -1237,6 +1239,7 @@ static int lua_CREATE_EFFECTS_LINE(lua_State *L)
     EffectOrEffElModel effct_id = luaL_checkEffectOrEffElModel(L,6);
 
     create_effects_line(from, to, curvature, spatial_stepping, temporal_stepping, effct_id);
+    return 0;
 }
 
 
@@ -1368,14 +1371,82 @@ static int lua_USE_SPECIAL_TRANSFER_CREATURE(lua_State *L)
     return 0;
 }
 
-/*
-static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
-static int lua_CHANGE_SLAB_OWNER(lua_State *L)
-static int lua_CHANGE_SLAB_TYPE(lua_State *L)
-static int lua_USE_SPELL_ON_CREATURE(lua_State *L)
-static int lua_HIDE_HERO_GATE(lua_State *L)
 
-*/
+static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    GoldAmount gold = luaL_checkinteger(L, 2);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        if(gold > 0)
+        {
+            player_add_offmap_gold(i, gold);
+        }
+        else
+        {
+            take_money_from_dungeon(i, -gold, 0);
+        }
+    }
+
+    
+    return 0;
+}
+
+static int lua_CHANGE_SLAB_OWNER(lua_State *L)
+{
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
+    MapSlabCoord slb_x = luaL_checkslb_x(L, 2);
+    MapSlabCoord slb_y = luaL_checkslb_y(L, 3);
+
+    change_slab_owner_from_script(plyr_idx, slb_x, slb_y);
+    return 0;
+}
+
+static int lua_CHANGE_SLAB_TYPE(lua_State *L)
+{
+    SlabKind slb_kind = luaL_checkNamedCommand(L, 1,slab_desc);
+    MapSlabCoord slb_x = luaL_checkslb_x(L, 2);
+    MapSlabCoord slb_y = luaL_checkslb_y(L, 3);
+
+    replace_slab_from_script(slb_x, slb_y,slb_kind);
+    return 0;
+}
+
+static int lua_USE_SPELL_ON_CREATURE(lua_State *L)
+{
+    struct Thing *thing = luaL_checkThing(L, 1);
+    long spell_id = luaL_checkNamedCommand(L,2,spell_desc);
+    int spell_level = luaL_checkinteger(L, 3);
+
+    unsigned long fmcl_bytes = (spell_id << 8) | spell_level;
+
+    script_use_spell_on_creature(thing->owner, thing, fmcl_bytes);
+    return 0;
+}
+
+static int lua_HIDE_HERO_GATE(lua_State *L)
+{
+    long gate_number = luaL_checkinteger(L, 1);
+    TbBool hide = lua_toboolean(L, 2);
+
+    struct Thing* thing = find_hero_gate_of_number(gate_number);
+    if (hide)
+    {
+        light_turn_light_off(thing->light_id);
+        create_effect(&thing->mappos, TngEff_BallPuffWhite, thing->owner);
+        place_thing_in_creature_controlled_limbo(thing);
+    }
+    else
+    {
+        create_effect(&thing->mappos, TngEff_BallPuffWhite, thing->owner);
+        remove_thing_from_creature_controlled_limbo(thing);
+        light_turn_light_on(thing->light_id);
+    }
+    return 0;
+}
+
+
 
 
 /**********************************************/
@@ -1527,9 +1598,12 @@ static const luaL_Reg global_methods[] = {
    {"ADD_EFFECT_GENERATOR_TO_LEVEL"        ,lua_ADD_EFFECT_GENERATOR_TO_LEVEL   },
    {"PLACE_DOOR"                           ,lua_PLACE_DOOR                      },
    {"PLACE_TRAP"                           ,lua_PLACE_TRAP                      },
+   {"CHANGE_SLAB_OWNER"                    ,lua_CHANGE_SLAB_OWNER               },
+   {"CHANGE_SLAB_TYPE"                     ,lua_CHANGE_SLAB_TYPE                },
+   {"HIDE_HERO_GATE"                       ,lua_HIDE_HERO_GATE                  },
    
    
-
+   
 //Manipulating Configs
    //{"SET_GAME_RULE"                        ,lua_SET_GAME_RULE                   },
    {"SET_HAND_RULE"                        ,lua_SET_HAND_RULE                   },
@@ -1561,13 +1635,13 @@ static const luaL_Reg global_methods[] = {
    {"RESEARCH"                             ,lua_RESEARCH                        },
    {"RESEARCH_ORDER"                       ,lua_RESEARCH_ORDER                  },
 
-
 //Tweaking computer players
    {"COMPUTER_DIG_TO_LOCATION"             ,lua_COMPUTER_DIG_TO_LOCATION        },
    //{"SET_COMPUTER_PROCESS"                 ,lua_SET_COMPUTER_PROCESS            },
    //{"SET_COMPUTER_CHECKS"                  ,lua_SET_COMPUTER_CHECKS             },
    //{"SET_COMPUTER_GLOBALS"                 ,lua_SET_COMPUTER_GLOBALS            },
    //{"SET_COMPUTER_EVENT"                   ,lua_SET_COMPUTER_EVENT              },
+
 //Specials
    {"USE_SPECIAL_INCREASE_LEVEL"           ,lua_USE_SPECIAL_INCREASE_LEVEL      },
    {"USE_SPECIAL_MULTIPLY_CREATURES"       ,lua_USE_SPECIAL_MULTIPLY_CREATURES  },
@@ -1581,15 +1655,14 @@ static const luaL_Reg global_methods[] = {
 //Effects
     {"CREATE_EFFECT"                        ,lua_CREATE_EFFECT                   },
     {"CREATE_EFFECT_AT_POS"                 ,lua_CREATE_EFFECT_AT_POS            },
-
-    //{"CREATE_EFFECTS_LINE"                  ,lua_CREATE_EFFECTS_LINE             },
+    {"CREATE_EFFECTS_LINE"                  ,lua_CREATE_EFFECTS_LINE             },
 
 //Other
     {"USE_POWER"                            ,lua_USE_POWER                       },
     {"USE_POWER_AT_LOCATION"                ,lua_USE_POWER_AT_LOCATION           },
     {"USE_POWER_AT_POS"                     ,lua_USE_POWER_AT_POS                },
     {"USE_POWER_ON_CREATURE"                ,lua_USE_POWER_ON_CREATURE           },
-    //{"USE_SPELL_ON_CREATURE"                ,lua_USE_SPELL_ON_CREATURE           },
+    {"USE_SPELL_ON_CREATURE"                ,lua_USE_SPELL_ON_CREATURE           },
     //{"USE_SPELL_ON_PLAYERS_CREATURES"       ,lua_USE_SPELL_ON_PLAYERS_CREATURES  },
     //{"USE_POWER_ON_PLAYERS_CREATURES"       ,lua_USE_POWER_ON_PLAYERS_CREATURES  },
     //{"SET_HAND_GRAPHIC"                     ,lua_SET_HAND_GRAPHIC                },
@@ -1605,7 +1678,7 @@ static const luaL_Reg global_methods[] = {
     {"GetCreatureNear", lua_get_creature_near},
     {"getCreatureByCriterion", lua_get_creature_by_criterion},
     {"getThingByIdx", lua_get_thing_by_idx},
-    {"get_things_of_class", lua_get_things_of_class},
+    {"getThingsOfClass", lua_get_things_of_class},
 };
 /*
 static const luaL_Reg game_meta[] = {
@@ -1696,7 +1769,16 @@ static int lua_LEVEL_UP_CREATURE(lua_State *L)
     return 0;
 }
 
-//static int lua_MOVE_CREATURE(lua_State *L)
+static int lua_MOVE_CREATURE(lua_State *L)
+{
+    struct Thing* thing = luaL_checkThing(L, 1);
+    TbMapLocation location = luaL_checkLocation(L, 2);
+    EffectOrEffElModel effect_id = luaL_checkEffectOrEffElModel(L, 3);
+
+    script_move_creature(thing, location, effect_id);
+    return 0;
+}
+
 //static int lua_CHANGE_CREATURE_OWNER(lua_State *L)
 //static int lua_CHANGE_CREATURES_ANNOYANCE(lua_State *L)
 
@@ -1824,7 +1906,7 @@ static const struct luaL_Reg thing_methods[] = {
     
    {"TRANSFER_CREATURE"                    ,lua_TRANSFER_CREATURE               },
    {"LEVEL_UP_CREATURE"                    ,lua_LEVEL_UP_CREATURE               },
-   //{"MOVE_CREATURE"                        ,lua_MOVE_CREATURE                   },
+   {"MOVE_CREATURE"                        ,lua_MOVE_CREATURE                   },
    //{"CHANGE_CREATURE_OWNER"                ,lua_CHANGE_CREATURE_OWNER           },
    //{"CHANGE_CREATURES_ANNOYANCE"           ,lua_CHANGE_CREATURES_ANNOYANCE      },
     {NULL, NULL}
@@ -1987,7 +2069,7 @@ static int player_eq(lua_State *L) {
 
 static const struct luaL_Reg player_methods[] = {
    //{"SET_TEXTURE"                          ,lua_SET_TEXTURE                     },   
-   //{"ADD_GOLD_TO_PLAYER"                   ,lua_ADD_GOLD_TO_PLAYER              },
+   {"ADD_GOLD_TO_PLAYER"                   ,lua_ADD_GOLD_TO_PLAYER              },
    //{"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
    //{"SET_PLAYER_MODIFIER"                  ,lua_SET_PLAYER_MODIFIER             },
    //{"ADD_TO_PLAYER_MODIFIER"               ,lua_ADD_TO_PLAYER_MODIFIER          },

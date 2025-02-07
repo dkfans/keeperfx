@@ -1949,40 +1949,8 @@ static void move_creature_process(struct ScriptContext* context)
     long count = context->value->bytes[10];
     long crmodel = context->value->bytes[11];
     PlayerNumber plyr_idx = context->player_idx;
-    for (int i = 0; i < count; i++)
-    {
-        struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, select_id);
-        if (thing_is_invalid(thing) || thing_is_picked_up(thing)) {
-            continue;
-        }
 
-        if (effect_id < 0)
-        {
-            effect_id = ball_puff_effects[thing->owner];
-        }
-
-        struct Coord3d pos;
-        if(!get_coords_at_location(&pos,location,false)) {
-            SYNCDBG(5,"No valid coords for location %d",(int)location);
-            return;
-        }
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-
-        if (effect_id > 0)
-        {
-            create_effect(&thing->mappos, effect_id, game.neutral_player_num);
-            create_effect(&pos, effect_id, game.neutral_player_num);
-        }
-        move_thing_in_map(thing, &pos);
-        reset_interpolation_of_thing(thing);
-        if (!is_thing_some_way_controlled(thing))
-        {
-            initialise_thing_state(thing, CrSt_CreatureDoingNothing);
-        }
-        cctrl->turns_at_job = -1;
-        check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    }
+    script_move_creature_with_criteria(plyr_idx, crmodel, select_id, location, effect_id, count);
 }
 
 static void count_creatures_at_action_point_process(struct ScriptContext* context)
