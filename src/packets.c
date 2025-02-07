@@ -1233,6 +1233,7 @@ void process_players_creature_control_packet_control(long idx)
     }
     if (flag_is_set(cctng->movement_flags, TMvF_Flying))
     {
+        MapCoord floor_height, ceiling_height;
         if ((pckt->control_flags & PCtr_Ascend) != 0)
         {
             if (!creature_control_invalid(ccctrl))
@@ -1241,7 +1242,6 @@ void process_players_creature_control_packet_control(long idx)
                 ccctrl->flgfield_1 |= CCFlg_MoveZ;
                 if (ccctrl->vertical_speed != 0)
                 {
-                    MapCoord floor_height, ceiling_height;
                     get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
                     if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
                     {
@@ -1266,7 +1266,6 @@ void process_players_creature_control_packet_control(long idx)
                 ccctrl->flgfield_1 |= CCFlg_MoveZ;
                 if (ccctrl->vertical_speed != 0)
                 {
-                    MapCoord floor_height, ceiling_height;
                     get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
                     if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
                     {
