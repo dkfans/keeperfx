@@ -317,9 +317,6 @@ extern const struct NamedCommand set_door_desc[];
 extern const struct NamedCommand texture_pack_desc[];
 extern const struct NamedCommand locked_desc[];
 
-// 1/4 turn minimal
-#define FX_LINE_TIME_PARTS 4
-
 
 ThingModel parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);

@@ -282,8 +282,9 @@ TngUpdateRet process_effect_generator(struct Thing *thing);
 void process_spells_affected_by_effect_elements(struct Thing *thing);
 TbBool destroy_effect_thing(struct Thing *thing);
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price);
-
+void process_fx_lines();
 struct Thing *script_create_effect(struct Coord3d *pos, EffectOrEffElModel mdl, long val);
+void create_effects_line(TbMapLocation from, TbMapLocation to, char curvature, unsigned char spatial_stepping, unsigned char temporal_stepping, EffectOrEffElModel effct_id);
 
 TbBool area_effect_can_affect_thing(const struct Thing *thing, HitTargetFlags hit_targets, PlayerNumber shot_owner);
 long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,

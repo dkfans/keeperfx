@@ -2501,53 +2501,14 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 
 static void create_effects_line_process(struct ScriptContext *context)
 {
-    struct ScriptFxLine *fx_line = NULL;
-    for (int i = 0; i < (sizeof(gameadd.fx_lines) / sizeof(gameadd.fx_lines[0])); i++)
-    {
-        if (!gameadd.fx_lines[i].used)
-        {
-            fx_line = &gameadd.fx_lines[i];
-            fx_line->used = true;
-            gameadd.active_fx_lines++;
-            break;
-        }
-    }
-    if (fx_line == NULL)
-    {
-        ERRORLOG("Too many fx_lines");
-        return;
-    }
-    find_location_pos(context->value->longs[0], context->player_idx, &fx_line->from, __func__);
-    find_location_pos(context->value->longs[1], context->player_idx, &fx_line->to, __func__);
-    fx_line->curvature = (int)context->value->chars[8];
-    fx_line->spatial_step = context->value->bytes[9] * 32;
-    fx_line->steps_per_turn = context->value->bytes[10];
-    fx_line->effect = context->value->shorts[6];
-    fx_line->here = fx_line->from;
-    fx_line->step = 0;
+    TbMapLocation from = context->value->longs[0];
+    TbMapLocation to   = context->value->longs[1];
+    char curvature = context->value->chars[8];
+    unsigned char spatial_stepping = context->value->bytes[9];
+    unsigned char temporal_stepping = context->value->bytes[10];
+    EffectOrEffElModel effct_id = context->value->shorts[6];
 
-    if (fx_line->steps_per_turn <= 0)
-    {
-        fx_line->steps_per_turn = 32 * 255; // whole map
-    }
-
-    int dx = fx_line->to.x.val - fx_line->from.x.val;
-    int dy = fx_line->to.y.val - fx_line->from.y.val;
-    if ((dx * dx + dy * dy) != 0)
-    {
-        double len = sqrt((double)dx * dx + (double)dy * dy);
-        fx_line->total_steps = (int)(len / fx_line->spatial_step) + 1;
-
-        int d_cx = -dy * fx_line->curvature / 32;
-        int d_cy = +dx * fx_line->curvature / 32;
-        fx_line->cx = (fx_line->to.x.val + fx_line->from.x.val - d_cx)/2;
-        fx_line->cy = (fx_line->to.y.val + fx_line->from.y.val - d_cy)/2;
-    }
-    else
-    {
-      fx_line->total_steps = 1;
-    }
-    fx_line->partial_steps = FX_LINE_TIME_PARTS;
+    create_effects_line(from, to, curvature, spatial_stepping, temporal_stepping, effct_id);
 }
 
 static void set_object_configuration_check(const struct ScriptLine *scline)
