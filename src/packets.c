@@ -1254,7 +1254,7 @@ void process_players_creature_control_packet_control(long idx)
                 }
             } else
             {
-                ERRORLOG("No creature to increase speed");
+                ERRORLOG("No creature to ascend");
             }
         }
         if ((pckt->control_flags & PCtr_Descend) != 0)
@@ -1278,7 +1278,7 @@ void process_players_creature_control_packet_control(long idx)
                 }
             } else
             {
-                ERRORLOG("No creature to decrease speed");
+                ERRORLOG("No creature to descend");
             }
         }
     }
