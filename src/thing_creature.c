@@ -7825,6 +7825,67 @@ void script_move_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmode
     }
 }
 
+/**
+ * Modifies player's creatures' anger.
+ * @param plyr_idx target player
+ * @param anger anger value. Use double AnnoyLevel (from creature's config file) to fully piss creature. More for longer calm time
+ */
+TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmodel, long operation, long anger)
+{
+    SYNCDBG(8, "Starting");
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    unsigned long k = 0;
+    int i = dungeon->creatr_list_start;
+    if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,crmodel))
+    {
+        i = dungeon->digger_list_start;
+    }
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+
+        if (thing_matches_model(thing,crmodel))
+        {
+            i = cctrl->players_next_creature_idx;
+            if (operation == SOpr_SET)
+            {
+                anger_set_creature_anger(thing, anger, AngR_Other);
+            }
+            else if (operation == SOpr_INCREASE)
+            {
+                anger_increase_creature_anger(thing, anger, AngR_Other);
+            }
+            else if (operation == SOpr_DECREASE)
+            {
+                anger_reduce_creature_anger(thing, -anger, AngR_Other);
+            }
+            else if (operation == SOpr_MULTIPLY)
+            {
+                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Other] * anger, AngR_Other);
+            }
+
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19, "Finished");
+    return true;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -1043,8 +1043,6 @@ static int lua_SET_CREATURE_MAX_LEVEL(lua_State *L)
 
 
 
-
-
 //Manipulating Research
 
 static int lua_RESEARCH(lua_State *L)
@@ -1196,8 +1194,6 @@ static int lua_LOCATE_HIDDEN_WORLD(lua_State *L)
     return 0;
 }
 
-
-
 //Effects
 static int lua_CREATE_EFFECT(lua_State *L)
 {
@@ -1255,6 +1251,15 @@ static int lua_SET_MUSIC(lua_State *L)
     return 0;
 }
 
+static int lua_SET_HAND_GRAPHIC(lua_State *L)
+{
+    PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
+    long hand_idx = luaL_checkNamedCommand(L,1,powerhand_desc);
+
+    struct PlayerInfo * player = get_player(player_idx);
+    player->hand_idx = hand_idx;
+    return 0;
+}
 
 static int lua_ZOOM_TO_LOCATION(lua_State *L)
 {
@@ -1388,8 +1393,6 @@ static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
             take_money_from_dungeon(i, -gold, 0);
         }
     }
-
-    
     return 0;
 }
 
@@ -1446,7 +1449,19 @@ static int lua_HIDE_HERO_GATE(lua_State *L)
     return 0;
 }
 
+static int lua_CHANGE_CREATURES_ANNOYANCE(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    ThingModel crmodel = luaL_checkNamedCommand(L,2,creature_desc);
+    long operation = luaL_checkNamedCommand(L,3,script_operator_desc);
+    long anger = luaL_checkinteger(L, 4);
 
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        script_change_creatures_annoyance(i, crmodel, operation, anger);
+    }
+    return 0;
+}
 
 
 /**********************************************/
@@ -1532,6 +1547,7 @@ static int lua_get_things_of_class(lua_State *L)
     }
     return 1; // return value is the amount of args you push back
 }
+
 
 
 
@@ -1629,6 +1645,7 @@ static const luaL_Reg global_methods[] = {
    //{"SET_CREATURE_PROPERTY"                ,lua_SET_CREATURE_PROPERTY           },
    //{"SET_CREATURE_TENDENCIES"              ,lua_SET_CREATURE_TENDENCIES         },
    //{"CREATURE_ENTRANCE_LEVEL"              ,lua_CREATURE_ENTRANCE_LEVEL         },
+   {"CHANGE_CREATURES_ANNOYANCE"           ,lua_CHANGE_CREATURES_ANNOYANCE      },
 
 
 //Manipulating Research
@@ -1665,7 +1682,7 @@ static const luaL_Reg global_methods[] = {
     {"USE_SPELL_ON_CREATURE"                ,lua_USE_SPELL_ON_CREATURE           },
     //{"USE_SPELL_ON_PLAYERS_CREATURES"       ,lua_USE_SPELL_ON_PLAYERS_CREATURES  },
     //{"USE_POWER_ON_PLAYERS_CREATURES"       ,lua_USE_POWER_ON_PLAYERS_CREATURES  },
-    //{"SET_HAND_GRAPHIC"                     ,lua_SET_HAND_GRAPHIC                },
+    {"SET_HAND_GRAPHIC"                     ,lua_SET_HAND_GRAPHIC                },
     //{"SET_INCREASE_ON_EXPERIENCE"           ,lua_SET_INCREASE_ON_EXPERIENCE      },
     {"SET_MUSIC"                            ,lua_SET_MUSIC                       },
     {"ZOOM_TO_LOCATION"                     ,lua_ZOOM_TO_LOCATION                },
@@ -1779,8 +1796,20 @@ static int lua_MOVE_CREATURE(lua_State *L)
     return 0;
 }
 
-//static int lua_CHANGE_CREATURE_OWNER(lua_State *L)
-//static int lua_CHANGE_CREATURES_ANNOYANCE(lua_State *L)
+static int lua_CHANGE_CREATURE_OWNER(lua_State *L)
+{
+    struct Thing* thing = luaL_checkThing(L, 1);
+    PlayerNumber new_owner = luaL_checkPlayerSingle(L, 2);
+    if (is_thing_some_way_controlled(thing))
+    {
+        //does not kill the creature, but does the preparations needed for when it is possessed
+        prepare_to_controlled_creature_death(thing);
+    }
+    change_creature_owner(thing, new_owner);
+    return 0;
+}
+
+
 
 static int thing_tostring(lua_State *L)
 {
@@ -1802,9 +1831,14 @@ static int thing_set_field(lua_State *L) {
         thing->move_angle_xy = luaL_checkinteger(L, 3);
     } else if (strcmp(key, "owner") == 0) {
         PlayerNumber new_owner = luaL_checkPlayerSingle(L, 3);
+        if (is_thing_some_way_controlled(thing))
+        {
+            //does not kill the creature, but does the preparations needed for when it is possessed
+            prepare_to_controlled_creature_death(thing);
+        }
         change_creature_owner(thing, new_owner);
     } else {
-        //luaL_error(L, "Unknown field: %s", key);
+        luaL_error(L, "not a settable field: %s", key);
     }
 
     return 0;
@@ -1907,8 +1941,7 @@ static const struct luaL_Reg thing_methods[] = {
    {"TRANSFER_CREATURE"                    ,lua_TRANSFER_CREATURE               },
    {"LEVEL_UP_CREATURE"                    ,lua_LEVEL_UP_CREATURE               },
    {"MOVE_CREATURE"                        ,lua_MOVE_CREATURE                   },
-   //{"CHANGE_CREATURE_OWNER"                ,lua_CHANGE_CREATURE_OWNER           },
-   //{"CHANGE_CREATURES_ANNOYANCE"           ,lua_CHANGE_CREATURES_ANNOYANCE      },
+   {"CHANGE_CREATURE_OWNER"                ,lua_CHANGE_CREATURE_OWNER           },
     {NULL, NULL}
 };
 
