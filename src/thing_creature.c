@@ -5901,19 +5901,6 @@ TbBool update_controlled_creature_movement(struct Thing *thing)
             cctrl->moveaccel.x.val += distance_with_angle_to_coord_x(cctrl->orthogn_speed, thing->move_angle_xy - LbFPMath_PI/2);
             cctrl->moveaccel.y.val += distance_with_angle_to_coord_y(cctrl->orthogn_speed, thing->move_angle_xy - LbFPMath_PI/2);
         }
-        if (cctrl->vertical_speed != 0)
-        {
-            MapCoord floor_height, ceiling_height;
-            get_floor_and_ceiling_height_under_thing_at(thing, &thing->mappos, &floor_height, &ceiling_height);
-            if ( (thing->mappos.z.val >= floor_height) && (thing->mappos.z.val <= ceiling_height) )
-            {
-                cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->vertical_speed, thing->move_angle_z);
-            }
-            else
-            {
-                cctrl->moveaccel.z.val = 0;
-            }
-        }
     } else
     {
         if (cctrl->move_speed != 0)

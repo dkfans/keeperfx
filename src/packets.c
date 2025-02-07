@@ -1239,6 +1239,19 @@ void process_players_creature_control_packet_control(long idx)
             {
                 ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
                 ccctrl->flgfield_1 |= CCFlg_MoveZ;
+                if (ccctrl->vertical_speed != 0)
+                {
+                    MapCoord floor_height, ceiling_height;
+                    get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
+                    if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
+                    {
+                        ccctrl->moveaccel.z.val = distance_with_angle_to_coord_z(ccctrl->vertical_speed, 227);
+                    }
+                    else
+                    {
+                        ccctrl->moveaccel.z.val = 0;
+                    }
+                }
             } else
             {
                 ERRORLOG("No creature to increase speed");
@@ -1248,8 +1261,22 @@ void process_players_creature_control_packet_control(long idx)
         {
             if (!creature_control_invalid(ccctrl))
             {
-                ccctrl->vertical_speed = compute_controlled_speed_decrease(ccctrl->vertical_speed, speed_limit);
+                // We want increase here, not decrease, because we don't want it angle-dependent
+                ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
                 ccctrl->flgfield_1 |= CCFlg_MoveZ;
+                if (ccctrl->vertical_speed != 0)
+                {
+                    MapCoord floor_height, ceiling_height;
+                    get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
+                    if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
+                    {
+                        ccctrl->moveaccel.z.val = distance_with_angle_to_coord_z(ccctrl->vertical_speed, 1820);
+                    }
+                    else
+                    {
+                        ccctrl->moveaccel.z.val = 0;
+                    }
+                }
             } else
             {
                 ERRORLOG("No creature to decrease speed");
