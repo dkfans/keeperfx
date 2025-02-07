@@ -29,7 +29,6 @@
 #include "creature_states.h"
 #include "creature_states_mood.h"
 #include "creature_states_pray.h"
-#include "cursor_tag.h"
 #include "custom_sprites.h"
 #include "dungeon_data.h"
 #include "frontmenu_ingame_map.h"
@@ -545,15 +544,6 @@ const struct NamedCommand texture_pack_desc[] = {
   {"LATERITE_CAVERN",14},
   {NULL,           0},
 };
-
-static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
-{
-    const char *a = (const char*)ptr_a;
-    const char *b = (const char*)ptr_b;
-    return *a < *b;
-}
-
-
 
 // For dynamic strings
 static char* script_strdup(const char *src)
@@ -1225,10 +1215,10 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
     }
     else if (trapvar == 46) // FlameAnimationOffset
     {
-        value->chars[8] = atoi(scline->tp[2]);
-        value->chars[9] = scline->np[3];
-        value->chars[10] = scline->np[4];
-        value->chars[11] = scline->np[5];
+        value->longs[1]  = atoi(scline->tp[2]);
+        value->shorts[4] = scline->np[3];
+        value->shorts[5] = scline->np[4];
+        value->shorts[6] = scline->np[5];
     }
     else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39) && (trapvar != 40))  // PointerSprites && AnimationIDs
     {
@@ -1804,269 +1794,32 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     create_manufacture_array_from_trapdoor_data();
 }
 
-void refresh_trap_anim(long trap_id)
-{
-    int k = 0;
-    const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
-    struct TrapConfigStats *trapst_old = get_trap_model_stats(trap_id);
-    struct TrapConfigStats *trapst_new;
-    int i = slist->index;
-    while (i != 0)
-    {
-        struct Thing* traptng = thing_get(i);
-        if (thing_is_invalid(traptng))
-        {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
-        }
-        i = traptng->next_of_class;
-        // Per thing code.
-        if (traptng->model == trap_id)
-        {
-            if ((traptng->trap.wait_for_rearm == true) || (trapst_old->recharge_sprite_anim_idx == 0))
-            {
-                traptng->anim_sprite = trapst_old->sprite_anim_idx;
-            }
-            else
-            {
-                traptng->anim_sprite = trapst_old->recharge_sprite_anim_idx;
-            }
-            trapst_new = get_trap_model_stats(traptng->model);
-            char start_frame;
-            if (trapst_new->random_start_frame) {
-                start_frame = -1;
-            }
-            else {
-                start_frame = 0;
-            }
-            set_thing_draw(traptng, trapst_new->sprite_anim_idx, trapst_new->anim_speed, trapst_new->sprite_size_max, trapst_new->unanimated, start_frame, ODC_Default);
-        }
-        // Per thing code ends.
-        k++;
-        if (k > slist->index)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-    }
-}
-
 static void set_trap_configuration_process(struct ScriptContext *context)
 {
     long trap_type = context->value->shorts[0];
-    struct TrapConfigStats *trapst = get_trap_model_stats(trap_type);
-    struct ManufactureData *manufctr = get_manufacture_data(trap_type);
-    struct ObjectConfigStats obj_tmp;
-    long value = context->value->ulongs[1];
+    long property = context->value->shorts[1];
+    long value = context->value->longs[1];
     short value2 = context->value->shorts[4];
     short value3 = context->value->shorts[5];
-    int old_value, old_value2;
-    switch (context->value->shorts[1])
+    short value4 = context->value->shorts[6];
+
+    char *valuestr = context->value->strs[2];
+
+    if (property == 3)
     {
-        case 1: // NameTextID
-            trapst->name_stridx = value;
-            break;
-        case 2: // TooltipTextID
-            old_value = trapst->tooltip_stridx;
-            trapst->tooltip_stridx = value;
-            manufctr->tooltip_stridx = trapst->tooltip_stridx;
-            if (trapst->tooltip_stridx != old_value)
-            {
-                update_trap_tab_to_config();
-            }
-            break;
-        case 3: // SymbolSprites
-        {
-            old_value = trapst->medsym_sprite_idx;
-            old_value2 = trapst->bigsym_sprite_idx;
-            trapst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
-            trapst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
-            manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
-            manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
-            if ( (trapst->medsym_sprite_idx != old_value) || (trapst->bigsym_sprite_idx != old_value2) )
-            {
-                update_trap_tab_to_config();
-            }
-        }
-            break;
-        case 4: // PointerSprites
-            old_value = trapst->pointer_sprite_idx;
-            trapst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
-            if (trapst->pointer_sprite_idx != old_value)
-            {
-                update_trap_tab_to_config();
-            }
-            break;
-        case 5: // PanelTabIndex
-            old_value = trapst->panel_tab_idx;
-            trapst->panel_tab_idx = value;
-            manufctr->panel_tab_idx = value;
-            if (trapst->panel_tab_idx != old_value)
-            {
-                update_trap_tab_to_config();
-            }
-            break;
-        case 6: // Crate
-            game.conf.object_conf.object_to_door_or_trap[value] = trap_type;
-            game.conf.object_conf.workshop_object_class[value] = TCls_Trap;
-            game.conf.trapdoor_conf.trap_to_object[trap_type] = value;
-            break;
-        case 7: // ManufactureLevel
-            trapst->manufct_level = value;
-            break;
-        case 8: // ManufactureRequired
-            trapst->manufct_required = value;
-            break;
-        case 9: // Shots
-            trapst->shots = value;
-            break;
-        case 10: // TimeBetweenShots
-            trapst->shots_delay = value;
-            break;
-        case 11: // SellingValue
-            trapst->selling_value = value;
-            break;
-        case 12: // AnimationID
-            trapst->sprite_anim_idx = get_anim_id_(context->value->strs[2]);
-            refresh_trap_anim(trap_type);
-            break;
-        case 13: // ModelSize
-            trapst->sprite_size_max = value;
-            refresh_trap_anim(trap_type);
-            break;
-        case 14: // AnimationSpeed
-            trapst->anim_speed = value;
-            refresh_trap_anim(trap_type);
-            break;
-        case 15: // TriggerType
-            trapst->trigger_type = value;
-            break;
-        case 16: // ActivationType
-            trapst->activation_type = value;
-            break;
-        case 17: // EffectType
-            trapst->created_itm_model = value;
-            break;
-        case 18: // Hidden
-            trapst->hidden = value;
-            break;
-        case 19: // TriggerAlarm
-            trapst->notify = value;
-            break;
-        case 20: // Slappable
-            trapst->slappable = value;
-            break;
-        case 21: // Unanimated
-            trapst->unanimated = value;
-            refresh_trap_anim(trap_type);
-            break;
-        case 22: // Health
-            trapst->health = value;
-            break;
-        case 23: // Unshaded
-            trapst->unshaded = value;
-            break;
-        case 24: // RandomStartFrame
-            trapst->random_start_frame = value;
-            break;
-        case 25: // ThingSize
-            trapst->size_xy = value; // First
-            trapst->size_z = value2; // Second
-            break;
-        case 26: // HitType
-            trapst->hit_type = value;
-            break;
-        case 27: // LightRadius
-            trapst->light_radius = value * COORD_PER_STL;
-            break;
-        case 28: // LightIntensity
-            trapst->light_intensity = value;
-            break;
-        case 29: // LightFlags
-            trapst->light_flag = value;
-            break;
-        case 30: // TransparencyFlags
-            trapst->transparency_flag = value<<4;
-            break;
-        case 31: // ShotVector
-            trapst->shotvector.x = value;
-            trapst->shotvector.y = value2;
-            trapst->shotvector.z = value3;
-            break;
-        case 32: // Destructible
-            trapst->destructible = value;
-            break;
-        case 33: // Unstable
-            trapst->unstable = value;
-            break;
-        case 34: // Unsellable
-            trapst->unsellable = value;
-            break;
-        case 35: // PlaceOnBridge
-            trapst->place_on_bridge = value;
-            break;
-        case 36: // ShotOrigin
-            trapst->shot_shift_x = value;
-            trapst->shot_shift_y = value2;
-            trapst->shot_shift_z = value3;
-            break;
-        case 37: // PlaceSound
-            trapst->place_sound_idx = value;
-            break;
-        case 38: // TriggerSound
-            trapst->trigger_sound_idx = value;
-            break;
-        case 39: // RechargeAnimationID
-            trapst->recharge_sprite_anim_idx = get_anim_id(context->value->strs[2], &obj_tmp);
-            refresh_trap_anim(trap_type);
-            break;
-        case 40: // AttackAnimationID
-            trapst->attack_sprite_anim_idx = get_anim_id(context->value->strs[2], &obj_tmp);
-            break;
-        case 41: // DestroyedEffect
-            trapst->destroyed_effect = value;
-            break;
-        case 42: // InitialDelay
-            trapst->initial_delay = value;
-            break;
-        case 43: // PlaceOnSubtile
-            trapst->place_on_subtile = value;
-            break;
-        case 44: // FlameAnimationID
-            trapst->flame.animation_id = get_anim_id(context->value->strs[2], &obj_tmp);
-            refresh_trap_anim(trap_type);
-            break;
-        case 45: // FlameAnimationSpeed
-            trapst->flame.anim_speed = value;
-            break;
-        case 46: // FlameAnimationSize
-            trapst->flame.sprite_size = value;
-            break;
-        case 47: // FlameAnimationOffset
-            trapst->flame.fp_add_x = context->value->chars[8];
-            trapst->flame.fp_add_y = context->value->chars[9];
-            trapst->flame.td_add_x = context->value->chars[10];
-            trapst->flame.td_add_y = context->value->chars[11];
-            break;
-        case 48: // FlameTransparencyFlags
-            trapst->flame.transparency_flags = value << 4;
-            break;
-        case 49: // DetectInvisible
-            trapst->detect_invisible = value;
-            break;
-        case 50: // InstantPlacement
-            trapst->instant_placement = value;
-            break;
-        case 51: // RemoveOnceDepleted
-            trapst->remove_once_depleted = value;
-            break;
-        case 52: // FlagNumber
-            trapst->flag_number = value;
-            break;
-        default:
-            WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
-            break;
+        value = get_icon_id(valuestr);
+        value2 = get_icon_id(valuestr + strlen(valuestr) + 1);
+    }else if (property == 4)
+    {
+        value = get_icon_id(valuestr);
+    }else if (property == 12 || property == 39 || property == 40 || property == 44)
+    {
+        value = get_anim_id_(valuestr);
     }
+
+    script_set_trap_configuration(trap_type, property, value, value2, value3, value4);
+
+
 }
 
 static void set_room_configuration_process(struct ScriptContext *context)
@@ -2179,39 +1932,14 @@ static void set_room_configuration_process(struct ScriptContext *context)
 
 static void set_hand_rule_process(struct ScriptContext* context)
 {
+    PlayerNumber plyr_idx = context->player_idx;
     long crtr_id = context->value->shorts[0];
     long hand_rule_action = context->value->shorts[1];
     long hand_rule_slot = context->value->shorts[2];
     long hand_rule_type = context->value->shorts[3];
     long param = context->value->shorts[4];
-    long crtr_id_start = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? 0 : crtr_id;
-    long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
 
-    struct Dungeon* dungeon;
-    PlayerNumber plyr_idx = context->player_idx;
-    for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
-    {
-
-        //todo maybe should use creature_model_matches_model somewhere?
-        if (crtr_id == CREATURE_NOT_A_DIGGER)
-        {
-            if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,ci))
-            {
-                continue;
-            }
-        }
-        dungeon = get_dungeon(plyr_idx);
-        if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
-        {
-            dungeon->hand_rules[ci][hand_rule_slot].enabled = 1;
-            dungeon->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
-            dungeon->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
-            dungeon->hand_rules[ci][hand_rule_slot].param = param;
-        } else
-        {
-            dungeon->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
-        }
-    }
+    script_set_hand_rule(plyr_idx, crtr_id, hand_rule_action, hand_rule_slot, hand_rule_type, param);
 }
 
 static void move_creature_process(struct ScriptContext* context)
@@ -2409,89 +2137,21 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
 static void set_door_configuration_process(struct ScriptContext *context)
 {
     long door_type = context->value->shorts[0];
-    struct DoorConfigStats *doorst = get_door_model_stats(door_type);
-    struct ManufactureData *manufctr = get_manufacture_data(game.conf.trapdoor_conf.trap_types_count - 1 + door_type);
+    short property = context->value->shorts[1];
     short value = context->value->longs[1];
     short value2 = context->value->shorts[4];
-    switch (context->value->shorts[1])
+    const char* valuestr = context->value->strs[2];
+
+    if (property == 4)
     {
-        case 2: // NametextId
-            doorst->name_stridx = value;
-            break;
-        case 3: // TooltipTextId
-            doorst->tooltip_stridx = value;
-            manufctr->tooltip_stridx = doorst->tooltip_stridx;
-            update_trap_tab_to_config();
-            break;
-        case 4: //SymbolSprites
-            {
-                doorst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
-                doorst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
-                manufctr->bigsym_sprite_idx = doorst->bigsym_sprite_idx;
-                manufctr->medsym_sprite_idx = doorst->medsym_sprite_idx;
-                update_trap_tab_to_config();
-            }
-            break;
-        case 5: // PointerSprites
-            doorst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
-            update_trap_tab_to_config();
-            break;
-        case 6: // PanelTabIndex
-            doorst->panel_tab_idx = value;
-            manufctr->panel_tab_idx = value;
-            update_trap_tab_to_config();
-            break;
-        case 7: // Crate
-            game.conf.object_conf.object_to_door_or_trap[value] = door_type;
-            game.conf.object_conf.workshop_object_class[value] = TCls_Door;
-            game.conf.trapdoor_conf.door_to_object[door_type] = value;
-            break;
-        case 8: // ManufactureLevel
-            doorst->manufct_level = value;
-            break;
-        case 9: // ManufactureRequired
-            doorst->manufct_required = value;
-            break;
-        case 10: // Health
-            if (door_type < game.conf.trapdoor_conf.door_types_count)
-            {
-                doorst->health = value;
-            }
-            update_all_door_stats();
-            break;
-        case 11: // SlabKind
-            if (door_type < game.conf.trapdoor_conf.door_types_count)
-            {
-                doorst->slbkind[0] = value2;
-                doorst->slbkind[1] = value;
-            }
-            update_all_door_stats();
-            break;
-        case 12: // OpenSpeed
-            if (door_type < game.conf.trapdoor_conf.door_types_count)
-            {
-                doorst->open_speed = value;
-            }
-            break;
-        case 13: // Properties
-            doorst->model_flags = value;
-            break;
-        case 14: //SellingValue
-            doorst->selling_value = value;
-            break;
-        case 15: // Unsellable
-            doorst->unsellable = value;
-            break;
-        case 16: // PlaceSound
-            if (door_type < game.conf.trapdoor_conf.door_types_count)
-            {
-                doorst->place_sound_idx = value;
-            }
-            break;
-        default:
-            WARNMSG("Unsupported Door configuration, variable %d.", context->value->shorts[1]);
-            break;
+        value = get_icon_id(valuestr);
+        value2 = get_icon_id(valuestr + strlen(valuestr) + 1);
+    }else if (property == 5)
+    {
+        value = get_icon_id(valuestr);
     }
+
+    script_set_door_configuration(door_type,property, value, value2);
 }
 
 static void create_effect_at_pos_process(struct ScriptContext* context)
@@ -2795,38 +2455,13 @@ static void place_door_check(const struct ScriptLine* scline)
 static void place_door_process(struct ScriptContext* context)
 {
     ThingModel doorkind = context->value->shorts[1];
-    MapCoord slb_x = context->value->shorts[2];
-    MapCoord slb_y = context->value->shorts[3];
-    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
-    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    MapSlabCoord slb_x = context->value->shorts[2];
+    MapSlabCoord slb_y = context->value->shorts[3];
     TbBool locked = context->value->shorts[4];
     TbBool free = context->value->shorts[5];
-    TbBool success;
     PlayerNumber plyridx = context->player_idx;
-    if (tag_cursor_blocks_place_door(plyridx, stl_x, stl_y))
-    {
-        if (!free)
-        {
-            if (!is_door_placeable(plyridx, doorkind))
-            {
-                return;
-            }
-        }
-        success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind, free);
-        if (success)
-        {
-            delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
-            remove_dead_creatures_from_slab(slb_x, slb_y);
-            if (locked)
-            {
-                struct Thing* doortng = get_door_for_position(stl_x, stl_y);
-                if (!thing_is_invalid(doortng))
-                {
-                    lock_door(doortng);
-                }
-            }
-        }
-    }
+
+    script_place_door(plyridx, doorkind, slb_x, slb_y, locked, free);
 }
 
 static void place_trap_check(const struct ScriptLine* scline)
@@ -2875,17 +2510,8 @@ static void place_trap_process(struct ScriptContext* context)
     MapSubtlCoord stl_y = context->value->shorts[3];
     TbBool free = context->value->shorts[4];
     PlayerNumber plyridx = context->player_idx;
-    if (can_place_trap_on(plyridx, stl_x, stl_y, trapkind))
-    {
-        if (free)
-        {
-            player_place_trap_without_check_at(stl_x, stl_y, plyridx, trapkind, free);
-        }
-        else
-        {
-            player_place_trap_at(stl_x, stl_y, plyridx, trapkind);
-        }
-    }
+    script_place_trap(plyridx, trapkind, stl_x, stl_y, free);
+
 }
 
 static void create_effects_line_check(const struct ScriptLine *scline)
@@ -4613,7 +4239,6 @@ static void set_sacrifice_recipe_check(const struct ScriptLine *scline)
          vi = 0;
        value->sac.victims[i] = vi;
     }
-    qsort(value->sac.victims, MAX_SACRIFICE_VICTIMS, sizeof(value->sac.victims[0]), &sac_compare_fn);
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -4632,68 +4257,22 @@ static void remove_sacrifice_recipe_check(const struct ScriptLine *scline)
          vi = 0;
        value->sac.victims[i] = vi;
     }
-    qsort(value->sac.victims, MAX_SACRIFICE_VICTIMS, sizeof(value->sac.victims[0]), &sac_compare_fn);
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_sacrifice_recipe_process(struct ScriptContext *context)
 {
-    long victims[MAX_SACRIFICE_VICTIMS];
-    struct Coord3d pos;
+    ThingModel victims[MAX_SACRIFICE_VICTIMS];
     int action = context->value->sac.action;
     int param = context->value->sac.param;
+
     for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
         victims[i] = context->value->sac.victims[i];
     }
-    for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
-    {
-        struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
-        if (sac->action == (long)SacA_None)
-        {
-            break;
-        }
-        if (memcmp(victims, sac->victims, sizeof(victims)) == 0)
-        {
-            sac->action = action;
-            sac->param = param;
-            if (action == (long)SacA_None)
-            {
-                // remove empty space
-                memmove(sac, sac + 1, (MAX_SACRIFICE_RECIPES - 1 - (sac - &game.conf.rules.sacrifices.sacrifice_recipes[0])) * sizeof(*sac));
-            }
-            return;
-        }
-    }
-    if (action == (long)SacA_None) // No rule found
-    {
-        WARNLOG("Unable to find sacrifice rule to remove");
-        return;
-    }
-    struct SacrificeRecipe* sac = get_unused_sacrifice_recipe_slot();
-    if (sac == &game.conf.rules.sacrifices.sacrifice_recipes[0])
-    {
-        ERRORLOG("No free sacrifice rules");
-        return;
-    }
-    memcpy(sac->victims, victims, sizeof(victims));
-    sac->action = action;
-    sac->param = param;
 
-    // Check if sacrifice pool already matches
-    for (int j = 0; j < DUNGEONS_COUNT; j++)
-    {
-        if (find_temple_pool(j, &pos))
-        {
-            for (int i = 0; i < sizeof(victims); i++)
-            {
-                if (victims[i] == 0)
-                    break;
-                process_sacrifice_creature(&pos, victims[i], j, false);
-            }
-        }
-    }
+    script_set_sacrifice_recipe(action, param, victims);
 }
 
 static void set_box_tooltip_check(const struct ScriptLine* scline)
@@ -5183,29 +4762,13 @@ static void set_creature_instance_check(const struct ScriptLine *scline)
 
 static void set_creature_instance_process(struct ScriptContext *context)
 {
-    struct CreatureStats *crstat = creature_stats_get(context->value->bytes[0]);
-    if (!creature_stats_invalid(crstat))
-    {
-        CrInstance old_instance = crstat->learned_instance_id[context->value->bytes[1] - 1];
-        crstat->learned_instance_id[context->value->bytes[1] - 1] = context->value->bytes[2];
-        crstat->learned_instance_level[context->value->bytes[1] - 1] = context->value->bytes[3];
-        for (short i = 0; i < THINGS_COUNT; i++)
-        {
-            struct Thing* thing = thing_get(i);
-            if (thing_is_creature(thing))
-            {
-                if (thing->model == context->value->bytes[0])
-                {
-                    if (old_instance != CrInst_NULL)
-                    {
-                        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                        cctrl->instance_available[old_instance] = false;
-                    }
-                    creature_increase_available_instances(thing);
-                }
-            }
-        }
-    }
+    ThingModel crmodel = context->value->bytes[0];
+    int slot = context->value->bytes[1];
+    int instance = context->value->bytes[2];
+    unsigned char level = context->value->bytes[3];
+
+    script_set_creature_instance(crmodel, slot, instance, level);
+
 }
 
 
@@ -6847,7 +6410,7 @@ static void quick_message_check(const struct ScriptLine* scline)
     }
     snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
     value->longs[0]= scline->np[0];
-    get_player_number_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
+    get_chat_icon_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -6860,7 +6423,7 @@ static void display_message_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->ulongs[0] = scline->np[0];
-    get_player_number_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
+    get_chat_icon_from_value(scline->tp[1], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -7452,8 +7015,6 @@ static void swap_creature_process(struct ScriptContext* context)
     {
         SCRPTERRLOG("Error swapping creatures '%s'<->'%s'", creature_code_name(ncrt_id), creature_code_name(crtr_id));
     }
-    recalculate_all_creature_digger_lists();
-    update_creatr_model_activities_list(1);
 }
 
 static void set_digger_check(const struct ScriptLine* scline)
@@ -7475,22 +7036,8 @@ static void set_digger_process(struct ScriptContext* context)
 {
     ThingModel new_dig_model = context->value->shorts[0];
     PlayerNumber plyr_idx = context->player_idx;
-    ThingModel old_dig_model = get_players_special_digger_model(plyr_idx);
-    if (old_dig_model == new_dig_model)
-    {
-        return;
-    }
-    struct PlayerInfo* player = get_player(plyr_idx);
-
-    player->special_digger = context->value->shorts[0];
-    for (size_t i = 0; i < CREATURE_TYPES_MAX; i++)
-    {
-        if (breed_activities[i] == old_dig_model)
-            breed_activities[i] = new_dig_model;
-        else if (breed_activities[i] == new_dig_model)
-            breed_activities[i] = old_dig_model;
-    }
-    update_creatr_model_activities_list(1);
+    
+    update_players_special_digger_model(plyr_idx, new_dig_model);
 }
 
 /**
