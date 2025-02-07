@@ -34,7 +34,6 @@ struct PlayerRange
 /****   Inputs  *******/
 long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
 long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
-struct Thing *luaL_checkThing(lua_State *L, int index);
 TbMapLocation luaL_checkLocation(lua_State *L, int index);
 TbMapLocation luaL_optLocation(lua_State *L, int index);
 TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index);
@@ -48,8 +47,11 @@ ActionPointId luaL_checkActionPoint(lua_State *L, int index);
 unsigned char luaL_checkCrtLevel(lua_State *L, int index);
 unsigned char luaL_checkParty(lua_State *L, int index);
 void luaL_checkMessageIcon(lua_State *L, int index, char* type, char* id);
-EffectOrEffElModel luaL_checkEffectOrEffElModel(lua_State *L, int index);
 long luaL_checkIntMinMax(lua_State *L, int index,long min, long max);
+EffectOrEffElModel luaL_checkEffectOrEffElModel(lua_State *L, int index);
+
+struct Thing *luaL_checkThing(lua_State *L, int index);
+struct Thing *luaL_checkCreature(lua_State *L, int index);
 
 /****   Outputs  *******/
 void lua_pushThing(lua_State *L, struct Thing* thing);

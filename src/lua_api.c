@@ -1226,7 +1226,18 @@ static int lua_CREATE_EFFECT_AT_POS(lua_State *L)
     lua_pushThing(L,script_create_effect(&pos, effect_id, height));
     return 1;
 }
-//static int lua_CREATE_EFFECTS_LINE(lua_State *L)
+
+static int lua_CREATE_EFFECTS_LINE(lua_State *L)
+{
+    TbMapLocation from = luaL_checkLocation(L,  1);
+    TbMapLocation to   = luaL_checkLocation(L,  2);
+    char curvature = luaL_checkinteger(L, 3);
+    unsigned char spatial_stepping = luaL_checkinteger(L, 4);
+    unsigned char temporal_stepping = luaL_checkinteger(L, 5);
+    EffectOrEffElModel effct_id = luaL_checkEffectOrEffElModel(L,6);
+
+    create_effects_line(from, to, curvature, spatial_stepping, temporal_stepping, effct_id);
+}
 
 
 
@@ -1658,6 +1669,37 @@ static int lua_kill_creature(lua_State *L)
     return 0;
 }
 
+static int lua_TRANSFER_CREATURE(lua_State *L)
+{
+    struct Thing* thing = luaL_checkCreature(L, 1);
+
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+
+    if (add_transfered_creature(thing->owner, thing->model, cctrl->exp_level, cctrl->creature_name))
+    {
+        struct Dungeon* dungeon = get_dungeon(thing->owner);
+        dungeon->creatures_transferred++;
+        remove_thing_from_power_hand_list(thing, thing->owner);
+        struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_TrnsfrCrtr);
+        create_used_effect_or_element(&thing->mappos, specst->effect_id, thing->owner, thing->index);
+        kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
+    }
+    return 0;
+}
+
+static int lua_LEVEL_UP_CREATURE(lua_State *L)
+{
+    struct Thing* thing = luaL_checkCreature(L, 1);
+    int count = luaL_checkinteger(L, 2);
+
+    creature_change_multiple_levels(thing,count);
+    return 0;
+}
+
+//static int lua_MOVE_CREATURE(lua_State *L)
+//static int lua_CHANGE_CREATURE_OWNER(lua_State *L)
+//static int lua_CHANGE_CREATURES_ANNOYANCE(lua_State *L)
+
 static int thing_tostring(lua_State *L)
 {
     char buff[64];
@@ -1673,24 +1715,18 @@ static int thing_set_field(lua_State *L) {
 
     struct Thing* thing = luaL_checkThing(L, 1);
     const char* key = luaL_checkstring(L, 2);
-    int value = luaL_checkinteger(L, 3);
-
-    //char* read_only_arr[] =  ["index","creation_turn"];
 
     if (strcmp(key, "orientation") == 0) {
-        thing->move_angle_xy = value;
+        thing->move_angle_xy = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "owner") == 0) {
+        PlayerNumber new_owner = luaL_checkPlayerSingle(L, 3);
+        change_creature_owner(thing, new_owner);
     } else {
         //luaL_error(L, "Unknown field: %s", key);
     }
 
     return 0;
 }
-
-//static int lua_TRANSFER_CREATURE(lua_State *L)
-//static int lua_LEVEL_UP_CREATURE(lua_State *L)
-//static int lua_MOVE_CREATURE(lua_State *L)
-//static int lua_CHANGE_CREATURE_OWNER(lua_State *L)
-//static int lua_CHANGE_CREATURES_ANNOYANCE(lua_State *L)
 
 // Function to get field values
 static int thing_get_field(lua_State *L) {
@@ -1786,9 +1822,8 @@ static const struct luaL_Reg thing_methods[] = {
     {"KillCreature",    lua_kill_creature},
     {"DeleteThing",     lua_delete_thing},
     
-   //{"TRANSFER_CREATURE"                    ,lua_TRANSFER_CREATURE               },
-   //{"KILL_CREATURE"                        ,lua_KILL_CREATURE                   },
-   //{"LEVEL_UP_CREATURE"                    ,lua_LEVEL_UP_CREATURE               },
+   {"TRANSFER_CREATURE"                    ,lua_TRANSFER_CREATURE               },
+   {"LEVEL_UP_CREATURE"                    ,lua_LEVEL_UP_CREATURE               },
    //{"MOVE_CREATURE"                        ,lua_MOVE_CREATURE                   },
    //{"CHANGE_CREATURE_OWNER"                ,lua_CHANGE_CREATURE_OWNER           },
    //{"CHANGE_CREATURES_ANNOYANCE"           ,lua_CHANGE_CREATURES_ANNOYANCE      },
