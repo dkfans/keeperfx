@@ -23,7 +23,7 @@
 #include "globals.h"
 
 /** Count of creature states, originally 147. */
-#define CREATURE_STATES_COUNT CrSt_ListEnd
+#define CREATURE_STATES_COUNT DCrSt_ListEnd
 
 #define FIGHT_FEAR_DELAY 160
 #define STATE_TYPES_COUNT CrStTyp_ListEnd

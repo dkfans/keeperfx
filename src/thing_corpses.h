@@ -33,10 +33,11 @@ extern "C" {
 struct Thing;
 struct Dungeon;
 
-enum DeadCreatureStates {
-    DCrSt_Unused = 0,
-    DCrSt_Dying,
+enum DeadCreatureStates
+{
+    DCrSt_Dying = CrSt_ListEnd + 1,
     DCrSt_Dead,
+    DCrSt_ListEnd
 };
 
 #pragma pack()
