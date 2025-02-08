@@ -384,7 +384,7 @@ static int lua_ADD_TUNNELLER_TO_LEVEL(lua_State *L)
 {
     PlayerNumber plr_id          = luaL_checkPlayerSingle(L,1);
     TbMapLocation spawn_location = luaL_checkLocation(L,2);
-    TbMapLocation head_for       = luaL_checkHeadingLocation(L,3);
+    TbMapLocation head_for       = luaL_checkHeadingLocation(L,3); // checks 2 params
     long level                   = luaL_checkinteger(L,5);
     long gold_held               = luaL_checkinteger(L,6);
 
@@ -443,9 +443,8 @@ static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
     long prty_id                 = luaL_checkParty(L,  2);
     TbMapLocation spawn_location = luaL_checkLocation(L,  3);
     TbMapLocation head_for       = luaL_checkHeadingLocation(L,4); // checks 2 params
-    //long target                  = luaL_checkinteger(L, 6);//todo check why this is unused
-    long crtr_level              = luaL_checkCrtLevel(L, 7);
-    GoldAmount carried_gold      = luaL_checkinteger(L, 8);
+    long crtr_level              = luaL_checkCrtLevel(L, 6);
+    GoldAmount carried_gold      = luaL_checkinteger(L, 7);
 
 
     struct Party* party = &gameadd.script.creature_partys[prty_id];
