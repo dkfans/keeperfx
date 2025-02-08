@@ -83,9 +83,9 @@ const char *thing_classes[] = {
     "UNKNOWN14",
 };
 /******************************************************************************/
-const char *thing_class_code_name(int class_id)
+const char *thing_class_code_name(ThingClass class_id)
 {
-    if ((class_id < 0) || (class_id >= sizeof(thing_classes)/sizeof(thing_classes[0])))
+    if ((class_id >= sizeof(thing_classes)/sizeof(thing_classes[0])))
     {
         return "INVALID";
     }
@@ -98,7 +98,7 @@ const char *thing_class_code_name(int class_id)
  * @param thing The thing which model is to be described.
  * @return The model name string, static buffer.
  */
-const char *thing_class_and_model_name(int class_id, int model)
+const char *thing_class_and_model_name(ThingClass class_id, ThingModel model)
 {
     static char name_buffer[4][64];
     static int bid = 0;
@@ -148,6 +148,40 @@ const char *thing_class_and_model_name(int class_id, int model)
 const char *thing_model_name(const struct Thing *thing)
 {
     return thing_class_and_model_name(thing->class_id, thing->model);
+}
+
+const char *thing_model_only_name(ThingClass class_id, ThingModel model)
+{
+        switch (class_id)
+    {
+    case TCls_Creature:
+        return creature_code_name(model);
+        break;
+    case TCls_DeadCreature:
+        return creature_code_name(model);
+        break;
+    case TCls_Trap:
+        return trap_code_name(model);
+        break;
+    case TCls_Door:
+        return door_code_name(model);
+        break;
+    case TCls_Shot:
+        return shot_code_name(model);
+        break;
+    case TCls_Object:
+        return object_code_name(model);
+        break;
+    case TCls_Effect:
+        return effect_code_name(model);
+        break;
+    case TCls_EffectGen:
+        return effectgenerator_code_name(model);
+        break;
+    default:
+        return thing_class_code_name(class_id);
+        break;
+    }
 }
 
 const char *creatrtng_actstate_name(const struct Thing *thing)
