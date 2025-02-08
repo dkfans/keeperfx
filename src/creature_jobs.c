@@ -281,6 +281,17 @@ TbBool attempt_anger_job_kill_creatures(struct Thing *creatng)
     return true;
 }
 
+TbBool attempt_anger_job_kill_diggers(struct Thing* creatng)
+{
+    if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureKillDiggers)) {
+        return false;
+    }
+    if (!external_set_thing_state(creatng, CrSt_CreatureKillDiggers)) {
+        return false;
+    }
+    return true;
+}
+
 TbBool attempt_anger_job_leave_dungeon(struct Thing *creatng)
 {
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureLeaves)) {
@@ -420,6 +431,10 @@ long attempt_anger_job(struct Thing *creatng, long ajob_kind)
         return true;
     case 128:
         if (!attempt_anger_job_join_enemy(creatng))
+            break;
+        return true;
+    case 256:
+        if (!attempt_anger_job_kill_diggers(creatng))
             break;
         return true;
     default:
