@@ -30,6 +30,9 @@ TbBool CheckLua(lua_State *L, int result,const char* func)
 {
     if (result != LUA_OK) {
         const char *message = lua_tostring(L, -1);
+        if (!message) {
+            message = "Unknown error (NULL message)";
+        }
         ERRORLOG("Lua error in %s: %s", func, message);
         lua_pop(L, 1);  // Remove error message from the stack
         exit(EXIT_FAILURE);
