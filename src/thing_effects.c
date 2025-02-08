@@ -1664,6 +1664,7 @@ static void process_fx_line(struct ScriptFxLine *fx_line)
 
 void process_fx_lines()
 {
+    SYNCDBG(6,"Starting");
     for (int i = 0; i < gameadd.active_fx_lines; i++)
     {
         if (gameadd.fx_lines[i].used)
