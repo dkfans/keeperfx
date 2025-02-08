@@ -190,6 +190,13 @@ enum CreatureStates {
     CrSt_ListEnd,
 };
 
+enum DeadCreatureStates
+{
+    DCrSt_Dying = CrSt_ListEnd + 1,
+    DCrSt_Dead,
+    DCrSt_ListEnd
+};
+
 enum CreatureTrainingModes {
     CrTrMd_Unused = 0,
     CrTrMd_SearchForTrainPost,
