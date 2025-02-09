@@ -598,7 +598,6 @@ src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 src/bflib_fmvids.cpp: deps/ffmpeg/libavformat/avformat.h
-obj/std/bflib_fmvids.o obj/hvlog/bflib_fmvids.o: CXXFLAGS += -Wno-error=deprecated-declarations
 src/bflib_sndlib.cpp: deps/openal/AL/al.h
 
 deps/enet-mingw32.tar.gz:

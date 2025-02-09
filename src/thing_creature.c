@@ -3359,10 +3359,13 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
             dungeon->lvstats.flies_killed_by_spiders++;
         }
     }
+    // 'killertng' could be a trap, so verify if it has valid creature control before increasing the kill count and adjusting its anger.
     struct CreatureControl *cctrlgrp = creature_control_get_from_thing(killertng);
     if (!creature_control_invalid(cctrlgrp))
     {
         cctrlgrp->kills_num++;
+        struct CreatureStats *crstat = creature_stats_get_from_thing(killertng);
+        anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
     }
     if (is_my_player_number(creatng->owner))
     {
@@ -3381,10 +3384,6 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         {
             ERRORLOG("Hero have tend to imprison"); // What is the point of this log error? Check if it can be removed.
         }
-    }
-    {
-        struct CreatureStats *crstat = creature_stats_get_from_thing(killertng);
-        anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
     }
     if (!dungeon_invalid(dungeon))
     {
