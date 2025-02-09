@@ -1,11 +1,14 @@
 #include "pre_inc.h"
 #include "config.h"
 #include "bflib_sndlib.h"
+#include "bflib_datetm.h"
 #include "bflib_sound.h"
 #include "bflib_fileio.h"
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -14,7 +17,8 @@
 #include <string>
 #include <utility>
 #include <array>
-
+#include <queue>
+#include <mutex>
 #include "post_inc.h"
 
 namespace {
@@ -39,6 +43,11 @@ SoundVolume g_master_volume = 0;
 SoundVolume g_music_volume = 0;
 ALCdevice_ptr g_openal_device;
 ALCcontext_ptr g_openal_context;
+bool g_bb_king_mode = false;
+
+enum source_flags {
+	bb_king_mode = 1,
+};
 
 const char * alErrorStr(ALenum code) {
 	switch (code) {
@@ -96,6 +105,7 @@ public:
 	SoundEmitterID emit_id = 0;
 	SoundSmplTblID smptbl_id = 0;
 	SoundBankID bank_id = 0;
+	int flags = 0;
 
 	openal_source() {
 		ALuint sources[1];
@@ -149,7 +159,8 @@ public:
 	}
 
 	void pan(SoundPan pan) {
-		alSource3f(id, AL_POSITION, -(float(64 - pan) / 64), 0, 0);
+		// convert 0..128 (where 64 is center) to -1.0..1.0 and then reduce stereo separation by 20%
+		alSource3f(id, AL_POSITION, (-(float(64 - pan) / 64)) * 0.8f, 0, 0);
 		const auto errcode = alGetError();
 		if (errcode != AL_NO_ERROR) {
 			throw openal_error("Cannot set position", errcode);
@@ -428,6 +439,50 @@ void print_device_info() {
 	}
 }
 
+Mix_Chunk * g_streamed_sample = nullptr;
+std::mutex g_mix_mutex;
+
+struct queued_sample {
+	std::string fname;
+	SoundVolume volume;
+};
+
+std::queue<queued_sample> g_queued_samples;
+
+TbBool actually_play_streamed_sample(const char * fname, SoundVolume volume) {
+	g_streamed_sample = Mix_LoadWAV(fname);
+	if (g_streamed_sample == NULL) {
+		ERRORLOG("Cannot load \"%s\": %s", fname, Mix_GetError());
+		return false;
+	}
+	// SoundVolume ranges 0..255 but MIX_MAX_VOLUME ranges 0..128
+	Mix_VolumeChunk(g_streamed_sample, volume / 2);
+	if (Mix_PlayChannel(MIX_SPEECH_CHANNEL, g_streamed_sample, 0) == -1) {
+		ERRORLOG("Cannot play \"%s\": %s", fname, Mix_GetError());
+		return false;
+	}
+	return true;
+}
+
+void SDLCALL on_channel_finished(int channel) {
+	if (channel != MIX_SPEECH_CHANNEL) {
+		return;
+	}
+	std::lock_guard<std::mutex> guard(g_mix_mutex);
+	Mix_FreeChunk(g_streamed_sample);
+	g_streamed_sample = nullptr;
+	while (true) {
+		if (g_queued_samples.empty()) {
+			return;
+		}
+		const auto & sample = g_queued_samples.back();
+		g_queued_samples.pop();
+		if (actually_play_streamed_sample(sample.fname.c_str(), sample.volume)) {
+			return;
+		}
+	}
+}
+
 } // local
 
 extern "C" void FreeAudio() {
@@ -491,6 +546,11 @@ extern "C" void StopAllSamples() {
 
 extern "C" TbBool InitAudio(const SoundSettings * settings) {
 	try {
+		if (game.flags_font & FFlg_AlexCheat) {
+			TbDate date;
+			LbDate(&date);
+			g_bb_king_mode |= ((date.Day == 1) && (date.Month = 2));
+		}
 		if (SoundDisabled) {
 			LbWarnLog("Sound is disabled, skipping OpenAL initialization");
 			return false;
@@ -570,7 +630,11 @@ extern "C" void SetSamplePitch(SoundEmitterID emit_id, SoundSmplTblID smptbl_id,
 	for (auto & source : g_sources) {
 		if (source.emit_id == emit_id && source.smptbl_id == smptbl_id) {
 			try {
-				source.pitch(pitch);
+				if (source.flags & bb_king_mode) {
+					return; // ben enjoyed dofi's stream so much I made random pitch an easter egg
+				} else {
+					source.pitch(pitch);
+				}
 			} catch (const std::exception & e) {
 				LbErrorLog("%s", e.what());
 			}
@@ -594,6 +658,8 @@ extern "C" SoundMilesID play_sample(
 	} else if (bank_id > g_banks.size()) {
 		LbErrorLog("Can't play sample %d from bank %u, invalid bank ID", smptbl_id, bank_id);
 		return 0;
+	} else if (smptbl_id == 0) {
+		return 0; // silently ignore
 	} else if (smptbl_id <= 0 || smptbl_id >= g_banks[bank_id].size()) {
 		LbErrorLog("Can't play sample %d from bank %u, invalid sample ID", smptbl_id, bank_id);
 		return 0;
@@ -601,6 +667,20 @@ extern "C" SoundMilesID play_sample(
 	try {
 		for (auto & source : g_sources) {
 			if (source.emit_id == 0) {
+				source.gain(volume);
+				source.pan(pan);
+				if (g_bb_king_mode) {
+					// ben enjoyed dofi's stream so much I made random pitch an easter egg
+					if (UNSYNC_RANDOM(10) > 7) { // ~30% of the time
+						source.flags |= bb_king_mode;
+						source.pitch((NORMAL_PITCH / 2) + UNSYNC_RANDOM(NORMAL_PITCH));
+					} else {
+						source.flags &= ~bb_king_mode;
+						source.pitch(pitch);
+					}
+				} else {
+					source.pitch(pitch);
+				}
 				source.play(g_banks[bank_id][smptbl_id].buffer);
 				source.emit_id = emit_id;
 				source.smptbl_id = smptbl_id;
@@ -638,4 +718,80 @@ extern "C" SoundSFXID get_sample_sfxid(SoundSmplTblID smptbl_id, SoundBankID ban
 		return 0;
 	}
 	return g_banks[bank_id][smptbl_id].sfx_id;
+}
+
+extern "C" int InitialiseSDLAudio()
+{
+	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+		ERRORLOG("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
+		return 0;
+	}
+	int flags = Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3);
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
+	{
+		ERRORLOG("Could not open audio device for SDL mixer: %s", Mix_GetError());
+		Mix_Quit();
+		return 0;
+	}
+	Mix_ReserveChannels(1); // reserve for external speech samples
+	Mix_ChannelFinished(on_channel_finished); // register callback so we can do things
+	return flags;
+}
+
+extern "C" void ShutDownSDLAudio()
+{
+	int frequency, channels;
+	unsigned short format;
+	int i = Mix_QuerySpec(&frequency, &format, &channels);
+	if (i == 0)
+	{
+		ERRORLOG("Could not query SDL mixer: %s", Mix_GetError());
+	}
+	while (i > 0)
+	{
+		Mix_CloseAudio();
+		i--;
+	}
+	while (Mix_Init(0))
+	{
+		Mix_Quit();
+	}
+}
+
+extern "C" TbBool play_streamed_sample(const char* fname, SoundVolume volume)
+{
+	if (SoundDisabled || fname == NULL || fname[0] == 0) {
+		return false;
+	}
+	std::lock_guard<std::mutex> guard(g_mix_mutex);
+	if (speech_sample_playing()) {
+		try {
+			g_queued_samples.emplace(queued_sample{fname, volume});
+			return true;
+		} catch (const std::exception & e) {
+			ERRORLOG("Cannot add sample to queue: %s", e.what());
+			return false;
+		}
+	}
+	return actually_play_streamed_sample(fname, volume);
+}
+
+extern "C" void stop_streamed_samples()
+{
+	{
+		// this is intentionally in its own scope to prevent double-locking the mutex
+		std::lock_guard<std::mutex> guard(g_mix_mutex);
+		// there is no clear() for some reason, sigh...
+		while (!g_queued_samples.empty()) g_queued_samples.pop();
+	}
+	Mix_HaltChannel(MIX_SPEECH_CHANNEL);
+}
+
+extern "C" void set_streamed_sample_volume(SoundVolume volume) {
+	// SoundVolume ranges 0..255 but MIX_MAX_VOLUME ranges 0..128
+	Mix_VolumeChunk(g_streamed_sample, volume / 2);
+}
+
+extern "C" void toggle_bbking_mode() {
+	g_bb_king_mode = !g_bb_king_mode;
 }
