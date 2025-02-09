@@ -1785,7 +1785,7 @@ static int lua_LEVEL_UP_CREATURE(lua_State *L)
     return 0;
 }
 
-static int lua_MOVE_CREATURE(lua_State *L)
+static int lua_TeleportCreature(lua_State *L)
 {
     struct Thing* thing = luaL_checkThing(L, 1);
     TbMapLocation location = luaL_checkLocation(L, 2);
@@ -1939,7 +1939,7 @@ static const struct luaL_Reg thing_methods[] = {
     
    {"TRANSFER_CREATURE"                    ,lua_TRANSFER_CREATURE               },
    {"LEVEL_UP_CREATURE"                    ,lua_LEVEL_UP_CREATURE               },
-   {"MOVE_CREATURE"                        ,lua_MOVE_CREATURE                   },
+   {"TeleportCreature"                     ,lua_TeleportCreature                },
    {"CHANGE_CREATURE_OWNER"                ,lua_CHANGE_CREATURE_OWNER           },
     {NULL, NULL}
 };
