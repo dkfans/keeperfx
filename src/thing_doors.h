@@ -65,6 +65,7 @@ TbBool remove_key_on_door(struct Thing *thing);
 TbBool add_key_on_door(struct Thing *thing);
 TbBool door_is_hidden_to_player(struct Thing *doortng,PlayerNumber plyr_idx);
 void reveal_secret_door_to_player(struct Thing *doortng,PlayerNumber plyr_idx);
+void script_place_door(PlayerNumber plyridx, ThingModel doorkind, MapSlabCoord slb_x, MapSlabCoord slb_y, TbBool locked, TbBool free);
 
 char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y);

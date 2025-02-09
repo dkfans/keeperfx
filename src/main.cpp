@@ -1796,16 +1796,6 @@ void reset_creature_max_levels(void)
     }
 }
 
-void reset_hand_rules(void)
-{
-    struct Dungeon* dungeon;
-    for (int i = 0; i < DUNGEONS_COUNT; i++)
-    {
-        dungeon = get_dungeon(i);
-        memset(dungeon->hand_rules, 0, sizeof(dungeon->hand_rules));
-    }
-}
-
 void change_engine_window_relative_size(long w_delta, long h_delta)
 {
     struct PlayerInfo *myplyr;
@@ -3813,8 +3803,7 @@ void game_loop(void)
       LbScreenSwap();
       StopMusicPlayer();
       free_custom_music();
-      free_sound_chunks();
-      memset(&game.loaded_sound,0,DISKPATH_SIZE * EXTERNAL_SOUNDS_COUNT+1);
+      stop_streamed_samples();
       free_level_strings_data();
       turn_off_all_menus();
       delete_all_structures();

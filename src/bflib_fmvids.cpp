@@ -506,18 +506,17 @@ struct movie_t {
 	}
 
 	void output_video_frame() {
-		if (m_frame->palette_has_changed) {
-			JUSTLOG("palette changed");
-			SDL_Color palette[PALETTE_COLORS];
-			for (size_t i = 0; i < PALETTE_COLORS; ++i) {
-				palette[i].b = m_frame->data[1][(i * 4) + 0]; // blue
-				palette[i].g = m_frame->data[1][(i * 4) + 1]; // green
-				palette[i].r = m_frame->data[1][(i * 4) + 2]; // red
-			}
-			LbScreenWaitVbi(); // this is a no-op today
-			// LbPaletteSet expects values in range 0-63 for reasons, nuking 75% of the color range
-			SDL_SetPaletteColors(lbDrawSurface->format->palette, palette, 0, PALETTE_COLORS);
+		// FFMpeg used to provide m_frame->palette_has_changed but it has been deprecated
+		// Assume the palette has changed every frame as there is no way for us to know anymore
+		SDL_Color palette[PALETTE_COLORS];
+		for (size_t i = 0; i < PALETTE_COLORS; ++i) {
+			palette[i].b = m_frame->data[1][(i * 4) + 0]; // blue
+			palette[i].g = m_frame->data[1][(i * 4) + 1]; // green
+			palette[i].r = m_frame->data[1][(i * 4) + 2]; // red
 		}
+		LbScreenWaitVbi(); // this is a no-op today
+		// LbPaletteSet expects values in range 0-63 for reasons, nuking 75% of the color range
+		SDL_SetPaletteColors(lbDrawSurface->format->palette, palette, 0, PALETTE_COLORS);
 		if (LbScreenLock() != Lb_SUCCESS) {
 			return;
 		} else if (m_flags & (SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop)) { // new scaling mode
