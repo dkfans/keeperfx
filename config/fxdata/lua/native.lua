@@ -929,7 +929,7 @@ function GetHeroGate() end
 ---@param class thing_class
 ---@return Thing[] | Creature[]
 ---@nodiscard
-function get_things_of_class(class) end
+function getThingsOfClass(class) end
 
 ---gets a single creature based on the given criteria
 ---@param player playerrange
@@ -946,6 +946,9 @@ function getCreatureByCriterion(player,creature_type,criterion) return Creature 
 
 ---comment
 function Thing:DeleteThing() end
+
+---comment
+function Thing:MakeThingZombie() end
 
 ---comment
 ---@param stl_x any

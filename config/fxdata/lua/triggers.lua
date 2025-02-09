@@ -35,7 +35,8 @@ end
 local function validatefunc(func)
     if type(func) == "function" then
         if debug.getupvalue(func, 1) ~= nil then
-            error("functions may not contain upvalues, avoid accessing vars local to the file, alternatively pass function name as a string")
+            local n, v = debug.getupvalue(func, 1)
+            error("upvalue " .. n .. " found, functions may not contain upvalues, avoid accessing vars local to the file, alternatively pass function name as a string")
         end
 
     elseif type(func) == "string" then
@@ -162,7 +163,7 @@ end
 
 --- Processes a thing event
 --- @param thing Thing The unit involved in the event
---- @param eventType "powerCast"|"dies" --|"healthChange"|"happinessChange"|"stateChange"
+--- @param eventType "powerCast"|"dies"|"SpecialActivated" --|"healthChange"|"happinessChange"|"stateChange"
 local function ProcessThingEvent(thing, eventType)
     for _, trigger in ipairs(Game.triggers) do
         for _, event in ipairs(trigger.events) do
@@ -234,13 +235,61 @@ end
 
 
 
+
+
+
+
+---
+---@param action function|string the function to call when the event happens
+---@return Trigger
+function RegisterSpecialActivatedEvent(action)
+    local trigger = CreateTrigger()
+    TriggerRegisterThingEvent(trigger, nil, "SpecialActivated")
+    TriggerAddAction(trigger, action)
+    return trigger
+end
+
+---
+---@param action function|string the function to call when the event happens
+---@param time integer amount of gameticks (1/20 s)
+---@param periodic boolean whether the trigger should activate once, or repeat every 'time' gameticks
+---@return Trigger
+function RegisterTimerEvent(action, time, periodic)
+    local trigger = CreateTrigger()
+    TriggerRegisterTimerEvent(trigger, time, periodic) -- true for repeating timer
+    TriggerAddAction(trigger, action)
+    return trigger
+end
+
+---
+---@param action function|string the function to call when the event happens
+---@param condition function|string the condition that needs to be true for the action to be triggered
+---@return Trigger
+function RegisterOnConditionEvent(action, condition)
+    local trigger = CreateTrigger()
+    TriggerRegisterTimerEvent(trigger, 1, true)
+    TriggerAddCondition(trigger, condition)
+    TriggerAddAction(trigger, action)
+    return trigger
+end
+
+
+
+--function Thing:RegisterSpecialActivatedEvent(action) 
+--    local trigger = CreateTrigger()
+--    TriggerRegisterThingEvent(trigger, nil, "SpecialActivated")
+--    TriggerAddCondition(trigger, function() return self == GetTriggeringThing() end)
+--    TriggerAddAction(trigger, action)
+--end
+
 --TimerEvents
 --  periodic or not
---ThingEvents
---  "powerCast"|"dies"|"SpecialActivated" --|"healthChange"|"happinessChange"|"stateChange"
 --PlayerEvents
 --  "Win"|"Lose"|"AlliesChange"
 --SlabEvent
 --  "OwnerChange"|"TypeChange"
+
+--ThingEvents
+--  "powerCast"|"dies"|"SpecialActivated" --|"healthChange"|"happinessChange"|"stateChange"
 --TrapEvents
 --  "Placed"|"triggered"|"depleted"
