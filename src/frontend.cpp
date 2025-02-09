@@ -84,10 +84,7 @@
 #include "config_settings.h"
 #include "config_strings.h"
 #include "game_legacy.h"
-
 #include "keeperfx.hpp"
-
-#include "music_player.h"
 #include "custom_sprites.h"
 #include "sprites.h"
 #include "post_inc.h"
@@ -1354,7 +1351,7 @@ void gui_area_text(struct GuiButton *gbtn)
 
 void frontend_init_options_menu(struct GuiMenu *gmnu)
 {
-    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.redbook_volume);
+    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.music_volume);
     get_gui_button_init(gmnu, BID_SOUND_VOL)->content.lval = make_audio_slider_linear(settings.sound_volume);
     get_gui_button_init(gmnu, BID_MENTOR_VOL)->content.lval = make_audio_slider_linear(settings.mentor_volume);
     get_gui_button_init(gmnu, BID_MOUSE_MUL)->content.lval = settings.first_person_move_sensitivity;
@@ -2654,7 +2651,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         frontstory_unload();
         break;
     case FeSt_CREDITS:
-        StopMusicPlayer();
+        stop_music();
         break;
     case FeSt_LEVEL_STATS:
         stop_streamed_samples();
@@ -2679,7 +2676,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         break;
     case FeSt_FEOPTIONS:
         turn_off_menu(GMnu_FEOPTION);
-        StopMusicPlayer();
+        stop_music();
         break;
     case FeSt_LEVEL_SELECT:
         turn_off_menu(GMnu_FELEVEL_SELECT);
@@ -3513,7 +3510,7 @@ void frontend_update(short *finish_menu)
     switch ( frontend_menu_state )
     {
     case FeSt_MAIN_MENU:
-        StopMusicPlayer();
+        stop_music();
         frontend_button_info[8].font_index = (continue_game_option_available?1:3);
         //this uses original timing function for compatibility with frontend_set_state()
         if ( abs(LbTimerClock()-(long)time_last_played_demo) > MNU_DEMO_IDLE_TIME )
@@ -3547,7 +3544,7 @@ void frontend_update(short *finish_menu)
         exit_keeper = 1;
         break;
     case FeSt_CREDITS:
-        PlayMusicPlayer(7);
+        play_music_track(7);
         break;
     case FeSt_LEVEL_STATS:
         frontstats_update();
@@ -3559,7 +3556,7 @@ void frontend_update(short *finish_menu)
         *finish_menu = frontnetmap_update();
         break;
     case FeSt_FEOPTIONS:
-        PlayMusicPlayer(3);
+        play_music_track(3);
         break;
     case FeSt_LEVEL_SELECT:
         frontend_level_select_update();

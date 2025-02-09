@@ -14,8 +14,8 @@
 #include "pre_inc.h"
 #include <math.h>
 #include <string.h>
-
 #include "bflib_sound.h"
+#include "bflib_sndlib.h"
 #include "config_effects.h"
 #include "config_lenses.h"
 #include "config_magic.h"
@@ -39,7 +39,6 @@
 #include "lvl_script_conditions.h"
 #include "lvl_script_lib.h"
 #include "map_blocks.h"
-#include "music_player.h"
 #include "player_instances.h"
 #include "player_utils.h"
 #include "power_hand.h"
@@ -5186,98 +5185,32 @@ static void set_texture_process(struct ScriptContext *context)
 static void set_music_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    if (parameter_is_number(scline->tp[0]))
-    {
+    if (parameter_is_number(scline->tp[0])) {
         value->chars[0] = atoi(scline->tp[0]);
-    }
-    else
-    {
-        if (IsRedbookMusicActive())
-        {
-            SCRPTWRNLOG("Level script wants to play custom track from disk, but game is playing music from CD.");
+    } else {
+        value->strs[1] = script_strdup(scline->tp[0]);
+        if (value->strs[1] == NULL) {
+            SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        // See if a file with this name is already loaded, if so, reuse the same track
-        char* compare_fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
-        for (int i = max_track + 1; i <= game.last_audiotrack; i++)
-        {
-            if (strcmp(compare_fname, game.loaded_track[i]) == 0)
-            {
-                value->chars[0] = i;
-                PROCESS_SCRIPT_VALUE(scline->command);
-                return;
-            }
-        }
-        if ( (game.last_audiotrack < max_track) || (game.last_audiotrack >= MUSIC_TRACKS_COUNT) )
-        {
-            WARNLOG("Music track %d is out of range - resetting.", game.last_audiotrack);
-            game.last_audiotrack = max_track;
-        }
-        if (game.last_audiotrack < MUSIC_TRACKS_COUNT-1)
-        {
-            game.last_audiotrack++;
-        }
-        short tracknumber = game.last_audiotrack;
-
-        if (tracks[tracknumber] != NULL)
-        {
-            WARNLOG("Overwriting music track %d.", tracknumber);
-            Mix_FreeMusic(tracks[tracknumber]);
-        }
-        const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
-        snprintf(game.loaded_track[tracknumber], DISKPATH_SIZE, "%s", fname);
-        tracks[tracknumber] = Mix_LoadMUS(game.loaded_track[tracknumber]);
-        if (tracks[tracknumber] == NULL)
-        {
-            SCRPTERRLOG("Can't load track %d (%s): %s", tracknumber, game.loaded_track[tracknumber], Mix_GetError());
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        else
-        {
-            SCRPTLOG("Loaded file %s into music track %d.", game.loaded_track[tracknumber], tracknumber);
-        }
-        value->chars[0] = tracknumber;
+        value->chars[0] = -1;
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_music_process(struct ScriptContext *context)
 {
-
-    short track_number = context->value->chars[0];
-    if (track_number >= FIRST_TRACK && track_number <= MUSIC_TRACKS_COUNT) {
-        if (track_number != game.audiotrack) {
-            if (IsRedbookMusicActive()) {
-                SCRPTLOG("Setting music track to %d.", track_number);
-            } else {
-#if SDL_MIXER_VERSION_ATLEAST(2, 6, 0)
-                char info[255];
-                const char * title = Mix_GetMusicTitle(tracks[track_number]);
-                const char * artist = Mix_GetMusicArtistTag(tracks[track_number]);
-                const char * copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
-                if (strlen(artist) > 0 && strlen(copyright) > 0) {
-                    snprintf(info, sizeof(info), "%s by %s (%s)", title, artist, copyright);
-                } else if (strlen(artist) > 0) {
-                    snprintf(info, sizeof(info), "%s by %s", title, artist);
-                } else if (strlen(copyright) > 0) {
-                    snprintf(info, sizeof(info), "%s (%s)", title, copyright);
-                } else {
-                    snprintf(info, sizeof(info), "%s", title);
-                }
-                SCRPTLOG("Setting music track to %d: %s", track_number, info);
-#else
-                SCRPTLOG("Setting music track to %d.", track_number);
-#endif
-            }
-            game.audiotrack = track_number;
-        }
-    } else if (track_number == 0) {
-        game.audiotrack = track_number;
-        SCRPTLOG("Setting music track to %d: No Music", track_number);
+    short track = context->value->chars[0];
+    if (track == 0) {
+        SCRPTLOG("Stopping music");
+        stop_music();
+    } else if (track < 0) {
+        SCRPTLOG("Playing music from %s", context->value->strs[1]);
+        play_music(prepare_file_fmtpath(FGrp_CmpgMedia, "%s", context->value->strs[1]));
     } else {
-        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d or 0 to disable.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
+        SCRPTLOG("Playing music track %d", track);
+        play_music_track(track);
     }
 }
 
