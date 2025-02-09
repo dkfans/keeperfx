@@ -110,6 +110,7 @@ short creature_exempt(struct Thing *creatng);
 short creature_follow_leader(struct Thing *creatng);
 short creature_in_hold_audience(struct Thing *creatng);
 short creature_kill_creatures(struct Thing *creatng);
+short creature_kill_diggers(struct Thing* creatng);
 short creature_leaves(struct Thing *creatng);
 short creature_leaves_or_dies(struct Thing *creatng);
 short creature_leaving_dungeon(struct Thing *creatng);
@@ -131,6 +132,7 @@ short move_backwards_to_position(struct Thing *creatng);
 CrCheckRet move_check_attack_any_door(struct Thing *creatng);
 CrCheckRet move_check_can_damage_wall(struct Thing *creatng);
 CrCheckRet move_check_kill_creatures(struct Thing *creatng);
+CrCheckRet move_check_kill_diggers(struct Thing* creatng);
 CrCheckRet move_check_near_dungeon_heart(struct Thing *creatng);
 CrCheckRet move_check_on_head_for_room(struct Thing *creatng);
 CrCheckRet move_check_persuade(struct Thing *creatng);
@@ -283,8 +285,8 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 1, 0,  0, 0, 0, 1},
   {creature_kill_creatures, NULL, NULL, move_check_kill_creatures,
     0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 1, 0, GBS_creature_states_livid, 1, 0, 1},
-  {NULL, NULL, NULL, NULL, // [60]
-    1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0,  CrStTyp_Work, 0, 0, 0, 0,  0, 0, 0, 1},
+  {creature_kill_diggers, NULL, NULL, move_check_kill_diggers, // [60]
+    0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 1, 0, GBS_creature_states_livid, 1, 0, 1 },
   {person_sulking, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, GBS_creature_states_angry, 1, 0, 1},
   {NULL, NULL, NULL, NULL,
@@ -2323,6 +2325,26 @@ short creature_kill_creatures(struct Thing *creatng)
     return 1;
 }
 
+short creature_kill_diggers(struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    if (dungeon->num_active_diggers <= 1) {
+        set_start_state(creatng);
+        return 0;
+    }
+    long crtr_idx = CREATURE_RANDOM(creatng, dungeon->num_active_diggers);
+    struct Thing* thing = get_player_list_nth_creature_of_model(dungeon->digger_list_start, CREATURE_ANY, crtr_idx);
+    if (thing_is_invalid(thing)) {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (setup_person_move_to_coord(creatng, &thing->mappos, NavRtF_Default)) {
+        creatng->continue_state = CrSt_CreatureKillDiggers;
+    }
+    return 1;
+}
+
 short creature_leaves(struct Thing *creatng)
 {
     TRACE_THING(creatng);
@@ -3603,7 +3625,7 @@ CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
     return 0;
 }
 
-CrAttackType creature_can_have_combat_with_creature_on_slab(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing ** enemytng)
+CrAttackType creature_can_have_combat_with_creature_on_slab(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing ** enemytng, TbBool exclude_diggers)
 {
     MapSubtlCoord endstl_x = slab_subtile(slb_x + 1, 0);
     MapSubtlCoord endstl_y = slab_subtile(slb_y + 1, 0);
@@ -3627,7 +3649,7 @@ CrAttackType creature_can_have_combat_with_creature_on_slab(struct Thing *creatn
                 // Per thing code start
                 if ( thing_is_creature(thing) && (thing != creatng) )
                 {
-                    if ((get_creature_model_flags(thing) & CMF_IsSpecDigger) == 0)
+                    if (!exclude_diggers || !flag_is_set(get_creature_model_flags(thing), CMF_IsSpecDigger))
                     {
                         long dist = get_combat_distance(creatng, thing);
                         CrAttackType attack_type = creature_can_have_combat_with_creature(creatng, thing, dist, 0, 0);
@@ -3657,10 +3679,27 @@ CrCheckRet move_check_kill_creatures(struct Thing *creatng)
     MapSlabCoord slb_x = coord_slab(creatng->mappos.x.val);
     MapSlabCoord slb_y = coord_slab(creatng->mappos.y.val);
     struct Thing* enemytng;
-    CrAttackType attack_type = creature_can_have_combat_with_creature_on_slab(creatng, slb_x, slb_y, &enemytng);
+    CrAttackType attack_type = creature_can_have_combat_with_creature_on_slab(creatng, slb_x, slb_y, &enemytng, true);
     if (attack_type > AttckT_Unset) {
         set_creature_in_combat_to_the_death(creatng, enemytng, attack_type);
         return CrCkRet_Continue;
+    }
+    return CrCkRet_Available;
+}
+
+CrCheckRet move_check_kill_diggers(struct Thing* creatng)
+{
+    MapSlabCoord slb_x = coord_slab(creatng->mappos.x.val);
+    MapSlabCoord slb_y = coord_slab(creatng->mappos.y.val);
+    struct Thing* enemytng;
+    CrAttackType attack_type = creature_can_have_combat_with_creature_on_slab(creatng, slb_x, slb_y, &enemytng, false);
+    if (thing_is_creature_digger(enemytng))
+    {
+        if (attack_type > AttckT_Unset)
+        {
+            set_creature_in_combat_to_the_death(creatng, enemytng, attack_type);
+            return CrCkRet_Continue;
+        }
     }
     return CrCkRet_Available;
 }
