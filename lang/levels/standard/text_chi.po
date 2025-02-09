@@ -7,8 +7,8 @@
 #      Contains translation of the national strings in the game.
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
-#  @author   KeeperFX Team / Dayokay / JieLeTian
-#  @date     Nov 2020 - Jan 2023
+#  @author   KeeperFX Team / JieLeTian
+#  @date     Nov 2020 - Jan 2025
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ msgstr "强大的守护者普瑞伦（蓝色）和斯瓦里赫尔（绿色）渴
 #: guitext:2
 msgctxt "In-game message"
 msgid "Excellent Keeper! One of your enemies has fallen. I trust your losses were not too severe, as it's now time to eliminate another? "
-msgstr "很好，守护者！你已经消灭了一个敌人。我相信你的损失还不算太惨重，还可以继续消灭另一个敌人吧？"
+msgstr "很好，守护者！你已经消灭了一个敌人。我相信你的损失还不算太惨重，是时候把另一个敌人也消灭掉吧？"
 
 #. Tymnath Herez (lv301)
 #: guitext:3
@@ -63,7 +63,7 @@ msgstr "所以你将你的两个对手普瑞伦和斯瓦里赫尔都打败了？
 #: guitext:5
 msgctxt "In-game message"
 msgid "This realm is ruled by the Shogun, a legendary Samurai warrior with great swordfighting skills. I say it's time we put these so-called skills to the test? But be warned, the Shogun may decide to pre-emptively attack us if we become too powerful. "
-msgstr "这个国家由一位将军统治，他是一位具有高超剑术的传奇忍者。我想，是时候考验一下他这些所谓的高超技术了！不过，要注意的是，如果我们发展得太强大了，这位将军可能会决定先发制人，主动进攻我们。"
+msgstr "这个国家由一位将军统治，他是一位具有高超剑术的传奇忍者。我觉得是时候让我们来考验一下他这些所谓的高超技术了吧？不过，要注意的是，如果我们发展得太强大了，这位将军可能会决定先发制人，主动进攻我们。"
 
 #. Yami (lv405)
 #: guitext:6
@@ -633,13 +633,13 @@ msgstr "这些鬼魂已经是最强大的了。这下敌人的巫师肯定没有
 #: guitext:100
 msgctxt "In-game message"
 msgid "Your Ghosts have failed and paid the price for it! Luckily there's always more death? When you have regained enough Ghosts, eliminate your imps to try again. "
-msgstr "你的鬼魂战败了，并为此付出了代价。幸运的是，你还能杀死更多的敌人来获得更多的鬼魂。当你获得足够多的鬼魂了，扔掉你的所有小鬼，再试一次吧。"
+msgstr "你的鬼魂战败了，并为此付出了代价！好在你还能杀死更多的敌人来获得更多的鬼魂，对吧？当你获得足够多的鬼魂了，扔掉你的所有小鬼，再试一次吧。"
 
 #. Ghost in the Machine (lv458)
 #: guitext:101
 msgctxt "In-game message"
 msgid "This is taking too long. Let's see what happens. "
-msgstr "你花的时间太长了。是时候发起进攻了，让我们看看会发生什么吧。"
+msgstr "你花的时间太长了。让我们看看会发生什么吧。"
 
 #. Ghost in the Machine (lv458)
 #: guitext:102
@@ -770,132 +770,132 @@ msgstr "你失去了你唯一的怪物。你需要它才能夺回你地下城心
 #: guitext:123
 msgctxt "In-game message"
 msgid "You have entered the sacred chamber of the heroes which holds an artifact of great power. The good gods have sent a mighty force to stop you from stealing it."
-msgstr ""
+msgstr "你进入了英雄的圣殿，传说里面藏有一件具有强大威力的神器。善良的神明派出了强大的力量来阻止你窃取它。"
 
 #: guitext:124
 msgctxt "In-game message"
 msgid "A volcanic eruption has completely devastated this realm and destroyed your dungeon. Most of your creatures got buried alive by debris and the remaining ones got captured by the heroes and hidden in their secret caves. Fortunately, you still have one creature left. The enemy keepers are still weak, but are quickly getting stronger. Hurry up and free your captured creatures to dominate this realm again."
-msgstr ""
+msgstr "这个王国因火山喷发而被完全烧毁，你的地下城也毁于一旦。你的大部分怪物都被活埋在了废墟中，剩下的怪物被英雄们俘虏并被藏在秘密洞穴中。幸运的是，你还剩下最后一只怪物。敌方守护者现在很弱，但很快将会发展壮大。赶紧释放你被囚禁的怪物，再次称霸这个王国吧。"
 
 #: guitext:125
 msgctxt "In-game message"
 msgid "Keep this ghost alive at all costs. His abilities are the key to free your creatures and rebuild your dungeon."
-msgstr ""
+msgstr "不惜一切代价让这个鬼魂活下来。它的能力是让你解救怪物和重建地下城的关键。"
 
 #: guitext:126
 msgctxt "In-game message"
 msgid "Well done, Keeper! With these Imps you can rebuild your dungeon. Perhaps now is a good time to attack the heroes' dungeon heart. There are rumors that it is still very weak due to the volcanic eruption. Maybe even your little ghost is strong enough to destroy it. It is located to the east of your dungeon."
-msgstr ""
+msgstr "很好，守护者！有了这些小鬼，你可以重建你的地下城了。也许现在是攻击英雄地下城心脏的好时机。据说由于火山喷发，英雄心脏也变得非常脆弱。也许你的小鬼也足够强大，可以摧毁它。它就在你的地下城东边。"
 
 #: guitext:127
 msgctxt "In-game message"
 msgid "Mjollnir: Hammer of Thor."
-msgstr ""
+msgstr "米约尔尼尔：雷神之锤。"
 
 #: guitext:128
 msgctxt "In-game message"
 msgid "You can feel the power of the thunder god Thor coursing through your veins. You are now able to cast Lightning Strike!"
-msgstr ""
+msgstr "你可以感受到雷神托尔的力量在你的血管中沸腾。你现在可以施放闪电术了！"
 
 #: guitext:129
 msgctxt "In-game message"
 msgid "Destroying the heroes' dungeon heart has given you the ability to build bridges again. There are probably more of your creatures hidden somewhere in this realm. Try to free them or maybe claim an entrance from one of the enemy keepers to build an army."
-msgstr ""
+msgstr "摧毁英雄的地下城心脏让你能够再次建造桥梁。在这个王国中可能隐藏着更多你的怪物。尝试解救它们，或者占领其中一位敌方守护者的入口以建立部队。"
 
 #: guitext:130
 msgctxt "In-game message"
 msgid "This realm is waterlogged and infested with heroes ready to take advantage of any gaps in your dungeon. Dig carefully and trust your senses."
-msgstr ""
+msgstr "这个王国被水淹了，并且英雄如蛀虫一般前来寻找你的地下城的防御漏洞。小心地挖掘，相信你的直觉。"
 
 #: guitext:131
 msgctxt "In-game message"
 msgid "There is another Keeper to the north, along with the Heroes' main force. Build yourself up carefully and grow your forces before moving towards the enemy."
-msgstr ""
+msgstr "北方有另一个守护者，还有英雄的主力军。先好好建设地下城，积攒足够强大的实力，再去进攻敌人吧。"
 
 #: guitext:132
 msgctxt "In-game message"
 msgid "There are many secrets hidden within the earth if you look carefully, but such secrets will not go unguarded."
-msgstr ""
+msgstr "如果你仔细寻找，会发现地底下藏着很多秘密，但必然也有敌人看守。"
 
 #: guitext:133
 msgctxt "In-game message"
 msgid "You have found a Hellhound. These faithful pooches can smell the stench of your enemies through walls and alert you to their presence, a trait which will be most useful here."
-msgstr ""
+msgstr "你找到了一只地狱犬。这些忠诚的狗狗隔着墙壁也会嗅到敌人的气息，并让你提高警惕。这个信息很有用处。"
 
 #: guitext:134
 msgctxt "In-game message"
 msgid "You've found yourself at the outskirts of the hero fortress. The door leading there is sealed; it may be best to keep it that way until you're ready."
-msgstr ""
+msgstr "你来到了英雄的城池门口。大门被封住了；最好先准备充分再把它打开。"
 
 #: guitext:135
 msgctxt "In-game message"
 msgid "The main hero stronghold now knows you're here and will be sending reinforcements. It may be best to strike before they can assemble too many."
-msgstr ""
+msgstr "英雄的主力部队已经知道你的到来，并且正在集结援军。最好在援军集结完毕之前尽快出击。"
 
 #: guitext:136
 msgctxt "In-game message"
 msgid "The Heroes can no longer send reinforcements to handle you now you're knocking on their door, and will have to face you with their remaining forces."
-msgstr ""
+msgstr "你已经打到了城门，英雄们已经无暇集结援军了，只能用仅剩的部队来抵抗你。"
 
 #: guitext:137
 msgctxt "In-game message"
 msgid "Even with the Lord gone, the heroes make their last, desperate attempt to defend their Heart and keep their grip on this land. Pathetic, really."
-msgstr ""
+msgstr "虽然国王已经倒下，英雄的残兵败将们仍然要进行最后一次绝望的反击，来保护他们的心脏和这片土地。真是可悲的挣扎。"
 
 #: guitext:138
 msgctxt "In-game message"
 msgid "The Lord of the Land has heard of the collapse of the rival Keeper and is coming to strike while you are licking your wounds."
-msgstr ""
+msgstr "国王听说了敌方守护者被摧毁的消息，打算趁你伤口未愈的机会前来讨伐你。"
 
 #: guitext:139
 msgctxt "In-game message"
 msgid "Now the Lord has been dealt with, destroy the Heroes' Dungeon Heart to expel them for good."
-msgstr ""
+msgstr "国王已经被干掉了，摧毁英雄的心脏，来扫除这些正义的力量吧。"
 
 #: guitext:140
 msgctxt "In-game message"
 msgid "The Keeper to the north has heard of the collapse of the hero fort and is coming to strike while your back is turned."
-msgstr ""
+msgstr "北方的守护者听说了英雄基地被摧毁的消息，正打算趁你不备前来攻击你。"
 
 #: guitext:141
 msgctxt "In-game message"
 msgid "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
-msgstr ""
+msgstr "这片土地并不适合亡灵生存。你会发现俘虏和招降的效率会逐渐降低，而且吸血鬼也很难诞生。"
 
 #: guitext:142
 msgctxt "In-game message"
 msgid "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
-msgstr ""
+msgstr "这片土地并不适合亡灵生存。你会发现俘虏和招降的效率会逐渐降低，而且吸血鬼也很难诞生。"
 
 #: guitext:143
 msgctxt "In-game message"
 msgid "This land is not kind to the undead. You may find it increasingly difficult to grow your ranks through imprisoning or torture, and it will be harder to attract Vampires."
-msgstr ""
+msgstr "这片土地并不适合亡灵生存。你会发现俘虏和招降的效率会逐渐降低，而且吸血鬼也很难诞生。"
 
 #: guitext:144
 msgctxt "In-game message"
 msgid "You have found the rival Keeper. He is currently minding his own business, unaware of your presence. Keep him oblivious until you have an army at his door."
-msgstr ""
+msgstr "你遇见了敌方守护者。他正忙于自己的事情，并不把你放在眼里。在你的部队成型之前，最好先不要引起他的注意。"
 
 #: guitext:145
 msgctxt "In-game message"
 msgid "It seems that destroying the heroes' heart at least rendered the bridge usable again."
-msgstr ""
+msgstr "看来，摧毁英雄们的心脏至少可以让这座桥重新投入使用。"
 
 #: guitext:146
 msgctxt "In-game message"
 msgid "It seems you've taken an interest in this volcano, Keeper. The other keeper here has no idea you've arrived, nor do those pesky heroes. You'll have to make due without much space in order to obliterate your opponents."
-msgstr ""
+msgstr "看来你对这座火山很感兴趣啊，守护者。这里的其他守护者不知道你来了，那些讨厌的英雄们也不知道。为了消灭你的对手，你必须在没有太多空间的情况下进行。"
 
 #: guitext:147
 msgctxt "In-game message"
 msgid "Those pretentious heroes have found a way to block all dark research. Destroy them."
-msgstr ""
+msgstr "那些自命不凡的英雄们封锁了所有研究黑暗魔法的方法。干掉他们。"
 
 #: guitext:148
 msgctxt "In-game message"
 msgid "You found a secret temple inhabited by a Horned Reaper. It has decided to join your evil cause."
-msgstr ""
+msgstr "你发现了一座有冥界使者居住的秘密神庙。它决定加入你的邪恶事业。"
 
 #: guitext:202
 msgctxt "Level name"
@@ -975,5 +975,5 @@ msgstr "欢乐林地"
 #: guitext:217
 msgctxt "Level name"
 msgid "Vulkaan"
-msgstr "火山"
+msgstr "乌尔坎"
 
