@@ -64,7 +64,7 @@ enum SacrificeReturn {
 };
 
 struct SacrificeRecipe {
-    long victims[MAX_SACRIFICE_VICTIMS];
+    ThingModel victims[MAX_SACRIFICE_VICTIMS];
     long action;
     long param;
 };

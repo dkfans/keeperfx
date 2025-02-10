@@ -32,7 +32,7 @@
 #include "power_hand.h"
 #include "frontend.h"
 #include "config_players.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "player_utils.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"

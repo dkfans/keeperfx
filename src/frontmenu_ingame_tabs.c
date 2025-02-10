@@ -50,7 +50,7 @@
 #include "gui_parchment.h"
 #include "gui_draw.h"
 #include "packets.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "player_computer.h"
 #include "player_instances.h"
 #include "config_players.h"

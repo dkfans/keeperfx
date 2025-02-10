@@ -67,7 +67,7 @@
 #include "kjm_input.h"
 #include "lens_api.h"
 #include "light_data.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "player_instances.h"
@@ -3344,10 +3344,13 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
             dungeon->lvstats.flies_killed_by_spiders++;
         }
     }
+    // 'killertng' could be a trap, so verify if it has valid creature control before increasing the kill count and adjusting its anger.
     struct CreatureControl *cctrlgrp = creature_control_get_from_thing(killertng);
     if (!creature_control_invalid(cctrlgrp))
     {
         cctrlgrp->kills_num++;
+        struct CreatureStats *crstat = creature_stats_get_from_thing(killertng);
+        anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
     }
     if (is_my_player_number(creatng->owner))
     {
@@ -3366,10 +3369,6 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         {
             ERRORLOG("Hero have tend to imprison"); // What is the point of this log error? Check if it can be removed.
         }
-    }
-    {
-        struct CreatureStats *crstat = creature_stats_get_from_thing(killertng);
-        anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
     }
     if (!dungeon_invalid(dungeon))
     {
@@ -6694,7 +6693,6 @@ void illuminate_creature(struct Thing *creatng)
 
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, char spawn_type)
 {
-    long i = get_map_location_longval(location);
     struct Coord3d pos;
 
     if (!creature_count_below_map_limit(0))
@@ -6703,15 +6701,16 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         return INVALID_THING;
     }
 
-    switch (get_map_location_type(location))
+    if (!get_coords_at_location(&pos, location,false))
     {
-    case MLoc_ACTIONPOINT:
-        if (!get_coords_at_action_point(&pos, i, 1))
+        return INVALID_THING;
+    }
+
+    if (spawn_type == SpwnT_Default)
+    {
+        switch (get_map_location_type(location))
         {
-            return INVALID_THING;
-        }
-        if (spawn_type == SpwnT_Default)
-        {
+        case MLoc_ACTIONPOINT:
             if (player_is_roaming(plyr_idx))
             {
                 spawn_type = SpwnT_Fall;
@@ -6720,41 +6719,11 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             {
                 spawn_type = SpwnT_None;
             }
-        }
-        break;
-    case MLoc_HEROGATE:
-        if (!get_coords_at_hero_door(&pos, i, 1))
-        {
-            return INVALID_THING;
-        }
-        if (spawn_type == SpwnT_Default)
-        {
+            break;
+        case MLoc_HEROGATE:
             spawn_type = SpwnT_Jump;
+            break;
         }
-        break;
-    case MLoc_PLAYERSHEART:
-        if (!get_coords_at_dungeon_heart(&pos, i))
-        {
-            return INVALID_THING;
-        }
-        break;
-    case MLoc_METALOCATION:
-        if (!get_coords_at_meta_action(&pos, plyr_idx, i))
-        {
-            return INVALID_THING;
-        }
-        break;
-    case MLoc_CREATUREKIND:
-    case MLoc_OBJECTKIND:
-    case MLoc_ROOMKIND:
-    case MLoc_THING:
-    case MLoc_PLAYERSDUNGEON:
-    case MLoc_APPROPRTDUNGEON:
-    case MLoc_DOORKIND:
-    case MLoc_TRAPKIND:
-    case MLoc_NONE:
-    default:
-        return INVALID_THING;
     }
 
     struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, TCls_Creature, crmodel, plyr_idx);
@@ -7455,6 +7424,86 @@ PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng)
     return creatng->owner;
 }
 
+static int filter_criteria_type(long desc_type)
+{
+    return desc_type & 0x0F;
+}
+
+static long filter_criteria_loc(long desc_type)
+{
+    return desc_type >> 4;
+}
+
+struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria)
+{
+    switch (filter_criteria_type(criteria))
+    {
+    case CSelCrit_Any:
+        return get_random_players_creature_of_model(plyr_idx, crmodel);
+    case CSelCrit_MostExperienced:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
+    case CSelCrit_MostExpWandering:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
+    case CSelCrit_MostExpWorking:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
+    case CSelCrit_MostExpFighting:
+        return find_players_highest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
+    case CSelCrit_LeastExperienced:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Any, plyr_idx, 0);
+    case CSelCrit_LeastExpWandering:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Wandering, plyr_idx, 0);
+    case CSelCrit_LeastExpWorking:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Working, plyr_idx, 0);
+    case CSelCrit_LeastExpFighting:
+        return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
+    case CSelCrit_NearOwnHeart:
+    {
+        const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);
+        return get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx, crmodel);
+    }
+    case CSelCrit_NearEnemyHeart:
+        //return get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
+    case CSelCrit_OnEnemyGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 0);
+    case CSelCrit_OnFriendlyGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 1);
+    case CSelCrit_OnNeutralGround:
+        return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 2);
+    case CSelCrit_NearAP:
+    {
+        int loc = filter_criteria_loc(criteria);
+        struct ActionPoint* apt = action_point_get(loc);
+        if (!action_point_exists(apt))
+        {
+            WARNLOG("Action point is invalid:%d", apt->num);
+            return INVALID_THING;
+        }
+        if (apt->range == 0)
+        {
+            WARNLOG("Action point with zero range:%d", apt->num);
+            return INVALID_THING;
+        }
+        // Action point range should be inside spiral in subtiles
+        int dist = 2 * coord_subtile(apt->range + COORD_PER_STL - 1) + 1;
+        dist = dist * dist;
+
+        Thing_Maximizer_Filter filter = near_map_block_creature_filter_diagonal_random;
+        struct CompoundTngFilterParam param;
+        param.model_id = crmodel;
+        param.plyr_idx = (unsigned char)plyr_idx;
+        param.num1 = apt->mappos.x.val;
+        param.num2 = apt->mappos.y.val;
+        param.num3 = apt->range;
+        return get_thing_spiral_near_map_block_with_filter(apt->mappos.x.val, apt->mappos.y.val,
+            dist,
+            filter, &param);
+    }
+    default:
+        ERRORLOG("Invalid level up criteria %d", (int)criteria);
+        return INVALID_THING;
+    }
+}
+
 void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, TbBool zoom)
 {
     if (is_my_player(player))
@@ -7680,6 +7729,51 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
     }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NoUnconscious | CrDed_NotReallyDying);
     return true;
+}
+
+/**
+ * Cast a spell on a creature which meets given criteria.
+ * @param plyr_idx The player whose creature will be affected.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @param fmcl_bytes encoded bytes: f=cast for free flag,m=spell kind,c=caster player index,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
+{
+    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    if (thing_is_invalid(thing))
+    {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
+        return Lb_FAIL;
+    }
+    SpellKind spkind = (fmcl_bytes >> 8) & 255;
+    struct SpellConfig *spconf = get_spell_config(spkind);
+    if (!creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
+    { // Immunity is handled in 'apply_spell_effect_to_thing', but this command plays sounds, so check for it.
+        if (thing_is_picked_up(thing))
+        {
+            SYNCDBG(5, "Found creature to cast the spell on but it is being held.");
+            return Lb_FAIL;
+        }
+        CrtrExpLevel spell_level = fmcl_bytes & 255;
+        if (spconf->caster_affect_sound)
+        {
+            thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+        }
+        apply_spell_effect_to_thing(thing, spkind, spell_level, plyr_idx);
+        if (flag_is_set(spconf->spell_flags, CSAfF_Disease))
+        {
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(thing);
+            cctrl->disease_caster_plyridx = game.neutral_player_num; // Does not spread.
+        }
+        return Lb_SUCCESS;
+    }
+    else
+    {
+        return Lb_FAIL;
+    }
 }
 
 /******************************************************************************/

@@ -42,8 +42,6 @@ extern "C" {
 
 #define SENSIBLE_GOLD 99999999
 
-#define EXTERNAL_SOUNDS_COUNT 32
-
 enum ScriptOperator {
     SOpr_SET = 1,
     SOpr_INCREASE,
@@ -65,8 +63,6 @@ struct PartyTrigger;
 
 struct ScriptContext
 {
-    int plr_start;
-    int plr_end;
     int player_idx;
 
     union {

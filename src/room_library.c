@@ -33,7 +33,7 @@
 #include "config_terrain.h"
 #include "creature_states.h"
 #include "creature_states_rsrch.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "post_inc.h"

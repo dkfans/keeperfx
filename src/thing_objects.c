@@ -40,7 +40,7 @@
 #include "map_data.h"
 #include "map_columns.h"
 #include "map_utils.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "room_entrance.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"

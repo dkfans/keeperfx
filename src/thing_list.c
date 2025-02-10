@@ -37,7 +37,7 @@
 #include "creature_senses.h"
 #include "spdigger_stack.h"
 #include "power_hand.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_utils.h"
 #include "config_creature.h"
 #include "config_magic.h"
@@ -76,6 +76,22 @@ Thing_Class_Func class_functions[] = {
 };
 
 unsigned long thing_create_errors = 0;
+
+const struct NamedCommand class_commands[] = {
+  {"Object",        TCls_Object},
+  {"Shot",          TCls_Shot},
+  {"EffectElem",    TCls_EffectElem},
+  {"DeadCreature",  TCls_DeadCreature},
+  {"Creature",      TCls_Creature},
+  {"Effect",        TCls_Effect},
+  {"EffectGen",     TCls_EffectGen},
+  {"Trap",          TCls_Trap},
+  {"Door",          TCls_Door},
+  {"AmbientSnd",    TCls_AmbientSnd},
+  {"CaveIn",        TCls_CaveIn},
+  {NULL,              0},
+  };
+
 /******************************************************************************/
 
 void set_previous_thing_position(struct Thing *thing) {

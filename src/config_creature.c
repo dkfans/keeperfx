@@ -25,6 +25,7 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
+#include "keeperfx.hpp"
 #include "globals.h"
 #include "config.h"
 #include "config_terrain.h"
@@ -436,6 +437,10 @@ void init_creature_model_stats(void)
         crstat->prison_kind = 0;
         crstat->torture_kind = 0;
         crstat->immunity_flags = 0;
+        for (n = 0; n < CREATURE_TYPES_MAX; n++)
+        {
+            crstat->hostile_towards[n] = 0;
+        }
         crconf->namestr_idx = 0;
         crconf->model_flags = 0;
         // Attraction block.
@@ -2001,6 +2006,28 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
     dungeon->creature_allowed[crtr_model] = can_be_avail;
     dungeon->creature_force_enabled[crtr_model] = force_avail;
     return true;
+}
+
+void update_players_special_digger_model(PlayerNumber plyr_idx, ThingModel new_dig_model)
+{
+
+    ThingModel old_dig_model = get_players_special_digger_model(plyr_idx);
+    if (old_dig_model == new_dig_model)
+    {
+        return;
+    }
+    struct PlayerInfo* player = get_player(plyr_idx);
+
+    player->special_digger = new_dig_model;
+    for (size_t i = 0; i < CREATURE_TYPES_MAX; i++)
+    {
+        if (breed_activities[i] == old_dig_model)
+            breed_activities[i] = new_dig_model;
+        else if (breed_activities[i] == new_dig_model)
+            breed_activities[i] = old_dig_model;
+    }
+    update_creatr_model_activities_list(1);
+
 }
 
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx)

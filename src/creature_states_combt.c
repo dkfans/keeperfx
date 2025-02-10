@@ -3303,9 +3303,13 @@ struct Thing *check_for_door_to_fight(struct Thing *thing)
 TbBool creature_look_for_enemy_door_combat(struct Thing *thing)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    // Creatures which can pass doors shouldn't pick a fight with them
+    // Creatures which can pass doors shouldn't pick a fight with them, unless they are ordered to
     if (crstat->can_go_locked_doors) {
-        return false;
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (game.play_gameturn != cctrl->dropped_turn)
+        {
+            return false;
+        }
     }
     struct Thing* doortng = check_for_door_to_fight(thing);
     if (thing_is_invalid(doortng)) {

@@ -26,7 +26,7 @@
 #include "bflib_vidraw.h"
 #include "bflib_sound.h"
 #include "custom_sprites.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "power_specials.h"
 #include "power_process.h"
 #include "player_data.h"
@@ -1662,6 +1662,48 @@ TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, P
         }
     }
     return false;
+}
+
+void reset_hand_rules(void)
+{
+    struct Dungeon* dungeon;
+    for (int i = 0; i < DUNGEONS_COUNT; i++)
+    {
+        dungeon = get_dungeon(i);
+        memset(dungeon->hand_rules, 0, sizeof(dungeon->hand_rules));
+    }
+}
+
+void script_set_hand_rule(PlayerNumber plyr_idx, long crtr_id,long hand_rule_action,long hand_rule_slot,long hand_rule_type,long param)
+{
+    long crtr_id_start = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? 0 : crtr_id;
+    long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
+
+    struct Dungeon* dungeon;
+    
+    for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
+    {
+
+        //todo maybe should use creature_model_matches_model somewhere?
+        if (crtr_id == CREATURE_NOT_A_DIGGER)
+        {
+            if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,ci))
+            {
+                continue;
+            }
+        }
+        dungeon = get_dungeon(plyr_idx);
+        if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
+        {
+            dungeon->hand_rules[ci][hand_rule_slot].enabled = 1;
+            dungeon->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
+            dungeon->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
+            dungeon->hand_rules[ci][hand_rule_slot].param = param;
+        } else
+        {
+            dungeon->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
+        }
+    }
 }
 
 /******************************************************************************/

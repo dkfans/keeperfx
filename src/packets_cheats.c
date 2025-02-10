@@ -33,7 +33,7 @@
 #include "config_effects.h"
 #include "map_utils.h"
 #include "map_blocks.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "keeperfx.hpp"
 #include "gui_frontmenu.h"
 #include "frontend.h"

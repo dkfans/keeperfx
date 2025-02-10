@@ -242,7 +242,6 @@ void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
-void reset_hand_rules(void);
 void add_creature_to_pool(long kind, long amount);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 
@@ -263,7 +262,6 @@ void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_p
 void draw_mini_things_in_hand(long x, long y);
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
 void update_creatr_model_activities_list(TbBool forced);
-void find_map_location_coords(TbMapLocation location, long *x, long *y, int plyr_idx, const char *func_name);
 TbBool any_player_close_enough_to_see(const struct Coord3d *pos);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
 void affect_nearby_friends_with_alarm(struct Thing *thing);
