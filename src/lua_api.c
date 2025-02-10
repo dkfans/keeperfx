@@ -1037,7 +1037,25 @@ static int lua_SET_CREATURE_MAX_LEVEL(lua_State *L)
     return 0;
 }
 //static int lua_SET_CREATURE_PROPERTY(lua_State *L)
-//static int lua_SET_CREATURE_TENDENCIES(lua_State *L)
+
+static int lua_SET_CREATURE_TENDENCIES(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    int tendancy = luaL_checkNamedCommand(L, 2, tendency_desc);
+    int val = luaL_checkinteger(L, 3);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        struct Player *player = get_player(i);
+        set_creature_tendencies(player, tendancy, val);
+        if (is_my_player(player))
+        {
+            dungeon = get_players_dungeon(player);
+            game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
+            game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+        }
+    }
+}
 
 static int lua_CREATURE_ENTRANCE_LEVEL(lua_State *L)
 {
