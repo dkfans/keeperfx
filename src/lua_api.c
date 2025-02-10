@@ -1038,7 +1038,20 @@ static int lua_SET_CREATURE_MAX_LEVEL(lua_State *L)
 }
 //static int lua_SET_CREATURE_PROPERTY(lua_State *L)
 //static int lua_SET_CREATURE_TENDENCIES(lua_State *L)
-//static int lua_CREATURE_ENTRANCE_LEVEL(lua_State *L)
+
+static int lua_CREATURE_ENTRANCE_LEVEL(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    unsigned char level = luaL_checkinteger(L, 4);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        struct Dungeon* dungeon = get_dungeon(i);
+        if (dungeon_invalid(dungeon))
+            continue;
+        dungeon->creature_entrance_level = level - 1;
+    }
+}
 
 
 
@@ -1643,7 +1656,7 @@ static const luaL_Reg global_methods[] = {
    {"SET_CREATURE_MAX_LEVEL"               ,lua_SET_CREATURE_MAX_LEVEL          },
    //{"SET_CREATURE_PROPERTY"                ,lua_SET_CREATURE_PROPERTY           },
    //{"SET_CREATURE_TENDENCIES"              ,lua_SET_CREATURE_TENDENCIES         },
-   //{"CREATURE_ENTRANCE_LEVEL"              ,lua_CREATURE_ENTRANCE_LEVEL         },
+   {"CREATURE_ENTRANCE_LEVEL"              ,lua_CREATURE_ENTRANCE_LEVEL         },
    {"CHANGE_CREATURES_ANNOYANCE"           ,lua_CHANGE_CREATURES_ANNOYANCE      },
 
 
