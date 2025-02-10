@@ -160,8 +160,7 @@ local Camera = {}
 ---@field BONUS_TIME integer
 ---@field CREATURES_TRANSFERRED integer
 ---
----
----@field camera Camera
+---@field heart Thing The player's primary dungeon heart
 local Player = {}
 
 ---@class Thing
@@ -432,13 +431,12 @@ function DISPLAY_OBJECTIVE(msg_id,zoom_location) end
 ---@param msg_id integer
 ---@param zoom_location? location
 function DISPLAY_INFORMATION(msg_id,zoom_location) end
---[[
+
 ---Plays a sound message or sound effect.
 ---@param player Player The name of the player who gets to hear the sound.
 ---@param type "SPEECH"|"SOUND" If it is a sound effect or a speech. Speeches queue, sounds play at the same time.
 ---@param sound integer The sound file to be played. Use numbers(ID's) to play sounds from the original .dat files, or a file name(between parenthesis) to play custom sounds.
 function PLAY_MESSAGE(player,type,sound) end
-]]
 
 ---Displays a script variable on screen.
 ---@param player Player The player’s name, e.g. PLAYER1.
@@ -668,9 +666,6 @@ function RESEARCH(player,research_type,room_or_spell,research_value) end
 function RESEARCH_ORDER(player,research_type,room_or_spell,research_value) end
 
 
-
-
-
 ----------------------------------------
 --Tweaking players--
 ----------------------------------------
@@ -698,8 +693,6 @@ function SET_PLAYER_MODIFIER(player,modifier,value) end
 ---@param modifier string
 ---@param value integer
 function ADD_TO_PLAYER_MODIFIER(player,modifier,value) end
-
---]]
 
 
 -----------------------------
@@ -809,7 +802,6 @@ function CREATE_EFFECT(effect,location,height) local ef return ef end
 ---@return Thing effect the created effect or effect element
 function CREATE_EFFECT_AT_POS(effect,stl_x,stl_y,height) local ef return ef end
 
-
 ---Spawns an effect multiple times, forming a line.
 ---@param origin location The origin location, where the first effect spawns. E.g. PLAYER1 or 1 to go from an action point.
 ---@param destination location The location where the line is drawn towards.
@@ -850,7 +842,6 @@ function USE_POWER_AT_LOCATION(caster_player,location,power_name,power_level,fre
 ---@param free boolean
 function USE_POWER_ON_CREATURE(player,creature,caster_player,power_name,power_level,free) end
 
---[[
 ---Casts a unit spell on a specific creature. Only abilities with actual spell effects can be used. So Freeze yes, Fireball, no.
 ---@param creature Creature
 ---@param spell spell_type
@@ -866,8 +857,6 @@ function SET_HAND_GRAPHIC(player,hand) end
 ---@param valname string The name of the variable you want to change. Accepts 'SizeIncreaseOnExp', 'PayIncreaseOnExp', 'SpellDamageIncreaseOnExp', 'RangeIncreaseOnExp', 'JobValueIncreaseOnExp', 'HealthIncreaseOnExp', 'StrengthIncreaseOnExp', 'DexterityIncreaseOnExp', 'DefenseIncreaseOnExp', 'LoyaltyIncreaseOnExp', 'ExpForHittingIncreaseOnExp', 'TrainingCostIncreaseOnExp', 'ScavengingCostIncreaseOnExp'.
 ---@param valnum integer The value you want to give it. 0 for no increase on experience. Range 0..32767.
 function SET_INCREASE_ON_EXPERIENCE(valname,valnum) end
-]]
-
 
 ---Chooses what music track to play
 ---@param track_number integer  The music track to be played. Numbers 2~7 select from original tracks, or a file name(between parenthesis) to set custom music.
@@ -877,15 +866,11 @@ function SET_CREATURE_INSTANCE() end
 function SET_HAND_RULE() end
 
 
-
---[[
-
 ---Changes the slabs belonging to a specific player to a custom texture
 ---@param player playerrange  The name of the player who's slabs are changed.
 ---@param texture string The name or number of the texture to use for the player, like 'STONE_FACE'. Accepts 'None' or '-1'.
 function SET_TEXTURE(player,texture) end
 
-]]
 
 ---Place any object at a specific place on the map
 ---@param object object_type The object name from fxdata\objects.cfg
@@ -895,7 +880,6 @@ function SET_TEXTURE(player,texture) end
 ---@return Thing object
 function ADD_OBJECT_TO_LEVEL(object,location,property,player) local ob return ob end
 
---[[
 ---Allows to set tendencies: IMPRISON and FLEE, for a player's creatures.
 ---@param player Player
 ---@param tendency "IMPRISON"|"FLEE"
@@ -906,7 +890,6 @@ function SET_CREATURE_TENDENCIES(player,tendency,value) end
 ---@param player Player
 ---@param level integer
 function CREATURE_ENTRANCE_LEVEL(player,level) end
-]]
 
 ---Makes a player unable to exit possession mode. Does not start possession.
 ---@param player playersingle The player’s name, e.g. PLAYER1, that will be unable to exit possession.
@@ -921,8 +904,6 @@ function SET_DIGGER(player,creature) end
 -------------------------------------------------------
 --functions only available in lua
 -------------------------------------------------------
-
-function GetHeroGate() end
 
 ---returns a list containing all things of a certain class
 ---@param class thing_class

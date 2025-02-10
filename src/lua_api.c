@@ -1036,9 +1036,41 @@ static int lua_SET_CREATURE_MAX_LEVEL(lua_State *L)
     }
     return 0;
 }
+
 //static int lua_SET_CREATURE_PROPERTY(lua_State *L)
-//static int lua_SET_CREATURE_TENDENCIES(lua_State *L)
-//static int lua_CREATURE_ENTRANCE_LEVEL(lua_State *L)
+
+static int lua_SET_CREATURE_TENDENCIES(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    int tendancy = luaL_checkNamedCommand(L, 2, tendency_desc);
+    int val = luaL_checkinteger(L, 3);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        struct Player *player = get_player(i);
+        set_creature_tendencies(player, tendancy, val);
+        if (is_my_player(player))
+        {
+            dungeon = get_players_dungeon(player);
+            game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
+            game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+        }
+    }
+}
+
+static int lua_CREATURE_ENTRANCE_LEVEL(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    unsigned char level = luaL_checkinteger(L, 4);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        struct Dungeon* dungeon = get_dungeon(i);
+        if (dungeon_invalid(dungeon))
+            continue;
+        dungeon->creature_entrance_level = level - 1;
+    }
+}
 
 
 
@@ -1375,26 +1407,6 @@ static int lua_USE_SPECIAL_TRANSFER_CREATURE(lua_State *L)
     return 0;
 }
 
-
-static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
-{
-    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    GoldAmount gold = luaL_checkinteger(L, 2);
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        if(gold > 0)
-        {
-            player_add_offmap_gold(i, gold);
-        }
-        else
-        {
-            take_money_from_dungeon(i, -gold, 0);
-        }
-    }
-    return 0;
-}
-
 static int lua_CHANGE_SLAB_OWNER(lua_State *L)
 {
     PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
@@ -1462,6 +1474,72 @@ static int lua_CHANGE_CREATURES_ANNOYANCE(lua_State *L)
     return 0;
 }
 
+static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    GoldAmount gold = luaL_checkinteger(L, 2);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        if(gold > 0)
+        {
+            player_add_offmap_gold(i, gold);
+        }
+        else
+        {
+            take_money_from_dungeon(i, -gold, 0);
+        }
+    }
+    return 0;
+}
+
+static int lua_SET_TEXTURE(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long texture_id = luaL_checkNamedCommand(L,2,texture_pack_desc);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        set_player_texture(i, texture_id);
+    }
+    return 0;
+}
+
+static int lua_SET_PLAYER_COLOR(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long color = luaL_checkNamedCommand(L, 2,cmpgn_human_player_options);
+    
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        if (context->player_idx == PLAYER_NEUTRAL)
+        {
+            continue;;
+        }
+        set_player_colour(i, color);
+    }
+    return 0;
+}
+
+/*
+static int lua_SET_PLAYER_MODIFIER(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+    }
+    return 0;
+}
+
+static int lua_ADD_TO_PLAYER_MODIFIER(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+    }
+    return 0;
+}
+*/
 
 /**********************************************/
 // game
@@ -1642,8 +1720,8 @@ static const luaL_Reg global_methods[] = {
    {"SET_CREATURE_INSTANCE"                ,lua_SET_CREATURE_INSTANCE           },
    {"SET_CREATURE_MAX_LEVEL"               ,lua_SET_CREATURE_MAX_LEVEL          },
    //{"SET_CREATURE_PROPERTY"                ,lua_SET_CREATURE_PROPERTY           },
-   //{"SET_CREATURE_TENDENCIES"              ,lua_SET_CREATURE_TENDENCIES         },
-   //{"CREATURE_ENTRANCE_LEVEL"              ,lua_CREATURE_ENTRANCE_LEVEL         },
+   {"SET_CREATURE_TENDENCIES"              ,lua_SET_CREATURE_TENDENCIES         },
+   {"CREATURE_ENTRANCE_LEVEL"              ,lua_CREATURE_ENTRANCE_LEVEL         },
    {"CHANGE_CREATURES_ANNOYANCE"           ,lua_CHANGE_CREATURES_ANNOYANCE      },
 
 
@@ -1840,7 +1918,7 @@ static int thing_set_field(lua_State *L) {
         luaL_error(L, "not a settable field: %s", key);
     }
 
-    return 0;
+    return 1;
 }
 
 // Function to get field values
@@ -1869,6 +1947,8 @@ static int thing_get_field(lua_State *L) {
         lua_pushPlayer(L, thing->owner);
     } else if (strcmp(key, "pos") == 0) {
         lua_pushPos(L, &thing->mappos);
+    } else if (strcmp(key, "orientation") == 0) {
+        lua_pushinteger(L, thing->move_angle_xy);
     } else {
         lua_pushnil(L);
     }
@@ -2100,12 +2180,11 @@ static int player_eq(lua_State *L) {
 }
 
 static const struct luaL_Reg player_methods[] = {
-   //{"SET_TEXTURE"                          ,lua_SET_TEXTURE                     },   
+   {"SET_TEXTURE"                          ,lua_SET_TEXTURE                     },   
    {"ADD_GOLD_TO_PLAYER"                   ,lua_ADD_GOLD_TO_PLAYER              },
-   //{"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
+   {"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
    //{"SET_PLAYER_MODIFIER"                  ,lua_SET_PLAYER_MODIFIER             },
    //{"ADD_TO_PLAYER_MODIFIER"               ,lua_ADD_TO_PLAYER_MODIFIER          },
-//static int lua_SET_TEXTURE(lua_State *L)
     {NULL, NULL}
 };
 
