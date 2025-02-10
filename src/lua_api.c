@@ -1918,7 +1918,7 @@ static int thing_set_field(lua_State *L) {
         luaL_error(L, "not a settable field: %s", key);
     }
 
-    return 0;
+    return 1;
 }
 
 // Function to get field values
@@ -1947,6 +1947,8 @@ static int thing_get_field(lua_State *L) {
         lua_pushPlayer(L, thing->owner);
     } else if (strcmp(key, "pos") == 0) {
         lua_pushPos(L, &thing->mappos);
+    } else if (strcmp(key, "orientation") == 0) {
+        lua_pushinteger(L, thing->move_angle_xy);
     } else {
         lua_pushnil(L);
     }

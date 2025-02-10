@@ -160,8 +160,7 @@ local Camera = {}
 ---@field BONUS_TIME integer
 ---@field CREATURES_TRANSFERRED integer
 ---
----
----@field camera Camera
+---@field heart Thing The player's primary dungeon heart
 local Player = {}
 
 ---@class Thing
