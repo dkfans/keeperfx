@@ -1036,6 +1036,7 @@ static int lua_SET_CREATURE_MAX_LEVEL(lua_State *L)
     }
     return 0;
 }
+
 //static int lua_SET_CREATURE_PROPERTY(lua_State *L)
 
 static int lua_SET_CREATURE_TENDENCIES(lua_State *L)
@@ -1406,26 +1407,6 @@ static int lua_USE_SPECIAL_TRANSFER_CREATURE(lua_State *L)
     return 0;
 }
 
-
-static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
-{
-    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    GoldAmount gold = luaL_checkinteger(L, 2);
-
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
-    {
-        if(gold > 0)
-        {
-            player_add_offmap_gold(i, gold);
-        }
-        else
-        {
-            take_money_from_dungeon(i, -gold, 0);
-        }
-    }
-    return 0;
-}
-
 static int lua_CHANGE_SLAB_OWNER(lua_State *L)
 {
     PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
@@ -1493,6 +1474,72 @@ static int lua_CHANGE_CREATURES_ANNOYANCE(lua_State *L)
     return 0;
 }
 
+static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    GoldAmount gold = luaL_checkinteger(L, 2);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        if(gold > 0)
+        {
+            player_add_offmap_gold(i, gold);
+        }
+        else
+        {
+            take_money_from_dungeon(i, -gold, 0);
+        }
+    }
+    return 0;
+}
+
+static int lua_SET_TEXTURE(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long texture_id = luaL_checkNamedCommand(L,2,texture_pack_desc);
+
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        set_player_texture(i, texture_id);
+    }
+    return 0;
+}
+
+static int lua_SET_PLAYER_COLOR(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long color = luaL_checkNamedCommand(L, 2,cmpgn_human_player_options);
+    
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+        if (context->player_idx == PLAYER_NEUTRAL)
+        {
+            continue;;
+        }
+        set_player_colour(i, color);
+    }
+    return 0;
+}
+
+/*
+static int lua_SET_PLAYER_MODIFIER(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+    }
+    return 0;
+}
+
+static int lua_ADD_TO_PLAYER_MODIFIER(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    {
+    }
+    return 0;
+}
+*/
 
 /**********************************************/
 // game
@@ -1673,7 +1720,7 @@ static const luaL_Reg global_methods[] = {
    {"SET_CREATURE_INSTANCE"                ,lua_SET_CREATURE_INSTANCE           },
    {"SET_CREATURE_MAX_LEVEL"               ,lua_SET_CREATURE_MAX_LEVEL          },
    //{"SET_CREATURE_PROPERTY"                ,lua_SET_CREATURE_PROPERTY           },
-   //{"SET_CREATURE_TENDENCIES"              ,lua_SET_CREATURE_TENDENCIES         },
+   {"SET_CREATURE_TENDENCIES"              ,lua_SET_CREATURE_TENDENCIES         },
    {"CREATURE_ENTRANCE_LEVEL"              ,lua_CREATURE_ENTRANCE_LEVEL         },
    {"CHANGE_CREATURES_ANNOYANCE"           ,lua_CHANGE_CREATURES_ANNOYANCE      },
 
@@ -2131,12 +2178,11 @@ static int player_eq(lua_State *L) {
 }
 
 static const struct luaL_Reg player_methods[] = {
-   //{"SET_TEXTURE"                          ,lua_SET_TEXTURE                     },   
+   {"SET_TEXTURE"                          ,lua_SET_TEXTURE                     },   
    {"ADD_GOLD_TO_PLAYER"                   ,lua_ADD_GOLD_TO_PLAYER              },
-   //{"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
+   {"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
    //{"SET_PLAYER_MODIFIER"                  ,lua_SET_PLAYER_MODIFIER             },
    //{"ADD_TO_PLAYER_MODIFIER"               ,lua_ADD_TO_PLAYER_MODIFIER          },
-//static int lua_SET_TEXTURE(lua_State *L)
     {NULL, NULL}
 };
 

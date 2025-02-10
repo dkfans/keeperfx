@@ -4985,30 +4985,10 @@ static void set_texture_check(const struct ScriptLine *scline)
 
 static void set_texture_process(struct ScriptContext *context)
 {
-    long texture_id = context->value->shorts[0];
-    struct Dungeon* dungeon;
     PlayerNumber plyr_idx = context->player_idx;
-    dungeon = get_dungeon(plyr_idx);
-    dungeon->texture_pack = texture_id;
+    long texture_id = context->value->shorts[0];
 
-    for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
-    {
-        for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
-        {
-            struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
-            if (slabmap_owner(slb) == plyr_idx)
-            {
-                if (texture_id == 0)
-                {
-                    gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
-                }
-                else
-                {
-                    gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
-                }
-            }
-        }
-    }
+    set_player_texture(plyr_idx, texture_id);
 }
 
 static void set_music_check(const struct ScriptLine *scline)
@@ -5137,45 +5117,54 @@ static void play_message_check(const struct ScriptLine *scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void script_play_message(TbBool param_is_string,const char msgtype_id,const char *filename)
+{
+    
+    if (!param_is_string)
+    {
+        switch (msgtype_id)
+        {
+            case 1: // speech message
+            {
+                output_message(context->value->shorts[1], 0, true);
+                break;
+            }
+            case 2: // sound effect
+            {
+                play_non_3d_sample(context->value->shorts[1]);
+                break;
+            }
+        }
+    }
+    else
+    {
+        const char * filepath = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", filename);
+        switch (msgtype_id)
+        {
+            case 1: // speech message
+            {
+                play_streamed_sample(filepath, settings.mentor_volume);
+                break;
+            }
+            case 2: // sound effect
+            {
+                play_streamed_sample(filepath, settings.sound_volume);
+                break;
+            }
+        }
+    }
+}
+
 static void play_message_process(struct ScriptContext *context)
 {
+    const TbBool param_is_string = context->value->bytes[4];
     const char msgtype_id = context->value->chars[1];
+    const char * filename = context->value->strs[2];
+
+
     if (context->player_idx == my_player_number)
     {
-        const TbBool param_is_string = context->value->bytes[4];
-        if (!param_is_string)
-        {
-            switch (msgtype_id)
-            {
-                case 1: // speech message
-                {
-                    output_message(context->value->shorts[1], 0, true);
-                    break;
-                }
-                case 2: // sound effect
-                {
-                    play_non_3d_sample(context->value->shorts[1]);
-                    break;
-                }
-            }
-        }
-        else
-        {
-            const char * filename = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", context->value->strs[2]);
-            switch (msgtype_id)
-            {
-                case 1: // speech message
-                {
-                    play_streamed_sample(filename, settings.mentor_volume);
-                    break;
-                }
-                case 2: // sound effect
-                {
-                    play_streamed_sample(filename, settings.sound_volume);
-                    break;
-                }
-            }
-        }
+        script_play_message(param_is_string,msgtype_id,filename);
     }
 }
 
