@@ -6185,8 +6185,7 @@ TbBool cube_castability_can_target_creature(struct Thing *thing, PlayerNumber pl
         }
     }
     // Handle flying-related flags. A creature is considered flying if its z-position is above floor height at x/y coordinates. Relevant for possession.
-    if (flag_is_set(thing->movement_flags, TMvF_Flying)
-    && (thing->mappos.z.val > subtile_coord(get_navigation_map_floor_height(thing->mappos.x.stl.num, thing->mappos.y.stl.num), 0)))
+    if (thing->mappos.z.val > subtile_coord(get_navigation_map_floor_height(thing->mappos.x.stl.num, thing->mappos.y.stl.num), 0))
     {
         if (flag_is_set(castability_flags, CCF_NotFlying))
         {
