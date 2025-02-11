@@ -5118,7 +5118,7 @@ static void play_message_check(const struct ScriptLine *scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void script_play_message(TbBool param_is_string,const char msgtype_id,const char *filename)
+static void script_play_message(TbBool param_is_string, const char msgtype_id, const short msg_id, const char *filename)
 {
     
     if (!param_is_string)
@@ -5127,12 +5127,12 @@ static void script_play_message(TbBool param_is_string,const char msgtype_id,con
         {
             case 1: // speech message
             {
-                output_message(context->value->shorts[1], 0, true);
+                output_message(msg_id, 0, true);
                 break;
             }
             case 2: // sound effect
             {
-                play_non_3d_sample(context->value->shorts[1]);
+                play_non_3d_sample(msg_id);
                 break;
             }
         }
@@ -5160,12 +5160,13 @@ static void play_message_process(struct ScriptContext *context)
 {
     const TbBool param_is_string = context->value->bytes[4];
     const char msgtype_id = context->value->chars[1];
+    const short msg_id = context->value->shorts[1];
     const char * filename = context->value->strs[2];
 
 
     if (context->player_idx == my_player_number)
     {
-        script_play_message(param_is_string,msgtype_id,filename);
+        script_play_message(param_is_string,msgtype_id,msg_id,filename);
     }
 }
 

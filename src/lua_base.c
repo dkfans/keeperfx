@@ -28,16 +28,19 @@ struct lua_State *Lvl_script = NULL;
 // Little error checking utility function
 TbBool CheckLua(lua_State *L, int result,const char* func)
 {
-    if (result != LUA_OK) {
+if (result != LUA_OK) {
         const char *message = lua_tostring(L, -1);
-        if (!message) {
-            message = "Unknown error (NULL message)";
-        }
-        ERRORLOG("Lua error in %s: %s", func, message);
-        lua_pop(L, 1);  // Remove error message from the stack
-        exit(EXIT_FAILURE);
+        ERRORLOG("Lua error in %s: %s", func, message ? message : "Unknown error");
+
+        // Print full stack trace
+        luaL_traceback(L, L, NULL, 1);
+        const char *trace = lua_tostring(L, -1);
+        ERRORLOG("Stack trace:\n%s", trace ? trace : "No stack trace available");
+        lua_pop(L, 2); // Remove error message and traceback
+
+        return false;
     }
-	return true;
+    return true;
 }
 
 void close_lua_script()

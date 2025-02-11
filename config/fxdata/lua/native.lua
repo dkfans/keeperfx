@@ -173,6 +173,7 @@ local Player = {}
 ---@field owner Player
 local Thing = {}
 
+
 ---@class Creature: Thing
 local Creature = {}
 
@@ -673,6 +674,8 @@ function RESEARCH_ORDER(player,research_type,room_or_spell,research_value) end
 ---@param amount integer
 function ADD_GOLD_TO_PLAYER(player,amount) end
 
+--[[
+
 ---Does a color swap for a player.
 ---Note: The change is only visual, and swapping PLAYER0 to Blue without Swapping PLAYER1 to another color will have 2 indistinguishable players.
 ---@param player playersingle
@@ -800,6 +803,12 @@ function CREATE_EFFECT(effect,location,height) local ef return ef end
 function CREATE_EFFECT_AT_POS(effect,stl_x,stl_y,height) local ef return ef end
 
 ---Spawns an effect multiple times, forming a line.
+---@param origin location The origin location, where the first effect spawns. E.g. PLAYER1 or 1 to go from an action point.
+---@param destination location The location where the line is drawn towards.
+---@param curvature integer 0 to go in a straight line, with bigger values to get a bigger curve. At 64 if you go from the the central top slab to the central bottom slab of a square room, it will go clockwise through the outer right slab. Use negative values to go counter-clockwise.
+---@param distance integer How far apart the effects forming the line are. Where 24 spawns effects a single slab apart
+---@param speed integer The delay between effects. The number represents 'number of effects per 4 game turns', set it to '2' to spawn 10 effects per second. Use 0 to spawn all effects at once. Max value is 127.
+---@param effect effect_type|effect_element_type|integer The effect to spawn. Can be any effect or effect element that is in game, like the hearts that appear when healing, or the red smoke when claiming a room. Also accepts the names as provided in effects.toml
 function CREATE_EFFECTS_LINE(origin,destination,curvature,distance, speed, effect) end
 
 ---------
@@ -920,6 +929,11 @@ function Thing:DeleteThing() end
 
 ---comment
 function Thing:MakeThingZombie() end
+
+---comment
+---@param location location The location you want the creature to be teleported to.
+---@param effect effect_type|effect_element_type|integer The effect that will be played when the creature is teleported.
+function Creature:TeleportCreature(location,effect) end
 
 ---comment
 ---@param stl_x any
