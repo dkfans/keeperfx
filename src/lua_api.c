@@ -1627,6 +1627,15 @@ static int lua_get_things_of_class(lua_State *L)
     return 1; // return value is the amount of args you push back
 }
 
+static int lua_is_action_point_activated_by_player(lua_State *L)
+{
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
+    ActionPointId apt_idx = luaL_checkActionPoint(L, 2);
+
+    lua_pushboolean(L, action_point_activated_by_player(plyr_idx, apt_idx));
+    return 1;
+}
+
 
 
 
@@ -1770,11 +1779,13 @@ static const luaL_Reg global_methods[] = {
 
 //debug stuff
     {"print"           ,lua_print      },
-
-    {"GetCreatureNear", lua_get_creature_near},
-    {"getCreatureByCriterion", lua_get_creature_by_criterion},
-    {"getThingByIdx", lua_get_thing_by_idx},
-    {"getThingsOfClass", lua_get_things_of_class},
+    
+//retrieving lua vars
+    {"GetCreatureNear",               lua_get_creature_near},
+    {"getCreatureByCriterion",        lua_get_creature_by_criterion},
+    {"getThingByIdx",                 lua_get_thing_by_idx},
+    {"getThingsOfClass",              lua_get_things_of_class},
+    {"isActionPointActivatedByPlayer",lua_is_action_point_activated_by_player},
 };
 /*
 static const luaL_Reg game_meta[] = {
