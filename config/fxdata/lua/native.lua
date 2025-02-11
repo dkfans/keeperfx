@@ -166,8 +166,8 @@ local Player = {}
 ---@class Thing
 ---@field idx integer
 ---@field creation_turn integer
----@field class integer
----@field model integer
+---@field class string
+---@field model string
 ---@field pos Pos3d
 ---@field orientation integer
 ---@field owner Player
@@ -414,12 +414,12 @@ function ADD_PARTY_TO_LEVEL(owner,party_name,location,ncopies) end
 ---Works like DISPLAY_OBJECTIVE, but instead of using a string from translations, allows to type it directly.
 ---@param slot integer
 ---@param message string
----@param zoom_location location
+---@param zoom_location? location
 function QUICK_OBJECTIVE(slot,message,zoom_location) end
 
 ---@param slot integer
 ---@param message string
----@param zoom_location location
+---@param zoom_location? location
 function QUICK_INFORMATION(slot,message,zoom_location) end
 
 ---Displays one of the text messages stored in gtext_***.dat in an Objective Box.

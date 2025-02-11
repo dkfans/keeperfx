@@ -23,21 +23,21 @@ void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx);
 
 void lua_chatmsg(PlayerNumber plyr_idx, char *msg)
 {
-	SYNCDBG(6,"lua_chatmsg");
+	SYNCDBG(6,"Starting");
     lua_getglobal(Lvl_script, "ChatMsg");
 	if (lua_isfunction(Lvl_script, -1))
 	{
-		lua_pushinteger(Lvl_script, plyr_idx);
+		lua_pushPlayer(Lvl_script, plyr_idx);
 		lua_pushstring(Lvl_script, msg);
 
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 0, 0),"ChatMsg");
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 0, 0),"OnChatMsg");
 	}
 }
 
 
 void lua_game_start()
 {
-	SYNCDBG(6,"lua_game_start");
+	SYNCDBG(6,"Starting");
     lua_getglobal(Lvl_script, "OnGameStart");
 	if (lua_isfunction(Lvl_script, -1))
 	{
@@ -47,7 +47,7 @@ void lua_game_start()
 
 void lua_game_tick()
 {
-	SYNCDBG(6,"lua_game_tick");
+	SYNCDBG(6,"Starting");
     lua_getglobal(Lvl_script, "OnGameTick");
 	if (lua_isfunction(Lvl_script, -1))
 	{
@@ -58,7 +58,7 @@ void lua_game_tick()
 void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing)
 	{
-	SYNCDBG(6,"lua_on_power_cast");
+	SYNCDBG(6,"Starting");
     lua_getglobal(Lvl_script, "OnPowerCast");
 	if (lua_isfunction(Lvl_script, -1))
 	{
@@ -75,7 +75,7 @@ void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
 
 void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng)
 {
-	SYNCDBG(6,"lua_on_special_box_activate");
+	SYNCDBG(6,"Starting");
     lua_getglobal(Lvl_script, "OnSpecialActivated");
 	if (lua_isfunction(Lvl_script, -1))
 	{

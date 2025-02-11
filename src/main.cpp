@@ -4324,7 +4324,7 @@ LONG __stdcall Vex_handler(
     } else if (exception_code == DBG_PRINTEXCEPTION_C) {
         return EXCEPTION_CONTINUE_EXECUTION; // Thrown by OutputDebugStringA, intended for debugger
     }else if (exception_code == 0xe24c4a02) {
-        return EXCEPTION_CONTINUE_EXECUTION; //Thrown by luaJIT for some reason
+        return EXCEPTION_EXECUTE_HANDLER; //Thrown by luaJIT for some reason
     }
     LbJustLog("Exception 0x%08lx thrown: %s\n", exception_code, exception_name(exception_code));
     return EXCEPTION_CONTINUE_SEARCH;

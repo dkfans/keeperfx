@@ -742,6 +742,23 @@ static int lua_SET_DOOR(lua_State *L)
 static int lua_ADD_OBJECT_TO_LEVEL(lua_State *L)
 {
     long obj_id            = luaL_checkNamedCommand(L,1,object_desc);
+    TbMapLocation location = luaL_checkLocation(L,  2);
+    long arg               = lua_tointeger(L,3);
+    PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 4);
+    short angle            = lua_tointeger(L, 5);
+
+    struct Coord3d pos;
+    if (!get_coords_at_location(&pos, location,true))
+    {
+        return 0;
+    }
+    lua_pushThing(L,script_process_new_object(obj_id, pos.x.stl.num, pos.y.stl.num, arg, plr_idx,angle));
+    return 1;
+}
+
+static int lua_ADD_OBJECT_TO_LEVEL_AT_POS(lua_State *L)
+{
+    long obj_id            = luaL_checkNamedCommand(L,1,object_desc);
     MapSubtlCoord stl_x    = luaL_checkstl_x(L, 2);
     MapSubtlCoord stl_y    = luaL_checkstl_y(L, 3);
     long arg               = lua_tointeger(L,4);
@@ -751,6 +768,7 @@ static int lua_ADD_OBJECT_TO_LEVEL(lua_State *L)
     lua_pushThing(L,script_process_new_object(obj_id, stl_x, stl_y, arg, plr_idx,angle));
     return 1;
 }
+
 static int lua_ADD_EFFECT_GENERATOR_TO_LEVEL(lua_State *L)
 {
     ThingModel gen_id      = luaL_checkNamedCommand(L,1,effectgen_desc);
@@ -794,79 +812,6 @@ static int lua_SET_GAME_RULE(lua_State *L)
 {
     const char *ruledesc = lua_tostring(L, 1);
     long rulevalue = luaL_checkinteger(L, 2);
-
-    long rulegroup = 0;
-
-    long ruledesc_id = get_id(special_game_rules_desc, ruledesc);
-    if (ruledesc_id != -1)
-    {
-        rulegroup = -1;
-        switch (ruledesc)
-        {
-        case 1: // PreserveClassicBugs
-            // this one is a special case because in the cfg it's not done trough number
-            if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
-            {
-                SCRPTERRLOG("Game Rule '%s' value %ld out of range", scline->tp[0], ruleval);
-                return;
-            }
-            game.conf.rules.game.classic_bugs_flags = rulevalue;
-            break;
-        case 2: // AlliesShareVision
-            // this one is a special case because it updates minimap
-            SCRIPTDBG(7, "Changing Game Rule '%s' from %d to %ld", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
-            game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
-            panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
-            break;
-        case 3: // MapCreatureLimit
-            // this one is a special case because it needs to kill of additional creatures
-            SCRIPTDBG(7, "Changing Game Rule '%s' from %u to %ld", rulename, game.conf.rules.game.creatures_count, rulevalue);
-            game.conf.rules.game.creatures_count = rulevalue;
-            short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
-            if (count > 0)
-            {
-                SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die", count);
-            }
-            break;
-        default:
-            WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
-            break;
-        }
-        switch (ruledesc_id)
-        {
-        case 1: // PreserveClassicBugs
-                // this one is a special case because in the cfg it's not done trough number
-        }
-    }
-    else
-    {
-        for (size_t i = 0; i < sizeof(ruleblocks) / sizeof(ruleblocks[0]); i++)
-        {
-            ruledesc = get_named_field_id(ruleblocks[i], scline->tp[0]);
-            if (ruledesc != -1)
-            {
-                rulegroup = i;
-                if (ruleval < (ruleblocks[i] + ruledesc)->min)
-                {
-                    ruleval = (ruleblocks[i] + ruledesc)->min;
-                    SCRPTERRLOG("Game Rule '%s' value %ld is smaller then minimum of %I64d", scline->tp[0], ruleval, (ruleblocks[i] + ruledesc)->min);
-                }
-                else if (ruleval > (ruleblocks[i] + ruledesc)->max)
-                {
-                    ruleval = (ruleblocks[i] + ruledesc)->max;
-                    SCRPTERRLOG("Game Rule '%s' value %ld is bigger then maximum of %I64d", scline->tp[0], ruleval, (ruleblocks[i] + ruledesc)->max);
-                }
-                break;
-                assign_named_field_value((ruleblocks[i] + ruledesc), rulevalue);
-            }
-        }
-    }
-
-    if (ruledesc == -1)
-    {
-        luaL_argerror(L, 2, "Unknown Game Rule");
-        return 0;
-    }
 }
 
 */
@@ -1699,6 +1644,7 @@ static const luaL_Reg global_methods[] = {
    {"CONCEAL_MAP_RECT"                     ,lua_CONCEAL_MAP_RECT                },
    {"SET_DOOR"                             ,lua_SET_DOOR                        },
    {"ADD_OBJECT_TO_LEVEL"                  ,lua_ADD_OBJECT_TO_LEVEL             },
+   {"ADD_OBJECT_TO_LEVEL_AT_POS"           ,lua_ADD_OBJECT_TO_LEVEL_AT_POS      },
    {"ADD_EFFECT_GENERATOR_TO_LEVEL"        ,lua_ADD_EFFECT_GENERATOR_TO_LEVEL   },
    {"PLACE_DOOR"                           ,lua_PLACE_DOOR                      },
    {"PLACE_TRAP"                           ,lua_PLACE_TRAP                      },
