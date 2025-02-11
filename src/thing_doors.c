@@ -24,6 +24,7 @@
 
 #include "bflib_math.h"
 #include "bflib_planar.h"
+#include "cursor_tag.h"
 #include "thing_objects.h"
 #include "thing_list.h"
 #include "thing_stats.h"
@@ -39,6 +40,7 @@
 #include "gui_topmsg.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -782,6 +784,38 @@ void update_all_door_stats()
         TRACE_THING(thing);
         struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
         thing->health = doorst->health;
+    }
+}
+
+void script_place_door(PlayerNumber plyridx, ThingModel doorkind, MapSlabCoord slb_x, MapSlabCoord slb_y, TbBool locked, TbBool free)
+{
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    TbBool success;
+
+    if (tag_cursor_blocks_place_door(plyridx, stl_x, stl_y))
+    {
+        if (!free)
+        {
+            if (!is_door_placeable(plyridx, doorkind))
+            {
+                return;
+            }
+        }
+        success = player_place_door_without_check_at(stl_x, stl_y, plyridx, doorkind, free);
+        if (success)
+        {
+            delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
+            remove_dead_creatures_from_slab(slb_x, slb_y);
+            if (locked)
+            {
+                struct Thing* doortng = get_door_for_position(stl_x, stl_y);
+                if (!thing_is_invalid(doortng))
+                {
+                    lock_door(doortng);
+                }
+            }
+        }
     }
 }
 /******************************************************************************/

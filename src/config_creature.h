@@ -308,6 +308,7 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx);
 ThingModel get_players_spectator_model(PlayerNumber plyr_idx);
 ThingModel get_creature_model_with_model_flags(unsigned long needflags);
+void update_players_special_digger_model(PlayerNumber plyr_idx, ThingModel new_dig_model);
 /******************************************************************************/
 struct CreatureInstanceConfig *get_config_for_instance(CrInstance inst_id);
 const char *creature_instance_code_name(CrInstance inst_id);
