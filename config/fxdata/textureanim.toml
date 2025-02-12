@@ -235,7 +235,7 @@ frames = [1067,1067,1068,1068,1069,1069,1070,1070]
 
 [texture601]
 name = "intermediate_gold_near_lava"
-frames = [1071,1072,1072,10737,1073,1074,1074,1071]
+frames = [1071,1072,1072,1073,1073,1074,1074,1071]
 
 [texture602]
 name = "intermediate_gold_near_lava2"
