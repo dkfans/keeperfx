@@ -4041,7 +4041,7 @@ static void display_timer_check(const struct ScriptLine *scline)
 
 static void display_timer_process(struct ScriptContext *context)
 {
-    gameadd.script_player = context->player_idx;
+    gameadd.script_timer_player = context->player_idx;
     gameadd.script_timer_id = context->value->bytes[1];
     gameadd.script_timer_limit = context->value->longs[1];
     gameadd.timer_real = context->value->bytes[2];
@@ -4098,7 +4098,7 @@ static void display_variable_check(const struct ScriptLine *scline)
 
 static void display_variable_process(struct ScriptContext *context)
 {
-   gameadd.script_player = context->player_idx;
+   gameadd.script_variable_player = context->player_idx;
    gameadd.script_value_type = context->value->bytes[2];
    gameadd.script_value_id = context->value->longs[1];
    gameadd.script_variable_target = context->value->longs[2];
