@@ -60,8 +60,6 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
 
 const struct NamedField rules_game_named_fields[] = {
     //name                        //field                                           //field type                                               //min               //max
-  {"GOLDPERGOLDBLOCK",           &game.conf.rules.game.gold_per_gold_block,        var_type(game.conf.rules.game.gold_per_gold_block       ), LONG_MIN,           LONG_MAX},
-  {"GOLDPERDENSEGOLDBLOCK",      &game.conf.rules.game.gold_per_dense_gold_block,  var_type(game.conf.rules.game.gold_per_dense_gold_block ), LONG_MIN,           LONG_MAX},
   {"POTOFGOLDHOLDS",             &game.conf.rules.game.pot_of_gold_holds,          var_type(game.conf.rules.game.pot_of_gold_holds         ), LONG_MIN,           LONG_MAX},
   {"CHESTGOLDHOLD",              &game.conf.rules.game.chest_gold_hold,            var_type(game.conf.rules.game.chest_gold_hold           ), LONG_MIN,           LONG_MAX},
   {"GOLDPILEVALUE",              &game.conf.rules.game.gold_pile_value,            var_type(game.conf.rules.game.gold_pile_value           ), LONG_MIN,           LONG_MAX},
@@ -76,7 +74,6 @@ const struct NamedField rules_game_named_fields[] = {
   {"DUNGEONHEARTHEALTIME",       &game.conf.rules.game.dungeon_heart_heal_time,    var_type(game.conf.rules.game.dungeon_heart_heal_time   ),        0,          ULONG_MAX},
   {"DUNGEONHEARTHEALHEALTH",     &game.conf.rules.game.dungeon_heart_heal_health,  var_type(game.conf.rules.game.dungeon_heart_heal_health ), LONG_MIN,           LONG_MAX},
   {"HERODOORWAITTIME",           &game.conf.rules.game.hero_door_wait_time,        var_type(game.conf.rules.game.hero_door_wait_time       ),        0,          ULONG_MAX},
-  {"GEMEFFECTIVENESS",           &game.conf.rules.game.gem_effectiveness,          var_type(game.conf.rules.game.gem_effectiveness         ),        0,          ULONG_MAX},
   {"ROOMSELLGOLDBACKPERCENT",    &game.conf.rules.game.room_sale_percent,          var_type(game.conf.rules.game.room_sale_percent         ),        0,           LONG_MAX},
   {"DOORSELLVALUEPERCENT",       &game.conf.rules.game.door_sale_percent,          var_type(game.conf.rules.game.door_sale_percent         ),        0,           LONG_MAX},
   {"TRAPSELLVALUEPERCENT",       &game.conf.rules.game.trap_sale_percent,          var_type(game.conf.rules.game.trap_sale_percent         ),        0,           LONG_MAX},
@@ -268,7 +265,6 @@ static int long_compare_fn(const void *ptr_a, const void *ptr_b)
 static void set_defaults()
 {
     // Game block.
-    game.conf.rules.game.gold_per_gold_block = 1000;
     game.conf.rules.game.pot_of_gold_holds = 1000;
     game.conf.rules.game.gold_pile_value = 500;
     game.conf.rules.game.gold_pile_maximum = 5000;
@@ -286,7 +282,6 @@ static void set_defaults()
     game.conf.rules.game.door_sale_percent = 100;
     game.conf.rules.game.room_sale_percent = 50;
     game.conf.rules.game.trap_sale_percent = 100;
-    game.conf.rules.game.gem_effectiveness = 17;
     game.conf.rules.game.pay_day_speed = 100;
     game.conf.rules.game.gold_per_hoard = 2000;
     game.conf.rules.game.torture_payday = 50;

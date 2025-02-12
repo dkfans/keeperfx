@@ -124,6 +124,7 @@ struct SlabAttr {
     unsigned char wlb_type;
     unsigned char is_ownable;
     unsigned char indestructible;
+    GoldAmount gold_held;
 };
 
 #pragma pack()
