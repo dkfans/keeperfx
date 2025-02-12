@@ -159,9 +159,14 @@ end
 
 ---
 ---@param action function|string the function to call when the event happens
+---@param SpecialBoxId? integer
 ---@return Trigger
-function RegisterSpecialActivatedEvent(action)
-    local trigger = CreateTrigger("SpecialActivated",action)
+function RegisterSpecialActivatedEvent(action,SpecialBoxId)
+    local trigData = {SpecialBoxId = SpecialBoxId}
+    local trigger = CreateTrigger("SpecialActivated",action,trigData)
+    if SpecialBoxId then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.SpecialBoxId == triggerData.SpecialBoxId end)
+    end
     return trigger
 end
 

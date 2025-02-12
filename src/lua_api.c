@@ -1725,7 +1725,7 @@ static const luaL_Reg global_methods[] = {
 
 //debug stuff
     {"print"           ,lua_print      },
-    
+
 //retrieving lua vars
     {"GetCreatureNear",               lua_get_creature_near},
     {"getCreatureByCriterion",        lua_get_creature_by_criterion},
@@ -2028,6 +2028,42 @@ static int Thing_register(lua_State *L)
 //Player
 /**********************************************/
 
+static int player_get_controls(lua_State *L) {
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
+
+    // Create a new table for CONTROLS
+    lua_newtable(L);
+
+    // Set its __index to another function
+    lua_pushvalue(L, -1);
+    lua_setmetatable(L, -2);
+
+    // Attach a function that handles the control lookup
+    lua_pushcfunction(L, player_get_control);
+    lua_setfield(L, -2, "__index");
+
+    // Store the player index inside the table
+    lua_pushinteger(L, plyr_idx);
+    lua_setfield(L, -2, "player_id");
+
+    return 1;
+}
+
+static int player_get_control(lua_State *L) {
+    luaL_checktype(L, 1, LUA_TTABLE);
+    int plyr_idx;
+
+    // Get the player_id from the table
+    lua_getfield(L, 1, "player_id");
+    plyr_idx = luaL_checkinteger(L, -1);
+    lua_pop(L, 1);
+
+    // Get the requested control key
+    const char* action = luaL_checkstring(L, 2);
+    lua_pushinteger(L, get_control_value(plyr_idx, action));
+    return 1;
+}
+
 static int player_tostring(lua_State *L)
 {
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
@@ -2079,8 +2115,9 @@ static int player_get_field(lua_State *L) {
         lua_pushThing(L, heartng);
         return 1;
     }
-
-    
+    else if (strcmp(key, "CONTROLS") == 0) {
+        return player_get_controls(L);
+    }
 
     long variable_type;
     long variable_id;
