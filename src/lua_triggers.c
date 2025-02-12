@@ -81,8 +81,9 @@ void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng)
 	{
 		lua_pushPlayer(Lvl_script, plyr_idx);
 		lua_pushThing(Lvl_script, cratetng);
+		lua_pushinteger(Lvl_script, cratetng->custom_box.box_kind);
 
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 0, 0),"OnSpecialActivated");
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 3, 0, 0),"OnSpecialActivated");
 	}
 }
 

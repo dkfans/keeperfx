@@ -129,10 +129,11 @@ end
 --- Called when a special box is activated
 --- @param player Player
 --- @param crate_thing Thing
-function OnSpecialActivated(player,crate_thing)
+function OnSpecialActivated(player,crate_thing,special_box_id)
     local eventData = {}
     eventData.Thing = crate_thing
     eventData.Player = player
+    eventData.SpecialBoxId = special_box_id
     ProcessEvent("SpecialActivated",eventData)
 end
 

@@ -38,6 +38,7 @@ if (result != LUA_OK) {
         ERRORLOG("Stack trace:\n%s", trace ? trace : "No stack trace available");
         lua_pop(L, 2); // Remove error message and traceback
 
+        exit(EXIT_FAILURE);
         return false;
     }
     return true;

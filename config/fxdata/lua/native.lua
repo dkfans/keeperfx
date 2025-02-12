@@ -414,15 +414,13 @@ function ADD_PARTY_TO_LEVEL(owner,party_name,location,ncopies) end
 --------------------------------------------------
 
 ---Works like DISPLAY_OBJECTIVE, but instead of using a string from translations, allows to type it directly.
----@param slot integer
 ---@param message string
 ---@param zoom_location? location
-function QUICK_OBJECTIVE(slot,message,zoom_location) end
+function QUICK_OBJECTIVE(message,zoom_location) end
 
----@param slot integer
 ---@param message string
 ---@param zoom_location? location
-function QUICK_INFORMATION(slot,message,zoom_location) end
+function QUICK_INFORMATION(message,zoom_location) end
 
 ---Displays one of the text messages stored in gtext_***.dat in an Objective Box.
 ---This file comes in various language version, so messages from it are always in the language configured in the settings.
@@ -493,12 +491,18 @@ function HEART_LOST_OBJECTIVE(msg_id,zoom_location) end
 ---@param range integer
 function REVEAL_MAP_LOCATION(player,location,range) end
 
-function REVEAL_MAP_RECT(player,location,range) end
+---Reveals rectangular map area for given player.
+---@param player Player
+---@param subtile_x integer
+---@param subtile_y integer
+---@param width integer
+---@param height integer
+function REVEAL_MAP_RECT(player,subtile_x,subtile_y,width,height) end
 
----comment
+---Conceals part of the map with fog of war, opposite to REVEAL_MAP_RECT
 ---@param Player Player
----@param x any
----@param y any
+---@param x integer
+---@param y integer
 ---@param Width any
 ---@param Height any
 ---@param hide_revealed? boolean
@@ -889,7 +893,7 @@ function ADD_OBJECT_TO_LEVEL(object,location,property,player) local ob return ob
 ---@param property integer If the objects has properties, set it. For Gold, it's the amount. If you use SPECBOX_CUSTOM to place the mystery box, it's the box number in the BOX#_ACTIVATED variable.
 ---@param player? playersingle When used it sets the owner of the object.
 ---@return Thing object
-function ADD_OBJECT_TO_LEVEL(object,stl_x,stl_y,property,player) local ob return ob end
+function ADD_OBJECT_TO_LEVEL_AT_POS(object,stl_x,stl_y,property,player) local ob return ob end
 
 ---Allows to set tendencies: IMPRISON and FLEE, for a player's creatures.
 ---@param player Player

@@ -178,6 +178,11 @@ TbMapLocation luaL_checkLocation(lua_State *L, int index)
 
         return get_coord_encoded_location(stl_x,stl_y);
     }
+    else if (luaL_isPlayer(L, index))
+    {
+        PlayerNumber playerId = luaL_checkPlayerSingle(L,index);
+        return  ((unsigned long)playerId << 4) | MLoc_PLAYERSHEART;
+    }
 
     const char* locname = lua_tostring(L, index);
     TbMapLocation location;
