@@ -51,7 +51,6 @@
 #include "creature_battle.h"
 #include "map_columns.h"
 #include "map_events.h"
-#include "music_player.h"
 #include "lvl_script.h"
 #include "gui_msgs.h"
 #include "player_computer.h"
@@ -137,11 +136,11 @@ struct Game {
     unsigned char eastegg01_cntr;
     unsigned char flags_cd;
     unsigned char eastegg02_cntr;
-    char audiotrack;
-    char last_audiotrack;
-char numfield_15;
+    char music_track; // cdrom / default music track to resume after load
+    char music_fname[DISKPATH_SIZE]; // custom music file to resume after load
+    char numfield_15;
     LevelNumber selected_level_number;
-char numfield_1A;
+    char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
@@ -236,7 +235,6 @@ char numfield_1A;
     PlayerNumber armageddon_caster_idx;
     struct SoundSettings sound_settings;
     struct CreatureBattle battles[BATTLES_COUNT];
-    long music_track_index;
     char evntbox_text_objective[MESSAGE_TEXT_LEN];
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
@@ -265,7 +263,6 @@ char numfield_1A;
     int manufactr_element;
     int manufactr_spridx;
     int manufactr_tooltip;
-    char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
     struct Configs conf;
 };
 

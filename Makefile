@@ -260,7 +260,6 @@ obj/map_events.o \
 obj/map_locations.o \
 obj/map_utils.o \
 obj/moonphase.o \
-obj/music_player.o \
 obj/net_game.o \
 obj/net_sync.o \
 obj/packets.o \

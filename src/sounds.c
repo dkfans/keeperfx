@@ -40,7 +40,6 @@
 #include "config_terrain.h"
 #include "game_legacy.h"
 #include "config_settings.h"
-#include "music_player.h"
 #include "creature_senses.h"
 #include "map_data.h"
 #include "creature_states.h"
@@ -292,7 +291,6 @@ void update_player_sounds(void)
         process_messages();
         if (!SoundDisabled)
         {
-            PlayMusicPlayer(game.audiotrack);
             update_3d_sound_receiver(player);
         }
         game.play_gameturn++;
@@ -403,11 +401,10 @@ TbBool init_sound(void)
     snd_settng->no_load_sounds = 1;
     snd_settng->field_16 = 0;
     snd_settng->field_18 = 1;
-    snd_settng->redbook_enable = IsRedbookMusicActive();
+    snd_settng->redbook_enable = ((features_enabled & Ft_NoCdMusic) == 0);
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
     sdl_flags = InitialiseSDLAudio();
-    InitializeMusicPlayer();
     if (!GetSoundInstalled())
     {
       SoundDisabled = 1;
@@ -489,6 +486,13 @@ void sound_reinit_after_load(void)
     ambient_sound_stop();
     stop_streamed_samples();
     init_messages();
+    if (game.music_track < 0 && strlen(game.music_fname) > 0) {
+        // play saved custom music
+        play_music(game.music_fname);
+    } else if (game.music_track > 0) {
+        // play saved track
+        play_music_track(game.music_track);
+    }
 }
 
 void stop_thing_playing_sample(struct Thing *thing, SoundSmplTblID smpl_idx)
@@ -509,37 +513,14 @@ void mute_audio(TbBool mute)
         if (mute)
         {
             SetSoundMasterVolume(0);
-            SetMusicPlayerVolume(0);
-            SetMusicMasterVolume(0);
-            if (IsRedbookMusicActive())
-            {
-                PauseRedbookTrack(); // volume seems to have no effect on CD audio, so just pause/resume it
-            }
+            set_music_volume(0);
+            pause_music(); // volume seems to have no effect on CD audio, so just pause/resume it
         }
         else
         {
-            SetMusicPlayerVolume(settings.redbook_volume);
+            set_music_volume(settings.music_volume);
             SetSoundMasterVolume(settings.sound_volume);
-            SetMusicMasterVolume(settings.sound_volume);
-            if (IsRedbookMusicActive())
-            {
-                ResumeRedbookTrack();
-            }
-        }
-    }
-}
-
-void pause_music(TbBool pause)
-{
-    if (!SoundDisabled)
-    {
-        if (pause)
-        {
-            PauseMusicPlayer();
-        }
-        else
-        {
-            ResumeMusicPlayer();
+            resume_music();
         }
     }
 }

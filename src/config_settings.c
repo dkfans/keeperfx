@@ -54,7 +54,7 @@ void setup_default_settings(void)
      1,                         // video_textures
      0,                         // video_cluedo_mode
      127,                       // sound_volume
-     90,                        // redbook_volume
+     90,                        // music_volume
      1,                         // field_8
      0,                         // gamma_correction
      Lb_SCREEN_MODE_INVALID,    // Screen mode, set to correct value below
@@ -132,7 +132,7 @@ TbBool load_settings(void)
           settings.video_textures = clamp(settings.video_textures, 0, 1);
           settings.video_cluedo_mode = clamp(settings.video_cluedo_mode, 0, 1);
           settings.sound_volume = clamp(settings.sound_volume, 0, FULL_LOUDNESS);
-          settings.redbook_volume = clamp(settings.redbook_volume, 0, FULL_LOUDNESS);
+          settings.music_volume = clamp(settings.music_volume, 0, FULL_LOUDNESS);
           settings.gamma_correction = clamp(settings.gamma_correction, 0, GAMMA_LEVELS_COUNT);
           settings.switching_vidmodes_index = clamp(settings.switching_vidmodes_index, 0, MAX_GAME_VIDMODE_COUNT);
           settings.first_person_move_sensitivity = clamp(settings.first_person_move_sensitivity, 0, 1000);

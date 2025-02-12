@@ -23,23 +23,19 @@
 #include "bflib_basics.h"
 #include "bflib_sound.h"
 #include "sounds.h"
-
 #include "globals.h"
+
+#define FIRST_REDBOOK_TRACK 2
+#define LAST_REDBOOK_TRACK 7
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void FreeAudio(void);
-void SetRedbookVolume(SoundVolume);
 void SetSoundMasterVolume(SoundVolume);
-void SetMusicMasterVolume(SoundVolume);
 TbBool GetSoundInstalled(void);
-void PlayRedbookTrack(int);
-void PauseRedbookTrack(void);
-void ResumeRedbookTrack(void);
 void MonitorStreamedSoundTrack(void);
-void StopRedbookTrack(void);
 void * GetSoundDriver(void);
 void StopAllSamples(void);
 TbBool InitAudio(const struct SoundSettings *);
@@ -49,6 +45,13 @@ void SetSampleVolume(SoundEmitterID, SoundSmplTblID, SoundVolume);
 void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan);
 void SetSamplePitch(SoundEmitterID, SoundSmplTblID, SoundPitch);
 void toggle_bbking_mode(void);
+
+void set_music_volume(SoundVolume);
+TbBool play_music(const char * fname);
+TbBool play_music_track(int);
+void pause_music(void);
+void resume_music(void);
+void stop_music(void);
 
 #ifdef __cplusplus
 }

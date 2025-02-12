@@ -1,5 +1,6 @@
 #include "pre_inc.h"
 #include "bflib_sndlib.h"
+#include "game_legacy.h"
 
 // SDL completely removed CD-ROM support, go native
 
@@ -108,18 +109,21 @@ extern "C" void SetRedbookVolume(SoundVolume value) {
 	g_redbook_volume = value;
 }
 
-extern "C" void PlayRedbookTrack(int track) {
+extern "C" TbBool PlayRedbookTrack(int track) {
+	// The original disk only had 7 tracks (the first one being data).
+	// However, any kind of disk can be inserted so just play whatever track we're told to play.
 	if (open_redbook_device()) {
 		const auto mode = mci_status(g_redbook_device, MCI_STATUS_MODE);
 		if (mode == MCI_MODE_OPEN || mode == MCI_MODE_NOT_READY) {
-			return; // door open or no disk
+			return false; // door open or no disk
 		}
 		const auto current_track = mci_status(g_redbook_device, MCI_STATUS_CURRENT_TRACK);
 		if (current_track == track && (mode == MCI_MODE_PLAY || mode == MCI_MODE_SEEK)) {
-			return; // already playing or seeking to requested track
+			return false; // already playing or seeking to requested track
 		}
-		mci_play(g_redbook_device, track);
+		return mci_play(g_redbook_device, track);
 	}
+	return false;
 }
 
 extern "C" void PauseRedbookTrack() {
