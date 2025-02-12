@@ -71,6 +71,7 @@ struct SacrificeRecipe {
 
 struct GameRulesConfig {
     GoldAmount gold_per_gold_block;
+    GoldAmount gold_per_dense_gold_block;
     GoldAmount pot_of_gold_holds;
     GoldAmount chest_gold_hold;
     GoldAmount gold_pile_value;

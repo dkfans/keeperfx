@@ -61,6 +61,7 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
 const struct NamedField rules_game_named_fields[] = {
     //name                        //field                                           //field type                                               //min               //max
   {"GOLDPERGOLDBLOCK",           &game.conf.rules.game.gold_per_gold_block,        var_type(game.conf.rules.game.gold_per_gold_block       ), LONG_MIN,           LONG_MAX},
+  {"GOLDPERDENSEGOLDBLOCK",      &game.conf.rules.game.gold_per_dense_gold_block,  var_type(game.conf.rules.game.gold_per_dense_gold_block ), LONG_MIN,           LONG_MAX},
   {"POTOFGOLDHOLDS",             &game.conf.rules.game.pot_of_gold_holds,          var_type(game.conf.rules.game.pot_of_gold_holds         ), LONG_MIN,           LONG_MAX},
   {"CHESTGOLDHOLD",              &game.conf.rules.game.chest_gold_hold,            var_type(game.conf.rules.game.chest_gold_hold           ), LONG_MIN,           LONG_MAX},
   {"GOLDPILEVALUE",              &game.conf.rules.game.gold_pile_value,            var_type(game.conf.rules.game.gold_pile_value           ), LONG_MIN,           LONG_MAX},
