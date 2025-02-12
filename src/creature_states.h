@@ -93,7 +93,7 @@ enum CreatureStates {
     CrSt_Null57,
     CrSt_Null58,
     CrSt_CreatureKillCreatures,
-    CrSt_Null60,//[60]
+    CrSt_CreatureKillDiggers,//[60]
     CrSt_PersonSulking,
     CrSt_Null62,
     CrSt_Null63,
