@@ -736,7 +736,7 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     }
     else if (map_block_revealed(mapblk, plyr_idx))
     {
-        if (slb->kind == SlbT_GOLD)
+        if ((slb->kind == SlbT_GOLD) || (slb->kind == SlbT_DENSEGOLD))
         {
             col = PnC_Gold;
             if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)

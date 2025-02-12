@@ -1833,6 +1833,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
     {
         case SlbT_ROCK:
         case SlbT_GOLD:
+        case SlbT_DENSEGOLD:
         case SlbT_EARTH:
         case SlbT_TORCHDIRT:
         case SlbT_WALLDRAPE:
