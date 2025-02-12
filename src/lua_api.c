@@ -308,7 +308,7 @@ static int lua_DISPLAY_TIMER(lua_State *L)
     long timr_id              = luaL_checkNamedCommand(L,2,timer_desc);
     long display              = luaL_checkinteger(L, 3);
 
-    gameadd.script_player = player_id;
+    gameadd.script_timer_player = player_id;
     gameadd.script_timer_id = timr_id;
     gameadd.script_timer_limit = 0;
     gameadd.timer_real = display;
@@ -629,7 +629,7 @@ static int lua_DISPLAY_COUNTDOWN(lua_State *L)
     int target = luaL_checkinteger(L,3);
     int clocktime = lua_toboolean(L,4);
 
-    gameadd.script_player = player;
+    gameadd.script_timer_player = player;
     gameadd.script_timer_id = timer;
     gameadd.script_timer_limit = target;
     gameadd.timer_real = clocktime;
@@ -643,7 +643,7 @@ static int lua_DISPLAY_VARIABLE(lua_State *L)
     int variable = luaL_checkinteger(L,2);
     int target = luaL_checkinteger(L,3);
 
-    gameadd.script_player = player;
+    gameadd.script_variable_player = player;
     gameadd.script_value_type = variable;
     gameadd.script_value_id = target;
     game.flags_gui |= GGUI_Variable;
