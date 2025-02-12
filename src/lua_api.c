@@ -579,7 +579,7 @@ static int lua_QUICK_MESSAGE(lua_State *L)
     const char *msg = lua_tostring(L, 1);
     char id;
     char type;
-    luaL_checkMessageIcon(L, 1, &type, &id);
+    luaL_checkMessageIcon(L, 2, &type, &id);
 
     message_add(type,id, msg);
 
@@ -2028,6 +2028,21 @@ static int Thing_register(lua_State *L)
 //Player
 /**********************************************/
 
+static int player_get_control(lua_State *L) {
+    luaL_checktype(L, 1, LUA_TTABLE);
+    //int plyr_idx;
+
+    // Get the player_id from the table
+    lua_getfield(L, 1, "player_id");
+    //plyr_idx = luaL_checkinteger(L, -1);
+    lua_pop(L, 1);
+
+    // Get the requested control key
+    //const char* action = luaL_checkstring(L, 2);
+    //lua_pushinteger(L, get_control_value(plyr_idx, action));
+    return 1;
+}
+
 static int player_get_controls(lua_State *L) {
     PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
 
@@ -2046,21 +2061,6 @@ static int player_get_controls(lua_State *L) {
     lua_pushinteger(L, plyr_idx);
     lua_setfield(L, -2, "player_id");
 
-    return 1;
-}
-
-static int player_get_control(lua_State *L) {
-    luaL_checktype(L, 1, LUA_TTABLE);
-    int plyr_idx;
-
-    // Get the player_id from the table
-    lua_getfield(L, 1, "player_id");
-    plyr_idx = luaL_checkinteger(L, -1);
-    lua_pop(L, 1);
-
-    // Get the requested control key
-    const char* action = luaL_checkstring(L, 2);
-    lua_pushinteger(L, get_control_value(plyr_idx, action));
     return 1;
 }
 
