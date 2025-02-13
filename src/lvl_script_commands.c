@@ -5188,13 +5188,13 @@ static void set_music_check(const struct ScriptLine *scline)
     if (parameter_is_number(scline->tp[0])) {
         value->chars[0] = atoi(scline->tp[0]);
     } else {
+        value->chars[0] = -1;
         value->strs[1] = script_strdup(scline->tp[0]);
         if (value->strs[1] == NULL) {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        value->chars[0] = -1;
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }

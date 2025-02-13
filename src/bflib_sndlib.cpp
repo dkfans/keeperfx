@@ -522,8 +522,9 @@ extern "C" void set_music_volume(SoundVolume value) {
 }
 
 extern "C" TbBool play_music(const char * fname) {
-	snprintf(game.music_fname, sizeof(game.music_fname), "%s", fname);
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
+	game.music_track = -1;
+	snprintf(game.music_fname, sizeof(game.music_fname), "%s", fname);
 	Mix_FreeMusic(g_mix_music);
 	g_mix_music = Mix_LoadMUS(game.music_fname);
 	if (!g_mix_music) {
@@ -539,6 +540,7 @@ extern "C" TbBool play_music(const char * fname) {
 
 extern "C" TbBool play_music_track(int track) {
 	game.music_track = track;
+	memset(game.music_fname, 0, sizeof(game.music_fname));
 	if (game.music_track == 0) {
 		stop_music();
 		return true;
