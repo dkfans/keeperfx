@@ -1424,7 +1424,11 @@ static int lua_CHANGE_CREATURES_ANNOYANCE(lua_State *L)
 static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+
+    JUSTLOG("pppp la%d %d",(int)player_range.start_idx,(int)player_range.end_idx);
+
     GoldAmount gold = luaL_checkinteger(L, 2);
+    JUSTLOG("gold %d",(int)gold);
 
     for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
     {
@@ -1518,8 +1522,8 @@ static int lua_get_thing_by_idx(lua_State *L)
 
 static int lua_get_creature_by_criterion(lua_State *L)
 {
-    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
-    ThingModel crmodel = luaL_checkNamedCommand(L,2,creature_desc);
+    PlayerNumber plyr_idx = luaL_checkPlayerRangeId(L, 1);
+    ThingModel crmodel = luaL_checkCreature_or_creature_wildcard(L,2);
     long criteria = luaL_checkNamedCommand(L,3,creature_select_criteria_desc);
 
     struct Thing* thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
@@ -1571,6 +1575,7 @@ static int lua_get_things_of_class(lua_State *L)
     }
     return 1; // return value is the amount of args you push back
 }
+
 
 static int lua_is_action_point_activated_by_player(lua_State *L)
 {
@@ -2028,6 +2033,17 @@ static int Thing_register(lua_State *L)
 //Player
 /**********************************************/
 
+
+static const struct luaL_Reg player_methods[] = {
+   {"SET_TEXTURE"                          ,lua_SET_TEXTURE                     },   
+   {"ADD_GOLD"                              ,lua_ADD_GOLD_TO_PLAYER              },
+   {"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
+   //{"SET_PLAYER_MODIFIER"                  ,lua_SET_PLAYER_MODIFIER             },
+   //{"ADD_TO_PLAYER_MODIFIER"               ,lua_ADD_TO_PLAYER_MODIFIER          },
+    {NULL, NULL}
+};
+
+
 static int player_get_control(lua_State *L) {
     luaL_checktype(L, 1, LUA_TTABLE);
     //int plyr_idx;
@@ -2105,9 +2121,18 @@ static int player_set_field(lua_State *L) {
 
 // Function to get field values
 static int player_get_field(lua_State *L) {
-
     PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
     const char* key = luaL_checkstring(L, 2);
+
+    // Check if the key exists in player_methods
+    for (int i = 0; player_methods[i].name != NULL; i++) {
+        if (strcmp(key, player_methods[i].name) == 0) {
+            // Instead of calling the function, return its reference
+            lua_pushcfunction(L, player_methods[i].func);
+            return 1;
+        }
+    }
+
 
     //heart
     if (strcmp(key, "heart") == 0) {
@@ -2175,15 +2200,6 @@ static int player_eq(lua_State *L) {
     return 1;
 }
 
-static const struct luaL_Reg player_methods[] = {
-   {"SET_TEXTURE"                          ,lua_SET_TEXTURE                     },   
-   {"ADD_GOLD_TO_PLAYER"                   ,lua_ADD_GOLD_TO_PLAYER              },
-   {"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
-   //{"SET_PLAYER_MODIFIER"                  ,lua_SET_PLAYER_MODIFIER             },
-   //{"ADD_TO_PLAYER_MODIFIER"               ,lua_ADD_TO_PLAYER_MODIFIER          },
-    {NULL, NULL}
-};
-
 static const struct luaL_Reg player_meta[] = {
     {"__tostring", player_tostring},
     {"__index",    player_get_field},
@@ -2201,6 +2217,12 @@ static void Player_register(lua_State *L) {
 
     // Create a methods table
     luaL_newlib(L, player_methods);
+
+    for (int i = 0; player_methods[i].name != NULL; i++) {
+        const char *name = player_methods[i].name;
+        lua_pushcfunction(L, player_methods[i].func);
+        lua_setfield(L, -2, name);
+    }
 
     // Hide the metatable by setting the __metatable field to nil
     lua_pushliteral(L, "__metatable");

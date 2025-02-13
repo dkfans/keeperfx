@@ -382,6 +382,30 @@ EffectOrEffElModel luaL_checkEffectOrEffElModel(lua_State *L, int index)
     luaL_error(L,"invalid effect option");
     return 0;
 }
+
+long luaL_checkCreature_or_creature_wildcard(lua_State *L, int index)
+{
+    if (lua_isnumber(L, index))
+    {
+        return lua_tointeger(L, index);
+    }
+    else if(lua_isstring(L, index))
+    {
+        const char* text = lua_tostring(L, index);
+        long id = get_rid(creature_desc, text);
+
+        if (0 == strcasecmp(text, "ANY_CREATURE"))
+        {
+            return CREATURE_NOT_A_DIGGER; //For scripts, when we say 'ANY_CREATURE' we exclude diggers.
+        }
+        luaL_argcheck(L,id != -1,index,"invalid namedcommandoption");
+
+        return id;
+    }
+    luaL_error(L,"invalid namedcommandoption");
+    return 0;
+
+}
     
 long luaL_checkIntMinMax(lua_State *L, int index,long min, long max)
 {
