@@ -3731,110 +3731,111 @@ static void set_object_configuration_process(struct ScriptContext *context)
 {
     ThingModel model = context->value->longs[0];
     struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[model];
+    long val1 = context->value->longs[1];
     switch (context->value->shorts[4])
     {
         case 2: // GENRE
-            objst->genre = context->value->longs[1];
+            objst->genre = val1;
             break;
         case 3: // RELATEDCREATURE
-            objst->related_creatr_model = context->value->longs[1];
+            objst->related_creatr_model = val1;
             break;
         case 4: // PROPERTIES
-            objst->model_flags = context->value->longs[1];
+            objst->model_flags = val1;
             break;
         case 5: // ANIMATIONID
-            objst->sprite_anim_idx = context->value->longs[1];
+            objst->sprite_anim_idx = val1;
             break;
         case 6: // ANIMATIONSPEED
-            objst->anim_speed = context->value->longs[1];
+            objst->anim_speed = val1;
             break;
         case 7: //SIZE_XY
-            objst->size_xy = context->value->longs[1];
+            objst->size_xy = val1;
             break;
         case 8: // SIZE_Z
-            objst->size_z = context->value->longs[1];
+            objst->size_z = val1;
             break;
         case 9: // MAXIMUMSIZE
-            objst->sprite_size_max = context->value->longs[1];
+            objst->sprite_size_max = val1;
             break;
         case 10: // DESTROYONLIQUID
-            objst->destroy_on_liquid = context->value->longs[1];
+            objst->destroy_on_liquid = val1;
             break;
         case 11: // DESTROYONLAVA
-            objst->destroy_on_lava = context->value->longs[1];
+            objst->destroy_on_lava = val1;
             break;
         case 12: // HEALTH
-            objst->health = context->value->longs[1];
+            objst->health = val1;
             break;
         case 13: // FALLACCELERATION
-            objst->fall_acceleration = context->value->longs[1];
+            objst->fall_acceleration = val1;
             break;
         case 14: // LIGHTUNAFFECTED
-            objst->light_unaffected = context->value->longs[1];
+            objst->light_unaffected = val1;
             break;
         case 15: // LIGHTINTENSITY
-            objst->ilght.intensity = context->value->longs[1];
+            objst->ilght.intensity = val1;
             break;
         case 16: // LIGHTRADIUS
-            objst->ilght.radius = context->value->longs[1] * COORD_PER_STL;
+            objst->ilght.radius = val1 * COORD_PER_STL;
             break;
         case 17: // LIGHTISDYNAMIC
-            objst->ilght.is_dynamic = context->value->longs[1];
+            objst->ilght.is_dynamic = val1;
             break;
         case 18: // MAPICON
-            objst->map_icon = context->value->longs[1];
+            objst->map_icon = val1;
             break;
         case 19: // AMBIENCESOUND
-            objst->fp_smpl_idx = context->value->longs[1];
+            objst->fp_smpl_idx = val1;
             break;
         case 20: // UPDATEFUNCTION
-            objst->updatefn_idx = context->value->longs[1];
+            objst->updatefn_idx = val1;
             break;
         case 21: // DRAWCLASS
-            objst->draw_class = context->value->longs[1];
+            objst->draw_class = val1;
             break;
         case 22: // PERSISTENCE
-            objst->persistence = context->value->longs[1];
+            objst->persistence = val1;
             break;
         case 23: // Immobile
-            objst->immobile = context->value->longs[1];
+            objst->immobile = val1;
             break;
         case 24: // INITIALSTATE
-            objst->initial_state = context->value->longs[1];
+            objst->initial_state = val1;
             break;
         case 25: // RANDOMSTARTFRAME
-            objst->random_start_frame = context->value->longs[1];
+            objst->random_start_frame = val1;
             break;
         case 26: // TRANSPARENCYFLAGS
-            objst->transparency_flags = context->value->longs[1]<<4;
+            objst->transparency_flags = val1<<4;
             break;
         case 27: // EFFECTBEAM
-            objst->effect.beam = context->value->longs[1];
+            objst->effect.beam = val1;
             break;
         case 28: // EFFECTPARTICLE
-            objst->effect.particle = context->value->longs[1];
+            objst->effect.particle = val1;
             break;
         case 29: // EFFECTEXPLOSION1
-            objst->effect.explosion1 = context->value->longs[1];
+            objst->effect.explosion1 = val1;
             break;
         case 30: // EFFECTEXPLOSION2
-            objst->effect.explosion2 = context->value->longs[1];
+            objst->effect.explosion2 = val1;
             break;
         case 31: // EFFECTSPACING
-            objst->effect.spacing = context->value->longs[1];
+            objst->effect.spacing = val1;
             break;
         case 32: // EFFECTSOUND
-            objst->effect.sound_idx = context->value->longs[1];
+            objst->effect.sound_idx = val1;
             objst->effect.sound_range = (unsigned char)context->value->shorts[5];
             break;
         case 33: // FLAMEANIMATIONID
-            objst->flame.animation_id = context->value->longs[1];
+            objst->flame.animation_id = val1;
             break;
         case 34: // FLAMEANIMATIONSPEED
-            objst->flame.anim_speed = context->value->longs[1];
+            objst->flame.anim_speed = val1;
             break;
         case 35: // FLAMEANIMATIONSIZE
-            objst->flame.sprite_size = context->value->longs[1];
+            objst->flame.sprite_size = val1;
             break;
         case 36: // FLAMEANIMATIONOFFSET
             objst->flame.fp_add_x = context->value->chars[5];
@@ -3843,7 +3844,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->flame.td_add_y = context->value->chars[8];
             break;
         case 37: // FLAMETRANSPARENCYFLAGS
-            objst->flame.transparency_flags = context->value->longs[1] << 4;
+            objst->flame.transparency_flags = val1 << 4;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);

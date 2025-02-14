@@ -556,12 +556,12 @@ function PLACE_TRAP(player,trapname,subtile_x,subtile_y,free) end
 ------------------------
 --Manipulating Configs--
 ------------------------
---[[
+
 ---Allows you to make changes to door values set in rules.cfg
 ---@param rulename string
 ---@param val1 integer
 function SET_GAME_RULE(rulename,val1) end
-]]
+
 ---Allows you to make changes to door values set in trapdoor.cfg. Look in that file for explanations on the numbers.
 ---@param doorname door_type The name of the door as defined in trapdoor.cfg
 ---@param property string The name of the door property you want to change, as found in trapdoor.cfg. E.g. ManufactureRequired.
@@ -630,9 +630,17 @@ function REMOVE_SACRIFICE_RECIPE(creature, ...) end
 --Manipulating Creature stats-
 -------------------------------
 
-function SET_CREATURE_INSTANCE() end
+---Allows you to change which instances creatures learn at which levels.
+---@param crmodel creature_type Creature model to be modified.
+---@param slot integer The spell slot to configure. 1~10.
+---@param instance integer The name of the ability, as listed in creature.cfg. Allows NULL.
+---@param level integer The level where the unit acquires the ability.
+function SET_CREATURE_INSTANCE(crmodel,slot,instance,level) end
 
-function SWAP_CREATURE() end
+---Replaces a creature with custom creature. Allows you to replaces for example 'FLY', all preplaced ones and all that will spawn on the level, with a 'SWAMP_RAT', provided 'SWAMP_RAT' was added to 'SwapCreatures' in creature.cfg and a file called swamp_rat.cfg is placed in the creatures folder.
+---@param new_creature creature_type
+---@param creature creature_type
+function SWAP_CREATURE(new_creature,creature) end
 
 ---This command sets the maximum experience level the creature can train to.
 ---You can use this to stop certain creatures from becoming too powerful.
