@@ -883,6 +883,47 @@ TbBool load_rules_config(const char *conf_fname, unsigned short flags)
     //Freeing and exiting.
     return result;
 }
+    
+int update_game_rule(short rulegroup, short ruledesc, long rulevalue)
+{
+    if(rulegroup != -1)
+    {
+        SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
+        return assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue);
+    }
+
+  #if (BFDEBUG_LEVEL >= 7)
+    const char *rulename = get_conf_parameter_text(game_rule_desc,ruledesc);
+  #endif
+    switch (ruledesc)
+    {
+    case 1: //PreserveClassicBugs
+        //this one is a special case because in the cfg it's not done trough number
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %lu to %ld", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
+        game.conf.rules.game.classic_bugs_flags = rulevalue;
+        break;
+    case 2: //AlliesShareVision
+        //this one is a special case because it updates minimap
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %ld", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
+        game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
+        panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+        break;
+    case 3: //MapCreatureLimit
+        //this one is a special case because it needs to kill of additional creatures
+        SCRIPTDBG(7, "Changing Game Rule '%s' from %u to %ld", rulename, game.conf.rules.game.creatures_count, rulevalue);
+        game.conf.rules.game.creatures_count = rulevalue;
+        short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
+        if (count > 0)
+        {
+            SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die",count);
+        }
+        break;
+    default:
+        WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
+        return ccr_error;
+    }
+    return ccr_ok;
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -807,14 +807,16 @@ static int lua_PLACE_TRAP(lua_State *L)
 
 
 //Manipulating Configs
-/*
+
 static int lua_SET_GAME_RULE(lua_State *L)
 {
-    const char *ruledesc = lua_tostring(L, 1);
-    long rulevalue = luaL_checkinteger(L, 2);
-}
+    short rulegroup;
+    short ruledesc;
 
-*/
+    luaL_checkGameRule(L,1,&rulegroup,&ruledesc);
+    long rulevalue = luaL_checkinteger(L, 2);
+    update_game_rule(rulegroup, ruledesc, rulevalue);
+}
 
 static int lua_SET_HAND_RULE(lua_State *L)
 {
@@ -1660,7 +1662,7 @@ static const luaL_Reg global_methods[] = {
    
    
 //Manipulating Configs
-   //{"SET_GAME_RULE"                        ,lua_SET_GAME_RULE                   },
+   {"SET_GAME_RULE"                        ,lua_SET_GAME_RULE                   },
    {"SET_HAND_RULE"                        ,lua_SET_HAND_RULE                   },
    {"SET_DOOR_CONFIGURATION"               ,lua_SET_DOOR_CONFIGURATION          },
    //{"NEW_OBJECT_TYPE"                      ,lua_NEW_OBJECT_TYPE                 },

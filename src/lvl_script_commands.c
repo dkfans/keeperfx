@@ -5780,45 +5780,7 @@ static void set_game_rule_process(struct ScriptContext* context)
     short ruledesc  = context->value->shorts[1];
     long rulevalue  = context->value->longs[1];
 
-
-    if(rulegroup != -1)
-    {
-        SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
-        assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue);
-        return;
-    }
-
-
-  #if (BFDEBUG_LEVEL >= 7)
-    const char *rulename = get_conf_parameter_text(game_rule_desc,ruledesc);
-  #endif
-    switch (ruledesc)
-    {
-    case 1: //PreserveClassicBugs
-        //this one is a special case because in the cfg it's not done trough number
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %lu to %ld", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
-        game.conf.rules.game.classic_bugs_flags = rulevalue;
-        break;
-    case 2: //AlliesShareVision
-        //this one is a special case because it updates minimap
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %ld", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
-        game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
-        panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
-        break;
-    case 3: //MapCreatureLimit
-        //this one is a special case because it needs to kill of additional creatures
-        SCRIPTDBG(7, "Changing Game Rule '%s' from %u to %ld", rulename, game.conf.rules.game.creatures_count, rulevalue);
-        game.conf.rules.game.creatures_count = rulevalue;
-        short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
-        if (count > 0)
-        {
-            SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die",count);
-        }
-        break;
-    default:
-        WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
-        break;
-    }
+    update_game_rule(rulegroup, ruledesc, rulevalue);
 }
 
 static void set_increase_on_experience_check(const struct ScriptLine* scline)

@@ -204,6 +204,8 @@ struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void);
 
 const char *player_code_name(PlayerNumber plyr_idx);
 
+void update_game_rule(short rulegroup, short ruledesc, long rulevalue);
+
 extern const struct NamedCommand rules_sacrifices_commands[];
 extern const struct NamedCommand sacrifice_unique_desc[];
 

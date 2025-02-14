@@ -112,7 +112,7 @@ long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * 
 
         return id;
     }
-    luaL_error(L,"invalid namedcommandoption");
+    luaL_argerror(L,index,"invalid namedcommandoption");
     return 0;
 
 }
@@ -127,14 +127,14 @@ long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * co
 struct Thing *luaL_checkThing(lua_State *L, int index)
 {
     if (!lua_istable(L, index)) {
-        luaL_error(L, "Expected a table");
+        luaL_argerror(L,index, "Expected a table");
         return NULL;
     }
 
     // Get idx field
     lua_getfield(L, index, "ThingIndex");
     if (!lua_isnumber(L, -1)) {
-        luaL_error(L, "Expected 'index' to be an integer");
+        luaL_argerror(L,index, "Expected 'index' to be an integer");
         return NULL;
     }
     int idx = lua_tointeger(L, -1);
@@ -143,7 +143,7 @@ struct Thing *luaL_checkThing(lua_State *L, int index)
     // Get creation_turn field
     lua_getfield(L, index, "creation_turn");
     if (!lua_isnumber(L, -1)) {
-        luaL_error(L, "Expected 'creation_turn' to be an integer");
+        luaL_argerror(L,index, "Expected 'creation_turn' to be an integer");
         return NULL;
     }
     int creation_turn = lua_tointeger(L, -1);
@@ -151,7 +151,7 @@ struct Thing *luaL_checkThing(lua_State *L, int index)
 
     struct Thing* thing = thing_get(idx);
     if (thing_is_invalid(thing) || thing->creation_turn != creation_turn) {
-        luaL_error(L, "Failed to resolve thing");
+        luaL_argerror(L,index, "Failed to resolve thing");
         return NULL;
     }
     return thing;
@@ -162,7 +162,7 @@ struct Thing *luaL_checkCreature(lua_State *L, int index)
     struct Thing *thing = luaL_checkThing(L, index);
     if (thing->class_id != TCls_Creature)
     {
-        luaL_error(L, "Expected a creature");
+        luaL_argerror(L,index, "Expected a creature");
         return NULL;
     }
     return thing;
@@ -188,7 +188,7 @@ TbMapLocation luaL_checkLocation(lua_State *L, int index)
     TbMapLocation location;
     if(!get_map_location_id(locname, &location))
     {
-        luaL_error (L,"Invalid location, '%s'", locname);
+        luaL_argerror(L,index,"Invalid location, '%s'", locname);
     }
     return location;
 }
@@ -224,7 +224,7 @@ PlayerNumber luaL_checkPlayerRangeId(lua_State *L, int index)
             int i = lua_tointeger(L, -1);
             return i;
         }
-        luaL_error(L, "Expected table to be of class Player");
+        luaL_argerror(L,index, "Expected table to be of class Player");
         return -1;
     }
 
@@ -258,7 +258,7 @@ PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
     PlayerNumber playerId = luaL_checkPlayerRangeId(L,index);
     if(playerId == ALL_PLAYERS)
     {
-        luaL_argerror (L,index,"player range not supported for this command");
+        luaL_argerror(L,index,"player range not supported for this command");
     }
     return playerId;
 }
@@ -379,7 +379,7 @@ EffectOrEffElModel luaL_checkEffectOrEffElModel(lua_State *L, int index)
 
         return id;
     }
-    luaL_error(L,"invalid effect option");
+    luaL_argerror(L, index,"invalid effect option");
     return 0;
 }
 
@@ -402,7 +402,7 @@ long luaL_checkCreature_or_creature_wildcard(lua_State *L, int index)
 
         return id;
     }
-    luaL_error(L,"invalid namedcommandoption");
+    luaL_argerror(L,index,"invalid namedcommandoption");
     return 0;
 
 }
@@ -413,6 +413,53 @@ long luaL_checkIntMinMax(lua_State *L, int index,long min, long max)
     luaL_argcheck(L, min <= val && val <= max, index, "value out of range");
     return val;
 }
+
+
+
+void luaL_checkGameRule(lua_State *L, int index,short *rulegroup, short *ruledesc)
+{
+    const char* text = lua_isstring(L, index);
+    long rulegroup = 0;
+
+    long ruledesc = get_id(game_rule_desc, text);
+    if(ruledesc != -1)
+    {
+        rulegroup = -1;
+        switch (ruledesc)
+        {
+            case 1: //PreserveClassicBugs
+                //this one is a special case because in the cfg it's not done trough number
+                if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
+                {
+                    SCRPTERRLOG("Game Rule '%s' value %ld out of range", text, ruleval);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                break;
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
+        {
+            ruledesc = get_named_field_id(ruleblocks[i], text);
+            if (ruledesc != -1)
+            {
+                rulegroup = i;
+                break;
+            }
+        }
+    }
+
+    if (ruledesc == -1)
+    {
+        
+        SCRPTERRLOG("Unknown Game Rule '%s'.", text);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+}
+
 
 /***************************************************************************************************/
 /************    Outputs   *************************************************************************/
