@@ -510,7 +510,7 @@ extern "C" void SetSoundMasterVolume(SoundVolume volume) {
 		}
 		g_master_volume = volume;
 	} catch (const std::exception & e) {
-		LbErrorLog("%s", e.what());
+		ERRORLOG("%s", e.what());
 	}
 }
 
@@ -601,7 +601,7 @@ extern "C" void MonitorStreamedSoundTrack() {
 				source.bank_id = 0;
 			}
 		} catch (const std::exception & e) {
-			LbErrorLog("%s", e.what());
+			ERRORLOG("%s", e.what());
 		}
 	}
 }
@@ -617,7 +617,7 @@ extern "C" void StopAllSamples() {
 		try {
 			source.stop();
 		} catch (const std::exception & e) {
-			LbErrorLog("%s", e.what());
+			ERRORLOG("%s", e.what());
 		}
 	}
 }
@@ -630,11 +630,11 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 			g_bb_king_mode |= ((date.Day == 1) && (date.Month = 2));
 		}
 		if (SoundDisabled) {
-			LbWarnLog("Sound is disabled, skipping OpenAL initialization");
+			WARNLOG("Sound is disabled, skipping OpenAL initialization");
 			return false;
 		}
 		if (g_openal_device || g_openal_context) {
-			LbWarnLog("OpenAL already initialized");
+			WARNLOG("OpenAL already initialized");
 			return true;
 		}
 		print_device_info();
@@ -657,7 +657,7 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 		g_openal_context = std::move(context);
 		return true;
 	} catch (const std::exception & e) {
-		LbErrorLog("%s", e.what());
+		ERRORLOG("%s", e.what());
 	}
 	SoundDisabled = true;
 	return false;
@@ -671,7 +671,7 @@ extern "C" TbBool IsSamplePlaying(SoundMilesID mss_id) {
 			}
 		}
 	} catch (const std::exception & e) {
-		LbErrorLog("%s", e.what());
+		ERRORLOG("%s", e.what());
 	}
 	return false;
 }
@@ -686,7 +686,7 @@ extern "C" void SetSampleVolume(SoundEmitterID emit_id, SoundSmplTblID smptbl_id
 			try {
 				source.gain(volume);
 			} catch (const std::exception & e) {
-				LbErrorLog("%s", e.what());
+				ERRORLOG("%s", e.what());
 			}
 		}
 	}
@@ -698,7 +698,7 @@ extern "C" void SetSamplePan(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, S
 			try {
 				source.pan(pan);
 			} catch (const std::exception & e) {
-				LbErrorLog("%s", e.what());
+				ERRORLOG("%s", e.what());
 			}
 		}
 	}
@@ -714,7 +714,7 @@ extern "C" void SetSamplePitch(SoundEmitterID emit_id, SoundSmplTblID smptbl_id,
 					source.pitch(pitch);
 				}
 			} catch (const std::exception & e) {
-				LbErrorLog("%s", e.what());
+				ERRORLOG("%s", e.what());
 			}
 		}
 	}
@@ -731,15 +731,15 @@ extern "C" SoundMilesID play_sample(
 	SoundBankID bank_id
 ) {
 	if (emit_id <= 0) {
-		LbErrorLog("Can't play sample %d from bank %u, invalid emitter ID", smptbl_id, bank_id);
+		ERRORLOG("Can't play sample %d from bank %u, invalid emitter ID", smptbl_id, bank_id);
 		return 0;
 	} else if (bank_id > g_banks.size()) {
-		LbErrorLog("Can't play sample %d from bank %u, invalid bank ID", smptbl_id, bank_id);
+		ERRORLOG("Can't play sample %d from bank %u, invalid bank ID", smptbl_id, bank_id);
 		return 0;
 	} else if (smptbl_id == 0) {
 		return 0; // silently ignore
 	} else if (smptbl_id <= 0 || smptbl_id >= g_banks[bank_id].size()) {
-		LbErrorLog("Can't play sample %d from bank %u, invalid sample ID", smptbl_id, bank_id);
+		ERRORLOG("Can't play sample %d from bank %u, invalid sample ID", smptbl_id, bank_id);
 		return 0;
 	}
 	try {
@@ -766,10 +766,10 @@ extern "C" SoundMilesID play_sample(
 				return source.mss_id;
 			}
 		}
-		LbErrorLog("Can't play sample %d from bank %u, too many samples playing at once", smptbl_id, bank_id);
+		ERRORLOG("Can't play sample %d from bank %u, too many samples playing at once", smptbl_id, bank_id);
 		return 0;
 	} catch (const std::exception & e) {
-		LbErrorLog("%s", e.what());
+		ERRORLOG("%s", e.what());
 	}
 	return 0;
 }
@@ -783,7 +783,7 @@ extern "C" void stop_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, So
 				source.smptbl_id = 0;
 				source.bank_id = 0;
 			} catch (const std::exception & e) {
-				LbErrorLog("%s", e.what());
+				ERRORLOG("%s", e.what());
 			}
 		}
 	}
