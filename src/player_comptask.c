@@ -348,7 +348,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
             i = Lb_SUCCESS;
         } else
         {
-            i = tag_blocks_for_digging_in_rectangle_around(slab_subtile(slb_x,0), slab_subtile(slb_y,0), plyr_idx) > 0;
+            i = tag_blocks_for_digging_in_rectangle_around(slab_subtile(slb_x,0), slab_subtile(slb_y,0), plyr_idx, true) > 0;
         }
         return i;
     case GA_Unk15:

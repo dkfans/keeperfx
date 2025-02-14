@@ -270,21 +270,23 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     return num_untagged;
 }
 
-long tag_blocks_for_digging_in_rectangle_around(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+long tag_blocks_for_digging_in_rectangle_around(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, TbBool play_sound)
 {
     long ret;
     ret = tag_blocks_for_digging_in_area(stl_x & ((stl_x < 0) - 1), stl_y & ((stl_y < 0) - 1), plyr_idx);
-    if ((ret != 0) && is_my_player_number(plyr_idx))
+    if (play_sound && (ret != 0) && is_my_player_number(plyr_idx)) {
         play_non_3d_sample(118);
+    }
     return ret;
 }
 
-void untag_blocks_for_digging_in_rectangle_around(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+void untag_blocks_for_digging_in_rectangle_around(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, TbBool play_sound)
 {
     long ret;
     ret = untag_blocks_for_digging_in_area(stl_x & ((stl_x < 0) - 1), stl_y & ((stl_y < 0) - 1), plyr_idx);
-    if ((ret != 0) && is_my_player_number(plyr_idx))
+    if (play_sound && (ret != 0) && is_my_player_number(plyr_idx)) {
         play_non_3d_sample(118);
+    }
 }
 
 void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoord slb_y)

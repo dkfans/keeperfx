@@ -947,24 +947,25 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
             // Tag a line of slabs inbetween previous mouse slab position and current mouse slab position
             int draw_path_x = player->previous_cursor_subtile_x / STL_PER_SLB;
             int draw_path_y = player->previous_cursor_subtile_y / STL_PER_SLB;
+            TbBool first_block = true;
             while (true)
             {
                 MapSubtlCoord stl_cx = stl_slab_center_subtile(draw_path_x * STL_PER_SLB);
                 MapSubtlCoord stl_cy = stl_slab_center_subtile(draw_path_y * STL_PER_SLB);
                 if (!tag_for_digging) // if the chosen slab is tagged for digging...
                 {
-                    untag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // untag the slab for digging
+                    untag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx, first_block); // untag the slab for digging
                 }
                 else if (dungeon->task_count < task_allowance)
                 {
-                    tag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx); // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
+                    tag_blocks_for_digging_in_rectangle_around(stl_cx, stl_cy, plyr_idx, first_block); // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
                 }
                 else if (is_my_player(player))
                 {
                     output_message(SMsg_WorkerJobsLimit, 500, true); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
                     return;
                 }
-                
+                first_block = false;
                 if (draw_path_x != current_x || draw_path_y != current_y) {
                     // Choose the axis that has more ground to cover.
                     if (abs(draw_path_x-current_x) > abs(draw_path_y-current_y)) {
