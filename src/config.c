@@ -39,7 +39,6 @@
 #include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"
-#include "music_player.h"
 #include "moonphase.h"
 #include "post_inc.h"
 
@@ -54,7 +53,6 @@ static struct NetLevelDesc net_level_desc[100];
 static const char keeper_config_file[]="keeperfx.cfg";
 
 char cmd_char = '!';
-int max_track = 7;
 unsigned short AtmosRepeat = 1013;
 unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
@@ -1168,16 +1166,7 @@ short load_configuration(void)
           }
           break;
       case 15: // MUSIC_TRACKS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = atoi(word_buf);
-          }
-          if ((i > 0) && (i < MUSIC_TRACKS_COUNT)) {
-              max_track = i;
-          } else {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-          }
+          // obsolete, no longer needed
           break;
       case 17: // FREEZE_GAME_ON_FOCUS_LOST
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);

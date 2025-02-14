@@ -1,5 +1,6 @@
 #include "pre_inc.h"
 #include "config.h"
+#include "cdrom.h"
 #include "bflib_sndlib.h"
 #include "bflib_datetm.h"
 #include "bflib_sound.h"
@@ -43,6 +44,7 @@ SoundVolume g_master_volume = 0;
 SoundVolume g_music_volume = 0;
 ALCdevice_ptr g_openal_device;
 ALCcontext_ptr g_openal_context;
+Mix_Music * g_mix_music = nullptr;
 bool g_bb_king_mode = false;
 
 enum source_flags {
@@ -483,6 +485,12 @@ void SDLCALL on_channel_finished(int channel) {
 	}
 }
 
+void SDLCALL on_music_finished() {
+	std::lock_guard<std::mutex> guard(g_mix_mutex);
+	Mix_FreeMusic(g_mix_music);
+	g_mix_music = nullptr;
+}
+
 } // local
 
 extern "C" void FreeAudio() {
@@ -506,8 +514,78 @@ extern "C" void SetSoundMasterVolume(SoundVolume volume) {
 	}
 }
 
-extern "C" void SetMusicMasterVolume(SoundVolume value) {
+extern "C" void set_music_volume(SoundVolume value) {
 	g_music_volume = value;
+	SetRedbookVolume(value);
+	// convert 0..256 to 0..128
+	Mix_VolumeMusic(LbLerp(0, MIX_MAX_VOLUME, float(value) / FULL_LOUDNESS));
+}
+
+extern "C" TbBool play_music(const char * fname) {
+	std::lock_guard<std::mutex> guard(g_mix_mutex);
+	game.music_track = -1;
+	snprintf(game.music_fname, sizeof(game.music_fname), "%s", fname);
+	Mix_FreeMusic(g_mix_music);
+	g_mix_music = Mix_LoadMUS(game.music_fname);
+	if (!g_mix_music) {
+		WARNLOG("Cannot load music from %s: %s", game.music_fname, Mix_GetError());
+		return false;
+	} else if (Mix_PlayMusic(g_mix_music, -1) != 0) {
+		WARNLOG("Cannot play music from %s: %s", game.music_fname, Mix_GetError());
+		return false;
+	}
+	JUSTLOG("Playing %s", game.music_fname);
+	return true;
+}
+
+extern "C" TbBool play_music_track(int track) {
+	game.music_track = track;
+	memset(game.music_fname, 0, sizeof(game.music_fname));
+	if (game.music_track == 0) {
+		stop_music();
+		return true;
+	} else if (features_enabled & Ft_NoCdMusic) {
+		return play_music(prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", track));
+	} else {
+		if (PlayRedbookTrack(track)) {
+			JUSTLOG("Playing track %d", game.music_track);
+			return true;
+		} else {
+			WARNLOG("Cannot play track %d", game.music_track);
+			return false;
+		}
+	}
+}
+
+extern "C" void pause_music() {
+	JUSTLOG("Pausing music");
+	if (features_enabled & Ft_NoCdMusic) {
+		Mix_PauseMusic();
+	} else {
+		PauseRedbookTrack();
+	}
+}
+
+extern "C" void resume_music() {
+	JUSTLOG("Resuming music");
+	if (features_enabled & Ft_NoCdMusic) {
+		Mix_ResumeMusic();
+	} else {
+		ResumeRedbookTrack();
+	}
+}
+
+extern "C" void stop_music() {
+	JUSTLOG("Stopping music");
+	game.music_track = 0;
+	memset(game.music_fname, 0, sizeof(game.music_fname));
+	if (features_enabled & Ft_NoCdMusic) {
+		if (Mix_FadingMusic() != MIX_FADING_OUT) {
+			Mix_FadeOutMusic(1000);
+		}
+	} else {
+		StopRedbookTrack();
+	}
 }
 
 extern "C" TbBool GetSoundInstalled() {
@@ -735,6 +813,7 @@ extern "C" int InitialiseSDLAudio()
 	}
 	Mix_ReserveChannels(1); // reserve for external speech samples
 	Mix_ChannelFinished(on_channel_finished); // register callback so we can do things
+	Mix_HookMusicFinished(on_music_finished); // register callback so we can do things
 	return flags;
 }
 

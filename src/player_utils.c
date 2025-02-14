@@ -23,7 +23,7 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
-
+#include "bflib_sndlib.h"
 #include "api.h"
 #include "player_data.h"
 #include "player_instances.h"
@@ -54,7 +54,6 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
-#include "music_player.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -466,13 +465,6 @@ void calculate_dungeon_area_scores(void)
     }
 }
 
-void init_player_music(struct PlayerInfo *player)
-{
-    LevelNumber lvnum = get_loaded_level_number();
-    game.audiotrack = 3 + ((lvnum - 1) % 4);
-    game.last_audiotrack = max_track;
-}
-
 TbBool map_position_has_sibling_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind, PlayerNumber plyr_idx)
 {
     for (int n = 0; n < SMALL_AROUND_LENGTH; n++)
@@ -801,13 +793,14 @@ void init_player(struct PlayerInfo *player, short no_explore)
     }
     init_player_cameras(player);
     player->mp_message_text[0] = '\0';
-    if (is_my_player(player))
-    {
-        init_player_music(player);
-    }
     // By default, player is his own ally
     player->allied_players = to_flag(player->id_number);
     player->hand_busy_until_turn = 0;
+    if (is_my_player(player)) {
+        // new game, play one of the default tracks
+        LevelNumber lvnum = get_loaded_level_number();
+        play_music_track(3 + ((lvnum - 1) % 4)); // tracks 3..6
+    }
 }
 
 void init_players(void)
