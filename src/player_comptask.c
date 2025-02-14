@@ -289,7 +289,6 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     struct Thing *thing;
-    long i;
     long k;
     struct SlabMap *slb;
     struct Room *room;
@@ -337,7 +336,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
         dungeon->hold_audience_cast_turn = 0;
         return Lb_SUCCESS;
     case GA_Unk13:
-    case GA_MarkDig:
+    case GA_MarkDig: {
         slb = get_slabmap_block(slb_x, slb_y);
         if ((slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER))
         {
@@ -345,12 +344,20 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
             // Normally liquid tiles are not marked for digging by the tool function
             place_slab_type_on_map(SlbT_PATH, stl_x, stl_y, plyr_idx, 0);
             do_slab_efficiency_alteration(slb_x, slb_y);
-            i = Lb_SUCCESS;
+            return Lb_SUCCESS;
         } else
         {
-            i = tag_blocks_for_digging_in_rectangle_around(slab_subtile(slb_x,0), slab_subtile(slb_y,0), plyr_idx, true) > 0;
+            const MapSubtlCoord stl_cx = slab_subtile(slb_x,0);
+            const MapSubtlCoord stl_cy = slab_subtile(slb_y,0);
+            if (tag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx)) {
+                if (is_my_player_number(plyr_idx)) {
+                    play_non_3d_sample(118);
+                }
+                return Lb_SUCCESS;
+            }
         }
-        return i;
+        return Lb_FAIL;
+    }
     case GA_Unk15:
     case GA_PlaceRoom:
         room = player_build_room_at(stl_x, stl_y, plyr_idx, param2);
@@ -364,10 +371,14 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
         if (!player_place_trap_at(stl_x, stl_y, plyr_idx, param1))
             break;
         return Lb_SUCCESS;
-    case GA_PlaceDoor:
+    case GA_PlaceDoor: {
         k = tag_cursor_blocks_place_door(plyr_idx, stl_x, stl_y);
-        i = packet_place_door(stl_x, stl_y, plyr_idx, param1, k);
-        return i;
+        if (packet_place_door(stl_x, stl_y, plyr_idx, param1, k)) {
+            return Lb_SUCCESS;
+        } else {
+            return Lb_FAIL;
+        }
+    }
     case GA_SellTrap:
         return player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y);
     case GA_SellDoor:

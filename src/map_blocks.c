@@ -228,7 +228,7 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     return task_added;
 }
 
-long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+TbBool untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     MapSubtlCoord x;
     MapSubtlCoord y;
@@ -267,26 +267,7 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
         }
     }
     panel_map_update(x, y, STL_PER_SLB, STL_PER_SLB);
-    return num_untagged;
-}
-
-long tag_blocks_for_digging_in_rectangle_around(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, TbBool play_sound)
-{
-    long ret;
-    ret = tag_blocks_for_digging_in_area(stl_x & ((stl_x < 0) - 1), stl_y & ((stl_y < 0) - 1), plyr_idx);
-    if (play_sound && (ret != 0) && is_my_player_number(plyr_idx)) {
-        play_non_3d_sample(118);
-    }
-    return ret;
-}
-
-void untag_blocks_for_digging_in_rectangle_around(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, TbBool play_sound)
-{
-    long ret;
-    ret = untag_blocks_for_digging_in_area(stl_x & ((stl_x < 0) - 1), stl_y & ((stl_y < 0) - 1), plyr_idx);
-    if (play_sound && (ret != 0) && is_my_player_number(plyr_idx)) {
-        play_non_3d_sample(118);
-    }
+    return num_untagged > 0;
 }
 
 void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -1022,7 +1003,7 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                     }
                     struct Thing *objtng;
                     objtng = create_object(&pos, tngmodel, plyr_idx, slb_num);
-                    if (thing_is_invalid(objtng)) 
+                    if (thing_is_invalid(objtng))
                     {
                         ERRORLOG("Cannot create object type %d", tngmodel);
                         continue;
@@ -1278,7 +1259,7 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
     for (i=0; i < AROUND_EIGHT_LENGTH; i+=2)
     {
         MapSlabCoord sslb_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
-        MapSlabCoord sslb_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;       
+        MapSlabCoord sslb_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
         // Collecting bitmask
         against <<= 1;
         against |= get_against(plyr_idx, slbkind, sslb_x, sslb_y);
@@ -1609,7 +1590,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabset_id, MapSubtlCoord stl_x, Ma
                 {
                     //Suspect this has to do with object 2, torch, that needs to stay 4 cubes heigh. TCls_Door added later for braced door(model 2) key bug.
                     //TODO investigate if doors need height 1 or 5, below code drops them to the floor
-                    if ((thing->model != 2) || (thing->class_id == TCls_Door)) 
+                    if ((thing->model != 2) || (thing->class_id == TCls_Door))
                     {
                         thing->mappos.z.val = subtile_coord(floor_height,0);
                     }
@@ -1910,7 +1891,7 @@ void create_gold_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
         for (x = stl_x; x < stl_x+STL_PER_SLB; x++)
         {
             z = get_floor_filled_subtiles_at(x, y);
-            if (z > 0) 
+            if (z > 0)
             {
                 create_gold_rubble_for_dug_block(x, y, z, game.neutral_player_num);
             }
