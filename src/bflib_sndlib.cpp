@@ -18,7 +18,7 @@
 #include <string>
 #include <utility>
 #include <array>
-#include <queue>
+#include <deque>
 #include <mutex>
 #include "post_inc.h"
 
@@ -449,7 +449,7 @@ struct queued_sample {
 	SoundVolume volume;
 };
 
-std::queue<queued_sample> g_queued_samples;
+std::deque<queued_sample> g_queued_samples;
 
 TbBool actually_play_streamed_sample(const char * fname, SoundVolume volume) {
 	g_streamed_sample = Mix_LoadWAV(fname);
@@ -477,8 +477,8 @@ void SDLCALL on_channel_finished(int channel) {
 		if (g_queued_samples.empty()) {
 			return;
 		}
-		const auto & sample = g_queued_samples.back();
-		g_queued_samples.pop();
+		const auto sample = std::move(g_queued_samples.front());
+		g_queued_samples.pop_front();
 		if (actually_play_streamed_sample(sample.fname.c_str(), sample.volume)) {
 			return;
 		}
@@ -845,7 +845,7 @@ extern "C" TbBool play_streamed_sample(const char* fname, SoundVolume volume)
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
 	if (speech_sample_playing()) {
 		try {
-			g_queued_samples.emplace(queued_sample{fname, volume});
+			g_queued_samples.emplace_back(queued_sample{fname, volume});
 			return true;
 		} catch (const std::exception & e) {
 			ERRORLOG("Cannot add sample to queue: %s", e.what());
@@ -860,8 +860,7 @@ extern "C" void stop_streamed_samples()
 	{
 		// this is intentionally in its own scope to prevent double-locking the mutex
 		std::lock_guard<std::mutex> guard(g_mix_mutex);
-		// there is no clear() for some reason, sigh...
-		while (!g_queued_samples.empty()) g_queued_samples.pop();
+		g_queued_samples.clear();
 	}
 	Mix_HaltChannel(MIX_SPEECH_CHANNEL);
 }
