@@ -633,7 +633,7 @@ function REMOVE_SACRIFICE_RECIPE(creature, ...) end
 ---Allows you to change which instances creatures learn at which levels.
 ---@param crmodel creature_type Creature model to be modified.
 ---@param slot integer The spell slot to configure. 1~10.
----@param instance integer The name of the ability, as listed in creature.cfg. Allows NULL.
+---@param instance string The name of the ability, as listed in creature.cfg. Allows NULL.
 ---@param level integer The level where the unit acquires the ability.
 function SET_CREATURE_INSTANCE(crmodel,slot,instance,level) end
 
@@ -873,8 +873,14 @@ function SET_INCREASE_ON_EXPERIENCE(valname,valnum) end
 ---@param track_number integer  The music track to be played. Numbers 2~7 select from original tracks, or a file name(between parenthesis) to set custom music.
 function SET_MUSIC(track_number) end
 
-function SET_CREATURE_INSTANCE() end
-function SET_HAND_RULE() end
+---Specifies advanced rules to limit picking up units.
+---@param player Player
+---@param creature creature_type
+---@param rule_slot integer
+---@param rule_action "ALLOW"|"DENY"
+---@param rule "ALWAYS"|"AGE_LOWER"|"AGE_HIGHER"|"LEVEL_LOWER"|"LEVEL_HIGHER"|"AT_ACTION_POINT"|"AFFECTED_BY"|"WANDERING"|"WORKING"|"FIGHTING"|"DROPPED_TIME_LOWER"|"DROPPED_TIME_HIGHER"
+---@param param integer
+function SET_HAND_RULE(player,creature,rule_slot,rule_action,rule,param) end
 
 
 ---Changes the slabs belonging to a specific player to a custom texture

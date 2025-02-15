@@ -959,7 +959,7 @@ static int lua_SET_CREATURE_INSTANCE(lua_State *L)
 {
     ThingModel crmodel = luaL_checkNamedCommand(L,1,creature_desc);
     int slot = luaL_checkinteger(L, 2);
-    int instance = luaL_checkinteger(L, 3);
+    int instance = luaL_checkNamedCommand(L, 3,instance_desc);
     unsigned char level = luaL_checkinteger(L, 4);
 
     script_set_creature_instance(crmodel, slot, instance, level);

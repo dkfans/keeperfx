@@ -420,45 +420,32 @@ long luaL_checkIntMinMax(lua_State *L, int index,long min, long max)
 
 void luaL_checkGameRule(lua_State *L, int index,short *rulegroup, short *ruledesc)
 {
-//    const char* text = lua_isstring(L, index);
-//    long rulegroup = 0;
-//
-//    long ruledesc = get_id(game_rule_desc, text);
-//    if(ruledesc != -1)
-//    {
-//        rulegroup = -1;
-//        switch (ruledesc)
-//        {
-//            case 1: //PreserveClassicBugs
-//                //this one is a special case because in the cfg it's not done trough number
-//                if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
-//                {
-//                    SCRPTERRLOG("Game Rule '%s' value %ld out of range", text, ruleval);
-//                    DEALLOCATE_SCRIPT_VALUE
-//                    return;
-//                }
-//                break;
-//        }
-//    }
-//    else
-//    {
-//        for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
-//        {
-//            ruledesc = get_named_field_id(ruleblocks[i], text);
-//            if (ruledesc != -1)
-//            {
-//                rulegroup = i;
-//                break;
-//            }
-//        }
-//    }
-//
-//    if (ruledesc == -1)
-//    {
-//        
-//        SCRPTERRLOG("Unknown Game Rule '%s'.", text);
-//        return;
-//    }
+    const char* text = lua_tostring(L, index);
+    *rulegroup = 0;
+
+    *ruledesc = get_id(game_rule_desc, text);
+    if(*ruledesc != -1)
+        return;
+
+
+    int i = 0;
+    while (ruleblocks[i])
+    {
+        *ruledesc = get_named_field_id(ruleblocks[i], text);
+        if (*ruledesc != -1)
+        {
+            *rulegroup = i;
+            break;
+        }
+        i++;
+    }
+
+    if (*ruledesc == -1)
+    {
+        
+        SCRPTERRLOG("Unknown Game Rule '%s'.", text);
+        return;
+    }
 }
 
 
