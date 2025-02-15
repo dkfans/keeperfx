@@ -204,18 +204,13 @@ struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void);
 
 const char *player_code_name(PlayerNumber plyr_idx);
 
-void update_game_rule(short rulegroup, short ruledesc, long rulevalue);
+int update_game_rule(short rulegroup, short ruledesc, long rulevalue);
 
 extern const struct NamedCommand rules_sacrifices_commands[];
 extern const struct NamedCommand sacrifice_unique_desc[];
 
-extern const struct NamedField rules_magic_named_fields[];
-extern const struct NamedField rules_rooms_named_fields[];
-extern const struct NamedField rules_game_named_fields[];
-extern const struct NamedField rules_creatures_named_fields[];
-extern const struct NamedField rules_computer_named_fields[];
-extern const struct NamedField rules_workers_named_fields[];
-extern const struct NamedField rules_health_named_fields[];
+extern const struct NamedCommand game_rule_desc[];
+extern const struct NamedField* ruleblocks[];
 
 /******************************************************************************/
 #ifdef __cplusplus

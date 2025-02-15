@@ -7,6 +7,7 @@
 #include "../deps/luajit/src/lualib.h"
 
 #include "bflib_basics.h"
+#include "config_rules.h"
 #include "globals.h"
 #include "thing_data.h"
 #include "creature_states.h"
@@ -188,7 +189,8 @@ TbMapLocation luaL_checkLocation(lua_State *L, int index)
     TbMapLocation location;
     if(!get_map_location_id(locname, &location))
     {
-        luaL_argerror(L,index,"Invalid location, '%s'", locname);
+        const char* err_msg = lua_pushfstring(L, "Invalid location, '%s'", locname);
+        return luaL_argerror(L, index, err_msg);
     }
     return location;
 }
@@ -418,46 +420,45 @@ long luaL_checkIntMinMax(lua_State *L, int index,long min, long max)
 
 void luaL_checkGameRule(lua_State *L, int index,short *rulegroup, short *ruledesc)
 {
-    const char* text = lua_isstring(L, index);
-    long rulegroup = 0;
-
-    long ruledesc = get_id(game_rule_desc, text);
-    if(ruledesc != -1)
-    {
-        rulegroup = -1;
-        switch (ruledesc)
-        {
-            case 1: //PreserveClassicBugs
-                //this one is a special case because in the cfg it's not done trough number
-                if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
-                {
-                    SCRPTERRLOG("Game Rule '%s' value %ld out of range", text, ruleval);
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                break;
-        }
-    }
-    else
-    {
-        for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
-        {
-            ruledesc = get_named_field_id(ruleblocks[i], text);
-            if (ruledesc != -1)
-            {
-                rulegroup = i;
-                break;
-            }
-        }
-    }
-
-    if (ruledesc == -1)
-    {
-        
-        SCRPTERRLOG("Unknown Game Rule '%s'.", text);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
+//    const char* text = lua_isstring(L, index);
+//    long rulegroup = 0;
+//
+//    long ruledesc = get_id(game_rule_desc, text);
+//    if(ruledesc != -1)
+//    {
+//        rulegroup = -1;
+//        switch (ruledesc)
+//        {
+//            case 1: //PreserveClassicBugs
+//                //this one is a special case because in the cfg it's not done trough number
+//                if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
+//                {
+//                    SCRPTERRLOG("Game Rule '%s' value %ld out of range", text, ruleval);
+//                    DEALLOCATE_SCRIPT_VALUE
+//                    return;
+//                }
+//                break;
+//        }
+//    }
+//    else
+//    {
+//        for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
+//        {
+//            ruledesc = get_named_field_id(ruleblocks[i], text);
+//            if (ruledesc != -1)
+//            {
+//                rulegroup = i;
+//                break;
+//            }
+//        }
+//    }
+//
+//    if (ruledesc == -1)
+//    {
+//        
+//        SCRPTERRLOG("Unknown Game Rule '%s'.", text);
+//        return;
+//    }
 }
 
 

@@ -708,7 +708,7 @@ function SET_PLAYER_MODIFIER(player,modifier,value) end
 ---@param value integer
 function ADD_TO_PLAYER_MODIFIER(player,modifier,value) end
 
-
+--]]
 -----------------------------
 --Tweaking computer players--
 -----------------------------
@@ -718,8 +718,6 @@ function ADD_TO_PLAYER_MODIFIER(player,modifier,value) end
 ---@param origin location The origin location, e.g. PLAYER1 or 1 to go from an action point.
 ---@param destination location The location to dig to, e.g. PLAYER0.
 function COMPUTER_DIG_TO_LOCATION(player,origin,destination) end
-
---[[
 
 ---Allows the player to configure the behavior of an AI for specific criteria.
 ---@param player playersingle the AI player affected
@@ -753,7 +751,6 @@ function SET_COMPUTER_EVENT(player,event_name,data1,data2) end
 ---@param data1 string ,data2,data3,data4 These parameters can have different meaning for different values of "process name".
 function SET_COMPUTER_PROCESS(player,process_name,priority,data1,data2,data3,data4) end
 
-]]
 
 
 ------------

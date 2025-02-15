@@ -25,6 +25,7 @@
 #include "config_spritecolors.h"
 #include "config_trapdoor.h"
 #include "console_cmd.h"
+#include "config_rules.h"
 #include "creature_instances.h"
 #include "creature_states.h"
 #include "creature_states_mood.h"
@@ -296,22 +297,6 @@ const struct NamedCommand room_config_desc[] = {
 };
 
 
-
-static const struct NamedField rules_script_only_named_fields[] = {
-    //name            //field                //field type                   //min //max
-  {"PayDayProgress",&game.pay_day_progress,var_type(game.pay_day_progress),0,LONG_MAX},
-  {NULL,                            NULL,0,0,0 },
-};
-
-static const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,
-rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fields,rules_health_named_fields,rules_script_only_named_fields};
-
-static const struct NamedCommand game_rule_desc[] = {
-  {"PreserveClassicBugs",            1},
-  {"AlliesShareVision",              2},
-  {"MapCreatureLimit",               3},
-  {NULL,                             0},
-};
 
 const struct NamedCommand on_experience_desc[] = {
   {"SizeIncreaseOnExp",            1},
@@ -5741,7 +5726,8 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     }
     else
     {
-        for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
+        int i = 0;
+        while (ruleblocks[i])
         {
             ruledesc = get_named_field_id(ruleblocks[i], scline->tp[0]);
             if (ruledesc != -1)
@@ -5759,6 +5745,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
                 }
                 break;
             }
+            i++;
         }
     }
 

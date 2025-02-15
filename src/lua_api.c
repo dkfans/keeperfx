@@ -816,6 +816,7 @@ static int lua_SET_GAME_RULE(lua_State *L)
     luaL_checkGameRule(L,1,&rulegroup,&ruledesc);
     long rulevalue = luaL_checkinteger(L, 2);
     update_game_rule(rulegroup, ruledesc, rulevalue);
+    return 0;
 }
 
 static int lua_SET_HAND_RULE(lua_State *L)
@@ -1091,10 +1092,148 @@ static int lua_COMPUTER_DIG_TO_LOCATION(lua_State *L)
     return 0;
 }
 
-//static int lua_SET_COMPUTER_PROCESS(lua_State *L)
-//static int lua_SET_COMPUTER_CHECKS(lua_State *L)
-//static int lua_SET_COMPUTER_GLOBALS(lua_State *L)
-//static int lua_SET_COMPUTER_EVENT(lua_State *L)
+static int lua_SET_COMPUTER_PROCESS(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    const char* procname = luaL_checkstring(L, 2);
+    long val1 = luaL_checkinteger(L,3);
+    long val2 = luaL_checkinteger(L,4);
+    long val3 = luaL_checkinteger(L,5);  
+    long val4 = luaL_checkinteger(L,6);
+    long val5 = luaL_checkinteger(L,7);
+    long n = 0;
+    for (long i = player_range.start_idx; i < player_range.end_idx; i++)
+    {
+        struct Computer2* comp = get_computer_player(i);
+        if (computer_player_invalid(comp)) {
+            continue;
+        }
+        for (long k = 0; k < COMPUTER_PROCESSES_COUNT; k++)
+        {
+            struct ComputerProcess* cproc = &comp->processes[k];
+            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+                break;
+            if (cproc->name == NULL)
+                break;
+            if (strcasecmp(procname, cproc->name) == 0)
+            {
+                cproc->priority = val1;
+                cproc->confval_2 = val2;
+                cproc->confval_3 = val3;
+                cproc->confval_4 = val4;
+                cproc->confval_5 = val5;
+                n++;
+            }
+        }
+    }
+    return 0;
+}
+
+static int lua_SET_COMPUTER_CHECKS(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    const char* chkname = luaL_checkstring(L, 2);
+    long val1 = luaL_checkinteger(L,3);
+    long val2 = luaL_checkinteger(L,4);
+    long val3 = luaL_checkinteger(L,5);  
+    long val4 = luaL_checkinteger(L,6);
+    long val5 = luaL_checkinteger(L,7);
+
+    long n = 0;
+    for (long i = player_range.start_idx; i < player_range.end_idx; i++)
+    {
+        struct Computer2* comp = get_computer_player(i);
+        if (computer_player_invalid(comp)) {
+            continue;
+        }
+        for (long k = 0; k < COMPUTER_CHECKS_COUNT; k++)
+        {
+            struct ComputerCheck* ccheck = &comp->checks[k];
+            if ((ccheck->flags & ComChk_Unkn0002) != 0)
+                break;
+            if (ccheck->name == NULL)
+                break;
+            if (strcasecmp(chkname, ccheck->name) == 0)
+            {
+                ccheck->turns_interval = val1;
+                ccheck->param1 = val2;
+                ccheck->param2 = val3;
+                ccheck->param3 = val4;
+                ccheck->last_run_turn = val5;
+                n++;
+            }
+        }
+    }
+    return 0;
+}
+
+static int lua_SET_COMPUTER_GLOBALS(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    int dig_stack_size       = luaL_checkinteger(L,2);
+    int processes_time       = luaL_checkinteger(L,3);
+    int click_rate           = luaL_checkinteger(L,4);
+    int max_room_build_tasks = luaL_checkinteger(L,5);
+    int turn_begin           = luaL_checkinteger(L,6);
+    int sim_before_dig       = luaL_checkinteger(L,7);
+    int min_drop_delay       = luaL_checkinteger(L,8);
+
+    for (long i = player_range.start_idx; i < player_range.end_idx; i++)
+    {
+        struct Computer2* comp = get_computer_player(i);
+        if (computer_player_invalid(comp))
+        {
+            continue;
+        }
+        comp->dig_stack_size = dig_stack_size;
+        comp->processes_time = processes_time;
+        comp->click_rate = click_rate;
+        comp->max_room_build_tasks = max_room_build_tasks;
+        comp->turn_begin = turn_begin;
+        comp->sim_before_dig = sim_before_dig;
+        if (min_drop_delay != -1)
+        {
+            comp->task_delay = min_drop_delay;
+        }
+    }
+    return 0;
+}
+
+static int lua_SET_COMPUTER_EVENT(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    const char* evntname = luaL_checkstring(L, 2);
+    long val1 = luaL_checkinteger(L,3);
+    long val2 = luaL_checkinteger(L,4);
+    long val3 = luaL_checkinteger(L,5);  
+    long val4 = luaL_checkinteger(L,6);
+    long val5 = luaL_checkinteger(L,7);
+
+    long n = 0;
+    for (long i = player_range.start_idx; i < player_range.end_idx; i++)
+    {
+        struct Computer2* comp = get_computer_player(i);
+        if (computer_player_invalid(comp)) {
+            continue;
+        }
+        for (long k = 0; k < COMPUTER_EVENTS_COUNT; k++)
+        {
+            struct ComputerEvent* event = &comp->events[k];
+            if (event->name == NULL)
+                break;
+            if (strcasecmp(evntname, event->name) == 0)
+            {
+                event->test_interval = val1;
+                event->param1 = val2;
+                event->param2 = val3;
+                event->param3 = val4;
+                event->last_test_gameturn = val5;
+                n++;
+            }
+        }
+    }
+    return 0;
+}
 
 
 //Specials
@@ -1659,8 +1798,6 @@ static const luaL_Reg global_methods[] = {
    {"CHANGE_SLAB_TYPE"                     ,lua_CHANGE_SLAB_TYPE                },
    {"HIDE_HERO_GATE"                       ,lua_HIDE_HERO_GATE                  },
    
-   
-   
 //Manipulating Configs
    {"SET_GAME_RULE"                        ,lua_SET_GAME_RULE                   },
    {"SET_HAND_RULE"                        ,lua_SET_HAND_RULE                   },
@@ -1679,7 +1816,6 @@ static const luaL_Reg global_methods[] = {
    {"SET_SACRIFICE_RECIPE"                 ,lua_SET_SACRIFICE_RECIPE            },
    {"REMOVE_SACRIFICE_RECIPE"              ,lua_REMOVE_SACRIFICE_RECIPE         },
 
-
 //Manipulating Creature stats
    {"SET_CREATURE_INSTANCE"                ,lua_SET_CREATURE_INSTANCE           },
    {"SET_CREATURE_MAX_LEVEL"               ,lua_SET_CREATURE_MAX_LEVEL          },
@@ -1688,17 +1824,16 @@ static const luaL_Reg global_methods[] = {
    {"CREATURE_ENTRANCE_LEVEL"              ,lua_CREATURE_ENTRANCE_LEVEL         },
    {"CHANGE_CREATURES_ANNOYANCE"           ,lua_CHANGE_CREATURES_ANNOYANCE      },
 
-
 //Manipulating Research
    {"RESEARCH"                             ,lua_RESEARCH                        },
    {"RESEARCH_ORDER"                       ,lua_RESEARCH_ORDER                  },
 
 //Tweaking computer players
    {"COMPUTER_DIG_TO_LOCATION"             ,lua_COMPUTER_DIG_TO_LOCATION        },
-   //{"SET_COMPUTER_PROCESS"                 ,lua_SET_COMPUTER_PROCESS            },
-   //{"SET_COMPUTER_CHECKS"                  ,lua_SET_COMPUTER_CHECKS             },
-   //{"SET_COMPUTER_GLOBALS"                 ,lua_SET_COMPUTER_GLOBALS            },
-   //{"SET_COMPUTER_EVENT"                   ,lua_SET_COMPUTER_EVENT              },
+   {"SET_COMPUTER_PROCESS"                 ,lua_SET_COMPUTER_PROCESS            },
+   {"SET_COMPUTER_CHECKS"                  ,lua_SET_COMPUTER_CHECKS             },
+   {"SET_COMPUTER_GLOBALS"                 ,lua_SET_COMPUTER_GLOBALS            },
+   {"SET_COMPUTER_EVENT"                   ,lua_SET_COMPUTER_EVENT              },
 
 //Specials
    {"USE_SPECIAL_INCREASE_LEVEL"           ,lua_USE_SPECIAL_INCREASE_LEVEL      },
