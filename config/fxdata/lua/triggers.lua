@@ -77,16 +77,25 @@ local function ProcessTrigger(trigger,eventData)
         else
             _G[trigger.action](eventData,trigger.triggerData)
         end
+        return true
     end
+    return false
 end
 
 --- goes trough all triggers and checks if they have an event that matches the eventType
 --- @param eventType event_type
-local function ProcessEvent(eventType,eventData)
+--- @param eventData table
+local function ProcessEvent(eventType, eventData)
     Game.triggers = Game.triggers or {}
-    for _, trigger in ipairs(Game.triggers) do
+    
+    for i = #Game.triggers, 1, -1 do
+        local trigger = Game.triggers[i]
         if trigger.event == eventType then
-            ProcessTrigger(trigger,eventData)
+            if ProcessTrigger(trigger, eventData) then
+                if trigger.triggerData.destroyAfterUse == true then
+                    table.remove(Game.triggers, i) -- Remove the trigger safely
+                end
+            end
         end
     end
 end
