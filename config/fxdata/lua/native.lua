@@ -945,6 +945,29 @@ function getThingsOfClass(class) end
 ---@nodiscard
 function getCreatureByCriterion(player,creature_type,criterion) return Creature end
 
+---runs a command trough the engine of the old dkscript, most commands are reimplemented in lua, so generally not needed
+---@param command string the command to run
+function RunDKScriptCommand(command) end
+
+---returns a creature close to the given coordinates
+---@param stl_x integer
+---@param stl_y integer
+---@return Creature
+---@nodiscard
+function GetCreatureNear(stl_x,stl_y) end
+
+---returns the thing with the given index
+---@param index integer
+---@return Thing
+---@nodiscard
+function getThingByIdx(index) end
+
+---comment
+---@param player Player
+---@param action_point actionpoint
+---@return boolean
+---@nodiscard
+function isActionPointActivatedByPlayer(player,action_point) return true end
 
 -------------------------------------------------------
 --Thing Functions

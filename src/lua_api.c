@@ -1727,7 +1727,17 @@ static int lua_is_action_point_activated_by_player(lua_State *L)
     return 1;
 }
 
+static int lua_run_dkscript_command(lua_State *L)
+{
+    const char* map_command_const = lua_tostring(L, 1);
+    //lua strings are constant, script_scan_line doesn't like const, so copy it to a temp buffer
+    char map_command[256];
+    strncpy(map_command, map_command_const, sizeof(map_command) - 1);
+    map_command[sizeof(map_command) - 1] = '\0'; // Ensure null termination
 
+    script_scan_line(map_command, false, 99);
+    return 0;
+}
 
 
 static const luaL_Reg global_methods[] = {
@@ -1866,8 +1876,9 @@ static const luaL_Reg global_methods[] = {
     {"SET_DIGGER"                           ,lua_SET_DIGGER                      },
 
 //debug stuff
-    {"print"           ,lua_print      },
-
+    {"print"                        ,lua_print                     },
+    {"RunDKScriptCommand"           ,lua_run_dkscript_command      },
+    
 //retrieving lua vars
     {"GetCreatureNear",               lua_get_creature_near},
     {"getCreatureByCriterion",        lua_get_creature_by_criterion},
