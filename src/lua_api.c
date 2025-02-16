@@ -1507,11 +1507,24 @@ static int lua_CHANGE_SLAB_OWNER(lua_State *L)
 
 static int lua_CHANGE_SLAB_TYPE(lua_State *L)
 {
-    SlabKind slb_kind = luaL_checkNamedCommand(L, 1,slab_desc);
-    MapSlabCoord slb_x = luaL_checkslb_x(L, 2);
-    MapSlabCoord slb_y = luaL_checkslb_y(L, 3);
+    MapSlabCoord slb_x = luaL_checkslb_x(L, 1);
+    MapSlabCoord slb_y = luaL_checkslb_y(L, 2);
+    SlabKind slb_kind = luaL_checkNamedCommand(L, 3,slab_desc);
+    int fill_type = luaL_optNamedCommand(L, 4,fill_desc);
 
-    replace_slab_from_script(slb_x, slb_y,slb_kind);
+    if (fill_type > 0)
+    {
+        struct CompoundCoordFilterParam iter_param;
+        iter_param.num1 = slb_kind;
+        iter_param.num2 = fill_type;
+        iter_param.num3 = get_slabmap_block(slb_x, slb_y)->kind;
+        slabs_fill_iterate_from_slab(slb_x, slb_y, slabs_change_type, &iter_param);
+    }
+    else
+    {
+        replace_slab_from_script(slb_x, slb_y,slb_kind);
+    }
+
     return 0;
 }
 
