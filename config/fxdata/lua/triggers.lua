@@ -100,7 +100,7 @@ local function ProcessEvent(eventType, eventData)
     end
 end
 
-
+---------------------------------------------------------------------------------
 
 --- Called when a spell is cast on a unit
 --- @param pwkind power_kind
@@ -160,7 +160,7 @@ end
 
 
 
-
+-----------------------------------------------------------------------------------------------
 
 
 
@@ -197,11 +197,13 @@ function RegisterTimerEvent(action, time, periodic)
     return trigger
 end
 
+---triggers once as soon as the given condition evaluates to true, checked once per gametick
 ---@param action function|string the function to call when the event happens
 ---@param condition function|string the condition that needs to be true for the action to be triggered
 ---@return Trigger
 function RegisterOnConditionEvent(action, condition)
-    local trigger = CreateTrigger("GameTick",action)
+    local trigData = {destroyAfterUse = true}
+    local trigger = CreateTrigger("GameTick",action,trigData)
     TriggerAddCondition(trigger, condition)
     return trigger
 end
