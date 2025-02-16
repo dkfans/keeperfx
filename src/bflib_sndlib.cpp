@@ -18,8 +18,9 @@
 #include <string>
 #include <utility>
 #include <array>
-#include <queue>
+#include <deque>
 #include <mutex>
+#include <atomic>
 #include "post_inc.h"
 
 namespace {
@@ -44,7 +45,7 @@ SoundVolume g_master_volume = 0;
 SoundVolume g_music_volume = 0;
 ALCdevice_ptr g_openal_device;
 ALCcontext_ptr g_openal_context;
-Mix_Music * g_mix_music = nullptr;
+std::atomic<Mix_Music *> g_mix_music;
 bool g_bb_king_mode = false;
 
 enum source_flags {
@@ -441,7 +442,7 @@ void print_device_info() {
 	}
 }
 
-Mix_Chunk * g_streamed_sample = nullptr;
+std::atomic<Mix_Chunk *> g_streamed_sample;
 std::mutex g_mix_mutex;
 
 struct queued_sample {
@@ -449,20 +450,22 @@ struct queued_sample {
 	SoundVolume volume;
 };
 
-std::queue<queued_sample> g_queued_samples;
+std::deque<queued_sample> g_queued_samples;
 
 TbBool actually_play_streamed_sample(const char * fname, SoundVolume volume) {
-	g_streamed_sample = Mix_LoadWAV(fname);
-	if (g_streamed_sample == NULL) {
+	const auto sample = Mix_LoadWAV(fname);
+	if (sample == NULL) {
 		ERRORLOG("Cannot load \"%s\": %s", fname, Mix_GetError());
 		return false;
 	}
 	// SoundVolume ranges 0..255 but MIX_MAX_VOLUME ranges 0..128
-	Mix_VolumeChunk(g_streamed_sample, volume / 2);
-	if (Mix_PlayChannel(MIX_SPEECH_CHANNEL, g_streamed_sample, 0) == -1) {
+	Mix_VolumeChunk(sample, volume / 2);
+	if (Mix_PlayChannel(MIX_SPEECH_CHANNEL, sample, 0) == -1) {
+		Mix_FreeChunk(sample);
 		ERRORLOG("Cannot play \"%s\": %s", fname, Mix_GetError());
 		return false;
 	}
+	g_streamed_sample = sample;
 	return true;
 }
 
@@ -471,14 +474,13 @@ void SDLCALL on_channel_finished(int channel) {
 		return;
 	}
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
-	Mix_FreeChunk(g_streamed_sample);
-	g_streamed_sample = nullptr;
+	Mix_FreeChunk(g_streamed_sample.exchange(nullptr));
 	while (true) {
 		if (g_queued_samples.empty()) {
 			return;
 		}
-		const auto & sample = g_queued_samples.back();
-		g_queued_samples.pop();
+		const auto sample = std::move(g_queued_samples.front());
+		g_queued_samples.pop_front();
 		if (actually_play_streamed_sample(sample.fname.c_str(), sample.volume)) {
 			return;
 		}
@@ -487,8 +489,7 @@ void SDLCALL on_channel_finished(int channel) {
 
 void SDLCALL on_music_finished() {
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
-	Mix_FreeMusic(g_mix_music);
-	g_mix_music = nullptr;
+	Mix_FreeMusic(g_mix_music.exchange(nullptr));
 }
 
 } // local
@@ -525,15 +526,17 @@ extern "C" TbBool play_music(const char * fname) {
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
 	game.music_track = -1;
 	snprintf(game.music_fname, sizeof(game.music_fname), "%s", fname);
-	Mix_FreeMusic(g_mix_music);
-	g_mix_music = Mix_LoadMUS(game.music_fname);
-	if (!g_mix_music) {
+	Mix_FreeMusic(g_mix_music.exchange(nullptr));
+	const auto music = Mix_LoadMUS(game.music_fname);
+	if (!music) {
 		WARNLOG("Cannot load music from %s: %s", game.music_fname, Mix_GetError());
 		return false;
-	} else if (Mix_PlayMusic(g_mix_music, -1) != 0) {
+	} else if (Mix_PlayMusic(music, -1) != 0) {
+		Mix_FreeMusic(music);
 		WARNLOG("Cannot play music from %s: %s", game.music_fname, Mix_GetError());
 		return false;
 	}
+	g_mix_music = music;
 	JUSTLOG("Playing %s", game.music_fname);
 	return true;
 }
@@ -845,7 +848,7 @@ extern "C" TbBool play_streamed_sample(const char* fname, SoundVolume volume)
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
 	if (speech_sample_playing()) {
 		try {
-			g_queued_samples.emplace(queued_sample{fname, volume});
+			g_queued_samples.emplace_back(queued_sample{fname, volume});
 			return true;
 		} catch (const std::exception & e) {
 			ERRORLOG("Cannot add sample to queue: %s", e.what());
@@ -860,8 +863,7 @@ extern "C" void stop_streamed_samples()
 	{
 		// this is intentionally in its own scope to prevent double-locking the mutex
 		std::lock_guard<std::mutex> guard(g_mix_mutex);
-		// there is no clear() for some reason, sigh...
-		while (!g_queued_samples.empty()) g_queued_samples.pop();
+		g_queued_samples.clear();
 	}
 	Mix_HaltChannel(MIX_SPEECH_CHANNEL);
 }
