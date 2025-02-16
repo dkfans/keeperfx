@@ -316,7 +316,7 @@ function RESET_ACTION_POINT(action_point) end
 ---returns the amount of creatures at the ap
 ---@param action_point integer
 ---@param player playerrange
----@param creature_type creature_type
+---@param creature_type creature_type|"ANY_CREATURE"
 ---@return integer amount amount of creatures matching the conditions
 ---@nodiscard
 function COUNT_CREATURES_AT_ACTION_POINT(action_point,player,creature_type) return 0 end
@@ -845,6 +845,15 @@ function USE_POWER(caster_player,power_name,free) end
 ---@param free boolean
 function USE_POWER_AT_LOCATION(caster_player,location,power_name,power_level,free) end
 
+---Casts a keeper power at specific map location through the level script.
+---@param caster_player Player
+---@param stl_x integer
+---@param stl_y integer
+---@param power_name power_kind
+---@param power_level integer
+---@param free boolean
+function USE_POWER_AT_POS(caster_player,stl_x,stl_y,power_name,power_level,free) end
+
 ---Casts a keeper power on a specific creature. It also accepts non-targeted powers like POWER_SIGHT, which will simply use the location of the unit.
 ---@param creature Creature
 ---@param caster_player Player
@@ -990,7 +999,7 @@ function Creature:TeleportCreature(location,effect) end
 function Creature:walkTo(stl_x,stl_y) end
 
 ---Kills the unit
-function Creature:kill() end
+function Creature:KillCreature() end
 
 ---increases creatures level by a given amount
 ---@param levels integer

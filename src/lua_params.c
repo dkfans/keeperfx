@@ -400,11 +400,12 @@ long luaL_checkCreature_or_creature_wildcard(lua_State *L, int index)
         {
             return CREATURE_NOT_A_DIGGER; //For scripts, when we say 'ANY_CREATURE' we exclude diggers.
         }
+
         luaL_argcheck(L,id != -1,index,"invalid namedcommandoption");
 
         return id;
     }
-    luaL_argerror(L,index,"invalid namedcommandoption");
+    luaL_argerror(L,index,"invalid creature type");
     return 0;
 
 }

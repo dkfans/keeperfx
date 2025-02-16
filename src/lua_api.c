@@ -267,7 +267,7 @@ static int lua_COUNT_CREATURES_AT_ACTION_POINT(lua_State *L)
 {
     ActionPointId ap_idx = luaL_checkActionPoint(L, 1);
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 2);
-    long crtr_model = luaL_checkNamedCommand(L,3,creature_desc);
+    long crtr_model = luaL_checkCreature_or_creature_wildcard(L,3);
 
     long sum = 0;
     for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
