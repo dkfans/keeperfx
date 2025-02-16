@@ -982,6 +982,9 @@ function isActionPointActivatedByPlayer(player,action_point) return true end
 --Thing Functions
 -------------------------------------------------------
 
+---checks wether the given thing still exists
+function Thing:isValid() end
+
 ---comment
 function Thing:DeleteThing() end
 

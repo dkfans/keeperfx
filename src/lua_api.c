@@ -739,6 +739,17 @@ static int lua_SET_DOOR(lua_State *L)
     return 0;
 }
 
+static int lua_ADD_HEART_HEALTH(lua_State *L)
+{
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L,1);
+    HitPoints healthdelta = lua_tointeger(L,2);
+    TbBool warn_on_damage = lua_toboolean(L,3);
+    
+    add_heart_health(plyr_idx,healthdelta,warn_on_damage);
+    return 0;
+}
+
+
 static int lua_ADD_OBJECT_TO_LEVEL(lua_State *L)
 {
     long obj_id            = luaL_checkNamedCommand(L,1,object_desc);
@@ -1752,7 +1763,6 @@ static int lua_run_dkscript_command(lua_State *L)
     return 0;
 }
 
-
 static const luaL_Reg global_methods[] = {
 //Setup Commands
    {"SET_GENERATE_SPEED"            ,lua_SET_GENERATE_SPEED           },
@@ -1812,6 +1822,7 @@ static const luaL_Reg global_methods[] = {
    {"REVEAL_MAP_RECT"                      ,lua_REVEAL_MAP_RECT                 },
    {"CONCEAL_MAP_RECT"                     ,lua_CONCEAL_MAP_RECT                },
    {"SET_DOOR"                             ,lua_SET_DOOR                        },
+   {"ADD_HEART_HEALTH"                     ,lua_ADD_HEART_HEALTH                },
    {"ADD_OBJECT_TO_LEVEL"                  ,lua_ADD_OBJECT_TO_LEVEL             },
    {"ADD_OBJECT_TO_LEVEL_AT_POS"           ,lua_ADD_OBJECT_TO_LEVEL_AT_POS      },
    {"ADD_EFFECT_GENERATOR_TO_LEVEL"        ,lua_ADD_EFFECT_GENERATOR_TO_LEVEL   },
@@ -1939,6 +1950,12 @@ static int lua_delete_thing(lua_State *L)
     delete_thing_structure(thing,0);
     return 0;
 }
+
+static int lua_is_valid(lua_State *L)
+{
+    return luaL_isThing(L,1);
+}
+
 
 static int lua_creature_walk_to(lua_State *L)
 {
@@ -2084,6 +2101,11 @@ static int thing_get_field(lua_State *L) {
 
 static int thing_eq(lua_State *L) {
 
+    if (!lua_isnone(L, 1) || !lua_isnone(L, 2)) {
+        JUSTLOG("non");
+        return 1;
+    }
+
     if (!lua_istable(L, 1) || !lua_istable(L, 2)) {
         luaL_error(L, "Expected a table");
         return 1;
@@ -2141,6 +2163,7 @@ static const struct luaL_Reg thing_methods[] = {
     {"CreatureWalkTo",  lua_creature_walk_to},
     {"KillCreature",    lua_kill_creature},
     {"DeleteThing",     lua_delete_thing},
+    {"isValid",         lua_is_valid},
     
    {"TRANSFER_CREATURE"                    ,lua_TRANSFER_CREATURE               },
    {"LEVEL_UP_CREATURE"                    ,lua_LEVEL_UP_CREATURE               },

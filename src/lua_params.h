@@ -30,6 +30,8 @@ struct PlayerRange
     PlayerNumber start_idx;
     PlayerNumber end_idx;
 };
+/****   Checks  *******/
+TbBool luaL_isThing(lua_State *L, int index);
 
 /****   Inputs  *******/
 long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
