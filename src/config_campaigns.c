@@ -30,7 +30,6 @@
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
 #include "map_data.h"
-#include "music_player.h"
 
 #include "game_merge.h"
 #include "post_inc.h"
@@ -1121,7 +1120,6 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
         if (fgroup == FGrp_Campgn) {
             setup_campaign_credits_data(campgn);
         }
-        load_campaign_soundtrack(campgn);
     }
     if (result && fgroup == FGrp_Campgn)
         return (campgn->single_levels_count > 0) || (campgn->multi_levels_count > 0);

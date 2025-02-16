@@ -832,9 +832,9 @@ long LbDiagonalLength(long a, long b)
     return (tmpval >> 13);
 }
 
-float LbLerp(float a, float b, float f)
+float LbLerp(float low, float high, float interval)
 {
-    return (a * (1.0 - f)) + (b * f);
+    return (low * (1.0 - interval)) + (high * interval);
 }
 
 long lerp_angle(long from, long to, float weight) {

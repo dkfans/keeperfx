@@ -93,8 +93,6 @@
 #include "lua_triggers.h"
 
 #include "keeperfx.hpp"
-
-#include "music_player.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -289,13 +287,11 @@ void process_pause_packet(long curr_pause, long new_pause)
         if ((game.operation_flags & GOF_Paused) != 0)
         {
           SetSoundMasterVolume(settings.sound_volume >> 1);
-          SetMusicPlayerVolume(settings.redbook_volume >> 1);
-          SetMusicMasterVolume(settings.sound_volume >> 1);
+          set_music_volume(settings.music_volume >> 1);
         } else
         {
           SetSoundMasterVolume(settings.sound_volume);
-          SetMusicPlayerVolume(settings.redbook_volume);
-          SetMusicMasterVolume(settings.sound_volume);
+          set_music_volume(settings.music_volume);
         }
       }
       if ((game.operation_flags & GOF_Paused) != 0)
