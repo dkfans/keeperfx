@@ -31,7 +31,6 @@
 #include "gui_draw.h"
 #include "config_strings.h"
 #include "gui_frontbtns.h"
-#include "music_player.h"
 #include "frontend.h"
 #include "front_input.h"
 #include "kjm_input.h"
@@ -317,14 +316,13 @@ void gui_set_sound_volume(struct GuiButton *gbtn)
     settings.sound_volume = new_val;
     save_settings();
     SetSoundMasterVolume(new_val);
-    SetMusicMasterVolume(new_val);
 }
 
 void gui_set_music_volume(struct GuiButton *gbtn)
 {
-    settings.redbook_volume = make_audio_slider_nonlinear(gbtn->content.lval);
+    settings.music_volume = make_audio_slider_nonlinear(gbtn->content.lval);
     save_settings();
-    SetMusicPlayerVolume(settings.redbook_volume);
+    set_music_volume(settings.music_volume);
 }
 
 void gui_set_mentor_volume(struct GuiButton *gbtn)
@@ -405,7 +403,7 @@ void init_video_menu(struct GuiMenu *gmnu)
  */
 void init_audio_menu(struct GuiMenu *gmnu)
 {
-    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.redbook_volume);
+    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.music_volume);
     get_gui_button_init(gmnu, BID_SOUND_VOL)->content.lval = make_audio_slider_linear(settings.sound_volume);
     get_gui_button_init(gmnu, BID_MENTOR_VOL)->content.lval = make_audio_slider_linear(settings.mentor_volume);
 }

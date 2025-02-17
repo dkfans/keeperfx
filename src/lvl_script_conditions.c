@@ -298,6 +298,9 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short val
     case SVar_VIEW_TYPE:
         player = get_player(plyr_idx);
         return player->view_type;
+    case SVar_TOTAL_SLAPS:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.num_slaps;
     default:
         break;
     };

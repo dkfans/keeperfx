@@ -530,3 +530,8 @@ msgstr ""
 msgctxt "Level name"
 msgid "Syndika"
 msgstr ""
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Under Kagi Juuji Shrine"
+msgstr ""
