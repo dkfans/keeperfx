@@ -15,7 +15,6 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "lvl_script_commands_old.h"
-
 #include "bflib_math.h"
 #include "config_strings.h"
 #include "config_magic.h"
@@ -26,9 +25,8 @@
 #include "lvl_filesdk1.h"
 #include "game_merge.h"
 #include "game_legacy.h"
-#include "music_player.h"
 #include "keeperfx.hpp"
-
+#include "bflib_sndlib.h"
 #include "lvl_script_value.h"
 #include "lvl_script_lib.h"
 #include "lvl_script_conditions.h"
@@ -584,19 +582,17 @@ static void command_add_creature_to_pool(const char *crtr_name, long amount)
 
 static void command_set_music(long val)
 {
-  if (get_script_current_condition() != CONDITION_ALWAYS)
-  {
-    SCRPTWRNLOG("Music set inside conditional block; condition ignored");
-  }
-  if (val >= FIRST_TRACK && val <= max_track)
-  {
-    game.audiotrack = val;
-  }
-  else
-  {
-    SCRPTERRLOG("Invalid music track %ld, track must be between %d and %d", val,FIRST_TRACK,max_track);
-    return;
-  }
+    if (get_script_current_condition() != CONDITION_ALWAYS)
+    {
+        SCRPTWRNLOG("Music set inside conditional block; condition ignored");
+    }
+    if (val == 0) {
+        SCRPTLOG("Stopping music");
+        stop_music();
+    } else {
+        SCRPTLOG("Playing music track %ld", val);
+        play_music_track(val);
+    }
 }
 
 static void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, long hate_val)

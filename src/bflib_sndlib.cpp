@@ -1,5 +1,6 @@
 #include "pre_inc.h"
 #include "config.h"
+#include "cdrom.h"
 #include "bflib_sndlib.h"
 #include "bflib_datetm.h"
 #include "bflib_sound.h"
@@ -17,8 +18,9 @@
 #include <string>
 #include <utility>
 #include <array>
-#include <queue>
+#include <deque>
 #include <mutex>
+#include <atomic>
 #include "post_inc.h"
 
 namespace {
@@ -43,6 +45,7 @@ SoundVolume g_master_volume = 0;
 SoundVolume g_music_volume = 0;
 ALCdevice_ptr g_openal_device;
 ALCcontext_ptr g_openal_context;
+std::atomic<Mix_Music *> g_mix_music;
 bool g_bb_king_mode = false;
 
 enum source_flags {
@@ -439,7 +442,7 @@ void print_device_info() {
 	}
 }
 
-Mix_Chunk * g_streamed_sample = nullptr;
+std::atomic<Mix_Chunk *> g_streamed_sample;
 std::mutex g_mix_mutex;
 
 struct queued_sample {
@@ -447,20 +450,22 @@ struct queued_sample {
 	SoundVolume volume;
 };
 
-std::queue<queued_sample> g_queued_samples;
+std::deque<queued_sample> g_queued_samples;
 
 TbBool actually_play_streamed_sample(const char * fname, SoundVolume volume) {
-	g_streamed_sample = Mix_LoadWAV(fname);
-	if (g_streamed_sample == NULL) {
+	const auto sample = Mix_LoadWAV(fname);
+	if (sample == NULL) {
 		ERRORLOG("Cannot load \"%s\": %s", fname, Mix_GetError());
 		return false;
 	}
 	// SoundVolume ranges 0..255 but MIX_MAX_VOLUME ranges 0..128
-	Mix_VolumeChunk(g_streamed_sample, volume / 2);
-	if (Mix_PlayChannel(MIX_SPEECH_CHANNEL, g_streamed_sample, 0) == -1) {
+	Mix_VolumeChunk(sample, volume / 2);
+	if (Mix_PlayChannel(MIX_SPEECH_CHANNEL, sample, 0) == -1) {
+		Mix_FreeChunk(sample);
 		ERRORLOG("Cannot play \"%s\": %s", fname, Mix_GetError());
 		return false;
 	}
+	g_streamed_sample = sample;
 	return true;
 }
 
@@ -469,18 +474,22 @@ void SDLCALL on_channel_finished(int channel) {
 		return;
 	}
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
-	Mix_FreeChunk(g_streamed_sample);
-	g_streamed_sample = nullptr;
+	Mix_FreeChunk(g_streamed_sample.exchange(nullptr));
 	while (true) {
 		if (g_queued_samples.empty()) {
 			return;
 		}
-		const auto & sample = g_queued_samples.back();
-		g_queued_samples.pop();
+		const auto sample = std::move(g_queued_samples.front());
+		g_queued_samples.pop_front();
 		if (actually_play_streamed_sample(sample.fname.c_str(), sample.volume)) {
 			return;
 		}
 	}
+}
+
+void SDLCALL on_music_finished() {
+	std::lock_guard<std::mutex> guard(g_mix_mutex);
+	Mix_FreeMusic(g_mix_music.exchange(nullptr));
 }
 
 } // local
@@ -502,12 +511,84 @@ extern "C" void SetSoundMasterVolume(SoundVolume volume) {
 		}
 		g_master_volume = volume;
 	} catch (const std::exception & e) {
-		LbErrorLog("%s", e.what());
+		ERRORLOG("%s", e.what());
 	}
 }
 
-extern "C" void SetMusicMasterVolume(SoundVolume value) {
+extern "C" void set_music_volume(SoundVolume value) {
 	g_music_volume = value;
+	SetRedbookVolume(value);
+	// convert 0..256 to 0..128
+	Mix_VolumeMusic(LbLerp(0, MIX_MAX_VOLUME, float(value) / FULL_LOUDNESS));
+}
+
+extern "C" TbBool play_music(const char * fname) {
+	std::lock_guard<std::mutex> guard(g_mix_mutex);
+	game.music_track = -1;
+	snprintf(game.music_fname, sizeof(game.music_fname), "%s", fname);
+	Mix_FreeMusic(g_mix_music.exchange(nullptr));
+	const auto music = Mix_LoadMUS(game.music_fname);
+	if (!music) {
+		WARNLOG("Cannot load music from %s: %s", game.music_fname, Mix_GetError());
+		return false;
+	} else if (Mix_PlayMusic(music, -1) != 0) {
+		Mix_FreeMusic(music);
+		WARNLOG("Cannot play music from %s: %s", game.music_fname, Mix_GetError());
+		return false;
+	}
+	g_mix_music = music;
+	JUSTLOG("Playing %s", game.music_fname);
+	return true;
+}
+
+extern "C" TbBool play_music_track(int track) {
+	game.music_track = track;
+	memset(game.music_fname, 0, sizeof(game.music_fname));
+	if (game.music_track == 0) {
+		stop_music();
+		return true;
+	} else if (features_enabled & Ft_NoCdMusic) {
+		return play_music(prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", track));
+	} else {
+		if (PlayRedbookTrack(track)) {
+			JUSTLOG("Playing track %d", game.music_track);
+			return true;
+		} else {
+			WARNLOG("Cannot play track %d", game.music_track);
+			return false;
+		}
+	}
+}
+
+extern "C" void pause_music() {
+	JUSTLOG("Pausing music");
+	if (features_enabled & Ft_NoCdMusic) {
+		Mix_PauseMusic();
+	} else {
+		PauseRedbookTrack();
+	}
+}
+
+extern "C" void resume_music() {
+	JUSTLOG("Resuming music");
+	if (features_enabled & Ft_NoCdMusic) {
+		Mix_ResumeMusic();
+	} else {
+		ResumeRedbookTrack();
+	}
+}
+
+extern "C" void stop_music() {
+	JUSTLOG("Stopping music");
+	game.music_track = 0;
+	memset(game.music_fname, 0, sizeof(game.music_fname));
+	if (features_enabled & Ft_NoCdMusic) {
+		if (Mix_FadingMusic() != MIX_FADING_OUT) {
+			Mix_FadeOutMusic(1000);
+		}
+	} else {
+		StopRedbookTrack();
+	}
 }
 
 extern "C" TbBool GetSoundInstalled() {
@@ -523,7 +604,7 @@ extern "C" void MonitorStreamedSoundTrack() {
 				source.bank_id = 0;
 			}
 		} catch (const std::exception & e) {
-			LbErrorLog("%s", e.what());
+			ERRORLOG("%s", e.what());
 		}
 	}
 }
@@ -539,7 +620,7 @@ extern "C" void StopAllSamples() {
 		try {
 			source.stop();
 		} catch (const std::exception & e) {
-			LbErrorLog("%s", e.what());
+			ERRORLOG("%s", e.what());
 		}
 	}
 }
@@ -552,11 +633,11 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 			g_bb_king_mode |= ((date.Day == 1) && (date.Month = 2));
 		}
 		if (SoundDisabled) {
-			LbWarnLog("Sound is disabled, skipping OpenAL initialization");
+			WARNLOG("Sound is disabled, skipping OpenAL initialization");
 			return false;
 		}
 		if (g_openal_device || g_openal_context) {
-			LbWarnLog("OpenAL already initialized");
+			WARNLOG("OpenAL already initialized");
 			return true;
 		}
 		print_device_info();
@@ -579,7 +660,7 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 		g_openal_context = std::move(context);
 		return true;
 	} catch (const std::exception & e) {
-		LbErrorLog("%s", e.what());
+		ERRORLOG("%s", e.what());
 	}
 	SoundDisabled = true;
 	return false;
@@ -593,7 +674,7 @@ extern "C" TbBool IsSamplePlaying(SoundMilesID mss_id) {
 			}
 		}
 	} catch (const std::exception & e) {
-		LbErrorLog("%s", e.what());
+		ERRORLOG("%s", e.what());
 	}
 	return false;
 }
@@ -608,7 +689,7 @@ extern "C" void SetSampleVolume(SoundEmitterID emit_id, SoundSmplTblID smptbl_id
 			try {
 				source.gain(volume);
 			} catch (const std::exception & e) {
-				LbErrorLog("%s", e.what());
+				ERRORLOG("%s", e.what());
 			}
 		}
 	}
@@ -620,7 +701,7 @@ extern "C" void SetSamplePan(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, S
 			try {
 				source.pan(pan);
 			} catch (const std::exception & e) {
-				LbErrorLog("%s", e.what());
+				ERRORLOG("%s", e.what());
 			}
 		}
 	}
@@ -636,7 +717,7 @@ extern "C" void SetSamplePitch(SoundEmitterID emit_id, SoundSmplTblID smptbl_id,
 					source.pitch(pitch);
 				}
 			} catch (const std::exception & e) {
-				LbErrorLog("%s", e.what());
+				ERRORLOG("%s", e.what());
 			}
 		}
 	}
@@ -653,15 +734,15 @@ extern "C" SoundMilesID play_sample(
 	SoundBankID bank_id
 ) {
 	if (emit_id <= 0) {
-		LbErrorLog("Can't play sample %d from bank %u, invalid emitter ID", smptbl_id, bank_id);
+		ERRORLOG("Can't play sample %d from bank %u, invalid emitter ID", smptbl_id, bank_id);
 		return 0;
 	} else if (bank_id > g_banks.size()) {
-		LbErrorLog("Can't play sample %d from bank %u, invalid bank ID", smptbl_id, bank_id);
+		ERRORLOG("Can't play sample %d from bank %u, invalid bank ID", smptbl_id, bank_id);
 		return 0;
 	} else if (smptbl_id == 0) {
 		return 0; // silently ignore
 	} else if (smptbl_id <= 0 || smptbl_id >= g_banks[bank_id].size()) {
-		LbErrorLog("Can't play sample %d from bank %u, invalid sample ID", smptbl_id, bank_id);
+		ERRORLOG("Can't play sample %d from bank %u, invalid sample ID", smptbl_id, bank_id);
 		return 0;
 	}
 	try {
@@ -688,10 +769,10 @@ extern "C" SoundMilesID play_sample(
 				return source.mss_id;
 			}
 		}
-		LbErrorLog("Can't play sample %d from bank %u, too many samples playing at once", smptbl_id, bank_id);
+		ERRORLOG("Can't play sample %d from bank %u, too many samples playing at once", smptbl_id, bank_id);
 		return 0;
 	} catch (const std::exception & e) {
-		LbErrorLog("%s", e.what());
+		ERRORLOG("%s", e.what());
 	}
 	return 0;
 }
@@ -705,7 +786,7 @@ extern "C" void stop_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, So
 				source.smptbl_id = 0;
 				source.bank_id = 0;
 			} catch (const std::exception & e) {
-				LbErrorLog("%s", e.what());
+				ERRORLOG("%s", e.what());
 			}
 		}
 	}
@@ -735,6 +816,7 @@ extern "C" int InitialiseSDLAudio()
 	}
 	Mix_ReserveChannels(1); // reserve for external speech samples
 	Mix_ChannelFinished(on_channel_finished); // register callback so we can do things
+	Mix_HookMusicFinished(on_music_finished); // register callback so we can do things
 	return flags;
 }
 
@@ -766,7 +848,7 @@ extern "C" TbBool play_streamed_sample(const char* fname, SoundVolume volume)
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
 	if (speech_sample_playing()) {
 		try {
-			g_queued_samples.emplace(queued_sample{fname, volume});
+			g_queued_samples.emplace_back(queued_sample{fname, volume});
 			return true;
 		} catch (const std::exception & e) {
 			ERRORLOG("Cannot add sample to queue: %s", e.what());
@@ -781,8 +863,7 @@ extern "C" void stop_streamed_samples()
 	{
 		// this is intentionally in its own scope to prevent double-locking the mutex
 		std::lock_guard<std::mutex> guard(g_mix_mutex);
-		// there is no clear() for some reason, sigh...
-		while (!g_queued_samples.empty()) g_queued_samples.pop();
+		g_queued_samples.clear();
 	}
 	Mix_HaltChannel(MIX_SPEECH_CHANNEL);
 }
