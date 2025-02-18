@@ -19,7 +19,6 @@
             "room_library.h": "c",
             "signal.h": "c",
             "ctype.h": "c",
-            "music_player.h": "c",
             "player_utils.h": "c",
             "player_data.h": "c",
             "thing_physics.h": "c",

@@ -5,6 +5,7 @@
 #include "../deps/luajit/src/lualib.h"
 
 #include "bflib_basics.h"
+#include "bflib_sndlib.h"
 #include "globals.h"
 #include "thing_data.h"
 #include "creature_states.h"
@@ -18,7 +19,6 @@
 #include "room_library.h"
 #include "room_util.h"
 #include "keeperfx.hpp"
-#include "music_player.h"
 #include "power_specials.h"
 #include "thing_creature.h"
 #include "thing_effects.h"
@@ -1372,11 +1372,18 @@ static int lua_CREATE_EFFECTS_LINE(lua_State *L)
 
 static int lua_SET_MUSIC(lua_State *L)
 {
-    long track_number                  = luaL_checkinteger(L, 1);
-
-    if (track_number >= FIRST_TRACK && track_number <= max_track)
-    {
-        game.audiotrack = track_number;
+    if (lua_isnumber(L, 1)) {
+        
+        long track_number = luaL_checkinteger(L, 1);
+        if (track_number == 0) {
+            stop_music();
+        }
+        else {
+            play_music_track(track_number);
+        }
+    } else {
+        const char *track_name = luaL_checkstring(L, 1);
+        play_music(prepare_file_fmtpath(FGrp_CmpgMedia, "%s", track_name));
     }
     return 0;
 }
@@ -2101,10 +2108,7 @@ static int thing_get_field(lua_State *L) {
 
 static int thing_eq(lua_State *L) {
 
-    if (!lua_isnone(L, 1) || !lua_isnone(L, 2)) {
-        JUSTLOG("non");
-        return 1;
-    }
+
 
     if (!lua_istable(L, 1) || !lua_istable(L, 2)) {
         luaL_error(L, "Expected a table");

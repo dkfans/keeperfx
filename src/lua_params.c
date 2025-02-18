@@ -19,7 +19,6 @@
 #include "lvl_script_lib.h"
 #include "room_library.h"
 #include "keeperfx.hpp"
-#include "music_player.h"
 #include "lua_base.h"
 
 
