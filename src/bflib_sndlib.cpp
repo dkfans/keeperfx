@@ -488,7 +488,7 @@ void SDLCALL on_channel_finished(int channel) {
 }
 
 void SDLCALL on_music_finished() {
-	std::lock_guard<std::mutex> guard(g_mix_mutex);
+	// don't grab mutex or we'll deadlock, just free memory
 	Mix_FreeMusic(g_mix_music.exchange(nullptr));
 }
 
@@ -526,7 +526,8 @@ extern "C" TbBool play_music(const char * fname) {
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
 	game.music_track = -1;
 	snprintf(game.music_fname, sizeof(game.music_fname), "%s", fname);
-	Mix_FreeMusic(g_mix_music.exchange(nullptr));
+	// Mix_PlayMusic will stop anything currently playing and eventually
+	// calls on_music_finished so theres no need to call Mix_FreeMusic first.
 	const auto music = Mix_LoadMUS(game.music_fname);
 	if (!music) {
 		WARNLOG("Cannot load music from %s: %s", game.music_fname, Mix_GetError());
@@ -536,6 +537,7 @@ extern "C" TbBool play_music(const char * fname) {
 		WARNLOG("Cannot play music from %s: %s", game.music_fname, Mix_GetError());
 		return false;
 	}
+	// g_mix_music will be null here as Mix_PlayMusic ends up calling on_music_finished
 	g_mix_music = music;
 	JUSTLOG("Playing %s", game.music_fname);
 	return true;
