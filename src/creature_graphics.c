@@ -299,7 +299,6 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
     }
     *unsc_w += kspr->offset_x;
     *unsc_h += kspr->offset_y;
-
 }
 
 short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
