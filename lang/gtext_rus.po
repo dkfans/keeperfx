@@ -2401,7 +2401,7 @@ msgctxt "Creature spell"
 msgid ""
 "Fart: A close range gas attack that only damages enemy creatures."
 msgstr ""
-Пердеж: Газовая атака, которая наносит урон врагам поблизости. Союзники привыкли.
+"Пердеж: Газовая атака, которая наносит урон врагам поблизости. Союзники привыкли."
 
 #: guitext:254
 msgctxt "Creature spell"

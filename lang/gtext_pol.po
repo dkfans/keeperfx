@@ -6635,7 +6635,7 @@ msgstr "Zdrowie: Ilość punktów zdrowia, która pozostała stworowi."
 msgctxt "In-game interface description"
 msgid ""
 "Health: The maximum amount of health points for this creature."
-msgstr "Zdrowie: Maksymalna ilość punktów zdrowia stwora.""
+msgstr "Zdrowie: Maksymalna ilość punktów zdrowia stwora."
 
 #: guitext:967
 msgctxt "Menu interface item"

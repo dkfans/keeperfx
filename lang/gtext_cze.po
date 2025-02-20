@@ -2299,7 +2299,6 @@ msgstr "Boj zblizka:"
 msgctxt "Creature spell"
 msgid ""
 "Fart: A close range gas attack that only damages enemy creatures."
-msgstr ""
 msgstr "Jedovaty mrak:"
 
 #: guitext:254
@@ -6497,18 +6496,17 @@ msgstr ""
 
 #: guitext:963
 msgctxt "Keeper spell description"
+msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. Just don't hold them forever or they may get irritated."
+msgstr ""
+
+#: guitext:964
+msgctxt "Keeper spell description"
 msgid ""
 "Slap: Makes your creatures work harder, for some time. Your creatures take "
 "some damage from each slap they receive."
 msgstr ""
 "Proplesknutí: Přinutí tvé potvory pracovat rychleji. Každý takový úder jim "
 "však ubere trochu života."
-
-#: guitext:964
-msgctxt "Keeper spell description"
-msgid "Slap: Makes your creatures work harder, for some time. "
-"Your creatures take some damage from each slap they receive."
-msgstr ""
 
 #: guitext:965
 msgctxt "In-game interface description"
@@ -6935,7 +6933,7 @@ msgstr "Pohled"
 #: guitext:1059
 msgctxt "Dungeon special decription"
 msgid "Heal All: Restore full health to all your creatures."
-msgstr ""Uzdrav všechny: Všechna tvá stvoření jsou vyléčena."
+msgstr "Uzdrav všechny: Všechna tvá stvoření jsou vyléčena."
 
 #: guitext:1060
 msgctxt "Dungeon special decription"
