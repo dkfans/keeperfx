@@ -7044,3 +7044,18 @@ msgstr ""
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
 msgstr ""
+
+#: guitext:1078 guitext:1079
+msgctxt "Unused"
+msgid "Moo9"
+msgstr ""
+
+#: guitext:1080
+msgctxt "Creature spell"
+msgid "Familiar: Summons a companion to guard and assist the creature."
+msgstr ""
+
+#: guitext:1081
+msgctxt "Creature spell"
+msgid "Summon: Call upon temporary guardians to assist the creature in combat."
+msgstr ""
