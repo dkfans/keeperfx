@@ -88,7 +88,7 @@ static int lua_ALLY_PLAYERS(lua_State *L)
     PlayerNumber player_idx = luaL_checkPlayerSingle(L,2);
     uchar state = luaL_checkinteger(L, 3);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         set_ally_with_player(i, player_idx,   (state & 1) ? true : false);
         set_ally_with_player(player_idx, i,   (state & 1) ? true : false);
@@ -103,7 +103,7 @@ static int lua_START_MONEY(lua_State *L)
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     GoldAmount gold_val = luaL_checkinteger(L, 2);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         if (gold_val > SENSIBLE_GOLD)
         {
@@ -121,7 +121,7 @@ static int lua_MAX_CREATURES(lua_State *L)
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     long max_amount                 = luaL_checkinteger(L, 2);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         SYNCDBG(4,"Setting player %d max attracted creatures to %d.",(int)i,(int)max_amount);
         struct Dungeon* dungeon = get_dungeon(i);
@@ -148,7 +148,7 @@ static int lua_CREATURE_AVAILABLE(lua_State *L)
     TbBool can_be_attracted         = lua_toboolean(L, 3);
     long amount_forced              = luaL_checkinteger(L, 4);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         if (!set_creature_available(i,cr_kind,can_be_attracted,amount_forced))
             WARNLOG("Setting creature %s availability for player %d failed.",creature_code_name(cr_kind),(int)i);
@@ -170,7 +170,7 @@ static int lua_ROOM_AVAILABLE(lua_State *L)
     TbBool can_be_available         = lua_toboolean(L, 3);
     TbBool is_available             = lua_toboolean(L, 4);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         set_room_available(i,rkind,can_be_available,is_available);
     }
@@ -184,7 +184,7 @@ static int lua_MAGIC_AVAILABLE(lua_State *L)
     TbBool can_be_available         = lua_toboolean(L, 3);
     TbBool is_available             = lua_toboolean(L, 4);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         set_power_available(i,power,can_be_available,is_available);
     }
@@ -198,7 +198,7 @@ static int lua_DOOR_AVAILABLE(lua_State *L)
     TbBool can_be_available         = lua_toboolean(L, 3);
     long number_available           = luaL_checkinteger(L, 4);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         set_door_buildable_and_add_to_amount(i, door_type, can_be_available, number_available);
     }
@@ -212,7 +212,7 @@ static int lua_TRAP_AVAILABLE(lua_State *L)
     TbBool can_be_available         = lua_toboolean(L, 3);
     long number_available           = luaL_checkinteger(L, 4);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         set_trap_buildable_and_add_to_amount(i, trap_type, can_be_available, number_available);
     }
@@ -236,7 +236,7 @@ static int lua_WIN_GAME(lua_State *L)
         player_range = luaL_checkPlayerRange(L, 1);
 
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct PlayerInfo *player = get_player(i);
         set_player_as_won_level(player);
@@ -255,7 +255,7 @@ static int lua_LOSE_GAME(lua_State *L)
     else
         player_range = luaL_checkPlayerRange(L, 1);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct PlayerInfo *player = get_player(i);
         set_player_as_lost_level(player);
@@ -270,7 +270,7 @@ static int lua_COUNT_CREATURES_AT_ACTION_POINT(lua_State *L)
     long crtr_model = luaL_checkCreature_or_creature_wildcard(L,3);
 
     long sum = 0;
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         sum += count_player_creatures_of_model_in_action_point(i, crtr_model, ap_idx);
     }
@@ -283,7 +283,7 @@ static int lua_SET_TIMER(lua_State *L)
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     long timr_id              = luaL_checkNamedCommand(L,2,timer_desc);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         restart_script_timer(i, timr_id);
     }
@@ -296,7 +296,7 @@ static int lua_ADD_TO_TIMER(lua_State *L)
     long timr_id              = luaL_checkNamedCommand(L,2,timer_desc);
     long amount               = luaL_checkinteger(L, 3);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         add_to_script_timer(i, timr_id, amount);
     }
@@ -666,7 +666,7 @@ static int lua_REVEAL_MAP_LOCATION(lua_State *L)
 
 
     SYNCDBG(0, "Revealing location type %lu", target);
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         long x = 0;
         long y = 0;
@@ -695,7 +695,7 @@ static int lua_REVEAL_MAP_RECT(lua_State *L)
     MapSubtlDelta width    = lua_tointeger(L,4);
     MapSubtlDelta height   = lua_tointeger(L,5);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         player_reveal_map_area(i,stl_x,stl_y,width,height);
     }
@@ -710,7 +710,7 @@ static int lua_CONCEAL_MAP_RECT(lua_State *L)
     MapSubtlDelta height   = lua_tointeger(L,5);
     TbBool conceal_all     = lua_toboolean(L,6);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         player_conceal_map_area(i,stl_x,stl_y,width,height,conceal_all);
     }
@@ -984,7 +984,7 @@ static int lua_SET_CREATURE_MAX_LEVEL(lua_State *L)
     long crtr_model                 = luaL_checkNamedCommand(L,2,creature_desc);
     long max_level                  = luaL_checkinteger(L, 3);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct Dungeon* dungeon = get_dungeon(i);
         if (dungeon_invalid(dungeon))
@@ -1004,7 +1004,7 @@ static int lua_SET_CREATURE_TENDENCIES(lua_State *L)
     int tendancy = luaL_checkNamedCommand(L, 2, tendency_desc);
     int val = luaL_checkinteger(L, 3);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct PlayerInfo *player = get_player(i);
         set_creature_tendencies(player, tendancy, val);
@@ -1023,7 +1023,7 @@ static int lua_CREATURE_ENTRANCE_LEVEL(lua_State *L)
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     unsigned char level = luaL_checkinteger(L, 4);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         struct Dungeon* dungeon = get_dungeon(i);
         if (dungeon_invalid(dungeon))
@@ -1056,7 +1056,7 @@ static int lua_RESEARCH(lua_State *L)
     }
     long research_value         = luaL_checkint(L, 4);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         update_or_add_players_research_amount(i, research_type, room_or_spell, research_value);
     }
@@ -1082,7 +1082,7 @@ static int lua_RESEARCH_ORDER(lua_State *L)
     }
     long research_value         = luaL_checkint(L, 4);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         if (!research_overriden_for_player(i))
             remove_all_research_from_player(i);
@@ -1261,7 +1261,7 @@ static int lua_USE_SPECIAL_INCREASE_LEVEL(lua_State *L)
         count = luaL_checkinteger(L, 2);
     }
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         script_use_special_increase_level(i,count);
     }
@@ -1272,7 +1272,7 @@ static int lua_USE_SPECIAL_MULTIPLY_CREATURES(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         script_use_special_multiply_creatures(i);
     }
@@ -1283,7 +1283,7 @@ static int lua_MAKE_SAFE(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         script_make_safe(i);
     }
@@ -1294,7 +1294,7 @@ static int lua_MAKE_UNSAFE(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         script_make_unsafe(i);
     }
@@ -1416,7 +1416,7 @@ static int lua_LOCK_POSSESSION(lua_State *L)
     TbBool locked = lua_toboolean(L, 2);
 
     struct PlayerInfo *player;
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         player = get_player(i);
         if (player_exists(player))
@@ -1586,7 +1586,7 @@ static int lua_CHANGE_CREATURES_ANNOYANCE(lua_State *L)
     long operation = luaL_checkNamedCommand(L,3,script_operator_desc);
     long anger = luaL_checkinteger(L, 4);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         script_change_creatures_annoyance(i, crmodel, operation, anger);
     }
@@ -1602,7 +1602,7 @@ static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
     GoldAmount gold = luaL_checkinteger(L, 2);
     JUSTLOG("gold %d",(int)gold);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         if(gold > 0)
         {
@@ -1621,7 +1621,7 @@ static int lua_SET_TEXTURE(lua_State *L)
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     long texture_id = luaL_checkNamedCommand(L,2,texture_pack_desc);
 
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         set_player_texture(i, texture_id);
     }
@@ -1633,7 +1633,7 @@ static int lua_SET_PLAYER_COLOR(lua_State *L)
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     long color = luaL_checkNamedCommand(L, 2,cmpgn_human_player_options);
     
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
         if (i == PLAYER_NEUTRAL)
         {
@@ -1648,7 +1648,7 @@ static int lua_SET_PLAYER_COLOR(lua_State *L)
 static int lua_SET_PLAYER_MODIFIER(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
     }
     return 0;
@@ -1657,7 +1657,7 @@ static int lua_SET_PLAYER_MODIFIER(lua_State *L)
 static int lua_ADD_TO_PLAYER_MODIFIER(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    for (PlayerNumber i = player_range.start_idx; i <= player_range.end_idx; i++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
     }
     return 0;
