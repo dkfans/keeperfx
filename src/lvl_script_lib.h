@@ -291,6 +291,7 @@ enum ScriptVariables {
   SVar_AVAILABLE_TOTAL_DOORS           = 83,
   SVar_AVAILABLE_TOTAL_CREATURES       = 84,
   SVar_DESTROYED_KEEPER                = 85,
+  SVar_TOTAL_SLAPS                     = 87,
  };
 
 
