@@ -1753,7 +1753,7 @@ static int lua_is_action_point_activated_by_player(lua_State *L)
     PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
     ActionPointId apt_idx = luaL_checkActionPoint(L, 2);
 
-    lua_pushboolean(L, action_point_activated_by_player(plyr_idx, apt_idx));
+    lua_pushboolean(L, action_point_activated_by_player(apt_idx, plyr_idx));
     return 1;
 }
 
