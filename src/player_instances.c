@@ -1188,7 +1188,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         if (take_money_from_dungeon(plyr_idx, roomst->cost, 1) < 0)
         {
             if (is_my_player(player))
-                output_message(SMsg_GoldNotEnough, 0, true);
+                output_message(SMsg_GoldNotEnough, 0);
             return INVALID_ROOM;
         }
         if (player->boxsize > 0)
@@ -1199,7 +1199,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     else
     {
         if (is_my_player(player))
-            output_message(SMsg_GoldNotEnough, 0, true);
+            output_message(SMsg_GoldNotEnough, 0);
         return INVALID_ROOM;
     }
     struct Room* room = place_room(plyr_idx, rkind, stl_x, stl_y);

@@ -790,7 +790,7 @@ long speech_sample_playing(void)
          return false;
      }
      SYNCDBG(17,"Starting");
-     if (Mix_Playing(MESSAGE_CHANNEL))
+     if (Mix_Playing(MIX_SPEECH_CHANNEL))
      {
          return true;
      }

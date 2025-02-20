@@ -326,12 +326,12 @@ void update_player_sounds(void)
                 {
                     // Replace SMsg_Glaagh with SMsg_PantsTooTight
                     // Most likely because 'Glaagh' is a bit negative in this scenario
-                    output_message(SMsg_PantsTooTight, 0, true);
+                    output_message(SMsg_PantsTooTight, 0);
                 }
                 else
                 {
                     // Play one of the speeches
-                    output_message(SMsg_FunnyMessages+k, 0, true);
+                    output_message(SMsg_FunnyMessages+k, 0);
                 }
             }
 
@@ -485,7 +485,7 @@ void sound_reinit_after_load(void)
     }
     ambient_sound_stop();
     stop_streamed_samples();
-    init_messages();
+    clear_messages();
     if (game.music_track < 0 && strlen(game.music_fname) > 0) {
         // play saved custom music
         play_music(game.music_fname);

@@ -2292,7 +2292,7 @@ void process_payday(void)
     }
     if (game.conf.rules.game.pay_day_gap <= game.pay_day_progress)
     {
-        output_message(SMsg_Payday, 0, true);
+        output_message(SMsg_Payday, 0);
         game.pay_day_progress = 0;
         // Prepare a list which counts how many creatures of each owner needs pay
         int player_paid_creatures_count[PLAYERS_COUNT];
