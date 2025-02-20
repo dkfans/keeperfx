@@ -212,7 +212,6 @@ end
 ---@param powerKind? power_kind the spell type that triggers the event
 ---@return Trigger
 function RegisterPowerCastEvent(action,powerKind)
-    print("RegisterPowerCastEvent",powerKind)
     local trigData = {PowerKind = powerKind}
     local trigger = CreateTrigger("PowerCast",action,trigData)
     if powerKind then
@@ -221,6 +220,45 @@ function RegisterPowerCastEvent(action,powerKind)
     return trigger
 end
 
+---@param action function|string the function to call when the event happens
+---@param player Player the function to call when the event happens
+---@return Trigger
+function RegisterDungeonDestroyedEvent(action,player)
+    local trigData = {Player = player}
+    local trigger = CreateTrigger("DungeonDestroyed",action,trigData)
+    if player then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.player == triggerData.player end)
+    end
+    return trigger
+end
+
+
+
+
+---functions like the IF_ACTION_POINT in dkscript
+---can be reset with the resetActionPoint script
+---@param action function|string the function to call when the event happens
+---@param actionPoint actionpoint the action point that triggers the event
+---@return Trigger
+function RegisterOnActionPointEvent(action, actionPoint, player)
+    local trigData = {Player = player,actionPoint = actionPoint, triggered = false}
+
+    local trigger = CreateTrigger("GameTick",action,trigData)
+    TriggerAddCondition(trigger, function(eventData,triggerData)  
+                                        if triggerData.triggered == false then
+                                            triggerData.triggered = isActionPointActivatedByPlayer(triggerData.Player,triggerData.actionPoint)
+                                            return triggerData.triggered
+                                        -- make the trigger resettable
+                                        elseif isActionPointActivatedByPlayer(triggerData.Player,triggerData.actionPoint) == false then
+                                            triggerData.triggered = false
+                                            return false
+                                        else
+                                            return false
+                                        end
+                                  end )
+
+    return trigger
+end
 
 --function Thing:RegisterSpecialActivatedEvent(action) 
 --    local trigger = CreateTrigger()

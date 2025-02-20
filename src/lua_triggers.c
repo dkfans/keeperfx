@@ -7,6 +7,7 @@
 
 #include "lua_base.h"
 #include "lua_api.h"
+#include "lua_params.h"
 
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
@@ -18,8 +19,16 @@
 
 #include "post_inc.h"
 
-void lua_pushThing(lua_State *L, struct Thing* thing);
-void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx);
+void lua_on_game_lost(PlayerNumber plyr_idx)
+{
+	SYNCDBG(6,"Starting");
+	lua_getglobal(Lvl_script, "OnGameLost");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushPlayer(Lvl_script, plyr_idx);
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnGameLost");
+	}
+}
 
 void lua_chatmsg(PlayerNumber plyr_idx, char *msg)
 {

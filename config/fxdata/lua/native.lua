@@ -391,7 +391,8 @@ function DELETE_FROM_PARTY(party_name,creaturemodel,level) end
 ---@param party_name string The name as defined with the CREATE_PARTY command
 ---@param spawn_location location where the party should be spawned
 ---@param head_for head_for This command tells the Tunneller what it is tunnelling to. one of these options ACTION_POINT,DUNGEON,DUNGEON_HEART,APPROPIATE_DUNGEON
----@param target integer This command will tell the Tunneller which Action Point (if the head for command was ACTION_POINT) or Player (if the head for command was DUNGEON or DUNGEON_HEART) to go to.
+---@param target integer This command will tell the Tunneller which Action Point 
+---(if the head for command was ACTION_POINT) or Player (if the head for command was DUNGEON or DUNGEON_HEART) to go to.
 ---If the command was APPROPIATE_DUNGEON then this will just be 0 as the APPROPIATE_DUNGEON command sends the Tunneller to the dungeon of the player with the highest score.
 ---If you wish to put player here, you must type player number, like 1, not player name. If you will type PLAYER1, the game won't be able to recognize the number and will treat it as 0.
 ---@param experience integer The experience level of the Tunneller.

@@ -29,7 +29,7 @@ void lua_game_start();
 void lua_game_tick();
 void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing);
 void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng);
-
+void lua_on_game_lost(PlayerNumber plyr_idx);
 
 const char* lua_get_serialised_data(size_t *len);
 void lua_set_serialised_data(const char *data, size_t len);
