@@ -267,7 +267,12 @@ function DEAD_CREATURES_RETURN_TO_POOL(return_to_pool) end
 ---This command tells the game that a specific room is available for the player to place down.
 ---@param player playerrange The players the room should be made available for.
 ---@param room room_type The room’s name, e.g. TEMPLE.
----@param can_be_available boolean If it is true then you are telling the game that the room may be researched at some point.
+---@param can_be_available integer This value can be set to 0, 1, 2, 3 or 4.
+ ---0. It will not become available at all.
+ ---1. The room becomes available through research.
+ ---2. The room becomes available when researched or when found on the map.
+ ---3. The room may not be researched but becomes available when claimed on the map.
+ ---4. The room becomes available for research after claimed on the map.
 ---@param is_available boolean If it is true then the room is available straight away. If it is false then the room cannot become available until it is set to 1 or it is researched.
 function ROOM_AVAILABLE(player,room,can_be_available,is_available) end
 

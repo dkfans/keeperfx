@@ -167,7 +167,7 @@ static int lua_ROOM_AVAILABLE(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     long rkind                      = luaL_checkNamedCommand(L,2,room_desc);
-    TbBool can_be_available         = lua_toboolean(L, 3);
+    TbBool can_be_available         = lua_tointeger(L, 3);
     TbBool is_available             = lua_toboolean(L, 4);
 
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
