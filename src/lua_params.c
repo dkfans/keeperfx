@@ -248,7 +248,7 @@ struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index)
     else
     {
         playerRange.start_idx = plr_range_id;
-        playerRange.end_idx   = plr_range_id;
+        playerRange.end_idx   = plr_range_id + 1;
     }
 
     return playerRange;

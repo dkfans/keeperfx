@@ -1433,9 +1433,9 @@ static int lua_SET_DIGGER(lua_State *L)
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     long new_dig_model = luaL_checkNamedCommand(L,2,creature_desc);
 
-    for (PlayerNumber plyr_idx = player_range.start_idx; plyr_idx <= player_range.end_idx; plyr_idx++)
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
-        update_players_special_digger_model(plyr_idx, new_dig_model);
+        update_players_special_digger_model(i, new_dig_model);
     }
     return 0;
 }
@@ -1597,7 +1597,6 @@ static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
 
-    JUSTLOG("pppp la%d %d",(int)player_range.start_idx,(int)player_range.end_idx);
 
     GoldAmount gold = luaL_checkinteger(L, 2);
     JUSTLOG("gold %d",(int)gold);
