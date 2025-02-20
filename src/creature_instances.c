@@ -221,13 +221,29 @@ void creature_increase_available_instances(struct Thing *thing)
         int k = crstat->learned_instance_id[i];
         if (k > 0)
         {
-            if (crstat->learned_instance_level[i] <= cctrl->exp_level+1) {
+            if (crstat->learned_instance_level[i] <= cctrl->exp_level+1)
+            {
                 cctrl->instance_available[k] = true;
             }
-            else if ( (crstat->learned_instance_level[i] > cctrl->exp_level+1) && !(game.conf.rules.game.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
+            else if ((crstat->learned_instance_level[i] > cctrl->exp_level+1) && !(game.conf.rules.game.classic_bugs_flags & ClscBug_RebirthKeepsSpells))
             {
                 cctrl->instance_available[k] = false;
             }
+        }
+    }
+}
+
+void remove_available_instances(struct Thing *thing)
+{
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    int j;
+    for (int i = 0; i < LEARNED_INSTANCES_COUNT; i++)
+    {
+        j = crstat->learned_instance_id[i];
+        if (j > 0)
+        {
+            cctrl->instance_available[j] = false;
         }
     }
 }

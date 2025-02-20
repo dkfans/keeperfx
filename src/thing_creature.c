@@ -863,6 +863,7 @@ TbBool fill_spell_slot(struct Thing *thing, SpellKind spell_idx, GameTurnDelta s
     cspell->duration = spell_power;
     cspell->caster_level = spell_level;
     cspell->caster_owner = plyr_idx;
+    cspell->original_model = cctrl->original_model;
     return true;
 }
 
@@ -874,10 +875,17 @@ TbBool free_spell_slot(struct Thing *thing, int slot_idx)
     if (creature_control_invalid(cctrl))
         return false;
     struct CastedSpellData* cspell = &cctrl->casted_spells[slot_idx];
+    struct SpellConfig *spconf = get_spell_config(cspell->spkind);
+    // Revert transformation.
+    if (spconf->transform_model > 0)
+    {
+        transform_creature(thing, cspell->original_model, 1);
+    }
     cspell->spkind = 0;
     cspell->duration = 0;
     cspell->caster_level = 0;
     cspell->caster_owner = 0;
+    cspell->original_model = 0;
     return true;
 }
 
@@ -962,7 +970,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         if (!creature_under_spell_effect(thing, CSAfF_Flying))
         {
             set_flag(cctrl->spell_flags, CSAfF_Flying);
-            thing->movement_flags |= TMvF_Flying;
+            set_flag(thing->movement_flags, TMvF_Flying);
         }
         affected = true;
     }
@@ -1068,7 +1076,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         {
             set_flag(cctrl->spell_flags, CSAfF_Freeze);
             set_flag(cctrl->stateblock_flags, CCSpl_Freeze);
-            if ((thing->movement_flags & TMvF_Flying) != 0)
+            if (flag_is_set(thing->movement_flags, TMvF_Flying))
             {
                 set_flag(thing->movement_flags, TMvF_Grounded);
                 clear_flag(thing->movement_flags, TMvF_Flying);
@@ -1222,8 +1230,8 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
     && (creature_under_spell_effect(thing, CSAfF_Flying)))
     {
         clear_flag(cctrl->spell_flags, CSAfF_Flying);
-        // TODO: Strange condition regarding the fly, check why it's here?
-        if (!flag_is_set(game.conf.crtr_conf.model[thing->model].model_flags, CMF_IsDiptera))
+        // Clear 'TMvF_Flying' only if the creature isn't innately able to fly.
+        if (!crstat->flying)
         {
             clear_flag(thing->movement_flags, TMvF_Flying);
         }
@@ -1391,7 +1399,8 @@ TbBool spell_is_continuous(SpellKind spell_idx, GameTurnDelta duration)
     {
         struct SpellConfig *spconf = get_spell_config(spell_idx);
         if ((spconf->damage != 0 && spconf->damage_frequency > 0)
-        || (spconf->aura_effect != 0 && spconf->aura_duration > 0 && spconf->aura_frequency > 0))
+        || (spconf->aura_effect != 0 && spconf->aura_duration > 0 && spconf->aura_frequency > 0)
+        || (spconf->transform_model > 0))
         {
             return true;
         }
@@ -1448,6 +1457,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, Crt
         cspell->duration = duration;
         cspell->caster_level = spell_level;
         cspell->caster_owner = plyr_idx;
+        cspell->original_model = cctrl->original_model;
         update_aura_effect_to_thing(thing, spell_idx);
     }
     return;
@@ -1480,6 +1490,11 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
         spell_level = SPELL_MAX_LEVEL;
     }
     GameTurnDelta duration = get_spell_full_duration(spell_idx, spell_level);
+    // Apply transformation.
+    if (spconf->transform_model > 0)
+    {
+        transform_creature(thing, spconf->transform_model, duration);
+    }
     // Check for cleansing one-time effect.
     if (spconf->cleanse_flags > 0
     && any_flag_is_set(spconf->cleanse_flags, cctrl->spell_flags))
@@ -3136,7 +3151,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
-    ThingModel crmodel = thing->model;
+    ThingModel crmodel = cctrl->original_model;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (!thing_exists(thing)) 
     {
@@ -4746,6 +4761,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->ccontrol_idx = cctrl->index;
     crtng->class_id = TCls_Creature;
     crtng->model = model;
+    cctrl->original_model = crtng->model;
     crtng->parent_idx = crtng->index;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
@@ -7774,6 +7790,118 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
     {
         return Lb_FAIL;
     }
+}
+
+void transform_creature(struct Thing *thing, ThingModel transform_model, GameTurnDelta duration)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    // If 'ANY_CREATURE' was set on the spell config: randomise an appropriate model.
+    if (transform_model == CREATURE_NOT_A_DIGGER)
+    {
+        transform_model = get_random_appropriate_creature_kind(thing->model);
+    }
+    // Without a duration the transformation is permanent.
+    if (duration == 0)
+    {
+        cctrl->original_model = transform_model;
+    }
+    struct CreatureStats *oldstat = creature_stats_get_from_thing(thing);
+    // Update the creature's properties, score and available instances.
+    remove_creature_score_from_owner(thing);
+    remove_available_instances(thing);
+    HitPoints health_permil = get_creature_health_permil(thing);
+    thing->model = transform_model;
+    creature_increase_available_instances(thing);
+    cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    cctrl->max_health = calculate_correct_creature_max_health(thing);
+    thing->health = cctrl->max_health * health_permil / 1000;
+    add_creature_score_to_owner(thing);
+    struct CreatureStats *newstat = creature_stats_get_from_thing(thing);
+    thing->clipbox_size_xy = newstat->size_xy;
+    thing->clipbox_size_z = newstat->size_z;
+    thing->solid_size_xy = newstat->thing_size_xy;
+    thing->solid_size_z = newstat->thing_size_z;
+    cctrl->shot_shift_x = newstat->shot_shift_x;
+    cctrl->shot_shift_y = newstat->shot_shift_y;
+    cctrl->shot_shift_z = newstat->shot_shift_z;
+    // Check if the flying state has changed, and update accordingly.
+    if (newstat->flying != oldstat->flying)
+    {
+        if (creature_under_spell_effect(thing, CSAfF_Freeze))
+        {
+            if (newstat->flying)
+            {
+                set_flag(thing->movement_flags, TMvF_Grounded);
+            }
+            else if (oldstat->flying)
+            {
+                clear_flag(thing->movement_flags, TMvF_Grounded);
+            }
+        }
+        else
+        {
+            if (newstat->flying)
+            {
+                set_flag(thing->movement_flags, TMvF_Flying);
+            }
+            else if (oldstat->flying)
+            {
+                clear_flag(thing->movement_flags, TMvF_Flying);
+            }
+        }
+    }
+    // Check if the illumination state has changed, and update accordingly.
+    if (newstat->illuminated != oldstat->illuminated)
+    {
+        if (newstat->illuminated)
+        {
+            if (creature_under_spell_effect(thing, CSAfF_Light))
+            {
+                clean_spell_effect(thing, CSAfF_Light);
+            }
+            illuminate_creature(thing);
+        }
+        else if (oldstat->illuminated)
+        {
+            if (thing->light_id != 0)
+            {
+                if (flag_is_set(thing->rendering_flags, TRF_Invisible))
+                {
+                    light_set_light_intensity(thing->light_id, (light_get_light_intensity(thing->light_id) - 20));
+                    struct Light *lgt = &game.lish.lights[thing->light_id];
+                    lgt->radius = 2560;
+                }
+                else
+                {
+                    light_delete_light(thing->light_id);
+                    thing->light_id = 0;
+                }
+            }
+        }
+    }
+    // Check if the lenses have changed, and update only if the creature is under player influence.
+    if (newstat->eye_effect != oldstat->eye_effect)
+    {
+        if (get_my_player()->influenced_thing_idx == thing->index)
+        {
+            struct LensConfig* lenscfg = get_lens_config(newstat->eye_effect);
+            initialise_eye_lenses();
+            if (flag_is_set(lenscfg->flags, LCF_HasPalette))
+            {
+                PaletteSetPlayerPalette(get_my_player(), lenscfg->palette);
+            }
+            else
+            {
+                PaletteSetPlayerPalette(get_my_player(), engine_palette);
+            }
+            setup_eye_lens(newstat->eye_effect);
+        }
+    }
+    struct InstanceInfo *inst_inf = creature_instance_info_get(cctrl->active_instance_id);
+    update_creature_anim(thing, 256, get_creature_anim(thing, inst_inf->graphics_idx));
+    // Investigate why it doesn't work and only seems to select [instance1] for creatures that don't even know it.
+    cctrl->active_instance_id = creature_choose_first_available_instance(thing);
+    return;
 }
 
 /******************************************************************************/

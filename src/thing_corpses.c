@@ -397,7 +397,7 @@ TbBool update_dead_creatures_list(struct Dungeon *dungeon, const struct Thing *t
         WARNLOG("Invalid victim creature control");
         return false;
     }
-    return add_item_to_dead_creature_list(dungeon, thing->model, cctrl->exp_level);
+    return add_item_to_dead_creature_list(dungeon, cctrl->original_model, cctrl->exp_level);
 }
 
 TbBool creature_can_be_resurrected(const struct Thing* thing)

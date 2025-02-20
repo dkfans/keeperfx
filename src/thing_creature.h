@@ -245,6 +245,7 @@ void throw_out_gold(struct Thing* thing, long amount);
 ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags);
 ThingModel get_random_appropriate_creature_kind(ThingModel original_model);
 TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLevel grow_up_level);
+void transform_creature(struct Thing *thing, ThingModel transform_model, GameTurnDelta duration);
 /******************************************************************************/
 #ifdef __cplusplus
 }
