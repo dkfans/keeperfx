@@ -7123,17 +7123,17 @@ msgstr "Mage du temps"
 #: guitext:1044
 msgctxt "Creature name"
 msgid "Bird"
-msgstr ""
+msgstr "Oiseau"
 
 #: guitext:1045
 msgctxt "Creature name"
 msgid "Maiden"
-msgstr "Vierge"
+msgstr "Servante"
 
 #: guitext:1046
 msgctxt "Creature name"
 msgid "Spiderling"
-msgstr ""
+msgstr "Araignotte"
 
 #: guitext:1047
 msgctxt "Creature name"
@@ -7143,7 +7143,7 @@ msgstr "Gobelin"
 #: guitext:1048
 msgctxt "Creature name"
 msgid "Fallen Angel"
-msgstr ""
+msgstr "Ange Déchu"
 
 #: guitext:1049
 msgctxt "Unused"
