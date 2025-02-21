@@ -93,13 +93,16 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
     } else
     {
         int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
-        if (room->used_capacity >= required_cap) {
+        if (room->used_capacity >= required_cap)
+        {
             room->used_capacity -= required_cap;
-        } else {
+            delete_thing_structure(foodtng, 0);
+        } else
+        {
             ERRORLOG("Trying to remove some food not in room");
-            room->used_capacity = 0;
+            delete_thing_structure(foodtng, 0);
+            update_room_contents(room);
         }
-        delete_thing_structure(foodtng, 0);
     }
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     dungeon->lvstats.chickens_eaten++;
