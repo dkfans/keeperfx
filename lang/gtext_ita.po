@@ -14,7 +14,6 @@
 #      it under the terms of the GNU General Public License as published by
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
-#
 # ******************************************************************************
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
@@ -6583,16 +6582,21 @@ msgstr ""
 "attacchi di cuore."
 
 #: guitext:960
+msgctxt "In-game interface description"
+msgid "Score: Estimate of an overall creature value. Added to player score when finishing the level."
+msgstr ""
+
+#: guitext:961
 msgctxt "Keeper spell name"
 msgid "Hand Of Evil"
 msgstr "Mano del male"
 
-#: guitext:961
+#: guitext:962
 msgctxt "Keeper spell name"
 msgid "Slap"
 msgstr "Schiaffi"
 
-#: guitext:962
+#: guitext:963
 msgctxt "Keeper spell description"
 msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
@@ -6601,17 +6605,9 @@ msgstr ""
 "Mano del male: Capacità di raccogliere le tue creature e tenerle in mano. "
 "Basta non tenerle per sempre o possono diventare irritati."
 
-#: guitext:963
-msgctxt "Keeper spell description"
-msgid ""
-"Slap: Makes your creatures work harder, for some time. Your creatures take "
-"some damage from each slap they receive."
-msgstr ""
-"Se vuoi che le tue creature lavorino più duramente, schiaffeggiale cliccando "
-"la mano con il pulsante destro. Ogni schiaffo causerà loro dei danni."
-
 #: guitext:964
 msgctxt "Keeper spell description"
+msgid ""
 msgid "Slap: Makes your creatures work harder, for some time. "
 "Your creatures take some damage from each slap they receive."
 msgstr ""
@@ -6978,19 +6974,45 @@ msgstr ""
 #: guitext:1041
 msgctxt "Creature name"
 msgid "Spirit"
-msgstr ""
+msgstr "Spirito"
 
 #: guitext:1042
 msgctxt "Creature name"
 msgid "Druid"
-msgstr ""
+msgstr "Druido"
 
 #: guitext:1043
 msgctxt "Creature name"
 msgid "Time Mage"
-msgstr ""
+msgstr "Mago del Tempo"
 
-#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+#: guitext:1044
+msgctxt "Creature name"
+msgid "Bird"
+msgstr "Uccello"
+
+#: guitext:1045
+msgctxt "Creature name"
+msgid "Maiden"
+msgstr "Vergine"
+
+#: guitext:1046
+msgctxt "Creature name"
+msgid "Spiderling"
+msgstr "Piccolo Ragno"
+
+#: guitext:1047
+msgctxt "Creature name"
+msgid "Goblin"
+msgstr "Goblin"
+
+#: guitext:1048
+msgctxt "Creature name"
+msgid "Fallen Angel"
+msgstr "Angelo Caduto"
+
+
+#: guitext:1049
 msgctxt "Unused"
 msgid "Moo7"
 msgstr ""
@@ -7129,3 +7151,18 @@ msgstr "Porta di Mida"
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
 msgstr "Porta di Mida: Questa porta consuma oro del suo proprietario per rimanere indistruttibile. RMB zoom."
+
+#: guitext:1078 guitext:1079
+msgctxt "Unused"
+msgid "Moo9"
+msgstr ""
+
+#: guitext:1080
+msgctxt "Creature spell"
+msgid "Familiar: Summons a companion to guard and assist the creature."
+msgstr ""
+
+#: guitext:1081
+msgctxt "Creature spell"
+msgid "Summon: Call upon temporary guardians to assist the creature in combat."
+msgstr ""
