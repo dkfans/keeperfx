@@ -6075,7 +6075,7 @@ msgstr ""
 #: guitext:1047
 msgctxt "Creature name"
 msgid "Goblin"
-msgstr ""
+msgstr "Svartalf"
 
 #: guitext:1048
 msgctxt "Creature name"

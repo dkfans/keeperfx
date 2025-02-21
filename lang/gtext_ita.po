@@ -7004,7 +7004,7 @@ msgstr "Piccolo Ragno"
 #: guitext:1047
 msgctxt "Creature name"
 msgid "Goblin"
-msgstr "Goblin"
+msgstr "Spiritello Maligno"
 
 #: guitext:1048
 msgctxt "Creature name"
