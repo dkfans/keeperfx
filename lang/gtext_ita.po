@@ -6994,7 +6994,7 @@ msgstr "Uccello"
 #: guitext:1045
 msgctxt "Creature name"
 msgid "Maiden"
-msgstr "Vergine"
+msgstr "Fanciulla"
 
 #: guitext:1046
 msgctxt "Creature name"
@@ -7004,7 +7004,7 @@ msgstr "Piccolo Ragno"
 #: guitext:1047
 msgctxt "Creature name"
 msgid "Goblin"
-msgstr "Goblin"
+msgstr "Spiritello Maligno"
 
 #: guitext:1048
 msgctxt "Creature name"

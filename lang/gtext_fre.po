@@ -7128,7 +7128,7 @@ msgstr ""
 #: guitext:1045
 msgctxt "Creature name"
 msgid "Maiden"
-msgstr ""
+msgstr "Vierge"
 
 #: guitext:1046
 msgctxt "Creature name"
@@ -7138,7 +7138,7 @@ msgstr ""
 #: guitext:1047
 msgctxt "Creature name"
 msgid "Goblin"
-msgstr ""
+msgstr "Gobelin"
 
 #: guitext:1048
 msgctxt "Creature name"

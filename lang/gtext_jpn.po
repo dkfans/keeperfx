@@ -6840,7 +6840,7 @@ msgstr ""
 #: guitext:1045
 msgctxt "Creature name"
 msgid "Maiden"
-msgstr ""
+msgstr "メイデン"
 
 #: guitext:1046
 msgctxt "Creature name"
@@ -6850,7 +6850,7 @@ msgstr ""
 #: guitext:1047
 msgctxt "Creature name"
 msgid "Goblin"
-msgstr ""
+msgstr "ゴブリン"
 
 #: guitext:1048
 msgctxt "Creature name"
