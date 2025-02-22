@@ -270,6 +270,7 @@ msgstr ""
 
 #. Level Twin Keepers opening message
 #: guitext:22
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "You've arrived, at last, to the doorstep of the Twin Keepers. They wield "
@@ -302,6 +303,7 @@ msgstr ""
 
 #. Level Twin Keepers victory message
 #: guitext:25
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Excellent work, Master! Both the Twins' ambitions and Hearts have been "
@@ -323,6 +325,7 @@ msgstr ""
 
 #. Level Okehazama opening message
 #: guitext:27
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The Lord of this land is rallying a powerful army against you and you stand "
@@ -359,6 +362,7 @@ msgstr ""
 
 #. Level Okehazama hero onslaught message
 #: guitext:30
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The Lord has arrived and his army is out for blood. I trust you've prepared "
@@ -370,6 +374,7 @@ msgstr ""
 
 #. Level Embattled Formation opening message
 #: guitext:31
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "You are under siege, Master, with enemies on all sides in a land with no "
