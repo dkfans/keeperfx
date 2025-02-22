@@ -51,7 +51,6 @@ msgstr ""
 
 #. Level Swedish Spirit guard post message
 #: guitext:2
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your conquest of the guard post has caused the heroes to retreat. However, "
@@ -64,7 +63,6 @@ msgstr ""
 
 #. Level Swedish Spirit 2nd portal claim
 #: guitext:3
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your capture of the second portal has forced the heroes to act, and an "
@@ -78,7 +76,6 @@ msgstr ""
 
 #. Level Swedish spirit outside hero heart
 #: guitext:4
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Beware, the main hero army approaches! I hope you're prepared for this, "
@@ -91,7 +88,6 @@ msgstr ""
 
 #. Level Swedish Spirit. Orc from steal hero message
 #: guitext:5
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Fate has spoken, evil master. Your primary weapon is brute force. You'll "
@@ -135,7 +131,6 @@ msgstr ""
 "notado tu presencia y se están preparando para una cruzada."
 
 #: guitext:8
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The abomination of a heart has been destroyed. You must show no mercy. Be "
@@ -146,7 +141,6 @@ msgstr ""
 
 #. Level Nameless hero (2nd level) imminent victory
 #: guitext:9
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Almost there! Be sure to slaughter every last hero. Let no-one suggest that "
@@ -156,7 +150,6 @@ msgstr ""
 "sugiera que fuiste misericordioso. ¡Tal calumnia arruinaría tu reputación!"
 
 #: guitext:10
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "While traveling to this land, we lost our Treasure Room plans. Fortunately, "
@@ -168,7 +161,6 @@ msgstr ""
 "por un poderoso Guardián que murió hace mucho tiempo. ¡Úsalo bien!"
 
 #: guitext:11
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The hero forces will continue to attack, but they're getting weaker. When "
@@ -180,7 +172,6 @@ msgstr ""
 "comienza un ataque contra su ejército principal!"
 
 #: guitext:12
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "You've chosen to attack the main enemy force a little early. I just hope it "
@@ -190,7 +181,6 @@ msgstr ""
 "que no sea tu perdición, Guardián."
 
 #: guitext:13
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The good are beginning to understand their inevitable fate. But stay alert, "
@@ -202,7 +192,6 @@ msgstr ""
 "débiles!"
 
 #: guitext:14
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "If I were in your skin... I mean, in your flask - I would avoid attacking "
@@ -214,7 +203,6 @@ msgstr ""
 "problema, si tu ejército no está formado por veteranos endurecidos."
 
 #: guitext:15
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The Lord of this land is known for his greed and is sure to know where to "
@@ -226,7 +214,6 @@ msgstr ""
 "simplemente de oro fácil."
 
 #: guitext:16
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Do not allow your creatures to attack the door to the North! Instead, turn "
@@ -247,7 +234,6 @@ msgstr ""
 "los ladrones ya no deberían atacarte con tanta fuerza. ¡Eso es un progreso!"
 
 #: guitext:18
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Congratulations, Evil One. Victory is within your grasp! A few more corpses "
@@ -258,7 +244,6 @@ msgstr ""
 
 #. Level Nameless hero opening message
 #: guitext:19
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The hero who commands this realm can't be of much renown, as he doesn't even "
@@ -271,7 +256,6 @@ msgstr ""
 
 #. Level Nameless hero action point 22
 #: guitext:20
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Have you found the man with no name yet, Keeper? He must be here somewhere?!"
@@ -281,7 +265,6 @@ msgstr ""
 
 #. Level Nameless hero opening message
 #: guitext:21
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The nameless one commands many heroes, Master, and he will not hesitate to "
@@ -309,7 +292,6 @@ msgstr ""
 
 #. Level Twin Keepers hero heart destroyed
 #: guitext:23
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The hero dungeon has fallen, Master! You have little time before the Twin "
@@ -321,7 +303,6 @@ msgstr ""
 
 #. Level Twin Keepers hero loss message
 #: guitext:24
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Significant hero reinforcements have arrived, but will it be enough to hold "
@@ -344,7 +325,6 @@ msgstr ""
 
 #. Level Twin Keepers defeat message
 #: guitext:26
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "You've been a great disappointment! However, the twins appear to have turned "
@@ -370,7 +350,6 @@ msgstr ""
 
 #. Level Okehazama victory message
 #: guitext:28
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "A majestic victory, Master! You have earned the right to challenge the "
@@ -383,7 +362,6 @@ msgstr ""
 
 #. Level Okehazama Hero Knight death message
 #: guitext:29
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "With the Lord defeated, his army is now in a state of panic and will try to "
@@ -407,7 +385,6 @@ msgstr ""
 
 #. Level Embattled Formation opening message
 #: guitext:31
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "You are under siege, Master, with enemies on all sides in a land with no "
@@ -422,7 +399,6 @@ msgstr ""
 
 #. Level Embattled Formation one opponent remaining message
 #: guitext:32
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Impressive work, Master. It's been a privilege to watch you wreak havoc on "
@@ -435,7 +411,6 @@ msgstr ""
 
 #. Level Embattled Formation victory message
 #: guitext:33
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "An excellent victory once again. All three enemies lie in the ashes of this "
@@ -448,7 +423,6 @@ msgstr ""
 
 #. Level Embattled formation death of a keeper message
 #: guitext:34
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "A good start, Keeper, but beware. The remaining keepers have pilfered the "
