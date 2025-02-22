@@ -170,7 +170,7 @@ msgctxt "In-game message"
 msgid ""
 "Do not allow your creatures to attack the door to the North! Instead, turn "
 "your attention to the caverns to the South. The heroes there are somewhat "
-"weaker, andI smell a seductive wealth within."
+"weaker, and I smell a seductive wealth within."
 msgstr ""
 
 #: guitext:17
