@@ -1078,6 +1078,20 @@ TbBool frontmap_update_zoom(void)
     return false;
 }
 
+static void frontmap_start_music(void)
+{
+    if (strlen(campaign.soundtrack_fname) > 0) {
+        const int track = atoi(campaign.soundtrack_fname);
+        if (track >= 1) {
+            play_music_track(track);
+        } else {
+            play_music(campaign.soundtrack_fname);
+        }
+    } else {
+        play_music_track(2);
+    }
+}
+
 TbBool frontmap_load(void)
 {
     SYNCDBG(4,"Starting");
@@ -1110,7 +1124,7 @@ TbBool frontmap_load(void)
         return false;
     }
     frontend_load_data_reset();
-    play_music_track(campaign.music_track);
+    frontmap_start_music();
     struct PlayerInfo* player = get_my_player();
     lvnum = get_continue_level_number();
     if ((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0)
@@ -1136,8 +1150,8 @@ TbBool frontmap_load(void)
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     if ((features_enabled & Ft_AdvAmbSound) != 0)
     {
-        play_sample(0, campaign.ambient_good, 0, 0x40, 100, -1, 2, 0);
-        play_sample(0, campaign.ambient_bad, 0, 0x40, 100, -1, 2, 0);
+        play_non_3d_sample(campaign.ambient_good);
+        play_non_3d_sample(campaign.ambient_bad);
     }
     set_music_volume(settings.music_volume);
     fe_computer_players = 0;
@@ -1593,7 +1607,6 @@ long frontmap_update(void)
 //      playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
     }
   }
-  play_music_track(campaign.music_track);
   SYNCDBG(8,"Finished");
   return 0;
 }

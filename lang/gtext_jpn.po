@@ -6832,7 +6832,31 @@ msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "タイムメイジ"
 
-#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048
+#: guitext:1044
+msgctxt "Creature name"
+msgid "Bird"
+msgstr ""
+
+#: guitext:1045
+msgctxt "Creature name"
+msgid "Maiden"
+msgstr "メイデン"
+
+#: guitext:1046
+msgctxt "Creature name"
+msgid "Spiderling"
+msgstr ""
+
+#: guitext:1047
+msgctxt "Creature name"
+msgid "Goblin"
+msgstr "ゴブリン"
+
+#: guitext:1048
+msgctxt "Creature name"
+msgid "Fallen Angel"
+msgstr ""
+
 #: guitext:1049
 msgctxt "Unused"
 msgid "Moo7"
@@ -6975,3 +6999,18 @@ msgstr "ミダースのドア"
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
 msgstr "ミダースのドア： 完全に不滅であるために、所有者の財宝を消費する。"
+
+#: guitext:1078 guitext:1079
+msgctxt "Unused"
+msgid "Moo9"
+msgstr ""
+
+#: guitext:1080
+msgctxt "Creature spell"
+msgid "Familiar: Summons a companion to guard and assist the creature."
+msgstr ""
+
+#: guitext:1081
+msgctxt "Creature spell"
+msgid "Summon: Call upon temporary guardians to assist the creature in combat."
+msgstr ""
