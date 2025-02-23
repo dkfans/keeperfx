@@ -32,6 +32,7 @@
 #include "game_merge.h"
 #include "room_library.h"
 #include "game_legacy.h"
+#include "frontmenu_ingame_map.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -102,13 +103,13 @@ const struct NamedCommand rules_game_commands[] = {
   {NULL,                           0},
 };
 
-const struct NamedField rules_computer_named_fields[] = {
+static const struct NamedField rules_computer_named_fields[] = {
     //name                        //field                                           //field type                                              //min     //max
   {"DISEASEHPTEMPLEPERCENTAGE",  &game.conf.rules.computer.disease_to_temple_pct,  var_type(game.conf.rules.computer.disease_to_temple_pct),        0, USHRT_MAX},
   {NULL,                         NULL,                                                                                                    0,        0,         0},
 };
 
-const struct NamedField rules_creatures_named_fields[] = {
+static const struct NamedField rules_creatures_named_fields[] = {
     //name                        //field                                           //field type                                               //min     //max
   {"RECOVERYFREQUENCY",          &game.conf.rules.creature.recovery_frequency,     var_type(game.conf.rules.creature.recovery_frequency    ),        0, UCHAR_MAX},
   {"FIGHTMAXHATE",               &game.conf.rules.creature.fight_max_hate,         var_type(game.conf.rules.creature.fight_max_hate        ), SHRT_MIN,  SHRT_MAX},
@@ -129,7 +130,7 @@ const struct NamedCommand rules_creature_commands[] = {
   {NULL,                           0},
 };
 
-const struct NamedField rules_magic_named_fields[] = {
+static const struct NamedField rules_magic_named_fields[] = {
     //name                            //field                                                    //field type                                                        //min     //max
   {"HOLDAUDIENCETIME",               &game.conf.rules.magic.hold_audience_time,                 var_type(game.conf.rules.magic.hold_audience_time                ),        0, LONG_MAX},
   {"ARMAGEDDONTELEPORTYOURTIMEGAP",  &game.conf.rules.magic.armageddon_teleport_your_time_gap,  var_type(game.conf.rules.magic.armageddon_teleport_your_time_gap ), LONG_MIN, LONG_MAX},
@@ -149,7 +150,7 @@ const struct NamedField rules_magic_named_fields[] = {
   {NULL,                             NULL,                                                                                                                       0,        0,        0},
 };
 
-const struct NamedField rules_rooms_named_fields[] = {
+static const struct NamedField rules_rooms_named_fields[] = {
     //name                                 //field                                                  //field type                                                      //min                //max
   {"SCAVENGECOSTFREQUENCY",               &game.conf.rules.rooms.scavenge_cost_frequency,          var_type(game.conf.rules.rooms.scavenge_cost_frequency         ), LONG_MIN,            LONG_MAX},
   {"TEMPLESCAVENGEPROTECTIONTIME",        &game.conf.rules.rooms.temple_scavenge_protection_turns, var_type(game.conf.rules.rooms.temple_scavenge_protection_turns),        0,           ULONG_MAX},
@@ -173,7 +174,7 @@ const struct NamedField rules_rooms_named_fields[] = {
   {NULL,                                  NULL,                                                                                                                   0,        0,                   0},
 };
 
-const struct NamedField rules_workers_named_fields[] = {
+static const struct NamedField rules_workers_named_fields[] = {
     //name                        //field                                              //field type                                                   //min     //max
   {"HITSPERSLAB",                &game.conf.rules.workers.hits_per_slab,              var_type(game.conf.rules.workers.hits_per_slab              ),        0, UCHAR_MAX},
   {"DEFAULTIMPDIGDAMAGE",        &game.conf.rules.workers.default_imp_dig_damage,     var_type(game.conf.rules.workers.default_imp_dig_damage     ),        0, ULONG_MAX},
@@ -183,7 +184,7 @@ const struct NamedField rules_workers_named_fields[] = {
   {NULL,                         NULL,                                                                                                            0,        0,         0},
 };
 
-const struct NamedField rules_health_named_fields[] = {
+static const struct NamedField rules_health_named_fields[] = {
     //name                           //field                                                //field type                                                    //min      //max
   {"HUNGERHEALTHLOSS",              &game.conf.rules.health.hunger_health_loss,            var_type(game.conf.rules.health.hunger_health_loss           ), LONG_MIN,  LONG_MAX},
   {"GAMETURNSPERHUNGERHEALTHLOSS",  &game.conf.rules.health.turns_per_hunger_health_loss,  var_type(game.conf.rules.health.turns_per_hunger_health_loss ),        0, USHRT_MAX},
@@ -192,6 +193,15 @@ const struct NamedField rules_health_named_fields[] = {
   {"GAMETURNSPERTORTUREHEALTHLOSS", &game.conf.rules.health.turns_per_torture_health_loss, var_type(game.conf.rules.health.turns_per_torture_health_loss),        0, USHRT_MAX},
   {NULL,                            NULL,                                                                                                               0,        0,         0},
 };
+
+static const struct NamedField rules_script_only_named_fields[] = {
+  //name            //field                //field type                   //min //max
+{"PayDayProgress",&game.pay_day_progress,var_type(game.pay_day_progress),0,LONG_MAX},
+{NULL,                            NULL,0,0,0 },
+};
+
+const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,
+  rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fields,rules_health_named_fields,rules_script_only_named_fields,NULL};
 
 const struct NamedCommand rules_research_commands[] = {
   {"RESEARCH",                     1},
@@ -227,6 +237,14 @@ const struct NamedCommand sacrifice_unique_desc[] = {
   {"COSTLIER_IMPS",                UnqF_CostlierImp},
   {"ALL_CREATRS_VER_ANGRY",        UnqF_MkAllVerAngry},
   {NULL,                           0},
+};
+  
+//rules that require extra logic on update
+const struct NamedCommand game_rule_desc[] = {
+    {"PreserveClassicBugs",            1},
+    {"AlliesShareVision",              2},
+    {"MapCreatureLimit",               3},
+    {NULL,                             0},
 };
 
 /******************************************************************************/
@@ -882,6 +900,47 @@ TbBool load_rules_config(const char *conf_fname, unsigned short flags)
     }
     //Freeing and exiting.
     return result;
+}
+    
+int update_game_rule(short rulegroup, short ruledesc, long rulevalue)
+{
+    if(rulegroup != -1)
+    {
+        SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
+        return assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue);
+    }
+
+  #if (BFDEBUG_LEVEL >= 7)
+    const char *rulename = get_conf_parameter_text(game_rule_desc,ruledesc);
+  #endif
+    switch (ruledesc)
+    {
+    case 1: //PreserveClassicBugs
+        //this one is a special case because in the cfg it's not done trough number
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %lu to %ld", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
+        game.conf.rules.game.classic_bugs_flags = rulevalue;
+        break;
+    case 2: //AlliesShareVision
+        //this one is a special case because it updates minimap
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %ld", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
+        game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
+        panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+        break;
+    case 3: //MapCreatureLimit
+        //this one is a special case because it needs to kill of additional creatures
+        SCRIPTDBG(7, "Changing Game Rule '%s' from %u to %ld", rulename, game.conf.rules.game.creatures_count, rulevalue);
+        game.conf.rules.game.creatures_count = rulevalue;
+        short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
+        if (count > 0)
+        {
+            SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die",count);
+        }
+        break;
+    default:
+        WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
+        return ccr_error;
+    }
+    return ccr_ok;
 }
 
 /******************************************************************************/
