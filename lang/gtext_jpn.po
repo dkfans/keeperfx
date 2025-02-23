@@ -6855,7 +6855,7 @@ msgstr "ゴブリン"
 #: guitext:1048
 msgctxt "Creature name"
 msgid "Fallen Angel"
-msgstr ""
+msgstr "フォールンエンジェル"
 
 #: guitext:1049
 msgctxt "Unused"
