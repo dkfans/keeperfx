@@ -6845,7 +6845,7 @@ msgstr "メイデン"
 #: guitext:1046
 msgctxt "Creature name"
 msgid "Spiderling"
-msgstr ""
+msgstr "スパイダーリング"
 
 #: guitext:1047
 msgctxt "Creature name"
