@@ -6835,7 +6835,7 @@ msgstr "タイムメイジ"
 #: guitext:1044
 msgctxt "Creature name"
 msgid "Bird"
-msgstr ""
+msgstr "バード"
 
 #: guitext:1045
 msgctxt "Creature name"
@@ -6978,12 +6978,12 @@ msgstr "照準: 対象の一時的に意識を高め、目に見えないクリ�
 #: guitext:1072
 msgctxt "Keeper spell name"
 msgid "Recruit Tunneller"
-msgstr ""
+msgstr "トンネラードワーフ採用"
 
 #: guitext:1073
 msgctxt "Keeper spell description"
 msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
-msgstr ""
+msgstr "トンネラードワーフ採用: ダンジョン内に新しいトンネラードワーフを作り出す。"
 
 #: guitext:1074 guitext:1075
 msgctxt "Unused"
@@ -7008,9 +7008,9 @@ msgstr ""
 #: guitext:1080
 msgctxt "Creature spell"
 msgid "Familiar: Summons a companion to guard and assist the creature."
-msgstr ""
+msgstr "使い魔: クリーチャーを守って助ける仲間を呼ぶ。"
 
 #: guitext:1081
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
-msgstr ""
+msgstr "援助要請: 戦闘にクリーチャーを支援する一時的な守護者を呼び寄せる。
