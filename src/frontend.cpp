@@ -2852,6 +2852,49 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
     return nstate;
 }
 
+static const char * menu_state_str(FrontendMenuState state)
+{
+    switch (state) {
+        case FeSt_INITIAL: return "FeSt_INITIAL";
+        case FeSt_MAIN_MENU: return "FeSt_MAIN_MENU";
+        case FeSt_FELOAD_GAME: return "FeSt_FELOAD_GAME";
+        case FeSt_LAND_VIEW: return "FeSt_LAND_VIEW";
+        case FeSt_NET_SERVICE: return "FeSt_NET_SERVICE";
+        case FeSt_NET_SESSION: return "FeSt_NET_SESSION";
+        case FeSt_NET_START: return "FeSt_NET_START";
+        case FeSt_START_KPRLEVEL: return "FeSt_START_KPRLEVEL";
+        case FeSt_START_MPLEVEL: return "FeSt_START_MPLEVEL";
+        case FeSt_UNKNOWN09: return "FeSt_UNKNOWN09";
+        case FeSt_LOAD_GAME: return "FeSt_LOAD_GAME";
+        case FeSt_INTRO: return "FeSt_INTRO";
+        case FeSt_STORY_POEM: return "FeSt_STORY_POEM";
+        case FeSt_CREDITS: return "FeSt_CREDITS";
+        case FeSt_DEMO: return "FeSt_DEMO";
+        case FeSt_UNUSED1: return "FeSt_UNUSED1";
+        case FeSt_UNUSED2: return "FeSt_UNUSED2";
+        case FeSt_LEVEL_STATS: return "FeSt_LEVEL_STATS";
+        case FeSt_HIGH_SCORES: return "FeSt_HIGH_SCORES";
+        case FeSt_TORTURE: return "FeSt_TORTURE";
+        case FeSt_UNKNOWN20: return "FeSt_UNKNOWN20";
+        case FeSt_OUTRO: return "FeSt_OUTRO";
+        case FeSt_UNKNOWN22: return "FeSt_UNKNOWN22";
+        case FeSt_UNKNOWN23: return "FeSt_UNKNOWN23";
+        case FeSt_NETLAND_VIEW: return "FeSt_NETLAND_VIEW";
+        case FeSt_PACKET_DEMO: return "FeSt_PACKET_DEMO";
+        case FeSt_FEDEFINE_KEYS: return "FeSt_FEDEFINE_KEYS";
+        case FeSt_FEOPTIONS: return "FeSt_FEOPTIONS";
+        case FeSt_UNKNOWN28: return "FeSt_UNKNOWN28";
+        case FeSt_STORY_BIRTHDAY: return "FeSt_STORY_BIRTHDAY";
+        case FeSt_LEVEL_SELECT: return "FeSt_LEVEL_SELECT";
+        case FeSt_CAMPAIGN_SELECT: return "FeSt_CAMPAIGN_SELECT";
+        case FeSt_DRAG: return "FeSt_DRAG";
+        case FeSt_CAMPAIGN_INTRO: return "FeSt_CAMPAIGN_INTRO";
+        case FeSt_MAPPACK_SELECT: return "FeSt_MAPPACK_SELECT";
+        case FeSt_FONT_TEST: return "FeSt_FONT_TEST";
+    }
+    return "unknown";
+}
+
 FrontendMenuState frontend_set_state(FrontendMenuState nstate)
 {
     SYNCDBG(8,"State %d will be switched to %d",(int)frontend_menu_state,(int)nstate);
@@ -2859,7 +2902,9 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate)
     if ( frontend_menu_state )
       fade_out();
     fade_palette_in = 1;
-    SYNCMSG("Frontend state change from %d into %d",(int)frontend_menu_state,(int)nstate);
+    SYNCMSG("Frontend state change from %d (%s) into %d (%s)",
+        frontend_menu_state, menu_state_str(frontend_menu_state),
+        nstate, menu_state_str(nstate));
     frontend_menu_state = frontend_setup_state(nstate);
     return frontend_menu_state;
 }
