@@ -2288,7 +2288,7 @@ msgstr ""
 #: guitext:257
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "時限爆弾: クリーチャーに自爆をさせる。"
+msgstr "時限爆弾: クリーチャーを自爆させる。"
 
 #: guitext:258
 msgctxt "Creature name"
@@ -4613,10 +4613,9 @@ msgstr ""
 "る。左クリックで選択。 [18.9]"
 
 #: guitext:662
-#, fuzzy
 msgctxt "Keeper spell description"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "時限爆弾"
+msgstr "時限爆弾: クリーチャーを自爆させる。"
 
 #: guitext:663
 msgctxt "Keeper spell description"
