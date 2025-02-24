@@ -944,6 +944,20 @@ void frontnetmap_unload(void)
     set_music_volume(settings.music_volume);
 }
 
+static void frontmap_start_music(void)
+{
+    if (strlen(campaign.soundtrack_fname) > 0) {
+        const int track = atoi(campaign.soundtrack_fname);
+        if (track >= 1) {
+            play_music_track(track);
+        } else {
+            play_music(campaign.soundtrack_fname);
+        }
+    } else {
+        play_music_track(2);
+    }
+}
+
 TbBool frontnetmap_load(void)
 {
     SYNCDBG(8,"Starting");
@@ -988,6 +1002,7 @@ TbBool frontnetmap_load(void)
     map_sound_fade = 256;
     lbDisplay.DrawFlags = 0;
     set_music_volume(settings.music_volume);
+    frontmap_start_music();
     if (fe_network_active)
     {
         net_number_of_players = 0;
@@ -1078,20 +1093,6 @@ TbBool frontmap_update_zoom(void)
     return false;
 }
 
-static void frontmap_start_music(void)
-{
-    if (strlen(campaign.soundtrack_fname) > 0) {
-        const int track = atoi(campaign.soundtrack_fname);
-        if (track >= 1) {
-            play_music_track(track);
-        } else {
-            play_music(campaign.soundtrack_fname);
-        }
-    } else {
-        play_music_track(2);
-    }
-}
-
 TbBool frontmap_load(void)
 {
     SYNCDBG(4,"Starting");
@@ -1124,7 +1125,6 @@ TbBool frontmap_load(void)
         return false;
     }
     frontend_load_data_reset();
-    frontmap_start_music();
     struct PlayerInfo* player = get_my_player();
     lvnum = get_continue_level_number();
     if ((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0)
@@ -1154,6 +1154,7 @@ TbBool frontmap_load(void)
         play_non_3d_sample(campaign.ambient_bad);
     }
     set_music_volume(settings.music_volume);
+    frontmap_start_music();
     fe_computer_players = 0;
     update_ensigns_visibility();
     SYNCDBG(7,"Finished");
@@ -1765,8 +1766,6 @@ TbBool frontnetmap_update(void)
         if (!fe_network_active)
             fe_computer_players = 1;
     }
-
-    play_music_track(2);
     SYNCDBG(8,"Normal end");
     return false;
 }
