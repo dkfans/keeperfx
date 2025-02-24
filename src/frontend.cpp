@@ -2795,6 +2795,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           credits_end = 0;
           LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
           lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+          play_music_track(7);
           break;
       case FeSt_LEVEL_STATS:
           turn_on_menu(GMnu_FESTATISTICS);
@@ -3590,7 +3591,6 @@ void frontend_update(short *finish_menu)
         exit_keeper = 1;
         break;
     case FeSt_CREDITS:
-        play_music_track(7);
         break;
     case FeSt_LEVEL_STATS:
         frontstats_update();
