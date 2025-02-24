@@ -408,7 +408,7 @@ void draw_swipe_graphic(void)
                 for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
                 {
                     spr = &startspr[i];
-                    scrpos_x = (MyScreenWidth * 16 / units_per_px - allwidth) / 2;
+                    scrpos_x = ((MyScreenWidth + (2 * myplyr->engine_window_x)) * 16 / units_per_px - allwidth)/ 2;
                     for (n=0; n < SWIPE_SPRITES_X; n++)
                     {
                         LbSpriteDrawResized(scrpos_x * units_per_px / 16, scrpos_y * units_per_px / 16, units_per_px, spr);
