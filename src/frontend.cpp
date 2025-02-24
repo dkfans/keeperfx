@@ -2726,6 +2726,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           set_pointer_graphic_none();
           break;
       case FeSt_MAIN_MENU:
+          stop_music();
           continue_game_option_available = continue_game_available();
           if (!continue_game_option_available)
           {
@@ -3555,7 +3556,6 @@ void frontend_update(short *finish_menu)
     switch ( frontend_menu_state )
     {
     case FeSt_MAIN_MENU:
-        stop_music();
         frontend_button_info[8].font_index = (continue_game_option_available?1:3);
         //this uses original timing function for compatibility with frontend_set_state()
         if ( abs(LbTimerClock()-(long)time_last_played_demo) > MNU_DEMO_IDLE_TIME )
