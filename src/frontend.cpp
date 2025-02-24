@@ -2821,6 +2821,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           turn_on_menu(GMnu_FEDEFINE_KEYS);
           break;
       case FeSt_FEOPTIONS:
+          play_music_track(3);
           turn_on_menu(GMnu_FEOPTION);
           set_pointer_graphic_menu();
           break;
@@ -3601,7 +3602,6 @@ void frontend_update(short *finish_menu)
         *finish_menu = frontnetmap_update();
         break;
     case FeSt_FEOPTIONS:
-        play_music_track(3);
         break;
     case FeSt_LEVEL_SELECT:
         frontend_level_select_update();
