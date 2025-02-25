@@ -419,15 +419,6 @@ function ADD_PARTY_TO_LEVEL(owner,party_name,location,ncopies) end
 --Displaying information and affecting interface--
 --------------------------------------------------
 
----Works like DISPLAY_OBJECTIVE, but instead of using a string from translations, allows to type it directly.
----@param message string
----@param zoom_location? location
-function QUICK_OBJECTIVE(message,zoom_location) end
-
----@param message string
----@param zoom_location? location
-function QUICK_INFORMATION(message,zoom_location) end
-
 ---Displays one of the text messages stored in gtext_***.dat in an Objective Box.
 ---This file comes in various language version, so messages from it are always in the language configured in the settings.
 ---@param msg_id integer
@@ -437,6 +428,32 @@ function DISPLAY_OBJECTIVE(msg_id,zoom_location) end
 ---@param msg_id integer
 ---@param zoom_location? location
 function DISPLAY_INFORMATION(msg_id,zoom_location) end
+
+---Works like DISPLAY_OBJECTIVE, but instead of using a string from translations, allows to type it directly.
+---@param slot integer Message slot selection. There are 256 quick message slots, and each message you're making should use a different one. Using one message slot twice will lead to the first message being lost.
+---@param message string
+---@param zoom_location? location
+function QUICK_OBJECTIVE(slot,message,zoom_location) end
+
+---Works like DISPLAY_OBJECTIVE, but instead of using a string from translations, allows to type it directly.
+---@param slot integer Message slot selection. There are 256 quick message slots, and each message you're making should use a different one. Using one message slot twice will lead to the first message being lost.
+---@param message string
+---@param stl_x integer zoom location x in subtiles
+---@param stl_y integer zoom location y in subtiles
+function QUICK_OBJECTIVE_WITH_POS(slot,message,stl_x,stl_y) end
+
+---Works like DISPLAY_INFORMATION, but instead of using a string from translations, allows to type it directly.
+---@param slot integer Message slot selection. There are 256 quick message slots, and each message you're making should use a different one. Using one message slot twice will lead to the first message being lost.
+---@param message string
+---@param zoom_location? location
+function QUICK_INFORMATION(slot,message,zoom_location) end
+
+---Works like DISPLAY_INFORMATION, but instead of using a string from translations, allows to type it directly.
+---@param slot integer Message slot selection. There are 256 quick message slots, and each message you're making should use a different one. Using one message slot twice will lead to the first message being lost.
+---@param message string
+---@param stl_x integer zoom location x in subtiles
+---@param stl_y integer zoom location y in subtiles
+function QUICK_INFORMATION_WITH_POS(slot,message,stl_x,stl_y) end
 
 ---Plays a sound message or sound effect.
 ---@param player Player The name of the player who gets to hear the sound.
