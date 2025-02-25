@@ -163,6 +163,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"SPEEDDEVIATION",        58},
   {"SPREAD_XY",             59},
   {"SPREAD_Z",              60},
+  {"SPREAD_CIRCULAR",       61},
   {NULL,                     0},
   };
 
@@ -1998,7 +1999,37 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case ccr_comment:
+        case 61: // SPREAD_CIRCULAR (Combined scattering)
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0) {
+                k = atoi(word_buf);
+                shotst->spread_circular = k; // Set the value for combined scattering
+                n++;
+
+                // Generate random position within a circle for XY
+                int angle = rand() % 360; // Random angle between 0 and 359 degrees
+                int radius_xy = shotst->spread_circular; // Radius for XY
+
+                // Calculate X and Y coordinates using integer math
+                int x = (int)(radius_xy * cos(angle * M_PI / 180.0)); // Convert angle to radians
+                int y = (int)(radius_xy * sin(angle * M_PI / 180.0)); // Convert angle to radians
+
+                // For Z, generate a random value in the range of -k to +k (or another desired range)
+                int z_radius = k / 2; // Example: Z scattering half as large as XY scattering
+
+                // Generate a random integer in the range [-z_radius, z_radius]
+                int z = (rand() % (2 * z_radius + 1)) - z_radius; // Calculate Z coordinate
+
+                // Use x, y, and z for your further logic...
+                shotst->position.x = x;
+                shotst->position.y = y;
+                shotst->position.z = z;
+            }
+            if (n < 1) {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+            case ccr_comment:
           break;
       case ccr_endOfFile:
           break;
