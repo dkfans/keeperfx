@@ -96,6 +96,18 @@ void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng)
 	}
 }
 
+void lua_on_trap_placed(struct Thing *traptng)
+{
+	SYNCDBG(6,"Starting");
+    lua_getglobal(Lvl_script, "OnTrapPlaced");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushThing(Lvl_script, traptng);
+
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 3, 0, 0),"OnTrapPlaced");
+	}
+}
+
 static char* lua_serialized_data = NULL;
 
 const char* lua_get_serialised_data(size_t *len)

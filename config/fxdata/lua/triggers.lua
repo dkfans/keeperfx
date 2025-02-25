@@ -1,5 +1,5 @@
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"
+---@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"
 
 ---@class Trigger
 ---@field conditions TriggerCondition[]|nil
@@ -155,6 +155,13 @@ function OnChatMsg(player,message)
     ProcessEvent("ChatMsg",eventData)
 end
 
+--- @param trap Thing The newly placed trap
+function OnTrapPlaced(trap)
+    local eventData = {}
+    eventData.Trap = trap
+    ProcessEvent("TrapPlaced",eventData)
+end
+
 
 
 
@@ -232,6 +239,12 @@ function RegisterDungeonDestroyedEvent(action,player)
     return trigger
 end
 
+function RegisterTrapPlacedEvent(action)
+    local trigData = {}
+    local trigger = CreateTrigger("TrapPlaced",action,trigData)
+    return trigger
+    
+end
 
 
 
