@@ -1279,6 +1279,8 @@ TbBool player_place_trap_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl
     {
         play_non_3d_sample(trap_cfg->place_sound_idx);
     }
+
+    lua_trap_placed(traptng);
     return true;
 }
 
