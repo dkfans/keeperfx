@@ -1197,7 +1197,7 @@ void process_players_creature_control_packet_control(long idx)
     {
         if (!creature_control_invalid(ccctrl))
         {
-            ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit);
+            ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit/2);
             ccctrl->flgfield_1 |= CCFlg_Unknown40;
         } else
         {
@@ -1208,7 +1208,7 @@ void process_players_creature_control_packet_control(long idx)
     {
         if (!creature_control_invalid(ccctrl))
         {
-            ccctrl->orthogn_speed = compute_controlled_speed_increase(ccctrl->orthogn_speed, speed_limit);
+            ccctrl->orthogn_speed = compute_controlled_speed_increase(ccctrl->orthogn_speed, speed_limit*3/4);
             ccctrl->flgfield_1 |= CCFlg_Unknown80;
         } else
         {
@@ -1219,7 +1219,7 @@ void process_players_creature_control_packet_control(long idx)
     {
         if (!creature_control_invalid(ccctrl))
         {
-            ccctrl->orthogn_speed = compute_controlled_speed_decrease(ccctrl->orthogn_speed, speed_limit);
+            ccctrl->orthogn_speed = compute_controlled_speed_decrease(ccctrl->orthogn_speed, speed_limit*3/4);
             ccctrl->flgfield_1 |= CCFlg_Unknown80;
         } else
         {

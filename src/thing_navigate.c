@@ -496,7 +496,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
             creature_set_speed(thing, 0);
         } else
         {
-            creature_set_speed(thing, -speed);
+            creature_set_speed(thing, -(speed/2));
             cctrl->flgfield_2 |= TF2_Unkn01;
             if (get_chessboard_distance(&thing->mappos, &nextpos) > -2*cctrl->move_speed)
             {
