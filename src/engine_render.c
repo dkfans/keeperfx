@@ -468,7 +468,7 @@ struct EngineCoord object_origin;
 short mx;
 short my;
 short mz;
-unsigned char temp_cluedo_mode; // This is true(1) if the "short wall" have been enabled in the graphics options
+unsigned char temp_cluedo_mode; // This is true(1) if "low walls/"short wall" has been enabled in the graphics options
 struct Thing *thing_being_displayed;
 
 TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];
@@ -1114,6 +1114,16 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
     }
 }
 
+TbBool has_cube_higher_up(struct Column *col) 
+{
+    for (int i = 3; i < COLUMN_STACK_HEIGHT; i++) {
+        if (col->cubes[i] != 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
     if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
@@ -1158,7 +1168,8 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
-            if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
+
+            if (has_cube_higher_up(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
                 mask_cur &= 3;
             }
         }
@@ -1166,7 +1177,8 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
-            if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
+
+            if (has_cube_higher_up(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
                 mask_yp &= 3;
             }
         }
@@ -1232,7 +1244,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
-            if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if (has_cube_higher_up(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
                 mask_cur &= 3;
             }
         }
@@ -1240,7 +1252,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
-            if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if (has_cube_higher_up(col) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & CLF_CEILING_MASK) == 0)) {
                 mask_yp &= 3;
             }
         }
@@ -4465,7 +4477,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
             solidmsk_cur = solidmsk_cur_raw;
             if (solidmsk_cur >= (1<<3))
             {
-                if (((cur_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((cur_colmn->bitfields & 0xE) == 0)) {
+                if (((cur_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((cur_colmn->bitfields & CLF_CEILING_MASK) == 0)) {
                     solidmsk_cur &= 3;
                 }
             }
@@ -4478,7 +4490,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
             solidmsk_back = colmn->solidmask;
             if (solidmsk_back >= (1<<3))
             {
-                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & CLF_CEILING_MASK) == 0)) {
                     solidmsk_back &= 3;
                 }
             }
@@ -4490,7 +4502,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
             solidmsk_front = colmn->solidmask;
             if (solidmsk_front >= (1<<3))
             {
-                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & CLF_CEILING_MASK) == 0)) {
                     solidmsk_front &= 3;
                 }
             }
@@ -4502,7 +4514,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
             solidmsk_left = colmn->solidmask;
             if (solidmsk_left >= (1<<3))
             {
-                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & CLF_CEILING_MASK) == 0)) {
                     solidmsk_left &= 3;
                 }
             }
@@ -4514,7 +4526,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
             solidmsk_right = colmn->solidmask;
             if (solidmsk_right >= (1<<3))
             {
-                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & CLF_CEILING_MASK) == 0)) {
                     solidmsk_right &= 3;
                 }
             }
