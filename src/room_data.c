@@ -4111,8 +4111,8 @@ void create_guard_post_flags(struct Room *room)
         if (!found_flag)
         {
             struct Coord3d pos;
-            pos.x.val = subtile_coord(stl_x, 128);
-            pos.y.val = subtile_coord(stl_y, 128);
+            pos.x.val = subtile_coord(stl_x, 160);
+            pos.y.val = subtile_coord(stl_y, 127);
             pos.z.val = get_floor_height(stl_x, stl_y);
             static const ThingModel flag_models[] = {ObjMdl_GuardFlagRed, ObjMdl_GuardFlagBlue, ObjMdl_GuardFlagGreen, ObjMdl_GuardFlagYellow,
             ObjMdl_GuardFlagWhite, ObjMdl_GuardFlagPole, ObjMdl_GuardFlagPurple, ObjMdl_GuardFlagBlack, ObjMdl_GuardFlagOrange};
