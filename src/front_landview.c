@@ -1602,7 +1602,7 @@ long frontmap_update(void)
   }
   if (playing_good_descriptive_speech)
   {
-    if (!Mix_Playing(MIX_SPEECH_CHANNEL))
+    if (!speech_sample_playing())
     {
       playing_good_descriptive_speech = 0;
 //      playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;

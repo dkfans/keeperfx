@@ -372,9 +372,6 @@
     <ClCompile Include="src\gui_parchment.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gui_soundmsgs.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\gui_tooltips.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -736,6 +733,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\cdrom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui_soundmsgs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

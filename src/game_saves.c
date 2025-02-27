@@ -414,7 +414,7 @@ TbBool load_game(long slot_num)
     LbFileClose(fh);
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     reinit_level_after_load();
-    output_message(SMsg_GameLoaded, 0, true);
+    output_message(SMsg_GameLoaded, 0);
     panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();

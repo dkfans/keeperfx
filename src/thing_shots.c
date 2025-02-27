@@ -817,7 +817,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
             struct PlayerInfo* player = get_player(target->owner);
             if (player_exists(player) && (player->is_active == 1) && (shotng->owner != target->owner))
             {
-                output_message(SMsg_DefeatedKeeper, 0, true);
+                output_message(SMsg_DefeatedKeeper, 0);
             }
         }
         struct Dungeon* dungeon = get_players_num_dungeon(shotng->owner);
@@ -936,7 +936,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
             shootertng->mappos.x.val, shootertng->mappos.y.val,
           EvKind_HeartAttacked, target->owner, shootertng->index);
         if (is_my_player_number(target->owner)) {
-            output_message(SMsg_HeartUnderAttack, 400, true);
+            output_message(SMsg_HeartUnderAttack, 400);
         }
     } else
     {

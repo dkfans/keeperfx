@@ -163,7 +163,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
             {
                 if (is_my_player(player))
                 {
-                    output_message(SMsg_GoldNotEnough, 0, true);
+                    output_message(SMsg_GoldNotEnough, 0);
                 }
             }
         }

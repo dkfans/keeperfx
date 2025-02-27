@@ -138,7 +138,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
         SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
         player->additional_flags |= PlaAF_UnlockedLordTorture;
     }
-    output_message(SMsg_LevelWon, 0, true);
+    output_message(SMsg_LevelWon, 0);
   }
 }
 
@@ -168,7 +168,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
     if (is_my_player(player))
     {
-        output_message(SMsg_LevelFailed, 0, true);
+        output_message(SMsg_LevelFailed, 0);
         turn_off_all_menus();
         clear_transfered_creatures();
     }
@@ -363,7 +363,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
                         if (is_my_player_number(plyr_idx))
                         {
                         if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
-                            output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
+                            output_message(SMsg_GoldLow, MESSAGE_DURATION_TREASURY);
                         }
                         }
                         return amount_take;

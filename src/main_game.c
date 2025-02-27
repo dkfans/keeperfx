@@ -228,7 +228,7 @@ static void init_level(void)
     zero_messages();
     game.armageddon_cast_turn = 0;
     game.armageddon_over_turn = 0;
-    init_messages();
+    clear_messages();
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     game.pay_day_progress = 0;

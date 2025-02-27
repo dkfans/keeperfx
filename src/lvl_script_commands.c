@@ -5026,7 +5026,7 @@ static void script_play_message(TbBool param_is_string, const char msgtype_id, c
         {
             case 1: // speech message
             {
-                output_message(msg_id, 0, true);
+                output_message(msg_id, 0);
                 break;
             }
             case 2: // sound effect
@@ -5043,7 +5043,7 @@ static void script_play_message(TbBool param_is_string, const char msgtype_id, c
         {
             case 1: // speech message
             {
-                play_streamed_sample(filepath, settings.mentor_volume);
+                output_custom_message(filepath, settings.mentor_volume);
                 break;
             }
             case 2: // sound effect
