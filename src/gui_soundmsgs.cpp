@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "gui_soundmsgs.h"
+#include "config_settings.h"
 #include "game_legacy.h"
 #include "bflib_sndlib.h"
 #include "bflib_planar.h"
@@ -95,7 +96,7 @@ struct CustomMessage : Message {
 
 	void play() const noexcept override
 	{
-		play_streamed_sample(fname.c_str(), FULL_LOUDNESS);
+		play_streamed_sample(fname.c_str(), settings.mentor_volume);
 		g_recent_filenames[fname] = game.play_gameturn + duration;
 	}
 };
