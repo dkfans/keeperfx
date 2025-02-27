@@ -61,6 +61,7 @@ struct InstallInfo install_info;
 char keeper_runtime_directory[152];
 short api_enabled = false;
 uint16_t api_port = 5599;
+TbBool exit_on_lua_error = false;
 
 /**
  * Language 3-char abbreviations.
@@ -147,6 +148,7 @@ const struct NamedCommand conf_commands[] = {
   {"COMMAND_CHAR"                  , 32},
   {"API_ENABLED"                   , 33},
   {"API_PORT"                      , 34},
+  {"EXIT_ON_LUA_ERROR"             , 35}
   {NULL,                   0},
   };
 
@@ -1381,6 +1383,16 @@ short load_configuration(void)
           } else {
               CONFWRNLOG("Invalid API port '%s' in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
+          break;
+      case 35: // EXIT_ON_LUA_ERROR
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          exit_on_lua_error = (i == 1);
           break;
       case ccr_comment:
           break;

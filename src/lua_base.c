@@ -37,8 +37,10 @@ if (result != LUA_OK) {
         const char *trace = lua_tostring(L, -1);
         ERRORLOG("Stack trace:\n%s", trace ? trace : "No stack trace available");
         lua_pop(L, 2); // Remove error message and traceback
-
-        exit(EXIT_FAILURE);
+        if (exit_on_lua_error)
+        {
+            exit(EXIT_FAILURE);
+        }
         return false;
     }
     return true;
