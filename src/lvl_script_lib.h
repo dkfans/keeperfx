@@ -331,7 +331,7 @@ TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
 long parse_criteria(const char *criteria);
 #define get_players_range_single(plr_range_id) get_players_range_single_f(plr_range_id, __func__, text_line_number)
 long get_players_range_single_f(long plr_range_id, const char *func_name, long ln_num);
-TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type);
+TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type, long level_file_version);
 void get_chat_icon_from_value(const char* txt, char* id, char* type);
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
 TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num);

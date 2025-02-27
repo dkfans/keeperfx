@@ -2271,7 +2271,7 @@ static int player_set_field(lua_State *L) {
     long variable_type;
     long variable_id;
 
-    if (parse_get_varib(key, &variable_id, &variable_type))
+    if (parse_get_varib(key, &variable_id, &variable_type,1))
     {
         set_variable(player_idx,variable_type,variable_id,value);
         return 0;
@@ -2319,7 +2319,7 @@ static int player_get_field(lua_State *L) {
     long variable_type;
     long variable_id;
 
-    if (parse_get_varib(key, &variable_id, &variable_type))
+    if (parse_get_varib(key, &variable_id, &variable_type,1))
     {
         lua_pushinteger(L, get_condition_value(plyr_idx, variable_type, variable_id));
         return 1;

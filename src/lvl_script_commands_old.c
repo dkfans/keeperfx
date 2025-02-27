@@ -1145,7 +1145,7 @@ static void command_export_variable(long plr_range_id, const char *varib_name, c
         SCRPTERRLOG("Unknown CAMPAIGN FLAG, '%s'", cmpflgname);
         return;
     }
-    if (!parse_get_varib(varib_name, &src_id, &src_type))
+    if (!parse_get_varib(varib_name, &src_id, &src_type, level_file_version))
     {
         SCRPTERRLOG("Unknown VARIABLE, '%s'", varib_name);
         return;
@@ -1238,7 +1238,7 @@ static void command_compute_flag(long plr_range_id, const char *flgname, const c
     src_flg_id = get_id(power_desc, src_flgname);
     if (src_flg_id == -1)
     {
-        if (!parse_get_varib(src_flgname, &src_flg_id, &src_flag_type))
+        if (!parse_get_varib(src_flgname, &src_flg_id, &src_flag_type, level_file_version))
         {
             SCRPTERRLOG("Unknown source flag, '%s'", src_flgname);
             return;

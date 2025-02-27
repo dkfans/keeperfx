@@ -610,13 +610,13 @@ TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
     return true;
 }
 
-TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
+TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type, long lvl_file_version)
 {
     char c;
     int len = 0;
     char arg[MAX_TEXT_LENGTH];
 
-    if (level_file_version > 0)
+    if (lvl_file_version > 0)
     {
         *varib_type = get_id(variable_desc, varib_name);
     } else
@@ -1549,7 +1549,7 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     const char *flag_name = scline->tp[4];
 
     long flag_id, flag_type;
-    if (!parse_get_varib(flag_name, &flag_id, &flag_type))
+    if (!parse_get_varib(flag_name, &flag_id, &flag_type, level_file_version))
     {
         SCRPTERRLOG("Unknown flag, '%s'", flag_name);
         return;
@@ -3877,7 +3877,7 @@ static void add_bonus_time_process(struct ScriptContext *context)
 static void display_variable_check(const struct ScriptLine *scline)
 {
     long varib_id, varib_type;
-    if (!parse_get_varib(scline->tp[1], &varib_id, &varib_type))
+    if (!parse_get_varib(scline->tp[1], &varib_id, &varib_type, level_file_version))
     {
         SCRPTERRLOG("Unknown variable, '%s'", scline->tp[1]);
         return;
@@ -4650,11 +4650,11 @@ static void if_check(const struct ScriptLine *scline)
       return;
     }
     // Recognize variable
-    if (!parse_get_varib(varib_name, &varib_id, &varib_type))
+    if (!parse_get_varib(varib_name, &varib_id, &varib_type, level_file_version))
     {
         return;
     }
-    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right))
+    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right, level_file_version))
     {
         return;
     }
@@ -4796,7 +4796,7 @@ static void if_available_check(const struct ScriptLine *scline)
             }
         }
     }
-    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right))
+    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right, level_file_version))
     {
         return;
     }
@@ -4897,7 +4897,7 @@ static void if_controls_check(const struct ScriptLine *scline)
         }
     }
 
-    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right))
+    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right, level_file_version))
     {
         return;
     }
