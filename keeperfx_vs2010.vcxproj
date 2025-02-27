@@ -169,7 +169,7 @@
     <ClCompile Include="src\gui_frontmenu.c" />
     <ClCompile Include="src\gui_msgs.c" />
     <ClCompile Include="src\gui_parchment.c" />
-    <ClCompile Include="src\gui_soundmsgs.c" />
+    <ClCompile Include="src\gui_soundmsgs.cpp" />
     <ClCompile Include="src\gui_tooltips.c" />
     <ClCompile Include="src\gui_topmsg.c" />
     <ClCompile Include="src\KeeperSpeechImp.c" />

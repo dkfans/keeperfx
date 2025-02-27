@@ -652,13 +652,13 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
         dungeon->lvstats.manufactured_traps++;
         // If that's local player - make a message
         if (is_my_player_number(plyr_idx))
-            output_message(SMsg_ManufacturedTrap, 0, true);
+            output_message(SMsg_ManufacturedTrap, 0);
         break;
     case TCls_Door:
         dungeon->lvstats.manufactured_doors++;
         // If that's local player - make a message
         if (is_my_player_number(plyr_idx))
-            output_message(SMsg_ManufacturedDoor, 0, true);
+            output_message(SMsg_ManufacturedDoor, 0);
         break;
     default:
         ERRORLOG("Invalid type of new manufacture: %d (%s)",(int)dungeon->manufacture_class, thing_class_code_name(dungeon->manufacture_class));
@@ -688,8 +688,8 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
             EvKind_TrapCrateFound, creatng->owner, picktng->index);
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
             {
-                output_message(SMsg_TrapStolen, 0, true);
-            } 
+                output_message(SMsg_TrapStolen, 0);
+            }
             else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
             {
                 if (picktng->owner != game.neutral_player_num)
@@ -697,7 +697,7 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
                     player = get_my_player();
                     if (creatng->index != player->influenced_thing_idx)
                     {
-                        output_message(SMsg_TrapTaken, 0, true);
+                        output_message(SMsg_TrapTaken, 0);
                     }
                 }
             }
@@ -708,8 +708,8 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
             EvKind_DoorCrateFound, creatng->owner, picktng->index);
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
             {
-                output_message(SMsg_DoorStolen, 0, true);
-            } 
+                output_message(SMsg_DoorStolen, 0);
+            }
             else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
             {
                 if (picktng->owner != game.neutral_player_num)
@@ -717,7 +717,7 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
                     player = get_my_player();
                     if (creatng->index != player->influenced_thing_idx)
                     {
-                        output_message(SMsg_DoorTaken, 0, true);
+                        output_message(SMsg_DoorTaken, 0);
                     }
                 }
             }
