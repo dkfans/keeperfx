@@ -162,12 +162,12 @@ bool played_recently(const char * fname)
 extern "C" TbBool output_message(SoundSmplTblID sample_id, long duration)
 {
 	try {
-		SYNCDBG(8, "Sample ID %ld, duration %ld", sample_id, duration);
+		SYNCDBG(8, "Sample ID %d, duration %ld", sample_id, duration);
 		if ((sample_id < 0) || (sample_id >= SMsg_MAX)) {
-			SYNCDBG(8, "Sample ID (%ld) invalid, skipping", sample_id);
+			SYNCDBG(8, "Sample ID (%d) invalid, skipping", sample_id);
 			return false;
 		} else if (played_recently(sample_id)) {
-			SYNCDBG(8, "Sample ID (%ld) played recently, skipping", sample_id);
+			SYNCDBG(8, "Sample ID (%d) played recently, skipping", sample_id);
 			return false;
 		}
 		auto msg = std::make_unique<DefaultMessage>(sample_id, duration);
@@ -228,12 +228,12 @@ extern "C" TbBool output_message_far_from_thing(
 	long duration
 ) {
 	try {
-		SYNCDBG(8, "Sample ID %ld, duration %ld", sample_id, duration);
+		SYNCDBG(8, "Sample ID %d, duration %ld", sample_id, duration);
 		if ((sample_id < 0) || (sample_id >= SMsg_MAX)) {
-			SYNCDBG(8, "Sample ID (%ld) invalid, skipping", sample_id);
+			SYNCDBG(8, "Sample ID (%d) invalid, skipping", sample_id);
 			return false;
 		} else if (played_recently(sample_id)) {
-			SYNCDBG(8, "Sample ID (%ld) played recently, skipping", sample_id);
+			SYNCDBG(8, "Sample ID (%d) played recently, skipping", sample_id);
 			return false;
 		} else if (thing_is_invalid(thing)) {
 			return false;
