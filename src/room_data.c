@@ -54,6 +54,7 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "config_spritecolors.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -3963,7 +3964,7 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
     output_room_takeover_message(room, oldowner, claimtng->owner);
     if (room_role_matches(room->kind, RoRoF_CrGuard))
     {
-        if (oldowner == game.hero_player_num)
+        if (oldowner == PLAYER_GOOD)
         {
             create_guard_post_flags(room);
         }
@@ -4012,7 +4013,7 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
         event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, EvKind_RoomLost, oldowner, room->kind);
         if (room_role_matches(room->kind, RoRoF_CrGuard))
         {
-            if (oldowner == game.hero_player_num)
+            if (oldowner == PLAYER_GOOD)
             {
                 create_guard_post_flags(room);
             }
@@ -4113,10 +4114,12 @@ void create_guard_post_flags(struct Room *room)
             pos.x.val = subtile_coord(stl_x, 128);
             pos.y.val = subtile_coord(stl_y, 128);
             pos.z.val = get_floor_height(stl_x, stl_y);
-            thing = create_guard_flag_object(&pos, room->owner, slb_num);
+            static const ThingModel flag_models[] = {ObjMdl_GuardFlagRed, ObjMdl_GuardFlagBlue, ObjMdl_GuardFlagGreen, ObjMdl_GuardFlagYellow,
+            ObjMdl_GuardFlagWhite, ObjMdl_GuardFlagPole, ObjMdl_GuardFlagPurple, ObjMdl_GuardFlagBlack, ObjMdl_GuardFlagOrange};
+            thing = create_object(&pos, flag_models[room->owner], room->owner, slb_num);
             if (thing_is_invalid(thing))
             {
-                ERRORLOG("Cannot create Guard Post flag at co-ordinates %d %d (%d %d)", pos.x.val, pos.y.val, coord_subtile(pos.x.val), coord_subtile(pos.y.val));
+                ERRORLOG("Cannot create Guard Post flag at co-ordinates %ld %ld (%ld %ld)", pos.x.val, pos.y.val, coord_subtile(pos.x.val), coord_subtile(pos.y.val));
             }
         }
         slb_num = get_next_slab_number_in_room(slb_num);
