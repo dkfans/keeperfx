@@ -132,7 +132,7 @@ void select_resurrect_creature(struct GuiButton *gbtn)
     {
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
         struct Packet* pckt = get_packet(my_player_number);
-        set_packet_action(pckt, PckA_ResurrectCrtr, dungeon_special_selected, dungeon->owner | (cstore->model << 4) | (cstore->explevel << 12), 0, 0);
+        set_packet_action(pckt, PckA_ResurrectCrtr, dungeon_special_selected, dungeon->owner | (cstore->model << 4) | (cstore->exp_level << 12), 0, 0);
         turn_off_menu(GMnu_RESURRECT_CREATURE);
     }
 }
@@ -146,7 +146,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     struct Dungeon* dungeon = get_my_dungeon();
     int i = selected_resurrect_creature(dungeon, gbtn);
-    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : ((gbtn->height * 22 / 26) * 16) / LbTextLineHeight();
+    int tx_units_per_px = scale_ui_value_lofi(16);
     if (i != -1)
     {
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
@@ -154,64 +154,25 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(cstore->model, CGI_HandSymbol);
         const struct TbSprite* spr = get_panel_sprite(spr_idx);
-        int x;
-        if (MyScreenWidth <= 640)
+        int x = gbtn->scr_pos_x - scale_ui_value_lofi(1);
+        int y = gbtn->scr_pos_y - (19 * tx_units_per_px / 16);
+
+        if (LbGraphicsScreenHeight() < 400)
         {
-            x = gbtn->scr_pos_x - (spr->SWidth / 8);
+            y = gbtn->scr_pos_y - (19 * tx_units_per_px / 32);
         }
-        else
-        {
-            x = gbtn->scr_pos_x - (spr->SWidth / 4);
-        }
-        LbSpriteDrawResized(x, gbtn->scr_pos_y - (19 * units_per_pixel / 16), tx_units_per_px, spr);
-        int adjust;
-        int ratio = (MyScreenWidth / 640);
-        if (ratio == 0)
-        {
-            ratio = 3;
-        }
-        int h = 0;
-        if ((dbc_initialized) && (dbc_enabled)) 
-        {
-            adjust = 2;
-            if (MyScreenHeight < 400)
-            {
-                LbTextSetWindow(gbtn->scr_pos_x + 4, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-            }
-            if (dbc_language == 1)
-            {
-                if ( (ratio > 1) )
-                {
-                    if (MyScreenHeight >= 400)
-                    {
-                        tx_units_per_px = ((gbtn->height * 22 / 26) * 14) / LbTextLineHeight();
-                        h = (gbtn->height / 4);
-                    }
-                }
-            }
-            if (ratio > 2)
-            {
-                ratio = 2;
-            }
-        }
-        else
-        {
-            adjust = (ratio >= 3) ? 0 : 1;
-            if (ratio > 2)
-            {
-                ratio = (MyScreenHeight >= 400) ? 2 : 1;
-            }
-        }
-        int w = ((spr->SWidth -  10) + (4 * ratio)) + ((4 * ((MyScreenWidth / 320) - adjust)) * ratio);
+        LbSpriteDrawResized(x, y, tx_units_per_px, spr);
+        int h = scale_ui_value_lofi(gbtn->height) / 16;
+        int w = scale_ui_value_lofi(spr->SWidth + 2);
         LbTextDrawResizedFmt(w, h, tx_units_per_px, "%s", get_string(crconf->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
         if ( (MyScreenHeight < 400) && (dbc_language == 1) )
         {
-            LbTextDrawResizedFmt(0, h, tx_units_per_px, "%u", (cstore->explevel+1));
+            LbTextDrawResizedFmt(0, h, tx_units_per_px, "%u", (cstore->exp_level+1));
         }
         else
         {
-            LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cstore->explevel+1));
+            LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cstore->exp_level+1));
         }
     }
     lbDisplay.DrawFlags = flg_mem;
@@ -266,14 +227,12 @@ void draw_transfer_creature(struct GuiButton *gbtn)
     unsigned long flgmem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
     LbTextSetFont(winfont);
-    LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
-        gbtn->width, gbtn->height, 0); // The 0 means black color
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y,
-        gbtn->width, gbtn->height);
+    LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height, 0); // The 0 means black color
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     struct Dungeon* dungeon = get_my_dungeon();
     struct Thing* thing = INVALID_THING;
     int listitm_idx = selected_transfer_creature(dungeon, gbtn);
-    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : ((gbtn->height * 22 / 26) * 16) / LbTextLineHeight();
+    int tx_units_per_px = scale_ui_value_lofi(16);
     if (listitm_idx != -1)
     {
         thing = get_player_list_nth_creature_with_property(dungeon->creatr_list_start, CMF_NoTransfer, listitm_idx);
@@ -285,64 +244,24 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
         const struct TbSprite* spr = get_panel_sprite(spr_idx);
-        int x;
-        if (MyScreenWidth <= 640)
+        int x = gbtn->scr_pos_x - scale_ui_value_lofi(1);
+        int y = gbtn->scr_pos_y - (19 * tx_units_per_px / 16);
+        if (LbGraphicsScreenHeight() < 400)
         {
-            x = gbtn->scr_pos_x - (spr->SWidth / 8);
+            y = gbtn->scr_pos_y - (19 * tx_units_per_px / 32);
         }
-        else
-        {
-            x = gbtn->scr_pos_x - (spr->SWidth / 4);
-        }
-        LbSpriteDrawResized(x, gbtn->scr_pos_y - (19 * units_per_pixel / 16), tx_units_per_px, spr);
-        int adjust;
-        int ratio = (MyScreenWidth / 640);
-        if (ratio == 0)
-        {
-            ratio = 3;
-        }
-        int h = 0;
-        if ((dbc_initialized) && (dbc_enabled)) 
-        {
-            adjust = 2;
-            if (MyScreenHeight < 400)
-            {
-                LbTextSetWindow(gbtn->scr_pos_x + 4, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-            }
-            if (dbc_language == 1)
-            {
-                if ( (ratio > 1) )
-                {
-                    if (MyScreenHeight >= 400)
-                    {
-                        tx_units_per_px = ((gbtn->height * 22 / 26) * 14) / LbTextLineHeight();
-                        h = (gbtn->height / 4);
-                    }
-                }
-            }
-            if (ratio > 2)
-            {
-                ratio = 2;
-            }
-        }
-        else
-        {
-            adjust = (ratio >= 3) ? 0 : 1;
-            if (ratio > 2)
-            {
-                ratio = (MyScreenHeight >= 400) ? 2 : 1;
-            }
-        }
-        int w = ((spr->SWidth -  10) + (4 * ratio)) + ((4 * ((MyScreenWidth / 320) - adjust)) * ratio);
+        LbSpriteDrawResized(x, y, tx_units_per_px, spr);
+        int h = scale_ui_value_lofi(gbtn->height)/16;
+        int w = scale_ui_value_lofi(spr->SWidth + 2);
         LbTextDrawResizedFmt(w, h, tx_units_per_px, "%s", get_string(crconf->namestr_idx));
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
         if ( (MyScreenHeight < 400) && (dbc_language == 1) )
         {
-            LbTextDrawResizedFmt(0, h, tx_units_per_px, "%u", (cctrl->explevel+1));
+            LbTextDrawResizedFmt(0, h, tx_units_per_px, "%u", (cctrl->exp_level+1));
         }
         else
         {
-            LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cctrl->explevel+1));
+            LbTextDrawResizedFmt(0, h, tx_units_per_px, " %s %u", get_string(GUIStr_MnuLevel), (cctrl->exp_level+1));
         }
     }
     lbDisplay.DrawFlags = flgmem;

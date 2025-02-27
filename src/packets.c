@@ -72,7 +72,7 @@
 #include "room_data.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "light_data.h"
@@ -90,10 +90,7 @@
 #include "vidfade.h"
 #include "spdigger_stack.h"
 #include "frontmenu_ingame_map.h"
-
 #include "keeperfx.hpp"
-
-#include "music_player.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -172,7 +169,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
         {
             case OcC_CallToArms_expand:
                 if (player_uses_power_call_to_arms(plyr_idx))
-                    player->cast_expand_level = (dungeon->cta_splevel << 2);
+                    player->cast_expand_level = (dungeon->cta_power_level << 2);
                 else
                     update_power_overcharge(player, player->chosen_power_kind);
                 break;
@@ -288,13 +285,11 @@ void process_pause_packet(long curr_pause, long new_pause)
         if ((game.operation_flags & GOF_Paused) != 0)
         {
           SetSoundMasterVolume(settings.sound_volume >> 1);
-          SetMusicPlayerVolume(settings.redbook_volume >> 1);
-          SetMusicMasterVolume(settings.sound_volume >> 1);
+          set_music_volume(settings.music_volume >> 1);
         } else
         {
           SetSoundMasterVolume(settings.sound_volume);
-          SetMusicPlayerVolume(settings.redbook_volume);
-          SetMusicMasterVolume(settings.sound_volume);
+          set_music_volume(settings.music_volume);
         }
       }
       if ((game.operation_flags & GOF_Paused) != 0)
@@ -907,7 +902,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_PlyrFastMsg:
       //show_onscreen_msg(game.num_fps, "Message from player %d", plyr_idx);
-      output_message(SMsg_EnemyHarassments+pckt->actn_par1, 0, true);
+      output_message(SMsg_EnemyHarassments+pckt->actn_par1, 0);
       return 0;
   case PckA_SetComputerKind:
       set_autopilot_type(plyr_idx, pckt->actn_par1);
@@ -1103,24 +1098,24 @@ void process_players_packet(long plyr_idx)
       // and action perform (which does specific action set in packet).
       switch (player->view_type)
       {
-      case PVT_DungeonTop:
-        process_players_dungeon_control_packet_control(plyr_idx);
-        process_players_dungeon_control_packet_action(plyr_idx);
-        break;
-      case PVT_CreatureContrl:
-        process_players_creature_control_packet_control(plyr_idx);
-        process_players_creature_control_packet_action(plyr_idx);
-        break;
-      case PVT_CreaturePasngr:
-        //process_players_creature_passenger_packet_control(plyr_idx); -- there are no control changes in passenger mode
-        process_players_creature_passenger_packet_action(plyr_idx);
-        break;
-      case PVT_MapScreen:
-        process_players_map_packet_control(plyr_idx);
-        //process_players_map_packet_action(plyr_idx); -- there are no actions to perform from map screen
-        break;
-      default:
-        break;
+          case PVT_DungeonTop:
+            process_players_dungeon_control_packet_control(plyr_idx);
+            process_players_dungeon_control_packet_action(plyr_idx);
+            break;
+          case PVT_CreatureContrl:
+            process_players_creature_control_packet_control(plyr_idx);
+            process_players_creature_control_packet_action(plyr_idx);
+            break;
+          case PVT_CreaturePasngr:
+            //process_players_creature_passenger_packet_control(plyr_idx); -- there are no control changes in passenger mode
+            process_players_creature_passenger_packet_action(plyr_idx);
+            break;
+          case PVT_MapScreen:
+            process_players_map_packet_control(plyr_idx);
+            //process_players_map_packet_action(plyr_idx); -- there are no actions to perform from map screen
+            break;
+          default:
+            break;
       }
   }
   SYNCDBG(8,"Finished");
@@ -1241,7 +1236,7 @@ void process_players_creature_control_packet_control(long idx)
             {
                 if (creature_instance_has_reset(cctng, i))
                 {
-                    if (!creature_affected_by_spell(cctng, SplK_Chicken))
+                    if (!creature_under_spell_effect(cctng, CSAfF_Chicken))
                     {
                         inst_inf = creature_instance_info_get(i);
                         process_player_use_instance(cctng, i, pckt);

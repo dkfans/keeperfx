@@ -95,15 +95,17 @@ enum FreeThingAllocFlags {
 };
 
 enum ThingMovementFlags {
-    TMvF_Default            = 0x00,
-    TMvF_IsOnWater          = 0x01,
-    TMvF_IsOnLava           = 0x02,
-    TMvF_BeingSacrificed    = 0x04,
-    TMvF_Unknown08          = 0x08, // thing->veloc_base.z.val = 0
-    TMvF_Unknown10          = 0x10, //Stopped by walls?
-    TMvF_Flying             = 0x20,
-    TMvF_Immobile           = 0x40,
-    TMvF_IsOnSnow           = 0x80,
+    TMvF_Default            = 0x000, // Default.
+    TMvF_IsOnWater          = 0x001, // The creature is walking on water.
+    TMvF_IsOnLava           = 0x002, // The creature is walking on lava.
+    TMvF_BeingSacrificed    = 0x004, // For creature falling in the temple pool, this informs its sacrificed state.
+    TMvF_Unknown08          = 0x008, // thing->veloc_base.z.val = 0;
+    TMvF_GoThroughWalls     = 0x010,
+    TMvF_Flying             = 0x020, // The creature is flying and can navigate in the air.
+    TMvF_Immobile           = 0x040, // The creature cannot move.
+    TMvF_IsOnSnow           = 0x080, // The creature leaves footprints on snow path.
+    TMvF_MagicFall          = 0x100, // The creature does a free fall with magical effect, ie. it was just created with some initial velocity.
+    TMvF_Grounded           = 0x200, // For creature which are normally flying, this informs that its grounded due to spells or its condition.
 };
 
 /******************************************************************************/
@@ -159,7 +161,7 @@ struct Thing {
         unsigned char number;
       } hero_gate;
       struct {
-        unsigned char spell_level;
+        KeepPwrLevel power_level;
       } lightning;
       struct {
         short belongs_to;
@@ -183,7 +185,7 @@ struct Thing {
         short damage;
         unsigned char hit_type;
         short target_idx;
-        unsigned char spell_level;
+        CrtrExpLevel shot_level;
         struct Coord3d originpos;
         int num_wind_affected;
         CctrlIndex wind_affected_creature[CREATURES_COUNT];  //list of wind affected Creatures
@@ -199,7 +201,7 @@ struct Thing {
 //TCls_EffectElem
 //TCls_DeadCreature
       struct {
-          unsigned char exp_level;
+          CrtrExpLevel exp_level;
           unsigned char laid_to_rest;
       } corpse;
 //TCls_Creature
@@ -267,7 +269,7 @@ struct Thing {
     unsigned char bounce_angle;
     short inertia_floor;
     short inertia_air;
-    unsigned char movement_flags;
+    unsigned short movement_flags;
     struct CoordDelta3d veloc_push_once;
     struct CoordDelta3d veloc_base;
     struct CoordDelta3d veloc_push_add;

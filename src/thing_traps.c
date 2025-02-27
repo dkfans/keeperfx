@@ -24,6 +24,7 @@
 #include "bflib_math.h"
 #include "bflib_planar.h"
 
+#include "cursor_tag.h"
 #include "thing_data.h"
 #include "creature_states_combt.h"
 #include "config_creature.h"
@@ -32,7 +33,7 @@
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_shots.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "room_util.h"
@@ -45,6 +46,7 @@
 #include "keeperfx.hpp"
 #include "creature_senses.h"
 #include "cursor_tag.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -539,7 +541,6 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
     }
     struct Thing* thing;
     struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
-    struct CreatureControl* cctrl;
     struct Coord3d shot_origin;
     shot_origin.x.val = traptng->mappos.x.val;
     shot_origin.y.val = traptng->mappos.y.val;
@@ -562,12 +563,11 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
         delete_thing_structure(thing, 0);
         return INVALID_THING;
     }
-    cctrl = creature_control_get_from_thing(thing);
     thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 0;
-    thing->state_flags |= TF1_PushAdd;
-    cctrl->spell_flags |= CSAfF_MagicFall;
+    set_flag(thing->state_flags, TF1_PushAdd);
+    set_flag(thing->movement_flags, TMvF_MagicFall);
     thing->move_angle_xy = 0;
     return thing;
 }
@@ -628,6 +628,56 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     default:
         ERRORLOG("Illegal trap activation type %d (idx=%d)",(int)trapst->activation_type, traptng->index);
         break;
+    }
+}
+
+void activate_trap_by_slap(struct PlayerInfo *player, struct Thing* traptng)
+{
+    struct Thing* trgtng = INVALID_THING;
+    struct TrapConfigStats* trapst = get_trap_model_stats(traptng->model);
+    TbBool special_case = false;
+
+    if (trapst->slappable == 2)
+    {
+        trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(traptng);
+        activate_trap(traptng, trgtng);
+    }
+    if (trapst->slappable == 1)
+    {
+        switch (trapst->activation_type)
+        {
+        case TrpAcT_EffectonTrap:
+        case TrpAcT_ShotonTrap:
+        case TrpAcT_SlabChange:
+        case TrpAcT_CreatureSpawn:
+        case TrpAcT_Power:
+            activate_trap(traptng, trgtng);
+            break;
+        default:
+            special_case = true;
+            break;
+        }
+
+        if (special_case == true)
+        {
+            traptng->trap.revealed = 1;
+            if (trapst->notify == true)
+            {
+                event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
+            }
+            thing_play_sample(traptng, trapst->trigger_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+
+            switch (trapst->activation_type)
+            {
+            case TrpAcT_HeadforTarget90:
+            case TrpAcT_CreatureShot:
+                external_activate_trap_shot_at_angle(traptng, player->acamera->orient_a, trgtng);
+                break;
+            default:
+                ERRORLOG("Illegal trap activation type %d (idx=%d)", (int)trapst->activation_type, traptng->index);
+                break;
+            }
+        }
     }
 }
 
@@ -1091,7 +1141,6 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, short angle, stru
         && (trapst->activation_type != TrpAcT_HeadforTarget90))
     {
         activate_trap(thing, trgtng);
-        process_trap_charge(thing);
         if (thing->trap.num_shots != INFINITE_CHARGES)
         {
             if (thing->trap.num_shots > 0) {
@@ -1186,7 +1235,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     return false;
 }
 
-void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, char shot_lvl, short angle_xy)
+void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, CrtrExpLevel shot_level, short angle_xy)
 {
     struct Thing* shotng;
     struct ComponentVector cvect;
@@ -1279,6 +1328,21 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
             shotng->state_flags |= TF1_PushAdd;
             shotng->shot.hit_type = trapst->hit_type;
             break;
+    }
+}
+
+void script_place_trap(PlayerNumber plyridx, ThingModel trapkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool free)
+{
+    if (can_place_trap_on(plyridx, stl_x, stl_y, trapkind))
+    {
+        if (free)
+        {
+            player_place_trap_without_check_at(stl_x, stl_y, plyridx, trapkind, free);
+        }
+        else
+        {
+            player_place_trap_at(stl_x, stl_y, plyridx, trapkind);
+        }
     }
 }
 

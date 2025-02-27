@@ -130,7 +130,7 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
     for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
-        if (!thing_is_invalid(enmtng) && !thing_is_creature_special_digger(enmtng))
+        if (!thing_is_invalid(enmtng) && !thing_is_creature_digger(enmtng))
         {
             if (players_are_enemies(fightng->owner,enmtng->owner)) {
                 return true;
@@ -141,7 +141,7 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
     for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
-        if (!thing_is_invalid(enmtng) && !thing_is_creature_special_digger(enmtng))
+        if (!thing_is_invalid(enmtng) && !thing_is_creature_digger(enmtng))
         {
             if (players_are_enemies(fightng->owner,enmtng->owner)) {
                 return true;
@@ -165,20 +165,31 @@ TbBool creature_can_see_combat_path(const struct Thing *creatng, const struct Th
 
 TbBool creature_will_do_combat(const struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    // Creature turned to chicken is defenseless
-    if (creature_affected_by_spell(thing, SplK_Chicken))
-        return false;
-    // Neutral creatures won't fight
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    // Neutral creatures won't fight.
     if (is_neutral_thing(thing))
+    {
         return false;
-    if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0)
+    }
+    // Creature turned to chicken is defenseless.
+    if (creature_under_spell_effect(thing, CSAfF_Chicken))
+    {
         return false;
-    // Frozen creature cannot attack
-    if (creature_affected_by_spell(thing, SplK_Freeze))
+    }
+    // Frozen creature cannot attack.
+    if (creature_under_spell_effect(thing, CSAfF_Freeze))
+    {
         return false;
-    if (creature_affected_by_spell(thing, SplK_Fear))
+    }
+    // Creature affected with fear won't fight.
+    if (creature_under_spell_effect(thing, CSAfF_Fear))
+    {
         return false;
+    }
+    if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
+    {
+        return false;
+    }
     return can_change_from_state_to(thing, thing->active_state, CrSt_CreatureInCombat);
 }
 
@@ -234,7 +245,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     // Neutral creatures are not easily scared, as they shouldn't have enemies
     if (is_neutral_thing(creatng))
         return false;
-    if (creature_affected_by_spell(enmtng, SplK_TimeBomb))
+    if (creature_under_spell_effect(enmtng, CSAfF_Timebomb))
     {
         if (creature_has_ranged_weapon(creatng) == false)
         {
@@ -1146,14 +1157,14 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrA
       if (is_my_player_number(fighter->owner))
       {
           if (is_my_player_number(enemy->owner)) {
-              output_message_far_from_thing(fighter,SMsg_FingthingFriends, MESSAGE_DELAY_FIGHT, 1);
+              output_message_far_from_thing(fighter,SMsg_FingthingFriends, MESSAGE_DURATION_FIGHT);
           } else {
-              output_message_far_from_thing(fighter,SMsg_CreatureAttacking, MESSAGE_DELAY_FIGHT, 1);
+              output_message_far_from_thing(fighter,SMsg_CreatureAttacking, MESSAGE_DURATION_FIGHT);
           }
       } else
       {
           if (is_my_player_number(enemy->owner)) {
-              output_message_far_from_thing(enemy,SMsg_CreatureDefending, MESSAGE_DELAY_FIGHT, 1);
+              output_message_far_from_thing(enemy,SMsg_CreatureDefending, MESSAGE_DURATION_FIGHT);
           }
       }
     }
@@ -1346,7 +1357,7 @@ short creature_combat_flee(struct Thing *creatng)
             }
             cctrl->flee_start_turn = game.play_gameturn;
         } else
-        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_affected_by_spell(creatng, SplK_Fear))
+        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_under_spell_effect(creatng, CSAfF_Fear))
         {
             GameTurnDelta escape_turns = (game.conf.rules.creature.game_turns_in_flee >> 2);
             if (escape_turns <= 50)
@@ -1381,7 +1392,7 @@ short creature_combat_flee(struct Thing *creatng)
                 return 1;
             }
         }
-        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_affected_by_spell(creatng, SplK_Fear))
+        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_under_spell_effect(creatng, CSAfF_Fear))
         {
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
                 creatng->continue_state = CrSt_CreatureCombatFlee;
@@ -1784,7 +1795,7 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
     if (enmdist < subtile_coord(3,0)) {
         creature_retreat_from_combat(thing, enmtng, nstat, 1);
     } else
-    if (enmdist > compute_creature_attack_range(subtile_coord(8,0), 0, cctrl->explevel)) {
+    if (enmdist > compute_creature_attack_range(subtile_coord(8,0), 0, cctrl->exp_level)) {
         creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0);
     }
     return thing_in_field_of_view(thing, enmtng);
@@ -3292,9 +3303,13 @@ struct Thing *check_for_door_to_fight(struct Thing *thing)
 TbBool creature_look_for_enemy_door_combat(struct Thing *thing)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    // Creatures which can pass doors shouldn't pick a fight with them
+    // Creatures which can pass doors shouldn't pick a fight with them, unless they are ordered to
     if (crstat->can_go_locked_doors) {
-        return false;
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (game.play_gameturn != cctrl->dropped_turn)
+        {
+            return false;
+        }
     }
     struct Thing* doortng = check_for_door_to_fight(thing);
     if (thing_is_invalid(doortng)) {

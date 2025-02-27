@@ -99,7 +99,7 @@ struct S3DSample { // sizeof = 37
   unsigned short base_pitch;
   unsigned short pan;
   unsigned short volume;
-  struct SampleInfo *smpinfo;
+  SoundMilesID mss_id;
   struct SoundEmitter *emit_ptr;
   long emit_idx;
   char field_1D; // signed
@@ -119,15 +119,10 @@ struct SampleTable {
 /******************************************************************************/
 // Exported variables
 extern int atmos_sound_volume;
-extern long samples_in_bank;
-extern long samples_in_bank2;
 extern TbBool SoundDisabled;
 extern long MaxSoundDistance;
 extern struct SoundReceiver Receiver;
 extern long Non3DEmitter;
-extern struct SampleTable *sample_table;
-extern struct SampleTable *sample_table2;
-extern unsigned char using_two_banks;
 extern long SpeechEmitter;
 #pragma pack()
 /******************************************************************************/
@@ -158,7 +153,7 @@ void play_non_3d_sample(SoundSmplTblID);
 void play_non_3d_sample_no_overlap(SoundSmplTblID);
 void play_atmos_sound(SoundSmplTblID);
 short sound_emitter_in_use(SoundEmitterID);
-struct SampleInfo * play_sample(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, char fil1D, unsigned char ctype, SoundBankID);
+SoundMilesID play_sample(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, char fil1D, unsigned char ctype, SoundBankID);
 void stop_sample(SoundEmitterID, SoundSmplTblID, SoundBankID);
 long speech_sample_playing(void);
 long play_speech_sample(SoundSmplTblID);
@@ -170,6 +165,7 @@ TbBool process_sound_samples(void);
 struct SoundEmitter* S3DGetSoundEmitter(SoundEmitterID);
 SoundEmitterID get_emitter_id(struct SoundEmitter *);
 void kick_out_sample(SoundSmplTblID);
+SoundSFXID get_sample_sfxid(SoundSmplTblID smptbl_id, SoundBankID bank_id);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -31,6 +31,7 @@ extern "C" {
 
 #define FULL_LOUDNESS 256
 #define NORMAL_PITCH 100
+#define MIX_SPEECH_CHANNEL 0
 
 /******************************************************************************/
 #pragma pack(1)
@@ -55,30 +56,6 @@ struct SoundSettings {
   unsigned char redbook_enable;
 };
 
-struct SoundBankHead { // sizeof = 18
-  unsigned char field_0[14];
-  unsigned long field_E;
-};
-
-struct SoundBankSample { // sizeof = 32
-    /** Name of the sound file the sample comes from. */
-    char filename[18];
-    /** Offset of the sample data. */
-    unsigned long field_12;
-    unsigned long field_16;
-    /** Size of the sample file. */
-    unsigned long data_size;
-    unsigned char sfxid;
-    unsigned char field_1F;
-};
-
-struct SoundBankEntry { // sizeof = 16
-  unsigned long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-};
-
 enum SoundSettingsFlags {
     SndSetting_None    = 0x00,
     SndSetting_MIDI = 0x01,
@@ -87,18 +64,15 @@ enum SoundSettingsFlags {
 
 extern int atmos_sound_frequency;
 extern int sdl_flags;
-extern Mix_Chunk* streamed_sample;
 
 #pragma pack()
 
 /******************************************************************************/
-TbBool init_sound_banks(char *snd_fname, char *spc_fname, long a5);
 TbBool init_sound(void);
 void sound_reinit_after_load(void);
 
 void update_player_sounds(void);
 void process_3d_sounds(void);
-void process_sound_heap(void);
 
 void thing_play_sample(struct Thing *, SoundSmplTblID, SoundPitch, char fil1D, unsigned char ctype, unsigned char flags, long priority, SoundVolume);
 void play_sound_if_close_to_receiver(struct Coord3d*, SoundSmplTblID);
@@ -110,16 +84,14 @@ TbBool ambient_sound_stop(void);
 struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 
 void mute_audio(TbBool mute);
-void pause_music(TbBool pause);
 
 void update_first_person_object_ambience(struct Thing *thing);
 
 int InitialiseSDLAudio();
 void ShutDownSDLAudio();
-void free_sound_chunks();
-void play_external_sound_sample(unsigned char smpl_id);
-TbBool play_streamed_sample(char* fname, int volume, int loops);
-void stop_streamed_sample();
+TbBool play_streamed_sample(const char * fname, SoundVolume);
+void set_streamed_sample_volume(SoundVolume);
+void stop_streamed_samples();
 /******************************************************************************/
 #ifdef __cplusplus
 }

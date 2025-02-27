@@ -1006,26 +1006,22 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
         case 10: // SYMBOLSPRITES
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = get_icon_id(word_buf);
-                if (k >= 0)
+                roomst->bigsym_sprite_idx = get_icon_id(word_buf);
+                if (roomst->bigsym_sprite_idx != bad_icon_id)
                 {
-                    roomst->bigsym_sprite_idx = k;
                     n++;
                 }
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-                k = get_icon_id(word_buf);
-                if (k >= 0)
+                roomst->medsym_sprite_idx = get_icon_id(word_buf);
+                if (roomst->medsym_sprite_idx != bad_icon_id)
                 {
-                    roomst->medsym_sprite_idx = k;
                     n++;
                 }
             }
             if (n < 2)
             {
-                roomst->bigsym_sprite_idx = bad_icon_id;
-                roomst->medsym_sprite_idx = bad_icon_id;
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }

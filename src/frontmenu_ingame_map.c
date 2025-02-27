@@ -158,7 +158,7 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     } else {
         circle_time = ((game.play_gameturn + owner) & 7);
     }
-    cscale = circle_time * pwrdynst->strength[dungeon->cta_splevel];
+    cscale = circle_time * pwrdynst->strength[dungeon->cta_power_level];
     int dxq1;
     int dyq1;
     int dxq2;
@@ -811,7 +811,6 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
 void panel_map_update(long x, long y, long w, long h)
 {
     SYNCDBG(17,"Starting for rect (%ld,%ld) at (%ld,%ld)",w,h,x,y);
-    struct PlayerInfo *player = get_my_player();
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     for (stl_y = y; stl_y < y + h; stl_y++)
@@ -824,7 +823,7 @@ void panel_map_update(long x, long y, long w, long h)
                 break;
             if (subtile_has_slab(stl_x, stl_y))
             {
-                panel_map_update_subtile(player->id_number, stl_x, stl_y);
+                panel_map_update_subtile(my_player_number, stl_x, stl_y); //player->id number is still unitialized when this function is called at level start
             }
         }
     }

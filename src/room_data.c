@@ -48,7 +48,7 @@
 #include "creature_states.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "room_util.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
@@ -358,7 +358,7 @@ void init_reposition_struct(struct RoomReposition * rrepos)
     for (long i = 0; i < ROOM_REPOSITION_COUNT; i++)
     {
         rrepos->models[i] = 0;
-        rrepos->explevels[i] = 0;
+        rrepos->exp_level[i] = 0;
     }
 }
 
@@ -389,7 +389,7 @@ TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmode
     return true;
 }
 
-TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel explevel)
+TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel exp_level)
 {
     rrepos->used++;
     if (rrepos->used > ROOM_REPOSITION_COUNT)
@@ -402,7 +402,7 @@ TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingMode
     {
         if (rrepos->models[ri] == 0) {
             rrepos->models[ri] = tngmodel;
-            rrepos->explevels[ri] = explevel;
+            rrepos->exp_level[ri] = exp_level;
             break;
         }
     }
@@ -3888,19 +3888,19 @@ void output_room_takeover_message(struct Room *room, PlayerNumber oldowner, Play
     if (room->kind == RoK_ENTRANCE)
     {
         if (is_my_player_number(oldowner)) {
-            output_message(SMsg_EntranceLost, 0, 1);
+            output_message(SMsg_EntranceLost, 0);
         } else
         if (is_my_player_number(newowner))
         {
-            output_message(SMsg_EntranceClaimed, 0, 1);
+            output_message(SMsg_EntranceClaimed, 0);
         }
     } else
     if (is_my_player_number(newowner))
     {
         if (oldowner == game.neutral_player_num) {
-            output_message(SMsg_NewRoomTakenOver, 0, 1);
+            output_message(SMsg_NewRoomTakenOver, 0);
         } else {
-            output_message(SMsg_EnemyRoomTakeOver, 0, 1);
+            output_message(SMsg_EnemyRoomTakeOver, 0);
         }
     }
 }

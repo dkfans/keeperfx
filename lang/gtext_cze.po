@@ -2299,7 +2299,6 @@ msgstr "Boj zblizka:"
 msgctxt "Creature spell"
 msgid ""
 "Fart: A close range gas attack that only damages enemy creatures."
-msgstr ""
 msgstr "Jedovaty mrak:"
 
 #: guitext:254
@@ -6497,18 +6496,17 @@ msgstr ""
 
 #: guitext:963
 msgctxt "Keeper spell description"
+msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. Just don't hold them forever or they may get irritated."
+msgstr ""
+
+#: guitext:964
+msgctxt "Keeper spell description"
 msgid ""
 "Slap: Makes your creatures work harder, for some time. Your creatures take "
 "some damage from each slap they receive."
 msgstr ""
 "Proplesknutí: Přinutí tvé potvory pracovat rychleji. Každý takový úder jim "
 "však ubere trochu života."
-
-#: guitext:964
-msgctxt "Keeper spell description"
-msgid "Slap: Makes your creatures work harder, for some time. "
-"Your creatures take some damage from each slap they receive."
-msgstr ""
 
 #: guitext:965
 msgctxt "In-game interface description"
@@ -6881,7 +6879,32 @@ msgctxt "Creature name"
 msgid "Time Mage"
 msgstr ""
 
-#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+#: guitext:1044
+msgctxt "Creature name"
+msgid "Bird"
+msgstr ""
+
+#: guitext:1045
+msgctxt "Creature name"
+msgid "Maiden"
+msgstr ""
+
+#: guitext:1046
+msgctxt "Creature name"
+msgid "Spiderling"
+msgstr ""
+
+#: guitext:1047
+msgctxt "Creature name"
+msgid "Goblin"
+msgstr ""
+
+#: guitext:1048
+msgctxt "Creature name"
+msgid "Fallen Angel"
+msgstr ""
+
+#: guitext:1049
 msgctxt "Unused"
 msgid "Moo7"
 msgstr ""
@@ -6935,7 +6958,7 @@ msgstr "Pohled"
 #: guitext:1059
 msgctxt "Dungeon special decription"
 msgid "Heal All: Restore full health to all your creatures."
-msgstr ""Uzdrav všechny: Všechna tvá stvoření jsou vyléčena."
+msgstr "Uzdrav všechny: Všechna tvá stvoření jsou vyléčena."
 
 #: guitext:1060
 msgctxt "Dungeon special decription"
@@ -7020,4 +7043,19 @@ msgstr ""
 #: guitext:1077
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
+msgstr ""
+
+#: guitext:1078 guitext:1079
+msgctxt "Unused"
+msgid "Moo9"
+msgstr ""
+
+#: guitext:1080
+msgctxt "Creature spell"
+msgid "Familiar: Summons a companion to guard and assist the creature."
+msgstr ""
+
+#: guitext:1081
+msgctxt "Creature spell"
+msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr ""

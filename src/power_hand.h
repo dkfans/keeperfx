@@ -37,7 +37,7 @@ struct Dungeon;
 
 #pragma pack()
 /******************************************************************************/
-void add_creature_to_sacrifice_list(PlayerNumber owner, long model, long explevel);
+void add_creature_to_sacrifice_list(PlayerNumber owner, long model, CrtrExpLevel exp_level);
 void place_thing_in_limbo(struct Thing *thing);
 void remove_thing_from_limbo(struct Thing *thing);
 unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long a2);
@@ -83,6 +83,8 @@ short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx);
 TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned long allow_unclaimed);
 TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, PlayerNumber plyr_idx);
+void reset_hand_rules(void);
+void script_set_hand_rule(PlayerNumber plyr_idx, long crtr_id,long hand_rule_action,long hand_rule_slot,long hand_rule_type,long param);
 
 enum HandRuleType {
     // hand_rule_test_fns are indexed by these enum values -> reordering or adding new types affects test_fns

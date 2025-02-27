@@ -28,7 +28,7 @@
 #include "room_workshop.h"
 #include "map_columns.h"
 #include "creature_states.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "game_merge.h"
 #include "sounds.h"
 #include "game_legacy.h"
@@ -86,6 +86,7 @@ void process_dungeon_destroy(struct Thing* heartng)
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct Thing* soultng = thing_get(dungeon->free_soul_idx);
     struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
+    struct CreatureControl* sctrl;
     if (dungeon->heart_destroy_state == 0)
     {
         return;
@@ -116,6 +117,8 @@ void process_dungeon_destroy(struct Thing* heartng)
                 {
                     dungeon->num_active_creatrs--;
                     dungeon->owned_creatures_of_model[soultng->model]--;
+                    sctrl = creature_control_get_from_thing(soultng);
+                    set_flag(sctrl->flgfield_2,TF2_Spectator);
                     dungeon->free_soul_idx = soultng->index;
                     short xplevel = 0;
                     if (dungeon->lvstats.player_score > 1000)
@@ -128,7 +131,10 @@ void process_dungeon_destroy(struct Thing* heartng)
             }
             else if (dungeon->heart_destroy_turn == 20)
             {
-                apply_spell_effect_to_thing(soultng, SplK_Invisibility, 1);
+                // Sets soultng to be invisible for a short amount of time.
+                sctrl = creature_control_get_from_thing(soultng);
+                set_flag(sctrl->spell_flags, CSAfF_Invisibility);
+                sctrl->force_visible = 0;
             }
             else if (dungeon->heart_destroy_turn == 25)
             {
@@ -142,11 +148,14 @@ void process_dungeon_destroy(struct Thing* heartng)
             }
             else if (dungeon->heart_destroy_turn == 28)
             {
-                terminate_thing_spell_effect(soultng, SplK_Invisibility);
+                // Clears soultng invisibility.
+                sctrl = creature_control_get_from_thing(soultng);
+                clear_flag(sctrl->spell_flags, CSAfF_Invisibility);
+                sctrl->force_visible = 0;
             }
             else if (dungeon->heart_destroy_turn == 30)
             {
-                dungeon->free_soul_idx = 0; 
+                dungeon->free_soul_idx = 0;
                 delete_thing_structure(soultng, 0);
             }
         }

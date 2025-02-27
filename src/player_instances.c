@@ -45,7 +45,7 @@
 #include "player_utils.h"
 #include "config_players.h"
 #include "room_workshop.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "engine_arrays.h"
@@ -214,7 +214,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   case TCls_Creature:
   {
       struct Coord3d pos;
-      if (creature_affected_by_spell(thing, SplK_Freeze))
+      if (creature_under_spell_effect(thing, CSAfF_Freeze))
       {
           kill_creature(thing, INVALID_THING, thing->owner, CrDed_Default);
       } else
@@ -254,17 +254,18 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       trapst = get_trap_model_stats(thing->model);
       if ((trapst->slappable > 0) && trap_is_active(thing))
       {
-          struct Thing* trgtng = INVALID_THING;
-          shotst = get_shot_model_stats(trapst->created_itm_model);
-          if (trapst->slappable == 1)
+          activate_trap_by_slap(player, thing);
+
+          struct Dungeon* dungeon = get_dungeon(thing->owner);
+          if (!dungeon_invalid(dungeon))
           {
-              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
-          } else
-          if (trapst->slappable == 2)
-          {
-              trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(thing);
-              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
+              dungeon->trap_info.activated[thing->trap.flag_number]++;
+              if (thing->trap.flag_number > 0)
+              {
+                  memcpy(&dungeon->last_trap_event_location, &thing->mappos, sizeof(struct Coord3d));
+              }
           }
+          process_trap_charge(thing);
       }
       break;
       case TCls_Object:
@@ -433,7 +434,8 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
         load_swipe_graphic_for_creature(thing);
         if (my_player)
         {
-            if (creature_affected_by_spell(thing, SplK_Freeze)) {
+            if (creature_under_spell_effect(thing, CSAfF_Freeze))
+            {
                 PaletteSetPlayerPalette(player, blue_palette);
             }
         }
@@ -722,7 +724,7 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, long *n)
 long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
 {
     struct Camera* cam = player->acamera;
-    player->field_4BD = 0;
+    player->palette_fade_step_map = 0;
     player->allocflags |= PlaF_MouseInputDisabled;
     player->view_mode_restore = cam->view_mode;
     if (is_my_player(player))
@@ -759,7 +761,7 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
     settings.tooltips_on = false; // don't show tooltips during the fade
     game.operation_flags &= ~GOF_ShowPanel;
   }
-  player->field_4BD = 32;
+  player->palette_fade_step_map = 32;
   set_player_mode(player, PVT_DungeonTop);
   set_engine_view(player, PVM_ParchFadeOut);
   return 0;
@@ -970,7 +972,8 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
           disband_creatures_group(thing);
         }
     }
-    if ( (thing->light_id != 0) && (!crstat->illuminated) && (!creature_affected_by_spell(thing, SplK_Light)) ) {
+    if ((thing->light_id != 0) && (!crstat->illuminated) && (!creature_under_spell_effect(thing, CSAfF_Light)))
+    {
         light_delete_light(thing->light_id);
         thing->light_id = 0;
     }
@@ -1185,7 +1188,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         if (take_money_from_dungeon(plyr_idx, roomst->cost, 1) < 0)
         {
             if (is_my_player(player))
-                output_message(SMsg_GoldNotEnough, 0, true);
+                output_message(SMsg_GoldNotEnough, 0);
             return INVALID_ROOM;
         }
         if (player->boxsize > 0)
@@ -1196,7 +1199,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     else
     {
         if (is_my_player(player))
-            output_message(SMsg_GoldNotEnough, 0, true);
+            output_message(SMsg_GoldNotEnough, 0);
         return INVALID_ROOM;
     }
     struct Room* room = place_room(plyr_idx, rkind, stl_x, stl_y);

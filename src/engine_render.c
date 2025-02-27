@@ -422,7 +422,6 @@ static int water_wibble_angle = 0;
 static float render_water_wibble = 0; // Rendering float
 static unsigned long render_problems;
 static long render_prob_kind;
-static long sp_x, sp_y, sp_dx, sp_dy;
 
 Offset vert_offset[3];
 Offset hori_offset[3];
@@ -4005,7 +4004,7 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
     const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     short offset = thing->clipbox_size_z + crstat->status_offset;
-    offset += (offset * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    offset += (offset * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
     coord.y += offset;
     rotpers(&coord, &camera_matrix);
 
@@ -4027,7 +4026,7 @@ unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned shor
 {
     long slb_x = subtile_slab(stl_x);
     long slb_y = subtile_slab(stl_y);
-    return tex_id + (gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] & 0xF) * TEXTURE_BLOCKS_COUNT;
+    return tex_id + (gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] & 0x1F) * TEXTURE_BLOCKS_COUNT;
 }
 
 static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
@@ -5181,7 +5180,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
             stati = get_creature_state_with_task_completion(thing);
             if (!stati->blocks_all_state_changes)
             {
-                if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
+                if (creature_under_spell_effect(thing, CSAfF_MadKilling))
                 {
                     stati = &states[CrSt_MadKillingPsycho];
                 }
@@ -5303,8 +5302,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     health_spridx = 0;
     state_spridx = 0;
 
-    CrtrExpLevel exp;
-    exp = min(cctrl->explevel, 9);
+    CrtrExpLevel exp_level = min(cctrl->exp_level, 9);
     if (cam->view_mode != PVM_ParchmentView)
     {
         fill_status_sprite_indexes(thing, cctrl, &health_spridx, &state_spridx, &anger_spridx);
@@ -5410,7 +5408,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
                 h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
                 LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
             }
-            spr = get_button_sprite(GBS_creature_flower_level_01 + exp);
+            spr = get_button_sprite(GBS_creature_flower_level_01 + exp_level);
             w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
             h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
             LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
@@ -5740,11 +5738,6 @@ static void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
         }
       }
     }
-}
-
-static void draw_map_who(struct BucketKindRotableSprite *spr)
-{
-    // empty
 }
 
 static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
@@ -6672,7 +6665,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 trig(&point_a, &point_b, &point_c);
                 break;
             case QK_RotableSprite: // Possibly unused
-                draw_map_who(item.rotableSprite);
+                // draw_map_who did nothing
                 break;
             case QK_PolygonNearFP: // 'Near' textured polygons (closer to camera) in 1st person view
                 draw_unkn09(item.polygonNearFP);
@@ -7190,19 +7183,14 @@ static void create_status_box_element(struct Thing *thing, long a2, long a3, lon
     poly->z = a4;
 }
 
-static void create_fast_view_status_box(struct Thing *thing, long x, long y)
-{
-    create_status_box_element(thing, x, y, y, 1);
-}
-
 static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long zoom, long orient, long lightness, long marked_mode, long bckt_idx)
 {
     struct BucketKindTexturedQuad *poly;
-    if (bckt_idx >= BUCKETS_COUNT)
+    if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
+    } else if (bckt_idx < 0) {
       bckt_idx = 0;
+    }
     poly = (struct BucketKindTexturedQuad *)getpoly;
     getpoly += sizeof(struct BucketKindTexturedQuad);
     poly->b.next = buckets[bckt_idx];
@@ -7225,11 +7213,11 @@ static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long
 static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long zoom_x, long zoom_y, long orient, long lg0, long lg1, long lg2, long lg3, long bckt_idx)
 {
     struct BucketKindTexturedQuad *poly;
-    if (bckt_idx >= BUCKETS_COUNT)
+    if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
+    } else if (bckt_idx < 0) {
       bckt_idx = 0;
+    }
     poly = (struct BucketKindTexturedQuad *)getpoly;
     getpoly += sizeof(struct BucketKindTexturedQuad);
     poly->b.next = buckets[bckt_idx];
@@ -7252,11 +7240,11 @@ static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long
 static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
 {
     struct BucketKindFloatingGoldText *poly;
-    if (bckt_idx >= BUCKETS_COUNT)
+    if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
+    } else if (bckt_idx < 0) {
       bckt_idx = 0;
+    }
     poly = (struct BucketKindFloatingGoldText *)getpoly;
     getpoly += sizeof(struct BucketKindFloatingGoldText);
     poly->b.next = buckets[bckt_idx];
@@ -7273,11 +7261,11 @@ static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
 static void add_room_flag_pole_to_polypool(long x, long y, long room_idx, long bckt_idx)
 {
     struct BucketKindRoomFlag *poly;
-    if (bckt_idx >= BUCKETS_COUNT)
+    if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
+    } else if (bckt_idx < 0) {
       bckt_idx = 0;
+    }
     poly = (struct BucketKindRoomFlag *)getpoly;
     getpoly += sizeof(struct BucketKindRoomFlag);
     poly->b.next = buckets[bckt_idx];
@@ -7294,11 +7282,11 @@ static void add_room_flag_pole_to_polypool(long x, long y, long room_idx, long b
 static void add_room_flag_top_to_polypool(long x, long y, long room_idx, long bckt_idx)
 {
     struct BucketKindRoomFlag *poly;
-    if (bckt_idx >= BUCKETS_COUNT)
+    if (bckt_idx >= BUCKETS_COUNT) {
       bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
+    } else if (bckt_idx < 0) {
       bckt_idx = 0;
+    }
     poly = (struct BucketKindRoomFlag *)getpoly;
     getpoly += sizeof(struct BucketKindRoomFlag);
     poly->b.next = buckets[bckt_idx];
@@ -7575,44 +7563,37 @@ static long heap_manage_keepersprite(unsigned short kspr_idx)
     return result;
 }
 
-static void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
+static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, long kspr_idx)
 {
-    struct TbSprite sprite;
-    long cut_w;
-    long cut_h;
-    TbSpriteData *kspr_item;
     if ((kspr_idx < 0)
         || ((kspr_idx >= KEEPSPRITE_LENGTH) && (kspr_idx < KEEPERSPRITE_ADD_OFFSET))
         || (kspr_idx > (KEEPERSPRITE_ADD_NUM + KEEPERSPRITE_ADD_OFFSET))) {
-        WARNDBG(9,"Invalid KeeperSprite %ld at (%ld,%ld) size (%ld,%ld) alpha %d",kspr_idx,x,y,w,h,(int)EngineSpriteDrawUsingAlpha);
+        WARNDBG(9,"Invalid KeeperSprite %ld at (%ld,%ld) size (%u,%u) alpha %d",
+            kspr_idx, x, y, kspr->SWidth, kspr->SHeight, (int)EngineSpriteDrawUsingAlpha);
         return;
     }
-    SYNCDBG(17,"Drawing %ld at (%ld,%ld) size (%ld,%ld) alpha %d",kspr_idx,x,y,w,h,(int)EngineSpriteDrawUsingAlpha);
-    cut_w = w;
-    cut_h = h - water_source_cutoff;
-    if (cut_h <= 0) {
+    SYNCDBG(17,"Drawing %ld at (%ld,%ld) size (%u,%u) alpha %d",
+        kspr_idx, x, y, kspr->SWidth, kspr->SHeight, (int)EngineSpriteDrawUsingAlpha);
+    const long clipped_height = kspr->SHeight - water_source_cutoff;
+    if (clipped_height <= 0) {
         return;
     }
-    if (kspr_idx < KEEPERSPRITE_ADD_OFFSET)
-        kspr_item = keepsprite[kspr_idx];
-    else
-        kspr_item = &keepersprite_add[kspr_idx - KEEPERSPRITE_ADD_OFFSET];
-
-    sprite.SWidth = cut_w;
-    sprite.SHeight = cut_h;
-    if (kspr_item != NULL) {
-        sprite.Data = *kspr_item;
-    } else {
-        sprite.Data = NULL;
-    }
-    if (sprite.Data == NULL) {
+    const TbSpriteData * sprite_data_ptr = (kspr_idx < KEEPERSPRITE_ADD_OFFSET) ?
+        keepsprite[kspr_idx] : &keepersprite_add[kspr_idx - KEEPERSPRITE_ADD_OFFSET];
+    if (sprite_data_ptr == NULL || *sprite_data_ptr == NULL) {
         WARNDBG(9,"Unallocated KeeperSprite %ld can't be drawn at (%ld,%ld)",kspr_idx,x,y);
         return;
     }
+    const struct TbSourceBuffer buffer = {
+        *sprite_data_ptr,
+        kspr->SWidth,
+        clipped_height,
+        kspr->SWidth,
+    };
     if ( EngineSpriteDrawUsingAlpha ) {
-        DrawAlphaSpriteUsingScalingData(x, y, &sprite);
+        DrawAlphaSpriteUsingScalingData(x, y, &buffer);
     } else {
-        LbSpriteDrawUsingScalingData(x, y, &sprite);
+        LbSpriteDrawUsingScalingData(x, y, &buffer);
     }
     SYNCDBG(18,"Finished");
 }
@@ -7626,106 +7607,60 @@ static void set_thing_pointed_at(struct Thing *thing)
 
 static void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
 {
-    long x;
-    long y;
-    long src_dy;
-    long src_dx;
-    src_dy = (long)kspr->FrameHeight;
-    src_dx = (long)kspr->FrameWidth;
-    x = src_dx - (long)kspr->FrameOffsW - (long)kspr->SWidth;
-    y = kspr->FrameOffsH;
-    if ( EngineSpriteDrawUsingAlpha )
-    {
-        sp_x = kspos_x;
-        sp_y = kspos_y;
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    } else
-    {
-        sp_x = kspos_x;
-        sp_y = kspos_y;
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    }
+    long src_dy = (long)kspr->FrameHeight;
+    long src_dx = (long)kspr->FrameWidth;
+    long x = src_dx - (long)kspr->FrameOffsW - (long)kspr->SWidth;
+    long y = kspr->FrameOffsH;
+    long sp_dy = (src_dy * scale) >> 5;
+    long sp_dx = (src_dx * scale) >> 5;
+    LbSpriteSetScalingData(kspos_x, kspos_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
-      if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
+      if ( (pointer_x >= kspos_x) && (pointer_x <= sp_dx + kspos_x) )
       {
-          if ( (pointer_y >= sp_y) && (pointer_y <= sp_dy + sp_y) )
+          if ( (pointer_y >= kspos_y) && (pointer_y <= sp_dy + kspos_y) )
           {
               set_thing_pointed_at(thing_being_displayed);
           }
       }
     }
-    draw_keepersprite(x, y, kspr->SWidth, kspr->SHeight, kspr_idx);
+    draw_keepersprite(x, y, kspr, kspr_idx);
 }
 
 static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
 {
-    long x;
-    long y;
-    long src_dy;
-    long src_dx;
-    src_dy = (long)kspr->FrameHeight;
-    src_dx = (long)kspr->FrameWidth;
-    x = kspr->FrameOffsW;
-    y = kspr->FrameOffsH;
-    if ( EngineSpriteDrawUsingAlpha )
-    {
-        sp_x = kspos_x;
-        sp_y = kspos_y;
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    } else
-    {
-        sp_x = kspos_x;
-        sp_y = kspos_y;
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    }
+    long src_dy = (long)kspr->FrameHeight;
+    long src_dx = (long)kspr->FrameWidth;
+    long x = kspr->FrameOffsW;
+    long y = kspr->FrameOffsH;
+    long sp_dy = (src_dy * scale) >> 5;
+    long sp_dx = (src_dx * scale) >> 5;
+    LbSpriteSetScalingData(kspos_x, kspos_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
-      if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
+      if ( (pointer_x >= kspos_x) && (pointer_x <= sp_dx + kspos_x) )
       {
-          if ( (pointer_y >= sp_y) && (pointer_y <= sp_dy + sp_y) )
+          if ( (pointer_y >= kspos_y) && (pointer_y <= sp_dy + kspos_y) )
           {
               set_thing_pointed_at(thing_being_displayed);
           }
       }
     }
-    draw_keepersprite(x, y, kspr->SWidth, kspr->SHeight, kspr_idx);
+    draw_keepersprite(x, y, kspr, kspr_idx);
 }
 
 static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
 {
-    long x;
-    long y;
-    long src_dy;
-    long src_dx;
     SYNCDBG(18,"Starting");
-    src_dy = (long)kspr->SHeight;
-    src_dx = (long)kspr->SWidth;
-    x = (long)kspr->FrameWidth - (long)kspr->FrameOffsW - src_dx;
-    y = kspr->FrameOffsH;
-    if ( EngineSpriteDrawUsingAlpha )
-    {
-        sp_x = kspos_x + ((scale * x) >> 5);
-        sp_y = kspos_y + ((scale * y) >> 5);
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    } else
-    {
-        sp_x = kspos_x + ((scale * x) >> 5);
-        sp_y = kspos_y + ((scale * y) >> 5);
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    }
+    long src_dy = (long)kspr->SHeight;
+    long src_dx = (long)kspr->SWidth;
+    long x = (long)kspr->FrameWidth - (long)kspr->FrameOffsW - src_dx;
+    long y = kspr->FrameOffsH;
+    long sp_x = kspos_x + ((scale * x) >> 5);
+    long sp_y = kspos_y + ((scale * y) >> 5);
+    long sp_dy = (src_dy * scale) >> 5;
+    long sp_dx = (src_dx * scale) >> 5;
+    LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
       if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
@@ -7736,36 +7671,22 @@ static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct Ke
           }
       }
     }
-    draw_keepersprite(0, 0, kspr->SWidth, kspr->SHeight, kspr_idx);
+    draw_keepersprite(0, 0, kspr, kspr_idx);
     SYNCDBG(18,"Finished");
 }
 
 static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
 {
-    long x;
-    long y;
-    long src_dy;
-    long src_dx;
     SYNCDBG(18,"Starting");
-    src_dy = (long)kspr->SHeight;
-    src_dx = (long)kspr->SWidth;
-    x = kspr->FrameOffsW;
-    y = kspr->FrameOffsH;
-    if ( EngineSpriteDrawUsingAlpha )
-    {
-        sp_x = kspos_x + ((scale * x) >> 5);
-        sp_y = kspos_y + ((scale * y) >> 5);
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    } else
-    {
-        sp_x = kspos_x + ((scale * x) >> 5);
-        sp_y = kspos_y + ((scale * y) >> 5);
-        sp_dy = (src_dy * scale) >> 5;
-        sp_dx = (src_dx * scale) >> 5;
-        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    }
+    long src_dy = (long)kspr->SHeight;
+    long src_dx = (long)kspr->SWidth;
+    long x = kspr->FrameOffsW;
+    long y = kspr->FrameOffsH;
+    long sp_x = kspos_x + ((scale * x) >> 5);
+    long sp_y = kspos_y + ((scale * y) >> 5);
+    long sp_dy = (src_dy * scale) >> 5;
+    long sp_dx = (src_dx * scale) >> 5;
+    LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     if ( thing_being_displayed_is_creature )
     {
         if ( (pointer_x >= x) && (pointer_x <= sp_dx + x) )
@@ -7776,7 +7697,7 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
             }
         }
     }
-    draw_keepersprite(0, 0, kspr->SWidth, kspr->SHeight, kspr_idx);
+    draw_keepersprite(0, 0, kspr, kspr_idx);
     SYNCDBG(18,"Finished");
 }
 
@@ -7817,7 +7738,14 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     sprite_rot = llabs(lltemp);
     kspr_idx = keepersprite_index(kspr_base);
     global_scaler = scale;
-    scaled_x = ((scale * (long)creature_sprites->offset_x) >> 5) + (long)x;
+    if (needs_xflip)
+    {
+        scaled_x = ((long)x - ((scale * (long)(creature_sprites->FrameWidth + creature_sprites->offset_x)) >> 5));
+    }
+    else
+    {
+        scaled_x = ((scale * (long)creature_sprites->offset_x) >> 5) + (long)x;
+    }
     scaled_y = ((scale * (long)creature_sprites->offset_y) >> 5) + (long)y;
     SYNCDBG(17,"Scaled (%d,%d)",(int)scaled_x,(int)scaled_y);
     if (thing_is_invalid(thing_being_displayed))
@@ -8918,7 +8846,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
             add_thing_sprite_to_polypool(thing, cx, cy, cy, cz-3);
             if ((thing->class_id == TCls_Creature) && is_free_space_in_poly_pool(1))
             {
-              create_fast_view_status_box(thing, cx, cy);
+                create_status_box_element(thing, cx, cy, cy, 1);
             }
         }
         break;

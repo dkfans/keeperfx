@@ -1135,24 +1135,27 @@ TbBool initialise_map_wlb_auto(void)
     unsigned long n;
     unsigned long nbridge;
     nbridge = 0;
-    for (y=0; y < gameadd.map_tiles_y; y++)
-      for (x=0; x < gameadd.map_tiles_x; x++)
-      {
-        slb = get_slabmap_block(x,y);
-        if (slb->kind == SlbT_BRIDGE)
+    for (y = 0; y < gameadd.map_tiles_y; y++)
+    {
+        for (x = 0; x < gameadd.map_tiles_x; x++)
         {
-          if (slabs_count_near(x,y,1,SlbT_LAVA) > slabs_count_near(x,y,1,SlbT_WATER))
-            n = SlbT_LAVA;
-          else
-            n = SlbT_WATER;
-          nbridge++;
-        } else
-        {
-          n = slb->kind;
+            slb = get_slabmap_block(x, y);
+            if (slb->kind == SlbT_BRIDGE)
+            {
+                if (slabs_count_near(x, y, 1, SlbT_LAVA) > slabs_count_near(x, y, 1, SlbT_WATER))
+                    n = SlbT_LAVA;
+                else
+                    n = SlbT_WATER;
+                nbridge++;
+            }
+            else
+            {
+                n = slb->kind;
+            }
+            slbattr = get_slab_kind_attrs(n);
+            slb->wlb_type = slbattr->wlb_type;
         }
-        slbattr = get_slab_kind_attrs(n);
-        slb->wlb_type = slbattr->wlb_type;
-      }
+    }
     SYNCMSG("Regenerated WLB flags, unsure for %d bridge blocks.",(int)nbridge);
     return true;
 }
@@ -1221,19 +1224,21 @@ short load_map_slab_file(unsigned long lv_num)
     if (buf == NULL)
       return false;
     i = 0;
-    for (y=0; y < gameadd.map_tiles_y; y++)
-      for (x=0; x < gameadd.map_tiles_x; x++)
-      {
-        slb = get_slabmap_block(x,y);
-        n = lword(&buf[i]);
-        if (n > game.conf.slab_conf.slab_types_count)
+    for (y = 0; y < gameadd.map_tiles_y; y++)
+    {
+        for (x = 0; x < gameadd.map_tiles_x; x++)
         {
-          WARNMSG("Slab Type %d exceeds limit of %ld",(int)n,game.conf.slab_conf.slab_types_count);
-          n = SlbT_ROCK;
+            slb = get_slabmap_block(x, y);
+            n = lword(&buf[i]);
+            if (n > game.conf.slab_conf.slab_types_count)
+            {
+                WARNMSG("Found invalid Slab Type %d at Tile %ld,%ld, exceeds limit of %ld", (int)n, x, y, game.conf.slab_conf.slab_types_count);
+                n = SlbT_ROCK;
+            }
+            slb->kind = n;
+            i += 2;
         }
-        slb->kind = n;
-        i += 2;
-      }
+    }
     free(buf);
     initialise_map_collides();
     initialise_map_health();
@@ -1437,7 +1442,7 @@ static TbBool load_level_file(LevelNumber lvnum)
           result = false;
         load_map_wibble_file(lvnum);
         load_and_setup_map_info(lvnum);
-        load_texture_map_file(game.texture_id);
+        load_texture_map_file(game.texture_id, lvnum, fgroup);
         if (new_format)
         {
             load_aptfx_file(lvnum);
@@ -1470,7 +1475,7 @@ static TbBool load_level_file(LevelNumber lvnum)
         load_slab_file();
         init_columns();
         game.texture_id = 0;
-        load_texture_map_file(game.texture_id);
+        load_texture_map_file(game.texture_id, lvnum, fgroup);
         init_top_texture_to_cube_table();
         result = false;
     }
