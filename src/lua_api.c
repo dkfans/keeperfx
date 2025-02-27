@@ -353,9 +353,8 @@ static int lua_ADD_CREATURE_TO_LEVEL(lua_State *L)
     PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 1);
     long crtr_id           = luaL_checkNamedCommand(L,2,creature_desc);
     TbMapLocation location = luaL_checkLocation(L,  3);
-    long ncopies           = luaL_checkinteger(L, 4);
-    long crtr_level        = luaL_checkinteger(L, 5);
-    long carried_gold      = luaL_checkinteger(L, 6);
+    long crtr_level        = luaL_checkinteger(L, 4);
+    long carried_gold      = luaL_checkinteger(L, 5);
     long spawn_type        = SpwnT_Default;
 
     if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
@@ -363,21 +362,14 @@ static int lua_ADD_CREATURE_TO_LEVEL(lua_State *L)
         SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
         return 0;
     }
-    if ((ncopies <= 0) || (ncopies >= CREATURES_COUNT))
-    {
-        SCRPTERRLOG("Invalid number of creatures to add");
-        return 0;
-    }
 
     // Recognize place where party is created
     if (location == 0)
         return 0;
 
-    for (long i = 0; i < ncopies; i++)
-    {
-        lua_pushThing(L,script_create_new_creature(plr_idx, crtr_id, location, carried_gold, crtr_level-1,spawn_type));
-    }
-    return ncopies;
+    lua_pushThing(L,script_create_new_creature(plr_idx, crtr_id, location, carried_gold, crtr_level-1,spawn_type));
+    
+    return 1;
 }
 
 static int lua_ADD_TUNNELLER_TO_LEVEL(lua_State *L)
@@ -463,19 +455,12 @@ static int lua_ADD_PARTY_TO_LEVEL(lua_State *L)
     PlayerNumber owner     = luaL_checkPlayerSingle(L, 1);
     long prty_id           = luaL_checkParty(L,  2);
     TbMapLocation location = luaL_checkLocation(L,  3);
-    long ncopies           = luaL_checkinteger(L, 4);
-
-    if (ncopies < 1)
-    {
-        SCRPTERRLOG("Invalid NUMBER parameter");
-        return 0;
-    }
 
     // Recognize place where party is created
     if (location == 0)
         return 0;
     struct Party* party = &gameadd.script.creature_partys[prty_id];
-    script_process_new_party(party, owner, location, ncopies);
+    script_process_new_party(party, owner, location, 1);
         return 0;
 }
 

@@ -354,11 +354,10 @@ function ADD_BONUS_TIME() end
 ---@param owner playersingle The player that the creatures belong to.
 ---@param creature_model creature_type  The creature's name, e.g. DRAGON.
 ---@param location location where the creature(s) should be spawned
----@param ncopies integer number of identical creatures that should be created
 ---@param level integer
 ---@param carried_gold integer
----@return Creature ...
-function ADD_CREATURE_TO_LEVEL(owner,creature_model,location,ncopies,level,carried_gold) return Creature end
+---@return Creature
+function ADD_CREATURE_TO_LEVEL(owner,creature_model,location,level,carried_gold) return Creature end
 
 ---This commands adds a number of Tunneller Dwarves to the level. They will immediately start digging towards their target.
 ---Tunneller Dwarves are the only creatures that can tunnel towards a target.
@@ -402,6 +401,7 @@ function DELETE_FROM_PARTY(party_name,creaturemodel,level) end
 ---If you wish to put player here, you must type player number, like 1, not player name. If you will type PLAYER1, the game won't be able to recognize the number and will treat it as 0.
 ---@param experience integer The experience level of the Tunneller.
 ---@param gold integer The amount of gold the Tunneller is carrying.
+---@return Creature[] party_creatures list of creatures in the party
 function ADD_TUNNELLER_PARTY_TO_LEVEL(owner,party_name,spawn_location,head_for,target,experience,gold) end
 
 ---Very similar to the ADD_TUNNELLER_PARTY_TO_LEVEL command, this adds a party to the level but does not include a Tunneller Dwarf.
@@ -409,8 +409,8 @@ function ADD_TUNNELLER_PARTY_TO_LEVEL(owner,party_name,spawn_location,head_for,t
 ---@param owner playersingle
 ---@param party_name string The name as defined with the CREATE_PARTY command
 ---@param location location where the party should be spawned
----@param ncopies integer
-function ADD_PARTY_TO_LEVEL(owner,party_name,location,ncopies) end
+---@return Creature[] party_creatures list of creatures in the party
+function ADD_PARTY_TO_LEVEL(owner,party_name,location) return {} end
 
 
 
