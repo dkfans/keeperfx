@@ -4091,7 +4091,7 @@ void create_guard_post_flags(struct Room *room)
         MapSlabCoord slb_y = slb_num_decode_y(slb_num);
         MapSubtlCoord stl_x = slab_subtile_center(slb_x);
         MapSubtlCoord stl_y = slab_subtile_center(slb_y);
-        struct Map* mapblk = get_map_block_at_pos(slb_num);
+        struct Map* mapblk = get_map_block_at(stl_x, stl_y);
         ThingIndex tng_id = get_mapwho_thing_index(mapblk);
         TbBool found_flag = false;
         struct Thing* thing;
