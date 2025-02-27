@@ -58,6 +58,7 @@
 #include "thing_shots.h"
 #include "bflib_inputctrl.h"
 #include "map_blocks.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1280,7 +1281,7 @@ TbBool player_place_trap_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl
         play_non_3d_sample(trap_cfg->place_sound_idx);
     }
 
-    lua_trap_placed(traptng);
+    lua_on_trap_placed(traptng);
     return true;
 }
 

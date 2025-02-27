@@ -5,6 +5,8 @@
 #include "../deps/luajit/src/lualib.h"
 
 
+#include "lua_triggers.h"
+
 #include "lua_base.h"
 #include "lua_api.h"
 #include "lua_params.h"
@@ -104,7 +106,19 @@ void lua_on_trap_placed(struct Thing *traptng)
 	{
 		lua_pushThing(Lvl_script, traptng);
 
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 3, 0, 0),"OnTrapPlaced");
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnTrapPlaced");
+	}
+}
+
+void lua_on_creature_death(struct Thing *crtng)
+{
+	SYNCDBG(6,"Starting");
+    lua_getglobal(Lvl_script, "OnTrapPlaced");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushThing(Lvl_script, crtng);
+
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnUnitDeath");
 	}
 }
 

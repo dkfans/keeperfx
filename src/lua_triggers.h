@@ -24,12 +24,17 @@
 extern "C" {
 #endif
 
+struct Thing;
+
 void lua_chatmsg(PlayerNumber plyr_idx, char *msg);
 void lua_game_start();
 void lua_game_tick();
 void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing);
 void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng);
 void lua_on_game_lost(PlayerNumber plyr_idx);
+void lua_on_creature_death(struct Thing *crtng);
+void lua_on_trap_placed(struct Thing *traptng);
+//void lua_on_room_claimed(PlayerNumber plyr_idx, struct Room *room);
 
 const char* lua_get_serialised_data(size_t *len);
 void lua_set_serialised_data(const char *data, size_t len);

@@ -148,7 +148,7 @@ const struct NamedCommand conf_commands[] = {
   {"COMMAND_CHAR"                  , 32},
   {"API_ENABLED"                   , 33},
   {"API_PORT"                      , 34},
-  {"EXIT_ON_LUA_ERROR"             , 35}
+  {"EXIT_ON_LUA_ERROR"             , 35},
   {NULL,                   0},
   };
 
