@@ -430,17 +430,15 @@ function DISPLAY_OBJECTIVE(msg_id,zoom_location) end
 function DISPLAY_INFORMATION(msg_id,zoom_location) end
 
 ---Works like DISPLAY_OBJECTIVE, but instead of using a string from translations, allows to type it directly.
----@param slot integer Message slot selection. There are 256 quick message slots, and each message you're making should use a different one. Using one message slot twice will lead to the first message being lost.
 ---@param message string
 ---@param zoom_location? location
-function QUICK_OBJECTIVE(slot,message,zoom_location) end
+function QUICK_OBJECTIVE(message,zoom_location) end
 
 ---Works like DISPLAY_OBJECTIVE, but instead of using a string from translations, allows to type it directly.
----@param slot integer Message slot selection. There are 256 quick message slots, and each message you're making should use a different one. Using one message slot twice will lead to the first message being lost.
 ---@param message string
 ---@param stl_x integer zoom location x in subtiles
 ---@param stl_y integer zoom location y in subtiles
-function QUICK_OBJECTIVE_WITH_POS(slot,message,stl_x,stl_y) end
+function QUICK_OBJECTIVE_WITH_POS(message,stl_x,stl_y) end
 
 ---Works like DISPLAY_INFORMATION, but instead of using a string from translations, allows to type it directly.
 ---@param slot integer Message slot selection. There are 256 quick message slots, and each message you're making should use a different one. Using one message slot twice will lead to the first message being lost.
