@@ -1268,7 +1268,7 @@ short imp_drops_gold(struct Thing *spdigtng)
         struct Coord3d pos;
         pos.x.val = subtile_coord_center(center_stl_x);
         pos.y.val = subtile_coord_center(center_stl_y);
-        pos.z.val = spdigtng->mappos.z.val;
+        pos.z.val = get_floor_height_at(&pos);
         gldtng = create_gold_hoarde(room, &pos, spdigtng->creature.gold_carried);
         if (!thing_is_invalid(gldtng))
         {
