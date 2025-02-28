@@ -68,6 +68,7 @@
 #include "version.h"
 #include "frontmenu_ingame_map.h"
 #include <string.h>
+#include "lua_base.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1891,6 +1892,12 @@ TbBool cmd_possession_unlock(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_lua(PlayerNumber plyr_idx, char * args)
+{
+    execute_lua_code_from_console(args);
+    return true;
+}
+
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
     struct ConsoleCommand {
@@ -1994,6 +2001,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
         { "player.colour", cmd_player_colour},
         { "possession.lock", cmd_possession_lock},
         { "possession.unlock", cmd_possession_unlock},
+        { "lua", cmd_lua},
     };
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");

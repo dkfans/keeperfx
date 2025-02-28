@@ -14,6 +14,7 @@
 #include "bflib_fileio.h"
 #include "config.h"
 #include "globals.h"
+#include "gui_msgs.h"
 
 
 #include "post_inc.h"
@@ -52,6 +53,7 @@ void close_lua_script()
         lua_close(Lvl_script);
     Lvl_script = NULL;
 }
+
 /*
 int setLuaPath( lua_State* L, const char* path )
 {
@@ -68,6 +70,28 @@ int setLuaPath( lua_State* L, const char* path )
 }
 */
 
+// Function to execute a piece of Lua code, and on failure, print the error message to the console
+TbBool execute_lua_code_from_console(const char* code)
+{
+    if (Lvl_script == NULL) {
+        ERRORLOG("Lua state is not initialized");
+        return false;
+    }
+    int result = luaL_dostring(Lvl_script, code);
+    if (result != LUA_OK) {
+        const char *message = lua_tostring(Lvl_script, -1);
+        ERRORLOG("Failed to execute Lua code: %s", message ? message : "Unknown error");
+
+        // Pass the error message to message_add
+        message_add(MsgType_Blank, 0, "lua error, see log");
+
+        lua_pop(Lvl_script, 2); // Remove error message and traceback
+        return false;
+    }
+
+    return true;
+}
+
 TbBool open_lua_script(LevelNumber lvnum)
 {
 	Lvl_script = luaL_newstate();
@@ -79,13 +103,12 @@ TbBool open_lua_script(LevelNumber lvnum)
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.lua", (unsigned long)lvnum);
 
-
-    //char* foldername = prepare_file_fmtpath(fgroup, "");
-
 	// Load and parse the Lua File
     if ( !LbFileExists(fname) )
       return false;
-    //setLuaPath(Lvl_script,foldername);
+
+    //setLuaPath(Lvl_script);
+    
 	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"script_loading"))
 	{
         ERRORLOG("failed to load lua script");
@@ -103,7 +126,7 @@ TbBool open_lua_script(LevelNumber lvnum)
         ERRORLOG("file %s missing",fname);
         return false;
     }
-    //setLuaPath(Lvl_script,foldername);
+    
 	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"global_lua_file"))
 	{
         ERRORLOG("failed to load global lua script");
