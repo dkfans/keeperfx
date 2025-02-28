@@ -53,9 +53,9 @@ end
 ---@param func function|string
 local function pfunc(func,eventData,triggerData)
     if type(func) == "function" then
-        return pcall(func(eventData,triggerData))
+        return pcall(func,eventData,triggerData)
     elseif type(func) == "string" then
-        return pcall(_G[func](eventData,triggerData))
+        return pcall(_G[func],eventData,triggerData)
     end
 end
 
@@ -81,7 +81,7 @@ local function ProcessTrigger(trigger,eventData, errors)
     end
     if allConditionsMet then
         local success, error = pfunc(trigger.action,eventData,trigger.triggerData)
-        if !success then
+        if not success then
             errors.insert(error)
         end
         return true
