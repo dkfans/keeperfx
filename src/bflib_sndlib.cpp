@@ -469,7 +469,7 @@ extern "C" void FreeAudio() {
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
 	try {
-		alListenerf(AL_GAIN, float(volume) / FULL_LOUDNESS);
+		alListenerf(AL_GAIN, float(volume) / 64);
 		const auto errcode = alGetError();
 		if (errcode != AL_NO_ERROR) {
 			throw openal_error("Cannot set master volume", errcode);
