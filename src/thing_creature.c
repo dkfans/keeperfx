@@ -275,7 +275,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
             make_group_member_leader(thing);
         }
     }
-    crstat = creature_stats_get(thing->model);
+    crstat = creature_stats_get_from_thing(thing);
     if ((!crstat->illuminated) && (!creature_under_spell_effect(thing, CSAfF_Light)))
     {
         create_light_for_possession(thing);
@@ -703,7 +703,7 @@ TbBool creature_under_spell_effect_f(const struct Thing *thing, unsigned long sp
  * @param spell_flags The spell flags to be checked. */
 TbBool creature_is_immune_to_spell_effect_f(const struct Thing *thing, unsigned long spell_flags, const char *func_name)
 {
-    struct CreatureStats *crstat = creature_stats_get(thing->model);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     if (creature_stats_invalid(crstat))
     {
         ERRORLOG("%s: Invalid creature stats for thing %s index %d", func_name, thing_model_name(thing), (int)thing->index);
@@ -891,7 +891,7 @@ TbBool free_spell_slot(struct Thing *thing, int slot_idx)
 
 TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTurnDelta duration, CrtrExpLevel spell_level, const char *func_name)
 {
-    struct CreatureStats *crstat = creature_stats_get(thing->model);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct SpellConfig *spconf = get_spell_config(spell_idx);
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
@@ -1191,7 +1191,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
 
 TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags, const char *func_name)
 {
-    struct CreatureStats *crstat = creature_stats_get(thing->model);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     TbBool cleared = false;
     // SLOW.
@@ -3152,8 +3152,8 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     anger_set_creature_anger_all_types(thing, 0);
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
     ThingModel crmodel = cctrl->original_model;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if (!thing_exists(thing)) 
+    struct CreatureStats* crstat = creature_stats_get_from_original_model(thing);
+    if (!thing_exists(thing))
     {
         set_flag(flags,CrDed_NoEffects);
     }
@@ -4835,9 +4835,9 @@ TbBool creature_increase_level(struct Thing *thing)
         return false;
     }
     struct Dungeon *dungeon = get_dungeon(thing->owner);
-    if (dungeon->creature_max_level[thing->model] > cctrl->exp_level)
+    if (dungeon->creature_max_level[cctrl->original_model] > cctrl->exp_level)
     {
-        struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+        struct CreatureStats *crstat = creature_stats_get_from_original_model(thing);
         if ((cctrl->exp_level < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
         {
             cctrl->exp_level_up = true;
@@ -4861,9 +4861,9 @@ TbBool creature_change_multiple_levels(struct Thing *thing, int count)
     {
         for (int i = 0; i < count; i++)
         {
-            if (dungeon->creature_max_level[thing->model] > cctrl->exp_level)
+            if (dungeon->creature_max_level[cctrl->original_model] > cctrl->exp_level)
             {
-                struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+                struct CreatureStats* crstat = creature_stats_get_from_original_model(thing);
                 if ((cctrl->exp_level < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
                 {
                     cctrl->exp_level_up = true;
@@ -6325,7 +6325,7 @@ long update_creature_levels(struct Thing *thing)
         return 1;
     }
     // If it is highest level, check if the creature can grow up.
-    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_original_model(thing);
     if (crstat->grow_up == 0)
     {
         return 0;
@@ -7805,7 +7805,7 @@ void transform_creature(struct Thing *thing, ThingModel transform_model, GameTur
     {
         cctrl->original_model = transform_model;
     }
-    struct CreatureStats *oldstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats *oldstat = creature_stats_get_from_original_model(thing);
     // Update the creature's properties, score and available instances.
     remove_creature_score_from_owner(thing);
     remove_available_instances(thing);
@@ -7899,7 +7899,6 @@ void transform_creature(struct Thing *thing, ThingModel transform_model, GameTur
     }
     struct InstanceInfo *inst_inf = creature_instance_info_get(cctrl->active_instance_id);
     update_creature_anim(thing, 256, get_creature_anim(thing, inst_inf->graphics_idx));
-    // Investigate why it doesn't work and only seems to select [instance1] for creatures that don't even know it.
     cctrl->active_instance_id = creature_choose_first_available_instance(thing);
     return;
 }

@@ -99,7 +99,7 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
         // Thing list loop body
         if (cctrl->lair_room_id == 0)
         {
-            struct CreatureStats* crstat = creature_stats_get(cctrl->original_model);
+            struct CreatureStats* crstat = creature_stats_get_from_original_model(thing);
             cap_required += crstat->lair_size;
         }
         // Thing list loop body ends
@@ -187,7 +187,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     struct Room *room;
     char best_score = 0;
 
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    const struct CreatureStats* crstat = creature_stats_get_from_original_model(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
 

@@ -324,8 +324,7 @@ CrStateRet creature_in_prison(struct Thing *thing)
 
 TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get(cctrl->original_model);
+    struct CreatureStats* crstat = creature_stats_get_from_original_model(thing);
     struct Thing* crthing = INVALID_THING;
     ThingModel crmodel = crstat->prison_kind;
     if ((crmodel > game.conf.crtr_conf.model_count) || (crmodel <= 0))
@@ -341,6 +340,7 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
             ERRORLOG("Couldn't create creature %s in prison", creature_code_name(crmodel));
             return false;
         }
+		struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         init_creature_level(crthing, cctrl->exp_level);
         set_start_state(crthing);
         struct Dungeon* dungeon = get_dungeon(room->owner);
@@ -361,8 +361,7 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
 
 TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get(cctrl->original_model);
+    struct CreatureStats* crstat = creature_stats_get_from_original_model(thing);
     if ((thing->health >= 0) || ((!crstat->humanoid_creature) && ((crstat->prison_kind > game.conf.crtr_conf.model_count) || (crstat->prison_kind <= 0)))) {
         return false;
     }
@@ -400,7 +399,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
 {
     struct Thing *foodtng;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get(creatng->model);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
 
     if ( crstat->hunger_rate == 0 )
         return false;
@@ -459,8 +458,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         return CrCkRet_Continue;
     }
     process_creature_hunger(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get(cctrl->original_model);
+    struct CreatureStats* crstat = creature_stats_get_from_original_model(creatng);
     if (process_prisoner_skelification(creatng, room))
     {
         return CrCkRet_Deleted;
@@ -472,6 +470,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
             output_message(SMsg_PrisonersStarving, MESSAGE_DURATION_STARVING);
         }
     }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room))
         return CrCkRet_Continue;
     // Breaking from jail is only possible once per some amount of turns, and only if creature sits in jail for long enough.

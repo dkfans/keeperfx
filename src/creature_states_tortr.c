@@ -272,8 +272,7 @@ CrCheckRet process_kinky_function(struct Thing *thing)
 
 void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get(cctrl->original_model);
+    struct CreatureStats* crstat = creature_stats_get_from_original_model(thing);
     ThingModel crmodel = crstat->torture_kind;
     if ((crmodel > game.conf.crtr_conf.model_count) || (crmodel <= 0))
     {
@@ -293,6 +292,7 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     {
         WARNLOG("Could not create creature %s to transform %s to due to creature limit", creature_code_name(crmodel), thing_model_name(thing));
     }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureControl* newcctrl = creature_control_get_from_thing(newthing);
     init_creature_level(newthing, cctrl->exp_level);
     if (creature_model_bleeds(thing->model)) {

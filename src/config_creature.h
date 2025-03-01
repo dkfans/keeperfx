@@ -292,6 +292,7 @@ extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
+struct CreatureStats *creature_stats_get_from_original_model(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
 void check_and_auto_fix_stats(void);
 void init_creature_model_stats(void);

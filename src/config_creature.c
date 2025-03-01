@@ -299,20 +299,38 @@ const char *name_consonants[] = {
  */
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx)
 {
-  if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_MAX))
-    return &game.conf.creature_stats[0];
-  return &game.conf.creature_stats[crstat_idx];
+    if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_MAX))
+    {
+        return &game.conf.creature_stats[0];
+    }
+    return &game.conf.creature_stats[crstat_idx];
 }
 
 /**
- * Returns CreatureStats assigned to given thing.
+ * Returns CreatureStats assigned to given thing from its current model.
  * Thing must be a creature.
  */
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing)
 {
-  if ((thing->model < 1) || (thing->model >= game.conf.crtr_conf.model_count))
-    return &game.conf.creature_stats[0];
-  return &game.conf.creature_stats[thing->model];
+    if ((thing->model < 1) || (thing->model >= game.conf.crtr_conf.model_count))
+    {
+        return &game.conf.creature_stats[0];
+    }
+    return &game.conf.creature_stats[thing->model];
+}
+
+/**
+ * Returns CreatureStats assigned to given thing from its original model.
+ * Thing must be a creature.
+ */
+struct CreatureStats *creature_stats_get_from_original_model(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->original_model < 1) || (cctrl->original_model >= game.conf.crtr_conf.model_count))
+    {
+        return &game.conf.creature_stats[0];
+    }
+    return &game.conf.creature_stats[cctrl->original_model];
 }
 
 /**

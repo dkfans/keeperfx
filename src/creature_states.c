@@ -2358,7 +2358,7 @@ short creature_leaves(struct Thing *creatng)
     {
         struct Dungeon* dungeon = get_dungeon(creatng->owner);
         dungeon->total_creatures_left++;
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        struct CreatureStats* crstat = creature_stats_get_from_original_model(creatng);
         apply_anger_to_all_players_creatures_excluding(creatng->owner, crstat->annoy_others_leaving, AngR_Other, creatng);
     }
     kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
@@ -3306,7 +3306,7 @@ short creature_wants_a_home(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_original_model(creatng);
     if (crstat->lair_size <= 0) {
         set_start_state(creatng);
         return 0;
@@ -4008,7 +4008,7 @@ short person_sulk_head_for_lair(struct Thing *creatng)
         }
     }
     // For some reason we can't go to lair; either leave dungeon o reset.
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_original_model(creatng);
     if ((crstat->lair_size <= 0) || creature_affected_by_slap(creatng) || player_uses_power_obey(creatng->owner)) {
         set_start_state(creatng);
         return 0;
@@ -4211,10 +4211,11 @@ TbBool process_creature_hunger(struct Thing *thing)
 
 TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
+    struct CreatureStats* crstat = creature_stats_get_from_original_model(fightng);
+	struct CreatureControl *enmcctrl = creature_control_get_from_thing(enmtng);
     for (int i = 0; i < CREATURE_TYPES_MAX; i++)
     {
-        if ((crstat->hostile_towards[i] == enmtng->model) || (crstat->hostile_towards[i] == CREATURE_ANY))
+        if ((crstat->hostile_towards[i] == enmcctrl->original_model) || (crstat->hostile_towards[i] == CREATURE_ANY))
         {
             return true;
         }
@@ -4715,14 +4716,14 @@ TbBool check_experience_upgrade(struct Thing *thing)
 {
     struct Dungeon *dungeon = get_dungeon(thing->owner);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_original_model(thing);
     long i = crstat->to_level[cctrl->exp_level] << 8;
     if (cctrl->exp_points < i)
     {
         return false;
     }
     cctrl->exp_points -= i;
-    if (cctrl->exp_level < dungeon->creature_max_level[thing->model])
+    if (cctrl->exp_level < dungeon->creature_max_level[cctrl->original_model])
     {
         if ((cctrl->exp_level < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
         {
