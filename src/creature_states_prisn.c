@@ -340,7 +340,7 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
             ERRORLOG("Couldn't create creature %s in prison", creature_code_name(crmodel));
             return false;
         }
-		struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+	struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         init_creature_level(crthing, cctrl->exp_level);
         set_start_state(crthing);
         struct Dungeon* dungeon = get_dungeon(room->owner);
