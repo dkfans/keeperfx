@@ -1581,6 +1581,22 @@ void terminate_all_actives_damage_over_time_spell_effects(struct Thing *thing)
     }
 }
 
+void terminate_all_actives_transform_spell_effects(struct Thing *thing)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct CastedSpellData *cspell;
+    struct SpellConfig *spconf;
+    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        cspell = &cctrl->casted_spells[i];
+        spconf = get_spell_config(cspell->spkind);
+        if (spconf->transform_model != 0)
+        {
+            terminate_thing_spell_effect(thing, cspell->spkind);
+        }
+    }
+}
+
 /* Clears spell effect on a thing. 
  * It first checks for an active spell match and terminates the associated spell.
  * If no exact match is found, it clears only the flag without affecting others.
@@ -3392,6 +3408,11 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     SYNCDBG(18, "Almost finished");
     if (!creature_can_be_set_unconscious(creatng, killertng, flags))
     {
+        // Terminate any temporary transform spell.
+        if (creatng->model != cctrl->original_model)
+        {
+            terminate_all_actives_transform_spell_effects(creatng);
+        }
         if (!flag_is_set(flags, CrDed_NoEffects))
         {
             return cause_creature_death(creatng, flags);
