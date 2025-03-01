@@ -1493,6 +1493,11 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
     // Apply transformation.
     if (spconf->transform_model > 0)
     {
+        // Terminate any temporary transform spell.
+        if (thing->model != cctrl->original_model)
+        {
+            terminate_any_temporary_transform_spell(thing);
+        }
         transform_creature(thing, spconf->transform_model, duration);
     }
     // Check for cleansing one-time effect.
@@ -1581,7 +1586,7 @@ void terminate_all_actives_damage_over_time_spell_effects(struct Thing *thing)
     }
 }
 
-void terminate_all_actives_transform_spell_effects(struct Thing *thing)
+void terminate_any_temporary_transform_spell(struct Thing *thing)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct CastedSpellData *cspell;
@@ -3411,7 +3416,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         // Terminate any temporary transform spell.
         if (creatng->model != cctrl->original_model)
         {
-            terminate_all_actives_transform_spell_effects(creatng);
+            terminate_any_temporary_transform_spell(creatng);
         }
         if (!flag_is_set(flags, CrDed_NoEffects))
         {
