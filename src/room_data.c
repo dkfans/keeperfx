@@ -3889,19 +3889,19 @@ void output_room_takeover_message(struct Room *room, PlayerNumber oldowner, Play
     if (room->kind == RoK_ENTRANCE)
     {
         if (is_my_player_number(oldowner)) {
-            output_message(SMsg_EntranceLost, 0, 1);
+            output_message(SMsg_EntranceLost, 0);
         } else
         if (is_my_player_number(newowner))
         {
-            output_message(SMsg_EntranceClaimed, 0, 1);
+            output_message(SMsg_EntranceClaimed, 0);
         }
     } else
     if (is_my_player_number(newowner))
     {
         if (oldowner == game.neutral_player_num) {
-            output_message(SMsg_NewRoomTakenOver, 0, 1);
+            output_message(SMsg_NewRoomTakenOver, 0);
         } else {
-            output_message(SMsg_EnemyRoomTakeOver, 0, 1);
+            output_message(SMsg_EnemyRoomTakeOver, 0);
         }
     }
 }

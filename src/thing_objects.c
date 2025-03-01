@@ -1050,7 +1050,7 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
         process_temple_special(thing, sacowner);
         kill_all_players_chickens(thing->owner);
         if (is_my_player_number(sacowner))
-            output_message(SMsg_SacrificePunish, 0, true);
+            output_message(SMsg_SacrificePunish, 0);
     } else
     if (object_is_gold_pile(thing))
     {
@@ -1079,7 +1079,7 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
             } else
             {
                 if (is_my_player_number(sacowner))
-                    output_message(SMsg_SacrificeWishing, 0, true);
+                    output_message(SMsg_SacrificeWishing, 0);
             }
         }
     }

@@ -2268,7 +2268,7 @@ static void add_heart_health_process(struct ScriptContext *context)
                 event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index);
                 if (is_my_player_number(heartng->owner))
                 {
-                    output_message(SMsg_HeartUnderAttack, 400, true);
+                    output_message(SMsg_HeartUnderAttack, 400);
                 }
             }
         }
@@ -5254,7 +5254,7 @@ static void play_message_process(struct ScriptContext *context)
             {
                 case 1: // speech message
                 {
-                    output_message(context->value->shorts[1], 0, true);
+                    output_message(context->value->shorts[1], 0);
                     break;
                 }
                 case 2: // sound effect
@@ -5271,7 +5271,7 @@ static void play_message_process(struct ScriptContext *context)
             {
                 case 1: // speech message
                 {
-                    play_streamed_sample(filename, settings.mentor_volume);
+                    output_custom_message(filename, settings.mentor_volume);
                     break;
                 }
                 case 2: // sound effect

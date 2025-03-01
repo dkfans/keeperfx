@@ -57,7 +57,7 @@
     <ClCompile Include="src\bflib_render_gpoly.c" />
     <ClCompile Include="src\bflib_render_trig.c" />
     <ClCompile Include="src\bflib_server_tcp.cpp" />
-    <ClCompile Include="src\bflib_sndlib.c" />
+    <ClCompile Include="src\bflib_sndlib.cpp" />
     <ClCompile Include="src\bflib_sound.c" />
     <ClCompile Include="src\bflib_sprfnt.c" />
     <ClCompile Include="src\bflib_string.c" />
@@ -169,7 +169,7 @@
     <ClCompile Include="src\gui_frontmenu.c" />
     <ClCompile Include="src\gui_msgs.c" />
     <ClCompile Include="src\gui_parchment.c" />
-    <ClCompile Include="src\gui_soundmsgs.c" />
+    <ClCompile Include="src\gui_soundmsgs.cpp" />
     <ClCompile Include="src\gui_tooltips.c" />
     <ClCompile Include="src\gui_topmsg.c" />
     <ClCompile Include="src\KeeperSpeechImp.c" />
