@@ -3375,7 +3375,7 @@ long check_out_worker_pickup_gold_pile(struct Thing *thing, struct DiggerStack *
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    crstat = _from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
     if (crstat->gold_hold <= thing->creature.gold_carried)
     {
         if (game.play_gameturn - cctrl->tasks_check_turn > 128)
