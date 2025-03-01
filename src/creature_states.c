@@ -1818,7 +1818,7 @@ short creature_doing_nothing(struct Thing *creatng)
     {
         if ((game.play_gameturn - cctrl->tasks_check_turn > 128))
         {
-            int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
+            int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, cctrl->original_model);
             cctrl->tasks_check_turn = game.play_gameturn;
             struct Room* room = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, get_room_role_for_job(Job_TAKE_SLEEP), NavRtF_Default, required_cap);
             if (!room_is_invalid(room))
