@@ -469,7 +469,7 @@ extern "C" void FreeAudio() {
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
 	try {
-		alListenerf(AL_GAIN, float(volume) / FULL_LOUDNESS);
+		alListenerf(AL_GAIN, float(volume) / 64);
 		const auto errcode = alGetError();
 		if (errcode != AL_NO_ERROR) {
 			throw openal_error("Cannot set master volume", errcode);
@@ -597,7 +597,7 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 		if (game.flags_font & FFlg_AlexCheat) {
 			TbDate date;
 			LbDate(&date);
-			g_bb_king_mode |= ((date.Day == 1) && (date.Month = 2));
+			g_bb_king_mode |= ((date.Day == 1) && (date.Month == 2));
 		}
 		if (SoundDisabled) {
 			WARNLOG("Sound is disabled, skipping OpenAL initialization");
