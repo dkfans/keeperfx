@@ -328,7 +328,7 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
         dungeon->lvstats.creatures_converted++;
         if (((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0) && ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) == 0))
         {
-            if (get_creature_model_flags(creatng) & CMF_IsEvil)
+            if (get_creature_original_model_flags(creatng) & CMF_IsEvil)
             {
                 dungeon->evil_creatures_converted++;
             }

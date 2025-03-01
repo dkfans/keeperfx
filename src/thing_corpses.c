@@ -58,7 +58,7 @@ TbBool corpse_is_rottable(const struct Thing *thing)
         return false;
     if (thing->class_id != TCls_DeadCreature)
         return false;
-    if ((get_creature_model_flags(thing) & CMF_NoCorpseRotting) != 0)
+    if ((get_creature_original_model_flags(thing) & CMF_NoCorpseRotting) != 0)
         return false;
     struct PlayerInfo* player = get_player_thing_is_controlled_by(thing);
     if (player_invalid(player))
@@ -77,7 +77,7 @@ TbBool corpse_laid_to_rest(const struct Thing* thing)
         return false;
     if (thing->class_id != TCls_DeadCreature)
         return false;
-    if ((get_creature_model_flags(thing) & CMF_NoCorpseRotting) != 0)
+    if ((get_creature_original_model_flags(thing) & CMF_NoCorpseRotting) != 0)
         return false;
     if (thing->corpse.laid_to_rest >= 1)
         return true;
@@ -402,7 +402,7 @@ TbBool update_dead_creatures_list(struct Dungeon *dungeon, const struct Thing *t
 
 TbBool creature_can_be_resurrected(const struct Thing* thing)
 {
-    return ((get_creature_model_flags(thing) & CMF_NoResurrect) == 0);
+    return ((get_creature_original_model_flags(thing) & CMF_NoResurrect) == 0);
 }
 
 TbBool update_dead_creatures_list_for_owner(const struct Thing *thing)

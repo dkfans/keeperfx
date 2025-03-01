@@ -3171,7 +3171,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         // If the creature is leaving dungeon, or being transformed, then CrDed_NotReallyDying should be set
         update_dead_creatures_list_for_owner(thing);
     }
-    if (flag_is_set(get_creature_model_flags(thing), CMF_EventfulDeath)) //updates LAST_DEATH_EVENT for mapmakers
+    if (flag_is_set(get_creature_original_model_flags(thing), CMF_EventfulDeath)) //updates LAST_DEATH_EVENT for mapmakers
     {
         struct Dungeon* dungeon = get_dungeon(thing->owner);
         if (!dungeon_invalid(dungeon))
@@ -3354,7 +3354,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     // Now we are sure that killertng and dungeon pointers are correct.
     if (creatng->owner == killertng->owner)
     {
-        if ((get_creature_model_flags(creatng) & CMF_IsDiptera) && (get_creature_model_flags(killertng) & CMF_IsArachnid))
+        if ((get_creature_original_model_flags(creatng) & CMF_IsDiptera) && (get_creature_original_model_flags(killertng) & CMF_IsArachnid))
         {
             dungeon->lvstats.flies_killed_by_spiders++;
         }
@@ -7609,7 +7609,7 @@ TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
 
 TbBool creature_can_be_transferred(const struct Thing* thing)
 {
-    return ((get_creature_model_flags(thing) & CMF_NoTransfer) == 0);
+    return ((get_creature_original_model_flags(thing) & CMF_NoTransfer) == 0);
 }
 
 /* Returns a random creature kind with model flags as argument. */

@@ -282,7 +282,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
             }
             tng_idx = cctrl->players_next_creature_idx;
             // Thing list loop body.
-            if (!flag_is_set(get_creature_model_flags(thing), CMF_NoStealHero)) {
+            if (!flag_is_set(get_creature_original_model_flags(thing), CMF_NoStealHero)) {
                 herotng = thing;
             }
             // If we've reached requested hero number, return either current hero on previously selected one.

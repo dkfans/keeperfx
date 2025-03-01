@@ -1985,8 +1985,20 @@ TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags)
 unsigned long get_creature_model_flags(const struct Thing *thing)
 {
     if ((thing->model < 1) || (thing->model >= game.conf.crtr_conf.model_count))
-      return 0;
-  return game.conf.crtr_conf.model[thing->model].model_flags;
+    {
+        return 0;
+    }
+    return game.conf.crtr_conf.model[thing->model].model_flags;
+}
+
+unsigned long get_creature_original_model_flags(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->original_model < 1) || (cctrl->original_model >= game.conf.crtr_conf.model_count))
+    {
+        return 0;
+    }
+    return game.conf.crtr_conf.model[cctrl->original_model].model_flags;
 }
 
 ThingModel get_creature_model_with_model_flags(unsigned long needflags)
@@ -2099,7 +2111,7 @@ const char *creature_own_name(const struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     char *text;
-    if ((get_creature_model_flags(creatng) & CMF_OneOfKind) != 0) {
+    if ((get_creature_original_model_flags(creatng) & CMF_OneOfKind) != 0) {
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatng->model];
         text = buf_sprintf("%s",get_string(crconf->namestr_idx));
         return text;
