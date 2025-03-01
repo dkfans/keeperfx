@@ -597,7 +597,7 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 		if (game.flags_font & FFlg_AlexCheat) {
 			TbDate date;
 			LbDate(&date);
-			g_bb_king_mode |= ((date.Day == 1) && (date.Month = 2));
+			g_bb_king_mode |= ((date.Day == 1) && (date.Month == 2));
 		}
 		if (SoundDisabled) {
 			WARNLOG("Sound is disabled, skipping OpenAL initialization");
