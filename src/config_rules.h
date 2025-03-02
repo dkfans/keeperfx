@@ -104,6 +104,11 @@ struct GameRulesConfig {
     long global_ambient_light;
     TbBool light_enabled;
     unsigned short creatures_count;
+    unsigned char max_paydays_advanced;
+    unsigned char max_paydays_owed;
+    TbBool accept_partial_payday;
+    TbBool pocket_gold;
+    TbBool take_pay_from_pocket;
 };
 
 struct ComputerRulesConfig {
