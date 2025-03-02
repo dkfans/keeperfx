@@ -740,24 +740,6 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
         x += w;
         c++;
     } else
-    if (chr > 32)
-    {
-      spr = LbFontCharSprite(lbFontPtr,chr);
-      if (spr != NULL)
-      {
-        if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) != 0)
-          LbSpriteDrawOneColour(x, y, spr, lbDisplay.DrawColour);
-        else
-          LbSpriteDraw(x, y, spr);
-        w = spr->SWidth;
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-        {
-            h = LbTextLineHeight();
-            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
-        }
-        x += w;
-      }
-    } else
     if (chr == ' ')
     {
         w = len;
@@ -767,6 +749,25 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
             LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
         }
         x += w;
+    } else
+    if (chr > 15)
+    {
+        spr = LbFontCharSprite(lbFontPtr, chr);
+        if (spr != NULL)
+        {
+            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
+            if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) != 0)
+                LbSpriteDrawOneColour(x, y, spr, lbDisplay.DrawColour);
+            else
+                LbSpriteDraw(x, y, spr);
+            w = spr->SWidth;
+            if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+            {
+                h = LbTextLineHeight();
+                LbDrawCharUnderline(x, y, w, h, lbDisplay.DrawColour, lbDisplayEx.ShadowColour);
+            }
+            x += w;
+        }
     } else
     if (chr == '\t')
     {
@@ -842,25 +843,6 @@ void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, lon
         x += w;
         c++;
     } else
-    if (chr > 32)
-    {
-      spr = LbFontCharSprite(lbFontPtr,chr);
-      if (spr != NULL)
-      {
-        if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) != 0) {
-            LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, lbDisplay.DrawColour);
-        } else {
-            LbSpriteDrawResized(x, y, units_per_px, spr);
-        }
-        w = spr->SWidth * units_per_px / 16;
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-        {
-            h = LbTextLineHeight() * units_per_px / 16;
-            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
-        }
-        x += w;
-      }
-    } else
     if (chr == ' ')
     {
         w = space_len;
@@ -870,6 +852,26 @@ void put_down_simpletext_sprites_resized(const char *sbuf, const char *ebuf, lon
             LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
         }
         x += w;
+    } else
+    if (chr >= 15)
+    {
+        spr = LbFontCharSprite(lbFontPtr, chr);
+        if (spr != NULL)
+        {
+            if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) != 0) {
+                LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, lbDisplay.DrawColour);
+            }
+            else {
+                LbSpriteDrawResized(x, y, units_per_px, spr);
+            }
+            w = spr->SWidth * units_per_px / 16;
+            if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+            {
+                h = LbTextLineHeight() * units_per_px / 16;
+                LbDrawCharUnderline(x, y, w, h, lbDisplay.DrawColour, lbDisplayEx.ShadowColour);
+            }
+            x += w;
+        }
     } else
     if (chr == '\t')
     {
@@ -1860,6 +1862,8 @@ const struct TbSprite * LbFontCharSprite(const struct TbSpriteSheet * font, cons
         return NULL;
     } else if ((chr >= 31) && (chr < 256)) {
         return get_sprite(font, chr - 31);
+    } else if ((chr > 14) && (chr < 31)) {
+        return get_sprite(font,chr + 208); //223 was the biggest value that fits in the regular 255 slots, but since 15~30 was free still, we add those to the end.
     }
     return NULL;
 }
