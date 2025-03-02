@@ -899,7 +899,7 @@ static void display_objective_process(struct ScriptContext *context)
 
 static void conceal_map_rect_check(const struct ScriptLine *scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     TbBool conceal_all = false;
 
     if (scline->np[5] == -1)
