@@ -755,7 +755,6 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
         spr = LbFontCharSprite(lbFontPtr, chr);
         if (spr != NULL)
         {
-            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
             if ((lbDisplay.DrawFlags & Lb_TEXT_ONE_COLOR) != 0)
                 LbSpriteDrawOneColour(x, y, spr, lbDisplay.DrawColour);
             else
