@@ -750,7 +750,7 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
         }
         x += w;
     } else
-    if (chr > 15)
+    if (chr >= 15)
     {
         spr = LbFontCharSprite(lbFontPtr, chr);
         if (spr != NULL)
