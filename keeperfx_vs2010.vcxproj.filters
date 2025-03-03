@@ -102,9 +102,6 @@
     <ClCompile Include="src\bflib_render_trig.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_sndlib.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_sound.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -736,6 +733,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\gui_soundmsgs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bflib_sndlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
