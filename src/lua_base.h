@@ -34,6 +34,7 @@ const char* get_lua_serialized_data(size_t *len);
 void set_lua_serialized_data(const char* data, size_t len);
 
 TbBool execute_lua_code_from_console(const char* code);
+TbBool execute_lua_code_from_script(const char* code);
 
 extern struct lua_State *Lvl_script;
 

@@ -92,6 +92,24 @@ TbBool execute_lua_code_from_console(const char* code)
     return true;
 }
 
+TbBool execute_lua_code_from_script(const char* code)
+{
+    if (Lvl_script == NULL) {
+        ERRORLOG("Lua state is not initialized");
+        return false;
+    }
+    int result = luaL_dostring(Lvl_script, code);
+    if (result != LUA_OK) {
+        const char *message = lua_tostring(Lvl_script, -1);
+        ERRORLOG("Failed to execute Lua code: %s", message ? message : "Unknown error");
+
+        lua_pop(Lvl_script, 2); // Remove error message and traceback
+        return false;
+    }
+
+    return true;
+}
+
 TbBool open_lua_script(LevelNumber lvnum)
 {
 	Lvl_script = luaL_newstate();

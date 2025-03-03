@@ -39,6 +39,7 @@
 #include "lvl_script_commands.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_lib.h"
+#include "lua_base.h"
 #include "map_blocks.h"
 #include "player_instances.h"
 #include "player_utils.h"
@@ -6723,6 +6724,20 @@ static void set_digger_process(struct ScriptContext* context)
     update_players_special_digger_model(plyr_idx, new_dig_model);
 }
 
+static void run_lua_code_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
+    value->ulongs[0]= scline->np[0];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void run_lua_code_process(struct ScriptContext* context)
+{
+    char* code = gameadd.quick_messages[context->value->ulongs[0]];
+    execute_lua_code_from_script(code);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P-player, R-room kind, L-location, O-operator, S-slab kind, B-boolean
@@ -6887,6 +6902,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNpa  ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
   {"LOCK_POSSESSION",                   "PB!     ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
   {"SET_DIGGER",                        "PC      ", Cmd_SET_DIGGER , &set_digger_check, &set_digger_process},
+  {"RUN_LUA_CODE",                      "NA      ", Cmd_RUN_LUA_CODE , &run_lua_code_check, &run_lua_code_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
