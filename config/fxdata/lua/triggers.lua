@@ -1,5 +1,5 @@
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"
+---@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"OnGameLost"|"TrapPlaced"
 
 ---@class Trigger
 ---@field conditions function[]|string[]|nil
@@ -82,7 +82,7 @@ local function ProcessTrigger(trigger,eventData, errors)
     if allConditionsMet then
         local success, error = pfunc(trigger.action,eventData,trigger.triggerData)
         if not success then
-            errors.insert(error)
+            table.insert(errors,error)
         end
         return true
     end
@@ -247,7 +247,7 @@ end
 ---@return Trigger
 function RegisterDungeonDestroyedEvent(action,player)
     local trigData = {Player = player}
-    local trigger = CreateTrigger("DungeonDestroyed",action,trigData)
+    local trigger = CreateTrigger("OnGameLost",action,trigData)
     if player then
         TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.player == triggerData.player end)
     end
