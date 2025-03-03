@@ -1497,7 +1497,8 @@ TbBool room_has_enough_free_capacity_for_creature_job(const struct Room *room, c
     if (!room_role_matches(room->kind,get_room_role_for_job(jobpref))) {
         return false;
     }
-    int required_cap = get_required_room_capacity_for_job(jobpref, creatng->model);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    int required_cap = get_required_room_capacity_for_job(jobpref, cctrl->original_model);
     if (room->used_capacity + required_cap <= room->total_capacity)
         return true;
     return false;
