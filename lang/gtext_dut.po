@@ -6892,7 +6892,7 @@ msgstr "Vogel"
 #: guitext:1045
 msgctxt "Creature name"
 msgid "Maiden"
-msgstr "Jonkvrouw"
+msgstr "Spinnenvrouw"
 
 #: guitext:1046
 msgctxt "Creature name"

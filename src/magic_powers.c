@@ -884,7 +884,7 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, KeepPwrLevel power
     }
     // If failed, say "you do not have enough gold"
     if (is_my_player_number(plyr_idx))
-        output_message(SMsg_GoldNotEnough, 0, true);
+        output_message(SMsg_GoldNotEnough, 0);
     return false;
 }
 
@@ -933,7 +933,7 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
         // If we can't afford the power, fail
         if (!pay_for_spell(plyr_idx, power_kind, 0)) {
             if (is_my_player_number(plyr_idx))
-                output_message(SMsg_GoldNotEnough, 0, true);
+                output_message(SMsg_GoldNotEnough, 0);
             return Lb_OK;
         }
     }
@@ -1459,7 +1459,7 @@ static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_id
         // If we can't afford the power, fail
         if (!pay_for_spell(plyr_idx, PwrK_SIGHT, power_level)) {
             if (is_my_player_number(plyr_idx))
-                output_message(SMsg_GoldNotEnough, 0, true);
+                output_message(SMsg_GoldNotEnough, 0);
             return Lb_FAIL;
         }
     }

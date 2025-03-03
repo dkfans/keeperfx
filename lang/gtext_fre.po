@@ -7123,27 +7123,27 @@ msgstr "Mage du temps"
 #: guitext:1044
 msgctxt "Creature name"
 msgid "Bird"
-msgstr ""
+msgstr "Oiseau"
 
 #: guitext:1045
 msgctxt "Creature name"
 msgid "Maiden"
-msgstr ""
+msgstr "Servante"
 
 #: guitext:1046
 msgctxt "Creature name"
 msgid "Spiderling"
-msgstr ""
+msgstr "Araigneau"
 
 #: guitext:1047
 msgctxt "Creature name"
 msgid "Goblin"
-msgstr ""
+msgstr "Gobelin"
 
 #: guitext:1048
 msgctxt "Creature name"
 msgid "Fallen Angel"
-msgstr ""
+msgstr "Ange Déchu"
 
 #: guitext:1049
 msgctxt "Unused"
@@ -7166,7 +7166,6 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Veine d'or dense : Contient beaucoup de richesses que vos Lutins peuvent extraire."
 
 #: guitext:1053
-#, fuzzy
 msgctxt "Keeper spell name"
 msgid "Magic Shield"
 msgstr "Bouclier Magique"
@@ -7219,17 +7218,17 @@ msgstr "Affaiblir les murs : Détruit les fortifications des murs ennemis."
 #: guitext:1063
 msgctxt "Game controls"
 msgid "Tilt Up"
-msgstr "Incliner Haut"
+msgstr "Incliner vers le haut"
 
 #: guitext:1064
 msgctxt "Game controls"
 msgid "Tilt Down"
-msgstr "Incliner Bas"
+msgstr "Incliner vers le bas"
 
 #: guitext:1065
 msgctxt "Game controls"
 msgid "Reset Tilt"
-msgstr "Réinitialiser"
+msgstr "Réinitialiser l'inclinaison"
 
 #: guitext:1066
 msgctxt "Creature spell"
@@ -7284,7 +7283,7 @@ msgstr "Porte de Midas"
 #: guitext:1077
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
-msgstr "Porte de Midas: Cette porte est indestructible tant que son propriétaire a de l'or. CDS voir."
+msgstr "Porte de Midas : Cette porte est indestructible tant que son propriétaire a de l'or. CDS voir."
 
 #: guitext:1078
 msgctxt "Game controls"
@@ -7299,9 +7298,9 @@ msgstr ""
 #: guitext:1080
 msgctxt "Creature spell"
 msgid "Familiar: Summons a companion to guard and assist the creature."
-msgstr ""
+msgstr "Familier : Invoque un compagnon pour protéger et aider la créature."
 
 #: guitext:1081
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
-msgstr ""
+msgstr "Invoquer : Convoquez des gardiens temporaires pour aider la créature en combat."

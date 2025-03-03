@@ -294,7 +294,6 @@ void dump_thing_held_by_any_player(struct Thing *thing);
 void instant_instance_selected(CrInstance check_inst_id);
 void centre_engine_window(void);
 void change_engine_window_relative_size(long w_delta, long h_delta);
-void init_messages(void);
 void update_thing_animation(struct Thing *thing);
 long update_cave_in(struct Thing *thing);
 void initialise_map_collides(void);

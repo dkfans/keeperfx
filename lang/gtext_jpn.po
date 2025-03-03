@@ -2288,7 +2288,7 @@ msgstr ""
 #: guitext:257
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "時限爆弾: クリーチャーに自爆をさせる。"
+msgstr "時限爆弾: クリーチャーを自爆させる。"
 
 #: guitext:258
 msgctxt "Creature name"
@@ -4613,10 +4613,9 @@ msgstr ""
 "る。左クリックで選択。 [18.9]"
 
 #: guitext:662
-#, fuzzy
 msgctxt "Keeper spell description"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "時限爆弾"
+msgstr "時限爆弾: クリーチャーを自爆させる。"
 
 #: guitext:663
 msgctxt "Keeper spell description"
@@ -6835,27 +6834,27 @@ msgstr "タイムメイジ"
 #: guitext:1044
 msgctxt "Creature name"
 msgid "Bird"
-msgstr ""
+msgstr "バード"
 
 #: guitext:1045
 msgctxt "Creature name"
 msgid "Maiden"
-msgstr ""
+msgstr "メイデン"
 
 #: guitext:1046
 msgctxt "Creature name"
 msgid "Spiderling"
-msgstr ""
+msgstr "スパイダーリング"
 
 #: guitext:1047
 msgctxt "Creature name"
 msgid "Goblin"
-msgstr ""
+msgstr "ゴブリン"
 
 #: guitext:1048
 msgctxt "Creature name"
 msgid "Fallen Angel"
-msgstr ""
+msgstr "フォールンエンジェル"
 
 #: guitext:1049
 msgctxt "Unused"
@@ -6978,12 +6977,12 @@ msgstr "照準: 対象の一時的に意識を高め、目に見えないクリ�
 #: guitext:1072
 msgctxt "Keeper spell name"
 msgid "Recruit Tunneller"
-msgstr ""
+msgstr "トンネラードワーフ採用"
 
 #: guitext:1073
 msgctxt "Keeper spell description"
 msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
-msgstr ""
+msgstr "トンネラードワーフ採用: ダンジョン内に新しいトンネラードワーフを作り出す。"
 
 #: guitext:1074 guitext:1075
 msgctxt "Unused"
@@ -7013,9 +7012,9 @@ msgstr "下降"
 #: guitext:1080
 msgctxt "Creature spell"
 msgid "Familiar: Summons a companion to guard and assist the creature."
-msgstr ""
+msgstr "使い魔: クリーチャーを守って助ける仲間を呼ぶ。"
 
 #: guitext:1081
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
-msgstr ""
+msgstr "援助要請: 戦闘にクリーチャーを支援する一時的な守護者を呼び寄せる。"
