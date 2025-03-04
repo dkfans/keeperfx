@@ -267,6 +267,7 @@ end
 ---can be reset with the resetActionPoint script
 ---@param action function|string the function to call when the event happens
 ---@param actionPoint actionpoint the action point that triggers the event
+---@param player Player
 ---@return Trigger
 function RegisterOnActionPointEvent(action, actionPoint, player)
     local trigData = {Player = player,actionPoint = actionPoint, triggered = false}
