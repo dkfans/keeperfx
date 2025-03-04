@@ -2,7 +2,7 @@
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # ******************************************************************************
 #   @file gtext_kor.po
-#      KeeperFX GUI Strings translation file
+#      KeeperFX Speeches translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
 #  @par Comment:
