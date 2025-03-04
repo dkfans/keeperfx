@@ -61,6 +61,7 @@ const struct NamedCommand terrain_slab_commands[] = {
   {"ANIMATED",       14},
   {"ISOWNABLE",      15},
   {"INDESTRUCTIBLE", 16},
+  {"GOLDHELD",       17},
   {NULL,              0},
 };
 
@@ -214,6 +215,7 @@ const struct NamedCommand terrain_health_commands[] = {
   {"DOOR_BRACE",      7},
   {"DOOR_STEEL",      8},
   {"DOOR_MAGIC",      9},
+  {"DENSE_GOLD",     10},
   {NULL,              0},
 };
 
@@ -717,6 +719,22 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
+        case 17: //GOLDHELD
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->gold_held = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
         case ccr_comment:
             break;
         case ccr_endOfFile:
@@ -760,6 +778,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         case 7:
         case 8:
         case 9:
+        case 10:
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);

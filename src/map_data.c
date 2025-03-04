@@ -697,6 +697,7 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
                     case SlbT_ROCK:
                     case SlbT_GEMS:
                     case SlbT_GOLD:
+                    case SlbT_DENSEGOLD:
                         continue;
                     default:
                         break;
