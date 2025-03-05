@@ -6727,14 +6727,21 @@ static void set_digger_process(struct ScriptContext* context)
 static void run_lua_code_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
-    value->ulongs[0]= scline->np[0];
+    char* code = scline->tp[0];
+
+    value->strs[0] = script_strdup(code);
+    if (value->strs[0] == NULL) {
+        SCRPTERRLOG("Run out script strings space");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void run_lua_code_process(struct ScriptContext* context)
 {
-    char* code = gameadd.quick_messages[context->value->ulongs[0]];
+    char* code = value->strs[0];
     execute_lua_code_from_script(code);
 }
 
@@ -6902,7 +6909,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNpa  ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
   {"LOCK_POSSESSION",                   "PB!     ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
   {"SET_DIGGER",                        "PC      ", Cmd_SET_DIGGER , &set_digger_check, &set_digger_process},
-  {"RUN_LUA_CODE",                      "NA      ", Cmd_RUN_LUA_CODE , &run_lua_code_check, &run_lua_code_process},
+  {"RUN_LUA_CODE",                      "A       ", Cmd_RUN_LUA_CODE , &run_lua_code_check, &run_lua_code_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
