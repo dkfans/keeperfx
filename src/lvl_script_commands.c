@@ -6727,7 +6727,7 @@ static void set_digger_process(struct ScriptContext* context)
 static void run_lua_code_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    char* code = scline->tp[0];
+    const char* code = scline->tp[0];
 
     value->strs[0] = script_strdup(code);
     if (value->strs[0] == NULL) {
@@ -6741,7 +6741,7 @@ static void run_lua_code_check(const struct ScriptLine* scline)
 
 static void run_lua_code_process(struct ScriptContext* context)
 {
-    char* code = value->strs[0];
+    const char* code = context->value->strs[0];
     execute_lua_code_from_script(code);
 }
 
