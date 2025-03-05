@@ -1271,9 +1271,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
 
     const char *roomname = scline->tp[0];
     const char *valuestring = scline->tp[2];
-    const char* valuestring2 = 0;
-    if (scline->tp[3][0] != '\0')
-        valuestring2 = scline->tp[3];
+    const char* valuestring2 = scline->tp[3];
     long newvalue;
     long newvalue2;
     short room_id = get_id(room_desc, roomname);
@@ -1907,8 +1905,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
             break;
         case 13: // Roles
             roomst->roles = context->value->ulongs[1];
-            if (context->value->ulongs[2] > 0)
-                roomst->roles |= context->value->ulongs[2];
+            roomst->roles |= context->value->ulongs[2];
             break;
         case 14: // TotalCapacity
             roomst->update_total_capacity_idx = value;
