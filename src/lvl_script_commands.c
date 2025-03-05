@@ -1338,7 +1338,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             {
                 SCRPTERRLOG("Unknown CreatureCreation variable");
                 DEALLOCATE_SCRIPT_VALUE
-                    return;
+                return;
             }
         value->shorts[2] = newvalue;
     }
@@ -1349,7 +1349,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             {
                 SCRPTERRLOG("Unknown slab variable");
                 DEALLOCATE_SCRIPT_VALUE
-                    return;
+                return;
             }
         value->shorts[2] = newvalue;
     }
@@ -1373,7 +1373,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 {
                     SCRPTERRLOG("Unknown Properties variable");
                     DEALLOCATE_SCRIPT_VALUE
-                        return;
+                    return;
                 }
             value->shorts[2] = newvalue;
         }
@@ -1396,33 +1396,36 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             newvalue = get_id(room_roles_desc, valuestring);
             if (newvalue == -1)
                 {
-                    SCRPTERRLOG("Unknown Roles variable");
+                    SCRPTERRLOG("Unknown Roles variable '%s'", valuestring);
                     DEALLOCATE_SCRIPT_VALUE
-                        return;
+                    return;
                 }
             value->ulongs[1] = newvalue;
         }
-        if (parameter_is_number(valuestring2))
+        if (scline->tp[3][0] != '\0')
         {
-            newvalue2 = atoi(valuestring2);
-            if ((newvalue2 > 33554431) || (newvalue2 < 0))
+            if (parameter_is_number(valuestring2))
             {
-                SCRPTERRLOG("Value out of range: %ld", newvalue2);
-                DEALLOCATE_SCRIPT_VALUE
+                newvalue2 = atoi(valuestring2);
+                if ((newvalue2 > 33554431) || (newvalue2 < 0))
+                {
+                    SCRPTERRLOG("Value out of range: %ld", newvalue2);
+                    DEALLOCATE_SCRIPT_VALUE
                     return;
+                }
+                value->ulongs[2] = newvalue2;
             }
-            value->ulongs[2] = newvalue2;
-        }
-        else
-        {
-            newvalue2 = get_id(room_roles_desc, valuestring2);
-            if (newvalue2 == -1)
+            else
             {
-                SCRPTERRLOG("Unknown Roles variable");
-                DEALLOCATE_SCRIPT_VALUE
+                newvalue2 = get_id(room_roles_desc, valuestring2);
+                if (newvalue2 == -1)
+                {
+                    SCRPTERRLOG("Unknown Roles variable '%s'", valuestring2);
+                    DEALLOCATE_SCRIPT_VALUE
                     return;
+                }
+                value->ulongs[2] = newvalue2;
             }
-            value->ulongs[2] = newvalue2;
         }
     }
     else if (roomvar == 14) // TotalCapacity
@@ -1432,7 +1435,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             {
                 SCRPTERRLOG("Unknown TotalCapacity variable '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
-                    return;
+                return;
             }
         value->shorts[2] = newvalue;
     }
@@ -1443,7 +1446,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             {
                 SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
-                    return;
+                return;
             }
         value->shorts[2] = newvalue;
 
@@ -1452,7 +1455,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         {
             SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring2);
             DEALLOCATE_SCRIPT_VALUE
-                return;
+            return;
         }
         value->shorts[3] = newvalue2;
     }
@@ -1902,8 +1905,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
             break;
         case 13: // Roles
             roomst->roles = context->value->ulongs[1];
-            if (context->value->ulongs[2] > 0)
-                roomst->roles |= context->value->ulongs[2];
+            roomst->roles |= context->value->ulongs[2];
             break;
         case 14: // TotalCapacity
             roomst->update_total_capacity_idx = value;
