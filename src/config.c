@@ -938,7 +938,6 @@ short load_configuration(void)
   // Check if custom config file is set '-config <file>'
   if (start_params.overrides[Clo_ConfigFile])
   {
-    sname = start_params.config_file;
     // Check if config override contains either '\\' or '/'
     // This means we'll use the absolute path to the config file
     if (strchr(start_params.config_file, '\\') != NULL || strchr(start_params.config_file, '/') != NULL) {
