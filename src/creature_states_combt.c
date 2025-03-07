@@ -97,7 +97,7 @@ TbBool creature_is_being_attacked_by_enemy_player(struct Thing *fightng)
     TRACE_THING(fightng);
     struct CreatureControl* figctrl = creature_control_get_from_thing(fightng);
     // Check any enemy creature is in melee opponents list
-    for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    for (oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_melee_opponents; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
         if (!thing_is_invalid(enmtng))
@@ -108,7 +108,7 @@ TbBool creature_is_being_attacked_by_enemy_player(struct Thing *fightng)
         }
     }
     // Check any enemy creature is in ranged opponents list
-    for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    for (oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_ranged_opponents; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
         if (!thing_is_invalid(enmtng))
@@ -127,7 +127,7 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
     TRACE_THING(fightng);
     struct CreatureControl* figctrl = creature_control_get_from_thing(fightng);
     // Check any enemy creature is in melee opponents list
-    for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    for (oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_melee_opponents; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
         if (!thing_is_invalid(enmtng) && !thing_is_creature_digger(enmtng))
@@ -138,7 +138,7 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
         }
     }
     // Check any enemy creature is in ranged opponents list
-    for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    for (oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_ranged_opponents; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
         if (!thing_is_invalid(enmtng) && !thing_is_creature_digger(enmtng))
@@ -214,7 +214,7 @@ TbBool creature_has_other_attackers(const struct Thing *fightng, ThingModel enmo
     TRACE_THING(fightng);
     struct CreatureControl* figctrl = creature_control_get_from_thing(fightng);
     // Check any enemy creature is in melee opponents list
-    for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    for (oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_melee_opponents; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
         if (!thing_is_invalid(enmtng))
@@ -225,7 +225,7 @@ TbBool creature_has_other_attackers(const struct Thing *fightng, ThingModel enmo
         }
     }
     // Check any enemy creature is in ranged opponents list
-    for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    for (oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_ranged_opponents; oppn_idx++)
     {
         struct Thing* enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
         if (!thing_is_invalid(enmtng))
@@ -825,7 +825,7 @@ TbBool add_ranged_combat_attacker(struct Thing *enmtng, unsigned short fighter_i
     TRACE_THING(enmtng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
     // Check if the fighter is already in opponents list
-    for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    for (oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_ranged_opponents; oppn_idx++)
     {
         if (enmctrl->opponents_ranged[oppn_idx] == fighter_idx) {
             WARNLOG("Fighter %s index %d already in opponents list",thing_model_name(enmtng),(int)enmtng->index);
@@ -833,13 +833,13 @@ TbBool add_ranged_combat_attacker(struct Thing *enmtng, unsigned short fighter_i
         }
     }
     // Find empty opponent slot
-    for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    for (oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_ranged_opponents; oppn_idx++)
     {
         if (enmctrl->opponents_ranged[oppn_idx] == 0)
             break;
     }
     SYNCDBG(7,"Adding to %s index %d attacker %d index %d",thing_model_name(enmtng),(int)enmtng->index,(int)oppn_idx,(int)fighter_idx);
-    if (oppn_idx >= COMBAT_RANGED_OPPONENTS_LIMIT)
+    if (oppn_idx >= game.conf.rules.creature.max_ranged_opponents)
         return false;
     // Add the opponent
     enmctrl->opponents_ranged_count++;
@@ -852,13 +852,13 @@ TbBool remove_ranged_combat_attacker(struct Thing *enmtng, unsigned short fighte
     long oppn_idx;
     TRACE_THING(enmtng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-    for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    for (oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_ranged_opponents; oppn_idx++)
     {
         if (enmctrl->opponents_ranged[oppn_idx] == fighter_idx)
             break;
     }
     SYNCDBG(7,"Removing from %s index %d attacker %d index %d",thing_model_name(enmtng),(int)enmtng->index,(int)oppn_idx,(int)fighter_idx);
-    if (oppn_idx >= COMBAT_RANGED_OPPONENTS_LIMIT)
+    if (oppn_idx >= game.conf.rules.creature.max_ranged_opponents)
         return false;
     enmctrl->opponents_ranged_count--;
     enmctrl->opponents_ranged[oppn_idx] = 0;
@@ -871,7 +871,7 @@ TbBool add_melee_combat_attacker(struct Thing *enmtng, unsigned short fighter_id
     TRACE_THING(enmtng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
     // Check if the fighter is already in opponents list
-    for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    for (oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_melee_opponents; oppn_idx++)
     {
         if (enmctrl->opponents_melee[oppn_idx] == fighter_idx) {
             WARNLOG("Fighter %s index %d already in opponents list",thing_model_name(enmtng),(int)enmtng->index);
@@ -879,12 +879,12 @@ TbBool add_melee_combat_attacker(struct Thing *enmtng, unsigned short fighter_id
         }
     }
     // Find empty opponent slot
-    for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    for (oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_melee_opponents; oppn_idx++)
     {
         if (enmctrl->opponents_melee[oppn_idx] == 0)
             break;
     }
-    if (oppn_idx >= COMBAT_MELEE_OPPONENTS_LIMIT)
+    if (oppn_idx >= game.conf.rules.creature.max_melee_opponents)
         return false;
     // Add the opponent
     enmctrl->opponents_melee_count++;
@@ -897,12 +897,12 @@ TbBool remove_melee_combat_attacker(struct Thing *enmtng, unsigned short fighter
     long oppn_idx;
     TRACE_THING(enmtng);
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-    for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    for (oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_melee_opponents; oppn_idx++)
     {
         if (enmctrl->opponents_melee[oppn_idx] == fighter_idx)
             break;
     }
-    if (oppn_idx >= COMBAT_MELEE_OPPONENTS_LIMIT)
+    if (oppn_idx >= game.conf.rules.creature.max_melee_opponents)
         return false;
     enmctrl->opponents_melee_count--;
     enmctrl->opponents_melee[oppn_idx] = 0;
@@ -992,7 +992,7 @@ long remove_all_melee_combat_attackers(struct Thing *victmtng)
     TRACE_THING(victmtng);
     long num = 0;
     struct CreatureControl* vicctrl = creature_control_get_from_thing(victmtng);
-    for (long oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    for (long oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_melee_opponents; oppn_idx++)
     {
         long fighter_idx = vicctrl->opponents_melee[oppn_idx];
         if (fighter_idx > 0) {
@@ -1016,7 +1016,7 @@ long remove_all_ranged_combat_attackers(struct Thing *victmtng)
     TRACE_THING(victmtng);
     long num = 0;
     struct CreatureControl* vicctrl = creature_control_get_from_thing(victmtng);
-    for (long oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    for (long oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_ranged_opponents; oppn_idx++)
     {
         long fighter_idx = vicctrl->opponents_ranged[oppn_idx];
         if (fighter_idx > 0) {
@@ -1521,7 +1521,7 @@ CrAttackType check_for_possible_melee_combat_with_attacker_within_distance(struc
     struct CreatureControl* figctrl = creature_control_get_from_thing(fightng);
     CrAttackType best = AttckT_Unset;
     // Check scores of melee opponents
-    for (long oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    for (long oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_melee_opponents; oppn_idx++)
     {
         long thing_idx = figctrl->opponents_melee[oppn_idx];
         struct Thing* thing;
@@ -1557,7 +1557,7 @@ CrAttackType check_for_possible_ranged_combat_with_attacker_within_distance(stru
     struct CreatureControl* figctrl = creature_control_get_from_thing(fightng);
     CrAttackType best = AttckT_Unset;
     // Check scores of ranged opponents
-    for (long oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    for (long oppn_idx = 0; oppn_idx < game.conf.rules.creature.max_ranged_opponents; oppn_idx++)
     {
         long thing_idx = figctrl->opponents_ranged[oppn_idx];
         struct Thing* thing;
@@ -2507,7 +2507,7 @@ long creature_has_spare_slot_for_combat(struct Thing *fighter, struct Thing *ene
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enemy);
     if (attack_type == AttckT_Ranged)
     {
-        if (enmctrl->opponents_ranged_count < COMBAT_RANGED_OPPONENTS_LIMIT)
+        if (enmctrl->opponents_ranged_count < game.conf.rules.creature.max_ranged_opponents)
             return true;
         return false;
     }
@@ -2517,11 +2517,11 @@ long creature_has_spare_slot_for_combat(struct Thing *fighter, struct Thing *ene
     {
         if (creature_has_ranged_weapon(fighter))
         {
-            if (enmctrl->opponents_ranged_count < COMBAT_RANGED_OPPONENTS_LIMIT)
+            if (enmctrl->opponents_ranged_count < game.conf.rules.creature.max_ranged_opponents)
                 return true;
         }
     }
-    if (enmctrl->opponents_melee_count < COMBAT_MELEE_OPPONENTS_LIMIT)
+    if (enmctrl->opponents_melee_count < game.conf.rules.creature.max_melee_opponents)
         return true;
     return false;
 }
@@ -2541,7 +2541,7 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
       if (cctrl->opponents_ranged_count <= 0) {
           ERRORLOG("No ranged attackers - serious");
       }
-      for (i = 0; i < COMBAT_RANGED_OPPONENTS_LIMIT; i++)
+      for (i = 0; i < game.conf.rules.creature.max_ranged_opponents; i++)
       {
           if (cctrl->opponents_ranged[i] > 0)
           {
@@ -2563,7 +2563,7 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
         if (cctrl->opponents_melee_count <= 0) {
             ERRORLOG("No melee attackers - serious");
         }
-        for (i = 0; i < COMBAT_MELEE_OPPONENTS_LIMIT; i++)
+        for (i = 0; i < game.conf.rules.creature.max_melee_opponents; i++)
         {
             if (cctrl->opponents_melee[i] > 0)
             {
