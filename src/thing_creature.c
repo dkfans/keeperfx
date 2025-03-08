@@ -3356,12 +3356,12 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     {
         if (flag_is_set(flags, CrDed_DiedInBattle))
         {
-            output_message_far_from_thing(creatng, SMsg_BattleDeath, MESSAGE_DELAY_BATTLE, true);
+            output_message_far_from_thing(creatng, SMsg_BattleDeath, MESSAGE_DURATION_BATTLE);
         }
     }
     else if (is_my_player_number(killertng->owner))
     {
-        output_message_far_from_thing(creatng, SMsg_BattleWon, MESSAGE_DELAY_BATTLE, true);
+        output_message_far_from_thing(creatng, SMsg_BattleWon, MESSAGE_DURATION_BATTLE);
     }
     if (is_hero_thing(killertng))
     {
@@ -6576,7 +6576,7 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
                     mark_creature_joined_dungeon(thing);
                     if (is_my_player_number(thing->owner))
                     {
-                        output_message(SMsg_CreaturesJoinedYou, MESSAGE_DELAY_CRTR_JOINED, true);
+                        output_message(SMsg_CreaturesJoinedYou, MESSAGE_DURATION_CRTR_JOINED);
                     }
                     n++;
                 }
@@ -6737,8 +6737,8 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     // Lord of the land random speech message.
     if (flag_is_set(get_creature_model_flags(thing), CMF_IsLordOfLand))
     {
-        output_message(SMsg_LordOfLandComming, MESSAGE_DELAY_LORD, 1);
-        output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DELAY_LORD, 1);
+        output_message(SMsg_LordOfLandComming, MESSAGE_DURATION_LORD);
+        output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DURATION_LORD);
     }
 
     switch (spawn_type)
@@ -6941,7 +6941,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                         WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_role_code_name(RoRoF_PowersStorage));
                         if (is_my_player_number(plyr_idx))
                         {
-                            output_message(SMsg_LibraryTooSmall, 0, true);
+                            output_message(SMsg_LibraryTooSmall, 0);
                         }
                     }
                 }
@@ -6964,7 +6964,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                         WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(droptng),(int)droptng->index,room_role_code_name(RoRoF_CratesStorage));
                         if (is_my_player_number(plyr_idx))
                         {
-                            output_message(SMsg_WorkshopTooSmall, 0, true);
+                            output_message(SMsg_WorkshopTooSmall, 0);
                         }
                     }
                 }
@@ -6981,7 +6981,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                     {
                         if (is_my_player_number(plyr_idx))
                         {
-                            output_message(SMsg_GraveyardTooSmall, 0, true);
+                            output_message(SMsg_GraveyardTooSmall, 0);
                         }
                     }
                 }
@@ -7003,7 +7003,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                         {
                             if (is_my_player_number(plyr_idx))
                             {
-                                output_message(SMsg_PrisonTooSmall, 0, true);
+                                output_message(SMsg_PrisonTooSmall, 0);
                             }
                         }
                     }

@@ -149,7 +149,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         RoomRole job_rrole = get_room_role_for_job(Job_TAKE_FEED);
         // Warn about no food in this room
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
-        output_message_room_related_from_computer_or_player_action(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomTooSmall);
+        output_room_message(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomTooSmall);
         // Check whether there's a room which does have food
         // Try to find one which has plenty of food
         struct Room* nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, crstat->hunger_fill + 1);
@@ -268,7 +268,7 @@ short creature_to_garden(struct Thing *creatng)
     {
         // No room for feeding creatures
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
-        output_message_room_related_from_computer_or_player_action(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomNeeded);
+        output_room_message(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomNeeded);
         nroom = INVALID_ROOM;
     } else
     {
@@ -283,12 +283,12 @@ short creature_to_garden(struct Thing *creatng)
             nroom = find_nearest_room_of_role_for_thing(creatng, creatng->owner, job_rrole, NavRtF_Default);
             if (room_is_invalid(nroom)) {
                 // There seem to be a correct room, but we can't reach it
-                output_message_room_related_from_computer_or_player_action(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomNoRoute);
+                output_room_message(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomNoRoute);
             } else
             {
                 // The room is reachable, so it probably has just no food
                 event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
-                output_message_room_related_from_computer_or_player_action(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomTooSmall);
+                output_room_message(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomTooSmall);
             }
         }
     }
