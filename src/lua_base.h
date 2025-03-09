@@ -36,6 +36,11 @@ void set_lua_serialized_data(const char* data, size_t len);
 TbBool execute_lua_code_from_console(const char* code);
 TbBool execute_lua_code_from_script(const char* code);
 
+const char* lua_get_serialised_data(size_t *len);
+void lua_set_serialised_data(const char *data, size_t len);
+void cleanup_serialized_data();
+
+
 extern struct lua_State *Lvl_script;
 
 #ifdef __cplusplus

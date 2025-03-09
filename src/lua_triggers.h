@@ -36,9 +36,6 @@ void lua_on_creature_death(struct Thing *crtng);
 void lua_on_trap_placed(struct Thing *traptng);
 //void lua_on_room_claimed(PlayerNumber plyr_idx, struct Room *room);
 
-const char* lua_get_serialised_data(size_t *len);
-void lua_set_serialised_data(const char *data, size_t len);
-void cleanup_serialized_data();
 
 
 #ifdef __cplusplus

@@ -29,7 +29,7 @@ struct lua_State *Lvl_script = NULL;
 // Little error checking utility function
 TbBool CheckLua(lua_State *L, int result,const char* func)
 {
-if (result != LUA_OK) {
+    if (result != LUA_OK) {
         const char *message = lua_tostring(L, -1);
         ERRORLOG("Lua error in %s: %s", func, message ? message : "Unknown error");
 
@@ -156,6 +156,60 @@ TbBool open_lua_script(LevelNumber lvnum)
 }
 
 
+static char* lua_serialized_data = NULL;
+
+const char* lua_get_serialised_data(size_t *len)
+{
+    lua_getglobal(Lvl_script, "GetSerializedData");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 1, 0),"GetSerializedData");
+		const char *data = lua_tolstring(Lvl_script, -1, len);  // Get the result
+        if (data) {
+            lua_serialized_data = (char*)malloc(*len);
+            memcpy(lua_serialized_data, data, *len);
+            lua_pop(Lvl_script, 1);  // Pop the result
+            return lua_serialized_data;
+        }
+		return NULL;
+	}
+	else
+	{
+		ERRORLOG("failed to find GetSerializedData lua function");
+        lua_pop(Lvl_script, 1);  // Pop nil
+		return NULL;
+	}
+}
+
+
+void lua_set_serialised_data(const char *data, size_t len)
+{
+	if(Lvl_script == NULL)
+	{
+		ERRORLOG("Lvl_script not initialised");
+		return;
+	}
+
+    lua_getglobal(Lvl_script, "SetSerializedData");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushlstring(Lvl_script, data, len); 
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"SetSerializedData");
+	}
+	else
+	{
+		ERRORLOG("failed to find SetSerializedData lua function");
+        lua_pop(Lvl_script, 1);  // Pop nil
+	}
+}
+
+void cleanup_serialized_data() {
+    if (lua_serialized_data != NULL) {
+        free(lua_serialized_data);
+        lua_serialized_data = NULL;
+    }
+}
 
 
 #ifdef __cplusplus
