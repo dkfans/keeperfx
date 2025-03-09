@@ -201,7 +201,7 @@ struct Room *allocate_free_room_structure(void);
 unsigned short i_can_allocate_free_room_structure(void);
 void add_slab_to_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y);
-void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num);
+TbBool add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num);
 void delete_all_room_structures(void);
 void delete_room_structure(struct Room *room);
 void delete_room_slabbed_objects(SlabCodedCoords slb_num);
