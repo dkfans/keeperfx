@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "thing_data.h"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -186,6 +187,7 @@ struct Things {
 /******************************************************************************/
 extern Thing_Class_Func class_functions[];
 extern unsigned long thing_create_errors;
+extern const struct NamedCommand class_commands[];
 /******************************************************************************/
 void add_thing_to_list(struct Thing *thing, struct StructureList *list);
 void remove_thing_from_list(struct Thing *thing, struct StructureList *slist);
@@ -194,7 +196,6 @@ void add_thing_to_its_class_list(struct Thing *thing);
 ThingIndex get_thing_class_list_head(ThingClass class_id);
 struct StructureList *get_list_for_thing_class(ThingClass class_id);
 
-long creature_near_filter_is_enemy_of_and_not_specdigger(const struct Thing *thing, FilterParam val);
 long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam val);
 
 // Filters to select creature anywhere on map but belonging to given player
@@ -208,8 +209,6 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
 struct Thing* get_player_list_nth_creature_with_property(long thing_idx, unsigned long crmodelflag, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
 struct Thing *get_random_players_creature_of_model_on_territory(PlayerNumber plyr_idx, ThingModel crmodel,int friendly);
-struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check);
-struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check);
 long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Thing_Bool_Modifier do_cb);
 TbBool heal_completely_all_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel);
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx);
@@ -231,8 +230,6 @@ long do_to_things_with_param_spiral_near_map_block(const struct Coord3d *center_
 long do_to_things_with_param_around_map_block(const struct Coord3d *center_pos, Thing_Modifier_Func do_cb, ModTngFilterParam param);
 long near_map_block_creature_filter_diagonal_random(const struct Thing* thing, MaxTngFilterParam param, long maximizer);
 // Final routines to select thing on/near given map position
-struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);
-struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);
 struct Thing *get_creature_near_to_be_keeper_power_target(MapCoord pos_x, MapCoord pos_y, PowerKind pwmodel, PlayerNumber plyr_idx);
 struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord pos_x, MapCoord pos_y);
 struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, long crmodel);

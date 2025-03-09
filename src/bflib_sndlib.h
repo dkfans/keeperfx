@@ -23,63 +23,36 @@
 #include "bflib_basics.h"
 #include "bflib_sound.h"
 #include "sounds.h"
-
 #include "globals.h"
+
+#define FIRST_REDBOOK_TRACK 2
+#define LAST_REDBOOK_TRACK 7
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-#pragma pack(1)
-
-// Data structures
-
-struct SampleInfo { // sizeof = 29
-  SoundMilesID mss_id;
-  unsigned char field_4[4];
-  unsigned char field_8;
-  unsigned char field_9[9];
-  SoundSmplTblID smptbl_id;
-  unsigned char field_14[3];
-  unsigned char flags_17;
-  unsigned long field_18;
-  unsigned char field_1C;
-};
-
-#pragma pack()
-/******************************************************************************/
-// Exported variables
-
-/******************************************************************************/
-// Exported functions
-
-int init_miles_sound_system();
-void unload_miles_sound_system();
 
 void FreeAudio(void);
-void SetRedbookVolume(SoundVolume);
 void SetSoundMasterVolume(SoundVolume);
-void SetMusicMasterVolume(SoundVolume);
 TbBool GetSoundInstalled(void);
-void PlayRedbookTrack(int);
-void PauseRedbookTrack(void);
-void ResumeRedbookTrack(void);
 void MonitorStreamedSoundTrack(void);
-void StopRedbookTrack(void);
 void * GetSoundDriver(void);
 void StopAllSamples(void);
-struct SampleInfo * GetFirstSampleInfoStructure(void);
-TbBool InitAudio(struct SoundSettings *);
-void SetupAudioOptionDefaults(struct SoundSettings *);
+TbBool InitAudio(const struct SoundSettings *);
 TbBool IsSamplePlaying(SoundMilesID);
-struct SampleInfo * GetLastSampleInfoStructure(void);
 SoundVolume GetCurrentSoundMasterVolume(void);
-void StopSample(SoundEmitterID, SoundSmplTblID);
 void SetSampleVolume(SoundEmitterID, SoundSmplTblID, SoundVolume);
 void SetSamplePan(SoundEmitterID, SoundSmplTblID, SoundPan);
 void SetSamplePitch(SoundEmitterID, SoundSmplTblID, SoundPitch);
-struct SampleInfo * PlaySampleFromAddress(SoundEmitterID, SoundSmplTblID, SoundVolume, SoundPan, SoundPitch, unsigned char a6, unsigned char a7, void * buf, SoundSFXID);
-/******************************************************************************/
+void toggle_bbking_mode(void);
+
+void set_music_volume(SoundVolume);
+TbBool play_music(const char * fname);
+TbBool play_music_track(int);
+void pause_music(void);
+void resume_music(void);
+void stop_music(void);
+
 #ifdef __cplusplus
 }
 #endif

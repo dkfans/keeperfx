@@ -543,7 +543,7 @@ short good_arrived_at_attack_room(struct Thing *thing)
         MapCoord ev_coord_y = subtile_coord_center(room->central_stl_y);
         event_create_event_or_update_nearby_existing_event(ev_coord_x, ev_coord_y, EvKind_RoomUnderAttack, room->owner, 0);
         if (is_my_player_number(room->owner))
-          output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+          output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
         return 1;
     }
     set_start_state(thing);
@@ -573,7 +573,7 @@ short good_attack_room(struct Thing *thing)
             MapCoord ev_coord_y = subtile_coord_center(room->central_stl_y);
             event_create_event_or_update_nearby_existing_event(ev_coord_x, ev_coord_y, EvKind_RoomUnderAttack, room->owner, 0);
             if (is_my_player_number(room->owner))
-                output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+                output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
         }
         return 1;
     }
@@ -775,7 +775,7 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
         cctrl->party_objective = CHeroTsk_AttackDnHeart;
         return false;
     case CHeroTsk_AttackDnHeart:
-        if (good_setup_wander_to_dungeon_heart(creatng, target_plyr_idx)) 
+        if (good_setup_wander_to_dungeon_heart(creatng, target_plyr_idx))
         {
             return true;
         }
@@ -1299,14 +1299,14 @@ TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatn
     return send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos);
 }
 
-struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold)
+struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, CrtrExpLevel exp_level, unsigned long carried_gold)
 {
     ThingModel diggerkind = get_players_special_digger_model(plyr_idx);
-    struct Thing* creatng = script_create_creature_at_location(plyr_idx, diggerkind, location);
+    struct Thing* creatng = script_create_creature_at_location(plyr_idx, diggerkind, location, SpwnT_Default);
     if (thing_is_invalid(creatng))
         return INVALID_THING;
     creatng->creature.gold_carried = carried_gold;
-    init_creature_level(creatng, crtr_level);
+    init_creature_level(creatng, exp_level);
     switch (get_map_location_type(heading))
     {
     case MLoc_ACTIONPOINT:

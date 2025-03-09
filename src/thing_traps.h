@@ -95,13 +95,14 @@ void init_traps(void);
 void activate_trap(struct Thing *traptng, struct Thing *creatng);
 void activate_trap_by_slap(struct PlayerInfo* player, struct Thing* traptng);
 void process_trap_charge(struct Thing* traptng);
+void script_place_trap(PlayerNumber plyridx, ThingModel trapkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool free);
 
 unsigned long remove_trap(struct Thing *traptng, long *sell_value);
 unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
 unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, short angle, struct Thing *trgtng);
-void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, char shot_lvl, short angle_xy);
+void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, CrtrExpLevel shot_level, short angle_xy);
 
 /******************************************************************************/
 #ifdef __cplusplus

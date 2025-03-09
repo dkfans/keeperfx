@@ -51,7 +51,6 @@
 #include "map_columns.h"
 #include "map_utils.h"
 #include "math.h"
-#include "music_player.h"
 #include "packets.h"
 #include "player_computer.h"
 #include "player_instances.h"
@@ -404,7 +403,7 @@ TbBool cmd_game_save(PlayerNumber plyr_idx, char * args)
     set_flag(game.operation_flags, GOF_Paused); // games are saved in a paused state
     TbBool result = save_game(slot_num);
     if (result) {
-        output_message(SMsg_GameSaved, 0, true);
+        output_message(SMsg_GameSaved, 0);
     } else {
         ERRORLOG("Error in save!");
         create_error_box(GUIStr_ErrorSaving);
@@ -446,7 +445,7 @@ TbBool cmd_ver(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_volume(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s: %d %s: %d", get_string(340), settings.sound_volume, get_string(341), settings.redbook_volume);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s: %d %s: %d", get_string(340), settings.sound_volume, get_string(341), settings.music_volume);
     return true;
 }
 
@@ -471,12 +470,12 @@ TbBool cmd_volume_music(PlayerNumber plyr_idx, char * args)
     if (pr2str == NULL || !parameter_is_number(pr2str)) {
         return false;
     }
-    settings.redbook_volume = atoi(pr2str);
-    if (settings.redbook_volume > 127) {
-        settings.redbook_volume = 127;
+    settings.music_volume = atoi(pr2str);
+    if (settings.music_volume > 127) {
+        settings.music_volume = 127;
     }
     save_settings();
-    SetMusicPlayerVolume(settings.redbook_volume);
+    set_music_volume(settings.music_volume);
     return true;
 }
 
@@ -1695,13 +1694,11 @@ TbBool cmd_set_music(PlayerNumber plyr_idx, char * args)
         return false;
     }
     int track = atoi(pr2str);
-    if (track < FIRST_TRACK || track > max_track) {
-        return false;
+    if (track < 0) {
+        return play_music(pr2str);
+    } else {
+        return play_music_track(track);
     }
-    StopMusicPlayer();
-    game.audiotrack = track;
-    PlayMusicPlayer(track);
-    return true;
 }
 
 TbBool cmd_zoom_to(PlayerNumber plyr_idx, char * args)

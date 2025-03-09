@@ -32,7 +32,7 @@
 #include "bflib_network.h"
 #include "bflib_inputctrl.h"
 #include "bflib_sound.h"
-
+#include "bflib_sndlib.h"
 #include "kjm_input.h"
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
@@ -615,7 +615,11 @@ short get_global_inputs(void)
         if (pause_music_when_game_paused())
         {
             // only pause music, rather than pause all audio, because otherwise announcer messages will be lost (it continues to play while muted, it needs a new feature)
-            pause_music(((grab_check_flags & MG_OnPauseEnter) != 0));
+            if (((grab_check_flags & MG_OnPauseEnter) != 0)) {
+                pause_music();
+            } else {
+                resume_music();
+            }
         }
         if (((grab_check_flags & MG_OnPauseEnter) != 0))
         {
@@ -2805,7 +2809,7 @@ short get_gui_inputs(short gameplay_on)
   gui_trap_type_highlighted = -1;
   gui_creature_type_highlighted = -1;
   if (gameplay_on) {
-      update_creatr_model_activities_list();
+      update_creatr_model_activities_list(0);
       maintain_my_battle_list();
   }
   if (!lbDisplay.MLeftButton)

@@ -50,14 +50,9 @@ static long deadzone_radius;
 
 TbBool SoundDisabled;
 int atmos_sound_volume = 128;
-long samples_in_bank;
-long samples_in_bank2;
 long MaxSoundDistance;
 struct SoundReceiver Receiver;
 long Non3DEmitter;
-struct SampleTable *sample_table;
-struct SampleTable *sample_table2;
-unsigned char using_two_banks;
 long SpeechEmitter;
 /******************************************************************************/
 // Internal routines
@@ -750,93 +745,11 @@ void increment_sample_times(void)
     }
 }
 
-struct SampleTable *sample_table_get(SoundSmplTblID smptbl_id, SoundBankID bank_id)
-{
-    if (bank_id > 0)
-    {
-        if ((smptbl_id < 0) || (smptbl_id >= samples_in_bank2)) {
-            ERRORLOG("Sample %d exceeds bank %d bounds",smptbl_id,2);
-            return NULL;
-        }
-        if (smptbl_id == 0){
-            SYNCDBG(9,"No Sample to play");
-            return NULL;
-        }
-        return &sample_table2[smptbl_id];
-    } else
-    {
-        if ((smptbl_id < 0) || (smptbl_id >= samples_in_bank)) {
-          ERRORLOG("Sample %d exceeds bank %d bounds",smptbl_id,1);
-          return NULL;
-        }
-        if (smptbl_id == 0){
-            SYNCDBG(9,"No Sample to play");
-            return NULL;
-        }
-        return &sample_table[smptbl_id];
-    }
-}
-
-SoundSFXID get_sample_sfxid(SoundSmplTblID smptbl_id, SoundBankID bank_id)
-{
-    if ( using_two_banks )
-    {
-        if (bank_id != 0)
-          return sample_table2[smptbl_id].sfxid;
-        return sample_table[smptbl_id].sfxid;
-    } else
-    {
-        if (bank_id != 0)
-        {
-          ERRORLOG("Trying to use two sound banks when only one has been set up");
-          return 0;
-        }
-        return sample_table[smptbl_id].sfxid;
-    }
-}
-
 void kick_out_sample(short smpl_id)
 {
     struct S3DSample* sample = &SampleList[smpl_id];
     stop_sample(get_sample_id(sample), sample->smptbl_id, sample->bank_id);
     sample->is_playing = 0;
-}
-
-struct SampleInfo *play_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundVolume volume, SoundPan pan, SoundPitch pitch, char a6, unsigned char a7, SoundBankID bank_id)
-{
-    if ((!using_two_banks) && (bank_id > 0))
-    {
-        ERRORLOG("Trying to use two sound banks when only one has been set up");
-        return NULL;
-    }
-
-    struct SampleTable* smp_table = sample_table_get(smptbl_id, bank_id);
-    if (smp_table == NULL) {
-        return NULL;
-    }
-    // Start the play
-    struct SampleInfo* smpinfo = PlaySampleFromAddress(emit_id, smptbl_id, volume, pan, pitch, a6, a7, smp_table->snd_buf, smp_table->sfxid);
-    if (smpinfo == NULL) {
-        SYNCLOG("Can't start playing sample %d",smptbl_id);
-        return NULL;
-    }
-    smpinfo->flags_17 |= 0x01;
-    if (bank_id != 0) {
-        smpinfo->flags_17 |= 0x04;
-    }
-    return smpinfo;
-}
-
-void stop_sample(SoundEmitterID emit_id, SoundSmplTblID smptbl_id, SoundBankID bank_id)
-{
-    SYNCDBG(19,"Starting");
-    if ( !using_two_banks )
-    {
-        if (bank_id > 0) {
-            ERRORLOG("Trying to use two sound banks when only one has been set up");
-        }
-    }
-    StopSample(emit_id, smptbl_id);
 }
 
 TbBool process_sound_samples(void)
@@ -846,17 +759,13 @@ TbBool process_sound_samples(void)
         struct S3DSample* sample = &SampleList[i];
         if (sample->is_playing != 0)
         {
-            if (sample->smpinfo == NULL)
+            if (sample->mss_id <= 0)
             {
                 ERRORLOG("Attempt to query invalid sample");
                 continue;
             }
-            if ( IsSamplePlaying(sample->smpinfo->mss_id) )
+            if (!IsSamplePlaying(sample->mss_id))
             {
-                sample->smpinfo->flags_17 |= 0x02;
-            } else
-            {
-                sample->smpinfo->flags_17 &= ~0x02;
                 sample->is_playing = 0;
             }
             if (sample->emit_ptr != NULL)
@@ -881,7 +790,7 @@ long speech_sample_playing(void)
          return false;
      }
      SYNCDBG(17,"Starting");
-     if (Mix_Playing(MESSAGE_CHANNEL))
+     if (Mix_Playing(MIX_SPEECH_CHANNEL))
      {
          return true;
      }
@@ -951,8 +860,8 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     volume = (volume * loudness) / 256;
     if (smpl_idx < 0)
         return 0;
-    struct SampleInfo* smpinfo = play_sample(get_emitter_id(emit), smptbl_id, volume, pan, smpitch, fild1D, ctype, bank_id);
-    if (smpinfo == NULL) {
+    SoundMilesID mss_id = play_sample(get_emitter_id(emit), smptbl_id, volume, pan, smpitch, fild1D, ctype, bank_id);
+    if (mss_id <= 0) {
         return 0;
     }
     struct S3DSample* sample = &SampleList[smpl_idx];
@@ -965,7 +874,7 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     sample->pan = pan;
     sample->base_pitch = smpitch;
     sample->is_playing = 1;
-    sample->smpinfo = smpinfo;
+    sample->mss_id = mss_id;
     sample->flags = flags;
     sample->time_turn = 0;
     sample->emit_idx = emit->index;

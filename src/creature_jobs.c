@@ -281,6 +281,17 @@ TbBool attempt_anger_job_kill_creatures(struct Thing *creatng)
     return true;
 }
 
+TbBool attempt_anger_job_kill_diggers(struct Thing* creatng)
+{
+    if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureKillDiggers)) {
+        return false;
+    }
+    if (!external_set_thing_state(creatng, CrSt_CreatureKillDiggers)) {
+        return false;
+    }
+    return true;
+}
+
 TbBool attempt_anger_job_leave_dungeon(struct Thing *creatng)
 {
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureLeaves)) {
@@ -333,7 +344,7 @@ TbBool attempt_anger_job_mad_psycho(struct Thing *creatng)
 TbBool attempt_anger_job_persuade(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->explevel <= 5) {
+    if (cctrl->exp_level <= 5) {
         return false;
     }
     if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreaturePersuade)) {
@@ -387,13 +398,13 @@ long attempt_anger_job(struct Thing *creatng, long ajob_kind)
         if (!attempt_anger_job_destroy_rooms(creatng))
             break;
         if (is_my_player_number(creatng->owner))
-            output_message(SMsg_CreatrDestroyRooms, MESSAGE_DELAY_CRTR_MOOD, 1);
+            output_message(SMsg_CreatrDestroyRooms, MESSAGE_DURATION_CRTR_MOOD);
         return true;
     case 4:
         if (!attempt_anger_job_leave_dungeon(creatng))
             break;
         if (is_my_player_number(creatng->owner))
-            output_message(SMsg_CreatureLeaving, MESSAGE_DELAY_CRTR_MOOD, 1);
+            output_message(SMsg_CreatureLeaving, MESSAGE_DURATION_CRTR_MOOD);
         return true;
     case 8:
         if (!attempt_anger_job_steal_gold(creatng))
@@ -403,7 +414,7 @@ long attempt_anger_job(struct Thing *creatng, long ajob_kind)
         if (!attempt_anger_job_damage_walls(creatng))
             break;
         if (is_my_player_number(creatng->owner))
-            output_message(SMsg_CreatrDestroyRooms, MESSAGE_DELAY_CRTR_MOOD, 1);
+            output_message(SMsg_CreatrDestroyRooms, MESSAGE_DURATION_CRTR_MOOD);
         return true;
     case 32:
         if (!attempt_anger_job_mad_psycho(creatng))
@@ -415,11 +426,15 @@ long attempt_anger_job(struct Thing *creatng, long ajob_kind)
             if (!attempt_anger_job_leave_dungeon(creatng))
                 break;
             if (is_my_player_number(creatng->owner))
-                output_message(SMsg_CreatureLeaving, MESSAGE_DELAY_CRTR_MOOD, 1);
+                output_message(SMsg_CreatureLeaving, MESSAGE_DURATION_CRTR_MOOD);
         }
         return true;
     case 128:
         if (!attempt_anger_job_join_enemy(creatng))
+            break;
+        return true;
+    case 256:
+        if (!attempt_anger_job_kill_diggers(creatng))
             break;
         return true;
     default:
@@ -496,7 +511,7 @@ TbBool is_correct_owner_to_perform_job(const struct Thing *creatng, PlayerNumber
     // We need to check for it later in upper function, because lack of related room may generate message for the player
     if (creatng->owner == plyr_idx)
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+        if (creature_is_for_dungeon_diggers_list(creatng)) {
             if ((get_flags_for_job(new_job) & JoKF_OwnedDiggers) == 0)
                 return false;
         } else {
@@ -505,7 +520,7 @@ TbBool is_correct_owner_to_perform_job(const struct Thing *creatng, PlayerNumber
         }
     } else
     {
-        if (creatng->model == get_players_special_digger_model(creatng->owner)) {
+        if (creature_is_for_dungeon_diggers_list(creatng)) {
             if ((get_flags_for_job(new_job) & JoKF_EnemyDiggers) == 0)
                 return false;
         } else {
@@ -712,7 +727,7 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
         {
             SYNCDBG(3,"Cannot assign %s in player %d room for %s index %d owner %d; no required room built",creature_job_code_name(new_job),(int)plyr_idx,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
             if ((flags & JobChk_PlayMsgOnFail) != 0) {
-                output_message_room_related_from_computer_or_player_action(plyr_idx, get_first_room_kind_for_job(new_job), OMsg_RoomNeeded);
+                output_room_message(plyr_idx, get_first_room_kind_for_job(new_job), OMsg_RoomNeeded);
             }
             return false;
         }
@@ -723,7 +738,7 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
             {
                 SYNCDBG(3,"Cannot assign %s in player %d room for %s index %d owner %d; not enough room capacity",creature_job_code_name(new_job),(int)plyr_idx,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
                 if ((flags & JobChk_PlayMsgOnFail) != 0) {
-                    output_message_room_related_from_computer_or_player_action(plyr_idx, get_first_room_kind_for_job(new_job), OMsg_RoomTooSmall);
+                    output_room_message(plyr_idx, get_first_room_kind_for_job(new_job), OMsg_RoomTooSmall);
                 }
                 return false;
             }
@@ -779,7 +794,7 @@ TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCo
         if (!is_neutral_thing(creatng) && (dungeon->current_research_idx < 0))
         {
             if (is_my_player_number(dungeon->owner) && ((flags & JobChk_PlayMsgOnFail) != 0)) {
-                output_message(SMsg_NoMoreReseach, MESSAGE_DELAY_KEEPR_TAUNT, true);
+                output_message(SMsg_NoMoreReseach, MESSAGE_DURATION_KEEPR_TAUNT);
             }
         }
         return false;
@@ -898,7 +913,7 @@ TbBool creature_can_do_job_near_position(struct Thing *creatng, MapSubtlCoord st
         {
             SYNCDBG(3,"Cannot assign %s at (%d,%d) for %s index %d owner %d; not enough room capacity",creature_job_code_name(new_job),(int)stl_x,(int)stl_y,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
             if ((flags & JobChk_PlayMsgOnFail) != 0) {
-                output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
+                output_room_message(room->owner, room->kind, OMsg_RoomTooSmall);
             }
             return false;
         }
@@ -995,7 +1010,7 @@ TbBool attempt_job_work_in_room_near_pos(struct Thing *creatng, MapSubtlCoord st
     }
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
     cctrl->target_room_id = room->index;
-    if (thing_is_creature_special_digger(creatng))
+    if (thing_is_creature_digger(creatng))
     {
         cctrl->digger.task_repeats = 0;
         cctrl->job_assigned = new_job;
@@ -1020,7 +1035,7 @@ TbBool attempt_job_work_in_room_and_cure_near_pos(struct Thing *creatng, MapSubt
     creatng->continue_state = get_arrive_at_state_for_job(new_job);
     cctrl->target_room_id = room->index;
     process_temple_cure(creatng);
-    if (thing_is_creature_special_digger(creatng))
+    if (thing_is_creature_digger(creatng))
     {
         cctrl->digger.task_repeats = 0;
         cctrl->job_assigned = new_job;

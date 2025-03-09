@@ -108,7 +108,7 @@ short creature_arrived_at_prison(struct Thing *creatng)
     }
     if (!add_creature_to_work_room(creatng, room, Job_CAPTIVITY))
     {
-        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
+        output_room_message(room->owner, room->kind, OMsg_RoomTooSmall);
         cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         set_start_state(creatng);
         return 0;
@@ -306,7 +306,7 @@ CrStateRet creature_in_prison(struct Thing *thing)
     }
     if (room->used_capacity > room->total_capacity)
     {
-        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
+        output_room_message(room->owner, room->kind, OMsg_RoomTooSmall);
         set_start_state(thing);
         return CrStRet_ResetOk;
     }
@@ -341,7 +341,7 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
             ERRORLOG("Couldn't create creature %s in prison", creature_code_name(crmodel));
             return false;
         }
-        init_creature_level(crthing, cctrl->explevel);
+        init_creature_level(crthing, cctrl->exp_level);
         set_start_state(crthing);
         struct Dungeon* dungeon = get_dungeon(room->owner);
         if (!dungeon_invalid(dungeon)) {
@@ -373,7 +373,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
     {
         if (is_my_player_number(room->owner))
         {
-            output_message(SMsg_PrisonMadeSkeleton, 0, true);
+            output_message(SMsg_PrisonMadeSkeleton, 0);
         }
     }
     return true; // Return true even if no skeleton could be created due to creature limit. Otherwise there's a confusing sound message. 
@@ -467,7 +467,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
     {
         if (is_my_player_number(room->owner))
         {
-            output_message(SMsg_PrisonersStarving, MESSAGE_DELAY_STARVING, 1);
+            output_message(SMsg_PrisonersStarving, MESSAGE_DURATION_STARVING);
         }
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -481,10 +481,10 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         if (jailbreak_possible(room, creatng->owner) && (CREATURE_RANDOM(creatng, 100) < game.conf.rules.rooms.prison_break_chance))
         {
             if (is_my_player_number(room->owner)) {
-                output_message(SMsg_PrisonersEscaping, 40, true);
+                output_message(SMsg_PrisonersEscaping, 40);
             }
             else if (is_my_player_number(room->owner)) {
-                output_message(SMsg_CreatrFreedPrison, 40, true);
+                output_message(SMsg_CreatrFreedPrison, 40);
             }
             set_start_state(creatng);
             return CrCkRet_Continue;

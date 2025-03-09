@@ -137,6 +137,7 @@ obj/bflib_vidraw_spr_norm.o \
 obj/bflib_vidraw_spr_onec.o \
 obj/bflib_vidraw_spr_remp.o \
 obj/bflib_vidsurface.o \
+obj/cdrom.o \
 obj/config.o \
 obj/config_campaigns.o \
 obj/config_creature.o \
@@ -249,7 +250,7 @@ obj/lvl_script_commands_old.o \
 obj/lvl_script_lib.o \
 obj/lvl_script_conditions.o \
 obj/lvl_script_value.o \
-obj/magic.o \
+obj/magic_powers.o \
 obj/main_game.o \
 obj/map_blocks.o \
 obj/map_columns.o \
@@ -259,7 +260,6 @@ obj/map_events.o \
 obj/map_locations.o \
 obj/map_utils.o \
 obj/moonphase.o \
-obj/music_player.o \
 obj/net_game.o \
 obj/net_sync.o \
 obj/packets.o \
@@ -346,12 +346,13 @@ LINKLIB = -mwindows \
 	-L"deps/ffmpeg/libavcodec" -lavcodec \
 	-L"deps/ffmpeg/libswresample" -lswresample \
 	-L"deps/ffmpeg/libavutil" -lavutil \
+	-L"deps/openal" -lOpenAL32 \
 	-L"deps/astronomy" -lastronomy \
 	-L"deps/enet" -lenet \
 	-L"deps/spng" -lspng \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
-	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt
+	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid
 INCS = \
 	-I"deps/zlib/include" \
 	-I"deps/spng/include" \
@@ -362,6 +363,7 @@ INCS = \
 	-I"deps/centitoml" \
 	-I"deps/astronomy/include" \
 	-I"deps/ffmpeg" \
+	-I"deps/openal/include" \
 	-I"obj" # To find ver_defs.h
 CXXINCS =  $(INCS)
 
@@ -375,7 +377,7 @@ HVLOG_MAIN_OBJ = $(subst obj/,obj/hvlog/,$(MAIN_OBJ))
 ENABLE_EXTRACT ?= 1
 
 # flags to generate dependency files
-DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -DSPNG_STATIC=1
+DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -DSPNG_STATIC=1 -DAL_LIBTYPE_STATIC
 # other flags to include while compiling
 INCFLAGS =
 # code optimization and debugging flags
@@ -523,7 +525,7 @@ ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
 
-obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml_api.c build-before
+obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml_api.c
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
@@ -585,7 +587,7 @@ clean-libexterns: libexterns.mk
 	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson
 	-$(RM) libexterns
 
-deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg:
+deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal:
 	$(MKDIR) $@
 
 src/api.c: deps/centijson/include/json.h
@@ -595,7 +597,7 @@ src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 src/bflib_fmvids.cpp: deps/ffmpeg/libavformat/avformat.h
-obj/std/bflib_fmvids.o obj/hvlog/bflib_fmvids.o: CXXFLAGS += -Wno-error=deprecated-declarations
+src/bflib_sndlib.cpp: deps/openal/AL/al.h
 
 deps/enet-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/enet-mingw32.tar.gz"
@@ -632,6 +634,12 @@ deps/ffmpeg-mingw32.tar.gz:
 
 deps/ffmpeg/libavformat/avformat.h: deps/ffmpeg-mingw32.tar.gz | deps/ffmpeg
 	tar xzmf $< -C deps/ffmpeg
+
+deps/openal-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/2024-11-14/openal-mingw32.tar.gz"
+
+deps/openal/AL/al.h: deps/openal-mingw32.tar.gz | deps/openal
+	tar xzmf $< -C deps/openal
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk

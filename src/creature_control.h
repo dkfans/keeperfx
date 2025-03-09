@@ -153,7 +153,7 @@ struct CreatureControl {
     ThingIndex players_prev_creature_idx;
     ThingIndex players_next_creature_idx;
     unsigned short slap_turns;
-    unsigned char explevel;
+    CrtrExpLevel exp_level;
     long exp_points;
     long prev_exp_points;
     struct Coord3d moveto_pos;
@@ -502,7 +502,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short jobs_anger;
     short annoy_others_leaving;
     unsigned char slaps_to_kill;
-    short lair_enemy[LAIR_ENEMY_MAX];
+    ThingModel lair_enemy[LAIR_ENEMY_MAX];
     unsigned char rebirth;
     TbBool can_see_invisible;
     TbBool can_go_locked_doors;
@@ -528,6 +528,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char swipe_idx;
     ThingModel prison_kind;
     ThingModel torture_kind;
+    ThingModel hostile_towards[CREATURE_TYPES_MAX];
     unsigned long immunity_flags;
     struct CreaturePickedUpOffset creature_picked_up_offset;
 };

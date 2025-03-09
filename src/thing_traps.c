@@ -24,6 +24,7 @@
 #include "bflib_math.h"
 #include "bflib_planar.h"
 
+#include "cursor_tag.h"
 #include "thing_data.h"
 #include "creature_states_combt.h"
 #include "config_creature.h"
@@ -32,7 +33,7 @@
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_shots.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "room_util.h"
@@ -45,6 +46,7 @@
 #include "keeperfx.hpp"
 #include "creature_senses.h"
 #include "cursor_tag.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1233,7 +1235,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     return false;
 }
 
-void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, char shot_lvl, short angle_xy)
+void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, CrtrExpLevel shot_level, short angle_xy)
 {
     struct Thing* shotng;
     struct ComponentVector cvect;
@@ -1326,6 +1328,21 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
             shotng->state_flags |= TF1_PushAdd;
             shotng->shot.hit_type = trapst->hit_type;
             break;
+    }
+}
+
+void script_place_trap(PlayerNumber plyridx, ThingModel trapkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool free)
+{
+    if (can_place_trap_on(plyridx, stl_x, stl_y, trapkind))
+    {
+        if (free)
+        {
+            player_place_trap_without_check_at(stl_x, stl_y, plyridx, trapkind, free);
+        }
+        else
+        {
+            player_place_trap_at(stl_x, stl_y, plyridx, trapkind);
+        }
     }
 }
 

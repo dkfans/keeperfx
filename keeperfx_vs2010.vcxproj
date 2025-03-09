@@ -57,7 +57,7 @@
     <ClCompile Include="src\bflib_render_gpoly.c" />
     <ClCompile Include="src\bflib_render_trig.c" />
     <ClCompile Include="src\bflib_server_tcp.cpp" />
-    <ClCompile Include="src\bflib_sndlib.c" />
+    <ClCompile Include="src\bflib_sndlib.cpp" />
     <ClCompile Include="src\bflib_sound.c" />
     <ClCompile Include="src\bflib_sprfnt.c" />
     <ClCompile Include="src\bflib_string.c" />
@@ -69,6 +69,7 @@
     <ClCompile Include="src\bflib_vidraw_spr_onec.c" />
     <ClCompile Include="src\bflib_vidraw_spr_remp.c" />
     <ClCompile Include="src\bflib_vidsurface.c" />
+    <ClCompile Include="src\cdrom.cpp" />
     <ClCompile Include="src\config.c" />
     <ClCompile Include="src\config_campaigns.c" />
     <ClCompile Include="src\config_compp.c" />
@@ -168,7 +169,7 @@
     <ClCompile Include="src\gui_frontmenu.c" />
     <ClCompile Include="src\gui_msgs.c" />
     <ClCompile Include="src\gui_parchment.c" />
-    <ClCompile Include="src\gui_soundmsgs.c" />
+    <ClCompile Include="src\gui_soundmsgs.cpp" />
     <ClCompile Include="src\gui_tooltips.c" />
     <ClCompile Include="src\gui_topmsg.c" />
     <ClCompile Include="src\KeeperSpeechImp.c" />
@@ -184,7 +185,7 @@
     <ClCompile Include="src\lvl_script_lib.c" />
     <ClCompile Include="src\lvl_script_commands.c" />
     <ClCompile Include="src\lvl_script_value.c" />
-    <ClCompile Include="src\magic.c" />
+    <ClCompile Include="src\magic_powers.c" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\main_game.c" />
     <ClCompile Include="src\map_blocks.c" />
@@ -195,7 +196,6 @@
     <ClCompile Include="src\map_locations.c" />
     <ClCompile Include="src\map_utils.c" />
     <ClCompile Include="src\moonphase.c" />
-    <ClCompile Include="src\music_player.c" />
     <ClCompile Include="src\net_game.c" />
     <ClCompile Include="src\net_sync.c" />
     <ClCompile Include="src\packets.c" />
@@ -308,6 +308,7 @@
     <ClInclude Include="src\bflib_video.h" />
     <ClInclude Include="src\bflib_vidraw.h" />
     <ClInclude Include="src\bflib_vidsurface.h" />
+    <ClInclude Include="src\cdrom.h" />
     <ClInclude Include="src\config.h" />
     <ClInclude Include="src\config_campaigns.h" />
     <ClInclude Include="src\config_compp.h" />
@@ -414,7 +415,7 @@
     <ClInclude Include="src\lvl_script_lib.h" />
     <ClInclude Include="src\lvl_script_commands_old.h" />
     <ClInclude Include="src\lvl_script_value.h" />
-    <ClInclude Include="src\magic.h" />
+    <ClInclude Include="src\magic_powers.h" />
     <ClInclude Include="src\map_blocks.h" />
     <ClInclude Include="src\map_ceiling.h" />
     <ClInclude Include="src\map_columns.h" />
@@ -423,7 +424,6 @@
     <ClInclude Include="src\map_locations.h" />
     <ClInclude Include="src\map_utils.h" />
     <ClInclude Include="src\moonphase.h" />
-    <ClInclude Include="src\music_player.h" />
     <ClInclude Include="src\mutex.hpp" />
     <ClInclude Include="src\net_game.h" />
     <ClInclude Include="src\net_sync.h" />

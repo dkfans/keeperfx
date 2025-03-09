@@ -221,10 +221,10 @@ void creature_increase_available_instances(struct Thing *thing)
         int k = crstat->learned_instance_id[i];
         if (k > 0)
         {
-            if (crstat->learned_instance_level[i] <= cctrl->explevel+1) {
+            if (crstat->learned_instance_level[i] <= cctrl->exp_level+1) {
                 cctrl->instance_available[k] = true;
             }
-            else if ( (crstat->learned_instance_level[i] > cctrl->explevel+1) && !(game.conf.rules.game.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
+            else if ( (crstat->learned_instance_level[i] > cctrl->exp_level+1) && !(game.conf.rules.game.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
             {
                 cctrl->instance_available[k] = false;
             }
@@ -564,11 +564,11 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
 
     if (target != NULL)
     {
-        creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->explevel);
+        creature_cast_spell_at_thing(creatng, target, spl_idx, cctrl->exp_level);
     }
     else
     {
-        creature_cast_spell(creatng, spl_idx, cctrl->explevel, cctrl->targtstl_x, cctrl->targtstl_y);
+        creature_cast_spell(creatng, spl_idx, cctrl->exp_level, cctrl->targtstl_x, cctrl->targtstl_y);
     }
 
     // Start cooldown after spell effect activates
@@ -708,7 +708,7 @@ long instf_dig(struct Thing *creatng, long *param)
                 subtile_coord_center(stl_x), subtile_coord_center(stl_y),
                 EvKind_AreaDiscovered, creatng->owner, 0);
             if ((evidx > 0) && is_my_player_number(creatng->owner))
-                output_message(SMsg_DugIntoNewArea, 0, true);
+                output_message(SMsg_DugIntoNewArea, 0);
         }
     } else
     if (taskkind == SDDigTask_DigEarth)
@@ -721,7 +721,7 @@ long instf_dig(struct Thing *creatng, long *param)
                 subtile_coord_center(stl_x), subtile_coord_center(stl_y),
                 EvKind_AreaDiscovered, creatng->owner, 0);
             if ((evidx > 0) && is_my_player_number(creatng->owner))
-                output_message(SMsg_DugIntoNewArea, 0, true);
+                output_message(SMsg_DugIntoNewArea, 0);
         }
     }
     check_map_explored(creatng, stl_x, stl_y);
@@ -977,7 +977,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                             EvKind_RoomUnderAttack, room->owner, 0);
                         if (is_my_player_number(room->owner))
                         {
-                            output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+                            output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
                         }
                         if (game.active_messages_count > 0)
                         {
@@ -1827,6 +1827,50 @@ TbBool search_target_ranged_heal
     }
 
     return ok;
+}
+
+void script_set_creature_instance(ThingModel crmodel, short slot, int instance, short level)
+{
+    struct CreatureStats *crstat = creature_stats_get(crmodel);
+
+    if (!creature_stats_invalid(crstat))
+    {
+        CrInstance old_instance = crstat->learned_instance_id[slot - 1];
+        crstat->learned_instance_id[slot - 1] = instance;
+        crstat->learned_instance_level[slot - 1] = level;
+        const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+        unsigned long k = 0;
+        int i = slist->index;
+        while (i != 0)
+        {
+            struct Thing* thing = thing_get(i);
+            if (thing_is_invalid(thing))
+            {
+                ERRORLOG("Jump to invalid thing detected");
+                break;
+            }
+            i = thing->next_of_class;
+            // Per-thing code
+            if (thing->model == crmodel)
+            {
+                if (old_instance != CrInst_NULL)
+                {
+                    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                    cctrl->instance_available[old_instance] = false;
+                }
+                creature_increase_available_instances(thing);
+            }
+            // Per-thing code ends
+            k++;
+            if (k > slist->count)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break;
+            }
+        }
+
+
+    }
 }
 
 /******************************************************************************/

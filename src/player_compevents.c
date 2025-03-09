@@ -27,7 +27,7 @@
 #include "bflib_math.h"
 
 #include "config.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "player_instances.h"
 #include "config_terrain.h"
 #include "creature_instances.h"
@@ -67,7 +67,7 @@ struct ComputerSpells {
     char gaction;
     char require_owned_ground;
     int repeat_num;
-    int pwlevel;
+    KeepPwrLevel power_level;
     int amount_able;
 };
 /******************************************************************************/
@@ -116,7 +116,7 @@ Comp_Event_Func computer_event_func_list[] = {
   NULL,
 };
 
-//PowerKind pwkind; char gaction; char require_owned_ground; int repeat_num; int pwlevel; int amount_able;
+//PowerKind pwkind; char gaction; char require_owned_ground; int repeat_num; KeepPwrLevel power_level; int amount_able;
 struct ComputerSpells computer_attack_spells[] = {
   {PwrK_DISEASE,   GA_UsePwrDisease,   1,  1, 2, 4},
   {PwrK_LIGHTNING, GA_UsePwrLightning, 0,  1, 8, 2},
@@ -427,7 +427,7 @@ PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEv
         }
 
         // Only cast lightning on imps, don't waste expensive chicken or disease spells
-        if ((thing_is_creature_special_digger(creatng)) && (caspl->pwkind != PwrK_LIGHTNING))
+        if ((thing_is_creature_digger(creatng)) && (caspl->pwkind != PwrK_LIGHTNING))
         {
             i++;
             continue;
@@ -479,15 +479,15 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
     struct ComputerSpells* caspl = &computer_attack_spells[cevent->param3];
     int repeat_num = caspl->repeat_num;
     if (repeat_num < 0)
-      repeat_num = cevent->param2;
-    int splevel = caspl->pwlevel;
-    if (splevel < 0)
-      repeat_num = cevent->param1;
+    {
+        repeat_num = cevent->param2;
+    }
+    KeepPwrLevel power_level = caspl->power_level;
     int gaction = caspl->gaction;
     if (!is_task_in_progress(comp, CTT_AttackMagic))
     {
         // Create the new task
-        if (!create_task_attack_magic(comp, creatng, pwkind, repeat_num, splevel, gaction)) {
+        if (!create_task_attack_magic(comp, creatng, pwkind, repeat_num, power_level, gaction)) {
             return CTaskRet_Unk4;
         }
     }

@@ -32,7 +32,7 @@
 #include "power_hand.h"
 #include "frontend.h"
 #include "config_players.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "player_utils.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
@@ -163,7 +163,7 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
             {
                 if (is_my_player(player))
                 {
-                    output_message(SMsg_GoldNotEnough, 0, true);
+                    output_message(SMsg_GoldNotEnough, 0);
                 }
             }
         }
@@ -223,14 +223,14 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
         if (player->hand_thing_idx == 0) {
             create_power_hand(player->id_number);
         }
-        long i = thing_is_creature_special_digger(thing);
-        if ((can_drop_thing_here(stl_x, stl_y, player->id_number, i)
+        long is_digger = thing_is_creature_digger(thing);
+        if ((can_drop_thing_here(stl_x, stl_y, player->id_number, is_digger)
              || !can_dig_here(stl_x, stl_y, player->id_number, true))
             && (!player->one_click_lock_cursor))
         {
             player->render_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, subtile_slab(stl_x), subtile_slab(stl_y));
             player->full_slab_cursor = (player->roomspace_mode != single_subtile_mode);
-            tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, i, player->full_slab_cursor);
+            tag_cursor_blocks_thing_in_hand(plyr_idx, stl_x, stl_y, is_digger, player->full_slab_cursor);
         } else
         {
             player->additional_flags |= PlaAF_ChosenSubTileIsHigh;
