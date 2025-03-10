@@ -245,6 +245,7 @@ obj/lens_mist.o \
 obj/light_data.o \
 obj/lua_api.o \
 obj/lua_api_player.o \
+obj/lua_api_things.o \
 obj/lua_base.o \
 obj/lua_cfg_funcs.o \
 obj/lua_params.o \
