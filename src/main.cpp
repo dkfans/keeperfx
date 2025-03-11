@@ -1123,12 +1123,7 @@ short setup_game(void)
   }
 
   game.frame_skip = start_params.frame_skip;
-/*
-  if ( (result == 1) && (!game.no_intro) )
-  {
-     result = intro_replay();
-  }
-  */
+
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
   if (result == 0)
