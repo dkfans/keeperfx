@@ -129,16 +129,16 @@ struct TbLoadFiles;
 
 struct StartupParameters {
     LevelNumber selected_level_number;
-    unsigned char no_intro;
-    unsigned char one_player;
+    TbBool no_intro;
+    TbBool one_player;
     unsigned char operation_flags;
     unsigned char flags_font;
     unsigned char flags_cd;
     unsigned char debug_flags;
     unsigned short computer_chat_flags;
     long num_fps;
-    unsigned char packet_save_enable;
-    unsigned char packet_load_enable;
+    TbBool packet_save_enable;
+    TbBool packet_load_enable;
     char packet_fname[150];
     unsigned char packet_checksum_verify;
     unsigned char force_ppro_poly;
@@ -147,6 +147,7 @@ struct StartupParameters {
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
     GameTurn pause_at_gameturn;
+    TbBool ea_video;
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];

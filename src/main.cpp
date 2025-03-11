@@ -1112,14 +1112,23 @@ short setup_game(void)
       {
           //result = -1; // Helps with better warning message later
       }
+      if (!game.no_intro)
+      {
+         if (game.ea_video)
+         {
+             ea_video();
+         }
+         result = intro_replay();
+      }
   }
 
   game.frame_skip = start_params.frame_skip;
-
+/*
   if ( (result == 1) && (!game.no_intro) )
   {
      result = intro_replay();
   }
+  */
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
   if (result == 0)
@@ -3895,7 +3904,7 @@ short process_command_line(unsigned short argc, char *argv[])
 
       if (strcasecmp(parstr, "nointro") == 0)
       {
-        start_params.no_intro = 1;
+        start_params.no_intro = true;
       } else
       if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
       {
@@ -3912,12 +3921,12 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "1player") == 0)
       {
-          start_params.one_player = 1;
-          one_player_mode = 1;
+          start_params.one_player = true;
+          one_player_mode = true;
       } else
       if ((strcasecmp(parstr, "s") == 0) || (strcasecmp(parstr, "nosound") == 0))
       {
-          SoundDisabled = 1;
+          SoundDisabled = true;
       } else
       if (strcasecmp(parstr, "fps") == 0)
       {
@@ -3932,7 +3941,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "vidsmooth") == 0)
       {
-          smooth_on = 1;
+          smooth_on = true;
       } else
       if ( strcasecmp(parstr,"level") == 0 )
       {
@@ -4063,6 +4072,10 @@ short process_command_line(unsigned short argc, char *argv[])
         strcpy(start_params.config_file, pr2str);
         start_params.overrides[Clo_ConfigFile] = true;
         narg++;
+      }
+      else if ( strcasecmp(parstr,"ea") == 0 )
+      {
+        start_params.ea_video = true;
       }
       else if (strcasecmp(parstr, "ftests") == 0)
       {
