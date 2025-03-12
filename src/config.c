@@ -1384,14 +1384,20 @@ short load_configuration(void)
           }
           break;
       case 35: // EA
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
+          if (!start_params.ea_video) // ignore field if -ea parameter is present
           {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
+              i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+              if (i <= 0)
+              {
+                  CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                    COMMAND_TEXT(cmd_num),config_textname);
+                break;
+              }
+              if (i == 1)
+              {
+                  start_params.ea_video = true;
+              }
           }
-          start_params.ea_video = (i == 1);
           break;
       case ccr_comment:
           break;
