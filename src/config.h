@@ -226,7 +226,6 @@ struct NamedField {
 struct InstallInfo {
   char inst_path[150];
   int lang_id;
-  int field_9A;
 };
 
 extern unsigned short AtmosRepeat;

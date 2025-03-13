@@ -927,7 +927,6 @@ short load_configuration(void)
   SYNCDBG(4,"Starting");
   // Preparing config file name and checking the file
   strcpy(install_info.inst_path,"");
-  install_info.field_9A = 0;
   // Set default runtime directory and load the config file
   strcpy(keeper_runtime_directory,".");
   const char* sname;
