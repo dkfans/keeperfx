@@ -1637,11 +1637,46 @@ static int lua_get_creature_by_criterion(lua_State *L)
 
 static int lua_print(lua_State *L)
 {
-    const char* msg = lua_tostring(L, 1);
+    int nargs = lua_gettop(L);
+    char buffer[1024]; // Adjust size as needed
+    int offset = 0;
 
-    JUSTLOG("%s",msg);
+    for (int i = 1; i <= nargs; i++) {
+        size_t len;
+        const char *str;
+
+        if (lua_isstring(L, i) || lua_isnumber(L, i)) {
+            str = lua_tolstring(L, i, &len);
+        } else if (lua_isboolean(L, i)) {
+            str = lua_toboolean(L, i) ? "true" : "false";
+            len = strlen(str);
+        } else if (lua_isnil(L, i)) {
+            str = "nil";
+            len = 3;
+        } else {
+            str = luaL_typename(L, i); // Prints type name (e.g., "table", "function")
+            len = strlen(str);
+        }
+
+        // Ensure we don't overflow the buffer
+        if (offset + len + 2 >= sizeof(buffer)) // +2 for "\t" + null terminator
+            break;
+
+        memcpy(buffer + offset, str, len);
+        offset += len;
+
+        if (i < nargs) {
+            buffer[offset++] = '\t'; // Separate arguments with tabs
+        }
+    }
+
+    buffer[offset] = '\0'; // Null-terminate
+
+    JUSTLOG("%s", buffer); // Print using your logging function
+
     return 0;
 }
+
 
 static int lua_get_things_of_class(lua_State *L)
 {
