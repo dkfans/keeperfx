@@ -48,8 +48,6 @@ extern "C" {
 /******************************************************************************/
 
 static float phase_of_moon;
-static long net_number_of_levels;
-static struct NetLevelDesc net_level_desc[100];
 static const char keeper_config_file[]="keeperfx.cfg";
 
 char cmd_char = '!';
@@ -2604,18 +2602,6 @@ short is_multiplayer_level(LevelNumber lvnum)
     {
         SYNCDBG(17,"Level %ld identified as MP",lvnum);
         return true;
-    }
-  }
-  // Original MP checking - remove when it's not needed anymore
-  if (net_number_of_levels <= 0)
-    return false;
-  for (i=0; i < net_number_of_levels; i++)
-  {
-      struct NetLevelDesc* lvdesc = &net_level_desc[i];
-      if (lvdesc->lvnum == lvnum)
-      {
-          SYNCDBG(17, "Level %ld identified as MP with old description", lvnum);
-          return true;
     }
   }
   SYNCDBG(17,"Level %ld not recognized as MP",lvnum);

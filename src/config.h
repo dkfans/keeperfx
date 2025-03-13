@@ -218,20 +218,15 @@ struct NamedField {
     uchar type;
     int64_t min;
     int64_t max;
+    struct NamedCommand *namedCommand;
+    void (*config_assign_func)(NamedField *field, int64_t value);
+    void (*script_assign_func)(NamedField *field, int64_t value);
 };
 
 struct InstallInfo {
   char inst_path[150];
   int lang_id;
   int field_9A;
-};
-
-struct NetLevelDesc { // sizeof = 14
-  unsigned char lvnum;
-  unsigned char field_1;
-  unsigned long field_2;
-  unsigned long field_6;
-  char *text;
 };
 
 extern unsigned short AtmosRepeat;
