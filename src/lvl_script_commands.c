@@ -6743,8 +6743,8 @@ static void run_lua_code_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     const char* code = scline->tp[0];
 
-    value->strs[0] = script_strdup(code);
-    if (value->strs[0] == NULL) {
+    value->longs[0] = script_strdup(code);
+    if (value->longs[0] < 0) {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
         return;
@@ -6755,7 +6755,7 @@ static void run_lua_code_check(const struct ScriptLine* scline)
 
 static void run_lua_code_process(struct ScriptContext* context)
 {
-    const char* code = context->value->strs[0];
+    const char* code = script_strval(context->value->longs[0]);
     execute_lua_code_from_script(code);
 }
 
