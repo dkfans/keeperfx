@@ -309,25 +309,20 @@ msgctxt "In-game message"
 msgid "The corpses of the good lie strewn around you. Now go, and conquer your rival on this land. Dominion awaits ..."
 msgstr ""
 
-#: guitext:149 guitext:150 guitext:151 guitext:152
+#: guitext:122 guitext:123 guitext:124 guitext:149 guitext:150 guitext:151 guitext:152 guitext:170
 msgctxt "In-game message"
 msgid ""
 msgstr ""
 
 #: guitext:115 guitext:116 guitext:117 guitext:118 guitext:119 guitext:120
-#: guitext:121 guitext:122 guitext:123 guitext:124 guitext:125 guitext:126
-#: guitext:127 guitext:128 guitext:129 guitext:130 guitext:131 guitext:132
-#: guitext:133 guitext:134 guitext:135 guitext:136 guitext:137 guitext:138
-#: guitext:139 guitext:140 guitext:141 guitext:142 guitext:143 guitext:144
-#: guitext:145 guitext:146 guitext:147 guitext:148 guitext:153 guitext:154 guitext:155 guitext:156
-#: guitext:157 guitext:158 guitext:159 guitext:160 guitext:161 guitext:162
-#: guitext:163 guitext:164 guitext:165 guitext:166 guitext:167 guitext:168
-#: guitext:169 guitext:170 guitext:171 guitext:172 guitext:173 guitext:174
-#: guitext:175 guitext:176 guitext:177 guitext:178 guitext:179 guitext:180
-#: guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186
-#: guitext:187 guitext:188 guitext:189 guitext:190 guitext:191 guitext:192
-#: guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198
-#: guitext:199 guitext:200
+#: guitext:121 guitext:125 guitext:126 guitext:127 guitext:128 guitext:129 guitext:130 
+#: guitext:131 guitext:132 guitext:133 guitext:134 guitext:135 guitext:136 guitext:137 guitext:138 guitext:139 guitext:140
+#: guitext:141 guitext:142 guitext:143 guitext:144 guitext:145 guitext:146 guitext:147 guitext:148 
+#: guitext:153 guitext:154 guitext:155 guitext:156 guitext:157 guitext:158 guitext:159 guitext:160
+#: guitext:161 guitext:162 guitext:163 guitext:164 guitext:165 guitext:166 guitext:167 guitext:168 guitext:169
+#: guitext:171 guitext:172 guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179 guitext:180
+#: guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
+#: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
