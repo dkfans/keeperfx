@@ -21,6 +21,7 @@
 #include <deque>
 #include <mutex>
 #include <atomic>
+#include <set>
 #include "post_inc.h"
 
 namespace {
@@ -46,6 +47,7 @@ SoundVolume g_music_volume = 0;
 ALCdevice_ptr g_openal_device;
 ALCcontext_ptr g_openal_context;
 std::atomic<Mix_Music *> g_mix_music;
+std::set<uint32_t> g_tick_samples;
 bool g_bb_king_mode = false;
 
 enum source_flags {
@@ -562,6 +564,7 @@ extern "C" TbBool GetSoundInstalled() {
 	return g_openal_device && g_openal_context;
 }
 
+// This function gets called every tick
 extern "C" void MonitorStreamedSoundTrack() {
 	for (auto & source : g_sources) {
 		try {
@@ -574,6 +577,7 @@ extern "C" void MonitorStreamedSoundTrack() {
 			ERRORLOG("%s", e.what());
 		}
 	}
+	g_tick_samples.clear();
 }
 
 extern "C" void * GetSoundDriver() {
@@ -712,7 +716,13 @@ extern "C" SoundMilesID play_sample(
 		ERRORLOG("Can't play sample %d from bank %u, invalid sample ID", smptbl_id, bank_id);
 		return 0;
 	}
+	// (ab)use the fact that bank_id and smptbl_id are currently 8- and 16-bits wide respectively.
+	const uint32_t tick_sample_key = (uint32_t(bank_id) << 16) | (smptbl_id & 0xffff);
+	if (g_tick_samples.count(tick_sample_key) > 0) {
+		return 0; // don't play the same sample multiple times on the same tick
+	}
 	try {
+		g_tick_samples.emplace(tick_sample_key);
 		for (auto & source : g_sources) {
 			if (source.emit_id == 0) {
 				source.gain(volume);

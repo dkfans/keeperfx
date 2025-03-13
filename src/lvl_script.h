@@ -126,8 +126,6 @@ struct ScriptValue {
     long long longlongs[4];
     unsigned long ulongs[8];
     unsigned long long ulonglongs[4];
-    unsigned char* ustrs[8];
-    char* strs[8];
   };
 };
 
@@ -183,7 +181,7 @@ struct LevelScript {
 
     // Store strings used at level here
     char strings[2048];
-    char *next_string;
+    long next_string_offset;
 };
 
 /******************************************************************************/
