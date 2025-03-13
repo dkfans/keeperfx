@@ -194,6 +194,9 @@ enum dataTypes
               void*: dt_void, \
               default: dt_default))
 
+#define field(field)\
+    &field, var_type(field)
+
 /******************************************************************************/
 struct CommandWord {
     char text[COMMAND_WORD_LEN];
