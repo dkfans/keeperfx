@@ -794,6 +794,30 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     return speed;
 }
 
+long calculate_correct_creature_backwards_speed(const struct Thing* thing)
+{
+    struct Dungeon* dungeon;
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long speed = crstat->base_speed;
+    if ((creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)))
+        speed *= 2;
+    if (creature_affected_by_spell(thing, SplK_Speed))
+        speed *= 2;
+    if (creature_affected_by_spell(thing, SplK_Slow))
+        speed /= 2;
+    if (!is_neutral_thing(thing))
+    {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.speed;
+        speed = (speed * modifier) / 100;
+        if (dungeon->tortured_creatures[thing->model] > 0)
+            speed = 5 * speed / 4;
+        if (player_uses_power_obey(thing->owner))
+            speed = 5 * speed / 4;
+    }
+    return speed;
+}
+
 long calculate_correct_creature_loyalty(const struct Thing *thing)
 {
     struct Dungeon* dungeon;
