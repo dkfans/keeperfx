@@ -234,8 +234,8 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     if (!thing_is_invalid(lairtng))
         return CrStRet_Unchanged;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    room->content_per_model[creatng->model]++;
-    room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
+    room->content_per_model[cctrl->original_model]++;
+    room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, cctrl->original_model);
     if ((cctrl->lair_room_id > 0) && (cctrl->lairtng_idx > 0))
     {
         struct Room* origroom = room_get(cctrl->lair_room_id);
@@ -247,7 +247,7 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
     pos.z.val = creatng->mappos.z.val;
-    struct CreatureStats* crstat = creature_stats_get(creatng->model);
+    struct CreatureStats* crstat = creature_stats_get_from_original_model(creatng);
     lairtng = create_object(&pos, crstat->lair_object, creatng->owner, -1);
     if (thing_is_invalid(lairtng))
     {

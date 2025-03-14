@@ -632,7 +632,7 @@ void draw_power_hand(void)
                 pickoffs = get_creature_picked_up_offset(picktng);
                 inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x*global_hand_scale);
                 inputpos_y = GetMouseY() + scale_ui_value(pickoffs->delta_y*global_hand_scale);
-                struct CreatureStats* crstat = creature_stats_get(picktng->model);
+                struct CreatureStats* crstat = creature_stats_get_from_thing(picktng);
                 if (crstat->transparency_flags == TRF_Transpar_8)
                 {
                     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
