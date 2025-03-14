@@ -1092,7 +1092,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
                           EvKind_RoomUnderAttack, room->owner, 0);
                       if (is_my_player_number(room->owner))
                       {
-                          output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+                          output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
                       }
                 }
               }
@@ -1268,7 +1268,7 @@ short imp_drops_gold(struct Thing *spdigtng)
         struct Coord3d pos;
         pos.x.val = subtile_coord_center(center_stl_x);
         pos.y.val = subtile_coord_center(center_stl_y);
-        pos.z.val = spdigtng->mappos.z.val;
+        pos.z.val = get_floor_height_at(&pos);
         gldtng = create_gold_hoarde(room, &pos, spdigtng->creature.gold_carried);
         if (!thing_is_invalid(gldtng))
         {

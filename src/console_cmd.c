@@ -403,7 +403,7 @@ TbBool cmd_game_save(PlayerNumber plyr_idx, char * args)
     set_flag(game.operation_flags, GOF_Paused); // games are saved in a paused state
     TbBool result = save_game(slot_num);
     if (result) {
-        output_message(SMsg_GameSaved, 0, true);
+        output_message(SMsg_GameSaved, 0);
     } else {
         ERRORLOG("Error in save!");
         create_error_box(GUIStr_ErrorSaving);

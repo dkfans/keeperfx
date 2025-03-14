@@ -176,7 +176,7 @@ void input_eastegg(void)
     allow = (lbKeyOn[KC_LSHIFT] != 0);
     state = input_eastegg_keycodes(&eastegg_skeksis_cntr,allow,&eastegg_skeksis_codes);
     if (state == 3) {
-      output_message(SMsg_PantsTooTight, 0, true);
+      output_message(SMsg_PantsTooTight, 0);
     }
 }
 

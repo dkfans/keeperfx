@@ -100,7 +100,7 @@ short at_temple(struct Thing *thing)
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     if (!add_creature_to_work_room(thing, room, Job_TEMPLE_PRAY))
     {
-        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
+        output_room_message(room->owner, room->kind, OMsg_RoomTooSmall);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return 0;
@@ -685,26 +685,26 @@ void process_sacrifice_creature(struct Coord3d *pos, ThingModel model, PlayerNum
       case SacR_AngryWarn:
           if (partial)
           {
-              output_message(SMsg_SacrificeBad, 0, true);
+              output_message(SMsg_SacrificeBad, 0);
           }
           break;
       case SacR_DontCare:
           if (partial)
           {
-              output_message(SMsg_SacrificeNeutral, 0, true);
+              output_message(SMsg_SacrificeNeutral, 0);
           }
           break;
       case SacR_Pleased:
           if (partial)
           {
-              output_message(SMsg_SacrificeGood, 0, true);
+              output_message(SMsg_SacrificeGood, 0);
           }
           break;
       case SacR_Awarded:
-          output_message(SMsg_SacrificeReward, 0, true);
+          output_message(SMsg_SacrificeReward, 0);
           break;
       case SacR_Punished:
-          output_message(SMsg_SacrificePunish, 0, true);
+          output_message(SMsg_SacrificePunish, 0);
           break;
       default:
           ERRORLOG("Invalid sacrifice return, %d",(int)award);

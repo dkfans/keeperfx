@@ -21,6 +21,7 @@
 #include <deque>
 #include <mutex>
 #include <atomic>
+#include <set>
 #include "post_inc.h"
 
 namespace {
@@ -46,6 +47,7 @@ SoundVolume g_music_volume = 0;
 ALCdevice_ptr g_openal_device;
 ALCcontext_ptr g_openal_context;
 std::atomic<Mix_Music *> g_mix_music;
+std::set<uint32_t> g_tick_samples;
 bool g_bb_king_mode = false;
 
 enum source_flags {
@@ -162,8 +164,10 @@ public:
 	}
 
 	void pan(SoundPan pan) {
-		// convert 0..128 (where 64 is center) to -1.0..1.0 and then reduce stereo separation by 20%
-		alSource3f(id, AL_POSITION, (-(float(64 - pan) / 64)) * 0.8f, 0, 0);
+		// convert 0..128 (where 64 is center) to -1.0..1.0 and then reduce stereo separation by 50%
+		const auto x = (-(float(64 - pan) / 64.0f)) * 0.5f;
+		const auto z = -1.0f; // in front of listener
+		alSource3f(id, AL_POSITION, x, 0, z);
 		const auto errcode = alGetError();
 		if (errcode != AL_NO_ERROR) {
 			throw openal_error("Cannot set position", errcode);
@@ -442,50 +446,13 @@ void print_device_info() {
 	}
 }
 
-std::atomic<Mix_Chunk *> g_streamed_sample;
+Mix_Chunk * g_streamed_sample = nullptr;
 std::mutex g_mix_mutex;
 
 struct queued_sample {
 	std::string fname;
 	SoundVolume volume;
 };
-
-std::deque<queued_sample> g_queued_samples;
-
-TbBool actually_play_streamed_sample(const char * fname, SoundVolume volume) {
-	const auto sample = Mix_LoadWAV(fname);
-	if (sample == NULL) {
-		ERRORLOG("Cannot load \"%s\": %s", fname, Mix_GetError());
-		return false;
-	}
-	// SoundVolume ranges 0..255 but MIX_MAX_VOLUME ranges 0..128
-	Mix_VolumeChunk(sample, volume / 2);
-	if (Mix_PlayChannel(MIX_SPEECH_CHANNEL, sample, 0) == -1) {
-		Mix_FreeChunk(sample);
-		ERRORLOG("Cannot play \"%s\": %s", fname, Mix_GetError());
-		return false;
-	}
-	g_streamed_sample = sample;
-	return true;
-}
-
-void SDLCALL on_channel_finished(int channel) {
-	if (channel != MIX_SPEECH_CHANNEL) {
-		return;
-	}
-	std::lock_guard<std::mutex> guard(g_mix_mutex);
-	Mix_FreeChunk(g_streamed_sample.exchange(nullptr));
-	while (true) {
-		if (g_queued_samples.empty()) {
-			return;
-		}
-		const auto sample = std::move(g_queued_samples.front());
-		g_queued_samples.pop_front();
-		if (actually_play_streamed_sample(sample.fname.c_str(), sample.volume)) {
-			return;
-		}
-	}
-}
 
 void SDLCALL on_music_finished() {
 	// don't grab mutex or we'll deadlock, just free memory
@@ -504,7 +471,7 @@ extern "C" void FreeAudio() {
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
 	try {
-		alListenerf(AL_GAIN, float(volume) / FULL_LOUDNESS);
+		alListenerf(AL_GAIN, float(volume) / 64);
 		const auto errcode = alGetError();
 		if (errcode != AL_NO_ERROR) {
 			throw openal_error("Cannot set master volume", errcode);
@@ -597,6 +564,7 @@ extern "C" TbBool GetSoundInstalled() {
 	return g_openal_device && g_openal_context;
 }
 
+// This function gets called every tick
 extern "C" void MonitorStreamedSoundTrack() {
 	for (auto & source : g_sources) {
 		try {
@@ -609,6 +577,7 @@ extern "C" void MonitorStreamedSoundTrack() {
 			ERRORLOG("%s", e.what());
 		}
 	}
+	g_tick_samples.clear();
 }
 
 extern "C" void * GetSoundDriver() {
@@ -632,7 +601,7 @@ extern "C" TbBool InitAudio(const SoundSettings * settings) {
 		if (game.flags_font & FFlg_AlexCheat) {
 			TbDate date;
 			LbDate(&date);
-			g_bb_king_mode |= ((date.Day == 1) && (date.Month = 2));
+			g_bb_king_mode |= ((date.Day == 1) && (date.Month == 2));
 		}
 		if (SoundDisabled) {
 			WARNLOG("Sound is disabled, skipping OpenAL initialization");
@@ -747,7 +716,13 @@ extern "C" SoundMilesID play_sample(
 		ERRORLOG("Can't play sample %d from bank %u, invalid sample ID", smptbl_id, bank_id);
 		return 0;
 	}
+	// (ab)use the fact that bank_id and smptbl_id are currently 8- and 16-bits wide respectively.
+	const uint32_t tick_sample_key = (uint32_t(bank_id) << 16) | (smptbl_id & 0xffff);
+	if (g_tick_samples.count(tick_sample_key) > 0) {
+		return 0; // don't play the same sample multiple times on the same tick
+	}
 	try {
+		g_tick_samples.emplace(tick_sample_key);
 		for (auto & source : g_sources) {
 			if (source.emit_id == 0) {
 				source.gain(volume);
@@ -817,7 +792,6 @@ extern "C" int InitialiseSDLAudio()
 		return 0;
 	}
 	Mix_ReserveChannels(1); // reserve for external speech samples
-	Mix_ChannelFinished(on_channel_finished); // register callback so we can do things
 	Mix_HookMusicFinished(on_music_finished); // register callback so we can do things
 	return flags;
 }
@@ -844,30 +818,37 @@ extern "C" void ShutDownSDLAudio()
 
 extern "C" TbBool play_streamed_sample(const char* fname, SoundVolume volume)
 {
-	if (SoundDisabled || fname == NULL || fname[0] == 0) {
+	if (SoundDisabled || fname == nullptr || strlen(fname) == 0) {
+		return false;
+	}
+	const auto sample = Mix_LoadWAV(fname);
+	if (sample == nullptr) {
+		ERRORLOG("Cannot load \"%s\": %s", fname, Mix_GetError());
+		return false;
+	}
+	// SoundVolume ranges 0..255 but MIX_MAX_VOLUME ranges 0..128
+	Mix_VolumeChunk(sample, volume / 2);
+	if (Mix_PlayChannel(MIX_SPEECH_CHANNEL, sample, 0) != 0) {
+		Mix_FreeChunk(sample);
+		ERRORLOG("Cannot play \"%s\": %s", fname, Mix_GetError());
 		return false;
 	}
 	std::lock_guard<std::mutex> guard(g_mix_mutex);
-	if (speech_sample_playing()) {
-		try {
-			g_queued_samples.emplace_back(queued_sample{fname, volume});
-			return true;
-		} catch (const std::exception & e) {
-			ERRORLOG("Cannot add sample to queue: %s", e.what());
-			return false;
-		}
+	const auto old_sample = std::exchange(g_streamed_sample, sample);
+	if (old_sample) {
+		Mix_FreeChunk(old_sample);
 	}
-	return actually_play_streamed_sample(fname, volume);
+	return true;
 }
 
 extern "C" void stop_streamed_samples()
 {
-	{
-		// this is intentionally in its own scope to prevent double-locking the mutex
-		std::lock_guard<std::mutex> guard(g_mix_mutex);
-		g_queued_samples.clear();
-	}
 	Mix_HaltChannel(MIX_SPEECH_CHANNEL);
+	std::lock_guard<std::mutex> guard(g_mix_mutex);
+	const auto old_sample = std::exchange(g_streamed_sample, nullptr);
+	if (old_sample) {
+		Mix_FreeChunk(g_streamed_sample);
+	}
 }
 
 extern "C" void set_streamed_sample_volume(SoundVolume volume) {

@@ -352,7 +352,7 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
         {
             SYNCDBG(8,"The %s will not come as player %d has less than %d gold",creature_code_name(crmodel),(int)dungeon->owner,(int)crstat->pay);
             if (is_my_player_number(dungeon->owner)) {
-                output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
+                output_message(SMsg_GoldLow, MESSAGE_DURATION_TREASURY);
             }
         } else
         if (lair_space > 0)
@@ -372,10 +372,10 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
             if (dungeon_has_room_of_role(dungeon, RoRoF_LairStorage))
             {
                 event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NoMoreLivingSet, dungeon->owner, 0);
-                output_message_room_related_from_computer_or_player_action(dungeon->owner, rkind, OMsg_RoomTooSmall);
+                output_room_message(dungeon->owner, rkind, OMsg_RoomTooSmall);
             } else
             {
-                output_message_room_related_from_computer_or_player_action(dungeon->owner, rkind, OMsg_RoomNeeded);
+                output_room_message(dungeon->owner, rkind, OMsg_RoomNeeded);
             }
         } else
         {
