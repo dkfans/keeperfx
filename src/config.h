@@ -113,32 +113,7 @@ enum TbLevelLocation {
     LvLc_Custom    =  2,
 };
 
-enum TbLanguage {
-    Lang_Unset    =  0,
-    Lang_English,
-    Lang_French,
-    Lang_German,
-    Lang_Italian,
-    Lang_Spanish,
-    Lang_Swedish,
-    Lang_Polish,
-    Lang_Dutch,
-    Lang_Hungarian,
-    Lang_Korean,
-    Lang_Danish,
-    Lang_Norwegian,
-    Lang_Czech,
-    Lang_Arabic,
-    Lang_Russian,
-    Lang_Japanese,
-    Lang_ChineseInt,
-    Lang_ChineseTra,
-    Lang_Portuguese,
-    Lang_Hindi,
-    Lang_Bengali,
-    Lang_Javanese,
-    Lang_Latin,
-};
+
 
 enum TbConfigLoadFlags {
     CnfLd_Standard      =  0x00, /**< Standard load, no special behavior. */
@@ -194,6 +169,9 @@ enum dataTypes
               void*: dt_void, \
               default: dt_default))
 
+#define field(field)\
+    &field, var_type(field)
+
 /******************************************************************************/
 struct CommandWord {
     char text[COMMAND_WORD_LEN];
@@ -215,20 +193,14 @@ struct NamedField {
     uchar type;
     int64_t min;
     int64_t max;
+    struct NamedCommand *namedCommand;
+    void (*config_assign_func)(NamedField *field, int64_t value);
+    void (*script_assign_func)(NamedField *field, int64_t value);
 };
 
 struct InstallInfo {
   char inst_path[150];
   int lang_id;
-  int field_9A;
-};
-
-struct NetLevelDesc { // sizeof = 14
-  unsigned char lvnum;
-  unsigned char field_1;
-  unsigned long field_2;
-  unsigned long field_6;
-  char *text;
 };
 
 extern unsigned short AtmosRepeat;
@@ -244,10 +216,6 @@ extern char keeper_runtime_directory[152];
 #pragma pack()
 /******************************************************************************/
 extern unsigned long features_enabled;
-extern short is_full_moon;
-extern short is_near_full_moon;
-extern short is_new_moon;
-extern short is_near_new_moon;
 extern unsigned long text_line_number;
 extern const struct NamedCommand lang_type[];
 extern const struct NamedCommand logicval_type[];
@@ -272,7 +240,6 @@ TbBool pause_music_when_game_paused(void);
 TbBool mute_audio_on_focus_lost(void);
 short load_configuration(void);
 void process_cmdline_overrides(void);
-short calculate_moon_phase(short do_calculate,short add_to_log);
 void load_or_create_high_score_table(void);
 TbBool load_high_score_table(void);
 TbBool save_high_score_table(void);
