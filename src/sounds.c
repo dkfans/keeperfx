@@ -66,7 +66,7 @@ int atmos_sound_frequency = 800;
 static char ambience_timer;
 int sdl_flags = 0;
 /******************************************************************************/
-void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitch pitch, char fil1D, unsigned char ctype, unsigned char flags, long priority, SoundVolume loudness)
+void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitch pitch, char repeats, unsigned char ctype, unsigned char flags, long priority, SoundVolume loudness)
 {
     if (SoundDisabled)
         return;
@@ -83,11 +83,11 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
         long eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
-            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, fil1D, ctype, flags | 0x01, priority);
+            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, repeats, ctype, flags | 0x01, priority);
         } else
         {
             eidx = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-               smptbl_idx, 0, pitch, loudness, fil1D, flags | 0x01, priority);
+               smptbl_idx, 0, pitch, loudness, repeats, flags | 0x01, priority);
            thing->snd_emitter_id = eidx;
         }
     }
