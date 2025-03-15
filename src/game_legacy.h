@@ -264,6 +264,7 @@ struct Game {
     int manufactr_spridx;
     int manufactr_tooltip;
     struct Configs conf;
+    TbBool ea_video;
 };
 
 #pragma pack()
