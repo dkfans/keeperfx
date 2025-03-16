@@ -576,7 +576,7 @@ struct movie_t {
 				return true;
 			} else if (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN] || lbKeyOn[KC_SPACE] || lbDisplay.LeftButton) {
 				clear_key_pressed(lbInkey);
-                return false;
+				return false;
 			}
 		}
 	}
