@@ -5,6 +5,7 @@
 #include "bflib_keybrd.h"
 #include "bflib_vidsurface.h"
 #include "bflib_fileio.h"
+#include "kjm_input.h"
 
 // See: https://trac.ffmpeg.org/ticket/3626
 extern "C" {
@@ -574,7 +575,8 @@ struct movie_t {
 			} else if (m_flags & SMK_NoStopOnUserInput) {
 				return true;
 			} else if (lbKeyOn[KC_ESCAPE] || lbKeyOn[KC_RETURN] || lbKeyOn[KC_SPACE] || lbDisplay.LeftButton) {
-				return false;
+				clear_key_pressed(lbInkey);
+                return false;
 			}
 		}
 	}
