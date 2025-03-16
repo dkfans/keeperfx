@@ -107,11 +107,11 @@ typedef struct
 */
 #define KEEPERLIBDECLARE(r, x, p) typedef KEEPERSPEECH_API r (*fp##x)p; KEEPERSPEECH_API r x p
 
-KEEPERLIBDECLARE(KEEPERSPEECH_REASON,    KeeperSpeechInit,            (void));
-KEEPERLIBDECLARE(const char *,            KeeperSpeechErrorMessage,    (KEEPERSPEECH_REASON reason));
-KEEPERLIBDECLARE(void,                    KeeperSpeechExit,            (void));
-KEEPERLIBDECLARE(KEEPERSPEECH_REASON,    KeeperSpeechPopEvent,        (KEEPERSPEECH_EVENT * ev));
-KEEPERLIBDECLARE(void,                    KeeperSpeechClearEvents,    (void));
+KEEPERLIBDECLARE(KEEPERSPEECH_REASON, KeeperSpeechInit,         (void));
+KEEPERLIBDECLARE(const char *,        KeeperSpeechErrorMessage, (KEEPERSPEECH_REASON reason));
+KEEPERLIBDECLARE(void,                KeeperSpeechExit,         (void));
+KEEPERLIBDECLARE(KEEPERSPEECH_REASON, KeeperSpeechPopEvent,     (KEEPERSPEECH_EVENT * ev));
+KEEPERLIBDECLARE(void,                KeeperSpeechClearEvents,  (void));
 
 #ifdef __cplusplus
 };
