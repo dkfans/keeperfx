@@ -391,3 +391,8 @@ msgstr ""
 msgctxt "Level name"
 msgid "Single Example"
 msgstr ""
+
+#: guitext:215
+msgctxt "Level name"
+msgid "Mirthhold"
+msgstr ""
