@@ -36,10 +36,10 @@
 #include "bflib_fmvids.h"
 
 #include "config_campaigns.h"
+#include "config_keeperfx.h"
 #include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"
-#include "moonphase.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -47,12 +47,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-static float phase_of_moon;
-
-
-unsigned int vid_scale_flags = SMK_FullscreenFit;
-
-unsigned long features_enabled = 0;
 /** Line number, used when loading text files. */
 unsigned long text_line_number;
 
@@ -62,6 +56,20 @@ unsigned long text_line_number;
 }
 #endif
 /******************************************************************************/
+
+const struct NamedCommand logicval_type[] = {
+  {"ENABLED",  1},
+  {"DISABLED", 2},
+  {"ON",       1},
+  {"OFF",      2},
+  {"TRUE",     1},
+  {"FALSE",    2},
+  {"YES",      1},
+  {"NO",       2},
+  {"1",        1},
+  {"0",        2},
+  {NULL,       0},
+  };
 
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
 {
@@ -668,18 +676,7 @@ long get_rid(const struct NamedCommand *desc, const char *itmname)
   return -1;
 }
 
-/** CmdLine overrides allow settings from the command line to override the default settings, or those set in the config file.
- *
- * See enum CmdLineOverrides and struct StartupParameters -> TbBool overrides[CMDLINE_OVERRIDES].
- */
-void process_cmdline_overrides(void)
-{
-  // Use CD for music rather than OGG files
-  if (start_params.overrides[Clo_CDMusic])
-  {
-    features_enabled &= ~Ft_NoCdMusic;
-  }
-}
+
 
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
 {

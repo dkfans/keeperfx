@@ -32,6 +32,7 @@
 #include "config_slabsets.h"
 #include "config_strings.h"
 #include "config_terrain.h"
+#include "config_keeperfx.h"
 #include "light_data.h"
 #include "map_ceiling.h"
 #include "map_utils.h"

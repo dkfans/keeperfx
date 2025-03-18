@@ -143,6 +143,7 @@ obj/config_campaigns.o \
 obj/config_creature.o \
 obj/config_crtrmodel.o \
 obj/config_crtrstates.o \
+obj/config_keeperfx.o \
 obj/config_lenses.o \
 obj/config_magic.o \
 obj/config_objects.o \

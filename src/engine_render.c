@@ -35,6 +35,7 @@
 #include "config_settings.h"
 #include "config_spritecolors.h"
 #include "config_terrain.h"
+#include "config_keeperfx.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"

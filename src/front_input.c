@@ -59,6 +59,7 @@
 #include "room_workshop.h"
 #include "kjm_input.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "game_legacy.h"
 #include "spdigger_stack.h"
 #include "room_graveyard.h"

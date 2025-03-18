@@ -118,10 +118,13 @@
 #include "vidfade.h"
 #include "KeeperSpeech.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "game_legacy.h"
 #include "room_list.h"
 #include "steam_api.hpp"
 #include "game_loop.h"
+#include "moonphase.h"
+#include "config_keeperfx.h"
 #include "frontmenu_ingame_map.h"
 
 #ifdef FUNCTESTING

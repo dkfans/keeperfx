@@ -38,6 +38,7 @@
 #include "thing_navigate.h"
 #include "config_creature.h"
 #include "config_terrain.h"
+#include "config_keeperfx.h"
 #include "game_legacy.h"
 #include "config_settings.h"
 #include "creature_senses.h"

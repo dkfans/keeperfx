@@ -18,7 +18,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "config.h"
+#include "config_keeperfx.h"
 
 #include <stdarg.h>
 #include "globals.h"
@@ -47,7 +47,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-static float phase_of_moon;
+
 static const char keeper_config_file[]="keeperfx.cfg";
 
 char cmd_char = '!';
@@ -59,6 +59,7 @@ struct InstallInfo install_info;
 char keeper_runtime_directory[152];
 short api_enabled = false;
 uint16_t api_port = 5599;
+unsigned long features_enabled = 0;
 
 /**
  * Language 3-char abbreviations.
@@ -148,20 +149,6 @@ const struct NamedCommand conf_commands[] = {
   {NULL,                   0},
   };
 
-const struct NamedCommand logicval_type[] = {
-  {"ENABLED",  1},
-  {"DISABLED", 2},
-  {"ON",       1},
-  {"OFF",      2},
-  {"TRUE",     1},
-  {"FALSE",    2},
-  {"YES",      1},
-  {"NO",       2},
-  {"1",        1},
-  {"0",        2},
-  {NULL,       0},
-  };
-
   const struct NamedCommand vidscale_type[] = {
   {"OFF",          0}, // No scaling of Smacker Video
   {"DISABLED",     0},
@@ -181,8 +168,8 @@ const struct NamedCommand logicval_type[] = {
   {"4BY3PP",       SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop}, // integer multiple scale only (4BY3)
   {NULL,           0},
   };
-unsigned int vid_scale_flags = SMK_FullscreenFit;
 
+unsigned int vid_scale_flags = SMK_FullscreenFit;
 
 
 /******************************************************************************/
@@ -816,5 +803,17 @@ short load_configuration(void)
   return (install_info.lang_id > 0) && (install_info.inst_path[0] != '\0');
 }
 
+/** CmdLine overrides allow settings from the command line to override the default settings, or those set in the config file.
+ *
+ * See enum CmdLineOverrides and struct StartupParameters -> TbBool overrides[CMDLINE_OVERRIDES].
+ */
+void process_cmdline_overrides(void)
+{
+  // Use CD for music rather than OGG files
+  if (start_params.overrides[Clo_CDMusic])
+  {
+    features_enabled &= ~Ft_NoCdMusic;
+  }
+}
 
 /******************************************************************************/

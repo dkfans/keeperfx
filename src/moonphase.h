@@ -11,7 +11,7 @@ extern "C"
     extern short is_new_moon;
     extern short is_near_new_moon;
     
-    short calculate_moon_phase(short do_calculate, short add_to_log)
+    short calculate_moon_phase(short do_calculate, short add_to_log);
 
 #ifdef __cplusplus
 }

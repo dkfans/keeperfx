@@ -1,7 +1,10 @@
 #include "pre_inc.h"
 #include "moonphase.h"
 #include <astronomy.h>
+#include "globals.h"
 #include "post_inc.h"
+
+static float phase_of_moon;
 
 short is_full_moon = 0;
 short is_near_full_moon = 0;

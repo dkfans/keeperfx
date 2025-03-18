@@ -17,11 +17,12 @@
  */
 /******************************************************************************/
 
-#ifndef DK_CONFIG_H
-#define DK_CONFIG_H
+#ifndef DK_CONFIG_KEEPERFX_H
+#define DK_CONFIG_KEEPERFX_H
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -104,18 +105,11 @@ extern char keeper_runtime_directory[152];
 #pragma pack()
 /******************************************************************************/
 extern unsigned long features_enabled;
-extern unsigned long text_line_number;
 extern const struct NamedCommand lang_type[];
-extern const struct NamedCommand logicval_type[];
 extern const struct NamedCommand scrshot_type[];
 extern char cmd_char;
 extern short api_enabled;
 extern uint16_t api_port;
-/******************************************************************************/
-char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname);
-char *prepare_file_path(short fgroup,const char *fname);
-char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
-unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
 TbBool is_feature_on(unsigned long feature);
 TbBool censorship_enabled(void);

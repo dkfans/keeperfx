@@ -63,27 +63,6 @@ enum TbFileGroups {
         FGrp_Music,
 };
 
-enum TbFeature {
-    Ft_EyeLens      =  0x0001,
-    Ft_HiResVideo   =  0x0002,
-    Ft_BigPointer   =  0x0004,
-    Ft_HiResCreatr  =  0x0008,
-    Ft_AdvAmbSound  =  0x0010,
-    Ft_Censorship   =  0x0020,
-    Ft_Atmossounds  =  0x0040,
-    Ft_Resizemovies =  0x0080,
-    Ft_FreezeOnLoseFocus            = 0x0400,
-    Ft_UnlockCursorOnPause          = 0x0800,
-    Ft_LockCursorInPossession       = 0x1000,
-    Ft_PauseMusicOnGamePause        = 0x2000,
-    Ft_MuteAudioOnLoseFocus         = 0x4000,
-    Ft_SkipHeartZoom                = 0x8000,
-    Ft_SkipSplashScreens            = 0x10000,
-    Ft_DisableCursorCameraPanning   = 0x20000,
-    Ft_DeltaTime                    = 0x40000,
-    Ft_NoCdMusic                    = 0x80000,
-};
-
 enum TbExtraLevels {
     ExLv_None      =  0,
     ExLv_FullMoon  =  1,
@@ -189,41 +168,29 @@ struct LongNamedCommand {
 
 struct NamedField {
     const char *name;
-    char argnum; //for fields that assign multiple values, -1 passes full string to assign function
+    //char argnum; //for fields that assign multiple values, -1 passes full string to assign function
     void* field;
     uchar type;
     int64_t min;
     int64_t max;
-    struct NamedCommand *namedCommand;
-    void (*config_assign_func)(NamedField *field, char* value);
-    void (*script_assign_func)(NamedField *field, char* value);
+    //struct NamedCommand *namedCommand;
+    //void (*config_assign_func)(struct NamedField *field, char* value_text);
+    //void (*script_assign_func)(struct NamedField *field, char* value_text);
 };
 
-struct InstallInfo {
-  char inst_path[150];
-  int lang_id;
-};
 
-extern unsigned short AtmosRepeat;
-extern unsigned short AtmosStart;
-extern unsigned short AtmosEnd;
 extern TbBool AssignCpuKeepers;
 
 extern unsigned int vid_scale_flags;
+
+extern const struct NamedCommand logicval_type[];
+
 /******************************************************************************/
-extern struct InstallInfo install_info;
 extern char keeper_runtime_directory[152];
 
 #pragma pack()
 /******************************************************************************/
-extern unsigned long features_enabled;
 extern unsigned long text_line_number;
-extern const struct NamedCommand lang_type[];
-extern const struct NamedCommand logicval_type[];
-extern const struct NamedCommand scrshot_type[];
-extern char cmd_char;
-extern short api_enabled;
-extern uint16_t api_port;
 /******************************************************************************/
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname);
 char *prepare_file_path(short fgroup,const char *fname);
