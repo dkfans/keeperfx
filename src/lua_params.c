@@ -466,6 +466,10 @@ void lua_pushThing(lua_State *L, struct Thing* thing) {
 
     lua_pushinteger(L, thing->creation_turn);
     lua_setfield(L, -2, "creation_turn");
+    
+    // Store a class name for Bitser
+    lua_pushstring(L, "Thing");
+    lua_setfield(L, -2, "__class");
 
     luaL_getmetatable(L, "Thing");
     lua_setmetatable(L, -2);
@@ -478,8 +482,12 @@ void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx) {
     lua_pushinteger(L, plr_idx);
     lua_setfield(L, -2, "playerId");
 
+    // Store a class name for Bitser
+    lua_pushstring(L, "Player");
+    lua_setfield(L, -2, "__class");
+
     luaL_getmetatable(L, "Player");
-    lua_setmetatable(L, -2);
+    lua_setmetatable(L, -2);  
 }
 
 void lua_pushPos(lua_State *L, struct Coord3d* pos) {

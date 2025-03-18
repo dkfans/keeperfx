@@ -42,6 +42,7 @@
 ---@alias effect_element_type string see effects.toml
 ---@alias effect_type string see effects.toml
 ---@alias spell_type string see magic.cfg
+---@alias slab_type string see terrain.cfg
 
 
 
@@ -87,7 +88,6 @@
 ---...
 
 
-
 ---@class Pos3d
 ---@field val_x integer full value 256 more then stl version
 ---@field val_y integer full value 256 more then stl version
@@ -97,12 +97,6 @@
 ---@field stl_z integer value in subtiles not including pos within subtile
 local Pos3d = {}
 
----@class Camera
----@field pos Pos3d
----@field yaw   integer 
----@field pitch integer b
----@field roll  integer
-local Camera = {}
 
 ---@class Player: creaturefields,roomfields
 ---@field private name string
@@ -961,6 +955,28 @@ function SET_DIGGER(player,creature) end
 --functions only available in lua
 -------------------------------------------------------
 
+
+
+---runs a command trough the engine of the old dkscript, most commands are reimplemented in lua, so generally not needed
+---@param command string the command to run
+function RunDKScriptCommand(command) end
+
+
+
+---comment
+---@param player Player
+---@param action_point actionpoint
+---@return boolean
+---@nodiscard
+function isActionPointActivatedByPlayer(player,action_point) return true end
+
+-------------------------------------------------------
+--Thing Functions
+-------------------------------------------------------
+
+----fetching things---
+
+
 ---returns a list containing all things of a certain class
 ---@param class thing_class
 ---@return Thing[] | Creature[]
@@ -975,10 +991,6 @@ function getThingsOfClass(class) end
 ---@nodiscard
 function getCreatureByCriterion(player,creature_type,criterion) return Creature end
 
----runs a command trough the engine of the old dkscript, most commands are reimplemented in lua, so generally not needed
----@param command string the command to run
-function RunDKScriptCommand(command) end
-
 ---returns a creature close to the given coordinates
 ---@param stl_x integer
 ---@param stl_y integer
@@ -992,16 +1004,8 @@ function GetCreatureNear(stl_x,stl_y) end
 ---@nodiscard
 function getThingByIdx(index) end
 
----comment
----@param player Player
----@param action_point actionpoint
----@return boolean
----@nodiscard
-function isActionPointActivatedByPlayer(player,action_point) return true end
 
--------------------------------------------------------
---Thing Functions
--------------------------------------------------------
+
 
 ---checks wether the given thing still exists
 function Thing:isValid() end
@@ -1041,8 +1045,26 @@ function CHANGE_CREATURE_OWNER(creature,new_owner) end
 ---@param annoyance integer
 function CHANGE_CREATURES_ANNOYANCE(player,creature,operation,annoyance) end
 
----Levels up all creatures of a specific kind for the player.
----@param player playerrange The name of the player who gets leveled up creatures, e.g. PLAYER1.
----@param creature creature_type Creature model that will level up. Accepts 'ANY_CREATURE'.
----@param count integer The amount of times the creature levels up. Accepts negative values to level down.
-function LEVEL_UP_PLAYERS_CREATURES(player,creature,count) end
+
+
+-------------------------------------------------------
+--Slabs Functions
+-------------------------------------------------------
+
+
+---@class slab
+---@field slb_x integer
+---@field slb_y integer
+---@field owner Player
+---@field type slab_type
+---@field style integer
+
+
+
+---comment
+---@param slb_x any
+---@param slb_y any
+---@return slab
+function GetSlab(slb_x,slb_y) return {} end
+
+

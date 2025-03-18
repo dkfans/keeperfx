@@ -178,26 +178,26 @@ static int thing_set_field(lua_State *L) {
 
 // Function to get field values
 static int thing_get_field(lua_State *L) {
-
     const char* key = luaL_checkstring(L, 2);
 
-    // Check if the key exists in thing_methods
+    // Check if the key exists in thing_methods (C functions)
     for (int i = 0; thing_methods[i].name != NULL; i++) {
         if (strcmp(key, thing_methods[i].name) == 0) {
-            // If the key exists in thing_methods, call the corresponding function
             lua_pushcfunction(L, thing_methods[i].func);
             return 1;
         }
     }
-    
+
+    // Get the Thing object
     struct Thing* thing = luaL_checkThing(L, 1);
 
+    // Check known fields (direct fields of the Thing struct)
     if (strcmp(key, "ThingIndex") == 0) {
         lua_pushinteger(L, thing->index);
     } else if (strcmp(key, "creation_turn") == 0) {
         lua_pushinteger(L, thing->creation_turn);
     } else if (strcmp(key, "model") == 0) {
-        lua_pushstring(L,thing_model_only_name(thing->class_id,thing->model));
+        lua_pushstring(L, thing_model_only_name(thing->class_id, thing->model));
     } else if (strcmp(key, "owner") == 0) {
         lua_pushPlayer(L, thing->owner);
     } else if (strcmp(key, "pos") == 0) {
@@ -205,12 +205,39 @@ static int thing_get_field(lua_State *L) {
     } else if (strcmp(key, "orientation") == 0) {
         lua_pushinteger(L, thing->move_angle_xy);
     } else {
-        lua_pushnil(L);
+        // Check if the key exists in the metatable's __methods table (Lua functions)
+        lua_getmetatable(L, 1);             // Get metatable
+        lua_getfield(L, -1, "__methods");   // Get the __methods table
+        if (lua_istable(L, -1)) {
+            lua_getfield(L, -1, key);  // Try to get the key from __methods
+            if (!lua_isnil(L, -1)) {
+                lua_remove(L, -2);  // Remove __methods table, leaving the function
+                return 1;
+            }
+        }
+        lua_pop(L, 2); // Pop metatable and __methods table (or nil)
+
+        // If not found in __methods, check the table directly (standard field lookup)
+        lua_getfield(L, 1, key);
+        if (lua_isnil(L, -1)) {
+            // If key is not found, check if __index is defined in the metatable
+            lua_getmetatable(L, 1);  // Push metatable again
+            lua_getfield(L, -1, "__index");  // Check for __index
+            if (lua_istable(L, -1)) {
+                // If __index is a table, attempt to access the key in __index
+                lua_getfield(L, -1, key);
+                if (!lua_isnil(L, -1)) {
+                    lua_remove(L, -2);  // Remove __index
+                    return 1;
+                }
+            }
+            lua_pop(L, 2);  // Pop metatable and __index (or nil)
+        }
     }
 
     return 1;
-
 }
+
 
 static int thing_eq(lua_State *L) {
 

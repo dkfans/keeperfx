@@ -10,22 +10,78 @@
 
 require "debug"
 
---- @param func function|string
-local function validatefunc(func)
-    if type(func) == "function" then
-        if debug.getupvalue(func, 1) ~= nil then
-            local n, v = debug.getupvalue(func, 1)
-            error("upvalue " .. n .. " found, functions may not contain upvalues, avoid accessing vars local to the file, alternatively pass function name as a string")
-        end
 
-    elseif type(func) == "string" then
-        if _G[func] == nil then
-            error("function '" .. func .."' not found, make sure it is defined globally")
-        end
-    else
-        error("param not a function but " .. type(func))
+-- Check for environment consistency, skipping 'Game' table if loaded beforehand
+local function checkFunctionEnvironment(func)
+    local env = getfenv(func)
+    
+    if _G.LuaFileLoaded then
+        -- If the Lua file was already loaded, skip checks for already-safe globals like 'Game'
+        return
     end
 
+    for k, v in pairs(env) do
+        if k == "Game" then
+            -- Skip checks for Game, assuming it's properly initialized
+            return
+        end
+        
+        if type(v) == "table" or type(v) == "function" then
+            error("Function uses mutable object in its environment, which may cause issues during serialization.")
+        end
+    end
+end
+
+-- Check if the function relies on a specific environment (e.g., game state)
+local function validateClosure(func)
+    if type(func) == "function" then
+        -- Check if function has upvalues
+        local upvalues = {}
+        local i = 1
+        while true do
+            local name, value = debug.getupvalue(func, i)
+            if not name then break end
+            table.insert(upvalues, {name = name, value = value})
+            i = i + 1
+        end
+
+        -- If any upvalue is not nil, then the function might be problematic
+        for _, upvalue in ipairs(upvalues) do
+            if type(upvalue.value) == "table" or type(upvalue.value) == "function" then
+                -- The function might be relying on a mutable object, potentially problematic during serialization
+                error("Function has upvalue '" .. upvalue.name .. "' which may cause issues during serialization.")
+            end
+        end
+    end
+end
+
+function getFunctionName(func)
+    local info = debug.getinfo(func, "n")
+    return info and info.name or "<anonymous>"
+end
+
+--- @param func function|string
+local function validatefunc(func)
+    --complex function are hard to serialize, so simply store the name if they're global, 
+    --anonymous ones tend to be simpler, so we can store them as is
+    if type(func) == "function" then
+        local fname = getFunctionName(func)
+        if fname == "<anonymous>" then
+            validateClosure(func)
+            return func
+        elseif _G[fname] == nil then
+             error("Function '" .. fname .. "' not found, make sure it is either defined globally or anonymously")
+        else
+            return fname
+        end
+    elseif type(func) == "string" then
+        if _G[func] == nil then
+            error("Function '" .. func .. "' not found, make sure it is defined globally")
+        end
+        return func
+    else
+        error("Param not a function but " .. type(func))
+    end
 end
 
 --- Creates a new trigger and returns it
@@ -34,7 +90,7 @@ end
 ---@param triggerData? table
 ---@return table
 function CreateTrigger(event,action,triggerData)
-    validatefunc(action)
+    action = validatefunc(action)
     Game.triggers = Game.triggers or {}
     local trigger = { event = event, conditions = {}, action = action, triggerData = triggerData }
     table.insert(Game.triggers, trigger)
@@ -45,7 +101,7 @@ end
 --- @param trigger Trigger
 --- @param condition function|string Function that returns true or false
 function TriggerAddCondition(trigger, condition)
-    validatefunc(condition)
+    condition = validatefunc(condition)
     trigger.conditions = trigger.conditions or {}
     table.insert(trigger.conditions, condition)
 end
@@ -193,7 +249,7 @@ end
 ---@param action function|string the function to call when the event happens
 ---@param SpecialBoxId? integer
 ---@return Trigger
-function RegisterSpecialActivatedEvent(action,SpecialBoxId)
+function RegisterSpecialActivatedEvent(action,SpecialBoxId, actionParams)
     local trigData = {SpecialBoxId = SpecialBoxId}
     local trigger = CreateTrigger("SpecialActivated",action,trigData)
     if SpecialBoxId then
@@ -206,9 +262,10 @@ end
 ---@param action function|string the function to call when the event happens
 ---@param time integer amount of gameticks (1/20 s)
 ---@param periodic boolean whether the trigger should activate once, or repeat every 'time' gameticks
+---@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return Trigger
-function RegisterTimerEvent(action, time, periodic)
-    local trigData = {creationTurn = PLAYER0.GAME_TURN, time = time}
+function RegisterTimerEvent(action, time, periodic, actionParams)
+    local trigData = {creationTurn = PLAYER0.GAME_TURN, time = time, actionParams = actionParams}
     local trigger = CreateTrigger("GameTick",action,trigData)
     if periodic then
         TriggerAddCondition(trigger, function(eventData,triggerData) return ((eventData.CurrentTurn ~= triggerData.creationTurn) and (eventData.CurrentTurn - triggerData.creationTurn) % triggerData.time == 0) end)
@@ -222,8 +279,9 @@ end
 ---triggers once as soon as the given condition evaluates to true, checked once per gametick
 ---@param action function|string the function to call when the event happens
 ---@param condition function|string the condition that needs to be true for the action to be triggered
+---@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return Trigger
-function RegisterOnConditionEvent(action, condition)
+function RegisterOnConditionEvent(action, condition, actionParams)
     local trigData = {destroyAfterUse = true}
     local trigger = CreateTrigger("GameTick",action,trigData)
     TriggerAddCondition(trigger, condition)
@@ -232,8 +290,9 @@ end
 
 ---@param action function|string the function to call when the event happens
 ---@param powerKind? power_kind the spell type that triggers the event
+---@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return Trigger
-function RegisterPowerCastEvent(action,powerKind)
+function RegisterPowerCastEvent(action,powerKind, actionParams)
     local trigData = {PowerKind = powerKind}
     local trigger = CreateTrigger("PowerCast",action,trigData)
     if powerKind then
@@ -244,8 +303,9 @@ end
 
 ---@param action function|string the function to call when the event happens
 ---@param player Player the function to call when the event happens
+---@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return Trigger
-function RegisterDungeonDestroyedEvent(action,player)
+function RegisterDungeonDestroyedEvent(action, player, actionParams)
     local trigData = {Player = player}
     local trigger = CreateTrigger("OnGameLost",action,trigData)
     if player then
@@ -254,9 +314,18 @@ function RegisterDungeonDestroyedEvent(action,player)
     return trigger
 end
 
-function RegisterTrapPlacedEvent(action)
-    local trigData = {}
+---comment
+---@param action function|string the function to call when the event happens
+---@param player Player|nil the player who placed the trap (nil for any player)
+---@param trapType trap_type|nil the kind of trap that was placed (nil for any trap)
+---@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
+---@return table
+function RegisterTrapPlacedEvent(action, player, trapType, actionParams)
+    local trigData = {Player = player, trapType = trapType}
+
+
     local trigger = CreateTrigger("TrapPlaced",action,trigData)
+    TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.Trap.model == triggerData.TrapKind end)
     return trigger
     
 end

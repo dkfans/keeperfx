@@ -1,5 +1,5 @@
 --[[
-Copyright (c) 2020, Jasmijn Wellner
+Copyright (c) 2020-2024, Jasmijn Wellner
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
@@ -14,7 +14,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ]]
 
-local VERSION = '1.1'
+local VERSION = '1.2'
 
 local floor = math.floor
 local pairs = pairs
@@ -32,6 +32,7 @@ local writable_buf = nil
 local writable_buf_size = nil
 local includeMetatables = true -- togglable with bitser.includeMetatables(false)
 local SEEN_LEN = {}
+local NOT_YET_INITIALIZED = {}
 
 local function Buffer_prereserve(min_size)
 	if buf_size < min_size then
@@ -78,8 +79,10 @@ local function Buffer_newDataReader(data, size)
 end
 
 local function Buffer_reserve(additional_size)
-	while buf_pos + additional_size > buf_size do
-		buf_size = buf_size * 2
+	if buf_pos + additional_size > buf_size then
+		repeat
+			buf_size = buf_size * 2
+		until buf_pos + additional_size <= buf_size
 		local oldbuf = buf
 		buf = ffi.new("uint8_t[?]", buf_size)
 		buf_is_writable = true
@@ -143,6 +146,12 @@ local class_registry = {}
 local class_name_registry = {}
 local classkey_registry = {}
 local class_deserialize_registry = {}
+local extension_registry = {}
+local extensions_by_type = {}
+local EXTENSION_TYPE_KEY = 'bitser-type'
+local EXTENSION_MATCH_KEY = 'bitser-match'
+local EXTENSION_LOAD_KEY = 'bitser-load'
+local EXTENSION_DUMP_KEY = 'bitser-dump'
 
 local serialize_value
 
@@ -188,74 +197,71 @@ local function write_boolean(value, _)
 end
 
 local function write_table(value, seen)
-	local classkey
-	local metatable = getmetatable(value)
-	local classname = (class_name_registry[value.class] -- MiddleClass
-		or class_name_registry[value.__baseclass] -- SECL
-		or class_name_registry[metatable] -- hump.class
-		or class_name_registry[value.__class__] -- Slither
-		or class_name_registry[value.__class]) -- Moonscript class
-	if classname then
-		classkey = classkey_registry[classname]
-		Buffer_write_byte(242)
-		serialize_value(classname, seen)
-	elseif includeMetatables and metatable then
-		Buffer_write_byte(253)
-	else
-		Buffer_write_byte(240)
-	end
-	local len = #value
-	write_number(len, seen)
-	for i = 1, len do
-		serialize_value(value[i], seen)
-	end
-	local klen = 0
-	for k in pairs(value) do
-		if (type(k) ~= 'number' or floor(k) ~= k or k > len or k < 1) and k ~= classkey then
-			klen = klen + 1
-		end
-	end
-	write_number(klen, seen)
-	for k, v in pairs(value) do
-		if (type(k) ~= 'number' or floor(k) ~= k or k > len or k < 1) and k ~= classkey then
-			serialize_value(k, seen)
-			serialize_value(v, seen)
-		end
-	end
-	if includeMetatables and metatable and not classname then
-		serialize_value(metatable, seen)
-	end
+    local classkey
+    local metatable
+    local classname = class_name_registry[rawget(value,"__class")]
+
+    if classname then
+        classkey = classkey_registry[classname]
+        Buffer_write_byte(242)
+        serialize_value(classname, seen)
+    elseif includeMetatables then
+        metatable = getmetatable(value)
+        if metatable then
+            Buffer_write_byte(253)
+        else
+            Buffer_write_byte(240)
+        end
+    else
+        Buffer_write_byte(240)
+    end
+
+    local len = #value
+    write_number(len, seen)
+    for i = 1, len do
+        serialize_value(value[i], seen)
+    end
+
+    -- Serialize keys
+    local klen = 0
+    for k in pairs(value) do
+        if (type(k) ~= 'number' or floor(k) ~= k or k > len or k < 1) and k ~= classkey then
+            klen = klen + 1
+            -- Debugging the key type and value
+            if k == nil then
+                error("ERROR: Serializing a table with nil key!")
+            end
+            print("Serializing key:", k, "Type:", type(k))
+        end
+    end
+    write_number(klen, seen)
+
+    -- Now serialize the actual keys and values
+    for k, v in pairs(value) do
+        if (type(k) ~= 'number' or floor(k) ~= k or k > len or k < 1) and k ~= classkey then
+            serialize_value(k, seen)
+            serialize_value(v, seen)
+        end
+    end
+
+    -- Serialize metatables if needed
+    if includeMetatables and not classname and metatable then
+        serialize_value(metatable, seen)
+    end
 end
 
-local function write_cdata(value, seen)
-	local ty = ffi.typeof(value)
-	if ty == value then
-		-- ctype
-		Buffer_write_byte(251)
-		serialize_value(tostring(ty):sub(7, -2), seen)
-		return
-	end
-	-- cdata
-	Buffer_write_byte(252)
-	serialize_value(ty, seen)
-	local len = ffi.sizeof(value)
-	write_number(len)
-	Buffer_write_raw(ffi.typeof('$[1]', ty)(value), len)
+local function write_function(value, seen)
+	print("write_function", value)
+    seen[value] = seen[SEEN_LEN]
+    seen[SEEN_LEN] = seen[SEEN_LEN] + 1
+    Buffer_write_byte(251)  -- Assign a new byte marker for functions
+    serialize_value(string.dump(value), seen)
 end
 
-local function write_function(value)
-       local str = string.dump(value)
-       Buffer_write_byte(254)
-       write_number(#str)
-       Buffer_write_string(str)
-end
+local types = {number = write_number, string = write_string, table = write_table, boolean = write_boolean, ["nil"] = write_nil, ["function"]  = write_function}
 
-local types = {number = write_number, string = write_string, table = write_table, boolean = write_boolean, ["nil"] = write_nil, cdata = write_cdata, ['function'] = write_function}
- 
+
 serialize_value = function(value, seen)
-
-	
-	print(tostring(value))
 	if seen[value] then
 		local ref = seen[value]
 		if ref < 64 then
@@ -286,6 +292,17 @@ serialize_value = function(value, seen)
 		end
 		return
 	end
+	if extensions_by_type[t] then
+		for extension_id, extension in pairs(extensions_by_type[t]) do
+			if extension[EXTENSION_MATCH_KEY](value) then
+				-- extension
+				Buffer_write_byte(254)
+				serialize_value(extension_id, seen)
+				serialize_value(extension[EXTENSION_DUMP_KEY](value), seen)
+				return
+			end
+		end
+	end
 	(types[t] or
 		error("cannot serialize type " .. t)
 		)(value, seen)
@@ -303,8 +320,16 @@ local function add_to_seen(value, seen)
 end
 
 local function reserve_seen(seen)
-	insert(seen, 42)
+	insert(seen, NOT_YET_INITIALIZED)
 	return #seen
+end
+
+local function get_from_seen(seen, idx)
+	local value = seen[idx]
+	if value == NOT_YET_INITIALIZED then
+		error('trying to deserialize a value that has not yet been initialized')
+	end
+	return value
 end
 
 local function deserialize_value(seen)
@@ -314,7 +339,7 @@ local function deserialize_value(seen)
 		return t - 27
 	elseif t < 192 then
 		--small reference
-		return seen[t - 127]
+		return get_from_seen(seen, t - 127)
 	elseif t < 224 then
 		--small string
 		return add_to_seen(Buffer_read_string(t - 192), seen)
@@ -345,7 +370,7 @@ local function deserialize_value(seen)
 		local value = resource_registry[deserialize_value(seen)]
 		seen[idx] = value
 		return value
-	elseif t == 242 then
+	elseif t == 242 then --class table
 		--instance
 		local instance = add_to_seen({}, seen)
 		local classname = deserialize_value(seen)
@@ -359,15 +384,25 @@ local function deserialize_value(seen)
 		len = deserialize_value(seen)
 		for _ = 1, len do
 			local key = deserialize_value(seen)
-			instance[key] = deserialize_value(seen)
+			if key ~= nil then
+				instance[key] = deserialize_value(seen)
+			else
+				print("key is nil ")
+			end
+
 		end
 		if classkey then
 			instance[classkey] = class
 		end
-		return deserializer(instance, class)
+		if deserializer then
+			deserializer(instance, class)
+		else
+			print("deserializer is nil for class ")
+		end
+		return instance
 	elseif t == 243 then
 		--reference
-		return seen[deserialize_value(seen) + 1]
+		return get_from_seen(seen, deserialize_value(seen) + 1)
 	elseif t == 244 then
 		--long string
 		return add_to_seen(Buffer_read_string(deserialize_value(seen)), seen)
@@ -390,18 +425,21 @@ local function deserialize_value(seen)
 		--short int
 		return Buffer_read_data("int16_t[1]", 2)[0]
 	elseif t == 251 then
-		--ctype
-		return ffi.typeof(deserialize_value(seen))
-	elseif t == 252 then
-		local ctype = deserialize_value(seen)
-		local len = deserialize_value(seen)
-		local read_into = ffi.typeof('$[1]', ctype)()
-		Buffer_read_raw(read_into, len)
-		return ctype(read_into[0])
-    elseif t == 254 then
-        local len = deserialize_value(seen)
-        local string = Buffer_read_string(len)
-        return add_to_seen(load(string), seen)
+		-- Function
+		local dumped = deserialize_value(seen)
+		local func, err = load(dumped)
+		if not func then
+			error("Failed to deserialize function: " .. err)
+		end
+		return add_to_seen(func, seen)
+	elseif t == 254 then
+		--extension
+		local extension_id = deserialize_value(seen)
+		return extension_registry[extension_id][EXTENSION_LOAD_KEY](deserialize_value(seen))
+	elseif t == 255 then
+		--additional types
+		local type_id = deserialize_value(seen)
+		error("unsupported serialized type 255+" .. type_id)
 	else
 		error("unsupported serialized type " .. t)
 	end
@@ -507,4 +545,16 @@ end, unregisterClass = function(name)
 	classkey_registry[name] = nil
 	class_deserialize_registry[name] = nil
 	class_registry[name] = nil
+end, registerExtension = function(extension_id, extension)
+	assert(not extension_registry[extension_id], 'extension with id ' .. extension_id .. ' already registered')
+	local ty = extension[EXTENSION_TYPE_KEY]
+	assert(type(ty) == 'string' and type(extension[EXTENSION_MATCH_KEY]) == 'function' and type(extension[EXTENSION_LOAD_KEY]) == 'function' and type(extension[EXTENSION_DUMP_KEY]) == 'function', 'not a valid extension')
+	extension_registry[extension_id] = extension
+	if not extensions_by_type[ty] then
+		extensions_by_type[ty] = {}
+	end
+	extensions_by_type[ty][extension_id] = extension
+end, unregisterExtension = function(extension_id)
+	extensions_by_type[extension_registry[extension_id][EXTENSION_TYPE_KEY]][extension_id] = nil
+	extension_registry[extension_id] = nil
 end, reserveBuffer = Buffer_prereserve, clearBuffer = Buffer_clear, version = VERSION}

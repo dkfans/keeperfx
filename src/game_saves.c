@@ -296,7 +296,7 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
                 }
                 if (LbFileRead(fhandle, lua_data, hdr.len) == hdr.len) {
                     //has to be loaded here as level num only filled while gamestruct loaded, and need it for setting serialised_data
-                    open_lua_script(get_selected_level_number());
+                    open_lua_script(get_loaded_level_number());
 
                     lua_set_serialised_data(lua_data, hdr.len);
                     chunks_done |= SGF_LuaData;

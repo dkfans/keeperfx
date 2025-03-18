@@ -33,13 +33,18 @@ TbBool CheckLua(lua_State *L, int result,const char* func)
         const char *message = lua_tostring(L, -1);
         ERRORLOG("Lua error in %s: %s", func, message ? message : "Unknown error");
 
-        // Print full stack trace
-        luaL_traceback(L, L, NULL, 1);
-        const char *trace = lua_tostring(L, -1);
-        ERRORLOG("Stack trace:\n%s", trace ? trace : "No stack trace available");
-        lua_pop(L, 2); // Remove error message and traceback
+        if (message) {
+            luaL_traceback(L, L, NULL, 1);
+            const char *trace = lua_tostring(L, -1);
+            ERRORLOG("Stack trace:\n%s", trace ? trace : "No stack trace available");
+            lua_pop(L, 2); // Pop both message and traceback
+        } else {
+            lua_pop(L, 1); // Pop the non-existent error message
+        }
+
         if (exit_on_lua_error)
         {
+            ERRORLOG("Exiting due to Lua error");
             exit(EXIT_FAILURE);
         }
         return false;
@@ -160,11 +165,23 @@ static char* lua_serialized_data = NULL;
 
 const char* lua_get_serialised_data(size_t *len)
 {
-    lua_getglobal(Lvl_script, "GetSerializedData");
+    lua_getglobal(Lvl_script, "SafeCallGetSerializedData");
 	if (lua_isfunction(Lvl_script, -1))
 	{
+        JUSTLOG("calling GetSerializedData");
+        int result = lua_pcall(Lvl_script, 0, 1, 0);
+        JUSTLOG("lua_pcall result: %d", result);
+        if (!CheckLua(Lvl_script, result, "GetSerializedData")) {
+            ERRORLOG("Failed to call GetSerializedData");
+            return NULL;
+        }
 
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 1, 0),"GetSerializedData");
+        JUSTLOG("called GetSerializedData");
+        if (!lua_isstring(Lvl_script, -1)) {
+            ERRORLOG("Expected 'GetSerializedData' to return a string");
+            lua_pop(Lvl_script, 1);
+            return NULL;
+        }
 		const char *data = lua_tolstring(Lvl_script, -1, len);  // Get the result
         if (data) {
             lua_serialized_data = (char*)malloc(*len);

@@ -1637,8 +1637,11 @@ static int lua_get_creature_by_criterion(lua_State *L)
 
 static int lua_print(lua_State *L)
 {
+    //const char* msg = lua_tostring(L, 1);
+    //JUSTLOG("%s",msg);
+
     int nargs = lua_gettop(L);
-    char buffer[1024]; // Adjust size as needed
+    char buffer[16384]; // Adjust size as needed
     int offset = 0;
 
     for (int i = 1; i <= nargs; i++) {
