@@ -932,16 +932,32 @@ short load_configuration(void)
   install_info.field_9A = 0;
   // Set default runtime directory and load the config file
   strcpy(keeper_runtime_directory,".");
-  const char* sname;
+  // Config file variables
+  const char* sname; // Filename
+  const char* fname; // Filepath
+  // Check if custom config file is set '-config <file>'
   if (start_params.overrides[Clo_ConfigFile])
   {
-    sname = start_params.config_file;
+    // Check if config override contains either '\\' or '/'
+    // This means we'll use the absolute path to the config file
+    if (strchr(start_params.config_file, '\\') != NULL || strchr(start_params.config_file, '/') != NULL) {
+        // Get filename
+        const char *backslash = strrchr(start_params.config_file, '\\');
+        const char *slash = strrchr(start_params.config_file, '/');
+        const char *last_separator = backslash > slash ? backslash : slash;
+        sname = last_separator ? last_separator + 1 : start_params.config_file;
+        // Get filepath
+        fname = start_params.config_file; // Absolute path
+    } else {
+        sname = start_params.config_file;
+        fname = prepare_file_path(FGrp_Main, sname);
+    }
   }
   else
   {
     sname = keeper_config_file;
+    fname = prepare_file_path(FGrp_Main, sname);
   }
-  const char* fname = prepare_file_path(FGrp_Main, sname);
   long len = LbFileLengthRnc(fname);
   if (len < 2)
   {
