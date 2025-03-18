@@ -3300,7 +3300,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
             {
                 if (sectng->owner == game.neutral_player_num)
                 {
-                    output_message(SMsg_DiscoveredTrap, 0, true);
+                    output_message(SMsg_DiscoveredTrap, 0);
                 }
             }
         }
@@ -3316,7 +3316,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
             {
                 if (sectng->owner == game.neutral_player_num)
                 {
-                    output_message(SMsg_DiscoveredDoor, 0, true);
+                    output_message(SMsg_DiscoveredDoor, 0);
                 }
             }
         }

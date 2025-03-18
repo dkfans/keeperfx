@@ -334,38 +334,38 @@ static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dun
     unsigned long k = 0;
     long i = dungeon->digger_list_start;
     while (i != 0)
-	{
+    {
         struct Thing* thing = thing_get(i);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-		{
-			ERRORLOG("Jump to invalid creature detected");
-			break;
-		}
-		i = cctrl->players_next_creature_idx;
-		// Thing list loop body
-		if (cctrl->combat_flags == 0)
-		{
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (cctrl->combat_flags == 0)
+        {
             long state_type = get_creature_state_type(thing);
 
             if ((state_type == CrStTyp_Work)
-				&& (cctrl->digger.last_did_job == SDLstJob_DigOrMine)
-				&& is_digging_indestructible_place(thing))
-			{
-				SYNCDBG(18, "Indestructible valuables being dug by player %d", (int)dungeon->owner);
-				return true;
-			}
-		}
-		// Thing list loop body ends
-		k++;
-		if (k > CREATURES_COUNT)
-		{
-			ERRORLOG("Infinite loop detected when sweeping creatures list");
-			return false;
-		}
-	}
-	SYNCDBG(18, "Indestructible valuables NOT being dug by player %d", (int)dungeon->owner);
-	return false;
+                && (cctrl->digger.last_did_job == SDLstJob_DigOrMine)
+                && is_digging_indestructible_place(thing))
+            {
+                SYNCDBG(18, "Indestructible valuables being dug by player %d", (int)dungeon->owner);
+                return true;
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            return false;
+        }
+    }
+    SYNCDBG(18, "Indestructible valuables NOT being dug by player %d", (int)dungeon->owner);
+    return false;
 }
 
 /**
@@ -488,27 +488,27 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
     GoldAmount lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
     SYNCDBG(18, "Digger creation power price: %ld, lowest: %ld", power_price, lowest_price);
 
-	if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
-		&& computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
-	{
+    if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
+        && computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
+    {
         struct Thing* creatng = find_creature_for_sacrifice(comp, game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model);
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         if (!thing_is_invalid(creatng) && (cctrl->exp_level < 2))
-		{
-		    SYNCDBG(18, "Got digger to sacrifice, %s index %d owner %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
-	        if (creature_can_do_job_for_player(creatng, dungeon->owner, Job_TEMPLE_SACRIFICE, JobChk_None))
-	        {
-	            struct Coord3d pos;
-	            // Let's pretend a human does the drop here; computers normally should not be allowed to sacrifice
-	            if (get_drop_position_for_creature_job_in_dungeon(&pos, dungeon, creatng, Job_TEMPLE_SACRIFICE, JoKF_AssignHumanDrop))
-	            {
-	                if (create_task_move_creature_to_pos(comp, creatng, pos, get_initial_state_for_job(Job_TEMPLE_SACRIFICE))) {
-	                    return CTaskRet_Unk1;
-	                }
-	            }
-	        }
-		}
-	}
+        {
+            SYNCDBG(18, "Got digger to sacrifice, %s index %d owner %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+            if (creature_can_do_job_for_player(creatng, dungeon->owner, Job_TEMPLE_SACRIFICE, JobChk_None))
+            {
+                struct Coord3d pos;
+                // Let's pretend a human does the drop here; computers normally should not be allowed to sacrifice
+                if (get_drop_position_for_creature_job_in_dungeon(&pos, dungeon, creatng, Job_TEMPLE_SACRIFICE, JoKF_AssignHumanDrop))
+                {
+                    if (create_task_move_creature_to_pos(comp, creatng, pos, get_initial_state_for_job(Job_TEMPLE_SACRIFICE))) {
+                        return CTaskRet_Unk1;
+                    }
+                }
+            }
+        }
+    }
     return CTaskRet_Unk4;
 }
 
@@ -767,7 +767,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
         return CTaskRet_Unk4;
     }
     SYNCLOG("Player %d decided to attack %s owned by player %d",(int)dungeon->owner,room_code_name(room->kind),(int)room->owner);
-    output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), MESSAGE_DELAY_KEEPR_TAUNT, 1);
+    output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), MESSAGE_DURATION_KEEPR_TAUNT);
     return CTaskRet_Unk1;
 }
 

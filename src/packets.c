@@ -90,10 +90,7 @@
 #include "vidfade.h"
 #include "spdigger_stack.h"
 #include "frontmenu_ingame_map.h"
-
 #include "keeperfx.hpp"
-
-#include "music_player.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -288,13 +285,11 @@ void process_pause_packet(long curr_pause, long new_pause)
         if ((game.operation_flags & GOF_Paused) != 0)
         {
           SetSoundMasterVolume(settings.sound_volume >> 1);
-          SetMusicPlayerVolume(settings.redbook_volume >> 1);
-          SetMusicMasterVolume(settings.sound_volume >> 1);
+          set_music_volume(settings.music_volume >> 1);
         } else
         {
           SetSoundMasterVolume(settings.sound_volume);
-          SetMusicPlayerVolume(settings.redbook_volume);
-          SetMusicMasterVolume(settings.sound_volume);
+          set_music_volume(settings.music_volume);
         }
       }
       if ((game.operation_flags & GOF_Paused) != 0)
@@ -907,7 +902,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_PlyrFastMsg:
       //show_onscreen_msg(game.num_fps, "Message from player %d", plyr_idx);
-      output_message(SMsg_EnemyHarassments+pckt->actn_par1, 0, true);
+      output_message(SMsg_EnemyHarassments+pckt->actn_par1, 0);
       return 0;
   case PckA_SetComputerKind:
       set_autopilot_type(plyr_idx, pckt->actn_par1);

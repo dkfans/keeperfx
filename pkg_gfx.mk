@@ -122,6 +122,7 @@ pkg/data/swipe03.dat \
 pkg/data/swipe04.dat \
 pkg/data/swipe05.dat \
 pkg/data/swipe06.dat \
+pkg/data/swipe07.dat \
 pkg/data/gmap64.raw \
 pkg/data/gmap32.raw \
 pkg/data/gmapbug.dat
@@ -297,6 +298,7 @@ pkg/data/swipe03.dat: gfx/enginefx/swipes-32/filelist_scythlr.txt pkg/data/palet
 pkg/data/swipe04.dat: gfx/enginefx/swipes-32/filelist_sticklr.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/swipe05.dat: gfx/enginefx/swipes-32/filelist_stickrl.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/swipe06.dat: gfx/enginefx/swipes-32/filelist_clawsrl.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swipe07.dat: gfx/enginefx/swipes-32/filelist_teeth.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/frac%.raw:
 	-$(ECHO) 'Building RAW texture: $@'

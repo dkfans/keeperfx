@@ -520,7 +520,7 @@ short at_training_room(struct Thing *thing)
     if (!player_can_afford_to_train_creature(thing))
     {
         if (is_my_player_number(thing->owner))
-            output_message(SMsg_NoGoldToTrain, MESSAGE_DELAY_TREASURY, true);
+            output_message(SMsg_NoGoldToTrain, MESSAGE_DURATION_TREASURY);
         set_start_state(thing);
         return 0;
     }
@@ -559,7 +559,7 @@ CrStateRet training(struct Thing *thing)
     {
         SYNCDBG(19,"Ending training %s index %d; cannot afford",thing_model_name(thing),(int)thing->index);
         if (is_my_player_number(thing->owner))
-            output_message(SMsg_NoGoldToTrain, MESSAGE_DELAY_TREASURY, true);
+            output_message(SMsg_NoGoldToTrain, MESSAGE_DURATION_TREASURY);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrStRet_ResetFail;

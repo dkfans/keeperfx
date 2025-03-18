@@ -266,13 +266,13 @@ TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z)
     return true;
 }
 
-TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long fil1D, char ctype, long flags, long priority)
+TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long repeats, char ctype, long flags, long priority)
 {
     struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
-    return start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, fil1D, ctype, flags, priority) != 0;
+    return start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, repeats, ctype, flags, priority) != 0;
 }
 
-long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long fil1D, long flags, long priority)
+long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long repeats, long flags, long priority)
 {
     long eidx = allocate_free_sound_emitter();
     struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
@@ -284,7 +284,7 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, 
     emit->field_1 = flags;
     emit->curr_pitch = 100;
     emit->target_pitch = 100;
-    if (start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, fil1D, 3, flags, priority))
+    if (start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, repeats, 3, flags, priority))
         return eidx;
     delete_sound_emitter(eidx);
     return 0;
@@ -790,7 +790,7 @@ long speech_sample_playing(void)
          return false;
      }
      SYNCDBG(17,"Starting");
-     if (Mix_Playing(MESSAGE_CHANNEL))
+     if (Mix_Playing(MIX_SPEECH_CHANNEL))
      {
          return true;
      }

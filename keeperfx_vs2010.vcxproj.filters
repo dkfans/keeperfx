@@ -102,9 +102,6 @@
     <ClCompile Include="src\bflib_render_trig.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_sndlib.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_sound.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -372,9 +369,6 @@
     <ClCompile Include="src\gui_parchment.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gui_soundmsgs.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\gui_tooltips.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -412,9 +406,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\map_utils.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\music_player.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\net_game.c">
@@ -736,6 +727,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\magic_powers.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cdrom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui_soundmsgs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bflib_sndlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1187,9 +1187,6 @@
     <ClInclude Include="src\map_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\music_player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\net_game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1395,6 +1392,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\magic_powers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cdrom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

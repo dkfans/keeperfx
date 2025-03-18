@@ -74,7 +74,7 @@ void sound_reinit_after_load(void);
 void update_player_sounds(void);
 void process_3d_sounds(void);
 
-void thing_play_sample(struct Thing *, SoundSmplTblID, SoundPitch, char fil1D, unsigned char ctype, unsigned char flags, long priority, SoundVolume);
+void thing_play_sample(struct Thing *, SoundSmplTblID, SoundPitch, char repeats, unsigned char ctype, unsigned char flags, long priority, SoundVolume);
 void play_sound_if_close_to_receiver(struct Coord3d*, SoundSmplTblID);
 void stop_thing_playing_sample(struct Thing *, SoundSmplTblID smpl_idx);
 void play_thing_walking(struct Thing *thing);
@@ -84,7 +84,6 @@ TbBool ambient_sound_stop(void);
 struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 
 void mute_audio(TbBool mute);
-void pause_music(TbBool pause);
 
 void update_first_person_object_ambience(struct Thing *thing);
 

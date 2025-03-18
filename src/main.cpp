@@ -122,7 +122,6 @@
 #include "room_list.h"
 #include "steam_api.hpp"
 #include "game_loop.h"
-#include "music_player.h"
 #include "frontmenu_ingame_map.h"
 
 #ifdef FUNCTESTING
@@ -1175,9 +1174,8 @@ short setup_game(void)
           break;
       }
       set_gamma(settings.gamma_correction, 0);
-      SetMusicPlayerVolume(settings.redbook_volume);
+      set_music_volume(settings.music_volume);
       SetSoundMasterVolume(settings.sound_volume);
-      SetMusicMasterVolume(settings.sound_volume);
       setup_3d();
       setup_stuff();
       init_lookups();
@@ -1592,7 +1590,6 @@ void reinit_level_after_load(void)
     restore_room_update_functions_after_load();
     restore_computer_player_after_load();
     sound_reinit_after_load();
-    music_reinit_after_load();
     update_panel_colors();
     reset_postal_instance_cache();    
 }
@@ -1756,7 +1753,7 @@ void clear_game(void)
 {
     SYNCDBG(6,"Starting");
     clear_game_for_summary();
-    game.audiotrack = 0;
+    game.music_track = 0;
     clear_map();
     clear_computer();
     clear_script();
@@ -2295,7 +2292,7 @@ void process_payday(void)
     }
     if (game.conf.rules.game.pay_day_gap <= game.pay_day_progress)
     {
-        output_message(SMsg_Payday, 0, true);
+        output_message(SMsg_Payday, 0);
         game.pay_day_progress = 0;
         // Prepare a list which counts how many creatures of each owner needs pay
         int player_paid_creatures_count[PLAYERS_COUNT];
@@ -3801,8 +3798,7 @@ void game_loop(void)
       set_pointer_graphic_none();
       LbScreenClear(0);
       LbScreenSwap();
-      StopMusicPlayer();
-      free_custom_music();
+      stop_music();
       stop_streamed_samples();
       free_level_strings_data();
       turn_off_all_menus();
@@ -3821,7 +3817,6 @@ void game_loop(void)
       game.packet_save_enable = false;
     } // end while
 
-    ShutdownMusicPlayer();
     // Stop the movie recording if it's on
     if ((game.system_flags & GSF_CaptureMovie) != 0) {
         movie_record_stop();

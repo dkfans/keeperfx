@@ -1157,14 +1157,14 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrA
       if (is_my_player_number(fighter->owner))
       {
           if (is_my_player_number(enemy->owner)) {
-              output_message_far_from_thing(fighter,SMsg_FingthingFriends, MESSAGE_DELAY_FIGHT, 1);
+              output_message_far_from_thing(fighter,SMsg_FingthingFriends, MESSAGE_DURATION_FIGHT);
           } else {
-              output_message_far_from_thing(fighter,SMsg_CreatureAttacking, MESSAGE_DELAY_FIGHT, 1);
+              output_message_far_from_thing(fighter,SMsg_CreatureAttacking, MESSAGE_DURATION_FIGHT);
           }
       } else
       {
           if (is_my_player_number(enemy->owner)) {
-              output_message_far_from_thing(enemy,SMsg_CreatureDefending, MESSAGE_DELAY_FIGHT, 1);
+              output_message_far_from_thing(enemy,SMsg_CreatureDefending, MESSAGE_DURATION_FIGHT);
           }
       }
     }

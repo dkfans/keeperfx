@@ -629,7 +629,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
         {
             if (is_my_player(player) && !no_speech)
             {
-                output_message(specst->speech, 0, true);
+                output_message(specst->speech, 0);
             }
             create_used_effect_or_element(&pos, specst->effect_id, player->id_number, cratetng->index);
         }
@@ -652,7 +652,7 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
     {
         init_creature_level(creatng, exp_level);
         if (is_my_player_number(owner))
-          output_message(SMsg_CommonAcknowledge, 0, true);
+          output_message(SMsg_CommonAcknowledge, 0);
     }
     struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
     create_used_effect_or_element(&boxtng->mappos, specst->effect_id, owner, boxtng->index);
@@ -703,7 +703,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
         delete_thing_structure(boxtng, 0);
     }
     if (is_my_player_number(plyr_idx))
-      output_message(SMsg_CommonAcknowledge, 0, true);
+      output_message(SMsg_CommonAcknowledge, 0);
 }
 
 void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
@@ -715,7 +715,7 @@ void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
         {
             dungeon_special_selected = thing->index;
             transfer_creature_scroll_offset = 0;
-            output_message(SMsg_SpecTransfer, MESSAGE_DELAY_SPECIAL, true);
+            output_message(SMsg_SpecTransfer, MESSAGE_DURATION_SPECIAL);
             turn_off_menu(GMnu_DUNGEON_SPECIAL);
             turn_on_menu(GMnu_TRANSFER_CREATURE);
         }
@@ -731,7 +731,7 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
         {
           dungeon_special_selected = thing->index;
           resurrect_creature_scroll_offset = 0;
-          output_message(SMsg_SpecResurrect, MESSAGE_DELAY_SPECIAL, true);
+          output_message(SMsg_SpecResurrect, MESSAGE_DURATION_SPECIAL);
           turn_off_menu(GMnu_DUNGEON_SPECIAL);
           turn_on_menu(GMnu_RESURRECT_CREATURE);
         }

@@ -14,8 +14,8 @@
 #include "pre_inc.h"
 #include <math.h>
 #include <string.h>
-
 #include "bflib_sound.h"
+#include "bflib_sndlib.h"
 #include "config_effects.h"
 #include "config_lenses.h"
 #include "config_magic.h"
@@ -39,7 +39,6 @@
 #include "lvl_script_conditions.h"
 #include "lvl_script_lib.h"
 #include "map_blocks.h"
-#include "music_player.h"
 #include "player_instances.h"
 #include "player_utils.h"
 #include "power_hand.h"
@@ -547,19 +546,30 @@ const struct NamedCommand texture_pack_desc[] = {
 };
 
 // For dynamic strings
-static char* script_strdup(const char *src)
+static long script_strdup(const char *src)
 {
-    char *ret = gameadd.script.next_string;
-    int remain_len = sizeof(gameadd.script.strings) - (gameadd.script.next_string - gameadd.script.strings);
-    if (strlen(src) >= remain_len)
+    // TODO: add string deduplication to save space
+
+    const long offset = gameadd.script.next_string_offset;
+    const long remaining_size = sizeof(gameadd.script.strings) - offset;
+    const long string_size = strlen(src) + 1;
+    if (string_size >= remaining_size)
+    {
+        return -1;
+    }
+    memcpy(&gameadd.script.strings[offset], src, string_size);
+    gameadd.script.next_string_offset += string_size;
+    return offset;
+}
+
+static const char * script_strval(long offset)
+{
+    if (offset >= sizeof(gameadd.script.strings))
     {
         return NULL;
     }
-    strcpy(ret, src);
-    gameadd.script.next_string += strlen(src) + 1;
-    return ret;
+    return &gameadd.script.strings[offset];
 }
-
 
 /**
  * Modifies player's creatures' anger.
@@ -900,7 +910,7 @@ static void display_objective_process(struct ScriptContext *context)
 
 static void conceal_map_rect_check(const struct ScriptLine *scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     TbBool conceal_all = false;
 
     if (scline->np[5] == -1)
@@ -1139,20 +1149,21 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
     value->shorts[5] = scline->np[4];
     if (trapvar == 3) // SymbolSprites
     {
-        char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
-        // Pass two vars along as one merged val like: first\nsecond\m
-        strcpy(tmp, scline->tp[2]);
-        strcat(tmp, "|");
-        strcat(tmp,scline->tp[3]);
-        value->strs[2] = script_strdup(tmp); // first\0second
-        value->strs[2][strlen(scline->tp[2])] = 0;
-        free(tmp);
-        if (value->strs[2] == NULL)
+        value->longs[2] = script_strdup(scline->tp[2]);
+        if (value->longs[2] < 0)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
+        value->longs[3] = script_strdup(scline->tp[3]);
+        if (value->longs[3] < 0)
+        {
+            SCRPTERRLOG("Run out script strings space");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        SCRIPTDBG(7, "Setting trap %s property %s to %s, %s", trapname, scline->tp[1], scline->tp[2], scline->tp[3]);
     }
     else if (trapvar == 17) // EffectType
     {
@@ -1202,6 +1213,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
         value->shorts[2] = newvalue;
+        SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, scline->tp[1], value->shorts[2]);
     }
     else if (trapvar == 41) // DestroyedEffect
     {
@@ -1213,6 +1225,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
         value->ulongs[1] = newvalue;
+        SCRIPTDBG(7, "Setting trap %s property %s to %lu", trapname, scline->tp[1], value->ulongs[1]);
     }
     else if (trapvar == 46) // FlameAnimationOffset
     {
@@ -1220,6 +1233,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         value->shorts[4] = scline->np[3];
         value->shorts[5] = scline->np[4];
         value->shorts[6] = scline->np[5];
+        SCRIPTDBG(7, "Setting trap %s property %s to %ld, %d, %d, %d", trapname, scline->tp[1], value->longs[1], value->shorts[4], value->shorts[5], value->shorts[6]);
     }
     else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39) && (trapvar != 40))  // PointerSprites && AnimationIDs
     {
@@ -1233,6 +1247,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
                 return;
             }
             value->shorts[2] = newvalue;
+            SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, scline->tp[1], value->shorts[2]);
         }
         else if (trapvar == 6)
         {
@@ -1244,6 +1259,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
                 return;
             }
             value->ulongs[1] = newvalue;
+            SCRIPTDBG(7, "Setting trap %s property %s to %lu", trapname, scline->tp[1], value->ulongs[1]);
         }
         else
         {
@@ -1254,15 +1270,15 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
     }
     else
     {
-        value->strs[2] = script_strdup(scline->tp[2]);
-        if (value->strs[2] == NULL)
+        value->longs[2] = script_strdup(scline->tp[2]);
+        if (value->longs[2] < 0)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
+        SCRIPTDBG(7, "Setting trap %s property %s to %ld", trapname, scline->tp[1], value->longs[2]);
     }
-    SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, scline->tp[1], value->shorts[2]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -1298,19 +1314,18 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
     value->shorts[4] = scline->np[4];
     if (roomvar == 3) // SymbolSprites
     {
-        char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
-        // Pass two vars along as one merged val like: first\nsecond\m
-        strcpy(tmp, scline->tp[2]);
-        strcat(tmp, "|");
-        strcat(tmp,scline->tp[3]);
-        value->strs[2] = script_strdup(tmp); // first\0second
-        free(tmp);
-        if (value->strs[2] == NULL) {
+        value->longs[2] = script_strdup(scline->tp[2]);
+        if (value->longs[2] < 0) {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        value->strs[2][strlen(scline->tp[2])] = 0;
+        value->longs[3] = script_strdup(scline->tp[3]);
+        if (value->longs[3] < 0) {
+            SCRPTERRLOG("Run out script strings space");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
     else if (roomvar == 5) // PanelTabIndex
     {
@@ -1339,7 +1354,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             {
                 SCRPTERRLOG("Unknown CreatureCreation variable");
                 DEALLOCATE_SCRIPT_VALUE
-                    return;
+                return;
             }
         value->shorts[2] = newvalue;
     }
@@ -1350,7 +1365,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             {
                 SCRPTERRLOG("Unknown slab variable");
                 DEALLOCATE_SCRIPT_VALUE
-                    return;
+                return;
             }
         value->shorts[2] = newvalue;
     }
@@ -1374,7 +1389,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 {
                     SCRPTERRLOG("Unknown Properties variable");
                     DEALLOCATE_SCRIPT_VALUE
-                        return;
+                    return;
                 }
             value->shorts[2] = newvalue;
         }
@@ -1397,33 +1412,36 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             newvalue = get_id(room_roles_desc, valuestring);
             if (newvalue == -1)
                 {
-                    SCRPTERRLOG("Unknown Roles variable");
+                    SCRPTERRLOG("Unknown Roles variable '%s'", valuestring);
                     DEALLOCATE_SCRIPT_VALUE
-                        return;
+                    return;
                 }
             value->ulongs[1] = newvalue;
         }
-        if (parameter_is_number(valuestring2))
+        if (scline->tp[3][0] != '\0')
         {
-            newvalue2 = atoi(valuestring2);
-            if ((newvalue2 > 33554431) || (newvalue2 < 0))
+            if (parameter_is_number(valuestring2))
             {
-                SCRPTERRLOG("Value out of range: %ld", newvalue2);
-                DEALLOCATE_SCRIPT_VALUE
+                newvalue2 = atoi(valuestring2);
+                if ((newvalue2 > 33554431) || (newvalue2 < 0))
+                {
+                    SCRPTERRLOG("Value out of range: %ld", newvalue2);
+                    DEALLOCATE_SCRIPT_VALUE
                     return;
+                }
+                value->ulongs[2] = newvalue2;
             }
-            value->ulongs[2] = newvalue2;
-        }
-        else
-        {
-            newvalue2 = get_id(room_roles_desc, valuestring2);
-            if (newvalue2 == -1)
+            else
             {
-                SCRPTERRLOG("Unknown Roles variable");
-                DEALLOCATE_SCRIPT_VALUE
+                newvalue2 = get_id(room_roles_desc, valuestring2);
+                if (newvalue2 == -1)
+                {
+                    SCRPTERRLOG("Unknown Roles variable '%s'", valuestring2);
+                    DEALLOCATE_SCRIPT_VALUE
                     return;
+                }
+                value->ulongs[2] = newvalue2;
             }
-            value->ulongs[2] = newvalue2;
         }
     }
     else if (roomvar == 14) // TotalCapacity
@@ -1433,7 +1451,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             {
                 SCRPTERRLOG("Unknown TotalCapacity variable '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
-                    return;
+                return;
             }
         value->shorts[2] = newvalue;
     }
@@ -1444,7 +1462,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             {
                 SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
-                    return;
+                return;
             }
         value->shorts[2] = newvalue;
 
@@ -1453,7 +1471,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         {
             SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring2);
             DEALLOCATE_SCRIPT_VALUE
-                return;
+            return;
         }
         value->shorts[3] = newvalue2;
     }
@@ -1479,8 +1497,8 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
     }
     else // PointerSprites
     {
-        value->strs[2] = script_strdup(scline->tp[2]);
-        if (value->strs[2] == NULL)
+        value->longs[2] = script_strdup(scline->tp[2]);
+        if (value->longs[2] < 0)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
@@ -1804,18 +1822,13 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     short value3 = context->value->shorts[5];
     short value4 = context->value->shorts[6];
 
-    char *valuestr = context->value->strs[2];
-
-    if (property == 3)
-    {
-        value = get_icon_id(valuestr);
-        value2 = get_icon_id(valuestr + strlen(valuestr) + 1);
-    }else if (property == 4)
-    {
-        value = get_icon_id(valuestr);
-    }else if (property == 12 || property == 39 || property == 40 || property == 44)
-    {
-        value = get_anim_id_(valuestr);
+    if (property == 3) {
+        value = get_icon_id(script_strval(context->value->longs[2]));
+        value2 = get_icon_id(script_strval(context->value->longs[3]));
+    } else if (property == 4) {
+        value = get_icon_id(script_strval(context->value->longs[2]));
+    } else if (property == 12 || property == 39 || property == 40 || property == 44) {
+        value = get_anim_id_(script_strval(context->value->longs[2]));
     }
 
     script_set_trap_configuration(trap_type, property, value, value2, value3, value4);
@@ -1853,8 +1866,8 @@ static void set_room_configuration_process(struct ScriptContext *context)
         case 3: // SymbolSprites
             old_value = roomst->medsym_sprite_idx;
             old_value2 = roomst->bigsym_sprite_idx;
-            roomst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
-            roomst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
+            roomst->bigsym_sprite_idx = get_icon_id(script_strval(context->value->longs[2]));
+            roomst->medsym_sprite_idx = get_icon_id(script_strval(context->value->longs[3]));
             if ( (roomst->medsym_sprite_idx != old_value) || (roomst->bigsym_sprite_idx != old_value2) )
             {
                 update_room_tab_to_config();
@@ -1862,7 +1875,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
             break;
         case 4: // PointerSprites
             old_value = roomst->pointer_sprite_idx;
-            roomst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
+            roomst->pointer_sprite_idx = get_icon_id(script_strval(context->value->longs[2]));
             if (roomst->pointer_sprite_idx != old_value)
             {
                 update_room_tab_to_config();
@@ -1903,8 +1916,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
             break;
         case 13: // Roles
             roomst->roles = context->value->ulongs[1];
-            if (context->value->ulongs[2] > 0)
-                roomst->roles |= context->value->ulongs[2];
+            roomst->roles |= context->value->ulongs[2];
             break;
         case 14: // TotalCapacity
             roomst->update_total_capacity_idx = value;
@@ -2073,22 +2085,23 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
         }
         value->ulongs[1] = slab_id;
         value->shorts[4] = slab2_id;
+        SCRIPTDBG(7, "Setting door %s property %s to %lu,%d", doorname, scline->tp[1], value->ulongs[1], value->shorts[4]);
     }
     else if (doorvar == 4) // SymbolSprites
     {
-        char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
-        // Pass two vars along as one merged val like: first\nsecond\m
-        strcpy(tmp, scline->tp[2]);
-        strcat(tmp, "|");
-        strcat(tmp,scline->tp[3]);
-        value->strs[2] = script_strdup(tmp); // first\0second
-        free(tmp);
-        if (value->strs[2] == NULL) {
+        value->longs[2] = script_strdup(scline->tp[2]);
+        if (value->longs[2] < 0) {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        value->strs[2][strlen(scline->tp[2])] = 0;
+        value->longs[3] = script_strdup(scline->tp[3]);
+        if (value->longs[3] < 0) {
+            SCRPTERRLOG("Run out script strings space");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        SCRIPTDBG(7, "Setting door %s property %s to %s,%s", doorname, scline->tp[1], scline->tp[2], scline->tp[3]);
     }
     else if (doorvar != 5) // Not PointerSprites
     {
@@ -2102,6 +2115,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                 return;
             }
             value->ulongs[1] = newvalue;
+            SCRIPTDBG(7, "Setting door %s property %s to %lu", doorname, scline->tp[1], value->ulongs[1]);
         }
         else if (doorvar == 7) // Crate
         {
@@ -2113,6 +2127,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                 return;
             }
             value->ulongs[1] = newvalue;
+            SCRIPTDBG(7, "Setting door %s property %s to %lu", doorname, scline->tp[1], value->ulongs[1]);
         }
         else
         {
@@ -2123,15 +2138,15 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
     }
     else
     {
-        value->strs[2] = script_strdup(scline->tp[2]);
-        if (value->strs[2] == NULL)
+        value->longs[2] = script_strdup(scline->tp[2]);
+        if (value->longs[2] < 0)
         {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
+        SCRIPTDBG(7, "Setting door %s property %s to %ld", doorname, scline->tp[1], value->longs[1]);
     }
-    SCRIPTDBG(7, "Setting door %s property %s to %lu", doorname, scline->tp[1], value->ulongs[1]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2141,15 +2156,11 @@ static void set_door_configuration_process(struct ScriptContext *context)
     short property = context->value->shorts[1];
     short value = context->value->longs[1];
     short value2 = context->value->shorts[4];
-    const char* valuestr = context->value->strs[2];
-
-    if (property == 4)
-    {
-        value = get_icon_id(valuestr);
-        value2 = get_icon_id(valuestr + strlen(valuestr) + 1);
-    }else if (property == 5)
-    {
-        value = get_icon_id(valuestr);
+    if (property == 4) {
+        value = get_icon_id(script_strval(context->value->longs[2]));
+        value2 = get_icon_id(script_strval(context->value->longs[3]));
+    } else if (property == 5) {
+        value = get_icon_id(script_strval(context->value->longs[2]));
     }
 
     script_set_door_configuration(door_type,property, value, value2);
@@ -2269,7 +2280,7 @@ static void add_heart_health_process(struct ScriptContext *context)
                 event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index);
                 if (is_my_player_number(heartng->owner))
                 {
-                    output_message(SMsg_HeartUnderAttack, 400, true);
+                    output_message(SMsg_HeartUnderAttack, 400);
                 }
             }
         }
@@ -2647,14 +2658,14 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->strs[2] = script_strdup(new_value);
-            if (value->strs[2] == NULL)
+            value->longs[1] = number_value;
+            value->longs[2] = script_strdup(new_value);
+            if (value->longs[2] < 0)
             {
                 SCRPTERRLOG("Run out script strings space");
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->longs[1] = number_value;
             break;
         }
         case 18: // MapIcon
@@ -4290,8 +4301,8 @@ static void set_box_tooltip_check(const struct ScriptLine* scline)
     {
         SCRPTWRNLOG("Tooltip TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
     }
-    value->strs[2] = script_strdup(scline->tp[1]);
-    if (value->strs[2] == NULL)
+    value->longs[2] = script_strdup(scline->tp[1]);
+    if (value->longs[2] < 0)
     {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
@@ -4305,7 +4316,7 @@ static void set_box_tooltip_check(const struct ScriptLine* scline)
 static void set_box_tooltip_process(struct ScriptContext* context)
 {
     int idx = context->value->shorts[0];
-    snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", context->value->strs[2]);
+    snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", script_strval(context->value->longs[2]));
 }
 
 static void set_box_tooltip_id_check(const struct ScriptLine *scline)
@@ -5186,98 +5197,33 @@ static void set_texture_process(struct ScriptContext *context)
 static void set_music_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    if (parameter_is_number(scline->tp[0]))
-    {
+    if (parameter_is_number(scline->tp[0])) {
         value->chars[0] = atoi(scline->tp[0]);
-    }
-    else
-    {
-        if (IsRedbookMusicActive())
-        {
-            SCRPTWRNLOG("Level script wants to play custom track from disk, but game is playing music from CD.");
+    } else {
+        value->chars[0] = -1;
+        value->longs[1] = script_strdup(scline->tp[0]);
+        if (value->longs[1] < 0) {
+            SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        // See if a file with this name is already loaded, if so, reuse the same track
-        char* compare_fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
-        for (int i = max_track + 1; i <= game.last_audiotrack; i++)
-        {
-            if (strcmp(compare_fname, game.loaded_track[i]) == 0)
-            {
-                value->chars[0] = i;
-                PROCESS_SCRIPT_VALUE(scline->command);
-                return;
-            }
-        }
-        if ( (game.last_audiotrack < max_track) || (game.last_audiotrack >= MUSIC_TRACKS_COUNT) )
-        {
-            WARNLOG("Music track %d is out of range - resetting.", game.last_audiotrack);
-            game.last_audiotrack = max_track;
-        }
-        if (game.last_audiotrack < MUSIC_TRACKS_COUNT-1)
-        {
-            game.last_audiotrack++;
-        }
-        short tracknumber = game.last_audiotrack;
-
-        if (tracks[tracknumber] != NULL)
-        {
-            WARNLOG("Overwriting music track %d.", tracknumber);
-            Mix_FreeMusic(tracks[tracknumber]);
-        }
-        const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
-        snprintf(game.loaded_track[tracknumber], DISKPATH_SIZE, "%s", fname);
-        tracks[tracknumber] = Mix_LoadMUS(game.loaded_track[tracknumber]);
-        if (tracks[tracknumber] == NULL)
-        {
-            SCRPTERRLOG("Can't load track %d (%s): %s", tracknumber, game.loaded_track[tracknumber], Mix_GetError());
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        else
-        {
-            SCRPTLOG("Loaded file %s into music track %d.", game.loaded_track[tracknumber], tracknumber);
-        }
-        value->chars[0] = tracknumber;
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_music_process(struct ScriptContext *context)
 {
-
-    short track_number = context->value->chars[0];
-    if (track_number >= FIRST_TRACK && track_number <= MUSIC_TRACKS_COUNT) {
-        if (track_number != game.audiotrack) {
-            if (IsRedbookMusicActive()) {
-                SCRPTLOG("Setting music track to %d.", track_number);
-            } else {
-#if SDL_MIXER_VERSION_ATLEAST(2, 6, 0)
-                char info[255];
-                const char * title = Mix_GetMusicTitle(tracks[track_number]);
-                const char * artist = Mix_GetMusicArtistTag(tracks[track_number]);
-                const char * copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
-                if (strlen(artist) > 0 && strlen(copyright) > 0) {
-                    snprintf(info, sizeof(info), "%s by %s (%s)", title, artist, copyright);
-                } else if (strlen(artist) > 0) {
-                    snprintf(info, sizeof(info), "%s by %s", title, artist);
-                } else if (strlen(copyright) > 0) {
-                    snprintf(info, sizeof(info), "%s (%s)", title, copyright);
-                } else {
-                    snprintf(info, sizeof(info), "%s", title);
-                }
-                SCRPTLOG("Setting music track to %d: %s", track_number, info);
-#else
-                SCRPTLOG("Setting music track to %d.", track_number);
-#endif
-            }
-            game.audiotrack = track_number;
-        }
-    } else if (track_number == 0) {
-        game.audiotrack = track_number;
-        SCRPTLOG("Setting music track to %d: No Music", track_number);
+    short track = context->value->chars[0];
+    if (track == 0) {
+        SCRPTLOG("Stopping music");
+        stop_music();
+    } else if (track < 0) {
+        const char * fname = script_strval(context->value->longs[1]);
+        SCRPTLOG("Playing music from %s", fname);
+        play_music(prepare_file_fmtpath(FGrp_CmpgMedia, "%s", fname));
     } else {
-        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d or 0 to disable.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
+        SCRPTLOG("Playing music track %d", track);
+        play_music_track(track);
     }
 }
 
@@ -5299,8 +5245,8 @@ static void play_message_check(const struct ScriptLine *scline)
     else
     {
         value->bytes[4] = 1;
-        value->strs[2] = script_strdup(scline->tp[2]);
-        if (value->strs[2] == NULL) {
+        value->longs[2] = script_strdup(scline->tp[2]);
+        if (value->longs[2] < 0) {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
@@ -5321,7 +5267,7 @@ static void play_message_process(struct ScriptContext *context)
             {
                 case 1: // speech message
                 {
-                    output_message(context->value->shorts[1], 0, true);
+                    output_message(context->value->shorts[1], 0);
                     break;
                 }
                 case 2: // sound effect
@@ -5333,12 +5279,12 @@ static void play_message_process(struct ScriptContext *context)
         }
         else
         {
-            const char * filename = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", context->value->strs[2]);
+            const char * filename = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", script_strval(context->value->longs[2]));
             switch (msgtype_id)
             {
                 case 1: // speech message
                 {
-                    play_streamed_sample(filename, settings.mentor_volume);
+                    output_custom_message(filename, settings.mentor_volume);
                     break;
                 }
                 case 2: // sound effect
@@ -6777,8 +6723,8 @@ static void set_computer_process_check(const struct ScriptLine* scline)
     value->longs[3] = scline->np[4];
     value->longs[4] = scline->np[5];
     value->longs[5] = scline->np[6];
-    value->strs[6] = script_strdup(scline->tp[1]);
-    if (value->strs[6] == NULL) {
+    value->longs[6] = script_strdup(scline->tp[1]);
+    if (value->longs[6] < 0) {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
         return;
@@ -6790,7 +6736,7 @@ static void set_computer_process_process(struct ScriptContext* context)
 {
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
-    const char* procname = context->value->strs[6];
+    const char* procname = script_strval(context->value->longs[6]);
     long val1 = context->value->longs[1];
     long val2 = context->value->longs[2];
     long val3 = context->value->longs[3];
@@ -6851,8 +6797,8 @@ static void set_computer_checks_check(const struct ScriptLine* scline)
     value->longs[3] = scline->np[4];
     value->longs[4] = scline->np[5];
     value->longs[5] = scline->np[6];
-    value->strs[6] = script_strdup(scline->tp[1]);
-    if (value->strs[6] == NULL) {
+    value->longs[6] = script_strdup(scline->tp[1]);
+    if (value->longs[6] < 0) {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
         return;
@@ -6864,7 +6810,7 @@ static void set_computer_checks_process(struct ScriptContext* context)
 {
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
-    const char* chkname = context->value->strs[6];
+    const char* chkname = script_strval(context->value->longs[6]);
     long val1 = context->value->longs[1];
     long val2 = context->value->longs[2];
     long val3 = context->value->longs[3];
@@ -6930,8 +6876,8 @@ static void set_computer_event_check(const struct ScriptLine* scline)
     value->longs[3] = scline->np[4];
     value->longs[4] = scline->np[5];
     value->longs[5] = scline->np[6];
-    value->strs[6] = script_strdup(scline->tp[1]);
-    if (value->strs[6] == NULL) {
+    value->longs[6] = script_strdup(scline->tp[1]);
+    if (value->longs[6] < 0) {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
         return;
@@ -6943,7 +6889,7 @@ static void set_computer_event_process(struct ScriptContext* context)
 {
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
-    const char* evntname = context->value->strs[6];
+    const char* evntname = script_strval(context->value->longs[6]);
     long val1 = context->value->longs[1];
     long val2 = context->value->longs[2];
     long val3 = context->value->longs[3];

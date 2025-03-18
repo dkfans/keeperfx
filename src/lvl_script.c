@@ -1039,7 +1039,6 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
 short clear_script(void)
 {
     memset(&gameadd.script, 0, sizeof(struct LevelScript));
-    gameadd.script.next_string = gameadd.script.strings;
     set_script_current_condition(CONDITION_ALWAYS);
     text_line_number = 1;
     return true;
