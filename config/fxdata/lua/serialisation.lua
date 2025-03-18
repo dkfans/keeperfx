@@ -30,11 +30,3 @@ end
 bitser.registerClass("Player", "Player", "__class", DeserializePlayer)
 bitser.registerClass("Thing", "Thing", "__class", DeserializeThing)
 
-function SafeCallGetSerializedData()
-    local ok, result = pcall(GetSerializedData)
-    if not ok then
-        print("Lua caught error:")
-        return nil
-    end
-    return result
-end

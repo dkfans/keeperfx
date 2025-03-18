@@ -165,7 +165,7 @@ static char* lua_serialized_data = NULL;
 
 const char* lua_get_serialised_data(size_t *len)
 {
-    lua_getglobal(Lvl_script, "SafeCallGetSerializedData");
+    lua_getglobal(Lvl_script, "GetSerializedData");
 	if (lua_isfunction(Lvl_script, -1))
 	{
         JUSTLOG("calling GetSerializedData");
