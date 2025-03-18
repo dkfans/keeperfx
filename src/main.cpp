@@ -124,7 +124,6 @@
 #include "steam_api.hpp"
 #include "game_loop.h"
 #include "moonphase.h"
-#include "config_keeperfx.h"
 #include "frontmenu_ingame_map.h"
 
 #ifdef FUNCTESTING
