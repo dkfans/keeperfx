@@ -189,13 +189,14 @@ struct LongNamedCommand {
 
 struct NamedField {
     const char *name;
+    char argnum; //for fields that assign multiple values, -1 passes full string to assign function
     void* field;
     uchar type;
     int64_t min;
     int64_t max;
     struct NamedCommand *namedCommand;
-    void (*config_assign_func)(NamedField *field, int64_t value);
-    void (*script_assign_func)(NamedField *field, int64_t value);
+    void (*config_assign_func)(NamedField *field, char* value);
+    void (*script_assign_func)(NamedField *field, char* value);
 };
 
 struct InstallInfo {
