@@ -839,7 +839,15 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
 void process_payday_advances(GoldAmount salary, struct Thing *creatng, struct CreatureControl *cctrl, struct CreatureStats *crstat)
 {
     GoldAmount complete_cost = 0;
-    int paid = cctrl->paid_wage / salary;
+    short paid = cctrl->paid_wage / salary;
+    if(game.conf.rules.game.pocket_gold)
+    {
+        paid = creatng->creature.gold_carried / salary;
+        if(paid + cctrl->paydays_advanced > game.conf.rules.game.max_paydays_advanced)
+        {
+            paid = game.conf.rules.game.max_paydays_advanced - cctrl->paydays_advanced;
+        }
+    }
     //ensure that the number of advanced paydays does not exceed the maximum
     if (cctrl->paydays_advanced + paid > game.conf.rules.game.max_paydays_advanced)
     {
@@ -850,9 +858,13 @@ void process_payday_advances(GoldAmount salary, struct Thing *creatng, struct Cr
         cctrl->paydays_advanced += paid;
     }
     complete_cost = paid * salary;
-    // reduce the amount of gold for all paid advanced paydays
+    //reduce the amount of gold for all paid advanced paydays
+    //but only if we have enough paid_wage to not go under 0
+    if(cctrl->paid_wage >= complete_cost)
+    {
     cctrl->paid_wage -= complete_cost;
-     //if pocket rule is active, reduce the amount of gold in the pocket
+    }
+    //if pocket rule is active, reduce the amount of gold in the pocket
     if(game.conf.rules.game.pocket_gold)
     {
         creatng->creature.gold_carried -= complete_cost;
@@ -901,9 +913,6 @@ GoldAmount creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct T
         //add tribute to the gold carried by the creature
         if(game.conf.rules.game.pocket_gold){
            remainingTribute = handle_pocket_gold_rule(tribute, creatng, crstat, cctrl);
-
-            // paid_wage equals the amount of gold in the pocket
-            cctrl->paid_wage = creatng->creature.gold_carried;
         }
         // pocket rule deactivated
         else
@@ -912,7 +921,7 @@ GoldAmount creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct T
             cctrl->paid_wage += tribute;
         }
         // process the tribute during payday
-        if (during_payday && cctrl->paid_wage >= salary)
+        if (during_payday && creatng->creature.gold_carried >= salary)
         {
             // rule activated
             if(game.conf.rules.game.take_pay_from_pocket)
@@ -927,7 +936,7 @@ GoldAmount creature_get_handgold(GoldAmount salary, GoldAmount tribute, struct T
             process_payday_advances(salary, creatng, cctrl, crstat);
 
         }
-        else if (cctrl->paid_wage >= salary)
+        else if (creatng->creature.gold_carried >= salary)
         {
             process_payday_advances(salary, creatng, cctrl, crstat);
         }
@@ -1832,7 +1841,7 @@ void script_set_hand_rule(PlayerNumber plyr_idx, long crtr_id,long hand_rule_act
     long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
 
     struct Dungeon* dungeon;
-    
+
     for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
     {
 

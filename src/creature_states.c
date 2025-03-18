@@ -5066,7 +5066,14 @@ TbBool process_custom_salary(struct Thing *creatng)
     // Calculate the correct salary for the creature.
     GoldAmount salary = calculate_correct_creature_pay(creatng);
     // Subtract any already given gold from the salary
-    salary -= cctrl->paid_wage;
+    if (cctrl->paid_wage < salary)
+    {
+        salary -= cctrl->paid_wage;
+    }
+    else
+    {
+        cctrl->paid_wage -= salary;
+    }
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
         if(creatng->creature.gold_carried > 0)
         {
