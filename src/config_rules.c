@@ -302,40 +302,6 @@ TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
   return false;
 }
 
-TbBool parse_rules_block(const char *buf, long len, const char *config_textname, unsigned short flags,const char* blockname,
-                         const struct NamedField named_field[])
-{
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, blockname);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",blockname,config_textname);
-        return false;
-    }
-
-    while (pos<len)
-    {
-        // Finding command number in this line.
-        int assignresult = assign_conf_command_field(buf, &pos, len, named_field);
-        if( assignresult == ccr_ok || assignresult == ccr_comment )
-        {
-            skip_conf_to_next_line(buf,&pos,len);
-            continue;
-        }
-        else if( assignresult == ccr_unrecognised)
-        {
-            skip_conf_to_next_line(buf,&pos,len);
-            continue;
-        }
-        else if( assignresult == ccr_endOfBlock || assignresult == ccr_error || assignresult == ccr_endOfFile)
-        {
-            break;
-        }
-    }
-    return true;
-}
-
 long get_research_id(long item_type, const char *trg_name, const char *func_name)
 {
   long item_id;
@@ -682,13 +648,13 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
     TbBool result = (len > 0);
     // Parse blocks of the config file.
 
-    parse_rules_block(buf, len, textname, flags,"game",     rules_game_named_fields     );
-    parse_rules_block(buf, len, textname, flags,"creatures",rules_creatures_named_fields);
-    parse_rules_block(buf, len, textname, flags,"rooms",    rules_rooms_named_fields    );
-    parse_rules_block(buf, len, textname, flags,"magic",    rules_magic_named_fields    );
-    parse_rules_block(buf, len, textname, flags,"computer", rules_computer_named_fields );
-    parse_rules_block(buf, len, textname, flags,"workers",  rules_workers_named_fields  );
-    parse_rules_block(buf, len, textname, flags,"health",   rules_health_named_fields   );
+    parse_named_field_block(buf, len, textname, flags,"game",     rules_game_named_fields,     0);
+    parse_named_field_block(buf, len, textname, flags,"creatures",rules_creatures_named_fields,0);
+    parse_named_field_block(buf, len, textname, flags,"rooms",    rules_rooms_named_fields,    0);
+    parse_named_field_block(buf, len, textname, flags,"magic",    rules_magic_named_fields,    0);
+    parse_named_field_block(buf, len, textname, flags,"computer", rules_computer_named_fields, 0);
+    parse_named_field_block(buf, len, textname, flags,"workers",  rules_workers_named_fields,  0);
+    parse_named_field_block(buf, len, textname, flags,"health",   rules_health_named_fields,   0);
 
     if (result)
     {

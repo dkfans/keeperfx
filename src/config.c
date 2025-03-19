@@ -343,6 +343,15 @@ int64_t value_default(const struct NamedField* named_field, const char* value_te
     return 0;
 }
 
+int64_t value_name(const struct NamedField* named_field, const char* value_text)
+{
+    strncpy((char*)named_field->field, value_text, COMMAND_WORD_LEN - 1);
+    ((char*)named_field->field)[COMMAND_WORD_LEN - 1] = '\0';
+
+    return 0;
+}
+
+
 //expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
 int64_t value_flagsfield(const struct NamedField* named_field,const char* value_text)
 {
@@ -363,6 +372,7 @@ int64_t value_flagsfield(const struct NamedField* named_field,const char* value_
         else
           CONFWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
     }
+    JUSTLOG("value_flagsfield %s %s %I64d",named_field->name,value_text,value);
     return value;
 }
 
@@ -375,49 +385,54 @@ int64_t get_named_field_value(const struct NamedField* named_field, const char* 
     return 0;
 }
 
-int assign_named_field_value(const struct NamedField* named_field, int64_t value)
+int assign_named_field_value(const struct NamedField* named_field, int64_t value,size_t offset)
 {
+
+    void* field = (char*)named_field->field + offset;
     switch (named_field->type)
     {
     case dt_uchar:
-        *(unsigned char*)named_field->field = value;
+        *(unsigned char*)field = value;
         break;
     case dt_schar:
-        *(signed char*)named_field->field = value;
+        *(signed char*)field = value;
         break;
     case dt_short:
-        *(signed short*)named_field->field = value;
+        *(signed short*)field = value;
         break;
     case dt_ushort:
-        *(unsigned short*)named_field->field = value;
+        *(unsigned short*)field = value;
         break;
     case dt_int:
-        *(signed int*)named_field->field = value;
+        *(signed int*)field = value;
         break;
     case dt_uint:
-        *(unsigned int*)named_field->field = value;
+        *(unsigned int*)field = value;
         break;
     case dt_long:
-        *(signed long*)named_field->field = value;
+        *(signed long*)field = value;
         break;
     case dt_ulong:
-        *(unsigned long*)named_field->field = value;
+        *(unsigned long*)field = value;
         break;
     case dt_longlong:
-        *(signed long long*)named_field->field = value;
+        *(signed long long*)field = value;
         break;
     case dt_ulonglong:
-        *(unsigned long long*)named_field->field = value;
+        *(unsigned long long*)field = value;
         break;
     case dt_float:
-        *(float*)named_field->field = value;
+        *(float*)field = value;
         break;
     case dt_double:
-        *(double*)named_field->field = value;
+        *(double*)field = value;
         break;
     case dt_longdouble:
-        *(long double*)named_field->field = value;
+        *(long double*)field = value;
         break;
+    case dt_charptr:
+        //the name gets assigned where it still had the string
+        return ccr_ok;
     case dt_default:
     case dt_void:
     default:
@@ -442,7 +457,7 @@ int assign_named_field_value(const struct NamedField* named_field, int64_t value
  * If ccr_error        is returned, that means something went wrong.
  */
 
-int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField commands[])
+int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField commands[],size_t offset)
 {
     SYNCDBG(19,"Starting");
     if ((*pos) >= buflen) return -1;
@@ -495,7 +510,7 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
             int64_t k = 0;
             if (commands[i].argnum == -1)
             {
-                char line_buf[COMMAND_WORD_LEN];
+                char line_buf[LINEMSG_SIZE];
                 int line_len = 0;
                 
                 // Copy characters until newline or end of buffer
@@ -507,7 +522,7 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                     line_len++;
                     
                     // Prevent buffer overflow
-                    if (line_len >= COMMAND_WORD_LEN - 1)
+                    if (line_len >= LINEMSG_SIZE - 1)
                         break;
                 }
                 
@@ -528,11 +543,45 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                 }
             }
 
-            return assign_named_field_value(&commands[i],k);
+            return assign_named_field_value(&commands[i],k,offset);
         }
         i++;
     }
     return ccr_unrecognised;
+}
+
+TbBool parse_named_field_block(const char *buf, long len, const char *config_textname, unsigned short flags,const char* blockname,
+                         const struct NamedField named_field[],size_t offset)
+{
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, blockname);
+    if (k < 0)
+    {
+        if ((flags & CnfLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",blockname,config_textname);
+        return false;
+    }
+
+    while (pos<len)
+    {
+        // Finding command number in this line.
+        int assignresult = assign_conf_command_field(buf, &pos, len, named_field,offset);
+        if( assignresult == ccr_ok || assignresult == ccr_comment )
+        {
+            skip_conf_to_next_line(buf,&pos,len);
+            continue;
+        }
+        else if( assignresult == ccr_unrecognised)
+        {
+            skip_conf_to_next_line(buf,&pos,len);
+            continue;
+        }
+        else if( assignresult == ccr_endOfBlock || assignresult == ccr_error || assignresult == ccr_endOfFile)
+        {
+            break;
+        }
+    }
+    return true;
 }
 
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen)

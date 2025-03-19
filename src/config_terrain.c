@@ -44,26 +44,6 @@ const struct NamedCommand terrain_common_commands[] = {
   {NULL,              0},
 };
 
-const struct NamedCommand terrain_slab_commands[] = {
-  {"NAME",            1},
-  {"TOOLTIPTEXTID",   2},
-  {"BLOCKFLAGSHEIGHT",3},
-  {"BLOCKHEALTHINDEX",4},
-  {"BLOCKFLAGS",      5},
-  {"NOBLOCKFLAGS",    6},
-  {"FILLSTYLE",       7},
-  {"CATEGORY",        8},
-  {"SLBID",           9},
-  {"WIBBLE",         10},
-  {"ISSAFELAND",     11},
-  {"ISDIGGABLE",     12},
-  {"WLBTYPE",        13},
-  {"ANIMATED",       14},
-  {"ISOWNABLE",      15},
-  {"INDESTRUCTIBLE", 16},
-  {NULL,              0},
-};
-
 static const struct NamedCommand terrain_flags[] = {
     {"VALUABLE",          1},
     {"IS_ROOM",           2},
@@ -78,12 +58,12 @@ static const struct NamedCommand terrain_flags[] = {
 
 const struct NamedField terrain_slab_named_fields[] = {
     //name                //field                                                        //default      //min     //max    //NamedCommand
-    {"NAME",              0, field(game.conf.slab_conf.slab_cfgstats[0].code_name[0]),                  0, LONG_MIN,ULONG_MAX, slab_desc,     value_default},
+    {"NAME",              0, field(game.conf.slab_conf.slab_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, slab_desc,     value_name},
     {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.slab_cfgstats[0].tooltip_stridx),     GUIStr_Empty, LONG_MIN,ULONG_MAX, NULL,          value_default},
     {"BLOCKFLAGSHEIGHT",  0, field(game.conf.slab_conf.slab_cfgstats[0].block_flags_height),            0, LONG_MIN,ULONG_MAX, NULL,          value_default},
     {"BLOCKHEALTHINDEX",  0, field(game.conf.slab_conf.slab_cfgstats[0].block_health_index),            0, LONG_MIN,ULONG_MAX, NULL,          value_default},
-    {"BLOCKFLAGS",        0, field(game.conf.slab_conf.slab_cfgstats[0].block_flags),                   0, LONG_MIN,ULONG_MAX, terrain_flags, value_default},
-    {"NOBLOCKFLAGS",      0, field(game.conf.slab_conf.slab_cfgstats[0].noblck_flags),                  0, LONG_MIN,ULONG_MAX, terrain_flags, value_default},
+    {"BLOCKFLAGS",       -1, field(game.conf.slab_conf.slab_cfgstats[0].block_flags),                   0, LONG_MIN,ULONG_MAX, terrain_flags, value_flagsfield},
+    {"NOBLOCKFLAGS",     -1, field(game.conf.slab_conf.slab_cfgstats[0].noblck_flags),                  0, LONG_MIN,ULONG_MAX, terrain_flags, value_flagsfield},
     {"FILLSTYLE",         0, field(game.conf.slab_conf.slab_cfgstats[0].fill_style),                    0, LONG_MIN,ULONG_MAX, NULL,          value_default},
     {"CATEGORY",          0, field(game.conf.slab_conf.slab_cfgstats[0].category),                      0, LONG_MIN,ULONG_MAX, NULL,          value_default},
     {"SLBID",             0, field(game.conf.slab_conf.slab_cfgstats[0].slb_id),                        0, LONG_MIN,ULONG_MAX, NULL,          value_default},
@@ -332,7 +312,7 @@ TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textn
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            WARNMSG("ccBlock [%s] not found in %s file.",block_buf,config_textname);
         return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_common_commands,cmd_num)
@@ -430,109 +410,12 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
       } else if (i >= game.conf.slab_conf.slab_types_count) {
           game.conf.slab_conf.slab_types_count = i + 1;
       }
-      slabst = &game.conf.slab_conf.slab_cfgstats[i];
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_slab_commands,cmd_num)
-      while (pos<len)
-      {
-        // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,terrain_slab_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
-            // In "List only" mode, accept only name command
-            if (cmd_num > 1) {
-                cmd_num = 0;
-            }
-        }
-        n = 0;
-        switch (cmd_num)
-        {
-        case 1: // NAME
-            if (get_conf_parameter_single(buf,&pos,len,slabst->code_name,COMMAND_WORD_LEN) <= 0)
-            {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+      char blockname_null[COMMAND_WORD_LEN];
+      strncpy(blockname_null, blockname, blocknamelen);
+      blockname_null[blocknamelen] = '\0';
 
-                    /*
+      parse_named_field_block(buf, len, config_textname, flags, blockname_null, terrain_slab_named_fields, i * sizeof(game.conf.slab_conf.slab_cfgstats[0]));
 
-                    
-        case 5: //BLOCKFLAGS
-        case 6: //NOBLOCKFLAGS
-            {
-                unsigned long *flg = (cmd_num == 5) ? &slabst->block_flags : &slabst->noblck_flags;
-                *flg = 0;
-                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-                {
-                    k = get_id(terrain_flags, word_buf);
-                    switch(k)
-                    {
-                        case 1:
-                        {
-                            *flg |= SlbAtFlg_Valuable;
-                            break;
-                        }
-                        case 2:
-                        {
-                            *flg |= SlbAtFlg_IsRoom;
-                            break;    
-                        }
-                        case 3:
-                        {
-                            *flg |= SlbAtFlg_Unexplored;
-                            break;    
-                        }
-                        case 4:
-                        {
-                            *flg |= SlbAtFlg_Digable;
-                            break;   
-                        }
-                        case 5:
-                        {
-                            *flg |= SlbAtFlg_Blocking;
-                            break;    
-                        }
-                        case 6:
-                        {
-                            *flg |= SlbAtFlg_Filled;
-                            break;    
-                        }
-                        case 7:
-                        {
-                            *flg |= SlbAtFlg_IsDoor;
-                            break;    
-                        }
-                        case 8:
-                        {
-                            *flg |= SlbAtFlg_TaggedValuable;
-                            break;   
-                        }
-                        default:
-                        {
-                            CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
-                              COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
-                            break;
-                        }
-                    }
-                    n++;
-                }
-                break;
-            }
-                */
-
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
-                cmd_num, blocknamelen, blockname, config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-      }
-#undef COMMAND_TEXT
     }
     // Block health - will be later integrated with slab blocks
       char block_buf[COMMAND_WORD_LEN];
@@ -542,7 +425,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
       if (k < 0)
       {
           if ((flags & CnfLd_AcceptPartial) == 0)
-              WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+              WARNMSG("aaBlock [%s] not found in %s file.",block_buf,config_textname);
           return false;
       } else
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_health_commands,cmd_num)
@@ -641,7 +524,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
         {
             if ((flags & CnfLd_AcceptPartial) == 0)
             {
-                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+                WARNMSG("rrBlock [%s] not found in %s file.", block_buf, config_textname);
                 return false;
             }
             continue;

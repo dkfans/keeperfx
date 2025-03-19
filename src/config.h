@@ -259,16 +259,18 @@ int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,lon
 int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 
 int get_conf_list_int(const char *buf, const char **state, int *dst);
-
+TbBool parse_named_field_block(const char *buf, long len, const char *config_textname, unsigned short flags,const char* blockname,
+    const struct NamedField named_field[],size_t offset);
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
-int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField *commands);
-int assign_named_field_value(const struct NamedField* named_field, int64_t value);
+int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField *commands,size_t offset);
+int assign_named_field_value(const struct NamedField* named_field, int64_t value,size_t offset);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
 long get_named_field_id(const struct NamedField *desc, const char *itmname);
 long get_id(const struct NamedCommand *desc, const char *itmname);
 long long get_long_id(const struct LongNamedCommand* desc, const char* itmname);
 long get_rid(const struct NamedCommand *desc, const char *itmname);
 /******************************************************************************/
+int64_t value_name(const struct NamedField* named_field, const char* value_text);
 int64_t value_default(const struct NamedField* named_field, const char* value_text);
 int64_t value_flagsfield(const struct NamedField* named_field, const char* value_text);
 

@@ -5911,7 +5911,7 @@ static void set_game_rule_process(struct ScriptContext* context)
     if(rulegroup != -1)
     {
         SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
-        assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue);
+        assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue,0);
         return;
     }
 
