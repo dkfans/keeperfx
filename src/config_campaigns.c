@@ -31,6 +31,7 @@
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
 #include "map_data.h"
+#include "highscores.h"
 
 #include "game_merge.h"
 #include "post_inc.h"
