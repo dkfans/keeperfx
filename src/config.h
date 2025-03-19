@@ -198,15 +198,6 @@ char *prepare_file_path(short fgroup,const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
 unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
-TbBool is_feature_on(unsigned long feature);
-TbBool censorship_enabled(void);
-TbBool atmos_sounds_enabled(void);
-TbBool resize_movies_enabled(void);
-TbBool freeze_game_on_focus_lost(void);
-TbBool unlock_cursor_when_game_paused(void);
-TbBool lock_cursor_in_possession(void);
-TbBool pause_music_when_game_paused(void);
-TbBool mute_audio_on_focus_lost(void);
 short load_configuration(void);
 void process_cmdline_overrides(void);
 void load_or_create_high_score_table(void);

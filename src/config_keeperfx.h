@@ -120,14 +120,6 @@ TbBool unlock_cursor_when_game_paused(void);
 TbBool lock_cursor_in_possession(void);
 TbBool pause_music_when_game_paused(void);
 TbBool mute_audio_on_focus_lost(void);
-short load_configuration(void);
-void process_cmdline_overrides(void);
-void load_or_create_high_score_table(void);
-TbBool load_high_score_table(void);
-TbBool save_high_score_table(void);
-TbBool create_empty_high_score_table(void);
-int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *name);
-unsigned long get_level_highest_score(LevelNumber lvnum);
 /******************************************************************************/
 const char *get_current_language_str(void);
 const char *get_language_lwrstr(int lang_id);
