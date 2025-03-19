@@ -200,12 +200,6 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
 /******************************************************************************/
 short load_configuration(void);
 void process_cmdline_overrides(void);
-void load_or_create_high_score_table(void);
-TbBool load_high_score_table(void);
-TbBool save_high_score_table(void);
-TbBool create_empty_high_score_table(void);
-int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *name);
-unsigned long get_level_highest_score(LevelNumber lvnum);
 /******************************************************************************/
 short is_bonus_level(LevelNumber lvnum);
 short is_extra_level(LevelNumber lvnum);

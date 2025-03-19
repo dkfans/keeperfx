@@ -1,15 +1,11 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file config.c
- *     Configuration and campaign files support.
+/** @file config_keeperfx.c
  * @par Purpose:
- *     Support for multiple campaigns, switching between levels mechanisms,
-       and loading of CFG files.
+ *     load the main keeperfx.cfg config file.
  * @par Comment:
  *     None.
- * @author   Tomasz Lis
- * @date     30 Jan 2009 - 11 Feb 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
