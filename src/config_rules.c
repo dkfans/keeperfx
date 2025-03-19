@@ -317,7 +317,7 @@ TbBool parse_rules_block(const char *buf, long len, const char *config_textname,
     while (pos<len)
     {
         // Finding command number in this line.
-        int assignresult = assign_conf_command_0, field(buf, &pos, len, named_field);
+        int assignresult = assign_conf_command_field(buf, &pos, len, named_field);
         if( assignresult == ccr_ok || assignresult == ccr_comment )
         {
             skip_conf_to_next_line(buf,&pos,len);

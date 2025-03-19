@@ -473,15 +473,22 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                }
             }
 
-            char word_buf[COMMAND_WORD_LEN];
-            if (&commands[i].argnum == -1)
             
-            else
-            if (get_conf_parameter_single(buf,pos,buflen,word_buf,sizeof(word_buf)) > 0)
+            int64_t k;
+            if (&commands[i].argnum == -1)
             {
-                int64_t k = get_named_field_value(&commands[i],word_buf);
-                return assign_named_field_value(&commands[i],k);
+                k = get_named_field_value(&commands[i],buf);
             }
+            else
+            {
+              char word_buf[COMMAND_WORD_LEN];
+                if (get_conf_parameter_single(buf,pos,buflen,word_buf,sizeof(word_buf)) > 0)
+                {
+                    k = get_named_field_value(&commands[i],word_buf);
+                }
+            }
+
+            return assign_named_field_value(&commands[i],k);
         }
         i++;
     }
