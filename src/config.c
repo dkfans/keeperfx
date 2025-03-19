@@ -291,25 +291,70 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
     return ccr_unrecognised;
 }
 
-
-
-int64_t get_named_field_value(const struct NamedField* named_field, char* value_text)
+//if the parameter is a number return the number, if a value in the provided NamedCommand list return the value
+int64_t value_default(const struct NamedField* named_field, char* value_text)
 {
-    int64_t value
+    if (parameter_is_number(value_text))
+    {
+        int64_t value = atoll(value_text);
+
+        if( value < commands[i].min)
+        {
+            CONFWRNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",commands[i].name,commands[i].min,value);
+            value = commands[i].min;
+        }
+        else if( value > commands[i].max)
+        {
+            CONFWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",commands[i].name,commands[i].max,value);
+            value = commands[i].max;
+        }
+        return value;
+
+    }
+    else if(named_field->namedCommand != NULL)
+    {
+        int64_t value = get_id(named_field->namedCommand, value_text);
+        if(value > 0)
+        {
+            return value;
+        }
+        CONFWRNLOG("Expected number or named value for field '%s', got '%s'",named_field->name,value_text);
+    }
+    else
+    {
+        CONFWRNLOG("Expected number for field '%s', got '%s'",named_field->name,value_text);
+    }
+    return 0;
+}
+
+//expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
+int64_t value_flagsfield(const struct NamedField* named_field, char* value_text)
+{
+    int64_t value = 0;
+    char word_buf[COMMAND_WORD_LEN];
     if (parameter_is_number(value_text))
     {
         return atoll(value_text);
     }
-    else if(named_field->namedCommand != NULL)
+
+    while (get_conf_parameter_single(value_text,pos,len,word_buf,sizeof(word_buf)) > 0)
     {
-        return get_id(named_field->namedCommand, value_text);
-        
+        int k = get_id(named_field->namedCommand, word_buf);
+        if(k > 0)
+          value |= 1<<k;
+        else
+          CONFWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
     }
+    return value;
+}
+
+int64_t get_named_field_value(const struct NamedField* named_field, char* value_text)
+{
+    if (named_field->get_value_func != NULL)
+      return named_field->get_value_func(named_field,value_text);
     else
-    {
-        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-            COMMAND_TEXT(cmd_num),block_buf,config_textname);
-    }
+      ERRORLOG("No get_value_func for field %s",named_field->name);
+    return 0;
 }
 
 int assign_named_field_value(const struct NamedField* named_field, int64_t value)
@@ -429,21 +474,12 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
             }
 
             char word_buf[COMMAND_WORD_LEN];
+            if (&commands[i].argnum == -1)
+            
+            else
             if (get_conf_parameter_single(buf,pos,buflen,word_buf,sizeof(word_buf)) > 0)
             {
-                int64_t k = atoi(word_buf);
-
-                if( k < commands[i].min)
-                {
-                    CONFWRNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",commands[i].name,commands[i].min,k);
-                    k = commands[i].min;
-                }
-                else if( k > commands[i].max)
-                {
-                    CONFWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",commands[i].name,commands[i].max,k);
-                    k = commands[i].max;
-                }
-                
+                int64_t k = get_named_field_value(&commands[i],word_buf);
                 return assign_named_field_value(&commands[i],k);
             }
         }

@@ -297,9 +297,9 @@ const struct NamedCommand room_config_desc[] = {
 
 
 static const struct NamedField rules_script_only_named_fields[] = {
-    //name            //field                //field type                   //min //max
-  {"PayDayProgress",&game.pay_day_progress,var_type(game.pay_day_progress),0,LONG_MAX},
-  {NULL,                            NULL,0,0,0 },
+    //name            //field                   //min //max
+  {"PayDayProgress",field(game.pay_day_progress),0,LONG_MAX,NULL,value_default},
+  {NULL,NULL,0,0,0 },
 };
 
 static const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,

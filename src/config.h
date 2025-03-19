@@ -168,14 +168,14 @@ struct LongNamedCommand {
 
 struct NamedField {
     const char *name;
-    //char argnum; //for fields that assign multiple values, -1 passes full string to assign function
+    char argnum; //for fields that assign multiple values, -1 passes full string to assign function
     void* field;
     uchar type;
     int64_t default_value;
     int64_t min;
     int64_t max;
     struct NamedCommand *namedCommand;
-    //void (*config_assign_func)(struct NamedField *field, char* value_text);
+    void (*get_value_func)(struct NamedField *field, char* value_text); // converts the text to the a number
     //void (*script_assign_func)(struct NamedField *field, char* value_text);
 };
 
@@ -280,6 +280,11 @@ long get_id(const struct NamedCommand *desc, const char *itmname);
 long long get_long_id(const struct LongNamedCommand* desc, const char* itmname);
 long get_rid(const struct NamedCommand *desc, const char *itmname);
 /******************************************************************************/
+int64_t value_default(const struct NamedField* named_field, char* value_text);
+int64_t value_flagsfield(const struct NamedField* named_field, char* value_text);
+
+int64_t get_named_field_value(const struct NamedField* named_field, char* value_text);
+
 #ifdef __cplusplus
 }
 #endif
