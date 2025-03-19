@@ -171,6 +171,7 @@ struct NamedField {
     //char argnum; //for fields that assign multiple values, -1 passes full string to assign function
     void* field;
     uchar type;
+    int64_t default_value;
     int64_t min;
     int64_t max;
     //struct NamedCommand *namedCommand;
