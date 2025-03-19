@@ -1919,8 +1919,8 @@ short creature_doing_nothing(struct Thing *creatng)
 TbBool slab_is_valid_for_creature_choose_move(const struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ( ((slbattr->block_flags & SlbAtFlg_IsRoom) != 0) || ((slbattr->block_flags & SlbAtFlg_Blocking) == 0) )
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+    if ( ((slabst->block_flags & SlbAtFlg_IsRoom) != 0) || ((slabst->block_flags & SlbAtFlg_Blocking) == 0) )
         return true;
     MapSubtlCoord stl_x = slab_subtile_center(slb_x);
     MapSubtlCoord stl_y = slab_subtile_center(slb_y);
@@ -3612,11 +3612,11 @@ CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
         struct SlabMap* slb = get_slabmap_for_subtile(wall_x, wall_y);
         PlayerNumber slab_owner = slabmap_owner(slb);
         struct Map* mapblk = get_map_block_at(wall_x, wall_y);
-        struct SlabAttr* slbattr = get_slab_attrs(slb);
+        struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
 
         if ( (mapblk->flags & SlbAtFlg_Blocking) != 0
             && slab_owner == creatng->owner
-            && slbattr->category == SlbAtCtg_FortifiedWall )
+            && slabst->category == SlbAtCtg_FortifiedWall )
         {
             instruct_creature_to_damage_wall(creatng, wall_x, wall_y);
             return 1;
@@ -5441,9 +5441,9 @@ TbBool setup_move_off_lava(struct Thing* thing)
         slb = get_slabmap_for_subtile(cx, cy);
         if (slabmap_block_invalid(slb))
             continue;
-        const struct SlabAttr* slbattr;
-        slbattr = get_slab_attrs(slb);
-        if (!slbattr->is_safe_land)
+        const struct SlabConfigStats* slabst;
+        slabst = get_slab_stats(slb);
+        if (!slabst->is_safe_land)
             continue;
         // Check all subtiles of the slab in random order
         long k;

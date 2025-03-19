@@ -830,8 +830,8 @@ TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb))
         return false;
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if (flag_is_set(slbattr->block_flags, SlbAtFlg_IsDoor))
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+    if (flag_is_set(slabst->block_flags, SlbAtFlg_IsDoor))
     {
         struct Thing* doortng = get_door_for_position(stl_x, stl_y);
         if (!thing_is_invalid(doortng) && door_will_open_for_thing(doortng,creatng))
@@ -841,7 +841,7 @@ TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord
     }
     else
     {
-        if (slbattr->is_safe_land || can_step_on_unsafe_terrain_at_position(creatng, stl_x, stl_y))
+        if (slabst->is_safe_land || can_step_on_unsafe_terrain_at_position(creatng, stl_x, stl_y))
         {
             return true;
         }

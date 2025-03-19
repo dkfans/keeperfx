@@ -2177,9 +2177,9 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
     if (!thing_is_invalid(doortng)) {
         destroy_door(doortng);
     }
-    struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
-    if (slbattr->category == SlbAtCtg_FortifiedGround)
+    struct SlabConfigStats *slabst;
+    slabst = get_slab_stats(slb);
+    if (slabst->category == SlbAtCtg_FortifiedGround)
     {
       place_slab_type_on_map(SlbT_PATH, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 1);
       decrease_dungeon_area(plyr_idx, 1);
@@ -3495,9 +3495,9 @@ void initialise_map_health(void)
         {
             struct SlabMap *slb;
             slb = get_slabmap_block(slb_x, slb_y);
-            struct SlabAttr *slbattr;
-            slbattr = get_slab_attrs(slb);
-            slb->health = game.block_health[slbattr->block_health_index];
+            struct SlabConfigStats *slabst;
+            slabst = get_slab_stats(slb);
+            slb->health = game.block_health[slabst->block_health_index];
         }
     }
 }

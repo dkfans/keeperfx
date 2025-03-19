@@ -108,7 +108,12 @@ enum RoomRoleFlags {
 
 struct SlabMap;
 
-struct SlabAttr {
+#pragma pack()
+/******************************************************************************/
+struct SlabConfigStats {
+    char code_name[COMMAND_WORD_LEN];
+    TextStringId tooltip_stridx;
+    RoomKind assigned_room;
     unsigned short tooltip_stridx;
     short block_flags_height;
     short block_health_index;
@@ -124,14 +129,6 @@ struct SlabAttr {
     unsigned char wlb_type;
     unsigned char is_ownable;
     unsigned char indestructible;
-};
-
-#pragma pack()
-/******************************************************************************/
-struct SlabConfigStats {
-    char code_name[COMMAND_WORD_LEN];
-    TextStringId tooltip_stridx;
-    RoomKind assigned_room;
 };
 
 struct RoomConfigStats {
@@ -184,8 +181,6 @@ extern Room_Update_Func terrain_room_used_capacity_func_list[10];
 /******************************************************************************/
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
-struct SlabAttr *get_slab_kind_attrs(SlabKind slab_kind);
-struct SlabAttr *get_slab_attrs(const struct SlabMap *slb);
 struct SlabConfigStats *get_slab_kind_stats(SlabKind slab_kind);
 struct SlabConfigStats *get_slab_stats(struct SlabMap *slb);
 const char *room_role_code_name(RoomRole rrole);

@@ -1130,7 +1130,7 @@ short load_map_ownership_file(LevelNumber lv_num)
 TbBool initialise_map_wlb_auto(void)
 {
     struct SlabMap *slb;
-    struct SlabAttr *slbattr;
+    struct SlabConfigStats *slabst;
     unsigned long x;
     unsigned long y;
     unsigned long n;
@@ -1153,8 +1153,8 @@ TbBool initialise_map_wlb_auto(void)
             {
                 n = slb->kind;
             }
-            slbattr = get_slab_kind_attrs(n);
-            slb->wlb_type = slbattr->wlb_type;
+            slabst = get_slab_kind_stats(n);
+            slb->wlb_type = slabst->wlb_type;
         }
     }
     SYNCMSG("Regenerated WLB flags, unsure for %d bridge blocks.",(int)nbridge);

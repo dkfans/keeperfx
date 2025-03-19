@@ -390,8 +390,8 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
         if (subtile_revealed(stl_x, stl_y, dungeon->owner))
         {
             struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-            const struct SlabAttr* slbattr = get_slab_attrs(slb);
-            if (((slbattr->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
+            const struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+            if (((slabst->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
             {
                 num_faces += block_count_diggable_sides(subtile_slab(stl_x), subtile_slab(stl_y));
             }
@@ -1202,8 +1202,8 @@ static TbBool find_place_to_put_door_around_room(const struct Room *room, struct
             MapSlabCoord nxslb_x = slb_x + small_around[m].delta_x;
             MapSlabCoord nxslb_y = slb_y + small_around[m].delta_y;
             struct SlabMap* nxslb = get_slabmap_block(nxslb_x, nxslb_y);
-            struct SlabAttr* slbattr = get_slab_attrs(nxslb);
-            if ((slabmap_owner(nxslb) == room->owner) && ((slbattr->block_flags & SlbAtFlg_Filled) == 0))
+            struct SlabConfigStats* slabst = get_slab_stats(nxslb);
+            if ((slabmap_owner(nxslb) == room->owner) && ((slabst->block_flags & SlbAtFlg_Filled) == 0))
             {
                 if (!subtile_has_door_thing_on(slab_subtile_center(nxslb_x), slab_subtile_center(nxslb_y))) {
                     pos->x.val = subtile_coord_center(slab_subtile_center(slb_x));

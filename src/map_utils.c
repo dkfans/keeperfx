@@ -435,11 +435,11 @@ long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigne
     MapSubtlCoord stl_y = mvpos->y.stl.num;
     int i;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
     // If we're on room, move to non-room tile
     for (i = 0; i < slabs_dist; i++)
     {
-        if (((slbattr->block_flags & SlbAtFlg_IsRoom) == 0) || (slabmap_owner(slb) != plyr_idx)) {
+        if (((slabst->block_flags & SlbAtFlg_IsRoom) == 0) || (slabmap_owner(slb) != plyr_idx)) {
             break;
         }
         stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
@@ -449,7 +449,7 @@ long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigne
             return -1;
         }
         slb = get_slabmap_for_subtile(stl_x, stl_y);
-        slbattr = get_slab_attrs(slb);
+        slabst = get_slab_stats(slb);
     }
     // Update original position with first slab behind room
     mvpos->x.val = subtile_coord_center(stl_x);
@@ -467,24 +467,24 @@ long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigne
 TbBool subtile_is_blocking_wall_or_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
     // Lava is easy
     if (map_pos_is_lava(stl_x, stl_y)) {
         return true;
     }
     // Blocking wall is more complex
-    if ((slbattr->block_flags & SlbAtFlg_Blocking) != 0)
+    if ((slabst->block_flags & SlbAtFlg_Blocking) != 0)
     {
         // Door is not blocking if its not ours (we may destroy it) or not locked (we may pass it)
         // Mapmakers often surrounds heart with doors; treating only locked doors as blocking allows to support such situations
-        if ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0)
+        if ((slabst->block_flags & SlbAtFlg_IsDoor) != 0)
         {
             if ((slabmap_owner(slb) == plyr_idx) && subtile_has_locked_door(stl_x, stl_y)) {
                 return true;
             }
         } else
         // For others, as long as it's not room, blocking means blocking
-        if ((slbattr->block_flags & SlbAtFlg_IsRoom) == 0)
+        if ((slabst->block_flags & SlbAtFlg_IsRoom) == 0)
         {
             return true;
         }
@@ -522,12 +522,12 @@ long pos_move_in_direction_to_unowned_filled_or_water(struct Coord3d *mvpos, uns
     MapSubtlCoord stl_y = mvpos->y.stl.num;
     int i;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
     // If we're on room, move to non-room tile
     for (i = 0; i < slabs_dist; i++)
     {
         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-        if ((!slbattr->is_diggable) || (slb->kind == SlbT_GEMS) || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != plyr_idx)) || (slb->kind == SlbT_WATER))
+        if ((!slabst->is_diggable) || (slb->kind == SlbT_GEMS) || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != plyr_idx)) || (slb->kind == SlbT_WATER))
         {
             if (((slb->kind != SlbT_CLAIMED) || (slabmap_owner(slb) != plyr_idx)) && (slb->kind != SlbT_PATH)) {
                 break;
@@ -540,7 +540,7 @@ long pos_move_in_direction_to_unowned_filled_or_water(struct Coord3d *mvpos, uns
             return -1;
         }
         slb = get_slabmap_for_subtile(stl_x, stl_y);
-        slbattr = get_slab_attrs(slb);
+        slabst = get_slab_stats(slb);
     }
     // Update original position with first slab behind room
     mvpos->x.val = subtile_coord_center(stl_x);

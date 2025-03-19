@@ -1183,7 +1183,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
     TbBool HasTrap = true;
     TbBool HasDoor = true;
     struct TrapConfigStats* trap_cfg = get_trap_model_stats(trpkind);
@@ -1191,7 +1191,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     if (!subtile_revealed(stl_x, stl_y, plyr_idx)) {
         return false;
     }
-    if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)) {
+    if (((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)) {
         return false;
     }
     if (slab_kind_is_liquid(slb->kind)) {

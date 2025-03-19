@@ -3448,8 +3448,8 @@ short creature_damage_walls(struct Thing *creatng)
         if ((mapblk->flags & SlbAtFlg_Blocking) != 0
             && (creatng->owner == slabmap_owner(slb)))
         {
-            struct SlabAttr* slbattr = get_slab_attrs(slb);
-            if (slbattr->category == SlbAtCtg_FortifiedWall)
+            struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+            if (slabst->category == SlbAtCtg_FortifiedWall)
             {
                 if ( !cctrl->instance_id )
                 {

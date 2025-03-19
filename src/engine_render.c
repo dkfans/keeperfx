@@ -2350,8 +2350,8 @@ static void fiddle_gamut(long pos_x, long pos_y)
 int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx) || ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+    if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx) || ((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
     {
         return (temp_cluedo_mode == 0) ? 5 : 2; // return a height of 5 for a wall, or if cluedo mode (low walls mode) is enabled, return a wall height of 2.
     }

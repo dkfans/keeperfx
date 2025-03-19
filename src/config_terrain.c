@@ -220,7 +220,6 @@ const struct NamedCommand terrain_health_commands[] = {
 /******************************************************************************/
 struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
-struct SlabAttr slab_attrs[TERRAIN_ITEMS_MAX];
 
 const struct NamedCommand terrain_flags[] = {
   {"VALUABLE",          1},
@@ -238,19 +237,6 @@ const struct NamedCommand terrain_flags[] = {
 }
 #endif
 /******************************************************************************/
-struct SlabAttr *get_slab_kind_attrs(SlabKind slab_kind)
-{
-    if (slab_kind >= game.conf.slab_conf.slab_types_count)
-        return &slab_attrs[0];
-    return &slab_attrs[slab_kind];
-}
-
-struct SlabAttr *get_slab_attrs(const struct SlabMap *slb)
-{
-    if (slabmap_block_invalid(slb))
-        return &slab_attrs[0];
-    return get_slab_kind_attrs(slb->kind);
-}
 
 struct SlabConfigStats *get_slab_kind_stats(SlabKind slab_kind)
 {
@@ -386,7 +372,6 @@ TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textn
 
 TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    struct SlabAttr *slbattr = NULL;
     struct SlabConfigStats *slabst = NULL;
     long pos = 0;
     int k = 0;
@@ -403,7 +388,6 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             slabst->tooltip_stridx = GUIStr_Empty;
             slab_desc[i].name = slabst->code_name;
             slab_desc[i].num = i;
-            slab_attrs[i].tooltip_stridx = GUIStr_Empty;
         }
     }
     slab_desc[TERRAIN_ITEMS_MAX - 1].name = NULL; // must be null for get_id
@@ -423,7 +407,6 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
       } else if (i >= game.conf.slab_conf.slab_types_count) {
           game.conf.slab_conf.slab_types_count = i + 1;
       }
-      slbattr = &slab_attrs[i];
       slabst = &game.conf.slab_conf.slab_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_slab_commands,cmd_num)
       while (pos<len)
@@ -449,57 +432,15 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             }
             break;
         case 2: // TOOLTIPTEXTID
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k > 0)
-                {
-                    slbattr->tooltip_stridx = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+                    slabst->tooltip_stridx = k;
         case 3: //BLOCKFLAGSHEIGHT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->block_flags_height = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+                    slabst->block_flags_height = k;
         case 4: //BLOCKHEALTHINDEX
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->block_health_index = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+                    slabst->block_health_index = k;
         case 5: //BLOCKFLAGS
         case 6: //NOBLOCKFLAGS
             {
-                unsigned long *flg = (cmd_num == 5) ? &slbattr->block_flags : &slbattr->noblck_flags;
+                unsigned long *flg = (cmd_num == 5) ? &slabst->block_flags : &slabst->noblck_flags;
                 *flg = 0;
                 while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
@@ -558,165 +499,25 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 break;
             }
         case 7: //FILLSTYLE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->fill_style = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+                    slabst->fill_style = k;
         case 8: //CATEGORY
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->category = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+                    slabst->category = k;
         case 9: // SLBID
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->slb_id = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+                    slabst->slb_id = k;
         case 10: //WIBBLE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->wibble = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+                    slabst->wibble = k;
         case 11: //ISSAFELAND
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->is_safe_land = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+                    slabst->is_safe_land = k;
         case 12: //ISDIGGABLE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->is_diggable = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+                    slabst->is_diggable = k;
         case 13: //WLBTYPE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->wlb_type = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+                    slabst->wlb_type = k;
         case 14: //ANIMATED
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->animated = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+                    slabst->animated = k;
         case 15: //ISOWNABLE
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->is_ownable = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+                    slabst->is_ownable = k;
         case 16: //INDESTRUCTIBLE
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->indestructible = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
+                    slabst->indestructible = k;
         case ccr_comment:
             break;
         case ccr_endOfFile:
@@ -1461,8 +1262,8 @@ TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
  */
 TbBool slab_kind_is_indestructible(RoomKind slbkind)
 {
-    struct SlabAttr* attributes = get_slab_kind_attrs(slbkind);
-    return (attributes->indestructible);
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slbkind);
+    return (slabst->indestructible);
 }
 
 /**
@@ -1472,8 +1273,8 @@ TbBool slab_kind_is_indestructible(RoomKind slbkind)
  */
 TbBool slab_kind_is_room_wall(RoomKind slbkind)
 {
-    struct SlabAttr* attributes = get_slab_kind_attrs(slbkind);
-    return ((attributes->category == SlbAtCtg_FortifiedWall) && (attributes->slb_id != 0));
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slbkind);
+    return ((slabst->category == SlbAtCtg_FortifiedWall) && (slabst->slb_id != 0));
 }
 
 /**
@@ -1500,8 +1301,8 @@ TbBool slab_kind_is_friable_dirt(RoomKind slbkind)
 
 TbBool slab_kind_is_door(SlabKind slbkind)
 {
-    struct SlabAttr *slbattr = get_slab_kind_attrs(slbkind);
-    return (slbattr->block_flags & (SlbAtFlg_IsDoor));
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slbkind);
+    return (slabst->block_flags & (SlbAtFlg_IsDoor));
 }
 
 /**
