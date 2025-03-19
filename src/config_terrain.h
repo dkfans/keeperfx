@@ -114,7 +114,6 @@ struct SlabConfigStats {
     char code_name[COMMAND_WORD_LEN];
     TextStringId tooltip_stridx;
     RoomKind assigned_room;
-    unsigned short tooltip_stridx;
     short block_flags_height;
     short block_health_index;
     unsigned long block_flags;
