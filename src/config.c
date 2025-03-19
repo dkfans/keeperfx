@@ -291,6 +291,27 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
     return ccr_unrecognised;
 }
 
+
+
+int64_t get_named_field_value(const struct NamedField* named_field, char* value_text)
+{
+    int64_t value
+    if (parameter_is_number(value_text))
+    {
+        return atoll(value_text);
+    }
+    else if(named_field->namedCommand != NULL)
+    {
+        return get_id(named_field->namedCommand, value_text);
+        
+    }
+    else
+    {
+        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+            COMMAND_TEXT(cmd_num),block_buf,config_textname);
+    }
+}
+
 int assign_named_field_value(const struct NamedField* named_field, int64_t value)
 {
     switch (named_field->type)

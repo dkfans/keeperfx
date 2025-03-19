@@ -174,7 +174,7 @@ struct NamedField {
     int64_t default_value;
     int64_t min;
     int64_t max;
-    //struct NamedCommand *namedCommand;
+    struct NamedCommand *namedCommand;
     //void (*config_assign_func)(struct NamedField *field, char* value_text);
     //void (*script_assign_func)(struct NamedField *field, char* value_text);
 };

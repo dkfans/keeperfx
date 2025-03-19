@@ -65,23 +65,23 @@ const struct NamedCommand terrain_slab_commands[] = {
 };
 
 const struct NamedField terrain_slab_named_fields[] = {
-    //name                //field                                                        //default      //min     //max
-    {"NAME",              field(game.conf.slab_conf.slab_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX},
-    {"TOOLTIPTEXTID",     field(game.conf.slab_conf.slab_cfgstats[0].tooltip_stridx),     GUIStr_Empty, LONG_MIN,ULONG_MAX},
-    {"BLOCKFLAGSHEIGHT",  field(game.conf.slab_conf.slab_cfgstats[0].block_flags_height),            0, LONG_MIN,ULONG_MAX},
-    {"BLOCKHEALTHINDEX",  field(game.conf.slab_conf.slab_cfgstats[0].block_health_index),            0, LONG_MIN,ULONG_MAX},
- /**/   {"BLOCKFLAGS",    field(game.conf.slab_conf.slab_cfgstats[0].block_flags),                   0, LONG_MIN,ULONG_MAX},
- /**/   {"NOBLOCKFLAGS",  field(game.conf.slab_conf.slab_cfgstats[0].noblck_flags),                  0, LONG_MIN,ULONG_MAX},
-    {"FILLSTYLE",         field(game.conf.slab_conf.slab_cfgstats[0].fill_style),                    0, LONG_MIN,ULONG_MAX},
-    {"CATEGORY",          field(game.conf.slab_conf.slab_cfgstats[0].category),                      0, LONG_MIN,ULONG_MAX},
-    {"SLBID",             field(game.conf.slab_conf.slab_cfgstats[0].slb_id),                        0, LONG_MIN,ULONG_MAX},
-    {"WIBBLE",            field(game.conf.slab_conf.slab_cfgstats[0].wibble),                        0, LONG_MIN,ULONG_MAX},
-    {"ISSAFELAND",        field(game.conf.slab_conf.slab_cfgstats[0].is_safe_land),                  0, LONG_MIN,ULONG_MAX},
-    {"ISDIGGABLE",        field(game.conf.slab_conf.slab_cfgstats[0].is_diggable),                   0, LONG_MIN,ULONG_MAX},
-    {"WLBTYPE",           field(game.conf.slab_conf.slab_cfgstats[0].wlb_type),                      0, LONG_MIN,ULONG_MAX},
-    {"ANIMATED",          field(game.conf.slab_conf.slab_cfgstats[0].animated),                      0, LONG_MIN,ULONG_MAX},
-    {"ISOWNABLE",         field(game.conf.slab_conf.slab_cfgstats[0].is_ownable),                    0, LONG_MIN,ULONG_MAX},
-    {"INDESTRUCTIBLE",    field(game.conf.slab_conf.slab_cfgstats[0].indestructible),                0, LONG_MIN,ULONG_MAX},
+    //name                //field                                                        //default      //min     //max    //NamedCommand
+    {"NAME",              field(game.conf.slab_conf.slab_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, slab_desc    },
+    {"TOOLTIPTEXTID",     field(game.conf.slab_conf.slab_cfgstats[0].tooltip_stridx),     GUIStr_Empty, LONG_MIN,ULONG_MAX, NULL         },
+    {"BLOCKFLAGSHEIGHT",  field(game.conf.slab_conf.slab_cfgstats[0].block_flags_height),            0, LONG_MIN,ULONG_MAX, NULL         },
+    {"BLOCKHEALTHINDEX",  field(game.conf.slab_conf.slab_cfgstats[0].block_health_index),            0, LONG_MIN,ULONG_MAX, NULL         },
+ /**/   {"BLOCKFLAGS",    field(game.conf.slab_conf.slab_cfgstats[0].block_flags),                   0, LONG_MIN,ULONG_MAX, terrain_flags},
+ /**/   {"NOBLOCKFLAGS",  field(game.conf.slab_conf.slab_cfgstats[0].noblck_flags),                  0, LONG_MIN,ULONG_MAX, terrain_flags},
+    {"FILLSTYLE",         field(game.conf.slab_conf.slab_cfgstats[0].fill_style),                    0, LONG_MIN,ULONG_MAX, NULL         },
+    {"CATEGORY",          field(game.conf.slab_conf.slab_cfgstats[0].category),                      0, LONG_MIN,ULONG_MAX, NULL         },
+    {"SLBID",             field(game.conf.slab_conf.slab_cfgstats[0].slb_id),                        0, LONG_MIN,ULONG_MAX, NULL         },
+    {"WIBBLE",            field(game.conf.slab_conf.slab_cfgstats[0].wibble),                        0, LONG_MIN,ULONG_MAX, NULL         },
+    {"ISSAFELAND",        field(game.conf.slab_conf.slab_cfgstats[0].is_safe_land),                  0, LONG_MIN,ULONG_MAX, NULL         },
+    {"ISDIGGABLE",        field(game.conf.slab_conf.slab_cfgstats[0].is_diggable),                   0, LONG_MIN,ULONG_MAX, NULL         },
+    {"WLBTYPE",           field(game.conf.slab_conf.slab_cfgstats[0].wlb_type),                      0, LONG_MIN,ULONG_MAX, NULL         },
+    {"ANIMATED",          field(game.conf.slab_conf.slab_cfgstats[0].animated),                      0, LONG_MIN,ULONG_MAX, NULL         },
+    {"ISOWNABLE",         field(game.conf.slab_conf.slab_cfgstats[0].is_ownable),                    0, LONG_MIN,ULONG_MAX, NULL         },
+    {"INDESTRUCTIBLE",    field(game.conf.slab_conf.slab_cfgstats[0].indestructible),                0, LONG_MIN,ULONG_MAX, NULL         },
     {NULL,NULL,0,0,0},
 };
 
