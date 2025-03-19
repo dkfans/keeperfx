@@ -64,6 +64,28 @@ const struct NamedCommand terrain_slab_commands[] = {
   {NULL,              0},
 };
 
+const struct NamedField terrain_slab_named_fields[] = {
+    //name                //field                                                        //min     //max
+    {"NAME",              field(game.conf.slab_conf.slab_cfgstats[0].code_name),         LONG_MIN,ULONG_MAX},
+    {"TOOLTIPTEXTID",     field(game.conf.slab_conf.slab_cfgstats[0].tooltip_stridx),    LONG_MIN,ULONG_MAX},
+    {"BLOCKFLAGSHEIGHT",  field(game.conf.slab_conf.slab_cfgstats[0].block_flags_height),LONG_MIN,ULONG_MAX},
+    {"BLOCKHEALTHINDEX",  field(game.conf.slab_conf.slab_cfgstats[0].block_health_index),LONG_MIN,ULONG_MAX},
+ /**/   {"BLOCKFLAGS",    field(game.conf.slab_conf.slab_cfgstats[0].block_flags),       LONG_MIN,ULONG_MAX},
+ /**/   {"NOBLOCKFLAGS",  field(game.conf.slab_conf.slab_cfgstats[0].noblck_flags),      LONG_MIN,ULONG_MAX},
+    {"FILLSTYLE",         field(game.conf.slab_conf.slab_cfgstats[0].fill_style),        LONG_MIN,ULONG_MAX},
+    {"CATEGORY",          field(game.conf.slab_conf.slab_cfgstats[0].category),          LONG_MIN,ULONG_MAX},
+    {"SLBID",             field(game.conf.slab_conf.slab_cfgstats[0].slb_id),            LONG_MIN,ULONG_MAX},
+    {"WIBBLE",            field(game.conf.slab_conf.slab_cfgstats[0].wibble),            LONG_MIN,ULONG_MAX},
+    {"ISSAFELAND",        field(game.conf.slab_conf.slab_cfgstats[0].is_safe_land),      LONG_MIN,ULONG_MAX},
+    {"ISDIGGABLE",        field(game.conf.slab_conf.slab_cfgstats[0].is_diggable),       LONG_MIN,ULONG_MAX},
+    {"WLBTYPE",           field(game.conf.slab_conf.slab_cfgstats[0].wlb_type),          LONG_MIN,ULONG_MAX},
+    {"ANIMATED",          field(game.conf.slab_conf.slab_cfgstats[0].animated),          LONG_MIN,ULONG_MAX},
+    {"ISOWNABLE",         field(game.conf.slab_conf.slab_cfgstats[0].is_ownable),        LONG_MIN,ULONG_MAX},
+    {"INDESTRUCTIBLE",    field(game.conf.slab_conf.slab_cfgstats[0].indestructible),    LONG_MIN,ULONG_MAX},
+    {NULL,NULL,0,0,0},
+};
+
+
 const struct NamedCommand terrain_room_commands[] = {
   {"NAME",              1},
   {"COST",              2},
@@ -431,12 +453,10 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;
-        case 2: // TOOLTIPTEXTID
-                    slabst->tooltip_stridx = k;
-        case 3: //BLOCKFLAGSHEIGHT
-                    slabst->block_flags_height = k;
-        case 4: //BLOCKHEALTHINDEX
-                    slabst->block_health_index = k;
+
+                    /*
+
+                    
         case 5: //BLOCKFLAGS
         case 6: //NOBLOCKFLAGS
             {
@@ -498,26 +518,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 }
                 break;
             }
-        case 7: //FILLSTYLE
-                    slabst->fill_style = k;
-        case 8: //CATEGORY
-                    slabst->category = k;
-        case 9: // SLBID
-                    slabst->slb_id = k;
-        case 10: //WIBBLE
-                    slabst->wibble = k;
-        case 11: //ISSAFELAND
-                    slabst->is_safe_land = k;
-        case 12: //ISDIGGABLE
-                    slabst->is_diggable = k;
-        case 13: //WLBTYPE
-                    slabst->wlb_type = k;
-        case 14: //ANIMATED
-                    slabst->animated = k;
-        case 15: //ISOWNABLE
-                    slabst->is_ownable = k;
-        case 16: //INDESTRUCTIBLE
-                    slabst->indestructible = k;
+                */
+
         case ccr_comment:
             break;
         case ccr_endOfFile:
