@@ -243,6 +243,7 @@ IF(PLAYER0,FLAG1 == 0)
 ENDIF
 REM Attack on yellow underway. Ghosts are spawned in yellow dungeon, and while they are alive no new ghosts will appear and no power_hand.
 IF(PLAYER0,FLAG1 == 1)
+	ZOOM_TO_LOCATION(PLAYER0,PLAYER3)
 	REM	"Your ghosts are being moved to the yellow hero stronghold. With their heart destroyed the realm is yours."
 	DISPLAY_INFORMATION(98,PLAYER3)
 	NEXT_COMMAND_REUSABLE

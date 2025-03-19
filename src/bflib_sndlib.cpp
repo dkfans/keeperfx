@@ -174,6 +174,14 @@ public:
 		}
 	}
 
+	void repeat(bool value) {
+		alSourcei(id, AL_LOOPING, value ? AL_TRUE : AL_FALSE);
+		const auto errcode = alGetError();
+		if (errcode != AL_NO_ERROR) {
+			throw openal_error("Cannot toggle looping", errcode);
+		}
+	}
+
 	bool is_playing() const {
 		ALint state = 0;
 		alGetSourcei(id, AL_SOURCE_STATE, &state);
@@ -700,7 +708,7 @@ extern "C" SoundMilesID play_sample(
 	SoundVolume volume,
 	SoundPan pan,
 	SoundPitch pitch,
-	char fild1D, // possible values: -1, 0
+	char repeats, // possible values: -1, 0
 	unsigned char ctype, // possible values: 2, 3
 	SoundBankID bank_id
 ) {
@@ -727,6 +735,7 @@ extern "C" SoundMilesID play_sample(
 			if (source.emit_id == 0) {
 				source.gain(volume);
 				source.pan(pan);
+				source.repeat(repeats == -1);
 				if (g_bb_king_mode) {
 					// ben enjoyed dofi's stream so much I made random pitch an easter egg
 					if (UNSYNC_RANDOM(10) > 7) { // ~30% of the time

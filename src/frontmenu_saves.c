@@ -219,7 +219,7 @@ void frontend_load_game_down_maintain(struct GuiButton *gbtn)
         {
             load_game_scroll_offset++;
         }
-	}
+    }
 }
 
 void frontend_load_game_up(struct GuiButton *gbtn)

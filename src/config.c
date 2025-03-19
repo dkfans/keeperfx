@@ -741,7 +741,6 @@ long get_rid(const struct NamedCommand *desc, const char *itmname)
 }
 
 
-
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
 {
   const char *mdir;
