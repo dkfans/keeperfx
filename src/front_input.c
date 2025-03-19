@@ -2262,7 +2262,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   unsigned int slb_y = subtile_slab(y);
 
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-  struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+  struct SlabConfigStats* slabst = get_slab_stats(slb);
   if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!player->one_click_lock_cursor))
   {
     *context = CSt_DoorKey;

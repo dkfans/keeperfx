@@ -390,7 +390,7 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
         if (subtile_revealed(stl_x, stl_y, dungeon->owner))
         {
             struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-            const struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+            const struct SlabConfigStats* slabst = get_slab_stats(slb);
             if (((slabst->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
             {
                 num_faces += block_count_diggable_sides(subtile_slab(stl_x), subtile_slab(stl_y));

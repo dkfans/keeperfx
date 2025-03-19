@@ -342,7 +342,7 @@ void make_safe(struct PlayerInfo *player)
         {
             SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
             struct SlabMap* slb = get_slabmap_direct(slb_num);
-            struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+            struct SlabConfigStats* slabst = get_slab_stats(slb);
             if ((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
                 areamap[slb_num] = 0x01;
             else
@@ -372,7 +372,7 @@ void make_safe(struct PlayerInfo *player)
             {
                 areamap[slb_num] |= 0x02;
                 struct SlabMap* slb = get_slabmap_direct(slb_num);
-                struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+                struct SlabConfigStats* slabst = get_slab_stats(slb);
                 if ((slabst->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x-1, slb_y))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x - 1, slb_y);
@@ -395,7 +395,7 @@ void make_safe(struct PlayerInfo *player)
             {
                 areamap[slb_num] |= 0x02;
                 struct SlabMap* slb = get_slabmap_direct(slb_num);
-                struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+                struct SlabConfigStats* slabst = get_slab_stats(slb);
                 if ((slabst->category == SlbAtCtg_FriableDirt) &&  slab_by_players_land(plyr_idx, slb_x+1, slb_y))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x + 1, slb_y);
@@ -418,7 +418,7 @@ void make_safe(struct PlayerInfo *player)
             {
                 areamap[slb_num] |= 0x02;
                 struct SlabMap* slb = get_slabmap_direct(slb_num);
-                struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+                struct SlabConfigStats* slabst = get_slab_stats(slb);
                 if ((slabst->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y-1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y - 1);
@@ -441,7 +441,7 @@ void make_safe(struct PlayerInfo *player)
             {
                 areamap[slb_num] |= 0x02;
                 struct SlabMap* slb = get_slabmap_direct(slb_num);
-                struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+                struct SlabConfigStats* slabst = get_slab_stats(slb);
                 if ((slabst->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y+1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y + 1);

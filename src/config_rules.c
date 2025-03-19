@@ -39,7 +39,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-static int64_t value_x10(const struct NamedField* named_field, char* value_text);
+static int64_t value_x10(const struct NamedField* named_field, const char* value_text);
 
 /******************************************************************************/
 
@@ -102,14 +102,14 @@ const struct NamedField rules_game_named_fields[] = {
   {"LIGHTENABLED",              0, field(game.conf.rules.game.light_enabled             ),           1,        0,                  1,NULL,                           value_default},
   {"MAPCREATURELIMIT",          0, field(game.conf.rules.game.creatures_count           ),         255,        0,  CREATURES_COUNT-2,NULL,                           value_default},
   {"PRESERVECLASSICBUGS",      -1, field(game.conf.rules.game.classic_bugs_flags        ),ClscBug_None,        0,          ULONG_MAX,rules_game_classicbugs_commands,value_flagsfield},
-  {NULL,NULL,0,0,0},
+  {NULL},
 };
 
 
 const struct NamedField rules_computer_named_fields[] = {
     //name                    //param  //field                                           //default    //min     //max
   {"DISEASEHPTEMPLEPERCENTAGE",  0, field(game.conf.rules.computer.disease_to_temple_pct),500,        0, USHRT_MAX,NULL,value_default},
-  {NULL,NULL,0,0,0},
+  {NULL},
 };
 
 const struct NamedField rules_creatures_named_fields[] = {
@@ -126,7 +126,7 @@ const struct NamedField rules_creatures_named_fields[] = {
   {"CRITICALHEALTHPERCENTAGE",   0, field(game.conf.rules.creature.critical_health_permil), 125,        0,       100,NULL,value_x10    },
   {"STUNEVILENEMYCHANCE",        0, field(game.conf.rules.creature.stun_enemy_chance_evil), 100,        0,       100,NULL,value_default},
   {"STUNGOODENEMYCHANCE",        0, field(game.conf.rules.creature.stun_enemy_chance_good), 100,        0,       100,NULL,value_default},
-  {NULL,NULL,0,0,0},
+  {NULL},
 };
 
 const struct NamedField rules_magic_named_fields[] = {
@@ -146,7 +146,7 @@ const struct NamedField rules_magic_named_fields[] = {
   {"FRIENDLYFIGHTAREARANGEPERCENT",  0, field(game.conf.rules.magic.friendly_fight_area_range_percent ),   0, LONG_MIN, LONG_MAX,NULL,value_default},
   {"FRIENDLYFIGHTAREADAMAGEPERCENT", 0, field(game.conf.rules.magic.friendly_fight_area_damage_percent),   0, LONG_MIN, LONG_MAX,NULL,value_default},
   {"WEIGHTCALCULATEPUSH",            0, field(game.conf.rules.magic.weight_calculate_push             ),   0,        0, SHRT_MAX,NULL,value_default},
-  {NULL,NULL,0,0,0},
+  {NULL},
 };
 
 const struct NamedField rules_rooms_named_fields[] = {
@@ -170,7 +170,7 @@ const struct NamedField rules_rooms_named_fields[] = {
   {"TORTUREDEATHCHANCE",                  0, field(game.conf.rules.rooms.torture_death_chance            ),   0,        0,                 100,NULL,value_default},
   {"BARRACKMAXPARTYSIZE",                 0, field(game.conf.rules.rooms.barrack_max_party_size          ),  10,        0, GROUP_MEMBERS_COUNT,NULL,value_default},
   {"TRAININGROOMMAXLEVEL",                0, field(game.conf.rules.rooms.training_room_max_level         ),   0,        0,CREATURE_MAX_LEVEL+1,NULL,value_default},
-  {NULL,NULL,0,0,0},
+  {NULL},
 };
 
 const struct NamedField rules_workers_named_fields[] = {
@@ -180,7 +180,7 @@ const struct NamedField rules_workers_named_fields[] = {
   {"DEFAULTIMPDIGOWNDAMAGE",     0, field(game.conf.rules.workers.default_imp_dig_own_damage ),  2,       0, ULONG_MAX,NULL,value_default},
   {"IMPWORKEXPERIENCE",          0, field(game.conf.rules.workers.digger_work_experience     ),  0,       0,  LONG_MAX,NULL,value_default},
   {"DRAGUNCONSCIOUSTOLAIR",      0, field(game.conf.rules.workers.drag_to_lair               ),  0,       0,         2,NULL,value_default},
-  {NULL,NULL,0,0,0},
+  {NULL},
 };
 
 const struct NamedField rules_health_named_fields[] = {
@@ -190,7 +190,7 @@ const struct NamedField rules_health_named_fields[] = {
   {"FOODHEALTHGAIN",                0, field(game.conf.rules.health.food_health_gain             ), 10, LONG_MIN,  LONG_MAX,NULL,value_default},
   {"TORTUREHEALTHLOSS",             0, field(game.conf.rules.health.torture_health_loss          ),  5, LONG_MIN,  LONG_MAX,NULL,value_default},
   {"GAMETURNSPERTORTUREHEALTHLOSS", 0, field(game.conf.rules.health.turns_per_torture_health_loss),100,        0, USHRT_MAX,NULL,value_default},
-  {NULL,NULL,0,0,0},
+  {NULL},
 };
 
 const struct NamedCommand rules_research_commands[] = {
@@ -231,7 +231,7 @@ const struct NamedCommand sacrifice_unique_desc[] = {
 
 /******************************************************************************/
 
-static int64_t value_x10(const struct NamedField* named_field, char* value_text)
+static int64_t value_x10(const struct NamedField* named_field, const char* value_text)
 {
     
     if (parameter_is_number(value_text))

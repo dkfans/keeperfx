@@ -962,7 +962,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     {
         if (!player->first_person_dig_claim_mode)
         {
-            struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+            struct SlabConfigStats* slabst = get_slab_stats(slb);
             instf_destroy(creatng, NULL);
             if (slabst->block_flags & SlbAtFlg_IsRoom)
             {

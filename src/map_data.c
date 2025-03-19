@@ -833,7 +833,7 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
             return false;
         }
     }
-    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     if (((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
     {
         if (enemy_wall_diggable)

@@ -433,7 +433,7 @@ void calculate_dungeon_area_scores(void)
         {
             SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
             struct SlabMap* slb = get_slabmap_direct(slb_num);
-            const struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+            const struct SlabConfigStats* slabst = get_slab_stats(slb);
             if (slabst->category == SlbAtCtg_RoomInterior)
             {
                 struct Dungeon *dungeon;

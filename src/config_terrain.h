@@ -181,7 +181,7 @@ extern Room_Update_Func terrain_room_used_capacity_func_list[10];
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
 struct SlabConfigStats *get_slab_kind_stats(SlabKind slab_kind);
-struct SlabConfigStats *get_slab_stats(struct SlabMap *slb);
+struct SlabConfigStats *get_slab_stats(const struct SlabMap *slb);
 const char *room_role_code_name(RoomRole rrole);
 const char *room_code_name(RoomKind rkind);
 const char *slab_code_name(SlabKind slbkind);

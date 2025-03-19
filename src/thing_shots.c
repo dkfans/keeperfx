@@ -369,7 +369,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     {
         if (slabmap_owner(slb) != diggertng->owner)
         {
-            struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+            struct SlabConfigStats* slabst = get_slab_stats(slb);
             // and if it's fortified
             if (slabst->category == SlbAtCtg_FortifiedWall)
             {

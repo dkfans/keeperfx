@@ -133,6 +133,7 @@ enum dataTypes
     dt_double,
     dt_longdouble,
     dt_void,
+    dt_charptr,
 };
 
 #define var_type(expr)\
@@ -146,6 +147,7 @@ enum dataTypes
               double: dt_double, \
               long double: dt_longdouble, \
               void*: dt_void, \
+              char*: dt_charptr, \
               default: dt_default))
 
 #define field(field)\
@@ -174,8 +176,8 @@ struct NamedField {
     int64_t default_value;
     int64_t min;
     int64_t max;
-    struct NamedCommand *namedCommand;
-    void (*get_value_func)(struct NamedField *field, char* value_text); // converts the text to the a number
+    const struct NamedCommand *namedCommand;
+    int64_t (*get_value_func)(const struct NamedField *field, const char* value_text); // converts the text to the a number
     //void (*script_assign_func)(struct NamedField *field, char* value_text);
 };
 
@@ -246,6 +248,8 @@ const char *get_language_lwrstr(int lang_id);
 TbBool reset_credits(struct CreditsItem *credits);
 TbBool setup_campaign_credits_data(struct GameCampaign *campgn);
 /******************************************************************************/
+TbBool parameter_is_number(const char* parstr);
+
 short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname);
 TbBool iterate_conf_blocks(const char * buf, long * pos, long buflen, const char ** name, int * namelen);
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
@@ -265,10 +269,10 @@ long get_id(const struct NamedCommand *desc, const char *itmname);
 long long get_long_id(const struct LongNamedCommand* desc, const char* itmname);
 long get_rid(const struct NamedCommand *desc, const char *itmname);
 /******************************************************************************/
-int64_t value_default(const struct NamedField* named_field, char* value_text);
-int64_t value_flagsfield(const struct NamedField* named_field, char* value_text);
+int64_t value_default(const struct NamedField* named_field, const char* value_text);
+int64_t value_flagsfield(const struct NamedField* named_field, const char* value_text);
 
-int64_t get_named_field_value(const struct NamedField* named_field, char* value_text);
+int64_t get_named_field_value(const struct NamedField* named_field, const char* value_text);
 
 #ifdef __cplusplus
 }

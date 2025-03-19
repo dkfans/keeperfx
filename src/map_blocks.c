@@ -86,7 +86,7 @@ TbBool block_has_diggable_side(MapSlabCoord slb_x, MapSlabCoord slb_y)
   {
     // slab_is_safe_land looks at the slab owner. We don't want that here.
     struct SlabMap* slb = get_slabmap_block(slb_x + small_around[i].delta_x, slb_y + small_around[i].delta_y);
-    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     if (slabst->is_safe_land)
       return true;
   }
@@ -100,7 +100,7 @@ int block_count_diggable_sides(MapSlabCoord slb_x, MapSlabCoord slb_y)
     {
         // slab_is_safe_land looks at the slab owner. We don't want that here.
         struct SlabMap* slb = get_slabmap_block(slb_x + small_around[i].delta_x, slb_y + small_around[i].delta_y);
-        struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+        struct SlabConfigStats* slabst = get_slab_stats(slb);
         if (slabst->is_safe_land) {
             num_sides++;
         }
@@ -693,7 +693,7 @@ static TbBool get_against(PlayerNumber agnst_plyr_idx, SlabKind agnst_slbkind, M
         return 1;
     }
     struct SlabConfigStats *slabst = get_slab_stats(slb);
-    struct SlabAttr *agnst_slabst = get_slab_kind_stats(agnst_slbkind);
+    struct SlabConfigStats *agnst_slabst = get_slab_kind_stats(agnst_slbkind);
     return (slabst->slb_id != agnst_slabst->slb_id)
     || ((slabmap_owner(slb) != agnst_plyr_idx) && ((slabmap_owner(slb) != game.neutral_player_num) || (slb->kind == SlbT_CLAIMED) ));
 }
@@ -1251,7 +1251,7 @@ void place_single_slab_set_torch_places(SlabKind slbkind, MapSlabCoord slb_x, Ma
 void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y,
     PlayerNumber plyr_idx, short *slab_type_list, short *room_pretty_list, short *style_set, short *slab_number_list, ColumnIndex *col_idx)
 {
-    struct SlabAttr *place_slabst = get_slab_kind_stats(slbkind);
+    struct SlabConfigStats *place_slabst = get_slab_kind_stats(slbkind);
     unsigned char against = 0;
     signed short primitiv;
     int i;
@@ -1400,7 +1400,7 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
         room_pretty_list[i] = 0;
         slab_type_list[i] = slbkind;
     }
-    struct SlabAttr *place_slabst = get_slab_kind_stats(slbkind);
+    struct SlabConfigStats *place_slabst = get_slab_kind_stats(slbkind);
     if (place_slabst->category == SlbAtCtg_FortifiedWall) {
         place_single_slab_fill_arrays_std(slb_x, slb_y, slab_type_list, room_pretty_list);
     }
@@ -2592,7 +2592,7 @@ void fill_in_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSl
 {
     SYNCDBG(16,"Starting");
   struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
-  struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+  struct SlabConfigStats* slabst = get_slab_stats(slb);
   if ((slabst->category != SlbAtCtg_FortifiedWall))
    return;
   if ( slabmap_owner(slb) != plyr_idx )

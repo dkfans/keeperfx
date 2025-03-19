@@ -14,8 +14,14 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-//#include "highscores.h"
+
+#include "bflib_dernc.h"
+
+#include "highscores.h"
 #include "globals.h"
+#include "config.h"
+#include "config_campaigns.h"
+
 
 #include "post_inc.h"
 
@@ -75,7 +81,7 @@ static TbBool create_empty_high_score_table(void)
   return true;
 }
 
-static void load_or_create_high_score_table(void)
+void load_or_create_high_score_table(void)
 {
   if (!load_high_score_table())
   {

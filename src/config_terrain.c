@@ -64,25 +64,37 @@ const struct NamedCommand terrain_slab_commands[] = {
   {NULL,              0},
 };
 
+static const struct NamedCommand terrain_flags[] = {
+    {"VALUABLE",          1},
+    {"IS_ROOM",           2},
+    {"UNEXPLORED",        3},
+    {"DIGGABLE",          4},
+    {"BLOCKING",          5},
+    {"FILLED",            6},
+    {"IS_DOOR",           7},
+    {"TAGGED_VALUABLE",   8},
+    {NULL,                0},
+};
+
 const struct NamedField terrain_slab_named_fields[] = {
     //name                //field                                                        //default      //min     //max    //NamedCommand
-    {"NAME",              field(game.conf.slab_conf.slab_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, slab_desc    },
-    {"TOOLTIPTEXTID",     field(game.conf.slab_conf.slab_cfgstats[0].tooltip_stridx),     GUIStr_Empty, LONG_MIN,ULONG_MAX, NULL         },
-    {"BLOCKFLAGSHEIGHT",  field(game.conf.slab_conf.slab_cfgstats[0].block_flags_height),            0, LONG_MIN,ULONG_MAX, NULL         },
-    {"BLOCKHEALTHINDEX",  field(game.conf.slab_conf.slab_cfgstats[0].block_health_index),            0, LONG_MIN,ULONG_MAX, NULL         },
- /**/   {"BLOCKFLAGS",    field(game.conf.slab_conf.slab_cfgstats[0].block_flags),                   0, LONG_MIN,ULONG_MAX, terrain_flags},
- /**/   {"NOBLOCKFLAGS",  field(game.conf.slab_conf.slab_cfgstats[0].noblck_flags),                  0, LONG_MIN,ULONG_MAX, terrain_flags},
-    {"FILLSTYLE",         field(game.conf.slab_conf.slab_cfgstats[0].fill_style),                    0, LONG_MIN,ULONG_MAX, NULL         },
-    {"CATEGORY",          field(game.conf.slab_conf.slab_cfgstats[0].category),                      0, LONG_MIN,ULONG_MAX, NULL         },
-    {"SLBID",             field(game.conf.slab_conf.slab_cfgstats[0].slb_id),                        0, LONG_MIN,ULONG_MAX, NULL         },
-    {"WIBBLE",            field(game.conf.slab_conf.slab_cfgstats[0].wibble),                        0, LONG_MIN,ULONG_MAX, NULL         },
-    {"ISSAFELAND",        field(game.conf.slab_conf.slab_cfgstats[0].is_safe_land),                  0, LONG_MIN,ULONG_MAX, NULL         },
-    {"ISDIGGABLE",        field(game.conf.slab_conf.slab_cfgstats[0].is_diggable),                   0, LONG_MIN,ULONG_MAX, NULL         },
-    {"WLBTYPE",           field(game.conf.slab_conf.slab_cfgstats[0].wlb_type),                      0, LONG_MIN,ULONG_MAX, NULL         },
-    {"ANIMATED",          field(game.conf.slab_conf.slab_cfgstats[0].animated),                      0, LONG_MIN,ULONG_MAX, NULL         },
-    {"ISOWNABLE",         field(game.conf.slab_conf.slab_cfgstats[0].is_ownable),                    0, LONG_MIN,ULONG_MAX, NULL         },
-    {"INDESTRUCTIBLE",    field(game.conf.slab_conf.slab_cfgstats[0].indestructible),                0, LONG_MIN,ULONG_MAX, NULL         },
-    {NULL,NULL,0,0,0},
+    {"NAME",              0, field(game.conf.slab_conf.slab_cfgstats[0].code_name[0]),                  0, LONG_MIN,ULONG_MAX, slab_desc,     value_default},
+    {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.slab_cfgstats[0].tooltip_stridx),     GUIStr_Empty, LONG_MIN,ULONG_MAX, NULL,          value_default},
+    {"BLOCKFLAGSHEIGHT",  0, field(game.conf.slab_conf.slab_cfgstats[0].block_flags_height),            0, LONG_MIN,ULONG_MAX, NULL,          value_default},
+    {"BLOCKHEALTHINDEX",  0, field(game.conf.slab_conf.slab_cfgstats[0].block_health_index),            0, LONG_MIN,ULONG_MAX, NULL,          value_default},
+    {"BLOCKFLAGS",        0, field(game.conf.slab_conf.slab_cfgstats[0].block_flags),                   0, LONG_MIN,ULONG_MAX, terrain_flags, value_default},
+    {"NOBLOCKFLAGS",      0, field(game.conf.slab_conf.slab_cfgstats[0].noblck_flags),                  0, LONG_MIN,ULONG_MAX, terrain_flags, value_default},
+    {"FILLSTYLE",         0, field(game.conf.slab_conf.slab_cfgstats[0].fill_style),                    0, LONG_MIN,ULONG_MAX, NULL,          value_default},
+    {"CATEGORY",          0, field(game.conf.slab_conf.slab_cfgstats[0].category),                      0, LONG_MIN,ULONG_MAX, NULL,          value_default},
+    {"SLBID",             0, field(game.conf.slab_conf.slab_cfgstats[0].slb_id),                        0, LONG_MIN,ULONG_MAX, NULL,          value_default},
+    {"WIBBLE",            0, field(game.conf.slab_conf.slab_cfgstats[0].wibble),                        0, LONG_MIN,ULONG_MAX, NULL,          value_default},
+    {"ISSAFELAND",        0, field(game.conf.slab_conf.slab_cfgstats[0].is_safe_land),                  0, LONG_MIN,ULONG_MAX, NULL,          value_default},
+    {"ISDIGGABLE",        0, field(game.conf.slab_conf.slab_cfgstats[0].is_diggable),                   0, LONG_MIN,ULONG_MAX, NULL,          value_default},
+    {"WLBTYPE",           0, field(game.conf.slab_conf.slab_cfgstats[0].wlb_type),                      0, LONG_MIN,ULONG_MAX, NULL,          value_default},
+    {"ANIMATED",          0, field(game.conf.slab_conf.slab_cfgstats[0].animated),                      0, LONG_MIN,ULONG_MAX, NULL,          value_default},
+    {"ISOWNABLE",         0, field(game.conf.slab_conf.slab_cfgstats[0].is_ownable),                    0, LONG_MIN,ULONG_MAX, NULL,          value_default},
+    {"INDESTRUCTIBLE",    0, field(game.conf.slab_conf.slab_cfgstats[0].indestructible),                0, LONG_MIN,ULONG_MAX, NULL,          value_default},
+    {NULL},
 };
 
 
@@ -243,17 +255,6 @@ const struct NamedCommand terrain_health_commands[] = {
 struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 
-const struct NamedCommand terrain_flags[] = {
-  {"VALUABLE",          1},
-  {"IS_ROOM",           2},
-  {"UNEXPLORED",        3},
-  {"DIGGABLE",          4},
-  {"BLOCKING",          5},
-  {"FILLED",            6},
-  {"IS_DOOR",           7},
-  {"TAGGED_VALUABLE",   8},
-  {NULL,                0},
-  };
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -267,7 +268,7 @@ struct SlabConfigStats *get_slab_kind_stats(SlabKind slab_kind)
     return &game.conf.slab_conf.slab_cfgstats[slab_kind];
 }
 
-struct SlabConfigStats *get_slab_stats(struct SlabMap *slb)
+struct SlabConfigStats *get_slab_stats(const struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
         return &game.conf.slab_conf.slab_cfgstats[0];

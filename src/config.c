@@ -70,6 +70,23 @@ const struct NamedCommand logicval_type[] = {
   {NULL,       0},
   };
 
+TbBool parameter_is_number(const char* parstr)
+{
+    if (parstr == NULL) {
+          return false;
+    } else if (parstr[0] == 0) {
+        return false;
+    } else if (!(parstr[0] == '-' || isdigit(parstr[0]))) {
+        return false;
+    }
+    for (int i = 1; parstr[i] != '\0'; ++i) {
+        if (!isdigit(parstr[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
 {
   // Skip to end of the line
@@ -291,21 +308,21 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
 }
 
 //if the parameter is a number return the number, if a value in the provided NamedCommand list return the value
-int64_t value_default(const struct NamedField* named_field, char* value_text)
+int64_t value_default(const struct NamedField* named_field, const char* value_text)
 {
     if (parameter_is_number(value_text))
     {
         int64_t value = atoll(value_text);
 
-        if( value < commands[i].min)
+        if( value < named_field->min)
         {
-            CONFWRNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",commands[i].name,commands[i].min,value);
-            value = commands[i].min;
+            WARNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",named_field->name,named_field->min,value);
+            value = named_field->min;
         }
-        else if( value > commands[i].max)
+        else if( value > named_field->max)
         {
-            CONFWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",commands[i].name,commands[i].max,value);
-            value = commands[i].max;
+            CONFWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",named_field->name,named_field->max,value);
+            value = named_field->max;
         }
         return value;
 
@@ -327,7 +344,7 @@ int64_t value_default(const struct NamedField* named_field, char* value_text)
 }
 
 //expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
-int64_t value_flagsfield(const struct NamedField* named_field, char* value_text)
+int64_t value_flagsfield(const struct NamedField* named_field,const char* value_text)
 {
     int64_t value = 0;
     char word_buf[COMMAND_WORD_LEN];
@@ -336,7 +353,9 @@ int64_t value_flagsfield(const struct NamedField* named_field, char* value_text)
         return atoll(value_text);
     }
 
-    while (get_conf_parameter_single(value_text,pos,len,word_buf,sizeof(word_buf)) > 0)
+    long pos = 0;
+    long len = strlen(value_text);
+    while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
     {
         int k = get_id(named_field->namedCommand, word_buf);
         if(k > 0)
@@ -347,7 +366,7 @@ int64_t value_flagsfield(const struct NamedField* named_field, char* value_text)
     return value;
 }
 
-int64_t get_named_field_value(const struct NamedField* named_field, char* value_text)
+int64_t get_named_field_value(const struct NamedField* named_field, const char* value_text)
 {
     if (named_field->get_value_func != NULL)
       return named_field->get_value_func(named_field,value_text);
@@ -473,10 +492,32 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
             }
 
             
-            int64_t k;
-            if (&commands[i].argnum == -1)
+            int64_t k = 0;
+            if (commands[i].argnum == -1)
             {
-                k = get_named_field_value(&commands[i],buf);
+                char line_buf[COMMAND_WORD_LEN];
+                int line_len = 0;
+                
+                // Copy characters until newline or end of buffer
+                while ((*pos) + line_len < buflen && 
+                      buf[(*pos) + line_len] != '\n' && 
+                      buf[(*pos) + line_len] != '\r')
+                {
+                    line_buf[line_len] = buf[(*pos) + line_len];
+                    line_len++;
+                    
+                    // Prevent buffer overflow
+                    if (line_len >= COMMAND_WORD_LEN - 1)
+                        break;
+                }
+                
+                line_buf[line_len] = '\0'; // Null-terminate the string
+            
+                // Move position to the next line
+                (*pos) += line_len;
+            
+                // Pass extracted string
+              k = get_named_field_value(&commands[i], line_buf);
             }
             else
             {

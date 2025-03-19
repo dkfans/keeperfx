@@ -435,7 +435,7 @@ long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigne
     MapSubtlCoord stl_y = mvpos->y.stl.num;
     int i;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     // If we're on room, move to non-room tile
     for (i = 0; i < slabs_dist; i++)
     {
@@ -467,7 +467,7 @@ long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigne
 TbBool subtile_is_blocking_wall_or_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     // Lava is easy
     if (map_pos_is_lava(stl_x, stl_y)) {
         return true;
@@ -522,7 +522,7 @@ long pos_move_in_direction_to_unowned_filled_or_water(struct Coord3d *mvpos, uns
     MapSubtlCoord stl_y = mvpos->y.stl.num;
     int i;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     // If we're on room, move to non-room tile
     for (i = 0; i < slabs_dist; i++)
     {

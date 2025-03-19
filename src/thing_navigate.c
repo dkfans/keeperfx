@@ -830,7 +830,7 @@ TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb))
         return false;
-    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     if (flag_is_set(slabst->block_flags, SlbAtFlg_IsDoor))
     {
         struct Thing* doortng = get_door_for_position(stl_x, stl_y);

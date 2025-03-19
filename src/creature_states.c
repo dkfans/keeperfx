@@ -32,6 +32,7 @@
 #include "config_terrain.h"
 #include "config_effects.h"
 #include "config_crtrstates.h"
+#include "config_keeperfx.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_objects.h"
@@ -1919,7 +1920,7 @@ short creature_doing_nothing(struct Thing *creatng)
 TbBool slab_is_valid_for_creature_choose_move(const struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     if ( ((slabst->block_flags & SlbAtFlg_IsRoom) != 0) || ((slabst->block_flags & SlbAtFlg_Blocking) == 0) )
         return true;
     MapSubtlCoord stl_x = slab_subtile_center(slb_x);
@@ -3612,7 +3613,7 @@ CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
         struct SlabMap* slb = get_slabmap_for_subtile(wall_x, wall_y);
         PlayerNumber slab_owner = slabmap_owner(slb);
         struct Map* mapblk = get_map_block_at(wall_x, wall_y);
-        struct SlabConfigStats* slabst = get_slab_kind_stats(slb);
+        struct SlabConfigStats* slabst = get_slab_stats(slb);
 
         if ( (mapblk->flags & SlbAtFlg_Blocking) != 0
             && slab_owner == creatng->owner
