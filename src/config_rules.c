@@ -41,6 +41,9 @@ extern "C" {
 
 static int64_t value_x10(const struct NamedField* named_field, const char* value_text);
 
+static int assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value,size_t offset);
+static int assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value,size_t offset);
+
 /******************************************************************************/
 
 
@@ -88,7 +91,7 @@ const struct NamedField rules_game_named_fields[] = {
   {"DOORSELLVALUEPERCENT",      0, field(game.conf.rules.game.door_sale_percent         ),         100,        0,           LONG_MAX,NULL,                           value_default},
   {"TRAPSELLVALUEPERCENT",      0, field(game.conf.rules.game.trap_sale_percent         ),         100,        0,           LONG_MAX,NULL,                           value_default},
   {"BAGGOLDHOLD",               0, field(game.conf.rules.game.bag_gold_hold             ),         200, LONG_MIN,           LONG_MAX,NULL,                           value_default},
-  {"ALLIESSHAREVISION",         0, field(game.conf.rules.game.allies_share_vision       ),           0,        0,                  1,NULL,                           value_default},
+  {"ALLIESSHAREVISION",         0, field(game.conf.rules.game.allies_share_vision       ),           0,        0,                  1,NULL,                           value_default, assign_AlliesShareVision_script},
   {"ALLIESSHAREDROP",           0, field(game.conf.rules.game.allies_share_drop         ),           0,        0,                  1,NULL,                           value_default},
   {"ALLIESSHARECTA",            0, field(game.conf.rules.game.allies_share_cta          ),           0,        0,                  1,NULL,                           value_default},
   {"DISPLAYPORTALLIMIT",        0, field(game.conf.rules.game.display_portal_limit      ),           0,        0,                  1,NULL,                           value_default},
@@ -100,8 +103,8 @@ const struct NamedField rules_game_named_fields[] = {
   {"EASTEREGGSPEECHINTERVAL",   0, field(game.conf.rules.game.easter_egg_speech_interval),       20000,        0,           LONG_MAX,NULL,                           value_default},
   {"GLOBALAMBIENTLIGHT",        0, field(game.conf.rules.game.global_ambient_light      ),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default},
   {"LIGHTENABLED",              0, field(game.conf.rules.game.light_enabled             ),           1,        0,                  1,NULL,                           value_default},
-  {"MAPCREATURELIMIT",          0, field(game.conf.rules.game.creatures_count           ),         255,        0,  CREATURES_COUNT-2,NULL,                           value_default},
-  {"PRESERVECLASSICBUGS",      -1, field(game.conf.rules.game.classic_bugs_flags        ),ClscBug_None,        0,          ULONG_MAX,rules_game_classicbugs_commands,value_flagsfield},
+  {"MAPCREATURELIMIT",          0, field(game.conf.rules.game.creatures_count           ),         255,        0,  CREATURES_COUNT-2,NULL,                           value_default, assign_MapCreatureLimit_script},
+  {"PRESERVECLASSICBUGS",      -1, field(game.conf.rules.game.classic_bugs_flags        ),ClscBug_None,ClscBug_None, ClscBug_ListEnd,rules_game_classicbugs_commands,value_flagsfield},
   {NULL},
 };
 
@@ -230,6 +233,22 @@ const struct NamedCommand sacrifice_unique_desc[] = {
 };
 
 /******************************************************************************/
+
+static int assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value,size_t offset)
+{
+    assign_named_field_value_direct(named_field,value,offset);
+    short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
+    if (count > 0)
+    {
+        SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die",count);
+    }
+}
+
+static int assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value,size_t offset)
+{
+    assign_named_field_value_direct(named_field,value,offset);
+    panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+}
 
 static int64_t value_x10(const struct NamedField* named_field, const char* value_text)
 {

@@ -384,7 +384,7 @@ int64_t get_named_field_value(const struct NamedField* named_field, const char* 
     return 0;
 }
 
-int assign_named_field_value(const struct NamedField* named_field, int64_t value,size_t offset)
+int assign_named_field_value_direct(const struct NamedField* named_field, int64_t value,size_t offset)
 {
 
     void* field = (char*)named_field->field + offset;
@@ -440,6 +440,14 @@ int assign_named_field_value(const struct NamedField* named_field, int64_t value
         break;
     }
     return ccr_ok;
+}
+
+int assign_named_field_value_script(const struct NamedField* named_field, int64_t value,size_t offset)
+{
+    if (named_field->assign_func != NULL)
+      return named_field->assign_func(named_field,value,offset);
+    else
+      return assign_named_field_value_direct(named_field,value,offset);
 }
 
 /**
@@ -542,7 +550,7 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                 }
             }
 
-            return assign_named_field_value(&commands[i],k,offset);
+            return assign_named_field_value_direct(&commands[i],k,offset);
         }
         i++;
     }
