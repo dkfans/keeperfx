@@ -274,6 +274,7 @@ long get_rid(const struct NamedCommand *desc, const char *itmname);
 int64_t value_name(const struct NamedField* named_field, const char* value_text);
 int64_t value_default(const struct NamedField* named_field, const char* value_text);
 int64_t value_flagsfield(const struct NamedField* named_field, const char* value_text);
+int64_t value_flagsfieldshift(const struct NamedField* named_field,const char* value_text);
 
 int64_t get_named_field_value(const struct NamedField* named_field, const char* value_text);
 

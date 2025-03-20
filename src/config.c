@@ -353,7 +353,7 @@ int64_t value_name(const struct NamedField* named_field, const char* value_text)
 
 
 //expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
-int64_t value_flagsfield(const struct NamedField* named_field,const char* value_text)
+int64_t value_flagsfieldshift(const struct NamedField* named_field,const char* value_text)
 {
     int64_t value = 0;
     char word_buf[COMMAND_WORD_LEN];
@@ -369,6 +369,29 @@ int64_t value_flagsfield(const struct NamedField* named_field,const char* value_
         int k = get_id(named_field->namedCommand, word_buf);
         if(k > 0)
           value |= 1<<(k - 1);
+        else
+          CONFWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
+    }
+    return value;
+}
+
+//expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
+int64_t value_flagsfield(const struct NamedField* named_field,const char* value_text)
+{
+    int64_t value = 0;
+    char word_buf[COMMAND_WORD_LEN];
+    if (parameter_is_number(value_text))
+    {
+        return atoll(value_text);
+    }
+
+    long pos = 0;
+    long len = strlen(value_text);
+    while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
+    {
+        int k = get_id(named_field->namedCommand, word_buf);
+        if(k > 0)
+          value |= k;
         else
           CONFWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
     }

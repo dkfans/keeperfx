@@ -62,8 +62,8 @@ const struct NamedField terrain_slab_named_fields[] = {
     {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.slab_cfgstats[0].tooltip_stridx),     GUIStr_Empty, LONG_MIN,ULONG_MAX, NULL,          value_default},
     {"BLOCKFLAGSHEIGHT",  0, field(game.conf.slab_conf.slab_cfgstats[0].block_flags_height),            0, LONG_MIN,ULONG_MAX, NULL,          value_default},
     {"BLOCKHEALTHINDEX",  0, field(game.conf.slab_conf.slab_cfgstats[0].block_health_index),            0, LONG_MIN,ULONG_MAX, NULL,          value_default},
-    {"BLOCKFLAGS",       -1, field(game.conf.slab_conf.slab_cfgstats[0].block_flags),                   0, LONG_MIN,ULONG_MAX, terrain_flags, value_flagsfield},
-    {"NOBLOCKFLAGS",     -1, field(game.conf.slab_conf.slab_cfgstats[0].noblck_flags),                  0, LONG_MIN,ULONG_MAX, terrain_flags, value_flagsfield},
+    {"BLOCKFLAGS",       -1, field(game.conf.slab_conf.slab_cfgstats[0].block_flags),                   0, LONG_MIN,ULONG_MAX, terrain_flags, value_flagsfieldshift},
+    {"NOBLOCKFLAGS",     -1, field(game.conf.slab_conf.slab_cfgstats[0].noblck_flags),                  0, LONG_MIN,ULONG_MAX, terrain_flags, value_flagsfieldshift},
     {"FILLSTYLE",         0, field(game.conf.slab_conf.slab_cfgstats[0].fill_style),                    0, LONG_MIN,ULONG_MAX, NULL,          value_default},
     {"CATEGORY",          0, field(game.conf.slab_conf.slab_cfgstats[0].category),                      0, LONG_MIN,ULONG_MAX, NULL,          value_default},
     {"SLBID",             0, field(game.conf.slab_conf.slab_cfgstats[0].slb_id),                        0, LONG_MIN,ULONG_MAX, NULL,          value_default},
@@ -77,6 +77,31 @@ const struct NamedField terrain_slab_named_fields[] = {
     {NULL},
 };
 
+const struct NamedField terrain_room_named_fields[] = {
+    //name                //field                                                        //default      //min     //max    //NamedCommand
+    {"NAME",              0, field(game.conf.slab_conf.room_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, room_desc,                        value_name},
+    {"COST",              0, field(game.conf.slab_conf.room_cfgstats[0].cost),                          0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"HEALTH",            0, field(game.conf.slab_conf.room_cfgstats[0].health),                        0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"PROPERTIES",        0, field(game.conf.slab_conf.room_cfgstats[0].flags),                         0, LONG_MIN,ULONG_MAX, terrain_room_properties_commands, value_default},
+    {"SLABASSIGN",        0, field(game.conf.slab_conf.room_cfgstats[0].assigned_slab),                 0, LONG_MIN,ULONG_MAX, slab_desc,                        value_default},
+    {"CREATURECREATION",  0, field(game.conf.slab_conf.room_cfgstats[0].creature_creation_model),       0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"MESSAGES",          0, field(game.conf.slab_conf.room_cfgstats[0].msg_needed),                    0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"MESSAGES",          1, field(game.conf.slab_conf.room_cfgstats[0].msg_too_small),                 0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"MESSAGES",          2, field(game.conf.slab_conf.room_cfgstats[0].msg_no_route),                  0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"NAMETEXTID",        0, field(game.conf.slab_conf.room_cfgstats[0].name_stridx),                   0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.room_cfgstats[0].tooltip_stridx),                0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"SYMBOLSPRITES",     0, field(game.conf.slab_conf.room_cfgstats[0].bigsym_sprite_idx),             0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"SYMBOLSPRITES",     1, field(game.conf.slab_conf.room_cfgstats[0].medsym_sprite_idx),             0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"POINTERSPRITES",    0, field(game.conf.slab_conf.room_cfgstats[0].pointer_sprite_idx),            0, LONG_MIN,ULONG_MAX, NULL,                             value_icon},
+    {"PANELTABINDEX",     0, field(game.conf.slab_conf.room_cfgstats[0].panel_tab_idx),                 0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"TOTALCAPACITY",     0, field(game.conf.slab_conf.room_cfgstats[0].update_total_capacity_idx),     0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"USEDCAPACITY",      0, field(game.conf.slab_conf.room_cfgstats[0].update_storage_in_room_idx),    0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"SLABSYNERGY",       0, field(game.conf.slab_conf.room_cfgstats[0].indestructible),                0, LONG_MIN,ULONG_MAX, slab_desc,                        value_default},
+    {"AMBIENTSNDSAMPLE",  0, field(game.conf.slab_conf.room_cfgstats[0].ambient_snd_smp_id),            0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {"ROLES",            -1, field(game.conf.slab_conf.room_cfgstats[0].roles),                         0, LONG_MIN,ULONG_MAX, NULL,                             value_flagsfield},
+    {"STORAGEHEIGHT",     0, field(game.conf.slab_conf.room_cfgstats[0].storage_height),                0, LONG_MIN,ULONG_MAX, NULL,                             value_default},
+    {NULL},
+};
 
 const struct NamedCommand terrain_room_commands[] = {
   {"NAME",              1},
