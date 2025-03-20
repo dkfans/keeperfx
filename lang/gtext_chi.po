@@ -5778,12 +5778,12 @@ msgstr ""
 #: guitext:1045
 msgctxt "Creature name"
 msgid "Maiden"
-msgstr ""
+msgstr "贵妇"
 
 #: guitext:1046
 msgctxt "Creature name"
 msgid "Spiderling"
-msgstr ""
+msgstr "蛛卵"
 
 #: guitext:1047
 msgctxt "Creature name"
