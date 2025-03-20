@@ -368,11 +368,10 @@ int64_t value_flagsfield(const struct NamedField* named_field,const char* value_
     {
         int k = get_id(named_field->namedCommand, word_buf);
         if(k > 0)
-          value |= 1<<k;
+          value |= 1<<(k - 1);
         else
           CONFWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
     }
-    JUSTLOG("value_flagsfield %s %s %I64d",named_field->name,value_text,value);
     return value;
 }
 
