@@ -70,7 +70,6 @@ struct SacrificeRecipe {
 };
 
 struct GameRulesConfig {
-    GoldAmount gold_per_gold_block;
     GoldAmount pot_of_gold_holds;
     GoldAmount chest_gold_hold;
     GoldAmount gold_pile_value;
@@ -86,7 +85,6 @@ struct GameRulesConfig {
     HitPoints dungeon_heart_heal_health;
     unsigned long hero_door_wait_time;
     unsigned long classic_bugs_flags;
-    unsigned long gem_effectiveness;
     long door_sale_percent;
     long room_sale_percent;
     long trap_sale_percent;
