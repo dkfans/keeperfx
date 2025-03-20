@@ -5851,7 +5851,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
         if (ruledesc != -1)
         {
             rulegroup = i;
-            ruleval = get_named_field_value(ruleblocks[i]+ruledesc, rulevalue_str);
+            ruleval = get_named_field_value(ruleblocks[i]+ruledesc, rulevalue_str, 0);
             break;
         }
     }

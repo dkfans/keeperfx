@@ -40,7 +40,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-static int64_t value_x10(const struct NamedField* named_field, const char* value_text);
+static int64_t value_x10(const struct NamedField* named_field, const char* value_text,size_t offset);
 
 static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value,size_t offset);
 static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value,size_t offset);
@@ -251,7 +251,7 @@ static void assign_AlliesShareVision_script(const struct NamedField* named_field
     panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
 }
 
-static int64_t value_x10(const struct NamedField* named_field, const char* value_text)
+static int64_t value_x10(const struct NamedField* named_field, const char* value_text,size_t offset)
 {
     
     if (parameter_is_number(value_text))

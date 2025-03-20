@@ -309,7 +309,7 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
 }
 
 //if the parameter is a number return the number, if a value in the provided NamedCommand list return the value
-int64_t value_default(const struct NamedField* named_field, const char* value_text)
+int64_t value_default(const struct NamedField* named_field, const char* value_text,size_t offset)
 {
     if (parameter_is_number(value_text))
     {
@@ -344,17 +344,16 @@ int64_t value_default(const struct NamedField* named_field, const char* value_te
     return 0;
 }
 
-int64_t value_name(const struct NamedField* named_field, const char* value_text)
+int64_t value_name(const struct NamedField* named_field, const char* value_text,size_t offset)
 {
-    strncpy((char*)named_field->field, value_text, COMMAND_WORD_LEN - 1);
-    ((char*)named_field->field)[COMMAND_WORD_LEN - 1] = '\0';
-
+    strncpy((char*)named_field->field + offset, value_text, COMMAND_WORD_LEN - 1);
+    ((char*)named_field->field + offset)[COMMAND_WORD_LEN - 1] = '\0';
     return 0;
 }
 
 
 //expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
-int64_t value_flagsfieldshift(const struct NamedField* named_field,const char* value_text)
+int64_t value_flagsfieldshift(const struct NamedField* named_field,const char* value_text,size_t offset)
 {
     int64_t value = 0;
     char word_buf[COMMAND_WORD_LEN];
@@ -377,7 +376,7 @@ int64_t value_flagsfieldshift(const struct NamedField* named_field,const char* v
 }
 
 //expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
-int64_t value_flagsfield(const struct NamedField* named_field,const char* value_text)
+int64_t value_flagsfield(const struct NamedField* named_field,const char* value_text,size_t offset)
 {
     int64_t value = 0;
     char word_buf[COMMAND_WORD_LEN];
@@ -399,15 +398,15 @@ int64_t value_flagsfield(const struct NamedField* named_field,const char* value_
     return value;
 }
 
-int64_t value_icon(const struct NamedField* named_field,const char* value_text)
+int64_t value_icon(const struct NamedField* named_field,const char* value_text,size_t offset)
 {
     return get_icon_id(value_text);
 }
 
-int64_t get_named_field_value(const struct NamedField* named_field, const char* value_text)
+int64_t get_named_field_value(const struct NamedField* named_field, const char* value_text,size_t offset)
 {
     if (named_field->get_value_func != NULL)
-      return named_field->get_value_func(named_field,value_text);
+      return named_field->get_value_func(named_field,value_text,offset);
     else
       ERRORLOG("No get_value_func for field %s",named_field->name);
     return 0;
@@ -568,14 +567,14 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                 (*pos) += line_len;
             
                 // Pass extracted string
-              k = get_named_field_value(&commands[i], line_buf);
+              k = get_named_field_value(&commands[i], line_buf,offset);
             }
             else
             {
               char word_buf[COMMAND_WORD_LEN];
                 if (get_conf_parameter_single(buf,pos,buflen,word_buf,sizeof(word_buf)) > 0)
                 {
-                    k = get_named_field_value(&commands[i],word_buf);
+                    k = get_named_field_value(&commands[i],word_buf,offset);
                 }
             }
 
@@ -617,6 +616,81 @@ TbBool parse_named_field_block(const char *buf, long len, const char *config_tex
             break;
         }
     }
+    return true;
+}
+
+void set_defaults(const struct NamedField* named_fields,
+  struct NamedCommand* names, long max_count, size_t struct_size, void* struct_base)
+{
+  memset(struct_base, 0, struct_size * max_count);
+
+  const struct NamedField* name_NamedField = NULL;
+  for (long i = 0; named_fields[i].name != NULL; i++)
+  {
+      if (named_fields[i].default_value != 0)
+      {
+          for (long j = 0; j < max_count; j++)
+          {
+              assign_named_field_value_direct(&named_fields[i], named_fields[i].default_value, j * struct_size);
+          }
+      }
+
+      if(strcmp(named_fields[i].name, "NAME") == 0)
+      {
+          name_NamedField = &named_fields[i];
+      }
+
+  }
+  if (name_NamedField != NULL)
+  {
+      for (int i = 0; i < TERRAIN_ITEMS_MAX; i++)
+      {
+          names[i].name = (char*)name_NamedField->field + i * struct_size;
+          names[i].num = i;
+          CONFWRNLOG("Set slab index %d name: %s", i, names[i].name);
+      }
+      names[max_count - 1].name = NULL; // must be null for get_id
+  }
+}
+
+
+TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname, unsigned short flags,
+                               long* count_field,const char* block_basename,const struct NamedField* named_fields,
+                               struct NamedCommand* names, long max_count, size_t struct_size, void* struct_base)
+{
+    long pos = 0;
+    // Initialize the array
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        set_defaults(named_fields,names,max_count,struct_size,struct_base);
+    }
+
+
+    const char * blockname = NULL;
+    int blocknamelen = 0;
+    const int basename_len = strlen(block_basename);
+    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
+    {
+        // look for blocks starting with "slab", followed by one or more digits
+        if (blocknamelen < 5) {
+            continue;
+        } else if (memcmp(blockname, block_basename, basename_len) != 0) {
+            continue;
+        }
+        const int i = natoi(&blockname[4], blocknamelen - 4);
+        if (i < 0 || i >= max_count) {
+            continue;
+        } else if (i >= *count_field) {
+            *count_field = i + 1;
+        }
+        char blockname_null[COMMAND_WORD_LEN];
+        strncpy(blockname_null, blockname, blocknamelen);
+        blockname_null[blocknamelen] = '\0';
+
+        parse_named_field_block(buf, len, config_textname, flags, blockname_null, named_fields, i * struct_size);
+
+    }
+
     return true;
 }
 
