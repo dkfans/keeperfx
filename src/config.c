@@ -33,6 +33,7 @@
 #include "sounds.h"
 #include "engine_render.h"
 #include "bflib_fmvids.h"
+#include "custom_sprites.h"
 
 #include "config_campaigns.h"
 #include "config_keeperfx.h"
@@ -398,6 +399,11 @@ int64_t value_flagsfield(const struct NamedField* named_field,const char* value_
     return value;
 }
 
+int64_t value_icon(const struct NamedField* named_field,const char* value_text)
+{
+    return get_icon_id(value_text);
+}
+
 int64_t get_named_field_value(const struct NamedField* named_field, const char* value_text)
 {
     if (named_field->get_value_func != NULL)
@@ -465,12 +471,12 @@ int assign_named_field_value_direct(const struct NamedField* named_field, int64_
     return ccr_ok;
 }
 
-int assign_named_field_value_script(const struct NamedField* named_field, int64_t value,size_t offset)
+void assign_named_field_value_script(const struct NamedField* named_field, int64_t value,size_t offset)
 {
     if (named_field->assign_func != NULL)
-      return named_field->assign_func(named_field,value,offset);
+      named_field->assign_func(named_field,value,offset);
     else
-      return assign_named_field_value_direct(named_field,value,offset);
+      assign_named_field_value_direct(named_field,value,offset);
 }
 
 /**

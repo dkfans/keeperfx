@@ -178,7 +178,7 @@ struct NamedField {
     int64_t max;
     const struct NamedCommand *namedCommand;
     int64_t (*get_value_func)(const struct NamedField *field, const char* value_text); // converts the text to the a number
-    void (*script_assign_func)(const struct NamedField* named_field, int64_t value,size_t offset);
+    void (*assign_func)(const struct NamedField* named_field, int64_t value,size_t offset);
 };
 
 
@@ -264,7 +264,7 @@ TbBool parse_named_field_block(const char *buf, long len, const char *config_tex
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
 int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField *commands,size_t offset);
 int assign_named_field_value_direct(const struct NamedField* named_field, int64_t value,size_t offset);
-int assign_named_field_value_script(const struct NamedField* named_field, int64_t value,size_t offset);
+void assign_named_field_value_script(const struct NamedField* named_field, int64_t value,size_t offset);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
 long get_named_field_id(const struct NamedField *desc, const char *itmname);
 long get_id(const struct NamedCommand *desc, const char *itmname);
@@ -275,6 +275,7 @@ int64_t value_name(const struct NamedField* named_field, const char* value_text)
 int64_t value_default(const struct NamedField* named_field, const char* value_text);
 int64_t value_flagsfield(const struct NamedField* named_field, const char* value_text);
 int64_t value_flagsfieldshift(const struct NamedField* named_field,const char* value_text);
+int64_t value_icon(const struct NamedField* named_field,const char* value_text);
 
 int64_t get_named_field_value(const struct NamedField* named_field, const char* value_text);
 
