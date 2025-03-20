@@ -4211,6 +4211,7 @@ TbBool process_creature_hunger(struct Thing *thing)
 
 TbBool trap_will_attack_creature(const struct Thing* fightng, const struct Thing* enmtng)
 {
+    //todo this function needs writing
     return true;
 }
 

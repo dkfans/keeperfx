@@ -1591,6 +1591,7 @@ CrAttackType check_for_possible_ranged_combat_with_attacker_within_distance(stru
 CrAttackType check_for_possible_combat_with_enemy_object_within_distance(struct Thing* fightng, struct Thing** outenmtng, long maxdist)
 {
     struct Thing* thing = get_nearest_enemy_object_possible_to_attack_by(fightng);
+    //returns only dungeon hearts
     if (!thing_is_invalid(thing))
     {
         SYNCDBG(9, "Best enemy for %s index %d is %s index %d", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
@@ -1610,14 +1611,13 @@ CrAttackType check_for_possible_combat_with_enemy_object_within_distance(struct 
         thing = get_highest_score_enemy_object_within_distance_possible_to_attack_by(fightng, 12304, 0);
         if (thing_is_invalid(thing))
         {
-            JUSTLOG("did not find object in distance at turn %ld", game.play_gameturn);
             return AttckT_Unset;
         }
         SYNCDBG(9, "Best enemy for %s index %d is %s index %d", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
         // When counting distance, take size of creatures into account
         long distance = get_combat_distance(fightng, thing);
         CrAttackType attack_type = creature_can_have_combat_with_object(fightng, thing, distance, 1, 0);
-        if (attack_type > AttckT_Unset) {
+        if (attack_type > AttckT_Unset){
             *outenmtng = thing;
             return attack_type;
         }
@@ -1648,27 +1648,6 @@ CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struc
     }
     return AttckT_Unset;
 }
-/*
-CrAttackType check_for_possible_combat_with_enemy_object_within_distance(struct Thing* fightng, struct Thing** outenmtng, long maxdist)
-{
-    long move_on_ground = 0;
-    struct Thing* thing = get_highest_score_enemy_creature_within_distance_possible_to_attack_by(fightng, maxdist, move_on_ground);
-    if (!thing_is_invalid(thing))
-    {
-        SYNCDBG(9, "Best enemy for %s index %d is %s index %d", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
-        // When counting distance, take size of creatures into account
-        long distance = get_combat_distance(fightng, thing);
-        CrAttackType attack_type = creature_can_have_combat_with_object(fightng, thing, distance, move_on_ground, 0);
-        if (attack_type > AttckT_Unset) {
-            *outenmtng = thing;
-            return attack_type;
-        }
-        else {
-            ERRORLOG("The %s index %d cannot fight with %s index %d returned as fight partner", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
-        }
-    }
-    return AttckT_Unset;
-}*/
 
 CrAttackType check_for_possible_combat_with_attacker_within_distance(struct Thing *figtng, struct Thing **outenmtng, long maxdist, unsigned long *outscore)
 {
@@ -2673,21 +2652,6 @@ CrAttackType check_for_possible_combat(struct Thing *creatng, struct Thing **fig
     }
     *fightng = enmtng;
     SYNCDBG(19,"The %s index %d can fight %s index %d",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)enmtng->index);
-    return attack_type;
-}
-
-CrAttackType check_for_possible_object_combat(struct Thing* creatng, struct Thing** fightng)
-{
-    SYNCDBG(19, "Starting for %s index %d", thing_model_name(creatng), (int)creatng->index);
-    TRACE_THING(creatng);
-    // Check for combat with attacker - someone who already participates in a fight
-    struct Thing* objtng;
-    CrAttackType attack_type = check_for_possible_combat_with_enemy_object_within_distance(creatng, &objtng, LONG_MAX);
-    if (attack_type <= AttckT_Unset) {
-        return AttckT_Unset;
-    }
-    *fightng = objtng;
-    SYNCDBG(19, "The %s index %d can fight %s index %d", thing_model_name(creatng), (int)creatng->index, thing_model_name(objtng), (int)objtng->index);
     return attack_type;
 }
 

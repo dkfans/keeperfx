@@ -424,11 +424,10 @@ long highest_score_thing_filter_is_enemy_object_within_distance_which_can_be_att
     {
         if (thing_matches_model(thing, param->model_id))
         {
-            JUSTLOG("found thing %d", thing->index);
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
                 struct Thing* objtng = thing_get(param->num1);
-                if (trap_will_attack_creature(objtng, thing))// && !creature_has_creature_in_combat(objtng, thing))
+                if (trap_will_attack_creature(objtng, thing))
                 {
                     long distance = get_combat_distance(objtng, thing);
                     if (distance >= param->num2) {
