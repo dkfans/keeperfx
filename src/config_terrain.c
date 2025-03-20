@@ -36,6 +36,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
+static int64_t value_synergy(const struct NamedField* named_field,const char* value_text);
+/******************************************************************************/
+
 const char keeper_terrain_file[]="terrain.cfg";
 
 const struct NamedCommand terrain_common_commands[] = {
@@ -78,7 +81,7 @@ const struct NamedField terrain_slab_named_fields[] = {
 };
 
 const struct NamedField terrain_room_named_fields[] = {
-    //name                //field                                                        //default      //min     //max    //NamedCommand
+    //name           //pos    //field                                                                 //default //min     //max    //NamedCommand
     {"NAME",              0, field(game.conf.slab_conf.room_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, room_desc,                           value_name,      NULL},
     {"COST",              0, field(game.conf.slab_conf.room_cfgstats[0].cost),                          0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   NULL},
     {"HEALTH",            0, field(game.conf.slab_conf.room_cfgstats[0].health),                        0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   NULL},
@@ -89,7 +92,7 @@ const struct NamedField terrain_room_named_fields[] = {
     {"MESSAGES",          1, field(game.conf.slab_conf.room_cfgstats[0].msg_too_small),                 0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   NULL},
     {"MESSAGES",          2, field(game.conf.slab_conf.room_cfgstats[0].msg_no_route),                  0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   NULL},
     {"NAMETEXTID",        0, field(game.conf.slab_conf.room_cfgstats[0].name_stridx),                   0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   NULL},
-    {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.room_cfgstats[0].tooltip_stridx),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   NULL},
+    {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.room_cfgstats[0].tooltip_stridx),     GUIStr_Empty, LONG_MIN,ULONG_MAX, NULL,                                value_default,   NULL},
     {"SYMBOLSPRITES",     0, field(game.conf.slab_conf.room_cfgstats[0].bigsym_sprite_idx),             0, LONG_MIN,ULONG_MAX, NULL,                                value_icon,      NULL},
     {"SYMBOLSPRITES",     1, field(game.conf.slab_conf.room_cfgstats[0].medsym_sprite_idx),             0, LONG_MIN,ULONG_MAX, NULL,                                value_icon,      NULL},
     {"POINTERSPRITES",    0, field(game.conf.slab_conf.room_cfgstats[0].pointer_sprite_idx),            0, LONG_MIN,ULONG_MAX, NULL,                                value_icon,      NULL},
@@ -97,7 +100,7 @@ const struct NamedField terrain_room_named_fields[] = {
     {"TOTALCAPACITY",     0, field(game.conf.slab_conf.room_cfgstats[0].update_total_capacity_idx),     0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   NULL},
     {"USEDCAPACITY",      0, field(game.conf.slab_conf.room_cfgstats[0].update_storage_in_room_idx),    0, LONG_MIN,ULONG_MAX, terrain_room_used_capacity_func_type,value_default,   NULL},
     {"USEDCAPACITY",      1, field(game.conf.slab_conf.room_cfgstats[0].update_workers_in_room_idx),    0, LONG_MIN,ULONG_MAX, terrain_room_used_capacity_func_type,value_default,   NULL},
-    //{"SLABSYNERGY",       0, field(game.conf.slab_conf.room_cfgstats[0].indestructible),                0, LONG_MIN,ULONG_MAX, slab_desc,                           value_default,   NULL},
+    {"SLABSYNERGY",       0, field(game.conf.slab_conf.room_cfgstats[0].synergy_slab),                  0, LONG_MIN,ULONG_MAX, slab_desc,                           value_synergy,   NULL},
     {"AMBIENTSNDSAMPLE",  0, field(game.conf.slab_conf.room_cfgstats[0].ambient_snd_smp_id),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   NULL},
     {"ROLES",            -1, field(game.conf.slab_conf.room_cfgstats[0].roles),                         0, LONG_MIN,ULONG_MAX, room_roles_desc,                     value_flagsfield,NULL},
     {"STORAGEHEIGHT",     0, field(game.conf.slab_conf.room_cfgstats[0].storage_height),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   NULL},
@@ -321,6 +324,16 @@ const char *room_code_name(RoomKind rkind)
     return "INVALID";
 }
 
+static int64_t value_synergy(const struct NamedField* named_field,const char* value_text)
+{
+    if (strcasecmp(value_text, "none") == 0) {
+        return -1;
+    } else {
+        return value_default(named_field, value_text);
+    }
+}
+
+
 TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     // Block name and parameter word store variables
@@ -358,7 +371,7 @@ TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textn
               k = atoi(word_buf);
               if ((k > 0) && (k <= TERRAIN_ITEMS_MAX))
               {
-                  game.conf.slab_conf.slab_types_count = k;
+                  //game.conf.slab_conf.slab_types_count = k;
                 n++;
               }
             }
@@ -403,10 +416,6 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
 {
     struct SlabConfigStats *slabst = NULL;
     long pos = 0;
-    int k = 0;
-    int n = 0;
-    int cmd_num = 0;
-    char word_buf[COMMAND_WORD_LEN];
     // Initialize the array
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
@@ -443,6 +452,16 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
       parse_named_field_block(buf, len, config_textname, flags, blockname_null, terrain_slab_named_fields, i * sizeof(game.conf.slab_conf.slab_cfgstats[0]));
 
     }
+    return true;
+}
+
+TbBool parse_block_health_block(char *buf, long len, const char *config_textname, unsigned short flags)
+{
+    long pos = 0;
+    int k = 0;
+    int n = 0;
+    int cmd_num = 0;
+    char word_buf[COMMAND_WORD_LEN];
     // Block health - will be later integrated with slab blocks
       char block_buf[COMMAND_WORD_LEN];
       sprintf(block_buf,"block_health");
@@ -910,6 +929,14 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
     if (result)
     {
         result = parse_terrain_slab_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" slab blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+        result = parse_block_health_block(buf, len, textname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
             result = true;
         if (!result)
