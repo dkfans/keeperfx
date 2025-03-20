@@ -1039,7 +1039,6 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
 short clear_script(void)
 {
     memset(&gameadd.script, 0, sizeof(struct LevelScript));
-    gameadd.script.next_string = gameadd.script.strings;
     set_script_current_condition(CONDITION_ALWAYS);
     text_line_number = 1;
     return true;
@@ -1224,7 +1223,7 @@ TbBool process_activation_status(struct Condition *condt)
 static void add_to_party_process(struct ScriptContext *context)
 {
     struct PartyTrigger* pr_trig = context->pr_trig;
-    add_member_to_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level, pr_trig->carried_gold, pr_trig->objectv, pr_trig->countdown);
+    add_member_to_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->exp_level, pr_trig->carried_gold, pr_trig->objectv, pr_trig->countdown);
 }
 
 static void process_party(struct PartyTrigger* pr_trig)
@@ -1240,11 +1239,11 @@ static void process_party(struct PartyTrigger* pr_trig)
         add_to_party_process(&context);
         break;
     case TrgF_DELETE_FROM_PARTY:
-        delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level);
+        delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->exp_level);
         break;
     case TrgF_CREATE_EFFECT_GENERATOR:
-        SYNCDBG(6, "Adding effect generator %u at location %d", pr_trig->crtr_level, (int)pr_trig->location);
-        script_process_new_effectgen(pr_trig->crtr_level, pr_trig->location, pr_trig->carried_gold);
+        SYNCDBG(6, "Adding effect generator %u at location %d", pr_trig->exp_level, (int)pr_trig->location);
+        script_process_new_effectgen(pr_trig->exp_level, pr_trig->location, pr_trig->carried_gold);
         break;
     case TrgF_CREATE_PARTY:
         SYNCDBG(6, "Adding player %d party %d at location %d", (int)pr_trig->plyr_idx, (int)n, (int)pr_trig->location);
@@ -1253,8 +1252,7 @@ static void process_party(struct PartyTrigger* pr_trig)
         break;
     case TrgF_CREATE_CREATURE:
         SCRIPTDBG(6, "Adding creature %ld", n);
-        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
-            pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
+        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location, pr_trig->ncopies, pr_trig->carried_gold, pr_trig->exp_level, pr_trig->spawn_type);
         break;
     }
 }
@@ -1291,7 +1289,7 @@ void process_check_new_tunneller_partys(void)
                     long n = tn_trig->plyr_idx;
                     SCRIPTDBG(6, "Adding tunneler party %ld", k);
                     struct Thing* thing = script_process_new_tunneler(n, tn_trig->location, tn_trig->heading,
-                        tn_trig->crtr_level, tn_trig->carried_gold);
+                        tn_trig->exp_level, tn_trig->carried_gold);
                     if (!thing_is_invalid(thing))
                     {
                         struct Thing* grptng = script_process_new_party(&gameadd.script.creature_partys[k - 1], n, tn_trig->location, 1);
@@ -1309,7 +1307,7 @@ void process_check_new_tunneller_partys(void)
                 {
                     SCRIPTDBG(6, "Adding tunneler, heading %lu", tn_trig->heading);
                     script_process_new_tunneler(tn_trig->plyr_idx, tn_trig->location, tn_trig->heading,
-                        tn_trig->crtr_level, tn_trig->carried_gold);
+                        tn_trig->exp_level, tn_trig->carried_gold);
                 }
                 if ((tn_trig->flags & TrgF_REUSABLE) == 0)
                     tn_trig->flags |= TrgF_DISABLED;

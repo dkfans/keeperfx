@@ -349,17 +349,17 @@ struct ComputerDig {
     long calls_count; /**< used by dig to position */
     long valuable_slabs_tagged; /**< used by dig to position - Amount of valuable slabs tagged for digging during this dig process. */
     /** Variables for digging (or placing) a room. */
-	struct { 
-		long area; /**< The number of slabs in the room. */
-		long slabs_processed; /**< The number of slabs marked for digging or converted in to a room. */
+    struct { 
+        long area; /**< The number of slabs in the room. */
+        long slabs_processed; /**< The number of slabs marked for digging or converted in to a room. */
         /** Variables for the spiral used to dig slabs/place rooms. */
-		struct {
-			SmallAroundIndex forward_direction; /**< The current direction we are moving through the spiral. */
-			long turns_made; /**< The number of turns made in the spiral. */
-			long steps_to_take_before_turning; /**< The number of steps to take before the next turn in the spiral. */
-			long steps_remaining_before_turn; /**< The number of steps we have left to take before we need to turn in the spiral. */
-		} spiral;
-	} room;
+        struct {
+            SmallAroundIndex forward_direction; /**< The current direction we are moving through the spiral. */
+            long turns_made; /**< The number of turns made in the spiral. */
+            long steps_to_take_before_turning; /**< The number of steps to take before the next turn in the spiral. */
+            long steps_remaining_before_turn; /**< The number of steps we have left to take before we need to turn in the spiral. */
+        } spiral;
+    } room;
 };
 
 struct ComputerTask {
@@ -402,7 +402,7 @@ struct ComputerTask {
         long repeat_num;
     } magic_cta;
     struct {
-        long splevel;
+        KeepPwrLevel power_level;
         short target_thing_idx;
         long repeat_num;
         long gaction;
@@ -618,20 +618,19 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num);
 TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos);
 TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long count_slabs_to_dig, long gold_lookup_idx);
 TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long entroom_idx);
-TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
-TbBool create_task_magic_flight_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
-TbBool create_task_magic_vision_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
-TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, int splevel, int gaction);
+TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, KeepPwrLevel power_level);
+TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, KeepPwrLevel power_level, int gaction);
+TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, TbMapLocation destination);
 
-TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount);
+TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, KeepPwrLevel power_level, long amount);
 long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrole);
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
 TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
 long process_tasks(struct Computer2 *comp);
 long computer_check_any_room(struct Computer2* comp, struct ComputerProcess* cproc);
-TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
+TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel power_level,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
-TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
+TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel power_level,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, DigFlags digflags, const char *func_name);
 TbBool add_trap_location_if_requested(struct Computer2 *comp, struct ComputerTask *ctask, TbBool is_task_dig_to_attack);

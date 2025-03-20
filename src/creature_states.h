@@ -21,12 +21,12 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
-#include "dungeon_data.h"
 
 /** Count of creature states, originally 147. */
 #define CREATURE_STATES_COUNT CrSt_ListEnd
 
 #define FIGHT_FEAR_DELAY 160
+#define STATE_TYPES_COUNT CrStTyp_ListEnd
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,7 +93,7 @@ enum CreatureStates {
     CrSt_Null57,
     CrSt_Null58,
     CrSt_CreatureKillCreatures,
-    CrSt_Null60,//[60]
+    CrSt_CreatureKillDiggers,//[60]
     CrSt_PersonSulking,
     CrSt_Null62,
     CrSt_Null63,
@@ -393,6 +393,8 @@ TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing);
 TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 short player_keeping_creature_in_custody(const struct Thing* thing);
 TbBool creature_state_is_unset(const struct Thing *thing);
+TbBool creature_is_hostile_towards(const struct Thing *tng1, const struct Thing *tng2);
+TbBool creature_is_hostile_to_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool trap_will_attack_creature(const struct Thing* fightng, const struct Thing* enmtng); //todo move
 TbBool creature_will_attack_creature_incl_til_death(const struct Thing *tng1, const struct Thing *tng2);

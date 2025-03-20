@@ -358,24 +358,27 @@ struct movie_t {
 	}
 
 	void open_audio_device() {
-		SDL_AudioSpec desired, obtained;
-		desired.freq = 44100;
-		desired.format = AUDIO_F32SYS;
-		desired.channels = 2;
-		desired.silence = 0;
-		desired.samples = 0;
-		desired.padding = 0;
-		desired.size = 0;
-		desired.callback = nullptr;
-		desired.userdata = nullptr;
-		m_audio_device = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, SDL_AUDIO_ALLOW_ANY_CHANGE);
-		if (m_audio_device <= 0) {
-			throw std::runtime_error("Cannot open audio device");
-		}
-		m_output_audio_channels = obtained.channels;
-		m_output_audio_frequency = obtained.freq;
-		m_output_audio_format = sdl_to_ffmpeg_format(obtained.format);
-		m_output_audio_layout = channels_to_ffmpeg_layout(obtained.channels);
+        if (!flag_is_set(m_flags, SMK_NoSound))
+        {
+            SDL_AudioSpec desired, obtained;
+            desired.freq = 44100;
+            desired.format = AUDIO_F32SYS;
+            desired.channels = 2;
+            desired.silence = 0;
+            desired.samples = 0;
+            desired.padding = 0;
+            desired.size = 0;
+            desired.callback = nullptr;
+            desired.userdata = nullptr;
+            m_audio_device = SDL_OpenAudioDevice(nullptr, 0, &desired, &obtained, SDL_AUDIO_ALLOW_ANY_CHANGE);
+            if (m_audio_device <= 0) {
+                throw std::runtime_error("Cannot open audio device");
+            }
+            m_output_audio_channels = obtained.channels;
+            m_output_audio_frequency = obtained.freq;
+            m_output_audio_format = sdl_to_ffmpeg_format(obtained.format);
+            m_output_audio_layout = channels_to_ffmpeg_layout(obtained.channels);
+        }
 	}
 
 	void find_stream_info() {
@@ -413,16 +416,19 @@ struct movie_t {
 	}
 
 	void setup_audio() {
-		m_audio_index = find_best_stream(AVMEDIA_TYPE_AUDIO);
-		if (m_audio_index >= 0) {
-			m_audio_stream = m_format_context->streams[m_audio_index];
-			m_audio_codec = find_codec(m_audio_stream);
-			if (m_audio_codec) {
-				m_audio_context = make_context(m_audio_codec);
-				copy_parameters(m_audio_context, m_audio_stream);
-				open_codec(m_audio_context, m_audio_codec);
-			}
-		}
+        if (!flag_is_set(m_flags, SMK_NoSound))
+        {
+            m_audio_index = find_best_stream(AVMEDIA_TYPE_AUDIO);
+            if (m_audio_index >= 0) {
+                m_audio_stream = m_format_context->streams[m_audio_index];
+                m_audio_codec = find_codec(m_audio_stream);
+                if (m_audio_codec) {
+                    m_audio_context = make_context(m_audio_codec);
+                    copy_parameters(m_audio_context, m_audio_stream);
+                    open_codec(m_audio_context, m_audio_codec);
+                }
+            }
+        }
 	}
 
 	void setup_video() {
@@ -506,18 +512,17 @@ struct movie_t {
 	}
 
 	void output_video_frame() {
-		if (m_frame->palette_has_changed) {
-			JUSTLOG("palette changed");
-			SDL_Color palette[PALETTE_COLORS];
-			for (size_t i = 0; i < PALETTE_COLORS; ++i) {
-				palette[i].b = m_frame->data[1][(i * 4) + 0]; // blue
-				palette[i].g = m_frame->data[1][(i * 4) + 1]; // green
-				palette[i].r = m_frame->data[1][(i * 4) + 2]; // red
-			}
-			LbScreenWaitVbi(); // this is a no-op today
-			// LbPaletteSet expects values in range 0-63 for reasons, nuking 75% of the color range
-			SDL_SetPaletteColors(lbDrawSurface->format->palette, palette, 0, PALETTE_COLORS);
+		// FFMpeg used to provide m_frame->palette_has_changed but it has been deprecated
+		// Assume the palette has changed every frame as there is no way for us to know anymore
+		SDL_Color palette[PALETTE_COLORS];
+		for (size_t i = 0; i < PALETTE_COLORS; ++i) {
+			palette[i].b = m_frame->data[1][(i * 4) + 0]; // blue
+			palette[i].g = m_frame->data[1][(i * 4) + 1]; // green
+			palette[i].r = m_frame->data[1][(i * 4) + 2]; // red
 		}
+		LbScreenWaitVbi(); // this is a no-op today
+		// LbPaletteSet expects values in range 0-63 for reasons, nuking 75% of the color range
+		SDL_SetPaletteColors(lbDrawSurface->format->palette, palette, 0, PALETTE_COLORS);
 		if (LbScreenLock() != Lb_SUCCESS) {
 			return;
 		} else if (m_flags & (SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop)) { // new scaling mode

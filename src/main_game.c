@@ -224,7 +224,7 @@ static void init_level(void)
     zero_messages();
     game.armageddon_cast_turn = 0;
     game.armageddon_over_turn = 0;
-    init_messages();
+    clear_messages();
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     game.pay_day_progress = 0;
@@ -327,7 +327,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
 void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
-    stop_streamed_sample();
+    stop_streamed_samples();
     unsigned int flgmem;
     struct PlayerInfo *player;
     setup_count_players();

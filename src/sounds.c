@@ -40,7 +40,6 @@
 #include "config_terrain.h"
 #include "game_legacy.h"
 #include "config_settings.h"
-#include "music_player.h"
 #include "creature_senses.h"
 #include "map_data.h"
 #include "creature_states.h"
@@ -66,9 +65,8 @@ char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
 int sdl_flags = 0;
-Mix_Chunk* streamed_sample;
 /******************************************************************************/
-void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitch pitch, char fil1D, unsigned char ctype, unsigned char flags, long priority, SoundVolume loudness)
+void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitch pitch, char repeats, unsigned char ctype, unsigned char flags, long priority, SoundVolume loudness)
 {
     if (SoundDisabled)
         return;
@@ -85,11 +83,11 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
         long eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
-            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, fil1D, ctype, flags | 0x01, priority);
+            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, repeats, ctype, flags | 0x01, priority);
         } else
         {
             eidx = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-               smptbl_idx, 0, pitch, loudness, fil1D, flags | 0x01, priority);
+               smptbl_idx, 0, pitch, loudness, repeats, flags | 0x01, priority);
            thing->snd_emitter_id = eidx;
         }
     }
@@ -293,7 +291,6 @@ void update_player_sounds(void)
         process_messages();
         if (!SoundDisabled)
         {
-            PlayMusicPlayer(game.audiotrack);
             update_3d_sound_receiver(player);
         }
         game.play_gameturn++;
@@ -329,12 +326,12 @@ void update_player_sounds(void)
                 {
                     // Replace SMsg_Glaagh with SMsg_PantsTooTight
                     // Most likely because 'Glaagh' is a bit negative in this scenario
-                    output_message(SMsg_PantsTooTight, 0, true);
+                    output_message(SMsg_PantsTooTight, 0);
                 }
                 else
                 {
                     // Play one of the speeches
-                    output_message(SMsg_FunnyMessages+k, 0, true);
+                    output_message(SMsg_FunnyMessages+k, 0);
                 }
             }
 
@@ -373,7 +370,6 @@ void update_player_sounds(void)
     if ( !SoundDisabled ) {
         if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) ) {
             MonitorStreamedSoundTrack();
-            process_sound_heap();
         }
     }
     SYNCDBG(9,"Finished");
@@ -387,166 +383,28 @@ void process_3d_sounds(void)
     process_sound_emitters();
 }
 
-// This function marks not playing samples (to remove them from heap MB)
-void process_sound_heap(void)
-{
-    long i = 0;
-    SYNCDBG(9,"Starting");
-    struct SampleInfo* smpinfo_last = GetLastSampleInfoStructure();
-    if (smpinfo_last == NULL) {
-        return;
-    }
-    for (struct SampleInfo* smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
-    {
-      if ( (smpinfo->mss_id != 0) && ((smpinfo->flags_17 & 0x01) != 0) )
-      {
-          if ( IsSamplePlaying(smpinfo->mss_id) )
-          {
-              i++;
-          } else
-          {
-              smpinfo->flags_17 &= ~0x01;
-              smpinfo->flags_17 &= ~0x04;
-          }
-      }
-    }
-    SYNCDBG(9,"Done (%ld playing yet)", i);
-}
-
-void free_sound_bank(struct SampleTable * samples, int sample_count) {
-    if (samples) {
-        for (int i = 0; i < sample_count; ++i) {
-            free(samples[i].snd_buf);
-        }
-        free(samples);
-    }
-}
-
-struct SampleTable * parse_sound_file(TbFileHandle fileh, long * nsamples, long a5)
-{
-    int directory_index;
-    switch ( a5 )
-    {
-    case 1610:
-        directory_index = 5;
-        break;
-    case 822:
-        directory_index = 6;
-        break;
-    case 811:
-        directory_index = 7;
-        break;
-    case 800:
-        directory_index = 8;
-        break;
-    case 1611:
-        directory_index = 4;
-        break;
-    case 1620:
-        directory_index = 3;
-        break;
-    case 1622:
-        directory_index = 2;
-        break;
-    case 1640:
-        directory_index = 1;
-        break;
-    case 1644:
-        directory_index = 0;
-        break;
-    default:
-        return NULL;
-    }
-    long fsize = LbFileLengthHandle(fileh);
-    if (fsize < 4) {
-        return NULL;
-    } else if (LbFileSeek(fileh, -4, Lb_FILE_SEEK_END) < 0) {
-        return NULL;
-    }
-    int head_offset;
-    if (LbFileRead(fileh, &head_offset, sizeof(head_offset)) < sizeof(head_offset)) {
-        return NULL;
-    }
-    head_offset = read_int32_le_buf((unsigned char *) &head_offset);
-    if (head_offset > fsize) {
-        return NULL;
-    } else  if (LbFileSeek(fileh, head_offset, Lb_FILE_SEEK_BEGINNING) < 0) {
-        return NULL;
-    }
-    struct SoundBankHead bhead;
-    if (LbFileRead(fileh, &bhead, sizeof(bhead)) < sizeof(bhead)) {
-        return NULL;
-    }
-    struct SoundBankEntry bentries[9];
-    if (LbFileRead(fileh, bentries, sizeof(bentries)) < sizeof(bentries)) {
-        return NULL;
-    }
-    struct SoundBankEntry * directory = &bentries[directory_index];
-    if (directory->field_0 == 0) {
-        return NULL;
-    } else if (directory->field_8 == 0) {
-        return NULL;
-    }
-    int sample_count = directory->field_8 / sizeof(struct SoundBankSample);
-    if (sizeof(struct SampleTable) * sample_count >= head_offset) {
-        return NULL;
-    } else if (LbFileSeek(fileh, directory->field_0, Lb_FILE_SEEK_BEGINNING) < 0) {
-        return NULL;
-    }
-    struct SampleTable * samples = (struct SampleTable *) calloc(sample_count, sizeof(struct SampleTable));
-    struct SoundBankSample sample;
-    for (int i = 0; i < sample_count; ++i) {
-        if (LbFileSeek(fileh, directory->field_0 + (sizeof(sample) * i), Lb_FILE_SEEK_BEGINNING) < 0) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        } else if (LbFileRead(fileh, &sample, sizeof(sample)) < sizeof(sample)) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        } else if (LbFileSeek(fileh, directory->field_4 + sample.field_12, Lb_FILE_SEEK_BEGINNING) < 0) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        }
-        samples[i].snd_buf = (SndData) calloc(sample.data_size, 1);
-        if (!samples[i].snd_buf) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        }
-        if (LbFileRead(fileh, samples[i].snd_buf, sample.data_size) < sample.data_size) {
-            free_sound_bank(samples, sample_count);
-            return NULL;
-        }
-        snprintf(samples[i].name, sizeof(samples[i].name), "%s", sample.filename);
-        samples[i].data_size = sample.data_size;
-        samples[i].sfxid = sample.sfxid;
-    }
-    *nsamples = sample_count;
-    return samples;
-}
-
 TbBool init_sound(void)
 {
     SYNCDBG(8,"Starting");
     if (SoundDisabled)
       return false;
     struct SoundSettings* snd_settng = &game.sound_settings;
-    SetupAudioOptionDefaults(snd_settng);
     snd_settng->flags = SndSetting_Sound;
     snd_settng->sound_type = 1622;
     snd_settng->sound_data_path = sound_dir;
     snd_settng->dir3 = sound_dir;
     snd_settng->field_12 = 1;
     snd_settng->stereo = 1;
-    snd_settng->max_number_of_samples = 16;
+    snd_settng->max_number_of_samples = 100;
     snd_settng->danger_music = 0;
     snd_settng->no_load_music = 1;
     snd_settng->no_load_sounds = 1;
     snd_settng->field_16 = 0;
     snd_settng->field_18 = 1;
-    snd_settng->redbook_enable = IsRedbookMusicActive();
+    snd_settng->redbook_enable = ((features_enabled & Ft_NoCdMusic) == 0);
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
     sdl_flags = InitialiseSDLAudio();
-    InitializeMusicPlayer();
     if (!GetSoundInstalled())
     {
       SoundDisabled = 1;
@@ -555,58 +413,6 @@ TbBool init_sound(void)
     S3DInit();
     S3DSetNumberOfSounds(snd_settng->max_number_of_samples);
     S3DSetMaximumSoundDistance(5120);
-    return true;
-}
-
-TbBool init_first_bank(const char * snd_fname, long a5)
-{
-    TbFileHandle handle = LbFileOpen(snd_fname,Lb_FILE_MODE_READ_ONLY);
-    if (!handle) {
-        ERRORLOG("Couldn't open primary sound bank file \"%s\"",snd_fname);
-        return false;
-    }
-    free_sound_bank(sample_table, samples_in_bank);
-    samples_in_bank = 0;
-    sample_table = parse_sound_file(handle, &samples_in_bank, a5);
-    if (!sample_table) {
-        ERRORLOG("Couldn't parse sound bank file \"%s\"",snd_fname);
-        return false;
-    }
-    SYNCLOG("Loaded %ld sound samples into bank 0", samples_in_bank);
-    return true;
-}
-
-TbBool init_second_bank(const char * spc_fname, long a5)
-{
-    TbFileHandle handle = LbFileOpen(spc_fname,Lb_FILE_MODE_READ_ONLY);
-    if (!handle) {
-        LbFileClose(handle);
-        ERRORLOG("Couldn't open secondary sound bank file \"%s\"",spc_fname);
-        return false;
-    }
-    free_sound_bank(sample_table2, samples_in_bank2);
-    samples_in_bank2 = 0;
-    sample_table2 = parse_sound_file(handle, &samples_in_bank2, a5);
-    if (!sample_table2) {
-        LbFileClose(handle);
-        ERRORLOG("Couldn't parse sound bank file \"%s\"",spc_fname);
-        return false;
-    }
-    LbFileClose(handle);
-    SYNCLOG("Loaded %ld sound samples into bank 1", samples_in_bank2);
-    return true;
-}
-
-TbBool init_sound_banks(char *snd_fname, char *spc_fname, long a5)
-{
-    SYNCDBG(8,"Starting");
-    using_two_banks = 0;
-    if (!init_first_bank(snd_fname, a5)) {
-        return false;
-    } else if (!init_second_bank(spc_fname, a5)) {
-        return false;
-    }
-    using_two_banks = 1;
     return true;
 }
 
@@ -678,26 +484,14 @@ void sound_reinit_after_load(void)
         Non3DEmitter = 0;
     }
     ambient_sound_stop();
-    init_messages();
-    free_sound_chunks();
-    for (unsigned int sample = 0; sample <= EXTERNAL_SOUNDS_COUNT; sample++)
-    {
-        char *sound = &game.loaded_sound[sample][0];
-        if (sound[0] != '\0')
-        {
-            char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", sound);
-            Ext_Sounds[sample] = Mix_LoadWAV(fname);
-            if (Ext_Sounds[sample] != NULL)
-            {
-                Mix_VolumeChunk(Ext_Sounds[sample], settings.sound_volume);
-                SYNCLOG("Loaded sound file %s into slot %u.", fname, sample);
-                game.sounds_count++;
-            }
-            else
-            {
-                ERRORLOG("Could not reload sound %s (slot %u): %s", fname, sample, Mix_GetError());
-            }
-        }
+    stop_streamed_samples();
+    clear_messages();
+    if (game.music_track < 0 && strlen(game.music_fname) > 0) {
+        // play saved custom music
+        play_music(game.music_fname);
+    } else if (game.music_track > 0) {
+        // play saved track
+        play_music_track(game.music_track);
     }
 }
 
@@ -719,37 +513,14 @@ void mute_audio(TbBool mute)
         if (mute)
         {
             SetSoundMasterVolume(0);
-            SetMusicPlayerVolume(0);
-            SetMusicMasterVolume(0);
-            if (IsRedbookMusicActive())
-            {
-                PauseRedbookTrack(); // volume seems to have no effect on CD audio, so just pause/resume it
-            }
+            set_music_volume(0);
+            pause_music(); // volume seems to have no effect on CD audio, so just pause/resume it
         }
         else
         {
-            SetMusicPlayerVolume(settings.redbook_volume);
+            set_music_volume(settings.music_volume);
             SetSoundMasterVolume(settings.sound_volume);
-            SetMusicMasterVolume(settings.sound_volume);
-            if (IsRedbookMusicActive())
-            {
-                ResumeRedbookTrack();
-            }
-        }
-    }
-}
-
-void pause_music(TbBool pause)
-{
-    if (!SoundDisabled)
-    {
-        if (pause)
-        {
-            PauseMusicPlayer();
-        }
-        else
-        {
-            ResumeMusicPlayer();
+            resume_music();
         }
     }
 }
@@ -826,103 +597,6 @@ void update_first_person_object_ambience(struct Thing *thing)
     ambience_timer = (ambience_timer + 1) % 4;
 }
 
-int InitialiseSDLAudio()
-{
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-        ERRORLOG("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
-        return 0;
-    }
-    int flags = Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3);
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
-    {
-        ERRORLOG("Could not open audio device for SDL mixer: %s", Mix_GetError());
-        Mix_Quit();
-        return 0;
-    }
-    Mix_ReserveChannels(1); // reserve for external speech samples
-    return flags;
-}
-
-void ShutDownSDLAudio()
-{
-    int frequency, channels;
-    unsigned short format;
-    int i = Mix_QuerySpec(&frequency, &format, &channels);
-    if (i == 0)
-    {
-        ERRORLOG("Could not query SDL mixer: %s", Mix_GetError());
-    }
-    while (i > 0)
-    {
-        Mix_CloseAudio();
-        i--;
-    }
-    while (Mix_Init(0))
-    {
-        Mix_Quit();
-    }
-}
-
-void free_sound_chunks()
-{
-    Mix_HaltChannel(-1);
-    for (int i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
-    {
-        if (Ext_Sounds[i] != NULL)
-        {
-            Mix_FreeChunk(Ext_Sounds[i]);
-            Ext_Sounds[i] = NULL;
-        }
-    }
-    game.sounds_count = 0;
-}
-
-void play_external_sound_sample(unsigned char smpl_id)
-{
-    if (Mix_PlayChannel(-1, Ext_Sounds[smpl_id], 0) == -1)
-    {
-        ERRORLOG("Could not play sound %s: %s", &game.loaded_sound[smpl_id][0], Mix_GetError());
-    }
-}
-
-TbBool play_streamed_sample(char* fname, int volume, int loops)
-{
-    if (!SoundDisabled)
-    {
-        if (streamed_sample != NULL)
-        {
-            WARNLOG("Overwriting loaded sample.");
-            stop_streamed_sample();
-        }
-        streamed_sample = Mix_LoadWAV(fname);
-        if (streamed_sample != NULL)
-        {
-            Mix_VolumeChunk(streamed_sample, volume);
-            if (Mix_PlayChannel(DESCRIPTION_CHANNEL, streamed_sample, loops) == -1)
-            {
-                ERRORLOG("Could not play sound %s: %s", fname, Mix_GetError());
-                return false;
-            }
-        }
-        else
-        {
-            ERRORLOG("Could not load sound %s: %s", fname, Mix_GetError());
-            return false;
-        }
-        return true;
-    }
-    return false;
-}
-
-void stop_streamed_sample()
-{
-    Mix_HaltChannel(DESCRIPTION_CHANNEL);
-    if (streamed_sample != NULL)
-    {
-        Mix_FreeChunk(streamed_sample);
-        streamed_sample = NULL;
-    }
-}
 /******************************************************************************/
 #ifdef __cplusplus
 }

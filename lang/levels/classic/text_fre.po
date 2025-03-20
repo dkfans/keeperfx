@@ -536,3 +536,8 @@ msgstr "L'autre côté de Lyons-Perruche"
 msgctxt "Level name"
 msgid "Syndika"
 msgstr "Syndika"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Under Kagi Juuji Shrine"
+msgstr "Sous le Sanctuaire Kagi Juuji"

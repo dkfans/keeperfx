@@ -56,7 +56,7 @@
 #include "config_players.h"
 #include "config_magic.h"
 #include "config_spritecolors.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "game_merge.h"
 #include "game_legacy.h"
 #include "creature_instances.h"
@@ -1113,7 +1113,7 @@ void redraw_display(void)
     }
     else if (script_timer_enabled())
     {
-        draw_script_timer(gameadd.script_player, gameadd.script_timer_id, gameadd.script_timer_limit, gameadd.timer_real);
+        draw_script_timer(gameadd.script_timer_player, gameadd.script_timer_id, gameadd.script_timer_limit, gameadd.timer_real);
     }
     if (gameturn_timer_enabled())
     {
@@ -1121,7 +1121,7 @@ void redraw_display(void)
     }
     if (display_variable_enabled())
     {
-        draw_script_variable(gameadd.script_player, gameadd.script_value_type, gameadd.script_value_id, gameadd.script_variable_target, gameadd.script_variable_target_type);
+        draw_script_variable(gameadd.script_variable_player, gameadd.script_value_type, gameadd.script_value_id, gameadd.script_variable_target, gameadd.script_variable_target_type);
     }
     if (timer_enabled())
     {

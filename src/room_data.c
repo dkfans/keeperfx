@@ -48,7 +48,7 @@
 #include "creature_states.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "room_util.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
@@ -358,7 +358,7 @@ void init_reposition_struct(struct RoomReposition * rrepos)
     for (long i = 0; i < ROOM_REPOSITION_COUNT; i++)
     {
         rrepos->models[i] = 0;
-        rrepos->explevels[i] = 0;
+        rrepos->exp_level[i] = 0;
     }
 }
 
@@ -389,7 +389,7 @@ TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmode
     return true;
 }
 
-TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel explevel)
+TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel exp_level)
 {
     rrepos->used++;
     if (rrepos->used > ROOM_REPOSITION_COUNT)
@@ -402,7 +402,7 @@ TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingMode
     {
         if (rrepos->models[ri] == 0) {
             rrepos->models[ri] = tngmodel;
-            rrepos->explevels[ri] = explevel;
+            rrepos->exp_level[ri] = exp_level;
             break;
         }
     }
@@ -856,7 +856,7 @@ void add_slab_to_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabC
  * @param room
  * @param slb_num
  */
-void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num)
+TbBool add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num)
 {
     if (room->slabs_list == 0) {
         room->slabs_list = slb_num;
@@ -865,6 +865,7 @@ void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num
         pvslb->next_in_room = slb_num;
     }
     SlabCodedCoords tail_slb_num = slb_num;
+    unsigned short k = 0;
     while (1)
     {
         struct SlabMap* nxslb = get_slabmap_direct(tail_slb_num);
@@ -874,8 +875,16 @@ void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num
             break;
         }
         tail_slb_num = nxslb->next_in_room;
+        // Per room tile code ends
+        k++;
+        if (k > (MAX_TILES_X * MAX_TILES_Y))
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping Room (%d) '%s' at stl (%ld,%ld)",room->index,room_code_name(room->kind),room->central_stl_x,room->central_stl_y);
+            return false;
+        }
     }
     room->slabs_list_tail = tail_slb_num;
+    return true;
 }
 
 void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -901,7 +910,7 @@ void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, Map
         return;
     }
     // If the slab to remove is not first, we have to sweep the list
-    unsigned long k = 0;
+    unsigned short k = 0;
     long i = room->slabs_list;
     while (i > 0)
     {
@@ -1322,7 +1331,7 @@ struct Room* link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
     struct Room* room;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    long n;
+    short n;
     // Central slab coords - we will need it if we'll find adjacent room
     MapSlabCoord central_slb_x = subtile_slab(x);
     MapSlabCoord central_slb_y = subtile_slab(y);
@@ -1361,7 +1370,10 @@ struct Room* link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
             {
                 if (room != linkroom)
                 {
-                    add_slab_list_to_room_tiles_list(linkroom, room->slabs_list);
+                    if (!add_slab_list_to_room_tiles_list(linkroom, room->slabs_list))
+                    {
+                        return INVALID_ROOM;
+                    }
                     // Update slabs in the new list
                     recount_and_reassociate_room_slabs(linkroom);
                     update_room_total_capacity(linkroom);
@@ -3888,19 +3900,19 @@ void output_room_takeover_message(struct Room *room, PlayerNumber oldowner, Play
     if (room->kind == RoK_ENTRANCE)
     {
         if (is_my_player_number(oldowner)) {
-            output_message(SMsg_EntranceLost, 0, 1);
+            output_message(SMsg_EntranceLost, 0);
         } else
         if (is_my_player_number(newowner))
         {
-            output_message(SMsg_EntranceClaimed, 0, 1);
+            output_message(SMsg_EntranceClaimed, 0);
         }
     } else
     if (is_my_player_number(newowner))
     {
         if (oldowner == game.neutral_player_num) {
-            output_message(SMsg_NewRoomTakenOver, 0, 1);
+            output_message(SMsg_NewRoomTakenOver, 0);
         } else {
-            output_message(SMsg_EnemyRoomTakeOver, 0, 1);
+            output_message(SMsg_EnemyRoomTakeOver, 0);
         }
     }
 }

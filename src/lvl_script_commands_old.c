@@ -15,7 +15,6 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "lvl_script_commands_old.h"
-
 #include "bflib_math.h"
 #include "config_strings.h"
 #include "config_magic.h"
@@ -26,9 +25,8 @@
 #include "lvl_filesdk1.h"
 #include "game_merge.h"
 #include "game_legacy.h"
-#include "music_player.h"
 #include "keeperfx.hpp"
-
+#include "bflib_sndlib.h"
 #include "lvl_script_value.h"
 #include "lvl_script_lib.h"
 #include "lvl_script_conditions.h"
@@ -119,10 +117,10 @@ static void command_add_party_to_level(long plr_range_id, const char *prtname, c
     }
 }
 
-static void command_add_creature_to_level(long plr_range_id, const char *crtr_name, const char *locname, long ncopies, long crtr_level, long carried_gold)
+static void command_add_creature_to_level(long plr_range_id, const char *crtr_name, const char *locname, long ncopies, CrtrExpLevel exp_level, long carried_gold, const char *spawn_type)
 {
     TbMapLocation location;
-    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    if ((exp_level < 1) || (exp_level > CREATURE_MAX_LEVEL))
     {
         SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
         return;
@@ -147,6 +145,20 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
     }
+    long spawn_type_id;
+    if ((strcmp(spawn_type, "") == 0))
+    {
+        spawn_type_id = SpwnT_Default;
+    }
+    else
+    {
+        spawn_type_id = get_rid(spawn_type_desc, spawn_type);
+    }
+    if (spawn_type_id == -1)
+    {
+        SCRPTERRLOG("Unknown spawn type, '%s'", spawn_type);
+        return;
+    }
     // Verify player
     long plr_id = get_players_range_single(plr_range_id);
     if (plr_id < 0) {
@@ -158,7 +170,7 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
         return;
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
-        script_process_new_creatures(plr_id, crtr_id, location, ncopies, carried_gold, crtr_level-1);
+        script_process_new_creatures(plr_id, crtr_id, location, ncopies, carried_gold, exp_level-1, spawn_type_id);
     } else
     {
         struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
@@ -167,10 +179,11 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
 
         pr_trig->plyr_idx = plr_id;
         pr_trig->creatr_id = crtr_id;
-        pr_trig->crtr_level = crtr_level-1;
+        pr_trig->exp_level = exp_level-1;
         pr_trig->carried_gold = carried_gold;
         pr_trig->location = location;
         pr_trig->ncopies = ncopies;
+        pr_trig->spawn_type = spawn_type_id;
         pr_trig->condit_idx = get_script_current_condition();
         gameadd.script.party_triggers_num++;
     }
@@ -445,11 +458,11 @@ static void command_door_available(long plr_range_id, const char *doorname, unsi
   command_add_value(Cmd_DOOR_AVAILABLE, plr_range_id, door_id, a3, a4);
 }
 
-static void command_add_tunneller_to_level(long plr_range_id, const char *locname, const char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold)
+static void command_add_tunneller_to_level(long plr_range_id, const char *locname, const char *objectv, long target, CrtrExpLevel exp_level, unsigned long carried_gold)
 {
     TbMapLocation location;
     TbMapLocation heading;
-    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    if ((exp_level < 1) || (exp_level > CREATURE_MAX_LEVEL))
     {
         SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
         return;
@@ -473,7 +486,7 @@ static void command_add_tunneller_to_level(long plr_range_id, const char *locnam
         return;
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
-        script_process_new_tunneler(plr_id, location, heading, crtr_level-1, carried_gold);
+        script_process_new_tunneler(plr_id, location, heading, exp_level-1, carried_gold);
     } else
     {
         struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[gameadd.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
@@ -483,7 +496,7 @@ static void command_add_tunneller_to_level(long plr_range_id, const char *locnam
         tn_trig->location = location;
         tn_trig->heading = heading;
         tn_trig->carried_gold = carried_gold;
-        tn_trig->crtr_level = crtr_level-1;
+        tn_trig->exp_level = exp_level-1;
         tn_trig->carried_gold = carried_gold;
         tn_trig->party_id = 0;
         tn_trig->condit_idx = get_script_current_condition();
@@ -491,11 +504,11 @@ static void command_add_tunneller_to_level(long plr_range_id, const char *locnam
     }
 }
 
-static void command_add_tunneller_party_to_level(long plr_range_id, const char *prtname, const char *locname, const char *objectv, long target, char crtr_level, unsigned long carried_gold)
+static void command_add_tunneller_party_to_level(long plr_range_id, const char *prtname, const char *locname, const char *objectv, long target, CrtrExpLevel exp_level, unsigned long carried_gold)
 {
     TbMapLocation location;
     TbMapLocation heading;
-    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    if ((exp_level < 1) || (exp_level > CREATURE_MAX_LEVEL))
     {
         SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
         return;
@@ -533,7 +546,7 @@ static void command_add_tunneller_party_to_level(long plr_range_id, const char *
     // Either add the party or add item to conditional triggers list
     if (get_script_current_condition() == CONDITION_ALWAYS)
     {
-        script_process_new_tunneller_party(plr_id, prty_id, location, heading, crtr_level-1, carried_gold);
+        script_process_new_tunneller_party(plr_id, prty_id, location, heading, exp_level-1, carried_gold);
     } else
     {
         struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[gameadd.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
@@ -543,7 +556,7 @@ static void command_add_tunneller_party_to_level(long plr_range_id, const char *
         tn_trig->location = location;
         tn_trig->heading = heading;
         tn_trig->carried_gold = carried_gold;
-        tn_trig->crtr_level = crtr_level-1;
+        tn_trig->exp_level = exp_level-1;
         tn_trig->carried_gold = carried_gold;
         tn_trig->party_id = prty_id+1;
         tn_trig->condit_idx = get_script_current_condition();
@@ -569,19 +582,17 @@ static void command_add_creature_to_pool(const char *crtr_name, long amount)
 
 static void command_set_music(long val)
 {
-  if (get_script_current_condition() != CONDITION_ALWAYS)
-  {
-    SCRPTWRNLOG("Music set inside conditional block; condition ignored");
-  }
-  if (val >= FIRST_TRACK && val <= max_track)
-  {
-    game.audiotrack = val;
-  }
-  else
-  {
-    SCRPTERRLOG("Invalid music track %ld, track must be between %d and %d", val,FIRST_TRACK,max_track);
-    return;
-  }
+    if (get_script_current_condition() != CONDITION_ALWAYS)
+    {
+        SCRPTWRNLOG("Music set inside conditional block; condition ignored");
+    }
+    if (val == 0) {
+        SCRPTLOG("Stopping music");
+        stop_music();
+    } else {
+        SCRPTLOG("Playing music track %ld", val);
+        play_music_track(val);
+    }
 }
 
 static void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, long hate_val)
@@ -858,20 +869,20 @@ static void command_level_up_creature(long plr_range_id, const char *crtr_name, 
     command_add_value(Cmd_LEVEL_UP_CREATURE, plr_range_id, crtr_id, select_id, count);
 }
 
-static void command_use_power_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, int splevel, const char *freestring)
+static void command_use_power_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, KeepPwrLevel power_level, const char *freestring)
 {
   SCRIPTDBG(11, "Starting");
-  if (splevel < 1)
+  if (power_level < 1)
   {
-    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
-    splevel = 1;
+    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, power_level);
+    power_level = 1;
   }
-  if (splevel > MAGIC_OVERCHARGE_LEVELS)
+  if (power_level > MAGIC_OVERCHARGE_LEVELS)
   {
-    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, MAGIC_OVERCHARGE_LEVELS);
-    splevel = MAGIC_OVERCHARGE_LEVELS;
+    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, power_level, MAGIC_OVERCHARGE_LEVELS);
+    power_level = MAGIC_OVERCHARGE_LEVELS;
   }
-  splevel--;
+  power_level--;
   long mag_id = get_rid(power_desc, magname);
   if (mag_id == -1)
   {
@@ -906,26 +917,26 @@ static void command_use_power_on_creature(long plr_range_id, const char *crtr_na
   // encode params: free, magic, caster, level -> into 4xbyte: FMCL
   long fmcl_bytes;
   {
-      signed char f = free, m = mag_id, c = caster_plyr_idx, lvl = splevel;
+      signed char f = free, m = mag_id, c = caster_plyr_idx, lvl = power_level;
       fmcl_bytes = (f << 24) | (m << 16) | (c << 8) | lvl;
   }
   command_add_value(Cmd_USE_POWER_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
 }
 
-static void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, const char *magname, int splevel, const char *freestring)
+static void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, const char *magname, KeepPwrLevel power_level, const char *freestring)
 {
   SCRIPTDBG(11, "Starting");
-  if (splevel < 1)
+  if (power_level < 1)
   {
-    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
-    splevel = 1;
+    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, power_level);
+    power_level = 1;
   }
-  if (splevel > MAGIC_OVERCHARGE_LEVELS)
+  if (power_level > MAGIC_OVERCHARGE_LEVELS)
   {
-    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, MAGIC_OVERCHARGE_LEVELS);
-    splevel = MAGIC_OVERCHARGE_LEVELS;
+    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, power_level, MAGIC_OVERCHARGE_LEVELS);
+    power_level = MAGIC_OVERCHARGE_LEVELS;
   }
-  splevel--;
+  power_level--;
   long mag_id = get_rid(power_desc, magname);
   if (mag_id == -1)
   {
@@ -950,26 +961,26 @@ static void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, co
   // encode params: free, magic, level -> into 3xbyte: FML
   long fml_bytes;
   {
-      signed char f = free, m = mag_id, lvl = splevel;
+      signed char f = free, m = mag_id, lvl = power_level;
       fml_bytes = (f << 16) | (m << 8) | lvl;
   }
   command_add_value(Cmd_USE_POWER_AT_POS, plr_range_id, stl_x, stl_y, fml_bytes);
 }
 
-static void command_use_power_at_location(long plr_range_id, const char *locname, const char *magname, int splevel, const char *freestring)
+static void command_use_power_at_location(long plr_range_id, const char *locname, const char *magname, KeepPwrLevel power_level, const char *freestring)
 {
   SCRIPTDBG(11, "Starting");
-  if (splevel < 1)
+  if (power_level < 1)
   {
-    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
-    splevel = 1;
+    SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, power_level);
+    power_level = 1;
   }
-  if (splevel > MAGIC_OVERCHARGE_LEVELS)
+  if (power_level > MAGIC_OVERCHARGE_LEVELS)
   {
-    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, MAGIC_OVERCHARGE_LEVELS);
-    splevel = MAGIC_OVERCHARGE_LEVELS;
+    SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, power_level, MAGIC_OVERCHARGE_LEVELS);
+    power_level = MAGIC_OVERCHARGE_LEVELS;
   }
-  splevel--;
+  power_level--;
   long mag_id = get_rid(power_desc, magname);
   if (mag_id == -1)
   {
@@ -1001,7 +1012,7 @@ static void command_use_power_at_location(long plr_range_id, const char *locname
   // encode params: free, magic, level -> into 3xbyte: FML
   long fml_bytes;
   {
-      signed char f = free, m = mag_id, lvl = splevel;
+      signed char f = free, m = mag_id, lvl = power_level;
       fml_bytes = (f << 16) | (m << 8) | lvl;
   }
   command_add_value(Cmd_USE_POWER_AT_LOCATION, plr_range_id, location, fml_bytes, 0);
@@ -1157,7 +1168,7 @@ static void command_export_variable(long plr_range_id, const char *varib_name, c
     command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, src_type, src_id, flg_id);
 }
 
-static void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, const char *magname, int splevel)
+static void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, const char *magname, CrtrExpLevel spell_level)
 {
     SCRIPTDBG(11, "Starting");
     long mag_id = get_rid(spell_desc, magname);
@@ -1181,23 +1192,23 @@ static void command_use_spell_on_creature(long plr_range_id, const char *crtr_na
     struct SpellConfig *spconf = get_spell_config(mag_id);
     if (spconf->linked_power) // Only check for spells linked to a keeper power.
     {
-        if (splevel < 1)
+        if (spell_level < 1)
         {
-            SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, splevel);
-            splevel = 1;
+            SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", magname, spell_level);
+            spell_level = 1;
         }
-        if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) // Creatures cast spells from level 1 to 10.
+        if (spell_level > (MAGIC_OVERCHARGE_LEVELS + 1)) // Creatures cast spells from level 1 to 10.
         {
-            SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
-            splevel = MAGIC_OVERCHARGE_LEVELS;
+            SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", magname, spell_level, (MAGIC_OVERCHARGE_LEVELS + 1));
+            spell_level = MAGIC_OVERCHARGE_LEVELS;
         }
     }
-    splevel--;
+    spell_level--;
     // SpellKind sp = mag_id;
     // encode params: free, magic, caster, level -> into 4xbyte: FMCL
     long fmcl_bytes;
     {
-        signed char m = mag_id, lvl = splevel;
+        signed char m = mag_id, lvl = spell_level;
         fmcl_bytes = (m << 8) | lvl;
     }
     command_add_value(Cmd_USE_SPELL_ON_CREATURE, plr_range_id, crtr_id, select_id, fmcl_bytes);
@@ -1319,7 +1330,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_add_party_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
         break;
     case Cmd_ADD_CREATURE_TO_LEVEL:
-        command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5]);
+        command_add_creature_to_level(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3], scline->np[4], scline->np[5], scline->tp[6]);
         break;
     case Cmd_ENDIF:
         pop_condition();

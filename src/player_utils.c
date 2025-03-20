@@ -23,7 +23,7 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
-
+#include "bflib_sndlib.h"
 #include "api.h"
 #include "player_data.h"
 #include "player_instances.h"
@@ -48,13 +48,12 @@
 #include "game_saves.h"
 #include "game_legacy.h"
 #include "frontend.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
-#include "music_player.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -138,7 +137,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
         SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
         player->additional_flags |= PlaAF_UnlockedLordTorture;
     }
-    output_message(SMsg_LevelWon, 0, true);
+    output_message(SMsg_LevelWon, 0);
   }
 }
 
@@ -165,7 +164,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
     if (is_my_player(player))
     {
-        output_message(SMsg_LevelFailed, 0, true);
+        output_message(SMsg_LevelFailed, 0);
         turn_off_all_menus();
         clear_transfered_creatures();
     }
@@ -360,7 +359,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
                         if (is_my_player_number(plyr_idx))
                         {
                         if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
-                            output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
+                            output_message(SMsg_GoldLow, MESSAGE_DURATION_TREASURY);
                         }
                         }
                         return amount_take;
@@ -466,13 +465,6 @@ void calculate_dungeon_area_scores(void)
     }
 }
 
-void init_player_music(struct PlayerInfo *player)
-{
-    LevelNumber lvnum = get_loaded_level_number();
-    game.audiotrack = 3 + ((lvnum - 1) % 4);
-    game.last_audiotrack = max_track;
-}
-
 TbBool map_position_has_sibling_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind, PlayerNumber plyr_idx)
 {
     for (int n = 0; n < SMALL_AROUND_LENGTH; n++)
@@ -561,9 +553,9 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     {
         { 0, 0},
         { 1,-1},
-        { 1, 1},
-        {-1, 1},
         {-1,-1},
+        {-1, 1},
+        { 1, 1},
         { 0, 0}
     };
 
@@ -801,13 +793,14 @@ void init_player(struct PlayerInfo *player, short no_explore)
     }
     init_player_cameras(player);
     player->mp_message_text[0] = '\0';
-    if (is_my_player(player))
-    {
-        init_player_music(player);
-    }
     // By default, player is his own ally
     player->allied_players = to_flag(player->id_number);
     player->hand_busy_until_turn = 0;
+    if (is_my_player(player)) {
+        // new game, play one of the default tracks
+        LevelNumber lvnum = get_loaded_level_number();
+        play_music_track(3 + ((lvnum - 1) % 4)); // tracks 3..6
+    }
 }
 
 void init_players(void)
@@ -1150,9 +1143,9 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         traps_sold = remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
     }
 
-	struct Dungeon* dungeon = get_dungeon(thing->owner);
-	dungeon->traps_sold += traps_sold;
-	dungeon->manufacture_gold += sell_value;
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    dungeon->traps_sold += traps_sold;
+    dungeon->manufacture_gold += sell_value;
 
     if (is_my_player_number(plyr_idx))
     {

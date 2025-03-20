@@ -93,7 +93,7 @@ short at_torture_room(struct Thing *thing)
     }
     if (!add_creature_to_work_room(thing, room, Job_PAINFUL_TORTURE))
     {
-        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
+        output_room_message(room->owner, room->kind, OMsg_RoomTooSmall);
         set_start_state(thing);
         return 0;
     }
@@ -294,7 +294,7 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureControl* newcctrl = creature_control_get_from_thing(newthing);
-    init_creature_level(newthing, cctrl->explevel);
+    init_creature_level(newthing, cctrl->exp_level);
     if (creature_model_bleeds(thing->model)) {
         create_effect_around_thing(newthing, TngEff_Blood5); // TODO CONFIG: make this effect configurable?
     }
@@ -306,7 +306,7 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
         dungeon->lvstats.ghosts_raised++;
     }
     if (is_my_player_number(room->owner)) {
-        output_message(SMsg_TortureMadeGhost, 0, true);
+        output_message(SMsg_TortureMadeGhost, 0);
     }
 }
 
@@ -314,11 +314,11 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
 {
     if (is_my_player_number(new_owner))
     {
-        output_message(SMsg_TortureConverted, 0, true);
+        output_message(SMsg_TortureConverted, 0);
     } else
     if (is_my_player_number(creatng->owner))
     {
-        output_message(SMsg_CreatureJoinedEnemy, 0, true);
+        output_message(SMsg_CreatureJoinedEnemy, 0);
     }
     change_creature_owner(creatng, new_owner);
     anger_set_creature_anger_all_types(creatng, 0);
@@ -453,11 +453,11 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
     if (reveal_success)
     {
         if (is_my_player_number(benefit_plyr_idx)) {
-          output_message(SMsg_TortureInformation, 0, true);
+          output_message(SMsg_TortureInformation, 0);
           return 1;
         }
         if (is_my_player_number(thing->owner)) {
-          output_message(SMsg_CreatureRevealInfo, 0, true);
+          output_message(SMsg_CreatureRevealInfo, 0);
           return 1;
         }
     }
@@ -521,7 +521,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
     if ((long)game.play_gameturn >= cctrl->turns_at_job + game.conf.rules.health.turns_per_torture_health_loss)
     {
-        HitPoints torture_damage = compute_creature_max_health(game.conf.rules.health.torture_health_loss, cctrl->explevel);
+        HitPoints torture_damage = compute_creature_max_health(game.conf.rules.health.torture_health_loss, cctrl->exp_level);
         remove_health_from_thing_and_display_health(creatng, torture_damage);
         cctrl->turns_at_job = (long)game.play_gameturn;
     }

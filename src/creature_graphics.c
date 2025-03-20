@@ -299,7 +299,6 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
     }
     *unsc_w += kspr->offset_x;
     *unsc_h += kspr->offset_y;
-
 }
 
 short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
@@ -591,6 +590,7 @@ void creature_table_load_unpack(unsigned char *src_buf, size_t disk_size)
         tmp[i].offset_x = src->offset_x;
         tmp[i].offset_y = src->offset_y;
         tmp[i].shadow_offset = 0;
+        tmp[i].frame_flags = 0;
     }
     memcpy(src_buf, tmp, items * sizeof(struct KeeperSprite));
     free(tmp);
