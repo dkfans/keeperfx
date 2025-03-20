@@ -1147,9 +1147,9 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         traps_sold = remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
     }
 
-	struct Dungeon* dungeon = get_dungeon(thing->owner);
-	dungeon->traps_sold += traps_sold;
-	dungeon->manufacture_gold += sell_value;
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    dungeon->traps_sold += traps_sold;
+    dungeon->manufacture_gold += sell_value;
 
     if (is_my_player_number(plyr_idx))
     {

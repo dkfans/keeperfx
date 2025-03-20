@@ -1199,11 +1199,11 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
         if (creature_can_do_job_for_player(creatng, creatng->owner, new_job, JobChk_None))
         {
             if (send_creature_to_job_for_player(creatng, creatng->owner, new_job))
-			{
-				if (!creature_dislikes_job(creatng, new_job))
-				{
-				    return true;
-				}
+            {
+                if (!creature_dislikes_job(creatng, new_job))
+                {
+                    return true;
+                }
             }
         }
     }
