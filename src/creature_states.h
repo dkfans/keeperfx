@@ -396,7 +396,7 @@ TbBool creature_state_is_unset(const struct Thing *thing);
 TbBool creature_is_hostile_towards(const struct Thing *tng1, const struct Thing *tng2);
 TbBool creature_is_hostile_to_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
-TbBool trap_will_attack_creature(const struct Thing* fightng, const struct Thing* enmtng); //todo move
+TbBool trap_is_valid_combat_target_for_creature(const struct Thing* fightng, const struct Thing* enmtng); //todo move
 TbBool creature_will_attack_creature_incl_til_death(const struct Thing *tng1, const struct Thing *tng2);
 // Compound checks for specific cases
 TbBool creature_is_kept_in_custody_by_enemy_or_dying(const struct Thing *thing);
