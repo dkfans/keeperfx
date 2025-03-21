@@ -155,9 +155,6 @@ struct RoomConfigStats {
     int update_total_capacity_idx;
     int update_storage_in_room_idx;
     int update_workers_in_room_idx;
-    Room_Update_Func update_total_capacity;
-    Room_Update_Func update_storage_in_room;
-    Room_Update_Func update_workers_in_room;
 };
 
 struct SlabsConfig {
@@ -215,7 +212,6 @@ TbBool room_can_have_ensign(RoomKind rkind);
 SlabKind room_corresponding_slab(RoomKind rkind);
 RoomKind slab_corresponding_room(SlabKind slbkind);
 RoomKind find_first_roomkind_with_role(RoomRole rrole);
-void restore_room_update_functions_after_load();
 /******************************************************************************/
 #ifdef __cplusplus
 }

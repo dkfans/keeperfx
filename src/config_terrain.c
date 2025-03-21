@@ -79,7 +79,7 @@ const struct NamedField terrain_room_named_fields[] = {
     {"NAME",              0, field(game.conf.slab_conf.room_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, room_desc,                            value_name,      NULL},
     {"COST",              0, field(game.conf.slab_conf.room_cfgstats[0].cost),                          0, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
     {"HEALTH",            0, field(game.conf.slab_conf.room_cfgstats[0].health),                        0, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
-    {"PROPERTIES",        0, field(game.conf.slab_conf.room_cfgstats[0].flags),                         0, LONG_MIN,ULONG_MAX, terrain_room_properties_commands,     value_default,   NULL},
+    {"PROPERTIES",       -1, field(game.conf.slab_conf.room_cfgstats[0].flags),                         0, LONG_MIN,ULONG_MAX, terrain_room_properties_commands,     value_flagsfield,NULL},
     {"SLABASSIGN",        0, field(game.conf.slab_conf.room_cfgstats[0].assigned_slab),                 0, LONG_MIN,ULONG_MAX, slab_desc,                            value_default,   NULL},
     {"CREATURECREATION",  0, field(game.conf.slab_conf.room_cfgstats[0].creature_creation_model),       0, LONG_MIN,ULONG_MAX, creature_desc,                        value_default,   NULL},
     {"MESSAGES",          0, field(game.conf.slab_conf.room_cfgstats[0].msg_needed),                    0, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
@@ -421,42 +421,6 @@ TbBool load_terrain_config(const char *conf_fname, unsigned short flags)
     }
     //Freeing and exiting
     return result;
-}
-
-void restore_room_update_functions_after_load()
-{
-    struct RoomConfigStats* roomst;
-    int arr_size = game.conf.slab_conf.room_types_count;
-    for (int i = 0; i < arr_size; i++)
-    {
-        roomst = &game.conf.slab_conf.room_cfgstats[i];
-        if ((roomst->update_total_capacity_idx > 0) && (roomst->update_total_capacity_idx <= sizeof(terrain_room_total_capacity_func_list)))
-        {
-            roomst->update_total_capacity = terrain_room_total_capacity_func_list[roomst->update_total_capacity_idx];
-        }
-        else
-        {
-            roomst->update_total_capacity = NULL;
-        }
-
-        if ((roomst->update_storage_in_room_idx > 0) && (roomst->update_storage_in_room_idx <= sizeof(terrain_room_used_capacity_func_list)))
-        {
-            roomst->update_storage_in_room = terrain_room_used_capacity_func_list[roomst->update_storage_in_room_idx];
-        }
-        else
-        {
-            roomst->update_storage_in_room = NULL;
-        }
-
-        if ((roomst->update_workers_in_room_idx > 0) && (roomst->update_workers_in_room_idx <= sizeof(terrain_room_used_capacity_func_list)))
-        {
-            roomst->update_workers_in_room = terrain_room_used_capacity_func_list[roomst->update_workers_in_room_idx];
-        }
-        else
-        {
-            roomst->update_workers_in_room = NULL;
-        }
-    }
 }
 
 /**
