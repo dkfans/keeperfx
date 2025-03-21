@@ -40,10 +40,10 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-static int64_t value_x10(const struct NamedField* named_field, const char* value_text,size_t offset);
+static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
 
-static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value,size_t offset);
-static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value,size_t offset);
+static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx);
+static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx);
 
 /******************************************************************************/
 
@@ -197,6 +197,17 @@ const struct NamedField rules_health_named_fields[] = {
   {NULL},
 };
 
+//rules do need one for technical reasons, but isn't really relevant
+const struct NamedFieldSet rules_named_fields_set = {
+  NULL,
+  "",
+  NULL,
+  NULL,
+  1,
+  0,
+  &game.conf.rules
+};
+
 const struct NamedCommand rules_research_commands[] = {
   {"RESEARCH",                     1},
   {NULL,                           0},
@@ -235,9 +246,9 @@ const struct NamedCommand sacrifice_unique_desc[] = {
 
 /******************************************************************************/
 
-static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value,size_t offset)
+static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx)
 {
-    assign_named_field_value_direct(named_field,value,offset);
+    assign_named_field_value_direct(named_field,value,named_fields_set,idx);
     short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
     if (count > 0)
     {
@@ -245,13 +256,13 @@ static void assign_MapCreatureLimit_script(const struct NamedField* named_field,
     }
 }
 
-static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value,size_t offset)
+static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx)
 {
-    assign_named_field_value_direct(named_field,value,offset);
+    assign_named_field_value_direct(named_field,value,named_fields_set,idx);
     panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
 }
 
-static int64_t value_x10(const struct NamedField* named_field, const char* value_text,size_t offset)
+static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
 {
     
     if (parameter_is_number(value_text))
@@ -668,13 +679,13 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
     TbBool result = (len > 0);
     // Parse blocks of the config file.
 
-    parse_named_field_block(buf, len, textname, flags,"game",     rules_game_named_fields,     0);
-    parse_named_field_block(buf, len, textname, flags,"creatures",rules_creatures_named_fields,0);
-    parse_named_field_block(buf, len, textname, flags,"rooms",    rules_rooms_named_fields,    0);
-    parse_named_field_block(buf, len, textname, flags,"magic",    rules_magic_named_fields,    0);
-    parse_named_field_block(buf, len, textname, flags,"computer", rules_computer_named_fields, 0);
-    parse_named_field_block(buf, len, textname, flags,"workers",  rules_workers_named_fields,  0);
-    parse_named_field_block(buf, len, textname, flags,"health",   rules_health_named_fields,   0);
+    parse_named_field_block(buf, len, textname, flags,"game",     rules_game_named_fields,      &rules_named_fields_set, 0);
+    parse_named_field_block(buf, len, textname, flags,"creatures",rules_creatures_named_fields, &rules_named_fields_set, 0);
+    parse_named_field_block(buf, len, textname, flags,"rooms",    rules_rooms_named_fields,     &rules_named_fields_set, 0);
+    parse_named_field_block(buf, len, textname, flags,"magic",    rules_magic_named_fields,     &rules_named_fields_set, 0);
+    parse_named_field_block(buf, len, textname, flags,"computer", rules_computer_named_fields,  &rules_named_fields_set, 0);
+    parse_named_field_block(buf, len, textname, flags,"workers",  rules_workers_named_fields,   &rules_named_fields_set, 0);
+    parse_named_field_block(buf, len, textname, flags,"health",   rules_health_named_fields,    &rules_named_fields_set, 0);
 
     if (result)
     {

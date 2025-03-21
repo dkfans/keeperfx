@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static int64_t value_synergy(const struct NamedField* named_field,const char* value_text,size_t offset);
+static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
 /******************************************************************************/
 
 const char keeper_terrain_file[]="terrain.cfg";
@@ -316,12 +316,12 @@ const char *room_code_name(RoomKind rkind)
     return "INVALID";
 }
 
-static int64_t value_synergy(const struct NamedField* named_field,const char* value_text,size_t offset)
+static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
 {
     if (strcasecmp(value_text, "none") == 0) {
         return -1;
     } else {
-        return value_default(named_field, value_text, offset);
+        return value_default(named_field, value_text, named_fields_set, idx);
     }
 }
 

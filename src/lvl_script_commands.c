@@ -5848,7 +5848,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
         if (ruledesc != -1)
         {
             rulegroup = i;
-            ruleval = get_named_field_value(ruleblocks[i]+ruledesc, rulevalue_str, 0);
+            ruleval = get_named_field_value(ruleblocks[i]+ruledesc, rulevalue_str,&rules_named_fields_set, 0);
             break;
         }
     }
@@ -5873,7 +5873,7 @@ static void set_game_rule_process(struct ScriptContext* context)
     long rulevalue  = context->value->longs[1];
 
     SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
-    assign_named_field_value_script((ruleblocks[rulegroup]+ruledesc),rulevalue,0);
+    assign_named_field_value_script((ruleblocks[rulegroup]+ruledesc),rulevalue,&rules_named_fields_set,0);
 }
 
 static void set_increase_on_experience_check(const struct ScriptLine* scline)
