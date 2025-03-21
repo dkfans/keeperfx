@@ -83,6 +83,7 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing);
 TbBool creature_look_for_enemy_heart_snipe(struct Thing* thing);
 TbBool creature_look_for_enemy_door_combat(struct Thing *thing);
 TbBool creature_look_for_enemy_object_combat(struct Thing* thing);
+TbBool creature_start_combat_with_trap_if_available(struct Thing* creatng, struct Thing* traptng);
 
 struct Thing *check_for_door_to_fight(struct Thing *thing);
 struct Thing* check_for_object_to_fight(struct Thing* thing);

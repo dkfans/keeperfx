@@ -781,6 +781,7 @@ TbBool update_trap_trigger_line_of_sight(struct Thing* traptng)
             }
         }
         activate_trap(traptng, trgtng);
+        creature_start_combat_with_trap_if_available(trgtng, traptng);
         return true;
     }
     return false;
