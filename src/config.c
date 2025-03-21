@@ -331,7 +331,7 @@ int64_t value_default(const struct NamedField* named_field, const char* value_te
     else if(named_field->namedCommand != NULL)
     {
         int64_t value = get_id(named_field->namedCommand, value_text);
-        if(value > 0)
+        if(value >= 0)
         {
             return value;
         }
@@ -424,6 +424,9 @@ int assign_named_field_value_direct(const struct NamedField* named_field, int64_
     case dt_schar:
         *(signed char*)field = value;
         break;
+    case dt_char:
+        *(char*)field = value;
+        break;
     case dt_short:
         *(signed short*)field = value;
         break;
@@ -463,7 +466,7 @@ int assign_named_field_value_direct(const struct NamedField* named_field, int64_
     case dt_default:
     case dt_void:
     default:
-        ERRORLOG("unexpected datatype for field %s",named_field->name);
+        ERRORLOG("unexpected datatype for field '%s', '%d'",named_field->name,named_field->type);
         return ccr_error;
         break;
     }
@@ -647,7 +650,6 @@ void set_defaults(const struct NamedField* named_fields,
       {
           names[i].name = (char*)name_NamedField->field + i * struct_size;
           names[i].num = i;
-          CONFWRNLOG("Set slab index %d name: %s", i, names[i].name);
       }
       names[max_count - 1].name = NULL; // must be null for get_id
   }

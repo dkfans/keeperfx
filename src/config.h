@@ -121,6 +121,7 @@ enum dataTypes
     dt_default,
     dt_uchar,
     dt_schar,
+    dt_char,
     dt_short,
     dt_ushort,
     dt_int,
@@ -139,6 +140,7 @@ enum dataTypes
 #define var_type(expr)\
     (_Generic((expr),\
               unsigned char: dt_uchar, signed char: dt_schar, \
+              char: dt_char, \
               short: dt_short, unsigned short: dt_ushort, \
               int: dt_int, unsigned int: dt_uint, \
               long: dt_long, unsigned long: dt_ulong, \
