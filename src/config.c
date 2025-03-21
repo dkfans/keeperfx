@@ -638,25 +638,25 @@ TbBool parse_named_field_block(const char *buf, long len, const char *config_tex
     return true;
 }
 
-void set_defaults(const struct NamedField* named_fields,
-  struct NamedCommand* names, long max_count, size_t struct_size, void* struct_base)
+void set_defaults(const struct NamedFieldSet* named_fields_set)
 {
-  memset(struct_base, 0, struct_size * max_count);
+  memset((void *)named_fields_set->struct_base, 0, named_fields_set->struct_size * named_fields_set->max_count);
 
   const struct NamedField* name_NamedField = NULL;
-  for (long i = 0; named_fields[i].name != NULL; i++)
+
+  for (long i = 0; named_fields_set->named_fields[i].name != NULL; i++)
   {
-      if (named_fields[i].default_value != 0)
+      if (named_fields_set->named_fields[i].default_value != 0)
       {
-          for (long j = 0; j < max_count; j++)
+          for (long j = 0; j < named_fields_set->max_count; j++)
           {
-              assign_named_field_value_direct(&named_fields[i], named_fields[i].default_value, j * struct_size);
+              assign_named_field_value_direct(&named_fields_set->named_fields[i], named_fields_set->named_fields[i].default_value, j * named_fields_set->struct_size);
           }
       }
 
-      if(strcmp(named_fields[i].name, "NAME") == 0)
+      if(strcmp(named_fields_set->named_fields[i].name, "NAME") == 0)
       {
-          name_NamedField = &named_fields[i];
+          name_NamedField = &named_fields_set->named_fields[i];
       }
 
   }
@@ -664,49 +664,46 @@ void set_defaults(const struct NamedField* named_fields,
   {
       for (int i = 0; i < TERRAIN_ITEMS_MAX; i++)
       {
-          names[i].name = (char*)name_NamedField->field + i * struct_size;
-          names[i].num = i;
+          named_fields_set->names[i].name = (char*)name_NamedField->field + i * named_fields_set->struct_size;
+          named_fields_set->names[i].num = i;
       }
-      names[max_count - 1].name = NULL; // must be null for get_id
+      named_fields_set->names[named_fields_set->max_count - 1].name = NULL; // must be null for get_id
   }
 }
 
 
 TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname, unsigned short flags,
-                               long* count_field,const char* block_basename,const struct NamedField* named_fields,
-                               struct NamedCommand* names, long max_count, size_t struct_size, void* struct_base)
+                               const struct NamedFieldSet* named_fields_set)
 {
     long pos = 0;
     // Initialize the array
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        set_defaults(named_fields,names,max_count,struct_size,struct_base);
+        set_defaults(named_fields_set);
     }
-
 
     const char * blockname = NULL;
     int blocknamelen = 0;
-    const int basename_len = strlen(block_basename);
+    const int basename_len = strlen(named_fields_set->block_basename);
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
     {
         // look for blocks starting with "slab", followed by one or more digits
         if (blocknamelen < 5) {
             continue;
-        } else if (memcmp(blockname, block_basename, basename_len) != 0) {
+        } else if (memcmp(blockname, named_fields_set->block_basename, basename_len) != 0) {
             continue;
         }
         const int i = natoi(&blockname[4], blocknamelen - 4);
-        if (i < 0 || i >= max_count) {
+        if (i < 0 || i >= named_fields_set->max_count) {
             continue;
-        } else if (i >= *count_field) {
-            *count_field = i + 1;
+        } else if (i >= *named_fields_set->count_field) {
+            *named_fields_set->count_field = i + 1;
         }
         char blockname_null[COMMAND_WORD_LEN];
         strncpy(blockname_null, blockname, blocknamelen);
         blockname_null[blocknamelen] = '\0';
 
-        parse_named_field_block(buf, len, config_textname, flags, blockname_null, named_fields, i * struct_size);
-
+        parse_named_field_block(buf, len, config_textname, flags, blockname_null, named_fields_set->named_fields, i * named_fields_set->struct_size);
     }
 
     return true;

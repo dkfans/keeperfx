@@ -53,7 +53,7 @@ static const struct NamedCommand terrain_flags[] = {
     {NULL,                0},
 };
 
-const struct NamedField terrain_slab_named_fields[] = {
+static const struct NamedField terrain_slab_named_fields[] = {
     //name                //field                                                        //default      //min     //max    //NamedCommand
     {"NAME",              0, field(game.conf.slab_conf.slab_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, slab_desc,     value_name,           NULL},
     {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.slab_cfgstats[0].tooltip_stridx),     GUIStr_Empty, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
@@ -74,7 +74,17 @@ const struct NamedField terrain_slab_named_fields[] = {
     {NULL},
 };
 
-const struct NamedField terrain_room_named_fields[] = {
+const struct NamedFieldSet terrain_slab_named_fields_set = {
+    &game.conf.slab_conf.slab_types_count,
+    "slab",
+    terrain_slab_named_fields,
+    slab_desc,
+    TERRAIN_ITEMS_MAX,
+    sizeof(game.conf.slab_conf.slab_cfgstats[0]),
+    game.conf.slab_conf.slab_cfgstats
+};
+
+static const struct NamedField terrain_room_named_fields[] = {
     //name           //pos    //field                                                                 //default //min     //max    //NamedCommand
     {"NAME",              0, field(game.conf.slab_conf.room_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, room_desc,                            value_name,      NULL},
     {"COST",              0, field(game.conf.slab_conf.room_cfgstats[0].cost),                          0, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
@@ -99,6 +109,16 @@ const struct NamedField terrain_room_named_fields[] = {
     {"ROLES",            -1, field(game.conf.slab_conf.room_cfgstats[0].roles),                         0, LONG_MIN,ULONG_MAX, room_roles_desc,                      value_flagsfield,NULL},
     {"STORAGEHEIGHT",     0, field(game.conf.slab_conf.room_cfgstats[0].storage_height),                0, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
     {NULL},
+};
+
+const struct NamedFieldSet terrain_room_named_fields_set = {
+    &game.conf.slab_conf.room_types_count,
+    "room",
+    terrain_room_named_fields,
+    room_desc,
+    TERRAIN_ITEMS_MAX,
+    sizeof(game.conf.slab_conf.room_cfgstats[0]),
+    game.conf.slab_conf.room_cfgstats
 };
 
 const struct NamedCommand terrain_room_properties_commands[] = {
@@ -387,15 +407,11 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
     TbBool result = (len > 0);
     
     // Parse blocks of the config file
-    parse_named_field_blocks(buf, len, textname, flags,
-            &game.conf.slab_conf.slab_types_count,"slab", terrain_slab_named_fields,slab_desc, 
-            TERRAIN_ITEMS_MAX, sizeof(game.conf.slab_conf.slab_cfgstats[0]),game.conf.slab_conf.slab_cfgstats);
+    parse_named_field_blocks(buf, len, textname, flags, &terrain_slab_named_fields_set);
             
     parse_block_health_block(buf, len, textname, flags);
 
-    parse_named_field_blocks(buf, len, textname, flags,
-        &game.conf.slab_conf.room_types_count,"room", terrain_room_named_fields,room_desc, 
-        TERRAIN_ITEMS_MAX, sizeof(game.conf.slab_conf.room_cfgstats[0]),game.conf.slab_conf.room_cfgstats);
+    parse_named_field_blocks(buf, len, textname, flags, &terrain_room_named_fields_set);
 
     //Freeing and exiting
     free(buf);

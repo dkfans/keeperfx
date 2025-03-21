@@ -182,6 +182,15 @@ struct NamedField {
     void (*assign_func)(const struct NamedField* named_field, int64_t value,size_t offset);
 };
 
+struct NamedFieldSet {
+    long *const count_field;
+    const char* block_basename;
+    const struct NamedField* named_fields;
+    struct NamedCommand* names;
+    const int max_count;
+    const size_t struct_size;
+    const void* struct_base;
+};
 
 extern TbBool AssignCpuKeepers;
 
@@ -263,8 +272,7 @@ int get_conf_list_int(const char *buf, const char **state, int *dst);
 TbBool parse_named_field_block(const char *buf, long len, const char *config_textname, unsigned short flags,const char* blockname,
     const struct NamedField named_field[],size_t offset);
 TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname, unsigned short flags,
-        long* count_field,const char* block_basename,const struct NamedField* named_fields,
-        struct NamedCommand* names, long max_count, size_t struct_size, void* struct_base);
+        const struct NamedFieldSet* named_fields_set);
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
 int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField *commands,size_t offset);
 int assign_named_field_value_direct(const struct NamedField* named_field, int64_t value,size_t offset);
