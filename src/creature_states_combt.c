@@ -3100,7 +3100,7 @@ short creature_object_combat(struct Thing *creatng)
 
 TbBool creature_start_combat_with_trap_if_available(struct Thing* creatng, struct Thing* traptng)
 {
-    if (creatng->model == get_players_special_digger_model(creatng->owner))
+    if (thing_is_creature_special_digger(creatng))
     {
         return false;
     }
