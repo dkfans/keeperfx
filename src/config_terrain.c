@@ -101,28 +101,6 @@ const struct NamedField terrain_room_named_fields[] = {
     {NULL},
 };
 
-const struct NamedCommand terrain_room_commands[] = {
-  {"NAME",              1},
-  {"COST",              2},
-  {"HEALTH",            3},
-  {"PROPERTIES",        4},
-  {"SLABASSIGN",        5},
-  {"CREATURECREATION",  6},
-  {"MESSAGES",          7},
-  {"NAMETEXTID",        8},
-  {"TOOLTIPTEXTID",     9},
-  {"SYMBOLSPRITES",    10},
-  {"POINTERSPRITES",   11},
-  {"PANELTABINDEX",    12},
-  {"TOTALCAPACITY",    13},
-  {"USEDCAPACITY",     14},
-  {"SLABSYNERGY",      15},
-  {"AMBIENTSNDSAMPLE", 16},
-  {"ROLES",            17},
-  {"STORAGEHEIGHT",    18},
-  {NULL,                0},
-};
-
 const struct NamedCommand terrain_room_properties_commands[] = {
   {"HAS_NO_ENSIGN",     RoCFlg_NoEnsign},
   {"CANNOT_VANDALIZE",  RoCFlg_CantVandalize},
