@@ -41,12 +41,6 @@ static int64_t value_synergy(const struct NamedField* named_field,const char* va
 
 const char keeper_terrain_file[]="terrain.cfg";
 
-const struct NamedCommand terrain_common_commands[] = {
-  {"SLABSCOUNT",      1},
-  {"ROOMSCOUNT",      2},
-  {NULL,              0},
-};
-
 static const struct NamedCommand terrain_flags[] = {
     {"VALUABLE",          1},
     {"IS_ROOM",           2},
@@ -333,87 +327,6 @@ static int64_t value_synergy(const struct NamedField* named_field,const char* va
     }
 }
 
-
-TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    // Block name and parameter word store variables
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        game.conf.slab_conf.slab_types_count = 1;
-        game.conf.slab_conf.room_types_count = 1;
-    }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "common");
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("ccBlock [%s] not found in %s file.",block_buf,config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_common_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, terrain_common_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        int n = 0;
-        char word_buf[COMMAND_WORD_LEN];
-        switch (cmd_num)
-        {
-        case 1: // SLABSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= TERRAIN_ITEMS_MAX))
-              {
-                  //game.conf.slab_conf.slab_types_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 2: // ROOMSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= TERRAIN_ITEMS_MAX))
-              {
-                  game.conf.slab_conf.room_types_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    return true;
-}
-
-
-
 TbBool parse_block_health_block(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     long pos = 0;
@@ -494,16 +407,8 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
+    
     // Parse blocks of the config file
-    if (result)
-    {
-        result = parse_terrain_common_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
-    }
-
     parse_named_field_blocks(buf, len, textname, flags,
             &game.conf.slab_conf.slab_types_count,"slab", terrain_slab_named_fields,slab_desc, 
             TERRAIN_ITEMS_MAX, sizeof(game.conf.slab_conf.slab_cfgstats[0]),game.conf.slab_conf.slab_cfgstats);
