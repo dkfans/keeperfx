@@ -41,7 +41,7 @@
 #include "gui_topmsg.h"
 #include "engine_redraw.h"
 #include "engine_textures.h"
-#include "config.h"
+#include "config_keeperfx.h"
 #include "lens_api.h"
 #include "config_settings.h"
 #include "game_legacy.h"

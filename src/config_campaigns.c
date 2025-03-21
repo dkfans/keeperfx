@@ -27,9 +27,11 @@
 
 #include "config.h"
 #include "config_strings.h"
+#include "config_keeperfx.h"
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
 #include "map_data.h"
+#include "highscores.h"
 
 #include "game_merge.h"
 #include "post_inc.h"

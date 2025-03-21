@@ -1,14 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file console_cmd.h
- *     Header file for console_cmd.c.
- * @par Purpose:
- *     Console commands
+/** @file highscores.h
+ *     Header file for highscores.c.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Sim
- * @date     07 Jul 2020 - 07 Jul 2020
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,20 +12,23 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CONSOLECMD_H
-#define DK_CONSOLECMD_H
 
-#include "globals.h"
+#ifndef HIGHSCORES_H
+#define HIGHSCORES_H
+
 #include "bflib_basics.h"
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-TbBool cmd_exec(PlayerNumber plyr_idx, char *msg);
+/******************************************************************************/
+void load_or_create_high_score_table(void);
+TbBool save_high_score_table(void);
+int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *name);
+unsigned long get_level_highest_score(LevelNumber lvnum);
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif

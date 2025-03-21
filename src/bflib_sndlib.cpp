@@ -1,5 +1,5 @@
 #include "pre_inc.h"
-#include "config.h"
+#include "config_keeperfx.h"
 #include "cdrom.h"
 #include "bflib_sndlib.h"
 #include "bflib_datetm.h"

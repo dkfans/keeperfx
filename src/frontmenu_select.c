@@ -35,6 +35,7 @@
 #include "game_legacy.h"
 #include "kjm_input.h"
 #include "keeperfx.hpp"
+#include "highscores.h"
 #include "post_inc.h"
 
 /******************************************************************************/

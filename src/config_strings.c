@@ -25,7 +25,7 @@
 #include "bflib_dernc.h"
 #include "bflib_guibtns.h"
 
-#include "config.h"
+#include "config_keeperfx.h"
 #include "config_campaigns.h"
 #include "game_merge.h"
 #include "lvl_filesdk1.h"

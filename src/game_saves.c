@@ -45,6 +45,7 @@
 #include "keeperfx.hpp"
 #include "api.h"
 #include "lvl_filesdk1.h"
+#include "moonphase.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus

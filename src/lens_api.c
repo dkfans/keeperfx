@@ -30,6 +30,7 @@
 #include "lens_flyeye.h"
 #include "vidmode.h"
 #include "game_legacy.h"
+#include "config_keeperfx.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"

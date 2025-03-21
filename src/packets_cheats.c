@@ -646,14 +646,14 @@ TbBool packets_process_cheats(
             tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
             struct SlabConfigStats* slab_cfgstats;
             clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-            struct SlabAttr *slbattr = get_slab_kind_attrs(player->cheatselection.chosen_terrain_kind);
+            struct SlabConfigStats *slabst = get_slab_kind_stats(player->cheatselection.chosen_terrain_kind);
             if (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind))
             {
                 player->cheatselection.chosen_player = game.neutral_player_num;
             }
-            if (slbattr->tooltip_stridx <= GUI_STRINGS_COUNT)
+            if (slabst->tooltip_stridx <= GUI_STRINGS_COUNT)
             {
-                const char* msg = get_string(slbattr->tooltip_stridx);
+                const char* msg = get_string(slabst->tooltip_stridx);
                 strcpy(str, msg);
                 char* dis_msg = strtok(str, ":");
                 if (dis_msg == NULL)

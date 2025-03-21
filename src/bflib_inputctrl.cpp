@@ -28,7 +28,7 @@
 #include "bflib_planar.h"
 #include "bflib_sndlib.h"
 #include "bflib_mshandler.hpp"
-#include "config.h"
+#include "config_keeperfx.h"
 #include "sounds.h"
 #include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
 #include "keeperfx.hpp" // for start_params

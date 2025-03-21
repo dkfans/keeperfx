@@ -59,6 +59,7 @@
 #include "room_workshop.h"
 #include "kjm_input.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "game_legacy.h"
 #include "spdigger_stack.h"
 #include "room_graveyard.h"
@@ -2261,7 +2262,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   unsigned int slb_y = subtile_slab(y);
 
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-  struct SlabAttr* slbattr = get_slab_attrs(slb);
+  struct SlabConfigStats* slabst = get_slab_stats(slb);
   if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!player->one_click_lock_cursor))
   {
     *context = CSt_DoorKey;
@@ -2286,7 +2287,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
   } else
-  if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (player->one_click_lock_cursor))
+  if (((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (player->one_click_lock_cursor))
   {
     *context = CSt_PickAxe;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;

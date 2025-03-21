@@ -32,6 +32,7 @@
 #include "player_data.h"
 #include "player_instances.h"
 #include "keeperfx.hpp"
+#include "config_keeperfx.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus

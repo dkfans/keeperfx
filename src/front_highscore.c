@@ -38,6 +38,7 @@
 #include "sprites.h"
 #include "gui_frontbtns.h"
 #include "custom_sprites.h"
+#include "highscores.h"
 #include "post_inc.h"
 
 /******************************************************************************/

@@ -592,13 +592,13 @@ void clear_mapmap(void)
 void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
 {
     const struct SlabMap *slb = get_slabmap_block(slb_x,slb_y);
-    if ( get_slab_attrs(slb)->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) )
+    if ( get_slab_stats(slb)->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) )
     {
         if (slb->kind == SlbT_ROCK) // fix #1128
         {
             untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
         }
-        else if ( (get_slab_attrs(slb)->category == SlbAtCtg_FortifiedWall)
+        else if ( (get_slab_stats(slb)->category == SlbAtCtg_FortifiedWall)
             && (slabmap_owner(slb) != plyr_idx ))
         {
         untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
@@ -833,15 +833,15 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
             return false;
         }
     }
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
+    if (((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
     {
         if (enemy_wall_diggable)
         {
             return true;
         }
-        if (!(((slbattr->is_diggable) == 0) || 
-        ((slabmap_owner(slb) != plyr_idx) && ((slbattr->block_flags & SlbAtFlg_Filled) != 0))))
+        if (!(((slabst->is_diggable) == 0) || 
+        ((slabmap_owner(slb) != plyr_idx) && ((slabst->block_flags & SlbAtFlg_Filled) != 0))))
         {
             return true;
         }

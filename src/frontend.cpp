@@ -87,6 +87,8 @@
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
 #include "sprites.h"
+#include "moonphase.h"
+#include "config_keeperfx.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus

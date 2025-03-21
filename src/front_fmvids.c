@@ -29,7 +29,7 @@
 
 #include "frontend.h"
 #include "front_simple.h"
-#include "config.h"
+#include "config_keeperfx.h"
 #include "vidmode.h"
 #include "vidfade.h"
 #include "game_legacy.h"
