@@ -515,6 +515,12 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
     int i = 0;
     while (commands[i].name != NULL)
     {
+        if (commands[i].argnum > 0)
+        {
+            i++;
+            continue;
+        }
+
         int cmdname_len = strlen(commands[i].name);
         if ((*pos)+cmdname_len > buflen) {
             i++;
@@ -571,17 +577,27 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
             
                 // Pass extracted string
               k = get_named_field_value(&commands[i], line_buf,offset);
+              assign_named_field_value_direct(&commands[i],k,offset);
             }
             else
             {
-              char word_buf[COMMAND_WORD_LEN];
-                if (get_conf_parameter_single(buf,pos,buflen,word_buf,sizeof(word_buf)) > 0)
+                char word_buf[COMMAND_WORD_LEN];
+                uchar n = 0;
+                while (get_conf_parameter_single(buf,pos,buflen,word_buf,sizeof(word_buf)) > 0)
                 {
-                    k = get_named_field_value(&commands[i],word_buf,offset);
+                    if(strcmp(commands[i + n].name, commands[i].name) != 0)
+                    {
+                        CONFWRNLOG("more params than expected for command '%s' '%s'",commands[i].name, word_buf);
+                    }
+                    else
+                    {
+                        k = get_named_field_value(&commands[i + n],word_buf,offset);
+                        assign_named_field_value_direct(&commands[i + n],k,offset);
+                        n++;
+                    }
                 }
             }
-
-            return assign_named_field_value_direct(&commands[i],k,offset);
+            return ccr_ok;
         }
         i++;
     }

@@ -139,8 +139,7 @@ enum dataTypes
 
 #define var_type(expr)\
     (_Generic((expr),\
-              unsigned char: dt_uchar, signed char: dt_schar, \
-              char: dt_char, \
+              unsigned char: dt_uchar, char: dt_char, \
               short: dt_short, unsigned short: dt_ushort, \
               int: dt_int, unsigned int: dt_uint, \
               long: dt_long, unsigned long: dt_ulong, \
