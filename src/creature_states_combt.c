@@ -3120,12 +3120,16 @@ TbBool creature_start_combat_with_trap_if_available(struct Thing* creatng, struc
     // If the creature is already in combat with something else, change the target.
     if (cctrl->combat.battle_enemy_idx != 0)
     {
-        CrAttackType attack_type = check_for_possible_combat(creatng, &traptng);
-        if (attack_type > AttckT_Unset)
+        CrtrStateId i = get_creature_state_besides_interruptions(creatng);
+        if (i == CrSt_CreatureObjectCombat)
         {
-            return change_current_combat(creatng, traptng, attack_type);
+            struct Thing* oldenemy = thing_get(cctrl->combat.battle_enemy_idx);
+            TRACE_THING(oldenemy);
+            if (thing_is_dungeon_heart(oldenemy))
+            {
+                cctrl->combat.battle_enemy_idx = traptng->index;
+            }
         }
-        return false;
     }
     return set_creature_object_combat(creatng, traptng);
 }
