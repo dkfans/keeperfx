@@ -3117,12 +3117,15 @@ TbBool creature_start_combat_with_trap_if_available(struct Thing* creatng, struc
     {
         return false;
     }
-    if (!creature_can_navigate_to(creatng, &traptng->mappos, NavRtF_Default))
+    // If the creature is already in combat with something else, change the target.
+    if (cctrl->combat.battle_enemy_idx != 0)
     {
-        if (!creature_has_ranged_weapon(creatng))
-            return false;
-        if (!creature_can_see_combat_path(creatng, traptng, get_combat_distance(creatng, traptng)))
-            return false;
+        CrAttackType attack_type = check_for_possible_combat(creatng, &traptng);
+        if (attack_type > AttckT_Unset)
+        {
+            return change_current_combat(creatng, traptng, attack_type);
+        }
+        return false;
     }
     return set_creature_object_combat(creatng, traptng);
 }
