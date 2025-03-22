@@ -167,6 +167,11 @@ TbBool slab_middle_column_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return false;
 }
 
+/**
+ * Check if thing is a trap and what the destructible property is.
+ * @param thing The thing being checked.
+ * @returns -2 for not an active trap, -1 to be totally indestructible, 0 to be indistructible except for units with disarm trap ability and 1 for destructible.
+ */
 short thing_is_destructible_trap(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))

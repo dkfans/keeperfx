@@ -1591,6 +1591,7 @@ CrAttackType check_for_possible_ranged_combat_with_attacker_within_distance(stru
 CrAttackType check_for_possible_combat_with_enemy_object_within_distance(struct Thing* fightng, struct Thing** outenmtng, long maxdist)
 {
     struct Thing* thing = get_nearest_enemy_object_possible_to_attack_by(fightng);
+    //returns only dungeon hearts
     if (!thing_is_invalid(thing))
     {
         SYNCDBG(9, "Best enemy for %s index %d is %s index %d", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
@@ -1604,6 +1605,26 @@ CrAttackType check_for_possible_combat_with_enemy_object_within_distance(struct 
         else {
             ERRORLOG("The %s index %d cannot fight with %s index %d returned as fight partner", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
         }
+    }
+    else
+    {
+        thing = get_highest_score_enemy_object_within_distance_possible_to_attack_by(fightng, 12304, 0);
+        if (thing_is_invalid(thing))
+        {
+            return AttckT_Unset;
+        }
+        SYNCDBG(9, "Best enemy for %s index %d is %s index %d", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
+        // When counting distance, take size of creatures into account
+        long distance = get_combat_distance(fightng, thing);
+        CrAttackType attack_type = creature_can_have_combat_with_object(fightng, thing, distance, 1, 0);
+        if (attack_type > AttckT_Unset){
+            *outenmtng = thing;
+            return attack_type;
+        }
+        else {
+            ERRORLOG("The %s index %d cannot fight with %s index %d returned as fight partner", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
+        }
+        
     }
     return AttckT_Unset;
 }
@@ -3079,6 +3100,10 @@ short creature_object_combat(struct Thing *creatng)
 
 TbBool creature_start_combat_with_trap_if_available(struct Thing* creatng, struct Thing* traptng)
 {
+    if (thing_is_creature_special_digger(creatng))
+    {
+        return false;
+    }
     if (!creature_will_do_combat(creatng))
     {
         return false;
@@ -3092,12 +3117,15 @@ TbBool creature_start_combat_with_trap_if_available(struct Thing* creatng, struc
     {
         return false;
     }
-    if (!creature_can_navigate_to(creatng, &traptng->mappos, NavRtF_Default))
+    // If the creature is already in combat with something else, change the target.
+    if (cctrl->combat.battle_enemy_idx != 0)
     {
-        if (!creature_has_ranged_weapon(creatng))
-            return false;
-        if (!creature_can_see_combat_path(creatng, traptng, get_combat_distance(creatng, traptng)))
-            return false;
+        CrAttackType attack_type = check_for_possible_combat(creatng, &traptng);
+        if (attack_type > AttckT_Unset)
+        {
+            return change_current_combat(creatng, traptng, attack_type);
+        }
+        return false;
     }
     return set_creature_object_combat(creatng, traptng);
 }

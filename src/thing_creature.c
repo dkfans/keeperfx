@@ -4586,16 +4586,28 @@ TbBool thing_is_dead_creature(const struct Thing *thing)
   return (thing->class_id == TCls_DeadCreature);
 }
 
-/** Returns if a thing is special digger creature.
+/** Returns if a thing is digger creature.
  *
  * @param thing The thing to be checked.
- * @return True if the thing is creature and special digger, false otherwise.
+ * @return True if the thing is creature and digger or special digger, false otherwise.
  */
 TbBool thing_is_creature_digger(const struct Thing *thing)
 {
   if (!thing_is_creature(thing))
     return false;
-  return ((get_creature_model_flags(thing) & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0);
+  return any_flag_is_set(get_creature_model_flags(thing),(CMF_IsSpecDigger|CMF_IsDiggingCreature));
+}
+
+/** Returns if a thing is special digger creature.
+ *
+ * @param thing The thing to be checked.
+ * @return True if the thing is creature and special digger, false otherwise.
+ */
+TbBool thing_is_creature_special_digger(const struct Thing* thing)
+{
+    if (!thing_is_creature(thing))
+        return false;
+    return flag_is_set(get_creature_model_flags(thing),CMF_IsSpecDigger);
 }
 
 /** Returns if a thing the creature type set as spectator, normally the floating spirit.
