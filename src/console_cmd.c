@@ -109,6 +109,11 @@ static TbBool script_set_pool(PlayerNumber player_idx, const char *creature, con
 
 static char cmd_comp_events_label[COMPUTER_EVENTS_COUNT][COMMAND_WORD_LEN + 8];
 
+static PlayerNumber get_player_number_for_command(char *msg);
+static char get_door_number_for_command(char* msg);
+static char get_trap_number_for_command(char* msg);
+static long get_creature_model_for_command(char *msg);
+
 static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *args)
 {
     struct Computer2 *comp;
@@ -2031,7 +2036,7 @@ static TbBool script_set_pool(PlayerNumber plyr_idx, const char *creature, const
   return true;
 }
 
-long get_creature_model_for_command(char *msg)
+static long get_creature_model_for_command(char *msg)
 {
     long rid = get_rid(creature_desc, msg);
     if (rid >= 1)
@@ -2095,7 +2100,7 @@ long get_creature_model_for_command(char *msg)
     }
 }
 
-PlayerNumber get_player_number_for_command(char *msg)
+static PlayerNumber get_player_number_for_command(char *msg)
 {
     PlayerNumber id = (msg == NULL) ? my_player_number : get_rid(cmpgn_human_player_options, msg);
     if (id == -1)
@@ -2116,24 +2121,7 @@ PlayerNumber get_player_number_for_command(char *msg)
     return id;
 }
 
-TbBool parameter_is_number(const char* parstr)
-{
-    if (parstr == NULL) {
-        return false;
-    } else if (parstr[0] == 0) {
-        return false;
-    } else if (!(parstr[0] == '-' || isdigit(parstr[0]))) {
-        return false;
-    }
-    for (int i = 1; parstr[i] != '\0'; ++i) {
-        if (!isdigit(parstr[i])) {
-            return false;
-        }
-    }
-    return true;
-}
-
-char get_trap_number_for_command(char* msg)
+static char get_trap_number_for_command(char* msg)
 {
     char id = get_rid(trap_desc, msg);
     if (id < 0)
@@ -2157,7 +2145,7 @@ char get_trap_number_for_command(char* msg)
     return id;
 }
 
-char get_door_number_for_command(char* msg)
+static char get_door_number_for_command(char* msg)
 {
     long id = get_rid(door_desc, msg);
     if (id < 0)
