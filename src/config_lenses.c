@@ -34,24 +34,38 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_lenses_file[]="lenses.cfg";
-
-const struct NamedCommand lenses_common_commands[] = {
-  {"EYELENSESCOUNT",  1},
-  {NULL,              0},
-  };
-
-const struct NamedCommand lenses_data_commands[] = {
-  {"NAME",            1},
-  {"MIST",            2},
-  {"DISPLACEMENT",    3},
-  {"PALETTE",         4},
-  {NULL,              0},
-  };
-
-/******************************************************************************/
 struct LensesConfig lenses_conf;
 struct NamedCommand lenses_desc[LENS_ITEMS_MAX];
+/******************************************************************************/
+const char keeper_lenses_file[]="lenses.cfg";
+
+static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
+static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
+static int64_t value_displace(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
+
+const struct NamedField lenses_data_named_fields[] = {
+    //name           //pos    //field                                           //default //min     //max    //NamedCommand
+    {"NAME",              0, field(lenses_conf.lenses[0].code_name),                0,        0,        0, lenses_desc,  value_name,      NULL},
+    {"MIST",              0, field(lenses_conf.lenses[0].mist_file),                0,        0,        0, NULL,         value_mist,      NULL},
+    {"MIST",              1, field(lenses_conf.lenses[0].mist_lightness),           0,        0,       63, NULL,         value_default,   NULL},
+    {"MIST",              2, field(lenses_conf.lenses[0].mist_ghost),               0,        0,      255, NULL,         value_default,   NULL},
+    {"DISPLACEMENT",      0, field(lenses_conf.lenses[0].displace_kind),            0,        0,      255, NULL,         value_default,   NULL},
+    {"DISPLACEMENT",      1, field(lenses_conf.lenses[0].displace_magnitude),       0,        0,      511, NULL,         value_default,   NULL},
+    {"DISPLACEMENT",      2, field(lenses_conf.lenses[0].displace_period),          1,        0,      511, NULL,         value_displace,  NULL},
+    {"PALETTE",           0, field(lenses_conf.lenses[0].palette),                  0,        0,        0, NULL,         value_pallete,   NULL},
+    {NULL},
+};
+
+const struct NamedFieldSet lenses_data_named_fields_set = {
+    &lenses_conf.lenses_count,
+    "lens",
+    lenses_data_named_fields,
+    lenses_desc,
+    LENS_ITEMS_MAX,
+    sizeof(lenses_conf.lenses[0]),
+    lenses_conf.lenses
+};
+
 /******************************************************************************/
 
 struct LensConfig *get_lens_config(long lens_idx)
@@ -61,249 +75,29 @@ struct LensConfig *get_lens_config(long lens_idx)
     return &lenses_conf.lenses[lens_idx];
 }
 
-TbBool parse_lenses_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
 {
-    // Block name and parameter word store variables
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        lenses_conf.lenses_count = 1;
-    }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "common");
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(lenses_common_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, lenses_common_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        int n = 0;
-        switch (cmd_num)
-        {
-        case 1: // EYELENSESCOUNT
-        {
-            char word_buf[COMMAND_WORD_LEN];
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= LENS_ITEMS_MAX))
-              {
-                lenses_conf.lenses_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        }
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    return true;
+    lenses_conf.lenses[idx].flags |= LCF_HasMist;
+    return value_name(named_field, value_text, named_fields_set, idx);
 }
 
-TbBool parse_lenses_data_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+static int64_t value_displace(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
 {
-  int i;
-  struct LensConfig *lenscfg;
-  // Block name and parameter word store variables
-  // Initialize the array
-  int arr_size;
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      arr_size = sizeof(lenses_conf.lenses)/sizeof(lenses_conf.lenses[0]);
-      for (i=0; i < arr_size; i++)
-      {
-          lenscfg = &lenses_conf.lenses[i];
-          memset(lenscfg->code_name, 0, COMMAND_WORD_LEN);
-          memset(lenscfg->mist_file, 0, DISKPATH_SIZE);
-          lenscfg->mist_lightness = 0;
-          lenscfg->mist_ghost = 0;
-          lenscfg->displace_kind = 0;
-          lenscfg->displace_magnitude = 0;
-          lenscfg->displace_period = 1;
-          memset(lenscfg->palette, 0, PALETTE_SIZE*sizeof(TbPixel));
-          lenscfg->flags = 0;
-          if (i < lenses_conf.lenses_count)
-          {
-              lenses_desc[i].name = lenscfg->code_name;
-              lenses_desc[i].num = i;
-          } else
-          {
-              lenses_desc[i].name = NULL;
-              lenses_desc[i].num = 0;
-          }
-      }
-  }
-  // Load the file
-  arr_size = lenses_conf.lenses_count;
-  for (i=0; i < arr_size; i++)
-  {
-      char block_buf[COMMAND_WORD_LEN];
-      sprintf(block_buf, "lens%d", i);
-      long pos = 0;
-      int k = find_conf_block(buf, &pos, len, block_buf);
-      if (k < 0)
-      {
-          if ((flags & CnfLd_AcceptPartial) == 0)
-          {
-              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-              return false;
-          }
-          continue;
-    }
-    lenscfg = &lenses_conf.lenses[i];
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(lenses_data_commands,cmd_num)
-    while (pos<len)
+    lenses_conf.lenses[idx].flags |= LCF_HasDisplace;
+    return value_default(named_field, value_text, named_fields_set, idx);
+}
+
+
+static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+{
+    lenses_conf.lenses[idx].flags |= LCF_HasPalette;
+    char* fname = prepare_file_path(FGrp_StdData, value_text);
+    if (LbFileLoadAt(fname, (char*)(named_field->field) + named_fields_set->struct_size * idx) != PALETTE_SIZE)
     {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, lenses_data_commands);
-      // Now store the config item in correct place
-      if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      if ((flags & CnfLd_ListOnly) != 0) {
-          // In "List only" mode, accept only name command
-          if (cmd_num > 1) {
-              cmd_num = 0;
-          }
-      }
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,lenscfg->code_name,COMMAND_WORD_LEN) <= 0)
-          {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            break;
-          }
-          n++;
-          break;
-      case 2: // MIST
-          if (get_conf_parameter_single(buf,&pos,len,lenscfg->mist_file,DISKPATH_SIZE) > 0)
-          {
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if ((k >= 0) && (k < 64))
-            {
-                lenscfg->mist_lightness = k;
-                n++;
-            }
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if ((k >= 0) && (k < 256))
-            {
-                lenscfg->mist_ghost = k;
-                n++;
-            }
-          }
-          if (n < 3)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          } else
-          {
-              lenscfg->flags |= LCF_HasMist;
-          }
-          break;
-      case 3: // DISPLACEMENT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if ((k > 0) && (k < 256))
-            {
-                lenscfg->displace_kind = k;
-                n++;
-            }
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if ((k >= 0) && (k < 512))
-            {
-                lenscfg->displace_magnitude = k;
-                n++;
-            }
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if ((k > 0) && (k < 512))
-            {
-                lenscfg->displace_period = k;
-                n++;
-            }
-          }
-          if (n < 3)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          } else
-          {
-              lenscfg->flags |= LCF_HasDisplace;
-          }
-          break;
-      case 4: // PALETTE
-      {
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              char* fname = prepare_file_path(FGrp_StdData, word_buf);
-              if ( LbFileLoadAt(fname, lenscfg->palette) == PALETTE_SIZE)
-              {
-                n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          } else
-          {
-              lenscfg->flags |= LCF_HasPalette;
-          }
-          break;
-      }
-      case ccr_comment:
-          break;
-      case ccr_endOfFile:
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
+        CONFWRNLOG("Couldn't load \"%s\" file for \"%s\" parameter in [%s%d] block of lens.cfg file.",
+            value_text, named_field->name, named_fields_set->block_basename, idx);
     }
-#undef COMMAND_TEXT
-  }
-  return true;
+    return 0;
 }
 
 TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned short flags)
@@ -323,22 +117,9 @@ TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
     // Parse blocks of the config file
-    if (result)
-    {
-        result = parse_lenses_common_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing Lenses file \"%s\" common blocks failed.",fname);
-    }
-    if (result)
-    {
-        result = parse_lenses_data_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing Lenses file \"%s\" data blocks failed.",fname);
-    }
+
+    parse_named_field_blocks(buf, len, textname, flags, &lenses_data_named_fields_set);
+
     //Freeing and exiting
     free(buf);
     return result;

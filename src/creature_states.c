@@ -32,6 +32,7 @@
 #include "config_terrain.h"
 #include "config_effects.h"
 #include "config_crtrstates.h"
+#include "config_keeperfx.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_objects.h"
@@ -1631,15 +1632,15 @@ short creature_being_dropped(struct Thing *creatng)
 short creature_cannot_find_anything_to_do(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-	struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-	if ((game.play_gameturn - cctrl->countdown) >= 128)
-	{
-		set_start_state(creatng);
-		return 0;
-	}
-	if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
-		creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
-	return 1;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if ((game.play_gameturn - cctrl->countdown) >= 128)
+    {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+        creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
+    return 1;
 }
 
 /**
@@ -1919,8 +1920,8 @@ short creature_doing_nothing(struct Thing *creatng)
 TbBool slab_is_valid_for_creature_choose_move(const struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ( ((slbattr->block_flags & SlbAtFlg_IsRoom) != 0) || ((slbattr->block_flags & SlbAtFlg_Blocking) == 0) )
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
+    if ( ((slabst->block_flags & SlbAtFlg_IsRoom) != 0) || ((slabst->block_flags & SlbAtFlg_Blocking) == 0) )
         return true;
     MapSubtlCoord stl_x = slab_subtile_center(slb_x);
     MapSubtlCoord stl_y = slab_subtile_center(slb_y);
@@ -3612,11 +3613,11 @@ CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
         struct SlabMap* slb = get_slabmap_for_subtile(wall_x, wall_y);
         PlayerNumber slab_owner = slabmap_owner(slb);
         struct Map* mapblk = get_map_block_at(wall_x, wall_y);
-        struct SlabAttr* slbattr = get_slab_attrs(slb);
+        struct SlabConfigStats* slabst = get_slab_stats(slb);
 
         if ( (mapblk->flags & SlbAtFlg_Blocking) != 0
             && slab_owner == creatng->owner
-            && slbattr->category == SlbAtCtg_FortifiedWall )
+            && slabst->category == SlbAtCtg_FortifiedWall )
         {
             instruct_creature_to_damage_wall(creatng, wall_x, wall_y);
             return 1;
@@ -4534,7 +4535,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         creatng->mappos.y.val,
         pos->x.val,
         pos->y.val,
-	    -2, nav_sizexy, __func__);
+        -2, nav_sizexy, __func__);
     nav_thing_can_travel_over_lava = 0;
 
     int distance = 0;
@@ -5442,9 +5443,9 @@ TbBool setup_move_off_lava(struct Thing* thing)
         slb = get_slabmap_for_subtile(cx, cy);
         if (slabmap_block_invalid(slb))
             continue;
-        const struct SlabAttr* slbattr;
-        slbattr = get_slab_attrs(slb);
-        if (!slbattr->is_safe_land)
+        const struct SlabConfigStats* slabst;
+        slabst = get_slab_stats(slb);
+        if (!slabst->is_safe_land)
             continue;
         // Check all subtiles of the slab in random order
         long k;

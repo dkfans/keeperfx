@@ -342,8 +342,8 @@ void make_safe(struct PlayerInfo *player)
         {
             SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
             struct SlabMap* slb = get_slabmap_direct(slb_num);
-            struct SlabAttr* slbattr = get_slab_attrs(slb);
-            if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
+            struct SlabConfigStats* slabst = get_slab_stats(slb);
+            if ((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
                 areamap[slb_num] = 0x01;
             else
                 areamap[slb_num] = 0x00;
@@ -372,8 +372,8 @@ void make_safe(struct PlayerInfo *player)
             {
                 areamap[slb_num] |= 0x02;
                 struct SlabMap* slb = get_slabmap_direct(slb_num);
-                struct SlabAttr* slbattr = get_slab_attrs(slb);
-                if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x-1, slb_y))
+                struct SlabConfigStats* slabst = get_slab_stats(slb);
+                if ((slabst->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x-1, slb_y))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x - 1, slb_y);
                     place_slab_type_on_map(pretty_type, slab_subtile(slb_x-1,0), slab_subtile(slb_y,0), plyr_idx, 0);
@@ -395,8 +395,8 @@ void make_safe(struct PlayerInfo *player)
             {
                 areamap[slb_num] |= 0x02;
                 struct SlabMap* slb = get_slabmap_direct(slb_num);
-                struct SlabAttr* slbattr = get_slab_attrs(slb);
-                if ((slbattr->category == SlbAtCtg_FriableDirt) &&  slab_by_players_land(plyr_idx, slb_x+1, slb_y))
+                struct SlabConfigStats* slabst = get_slab_stats(slb);
+                if ((slabst->category == SlbAtCtg_FriableDirt) &&  slab_by_players_land(plyr_idx, slb_x+1, slb_y))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x + 1, slb_y);
                     place_slab_type_on_map(pretty_type, slab_subtile(slb_x+1,0), slab_subtile(slb_y,0), plyr_idx, 0);
@@ -418,8 +418,8 @@ void make_safe(struct PlayerInfo *player)
             {
                 areamap[slb_num] |= 0x02;
                 struct SlabMap* slb = get_slabmap_direct(slb_num);
-                struct SlabAttr* slbattr = get_slab_attrs(slb);
-                if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y-1))
+                struct SlabConfigStats* slabst = get_slab_stats(slb);
+                if ((slabst->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y-1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y - 1);
                     place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y-1,0), plyr_idx, 0);
@@ -441,8 +441,8 @@ void make_safe(struct PlayerInfo *player)
             {
                 areamap[slb_num] |= 0x02;
                 struct SlabMap* slb = get_slabmap_direct(slb_num);
-                struct SlabAttr* slbattr = get_slab_attrs(slb);
-                if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y+1))
+                struct SlabConfigStats* slabst = get_slab_stats(slb);
+                if ((slabst->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y+1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y + 1);
                     place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y+1,0), plyr_idx, 0);
@@ -471,7 +471,7 @@ void make_unsafe(PlayerNumber plyr_idx)
     MapSlabCoord slb_y;
     SlabCodedCoords slb_num;
     struct SlabMap* slb;
-    struct SlabAttr* slbattr;
+    struct SlabConfigStats* slabst;
     struct PowerConfigStats* powerst;
     struct Dungeon* dungeon;
     struct Coord3d pos;
@@ -483,8 +483,8 @@ void make_unsafe(PlayerNumber plyr_idx)
             slb = get_slabmap_direct(slb_num);
             if (slabmap_owner(slb) == plyr_idx)
             {
-                slbattr = get_slab_attrs(slb);
-                if (slbattr->category == SlbAtCtg_FortifiedWall)
+                slabst = get_slab_stats(slb);
+                if (slabst->category == SlbAtCtg_FortifiedWall)
                 {
                     SlabKind newslab = choose_rock_type(plyr_idx, slb_x, slb_y);
                     dungeon = get_dungeon(plyr_idx);

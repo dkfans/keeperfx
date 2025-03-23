@@ -4,7 +4,7 @@
 #include "api.h"
 #include <json.h>
 #include <json-dom.h>
-#include "config.h"
+#include "config_keeperfx.h"
 #include "config_campaigns.h"
 #include "lvl_script.h"
 #include "lvl_script_commands.h"
