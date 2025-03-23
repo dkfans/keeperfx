@@ -70,7 +70,7 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
 
 
 
-const struct NamedField rules_game_named_fields[] = {
+static const struct NamedField rules_game_named_fields[] = {
     //name                    //param  //field                                             //default  //min               //max   //namedCommand                    //valueFunc
   {"GOLDPERGOLDBLOCK",          0, field(game.conf.rules.game.gold_per_gold_block       ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, NULL},
   {"POTOFGOLDHOLDS",            0, field(game.conf.rules.game.pot_of_gold_holds         ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, NULL},
@@ -110,13 +110,13 @@ const struct NamedField rules_game_named_fields[] = {
 };
 
 
-const struct NamedField rules_computer_named_fields[] = {
+static const struct NamedField rules_computer_named_fields[] = {
     //name                    //param  //field                                           //default    //min     //max
   {"DISEASEHPTEMPLEPERCENTAGE",  0, field(game.conf.rules.computer.disease_to_temple_pct),500,        0, USHRT_MAX,NULL,value_default,NULL},
   {NULL},
 };
 
-const struct NamedField rules_creatures_named_fields[] = {
+static const struct NamedField rules_creatures_named_fields[] = {
     //name                    //param  //field                                           //default   //min     //max  //namedCommand //valueFunc
   {"RECOVERYFREQUENCY",          0, field(game.conf.rules.creature.recovery_frequency    ),  10,        0, UCHAR_MAX,NULL,value_default, NULL},
   {"FIGHTMAXHATE",               0, field(game.conf.rules.creature.fight_max_hate        ), 200, SHRT_MIN,  SHRT_MAX,NULL,value_default, NULL},
@@ -133,7 +133,7 @@ const struct NamedField rules_creatures_named_fields[] = {
   {NULL},
 };
 
-const struct NamedField rules_magic_named_fields[] = {
+static const struct NamedField rules_magic_named_fields[] = {
     //name                        //param  //field                                                     //default //min  //max //namedCommand //valueFunc
   {"HOLDAUDIENCETIME",               0, field(game.conf.rules.magic.hold_audience_time                ), 500,        0, LONG_MAX,NULL,value_default, NULL},
   {"ARMAGEDDONTELEPORTYOURTIMEGAP",  0, field(game.conf.rules.magic.armageddon_teleport_your_time_gap ),  10, LONG_MIN, LONG_MAX,NULL,value_default, NULL},
@@ -153,7 +153,7 @@ const struct NamedField rules_magic_named_fields[] = {
   {NULL},
 };
 
-const struct NamedField rules_rooms_named_fields[] = {
+static const struct NamedField rules_rooms_named_fields[] = {
     //name                             //param  //field                                                  //default //min                //max  //namedCommand //valueFunc
   {"SCAVENGECOSTFREQUENCY",               0, field(game.conf.rules.rooms.scavenge_cost_frequency         ),  64, LONG_MIN,            LONG_MAX,NULL,value_default, NULL},
   {"TEMPLESCAVENGEPROTECTIONTIME",        0, field(game.conf.rules.rooms.temple_scavenge_protection_turns),1000,        0,           ULONG_MAX,NULL,value_default, NULL},
@@ -177,7 +177,7 @@ const struct NamedField rules_rooms_named_fields[] = {
   {NULL},
 };
 
-const struct NamedField rules_workers_named_fields[] = {
+static const struct NamedField rules_workers_named_fields[] = {
     //name                    //param  //field                                              //default  //min   //max  //namedCommand //valueFunc
   {"HITSPERSLAB",                0, field(game.conf.rules.workers.hits_per_slab              ),  2,       0, UCHAR_MAX,NULL,value_default, NULL},
   {"DEFAULTIMPDIGDAMAGE",        0, field(game.conf.rules.workers.default_imp_dig_damage     ),  1,       0, ULONG_MAX,NULL,value_default, NULL},
@@ -187,7 +187,7 @@ const struct NamedField rules_workers_named_fields[] = {
   {NULL},
 };
 
-const struct NamedField rules_health_named_fields[] = {
+static const struct NamedField rules_health_named_fields[] = {
     //name                       //param  //field                                             //default  //min   //max  //namedCommand //valueFunc
   {"HUNGERHEALTHLOSS",              0, field(game.conf.rules.health.hunger_health_loss           ),  1, LONG_MIN,  LONG_MAX,NULL,value_default, NULL},
   {"GAMETURNSPERHUNGERHEALTHLOSS",  0, field(game.conf.rules.health.turns_per_hunger_health_loss ),100,        0, USHRT_MAX,NULL,value_default, NULL},
@@ -196,6 +196,15 @@ const struct NamedField rules_health_named_fields[] = {
   {"GAMETURNSPERTORTUREHEALTHLOSS", 0, field(game.conf.rules.health.turns_per_torture_health_loss),100,        0, USHRT_MAX,NULL,value_default, NULL},
   {NULL},
 };
+
+static const struct NamedField rules_script_only_named_fields[] = {
+  //name            //field                   //min //max
+{"PayDayProgress",0,field(game.pay_day_progress),0,0,LONG_MAX,NULL,value_default,NULL},
+{NULL},
+};
+
+const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,
+rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fields,rules_health_named_fields,rules_script_only_named_fields};
 
 //rules do need one for technical reasons, but isn't really relevant
 const struct NamedFieldSet rules_named_fields_set = {
@@ -312,7 +321,13 @@ static int long_compare_fn(const void *ptr_a, const void *ptr_b)
 
 static void set_defaults()
 {
-//todo
+    for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++) {
+      const struct NamedField* field = ruleblocks[i];
+      while (field->name != NULL) {
+        assign_named_field_value_direct(field, field->default_value, &rules_named_fields_set, 0);
+        field++;
+      }
+    }
 }
 
 TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)

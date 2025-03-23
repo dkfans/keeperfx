@@ -294,17 +294,6 @@ const struct NamedCommand room_config_desc[] = {
   {NULL,                   0},
 };
 
-
-
-static const struct NamedField rules_script_only_named_fields[] = {
-    //name            //field                   //min //max
-  {"PayDayProgress",0,field(game.pay_day_progress),0,0,LONG_MAX,NULL,value_default,NULL},
-  {NULL},
-};
-
-static const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,
-rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fields,rules_health_named_fields,rules_script_only_named_fields};
-
 const struct NamedCommand on_experience_desc[] = {
   {"SizeIncreaseOnExp",            1},
   {"PayIncreaseOnExp",             2},
