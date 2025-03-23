@@ -110,6 +110,7 @@ extern const struct NamedCommand scrshot_type[];
 extern char cmd_char;
 extern short api_enabled;
 extern uint16_t api_port;
+extern TbBool exit_on_lua_error;
 /******************************************************************************/
 TbBool is_feature_on(unsigned long feature);
 TbBool censorship_enabled(void);

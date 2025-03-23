@@ -420,6 +420,7 @@ long luaL_checkIntMinMax(lua_State *L, int index,long min, long max)
 
 void luaL_checkGameRule(lua_State *L, int index,short *rulegroup, short *ruledesc)
 {
+    /*
     const char* text = lua_tostring(L, index);
     *rulegroup = 0;
 
@@ -446,6 +447,7 @@ void luaL_checkGameRule(lua_State *L, int index,short *rulegroup, short *ruledes
         SCRPTERRLOG("Unknown Game Rule '%s'.", text);
         return;
     }
+    */
 }
 
 

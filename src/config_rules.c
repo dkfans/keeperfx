@@ -197,6 +197,15 @@ const struct NamedField rules_health_named_fields[] = {
   {NULL},
 };
 
+static const struct NamedField rules_script_only_named_fields[] = {
+  //name            //field                   //min //max
+{"PayDayProgress",0,field(game.pay_day_progress),0,0,LONG_MAX,NULL,value_default,NULL},
+{NULL},
+};
+
+const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,
+rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fields,rules_health_named_fields,rules_script_only_named_fields};
+
 //rules do need one for technical reasons, but isn't really relevant
 const struct NamedFieldSet rules_named_fields_set = {
   NULL,

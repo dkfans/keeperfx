@@ -803,12 +803,14 @@ static int lua_PLACE_TRAP(lua_State *L)
 
 static int lua_SET_GAME_RULE(lua_State *L)
 {
+
+    //TODO implement
     short rulegroup;
     short ruledesc;
 
     luaL_checkGameRule(L,1,&rulegroup,&ruledesc);
-    long rulevalue = luaL_checkinteger(L, 2);
-    update_game_rule(rulegroup, ruledesc, rulevalue);
+    //long rulevalue = luaL_checkinteger(L, 2);
+    //update_game_rule(rulegroup, ruledesc, rulevalue);
     return 0;
 }
 

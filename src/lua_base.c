@@ -12,7 +12,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
-#include "config.h"
+#include "config_keeperfx.h"
 #include "globals.h"
 #include "gui_msgs.h"
 
