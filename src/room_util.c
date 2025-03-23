@@ -556,7 +556,7 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
         case RoRoF_CrHealSleep:
             // Find room with lair capacity
             {
-                struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+                struct CreatureStats* crstat = creature_stats_get_from_original_model(creatng);
                 room = find_room_of_role_with_spare_capacity(plyr_idx, rrole, crstat->lair_size);
                 break;
             }

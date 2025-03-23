@@ -118,7 +118,7 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
         // Thing list loop body
         if ((n <= 0) && (thing->index != creatng->index))
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+            struct CreatureStats* crstat = creature_stats_get_from_original_model(thing);
             if (!creature_model_is_lair_enemy(crstat->lair_enemy, creatng->model))
             {
                 return thing;
