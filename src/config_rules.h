@@ -212,6 +212,8 @@ extern const struct NamedCommand sacrifice_unique_desc[];
 extern const struct NamedCommand game_rule_desc[];
 extern const struct NamedField* ruleblocks[];
 
+extern const struct NamedFieldSet rules_named_fields_set;
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

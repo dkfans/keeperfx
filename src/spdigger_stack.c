@@ -1448,10 +1448,10 @@ void add_pretty_and_convert_to_imp_stack_prepare(struct Dungeon *dungeon, unsign
             struct SlabMap *slb;
             slb_num = get_slab_number(slb_x, slb_y);
             slb = get_slabmap_direct(slb_num);
-            struct SlabAttr *slbattr;
-            slbattr = get_slab_attrs(slb);
+            struct SlabConfigStats *slabst;
+            slabst = get_slab_stats(slb);
             slbopt[slb_num] = 0;
-            if ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) {
+            if ((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) {
                 slbopt[slb_num] |= SlbCAOpt_Border;
             }
         }
@@ -2220,9 +2220,9 @@ TbBool slab_is_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
     if ((slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER)) {
         return false;
     }
-    struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
-    if (!slbattr->is_safe_land) {
+    struct SlabConfigStats *slabst;
+    slabst = get_slab_stats(slb);
+    if (!slabst->is_safe_land) {
         return false;
     }
     return (slabmap_owner(slb) == plyr_idx);

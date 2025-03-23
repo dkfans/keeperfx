@@ -134,8 +134,8 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
     struct PlayerInfo* player = get_player(plyr_idx);
     if (player->work_state == PSt_FreeDestroyWalls)
     {
-        struct SlabAttr *slbattr = get_slab_attrs(get_slabmap_for_subtile(stl_x, stl_y));
-        return ( (slbattr->category == SlbAtCtg_FortifiedWall) || (slbattr->category == SlbAtCtg_FriableDirt) );
+        struct SlabConfigStats *slabst = get_slab_stats(get_slabmap_for_subtile(stl_x, stl_y));
+        return ( (slabst->category == SlbAtCtg_FortifiedWall) || (slabst->category == SlbAtCtg_FriableDirt) );
     }
     else if ( (player->work_state == PSt_FreeCastDisease) || (player->work_state == PSt_FreeTurnChicken) )
     {
@@ -625,8 +625,8 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoo
     unsigned long long can_cast;
     mapblk = get_map_block_at(stl_x, stl_y);
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
+    struct SlabConfigStats *slabst;
+    slabst = get_slab_stats(slb);
     const struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(pwkind);
     if (power_model_stats_invalid(powerst))
@@ -716,7 +716,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoo
         }
         if ((can_cast & PwCast_UnclmdGround) != 0)
         {
-            if (slbattr->category == SlbAtCtg_Unclaimed) {
+            if (slabst->category == SlbAtCtg_Unclaimed) {
                 return true;
             }
             if (subtile_is_liquid_or_path)
@@ -726,25 +726,25 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoo
         }
         if ((can_cast & PwCast_NeutrlGround) != 0)
         {
-            if ((slbattr->category != SlbAtCtg_Unclaimed) && (slb_owner == game.neutral_player_num)) {
+            if ((slabst->category != SlbAtCtg_Unclaimed) && (slb_owner == game.neutral_player_num)) {
                 return true;
             }
         }
         if ((can_cast & PwCast_OwnedGround) != 0)
         {
-            if ((slbattr->category != SlbAtCtg_Unclaimed) && (slb_owner == plyr_idx)) {
+            if ((slabst->category != SlbAtCtg_Unclaimed) && (slb_owner == plyr_idx)) {
                 return true;
             }
         }
         if ((can_cast & PwCast_AlliedGround) != 0)
         {
-            if ((slbattr->category != SlbAtCtg_Unclaimed) && (slb_owner != plyr_idx) && players_are_mutual_allies(plyr_idx,slb_owner)) {
+            if ((slabst->category != SlbAtCtg_Unclaimed) && (slb_owner != plyr_idx) && players_are_mutual_allies(plyr_idx,slb_owner)) {
                 return true;
             }
         }
         if ((can_cast & PwCast_EnemyGround) != 0)
         {
-            if ((slbattr->category != SlbAtCtg_Unclaimed) && players_are_enemies(plyr_idx,slb_owner)) {
+            if ((slabst->category != SlbAtCtg_Unclaimed) && players_are_enemies(plyr_idx,slb_owner)) {
                 return true;
             }
         }
@@ -1165,8 +1165,8 @@ static TbResult magic_use_power_destroy_walls(PowerKind power_kind, PlayerNumber
             unsigned char destreff = destroy_effect[power_level][i];
             if (destreff == 79)
             {
-                struct SlabAttr *slbattr = get_slab_attrs(slb);
-                if (slbattr->category == SlbAtCtg_FortifiedWall)
+                struct SlabConfigStats *slabst = get_slab_stats(slb);
+                if (slabst->category == SlbAtCtg_FortifiedWall)
                 {
                     place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x),slab_subtile_center(slb_y), game.neutral_player_num, 0);
                     create_dirt_rubble_for_dug_slab(slb_x, slb_y);

@@ -47,6 +47,7 @@
 #include "lvl_filesdk1.h"
 #include "lua_base.h"
 #include "lua_triggers.h"
+#include "moonphase.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus

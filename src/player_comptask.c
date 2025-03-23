@@ -981,9 +981,9 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
             if ((stl_x < gameadd.map_subtiles_x) && (stl_y < gameadd.map_subtiles_y))
             {
                 struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
-                const struct SlabAttr *slbattr = get_slab_attrs(slb);
+                const struct SlabConfigStats *slabst = get_slab_stats(slb);
                 struct Map *mapblk = get_map_block_at(stl_x, stl_y);
-                if (slbattr->is_diggable && (slb->kind != SlbT_GEMS))
+                if (slabst->is_diggable && (slb->kind != SlbT_GEMS))
                 {
                     if (!flag_is_set(mapblk->flags, SlbAtFlg_Filled) || (slabmap_owner(slb) == dungeon->owner))
                     {
@@ -1305,16 +1305,16 @@ ItemAvailability computer_check_room_of_role_available(const struct Computer2 * 
 
 long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
-    struct SlabAttr *slbattr;
+    struct SlabConfigStats *slabst;
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    slbattr = get_slab_attrs(slb);
+    slabst = get_slab_stats(slb);
     if ((slabmap_owner(slb) == plyr_idx) || (plyr_idx == -1))
     {
-        if (!flag_is_set(slbattr->block_flags, SlbAtFlg_Blocking) && (slb->kind != SlbT_LAVA)) {
+        if (!flag_is_set(slabst->block_flags, SlbAtFlg_Blocking) && (slb->kind != SlbT_LAVA)) {
             return true;
         }
-        if (flag_is_set(slbattr->block_flags, SlbAtFlg_IsRoom)) {
+        if (flag_is_set(slabst->block_flags, SlbAtFlg_IsRoom)) {
             return true;
         }
     }
@@ -1323,19 +1323,19 @@ long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 
 long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
-    struct SlabAttr *slbattr;
+    struct SlabConfigStats *slabst;
     struct SlabMap *slb;
     SubtlCodedCoords stl_num;
     struct Map *mapblk;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    slbattr = get_slab_attrs(slb);
+    slabst = get_slab_stats(slb);
     if (slb->kind == SlbT_GEMS) {
         return 1;
     }
-    if (slbattr->category == SlbAtCtg_RoomInterior) {
+    if (slabst->category == SlbAtCtg_RoomInterior) {
         return -1;
     }
-    if (flag_is_set(slbattr->block_flags, SlbAtFlg_IsRoom)) {
+    if (flag_is_set(slabst->block_flags, SlbAtFlg_IsRoom)) {
         return -1;
     }
     if (!slab_good_for_computer_dig_path(slb) || (slb->kind == SlbT_WATER)) {
@@ -1345,13 +1345,13 @@ long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
     if (find_from_task_list(plyr_idx, stl_num) >= 0) {
         return -1;
     }
-    if (flag_is_set(slbattr->block_flags, SlbAtFlg_Valuable)) {
+    if (flag_is_set(slabst->block_flags, SlbAtFlg_Valuable)) {
         return -1;
     }
     if (slab_kind_is_liquid(slb->kind)) {
         return 1;
     }
-    if ( (slbattr->is_diggable == 0) || (slb->kind == SlbT_GEMS) ) {
+    if ( (slabst->is_diggable == 0) || (slb->kind == SlbT_GEMS) ) {
         return 1;
     }
     mapblk = get_map_block_at_pos(stl_num);
@@ -1360,16 +1360,16 @@ long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
 
 long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
-    struct SlabAttr *slbattr;
+    struct SlabConfigStats *slabst;
     struct SlabMap *slb;
     SubtlCodedCoords stl_num;
     struct Map *mapblk;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    slbattr = get_slab_attrs(slb);
-    if (slbattr->category == SlbAtCtg_RoomInterior) {
+    slabst = get_slab_stats(slb);
+    if (slabst->category == SlbAtCtg_RoomInterior) {
         return -1;
     }
-    if (flag_is_set(slbattr->block_flags, SlbAtFlg_IsRoom)) {
+    if (flag_is_set(slabst->block_flags, SlbAtFlg_IsRoom)) {
         return -1;
     }
     if (slb->kind == SlbT_GEMS) {
@@ -1385,7 +1385,7 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
     if (find_from_task_list(plyr_idx, stl_num) >= 0) {
         return 0;
     }
-    if ( (slbattr->is_diggable == 0) || (slb->kind == SlbT_GEMS) ) {
+    if ( (slabst->is_diggable == 0) || (slb->kind == SlbT_GEMS) ) {
         return 1;
     }
     mapblk = get_map_block_at_pos(stl_num);
@@ -1678,18 +1678,18 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
     ToolDigResult dig_result;
     for (dig_result = TDR_DigSlab; dig_result < cdig->subfield_2C; dig_result++)
     {
-        struct SlabAttr *slbattr;
+        struct SlabConfigStats *slabst;
         struct SlabMap *slb;
         struct Map *mapblk;
         nextslb_x = subtile_slab(*nextstl_x);
         nextslb_y = subtile_slab(*nextstl_y);
         slb = get_slabmap_block(nextslb_x, nextslb_y);
         mapblk = get_map_block_at(*nextstl_x, *nextstl_y);
-        slbattr = get_slab_attrs(slb);
-        if ( (slbattr->is_diggable == 0) || (slb->kind == SlbT_GEMS)
+        slabst = get_slab_stats(slb);
+        if ( (slabst->is_diggable == 0) || (slb->kind == SlbT_GEMS)
           || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
         {
-            if ( ((slbattr->block_flags & SlbAtFlg_Valuable) == 0) || ((digflags & ToolDig_AllowValuable) == 0) ) {
+            if ( ((slabst->block_flags & SlbAtFlg_Valuable) == 0) || ((digflags & ToolDig_AllowValuable) == 0) ) {
                 break;
             }
         }
@@ -1701,7 +1701,7 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
             }
             if (digflags & ToolDig_AllowValuable)
             {
-                if ((slbattr->block_flags & SlbAtFlg_Valuable) != 0) {
+                if ((slabst->block_flags & SlbAtFlg_Valuable) != 0) {
                     cdig->valuable_slabs_tagged++;
                 }
             }
@@ -1881,9 +1881,9 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
         digslb_y = subtile_slab(digstl_y);
     }
     slb = get_slabmap_block(digslb_x, digslb_y);
-    struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
-    if ((slbattr->is_diggable) && (slb->kind != SlbT_GEMS))
+    struct SlabConfigStats *slabst;
+    slabst = get_slab_stats(slb);
+    if ((slabst->is_diggable) && (slb->kind != SlbT_GEMS))
     {
         mapblk = get_map_block_at(digstl_x, digstl_y);
         if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == dungeon->owner))
@@ -1999,15 +1999,15 @@ long add_to_trap_locations(struct Computer2 * comp, struct Coord3d * coord)
 long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_idx)
 {
     struct SlabMap *slb;
-    struct SlabAttr *slbattr;
+    struct SlabConfigStats *slabst;
     SubtlCodedCoords stl_num;
     SYNCDBG(15,"Starting");
     basestl_x = stl_slab_center_subtile(basestl_x);
     basestl_y = stl_slab_center_subtile(basestl_y);
     stl_num = get_subtile_number(basestl_x,basestl_y);
     slb = get_slabmap_for_subtile(basestl_x,basestl_y);
-    slbattr = get_slab_attrs(slb);
-    if (flag_is_set(slbattr->block_flags, SlbAtFlg_Valuable)) {
+    slabst = get_slab_stats(slb);
+    if (flag_is_set(slabst->block_flags, SlbAtFlg_Valuable)) {
         return (find_from_task_list(plyr_idx, stl_num) < 0);
     }
     return 0;
@@ -2119,7 +2119,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         struct SlabMap* slb = get_slabmap_for_subtile(ctask->dig.pos_next.x.stl.num, ctask->dig.pos_next.y.stl.num);
 
-        if (flag_is_set(get_slab_attrs(slb)->block_flags, SlbAtFlg_Valuable))
+        if (flag_is_set(get_slab_stats(slb)->block_flags, SlbAtFlg_Valuable))
         {
             ctask->delay--;
             if (ctask->delay > 0) {
@@ -2151,8 +2151,8 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
                         slb = get_slabmap_block(slb_x + x, slb_y + y);
 
                         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-                        struct SlabAttr *slbattr = get_slab_attrs(slb);
-                        if ( (slbattr->is_diggable != 0)
+                        struct SlabConfigStats *slabst = get_slab_stats(slb);
+                        if ( (slabst->is_diggable != 0)
                           || (flag_is_set(mapblk->flags, SlbAtFlg_Filled) && (slabmap_owner(slb) == dungeon->owner)) )
                         {
                             TbResult res = game_action(dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1);

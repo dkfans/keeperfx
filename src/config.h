@@ -63,27 +63,6 @@ enum TbFileGroups {
         FGrp_Music,
 };
 
-enum TbFeature {
-    Ft_EyeLens      =  0x0001,
-    Ft_HiResVideo   =  0x0002,
-    Ft_BigPointer   =  0x0004,
-    Ft_HiResCreatr  =  0x0008,
-    Ft_AdvAmbSound  =  0x0010,
-    Ft_Censorship   =  0x0020,
-    Ft_Atmossounds  =  0x0040,
-    Ft_Resizemovies =  0x0080,
-    Ft_FreezeOnLoseFocus            = 0x0400,
-    Ft_UnlockCursorOnPause          = 0x0800,
-    Ft_LockCursorInPossession       = 0x1000,
-    Ft_PauseMusicOnGamePause        = 0x2000,
-    Ft_MuteAudioOnLoseFocus         = 0x4000,
-    Ft_SkipHeartZoom                = 0x8000,
-    Ft_SkipSplashScreens            = 0x10000,
-    Ft_DisableCursorCameraPanning   = 0x20000,
-    Ft_DeltaTime                    = 0x40000,
-    Ft_NoCdMusic                    = 0x80000,
-};
-
 enum TbExtraLevels {
     ExLv_None      =  0,
     ExLv_FullMoon  =  1,
@@ -113,32 +92,7 @@ enum TbLevelLocation {
     LvLc_Custom    =  2,
 };
 
-enum TbLanguage {
-    Lang_Unset    =  0,
-    Lang_English,
-    Lang_French,
-    Lang_German,
-    Lang_Italian,
-    Lang_Spanish,
-    Lang_Swedish,
-    Lang_Polish,
-    Lang_Dutch,
-    Lang_Hungarian,
-    Lang_Korean,
-    Lang_Danish,
-    Lang_Norwegian,
-    Lang_Czech,
-    Lang_Arabic,
-    Lang_Russian,
-    Lang_Japanese,
-    Lang_ChineseInt,
-    Lang_ChineseTra,
-    Lang_Portuguese,
-    Lang_Hindi,
-    Lang_Bengali,
-    Lang_Javanese,
-    Lang_Latin,
-};
+
 
 enum TbConfigLoadFlags {
     CnfLd_Standard      =  0x00, /**< Standard load, no special behavior. */
@@ -167,6 +121,7 @@ enum dataTypes
     dt_default,
     dt_uchar,
     dt_schar,
+    dt_char,
     dt_short,
     dt_ushort,
     dt_int,
@@ -179,11 +134,12 @@ enum dataTypes
     dt_double,
     dt_longdouble,
     dt_void,
+    dt_charptr,
 };
 
 #define var_type(expr)\
     (_Generic((expr),\
-              unsigned char: dt_uchar, signed char: dt_schar, \
+              unsigned char: dt_uchar, char: dt_char, \
               short: dt_short, unsigned short: dt_ushort, \
               int: dt_int, unsigned int: dt_uint, \
               long: dt_long, unsigned long: dt_ulong, \
@@ -192,7 +148,11 @@ enum dataTypes
               double: dt_double, \
               long double: dt_longdouble, \
               void*: dt_void, \
+              char*: dt_charptr, \
               default: dt_default))
+
+#define field(field)\
+    &field, var_type(field)
 
 /******************************************************************************/
 struct CommandWord {
@@ -209,77 +169,51 @@ struct LongNamedCommand {
     long long num;
 };
 
+struct NamedFieldSet;
+
 struct NamedField {
     const char *name;
+    char argnum; //for fields that assign multiple values, -1 passes full string to assign function
     void* field;
     uchar type;
+    int64_t default_value;
     int64_t min;
     int64_t max;
+    const struct NamedCommand *namedCommand;
+    int64_t (*get_value_func)(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx); // converts the text to the a number
+    void (*assign_func)(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx);
 };
 
-struct InstallInfo {
-  char inst_path[150];
-  int lang_id;
-  int field_9A;
+struct NamedFieldSet {
+    long *const count_field;
+    const char* block_basename;
+    const struct NamedField* named_fields;
+    struct NamedCommand* names;
+    const int max_count;
+    const size_t struct_size;
+    const void* struct_base;
 };
 
-struct NetLevelDesc { // sizeof = 14
-  unsigned char lvnum;
-  unsigned char field_1;
-  unsigned long field_2;
-  unsigned long field_6;
-  char *text;
-};
-
-extern unsigned short AtmosRepeat;
-extern unsigned short AtmosStart;
-extern unsigned short AtmosEnd;
 extern TbBool AssignCpuKeepers;
 
 extern unsigned int vid_scale_flags;
+
+extern const struct NamedCommand logicval_type[];
+
 /******************************************************************************/
-extern struct InstallInfo install_info;
 extern char keeper_runtime_directory[152];
 
 #pragma pack()
 /******************************************************************************/
-extern unsigned long features_enabled;
-extern short is_full_moon;
-extern short is_near_full_moon;
-extern short is_new_moon;
-extern short is_near_new_moon;
 extern unsigned long text_line_number;
-extern const struct NamedCommand lang_type[];
-extern const struct NamedCommand logicval_type[];
-extern const struct NamedCommand scrshot_type[];
-extern char cmd_char;
-extern short api_enabled;
-extern uint16_t api_port;
-extern TbBool exit_on_lua_error;
 /******************************************************************************/
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname);
 char *prepare_file_path(short fgroup,const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
 unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
-TbBool is_feature_on(unsigned long feature);
-TbBool censorship_enabled(void);
-TbBool atmos_sounds_enabled(void);
-TbBool resize_movies_enabled(void);
-TbBool freeze_game_on_focus_lost(void);
-TbBool unlock_cursor_when_game_paused(void);
-TbBool lock_cursor_in_possession(void);
-TbBool pause_music_when_game_paused(void);
-TbBool mute_audio_on_focus_lost(void);
 short load_configuration(void);
 void process_cmdline_overrides(void);
-short calculate_moon_phase(short do_calculate,short add_to_log);
-void load_or_create_high_score_table(void);
-TbBool load_high_score_table(void);
-TbBool save_high_score_table(void);
-TbBool create_empty_high_score_table(void);
-int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *name);
-unsigned long get_level_highest_score(LevelNumber lvnum);
 /******************************************************************************/
 short is_bonus_level(LevelNumber lvnum);
 short is_extra_level(LevelNumber lvnum);
@@ -326,6 +260,8 @@ const char *get_language_lwrstr(int lang_id);
 TbBool reset_credits(struct CreditsItem *credits);
 TbBool setup_campaign_credits_data(struct GameCampaign *campgn);
 /******************************************************************************/
+TbBool parameter_is_number(const char* parstr);
+
 short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname);
 TbBool iterate_conf_blocks(const char * buf, long * pos, long buflen, const char ** name, int * namelen);
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
@@ -335,16 +271,28 @@ int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,lon
 int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 
 int get_conf_list_int(const char *buf, const char **state, int *dst);
-
+TbBool parse_named_field_block(const char *buf, long len, const char *config_textname, unsigned short flags,const char* blockname,
+    const struct NamedField named_field[], const struct NamedFieldSet* named_fields_set, int idx);
+TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname, unsigned short flags,
+        const struct NamedFieldSet* named_fields_set);
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
-int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField *commands);
-int assign_named_field_value(const struct NamedField* named_field, int64_t value);
+int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField *commands, const struct NamedFieldSet* named_fields_set, int idx);
+int assign_named_field_value_direct(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx);
+void assign_named_field_value_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
 long get_named_field_id(const struct NamedField *desc, const char *itmname);
 long get_id(const struct NamedCommand *desc, const char *itmname);
 long long get_long_id(const struct LongNamedCommand* desc, const char* itmname);
 long get_rid(const struct NamedCommand *desc, const char *itmname);
 /******************************************************************************/
+int64_t value_name           (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
+int64_t value_default        (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
+int64_t value_flagsfield     (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
+int64_t value_flagsfieldshift(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
+int64_t value_icon           (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
+
+int64_t get_named_field_value(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
+
 #ifdef __cplusplus
 }
 #endif
