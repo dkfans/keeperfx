@@ -53,6 +53,42 @@ static const struct NamedCommand terrain_flags[] = {
     {NULL,                0},
 };
 
+static const struct NamedCommand terrain_room_properties_commands[] = {
+    {"HAS_NO_ENSIGN",     RoCFlg_NoEnsign},
+    {"CANNOT_VANDALIZE",  RoCFlg_CantVandalize},
+    {"BUILD_TILL_BROKE",  RoCFlg_BuildTillBroke},
+    {"CANNOT_BE_SOLD",    RoCFlg_CannotBeSold},
+    {"CANNOT_BE_CLAIMED", RoCFlg_CannotBeClaimed},
+    {NULL,                0},
+};
+
+const struct NamedCommand terrain_room_total_capacity_func_type[] = {
+    {"slabs_all_only",          1},
+    {"slabs_all_wth_effcncy",   2},
+    {"slabs_no_min_wth_effcncy",3},
+    {"slabs_div2_wth_effcncy",  4},
+    {"slabs_div2_nomin_effcncy",5},
+    {"slabs_mul2_wth_effcncy",  6},
+    {"slabs_pow2_wth_effcncy",  7},
+    {"gold_slabs_wth_effcncy",  8},
+    {"gold_slabs_full",         9},
+    {"gold_slabs_div2",        10},
+    {"none",                   11},
+    {NULL,                      0},
+  };
+
+  const struct NamedCommand terrain_room_used_capacity_func_type[] = {
+    {"gold_hoardes_in_room", 1},
+    {"books_in_room",        2},
+    {"workers_in_room",      3},
+    {"crates_in_room",       4},
+    {"bodies_in_room",       5},
+    {"food_in_room",         6},
+    {"lair_occupants",       7},
+    {"none",                 8},
+    {NULL,                   0},
+  };
+  
 static const struct NamedField terrain_slab_named_fields[] = {
     //name                //field                                                        //default      //min     //max    //NamedCommand
     {"NAME",              0, field(game.conf.slab_conf.slab_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, slab_desc,     value_name,           NULL},
@@ -121,14 +157,6 @@ const struct NamedFieldSet terrain_room_named_fields_set = {
     game.conf.slab_conf.room_cfgstats
 };
 
-const struct NamedCommand terrain_room_properties_commands[] = {
-  {"HAS_NO_ENSIGN",     RoCFlg_NoEnsign},
-  {"CANNOT_VANDALIZE",  RoCFlg_CantVandalize},
-  {"BUILD_TILL_BROKE",  RoCFlg_BuildTillBroke},
-  {"CANNOT_BE_SOLD",    RoCFlg_CannotBeSold},
-  {"CANNOT_BE_CLAIMED", RoCFlg_CannotBeClaimed},
-  {NULL,                0},
-};
 
 const struct NamedCommand room_roles_desc[] = {
   {"ROOM_ROLE_KEEPER_STORAGE", RoRoF_KeeperStorage},
@@ -173,21 +201,6 @@ extern void count_gold_slabs_wth_effcncy(struct Room *room);
 extern void count_gold_slabs_full(struct Room *room);
 extern void count_gold_slabs_div2(struct Room* room);
 
-const struct NamedCommand terrain_room_total_capacity_func_type[] = {
-  {"slabs_all_only",          1},
-  {"slabs_all_wth_effcncy",   2},
-  {"slabs_no_min_wth_effcncy",3},
-  {"slabs_div2_wth_effcncy",  4},
-  {"slabs_div2_nomin_effcncy",5},
-  {"slabs_mul2_wth_effcncy",  6},
-  {"slabs_pow2_wth_effcncy",  7},
-  {"gold_slabs_wth_effcncy",  8},
-  {"gold_slabs_full",         9},
-  {"gold_slabs_div2",        10},
-  {"none",                   11},
-  {NULL,                      0},
-};
-
 Room_Update_Func terrain_room_total_capacity_func_list[] = {
   NULL,
   count_slabs_all_only,
@@ -213,18 +226,6 @@ extern void count_crates_in_room(struct Room *room);
 extern void count_bodies_in_room(struct Room *room);
 extern void count_food_in_room(struct Room *room);
 extern void count_lair_occupants(struct Room *room);
-
-const struct NamedCommand terrain_room_used_capacity_func_type[] = {
-  {"gold_hoardes_in_room", 1},
-  {"books_in_room",        2},
-  {"workers_in_room",      3},
-  {"crates_in_room",       4},
-  {"bodies_in_room",       5},
-  {"food_in_room",         6},
-  {"lair_occupants",       7},
-  {"none",                 8},
-  {NULL,                   0},
-};
 
 Room_Update_Func terrain_room_used_capacity_func_list[] = {
   NULL,

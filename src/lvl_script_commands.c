@@ -774,6 +774,65 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
     return true;
 }
 
+static void set_config_check(const struct NamedFieldSet* named_fields_set, const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    const char* id_str = scline->tp[0];
+    const char* property = scline->tp[1];
+    const char* valuestrings[] = {scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]};
+    
+    short id = get_id(named_fields_set->names, id_str);
+    if (id == -1)
+    {
+        SCRPTERRLOG("Unknown %s, '%s'",named_fields_set->block_basename, id_str);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    long property_id = get_named_field_id(named_fields_set->named_fields, property);
+    if (property_id == -1)
+    {
+        SCRPTERRLOG("Unknown property, '%s'", property);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    const struct NamedField* field = &named_fields_set->named_fields[property_id];
+
+    char concatenated_values[MAX_TEXT_LENGTH];
+    if (field->argnum == -1)
+    {
+        snprintf(concatenated_values, sizeof(concatenated_values), "%s %s %s %s", scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]);
+        value->longs[1] = get_named_field_value(field, concatenated_values,named_fields_set,id);
+    }
+    else
+    {
+        for (size_t i = 0; i < 4; i++)
+        {
+            if(valuestrings[i][0] == '\0')
+            {
+                break;
+            }
+
+            if( named_fields_set->named_fields[property_id + i].name == NULL || (strcmp(named_fields_set->named_fields[property_id + i].name, named_fields_set->named_fields[property_id].name) != 0))
+            {
+                SCRPTERRLOG("more values then expected for property: '%s' '%s'", property, valuestrings[i]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            else if (valuestrings[i][0] == '\0')
+            {
+                break;
+            }
+            value->longs[1 + i] = get_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id);
+        }
+    }
+
+    value->shorts[0] = id;
+    value->shorts[1] = property_id;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
 static void add_to_party_check(const struct ScriptLine *scline)
 {
     int party_id = get_party_index_of_name(scline->tp[0]);
@@ -1266,229 +1325,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
 
 static void set_room_configuration_check(const struct ScriptLine* scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-
-    const char *roomname = scline->tp[0];
-    const char *valuestring = scline->tp[2];
-    const char* valuestring2 = scline->tp[3];
-    long newvalue;
-    long newvalue2;
-    short room_id = get_id(room_desc, roomname);
-    if (room_id == -1)
-    {
-        SCRPTERRLOG("Unknown room, '%s'", roomname);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    short roomvar = get_id(room_config_desc, scline->tp[1]);
-    if (roomvar == -1)
-    {
-        SCRPTERRLOG("Unknown room variable");
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    value->shorts[0] = room_id;
-    value->shorts[1] = roomvar;
-    value->shorts[2] = scline->np[2];
-    value->shorts[3] = scline->np[3];
-    value->shorts[4] = scline->np[4];
-    if (roomvar == 3) // SymbolSprites
-    {
-        value->longs[2] = script_strdup(scline->tp[2]);
-        if (value->longs[2] < 0) {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        value->longs[3] = script_strdup(scline->tp[3]);
-        if (value->longs[3] < 0) {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    else if (roomvar == 5) // PanelTabIndex
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-            if ((newvalue > 32) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %ld", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->shorts[2] = newvalue;
-        }
-        else
-        {
-            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    else if (roomvar == 8) // CreatureCreation
-    {
-        newvalue = get_id(creature_desc, valuestring);
-        if (newvalue == -1)
-            {
-                SCRPTERRLOG("Unknown CreatureCreation variable");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-        value->shorts[2] = newvalue;
-    }
-    else if ((roomvar == 10) || (roomvar == 16)) // SlabAssign & SlabSynergy
-    {
-        newvalue = get_id(slab_desc, valuestring);
-        if (newvalue == -1)
-            {
-                SCRPTERRLOG("Unknown slab variable");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-        value->shorts[2] = newvalue;
-    }
-    else if (roomvar == 12) // Properties
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-            if ((newvalue >= RoCFlg_ListEnd) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %ld", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->shorts[2] = newvalue;
-        }
-        else
-        {
-            newvalue = get_id(terrain_room_properties_commands, valuestring);
-            if (newvalue == -1)
-                {
-                    SCRPTERRLOG("Unknown Properties variable");
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-            value->shorts[2] = newvalue;
-        }
-    }
-    else if (roomvar == 13) // Roles
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-            if ((newvalue > 33554431) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %ld", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->ulongs[1] = newvalue;
-        }
-        else
-        {
-            newvalue = get_id(room_roles_desc, valuestring);
-            if (newvalue == -1)
-                {
-                    SCRPTERRLOG("Unknown Roles variable '%s'", valuestring);
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-            value->ulongs[1] = newvalue;
-        }
-        if (scline->tp[3][0] != '\0')
-        {
-            if (parameter_is_number(valuestring2))
-            {
-                newvalue2 = atoi(valuestring2);
-                if ((newvalue2 > 33554431) || (newvalue2 < 0))
-                {
-                    SCRPTERRLOG("Value out of range: %ld", newvalue2);
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                value->ulongs[2] = newvalue2;
-            }
-            else
-            {
-                newvalue2 = get_id(room_roles_desc, valuestring2);
-                if (newvalue2 == -1)
-                {
-                    SCRPTERRLOG("Unknown Roles variable '%s'", valuestring2);
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                value->ulongs[2] = newvalue2;
-            }
-        }
-    }
-    else if (roomvar == 14) // TotalCapacity
-    {
-        newvalue = get_id(terrain_room_total_capacity_func_type, valuestring);
-        if (newvalue == -1)
-            {
-                SCRPTERRLOG("Unknown TotalCapacity variable '%s'", valuestring);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-        value->shorts[2] = newvalue;
-    }
-    else if (roomvar == 15) // UsedCapacity
-    {
-        newvalue = get_id(terrain_room_used_capacity_func_type, valuestring);
-        if (newvalue == -1)
-            {
-                SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-        value->shorts[2] = newvalue;
-
-        newvalue2 = get_id(terrain_room_used_capacity_func_type, valuestring2);
-        if (newvalue2 == -1)
-        {
-            SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring2);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        value->shorts[3] = newvalue2;
-    }
-    else if (roomvar != 4) // NameTextID, TooltipTextID, Cost, Health, AmbientSndSample, Messages, StorageHeight
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %ld", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->shorts[2] = newvalue;
-        }
-        else
-        {
-            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    else // PointerSprites
-    {
-        value->longs[2] = script_strdup(scline->tp[2]);
-        if (value->longs[2] < 0)
-        {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    SCRIPTDBG(7, "Setting room %s property %s to %d", roomname, scline->tp[1], value->shorts[2]);
-    PROCESS_SCRIPT_VALUE(scline->command);
+    set_config_check(&terrain_room_named_fields_set, scline);
 }
 
 static void set_hand_rule_check(const struct ScriptLine* scline)
