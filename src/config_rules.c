@@ -72,7 +72,6 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
 
 const struct NamedField rules_game_named_fields[] = {
     //name                    //param  //field                                             //default  //min               //max   //namedCommand                    //valueFunc
-  {"GOLDPERGOLDBLOCK",          0, field(game.conf.rules.game.gold_per_gold_block       ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, NULL},
   {"POTOFGOLDHOLDS",            0, field(game.conf.rules.game.pot_of_gold_holds         ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, NULL},
   {"CHESTGOLDHOLD",             0, field(game.conf.rules.game.chest_gold_hold           ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, NULL},
   {"GOLDPILEVALUE",             0, field(game.conf.rules.game.gold_pile_value           ),         500, LONG_MIN,           LONG_MAX,NULL,                           value_default, NULL},
@@ -87,7 +86,6 @@ const struct NamedField rules_game_named_fields[] = {
   {"DUNGEONHEARTHEALTIME",      0, field(game.conf.rules.game.dungeon_heart_heal_time   ),          10,        0,          ULONG_MAX,NULL,                           value_default, NULL},
   {"DUNGEONHEARTHEALHEALTH",    0, field(game.conf.rules.game.dungeon_heart_heal_health ),           1, LONG_MIN,           LONG_MAX,NULL,                           value_default, NULL},
   {"HERODOORWAITTIME",          0, field(game.conf.rules.game.hero_door_wait_time       ),         100,        0,          ULONG_MAX,NULL,                           value_default, NULL},
-  {"GEMEFFECTIVENESS",          0, field(game.conf.rules.game.gem_effectiveness         ),          17,        0,          ULONG_MAX,NULL,                           value_default, NULL},
   {"ROOMSELLGOLDBACKPERCENT",   0, field(game.conf.rules.game.room_sale_percent         ),          50,        0,           LONG_MAX,NULL,                           value_default, NULL},
   {"DOORSELLVALUEPERCENT",      0, field(game.conf.rules.game.door_sale_percent         ),         100,        0,           LONG_MAX,NULL,                           value_default, NULL},
   {"TRAPSELLVALUEPERCENT",      0, field(game.conf.rules.game.trap_sale_percent         ),         100,        0,           LONG_MAX,NULL,                           value_default, NULL},
@@ -312,7 +310,7 @@ static int long_compare_fn(const void *ptr_a, const void *ptr_b)
 
 static void set_defaults()
 {
-//todo
+    //todo
 }
 
 TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)

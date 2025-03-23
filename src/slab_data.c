@@ -376,7 +376,7 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
                 {
                     result = 4;
                 }
-                else if (slb->kind == SlbT_GOLD)
+                else if ((slb->kind == SlbT_GOLD) || (slb->kind == SlbT_DENSEGOLD))
                 {
                     result = 5;
                 }
@@ -489,6 +489,7 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
                 {
                   case SlbT_ROCK:
                   case SlbT_GOLD:
+                  case SlbT_DENSEGOLD:
                   case SlbT_EARTH:
                   case SlbT_GEMS:
                     eff_score++;
