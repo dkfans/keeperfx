@@ -143,6 +143,7 @@ obj/config_campaigns.o \
 obj/config_creature.o \
 obj/config_crtrmodel.o \
 obj/config_crtrstates.o \
+obj/config_keeperfx.o \
 obj/config_lenses.o \
 obj/config_magic.o \
 obj/config_objects.o \
@@ -237,6 +238,7 @@ obj/gui_parchment.o \
 obj/gui_soundmsgs.o \
 obj/gui_tooltips.o \
 obj/gui_topmsg.o \
+obj/highscores.o \
 obj/kjm_input.o \
 obj/lens_api.o \
 obj/config_effects.o \

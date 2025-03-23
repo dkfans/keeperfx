@@ -349,17 +349,17 @@ struct ComputerDig {
     long calls_count; /**< used by dig to position */
     long valuable_slabs_tagged; /**< used by dig to position - Amount of valuable slabs tagged for digging during this dig process. */
     /** Variables for digging (or placing) a room. */
-	struct { 
-		long area; /**< The number of slabs in the room. */
-		long slabs_processed; /**< The number of slabs marked for digging or converted in to a room. */
+    struct { 
+        long area; /**< The number of slabs in the room. */
+        long slabs_processed; /**< The number of slabs marked for digging or converted in to a room. */
         /** Variables for the spiral used to dig slabs/place rooms. */
-		struct {
-			SmallAroundIndex forward_direction; /**< The current direction we are moving through the spiral. */
-			long turns_made; /**< The number of turns made in the spiral. */
-			long steps_to_take_before_turning; /**< The number of steps to take before the next turn in the spiral. */
-			long steps_remaining_before_turn; /**< The number of steps we have left to take before we need to turn in the spiral. */
-		} spiral;
-	} room;
+        struct {
+            SmallAroundIndex forward_direction; /**< The current direction we are moving through the spiral. */
+            long turns_made; /**< The number of turns made in the spiral. */
+            long steps_to_take_before_turning; /**< The number of steps to take before the next turn in the spiral. */
+            long steps_remaining_before_turn; /**< The number of steps we have left to take before we need to turn in the spiral. */
+        } spiral;
+    } room;
 };
 
 struct ComputerTask {

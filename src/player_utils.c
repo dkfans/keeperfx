@@ -433,8 +433,8 @@ void calculate_dungeon_area_scores(void)
         {
             SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
             struct SlabMap* slb = get_slabmap_direct(slb_num);
-            const struct SlabAttr* slbattr = get_slab_attrs(slb);
-            if (slbattr->category == SlbAtCtg_RoomInterior)
+            const struct SlabConfigStats* slabst = get_slab_stats(slb);
+            if (slabst->category == SlbAtCtg_RoomInterior)
             {
                 struct Dungeon *dungeon;
                 if (slabmap_owner(slb) != game.neutral_player_num) {
@@ -448,7 +448,7 @@ void calculate_dungeon_area_scores(void)
                     dungeon->room_manage_area++;
                 }
             } else
-            if (slbattr->category == SlbAtCtg_FortifiedGround)
+            if (slabst->category == SlbAtCtg_FortifiedGround)
             {
                 struct Dungeon *dungeon;
                 if (slabmap_owner(slb) != game.neutral_player_num) {
@@ -568,8 +568,8 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         for(MapSlabCoord slb_x_2 = 0;slb_x_2 < gameadd.map_tiles_x;slb_x_2++)
         {
             struct SlabMap *slb = get_slabmap_block(slb_x_2,slb_y_2);
-            struct SlabAttr *slbattr = get_slab_attrs(slb);
-            block_flags = slbattr->block_flags;
+            struct SlabConfigStats *slabst = get_slab_stats(slb);
+            block_flags = slabst->block_flags;
 
             if ((block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0 || ((block_flags & SlbAtFlg_IsDoor) != 0 && slabmap_owner(slb) != plyr_idx))
             {
@@ -1143,9 +1143,9 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         traps_sold = remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
     }
 
-	struct Dungeon* dungeon = get_dungeon(thing->owner);
-	dungeon->traps_sold += traps_sold;
-	dungeon->manufacture_gold += sell_value;
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    dungeon->traps_sold += traps_sold;
+    dungeon->manufacture_gold += sell_value;
 
     if (is_my_player_number(plyr_idx))
     {
