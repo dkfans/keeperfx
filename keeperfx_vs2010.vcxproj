@@ -78,6 +78,7 @@
     <ClCompile Include="src\config_crtrstates.c" />
     <ClCompile Include="src\config_cubes.c" />
     <ClCompile Include="src\config_effects.c" />
+    <ClCompile Include="src\config_keeperfx.c" />
     <ClCompile Include="src\config_lenses.c" />
     <ClCompile Include="src\config_magic.c" />
     <ClCompile Include="src\config_magic_data.cpp" />
@@ -172,6 +173,7 @@
     <ClCompile Include="src\gui_soundmsgs.cpp" />
     <ClCompile Include="src\gui_tooltips.c" />
     <ClCompile Include="src\gui_topmsg.c" />
+    <ClCompile Include="src\highscores.c" />
     <ClCompile Include="src\KeeperSpeechImp.c" />
     <ClCompile Include="src\kjm_input.c" />
     <ClCompile Include="src\lens_api.c" />
@@ -317,6 +319,7 @@
     <ClInclude Include="src\config_crtrstates.h" />
     <ClInclude Include="src\config_cubes.h" />
     <ClInclude Include="src\config_effects.h" />
+    <ClInclude Include="src\config_keeperfx.h" />
     <ClInclude Include="src\config_lenses.h" />
     <ClInclude Include="src\config_magic.h" />
     <ClInclude Include="src\config_objects.h" />
@@ -401,6 +404,7 @@
     <ClInclude Include="src\gui_soundmsgs.h" />
     <ClInclude Include="src\gui_tooltips.h" />
     <ClInclude Include="src\gui_topmsg.h" />
+    <ClInclude Include="src\highscores.h" />
     <ClInclude Include="src\keeperfx.hpp" />
     <ClInclude Include="src\KeeperSpeech.h" />
     <ClInclude Include="src\kjm_input.h" />

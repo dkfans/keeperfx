@@ -213,6 +213,8 @@ extern const struct NamedField rules_computer_named_fields[];
 extern const struct NamedField rules_workers_named_fields[];
 extern const struct NamedField rules_health_named_fields[];
 
+extern const struct NamedFieldSet rules_named_fields_set;
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

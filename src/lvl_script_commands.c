@@ -297,20 +297,13 @@ const struct NamedCommand room_config_desc[] = {
 
 
 static const struct NamedField rules_script_only_named_fields[] = {
-    //name            //field                //field type                   //min //max
-  {"PayDayProgress",&game.pay_day_progress,var_type(game.pay_day_progress),0,LONG_MAX},
-  {NULL,                            NULL,0,0,0 },
+    //name            //field                   //min //max
+  {"PayDayProgress",0,field(game.pay_day_progress),0,0,LONG_MAX,NULL,value_default,NULL},
+  {NULL},
 };
 
 static const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,
 rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fields,rules_health_named_fields,rules_script_only_named_fields};
-
-static const struct NamedCommand game_rule_desc[] = {
-  {"PreserveClassicBugs",            1},
-  {"AlliesShareVision",              2},
-  {"MapCreatureLimit",               3},
-  {NULL,                             0},
-};
 
 const struct NamedCommand on_experience_desc[] = {
   {"SizeIncreaseOnExp",            1},
@@ -1920,14 +1913,11 @@ static void set_room_configuration_process(struct ScriptContext *context)
             break;
         case 14: // TotalCapacity
             roomst->update_total_capacity_idx = value;
-            roomst->update_total_capacity = terrain_room_total_capacity_func_list[value];
             reinitialise_rooms_of_kind(room_type);
             break;
         case 15: // UsedCapacity
             roomst->update_storage_in_room_idx = value;
-            roomst->update_storage_in_room = terrain_room_used_capacity_func_list[value];
             roomst->update_workers_in_room_idx = value2;
-            roomst->update_workers_in_room = terrain_room_used_capacity_func_list[value2];
             reinitialise_rooms_of_kind(room_type);
             break;
         case 16: // SlabSynergy
@@ -5845,52 +5835,27 @@ static void set_game_rule_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    long rulegroup = 0;
-    long ruleval = scline->np[1];
+    const char* rulename = scline->tp[0];
+    const char* rulevalue_str = scline->tp[1];
 
-    long ruledesc = get_id(game_rule_desc, scline->tp[0]);
-    if(ruledesc != -1)
+    long rulegroup = 0;
+    long ruleval = 0;
+    long ruledesc = 0;
+
+    for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
     {
-        rulegroup = -1;
-        switch (ruledesc)
+        ruledesc = get_named_field_id(ruleblocks[i], rulename);
+        if (ruledesc != -1)
         {
-            case 1: //PreserveClassicBugs
-                //this one is a special case because in the cfg it's not done trough number
-                if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
-                {
-                    SCRPTERRLOG("Game Rule '%s' value %ld out of range", scline->tp[0], ruleval);
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                break;
-        }
-    }
-    else
-    {
-        for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
-        {
-            ruledesc = get_named_field_id(ruleblocks[i], scline->tp[0]);
-            if (ruledesc != -1)
-            {
-                rulegroup = i;
-                if (ruleval < (ruleblocks[i]+ruledesc)->min)
-                {
-                    ruleval = (ruleblocks[i]+ruledesc)->min;
-                    SCRPTERRLOG("Game Rule '%s' value %ld is smaller then minimum of %I64d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->min);
-                }
-                else if(ruleval > (ruleblocks[i]+ruledesc)->max)
-                {
-                    ruleval = (ruleblocks[i]+ruledesc)->max;
-                    SCRPTERRLOG("Game Rule '%s' value %ld is bigger then maximum of %I64d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->max);
-                }
-                break;
-            }
+            rulegroup = i;
+            ruleval = get_named_field_value(ruleblocks[i]+ruledesc, rulevalue_str,&rules_named_fields_set, 0);
+            break;
         }
     }
 
     if (ruledesc == -1)
     {
-        SCRPTERRLOG("Unknown Game Rule '%s'.", scline->tp[0]);
+        SCRPTERRLOG("Unknown Game Rule '%s'.", rulename);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5907,45 +5872,8 @@ static void set_game_rule_process(struct ScriptContext* context)
     short ruledesc  = context->value->shorts[1];
     long rulevalue  = context->value->longs[1];
 
-
-    if(rulegroup != -1)
-    {
-        SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
-        assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue);
-        return;
-    }
-
-
-  #if (BFDEBUG_LEVEL >= 7)
-    const char *rulename = get_conf_parameter_text(game_rule_desc,ruledesc);
-  #endif
-    switch (ruledesc)
-    {
-    case 1: //PreserveClassicBugs
-        //this one is a special case because in the cfg it's not done trough number
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %lu to %ld", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
-        game.conf.rules.game.classic_bugs_flags = rulevalue;
-        break;
-    case 2: //AlliesShareVision
-        //this one is a special case because it updates minimap
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %ld", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
-        game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
-        panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
-        break;
-    case 3: //MapCreatureLimit
-        //this one is a special case because it needs to kill of additional creatures
-        SCRIPTDBG(7, "Changing Game Rule '%s' from %u to %ld", rulename, game.conf.rules.game.creatures_count, rulevalue);
-        game.conf.rules.game.creatures_count = rulevalue;
-        short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
-        if (count > 0)
-        {
-            SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die",count);
-        }
-        break;
-    default:
-        WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
-        break;
-    }
+    SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
+    assign_named_field_value_script((ruleblocks[rulegroup]+ruledesc),rulevalue,&rules_named_fields_set,0);
 }
 
 static void set_increase_on_experience_check(const struct ScriptLine* scline)
@@ -7086,7 +7014,7 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"LEVEL_UP_PLAYERS_CREATURES",        "PC!n    ", Cmd_LEVEL_UP_PLAYERS_CREATURES, &level_up_players_creatures_check, level_up_players_creatures_process},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
-  {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, &set_game_rule_check, &set_game_rule_process},
+  {"SET_GAME_RULE",                     "AA      ", Cmd_SET_GAME_RULE, &set_game_rule_check, &set_game_rule_process},
   {"SET_ROOM_CONFIGURATION",            "AAAan   ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
   {"SET_TRAP_CONFIGURATION",            "AAAnnn  ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn    ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},

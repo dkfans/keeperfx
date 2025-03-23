@@ -29,7 +29,7 @@ extern "C" {
 
 /******************************************************************************/
 #define SLABSET_COUNT        TERRAIN_ITEMS_MAX * SLABSETS_PER_SLAB
-#define SLABOBJS_COUNT        512
+#define SLABOBJS_COUNT        1024
 
 enum SlabTypes {
     SlbT_ROCK               =   0,
