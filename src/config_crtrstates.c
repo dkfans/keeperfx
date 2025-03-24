@@ -38,8 +38,8 @@ extern "C" {
 struct NamedCommand creatrstate_desc[CREATURE_STATES_MAX];
 /******************************************************************************/
 const struct NamedField crstates_states_named_fields[] = {
-    //name   //pos   //field                                     //default //min   //max   //NamedCommand
-    {"NAME",   0, field(game.conf.crtr_conf.states[0].code_name), 0,        0,      0, creatrstate_desc,  value_name,      NULL},
+    //name   //pos   //field                                //default //min   //max //NamedCommand   //parse function //script assign function
+    {"NAME",   0, field(game.conf.crtr_conf.states[0].name), 0,        0,      0, creatrstate_desc,  value_name,      NULL},
     {NULL},
 };
 
