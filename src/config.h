@@ -186,7 +186,7 @@ struct NamedField {
     int64_t min;
     int64_t max;
     const struct NamedCommand *namedCommand;
-    int64_t (*get_value_func)(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src); // converts the text to the a number
+    int64_t (*parse_func)(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src); // converts the text to the a number
     void (*assign_func)(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 };
 

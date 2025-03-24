@@ -434,10 +434,10 @@ void assign_icon(const struct NamedField* named_field, int64_t value, const stru
 
 int64_t parse_named_field_value(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
-    if (named_field->get_value_func != NULL)
-      return named_field->get_value_func(named_field,value_text,named_fields_set,idx,src);
+    if (named_field->parse_func != NULL)
+      return named_field->parse_func(named_field,value_text,named_fields_set,idx,src);
     else
-      ERRORLOG("No get_value_func for field %s",named_field->name);
+      ERRORLOG("No parse_func for field %s",named_field->name);
     return 0;
 }
 
