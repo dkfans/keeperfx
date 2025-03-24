@@ -59,7 +59,7 @@ extern "C" {
 
 extern long level_file_version;
 
-
+#define MAX_CONFIG_VALUES 4
 
 const struct CommandDesc subfunction_desc[] = {
     {"RANDOM",                     "Aaaaaaaa", Cmd_RANDOM, NULL, NULL},
@@ -779,7 +779,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     const char* id_str = scline->tp[0];
     const char* property = scline->tp[1];
-    const char* valuestrings[] = {scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]};
+    const char* valuestrings[MAX_CONFIG_VALUES] = {scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]};
     
     short id = get_id(named_fields_set->names, id_str);
     if (id == -1)
@@ -797,17 +797,24 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
         return;
     }
 
+    if (id > named_fields_set->max_count)
+    {
+        SCRPTERRLOG("'%s%d' is out of range",named_fields_set->block_basename, id);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
     const struct NamedField* field = &named_fields_set->named_fields[property_id];
 
     char concatenated_values[MAX_TEXT_LENGTH];
     if (field->argnum == -1)
     {
         snprintf(concatenated_values, sizeof(concatenated_values), "%s %s %s %s", scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]);
-        value->longs[1] = get_named_field_value(field, concatenated_values,named_fields_set,id);
+        value->longs[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id);
     }
     else
     {
-        for (size_t i = 0; i < 4; i++)
+        for (size_t i = 0; i < MAX_CONFIG_VALUES; i++)
         {
             if(valuestrings[i][0] == '\0')
             {
@@ -824,13 +831,31 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
             {
                 break;
             }
-            value->longs[1 + i] = get_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id);
+            value->longs[1 + i] = parse_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id);
         }
     }
 
     value->shorts[0] = id;
     value->shorts[1] = property_id;
     PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_config_process(const struct NamedFieldSet* named_fields_set, struct ScriptContext* context)
+    short id          = context->value->shorts[0];
+    short property_id = context->value->shorts[1];
+
+    for (size_t i = 0; i < MAX_CONFIG_VALUES; i++)
+    {
+        if( named_fields_set->named_fields[property_id + i].name == NULL || 
+            (strcmp(named_fields_set->named_fields[property_id + i].name, named_fields_set->named_fields[property_id].name) != 0))
+        {
+            return;
+        }
+        else
+        {
+            assign_named_field_value_script(named_fields_set->named_fields[property_id + i],context->value->longs[i+1],&named_fields_set,id);
+        }
+    }
 }
 
 static void add_to_party_check(const struct ScriptLine *scline)
@@ -1657,106 +1682,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
 
 static void set_room_configuration_process(struct ScriptContext *context)
 {
-    long room_type = context->value->shorts[0];
-    struct RoomConfigStats *roomst = &game.conf.slab_conf.room_cfgstats[room_type];
-    unsigned short value;
-    short value2;
-    short value3;
-    int old_value, old_value2;
-    if (context->value->shorts[1] != 13) // Roles need larger values, so can fit fewer
-    {
-        value = context->value->shorts[2];
-        value2 = context->value->shorts[3];
-        value3 = context->value->shorts[4];
-    }
-    switch (context->value->shorts[1])
-    {
-        case 1: // NameTextID
-            roomst->name_stridx = value;
-            break;
-        case 2: // TooltipTextID
-            old_value = roomst->tooltip_stridx;
-            roomst->tooltip_stridx = value;
-            if (roomst->tooltip_stridx != old_value)
-            {
-                update_room_tab_to_config();
-            }
-            break;
-        case 3: // SymbolSprites
-            old_value = roomst->medsym_sprite_idx;
-            old_value2 = roomst->bigsym_sprite_idx;
-            roomst->bigsym_sprite_idx = get_icon_id(script_strval(context->value->longs[2]));
-            roomst->medsym_sprite_idx = get_icon_id(script_strval(context->value->longs[3]));
-            if ( (roomst->medsym_sprite_idx != old_value) || (roomst->bigsym_sprite_idx != old_value2) )
-            {
-                update_room_tab_to_config();
-            }
-            break;
-        case 4: // PointerSprites
-            old_value = roomst->pointer_sprite_idx;
-            roomst->pointer_sprite_idx = get_icon_id(script_strval(context->value->longs[2]));
-            if (roomst->pointer_sprite_idx != old_value)
-            {
-                update_room_tab_to_config();
-            }
-            break;
-        case 5: // PanelTabIndex
-            old_value = roomst->panel_tab_idx;
-            roomst->panel_tab_idx = value;
-            if (roomst->panel_tab_idx != old_value)
-            {
-                update_room_tab_to_config();
-            }
-            break;
-        case 6: // Cost
-            roomst->cost = value;
-            break;
-        case 7: // Health
-            roomst->health = value;
-            break;
-        case 8: // CreatureCreation
-            roomst->creature_creation_model = value;
-            break;
-        case 9: // AmbientSndSample
-            roomst->ambient_snd_smp_id = value;
-            break;
-        case 10: // SlabAssign
-            roomst->assigned_slab = value;
-            break;
-        case 11: // Messages
-            roomst->msg_needed = value;
-            roomst->msg_too_small = value2;
-            roomst->msg_no_route = value3;
-            break;
-        case 12: // Properties
-            roomst->flags = value;
-            roomst->flags |= value2;
-            roomst->flags |= value3;
-            break;
-        case 13: // Roles
-            roomst->roles = context->value->ulongs[1];
-            roomst->roles |= context->value->ulongs[2];
-            break;
-        case 14: // TotalCapacity
-            roomst->update_total_capacity_idx = value;
-            reinitialise_rooms_of_kind(room_type);
-            break;
-        case 15: // UsedCapacity
-            roomst->update_storage_in_room_idx = value;
-            roomst->update_workers_in_room_idx = value2;
-            reinitialise_rooms_of_kind(room_type);
-            break;
-        case 16: // SlabSynergy
-            roomst->synergy_slab = value;
-            recalculate_effeciency_for_rooms_of_kind(room_type);
-            break;
-        case 17: // StorageHeight
-            roomst->storage_height = value;
-            break;
-        default:
-            WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);
-            break;
-    }
+    set_config_process(&terrain_room_named_fields_set, context);
 }
 
 static void set_hand_rule_process(struct ScriptContext* context)
@@ -5674,7 +5600,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
         if (ruledesc != -1)
         {
             rulegroup = i;
-            ruleval = get_named_field_value(ruleblocks[i]+ruledesc, rulevalue_str,&rules_named_fields_set, 0);
+            ruleval = parse_named_field_value(ruleblocks[i]+ruledesc, rulevalue_str,&rules_named_fields_set, 0);
             break;
         }
     }

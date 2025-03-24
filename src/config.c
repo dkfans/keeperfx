@@ -404,13 +404,55 @@ int64_t value_icon(const struct NamedField* named_field, const char* value_text,
     return get_icon_id(value_text);
 }
 
-int64_t get_named_field_value(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+int64_t parse_named_field_value(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
 {
     if (named_field->get_value_func != NULL)
       return named_field->get_value_func(named_field,value_text,named_fields_set,idx);
     else
       ERRORLOG("No get_value_func for field %s",named_field->name);
     return 0;
+}
+
+int64_t get_named_field_value(const struct NamedField* named_field, const struct NamedFieldSet* named_fields_set, int idx)
+{
+    void* field = (char*)named_field->field + named_fields_set->struct_size * idx;
+    switch (named_field->type)
+    {
+    case dt_uchar:
+        return *(unsigned char*)field;
+    case dt_schar:
+        return *(signed char*)field;
+    case dt_char:
+        return *(char*)field;
+    case dt_short:
+        return *(signed short*)field;
+    case dt_ushort:
+        return *(unsigned short*)field;
+    case dt_int:
+        return *(signed int*)field;
+    case dt_uint:
+        return *(unsigned int*)field;
+    case dt_long:
+        return *(signed long*)field;
+    case dt_ulong:
+        return *(unsigned long*)field;
+    case dt_longlong:
+        return *(signed long long*)field;
+    case dt_ulonglong:
+        return *(unsigned long long*)field;
+    case dt_float:
+        return (int64_t)(*(float*)field);
+    case dt_double:
+        return (int64_t)(*(double*)field);
+    case dt_longdouble:
+        return (int64_t)(*(long double*)field);
+    case dt_charptr:
+    case dt_default:
+    case dt_void:
+    default:
+        ERRORLOG("unexpected datatype for field '%s', '%d'", named_field->name, named_field->type);
+        return -1;
+    }
 }
 
 int assign_named_field_value_direct(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx)
@@ -577,7 +619,7 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                 (*pos) += line_len;
             
                 // Pass extracted string
-              k = get_named_field_value(&commands[i], line_buf,named_fields_set,idx);
+              k = parse_named_field_value(&commands[i], line_buf,named_fields_set,idx);
               assign_named_field_value_direct(&commands[i],k,named_fields_set,idx);
             }
             else
@@ -592,7 +634,7 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                     }
                     else
                     {
-                        k = get_named_field_value(&commands[i + n],word_buf,named_fields_set,idx);
+                        k = parse_named_field_value(&commands[i + n],word_buf,named_fields_set,idx);
                         assign_named_field_value_direct(&commands[i + n],k,named_fields_set,idx);
                         n++;
                     }
