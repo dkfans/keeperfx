@@ -30,18 +30,19 @@
 #include "config_creature.h"
 #include "game_legacy.h"
 #include "custom_sprites.h"
+#include "frontmenu_ingame_tabs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
+static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 
-static void assign_update_room_tab       (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx);
-static void assign_icon_update_room_tab  (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx);
-static void assign_reinitialise_rooms    (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx);
-static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx);
+static void assign_update_room_tab       (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_icon_update_room_tab  (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_reinitialise_rooms    (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 /******************************************************************************/
 
 const char keeper_terrain_file[]="terrain.cfg";
@@ -162,7 +163,7 @@ const struct NamedFieldSet terrain_room_named_fields_set = {
     game.conf.slab_conf.room_cfgstats
 };
 
-static void assign_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx)
+static void assign_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
     if (value == old_value)
@@ -170,11 +171,11 @@ static void assign_update_room_tab(const struct NamedField* named_field, int64_t
         return;
     }    
 
-    assign_named_field_value_direct(named_field,value,named_fields_set,idx);
+    assign_named_field_value_direct(named_field,value,named_fields_set,idx,src);
     update_room_tab_to_config();
 }
 
-static void assign_icon_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx)
+static void assign_icon_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
     if (value == old_value)
@@ -182,11 +183,11 @@ static void assign_icon_update_room_tab(const struct NamedField* named_field, in
         return;
     }    
 
-    assign_icon(named_field,value,named_fields_set,idx);
+    assign_icon(named_field,value,named_fields_set,idx,src);
     update_room_tab_to_config();
 }
 
-static void assign_reinitialise_rooms(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx)
+static void assign_reinitialise_rooms(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
     if (value == old_value)
@@ -194,11 +195,11 @@ static void assign_reinitialise_rooms(const struct NamedField* named_field, int6
         return;
     }    
 
-    assign_named_field_value_direct(named_field,value,named_fields_set,idx);
-    reinitialise_rooms_of_kind(room_type);
+    assign_named_field_value_direct(named_field,value,named_fields_set,idx, src);
+    reinitialise_rooms_of_kind(idx);
 }
 
-static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx)
+static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
     if (value == old_value)
@@ -206,8 +207,8 @@ static void assign_recalculate_effeciency(const struct NamedField* named_field, 
         return;
     }    
 
-    assign_named_field_value_direct(named_field,value,named_fields_set,idx);
-    recalculate_effeciency_for_rooms_of_kind(room_type);
+    assign_named_field_value_direct(named_field,value,named_fields_set,idx, src);
+    recalculate_effeciency_for_rooms_of_kind(idx);
 }
 
 
@@ -371,12 +372,12 @@ const char *room_code_name(RoomKind rkind)
     return "INVALID";
 }
 
-static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     if (strcasecmp(value_text, "none") == 0) {
         return -1;
     } else {
-        return value_default(named_field, value_text, named_fields_set, idx);
+        return value_default(named_field, value_text, named_fields_set, idx, src);
     }
 }
 

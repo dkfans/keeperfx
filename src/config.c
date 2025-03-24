@@ -34,6 +34,7 @@
 #include "engine_render.h"
 #include "bflib_fmvids.h"
 #include "custom_sprites.h"
+#include "lvl_script_lib.h"
 
 #include "config_campaigns.h"
 #include "config_keeperfx.h"
@@ -309,7 +310,7 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
 }
 
 //if the parameter is a number return the number, if a value in the provided NamedCommand list return the value
-int64_t value_default(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+int64_t value_default(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     if (parameter_is_number(value_text))
     {
@@ -344,7 +345,7 @@ int64_t value_default(const struct NamedField* named_field, const char* value_te
     return 0;
 }
 
-int64_t value_name(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+int64_t value_name(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     size_t offset = named_fields_set->struct_size * idx;
     strncpy((char*)named_field->field + offset, value_text, COMMAND_WORD_LEN - 1);
@@ -354,7 +355,7 @@ int64_t value_name(const struct NamedField* named_field, const char* value_text,
 
 
 //expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
-int64_t value_flagsfieldshift(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+int64_t value_flagsfieldshift(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     int64_t value = 0;
     char word_buf[COMMAND_WORD_LEN];
@@ -377,7 +378,7 @@ int64_t value_flagsfieldshift(const struct NamedField* named_field, const char* 
 }
 
 //expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
-int64_t value_flagsfield(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+int64_t value_flagsfield(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     int64_t value = 0;
     char word_buf[COMMAND_WORD_LEN];
@@ -399,15 +400,42 @@ int64_t value_flagsfield(const struct NamedField* named_field, const char* value
     return value;
 }
 
-int64_t value_icon(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+int64_t value_icon(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
-    return get_icon_id(value_text);
+    if (src == ccs_DkScript)
+    {
+        int64_t script_string_offset = script_strdup(value_text);
+        if (script_string_offset < 0)
+        {
+            SCRPTERRLOG("Run out script strings space");
+            return -1;
+        }
+        return script_string_offset;
+    }
+    else
+    {
+        return get_icon_id(value_text);
+    }
 }
 
-int64_t parse_named_field_value(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+void assign_icon(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    if (src == ccs_DkScript)
+    {
+        short icon_id = get_icon_id(script_strval(value));
+        assign_named_field_value_direct(named_field,icon_id,named_fields_set,idx,src);
+    }
+    else
+    {
+        assign_named_field_value_direct(named_field,value,named_fields_set,idx,src);
+    }
+}
+
+
+int64_t parse_named_field_value(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     if (named_field->get_value_func != NULL)
-      return named_field->get_value_func(named_field,value_text,named_fields_set,idx);
+      return named_field->get_value_func(named_field,value_text,named_fields_set,idx,src);
     else
       ERRORLOG("No get_value_func for field %s",named_field->name);
     return 0;
@@ -455,7 +483,7 @@ int64_t get_named_field_value(const struct NamedField* named_field, const struct
     }
 }
 
-int assign_named_field_value_direct(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx)
+int assign_named_field_value_direct(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
 
     void* field = (char*)named_field->field + named_fields_set->struct_size * idx;
@@ -516,12 +544,12 @@ int assign_named_field_value_direct(const struct NamedField* named_field, int64_
     return ccr_ok;
 }
 
-void assign_named_field_value_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx)
+void assign_named_field_value_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     if (named_field->assign_func != NULL)
-      named_field->assign_func(named_field,value,named_fields_set,idx);
+      named_field->assign_func(named_field,value,named_fields_set,idx,src);
     else
-      assign_named_field_value_direct(named_field,value,named_fields_set,idx);
+      assign_named_field_value_direct(named_field,value,named_fields_set,idx,src);
 }
 
 /**
@@ -619,8 +647,8 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                 (*pos) += line_len;
             
                 // Pass extracted string
-              k = parse_named_field_value(&commands[i], line_buf,named_fields_set,idx);
-              assign_named_field_value_direct(&commands[i],k,named_fields_set,idx);
+              k = parse_named_field_value(&commands[i], line_buf,named_fields_set,idx,ccs_CfgFile);
+              assign_named_field_value_direct(&commands[i],k,named_fields_set,idx,ccs_CfgFile);
             }
             else
             {
@@ -634,8 +662,8 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                     }
                     else
                     {
-                        k = parse_named_field_value(&commands[i + n],word_buf,named_fields_set,idx);
-                        assign_named_field_value_direct(&commands[i + n],k,named_fields_set,idx);
+                        k = parse_named_field_value(&commands[i + n],word_buf,named_fields_set,idx,ccs_CfgFile);
+                        assign_named_field_value_direct(&commands[i + n],k,named_fields_set,idx,ccs_CfgFile);
                         n++;
                     }
                 }
@@ -693,7 +721,7 @@ void set_defaults(const struct NamedFieldSet* named_fields_set)
       {
           for (long j = 0; j < named_fields_set->max_count; j++)
           {
-              assign_named_field_value_direct(&named_fields_set->named_fields[i], named_fields_set->named_fields[i].default_value, named_fields_set, j);
+              assign_named_field_value_direct(&named_fields_set->named_fields[i], named_fields_set->named_fields[i].default_value, named_fields_set, j, ccs_CfgFile);
           }
       }
 

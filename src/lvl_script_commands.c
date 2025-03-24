@@ -527,31 +527,6 @@ const struct NamedCommand texture_pack_desc[] = {
   {NULL,           0},
 };
 
-// For dynamic strings
-static long script_strdup(const char *src)
-{
-    // TODO: add string deduplication to save space
-
-    const long offset = gameadd.script.next_string_offset;
-    const long remaining_size = sizeof(gameadd.script.strings) - offset;
-    const long string_size = strlen(src) + 1;
-    if (string_size >= remaining_size)
-    {
-        return -1;
-    }
-    memcpy(&gameadd.script.strings[offset], src, string_size);
-    gameadd.script.next_string_offset += string_size;
-    return offset;
-}
-
-static const char * script_strval(long offset)
-{
-    if (offset >= sizeof(gameadd.script.strings))
-    {
-        return NULL;
-    }
-    return &gameadd.script.strings[offset];
-}
 
 /**
  * Modifies player's creatures' anger.
@@ -810,7 +785,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
     if (field->argnum == -1)
     {
         snprintf(concatenated_values, sizeof(concatenated_values), "%s %s %s %s", scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]);
-        value->longs[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id);
+        value->longs[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id,ccs_DkScript);
     }
     else
     {
@@ -831,7 +806,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
             {
                 break;
             }
-            value->longs[1 + i] = parse_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id);
+            value->longs[1 + i] = parse_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id,ccs_DkScript);
         }
     }
 
@@ -841,6 +816,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
 }
 
 static void set_config_process(const struct NamedFieldSet* named_fields_set, struct ScriptContext* context)
+{
     short id          = context->value->shorts[0];
     short property_id = context->value->shorts[1];
 
@@ -853,7 +829,7 @@ static void set_config_process(const struct NamedFieldSet* named_fields_set, str
         }
         else
         {
-            assign_named_field_value_script(named_fields_set->named_fields[property_id + i],context->value->longs[i+1],&named_fields_set,id);
+            assign_named_field_value_script(&named_fields_set->named_fields[property_id + i],context->value->longs[i+1],named_fields_set,id, ccs_DkScript);
         }
     }
 }
@@ -5600,7 +5576,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
         if (ruledesc != -1)
         {
             rulegroup = i;
-            ruleval = parse_named_field_value(ruleblocks[i]+ruledesc, rulevalue_str,&rules_named_fields_set, 0);
+            ruleval = parse_named_field_value(ruleblocks[i]+ruledesc, rulevalue_str,&rules_named_fields_set, 0,ccs_DkScript);
             break;
         }
     }
@@ -5625,7 +5601,7 @@ static void set_game_rule_process(struct ScriptContext* context)
     long rulevalue  = context->value->longs[1];
 
     SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
-    assign_named_field_value_script((ruleblocks[rulegroup]+ruledesc),rulevalue,&rules_named_fields_set,0);
+    assign_named_field_value_script((ruleblocks[rulegroup]+ruledesc),rulevalue,&rules_named_fields_set,0, ccs_DkScript);
 }
 
 static void set_increase_on_experience_check(const struct ScriptLine* scline)
