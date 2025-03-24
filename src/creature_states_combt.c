@@ -377,8 +377,18 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
         // If we can see it, assume that we can reach it
         if (creature_has_melee_attack(fightng))
         {
-            //TODO COMBAT is it acceptable to assume we can do melee combat here? Why no seen_enemy update?
-            return AttckT_Melee;
+            if (move_on_ground)
+            {
+                if (creature_can_move_to_combat(fightng, enmtng) >= 0) {
+                    return AttckT_Melee;
+                }
+            }
+            else
+            {
+                if (slab_wall_hug_route(fightng, &enmtng->mappos, 8) > 0) {
+                    return AttckT_Melee;
+                }
+            }
         }
     }
     if (set_if_seen)
