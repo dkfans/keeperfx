@@ -688,13 +688,13 @@ TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname
     const int basename_len = strlen(named_fields_set->block_basename);
     while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
     {
-        // look for blocks starting with "slab", followed by one or more digits
-        if (blocknamelen < 5) {
+        // look for blocks starting with block_basename, followed by one or more digits
+        if (blocknamelen < basename_len + 1) {
             continue;
         } else if (memcmp(blockname, named_fields_set->block_basename, basename_len) != 0) {
             continue;
         }
-        const int i = natoi(&blockname[4], blocknamelen - 4);
+        const int i = natoi(&blockname[basename_len], blocknamelen - basename_len);
         if (i < 0 || i >= named_fields_set->max_count) {
             continue;
         } else if (i >= *named_fields_set->count_field) {
