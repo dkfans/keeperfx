@@ -334,38 +334,38 @@ static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dun
     unsigned long k = 0;
     long i = dungeon->digger_list_start;
     while (i != 0)
-	{
+    {
         struct Thing* thing = thing_get(i);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-		{
-			ERRORLOG("Jump to invalid creature detected");
-			break;
-		}
-		i = cctrl->players_next_creature_idx;
-		// Thing list loop body
-		if (cctrl->combat_flags == 0)
-		{
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (cctrl->combat_flags == 0)
+        {
             long state_type = get_creature_state_type(thing);
 
             if ((state_type == CrStTyp_Work)
-				&& (cctrl->digger.last_did_job == SDLstJob_DigOrMine)
-				&& is_digging_indestructible_place(thing))
-			{
-				SYNCDBG(18, "Indestructible valuables being dug by player %d", (int)dungeon->owner);
-				return true;
-			}
-		}
-		// Thing list loop body ends
-		k++;
-		if (k > CREATURES_COUNT)
-		{
-			ERRORLOG("Infinite loop detected when sweeping creatures list");
-			return false;
-		}
-	}
-	SYNCDBG(18, "Indestructible valuables NOT being dug by player %d", (int)dungeon->owner);
-	return false;
+                && (cctrl->digger.last_did_job == SDLstJob_DigOrMine)
+                && is_digging_indestructible_place(thing))
+            {
+                SYNCDBG(18, "Indestructible valuables being dug by player %d", (int)dungeon->owner);
+                return true;
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            return false;
+        }
+    }
+    SYNCDBG(18, "Indestructible valuables NOT being dug by player %d", (int)dungeon->owner);
+    return false;
 }
 
 /**
@@ -390,8 +390,8 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
         if (subtile_revealed(stl_x, stl_y, dungeon->owner))
         {
             struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-            const struct SlabAttr* slbattr = get_slab_attrs(slb);
-            if (((slbattr->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
+            const struct SlabConfigStats* slabst = get_slab_stats(slb);
+            if (((slabst->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
             {
                 num_faces += block_count_diggable_sides(subtile_slab(stl_x), subtile_slab(stl_y));
             }
@@ -488,27 +488,27 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
     GoldAmount lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
     SYNCDBG(18, "Digger creation power price: %ld, lowest: %ld", power_price, lowest_price);
 
-	if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
-		&& computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
-	{
+    if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
+        && computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
+    {
         struct Thing* creatng = find_creature_for_sacrifice(comp, game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model);
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         if (!thing_is_invalid(creatng) && (cctrl->exp_level < 2))
-		{
-		    SYNCDBG(18, "Got digger to sacrifice, %s index %d owner %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
-	        if (creature_can_do_job_for_player(creatng, dungeon->owner, Job_TEMPLE_SACRIFICE, JobChk_None))
-	        {
-	            struct Coord3d pos;
-	            // Let's pretend a human does the drop here; computers normally should not be allowed to sacrifice
-	            if (get_drop_position_for_creature_job_in_dungeon(&pos, dungeon, creatng, Job_TEMPLE_SACRIFICE, JoKF_AssignHumanDrop))
-	            {
-	                if (create_task_move_creature_to_pos(comp, creatng, pos, get_initial_state_for_job(Job_TEMPLE_SACRIFICE))) {
-	                    return CTaskRet_Unk1;
-	                }
-	            }
-	        }
-		}
-	}
+        {
+            SYNCDBG(18, "Got digger to sacrifice, %s index %d owner %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+            if (creature_can_do_job_for_player(creatng, dungeon->owner, Job_TEMPLE_SACRIFICE, JobChk_None))
+            {
+                struct Coord3d pos;
+                // Let's pretend a human does the drop here; computers normally should not be allowed to sacrifice
+                if (get_drop_position_for_creature_job_in_dungeon(&pos, dungeon, creatng, Job_TEMPLE_SACRIFICE, JoKF_AssignHumanDrop))
+                {
+                    if (create_task_move_creature_to_pos(comp, creatng, pos, get_initial_state_for_job(Job_TEMPLE_SACRIFICE))) {
+                        return CTaskRet_Unk1;
+                    }
+                }
+            }
+        }
+    }
     return CTaskRet_Unk4;
 }
 
@@ -1202,8 +1202,8 @@ static TbBool find_place_to_put_door_around_room(const struct Room *room, struct
             MapSlabCoord nxslb_x = slb_x + small_around[m].delta_x;
             MapSlabCoord nxslb_y = slb_y + small_around[m].delta_y;
             struct SlabMap* nxslb = get_slabmap_block(nxslb_x, nxslb_y);
-            struct SlabAttr* slbattr = get_slab_attrs(nxslb);
-            if ((slabmap_owner(nxslb) == room->owner) && ((slbattr->block_flags & SlbAtFlg_Filled) == 0))
+            struct SlabConfigStats* slabst = get_slab_stats(nxslb);
+            if ((slabmap_owner(nxslb) == room->owner) && ((slabst->block_flags & SlbAtFlg_Filled) == 0))
             {
                 if (!subtile_has_door_thing_on(slab_subtile_center(nxslb_x), slab_subtile_center(nxslb_y))) {
                     pos->x.val = subtile_coord_center(slab_subtile_center(slb_x));

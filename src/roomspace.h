@@ -83,10 +83,9 @@ struct RoomSpace {
     int invalid_slabs_count;
     PlayerNumber plyr_idx;
     RoomKind rkind;
-	  TbBool is_roomspace_a_single_subtile;
-
-	  MapSlabCoord buildx, buildy;
-	  TbBool is_active;
+    TbBool is_roomspace_a_single_subtile;
+    MapSlabCoord buildx, buildy;
+    TbBool is_active;
     TbBool render_roomspace_as_box;
     TbBool tag_for_dig;
     TbBool highlight_mode;

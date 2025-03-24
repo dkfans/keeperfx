@@ -370,16 +370,16 @@ struct Room *find_nearest_room_to_vandalise(struct Thing *thing, PlayerNumber ow
     struct Room* nearoom = INVALID_ROOM;
     for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
-		if (room_cannot_vandalise(rkind)) {
-			continue;
-		}
+        if (room_cannot_vandalise(rkind)) {
+            continue;
+        }
         long distance = neardistance;
         struct Room* room = find_nearest_navigable_room_of_kind_for_thing_with_capacity_and_closer_than(thing, owner, rkind, nav_flags, 0, &distance);
         if (neardistance > distance)
-		{
-			neardistance = distance;
-			nearoom = room;
-		}
-	}
-	return nearoom;
+        {
+            neardistance = distance;
+            nearoom = room;
+        }
+    }
+    return nearoom;
 }
