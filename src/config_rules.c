@@ -206,7 +206,7 @@ static const struct NamedField rules_script_only_named_fields[] = {
 const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,
 rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fields,rules_health_named_fields,rules_script_only_named_fields};
 
-//rules do need one for technical reasons, but isn't really relevant
+//rules don't need all the fields as it's always only 1 entry in the cfg
 const struct NamedFieldSet rules_named_fields_set = {
   NULL,
   "",
