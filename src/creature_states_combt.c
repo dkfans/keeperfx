@@ -3166,9 +3166,12 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         if (!external_set_thing_state(creatng, CrSt_CreatureCombatFlee)) {
             return false;
         }
-        setup_combat_flee_position(creatng);
-        cctrl->flee_start_turn = game.play_gameturn;
-        return true;
+        if (setup_combat_flee_position(creatng))
+        {
+            cctrl->flee_start_turn = game.play_gameturn;
+            return true;
+        }
+        return false;
     }
 
     if (cctrl->combat_flags != 0)
@@ -3211,9 +3214,12 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         ERRORLOG("The %s index %d is scared but cannot flee",thing_model_name(creatng),(int)creatng->index);
         return false;
     }
-    setup_combat_flee_position(creatng);
-    cctrl->flee_start_turn = game.play_gameturn;
-    return true;
+    if (setup_combat_flee_position(creatng))
+    {
+        cctrl->flee_start_turn = game.play_gameturn;
+        return true;
+    }
+    return false;
 }
 
 TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
