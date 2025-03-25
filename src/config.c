@@ -71,23 +71,42 @@ const struct NamedCommand logicval_type[] = {
   {"0",        2},
   {NULL,       0},
   };
-
-TbBool parameter_is_number(const char* parstr)
-{
-    if (parstr == NULL) {
+  
+  TbBool parameter_is_number(const char* parstr) {
+      if (parstr == NULL) {
           return false;
-    } else if (parstr[0] == 0) {
-        return false;
-    } else if (!(parstr[0] == '-' || isdigit(parstr[0]))) {
-        return false;
-    }
-    for (int i = 1; parstr[i] != '\0'; ++i) {
-        if (!isdigit(parstr[i])) {
-            return false;
-        }
-    }
-    return true;
-}
+      }
+  
+      // Trim leading spaces
+      while (*parstr == ' ') {
+          parstr++;
+      }
+  
+      // Trim trailing spaces
+      int len = strlen(parstr);
+      while (len > 0 && parstr[len - 1] == ' ') {
+          len--;
+      }
+  
+      if (len == 0) {
+          return false;
+      }
+  
+      // Check if the first character is a valid start for a number
+      if (!(parstr[0] == '-' || isdigit(parstr[0]))) {
+          return false;
+      }
+  
+      // Check the remaining characters
+      for (int i = 1; i < len; ++i) {
+          if (!isdigit(parstr[i])) {
+              return false;
+          }
+      }
+  
+      return true;
+  }
+  
 
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
 {
