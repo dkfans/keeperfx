@@ -68,9 +68,6 @@ const struct NamedCommand objects_genres_desc[] = {
   {NULL,              0},
   };
 
-  objst->name_stridx = 201;
-  objst->draw_class = ODC_Default;
-
 static const struct NamedField objects_named_fields[] = {
     //name                     //pos    //field                                                                 //default //min     //max    //NamedCommand
     {"NAME",                     0, field(game.conf.object_conf.object_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, object_desc,                 value_name,      NULL},
