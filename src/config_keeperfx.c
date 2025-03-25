@@ -142,6 +142,7 @@ const struct NamedCommand conf_commands[] = {
   {"COMMAND_CHAR"                  , 32},
   {"API_ENABLED"                   , 33},
   {"API_PORT"                      , 34},
+  {"EA"                            , 35},
   {NULL,                   0},
   };
 
@@ -765,6 +766,22 @@ short load_configuration(void)
               api_port = i;
           } else {
               CONFWRNLOG("Invalid API port '%s' in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
+      case 35: // EA
+          if (!start_params.ea_video) // ignore field if -ea parameter is present
+          {
+              i = recognize_conf_parameter(buf, &pos, len, logicval_type);
+              if (i <= 0)
+              {
+                  CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                      COMMAND_TEXT(cmd_num), config_textname);
+                  break;
+              }
+              if (i == 1)
+              {
+                  start_params.ea_video = true;
+              }
           }
           break;
       case ccr_comment:
