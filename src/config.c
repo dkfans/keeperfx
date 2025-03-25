@@ -392,7 +392,7 @@ int64_t value_flagsfield(const struct NamedField* named_field, const char* value
     while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
     {
         int k = get_id(named_field->namedCommand, word_buf);
-        if(k > 0)
+        if(k >= 0)
           value |= k;
         else
           CONFWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
