@@ -44,15 +44,6 @@ const struct NamedCommand compp_common_commands[] = {
   {NULL,              0},
   };
 
-const struct NamedCommand compp_process_commands[] = {
-  {"NAME",            1},
-  {"MNEMONIC",        2},
-  {"VALUES",          3},
-  {"FUNCTIONS",       4},
-  {"PARAMS",          5},
-  {NULL,              0},
-  };
-
 const struct NamedCommand compp_check_commands[] = {
   {"NAME",            1},
   {"MNEMONIC",        2},
@@ -86,6 +77,45 @@ const struct NamedCommand compp_computer_commands[] = {
 const char keeper_compplayer_file[]="keepcompp.cfg";
 
 /******************************************************************************/
+
+static const struct NamedField compp_process_named_fields[] = {
+  //name           //pos    //field                                   //default //min     //max    //NamedCommand
+//  {"NAME",         0, field(computer_process_config_list[0].name),      0, LONG_MIN,ULONG_MAX, NULL,                             value_name,      NULL},
+  {"MNEMONIC",     0, field(computer_process_config_list[0].name),          0, LONG_MIN,ULONG_MAX, NULL,                           value_name,      NULL},
+  {"VALUES",       0, field(computer_process_config_list[0].priority     ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
+  {"VALUES",       1, field(computer_process_config_list[0].confval_2    ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
+  {"VALUES",       2, field(computer_process_config_list[0].confval_3    ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
+  {"VALUES",       3, field(computer_process_config_list[0].confval_4    ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
+  {"VALUES",       4, field(computer_process_config_list[0].confval_5    ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
+  {"FUNCTIONS",    0, field(computer_process_config_list[0].func_check   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type,     value_default,      NULL},
+  {"FUNCTIONS",    1, field(computer_process_config_list[0].func_setup   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type,     value_default,      NULL},
+  {"FUNCTIONS",    2, field(computer_process_config_list[0].func_task    ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type,     value_default,      NULL},
+  {"FUNCTIONS",    3, field(computer_process_config_list[0].func_complete), 0, LONG_MIN,ULONG_MAX, computer_process_func_type,     value_default,      NULL},
+  {"FUNCTIONS",    4, field(computer_process_config_list[0].func_pause   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type,     value_default,      NULL},
+  {"PARAMS",       0, field(computer_process_config_list[0].param_1      ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
+  {"PARAMS",       1, field(computer_process_config_list[0].param_2      ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
+  {"PARAMS",       2, field(computer_process_config_list[0].param_3      ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
+  {"PARAMS",       3, field(computer_process_config_list[0].last_run_turn), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
+  {"PARAMS",       4, field(computer_process_config_list[0].param_5      ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
+  {"PARAMS",       5, field(computer_process_config_list[0].flags        ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
+  {NULL},
+};
+
+//computer_process_func_list[k];
+
+const struct NamedFieldSet compp_process_named_fields_set = {
+  &comp_player_conf.processes_count,
+  "process",
+  compp_process_named_fields,
+  NULL,
+  COMPUTER_PROCESSES_COUNT,
+  sizeof(computer_process_config_list[0]),
+  computer_process_config_list,
+  {"keepcompp.cfg","INVALID"},
+};
+
+/******************************************************************************/
+
 ComputerName computer_check_names[COMPUTER_CHECKS_TYPES_COUNT];
 struct ComputerCheck computer_checks[COMPUTER_CHECKS_TYPES_COUNT];
 struct ComputerCheckMnemonic computer_check_config_list[COMPUTER_CHECKS_TYPES_COUNT];
@@ -375,183 +405,6 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
     }
 #undef COMMAND_TEXT
     return true;
-}
-
-short parse_computer_player_process_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    // Block name and parameter word store variable
-    for (int i = 1; i <= comp_player_conf.processes_count; i++)
-    {
-        char block_buf[32];
-        sprintf(block_buf, "process%d", i);
-        long pos = 0;
-        int k = find_conf_block(buf, &pos, len, block_buf);
-        if (k < 0)
-        {
-            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-            continue;
-      }
-      struct ComputerProcess* cproc = computer_process_config_list[i].process;
-      cproc->parent = NULL;
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_process_commands,cmd_num)
-      while (pos<len)
-      {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, compp_process_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
-            // In "List only" mode, accept only name command
-            if (cmd_num > 2) {
-                cmd_num = 0;
-            }
-        }
-        int n = 0;
-        char word_buf[32];
-        switch (cmd_num)
-        {
-        case 1: // NAME
-            //For now, let's leave default names.
-            break;
-        case 2: // MNEMONIC
-            if (get_conf_parameter_whole(buf,&pos,len,computer_process_config_list[i].name,sizeof(computer_process_config_list[i].name)) <= 0)
-            {
-                CONFWRNLOG("Could not read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-                break;
-            }
-            break;
-        case 3: // VALUES
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->priority = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->confval_2 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->confval_3 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->confval_4 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->confval_5 = k;
-              n++;
-            }
-            if (n < 5)
-            {
-                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 4: // FUNCTIONS
-            k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-            if (k > 0)
-            {
-                cproc->func_check = computer_process_func_list[k];
-                n++;
-            }
-            k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-            if (k > 0)
-            {
-                cproc->func_setup = computer_process_func_list[k];
-                n++;
-            }
-            k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-            if (k > 0)
-            {
-                cproc->func_task = computer_process_func_list[k];
-                n++;
-            }
-            k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-            if (k > 0)
-            {
-                cproc->func_complete = computer_process_func_list[k];
-                n++;
-            }
-            k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-            if (k > 0)
-            {
-                cproc->func_pause = computer_process_func_list[k];
-                n++;
-            }
-            if (n < 5)
-            {
-                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 5: // PARAMS
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->param_1 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->param_2 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->param_3 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->last_run_turn = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->param_5 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->flags = k;
-              n++;
-            }
-            if (n < 6)
-            {
-                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-      }
-#undef COMMAND_TEXT
-    }
-    return 1;
 }
 
 short parse_computer_player_check_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -860,28 +713,6 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
 #undef COMMAND_TEXT
     }
     return 1;
-}
-
-short write_computer_player_check_to_log(struct ComputerCheck *ccheck)
-{
-  JUSTMSG("[checkXX]");
-  JUSTMSG("Name = %s",ccheck->name);
-  JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %lu %ld",ccheck->flags,ccheck->turns_interval);
-  JUSTMSG("Functions = %p",ccheck->func);
-  JUSTMSG("Params = %ld %ld %ld %ld",ccheck->param1,ccheck->param2,ccheck->param3,ccheck->last_run_turn);
-  return true;
-}
-
-short write_computer_player_event_to_log(const struct ComputerEvent *event)
-{
-  JUSTMSG("[eventXX]");
-  JUSTMSG("Name = %s",event->name);
-  JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %lu %lu %ld",event->cetype,event->mevent_kind,event->test_interval);
-  JUSTMSG("Functions = %p %p",event->func_event,event->func_test);
-  JUSTMSG("Params = %ld %ld %ld %ld",event->param1,event->param2,event->param3,event->last_test_gameturn);
-  return true;
 }
 
 short parse_computer_player_computer_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
