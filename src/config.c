@@ -372,7 +372,7 @@ int64_t value_flagsfieldshift(const struct NamedField* named_field, const char* 
         if(k > 0)
           value |= 1<<(k - 1);
         else
-          CONFWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
+          NAMFIELDWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
     }
     return value;
 }
@@ -393,9 +393,9 @@ int64_t value_flagsfield(const struct NamedField* named_field, const char* value
     {
         int k = get_id(named_field->namedCommand, word_buf);
         if(k >= 0)
-          value |= k;
+            value |= k;
         else
-          CONFWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
+            NAMFIELDWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
     }
     return value;
 }
@@ -407,7 +407,7 @@ int64_t value_icon(const struct NamedField* named_field, const char* value_text,
         int64_t script_string_offset = script_strdup(value_text);
         if (script_string_offset < 0)
         {
-            SCRPTERRLOG("Run out script strings space");
+            NAMFIELDWRNLOG("Run out script strings space");
             return -1;
         }
         return script_string_offset;
@@ -437,7 +437,7 @@ int64_t parse_named_field_value(const struct NamedField* named_field, const char
     if (named_field->parse_func != NULL)
       return named_field->parse_func(named_field,value_text,named_fields_set,idx,src);
     else
-      ERRORLOG("No parse_func for field %s",named_field->name);
+        NAMFIELDWRNLOG("No parse_func for field %s",named_field->name);
     return 0;
 }
 
@@ -537,7 +537,7 @@ int assign_named_field_value_direct(const struct NamedField* named_field, int64_
     case dt_default:
     case dt_void:
     default:
-        ERRORLOG("unexpected datatype for field '%s', '%d'",named_field->name,named_field->type);
+        NAMFIELDWRNLOG("unexpected datatype for field '%s', '%d'",named_field->name,named_field->type);
         return ccr_error;
         break;
     }

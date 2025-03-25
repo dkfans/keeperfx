@@ -198,7 +198,10 @@ struct NamedFieldSet {
     const int max_count;
     const size_t struct_size;
     const void* struct_base;
+    const char*[2] src_strs; 
 };
+
+#define NAMFIELDWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", named_field.src_strs[src] , text_line_number, ##__VA_ARGS__)
 
 extern TbBool AssignCpuKeepers;
 
