@@ -401,7 +401,20 @@ int64_t value_flagsfield(const struct NamedField* named_field, const char* value
 
 int64_t value_icon(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
 {
-    return get_icon_id(value_text);
+    short icon_id = get_icon_id(value_text);
+    if (icon_id == bad_icon_id)
+    {
+        CONFWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,value_text);
+        return 0;
+    }
+    return icon_id;
+}
+
+int64_t value_animid(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+{
+    short icon_id = get_anim_id_(value_text);
+
+    return icon_id;
 }
 
 int64_t get_named_field_value(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)

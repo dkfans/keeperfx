@@ -85,7 +85,6 @@ struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned long model_flags;
     long genre;
-    long name_stridx;
     long map_icon;
     HitPoints health;
     char fall_acceleration;

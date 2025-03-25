@@ -1718,7 +1718,6 @@ static void new_object_type_check(const struct ScriptLine* scline)
     struct ObjectConfigStats* objst = get_object_model_stats(tmodel);
     memset(objst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
-    objst->name_stridx = 201;
     objst->map_icon = 0;
     objst->genre = 0;
     objst->draw_class = ODC_Default;
