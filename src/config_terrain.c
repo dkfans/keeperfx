@@ -30,70 +30,190 @@
 #include "config_creature.h"
 #include "game_legacy.h"
 #include "custom_sprites.h"
+#include "frontmenu_ingame_tabs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+
+static void assign_update_room_tab       (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_icon_update_room_tab  (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_reinitialise_rooms    (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+/******************************************************************************/
+
 const char keeper_terrain_file[]="terrain.cfg";
 
-const struct NamedCommand terrain_common_commands[] = {
-  {"SLABSCOUNT",      1},
-  {"ROOMSCOUNT",      2},
-  {NULL,              0},
+static const struct NamedCommand terrain_flags[] = {
+    {"VALUABLE",          1},
+    {"IS_ROOM",           2},
+    {"UNEXPLORED",        3},
+    {"DIGGABLE",          4},
+    {"BLOCKING",          5},
+    {"FILLED",            6},
+    {"IS_DOOR",           7},
+    {"TAGGED_VALUABLE",   8},
+    {NULL,                0},
 };
 
-const struct NamedCommand terrain_slab_commands[] = {
-  {"NAME",            1},
-  {"TOOLTIPTEXTID",   2},
-  {"BLOCKFLAGSHEIGHT",3},
-  {"BLOCKHEALTHINDEX",4},
-  {"BLOCKFLAGS",      5},
-  {"NOBLOCKFLAGS",    6},
-  {"FILLSTYLE",       7},
-  {"CATEGORY",        8},
-  {"SLBID",           9},
-  {"WIBBLE",         10},
-  {"ISSAFELAND",     11},
-  {"ISDIGGABLE",     12},
-  {"WLBTYPE",        13},
-  {"ANIMATED",       14},
-  {"ISOWNABLE",      15},
-  {"INDESTRUCTIBLE", 16},
-  {NULL,              0},
+static const struct NamedCommand terrain_room_properties_commands[] = {
+    {"HAS_NO_ENSIGN",     RoCFlg_NoEnsign},
+    {"CANNOT_VANDALIZE",  RoCFlg_CantVandalize},
+    {"BUILD_TILL_BROKE",  RoCFlg_BuildTillBroke},
+    {"CANNOT_BE_SOLD",    RoCFlg_CannotBeSold},
+    {"CANNOT_BE_CLAIMED", RoCFlg_CannotBeClaimed},
+    {NULL,                0},
 };
 
-const struct NamedCommand terrain_room_commands[] = {
-  {"NAME",              1},
-  {"COST",              2},
-  {"HEALTH",            3},
-  {"PROPERTIES",        4},
-  {"SLABASSIGN",        5},
-  {"CREATURECREATION",  6},
-  {"MESSAGES",          7},
-  {"NAMETEXTID",        8},
-  {"TOOLTIPTEXTID",     9},
-  {"SYMBOLSPRITES",    10},
-  {"POINTERSPRITES",   11},
-  {"PANELTABINDEX",    12},
-  {"TOTALCAPACITY",    13},
-  {"USEDCAPACITY",     14},
-  {"SLABSYNERGY",      15},
-  {"AMBIENTSNDSAMPLE", 16},
-  {"ROLES",            17},
-  {"STORAGEHEIGHT",    18},
-  {NULL,                0},
+const struct NamedCommand terrain_room_total_capacity_func_type[] = {
+    {"slabs_all_only",          1},
+    {"slabs_all_wth_effcncy",   2},
+    {"slabs_no_min_wth_effcncy",3},
+    {"slabs_div2_wth_effcncy",  4},
+    {"slabs_div2_nomin_effcncy",5},
+    {"slabs_mul2_wth_effcncy",  6},
+    {"slabs_pow2_wth_effcncy",  7},
+    {"gold_slabs_wth_effcncy",  8},
+    {"gold_slabs_full",         9},
+    {"gold_slabs_div2",        10},
+    {"none",                   11},
+    {NULL,                      0},
+  };
+
+  const struct NamedCommand terrain_room_used_capacity_func_type[] = {
+    {"gold_hoardes_in_room", 1},
+    {"books_in_room",        2},
+    {"workers_in_room",      3},
+    {"crates_in_room",       4},
+    {"bodies_in_room",       5},
+    {"food_in_room",         6},
+    {"lair_occupants",       7},
+    {"none",                 8},
+    {NULL,                   0},
+  };
+  
+static const struct NamedField terrain_slab_named_fields[] = {
+    //name                //field                                                        //default      //min     //max    //NamedCommand
+    {"NAME",              0, field(game.conf.slab_conf.slab_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, slab_desc,     value_name,           NULL},
+    {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.slab_cfgstats[0].tooltip_stridx),     GUIStr_Empty, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
+    {"BLOCKFLAGSHEIGHT",  0, field(game.conf.slab_conf.slab_cfgstats[0].block_flags_height),            0, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
+    {"BLOCKHEALTHINDEX",  0, field(game.conf.slab_conf.slab_cfgstats[0].block_health_index),            0, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
+    {"BLOCKFLAGS",       -1, field(game.conf.slab_conf.slab_cfgstats[0].block_flags),                   0, LONG_MIN,ULONG_MAX, terrain_flags, value_flagsfieldshift,NULL},
+    {"NOBLOCKFLAGS",     -1, field(game.conf.slab_conf.slab_cfgstats[0].noblck_flags),                  0, LONG_MIN,ULONG_MAX, terrain_flags, value_flagsfieldshift,NULL},
+    {"FILLSTYLE",         0, field(game.conf.slab_conf.slab_cfgstats[0].fill_style),                    0, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
+    {"CATEGORY",          0, field(game.conf.slab_conf.slab_cfgstats[0].category),                      0, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
+    {"SLBID",             0, field(game.conf.slab_conf.slab_cfgstats[0].slb_id),                        0, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
+    {"WIBBLE",            0, field(game.conf.slab_conf.slab_cfgstats[0].wibble),                        0, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
+    {"ISSAFELAND",        0, field(game.conf.slab_conf.slab_cfgstats[0].is_safe_land),                  0, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
+    {"ISDIGGABLE",        0, field(game.conf.slab_conf.slab_cfgstats[0].is_diggable),                   0, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
+    {"WLBTYPE",           0, field(game.conf.slab_conf.slab_cfgstats[0].wlb_type),                      0, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
+    {"ANIMATED",          0, field(game.conf.slab_conf.slab_cfgstats[0].animated),                      0, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
+    {"ISOWNABLE",         0, field(game.conf.slab_conf.slab_cfgstats[0].is_ownable),                    0, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
+    {"INDESTRUCTIBLE",    0, field(game.conf.slab_conf.slab_cfgstats[0].indestructible),                0, LONG_MIN,ULONG_MAX, NULL,          value_default,        NULL},
+    {NULL},
 };
 
-const struct NamedCommand terrain_room_properties_commands[] = {
-  {"HAS_NO_ENSIGN",     RoCFlg_NoEnsign},
-  {"CANNOT_VANDALIZE",  RoCFlg_CantVandalize},
-  {"BUILD_TILL_BROKE",  RoCFlg_BuildTillBroke},
-  {"CANNOT_BE_SOLD",    RoCFlg_CannotBeSold},
-  {"CANNOT_BE_CLAIMED", RoCFlg_CannotBeClaimed},
-  {NULL,                0},
+const struct NamedFieldSet terrain_slab_named_fields_set = {
+    &game.conf.slab_conf.slab_types_count,
+    "slab",
+    terrain_slab_named_fields,
+    slab_desc,
+    TERRAIN_ITEMS_MAX,
+    sizeof(game.conf.slab_conf.slab_cfgstats[0]),
+    game.conf.slab_conf.slab_cfgstats,
+    {"terrain.cfg","INVALID_SCRIPT"},
 };
+
+static const struct NamedField terrain_room_named_fields[] = {
+    //name           //pos    //field                                                               //default //min     //max    //NamedCommand
+    {"NAME",              0, field(game.conf.slab_conf.room_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX,      room_desc,                            value_name,      NULL},
+    {"COST",              0, field(game.conf.slab_conf.room_cfgstats[0].cost),                          0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"HEALTH",            0, field(game.conf.slab_conf.room_cfgstats[0].health),                        0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"PROPERTIES",       -1, field(game.conf.slab_conf.room_cfgstats[0].flags),                         0, LONG_MIN,RoCFlg_ListEnd, terrain_room_properties_commands,     value_flagsfield,NULL},
+    {"SLABASSIGN",        0, field(game.conf.slab_conf.room_cfgstats[0].assigned_slab),                 0, LONG_MIN,ULONG_MAX,      slab_desc,                            value_default,   NULL},
+    {"CREATURECREATION",  0, field(game.conf.slab_conf.room_cfgstats[0].creature_creation_model),       0, LONG_MIN,ULONG_MAX,      creature_desc,                        value_default,   NULL},
+    {"MESSAGES",          0, field(game.conf.slab_conf.room_cfgstats[0].msg_needed),                    0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"MESSAGES",          1, field(game.conf.slab_conf.room_cfgstats[0].msg_too_small),                 0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"MESSAGES",          2, field(game.conf.slab_conf.room_cfgstats[0].msg_no_route),                  0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"NAMETEXTID",        0, field(game.conf.slab_conf.room_cfgstats[0].name_stridx),        GUIStr_Empty, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.room_cfgstats[0].tooltip_stridx),     GUIStr_Empty, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   assign_update_room_tab},
+    {"SYMBOLSPRITES",     0, field(game.conf.slab_conf.room_cfgstats[0].bigsym_sprite_idx),             0, LONG_MIN,ULONG_MAX,      NULL,                                 value_icon,      assign_icon},
+    {"SYMBOLSPRITES",     1, field(game.conf.slab_conf.room_cfgstats[0].medsym_sprite_idx),             0, LONG_MIN,ULONG_MAX,      NULL,                                 value_icon,      assign_icon_update_room_tab},
+    {"POINTERSPRITES",    0, field(game.conf.slab_conf.room_cfgstats[0].pointer_sprite_idx),            0, LONG_MIN,ULONG_MAX,      NULL,                                 value_icon,      assign_icon_update_room_tab},
+    {"PANELTABINDEX",     0, field(game.conf.slab_conf.room_cfgstats[0].panel_tab_idx),                 0,        0,       32,      NULL,                                 value_default,   assign_update_room_tab},
+    {"TOTALCAPACITY",     0, field(game.conf.slab_conf.room_cfgstats[0].update_total_capacity_idx),     0, LONG_MIN,ULONG_MAX,      terrain_room_total_capacity_func_type,value_default,   assign_reinitialise_rooms},
+    {"USEDCAPACITY",      0, field(game.conf.slab_conf.room_cfgstats[0].update_storage_in_room_idx),    0, LONG_MIN,ULONG_MAX,      terrain_room_used_capacity_func_type, value_default,   NULL},
+    {"USEDCAPACITY",      1, field(game.conf.slab_conf.room_cfgstats[0].update_workers_in_room_idx),    0, LONG_MIN,ULONG_MAX,      terrain_room_used_capacity_func_type, value_default,   assign_reinitialise_rooms},
+    {"SLABSYNERGY",       0, field(game.conf.slab_conf.room_cfgstats[0].synergy_slab),                  0, LONG_MIN,ULONG_MAX,      slab_desc,                            value_synergy,   assign_recalculate_effeciency},
+    {"AMBIENTSNDSAMPLE",  0, field(game.conf.slab_conf.room_cfgstats[0].ambient_snd_smp_id),            0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"ROLES",            -1, field(game.conf.slab_conf.room_cfgstats[0].roles),                         0, LONG_MIN,ULONG_MAX,      room_roles_desc,                      value_flagsfield,NULL},
+    {"STORAGEHEIGHT",     0, field(game.conf.slab_conf.room_cfgstats[0].storage_height),                0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {NULL},
+};
+
+const struct NamedFieldSet terrain_room_named_fields_set = {
+    &game.conf.slab_conf.room_types_count,
+    "room",
+    terrain_room_named_fields,
+    room_desc,
+    TERRAIN_ITEMS_MAX,
+    sizeof(game.conf.slab_conf.room_cfgstats[0]),
+    game.conf.slab_conf.room_cfgstats,
+    {"terrain.cfg","SET_ROOM_CONFIGURATION"}
+};
+
+static void assign_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
+    if (value == old_value)
+    {
+        return;
+    }    
+
+    assign_named_field_value_direct(named_field,value,named_fields_set,idx,src);
+    update_room_tab_to_config();
+}
+
+static void assign_icon_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
+    if (value == old_value)
+    {
+        return;
+    }    
+
+    assign_icon(named_field,value,named_fields_set,idx,src);
+    update_room_tab_to_config();
+}
+
+static void assign_reinitialise_rooms(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
+    if (value == old_value)
+    {
+        return;
+    }    
+
+    assign_named_field_value_direct(named_field,value,named_fields_set,idx, src);
+    reinitialise_rooms_of_kind(idx);
+}
+
+static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
+    if (value == old_value)
+    {
+        return;
+    }    
+
+    assign_named_field_value_direct(named_field,value,named_fields_set,idx, src);
+    recalculate_effeciency_for_rooms_of_kind(idx);
+}
+
+
 
 const struct NamedCommand room_roles_desc[] = {
   {"ROOM_ROLE_KEEPER_STORAGE", RoRoF_KeeperStorage},
@@ -138,21 +258,6 @@ extern void count_gold_slabs_wth_effcncy(struct Room *room);
 extern void count_gold_slabs_full(struct Room *room);
 extern void count_gold_slabs_div2(struct Room* room);
 
-const struct NamedCommand terrain_room_total_capacity_func_type[] = {
-  {"slabs_all_only",          1},
-  {"slabs_all_wth_effcncy",   2},
-  {"slabs_no_min_wth_effcncy",3},
-  {"slabs_div2_wth_effcncy",  4},
-  {"slabs_div2_nomin_effcncy",5},
-  {"slabs_mul2_wth_effcncy",  6},
-  {"slabs_pow2_wth_effcncy",  7},
-  {"gold_slabs_wth_effcncy",  8},
-  {"gold_slabs_full",         9},
-  {"gold_slabs_div2",        10},
-  {"none",                   11},
-  {NULL,                      0},
-};
-
 Room_Update_Func terrain_room_total_capacity_func_list[] = {
   NULL,
   count_slabs_all_only,
@@ -178,18 +283,6 @@ extern void count_crates_in_room(struct Room *room);
 extern void count_bodies_in_room(struct Room *room);
 extern void count_food_in_room(struct Room *room);
 extern void count_lair_occupants(struct Room *room);
-
-const struct NamedCommand terrain_room_used_capacity_func_type[] = {
-  {"gold_hoardes_in_room", 1},
-  {"books_in_room",        2},
-  {"workers_in_room",      3},
-  {"crates_in_room",       4},
-  {"bodies_in_room",       5},
-  {"food_in_room",         6},
-  {"lair_occupants",       7},
-  {"none",                 8},
-  {NULL,                   0},
-};
 
 Room_Update_Func terrain_room_used_capacity_func_list[] = {
   NULL,
@@ -220,37 +313,12 @@ const struct NamedCommand terrain_health_commands[] = {
 /******************************************************************************/
 struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
-struct SlabAttr slab_attrs[TERRAIN_ITEMS_MAX];
 
-const struct NamedCommand terrain_flags[] = {
-  {"VALUABLE",          1},
-  {"IS_ROOM",           2},
-  {"UNEXPLORED",        3},
-  {"DIGGABLE",          4},
-  {"BLOCKING",          5},
-  {"FILLED",            6},
-  {"IS_DOOR",           7},
-  {"TAGGED_VALUABLE",   8},
-  {NULL,                0},
-  };
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
-struct SlabAttr *get_slab_kind_attrs(SlabKind slab_kind)
-{
-    if (slab_kind >= game.conf.slab_conf.slab_types_count)
-        return &slab_attrs[0];
-    return &slab_attrs[slab_kind];
-}
-
-struct SlabAttr *get_slab_attrs(const struct SlabMap *slb)
-{
-    if (slabmap_block_invalid(slb))
-        return &slab_attrs[0];
-    return get_slab_kind_attrs(slb->kind);
-}
 
 struct SlabConfigStats *get_slab_kind_stats(SlabKind slab_kind)
 {
@@ -259,7 +327,7 @@ struct SlabConfigStats *get_slab_kind_stats(SlabKind slab_kind)
     return &game.conf.slab_conf.slab_cfgstats[slab_kind];
 }
 
-struct SlabConfigStats *get_slab_stats(struct SlabMap *slb)
+struct SlabConfigStats *get_slab_stats(const struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
         return &game.conf.slab_conf.slab_cfgstats[0];
@@ -306,430 +374,22 @@ const char *room_code_name(RoomKind rkind)
     return "INVALID";
 }
 
-TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
-    // Block name and parameter word store variables
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        game.conf.slab_conf.slab_types_count = 1;
-        game.conf.slab_conf.room_types_count = 1;
+    if (strcasecmp(value_text, "none") == 0) {
+        return -1;
+    } else {
+        return value_default(named_field, value_text, named_fields_set, idx, src);
     }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "common");
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_common_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, terrain_common_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        int n = 0;
-        char word_buf[COMMAND_WORD_LEN];
-        switch (cmd_num)
-        {
-        case 1: // SLABSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= TERRAIN_ITEMS_MAX))
-              {
-                  game.conf.slab_conf.slab_types_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 2: // ROOMSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= TERRAIN_ITEMS_MAX))
-              {
-                  game.conf.slab_conf.room_types_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    return true;
 }
 
-TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+TbBool parse_block_health_block(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    struct SlabAttr *slbattr = NULL;
-    struct SlabConfigStats *slabst = NULL;
     long pos = 0;
     int k = 0;
     int n = 0;
     int cmd_num = 0;
     char word_buf[COMMAND_WORD_LEN];
-    // Initialize the array
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        for (int i = 0; i < TERRAIN_ITEMS_MAX; i++)
-        {
-            slabst = &game.conf.slab_conf.slab_cfgstats[i];
-            memset(slabst->code_name, 0, COMMAND_WORD_LEN);
-            slabst->tooltip_stridx = GUIStr_Empty;
-            slab_desc[i].name = slabst->code_name;
-            slab_desc[i].num = i;
-            slab_attrs[i].tooltip_stridx = GUIStr_Empty;
-        }
-    }
-    slab_desc[TERRAIN_ITEMS_MAX - 1].name = NULL; // must be null for get_id
-    const char * blockname = NULL;
-    int blocknamelen = 0;
-    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
-    {
-      // look for blocks starting with "slab", followed by one or more digits
-      if (blocknamelen < 5) {
-          continue;
-      } else if (memcmp(blockname, "slab", 4) != 0) {
-          continue;
-      }
-      const int i = natoi(&blockname[4], blocknamelen - 4);
-      if (i < 0 || i >= TERRAIN_ITEMS_MAX) {
-          continue;
-      } else if (i >= game.conf.slab_conf.slab_types_count) {
-          game.conf.slab_conf.slab_types_count = i + 1;
-      }
-      slbattr = &slab_attrs[i];
-      slabst = &game.conf.slab_conf.slab_cfgstats[i];
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_slab_commands,cmd_num)
-      while (pos<len)
-      {
-        // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,terrain_slab_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
-            // In "List only" mode, accept only name command
-            if (cmd_num > 1) {
-                cmd_num = 0;
-            }
-        }
-        n = 0;
-        switch (cmd_num)
-        {
-        case 1: // NAME
-            if (get_conf_parameter_single(buf,&pos,len,slabst->code_name,COMMAND_WORD_LEN) <= 0)
-            {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 2: // TOOLTIPTEXTID
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k > 0)
-                {
-                    slbattr->tooltip_stridx = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 3: //BLOCKFLAGSHEIGHT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->block_flags_height = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 4: //BLOCKHEALTHINDEX
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->block_health_index = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 5: //BLOCKFLAGS
-        case 6: //NOBLOCKFLAGS
-            {
-                unsigned long *flg = (cmd_num == 5) ? &slbattr->block_flags : &slbattr->noblck_flags;
-                *flg = 0;
-                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-                {
-                    k = get_id(terrain_flags, word_buf);
-                    switch(k)
-                    {
-                        case 1:
-                        {
-                            *flg |= SlbAtFlg_Valuable;
-                            break;
-                        }
-                        case 2:
-                        {
-                            *flg |= SlbAtFlg_IsRoom;
-                            break;    
-                        }
-                        case 3:
-                        {
-                            *flg |= SlbAtFlg_Unexplored;
-                            break;    
-                        }
-                        case 4:
-                        {
-                            *flg |= SlbAtFlg_Digable;
-                            break;   
-                        }
-                        case 5:
-                        {
-                            *flg |= SlbAtFlg_Blocking;
-                            break;    
-                        }
-                        case 6:
-                        {
-                            *flg |= SlbAtFlg_Filled;
-                            break;    
-                        }
-                        case 7:
-                        {
-                            *flg |= SlbAtFlg_IsDoor;
-                            break;    
-                        }
-                        case 8:
-                        {
-                            *flg |= SlbAtFlg_TaggedValuable;
-                            break;   
-                        }
-                        default:
-                        {
-                            CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
-                              COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
-                            break;
-                        }
-                    }
-                    n++;
-                }
-                break;
-            }
-        case 7: //FILLSTYLE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->fill_style = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 8: //CATEGORY
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->category = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 9: // SLBID
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->slb_id = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 10: //WIBBLE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->wibble = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 11: //ISSAFELAND
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->is_safe_land = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 12: //ISDIGGABLE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->is_diggable = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 13: //WLBTYPE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->wlb_type = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 14: //ANIMATED
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->animated = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 15: //ISOWNABLE
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->is_ownable = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case 16: //INDESTRUCTIBLE
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                if (k >= 0)
-                {
-                    slbattr->indestructible = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            }
-            break;
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
-                cmd_num, blocknamelen, blockname, config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-      }
-#undef COMMAND_TEXT
-    }
     // Block health - will be later integrated with slab blocks
       char block_buf[COMMAND_WORD_LEN];
       sprintf(block_buf,"block_health");
@@ -738,7 +398,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
       if (k < 0)
       {
           if ((flags & CnfLd_AcceptPartial) == 0)
-              WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+              WARNMSG("aaBlock [%s] not found in %s file.",block_buf,config_textname);
           return false;
       } else
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_health_commands,cmd_num)
@@ -787,388 +447,6 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
     return true;
 }
 
-TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    struct RoomConfigStats *roomst;
-    int i;
-    // Block name and parameter word store variables
-    // Initialize the rooms array
-    int arr_size = TERRAIN_ITEMS_MAX;
-    for (i = 0; i < arr_size; i++)
-    {
-        if (((flags & CnfLd_AcceptPartial) == 0) || ((room_desc[i].name) == NULL))
-        {
-            if (i < game.conf.slab_conf.room_types_count)
-            {
-                roomst = &game.conf.slab_conf.room_cfgstats[i];
-                memset(roomst->code_name, 0, COMMAND_WORD_LEN);
-                roomst->name_stridx = GUIStr_Empty;
-                roomst->tooltip_stridx = GUIStr_Empty;
-                roomst->creature_creation_model = 0;
-                roomst->bigsym_sprite_idx = 0;
-                roomst->medsym_sprite_idx = 0;
-                roomst->pointer_sprite_idx = 0;
-                roomst->panel_tab_idx = 0;
-                roomst->ambient_snd_smp_id = 0;
-                roomst->msg_needed = 0;
-                roomst->msg_too_small = 0;
-                roomst->msg_no_route = 0;
-                roomst->roles = RoRoF_None;
-                roomst->cost = 0;
-                roomst->health = 0;
-                room_desc[i].name = roomst->code_name;
-                room_desc[i].num = i;
-            } else
-            {
-                room_desc[i].name = NULL;
-                room_desc[i].num = 0;
-            }
-        }
-    }
-    // Parse every numbered block within range
-    arr_size = game.conf.slab_conf.room_types_count;
-    for (i=0; i < arr_size; i++)
-    {
-        char block_buf[COMMAND_WORD_LEN];
-        sprintf(block_buf, "room%d", i);
-        long pos = 0;
-        int k = find_conf_block(buf, &pos, len, block_buf);
-        if (k < 0)
-        {
-            if ((flags & CnfLd_AcceptPartial) == 0)
-            {
-                WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-                return false;
-            }
-            continue;
-      }
-      roomst = &game.conf.slab_conf.room_cfgstats[i];
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_room_commands,cmd_num)
-      while (pos<len)
-      {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, terrain_room_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
-            // In "List only" mode, accept only name command
-            if (cmd_num > 1) {
-                cmd_num = 0;
-            }
-        }
-        int n = 0;
-        char word_buf[COMMAND_WORD_LEN];
-        switch (cmd_num)
-        {
-        case 1: // NAME
-            if (get_conf_parameter_single(buf,&pos,len,roomst->code_name,COMMAND_WORD_LEN) > 0)
-            {
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 2: // COST
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              roomst->cost = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 3: // HEALTH
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              roomst->health = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 4: // PROPERTIES
-            roomst->flags = RoCFlg_None;
-            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = get_id(terrain_room_properties_commands, word_buf);
-                if (k > 0)
-                {
-                    roomst->flags |= k;
-                    n++;
-                }else
-                {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
-                    break;
-                }
-            }
-            break;
-        case 5: // SLABASSIGN
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = get_id(slab_desc, word_buf);
-              if (k >= 0)
-              {
-                  roomst->assigned_slab = k;
-                  n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 6: // CREATURECREATION
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = get_id(creature_desc, word_buf);
-              if (k >= 0)
-              {
-                  roomst->creature_creation_model = k;
-                  n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 7: // MESSAGES
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                roomst->msg_needed = k;
-                n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                roomst->msg_too_small = k;
-                n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                roomst->msg_no_route = k;
-                n++;
-            }
-            if (n < 3)
-            {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 8: // NAMETEXTID
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if (k > 0)
-              {
-                  roomst->name_stridx = k;
-                  n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 9: // TOOLTIPTEXTID
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if (k > 0)
-              {
-                  roomst->tooltip_stridx = k;
-                  n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 10: // SYMBOLSPRITES
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                roomst->bigsym_sprite_idx = get_icon_id(word_buf);
-                if (roomst->bigsym_sprite_idx != bad_icon_id)
-                {
-                    n++;
-                }
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                roomst->medsym_sprite_idx = get_icon_id(word_buf);
-                if (roomst->medsym_sprite_idx != bad_icon_id)
-                {
-                    n++;
-                }
-            }
-            if (n < 2)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 11: // POINTERSPRITES
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = get_icon_id(word_buf);
-                if (k >= 0)
-                {
-                    roomst->pointer_sprite_idx = k;
-                    n++;
-                }
-            }
-            if (n < 1)
-            {
-              roomst->pointer_sprite_idx = bad_icon_id;
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 12: // PANELTABINDEX
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  roomst->panel_tab_idx = k;
-                  n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 13: // TOTALCAPACITY
-            k = recognize_conf_parameter(buf,&pos,len,terrain_room_total_capacity_func_type);
-            if (k > 0)
-            {
-                roomst->update_total_capacity_idx = k;
-                roomst->update_total_capacity = terrain_room_total_capacity_func_list[k];
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 14: // USEDCAPACITY
-            k = recognize_conf_parameter(buf,&pos,len,terrain_room_used_capacity_func_type);
-            if (k > 0)
-            {
-                roomst->update_storage_in_room_idx = k;
-                roomst->update_storage_in_room = terrain_room_used_capacity_func_list[k];
-                n++;
-            }
-            k = recognize_conf_parameter(buf,&pos,len,terrain_room_used_capacity_func_type);
-            if (k > 0)
-            {
-                roomst->update_workers_in_room_idx = k;
-                roomst->update_workers_in_room = terrain_room_used_capacity_func_list[k];
-                n++;
-            }
-            if (n < 2)
-            {
-                CONFWRNLOG("Couldn't recognize all of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 15: // SLABSYNERGY
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              if ((strcasecmp(word_buf, "none") == 0)) {
-                roomst->synergy_slab = -2;
-                n++;
-              }
-              k = get_id(slab_desc, word_buf);
-              if (k >= 0)
-              {
-                  roomst->synergy_slab = k;
-                  n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 16: // AMBIENTSNDSAMPLE
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  roomst->ambient_snd_smp_id = k;
-                  n++;
-              }
-            }
-            if (n < 1)
-            {
-              roomst->synergy_slab = -3;
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 17: // ROLES
-            roomst->roles = RoRoF_None;
-            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-                k = get_id(room_roles_desc, word_buf);
-                if (k > 0) {
-                    roomst->roles |= k;
-                    n++;
-                } else {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
-                }
-            }
-            break;
-        case 18: // STORAGEHEIGHT
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                roomst->storage_height = k;
-                n++;
-            }
-            break;
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-      }
-#undef COMMAND_TEXT
-    }
-    return true;
-}
-
 TbBool load_terrain_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
@@ -1185,31 +463,14 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
+    
     // Parse blocks of the config file
-    if (result)
-    {
-        result = parse_terrain_common_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_terrain_slab_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" slab blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_terrain_room_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" room blocks failed.",textname,fname);
-    }
+    parse_named_field_blocks(buf, len, textname, flags, &terrain_slab_named_fields_set);
+            
+    parse_block_health_block(buf, len, textname, flags);
+
+    parse_named_field_blocks(buf, len, textname, flags, &terrain_room_named_fields_set);
+
     //Freeing and exiting
     free(buf);
     return result;
@@ -1234,42 +495,6 @@ TbBool load_terrain_config(const char *conf_fname, unsigned short flags)
     }
     //Freeing and exiting
     return result;
-}
-
-void restore_room_update_functions_after_load()
-{
-    struct RoomConfigStats* roomst;
-    int arr_size = game.conf.slab_conf.room_types_count;
-    for (int i = 0; i < arr_size; i++)
-    {
-        roomst = &game.conf.slab_conf.room_cfgstats[i];
-        if ((roomst->update_total_capacity_idx > 0) && (roomst->update_total_capacity_idx <= sizeof(terrain_room_total_capacity_func_list)))
-        {
-            roomst->update_total_capacity = terrain_room_total_capacity_func_list[roomst->update_total_capacity_idx];
-        }
-        else
-        {
-            roomst->update_total_capacity = NULL;
-        }
-
-        if ((roomst->update_storage_in_room_idx > 0) && (roomst->update_storage_in_room_idx <= sizeof(terrain_room_used_capacity_func_list)))
-        {
-            roomst->update_storage_in_room = terrain_room_used_capacity_func_list[roomst->update_storage_in_room_idx];
-        }
-        else
-        {
-            roomst->update_storage_in_room = NULL;
-        }
-
-        if ((roomst->update_workers_in_room_idx > 0) && (roomst->update_workers_in_room_idx <= sizeof(terrain_room_used_capacity_func_list)))
-        {
-            roomst->update_workers_in_room = terrain_room_used_capacity_func_list[roomst->update_workers_in_room_idx];
-        }
-        else
-        {
-            roomst->update_workers_in_room = NULL;
-        }
-    }
 }
 
 /**
@@ -1461,8 +686,8 @@ TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
  */
 TbBool slab_kind_is_indestructible(RoomKind slbkind)
 {
-    struct SlabAttr* attributes = get_slab_kind_attrs(slbkind);
-    return (attributes->indestructible);
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slbkind);
+    return (slabst->indestructible);
 }
 
 /**
@@ -1472,8 +697,8 @@ TbBool slab_kind_is_indestructible(RoomKind slbkind)
  */
 TbBool slab_kind_is_room_wall(RoomKind slbkind)
 {
-    struct SlabAttr* attributes = get_slab_kind_attrs(slbkind);
-    return ((attributes->category == SlbAtCtg_FortifiedWall) && (attributes->slb_id != 0));
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slbkind);
+    return ((slabst->category == SlbAtCtg_FortifiedWall) && (slabst->slb_id != 0));
 }
 
 /**
@@ -1500,8 +725,8 @@ TbBool slab_kind_is_friable_dirt(RoomKind slbkind)
 
 TbBool slab_kind_is_door(SlabKind slbkind)
 {
-    struct SlabAttr *slbattr = get_slab_kind_attrs(slbkind);
-    return (slbattr->block_flags & (SlbAtFlg_IsDoor));
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slbkind);
+    return (slabst->block_flags & (SlbAtFlg_IsDoor));
 }
 
 /**
