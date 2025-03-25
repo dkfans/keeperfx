@@ -442,11 +442,11 @@ void assign_icon(const struct NamedField* named_field, int64_t value, const stru
     if (src == ccs_DkScript)
     {
         short icon_id = get_icon_id(script_strval(value));
-        assign_named_field_value_direct(named_field,icon_id,named_fields_set,idx,src);
+        assign_default(named_field,icon_id,named_fields_set,idx,src);
     }
     else
     {
-        assign_named_field_value_direct(named_field,value,named_fields_set,idx,src);
+        assign_default(named_field,value,named_fields_set,idx,src);
     }
 }
 
@@ -502,7 +502,12 @@ int64_t get_named_field_value(const struct NamedField* named_field, const struct
     }
 }
 
-int assign_named_field_value_direct(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+//for fields that are fully handled in the parse function
+void assign_null(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+}
+
+void assign_default(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
 
     void* field = (char*)named_field->field + named_fields_set->struct_size * idx;
@@ -551,16 +556,12 @@ int assign_named_field_value_direct(const struct NamedField* named_field, int64_
         *(long double*)field = value;
         break;
     case dt_charptr:
-        //the name gets assigned where it still had the string
-        return ccr_ok;
     case dt_default:
     case dt_void:
     default:
         NAMFIELDWRNLOG("unexpected datatype for field '%s', '%d'",named_field->name,named_field->type);
-        return ccr_error;
         break;
     }
-    return ccr_ok;
 }
 
 void assign_named_field_value_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
@@ -568,7 +569,7 @@ void assign_named_field_value_script(const struct NamedField* named_field, int64
     if (named_field->assign_func != NULL)
       named_field->assign_func(named_field,value,named_fields_set,idx,src);
     else
-      assign_named_field_value_direct(named_field,value,named_fields_set,idx,src);
+      assign_default(named_field,value,named_fields_set,idx,src);
 }
 
 /**
@@ -667,7 +668,7 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
             
                 // Pass extracted string
               k = parse_named_field_value(&commands[i], line_buf,named_fields_set,idx,ccs_CfgFile);
-              assign_named_field_value_direct(&commands[i],k,named_fields_set,idx,ccs_CfgFile);
+              assign_default(&commands[i],k,named_fields_set,idx,ccs_CfgFile);
             }
             else
             {
@@ -682,7 +683,7 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                     else
                     {
                         k = parse_named_field_value(&commands[i + n],word_buf,named_fields_set,idx,ccs_CfgFile);
-                        assign_named_field_value_direct(&commands[i + n],k,named_fields_set,idx,ccs_CfgFile);
+                        assign_default(&commands[i + n],k,named_fields_set,idx,ccs_CfgFile);
                         n++;
                     }
                 }
@@ -740,7 +741,7 @@ void set_defaults(const struct NamedFieldSet* named_fields_set)
       {
           for (long j = 0; j < named_fields_set->max_count; j++)
           {
-              assign_named_field_value_direct(&named_fields_set->named_fields[i], named_fields_set->named_fields[i].default_value, named_fields_set, j, ccs_CfgFile);
+              assign_default(&named_fields_set->named_fields[i], named_fields_set->named_fields[i].default_value, named_fields_set, j, ccs_CfgFile);
           }
       }
 
