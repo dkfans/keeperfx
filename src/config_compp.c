@@ -35,7 +35,6 @@ extern "C" {
 /******************************************************************************/
 const struct NamedCommand compp_common_commands[] = {
   {"COMPUTERASSISTS", 1},
-  {"PROCESSESCOUNT",  2},
   {"CHECKSCOUNT",     3},
   {"EVENTSCOUNT",     4},
   {"COMPUTERSCOUNT",  5},
@@ -276,7 +275,6 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        comp_player_conf.processes_count = 1;
         comp_player_conf.checks_count = 1;
         comp_player_conf.events_count = 1;
         comp_player_conf.computers_count = 1;
@@ -305,22 +303,6 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
         {
         case 1: // COMPUTERASSISTS
   //TODO DLL_CLEANUP make it work when AI structures from DLL will no longer be used
-            break;
-        case 2: // PROCESSESCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= COMPUTER_PROCESS_TYPES_COUNT))
-              {
-                  comp_player_conf.processes_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
             break;
         case 3: // CHECKSCOUNT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
