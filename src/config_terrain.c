@@ -30,13 +30,19 @@
 #include "config_creature.h"
 #include "game_legacy.h"
 #include "custom_sprites.h"
+#include "frontmenu_ingame_tabs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
+static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+
+static void assign_update_room_tab       (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_icon_update_room_tab  (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_reinitialise_rooms    (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 /******************************************************************************/
 
 const char keeper_terrain_file[]="terrain.cfg";
@@ -53,6 +59,42 @@ static const struct NamedCommand terrain_flags[] = {
     {NULL,                0},
 };
 
+static const struct NamedCommand terrain_room_properties_commands[] = {
+    {"HAS_NO_ENSIGN",     RoCFlg_NoEnsign},
+    {"CANNOT_VANDALIZE",  RoCFlg_CantVandalize},
+    {"BUILD_TILL_BROKE",  RoCFlg_BuildTillBroke},
+    {"CANNOT_BE_SOLD",    RoCFlg_CannotBeSold},
+    {"CANNOT_BE_CLAIMED", RoCFlg_CannotBeClaimed},
+    {NULL,                0},
+};
+
+const struct NamedCommand terrain_room_total_capacity_func_type[] = {
+    {"slabs_all_only",          1},
+    {"slabs_all_wth_effcncy",   2},
+    {"slabs_no_min_wth_effcncy",3},
+    {"slabs_div2_wth_effcncy",  4},
+    {"slabs_div2_nomin_effcncy",5},
+    {"slabs_mul2_wth_effcncy",  6},
+    {"slabs_pow2_wth_effcncy",  7},
+    {"gold_slabs_wth_effcncy",  8},
+    {"gold_slabs_full",         9},
+    {"gold_slabs_div2",        10},
+    {"none",                   11},
+    {NULL,                      0},
+  };
+
+  const struct NamedCommand terrain_room_used_capacity_func_type[] = {
+    {"gold_hoardes_in_room", 1},
+    {"books_in_room",        2},
+    {"workers_in_room",      3},
+    {"crates_in_room",       4},
+    {"bodies_in_room",       5},
+    {"food_in_room",         6},
+    {"lair_occupants",       7},
+    {"none",                 8},
+    {NULL,                   0},
+  };
+  
 static const struct NamedField terrain_slab_named_fields[] = {
     //name                //field                                                        //default      //min     //max    //NamedCommand
     {"NAME",              0, field(game.conf.slab_conf.slab_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, slab_desc,     value_name,           NULL},
@@ -81,33 +123,34 @@ const struct NamedFieldSet terrain_slab_named_fields_set = {
     slab_desc,
     TERRAIN_ITEMS_MAX,
     sizeof(game.conf.slab_conf.slab_cfgstats[0]),
-    game.conf.slab_conf.slab_cfgstats
+    game.conf.slab_conf.slab_cfgstats,
+    {"terrain.cfg","INVALID_SCRIPT"},
 };
 
 static const struct NamedField terrain_room_named_fields[] = {
-    //name           //pos    //field                                                                 //default //min     //max    //NamedCommand
-    {"NAME",              0, field(game.conf.slab_conf.room_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, room_desc,                            value_name,      NULL},
-    {"COST",              0, field(game.conf.slab_conf.room_cfgstats[0].cost),                          0, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
-    {"HEALTH",            0, field(game.conf.slab_conf.room_cfgstats[0].health),                        0, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
-    {"PROPERTIES",       -1, field(game.conf.slab_conf.room_cfgstats[0].flags),                         0, LONG_MIN,ULONG_MAX, terrain_room_properties_commands,     value_flagsfield,NULL},
-    {"SLABASSIGN",        0, field(game.conf.slab_conf.room_cfgstats[0].assigned_slab),                 0, LONG_MIN,ULONG_MAX, slab_desc,                            value_default,   NULL},
-    {"CREATURECREATION",  0, field(game.conf.slab_conf.room_cfgstats[0].creature_creation_model),       0, LONG_MIN,ULONG_MAX, creature_desc,                        value_default,   NULL},
-    {"MESSAGES",          0, field(game.conf.slab_conf.room_cfgstats[0].msg_needed),                    0, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
-    {"MESSAGES",          1, field(game.conf.slab_conf.room_cfgstats[0].msg_too_small),                 0, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
-    {"MESSAGES",          2, field(game.conf.slab_conf.room_cfgstats[0].msg_no_route),                  0, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
-    {"NAMETEXTID",        0, field(game.conf.slab_conf.room_cfgstats[0].name_stridx),        GUIStr_Empty, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
-    {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.room_cfgstats[0].tooltip_stridx),     GUIStr_Empty, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
-    {"SYMBOLSPRITES",     0, field(game.conf.slab_conf.room_cfgstats[0].bigsym_sprite_idx),             0, LONG_MIN,ULONG_MAX, NULL,                                 value_icon,      NULL},
-    {"SYMBOLSPRITES",     1, field(game.conf.slab_conf.room_cfgstats[0].medsym_sprite_idx),             0, LONG_MIN,ULONG_MAX, NULL,                                 value_icon,      NULL},
-    {"POINTERSPRITES",    0, field(game.conf.slab_conf.room_cfgstats[0].pointer_sprite_idx),            0, LONG_MIN,ULONG_MAX, NULL,                                 value_icon,      NULL},
-    {"PANELTABINDEX",     0, field(game.conf.slab_conf.room_cfgstats[0].panel_tab_idx),                 0, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
-    {"TOTALCAPACITY",     0, field(game.conf.slab_conf.room_cfgstats[0].update_total_capacity_idx),     0, LONG_MIN,ULONG_MAX, terrain_room_total_capacity_func_type,value_default,   NULL},
-    {"USEDCAPACITY",      0, field(game.conf.slab_conf.room_cfgstats[0].update_storage_in_room_idx),    0, LONG_MIN,ULONG_MAX, terrain_room_used_capacity_func_type, value_default,   NULL},
-    {"USEDCAPACITY",      1, field(game.conf.slab_conf.room_cfgstats[0].update_workers_in_room_idx),    0, LONG_MIN,ULONG_MAX, terrain_room_used_capacity_func_type, value_default,   NULL},
-    {"SLABSYNERGY",       0, field(game.conf.slab_conf.room_cfgstats[0].synergy_slab),                  0, LONG_MIN,ULONG_MAX, slab_desc,                            value_synergy,   NULL},
-    {"AMBIENTSNDSAMPLE",  0, field(game.conf.slab_conf.room_cfgstats[0].ambient_snd_smp_id),            0, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
-    {"ROLES",            -1, field(game.conf.slab_conf.room_cfgstats[0].roles),                         0, LONG_MIN,ULONG_MAX, room_roles_desc,                      value_flagsfield,NULL},
-    {"STORAGEHEIGHT",     0, field(game.conf.slab_conf.room_cfgstats[0].storage_height),                0, LONG_MIN,ULONG_MAX, NULL,                                 value_default,   NULL},
+    //name           //pos    //field                                                               //default //min     //max    //NamedCommand
+    {"NAME",              0, field(game.conf.slab_conf.room_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX,      room_desc,                            value_name,      NULL},
+    {"COST",              0, field(game.conf.slab_conf.room_cfgstats[0].cost),                          0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"HEALTH",            0, field(game.conf.slab_conf.room_cfgstats[0].health),                        0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"PROPERTIES",       -1, field(game.conf.slab_conf.room_cfgstats[0].flags),                         0, LONG_MIN,RoCFlg_ListEnd, terrain_room_properties_commands,     value_flagsfield,NULL},
+    {"SLABASSIGN",        0, field(game.conf.slab_conf.room_cfgstats[0].assigned_slab),                 0, LONG_MIN,ULONG_MAX,      slab_desc,                            value_default,   NULL},
+    {"CREATURECREATION",  0, field(game.conf.slab_conf.room_cfgstats[0].creature_creation_model),       0, LONG_MIN,ULONG_MAX,      creature_desc,                        value_default,   NULL},
+    {"MESSAGES",          0, field(game.conf.slab_conf.room_cfgstats[0].msg_needed),                    0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"MESSAGES",          1, field(game.conf.slab_conf.room_cfgstats[0].msg_too_small),                 0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"MESSAGES",          2, field(game.conf.slab_conf.room_cfgstats[0].msg_no_route),                  0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"NAMETEXTID",        0, field(game.conf.slab_conf.room_cfgstats[0].name_stridx),        GUIStr_Empty, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"TOOLTIPTEXTID",     0, field(game.conf.slab_conf.room_cfgstats[0].tooltip_stridx),     GUIStr_Empty, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   assign_update_room_tab},
+    {"SYMBOLSPRITES",     0, field(game.conf.slab_conf.room_cfgstats[0].bigsym_sprite_idx),             0, LONG_MIN,ULONG_MAX,      NULL,                                 value_icon,      assign_icon},
+    {"SYMBOLSPRITES",     1, field(game.conf.slab_conf.room_cfgstats[0].medsym_sprite_idx),             0, LONG_MIN,ULONG_MAX,      NULL,                                 value_icon,      assign_icon_update_room_tab},
+    {"POINTERSPRITES",    0, field(game.conf.slab_conf.room_cfgstats[0].pointer_sprite_idx),            0, LONG_MIN,ULONG_MAX,      NULL,                                 value_icon,      assign_icon_update_room_tab},
+    {"PANELTABINDEX",     0, field(game.conf.slab_conf.room_cfgstats[0].panel_tab_idx),                 0,        0,       32,      NULL,                                 value_default,   assign_update_room_tab},
+    {"TOTALCAPACITY",     0, field(game.conf.slab_conf.room_cfgstats[0].update_total_capacity_idx),     0, LONG_MIN,ULONG_MAX,      terrain_room_total_capacity_func_type,value_default,   assign_reinitialise_rooms},
+    {"USEDCAPACITY",      0, field(game.conf.slab_conf.room_cfgstats[0].update_storage_in_room_idx),    0, LONG_MIN,ULONG_MAX,      terrain_room_used_capacity_func_type, value_default,   NULL},
+    {"USEDCAPACITY",      1, field(game.conf.slab_conf.room_cfgstats[0].update_workers_in_room_idx),    0, LONG_MIN,ULONG_MAX,      terrain_room_used_capacity_func_type, value_default,   assign_reinitialise_rooms},
+    {"SLABSYNERGY",       0, field(game.conf.slab_conf.room_cfgstats[0].synergy_slab),                  0, LONG_MIN,ULONG_MAX,      slab_desc,                            value_synergy,   assign_recalculate_effeciency},
+    {"AMBIENTSNDSAMPLE",  0, field(game.conf.slab_conf.room_cfgstats[0].ambient_snd_smp_id),            0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
+    {"ROLES",            -1, field(game.conf.slab_conf.room_cfgstats[0].roles),                         0, LONG_MIN,ULONG_MAX,      room_roles_desc,                      value_flagsfield,NULL},
+    {"STORAGEHEIGHT",     0, field(game.conf.slab_conf.room_cfgstats[0].storage_height),                0, LONG_MIN,ULONG_MAX,      NULL,                                 value_default,   NULL},
     {NULL},
 };
 
@@ -118,17 +161,59 @@ const struct NamedFieldSet terrain_room_named_fields_set = {
     room_desc,
     TERRAIN_ITEMS_MAX,
     sizeof(game.conf.slab_conf.room_cfgstats[0]),
-    game.conf.slab_conf.room_cfgstats
+    game.conf.slab_conf.room_cfgstats,
+    {"terrain.cfg","SET_ROOM_CONFIGURATION"}
 };
 
-const struct NamedCommand terrain_room_properties_commands[] = {
-  {"HAS_NO_ENSIGN",     RoCFlg_NoEnsign},
-  {"CANNOT_VANDALIZE",  RoCFlg_CantVandalize},
-  {"BUILD_TILL_BROKE",  RoCFlg_BuildTillBroke},
-  {"CANNOT_BE_SOLD",    RoCFlg_CannotBeSold},
-  {"CANNOT_BE_CLAIMED", RoCFlg_CannotBeClaimed},
-  {NULL,                0},
-};
+static void assign_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
+    if (value == old_value)
+    {
+        return;
+    }    
+
+    assign_named_field_value_direct(named_field,value,named_fields_set,idx,src);
+    update_room_tab_to_config();
+}
+
+static void assign_icon_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
+    if (value == old_value)
+    {
+        return;
+    }    
+
+    assign_icon(named_field,value,named_fields_set,idx,src);
+    update_room_tab_to_config();
+}
+
+static void assign_reinitialise_rooms(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
+    if (value == old_value)
+    {
+        return;
+    }    
+
+    assign_named_field_value_direct(named_field,value,named_fields_set,idx, src);
+    reinitialise_rooms_of_kind(idx);
+}
+
+static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
+    if (value == old_value)
+    {
+        return;
+    }    
+
+    assign_named_field_value_direct(named_field,value,named_fields_set,idx, src);
+    recalculate_effeciency_for_rooms_of_kind(idx);
+}
+
+
 
 const struct NamedCommand room_roles_desc[] = {
   {"ROOM_ROLE_KEEPER_STORAGE", RoRoF_KeeperStorage},
@@ -173,21 +258,6 @@ extern void count_gold_slabs_wth_effcncy(struct Room *room);
 extern void count_gold_slabs_full(struct Room *room);
 extern void count_gold_slabs_div2(struct Room* room);
 
-const struct NamedCommand terrain_room_total_capacity_func_type[] = {
-  {"slabs_all_only",          1},
-  {"slabs_all_wth_effcncy",   2},
-  {"slabs_no_min_wth_effcncy",3},
-  {"slabs_div2_wth_effcncy",  4},
-  {"slabs_div2_nomin_effcncy",5},
-  {"slabs_mul2_wth_effcncy",  6},
-  {"slabs_pow2_wth_effcncy",  7},
-  {"gold_slabs_wth_effcncy",  8},
-  {"gold_slabs_full",         9},
-  {"gold_slabs_div2",        10},
-  {"none",                   11},
-  {NULL,                      0},
-};
-
 Room_Update_Func terrain_room_total_capacity_func_list[] = {
   NULL,
   count_slabs_all_only,
@@ -213,18 +283,6 @@ extern void count_crates_in_room(struct Room *room);
 extern void count_bodies_in_room(struct Room *room);
 extern void count_food_in_room(struct Room *room);
 extern void count_lair_occupants(struct Room *room);
-
-const struct NamedCommand terrain_room_used_capacity_func_type[] = {
-  {"gold_hoardes_in_room", 1},
-  {"books_in_room",        2},
-  {"workers_in_room",      3},
-  {"crates_in_room",       4},
-  {"bodies_in_room",       5},
-  {"food_in_room",         6},
-  {"lair_occupants",       7},
-  {"none",                 8},
-  {NULL,                   0},
-};
 
 Room_Update_Func terrain_room_used_capacity_func_list[] = {
   NULL,
@@ -316,12 +374,12 @@ const char *room_code_name(RoomKind rkind)
     return "INVALID";
 }
 
-static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     if (strcasecmp(value_text, "none") == 0) {
         return -1;
     } else {
-        return value_default(named_field, value_text, named_fields_set, idx);
+        return value_default(named_field, value_text, named_fields_set, idx, src);
     }
 }
 

@@ -39,9 +39,9 @@ struct NamedCommand lenses_desc[LENS_ITEMS_MAX];
 /******************************************************************************/
 const char keeper_lenses_file[]="lenses.cfg";
 
-static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
-static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
-static int64_t value_displace(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
+static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static int64_t value_displace(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 
 const struct NamedField lenses_data_named_fields[] = {
     //name           //pos    //field                                           //default //min     //max    //NamedCommand
@@ -63,7 +63,8 @@ const struct NamedFieldSet lenses_data_named_fields_set = {
     lenses_desc,
     LENS_ITEMS_MAX,
     sizeof(lenses_conf.lenses[0]),
-    lenses_conf.lenses
+    lenses_conf.lenses,
+    {"lenses.cfg","INVALID_SCRIPT"},
 };
 
 /******************************************************************************/
@@ -75,20 +76,20 @@ struct LensConfig *get_lens_config(long lens_idx)
     return &lenses_conf.lenses[lens_idx];
 }
 
-static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     lenses_conf.lenses[idx].flags |= LCF_HasMist;
-    return value_name(named_field, value_text, named_fields_set, idx);
+    return value_name(named_field, value_text, named_fields_set, idx, src);
 }
 
-static int64_t value_displace(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+static int64_t value_displace(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     lenses_conf.lenses[idx].flags |= LCF_HasDisplace;
-    return value_default(named_field, value_text, named_fields_set, idx);
+    return value_default(named_field, value_text, named_fields_set, idx, src);
 }
 
 
-static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     lenses_conf.lenses[idx].flags |= LCF_HasPalette;
     char* fname = prepare_file_path(FGrp_StdData, value_text);
