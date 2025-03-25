@@ -118,10 +118,12 @@
 #include "vidfade.h"
 #include "KeeperSpeech.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "game_legacy.h"
 #include "room_list.h"
 #include "steam_api.hpp"
 #include "game_loop.h"
+#include "moonphase.h"
 #include "frontmenu_ingame_map.h"
 
 #ifdef FUNCTESTING
@@ -1591,7 +1593,6 @@ void reinit_level_after_load(void)
     erstats_clear();
     player = get_my_player();
     reinit_tagged_blocks_for_player(player->id_number);
-    restore_room_update_functions_after_load();
     restore_computer_player_after_load();
     sound_reinit_after_load();
     update_panel_colors();
@@ -2179,9 +2180,9 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
     if (!thing_is_invalid(doortng)) {
         destroy_door(doortng);
     }
-    struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
-    if (slbattr->category == SlbAtCtg_FortifiedGround)
+    struct SlabConfigStats *slabst;
+    slabst = get_slab_stats(slb);
+    if (slabst->category == SlbAtCtg_FortifiedGround)
     {
       place_slab_type_on_map(SlbT_PATH, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 1);
       decrease_dungeon_area(plyr_idx, 1);
@@ -3497,9 +3498,9 @@ void initialise_map_health(void)
         {
             struct SlabMap *slb;
             slb = get_slabmap_block(slb_x, slb_y);
-            struct SlabAttr *slbattr;
-            slbattr = get_slab_attrs(slb);
-            slb->health = game.block_health[slbattr->block_health_index];
+            struct SlabConfigStats *slabst;
+            slabst = get_slab_stats(slb);
+            slb->health = game.block_health[slabst->block_health_index];
         }
     }
 }

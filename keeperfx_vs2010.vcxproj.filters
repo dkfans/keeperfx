@@ -738,6 +738,12 @@
     <ClCompile Include="src\bflib_sndlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\highscores.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config_keeperfx.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -1395,6 +1401,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\cdrom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config_keeperfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\highscores.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -36,9 +36,10 @@
 #include "bflib_vidraw.h"
 #include "bflib_network.h"
 
-#include "config.h"
+
 #include "config_strings.h"
 #include "config_campaigns.h"
+#include "config_keeperfx.h"
 #include "config_settings.h"
 #include "game_lghtshdw.h"
 #include "light_data.h"

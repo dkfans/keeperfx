@@ -3315,7 +3315,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
     {
-        create_effect_around_thing(creatng, ball_puff_effects[creatng->owner]);
+        create_effect_around_thing(creatng, ball_puff_effects[get_player_color_idx(creatng->owner)]);
         set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
         return cause_creature_death(creatng, flags);
     }
@@ -4586,16 +4586,28 @@ TbBool thing_is_dead_creature(const struct Thing *thing)
   return (thing->class_id == TCls_DeadCreature);
 }
 
-/** Returns if a thing is special digger creature.
+/** Returns if a thing is digger creature.
  *
  * @param thing The thing to be checked.
- * @return True if the thing is creature and special digger, false otherwise.
+ * @return True if the thing is creature and digger or special digger, false otherwise.
  */
 TbBool thing_is_creature_digger(const struct Thing *thing)
 {
   if (!thing_is_creature(thing))
     return false;
-  return ((get_creature_model_flags(thing) & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0);
+  return any_flag_is_set(get_creature_model_flags(thing),(CMF_IsSpecDigger|CMF_IsDiggingCreature));
+}
+
+/** Returns if a thing is special digger creature.
+ *
+ * @param thing The thing to be checked.
+ * @return True if the thing is creature and special digger, false otherwise.
+ */
+TbBool thing_is_creature_special_digger(const struct Thing* thing)
+{
+    if (!thing_is_creature(thing))
+        return false;
+    return flag_is_set(get_creature_model_flags(thing),CMF_IsSpecDigger);
 }
 
 /** Returns if a thing the creature type set as spectator, normally the floating spirit.
@@ -6345,7 +6357,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     }
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn < game.play_gameturn))
     {
-        create_effect_around_thing(thing, (TngEff_BallPuffRed + thing->owner));
+        create_effect_around_thing(thing, ball_puff_effects[get_player_color_idx(thing->owner)]);
         kill_creature(thing, INVALID_THING, -1, CrDed_NotReallyDying| CrDed_NoEffects);
         return TUFRet_Deleted;
     }
