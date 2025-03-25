@@ -214,7 +214,8 @@ const struct NamedFieldSet rules_named_fields_set = {
   NULL,
   1,
   0,
-  &game.conf.rules
+  &game.conf.rules,
+  {"rules.cfg","SET_GAME_RULE"},
 };
 
 const struct NamedCommand rules_research_commands[] = {
