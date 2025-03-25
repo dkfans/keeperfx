@@ -4210,6 +4210,22 @@ TbBool process_creature_hunger(struct Thing *thing)
     return false;
 }
 
+/**
+ * Check if thing is an enemy trap and can be destroyed by the creature.
+ * @param fightng The creature that might destroy the trap.
+ * @param enmtng The trap to be checked if it could be destroyed.
+ */
+TbBool trap_is_valid_combat_target_for_creature(const struct Thing* fightng, const struct Thing* enmtng)
+{
+    if(!players_are_enemies(fightng->owner,enmtng->owner))
+        return false;
+    if (thing_is_destructible_trap(enmtng) < 0)
+        return false;
+    if (thing_is_destructible_trap(enmtng) == 1)
+        return true;
+    return creature_has_disarming_weapon(fightng);
+}
+
 TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
