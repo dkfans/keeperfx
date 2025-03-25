@@ -162,7 +162,7 @@ const struct NamedFieldSet terrain_room_named_fields_set = {
     TERRAIN_ITEMS_MAX,
     sizeof(game.conf.slab_conf.room_cfgstats[0]),
     game.conf.slab_conf.room_cfgstats,
-    {"terrain.cfg","SET_CONFIG_ROOM"}
+    {"terrain.cfg","SET_ROOM_CONFIGURATION"}
 };
 
 static void assign_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
