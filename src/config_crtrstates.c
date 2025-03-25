@@ -50,7 +50,7 @@ const struct NamedFieldSet crstates_states_named_fields_set = {
     creatrstate_desc,
     CREATURE_STATES_MAX,
     sizeof(game.conf.crtr_conf.states[0]),
-    game.conf.crtr_conf.states
+    game.conf.crtr_conf.states,
     {"crstates.cfg","INVALID_SCRIPT"},
 };
 

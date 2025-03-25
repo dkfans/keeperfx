@@ -63,7 +63,7 @@ const struct NamedFieldSet lenses_data_named_fields_set = {
     lenses_desc,
     LENS_ITEMS_MAX,
     sizeof(lenses_conf.lenses[0]),
-    lenses_conf.lenses
+    lenses_conf.lenses,
     {"lenses.cfg","INVALID_SCRIPT"},
 };
 
