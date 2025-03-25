@@ -417,6 +417,11 @@ int64_t value_animid(const struct NamedField* named_field, const char* value_tex
     return icon_id;
 }
 
+int64_t value_effOrEffEl(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+{
+    return effect_or_effect_element_id(value_text);
+}
+
 int64_t get_named_field_value(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
 {
     if (named_field->get_value_func != NULL)
