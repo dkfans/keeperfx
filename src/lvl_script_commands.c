@@ -829,7 +829,7 @@ static void set_config_process(const struct NamedFieldSet* named_fields_set, str
         }
         else
         {
-            assign_named_field_value_script(&named_fields_set->named_fields[property_id + i],context->value->longs[i+1],named_fields_set,id, ccs_DkScript);
+            assign_named_field_value(&named_fields_set->named_fields[property_id + i],context->value->longs[i+1],named_fields_set,id, ccs_DkScript);
         }
     }
 }
@@ -5600,7 +5600,7 @@ static void set_game_rule_process(struct ScriptContext* context)
     long rulevalue  = context->value->longs[1];
 
     SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
-    assign_named_field_value_script((ruleblocks[rulegroup]+ruledesc),rulevalue,&rules_named_fields_set,0, ccs_DkScript);
+    assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue,&rules_named_fields_set,0, ccs_DkScript);
 }
 
 static void set_increase_on_experience_check(const struct ScriptLine* scline)

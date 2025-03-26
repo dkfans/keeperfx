@@ -45,14 +45,14 @@ static int64_t value_displace(const struct NamedField* named_field, const char* 
 
 const struct NamedField lenses_data_named_fields[] = {
     //name           //pos    //field                                           //default //min     //max    //NamedCommand
-    {"NAME",              0, field(lenses_conf.lenses[0].code_name),                0,        0,        0, lenses_desc,  value_name,      NULL},
-    {"MIST",              0, field(lenses_conf.lenses[0].mist_file),                0,        0,        0, NULL,         value_mist,      NULL},
-    {"MIST",              1, field(lenses_conf.lenses[0].mist_lightness),           0,        0,       63, NULL,         value_default,   NULL},
-    {"MIST",              2, field(lenses_conf.lenses[0].mist_ghost),               0,        0,      255, NULL,         value_default,   NULL},
-    {"DISPLACEMENT",      0, field(lenses_conf.lenses[0].displace_kind),            0,        0,      255, NULL,         value_default,   NULL},
-    {"DISPLACEMENT",      1, field(lenses_conf.lenses[0].displace_magnitude),       0,        0,      511, NULL,         value_default,   NULL},
-    {"DISPLACEMENT",      2, field(lenses_conf.lenses[0].displace_period),          1,        0,      511, NULL,         value_displace,  NULL},
-    {"PALETTE",           0, field(lenses_conf.lenses[0].palette),                  0,        0,        0, NULL,         value_pallete,   NULL},
+    {"NAME",              0, field(lenses_conf.lenses[0].code_name),                0,        0,        0, lenses_desc,  value_name,      assign_null},
+    {"MIST",              0, field(lenses_conf.lenses[0].mist_file),                0,        0,        0, NULL,         value_mist,      assign_null},
+    {"MIST",              1, field(lenses_conf.lenses[0].mist_lightness),           0,        0,       63, NULL,         value_default,   assign_default},
+    {"MIST",              2, field(lenses_conf.lenses[0].mist_ghost),               0,        0,      255, NULL,         value_default,   assign_default},
+    {"DISPLACEMENT",      0, field(lenses_conf.lenses[0].displace_kind),            0,        0,      255, NULL,         value_default,   assign_default},
+    {"DISPLACEMENT",      1, field(lenses_conf.lenses[0].displace_magnitude),       0,        0,      511, NULL,         value_default,   assign_default},
+    {"DISPLACEMENT",      2, field(lenses_conf.lenses[0].displace_period),          1,        0,      511, NULL,         value_displace,  assign_default},
+    {"PALETTE",           0, field(lenses_conf.lenses[0].palette),                  0,        0,        0, NULL,         value_pallete,   assign_null},
     {NULL},
 };
 
