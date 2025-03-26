@@ -1042,20 +1042,26 @@ short setup_game(void)
 
   if (is_feature_on(Ft_SkipSplashScreens) == false)
   {
-
-      if(is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
+      if (flag_is_set(start_params.startup_flags, SFlg_Legal))
       {
-        result = init_actv_bitmap_screen(RBmp_SplashLegalWide);
-      } else {
-        result = init_actv_bitmap_screen(RBmp_SplashLegal);
+          if (is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
+          {
+            result = init_actv_bitmap_screen(RBmp_SplashLegalWide);
+          } else {
+            result = init_actv_bitmap_screen(RBmp_SplashLegal);
+          }
+
+          if ( result )
+          {
+              result = show_actv_bitmap_screen(3000);
+              free_actv_bitmap_screen();
+          } else
+              SYNCLOG("Legal image skipped");
       }
-
-      if ( result )
+      else
       {
-          result = show_actv_bitmap_screen(3000);
-          free_actv_bitmap_screen();
-      } else
-          SYNCLOG("Legal image skipped");
+          draw_clear_screen();
+      }
   } else {
         // Make the white screen into a black screen faster
         draw_clear_screen();
@@ -1076,19 +1082,22 @@ short setup_game(void)
   if (is_feature_on(Ft_SkipSplashScreens) == false)
   {
     // View second splash screen
-    result = init_actv_bitmap_screen(RBmp_SplashFx);
-    if ( result == 1 )
+    if (flag_is_set(start_params.startup_flags, SFlg_FX))
     {
-        result = show_actv_bitmap_screen(4000);
-        free_actv_bitmap_screen();
-    } else
-        SYNCLOG("startup_fx image skipped");
+        result = init_actv_bitmap_screen(RBmp_SplashFx);
+        if ( result == 1 )
+        {
+            result = show_actv_bitmap_screen(4000);
+            free_actv_bitmap_screen();
+        } else
+            SYNCLOG("startup_fx image skipped");
+    }
   }
 
   draw_clear_screen();
   // View Bullfrog company logo animation when new moon
-  if ( is_new_moon )
-    if ( !game.no_intro )
+  if ( ( is_new_moon ) || (flag_is_set(start_params.startup_flags, SFlg_Bullfrog)) )
+    if (!start_params.no_intro)
     {
         result = moon_video();
         if ( !result ) {
@@ -1098,7 +1107,7 @@ short setup_game(void)
 
   result = 1;
   // Setup the intro video mode
-  if ( result && (!game.no_intro) )
+  if (result && (!start_params.no_intro) )
   {
       if (!setup_screen_mode_zero(get_movies_vidmode()))
       {
@@ -1114,13 +1123,16 @@ short setup_game(void)
       {
           //result = -1; // Helps with better warning message later
       }
-      if (!game.no_intro)
+      if (!start_params.no_intro)
       {
-         if (game.ea_video)
+         if (flag_is_set(start_params.startup_flags, SFlg_EA))
          {
              ea_video();
          }
-         result = intro_replay();
+         if (flag_is_set(start_params.startup_flags, SFlg_Intro))
+         {
+            result = intro_replay();
+         }
       }
   }
 
@@ -4069,9 +4081,13 @@ short process_command_line(unsigned short argc, char *argv[])
         start_params.overrides[Clo_ConfigFile] = true;
         narg++;
       }
-      else if ( strcasecmp(parstr,"ea") == 0 )
+      else if ( strcasecmp(parstr,"Bullfrog") == 0 ) // force playing the Bullfrog video
       {
-        start_params.ea_video = true;
+        set_flag(start_params.startup_flags, SFlg_Bullfrog);
+      }
+      else if ( strcasecmp(parstr,"ea") == 0 ) // force playing the EA video
+      {
+        set_flag(start_params.startup_flags, SFlg_EA);
       }
       else if (strcasecmp(parstr, "ftests") == 0)
       {

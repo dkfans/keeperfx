@@ -81,6 +81,14 @@ enum TbLanguage {
     Lang_Latin,
 };
 
+enum StartupFlags {
+    SFlg_Legal        =  0x01,
+    SFlg_FX           =  0x02,
+    SFlg_Bullfrog     =  0x04,
+    SFlg_EA           =  0x08,
+    SFlg_Intro        =  0x10,
+};
+
 
 #pragma pack(1)
 

@@ -142,7 +142,7 @@ const struct NamedCommand conf_commands[] = {
   {"COMMAND_CHAR"                  , 32},
   {"API_ENABLED"                   , 33},
   {"API_PORT"                      , 34},
-  {"EA"                            , 35},
+  {"STARTUP"                       , 35},
   {NULL,                   0},
   };
 
@@ -164,6 +164,15 @@ const struct NamedCommand conf_commands[] = {
   {"PIXELPERFECT", SMK_FullscreenFit | SMK_FullscreenCrop}, // integer multiple scale only (FIT)
   {"4BY3PP",       SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop}, // integer multiple scale only (4BY3)
   {NULL,           0},
+  };
+  
+  const struct NamedCommand startup_parameters[] = {
+  {"LEGAL",                   1},
+  {"FX",                      2},
+  {"BULLFROG",                3}, // hidden
+  {"EA",                      4}, // hidden
+  {"INTRO",                   5},
+  {NULL,                      0},
   };
 
 unsigned int vid_scale_flags = SMK_FullscreenFit;
@@ -355,7 +364,7 @@ short load_configuration(void)
     while (pos<len)
     {
       // Finding command number in this line
-      int i = 0;
+      int i = 0, n = 0;
       int cmd_num = recognize_conf_command(buf, &pos, len, conf_commands);
       // Now store the config item in correct place
       int k;
@@ -768,19 +777,36 @@ short load_configuration(void)
               CONFWRNLOG("Invalid API port '%s' in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 35: // EA
-          if (!start_params.ea_video) // ignore field if -ea parameter is present
+      case 35: // STARTUP
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              i = recognize_conf_parameter(buf, &pos, len, logicval_type);
-              if (i <= 0)
-              {
-                  CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                      COMMAND_TEXT(cmd_num), config_textname);
-                  break;
-              }
-              if (i == 1)
-              {
-                  start_params.ea_video = true;
+            k = get_id(startup_parameters, word_buf);
+            switch (k)
+            {
+              case 1: // LEGAL
+                set_flag(start_params.startup_flags, SFlg_Legal);
+                n++;
+                break;
+              case 2: // FX
+                set_flag(start_params.startup_flags, SFlg_FX);
+                n++;
+                break;
+              case 3: // BULLFROG
+                set_flag(start_params.startup_flags, SFlg_Bullfrog);
+                n++;
+                break;
+              case 4: // EA
+                set_flag(start_params.startup_flags, SFlg_EA);
+                n++;
+                break;
+              case 5: // INTRO
+                set_flag(start_params.startup_flags, SFlg_Intro);
+                n++;
+                break;
+              default:
+                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in %s file.",
+                   COMMAND_TEXT(cmd_num), word_buf, config_textname);
+                break;
               }
           }
           break;
