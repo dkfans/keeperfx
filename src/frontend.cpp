@@ -1612,7 +1612,7 @@ void gui_go_to_event(struct GuiButton *gbtn)
     player = get_my_player();
     dungeon = get_players_dungeon(player);
     if (dungeon->visible_event_idx) {
-        set_players_packet_action(player, PckA_Unknown083, dungeon->visible_event_idx, 0, 0, 0);
+        set_players_packet_action(player, PckA_ZoomToEvent, dungeon->visible_event_idx, 0, 0, 0);
     }
 }
 
