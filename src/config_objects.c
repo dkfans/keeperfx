@@ -38,6 +38,7 @@ extern "C" {
 /******************************************************************************/
 struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 /******************************************************************************/
+
 const char keeper_objects_file[]="objects.cfg";
 
 const struct NamedCommand objects_properties_commands[] = {
@@ -86,17 +87,17 @@ static const struct NamedField objects_named_fields[] = {
     {"FALLACCELERATION",         0, field(game.conf.object_conf.object_cfgstats[0].fall_acceleration),             0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"LIGHTUNAFFECTED",          0, field(game.conf.object_conf.object_cfgstats[0].light_unaffected),              0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"LIGHTINTENSITY",           0, field(game.conf.object_conf.object_cfgstats[0].ilght.intensity),               0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"LIGHTRADIUS",              0, field(game.conf.object_conf.object_cfgstats[0].ilght.radius),                  0, LONG_MIN,ULONG_MAX, NULL,                        value_x256,      assign_default},
+    {"LIGHTRADIUS",              0, field(game.conf.object_conf.object_cfgstats[0].ilght.radius),                  0, LONG_MIN,ULONG_MAX, NULL,                        value_stltocoord,assign_default},
     {"LIGHTISDYNAMIC",           0, field(game.conf.object_conf.object_cfgstats[0].ilght.is_dynamic),              0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"MAPICON",                  0, field(game.conf.object_conf.object_cfgstats[0].map_icon),                      0, LONG_MIN,ULONG_MAX, NULL,                        value_icon,      assign_default},
-    {"AMBIENCESOUND",            0, field(game.conf.object_conf.object_cfgstats[0].fp_smpl_idx),                   0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
+    {"AMBIENCESOUND",            0, field(game.conf.object_conf.object_cfgstats[0].fp_smpl_idx),                   0,        0,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"UPDATEFUNCTION",           0, field(game.conf.object_conf.object_cfgstats[0].updatefn_idx),                  0, LONG_MIN,ULONG_MAX, object_update_functions_desc,value_default,   assign_default},
     {"DRAWCLASS",                0, field(game.conf.object_conf.object_cfgstats[0].draw_class),          ODC_Default, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"PERSISTENCE",              0, field(game.conf.object_conf.object_cfgstats[0].persistence),                   0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"IMMOBILE",                 0, field(game.conf.object_conf.object_cfgstats[0].immobile),                      0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"INITIALSTATE",             0, field(game.conf.object_conf.object_cfgstats[0].initial_state),                 0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"RANDOMSTARTFRAME",         0, field(game.conf.object_conf.object_cfgstats[0].random_start_frame),            0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"TRANSPARENCYFLAGS",        0, field(game.conf.object_conf.object_cfgstats[0].transparency_flags),            0, LONG_MIN,ULONG_MAX, NULL,                        value_<<4,       assign_default},
+    {"TRANSPARENCYFLAGS",        0, field(game.conf.object_conf.object_cfgstats[0].transparency_flags),            0, LONG_MIN,ULONG_MAX, NULL,                        value_transpflg, assign_default},
     {"EFFECTBEAM",               0, field(game.conf.object_conf.object_cfgstats[0].effect.beam),                   0, LONG_MIN,ULONG_MAX, NULL,                        value_effOrEffEl,assign_default},
     {"EFFECTPARTICLE",           0, field(game.conf.object_conf.object_cfgstats[0].effect.particle),               0, LONG_MIN,ULONG_MAX, NULL,                        value_effOrEffEl,assign_default},
     {"EFFECTEXPLOSION1",         0, field(game.conf.object_conf.object_cfgstats[0].effect.explosion1),             0, LONG_MIN,ULONG_MAX, NULL,                        value_effOrEffEl,assign_default},
@@ -111,7 +112,7 @@ static const struct NamedField objects_named_fields[] = {
     {"FLAMEANIMATIONOFFSET",     1, field(game.conf.object_conf.object_cfgstats[0].flame.fp_add_y),                0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"FLAMEANIMATIONOFFSET",     2, field(game.conf.object_conf.object_cfgstats[0].flame.td_add_x),                0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"FLAMEANIMATIONOFFSET",     3, field(game.conf.object_conf.object_cfgstats[0].flame.td_add_y),                0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"FLAMETRANSPARENCYFLAGS",   0, field(game.conf.object_conf.object_cfgstats[0].flame.transparency_flags),      0, LONG_MIN,ULONG_MAX, NULL,                        value_<<4,       assign_default},
+    {"FLAMETRANSPARENCYFLAGS",   0, field(game.conf.object_conf.object_cfgstats[0].flame.transparency_flags),      0, LONG_MIN,ULONG_MAX, NULL,                        value_transpflg, assign_default},
     {"LIGHTFLAGS",               0, field(game.conf.object_conf.object_cfgstats[0].ilght.flags),                   0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {NULL},
 };

@@ -493,6 +493,35 @@ void assign_icon(const struct NamedField* named_field, int64_t value, const stru
     }
 }
 
+int64_t value_transpflg(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    
+    if (parameter_is_number(value_text))
+    {
+        return atoll(value_text) << 4;
+    }
+    else
+    {
+        CONFWRNLOG("Expected number for field '%s', got '%s'",named_field->name,value_text);
+    }
+    return 0;
+}
+
+int64_t value_stltocoord(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    
+    if (parameter_is_number(value_text))
+    {
+        return atoll(value_text) * COORD_PER_STL;
+    }
+    else
+    {
+        CONFWRNLOG("Expected number for field '%s', got '%s'",named_field->name,value_text);
+    }
+    return 0;
+}
+value_stltocoord
+
 
 int64_t parse_named_field_value(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
