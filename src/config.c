@@ -451,20 +451,20 @@ int64_t value_flagsfield(const struct NamedField* named_field, const char* value
 
 int64_t value_icon(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
-  if (src == ccs_DkScript)
-  {
-      int64_t script_string_offset = script_strdup(value_text);
-      if (script_string_offset < 0)
-      {
-          NAMFIELDWRNLOG("Run out script strings space");
-          return -1;
-      }
-      return script_string_offset;
-  }
-  else
-  {
-      return get_icon_id(value_text);
-  }
+    if (src == ccs_DkScript)
+    {
+        int64_t script_string_offset = script_strdup(value_text);
+        if (script_string_offset < 0)
+        {
+            NAMFIELDWRNLOG("Run out script strings space");
+            return -1;
+        }
+        return script_string_offset;
+    }
+    else
+    {
+        return get_icon_id(value_text);
+    }
 }
 
 int64_t value_animid(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
