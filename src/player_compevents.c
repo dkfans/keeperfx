@@ -27,6 +27,7 @@
 #include "bflib_math.h"
 
 #include "config.h"
+#include "config_compp.h"
 #include "magic_powers.h"
 #include "player_instances.h"
 #include "config_terrain.h"
@@ -229,7 +230,7 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
         struct ComputerProcess* cproc = &comp->processes[i];
         if (flag_is_set(cproc->flags, ComProc_Unkn0002))
             break;
-        if (cproc->parent == cevent->process)
+        if (&comp_player_conf.process_types[cproc->parent_process_idx] == cevent->process)
         {
             clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001|ComProc_Unkn0004));
             cproc->last_run_turn = 0;
@@ -538,7 +539,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                 struct ComputerProcess* cproc = &comp->processes[i];
                 if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                     break;
-                if (cproc->parent == bldroom->process)
+                if (&comp_player_conf.process_types[cproc->parent_process_idx] == bldroom->process)
                 {
                     SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
                     ret = CTaskRet_Unk1;
@@ -697,7 +698,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
             struct ComputerProcess* cproc = &comp->processes[i];
             if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                 break;
-            if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == event->target))
+            if ((computer_process_func_list[cproc->func_check] == &computer_check_any_room) && (cproc->confval_4 == event->target))
             {
                 SYNCDBG(8,"Resetting process for player %d to build room %s", (int)comp->dungeon->owner, room_code_name(event->target));
                 clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));

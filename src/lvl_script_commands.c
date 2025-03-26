@@ -6410,8 +6410,6 @@ static void set_computer_process_process(struct ScriptContext* context)
             struct ComputerProcess* cproc = &comp->processes[k];
             if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                 break;
-            if (cproc->name == NULL)
-                break;
             if (strcasecmp(procname, cproc->name) == 0)
             {
                 SCRPTLOG("Changing computer %d process '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)", (int)i, cproc->name,

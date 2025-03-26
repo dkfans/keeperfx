@@ -101,34 +101,7 @@ struct ValidRooms valid_rooms_to_build[] = {
   {-1,            NULL},
 };
 
-struct ComputerProcessMnemonic computer_process_config_list[] = {
-  {"Unused", NULL,},
-  {"", &BuildAllRooms3x3,},
-  {"", &BuildAllRooms4x4,},
-  {"", &BuildPrisonRoom,},
-  {"", &BuildTortureRoom,},
-  {"", &BuildScavengerRoom,},
-  {"", &BuildTempleRoom,},
-  {"", &BuildGraveyardRoom,},
-  {"", &BuildBarrackRoom,},
-  {"", &BuildTreasureRoom,},
-  {"", &BuildResearchRoom,},
-  {"", &BuildHatcheryRoom,},
-  {"", &BuildLairRoom,},
-  {"", &BuildTrainingRoom,},
-  {"", &BuildWorkshopRoom,},
-  {"", &DigToEntrance,},
-  {"", &DigToGoldForMoney,},
-  {"", &BuildTreasureRoom4x4,},
-  {"", &BuildLairRoom4x4,},
-  {"", &DigToCloseGoldForMoney,},
-  {"", &DigToGoldGreedy,},
-  {"", &DigToGoldGreedy2,},
-  {"", &ComputerSightOfEvil,},
-  {"", &ComputerSightOfEvilScare,},
-  {"", &ComputerAttack1,},
-  {"", &ComputerSafeAttack,},
-};
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

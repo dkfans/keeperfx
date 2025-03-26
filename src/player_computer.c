@@ -963,7 +963,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
             if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                 break;
             //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
-            if (cproc->func_check == computer_check_dig_to_gold)
+            if (computer_process_func_list[cproc->func_check] == computer_check_dig_to_gold)
             {
                 cproc->priority++;
                 if (game.play_gameturn - cproc->last_run_turn > 20) {
@@ -1291,9 +1291,10 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 
     for (i=0; i < COMPUTER_PROCESSES_COUNT; i++)
     {
+        
         struct ComputerProcess* cproc = cpt->processes[i];
         newproc = &comp->processes[i];
-        if ((cproc == NULL) || (cproc->name == NULL))
+        if (cproc == NULL)
         {
           newproc->name = NULL;
           break;
@@ -1467,7 +1468,7 @@ TbBool process_processes_and_task(struct Computer2 *comp)
             Comp_Process_Func callback = NULL;
             struct ComputerProcess* cproc = get_computer_process(comp, comp->ongoing_process);
             if (cproc != NULL) {
-                callback = cproc->func_task;
+                callback = computer_process_func_list[cproc->func_task];
                 SYNCDBG(7,"Performing process \"%s\"",cproc->name);
             } else {
                 ERRORLOG("Invalid computer process %d referenced",(int)comp->ongoing_process);
@@ -1531,7 +1532,7 @@ struct ComputerProcess *computer_player_find_process_by_func_setup(PlayerNumber 
   struct ComputerProcess* cproc = &comp->processes[0];
   while (!flag_is_set(cproc->flags, ComProc_Unkn0002))
   {
-      if (cproc->func_setup == func_setup)
+      if (computer_process_func_list[cproc->func_setup] == func_setup)
       {
           return cproc;
       }
@@ -1662,6 +1663,7 @@ void setup_computer_players2(void)
   }
 }
 
+//after refactor fully finished, this function should be removed
 void restore_computer_player_after_load(void)
 {
     SYNCDBG(7,"Starting");
@@ -1695,6 +1697,7 @@ void restore_computer_player_after_load(void)
             //if (cpt->processes[i]->name == NULL)
             //    break;
             SYNCDBG(12,"Player %ld process %ld is \"%s\"",plyr_idx,i,cpt->processes[i]->name);
+            
             comp->processes[i].name = cpt->processes[i]->name;
             comp->processes[i].parent = cpt->processes[i];
             comp->processes[i].func_check = cpt->processes[i]->func_check;

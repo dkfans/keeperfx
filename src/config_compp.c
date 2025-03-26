@@ -76,27 +76,32 @@ const struct NamedCommand compp_computer_commands[] = {
 const char keeper_compplayer_file[]="keepcompp.cfg";
 
 /******************************************************************************/
+struct NamedCommand process_mnemonic_desc[COMPUTER_PROCESS_TYPES_COUNT];
+
+/******************************************************************************/
+
+
 
 static const struct NamedField compp_process_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
-//  {"NAME",         0, field(computer_process_config_list[0].name),      0, LONG_MIN,ULONG_MAX, NULL,                             value_name,      NULL},
-  {"MNEMONIC",     0, field(computer_process_config_list[0].name),          0, LONG_MIN,ULONG_MAX, NULL,                           value_name,      NULL},
-  {"VALUES",       0, field(computer_process_config_list[0].priority     ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
-  {"VALUES",       1, field(computer_process_config_list[0].confval_2    ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
-  {"VALUES",       2, field(computer_process_config_list[0].confval_3    ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
-  {"VALUES",       3, field(computer_process_config_list[0].confval_4    ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
-  {"VALUES",       4, field(computer_process_config_list[0].confval_5    ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
-  {"FUNCTIONS",    0, field(computer_process_config_list[0].func_check   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type,     value_default,      NULL},
-  {"FUNCTIONS",    1, field(computer_process_config_list[0].func_setup   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type,     value_default,      NULL},
-  {"FUNCTIONS",    2, field(computer_process_config_list[0].func_task    ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type,     value_default,      NULL},
-  {"FUNCTIONS",    3, field(computer_process_config_list[0].func_complete), 0, LONG_MIN,ULONG_MAX, computer_process_func_type,     value_default,      NULL},
-  {"FUNCTIONS",    4, field(computer_process_config_list[0].func_pause   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type,     value_default,      NULL},
-  {"PARAMS",       0, field(computer_process_config_list[0].param_1      ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
-  {"PARAMS",       1, field(computer_process_config_list[0].param_2      ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
-  {"PARAMS",       2, field(computer_process_config_list[0].param_3      ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
-  {"PARAMS",       3, field(computer_process_config_list[0].last_run_turn), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
-  {"PARAMS",       4, field(computer_process_config_list[0].param_5      ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
-  {"PARAMS",       5, field(computer_process_config_list[0].flags        ), 0, LONG_MIN,ULONG_MAX, NULL,                           value_default,      NULL},
+  {"NAME",         0, field(comp_player_conf.process_types[0].name),          0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
+  {"MNEMONIC",     0, field(comp_player_conf.process_types[0].mneumonic),     0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
+  {"VALUES",       0, field(comp_player_conf.process_types[0].priority     ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       1, field(comp_player_conf.process_types[0].confval_2    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       2, field(comp_player_conf.process_types[0].confval_3    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       3, field(comp_player_conf.process_types[0].confval_4    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       4, field(comp_player_conf.process_types[0].confval_5    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"FUNCTIONS",    0, field(comp_player_conf.process_types[0].func_check   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    1, field(comp_player_conf.process_types[0].func_setup   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    2, field(comp_player_conf.process_types[0].func_task    ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    3, field(comp_player_conf.process_types[0].func_complete), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    4, field(comp_player_conf.process_types[0].func_pause   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
+  {"PARAMS",       0, field(comp_player_conf.process_types[0].param_1      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       1, field(comp_player_conf.process_types[0].param_2      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       2, field(comp_player_conf.process_types[0].param_3      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       3, field(comp_player_conf.process_types[0].last_run_turn), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       4, field(comp_player_conf.process_types[0].param_5      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       5, field(comp_player_conf.process_types[0].flags        ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {NULL},
 };
 
@@ -105,9 +110,9 @@ const struct NamedFieldSet compp_process_named_fields_set = {
   "process",
   compp_process_named_fields,
   NULL,
-  COMPUTER_PROCESSES_COUNT,
-  sizeof(computer_process_config_list[0]),
-  computer_process_config_list,
+  COMPUTER_PROCESS_TYPES_COUNT,
+  sizeof(comp_player_conf.process_types[0]),
+  comp_player_conf.process_types,
   {"keepcompp.cfg","INVALID"},
 };
 
@@ -130,24 +135,9 @@ struct ComputerPlayerConfig comp_player_conf;
 
 /******************************************************************************/
 
-int get_computer_process_config_list_index_prc(struct ComputerProcess *cproc)
-{
-    for (int i = 1; i <= comp_player_conf.processes_count; i++)
-    {
-        if (computer_process_config_list[i].process == cproc)
-            return i;
-  }
-  return 0;
-}
-
 int get_computer_process_config_list_index_mnem(const char *mnemonic)
 {
-    for (int i = 1; i <= comp_player_conf.processes_count; i++)
-    {
-        if (strcasecmp(computer_process_config_list[i].name, mnemonic) == 0)
-            return i;
-  }
-  return 0;
+    return get_id(process_mnemonic_desc, mnemonic);
 }
 
 int get_computer_check_config_list_index_mnem(const char *mnemonic)
@@ -640,7 +630,7 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
               k = get_computer_process_config_list_index_mnem(word_buf);
               if (k > 0)
               {
-                cevent->process = computer_process_config_list[k].process;
+                cevent->process = &comp_player_conf.process_types[k];
               } else
               {
                   CONFWRNLOG("Could not recognize \"%s\" parameter in [%s] block of %s file.",
@@ -798,7 +788,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
                       COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                 continue;
               }
-              n = computer_type_add_process(cpt, computer_process_config_list[k].process);
+              n = computer_type_add_process(cpt, &comp_player_conf.process_types[k]);
               if (n < 0) {
                   CONFWRNLOG("Could not add \"%s\" list element \"%s\" in [%s] block of %s file.",
                       COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -893,11 +883,23 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
     return 1;
 }
 
+void init_desc(void)
+{
+    for (int i = 0; i < COMPUTER_PROCESS_TYPES_COUNT; i++)
+    {
+        process_mnemonic_desc[i].name = comp_player_conf.process_types[i].mneumonic;
+        process_mnemonic_desc[i].num = i;
+    }
+    process_mnemonic_desc[COMPUTER_PROCESS_TYPES_COUNT - 1].name = NULL; // must be null for get_id
+}
+
+
 TbBool load_computer_player_config(unsigned short flags)
 {
     SYNCDBG(8, "Starting");
     static const char *textname = "Computer Player";
     init_computer_process_lists();
+    init_desc();
     // Load the config file
     const char* fname = prepare_file_path(FGrp_FxData, keeper_compplayer_file);
     long len = LbFileLengthRnc(fname);

@@ -264,20 +264,21 @@ struct TaskFunctions {
   Comp_Task_Func func;
 };
 
-struct ComputerProcess { // sizeof = 72
-  char *name;
+struct ComputerProcess { // sizeof = 72 
+  char name[COMMAND_WORD_LEN];
+  char mneumonic[16];
   long priority;
   // Signed process config values
   long confval_2;
   long confval_3;
   long confval_4; /**< room kind or amount of creatures or gameturn or count of slabs */
   long confval_5;
-  Comp_Process_Func func_check;
-  Comp_Process_Func func_setup;
-  Comp_Process_Func func_task;
-  Comp_Process_Func func_complete;
-  Comp_Process_Func func_pause;
-  struct ComputerProcess *parent;
+  FuncIdx func_check;
+  FuncIdx func_setup;
+  FuncIdx func_task;
+  FuncIdx func_complete;
+  FuncIdx func_pause;
+  long parent_process_idx;
   // Unsigned process parameters storage (stores gameturns)
   unsigned long param_1;
   unsigned long param_2;
@@ -315,11 +316,6 @@ struct ComputerEvent { // sizeof = 44
 
 struct ValidRooms { // sizeof = 8
   long rkind;
-  struct ComputerProcess *process;
-};
-
-struct ComputerProcessMnemonic {
-  char name[16];
   struct ComputerProcess *process;
 };
 
@@ -518,18 +514,18 @@ struct ExpandRooms {
 #pragma pack()
 /******************************************************************************/
 struct ComputerPlayerConfig {
-    int processes_count;
-    int checks_count;
-    int events_count;
-    int computers_count;
-    int skirmish_first; /*new*/
-    int skirmish_last; /*new*/
+    long processes_count;
+    struct ComputerProcess process_types[COMPUTER_PROCESS_TYPES_COUNT];
+    long checks_count;
+    long events_count;
+    long computers_count;
+    long skirmish_first; /*new*/
+    long skirmish_last; /*new*/
 };
 /******************************************************************************/
 extern unsigned short computer_types_tooltip_stridx[];
 extern struct ValidRooms valid_rooms_to_build[];
 
-extern struct ComputerProcessMnemonic computer_process_config_list[];
 extern const struct NamedCommand computer_process_func_type[];
 extern Comp_Process_Func computer_process_func_list[];
 
