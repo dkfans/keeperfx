@@ -469,9 +469,20 @@ int64_t value_icon(const struct NamedField* named_field, const char* value_text,
 
 int64_t value_animid(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
 {
-    short icon_id = get_anim_id_(value_text);
-
-    return icon_id;
+  if (src == ccs_DkScript)
+  {
+      int64_t script_string_offset = script_strdup(value_text);
+      if (script_string_offset < 0)
+      {
+          NAMFIELDWRNLOG("Run out script strings space");
+          return -1;
+      }
+      return script_string_offset;
+  }
+  else
+  {
+      return get_anim_id_(value_text);
+  }
 }
 
 int64_t value_effOrEffEl(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
@@ -486,6 +497,19 @@ void assign_icon(const struct NamedField* named_field, int64_t value, const stru
     {
         short icon_id = get_icon_id(script_strval(value));
         assign_default(named_field,icon_id,named_fields_set,idx,src);
+    }
+    else
+    {
+        assign_default(named_field,value,named_fields_set,idx,src);
+    }
+}
+
+void assign_animid(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    if (src == ccs_DkScript)
+    {
+        short anim_id = get_anim_id_(script_strval(value));
+        assign_default(named_field,anim_id,named_fields_set,idx,src);
     }
     else
     {

@@ -306,6 +306,7 @@ int64_t value_stltocoord     (const struct NamedField* named_field, const char* 
 void assign_icon   (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 void assign_default(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 void assign_null   (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+void assign_animid (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 
 int64_t parse_named_field_value(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 int64_t get_named_field_value(const struct NamedField* named_field, const struct NamedFieldSet* named_fields_set, int idx);
