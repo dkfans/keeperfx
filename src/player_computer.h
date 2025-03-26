@@ -486,8 +486,8 @@ struct Computer2 { // sizeof = 5322
   unsigned long max_room_build_tasks;
   unsigned long task_delay;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
-  struct ComputerCheck *checks;
-  struct ComputerEvent *events;
+  struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
+  struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
   struct OpponentRelation opponent_relations[PLAYERS_COUNT];
   // TODO we could use coord2d for trap locations
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
