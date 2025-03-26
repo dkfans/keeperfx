@@ -100,8 +100,6 @@ static const struct NamedField compp_process_named_fields[] = {
   {NULL},
 };
 
-//computer_process_func_list[k];
-
 const struct NamedFieldSet compp_process_named_fields_set = {
   &comp_player_conf.processes_count,
   "process",
