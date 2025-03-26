@@ -919,7 +919,7 @@ TbBool load_computer_player_config(unsigned short flags)
     if (len>0)
     {
         parse_computer_player_common_blocks(buf, len, textname, flags);
-        parse_computer_player_process_blocks(buf, len, textname, flags);
+        parse_named_field_blocks(buf, len, textname, flags, &compp_process_named_fields_set);
         parse_computer_player_check_blocks(buf, len, textname, flags);
         parse_computer_player_event_blocks(buf, len, textname, flags);
         parse_computer_player_computer_blocks(buf, len, textname, flags);
