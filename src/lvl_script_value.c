@@ -591,6 +591,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               clear_flag(crconf->model_flags, CMF_IsDiggingCreature);
           }
+          recalculate_all_creature_digger_lists();
           update_creatr_model_activities_list(1);
           break;
       default:

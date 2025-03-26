@@ -40,10 +40,10 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx);
+static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 
-static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx);
-static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx);
+static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 
 /******************************************************************************/
 
@@ -206,7 +206,7 @@ static const struct NamedField rules_script_only_named_fields[] = {
 const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,
 rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fields,rules_health_named_fields,rules_script_only_named_fields};
 
-//rules do need one for technical reasons, but isn't really relevant
+//rules don't need all the fields as it's always only 1 entry in the cfg
 const struct NamedFieldSet rules_named_fields_set = {
   NULL,
   "",
@@ -214,7 +214,8 @@ const struct NamedFieldSet rules_named_fields_set = {
   NULL,
   1,
   0,
-  &game.conf.rules
+  &game.conf.rules,
+  {"rules.cfg","SET_GAME_RULE"},
 };
 
 const struct NamedCommand rules_research_commands[] = {
@@ -255,9 +256,9 @@ const struct NamedCommand sacrifice_unique_desc[] = {
 
 /******************************************************************************/
 
-static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx)
+static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
-    assign_named_field_value_direct(named_field,value,named_fields_set,idx);
+    assign_named_field_value_direct(named_field,value,named_fields_set,idx,src);
     short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
     if (count > 0)
     {
@@ -265,13 +266,13 @@ static void assign_MapCreatureLimit_script(const struct NamedField* named_field,
     }
 }
 
-static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx)
+static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
-    assign_named_field_value_direct(named_field,value,named_fields_set,idx);
+    assign_named_field_value_direct(named_field,value,named_fields_set,idx,src);
     panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
 }
 
-static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     
     if (parameter_is_number(value_text))
@@ -324,7 +325,7 @@ static void set_defaults()
     for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++) {
       const struct NamedField* field = ruleblocks[i];
       while (field->name != NULL) {
-        assign_named_field_value_direct(field, field->default_value, &rules_named_fields_set, 0);
+        assign_named_field_value_direct(field, field->default_value, &rules_named_fields_set, 0, ccs_CfgFile);
         field++;
       }
     }
