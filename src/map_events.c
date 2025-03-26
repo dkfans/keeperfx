@@ -733,7 +733,11 @@ ThingIndex get_thing_index_event_is_attached_to(const struct Event *event)
 struct Thing *event_is_attached_to_thing(EventIndex evidx)
 {
     struct Event* event = &game.event[evidx];
-    long i = get_thing_index_event_is_attached_to(event);
+    if ((event->flags & EvF_Exists) == 0) 
+    {
+        return INVALID_THING;
+    }
+    ThingIndex i = get_thing_index_event_is_attached_to(event);
     return thing_get(i);
 }
 
@@ -777,7 +781,7 @@ void event_process_events(void)
 
 void update_all_events(void)
 {
-    for (long i = EVENT_BUTTONS_COUNT; i > 0; i--)
+    for (long i = EVENTS_COUNT; i > 0; i--)
     {
         struct Thing* thing = event_is_attached_to_thing(i);
         if (!thing_is_invalid(thing))
