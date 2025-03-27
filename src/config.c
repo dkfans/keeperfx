@@ -467,7 +467,7 @@ int64_t value_icon(const struct NamedField* named_field, const char* value_text,
     }
 }
 
-int64_t value_animid(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+int64_t value_animid(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
   if (src == ccs_DkScript)
   {
@@ -485,7 +485,7 @@ int64_t value_animid(const struct NamedField* named_field, const char* value_tex
   }
 }
 
-int64_t value_effOrEffEl(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx)
+int64_t value_effOrEffEl(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     return effect_or_effect_element_id(value_text);
 }

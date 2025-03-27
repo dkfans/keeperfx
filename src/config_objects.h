@@ -124,7 +124,6 @@ struct ObjectsConfig {
 extern const char keeper_objects_file[];
 extern struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 extern const struct NamedCommand objects_genres_desc[];
-extern const struct NamedCommand objects_object_commands[];
 
 extern const struct NamedFieldSet objects_named_fields_set;
 /******************************************************************************/

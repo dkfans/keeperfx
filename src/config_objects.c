@@ -189,7 +189,7 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     parse_named_field_blocks(buf, len, textname, flags, &objects_named_fields_set);
     //Freeing and exiting
     free(buf);
-    return result;
+    return true;
 }
 
 void update_all_objects_of_model(ThingModel model)
