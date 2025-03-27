@@ -852,7 +852,7 @@ void set_defaults(const struct NamedFieldSet* named_fields_set)
   }
   if (name_NamedField != NULL)
   {
-      for (int i = 0; i < TERRAIN_ITEMS_MAX; i++)
+      for (int i = 0; i < named_fields_set->max_count; i++)
       {
           named_fields_set->names[i].name = (char*)name_NamedField->field + i * named_fields_set->struct_size;
           named_fields_set->names[i].num = i;
