@@ -1320,7 +1320,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     // The check with 0x02 flag identifies end of active checks
     // (the check with 0x02 flag is invalid - only previous checks are in use)
     //newchk = &comp->checks[i];
-    set_flag(newchk->flags, ComChk_Unkn0002);
+    set_flag(newchk->flags, ComChk_LastEntry);
 
     for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
     {
@@ -1423,7 +1423,7 @@ TbBool process_checks(struct Computer2 *comp)
         struct ComputerCheck* ccheck = &comp->checks[i];
         if (comp->tasks_did <= 0)
             break;
-        if ((ccheck->flags & ComChk_Unkn0002) != 0)
+        if ((ccheck->flags & ComChk_LastEntry) != 0)
             break;
         if ((ccheck->flags & ComChk_Unkn0001) == 0)
         {
@@ -1551,7 +1551,7 @@ TbBool computer_player_demands_gold_check(PlayerNumber plyr_idx)
       SYNCDBG(18,"Player %d has no digging ability.",(int)plyr_idx);
       return false;
   }
-  if ((dig_process->flags & ComProc_Unkn0004) == 0)
+  if ((dig_process->flags & ComProc_Finished) == 0)
   {
       SYNCDBG(18,"Player %d isn't interested in digging.",(int)plyr_idx);
       return false;
@@ -1560,7 +1560,7 @@ TbBool computer_player_demands_gold_check(PlayerNumber plyr_idx)
   // If the computer player needs to dig for gold
   if (gameadd.turn_last_checked_for_gold+GOLD_DEMAND_CHECK_INTERVAL < game.play_gameturn)
   {
-      clear_flag(dig_process->flags, ComProc_Unkn0004);
+      clear_flag(dig_process->flags, ComProc_Finished);
       return true;
   }
   return false;

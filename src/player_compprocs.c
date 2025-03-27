@@ -162,7 +162,7 @@ long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerPro
         }
         ctask->cproc_idx = i;
         shut_down_process(comp, cproc);
-        clear_flag(cproc->flags, ComProc_Unkn0008);
+        clear_flag(cproc->flags, ComProc_Done);
         return CProcRet_Finish;
     }
     if (cproc->confval_2 > cproc->confval_3)
@@ -348,7 +348,7 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
     if (is_avail != IAvail_Now)
     {
         if (is_avail == IAvail_Never) {
-            set_flag(cproc->flags, ComProc_Unkn0004);
+            set_flag(cproc->flags, ComProc_Finished);
             return CProcRet_Fail;
         }
         return CProcRet_Wait;
@@ -842,7 +842,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
     long digres = computer_finds_nearest_room_to_gold(comp, &startpos, &gldlook);
     if (digres == -1)
     {
-        set_flag(cproc->flags, ComProc_Unkn0004);
+        set_flag(cproc->flags, ComProc_Finished);
         SYNCDBG(8,"Can't find nearest room to gold; will refresh gold map");
         return CProcRet_Fail;
     }
@@ -939,7 +939,7 @@ long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess
     if (is_power_obtainable(dungeon->owner, PwrK_SIGHT)) {
         return CProcRet_Wait;
     }
-    set_flag(cproc->flags, ComProc_Unkn0004);
+    set_flag(cproc->flags, ComProc_Finished);
     return CProcRet_Fail;
 }
 
@@ -1124,7 +1124,7 @@ long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProce
             n = (n + 1) % (GRID*GRID);
         }
         if (i == GRID*GRID) {
-            set_flag(cproc->flags, ComProc_Unkn0004);
+            set_flag(cproc->flags, ComProc_Finished);
             return CProcRet_Unk3;
         }
         stl_x = slab_subtile_center(slb_x);
@@ -1192,7 +1192,7 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
 
 long computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-    clear_flag(cproc->flags, ComProc_Unkn0008);
+    clear_flag(cproc->flags, ComProc_Done);
     comp->task_state = CTaskSt_Select;
     return CProcRet_Fail;
 }
@@ -1201,7 +1201,7 @@ void shut_down_process(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
     if (cproc != NULL)
     {
-        set_flag(cproc->flags, ComProc_Unkn0008);
+        set_flag(cproc->flags, ComProc_Done);
         clear_flag(cproc->flags, ComProc_Unkn0020);
         cproc->param_2 = game.play_gameturn;
         Comp_Process_Func callback = computer_process_func_list[cproc->func_complete];
@@ -1249,7 +1249,7 @@ TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind)
         struct ComputerProcess* cproc = &comp->processes[i];
         if ((computer_process_func_list[cproc->func_check] == &computer_check_any_room) && (cproc->confval_4 == rkind))
         {
-            clear_flag(cproc->flags, ComProc_Unkn0004);
+            clear_flag(cproc->flags, ComProc_Finished);
             cproc->last_run_turn = 0;
             return true;
         }
@@ -1288,7 +1288,7 @@ struct ComputerProcess * find_best_process(struct Computer2 *comp)
         struct ComputerProcess* cproc = &comp->processes[i];
         if (flag_is_set(cproc->flags, ComProc_LastEntry))
             break;
-        if (any_flag_is_set(cproc->flags, (ComProc_Unkn0020|ComProc_Unkn0010|ComProc_Unkn0008|ComProc_Unkn0004|ComProc_Unkn0001)))
+        if (any_flag_is_set(cproc->flags, (ComProc_Unkn0020|ComProc_Unkn0010|ComProc_Done|ComProc_Finished|ComProc_Unkn0001)))
             continue;
         if (cproc->last_run_turn > 0)
         {

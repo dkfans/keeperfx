@@ -264,7 +264,7 @@ void restart_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
         onproc = get_computer_process(comp, comp->ongoing_process);
         if (onproc != cproc)
         {
-            clear_flag(cproc->flags, (ComProc_Unkn0020|ComProc_Unkn0008));
+            clear_flag(cproc->flags, (ComProc_Unkn0020|ComProc_Done));
         }
     } 
     else 

@@ -148,17 +148,17 @@ enum ToolDigResults {
 };
 
 enum CompProcessFlags {
-    ComProc_Unkn0001 = 0x0001,
+    ComProc_Unkn0001  = 0x0001,
     ComProc_LastEntry = 0x0002, /**< Last? */
-    ComProc_Unkn0004 = 0x0004, /**< Finished */
-    ComProc_Unkn0008 = 0x0008, /**< Done (for subprocesses) */
-    ComProc_Unkn0010 = 0x0010,
-    ComProc_Unkn0020 = 0x0020, /**< Suspended (Ed: I think this flag is RoomBuildActive...) */
+    ComProc_Finished  = 0x0004, /**< Finished */
+    ComProc_Done      = 0x0008, /**< Done (for subprocesses) */
+    ComProc_Unkn0010  = 0x0010,
+    ComProc_Unkn0020  = 0x0020, /**< Suspended (Ed: I think this flag is RoomBuildActive...) */
 };
 
 enum CompCheckFlags {
-    ComChk_Unkn0001 = 0x0001, /**< Disabled */
-    ComChk_Unkn0002 = 0x0002, /**< Last */
+    ComChk_Unkn0001  = 0x0001, /**< Disabled */
+    ComChk_LastEntry = 0x0002, /**< Last */
 };
 
 enum CompTaskFlags {

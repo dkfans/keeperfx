@@ -232,7 +232,7 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
             break;
         if (&comp_player_conf.process_types[cproc->parent_process_idx] == cevent->process)
         {
-            clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001|ComProc_Unkn0004));
+            clear_flag(cproc->flags, (ComProc_Done|ComProc_Unkn0001|ComProc_Finished));
             cproc->last_run_turn = 0;
             cproc_idx = 1;
         }
@@ -694,7 +694,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
             if ((computer_process_func_list[cproc->func_check] == &computer_check_any_room) && (cproc->confval_4 == event->target))
             {
                 SYNCDBG(8,"Resetting process for player %d to build room %s", (int)comp->dungeon->owner, room_code_name(event->target));
-                clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
+                clear_flag(cproc->flags, (ComProc_Done|ComProc_Unkn0001));
                 cproc->last_run_turn = 0;
             }
         }

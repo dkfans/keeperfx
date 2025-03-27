@@ -77,6 +77,7 @@ const char keeper_compplayer_file[]="keepcompp.cfg";
 
 /******************************************************************************/
 struct NamedCommand process_mnemonic_desc[COMPUTER_PROCESS_TYPES_COUNT];
+struct NamedCommand process_names_desc[COMPUTER_PROCESS_TYPES_COUNT];
 
 /******************************************************************************/
 
@@ -84,7 +85,7 @@ struct NamedCommand process_mnemonic_desc[COMPUTER_PROCESS_TYPES_COUNT];
 
 static const struct NamedField compp_process_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
-  {"NAME",         0, field(comp_player_conf.process_types[0].name),          0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
+  {"NAME",         0, field(comp_player_conf.process_types[0].name),          0, LONG_MIN,ULONG_MAX, process_names_desc,         value_name,    assign_null},
   {"MNEMONIC",     0, field(comp_player_conf.process_types[0].mneumonic),     0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
   {"VALUES",       0, field(comp_player_conf.process_types[0].priority     ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {"VALUES",       1, field(comp_player_conf.process_types[0].confval_2    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
@@ -109,7 +110,7 @@ const struct NamedFieldSet compp_process_named_fields_set = {
   &comp_player_conf.processes_count,
   "process",
   compp_process_named_fields,
-  NULL,
+  process_names_desc,
   COMPUTER_PROCESS_TYPES_COUNT,
   sizeof(comp_player_conf.process_types[0]),
   comp_player_conf.process_types,

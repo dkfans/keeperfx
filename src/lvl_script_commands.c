@@ -6481,7 +6481,7 @@ static void set_computer_checks_process(struct ScriptContext* context)
         for (long k = 0; k < COMPUTER_CHECKS_COUNT; k++)
         {
             struct ComputerCheck* ccheck = &comp->checks[k];
-            if ((ccheck->flags & ComChk_Unkn0002) != 0)
+            if ((ccheck->flags & ComChk_LastEntry) != 0)
                 break;
             if (ccheck->name == NULL)
                 break;
