@@ -228,7 +228,7 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
         struct ComputerProcess* cproc = &comp->processes[i];
-        if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+        if (flag_is_set(cproc->flags, ComProc_LastEntry))
             break;
         if (&comp_player_conf.process_types[cproc->parent_process_idx] == cevent->process)
         {
@@ -534,18 +534,11 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             }
             SYNCDBG(8,"Player %d needs %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
             // Find the corresponding build process and mark it as needed
-            for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
-            {
-                struct ComputerProcess* cproc = &comp->processes[i];
-                if (flag_is_set(cproc->flags, ComProc_Unkn0002))
-                    break;
-                if (&comp_player_conf.process_types[cproc->parent_process_idx] == bldroom->process)
-                {
-                    SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
-                    ret = CTaskRet_Unk1;
-                    reactivate_build_process(comp, bldroom->rkind);
-                }
-            }
+
+            struct ComputerProcess* cproc = &comp->processes[bldroom->process_idx];
+            SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
+            ret = CTaskRet_Unk1;
+            reactivate_build_process(comp, bldroom->rkind);
         }
     }
     return ret;
@@ -696,7 +689,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
         for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+            if (flag_is_set(cproc->flags, ComProc_LastEntry))
                 break;
             if ((computer_process_func_list[cproc->func_check] == &computer_check_any_room) && (cproc->confval_4 == event->target))
             {

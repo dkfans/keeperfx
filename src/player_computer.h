@@ -149,32 +149,16 @@ enum ToolDigResults {
 
 enum CompProcessFlags {
     ComProc_Unkn0001 = 0x0001,
-    ComProc_Unkn0002 = 0x0002, /**< Last? */
+    ComProc_LastEntry = 0x0002, /**< Last? */
     ComProc_Unkn0004 = 0x0004, /**< Finished */
     ComProc_Unkn0008 = 0x0008, /**< Done (for subprocesses) */
     ComProc_Unkn0010 = 0x0010,
     ComProc_Unkn0020 = 0x0020, /**< Suspended (Ed: I think this flag is RoomBuildActive...) */
-    ComProc_Unkn0040 = 0x0040,
-    ComProc_Unkn0080 = 0x0080,
-    ComProc_Unkn0100 = 0x0100,
-    ComProc_Unkn0200 = 0x0200,
-    ComProc_Unkn0400 = 0x0400,
-    ComProc_Unkn0800 = 0x0800,
 };
 
 enum CompCheckFlags {
     ComChk_Unkn0001 = 0x0001, /**< Disabled */
     ComChk_Unkn0002 = 0x0002, /**< Last */
-    ComChk_Unkn0004 = 0x0004,
-    ComChk_Unkn0008 = 0x0008,
-    ComChk_Unkn0010 = 0x0010,
-    ComChk_Unkn0020 = 0x0020,
-    ComChk_Unkn0040 = 0x0040,
-    ComChk_Unkn0080 = 0x0080,
-    ComChk_Unkn0100 = 0x0100,
-    ComChk_Unkn0200 = 0x0200,
-    ComChk_Unkn0400 = 0x0400,
-    ComChk_Unkn0800 = 0x0800,
 };
 
 enum CompTaskFlags {
@@ -264,7 +248,7 @@ struct TaskFunctions {
   Comp_Task_Func func;
 };
 
-struct ComputerProcess { // sizeof = 72 
+struct ComputerProcess {
   char name[COMMAND_WORD_LEN];
   char mneumonic[16];
   long priority;
@@ -289,7 +273,7 @@ struct ComputerProcess { // sizeof = 72
   unsigned long flags; /**< Values from ComProc_* enumeration. */
 };
 
-struct ComputerCheck { // sizeof = 32
+struct ComputerCheck {
   char *name;
   unsigned long flags; /**< Values from ComChk_* enumeration. */
   long turns_interval;
@@ -300,7 +284,7 @@ struct ComputerCheck { // sizeof = 32
   long last_run_turn;
 };
 
-struct ComputerEvent { // sizeof = 44
+struct ComputerEvent {
   char *name;
   unsigned long cetype;
   unsigned long mevent_kind;
@@ -314,9 +298,9 @@ struct ComputerEvent { // sizeof = 44
   long last_test_gameturn; /**< event last checked time */
 };
 
-struct ValidRooms { // sizeof = 8
+struct ValidRooms {
   long rkind;
-  struct ComputerProcess *process;
+  long process_idx;
 };
 
 struct ComputerCheckMnemonic {

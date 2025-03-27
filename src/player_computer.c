@@ -960,7 +960,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+            if (flag_is_set(cproc->flags, ComProc_LastEntry))
                 break;
             //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
             if (computer_process_func_list[cproc->func_check] == computer_check_dig_to_gold)
@@ -1303,7 +1303,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         newproc->parent = cproc;
     }
     newproc = &comp->processes[i];
-    newproc->flags |= ComProc_Unkn0002;
+    newproc->flags |= ComProc_LastEntry;
 
     for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
     {
@@ -1530,7 +1530,7 @@ struct ComputerProcess *computer_player_find_process_by_func_setup(PlayerNumber 
         return NULL;
   }
   struct ComputerProcess* cproc = &comp->processes[0];
-  while (!flag_is_set(cproc->flags, ComProc_Unkn0002))
+  while (!flag_is_set(cproc->flags, ComProc_LastEntry))
   {
       if (computer_process_func_list[cproc->func_setup] == func_setup)
       {
@@ -1560,7 +1560,7 @@ TbBool computer_player_demands_gold_check(PlayerNumber plyr_idx)
   // If the computer player needs to dig for gold
   if (gameadd.turn_last_checked_for_gold+GOLD_DEMAND_CHECK_INTERVAL < game.play_gameturn)
   {
-      dig_process->flags &= ~ComProc_Unkn0004;
+      clear_flag(dig_process->flags, ComProc_Unkn0004);
       return true;
   }
   return false;

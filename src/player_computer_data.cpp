@@ -6,7 +6,7 @@
  * @par Purpose:
  *     Defines a computer player control variables and events/checks/processes
  *      functions.
- * @par Comment:
+ * @par Comment:  Entire file can be removed once everything is moved to config files.
  *     None.
  * @author   Tomasz Lis
  * @date     10 Mar 2009 - 20 Mar 2009
@@ -58,46 +58,53 @@ unsigned short computer_types_tooltip_stridx[] = {
     GUIStr_ConstructionAssistDesc, GUIStr_MoveOnlyAssistDesc, };
 
 /******************************************************************************/
-extern struct ComputerProcess BuildAllRooms3x3;
-extern struct ComputerProcess BuildAllRooms4x4;
-extern struct ComputerProcess BuildPrisonRoom;
-extern struct ComputerProcess BuildTortureRoom;
-extern struct ComputerProcess BuildScavengerRoom;
-extern struct ComputerProcess BuildTempleRoom;
-extern struct ComputerProcess BuildGraveyardRoom;
-extern struct ComputerProcess BuildBarrackRoom;
-extern struct ComputerProcess BuildTreasureRoom;
-extern struct ComputerProcess BuildResearchRoom;
-extern struct ComputerProcess BuildHatcheryRoom;
-extern struct ComputerProcess BuildLairRoom;
-extern struct ComputerProcess BuildTrainingRoom;
-extern struct ComputerProcess BuildWorkshopRoom;
-extern struct ComputerProcess DigToEntrance;
-extern struct ComputerProcess DigToGoldForMoney;
-extern struct ComputerProcess BuildTreasureRoom4x4;
-extern struct ComputerProcess BuildLairRoom4x4;
-extern struct ComputerProcess DigToCloseGoldForMoney;
-extern struct ComputerProcess DigToGoldGreedy;
-extern struct ComputerProcess DigToGoldGreedy2;
-extern struct ComputerProcess ComputerSightOfEvil;
-extern struct ComputerProcess ComputerSightOfEvilScare;
-extern struct ComputerProcess ComputerAttack1;
-extern struct ComputerProcess ComputerSafeAttack;
+enum compProcTemplate
+{
+    CPrcT_Null = 0,
+    CPrcT_BuildAllRooms3x3,
+    CPrcT_BuildAllRooms4x4,
+    CPrcT_BuildPrisonRoom,
+    CPrcT_BuildTortureRoom,
+    CPrcT_BuildScavengerRoom,
+    CPrcT_BuildTempleRoom,
+    CPrcT_BuildGraveyardRoom,
+    CPrcT_BuildBarrackRoom,
+    CPrcT_BuildTreasureRoom,
+    CPrcT_BuildResearchRoom,
+    CPrcT_BuildHatcheryRoom,
+    CPrcT_BuildLairRoom,
+    CPrcT_BuildTrainingRoom,
+    CPrcT_BuildWorkshopRoom,
+    CPrcT_DigToEntrance,
+    CPrcT_DigToGoldForMoney,
+    CPrcT_BuildTreasureRoom4x4,
+    CPrcT_BuildLairRoom4x4,
+    CPrcT_DigToCloseGoldForMoney,
+    CPrcT_DigToGoldGreedy,
+    CPrcT_DigToGoldGreedy2,
+    CPrcT_ComputerSightOfEvil,
+    CPrcT_ComputerSightOfEvilScare,
+    CPrcT_ComputerAttack1,
+    CPrcT_ComputerSafeAttack,
+}
+
+
 /******************************************************************************/
 
+//TODO move to config file
 struct ValidRooms valid_rooms_to_build[] = {
-  {RoK_TREASURE,  &BuildTreasureRoom},
-  {RoK_LAIR,      &BuildLairRoom},
-  {RoK_GARDEN,    &BuildHatcheryRoom},
-  {RoK_LIBRARY,   &BuildResearchRoom},
-  {RoK_TRAINING,  &BuildTrainingRoom},
-  {RoK_WORKSHOP,  &BuildWorkshopRoom},
-  {RoK_SCAVENGER, &BuildScavengerRoom},
-  {RoK_PRISON,    &BuildPrisonRoom},
-  {RoK_TEMPLE,    &BuildTempleRoom},
-  {RoK_TORTURE,   &BuildTortureRoom},
-  {RoK_GRAVEYARD, &BuildGraveyardRoom},
-  {RoK_BARRACKS,  &BuildBarrackRoom},
+  {RoK_TREASURE,  CPrcT_BuildTreasureRoom},
+  {RoK_LAIR,      CPrcT_BuildLairRoom},
+  {RoK_GARDEN,    CPrcT_BuildHatcheryRoom},
+  {RoK_LIBRARY,   CPrcT_BuildResearchRoom},
+  {RoK_TRAINING,  CPrcT_BuildTrainingRoom},
+  {RoK_WORKSHOP,  CPrcT_BuildWorkshopRoom},
+  {RoK_SCAVENGER, CPrcT_BuildScavengerRoom},
+  {RoK_PRISON,    CPrcT_BuildPrisonRoom},
+  {RoK_TEMPLE,    CPrcT_BuildTempleRoom},
+  {RoK_TORTURE,   CPrcT_BuildTortureRoom},
+  {RoK_GRAVEYARD, CPrcT_BuildGraveyardRoom},
+  {RoK_BARRACKS,  CPrcT_BuildBarrackRoom},
   {-1,            NULL},
 };
 
