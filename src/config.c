@@ -337,12 +337,12 @@ int64_t value_default(const struct NamedField* named_field, const char* value_te
 
         if( value < named_field->min)
         {
-            WARNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",named_field->name,named_field->min,value);
+            NAMFIELDWRNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",named_field->name,named_field->min,value);
             value = named_field->min;
         }
         else if( value > named_field->max)
         {
-            CONFWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",named_field->name,named_field->max,value);
+            NAMFIELDWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",named_field->name,named_field->max,value);
             value = named_field->max;
         }
         return value;
@@ -355,11 +355,11 @@ int64_t value_default(const struct NamedField* named_field, const char* value_te
         {
             return value;
         }
-        CONFWRNLOG("Expected number or named value for field '%s', got '%s'",named_field->name,value_text);
+        NAMFIELDWRNLOG("Expected number or named value for field '%s', got '%s'",named_field->name,value_text);
     }
     else
     {
-        CONFWRNLOG("Expected number for field '%s', got '%s'",named_field->name,value_text);
+        NAMFIELDWRNLOG("Expected number for field '%s', got '%s'",named_field->name,value_text);
     }
     return 0;
 }
@@ -526,7 +526,7 @@ int64_t value_transpflg(const struct NamedField* named_field, const char* value_
     }
     else
     {
-        CONFWRNLOG("Expected number for field '%s', got '%s'",named_field->name,value_text);
+        NAMFIELDWRNLOG("Expected number for field '%s', got '%s'",named_field->name,value_text);
     }
     return 0;
 }
@@ -540,7 +540,7 @@ int64_t value_stltocoord(const struct NamedField* named_field, const char* value
     }
     else
     {
-        CONFWRNLOG("Expected number for field '%s', got '%s'",named_field->name,value_text);
+        NAMFIELDWRNLOG("Expected number for field '%s', got '%s'",named_field->name,value_text);
     }
     return 0;
 }
