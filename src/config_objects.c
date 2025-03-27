@@ -72,7 +72,7 @@ const struct NamedCommand objects_genres_desc[] = {
 static const struct NamedField objects_named_fields[] = {
     //name                     //pos    //field                                                                 //default //min     //max    //NamedCommand
     {"NAME",                     0, field(game.conf.object_conf.object_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, object_desc,                 value_name,      assign_null},
-    {"GENRE",                    0, field(game.conf.object_conf.object_cfgstats[0].genre),                         0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
+    {"GENRE",                    0, field(game.conf.object_conf.object_cfgstats[0].genre),                         0, LONG_MIN,ULONG_MAX, objects_genres_desc,         value_default,   assign_default},
     {"RELATEDCREATURE",          0, field(game.conf.object_conf.object_cfgstats[0].related_creatr_model),          0, LONG_MIN,ULONG_MAX, creature_desc,               value_default,   assign_default},
     {"PROPERTIES",              -1, field(game.conf.object_conf.object_cfgstats[0].model_flags),                   0, LONG_MIN,ULONG_MAX, objects_properties_commands, value_flagsfield,assign_default},
     {"ANIMATIONID",              0, field(game.conf.object_conf.object_cfgstats[0].sprite_anim_idx),               0, LONG_MIN,ULONG_MAX, NULL,                        value_animid,    assign_animid},
@@ -124,7 +124,8 @@ const struct NamedFieldSet objects_named_fields_set = {
     object_desc,
     OBJECT_TYPES_MAX,
     sizeof(game.conf.object_conf.object_cfgstats[0]),
-    game.conf.object_conf.object_cfgstats
+    game.conf.object_conf.object_cfgstats,
+    {"objects.cfg","SET_OBJECT_CONFIGURATION"},
 };
 
 /******************************************************************************/
