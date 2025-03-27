@@ -544,8 +544,6 @@ int64_t value_stltocoord(const struct NamedField* named_field, const char* value
     }
     return 0;
 }
-value_stltocoord
-
 
 int64_t parse_named_field_value(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
