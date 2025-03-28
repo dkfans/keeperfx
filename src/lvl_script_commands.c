@@ -527,7 +527,48 @@ const struct NamedCommand texture_pack_desc[] = {
   {NULL,           0},
 };
 
-
+const struct NamedCommand objects_object_commands[] = {
+    {"NAME",               1},
+    {"GENRE",              2},
+    {"RELATEDCREATURE",    3},
+    {"PROPERTIES",         4},
+    {"ANIMATIONID",        5},
+    {"ANIMATIONSPEED",     6},
+    {"SIZE_XY",            7},
+    {"SIZE_YZ",            8},
+    {"SIZE_Z",             8},
+    {"MAXIMUMSIZE",        9},
+    {"DESTROYONLIQUID",   10},
+    {"DESTROYONLAVA",     11},
+    {"HEALTH",            12},
+    {"FALLACCELERATION",  13},
+    {"LIGHTUNAFFECTED",   14},
+    {"LIGHTINTENSITY",    15},
+    {"LIGHTRADIUS",       16},
+    {"LIGHTISDYNAMIC",    17},
+    {"MAPICON",           18},
+    {"AMBIENCESOUND",     19},
+    {"UPDATEFUNCTION",    20},
+    {"DRAWCLASS",         21},
+    {"PERSISTENCE",       22},
+    {"IMMOBILE",          23},
+    {"INITIALSTATE",      24},
+    {"RANDOMSTARTFRAME",  25},
+    {"TRANSPARENCYFLAGS", 26},
+    {"EFFECTBEAM",        27},
+    {"EFFECTPARTICLE",    28},
+    {"EFFECTEXPLOSION1",  29},
+    {"EFFECTEXPLOSION2",  30},
+    {"EFFECTSPACING",     31},
+    {"EFFECTSOUND",       32},
+    {"FLAMEANIMATIONID",       33},
+    {"FLAMEANIMATIONSPEED",    34},
+    {"FLAMEANIMATIONSIZE",     35},
+    {"FLAMEANIMATIONOFFSET",   36},
+    {"FLAMETRANSPARENCYFLAGS", 37},
+    {"LIGHTFLAGS",             38},
+    {NULL,                 0},
+    };
 /**
  * Modifies player's creatures' anger.
  * @param plyr_idx target player
@@ -1556,7 +1597,6 @@ static void new_object_type_check(const struct ScriptLine* scline)
     struct ObjectConfigStats* objst = get_object_model_stats(tmodel);
     memset(objst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
-    objst->name_stridx = 201;
     objst->map_icon = 0;
     objst->genre = 0;
     objst->draw_class = ODC_Default;
