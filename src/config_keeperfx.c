@@ -129,7 +129,7 @@ const struct NamedCommand conf_commands[] = {
   {"LOCK_CURSOR_IN_POSSESSION"     , 19},
   {"PAUSE_MUSIC_WHEN_GAME_PAUSED"  , 20},
   {"MUTE_AUDIO_ON_FOCUS_LOST"      , 21},
-  {"DISABLE_SPLASH_SCREENS"        , 22},
+  {"STARTUP"                       , 22},
   {"SKIP_HEART_ZOOM"               , 23},
   {"CURSOR_EDGE_CAMERA_PANNING"    , 24},
   {"DELTA_TIME"                    , 25},
@@ -142,7 +142,6 @@ const struct NamedCommand conf_commands[] = {
   {"COMMAND_CHAR"                  , 32},
   {"API_ENABLED"                   , 33},
   {"API_PORT"                      , 34},
-  {"STARTUP"                       , 35},
   {NULL,                   0},
   };
 
@@ -628,18 +627,38 @@ short load_configuration(void)
           else
               features_enabled &= ~Ft_MuteAudioOnLoseFocus;
           break;
-        case 22: //DISABLE_SPLASH_SCREENS
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
+        case 22: // STARTUP
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
+            k = get_id(startup_parameters, word_buf);
+            switch (k)
+            {
+              case 1: // LEGAL
+                set_flag(start_params.startup_flags, SFlg_Legal);
+                n++;
+                break;
+              case 2: // FX
+                set_flag(start_params.startup_flags, SFlg_FX);
+                n++;
+                break;
+              case 3: // BULLFROG
+                set_flag(start_params.startup_flags, SFlg_Bullfrog);
+                n++;
+                break;
+              case 4: // EA
+                set_flag(start_params.startup_flags, SFlg_EA);
+                n++;
+                break;
+              case 5: // INTRO
+                set_flag(start_params.startup_flags, SFlg_Intro);
+                n++;
+                break;
+              default:
+                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in %s file.",
+                   COMMAND_TEXT(cmd_num), word_buf, config_textname);
+                break;
+              }
           }
-          if (i == 1)
-              features_enabled |= Ft_SkipSplashScreens;
-          else
-              features_enabled &= ~Ft_SkipSplashScreens;
           break;
         case 23: //SKIP_HEART_ZOOM
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
@@ -775,39 +794,6 @@ short load_configuration(void)
               api_port = i;
           } else {
               CONFWRNLOG("Invalid API port '%s' in %s file.",COMMAND_TEXT(cmd_num),config_textname);
-          }
-          break;
-      case 35: // STARTUP
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = get_id(startup_parameters, word_buf);
-            switch (k)
-            {
-              case 1: // LEGAL
-                set_flag(start_params.startup_flags, SFlg_Legal);
-                n++;
-                break;
-              case 2: // FX
-                set_flag(start_params.startup_flags, SFlg_FX);
-                n++;
-                break;
-              case 3: // BULLFROG
-                set_flag(start_params.startup_flags, SFlg_Bullfrog);
-                n++;
-                break;
-              case 4: // EA
-                set_flag(start_params.startup_flags, SFlg_EA);
-                n++;
-                break;
-              case 5: // INTRO
-                set_flag(start_params.startup_flags, SFlg_Intro);
-                n++;
-                break;
-              default:
-                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in %s file.",
-                   COMMAND_TEXT(cmd_num), word_buf, config_textname);
-                break;
-              }
           }
           break;
       case ccr_comment:

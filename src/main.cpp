@@ -1002,7 +1002,6 @@ short setup_game(void)
   features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
   features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
   features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
-  features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
   features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
   features_enabled |= Ft_DeltaTime; // enable delta time
   features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
@@ -1015,7 +1014,8 @@ short setup_game(void)
   }
 
   #ifdef FUNCTESTING
-    features_enabled |= Ft_SkipSplashScreens;
+    start_params.startup_flags &= ~SFlg_Legal;
+    start_params.startup_flags &= ~SFlg_FX;
     features_enabled |= Ft_SkipHeartZoom;
   #endif
 
@@ -1040,31 +1040,25 @@ short setup_game(void)
       return 0;
   }
 
-  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  if (flag_is_set(start_params.startup_flags, SFlg_Legal))
   {
-      if (flag_is_set(start_params.startup_flags, SFlg_Legal))
+      if (is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
       {
-          if (is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
-          {
-            result = init_actv_bitmap_screen(RBmp_SplashLegalWide);
-          } else {
-            result = init_actv_bitmap_screen(RBmp_SplashLegal);
-          }
-
-          if ( result )
-          {
-              result = show_actv_bitmap_screen(3000);
-              free_actv_bitmap_screen();
-          } else
-              SYNCLOG("Legal image skipped");
+        result = init_actv_bitmap_screen(RBmp_SplashLegalWide);
+      } else {
+        result = init_actv_bitmap_screen(RBmp_SplashLegal);
       }
-      else
+       if ( result )
       {
-          draw_clear_screen();
-      }
-  } else {
-        // Make the white screen into a black screen faster
-        draw_clear_screen();
+          result = show_actv_bitmap_screen(3000);
+          free_actv_bitmap_screen();
+      } else
+          SYNCLOG("Legal image skipped");
+  }
+  else
+  {
+      // Make the white screen into a black screen faster
+      draw_clear_screen();
   }
 
   // Now do more setup
@@ -1079,19 +1073,16 @@ short setup_game(void)
   // init_sound(). This will probably change when we'll move sound
   // to SDL - then we'll put that line earlier, before setup_game().
   LbErrorParachuteInstall();
-  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  // View second splash screen
+  if (flag_is_set(start_params.startup_flags, SFlg_FX))
   {
-    // View second splash screen
-    if (flag_is_set(start_params.startup_flags, SFlg_FX))
-    {
-        result = init_actv_bitmap_screen(RBmp_SplashFx);
-        if ( result == 1 )
-        {
-            result = show_actv_bitmap_screen(4000);
-            free_actv_bitmap_screen();
-        } else
-            SYNCLOG("startup_fx image skipped");
-    }
+      result = init_actv_bitmap_screen(RBmp_SplashFx);
+      if ( result == 1 )
+      {
+          result = show_actv_bitmap_screen(4000);
+          free_actv_bitmap_screen();
+      } else
+          SYNCLOG("startup_fx image skipped");
   }
 
   draw_clear_screen();

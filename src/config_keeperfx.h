@@ -48,7 +48,7 @@ enum TbFeature {
     Ft_PauseMusicOnGamePause        = 0x2000,
     Ft_MuteAudioOnLoseFocus         = 0x4000,
     Ft_SkipHeartZoom                = 0x8000,
-    Ft_SkipSplashScreens            = 0x10000,
+    Ft_SkipSplashScreens            = 0x10000, // no longer used
     Ft_DisableCursorCameraPanning   = 0x20000,
     Ft_DeltaTime                    = 0x40000,
     Ft_NoCdMusic                    = 0x80000,
