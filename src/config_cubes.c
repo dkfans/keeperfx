@@ -45,7 +45,7 @@ static const struct NamedCommand cubes_properties_flags[] = {
 };
 
 static const struct NamedField cubes_named_fields[] = {
-    //name           //pos    //field                                                   //default //min     //max           //NamedCommand
+    //name           //pos    //field                                               //default //min     //max           //NamedCommand
     {"Name",            0, field(game.conf.cube_conf.cube_cfgstats[0].code_name),         0,  0,                     0, cube_desc,                 value_name,      assign_null},
     {"Textures",        0, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[0]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
     {"Textures",        1, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[1]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
