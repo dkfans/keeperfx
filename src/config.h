@@ -145,7 +145,8 @@ enum dataTypes
 
 #define var_type(expr)\
     (_Generic((expr),\
-              unsigned char: dt_uchar, char: dt_char, \
+              unsigned char: dt_uchar, \
+              signed char: dt_schar, \
               short: dt_short, unsigned short: dt_ushort, \
               int: dt_int, unsigned int: dt_uint, \
               long: dt_long, unsigned long: dt_ulong, \
@@ -155,7 +156,9 @@ enum dataTypes
               long double: dt_longdouble, \
               void*: dt_void, \
               char*: dt_charptr, \
-              default: dt_default))
+              default: _Generic((expr), \
+                    char: dt_char, \
+                    default: dt_default)))
 
 #define field(field)\
     &field, var_type(field)

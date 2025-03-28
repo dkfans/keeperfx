@@ -111,7 +111,7 @@ enum TbPacketAction {
         PckA_SetViewType,//80
         PckA_ZoomFromMap,
         PckA_UpdatePause,
-        PckA_Unknown083,
+        PckA_ZoomToEvent,
         PckA_ZoomToRoom,
         PckA_ZoomToTrap,//85
         PckA_ZoomToDoor,
