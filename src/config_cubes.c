@@ -36,7 +36,7 @@ struct NamedCommand cube_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
 const char keeper_cubes_file[] = "cubes.cfg";
 
-const struct NamedCommand cubes_properties_flags[] = {
+static const struct NamedCommand cubes_properties_flags[] = {
     {"LAVA",           CPF_IsLava},
     {"WATER",          CPF_IsWater},
     {"SACRIFICIAL",    CPF_IsSacrificial},
