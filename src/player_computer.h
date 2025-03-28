@@ -33,9 +33,7 @@ extern "C" {
 #define COMPUTER_TASKS_COUNT        100
 #define COMPUTER_PROCESSES_COUNT     20
 #define COMPUTER_CHECKS_COUNT        32
-#define COMPUTER_CHECKS_COUNT_OLD    15
 #define COMPUTER_EVENTS_COUNT        33
-#define COMPUTER_EVENTS_COUNT_OLD    12
 // To add additional computer players update the folowing number. Update ComputerCount in keepcompp.cfg to match.
 // Must match the actual number of consecutive computers listed in that file (don't forget to count computer0).
 #define COMPUTER_MODELS_COUNT        17 // renamed from COMPUTER_PROCESS_LISTS_COUNT, for clarity
@@ -150,33 +148,17 @@ enum ToolDigResults {
 };
 
 enum CompProcessFlags {
-    ComProc_Unkn0001 = 0x0001,
-    ComProc_Unkn0002 = 0x0002, /**< Last? */
-    ComProc_Unkn0004 = 0x0004, /**< Finished */
-    ComProc_Unkn0008 = 0x0008, /**< Done (for subprocesses) */
-    ComProc_Unkn0010 = 0x0010,
-    ComProc_Unkn0020 = 0x0020, /**< Suspended (Ed: I think this flag is RoomBuildActive...) */
-    ComProc_Unkn0040 = 0x0040,
-    ComProc_Unkn0080 = 0x0080,
-    ComProc_Unkn0100 = 0x0100,
-    ComProc_Unkn0200 = 0x0200,
-    ComProc_Unkn0400 = 0x0400,
-    ComProc_Unkn0800 = 0x0800,
+    ComProc_Unkn0001  = 0x0001,
+    ComProc_LastEntry = 0x0002, /**< Last? */
+    ComProc_Finished  = 0x0004, /**< Finished */
+    ComProc_Done      = 0x0008, /**< Done (for subprocesses) */
+    ComProc_Unkn0010  = 0x0010,
+    ComProc_Unkn0020  = 0x0020, /**< Suspended (Ed: I think this flag is RoomBuildActive...) */
 };
 
 enum CompCheckFlags {
-    ComChk_Unkn0001 = 0x0001, /**< Disabled */
-    ComChk_Unkn0002 = 0x0002, /**< Last */
-    ComChk_Unkn0004 = 0x0004,
-    ComChk_Unkn0008 = 0x0008,
-    ComChk_Unkn0010 = 0x0010,
-    ComChk_Unkn0020 = 0x0020,
-    ComChk_Unkn0040 = 0x0040,
-    ComChk_Unkn0080 = 0x0080,
-    ComChk_Unkn0100 = 0x0100,
-    ComChk_Unkn0200 = 0x0200,
-    ComChk_Unkn0400 = 0x0400,
-    ComChk_Unkn0800 = 0x0800,
+    ComChk_Unkn0001  = 0x0001, /**< Disabled */
+    ComChk_LastEntry = 0x0002, /**< Last */
 };
 
 enum CompTaskFlags {
@@ -266,20 +248,21 @@ struct TaskFunctions {
   Comp_Task_Func func;
 };
 
-struct ComputerProcess { // sizeof = 72
-  char *name;
+struct ComputerProcess {
+  char name[COMMAND_WORD_LEN];
+  char mneumonic[16];
   long priority;
   // Signed process config values
   long confval_2;
   long confval_3;
   long confval_4; /**< room kind or amount of creatures or gameturn or count of slabs */
   long confval_5;
-  Comp_Process_Func func_check;
-  Comp_Process_Func func_setup;
-  Comp_Process_Func func_task;
-  Comp_Process_Func func_complete;
-  Comp_Process_Func func_pause;
-  struct ComputerProcess *parent;
+  FuncIdx func_check;
+  FuncIdx func_setup;
+  FuncIdx func_task;
+  FuncIdx func_complete;
+  FuncIdx func_pause;
+  long parent_process_idx;
   // Unsigned process parameters storage (stores gameturns)
   unsigned long param_1;
   unsigned long param_2;
@@ -290,7 +273,7 @@ struct ComputerProcess { // sizeof = 72
   unsigned long flags; /**< Values from ComProc_* enumeration. */
 };
 
-struct ComputerCheck { // sizeof = 32
+struct ComputerCheck {
   char *name;
   unsigned long flags; /**< Values from ComChk_* enumeration. */
   long turns_interval;
@@ -301,7 +284,7 @@ struct ComputerCheck { // sizeof = 32
   long last_run_turn;
 };
 
-struct ComputerEvent { // sizeof = 44
+struct ComputerEvent {
   char *name;
   unsigned long cetype;
   unsigned long mevent_kind;
@@ -315,14 +298,9 @@ struct ComputerEvent { // sizeof = 44
   long last_test_gameturn; /**< event last checked time */
 };
 
-struct ValidRooms { // sizeof = 8
+struct ValidRooms {
   long rkind;
-  struct ComputerProcess *process;
-};
-
-struct ComputerProcessMnemonic {
-  char name[16];
-  struct ComputerProcess *process;
+  long process_idx;
 };
 
 struct ComputerCheckMnemonic {
@@ -488,31 +466,13 @@ struct Computer2 { // sizeof = 5322
   unsigned long max_room_build_tasks;
   unsigned long task_delay;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
-  union
-  {
-      struct ComputerCheck checks_OLD[COMPUTER_CHECKS_COUNT_OLD];
-      struct
-      {
-          struct ComputerCheck checks_guard[2];
-          struct ComputerCheck *checks;
-      };
-  };
-  union
-  {
-      struct ComputerEvent events_OLD[COMPUTER_EVENTS_COUNT_OLD];
-      struct
-      {
-          struct ComputerEvent event_guard[2]; // Set to invalid event if some would like to list events
-          struct ComputerEvent *events;
-      };
-  };
+  struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
+  struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
   struct OpponentRelation opponent_relations[PLAYERS_COUNT];
   // TODO we could use coord2d for trap locations
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
   /** Stores Sight Of Evil target points data. */
   unsigned long soe_targets[COMPUTER_SOE_GRID_SIZE];
-  /* seem unused */
-  unsigned char field_13E4[224];
   short ongoing_process;
   short task_idx;
   short held_thing_idx;
@@ -538,18 +498,18 @@ struct ExpandRooms {
 #pragma pack()
 /******************************************************************************/
 struct ComputerPlayerConfig {
-    int processes_count;
-    int checks_count;
-    int events_count;
-    int computers_count;
-    int skirmish_first; /*new*/
-    int skirmish_last; /*new*/
+    long processes_count;
+    struct ComputerProcess process_types[COMPUTER_PROCESS_TYPES_COUNT];
+    long checks_count;
+    long events_count;
+    long computers_count;
+    long skirmish_first; /*new*/
+    long skirmish_last; /*new*/
 };
 /******************************************************************************/
 extern unsigned short computer_types_tooltip_stridx[];
 extern struct ValidRooms valid_rooms_to_build[];
 
-extern struct ComputerProcessMnemonic computer_process_config_list[];
 extern const struct NamedCommand computer_process_func_type[];
 extern Comp_Process_Func computer_process_func_list[];
 

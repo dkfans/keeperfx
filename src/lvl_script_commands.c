@@ -6448,9 +6448,7 @@ static void set_computer_process_process(struct ScriptContext* context)
         for (long k = 0; k < COMPUTER_PROCESSES_COUNT; k++)
         {
             struct ComputerProcess* cproc = &comp->processes[k];
-            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
-                break;
-            if (cproc->name == NULL)
+            if (flag_is_set(cproc->flags, ComProc_LastEntry))
                 break;
             if (strcasecmp(procname, cproc->name) == 0)
             {
@@ -6523,7 +6521,7 @@ static void set_computer_checks_process(struct ScriptContext* context)
         for (long k = 0; k < COMPUTER_CHECKS_COUNT; k++)
         {
             struct ComputerCheck* ccheck = &comp->checks[k];
-            if ((ccheck->flags & ComChk_Unkn0002) != 0)
+            if ((ccheck->flags & ComChk_LastEntry) != 0)
                 break;
             if (ccheck->name == NULL)
                 break;

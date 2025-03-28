@@ -960,10 +960,10 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+            if (flag_is_set(cproc->flags, ComProc_LastEntry))
                 break;
             //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
-            if (cproc->func_check == computer_check_dig_to_gold)
+            if (computer_process_func_list[cproc->func_check] == computer_check_dig_to_gold)
             {
                 cproc->priority++;
                 if (game.play_gameturn - cproc->last_run_turn > 20) {
@@ -1257,8 +1257,6 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         return false;
     }
     memset(comp, 0, sizeof(struct Computer2));
-    comp->events = &get_dungeon(plyr_idx)->computer_info.events[0];
-    comp->checks = &get_dungeon(plyr_idx)->computer_info.checks[0];
 
     struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp_model);
     comp->dungeon = get_players_num_dungeon(plyr_idx);
@@ -1293,9 +1291,10 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 
     for (i=0; i < COMPUTER_PROCESSES_COUNT; i++)
     {
+        
         struct ComputerProcess* cproc = cpt->processes[i];
         newproc = &comp->processes[i];
-        if ((cproc == NULL) || (cproc->name == NULL))
+        if (cproc == NULL)
         {
           newproc->name = NULL;
           break;
@@ -1304,7 +1303,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         newproc->parent = cproc;
     }
     newproc = &comp->processes[i];
-    newproc->flags |= ComProc_Unkn0002;
+    newproc->flags |= ComProc_LastEntry;
 
     for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
     {
@@ -1321,7 +1320,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     // The check with 0x02 flag identifies end of active checks
     // (the check with 0x02 flag is invalid - only previous checks are in use)
     //newchk = &comp->checks[i];
-    set_flag(newchk->flags, ComChk_Unkn0002);
+    set_flag(newchk->flags, ComChk_LastEntry);
 
     for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
     {
@@ -1424,7 +1423,7 @@ TbBool process_checks(struct Computer2 *comp)
         struct ComputerCheck* ccheck = &comp->checks[i];
         if (comp->tasks_did <= 0)
             break;
-        if ((ccheck->flags & ComChk_Unkn0002) != 0)
+        if ((ccheck->flags & ComChk_LastEntry) != 0)
             break;
         if ((ccheck->flags & ComChk_Unkn0001) == 0)
         {
@@ -1469,7 +1468,7 @@ TbBool process_processes_and_task(struct Computer2 *comp)
             Comp_Process_Func callback = NULL;
             struct ComputerProcess* cproc = get_computer_process(comp, comp->ongoing_process);
             if (cproc != NULL) {
-                callback = cproc->func_task;
+                callback = computer_process_func_list[cproc->func_task];
                 SYNCDBG(7,"Performing process \"%s\"",cproc->name);
             } else {
                 ERRORLOG("Invalid computer process %d referenced",(int)comp->ongoing_process);
@@ -1531,9 +1530,9 @@ struct ComputerProcess *computer_player_find_process_by_func_setup(PlayerNumber 
         return NULL;
   }
   struct ComputerProcess* cproc = &comp->processes[0];
-  while (!flag_is_set(cproc->flags, ComProc_Unkn0002))
+  while (!flag_is_set(cproc->flags, ComProc_LastEntry))
   {
-      if (cproc->func_setup == func_setup)
+      if (computer_process_func_list[cproc->func_setup] == func_setup)
       {
           return cproc;
       }
@@ -1552,7 +1551,7 @@ TbBool computer_player_demands_gold_check(PlayerNumber plyr_idx)
       SYNCDBG(18,"Player %d has no digging ability.",(int)plyr_idx);
       return false;
   }
-  if ((dig_process->flags & ComProc_Unkn0004) == 0)
+  if ((dig_process->flags & ComProc_Finished) == 0)
   {
       SYNCDBG(18,"Player %d isn't interested in digging.",(int)plyr_idx);
       return false;
@@ -1561,7 +1560,7 @@ TbBool computer_player_demands_gold_check(PlayerNumber plyr_idx)
   // If the computer player needs to dig for gold
   if (gameadd.turn_last_checked_for_gold+GOLD_DEMAND_CHECK_INTERVAL < game.play_gameturn)
   {
-      dig_process->flags &= ~ComProc_Unkn0004;
+      clear_flag(dig_process->flags, ComProc_Finished);
       return true;
   }
   return false;
@@ -1660,12 +1659,11 @@ void setup_computer_players2(void)
         }
 #endif
       }
-      get_computer_player(i)->events = &get_dungeon(i)->computer_info.events[0];
-      get_computer_player(i)->checks = &get_dungeon(i)->computer_info.checks[0];
     }
   }
 }
 
+//after refactor fully finished, this function should be removed
 void restore_computer_player_after_load(void)
 {
     SYNCDBG(7,"Starting");
@@ -1689,8 +1687,6 @@ void restore_computer_player_after_load(void)
             continue;
         }
         comp->dungeon = get_players_dungeon(player);
-        comp->events = &get_dungeon(plyr_idx)->computer_info.events[0];
-        comp->checks = &get_dungeon(plyr_idx)->computer_info.checks[0];
         struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp->model);
 
         long i;
@@ -1701,6 +1697,7 @@ void restore_computer_player_after_load(void)
             //if (cpt->processes[i]->name == NULL)
             //    break;
             SYNCDBG(12,"Player %ld process %ld is \"%s\"",plyr_idx,i,cpt->processes[i]->name);
+            
             comp->processes[i].name = cpt->processes[i]->name;
             comp->processes[i].parent = cpt->processes[i];
             comp->processes[i].func_check = cpt->processes[i]->func_check;

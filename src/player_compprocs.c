@@ -64,157 +64,6 @@ long computer_completed_task(struct Computer2 *comp, struct ComputerProcess *cpr
 long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *cproc);
 long computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProcess *cproc);
 /******************************************************************************/
-struct ComputerProcess BuildAllRooms3x3 = {
-  "BUILD ALL ROOM 3x3", 0, 3, 3, 0, -1, computer_check_build_all_rooms,
-  computer_setup_any_room_continue, computer_process_task,
-  computer_completed_build_a_room, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildAllRooms4x4 = {
-  "BUILD ALL ROOM 4x4", 0, 4, 4, 0, -1, computer_check_build_all_rooms,
-  computer_setup_any_room_continue, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildPrisonRoom = {
-  "BUILD A PRISON ROOM", 0, 3, 4, 4, 14, computer_check_any_room,
-  computer_setup_any_room, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildTortureRoom = {
-  "BUILD A TORTURE ROOM", 0, 3, 4, 5, 4, computer_check_any_room,
-  computer_setup_any_room, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildScavengerRoom = {
-  "BUILD A SCAVENGER ROOM", 0, 3, 3, 9, 4, computer_check_any_room,
-  computer_setup_any_room, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildTempleRoom = {
-  "BUILD A TEMPLE ROOM", 0, 3, 3, 10, 8, computer_check_any_room,
-  computer_setup_any_room, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildGraveyardRoom = {
-  "BUILD A GRAVEYARD ROOM", 0, 4, 5, 11, 5, computer_check_any_room,
-  computer_setup_any_room, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildBarrackRoom = {
-  "BUILD A BARRACK ROOM", 0, 3, 4, 12, 6, computer_check_any_room,
-  computer_setup_any_room, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildTreasureRoom = {
-  "BUILD A TREASURE ROOM", 10, 5, 5, 2, 7, computer_check_any_room,
-  computer_setup_any_room, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildResearchRoom = {
-  "BUILD A RESEARCH ROOM", 0, 5, 5, 3, 2, computer_check_any_room,
-  computer_setup_any_room, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildHatcheryRoom = {
-  "BUILD A HATCHERY", 0, 6, 5, 13, 14, computer_check_any_room,
-  computer_setup_any_room, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildLairRoom = {
- "BUILD A LAIR ROOM", 0, 5, 5, 14, 7, computer_check_any_room,
- computer_setup_any_room, computer_process_task,
- computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildTrainingRoom = {
-  "BUILD A TRAINING ROOM", 0, 4, 5, 6, 14, computer_check_any_room,
-  computer_setup_any_room, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildWorkshopRoom = {
- "BUILD A WORKSHOP ROOM", 0, 6, 6, 8, 3, computer_check_any_room,
- computer_setup_any_room, computer_process_task,
- computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess DigToEntrance = {
- "DIG TO AN ENTRANCE", 0, 1700, 0, 0, 0, computer_check_dig_to_entrance,
- computer_setup_dig_to_entrance, computer_process_task,
- computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess DigToGoldForMoney = {
- "DIG TO GOLD", 0, 10999, 150, 7, 0, computer_check_dig_to_gold,
- computer_setup_dig_to_gold, computer_process_task,
- computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildTreasureRoom4x4 = {
-  "BUILD A TREASURE ROOM 4x4", 10, 4, 4, 2, 7, computer_check_any_room,
-  computer_setup_any_room, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildLairRoom4x4 = {
-  "BUILD A LAIR ROOM 4x4", 0, 4, 4, 14, 7, computer_check_any_room,
-  computer_setup_any_room, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess DigToCloseGoldForMoney = {
- "DIG TO CLOSE GOLD", 0, 30999, 500, 5, 71, computer_check_dig_to_gold,
-  computer_setup_dig_to_gold, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess DigToGoldGreedy = {
- "DIG TO GREEDY GOLD", 0, 40999, 400, 7, 900, computer_check_dig_to_gold,
-  computer_setup_dig_to_gold, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess DigToGoldGreedy2 = {
-  "DIG TO GREEDY GOLD2", 0, 40999, 50, 7, 900, computer_check_dig_to_gold,
-  computer_setup_dig_to_gold, computer_process_task,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess ComputerSightOfEvil = {
-  "SIGHT OF EVIL", 0, 8, 64, 1500, 0, computer_check_sight_of_evil,
-  computer_setup_sight_of_evil, computer_process_sight_of_evil,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess ComputerSightOfEvilScare = {
-  "SIGHT OF EVIL SCARE", 0, 8, 10, 5000, 0, computer_check_sight_of_evil,
-  computer_setup_sight_of_evil, computer_process_sight_of_evil,
-  computer_completed_task, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess ComputerAttack1 = {
-  "ATTACK PLAN 1", 0, 55, 6, 80, 0, computer_check_attack1,
-  computer_setup_attack1, computer_process_task,
-  computer_completed_attack1, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess ComputerSafeAttack = {
-  "ATTACK SAFE ATTACK", 0, 25, 4, 80, 0, computer_check_safe_attack,
-  computer_setup_attack1, computer_process_task,
-  computer_completed_attack1, computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-/******************************************************************************/
 const struct NamedCommand computer_process_func_type[] = {
   {"check_build_all_rooms",   1,},
   {"setup_any_room_continue", 2,},
@@ -313,7 +162,7 @@ long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerPro
         }
         ctask->cproc_idx = i;
         shut_down_process(comp, cproc);
-        clear_flag(cproc->flags, ComProc_Unkn0008);
+        clear_flag(cproc->flags, ComProc_Done);
         return CProcRet_Finish;
     }
     if (cproc->confval_2 > cproc->confval_3)
@@ -499,7 +348,7 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
     if (is_avail != IAvail_Now)
     {
         if (is_avail == IAvail_Never) {
-            set_flag(cproc->flags, ComProc_Unkn0004);
+            set_flag(cproc->flags, ComProc_Finished);
             return CProcRet_Fail;
         }
         return CProcRet_Wait;
@@ -978,7 +827,7 @@ long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
         return CProcRet_Fail;
     }
     entroom->player_interested[dungeon->owner] |= 0x01;
-    cproc->func_complete(comp, cproc);
+    computer_process_func_list[cproc->func_complete](comp, cproc);
     suspend_process(comp, cproc);
     move_imp_to_dig_here(comp, &startpos, 1);
     return CProcRet_Finish;
@@ -993,7 +842,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
     long digres = computer_finds_nearest_room_to_gold(comp, &startpos, &gldlook);
     if (digres == -1)
     {
-        set_flag(cproc->flags, ComProc_Unkn0004);
+        set_flag(cproc->flags, ComProc_Finished);
         SYNCDBG(8,"Can't find nearest room to gold; will refresh gold map");
         return CProcRet_Fail;
     }
@@ -1039,7 +888,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         return CProcRet_Wait;
     }
     gldlook->player_interested[dungeon->owner] |= 0x01;
-    cproc->func_complete(comp, cproc);
+    computer_process_func_list[cproc->func_complete](comp, cproc);
     suspend_process(comp, cproc);
     comp->task_state = CTaskSt_Select;
     return CProcRet_Finish;
@@ -1090,7 +939,7 @@ long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess
     if (is_power_obtainable(dungeon->owner, PwrK_SIGHT)) {
         return CProcRet_Wait;
     }
-    set_flag(cproc->flags, ComProc_Unkn0004);
+    set_flag(cproc->flags, ComProc_Finished);
     return CProcRet_Fail;
 }
 
@@ -1275,7 +1124,7 @@ long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProce
             n = (n + 1) % (GRID*GRID);
         }
         if (i == GRID*GRID) {
-            set_flag(cproc->flags, ComProc_Unkn0004);
+            set_flag(cproc->flags, ComProc_Finished);
             return CProcRet_Unk3;
         }
         stl_x = slab_subtile_center(slb_x);
@@ -1286,7 +1135,7 @@ long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProce
     {
         computer_look_for_opponent(comp, stl_x, stl_y, range);
     }
-    cproc->func_complete(comp, cproc);
+    computer_process_func_list[cproc->func_complete](comp, cproc);
     suspend_process(comp, cproc);
     return CProcRet_Continue;
 }
@@ -1343,7 +1192,7 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
 
 long computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-    clear_flag(cproc->flags, ComProc_Unkn0008);
+    clear_flag(cproc->flags, ComProc_Done);
     comp->task_state = CTaskSt_Select;
     return CProcRet_Fail;
 }
@@ -1352,10 +1201,10 @@ void shut_down_process(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
     if (cproc != NULL)
     {
-        set_flag(cproc->flags, ComProc_Unkn0008);
+        set_flag(cproc->flags, ComProc_Done);
         clear_flag(cproc->flags, ComProc_Unkn0020);
         cproc->param_2 = game.play_gameturn;
-        Comp_Process_Func callback = cproc->func_complete;
+        Comp_Process_Func callback = computer_process_func_list[cproc->func_complete];
         if (callback != NULL) {
             callback(comp, cproc);
         }
@@ -1398,9 +1247,9 @@ TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind)
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
         struct ComputerProcess* cproc = &comp->processes[i];
-        if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == rkind))
+        if ((computer_process_func_list[cproc->func_check] == &computer_check_any_room) && (cproc->confval_4 == rkind))
         {
-            clear_flag(cproc->flags, ComProc_Unkn0004);
+            clear_flag(cproc->flags, ComProc_Finished);
             cproc->last_run_turn = 0;
             return true;
         }
@@ -1437,9 +1286,9 @@ struct ComputerProcess * find_best_process(struct Computer2 *comp)
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
         struct ComputerProcess* cproc = &comp->processes[i];
-        if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+        if (flag_is_set(cproc->flags, ComProc_LastEntry))
             break;
-        if (any_flag_is_set(cproc->flags, (ComProc_Unkn0020|ComProc_Unkn0010|ComProc_Unkn0008|ComProc_Unkn0004|ComProc_Unkn0001)))
+        if (any_flag_is_set(cproc->flags, (ComProc_Unkn0020|ComProc_Unkn0010|ComProc_Done|ComProc_Finished|ComProc_Unkn0001)))
             continue;
         if (cproc->last_run_turn > 0)
         {
@@ -1497,12 +1346,12 @@ long set_next_process(struct Computer2 *comp)
     if (cproc != INVALID_COMPUTER_PROCESS)
     {
         SYNCDBG(8,"Checking \"%s\" for player %d",cproc->name,(int)comp->dungeon->owner);
-        chkres = cproc->func_check(comp, cproc);
+        chkres = computer_process_func_list[cproc->func_check](comp, cproc);
         if (chkres == CProcRet_Continue)
         {
             comp->ongoing_process = computer_process_index(comp, cproc); // This should give index of the process
             SYNCDBG(8,"Setting up process %d",(int)comp->ongoing_process);
-            chkres = cproc->func_setup(comp, cproc);
+            chkres = computer_process_func_list[cproc->func_setup](comp, cproc);
             if (chkres == CProcRet_Continue)
             {
                 cproc->param_1 = game.play_gameturn;

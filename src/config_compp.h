@@ -43,7 +43,6 @@ struct ComputerProcessTypes {
   struct ComputerProcess *processes[COMPUTER_PROCESSES_COUNT];
   struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
   struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
-  long field_460;
 };
 
 #pragma pack()

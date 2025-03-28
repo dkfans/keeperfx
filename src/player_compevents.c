@@ -27,6 +27,7 @@
 #include "bflib_math.h"
 
 #include "config.h"
+#include "config_compp.h"
 #include "magic_powers.h"
 #include "player_instances.h"
 #include "config_terrain.h"
@@ -227,11 +228,11 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
         struct ComputerProcess* cproc = &comp->processes[i];
-        if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+        if (flag_is_set(cproc->flags, ComProc_LastEntry))
             break;
-        if (cproc->parent == cevent->process)
+        if (&comp_player_conf.process_types[cproc->parent_process_idx] == cevent->process)
         {
-            clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001|ComProc_Unkn0004));
+            clear_flag(cproc->flags, (ComProc_Done|ComProc_Unkn0001|ComProc_Finished));
             cproc->last_run_turn = 0;
             cproc_idx = 1;
         }
@@ -533,18 +534,11 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             }
             SYNCDBG(8,"Player %d needs %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
             // Find the corresponding build process and mark it as needed
-            for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
-            {
-                struct ComputerProcess* cproc = &comp->processes[i];
-                if (flag_is_set(cproc->flags, ComProc_Unkn0002))
-                    break;
-                if (cproc->parent == bldroom->process)
-                {
-                    SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
-                    ret = CTaskRet_Unk1;
-                    reactivate_build_process(comp, bldroom->rkind);
-                }
-            }
+
+            struct ComputerProcess* cproc = &comp->processes[bldroom->process_idx];
+            SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
+            ret = CTaskRet_Unk1;
+            reactivate_build_process(comp, bldroom->rkind);
         }
     }
     return ret;
@@ -695,12 +689,12 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
         for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+            if (flag_is_set(cproc->flags, ComProc_LastEntry))
                 break;
-            if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == event->target))
+            if ((computer_process_func_list[cproc->func_check] == &computer_check_any_room) && (cproc->confval_4 == event->target))
             {
                 SYNCDBG(8,"Resetting process for player %d to build room %s", (int)comp->dungeon->owner, room_code_name(event->target));
-                clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
+                clear_flag(cproc->flags, (ComProc_Done|ComProc_Unkn0001));
                 cproc->last_run_turn = 0;
             }
         }
