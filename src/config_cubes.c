@@ -46,16 +46,16 @@ static const struct NamedCommand cubes_properties_flags[] = {
 
 static const struct NamedField cubes_named_fields[] = {
     //name           //pos    //field                                                   //default //min     //max           //NamedCommand
-    {"Name",            0, field(game.conf.cube_conf.cube_cfgstats[0].code_name),             0,  0,                     0, cube_desc,                 value_name,      assign_null},
-    {"Textures",        0, field(game.conf.cube_conf.cube_cfgstats[0].cubed->texture_id[0]),  0,  0,                     0, NULL,                      value_default,   assign_default},
-    {"Textures",        1, field(game.conf.cube_conf.cube_cfgstats[0].cubed->texture_id[1]),  0,  0,                     0, NULL,                      value_default,   assign_default},
-    {"Textures",        2, field(game.conf.cube_conf.cube_cfgstats[0].cubed->texture_id[2]),  0,  0,                     0, NULL,                      value_default,   assign_default},
-    {"Textures",        3, field(game.conf.cube_conf.cube_cfgstats[0].cubed->texture_id[3]),  0,  0,                     0, NULL,                      value_default,   assign_default},
-    {"Textures",        4, field(game.conf.cube_conf.cube_cfgstats[0].cubed->texture_id[4]),  0,  0,                     0, NULL,                      value_default,   assign_default},
-    {"Textures",        5, field(game.conf.cube_conf.cube_cfgstats[0].cubed->texture_id[5]),  0,  0,                     0, NULL,                      value_default,   assign_default},
-    {"OwnershipGroup",  0, field(game.conf.cube_conf.cube_cfgstats[0].ownershipGroup),        0,  0, CUBE_OWNERSHIP_GROUPS, NULL,                      value_default,   assign_default},
-    {"Owner",           0, field(game.conf.cube_conf.cube_cfgstats[0].owner),                 0,  0,         PLAYERS_COUNT, cmpgn_human_player_options,value_default,   assign_owner},
-    {"Properties",     -1, field(game.conf.cube_conf.cube_cfgstats[0].properties_flags),      0,  0,                   255, cubes_properties_flags,    value_flagsfield,assign_default},
+    {"Name",            0, field(game.conf.cube_conf.cube_cfgstats[0].code_name),         0,  0,                     0, cube_desc,                 value_name,      assign_null},
+    {"Textures",        0, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[0]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
+    {"Textures",        1, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[1]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
+    {"Textures",        2, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[2]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
+    {"Textures",        3, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[3]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
+    {"Textures",        4, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[4]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
+    {"Textures",        5, field(game.conf.cube_conf.cube_cfgstats[0].texture_id[5]),     0,  0,             USHRT_MAX, NULL,                      value_default,   assign_default},
+    {"OwnershipGroup",  0, field(game.conf.cube_conf.cube_cfgstats[0].ownershipGroup),    0,  0, CUBE_OWNERSHIP_GROUPS, NULL,                      value_default,   assign_default},
+    {"Owner",           0, field(game.conf.cube_conf.cube_cfgstats[0].owner),             0,  0,         PLAYERS_COUNT, cmpgn_human_player_options,value_default,   assign_owner},
+    {"Properties",     -1, field(game.conf.cube_conf.cube_cfgstats[0].properties_flags),  0,  0,             UCHAR_MAX, cubes_properties_flags,    value_flagsfield,assign_default},
     {NULL},
 };
 
@@ -86,7 +86,7 @@ static void assign_owner(const struct NamedField* named_field, int64_t value, co
         return;
     }
 
-    game.conf.cube_conf.cube_bits[cubed->ownershipGroup][value]
+    game.conf.cube_conf.cube_bits[cubed->ownershipGroup][value] = idx;
     assign_default(named_field,value,named_fields_set,idx,src);
 }
 
