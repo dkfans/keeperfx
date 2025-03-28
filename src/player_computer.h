@@ -225,6 +225,29 @@ enum CompChatFlags {
     CChat_TasksFrequent = 0x02,
 };
 
+enum computer_process_func_list 
+{
+    cpfl_computer_check_build_all_rooms = 1,
+    cpfl_computer_setup_any_room_continue,
+    cpfl_computer_check_any_room,
+    cpfl_computer_setup_any_room,
+    cpfl_computer_check_dig_to_entrance,
+    cpfl_computer_setup_dig_to_entrance,
+    cpfl_computer_check_dig_to_gold,
+    cpfl_computer_setup_dig_to_gold,
+    cpfl_computer_check_sight_of_evil,
+    cpfl_computer_setup_sight_of_evil,
+    cpfl_computer_process_sight_of_evil,
+    cpfl_computer_check_attack1,
+    cpfl_computer_setup_attack1,
+    cpfl_computer_completed_attack1,
+    cpfl_computer_check_safe_attack,
+    cpfl_computer_process_task,
+    cpfl_computer_completed_build_a_room,
+    cpfl_computer_paused_task,
+    cpfl_computer_completed_task
+  };
+
 //TODO COMPUTER This returns NULL, which is unsafe
 #define INVALID_COMPUTER_PLAYER NULL
 #define INVALID_COMPUTER_PROCESS NULL
@@ -272,11 +295,11 @@ struct ComputerProcess { // sizeof = 72
   long confval_3;
   long confval_4; /**< room kind or amount of creatures or gameturn or count of slabs */
   long confval_5;
-  Comp_Process_Func func_check;
-  Comp_Process_Func func_setup;
-  Comp_Process_Func func_task;
-  Comp_Process_Func func_complete;
-  Comp_Process_Func func_pause;
+  FuncIdx func_check;
+  FuncIdx func_setup;
+  FuncIdx func_task;
+  FuncIdx func_complete;
+  FuncIdx func_pause;
   struct ComputerProcess *parent;
   // Unsigned process parameters storage (stores gameturns)
   unsigned long param_1;

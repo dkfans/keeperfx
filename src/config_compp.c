@@ -462,31 +462,31 @@ short parse_computer_player_process_blocks(char *buf, long len, const char *conf
             k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
             if (k > 0)
             {
-                cproc->func_check = computer_process_func_list[k];
+                cproc->func_check = k;
                 n++;
             }
             k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
             if (k > 0)
             {
-                cproc->func_setup = computer_process_func_list[k];
+                cproc->func_setup = k;
                 n++;
             }
             k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
             if (k > 0)
             {
-                cproc->func_task = computer_process_func_list[k];
+                cproc->func_task = k;
                 n++;
             }
             k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
             if (k > 0)
             {
-                cproc->func_complete = computer_process_func_list[k];
+                cproc->func_complete = k;
                 n++;
             }
             k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
             if (k > 0)
             {
-                cproc->func_pause = computer_process_func_list[k];
+                cproc->func_pause = k;
                 n++;
             }
             if (n < 5)

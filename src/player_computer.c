@@ -963,7 +963,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
             if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                 break;
             //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
-            if (cproc->func_check == computer_check_dig_to_gold)
+            if (cproc->func_check == cpfl_computer_check_dig_to_gold)
             {
                 cproc->priority++;
                 if (game.play_gameturn - cproc->last_run_turn > 20) {
@@ -1467,7 +1467,7 @@ TbBool process_processes_and_task(struct Computer2 *comp)
             Comp_Process_Func callback = NULL;
             struct ComputerProcess* cproc = get_computer_process(comp, comp->ongoing_process);
             if (cproc != NULL) {
-                callback = cproc->func_task;
+                callback = computer_process_func_list[cproc->func_task];
                 SYNCDBG(7,"Performing process \"%s\"",cproc->name);
             } else {
                 ERRORLOG("Invalid computer process %d referenced",(int)comp->ongoing_process);
@@ -1531,7 +1531,7 @@ struct ComputerProcess *computer_player_find_process_by_func_setup(PlayerNumber 
   struct ComputerProcess* cproc = &comp->processes[0];
   while (!flag_is_set(cproc->flags, ComProc_Unkn0002))
   {
-      if (cproc->func_setup == func_setup)
+      if (computer_process_func_list[cproc->func_setup] == func_setup)
       {
           return cproc;
       }
