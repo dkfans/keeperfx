@@ -73,6 +73,8 @@ enum GameKeys {
     Gkey_TiltUp, // 40
     Gkey_TiltDown,
     Gkey_TiltReset,
+    Gkey_Ascend,
+    Gkey_Descend
 };
 
 enum TbButtonFrontendFlags {
