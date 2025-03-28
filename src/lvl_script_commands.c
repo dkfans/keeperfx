@@ -527,7 +527,48 @@ const struct NamedCommand texture_pack_desc[] = {
   {NULL,           0},
 };
 
-
+const struct NamedCommand objects_object_commands[] = {
+    {"NAME",               1},
+    {"GENRE",              2},
+    {"RELATEDCREATURE",    3},
+    {"PROPERTIES",         4},
+    {"ANIMATIONID",        5},
+    {"ANIMATIONSPEED",     6},
+    {"SIZE_XY",            7},
+    {"SIZE_YZ",            8},
+    {"SIZE_Z",             8},
+    {"MAXIMUMSIZE",        9},
+    {"DESTROYONLIQUID",   10},
+    {"DESTROYONLAVA",     11},
+    {"HEALTH",            12},
+    {"FALLACCELERATION",  13},
+    {"LIGHTUNAFFECTED",   14},
+    {"LIGHTINTENSITY",    15},
+    {"LIGHTRADIUS",       16},
+    {"LIGHTISDYNAMIC",    17},
+    {"MAPICON",           18},
+    {"AMBIENCESOUND",     19},
+    {"UPDATEFUNCTION",    20},
+    {"DRAWCLASS",         21},
+    {"PERSISTENCE",       22},
+    {"IMMOBILE",          23},
+    {"INITIALSTATE",      24},
+    {"RANDOMSTARTFRAME",  25},
+    {"TRANSPARENCYFLAGS", 26},
+    {"EFFECTBEAM",        27},
+    {"EFFECTPARTICLE",    28},
+    {"EFFECTEXPLOSION1",  29},
+    {"EFFECTEXPLOSION2",  30},
+    {"EFFECTSPACING",     31},
+    {"EFFECTSOUND",       32},
+    {"FLAMEANIMATIONID",       33},
+    {"FLAMEANIMATIONSPEED",    34},
+    {"FLAMEANIMATIONSIZE",     35},
+    {"FLAMEANIMATIONOFFSET",   36},
+    {"FLAMETRANSPARENCYFLAGS", 37},
+    {"LIGHTFLAGS",             38},
+    {NULL,                 0},
+    };
 /**
  * Modifies player's creatures' anger.
  * @param plyr_idx target player
@@ -829,7 +870,7 @@ static void set_config_process(const struct NamedFieldSet* named_fields_set, str
         }
         else
         {
-            assign_named_field_value_script(&named_fields_set->named_fields[property_id + i],context->value->longs[i+1],named_fields_set,id, ccs_DkScript);
+            assign_named_field_value(&named_fields_set->named_fields[property_id + i],context->value->longs[i+1],named_fields_set,id, ccs_DkScript);
         }
     }
 }
@@ -1556,7 +1597,6 @@ static void new_object_type_check(const struct ScriptLine* scline)
     struct ObjectConfigStats* objst = get_object_model_stats(tmodel);
     memset(objst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
-    objst->name_stridx = 201;
     objst->map_icon = 0;
     objst->genre = 0;
     objst->draw_class = ODC_Default;
@@ -5601,7 +5641,7 @@ static void set_game_rule_process(struct ScriptContext* context)
     long rulevalue  = context->value->longs[1];
 
     SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
-    assign_named_field_value_script((ruleblocks[rulegroup]+ruledesc),rulevalue,&rules_named_fields_set,0, ccs_DkScript);
+    assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue,&rules_named_fields_set,0, ccs_DkScript);
 }
 
 static void set_increase_on_experience_check(const struct ScriptLine* scline)

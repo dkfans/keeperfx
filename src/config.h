@@ -145,7 +145,8 @@ enum dataTypes
 
 #define var_type(expr)\
     (_Generic((expr),\
-              unsigned char: dt_uchar, char: dt_char, \
+              unsigned char: dt_uchar, \
+              signed char: dt_schar, \
               short: dt_short, unsigned short: dt_ushort, \
               int: dt_int, unsigned int: dt_uint, \
               long: dt_long, unsigned long: dt_ulong, \
@@ -155,7 +156,9 @@ enum dataTypes
               long double: dt_longdouble, \
               void*: dt_void, \
               char*: dt_charptr, \
-              default: dt_default))
+              default: _Generic((expr), \
+                    char: dt_char, \
+                    default: dt_default)))
 
 #define field(field)\
     &field, var_type(field)
@@ -286,8 +289,7 @@ TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname
         const struct NamedFieldSet* named_fields_set);
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
 int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField *commands, const struct NamedFieldSet* named_fields_set, int idx);
-int assign_named_field_value_direct(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
-void assign_named_field_value_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+void assign_named_field_value(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
 long get_named_field_id(const struct NamedField *desc, const char *itmname);
 long get_id(const struct NamedCommand *desc, const char *itmname);
@@ -299,8 +301,15 @@ int64_t value_default        (const struct NamedField* named_field, const char* 
 int64_t value_flagsfield     (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 int64_t value_flagsfieldshift(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 int64_t value_icon           (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+int64_t value_effOrEffEl     (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+int64_t value_animid         (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+int64_t value_transpflg      (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+int64_t value_stltocoord     (const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 
-void assign_icon(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+void assign_icon   (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+void assign_default(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+void assign_null   (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+void assign_animid (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 
 int64_t parse_named_field_value(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 int64_t get_named_field_value(const struct NamedField* named_field, const struct NamedFieldSet* named_fields_set, int idx);
