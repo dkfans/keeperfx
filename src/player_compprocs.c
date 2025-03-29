@@ -65,156 +65,141 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
 long computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProcess *cproc);
 /******************************************************************************/
 
+struct ComputerProcess processes_list[] = {
+{
+   NULL, 0, 0, 0, 0, 0, 0,
+   0, 0,
+   0, 0,
+   0, 0, 0, 0, 0, 0, 0},
 
-struct ComputerProcess BuildAllRooms3x3 = {
+{
   "BUILD ALL ROOM 3x3", 0, 3, 3, 0, -1, cpfl_computer_check_build_all_rooms,
   cpfl_computer_setup_any_room_continue, cpfl_computer_process_task,
   cpfl_computer_completed_build_a_room, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildAllRooms4x4 = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "BUILD ALL ROOM 4x4", 0, 4, 4, 0, -1, cpfl_computer_check_build_all_rooms,
   cpfl_computer_setup_any_room_continue, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildPrisonRoom = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "BUILD A PRISON ROOM", 0, 3, 4, 4, 14, cpfl_computer_check_any_room,
   cpfl_computer_setup_any_room, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildTortureRoom = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "BUILD A TORTURE ROOM", 0, 3, 4, 5, 4, cpfl_computer_check_any_room,
   cpfl_computer_setup_any_room, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildScavengerRoom = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "BUILD A SCAVENGER ROOM", 0, 3, 3, 9, 4, cpfl_computer_check_any_room,
   cpfl_computer_setup_any_room, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildTempleRoom = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "BUILD A TEMPLE ROOM", 0, 3, 3, 10, 8, cpfl_computer_check_any_room,
   cpfl_computer_setup_any_room, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildGraveyardRoom = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "BUILD A GRAVEYARD ROOM", 0, 4, 5, 11, 5, cpfl_computer_check_any_room,
   cpfl_computer_setup_any_room, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildBarrackRoom = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "BUILD A BARRACK ROOM", 0, 3, 4, 12, 6, cpfl_computer_check_any_room,
   cpfl_computer_setup_any_room, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildTreasureRoom = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "BUILD A TREASURE ROOM", 10, 5, 5, 2, 7, cpfl_computer_check_any_room,
   cpfl_computer_setup_any_room, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildResearchRoom = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "BUILD A RESEARCH ROOM", 0, 5, 5, 3, 2, cpfl_computer_check_any_room,
   cpfl_computer_setup_any_room, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildHatcheryRoom = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "BUILD A HATCHERY", 0, 6, 5, 13, 14, cpfl_computer_check_any_room,
   cpfl_computer_setup_any_room, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildLairRoom = {
+  0, 0, 0, 0, 0, 0, 0},
+{
  "BUILD A LAIR ROOM", 0, 5, 5, 14, 7, cpfl_computer_check_any_room,
  cpfl_computer_setup_any_room, cpfl_computer_process_task,
  cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildTrainingRoom = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "BUILD A TRAINING ROOM", 0, 4, 5, 6, 14, cpfl_computer_check_any_room,
   cpfl_computer_setup_any_room, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildWorkshopRoom = {
+  0, 0, 0, 0, 0, 0, 0},
+{
  "BUILD A WORKSHOP ROOM", 0, 6, 6, 8, 3, cpfl_computer_check_any_room,
  cpfl_computer_setup_any_room, cpfl_computer_process_task,
  cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess DigToEntrance = {
+  0, 0, 0, 0, 0, 0, 0},
+{
  "DIG TO AN ENTRANCE", 0, 1700, 0, 0, 0, cpfl_computer_check_dig_to_entrance,
  cpfl_computer_setup_dig_to_entrance, cpfl_computer_process_task,
  cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess DigToGoldForMoney = {
+  0, 0, 0, 0, 0, 0, 0},
+{
  "DIG TO GOLD", 0, 10999, 150, 7, 0, cpfl_computer_check_dig_to_gold,
  cpfl_computer_setup_dig_to_gold, cpfl_computer_process_task,
  cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
+  0, 0, 0, 0, 0, 0, 0},
 
-struct ComputerProcess BuildTreasureRoom4x4 = {
+{
   "BUILD A TREASURE ROOM 4x4", 10, 4, 4, 2, 7, cpfl_computer_check_any_room,
   cpfl_computer_setup_any_room, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess BuildLairRoom4x4 = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "BUILD A LAIR ROOM 4x4", 0, 4, 4, 14, 7, cpfl_computer_check_any_room,
   cpfl_computer_setup_any_room, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess DigToCloseGoldForMoney = {
+  0, 0, 0, 0, 0, 0, 0},
+{
  "DIG TO CLOSE GOLD", 0, 30999, 500, 5, 71, cpfl_computer_check_dig_to_gold,
   cpfl_computer_setup_dig_to_gold, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess DigToGoldGreedy = {
+  0, 0, 0, 0, 0, 0, 0},
+{
  "DIG TO GREEDY GOLD", 0, 40999, 400, 7, 900, cpfl_computer_check_dig_to_gold,
   cpfl_computer_setup_dig_to_gold, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
+  0, 0, 0, 0, 0, 0, 0},
 
-struct ComputerProcess DigToGoldGreedy2 = {
+{
   "DIG TO GREEDY GOLD2", 0, 40999, 50, 7, 900, cpfl_computer_check_dig_to_gold,
   cpfl_computer_setup_dig_to_gold, cpfl_computer_process_task,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess ComputerSightOfEvil = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "SIGHT OF EVIL", 0, 8, 64, 1500, 0, cpfl_computer_check_sight_of_evil,
   cpfl_computer_setup_sight_of_evil, cpfl_computer_process_sight_of_evil,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess ComputerSightOfEvilScare = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "SIGHT OF EVIL SCARE", 0, 8, 10, 5000, 0, cpfl_computer_check_sight_of_evil,
   cpfl_computer_setup_sight_of_evil, cpfl_computer_process_sight_of_evil,
   cpfl_computer_completed_task, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess ComputerAttack1 = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "ATTACK PLAN 1", 0, 55, 6, 80, 0, cpfl_computer_check_attack1,
   cpfl_computer_setup_attack1, cpfl_computer_process_task,
   cpfl_computer_completed_attack1, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
-
-struct ComputerProcess ComputerSafeAttack = {
+  0, 0, 0, 0, 0, 0, 0},
+{
   "ATTACK SAFE ATTACK", 0, 25, 4, 80, 0, cpfl_computer_check_safe_attack,
   cpfl_computer_setup_attack1, cpfl_computer_process_task,
   cpfl_computer_completed_attack1, cpfl_computer_paused_task,
-  0, 0, 0, 0, 0, 0, 0};
+  0, 0, 0, 0, 0, 0, 0}
+};
 
 /******************************************************************************/
 const struct NamedCommand computer_process_func_type[] = {
