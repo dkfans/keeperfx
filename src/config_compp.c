@@ -101,6 +101,50 @@ struct ComputerProcessTypes ComputerProcessLists[COMPUTER_MODELS_COUNT];
 // which indicate the range for computer model AIs available for assignment
 struct ComputerPlayerConfig comp_player_conf;
 
+
+struct NamedCommand process_mnemonic_desc[COMPUTER_PROCESS_TYPES_COUNT];
+struct NamedCommand process_names_desc[COMPUTER_PROCESS_TYPES_COUNT];
+
+
+extern struct ComputerProcess processes_list[];
+/******************************************************************************/
+
+static const struct NamedField compp_process_named_fields[] = {
+  //name           //pos    //field                                   //default //min     //max    //NamedCommand
+  {"NAME",         0, field(processes_list[0].name),          0, LONG_MIN,ULONG_MAX, process_names_desc,         value_name,    assign_null},
+  //{"MNEMONIC",     0, field(processes_list[0].mneumonic),     0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
+  {"VALUES",       0, field(processes_list[0].priority     ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       1, field(processes_list[0].confval_2    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       2, field(processes_list[0].confval_3    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       3, field(processes_list[0].confval_4    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       4, field(processes_list[0].confval_5    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"FUNCTIONS",    0, field(processes_list[0].func_check   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    1, field(processes_list[0].func_setup   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    2, field(processes_list[0].func_task    ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    3, field(processes_list[0].func_complete), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
+  {"FUNCTIONS",    4, field(processes_list[0].func_pause   ), 0, LONG_MIN,ULONG_MAX, computer_process_func_type, value_default, assign_default},
+  {"PARAMS",       0, field(processes_list[0].param_1      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       1, field(processes_list[0].param_2      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       2, field(processes_list[0].param_3      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       3, field(processes_list[0].last_run_turn), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       4, field(processes_list[0].param_5      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       5, field(processes_list[0].flags        ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {NULL},
+};
+
+const struct NamedFieldSet compp_process_named_fields_set = {
+  &comp_player_conf.processes_count,
+  "process",
+  compp_process_named_fields,
+  process_names_desc,
+  COMPUTER_PROCESS_TYPES_COUNT,
+  sizeof(processes_list[0]),
+  processes_list,
+  //sizeof(comp_player_conf.process_types[0]),
+ // comp_player_conf.process_types,
+  {"keepcompp.cfg","INVALID"},
+};
+
 /******************************************************************************/
 
 int get_computer_process_config_list_index_prc(struct ComputerProcess *cproc)

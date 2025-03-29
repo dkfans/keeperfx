@@ -541,12 +541,12 @@ struct ExpandRooms {
 #pragma pack()
 /******************************************************************************/
 struct ComputerPlayerConfig {
-    int processes_count;
-    int checks_count;
-    int events_count;
-    int computers_count;
-    int skirmish_first; /*new*/
-    int skirmish_last; /*new*/
+    long processes_count;
+    long checks_count;
+    long events_count;
+    long computers_count;
+    long skirmish_first; /*new*/
+    long skirmish_last; /*new*/
 };
 /******************************************************************************/
 extern unsigned short computer_types_tooltip_stridx[];
