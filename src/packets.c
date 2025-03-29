@@ -42,13 +42,13 @@
 #include "frontmenu_net.h"
 #include "frontend.h"
 #include "vidmode.h"
-#include "config.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_effects.h"
 #include "config_terrain.h"
 #include "config_players.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "config_players.h"
@@ -796,7 +796,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_UpdatePause:
       process_pause_packet(pckt->actn_par1, pckt->actn_par2);
       return 1;
-  case PckA_Unknown083:
+  case PckA_ZoomToEvent:
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       event_move_player_towards_event(player, pckt->actn_par1);

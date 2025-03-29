@@ -212,13 +212,9 @@ const char *player_code_name(PlayerNumber plyr_idx);
 extern const struct NamedCommand rules_sacrifices_commands[];
 extern const struct NamedCommand sacrifice_unique_desc[];
 
-extern const struct NamedField rules_magic_named_fields[];
-extern const struct NamedField rules_rooms_named_fields[];
-extern const struct NamedField rules_game_named_fields[];
-extern const struct NamedField rules_creatures_named_fields[];
-extern const struct NamedField rules_computer_named_fields[];
-extern const struct NamedField rules_workers_named_fields[];
-extern const struct NamedField rules_health_named_fields[];
+extern const struct NamedField* ruleblocks[8];
+
+extern const struct NamedFieldSet rules_named_fields_set;
 
 /******************************************************************************/
 #ifdef __cplusplus
