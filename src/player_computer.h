@@ -288,7 +288,8 @@ struct TaskFunctions {
 };
 
 struct ComputerProcess { // sizeof = 72
-  char *name;
+  char name[COMMAND_WORD_LEN];
+  char mneumonic[COMMAND_WORD_LEN];
   long priority;
   // Signed process config values
   long confval_2;

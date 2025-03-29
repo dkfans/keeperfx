@@ -111,8 +111,8 @@ extern struct ComputerProcess processes_list[];
 
 static const struct NamedField compp_process_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
-  {"NAME",         0, field(processes_list[0].name),          0, LONG_MIN,ULONG_MAX, process_names_desc,         value_name,    assign_null},
-  //{"MNEMONIC",     0, field(processes_list[0].mneumonic),     0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
+  {"NAME",        -1, field(processes_list[0].name),          0, LONG_MIN,ULONG_MAX, process_names_desc,         value_name,    assign_null},
+  {"MNEMONIC",     0, field(processes_list[0].mneumonic),     0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
   {"VALUES",       0, field(processes_list[0].priority     ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {"VALUES",       1, field(processes_list[0].confval_2    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {"VALUES",       2, field(processes_list[0].confval_3    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
@@ -161,7 +161,7 @@ int get_computer_process_config_list_index_mnem(const char *mnemonic)
 {
     for (int i = 1; i <= comp_player_conf.processes_count; i++)
     {
-        if (strcasecmp(computer_process_config_list[i].name, mnemonic) == 0)
+        if (strcasecmp(processes_list[i].mneumonic, mnemonic) == 0)
             return i;
   }
   return 0;
@@ -419,183 +419,6 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
     }
 #undef COMMAND_TEXT
     return true;
-}
-
-short parse_computer_player_process_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    // Block name and parameter word store variable
-    for (int i = 1; i <= comp_player_conf.processes_count; i++)
-    {
-        char block_buf[32];
-        sprintf(block_buf, "process%d", i);
-        long pos = 0;
-        int k = find_conf_block(buf, &pos, len, block_buf);
-        if (k < 0)
-        {
-            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-            continue;
-      }
-      struct ComputerProcess* cproc = computer_process_config_list[i].process;
-      cproc->parent = NULL;
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_process_commands,cmd_num)
-      while (pos<len)
-      {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, compp_process_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
-            // In "List only" mode, accept only name command
-            if (cmd_num > 2) {
-                cmd_num = 0;
-            }
-        }
-        int n = 0;
-        char word_buf[32];
-        switch (cmd_num)
-        {
-        case 1: // NAME
-            //For now, let's leave default names.
-            break;
-        case 2: // MNEMONIC
-            if (get_conf_parameter_whole(buf,&pos,len,computer_process_config_list[i].name,sizeof(computer_process_config_list[i].name)) <= 0)
-            {
-                CONFWRNLOG("Could not read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-                break;
-            }
-            break;
-        case 3: // VALUES
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->priority = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->confval_2 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->confval_3 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->confval_4 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->confval_5 = k;
-              n++;
-            }
-            if (n < 5)
-            {
-                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 4: // FUNCTIONS
-            k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-            if (k > 0)
-            {
-                cproc->func_check = k;
-                n++;
-            }
-            k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-            if (k > 0)
-            {
-                cproc->func_setup = k;
-                n++;
-            }
-            k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-            if (k > 0)
-            {
-                cproc->func_task = k;
-                n++;
-            }
-            k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-            if (k > 0)
-            {
-                cproc->func_complete = k;
-                n++;
-            }
-            k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-            if (k > 0)
-            {
-                cproc->func_pause = k;
-                n++;
-            }
-            if (n < 5)
-            {
-                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 5: // PARAMS
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->param_1 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->param_2 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->param_3 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->last_run_turn = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->param_5 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cproc->flags = k;
-              n++;
-            }
-            if (n < 6)
-            {
-                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-      }
-#undef COMMAND_TEXT
-    }
-    return 1;
 }
 
 short parse_computer_player_check_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -1152,7 +975,7 @@ TbBool load_computer_player_config(unsigned short flags)
     if (len>0)
     {
         parse_computer_player_common_blocks(buf, len, textname, flags);
-        parse_computer_player_process_blocks(buf, len, textname, flags);
+        parse_named_field_blocks(buf, len, textname, flags, &compp_process_named_fields_set);
         parse_computer_player_check_blocks(buf, len, textname, flags);
         parse_computer_player_event_blocks(buf, len, textname, flags);
         parse_computer_player_computer_blocks(buf, len, textname, flags);

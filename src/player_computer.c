@@ -1293,9 +1293,9 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     {
         struct ComputerProcess* cproc = cpt->processes[i];
         newproc = &comp->processes[i];
-        if ((cproc == NULL) || (cproc->name == NULL))
+        if ((cproc == NULL) || (cproc->name[0] == '\0'))
         {
-          newproc->name = NULL;
+          newproc->name[0] = '\0';
           break;
         }
         memcpy(newproc, cproc, sizeof(struct ComputerProcess));
@@ -1695,7 +1695,6 @@ void restore_computer_player_after_load(void)
             //if (cpt->processes[i]->name == NULL)
             //    break;
             SYNCDBG(12,"Player %ld process %ld is \"%s\"",plyr_idx,i,cpt->processes[i]->name);
-            comp->processes[i].name = cpt->processes[i]->name;
             comp->processes[i].parent = cpt->processes[i];
             comp->processes[i].func_check = cpt->processes[i]->func_check;
             comp->processes[i].func_setup = cpt->processes[i]->func_setup;
