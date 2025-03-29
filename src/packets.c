@@ -1347,7 +1347,7 @@ void process_players_creature_control_packet_control(long idx)
     // Limits the vertical view.
     // 227 is default. To support anything above this we need to adjust the terrain culling. (when you look at the ceiling for example)
     // 512 allows for looking straight up and down. 360+ is about where sprite glitches become more obvious.
-    long viewable_angle = 227;
+    #define viewable_angle 227;
     long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & LbFPMath_AngleMask;
 
     long lowerLimit = LbFPMath_AngleMask - viewable_angle;

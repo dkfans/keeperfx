@@ -5905,7 +5905,10 @@ TbBool update_controlled_creature_movement(struct Thing *thing)
         {
             cctrl->moveaccel.x.val = distance3d_with_angles_to_coord_x(cctrl->move_speed, thing->move_angle_xy, thing->move_angle_z);
             cctrl->moveaccel.y.val = distance3d_with_angles_to_coord_y(cctrl->move_speed, thing->move_angle_xy, thing->move_angle_z);
-            cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->move_angle_z);
+            if (cctrl->vertical_speed == 0)
+            {
+                cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->move_angle_z);
+            }
         }
         if (cctrl->orthogn_speed != 0)
         {
