@@ -77,34 +77,6 @@ struct ValidRooms valid_rooms_to_build[] = {
   {-1,            NULL},
 };
 
-struct ComputerProcessMnemonic computer_process_config_list[] = {
-  {"Unused", &processes_list[0],},
-  {"", &processes_list[1],},
-  {"", &processes_list[2],},
-  {"", &processes_list[3],},
-  {"", &processes_list[4],},
-  {"", &processes_list[5],},
-  {"", &processes_list[6],},
-  {"", &processes_list[7],},
-  {"", &processes_list[8],},
-  {"", &processes_list[9],},
-  {"", &processes_list[10],},
-  {"", &processes_list[11],},
-  {"", &processes_list[12],},
-  {"", &processes_list[13],},
-  {"", &processes_list[14],},
-  {"", &processes_list[15],},
-  {"", &processes_list[16],},
-  {"", &processes_list[17],},
-  {"", &processes_list[18],},
-  {"", &processes_list[19],},
-  {"", &processes_list[20],},
-  {"", &processes_list[21],},
-  {"", &processes_list[22],},
-  {"", &processes_list[23],},
-  {"", &processes_list[24],},
-  {"", &processes_list[25],},
-};
 /******************************************************************************/
 #ifdef __cplusplus
 }

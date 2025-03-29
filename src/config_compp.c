@@ -147,16 +147,6 @@ const struct NamedFieldSet compp_process_named_fields_set = {
 
 /******************************************************************************/
 
-int get_computer_process_config_list_index_prc(struct ComputerProcess *cproc)
-{
-    for (int i = 1; i <= comp_player_conf.processes_count; i++)
-    {
-        if (computer_process_config_list[i].process == cproc)
-            return i;
-  }
-  return 0;
-}
-
 int get_computer_process_config_list_index_mnem(const char *mnemonic)
 {
     for (int i = 1; i <= comp_player_conf.processes_count; i++)
@@ -674,7 +664,7 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
               k = get_computer_process_config_list_index_mnem(word_buf);
               if (k > 0)
               {
-                cevent->process = computer_process_config_list[k].process;
+                cevent->process = &processes_list[k];
               } else
               {
                   CONFWRNLOG("Could not recognize \"%s\" parameter in [%s] block of %s file.",
@@ -854,7 +844,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
                       COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                 continue;
               }
-              n = computer_type_add_process(cpt, computer_process_config_list[k].process);
+              n = computer_type_add_process(cpt, &processes_list[k]);
               if (n < 0) {
                   CONFWRNLOG("Could not add \"%s\" list element \"%s\" in [%s] block of %s file.",
                       COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
