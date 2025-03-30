@@ -6523,7 +6523,7 @@ static void set_computer_checks_process(struct ScriptContext* context)
             struct ComputerCheck* ccheck = &comp->checks[k];
             if ((ccheck->flags & ComChk_Unkn0002) != 0)
                 break;
-            if (ccheck->name == NULL)
+            if (ccheck->name[0] == '\0')
                 break;
             if (strcasecmp(chkname, ccheck->name) == 0)
             {

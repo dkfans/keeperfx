@@ -36,12 +36,13 @@ extern "C" {
 #define COMPUTER_EVENTS_COUNT        33
 // To add additional computer players update the folowing number. Update ComputerCount in keepcompp.cfg to match.
 // Must match the actual number of consecutive computers listed in that file (don't forget to count computer0).
-#define COMPUTER_MODELS_COUNT        17 // renamed from COMPUTER_PROCESS_LISTS_COUNT, for clarity
+#define COMPUTER_MODELS_COUNT        17
 #define COMPUTER_TRAP_LOC_COUNT      20
 
 #define COMPUTER_PROCESS_TYPES_COUNT 26
 #define COMPUTER_CHECKS_TYPES_COUNT  52
 #define COMPUTER_EVENTS_TYPES_COUNT  31
+
 #define COMPUTER_SPARK_POSITIONS_COUNT 64
 #define COMPUTER_SOE_GRID_SIZE        8
 
@@ -287,7 +288,7 @@ struct TaskFunctions {
   Comp_Task_Func func;
 };
 
-struct ComputerProcess { // sizeof = 72
+struct ComputerProcess {
   char name[COMMAND_WORD_LEN];
   char mneumonic[COMMAND_WORD_LEN];
   long priority;
@@ -312,18 +313,19 @@ struct ComputerProcess { // sizeof = 72
   unsigned long flags; /**< Values from ComProc_* enumeration. */
 };
 
-struct ComputerCheck { // sizeof = 32
-  char *name;
+struct ComputerCheck {
+  char name[COMMAND_WORD_LEN];
+  char mneumonic[COMMAND_WORD_LEN];
   unsigned long flags; /**< Values from ComChk_* enumeration. */
   long turns_interval;
-  Comp_Check_Func func;
+  FuncIdx func;
   long param1;
   long param2;
   long param3;
   long last_run_turn;
 };
 
-struct ComputerEvent { // sizeof = 44
+struct ComputerEvent {
   char *name;
   unsigned long cetype;
   unsigned long mevent_kind;
@@ -345,11 +347,6 @@ struct ValidRooms { // sizeof = 8
 struct ComputerProcessMnemonic {
   char name[16];
   struct ComputerProcess *process;
-};
-
-struct ComputerCheckMnemonic {
-  char name[16];
-  struct ComputerCheck *check;
 };
 
 struct ComputerEventMnemonic {
@@ -545,6 +542,7 @@ struct ComputerPlayerConfig {
     long processes_count;
     struct ComputerProcess process_types[COMPUTER_PROCESS_TYPES_COUNT];
     long checks_count;
+    struct ComputerCheck check_types[COMPUTER_CHECKS_TYPES_COUNT];
     long events_count;
     long computers_count;
     long skirmish_first; /*new*/

@@ -78,7 +78,6 @@ const char keeper_compplayer_file[]="keepcompp.cfg";
 /******************************************************************************/
 ComputerName computer_check_names[COMPUTER_CHECKS_TYPES_COUNT];
 struct ComputerCheck computer_checks[COMPUTER_CHECKS_TYPES_COUNT];
-struct ComputerCheckMnemonic computer_check_config_list[COMPUTER_CHECKS_TYPES_COUNT];
 
 ComputerName computer_event_names[COMPUTER_EVENTS_TYPES_COUNT];
 struct ComputerEvent computer_events[COMPUTER_EVENTS_TYPES_COUNT];
@@ -92,8 +91,8 @@ struct ComputerProcessTypes ComputerProcessLists[COMPUTER_MODELS_COUNT];
 struct ComputerPlayerConfig comp_player_conf;
 
 
-struct NamedCommand process_mnemonic_desc[COMPUTER_PROCESS_TYPES_COUNT];
 struct NamedCommand process_names_desc[COMPUTER_PROCESS_TYPES_COUNT];
+struct NamedCommand check_names_desc[COMPUTER_PROCESS_TYPES_COUNT];
 
 /******************************************************************************/
 
@@ -130,6 +129,33 @@ const struct NamedFieldSet compp_process_named_fields_set = {
   comp_player_conf.process_types,
   {"keepcompp.cfg","INVALID"},
 };
+
+static const struct NamedField compp_check_named_fields[] = {
+  //name           //pos    //field                                   //default //min     //max    //NamedCommand
+  {"NAME",        -1, field(comp_player_conf.check_types[0].name          ), 0, LONG_MIN,ULONG_MAX, process_names_desc,         value_name,    assign_null},
+  {"MNEMONIC",     0, field(comp_player_conf.check_types[0].mneumonic     ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
+  {"VALUES",       0, field(comp_player_conf.check_types[0].flags         ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       1, field(comp_player_conf.check_types[0].turns_interval), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"FUNCTIONS",    0, field(comp_player_conf.check_types[0].func          ), 0, LONG_MIN,ULONG_MAX, computer_check_func_type,   value_default, assign_default},
+  {"PARAMS",       0, field(comp_player_conf.check_types[0].param1        ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       1, field(comp_player_conf.check_types[0].param2        ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       2, field(comp_player_conf.check_types[0].param3        ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       3, field(comp_player_conf.check_types[0].last_run_turn ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {NULL},
+};
+
+
+const struct NamedFieldSet compp_check_named_fields_set = {
+  &comp_player_conf.checks_count,
+  "check",
+  compp_check_named_fields,
+  check_names_desc,
+  COMPUTER_CHECKS_TYPES_COUNT,
+  sizeof(comp_player_conf.check_types[0]),
+  comp_player_conf.check_types,
+  {"keepcompp.cfg","INVALID"},
+};
+
 /******************************************************************************/
 
 int get_computer_process_config_list_index_mnem(const char *mnemonic)
@@ -144,10 +170,10 @@ int get_computer_process_config_list_index_mnem(const char *mnemonic)
 
 int get_computer_check_config_list_index_mnem(const char *mnemonic)
 {
-  const int arr_size = (int)(sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]));
+  const int arr_size = (int)(sizeof(comp_player_conf.check_types)/sizeof(comp_player_conf.check_types[0]));
   for (int i = 1; i < arr_size; i++)
   {
-    if (strcasecmp(computer_check_config_list[i].name, mnemonic) == 0)
+    if (strcasecmp(comp_player_conf.check_types[i].mneumonic, mnemonic) == 0)
       return i;
   }
   return 0;
@@ -206,7 +232,7 @@ int computer_type_add_check(struct ComputerProcessTypes *cpt, struct ComputerChe
 {
     for (int i = 0; i < COMPUTER_CHECKS_COUNT; i++)
     {
-        if (cpt->checks[i].name == NULL)
+        if (cpt->checks[i].name[0] == '\0')
         {
             memcpy(&cpt->checks[i], check, sizeof(struct ComputerCheck));
             return i;
@@ -386,13 +412,11 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
     int i;
     // Block name and parameter word store variables
     // Initialize the checks array
-    const int arr_size = sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]);
+    const int arr_size = sizeof(comp_player_conf.check_types)/sizeof(comp_player_conf.check_types[0]);
     for (i=0; i < arr_size; i++)
     {
       ccheck = &computer_checks[i];
-      computer_check_config_list[i].name[0] = '\0';
-      computer_check_config_list[i].check = ccheck;
-      ccheck->name = computer_check_names[i];
+      comp_player_conf.check_types[i].name[0] = '\0';
       memset(computer_check_names[i], 0, LINEMSG_SIZE);
     }
     strcpy(computer_check_names[0],"INCORRECT CHECK");
@@ -408,7 +432,7 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
             WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
             continue;
       }
-      ccheck = computer_check_config_list[i].check;
+      ccheck = &comp_player_conf.check_types[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_check_commands,cmd_num)
       while (pos<len)
       {
@@ -435,7 +459,7 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
             }
             break;
         case 2: // MNEMONIC
-            if (get_conf_parameter_whole(buf,&pos,len,computer_check_config_list[i].name,sizeof(computer_check_config_list[i].name)) <= 0)
+            if (get_conf_parameter_whole(buf,&pos,len,comp_player_conf.check_types[i].mneumonic,sizeof(comp_player_conf.check_types[i].mneumonic)) <= 0)
             {
                 CONFWRNLOG("Could not read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
@@ -465,7 +489,7 @@ short parse_computer_player_check_blocks(char *buf, long len, const char *config
             k = recognize_conf_parameter(buf,&pos,len,computer_check_func_type);
             if (k > 0)
             {
-                ccheck->func = computer_check_func_list[k];
+                ccheck->func = k;
                 n++;
             }
             if (n < 1)
@@ -688,28 +712,6 @@ short parse_computer_player_event_blocks(char *buf, long len, const char *config
     return 1;
 }
 
-short write_computer_player_check_to_log(struct ComputerCheck *ccheck)
-{
-  JUSTMSG("[checkXX]");
-  JUSTMSG("Name = %s",ccheck->name);
-  JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %lu %ld",ccheck->flags,ccheck->turns_interval);
-  JUSTMSG("Functions = %p",ccheck->func);
-  JUSTMSG("Params = %ld %ld %ld %ld",ccheck->param1,ccheck->param2,ccheck->param3,ccheck->last_run_turn);
-  return true;
-}
-
-short write_computer_player_event_to_log(const struct ComputerEvent *event)
-{
-  JUSTMSG("[eventXX]");
-  JUSTMSG("Name = %s",event->name);
-  JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %lu %lu %ld",event->cetype,event->mevent_kind,event->test_interval);
-  JUSTMSG("Functions = %p %p",event->func_event,event->func_test);
-  JUSTMSG("Params = %ld %ld %ld %ld",event->param1,event->param2,event->param3,event->last_test_gameturn);
-  return true;
-}
-
 short parse_computer_player_computer_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     // Block name and parameter word store variable
@@ -831,7 +833,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
                       COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                   continue;
               }
-              n = computer_type_add_check(cpt, computer_check_config_list[k].check);
+              n = computer_type_add_check(cpt, &comp_player_conf.check_types[k]);
               if (n < 0)
               {
                   CONFWRNLOG("Could not add \"%s\" list element \"%s\" in [%s] block of %s file.",

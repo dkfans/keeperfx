@@ -1308,9 +1308,9 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     {
         struct ComputerCheck* ccheck = &cpt->checks[i];
         newchk = &comp->checks[i];
-        if ((ccheck == NULL) || (ccheck->name == NULL))
+        if ((ccheck == NULL) || (ccheck->name[0] == '\0'))
         {
-            newchk->name = NULL;
+            newchk->name[0] = '\0';
             break;
         }
         memcpy(newchk, ccheck, sizeof(struct ComputerCheck));
@@ -1427,10 +1427,10 @@ TbBool process_checks(struct Computer2 *comp)
         if ((ccheck->flags & ComChk_Unkn0001) == 0)
         {
             long delta = (game.play_gameturn - ccheck->last_run_turn);
-            if ((delta > ccheck->turns_interval) && (ccheck->func != NULL))
+            if ((delta > ccheck->turns_interval) && (computer_check_func_list[ccheck->func] != NULL))
             {
                 SYNCDBG(8,"Executing check %ld, \"%s\"",i,ccheck->name);
-                ccheck->func(comp, ccheck);
+                computer_check_func_list[ccheck->func](comp, ccheck);
                 ccheck->last_run_turn = game.play_gameturn;
             }
         }
@@ -1701,14 +1701,6 @@ void restore_computer_player_after_load(void)
             comp->processes[i].func_task = cpt->processes[i]->func_task;
             comp->processes[i].func_complete = cpt->processes[i]->func_complete;
             comp->processes[i].func_pause = cpt->processes[i]->func_pause;
-        }
-        for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
-        {
-            if (cpt->checks[i].name == NULL)
-              break;
-            SYNCDBG(12,"Player %ld check %ld is \"%s\"",plyr_idx,i,cpt->checks[i].name);
-            comp->checks[i].name = cpt->checks[i].name;
-            comp->checks[i].func = cpt->checks[i].func;
         }
         for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
         {

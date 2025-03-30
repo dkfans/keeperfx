@@ -226,9 +226,9 @@ static long cmd_comp_checks_click(struct GuiBox *gbox, struct GuiBoxOption *gopt
     struct ComputerCheck* ccheck = &comp->checks[args[1]];
 
     if (flag_is_set(ccheck->flags, ComChk_Unkn0001))
-        message_add_fmt(MsgType_Player, args[0], "resuming %s", ccheck->name?ccheck->name:"(null)");
+        message_add_fmt(MsgType_Player, args[0], "resuming %s", ccheck->name);
     else
-        message_add_fmt(MsgType_Player, args[0], "suspending %s", ccheck->name?ccheck->name:"(null)");
+        message_add_fmt(MsgType_Player, args[0], "suspending %s", ccheck->name);
 
     ccheck->flags ^= ComChk_Unkn0001;
     return 1;
