@@ -6600,7 +6600,7 @@ static void set_computer_event_process(struct ScriptContext* context)
         for (long k = 0; k < COMPUTER_EVENTS_COUNT; k++)
         {
             struct ComputerEvent* event = &comp->events[k];
-            if (event->name == NULL)
+            if (event->name[0] == '\0')
                 break;
             if (strcasecmp(evntname, event->name) == 0)
             {

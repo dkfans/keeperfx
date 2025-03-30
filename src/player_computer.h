@@ -278,81 +278,68 @@ typedef long (*Comp_EvntTest_Func)(struct Computer2 *, struct ComputerEvent *);
 typedef long (*Comp_Task_Func)(struct Computer2 *, struct ComputerTask *);
 typedef TbBool (*Comp_HateTest_Func)(const struct Computer2 *, const struct ComputerProcess *, const struct THate *);
 
-struct Comp_Check_Func_ListItem {
-  const char *name;
-  Comp_Check_Func func;
-};
-
 struct TaskFunctions {
-  const char *name;
-  Comp_Task_Func func;
+    const char *name;
+    Comp_Task_Func func;
 };
 
 struct ComputerProcess {
-  char name[COMMAND_WORD_LEN];
-  char mneumonic[COMMAND_WORD_LEN];
-  long priority;
-  // Signed process config values
-  long confval_2;
-  long confval_3;
-  long confval_4; /**< room kind or amount of creatures or gameturn or count of slabs */
-  long confval_5;
-  FuncIdx func_check;
-  FuncIdx func_setup;
-  FuncIdx func_task;
-  FuncIdx func_complete;
-  FuncIdx func_pause;
-  struct ComputerProcess *parent;
-  // Unsigned process parameters storage (stores gameturns)
-  unsigned long param_1;
-  unsigned long param_2;
-  unsigned long param_3;
-  unsigned long last_run_turn;
-  // Signed process parameters storage
-  long param_5;
-  unsigned long flags; /**< Values from ComProc_* enumeration. */
+    char name[COMMAND_WORD_LEN];
+    char mnemonic[COMMAND_WORD_LEN];
+    long priority;
+    // Signed process config values
+    long confval_2;
+    long confval_3;
+    long confval_4; /**< room kind or amount of creatures or gameturn or count of slabs */
+    long confval_5;
+    FuncIdx func_check;
+    FuncIdx func_setup;
+    FuncIdx func_task;
+    FuncIdx func_complete;
+    FuncIdx func_pause;
+    struct ComputerProcess *parent;
+    // Unsigned process parameters storage (stores gameturns)
+    unsigned long param_1;
+    unsigned long param_2;
+    unsigned long param_3;
+    unsigned long last_run_turn;
+    // Signed process parameters storage
+    long param_5;
+    unsigned long flags; /**< Values from ComProc_* enumeration. */
 };
 
 struct ComputerCheck {
-  char name[COMMAND_WORD_LEN];
-  char mneumonic[COMMAND_WORD_LEN];
-  unsigned long flags; /**< Values from ComChk_* enumeration. */
-  long turns_interval;
-  FuncIdx func;
-  long param1;
-  long param2;
-  long param3;
-  long last_run_turn;
+    char name[COMMAND_WORD_LEN];
+    char mnemonic[COMMAND_WORD_LEN];
+    unsigned long flags; /**< Values from ComChk_* enumeration. */
+    long turns_interval;
+    FuncIdx func;
+    long param1;
+    long param2;
+    long param3;
+    long last_run_turn;
 };
 
 struct ComputerEvent {
-  char *name;
-  unsigned long cetype;
-  unsigned long mevent_kind;
-  Comp_Event_Func func_event;
-  Comp_EvntTest_Func func_test;
-  long test_interval;
-  struct ComputerProcess *process;
-  long param1;
-  long param2;
-  long param3;
-  long last_test_gameturn; /**< event last checked time */
+    char name[COMMAND_WORD_LEN];
+    char mnemonic[COMMAND_WORD_LEN];
+    unsigned long cetype;
+    unsigned long mevent_kind;
+    Comp_Event_Func func_event;
+    Comp_EvntTest_Func func_test;
+    long test_interval;
+    struct ComputerProcess *process;
+    long param1;
+    long param2;
+    long param3;
+    long last_test_gameturn; /**< event last checked time */
 };
 
 struct ValidRooms { // sizeof = 8
-  long rkind;
-  struct ComputerProcess *process;
+    long rkind;
+    struct ComputerProcess *process;
 };
 
-struct ComputerProcessMnemonic {
-  char name[16];
-  struct ComputerProcess *process;
-};
-
-struct ComputerEventMnemonic {
-  char name[16];
-  struct ComputerEvent *event;
-};
 struct ComputerDig {
     struct Coord3d pos_E; /**< used by dig to position - set to pos_begin when a dig action fails ?? */
     struct Coord3d pos_dest; /**< used by dig to position - the destination */
@@ -544,6 +531,7 @@ struct ComputerPlayerConfig {
     long checks_count;
     struct ComputerCheck check_types[COMPUTER_CHECKS_TYPES_COUNT];
     long events_count;
+    struct ComputerEvent event_types[COMPUTER_EVENTS_TYPES_COUNT];
     long computers_count;
     long skirmish_first; /*new*/
     long skirmish_last; /*new*/

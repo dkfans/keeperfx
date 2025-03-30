@@ -76,18 +76,8 @@ const struct NamedCommand compp_computer_commands[] = {
 const char keeper_compplayer_file[]="keepcompp.cfg";
 
 /******************************************************************************/
-ComputerName computer_check_names[COMPUTER_CHECKS_TYPES_COUNT];
-struct ComputerCheck computer_checks[COMPUTER_CHECKS_TYPES_COUNT];
-
-ComputerName computer_event_names[COMPUTER_EVENTS_TYPES_COUNT];
-struct ComputerEvent computer_events[COMPUTER_EVENTS_TYPES_COUNT];
-struct ComputerEventMnemonic computer_event_config_list[COMPUTER_EVENTS_TYPES_COUNT];
-
 ComputerName ComputerProcessListsNames[COMPUTER_MODELS_COUNT];
 struct ComputerProcessTypes ComputerProcessLists[COMPUTER_MODELS_COUNT];
-
-// Moved to the header file so that it can be used in player_computer.c for .skirmish_first and .skirmish_last
-// which indicate the range for computer model AIs available for assignment
 struct ComputerPlayerConfig comp_player_conf;
 
 
@@ -99,7 +89,7 @@ struct NamedCommand check_names_desc[COMPUTER_PROCESS_TYPES_COUNT];
 static const struct NamedField compp_process_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
   {"NAME",        -1, field(comp_player_conf.process_types[0].name),          0, LONG_MIN,ULONG_MAX, process_names_desc,         value_name,    assign_null},
-  {"MNEMONIC",     0, field(comp_player_conf.process_types[0].mneumonic),     0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
+  {"MNEMONIC",     0, field(comp_player_conf.process_types[0].mnemonic),     0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
   {"VALUES",       0, field(comp_player_conf.process_types[0].priority     ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {"VALUES",       1, field(comp_player_conf.process_types[0].confval_2    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {"VALUES",       2, field(comp_player_conf.process_types[0].confval_3    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
@@ -133,7 +123,7 @@ const struct NamedFieldSet compp_process_named_fields_set = {
 static const struct NamedField compp_check_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
   {"NAME",        -1, field(comp_player_conf.check_types[0].name          ), 0, LONG_MIN,ULONG_MAX, process_names_desc,         value_name,    assign_null},
-  {"MNEMONIC",     0, field(comp_player_conf.check_types[0].mneumonic     ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
+  {"MNEMONIC",     0, field(comp_player_conf.check_types[0].mnemonic     ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
   {"VALUES",       0, field(comp_player_conf.check_types[0].flags         ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {"VALUES",       1, field(comp_player_conf.check_types[0].turns_interval), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {"FUNCTIONS",    0, field(comp_player_conf.check_types[0].func          ), 0, LONG_MIN,ULONG_MAX, computer_check_func_type,   value_default, assign_default},
@@ -156,13 +146,41 @@ const struct NamedFieldSet compp_check_named_fields_set = {
   {"keepcompp.cfg","INVALID"},
 };
 
+static const struct NamedField compp_event_named_fields[] = {
+  //name           //pos    //field                                   //default //min     //max    //NamedCommand
+  {"NAME",        -1, field(comp_player_conf.event_types[0].name               ), 0, LONG_MIN,ULONG_MAX, process_names_desc,         value_name,    assign_null},
+  {"MNEMONIC",     0, field(comp_player_conf.event_types[0].mnemonic          ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
+  {"VALUES",       0, field(comp_player_conf.event_types[0].cetype             ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       1, field(comp_player_conf.event_types[0].mevent_kind        ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"VALUES",       1, field(comp_player_conf.event_types[0].test_interval      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"FUNCTIONS",    0, field(comp_player_conf.event_types[0].func_event         ), 0, LONG_MIN,ULONG_MAX, computer_event_func_type,   value_default, assign_default},
+  {"FUNCTIONS",    0, field(comp_player_conf.event_types[0].func_test          ), 0, LONG_MIN,ULONG_MAX, computer_event_test_func_type,   value_default, assign_default},
+  {"PARAMS",       0, field(comp_player_conf.event_types[0].param1             ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       1, field(comp_player_conf.event_types[0].param2             ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       2, field(comp_player_conf.event_types[0].param3             ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {"PARAMS",       3, field(comp_player_conf.event_types[0].last_test_gameturn ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
+  {NULL},
+};
+
+
+const struct NamedFieldSet compp_event_named_fields_set = {
+  &comp_player_conf.events_count,
+  "event",
+  compp_event_named_fields,
+  check_names_desc,
+  COMPUTER_CHECKS_TYPES_COUNT,
+  sizeof(comp_player_conf.check_types[0]),
+  comp_player_conf.check_types,
+  {"keepcompp.cfg","INVALID"},
+};
+
 /******************************************************************************/
 
 int get_computer_process_config_list_index_mnem(const char *mnemonic)
 {
     for (int i = 1; i <= comp_player_conf.processes_count; i++)
     {
-        if (strcasecmp(comp_player_conf.process_types[i].mneumonic, mnemonic) == 0)
+        if (strcasecmp(comp_player_conf.process_types[i].mnemonic, mnemonic) == 0)
             return i;
   }
   return 0;
@@ -173,7 +191,7 @@ int get_computer_check_config_list_index_mnem(const char *mnemonic)
   const int arr_size = (int)(sizeof(comp_player_conf.check_types)/sizeof(comp_player_conf.check_types[0]));
   for (int i = 1; i < arr_size; i++)
   {
-    if (strcasecmp(comp_player_conf.check_types[i].mneumonic, mnemonic) == 0)
+    if (strcasecmp(comp_player_conf.check_types[i].mnemonic, mnemonic) == 0)
       return i;
   }
   return 0;
@@ -181,10 +199,10 @@ int get_computer_check_config_list_index_mnem(const char *mnemonic)
 
 int get_computer_event_config_list_index_mnem(const char *mnemonic)
 {
-  const int arr_size = (int)(sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]));
+  const int arr_size = (int)(sizeof(comp_player_conf.event_types)/sizeof(comp_player_conf.event_types[0]));
   for (int i = 1; i < arr_size; i++)
   {
-    if (strcasecmp(computer_event_config_list[i].name, mnemonic) == 0)
+    if (strcasecmp(comp_player_conf.event_types[i].mnemonic, mnemonic) == 0)
       return i;
   }
   return 0;
@@ -254,7 +272,7 @@ int computer_type_add_event(struct ComputerProcessTypes *cpt, struct ComputerEve
 {
     for (int i = 0; i < COMPUTER_EVENTS_COUNT; i++)
     {
-        if (cpt->events[i].name == NULL)
+        if (cpt->events[i].name[0] == '\0')
         {
             memcpy(&cpt->events[i], event, sizeof(struct ComputerEvent));
             return i;
@@ -406,178 +424,12 @@ TbBool parse_computer_player_common_blocks(char *buf, long len, const char *conf
     return true;
 }
 
-short parse_computer_player_event_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    struct ComputerEvent *cevent;
-    int i;
-    // Block name and parameter word store variables
-    // Initialize the events array
-    const int arr_size = (int)(sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]));
-    for (i=0; i < arr_size; i++)
-    {
-      cevent = &computer_events[i];
-      computer_event_config_list[i].name[0] = '\0';
-      computer_event_config_list[i].event = cevent;
-      cevent->name = computer_event_names[i];
-      memset(computer_event_names[i], 0, LINEMSG_SIZE);
-    }
-    strcpy(computer_event_names[0],"INCORRECT EVENT");
-    // Load the file
-    for (i=1; i < arr_size; i++)
-    {
-        char block_buf[32];
-        sprintf(block_buf, "event%d", i);
-        long pos = 0;
-        int k = find_conf_block(buf, &pos, len, block_buf);
-        if (k < 0)
-        {
-            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-            continue;
-      }
-      cevent = computer_event_config_list[i].event;
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_event_commands,cmd_num)
-      while (pos<len)
-      {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, compp_event_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        if ((flags & CnfLd_ListOnly) != 0) {
-            // In "List only" mode, accept only name command
-            if (cmd_num > 2) {
-                cmd_num = 0;
-            }
-        }
-        int n = 0;
-        char word_buf[32];
-        switch (cmd_num)
-        {
-        case 1: // NAME
-            if (get_conf_parameter_whole(buf,&pos,len,cevent->name,LINEMSG_SIZE) <= 0)
-            {
-                CONFWRNLOG("Could not read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-                break;
-            }
-            break;
-        case 2: // MNEMONIC
-            if (get_conf_parameter_whole(buf,&pos,len,computer_event_config_list[i].name,sizeof(computer_event_config_list[i].name)) <= 0)
-            {
-                CONFWRNLOG("Could not read \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-                break;
-            }
-            break;
-        case 3: // VALUES
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cevent->cetype = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cevent->mevent_kind = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cevent->test_interval = k;
-              n++;
-            }
-            if (n < 3)
-            {
-                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 4: // FUNCTIONS
-            k = recognize_conf_parameter(buf,&pos,len,computer_event_func_type);
-            if (k > 0)
-            {
-                cevent->func_event = computer_event_func_list[k];
-                n++;
-            }
-            k = recognize_conf_parameter(buf,&pos,len,computer_event_test_func_type);
-            if (k > 0)
-            {
-                cevent->func_test = computer_event_test_func_list[k];
-                n++;
-            }
-            if (n < 2)
-            {
-                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 5: // PROCESS
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = get_computer_process_config_list_index_mnem(word_buf);
-              if (k > 0)
-              {
-                cevent->process = &comp_player_conf.process_types[k];
-              } else
-              {
-                  CONFWRNLOG("Could not recognize \"%s\" parameter in [%s] block of %s file.",
-                      COMMAND_TEXT(cmd_num),block_buf,config_textname);
-              }
-            }
-            break;
-        case 6: // PARAMS
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cevent->param1 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cevent->param2 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cevent->param3 = k;
-              n++;
-            }
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              cevent->last_test_gameturn = k;
-              n++;
-            }
-            if (n < 4)
-            {
-                CONFWRNLOG("Could not recognize all of \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-      }
-#undef COMMAND_TEXT
-    }
-    return 1;
-}
-
 short parse_computer_player_computer_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     // Block name and parameter word store variable
     // The -1 was possibly making the array size 1-too-small. It was originally
     // const int arr_size = (int)(sizeof(ComputerProcessLists)/sizeof(ComputerProcessLists[0]))-1;
+    
     const int arr_size = (int)(sizeof(ComputerProcessLists)/sizeof(ComputerProcessLists[0]));
     for (int i = 0; i < arr_size; i++)
     {
@@ -713,7 +565,7 @@ short parse_computer_player_computer_blocks(char *buf, long len, const char *con
                       COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                   continue;
               }
-              n = computer_type_add_event(cpt, computer_event_config_list[k].event);
+              n = computer_type_add_event(cpt, &comp_player_conf.event_types[k]);
               if (n < 0)
               {
                   CONFWRNLOG("Could not add \"%s\" list element \"%s\" in [%s] block of %s file.",
@@ -799,7 +651,7 @@ TbBool load_computer_player_config(unsigned short flags)
         parse_computer_player_common_blocks(buf, len, textname, flags);
         parse_named_field_blocks(buf, len, textname, flags, &compp_process_named_fields_set);
         parse_named_field_blocks(buf, len, textname, flags, &compp_check_named_fields_set);
-        parse_computer_player_event_blocks(buf, len, textname, flags);
+        parse_named_field_blocks(buf, len, textname, flags, &compp_event_named_fields_set);
         parse_computer_player_computer_blocks(buf, len, textname, flags);
     }
     //Freeing and exiting

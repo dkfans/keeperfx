@@ -1325,9 +1325,9 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     {
         struct ComputerEvent* event = &cpt->events[i];
         struct ComputerEvent* newevnt = &comp->events[i];
-        if ((event == NULL) || (event->name == NULL))
+        if ((event == NULL) || (event->name[0] == '\0'))
         {
-            newevnt->name = NULL;
+            newevnt->name[0] = '\0';
             break;
         }
         memcpy(newevnt, event, sizeof(struct ComputerEvent));
@@ -1369,7 +1369,7 @@ void computer_check_events(struct Computer2 *comp)
     for (long i = 0; i < COMPUTER_EVENTS_COUNT; i++)
     {
         struct ComputerEvent* cevent = &comp->events[i];
-        if (cevent->name == NULL)
+        if (cevent->name[0] == '\0')
             break;
         switch (cevent->cetype)
         {
@@ -1704,9 +1704,8 @@ void restore_computer_player_after_load(void)
         }
         for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
         {
-            if (cpt->events[i].name == NULL)
+            if (cpt->events[i].name[0] == '\0')
               break;
-            comp->events[i].name = cpt->events[i].name;
             comp->events[i].func_event = cpt->events[i].func_event;
             comp->events[i].func_test = cpt->events[i].func_test;
             comp->events[i].process = cpt->events[i].process;
