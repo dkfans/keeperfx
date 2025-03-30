@@ -43,15 +43,6 @@ const struct NamedCommand compp_common_commands[] = {
   {NULL,              0},
   };
 
-const struct NamedCommand compp_process_commands[] = {
-  {"NAME",            1},
-  {"MNEMONIC",        2},
-  {"VALUES",          3},
-  {"FUNCTIONS",       4},
-  {"PARAMS",          5},
-  {NULL,              0},
-  };
-
 const struct NamedCommand compp_check_commands[] = {
   {"NAME",            1},
   {"MNEMONIC",        2},
