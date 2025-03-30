@@ -33,9 +33,7 @@ extern "C" {
 #define COMPUTER_TASKS_COUNT        100
 #define COMPUTER_PROCESSES_COUNT     20
 #define COMPUTER_CHECKS_COUNT        32
-#define COMPUTER_CHECKS_COUNT_OLD    15
 #define COMPUTER_EVENTS_COUNT        33
-#define COMPUTER_EVENTS_COUNT_OLD    12
 // To add additional computer players update the folowing number. Update ComputerCount in keepcompp.cfg to match.
 // Must match the actual number of consecutive computers listed in that file (don't forget to count computer0).
 #define COMPUTER_MODELS_COUNT        17 // renamed from COMPUTER_PROCESS_LISTS_COUNT, for clarity
@@ -227,6 +225,29 @@ enum CompChatFlags {
     CChat_TasksFrequent = 0x02,
 };
 
+enum computer_process_func_list 
+{
+    cpfl_computer_check_build_all_rooms = 1,
+    cpfl_computer_setup_any_room_continue,
+    cpfl_computer_check_any_room,
+    cpfl_computer_setup_any_room,
+    cpfl_computer_check_dig_to_entrance,
+    cpfl_computer_setup_dig_to_entrance,
+    cpfl_computer_check_dig_to_gold,
+    cpfl_computer_setup_dig_to_gold,
+    cpfl_computer_check_sight_of_evil,
+    cpfl_computer_setup_sight_of_evil,
+    cpfl_computer_process_sight_of_evil,
+    cpfl_computer_check_attack1,
+    cpfl_computer_setup_attack1,
+    cpfl_computer_completed_attack1,
+    cpfl_computer_check_safe_attack,
+    cpfl_computer_process_task,
+    cpfl_computer_completed_build_a_room,
+    cpfl_computer_paused_task,
+    cpfl_computer_completed_task
+  };
+
 //TODO COMPUTER This returns NULL, which is unsafe
 #define INVALID_COMPUTER_PLAYER NULL
 #define INVALID_COMPUTER_PROCESS NULL
@@ -267,18 +288,19 @@ struct TaskFunctions {
 };
 
 struct ComputerProcess { // sizeof = 72
-  char *name;
+  char name[COMMAND_WORD_LEN];
+  char mneumonic[COMMAND_WORD_LEN];
   long priority;
   // Signed process config values
   long confval_2;
   long confval_3;
   long confval_4; /**< room kind or amount of creatures or gameturn or count of slabs */
   long confval_5;
-  Comp_Process_Func func_check;
-  Comp_Process_Func func_setup;
-  Comp_Process_Func func_task;
-  Comp_Process_Func func_complete;
-  Comp_Process_Func func_pause;
+  FuncIdx func_check;
+  FuncIdx func_setup;
+  FuncIdx func_task;
+  FuncIdx func_complete;
+  FuncIdx func_pause;
   struct ComputerProcess *parent;
   // Unsigned process parameters storage (stores gameturns)
   unsigned long param_1;
@@ -488,31 +510,13 @@ struct Computer2 { // sizeof = 5322
   unsigned long max_room_build_tasks;
   unsigned long task_delay;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
-  union
-  {
-      struct ComputerCheck checks_OLD[COMPUTER_CHECKS_COUNT_OLD];
-      struct
-      {
-          struct ComputerCheck checks_guard[2];
-          struct ComputerCheck *checks;
-      };
-  };
-  union
-  {
-      struct ComputerEvent events_OLD[COMPUTER_EVENTS_COUNT_OLD];
-      struct
-      {
-          struct ComputerEvent event_guard[2]; // Set to invalid event if some would like to list events
-          struct ComputerEvent *events;
-      };
-  };
+  struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
+  struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
   struct OpponentRelation opponent_relations[PLAYERS_COUNT];
   // TODO we could use coord2d for trap locations
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
   /** Stores Sight Of Evil target points data. */
   unsigned long soe_targets[COMPUTER_SOE_GRID_SIZE];
-  /* seem unused */
-  unsigned char field_13E4[224];
   short ongoing_process;
   short task_idx;
   short held_thing_idx;
@@ -538,18 +542,18 @@ struct ExpandRooms {
 #pragma pack()
 /******************************************************************************/
 struct ComputerPlayerConfig {
-    int processes_count;
-    int checks_count;
-    int events_count;
-    int computers_count;
-    int skirmish_first; /*new*/
-    int skirmish_last; /*new*/
+    long processes_count;
+    struct ComputerProcess process_types[COMPUTER_PROCESS_TYPES_COUNT];
+    long checks_count;
+    long events_count;
+    long computers_count;
+    long skirmish_first; /*new*/
+    long skirmish_last; /*new*/
 };
 /******************************************************************************/
 extern unsigned short computer_types_tooltip_stridx[];
 extern struct ValidRooms valid_rooms_to_build[];
 
-extern struct ComputerProcessMnemonic computer_process_config_list[];
 extern const struct NamedCommand computer_process_func_type[];
 extern Comp_Process_Func computer_process_func_list[];
 
