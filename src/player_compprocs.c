@@ -65,7 +65,7 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
 long computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProcess *cproc);
 /******************************************************************************/
 
-struct ComputerProcess processes_list[COMPUTER_PROCESS_TYPES_COUNT];
+
 
 /******************************************************************************/
 const struct NamedCommand computer_process_func_type[] = {

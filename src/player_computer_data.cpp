@@ -57,23 +57,22 @@ unsigned short computer_types_tooltip_stridx[] = {
     GUIStr_AggressiveAssistDesc, GUIStr_DefensiveAssistDesc,
     GUIStr_ConstructionAssistDesc, GUIStr_MoveOnlyAssistDesc, };
 
-/******************************************************************************/
-extern struct ComputerProcess processes_list[];
+
 /******************************************************************************/
 
 struct ValidRooms valid_rooms_to_build[] = {
-  {RoK_TREASURE,  &processes_list[9]},
-  {RoK_LAIR,      &processes_list[12]},
-  {RoK_GARDEN,    &processes_list[11]},
-  {RoK_LIBRARY,   &processes_list[10]},
-  {RoK_TRAINING,  &processes_list[13]},
-  {RoK_WORKSHOP,  &processes_list[14]},
-  {RoK_SCAVENGER, &processes_list[5]},
-  {RoK_PRISON,    &processes_list[3]},
-  {RoK_TEMPLE,    &processes_list[6]},
-  {RoK_TORTURE,   &processes_list[4]},
-  {RoK_GRAVEYARD, &processes_list[7]},
-  {RoK_BARRACKS,  &processes_list[8]},
+  {RoK_TREASURE,  &comp_player_conf.process_types[9]},
+  {RoK_LAIR,      &comp_player_conf.process_types[12]},
+  {RoK_GARDEN,    &comp_player_conf.process_types[11]},
+  {RoK_LIBRARY,   &comp_player_conf.process_types[10]},
+  {RoK_TRAINING,  &comp_player_conf.process_types[13]},
+  {RoK_WORKSHOP,  &comp_player_conf.process_types[14]},
+  {RoK_SCAVENGER, &comp_player_conf.process_types[5]},
+  {RoK_PRISON,    &comp_player_conf.process_types[3]},
+  {RoK_TEMPLE,    &comp_player_conf.process_types[6]},
+  {RoK_TORTURE,   &comp_player_conf.process_types[4]},
+  {RoK_GRAVEYARD, &comp_player_conf.process_types[7]},
+  {RoK_BARRACKS,  &comp_player_conf.process_types[8]},
   {-1,            NULL},
 };
 

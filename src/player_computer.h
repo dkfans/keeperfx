@@ -543,6 +543,7 @@ struct ExpandRooms {
 /******************************************************************************/
 struct ComputerPlayerConfig {
     long processes_count;
+    struct ComputerProcess process_types[COMPUTER_PROCESS_TYPES_COUNT];
     long checks_count;
     long events_count;
     long computers_count;
