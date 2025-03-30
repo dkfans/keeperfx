@@ -6431,11 +6431,11 @@ TngUpdateRet update_creature(struct Thing *thing)
     move_creature(thing);
     if (flag_is_set(thing->alloc_flags, TAlF_IsControlled))
     {
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveY))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveX))
         {
             cctrl->move_speed /= 2;
         }
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveX))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveY))
         {
             cctrl->orthogn_speed /= 2;
         }
@@ -6510,7 +6510,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->moveaccel.y.val = 0;
     cctrl->moveaccel.z.val = 0;
     // Clear flags and process spell effects.
-    clear_flag(cctrl->flgfield_1, CCFlg_MoveY | CCFlg_MoveX | CCFlg_MoveZ);
+    clear_flag(cctrl->flgfield_1, CCFlg_MoveX | CCFlg_MoveY | CCFlg_MoveZ);
     clear_flag(cctrl->spell_flags, CSAfF_PoisonCloud | CSAfF_Wind);
     process_thing_spell_effects(thing);
     process_timebomb(thing);

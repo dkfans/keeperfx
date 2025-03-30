@@ -78,8 +78,8 @@ enum CreatureControlFlags {
     CCFlg_Unknown08     = 0x08,
     CCFlg_Unknown10     = 0x10,
     CCFlg_IsInRoomList  = 0x20,
-    CCFlg_MoveY         = 0x40,
-    CCFlg_MoveX         = 0x80,
+    CCFlg_MoveX         = 0x40,
+    CCFlg_MoveY         = 0x80,
     CCFlg_MoveZ         = 0x100,
 };
 
