@@ -25,6 +25,7 @@
 #include "bflib_dernc.h"
 
 #include "config.h"
+#include "config_strings.h"
 #include "player_computer.h"
 #include "thing_data.h"
 #include "post_inc.h"
@@ -186,12 +187,13 @@ const struct NamedFieldSet compp_event_named_fields_set = {
 static const struct NamedField compp_computer_named_fields[] = {
   //name           //pos    //field                                                    //default //min     //max    //NamedCommand
   {"NAME",             -1, field(comp_player_conf.computer_types[0].name),                     0, LONG_MIN,ULONG_MAX, NULL,         value_name,    assign_null},
-  {"TOOLTIPTEXTID",     0, field(comp_player_conf.computer_types[0].tooltip_stridx),         201, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            0, field(comp_player_conf.computer_types[0].processes_time),           0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            1, field(comp_player_conf.computer_types[0].click_rate ),              0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            2, field(comp_player_conf.computer_types[0].max_room_build_tasks),     0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            3, field(comp_player_conf.computer_types[0].turn_begin         ),      0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
-  {"VALUES",            4, field(comp_player_conf.computer_types[0].sim_before_dig     ),      0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
+  {"TOOLTIPTEXTID",     0, field(comp_player_conf.computer_types[0].tooltip_stridx),GUIStr_Empty, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            0, field(comp_player_conf.computer_types[0].dig_stack_size ),          0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            1, field(comp_player_conf.computer_types[0].processes_time ),          0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            2, field(comp_player_conf.computer_types[0].click_rate),               0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            3, field(comp_player_conf.computer_types[0].max_room_build_tasks),     0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            4, field(comp_player_conf.computer_types[0].turn_begin         ),      0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
+  {"VALUES",            5, field(comp_player_conf.computer_types[0].sim_before_dig     ),      0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
   {"VALUES",            5, field(comp_player_conf.computer_types[0].drop_delay         ),      0, LONG_MIN,ULONG_MAX, NULL,         value_default, assign_default},
   {"PROCESSES",        -1, field(comp_player_conf.computer_types[0].processes          ),      0, LONG_MIN,ULONG_MAX, NULL,         value_processes, assign_null},
   {"CHECKS",           -1, field(comp_player_conf.computer_types[0].checks             ),      0, LONG_MIN,ULONG_MAX, NULL,         value_checks, assign_null},
@@ -391,127 +393,6 @@ static int computer_type_add_event(struct ComputerTypes *cpt, struct ComputerEve
   return -1;
 }
 
-TbBool parse_computer_player_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    // Block name and parameter word store variables
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        comp_player_conf.processes_count = 1;
-        comp_player_conf.checks_count = 1;
-        comp_player_conf.events_count = 1;
-        comp_player_conf.computers_count = 1;
-    }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "common");
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_common_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, compp_common_commands);
-        // Now store the config item in correct place
-        if (cmd_num == ccr_endOfBlock) break; // if next block starts
-        int n = 0;
-        char word_buf[COMMAND_WORD_LEN];
-        switch (cmd_num)
-        {
-        case 1: // COMPUTERASSISTS
-  //TODO DLL_CLEANUP make it work when AI structures from DLL will no longer be used
-            break;
-        case 3: // CHECKSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= COMPUTER_CHECKS_TYPES_COUNT))
-              {
-                  comp_player_conf.checks_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 4: // EVENTSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= COMPUTER_EVENTS_TYPES_COUNT))
-              {
-                  comp_player_conf.events_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 5: // COMPUTERSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= COMPUTER_MODELS_COUNT))
-              {
-                  comp_player_conf.computers_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 6: // SKIRMISHFIRST
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= COMPUTER_MODELS_COUNT))
-              {
-                  comp_player_conf.skirmish_first = k;
-                  n++;
-              }
-            }
-            break;
-        case 7: // SKIRMISHLAST
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= COMPUTER_MODELS_COUNT))
-              {
-                  comp_player_conf.skirmish_last = k;
-                  n++;
-              }
-            }
-            break;
-        case ccr_comment:
-            break;
-        case ccr_endOfFile:
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    return true;
-}
-
 TbBool load_computer_player_config(unsigned short flags)
 {
     SYNCDBG(8, "Starting");
@@ -536,7 +417,7 @@ TbBool load_computer_player_config(unsigned short flags)
     len = LbFileLoadAt(fname, buf);
     if (len>0)
     {
-        parse_computer_player_common_blocks(buf, len, textname, flags);
+        parse_named_field_blocks(buf, len, textname, flags, &compp_common_named_fields_set);
         parse_named_field_blocks(buf, len, textname, flags, &compp_process_named_fields_set);
         parse_named_field_blocks(buf, len, textname, flags, &compp_check_named_fields_set);
         parse_named_field_blocks(buf, len, textname, flags, &compp_event_named_fields_set);
