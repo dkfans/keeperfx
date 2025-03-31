@@ -382,6 +382,10 @@ int64_t value_flagsfieldshift(const struct NamedField* named_field, const char* 
     {
         return atoll(value_text);
     }
+    if(strcasecmp(value_text,"none") == 0)
+    {
+        return 0;
+    }
 
     long pos = 0;
     long len = strlen(value_text);
@@ -421,6 +425,10 @@ int64_t value_flagsfield(const struct NamedField* named_field, const char* value
     if (parameter_is_number(value_text))
     {
         return atoll(value_text);
+    }
+    if(strcasecmp(value_text,"none") == 0)
+    {
+        return 0;
     }
 
     long pos = 0;
