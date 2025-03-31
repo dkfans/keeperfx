@@ -43,6 +43,8 @@ extern "C" {
 #define COMPUTER_CHECKS_TYPES_COUNT  52
 #define COMPUTER_EVENTS_TYPES_COUNT  31
 
+#define COMPUTER_ASSIST_TYPES_COUNT 4
+
 #define COMPUTER_SPARK_POSITIONS_COUNT 64
 #define COMPUTER_SOE_GRID_SIZE        8
 
@@ -535,6 +537,8 @@ struct ComputerPlayerConfig {
     long computers_count;
     long skirmish_first; /*new*/
     long skirmish_last; /*new*/
+    ComputerType computer_assist_types[COMPUTER_ASSIST_TYPES_COUNT];
+
 };
 /******************************************************************************/
 extern unsigned short computer_types_tooltip_stridx[];

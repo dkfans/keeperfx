@@ -52,37 +52,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-ComputerType computer_assist_types[] = { 6, 7, 8, 9 };
-
-
-char const event_pay_day_text[] = "EVENT PAY DAY";
-char const event_save_imps_text[] = "EVENT SAVE IMPS";
-char const event_check_room_text[] = "EVENT CHECK ROOMS FULL";
-char const event_magic_foe_text[] = "EVENT MAGIC FOE";
-char const event_check_fighters_text[] = "EVENT CHECK FIGHTERS";
-char const event_fight_test_text[] = "EVENT FIGHT TEST";
-char const event_fight_text[] = "EVENT FIGHT";
-char const event_living_space_full_text[] = "EVENT LIVING SPACE FULL";
-char const event_treasure_room_full_text[] = "EVENT TREASURE ROOM FULL";
-char const event_heart_under_attack_text[] = "EVENT HEART UNDER ATTACK";
-char const event_room_attack_text[] = "EVENT ROOM ATTACK";
-char const event_dungeon_breach_text[] = "EVENT DUNGEON BREACH";
-
-char const check_money_text[] = "CHECK MONEY";
-char const check_expand_room_text[] = "CHECK EXPAND ROOM";
-char const check_avail_trap_text[] = "CHECK AVAILIABLE TRAP";
-char const check_neutral_places_text[] = "CHECK FOR NEUTRAL PLACES";
-char const check_avail_door_text[] = "CHECK AVAILIABLE DOOR";
-char const check_enemy_entrances_text[] = "CHECK FOR ENEMY ENTRANCES";
-char const check_for_slap_imp_text[] = "CHECK FOR SLAP IMP";
-char const check_for_speed_up_text[] = "CHECK FOR SPEED UP";
-char const check_for_quick_attack_text[] = "CHECK FOR QUICK ATTACK";
-char const check_to_pretty_text[] = "CHECK TO PRETTY";
-char const check_enough_imps_text[] = "CHECK FOR ENOUGH IMPS";
-char const move_creature_to_train_text[] = "MOVE CREATURE TO TRAINING";
-char const move_creature_to_best_text[] = "MOVE CREATURE TO BEST ROOM";
-char const computer_check_hates_text[] = "COMPUTER CHECK HATES";
 
 /******************************************************************************/
 // Function definition needed to compare pointers - remove pending
@@ -134,7 +103,7 @@ GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
 
 long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
 {
-    setup_a_computer_player(plyr_idx, computer_assist_types[aptype-1]);
+    setup_a_computer_player(plyr_idx, comp_player_conf.computer_assist_types[aptype-1]);
     return 1;
 }
 

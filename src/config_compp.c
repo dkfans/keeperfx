@@ -86,10 +86,31 @@ struct NamedCommand check_names_desc[COMPUTER_PROCESS_TYPES_COUNT];
 
 /******************************************************************************/
 
+static const struct NamedField compp_common_named_fields[] = {
+  {"ComputerAssists",  0, field(comp_player_conf.computer_assist_types[0]), 0, LONG_MIN,ULONG_MAX, NULL, value_default, assign_default},
+  {"ComputerAssists",  1, field(comp_player_conf.computer_assist_types[1]), 0, LONG_MIN,ULONG_MAX, NULL, value_default, assign_default},
+  {"ComputerAssists",  2, field(comp_player_conf.computer_assist_types[2]), 0, LONG_MIN,ULONG_MAX, NULL, value_default, assign_default},
+  {"ComputerAssists",  3, field(comp_player_conf.computer_assist_types[3]), 0, LONG_MIN,ULONG_MAX, NULL, value_default, assign_default},
+  {"SkirmishFirst",    0, field(comp_player_conf.skirmish_first),           0, LONG_MIN,ULONG_MAX, NULL, value_default, assign_default},
+  {"SkirmishLast",     0, field(comp_player_conf.skirmish_last),            0, LONG_MIN,ULONG_MAX, NULL, value_default, assign_default},
+  {NULL},
+};
+
+const struct NamedFieldSet compp_common_named_fields_set = {
+  NULL,
+  "common",
+  compp_common_named_fields,
+  NULL,
+  0,
+  0,
+  NULL,
+  {"keepcompp.cfg","INVALID"},
+};
+
 static const struct NamedField compp_process_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
   {"NAME",        -1, field(comp_player_conf.process_types[0].name),          0, LONG_MIN,ULONG_MAX, process_names_desc,         value_name,    assign_null},
-  {"MNEMONIC",     0, field(comp_player_conf.process_types[0].mnemonic),     0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
+  {"MNEMONIC",     0, field(comp_player_conf.process_types[0].mnemonic),      0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
   {"VALUES",       0, field(comp_player_conf.process_types[0].priority     ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {"VALUES",       1, field(comp_player_conf.process_types[0].confval_2    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {"VALUES",       2, field(comp_player_conf.process_types[0].confval_3    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
