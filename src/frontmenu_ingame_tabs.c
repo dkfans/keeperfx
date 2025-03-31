@@ -1029,7 +1029,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
     }
     else
     {
-        // Note that "@" is "�" in that font
+        // Note that "@" is "×" in that font
         sprintf(gui_textbuf, "@%ld", (long)amount);
     }
     if (amount <= 0) {
