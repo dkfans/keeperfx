@@ -263,15 +263,15 @@ void update_frontmap_ambient_sound(void)
       {
           long i = compute_sound_good_to_bad_factor();
           SYNCDBG(18, "Volume factor is %ld", i);
-          SetSampleVolume(0, campaign.ambient_good, map_sound_fade * (i) / 256);
-          SetSampleVolume(0, campaign.ambient_bad, map_sound_fade * (settings.sound_volume - i) / 256);
+          SetSampleVolume(1, campaign.ambient_good, map_sound_fade * (i) / 256);
+          SetSampleVolume(1, campaign.ambient_bad, map_sound_fade * (settings.sound_volume - i) / 256);
     } else
     if (lvidx > 13)
     {
-      SetSampleVolume(0, campaign.ambient_bad, settings.sound_volume *map_sound_fade/256);
+      SetSampleVolume(1, campaign.ambient_bad, settings.sound_volume *map_sound_fade/256);
     } else
     {
-      SetSampleVolume(0, campaign.ambient_good, settings.sound_volume *map_sound_fade/256);
+      SetSampleVolume(1, campaign.ambient_good, settings.sound_volume *map_sound_fade/256);
     }
     set_streamed_sample_volume(settings.sound_volume *map_sound_fade/256);
     set_music_volume(map_sound_fade*(long)settings.music_volume/256);
@@ -279,8 +279,8 @@ void update_frontmap_ambient_sound(void)
   {
     if ((features_enabled & Ft_AdvAmbSound) != 0)
     {
-      SetSampleVolume(0, campaign.ambient_good, 0);
-      SetSampleVolume(0, campaign.ambient_bad, 0);
+      SetSampleVolume(1, campaign.ambient_good, 0);
+      SetSampleVolume(1, campaign.ambient_bad, 0);
     }
     set_music_volume(0);
     set_streamed_sample_volume(0);
@@ -1151,8 +1151,8 @@ TbBool frontmap_load(void)
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     if ((features_enabled & Ft_AdvAmbSound) != 0)
     {
-        play_non_3d_sample(campaign.ambient_good);
-        play_non_3d_sample(campaign.ambient_bad);
+        play_sample(1, campaign.ambient_good, 0, 0x40, 100, -1, 2, 0);
+        play_sample(1, campaign.ambient_bad, 0, 0x40, 100, -1, 2, 0);
     }
     set_music_volume(settings.music_volume);
     frontmap_start_music();
