@@ -952,7 +952,8 @@ static void frontmap_start_music(void)
         if (track >= 1) {
             play_music_track(track);
         } else {
-            play_music(campaign.soundtrack_fname);
+            const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, campaign.soundtrack_fname);
+            play_music(fname);
         }
     } else {
         play_music_track(2);
