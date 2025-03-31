@@ -34,26 +34,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const struct NamedCommand compp_common_commands[] = {
-  {"COMPUTERASSISTS", 1},
-  {"CHECKSCOUNT",     3},
-  {"EVENTSCOUNT",     4},
-  {"COMPUTERSCOUNT",  5},
-  {"SKIRMISHFIRST",   6}, /*new*/
-  {"SKIRMISHLAST",    7}, /*new*/
-  {NULL,              0},
-  };
-
 
 const char keeper_compplayer_file[]="keepcompp.cfg";
 
 /******************************************************************************/
 struct ComputerPlayerConfig comp_player_conf;
-
-
-struct NamedCommand process_names_desc[COMPUTER_PROCESS_TYPES_COUNT];
-struct NamedCommand check_names_desc[COMPUTER_PROCESS_TYPES_COUNT];
-
 
 static TbBool computer_type_clear_processes(struct ComputerTypes *cpt);
 static TbBool computer_type_clear_checks(struct ComputerTypes *cpt);
@@ -96,7 +81,7 @@ const struct NamedFieldSet compp_common_named_fields_set = {
 
 static const struct NamedField compp_process_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
-  {"NAME",        -1, field(comp_player_conf.process_types[0].name),          0, LONG_MIN,ULONG_MAX, process_names_desc,         value_name,    assign_null},
+  {"NAME",        -1, field(comp_player_conf.process_types[0].name),          0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
   {"MNEMONIC",     0, field(comp_player_conf.process_types[0].mnemonic),      0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
   {"VALUES",       0, field(comp_player_conf.process_types[0].priority     ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {"VALUES",       1, field(comp_player_conf.process_types[0].confval_2    ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
@@ -121,7 +106,7 @@ const struct NamedFieldSet compp_process_named_fields_set = {
   &comp_player_conf.processes_count,
   "process",
   compp_process_named_fields,
-  process_names_desc,
+  NULL,
   COMPUTER_PROCESS_TYPES_COUNT,
   sizeof(comp_player_conf.process_types[0]),
   comp_player_conf.process_types,
@@ -130,8 +115,8 @@ const struct NamedFieldSet compp_process_named_fields_set = {
 
 static const struct NamedField compp_check_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
-  {"NAME",        -1, field(comp_player_conf.check_types[0].name          ), 0, LONG_MIN,ULONG_MAX, process_names_desc,         value_name,    assign_null},
-  {"MNEMONIC",     0, field(comp_player_conf.check_types[0].mnemonic     ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
+  {"NAME",        -1, field(comp_player_conf.check_types[0].name          ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
+  {"MNEMONIC",     0, field(comp_player_conf.check_types[0].mnemonic      ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
   {"VALUES",       0, field(comp_player_conf.check_types[0].flags         ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {"VALUES",       1, field(comp_player_conf.check_types[0].turns_interval), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {"FUNCTIONS",    0, field(comp_player_conf.check_types[0].func          ), 0, LONG_MIN,ULONG_MAX, computer_check_func_type,   value_default, assign_default},
@@ -147,7 +132,7 @@ const struct NamedFieldSet compp_check_named_fields_set = {
   &comp_player_conf.checks_count,
   "check",
   compp_check_named_fields,
-  check_names_desc,
+  NULL,
   COMPUTER_CHECKS_TYPES_COUNT,
   sizeof(comp_player_conf.check_types[0]),
   comp_player_conf.check_types,
@@ -156,7 +141,7 @@ const struct NamedFieldSet compp_check_named_fields_set = {
 
 static const struct NamedField compp_event_named_fields[] = {
   //name           //pos    //field                                   //default //min     //max    //NamedCommand
-  {"NAME",        -1, field(comp_player_conf.event_types[0].name               ), 0, LONG_MIN,ULONG_MAX, process_names_desc,         value_name,    assign_null},
+  {"NAME",        -1, field(comp_player_conf.event_types[0].name               ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
   {"MNEMONIC",     0, field(comp_player_conf.event_types[0].mnemonic           ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_name,    assign_null},
   {"VALUES",       0, field(comp_player_conf.event_types[0].cetype             ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
   {"VALUES",       1, field(comp_player_conf.event_types[0].mevent_kind        ), 0, LONG_MIN,ULONG_MAX, NULL,                       value_default, assign_default},
