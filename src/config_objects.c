@@ -42,7 +42,6 @@ struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 const char keeper_objects_file[]="objects.cfg";
 
 const struct NamedCommand objects_properties_commands[] = {
-  {"NONE",                    0},
   {"EXISTS_ONLY_IN_ROOM",     1},
   {"DESTROYED_ON_ROOM_CLAIM", 2},
   {"CHOWNED_ON_ROOM_CLAIM",   3},
