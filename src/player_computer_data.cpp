@@ -47,16 +47,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-
-//TODO COMPUTER_PLAYER move to config file
-unsigned short computer_types_tooltip_stridx[] = {
-    GUIStr_Empty, GUIStr_Empty,
-    GUIStr_Empty, GUIStr_Empty,
-    GUIStr_Empty, GUIStr_Empty,
-    GUIStr_AggressiveAssistDesc, GUIStr_DefensiveAssistDesc,
-    GUIStr_ConstructionAssistDesc, GUIStr_MoveOnlyAssistDesc, };
-
 
 /******************************************************************************/
 

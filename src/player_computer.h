@@ -463,7 +463,6 @@ struct ExpandRooms {
 /******************************************************************************/
 
 /******************************************************************************/
-extern unsigned short computer_types_tooltip_stridx[];
 extern struct ValidRooms valid_rooms_to_build[];
 
 extern const struct NamedCommand computer_process_func_type[];

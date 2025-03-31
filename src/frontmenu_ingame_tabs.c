@@ -321,9 +321,9 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
     struct PlayerInfo* player = get_my_player();
     struct Computer2* comp = get_computer_player(player->id_number);
     unsigned long cplr_model = comp->model;
-    //TODO COMPUTER_PLAYER change limit to comp_player_conf.computers_count when the array is inside computer player config
-    if (cplr_model < COMPUTER_MODELS_COUNT) {
-        gbtn->tooltip_stridx = computer_types_tooltip_stridx[cplr_model];
+    if (cplr_model < comp_player_conf.computers_count) {
+        struct ComputerTypes* cpt = get_computer_type_template(cplr_model);
+        gbtn->tooltip_stridx = cpt->tooltip_stridx;
     } else {
         ERRORLOG("Illegal computer player model %d",(int)cplr_model);
     }
@@ -1029,7 +1029,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
     }
     else
     {
-        // Note that "@" is "×" in that font
+        // Note that "@" is "ï¿½" in that font
         sprintf(gui_textbuf, "@%ld", (long)amount);
     }
     if (amount <= 0) {
