@@ -1227,7 +1227,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     }
     memset(comp, 0, sizeof(struct Computer2));
 
-    struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp_model);
+    struct ComputerTypes* cpt = get_computer_type_template(comp_model);
     comp->dungeon = get_players_num_dungeon(plyr_idx);
     comp->model = comp_model;
     if (dungeon_invalid(comp->dungeon)) {
@@ -1354,7 +1354,7 @@ void computer_check_events(struct Computer2 *comp)
                       (event->owner == dungeon->owner) &&
                       (event->kind == cevent->mevent_kind) )
                 {
-                    if (cevent->func_event(comp, cevent, event) == 1) {
+                    if (computer_event_func_list[cevent->func_event](comp, cevent, event) == 1) {
                         SYNCDBG(5,"Player %d reacted on %s",(int)dungeon->owner,cevent->name);
                         cevent->last_test_gameturn = game.play_gameturn;
                     }
@@ -1369,7 +1369,7 @@ void computer_check_events(struct Computer2 *comp)
                 break;
             }
             {
-                if (cevent->func_test(comp,cevent) == 1) {
+                if (computer_event_test_func_list[cevent->func_test](comp,cevent) == 1) {
                     SYNCDBG(5,"Player %d reacted on %s",(int)dungeon->owner,cevent->name);
                 }
                 // Update test turn no matter if event triggered something
@@ -1654,7 +1654,7 @@ void restore_computer_player_after_load(void)
             continue;
         }
         comp->dungeon = get_players_dungeon(player);
-        struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp->model);
+        struct ComputerTypes* cpt = get_computer_type_template(comp->model);
 
         long i;
         for (i = 0; i < COMPUTER_PROCESSES_COUNT; i++)
@@ -1673,10 +1673,6 @@ void restore_computer_player_after_load(void)
         }
         for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
         {
-            if (cpt->events[i].name[0] == '\0')
-              break;
-            comp->events[i].func_event = cpt->events[i].func_event;
-            comp->events[i].func_test = cpt->events[i].func_test;
             comp->events[i].process = cpt->events[i].process;
         }
     }

@@ -850,7 +850,8 @@ void set_defaults(const struct NamedFieldSet* named_fields_set)
       }
 
   }
-  if (name_NamedField != NULL)
+  
+  if (name_NamedField != NULL && named_fields_set->names != NULL)
   {
       for (int i = 0; i < named_fields_set->max_count; i++)
       {
