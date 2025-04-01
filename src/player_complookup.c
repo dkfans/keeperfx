@@ -24,7 +24,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 
 #include "map_data.h"
 #include "slab_data.h"
@@ -161,7 +160,7 @@ void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, 
     if (gold_idx != -1)
     {
         struct GoldLookup* gldlook = get_gold_lookup(gold_idx);
-        LbMemorySet(gldlook, 0, sizeof(struct GoldLookup));
+        memset(gldlook, 0, sizeof(struct GoldLookup));
         gldlook->flags |= 0x01;
         gldlook->stl_x = slab_subtile_center(gld_v1 / gld_v3);
         gldlook->stl_y = slab_subtile_center(gld_v2 / gld_v3);
@@ -183,7 +182,7 @@ void check_map_for_gold(void)
     SYNCDBG(8,"Starting");
     for (long i = 0; i < GOLD_LOOKUP_COUNT; i++)
     {
-        LbMemorySet(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
+        memset(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
     }
     // Make a map with treasure areas marked
     unsigned char* treasure_map = (unsigned char*)big_scratch;
@@ -195,9 +194,9 @@ void check_map_for_gold(void)
             slb_num = get_slab_number(slb_x, slb_y);
             struct SlabMap* slb = get_slabmap_direct(slb_num);
             treasure_map[slb_num] = 0;
-            const struct SlabAttr* slbattr = get_slab_attrs(slb);
+            const struct SlabConfigStats* slabst = get_slab_stats(slb);
             // Mark areas which are not valuable
-            if ((slbattr->block_flags & (SlbAtFlg_Valuable)) == 0) {
+            if ((slabst->block_flags & (SlbAtFlg_Valuable)) == 0) {
                 treasure_map[slb_num] |= 0x01;
             }
         }

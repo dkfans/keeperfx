@@ -20,7 +20,6 @@
 #include "creature_control.h"
 #include "globals.h"
 
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "config_creature.h"
@@ -108,7 +107,7 @@ struct CreatureControl *allocate_free_control_structure(void)
         {
             if ((cctrl->flgfield_1 & CCFlg_Exists) == 0)
             {
-                LbMemorySet(cctrl, 0, sizeof(struct CreatureControl));
+                memset(cctrl, 0, sizeof(struct CreatureControl));
                 cctrl->flgfield_1 |= CCFlg_Exists;
                 cctrl->index = i;
                 return cctrl;
@@ -120,7 +119,7 @@ struct CreatureControl *allocate_free_control_structure(void)
 
 void delete_control_structure(struct CreatureControl *cctrl)
 {
-    LbMemorySet(cctrl, 0, sizeof(struct CreatureControl));
+    memset(cctrl, 0, sizeof(struct CreatureControl));
 }
 
 void delete_all_control_structures(void)
@@ -164,7 +163,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     set_start_state(thing);
     // Preparing light object
     struct InitLight ilght;
-    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    memset(&ilght, 0, sizeof(struct InitLight));
     ilght.mappos.x.val = thing->mappos.x.val;
     ilght.mappos.y.val = thing->mappos.y.val;
     ilght.mappos.z.val = thing->mappos.z.val;
@@ -340,11 +339,11 @@ TbBool creature_can_gain_experience(const struct Thing *thing)
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // Creatures which reached players max level can't be trained
-    if (cctrl->explevel >= dungeon->creature_max_level[thing->model])
+    if (cctrl->exp_level >= dungeon->creature_max_level[thing->model])
         return false;
     // Creatures which reached absolute max level and have no grow up creature
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if ((cctrl->explevel >= (CREATURE_MAX_LEVEL-1)) && (crstat->grow_up == 0))
+    if ((cctrl->exp_level >= (CREATURE_MAX_LEVEL-1)) && (crstat->grow_up == 0))
         return false;
     return true;
 }

@@ -85,7 +85,6 @@ struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned long model_flags;
     long genre;
-    long name_stridx;
     long map_icon;
     HitPoints health;
     char fall_acceleration;
@@ -125,7 +124,8 @@ struct ObjectsConfig {
 extern const char keeper_objects_file[];
 extern struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 extern const struct NamedCommand objects_genres_desc[];
-extern const struct NamedCommand objects_object_commands[];
+
+extern const struct NamedFieldSet objects_named_fields_set;
 /******************************************************************************/
 TbBool load_objects_config(const char *conf_fname,unsigned short flags);
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel);
@@ -136,7 +136,7 @@ ThingModel crate_to_workshop_item_model(ThingModel tngmodel);
 ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing);
 ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing);
 int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmodel, ThingModel relmodel);
-void update_all_object_stats();
+void update_all_objects_of_model(ThingModel model);
 /******************************************************************************/
 #ifdef __cplusplus
 }

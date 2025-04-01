@@ -20,7 +20,6 @@
 #include "gui_tooltips.h"
 #include "globals.h"
 #include <stdarg.h>
-#include "bflib_memory.h"
 #include "bflib_guibtns.h"
 #include "bflib_sprfnt.h"
 
@@ -259,8 +258,8 @@ short setup_land_tooltips(struct Coord3d *pos)
     return false;
   struct SlabMap* slb = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
   long skind = slb->kind;
-  struct SlabAttr* slbattr = get_slab_kind_attrs(skind);
-  if (slbattr->tooltip_stridx == GUIStr_Empty)
+  struct SlabConfigStats* slabst = get_slab_kind_stats(skind);
+  if (slabst->tooltip_stridx == GUIStr_Empty)
     return false;
   update_gui_tooltip_target((void *)(uintptr_t)skind);
   struct PlayerInfo* player = get_my_player();
@@ -275,7 +274,7 @@ short setup_land_tooltips(struct Coord3d *pos)
           return true;
       }
   }
-  set_gui_tooltip_box_fmt(2, "%s", get_string(slbattr->tooltip_stridx));
+  set_gui_tooltip_box_fmt(2, "%s", get_string(slabst->tooltip_stridx));
   return true;
 }
 

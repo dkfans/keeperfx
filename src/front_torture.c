@@ -23,7 +23,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#include "bflib_memory.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_filelst.h"
@@ -77,7 +76,7 @@ void torture_play_sound(long door_id, TbBool state)
     return;
   if (state)
   {
-    play_sample(0, doors[door_id].smptbl_id, 0, 64, 100, -1, 2, 0);
+    play_non_3d_sample(doors[door_id].smptbl_id);
     door_sound_state[door_id].field_0 = 0;
     door_sound_state[door_id].field_4 = 16;
   }
@@ -156,7 +155,7 @@ void fronttorture_load(void)
     torture_door_selected = -1;
     torture_end_sprite = -1;
     torture_sprite_direction = 0;
-    LbMemorySet(door_sound_state, 0, TORTURE_DOORS_COUNT*sizeof(struct DoorSoundState));
+    memset(door_sound_state, 0, TORTURE_DOORS_COUNT*sizeof(struct DoorSoundState));
 
     struct PlayerInfo* player = get_my_player();
     if (player->victory_state == VicS_WonLevel)
@@ -358,7 +357,7 @@ void fronttorture_update(void)
             {
                 volume = 0;
                 doorsnd->field_4 = 0;
-                StopSample(0, door->smptbl_id);
+                stop_sample(0, door->smptbl_id, 0);
             } else
             if (volume >= 127)
             {

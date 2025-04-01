@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_sound.h"
@@ -34,6 +33,7 @@
 #include "config_players.h"
 #include "game_legacy.h"
 #include "custom_sprites.h"
+#include "frontmenu_ingame_tabs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -63,58 +63,61 @@ const struct NamedCommand trapdoor_door_commands[] = {
 };
 
 const struct NamedCommand trapdoor_trap_commands[] = {
-  {"NAME",                  1},
-  {"MANUFACTURELEVEL",      2},
-  {"MANUFACTUREREQUIRED",   3},
-  {"SHOTS",                 4},
-  {"TIMEBETWEENSHOTS",      5},
-  {"SELLINGVALUE",          6},
-  {"NAMETEXTID",            7},
-  {"TOOLTIPTEXTID",         8},
-  {"CRATE",                 9},
-  {"SYMBOLSPRITES",        10},
-  {"POINTERSPRITES",       11},
-  {"PANELTABINDEX",        12},
-  {"TRIGGERTYPE",          13},
-  {"ACTIVATIONTYPE",       14},
-  {"EFFECTTYPE",           15},
-  {"ANIMATIONID",          16},
-  {"MODEL",                16},//backward compatibility
-  {"MODELSIZE",            17},
-  {"ANIMATIONSPEED",       18},
-  {"UNANIMATED",           19},
-  {"HIDDEN",               20},
-  {"SLAPPABLE",            21},
-  {"TRIGGERALARM",         22},
-  {"HEALTH",               23},
-  {"UNSHADED",             24},
-  {"RANDOMSTARTFRAME",     25},
-  {"THINGSIZE",            26},
-  {"HITTYPE",              27},
-  {"LIGHTRADIUS",          28},
-  {"LIGHTINTENSITY",       29},
-  {"LIGHTFLAGS",           30},
-  {"TRANSPARENCYFLAGS",    31},
-  {"SHOTVECTOR",           32},
-  {"DESTRUCTIBLE",         33},
-  {"UNSTABLE",             34},
-  {"UNSELLABLE",           35},
-  {"PLACEONBRIDGE",        36},
-  {"SHOTORIGIN",           37},
-  {"PLACESOUND",           38},
-  {"TRIGGERSOUND",         39},
-  {"RECHARGEANIMATIONID",  40},
-  {"ATTACKANIMATIONID",    41},
-  {"DESTROYEDEFFECT",      42},
-  {"INITIALDELAY",         43},
-  {"PLACEONSUBTILE",       44},
-  {"FLAMEANIMATIONID",     45},
-  {"FLAMEANIMATIONSPEED",  46},
-  {"FLAMEANIMATIONSIZE",   47},
-  {"FLAMEANIMATIONOFFSET",    48},
-  {"FLAMETRANSPARENCYFLAGS",  49},
-  {"DETECTINVISIBLE",         50},
-  {NULL,                       0},
+  {"NAME",                    1},
+  {"MANUFACTURELEVEL",        2},
+  {"MANUFACTUREREQUIRED",     3},
+  {"SHOTS",                   4},
+  {"TIMEBETWEENSHOTS",        5},
+  {"SELLINGVALUE",            6},
+  {"NAMETEXTID",              7},
+  {"TOOLTIPTEXTID",           8},
+  {"CRATE",                   9},
+  {"SYMBOLSPRITES",          10},
+  {"POINTERSPRITES",         11},
+  {"PANELTABINDEX",          12},
+  {"TRIGGERTYPE",            13},
+  {"ACTIVATIONTYPE",         14},
+  {"EFFECTTYPE",             15},
+  {"ANIMATIONID",            16},
+  {"MODEL",                  16}, // Backward compatibility.
+  {"MODELSIZE",              17},
+  {"ANIMATIONSPEED",         18},
+  {"UNANIMATED",             19},
+  {"HIDDEN",                 20},
+  {"SLAPPABLE",              21},
+  {"TRIGGERALARM",           22},
+  {"HEALTH",                 23},
+  {"UNSHADED",               24},
+  {"RANDOMSTARTFRAME",       25},
+  {"THINGSIZE",              26},
+  {"HITTYPE",                27},
+  {"LIGHTRADIUS",            28},
+  {"LIGHTINTENSITY",         29},
+  {"LIGHTFLAGS",             30},
+  {"TRANSPARENCYFLAGS",      31},
+  {"SHOTVECTOR",             32},
+  {"DESTRUCTIBLE",           33},
+  {"UNSTABLE",               34},
+  {"UNSELLABLE",             35},
+  {"PLACEONBRIDGE",          36},
+  {"SHOTORIGIN",             37},
+  {"PLACESOUND",             38},
+  {"TRIGGERSOUND",           39},
+  {"RECHARGEANIMATIONID",    40},
+  {"ATTACKANIMATIONID",      41},
+  {"DESTROYEDEFFECT",        42},
+  {"INITIALDELAY",           43},
+  {"PLACEONSUBTILE",         44},
+  {"FLAMEANIMATIONID",       45},
+  {"FLAMEANIMATIONSPEED",    46},
+  {"FLAMEANIMATIONSIZE",     47},
+  {"FLAMEANIMATIONOFFSET",   48},
+  {"FLAMETRANSPARENCYFLAGS", 49},
+  {"DETECTINVISIBLE",        50},
+  {"INSTANTPLACEMENT",       51},
+  {"REMOVEONCEDEPLETED",     52},
+  {"FLAGNUMBER",             53},
+  {NULL,                      0},
 };
 
 const struct NamedCommand door_properties_commands[] = {
@@ -185,7 +188,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       for (int i=0; i < TRAPDOOR_TYPES_MAX; i++)
       {
           trapst = &game.conf.trapdoor_conf.trap_cfgstats[i];
-          LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
+          memset(trapst->code_name, 0, COMMAND_WORD_LEN);
           trapst->name_stridx = GUIStr_Empty;
           trapst->tooltip_stridx = GUIStr_Empty;
           trapst->bigsym_sprite_idx = 0;
@@ -207,6 +210,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->notify = false;
           trapst->place_on_bridge = false;
           trapst->place_on_subtile = false;
+          trapst->instant_placement = false;
+          trapst->remove_once_depleted = false;
           trapst->health = 1;
           trapst->destructible = 0;
           trapst->unstable = 0;
@@ -221,6 +226,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->unanimated = 0;
           trapst->unshaded = 0;
           trapst->random_start_frame = 0;
+          trapst->flag_number = 0;
           trapst->light_radius = 0;
           trapst->light_intensity = 0;
           trapst->light_flag = 0;
@@ -244,7 +250,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
   const char * blockname = NULL;
   int blocknamelen = 0;
   long pos = 0;
-  int k = 0;
+  long k = 0;
   while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
   {
     // look for blocks starting with "trap", followed by one or more digits
@@ -401,21 +407,17 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 10: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              trapst->bigsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              trapst->bigsym_sprite_idx = get_icon_id(word_buf);
+              if (trapst->bigsym_sprite_idx != bad_icon_id)
               {
-                  trapst->bigsym_sprite_idx = k;
                   n++;
               }
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              trapst->medsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              trapst->medsym_sprite_idx = get_icon_id(word_buf);
+              if (trapst->medsym_sprite_idx != bad_icon_id)
               {
-                  trapst->medsym_sprite_idx = k;
                   n++;
               }
           }
@@ -428,16 +430,14 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 11: // POINTERSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              trapst->pointer_sprite_idx = get_icon_id(word_buf);
+              if (trapst->pointer_sprite_idx != bad_icon_id)
               {
-                  trapst->pointer_sprite_idx = k;
                   n++;
               }
           }
           if (n < 1)
           {
-            trapst->pointer_sprite_idx = bad_icon_id;
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
                 COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
@@ -940,7 +940,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               n = atoi(word_buf);
-              if ( n < 0 || n > samples_in_bank - 1 )
+              if (n < 0)
               {
                   CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
@@ -955,7 +955,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               n = atoi(word_buf);
-              if (n < 0 || n > samples_in_bank - 1)
+              if (n < 0)
               {
                   CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
                       COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
@@ -1164,6 +1164,54 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
+      case 51: // INSTANTPLACEMENT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->instant_placement = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 52: // REMOVEONCEDEPLETED
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->remove_once_depleted = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
+      case 53: // FLAGNUMBER
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if ((k >= 0) && (k <= UCHAR_MAX))
+              {
+                  trapst->flag_number = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+          }
+          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
@@ -1191,7 +1239,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       for (int i=0; i < TRAPDOOR_TYPES_MAX; i++)
       {
           doorst = &game.conf.trapdoor_conf.door_cfgstats[i];
-          LbMemorySet(doorst->code_name, 0, COMMAND_WORD_LEN);
+          memset(doorst->code_name, 0, COMMAND_WORD_LEN);
           doorst->name_stridx = GUIStr_Empty;
           doorst->tooltip_stridx = GUIStr_Empty;
           doorst->bigsym_sprite_idx = 0;
@@ -1289,21 +1337,17 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       case 4: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              doorst->bigsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              doorst->bigsym_sprite_idx = get_icon_id(word_buf);
+              if (doorst->bigsym_sprite_idx != bad_icon_id)
               {
-                  doorst->bigsym_sprite_idx = k;
                   n++;
               }
           }
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              doorst->medsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              doorst->medsym_sprite_idx = get_icon_id(word_buf);
+              if (doorst->medsym_sprite_idx != bad_icon_id)
               {
-                  doorst->medsym_sprite_idx = k;
                   n++;
               }
           }
@@ -1316,16 +1360,14 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       case 5: // POINTERSPRITES
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              doorst->pointer_sprite_idx = get_icon_id(word_buf);
+              if (doorst->pointer_sprite_idx != bad_icon_id)
               {
-                  doorst->pointer_sprite_idx = k;
                   n++;
               }
           }
           if (n < 1)
           {
-              doorst->pointer_sprite_idx = bad_icon_id;
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
@@ -1512,7 +1554,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               n = atoi(word_buf);
-              if (n < 0 || n > samples_in_bank - 1)
+              if (n < 0)
               {
                   CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
                       COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
@@ -1549,7 +1591,7 @@ TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsign
             WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
     
@@ -1582,7 +1624,7 @@ TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsign
             WARNMSG("Parsing %s file \"%s\" door blocks failed.",textname,fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     SYNCDBG(19,"Done");
     return result;
 }
@@ -1925,6 +1967,351 @@ TbBool make_available_all_traps(PlayerNumber plyr_idx)
     }
   }
   return true;
+}
+
+static void refresh_trap_anim(long trap_id)
+{
+    int k = 0;
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
+    struct TrapConfigStats *trapst_old = get_trap_model_stats(trap_id);
+    struct TrapConfigStats *trapst_new;
+    int i = slist->index;
+    while (i != 0)
+    {
+        struct Thing* traptng = thing_get(i);
+        if (thing_is_invalid(traptng))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = traptng->next_of_class;
+        // Per thing code.
+        if (traptng->model == trap_id)
+        {
+            if ((traptng->trap.wait_for_rearm == true) || (trapst_old->recharge_sprite_anim_idx == 0))
+            {
+                traptng->anim_sprite = trapst_old->sprite_anim_idx;
+            }
+            else
+            {
+                traptng->anim_sprite = trapst_old->recharge_sprite_anim_idx;
+            }
+            trapst_new = get_trap_model_stats(traptng->model);
+            char start_frame;
+            if (trapst_new->random_start_frame) {
+                start_frame = -1;
+            }
+            else {
+                start_frame = 0;
+            }
+            set_thing_draw(traptng, trapst_new->sprite_anim_idx, trapst_new->anim_speed, trapst_new->sprite_size_max, trapst_new->unanimated, start_frame, ODC_Default);
+        }
+        // Per thing code ends.
+        k++;
+        if (k > slist->index)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+}
+
+void script_set_door_configuration(ThingModel door_type, short property, long value, long value2)
+{
+    struct DoorConfigStats *doorst = get_door_model_stats(door_type);
+    struct ManufactureData *manufctr = get_manufacture_data(game.conf.trapdoor_conf.trap_types_count - 1 + door_type);
+    switch (property)
+    {
+        case 2: // NametextId
+            doorst->name_stridx = value;
+            break;
+        case 3: // TooltipTextId
+            doorst->tooltip_stridx = value;
+            manufctr->tooltip_stridx = doorst->tooltip_stridx;
+            update_trap_tab_to_config();
+            break;
+        case 4: //SymbolSprites
+            {
+                doorst->bigsym_sprite_idx = value; // First
+                doorst->medsym_sprite_idx = value2; // Second
+                manufctr->bigsym_sprite_idx = doorst->bigsym_sprite_idx;
+                manufctr->medsym_sprite_idx = doorst->medsym_sprite_idx;
+                update_trap_tab_to_config();
+            }
+            break;
+        case 5: // PointerSprites
+            doorst->pointer_sprite_idx = value;
+            update_trap_tab_to_config();
+            break;
+        case 6: // PanelTabIndex
+            doorst->panel_tab_idx = value;
+            manufctr->panel_tab_idx = value;
+            update_trap_tab_to_config();
+            break;
+        case 7: // Crate
+            game.conf.object_conf.object_to_door_or_trap[value] = door_type;
+            game.conf.object_conf.workshop_object_class[value] = TCls_Door;
+            game.conf.trapdoor_conf.door_to_object[door_type] = value;
+            break;
+        case 8: // ManufactureLevel
+            doorst->manufct_level = value;
+            break;
+        case 9: // ManufactureRequired
+            doorst->manufct_required = value;
+            break;
+        case 10: // Health
+            if (door_type < game.conf.trapdoor_conf.door_types_count)
+            {
+                doorst->health = value;
+            }
+            update_all_door_stats();
+            break;
+        case 11: // SlabKind
+            if (door_type < game.conf.trapdoor_conf.door_types_count)
+            {
+                doorst->slbkind[0] = value2;
+                doorst->slbkind[1] = value;
+            }
+            update_all_door_stats();
+            break;
+        case 12: // OpenSpeed
+            if (door_type < game.conf.trapdoor_conf.door_types_count)
+            {
+                doorst->open_speed = value;
+            }
+            break;
+        case 13: // Properties
+            doorst->model_flags = value;
+            break;
+        case 14: //SellingValue
+            doorst->selling_value = value;
+            break;
+        case 15: // Unsellable
+            doorst->unsellable = value;
+            break;
+        case 16: // PlaceSound
+            if (door_type < game.conf.trapdoor_conf.door_types_count)
+            {
+                doorst->place_sound_idx = value;
+            }
+            break;
+        default:
+            WARNMSG("Unsupported Door configuration, variable %d.", property);
+            break;
+    }
+}
+
+void script_set_trap_configuration(ThingModel trap_type, short property, long value, long value2, long value3, long value4)
+{
+    struct TrapConfigStats *trapst = get_trap_model_stats(trap_type);
+    struct ManufactureData *manufctr = get_manufacture_data(trap_type);
+    int old_value, old_value2;
+    switch (property)
+    {
+        case 1: // NameTextID
+            trapst->name_stridx = value;
+            break;
+        case 2: // TooltipTextID
+            old_value = trapst->tooltip_stridx;
+            trapst->tooltip_stridx = value;
+            manufctr->tooltip_stridx = trapst->tooltip_stridx;
+            if (trapst->tooltip_stridx != old_value)
+            {
+                update_trap_tab_to_config();
+            }
+            break;
+        case 3: // SymbolSprites
+        {
+            old_value = trapst->medsym_sprite_idx;
+            old_value2 = trapst->bigsym_sprite_idx;
+            trapst->bigsym_sprite_idx = value; // First
+            trapst->medsym_sprite_idx = value2; // Second
+            manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
+            manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
+            if ( (trapst->medsym_sprite_idx != old_value) || (trapst->bigsym_sprite_idx != old_value2) )
+            {
+                update_trap_tab_to_config();
+            }
+        }
+            break;
+        case 4: // PointerSprites
+            old_value = trapst->pointer_sprite_idx;
+            trapst->pointer_sprite_idx = value;
+            if (trapst->pointer_sprite_idx != old_value)
+            {
+                update_trap_tab_to_config();
+            }
+            break;
+        case 5: // PanelTabIndex
+            old_value = trapst->panel_tab_idx;
+            trapst->panel_tab_idx = value;
+            manufctr->panel_tab_idx = value;
+            if (trapst->panel_tab_idx != old_value)
+            {
+                update_trap_tab_to_config();
+            }
+            break;
+        case 6: // Crate
+            game.conf.object_conf.object_to_door_or_trap[value] = trap_type;
+            game.conf.object_conf.workshop_object_class[value] = TCls_Trap;
+            game.conf.trapdoor_conf.trap_to_object[trap_type] = value;
+            break;
+        case 7: // ManufactureLevel
+            trapst->manufct_level = value;
+            break;
+        case 8: // ManufactureRequired
+            trapst->manufct_required = value;
+            break;
+        case 9: // Shots
+            trapst->shots = value;
+            break;
+        case 10: // TimeBetweenShots
+            trapst->shots_delay = value;
+            break;
+        case 11: // SellingValue
+            trapst->selling_value = value;
+            break;
+        case 12: // AnimationID
+            trapst->sprite_anim_idx = value;
+            refresh_trap_anim(trap_type);
+            break;
+        case 13: // ModelSize
+            trapst->sprite_size_max = value;
+            refresh_trap_anim(trap_type);
+            break;
+        case 14: // AnimationSpeed
+            trapst->anim_speed = value;
+            refresh_trap_anim(trap_type);
+            break;
+        case 15: // TriggerType
+            trapst->trigger_type = value;
+            break;
+        case 16: // ActivationType
+            trapst->activation_type = value;
+            break;
+        case 17: // EffectType
+            trapst->created_itm_model = value;
+            break;
+        case 18: // Hidden
+            trapst->hidden = value;
+            break;
+        case 19: // TriggerAlarm
+            trapst->notify = value;
+            break;
+        case 20: // Slappable
+            trapst->slappable = value;
+            break;
+        case 21: // Unanimated
+            trapst->unanimated = value;
+            refresh_trap_anim(trap_type);
+            break;
+        case 22: // Health
+            trapst->health = value;
+            break;
+        case 23: // Unshaded
+            trapst->unshaded = value;
+            break;
+        case 24: // RandomStartFrame
+            trapst->random_start_frame = value;
+            break;
+        case 25: // ThingSize
+            trapst->size_xy = value; // First
+            trapst->size_z = value2; // Second
+            break;
+        case 26: // HitType
+            trapst->hit_type = value;
+            break;
+        case 27: // LightRadius
+            trapst->light_radius = value * COORD_PER_STL;
+            break;
+        case 28: // LightIntensity
+            trapst->light_intensity = value;
+            break;
+        case 29: // LightFlags
+            trapst->light_flag = value;
+            break;
+        case 30: // TransparencyFlags
+            trapst->transparency_flag = value<<4;
+            break;
+        case 31: // ShotVector
+            trapst->shotvector.x = value;
+            trapst->shotvector.y = value2;
+            trapst->shotvector.z = value3;
+            break;
+        case 32: // Destructible
+            trapst->destructible = value;
+            break;
+        case 33: // Unstable
+            trapst->unstable = value;
+            break;
+        case 34: // Unsellable
+            trapst->unsellable = value;
+            break;
+        case 35: // PlaceOnBridge
+            trapst->place_on_bridge = value;
+            break;
+        case 36: // ShotOrigin
+            trapst->shot_shift_x = value;
+            trapst->shot_shift_y = value2;
+            trapst->shot_shift_z = value3;
+            break;
+        case 37: // PlaceSound
+            trapst->place_sound_idx = value;
+            break;
+        case 38: // TriggerSound
+            trapst->trigger_sound_idx = value;
+            break;
+        case 39: // RechargeAnimationID
+            trapst->recharge_sprite_anim_idx = value;
+            refresh_trap_anim(trap_type);
+            break;
+        case 40: // AttackAnimationID
+            trapst->attack_sprite_anim_idx = value;
+            break;
+        case 41: // DestroyedEffect
+            trapst->destroyed_effect = value;
+            break;
+        case 42: // InitialDelay
+            trapst->initial_delay = value;
+            break;
+        case 43: // PlaceOnSubtile
+            trapst->place_on_subtile = value;
+            break;
+        case 44: // FlameAnimationID
+            trapst->flame.animation_id = value;
+            refresh_trap_anim(trap_type);
+            break;
+        case 45: // FlameAnimationSpeed
+            trapst->flame.anim_speed = value;
+            break;
+        case 46: // FlameAnimationSize
+            trapst->flame.sprite_size = value;
+            break;
+        case 47: // FlameAnimationOffset
+            trapst->flame.fp_add_x = value;
+            trapst->flame.fp_add_y = value2;
+            trapst->flame.td_add_x = value3;
+            trapst->flame.td_add_y = value4;
+            break;
+        case 48: // FlameTransparencyFlags
+            trapst->flame.transparency_flags = value << 4;
+            break;
+        case 49: // DetectInvisible
+            trapst->detect_invisible = value;
+            break;
+        case 50: // InstantPlacement
+            trapst->instant_placement = value;
+            break;
+        case 51: // RemoveOnceDepleted
+            trapst->remove_once_depleted = value;
+            break;
+        case 52: // FlagNumber
+            trapst->flag_number = value;
+            break;
+        default:
+            WARNMSG("Unsupported Trap configuration, variable %d.", property);
+            break;
+    }
 }
 
 /******************************************************************************/

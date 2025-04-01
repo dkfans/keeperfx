@@ -99,9 +99,9 @@ msgid ""
 "dungeon. Creatures perform the task most relevant to the situation they're "
 "dropped into."
 msgstr ""
-"Attrapez vos créatures du Donjon à l'aide du bouton Gauche de la souris, et "
-"avec le bouton Droit, laissez-les tomber dans une pièce ou sur une dalle de "
-"votre Donjon. Les créatures effectuent les tâches les plus appropriées."
+"Attrapez vos créatures du donjon à l'aide du bouton gauche de la souris, "
+"et avec le bouton droit, laissez-les tomber dans une pièce ou sur une dalle de votre Donjon. "
+"Les créatures effectuent les tâches les plus appropriées."
 
 #. Level Eversmile objective after digging gold
 #: guitext:7
@@ -282,9 +282,8 @@ msgid ""
 "You require more Imps. Use the Create Imp spell to conjure them into your "
 "domain. Remember, each Imp you create is more expensive than the last."
 msgstr ""
-"Il vous faut plus de lutins. Utilisez le sort de Création de Lutin pour les "
-"attirer dans votre domaine. N'oubliez pas que chaque nouveau lutin est plus "
-"cher que le précédent."
+"Il vous faut plus de lutins. Utilisez le sort de Création de lutin pour les attirer dans votre domaine. "
+"N'oubliez pas que chaque nouveau lutin est plus cher que le précédent."
 
 #. Level Cosyton information soon after start
 #: guitext:22
@@ -4026,8 +4025,7 @@ msgid ""
 "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be closed "
 "on your side."
 msgstr ""
-"Portail des héros : Les héros passent par là pour envahir votre donjon. Ne "
-"peut être bloqué de votre côté.[15.4]"
+"Portail des héros : Les héros passent par là pour envahir votre donjon. Ne peut être bloqué de votre côté. [15.4]"
 
 #: guitext:546
 msgctxt "Creature name"
@@ -4665,12 +4663,9 @@ msgstr ""
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
-"Création de lutin : Faites apparaître un nouveau lutin dans un endroit "
-"quelconque de votre donjon. Sélectionnez avec le bouton gauche de la souris. "
-"[18.2]"
+"Création de lutin : Invoquez un nouveau lutin dans un endroit quelconque de votre donjon. Sélectionnez avec le bouton gauche de la souris."
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -7125,7 +7120,32 @@ msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "Mage du temps"
 
-#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+#: guitext:1044
+msgctxt "Creature name"
+msgid "Bird"
+msgstr "Oiseau"
+
+#: guitext:1045
+msgctxt "Creature name"
+msgid "Maiden"
+msgstr "Servante"
+
+#: guitext:1046
+msgctxt "Creature name"
+msgid "Spiderling"
+msgstr "Araigneau"
+
+#: guitext:1047
+msgctxt "Creature name"
+msgid "Goblin"
+msgstr "Gobelin"
+
+#: guitext:1048
+msgctxt "Creature name"
+msgid "Fallen Angel"
+msgstr "Ange Déchu"
+
+#: guitext:1049
 msgctxt "Unused"
 msgid "Moo7"
 msgstr ""
@@ -7146,7 +7166,6 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Veine d'or dense : Contient beaucoup de richesses que vos Lutins peuvent extraire."
 
 #: guitext:1053
-#, fuzzy
 msgctxt "Keeper spell name"
 msgid "Magic Shield"
 msgstr "Bouclier Magique"
@@ -7199,17 +7218,17 @@ msgstr "Affaiblir les murs : Détruit les fortifications des murs ennemis."
 #: guitext:1063
 msgctxt "Game controls"
 msgid "Tilt Up"
-msgstr "Incliner Haut"
+msgstr "Incliner vers le haut"
 
 #: guitext:1064
 msgctxt "Game controls"
 msgid "Tilt Down"
-msgstr "Incliner Bas"
+msgstr "Incliner vers le bas"
 
 #: guitext:1065
 msgctxt "Game controls"
 msgid "Reset Tilt"
-msgstr "Réinitialiser"
+msgstr "Réinitialiser l'inclinaison"
 
 #: guitext:1066
 msgctxt "Creature spell"
@@ -7241,7 +7260,17 @@ msgctxt "Keeper spell description"
 msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
 msgstr "Vision : Permet à la créature ciblée d'augmenter temporairement sa vision pour débusquer l'invisible."
 
-#: guitext:1072 guitext:1073 guitext:1074 guitext:1075
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr "Recruter un piocheur"
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr "Recruter un piocheur : Convoquez un nouveau piocheur dans un endroit quelconque de votre donjon."
+
+#: guitext:1074 guitext:1075
 msgctxt "Unused"
 msgid "Moo8"
 msgstr "Moooooooooo!"
@@ -7254,4 +7283,19 @@ msgstr "Porte de Midas"
 #: guitext:1077
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
-msgstr "Porte de Midas: Cette porte est indestructible tant que son propriétaire a de l'or. CDS voir."
+msgstr "Porte de Midas : Cette porte est indestructible tant que son propriétaire a de l'or. CDS voir."
+
+#: guitext:1078 guitext:1079
+msgctxt "Unused"
+msgid "Moo9"
+msgstr ""
+
+#: guitext:1080
+msgctxt "Creature spell"
+msgid "Familiar: Summons a companion to guard and assist the creature."
+msgstr "Familier : Invoque un compagnon pour protéger et aider la créature."
+
+#: guitext:1081
+msgctxt "Creature spell"
+msgid "Summon: Call upon temporary guardians to assist the creature in combat."
+msgstr "Invoquer : Convoquez des gardiens temporaires pour aider la créature en combat."

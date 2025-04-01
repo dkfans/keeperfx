@@ -126,7 +126,7 @@ void gui_save_game(struct GuiButton *gbtn)
         fill_game_catalogue_slot(slot_num, gbtn->content.str);
         if (save_game(slot_num))
         {
-            output_message(SMsg_GameSaved, 0, true);
+            output_message(SMsg_GameSaved, 0);
         } else
       {
           ERRORLOG("Error in save!");
@@ -219,7 +219,7 @@ void frontend_load_game_down_maintain(struct GuiButton *gbtn)
         {
             load_game_scroll_offset++;
         }
-	}
+    }
 }
 
 void frontend_load_game_up(struct GuiButton *gbtn)

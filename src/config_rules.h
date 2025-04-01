@@ -64,7 +64,7 @@ enum SacrificeReturn {
 };
 
 struct SacrificeRecipe {
-    long victims[MAX_SACRIFICE_VICTIMS];
+    ThingModel victims[MAX_SACRIFICE_VICTIMS];
     long action;
     long param;
 };
@@ -120,7 +120,7 @@ struct CreatureRulesConfig {
     unsigned long flee_zone_radius;
     GameTurnDelta game_turns_in_flee;
     unsigned short game_turns_unconscious;
-    long critical_health_permil;
+    HitPoints critical_health_permil;
     unsigned char stun_enemy_chance_evil;
     unsigned char stun_enemy_chance_good;
 };
@@ -153,7 +153,7 @@ struct RoomRulesConfig {
     unsigned char bodies_for_vampire;
     unsigned short graveyard_convert_time;
     short barrack_max_party_size;
-    unsigned short training_room_max_level;
+    CrtrExpLevel training_room_max_level;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
     unsigned long time_between_prison_break;
@@ -207,13 +207,9 @@ const char *player_code_name(PlayerNumber plyr_idx);
 extern const struct NamedCommand rules_sacrifices_commands[];
 extern const struct NamedCommand sacrifice_unique_desc[];
 
-extern const struct NamedField rules_magic_named_fields[];
-extern const struct NamedField rules_rooms_named_fields[];
-extern const struct NamedField rules_game_named_fields[];
-extern const struct NamedField rules_creatures_named_fields[];
-extern const struct NamedField rules_computer_named_fields[];
-extern const struct NamedField rules_workers_named_fields[];
-extern const struct NamedField rules_health_named_fields[];
+extern const struct NamedField* ruleblocks[8];
+
+extern const struct NamedFieldSet rules_named_fields_set;
 
 /******************************************************************************/
 #ifdef __cplusplus

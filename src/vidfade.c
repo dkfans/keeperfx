@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
@@ -33,6 +32,7 @@
 #include "player_data.h"
 #include "player_instances.h"
 #include "keeperfx.hpp"
+#include "config_keeperfx.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -263,7 +263,7 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
         {
           latest_loop_time += lbFadeDelay;
           
-          if (is_feature_on(Ft_SkipSplashScreens) == false) {
+          if (flag_is_set(start_params.startup_flags, (SFlg_Legal|SFlg_FX))) {
               LbSleepUntil(latest_loop_time);
           }
         }
@@ -273,7 +273,7 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
         LbPaletteSet(pal);
     } else
     {
-        LbMemorySet(palette_buf, 0, sizeof(palette_buf));
+        memset(palette_buf, 0, sizeof(palette_buf));
         LbPaletteSet(palette_buf);
     }
 }

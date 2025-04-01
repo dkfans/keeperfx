@@ -36,7 +36,6 @@
 #include <stdbool.h>
 #include <inttypes.h>
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_video.h"
 #include "post_inc.h"
 
@@ -136,7 +135,7 @@ _backtrace(int depth , LPCONTEXT context)
     }
 
     STACKFRAME frame;
-    LbMemorySet(&frame,0,sizeof(frame));
+    memset(&frame,0,sizeof(frame));
 
     frame.AddrPC.Offset = context->Eip;
 

@@ -29,7 +29,6 @@
 #include "globals.h"
 
 #include "bflib_video.h"
-#include "bflib_memory.h"
 #include "bflib_sprite.h"
 #include "bflib_mouse.h"
 #include "bflib_render.h"
@@ -41,8 +40,6 @@ extern "C" {
 /******************************************************************************/
 extern long xsteps_array[2*SPRITE_SCALING_XSTEPS];
 extern long ysteps_array[2*SPRITE_SCALING_YSTEPS];
-extern long alpha_xsteps_array[2*SPRITE_SCALING_XSTEPS];
-extern long alpha_ysteps_array[2*SPRITE_SCALING_YSTEPS];
 /******************************************************************************/
 void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len);
 /******************************************************************************/

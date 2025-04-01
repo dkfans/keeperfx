@@ -26,7 +26,6 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
 
@@ -37,7 +36,7 @@
 #include "creature_states.h"
 #include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_utils.h"
 #include "thing_traps.h"
 #include "thing_navigate.h"
@@ -521,9 +520,9 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
             {
                 // Switch hates so larger one is first
                 struct THate tmp;
-                LbMemoryCopy(&tmp,hat2,sizeof(struct THate));
-                LbMemoryCopy(hat2,hat1,sizeof(struct THate));
-                LbMemoryCopy(hat1,&tmp,sizeof(struct THate));
+                memcpy(&tmp,hat2,sizeof(struct THate));
+                memcpy(hat2,hat1,sizeof(struct THate));
+                memcpy(hat1,&tmp,sizeof(struct THate));
             }
         }
     }
@@ -964,7 +963,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
             if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                 break;
             //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
-            if (cproc->func_check == computer_check_dig_to_gold)
+            if (cproc->func_check == cpfl_computer_check_dig_to_gold)
             {
                 cproc->priority++;
                 if (game.play_gameturn - cproc->last_run_turn > 20) {
@@ -1082,7 +1081,7 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                 int crtr_state = get_creature_state_besides_move(i);
                 if (( crtr_state != CrSt_CreatureCombatFlee ) &&
                     ( crtr_state != CrSt_ArriveAtAlarm ) &&
-                    ((cctrl->spell_flags & CSAfF_CalledToArms) == 0 ) &&
+                    (!cctrl->called_to_arms ) &&
                     ( crtr_state != CrSt_CreatureGoingHomeToSleep ) &&
                     ( crtr_state != CrSt_CreatureSleep ) &&
                     ( crtr_state != CrSt_AtLairToSleep ) &&
@@ -1096,7 +1095,7 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                     struct CreatureStats* crstat = creature_stats_get_from_thing(i);
                     if (crstat->health > 0)
                     {
-                        if (100 * i->health / (game.conf.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20)
+                        if (100 * i->health / (game.conf.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->exp_level / 100 + crstat->health) > 20)
                         {
                             ++count;
                         }
@@ -1173,22 +1172,20 @@ TbBool computer_find_safe_non_solid_block(const struct Computer2* comp, struct C
  * Originally was computer_able_to_use_magic(), returning 0..4.
  * @param comp
  * @param pwkind
- * @param pwlevel
+ * @param power_level
  * @param amount
  * @return
  */
-TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount)
+TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, KeepPwrLevel power_level, long amount)
 {
     struct Dungeon* dungeon = comp->dungeon;
     if (!is_power_available(dungeon->owner, pwkind)) {
         return false;
     }
-    if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
-        pwlevel = MAGIC_OVERCHARGE_LEVELS;
-    if (pwlevel < 0)
-        pwlevel = 0;
+    if (power_level >= MAGIC_OVERCHARGE_LEVELS)
+        power_level = MAGIC_OVERCHARGE_LEVELS;
     GoldAmount money = get_computer_money_less_cost(comp);
-    GoldAmount price = compute_power_price(dungeon->owner, pwkind, pwlevel);
+    GoldAmount price = compute_power_price(dungeon->owner, pwkind, power_level);
     if ((price > 0) && (amount * price > money)) {
         return false;
     }
@@ -1259,9 +1256,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         ERRORLOG("Tried to setup player %d which has no computer capability",(int)plyr_idx);
         return false;
     }
-    LbMemorySet(comp, 0, sizeof(struct Computer2));
-    comp->events = &get_dungeon(plyr_idx)->computer_info.events[0];
-    comp->checks = &get_dungeon(plyr_idx)->computer_info.checks[0];
+    memset(comp, 0, sizeof(struct Computer2));
 
     struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp_model);
     comp->dungeon = get_players_num_dungeon(plyr_idx);
@@ -1298,12 +1293,12 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     {
         struct ComputerProcess* cproc = cpt->processes[i];
         newproc = &comp->processes[i];
-        if ((cproc == NULL) || (cproc->name == NULL))
+        if ((cproc == NULL) || (cproc->name[0] == '\0'))
         {
-          newproc->name = NULL;
+          newproc->name[0] = '\0';
           break;
         }
-        LbMemoryCopy(newproc, cproc, sizeof(struct ComputerProcess));
+        memcpy(newproc, cproc, sizeof(struct ComputerProcess));
         newproc->parent = cproc;
     }
     newproc = &comp->processes[i];
@@ -1318,7 +1313,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
             newchk->name = NULL;
             break;
         }
-        LbMemoryCopy(newchk, ccheck, sizeof(struct ComputerCheck));
+        memcpy(newchk, ccheck, sizeof(struct ComputerCheck));
     }
     // Note that we don't have special, empty check at end of array
     // The check with 0x02 flag identifies end of active checks
@@ -1335,7 +1330,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
             newevnt->name = NULL;
             break;
         }
-        LbMemoryCopy(newevnt, event, sizeof(struct ComputerEvent));
+        memcpy(newevnt, event, sizeof(struct ComputerEvent));
     }
     return true;
 }
@@ -1472,7 +1467,7 @@ TbBool process_processes_and_task(struct Computer2 *comp)
             Comp_Process_Func callback = NULL;
             struct ComputerProcess* cproc = get_computer_process(comp, comp->ongoing_process);
             if (cproc != NULL) {
-                callback = cproc->func_task;
+                callback = computer_process_func_list[cproc->func_task];
                 SYNCDBG(7,"Performing process \"%s\"",cproc->name);
             } else {
                 ERRORLOG("Invalid computer process %d referenced",(int)comp->ongoing_process);
@@ -1536,7 +1531,7 @@ struct ComputerProcess *computer_player_find_process_by_func_setup(PlayerNumber 
   struct ComputerProcess* cproc = &comp->processes[0];
   while (!flag_is_set(cproc->flags, ComProc_Unkn0002))
   {
-      if (cproc->func_setup == func_setup)
+      if (computer_process_func_list[cproc->func_setup] == func_setup)
       {
           return cproc;
       }
@@ -1617,7 +1612,7 @@ void setup_computer_players2(void)
   check_map_for_gold();
   for (i=0; i < COMPUTER_TASKS_COUNT; i++)
   {
-    LbMemorySet(&game.computer_task[i], 0, sizeof(struct ComputerTask));
+    memset(&game.computer_task[i], 0, sizeof(struct ComputerTask));
   }
 #ifdef PETTER_AI
   SAI_init_for_map();
@@ -1663,8 +1658,6 @@ void setup_computer_players2(void)
         }
 #endif
       }
-      get_computer_player(i)->events = &get_dungeon(i)->computer_info.events[0];
-      get_computer_player(i)->checks = &get_dungeon(i)->computer_info.checks[0];
     }
   }
 }
@@ -1681,19 +1674,17 @@ void restore_computer_player_after_load(void)
             continue;
         }
         if (!player_exists(player)) {
-            LbMemorySet(comp, 0, sizeof(struct Computer2));
+            memset(comp, 0, sizeof(struct Computer2));
             comp->dungeon = INVALID_DUNGEON;
             continue;
         }
         if (player->is_active != 1)
         {
-            LbMemorySet(comp, 0, sizeof(struct Computer2));
+            memset(comp, 0, sizeof(struct Computer2));
             comp->dungeon = get_players_dungeon(player);
             continue;
         }
         comp->dungeon = get_players_dungeon(player);
-        comp->events = &get_dungeon(plyr_idx)->computer_info.events[0];
-        comp->checks = &get_dungeon(plyr_idx)->computer_info.checks[0];
         struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp->model);
 
         long i;
@@ -1704,7 +1695,6 @@ void restore_computer_player_after_load(void)
             //if (cpt->processes[i]->name == NULL)
             //    break;
             SYNCDBG(12,"Player %ld process %ld is \"%s\"",plyr_idx,i,cpt->processes[i]->name);
-            comp->processes[i].name = cpt->processes[i]->name;
             comp->processes[i].parent = cpt->processes[i];
             comp->processes[i].func_check = cpt->processes[i]->func_check;
             comp->processes[i].func_setup = cpt->processes[i]->func_setup;

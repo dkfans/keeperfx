@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "console_cmd.h"
@@ -101,6 +100,7 @@ static void load_effects(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"ElementsCount" ,effcst->elements_count  );
             CONDITIONAL_ASSIGN_INT(section,"AlwaysGenerate",effcst->always_generate );
             CONDITIONAL_ASSIGN_INT(section,"HitType",effcst->effect_hit_type);
+            CONDITIONAL_ASSIGN_SPELL(section,"SpellEffect",effcst->spell_effect);
         }
     }
 }
@@ -158,14 +158,15 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_ARR2_INT(section,"Lifespan",effelcst->lifespan,effelcst->lifespan_random);
             CONDITIONAL_ASSIGN_ANIMID(section,"AnimationId",effelcst->sprite_idx);
             CONDITIONAL_ASSIGN_ARR2_INT(section,"SpriteSize",effelcst->sprite_size_min,effelcst->sprite_size_max);
-            CONDITIONAL_ASSIGN_INT(section,"RenderFlags",effelcst->rendering_flag);
+            CONDITIONAL_ASSIGN_INT(section,"RenderFlags",effelcst->animate_once); //todo Remove after people have had time to handle the rename
+            CONDITIONAL_ASSIGN_INT(section, "AnimateOnce", effelcst->animate_once);
             CONDITIONAL_ASSIGN_ARR2_INT(section,"SpriteSpeed",effelcst->sprite_speed_min,effelcst->sprite_speed_max);
 
             CONDITIONAL_ASSIGN_BOOL(section,"AnimateOnFloor",  effelcst->animate_on_floor);
             CONDITIONAL_ASSIGN_BOOL(section,"Unshaded",        effelcst->unshaded);
-            CONDITIONAL_ASSIGN_INT(section,"Transparant",      effelcst->transparent); //todo remove typo after a while
             CONDITIONAL_ASSIGN_INT(section,"Transparent",      effelcst->transparent);
-            CONDITIONAL_ASSIGN_INT(section,"MovementFlags",    effelcst->movement_flags);
+            CONDITIONAL_ASSIGN_INT(section,"MovementFlags",    effelcst->through_walls); //todo Remove after people have had time to handle the rename
+            CONDITIONAL_ASSIGN_INT(section,"ThroughWalls",     effelcst->through_walls);
             CONDITIONAL_ASSIGN_INT(section,"SizeChange",       effelcst->size_change);
             CONDITIONAL_ASSIGN_INT(section,"FallAcceleration", effelcst->fall_acceleration);
             CONDITIONAL_ASSIGN_INT(section,"InertiaFloor",     effelcst->inertia_floor);
@@ -234,6 +235,17 @@ TbBool load_effects_config(const char *conf_fname, unsigned short flags)
 }
 
 /**
+ * Returns Code Name (name to use in script file) of given effect element model.
+ */
+const char* effect_element_code_name(ThingModel tngmodel)
+{
+    const char* name = get_conf_parameter_text(effectelem_desc, tngmodel);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
+/**
  * Returns Code Name (name to use in script file) of given effect model.
  */
 const char *effect_code_name(ThingModel tngmodel)
@@ -266,24 +278,26 @@ struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel)
     return &game.conf.effects_conf.effect_cfgstats[tngmodel];
 }
 
-short effect_or_effect_element_id(const char * code_name)
+short effect_or_effect_element_id(const char *code_name)
 {
     if (code_name == NULL)
     {
         return 0;
     }
-
     if (parameter_is_number(code_name))
     {
         return atoi(code_name);
     }
-
-    short id = get_id(effect_desc,code_name);
+    short id = get_id(effect_desc, code_name);
     if (id > 0)
+    {
         return id;
-    id = get_id(effectelem_desc,code_name);
+    }
+    id = get_id(effectelem_desc, code_name);
     if (id > 0)
+    {
         return -id;
+    }
     return 0;
 }
 

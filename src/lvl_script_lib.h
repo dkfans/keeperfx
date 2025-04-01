@@ -177,7 +177,7 @@ enum TbScriptCommands {
     Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL      = 164,
     Cmd_SET_EFFECT_GENERATOR_CONFIGURATION = 165,
     Cmd_SET_POWER_CONFIGURATION            = 166,
-    Cmd_SET_PLAYER_COLOR                   = 167,
+    Cmd_SET_PLAYER_COLOUR                  = 167,
     Cmd_MAKE_UNSAFE                        = 168,
     Cmd_LEVEL_UP_PLAYERS_CREATURES         = 169,
     Cmd_SET_INCREASE_ON_EXPERIENCE         = 170,
@@ -187,6 +187,10 @@ enum TbScriptCommands {
     Cmd_CHANGE_SLAB_TEXTURE                = 174,
     Cmd_MOVE_PLAYER_CAMERA_TO              = 175,
     Cmd_ADD_OBJECT_TO_LEVEL_AT_POS         = 176,
+    Cmd_PLACE_DOOR                         = 177,
+    Cmd_PLACE_TRAP                         = 178,
+    Cmd_LOCK_POSSESSION                    = 179,
+    Cmd_SET_DIGGER                         = 180,
 };
 
 struct ScriptLine {
@@ -267,6 +271,7 @@ enum ScriptVariables {
   SVar_TOTAL_SALARY                    = 64,
   SVar_CURRENT_SALARY                  = 65,
   SVar_BOX_ACTIVATED                   = 66,
+  SVar_TRAP_ACTIVATED                  = 86,
   SVar_SACRIFICED                      = 67,  // Per model
   SVar_REWARDED                        = 68,  // Per model
   SVar_EVIL_CREATURES_CONVERTED        = 69,
@@ -286,20 +291,40 @@ enum ScriptVariables {
   SVar_AVAILABLE_TOTAL_DOORS           = 83,
   SVar_AVAILABLE_TOTAL_CREATURES       = 84,
   SVar_DESTROYED_KEEPER                = 85,
+  SVar_TOTAL_SLAPS                     = 87,
  };
 
 
 
-
+extern const struct NamedCommand player_desc[];
+extern const struct NamedCommand controls_variable_desc[];
+extern const struct NamedCommand timer_desc[];
+extern const struct NamedCommand flag_desc[];
+extern const struct NamedCommand hand_rule_desc[];
+extern const struct NamedCommand rule_slot_desc[];
+extern const struct NamedCommand rule_action_desc[];
+extern const struct NamedCommand hero_objective_desc[];
+extern const struct NamedCommand msgtype_desc[];
+extern const struct NamedCommand tendency_desc[];
+extern const struct NamedCommand creature_select_criteria_desc[];
+extern const struct NamedCommand trap_config_desc[];
+extern const struct NamedCommand gui_button_group_desc[];
+extern const struct NamedCommand campaign_flag_desc[];
+extern const struct NamedCommand script_operator_desc[];
+extern const struct NamedCommand variable_desc[];
+extern const struct NamedCommand dk1_variable_desc[];
+extern const struct NamedCommand fill_desc[];
+extern const struct NamedCommand set_door_desc[];
+extern const struct NamedCommand texture_pack_desc[];
+extern const struct NamedCommand locked_desc[];
 
 // 1/4 turn minimal
 #define FX_LINE_TIME_PARTS 4
 
 
-struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria);
 ThingModel parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
-struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx);
+struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx, short move_angle);
 struct Thing* script_process_new_effectgen(ThingModel crmodel, TbMapLocation location, long range);
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4);
@@ -311,10 +336,12 @@ long parse_criteria(const char *criteria);
 #define get_players_range_single(plr_range_id) get_players_range_single_f(plr_range_id, __func__, text_line_number)
 long get_players_range_single_f(long plr_range_id, const char *func_name, long ln_num);
 TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type);
-void get_player_number_from_value(const char* txt, char* id, char* type);
+void get_chat_icon_from_value(const char* txt, char* id, char* type);
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
 TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num);
-TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, short splevel, PlayerNumber caster, TbBool is_free);
+TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, KeepPwrLevel power_level, PlayerNumber caster, TbBool is_free);
+const char * script_strval(long offset);
+long script_strdup(const char *src);
 
 #define ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id) \
     struct ScriptValue tmp_value = {0}; \

@@ -71,7 +71,7 @@ struct TrapConfigStats {
     unsigned char manufct_level;
     unsigned long manufct_required;
     int shots;
-    int shots_delay;
+    GameTurnDelta shots_delay;
     unsigned short initial_delay; // Trap is placed on reload phase, value in game turns.
     unsigned char trigger_type;
     unsigned char activation_type;
@@ -83,6 +83,8 @@ struct TrapConfigStats {
     TbBool notify;
     TbBool place_on_bridge;
     TbBool place_on_subtile;
+    TbBool instant_placement;
+    TbBool remove_once_depleted;
     HitPoints health;
     char destructible;
     char unstable;
@@ -97,6 +99,7 @@ struct TrapConfigStats {
     unsigned char unanimated;
     unsigned char unshaded;
     unsigned char random_start_frame;
+    unsigned char flag_number;
     short light_radius; // Creates light if not null.
     unsigned char light_intensity;
     unsigned char light_flag;
@@ -163,6 +166,9 @@ TbBool is_door_built(PlayerNumber plyr_idx, long door_idx);
 TbBool create_manufacture_array_from_trapdoor_data(void);
 TbBool make_available_all_doors(PlayerNumber plyr_idx);
 TbBool make_available_all_traps(PlayerNumber plyr_idx);
+
+void script_set_door_configuration(ThingModel door_type, short property, long value, long value2);
+void script_set_trap_configuration(ThingModel trap_type, short property, long value, long value2, long value3, long value4);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_datetm.h"
 #include "bflib_planar.h"
 #include "bflib_video.h"
@@ -37,9 +36,10 @@
 #include "bflib_vidraw.h"
 #include "bflib_network.h"
 
-#include "config.h"
+
 #include "config_strings.h"
 #include "config_campaigns.h"
+#include "config_keeperfx.h"
 #include "config_settings.h"
 #include "game_lghtshdw.h"
 #include "light_data.h"
@@ -55,10 +55,7 @@
 #include "vidfade.h"
 #include "game_legacy.h"
 #include "front_input.h"
-
 #include "keeperfx.hpp"
-
-#include "music_player.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -276,8 +273,8 @@ void update_frontmap_ambient_sound(void)
     {
       SetSampleVolume(0, campaign.ambient_good, settings.sound_volume *map_sound_fade/256);
     }
-    Mix_VolumeChunk(streamed_sample, settings.sound_volume *map_sound_fade/256);
-    SetMusicPlayerVolume(map_sound_fade*(long)settings.redbook_volume/256);
+    set_streamed_sample_volume(settings.sound_volume *map_sound_fade/256);
+    set_music_volume(map_sound_fade*(long)settings.music_volume/256);
   } else
   {
     if ((features_enabled & Ft_AdvAmbSound) != 0)
@@ -285,8 +282,8 @@ void update_frontmap_ambient_sound(void)
       SetSampleVolume(0, campaign.ambient_good, 0);
       SetSampleVolume(0, campaign.ambient_bad, 0);
     }
-    SetMusicPlayerVolume(0);
-    Mix_VolumeChunk(streamed_sample, 0);
+    set_music_volume(0);
+    set_streamed_sample_volume(0);
   }
 }
 
@@ -646,7 +643,7 @@ TbBool stop_description_speech(void)
         playing_good_descriptive_speech = 0;
         playing_bad_descriptive_speech = 0;
         playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
-        stop_streamed_sample();
+        stop_streamed_samples();
         return true;
     }
     return false;
@@ -706,7 +703,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
     playing_speech_lvnum = lvnum;
     SYNCMSG("Playing %s", fname);
     //volume is overwritten in update_frontmap_ambient_sound
-    return play_streamed_sample(fname, settings.sound_volume, 0);
+    return play_streamed_sample(fname, settings.sound_volume);
 }
 
 TbBool set_pointer_graphic_spland(long frame)
@@ -829,7 +826,7 @@ void unload_map_and_window(void)
     clear_slabs();
     clear_rooms();
     clear_dungeons();
-    LbMemoryCopy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
+    memcpy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
     map_window_len = 0;
 }
 
@@ -944,8 +941,23 @@ void frontnetmap_unload(void)
     free_spritesheet(&map_hand);
     memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
     fe_network_active = 0;
-    StopMusicPlayer();
-    SetMusicPlayerVolume(settings.redbook_volume);
+    stop_music();
+    set_music_volume(settings.music_volume);
+}
+
+static void frontmap_start_music(void)
+{
+    if (strlen(campaign.soundtrack_fname) > 0) {
+        const int track = atoi(campaign.soundtrack_fname);
+        if (track >= 1) {
+            play_music_track(track);
+        } else {
+            const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, campaign.soundtrack_fname);
+            play_music(fname);
+        }
+    } else {
+        play_music_track(2);
+    }
 }
 
 TbBool frontnetmap_load(void)
@@ -991,7 +1003,8 @@ TbBool frontnetmap_load(void)
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     map_sound_fade = 256;
     lbDisplay.DrawFlags = 0;
-    SetMusicPlayerVolume(settings.redbook_volume);
+    set_music_volume(settings.music_volume);
+    frontmap_start_music();
     if (fe_network_active)
     {
         net_number_of_players = 0;
@@ -1085,7 +1098,7 @@ TbBool frontmap_update_zoom(void)
 TbBool frontmap_load(void)
 {
     SYNCDBG(4,"Starting");
-    LbMemorySet(scratch, 0, PALETTE_SIZE);
+    memset(scratch, 0, PALETTE_SIZE);
     LbPaletteSet(scratch);
     initialize_description_speech();
     mouse_over_lvnum = SINGLEPLAYER_NOTSTARTED;
@@ -1114,7 +1127,6 @@ TbBool frontmap_load(void)
         return false;
     }
     frontend_load_data_reset();
-    PlayMusicPlayer(2);
     struct PlayerInfo* player = get_my_player();
     lvnum = get_continue_level_number();
     if ((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0)
@@ -1140,10 +1152,11 @@ TbBool frontmap_load(void)
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     if ((features_enabled & Ft_AdvAmbSound) != 0)
     {
-        play_sample(0, campaign.ambient_good, 0, 0x40, 100, -1, 2, 0);
-        play_sample(0, campaign.ambient_bad, 0, 0x40, 100, -1, 2, 0);
+        play_non_3d_sample(campaign.ambient_good);
+        play_non_3d_sample(campaign.ambient_bad);
     }
-    SetMusicPlayerVolume(settings.redbook_volume);
+    set_music_volume(settings.music_volume);
+    frontmap_start_music();
     fe_computer_players = 0;
     update_ensigns_visibility();
     SYNCDBG(7,"Finished");
@@ -1562,8 +1575,8 @@ void frontmap_unload(void)
     free_spritesheet(&map_flag);
     StopAllSamples();
     stop_description_speech();
-    StopMusicPlayer();
-    SetMusicPlayerVolume(settings.redbook_volume);
+    stop_music();
+    set_music_volume(settings.music_volume);
 }
 
 long frontmap_update(void)
@@ -1591,20 +1604,19 @@ long frontmap_update(void)
   }
   if (playing_good_descriptive_speech)
   {
-    if (!Mix_Playing(DESCRIPTION_CHANNEL))
+    if (!speech_sample_playing())
     {
       playing_good_descriptive_speech = 0;
 //      playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
     }
   }
-  PlayMusicPlayer(2);
   SYNCDBG(8,"Finished");
   return 0;
 }
 
 TbBool frontmap_exchange_screen_packet(void)
 {
-    LbMemorySet(net_screen_packet, 0, sizeof(net_screen_packet));
+    memset(net_screen_packet, 0, sizeof(net_screen_packet));
     struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
     nspck->field_4 |= 0x01;
     nspck->param1 = fe_net_level_selected;
@@ -1663,7 +1675,7 @@ TbBool frontmap_exchange_screen_packet(void)
 
 TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
 {
-    LbMemorySet(scratch, 0, PALETTE_SIZE);
+    memset(scratch, 0, PALETTE_SIZE);
     long tmp2 = -1;
     for (long i = 0; i < NET_PLAYERS_COUNT; i++)
     {
@@ -1724,12 +1736,12 @@ TbBool frontnetmap_update(void)
     SYNCDBG(8,"Starting");
     if (map_sound_fade > 0)
     {
-        i = map_sound_fade * ((long)settings.redbook_volume) / 256;
+        i = map_sound_fade * ((long)settings.music_volume) / 256;
     } else
     {
         i = 0;
     }
-    SetMusicPlayerVolume(i);
+    set_music_volume(i);
 
     struct NetMapPlayersState nmps;
     nmps.tmp1 = 0;
@@ -1756,8 +1768,6 @@ TbBool frontnetmap_update(void)
         if (!fe_network_active)
             fe_computer_players = 1;
     }
-
-    PlayMusicPlayer(2);
     SYNCDBG(8,"Normal end");
     return false;
 }

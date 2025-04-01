@@ -26,8 +26,9 @@
 #include "bflib_mouse.h"
 #include "bflib_video.h"
 #include "bflib_planar.h"
+#include "bflib_sndlib.h"
 #include "bflib_mshandler.hpp"
-#include "config.h"
+#include "config_keeperfx.h"
 #include "sounds.h"
 #include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
 #include "keeperfx.hpp" // for start_params
@@ -348,7 +349,7 @@ static void process_event(const SDL_Event *ev)
                 LbGrabMouseCheck(MG_OnFocusGained);
                 if (freeze_game_on_focus_lost() && !LbIsFrozenOrPaused())
                 {
-                    pause_music(false);
+                    resume_music();
                 }
                 if (mute_audio_on_focus_lost() && !LbIsFrozenOrPaused())
                 {
@@ -364,7 +365,7 @@ static void process_event(const SDL_Event *ev)
                 LbGrabMouseCheck(MG_OnFocusLost);
                 if (freeze_game_on_focus_lost())
                 {
-                    pause_music(true);
+                    pause_music();
                 }
                 if (mute_audio_on_focus_lost())
                 {
