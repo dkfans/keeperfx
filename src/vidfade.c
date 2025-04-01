@@ -263,7 +263,7 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
         {
           latest_loop_time += lbFadeDelay;
           
-          if (is_feature_on(Ft_SkipSplashScreens) == false) {
+          if (flag_is_set(start_params.startup_flags, (SFlg_Legal|SFlg_FX))) {
               LbSleepUntil(latest_loop_time);
           }
         }

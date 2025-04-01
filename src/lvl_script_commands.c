@@ -1559,7 +1559,6 @@ static void new_object_type_check(const struct ScriptLine* scline)
     struct ObjectConfigStats* objst = get_object_model_stats(tmodel);
     memset(objst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
-    objst->name_stridx = 201;
     objst->map_icon = 0;
     objst->genre = 0;
     objst->draw_class = ODC_Default;
@@ -2195,111 +2194,7 @@ static void create_effects_line_process(struct ScriptContext *context)
 
 static void set_object_configuration_check(const struct ScriptLine *scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    const char *objectname = scline->tp[0];
-    const char *property = scline->tp[1];
-    const char *new_value = scline->tp[2];
-    short second_value = scline->np[3];
-    short third_value = scline->np[4];
-    short forth_value = scline->np[5];
-
-    long objct_id = get_id(object_desc, objectname);
-    if (objct_id == -1)
-    {
-        SCRPTERRLOG("Unknown object, '%s'", objectname);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    long number_value = 0;
-    long objectvar = get_id(objects_object_commands, property);
-    if (objectvar == -1)
-    {
-        SCRPTERRLOG("Unknown object variable");
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-    switch (objectvar)
-    {
-        case 2: // Genre
-            number_value = get_id(objects_genres_desc, new_value);
-            if (number_value == -1)
-            {
-                SCRPTERRLOG("Unknown object variable");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->longs[1] = number_value;
-            break;
-        case 3: // RelatedCreature
-            number_value = get_id(creature_desc, new_value);
-            if (number_value == -1)
-            {
-                SCRPTERRLOG("Unknown object variable");
-                DEALLOCATE_SCRIPT_VALUE
-                    return;
-            }
-            value->longs[1] = number_value;
-            break;
-        case  5: // AnimationID
-        case 33: // FlameAnimationID
-        {
-            number_value = get_anim_id_(new_value);
-            if (number_value == 0)
-            {
-                SCRPTERRLOG("Invalid animation id");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->longs[1] = number_value;
-            value->longs[2] = script_strdup(new_value);
-            if (value->longs[2] < 0)
-            {
-                SCRPTERRLOG("Run out script strings space");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            break;
-        }
-        case 18: // MapIcon
-        {
-            number_value = get_icon_id(new_value);
-            if (number_value < 0)
-            {
-                SCRPTERRLOG("Invalid icon id");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->longs[1] = number_value;
-            break;
-        }
-        case 20: // UpdateFunction
-        {
-            number_value = get_id(object_update_functions_desc,new_value);
-            if (number_value < 0)
-            {
-                SCRPTERRLOG("Invalid object update function id");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->longs[1] = number_value;
-            break;
-        }
-        case 36: //FlameAnimationOffset
-            value->chars[5] = atoi(new_value);
-            value->chars[6] = second_value;
-            value->chars[7] = third_value;
-            value->chars[8] = forth_value;
-            break;
-        default:
-            value->longs[1] = atoi(new_value);
-            value->shorts[5] = second_value;
-    }
-
-    SCRIPTDBG(7, "Setting object %s property %s to %ld", objectname, property, number_value);
-    value->longs[0] = objct_id;
-    value->shorts[4] = objectvar;
-    PROCESS_SCRIPT_VALUE(scline->command);
+    set_config_check(&objects_named_fields_set, scline);
 }
 
 enum CreatureConfiguration
@@ -3504,127 +3399,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
 static void set_object_configuration_process(struct ScriptContext *context)
 {
-    ThingModel model = context->value->longs[0];
-    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[model];
-    long val1 = context->value->longs[1];
-    switch (context->value->shorts[4])
-    {
-        case 2: // GENRE
-            objst->genre = val1;
-            break;
-        case 3: // RELATEDCREATURE
-            objst->related_creatr_model = val1;
-            break;
-        case 4: // PROPERTIES
-            objst->model_flags = val1;
-            break;
-        case 5: // ANIMATIONID
-            objst->sprite_anim_idx = val1;
-            break;
-        case 6: // ANIMATIONSPEED
-            objst->anim_speed = val1;
-            break;
-        case 7: //SIZE_XY
-            objst->size_xy = val1;
-            break;
-        case 8: // SIZE_Z
-            objst->size_z = val1;
-            break;
-        case 9: // MAXIMUMSIZE
-            objst->sprite_size_max = val1;
-            break;
-        case 10: // DESTROYONLIQUID
-            objst->destroy_on_liquid = val1;
-            break;
-        case 11: // DESTROYONLAVA
-            objst->destroy_on_lava = val1;
-            break;
-        case 12: // HEALTH
-            objst->health = val1;
-            break;
-        case 13: // FALLACCELERATION
-            objst->fall_acceleration = val1;
-            break;
-        case 14: // LIGHTUNAFFECTED
-            objst->light_unaffected = val1;
-            break;
-        case 15: // LIGHTINTENSITY
-            objst->ilght.intensity = val1;
-            break;
-        case 16: // LIGHTRADIUS
-            objst->ilght.radius = val1 * COORD_PER_STL;
-            break;
-        case 17: // LIGHTISDYNAMIC
-            objst->ilght.is_dynamic = val1;
-            break;
-        case 18: // MAPICON
-            objst->map_icon = val1;
-            break;
-        case 19: // AMBIENCESOUND
-            objst->fp_smpl_idx = val1;
-            break;
-        case 20: // UPDATEFUNCTION
-            objst->updatefn_idx = val1;
-            break;
-        case 21: // DRAWCLASS
-            objst->draw_class = val1;
-            break;
-        case 22: // PERSISTENCE
-            objst->persistence = val1;
-            break;
-        case 23: // Immobile
-            objst->immobile = val1;
-            break;
-        case 24: // INITIALSTATE
-            objst->initial_state = val1;
-            break;
-        case 25: // RANDOMSTARTFRAME
-            objst->random_start_frame = val1;
-            break;
-        case 26: // TRANSPARENCYFLAGS
-            objst->transparency_flags = val1<<4;
-            break;
-        case 27: // EFFECTBEAM
-            objst->effect.beam = val1;
-            break;
-        case 28: // EFFECTPARTICLE
-            objst->effect.particle = val1;
-            break;
-        case 29: // EFFECTEXPLOSION1
-            objst->effect.explosion1 = val1;
-            break;
-        case 30: // EFFECTEXPLOSION2
-            objst->effect.explosion2 = val1;
-            break;
-        case 31: // EFFECTSPACING
-            objst->effect.spacing = val1;
-            break;
-        case 32: // EFFECTSOUND
-            objst->effect.sound_idx = val1;
-            objst->effect.sound_range = (unsigned char)context->value->shorts[5];
-            break;
-        case 33: // FLAMEANIMATIONID
-            objst->flame.animation_id = val1;
-            break;
-        case 34: // FLAMEANIMATIONSPEED
-            objst->flame.anim_speed = val1;
-            break;
-        case 35: // FLAMEANIMATIONSIZE
-            objst->flame.sprite_size = val1;
-            break;
-        case 36: // FLAMEANIMATIONOFFSET
-            objst->flame.fp_add_x = context->value->chars[5];
-            objst->flame.fp_add_y = context->value->chars[6];
-            objst->flame.td_add_x = context->value->chars[7];
-            objst->flame.td_add_y = context->value->chars[8];
-            break;
-        case 37: // FLAMETRANSPARENCYFLAGS
-            objst->flame.transparency_flags = val1 << 4;
-            break;
-        default:
-            WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);
-            break;
-    }
+    set_config_process(&objects_named_fields_set, context);
+    
+    ThingModel model = context->value->shorts[0];
     update_all_objects_of_model(model);
 }
 
@@ -6275,8 +6052,6 @@ static void set_computer_process_process(struct ScriptContext* context)
         {
             struct ComputerProcess* cproc = &comp->processes[k];
             if (flag_is_set(cproc->flags, ComProc_Unkn0002))
-                break;
-            if (cproc->name == NULL)
                 break;
             if (strcasecmp(procname, cproc->name) == 0)
             {

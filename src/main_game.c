@@ -459,7 +459,6 @@ void clear_complete_game(void)
         set_selected_level_number(first_singleplayer_level());
     game_num_fps = start_params.num_fps;
     game.flags_cd = start_params.flags_cd;
-    game.no_intro = start_params.no_intro;
     set_flag_value(game.system_flags, GSF_AllowOnePlayer, start_params.one_player);
     gameadd.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;

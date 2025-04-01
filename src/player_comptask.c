@@ -2277,7 +2277,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
                 struct ComputerProcess *cproc;
                 cproc = get_computer_process(comp, ctask->cproc_idx);
                 cproc->param_5 = computer_task_index(ctask);
-                cproc->func_complete(comp, cproc);
+                computer_process_func_list[cproc->func_complete](comp, cproc);
             }
             suspend_task_process(comp, ctask);
             return TDR_ReachedDestination;
@@ -2292,7 +2292,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
                         struct ComputerProcess *cproc;
                         cproc = get_computer_process(comp, ctask->cproc_idx);
                         cproc->param_5 = computer_task_index(ctask);
-                        cproc->func_complete(comp, cproc);
+                        computer_process_func_list[cproc->func_complete](comp, cproc);
                     }
                     suspend_task_process(comp, ctask);
                     return CTaskRet_Unk0;

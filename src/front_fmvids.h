@@ -34,6 +34,7 @@ TbBool campaign_intro(void);
 TbBool campaign_outro(void);
 TbBool drag_video(void);
 TbBool moon_video(void);
+TbBool ea_video(void);
 void demo(void);
 /******************************************************************************/
 #ifdef __cplusplus

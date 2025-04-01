@@ -122,9 +122,9 @@ static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn
     struct ComputerProcess* cproc = &comp->processes[args[1]];
 
     if (flag_is_set(cproc->flags, ComProc_Unkn0020))
-        message_add_fmt(MsgType_Player, args[0], "resuming %s", cproc->name?cproc->name:"(null)");
+        message_add_fmt(MsgType_Player, args[0], "resuming %s", cproc->name);
     else
-        message_add_fmt(MsgType_Player, args[0], "suspending %s", cproc->name?cproc->name:"(null)");
+        message_add_fmt(MsgType_Player, args[0], "suspending %s", cproc->name);
 
     toggle_flag(cproc->flags, ComProc_Unkn0020); // Suspend, but do not update running time
     return 1;

@@ -799,7 +799,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_UpdatePause:
       process_pause_packet(pckt->actn_par1, pckt->actn_par2);
       return 1;
-  case PckA_Unknown083:
+  case PckA_ZoomToEvent:
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       event_move_player_towards_event(player, pckt->actn_par1);
