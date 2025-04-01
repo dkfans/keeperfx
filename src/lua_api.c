@@ -1108,8 +1108,6 @@ static int lua_SET_COMPUTER_PROCESS(lua_State *L)
             struct ComputerProcess* cproc = &comp->processes[k];
             if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                 break;
-            if (cproc->name == NULL)
-                break;
             if (strcasecmp(procname, cproc->name) == 0)
             {
                 cproc->priority = val1;
