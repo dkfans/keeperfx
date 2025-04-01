@@ -403,7 +403,7 @@ TbBool load_computer_player_config(unsigned short flags)
     len = LbFileLoadAt(fname, buf);
     if (len>0)
     {
-        parse_named_field_blocks(buf, len, textname, flags, &compp_common_named_fields_set);
+        parse_named_field_block(buf, len, textname, flags,"common",  compp_common_named_fields,&compp_common_named_fields_set, 0);
         parse_named_field_blocks(buf, len, textname, flags, &compp_process_named_fields_set);
         parse_named_field_blocks(buf, len, textname, flags, &compp_check_named_fields_set);
         parse_named_field_blocks(buf, len, textname, flags, &compp_event_named_fields_set);
