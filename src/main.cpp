@@ -986,7 +986,7 @@ short setup_game(void)
           }
       }
   #endif
-  
+
   // Enable features that require more than 32 megs of memory
   features_enabled |= Ft_HiResCreatr;
   // Enable features that require more than 16 megs of memory
