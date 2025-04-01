@@ -986,6 +986,11 @@ short setup_game(void)
           }
       }
   #endif
+  
+  if (!startup_setting_present)
+  {
+      start_params.startup_flags = (SFlg_Legal|SFlg_FX|SFlg_Intro);
+  }
 
   // Enable features that require more than 32 megs of memory
   features_enabled |= Ft_HiResCreatr;

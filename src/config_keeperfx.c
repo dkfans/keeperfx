@@ -56,6 +56,7 @@ char keeper_runtime_directory[152];
 short api_enabled = false;
 uint16_t api_port = 5599;
 unsigned long features_enabled = 0;
+TbBool startup_setting_present = false;
 
 /**
  * Language 3-char abbreviations.
@@ -628,6 +629,7 @@ short load_configuration(void)
               features_enabled &= ~Ft_MuteAudioOnLoseFocus;
           break;
         case 22: // STARTUP
+          startup_setting_present = true;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = get_id(startup_parameters, word_buf);
