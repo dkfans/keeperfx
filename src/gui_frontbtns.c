@@ -580,8 +580,8 @@ void gui_area_compsetting_button(struct GuiButton *gbtn)
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }
-    
-    struct ComputerTypes* cpt = get_computer_type_template(gbtn.btype_value);
+
+    struct ComputerTypes* cpt = get_computer_type_template(comp_player_conf.computer_assist_types[gbtn.btype_value]);
     gbtn->tooltip_stridx = cpt->tooltip_stridx;
 
     int ps_units_per_px;
