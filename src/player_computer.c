@@ -1611,10 +1611,9 @@ void setup_computer_players2(void)
         int maxSkirmishAI = comp_player_conf.skirmish_last;
 
         int skirmish_AI_type = GAME_RANDOM(maxSkirmishAI + 1 - minSkirmishAI) + minSkirmishAI;
-        // Always set human player to computer7 (a computer assistant) by default
         if (i == game.local_plyr_idx)
         {
-            skirmish_AI_type = 7;
+            skirmish_AI_type = comp_player_conf.player_assist_default;
         }
         setup_a_computer_player(i, skirmish_AI_type);
         if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0)

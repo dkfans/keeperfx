@@ -124,6 +124,7 @@ struct ComputerPlayerConfig {
   struct ComputerTypes computer_types[COMPUTER_MODELS_COUNT];
   long skirmish_first;
   long skirmish_last;
+  long player_assist_default;
   ComputerType computer_assist_types[COMPUTER_ASSIST_TYPES_COUNT];
 
 };

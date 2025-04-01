@@ -59,12 +59,13 @@ static int computer_type_add_event(struct ComputerTypes *cpt, struct ComputerEve
 /******************************************************************************/
 
 static const struct NamedField compp_common_named_fields[] = {
-  {"ComputerAssists",  0, field(comp_player_conf.computer_assist_types[0]), 0, LONG_MIN,ULONG_MAX, NULL, value_default, assign_default},
-  {"ComputerAssists",  1, field(comp_player_conf.computer_assist_types[1]), 0, LONG_MIN,ULONG_MAX, NULL, value_default, assign_default},
-  {"ComputerAssists",  2, field(comp_player_conf.computer_assist_types[2]), 0, LONG_MIN,ULONG_MAX, NULL, value_default, assign_default},
-  {"ComputerAssists",  3, field(comp_player_conf.computer_assist_types[3]), 0, LONG_MIN,ULONG_MAX, NULL, value_default, assign_default},
-  {"SkirmishFirst",    0, field(comp_player_conf.skirmish_first),           0, LONG_MIN,ULONG_MAX, NULL, value_default, assign_default},
-  {"SkirmishLast",     0, field(comp_player_conf.skirmish_last),            0, LONG_MIN,ULONG_MAX, NULL, value_default, assign_default},
+  {"ComputerAssists",        0, field(comp_player_conf.computer_assist_types[0]), 0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
+  {"ComputerAssists",        1, field(comp_player_conf.computer_assist_types[1]), 0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
+  {"ComputerAssists",        2, field(comp_player_conf.computer_assist_types[2]), 0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
+  {"ComputerAssists",        3, field(comp_player_conf.computer_assist_types[3]), 0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
+  {"SkirmishFirst",          0, field(comp_player_conf.skirmish_first),           0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
+  {"SkirmishLast",           0, field(comp_player_conf.skirmish_last),            0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
+  {"DefaultComputerAssist",  0, field(comp_player_conf.player_assist_default),    0, 0,COMPUTER_MODELS_COUNT, NULL, value_default, assign_default},
   {NULL},
 };
 
