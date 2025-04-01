@@ -24,24 +24,15 @@
 #include "globals.h"
 
 #include "config.h"
+#include "config_compp.h"
 #include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-#define COMPUTER_TASKS_COUNT        100
-#define COMPUTER_PROCESSES_COUNT     20
-#define COMPUTER_CHECKS_COUNT        32
-#define COMPUTER_EVENTS_COUNT        33
-// To add additional computer players update the folowing number. Update ComputerCount in keepcompp.cfg to match.
-// Must match the actual number of consecutive computers listed in that file (don't forget to count computer0).
-#define COMPUTER_MODELS_COUNT        17 // renamed from COMPUTER_PROCESS_LISTS_COUNT, for clarity
 #define COMPUTER_TRAP_LOC_COUNT      20
 
-#define COMPUTER_PROCESS_TYPES_COUNT 26
-#define COMPUTER_CHECKS_TYPES_COUNT  52
-#define COMPUTER_EVENTS_TYPES_COUNT  31
 #define COMPUTER_SPARK_POSITIONS_COUNT 64
 #define COMPUTER_SOE_GRID_SIZE        8
 
@@ -266,9 +257,7 @@ struct ComputerTask;
 struct GoldLookup;
 struct THate;
 
-typedef unsigned char ComputerType;
 typedef unsigned short ComputerTaskType;
-typedef char ComputerName[LINEMSG_SIZE];
 
 typedef long (*Comp_Process_Func)(struct Computer2 *, struct ComputerProcess *);
 typedef long (*Comp_Check_Func)(struct Computer2 *, struct ComputerCheck *);
@@ -277,85 +266,16 @@ typedef long (*Comp_EvntTest_Func)(struct Computer2 *, struct ComputerEvent *);
 typedef long (*Comp_Task_Func)(struct Computer2 *, struct ComputerTask *);
 typedef TbBool (*Comp_HateTest_Func)(const struct Computer2 *, const struct ComputerProcess *, const struct THate *);
 
-struct Comp_Check_Func_ListItem {
-  const char *name;
-  Comp_Check_Func func;
-};
-
 struct TaskFunctions {
-  const char *name;
-  Comp_Task_Func func;
-};
-
-struct ComputerProcess { // sizeof = 72
-  char name[COMMAND_WORD_LEN];
-  char mneumonic[COMMAND_WORD_LEN];
-  long priority;
-  // Signed process config values
-  long confval_2;
-  long confval_3;
-  long confval_4; /**< room kind or amount of creatures or gameturn or count of slabs */
-  long confval_5;
-  FuncIdx func_check;
-  FuncIdx func_setup;
-  FuncIdx func_task;
-  FuncIdx func_complete;
-  FuncIdx func_pause;
-  struct ComputerProcess *parent;
-  // Unsigned process parameters storage (stores gameturns)
-  unsigned long param_1;
-  unsigned long param_2;
-  unsigned long param_3;
-  unsigned long last_run_turn;
-  // Signed process parameters storage
-  long param_5;
-  unsigned long flags; /**< Values from ComProc_* enumeration. */
-};
-
-struct ComputerCheck { // sizeof = 32
-  char *name;
-  unsigned long flags; /**< Values from ComChk_* enumeration. */
-  long turns_interval;
-  Comp_Check_Func func;
-  long param1;
-  long param2;
-  long param3;
-  long last_run_turn;
-};
-
-struct ComputerEvent { // sizeof = 44
-  char *name;
-  unsigned long cetype;
-  unsigned long mevent_kind;
-  Comp_Event_Func func_event;
-  Comp_EvntTest_Func func_test;
-  long test_interval;
-  struct ComputerProcess *process;
-  long param1;
-  long param2;
-  long param3;
-  long last_test_gameturn; /**< event last checked time */
+    const char *name;
+    Comp_Task_Func func;
 };
 
 struct ValidRooms { // sizeof = 8
-  long rkind;
-  struct ComputerProcess *process;
+    long rkind;
+    struct ComputerProcess *process;
 };
 
-struct ComputerProcessMnemonic {
-  char name[16];
-  struct ComputerProcess *process;
-};
-
-struct ComputerCheckMnemonic {
-  char name[16];
-  struct ComputerCheck *check;
-};
-
-struct ComputerEventMnemonic {
-  char name[16];
-  struct ComputerEvent *event;
-};
 struct ComputerDig {
     struct Coord3d pos_E; /**< used by dig to position - set to pos_begin when a dig action fails ?? */
     struct Coord3d pos_dest; /**< used by dig to position - the destination */
@@ -541,17 +461,8 @@ struct ExpandRooms {
 
 #pragma pack()
 /******************************************************************************/
-struct ComputerPlayerConfig {
-    long processes_count;
-    struct ComputerProcess process_types[COMPUTER_PROCESS_TYPES_COUNT];
-    long checks_count;
-    long events_count;
-    long computers_count;
-    long skirmish_first; /*new*/
-    long skirmish_last; /*new*/
-};
+
 /******************************************************************************/
-extern unsigned short computer_types_tooltip_stridx[];
 extern struct ValidRooms valid_rooms_to_build[];
 
 extern const struct NamedCommand computer_process_func_type[];

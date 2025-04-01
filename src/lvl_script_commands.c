@@ -6260,7 +6260,7 @@ static void set_computer_checks_process(struct ScriptContext* context)
             struct ComputerCheck* ccheck = &comp->checks[k];
             if ((ccheck->flags & ComChk_Unkn0002) != 0)
                 break;
-            if (ccheck->name == NULL)
+            if (ccheck->name[0] == '\0')
                 break;
             if (strcasecmp(chkname, ccheck->name) == 0)
             {
@@ -6337,7 +6337,7 @@ static void set_computer_event_process(struct ScriptContext* context)
         for (long k = 0; k < COMPUTER_EVENTS_COUNT; k++)
         {
             struct ComputerEvent* event = &comp->events[k];
-            if (event->name == NULL)
+            if (event->name[0] == '\0')
                 break;
             if (strcasecmp(evntname, event->name) == 0)
             {
