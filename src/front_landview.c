@@ -258,21 +258,22 @@ int compute_sound_good_to_bad_factor(void)
 void update_frontmap_ambient_sound(void)
 {
   // NOTE: the good / bad samples start at a volume of zero.
+  SoundEmitterID emit_id = get_emitter_id(S3DGetSoundEmitter(Non3DEmitter));
   if (map_sound_fade > 0)
   {
       long lvidx = array_index_for_singleplayer_level(get_continue_level_number());
       if ((features_enabled & Ft_AdvAmbSound) != 0)
       {
           long factor = compute_sound_good_to_bad_factor();
-          SetSampleVolume(Non3DEmitter, campaign.ambient_good, (map_sound_fade * (((long) settings.sound_volume * factor) / FULL_LOUDNESS)) / FULL_LOUDNESS);
-          SetSampleVolume(Non3DEmitter, campaign.ambient_bad, (map_sound_fade * (((long) settings.sound_volume * (FULL_LOUDNESS - factor)) / FULL_LOUDNESS)) / FULL_LOUDNESS);
+          SetSampleVolume(emit_id, campaign.ambient_good, (map_sound_fade * (((long) settings.sound_volume * factor) / FULL_LOUDNESS)) / FULL_LOUDNESS);
+          SetSampleVolume(emit_id, campaign.ambient_bad, (map_sound_fade * (((long) settings.sound_volume * (FULL_LOUDNESS - factor)) / FULL_LOUDNESS)) / FULL_LOUDNESS);
     } else
     if (lvidx > 13)
     {
-      SetSampleVolume(Non3DEmitter, campaign.ambient_bad, ((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+      SetSampleVolume(emit_id, campaign.ambient_bad, ((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
     } else
     {
-      SetSampleVolume(Non3DEmitter, campaign.ambient_good, ((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+      SetSampleVolume(emit_id, campaign.ambient_good, ((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
     }
     set_streamed_sample_volume(((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
     set_music_volume((map_sound_fade * settings.music_volume) / FULL_LOUDNESS);
@@ -280,8 +281,8 @@ void update_frontmap_ambient_sound(void)
   {
     if ((features_enabled & Ft_AdvAmbSound) != 0)
     {
-      SetSampleVolume(Non3DEmitter, campaign.ambient_good, 0);
-      SetSampleVolume(Non3DEmitter, campaign.ambient_bad, 0);
+      SetSampleVolume(emit_id, campaign.ambient_good, 0);
+      SetSampleVolume(emit_id, campaign.ambient_bad, 0);
     }
     set_music_volume(0);
     set_streamed_sample_volume(0);
@@ -1149,8 +1150,9 @@ TbBool frontmap_load(void)
     if ((features_enabled & Ft_AdvAmbSound) != 0)
     {
         // don't use play_non_3d_sample; we want looping, fading, and volume control
-        play_sample(Non3DEmitter, campaign.ambient_good, 0, 0x40, NORMAL_PITCH, -1, 2, 0);
-        play_sample(Non3DEmitter, campaign.ambient_bad, 0, 0x40, NORMAL_PITCH, -1, 2, 0);
+        SoundEmitterID emit_id = get_emitter_id(S3DGetSoundEmitter(Non3DEmitter));
+        play_sample(emit_id, campaign.ambient_good, 0, 0x40, NORMAL_PITCH, -1, 2, 0);
+        play_sample(emit_id, campaign.ambient_bad, 0, 0x40, NORMAL_PITCH, -1, 2, 0);
     }
     set_music_volume(settings.music_volume);
     frontmap_start_music();
