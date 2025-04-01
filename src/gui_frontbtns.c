@@ -568,13 +568,11 @@ void gui_area_compsetting_button(struct GuiButton *gbtn)
 {
     SYNCDBG(10,"Starting");
     int spr_idx;
-    TbBool enabled = 0;
     spr_idx = gbtn->sprite_idx;
-
     if (gbtn->gbtype == LbBtnT_ToggleBtn)
     {
         if (gbtn->content.ptr != NULL) {
-            enabled = *(unsigned char *)gbtn->content.ptr;
+            spr_idx += *(unsigned char *)gbtn->content.ptr;
         } else {
             ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
         }
@@ -582,13 +580,6 @@ void gui_area_compsetting_button(struct GuiButton *gbtn)
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }
-
-    struct ComputerTypes* cpt = get_computer_type_template(comp_player_conf.computer_assist_types[gbtn->btype_value]);
-    gbtn->tooltip_stridx = cpt->tooltip_stridx;
-    if (enabled)
-        gbtn->sprite_idx = cpt->sprite_idx;
-    else
-        gbtn->sprite_idx = GPS_options_cassist_btn_black_a;
 
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, spr_idx, 100);
