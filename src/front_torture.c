@@ -22,7 +22,7 @@
 #include "front_torture.h"
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "config_settings.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_filelst.h"
@@ -77,12 +77,12 @@ void torture_play_sound(long door_id, TbBool state)
   if (state)
   {
     play_non_3d_sample(doors[door_id].smptbl_id);
-    door_sound_state[door_id].field_0 = 0;
-    door_sound_state[door_id].field_4 = 16;
+    door_sound_state[door_id].current_volume = 0;
+    door_sound_state[door_id].volume_step = FULL_LOUDNESS / 16;
   }
   else
   {
-    door_sound_state[door_id].field_4 = -16;
+    door_sound_state[door_id].volume_step = -(FULL_LOUDNESS / 16);
   }
 }
 
@@ -346,28 +346,29 @@ void fronttorture_update(void)
       if ( torture_sprite_frame != torture_end_sprite )
         torture_sprite_frame += torture_sprite_direction;
     }
+    SoundEmitterID emit_id = get_emitter_id(S3DGetSoundEmitter(Non3DEmitter));
     for (int i = 0; i < TORTURE_DOORS_COUNT; i++)
     {
         struct DoorDesc* door = &doors[i];
         struct DoorSoundState* doorsnd = &door_sound_state[i];
-        if ( doorsnd->field_4 )
+        if (doorsnd->volume_step != 0)
         {
-            int volume = doorsnd->field_4 + doorsnd->field_0;
+            int volume = doorsnd->volume_step + doorsnd->current_volume;
             if (volume <= 0)
             {
                 volume = 0;
-                doorsnd->field_4 = 0;
-                stop_sample(0, door->smptbl_id, 0);
+                doorsnd->volume_step = 0;
+                stop_sample(emit_id, door->smptbl_id, 0);
             } else
-            if (volume >= 127)
+            if (volume >= FULL_LOUDNESS)
             {
-                volume = 127;
-                doorsnd->field_4 = 0;
+                volume = FULL_LOUDNESS;
+                doorsnd->volume_step = 0;
             }
-            doorsnd->field_0 = volume;
+            doorsnd->current_volume = volume;
             if (volume > 0)
             {
-              SetSampleVolume(0, door->smptbl_id, volume);
+              SetSampleVolume(emit_id, door->smptbl_id, (settings.sound_volume * volume) / FULL_LOUDNESS);
             }
         }
     }
