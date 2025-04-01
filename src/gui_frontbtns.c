@@ -583,7 +583,7 @@ void gui_area_compsetting_button(struct GuiButton *gbtn)
         }
     }
 
-    struct ComputerTypes* cpt = get_computer_type_template(comp_player_conf.computer_assist_types[gbtn.btype_value]);
+    struct ComputerTypes* cpt = get_computer_type_template(comp_player_conf.computer_assist_types[gbtn->btype_value]);
     gbtn->tooltip_stridx = cpt->tooltip_stridx;
     if (enabled)
         gbtn->sprite_idx = cpt->sprite_idx;
