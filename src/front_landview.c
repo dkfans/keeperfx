@@ -251,29 +251,30 @@ int compute_sound_good_to_bad_factor(void)
     }
     if ((onscr_bad+onscr_good) == 0)
         onscr_good++;
-    return (127*onscr_good)/(onscr_bad+onscr_good);
+    // return a value between 0 (all bad) and 256 (all good)
+    return (FULL_LOUDNESS * onscr_good) / (onscr_bad + onscr_good);
 }
 
 void update_frontmap_ambient_sound(void)
 {
+  // NOTE: the good / bad samples start at a volume of zero.
   if (map_sound_fade > 0)
   {
       long lvidx = array_index_for_singleplayer_level(get_continue_level_number());
       if ((features_enabled & Ft_AdvAmbSound) != 0)
       {
-          long i = compute_sound_good_to_bad_factor();
-          SYNCDBG(18, "Volume factor is %ld", i);
-          SetSampleVolume(Non3DEmitter, campaign.ambient_good, (map_sound_fade * i) / FULL_LOUDNESS);
-          SetSampleVolume(Non3DEmitter, campaign.ambient_bad, (map_sound_fade * (settings.sound_volume - i)) / FULL_LOUDNESS);
+          long factor = compute_sound_good_to_bad_factor();
+          SetSampleVolume(Non3DEmitter, campaign.ambient_good, (map_sound_fade * (((long) settings.sound_volume * factor) / FULL_LOUDNESS)) / FULL_LOUDNESS);
+          SetSampleVolume(Non3DEmitter, campaign.ambient_bad, (map_sound_fade * (((long) settings.sound_volume * (FULL_LOUDNESS - factor)) / FULL_LOUDNESS)) / FULL_LOUDNESS);
     } else
     if (lvidx > 13)
     {
-      SetSampleVolume(Non3DEmitter, campaign.ambient_bad, (settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+      SetSampleVolume(Non3DEmitter, campaign.ambient_bad, ((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
     } else
     {
-      SetSampleVolume(Non3DEmitter, campaign.ambient_good, (settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+      SetSampleVolume(Non3DEmitter, campaign.ambient_good, ((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
     }
-    set_streamed_sample_volume((settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+    set_streamed_sample_volume(((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
     set_music_volume((map_sound_fade * settings.music_volume) / FULL_LOUDNESS);
   } else
   {
