@@ -2160,6 +2160,13 @@ void maintain_creature_button(struct GuiButton* gbtn)
     }
 }
 
+void maintain_compsetting_button(struct GuiButton* gbtn)
+{
+    struct ComputerTypes* cpt = get_computer_type_template(comp_player_conf.computer_assist_types[gbtn->btype_value]);
+    gbtn->tooltip_stridx = cpt->tooltip_stridx;
+    gbtn->sprite_idx = cpt->sprite_idx;
+}
+
 void pick_up_next_wanderer(struct GuiButton *gbtn)
 {
     unsigned short pick_flags = get_creature_pick_flags(1);
