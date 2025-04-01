@@ -79,9 +79,9 @@ struct GuiButtonInit pause_buttons[] = {
 struct GuiButtonInit autopilot_menu_buttons[] = {
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, GUIStr_MnuComputer,      0,       {0},            0, NULL },
   {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               0,  12,  36,  12,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_orange, GUIStr_AggressiveAssistDesc,0,{.ptr = &game.comp_player_aggressive}, 0, NULL },
-  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               0,  60,  36,  60,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_yellow, GUIStr_DefensiveAssistDesc,0,{.ptr = &game.comp_player_defensive}, 0, NULL },
-  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               0, 108,  36, 108,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_pink, GUIStr_ConstructionAssistDesc,0,{.ptr = &game.comp_player_construct}, 0, NULL },
-  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               0, 156,  36, 156,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_green, GUIStr_MoveOnlyAssistDesc,0,{.ptr = &game.comp_player_creatrsonly}, 0, NULL },
+  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               1,  60,  36,  60,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_yellow, GUIStr_DefensiveAssistDesc,0,{.ptr = &game.comp_player_defensive}, 0, NULL },
+  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               2, 108,  36, 108,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_pink, GUIStr_ConstructionAssistDesc,0,{.ptr = &game.comp_player_construct}, 0, NULL },
+  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               3, 156,  36, 156,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_green, GUIStr_MoveOnlyAssistDesc,0,{.ptr = &game.comp_player_creatrsonly}, 0, NULL },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
 };
 
