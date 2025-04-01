@@ -100,6 +100,7 @@ struct ComputerEvent {
 struct ComputerTypes {
   char name[COMMAND_WORD_LEN];
   short tooltip_stridx;
+  short sprite_idx;
   long dig_stack_size;
   long processes_time;
   long click_rate;
