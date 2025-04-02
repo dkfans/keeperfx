@@ -90,6 +90,8 @@ static const struct NamedField objects_named_fields[] = {
     {"LIGHTRADIUS",              0, field(game.conf.object_conf.object_cfgstats[0].ilght.radius),                  0, LONG_MIN,ULONG_MAX, NULL,                        value_stltocoord,assign_default},
     {"LIGHTISDYNAMIC",           0, field(game.conf.object_conf.object_cfgstats[0].ilght.is_dynamic),              0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"MAPICON",                  0, field(game.conf.object_conf.object_cfgstats[0].map_icon),                      0, LONG_MIN,ULONG_MAX, NULL,                        value_icon,      assign_icon},
+    {"TOOLTIPTEXTID",            0, field(game.conf.object_conf.object_cfgstats[0].tooltip_stridx),                0, SHRT_MIN, SHRT_MAX, NULL,                        value_default,   assign_default},
+    {"TOOLTIPTEXTID",            1, field(game.conf.object_conf.object_cfgstats[0].tooltip_optional),              0, SHRT_MIN, SHRT_MAX, NULL,                        value_default,   assign_default},
     {"AMBIENCESOUND",            0, field(game.conf.object_conf.object_cfgstats[0].fp_smpl_idx),                   0,        0,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"UPDATEFUNCTION",           0, field(game.conf.object_conf.object_cfgstats[0].updatefn_idx),                  0, LONG_MIN,ULONG_MAX, object_update_functions_desc,value_default,   assign_default},
     {"DRAWCLASS",                0, field(game.conf.object_conf.object_cfgstats[0].draw_class),          ODC_Default, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
