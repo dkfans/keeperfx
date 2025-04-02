@@ -166,12 +166,12 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     {
         update_gui_tooltip_target(thing);
         objst = get_object_model_stats(thing->model);
+        if ((!settings.tooltips_on) && (objst->tooltip_optional))
+        {
+            return false;
+        }
         if ((objst->tooltip_stridx >= 0) && (objst->tooltip_stridx != GUIStr_Empty))
         {
-            if ((!settings.tooltips_on) && (objst->tooltip_optional))
-            {
-                return false;
-            }
             if ((help_tip_time > 20) || (player->work_state == PSt_CreatrQuery))
             {
                 set_gui_tooltip_box_fmt(5, "%s", get_string(objst->tooltip_stridx));
@@ -191,21 +191,29 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
                 return true;
             }
             else
-            if (thing_is_custom_special_box(thing))
+            if (thing_is_special_box(thing))
             {
-                // TODO: get it from Map script
-                if (gameadd.box_tooltip[thing->custom_box.box_kind][0] == 0)
+                if (thing_is_custom_special_box(thing))
                 {
-                    i = box_thing_to_special(thing);
-                    long strngindex = get_special_description_strindex(i);
-                    if (strngindex != GUIStr_Empty)
+                    // TODO: get it from Map script
+                    if (gameadd.box_tooltip[thing->custom_box.box_kind][0] == 0)
                     {
-                        set_gui_tooltip_box_fmt(5, "%s", get_string(strngindex));
+                        i = box_thing_to_special(thing);
+                        long strngindex = get_special_description_strindex(i);
+                        if (strngindex != GUIStr_Empty)
+                        {
+                            set_gui_tooltip_box_fmt(5, "%s", get_string(strngindex));
+                        }
+                    }
+                    else
+                    {
+                        set_gui_tooltip_box_fmt(5, "%s", gameadd.box_tooltip[thing->custom_box.box_kind]);
                     }
                 }
                 else
                 {
-                    set_gui_tooltip_box_fmt(5, "%s", gameadd.box_tooltip[thing->custom_box.box_kind]);
+                    i = box_thing_to_special(thing);
+                    set_gui_tooltip_box_fmt(5, "%s", get_string(get_special_description_strindex(i)));
                 }
                 return true;
             }
