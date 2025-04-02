@@ -1312,14 +1312,7 @@ TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsign
         if (!result)
             WARNMSG("Parsing %s file \"%s\" trap blocks failed.",textname,fname);
     }
-    if (result)
-    {
-        result = parse_trapdoor_door_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" door blocks failed.",textname,fname);
-    }
+    parse_named_field_blocks(buf, len, textname, flags, &trapdoor_door_named_fields_set);
     //Freeing and exiting
     free(buf);
     SYNCDBG(19,"Done");
