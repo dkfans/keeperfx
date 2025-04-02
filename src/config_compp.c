@@ -381,10 +381,9 @@ static int computer_type_add_event(struct ComputerTypes *cpt, struct ComputerEve
   return -1;
 }
 
-TbBool load_computer_player_config(unsigned short flags)
+TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(8, "Starting");
-    static const char *textname = "Computer Player";
     // Load the config file
     long len = LbFileLengthRnc(fname);
     if (len < 2)
