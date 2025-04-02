@@ -372,9 +372,8 @@ int64_t value_name(const struct NamedField* named_field, const char* value_text,
     return 0;
 }
 
-
-//expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
-int64_t value_flagsfieldshift(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+//same as value_flagsfield but treats the namedCommand field as a longnamedCommand
+int64_t value_longflagsfield(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     int64_t value = 0;
     char word_buf[COMMAND_WORD_LEN];
@@ -402,16 +401,12 @@ int64_t value_flagsfieldshift(const struct NamedField* named_field, const char* 
                 return original_value;
             }
         }
-        
-        int k = get_id(named_field->namedCommand, word_buf);
-        if(k > 0)
-        {
-            value |= 1<<(k - 1);
-        }
+
+        int k = get_long_id((struct LongNamedCommand*)named_field->namedCommand, word_buf);
+        if(k >= 0)
+            value |= k;
         else
-        {
             NAMFIELDWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
-        }
         i++;
     }
     return value;

@@ -5213,17 +5213,16 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
 static void set_power_configuration_process(struct ScriptContext *context)
 {
     struct PowerConfigStats *powerst = get_power_model_stats(context->value->shorts[0]);
-    struct MagicStats* pwrdynst = get_power_dynamic_stats(context->value->shorts[0]);
     switch (context->value->bytes[2])
     {
         case 2: // Power
-            pwrdynst->strength[context->value->bytes[3]] = context->value->longs[2];
+            powerst->strength[context->value->bytes[3]] = context->value->longs[2];
             break;
         case 3: // Cost
-            pwrdynst->cost[context->value->bytes[3]] = context->value->longs[2];
+            powerst->cost[context->value->bytes[3]] = context->value->longs[2];
             break;
         case 4: // Duration
-            pwrdynst->duration = context->value->longs[2];
+            powerst->duration = context->value->longs[2];
             break;
         case 5: // Castability
         {
