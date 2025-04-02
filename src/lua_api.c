@@ -801,6 +801,102 @@ static int lua_PLACE_TRAP(lua_State *L)
 
 //Manipulating Configs
 
+static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fields_set)
+{
+
+    const char* id_str      = lua_tostring(L, 1);
+    const char* property    = lua_tostring(L, 2);
+    
+    short id = get_id(named_fields_set->names, id_str);
+    if (id == -1)
+    {
+        luaL_argerror(L,1, "Unknown %s, '%s'",named_fields_set->block_basename, id_str);
+        return;
+    }
+    if (id > named_fields_set->max_count)
+    {
+        luaL_argerror(L,1, "'%s%d' is out of range",named_fields_set->block_basename, id);
+        return;
+    }
+    
+    long property_id = get_named_field_id(named_fields_set->named_fields, property);
+    if (property_id == -1)
+    {
+        luaL_argerror(L,2, "Expected a valid property name, got '%s'",property);
+        return;
+    }
+    
+    const struct NamedField* field = &named_fields_set->named_fields[property_id];
+    
+    char concatenated_values[MAX_TEXT_LENGTH];
+    if (field->argnum == -1)
+    {
+        concatenated_values[0] = '\0';
+        for (int i = 3; lua_tostring(L, i) != NULL; i++) {
+            strncat(concatenated_values, lua_tostring(L, i), sizeof(concatenated_values) - strlen(concatenated_values) - 1);
+            if (lua_tostring(L, i + 1) != NULL) {
+            strncat(concatenated_values, " ", sizeof(concatenated_values) - strlen(concatenated_values) - 1);
+            }
+        }
+        int64_t value = parse_named_field_value(field, concatenated_values,named_fields_set,id,ccs_Lua);
+        assign_named_field_value(&named_fields_set->named_fields[property_id],value,named_fields_set,id, ccs_Lua);
+        
+    }
+    else
+    {
+        int i = 0;
+        while (lua_tostring(L, i + 3) != NULL)
+        {    
+            if( named_fields_set->named_fields[property_id + i].name == NULL || 
+                (strcmp(named_fields_set->named_fields[property_id + i].name, named_fields_set->named_fields[property_id].name) != 0))
+            {
+                luaL_argerror(L, i,"more values then expected for property: '%s' '%s'", property, lua_tostring(L, i + 3));
+                return;
+            }
+            int64_t value = parse_named_field_value(&named_fields_set->named_fields[property_id + i], lua_tostring(L, i + 3),named_fields_set,id,ccs_Lua);
+            assign_named_field_value(&named_fields_set->named_fields[property_id + i],value,named_fields_set,id, ccs_Lua);
+            i++;
+        }
+    }
+}
+
+static int lua_SET_DOOR_CONFIGURATION(lua_State *L)
+{
+    set_configuration(L, &trapdoor_door_named_fields_set);
+    return 0;
+}
+
+static int lua_SET_OBJECT_CONFIGURATION(lua_State *L)
+{
+    set_configuration(L, &objects_named_fields_set);
+    return 0;
+}
+
+static int lua_SET_TRAP_CONFIGURATION(lua_State *L)
+{
+    ThingModel trap_type = luaL_checkNamedCommand(L,1,trap_desc);
+    short property       = luaL_checkNamedCommand(L,2,trapdoor_door_commands);
+    //todo values it also accept strings depending on the property above
+    short value          = luaL_checkinteger(L, 3);
+    short value2         = lua_tointeger(L, 4);
+    short value3         = lua_tointeger(L, 5);
+    short value4         = lua_tointeger(L, 6);
+
+
+    script_set_trap_configuration(trap_type,property, value, value2, value3, value4);
+    return 0;
+}
+
+//static int lua_SET_CREATURE_CONFIGURATION(lua_State *L)
+//static int lua_SET_EFFECT_GENERATOR_CONFIGURATION(lua_State *L)
+//static int lua_SET_POWER_CONFIGURATION(lua_State *L)
+
+static int lua_SET_ROOM_CONFIGURATION(lua_State *L)
+{
+    set_configuration(L, &terrain_room_named_fields_set);
+    return 0;
+}
+
 static int lua_SET_GAME_RULE(lua_State *L)
 {
 
@@ -826,53 +922,6 @@ static int lua_SET_HAND_RULE(lua_State *L)
     script_set_hand_rule(player_idx, crtr_id, rule_action, rule_slot, rule, param);
     return 0;
 }
-
-
-static int lua_SET_DOOR_CONFIGURATION(lua_State *L)
-{
-    ThingModel door_type = luaL_checkNamedCommand(L,1,door_desc);
-    short property       = luaL_checkNamedCommand(L,2,trapdoor_door_commands);
-    //todo values it also accept strings depending on the property above
-    short value          = luaL_checkinteger(L, 3);
-    short value2         = lua_tointeger(L, 4);
-
-    script_set_door_configuration(door_type,property, value, value2);
-    return 0;
-}
-
-/*
-static int lua_SET_OBJECT_CONFIGURATION(lua_State *L)
-{
-    ThingModel object_type = luaL_checkNamedCommand(L,1,object_desc);
-    short property         = luaL_checkNamedCommand(L,2,objects_object_commands);
-    //todo values it also accept strings depending on the property above
-    short value            = luaL_checkinteger(L, 3);
-    short value2           = lua_tointeger(L, 4);
-
-    //script_set_object_configuration(object_type,property, value, value2);
-    return 0;
-}
-*/
-
-static int lua_SET_TRAP_CONFIGURATION(lua_State *L)
-{
-    ThingModel trap_type = luaL_checkNamedCommand(L,1,trap_desc);
-    short property       = luaL_checkNamedCommand(L,2,trapdoor_door_commands);
-    //todo values it also accept strings depending on the property above
-    short value          = luaL_checkinteger(L, 3);
-    short value2         = lua_tointeger(L, 4);
-    short value3         = lua_tointeger(L, 5);
-    short value4         = lua_tointeger(L, 6);
-
-
-    script_set_trap_configuration(trap_type,property, value, value2, value3, value4);
-    return 0;
-}
-
-//static int lua_SET_CREATURE_CONFIGURATION(lua_State *L)
-//static int lua_SET_EFFECT_GENERATOR_CONFIGURATION(lua_State *L)
-//static int lua_SET_POWER_CONFIGURATION(lua_State *L)
-
 
 static int lua_SWAP_CREATURE(lua_State *L)
 {
@@ -1809,22 +1858,22 @@ static const luaL_Reg global_methods[] = {
    {"HIDE_HERO_GATE"                       ,lua_HIDE_HERO_GATE                  },
    
 //Manipulating Configs
-   {"SET_GAME_RULE"                        ,lua_SET_GAME_RULE                   },
-   {"SET_HAND_RULE"                        ,lua_SET_HAND_RULE                   },
-   {"SET_DOOR_CONFIGURATION"               ,lua_SET_DOOR_CONFIGURATION          },
-   //{"NEW_OBJECT_TYPE"                      ,lua_NEW_OBJECT_TYPE                 },
-   //{"SET_OBJECT_CONFIGURATION"             ,lua_SET_OBJECT_CONFIGURATION        },
-   //{"NEW_TRAP_TYPE"                        ,lua_NEW_TRAP_TYPE                   },
-   {"SET_TRAP_CONFIGURATION"               ,lua_SET_TRAP_CONFIGURATION          },
-   //{"NEW_CREATURE_TYPE"                    ,lua_NEW_CREATURE_TYPE               },
-   //{"SET_CREATURE_CONFIGURATION"           ,lua_SET_CREATURE_CONFIGURATION      },
-   //{"SET_EFFECT_GENERATOR_CONFIGURATION"   ,lua_SET_EFFECT_GENERATOR_CONFIGURATI},
-   //{"SET_POWER_CONFIGURATION"              ,lua_SET_POWER_CONFIGURATION         },
-   {"SWAP_CREATURE"                        ,lua_SWAP_CREATURE                   },
-   //{"NEW_ROOM_TYPE"                        ,lua_NEW_ROOM_TYPE                   },
-   //{"SET_ROOM_CONFIGURATION"               ,lua_SET_ROOM_CONFIGURATION          },
-   {"SET_SACRIFICE_RECIPE"                 ,lua_SET_SACRIFICE_RECIPE            },
-   {"REMOVE_SACRIFICE_RECIPE"              ,lua_REMOVE_SACRIFICE_RECIPE         },
+    //{"NEW_CREATURE_TYPE"                    ,lua_NEW_CREATURE_TYPE               },
+    //{"NEW_OBJECT_TYPE"                      ,lua_NEW_OBJECT_TYPE                 },
+    //{"NEW_TRAP_TYPE"                        ,lua_NEW_TRAP_TYPE                   },
+    //{"NEW_ROOM_TYPE"                        ,lua_NEW_ROOM_TYPE                   },
+    {"SET_DOOR_CONFIGURATION"              ,lua_SET_DOOR_CONFIGURATION          },
+    {"SET_OBJECT_CONFIGURATION"            ,lua_SET_OBJECT_CONFIGURATION        },
+    {"SET_TRAP_CONFIGURATION"              ,lua_SET_TRAP_CONFIGURATION          },
+    //{"SET_CREATURE_CONFIGURATION"           ,lua_SET_CREATURE_CONFIGURATION      },
+    //{"SET_EFFECT_GENERATOR_CONFIGURATION"   ,lua_SET_EFFECT_GENERATOR_CONFIGURATI},
+    //{"SET_POWER_CONFIGURATION"              ,lua_SET_POWER_CONFIGURATION         },
+    {"SET_ROOM_CONFIGURATION"              ,lua_SET_ROOM_CONFIGURATION          },
+    {"SET_GAME_RULE"                       ,lua_SET_GAME_RULE                   },
+    {"SET_HAND_RULE"                       ,lua_SET_HAND_RULE                   },
+    {"SWAP_CREATURE"                       ,lua_SWAP_CREATURE                   },
+    {"SET_SACRIFICE_RECIPE"                ,lua_SET_SACRIFICE_RECIPE            },
+    {"REMOVE_SACRIFICE_RECIPE"             ,lua_REMOVE_SACRIFICE_RECIPE         },
 
 //Manipulating Creature stats
    {"SET_CREATURE_INSTANCE"                ,lua_SET_CREATURE_INSTANCE           },
