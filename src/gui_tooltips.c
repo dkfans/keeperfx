@@ -166,7 +166,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     {
         update_gui_tooltip_target(thing);
         objst = get_object_model_stats(thing->model);
-        if ((objst->tooltip_stridx > 0) && (objst->tooltip_stridx != GUIStr_Empty))
+        if ((objst->tooltip_stridx >= 0) && (objst->tooltip_stridx != GUIStr_Empty))
         {
             if ((!settings.tooltips_on) && (objst->tooltip_optional))
             {
