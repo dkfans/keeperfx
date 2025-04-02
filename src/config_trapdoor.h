@@ -141,7 +141,7 @@ struct TrapDoorConfig {
 extern const char keeper_trapdoor_file[];
 extern struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 extern struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
-extern const struct NamedCommand trapdoor_door_commands[];
+extern const struct NamedFieldSet trapdoor_door_named_fields_set;
 /******************************************************************************/
 TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
 
