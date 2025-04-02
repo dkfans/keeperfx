@@ -31,8 +31,8 @@ extern "C" {
 #pragma pack(1)
 
 struct DoorSoundState { // sizeof = 8
-  long field_0;
-  long field_4;
+  long current_volume;
+  long volume_step; // how much to add / subtract
 };
 
 struct DoorDesc {

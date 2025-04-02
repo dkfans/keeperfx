@@ -752,7 +752,8 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
             int64_t k = 0;
             if (commands[i].argnum == -1)
             {
-                char line_buf[LINEMSG_SIZE];
+                #define MAX_LINE_LEN 1024
+                char line_buf[MAX_LINE_LEN];
                 int line_len = 0;
                 
                 // Copy characters until newline or end of buffer
@@ -764,10 +765,14 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                     line_len++;
                     
                     // Prevent buffer overflow
-                    if (line_len >= LINEMSG_SIZE - 1)
-                        break;
+                    if (line_len >= MAX_LINE_LEN - 1)
+                    {
+                      ERRORLOG("preventing overflow for long conf line");
+                      break;
+                    }
                 }
-                
+
+                #undef MAX_LINE_LEN
                 line_buf[line_len] = '\0'; // Null-terminate the string
             
                 // Move position to the next line
@@ -858,7 +863,8 @@ void set_defaults(const struct NamedFieldSet* named_fields_set)
       }
 
   }
-  if (name_NamedField != NULL)
+  
+  if (name_NamedField != NULL && named_fields_set->names != NULL)
   {
       for (int i = 0; i < named_fields_set->max_count; i++)
       {
