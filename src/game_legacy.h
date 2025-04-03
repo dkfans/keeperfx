@@ -229,7 +229,6 @@ struct Game {
     TbBool frame_step;
     TbBool paused_at_gameturn;
     GameTurnDelta pay_day_progress;
-    TbBool no_intro;
     GameTurn armageddon_cast_turn;
     GameTurn armageddon_over_turn;
     PlayerNumber armageddon_caster_idx;

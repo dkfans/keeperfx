@@ -4210,6 +4210,22 @@ TbBool process_creature_hunger(struct Thing *thing)
     return false;
 }
 
+/**
+ * Check if thing is an enemy trap and can be destroyed by the creature.
+ * @param fightng The creature that might destroy the trap.
+ * @param enmtng The trap to be checked if it could be destroyed.
+ */
+TbBool trap_is_valid_combat_target_for_creature(const struct Thing* fightng, const struct Thing* enmtng)
+{
+    if(!players_are_enemies(fightng->owner,enmtng->owner))
+        return false;
+    if (thing_is_destructible_trap(enmtng) < 0)
+        return false;
+    if (thing_is_destructible_trap(enmtng) == 1)
+        return true;
+    return creature_has_disarming_weapon(fightng);
+}
+
 TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
@@ -5003,19 +5019,23 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng)
         if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
             return 0;
         }
-        if ( (game.play_gameturn - cctrl->healing_sleep_check_turn > 128) &&
-          ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng))) )
+        if ((game.play_gameturn - cctrl->healing_sleep_check_turn) > 128)
         {
-            SYNCDBG(4,"Healing critical for %s",thing_model_name(creatng));
-            if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep)) {
-                return 1;
+            if ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng)))
+            {
+                SYNCDBG(4, "Healing critical for %s", thing_model_name(creatng));
+                if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep))
+                {
+                    return 1;
+                }
             }
-        } else
-        {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-            anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
+            else
+            {
+                struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+                anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
+            }
+            cctrl->healing_sleep_check_turn = game.play_gameturn;
         }
-        cctrl->healing_sleep_check_turn = game.play_gameturn;
     }
     return 0;
 }
@@ -5328,18 +5348,21 @@ long process_creature_needs_to_heal(struct Thing *creatng, const struct Creature
         if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
             return 0;
         }
-        if (((game.play_gameturn - cctrl->healing_sleep_check_turn) > 128)
-            && ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng))))
+        if ((game.play_gameturn - cctrl->healing_sleep_check_turn) > 128)
         {
-            if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep)) {
-                return 1;
+            if ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng)))
+            {
+                if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep))
+                {
+                    return 1;
+                }
             }
+            else
+            {
+                anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
+            }
+            cctrl->healing_sleep_check_turn = game.play_gameturn;
         }
-        else
-        {
-            anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
-        }
-        cctrl->healing_sleep_check_turn = game.play_gameturn;
     }
     return 0;
 }

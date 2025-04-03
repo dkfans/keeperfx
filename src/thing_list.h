@@ -268,6 +268,7 @@ struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *cre
 struct Thing* get_nearest_enemy_creature_in_sight_and_range_of_trap(struct Thing* traptng);
 #define find_nearest_enemy_creature(creatng) get_nearest_enemy_creature_possible_to_attack_by(creatng);
 struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist, long move_on_ground);
+struct Thing* get_highest_score_enemy_object_within_distance_possible_to_attack_by(struct Thing* creatng, MapCoordDelta dist, long move_on_ground);
 struct Thing *get_nth_creature_owned_by_and_matching_bool_filter(PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb, long n);
 struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb, long n);
 struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creatng);

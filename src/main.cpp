@@ -897,10 +897,10 @@ void init_keeper(void)
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
     lbDisplay.GlassMap = pixmap.ghost;
     lbDisplay.DrawColour = colours[15][15][15];
-    game.comp_player_aggressive = 0;
-    game.comp_player_defensive = 1;
-    game.comp_player_construct = 0;
-    game.comp_player_creatrsonly = 0;
+    game.comp_player_aggressive  = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[0]);
+    game.comp_player_defensive   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[1]);
+    game.comp_player_construct   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[2]);
+    game.comp_player_creatrsonly = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[3]);
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     game.operation_flags |= GOF_ShowPanel;
@@ -1002,7 +1002,6 @@ short setup_game(void)
   features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
   features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
   features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
-  features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
   features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
   features_enabled |= Ft_DeltaTime; // enable delta time
   features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
@@ -1015,7 +1014,8 @@ short setup_game(void)
   }
 
   #ifdef FUNCTESTING
-    features_enabled |= Ft_SkipSplashScreens;
+    start_params.startup_flags &= ~SFlg_Legal;
+    start_params.startup_flags &= ~SFlg_FX;
     features_enabled |= Ft_SkipHeartZoom;
   #endif
 
@@ -1040,25 +1040,25 @@ short setup_game(void)
       return 0;
   }
 
-  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  if (flag_is_set(start_params.startup_flags, SFlg_Legal))
   {
-
-      if(is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
+      if (is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
       {
         result = init_actv_bitmap_screen(RBmp_SplashLegalWide);
       } else {
         result = init_actv_bitmap_screen(RBmp_SplashLegal);
       }
-
-      if ( result )
+       if ( result )
       {
           result = show_actv_bitmap_screen(3000);
           free_actv_bitmap_screen();
       } else
           SYNCLOG("Legal image skipped");
-  } else {
-        // Make the white screen into a black screen faster
-        draw_clear_screen();
+  }
+  else
+  {
+      // Make the white screen into a black screen faster
+      draw_clear_screen();
   }
 
   // Now do more setup
@@ -1073,22 +1073,22 @@ short setup_game(void)
   // init_sound(). This will probably change when we'll move sound
   // to SDL - then we'll put that line earlier, before setup_game().
   LbErrorParachuteInstall();
-  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  // View second splash screen
+  if (flag_is_set(start_params.startup_flags, SFlg_FX))
   {
-    // View second splash screen
-    result = init_actv_bitmap_screen(RBmp_SplashFx);
-    if ( result == 1 )
-    {
-        result = show_actv_bitmap_screen(4000);
-        free_actv_bitmap_screen();
-    } else
-        SYNCLOG("startup_fx image skipped");
+      result = init_actv_bitmap_screen(RBmp_SplashFx);
+      if ( result == 1 )
+      {
+          result = show_actv_bitmap_screen(4000);
+          free_actv_bitmap_screen();
+      } else
+          SYNCLOG("startup_fx image skipped");
   }
 
   draw_clear_screen();
   // View Bullfrog company logo animation when new moon
-  if ( is_new_moon )
-    if ( !game.no_intro )
+  if ( ( is_new_moon ) || (flag_is_set(start_params.startup_flags, SFlg_Bullfrog)) )
+    if (!start_params.no_intro)
     {
         result = moon_video();
         if ( !result ) {
@@ -1098,7 +1098,7 @@ short setup_game(void)
 
   result = 1;
   // Setup the intro video mode
-  if ( result && (!game.no_intro) )
+  if (result && (!start_params.no_intro) )
   {
       if (!setup_screen_mode_zero(get_movies_vidmode()))
       {
@@ -1114,14 +1114,21 @@ short setup_game(void)
       {
           //result = -1; // Helps with better warning message later
       }
+      if (!start_params.no_intro)
+      {
+         if (flag_is_set(start_params.startup_flags, SFlg_EA))
+         {
+             ea_video();
+         }
+         if (flag_is_set(start_params.startup_flags, SFlg_Intro))
+         {
+            result = intro_replay();
+         }
+      }
   }
 
   game.frame_skip = start_params.frame_skip;
 
-  if ( (result == 1) && (!game.no_intro) )
-  {
-     result = intro_replay();
-  }
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
   if (result == 0)
@@ -1602,6 +1609,7 @@ void reinit_level_after_load(void)
 TbBool set_default_startup_parameters(void)
 {
     memset(&start_params, 0, sizeof(struct StartupParameters));
+    start_params.startup_flags = (SFlg_Legal|SFlg_FX|SFlg_Intro);
     start_params.packet_checksum_verify = 1;
     clear_flag(start_params.flags_font, FFlg_unk01);
     // Set levels to 0, as we may not have the campaign loaded yet
@@ -3896,7 +3904,7 @@ short process_command_line(unsigned short argc, char *argv[])
 
       if (strcasecmp(parstr, "nointro") == 0)
       {
-        start_params.no_intro = 1;
+        start_params.no_intro = true;
       } else
       if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
       {
@@ -3913,12 +3921,12 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "1player") == 0)
       {
-          start_params.one_player = 1;
-          one_player_mode = 1;
+          start_params.one_player = true;
+          one_player_mode = true;
       } else
       if ((strcasecmp(parstr, "s") == 0) || (strcasecmp(parstr, "nosound") == 0))
       {
-          SoundDisabled = 1;
+          SoundDisabled = true;
       } else
       if (strcasecmp(parstr, "fps") == 0)
       {
@@ -3933,7 +3941,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "vidsmooth") == 0)
       {
-          smooth_on = 1;
+          smooth_on = true;
       } else
       if ( strcasecmp(parstr,"level") == 0 )
       {
@@ -4064,6 +4072,14 @@ short process_command_line(unsigned short argc, char *argv[])
         strcpy(start_params.config_file, pr2str);
         start_params.overrides[Clo_ConfigFile] = true;
         narg++;
+      }
+      else if ( strcasecmp(parstr,"Bullfrog") == 0 ) // force playing the Bullfrog video
+      {
+        set_flag(start_params.startup_flags, SFlg_Bullfrog);
+      }
+      else if ( strcasecmp(parstr,"ea") == 0 ) // force playing the EA video
+      {
+        set_flag(start_params.startup_flags, SFlg_EA);
       }
       else if (strcasecmp(parstr, "ftests") == 0)
       {

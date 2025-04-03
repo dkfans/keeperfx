@@ -167,13 +167,11 @@ struct SlabsConfig {
 extern const char keeper_terrain_file[];
 extern struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 extern struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
-extern const struct NamedCommand terrain_room_properties_commands[];
 extern const struct NamedCommand room_roles_desc[];
-extern const struct NamedCommand terrain_room_total_capacity_func_type[];
-extern const struct NamedCommand terrain_room_used_capacity_func_type[];
 extern Room_Update_Func terrain_room_total_capacity_func_list[13];
 extern Room_Update_Func terrain_room_used_capacity_func_list[10];
 
+extern const struct NamedFieldSet terrain_room_named_fields_set;
 /******************************************************************************/
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/

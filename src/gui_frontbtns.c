@@ -580,6 +580,7 @@ void gui_area_compsetting_button(struct GuiButton *gbtn)
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }
+
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, spr_idx, 100);
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
