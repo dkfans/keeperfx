@@ -29,6 +29,7 @@
 #include "config_strings.h"
 #include "console_cmd.h"
 #include "thing_doors.h"
+#include "thing_effects.h"
 #include "player_instances.h"
 #include "config_players.h"
 #include "game_legacy.h"
@@ -42,6 +43,8 @@ extern "C" {
 /******************************************************************************/
 struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
+
+static void refresh_trap_anim(long trap_id);
 
 /******************************************************************************/
 const char keeper_trapdoor_file[]="trapdoor.cfg";
@@ -97,9 +100,9 @@ static void assign_crate_trap(const struct NamedField* named_field, int64_t valu
 
 int64_t value_activationeffect(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
-    if (parameter_is_number(word_buf))
+    if (parameter_is_number(value_text))
     {
-        return atoi(word_buf);
+        return atoi(value_text);
     }
     else
     {
@@ -131,6 +134,8 @@ int64_t value_activationeffect(const struct NamedField* named_field, const char*
             NAMFIELDWRNLOG("unexpected value '%s' for %s [%s%d].",value_text, named_field->name, named_fields_set->block_basename, idx);
             return 0;
         }
+        return k;
+    }
 }
 
 static void assign_refresh_trap_anim(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
@@ -138,7 +143,7 @@ static void assign_refresh_trap_anim(const struct NamedField* named_field, int64
     assign_default(named_field,value,named_fields_set,idx,src);
     if (src == ccs_DkScript)
     {
-        refresh_trap_anim(idx);;
+        refresh_trap_anim(idx);
     }
 }
 
