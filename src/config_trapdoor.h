@@ -142,6 +142,7 @@ extern const char keeper_trapdoor_file[];
 extern struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 extern struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 extern const struct NamedFieldSet trapdoor_door_named_fields_set;
+extern const struct NamedFieldSet trapdoor_trap_named_fields_set;
 /******************************************************************************/
 TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
 
@@ -166,9 +167,6 @@ TbBool is_door_built(PlayerNumber plyr_idx, long door_idx);
 TbBool create_manufacture_array_from_trapdoor_data(void);
 TbBool make_available_all_doors(PlayerNumber plyr_idx);
 TbBool make_available_all_traps(PlayerNumber plyr_idx);
-
-void script_set_door_configuration(ThingModel door_type, short property, long value, long value2);
-void script_set_trap_configuration(ThingModel trap_type, short property, long value, long value2, long value3, long value4);
 
 /******************************************************************************/
 #ifdef __cplusplus
