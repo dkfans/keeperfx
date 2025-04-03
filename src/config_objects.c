@@ -42,13 +42,13 @@ struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 const char keeper_objects_file[]="objects.cfg";
 
 const struct NamedCommand objects_properties_commands[] = {
-  {"EXISTS_ONLY_IN_ROOM",     1},
-  {"DESTROYED_ON_ROOM_CLAIM", 2},
-  {"CHOWNED_ON_ROOM_CLAIM",   3},
-  {"DESTROYED_ON_ROOM_PLACE", 4},
-  {"BUOYANT",                 5},
-  {"BEATING",                 6},
-  {"HEART",                   7},
+  {"EXISTS_ONLY_IN_ROOM",     OMF_ExistsOnlyInRoom    },
+  {"DESTROYED_ON_ROOM_CLAIM", OMF_DestroyedOnRoomClaim},
+  {"CHOWNED_ON_ROOM_CLAIM",   OMF_ChOwnedOnRoomClaim  },
+  {"DESTROYED_ON_ROOM_PLACE", OMF_DestroyedOnRoomPlace},
+  {"BUOYANT",                 OMF_Buoyant             },
+  {"BEATING",                 OMF_Beating             },
+  {"HEART",                   OMF_Heart               },
   {NULL,                      0},
   };
 
@@ -74,7 +74,7 @@ static const struct NamedField objects_named_fields[] = {
     {"NAME",                     0, field(game.conf.object_conf.object_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, object_desc,                 value_name,      assign_null},
     {"GENRE",                    0, field(game.conf.object_conf.object_cfgstats[0].genre),                         0, LONG_MIN,ULONG_MAX, objects_genres_desc,         value_default,   assign_default},
     {"RELATEDCREATURE",          0, field(game.conf.object_conf.object_cfgstats[0].related_creatr_model),          0, LONG_MIN,ULONG_MAX, creature_desc,               value_default,   assign_default},
-    {"PROPERTIES",              -1, field(game.conf.object_conf.object_cfgstats[0].model_flags),                   0, LONG_MIN,ULONG_MAX, objects_properties_commands, value_flagsfieldshift,assign_default},
+    {"PROPERTIES",              -1, field(game.conf.object_conf.object_cfgstats[0].model_flags),                   0, LONG_MIN,ULONG_MAX, objects_properties_commands, value_flagsfield,assign_default},
     {"ANIMATIONID",              0, field(game.conf.object_conf.object_cfgstats[0].sprite_anim_idx),               0, LONG_MIN,ULONG_MAX, NULL,                        value_animid,    assign_animid},
     {"ANIMATIONSPEED",           0, field(game.conf.object_conf.object_cfgstats[0].anim_speed),                    0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"SIZE_XY",                  0, field(game.conf.object_conf.object_cfgstats[0].size_xy),                       0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},

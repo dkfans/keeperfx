@@ -412,6 +412,7 @@ int64_t value_longflagsfield(const struct NamedField* named_field, const char* v
     return value;
 }
 
+
 //expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
 int64_t value_flagsfield(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {

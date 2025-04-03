@@ -40,26 +40,86 @@
 extern "C" {
 #endif
 /******************************************************************************/
+struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
+struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
+
+/******************************************************************************/
 const char keeper_trapdoor_file[]="trapdoor.cfg";
 
-const struct NamedCommand trapdoor_door_commands[] = {
-  {"NAME",                  1},
-  {"NAMETEXTID",            2},
-  {"TOOLTIPTEXTID",         3},
-  {"SYMBOLSPRITES",         4},
-  {"POINTERSPRITES",        5},
-  {"PANELTABINDEX",         6},
-  {"CRATE",                 7},
-  {"MANUFACTURELEVEL",      8},
-  {"MANUFACTUREREQUIRED",   9},
-  {"HEALTH",               10},
-  {"SLABKIND",             11},
-  {"OPENSPEED",            12},
-  {"PROPERTIES",           13},
-  {"SELLINGVALUE",         14},
-  {"UNSELLABLE",           15},
-  {"PLACESOUND",           16},
-  {NULL,                    0},
+static const struct NamedCommand door_properties_commands[] = {
+    {"RESIST_NON_MAGIC",     DoMF_ResistNonMagic},
+    {"SECRET",               DoMF_Secret},
+    {"THICK",                DoMF_Thick},  
+    {"MIDAS",                DoMF_Midas},
+    {NULL,                   0},
+  };
+
+static void assign_update_trap_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    assign_default(named_field,value,named_fields_set,idx,src);
+    if (src == ccs_DkScript)
+    {
+        update_trap_tab_to_config();
+    }
+}
+
+static void assign_icon_update_trap_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    assign_icon(named_field,value,named_fields_set,idx,src);
+    if (src == ccs_DkScript)
+    {
+        update_trap_tab_to_config();
+    }
+}
+
+static void assign_crate_door(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    game.conf.object_conf.object_to_door_or_trap[value] = idx;
+    game.conf.object_conf.workshop_object_class[value] = TCls_Door;
+    game.conf.trapdoor_conf.door_to_object[idx] = value;
+}
+
+static void assign_update_door_stats(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    assign_default(named_field,value,named_fields_set,idx,src);
+    if (src == ccs_DkScript)
+    {
+        update_all_door_stats();
+    }
+}
+
+const struct NamedField trapdoor_door_named_fields[] = {
+    //name           //pos    //field                                                                //default //min     //max    //NamedCommand
+    {"NAME",                 0, field(game.conf.trapdoor_conf.door_cfgstats[0].code_name),                0,   LONG_MIN,         ULONG_MAX, door_desc,                value_name,       assign_null},
+    {"NAMETEXTID",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].name_stridx),   GUIStr_Empty,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
+    {"TOOLTIPTEXTID",        0, field(game.conf.trapdoor_conf.door_cfgstats[0].tooltip_stridx),GUIStr_Empty,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_update_trap_tab},
+    {"SYMBOLSPRITES",        0, field(game.conf.trapdoor_conf.door_cfgstats[0].bigsym_sprite_idx),        0,   LONG_MIN,         ULONG_MAX, NULL,                     value_icon,       assign_icon},
+    {"SYMBOLSPRITES",        1, field(game.conf.trapdoor_conf.door_cfgstats[0].medsym_sprite_idx),        0,   LONG_MIN,         ULONG_MAX, NULL,                     value_icon,       assign_icon_update_trap_tab},
+    {"POINTERSPRITES",       0, field(game.conf.trapdoor_conf.door_cfgstats[0].pointer_sprite_idx),       0,   LONG_MIN,         ULONG_MAX, NULL,                     value_icon,       assign_icon_update_trap_tab},
+    {"PANELTABINDEX",        0, field(game.conf.trapdoor_conf.door_cfgstats[0].panel_tab_idx),            0,          0,                32, NULL,                     value_default,    assign_update_trap_tab},
+    {"CRATE",                0, NULL,0,                                                                   0,   LONG_MIN,         ULONG_MAX, object_desc,              value_default,    assign_crate_door},
+    {"MANUFACTURELEVEL",     0, field(game.conf.trapdoor_conf.door_cfgstats[0].manufct_level),            0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
+    {"MANUFACTUREREQUIRED",  0, field(game.conf.trapdoor_conf.door_cfgstats[0].manufct_required),         0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
+    {"HEALTH",               0, field(game.conf.trapdoor_conf.door_cfgstats[0].health),                   1,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_update_door_stats},
+    {"SLABKIND",             0, field(game.conf.trapdoor_conf.door_cfgstats[0].slbkind[1]),               0,          0, TERRAIN_ITEMS_MAX, slab_desc,                value_default,    assign_default},
+    {"SLABKIND",             0, field(game.conf.trapdoor_conf.door_cfgstats[0].slbkind[0]),               0,          0, TERRAIN_ITEMS_MAX, slab_desc,                value_default,    assign_update_door_stats},
+    {"OPENSPEED",            0, field(game.conf.trapdoor_conf.door_cfgstats[0].open_speed),             256,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
+    {"PROPERTIES",          -1, field(game.conf.trapdoor_conf.door_cfgstats[0].model_flags),              0,   LONG_MIN,         ULONG_MAX, door_properties_commands, value_flagsfield, assign_default},
+    {"SELLINGVALUE",         0, field(game.conf.trapdoor_conf.door_cfgstats[0].selling_value),            0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
+    {"UNSELLABLE",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].unsellable),               0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
+    {"PLACESOUND",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].place_sound_idx),        117,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
+    {NULL},
+};
+
+const struct NamedFieldSet trapdoor_door_named_fields_set = {
+    &game.conf.trapdoor_conf.door_types_count,
+    "door",
+    trapdoor_door_named_fields,
+    door_desc,
+    TRAPDOOR_TYPES_MAX,
+    sizeof(game.conf.trapdoor_conf.door_cfgstats[0]),
+    game.conf.trapdoor_conf.door_cfgstats,
+    {"trapdoor.cfg","SET_DOOR_CONFIGURATION"},
 };
 
 const struct NamedCommand trapdoor_trap_commands[] = {
@@ -120,17 +180,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {NULL,                      0},
 };
 
-const struct NamedCommand door_properties_commands[] = {
-  {"RESIST_NON_MAGIC",     1},
-  {"SECRET",               2},
-  {"THICK",                3},  
-  {"MIDAS",                4},
-  {NULL,                   0},
-};
 
-/******************************************************************************/
-struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
-struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 /******************************************************************************/
 struct TrapConfigStats *get_trap_model_stats(int tngmodel)
 {
@@ -1228,359 +1278,6 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
   return true;
 }
 
-TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  struct DoorConfigStats *doorst;
-  // Block name and parameter word store variables
-  SYNCDBG(19,"Starting");
-  // Initialize the doors array
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      for (int i=0; i < TRAPDOOR_TYPES_MAX; i++)
-      {
-          doorst = &game.conf.trapdoor_conf.door_cfgstats[i];
-          memset(doorst->code_name, 0, COMMAND_WORD_LEN);
-          doorst->name_stridx = GUIStr_Empty;
-          doorst->tooltip_stridx = GUIStr_Empty;
-          doorst->bigsym_sprite_idx = 0;
-          doorst->medsym_sprite_idx = 0;
-          doorst->pointer_sprite_idx = 0;
-          doorst->panel_tab_idx = 0;
-          doorst->manufct_level = 0;
-          doorst->manufct_required = 0;
-          doorst->health = 1;
-          doorst->open_speed = 256;
-          doorst->selling_value = 0;
-          doorst->unsellable = false;
-          doorst->place_sound_idx = 117; // Default door placement sound, so that placement sound isn't broken if custom doors are bundled into maps.
-          door_desc[i].name = doorst->code_name;
-          door_desc[i].num = i;
-      }
-  }
-  door_desc[TRAPDOOR_TYPES_MAX - 1].name = NULL; // must be null for get_id
-  // Parse every numbered block within range
-  const char * blockname = NULL;
-  int blocknamelen = 0, k = 0;
-  long pos = 0;
-  while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
-  {
-    // look for blocks starting with "door", followed by one or more digits
-    if (blocknamelen < 5) {
-        continue;
-    } else if (memcmp(blockname, "door", 4) != 0) {
-        continue;
-    }
-    const int i = natoi(&blockname[4], blocknamelen - 4);
-    if (i < 0 || i >= TRAPDOOR_TYPES_MAX) {
-        continue;
-    } else if (i >= game.conf.trapdoor_conf.door_types_count) {
-        game.conf.trapdoor_conf.door_types_count = i + 1;
-    }
-    doorst = &game.conf.trapdoor_conf.door_cfgstats[i];
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(trapdoor_door_commands,cmd_num)
-    while (pos<len)
-    {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, trapdoor_door_commands);
-      // Now store the config item in correct place
-      if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      if ((flags & CnfLd_ListOnly) != 0) {
-          // In "List only" mode, accept only name command
-          if (cmd_num > 1) {
-              cmd_num = 0;
-          }
-      }
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          if (get_conf_parameter_single(buf, &pos, len, doorst->code_name, COMMAND_WORD_LEN) <= 0)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-            break;
-          }
-          break;
-      case 2: // NAMETEXTID
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (k > 0)
-              {
-                  doorst->name_stridx = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 3: // TOOLTIPTEXTID
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (k > 0)
-              {
-                  doorst->tooltip_stridx = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 4: // SYMBOLSPRITES
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              doorst->bigsym_sprite_idx = get_icon_id(word_buf);
-              if (doorst->bigsym_sprite_idx != bad_icon_id)
-              {
-                  n++;
-              }
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              doorst->medsym_sprite_idx = get_icon_id(word_buf);
-              if (doorst->medsym_sprite_idx != bad_icon_id)
-              {
-                  n++;
-              }
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 5: // POINTERSPRITES
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              doorst->pointer_sprite_idx = get_icon_id(word_buf);
-              if (doorst->pointer_sprite_idx != bad_icon_id)
-              {
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 6: // PANELTABINDEX
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  doorst->panel_tab_idx = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 7: // CRATE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              n = get_id(object_desc, word_buf);
-          }
-          if (n < 0)
-          {
-              CONFWRNLOG("Incorrect crate object \"%s\" in [%.*s] block of %s file.",
-                  word_buf, blocknamelen, blockname, config_textname);
-              break;
-          }
-          game.conf.object_conf.object_to_door_or_trap[n] = i;
-          game.conf.object_conf.workshop_object_class[n] = TCls_Door;
-          game.conf.trapdoor_conf.door_to_object[i] = n;
-          break;
-      case 8: // MANUFACTURELEVEL
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              doorst->manufct_level = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 9: // MANUFACTUREREQUIRED
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              doorst->manufct_required = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 10: // HEALTH
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (i < game.conf.trapdoor_conf.door_types_count)
-              {
-                  doorst->health = k;
-              }
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 11: // SLABKIND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = get_id(slab_desc, word_buf);
-              doorst->slbkind[1] = k;
-              n++;
-          }
-          else
-          {
-              CONFWRNLOG("Incorrect slab name \"%s\" in [%.*s] block of %s file.",
-                  word_buf, blocknamelen, blockname, config_textname);
-              break;
-          }
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = get_id(slab_desc, word_buf);
-              doorst->slbkind[0] = k;
-              n++;
-          }
-          else
-          {
-              CONFWRNLOG("Incorrect slab name \"%s\" in [%.*s] block of %s file.",
-                  word_buf, blocknamelen, blockname, config_textname);
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-              break;
-          }
-          break;
-      case 12: // OPENSPEED
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  doorst->open_speed = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 13: // PROPERTIES
-          doorst->model_flags = 0;
-          while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = get_id(door_properties_commands, word_buf);
-              switch (k)
-              {
-              case 1: // RESIST_NON_MAGIC
-                  doorst->model_flags |= DoMF_ResistNonMagic;
-                  n++;
-                  break;
-              case 2: // SECRET
-                  doorst->model_flags |= DoMF_Secret;
-                  n++;
-                  break;
-              case 3: // THICK
-                  doorst->model_flags |= DoMF_Thick;
-                  n++;
-                  break;
-              case 4: // MIDAS
-                  doorst->model_flags |= DoMF_Midas;
-                  n++;
-                  break;
-              default:
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
-              }
-          }
-          break;
-      case 14: // SELLINGVALUE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              doorst->selling_value = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 15: // UNSELLABLE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  doorst->unsellable = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 16: // PLACESOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              n = atoi(word_buf);
-              if (n < 0)
-              {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-              }
-              else
-              {
-                  doorst->place_sound_idx = n;
-              }
-          }
-          break;
-      case ccr_comment:
-          break;
-      case ccr_endOfFile:
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
-              cmd_num, blocknamelen, blockname, config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-  }
-  return true;
-}
-
 TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
@@ -1615,14 +1312,7 @@ TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsign
         if (!result)
             WARNMSG("Parsing %s file \"%s\" trap blocks failed.",textname,fname);
     }
-    if (result)
-    {
-        result = parse_trapdoor_door_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" door blocks failed.",textname,fname);
-    }
+    parse_named_field_blocks(buf, len, textname, flags, &trapdoor_door_named_fields_set);
     //Freeing and exiting
     free(buf);
     SYNCDBG(19,"Done");
@@ -2013,91 +1703,6 @@ static void refresh_trap_anim(long trap_id)
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
         }
-    }
-}
-
-void script_set_door_configuration(ThingModel door_type, short property, long value, long value2)
-{
-    struct DoorConfigStats *doorst = get_door_model_stats(door_type);
-    struct ManufactureData *manufctr = get_manufacture_data(game.conf.trapdoor_conf.trap_types_count - 1 + door_type);
-    switch (property)
-    {
-        case 2: // NametextId
-            doorst->name_stridx = value;
-            break;
-        case 3: // TooltipTextId
-            doorst->tooltip_stridx = value;
-            manufctr->tooltip_stridx = doorst->tooltip_stridx;
-            update_trap_tab_to_config();
-            break;
-        case 4: //SymbolSprites
-            {
-                doorst->bigsym_sprite_idx = value; // First
-                doorst->medsym_sprite_idx = value2; // Second
-                manufctr->bigsym_sprite_idx = doorst->bigsym_sprite_idx;
-                manufctr->medsym_sprite_idx = doorst->medsym_sprite_idx;
-                update_trap_tab_to_config();
-            }
-            break;
-        case 5: // PointerSprites
-            doorst->pointer_sprite_idx = value;
-            update_trap_tab_to_config();
-            break;
-        case 6: // PanelTabIndex
-            doorst->panel_tab_idx = value;
-            manufctr->panel_tab_idx = value;
-            update_trap_tab_to_config();
-            break;
-        case 7: // Crate
-            game.conf.object_conf.object_to_door_or_trap[value] = door_type;
-            game.conf.object_conf.workshop_object_class[value] = TCls_Door;
-            game.conf.trapdoor_conf.door_to_object[door_type] = value;
-            break;
-        case 8: // ManufactureLevel
-            doorst->manufct_level = value;
-            break;
-        case 9: // ManufactureRequired
-            doorst->manufct_required = value;
-            break;
-        case 10: // Health
-            if (door_type < game.conf.trapdoor_conf.door_types_count)
-            {
-                doorst->health = value;
-            }
-            update_all_door_stats();
-            break;
-        case 11: // SlabKind
-            if (door_type < game.conf.trapdoor_conf.door_types_count)
-            {
-                doorst->slbkind[0] = value2;
-                doorst->slbkind[1] = value;
-            }
-            update_all_door_stats();
-            break;
-        case 12: // OpenSpeed
-            if (door_type < game.conf.trapdoor_conf.door_types_count)
-            {
-                doorst->open_speed = value;
-            }
-            break;
-        case 13: // Properties
-            doorst->model_flags = value;
-            break;
-        case 14: //SellingValue
-            doorst->selling_value = value;
-            break;
-        case 15: // Unsellable
-            doorst->unsellable = value;
-            break;
-        case 16: // PlaceSound
-            if (door_type < game.conf.trapdoor_conf.door_types_count)
-            {
-                doorst->place_sound_idx = value;
-            }
-            break;
-        default:
-            WARNMSG("Unsupported Door configuration, variable %d.", property);
-            break;
     }
 }
 
