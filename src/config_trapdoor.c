@@ -104,7 +104,7 @@ const struct NamedField trapdoor_door_named_fields[] = {
     {"SLABKIND",             0, field(game.conf.trapdoor_conf.door_cfgstats[0].slbkind[1]),               0,          0, TERRAIN_ITEMS_MAX, slab_desc,                value_default,    assign_default},
     {"SLABKIND",             0, field(game.conf.trapdoor_conf.door_cfgstats[0].slbkind[0]),               0,          0, TERRAIN_ITEMS_MAX, slab_desc,                value_default,    assign_update_door_stats},
     {"OPENSPEED",            0, field(game.conf.trapdoor_conf.door_cfgstats[0].open_speed),             256,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
-    {"PROPERTIES",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].model_flags),              0,   LONG_MIN,         ULONG_MAX, door_properties_commands, value_flagsfield, assign_default},
+    {"PROPERTIES",          -1, field(game.conf.trapdoor_conf.door_cfgstats[0].model_flags),              0,   LONG_MIN,         ULONG_MAX, door_properties_commands, value_flagsfield, assign_default},
     {"SELLINGVALUE",         0, field(game.conf.trapdoor_conf.door_cfgstats[0].selling_value),            0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
     {"UNSELLABLE",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].unsellable),               0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
     {"PLACESOUND",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].place_sound_idx),        117,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
