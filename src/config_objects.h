@@ -87,7 +87,7 @@ struct ObjectConfigStats {
     long genre;
     long map_icon;
     short tooltip_stridx;
-    short tooltip_optional;
+    TbBool tooltip_optional;
     HitPoints health;
     char fall_acceleration;
     char light_unaffected;
