@@ -156,9 +156,6 @@ static void assign_refresh_trap_anim_anim_id(const struct NamedField* named_fiel
     }
 }
 
-
-
-
 const struct NamedField trapdoor_door_named_fields[] = {
     //name           //pos    //field                                                                //default //min     //max    //NamedCommand
     {"NAME",                 0, field(game.conf.trapdoor_conf.door_cfgstats[0].code_name),                0,   LONG_MIN,         ULONG_MAX, door_desc,                value_name,       assign_null},
