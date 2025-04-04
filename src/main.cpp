@@ -2543,8 +2543,8 @@ long update_cave_in(struct Thing *thing)
         return 1;
     }
 
-    const struct MagicStats *pwrdynst;
-    pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_CAVEIN);
     struct Thing *efftng;
     struct Coord3d pos;
     PlayerNumber owner;
@@ -2560,14 +2560,14 @@ long update_cave_in(struct Thing *thing)
             pos.z.val = get_ceiling_height(&pos) - 128;
             efftng = create_effect_element(&pos, TngEff_Flash, owner);
             if (!thing_is_invalid(efftng)) {
-                efftng->health = pwrdynst->duration;
+                efftng->health = powerst->duration;
             }
         }
     }
 
     GameTurnDelta turns_between;
     GameTurnDelta turns_alive;
-    turns_between = pwrdynst->duration / 5;
+    turns_between = powerst->duration / 5;
     turns_alive = game.play_gameturn - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
@@ -2594,9 +2594,9 @@ long update_cave_in(struct Thing *thing)
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
     }
 
-    if ((8 * pwrdynst->duration / 10 >= thing->health) && (2 * pwrdynst->duration / 10 <= thing->health))
+    if ((8 * powerst->duration / 10 >= thing->health) && (2 * powerst->duration / 10 <= thing->health))
     {
-        if ((pwrdynst->duration < 10) || ((thing->health % (pwrdynst->duration / 10)) == 0))
+        if ((powerst->duration < 10) || ((thing->health % (powerst->duration / 10)) == 0))
         {
             int round_idx;
             round_idx = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
@@ -2613,7 +2613,7 @@ long update_cave_in(struct Thing *thing)
                     pos2.y.val = subtile_coord(thing->cave_in.y,0);
                     pos2.z.val = subtile_coord(1,0);
                     dist = get_chessboard_distance(&pos, &pos2);
-                    if (pwrdynst->strength[thing->cave_in.model] >= coord_subtile(dist))
+                    if (powerst->strength[thing->cave_in.model] >= coord_subtile(dist))
                     {
                         ncavitng = create_thing(&pos, TCls_CaveIn, thing->cave_in.model, owner, -1);
                         if (!thing_is_invalid(ncavitng))
