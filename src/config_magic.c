@@ -343,14 +343,39 @@ static void assign_artifact(const struct NamedField* named_field, int64_t value,
     game.conf.object_conf.object_to_power_artifact[value] = idx;
 }
 
+static void assign_strength_before_last(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    // Old power max is one short for spell max, so duplicate final power value to use for lvl10 creatures.
+    assign_default(named_field,value,named_fields_set,idx,src);
+    named_field++;
+    assign_default(named_field,value,named_fields_set,idx,src);
+}
+
 static const struct NamedField magic_powers_named_fields[] = {
     //name                     //pos    //field                                                                 //default //min     //max    //NamedCommand
     {"NAME",           0, field(game.conf.magic_conf.power_cfgstats[0].code_name),              0, LONG_MIN,ULONG_MAX, power_desc,                          value_name,      assign_null},
-    {"POWER",          0, field(game.conf.magic_conf.power_cfgstats[0].strength),               0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           0, field(game.conf.magic_conf.power_cfgstats[0].cost),                   0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          0, field(game.conf.magic_conf.power_cfgstats[0].strength[0]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          1, field(game.conf.magic_conf.power_cfgstats[0].strength[1]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          2, field(game.conf.magic_conf.power_cfgstats[0].strength[2]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          3, field(game.conf.magic_conf.power_cfgstats[0].strength[3]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          4, field(game.conf.magic_conf.power_cfgstats[0].strength[4]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          5, field(game.conf.magic_conf.power_cfgstats[0].strength[5]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          6, field(game.conf.magic_conf.power_cfgstats[0].strength[6]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          7, field(game.conf.magic_conf.power_cfgstats[0].strength[7]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[8]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_strength_before_last},
+    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[9]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           0, field(game.conf.magic_conf.power_cfgstats[0].cost[0]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           1, field(game.conf.magic_conf.power_cfgstats[0].cost[1]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           2, field(game.conf.magic_conf.power_cfgstats[0].cost[2]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           3, field(game.conf.magic_conf.power_cfgstats[0].cost[3]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           4, field(game.conf.magic_conf.power_cfgstats[0].cost[4]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           5, field(game.conf.magic_conf.power_cfgstats[0].cost[5]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           6, field(game.conf.magic_conf.power_cfgstats[0].cost[6]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[7]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[8]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
     {"DURATION",       0, field(game.conf.magic_conf.power_cfgstats[0].duration),               0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"CASTABILITY",    0, field(game.conf.magic_conf.power_cfgstats[0].can_cast_flags),         0, LONG_MIN,ULONG_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
-    {"ARTIFACT",       0, field(game.conf.magic_conf.power_cfgstats[0].artifact_model),         0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_artifact},
+    {"CASTABILITY",   -1, field(game.conf.magic_conf.power_cfgstats[0].can_cast_flags),         0, LONG_MIN,ULONG_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
+    {"ARTIFACT",       0, field(game.conf.magic_conf.power_cfgstats[0].artifact_model),         0, LONG_MIN,ULONG_MAX, object_desc,                         value_default,   assign_artifact},
     {"NAMETEXTID",     0, field(game.conf.magic_conf.power_cfgstats[0].name_stridx),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
     {"TOOLTIPTEXTID",  0, field(game.conf.magic_conf.power_cfgstats[0].tooltip_stridx),         0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
     {"SYMBOLSPRITES",  0, field(game.conf.magic_conf.power_cfgstats[0].bigsym_sprite_idx),      0, LONG_MIN,ULONG_MAX, NULL,                                value_icon,      assign_icon},
@@ -2055,58 +2080,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
   }
   return true;
 }
-/*
-TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
 
-      case 2: // POWER
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (n > SPELL_MAX_LEVEL)
-              {
-                CONFWRNLOG("Too many \"%s\" parameters in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-                break;
-              }
-              powerst->strength[n] = k;
-              n++;
-          }
-          if (n == POWER_MAX_LEVEL+1) // Old power max is one short for spell max, so duplicate final power value to use for lvl10 creatures.
-          {
-              powerst->strength[n] = powerst->strength[n-1];
-          }
-          if (n <= POWER_MAX_LEVEL)
-          {
-              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 3: // COST
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (n > POWER_MAX_LEVEL)
-              {
-                CONFWRNLOG("Too many \"%s\" parameters in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-                break;
-              }
-              powerst->cost[n] = k;
-              n++;
-          }
-          if (n <= POWER_MAX_LEVEL)
-          {
-              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-
-
- 
-}
-
-*/
 TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct SpecialConfigStats *specst;
