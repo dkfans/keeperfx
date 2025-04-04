@@ -810,19 +810,25 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
     short id = get_id(named_fields_set->names, id_str);
     if (id == -1)
     {
-        luaL_argerror(L,1, "Unknown %s, '%s'",named_fields_set->block_basename, id_str);
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg), "Unknown %s, '%s'", named_fields_set->block_basename, id_str);
+        luaL_argerror(L, 1, error_msg);
         return;
     }
     if (id > named_fields_set->max_count)
     {
-        luaL_argerror(L,1, "'%s%d' is out of range",named_fields_set->block_basename, id);
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg), "'%s%d' is out of range",named_fields_set->block_basename, id);
+        luaL_argerror(L, 1, error_msg);
         return;
     }
     
     long property_id = get_named_field_id(named_fields_set->named_fields, property);
     if (property_id == -1)
-    {
-        luaL_argerror(L,2, "Expected a valid property name, got '%s'",property);
+    {    
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg), "Expected a valid property name, got '%s'",property);
+        luaL_argerror(L, 1, error_msg);
         return;
     }
     
@@ -850,7 +856,9 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
             if( named_fields_set->named_fields[property_id + i].name == NULL || 
                 (strcmp(named_fields_set->named_fields[property_id + i].name, named_fields_set->named_fields[property_id].name) != 0))
             {
-                luaL_argerror(L, i,"more values then expected for property: '%s' '%s'", property, lua_tostring(L, i + 3));
+                char error_msg[256];
+                snprintf(error_msg, sizeof(error_msg), "more values then expected for property: '%s' '%s'", property, lua_tostring(L, i + 3));
+                luaL_argerror(L, 1, error_msg);
                 return;
             }
             int64_t value = parse_named_field_value(&named_fields_set->named_fields[property_id + i], lua_tostring(L, i + 3),named_fields_set,id,ccs_Lua);
@@ -874,16 +882,7 @@ static int lua_SET_OBJECT_CONFIGURATION(lua_State *L)
 
 static int lua_SET_TRAP_CONFIGURATION(lua_State *L)
 {
-    ThingModel trap_type = luaL_checkNamedCommand(L,1,trap_desc);
-    short property       = luaL_checkNamedCommand(L,2,trapdoor_door_commands);
-    //todo values it also accept strings depending on the property above
-    short value          = luaL_checkinteger(L, 3);
-    short value2         = lua_tointeger(L, 4);
-    short value3         = lua_tointeger(L, 5);
-    short value4         = lua_tointeger(L, 6);
-
-
-    script_set_trap_configuration(trap_type,property, value, value2, value3, value4);
+    set_configuration(L, &trapdoor_trap_named_fields_set);
     return 0;
 }
 
@@ -1193,8 +1192,6 @@ static int lua_SET_COMPUTER_CHECKS(lua_State *L)
             struct ComputerCheck* ccheck = &comp->checks[k];
             if ((ccheck->flags & ComChk_Unkn0002) != 0)
                 break;
-            if (ccheck->name == NULL)
-                break;
             if (strcasecmp(chkname, ccheck->name) == 0)
             {
                 ccheck->turns_interval = val1;
@@ -1261,8 +1258,6 @@ static int lua_SET_COMPUTER_EVENT(lua_State *L)
         for (long k = 0; k < COMPUTER_EVENTS_COUNT; k++)
         {
             struct ComputerEvent* event = &comp->events[k];
-            if (event->name == NULL)
-                break;
             if (strcasecmp(evntname, event->name) == 0)
             {
                 event->test_interval = val1;
