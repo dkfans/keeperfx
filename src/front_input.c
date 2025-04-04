@@ -2263,22 +2263,22 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
 
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
   struct SlabConfigStats* slabst = get_slab_stats(slb);
- 
+
   TbBool lockable_door = (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!player->one_click_lock_cursor));
 
-    if (lockable_door)
-    {
-        struct Thing* doortng = get_door_for_position(x,y);
-        if(!thing_is_invalid(doortng))
-        {
-            const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
-            if(doorst->model_flags & DoMF_AlwaysLocked)
-            {
-                lockable_door = false;
-            }
-        }
-    }
-    if (lockable_door)
+  if (lockable_door)
+  {
+      struct Thing* doortng = get_door_for_position(x,y);
+      if(!thing_is_invalid(doortng))
+      {
+          const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
+          if(doorst->model_flags & DoMF_AlwaysLocked)
+          {
+              lockable_door = false;
+          }
+      }
+  }
+  if (lockable_door)
   {
     *context = CSt_DoorKey;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -2315,74 +2315,13 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     if (!thing_is_invalid(thing))
       *context = CSt_PowerHand;
     else
-      x = gameadd.map_subtiles_x;
-    if (top_pointed_at_y <= gameadd.map_subtiles_y)
-      y = top_pointed_at_y;
-    else
-      y = gameadd.map_subtiles_y;
-    unsigned int slb_x = subtile_slab(x);
-    unsigned int slb_y = subtile_slab(y);
-
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    TbBool lockable_door = (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!player->one_click_lock_cursor));
-
-    if (lockable_door)
-    {
-        struct Thing* doortng = get_door_for_position(x,y);
-        if(!thing_is_invalid(doortng))
-        {
-            const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
-            if(doorst->model_flags & DoMF_AlwaysLocked)
-            {
-                lockable_door = false;
-            }
-        }
-    }
-    if (lockable_door)
-    {
-      *context = CSt_DoorKey;
-      pos->x.val = (x<<8) + top_pointed_at_frac_x;
-      pos->y.val = (y<<8) + top_pointed_at_frac_y;
-    } else
-    if (!power_hand_is_empty(player))
-    {
-      *context = CSt_PowerHand;
-      pos->x.val = (x<<8) + top_pointed_at_frac_x;
-      pos->y.val = (y<<8) + top_pointed_at_frac_y;
-    } else
-    if (!subtile_revealed(x,y,player->id_number))
-    {
-      *context = CSt_PickAxe;
-      pos->x.val = (x<<8) + top_pointed_at_frac_x;
-      pos->y.val = (y<<8) + top_pointed_at_frac_y;
-    } else
-    if (((slb_x >= gameadd.map_tiles_x) || (slb_y >= gameadd.map_tiles_y)) && (!player->one_click_lock_cursor))
-    {
       *context = CSt_DefaultArrow;
-      pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
-      pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
-    } else
-    if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (player->one_click_lock_cursor))
-    {
-      *context = CSt_PickAxe;
-      pos->x.val = (x<<8) + top_pointed_at_frac_x;
-      pos->y.val = (y<<8) + top_pointed_at_frac_y;
-    } else
-    {
-      pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
-      pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
-      struct Thing* thing = get_nearest_thing_for_hand_or_slap(player->id_number, pos->x.val, pos->y.val);
-      if (!thing_is_invalid(thing))
-        *context = CSt_PowerHand;
-      else
-        *context = CSt_DefaultArrow;
-    }
-    if (pos->x.val >= (gameadd.map_subtiles_x << 8))
-      pos->x.val = (gameadd.map_subtiles_x << 8)-1;
-    if (pos->y.val >= (gameadd.map_subtiles_y << 8))
-      pos->y.val = (gameadd.map_subtiles_y << 8)-1;
-    return true;
+  }
+  if (pos->x.val >= (gameadd.map_subtiles_x << 8))
+    pos->x.val = (gameadd.map_subtiles_x << 8)-1;
+  if (pos->y.val >= (gameadd.map_subtiles_y << 8))
+    pos->y.val = (gameadd.map_subtiles_y << 8)-1;
+  return true;
 }
 
 /**

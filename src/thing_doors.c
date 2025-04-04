@@ -205,7 +205,6 @@ TbBool add_key_on_door(struct Thing *thing)
     struct Thing* keytng = create_object(&thing->mappos, ObjMdl_SpinningKey, thing->owner, 0);
     if (thing_is_invalid(keytng))
       return false;
-    struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
     if (flag_is_set(doorst->model_flags, DoMF_Secret))
     {
         if (is_my_player_number(thing->owner) || !door_is_hidden_to_player(thing,my_player_number))
