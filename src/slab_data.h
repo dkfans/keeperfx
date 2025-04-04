@@ -188,6 +188,8 @@ TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
 TbBool player_can_claim_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 SlabKind choose_rock_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 
+void set_player_texture(PlayerNumber plyr_idx, long texture_id);
+
 /******************************************************************************/
 #include "roomspace.h"
 /******************************************************************************/

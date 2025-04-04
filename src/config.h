@@ -120,6 +120,7 @@ enum confChangeSource
 {
     ccs_CfgFile,
     ccs_DkScript,
+    ccs_Lua,
 };
 
 enum dataTypes

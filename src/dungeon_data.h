@@ -352,6 +352,8 @@ TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id);
 TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value);
 void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, long value);
 
+void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on_damage);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
