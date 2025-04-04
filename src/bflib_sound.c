@@ -504,8 +504,11 @@ TbBool process_sound_emitters(void)
     long volume;
     long pitch;
     long i;
-    for (i=1; i < NoSoundEmitters; i++)
+    for (i = 0; i < NoSoundEmitters; i++)
     {
+        if (i == Non3DEmitter || i == SpeechEmitter) {
+            continue;
+        }
         emit = S3DGetSoundEmitter(i);
         if ( ((emit->flags & Emi_IsAllocated) != 0) && ((emit->flags & Emi_UnknownPlay) != 0) )
         {

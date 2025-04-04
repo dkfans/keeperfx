@@ -296,8 +296,6 @@ const struct NamedCommand room_config_desc[] = {
   {NULL,                   0},
 };
 
-
-
 const struct NamedCommand on_experience_desc[] = {
   {"SizeIncreaseOnExp",            1},
   {"PayIncreaseOnExp",             2},
@@ -1105,165 +1103,7 @@ static void change_creatures_annoyance_process(struct ScriptContext* context)
 
 static void set_trap_configuration_check(const struct ScriptLine* scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-
-    const char *trapname = scline->tp[0];
-    const char *valuestring = scline->tp[2];
-    long newvalue;
-    short trap_id = get_id(trap_desc, trapname);
-    if (trap_id == -1)
-    {
-        SCRPTERRLOG("Unknown trap, '%s'", trapname);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    short trapvar = get_id(trap_config_desc, scline->tp[1]);
-    if (trapvar == -1)
-    {
-        SCRPTERRLOG("Unknown trap variable");
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    value->shorts[0] = trap_id;
-    value->shorts[1] = trapvar;
-    value->ulongs[1] = scline->np[2];
-    value->shorts[4] = scline->np[3];
-    value->shorts[5] = scline->np[4];
-    if (trapvar == 3) // SymbolSprites
-    {
-        value->longs[2] = script_strdup(scline->tp[2]);
-        if (value->longs[2] < 0)
-        {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        value->longs[3] = script_strdup(scline->tp[3]);
-        if (value->longs[3] < 0)
-        {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        SCRIPTDBG(7, "Setting trap %s property %s to %s, %s", trapname, scline->tp[1], scline->tp[2], scline->tp[3]);
-    }
-    else if (trapvar == 17) // EffectType
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-        }
-        else
-        {
-            struct TrapConfigStats *trapst = get_trap_model_stats(trap_id);
-            switch (trapst->activation_type)
-            {
-                case TrpAcT_EffectonTrap:
-                {
-                    newvalue = get_id(effect_desc, valuestring);
-                    break;
-                }
-                case TrpAcT_SlabChange:
-                {
-                    newvalue = get_id(slab_desc, valuestring);
-                    break;
-                }
-                case TrpAcT_CreatureSpawn:
-                {
-                    newvalue = get_id(creature_desc, valuestring);
-                    break;
-                }
-                case TrpAcT_Power:
-                {
-                    newvalue = get_id(power_desc, valuestring);
-                    break;
-                }
-                case TrpAcT_HeadforTarget90:
-                case TrpAcT_ShotonTrap:
-                case TrpAcT_CreatureShot:
-                default:
-                {
-                    newvalue = get_id(shot_desc, valuestring);
-                    break;
-                }
-            }
-        }
-        if ((newvalue > USHRT_MAX) || (newvalue < 0))
-        {
-            SCRPTERRLOG("Value out of range: %ld", newvalue);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        value->shorts[2] = newvalue;
-        SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, scline->tp[1], value->shorts[2]);
-    }
-    else if (trapvar == 41) // DestroyedEffect
-    {
-        newvalue = effect_or_effect_element_id(valuestring);
-        if ((newvalue == 0) && (!parameter_is_number(valuestring)))
-        {
-            SCRPTERRLOG("Unknown effect or effect element: '%s'", valuestring);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        value->ulongs[1] = newvalue;
-        SCRIPTDBG(7, "Setting trap %s property %s to %lu", trapname, scline->tp[1], value->ulongs[1]);
-    }
-    else if (trapvar == 46) // FlameAnimationOffset
-    {
-        value->longs[1]  = atoi(scline->tp[2]);
-        value->shorts[4] = scline->np[3];
-        value->shorts[5] = scline->np[4];
-        value->shorts[6] = scline->np[5];
-        SCRIPTDBG(7, "Setting trap %s property %s to %ld, %d, %d, %d", trapname, scline->tp[1], value->longs[1], value->shorts[4], value->shorts[5], value->shorts[6]);
-    }
-    else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39) && (trapvar != 40))  // PointerSprites && AnimationIDs
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-            if ((newvalue > LONG_MAX) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %ld", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->shorts[2] = newvalue;
-            SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, scline->tp[1], value->shorts[2]);
-        }
-        else if (trapvar == 6)
-        {
-            newvalue = get_id(object_desc, valuestring);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Unknown crate object: '%s'", valuestring);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->ulongs[1] = newvalue;
-            SCRIPTDBG(7, "Setting trap %s property %s to %lu", trapname, scline->tp[1], value->ulongs[1]);
-        }
-        else
-        {
-            SCRPTERRLOG("Trap property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    else
-    {
-        value->longs[2] = script_strdup(scline->tp[2]);
-        if (value->longs[2] < 0)
-        {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        SCRIPTDBG(7, "Setting trap %s property %s to %ld", trapname, scline->tp[1], value->longs[2]);
-    }
-    PROCESS_SCRIPT_VALUE(scline->command);
+    set_config_check(&trapdoor_trap_named_fields_set, scline);
 }
 
 static void set_room_configuration_check(const struct ScriptLine* scline)
@@ -1576,25 +1416,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
 
 static void set_trap_configuration_process(struct ScriptContext *context)
 {
-    long trap_type = context->value->shorts[0];
-    long property = context->value->shorts[1];
-    long value = context->value->longs[1];
-    short value2 = context->value->shorts[4];
-    short value3 = context->value->shorts[5];
-    short value4 = context->value->shorts[6];
-
-    if (property == 3) {
-        value = get_icon_id(script_strval(context->value->longs[2]));
-        value2 = get_icon_id(script_strval(context->value->longs[3]));
-    } else if (property == 4) {
-        value = get_icon_id(script_strval(context->value->longs[2]));
-    } else if (property == 12 || property == 39 || property == 40 || property == 44) {
-        value = get_anim_id_(script_strval(context->value->longs[2]));
-    }
-
-    script_set_trap_configuration(trap_type, property, value, value2, value3, value4);
-
-
+    set_config_process(&trapdoor_trap_named_fields_set, context);
 }
 
 static void set_room_configuration_process(struct ScriptContext *context)
@@ -1654,143 +1476,12 @@ static void count_creatures_at_action_point_process(struct ScriptContext* contex
 
 static void set_door_configuration_check(const struct ScriptLine* scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-
-    const char *doorname = scline->tp[0];
-    short door_id = get_id(door_desc, doorname);
-    const char* valuestring = scline->tp[2];
-    long newvalue;
-
-    if (door_id == -1)
-    {
-        SCRPTERRLOG("Unknown door, '%s'", doorname);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    short doorvar = get_id(trapdoor_door_commands, scline->tp[1]);
-    if (doorvar == -1)
-    {
-        SCRPTERRLOG("Unknown door variable");
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    value->shorts[0] = door_id;
-    value->shorts[1] = doorvar;
-    if (doorvar == 11) // SlabKind
-    {
-        const char* slab_name = scline->tp[2];
-        const char* slab2_name = scline->tp[3];
-        long slab_id = get_rid(slab_desc, slab_name);
-        long slab2_id = get_rid(slab_desc, slab2_name);
-        if (slab_id == -1)
-        {
-            if (parameter_is_number(slab_name))
-            {
-                slab_id = atoi(slab_name);
-            }
-            else
-            {
-                SCRPTERRLOG("Error slab %s not recognized", scline->tp[2]);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-        }
-        if (slab2_id == -1)
-        {
-            if (parameter_is_number(slab2_name))
-            {
-                slab_id = atoi(slab2_name);
-            }
-            else
-            {
-                SCRPTERRLOG("Error slab %s not recognized", scline->tp[2]);
-                DEALLOCATE_SCRIPT_VALUE
-                    return;
-            }
-        }
-        value->ulongs[1] = slab_id;
-        value->shorts[4] = slab2_id;
-        SCRIPTDBG(7, "Setting door %s property %s to %lu,%d", doorname, scline->tp[1], value->ulongs[1], value->shorts[4]);
-    }
-    else if (doorvar == 4) // SymbolSprites
-    {
-        value->longs[2] = script_strdup(scline->tp[2]);
-        if (value->longs[2] < 0) {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        value->longs[3] = script_strdup(scline->tp[3]);
-        if (value->longs[3] < 0) {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        SCRIPTDBG(7, "Setting door %s property %s to %s,%s", doorname, scline->tp[1], scline->tp[2], scline->tp[3]);
-    }
-    else if (doorvar != 5) // Not PointerSprites
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-            if ((newvalue > LONG_MAX) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %ld", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->ulongs[1] = newvalue;
-            SCRIPTDBG(7, "Setting door %s property %s to %lu", doorname, scline->tp[1], value->ulongs[1]);
-        }
-        else if (doorvar == 7) // Crate
-        {
-            newvalue = get_id(object_desc, valuestring);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Unknown crate object: %s", valuestring);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->ulongs[1] = newvalue;
-            SCRIPTDBG(7, "Setting door %s property %s to %lu", doorname, scline->tp[1], value->ulongs[1]);
-        }
-        else
-        {
-            SCRPTERRLOG("Door property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    else
-    {
-        value->longs[2] = script_strdup(scline->tp[2]);
-        if (value->longs[2] < 0)
-        {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        SCRIPTDBG(7, "Setting door %s property %s to %ld", doorname, scline->tp[1], value->longs[1]);
-    }
-    PROCESS_SCRIPT_VALUE(scline->command);
+    set_config_check(&trapdoor_door_named_fields_set, scline);
 }
 
 static void set_door_configuration_process(struct ScriptContext *context)
 {
-    long door_type = context->value->shorts[0];
-    short property = context->value->shorts[1];
-    short value = context->value->longs[1];
-    short value2 = context->value->shorts[4];
-    if (property == 4) {
-        value = get_icon_id(script_strval(context->value->longs[2]));
-        value2 = get_icon_id(script_strval(context->value->longs[3]));
-    } else if (property == 5) {
-        value = get_icon_id(script_strval(context->value->longs[2]));
-    }
-
-    script_set_door_configuration(door_type,property, value, value2);
+    set_config_process(&trapdoor_door_named_fields_set, context);
 }
 
 static void create_effect_at_pos_process(struct ScriptContext* context)
@@ -6065,7 +5756,7 @@ static void set_computer_checks_process(struct ScriptContext* context)
             struct ComputerCheck* ccheck = &comp->checks[k];
             if ((ccheck->flags & ComChk_Unkn0002) != 0)
                 break;
-            if (ccheck->name == NULL)
+            if (ccheck->name[0] == '\0')
                 break;
             if (strcasecmp(chkname, ccheck->name) == 0)
             {
@@ -6142,7 +5833,7 @@ static void set_computer_event_process(struct ScriptContext* context)
         for (long k = 0; k < COMPUTER_EVENTS_COUNT; k++)
         {
             struct ComputerEvent* event = &comp->events[k];
-            if (event->name == NULL)
+            if (event->name[0] == '\0')
                 break;
             if (strcasecmp(evntname, event->name) == 0)
             {

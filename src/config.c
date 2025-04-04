@@ -372,51 +372,6 @@ int64_t value_name(const struct NamedField* named_field, const char* value_text,
     return 0;
 }
 
-
-//expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
-int64_t value_flagsfieldshift(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
-{
-    int64_t value = 0;
-    char word_buf[COMMAND_WORD_LEN];
-    if (parameter_is_number(value_text))
-    {
-        return atoll(value_text);
-    }
-    if(strcasecmp(value_text,"none") == 0)
-    {
-        return 0;
-    }
-
-    long pos = 0;
-    long len = strlen(value_text);
-    int i = 0;
-    while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
-    {
-        if (i == 1)
-        {
-            //if the second value is 0 or 1, treat it as a flag toggle
-            if(strcmp(word_buf, "0") == 0 || strcmp(word_buf, "1") == 0)
-            {
-                int64_t original_value = get_named_field_value(named_field, named_fields_set, idx);
-                set_flag_value(original_value,value, atoi(word_buf));
-                return original_value;
-            }
-        }
-        
-        int k = get_id(named_field->namedCommand, word_buf);
-        if(k > 0)
-        {
-            value |= 1<<(k - 1);
-        }
-        else
-        {
-            NAMFIELDWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
-        }
-        i++;
-    }
-    return value;
-}
-
 //expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
 int64_t value_flagsfield(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
@@ -693,7 +648,7 @@ void assign_named_field_value(const struct NamedField* named_field, int64_t valu
  * If ccr_error        is returned, that means something went wrong.
  */
 
-int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField commands[], const struct NamedFieldSet* named_fields_set, int idx)
+int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField commands[], const struct NamedFieldSet* named_fields_set, int idx, unsigned short flags)
 {
     SYNCDBG(19,"Starting");
     if ((*pos) >= buflen) return -1;
@@ -712,7 +667,13 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
     // Finding command number
     int i = 0;
     while (commands[i].name != NULL)
-    {
+    {   
+        if (flag_is_set(flags,CnfLd_ListOnly) && strcasecmp(commands[i].name,"Name") != 0)
+        {
+            i++;
+            continue;
+        }
+
         if (commands[i].argnum > 0)
         {
             i++;
@@ -752,7 +713,8 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
             int64_t k = 0;
             if (commands[i].argnum == -1)
             {
-                char line_buf[LINEMSG_SIZE];
+                #define MAX_LINE_LEN 1024
+                char line_buf[MAX_LINE_LEN];
                 int line_len = 0;
                 
                 // Copy characters until newline or end of buffer
@@ -764,10 +726,14 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                     line_len++;
                     
                     // Prevent buffer overflow
-                    if (line_len >= LINEMSG_SIZE - 1)
-                        break;
+                    if (line_len >= MAX_LINE_LEN - 1)
+                    {
+                      ERRORLOG("preventing overflow for long conf line");
+                      break;
+                    }
                 }
-                
+
+                #undef MAX_LINE_LEN
                 line_buf[line_len] = '\0'; // Null-terminate the string
             
                 // Move position to the next line
@@ -817,7 +783,7 @@ TbBool parse_named_field_block(const char *buf, long len, const char *config_tex
     while (pos<len)
     {
         // Finding command number in this line.
-        int assignresult = assign_conf_command_field(buf, &pos, len, named_field,named_fields_set,idx);
+        int assignresult = assign_conf_command_field(buf, &pos, len, named_field,named_fields_set,idx,flags);
         if( assignresult == ccr_ok || assignresult == ccr_comment )
         {
             skip_conf_to_next_line(buf,&pos,len);
@@ -858,7 +824,8 @@ void set_defaults(const struct NamedFieldSet* named_fields_set)
       }
 
   }
-  if (name_NamedField != NULL)
+  
+  if (name_NamedField != NULL && named_fields_set->names != NULL)
   {
       for (int i = 0; i < named_fields_set->max_count; i++)
       {

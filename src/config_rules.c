@@ -51,24 +51,22 @@ static void assign_AlliesShareVision_script(const struct NamedField* named_field
 const char keeper_rules_file[]="rules.cfg";
 
 const struct NamedCommand rules_game_classicbugs_commands[] = {
-  {"RESURRECT_FOREVER",              1},
-  {"OVERFLOW_8BIT",                  2},
-  {"CLAIM_ROOM_ALL_THINGS",          3},
-  {"RESURRECT_REMOVED",              4},
-  {"NO_HAND_PURGE_ON_DEFEAT",        5},
-  {"MUST_OBEY_KEEPS_NOT_DO_JOBS",    6},
-  {"BREAK_NEUTRAL_WALLS",            7},
-  {"ALWAYS_TUNNEL_TO_RED",           8},
-  {"FULLY_HAPPY_WITH_GOLD",          9},
-  {"FAINTED_IMMUNE_TO_BOULDER",     10},
-  {"REBIRTH_KEEPS_SPELLS",          11},
-  {"STUN_FRIENDLY_UNITS",           12},
-  {"PASSIVE_NEUTRALS",              13},
-  {"NEUTRAL_TORTURE_CONVERTS",      14},
+  {"RESURRECT_FOREVER",             ClscBug_ResurrectForever      },
+  {"OVERFLOW_8BIT",                 ClscBug_Overflow8bitVal       },
+  {"CLAIM_ROOM_ALL_THINGS",         ClscBug_ClaimRoomAllThings    },
+  {"RESURRECT_REMOVED",             ClscBug_ResurrectRemoved      },
+  {"NO_HAND_PURGE_ON_DEFEAT",       ClscBug_NoHandPurgeOnDefeat   },
+  {"MUST_OBEY_KEEPS_NOT_DO_JOBS",   ClscBug_MustObeyKeepsNotDoJobs},
+  {"BREAK_NEUTRAL_WALLS",           ClscBug_BreakNeutralWalls     },
+  {"ALWAYS_TUNNEL_TO_RED",          ClscBug_AlwaysTunnelToRed     },
+  {"FULLY_HAPPY_WITH_GOLD",         ClscBug_FullyHappyWithGold    },
+  {"FAINTED_IMMUNE_TO_BOULDER",     ClscBug_FaintedImmuneToBoulder},
+  {"REBIRTH_KEEPS_SPELLS",          ClscBug_RebirthKeepsSpells    },
+  {"STUN_FRIENDLY_UNITS",           ClscBug_FriendlyFaint         },
+  {"PASSIVE_NEUTRALS",              ClscBug_PassiveNeutrals       },
+  {"NEUTRAL_TORTURE_CONVERTS",      ClscBug_NeutralTortureConverts},
   {NULL,                             0},
 };
-
-
 
 static const struct NamedField rules_game_named_fields[] = {
     //name                    //param  //field                                             //default  //min               //max   //namedCommand                    //valueFunc
@@ -105,7 +103,7 @@ static const struct NamedField rules_game_named_fields[] = {
   {"GLOBALAMBIENTLIGHT",        0, field(game.conf.rules.game.global_ambient_light      ),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
   {"LIGHTENABLED",              0, field(game.conf.rules.game.light_enabled             ),           1,        0,                  1,NULL,                           value_default, assign_default},
   {"MAPCREATURELIMIT",          0, field(game.conf.rules.game.creatures_count           ),         255,        0,  CREATURES_COUNT-2,NULL,                           value_default, assign_MapCreatureLimit_script},
-  {"PRESERVECLASSICBUGS",      -1, field(game.conf.rules.game.classic_bugs_flags        ),ClscBug_None,ClscBug_None, ClscBug_ListEnd,rules_game_classicbugs_commands,value_flagsfieldshift, assign_default},
+  {"PRESERVECLASSICBUGS",      -1, field(game.conf.rules.game.classic_bugs_flags        ),ClscBug_None,ClscBug_None, ClscBug_ListEnd,rules_game_classicbugs_commands,value_flagsfield, assign_default},
   {NULL},
 };
 
