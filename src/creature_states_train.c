@@ -58,7 +58,7 @@ TbBool creature_can_be_trained(const struct Thing *thing)
     // Creatures without training value can't be trained
     if (crstat->training_value <= 0)
         return false;
-    if ((cctrl->explevel >= game.conf.rules.rooms.training_room_max_level-1) &! (game.conf.rules.rooms.training_room_max_level == 0))
+    if ((cctrl->exp_level >= game.conf.rules.rooms.training_room_max_level-1) &! (game.conf.rules.rooms.training_room_max_level == 0))
         return false;
     // If its model can train, check if this one can gain more experience
     return creature_can_gain_experience(thing);
@@ -513,14 +513,14 @@ short at_training_room(struct Thing *thing)
     cctrl->target_room_id = 0;
     if (!creature_can_be_trained(thing))
     {
-        SYNCDBG(9,"Ending training of %s level %d; creature is not trainable",thing_model_name(thing),(int)cctrl->explevel);
+        SYNCDBG(9,"Ending training of %s level %d; creature is not trainable",thing_model_name(thing),(int)cctrl->exp_level);
         set_start_state(thing);
         return 0;
     }
     if (!player_can_afford_to_train_creature(thing))
     {
         if (is_my_player_number(thing->owner))
-            output_message(SMsg_NoGoldToTrain, MESSAGE_DELAY_TREASURY, true);
+            output_message(SMsg_NoGoldToTrain, MESSAGE_DURATION_TREASURY);
         set_start_state(thing);
         return 0;
     }
@@ -550,7 +550,7 @@ CrStateRet training(struct Thing *thing)
     // Check if we should finish training
     if (!creature_can_be_trained(thing))
     {
-        SYNCDBG(9,"Ending training of %s level %d; creature is not trainable",thing_model_name(thing),(int)cctrl->explevel);
+        SYNCDBG(9,"Ending training of %s level %d; creature is not trainable",thing_model_name(thing),(int)cctrl->exp_level);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrStRet_ResetOk;
@@ -559,7 +559,7 @@ CrStateRet training(struct Thing *thing)
     {
         SYNCDBG(19,"Ending training %s index %d; cannot afford",thing_model_name(thing),(int)thing->index);
         if (is_my_player_number(thing->owner))
-            output_message(SMsg_NoGoldToTrain, MESSAGE_DELAY_TREASURY, true);
+            output_message(SMsg_NoGoldToTrain, MESSAGE_DURATION_TREASURY);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrStRet_ResetFail;

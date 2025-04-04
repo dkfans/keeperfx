@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "bflib_planar.h"
@@ -41,7 +40,7 @@
 #include "map_data.h"
 #include "map_columns.h"
 #include "map_utils.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "room_entrance.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -130,7 +129,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
       thing->parent_idx = -1;
     else
       thing->parent_idx = parent_idx;
-    LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
+    memcpy(&thing->mappos, pos, sizeof(struct Coord3d));
     struct ObjectConfigStats* objst = get_object_model_stats(model);
     thing->clipbox_size_xy = objst->size_xy;
     thing->clipbox_size_z = objst->size_z;
@@ -167,8 +166,8 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     if (objst->ilght.radius != 0)
     {
         struct InitLight ilight;
-        LbMemorySet(&ilight, 0, sizeof(struct InitLight));
-        LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
+        memset(&ilight, 0, sizeof(struct InitLight));
+        memcpy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
         ilight.radius = objst->ilght.radius;
         ilight.intensity = objst->ilght.intensity;
         ilight.flags = objst->ilght.flags;
@@ -493,6 +492,7 @@ TbBool object_is_guard_flag(const struct Thing *thing)
       case ObjMdl_GuardFlagBlue:
       case ObjMdl_GuardFlagGreen:
       case ObjMdl_GuardFlagYellow:
+      case ObjMdl_GuardFlagWhite:
       case ObjMdl_GuardFlagPurple:
       case ObjMdl_GuardFlagBlack:
       case ObjMdl_GuardFlagOrange:
@@ -1050,7 +1050,7 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
         process_temple_special(thing, sacowner);
         kill_all_players_chickens(thing->owner);
         if (is_my_player_number(sacowner))
-            output_message(SMsg_SacrificePunish, 0, true);
+            output_message(SMsg_SacrificePunish, 0);
     } else
     if (object_is_gold_pile(thing))
     {
@@ -1079,7 +1079,7 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
             } else
             {
                 if (is_my_player_number(sacowner))
-                    output_message(SMsg_SacrificeWishing, 0, true);
+                    output_message(SMsg_SacrificeWishing, 0);
             }
         }
     }
@@ -1287,10 +1287,10 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         if (heartng->health <= 0)
         {
             struct Thing* efftng;
-            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion1, heartng->owner);
+            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion1, heartng->owner, heartng->index);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion2, heartng->owner);
+            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion2, heartng->owner, heartng->index);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
             destroy_dungeon_heart_room(heartng->owner, heartng);
@@ -1529,7 +1529,7 @@ static TngUpdateRet object_update_object_scale(struct Thing *objtng)
     int spr_size;
     int start_frame = objtng->current_frame;
     if (objtng->lair.belongs_to) {
-        spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * cctrl->explevel * game.conf.crtr_conf.exp.size_increase_on_exp) / 100;
+        spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * cctrl->exp_level * game.conf.crtr_conf.exp.size_increase_on_exp) / 100;
     } else {
         spr_size = objst->sprite_size_max;
     }
@@ -1574,11 +1574,11 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
         thing_play_sample(objtng, powerst->select_sound_idx, NORMAL_PITCH, -1, 3, 1, 3, FULL_LOUDNESS);
     }
 
-    int sight_casted_splevel = dungeon->sight_casted_splevel;
+    KeepPwrLevel sight_casted_power_level = dungeon->sight_casted_power_level;
 
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
-    int max_time_active = pwrdynst->strength[sight_casted_splevel];
-    int strength = min(pwrdynst->strength[sight_casted_splevel], (MAX_SOE_RADIUS * COORD_PER_STL / 4));
+    int max_time_active = pwrdynst->strength[sight_casted_power_level];
+    int strength = min(pwrdynst->strength[sight_casted_power_level], (MAX_SOE_RADIUS * COORD_PER_STL / 4));
 
     if ( game.play_gameturn - objtng->creation_turn >= max_time_active
         && game.play_gameturn - dungeon->sight_casted_gameturn < max_time_active )
@@ -1593,12 +1593,12 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
         {
             time_active = 0;
         }
-        const int v32 = (max_time_active / 16) / power_sight_close_instance_time[sight_casted_splevel];
-        dungeon->sight_casted_gameturn = game.play_gameturn - max_time_active + time_active / v32 - power_sight_close_instance_time[sight_casted_splevel];
+        const int v32 = (max_time_active / 16) / power_sight_close_instance_time[sight_casted_power_level];
+        dungeon->sight_casted_gameturn = game.play_gameturn - max_time_active + time_active / v32 - power_sight_close_instance_time[sight_casted_power_level];
     }
     if ( max_time_active <= game.play_gameturn - dungeon->sight_casted_gameturn )
     {
-        if ( power_sight_close_instance_time[dungeon->sight_casted_splevel] <= (game.play_gameturn - dungeon->sight_casted_gameturn) - max_time_active )
+        if ( power_sight_close_instance_time[dungeon->sight_casted_power_level] <= (game.play_gameturn - dungeon->sight_casted_gameturn) - max_time_active )
         {
             if ( (dungeon->computer_enabled & 4) != 0 )
             {
@@ -1625,7 +1625,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             // draw 32 particles in a collapsing starburst pattern
             const int anim_time = (game.play_gameturn - dungeon->sight_casted_gameturn);
             const int anim_radius = 4 * anim_time;
-            const int close_radius = 32 * (power_sight_close_instance_time[dungeon->sight_casted_splevel] - (anim_time - max_time_active));
+            const int close_radius = 32 * (power_sight_close_instance_time[dungeon->sight_casted_power_level] - (anim_time - max_time_active));
             const int max_duration_radius = max_time_active / 4;
             const int strength_radius = strength/4;
             const int radius = max(0, min(min(min(close_radius, max_duration_radius), anim_radius), strength_radius));
@@ -1692,7 +1692,7 @@ static TngUpdateRet object_update_power_lightning(struct Thing *objtng)
         variation++;
     }
     const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
-    if (exist_turns > abs(pwrdynst->strength[objtng->lightning.spell_level]))
+    if (exist_turns > abs(pwrdynst->strength[objtng->lightning.power_level]))
     {
         delete_thing_structure(objtng, 0);
         return TUFRet_Deleted;

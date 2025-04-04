@@ -26,7 +26,6 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 
 #include "config.h"
@@ -36,7 +35,7 @@
 #include "creature_states.h"
 #include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "thing_traps.h"
 #include "thing_navigate.h"
 #include "player_complookup.h"
@@ -48,88 +47,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
 
-//TODO COMPUTER_PLAYER move to config file
-unsigned short computer_types_tooltip_stridx[] = {
-    GUIStr_Empty, GUIStr_Empty,
-    GUIStr_Empty, GUIStr_Empty,
-    GUIStr_Empty, GUIStr_Empty,
-    GUIStr_AggressiveAssistDesc, GUIStr_DefensiveAssistDesc,
-    GUIStr_ConstructionAssistDesc, GUIStr_MoveOnlyAssistDesc, };
-
-/******************************************************************************/
-extern struct ComputerProcess BuildAllRooms3x3;
-extern struct ComputerProcess BuildAllRooms4x4;
-extern struct ComputerProcess BuildPrisonRoom;
-extern struct ComputerProcess BuildTortureRoom;
-extern struct ComputerProcess BuildScavengerRoom;
-extern struct ComputerProcess BuildTempleRoom;
-extern struct ComputerProcess BuildGraveyardRoom;
-extern struct ComputerProcess BuildBarrackRoom;
-extern struct ComputerProcess BuildTreasureRoom;
-extern struct ComputerProcess BuildResearchRoom;
-extern struct ComputerProcess BuildHatcheryRoom;
-extern struct ComputerProcess BuildLairRoom;
-extern struct ComputerProcess BuildTrainingRoom;
-extern struct ComputerProcess BuildWorkshopRoom;
-extern struct ComputerProcess DigToEntrance;
-extern struct ComputerProcess DigToGoldForMoney;
-extern struct ComputerProcess BuildTreasureRoom4x4;
-extern struct ComputerProcess BuildLairRoom4x4;
-extern struct ComputerProcess DigToCloseGoldForMoney;
-extern struct ComputerProcess DigToGoldGreedy;
-extern struct ComputerProcess DigToGoldGreedy2;
-extern struct ComputerProcess ComputerSightOfEvil;
-extern struct ComputerProcess ComputerSightOfEvilScare;
-extern struct ComputerProcess ComputerAttack1;
-extern struct ComputerProcess ComputerSafeAttack;
 /******************************************************************************/
 
 struct ValidRooms valid_rooms_to_build[] = {
-  {RoK_TREASURE,  &BuildTreasureRoom},
-  {RoK_LAIR,      &BuildLairRoom},
-  {RoK_GARDEN,    &BuildHatcheryRoom},
-  {RoK_LIBRARY,   &BuildResearchRoom},
-  {RoK_TRAINING,  &BuildTrainingRoom},
-  {RoK_WORKSHOP,  &BuildWorkshopRoom},
-  {RoK_SCAVENGER, &BuildScavengerRoom},
-  {RoK_PRISON,    &BuildPrisonRoom},
-  {RoK_TEMPLE,    &BuildTempleRoom},
-  {RoK_TORTURE,   &BuildTortureRoom},
-  {RoK_GRAVEYARD, &BuildGraveyardRoom},
-  {RoK_BARRACKS,  &BuildBarrackRoom},
+  {RoK_TREASURE,  &comp_player_conf.process_types[9]},
+  {RoK_LAIR,      &comp_player_conf.process_types[12]},
+  {RoK_GARDEN,    &comp_player_conf.process_types[11]},
+  {RoK_LIBRARY,   &comp_player_conf.process_types[10]},
+  {RoK_TRAINING,  &comp_player_conf.process_types[13]},
+  {RoK_WORKSHOP,  &comp_player_conf.process_types[14]},
+  {RoK_SCAVENGER, &comp_player_conf.process_types[5]},
+  {RoK_PRISON,    &comp_player_conf.process_types[3]},
+  {RoK_TEMPLE,    &comp_player_conf.process_types[6]},
+  {RoK_TORTURE,   &comp_player_conf.process_types[4]},
+  {RoK_GRAVEYARD, &comp_player_conf.process_types[7]},
+  {RoK_BARRACKS,  &comp_player_conf.process_types[8]},
   {-1,            NULL},
 };
 
-struct ComputerProcessMnemonic computer_process_config_list[] = {
-  {"Unused", NULL,},
-  {"", &BuildAllRooms3x3,},
-  {"", &BuildAllRooms4x4,},
-  {"", &BuildPrisonRoom,},
-  {"", &BuildTortureRoom,},
-  {"", &BuildScavengerRoom,},
-  {"", &BuildTempleRoom,},
-  {"", &BuildGraveyardRoom,},
-  {"", &BuildBarrackRoom,},
-  {"", &BuildTreasureRoom,},
-  {"", &BuildResearchRoom,},
-  {"", &BuildHatcheryRoom,},
-  {"", &BuildLairRoom,},
-  {"", &BuildTrainingRoom,},
-  {"", &BuildWorkshopRoom,},
-  {"", &DigToEntrance,},
-  {"", &DigToGoldForMoney,},
-  {"", &BuildTreasureRoom4x4,},
-  {"", &BuildLairRoom4x4,},
-  {"", &DigToCloseGoldForMoney,},
-  {"", &DigToGoldGreedy,},
-  {"", &DigToGoldGreedy2,},
-  {"", &ComputerSightOfEvil,},
-  {"", &ComputerSightOfEvilScare,},
-  {"", &ComputerAttack1,},
-  {"", &ComputerSafeAttack,},
-};
 /******************************************************************************/
 #ifdef __cplusplus
 }

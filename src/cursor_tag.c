@@ -334,12 +334,12 @@ TbBool tag_cursor_blocks_steal_slab(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     unsigned char colour;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if ( ( ( ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->category == SlbAtCtg_FortifiedWall) ) && (slabmap_owner(slb) != player->cheatselection.chosen_player) ) )
-        || ( (slbattr->category == SlbAtCtg_FriableDirt) || ( (slbattr->category == SlbAtCtg_Unclaimed) && (slbattr->is_safe_land) && (!slab_is_liquid(slb_x, slb_y) ) ) ) )
+    if ( ( ( ((slabst->category == SlbAtCtg_FortifiedGround) || (slabst->category == SlbAtCtg_FortifiedWall) ) && (slabmap_owner(slb) != player->cheatselection.chosen_player) ) )
+        || ( (slabst->category == SlbAtCtg_FriableDirt) || ( (slabst->category == SlbAtCtg_Unclaimed) && (slabst->is_safe_land) && (!slab_is_liquid(slb_x, slb_y) ) ) ) )
     {
         colour = SLC_GREEN;
     }

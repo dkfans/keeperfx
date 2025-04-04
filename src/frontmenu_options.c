@@ -31,7 +31,6 @@
 #include "gui_draw.h"
 #include "config_strings.h"
 #include "gui_frontbtns.h"
-#include "music_player.h"
 #include "frontend.h"
 #include "front_input.h"
 #include "kjm_input.h"
@@ -109,19 +108,19 @@ char video_view_distance_level;
 void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset != 0)) & LbBtnF_Enabled;
-		if ((wheel_scrolled_up || is_key_pressed(KC_UP,KMod_NONE)) & (define_key_scroll_offset != 0))
-	{
-		define_key_scroll_offset--;
-	}
+        if ((wheel_scrolled_up || is_key_pressed(KC_UP,KMod_NONE)) & (define_key_scroll_offset != 0))
+    {
+        define_key_scroll_offset--;
+    }
 }
 
 void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & LbBtnF_Enabled;
-	if ((wheel_scrolled_down || is_key_pressed(KC_DOWN,KMod_NONE)) & (define_key_scroll_offset < GAME_KEYS_COUNT-(frontend_define_keys_menu_items_visible-1)))
-	{
-		define_key_scroll_offset++;
-	}
+    if ((wheel_scrolled_down || is_key_pressed(KC_DOWN,KMod_NONE)) & (define_key_scroll_offset < GAME_KEYS_COUNT-(frontend_define_keys_menu_items_visible-1)))
+    {
+        define_key_scroll_offset++;
+    }
 }
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)
@@ -317,21 +316,13 @@ void gui_set_sound_volume(struct GuiButton *gbtn)
     settings.sound_volume = new_val;
     save_settings();
     SetSoundMasterVolume(new_val);
-    SetMusicMasterVolume(new_val);
-    for (int i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
-    {
-        if (Ext_Sounds[i] != NULL)
-        {
-            Mix_VolumeChunk(Ext_Sounds[i], new_val);
-        }
-    }
 }
 
 void gui_set_music_volume(struct GuiButton *gbtn)
 {
-    settings.redbook_volume = make_audio_slider_nonlinear(gbtn->content.lval);
+    settings.music_volume = make_audio_slider_nonlinear(gbtn->content.lval);
     save_settings();
-    SetMusicPlayerVolume(settings.redbook_volume);
+    set_music_volume(settings.music_volume);
 }
 
 void gui_set_mentor_volume(struct GuiButton *gbtn)
@@ -412,7 +403,7 @@ void init_video_menu(struct GuiMenu *gmnu)
  */
 void init_audio_menu(struct GuiMenu *gmnu)
 {
-    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.redbook_volume);
+    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.music_volume);
     get_gui_button_init(gmnu, BID_SOUND_VOL)->content.lval = make_audio_slider_linear(settings.sound_volume);
     get_gui_button_init(gmnu, BID_MENTOR_VOL)->content.lval = make_audio_slider_linear(settings.mentor_volume);
 }

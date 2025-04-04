@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 
 #include "config_players.h"
 #include "config_powerhands.h"
@@ -229,7 +228,7 @@ void clear_players(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = &game.players[i];
-        LbMemorySet(player, 0, sizeof(struct PlayerInfo));
+        memset(player, 0, sizeof(struct PlayerInfo));
         player->id_number = PLAYERS_COUNT;
         switch (i)
         {
@@ -244,7 +243,7 @@ void clear_players(void)
             break;
         }
     }
-    LbMemorySet(&bad_player, 0, sizeof(struct PlayerInfo));
+    memset(&bad_player, 0, sizeof(struct PlayerInfo));
     bad_player.id_number = PLAYERS_COUNT;
     game.active_players_count = 0;
     //game.game_kind = GKind_LocalGame;
@@ -324,6 +323,8 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
     case PSt_CallToArms:
         player->chosen_power_kind = chosen_kind;
         break;
+    case PSt_CtrlDirect:
+    case PSt_CtrlPassngr:
     case PSt_FreeCtrlPassngr:
     case PSt_FreeCtrlDirect:
         player->chosen_power_kind = PwrK_POSSESS;
@@ -404,6 +405,8 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
         break;
   case PSt_FreeCtrlPassngr:
   case PSt_FreeCtrlDirect:
+  case PSt_CtrlPassngr:
+  case PSt_CtrlDirect:
         player->chosen_power_kind = PwrK_POSSESS;
         break;
   case PSt_FreeDestroyWalls:

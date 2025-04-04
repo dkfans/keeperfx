@@ -21,15 +21,13 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "config.h"
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-
-
-typedef unsigned long TbMapLocation;
 
 enum MapLocationTypes {
     MLoc_NONE = 0,
@@ -45,6 +43,7 @@ enum MapLocationTypes {
     MLoc_DOORKIND,
     MLoc_TRAPKIND,
     MLoc_METALOCATION, // 12 // Triggered box, Combat, Last entered creature etc
+    MLoc_COORDS, // 13 // contains stl coords encoded in the number actual location will be center of said subtile
 };
 
 enum MetaLocation {
@@ -52,7 +51,10 @@ enum MetaLocation {
   MML_RECENT_COMBAT,
   MML_ACTIVE_CTA,
   MML_LAST_DEATH_EVENT,
+  MML_LAST_TRAP_EVENT,
 };
+
+extern const struct NamedCommand head_for_desc[];
 
 /******************************************************************************/
 unsigned short get_map_location_type(TbMapLocation location);
@@ -66,6 +68,10 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
 TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned char random_factor);
 TbBool get_coords_at_hero_door(struct Coord3d *pos, long gate_num, unsigned char random_factor);
 TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx);
+
+TbMapLocation get_coord_encoded_location(MapSubtlCoord stl_x,MapSubtlCoord stl_y);
+
+void find_map_location_coords(TbMapLocation location, long *x, long *y, int plyr_idx, const char *func_name);
 
 void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 

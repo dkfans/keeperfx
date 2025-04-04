@@ -30,7 +30,6 @@
 #include "globals.h"
 #include "custom_sprites.h"
 #include "bflib_video.h"
-#include "bflib_memory.h"
 #include "bflib_sprite.h"
 #include "bflib_mouse.h"
 #include "bflib_render.h"
@@ -52,8 +51,6 @@ struct TbSpriteDrawData {
 /******************************************************************************/
 long xsteps_array[2*SPRITE_SCALING_XSTEPS];
 long ysteps_array[2*SPRITE_SCALING_YSTEPS];
-long alpha_xsteps_array[2*SPRITE_SCALING_XSTEPS];
-long alpha_ysteps_array[2*SPRITE_SCALING_YSTEPS];
 
 unsigned char *poly_screen;
 unsigned char *vec_screen;
@@ -65,7 +62,6 @@ unsigned char *dither_map;
 unsigned char *dither_end;
 unsigned char *lbSpriteReMapPtr;
 long scale_up;
-long alpha_scale_up;
 /******************************************************************************/
 /**  Prints horizontal or vertical line on current graphics window.
  *  Does no screen locking - screen must be lock before and unlocked
@@ -1775,22 +1771,6 @@ void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth,
     } while (w > 0);
 }
 
-void LbSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
-    if (swidth > SPRITE_SCALING_XSTEPS)
-        swidth = SPRITE_SCALING_XSTEPS;
-    LbSpriteSetScalingWidthClippedArray(xsteps_array, x, swidth, dwidth, gwidth);
-}
-
-void LbSpriteSetAlphaScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
-    if (swidth > SPRITE_SCALING_XSTEPS)
-        swidth = SPRITE_SCALING_XSTEPS;
-    LbSpriteSetScalingWidthClippedArray(alpha_xsteps_array, x, swidth, dwidth, gwidth);
-}
-
 void LbSpriteSetScalingWidthSimpleArray(long * xsteps_arr, long x, long swidth, long dwidth)
 {
     long *pwidth;
@@ -1816,22 +1796,6 @@ void LbSpriteSetScalingWidthSimpleArray(long * xsteps_arr, long x, long swidth, 
     } while (w > 0);
 }
 
-void LbSpriteSetScalingWidthSimple(long x, long swidth, long dwidth)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
-    if (swidth > SPRITE_SCALING_XSTEPS)
-        swidth = SPRITE_SCALING_XSTEPS;
-    LbSpriteSetScalingWidthSimpleArray(xsteps_array, x, swidth, dwidth);
-}
-
-void LbSpriteSetAlphaScalingWidthSimple(long x, long swidth, long dwidth)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
-    if (swidth > SPRITE_SCALING_XSTEPS)
-        swidth = SPRITE_SCALING_XSTEPS;
-    LbSpriteSetScalingWidthSimpleArray(alpha_xsteps_array, x, swidth, dwidth);
-}
-
 void LbSpriteClearScalingWidthArray(long * xsteps_arr, long swidth)
 {
     int i;
@@ -1843,16 +1807,6 @@ void LbSpriteClearScalingWidthArray(long * xsteps_arr, long swidth)
         pwidth[1] = 0;
         pwidth += 2;
     }
-}
-
-void LbSpriteClearScalingWidth(void)
-{
-    LbSpriteClearScalingWidthArray(xsteps_array, SPRITE_SCALING_XSTEPS);
-}
-
-void LbSpriteClearAlphaScalingWidth(void)
-{
-    LbSpriteClearScalingWidthArray(alpha_xsteps_array, SPRITE_SCALING_XSTEPS);
 }
 
 /**
@@ -1910,22 +1864,6 @@ void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheigh
     } while (h > 0);
 }
 
-void LbSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gheight)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
-    if (sheight > SPRITE_SCALING_YSTEPS)
-        sheight = SPRITE_SCALING_YSTEPS;
-    LbSpriteSetScalingHeightClippedArray(ysteps_array, y, sheight, dheight, gheight);
-}
-
-void LbSpriteSetAlphaScalingHeightClipped(long y, long sheight, long dheight, long gheight)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
-    if (sheight > SPRITE_SCALING_YSTEPS)
-        sheight = SPRITE_SCALING_YSTEPS;
-    LbSpriteSetScalingHeightClippedArray(alpha_ysteps_array, y, sheight, dheight, gheight);
-}
-
 void LbSpriteSetScalingHeightSimpleArray(long * ysteps_arr, long y, long sheight, long dheight)
 {
     long *pheight;
@@ -1951,22 +1889,6 @@ void LbSpriteSetScalingHeightSimpleArray(long * ysteps_arr, long y, long sheight
     } while (h > 0);
 }
 
-void LbSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
-    if (sheight > SPRITE_SCALING_YSTEPS)
-        sheight = SPRITE_SCALING_YSTEPS;
-    LbSpriteSetScalingHeightSimpleArray(ysteps_array, y, sheight, dheight);
-}
-
-void LbSpriteSetAlphaScalingHeightSimple(long y, long sheight, long dheight)
-{
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
-    if (sheight > SPRITE_SCALING_YSTEPS)
-        sheight = SPRITE_SCALING_YSTEPS;
-    LbSpriteSetScalingHeightSimpleArray(alpha_ysteps_array, y, sheight, dheight);
-}
-
 void LbSpriteClearScalingHeightArray(long * ysteps_arr, long sheight)
 {
     int i;
@@ -1978,16 +1900,6 @@ void LbSpriteClearScalingHeightArray(long * ysteps_arr, long sheight)
         pheight[1] = 0;
         pheight += 2;
     }
-}
-
-void LbSpriteClearScalingHeight(void)
-{
-    LbSpriteClearScalingHeightArray(ysteps_array, SPRITE_SCALING_YSTEPS);
-}
-
-void LbSpriteClearAlphaScalingHeight(void)
-{
-    LbSpriteClearScalingHeightArray(alpha_ysteps_array, SPRITE_SCALING_YSTEPS);
 }
 
 /**
@@ -2008,51 +1920,24 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
         scale_up = false;
     // Checking whether to select simple scaling creation, or more comprehensive one - with clipping
     if ((swidth <= 0) || (dwidth <= 0)) {
-        LbSpriteClearScalingWidth();
+        LbSpriteClearScalingWidthArray(xsteps_array, SPRITE_SCALING_XSTEPS);
     } else
     // Normally it would be enough to check if ((dwidth+y) >= gwidth), but due to rounding we need to add swidth
     if ((x < 0) || ((dwidth+swidth+x) >= gwidth))
     {
-        LbSpriteSetScalingWidthClipped(x, swidth, dwidth, gwidth);
+        LbSpriteSetScalingWidthClippedArray(xsteps_array, x, min(swidth, SPRITE_SCALING_XSTEPS), dwidth, gwidth);
     } else {
-        LbSpriteSetScalingWidthSimple(x, swidth, dwidth);
+        LbSpriteSetScalingWidthSimpleArray(xsteps_array, x, min(swidth, SPRITE_SCALING_XSTEPS), dwidth);
     }
     if ((sheight <= 0) || (dheight <= 0)) {
-        LbSpriteClearScalingHeight();
+        LbSpriteClearScalingHeightArray(ysteps_array, SPRITE_SCALING_YSTEPS);
     } else
     // Normally it would be enough to check if ((dheight+y) >= gheight), but our simple rounding may enlarge the image
     if ((y < 0) || ((dheight+sheight+y) >= gheight))
     {
-        LbSpriteSetScalingHeightClipped(y, sheight, dheight, gheight);
+        LbSpriteSetScalingHeightClippedArray(ysteps_array, y, min(sheight, SPRITE_SCALING_YSTEPS), dheight, gheight);
     } else {
-        LbSpriteSetScalingHeightSimple(y, sheight, dheight);
-    }
-}
-
-void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight)
-{
-    long gwidth = lbDisplay.GraphicsWindowWidth;
-    long gheight = lbDisplay.GraphicsWindowHeight;
-    alpha_scale_up = true;
-    if ((dwidth <= swidth) && (dheight <= sheight))
-        alpha_scale_up = false;
-    if ((swidth <= 0) || (dwidth <= 0)) {
-        LbSpriteClearAlphaScalingWidth();
-    } else
-    if ((x < 0) || ((dwidth+x) >= gwidth))
-    {
-        LbSpriteSetAlphaScalingWidthClipped(x, swidth, dwidth, gwidth);
-    } else {
-        LbSpriteSetAlphaScalingWidthSimple(x, swidth, dwidth);
-    }
-    if ((sheight <= 0) || (dheight <= 0)) {
-        LbSpriteClearAlphaScalingHeight();
-    } else
-    if ((y < 0) || ((dheight+y) >= gheight))
-    {
-        LbSpriteSetAlphaScalingHeightClipped(y, sheight, dheight, gheight);
-    } else {
-        LbSpriteSetAlphaScalingHeightSimple(y, sheight, dheight);
+        LbSpriteSetScalingHeightSimpleArray(ysteps_array, y, min(sheight, SPRITE_SCALING_YSTEPS), dheight);
     }
 }
 
@@ -2064,7 +1949,13 @@ TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite,
     if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
         lbSpriteReMapPtr = lbDisplay.FadeTable + ((lbDisplay.FadeStep & 0x3F) << 8);
     LbSpriteSetScalingData(xpos, ypos, sprite->SWidth, sprite->SHeight, dest_width, dest_height);
-    return LbSpriteDrawUsingScalingData(0, 0, sprite);
+    const struct TbSourceBuffer buffer = {
+        sprite->Data,
+        sprite->SWidth,
+        sprite->SHeight,
+        sprite->SWidth,
+    };
+    return LbSpriteDrawUsingScalingData(0, 0, &buffer);
 }
 
 TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour)
@@ -2086,7 +1977,13 @@ int LbSpriteDrawScaledRemap(long xpos, long ypos, const struct TbSprite *sprite,
     if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
         lbSpriteReMapPtr = lbDisplay.FadeTable + ((lbDisplay.FadeStep & 0x3F) << 8);
     LbSpriteSetScalingData(xpos, ypos, sprite->SWidth, sprite->SHeight, dest_width, dest_height);
-    return LbSpriteDrawRemapUsingScalingData(0, 0, sprite, cmap);
+    const struct TbSourceBuffer buffer = {
+        sprite->Data,
+        sprite->SWidth,
+        sprite->SHeight,
+        sprite->SWidth,
+    };
+    return LbSpriteDrawRemapUsingScalingData(0, 0, &buffer, cmap);
 }
 
 
@@ -2559,349 +2456,37 @@ void LbDrawCircle(long x, long y, long radius, TbPixel colour)
         LbDrawCircleFilled(x, y, radius, colour);
 }
 
-/*
-unsigned short __fastcall is_it_clockwise(struct EnginePoint *point1,
-      struct EnginePoint *point2, struct EnginePoint *point3)
+void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, long **xstep, long **ystep, int *scanline)
 {
-  long vx;
-  long wx;
-  long vy;
-  long wy;
-  vx = point2->X - point1->X;
-  wx = point3->X - point2->X;
-  vy = point2->Y - point1->Y;
-  wy = point3->Y - point2->Y;
-  return (wy * vx - wx * vy) > 0;
-}*/
-
-void draw_b_line(long x1, long y1, long x2, long y2, TbPixel colour)
-{
-  long apx = 2 * abs(x2 - x1);
-  long spx;
-  if ( x2-x1 <= 0 )
-    spx = -1;
-  else
-    spx = 1;
-  long apy = 2 * abs(y2 - y1);
-  long spy;
-  if ( y2-y1 <= 0 )
-    spy = -1;
-  else
-    spy = 1;
-  long doffy = spy * lbDisplay.GraphicsScreenWidth;
-  long offset = lbDisplay.GraphicsScreenWidth * y1 + x1;
-  long x = x1;
-  long y = y1;
-  if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
-  {
-    if (apx <= apy)
-    {
-      long d = apx - (apy>>1);
-      while ( true )
-      {
-        unsigned short glass_idx = lbDisplay.GraphicsWindowPtr[offset]
-                + ((unsigned char)colour<<8);
-        lbDisplay.GraphicsWindowPtr[offset] = lbDisplay.GlassMap[glass_idx];
-        if (y==y2) break;
-        if (d>=0)
-        {
-          offset += spx;
-          d -= apy;
-        }
-        y += spy;
-        offset += doffy;
-        d += apx;
-      }
-    } else
-    {
-      long d = apy - (apx >> 1);
-      while ( true )
-      {
-        unsigned short glass_idx = lbDisplay.GraphicsWindowPtr[offset]
-                + ((unsigned char)colour<<8);
-        lbDisplay.GraphicsWindowPtr[offset] = lbDisplay.GlassMap[glass_idx];
-        if (x==x2) break;
-        if (d>=0)
-        {
-          offset += doffy;
-          d -= apx;
-        }
-        x += spx;
-        offset += spx;
-        d += apy;
-      }
+    long sposx;
+    long sposy;
+    sposx = posx;
+    sposy = posy;
+    (*scanline) = lbDisplay.GraphicsScreenWidth;
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0) {
+        sposx = src_buf->width + posx - 1;
     }
-  } else
-  if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8)
-  {
-      if ( apx <= apy )
-      {
-        long d = apx - (apy >> 1);
-        while ( 1 )
-        {
-          unsigned short glass_idx = (lbDisplay.GraphicsWindowPtr[offset]<<8)
-                + ((unsigned char)colour);
-          lbDisplay.GraphicsWindowPtr[offset] = lbDisplay.GlassMap[glass_idx];
-          if (y==y2) break;
-          if (d>=0)
-          {
-            offset += spx;
-            d -= apy;
-          }
-          y += spy;
-          offset += doffy;
-          d += apx;
-        }
-      } else
-      {
-        long d = apy - (apx >> 1);
-        while ( 1 )
-        {
-          unsigned short glass_idx = (lbDisplay.GraphicsWindowPtr[offset]<<8)
-                + ((unsigned char)colour);
-          lbDisplay.GraphicsWindowPtr[offset] = lbDisplay.GlassMap[glass_idx];
-          if (x==x2) break;
-          if (d>=0)
-          {
-            offset += doffy;
-            d -= apx;
-          }
-          x += spx;
-          offset += spx;
-          d += apy;
-        }
-      }
-  } else
-  {
-      if ( apx <= apy )
-      {
-        long d = apx - (apy >> 1);
-        while ( true )
-        {
-          lbDisplay.GraphicsWindowPtr[offset] = ((unsigned char)colour);
-          if (y==y2) break;
-          if ( d >= 0 )
-          {
-            offset += spx;
-            d -= apy;
-          }
-          y += spy;
-          offset += doffy;
-          d += apx;
-        }
-      }
-      else
-      {
-        long d = apy - (apx >> 1);
-        while ( 1 )
-        {
-          lbDisplay.GraphicsWindowPtr[offset] = ((unsigned char)colour);
-          if ( x == x2 )
-            break;
-          if ( d >= 0 )
-          {
-            offset += doffy;
-            d -= apx;
-          }
-          x += spx;
-          offset += spx;
-          d += apy;
-        }
-      }
-  }
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0) {
+        sposy = src_buf->height + posy - 1;
+        (*scanline) = -lbDisplay.GraphicsScreenWidth;
+    }
+    (*xstep) = &xsteps_array[2 * sposx];
+    (*ystep) = &ysteps_array[2 * sposy];
 }
 
-/** Draws a line on current graphics window. Truncates the coordinates
- *  if they go off the window. Does no screen locking.
- */
-TbResult LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour)
+void setup_outbuf(const long *xstep, const long *ystep, uchar **outbuf, int *outheight)
 {
-  char result=0;
-  // Adjusting X-dimension coordinates
-  long width_max = lbDisplay.GraphicsWindowWidth - 1;
-  if ( x1 >= 0 )
-  {
-    if ( x1 <= width_max )
-    {
-      if ( x2 >= 0 )
-      {
-        if ( x2 > width_max )
-        {
-          y2 -= (x2-width_max)*(y2-y1) / (x2-x1);
-          x2 = width_max;
-          result = 1;
-        }
-      } else
-      {
-        y2 -= x2 * (y2-y1) / (x2-x1);
-        x2 = 0;
-        result = 1;
-      }
-    } else
-    {
-      if ( x2 > width_max ) return 1;
-      y1 -= (x1-width_max) * (y1-y2) / (x1-x2);
-      x1 = width_max;
-      result = 1;
-      if ( x2 < 0 )
-      {
-        y2 -= x2 * (y2-y1) / (x2-x1);
-        x2 = 0;
-      }
-    }
-  }
-  else
-  {
-    if ( x2 < 0 ) return 1;
-    y1 -= x1 * (y1-y2) / (x1-x2);
-    x1 = 0;
-    result = 1;
-    if ( x2 > width_max )
-    {
-      y2 -= (x2-width_max) * (y2-y1) / (x2-x1);
-      x2 = lbDisplay.GraphicsWindowWidth - 1;
-    }
-  }
-  // Adjusting Y-dimension coordinates
-  long height_max = lbDisplay.GraphicsWindowHeight - 1;
-  if ( y1 < 0 )
-  {
-    if ( y2 < 0 ) return 1;
-    x1 -= y1 * (x1-x2) / (y1-y2);
-    y1 = 0;
-    result = 1;
-    if ( y2 > height_max )
-    {
-      x2 -= (y2-height_max) * (x2-x1) / (y2-y1);
-      y2 = height_max;
-    }
-  } else
-  if ( y1 <= height_max )
-  {
-    if ( y2 >= 0 )
-    {
-      if ( y2 > height_max )
-      {
-        x2 -= (y2-height_max) * (x2-x1) / (y2-y1);
-        y2 = height_max;
-        result = 1;
-      }
-    } else
-    {
-      x2 -= y2 * (x2-x1) / (y2 - y1);
-      y2 = 0;
-      result = 1;
-    }
-  } else
-  {
-    if ( y2 > height_max )
-      return 1;
-    x1 -= (y1-height_max) * (x1-x2) / (y1-y2);
-    y1 = height_max;
-    result = 1;
-    if ( y2 < 0 )
-    {
-      x2 -= y2 * (x2-x1) / (y2-y1);
-      y2 = 0;
-    }
-  }
-  draw_b_line(x1, y1, x2, y2, colour);
-  return result;
+    int gspos_x;
+    int gspos_y;
+    gspos_y = ystep[0];
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0)
+        gspos_y += ystep[1] - 1;
+    gspos_x = xstep[0];
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+        gspos_x += xstep[1] - 1;
+    (*outbuf) = &lbDisplay.GraphicsWindowPtr[gspos_x + lbDisplay.GraphicsScreenWidth * gspos_y];
+    (*outheight) = lbDisplay.GraphicsScreenHeight;
 }
-/*
-//Draws any triangle on the current graphics window.
-//Does no screen locking.
-void __fastcall LbDrawTriangle(long x1, long y1, long x2, long y2, long x3, long y3, TbPixel colour)
-{
-  if ( lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010 )
-  {
-    LbDrawLine(x1, y1, x2, y2, colour);
-    LbDrawLine(x2, y2, x3, y3, colour);
-    LbDrawLine(x3, y3, x1, y1, colour);
-  }
-  else
-  {
-    LbDrawTriangleFilled(x1, y1, x2, y2, x3, y3, colour);
-  }
-}
-
-// Draws a filled box on current graphic window.
-// Does not perform any clipping to input variables.
-// Does no screen locking.
-void __fastcall LbDrawBoxNoClip(long x, long y, unsigned long width, unsigned long height, TbPixel colour)
-{
-  unsigned long idxh = height;
-  //Space between lines in video buffer
-  unsigned long screen_delta = lbDisplay.GraphicsScreenWidth - width;
-  unsigned char *screen_ptr = lbDisplay.GraphicsWindowPtr + x + lbDisplay.GraphicsScreenWidth * y;
-  if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
-  {
-      unsigned short glass_idx = (unsigned char)colour << 8;
-      do {
-          unsigned long idxw = width;
-          do {
-                glass_idx&=0xff00;
-                glass_idx |= *screen_ptr;
-                *screen_ptr = lbDisplay.GlassMap[glass_idx];
-                screen_ptr++;
-                idxw--;
-          } while ( idxw>0 );
-          screen_ptr += screen_delta;
-          idxh--;
-      } while ( idxh>0 );
-  } else
-  if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8)
-  {
-      unsigned short glass_idx = (unsigned char)colour;
-      do {
-            unsigned long idxw = width;
-            do {
-              glass_idx&=0x00ff;
-              glass_idx |= ((*screen_ptr)<<8);
-              *screen_ptr = lbDisplay.GlassMap[glass_idx];
-              screen_ptr++;
-              idxw--;
-            } while ( idxw>0 );
-            screen_ptr += screen_delta;
-            idxh--;
-      } while ( idxh>0 );
-  } else
-  {
-      unsigned char col_idx = colour;
-      do {
-            unsigned long idxw = width;
-            do {
-              *screen_ptr = col_idx;
-              screen_ptr++;
-              idxw--;
-            } while ( idxw>0 );
-            screen_ptr += screen_delta;
-            idxh--;
-      } while ( idxh>0 );
-  }
-}
-
-// Draws a rectangular box on current graphics window.
-// Locks and unlocks screen as needed. If wrong dimensions or can't lock,
-// returns -1. On success returns 1. Gets two point coords as parameters.
-int __fastcall LbDrawBoxCoords(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour)
-{
-  if ( xpos1 > xpos2 )
-  {
-    xpos1 ^= xpos2;
-    xpos2 ^= xpos1;
-    xpos1 ^= xpos2;
-  }
-  if ( ypos1 > ypos2 )
-  {
-    ypos1 ^= ypos2;
-    ypos2 ^= ypos1;
-    ypos1 ^= ypos2;
-  }
-  return LbDrawBox(xpos1, ypos1, xpos2 - xpos1 + 1, ypos2 - ypos1 + 1, colour);
-}
-
-*/
 
 /******************************************************************************/
 #ifdef __cplusplus

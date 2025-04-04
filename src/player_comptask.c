@@ -28,7 +28,6 @@
 #include "bflib_planar.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
-#include "bflib_memory.h"
 #include "bflib_sound.h"
 #include "bflib_math.h"
 
@@ -40,7 +39,7 @@
 #include "creature_states_lair.h"
 #include "creature_states_combt.h"
 #include "creature_states_mood.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "thing_traps.h"
 #include "thing_physics.h"
 #include "thing_effects.h"
@@ -283,14 +282,13 @@ void suspend_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
     remove_task(comp, ctask);
 }
 
-TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
+TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel power_level,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2)
 {
     struct Dungeon *dungeon;
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     struct Thing *thing;
-    long i;
     long k;
     struct SlabMap *slb;
     struct Room *room;
@@ -319,18 +317,18 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
             return Lb_FAIL;
         return Lb_SUCCESS;
     case GA_UseMkDigger:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_MKDIGGER, alevel, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_MKDIGGER, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
     case GA_UsePwrSight:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_SIGHT, alevel, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_SIGHT, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
     case GA_UsePwrObey:
-        return magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, alevel, PwMod_Default);
+        return magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, power_level, PwMod_Default);
     case GA_UsePwrHealCrtr:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_HEALCRTR, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_HEALCRTR, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrCall2Arms:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CALL2ARMS, alevel, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CALL2ARMS, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
     case GA_UsePwrCaveIn:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CAVEIN, alevel, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CAVEIN, power_level, stl_x, stl_y, PwCast_Unrevealed, PwMod_Default);
     case GA_StopPwrCall2Arms:
         turn_off_power_call_to_arms(plyr_idx);
         return Lb_SUCCESS;
@@ -338,7 +336,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         dungeon->hold_audience_cast_turn = 0;
         return Lb_SUCCESS;
     case GA_Unk13:
-    case GA_MarkDig:
+    case GA_MarkDig: {
         slb = get_slabmap_block(slb_x, slb_y);
         if ((slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER))
         {
@@ -346,12 +344,20 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
             // Normally liquid tiles are not marked for digging by the tool function
             place_slab_type_on_map(SlbT_PATH, stl_x, stl_y, plyr_idx, 0);
             do_slab_efficiency_alteration(slb_x, slb_y);
-            i = Lb_SUCCESS;
+            return Lb_SUCCESS;
         } else
         {
-            i = tag_blocks_for_digging_in_rectangle_around(slab_subtile(slb_x,0), slab_subtile(slb_y,0), plyr_idx) > 0;
+            const MapSubtlCoord stl_cx = slab_subtile(slb_x,0);
+            const MapSubtlCoord stl_cy = slab_subtile(slb_y,0);
+            if (tag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx)) {
+                if (is_my_player_number(plyr_idx)) {
+                    play_non_3d_sample(118);
+                }
+                return Lb_SUCCESS;
+            }
         }
-        return i;
+        return Lb_FAIL;
+    }
     case GA_Unk15:
     case GA_PlaceRoom:
         room = player_build_room_at(stl_x, stl_y, plyr_idx, param2);
@@ -365,52 +371,56 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         if (!player_place_trap_at(stl_x, stl_y, plyr_idx, param1))
             break;
         return Lb_SUCCESS;
-    case GA_PlaceDoor:
+    case GA_PlaceDoor: {
         k = tag_cursor_blocks_place_door(plyr_idx, stl_x, stl_y,param1);
-        i = packet_place_door(stl_x, stl_y, plyr_idx, param1, k);
-        return i;
+        if (packet_place_door(stl_x, stl_y, plyr_idx, param1, k)) {
+            return Lb_SUCCESS;
+        } else {
+            return Lb_FAIL;
+        }
+    }
     case GA_SellTrap:
         return player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y);
     case GA_SellDoor:
         return player_sell_door_at_subtile(plyr_idx, stl_x, stl_y);
     case GA_UsePwrLightning:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, alevel, stl_x, stl_y, PwCast_None, PwMod_Default);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, power_level, stl_x, stl_y, PwCast_None, PwMod_Default);
     case GA_UsePwrSpeedUp:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_SPEEDCRTR, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_SPEEDCRTR, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrArmour:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_PROTECT, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_PROTECT, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrRebound:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_REBOUND, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_REBOUND, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrConceal:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_CONCEAL, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_CONCEAL, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrFlight:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_FLIGHT, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_FLIGHT, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrVision:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_VISION, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_VISION, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrHoldAudnc:
-        return magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, alevel, PwMod_Default);
+        return magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, power_level, PwMod_Default);
     case GA_UsePwrDisease:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_DISEASE, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_DISEASE, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrChicken:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_CHICKEN, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_CHICKEN, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrFreeze:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_FREEZE, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_FREEZE, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrSlow:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLOW, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLOW, power_level, stl_x, stl_y, thing, PwMod_Default);
     case GA_UseSlap:
     case GA_UsePwrSlap:
         thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, alevel, stl_x, stl_y, thing, PwMod_Default);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, power_level, stl_x, stl_y, thing, PwMod_Default);
     default:
         ERRORLOG("Unknown game action %d", (int)gaction);
         break;
@@ -418,11 +428,11 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     return Lb_OK;
 }
 
-TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
+TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel power_level,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2)
 {
     TbResult result;
-    result = game_action(plyr_idx, gaction, alevel, stl_x, stl_y, param1, param2);
+    result = game_action(plyr_idx, gaction, power_level, stl_x, stl_y, param1, param2);
     if (result > Lb_OK) {
         comp->tasks_did--;
     }
@@ -971,9 +981,9 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
             if ((stl_x < gameadd.map_subtiles_x) && (stl_y < gameadd.map_subtiles_y))
             {
                 struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
-                const struct SlabAttr *slbattr = get_slab_attrs(slb);
+                const struct SlabConfigStats *slabst = get_slab_stats(slb);
                 struct Map *mapblk = get_map_block_at(stl_x, stl_y);
-                if (slbattr->is_diggable && (slb->kind != SlbT_GEMS))
+                if (slabst->is_diggable && (slb->kind != SlbT_GEMS))
                 {
                     if (!flag_is_set(mapblk->flags, SlbAtFlg_Filled) || (slabmap_owner(slb) == dungeon->owner))
                     {
@@ -1295,16 +1305,16 @@ ItemAvailability computer_check_room_of_role_available(const struct Computer2 * 
 
 long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
-    struct SlabAttr *slbattr;
+    struct SlabConfigStats *slabst;
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    slbattr = get_slab_attrs(slb);
+    slabst = get_slab_stats(slb);
     if ((slabmap_owner(slb) == plyr_idx) || (plyr_idx == -1))
     {
-        if (!flag_is_set(slbattr->block_flags, SlbAtFlg_Blocking) && (slb->kind != SlbT_LAVA)) {
+        if (!flag_is_set(slabst->block_flags, SlbAtFlg_Blocking) && (slb->kind != SlbT_LAVA)) {
             return true;
         }
-        if (flag_is_set(slbattr->block_flags, SlbAtFlg_IsRoom)) {
+        if (flag_is_set(slabst->block_flags, SlbAtFlg_IsRoom)) {
             return true;
         }
     }
@@ -1313,19 +1323,19 @@ long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 
 long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
-    struct SlabAttr *slbattr;
+    struct SlabConfigStats *slabst;
     struct SlabMap *slb;
     SubtlCodedCoords stl_num;
     struct Map *mapblk;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    slbattr = get_slab_attrs(slb);
+    slabst = get_slab_stats(slb);
     if (slb->kind == SlbT_GEMS) {
         return 1;
     }
-    if (slbattr->category == SlbAtCtg_RoomInterior) {
+    if (slabst->category == SlbAtCtg_RoomInterior) {
         return -1;
     }
-    if (flag_is_set(slbattr->block_flags, SlbAtFlg_IsRoom)) {
+    if (flag_is_set(slabst->block_flags, SlbAtFlg_IsRoom)) {
         return -1;
     }
     if (!slab_good_for_computer_dig_path(slb) || (slb->kind == SlbT_WATER)) {
@@ -1335,13 +1345,13 @@ long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
     if (find_from_task_list(plyr_idx, stl_num) >= 0) {
         return -1;
     }
-    if (flag_is_set(slbattr->block_flags, SlbAtFlg_Valuable)) {
+    if (flag_is_set(slabst->block_flags, SlbAtFlg_Valuable)) {
         return -1;
     }
     if (slab_kind_is_liquid(slb->kind)) {
         return 1;
     }
-    if ( (slbattr->is_diggable == 0) || (slb->kind == SlbT_GEMS) ) {
+    if ( (slabst->is_diggable == 0) || (slb->kind == SlbT_GEMS) ) {
         return 1;
     }
     mapblk = get_map_block_at_pos(stl_num);
@@ -1350,16 +1360,16 @@ long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
 
 long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
-    struct SlabAttr *slbattr;
+    struct SlabConfigStats *slabst;
     struct SlabMap *slb;
     SubtlCodedCoords stl_num;
     struct Map *mapblk;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    slbattr = get_slab_attrs(slb);
-    if (slbattr->category == SlbAtCtg_RoomInterior) {
+    slabst = get_slab_stats(slb);
+    if (slabst->category == SlbAtCtg_RoomInterior) {
         return -1;
     }
-    if (flag_is_set(slbattr->block_flags, SlbAtFlg_IsRoom)) {
+    if (flag_is_set(slabst->block_flags, SlbAtFlg_IsRoom)) {
         return -1;
     }
     if (slb->kind == SlbT_GEMS) {
@@ -1375,7 +1385,7 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
     if (find_from_task_list(plyr_idx, stl_num) >= 0) {
         return 0;
     }
-    if ( (slbattr->is_diggable == 0) || (slb->kind == SlbT_GEMS) ) {
+    if ( (slabst->is_diggable == 0) || (slb->kind == SlbT_GEMS) ) {
         return 1;
     }
     mapblk = get_map_block_at_pos(stl_num);
@@ -1668,18 +1678,18 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
     ToolDigResult dig_result;
     for (dig_result = TDR_DigSlab; dig_result < cdig->subfield_2C; dig_result++)
     {
-        struct SlabAttr *slbattr;
+        struct SlabConfigStats *slabst;
         struct SlabMap *slb;
         struct Map *mapblk;
         nextslb_x = subtile_slab(*nextstl_x);
         nextslb_y = subtile_slab(*nextstl_y);
         slb = get_slabmap_block(nextslb_x, nextslb_y);
         mapblk = get_map_block_at(*nextstl_x, *nextstl_y);
-        slbattr = get_slab_attrs(slb);
-        if ( (slbattr->is_diggable == 0) || (slb->kind == SlbT_GEMS)
+        slabst = get_slab_stats(slb);
+        if ( (slabst->is_diggable == 0) || (slb->kind == SlbT_GEMS)
           || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
         {
-            if ( ((slbattr->block_flags & SlbAtFlg_Valuable) == 0) || ((digflags & ToolDig_AllowValuable) == 0) ) {
+            if ( ((slabst->block_flags & SlbAtFlg_Valuable) == 0) || ((digflags & ToolDig_AllowValuable) == 0) ) {
                 break;
             }
         }
@@ -1691,7 +1701,7 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
             }
             if (digflags & ToolDig_AllowValuable)
             {
-                if ((slbattr->block_flags & SlbAtFlg_Valuable) != 0) {
+                if ((slabst->block_flags & SlbAtFlg_Valuable) != 0) {
                     cdig->valuable_slabs_tagged++;
                 }
             }
@@ -1871,9 +1881,9 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
         digslb_y = subtile_slab(digstl_y);
     }
     slb = get_slabmap_block(digslb_x, digslb_y);
-    struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
-    if ((slbattr->is_diggable) && (slb->kind != SlbT_GEMS))
+    struct SlabConfigStats *slabst;
+    slabst = get_slab_stats(slb);
+    if ((slabst->is_diggable) && (slb->kind != SlbT_GEMS))
     {
         mapblk = get_map_block_at(digstl_x, digstl_y);
         if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == dungeon->owner))
@@ -1989,15 +1999,15 @@ long add_to_trap_locations(struct Computer2 * comp, struct Coord3d * coord)
 long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_idx)
 {
     struct SlabMap *slb;
-    struct SlabAttr *slbattr;
+    struct SlabConfigStats *slabst;
     SubtlCodedCoords stl_num;
     SYNCDBG(15,"Starting");
     basestl_x = stl_slab_center_subtile(basestl_x);
     basestl_y = stl_slab_center_subtile(basestl_y);
     stl_num = get_subtile_number(basestl_x,basestl_y);
     slb = get_slabmap_for_subtile(basestl_x,basestl_y);
-    slbattr = get_slab_attrs(slb);
-    if (flag_is_set(slbattr->block_flags, SlbAtFlg_Valuable)) {
+    slabst = get_slab_stats(slb);
+    if (flag_is_set(slabst->block_flags, SlbAtFlg_Valuable)) {
         return (find_from_task_list(plyr_idx, stl_num) < 0);
     }
     return 0;
@@ -2109,7 +2119,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         struct SlabMap* slb = get_slabmap_for_subtile(ctask->dig.pos_next.x.stl.num, ctask->dig.pos_next.y.stl.num);
 
-        if (flag_is_set(get_slab_attrs(slb)->block_flags, SlbAtFlg_Valuable))
+        if (flag_is_set(get_slab_stats(slb)->block_flags, SlbAtFlg_Valuable))
         {
             ctask->delay--;
             if (ctask->delay > 0) {
@@ -2141,8 +2151,8 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
                         slb = get_slabmap_block(slb_x + x, slb_y + y);
 
                         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-                        struct SlabAttr *slbattr = get_slab_attrs(slb);
-                        if ( (slbattr->is_diggable != 0)
+                        struct SlabConfigStats *slabst = get_slab_stats(slb);
+                        if ( (slabst->is_diggable != 0)
                           || (flag_is_set(mapblk->flags, SlbAtFlg_Filled) && (slabmap_owner(slb) == dungeon->owner)) )
                         {
                             TbResult res = game_action(dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1);
@@ -2267,7 +2277,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
                 struct ComputerProcess *cproc;
                 cproc = get_computer_process(comp, ctask->cproc_idx);
                 cproc->param_5 = computer_task_index(ctask);
-                cproc->func_complete(comp, cproc);
+                computer_process_func_list[cproc->func_complete](comp, cproc);
             }
             suspend_task_process(comp, ctask);
             return TDR_ReachedDestination;
@@ -2282,7 +2292,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
                         struct ComputerProcess *cproc;
                         cproc = get_computer_process(comp, ctask->cproc_idx);
                         cproc->param_5 = computer_task_index(ctask);
-                        cproc->func_complete(comp, cproc);
+                        computer_process_func_list[cproc->func_complete](comp, cproc);
                     }
                     suspend_task_process(comp, ctask);
                     return CTaskRet_Unk0;
@@ -2350,7 +2360,7 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
             state = i->active_state;
         struct StateInfo *stati = get_thing_state_info_num(state);
 
-        if (flag_is_set(cctrl->spell_flags, CSAfF_CalledToArms))
+        if (cctrl->called_to_arms)
         {
             if ( !stati->react_to_cta )
                 continue;
@@ -2361,9 +2371,9 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
 
         if ( prefer_high_scoring )
         {
-            if ( game.creature_scores[i->model].value[cctrl->explevel] < highest_score && !thing_is_invalid(thing) )
+            if ( game.creature_scores[i->model].value[cctrl->exp_level] < highest_score && !thing_is_invalid(thing) )
                 continue;
-            highest_score = game.creature_scores[i->model].value[cctrl->explevel];
+            highest_score = game.creature_scores[i->model].value[cctrl->exp_level];
         }
         thing = i;
     }
@@ -2524,10 +2534,10 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
                         switch (room->kind)
                         {
                         case RoK_LIBRARY:
-                            score = compute_creature_work_value(crstat->research_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+                            score = compute_creature_work_value(crstat->research_value*256, ROOM_EFFICIENCY_MAX, cctrl->exp_level);
                             break;
                         case RoK_WORKSHOP:
-                            score = compute_creature_work_value(crstat->manufacture_value*256, ROOM_EFFICIENCY_MAX, cctrl->explevel);
+                            score = compute_creature_work_value(crstat->manufacture_value*256, ROOM_EFFICIENCY_MAX, cctrl->exp_level);
                             break;
                         case RoK_TRAINING:
                             score = get_creature_thing_score(thing);
@@ -2831,7 +2841,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
             {
                 if (!creature_is_fleeing_combat(thing) && !creature_is_at_alarm(thing))
                 {
-                    if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken))
+                    if (!creature_is_being_unconscious(thing) && !creature_under_spell_effect(thing, CSAfF_Chicken))
                     {
                         if (!creature_is_doing_lair_activity(thing) && !creature_is_being_dropped(thing))
                         {
@@ -2839,12 +2849,9 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
                             {
                                 struct PerExpLevelValues* expvalues;
                                 expvalues = &game.creature_scores[thing->model];
-                                long expval;
-                                long healthprm;
-                                long new_factor;
-                                expval = expvalues->value[cctrl->explevel];
-                                healthprm = get_creature_health_permil(thing);
-                                new_factor = healthprm * expval / 1000;
+                                long expval = expvalues->value[cctrl->exp_level];
+                                HitPoints healthprm = get_creature_health_permil(thing);
+                                HitPoints new_factor = healthprm * expval / 1000;
                                 if ((new_factor > best_factor) && (healthprm > 20))
                                 {
                                     best_factor = new_factor;
@@ -3113,37 +3120,47 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         remove_task(comp, ctask);
         return CTaskRet_Unk4;
     }
-    if (computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_SPEEDCRTR))
+    if (computer_able_to_use_power(comp, PwrK_SPEEDCRTR, ctask->attack_magic.power_level, 1)
+    && !creature_under_spell_effect(creatng, CSAfF_Speed)
+    && !creature_is_immune_to_spell_effect(creatng, CSAfF_Speed))
     {
-        if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, ctask->attack_magic.power_level, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_PROTECT))
+    else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.power_level, 1)
+    && !creature_under_spell_effect(creatng, CSAfF_Armour)
+    && !creature_is_immune_to_spell_effect(creatng, CSAfF_Armour))
     {
-        if (try_game_action(comp, dungeon->owner, GA_UsePwrArmour, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrArmour, ctask->attack_magic.power_level, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_REBOUND))
+    else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.power_level, 1)
+    && !creature_under_spell_effect(creatng, CSAfF_Rebound)
+    && !creature_is_immune_to_spell_effect(creatng, CSAfF_Rebound))
     {
-        if (try_game_action(comp, dungeon->owner, GA_UsePwrRebound, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrRebound, ctask->attack_magic.power_level, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_FLIGHT))
+    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.power_level, 1)
+    && !creature_under_spell_effect(creatng, CSAfF_Flying)
+    && !creature_is_immune_to_spell_effect(creatng, CSAfF_Flying))
     {
-        if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, ctask->attack_magic.power_level, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
     }
-    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_VISION))
+    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.power_level, 1)
+    && !creature_under_spell_effect(creatng, CSAfF_Sight)
+    && !creature_is_immune_to_spell_effect(creatng, CSAfF_Sight))
     {
-        if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, ctask->attack_magic.power_level, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
@@ -3230,11 +3247,11 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     // Note that can_cast_spell() shouldn't be needed here - should
     // be checked in the function which adds the task
-    if (!computer_able_to_use_power(comp, ctask->attack_magic.pwkind, ctask->attack_magic.splevel, 1)) {
+    if (!computer_able_to_use_power(comp, ctask->attack_magic.pwkind, ctask->attack_magic.power_level, 1)) {
         return CTaskRet_Unk4;
     }
     TbResult ret;
-    ret = try_game_action(comp, dungeon->owner, ctask->attack_magic.gaction, ctask->attack_magic.splevel,
+    ret = try_game_action(comp, dungeon->owner, ctask->attack_magic.gaction, ctask->attack_magic.power_level,
         thing->mappos.x.stl.num, thing->mappos.y.stl.num, ctask->attack_magic.target_thing_idx, 0);
     if (ret <= Lb_OK)
         return CTaskRet_Unk4;
@@ -3836,7 +3853,7 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
 
 //Task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units.
 //Not to be confused with check_for_accelerate which cast speed outside of combat.
-TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
+TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, KeepPwrLevel power_level)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -3849,12 +3866,12 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
     }
     ctask->ttype = CTT_MagicSpeedUp;
     ctask->attack_magic.target_thing_idx = creatng->index;
-    ctask->attack_magic.splevel = splevel;
+    ctask->attack_magic.power_level = power_level;
     ctask->created_turn = game.play_gameturn;
     return true;
 }
 
-TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, int splevel, int gaction)
+TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, KeepPwrLevel power_level, int gaction)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -3870,7 +3887,7 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
     }
     ctask->ttype = CTT_AttackMagic;
     ctask->attack_magic.target_thing_idx = creatng->index;
-    ctask->attack_magic.splevel = splevel;
+    ctask->attack_magic.power_level = power_level;
     ctask->attack_magic.repeat_num = repeat_num;
     ctask->attack_magic.gaction = gaction;
     ctask->attack_magic.pwkind = pwkind;
@@ -3921,5 +3938,49 @@ long process_tasks(struct Computer2 *comp)
         }
     }
     return ndone;
+}
+
+/**
+ * Adds a dig task for the player between 2 map locations.
+ * @param plyr_idx: The player who does the task.
+ * @param origin: The start location of the disk task.
+ * @param destination: The desitination of the disk task.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, TbMapLocation destination)
+{
+    struct Computer2* comp = get_computer_player(plyr_idx);
+    long orig_x, orig_y = 0;
+    long dest_x, dest_y = 0;
+
+    //dig origin
+    find_map_location_coords(origin, &orig_x, &orig_y, plyr_idx, __func__);
+    if ((orig_x == 0) && (orig_y == 0))
+    {
+        WARNLOG("Can't decode origin location %ld", origin);
+        return Lb_FAIL;
+    }
+    struct Coord3d startpos;
+    startpos.x.val = subtile_coord_center(stl_slab_center_subtile(orig_x));
+    startpos.y.val = subtile_coord_center(stl_slab_center_subtile(orig_y));
+    startpos.z.val = subtile_coord(1, 0);
+
+    //dig destination
+    find_map_location_coords(destination, &dest_x, &dest_y, plyr_idx, __func__);
+    if ((dest_x == 0) && (dest_y == 0))
+    {
+        WARNLOG("Can't decode destination location %ld", destination);
+        return Lb_FAIL;
+    }
+    struct Coord3d endpos;
+    endpos.x.val = subtile_coord_center(stl_slab_center_subtile(dest_x));
+    endpos.y.val = subtile_coord_center(stl_slab_center_subtile(dest_y));
+    endpos.z.val = subtile_coord(1, 0);
+
+    if (create_task_dig_to_neutral(comp, startpos, endpos))
+    {
+        return Lb_SUCCESS;
+    }
+    return Lb_FAIL;
 }
 /******************************************************************************/

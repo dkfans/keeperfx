@@ -19,6 +19,7 @@
 #ifndef KEEPFX_GLOBALS_H
 #define KEEPFX_GLOBALS_H
 
+#include "bflib_basics.h"
 #include <stdbool.h> // Introduced in C99. Provides true/false.
 #include <stdio.h>
 #include <stdint.h>
@@ -186,6 +187,8 @@ typedef short EffectOrEffElModel;
 typedef unsigned short CrtrStateId;
 /** Type which stores creature experience level. */
 typedef unsigned char CrtrExpLevel;
+/** Type which stores keeper power level. */
+typedef unsigned char KeepPwrLevel;
 /** Type which stores creature annoyance reason, from CreatureAngerReasons enumeration. */
 typedef unsigned char AnnoyMotive;
 /** Type which stores room kind index. */
@@ -196,7 +199,7 @@ typedef unsigned long RoomRole;
 typedef unsigned short RoomIndex;
 /** Type which stores slab kind index. */
 typedef unsigned char SlabKind;
-/** Type which stores SplK_* values. */
+/** Type which stores spell kind index. */
 typedef unsigned short SpellKind;
 /** Type which stores PwrK_* values. */
 typedef unsigned short PowerKind;
@@ -260,8 +263,6 @@ typedef long ActionPointId;
 typedef long FilterParam;
 /** Type which stores IAvail_* values. */
 typedef char ItemAvailability;
-/** Type which stores types of damage as DmgT_* values. */
-typedef unsigned char DamageType;
 /** Type which stores hit filters for things as THit_* values. */
 typedef unsigned char ThingHitType;
 /** Type which stores hit filters for things as HitTF_* flags. */
@@ -281,6 +282,9 @@ typedef int8_t SmallAroundIndex;
 /** a player state as defined in config_players*/
 typedef unsigned char PlayerState;
 typedef unsigned short CctrlIndex;
+/** index to a function, positive for C functions, negative for lua functions*/
+typedef short FuncIdx;
+typedef unsigned long TbMapLocation;
 
 
 /**

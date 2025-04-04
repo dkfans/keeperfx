@@ -22,7 +22,7 @@
 #include "map_data.h"
 #include "map_locations.h"
 #include "player_data.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "keeperfx.hpp"
 #include "lvl_filesdk1.h"
 #include "power_hand.h"
@@ -49,19 +49,6 @@ extern const struct CommandDesc dk1_command_desc[];
 
 
 /******************************************************************************/
-/**
- * Reads word from 'line' into 'param'. Sets if 'line_end' was reached.
- * @param line The input line position pointer.
- * @param param Output parameter acquired from the line.
- * @param parth_level Paraenesis level within the line, set to -1 on EOLN.
- */
-
-
-static void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w, long h)
-{
-  SYNCDBG(0,"Revealing around (%ld,%ld)",x,y);
-  reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
-}
 
 /**
  * Kills a creature which meets given criteria.
@@ -132,240 +119,6 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
 }
 
 /**
- * Cast a keeper power on a creature which meets given criteria.
- * @param plyr_idx The player whose creature will be affected.
- * @param crmodel Model of the creature to find.
- * @param criteria Criteria, from CreatureSelectCriteria enumeration.
- * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
- * @return TbResult whether the spell was successfully cast
- */
-TbResult script_use_power_on_creature_matching_criterion(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
-{
-    struct Thing* thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing)) {
-        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use power on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
-        return Lb_FAIL;
-    }
-
-    char is_free = (fmcl_bytes >> 24) != 0;
-    PowerKind pwkind = (fmcl_bytes >> 16) & 255;
-    PlayerNumber caster = (fmcl_bytes >> 8) & 255;
-    long splevel = fmcl_bytes & 255;
-    return script_use_power_on_creature(thing, pwkind, splevel, caster, is_free);
-}
-
-/**
- * Cast a spell on a creature which meets given criteria.
- * @param plyr_idx The player whose creature will be affected.
- * @param crmodel Model of the creature to find.
- * @param criteria Criteria, from CreatureSelectCriteria enumeration.
- * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
- * @return TbResult whether the spell was successfully cast
- */
-TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
-{
-    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use spell on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
-        return Lb_FAIL;
-    }
-    SpellKind spkind = (fmcl_bytes >> 8) & 255;
-    const struct SpellConfig* spconf = get_spell_config(spkind);
-
-    if (spconf->caster_affected ||
-            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These two should be also marked at configs somehow?
-            ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
-            ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
-    {
-        if (thing_is_picked_up(thing))
-        {
-            SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
-            return Lb_FAIL;
-        }
-        unsigned short sound;
-        if (spconf->caster_affected)
-        {
-            sound = spconf->caster_affect_sound;
-        }
-        else if ( (spkind == SplK_Freeze) || (spkind == SplK_Slow) )
-        {
-            sound = 50;
-        }
-        else if (spkind == SplK_Disease)
-        {
-            sound = 59;
-        }
-        else if (spkind == SplK_Chicken)
-        {
-            sound = 109;
-        }
-        else
-        {
-            sound = 0;
-        }
-        long splevel = fmcl_bytes & 255;
-        thing_play_sample(thing, sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
-        apply_spell_effect_to_thing(thing, spkind, splevel);
-        if (spkind == SplK_Disease)
-        {
-            struct CreatureControl *cctrl;
-            cctrl = creature_control_get_from_thing(thing);
-            cctrl->disease_caster_plyridx = game.neutral_player_num;
-        }
-        return Lb_SUCCESS;
-    }
-    else
-    {
-        SCRPTERRLOG("Spell not supported for this command: %d", (int)spkind);
-        return Lb_FAIL;
-    }
-}
-
-/**
- * Adds a dig task for the player between 2 map locations.
- * @param plyr_idx: The player who does the task.
- * @param origin: The start location of the disk task.
- * @param destination: The desitination of the disk task.
- * @return TbResult whether the spell was successfully cast
- */
-TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destination)
-{
-    struct Computer2* comp = get_computer_player(plyr_idx);
-    long orig_x, orig_y = 0;
-    long dest_x, dest_y = 0;
-
-    //dig origin
-    find_map_location_coords(origin, &orig_x, &orig_y, plyr_idx, __func__);
-    if ((orig_x == 0) && (orig_y == 0))
-    {
-        WARNLOG("Can't decode origin location %ld", origin);
-        return Lb_FAIL;
-    }
-    struct Coord3d startpos;
-    startpos.x.val = subtile_coord_center(stl_slab_center_subtile(orig_x));
-    startpos.y.val = subtile_coord_center(stl_slab_center_subtile(orig_y));
-    startpos.z.val = subtile_coord(1, 0);
-
-    //dig destination
-    find_map_location_coords(destination, &dest_x, &dest_y, plyr_idx, __func__);
-    if ((dest_x == 0) && (dest_y == 0))
-    {
-        WARNLOG("Can't decode destination location %ld", destination);
-        return Lb_FAIL;
-    }
-    struct Coord3d endpos;
-    endpos.x.val = subtile_coord_center(stl_slab_center_subtile(dest_x));
-    endpos.y.val = subtile_coord_center(stl_slab_center_subtile(dest_y));
-    endpos.z.val = subtile_coord(1, 0);
-
-    if (create_task_dig_to_neutral(comp, startpos, endpos))
-    {
-        return Lb_SUCCESS;
-    }
-    return Lb_FAIL;
-}
-
-/**
- * Casts spell at a location set by subtiles.
- * @param plyr_idx caster player.
- * @param stl_x subtile's x position.
- * @param stl_y subtile's y position
- * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
- * @return TbResult whether the spell was successfully cast
- */
-TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long fml_bytes)
-{
-    char is_free = (fml_bytes >> 16) != 0;
-    PowerKind powerKind = (fml_bytes >> 8) & 255;
-    long splevel = fml_bytes & 255;
-
-    unsigned long allow_flags = PwCast_AllGround | PwCast_Unrevealed;
-    unsigned long mod_flags = 0;
-    if (is_free)
-        set_flag(mod_flags,PwMod_CastForFree);
-
-    return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, allow_flags, mod_flags);
-}
-
-/**
- * Casts spell at a location set by action point/hero gate.
- * @param plyr_idx caster player.
- * @param target action point/hero gate.
- * @param fml_bytes encoded bytes: f=cast for free flag,m=power kind,l=spell level.
- * @return TbResult whether the spell was successfully cast
- */
-TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation target, long fml_bytes)
-{
-    SYNCDBG(0, "Using power at location of type %lu", target);
-    long x = 0;
-    long y = 0;
-    find_map_location_coords(target, &x, &y, plyr_idx, __func__);
-    if ((x == 0) && (y == 0))
-    {
-        WARNLOG("Can't decode location %lu", target);
-        return Lb_FAIL;
-    }
-    return script_use_power_at_pos(plyr_idx, x, y, fml_bytes);
-}
-
-/**
- * Casts a spell for player.
- * @param plyr_idx caster player.
- * @param power_kind the spell: magic id.
- * @param free cast for free flag.
- * @return TbResult whether the spell was successfully cast
- */
-TbResult script_use_power(PlayerNumber plyr_idx, PowerKind power_kind, char free)
-{
-    return magic_use_power_on_level(plyr_idx, power_kind, 1, free != 0 ? PwMod_CastForFree : 0); // splevel gets ignored anyway -> pass 1
-}
-
-/**
- * Increases creatures' levels for player.
- * @param plyr_idx target player
- * @param count how many times should the level be increased
- */
-void script_use_special_increase_level(PlayerNumber plyr_idx, int count)
-{
-    increase_level(get_player(plyr_idx), count);
-}
-
-/**
- * Multiplies every creature for player.
- * @param plyr_idx target player
- */
-void script_use_special_multiply_creatures(PlayerNumber plyr_idx)
-{
-    multiply_creatures(get_player(plyr_idx));
-}
-
-/**
- * Fortifies player's dungeon.
- * @param plyr_idx target player
- */
-void script_make_safe(PlayerNumber plyr_idx)
-{
-    make_safe(get_player(plyr_idx));
-}
-
-/**
- * Defortifies player's dungeon.
- * @param plyr_idx target player
- */
-void script_make_unsafe(PlayerNumber plyr_idx)
-{
-    make_unsafe(plyr_idx);
-}
-
-/**
- * Enables bonus level for current player.
- */
-TbBool script_locate_hidden_world()
-{
-    return activate_bonus_level(get_player(my_player_number));
-}
-
-/**
  * Processes given VALUE immediately.
  * This processes given script command. It is used to process VALUEs at start when they have
  * no conditions, or during the gameplay when conditions are met.
@@ -398,9 +151,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   {
       // TODO: move two functions up
       struct ScriptContext context;
-      context.plr_start = plr_start;
-      context.plr_end = plr_end;
-      // TODO: this should be checked for sanity
+      
       for (i=plr_start; i < plr_end; i++)
       {
           context.player_idx = i;
@@ -522,7 +273,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
-      crstat->strength = saturate_set_unsigned(val3, 8);
+      crstat->strength = saturate_set_unsigned(val3, 16);
       break;
   case Cmd_SET_CREATURE_ARMOUR:
       crstat = creature_stats_get(val2);
@@ -557,17 +308,24 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           crstat->bleeds = val4;
           break;
       case 2: // UNAFFECTED_BY_WIND
-          if (val4)
+          if (val4 >= 1)
           {
-              crstat->affected_by_wind = 0;
+              set_flag(crstat->immunity_flags, CSAfF_Wind);
           }
           else
           {
-              crstat->affected_by_wind = 1;
+              clear_flag(crstat->immunity_flags, CSAfF_Wind);
           }
           break;
       case 3: // IMMUNE_TO_GAS
-          crstat->immune_to_gas = val4;
+          if (val4 >= 1)
+          {
+              set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+          }
+          else
+          {
+              clear_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+          }
           break;
       case 4: // HUMANOID_SKELETON
           crstat->humanoid_creature = val4;
@@ -593,6 +351,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               clear_flag(crconf->model_flags,CMF_IsSpecDigger);
           }
+          recalculate_all_creature_digger_lists();
+          update_creatr_model_activities_list(1);
           break;
       case 11: // ARACHNID
           if (val4 >= 1)
@@ -647,11 +407,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 16: // NEVER_CHICKENS
           if (val4 >= 1)
           {
-              set_flag(crconf->model_flags,CMF_NeverChickens);
+              set_flag(crstat->immunity_flags, CSAfF_Chicken);
           }
           else
           {
-              clear_flag(crconf->model_flags,CMF_NeverChickens);
+              clear_flag(crstat->immunity_flags, CSAfF_Chicken);
           }
           break;
       case 17: // IMMUNE_TO_BOULDER
@@ -739,11 +499,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 25: // NEVER_SICK
           if (val4 >= 1)
           {
-              set_flag(crconf->model_flags,CMF_NeverSick);
+              set_flag(crstat->immunity_flags, CSAfF_Disease);
           }
           else
           {
-              clear_flag(crconf->model_flags,CMF_NeverSick);
+              clear_flag(crstat->immunity_flags, CSAfF_Disease);
           }
           break;
       case 26: // ILLUMINATED
@@ -821,6 +581,18 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               clear_flag(crconf->model_flags, CMF_EventfulDeath);
           }
+          break;
+      case 35: // DIGGING_CREATURE
+          if (val4 >= 1)
+          {
+              set_flag(crconf->model_flags, CMF_IsDiggingCreature);
+          }
+          else
+          {
+              clear_flag(crconf->model_flags, CMF_IsDiggingCreature);
+          }
+          recalculate_all_creature_digger_lists();
+          update_creatr_model_activities_list(1);
           break;
       default:
           SCRPTERRLOG("Unknown creature property '%ld'", val3);

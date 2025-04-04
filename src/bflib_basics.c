@@ -28,7 +28,6 @@
 #include <SDL2/SDL.h>
 
 #include "bflib_datetm.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "post_inc.h"
 
@@ -137,19 +136,19 @@ short warning_dialog(const char *codefile,const int ecode,const char *message)
   LbWarnLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
 
   const SDL_MessageBoxButtonData buttons[] = {
-		{ .flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .buttonid = 1, .text = "Ignore" },
+        { .flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .buttonid = 1, .text = "Ignore" },
     { .flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, .buttonid = 0, .text = "Abort" },
-	};
+    };
 
-	const SDL_MessageBoxData messageboxdata = {
-		.flags = SDL_MESSAGEBOX_WARNING,
-		.window = NULL,
-		.title = PROGRAM_FULL_NAME,
-		.message = message,
-		.numbuttons = SDL_arraysize(buttons),
-		.buttons = buttons,
-		.colorScheme = NULL //colorScheme not supported on windows
-	};
+    const SDL_MessageBoxData messageboxdata = {
+        .flags = SDL_MESSAGEBOX_WARNING,
+        .window = NULL,
+        .title = PROGRAM_FULL_NAME,
+        .message = message,
+        .numbuttons = SDL_arraysize(buttons),
+        .buttons = buttons,
+        .colorScheme = NULL //colorScheme not supported on windows
+    };
 
   int button = 0;
   SDL_ShowMessageBox(&messageboxdata, &button);
@@ -501,10 +500,10 @@ int LbLogSetPrefix(struct TbLog *log, const char *prefix)
     return -1;
   if (prefix)
   {
-    LbStringCopy(log->prefix, prefix, LOG_PREFIX_LEN);
+    snprintf(log->prefix, LOG_PREFIX_LEN, "%s", prefix);
   } else
   {
-    LbMemorySet(log->prefix, 0, LOG_PREFIX_LEN);
+    memset(log->prefix, 0, LOG_PREFIX_LEN);
   }
   return 1;
 }
@@ -521,7 +520,7 @@ int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...)
       va_end(val);
   } else
   {
-    LbMemorySet(log->prefix, 0, LOG_PREFIX_LEN);
+    memset(log->prefix, 0, LOG_PREFIX_LEN);
   }
   return 1;
 }
@@ -529,14 +528,15 @@ int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...)
 int LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
 {
   log->Initialised = false;
-  LbMemorySet(log->filename, 0, DISKPATH_SIZE);
-  LbMemorySet(log->prefix, 0, LOG_PREFIX_LEN);
+  memset(log->filename, 0, DISKPATH_SIZE);
+  memset(log->prefix, 0, LOG_PREFIX_LEN);
   log->Initialised=false;
   log->Created=false;
   log->Suspended=false;
-  if (LbStringLength(filename)>DISKPATH_SIZE)
+  if (filename == NULL || strlen(filename) > DISKPATH_SIZE) {
     return -1;
-  LbStringCopy(log->filename, filename, DISKPATH_SIZE);
+  }
+  snprintf(log->filename, DISKPATH_SIZE, "%s", filename);
   log->flags = flags;
   log->Initialised = true;
   log->position = 0;
@@ -547,8 +547,8 @@ int LbLogClose(struct TbLog *log)
 {
   if ( !log->Initialised )
     return -1;
-  LbMemorySet(log->filename, 0, DISKPATH_SIZE);
-  LbMemorySet(log->prefix, 0, LOG_PREFIX_LEN);
+  memset(log->filename, 0, DISKPATH_SIZE);
+  memset(log->prefix, 0, LOG_PREFIX_LEN);
   log->flags = 0;
   log->Initialised = false;
   log->Created = false;

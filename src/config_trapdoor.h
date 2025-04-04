@@ -73,7 +73,7 @@ struct TrapConfigStats {
     unsigned char manufct_level;
     unsigned long manufct_required;
     int shots;
-    int shots_delay;
+    GameTurnDelta shots_delay;
     unsigned short initial_delay; // Trap is placed on reload phase, value in game turns.
     unsigned char trigger_type;
     unsigned char activation_type;
@@ -101,6 +101,7 @@ struct TrapConfigStats {
     unsigned char unanimated;
     unsigned char unshaded;
     unsigned char random_start_frame;
+    unsigned char flag_number;
     short light_radius; // Creates light if not null.
     unsigned char light_intensity;
     unsigned char light_flag;
@@ -142,7 +143,8 @@ struct TrapDoorConfig {
 extern const char keeper_trapdoor_file[];
 extern struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 extern struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
-extern const struct NamedCommand trapdoor_door_commands[];
+extern const struct NamedFieldSet trapdoor_door_named_fields_set;
+extern const struct NamedFieldSet trapdoor_trap_named_fields_set;
 /******************************************************************************/
 TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
 

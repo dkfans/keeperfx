@@ -62,7 +62,7 @@ short at_research_room(struct Thing *thing)
         if (!is_neutral_thing(thing) && (dungeon->current_research_idx < 0))
         {
             if (is_my_player_number(dungeon->owner))
-                output_message(SMsg_NoMoreReseach, 500, true);
+                output_message(SMsg_NoMoreReseach, 500);
         }
         set_start_state(thing);
         return 0;
@@ -244,7 +244,7 @@ short researching(struct Thing *thing)
         if (!is_neutral_thing(thing) && (dungeon->current_research_idx < 0))
         {
             if (is_my_player_number(dungeon->owner))
-                output_message(SMsg_NoMoreReseach, 500, true);
+                output_message(SMsg_NoMoreReseach, 500);
         }
         remove_creature_from_work_room(thing);
         set_start_state(thing);
@@ -261,7 +261,7 @@ short researching(struct Thing *thing)
 
     if (room->used_capacity > room->total_capacity)
     {
-        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
+        output_room_message(room->owner, room->kind, OMsg_RoomTooSmall);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrStRet_ResetOk;
@@ -311,11 +311,11 @@ short researching(struct Thing *thing)
     thing->continue_state = get_continue_state_for_job(Job_RESEARCH);
     cctrl->turns_at_job = 0;
     cctrl->research.job_stage = 3;
-    if (cctrl->explevel < 3)
+    if (cctrl->exp_level < 3)
     {
         create_effect(&thing->mappos, TngEff_RoomSparkeSmall, thing->owner);
     } else
-    if (cctrl->explevel < 6)
+    if (cctrl->exp_level < 6)
     {
         create_effect(&thing->mappos, TngEff_RoomSparkeMedium, thing->owner);
     } else

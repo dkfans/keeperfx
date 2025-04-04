@@ -20,7 +20,7 @@
 #include "front_easter.h"
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "bflib_sndlib.h"
 #include "bflib_keybrd.h"
 #include "bflib_math.h"
 #include "bflib_sprfnt.h"
@@ -67,6 +67,9 @@ struct KeycodeString eastegg_jlw_codes = {
 };
 struct KeycodeString eastegg_skeksis_codes = {
     {KC_S,KC_K,KC_E,KC_K,KC_S,KC_I,KC_S,KC_UNASSIGNED}, 7,
+};
+struct KeycodeString eastegg_bbking_codes = {
+    {KC_B,KC_B,KC_K,KC_I,KC_N,KC_G,KC_UNASSIGNED}, 6,
 };
 /******************************************************************************/
 static unsigned char eastegg_skeksis_cntr;
@@ -145,21 +148,36 @@ void input_eastegg(void)
     // Maintain the FECKOFF cheat
     short allow = (lbKeyOn[KC_LSHIFT] != 0);
     unsigned short state = input_eastegg_keycodes(&game.eastegg01_cntr, allow, &eastegg_feckoff_codes);
-    if ((state == 2) || (state == 3))
+    if ((state == 2) || (state == 3)) {
       play_non_3d_sample(60);
+    }
     // Maintain the JLW cheat
     if ((game.flags_font & FFlg_AlexCheat) != 0)
     {
       allow = (lbKeyOn[KC_LSHIFT]) && (lbKeyOn[KC_RSHIFT]);
       state = input_eastegg_keycodes(&game.eastegg02_cntr,allow,&eastegg_jlw_codes);
-      if ((state == 1) || (state == 2)  || (state == 3))
+      if ((state == 1) || (state == 2) || (state == 3)) {
         play_non_3d_sample(159);
+      }
+    }
+    // Maintain the BBKING cheat
+    if ((game.flags_font & FFlg_AlexCheat) != 0)
+    {
+      allow = lbKeyOn[KC_RSHIFT];
+      static unsigned char length = 0;
+      state = input_eastegg_keycodes(&length, allow, &eastegg_bbking_codes);
+      if (length == eastegg_bbking_codes.length) {
+        play_non_3d_sample(159);
+        toggle_bbking_mode();
+        length = 0; // prevent re-trigger
+      }
     }
     // Maintain the SKEKSIS cheat
     allow = (lbKeyOn[KC_LSHIFT] != 0);
     state = input_eastegg_keycodes(&eastegg_skeksis_cntr,allow,&eastegg_skeksis_codes);
-    if (state == 3)
-      output_message(SMsg_PantsTooTight, 0, true);
+    if (state == 3) {
+      output_message(SMsg_PantsTooTight, 0);
+    }
 }
 
 /**

@@ -50,7 +50,7 @@
 #include "gui_parchment.h"
 #include "gui_draw.h"
 #include "packets.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "player_computer.h"
 #include "player_instances.h"
 #include "config_players.h"
@@ -321,9 +321,9 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
     struct PlayerInfo* player = get_my_player();
     struct Computer2* comp = get_computer_player(player->id_number);
     unsigned long cplr_model = comp->model;
-    //TODO COMPUTER_PLAYER change limit to comp_player_conf.computers_count when the array is inside computer player config
-    if (cplr_model < COMPUTER_MODELS_COUNT) {
-        gbtn->tooltip_stridx = computer_types_tooltip_stridx[cplr_model];
+    if (cplr_model < comp_player_conf.computers_count) {
+        struct ComputerTypes* cpt = get_computer_type_template(cplr_model);
+        gbtn->tooltip_stridx = cpt->tooltip_stridx;
     } else {
         ERRORLOG("Illegal computer player model %d",(int)cplr_model);
     }
@@ -1023,8 +1023,15 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
         amount = 0;
         break;
     }
-    // Note that "@" is "x" in that font
-    sprintf(gui_textbuf, "@%ld", (long)amount);
+    if (dbc_enabled && dbc_initialized)
+    {
+        sprintf(gui_textbuf, "x%ld", (long)amount);
+    }
+    else
+    {
+        // Note that "@" is "×" in that font
+        sprintf(gui_textbuf, "@%ld", (long)amount);
+    }
     if (amount <= 0) {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
     } else
@@ -1627,9 +1634,9 @@ void gui_area_experience_button(struct GuiButton *gbtn)
         struct CreatureStats* crstat = creature_stats_get_from_thing(ctrltng);
         struct CreatureControl* cctrl = creature_control_get_from_thing(ctrltng);
         long points_progress = cctrl->exp_points;
-        long points_required = (crstat->to_level[cctrl->explevel] << 8);
+        long points_required = (crstat->to_level[cctrl->exp_level] << 8);
         gui_area_progress_bar_med2(gbtn, units_per_px, points_progress, points_required);
-        char* text = buf_sprintf("%d", (int)(cctrl->explevel + 1));
+        char* text = buf_sprintf("%d", (int)(cctrl->exp_level + 1));
         draw_button_string(gbtn, 56, text);
     } else
     if (thing_is_dead_creature(ctrltng))
@@ -1694,9 +1701,11 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     const char* text = buf_sprintf("%d", (curbtn_avail_pos + 1) % 10);
     LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
     spr_idx = gbtn->sprite_idx;
-
-    if ( (!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || ( (thing_affected_by_spell(ctrltng, SplK_Freeze)) && (!inst_inf->instant ) ) )
-      spr_idx++;
+    // Show disabled icon if instance is on cooldown or creature is frozen.
+    if ((!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || (creature_under_spell_effect(ctrltng, CSAfF_Freeze) && (!inst_inf->instant)))
+    {
+        spr_idx++;
+    }
     if (MyScreenHeight < 400)
     {
         const struct TbSprite* spr = get_panel_sprite(GPS_plyrsym_symbol_player_red_std_b);
@@ -1759,29 +1768,29 @@ void gui_activity_background(struct GuiMenu *gmnu)
         activity_list[4*i+0] = 0;
         activity_list[4*i+1] = 0;
         activity_list[4*i+2] = 0;
-        for (int n = 0; n < 15; n++)
+        for (int n = 0; n < STATE_TYPES_COUNT; n++)
         {
-            int job_idx = state_type_to_gui_state[n];
-            switch (job_idx)
+            int gui_state_idx = state_type_to_gui_state[n];
+            switch (gui_state_idx)
             {
-            case 0:
-                activity_list[4*i+0] += dungeon->field_64[crmodel][n];
+            case CrGUIJob_Wandering:
+                activity_list[4*i+0] += dungeon->crmodel_state_type_count[crmodel][n];
                 break;
-            case 1:
-                activity_list[4*i+1] += dungeon->field_64[crmodel][n];
+            case CrGUIJob_Working:
+                activity_list[4*i+1] += dungeon->crmodel_state_type_count[crmodel][n];
                 break;
-            case 2:
-                activity_list[4*i+2] += dungeon->field_64[crmodel][n];
+            case CrGUIJob_Fighting:
+                activity_list[4*i+2] += dungeon->crmodel_state_type_count[crmodel][n];
                 break;
             default:
-                ERRORLOG("Outranged GUI state value %d",(int)job_idx);
+                ERRORLOG("Outranged GUI state value %d",(int)gui_state_idx);
                 break;
             }
         }
     }
-    int mm_units_per_px = (gmnu->width * 16 + 140 / 2) / 140;
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    LbDrawBox(gmnu->pos_x + scale_value_for_resolution_with_upp(2, mm_units_per_px), gmnu->pos_y + scale_value_for_resolution_with_upp(218, mm_units_per_px), scale_value_for_resolution_with_upp(134, mm_units_per_px), scale_value_for_resolution_with_upp(24, mm_units_per_px), colours[0][0][0]);
+    LbDrawBox(gmnu->pos_x + scale_ui_value(2),gmnu->pos_y + scale_ui_value(218),scale_ui_value(134),scale_ui_value(24),colours[0][0][0]);
+
     lbDisplay.DrawFlags = flg_mem;
 }
 
@@ -2149,6 +2158,13 @@ void maintain_creature_button(struct GuiButton* gbtn)
         gbtn->flags &= ~LbBtnF_Enabled;
         gbtn->tooltip_stridx = GUIStr_Empty;
     }
+}
+
+void maintain_compsetting_button(struct GuiButton* gbtn)
+{
+    struct ComputerTypes* cpt = get_computer_type_template(comp_player_conf.computer_assist_types[gbtn->btype_value]);
+    gbtn->tooltip_stridx = cpt->tooltip_stridx;
+    gbtn->sprite_idx = cpt->sprite_idx;
 }
 
 void pick_up_next_wanderer(struct GuiButton *gbtn)

@@ -1,14 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file music_player.h
- *     Header file for music_player.c.
- * @par Purpose:
- *     ogg music player.
+/** @file highscores.h
+ *     Header file for highscores.c.
  * @par Comment:
- *     Uses SDL_mixer
- * @author   Lukas Niemeier
- * @date     20 Feb 2014
+ *     Just a header file - #defines, typedefs, function prototypes etc.
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,35 +12,23 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_MUSICPLAYER_H
-#define DK_MUSICPLAYER_H
 
-#include "globals.h"
+#ifndef HIGHSCORES_H
+#define HIGHSCORES_H
+
 #include "bflib_basics.h"
-#include <SDL2/SDL_mixer.h>
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define FIRST_TRACK 2
-#define MUSIC_TRACKS_COUNT 126
-extern Mix_Music* tracks[];
-extern int max_track;
-
-TbBool IsRedbookMusicActive(void);
-int InitializeMusicPlayer(void);
-void ShutdownMusicPlayer(void);
-void PlayMusicPlayer(int track);
-void PauseMusicPlayer(void);
-void ResumeMusicPlayer(void);
-void StopMusicPlayer(void);
-void SetMusicPlayerVolume(int volume);
-void free_custom_music();
-void music_reinit_after_load();
+/******************************************************************************/
+void load_or_create_high_score_table(void);
+TbBool save_high_score_table(void);
+int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *name);
+unsigned long get_level_highest_score(LevelNumber lvnum);
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif

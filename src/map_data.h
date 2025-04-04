@@ -50,6 +50,7 @@ struct Map {
 #define MOVE_VELOCITY_LIMIT 256
 #define STL_PER_SLB 3
 #define COORD_PER_STL 256
+#define COORD_PER_SLB (COORD_PER_STL*STL_PER_SLB)
 #define FILLED_COLUMN_HEIGHT 1280
 #define DEFAULT_MAP_SIZE 85
 
@@ -67,9 +68,14 @@ extern long nav_map_initialised;
 /** Converts slab to its central subtile. */
 #define slab_subtile_center(slb) ((MapSubtlCoord)(slb)*STL_PER_SLB+(MapSubtlCoord)1)
 /******************************************************************************/
+/** Converts coord value to number of subtiles. */
 #define coord_subtile(coord) ((coord)/COORD_PER_STL)
-#define coord_slab(coord) ((coord)/(COORD_PER_STL*STL_PER_SLB))
+/** Converts coord value to number of slabs. */
+#define coord_slab(coord) ((coord)/(COORD_PER_SLB))
+/** Converts subtile to coord value. */
 #define subtile_coord(stl,spos) ((stl)*COORD_PER_STL+(spos))
+/** Converts slab to coord value. */
+#define slab_coord(slb) ((slb) * (COORD_PER_SLB))
 #define subtile_coord_center(stl) ((stl)*COORD_PER_STL+COORD_PER_STL/2)
 #define navmap_tile_number(stl_x,stl_y) ((stl_y)*gameadd.navigation_map_size_x+(stl_x))
 /******************************************************************************/
@@ -136,6 +142,8 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
 void clear_dig_for_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void clear_slab_dig(long a1, long a2, char a3);
 
+void player_reveal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h);
+void player_conceal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h, TbBool all);
 void reveal_map_rect(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all);

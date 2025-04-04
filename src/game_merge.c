@@ -21,8 +21,8 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "game_legacy.h"
+#include "moonphase.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus

@@ -33,7 +33,7 @@
 #include "config_effects.h"
 #include "map_utils.h"
 #include "map_blocks.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "keeperfx.hpp"
 #include "gui_frontmenu.h"
 #include "frontend.h"
@@ -324,8 +324,8 @@ TbBool packets_process_cheats(
             player->thing_under_hand = thing->index;
             if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
             {
-                unsigned short splevel = get_power_overcharge_level(player);
-                magic_use_power_direct(plyr_idx,pwkind,splevel,stl_x,stl_y,thing,PwMod_CastForFree);
+                KeepPwrLevel power_level = get_power_overcharge_level(player);
+                magic_use_power_direct(plyr_idx,pwkind,power_level,stl_x,stl_y,thing,PwMod_CastForFree);
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
@@ -505,7 +505,7 @@ TbBool packets_process_cheats(
                             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
                             if (!creature_control_invalid(cctrl))
                             {
-                                set_creature_level(thing, cctrl->explevel-1);
+                                set_creature_level(thing, cctrl->exp_level-1);
                             }
                             break;
                         }
@@ -646,14 +646,14 @@ TbBool packets_process_cheats(
             tag_cursor_blocks_place_terrain(plyr_idx, stl_x, stl_y);
             struct SlabConfigStats* slab_cfgstats;
             clear_messages_from_player(MsgType_Player, player->cheatselection.chosen_player);
-            struct SlabAttr *slbattr = get_slab_kind_attrs(player->cheatselection.chosen_terrain_kind);
+            struct SlabConfigStats *slabst = get_slab_kind_stats(player->cheatselection.chosen_terrain_kind);
             if (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind))
             {
                 player->cheatselection.chosen_player = game.neutral_player_num;
             }
-            if (slbattr->tooltip_stridx <= GUI_STRINGS_COUNT)
+            if (slabst->tooltip_stridx <= GUI_STRINGS_COUNT)
             {
-                const char* msg = get_string(slbattr->tooltip_stridx);
+                const char* msg = get_string(slabst->tooltip_stridx);
                 strcpy(str, msg);
                 char* dis_msg = strtok(str, ":");
                 if (dis_msg == NULL)

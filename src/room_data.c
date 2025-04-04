@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
-#include "bflib_memory.h"
 #include "config_creature.h"
 #include "power_specials.h"
 #include "room_garden.h"
@@ -49,7 +48,7 @@
 #include "creature_states.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "room_util.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
@@ -359,7 +358,7 @@ void init_reposition_struct(struct RoomReposition * rrepos)
     for (long i = 0; i < ROOM_REPOSITION_COUNT; i++)
     {
         rrepos->models[i] = 0;
-        rrepos->explevels[i] = 0;
+        rrepos->exp_level[i] = 0;
     }
 }
 
@@ -390,7 +389,7 @@ TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmode
     return true;
 }
 
-TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel explevel)
+TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel exp_level)
 {
     rrepos->used++;
     if (rrepos->used > ROOM_REPOSITION_COUNT)
@@ -403,7 +402,7 @@ TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingMode
     {
         if (rrepos->models[ri] == 0) {
             rrepos->models[ri] = tngmodel;
-            rrepos->explevels[ri] = explevel;
+            rrepos->exp_level[ri] = exp_level;
             break;
         }
     }
@@ -550,7 +549,7 @@ void delete_room_structure(struct Room *room)
                   secroom->next_of_owner = room->next_of_owner;
           }
       }
-      LbMemorySet(room, 0, sizeof(struct Room));
+      memset(room, 0, sizeof(struct Room));
     }
 }
 
@@ -638,7 +637,7 @@ void update_room_total_capacity(struct Room *room)
 {
     SYNCDBG(7, "Starting for %s index %d owned by player %d", room_code_name(room->kind), (int)room->index, (int)room->owner);
     const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    Room_Update_Func cb = roomst->update_total_capacity;
+    Room_Update_Func cb = terrain_room_total_capacity_func_list[roomst->update_total_capacity_idx];
     if (cb != NULL) {
         cb(room);
     }
@@ -857,7 +856,7 @@ void add_slab_to_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabC
  * @param room
  * @param slb_num
  */
-void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num)
+TbBool add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num)
 {
     if (room->slabs_list == 0) {
         room->slabs_list = slb_num;
@@ -866,6 +865,7 @@ void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num
         pvslb->next_in_room = slb_num;
     }
     SlabCodedCoords tail_slb_num = slb_num;
+    unsigned short k = 0;
     while (1)
     {
         struct SlabMap* nxslb = get_slabmap_direct(tail_slb_num);
@@ -875,8 +875,16 @@ void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num
             break;
         }
         tail_slb_num = nxslb->next_in_room;
+        // Per room tile code ends
+        k++;
+        if (k > (MAX_TILES_X * MAX_TILES_Y))
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping Room (%d) '%s' at stl (%ld,%ld)",room->index,room_code_name(room->kind),room->central_stl_x,room->central_stl_y);
+            return false;
+        }
     }
     room->slabs_list_tail = tail_slb_num;
+    return true;
 }
 
 void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -902,7 +910,7 @@ void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, Map
         return;
     }
     // If the slab to remove is not first, we have to sweep the list
-    unsigned long k = 0;
+    unsigned short k = 0;
     long i = room->slabs_list;
     while (i > 0)
     {
@@ -1028,7 +1036,7 @@ struct Room *allocate_free_room_structure(void)
         struct Room* room = &game.rooms[i];
         if ((room->alloc_flags & 0x01) == 0)
         {
-            LbMemorySet(room, 0, sizeof(struct Room));
+            memset(room, 0, sizeof(struct Room));
             room->alloc_flags |= 0x01;
             room->index = i;
             return room;
@@ -1298,11 +1306,11 @@ TbBool update_room_contents(struct Room *room)
 {
     const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     SYNCDBG(17,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
-    Room_Update_Func cb = roomst->update_storage_in_room;
+    Room_Update_Func cb = terrain_room_used_capacity_func_list[roomst->update_storage_in_room_idx];
     if (cb != NULL) {
         cb(room);
     }
-    cb = roomst->update_workers_in_room;
+    cb = terrain_room_used_capacity_func_list[roomst->update_workers_in_room_idx];
     if (cb != NULL) {
         cb(room);
     }
@@ -1323,7 +1331,7 @@ struct Room* link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
     struct Room* room;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    long n;
+    short n;
     // Central slab coords - we will need it if we'll find adjacent room
     MapSlabCoord central_slb_x = subtile_slab(x);
     MapSlabCoord central_slb_y = subtile_slab(y);
@@ -1362,7 +1370,10 @@ struct Room* link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
             {
                 if (room != linkroom)
                 {
-                    add_slab_list_to_room_tiles_list(linkroom, room->slabs_list);
+                    if (!add_slab_list_to_room_tiles_list(linkroom, room->slabs_list))
+                    {
+                        return INVALID_ROOM;
+                    }
                     // Update slabs in the new list
                     recount_and_reassociate_room_slabs(linkroom);
                     update_room_total_capacity(linkroom);
@@ -1639,8 +1650,8 @@ TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Ro
             // In case we will select a column on that subtile, do 3 tries
             for (int k = 0; k < 3; k++)
             {
-                pos->x.val = subtile_coord(slab_subtile(slb_x,0),CREATURE_RANDOM(thing, STL_PER_SLB*COORD_PER_STL));
-                pos->y.val = subtile_coord(slab_subtile(slb_y,0),CREATURE_RANDOM(thing, STL_PER_SLB*COORD_PER_STL));
+                pos->x.val = subtile_coord(slab_subtile(slb_x,0),CREATURE_RANDOM(thing, COORD_PER_SLB));
+                pos->y.val = subtile_coord(slab_subtile(slb_y,0),CREATURE_RANDOM(thing, COORD_PER_SLB));
                 pos->z.val = subtile_coord(1,0);
                 struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
                 if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
@@ -3889,19 +3900,19 @@ void output_room_takeover_message(struct Room *room, PlayerNumber oldowner, Play
     if (room->kind == RoK_ENTRANCE)
     {
         if (is_my_player_number(oldowner)) {
-            output_message(SMsg_EntranceLost, 0, 1);
+            output_message(SMsg_EntranceLost, 0);
         } else
         if (is_my_player_number(newowner))
         {
-            output_message(SMsg_EntranceClaimed, 0, 1);
+            output_message(SMsg_EntranceClaimed, 0);
         }
     } else
     if (is_my_player_number(newowner))
     {
         if (oldowner == game.neutral_player_num) {
-            output_message(SMsg_NewRoomTakenOver, 0, 1);
+            output_message(SMsg_NewRoomTakenOver, 0);
         } else {
-            output_message(SMsg_EnemyRoomTakeOver, 0, 1);
+            output_message(SMsg_EnemyRoomTakeOver, 0);
         }
     }
 }

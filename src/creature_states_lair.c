@@ -263,7 +263,7 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     lairtng->lair.belongs_to = creatng->index;
     lairtng->lair.cssize = 1;
     // Lair size depends on creature level
-    lairtng->lair.spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+    lairtng->lair.spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
     lairtng->move_angle_xy = CREATURE_RANDOM(creatng, 2*LbFPMath_PI);
     struct ObjectConfigStats* objst = get_object_model_stats(lairtng->model);
     unsigned long i = convert_td_iso(objst->sprite_anim_idx);
@@ -512,42 +512,48 @@ long room_has_slab_adjacent(const struct Room *room, long slbkind)
 
 short creature_sleep(struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (creature_affected_by_slap(thing) || !creature_will_sleep(thing)) {
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if (creature_affected_by_slap(thing) || !creature_will_sleep(thing))
+    {
         set_start_state(thing);
         return 0;
     }
-    struct Room* room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room) || (!room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_SLEEP)))
-        || (cctrl->lair_room_id != room->index) || (room->owner != thing->owner)) {
+    struct Room *room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room)
+    || (!room_role_matches(room->kind, get_room_role_for_job(Job_TAKE_SLEEP)))
+    || (cctrl->lair_room_id != room->index)
+    || (room->owner != thing->owner))
+    {
         set_start_state(thing);
         return 0;
     }
     thing->movement_flags &= ~0x0020;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     // Recovery is disabled if frequency is set to 0 on rules.cfg.
     if (game.conf.rules.creature.recovery_frequency > 0)
     {
         if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
         {
-            HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
+            HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->exp_level);
             apply_health_to_thing_and_display_health(thing, recover);
         }
     }
     anger_set_creature_anger(thing, 0, AngR_NoLair);
     anger_apply_anger_to_creature(thing, crstat->annoy_sleeping, AngR_Other, 1);
-    if (cctrl->turns_at_job > 0) {
+    if (cctrl->turns_at_job > 0)
+    {
         cctrl->turns_at_job--;
     }
     if (((game.play_gameturn + thing->index) & 0x3F) == 0)
     {
-        if (CREATURE_RANDOM(thing, 100) < 5) {
-            struct Dungeon* dungeon = get_dungeon(thing->owner);
+        if (CREATURE_RANDOM(thing, 100) < 5)
+        {
+            struct Dungeon *dungeon = get_dungeon(thing->owner);
             dungeon->lvstats.backs_stabbed++;
         }
     }
     if (crstat->sleep_exp_slab != SlbT_ROCK)
-    {
+    { // To think about: Should SlbT_ROCK be ignored? Settings the experience gain to 0 is enough to disable the feature.
         if (creature_can_gain_experience(thing) && room_has_slab_adjacent(room, crstat->sleep_exp_slab))
         {
             cctrl->exp_points += crstat->sleep_experience;

@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "engine_lenses.h"
@@ -116,19 +115,23 @@ short update_animating_texture_maps(void)
   return result;
 }
 
-static TbBool load_one_file(unsigned long tmapidx,char letter, void *dst)
+static TbBool load_one_file(unsigned long tmapidx,char letter, void *dst, LevelNumber lvnum, short fgroup)
 {
     SYNCDBG(9,"Starting");
 
-    char* fname = prepare_file_fmtpath(FGrp_CmpgConfig, "tmap%c%03d.dat",letter, tmapidx);
+    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.tmap%c%03d.dat",(unsigned long)lvnum, letter, tmapidx);
     if (!LbFileExists(fname))
     {
-        fname = prepare_file_fmtpath(FGrp_StdData, "tmap%c%03d.dat",letter, tmapidx);
+        fname = prepare_file_fmtpath(FGrp_CmpgConfig, "tmap%c%03d.dat", letter, tmapidx);
+    }
+    if (!LbFileExists(fname))
+    {
+        fname = prepare_file_fmtpath(FGrp_StdData, "tmap%c%03d.dat", letter, tmapidx);
     }
 
     if (!LbFileExists(fname))
     {
-        WARNMSG("Texture file \"%s\" doesn't exist.",fname);
+        SYNCDBG(10, "Texture file \"%s\" doesn't exist.",fname);
         return false;
     }
     
@@ -137,28 +140,29 @@ static TbBool load_one_file(unsigned long tmapidx,char letter, void *dst)
         WARNMSG("Texture file \"%s\" can't be loaded or is too small.",fname);
         return false;
     }
+    SYNCDBG(6, "Texture file \"%s\" succesfully loaded.", fname);
     return true;
 }
 
-TbBool load_texture_map_file(unsigned long tmapidx)
+TbBool load_texture_map_file(unsigned long tmapidx, LevelNumber lvnum, short fgroup)
 {
     SYNCDBG(7,"Starting");
     memset(block_mem, 130, sizeof(block_mem));
-    if (!load_one_file(tmapidx,'a', block_mem))
+    if (!load_one_file(tmapidx,'a', block_mem,lvnum,fgroup))
     {
         return false;
     }
     unsigned char *dst = block_mem + (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32);    
-    load_one_file(tmapidx,'b', dst);
+    load_one_file(tmapidx,'b', dst, lvnum, fgroup);
     dst += (TEXTURE_BLOCKS_STAT_COUNT_B * 32 * 32);
 
     for (int i = 0; i < TEXTURE_VARIATIONS_COUNT-1; i++)
     
     {
-        load_one_file(i,'a', dst);
+        load_one_file(i,'a', dst, lvnum, fgroup);
         
         dst += (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32);
-        load_one_file(i,'b', dst);
+        load_one_file(i,'b', dst, lvnum, fgroup);
         dst += (TEXTURE_BLOCKS_STAT_COUNT_B * 32 * 32);
         
     }

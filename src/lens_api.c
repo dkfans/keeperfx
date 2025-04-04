@@ -22,7 +22,6 @@
 #include <math.h>
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -31,6 +30,7 @@
 #include "lens_flyeye.h"
 #include "vidmode.h"
 #include "game_legacy.h"
+#include "config_keeperfx.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -176,12 +176,12 @@ void reset_eye_lenses(void)
     clear_lens_palette();
     if (eye_lens_memory != NULL)
     {
-        LbMemoryFree(eye_lens_memory);
+        free(eye_lens_memory);
         eye_lens_memory = NULL;
     }
     if (eye_lens_spare_screen_memory != NULL)
     {
-        LbMemoryFree(eye_lens_spare_screen_memory);
+        free(eye_lens_spare_screen_memory);
         eye_lens_spare_screen_memory = NULL;
     }
     clear_flag(game.flags_cd, MFlg_EyeLensReady);
@@ -208,8 +208,8 @@ void initialise_eye_lenses(void)
   eye_lens_width = lbDisplay.GraphicsScreenWidth;
   unsigned long screen_size = eye_lens_width * eye_lens_height + 2;
   if (screen_size < 256*256) screen_size = 256*256 + 2;
-  eye_lens_memory = (unsigned long *)LbMemoryAlloc(screen_size*sizeof(unsigned long));
-  eye_lens_spare_screen_memory = (unsigned char *)LbMemoryAlloc(screen_size*sizeof(TbPixel));
+  eye_lens_memory = (unsigned long *)calloc(screen_size, sizeof(unsigned long));
+  eye_lens_spare_screen_memory = (unsigned char *)calloc(screen_size, sizeof(TbPixel));
   if ((eye_lens_memory == NULL) || (eye_lens_spare_screen_memory == NULL))
   {
     reset_eye_lenses();
@@ -313,7 +313,7 @@ void draw_copy(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long
     unsigned char* src = srcbuf;
     for (long i = 0; i < height; i++)
     {
-        LbMemoryCopy(dst,src,width*sizeof(TbPixel));
+        memcpy(dst,src,width*sizeof(TbPixel));
         dst += dstpitch;
         src += srcpitch;
     }

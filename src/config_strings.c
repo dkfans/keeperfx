@@ -21,12 +21,11 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_guibtns.h"
 
-#include "config.h"
+#include "config_keeperfx.h"
 #include "config_campaigns.h"
 #include "game_merge.h"
 #include "lvl_filesdk1.h"
@@ -45,7 +44,7 @@ TbBool reset_strings(char **strings, int max)
     int text_idx = max;
     while (text_idx >= 0)
     {
-        *text_arr = lbEmptyString;
+        *text_arr = "";
         text_arr++;
         text_idx--;
   }
@@ -91,7 +90,7 @@ TbBool setup_gui_strings_data(void)
     SYNCLOG("Strings file name is \"%s\"",fname);
     return false;
   }
-  gui_strings_data = (char *)LbMemoryAlloc(filelen + 256);
+  gui_strings_data = (char *)calloc(filelen + 256, 1);
   if (gui_strings_data == NULL)
   {
     ERRORLOG("Can't allocate memory for GUI Strings data");
@@ -118,7 +117,7 @@ TbBool free_gui_strings_data(void)
   // Resetting all values to empty strings
   reset_strings(gui_strings, GUI_STRINGS_COUNT-1);
   // Freeing memory
-  LbMemoryFree(gui_strings_data);
+  free(gui_strings_data);
   gui_strings_data = NULL;
   return true;
 }
@@ -136,7 +135,7 @@ TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
     ERRORLOG("Campaign Strings file %s does not exist or can't be opened", campgn->strings_fname);
     return false;
   }
-  campgn->strings_data = (char *)LbMemoryAlloc(filelen + 256);
+  campgn->strings_data = (char *)calloc(filelen + 256, 1);
   if (campgn->strings_data == NULL)
   {
     ERRORLOG("Can't allocate memory for Campaign Strings data");
