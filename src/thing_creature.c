@@ -886,7 +886,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     struct CreatureStats *crstat = creature_stats_get(thing->model);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct SpellConfig *spconf = get_spell_config(spell_idx);
-    const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
+    const struct PowerConfigStats *powerst = get_power_model_stats(spconf->linked_power);
     struct ComponentVector cvect;
     struct Coord3d pos;
     struct Thing *ntng;
@@ -1162,7 +1162,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         else
         {
-            healing_recovery = (thing->health + pwrdynst->strength[spell_level]);
+            healing_recovery = (thing->health + powerst->strength[spell_level]);
         }
         if (healing_recovery < 0)
         {
@@ -1368,19 +1368,19 @@ GameTurnDelta get_spell_full_duration(SpellKind spell_idx, CrtrExpLevel spell_le
 {
     // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
     struct SpellConfig *spconf = get_spell_config(spell_idx);
-    const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
+    const struct PowerConfigStats *powerst = get_power_model_stats(spconf->linked_power);
     GameTurnDelta duration;
     if (spconf->linked_power == 0)
     {
         duration = spconf->duration;
     }
-    else if (pwrdynst->duration == 0)
+    else if (powerst->duration == 0)
     {
-        duration = pwrdynst->strength[spell_level];
+        duration = powerst->strength[spell_level];
     }
     else
     {
-        duration = pwrdynst->duration;
+        duration = powerst->duration;
     }
     return duration;
 }
