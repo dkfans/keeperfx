@@ -78,8 +78,9 @@ enum CreatureControlFlags {
     CCFlg_Unknown08     = 0x08,
     CCFlg_Unknown10     = 0x10,
     CCFlg_IsInRoomList  = 0x20,
-    CCFlg_Unknown40     = 0x40,
-    CCFlg_Unknown80     = 0x80,
+    CCFlg_MoveX         = 0x40,
+    CCFlg_MoveY         = 0x80,
+    CCFlg_MoveZ         = 0x100,
 };
 
 /* The creature will not move if any of these flags are set. */
@@ -139,7 +140,7 @@ struct CastedSpellData {
 
 struct CreatureControl {
     CctrlIndex index;
-    unsigned char flgfield_1;
+    unsigned short flgfield_1;
     unsigned char flgfield_2;
     unsigned char combat_flags;
     unsigned char party_objective;
@@ -409,6 +410,7 @@ unsigned char sound_flag;
     SpellKind active_disease_spell;
     SpellKind active_teleport_spell;
     SpellKind active_timebomb_spell;
+    short vertical_speed;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields

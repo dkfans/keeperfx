@@ -5936,9 +5936,14 @@ msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
 msgstr "贪财之门: 这扇门可以通过消耗拥有者的黄金来保持不被摧毁。右键缩放。"
 
-#: guitext:1078 guitext:1079
-msgctxt "Unused"
-msgid "Moo9"
+#: guitext:1078
+msgctxt "Game controls"
+msgid "Ascend"
+msgstr ""
+
+#: guitext:1079
+msgctxt "Game controls"
+msgid "Descend"
 msgstr ""
 
 #: guitext:1080

@@ -5905,7 +5905,10 @@ TbBool update_controlled_creature_movement(struct Thing *thing)
         {
             cctrl->moveaccel.x.val = distance3d_with_angles_to_coord_x(cctrl->move_speed, thing->move_angle_xy, thing->move_angle_z);
             cctrl->moveaccel.y.val = distance3d_with_angles_to_coord_y(cctrl->move_speed, thing->move_angle_xy, thing->move_angle_z);
-            cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->move_angle_z);
+            if (cctrl->vertical_speed == 0)
+            {
+                cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->move_angle_z);
+            }
         }
         if (cctrl->orthogn_speed != 0)
         {
@@ -6428,13 +6431,17 @@ TngUpdateRet update_creature(struct Thing *thing)
     move_creature(thing);
     if (flag_is_set(thing->alloc_flags, TAlF_IsControlled))
     {
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_Unknown40))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveX))
         {
             cctrl->move_speed /= 2;
         }
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_Unknown80))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveY))
         {
             cctrl->orthogn_speed /= 2;
+        }
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveZ))
+        {
+            cctrl->vertical_speed /= 2;
         }
     }
     else
@@ -6503,7 +6510,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->moveaccel.y.val = 0;
     cctrl->moveaccel.z.val = 0;
     // Clear flags and process spell effects.
-    clear_flag(cctrl->flgfield_1, CCFlg_Unknown40 | CCFlg_Unknown80);
+    clear_flag(cctrl->flgfield_1, CCFlg_MoveX | CCFlg_MoveY | CCFlg_MoveZ);
     clear_flag(cctrl->spell_flags, CSAfF_PoisonCloud | CSAfF_Wind);
     process_thing_spell_effects(thing);
     process_timebomb(thing);

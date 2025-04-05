@@ -2502,14 +2502,21 @@ void get_creature_control_nonaction_inputs(void)
             right_button_clicked = 0;
             right_button_released = 0;
         }
-        if (is_game_key_pressed(Gkey_MoveLeft, NULL, true) || is_key_pressed(KC_LEFT, KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_MoveLeft, NULL, false) || is_key_pressed(KC_LEFT, KMod_NONE))
             set_packet_control(pckt, PCtr_MoveLeft);
-        if (is_game_key_pressed(Gkey_MoveRight, NULL, true) || is_key_pressed(KC_RIGHT, KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_MoveRight, NULL, false) || is_key_pressed(KC_RIGHT, KMod_NONE))
             set_packet_control(pckt, PCtr_MoveRight);
-        if (is_game_key_pressed(Gkey_MoveUp, NULL, true) || is_key_pressed(KC_UP, KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_MoveUp, NULL, false) || is_key_pressed(KC_UP, KMod_NONE))
             set_packet_control(pckt, PCtr_MoveUp);
-        if (is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_MoveDown, NULL, false) || is_key_pressed(KC_DOWN, KMod_NONE))
             set_packet_control(pckt, PCtr_MoveDown);
+        if (flag_is_set(thing->movement_flags, TMvF_Flying))
+        {
+            if (is_game_key_pressed(Gkey_Ascend, NULL, true))
+                set_packet_control(pckt, PCtr_Ascend);
+            if (is_game_key_pressed(Gkey_Descend, NULL, true))
+                set_packet_control(pckt, PCtr_Descend);
+        }
     }
     if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
