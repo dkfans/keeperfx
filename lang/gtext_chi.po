@@ -5773,7 +5773,7 @@ msgstr "时间法师"
 #: guitext:1044
 msgctxt "Creature name"
 msgid "Bird"
-msgstr ""
+msgstr "小鸟"
 
 #: guitext:1045
 msgctxt "Creature name"
@@ -5783,17 +5783,17 @@ msgstr "贵妇"
 #: guitext:1046
 msgctxt "Creature name"
 msgid "Spiderling"
-msgstr "蛛卵"
+msgstr "小蜘蛛"
 
 #: guitext:1047
 msgctxt "Creature name"
 msgid "Goblin"
-msgstr ""
+msgstr "哥布林"
 
 #: guitext:1048
 msgctxt "Creature name"
 msgid "Fallen Angel"
-msgstr ""
+msgstr "堕天使"
 
 #: guitext:1049
 msgctxt "Unused"
@@ -5939,19 +5939,19 @@ msgstr "贪财之门: 这扇门可以通过消耗拥有者的黄金来保持不�
 #: guitext:1078
 msgctxt "Game controls"
 msgid "Ascend"
-msgstr ""
+msgstr "上升"
 
 #: guitext:1079
 msgctxt "Game controls"
 msgid "Descend"
-msgstr ""
+msgstr "下降"
 
 #: guitext:1080
 msgctxt "Creature spell"
 msgid "Familiar: Summons a companion to guard and assist the creature."
-msgstr ""
+msgstr "魔宠：召唤一个伙伴，来保护和协助怪物。"
 
 #: guitext:1081
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
-msgstr ""
+msgstr "召唤术：在战斗中召唤出暂时存在的卫兵与怪物协同作战。"
