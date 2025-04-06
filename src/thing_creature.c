@@ -6431,11 +6431,11 @@ TngUpdateRet update_creature(struct Thing *thing)
     move_creature(thing);
     if (flag_is_set(thing->alloc_flags, TAlF_IsControlled))
     {
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveX))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveY))
         {
             cctrl->move_speed /= 2;
         }
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveY))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveX))
         {
             cctrl->orthogn_speed /= 2;
         }
