@@ -4700,6 +4700,9 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     }
     // Add the creature to new owner
     creatng->owner = nowner;
+    // Not a correct fix.
+    // We want to clear 'CrSt_LeavesBecauseOwnerLost' from 'continue_state' otherwise creatures refuse to attack when owner is changed after their original dungeon is destroyed.
+    creatng->continue_state = CrSt_Unused;
     set_first_creature(creatng);
     set_start_state(creatng);
     if (!is_neutral_thing(creatng))
