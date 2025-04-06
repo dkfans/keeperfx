@@ -57,6 +57,26 @@ static const struct NamedCommand door_properties_commands[] = {
     {NULL,                   0},
   };
 
+static const struct NamedCommand trap_trigger_type_commands[] = {
+    {"NONE",             TrpTrg_None},
+    {"LINE_OF_SIGHT_90", TrpTrg_LineOfSight90},
+    {"PRESSURE_SLAB",    TrpTrg_Pressure_Slab},
+    {"LINE_OF_SIGHT",    TrpTrg_LineOfSight},
+    {"PRESSURE_SUBTILE", TrpTrg_Pressure_Subtile},
+    {"ALWAYS",           TrpTrg_Always},
+};
+
+static const struct NamedCommand trap_activation_type_commands[] = {
+    {"NONE",                TrpAcT_None},
+    {"HEAD_FOR_TARGET_90",  TrpAcT_HeadforTarget90},
+    {"EFFECT_ON_TRAP",      TrpAcT_EffectonTrap},
+    {"SHOT_ON_TRAP",        TrpAcT_ShotonTrap},
+    {"SLAB_CHANGE",         TrpAcT_SlabChange},
+    {"CREATURE_SHOT",       TrpAcT_CreatureShot},
+    {"CREATURE_SPAWN",      TrpAcT_CreatureSpawn},
+    {"POWER",               TrpAcT_Power},
+};
+
 static void assign_update_trap_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     assign_default(named_field,value,named_fields_set,idx,src);
@@ -205,8 +225,8 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"SYMBOLSPRITES",          1, field(game.conf.trapdoor_conf.trap_cfgstats[0].medsym_sprite_idx),                0,   LONG_MIN,         ULONG_MAX, NULL,                        value_icon, assign_icon_update_trap_tab},
     {"POINTERSPRITES",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].pointer_sprite_idx),               0,   LONG_MIN,         ULONG_MAX, NULL,                        value_icon, assign_icon_update_trap_tab},
     {"PANELTABINDEX",          0, field(game.conf.trapdoor_conf.trap_cfgstats[0].panel_tab_idx),                    0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_update_trap_tab},
-    {"TRIGGERTYPE",            0, field(game.conf.trapdoor_conf.trap_cfgstats[0].trigger_type),                     0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
-    {"ACTIVATIONTYPE",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].activation_type),                  0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
+    {"TRIGGERTYPE",            0, field(game.conf.trapdoor_conf.trap_cfgstats[0].trigger_type),                     0,   LONG_MIN,         ULONG_MAX, trap_trigger_type_commands,value_default, assign_default},
+    {"ACTIVATIONTYPE",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].activation_type),                  0,   LONG_MIN,         ULONG_MAX, trap_activation_type_commands,value_default, assign_default},
     {"EFFECTTYPE",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].created_itm_model),                0,   LONG_MIN,         ULONG_MAX, NULL,            value_activationeffect, assign_default},
     {"ANIMATIONID",            0, field(game.conf.trapdoor_conf.trap_cfgstats[0].sprite_anim_idx),                  0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_refresh_trap_anim_anim_id},
     {"MODEL",                  0, field(game.conf.trapdoor_conf.trap_cfgstats[0].sprite_anim_idx),                  0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_refresh_trap_anim_anim_id}, // Backward compatibility.
