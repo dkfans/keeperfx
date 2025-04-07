@@ -94,9 +94,7 @@ long get_angle_sign(long angle_a, long angle_b)
  */
 long distance_with_angle_to_coord_x(long distance, long angle)
 {
-    // Interpret the lower 16 bits as signed
-    short signed_distance = (short)(distance & 0xFFFF);
-    long long val = (long long)signed_distance * LbSinL(angle);
+    long long val = (long long)distance * LbSinL(angle);
     return val >> 16;
 }
 
@@ -107,9 +105,7 @@ long distance_with_angle_to_coord_x(long distance, long angle)
  */
 long distance_with_angle_to_coord_y(long distance, long angle)
 {
-    // Correctly interpret lower 16 bits as signed
-    short signed_distance = (short)(distance & 0xFFFF);
-    long long val = (long long)signed_distance * LbCosL(angle);
+    long long val = (long long)distance * LbCosL(angle);
     return (-(val >> 8)) >> 8;
 }
 
