@@ -166,33 +166,6 @@ const struct NamedCommand magic_shot_commands[] = {
   {NULL,                     0},
   };
 
-const struct NamedCommand magic_power_commands[] = {
-  {"NAME",            1},
-  {"POWER",           2},
-  {"COST",            3},
-  {"DURATION",        4},
-  {"CASTABILITY",     5},
-  {"ARTIFACT",        6},
-  {"NAMETEXTID",      7},
-  {"TOOLTIPTEXTID",   8},
-  {"SYMBOLSPRITES",  10},
-  {"POINTERSPRITES", 11},
-  {"PANELTABINDEX",  12},
-  {"SOUNDSAMPLES",   13},
-  {"PROPERTIES",     14},
-  {"CASTEXPANDFUNC", 15},
-  {"PLAYERSTATE",    16},
-  {"PARENTPOWER",    17},
-  {"SOUNDPLAYED",    18},
-  {"COOLDOWN",       19},
-  {"SPELL",          20},
-  {"EFFECT",         21},
-  {"USEFUNCTION",    22},
-  {"CREATURETYPE",   23},
-  {"COSTFORMULA",    24},
-  {NULL,              0},
-  };
-
 const struct NamedCommand magic_special_commands[] = {
   {"NAME",             1},
   {"ARTIFACT",         2},
@@ -350,6 +323,24 @@ static void assign_strength_before_last(const struct NamedField* named_field, in
     named_field++;
     assign_default(named_field,value,named_fields_set,idx,src);
 }
+
+/*
+    TODO: these 2 special cases
+        case 2: // Power
+        case 3: // Cost
+        {
+            value->bytes[3] = atoi(scline->tp[3]) - 1; //-1 because we want slot 1 to 9, not 0 to 8
+            value->longs[2] = atoi(new_value);
+            break;
+        }
+        //process
+        case 2: // Power
+            powerst->strength[context->value->bytes[3]] = context->value->longs[2];
+            break;
+        case 3: // Cost
+            powerst->cost[context->value->bytes[3]] = context->value->longs[2];
+            break;
+*/
 
 static const struct NamedField magic_powers_named_fields[] = {
     //name                     //pos    //field                                                                 //default //min     //max    //NamedCommand
