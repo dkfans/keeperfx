@@ -152,6 +152,7 @@ short state_cleanup_dragging_body(struct Thing *creatng);
 short state_cleanup_dragging_object(struct Thing *creatng);
 short state_cleanup_in_room(struct Thing *creatng);
 short state_cleanup_unable_to_fight(struct Thing *creatng);
+short cleanup_creature_leaves_or_dies(struct Thing* creatng);
 short state_cleanup_unconscious(struct Thing *creatng);
 short state_cleanup_wait_at_door(struct Thing* creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *creatng);
@@ -444,7 +445,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_eating_at_garden, NULL, NULL, NULL,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Feed, 0, 0, 2, 0, GBS_creature_states_hungry, 1, 0, 1},
-  {creature_leaves_or_dies, NULL, NULL, NULL,
+  {creature_leaves_or_dies, cleanup_creature_leaves_or_dies, NULL, NULL,
     1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,  CrStTyp_OwnNeeds, 1, 1, 1, 0, GBS_creature_states_livid, 1, 0, 0},
   {creature_moan, NULL, NULL, NULL, // [140]
     1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0,  0, 0, 0, 1},
@@ -2400,6 +2401,15 @@ short creature_leaves_or_dies(struct Thing *creatng)
     }
     // Otherwise, try heading for nearest entrance
     return setup_creature_leaves_or_dies(creatng);
+}
+
+
+short cleanup_creature_leaves_or_dies(struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+    return 1;
 }
 
 short creature_leaving_dungeon(struct Thing *creatng)
