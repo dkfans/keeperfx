@@ -4404,7 +4404,9 @@ void recalculate_all_creature_digger_lists()
 {
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-         recalculate_player_creature_digger_lists(plyr_idx);
+        if (plyr_idx == PLAYER_NEUTRAL)
+            continue;
+        recalculate_player_creature_digger_lists(plyr_idx);
     }
 
     for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
