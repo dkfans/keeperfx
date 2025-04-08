@@ -97,7 +97,7 @@ struct ComputerEvent {
   long last_test_gameturn; /**< event last checked time */
 };
 
-struct ComputerTypes {
+struct ComputerType {
   char name[COMMAND_WORD_LEN];
   short tooltip_stridx;
   short sprite_idx;
@@ -121,7 +121,7 @@ struct ComputerPlayerConfig {
   long events_count;
   struct ComputerEvent event_types[COMPUTER_EVENTS_TYPES_COUNT];
   long computers_count;
-  struct ComputerTypes computer_types[COMPUTER_MODELS_COUNT];
+  struct ComputerType computer_types[COMPUTER_MODELS_COUNT];
   long skirmish_first;
   long skirmish_last;
   long player_assist_default;
@@ -132,7 +132,7 @@ struct ComputerPlayerConfig {
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/
-struct ComputerTypes *get_computer_type_template(long cpt_idx);
+struct ComputerType *get_computer_type_template(long cpt_idx);
 TbBool load_computer_player_config(unsigned short flags);
 /******************************************************************************/
 #ifdef __cplusplus

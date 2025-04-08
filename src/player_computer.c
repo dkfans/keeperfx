@@ -1227,7 +1227,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     }
     memset(comp, 0, sizeof(struct Computer2));
 
-    struct ComputerTypes* cpt = get_computer_type_template(comp_model);
+    struct ComputerType* cpt = get_computer_type_template(comp_model);
     comp->dungeon = get_players_num_dungeon(plyr_idx);
     comp->model = comp_model;
     if (dungeon_invalid(comp->dungeon)) {
@@ -1653,7 +1653,7 @@ void restore_computer_player_after_load(void)
             continue;
         }
         comp->dungeon = get_players_dungeon(player);
-        struct ComputerTypes* cpt = get_computer_type_template(comp->model);
+        struct ComputerType* cpt = get_computer_type_template(comp->model);
 
         long i;
         for (i = 0; i < COMPUTER_PROCESSES_COUNT; i++)

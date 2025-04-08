@@ -41,9 +41,9 @@ const char keeper_compplayer_file[]="keepcompp.cfg";
 /******************************************************************************/
 struct ComputerPlayerConfig comp_player_conf;
 
-static TbBool computer_type_clear_processes(struct ComputerTypes *cpt);
-static TbBool computer_type_clear_checks(struct ComputerTypes *cpt);
-static short computer_type_clear_events(struct ComputerTypes *cpt);
+static TbBool computer_type_clear_processes(struct ComputerType *cpt);
+static TbBool computer_type_clear_checks(struct ComputerType *cpt);
+static short computer_type_clear_events(struct ComputerType *cpt);
 
 static int64_t value_processes(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 static int64_t value_checks(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
@@ -53,9 +53,9 @@ static int get_computer_process_config_list_index_mnem(const char *mnemonic);
 static int get_computer_check_config_list_index_mnem(const char *mnemonic);
 static int get_computer_event_config_list_index_mnem(const char *mnemonic);
 
-static int computer_type_add_process(struct ComputerTypes *cpt, unsigned char cproc_idx);
-static int computer_type_add_check(struct ComputerTypes *cpt, unsigned char check_idx);
-static int computer_type_add_event(struct ComputerTypes *cpt, unsigned char event_idx);
+static int computer_type_add_process(struct ComputerType *cpt, unsigned char cproc_idx);
+static int computer_type_add_check(struct ComputerType *cpt, unsigned char check_idx);
+static int computer_type_add_event(struct ComputerType *cpt, unsigned char event_idx);
 
 /******************************************************************************/
 
@@ -205,7 +205,7 @@ const struct NamedFieldSet compp_computer_named_fields_set = {
 int64_t value_processes(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
   char word_buf[COMMAND_WORD_LEN];
-  struct ComputerTypes* cpt = get_computer_type_template(idx);
+  struct ComputerType* cpt = get_computer_type_template(idx);
   computer_type_clear_processes(cpt);
 
   long pos = 0;
@@ -229,7 +229,7 @@ int64_t value_processes(const struct NamedField* named_field, const char* value_
 int64_t value_checks(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     char word_buf[COMMAND_WORD_LEN];
-    struct ComputerTypes* cpt = get_computer_type_template(idx);
+    struct ComputerType* cpt = get_computer_type_template(idx);
     computer_type_clear_checks(cpt);
 
     long pos = 0;
@@ -253,7 +253,7 @@ int64_t value_checks(const struct NamedField* named_field, const char* value_tex
 int64_t value_events(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
   char word_buf[COMMAND_WORD_LEN];
-  struct ComputerTypes* cpt = get_computer_type_template(idx);
+  struct ComputerType* cpt = get_computer_type_template(idx);
   computer_type_clear_events(cpt);
   
   long pos = 0;
@@ -308,20 +308,20 @@ static int get_computer_event_config_list_index_mnem(const char *mnemonic)
   return 0;
 }
 
-struct ComputerTypes *get_computer_type_template(long cpt_idx)
+struct ComputerType *get_computer_type_template(long cpt_idx)
 {
     if ((cpt_idx < 0) || (cpt_idx >= COMPUTER_MODELS_COUNT))
         cpt_idx = 0;
   return &comp_player_conf.computer_types[cpt_idx];
 }
 
-static TbBool computer_type_clear_processes(struct ComputerTypes *cpt)
+static TbBool computer_type_clear_processes(struct ComputerType *cpt)
 {
     memset(&cpt->processes, 0, sizeof(cpt->processes));
     return true;
 }
 
-static int computer_type_add_process(struct ComputerTypes *cpt, unsigned char cproc_idx)
+static int computer_type_add_process(struct ComputerType *cpt, unsigned char cproc_idx)
 {
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT; i++)
     {
@@ -334,13 +334,13 @@ static int computer_type_add_process(struct ComputerTypes *cpt, unsigned char cp
     return -1;
 }
 
-static TbBool computer_type_clear_checks(struct ComputerTypes *cpt)
+static TbBool computer_type_clear_checks(struct ComputerType *cpt)
 {
     memset(&cpt->checks, 0, sizeof(cpt->checks));
     return true;
 }
 
-static int computer_type_add_check(struct ComputerTypes *cpt, unsigned char check_idx)
+static int computer_type_add_check(struct ComputerType *cpt, unsigned char check_idx)
 {
     for (int i = 0; i < COMPUTER_CHECKS_COUNT; i++)
     {
@@ -353,14 +353,14 @@ static int computer_type_add_check(struct ComputerTypes *cpt, unsigned char chec
   return -1;
 }
 
-short computer_type_clear_events(struct ComputerTypes *cpt)
+short computer_type_clear_events(struct ComputerType *cpt)
 {
 
     memset(&cpt->events, 0, sizeof(cpt->events));
     return true;
 }
 
-static int computer_type_add_event(struct ComputerTypes *cpt, unsigned char event_idx)
+static int computer_type_add_event(struct ComputerType *cpt, unsigned char event_idx)
 {
     for (int i = 0; i < COMPUTER_EVENTS_COUNT; i++)
     {
