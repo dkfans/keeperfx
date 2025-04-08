@@ -53,9 +53,9 @@ static int get_computer_process_config_list_index_mnem(const char *mnemonic);
 static int get_computer_check_config_list_index_mnem(const char *mnemonic);
 static int get_computer_event_config_list_index_mnem(const char *mnemonic);
 
-static int computer_type_add_process(struct ComputerTypes *cpt, struct ComputerProcess *cproc);
-static int computer_type_add_check(struct ComputerTypes *cpt, struct ComputerCheck *check);
-static int computer_type_add_event(struct ComputerTypes *cpt, struct ComputerEvent *event);
+static int computer_type_add_process(struct ComputerTypes *cpt, unsigned char cproc);
+static int computer_type_add_check(struct ComputerTypes *cpt, unsigned char check);
+static int computer_type_add_event(struct ComputerTypes *cpt, unsigned char event);
 
 /******************************************************************************/
 
@@ -242,7 +242,7 @@ int64_t value_checks(const struct NamedField* named_field, const char* value_tex
             NAMFIELDWRNLOG("check %s not recognized for [%s%d].",word_buf, named_fields_set->block_basename, idx);
             continue;
         }
-        if (computer_type_add_check(cpt, &comp_player_conf.check_types[check_idx]) < 0)
+        if (computer_type_add_check(cpt, check_idx) < 0)
         {
             NAMFIELDWRNLOG("failed to add check %s for [%s%d].",word_buf, named_fields_set->block_basename, idx);
         }
@@ -266,7 +266,7 @@ int64_t value_events(const struct NamedField* named_field, const char* value_tex
         NAMFIELDWRNLOG("event %s not recognized for [%s%d].",word_buf, named_fields_set->block_basename, idx);
         continue;
     }
-    if (computer_type_add_event(cpt, &comp_player_conf.event_types[event_idx]) < 0)
+    if (computer_type_add_event(cpt, event_idx) < 0)
     {
         NAMFIELDWRNLOG("failed to add event %s for [%s%d].",word_buf, named_fields_set->block_basename, idx);
     }
@@ -317,42 +317,36 @@ struct ComputerTypes *get_computer_type_template(long cpt_idx)
 
 static TbBool computer_type_clear_processes(struct ComputerTypes *cpt)
 {
-    for (int i = 0; i < COMPUTER_PROCESSES_COUNT; i++)
-    {
-        cpt->processes[i] = NULL;
-  }
-  return true;
+    memset(&cpt->processes, 0, sizeof(cpt->processes));
+    return true;
 }
 
-static int computer_type_add_process(struct ComputerTypes *cpt, struct ComputerProcess *cproc)
+static int computer_type_add_process(struct ComputerTypes *cpt, unsigned char cproc)
 {
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT; i++)
     {
-        if (cpt->processes[i] == NULL)
+        if (cpt->processes[i] == 0)
         {
             cpt->processes[i] = cproc;
             return i;
         }
-  }
-  return -1;
+    }
+    return -1;
 }
 
 static TbBool computer_type_clear_checks(struct ComputerTypes *cpt)
 {
-    for (int i = 0; i < COMPUTER_CHECKS_COUNT; i++)
-    {
-        memset(&cpt->checks[i], 0, sizeof(struct ComputerCheck));
-  }
-  return true;
+    memset(&cpt->checks, 0, sizeof(cpt->checks));
+    return true;
 }
 
-static int computer_type_add_check(struct ComputerTypes *cpt, struct ComputerCheck *check)
+static int computer_type_add_check(struct ComputerTypes *cpt, unsigned char check)
 {
     for (int i = 0; i < COMPUTER_CHECKS_COUNT; i++)
     {
-        if (cpt->checks[i].name[0] == '\0')
+        if (cpt->checks[i] == 0)
         {
-            memcpy(&cpt->checks[i], check, sizeof(struct ComputerCheck));
+            cpt->checks[i] = check;
             return i;
         }
   }
@@ -361,24 +355,22 @@ static int computer_type_add_check(struct ComputerTypes *cpt, struct ComputerChe
 
 short computer_type_clear_events(struct ComputerTypes *cpt)
 {
-    for (int i = 0; i < COMPUTER_EVENTS_COUNT; i++)
-    {
-        memset(&cpt->events[i], 0, sizeof(struct ComputerEvent));
-  }
-  return true;
+
+    memset(&cpt->events, 0, sizeof(cpt->events));
+    return true;
 }
 
-static int computer_type_add_event(struct ComputerTypes *cpt, struct ComputerEvent *event)
+static int computer_type_add_event(struct ComputerTypes *cpt, unsigned char event)
 {
     for (int i = 0; i < COMPUTER_EVENTS_COUNT; i++)
     {
-        if (cpt->events[i].name[0] == '\0')
+        if (cpt->events[i] == 0)
         {
-            memcpy(&cpt->events[i], event, sizeof(struct ComputerEvent));
+            cpt->events[i] = event;
             return i;
         }
-  }
-  return -1;
+    }
+    return -1;
 }
 
 TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags)

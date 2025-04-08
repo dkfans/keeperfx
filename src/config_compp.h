@@ -59,7 +59,7 @@ struct ComputerProcess {
   FuncIdx func_task;
   FuncIdx func_complete;
   FuncIdx func_pause;
-  struct ComputerProcess *parent;
+  unsigned char parent;
   // Unsigned process parameters storage (stores gameturns)
   unsigned long param_1;
   unsigned long param_2;
@@ -90,7 +90,7 @@ struct ComputerEvent {
   FuncIdx func_event;
   FuncIdx func_test;
   long test_interval;
-  struct ComputerProcess *process;
+  unsigned char process;
   long param1;
   long param2;
   long param3;
@@ -108,9 +108,9 @@ struct ComputerTypes {
   long turn_begin;
   long sim_before_dig;
   GameTurnDelta drop_delay;
-  struct ComputerProcess *processes[COMPUTER_PROCESSES_COUNT];
-  struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
-  struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
+  unsigned char processes[COMPUTER_PROCESSES_COUNT];
+  unsigned char checks[COMPUTER_CHECKS_COUNT];
+  unsigned char events[COMPUTER_EVENTS_COUNT];
 };
 
 struct ComputerPlayerConfig {

@@ -1268,14 +1268,14 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
           break;
         }
         memcpy(newproc, cproc, sizeof(struct ComputerProcess));
-        newproc->parent = cproc;
+        newproc->parent = i;
     }
     newproc = &comp->processes[i];
     newproc->flags |= ComProc_Unkn0002;
 
     for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
     {
-        struct ComputerCheck* ccheck = &cpt->checks[i];
+        struct ComputerCheck* ccheck = comp_player_conf.check_types[cpt->checks[i]];
         newchk = &comp->checks[i];
         if ((ccheck == NULL) || (ccheck->name[0] == '\0'))
         {
@@ -1292,7 +1292,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 
     for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
     {
-        struct ComputerEvent* event = &cpt->events[i];
+        struct ComputerEvent* event = comp_player_conf.event_types[cpt->events[i]];
         struct ComputerEvent* newevnt = &comp->events[i];
         if ((event == NULL) || (event->name[0] == '\0'))
         {
@@ -1664,11 +1664,7 @@ void restore_computer_player_after_load(void)
             //    break;
             SYNCDBG(12,"Player %ld process %ld is \"%s\"",plyr_idx,i,cpt->processes[i]->name);
             comp->processes[i].parent = cpt->processes[i];
-            comp->processes[i].func_check = cpt->processes[i]->func_check;
-            comp->processes[i].func_setup = cpt->processes[i]->func_setup;
-            comp->processes[i].func_task = cpt->processes[i]->func_task;
-            comp->processes[i].func_complete = cpt->processes[i]->func_complete;
-            comp->processes[i].func_pause = cpt->processes[i]->func_pause;
+
         }
         for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
         {
