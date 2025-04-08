@@ -1653,23 +1653,6 @@ void restore_computer_player_after_load(void)
             continue;
         }
         comp->dungeon = get_players_dungeon(player);
-        struct ComputerType* cpt = get_computer_type_template(comp->model);
-
-        long i;
-        for (i = 0; i < COMPUTER_PROCESSES_COUNT; i++)
-        {
-            if (cpt->processes[i] == NULL)
-                break;
-            //if (cpt->processes[i]->name == NULL)
-            //    break;
-            SYNCDBG(12,"Player %ld process %ld is \"%s\"",plyr_idx,i,cpt->processes[i]->name);
-            comp->processes[i].parent = cpt->processes[i];
-
-        }
-        for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
-        {
-            comp->events[i].process = cpt->events[i].process;
-        }
     }
 }
 
