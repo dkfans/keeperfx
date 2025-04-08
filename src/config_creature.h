@@ -113,6 +113,8 @@ enum CreatureModelFlags {
 #define Job_STEAL_GOLD          (1LL << 38)
 #define Job_STEAL_SPELLS        (1LL << 39)
 #define Job_DEFEND_PARTY        (1LL << 40)
+//New Added Job
+#define Job_GAMBLE              (1LL << 41)
 
 enum JobKindFlags {
     JoKF_None                   = 0x00000000,

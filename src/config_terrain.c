@@ -254,6 +254,7 @@ const struct NamedCommand room_roles_desc[] = {
   {"ROOM_ROLE_PASS_WATER",     RoRoF_PassWater},
   {"ROOM_ROLE_PASS_LAVA",      RoRoF_PassLava},
   {"ROOM_ROLE_NONE",           RoRoF_None},
+  {"ROOM_ROLE_GAMBLE",         RoRoF_Gamble},
   {NULL,                       0},
 };
 
