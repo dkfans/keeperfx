@@ -171,6 +171,10 @@ TbBool creature_will_do_combat(const struct Thing *thing)
     {
         return false;
     }
+    if (creature_is_leaving_and_cannot_be_stopped(thing))
+    {
+        return false;
+    }
     // Creature turned to chicken is defenseless.
     if (creature_under_spell_effect(thing, CSAfF_Chicken))
     {
