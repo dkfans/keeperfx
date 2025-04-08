@@ -273,7 +273,7 @@ struct TaskFunctions {
 
 struct ValidRooms { // sizeof = 8
     long rkind;
-    unsigned char process;
+    unsigned char process_idx;
 };
 
 struct ComputerDig {

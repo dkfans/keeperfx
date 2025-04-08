@@ -53,9 +53,9 @@ static int get_computer_process_config_list_index_mnem(const char *mnemonic);
 static int get_computer_check_config_list_index_mnem(const char *mnemonic);
 static int get_computer_event_config_list_index_mnem(const char *mnemonic);
 
-static int computer_type_add_process(struct ComputerTypes *cpt, unsigned char cproc);
-static int computer_type_add_check(struct ComputerTypes *cpt, unsigned char check);
-static int computer_type_add_event(struct ComputerTypes *cpt, unsigned char event);
+static int computer_type_add_process(struct ComputerTypes *cpt, unsigned char cproc_idx);
+static int computer_type_add_check(struct ComputerTypes *cpt, unsigned char check_idx);
+static int computer_type_add_event(struct ComputerTypes *cpt, unsigned char event_idx);
 
 /******************************************************************************/
 
@@ -321,13 +321,13 @@ static TbBool computer_type_clear_processes(struct ComputerTypes *cpt)
     return true;
 }
 
-static int computer_type_add_process(struct ComputerTypes *cpt, unsigned char cproc)
+static int computer_type_add_process(struct ComputerTypes *cpt, unsigned char cproc_idx)
 {
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT; i++)
     {
         if (cpt->processes[i] == 0)
         {
-            cpt->processes[i] = cproc;
+            cpt->processes[i] = cproc_idx;
             return i;
         }
     }
@@ -340,13 +340,13 @@ static TbBool computer_type_clear_checks(struct ComputerTypes *cpt)
     return true;
 }
 
-static int computer_type_add_check(struct ComputerTypes *cpt, unsigned char check)
+static int computer_type_add_check(struct ComputerTypes *cpt, unsigned char check_idx)
 {
     for (int i = 0; i < COMPUTER_CHECKS_COUNT; i++)
     {
         if (cpt->checks[i] == 0)
         {
-            cpt->checks[i] = check;
+            cpt->checks[i] = check_idx;
             return i;
         }
   }
@@ -360,13 +360,13 @@ short computer_type_clear_events(struct ComputerTypes *cpt)
     return true;
 }
 
-static int computer_type_add_event(struct ComputerTypes *cpt, unsigned char event)
+static int computer_type_add_event(struct ComputerTypes *cpt, unsigned char event_idx)
 {
     for (int i = 0; i < COMPUTER_EVENTS_COUNT; i++)
     {
         if (cpt->events[i] == 0)
         {
-            cpt->events[i] = event;
+            cpt->events[i] = event_idx;
             return i;
         }
     }
