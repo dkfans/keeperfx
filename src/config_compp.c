@@ -218,7 +218,7 @@ int64_t value_processes(const struct NamedField* named_field, const char* value_
           NAMFIELDWRNLOG("process %s not recognized for [%s%d].",word_buf, named_fields_set->block_basename, idx);
           continue;
       }
-      if (computer_type_add_process(cpt, &comp_player_conf.process_types[process_idx]) < 0)
+      if (computer_type_add_process(cpt, process_idx) < 0)
       {
           NAMFIELDWRNLOG("failed to add process %s for [%s%d].",word_buf, named_fields_set->block_basename, idx);
       }

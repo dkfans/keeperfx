@@ -1260,7 +1260,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 
     for (i=0; i < COMPUTER_PROCESSES_COUNT; i++)
     {
-        struct ComputerProcess* cproc = cpt->processes[i];
+        struct ComputerProcess* cproc = &comp_player_conf.process_types[cpt->processes[i]];
         newproc = &comp->processes[i];
         if ((cproc == NULL) || (cproc->name[0] == '\0'))
         {
@@ -1275,7 +1275,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 
     for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
     {
-        struct ComputerCheck* ccheck = comp_player_conf.check_types[cpt->checks[i]];
+        struct ComputerCheck* ccheck = &comp_player_conf.check_types[cpt->checks[i]];
         newchk = &comp->checks[i];
         if ((ccheck == NULL) || (ccheck->name[0] == '\0'))
         {
@@ -1292,7 +1292,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 
     for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
     {
-        struct ComputerEvent* event = comp_player_conf.event_types[cpt->events[i]];
+        struct ComputerEvent* event = &comp_player_conf.event_types[cpt->events[i]];
         struct ComputerEvent* newevnt = &comp->events[i];
         if ((event == NULL) || (event->name[0] == '\0'))
         {

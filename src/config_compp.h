@@ -42,9 +42,6 @@ extern "C" {
 
 #define COMPUTER_ASSIST_TYPES_COUNT 4
 
-
-typedef unsigned char ComputerType;
-
 struct ComputerProcess {
   char name[COMMAND_WORD_LEN];
   char mnemonic[COMMAND_WORD_LEN];
@@ -125,7 +122,7 @@ struct ComputerPlayerConfig {
   long skirmish_first;
   long skirmish_last;
   long player_assist_default;
-  ComputerType computer_assist_types[COMPUTER_ASSIST_TYPES_COUNT];
+  unsigned char computer_assist_types[COMPUTER_ASSIST_TYPES_COUNT];
 
 };
 

@@ -63,7 +63,7 @@ struct ValidRooms valid_rooms_to_build[] = {
   {RoK_TORTURE,   4},
   {RoK_GRAVEYARD, 7},
   {RoK_BARRACKS,  8},
-  {-1,            NULL},
+  {-1,            0},
 };
 
 /******************************************************************************/
