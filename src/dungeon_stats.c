@@ -47,7 +47,7 @@ TbBool load_stats_files(void)
     init_creature_model_stats();
     init_creature_model_graphics();
 
-    //first load some configs which contain names that are used in other cfgs in ListOnly mode
+    //first preload some configs which contain names that are used in other cfgs in ListOnly mode
     load_config(&keeper_creaturetp_file_data,   CnfLd_ListOnly);
     load_config(&keeper_terrain_file_data,      CnfLd_ListOnly);
     load_config(&keeper_objects_file_data,      CnfLd_ListOnly);
