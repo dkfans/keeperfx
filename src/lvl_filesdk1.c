@@ -1392,7 +1392,7 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         return;
     }
     size_t size = filelen + 256;
-    level_strings_data = calloc(size, sizeof(char)); //  we're allocating extra memory, which we can't just assume is already clear
+    level_strings_data = calloc(size, sizeof(char)); // we're allocating extra memory, which we can't just assume is already clear; this could cause weird issues
     if (level_strings_data == NULL)
     {
         ERRORLOG("Can't allocate memory for Map Strings data");
