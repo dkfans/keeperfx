@@ -125,11 +125,6 @@ struct BoxInfo
     uint16_t              activated[CUSTOM_BOX_COUNT];
 };
 
-struct ComputerInfo
-{
-    struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
-    struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
-};
 
 /** Used to set player modifier with script command. */
 struct Modifiers
@@ -300,7 +295,6 @@ struct Dungeon {
     unsigned long         manufacture_gold;
     long                  creatures_total_backpay;
     long                  cheaper_diggers;
-    struct ComputerInfo   computer_info;
     long                  event_last_run_turn[EVENT_KIND_COUNT];
     long                  script_flags[SCRIPT_FLAGS_COUNT];
     unsigned short        room_kind[TERRAIN_ITEMS_MAX];

@@ -111,7 +111,7 @@ enum TbPacketAction {
         PckA_SetViewType,//80
         PckA_ZoomFromMap,
         PckA_UpdatePause,
-        PckA_Unknown083,
+        PckA_ZoomToEvent,
         PckA_ZoomToRoom,
         PckA_ZoomToTrap,//85
         PckA_ZoomToDoor,
@@ -206,6 +206,8 @@ enum TbPacketControl {
         PCtr_ViewTiltUp     = 0x10000,
         PCtr_ViewTiltDown   = 0x20000,
         PCtr_ViewTiltReset  = 0x40000,
+        PCtr_Ascend         = 0x80000,
+        PCtr_Descend        = 0x100000,
 };
 
 /**
