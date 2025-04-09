@@ -47,11 +47,14 @@
 extern "C" {
 #endif
 /******************************************************************************/
+static TbBool load_creaturetypes_config_file(const char *textname, const char *fname, unsigned short flags);
+
 const struct ConfigFileData keeper_creaturetp_file_data = {
-    filename = "creature.cfg",
-    description = "creature types",
-    load_func = load_creaturetypes_config_file,
-    post_load_func = NULL,
+    .filename = "creature.cfg",
+    .description = "creature types",
+    .load_func = load_creaturetypes_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
 };
 
 const struct NamedCommand creaturetype_common_commands[] = {
@@ -1850,7 +1853,7 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
     return true;
 }
 
-TbBool load_creaturetypes_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_creaturetypes_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
     long len = LbFileLengthRnc(fname);

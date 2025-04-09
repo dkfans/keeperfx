@@ -34,12 +34,14 @@ static void assign_owner(const struct NamedField* named_field, int64_t value, co
 /******************************************************************************/
 struct NamedCommand cube_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
+static TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_cubes_file_data = {
-    filename = "cubes.cfg",
-    description = "cubes",
-    load_func = load_cubes_config_file,
-    post_load_func = NULL,
+    .filename = "cubes.cfg",
+    .description = "cubes",
+    .load_func = load_cubes_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
 };
 
 static const struct NamedCommand cubes_properties_flags[] = {
@@ -105,7 +107,7 @@ struct CubeConfigStats *get_cube_model_stats(long cumodel)
     return &game.conf.cube_conf.cube_cfgstats[cumodel];
 }
 
-TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0, "%s %s file \"%s\".", ((flags & CnfLd_ListOnly) == 0) ? "Reading" : "Parsing", textname, fname);
     long len = LbFileLengthRnc(fname);

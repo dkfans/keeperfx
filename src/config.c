@@ -2133,9 +2133,9 @@ short is_freeplay_level(LevelNumber lvnum)
 
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 {
-    static const char config_textname[64];
+    char config_textname[64];
 
-    char* conf_fname = file_data->filename;
+    const char* conf_fname = file_data->filename;
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
 
     sprintf(config_textname, "global %s config", file_data->description);

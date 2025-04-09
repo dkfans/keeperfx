@@ -54,16 +54,19 @@ const struct NamedFieldSet crstates_states_named_fields_set = {
     {"crstates.cfg","INVALID_SCRIPT"},
 };
 
+static TbBool load_creaturestates_config_file(const char *textname, const char *fname, unsigned short flags);
+
 const struct ConfigFileData creature_states_file_data = {
-    filename = "crstates.cfg",
-    description = "creature states",
-    load_func = load_creaturestates_config_file,
-    post_load_func = NULL,
+    .filename = "crstates.cfg",
+    .description = "creature states",
+    .load_func = load_creaturestates_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
 };
 
 /******************************************************************************/
 
-TbBool load_creaturestates_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_creaturestates_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
     long len = LbFileLengthRnc(fname);

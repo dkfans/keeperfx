@@ -34,18 +34,23 @@
 extern "C" {
 #endif
 /******************************************************************************/
+static TbBool load_slabset_config_file(const char *textname, const char *fname, unsigned short flags);
+static TbBool load_columns_config_file(const char *textname, const char *fname, unsigned short flags);
+
 const struct ConfigFileData keeper_slabset_file_data = {
-    filename = "slabset.toml",
-    description = "slabset",
-    load_func = load_slabset_config_file,
-    post_load_func = NULL,
+    .filename = "slabset.toml",
+    .description = "slabset",
+    .load_func = load_slabset_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
 };
 
 const struct ConfigFileData keeper_columns_file_data = {
-    filename = "columnset.toml",
-    description = "columnset",
-    load_func = load_columns_config_file,
-    post_load_func = NULL,
+    .filename = "columnset.toml",
+    .description = "columnset",
+    .load_func = load_columns_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
 };
 
 /******************************************************************************/
@@ -81,7 +86,7 @@ const struct NamedCommand slab_styles_commands[] = {
     {"CENTER",   27}
 };
 
-TbBool load_slabset_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_slabset_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     VALUE file_root;
 
@@ -157,7 +162,7 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
     return true;
 }
 
-TbBool load_columns_config_file(const char *textname, const char *fname, unsigned short flags,struct Column *cols,long *ccount)
+static TbBool load_columns_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     VALUE file_root;
     
@@ -179,8 +184,8 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
             TbBool permanent = true;
             bitfields |= permanent;
 
-            if (col_no + 1 > *ccount)
-                *ccount = col_no + 1;
+            if (col_no + 1 > game.conf.column_conf.columns_count)
+                game.conf.column_conf.columns_count = col_no + 1;
             
             VALUE *lintel_val = value_dict_get(section, "Lintel");
             if (value_type(lintel_val) == VALUE_INT32)
@@ -208,17 +213,17 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
                 bitfields |= floorHeight;
             }
 
-            cols[col_no].bitfields = bitfields;
-            CONDITIONAL_ASSIGN_INT(section, "SolidMask",    cols[col_no].solidmask    );
-            CONDITIONAL_ASSIGN_INT(section, "FloorTexture", cols[col_no].floor_texture);
-            CONDITIONAL_ASSIGN_INT(section, "Orientation",  cols[col_no].orient       );
+            game.conf.column_conf.cols[col_no].bitfields = bitfields;
+            CONDITIONAL_ASSIGN_INT(section, "SolidMask",    game.conf.column_conf.cols[col_no].solidmask    );
+            CONDITIONAL_ASSIGN_INT(section, "FloorTexture", game.conf.column_conf.cols[col_no].floor_texture);
+            CONDITIONAL_ASSIGN_INT(section, "Orientation",  game.conf.column_conf.cols[col_no].orient       );
 
             VALUE *Cubes_arr = value_dict_get(section, "Cubes");
             if(value_type(Cubes_arr) == VALUE_ARRAY)
             {
                 for (size_t cube_no = 0; cube_no < COLUMN_STACK_HEIGHT; cube_no++)
                 {
-                    cols[col_no].cubes[cube_no] = value_int32(value_array_get(Cubes_arr, cube_no));
+                    game.conf.column_conf.cols[col_no].cubes[cube_no] = value_int32(value_array_get(Cubes_arr, cube_no));
                 }
             }
         }

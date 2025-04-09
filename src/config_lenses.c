@@ -37,11 +37,14 @@ extern "C" {
 struct LensesConfig lenses_conf;
 struct NamedCommand lenses_desc[LENS_ITEMS_MAX];
 /******************************************************************************/
+static TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned short flags);
+
 const struct ConfigFileData keeper_lenses_file_data = {
-    filename = "lenses.cfg",
-    description = "lenses",
-    load_func = load_lenses_config_file,
-    post_load_func = NULL,
+    .filename = "lenses.cfg",
+    .description = "lenses",
+    .load_func = load_lenses_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
 };
 
 static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
@@ -106,7 +109,7 @@ static int64_t value_pallete(const struct NamedField* named_field, const char* v
     return 0;
 }
 
-TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
     long len = LbFileLengthRnc(fname);

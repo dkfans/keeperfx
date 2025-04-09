@@ -47,11 +47,14 @@ struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 static void refresh_trap_anim(long trap_id);
 
 /******************************************************************************/
+static TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsigned short flags);
+TbBool create_manufacture_array_from_trapdoor_data(void);
+
 const struct ConfigFileData keeper_trapdoor_file_data = {
-    filename = "trapdoor.cfg",
-    description = "trapdoor",
-    load_func = load_trapdoor_config_file,
-    post_load_func = create_manufacture_array_from_trapdoor_data,
+    .filename = "trapdoor.cfg",
+    .description = "trapdoor",
+    .load_func = load_trapdoor_config_file,
+    .post_load_func = create_manufacture_array_from_trapdoor_data,
 };
 
 static const struct NamedCommand door_properties_commands[] = {
@@ -340,7 +343,7 @@ int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmode
     return 0;
 }
 
-TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
     long len = LbFileLengthRnc(fname);

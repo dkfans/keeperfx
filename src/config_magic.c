@@ -47,11 +47,14 @@
 extern "C" {
 #endif
 /******************************************************************************/
+static TbBool load_magic_config_file(const char *textname, const char *fname, unsigned short flags);
+
 const struct ConfigFileData keeper_magic_file_data = {
-    filename = "magic.cfg",
-    description = "magic",
-    load_func = load_magic_config_file,
-    post_load_func = NULL,
+    .filename = "magic.cfg",
+    .description = "magic",
+    .load_func = load_magic_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
 };
 
 const struct NamedCommand magic_spell_commands[] = {
@@ -2232,7 +2235,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
   return true;
 }
 
-TbBool load_magic_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_magic_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
     long len = LbFileLengthRnc(fname);

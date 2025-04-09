@@ -35,12 +35,13 @@
 extern "C" {
 #endif
 /******************************************************************************/
+static TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags);
 
-const struct ConfigFileData keeper_playerstates_file_data = {
-  filename = keeper_compplayer_file,
-  description = "Computer Player",
-  load_func = load_computer_player_config_file,
-  post_load_func = NULL,
+const struct ConfigFileData keeper_keepcomp_file_data = {
+  .filename = "keepcompp.cfg",
+  .description = "Computer Player",
+  .load_func = load_computer_player_config_file,
+  .post_load_func = NULL,
 };
 
 
@@ -379,7 +380,7 @@ static int computer_type_add_event(struct ComputerType *cpt, unsigned char event
     return -1;
 }
 
-TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(8, "Starting");
     // Load the config file
@@ -387,12 +388,12 @@ TbBool load_computer_player_config_file(const char *textname, const char *fname,
     if (len < 2)
     {
         if (!flag_is_set(flags,CnfLd_IgnoreErrors))
-          ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",keeper_compplayer_file);
+          ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     if (len > 65536)
     {
-        ERRORLOG("Computer Player file \"%s\" is too large.",keeper_compplayer_file);
+        ERRORLOG("Computer Player file \"%s\" is too large.",fname);
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);

@@ -44,11 +44,14 @@ static void assign_icon_update_room_tab  (const struct NamedField* named_field, 
 static void assign_reinitialise_rooms    (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 /******************************************************************************/
+static TbBool load_terrain_config_file(const char *textname, const char *fname, unsigned short flags);
+
 const struct ConfigFileData keeper_terrain_file_data = {
-    filename = "terrain.cfg",
-    description = "terrain",
-    load_func = load_terrain_config_file,
-    post_load_func = NULL,
+    .filename = "terrain.cfg",
+    .description = "terrain",
+    .load_func = load_terrain_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
 };
 
 static const struct NamedCommand terrain_flags[] = {
@@ -463,7 +466,7 @@ TbBool parse_block_health_block(char *buf, long len, const char *config_textname
     return true;
 }
 
-TbBool load_terrain_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_terrain_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
     long len = LbFileLengthRnc(fname);

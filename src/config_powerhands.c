@@ -34,18 +34,21 @@
 extern "C" {
 #endif
 /******************************************************************************/
+static TbBool load_powerhands_config_file(const char *textname, const char *fname, unsigned short flags);
+
 const struct ConfigFileData keeper_powerhands_file_data = {
-    filename = "powerhands.toml",
-    description = "powerhands",
-    load_func = load_powerhands_config_file,
-    post_load_func = NULL,
+    .filename = "powerhands.toml",
+    .description = "powerhands",
+    .load_func = load_powerhands_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
 };
 /******************************************************************************/
 typedef struct VALUE VALUE;
 
 struct NamedCommand powerhand_desc[NUM_VARIANTS + 1];
 
-TbBool load_powerhands_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_powerhands_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     VALUE file_root;
     

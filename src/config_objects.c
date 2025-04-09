@@ -38,11 +38,14 @@ extern "C" {
 /******************************************************************************/
 struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 /******************************************************************************/
+static TbBool load_objects_config_file(const char *textname, const char *fname, unsigned short flags);
+
 const struct ConfigFileData keeper_objects_file_data = {
-    filename = "objects.cfg",
-    description = "objects",
-    load_func = load_objects_config_file,
-    post_load_func = NULL,
+    .filename = "objects.cfg",
+    .description = "objects",
+    .load_func = load_objects_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
 };
 
 const struct NamedCommand objects_properties_commands[] = {
@@ -176,7 +179,7 @@ ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
     return game.conf.object_conf.object_to_door_or_trap[tngmodel];
 }
 
-TbBool load_objects_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_objects_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
     long len = LbFileLengthRnc(fname);

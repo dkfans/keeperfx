@@ -34,11 +34,14 @@
 extern "C" {
 #endif
 /******************************************************************************/
+static TbBool load_spritecolors_config_file(const char *textname, const char *fname, unsigned short flags);
+
 const struct ConfigFileData keeper_spritecolors_file_data = {
-    filename = "spritecolors.toml",
-    description = "sprite colours",
-    load_func = load_spritecolors_config_file,
-    post_load_func = NULL,
+    .filename = "spritecolors.toml",
+    .description = "sprite colours",
+    .load_func = load_spritecolors_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
 };
 /******************************************************************************/
 #define MAX_COLORED_SPRITES 255

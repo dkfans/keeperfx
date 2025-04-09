@@ -48,32 +48,34 @@ TbBool load_stats_files(void)
     init_creature_model_graphics();
 
     //first load some configs which contain names that are used in other cfgs in ListOnly mode
-    load_config(keeper_creaturetp_file_data,   CnfLd_ListOnly);
-    load_config(keeper_terrain_file_data,      CnfLd_ListOnly);
-    load_config(keeper_objects_file_data,      CnfLd_ListOnly);
-    load_config(keeper_trapdoor_file_data,     CnfLd_ListOnly);
-    load_config(keeper_effects_file_data,      CnfLd_ListOnly);
-    load_config(keeper_lenses_file_data,       CnfLd_ListOnly);
-    load_config(keeper_magic_file_data,        CnfLd_ListOnly);
-    load_config(creature_states_file_data,     CnfLd_ListOnly);
-    load_config(keeper_playerstates_file_data, CnfLd_ListOnly);
+    load_config(&keeper_creaturetp_file_data,   CnfLd_ListOnly);
+    load_config(&keeper_terrain_file_data,      CnfLd_ListOnly);
+    load_config(&keeper_objects_file_data,      CnfLd_ListOnly);
+    load_config(&keeper_trapdoor_file_data,     CnfLd_ListOnly);
+    load_config(&keeper_effects_file_data,      CnfLd_ListOnly);
+    load_config(&keeper_lenses_file_data,       CnfLd_ListOnly);
+    load_config(&keeper_magic_file_data,        CnfLd_ListOnly);
+    load_config(&creature_states_file_data,     CnfLd_ListOnly);
+    load_config(&keeper_playerstates_file_data, CnfLd_ListOnly);
 
     //then load everything for real
-    load_config(keeper_terrain_file_data,      CnfLd_Standard);
-    load_config(keeper_objects_file_data,      CnfLd_Standard);
-    load_config(keeper_trapdoor_file_data,     CnfLd_Standard);
-    load_config(keeper_effects_file_data,      CnfLd_Standard);
-    load_config(keeper_lenses_file_data,       CnfLd_Standard);
-    load_config(keeper_magic_file_data,        CnfLd_Standard);
-    load_config(keeper_creaturetp_file_data,   CnfLd_Standard);
-    load_config(creature_states_file_data,     CnfLd_Standard);
-    load_config(keeper_rules_file_data,        CnfLd_Standard);
-    load_config(keeper_textureanim_file_data,  CnfLd_Standard);
-    load_config(keeper_powerhands_file_data,   CnfLd_Standard);
-    load_config(keeper_spritecolors_file_data, CnfLd_Standard);
-    load_config(keeper_cubes_file_data,        CnfLd_Standard);  
-    load_config(keeper_playerstates_file_data, CnfLd_Standard);
-    load_config(keeper_keepcomp_file_data,     CnfLd_Standard);
+    load_config(&keeper_terrain_file_data,      CnfLd_Standard);
+    load_config(&keeper_objects_file_data,      CnfLd_Standard);
+    load_config(&keeper_trapdoor_file_data,     CnfLd_Standard);
+    load_config(&keeper_effects_file_data,      CnfLd_Standard);
+    load_config(&keeper_lenses_file_data,       CnfLd_Standard);
+    load_config(&keeper_magic_file_data,        CnfLd_Standard);
+    load_config(&keeper_creaturetp_file_data,   CnfLd_Standard);
+    load_config(&creature_states_file_data,     CnfLd_Standard);
+    load_config(&keeper_rules_file_data,        CnfLd_Standard);
+    load_config(&keeper_textureanim_file_data,  CnfLd_Standard);
+    load_config(&keeper_powerhands_file_data,   CnfLd_Standard);
+    load_config(&keeper_spritecolors_file_data, CnfLd_Standard);
+    load_config(&keeper_cubes_file_data,        CnfLd_Standard);  
+    load_config(&keeper_playerstates_file_data, CnfLd_Standard);
+    load_config(&keeper_keepcomp_file_data,     CnfLd_Standard);
+    load_config(&keeper_slabset_file_data,      CnfLd_Standard);
+    load_config(&keeper_columns_file_data,      CnfLd_Standard);
 
     for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
     {

@@ -46,11 +46,15 @@ static void assign_MapCreatureLimit_script(const struct NamedField* named_field,
 static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 
 /******************************************************************************/
+static TbBool load_rules_config_file(const char *textname, const char *fname, unsigned short flags);
+static void set_defaults();
+
 const struct ConfigFileData keeper_rules_file_data = {
-  filename = "rules.cfg",
-  description = "rules",
-  load_func = load_rules_config_file,
-  post_load_func = NULL,
+    .filename = "rules.cfg",
+    .description = "rules",
+    .load_func = load_rules_config_file,
+    .pre_load_func = set_defaults,
+    .post_load_func = NULL,
 };
 
 const struct NamedCommand rules_game_classicbugs_commands[] = {
@@ -684,7 +688,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
     return true;
 }
 
-TbBool load_rules_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_rules_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
     long len = LbFileLengthRnc(fname);

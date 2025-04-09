@@ -32,9 +32,10 @@ extern "C" {
 extern const struct ConfigFileData keeper_slabset_file_data;
 extern const struct ConfigFileData keeper_columns_file_data;
 
-
-TbBool load_slabset_config(const char *conf_fname,unsigned short flags);
-TbBool load_columns_config(const char *conf_fname,unsigned short flags,struct Column *cols,long *ccount);
+struct ColumnConfig {
+    long columns_count;
+    struct Column cols[COLUMNS_COUNT];
+};
 
 void clear_slabsets(void);
 

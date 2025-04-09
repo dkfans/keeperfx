@@ -216,8 +216,9 @@ struct ConfigFileData{
     const char *filename;
     const char *description;
     TbBool (*load_func)(const char *textname, const char *fname, unsigned short flags);
-    void (*post_load_func)();
-}
+    void (*pre_load_func)();
+    TbBool (*post_load_func)();
+};
 
 /******************************************************************************/
 extern char keeper_runtime_directory[152];
@@ -231,8 +232,7 @@ char *prepare_file_path(short fgroup,const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
 unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
-short load_configuration(void);
-void process_cmdline_overrides(void);
+TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags);
 /******************************************************************************/
 short is_bonus_level(LevelNumber lvnum);
 short is_extra_level(LevelNumber lvnum);
