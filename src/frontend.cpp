@@ -1008,7 +1008,7 @@ TbBool is_special_power(PowerKind pwkind)
 void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
 {
     struct Dungeon *dungeon;
-    const struct MagicStats *pwrdynst;
+    const struct PowerConfigStats *powerst;
 
     if (!is_special_power(pwkind)) {
         WARNLOG("Bad power kind");
@@ -1017,11 +1017,9 @@ void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
 
     dungeon = get_players_num_dungeon(my_player_number);
     set_chosen_power(pwkind, tooltip_id);
-    pwrdynst = get_power_dynamic_stats(pwkind);
+    powerst = get_power_model_stats(pwkind);
 
-    if (dungeon->total_money_owned >= pwrdynst->cost[0]) {
-        struct PowerConfigStats *powerst;
-        powerst = get_power_model_stats(pwkind);
+    if (dungeon->total_money_owned >= powerst->cost[0]) {
         play_non_3d_sample_no_overlap(powerst->select_sample_idx); // Play the spell speech
         switch (pwkind)
         {
@@ -1614,7 +1612,7 @@ void gui_go_to_event(struct GuiButton *gbtn)
     player = get_my_player();
     dungeon = get_players_dungeon(player);
     if (dungeon->visible_event_idx) {
-        set_players_packet_action(player, PckA_Unknown083, dungeon->visible_event_idx, 0, 0, 0);
+        set_players_packet_action(player, PckA_ZoomToEvent, dungeon->visible_event_idx, 0, 0, 0);
     }
 }
 

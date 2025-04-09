@@ -85,8 +85,9 @@ struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned long model_flags;
     long genre;
-    long name_stridx;
     long map_icon;
+    short tooltip_stridx;
+    TbBool tooltip_optional;
     HitPoints health;
     char fall_acceleration;
     char light_unaffected;
@@ -125,7 +126,8 @@ struct ObjectsConfig {
 extern const char keeper_objects_file[];
 extern struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 extern const struct NamedCommand objects_genres_desc[];
-extern const struct NamedCommand objects_object_commands[];
+
+extern const struct NamedFieldSet objects_named_fields_set;
 /******************************************************************************/
 TbBool load_objects_config(const char *conf_fname,unsigned short flags);
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel);

@@ -229,6 +229,7 @@ TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);
 TbBool thing_is_creature_digger(const struct Thing *thing);
+TbBool thing_is_creature_special_digger(const struct Thing* thing);
 TbBool thing_is_creature_spectator(const struct Thing *thing);
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_is_invisible(const struct Thing *thing);

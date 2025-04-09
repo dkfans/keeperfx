@@ -2049,14 +2049,19 @@ void update_players_special_digger_model(PlayerNumber plyr_idx, ThingModel new_d
     struct PlayerInfo* player = get_player(plyr_idx);
 
     player->special_digger = new_dig_model;
-    for (size_t i = 0; i < CREATURE_TYPES_MAX; i++)
+
+    if (plyr_idx == my_player_number)
     {
-        if (breed_activities[i] == old_dig_model)
-            breed_activities[i] = new_dig_model;
-        else if (breed_activities[i] == new_dig_model)
-            breed_activities[i] = old_dig_model;
+        for (size_t i = 0; i < CREATURE_TYPES_MAX; i++)
+        {
+            if (breed_activities[i] == old_dig_model)
+                breed_activities[i] = new_dig_model;
+            else if (breed_activities[i] == new_dig_model)
+                breed_activities[i] = old_dig_model;
+        }
+        update_creatr_model_activities_list(1);
     }
-    update_creatr_model_activities_list(1);
+
 
 }
 

@@ -338,6 +338,9 @@ struct PowerConfigStats {
     EffectOrEffElModel effect_id;
     short magic_use_func_idx;
     ThingModel creature_model;
+    long cost[MAGIC_OVERCHARGE_LEVELS];
+    long duration;
+    long strength[MAGIC_OVERCHARGE_LEVELS+1];
 };
 
 /**
@@ -392,12 +395,6 @@ struct SpellConfig {
     ThingModel transform_model;
 };
 
-struct MagicStats {
-  long cost[MAGIC_OVERCHARGE_LEVELS];
-  long duration;
-  long strength[MAGIC_OVERCHARGE_LEVELS+1];
-};
-
 struct MagicConfig {
     long spell_types_count;
     struct SpellConfig spell_config[MAGIC_ITEMS_MAX];// should get merged into SpellConfigStats
@@ -409,7 +406,6 @@ struct MagicConfig {
     long special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
     struct InstanceInfo instance_info[INSTANCE_TYPES_MAX]; //count in crtr_conf
-    struct MagicStats keeper_power_stats[POWER_TYPES_MAX]; // should get merged into PowerConfigStats
 };
 
 /******************************************************************************/
@@ -436,7 +432,6 @@ struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel);
 struct ShotConfigStats *get_shot_model_stats(ThingModel tngmodel);
 struct PowerConfigStats *get_power_model_stats(PowerKind pwmodel);
 TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst);
-struct MagicStats *get_power_dynamic_stats(PowerKind pwkind);
 struct SpecialConfigStats *get_special_model_stats(SpecialKind spckind);
 const char *spell_code_name(SpellKind spmodel);
 const char *shot_code_name(ThingModel tngmodel);

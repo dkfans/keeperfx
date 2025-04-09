@@ -418,6 +418,41 @@ long highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_b
  * @param param Parameters exchanged between filter calls.
  * @param maximizer Previous value which made a thing pass the filter.
  */
+long highest_score_thing_filter_is_enemy_object_within_distance_which_can_be_attacked_by_creature(const struct Thing* thing, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    {
+        if (thing_matches_model(thing, param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                struct Thing* objtng = thing_get(param->num1);
+                if (trap_is_valid_combat_target_for_creature(objtng, thing))
+                {
+                    long distance = get_combat_distance(objtng, thing);
+                    if (distance >= param->num2) {
+                        return -1;
+                    }
+                    CrAttackType attack_type = creature_can_have_combat_with_object(objtng, (struct Thing*)thing, distance, param->num3, 0);
+                    if (attack_type > AttckT_Unset)
+                    {
+                        long score = get_combat_score(objtng, thing, attack_type, distance);
+                        return score;
+                    }
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
 long near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if ((thing->class_id == TCls_Creature) && players_are_enemies(param->plyr_idx, thing->owner))
@@ -1931,6 +1966,20 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
     struct CompoundTngFilterParam param;
     param.class_id = TCls_Creature;
     param.model_id = CREATURE_ANY;
+    param.plyr_idx = -1;
+    param.num1 = creatng->index;
+    param.num2 = dist;
+    param.num3 = move_on_ground;
+    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+}
+
+struct Thing* get_highest_score_enemy_object_within_distance_possible_to_attack_by(struct Thing* creatng, MapCoordDelta dist, long move_on_ground)
+{
+    SYNCDBG(19, "Starting");
+    Thing_Maximizer_Filter filter = highest_score_thing_filter_is_enemy_object_within_distance_which_can_be_attacked_by_creature;
+    struct CompoundTngFilterParam param;
+    param.class_id = TCls_Trap;
+    param.model_id = -1;
     param.plyr_idx = -1;
     param.num1 = creatng->index;
     param.num2 = dist;

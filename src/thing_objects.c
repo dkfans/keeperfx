@@ -1576,10 +1576,8 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
     }
 
     KeepPwrLevel sight_casted_power_level = dungeon->sight_casted_power_level;
-
-    const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
-    int max_time_active = pwrdynst->strength[sight_casted_power_level];
-    int strength = min(pwrdynst->strength[sight_casted_power_level], (MAX_SOE_RADIUS * COORD_PER_STL / 4));
+    int max_time_active = powerst->strength[sight_casted_power_level];
+    int strength = min(powerst->strength[sight_casted_power_level], (MAX_SOE_RADIUS * COORD_PER_STL / 4));
 
     if ( game.play_gameturn - objtng->creation_turn >= max_time_active
         && game.play_gameturn - dungeon->sight_casted_gameturn < max_time_active )
@@ -1692,8 +1690,8 @@ static TngUpdateRet object_update_power_lightning(struct Thing *objtng)
         }
         variation++;
     }
-    const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
-    if (exist_turns > abs(pwrdynst->strength[objtng->lightning.power_level]))
+    const struct PowerConfigStats *powerst = get_power_model_stats(PwrK_LIGHTNING);
+    if (exist_turns > abs(powerst->strength[objtng->lightning.power_level]))
     {
         delete_thing_structure(objtng, 0);
         return TUFRet_Deleted;

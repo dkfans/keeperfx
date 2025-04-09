@@ -1376,7 +1376,7 @@ msgctxt "Level name"
 msgid "Clone"
 msgstr ""
 
-#guitext:228
+#: guitext:228
 msgctxt "Level name"
 msgid "Dig"
 msgstr ""

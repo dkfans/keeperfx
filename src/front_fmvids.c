@@ -156,15 +156,22 @@ TbBool campaign_outro(void)
 TbBool moon_video(void)
 {
     char* fname = prepare_file_path(FGrp_LoData, "bullfrog.smk");
-    SYNCDBG(0,"Playing outro movie \"%s\"",fname);
+    SYNCDBG(0,"Playing movie \"%s\"",fname);
     return play_smacker_file(fname, -2);
 }
 
 TbBool drag_video(void)
 {
     char* fname = prepare_file_path(FGrp_LoData, "drag.smk");
-    SYNCDBG(0,"Playing outro movie \"%s\"",fname);
+    SYNCDBG(0,"Playing movie \"%s\"",fname);
     return play_smacker_file(fname, FeSt_TORTURE);
+}
+
+TbBool ea_video(void)
+{
+    char* fname = prepare_file_path(FGrp_LoData, "ea.smk");
+    SYNCDBG(0,"Playing movie \"%s\"",fname);
+    return play_smacker_file(fname, -2);
 }
 
 void demo(void)
