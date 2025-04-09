@@ -328,21 +328,87 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
     return ccr_unrecognised;
 }
 
+static int64_t get_datatype_min(uchar type)
+{
+    switch (type)
+    {
+        case dt_uchar:
+            return 0;
+        case dt_schar:
+            return SCHAR_MIN;
+        case dt_char:
+            return CHAR_MIN;
+        case dt_short:
+            return SHRT_MIN;
+        case dt_ushort:
+            return 0;
+        case dt_int:
+            return INT_MIN;
+        case dt_uint:
+            return 0;
+        case dt_long:
+            return LONG_MIN;
+        case dt_ulong:
+            return 0;
+        case dt_longlong:
+            return LLONG_MIN;
+        case dt_ulonglong:
+            return 0;
+        default:
+            ERRORLOG("unexpected datatype %d", type);
+            break;
+    }
+    return 0;
+}
+
+static int64_t get_datatype_max(uchar type)
+{
+    switch (type)
+    {
+        case dt_uchar:
+            return UCHAR_MAX;
+        case dt_schar:
+            return SCHAR_MAX;
+        case dt_char:
+            return CHAR_MAX;
+        case dt_short:
+            return SHRT_MAX;
+        case dt_ushort:
+            return USHRT_MAX;
+        case dt_int:
+            return INT_MAX;
+        case dt_uint:
+            return UINT_MAX;
+        case dt_long:
+            return LONG_MAX;
+        case dt_ulong:
+            return ULONG_MAX;
+        case dt_longlong:
+            return LLONG_MAX;
+        case dt_ulonglong:
+            return ULLONG_MAX;
+        default:
+            break;
+    }
+    return 0;
+}
+
 //if the parameter is a number return the number, if a value in the provided NamedCommand list return the value
 int64_t value_default(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     if (parameter_is_number(value_text))
     {
         int64_t value = atoll(value_text);
-
-        if( value < named_field->min)
+        int64_t minimum = max(named_field->min, get_datatype_min(named_field->type));
+        int64_t maximum = min(named_field->max, get_datatype_max(named_field->type));
+        if( value < minimum)
         {
-            NAMFIELDWRNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",named_field->name,named_field->min,value);
+            NAMFIELDWRNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",named_field->name,minimum,value);
             value = named_field->min;
         }
-        else if( value > named_field->max)
+        else if( value > maximum)
         {
-            NAMFIELDWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",named_field->name,named_field->max,value);
+            NAMFIELDWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",named_field->name,maximum,value);
             value = named_field->max;
         }
         return value;
