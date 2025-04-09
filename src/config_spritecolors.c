@@ -34,7 +34,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_spritecolors_file[]="spritecolors.toml";
+const struct ConfigFileData keeper_spritecolors_file_data = {
+    filename = "spritecolors.toml",
+    description = "sprite colours",
+    load_func = load_spritecolors_config_file,
+    post_load_func = NULL,
+};
 /******************************************************************************/
 #define MAX_COLORED_SPRITES 255
 #define PLAYER_COLORS_COUNT (COLOURS_COUNT + 2)
@@ -111,28 +116,6 @@ static TbBool load_spritecolors_config_file(const char *textname, const char *fn
     value_fini(&file_root);
     
     return true;
-}
-
-TbBool load_spritecolors_config(const char *conf_fname,unsigned short flags)
-{
-    static const char config_global_textname[] = "global spritecolors config";
-    static const char config_campgn_textname[] = "campaign spritecolors config";
-    static const char config_level_textname[]  = "level spritecolors config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_spritecolors_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_spritecolors_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_spritecolors_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
-
-    return result;
 }
 
 static short get_player_colored_idx(short base_icon_idx,unsigned char color_idx,short *arr)

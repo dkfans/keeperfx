@@ -44,8 +44,12 @@ static void assign_icon_update_room_tab  (const struct NamedField* named_field, 
 static void assign_reinitialise_rooms    (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 /******************************************************************************/
-
-const char keeper_terrain_file[]="terrain.cfg";
+const struct ConfigFileData keeper_terrain_file_data = {
+    filename = "terrain.cfg",
+    description = "terrain",
+    load_func = load_terrain_config_file,
+    post_load_func = NULL,
+};
 
 static const struct NamedCommand terrain_flags[] = {
     {"VALUABLE",          SlbAtFlg_Valuable      },
@@ -485,27 +489,6 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
 
     //Freeing and exiting
     free(buf);
-    return result;
-}
-
-TbBool load_terrain_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global terrain config";
-    static const char config_campgn_textname[] = "campaign terrain config";
-    static const char config_level_textname[] = "level terrain config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_terrain_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_terrain_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_terrain_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
     return result;
 }
 

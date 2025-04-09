@@ -29,8 +29,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-extern const char keeper_slabset_file[];
-extern const char keeper_columns_file[];
+extern const struct ConfigFileData keeper_slabset_file_data;
+extern const struct ConfigFileData keeper_columns_file_data;
 
 
 TbBool load_slabset_config(const char *conf_fname,unsigned short flags);

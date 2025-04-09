@@ -46,55 +46,35 @@ TbBool load_stats_files(void)
     clear_research_for_all_players();
     init_creature_model_stats();
     init_creature_model_graphics();
-    if (!load_creaturetypes_config(keeper_creaturetp_file,CnfLd_ListOnly))
-        result = false;
-    if (!load_terrain_config(keeper_terrain_file,CnfLd_ListOnly))
-        result = false;
-    if (!load_objects_config(keeper_objects_file,CnfLd_ListOnly))
-        result = false;
-    if (!load_trapdoor_config(keeper_trapdoor_file,CnfLd_ListOnly))
-        result = false;
-    if (!load_effects_config(keeper_effects_file,CnfLd_ListOnly))
-        result = false;
-    if (!load_lenses_config(keeper_lenses_file,CnfLd_ListOnly))
-        result = false;
-    if (!load_magic_config(keeper_magic_file,CnfLd_ListOnly))
-        result = false;
-    if (!load_creaturestates_config(creature_states_file,CnfLd_ListOnly))
-        result = false;
-    if (!load_playerstate_config(keeper_playerstates_file,CnfLd_ListOnly))
-        result = false;
-    if (!load_terrain_config(keeper_terrain_file,CnfLd_Standard))
-        result = false;
-    if (!load_objects_config(keeper_objects_file,CnfLd_Standard))
-        result = false;
-    if (!load_trapdoor_config(keeper_trapdoor_file,CnfLd_Standard))
-        result = false;
-    if (!load_effects_config(keeper_effects_file,CnfLd_Standard))
-        result = false;
-    if (!load_lenses_config(keeper_lenses_file,CnfLd_Standard))
-        result = false;
-    if (!load_magic_config(keeper_magic_file,CnfLd_Standard))
-        result = false;
-    if (!load_creaturetypes_config(keeper_creaturetp_file,CnfLd_Standard))
-        result = false;
-    if (!load_creaturestates_config(creature_states_file,CnfLd_Standard))
-        result = false;
-    // Note that rules file requires definitions of magic and creature types.
-    if (!load_rules_config(keeper_rules_file,CnfLd_Standard))
-        result = false;
-    if (!load_slabset_config(keeper_slabset_file,CnfLd_Standard))
-        result = false;
-    if (!load_textureanim_config(keeper_textureanim_file,CnfLd_Standard))
-        result = false;
-    if (!load_powerhands_config(keeper_powerhands_file,CnfLd_Standard))
-        result = false;
-    if (!load_spritecolors_config(keeper_spritecolors_file,CnfLd_Standard))
-        result = false;
-    if (!load_cubes_config(CnfLd_Standard))
-        result = false;
-    if (!load_playerstate_config(keeper_playerstates_file,CnfLd_Standard))
-        result = false;
+
+    //first load some configs which contain names that are used in other cfgs in ListOnly mode
+    load_config(keeper_creaturetp_file_data,   CnfLd_ListOnly);
+    load_config(keeper_terrain_file_data,      CnfLd_ListOnly);
+    load_config(keeper_objects_file_data,      CnfLd_ListOnly);
+    load_config(keeper_trapdoor_file_data,     CnfLd_ListOnly);
+    load_config(keeper_effects_file_data,      CnfLd_ListOnly);
+    load_config(keeper_lenses_file_data,       CnfLd_ListOnly);
+    load_config(keeper_magic_file_data,        CnfLd_ListOnly);
+    load_config(creature_states_file_data,     CnfLd_ListOnly);
+    load_config(keeper_playerstates_file_data, CnfLd_ListOnly);
+
+    //then load everything for real
+    load_config(keeper_terrain_file_data,      CnfLd_Standard);
+    load_config(keeper_objects_file_data,      CnfLd_Standard);
+    load_config(keeper_trapdoor_file_data,     CnfLd_Standard);
+    load_config(keeper_effects_file_data,      CnfLd_Standard);
+    load_config(keeper_lenses_file_data,       CnfLd_Standard);
+    load_config(keeper_magic_file_data,        CnfLd_Standard);
+    load_config(keeper_creaturetp_file_data,   CnfLd_Standard);
+    load_config(creature_states_file_data,     CnfLd_Standard);
+    load_config(keeper_rules_file_data,        CnfLd_Standard);
+    load_config(keeper_textureanim_file_data,  CnfLd_Standard);
+    load_config(keeper_powerhands_file_data,   CnfLd_Standard);
+    load_config(keeper_spritecolors_file_data, CnfLd_Standard);
+    load_config(keeper_cubes_file_data,        CnfLd_Standard);  
+    load_config(keeper_playerstates_file_data, CnfLd_Standard);
+    load_config(keeper_keepcomp_file_data,     CnfLd_Standard);
+
     for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
     {
         if (!load_creaturemodel_config(i,0))

@@ -36,7 +36,13 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-const char keeper_compplayer_file[]="keepcompp.cfg";
+const struct ConfigFileData keeper_playerstates_file_data = {
+  filename = keeper_compplayer_file,
+  description = "Computer Player",
+  load_func = load_computer_player_config_file,
+  post_load_func = NULL,
+};
+
 
 /******************************************************************************/
 struct ComputerPlayerConfig comp_player_conf;
@@ -405,27 +411,6 @@ TbBool load_computer_player_config_file(const char *textname, const char *fname,
     //Freeing and exiting
     free(buf);
     return true;
-}
-
-
-TbBool load_computer_player_config(unsigned short flags)
-{
-    static const char config_global_textname[] = "global Computer Player config";
-    static const char config_campgn_textname[] = "campaign Computer Player config";
-    static const char config_level_textname[] = "level Computer Player config";
-    char* fname = prepare_file_path(FGrp_FxData, keeper_compplayer_file);
-    TbBool result = load_computer_player_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,keeper_compplayer_file);
-    if (strlen(fname) > 0)
-    {
-        load_computer_player_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), keeper_compplayer_file);
-    if (strlen(fname) > 0)
-    {
-        load_computer_player_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    return result;
 }
 
 /******************************************************************************/

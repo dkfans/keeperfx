@@ -38,8 +38,12 @@ extern "C" {
 /******************************************************************************/
 struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 /******************************************************************************/
-
-const char keeper_objects_file[]="objects.cfg";
+const struct ConfigFileData keeper_objects_file_data = {
+    filename = "objects.cfg",
+    description = "objects",
+    load_func = load_objects_config_file,
+    post_load_func = NULL,
+};
 
 const struct NamedCommand objects_properties_commands[] = {
   {"EXISTS_ONLY_IN_ROOM",     OMF_ExistsOnlyInRoom    },
@@ -247,27 +251,6 @@ void update_all_objects_of_model(ThingModel model)
             thing->light_id = light_create_light(&ilight);
         }
     }
-}
-
-TbBool load_objects_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global objects config";
-    static const char config_campgn_textname[] = "campaign objects config";
-    static const char config_level_textname[] = "level objects config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_objects_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_objects_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_objects_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
-    return result;
 }
 
 /**

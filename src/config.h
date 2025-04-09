@@ -212,6 +212,13 @@ extern unsigned int vid_scale_flags;
 
 extern const struct NamedCommand logicval_type[];
 
+struct ConfigFileData{
+    const char *filename;
+    const char *description;
+    TbBool (*load_func)(const char *textname, const char *fname, unsigned short flags);
+    void (*post_load_func)();
+}
+
 /******************************************************************************/
 extern char keeper_runtime_directory[152];
 

@@ -47,7 +47,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_magic_file[]="magic.cfg";
+const struct ConfigFileData keeper_magic_file_data = {
+    filename = "magic.cfg",
+    description = "magic",
+    load_func = load_magic_config_file,
+    post_load_func = NULL,
+};
 
 const struct NamedCommand magic_spell_commands[] = {
     {"NAME",             1},
@@ -2301,27 +2306,6 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
 
     //Freeing and exiting
     free(buf);
-    return result;
-}
-
-TbBool load_magic_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global magic config";
-    static const char config_campgn_textname[] = "campaign magic config";
-    static const char config_level_textname[] = "level magic config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_magic_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_magic_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_magic_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
     return result;
 }
 

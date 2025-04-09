@@ -46,9 +46,12 @@ static void assign_MapCreatureLimit_script(const struct NamedField* named_field,
 static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
 
 /******************************************************************************/
-
-
-const char keeper_rules_file[]="rules.cfg";
+const struct ConfigFileData keeper_rules_file_data = {
+  filename = "rules.cfg",
+  description = "rules",
+  load_func = load_rules_config_file,
+  post_load_func = NULL,
+};
 
 const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"RESURRECT_FOREVER",             ClscBug_ResurrectForever      },
@@ -725,30 +728,6 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
     }
     //Freeing and exiting.
     free(buf);
-    return result;
-}
-
-TbBool load_rules_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global rules config";
-    static const char config_campgn_textname[] = "campaign rules config";
-    static const char config_level_textname[] = "level rules config";
-
-    set_defaults();
-
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_rules_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_rules_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_rules_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting.
     return result;
 }
 
