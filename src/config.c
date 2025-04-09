@@ -355,6 +355,7 @@ static int64_t get_datatype_min(uchar type)
         case dt_ulonglong:
             return 0;
         default:
+            ERRORLOG("unexpected datatype %d", type);
             break;
     }
     return 0;
