@@ -1391,7 +1391,8 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         ERRORLOG("Map Strings file %s does not exist or can't be opened", fname);
         return;
     }
-    level_strings_data = calloc(filelen + 256, 1);
+    size_t size = filelen + 256;
+    level_strings_data = calloc(size, sizeof(char)); //  we're allocating extra memory, which we can't just assume is already clear
     if (level_strings_data == NULL)
     {
         ERRORLOG("Can't allocate memory for Map Strings data");
@@ -1404,7 +1405,7 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         return;
     }
     unsigned long loaded_strings_count = count_strings(level_strings_data, loaded_size);
-    char* strings_data_end = level_strings_data + filelen + 255;
+    char* strings_data_end = level_strings_data + size;
     // Resetting all values to empty strings
     reset_strings(level_strings, STRINGS_MAX);
     // Analyzing strings data and filling correct values
