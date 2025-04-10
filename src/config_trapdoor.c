@@ -77,48 +77,48 @@ static const struct NamedCommand trap_activation_type_commands[] = {
     {"POWER",               TrpAcT_Power},
 };
 
-static void assign_update_trap_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_update_trap_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_default(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_trap_tab_to_config();
     }
 }
 
-static void assign_icon_update_trap_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_icon_update_trap_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_icon(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_icon(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_trap_tab_to_config();
     }
 }
 
-static void assign_crate_door(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_crate_door(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     game.conf.object_conf.object_to_door_or_trap[value] = idx;
     game.conf.object_conf.workshop_object_class[value] = TCls_Door;
     game.conf.trapdoor_conf.door_to_object[idx] = value;
 }
 
-static void assign_update_door_stats(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_update_door_stats(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_default(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_all_door_stats();
     }
 }
 
-static void assign_crate_trap(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_crate_trap(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     game.conf.object_conf.object_to_door_or_trap[value] = idx;
     game.conf.object_conf.workshop_object_class[value] = TCls_Trap;
     game.conf.trapdoor_conf.trap_to_object[idx] = value;
 }
 
-int64_t value_activationeffect(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+int64_t value_activationeffect(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     if (parameter_is_number(value_text))
     {
@@ -158,19 +158,19 @@ int64_t value_activationeffect(const struct NamedField* named_field, const char*
     }
 }
 
-static void assign_refresh_trap_anim(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_refresh_trap_anim(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_default(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         refresh_trap_anim(idx);
     }
 }
 
-static void assign_refresh_trap_anim_anim_id(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_refresh_trap_anim_anim_id(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_animid(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_animid(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         refresh_trap_anim(idx);
     }

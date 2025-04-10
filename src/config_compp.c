@@ -45,9 +45,9 @@ static TbBool computer_type_clear_processes(struct ComputerType *cpt);
 static TbBool computer_type_clear_checks(struct ComputerType *cpt);
 static short computer_type_clear_events(struct ComputerType *cpt);
 
-static int64_t value_processes(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
-static int64_t value_checks(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
-static int64_t value_events(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static int64_t value_processes(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static int64_t value_checks(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static int64_t value_events(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 
 static int get_computer_process_config_list_index_mnem(const char *mnemonic);
 static int get_computer_check_config_list_index_mnem(const char *mnemonic);
@@ -202,7 +202,7 @@ const struct NamedFieldSet compp_computer_named_fields_set = {
 };
 
 /******************************************************************************/
-int64_t value_processes(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+int64_t value_processes(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
   char word_buf[COMMAND_WORD_LEN];
   struct ComputerType* cpt = get_computer_type_template(idx);
@@ -226,7 +226,7 @@ int64_t value_processes(const struct NamedField* named_field, const char* value_
   return 0;
 }
 
-int64_t value_checks(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+int64_t value_checks(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     char word_buf[COMMAND_WORD_LEN];
     struct ComputerType* cpt = get_computer_type_template(idx);
@@ -250,7 +250,7 @@ int64_t value_checks(const struct NamedField* named_field, const char* value_tex
     return 0;
 }
 
-int64_t value_events(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+int64_t value_events(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
   char word_buf[COMMAND_WORD_LEN];
   struct ComputerType* cpt = get_computer_type_template(idx);

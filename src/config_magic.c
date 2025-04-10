@@ -337,18 +337,18 @@ struct NamedCommand power_desc[MAGIC_ITEMS_MAX];
 struct NamedCommand special_desc[MAGIC_ITEMS_MAX];
 /******************************************************************************/
 
-static void assign_artifact(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_artifact(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_default(named_field,value,named_fields_set,idx,src);
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     game.conf.object_conf.object_to_power_artifact[value] = idx;
 }
 
-static void assign_strength_before_last(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_strength_before_last(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     // Old power max is one short for spell max, so duplicate final power value to use for lvl10 creatures.
-    assign_default(named_field,value,named_fields_set,idx,src);
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     named_field++;
-    assign_default(named_field,value,named_fields_set,idx,src);
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
 }
 
 static const struct NamedField magic_powers_named_fields[] = {
