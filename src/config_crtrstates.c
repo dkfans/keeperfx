@@ -54,11 +54,19 @@ const struct NamedFieldSet crstates_states_named_fields_set = {
     {"crstates.cfg","INVALID_SCRIPT"},
 };
 
-const char creature_states_file[]="crstates.cfg";
+static TbBool load_creaturestates_config_file(const char *textname, const char *fname, unsigned short flags);
+
+const struct ConfigFileData creature_states_file_data = {
+    .filename = "crstates.cfg",
+    .description = "creature states",
+    .load_func = load_creaturestates_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
 
 /******************************************************************************/
 
-TbBool load_creaturestates_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_creaturestates_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
     long len = LbFileLengthRnc(fname);
@@ -79,27 +87,6 @@ TbBool load_creaturestates_config_file(const char *textname, const char *fname, 
 
     //Freeing and exiting
     free(buf);
-    return result;
-}
-
-TbBool load_creaturestates_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global creature states config";
-    static const char config_campgn_textname[] = "campaign creature states config";
-    static const char config_level_textname[] = "level creature states config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_creaturestates_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_creaturestates_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_creaturestates_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
     return result;
 }
 

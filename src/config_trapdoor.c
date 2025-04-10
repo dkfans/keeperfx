@@ -47,7 +47,15 @@ struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 static void refresh_trap_anim(long trap_id);
 
 /******************************************************************************/
-const char keeper_trapdoor_file[]="trapdoor.cfg";
+static TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsigned short flags);
+TbBool create_manufacture_array_from_trapdoor_data(void);
+
+const struct ConfigFileData keeper_trapdoor_file_data = {
+    .filename = "trapdoor.cfg",
+    .description = "trapdoor",
+    .load_func = load_trapdoor_config_file,
+    .post_load_func = create_manufacture_array_from_trapdoor_data,
+};
 
 static const struct NamedCommand door_properties_commands[] = {
     {"RESIST_NON_MAGIC",     DoMF_ResistNonMagic},
@@ -335,7 +343,7 @@ int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmode
     return 0;
 }
 
-TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
     long len = LbFileLengthRnc(fname);
@@ -420,29 +428,6 @@ TbBool create_manufacture_array_from_trapdoor_data(void)
         game.conf.trapdoor_conf.manufacture_types_count++;
     }
     return true;
-}
-
-TbBool load_trapdoor_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global traps and doors config";
-    static const char config_campgn_textname[] = "campaign traps and doors config";
-    static const char config_level_textname[] = "level traps and doors config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_trapdoor_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_trapdoor_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_trapdoor_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    // Creating arrays derived from the original config
-    create_manufacture_array_from_trapdoor_data();
-    //Freeing and exiting
-    return result;
 }
 
 ThingModel door_crate_object_model(ThingModel tngmodel)

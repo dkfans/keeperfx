@@ -1146,7 +1146,6 @@ TbBool change_campaign(const char *cmpgn_fname)
     else
         result = load_campaign(keeper_campaign_file,&campaign,CnfLd_Standard, FGrp_Campgn);
     // Configs which may change within a level should be initialized outside
-    //load_computer_player_config(CnfLd_Standard);
     //load_stats_files();
     //check_and_auto_fix_stats();
     // Make sure all additional levels are loaded

@@ -28,10 +28,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-extern const char creature_states_file[];
+extern const struct ConfigFileData creature_states_file_data;
 extern struct NamedCommand creatrstate_desc[];
 /******************************************************************************/
-TbBool load_creaturestates_config(const char *conf_fname,unsigned short flags);
 const char *creature_state_code_name(long crstate);
 /******************************************************************************/
 #ifdef __cplusplus

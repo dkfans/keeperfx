@@ -35,8 +35,15 @@
 extern "C" {
 #endif
 /******************************************************************************/
+static TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags);
 
-const char keeper_compplayer_file[]="keepcompp.cfg";
+const struct ConfigFileData keeper_keepcomp_file_data = {
+  .filename = "keepcompp.cfg",
+  .description = "Computer Player",
+  .load_func = load_computer_player_config_file,
+  .post_load_func = NULL,
+};
+
 
 /******************************************************************************/
 struct ComputerPlayerConfig comp_player_conf;
@@ -373,7 +380,7 @@ static int computer_type_add_event(struct ComputerType *cpt, unsigned char event
     return -1;
 }
 
-TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(8, "Starting");
     // Load the config file
@@ -381,12 +388,12 @@ TbBool load_computer_player_config_file(const char *textname, const char *fname,
     if (len < 2)
     {
         if (!flag_is_set(flags,CnfLd_IgnoreErrors))
-          ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",keeper_compplayer_file);
+          ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     if (len > 65536)
     {
-        ERRORLOG("Computer Player file \"%s\" is too large.",keeper_compplayer_file);
+        ERRORLOG("Computer Player file \"%s\" is too large.",fname);
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);
@@ -405,27 +412,6 @@ TbBool load_computer_player_config_file(const char *textname, const char *fname,
     //Freeing and exiting
     free(buf);
     return true;
-}
-
-
-TbBool load_computer_player_config(unsigned short flags)
-{
-    static const char config_global_textname[] = "global Computer Player config";
-    static const char config_campgn_textname[] = "campaign Computer Player config";
-    static const char config_level_textname[] = "level Computer Player config";
-    char* fname = prepare_file_path(FGrp_FxData, keeper_compplayer_file);
-    TbBool result = load_computer_player_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,keeper_compplayer_file);
-    if (strlen(fname) > 0)
-    {
-        load_computer_player_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), keeper_compplayer_file);
-    if (strlen(fname) > 0)
-    {
-        load_computer_player_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    return result;
 }
 
 /******************************************************************************/

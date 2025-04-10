@@ -1042,25 +1042,13 @@ TbBool create_columns_from_list(struct Column *cols, long ccount)
 TbBool load_slab_datclm_files(void)
 {
     SYNCDBG(5,"Starting");
-    // Load Column Set
-    long cols_tot = 0;
-    struct Column* cols = (struct Column*)calloc(COLUMNS_COUNT, sizeof(struct Column));
-    if (cols == NULL)
-    {
-      WARNMSG("Can't allocate memory for %d column sets.",COLUMNS_COUNT);
-      return false;
-    }
-    if (!load_columns_config(keeper_columns_file,CnfLd_Standard,cols,&cols_tot))
-    {
-      free(cols);
-      return false;
-    }
+
     long slbset_tot = game.conf.slab_conf.slab_types_count * SLABSETS_PER_SLAB;
     game.slabset_num = slbset_tot;
-    update_columns_use(cols,cols_tot,game.slabset,slbset_tot);
-    create_columns_from_list(cols,cols_tot);
-    update_slabset_column_indices(cols,cols_tot);
-    free(cols);
+    
+    update_columns_use(game.conf.column_conf.cols,game.conf.column_conf.columns_count,game.slabset,slbset_tot);
+    create_columns_from_list(game.conf.column_conf.cols,game.conf.column_conf.columns_count);
+    update_slabset_column_indices(game.conf.column_conf.cols,game.conf.column_conf.columns_count);
     return true;
 }
 
