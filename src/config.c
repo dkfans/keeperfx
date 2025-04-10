@@ -2135,6 +2135,11 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 {
     char config_textname[64];
 
+    if (file_data->pre_load_func != NULL)
+    {
+        file_data->pre_load_func();
+    }
+
     const char* conf_fname = file_data->filename;
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
 
