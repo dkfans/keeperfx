@@ -36,7 +36,7 @@ extern "C" {
 
 /******************************************************************************/
 
-extern const struct NamedCommand effect_generator_commands[];
+extern const struct NamedFieldSet effects_effectgenerator_named_fields_set;
 
 struct EffectConfigStats {
     char code_name[COMMAND_WORD_LEN];
@@ -123,6 +123,7 @@ struct EffectElementConfigStats {
 
 struct EffectsConfig {
     struct EffectConfigStats effect_cfgstats[EFFECTS_TYPES_MAX];
+    long effectgen_cfgstats_count;
     struct EffectGeneratorConfigStats effectgen_cfgstats[EFFECTSGEN_TYPES_MAX];
     struct EffectElementConfigStats effectelement_cfgstats[EFFECTSELLEMENTS_TYPES_MAX];
 };
