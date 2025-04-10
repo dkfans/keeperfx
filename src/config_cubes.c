@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static void assign_owner(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_owner(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 /******************************************************************************/
 struct NamedCommand cube_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
@@ -77,7 +77,7 @@ const struct NamedFieldSet cubes_named_fields_set = {
 #endif
 /******************************************************************************/
 
-static void assign_owner(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_owner(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     struct CubeConfigStats *cubed = get_cube_model_stats(idx);
     if (cubed->ownershipGroup <= 0)
@@ -87,7 +87,7 @@ static void assign_owner(const struct NamedField* named_field, int64_t value, co
     }
 
     game.conf.cube_conf.cube_bits[cubed->ownershipGroup][value] = idx;
-    assign_default(named_field,value,named_fields_set,idx,src);
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
 }
 
 struct CubeConfigStats *get_cube_model_stats(long cumodel)

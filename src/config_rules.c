@@ -40,15 +40,16 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 
-static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
-static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 
 /******************************************************************************/
 
 
 const char keeper_rules_file[]="rules.cfg";
+
 
 const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"RESURRECT_FOREVER",             ClscBug_ResurrectForever      },
@@ -254,10 +255,10 @@ const struct NamedCommand sacrifice_unique_desc[] = {
 
 /******************************************************************************/
 
-static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_default(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
         if (count > 0)
@@ -267,16 +268,16 @@ static void assign_MapCreatureLimit_script(const struct NamedField* named_field,
     }
 }
 
-static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_default(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
       panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
     }
 }
 
-static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     
     if (parameter_is_number(value_text))
@@ -324,12 +325,12 @@ static int long_compare_fn(const void *ptr_a, const void *ptr_b)
     return *a < *b;
 }
 
-static void set_defaults()
+static void set_rules_defaults()
 {
     for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++) {
       const struct NamedField* field = ruleblocks[i];
       while (field->name != NULL) {
-        assign_default(field, field->default_value, &rules_named_fields_set, 0, ccs_CfgFile);
+        assign_default(field, field->default_value, &rules_named_fields_set, 0,"rules",ccf_SplitExecution|ccf_DuringLevel);
         field++;
       }
     }
@@ -734,7 +735,7 @@ TbBool load_rules_config(const char *conf_fname, unsigned short flags)
     static const char config_campgn_textname[] = "campaign rules config";
     static const char config_level_textname[] = "level rules config";
 
-    set_defaults();
+    set_rules_defaults();
 
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_rules_config_file(config_global_textname, fname, flags);
