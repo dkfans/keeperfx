@@ -39,19 +39,36 @@ extern "C" {
 /******************************************************************************/
 const char keeper_effects_file[]="effects.toml";
 
-const struct NamedCommand effect_generator_commands[] = {
-    {"NAME",                    1},
-    {"GENERATIONDELAYMIN",      2},
-    {"GENERATIONDELAYMAX",      3},
-    {"GENERATIONAMOUNT",        4},
-    {"EFFECTMODEL",             5},
-    {"IGNORETERRAIN",           6},
-    {"SPAWNHEIGHT",             7},
-    {"ACCELERATIONMIN",         8},
-    {"ACCELERATIONMAX",         9},
-    {"SOUND",                  10},
-    {"HITTYPE",                11},
-    {NULL,                      0},
+
+const struct NamedField effects_effectgenerator_named_fields[] = {
+    {"NAME",                   0, field(game.conf.effects_conf.effectgen_cfgstats[0].code_name),            0,    LONG_MIN, ULONG_MAX, effectgen_desc,  value_name,      assign_null},
+    {"GENERATIONDELAYMIN",     0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_delay_min), 0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"GENERATIONDELAYMAX",     0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_delay_max), 0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"GENERATIONAMOUNT",       0, field(game.conf.effects_conf.effectgen_cfgstats[0].generation_amount),    0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"EFFECTMODEL",            0, field(game.conf.effects_conf.effectgen_cfgstats[0].effect_model),         0,    LONG_MIN, ULONG_MAX, NULL,            value_effOrEffEl,assign_default},
+    {"IGNORETERRAIN",          0, field(game.conf.effects_conf.effectgen_cfgstats[0].ignore_terrain),       0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"SPAWNHEIGHT",            0, field(game.conf.effects_conf.effectgen_cfgstats[0].spawn_height),         1,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMIN",        0, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_x_min),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMIN",        1, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_y_min),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMIN",        2, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_z_min),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMAX",        0, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_x_max),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMAX",        1, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_y_max),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"ACCELERATIONMAX",        2, field(game.conf.effects_conf.effectgen_cfgstats[0].acc_z_max),            0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"SOUND",                  0, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_idx),     0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {"SOUND",                  1, field(game.conf.effects_conf.effectgen_cfgstats[0].sound_sample_rng),     0,    LONG_MIN, ULONG_MAX, NULL,            value_default,   assign_default},
+    {NULL},
+};
+
+
+const struct NamedFieldSet effects_effectgenerator_named_fields_set = {
+    &game.conf.effects_conf.effectgen_cfgstats_count,
+    "effectGenerator",
+    effects_effectgenerator_named_fields,
+    effectgen_desc,
+    EFFECTSGEN_TYPES_MAX,
+    sizeof(game.conf.effects_conf.effectgen_cfgstats[0]),
+    game.conf.effects_conf.effectgen_cfgstats,
+    {"effects.toml","SET_EFFECT_GENERATOR_CONFIGURATION"},
 };
 
 long const imp_spangle_effects[] = {
