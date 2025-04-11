@@ -54,15 +54,24 @@ local function validateClosure(func)
         end
     end
 end
-
-function getFunctionName(func)
+local function getFunctionName(func)
     local info = debug.getinfo(func, "n")
-    return info and info.name or "<anonymous>"
+    if info and info.name and info.name ~= "" then
+        return info.name
+    end
+
+    for k, v in pairs(_G) do
+        if v == func then
+            return k
+        end
+    end
+
+    return "<anonymous>"
 end
 
 --- @param func function|string
 local function validatefunc(func)
-    --complex function are hard to serialize, so simply store the name if they're global, 
+    --complex function are hard to serialize, so simply store the name if they're global,
     --anonymous ones tend to be simpler, so we can store them as is
     if type(func) == "function" then
         local fname = getFunctionName(func)
