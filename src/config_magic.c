@@ -326,7 +326,6 @@ static void assign_strength_before_last(const struct NamedField* named_field, in
 
 int64_t value_powercost(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
-    int64_t value = 0;
     long buff[MAGIC_OVERCHARGE_LEVELS+1];
     long max = MAGIC_OVERCHARGE_LEVELS;
     char word_buf[COMMAND_WORD_LEN];
@@ -339,23 +338,22 @@ int64_t value_powercost(const struct NamedField* named_field, const char* value_
     long pos = 0;
     long len = strlen(value_text);
     int i = 0;
-    while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
-    {
+    while (get_conf_parameter_single(value_text, &pos, len, word_buf, sizeof(word_buf)) > 0) {
+        if (i >= max)
+        {
+            NAMFIELDWRNLOG("Too many values for field '%s', got '%s', %d values instead of %ld", named_field->name, value_text, i, max);
+            break;
+        }
         buff[i] = atoll(word_buf);
         i++;
     }
 
-    if (i > max)
-    {
-        NAMFIELDWRNLOG("Too many values for field '%s', got '%s', %d values instead of %d",named_field->name,value_text,i,max);
-        i = max;
-    }
-
+    //if there's 2 values first is the actual value, second is the level
     if (i == 2)
     {
         if (flag_is_set(flags,ccf_SplitExecution))
         {
-            return buff[0] | (buff[1] << 32);
+            return buff[0] | ((int64_t)buff[1] << 32);
         }
         else
         {
@@ -381,7 +379,7 @@ int64_t value_powercost(const struct NamedField* named_field, const char* value_
     {
         NAMFIELDWRNLOG("unexpected number of values for '%s', got '%s', %d values instead of 2 or %d",named_field->name,value_text,i,max);
     }
-    return value;
+    return 0;
 }
 
 static void assign_powercost(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
