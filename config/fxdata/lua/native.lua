@@ -177,6 +177,16 @@ local Creature = {}
 ---@field hidden boolean
 local Herogate = {}
 
+---@class Slab
+---@field slb_x integer
+---@field slb_y integer
+---@field revealed boolean
+---@field owner Player
+---@field kind slab_type
+---@field style texture_pack
+local Slab = {}
+
+
 
 
 ---@return Player
@@ -1051,20 +1061,11 @@ function CHANGE_CREATURES_ANNOYANCE(player,creature,operation,annoyance) end
 --Slabs Functions
 -------------------------------------------------------
 
-
----@class slab
----@field slb_x integer
----@field slb_y integer
----@field owner Player
----@field type slab_type
----@field style integer
-
-
-
----comment
----@param slb_x any
----@param slb_y any
----@return slab
-function GetSlab(slb_x,slb_y) return {} end
+---returns the slab at the given coordinates
+---@param slb_x integer
+---@param slb_y integer
+---@return Slab
+---@nodiscard
+function getSlab(slb_x,slb_y) end
 
 

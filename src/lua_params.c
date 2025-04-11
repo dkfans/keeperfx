@@ -418,36 +418,29 @@ long luaL_checkIntMinMax(lua_State *L, int index,long min, long max)
 
 
 
-void luaL_checkGameRule(lua_State *L, int index,short *rulegroup, short *ruledesc)
+int luaL_checkSlab(lua_State *L, int idx, MapSlabCoord* slb_x, MapSlabCoord* slb_y)
 {
-    /*
-    const char* text = lua_tostring(L, index);
-    *rulegroup = 0;
-
-    *ruledesc = get_id(game_rule_desc, text);
-    if(*ruledesc != -1)
-        return;
-
-
-    int i = 0;
-    while (ruleblocks[i])
-    {
-        *ruledesc = get_named_field_id(ruleblocks[i], text);
-        if (*ruledesc != -1)
-        {
-            *rulegroup = i;
-            break;
-        }
-        i++;
+    *slb_x = 0;
+    *slb_y = 0;
+    if (!lua_istable(L, idx)) {
+        return luaL_argerror(L, idx, "Expected a table with 'slb_x' and 'slb_y'");
     }
 
-    if (*ruledesc == -1)
-    {
-        
-        SCRPTERRLOG("Unknown Game Rule '%s'.", text);
-        return;
+    lua_getfield(L, idx, "slb_x");
+    if (!lua_isnumber(L, -1)) {
+        return luaL_argerror(L, idx, "Table must have a numeric 'slb_x' field");
     }
-    */
+    *slb_x = lua_tointeger(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, idx, "slb_y");
+    if (!lua_isnumber(L, -1)) {
+        return luaL_argerror(L, idx, "Table must have a numeric 'slb_y' field");
+    }
+    *slb_y = lua_tointeger(L, -1);
+    lua_pop(L, 1);
+
+    return 0;
 }
 
 
@@ -504,4 +497,22 @@ void lua_pushPos(lua_State *L, struct Coord3d* pos) {
 
     //luaL_getmetatable(L, "Thing");
     //lua_setmetatable(L, -2);
+}
+
+void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y) {
+
+    if (slb_x < 0 || slb_x >= gameadd.map_tiles_x || slb_y < 0 || slb_y >= gameadd.map_tiles_y) {
+        lua_pushnil(L);
+        return;
+    }
+    lua_createtable(L, 0, 2);
+
+    lua_pushinteger(L, slb_x);
+    lua_setfield(L, -2, "slb_x");
+
+    lua_pushinteger(L,  slb_y);
+    lua_setfield(L, -2, "slb_y");
+
+    luaL_getmetatable(L, "Slab");
+    lua_setmetatable(L, -2);  
 }

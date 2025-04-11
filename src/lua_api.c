@@ -900,12 +900,6 @@ static int lua_SET_GAME_RULE(lua_State *L)
 {
 
     //TODO implement
-    short rulegroup;
-    short ruledesc;
-
-    luaL_checkGameRule(L,1,&rulegroup,&ruledesc);
-    //long rulevalue = luaL_checkinteger(L, 2);
-    //update_game_rule(rulegroup, ruledesc, rulevalue);
     return 0;
 }
 
@@ -1771,6 +1765,16 @@ static int lua_is_action_point_activated_by_player(lua_State *L)
     return 1;
 }
 
+static int lua_get_slab(lua_State *L)
+{
+    MapSlabCoord slb_x = luaL_checkslb_x(L, 1);
+    MapSlabCoord slb_y = luaL_checkslb_y(L, 2);
+
+    lua_pushSlab(L, slb_x, slb_y);
+
+    return 1;
+}
+
 static int lua_run_dkscript_command(lua_State *L)
 {
     const char* map_command_const = lua_tostring(L, 1);
@@ -1929,6 +1933,7 @@ static const luaL_Reg global_methods[] = {
     {"getThingByIdx",                 lua_get_thing_by_idx},
     {"getThingsOfClass",              lua_get_things_of_class},
     {"isActionPointActivatedByPlayer",lua_is_action_point_activated_by_player},
+    {"getSlab",                       lua_get_slab},
 };
 /*
 static const luaL_Reg game_meta[] = {
@@ -1948,11 +1953,12 @@ static void global_register(lua_State *L)
 
 void Player_register(lua_State *L);
 void Thing_register(lua_State *L);
-
+void Slab_register(lua_State *L);
 
 void reg_host_functions(lua_State *L)
 {
     Player_register(L);
     global_register(L);
     Thing_register(L);
+    Slab_register(L);
 }
