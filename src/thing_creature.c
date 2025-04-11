@@ -886,7 +886,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     struct CreatureStats *crstat = creature_stats_get(thing->model);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct SpellConfig *spconf = get_spell_config(spell_idx);
-    const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
+    const struct PowerConfigStats *powerst = get_power_model_stats(spconf->linked_power);
     struct ComponentVector cvect;
     struct Coord3d pos;
     struct Thing *ntng;
@@ -1162,7 +1162,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         else
         {
-            healing_recovery = (thing->health + pwrdynst->strength[spell_level]);
+            healing_recovery = (thing->health + powerst->strength[spell_level]);
         }
         if (healing_recovery < 0)
         {
@@ -1368,19 +1368,19 @@ GameTurnDelta get_spell_full_duration(SpellKind spell_idx, CrtrExpLevel spell_le
 {
     // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
     struct SpellConfig *spconf = get_spell_config(spell_idx);
-    const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
+    const struct PowerConfigStats *powerst = get_power_model_stats(spconf->linked_power);
     GameTurnDelta duration;
     if (spconf->linked_power == 0)
     {
         duration = spconf->duration;
     }
-    else if (pwrdynst->duration == 0)
+    else if (powerst->duration == 0)
     {
-        duration = pwrdynst->strength[spell_level];
+        duration = powerst->strength[spell_level];
     }
     else
     {
-        duration = pwrdynst->duration;
+        duration = powerst->duration;
     }
     return duration;
 }
@@ -3315,7 +3315,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
     {
-        create_effect_around_thing(creatng, ball_puff_effects[creatng->owner]);
+        create_effect_around_thing(creatng, ball_puff_effects[get_player_color_idx(creatng->owner)]);
         set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
         return cause_creature_death(creatng, flags);
     }
@@ -4404,7 +4404,9 @@ void recalculate_all_creature_digger_lists()
 {
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-         recalculate_player_creature_digger_lists(plyr_idx);
+        if (plyr_idx == PLAYER_NEUTRAL)
+            continue;
+        recalculate_player_creature_digger_lists(plyr_idx);
     }
 
     for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
@@ -4586,16 +4588,28 @@ TbBool thing_is_dead_creature(const struct Thing *thing)
   return (thing->class_id == TCls_DeadCreature);
 }
 
-/** Returns if a thing is special digger creature.
+/** Returns if a thing is digger creature.
  *
  * @param thing The thing to be checked.
- * @return True if the thing is creature and special digger, false otherwise.
+ * @return True if the thing is creature and digger or special digger, false otherwise.
  */
 TbBool thing_is_creature_digger(const struct Thing *thing)
 {
   if (!thing_is_creature(thing))
     return false;
-  return ((get_creature_model_flags(thing) & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0);
+  return any_flag_is_set(get_creature_model_flags(thing),(CMF_IsSpecDigger|CMF_IsDiggingCreature));
+}
+
+/** Returns if a thing is special digger creature.
+ *
+ * @param thing The thing to be checked.
+ * @return True if the thing is creature and special digger, false otherwise.
+ */
+TbBool thing_is_creature_special_digger(const struct Thing* thing)
+{
+    if (!thing_is_creature(thing))
+        return false;
+    return flag_is_set(get_creature_model_flags(thing),CMF_IsSpecDigger);
 }
 
 /** Returns if a thing the creature type set as spectator, normally the floating spirit.
@@ -5893,7 +5907,10 @@ TbBool update_controlled_creature_movement(struct Thing *thing)
         {
             cctrl->moveaccel.x.val = distance3d_with_angles_to_coord_x(cctrl->move_speed, thing->move_angle_xy, thing->move_angle_z);
             cctrl->moveaccel.y.val = distance3d_with_angles_to_coord_y(cctrl->move_speed, thing->move_angle_xy, thing->move_angle_z);
-            cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->move_angle_z);
+            if (cctrl->vertical_speed == 0)
+            {
+                cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->move_angle_z);
+            }
         }
         if (cctrl->orthogn_speed != 0)
         {
@@ -6345,7 +6362,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     }
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn < game.play_gameturn))
     {
-        create_effect_around_thing(thing, (TngEff_BallPuffRed + thing->owner));
+        create_effect_around_thing(thing, ball_puff_effects[get_player_color_idx(thing->owner)]);
         kill_creature(thing, INVALID_THING, -1, CrDed_NotReallyDying| CrDed_NoEffects);
         return TUFRet_Deleted;
     }
@@ -6416,13 +6433,17 @@ TngUpdateRet update_creature(struct Thing *thing)
     move_creature(thing);
     if (flag_is_set(thing->alloc_flags, TAlF_IsControlled))
     {
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_Unknown40))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveY))
         {
             cctrl->move_speed /= 2;
         }
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_Unknown80))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveX))
         {
             cctrl->orthogn_speed /= 2;
+        }
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveZ))
+        {
+            cctrl->vertical_speed /= 2;
         }
     }
     else
@@ -6491,7 +6512,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->moveaccel.y.val = 0;
     cctrl->moveaccel.z.val = 0;
     // Clear flags and process spell effects.
-    clear_flag(cctrl->flgfield_1, CCFlg_Unknown40 | CCFlg_Unknown80);
+    clear_flag(cctrl->flgfield_1, CCFlg_MoveX | CCFlg_MoveY | CCFlg_MoveZ);
     clear_flag(cctrl->spell_flags, CSAfF_PoisonCloud | CSAfF_Wind);
     process_thing_spell_effects(thing);
     process_timebomb(thing);

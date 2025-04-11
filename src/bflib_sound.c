@@ -504,15 +504,19 @@ TbBool process_sound_emitters(void)
     long volume;
     long pitch;
     long i;
-    for (i=1; i < NoSoundEmitters; i++)
+    for (i = 0; i < NoSoundEmitters; i++)
     {
         emit = S3DGetSoundEmitter(i);
         if ( ((emit->flags & Emi_IsAllocated) != 0) && ((emit->flags & Emi_UnknownPlay) != 0) )
         {
             if ( emitter_is_playing(emit) )
             {
-                get_emitter_pan_volume_pitch(&Receiver, emit, &pan, &volume, &pitch);
-                set_emitter_pan_volume_pitch(emit, pan, volume, pitch);
+                if (i == Non3DEmitter || i == SpeechEmitter) {
+                    continue; // don't touch
+                } else {
+                    get_emitter_pan_volume_pitch(&Receiver, emit, &pan, &volume, &pitch);
+                    set_emitter_pan_volume_pitch(emit, pan, volume, pitch);
+                }
             } else
             {
                 emit->flags ^= Emi_UnknownPlay;

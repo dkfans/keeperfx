@@ -461,7 +461,7 @@ SlabKind find_core_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return corekind;
 }
 
-long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx, SlabKind synergy_slab_num)
+long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx, short synergy_slab_num)
 {
     TbBool is_room_inside = true;
     long eff_score = 0;
@@ -479,7 +479,7 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
             if ((slabmap_owner(round_slb) == slabmap_owner(slb)) && (round_slb->kind == slb->kind))
             {
                 eff_score += 2;
-            } else if(((slabmap_owner(round_slb) == slabmap_owner(slb)) || !(get_slab_kind_stats(synergy_slab_num)->is_ownable)) && (round_slb->kind == synergy_slab_num))
+            } else if((slabmap_owner(round_slb) == slabmap_owner(slb)) || ((synergy_slab_num >= 0) && !(get_slab_kind_stats(synergy_slab_num)->is_ownable) && (round_slb->kind == synergy_slab_num)))
             {
                 eff_score += 2;
             } else

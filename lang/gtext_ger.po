@@ -7204,9 +7204,14 @@ msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
 msgstr "Habgierige Tür: Diese Tür verbraucht Gold um unzerstörbar zu werden."
 
-#: guitext:1078 guitext:1079
-msgctxt "Unused"
-msgid "Moo9"
+#: guitext:1078
+msgctxt "Game controls"
+msgid "Ascend"
+msgstr ""
+
+#: guitext:1079
+msgctxt "Game controls"
+msgid "Descend"
 msgstr ""
 
 #: guitext:1080
@@ -7218,4 +7223,3 @@ msgstr "Vertrauter: Ruft einen Gefährten herbei, der das Wesen bewacht und unte
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr "Beschwörung: Ruft vorübergehende Wächter herbei, die das Wesen im Kampf unterstützen."
-
