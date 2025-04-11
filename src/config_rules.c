@@ -70,7 +70,6 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
 
 static const struct NamedField rules_game_named_fields[] = {
     //name                    //param  //field                                             //default  //min               //max   //namedCommand                    //valueFunc
-  {"GOLDPERGOLDBLOCK",          0, field(game.conf.rules.game.gold_per_gold_block       ),        1000, LONG_MIN,           LONG_MAX,NULL,
   {"POTOFGOLDHOLDS",            0, field(game.conf.rules.game.pot_of_gold_holds         ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, NULL},
   {"CHESTGOLDHOLD",             0, field(game.conf.rules.game.chest_gold_hold           ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, NULL},
   {"GOLDPILEVALUE",             0, field(game.conf.rules.game.gold_pile_value           ),         500, LONG_MIN,           LONG_MAX,NULL,                           value_default, NULL},
