@@ -99,9 +99,11 @@ void setup_default_settings(void)
           {KC_MOUSEWHEEL_DOWN, KMod_NONE},   // Gkey_RoomSpaceIncSize
           {KC_MOUSEWHEEL_UP, KMod_NONE},     // Gkey_RoomSpaceDecSize
           {KC_LALT, KMod_NONE},              // Gkey_SellTrapOnSubtile
-          {KC_PGUP, KMod_SHIFT},              // Gkey_TiltUp
-          {KC_PGDOWN, KMod_SHIFT},            // Gkey_TiltDown
-          {KC_INSERT, KMod_SHIFT},            // Gkey_TiltReset
+          {KC_PGUP, KMod_SHIFT},             // Gkey_TiltUp
+          {KC_PGDOWN, KMod_SHIFT},           // Gkey_TiltDown
+          {KC_INSERT, KMod_SHIFT},           // Gkey_TiltReset
+          {KC_X, KMod_NONE},                // Gkey_Ascend
+          {KC_Z, KMod_NONE},                // Gkey_Descend
      },                         // kbkeys
      true,                      // tooltips_on
      0,                         // first_person_move_invert

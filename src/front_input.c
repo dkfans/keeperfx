@@ -2510,6 +2510,13 @@ void get_creature_control_nonaction_inputs(void)
             set_packet_control(pckt, PCtr_MoveUp);
         if (is_game_key_pressed(Gkey_MoveDown, NULL, true) || is_key_pressed(KC_DOWN, KMod_DONTCARE))
             set_packet_control(pckt, PCtr_MoveDown);
+        if (flag_is_set(thing->movement_flags, TMvF_Flying))
+        {
+            if (is_game_key_pressed(Gkey_Ascend, NULL, true))
+                set_packet_control(pckt, PCtr_Ascend);
+            if (is_game_key_pressed(Gkey_Descend, NULL, true))
+                set_packet_control(pckt, PCtr_Descend);
+        }
     }
     if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
     {
