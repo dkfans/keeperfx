@@ -1190,7 +1190,7 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->move_speed = compute_controlled_speed_increase(ccctrl->move_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_Unknown40;
+            ccctrl->flgfield_1 |= CCFlg_MoveY;
         } else
         {
             ERRORLOG("No creature to increase speed");
@@ -1201,7 +1201,7 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_Unknown40;
+            ccctrl->flgfield_1 |= CCFlg_MoveY;
         } else
         {
             ERRORLOG("No creature to decrease speed");
@@ -1212,7 +1212,7 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->orthogn_speed = compute_controlled_speed_increase(ccctrl->orthogn_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_Unknown80;
+            ccctrl->flgfield_1 |= CCFlg_MoveX;
         } else
         {
             ERRORLOG("No creature to increase speed");
@@ -1223,10 +1223,61 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->orthogn_speed = compute_controlled_speed_decrease(ccctrl->orthogn_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_Unknown80;
+            ccctrl->flgfield_1 |= CCFlg_MoveX;
         } else
         {
             ERRORLOG("No creature to decrease speed");
+        }
+    }
+    if (flag_is_set(cctng->movement_flags, TMvF_Flying))
+    {
+        MapCoord floor_height, ceiling_height;
+        if ((pckt->control_flags & PCtr_Ascend) != 0)
+        {
+            if (!creature_control_invalid(ccctrl))
+            {
+                ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
+                ccctrl->flgfield_1 |= CCFlg_MoveZ;
+                if (ccctrl->vertical_speed != 0)
+                {
+                    get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
+                    if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
+                    {
+                        ccctrl->moveaccel.z.val = distance_with_angle_to_coord_z(ccctrl->vertical_speed, 227);
+                    }
+                    else
+                    {
+                        ccctrl->moveaccel.z.val = 0;
+                    }
+                }
+            } else
+            {
+                ERRORLOG("No creature to ascend");
+            }
+        }
+        if ((pckt->control_flags & PCtr_Descend) != 0)
+        {
+            if (!creature_control_invalid(ccctrl))
+            {
+                // We want increase here, not decrease, because we don't want it angle-dependent
+                ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
+                ccctrl->flgfield_1 |= CCFlg_MoveZ;
+                if (ccctrl->vertical_speed != 0)
+                {
+                    get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
+                    if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
+                    {
+                        ccctrl->moveaccel.z.val = distance_with_angle_to_coord_z(ccctrl->vertical_speed, 1820);
+                    }
+                    else
+                    {
+                        ccctrl->moveaccel.z.val = 0;
+                    }
+                }
+            } else
+            {
+                ERRORLOG("No creature to descend");
+            }
         }
     }
 
@@ -1299,7 +1350,7 @@ void process_players_creature_control_packet_control(long idx)
     // Limits the vertical view.
     // 227 is default. To support anything above this we need to adjust the terrain culling. (when you look at the ceiling for example)
     // 512 allows for looking straight up and down. 360+ is about where sprite glitches become more obvious.
-    long viewable_angle = 227;
+    #define viewable_angle 227;
     long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & LbFPMath_AngleMask;
 
     long lowerLimit = LbFPMath_AngleMask - viewable_angle;

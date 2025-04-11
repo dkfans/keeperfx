@@ -582,7 +582,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
 {
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
-    const struct MagicStats *pwrdynst;
+    const struct PowerConfigStats *powerst;
     long i;
     crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
@@ -592,9 +592,9 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
         HitPoints slap_damage = calculate_correct_creature_max_health(thing) / crstat->slaps_to_kill;
         apply_damage_to_thing_and_display_health(thing, slap_damage, player->id_number);
     }
-    pwrdynst = get_power_dynamic_stats(PwrK_SLAP);
+    powerst = get_power_model_stats(PwrK_SLAP);
     i = cctrl->slap_turns;
-    cctrl->slap_turns = pwrdynst->duration;
+    cctrl->slap_turns = powerst->duration;
     if (i == 0)
     {
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
@@ -761,10 +761,10 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoo
  */
 GoldAmount compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKind pwkind, KeepPwrLevel power_level, long amount)
 {
-    const struct MagicStats *pwrdynst = get_power_dynamic_stats(pwkind);
+    const struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
     if (amount < 0)
         amount = 0;
-    return pwrdynst->cost[power_level] + (pwrdynst->cost[0] * amount);
+    return powerst->cost[power_level] + (powerst->cost[0] * amount);
 }
 
 /**
@@ -776,7 +776,6 @@ GoldAmount compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKi
 GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, KeepPwrLevel power_level)
 {
     struct Dungeon *dungeon;
-    const struct MagicStats *pwrdynst;
     const struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
     long amount;
     long price;
@@ -802,8 +801,7 @@ GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, KeepPwrL
         break;
     case Cost_Default:
     default:
-        pwrdynst = get_power_dynamic_stats(pwkind);
-        price = pwrdynst->cost[power_level];
+        price = powerst->cost[power_level];
         break;
     }
     return price;
@@ -817,7 +815,7 @@ GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, KeepPwrL
  */
 GoldAmount compute_lowest_power_price(PlayerNumber plyr_idx, PowerKind pwkind, KeepPwrLevel power_level)
 {
-    const struct MagicStats *pwrdynst;
+    const struct PowerConfigStats *powerst;
     long price;
     switch (pwkind)
     {
@@ -826,8 +824,8 @@ GoldAmount compute_lowest_power_price(PlayerNumber plyr_idx, PowerKind pwkind, K
         price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, power_level, 0);
         break;
     default:
-        pwrdynst = get_power_dynamic_stats(pwkind);
-        price = pwrdynst->cost[power_level];
+        powerst = get_power_model_stats(pwkind);
+        price = powerst->cost[power_level];
         break;
     }
     return price;
@@ -835,8 +833,8 @@ GoldAmount compute_lowest_power_price(PlayerNumber plyr_idx, PowerKind pwkind, K
 long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
 {
     struct Dungeon *dungeon;
-    const struct MagicStats *pwrdynst;
-    pwrdynst = get_power_dynamic_stats(pwkind);
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(pwkind);
     struct Thing * thing;
     thing = INVALID_THING;
     unsigned long curr;
@@ -851,7 +849,7 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
             thing = thing_get(dungeon->sight_casted_thing_idx);
         if (thing_exists(thing)) {
             curr = game.play_gameturn - thing->creation_turn;
-            total = pwrdynst->strength[dungeon->sight_casted_power_level] + 8;
+            total = powerst->strength[dungeon->sight_casted_power_level] + 8;
         }
         break;
     case PwrK_CALL2ARMS:
@@ -859,7 +857,7 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
         if (dungeon->cta_start_turn != 0)
         {
             curr = game.play_gameturn - dungeon->cta_start_turn;
-            total = pwrdynst->duration;
+            total = powerst->duration;
         }
         break;
     default:
@@ -1046,18 +1044,18 @@ void turn_off_power_sight_of_evil(PlayerNumber plyr_idx)
     long k;
     long n;
     dungeon = get_players_num_dungeon(plyr_idx);
-    const struct MagicStats *pwrdynst;
-    pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_SIGHT);
     power_level = dungeon->sight_casted_power_level;
     if (power_level > POWER_MAX_LEVEL)
         power_level = POWER_MAX_LEVEL;
     i = game.play_gameturn - dungeon->sight_casted_gameturn;
-    imax = abs(pwrdynst->strength[power_level]/4) >> 2;
+    imax = abs(powerst->strength[power_level]/4) >> 2;
     if (i > imax)
         i = imax;
     if (i < 0)
         i = 0;
-    n = game.play_gameturn - pwrdynst->strength[power_level];
+    n = game.play_gameturn - powerst->strength[power_level];
     cit = power_sight_close_instance_time[power_level];
     k = imax / cit;
     if (k < 1) k = 1;
@@ -1204,7 +1202,6 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     struct Thing *heartng;
     struct Coord3d pos;
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
-    struct MagicStats *pwrdynst = get_power_dynamic_stats(power_kind);
     if (!i_can_allocate_free_control_structure()
      || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         return Lb_FAIL;
@@ -1231,9 +1228,9 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
         ERRORLOG("There was place to create new creature, but creation failed");
         return Lb_OK;
     }
-    if (pwrdynst->strength[power_level] != 0)
+    if (powerst->strength[power_level] != 0)
     {
-        creature_change_multiple_levels(thing, pwrdynst->strength[power_level]);
+        creature_change_multiple_levels(thing, powerst->strength[power_level]);
     }
     thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
@@ -1251,7 +1248,6 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
 {
     struct Coord3d pos;
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
-    struct MagicStats *pwrdynst = get_power_dynamic_stats(power_kind);
     if (!i_can_allocate_free_control_structure()
      || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         return Lb_FAIL;
@@ -1284,9 +1280,9 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
         ERRORLOG("There was place to create new creature, but creation failed");
         return Lb_OK;
     }
-    if (pwrdynst->strength[power_level] != 0)
+    if (powerst->strength[power_level] != 0)
     {
-        creature_change_multiple_levels(thing, pwrdynst->strength[power_level]);
+        creature_change_multiple_levels(thing, powerst->strength[power_level]);
     }
     
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -1350,7 +1346,7 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
-    const struct MagicStats *pwrdynst;
+    const struct PowerConfigStats *powerst;
     struct ShotConfigStats *shotst;
     struct Thing *shtng;
     struct Thing *obtng;
@@ -1382,10 +1378,10 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
         shtng->shot.hit_type = THit_CrtrsOnly;
         shtng->shot.shot_level = power_level;
     }
-    pwrdynst = get_power_dynamic_stats(power_kind);
+    powerst = get_power_model_stats(power_kind);
     shotst = get_shot_model_stats(ShM_GodLightning);
     dungeon->camera_deviate_jump = 256;
-    i = pwrdynst->strength[power_level];
+    i = powerst->strength[power_level];
     max_damage = i * shotst->damage;
     range = (i << 8) / 2;
     if (power_sight_explored(stl_x, stl_y, plyr_idx))
@@ -1408,8 +1404,6 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
         efftng = create_effect(&shtng->mappos, TngEff_Dummy, shtng->owner);
         if (!thing_is_invalid(efftng))
         {
-            struct PowerConfigStats *powerst;
-            powerst = get_power_model_stats(power_kind);
             thing_play_sample(efftng, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
@@ -1418,7 +1412,7 @@ static TbResult magic_use_power_lightning(PowerKind power_kind, PlayerNumber ply
 
 static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, KeepPwrLevel power_level, unsigned long mod_flags)
 {
-    const struct MagicStats *pwrdynst;
+    const struct PowerConfigStats *powerst;
     struct Dungeon *dungeon;
     struct Coord3d pos;
     long cit;
@@ -1427,11 +1421,11 @@ static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_id
     long cdlimit;
     long i;
     dungeon = get_dungeon(plyr_idx);
-    pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
+    powerst = get_power_model_stats(PwrK_SIGHT);
     if (player_uses_power_sight(plyr_idx))
     {
         cdt = game.play_gameturn - dungeon->sight_casted_gameturn;
-        cdlimit = pwrdynst->strength[dungeon->sight_casted_power_level] >> 4;
+        cdlimit = powerst->strength[dungeon->sight_casted_power_level] >> 4;
         if (cdt < 0) {
             cdt = 0;
         } else
@@ -1439,7 +1433,7 @@ static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_id
             cdt = cdlimit;
         }
         cit = power_sight_close_instance_time[dungeon->sight_casted_power_level];
-        cgt = game.play_gameturn - pwrdynst->strength[dungeon->sight_casted_power_level];
+        cgt = game.play_gameturn - powerst->strength[dungeon->sight_casted_power_level];
         i = cdlimit / cit;
         if (i > 0) {
             dungeon->sight_casted_gameturn = cgt + cdt/i - cit;
@@ -1470,8 +1464,6 @@ static TbResult magic_use_power_sight(PowerKind power_kind, PlayerNumber plyr_id
     thing = create_object(&pos, ObjMdl_PowerSight, plyr_idx, -1);
     if (!thing_is_invalid(thing))
     {
-        struct PowerConfigStats *powerst;
-        powerst = get_power_model_stats(PwrK_SIGHT);
         dungeon->sight_casted_gameturn = game.play_gameturn;
         thing->health = 2;
         dungeon->sight_casted_power_level = power_level;
@@ -1840,7 +1832,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon = get_players_num_dungeon(plyr_idx);
     long duration = game.play_gameturn - dungeon->cta_start_turn;
-    const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
+    const struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CALL2ARMS);
     struct SlabMap *slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
     TbBool free = ((slabmap_owner(slb) == plyr_idx) || dungeon->cta_free);
     if (!free)
@@ -1850,7 +1842,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
             free = true;
         }
     }
-    if (((pwrdynst->duration < 1) || ((duration % pwrdynst->duration) == 0)) && !free)
+    if (((powerst->duration < 1) || ((duration % powerst->duration) == 0)) && !free)
     {
         if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_power_level))
         {
@@ -1860,7 +1852,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     }
     if ((duration % 16) == 0)
     {
-        long range = subtile_coord(pwrdynst->strength[dungeon->cta_power_level],0);
+        long range = subtile_coord(powerst->strength[dungeon->cta_power_level],0);
         struct Coord3d cta_pos;
         cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
         cta_pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
@@ -1875,9 +1867,9 @@ void process_magic_power_must_obey(PlayerNumber plyr_idx)
     dungeon = get_players_num_dungeon(plyr_idx);
     long delta;
     delta = game.play_gameturn - dungeon->must_obey_turn;
-    const struct MagicStats *pwrdynst;
-    pwrdynst = get_power_dynamic_stats(PwrK_OBEY);
-    if ((delta % pwrdynst->duration) == 0)
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_OBEY);
+    if ((delta % powerst->duration) == 0)
     {
         if (!pay_for_spell(plyr_idx, PwrK_OBEY, 0)) {
             magic_use_power_obey(PwrK_OBEY,plyr_idx,INVALID_THING,0,0,0, PwMod_Default);
@@ -2175,19 +2167,19 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
   if (pwkind >= game.conf.magic_conf.power_types_count)
       return false;
   dungeon = get_dungeon(player->id_number);
-  const struct MagicStats *pwrdynst;
-  pwrdynst = get_power_dynamic_stats(pwkind);
+  const struct PowerConfigStats *powerst;
+  powerst = get_power_model_stats(pwkind);
   i = (player->cast_expand_level+1) >> 2;
   if (i > POWER_MAX_LEVEL)
     i = POWER_MAX_LEVEL;
-  if (pwrdynst->cost[i] <= dungeon->total_money_owned)
+  if (powerst->cost[i] <= dungeon->total_money_owned)
   {
     // If we have more money, increase overcharge
     player->cast_expand_level++;
   } else
   {
     // If we don't have money, decrease the charge
-    while (pwrdynst->cost[i] > dungeon->total_money_owned)
+    while (powerst->cost[i] > dungeon->total_money_owned)
     {
       i--;
       if (i < 0) break;

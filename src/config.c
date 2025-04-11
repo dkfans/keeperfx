@@ -372,6 +372,47 @@ int64_t value_name(const struct NamedField* named_field, const char* value_text,
     return 0;
 }
 
+//same as value_flagsfield but treats the namedCommand field as a longnamedCommand
+int64_t value_longflagsfield(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    int64_t value = 0;
+    char word_buf[COMMAND_WORD_LEN];
+    if (parameter_is_number(value_text))
+    {
+        return atoll(value_text);
+    }
+    if(strcasecmp(value_text,"none") == 0)
+    {
+        return 0;
+    }
+
+    long pos = 0;
+    long len = strlen(value_text);
+    int i = 0;
+    while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
+    {
+        if (i == 1)
+        {
+            //if the second value is 0 or 1, treat it as a flag toggle
+            if(strcmp(word_buf, "0") == 0 || strcmp(word_buf, "1") == 0)
+            {
+                int64_t original_value = get_named_field_value(named_field, named_fields_set, idx);
+                set_flag_value(original_value,value, atoi(word_buf));
+                return original_value;
+            }
+        }
+
+        int k = get_long_id((struct LongNamedCommand*)named_field->namedCommand, word_buf);
+        if(k >= 0)
+            value |= k;
+        else
+            NAMFIELDWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
+        i++;
+    }
+    return value;
+}
+
+
 //expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
 int64_t value_flagsfield(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
@@ -566,57 +607,86 @@ void assign_null(const struct NamedField* named_field, int64_t value, const stru
 
 void assign_default(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
-
     void* field = (char*)named_field->field + named_fields_set->struct_size * idx;
     switch (named_field->type)
     {
     case dt_uchar:
-        *(unsigned char*)field = value;
+        if (value < 0 || value > UCHAR_MAX)
+            NAMFIELDWRNLOG("Value out of range for unsigned char: %lld", value);
+        else
+            *(unsigned char*)field = (unsigned char)value;
         break;
     case dt_schar:
-        *(signed char*)field = value;
+            *(signed char*)field = (signed char)value;
         break;
     case dt_char:
-        *(char*)field = value;
+        if (value < CHAR_MIN || value > CHAR_MAX)
+            NAMFIELDWRNLOG("Value out of range for char: %lld", value);
+        else
+            *(char*)field = (char)value;
         break;
     case dt_short:
-        *(signed short*)field = value;
+        if (value < SHRT_MIN || value > SHRT_MAX)
+            NAMFIELDWRNLOG("Value out of range for signed short: %lld", value);
+        else
+            *(signed short*)field = (signed short)value;
         break;
     case dt_ushort:
-        *(unsigned short*)field = value;
+        if (value < 0 || value > USHRT_MAX)
+            NAMFIELDWRNLOG("Value out of range for unsigned short: %lld", value);
+        else
+            *(unsigned short*)field = (unsigned short)value;
         break;
     case dt_int:
-        *(signed int*)field = value;
+        if (value < INT_MIN || value > INT_MAX)
+            NAMFIELDWRNLOG("Value out of range for signed int: %lld", value);
+        else
+            *(signed int*)field = (signed int)value;
         break;
     case dt_uint:
-        *(unsigned int*)field = value;
+        if (value < 0 || value > UINT_MAX)
+            NAMFIELDWRNLOG("Value out of range for unsigned int: %lld", value);
+        else
+            *(unsigned int*)field = (unsigned int)value;
         break;
     case dt_long:
-        *(signed long*)field = value;
+        if (value < LONG_MIN || value > LONG_MAX)
+            NAMFIELDWRNLOG("Value out of range for signed long: %lld", value);
+        else
+            *(signed long*)field = (signed long)value;
         break;
     case dt_ulong:
-        *(unsigned long*)field = value;
+        if (value < 0 || value > ULONG_MAX)
+            NAMFIELDWRNLOG("Value out of range for unsigned long: %lld", value);
+        else
+            *(unsigned long*)field = (unsigned long)value;
         break;
     case dt_longlong:
-        *(signed long long*)field = value;
+        if (value < LLONG_MIN || value > LLONG_MAX)
+            NAMFIELDWRNLOG("Value out of range for signed long long: %lld", value);
+        else
+            *(signed long long*)field = (signed long long)value;
         break;
     case dt_ulonglong:
-        *(unsigned long long*)field = value;
+        if (value < 0 || value > ULLONG_MAX)
+            NAMFIELDWRNLOG("Value out of range for unsigned long long: %lld", value);
+        else
+            *(unsigned long long*)field = (unsigned long long)value;
         break;
     case dt_float:
-        *(float*)field = value;
+        *(float*)field = (float)value;
         break;
     case dt_double:
-        *(double*)field = value;
+        *(double*)field = (double)value;
         break;
     case dt_longdouble:
-        *(long double*)field = value;
+        *(long double*)field = (long double)value;
         break;
     case dt_charptr:
     case dt_default:
     case dt_void:
     default:
-        NAMFIELDWRNLOG("unexpected datatype for field '%s', '%d'",named_field->name,named_field->type);
+        NAMFIELDWRNLOG("unexpected datatype for field '%s', '%d'", named_field->name, named_field->type);
         break;
     }
 }
