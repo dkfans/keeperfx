@@ -166,33 +166,6 @@ const struct NamedCommand magic_shot_commands[] = {
   {NULL,                     0},
   };
 
-const struct NamedCommand magic_power_commands[] = {
-  {"NAME",            1},
-  {"POWER",           2},
-  {"COST",            3},
-  {"DURATION",        4},
-  {"CASTABILITY",     5},
-  {"ARTIFACT",        6},
-  {"NAMETEXTID",      7},
-  {"TOOLTIPTEXTID",   8},
-  {"SYMBOLSPRITES",  10},
-  {"POINTERSPRITES", 11},
-  {"PANELTABINDEX",  12},
-  {"SOUNDSAMPLES",   13},
-  {"PROPERTIES",     14},
-  {"CASTEXPANDFUNC", 15},
-  {"PLAYERSTATE",    16},
-  {"PARENTPOWER",    17},
-  {"SOUNDPLAYED",    18},
-  {"COOLDOWN",       19},
-  {"SPELL",          20},
-  {"EFFECT",         21},
-  {"USEFUNCTION",    22},
-  {"CREATURETYPE",   23},
-  {"COSTFORMULA",    24},
-  {NULL,              0},
-  };
-
 const struct NamedCommand magic_special_commands[] = {
   {"NAME",             1},
   {"ARTIFACT",         2},
@@ -351,28 +324,77 @@ static void assign_strength_before_last(const struct NamedField* named_field, in
     assign_default(named_field,value,named_fields_set,idx,src);
 }
 
+int64_t value_powercost(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    long buff[MAGIC_OVERCHARGE_LEVELS+1];
+    long max = MAGIC_OVERCHARGE_LEVELS;
+    char word_buf[COMMAND_WORD_LEN];
+
+    if(strcmp(named_field->name,"POWER") == 0)
+    {
+        max = MAGIC_OVERCHARGE_LEVELS + 1;
+    }
+
+    long pos = 0;
+    long len = strlen(value_text);
+    int i = 0;
+    while (get_conf_parameter_single(value_text, &pos, len, word_buf, sizeof(word_buf)) > 0) {
+        if (i >= max)
+        {
+            NAMFIELDWRNLOG("Too many values for field '%s', got '%s', %d values instead of %ld", named_field->name, value_text, i, max);
+            break;
+        }
+        buff[i] = atoll(word_buf);
+        i++;
+    }
+
+    //if there's 2 values first is the actual value, second is the level
+    if (i == 2)
+    {
+        if (flag_is_set(flags,ccf_SplitExecution))
+        {
+            return buff[0] | ((int64_t)buff[1] << 32);
+        }
+        else
+        {
+            named_field->field[buff[1]] = buff[0];
+        }
+    }
+    else if (i == MAGIC_OVERCHARGE_LEVELS || i == max)
+    {
+        if (flag_is_set(flags,ccf_SplitExecution))
+            NAMFIELDWRNLOG("field '%s', got '%s', %d values instead of 2 or %d",named_field->name,value_text,i,max);
+        
+        for(int j = 0; j < i; j++)
+        {
+            named_field->field[j] = buff[j];
+        }
+        if (i < max)
+        {
+            named_field->field[max] = buff[max-1];
+        }
+
+    }
+    else
+    {
+        NAMFIELDWRNLOG("unexpected number of values for '%s', got '%s', %d values instead of 2 or %d",named_field->name,value_text,i,max);
+    }
+    return 0;
+}
+
+static void assign_powercost(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    if (!flag_is_set(flags,ccf_SplitExecution))
+        return;
+    
+    named_field->field[value >> 32] = value & 0xFFFFFFFF;    
+}
+
 static const struct NamedField magic_powers_named_fields[] = {
     //name                     //pos    //field                                                                 //default //min     //max    //NamedCommand
     {"NAME",           0, field(game.conf.magic_conf.power_cfgstats[0].code_name),              0, LONG_MIN,ULONG_MAX, power_desc,                          value_name,      assign_null},
-    {"POWER",          0, field(game.conf.magic_conf.power_cfgstats[0].strength[0]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          1, field(game.conf.magic_conf.power_cfgstats[0].strength[1]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          2, field(game.conf.magic_conf.power_cfgstats[0].strength[2]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          3, field(game.conf.magic_conf.power_cfgstats[0].strength[3]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          4, field(game.conf.magic_conf.power_cfgstats[0].strength[4]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          5, field(game.conf.magic_conf.power_cfgstats[0].strength[5]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          6, field(game.conf.magic_conf.power_cfgstats[0].strength[6]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          7, field(game.conf.magic_conf.power_cfgstats[0].strength[7]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[8]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_strength_before_last},
-    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[9]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           0, field(game.conf.magic_conf.power_cfgstats[0].cost[0]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           1, field(game.conf.magic_conf.power_cfgstats[0].cost[1]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           2, field(game.conf.magic_conf.power_cfgstats[0].cost[2]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           3, field(game.conf.magic_conf.power_cfgstats[0].cost[3]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           4, field(game.conf.magic_conf.power_cfgstats[0].cost[4]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           5, field(game.conf.magic_conf.power_cfgstats[0].cost[5]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           6, field(game.conf.magic_conf.power_cfgstats[0].cost[6]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[7]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
-    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[8]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",         -1, field(game.conf.magic_conf.power_cfgstats[0].strength),               0, LONG_MIN,ULONG_MAX, NULL,                                value_powercost, assign_powercost},
+    {"COST",          -1, field(game.conf.magic_conf.power_cfgstats[0].cost),                   0, LONG_MIN,ULONG_MAX, NULL,                                value_powercost, assign_powercost},
     {"DURATION",       0, field(game.conf.magic_conf.power_cfgstats[0].duration),               0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
     {"CASTABILITY",   -1, field(game.conf.magic_conf.power_cfgstats[0].can_cast_flags),         0, LONG_MIN,ULONG_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
     {"ARTIFACT",       0, field(game.conf.magic_conf.power_cfgstats[0].artifact_model),         0, LONG_MIN,ULONG_MAX, object_desc,                         value_default,   assign_artifact},
