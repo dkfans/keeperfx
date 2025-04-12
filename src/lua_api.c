@@ -888,7 +888,16 @@ static int lua_SET_TRAP_CONFIGURATION(lua_State *L)
 
 //static int lua_SET_CREATURE_CONFIGURATION(lua_State *L)
 //static int lua_SET_EFFECT_GENERATOR_CONFIGURATION(lua_State *L)
+//{
+//    set_configuration(L, &effects_effectgenerator_named_fields_set);
+//    return 0;
+//}
+//
 //static int lua_SET_POWER_CONFIGURATION(lua_State *L)
+//{
+//    set_configuration(L, &terrain_room_named_fields_set);
+//    return 0;
+//}
 
 static int lua_SET_ROOM_CONFIGURATION(lua_State *L)
 {
@@ -1865,7 +1874,7 @@ static const luaL_Reg global_methods[] = {
     {"SET_OBJECT_CONFIGURATION"            ,lua_SET_OBJECT_CONFIGURATION        },
     {"SET_TRAP_CONFIGURATION"              ,lua_SET_TRAP_CONFIGURATION          },
     //{"SET_CREATURE_CONFIGURATION"           ,lua_SET_CREATURE_CONFIGURATION      },
-    //{"SET_EFFECT_GENERATOR_CONFIGURATION"   ,lua_SET_EFFECT_GENERATOR_CONFIGURATI},
+    //{"SET_EFFECT_GENERATOR_CONFIGURATION"   ,lua_SET_EFFECT_GENERATOR_CONFIGURATION},
     //{"SET_POWER_CONFIGURATION"              ,lua_SET_POWER_CONFIGURATION         },
     {"SET_ROOM_CONFIGURATION"              ,lua_SET_ROOM_CONFIGURATION          },
     {"SET_GAME_RULE"                       ,lua_SET_GAME_RULE                   },
