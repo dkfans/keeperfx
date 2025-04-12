@@ -32,7 +32,7 @@ void lua_on_game_lost(PlayerNumber plyr_idx)
 	}
 }
 
-void lua_chatmsg(PlayerNumber plyr_idx, char *msg)
+void lua_on_chatmsg(PlayerNumber plyr_idx, char *msg)
 {
 	SYNCDBG(6,"Starting");
     lua_getglobal(Lvl_script, "ChatMsg");
@@ -46,7 +46,7 @@ void lua_chatmsg(PlayerNumber plyr_idx, char *msg)
 }
 
 
-void lua_game_start()
+void lua_on_game_start()
 {
 	SYNCDBG(6,"Starting");
     lua_getglobal(Lvl_script, "OnGameStart");
@@ -56,7 +56,7 @@ void lua_game_start()
 	}
 }
 
-void lua_game_tick()
+void lua_on_game_tick()
 {
 	SYNCDBG(6,"Starting");
     lua_getglobal(Lvl_script, "OnGameTick");

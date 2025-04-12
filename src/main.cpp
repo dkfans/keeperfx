@@ -2702,7 +2702,7 @@ void update(void)
         update_all_events();
         process_level_script();
         process_fx_lines();
-        lua_game_tick();
+        lua_on_game_tick();
         if ((game.numfield_D & GNFldD_Unkn04) != 0)
             process_computer_players2();
         process_players();
