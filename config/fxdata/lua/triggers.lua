@@ -332,13 +332,25 @@ end
 function RegisterTrapPlacedEvent(action, player, trapType, actionParams)
     local trigData = {Player = player, trapType = trapType}
 
-
     local trigger = CreateTrigger("TrapPlaced",action,trigData)
     TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.Trap.model == triggerData.TrapKind end)
     return trigger
-    
 end
 
+---comment
+---@param action function|string the function to call when the event happens
+---@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
+---@return table
+function RegisterUnitDeathEvent(action, unit, actionParams)
+    local trigData = {unit = unit}
+
+    local trigger = CreateTrigger("Death",action,trigData)
+    if unit then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.unit == triggerData.unit end)
+    end
+    return trigger
+    
+end
 
 
 ---functions like the IF_ACTION_POINT in dkscript
