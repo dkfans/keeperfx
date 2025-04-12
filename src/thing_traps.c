@@ -579,23 +579,7 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
 
 void activate_trap_god_spell(struct Thing *traptng, struct Thing *creatng, PowerKind pwkind)
 {
-    struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
-    if (powerst->can_cast_flags & PwCast_AllThings)
-    {
-        magic_use_power_on_thing(traptng->owner, pwkind, POWER_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, PwMod_CastForFree);
-    }
-    else if (powerst->can_cast_flags & PwCast_AllGround)
-    {
-        magic_use_power_on_subtile(traptng->owner, pwkind, POWER_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, PwCast_None, PwMod_CastForFree);
-    }
-    else if (powerst->can_cast_flags & PwCast_Anywhere)
-    {
-        magic_use_power_on_level(traptng->owner, pwkind, POWER_MAX_LEVEL, PwMod_CastForFree);
-    }
-    else
-    {
-        ERRORLOG("Illegal trap Power %d/%s (idx=%d)", pwkind, get_string(powerst->name_stridx), traptng->index);
-    }
+    magic_use_power_direct(traptng->owner, pwkind, POWER_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, PwMod_CastForFree);
 }
 
 void activate_trap(struct Thing *traptng, struct Thing *creatng)
