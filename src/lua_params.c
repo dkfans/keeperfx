@@ -26,8 +26,6 @@
 
 /**********************************************/
 
-
-
 TbBool luaL_isThing(lua_State *L, int index)
 {
     if (!lua_istable(L, index)) {
@@ -89,9 +87,6 @@ TbBool luaL_isPlayer(lua_State *L, int index)
 
     return false;
 }
-
-
-
 
 /***************************************************************************************************/
 /************    Inputs   **************************************************************************/
@@ -264,7 +259,6 @@ PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
     return playerId;
 }
 
-
 MapSubtlCoord luaL_checkstl_x(lua_State *L, int index)
 {
     MapSubtlCoord stl_x = luaL_checkint(L,index);
@@ -329,8 +323,6 @@ unsigned char luaL_checkParty(lua_State *L, int index)
     }
     return prty_id;
 }
-
-
 
 void luaL_checkMessageIcon(lua_State *L, int index, char* type, char* id)
 {
@@ -416,8 +408,6 @@ long luaL_checkIntMinMax(lua_State *L, int index,long min, long max)
     return val;
 }
 
-
-
 int luaL_checkSlab(lua_State *L, int idx, MapSlabCoord* slb_x, MapSlabCoord* slb_y)
 {
     *slb_x = 0;
@@ -494,9 +484,6 @@ void lua_pushPos(lua_State *L, struct Coord3d* pos) {
 
     lua_pushinteger(L,  pos->y.stl.num);
     lua_setfield(L, -2, "stl_y");
-
-    //luaL_getmetatable(L, "Thing");
-    //lua_setmetatable(L, -2);
 }
 
 void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y) {
