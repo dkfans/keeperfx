@@ -171,6 +171,7 @@ local Thing = {}
 
 
 ---@class Creature: Thing
+---@field level integer
 local Creature = {}
 
 ---@class Herogate:Thing

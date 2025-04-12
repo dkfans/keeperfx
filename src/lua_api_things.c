@@ -204,6 +204,14 @@ static int thing_get_field(lua_State *L) {
         lua_pushPos(L, &thing->mappos);
     } else if (strcmp(key, "orientation") == 0) {
         lua_pushinteger(L, thing->move_angle_xy);
+
+    } else if (strcmp(key, "level") == 0) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl)) {
+            luaL_error(L, "Attempt to access level of non-creature thing");
+            return 0;
+        }
+        lua_pushinteger(L, cctrl->exp_level);
     } else {
         // Check if the key exists in the metatable's __methods table (Lua functions)
         lua_getmetatable(L, 1);             // Get metatable
