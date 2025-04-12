@@ -513,6 +513,10 @@ void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y) {
     lua_pushinteger(L,  slb_y);
     lua_setfield(L, -2, "slb_y");
 
+    // Store a class name for Bitser
+    lua_pushstring(L, "Slab");
+    lua_setfield(L, -2, "__class");
+
     luaL_getmetatable(L, "Slab");
     lua_setmetatable(L, -2);  
 }

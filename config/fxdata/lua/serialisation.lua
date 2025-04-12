@@ -16,6 +16,7 @@ end
 ------------------------------------------------------------
 local PlayerMeta = getmetatable(debug.getregistry()["Player"])
 local ThingMeta = getmetatable(debug.getregistry()["Thing"])
+local SlabMeta = getmetatable(debug.getregistry()["Slab"])
 
 function DeserializePlayer(data)
     setmetatable(data, PlayerMeta)
@@ -27,6 +28,11 @@ function DeserializeThing(data)
     return data
 end
 
+function DeserializeSlab(data)
+    setmetatable(data, SlabMeta)
+    return data
+end
 bitser.registerClass("Player", "Player", "__class", DeserializePlayer)
 bitser.registerClass("Thing", "Thing", "__class", DeserializeThing)
+bitser.registerClass("Slab", "Slab", "__class", DeserializeSlab)
 
