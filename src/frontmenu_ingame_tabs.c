@@ -322,7 +322,7 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
     struct Computer2* comp = get_computer_player(player->id_number);
     unsigned long cplr_model = comp->model;
     if (cplr_model < comp_player_conf.computers_count) {
-        struct ComputerTypes* cpt = get_computer_type_template(cplr_model);
+        struct ComputerType* cpt = get_computer_type_template(cplr_model);
         gbtn->tooltip_stridx = cpt->tooltip_stridx;
     } else {
         ERRORLOG("Illegal computer player model %d",(int)cplr_model);
@@ -2162,7 +2162,7 @@ void maintain_creature_button(struct GuiButton* gbtn)
 
 void maintain_compsetting_button(struct GuiButton* gbtn)
 {
-    struct ComputerTypes* cpt = get_computer_type_template(comp_player_conf.computer_assist_types[gbtn->btype_value]);
+    struct ComputerType* cpt = get_computer_type_template(comp_player_conf.computer_assist_types[gbtn->btype_value]);
     gbtn->tooltip_stridx = cpt->tooltip_stridx;
     gbtn->sprite_idx = cpt->sprite_idx;
 }

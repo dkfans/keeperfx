@@ -42,9 +42,6 @@ extern "C" {
 
 #define COMPUTER_ASSIST_TYPES_COUNT 4
 
-
-typedef unsigned char ComputerType;
-
 struct ComputerProcess {
   char name[COMMAND_WORD_LEN];
   char mnemonic[COMMAND_WORD_LEN];
@@ -59,7 +56,7 @@ struct ComputerProcess {
   FuncIdx func_task;
   FuncIdx func_complete;
   FuncIdx func_pause;
-  struct ComputerProcess *parent;
+  unsigned char parent;
   // Unsigned process parameters storage (stores gameturns)
   unsigned long param_1;
   unsigned long param_2;
@@ -90,14 +87,14 @@ struct ComputerEvent {
   FuncIdx func_event;
   FuncIdx func_test;
   long test_interval;
-  struct ComputerProcess *process;
+  unsigned char process;
   long param1;
   long param2;
   long param3;
   long last_test_gameturn; /**< event last checked time */
 };
 
-struct ComputerTypes {
+struct ComputerType {
   char name[COMMAND_WORD_LEN];
   short tooltip_stridx;
   short sprite_idx;
@@ -108,9 +105,9 @@ struct ComputerTypes {
   long turn_begin;
   long sim_before_dig;
   GameTurnDelta drop_delay;
-  struct ComputerProcess *processes[COMPUTER_PROCESSES_COUNT];
-  struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
-  struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
+  unsigned char processes[COMPUTER_PROCESSES_COUNT];
+  unsigned char checks[COMPUTER_CHECKS_COUNT];
+  unsigned char events[COMPUTER_EVENTS_COUNT];
 };
 
 struct ComputerPlayerConfig {
@@ -121,18 +118,18 @@ struct ComputerPlayerConfig {
   long events_count;
   struct ComputerEvent event_types[COMPUTER_EVENTS_TYPES_COUNT];
   long computers_count;
-  struct ComputerTypes computer_types[COMPUTER_MODELS_COUNT];
+  struct ComputerType computer_types[COMPUTER_MODELS_COUNT];
   long skirmish_first;
   long skirmish_last;
   long player_assist_default;
-  ComputerType computer_assist_types[COMPUTER_ASSIST_TYPES_COUNT];
+  unsigned char computer_assist_types[COMPUTER_ASSIST_TYPES_COUNT];
 
 };
 
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/
-struct ComputerTypes *get_computer_type_template(long cpt_idx);
+struct ComputerType *get_computer_type_template(long cpt_idx);
 TbBool load_computer_player_config(unsigned short flags);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -538,7 +538,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                 struct ComputerProcess* cproc = &comp->processes[i];
                 if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                     break;
-                if (cproc->parent == bldroom->process)
+                if (cproc->parent == bldroom->process_idx)
                 {
                     SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
                     ret = CTaskRet_Unk1;

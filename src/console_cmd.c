@@ -1896,6 +1896,28 @@ TbBool cmd_possession_unlock(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_string_show(PlayerNumber plyr_idx, char * args)
+{
+    char * pr2str = strsep(&args, " ");
+    long msg_id = atoi(pr2str);
+    if (msg_id >= 0)
+    {
+        set_general_information(msg_id, 0, 0, 0);
+    }
+    return true;
+}
+
+TbBool cmd_quick_show(PlayerNumber plyr_idx, char * args)
+{
+    char * pr2str = strsep(&args, " ");
+    long msg_id = atoi(pr2str);
+    if (msg_id >= 0)
+    {
+        set_quick_information(msg_id, 0, 0, 0);
+    }
+    return true;
+}
+
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
     struct ConsoleCommand {
@@ -1999,6 +2021,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
         { "player.colour", cmd_player_colour},
         { "possession.lock", cmd_possession_lock},
         { "possession.unlock", cmd_possession_unlock},
+        { "string.show", cmd_string_show},
+        { "quick.show", cmd_quick_show},
     };
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");

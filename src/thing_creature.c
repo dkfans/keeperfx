@@ -4404,7 +4404,9 @@ void recalculate_all_creature_digger_lists()
 {
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-         recalculate_player_creature_digger_lists(plyr_idx);
+        if (plyr_idx == PLAYER_NEUTRAL)
+            continue;
+        recalculate_player_creature_digger_lists(plyr_idx);
     }
 
     for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
@@ -6431,11 +6433,11 @@ TngUpdateRet update_creature(struct Thing *thing)
     move_creature(thing);
     if (flag_is_set(thing->alloc_flags, TAlF_IsControlled))
     {
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveX))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveY))
         {
             cctrl->move_speed /= 2;
         }
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveY))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveX))
         {
             cctrl->orthogn_speed /= 2;
         }
