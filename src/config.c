@@ -2196,4 +2196,38 @@ short is_freeplay_level(LevelNumber lvnum)
   SYNCDBG(18,"%ld is NOT freeplay",lvnum);
   return false;
 }
+
+TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
+{
+    char config_textname[64];
+
+    if (file_data->pre_load_func != NULL)
+    {
+        file_data->pre_load_func();
+    }
+
+    const char* conf_fname = file_data->filename;
+    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
+
+    sprintf(config_textname, "global %s config", file_data->description);
+    TbBool result = file_data->load_func(config_textname, fname, flags);
+    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
+    if (strlen(fname) > 0)
+    {
+        sprintf(config_textname, "campaign %s config", file_data->description);
+        file_data->load_func(config_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        sprintf(config_textname, "level %s config", file_data->description);
+        file_data->load_func(config_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    
+    if (file_data->post_load_func != NULL)
+    {
+        file_data->post_load_func();
+    }
+    return result;
+}
 /******************************************************************************/
