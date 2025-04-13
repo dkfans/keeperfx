@@ -275,6 +275,7 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"INSTANTPLACEMENT",       0, field(game.conf.trapdoor_conf.trap_cfgstats[0].instant_placement),                0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"REMOVEONCEDEPLETED",     0, field(game.conf.trapdoor_conf.trap_cfgstats[0].remove_once_depleted),             0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"FLAGNUMBER",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].flag_number),                      0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
+    {"POWERLEVEL",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].power_level),        POWER_MAX_LEVEL,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {NULL},
 };
 

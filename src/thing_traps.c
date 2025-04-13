@@ -579,7 +579,8 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
 
 void activate_trap_god_spell(struct Thing *traptng, struct Thing *creatng, PowerKind pwkind)
 {
-    magic_use_power_direct(traptng->owner, pwkind, POWER_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, PwMod_CastForFree);
+    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+    magic_use_power_direct(traptng->owner, pwkind, trapst->power_level, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, PwMod_CastForFree);
 }
 
 void activate_trap(struct Thing *traptng, struct Thing *creatng)

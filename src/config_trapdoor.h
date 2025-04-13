@@ -113,6 +113,7 @@ struct TrapConfigStats {
     TbBool unsellable;
     short place_sound_idx;
     short trigger_sound_idx;
+    KeepPwrLevel power_level;
 };
 
 /* Manufacture types data. Originally was named TrapData, but stores both traps and doors, now no longer matches original. */
