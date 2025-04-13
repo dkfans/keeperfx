@@ -54,11 +54,10 @@ struct LensesConfig {
     struct LensConfig lenses[LENS_ITEMS_MAX];
 };
 /******************************************************************************/
-extern const char keeper_lenses_file[];
+extern const struct ConfigFileData keeper_lenses_file_data;
 extern struct LensesConfig lenses_conf;
 extern struct NamedCommand lenses_desc[LENS_ITEMS_MAX];
 /******************************************************************************/
-TbBool load_lenses_config(const char *conf_fname,unsigned short flags);
 struct LensConfig *get_lens_config(long lens_idx);
 /******************************************************************************/
 #ifdef __cplusplus
