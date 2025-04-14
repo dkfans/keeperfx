@@ -37,7 +37,15 @@ extern "C" {
 struct LensesConfig lenses_conf;
 struct NamedCommand lenses_desc[LENS_ITEMS_MAX];
 /******************************************************************************/
-const char keeper_lenses_file[]="lenses.cfg";
+static TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned short flags);
+
+const struct ConfigFileData keeper_lenses_file_data = {
+    .filename = "lenses.cfg",
+    .description = "lenses",
+    .load_func = load_lenses_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
 
 static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
@@ -101,7 +109,7 @@ static int64_t value_pallete(const struct NamedField* named_field, const char* v
     return 0;
 }
 
-TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
     long len = LbFileLengthRnc(fname);
@@ -125,28 +133,6 @@ TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned
     free(buf);
     return result;
 }
-
-TbBool load_lenses_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global eye lenses config";
-    static const char config_campgn_textname[] = "campaign eye lenses config";
-    static const char config_level_textname[] = "level eye lenses config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_lenses_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_lenses_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_lenses_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
-    return result;
-}
-
 
 /******************************************************************************/
 #ifdef __cplusplus

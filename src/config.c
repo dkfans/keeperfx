@@ -328,21 +328,87 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
     return ccr_unrecognised;
 }
 
+static int64_t get_datatype_min(uchar type)
+{
+    switch (type)
+    {
+        case dt_uchar:
+            return 0;
+        case dt_schar:
+            return SCHAR_MIN;
+        case dt_char:
+            return CHAR_MIN;
+        case dt_short:
+            return SHRT_MIN;
+        case dt_ushort:
+            return 0;
+        case dt_int:
+            return INT_MIN;
+        case dt_uint:
+            return 0;
+        case dt_long:
+            return LONG_MIN;
+        case dt_ulong:
+            return 0;
+        case dt_longlong:
+            return LLONG_MIN;
+        case dt_ulonglong:
+            return 0;
+        default:
+            ERRORLOG("unexpected datatype %d", type);
+            break;
+    }
+    return 0;
+}
+
+static int64_t get_datatype_max(uchar type)
+{
+    switch (type)
+    {
+        case dt_uchar:
+            return UCHAR_MAX;
+        case dt_schar:
+            return SCHAR_MAX;
+        case dt_char:
+            return CHAR_MAX;
+        case dt_short:
+            return SHRT_MAX;
+        case dt_ushort:
+            return USHRT_MAX;
+        case dt_int:
+            return INT_MAX;
+        case dt_uint:
+            return UINT_MAX;
+        case dt_long:
+            return LONG_MAX;
+        case dt_ulong:
+            return ULONG_MAX;
+        case dt_longlong:
+            return LLONG_MAX;
+        case dt_ulonglong:
+            return ULLONG_MAX;
+        default:
+            break;
+    }
+    return 0;
+}
+
 //if the parameter is a number return the number, if a value in the provided NamedCommand list return the value
 int64_t value_default(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     if (parameter_is_number(value_text))
     {
         int64_t value = atoll(value_text);
-
-        if( value < named_field->min)
+        int64_t minimum = max(named_field->min, get_datatype_min(named_field->type));
+        int64_t maximum = min(named_field->max, get_datatype_max(named_field->type));
+        if( value < minimum)
         {
-            NAMFIELDWRNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",named_field->name,named_field->min,value);
+            NAMFIELDWRNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",named_field->name,minimum,value);
             value = named_field->min;
         }
-        else if( value > named_field->max)
+        else if( value > maximum)
         {
-            NAMFIELDWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",named_field->name,named_field->max,value);
+            NAMFIELDWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",named_field->name,maximum,value);
             value = named_field->max;
         }
         return value;
@@ -2129,5 +2195,39 @@ short is_freeplay_level(LevelNumber lvnum)
   }
   SYNCDBG(18,"%ld is NOT freeplay",lvnum);
   return false;
+}
+
+TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
+{
+    char config_textname[64];
+
+    if (file_data->pre_load_func != NULL)
+    {
+        file_data->pre_load_func();
+    }
+
+    const char* conf_fname = file_data->filename;
+    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
+
+    sprintf(config_textname, "global %s config", file_data->description);
+    TbBool result = file_data->load_func(config_textname, fname, flags);
+    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
+    if (strlen(fname) > 0)
+    {
+        sprintf(config_textname, "campaign %s config", file_data->description);
+        file_data->load_func(config_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        sprintf(config_textname, "level %s config", file_data->description);
+        file_data->load_func(config_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    
+    if (file_data->post_load_func != NULL)
+    {
+        file_data->post_load_func();
+    }
+    return result;
 }
 /******************************************************************************/

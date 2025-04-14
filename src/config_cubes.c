@@ -34,7 +34,15 @@ static void assign_owner(const struct NamedField* named_field, int64_t value, co
 /******************************************************************************/
 struct NamedCommand cube_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
-const char keeper_cubes_file[] = "cubes.cfg";
+static TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned short flags);
+
+const struct ConfigFileData keeper_cubes_file_data = {
+    .filename = "cubes.cfg",
+    .description = "cubes",
+    .load_func = load_cubes_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
 
 static const struct NamedCommand cubes_properties_flags[] = {
     {"LAVA",           CPF_IsLava},
@@ -99,7 +107,7 @@ struct CubeConfigStats *get_cube_model_stats(long cumodel)
     return &game.conf.cube_conf.cube_cfgstats[cumodel];
 }
 
-TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     SYNCDBG(0, "%s %s file \"%s\".", ((flags & CnfLd_ListOnly) == 0) ? "Reading" : "Parsing", textname, fname);
     long len = LbFileLengthRnc(fname);
@@ -123,27 +131,6 @@ TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned 
     parse_named_field_blocks(buf, len, textname, flags, &cubes_named_fields_set);
     // Freeing and exiting.
     free(buf);
-    return result;
-}
-
-TbBool load_cubes_config(unsigned short flags)
-{
-    static const char config_global_textname[] = "global cubes config";
-    static const char config_campgn_textname[] = "campaign cubes config";
-    static const char config_level_textname[] = "level cubes config";
-    char *fname = prepare_file_path(FGrp_FxData, keeper_cubes_file);
-    TbBool result = load_cubes_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig, keeper_cubes_file);
-    if (strlen(fname) > 0)
-    {
-        load_cubes_config_file(config_campgn_textname, fname, flags | CnfLd_AcceptPartial | CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), keeper_cubes_file);
-    if (strlen(fname) > 0)
-    {
-        load_cubes_config_file(config_level_textname, fname, flags | CnfLd_AcceptPartial | CnfLd_IgnoreErrors);
-    }
-    // Freeing and exiting.
     return result;
 }
 
