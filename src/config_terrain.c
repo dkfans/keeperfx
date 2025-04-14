@@ -44,11 +44,10 @@ static void assign_icon_update_room_tab  (const struct NamedField* named_field, 
 static void assign_reinitialise_rooms    (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 /******************************************************************************/
-static TbBool load_terrain_config_file(const char *textname, const char *fname, unsigned short flags);
+static TbBool load_terrain_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_terrain_file_data = {
     .filename = "terrain.cfg",
-    .description = "terrain",
     .load_func = load_terrain_config_file,
     .pre_load_func = NULL,
     .post_load_func = NULL,
@@ -466,14 +465,14 @@ TbBool parse_block_health_block(char *buf, long len, const char *config_textname
     return true;
 }
 
-static TbBool load_terrain_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_terrain_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);
@@ -484,11 +483,11 @@ static TbBool load_terrain_config_file(const char *textname, const char *fname, 
     TbBool result = (len > 0);
     
     // Parse blocks of the config file
-    parse_named_field_blocks(buf, len, textname, flags, &terrain_slab_named_fields_set);
+    parse_named_field_blocks(buf, len, fname, flags, &terrain_slab_named_fields_set);
             
-    parse_block_health_block(buf, len, textname, flags);
+    parse_block_health_block(buf, len, fname, flags);
 
-    parse_named_field_blocks(buf, len, textname, flags, &terrain_room_named_fields_set);
+    parse_named_field_blocks(buf, len, fname, flags, &terrain_room_named_fields_set);
 
     //Freeing and exiting
     free(buf);

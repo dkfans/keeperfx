@@ -215,8 +215,7 @@ extern const struct NamedCommand logicval_type[];
 
 struct ConfigFileData{
     const char *filename;
-    const char *description;
-    TbBool (*load_func)(const char *textname, const char *fname, unsigned short flags);
+    TbBool (*load_func)(const char *fname, unsigned short flags);
     void (*pre_load_func)();
     TbBool (*post_load_func)();
 };

@@ -37,11 +37,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static TbBool load_effects_config_file(const char *textname, const char *fname, unsigned short flags);
+static TbBool load_effects_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_effects_file_data = {
     .filename = "effects.toml",
-    .description = "effects",
     .load_func = load_effects_config_file,
     .pre_load_func = NULL,
     .post_load_func = NULL,
@@ -224,10 +223,10 @@ static void load_effectelements(VALUE *value, unsigned short flags)
     }
 }
 
-static TbBool load_effects_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_effects_config_file(const char *fname, unsigned short flags)
 {
     VALUE file_root;
-    if (!load_toml_file(textname, fname,&file_root,flags))
+    if (!load_toml_file(fname,&file_root,flags))
         return false;
     load_effects(&file_root,flags);
     load_effectsgenerators(&file_root,flags);

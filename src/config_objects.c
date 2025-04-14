@@ -38,11 +38,10 @@ extern "C" {
 /******************************************************************************/
 struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 /******************************************************************************/
-static TbBool load_objects_config_file(const char *textname, const char *fname, unsigned short flags);
+static TbBool load_objects_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_objects_file_data = {
     .filename = "objects.cfg",
-    .description = "objects",
     .load_func = load_objects_config_file,
     .pre_load_func = NULL,
     .post_load_func = NULL,
@@ -179,14 +178,14 @@ ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
     return game.conf.object_conf.object_to_door_or_trap[tngmodel];
 }
 
-static TbBool load_objects_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_objects_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);
@@ -195,7 +194,7 @@ static TbBool load_objects_config_file(const char *textname, const char *fname, 
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     
-    parse_named_field_blocks(buf, len, textname, flags, &objects_named_fields_set);
+    parse_named_field_blocks(buf, len, fname, flags, &objects_named_fields_set);
     //Freeing and exiting
     free(buf);
     return true;

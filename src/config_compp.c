@@ -35,11 +35,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags);
+static TbBool load_computer_player_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_keepcomp_file_data = {
   .filename = "keepcompp.cfg",
-  .description = "Computer Player",
   .load_func = load_computer_player_config_file,
   .post_load_func = NULL,
 };
@@ -380,7 +379,7 @@ static int computer_type_add_event(struct ComputerType *cpt, unsigned char event
     return -1;
 }
 
-static TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_computer_player_config_file(const char *fname, unsigned short flags)
 {
     SYNCDBG(8, "Starting");
     // Load the config file
@@ -403,11 +402,11 @@ static TbBool load_computer_player_config_file(const char *textname, const char 
     len = LbFileLoadAt(fname, buf);
     if (len>0)
     {
-        parse_named_field_block(buf, len, textname, flags,"common",  compp_common_named_fields,&compp_common_named_fields_set, 0);
-        parse_named_field_blocks(buf, len, textname, flags, &compp_process_named_fields_set);
-        parse_named_field_blocks(buf, len, textname, flags, &compp_check_named_fields_set);
-        parse_named_field_blocks(buf, len, textname, flags, &compp_event_named_fields_set);
-        parse_named_field_blocks(buf, len, textname, flags, &compp_computer_named_fields_set);
+        parse_named_field_block(buf, len, fname, flags,"common",  compp_common_named_fields,&compp_common_named_fields_set, 0);
+        parse_named_field_blocks(buf, len, fname, flags, &compp_process_named_fields_set);
+        parse_named_field_blocks(buf, len, fname, flags, &compp_check_named_fields_set);
+        parse_named_field_blocks(buf, len, fname, flags, &compp_event_named_fields_set);
+        parse_named_field_blocks(buf, len, fname, flags, &compp_computer_named_fields_set);
     }
     //Freeing and exiting
     free(buf);

@@ -4506,12 +4506,12 @@ static void add_effectgen_to_level_process(struct ScriptContext* context)
 
 static void set_effectgen_configuration_check(const struct ScriptLine* scline)
 {
-    set_config_check(&effects_effectgenerator_named_fields_set, scline);
+    set_config_check(&effects_effectgenerator_named_fields_set, scline,"SET_EFFECTGEN_CONFIG");
 }
 
 static void set_effectgen_configuration_process(struct ScriptContext* context)
 {
-    set_config_process(&effects_effectgenerator_named_fields_set, context);
+    set_config_process(&effects_effectgenerator_named_fields_set, context,"SET_EFFECTGEN_CONFIG");
 }
 
 static void set_power_configuration_check(const struct ScriptLine *scline)
