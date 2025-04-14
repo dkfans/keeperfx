@@ -120,6 +120,9 @@ extern short api_enabled;
 extern uint16_t api_port;
 extern TbBool exit_on_lua_error;
 /******************************************************************************/
+short load_configuration(void);
+void process_cmdline_overrides(void);
+/******************************************************************************/
 TbBool is_feature_on(unsigned long feature);
 TbBool censorship_enabled(void);
 TbBool atmos_sounds_enabled(void);

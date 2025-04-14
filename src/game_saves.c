@@ -209,7 +209,6 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
                 load_map_string_data(campgn, centry->level_num, get_level_fgroup(centry->level_num));
                 // Load configs which may have per-campaign part, and even be modified within a level
                 init_custom_sprites(centry->level_num);
-                load_computer_player_config(CnfLd_Standard);
                 load_stats_files();
                 check_and_auto_fix_stats();
                 init_creature_scores();

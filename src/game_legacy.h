@@ -37,6 +37,7 @@
 #include "config_objects.h"
 #include "config_rules.h"
 #include "config_players.h"
+#include "config_slabsets.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_traps.h"
@@ -124,6 +125,7 @@ struct Configs {
     struct ObjectsConfig object_conf;
     struct RulesConfig rules;
     struct PlayerStateConfig plyr_conf;
+    struct ColumnConfig column_conf;
     struct LuaFuncsConf lua;
 };
 
