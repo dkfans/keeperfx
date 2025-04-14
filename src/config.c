@@ -403,13 +403,13 @@ int64_t value_default(const struct NamedField* named_field, const char* value_te
         int64_t maximum = min(named_field->max, get_datatype_max(named_field->type));
         if( value < minimum)
         {
-            NAMFIELDWRNLOG("field '%s' smaller then min value '%I64d', was '%I64d'",named_field->name,minimum,value);
-            value = named_field->min;
+            NAMFIELDWRNLOG("field '%s' smaller than min value '%I64d', was '%I64d'",named_field->name,minimum,value);
+            value = minimum;
         }
         else if( value > maximum)
         {
-            NAMFIELDWRNLOG("field '%s' bigger then max value '%I64d', was '%I64d'",named_field->name,maximum,value);
-            value = named_field->max;
+            NAMFIELDWRNLOG("field '%s' greater than max value '%I64d', was '%I64d'",named_field->name,maximum,value);
+            value = maximum;
         }
         return value;
 
