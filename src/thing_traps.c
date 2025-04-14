@@ -560,7 +560,6 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
     {
         return thing;
     }
-    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
     init_creature_level(thing, trapst->activation_level);
     
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
