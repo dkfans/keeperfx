@@ -76,6 +76,7 @@ struct TrapConfigStats {
     unsigned char trigger_type;
     unsigned char activation_type;
     unsigned short created_itm_model; // Shot model, effect model, slab kind.
+    unsigned char activation_level;
     unsigned char hit_type;
     TbBool hidden;
     unsigned char slappable;
@@ -113,7 +114,6 @@ struct TrapConfigStats {
     TbBool unsellable;
     short place_sound_idx;
     short trigger_sound_idx;
-    KeepPwrLevel power_level;
 };
 
 /* Manufacture types data. Originally was named TrapData, but stores both traps and doors, now no longer matches original. */

@@ -560,6 +560,9 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
     {
         return thing;
     }
+    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+    init_creature_level(thing, trapst->activation_level);
+    
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
     // Try to move thing out of the solid wall if it's inside one.
     if (thing_in_wall_at(thing, &thing->mappos))
@@ -580,7 +583,7 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
 void activate_trap_god_spell(struct Thing *traptng, struct Thing *creatng, PowerKind pwkind)
 {
     struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
-    magic_use_power_direct(traptng->owner, pwkind, trapst->power_level, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, PwMod_CastForFree);
+    magic_use_power_direct(traptng->owner, pwkind, trapst->activation_level, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, PwMod_CastForFree);
 }
 
 void activate_trap(struct Thing *traptng, struct Thing *creatng)
