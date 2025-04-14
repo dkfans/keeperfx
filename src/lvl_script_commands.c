@@ -706,7 +706,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
     if (field->argnum == -1)
     {
         snprintf(concatenated_values, sizeof(concatenated_values), "%s %s %s %s", scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]);
-        value->longs[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id,ccs_DkScript);
+        value->longlongs[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id,ccs_DkScript);
     }
     else
     {
@@ -741,16 +741,23 @@ static void set_config_process(const struct NamedFieldSet* named_fields_set, str
     short id          = context->value->shorts[0];
     short property_id = context->value->shorts[1];
 
-    for (size_t i = 0; i < MAX_CONFIG_VALUES; i++)
+    if (named_fields_set->named_fields[property_id].argnum == -1)
     {
-        if( named_fields_set->named_fields[property_id + i].name == NULL || 
-            (strcmp(named_fields_set->named_fields[property_id + i].name, named_fields_set->named_fields[property_id].name) != 0))
+        assign_named_field_value(&named_fields_set->named_fields[property_id],context->value->longlongs[1],named_fields_set,id, ccs_DkScript);
+    }
+    else
+    {
+        for (size_t i = 0; i < MAX_CONFIG_VALUES; i++)
         {
-            return;
-        }
-        else
-        {
-            assign_named_field_value(&named_fields_set->named_fields[property_id + i],context->value->longs[i+1],named_fields_set,id, ccs_DkScript);
+            if( named_fields_set->named_fields[property_id + i].name == NULL || 
+                (strcmp(named_fields_set->named_fields[property_id + i].name, named_fields_set->named_fields[property_id].name) != 0))
+            {
+                return;
+            }
+            else
+            {
+                assign_named_field_value(&named_fields_set->named_fields[property_id + i],context->value->longs[i+1],named_fields_set,id, ccs_DkScript);
+            }
         }
     }
 }
