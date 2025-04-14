@@ -166,6 +166,19 @@ int64_t value_activationeffect(const struct NamedField* named_field, const char*
     }
 }
 
+int64_t value_min1(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+{
+    if (parameter_is_number(value_text))
+    {
+        return atoi(value_text) - 1;
+    }
+    else
+    {
+        NAMFIELDWRNLOG("unexpected value '%s' for %s [%s%d].",value_text, named_field->name, named_fields_set->block_basename, idx);
+        return 0;
+    }
+}
+
 static void assign_refresh_trap_anim(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
 {
     assign_default(named_field,value,named_fields_set,idx,src);
@@ -236,6 +249,7 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"TRIGGERTYPE",            0, field(game.conf.trapdoor_conf.trap_cfgstats[0].trigger_type),                     0,   LONG_MIN,         ULONG_MAX, trap_trigger_type_commands,value_default, assign_default},
     {"ACTIVATIONTYPE",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].activation_type),                  0,   LONG_MIN,         ULONG_MAX, trap_activation_type_commands,value_default, assign_default},
     {"EFFECTTYPE",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].created_itm_model),                0,   LONG_MIN,         ULONG_MAX, NULL,            value_activationeffect, assign_default},
+    {"ACTIVATIONLEVEL",        0, field(game.conf.trapdoor_conf.trap_cfgstats[0].activation_level),                 0,          0,                 9, NULL,                        value_min1, assign_default},
     {"ANIMATIONID",            0, field(game.conf.trapdoor_conf.trap_cfgstats[0].sprite_anim_idx),                  0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_refresh_trap_anim_anim_id},
     {"MODEL",                  0, field(game.conf.trapdoor_conf.trap_cfgstats[0].sprite_anim_idx),                  0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_refresh_trap_anim_anim_id}, // Backward compatibility.
     {"MODELSIZE",              0, field(game.conf.trapdoor_conf.trap_cfgstats[0].sprite_size_max),                  0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_refresh_trap_anim},
