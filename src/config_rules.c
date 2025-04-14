@@ -220,7 +220,6 @@ const struct NamedFieldSet rules_named_fields_set = {
   1,
   0,
   &game.conf.rules,
-  {"rules.cfg","SET_GAME_RULE"},
 };
 
 const struct NamedCommand rules_research_commands[] = {

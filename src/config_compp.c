@@ -84,7 +84,6 @@ const struct NamedFieldSet compp_common_named_fields_set = {
   0,
   0,
   NULL,
-  {"keepcompp.cfg","INVALID"},
 };
 
 static const struct NamedField compp_process_named_fields[] = {
@@ -118,7 +117,6 @@ const struct NamedFieldSet compp_process_named_fields_set = {
   COMPUTER_PROCESS_TYPES_COUNT,
   sizeof(comp_player_conf.process_types[0]),
   comp_player_conf.process_types,
-  {"keepcompp.cfg","INVALID"},
 };
 
 static const struct NamedField compp_check_named_fields[] = {
@@ -144,7 +142,6 @@ const struct NamedFieldSet compp_check_named_fields_set = {
   COMPUTER_CHECKS_TYPES_COUNT,
   sizeof(comp_player_conf.check_types[0]),
   comp_player_conf.check_types,
-  {"keepcompp.cfg","INVALID"},
 };
 
 static const struct NamedField compp_event_named_fields[] = {
@@ -172,7 +169,6 @@ const struct NamedFieldSet compp_event_named_fields_set = {
   COMPUTER_EVENTS_TYPES_COUNT,
   sizeof(comp_player_conf.event_types[0]),
   comp_player_conf.event_types,
-  {"keepcompp.cfg","INVALID"},
 };
 
 
@@ -204,7 +200,6 @@ const struct NamedFieldSet compp_computer_named_fields_set = {
   COMPUTER_MODELS_COUNT,
   sizeof(comp_player_conf.computer_types[0]),
   comp_player_conf.computer_types,
-  {"keepcompp.cfg","INVALID"},
 };
 
 /******************************************************************************/

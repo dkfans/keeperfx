@@ -75,7 +75,6 @@ const struct NamedFieldSet effects_effectgenerator_named_fields_set = {
     EFFECTSGEN_TYPES_MAX,
     sizeof(game.conf.effects_conf.effectgen_cfgstats[0]),
     game.conf.effects_conf.effectgen_cfgstats,
-    {"effects.toml","SET_EFFECT_GENERATOR_CONFIGURATION"},
 };
 
 long const imp_spangle_effects[] = {

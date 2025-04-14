@@ -133,7 +133,6 @@ const struct NamedFieldSet objects_named_fields_set = {
     OBJECT_TYPES_MAX,
     sizeof(game.conf.object_conf.object_cfgstats[0]),
     game.conf.object_conf.object_cfgstats,
-    {"objects.cfg","SET_OBJECT_CONFIGURATION"},
 };
 
 /******************************************************************************/

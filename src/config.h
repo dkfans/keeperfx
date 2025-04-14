@@ -202,7 +202,6 @@ struct NamedFieldSet {
     const int max_count;
     const size_t struct_size;
     const void* struct_base;
-    const char* src_strs[2]; 
 };
 
 #define NAMFIELDWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", src_str , text_line_number, ##__VA_ARGS__)

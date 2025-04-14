@@ -227,7 +227,6 @@ const struct NamedFieldSet trapdoor_door_named_fields_set = {
     TRAPDOOR_TYPES_MAX,
     sizeof(game.conf.trapdoor_conf.door_cfgstats[0]),
     game.conf.trapdoor_conf.door_cfgstats,
-    {"trapdoor.cfg","SET_DOOR_CONFIGURATION"},
 };
 
 const struct NamedField trapdoor_trap_named_fields[] = {
@@ -307,7 +306,6 @@ const struct NamedFieldSet trapdoor_trap_named_fields_set = {
     TRAPDOOR_TYPES_MAX,
     sizeof(game.conf.trapdoor_conf.trap_cfgstats[0]),
     game.conf.trapdoor_conf.trap_cfgstats,
-    {"trapdoor.cfg","SET_TRAP_CONFIGURATION"},
 };
 
 /******************************************************************************/

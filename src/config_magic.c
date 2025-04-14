@@ -412,7 +412,6 @@ const struct NamedFieldSet magic_powers_named_fields_set = {
     MAGIC_ITEMS_MAX,
     sizeof(game.conf.magic_conf.power_cfgstats[0]),
     game.conf.magic_conf.power_cfgstats,
-    {"magic.cfg","SET_POWER_CONFIGURATION"},
 };
 
 #ifdef __cplusplus

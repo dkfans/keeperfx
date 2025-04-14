@@ -51,7 +51,6 @@ const struct NamedFieldSet crstates_states_named_fields_set = {
     CREATURE_STATES_MAX,
     sizeof(game.conf.crtr_conf.states[0]),
     game.conf.crtr_conf.states,
-    {"crstates.cfg","INVALID_SCRIPT"},
 };
 
 static TbBool load_creaturestates_config_file(const char *fname, unsigned short flags);

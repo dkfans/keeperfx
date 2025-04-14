@@ -74,7 +74,6 @@ const struct NamedFieldSet cubes_named_fields_set = {
     CUBE_ITEMS_MAX,
     sizeof(game.conf.cube_conf.cube_cfgstats[0]),
     game.conf.cube_conf.cube_cfgstats,
-    {"cubes.cfg","INVALID_SCRIPT"},
 };
 
 
