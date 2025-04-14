@@ -421,7 +421,7 @@ int64_t value_default(const struct NamedField* named_field, const char* value_te
         {
             return value;
         }
-        NAMFIELDWRNLOG("Expected number or named value for field '%s', got '%s'",named_field->name,value_text);
+        NAMFIELDWRNLOG("Unrecognized parameter for field '%s', got '%s'",named_field->name,value_text);
     }
     else
     {
