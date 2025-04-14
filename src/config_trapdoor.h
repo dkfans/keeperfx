@@ -76,6 +76,7 @@ struct TrapConfigStats {
     unsigned char trigger_type;
     unsigned char activation_type;
     unsigned short created_itm_model; // Shot model, effect model, slab kind.
+    unsigned char activation_level;
     unsigned char hit_type;
     TbBool hidden;
     unsigned char slappable;
