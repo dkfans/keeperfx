@@ -654,24 +654,25 @@ TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *
         return false;
     }
     TbBool result = true;
-    int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
-    // Remove lair from room capacity
-    if (room->content_per_model[creatng->model] <= 0)
+    int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, cctrl->original_model);
+    // Remove lair from room capacity.
+    if (room->content_per_model[cctrl->original_model] <= 0)
     {
         ERRORLOG("Attempt to remove a lair which belongs to %s index %d from room index %d not containing this creature model",thing_model_name(creatng),(int)creatng->index,(int)room->index);
         result = false;
-    } else
-    if ( room->used_capacity < required_cap)
+    }
+    else if (room->used_capacity < required_cap)
     {
         ERRORLOG("Attempt to remove creature lair from room with too little used space");
         result = false;
-    } else
+    }
+    else
     {
         room->used_capacity -= required_cap;
-        room->content_per_model[creatng->model]--;
+        room->content_per_model[cctrl->original_model]--;
     }
     cctrl->lair_room_id = 0;
-    //Remove the totem thing
+    // Remove the totem thing.
     if (cctrl->lairtng_idx > 0)
     {
         struct Thing* lairtng = thing_get(cctrl->lairtng_idx);

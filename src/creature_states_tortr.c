@@ -272,7 +272,7 @@ CrCheckRet process_kinky_function(struct Thing *thing)
 
 void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_original_model(thing);
     ThingModel crmodel = crstat->torture_kind;
     if ((crmodel > game.conf.crtr_conf.model_count) || (crmodel <= 0))
     {
@@ -328,7 +328,7 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
         dungeon->lvstats.creatures_converted++;
         if (((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0) && ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) == 0))
         {
-            if (get_creature_model_flags(creatng) & CMF_IsEvil)
+            if (get_creature_original_model_flags(creatng) & CMF_IsEvil)
             {
                 dungeon->evil_creatures_converted++;
             }

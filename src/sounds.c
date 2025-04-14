@@ -163,7 +163,7 @@ void play_thing_walking(struct Thing *thing)
                 cctrl->mood_flags |=  (UNSYNC_RANDOM(4) << 2);
                 cctrl->sound_flag &= ~0x1F;
             }
-            crstat = creature_stats_get(thing->model);
+            crstat = creature_stats_get_from_thing(thing);
             thing_play_sample(thing, smpl_idx, crstat->footstep_pitch, 0, 3, 3, 1, loudness);
             if ((thing->movement_flags & TMvF_IsOnWater) != 0) {
                 thing_play_sample(thing, 21 + UNSYNC_RANDOM(4), 90 + UNSYNC_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
@@ -539,7 +539,7 @@ void update_first_person_object_ambience(struct Thing *thing)
     struct ObjectConfigStats* objst;
     if (thing->class_id == TCls_Creature)
     {
-        struct CreatureStats* crstat = creature_stats_get(thing->model);
+        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
         hearing_range = (long)subtile_coord(crstat->hearing, 0) / 2;
     }
     else

@@ -77,6 +77,7 @@ const struct NamedCommand magic_spell_commands[] = {
     {"AURAFREQUENCY",   17},
     {"CLEANSEFLAGS",    18},
     {"PROPERTIES",      19},
+    {"TRANSFORM",       20},
     {NULL,               0},
 };
 
@@ -976,6 +977,41 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
             if (n < 1)
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 20: // TRANSFORM
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    spconf->transform_model = k;
+                    n++;
+                }
+                else
+                {
+                    k = get_id(creature_desc, word_buf);
+                    if (k >= 0)
+                    {
+                        spconf->transform_model = k;
+                        n++;
+                    }
+                }
+                if (strcasecmp(word_buf, "ANY_CREATURE") == 0)
+                {
+                    spconf->transform_model = CREATURE_NOT_A_DIGGER;
+                    n++;
+                }
+                if (strcasecmp(word_buf, "NULL") == 0)
+                {
+                    spconf->transform_model = 0;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
                     COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
             }
             break;

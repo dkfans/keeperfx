@@ -665,11 +665,11 @@ TbBool creature_can_be_set_unconscious(const struct Thing *creatng, const struct
     {
         return false;
     }
-    if (flag_is_set(get_creature_model_flags(creatng), CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_evil))
+    if (flag_is_set(get_creature_original_model_flags(creatng), CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_evil))
     {
         return false;
     }
-    if (!flag_is_set(get_creature_model_flags(creatng), CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_good))
+    if (!flag_is_set(get_creature_original_model_flags(creatng), CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_good))
     {
         return false;
     }
@@ -1820,7 +1820,7 @@ short creature_doing_nothing(struct Thing *creatng)
     {
         if ((game.play_gameturn - cctrl->tasks_check_turn > 128))
         {
-            int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
+            int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, cctrl->original_model);
             cctrl->tasks_check_turn = game.play_gameturn;
             struct Room* room = find_nearest_room_of_role_for_thing_with_spare_capacity(creatng, creatng->owner, get_room_role_for_job(Job_TAKE_SLEEP), NavRtF_Default, required_cap);
             if (!room_is_invalid(room))
@@ -3317,7 +3317,7 @@ short creature_wants_a_home(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_original_model(creatng);
     if (crstat->lair_size <= 0) {
         set_start_state(creatng);
         return 0;
@@ -4019,7 +4019,7 @@ short person_sulk_head_for_lair(struct Thing *creatng)
         }
     }
     // For some reason we can't go to lair; either leave dungeon o reset.
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats* crstat = creature_stats_get_from_original_model(creatng);
     if ((crstat->lair_size <= 0) || creature_affected_by_slap(creatng) || player_uses_power_obey(creatng->owner)) {
         set_start_state(creatng);
         return 0;
@@ -4238,10 +4238,11 @@ TbBool trap_is_valid_combat_target_for_creature(const struct Thing* fightng, con
 
 TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
+    struct CreatureStats* crstat = creature_stats_get_from_original_model(fightng);
+	struct CreatureControl *enmcctrl = creature_control_get_from_thing(enmtng);
     for (int i = 0; i < CREATURE_TYPES_MAX; i++)
     {
-        if ((crstat->hostile_towards[i] == enmtng->model) || (crstat->hostile_towards[i] == CREATURE_ANY))
+        if ((crstat->hostile_towards[i] == enmcctrl->original_model) || (crstat->hostile_towards[i] == CREATURE_ANY))
         {
             return true;
         }
@@ -4742,14 +4743,14 @@ TbBool check_experience_upgrade(struct Thing *thing)
 {
     struct Dungeon *dungeon = get_dungeon(thing->owner);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_original_model(thing);
     long i = crstat->to_level[cctrl->exp_level] << 8;
     if (cctrl->exp_points < i)
     {
         return false;
     }
     cctrl->exp_points -= i;
-    if (cctrl->exp_level < dungeon->creature_max_level[thing->model])
+    if (cctrl->exp_level < dungeon->creature_max_level[cctrl->original_model])
     {
         if ((cctrl->exp_level < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
         {

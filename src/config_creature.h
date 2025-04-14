@@ -292,6 +292,7 @@ extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
+struct CreatureStats *creature_stats_get_from_original_model(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
 void check_and_auto_fix_stats(void);
 void init_creature_model_stats(void);
@@ -302,6 +303,7 @@ const char *creature_own_name(const struct Thing *creatng);
 TbBool is_creature_model_wildcard(ThingModel crmodel);
 /******************************************************************************/
 unsigned long get_creature_model_flags(const struct Thing *thing);
+unsigned long get_creature_original_model_flags(const struct Thing *thing);
 TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long can_be_avail, long force_avail);
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx);
 ThingModel get_players_spectator_model(PlayerNumber plyr_idx);

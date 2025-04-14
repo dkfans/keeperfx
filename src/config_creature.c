@@ -307,20 +307,38 @@ const char *name_consonants[] = {
  */
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx)
 {
-  if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_MAX))
-    return &game.conf.creature_stats[0];
-  return &game.conf.creature_stats[crstat_idx];
+    if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_MAX))
+    {
+        return &game.conf.creature_stats[0];
+    }
+    return &game.conf.creature_stats[crstat_idx];
 }
 
 /**
- * Returns CreatureStats assigned to given thing.
+ * Returns CreatureStats assigned to given thing from its current model.
  * Thing must be a creature.
  */
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing)
 {
-  if ((thing->model < 1) || (thing->model >= game.conf.crtr_conf.model_count))
-    return &game.conf.creature_stats[0];
-  return &game.conf.creature_stats[thing->model];
+    if ((thing->model < 1) || (thing->model >= game.conf.crtr_conf.model_count))
+    {
+        return &game.conf.creature_stats[0];
+    }
+    return &game.conf.creature_stats[thing->model];
+}
+
+/**
+ * Returns CreatureStats assigned to given thing from its original model.
+ * Thing must be a creature.
+ */
+struct CreatureStats *creature_stats_get_from_original_model(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->original_model < 1) || (cctrl->original_model >= game.conf.crtr_conf.model_count))
+    {
+        return &game.conf.creature_stats[0];
+    }
+    return &game.conf.creature_stats[cctrl->original_model];
 }
 
 /**
@@ -1954,8 +1972,20 @@ static TbBool load_creaturetypes_config_file(const char *textname, const char *f
 unsigned long get_creature_model_flags(const struct Thing *thing)
 {
     if ((thing->model < 1) || (thing->model >= game.conf.crtr_conf.model_count))
-      return 0;
-  return game.conf.crtr_conf.model[thing->model].model_flags;
+    {
+        return 0;
+    }
+    return game.conf.crtr_conf.model[thing->model].model_flags;
+}
+
+unsigned long get_creature_original_model_flags(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->original_model < 1) || (cctrl->original_model >= game.conf.crtr_conf.model_count))
+    {
+        return 0;
+    }
+    return game.conf.crtr_conf.model[cctrl->original_model].model_flags;
 }
 
 ThingModel get_creature_model_with_model_flags(unsigned long needflags)
@@ -2073,7 +2103,7 @@ const char *creature_own_name(const struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     char *text;
-    if ((get_creature_model_flags(creatng) & CMF_OneOfKind) != 0) {
+    if ((get_creature_original_model_flags(creatng) & CMF_OneOfKind) != 0) {
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatng->model];
         text = buf_sprintf("%s",get_string(crconf->namestr_idx));
         return text;
