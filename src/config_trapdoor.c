@@ -175,6 +175,7 @@ int64_t value_min1(const struct NamedField* named_field, const char* value_text,
     else
     {
         NAMFIELDWRNLOG("unexpected value '%s' for %s [%s%d].",value_text, named_field->name, named_fields_set->block_basename, idx);
+        return 0;
     }
 }
 
