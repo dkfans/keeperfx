@@ -954,7 +954,7 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
     return leadtng;
 }
 
-void script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, CrtrExpLevel exp_level, unsigned long carried_gold)
+struct Thing* script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, CrtrExpLevel exp_level, unsigned long carried_gold)
 {
     struct Thing* ldthing = script_process_new_tunneler(plyr_idx, location, heading, exp_level, carried_gold);
     if (thing_is_invalid(ldthing))
@@ -969,6 +969,8 @@ void script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbM
         return;
     }
     add_creature_to_group_as_leader(ldthing, gpthing);
+
+    return ldthing;
 }
 
 /******************************************************************************/

@@ -507,3 +507,34 @@ void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y) {
     luaL_getmetatable(L, "Slab");
     lua_setmetatable(L, -2);  
 }
+
+//takes the leader of the party as argument
+//pushes a table of all the creatures in the party onto the stack
+void lua_pushPartyTable(lua_State *L, struct Thing* thing) {
+    lua_newtable(L);
+    long i = thing->index;
+    long k = 0;
+    while (i != 0)
+    {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->next_in_group;
+        // Per-thing code
+        lua_pushThing(L, thing);
+        lua_rawseti(L, -2, k + 1);
+        
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+}

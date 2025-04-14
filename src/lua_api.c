@@ -443,8 +443,13 @@ static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
         return 0;
     }
 
-    script_process_new_tunneller_party(owner, prty_id, spawn_location, head_for, crtr_level, carried_gold);
-    return 0;
+    struct Thing* leadtng = script_process_new_tunneller_party(owner, prty_id, spawn_location, head_for, crtr_level, carried_gold);
+    if (thing_is_invalid(leadtng))
+    { 
+        return 0;
+    }
+    lua_pushPartyTable(L, leadtng);
+    return 1;
 }
 
 static int lua_ADD_PARTY_TO_LEVEL(lua_State *L)
@@ -457,8 +462,14 @@ static int lua_ADD_PARTY_TO_LEVEL(lua_State *L)
     if (location == 0)
         return 0;
     struct Party* party = &gameadd.script.creature_partys[prty_id];
-    script_process_new_party(party, owner, location, 1);
+    struct Thing* leadtng = script_process_new_party(party, owner, location, 1);
+
+    if (thing_is_invalid(leadtng))
+    { 
         return 0;
+    }
+    lua_pushPartyTable(L, leadtng);
+    return 1;
 }
 
 //Displaying information and affecting interface
