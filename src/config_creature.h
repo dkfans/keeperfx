@@ -269,7 +269,7 @@ struct CreatureConfig {
 };
 
 /******************************************************************************/
-extern const char keeper_creaturetp_file[];
+extern const struct ConfigFileData keeper_creaturetp_file_data;
 extern struct NamedCommand creature_desc[];
 extern struct NamedCommand angerjob_desc[];
 extern struct NamedCommand creaturejob_desc[];
@@ -300,8 +300,6 @@ const char *creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
 const char *creature_own_name(const struct Thing *creatng);
 TbBool is_creature_model_wildcard(ThingModel crmodel);
-/******************************************************************************/
-TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags);
 /******************************************************************************/
 unsigned long get_creature_model_flags(const struct Thing *thing);
 TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long can_be_avail, long force_avail);

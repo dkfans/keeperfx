@@ -37,11 +37,18 @@ extern "C" {
 struct LensesConfig lenses_conf;
 struct NamedCommand lenses_desc[LENS_ITEMS_MAX];
 /******************************************************************************/
-const char keeper_lenses_file[]="lenses.cfg";
+static TbBool load_lenses_config_file(const char *fname, unsigned short flags);
 
-static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
-static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
-static int64_t value_displace(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+const struct ConfigFileData keeper_lenses_file_data = {
+    .filename = "lenses.cfg",
+    .load_func = load_lenses_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
+
+static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static int64_t value_displace(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 
 const struct NamedField lenses_data_named_fields[] = {
     //name           //pos    //field                                           //default //min     //max    //NamedCommand
@@ -64,7 +71,6 @@ const struct NamedFieldSet lenses_data_named_fields_set = {
     LENS_ITEMS_MAX,
     sizeof(lenses_conf.lenses[0]),
     lenses_conf.lenses,
-    {"lenses.cfg","INVALID_SCRIPT"},
 };
 
 /******************************************************************************/
@@ -76,20 +82,20 @@ struct LensConfig *get_lens_config(long lens_idx)
     return &lenses_conf.lenses[lens_idx];
 }
 
-static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static int64_t value_mist(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     lenses_conf.lenses[idx].flags |= LCF_HasMist;
-    return value_name(named_field, value_text, named_fields_set, idx, src);
+    return value_name(named_field, value_text, named_fields_set, idx, src_str, flags);
 }
 
-static int64_t value_displace(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static int64_t value_displace(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     lenses_conf.lenses[idx].flags |= LCF_HasDisplace;
-    return value_default(named_field, value_text, named_fields_set, idx, src);
+    return value_default(named_field, value_text, named_fields_set, idx, src_str, flags);
 }
 
 
-static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     lenses_conf.lenses[idx].flags |= LCF_HasPalette;
     char* fname = prepare_file_path(FGrp_StdData, value_text);
@@ -101,14 +107,14 @@ static int64_t value_pallete(const struct NamedField* named_field, const char* v
     return 0;
 }
 
-TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_lenses_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);
@@ -119,34 +125,12 @@ TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned
     TbBool result = (len > 0);
     // Parse blocks of the config file
 
-    parse_named_field_blocks(buf, len, textname, flags, &lenses_data_named_fields_set);
+    parse_named_field_blocks(buf, len, fname, flags, &lenses_data_named_fields_set);
 
     //Freeing and exiting
     free(buf);
     return result;
 }
-
-TbBool load_lenses_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global eye lenses config";
-    static const char config_campgn_textname[] = "campaign eye lenses config";
-    static const char config_level_textname[] = "level eye lenses config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_lenses_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_lenses_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_lenses_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
-    return result;
-}
-
 
 /******************************************************************************/
 #ifdef __cplusplus

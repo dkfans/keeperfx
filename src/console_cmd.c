@@ -121,9 +121,9 @@ static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn
     struct ComputerProcess* cproc = &comp->processes[args[1]];
 
     if (flag_is_set(cproc->flags, ComProc_Unkn0020))
-        message_add_fmt(MsgType_Player, args[0], "resuming %s", cproc->name?cproc->name:"(null)");
+        message_add_fmt(MsgType_Player, args[0], "resuming %s", cproc->name);
     else
-        message_add_fmt(MsgType_Player, args[0], "suspending %s", cproc->name?cproc->name:"(null)");
+        message_add_fmt(MsgType_Player, args[0], "suspending %s", cproc->name);
 
     toggle_flag(cproc->flags, ComProc_Unkn0020); // Suspend, but do not update running time
     return 1;
@@ -226,9 +226,9 @@ static long cmd_comp_checks_click(struct GuiBox *gbox, struct GuiBoxOption *gopt
     struct ComputerCheck* ccheck = &comp->checks[args[1]];
 
     if (flag_is_set(ccheck->flags, ComChk_Unkn0001))
-        message_add_fmt(MsgType_Player, args[0], "resuming %s", ccheck->name?ccheck->name:"(null)");
+        message_add_fmt(MsgType_Player, args[0], "resuming %s", ccheck->name);
     else
-        message_add_fmt(MsgType_Player, args[0], "suspending %s", ccheck->name?ccheck->name:"(null)");
+        message_add_fmt(MsgType_Player, args[0], "suspending %s", ccheck->name);
 
     ccheck->flags ^= ComChk_Unkn0001;
     return 1;
@@ -1896,6 +1896,28 @@ TbBool cmd_possession_unlock(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_string_show(PlayerNumber plyr_idx, char * args)
+{
+    char * pr2str = strsep(&args, " ");
+    long msg_id = atoi(pr2str);
+    if (msg_id >= 0)
+    {
+        set_general_information(msg_id, 0, 0, 0);
+    }
+    return true;
+}
+
+TbBool cmd_quick_show(PlayerNumber plyr_idx, char * args)
+{
+    char * pr2str = strsep(&args, " ");
+    long msg_id = atoi(pr2str);
+    if (msg_id >= 0)
+    {
+        set_quick_information(msg_id, 0, 0, 0);
+    }
+    return true;
+}
+
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
     struct ConsoleCommand {
@@ -1999,6 +2021,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
         { "player.colour", cmd_player_colour},
         { "possession.lock", cmd_possession_lock},
         { "possession.unlock", cmd_possession_unlock},
+        { "string.show", cmd_string_show},
+        { "quick.show", cmd_quick_show},
     };
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");
