@@ -709,7 +709,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
     if (field->argnum == -1)
     {
         snprintf(concatenated_values, sizeof(concatenated_values), "%s %s %s %s", scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]);
-        value->longlongs[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id,ccs_DkScript);
+        value->longlongs[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id,flags,src_str);
     }
     else
     {
@@ -730,7 +730,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
             {
                 break;
             }
-            value->longs[1 + i] = parse_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id,ccs_DkScript);
+            value->longs[1 + i] = parse_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id,flags,src_str);
         }
     }
 
