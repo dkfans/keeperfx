@@ -4534,7 +4534,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
 
 static void set_power_configuration_process(struct ScriptContext *context)
 {
-    set_config_process(&magic_powers_named_fields_set, context);
+    set_config_process(&magic_powers_named_fields_set, context,"SET_POWER_CONFIG");
     update_powers_tab_to_config();
 }
 
