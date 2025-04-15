@@ -677,7 +677,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
     const char* property = scline->tp[1];
     const char* valuestrings[MAX_CONFIG_VALUES] = {scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]};
     
-    TbBool run_directly = (get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0)
+    TbBool run_directly = (get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0);
     unsigned char flags = run_directly? ccf_DuringLevel : ccf_SplitExecution|ccf_DuringLevel;
 
     short id = get_id(named_fields_set->names, id_str);
@@ -749,7 +749,7 @@ static void set_config_process(const struct NamedFieldSet* named_fields_set, str
 
     if (named_fields_set->named_fields[property_id].argnum == -1)
     {
-        assign_named_field_value(&named_fields_set->named_fields[property_id],context->value->longlongs[1],named_fields_set,id, flags);
+        assign_named_field_value(&named_fields_set->named_fields[property_id], context->value->longlongs[1], named_fields_set, id, src_str, flags);
     }
     else
     {
@@ -762,7 +762,7 @@ static void set_config_process(const struct NamedFieldSet* named_fields_set, str
             }
             else
             {
-                assign_named_field_value(&named_fields_set->named_fields[property_id + i],context->value->longs[i+1],named_fields_set,id, flags);
+                assign_named_field_value(&named_fields_set->named_fields[property_id + i],context->value->longs[i+1],named_fields_set,  id, src_str, flags);
             }
         }
     }
