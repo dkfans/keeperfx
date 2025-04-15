@@ -3142,7 +3142,6 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     {
         set_flag(flags,CrDed_NoEffects);
     }
-
     if ((!flag_is_set(flags,CrDed_NoEffects)) && (crstat->rebirth != 0)
      && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->exp_level)
         && (!flag_is_set(flags,CrDed_NoRebirth)) )
