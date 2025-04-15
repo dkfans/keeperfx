@@ -4529,7 +4529,7 @@ static void set_effectgen_configuration_process(struct ScriptContext* context)
 
 static void set_power_configuration_check(const struct ScriptLine *scline)
 {
-    set_config_check(&magic_powers_named_fields_set, scline);
+    set_config_check(&magic_powers_named_fields_set, scline,"SET_POWER_CONFIG");
 }
 
 static void set_power_configuration_process(struct ScriptContext *context)
