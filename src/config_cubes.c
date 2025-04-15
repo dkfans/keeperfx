@@ -30,15 +30,14 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static void assign_owner(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_owner(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 /******************************************************************************/
 struct NamedCommand cube_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
-static TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned short flags);
+static TbBool load_cubes_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_cubes_file_data = {
     .filename = "cubes.cfg",
-    .description = "cubes",
     .load_func = load_cubes_config_file,
     .pre_load_func = NULL,
     .post_load_func = NULL,
@@ -75,7 +74,6 @@ const struct NamedFieldSet cubes_named_fields_set = {
     CUBE_ITEMS_MAX,
     sizeof(game.conf.cube_conf.cube_cfgstats[0]),
     game.conf.cube_conf.cube_cfgstats,
-    {"cubes.cfg","INVALID_SCRIPT"},
 };
 
 
@@ -85,7 +83,7 @@ const struct NamedFieldSet cubes_named_fields_set = {
 #endif
 /******************************************************************************/
 
-static void assign_owner(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_owner(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     struct CubeConfigStats *cubed = get_cube_model_stats(idx);
     if (cubed->ownershipGroup <= 0)
@@ -95,7 +93,7 @@ static void assign_owner(const struct NamedField* named_field, int64_t value, co
     }
 
     game.conf.cube_conf.cube_bits[cubed->ownershipGroup][value] = idx;
-    assign_default(named_field,value,named_fields_set,idx,src);
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
 }
 
 struct CubeConfigStats *get_cube_model_stats(long cumodel)
@@ -107,15 +105,15 @@ struct CubeConfigStats *get_cube_model_stats(long cumodel)
     return &game.conf.cube_conf.cube_cfgstats[cumodel];
 }
 
-static TbBool load_cubes_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_cubes_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0, "%s %s file \"%s\".", ((flags & CnfLd_ListOnly) == 0) ? "Reading" : "Parsing", textname, fname);
+    SYNCDBG(0, "%s file \"%s\".", ((flags & CnfLd_ListOnly) == 0) ? "Reading" : "Parsing", fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
         {
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.", textname, fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.", fname);
         }
         return false;
     }
@@ -128,7 +126,7 @@ static TbBool load_cubes_config_file(const char *textname, const char *fname, un
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
     // Parse blocks of the config file.
-    parse_named_field_blocks(buf, len, textname, flags, &cubes_named_fields_set);
+    parse_named_field_blocks(buf, len, fname, flags, &cubes_named_fields_set);
     // Freeing and exiting.
     free(buf);
     return result;

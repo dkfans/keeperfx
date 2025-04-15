@@ -34,11 +34,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static TbBool load_playerstate_config_file(const char *textname, const char *fname, unsigned short flags);
+static TbBool load_playerstate_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_playerstates_file_data = {
     .filename = "playerstates.toml",
-    .description = "player states",
     .load_func = load_playerstate_config_file,
     .pre_load_func = NULL,
     .post_load_func = NULL,
@@ -65,10 +64,10 @@ static const struct NamedCommand pointer_group_commands[] = {
 /******************************************************************************/
 /******************************************************************************/
 
-static TbBool load_playerstate_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_playerstate_config_file(const char *fname, unsigned short flags)
 {
     VALUE file_root;
-    if (!load_toml_file(textname, fname,&file_root,flags))
+    if (!load_toml_file(fname,&file_root,flags))
         return false;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
