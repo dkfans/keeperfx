@@ -32,21 +32,20 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static TbBool load_textureanim_config_file(const char *textname, const char *fname, unsigned short flags);
+static TbBool load_textureanim_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_textureanim_file_data = {
     .filename = "textureanim.toml",
-    .description = "textureanim",
     .load_func = load_textureanim_config_file,
     .pre_load_func = NULL,
     .post_load_func = NULL,
 };
 /******************************************************************************/
 
-static TbBool load_textureanim_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_textureanim_config_file(const char *fname, unsigned short flags)
 {
     VALUE file_root;
-    if (!load_toml_file(textname, fname,&file_root,flags))
+    if (!load_toml_file(fname,&file_root,flags))
         return false;
 
     char key[64];

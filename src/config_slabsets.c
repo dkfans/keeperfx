@@ -34,12 +34,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static TbBool load_slabset_config_file(const char *textname, const char *fname, unsigned short flags);
-static TbBool load_columns_config_file(const char *textname, const char *fname, unsigned short flags);
+static TbBool load_slabset_config_file(const char *fname, unsigned short flags);
+static TbBool load_columns_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_slabset_file_data = {
     .filename = "slabset.toml",
-    .description = "slabset",
     .load_func = load_slabset_config_file,
     .pre_load_func = NULL,
     .post_load_func = NULL,
@@ -47,7 +46,6 @@ const struct ConfigFileData keeper_slabset_file_data = {
 
 const struct ConfigFileData keeper_columns_file_data = {
     .filename = "columnset.toml",
-    .description = "columnset",
     .load_func = load_columns_config_file,
     .pre_load_func = NULL,
     .post_load_func = NULL,
@@ -86,7 +84,7 @@ const struct NamedCommand slab_styles_commands[] = {
     {"CENTER",   27}
 };
 
-static TbBool load_slabset_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_slabset_config_file(const char *fname, unsigned short flags)
 {
     VALUE file_root;
 
@@ -95,7 +93,7 @@ static TbBool load_slabset_config_file(const char *textname, const char *fname, 
         clear_slabsets();
     }
     
-    if (!load_toml_file(textname, fname,&file_root,flags))
+    if (!load_toml_file(fname,&file_root,flags))
         return false;
     
     char key[64];
@@ -162,11 +160,11 @@ static TbBool load_slabset_config_file(const char *textname, const char *fname, 
     return true;
 }
 
-static TbBool load_columns_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_columns_config_file(const char *fname, unsigned short flags)
 {
     VALUE file_root;
     
-    if (!load_toml_file(textname, fname,&file_root,flags))
+    if (!load_toml_file(fname,&file_root,flags))
         return false;
 
     char key[64];

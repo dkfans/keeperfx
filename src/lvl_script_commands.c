@@ -670,7 +670,7 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
     return true;
 }
 
-static void set_config_check(const struct NamedFieldSet* named_fields_set, const struct ScriptLine* scline)
+static void set_config_check(const struct NamedFieldSet* named_fields_set, const struct ScriptLine* scline, const char* src_str)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     const char* id_str = scline->tp[0];
@@ -709,7 +709,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
     if (field->argnum == -1)
     {
         snprintf(concatenated_values, sizeof(concatenated_values), "%s %s %s %s", scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]);
-        value->longlongs[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id,flags);
+        value->longlongs[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id,ccs_DkScript);
     }
     else
     {
@@ -730,7 +730,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
             {
                 break;
             }
-            value->longs[1 + i] = parse_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id,flags);
+            value->longs[1 + i] = parse_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id,ccs_DkScript);
         }
     }
 
@@ -741,7 +741,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void set_config_process(const struct NamedFieldSet* named_fields_set, struct ScriptContext* context)
+static void set_config_process(const struct NamedFieldSet* named_fields_set, struct ScriptContext* context, const char* src_str)
 {
     short id          = context->value->shorts[0];
     short property_id = context->value->bytes[2];
@@ -1097,12 +1097,12 @@ static void change_creatures_annoyance_process(struct ScriptContext* context)
 
 static void set_trap_configuration_check(const struct ScriptLine* scline)
 {
-    set_config_check(&trapdoor_trap_named_fields_set, scline);
+    set_config_check(&trapdoor_trap_named_fields_set, scline, "SET_TRAP_CONFIGURATION");
 }
 
 static void set_room_configuration_check(const struct ScriptLine* scline)
 {
-    set_config_check(&terrain_room_named_fields_set, scline);
+    set_config_check(&terrain_room_named_fields_set, scline, "SET_ROOM_CONFIGURATION");
 }
 
 static void set_hand_rule_check(const struct ScriptLine* scline)
@@ -1410,12 +1410,12 @@ static void new_trap_type_check(const struct ScriptLine* scline)
 
 static void set_trap_configuration_process(struct ScriptContext *context)
 {
-    set_config_process(&trapdoor_trap_named_fields_set, context);
+    set_config_process(&trapdoor_trap_named_fields_set, context, "SET_TRAP_CONFIGURATION");
 }
 
 static void set_room_configuration_process(struct ScriptContext *context)
 {
-    set_config_process(&terrain_room_named_fields_set, context);
+    set_config_process(&terrain_room_named_fields_set, context, "SET_ROOM_CONFIGURATION");
 }
 
 static void set_hand_rule_process(struct ScriptContext* context)
@@ -1502,12 +1502,12 @@ static void count_creatures_at_action_point_process(struct ScriptContext* contex
 
 static void set_door_configuration_check(const struct ScriptLine* scline)
 {
-    set_config_check(&trapdoor_door_named_fields_set, scline);
+    set_config_check(&trapdoor_door_named_fields_set, scline, "SET_DOOR_CONFIGURATION");
 }
 
 static void set_door_configuration_process(struct ScriptContext *context)
 {
-    set_config_process(&trapdoor_door_named_fields_set, context);
+    set_config_process(&trapdoor_door_named_fields_set, context, "SET_DOOR_CONFIGURATION");
 }
 
 static void create_effect_at_pos_process(struct ScriptContext* context)
@@ -1946,7 +1946,7 @@ static void create_effects_line_process(struct ScriptContext *context)
 
 static void set_object_configuration_check(const struct ScriptLine *scline)
 {
-    set_config_check(&objects_named_fields_set, scline);
+    set_config_check(&objects_named_fields_set, scline, "SET_OBJECT_CONFIGURATION");
 }
 
 enum CreatureConfiguration
@@ -3151,7 +3151,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
 static void set_object_configuration_process(struct ScriptContext *context)
 {
-    set_config_process(&objects_named_fields_set, context);
+    set_config_process(&objects_named_fields_set, context,"SET_OBJECT_CONFIGURATION");
     
     ThingModel model = context->value->shorts[0];
     update_all_objects_of_model(model);
@@ -4519,12 +4519,12 @@ static void add_effectgen_to_level_process(struct ScriptContext* context)
 
 static void set_effectgen_configuration_check(const struct ScriptLine* scline)
 {
-    set_config_check(&effects_effectgenerator_named_fields_set, scline);
+    set_config_check(&effects_effectgenerator_named_fields_set, scline,"SET_EFFECTGEN_CONFIG");
 }
 
 static void set_effectgen_configuration_process(struct ScriptContext* context)
 {
-    set_config_process(&effects_effectgenerator_named_fields_set, context);
+    set_config_process(&effects_effectgenerator_named_fields_set, context,"SET_EFFECTGEN_CONFIG");
 }
 
 static void set_power_configuration_check(const struct ScriptLine *scline)
@@ -4590,7 +4590,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
         if (ruledesc != -1)
         {
             rulegroup = i;
-            ruleval = parse_named_field_value(ruleblocks[i]+ruledesc, rulevalue_str,&rules_named_fields_set, 0,ccs_DkScript);
+            ruleval = parse_named_field_value(ruleblocks[i]+ruledesc, rulevalue_str,&rules_named_fields_set, 0,"SET_GAME_RULE",ccf_SplitExecution|ccf_DuringLevel);
             break;
         }
     }
@@ -4615,7 +4615,7 @@ static void set_game_rule_process(struct ScriptContext* context)
     long rulevalue  = context->value->longs[1];
 
     SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
-    assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue,&rules_named_fields_set,0, ccs_DkScript);
+    assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue,&rules_named_fields_set,0,"SET_GAME_RULE",ccf_SplitExecution|ccf_DuringLevel);
 }
 
 static void set_increase_on_experience_check(const struct ScriptLine* scline)

@@ -47,12 +47,11 @@ struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 static void refresh_trap_anim(long trap_id);
 
 /******************************************************************************/
-static TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsigned short flags);
+static TbBool load_trapdoor_config_file(const char *fname, unsigned short flags);
 TbBool create_manufacture_array_from_trapdoor_data(void);
 
 const struct ConfigFileData keeper_trapdoor_file_data = {
     .filename = "trapdoor.cfg",
-    .description = "trapdoor",
     .load_func = load_trapdoor_config_file,
     .post_load_func = create_manufacture_array_from_trapdoor_data,
 };
@@ -85,48 +84,48 @@ static const struct NamedCommand trap_activation_type_commands[] = {
     {"POWER",               TrpAcT_Power},
 };
 
-static void assign_update_trap_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_update_trap_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_default(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_trap_tab_to_config();
     }
 }
 
-static void assign_icon_update_trap_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_icon_update_trap_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_icon(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_icon(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_trap_tab_to_config();
     }
 }
 
-static void assign_crate_door(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_crate_door(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     game.conf.object_conf.object_to_door_or_trap[value] = idx;
     game.conf.object_conf.workshop_object_class[value] = TCls_Door;
     game.conf.trapdoor_conf.door_to_object[idx] = value;
 }
 
-static void assign_update_door_stats(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_update_door_stats(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_default(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_all_door_stats();
     }
 }
 
-static void assign_crate_trap(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_crate_trap(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     game.conf.object_conf.object_to_door_or_trap[value] = idx;
     game.conf.object_conf.workshop_object_class[value] = TCls_Trap;
     game.conf.trapdoor_conf.trap_to_object[idx] = value;
 }
 
-int64_t value_activationeffect(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+int64_t value_activationeffect(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     if (parameter_is_number(value_text))
     {
@@ -166,19 +165,32 @@ int64_t value_activationeffect(const struct NamedField* named_field, const char*
     }
 }
 
-static void assign_refresh_trap_anim(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+int64_t value_min1(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_default(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    if (parameter_is_number(value_text))
+    {
+        return atoi(value_text) - 1;
+    }
+    else
+    {
+        NAMFIELDWRNLOG("unexpected value '%s' for %s [%s%d].",value_text, named_field->name, named_fields_set->block_basename, idx);
+        return 0;
+    }
+}
+
+static void assign_refresh_trap_anim(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         refresh_trap_anim(idx);
     }
 }
 
-static void assign_refresh_trap_anim_anim_id(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_refresh_trap_anim_anim_id(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_animid(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_animid(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         refresh_trap_anim(idx);
     }
@@ -215,7 +227,6 @@ const struct NamedFieldSet trapdoor_door_named_fields_set = {
     TRAPDOOR_TYPES_MAX,
     sizeof(game.conf.trapdoor_conf.door_cfgstats[0]),
     game.conf.trapdoor_conf.door_cfgstats,
-    {"trapdoor.cfg","SET_DOOR_CONFIGURATION"},
 };
 
 const struct NamedField trapdoor_trap_named_fields[] = {
@@ -236,6 +247,7 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"TRIGGERTYPE",            0, field(game.conf.trapdoor_conf.trap_cfgstats[0].trigger_type),                     0,   LONG_MIN,         ULONG_MAX, trap_trigger_type_commands,value_default, assign_default},
     {"ACTIVATIONTYPE",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].activation_type),                  0,   LONG_MIN,         ULONG_MAX, trap_activation_type_commands,value_default, assign_default},
     {"EFFECTTYPE",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].created_itm_model),                0,   LONG_MIN,         ULONG_MAX, NULL,            value_activationeffect, assign_default},
+    {"ACTIVATIONLEVEL",        0, field(game.conf.trapdoor_conf.trap_cfgstats[0].activation_level),                 0,          0,                 9, NULL,                        value_min1, assign_default},
     {"ANIMATIONID",            0, field(game.conf.trapdoor_conf.trap_cfgstats[0].sprite_anim_idx),                  0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_refresh_trap_anim_anim_id},
     {"MODEL",                  0, field(game.conf.trapdoor_conf.trap_cfgstats[0].sprite_anim_idx),                  0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_refresh_trap_anim_anim_id}, // Backward compatibility.
     {"MODELSIZE",              0, field(game.conf.trapdoor_conf.trap_cfgstats[0].sprite_size_max),                  0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_refresh_trap_anim},
@@ -294,7 +306,6 @@ const struct NamedFieldSet trapdoor_trap_named_fields_set = {
     TRAPDOOR_TYPES_MAX,
     sizeof(game.conf.trapdoor_conf.trap_cfgstats[0]),
     game.conf.trapdoor_conf.trap_cfgstats,
-    {"trapdoor.cfg","SET_TRAP_CONFIGURATION"},
 };
 
 /******************************************************************************/
@@ -343,14 +354,14 @@ int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmode
     return 0;
 }
 
-static TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_trapdoor_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);
@@ -371,8 +382,8 @@ static TbBool load_trapdoor_config_file(const char *textname, const char *fname,
     // Parse blocks of the config file
     if (result)
     {
-        parse_named_field_blocks(buf, len, textname, flags, &trapdoor_trap_named_fields_set);
-        parse_named_field_blocks(buf, len, textname, flags, &trapdoor_door_named_fields_set);
+        parse_named_field_blocks(buf, len, fname, flags, &trapdoor_trap_named_fields_set);
+        parse_named_field_blocks(buf, len, fname, flags, &trapdoor_door_named_fields_set);
     }
     //Freeing and exiting
     free(buf);
