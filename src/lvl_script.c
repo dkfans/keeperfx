@@ -385,39 +385,6 @@ long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const 
     return -2;
 }
 
-static void process_fx_line(struct ScriptFxLine *fx_line)
-{
-    fx_line->partial_steps += fx_line->steps_per_turn;
-    for (;fx_line->partial_steps >= FX_LINE_TIME_PARTS; fx_line->partial_steps -= FX_LINE_TIME_PARTS)
-    {
-        fx_line->here.z.val = get_floor_height_at(&fx_line->here);
-        if (fx_line->here.z.val < FILLED_COLUMN_HEIGHT)
-        {
-            if (fx_line->effect != 0)
-            {
-                create_used_effect_or_element(&fx_line->here, fx_line->effect, PLAYER_NEUTRAL, 0);
-            }
-        }
-
-        fx_line->step++;
-        if (fx_line->step >= fx_line->total_steps)
-        {
-          fx_line->used = false;
-          break;
-        }
-
-        int64_t remain_t = fx_line->total_steps - fx_line->step;
-
-        int64_t bx = fx_line->from.x.val * remain_t + fx_line->cx * fx_line->step;
-        int64_t by = fx_line->from.y.val * remain_t + fx_line->cy * fx_line->step;
-        int64_t dx = fx_line->cx * remain_t + fx_line->to.x.val * fx_line->step;
-        int64_t dy = fx_line->cy * remain_t + fx_line->to.y.val * fx_line->step;
-
-        fx_line->here.x.val = (bx * remain_t + dx * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
-        fx_line->here.y.val = (by * remain_t + dy * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
-    }
-}
-
 #define get_players_range_from_str(plrname, plr_start, plr_end) get_players_range_from_str_f(plrname, plr_start, plr_end, __func__, text_line_number)
 long get_players_range_from_str_f(const char *plrname, int *plr_start, int *plr_end, const char *func_name, long ln_num)
 {
@@ -1356,22 +1323,6 @@ void process_values(void)
                   set_flag(value->flags, TrgF_DISABLED);
             }
         }
-    }
-
-    for (int i = 0; i < gameadd.active_fx_lines; i++)
-    {
-        if (gameadd.fx_lines[i].used)
-        {
-            process_fx_line(&gameadd.fx_lines[i]);
-        }
-    }
-    for (int i = gameadd.active_fx_lines; i > 0; i--)
-    {
-        if (gameadd.fx_lines[i-1].used)
-        {
-            break;
-        }
-        gameadd.active_fx_lines--;
     }
 }
 
