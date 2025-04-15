@@ -34,11 +34,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static TbBool load_spritecolors_config_file(const char *textname, const char *fname, unsigned short flags);
+static TbBool load_spritecolors_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_spritecolors_file_data = {
     .filename = "spritecolors.toml",
-    .description = "sprite colours",
     .load_func = load_spritecolors_config_file,
     .pre_load_func = NULL,
     .post_load_func = NULL,
@@ -94,10 +93,10 @@ static void load_array(VALUE* file_root, const char *arr_name,short *arr, unsign
     }
 }
 
-static TbBool load_spritecolors_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_spritecolors_config_file(const char *fname, unsigned short flags)
 {
     VALUE file_root;
-    if (!load_toml_file(textname, fname,&file_root,flags))
+    if (!load_toml_file(fname,&file_root,flags))
         return false;
 
     load_array(&file_root,"gui_panel_sprites",gui_panel_sprites_eq,flags,get_icon_id);

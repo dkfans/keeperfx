@@ -47,11 +47,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static TbBool load_magic_config_file(const char *textname, const char *fname, unsigned short flags);
+static TbBool load_magic_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_magic_file_data = {
     .filename = "magic.cfg",
-    .description = "magic",
     .load_func = load_magic_config_file,
     .pre_load_func = NULL,
     .post_load_func = NULL,
@@ -345,18 +344,18 @@ struct NamedCommand power_desc[MAGIC_ITEMS_MAX];
 struct NamedCommand special_desc[MAGIC_ITEMS_MAX];
 /******************************************************************************/
 
-static void assign_artifact(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_artifact(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_default(named_field,value,named_fields_set,idx,src);
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     game.conf.object_conf.object_to_power_artifact[value] = idx;
 }
 
-static void assign_strength_before_last(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_strength_before_last(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     // Old power max is one short for spell max, so duplicate final power value to use for lvl10 creatures.
-    assign_default(named_field,value,named_fields_set,idx,src);
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     named_field++;
-    assign_default(named_field,value,named_fields_set,idx,src);
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
 }
 
 static const struct NamedField magic_powers_named_fields[] = {
@@ -413,7 +412,6 @@ const struct NamedFieldSet magic_powers_named_fields_set = {
     MAGIC_ITEMS_MAX,
     sizeof(game.conf.magic_conf.power_cfgstats[0]),
     game.conf.magic_conf.power_cfgstats,
-    {"magic.cfg","SET_POWER_CONFIGURATION"},
 };
 
 #ifdef __cplusplus
@@ -2235,14 +2233,14 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
   return true;
 }
 
-static TbBool load_magic_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_magic_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);
@@ -2265,31 +2263,10 @@ static TbBool load_magic_config_file(const char *textname, const char *fname, un
     // Parse blocks of the config file
     if (result)
     {
-        result = parse_magic_spell_blocks(buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" spell blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_magic_shot_blocks(buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" shot blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        parse_named_field_blocks(buf, len, textname, flags, &magic_powers_named_fields_set);
-    }
-    if (result)
-    {
-      result = parse_magic_special_blocks(buf, len, fname, flags);
-      if ((flags & CnfLd_AcceptPartial) != 0)
-          result = true;
-      if (!result)
-          WARNMSG("Parsing %s file \"%s\" special blocks failed.",textname,fname);
+        parse_magic_spell_blocks(buf, len, fname, flags);
+        parse_magic_shot_blocks(buf, len, fname, flags);
+        parse_named_field_blocks(buf, len, fname, flags, &magic_powers_named_fields_set);
+        parse_magic_special_blocks(buf, len, fname, flags);
     }
 
 

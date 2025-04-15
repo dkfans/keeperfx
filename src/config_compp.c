@@ -35,11 +35,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags);
+static TbBool load_computer_player_config_file(const char *fname, unsigned short flags);
 
 const struct ConfigFileData keeper_keepcomp_file_data = {
   .filename = "keepcompp.cfg",
-  .description = "Computer Player",
   .load_func = load_computer_player_config_file,
   .post_load_func = NULL,
 };
@@ -52,9 +51,9 @@ static TbBool computer_type_clear_processes(struct ComputerType *cpt);
 static TbBool computer_type_clear_checks(struct ComputerType *cpt);
 static short computer_type_clear_events(struct ComputerType *cpt);
 
-static int64_t value_processes(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
-static int64_t value_checks(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
-static int64_t value_events(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static int64_t value_processes(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static int64_t value_checks(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static int64_t value_events(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 
 static int get_computer_process_config_list_index_mnem(const char *mnemonic);
 static int get_computer_check_config_list_index_mnem(const char *mnemonic);
@@ -85,7 +84,6 @@ const struct NamedFieldSet compp_common_named_fields_set = {
   0,
   0,
   NULL,
-  {"keepcompp.cfg","INVALID"},
 };
 
 static const struct NamedField compp_process_named_fields[] = {
@@ -119,7 +117,6 @@ const struct NamedFieldSet compp_process_named_fields_set = {
   COMPUTER_PROCESS_TYPES_COUNT,
   sizeof(comp_player_conf.process_types[0]),
   comp_player_conf.process_types,
-  {"keepcompp.cfg","INVALID"},
 };
 
 static const struct NamedField compp_check_named_fields[] = {
@@ -145,7 +142,6 @@ const struct NamedFieldSet compp_check_named_fields_set = {
   COMPUTER_CHECKS_TYPES_COUNT,
   sizeof(comp_player_conf.check_types[0]),
   comp_player_conf.check_types,
-  {"keepcompp.cfg","INVALID"},
 };
 
 static const struct NamedField compp_event_named_fields[] = {
@@ -173,7 +169,6 @@ const struct NamedFieldSet compp_event_named_fields_set = {
   COMPUTER_EVENTS_TYPES_COUNT,
   sizeof(comp_player_conf.event_types[0]),
   comp_player_conf.event_types,
-  {"keepcompp.cfg","INVALID"},
 };
 
 
@@ -205,11 +200,10 @@ const struct NamedFieldSet compp_computer_named_fields_set = {
   COMPUTER_MODELS_COUNT,
   sizeof(comp_player_conf.computer_types[0]),
   comp_player_conf.computer_types,
-  {"keepcompp.cfg","INVALID"},
 };
 
 /******************************************************************************/
-int64_t value_processes(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+int64_t value_processes(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
   char word_buf[COMMAND_WORD_LEN];
   struct ComputerType* cpt = get_computer_type_template(idx);
@@ -233,7 +227,7 @@ int64_t value_processes(const struct NamedField* named_field, const char* value_
   return 0;
 }
 
-int64_t value_checks(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+int64_t value_checks(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     char word_buf[COMMAND_WORD_LEN];
     struct ComputerType* cpt = get_computer_type_template(idx);
@@ -257,7 +251,7 @@ int64_t value_checks(const struct NamedField* named_field, const char* value_tex
     return 0;
 }
 
-int64_t value_events(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+int64_t value_events(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
   char word_buf[COMMAND_WORD_LEN];
   struct ComputerType* cpt = get_computer_type_template(idx);
@@ -380,7 +374,7 @@ static int computer_type_add_event(struct ComputerType *cpt, unsigned char event
     return -1;
 }
 
-static TbBool load_computer_player_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_computer_player_config_file(const char *fname, unsigned short flags)
 {
     SYNCDBG(8, "Starting");
     // Load the config file
@@ -403,11 +397,11 @@ static TbBool load_computer_player_config_file(const char *textname, const char 
     len = LbFileLoadAt(fname, buf);
     if (len>0)
     {
-        parse_named_field_block(buf, len, textname, flags,"common",  compp_common_named_fields,&compp_common_named_fields_set, 0);
-        parse_named_field_blocks(buf, len, textname, flags, &compp_process_named_fields_set);
-        parse_named_field_blocks(buf, len, textname, flags, &compp_check_named_fields_set);
-        parse_named_field_blocks(buf, len, textname, flags, &compp_event_named_fields_set);
-        parse_named_field_blocks(buf, len, textname, flags, &compp_computer_named_fields_set);
+        parse_named_field_block(buf, len, fname, flags,"common",  compp_common_named_fields,&compp_common_named_fields_set, 0);
+        parse_named_field_blocks(buf, len, fname, flags, &compp_process_named_fields_set);
+        parse_named_field_blocks(buf, len, fname, flags, &compp_check_named_fields_set);
+        parse_named_field_blocks(buf, len, fname, flags, &compp_event_named_fields_set);
+        parse_named_field_blocks(buf, len, fname, flags, &compp_computer_named_fields_set);
     }
     //Freeing and exiting
     free(buf);
