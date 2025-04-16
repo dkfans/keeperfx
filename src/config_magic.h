@@ -413,7 +413,6 @@ extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
 extern const struct NamedCommand spell_effect_flags[];
-extern const struct NamedCommand powermodel_properties_commands[];
 extern const Expand_Check_Func powermodel_expand_check_func_list[];
 extern const struct NamedFieldSet magic_powers_named_fields_set;
 /******************************************************************************/
