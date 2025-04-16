@@ -1030,7 +1030,7 @@ function Thing:Make_thing_zombie() end
 ---comment
 ---@param location location The location you want the creature to be teleported to.
 ---@param effect effect_type|effect_element_type|integer The effect that will be played when the creature is teleported.
-function Creature:TeleportCreature(location,effect) end
+function Creature:Teleport_creature(location,effect) end
 
 ---comment
 ---@param stl_x any
