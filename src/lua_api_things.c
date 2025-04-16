@@ -91,7 +91,7 @@ static int lua_kill_creature(lua_State *L)
     return 0;
 }
 
-static int lua_TRANSFER_CREATURE(lua_State *L)
+static int lua_Transfer_creature(lua_State *L)
 {
     struct Thing* thing = luaL_checkCreature(L, 1);
 
@@ -109,7 +109,7 @@ static int lua_TRANSFER_CREATURE(lua_State *L)
     return 0;
 }
 
-static int lua_LEVEL_UP_CREATURE(lua_State *L)
+static int lua_Level_up_creature(lua_State *L)
 {
     struct Thing* thing = luaL_checkCreature(L, 1);
     int count = luaL_checkinteger(L, 2);
@@ -118,7 +118,7 @@ static int lua_LEVEL_UP_CREATURE(lua_State *L)
     return 0;
 }
 
-static int lua_TeleportCreature(lua_State *L)
+static int lua_Teleport_creature(lua_State *L)
 {
     struct Thing* thing = luaL_checkThing(L, 1);
     TbMapLocation location = luaL_checkLocation(L, 2);
@@ -128,7 +128,7 @@ static int lua_TeleportCreature(lua_State *L)
     return 0;
 }
 
-static int lua_CHANGE_CREATURE_OWNER(lua_State *L)
+static int lua_Change_creature_owner(lua_State *L)
 {
     struct Thing* thing = luaL_checkThing(L, 1);
     PlayerNumber new_owner = luaL_checkPlayerSingle(L, 2);
@@ -304,16 +304,16 @@ static int thing_eq(lua_State *L) {
 
 
 static const struct luaL_Reg thing_methods[] = {
-    {"MakeThingZombie", make_thing_zombie},
-    {"CreatureWalkTo",  lua_creature_walk_to},
-    {"KillCreature",    lua_kill_creature},
-    {"DeleteThing",     lua_delete_thing},
+    {"Make_thing_zombie", make_thing_zombie},
+    {"Creature_walk_to",  lua_creature_walk_to},
+    {"Kill_creature",    lua_kill_creature},
+    {"Delete_thing",     lua_delete_thing},
     {"isValid",         lua_is_valid},
     
-   {"TRANSFER_CREATURE"                    ,lua_TRANSFER_CREATURE               },
-   {"LEVEL_UP_CREATURE"                    ,lua_LEVEL_UP_CREATURE               },
-   {"TeleportCreature"                     ,lua_TeleportCreature                },
-   {"CHANGE_CREATURE_OWNER"                ,lua_CHANGE_CREATURE_OWNER           },
+   {"Transfer_creature"                    ,lua_Transfer_creature               },
+   {"Level_up_creature"                    ,lua_Level_up_creature               },
+   {"Teleport_creature"                    ,lua_Teleport_creature               },
+   {"Change_creature_owner"                ,lua_Change_creature_owner           },
     {NULL, NULL}
 };
 

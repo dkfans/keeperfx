@@ -17,7 +17,7 @@
 #include "post_inc.h"
 
 
-static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
+static int lua_Add_gold_to_player(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
 
@@ -39,7 +39,7 @@ static int lua_ADD_GOLD_TO_PLAYER(lua_State *L)
     return 0;
 }
 
-static int lua_SET_TEXTURE(lua_State *L)
+static int lua_Set_texture(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     long texture_id = luaL_checkNamedCommand(L,2,texture_pack_desc);
@@ -68,8 +68,8 @@ static int lua_SET_PLAYER_COLOR(lua_State *L)
 }
 
 static const struct luaL_Reg player_methods[] = {
-   {"SET_TEXTURE"                          ,lua_SET_TEXTURE                     },   
-   {"ADD_GOLD"                             ,lua_ADD_GOLD_TO_PLAYER              },
+   {"Set_texture"                          ,lua_Set_texture                     },   
+   {"Add_gold"                             ,lua_Add_gold_to_player              },
    {"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
    //{"SET_PLAYER_MODIFIER"                  ,lua_SET_PLAYER_MODIFIER             },
    //{"ADD_TO_PLAYER_MODIFIER"               ,lua_ADD_TO_PLAYER_MODIFIER          },
