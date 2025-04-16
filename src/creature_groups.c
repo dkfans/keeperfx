@@ -960,13 +960,13 @@ struct Thing* script_process_new_tunneller_party(PlayerNumber plyr_idx, long prt
     if (thing_is_invalid(ldthing))
     {
         ERRORLOG("Couldn't create tunneling group leader");
-        return;
+        return INVALID_THING;
     }
     struct Thing* gpthing = script_process_new_party(&gameadd.script.creature_partys[prty_id], plyr_idx, location, 1);
     if (thing_is_invalid(gpthing))
     {
         ERRORLOG("Couldn't create creature group");
-        return;
+        return ldthing;
     }
     add_creature_to_group_as_leader(ldthing, gpthing);
 

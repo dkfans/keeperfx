@@ -90,6 +90,9 @@ enum SlabTypes {
     SlbT_DOORSECRET1        =  55,
     SlbT_DOORSECRET2        =  56,
     SlbT_ROCK_FLOOR         =  57,
+    SlbT_DOORMIDAS1         =  58,
+    SlbT_DOORMIDAS2         =  59,
+    SlbT_DENSEGOLD          =  60,
 };
 
 enum WlbType {

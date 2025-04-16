@@ -119,6 +119,7 @@ static const struct NamedField terrain_slab_named_fields[] = {
     {"ANIMATED",          0, field(game.conf.slab_conf.slab_cfgstats[0].animated),                      0, LONG_MIN,ULONG_MAX, NULL,          value_default,    assign_default},
     {"ISOWNABLE",         0, field(game.conf.slab_conf.slab_cfgstats[0].is_ownable),                    0, LONG_MIN,ULONG_MAX, NULL,          value_default,    assign_default},
     {"INDESTRUCTIBLE",    0, field(game.conf.slab_conf.slab_cfgstats[0].indestructible),                0, LONG_MIN,ULONG_MAX, NULL,          value_default,    assign_default},
+    {"GOLDHELD",          0, field(game.conf.slab_conf.slab_cfgstats[0].gold_held),                     0, LONG_MIN,ULONG_MAX, NULL,          value_default,    assign_default},
     {NULL},
 };
 
@@ -323,6 +324,7 @@ const struct NamedCommand terrain_health_commands[] = {
   {"DOOR_BRACE",      7},
   {"DOOR_STEEL",      8},
   {"DOOR_MAGIC",      9},
+  {"DENSE_GOLD",     10},
   {NULL,              0},
 };
 
@@ -436,6 +438,7 @@ TbBool parse_block_health_block(char *buf, long len, const char *config_textname
         case 7:
         case 8:
         case 9:
+        case 10:
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
