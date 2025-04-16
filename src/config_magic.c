@@ -56,7 +56,7 @@ const struct ConfigFileData keeper_magic_file_data = {
     .post_load_func = NULL,
 };
 
-const struct NamedCommand magic_spell_commands[] = {
+static const struct NamedCommand magic_spell_commands[] = {
     {"NAME",             1},
     {"DURATION",         2},
     {"SELFCASTED",       3},
@@ -101,14 +101,14 @@ const struct NamedCommand spell_effect_flags[] = {
     {NULL,            0},
 };
 
-const struct NamedCommand magic_spell_properties[] = {
+static const struct NamedCommand magic_spell_properties[] = {
     {"FIXED_DAMAGE",    1},
     {"PERCENT_BASED",   2},
     {"MAX_HEALTH",      3},
     {NULL,              0},
 };
 
-const struct NamedCommand magic_shot_commands[] = {
+static const struct NamedCommand magic_shot_commands[] = {
   {"NAME",                   1},
   {"HEALTH",                 2},
   {"DAMAGE",                 3},
@@ -173,7 +173,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {NULL,                     0},
   };
 
-const struct NamedCommand magic_special_commands[] = {
+static const struct NamedCommand magic_special_commands[] = {
   {"NAME",             1},
   {"ARTIFACT",         2},
   {"TOOLTIPTEXTID",    3},
@@ -184,7 +184,7 @@ const struct NamedCommand magic_special_commands[] = {
   };
 
 
-const struct NamedCommand shotmodel_withstand_types[] = {
+static const struct NamedCommand shotmodel_withstand_types[] = {
   {"CREATURE",      1},
   {"WALL",          2},
   {"DOOR",          3},
@@ -194,7 +194,7 @@ const struct NamedCommand shotmodel_withstand_types[] = {
   {NULL,            0},
 };
 
-const struct NamedCommand shotmodel_properties_commands[] = {
+static const struct NamedCommand shotmodel_properties_commands[] = {
   {"SLAPPABLE",            1},
   {"NAVIGABLE",            2},
   {"BOULDER",              3},
@@ -219,7 +219,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {NULL,                   0},
   };
 
-const struct LongNamedCommand powermodel_castability_commands[] = {
+static const struct LongNamedCommand powermodel_castability_commands[] = {
   {"CUSTODY_CRTRS",    PwCast_CustodyCrtrs},
   {"OWNED_CRTRS",      PwCast_OwnedCrtrs},
   {"ALLIED_CRTRS",     PwCast_AlliedCrtrs},
@@ -261,13 +261,13 @@ const struct LongNamedCommand powermodel_castability_commands[] = {
   {NULL,                0},
   };
 
-const struct NamedCommand powermodel_properties_commands[] = {
+static const struct NamedCommand powermodel_properties_commands[] = {
     {"INSTINCTIVE",       PwCF_Instinctive},
     {"HAS_PROGRESS",      PwCF_HasProgress},
     {NULL,                0},
 };
 
-const struct NamedCommand powermodel_expand_check_func_type[] = {
+static const struct NamedCommand powermodel_expand_check_func_type[] = {
   {"general_expand",           OcC_General_expand},
   {"sight_of_evil_expand",     OcC_SightOfEvil_expand},
   {"call_to_arms_expand",      OcC_CallToArms_expand},
@@ -275,13 +275,13 @@ const struct NamedCommand powermodel_expand_check_func_type[] = {
   {NULL,                       OcC_Null},
 };
 
-const struct NamedCommand magic_cost_formula_commands[] = {
+static const struct NamedCommand magic_cost_formula_commands[] = {
   {"none",       Cost_Default},
   {"digger",     Cost_Digger},
   {"dwarf",      Cost_Dwarf},
 };
 
-const struct NamedCommand magic_use_func_commands[] = {
+static const struct NamedCommand magic_use_func_commands[] = {
     {"none",                           0},
     {"magic_use_power_hand",           1},
     {"magic_use_power_apply_spell",    2},
