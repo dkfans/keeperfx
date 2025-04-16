@@ -812,9 +812,23 @@ static int lua_PLACE_TRAP(lua_State *L)
 
 //Manipulating Configs
 
-static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fields_set)
+static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fields_set, const char* function_name)
 {
-
+    if (lua_gettop(L) < 2)
+    {
+        luaL_error(L, "Not enough arguments for %s", function_name);
+        return;
+    }
+    if (!lua_isstring(L, 1))
+    {
+        luaL_error(L, "First argument must be a string for %s", function_name);
+        return;
+    }
+    if (!lua_isstring(L, 2))
+    {
+        luaL_error(L, "Second argument must be a string for %s", function_name);
+        return;
+    }
     const char* id_str      = lua_tostring(L, 1);
     const char* property    = lua_tostring(L, 2);
     
@@ -855,8 +869,8 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
             strncat(concatenated_values, " ", sizeof(concatenated_values) - strlen(concatenated_values) - 1);
             }
         }
-        int64_t value = parse_named_field_value(field, concatenated_values,named_fields_set,id,ccs_Lua);
-        assign_named_field_value(&named_fields_set->named_fields[property_id],value,named_fields_set,id, ccs_Lua);
+        int64_t value = parse_named_field_value(field, concatenated_values,named_fields_set,id,function_name,ccf_DuringLevel);
+        assign_named_field_value(&named_fields_set->named_fields[property_id],value,named_fields_set,id,function_name,ccf_DuringLevel);
         
     }
     else
@@ -872,8 +886,8 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
                 luaL_argerror(L, 1, error_msg);
                 return;
             }
-            int64_t value = parse_named_field_value(&named_fields_set->named_fields[property_id + i], lua_tostring(L, i + 3),named_fields_set,id,ccs_Lua);
-            assign_named_field_value(&named_fields_set->named_fields[property_id + i],value,named_fields_set,id, ccs_Lua);
+            int64_t value = parse_named_field_value(&named_fields_set->named_fields[property_id + i], lua_tostring(L, i + 3),named_fields_set,id,function_name,ccf_DuringLevel);
+            assign_named_field_value(&named_fields_set->named_fields[property_id + i],value,named_fields_set,id,function_name,ccf_DuringLevel);
             i++;
         }
     }
@@ -881,38 +895,38 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
 
 static int lua_SET_DOOR_CONFIGURATION(lua_State *L)
 {
-    set_configuration(L, &trapdoor_door_named_fields_set);
+    set_configuration(L, &trapdoor_door_named_fields_set, "SET_DOOR_CONFIGURATION");
     return 0;
 }
 
 static int lua_SET_OBJECT_CONFIGURATION(lua_State *L)
 {
-    set_configuration(L, &objects_named_fields_set);
+    set_configuration(L, &objects_named_fields_set, "SET_OBJECT_CONFIGURATION");
     return 0;
 }
 
 static int lua_SET_TRAP_CONFIGURATION(lua_State *L)
 {
-    set_configuration(L, &trapdoor_trap_named_fields_set);
+    set_configuration(L, &trapdoor_trap_named_fields_set, "SET_TRAP_CONFIGURATION");
     return 0;
 }
 
 //static int lua_SET_CREATURE_CONFIGURATION(lua_State *L)
 static int lua_SET_EFFECT_GENERATOR_CONFIGURATION(lua_State *L)
 {
-    set_configuration(L, &effects_effectgenerator_named_fields_set);
+    set_configuration(L, &effects_effectgenerator_named_fields_set, "SET_EFFECT_GENERATOR_CONFIGURATION");
     return 0;
 }
 
 //static int lua_SET_POWER_CONFIGURATION(lua_State *L)
 //{
-//    set_configuration(L, &terrain_room_named_fields_set);
+//    set_configuration(L, &terrain_room_named_fields_set, "SET_POWER_CONFIGURATION");
 //    return 0;
 //}
 
 static int lua_SET_ROOM_CONFIGURATION(lua_State *L)
 {
-    set_configuration(L, &terrain_room_named_fields_set);
+    set_configuration(L, &terrain_room_named_fields_set, "SET_ROOM_CONFIGURATION");
     return 0;
 }
 
