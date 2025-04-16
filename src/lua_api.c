@@ -732,7 +732,7 @@ static int lua_Set_door(lua_State *L)
     return 0;
 }
 
-static int lua_ADD_HEART_HEALTH(lua_State *L)
+static int lua_Add_heart_health(lua_State *L)
 {
     PlayerNumber plyr_idx = luaL_checkPlayerSingle(L,1);
     HitPoints healthdelta = lua_tointeger(L,2);
@@ -1880,7 +1880,7 @@ static const luaL_Reg global_methods[] = {
    {"Reveal_map_rect"                      ,lua_Reveal_map_rect                 },
    {"Conceal_map_rect"                     ,lua_Conceal_map_rect                },
    {"Set_door"                             ,lua_Set_door                        },
-   {"ADD_HEART_HEALTH"                     ,lua_ADD_HEART_HEALTH                },
+   {"Add_heart_health"                     ,lua_Add_heart_health                },
    {"Add_object_to_level"                  ,lua_Add_object_to_level             },
    {"Add_object_to_level_AT_POS"           ,lua_Add_object_to_level_at_pos      },
    {"Add_effect_generator_to_level"        ,lua_Add_effect_generator_to_level   },
