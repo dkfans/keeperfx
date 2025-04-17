@@ -32,7 +32,7 @@
 #include "creature_battle.h"
 #include "creature_graphics.h"
 #include "config_creature.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "gui_draw.h"
 #include "gui_frontbtns.h"
 #include "gui_frontmenu.h"
@@ -141,12 +141,7 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
     if (battle_creature_over <= 0) {
         return;
     }
-    PowerKind pwkind = 0;
-    if (myplyr->work_state < PLAYER_STATES_COUNT_MAX)
-    {
-        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(myplyr->work_state);
-        pwkind = plrst_cfg_stat->power_kind;
-    }
+    PowerKind pwkind = myplyr->chosen_power_kind;
     struct Thing* thing = thing_get(battle_creature_over);
     if (!thing_exists(thing)) {
         WARNLOG("Nonexisting thing %d in battle",(int)battle_creature_over);
@@ -240,7 +235,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     TbBool high_res = (MyScreenHeight >= 400);
     curscr_y = (scr_y - ((spr->SHeight*bs_units_per_px/16) >> (unsigned char)high_res));
     curscr_x = (scr_x - ((spr->SWidth*bs_units_per_px/16) >> (unsigned char)high_res));
-    spr = get_button_sprite(GBS_creature_flower_level_01 + cctrl->explevel);
+    spr = get_button_sprite(GBS_creature_flower_level_01 + cctrl->exp_level);
     LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
 }
 

@@ -21,10 +21,10 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
 #include "player_instances.h"
+#include "gui_soundmsgs.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -79,10 +79,10 @@ void clear_dungeons(void)
   SYNCDBG(6,"Starting");
   for (int i = 0; i < DUNGEONS_COUNT; i++)
   {
-      LbMemorySet(&game.dungeon[i], 0, sizeof(struct Dungeon));
+      memset(&game.dungeon[i], 0, sizeof(struct Dungeon));
       game.dungeon[i].owner = PLAYERS_COUNT;
   }
-  LbMemorySet(&bad_dungeon, 0, sizeof(struct Dungeon));
+  memset(&bad_dungeon, 0, sizeof(struct Dungeon));
   bad_dungeon.owner = PLAYERS_COUNT;
 }
 
@@ -205,6 +205,35 @@ TbBool player_has_heart(PlayerNumber plyr_idx)
 {
     return thing_exists(get_player_soul_container(plyr_idx));
 }
+
+void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on_damage)
+{
+    struct Thing* heartng = get_player_soul_container(plyr_idx);
+    if (!thing_is_invalid(heartng))
+    {
+        struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
+        long old_health = heartng->health;
+        long long new_health = heartng->health + healthdelta;
+        if (new_health > objst->health)
+        {
+            SCRIPTDBG(7,"Player %u's calculated heart health (%I64d) is greater than maximum: %ld", heartng->owner, new_health, objst->health);
+            new_health = objst->health;
+        }
+        heartng->health = new_health;
+        if (warn_on_damage)
+        {
+            if (heartng->health < old_health)
+            {
+                event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index);
+                if (is_my_player_number(heartng->owner))
+                {
+                    output_message(SMsg_HeartUnderAttack, 400);
+                }
+            }
+        }
+    }
+}
+
 
 /** Returns if given dungeon contains a room of given kind.
  *
@@ -535,7 +564,7 @@ void init_dungeons(void)
         dungeon->modifier.scavenging_cost = 100;
         dungeon->modifier.loyalty = 100;
         dungeon->color_idx = i;
-        LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);
+        memset(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);
     }
 }
 

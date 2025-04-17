@@ -39,6 +39,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
+void maintain_compsetting_button(struct GuiButton* gbtn);
+
 /******************************************************************************/
 struct MsgBoxInfo MsgBox;
 
@@ -78,10 +82,10 @@ struct GuiButtonInit pause_buttons[] = {
 
 struct GuiButtonInit autopilot_menu_buttons[] = {
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, GUIStr_MnuComputer,      0,       {0},            0, NULL },
-  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               0,  12,  36,  12,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_orange, GUIStr_AggressiveAssistDesc,0,{.ptr = &game.comp_player_aggressive}, 0, NULL },
-  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               0,  60,  36,  60,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_yellow, GUIStr_DefensiveAssistDesc,0,{.ptr = &game.comp_player_defensive}, 0, NULL },
-  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               0, 108,  36, 108,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_pink, GUIStr_ConstructionAssistDesc,0,{.ptr = &game.comp_player_construct}, 0, NULL },
-  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               0, 156,  36, 156,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_green, GUIStr_MoveOnlyAssistDesc,0,{.ptr = &game.comp_player_creatrsonly}, 0, NULL },
+  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               0,  12,  36,  12,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_orange, GUIStr_AggressiveAssistDesc,  0,{.ptr = &game.comp_player_aggressive},  0, maintain_compsetting_button },
+  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               1,  60,  36,  60,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_yellow, GUIStr_DefensiveAssistDesc,   0,{.ptr = &game.comp_player_defensive},   0, maintain_compsetting_button },
+  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               2, 108,  36, 108,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_pink,   GUIStr_ConstructionAssistDesc,0,{.ptr = &game.comp_player_construct},   0, maintain_compsetting_button },
+  {LbBtnT_RadioBtn,   BID_DEFAULT, 0, 0, gui_set_autopilot,  NULL,        NULL,               3, 156,  36, 156,  36, 46, 64, gui_area_new_normal_button, GPS_options_cassist_btn_green,  GUIStr_MoveOnlyAssistDesc,    0,{.ptr = &game.comp_player_creatrsonly}, 0, maintain_compsetting_button },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
 };
 
@@ -101,9 +105,9 @@ struct GuiButtonInit sound_menu_buttons[] = {
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8,  28,  10,  28, 46, 64, gui_area_no_anim_button, GBS_options_button_snd_music, GUIStr_Empty,            0,       {0},            0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8,  80,  10,  80, 46, 64, gui_area_no_anim_button, GBS_options_button_snd_sounds, GUIStr_Empty,            0,       {0},            0, NULL },
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   8, 132,  10, 132, 46, 64, gui_area_no_anim_button, GBS_optionsbutton_snd_voice, GUIStr_Empty,            0,       {0},            0, NULL },
-  {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_sound_volume,NULL,       NULL,               0,  66,  58,  66,  58,190, 30, gui_area_slider,                   0, GUIStr_OptionSoundFx,    0,{.ptr = &sound_level_slider},127, NULL },
-  {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_music_volume,NULL,       NULL,               0,  66, 110,  66, 110,190, 30, gui_area_slider,                   0, GUIStr_OptionMusic,      0,{.ptr = &music_level_slider},127, NULL },
-  {LbBtnT_HorizSlider,BID_DEFAULT, 0, 0, gui_set_mentor_volume,NULL,      NULL,               0,  66, 162,  66, 162,190, 30, gui_area_slider,                   0, GUIStr_OptionVoice,      0,{.ptr = &mentor_level_slider},127, NULL },
+  {LbBtnT_HorizSlider,BID_SOUND_VOL, 0, 0, gui_set_sound_volume,NULL,       NULL,               0,  66,  58,  66,  58,190, 30, gui_area_slider,                   0, GUIStr_OptionSoundFx,    0, {0}, 255, NULL },
+  {LbBtnT_HorizSlider,BID_MUSIC_VOL, 0, 0, gui_set_music_volume,NULL,       NULL,               0,  66, 110,  66, 110,190, 30, gui_area_slider,                   0, GUIStr_OptionMusic,      0, {0}, 255, NULL },
+  {LbBtnT_HorizSlider,BID_MENTOR_VOL, 0, 0, gui_set_mentor_volume,NULL,      NULL,               0,  66, 162,  66, 162,190, 30, gui_area_slider,                   0, GUIStr_OptionVoice,      0, {0}, 255, NULL },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                     0,       {0},            0, NULL },
 };
 

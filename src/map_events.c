@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
@@ -250,7 +249,7 @@ void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y,
 
 void event_delete_event_structure(long ev_idx)
 {
-    LbMemorySet(&game.event[ev_idx], 0, sizeof(struct Event));
+    memset(&game.event[ev_idx], 0, sizeof(struct Event));
 }
 
 void event_update_last_use(struct Event *event)
@@ -662,7 +661,7 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                     {
                         if (is_my_player_number(dungeon->owner)) {
                             struct SoundEmitter* emit = S3DGetSoundEmitter(Non3DEmitter);
-                            StopSample(get_emitter_id(emit), 947);
+                            stop_sample(get_emitter_id(emit), 947, 0);
                             play_non_3d_sample(175);
                         }
                         unsigned char prev_ev_idx = dungeon->event_button_index[i - 1];
@@ -734,7 +733,11 @@ ThingIndex get_thing_index_event_is_attached_to(const struct Event *event)
 struct Thing *event_is_attached_to_thing(EventIndex evidx)
 {
     struct Event* event = &game.event[evidx];
-    long i = get_thing_index_event_is_attached_to(event);
+    if ((event->flags & EvF_Exists) == 0) 
+    {
+        return INVALID_THING;
+    }
+    ThingIndex i = get_thing_index_event_is_attached_to(event);
     return thing_get(i);
 }
 
@@ -747,7 +750,7 @@ void event_process_events(void)
             continue;
         }
         struct PlayerInfo*player = get_player(event->owner);
-        if (player->view_type == PVT_DungeonTop)
+        if (player->view_type <= PVT_DungeonTop) //Freeze lifespan of events of human player on map or possession
         {
             if (event->lifespan_turns > 0) {
                 event->lifespan_turns--;
@@ -778,7 +781,7 @@ void event_process_events(void)
 
 void update_all_events(void)
 {
-    for (long i = EVENT_BUTTONS_COUNT; i > 0; i--)
+    for (long i = EVENTS_COUNT; i > 0; i--)
     {
         struct Thing* thing = event_is_attached_to_thing(i);
         if (!thing_is_invalid(thing))

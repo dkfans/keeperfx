@@ -451,8 +451,8 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
 long slab_is_my_door(long plyr_idx, long slb_x, long slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    return (slabmap_owner(slb) == plyr_idx) && ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
+    return (slabmap_owner(slb) == plyr_idx) && ((slabst->block_flags & SlbAtFlg_IsDoor) != 0);
 }
 
 long check_out_place_for_convert_behind_door(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -1020,7 +1020,7 @@ short imp_birth(struct Thing *thing)
     {
         // If the creature has flight ability, make sure it returns to flying state
         restore_creature_flight_flag(thing);
-        if (thing_is_creature_special_digger(thing))
+        if (thing_is_creature_digger(thing))
         {
             if (!check_out_available_spdigger_drop_tasks(thing)) {
                 set_start_state(thing);
@@ -1079,9 +1079,9 @@ short imp_converts_dungeon(struct Thing *spdigtng)
           {
               set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0);
               struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-              struct SlabAttr* slbattr = get_slab_attrs(slb);
+              struct SlabConfigStats* slabst = get_slab_stats(slb);
               // If the area we're converting is an enemy room, issue event to that player
-              if (slbattr->category == SlbAtCtg_RoomInterior)
+              if (slabst->category == SlbAtCtg_RoomInterior)
               {
                   struct Room* room = room_get(slb->room_index);
                   if (!room_is_invalid(room))
@@ -1092,7 +1092,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
                           EvKind_RoomUnderAttack, room->owner, 0);
                       if (is_my_player_number(room->owner))
                       {
-                          output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+                          output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
                       }
                 }
               }
@@ -1201,7 +1201,7 @@ short imp_doing_nothing(struct Thing *spdigtng)
 {
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(spdigtng),(int)spdigtng->index);
     TRACE_THING(spdigtng);
-    if (!thing_is_creature_special_digger(spdigtng))
+    if (!thing_is_creature_digger(spdigtng))
     {
         ERRORLOG("Non digger thing %ld, %s, owner %ld - reset",(long)spdigtng->index,thing_model_name(spdigtng),(long)spdigtng->owner);
         set_start_state(spdigtng);
@@ -1268,7 +1268,7 @@ short imp_drops_gold(struct Thing *spdigtng)
         struct Coord3d pos;
         pos.x.val = subtile_coord_center(center_stl_x);
         pos.y.val = subtile_coord_center(center_stl_y);
-        pos.z.val = spdigtng->mappos.z.val;
+        pos.z.val = get_floor_height_at(&pos);
         gldtng = create_gold_hoarde(room, &pos, spdigtng->creature.gold_carried);
         if (!thing_is_invalid(gldtng))
         {
@@ -1502,17 +1502,21 @@ short imp_toking(struct Thing *creatng)
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
-        if ( CREATURE_RANDOM(creatng, 8) )
+        if (CREATURE_RANDOM(creatng, 8))
+        {
             set_creature_instance(creatng, CrInst_RELAXING, 0, 0);
+        }
         else
+        {
             set_creature_instance(creatng, CrInst_TOKING, 0, 0);
+        }
     }
-    
     if ((cctrl->instance_id == CrInst_TOKING) && (cctrl->inst_turn == cctrl->inst_action_turns))
     {
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        if (crstat->toking_recovery != 0) {
-            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->explevel, creatng->owner);
+        if (crstat->toking_recovery != 0)
+        {
+            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->exp_level);
             apply_health_to_thing_and_display_health(creatng, recover);
         }
     }

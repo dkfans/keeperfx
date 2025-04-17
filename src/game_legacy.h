@@ -37,6 +37,7 @@
 #include "config_objects.h"
 #include "config_rules.h"
 #include "config_players.h"
+#include "config_slabsets.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_traps.h"
@@ -51,7 +52,6 @@
 #include "creature_battle.h"
 #include "map_columns.h"
 #include "map_events.h"
-#include "music_player.h"
 #include "lvl_script.h"
 #include "gui_msgs.h"
 #include "player_computer.h"
@@ -124,6 +124,7 @@ struct Configs {
     struct ObjectsConfig object_conf;
     struct RulesConfig rules;
     struct PlayerStateConfig plyr_conf;
+    struct ColumnConfig column_conf;
 };
 
 struct Game {
@@ -137,11 +138,11 @@ struct Game {
     unsigned char eastegg01_cntr;
     unsigned char flags_cd;
     unsigned char eastegg02_cntr;
-    char audiotrack;
-    char last_audiotrack;
-char numfield_15;
+    char music_track; // cdrom / default music track to resume after load
+    char music_fname[DISKPATH_SIZE]; // custom music file to resume after load
+    char numfield_15;
     LevelNumber selected_level_number;
-char numfield_1A;
+    char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
@@ -215,7 +216,7 @@ char numfield_1A;
     PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
-    HitPoints block_health[9];
+    HitPoints block_health[10];
     unsigned short generate_speed;
     unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;
@@ -230,13 +231,11 @@ char numfield_1A;
     TbBool frame_step;
     TbBool paused_at_gameturn;
     GameTurnDelta pay_day_progress;
-    TbBool no_intro;
     GameTurn armageddon_cast_turn;
     GameTurn armageddon_over_turn;
     PlayerNumber armageddon_caster_idx;
     struct SoundSettings sound_settings;
     struct CreatureBattle battles[BATTLES_COUNT];
-    long music_track_index;
     char evntbox_text_objective[MESSAGE_TEXT_LEN];
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
@@ -265,9 +264,6 @@ char numfield_1A;
     int manufactr_element;
     int manufactr_spridx;
     int manufactr_tooltip;
-    char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
-    char loaded_sound[EXTERNAL_SOUNDS_COUNT+1][DISKPATH_SIZE];
-    unsigned char sounds_count;
     struct Configs conf;
 };
 

@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 
 #include <toml.h>
@@ -35,7 +34,14 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_playerstates_file[]="playerstates.toml";
+static TbBool load_playerstate_config_file(const char *fname, unsigned short flags);
+
+const struct ConfigFileData keeper_playerstates_file_data = {
+    .filename = "playerstates.toml",
+    .load_func = load_playerstate_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
 
 struct NamedCommand player_state_commands[PLAYER_STATES_COUNT_MAX];
 
@@ -58,12 +64,11 @@ static const struct NamedCommand pointer_group_commands[] = {
 /******************************************************************************/
 /******************************************************************************/
 
-TbBool load_playerstate_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_playerstate_config_file(const char *fname, unsigned short flags)
 {
     VALUE file_root;
-    if (!load_toml_file(textname, fname,&file_root,flags))
+    if (!load_toml_file(fname,&file_root,flags))
         return false;
-    
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         memset(player_state_commands,0,sizeof(player_state_commands));
@@ -80,11 +85,7 @@ TbBool load_playerstate_config_file(const char *textname, const char *fname, uns
         if (value_type(section) == VALUE_DICT)
         {
             struct PlayerStateConfigStats *plrst_cfg_stat = &game.conf.plyr_conf.plrst_cfg_stats[id];
-            
-            SET_NAME(section,player_state_commands,plrst_cfg_stat->code_name);
-            VALUE *power_kind_val = value_dict_get(section, "PowerKind");
-            plrst_cfg_stat->power_kind = get_id(power_desc,value_string(power_kind_val));
-
+            SET_NAME(section, player_state_commands, plrst_cfg_stat->code_name);
             VALUE *pointer_group_val = value_dict_get(section, "PointerGroup");
             plrst_cfg_stat->pointer_group = get_id(pointer_group_commands,value_string(pointer_group_val));
 
@@ -94,28 +95,6 @@ TbBool load_playerstate_config_file(const char *textname, const char *fname, uns
     }
     value_fini(&file_root);
     return true;
-}
-
-TbBool load_playerstate_config(const char *conf_fname,unsigned short flags)
-{
-    static const char config_global_textname[] = "global texture config";
-    static const char config_campgn_textname[] = "campaign texture config";
-    static const char config_level_textname[] = "level texture config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_playerstate_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_playerstate_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_playerstate_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
-
-    return result;
 }
 
 /**

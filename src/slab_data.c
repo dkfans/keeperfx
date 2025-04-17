@@ -20,7 +20,6 @@
 #include "slab_data.h"
 #include "globals.h"
 
-#include "bflib_memory.h"
 #include "player_instances.h"
 #include "config_terrain.h"
 #include "map_blocks.h"
@@ -215,11 +214,11 @@ SlabCodedCoords get_next_slab_number_in_room(SlabCodedCoords slab_num)
 TbBool slab_is_safe_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     int slb_owner = slabmap_owner(slb);
     if ((slb_owner == plyr_idx) || (slb_owner == game.neutral_player_num))
     {
-        return slbattr->is_safe_land;
+        return slabst->is_safe_land;
     }
     return false;
 }
@@ -254,20 +253,20 @@ TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 TbBool is_slab_type_walkable(SlabKind slbkind)
 {
-    struct SlabAttr *slbattr = get_slab_kind_attrs(slbkind);
-    return (slbattr->block_flags & (SlbAtFlg_Blocking | SlbAtFlg_Digable | SlbAtFlg_Valuable)) == 0;
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slbkind);
+    return (slabst->block_flags & (SlbAtFlg_Blocking | SlbAtFlg_Digable | SlbAtFlg_Valuable)) == 0;
 }
 
 TbBool slab_kind_is_animated(SlabKind slbkind)
 {
-    struct SlabAttr* slbattr = get_slab_kind_attrs(slbkind);
-    return slbattr->animated;
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slbkind);
+    return slabst->animated;
 }
 
 TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 {
-    const struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ( any_flag_is_set(slbattr->block_flags, (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) || (slb->kind == SlbT_LAVA) )
+    const struct SlabConfigStats* slabst = get_slab_stats(slb);
+    if ( any_flag_is_set(slabst->block_flags, (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) || (slb->kind == SlbT_LAVA) )
         return true;
     return false;
 }
@@ -275,8 +274,8 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    const struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ((slbattr->is_diggable) && !slab_kind_is_indestructible(slb->kind))
+    const struct SlabConfigStats* slabst = get_slab_stats(slb);
+    if ((slabst->is_diggable) && !slab_kind_is_indestructible(slb->kind))
     {
         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
         if (!flag_is_set(mapblk->flags, SlbAtFlg_Filled) || (slabmap_owner(slb) == plyr_idx)) {
@@ -377,7 +376,7 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
                 {
                     result = 4;
                 }
-                else if (slb->kind == SlbT_GOLD)
+                else if ((slb->kind == SlbT_GOLD) || (slb->kind == SlbT_DENSEGOLD))
                 {
                     result = 5;
                 }
@@ -429,7 +428,7 @@ void clear_slabs(void)
         for (unsigned long x = 0; x < gameadd.map_tiles_x; x++)
         {
             struct SlabMap* slb = &game.slabmap[y * gameadd.map_tiles_x + x];
-            LbMemorySet(slb, 0, sizeof(struct SlabMap));
+            memset(slb, 0, sizeof(struct SlabMap));
             slb->kind = SlbT_ROCK;
         }
     }
@@ -438,9 +437,9 @@ void clear_slabs(void)
 SlabKind find_core_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     SlabKind corekind;
-    switch (slbattr->category)
+    switch (slabst->category)
     {
     case SlbAtCtg_FriableDirt:
         corekind = SlbT_EARTH;
@@ -450,7 +449,7 @@ SlabKind find_core_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y)
         break;
     case SlbAtCtg_Obstacle:
         // originally, 99 was returned by this case, without further conditions
-        if ((slbattr->block_flags & SlbAtFlg_IsRoom) != 0)
+        if ((slabst->block_flags & SlbAtFlg_IsRoom) != 0)
             corekind = SlbT_BRIDGE;
         else
             corekind = SlbT_DOORWOOD1;
@@ -462,7 +461,7 @@ SlabKind find_core_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return corekind;
 }
 
-long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx)
+long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx, short synergy_slab_num)
 {
     TbBool is_room_inside = true;
     long eff_score = 0;
@@ -480,6 +479,9 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
             if ((slabmap_owner(round_slb) == slabmap_owner(slb)) && (round_slb->kind == slb->kind))
             {
                 eff_score += 2;
+            } else if((slabmap_owner(round_slb) == slabmap_owner(slb)) || ((synergy_slab_num >= 0) && !(get_slab_kind_stats(synergy_slab_num)->is_ownable) && (round_slb->kind == synergy_slab_num)))
+            {
+                eff_score += 2;
             } else
             {
                 is_room_inside = false;
@@ -487,6 +489,7 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
                 {
                   case SlbT_ROCK:
                   case SlbT_GOLD:
+                  case SlbT_DENSEGOLD:
                   case SlbT_EARTH:
                   case SlbT_GEMS:
                     eff_score++;
@@ -591,12 +594,12 @@ void update_map_collide(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
             break;
         smask >>= 1;
     }
-    struct SlabAttr* slbattr = get_slab_kind_attrs(slbkind);
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slbkind);
     unsigned long nflags;
-    if (slbattr->block_flags_height < stl_z) {
-      nflags = slbattr->block_flags;
+    if (slabst->block_flags_height < stl_z) {
+      nflags = slabst->block_flags;
     } else {
-      nflags = slbattr->noblck_flags;
+      nflags = slabst->noblck_flags;
     }
     mapblk->flags &= (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored);
     mapblk->flags |= nflags;
@@ -612,8 +615,8 @@ void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
         if (slabmap_block_invalid(slb)) {
             continue;
         }
-        struct SlabAttr* slbattr = get_slab_attrs(slb);
-        if (slbattr->category == SlbAtCtg_RoomInterior)
+        struct SlabConfigStats* slabst = get_slab_stats(slb);
+        if (slabst->category == SlbAtCtg_RoomInterior)
         {
             struct Room* room = slab_room_get(sslb_x, sslb_y);
             do_room_recalculation(room);
@@ -666,8 +669,8 @@ int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
         struct SlabMap* slb = get_slabmap_block(sslb_x, sslb_y);
         if (slabmap_owner(slb) == plyr_idx)
         {
-            struct SlabAttr* slbattr = get_slab_attrs(slb);
-            if ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->block_flags & SlbAtFlg_IsRoom) || (slbattr->block_flags & SlbAtFlg_IsDoor))
+            struct SlabConfigStats* slabst = get_slab_stats(slb);
+            if ((slabst->category == SlbAtCtg_FortifiedGround) || (slabst->block_flags & SlbAtFlg_IsRoom) || (slabst->block_flags & SlbAtFlg_IsDoor))
             {
                 num_owned++;
             }    
@@ -682,8 +685,8 @@ int count_owned_ground_around(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlab
             struct SlabMap* slb = get_slabmap_block(sslb_x, sslb_y);
             if (slabmap_owner(slb) == plyr_idx)
             {
-                struct SlabAttr* slbattr = get_slab_attrs(slb);
-                if ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->block_flags & SlbAtFlg_IsRoom) || (slbattr->block_flags & SlbAtFlg_IsDoor))
+                struct SlabConfigStats* slabst = get_slab_stats(slb);
+                if ((slabst->category == SlbAtCtg_FortifiedGround) || (slabst->block_flags & SlbAtFlg_IsRoom) || (slabst->block_flags & SlbAtFlg_IsDoor))
                 {
                     num_owned++;
                 }    
@@ -700,9 +703,9 @@ void unfill_reinforced_corners(PlayerNumber keep_plyr_idx, MapSlabCoord base_slb
         MapSlabCoord x = base_slb_x + small_around[n].delta_x;
         MapSlabCoord y = base_slb_y + small_around[n].delta_y;
         struct SlabMap *slb = get_slabmap_block(x, y);
-        struct SlabAttr* slbattr = get_slab_attrs(slb);
-        if ( ( (((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->block_flags & SlbAtFlg_IsRoom) || ((slbattr->block_flags & SlbAtFlg_IsDoor)) )) 
-      && (slabmap_owner(slb) == keep_plyr_idx) ) || (slbattr->category == SlbAtCtg_Unclaimed) )
+        struct SlabConfigStats* slabst = get_slab_stats(slb);
+        if ( ( (((slabst->category == SlbAtCtg_FortifiedGround) || (slabst->block_flags & SlbAtFlg_IsRoom) || ((slabst->block_flags & SlbAtFlg_IsDoor)) )) 
+      && (slabmap_owner(slb) == keep_plyr_idx) ) || (slabst->category == SlbAtCtg_Unclaimed) )
         {
             for (int k = -1; k < 2; k+=2)
             {
@@ -710,15 +713,15 @@ void unfill_reinforced_corners(PlayerNumber keep_plyr_idx, MapSlabCoord base_slb
                 MapSlabCoord x2 = x + small_around[j].delta_x;
                 MapSlabCoord y2 = y + small_around[j].delta_y;
                 struct SlabMap *slb2 = get_slabmap_block(x2, y2);
-                struct SlabAttr* slbattr2 = get_slab_attrs(slb2);
-                if ( (slbattr2->category == SlbAtCtg_FortifiedWall) || (slbattr2->category == SlbAtCtg_FriableDirt) )
+                struct SlabConfigStats* slabst2 = get_slab_stats(slb2);
+                if ( (slabst2->category == SlbAtCtg_FortifiedWall) || (slabst2->category == SlbAtCtg_FriableDirt) )
                 {
                     int m = (k + j) & 3;
                     MapSlabCoord x3 = x2 + small_around[m].delta_x;
                     MapSlabCoord y3 = y2 + small_around[m].delta_y;
                     struct SlabMap *slb3 = get_slabmap_block(x3, y3);
-                    struct SlabAttr* slbattr3 = get_slab_attrs(slb3);
-                    if ( (slbattr3->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb3) != keep_plyr_idx) )
+                    struct SlabConfigStats* slabst3 = get_slab_stats(slb3);
+                    if ( (slabst3->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb3) != keep_plyr_idx) )
                     {
                         if (count_owned_ground_around(slabmap_owner(slb3), x3, y3, true) == 0)
                         {
@@ -746,8 +749,8 @@ void do_unprettying(PlayerNumber keep_plyr_idx, MapSlabCoord slb_x, MapSlabCoord
         long sslb_x = slb_x + (long)small_around[n].delta_x;
         long sslb_y = slb_y + (long)small_around[n].delta_y;
         struct SlabMap* slb = get_slabmap_block(sslb_x, sslb_y);
-        struct SlabAttr* slbattr = get_slab_attrs(slb);
-        if ((slbattr->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb) != keep_plyr_idx))
+        struct SlabConfigStats* slabst = get_slab_stats(slb);
+        if ((slabst->category == SlbAtCtg_FortifiedWall) && (slabmap_owner(slb) != keep_plyr_idx))
         {
             if (!slab_by_players_land(slabmap_owner(slb), sslb_x, sslb_y))
             {
@@ -762,8 +765,8 @@ void do_unprettying(PlayerNumber keep_plyr_idx, MapSlabCoord slb_x, MapSlabCoord
 
 TbBool slab_kind_has_no_ownership(SlabKind slbkind)
 {
-    struct SlabAttr* attributes = get_slab_kind_attrs(slbkind);
-    return (attributes->is_ownable == 0);
+    struct SlabConfigStats* slabst = get_slab_kind_stats(slbkind);
+    return (slabst->is_ownable == 0);
 }
 
 TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind)
@@ -836,6 +839,31 @@ TbBool player_can_claim_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabC
         return false;
     }
     return true;
+}
+
+void set_player_texture(PlayerNumber plyr_idx, long texture_id)
+{
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    dungeon->texture_pack = texture_id;
+
+    for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+    {
+        for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+        {
+            struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+            if (slabmap_owner(slb) == plyr_idx)
+            {
+                if (texture_id == 0)
+                {
+                    gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
+                }
+                else
+                {
+                    gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
+                }
+            }
+        }
+    }
 }
 /******************************************************************************/
 #ifdef __cplusplus

@@ -71,11 +71,12 @@ struct TrapConfigStats {
     unsigned char manufct_level;
     unsigned long manufct_required;
     int shots;
-    int shots_delay;
+    GameTurnDelta shots_delay;
     unsigned short initial_delay; // Trap is placed on reload phase, value in game turns.
     unsigned char trigger_type;
     unsigned char activation_type;
     unsigned short created_itm_model; // Shot model, effect model, slab kind.
+    unsigned char activation_level;
     unsigned char hit_type;
     TbBool hidden;
     unsigned char slappable;
@@ -83,6 +84,8 @@ struct TrapConfigStats {
     TbBool notify;
     TbBool place_on_bridge;
     TbBool place_on_subtile;
+    TbBool instant_placement;
+    TbBool remove_once_depleted;
     HitPoints health;
     char destructible;
     char unstable;
@@ -97,6 +100,7 @@ struct TrapConfigStats {
     unsigned char unanimated;
     unsigned char unshaded;
     unsigned char random_start_frame;
+    unsigned char flag_number;
     short light_radius; // Creates light if not null.
     unsigned char light_intensity;
     unsigned char light_flag;
@@ -135,13 +139,12 @@ struct TrapDoorConfig {
     struct ManufactureData manufacture_data[2*TRAPDOOR_TYPES_MAX];
 };
 /******************************************************************************/
-extern const char keeper_trapdoor_file[];
+extern const struct ConfigFileData keeper_trapdoor_file_data;
 extern struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 extern struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
-extern const struct NamedCommand trapdoor_door_commands[];
+extern const struct NamedFieldSet trapdoor_door_named_fields_set;
+extern const struct NamedFieldSet trapdoor_trap_named_fields_set;
 /******************************************************************************/
-TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
-
 struct TrapConfigStats* get_trap_model_stats(int tngmodel);
 struct DoorConfigStats *get_door_model_stats(int tngmodel);
 struct ManufactureData *get_manufacture_data(int manufctr_idx);

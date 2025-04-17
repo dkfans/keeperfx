@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
@@ -39,8 +38,6 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-static const char *sound_fname = "sound.dat";
-static const char *speech_fname = "speech.dat";
 static unsigned char *heap;
 static long heap_size;
 /******************************************************************************/
@@ -117,14 +114,14 @@ TbBool setup_heap_memory(void)
   if (heap != NULL)
   {
     SYNCDBG(0,"Freeing old Graphics heap");
-    LbMemoryFree(heap);
+    free(heap);
     heap = NULL;
   }
-  long i = mem_size;
+  long i = 64;
   heap_size = get_best_heap_size(i);
   while ( 1 )
   {
-    heap = LbMemoryAlloc(heap_size);
+    heap = calloc(heap_size, 1);
     if (heap != NULL)
       break;
     i = get_smaller_memory_amount(i);
@@ -161,7 +158,7 @@ void reset_heap_manager(void)
 void reset_heap_memory(void)
 {
   SYNCDBG(8,"Starting");
-  LbMemoryFree(heap);
+  free(heap);
   heap = NULL;
 }
 
@@ -177,16 +174,16 @@ TbBool setup_heaps(void)
     if (heap != NULL)
     {
       ERRORLOG("Graphics heap already allocated");
-      LbMemoryFree(heap);
+      free(heap);
       heap = NULL;
     }
     // Allocate graphics heap
-    i = mem_size;
+    i = 64;
     while (heap == NULL)
     {
       heap_size = get_best_heap_size(i);
       i = get_smaller_memory_amount(i);
-      heap = LbMemoryAlloc(heap_size);
+      heap = calloc(heap_size, 1);
       if ((i <= 8) && (heap == NULL))
       {
         low_memory = true;
@@ -212,30 +209,10 @@ TbBool setup_heaps(void)
         }
         if (heap != NULL)
         {
-          LbMemoryFree(heap);
+          free(heap);
           heap = NULL;
         }
-        heap = LbMemoryAlloc(heap_size);
-    }
-    if (!SoundDisabled)
-    {
-      // Prepare sound sample bank file names
-      char snd_fname[2048];
-      prepare_file_path_buf(snd_fname, FGrp_LrgSound, sound_fname);
-      // language-specific speech file
-      char* spc_fname = prepare_file_fmtpath(FGrp_LrgSound, "speech_%s.dat", get_language_lwrstr(install_info.lang_id));
-      // default speech file
-      if (!LbFileExists(spc_fname))
-        spc_fname = prepare_file_path(FGrp_LrgSound,speech_fname);
-      // speech file for english
-      if (!LbFileExists(spc_fname))
-        spc_fname = prepare_file_fmtpath(FGrp_LrgSound,"speech_%s.dat",get_language_lwrstr(1));
-      // Initialize sample banks
-      if (!init_sound_banks(snd_fname, spc_fname, 1622))
-      {
-        SoundDisabled = true;
-        ERRORLOG("Unable to initialize sound heap. Sound disabled.");
-      }
+        heap = calloc(heap_size, 1);
     }
     return true;
 }

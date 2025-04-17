@@ -35,7 +35,6 @@ class CHex {
  public:
     CHex(long, long);
     void BlitHex(void);
-    void DrawOutline(void);
     static void AddScan(struct CScan *scan, long a2, long a3, long a4, long a5);
     static void BlitScan(struct CScan *scan, long h);
  private:
@@ -108,17 +107,6 @@ CHex::CHex(long width, long height)
     }
     this->source_strip_w = ((long double)-width * ldpar1);
     this->source_strip_h = (ldpar1 * (long double)-height);
-}
-
-void CHex::DrawOutline(void)
-{
-    long i;
-    long k;
-    for (i=0; i < 6; i++)
-    {
-        k = (i + 1) % 6;
-        LbDrawLine(this->arrA[i], this->arrB[i], this->arrA[k], this->arrB[k], 0xFFu);
-    }
 }
 
 void CHex::AddScan(struct CScan *scan, long strip_len, long len_limit, long nstrip_w, long nstrip_h)

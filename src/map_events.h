@@ -28,7 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define EVENT_BUTTONS_COUNT    12
 #define EVENT_KIND_COUNT       36
-#define EVENTS_COUNT          1000
+#define EVENTS_COUNT          200
 #define INVALID_EVENT &game.event[0]
 
 enum EventKinds {

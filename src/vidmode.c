@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fmvids.h"
 #include "bflib_video.h"
 #include "bflib_mouse.h"
@@ -42,7 +41,7 @@
 #include "gui_topmsg.h"
 #include "engine_redraw.h"
 #include "engine_textures.h"
-#include "config.h"
+#include "config_keeperfx.h"
 #include "lens_api.h"
 #include "config_settings.h"
 #include "game_legacy.h"
@@ -180,7 +179,7 @@ short LoadMcgaData(void)
     struct TbLoadFiles* t_lfile = &gui_load_files_320[i];
     // Allocate some low memory, only to be sure that
     // it will be free when this function ends
-    void* mem = LbMemoryAlloc(0x10000u);
+    void* mem = calloc(0x10000u, 1);
     while (t_lfile->Start != NULL)
     {
         // Don't allow loading flags
@@ -199,7 +198,7 @@ short LoadMcgaData(void)
         i++;
         t_lfile = &gui_load_files_320[i];
   }
-  if (mem != NULL) LbMemoryFree(mem);
+  free(mem);
   button_sprites = load_spritesheet("data/gui1-32.dat", "data/gui1-32.tab");
   winfont = load_font("data/font2-32.dat", "data/font2-32.tab");
   font_sprites = load_font("data/font1-32.dat", "data/font1-32.tab");

@@ -34,7 +34,6 @@
 #include "bflib_mouse.h"
 #include "bflib_vidraw.h"
 #include "bflib_fileio.h"
-#include "bflib_memory.h"
 #include "bflib_filelst.h"
 #include "bflib_sound.h"
 #include "bflib_network.h"
@@ -74,7 +73,7 @@
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "power_hand.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "player_instances.h"
 #include "player_utils.h"
 #include "config_players.h"
@@ -85,12 +84,11 @@
 #include "config_settings.h"
 #include "config_strings.h"
 #include "game_legacy.h"
-
 #include "keeperfx.hpp"
-
-#include "music_player.h"
 #include "custom_sprites.h"
 #include "sprites.h"
+#include "moonphase.h"
+#include "config_keeperfx.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -682,17 +680,12 @@ short game_is_busy_doing_gui(void)
       return false;
     if (battle_creature_over <= 0)
       return true;
-    PowerKind pwkind;
-    pwkind = 0;
-    if (player->work_state < PLAYER_STATES_COUNT_MAX)
+    PowerKind pwkind = player->chosen_power_kind;
+    struct Thing *thing;
+    thing = thing_get(battle_creature_over);
+    if (!thing_is_invalid(thing) && can_cast_power_on_thing(player->id_number, thing, pwkind))
     {
-        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
-        pwkind = plrst_cfg_stat->power_kind;
-
-        struct Thing *thing;
-        thing = thing_get(battle_creature_over);
-        if (can_cast_power_on_thing(player->id_number, thing, pwkind))
-            return true;
+        return true;
     }
     return false;
 }
@@ -963,21 +956,8 @@ long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool alr
     case PSt_CtrlDirect:
     case PSt_FreeCtrlDirect:
     case PSt_CreateDigger:
-    case PSt_CaveIn:
-    case PSt_Heal:
-    case PSt_Lightning:
-    case PSt_SpeedUp:
-    case PSt_Armour:
-    case PSt_Conceal:
-    case PSt_CastDisease:
-    case PSt_TurnChicken:
-    case PSt_DestroyWalls:
-    case PSt_Rebound:
-    case PSt_Freeze:
-    case PSt_Slow:
-    case PSt_Flight:
-    case PSt_Vision:
-    case PSt_TimeBomb:
+    case PSt_CastPowerOnSubtile:
+    case PST_CastPowerOnTarget:
         return PckA_SetPlyrState;
     case PSt_None:
         switch (pwkind)
@@ -1009,7 +989,7 @@ TbBool set_players_packet_change_spell(struct PlayerInfo *player,PowerKind pwkin
     pcktype = player_state_to_packet(powerst->work_state, pwkind, already_in);
     if (pcktype != PckA_None)
     {
-        set_players_packet_action(player, pcktype, powerst->work_state, 0, 0, 0);
+        set_players_packet_action(player, pcktype, powerst->work_state, pwkind, 0, 0);
         if (!already_in) {
             play_non_3d_sample(powerst->select_sample_idx);
         }
@@ -1028,7 +1008,7 @@ TbBool is_special_power(PowerKind pwkind)
 void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
 {
     struct Dungeon *dungeon;
-    const struct MagicStats *pwrdynst;
+    const struct PowerConfigStats *powerst;
 
     if (!is_special_power(pwkind)) {
         WARNLOG("Bad power kind");
@@ -1037,11 +1017,9 @@ void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
 
     dungeon = get_players_num_dungeon(my_player_number);
     set_chosen_power(pwkind, tooltip_id);
-    pwrdynst = get_power_dynamic_stats(pwkind);
+    powerst = get_power_model_stats(pwkind);
 
-    if (dungeon->total_money_owned >= pwrdynst->cost[0]) {
-        struct PowerConfigStats *powerst;
-        powerst = get_power_model_stats(pwkind);
+    if (dungeon->total_money_owned >= powerst->cost[0]) {
         play_non_3d_sample_no_overlap(powerst->select_sample_idx); // Play the spell speech
         switch (pwkind)
         {
@@ -1373,10 +1351,10 @@ void gui_area_text(struct GuiButton *gbtn)
 
 void frontend_init_options_menu(struct GuiMenu *gmnu)
 {
-    music_level_slider = make_audio_slider_linear(settings.redbook_volume);
-    sound_level_slider = make_audio_slider_linear(settings.sound_volume);
-    mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
-    fe_mouse_sensitivity = settings.first_person_move_sensitivity;
+    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.music_volume);
+    get_gui_button_init(gmnu, BID_SOUND_VOL)->content.lval = make_audio_slider_linear(settings.sound_volume);
+    get_gui_button_init(gmnu, BID_MENTOR_VOL)->content.lval = make_audio_slider_linear(settings.mentor_volume);
+    get_gui_button_init(gmnu, BID_MOUSE_MUL)->content.lval = settings.first_person_move_sensitivity;
     if (!is_campaign_loaded())
     {
         if (!change_campaign(""))
@@ -1634,7 +1612,7 @@ void gui_go_to_event(struct GuiButton *gbtn)
     player = get_my_player();
     dungeon = get_players_dungeon(player);
     if (dungeon->visible_event_idx) {
-        set_players_packet_action(player, PckA_Unknown083, dungeon->visible_event_idx, 0, 0, 0);
+        set_players_packet_action(player, PckA_ZoomToEvent, dungeon->visible_event_idx, 0, 0, 0);
     }
 }
 
@@ -1729,7 +1707,7 @@ void frontend_start_new_game(struct GuiButton *gbtn)
     SYNCDBG(6,"Clicked");
     // Check if we can just start the game without campaign selection screen
     if (campaigns_list.items_num < 1)
-      cmpgn_fname = lbEmptyString;
+      cmpgn_fname = "";
     else
     if (campaigns_list.items_num == 1)
       cmpgn_fname = campaigns_list.items[0].fname;
@@ -1755,7 +1733,7 @@ void frontend_load_mappacks(struct GuiButton *gbtn)
     SYNCDBG(6,"Clicked");
     // Check if we can show some levels without showing the map pack selection screen
     if (mappacks_list.items_num < 1)
-      cmpgn_fname = lbEmptyString;
+      cmpgn_fname = "";
     else
     if (mappacks_list.items_num == 1)
       cmpgn_fname = mappacks_list.items[0].fname;
@@ -2618,10 +2596,10 @@ void initialise_tab_tags_and_menu(MenuID menu_id)
 
 void init_gui(void)
 {
-  LbMemorySet(breed_activities, 0, CREATURE_TYPES_MAX *sizeof(unsigned short));
-  LbMemorySet(menu_stack, 0, ACTIVE_MENUS_COUNT*sizeof(unsigned char));
-  LbMemorySet(active_menus, 0, ACTIVE_MENUS_COUNT*sizeof(struct GuiMenu));
-  LbMemorySet(active_buttons, 0, ACTIVE_BUTTONS_COUNT*sizeof(struct GuiButton));
+  memset(breed_activities, 0, CREATURE_TYPES_MAX *sizeof(unsigned short));
+  memset(menu_stack, 0, ACTIVE_MENUS_COUNT*sizeof(unsigned char));
+  memset(active_menus, 0, ACTIVE_MENUS_COUNT*sizeof(struct GuiMenu));
+  memset(active_buttons, 0, ACTIVE_BUTTONS_COUNT*sizeof(struct GuiButton));
   breed_activities[0] = get_players_special_digger_model(my_player_number);
   no_of_breeds_owned = 1;
   top_of_breed_list = 0;
@@ -2673,10 +2651,10 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         frontstory_unload();
         break;
     case FeSt_CREDITS:
-        StopMusicPlayer();
+        stop_music();
         break;
     case FeSt_LEVEL_STATS:
-        stop_streamed_sample();
+        stop_streamed_samples();
         turn_off_menu(GMnu_FESTATISTICS);
         break;
     case FeSt_HIGH_SCORES:
@@ -2698,7 +2676,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         break;
     case FeSt_FEOPTIONS:
         turn_off_menu(GMnu_FEOPTION);
-        StopMusicPlayer();
+        stop_music();
         break;
     case FeSt_LEVEL_SELECT:
         turn_off_menu(GMnu_FELEVEL_SELECT);
@@ -2748,6 +2726,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           set_pointer_graphic_none();
           break;
       case FeSt_MAIN_MENU:
+          stop_music();
           continue_game_option_available = continue_game_available();
           if (!continue_game_option_available)
           {
@@ -2816,6 +2795,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           credits_end = 0;
           LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
           lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+          play_music_track(7);
           break;
       case FeSt_LEVEL_STATS:
           turn_on_menu(GMnu_FESTATISTICS);
@@ -2842,6 +2822,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           turn_on_menu(GMnu_FEDEFINE_KEYS);
           break;
       case FeSt_FEOPTIONS:
+          play_music_track(3);
           turn_on_menu(GMnu_FEOPTION);
           set_pointer_graphic_menu();
           break;
@@ -2874,6 +2855,49 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
     return nstate;
 }
 
+static const char * menu_state_str(FrontendMenuState state)
+{
+    switch (state) {
+        case FeSt_INITIAL: return "FeSt_INITIAL";
+        case FeSt_MAIN_MENU: return "FeSt_MAIN_MENU";
+        case FeSt_FELOAD_GAME: return "FeSt_FELOAD_GAME";
+        case FeSt_LAND_VIEW: return "FeSt_LAND_VIEW";
+        case FeSt_NET_SERVICE: return "FeSt_NET_SERVICE";
+        case FeSt_NET_SESSION: return "FeSt_NET_SESSION";
+        case FeSt_NET_START: return "FeSt_NET_START";
+        case FeSt_START_KPRLEVEL: return "FeSt_START_KPRLEVEL";
+        case FeSt_START_MPLEVEL: return "FeSt_START_MPLEVEL";
+        case FeSt_UNKNOWN09: return "FeSt_UNKNOWN09";
+        case FeSt_LOAD_GAME: return "FeSt_LOAD_GAME";
+        case FeSt_INTRO: return "FeSt_INTRO";
+        case FeSt_STORY_POEM: return "FeSt_STORY_POEM";
+        case FeSt_CREDITS: return "FeSt_CREDITS";
+        case FeSt_DEMO: return "FeSt_DEMO";
+        case FeSt_UNUSED1: return "FeSt_UNUSED1";
+        case FeSt_UNUSED2: return "FeSt_UNUSED2";
+        case FeSt_LEVEL_STATS: return "FeSt_LEVEL_STATS";
+        case FeSt_HIGH_SCORES: return "FeSt_HIGH_SCORES";
+        case FeSt_TORTURE: return "FeSt_TORTURE";
+        case FeSt_UNKNOWN20: return "FeSt_UNKNOWN20";
+        case FeSt_OUTRO: return "FeSt_OUTRO";
+        case FeSt_UNKNOWN22: return "FeSt_UNKNOWN22";
+        case FeSt_UNKNOWN23: return "FeSt_UNKNOWN23";
+        case FeSt_NETLAND_VIEW: return "FeSt_NETLAND_VIEW";
+        case FeSt_PACKET_DEMO: return "FeSt_PACKET_DEMO";
+        case FeSt_FEDEFINE_KEYS: return "FeSt_FEDEFINE_KEYS";
+        case FeSt_FEOPTIONS: return "FeSt_FEOPTIONS";
+        case FeSt_UNKNOWN28: return "FeSt_UNKNOWN28";
+        case FeSt_STORY_BIRTHDAY: return "FeSt_STORY_BIRTHDAY";
+        case FeSt_LEVEL_SELECT: return "FeSt_LEVEL_SELECT";
+        case FeSt_CAMPAIGN_SELECT: return "FeSt_CAMPAIGN_SELECT";
+        case FeSt_DRAG: return "FeSt_DRAG";
+        case FeSt_CAMPAIGN_INTRO: return "FeSt_CAMPAIGN_INTRO";
+        case FeSt_MAPPACK_SELECT: return "FeSt_MAPPACK_SELECT";
+        case FeSt_FONT_TEST: return "FeSt_FONT_TEST";
+    }
+    return "unknown";
+}
+
 FrontendMenuState frontend_set_state(FrontendMenuState nstate)
 {
     SYNCDBG(8,"State %d will be switched to %d",(int)frontend_menu_state,(int)nstate);
@@ -2881,7 +2905,9 @@ FrontendMenuState frontend_set_state(FrontendMenuState nstate)
     if ( frontend_menu_state )
       fade_out();
     fade_palette_in = 1;
-    SYNCMSG("Frontend state change from %d into %d",(int)frontend_menu_state,(int)nstate);
+    SYNCMSG("Frontend state change from %d (%s) into %d (%s)",
+        frontend_menu_state, menu_state_str(frontend_menu_state),
+        nstate, menu_state_str(nstate));
     frontend_menu_state = frontend_setup_state(nstate);
     return frontend_menu_state;
 }
@@ -3532,7 +3558,6 @@ void frontend_update(short *finish_menu)
     switch ( frontend_menu_state )
     {
     case FeSt_MAIN_MENU:
-        StopMusicPlayer();
         frontend_button_info[8].font_index = (continue_game_option_available?1:3);
         //this uses original timing function for compatibility with frontend_set_state()
         if ( abs(LbTimerClock()-(long)time_last_played_demo) > MNU_DEMO_IDLE_TIME )
@@ -3566,7 +3591,6 @@ void frontend_update(short *finish_menu)
         exit_keeper = 1;
         break;
     case FeSt_CREDITS:
-        PlayMusicPlayer(7);
         break;
     case FeSt_LEVEL_STATS:
         frontstats_update();
@@ -3578,7 +3602,6 @@ void frontend_update(short *finish_menu)
         *finish_menu = frontnetmap_update();
         break;
     case FeSt_FEOPTIONS:
-        PlayMusicPlayer(3);
         break;
     case FeSt_LEVEL_SELECT:
         frontend_level_select_update();
@@ -3700,7 +3723,7 @@ FrontendMenuState get_startup_menu_state(void)
           frontnet_service_setup();
           frontnet_session_setup();
           net_number_of_sessions = 0;
-          LbMemorySet(net_session, 0, sizeof(net_session));
+          memset(net_session, 0, sizeof(net_session));
           // TODO: should disable actual network enumerating if either
           if (LbNetwork_EnumerateSessions(enum_sessions_callback, 0))
           {

@@ -36,7 +36,7 @@ extern "C" {
 
 /******************************************************************************/
 
-extern const struct NamedCommand effect_generator_commands[];
+extern const struct NamedFieldSet effects_effectgenerator_named_fields_set;
 
 struct EffectConfigStats {
     char code_name[COMMAND_WORD_LEN];
@@ -56,6 +56,7 @@ struct EffectConfigStats {
     struct InitLight ilght;
     unsigned char affected_by_wind;
     ThingHitType effect_hit_type;
+    SpellKind spell_effect;
 };
 
 struct EffectGeneratorConfigStats {
@@ -86,14 +87,14 @@ struct EffectElementConfigStats {
     short sprite_idx;
     short sprite_size_min;
     short sprite_size_max;
-    unsigned char rendering_flag;
+    unsigned char animate_once;
     unsigned short sprite_speed_min;
     unsigned short sprite_speed_max;
     TbBool animate_on_floor;
     TbBool unshaded;
     unsigned char transparent;  // transparency flags in bits 4-5
     TbBool movable;
-    unsigned char movement_flags;
+    unsigned char through_walls;
     unsigned char size_change; /**< See enum ThingSizeChange. */
     unsigned char fall_acceleration;
     short inertia_floor;
@@ -122,11 +123,12 @@ struct EffectElementConfigStats {
 
 struct EffectsConfig {
     struct EffectConfigStats effect_cfgstats[EFFECTS_TYPES_MAX];
+    long effectgen_cfgstats_count;
     struct EffectGeneratorConfigStats effectgen_cfgstats[EFFECTSGEN_TYPES_MAX];
     struct EffectElementConfigStats effectelement_cfgstats[EFFECTSELLEMENTS_TYPES_MAX];
 };
 /******************************************************************************/
-extern const char keeper_effects_file[];
+extern const struct ConfigFileData keeper_effects_file_data;
 extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
 extern long const imp_spangle_effects[];
 extern long const ball_puff_effects[];
@@ -134,10 +136,10 @@ extern long const ball_puff_effects[];
 extern struct NamedCommand effectgen_desc[EFFECTSGEN_TYPES_MAX];
 extern struct NamedCommand effectelem_desc[EFFECTSELLEMENTS_TYPES_MAX];
 /******************************************************************************/
-TbBool load_effects_config(const char *conf_fname,unsigned short flags);
 struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel);
 struct EffectGeneratorConfigStats *get_effectgenerator_model_stats(ThingModel tngmodel);
 const char *effect_code_name(ThingModel tngmodel);
+const char* effect_element_code_name(ThingModel tngmodel);
 const char *effectgenerator_code_name(ThingModel tngmodel);
 short effect_or_effect_element_id(const char * code_name);
 /******************************************************************************/

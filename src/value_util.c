@@ -7,7 +7,6 @@
 #include "config.h"
 #include "config_objects.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "value_util.h"
@@ -19,17 +18,17 @@
 #include <string.h>
 #include "post_inc.h"
 
-TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsigned short flags)
+TbBool load_toml_file(const char *fname,VALUE *value, unsigned short flags)
 {
     SYNCDBG(5,"Starting");
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if(!(flags & CnfLd_IgnoreErrors))
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == false)
         return false;
     // Loading file data
@@ -37,8 +36,8 @@ TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsi
 
     if (fsize < len)
     {
-        WARNMSG("failed to read the %s file \"%s\".",textname,fname);
-        LbMemoryFree(buf);
+        WARNMSG("failed to read file \"%s\".",fname);
+        free(buf);
         return false;
     }
     
@@ -50,10 +49,10 @@ TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsi
     if (toml_parse((char*)buf, err, sizeof(err), value))
     {
         WARNMSG("Unable to load %s file\n %s", fname, err);
-        LbMemoryFree(buf);
+        free(buf);
         return false;
     }
-    LbMemoryFree(buf);
+    free(buf);
     return true;
 }
 

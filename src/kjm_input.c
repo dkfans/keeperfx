@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#include "bflib_memory.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
@@ -563,7 +562,7 @@ void define_key_input(void)
  */
 void init_key_to_strings(void)
 {
-    LbMemorySet(key_to_string, 0, sizeof(key_to_string));
+    memset(key_to_string, 0, sizeof(key_to_string));
     for (struct KeyToStringInit* ktsi = &key_to_string_init[0]; ktsi->chr != 0; ktsi++)
     {
         long k = ktsi->chr;

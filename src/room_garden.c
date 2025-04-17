@@ -148,7 +148,7 @@ TbBool rectreate_repositioned_food_in_room_on_subtile(struct Room *room, MapSubt
             {
                 rrepos->used--;
                 rrepos->models[ri] = 0;
-                rrepos->explevels[ri] = 0;
+                rrepos->exp_level[ri] = 0;
                 return true;
             }
         }

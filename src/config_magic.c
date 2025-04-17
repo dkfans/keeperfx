@@ -22,7 +22,6 @@
 
 #include "bflib_basics.h"
 #include "bflib_dernc.h"
-#include "bflib_memory.h"
 #include "config.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
@@ -48,28 +47,72 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_magic_file[]="magic.cfg";
+static TbBool load_magic_config_file(const char *fname, unsigned short flags);
+
+const struct ConfigFileData keeper_magic_file_data = {
+    .filename = "magic.cfg",
+    .load_func = load_magic_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
 
 const struct NamedCommand magic_spell_commands[] = {
-  {"NAME",            1},
-  {"DURATION",        2},
-  {"SELFCASTED",      3},
-  {"CASTATTHING",     4},
-  {"SHOTMODEL",       5},
-  {"EFFECTMODEL",     6},
-  {"SYMBOLSPRITES",   7},
-  {"SPELLPOWER",      8},
-  {"AURAEFFECT",      9},
-  {"SPELLFLAGS",     10},
-  {"SUMMONCREATURE", 11},
-  {NULL,              0},
-  };
+    {"NAME",             1},
+    {"DURATION",         2},
+    {"SELFCASTED",       3},
+    {"CASTATTHING",      4},
+    {"SHOTMODEL",        5},
+    {"EFFECTMODEL",      6},
+    {"SYMBOLSPRITES",    7},
+    {"SPELLPOWER",       8},
+    {"AURAEFFECT",       9},
+    {"SPELLFLAGS",      10},
+    {"SUMMONCREATURE",  11},
+    {"COUNTDOWN",       12},
+    {"HEALINGRECOVERY", 13},
+    {"DAMAGE",          14},
+    {"DAMAGEFREQUENCY", 15},
+    {"AURADURATION",    16},
+    {"AURAFREQUENCY",   17},
+    {"CLEANSEFLAGS",    18},
+    {"PROPERTIES",      19},
+    {NULL,               0},
+};
+
+const struct NamedCommand spell_effect_flags[] = {
+    {"SLOW",          CSAfF_Slow},
+    {"SPEED",         CSAfF_Speed},
+    {"ARMOUR",        CSAfF_Armour},
+    {"REBOUND",       CSAfF_Rebound},
+    {"FLYING",        CSAfF_Flying},
+    {"INVISIBILITY",  CSAfF_Invisibility},
+    {"SIGHT",         CSAfF_Sight},
+    {"LIGHT",         CSAfF_Light},
+    {"DISEASE",       CSAfF_Disease},
+    {"CHICKEN",       CSAfF_Chicken},
+    {"POISON_CLOUD",  CSAfF_PoisonCloud},
+    {"FREEZE",        CSAfF_Freeze},
+    {"MAD_KILLING",   CSAfF_MadKilling},
+    {"FEAR",          CSAfF_Fear},
+    {"HEAL",          CSAfF_Heal},
+    {"TELEPORT",      CSAfF_Teleport},
+    {"TIMEBOMB",      CSAfF_Timebomb},
+    {"WIND",          CSAfF_Wind},
+    {NULL,            0},
+};
+
+const struct NamedCommand magic_spell_properties[] = {
+    {"FIXED_DAMAGE",    1},
+    {"PERCENT_BASED",   2},
+    {"MAX_HEALTH",      3},
+    {NULL,              0},
+};
 
 const struct NamedCommand magic_shot_commands[] = {
   {"NAME",                   1},
   {"HEALTH",                 2},
   {"DAMAGE",                 3},
-  {"DAMAGETYPE",             4},
+  {"ISMAGICAL",              4},
   {"HITTYPE",                5},
   {"AREADAMAGE",             6},
   {"SPEED",                  7},
@@ -153,6 +196,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"EFFECT",         21},
   {"USEFUNCTION",    22},
   {"CREATURETYPE",   23},
+  {"COSTFORMULA",    24},
   {NULL,              0},
   };
 
@@ -250,20 +294,6 @@ const struct NamedCommand powermodel_properties_commands[] = {
     {NULL,                0},
 };
 
-const struct NamedCommand shotmodel_damagetype_commands[] = {
-  {"NONE",        DmgT_None},
-  {"PHYSICAL",    DmgT_Physical},
-  {"ELECTRIC",    DmgT_Electric},
-  {"COMBUSTION",  DmgT_Combustion},
-  {"FROSTBITE",   DmgT_Frostbite},
-  {"HEATBURN",    DmgT_Heatburn},
-  {"BIOLOGICAL",  DmgT_Biological},
-  {"MAGICAL",     DmgT_Magical},
-  {"RESPIRATORY", DmgT_Respiratory},
-  {"RESTORATION", DmgT_Restoration},
-  {NULL,          DmgT_None},
-  };
-
 const struct NamedCommand powermodel_expand_check_func_type[] = {
   {"general_expand",           OcC_General_expand},
   {"sight_of_evil_expand",     OcC_SightOfEvil_expand},
@@ -272,27 +302,31 @@ const struct NamedCommand powermodel_expand_check_func_type[] = {
   {NULL,                       OcC_Null},
 };
 
+const struct NamedCommand magic_cost_formula_commands[] = {
+  {"none",       Cost_Default},
+  {"digger",     Cost_Digger},
+  {"dwarf",      Cost_Dwarf},
+};
+
 const struct NamedCommand magic_use_func_commands[] = {
-  {"none",                          0},
-  {"magic_use_power_hand",          1},
-  {"magic_use_power_heal",          2},
-  {"magic_use_power_apply_spell",   3},
-  {"magic_use_power_disease",       4},
-  {"magic_use_power_chicken",       5},
-  {"magic_use_power_slap_thing",    6},
-  {"magic_use_power_possess_thing", 7},
-  {"magic_use_power_call_to_arms",  8},
-  {"magic_use_power_lightning",     9},
-  {"magic_use_power_time_bomb",    10},
-  {"magic_use_power_imp",          11},
-  {"magic_use_power_sight",        12},
-  {"magic_use_power_cave_in",      13},
-  {"magic_use_power_destroy_walls",14},
-  {"magic_use_power_obey",         15},
-  {"magic_use_power_hold_audience",16},
-  {"magic_use_power_armageddon",   17},
-  {NULL,                  0},
-  };
+    {"none",                           0},
+    {"magic_use_power_hand",           1},
+    {"magic_use_power_apply_spell",    2},
+    {"magic_use_power_slap_thing",     3},
+    {"magic_use_power_possess_thing",  4},
+    {"magic_use_power_call_to_arms",   5},
+    {"magic_use_power_lightning",      6},
+    {"magic_use_power_imp",            7},
+    {"magic_use_power_sight",          8},
+    {"magic_use_power_cave_in",        9},
+    {"magic_use_power_destroy_walls", 10},
+    {"magic_use_power_obey",          11},
+    {"magic_use_power_hold_audience", 12},
+    {"magic_use_power_armageddon",    13},
+    {"magic_use_power_tunneller",     14},
+    {NULL,                             0},
+};
+
 
 const Expand_Check_Func powermodel_expand_check_func_list[] = {
   NULL,
@@ -309,22 +343,97 @@ struct NamedCommand shot_desc[MAGIC_ITEMS_MAX];
 struct NamedCommand power_desc[MAGIC_ITEMS_MAX];
 struct NamedCommand special_desc[MAGIC_ITEMS_MAX];
 /******************************************************************************/
+
+static void assign_artifact(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    game.conf.object_conf.object_to_power_artifact[value] = idx;
+}
+
+static void assign_strength_before_last(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    // Old power max is one short for spell max, so duplicate final power value to use for lvl10 creatures.
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    named_field++;
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+}
+
+static const struct NamedField magic_powers_named_fields[] = {
+    //name                     //pos    //field                                                                 //default //min     //max    //NamedCommand
+    {"NAME",           0, field(game.conf.magic_conf.power_cfgstats[0].code_name),              0, LONG_MIN,ULONG_MAX, power_desc,                          value_name,      assign_null},
+    {"POWER",          0, field(game.conf.magic_conf.power_cfgstats[0].strength[0]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          1, field(game.conf.magic_conf.power_cfgstats[0].strength[1]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          2, field(game.conf.magic_conf.power_cfgstats[0].strength[2]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          3, field(game.conf.magic_conf.power_cfgstats[0].strength[3]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          4, field(game.conf.magic_conf.power_cfgstats[0].strength[4]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          5, field(game.conf.magic_conf.power_cfgstats[0].strength[5]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          6, field(game.conf.magic_conf.power_cfgstats[0].strength[6]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          7, field(game.conf.magic_conf.power_cfgstats[0].strength[7]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[8]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_strength_before_last},
+    {"POWER",          8, field(game.conf.magic_conf.power_cfgstats[0].strength[9]),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           0, field(game.conf.magic_conf.power_cfgstats[0].cost[0]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           1, field(game.conf.magic_conf.power_cfgstats[0].cost[1]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           2, field(game.conf.magic_conf.power_cfgstats[0].cost[2]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           3, field(game.conf.magic_conf.power_cfgstats[0].cost[3]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           4, field(game.conf.magic_conf.power_cfgstats[0].cost[4]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           5, field(game.conf.magic_conf.power_cfgstats[0].cost[5]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           6, field(game.conf.magic_conf.power_cfgstats[0].cost[6]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[7]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COST",           7, field(game.conf.magic_conf.power_cfgstats[0].cost[8]),                0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"DURATION",       0, field(game.conf.magic_conf.power_cfgstats[0].duration),               0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"CASTABILITY",   -1, field(game.conf.magic_conf.power_cfgstats[0].can_cast_flags),         0, LONG_MIN,ULONG_MAX, (struct NamedCommand*)powermodel_castability_commands, value_longflagsfield,   assign_default},
+    {"ARTIFACT",       0, field(game.conf.magic_conf.power_cfgstats[0].artifact_model),         0, LONG_MIN,ULONG_MAX, object_desc,                         value_default,   assign_artifact},
+    {"NAMETEXTID",     0, field(game.conf.magic_conf.power_cfgstats[0].name_stridx),            0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"TOOLTIPTEXTID",  0, field(game.conf.magic_conf.power_cfgstats[0].tooltip_stridx),         0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"SYMBOLSPRITES",  0, field(game.conf.magic_conf.power_cfgstats[0].bigsym_sprite_idx),      0, LONG_MIN,ULONG_MAX, NULL,                                value_icon,      assign_icon},
+    {"SYMBOLSPRITES",  1, field(game.conf.magic_conf.power_cfgstats[0].medsym_sprite_idx),      0, LONG_MIN,ULONG_MAX, NULL,                                value_icon,      assign_icon},
+    {"POINTERSPRITES", 0, field(game.conf.magic_conf.power_cfgstats[0].pointer_sprite_idx),     0, LONG_MIN,ULONG_MAX, NULL,                                value_icon,      assign_icon},
+    {"PANELTABINDEX",  0, field(game.conf.magic_conf.power_cfgstats[0].panel_tab_idx),          0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"SOUNDSAMPLES",   0, field(game.conf.magic_conf.power_cfgstats[0].select_sample_idx),      0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"PROPERTIES",     0, field(game.conf.magic_conf.power_cfgstats[0].config_flags),           0, LONG_MIN,ULONG_MAX, powermodel_properties_commands,      value_flagsfield,assign_default},
+    {"CASTEXPANDFUNC", 0, field(game.conf.magic_conf.power_cfgstats[0].overcharge_check_idx),   0, LONG_MIN,ULONG_MAX, powermodel_expand_check_func_type,   value_default,   assign_default},
+    {"PLAYERSTATE",    0, field(game.conf.magic_conf.power_cfgstats[0].work_state),             0, LONG_MIN,ULONG_MAX, player_state_commands,               value_default,   assign_default},
+    {"PARENTPOWER",    0, field(game.conf.magic_conf.power_cfgstats[0].parent_power),           0, LONG_MIN,ULONG_MAX, power_desc,                          value_default,   assign_default},
+    {"SOUNDPLAYED",    0, field(game.conf.magic_conf.power_cfgstats[0].select_sound_idx),       0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"COOLDOWN",       0, field(game.conf.magic_conf.power_cfgstats[0].cast_cooldown),          0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
+    {"SPELL",          0, field(game.conf.magic_conf.power_cfgstats[0].spell_idx),              0, LONG_MIN,ULONG_MAX, spell_desc,                          value_default,   assign_default},
+    {"EFFECT",         0, field(game.conf.magic_conf.power_cfgstats[0].effect_id),              0, LONG_MIN,ULONG_MAX, NULL,                                value_effOrEffEl,assign_default},
+    {"USEFUNCTION",    0, field(game.conf.magic_conf.power_cfgstats[0].magic_use_func_idx),     0, LONG_MIN,ULONG_MAX, magic_use_func_commands,             value_default,   assign_default},
+    {"CREATURETYPE",   0, field(game.conf.magic_conf.power_cfgstats[0].creature_model),         0, LONG_MIN,ULONG_MAX, creature_desc,                       value_default,   assign_default},
+    {"COSTFORMULA",    0, field(game.conf.magic_conf.power_cfgstats[0].cost_formula),           0, LONG_MIN,ULONG_MAX, magic_cost_formula_commands,         value_default,   assign_default},
+    {NULL},
+};
+
+const struct NamedFieldSet magic_powers_named_fields_set = {
+    &game.conf.magic_conf.power_types_count,
+    "power",
+    magic_powers_named_fields,
+    power_desc,
+    MAGIC_ITEMS_MAX,
+    sizeof(game.conf.magic_conf.power_cfgstats[0]),
+    game.conf.magic_conf.power_cfgstats,
+};
+
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
-struct SpellConfig *get_spell_config(int mgc_idx)
+struct SpellConfig *get_spell_config(SpellKind spell_idx)
 {
-  if ((mgc_idx < 0) || (mgc_idx >= game.conf.magic_conf.spell_types_count))
-    return &game.conf.magic_conf.spell_config[0];
-  return &game.conf.magic_conf.spell_config[mgc_idx];
+    if ((spell_idx == 0) || (spell_idx >= game.conf.magic_conf.spell_types_count))
+    {
+        return &game.conf.magic_conf.spell_config[0];
+    }
+    return &game.conf.magic_conf.spell_config[spell_idx];
 }
 
-TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo)
+TbBool spell_config_is_invalid(struct SpellConfig *mgcinfo)
 {
-  if (mgcinfo <= &game.conf.magic_conf.spell_config[0])
-    return true;
-  return false;
+    if (mgcinfo <= &game.conf.magic_conf.spell_config[0])
+    {
+        return true;
+    }
+    return false;
 }
 
 TextStringId get_power_name_strindex(PowerKind pwkind)
@@ -387,13 +496,6 @@ TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst)
   return false;
 }
 
-struct MagicStats *get_power_dynamic_stats(PowerKind pwkind)
-{
-    if (pwkind >= game.conf.magic_conf.power_types_count)
-        return &game.conf.magic_conf.keeper_power_stats[0];
-    return &game.conf.magic_conf.keeper_power_stats[pwkind];
-}
-
 TbBool power_is_instinctive(int pwkind)
 {
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
@@ -414,7 +516,7 @@ short write_magic_shot_to_log(const struct ShotConfigStats *shotst, int num)
 {
   JUSTMSG("[shot%d]",(int)num);
   JUSTMSG("Name = %s",shotst->code_name);
-  JUSTMSG("Values = %d %d",(int)shotst->damage_type,(int)shotst->experience_given_to_shooter);
+  JUSTMSG("Values = %d %d",(int)shotst->is_magical,(int)shotst->experience_given_to_shooter);
   return true;
 }
 
@@ -429,7 +531,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
     {
         if (flag_is_set(flags, CnfLd_ListOnly))
         {
-            LbMemorySet(&spellst->code_name, 0, COMMAND_WORD_LEN);
+            memset(&spellst->code_name, 0, COMMAND_WORD_LEN);
             spell_desc[i].name = spellst->code_name;
             spell_desc[i].num = i;
         }
@@ -447,7 +549,14 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       spconf->crtr_summon_level = 0;
       spconf->crtr_summon_amount = 0;
       spconf->aura_effect = 0;
+      spconf->aura_duration = 0;
+      spconf->aura_frequency = 0;
       spconf->spell_flags = 0;
+      spconf->properties_flags = 0;
+      spconf->countdown = 0;
+      spconf->healing_recovery = 0;
+      spconf->damage = 0;
+      spconf->damage_frequency = 0;
     }
   }
   spell_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
@@ -527,7 +636,13 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               spconf->caster_affect_sound = k;
               n++;
           }
-          if (n < 2)
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              spconf->caster_sounds_count = k;
+              n++;
+          }
+          if (n < 3)
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
@@ -565,20 +680,9 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       case 6: // EFFECTMODEL
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = get_id(effect_desc, word_buf);
-              if (k < 0)
-              {
-                  if (parameter_is_number(word_buf))
-                  {
-                      k = atoi(word_buf);
-                      spconf->cast_effect_model = k;
-                      n++;
-                  }
-              } else
-              {
-                  spconf->cast_effect_model = k;
-                  n++;
-              }
+              k = effect_or_effect_element_id(word_buf);
+              spconf->cast_effect_model = k;
+              n++;
           }
           if (n < 1)
           {
@@ -590,21 +694,17 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       case 7: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              spconf->bigsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              spconf->bigsym_sprite_idx = get_icon_id(word_buf);
+              if (spconf->bigsym_sprite_idx != bad_icon_id)
               {
-                  spconf->bigsym_sprite_idx = k;
                   n++;
               }
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              spconf->medsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
+              spconf->medsym_sprite_idx = get_icon_id(word_buf);
+              if (spconf->medsym_sprite_idx != bad_icon_id)
               {
-                  spconf->medsym_sprite_idx = k;
                   n++;
               }
           }
@@ -640,21 +740,9 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       case 9: // AURAEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              if (parameter_is_number(word_buf))
-              {
-                  k = atoi(word_buf);
-                  spconf->aura_effect = k;
-                  n++;
-              }
-              else
-              {
-                  k = get_id(effect_desc, word_buf);
-                  if (k >= 0)
-                  {
-                      spconf->aura_effect = k;
-                      n++;
-                  }
-              }
+              k = effect_or_effect_element_id(word_buf);
+              spconf->aura_effect = k;
+              n++;
           }
           if (n < 1)
           {
@@ -662,22 +750,42 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 10: // SPELLFLAGS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  spconf->spell_flags = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
+        case 10: // SPELLFLAGS
+            spconf->spell_flags = 0;
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    spconf->spell_flags = k;
+                    n++;
+                }
+                else
+                {
+                    k = get_id(spell_effect_flags, word_buf);
+                    if (k > 0)
+                    {
+                        set_flag(spconf->spell_flags, k);
+                        n++;
+                    }
+                }
+                if (flag_is_set(spconf->spell_flags, CSAfF_PoisonCloud))
+                {
+                    clear_flag(spconf->spell_flags, CSAfF_PoisonCloud);
+                    WARNLOG("'POISON_CLOUD' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
+                }
+                if (flag_is_set(spconf->spell_flags, CSAfF_Wind))
+                {
+                    clear_flag(spconf->spell_flags, CSAfF_Wind);
+                    WARNLOG("'WIND' has no effect on spells, spell flag is not set on %s", spell_code_name(i));
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
         case 11: // SUMMONCREATURE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
@@ -715,6 +823,160 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
+        case 12: // COUNTDOWN
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->countdown = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 13: // HEALINGRECOVERY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->healing_recovery = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 14: // DAMAGE
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->damage = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 15: // DAMAGEFREQUENCY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->damage_frequency = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 16: // AURADURATION
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->aura_duration = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 17: // AURAFREQUENCY
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                spconf->aura_frequency = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 18: // CLEANSEFLAGS
+            spconf->cleanse_flags = 0;
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    spconf->cleanse_flags = k;
+                    n++;
+                }
+                else
+                {
+                    k = get_id(spell_effect_flags, word_buf);
+                    if (k > 0)
+                    {
+                        set_flag(spconf->cleanse_flags, k);
+                        n++;
+                    }
+                }
+                if (flag_is_set(spconf->cleanse_flags, CSAfF_PoisonCloud))
+                {
+                    clear_flag(spconf->cleanse_flags, CSAfF_PoisonCloud);
+                    WARNLOG("'POISON_CLOUD' has no effect on spells, cleanse flag is not set on %s", spell_code_name(i));
+                }
+                if (flag_is_set(spconf->cleanse_flags, CSAfF_Wind))
+                {
+                    clear_flag(spconf->cleanse_flags, CSAfF_Wind);
+                    WARNLOG("'WIND' has no effect on spells, cleanse flag is not set on %s", spell_code_name(i));
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 19: // PROPERTIES
+            spconf->properties_flags = 0;
+            while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                if (parameter_is_number(word_buf))
+                {
+                    k = atoi(word_buf);
+                    spconf->properties_flags = k;
+                    n++;
+                }
+                else
+                {
+                    k = get_id(magic_spell_properties, word_buf);
+                    switch (k)
+                    {
+                        case 1: // FIXED_DAMAGE
+                            set_flag(spconf->properties_flags, SPF_FixedDamage);
+                            n++;
+                            break;
+                        case 2: // PERCENT_BASED
+                            set_flag(spconf->properties_flags, SPF_PercentBased);
+                            n++;
+                            break;
+                        case 3: // MAX_HEALTH
+                            set_flag(spconf->properties_flags, SPF_MaxHealth);
+                            n++;
+                            break;
+                        default:
+                            CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+                            break;
+                    }
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
@@ -741,7 +1003,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
     {
         if (flag_is_set(flags, CnfLd_ListOnly))
         {
-            LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+            memset(shotst->code_name, 0, COMMAND_WORD_LEN);
             shot_desc[i].name = shotst->code_name;
             shot_desc[i].num = i;
         }
@@ -856,20 +1118,17 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
-      case 4: // DAMAGETYPE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+      case 4: // ISMAGICAL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = get_id(shotmodel_damagetype_commands, word_buf);
-              if (k >= 0) {
-                  shotst->damage_type = k;
-                  n++;
-              }
+              k = atoi(word_buf);
+              shotst->is_magical = k;
+              n++;
           }
           if (n < 1)
           {
-              //CONFWRNLOG("Incorrect shot model \"%s\" in [%s] block of %s file.",word_buf,block_buf,config_textname);
-              shotst->damage_type = 0; //Default damage type to "none", to allow empty values in config.
-              break;
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
           }
           break;
       case 5: // HITTYPE
@@ -1118,9 +1377,19 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 16: //SPELLEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
-              shotst->cast_spell_kind = k;
-              n++;
+              if (parameter_is_number(word_buf))
+              {
+                  k = atoi(word_buf);
+              }
+              else
+              {
+                  k = get_id(spell_desc, word_buf);
+              }
+              if (k >= 0)
+              {
+                  shotst->cast_spell_kind = k;
+                  n++;
+              }
           }
           if (n < 1)
           {
@@ -1818,463 +2087,6 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
   return true;
 }
 
-TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  struct PowerConfigStats *powerst;
-  long long k = 0;
-  // Initialize the array
-  for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
-    powerst = &game.conf.magic_conf.power_cfgstats[i];
-    if ((!flag_is_set(flags,CnfLd_AcceptPartial)) || (strlen(powerst->code_name) <= 0))
-    {
-        if (flag_is_set(flags, CnfLd_ListOnly))
-        {
-            LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
-            power_desc[i].name = powerst->code_name;
-            power_desc[i].num = i;
-        }
-      powerst->artifact_model = 0;
-      powerst->can_cast_flags = 0;
-      powerst->config_flags = 0;
-      powerst->overcharge_check_idx = 0;
-      powerst->work_state = 0;
-      powerst->bigsym_sprite_idx = 0;
-      powerst->medsym_sprite_idx = 0;
-      powerst->name_stridx = 0;
-      powerst->tooltip_stridx = 0;
-      powerst->select_sample_idx = 0;
-      powerst->pointer_sprite_idx = 0;
-      powerst->panel_tab_idx = 0;
-      powerst->select_sound_idx = 0;
-      powerst->cast_cooldown = 0;
-    }
-  }
-  if (!flag_is_set(flags, CnfLd_AcceptPartial)) {
-    for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
-        game.conf.object_conf.object_to_power_artifact[i] = 0;
-    }
-  }
-  power_desc[MAGIC_ITEMS_MAX - 1].name = NULL; // must be null for get_id
-  // Load the file
-  const char * blockname = NULL;
-  int blocknamelen = 0;
-  long pos = 0;
-  while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
-  {
-    // look for blocks starting with "power", followed by one or more digits
-    if (blocknamelen < 6) {
-        continue;
-    } else if (memcmp(blockname, "power", 5) != 0) {
-        continue;
-    }
-    const int i = natoi(&blockname[5], blocknamelen - 5);
-    if (i < 0 || i >= MAGIC_ITEMS_MAX) {
-        continue;
-    } else if (i >= game.conf.magic_conf.power_types_count) {
-        game.conf.magic_conf.power_types_count = i + 1;
-    }
-    struct MagicStats* pwrdynst = &game.conf.magic_conf.keeper_power_stats[i];
-    powerst = &game.conf.magic_conf.power_cfgstats[i];
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_power_commands,cmd_num)
-    while (pos<len)
-    {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, magic_power_commands);
-      // Now store the config item in correct place
-      if (cmd_num == ccr_endOfBlock) break; // if next block starts
-      //Do the name when listing, the rest when not listing.
-      if ((flag_is_set(flags, CnfLd_ListOnly) && cmd_num > 1) || (!flag_is_set(flags, CnfLd_ListOnly) && cmd_num <= 1))
-      {
-          cmd_num = ccr_comment;
-      }
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,powerst->code_name,COMMAND_WORD_LEN) <= 0)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-              break;
-          }
-          else
-          {
-              power_desc[i].name = powerst->code_name;
-              power_desc[i].num = i;
-          }
-          break;
-      case 2: // POWER
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (n > SPELL_MAX_LEVEL)
-              {
-                CONFWRNLOG("Too many \"%s\" parameters in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-                break;
-              }
-              pwrdynst->strength[n] = k;
-              n++;
-          }
-          if (n == POWER_MAX_LEVEL+1) // Old power max is one short for spell max, so duplicate final power value to use for lvl10 creatures.
-          {
-              pwrdynst->strength[n] = pwrdynst->strength[n-1];
-          }
-          if (n <= POWER_MAX_LEVEL)
-          {
-              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 3: // COST
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (n > POWER_MAX_LEVEL)
-              {
-                CONFWRNLOG("Too many \"%s\" parameters in [%.*s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-                break;
-              }
-              pwrdynst->cost[n] = k;
-              n++;
-          }
-          if (n <= POWER_MAX_LEVEL)
-          {
-              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 4: // Duration
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              pwrdynst->duration = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 5: // CASTABILITY
-          powerst->can_cast_flags = 0;
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = get_long_id(powermodel_castability_commands, word_buf);
-              if ((k != 0) && (k != -1))
-              {
-                  powerst->can_cast_flags |= k;
-                  n++;
-              } else
-              {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
-                      COMMAND_TEXT(cmd_num),word_buf, blocknamelen, blockname, config_textname);
-              }
-          }
-          break;
-      case 6: // ARTIFACT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = get_id(object_desc, word_buf);
-              if (k >= 0) {
-                  powerst->artifact_model = k;
-                  game.conf.object_conf.object_to_power_artifact[k] = i;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect object model \"%s\" in [%.*s] block of %s file.",
-                  word_buf, blocknamelen, blockname, config_textname);
-              break;
-          }
-          break;
-      case 7: // NAMETEXTID
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              powerst->name_stridx = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 8: // TOOLTIPTEXTID
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              powerst->tooltip_stridx = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 10: // SYMBOLSPRITES
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              powerst->bigsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
-              {
-                  powerst->bigsym_sprite_idx = k;
-                  n++;
-              }
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              powerst->medsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
-              {
-                  powerst->medsym_sprite_idx = k;
-                  n++;
-              }
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 11: // POINTERSPRITES
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = get_icon_id(word_buf);
-              if (k >= 0)
-              {
-                  powerst->pointer_sprite_idx = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              powerst->pointer_sprite_idx = bad_icon_id;
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 12: // PANELTABINDEX
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (k >= 0)
-            {
-                powerst->panel_tab_idx = k;
-                n++;
-            }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 13: // SOUNDSAMPLES
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (k >= 0)
-            {
-                powerst->select_sample_idx = k;
-                n++;
-            }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 14: // PROPERTIES
-          powerst->config_flags = 0;
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = get_id(powermodel_properties_commands, word_buf);
-              if (k > 0) {
-                  powerst->config_flags |= k;
-                  n++;
-              } else {
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%.*s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), word_buf, blocknamelen, blockname, config_textname);
-              }
-          }
-          break;
-      case 15: // CASTEXPANDFUNC
-          powerst->overcharge_check_idx = 0;
-          k = recognize_conf_parameter(buf,&pos,len,powermodel_expand_check_func_type);
-          if (k > 0)
-          {
-              powerst->overcharge_check_idx = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 16: // PLAYERSTATE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = get_id(player_state_commands, word_buf);
-              if (k >= 0) {
-                  powerst->work_state = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect player state \"%s\" in [%.*s] block of %s file.",
-                  word_buf, blocknamelen, blockname,config_textname);
-              break;
-          }
-          break;
-      case 17: // PARENTPOWER
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = get_id(power_desc, word_buf);
-              if (k >= 0) {
-                  powerst->parent_power = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect Keeper Power \"%s\" in [%.*s] block of %s file.",
-                  word_buf, blocknamelen, blockname,config_textname);
-              break;
-          }
-          break;
-      case 18: //SOUNDPLAYED
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  powerst->select_sound_idx = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 19: //COOLDOWN
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  powerst->cast_cooldown = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 20: //SPELL
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = get_id(spell_desc,word_buf);
-              if (k >= 0)
-              {
-                  powerst->spell_idx = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 21: //EFFECT
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = effect_or_effect_element_id(word_buf);
-              powerst->effect_id = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 22: //USEFUNCTION
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = get_id(magic_use_func_commands,word_buf);
-              if (k >= 0)
-              {
-                  powerst->magic_use_func_idx = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case 23: //CREATURETYPE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = get_id(creature_desc,word_buf);
-              if (k >= 0)
-              {
-                  powerst->creature_model = k;
-                  n++;
-              }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%.*s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
-          }
-          break;
-      case ccr_comment:
-          break;
-      case ccr_endOfFile:
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%.*s] block of %s file.",
-              cmd_num, blocknamelen, blockname, config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-  }
-  if ((flags & CnfLd_ListOnly) == 0)
-  {
-    // Mark powers which have children
-    for (int i = 0; i < game.conf.magic_conf.power_types_count; i++)
-    {
-        powerst = get_power_model_stats(i);
-        struct PowerConfigStats* parent_powerst = get_power_model_stats(powerst->parent_power);
-        if (!power_model_stats_invalid(parent_powerst)) {
-            parent_powerst->config_flags |= PwCF_IsParent;
-        }
-    }
-  }
-  return true;
-}
-
 TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct SpecialConfigStats *specst;
@@ -2283,7 +2095,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
   if ((flags & CnfLd_AcceptPartial) == 0) {
       for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
           specst = &game.conf.magic_conf.special_cfgstats[i];
-          LbMemorySet(specst->code_name, 0, COMMAND_WORD_LEN);
+          memset(specst->code_name, 0, COMMAND_WORD_LEN);
           specst->artifact_model = 0;
           specst->tooltip_stridx = 0;
           special_desc[i].name = specst->code_name;
@@ -2421,23 +2233,28 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
   return true;
 }
 
-TbBool load_magic_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_magic_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
-    
+
+   if (!flag_is_set(flags, CnfLd_AcceptPartial)) {
+       for (int i = 0; i < MAGIC_ITEMS_MAX; i++) {
+           game.conf.object_conf.object_to_power_artifact[i] = 0;
+       }
+    }
+
     game.conf.magic_conf.spell_types_count = MAGIC_ITEMS_MAX;
     game.conf.magic_conf.shot_types_count = MAGIC_ITEMS_MAX;
-    game.conf.magic_conf.power_types_count = MAGIC_ITEMS_MAX;
     game.conf.magic_conf.special_types_count = MAGIC_ITEMS_MAX;
 
     // Loading file data
@@ -2446,59 +2263,29 @@ TbBool load_magic_config_file(const char *textname, const char *fname, unsigned 
     // Parse blocks of the config file
     if (result)
     {
-        result = parse_magic_spell_blocks(buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" spell blocks failed.",textname,fname);
+        parse_magic_spell_blocks(buf, len, fname, flags);
+        parse_magic_shot_blocks(buf, len, fname, flags);
+        parse_named_field_blocks(buf, len, fname, flags, &magic_powers_named_fields_set);
+        parse_magic_special_blocks(buf, len, fname, flags);
     }
-    if (result)
-    {
-        result = parse_magic_shot_blocks(buf, len, fname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" shot blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-      result = parse_magic_power_blocks(buf, len, fname, flags);
-      if ((flags & CnfLd_AcceptPartial) != 0)
-          result = true;
-      if (!result)
-          WARNMSG("Parsing %s file \"%s\" power blocks failed.",fname,fname);
-    }
-    if (result)
-    {
-      result = parse_magic_special_blocks(buf, len, fname, flags);
-      if ((flags & CnfLd_AcceptPartial) != 0)
-          result = true;
-      if (!result)
-          WARNMSG("Parsing %s file \"%s\" special blocks failed.",textname,fname);
-    }
-    //Freeing and exiting
-    LbMemoryFree(buf);
-    return result;
-}
 
-TbBool load_magic_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global magic config";
-    static const char config_campgn_textname[] = "campaign magic config";
-    static const char config_level_textname[] = "level magic config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_magic_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
+
+    if ((flags & CnfLd_ListOnly) == 0)
     {
-        load_magic_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+      // Mark powers which have children
+      for (int i = 0; i < game.conf.magic_conf.power_types_count; i++)
+      {
+        struct PowerConfigStats *powerst = get_power_model_stats(i);
+          struct PowerConfigStats* parent_powerst = get_power_model_stats(powerst->parent_power);
+          if (!power_model_stats_invalid(parent_powerst)) {
+              parent_powerst->config_flags |= PwCF_IsParent;
+          }
+      }
     }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_magic_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
+
+
     //Freeing and exiting
+    free(buf);
     return result;
 }
 
@@ -2639,9 +2426,9 @@ TbBool make_all_powers_cost_free(void)
 {
     for (long i = 0; i < game.conf.magic_conf.power_types_count; i++)
     {
-        struct MagicStats* pwrdynst = get_power_dynamic_stats(i);
+        struct PowerConfigStats * powerst = get_power_model_stats(i);
         for (long n = 0; n < MAGIC_OVERCHARGE_LEVELS; n++)
-            pwrdynst->cost[n] = 0;
+            powerst->cost[n] = 0;
   }
   return true;
 }

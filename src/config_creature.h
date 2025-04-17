@@ -41,77 +41,78 @@ extern "C" {
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
 /******************************************************************************/
 enum CreatureModelFlags {
-    CMF_IsSpecDigger     = 0x000001, // Imp and Tunneller.
-    CMF_IsArachnid       = 0x000002, // Simply, Spider.
-    CMF_IsDiptera        = 0x000004, // Simply, Fly.
-    CMF_IsLordOfLand     = 0x000008, // Simply, Knight and Avatar.
-    CMF_IsSpectator      = 0x000010, // Simply, Floating Spirit.
-    CMF_IsEvil           = 0x000020, // All evil creatures.
-    CMF_NeverChickens    = 0x000040, // Cannot be affected by Chicken (for Avatar).
-    CMF_ImmuneToBoulder  = 0x000080, // Boulder traps are destroyed at the moment they touch the creature.
-    CMF_NoCorpseRotting  = 0x000100, // Corpse cannot rot in graveyard.
-    CMF_NoEnmHeartAttack = 0x000200, // Creature will not attack enemy heart on sight.
-    CMF_Trembling        = 0x000400, // Creature causes ground to tremble when dropped.
-    CMF_Female           = 0x000800, // Creature is female.
-    CMF_Insect           = 0x001000, // Creature is kind of insect.
-    CMF_OneOfKind        = 0x002000, // Only one creature of that kind may exist on one level. Unit name is type name.
-    CMF_NoImprisonment   = 0x004000, // Creature will not faint.
-    CMF_NeverSick        = 0x008000, // Creature will not get disease.
-    CMF_NoResurrect      = 0x010000, // Creature will not resurrect.
-    CMF_NoTransfer       = 0x020000, // Creature cannot be transferred.
-    CMF_Fat              = 0x040000, // Creature too fat to walk a full animation.
-    CMF_NoStealHero      = 0x080000, // Prevent the creature from being stolen with the Steal Hero special.
-    CMF_PreferSteal      = 0x100000, // The creature can be generated from Steal Hero special if there's nothing to steal.
+    CMF_IsSpecDigger      = 0x000001, // is a dedicated digger that doesn't do things normal units do (like imp)
+    CMF_IsArachnid        = 0x000002, // Simply, Spider.
+    CMF_IsDiptera         = 0x000004, // Simply, Fly.
+    CMF_IsLordOfLand      = 0x000008, // Simply, Knight and Avatar.
+    CMF_IsSpectator       = 0x000010, // Simply, Floating Spirit.
+    CMF_IsEvil            = 0x000020, // All evil creatures.
+    CMF_ImmuneToBoulder   = 0x000040, // Boulder traps are destroyed at the moment they touch the creature.
+    CMF_NoCorpseRotting   = 0x000080, // Corpse cannot rot in graveyard.
+    CMF_NoEnmHeartAttack  = 0x000100, // Creature will not attack enemy heart on sight.
+    CMF_Trembling         = 0x000200, // Creature causes ground to tremble when dropped.
+    CMF_Fat               = 0x000400, // Creature too fat to walk a full animation.
+    CMF_Female            = 0x000800, // Creature is female.
+    CMF_Insect            = 0x001000, // Creature is kind of insect.
+    CMF_OneOfKind         = 0x002000, // Only one creature of that kind may exist on one level. Unit name is type name.
+    CMF_NoImprisonment    = 0x004000, // Creature will not faint.
+    CMF_NoResurrect       = 0x008000, // Creature will not resurrect.
+    CMF_NoTransfer        = 0x010000, // Creature cannot be transferred.
+    CMF_NoStealHero       = 0x020000, // Prevent the creature from being stolen with the Steal Hero special.
+    CMF_PreferSteal       = 0x040000, // The creature can be generated from Steal Hero special if there's nothing to steal.
+    CMF_EventfulDeath     = 0x080000, // The LAST_DEATH_EVENT[] script location is updated on death.
+    CMF_IsDiggingCreature = 0x100000, // unit still counts as a regular creature but can also do digger tasks (like tunneler)
 };
 
-enum CreatureJobFlags {
-    Job_NULL             = 0LL,
-    Job_TUNNEL           = 1LL<<0,
-    Job_DIG              = 1LL<<1,
-    Job_RESEARCH         = 1LL<<2,
-    Job_TRAIN            = 1LL<<3,
-    Job_MANUFACTURE      = 1LL<<4,
-    Job_SCAVENGE         = 1LL<<5,
-    Job_KINKY_TORTURE    = 1LL<<6,
-    Job_JOIN_FIGHT       = 1LL<<7,
-    Job_SEEK_THE_ENEMY   = 1LL<<8,
-    Job_GUARD            = 1LL<<9,
-    Job_GROUP            = 1LL<<10, //This job doesn't do anything, to be implemented.
-    Job_BARRACK          = 1LL<<11,
-    Job_TEMPLE_PRAY      = 1LL<<12,
-    Job_FREEZE_PRISONERS = 1LL<<13,
-    Job_EXPLORE          = 1LL<<14,
-    // Jobs which can't be assigned to a creature, are only working one time
-    Job_EXEMPT           = 1LL<<15,
-    Job_TEMPLE_SACRIFICE = 1LL<<16,
-    Job_PAINFUL_TORTURE  = 1LL<<17,
-    Job_CAPTIVITY        = 1LL<<18,
-    Job_PLACE_IN_VAULT   = 1LL<<19,
-    Job_TAKE_SALARY      = 1LL<<20,
-    Job_TAKE_FEED        = 1LL<<21,
-    Job_TAKE_SLEEP       = 1LL<<22,
-    //TODO Nonexisting - TO ADD LATER - digger jobs
-    Job_MINE             = 1LL<<23,
-    Job_CONVERT_GROUND   = 1LL<<24,
-    Job_IMPROVE_GROUND   = 1LL<<25,
-    Job_REINFORCE_WALL   = 1LL<<26,
-    //TODO Nonexisting - TO ADD LATER - anger jobs
-    Job_KILL_OWN_CREATURE= 1LL<<27,
-    Job_DESTROY_OWN_ROOM = 1LL<<28,
-    Job_LEAVE_DUNGEON    = 1LL<<29,
-    Job_STEAL_OWN_GOLD   = 1LL<<30,
-    Job_DAMAGE_OWN_WALLS = 1LL<<31,
-    Job_MAD_PSYCHO       = 1LL<<32,
-    Job_PERSUADE_LEAVE   = 1LL<<33,
-    Job_JOIN_ENEMY       = 1LL<<34,
-    //TODO Nonexisting - TO ADD LATER - hero objectives
-    Job_ATTACK_ROOM      = 1LL<<35,
-    Job_ATTACK_CREATURE  = 1LL<<36,
-    Job_ATTACK_DNHEART   = 1LL<<37,
-    Job_STEAL_GOLD       = 1LL<<38,
-    Job_STEAL_SPELLS     = 1LL<<39,
-    Job_DEFEND_PARTY     = 1LL<<40,
-};
+// Before C23 standard, we cannot specify the underlaying type (in this case we want 64bit int) of enum.
+// Some compilers may handle it well but some may not. We use #define to avoid the portability issue.
+// Refer https://open-std.org/JTC1/SC22/WG14/www/docs/n3030.htm
+#define Job_NULL                (0LL)
+#define Job_TUNNEL              (1LL << 0)
+#define Job_DIG                 (1LL << 1)
+#define Job_RESEARCH            (1LL << 2)
+#define Job_TRAIN               (1LL << 3)
+#define Job_MANUFACTURE         (1LL << 4)
+#define Job_SCAVENGE            (1LL << 5)
+#define Job_KINKY_TORTURE       (1LL << 6)
+#define Job_JOIN_FIGHT          (1LL << 7)
+#define Job_SEEK_THE_ENEMY      (1LL << 8)
+#define Job_GUARD               (1LL << 9)
+#define Job_GROUP               (1LL << 10) //This job doesn't do anything, to be implemented.
+#define Job_BARRACK             (1LL << 11)
+#define Job_TEMPLE_PRAY         (1LL << 12)
+#define Job_FREEZE_PRISONERS    (1LL << 13)
+#define Job_EXPLORE             (1LL << 14)
+// Jobs which can't be assigned to a creature, are only working one time
+#define Job_EXEMPT              (1LL << 15)
+#define Job_TEMPLE_SACRIFICE    (1LL << 16)
+#define Job_PAINFUL_TORTURE     (1LL << 17)
+#define Job_CAPTIVITY           (1LL << 18)
+#define Job_PLACE_IN_VAULT      (1LL << 19)
+#define Job_TAKE_SALARY         (1LL << 20)
+#define Job_TAKE_FEED           (1LL << 21)
+#define Job_TAKE_SLEEP          (1LL << 22)
+//TODO Nonexisting - TO ADD LATER - digger jobs
+#define Job_MINE                (1LL << 23)
+#define Job_CONVERT_GROUND      (1LL << 24)
+#define Job_IMPROVE_GROUND      (1LL << 25)
+#define Job_REINFORCE_WALL      (1LL << 26)
+//TODO Nonexisting - TO ADD LATER - anger jobs
+#define Job_KILL_OWN_CREATURE   (1LL << 27)
+#define Job_DESTROY_OWN_ROOM    (1LL << 28)
+#define Job_LEAVE_DUNGEON       (1LL << 29)
+#define Job_STEAL_OWN_GOLD      (1LL << 30)
+#define Job_DAMAGE_OWN_WALLS    (1LL << 31)
+#define Job_MAD_PSYCHO          (1LL << 32)
+#define Job_PERSUADE_LEAVE      (1LL << 33)
+#define Job_JOIN_ENEMY          (1LL << 34)
+//TODO Nonexisting - TO ADD LATER - hero objectives
+#define Job_ATTACK_ROOM         (1LL << 35)
+#define Job_ATTACK_CREATURE     (1LL << 36)
+#define Job_ATTACK_DNHEART      (1LL << 37)
+#define Job_STEAL_GOLD          (1LL << 38)
+#define Job_STEAL_SPELLS        (1LL << 39)
+#define Job_DEFEND_PARTY        (1LL << 40)
 
 enum JobKindFlags {
     JoKF_None                   = 0x00000000,
@@ -167,6 +168,14 @@ enum CreatureAttackType {
     AttckT_Unset = 0,
     AttckT_Melee,
     AttckT_Ranged,
+};
+
+enum CreatureSpawnType {
+    SpwnT_None = 0,
+    SpwnT_Default, 
+    SpwnT_Jump,
+    SpwnT_Fall,
+    SpwnT_Initialize
 };
 
 /******************************************************************************/
@@ -260,37 +269,44 @@ struct CreatureConfig {
 };
 
 /******************************************************************************/
-extern const char keeper_creaturetp_file[];
+extern const struct ConfigFileData keeper_creaturetp_file_data;
 extern struct NamedCommand creature_desc[];
 extern struct NamedCommand angerjob_desc[];
 extern struct NamedCommand creaturejob_desc[];
 extern struct NamedCommand attackpref_desc[];
 extern struct NamedCommand instance_desc[];
+extern struct NamedCommand lenses_desc[];
 extern const struct NamedCommand creatmodel_attributes_commands[];
 extern const struct NamedCommand creatmodel_jobs_commands[];
 extern const struct NamedCommand creatmodel_attraction_commands[];
 extern const struct NamedCommand creatmodel_sounds_commands[];
 extern const struct NamedCommand creatmodel_sprite_commands[];
 extern const struct NamedCommand creature_graphics_desc[];
+extern const struct NamedCommand creatmodel_annoyance_commands[];
+extern const struct NamedCommand creatmodel_experience_commands[];
+extern const struct NamedCommand creatmodel_senses_commands[];
+extern const struct NamedCommand creatmodel_appearance_commands[];
+extern const struct NamedCommand creature_deathkind_desc[];
+extern const struct NamedCommand spawn_type_desc[];
 extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
 void check_and_auto_fix_stats(void);
+void init_creature_model_stats(void);
 void init_creature_model_graphics(void);
 const char *creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
 const char *creature_own_name(const struct Thing *creatng);
 TbBool is_creature_model_wildcard(ThingModel crmodel);
 /******************************************************************************/
-TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags);
-/******************************************************************************/
 unsigned long get_creature_model_flags(const struct Thing *thing);
 TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long can_be_avail, long force_avail);
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx);
 ThingModel get_players_spectator_model(PlayerNumber plyr_idx);
 ThingModel get_creature_model_with_model_flags(unsigned long needflags);
+void update_players_special_digger_model(PlayerNumber plyr_idx, ThingModel new_dig_model);
 /******************************************************************************/
 struct CreatureInstanceConfig *get_config_for_instance(CrInstance inst_id);
 const char *creature_instance_code_name(CrInstance inst_id);

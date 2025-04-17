@@ -150,6 +150,13 @@ struct PurpleDrawItem {
         unsigned short Flags;
 };
 
+struct TbSourceBuffer {
+        const void * data;
+        unsigned long width;
+        unsigned long height;
+        unsigned long pitch;
+};
+
 /******************************************************************************/
 extern unsigned char *poly_screen;
 extern unsigned char *vec_screen;
@@ -161,7 +168,6 @@ extern unsigned char *dither_map;
 extern unsigned char *dither_end;
 extern unsigned char *lbSpriteReMapPtr;
 extern long scale_up;
-extern long alpha_scale_up;
 
 #pragma pack()
 
@@ -171,16 +177,16 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
 
 void LbDrawPixel(long x, long y, TbPixel colour);
 void LbDrawCircle(long x, long y, long radius, TbPixel colour);
-TbResult LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour);
 
 void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
         unsigned int line_len, unsigned int width, unsigned int height);
-TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSprite *sprite);
-TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct TbSprite *sprite, const TbPixel *cmap);
+void setup_steps(long posx, long posy, const struct TbSourceBuffer * src_buf, long **xstep, long **ystep, int *scanline);
+void setup_outbuf(const long *xstep, const long *ystep, uchar **outbuf, int *outheight);
+TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSourceBuffer *);
+TbResult LbSpriteDrawRemapUsingScalingData(long posx, long posy, const struct TbSourceBuffer *, const TbPixel *cmap);
 TbResult LbSpriteDrawOneColourUsingScalingData(long posx, long posy, const struct TbSprite *sprite, TbPixel colour);
 void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight);
-TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite);
-void SetAlphaScalingData(long a1, long a2, long a3, long a4, long a5, long a6);
+TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, const struct TbSourceBuffer *);
 void LbSpriteSetScalingWidthSimpleArray(long * xsteps_arr, long x, long swidth, long dwidth);
 void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth, long dwidth, long gwidth);
 void LbSpriteSetScalingHeightSimpleArray(long * ysteps_arr, long y, long sheight, long dheight);
@@ -201,6 +207,9 @@ TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
     unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift, int units_per_px);
 void LbTiledSpriteDraw(long x, long y, long units_per_px, struct TiledSprite *bigspr);
 int LbTiledSpriteHeight(struct TiledSprite *bigspr);
+
+// mspointer needs this for some reason
+TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSourceBuffer * src_buf);
 
 /******************************************************************************/
 #ifdef __cplusplus

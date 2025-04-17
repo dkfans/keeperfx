@@ -89,7 +89,7 @@ TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
 short cleanup_prison(struct Thing *thing)
 {
   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-  cctrl->flgfield_1 &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_Unknown08 | CCFlg_Unknown10 | CCFlg_IsInRoomList | CCFlg_Unknown40 | CCFlg_Unknown80);
+  cctrl->flgfield_1 &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_Unknown08 | CCFlg_Unknown10 | CCFlg_IsInRoomList | CCFlg_MoveX | CCFlg_MoveY);
   state_cleanup_in_room(thing);
   return 1;
 }
@@ -108,7 +108,7 @@ short creature_arrived_at_prison(struct Thing *creatng)
     }
     if (!add_creature_to_work_room(creatng, room, Job_CAPTIVITY))
     {
-        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
+        output_room_message(room->owner, room->kind, OMsg_RoomTooSmall);
         cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         set_start_state(creatng);
         return 0;
@@ -118,11 +118,13 @@ short creature_arrived_at_prison(struct Thing *creatng)
     cctrl->imprison.last_mood_sound_turn = game.play_gameturn;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     internal_set_thing_state(creatng, get_continue_state_for_job(Job_CAPTIVITY));
-    if (creature_affected_by_spell(creatng, SplK_Speed)) {
-        terminate_thing_spell_effect(creatng, SplK_Speed);
+    if (creature_under_spell_effect(creatng, CSAfF_Speed))
+    {
+        clean_spell_effect(creatng, CSAfF_Speed);
     }
-    if (creature_affected_by_spell(creatng, SplK_Invisibility)) {
-        terminate_thing_spell_effect(creatng, SplK_Invisibility);
+    if (creature_under_spell_effect(creatng, CSAfF_Invisibility))
+    {
+        clean_spell_effect(creatng, CSAfF_Invisibility);
     }
     if (creatng->light_id != 0) {
         light_delete_light(creatng->light_id);
@@ -162,7 +164,7 @@ short creature_drop_body_in_prison(struct Thing *thing)
 
 }
 
-struct Thing *find_prisoner_for_thing(struct Thing *creatng)
+struct Thing *find_prisoner_to_freeze(struct Thing *creatng, SpellKind spell_idx)
 {
     long i;
     TRACE_THING(creatng);
@@ -194,15 +196,15 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
         if (out_delay < 0)
         {
             // If we have a victim which isn't frozen, accept only other unfrozen creatures
-            if ((dist <= LONG_MAX) && !creature_affected_by_spell(thing, SplK_Freeze)) {
+            if ((dist <= LONG_MAX) && !creature_under_spell_effect(thing, CSAfF_Freeze)) {
                 out_creatng = thing;
                 out_delay = -1;
             }
         } else
-        if (creature_affected_by_spell(thing, SplK_Freeze))
+        if (creature_under_spell_effect(thing, CSAfF_Freeze))
         {
             // If the victim is frozen, select one which will unfreeze sooner
-            long durt = get_spell_duration_left_on_thing(thing, SplK_Freeze);
+            long durt = get_spell_duration_left_on_thing(thing, spell_idx);
             if ((durt > 0) && (out_delay > durt)) {
                 out_creatng = thing;
                 out_delay = durt;
@@ -230,14 +232,22 @@ short creature_freeze_prisoners(struct Thing *creatng)
     if (cctrl->instance_id != CrInst_NULL) {
         return 1;
     }
-    if (!creature_instance_has_reset(creatng, CrInst_FREEZE))
+    // Look for an available instance that can freeze.
+    CrInstance inst_idx = get_available_instance_with_spell_effect(creatng, CSAfF_Freeze);
+    if (inst_idx == CrInst_NULL)
+    {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (!creature_instance_has_reset(creatng, inst_idx))
     {
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
             creatng->continue_state = CrSt_CreatureFreezePrisoners;
         }
         return 1;
     }
-    struct Thing* victng = find_prisoner_for_thing(creatng);
+    SpellKind spell_idx = get_spell_kind_from_instance(inst_idx);
+    struct Thing *victng = find_prisoner_to_freeze(creatng, spell_idx);
     if (thing_is_invalid(victng)) {
         set_start_state(creatng);
         return 0;
@@ -248,7 +258,7 @@ short creature_freeze_prisoners(struct Thing *creatng)
     } else
     if ((dist <= 2048) && (creature_can_see_combat_path(creatng, victng, dist)))
     {
-        set_creature_instance(creatng, CrInst_FREEZE, victng->index, 0);
+        set_creature_instance(creatng, inst_idx, victng->index, 0);
     } else
     {
         creature_move_to(creatng, &victng->mappos, cctrl->max_speed, 0, 0);
@@ -296,7 +306,7 @@ CrStateRet creature_in_prison(struct Thing *thing)
     }
     if (room->used_capacity > room->total_capacity)
     {
-        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
+        output_room_message(room->owner, room->kind, OMsg_RoomTooSmall);
         set_start_state(thing);
         return CrStRet_ResetOk;
     }
@@ -331,7 +341,7 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
             ERRORLOG("Couldn't create creature %s in prison", creature_code_name(crmodel));
             return false;
         }
-        init_creature_level(crthing, cctrl->explevel);
+        init_creature_level(crthing, cctrl->exp_level);
         set_start_state(crthing);
         struct Dungeon* dungeon = get_dungeon(room->owner);
         if (!dungeon_invalid(dungeon)) {
@@ -363,7 +373,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
     {
         if (is_my_player_number(room->owner))
         {
-            output_message(SMsg_PrisonMadeSkeleton, 0, true);
+            output_message(SMsg_PrisonMadeSkeleton, 0);
         }
     }
     return true; // Return true even if no skeleton could be created due to creature limit. Otherwise there's a confusing sound message. 
@@ -371,13 +381,12 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
 
 void food_set_wait_to_be_eaten(struct Thing *thing)
 {
-
     TRACE_THING(thing);
-    if ( thing_is_creature(thing) )
+    if (thing_is_creature(thing))
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        cctrl->stateblock_flags |= CCSpl_ChickenRel;
+        set_flag(cctrl->stateblock_flags, CCSpl_ChickenRel);
     }
     else
     {
@@ -458,7 +467,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
     {
         if (is_my_player_number(room->owner))
         {
-            output_message(SMsg_PrisonersStarving, MESSAGE_DELAY_STARVING, 1);
+            output_message(SMsg_PrisonersStarving, MESSAGE_DURATION_STARVING);
         }
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -472,10 +481,10 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         if (jailbreak_possible(room, creatng->owner) && (CREATURE_RANDOM(creatng, 100) < game.conf.rules.rooms.prison_break_chance))
         {
             if (is_my_player_number(room->owner)) {
-                output_message(SMsg_PrisonersEscaping, 40, true);
+                output_message(SMsg_PrisonersEscaping, 40);
             }
             else if (is_my_player_number(room->owner)) {
-                output_message(SMsg_CreatrFreedPrison, 40, true);
+                output_message(SMsg_CreatrFreedPrison, 40);
             }
             set_start_state(creatng);
             return CrCkRet_Continue;

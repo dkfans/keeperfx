@@ -22,7 +22,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "config_terrain.h"
@@ -359,7 +358,7 @@ void init_navigation_map(void)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    LbMemorySet(game.navigation_map, 0, sizeof(NavColour)*gameadd.navigation_map_size_x*gameadd.navigation_map_size_y);
+    memset(game.navigation_map, 0, sizeof(NavColour)*gameadd.navigation_map_size_x*gameadd.navigation_map_size_y);
     for (stl_y=0; stl_y < gameadd.navigation_map_size_y; stl_y++)
     {
         for (stl_x=0; stl_x < gameadd.navigation_map_size_x; stl_x++)
@@ -2671,7 +2670,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
     long nav_sizexy;
     NAVIDBG(18,"%s: The %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(thing), (int)thing->index,
         (int)srcpos->x.stl.num, (int)srcpos->y.stl.num, (int)dstpos->x.stl.num, (int)dstpos->y.stl.num);
-    LbMemorySet(&path, 0, sizeof(struct Path));
+    memset(&path, 0, sizeof(struct Path));
     // Set the required parameters
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
     if ((flags & AridRtF_NoOwner) != 0)
@@ -2747,7 +2746,7 @@ long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *t
     long nav_sizexy;
     NAVIDBG(18,"%s: The %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(thing), (int)thing->index,
         (int)srcpos->x.stl.num, (int)srcpos->y.stl.num, (int)dstpos->x.stl.num, (int)dstpos->y.stl.num);
-    LbMemorySet(&path, 0, sizeof(struct Path));
+    memset(&path, 0, sizeof(struct Path));
     // Set the required parameters
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
     if ((flags & AridRtF_NoOwner) != 0)
@@ -2774,7 +2773,7 @@ AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing)
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     arid = &cctrl->arid;
-    LbMemorySet(arid, 0, sizeof(struct Ariadne));
+    memset(arid, 0, sizeof(struct Ariadne));
     return AridRet_OK;
 }
 
@@ -2788,7 +2787,7 @@ AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const str
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     arid = &cctrl->arid;
-    LbMemorySet(arid, 0, sizeof(struct Ariadne));
+    memset(arid, 0, sizeof(struct Ariadne));
     if (ariadne_creature_reached_position(thing, pos))
     {
         ret = ariadne_prepare_creature_route_target_reached(thing, arid, &thing->mappos, pos);

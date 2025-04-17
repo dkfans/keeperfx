@@ -22,9 +22,9 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "bflib_planar.h"
 
+#include "cursor_tag.h"
 #include "thing_data.h"
 #include "creature_states_combt.h"
 #include "config_creature.h"
@@ -33,7 +33,7 @@
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_shots.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "room_util.h"
@@ -46,6 +46,7 @@
 #include "keeperfx.hpp"
 #include "creature_senses.h"
 #include "cursor_tag.h"
+#include "player_instances.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -166,6 +167,11 @@ TbBool slab_middle_column_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return false;
 }
 
+/**
+ * Check if thing is a trap and what the destructible property is.
+ * @param thing The thing being checked.
+ * @returns -2 for not an active trap, -1 to be totally indestructible, 0 to be indistructible except for units with disarm trap ability and 1 for destructible.
+ */
 short thing_is_destructible_trap(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
@@ -478,6 +484,8 @@ void activate_trap_effect_on_trap(struct Thing *traptng)
     if (!thing_is_invalid(efftng)) 
     {
         efftng->shot_effect.hit_type = trapst->hit_type;
+        efftng->shot_effect.parent_class_id = TCls_Trap;
+        efftng->shot_effect.parent_model = traptng->model;
         efftng->parent_idx = traptng->index;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
     }
@@ -503,7 +511,7 @@ void activate_trap_shot_on_trap(struct Thing *traptng)
     struct Thing* shotng = create_shot(&shot_origin, trapst->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng)) {
         shotng->shot.hit_type = trapst->hit_type;
-        shotng->parent_idx = 0;
+        shotng->parent_idx = traptng->index;
         shotng->veloc_push_add.x.val += trapst->shotvector.x;
         shotng->veloc_push_add.y.val += trapst->shotvector.y;
         shotng->veloc_push_add.z.val += trapst->shotvector.z;
@@ -538,7 +546,6 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
     }
     struct Thing* thing;
     struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
-    struct CreatureControl* cctrl;
     struct Coord3d shot_origin;
     shot_origin.x.val = traptng->mappos.x.val;
     shot_origin.y.val = traptng->mappos.y.val;
@@ -553,6 +560,8 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
     {
         return thing;
     }
+    init_creature_level(thing, trapst->activation_level);
+    
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
     // Try to move thing out of the solid wall if it's inside one.
     if (thing_in_wall_at(thing, &thing->mappos))
@@ -561,35 +570,19 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
         delete_thing_structure(thing, 0);
         return INVALID_THING;
     }
-    cctrl = creature_control_get_from_thing(thing);
     thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 0;
-    thing->state_flags |= TF1_PushAdd;
-    cctrl->spell_flags |= CSAfF_MagicFall;
+    set_flag(thing->state_flags, TF1_PushAdd);
+    set_flag(thing->movement_flags, TMvF_MagicFall);
     thing->move_angle_xy = 0;
     return thing;
 }
 
 void activate_trap_god_spell(struct Thing *traptng, struct Thing *creatng, PowerKind pwkind)
 {
-    struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
-    if (powerst->can_cast_flags & PwCast_AllThings)
-    {
-        magic_use_power_on_thing(traptng->owner, pwkind, POWER_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, PwMod_CastForFree);
-    }
-    else if (powerst->can_cast_flags & PwCast_AllGround)
-    {
-        magic_use_power_on_subtile(traptng->owner, pwkind, POWER_MAX_LEVEL, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, PwCast_None, PwMod_CastForFree);
-    }
-    else if (powerst->can_cast_flags & PwCast_Anywhere)
-    {
-        magic_use_power_on_level(traptng->owner, pwkind, POWER_MAX_LEVEL, PwMod_CastForFree);
-    }
-    else
-    {
-        ERRORLOG("Illegal trap Power %d/%s (idx=%d)", pwkind, get_string(powerst->name_stridx), traptng->index);
-    }
+    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+    magic_use_power_direct(traptng->owner, pwkind, trapst->activation_level, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, PwMod_CastForFree);
 }
 
 void activate_trap(struct Thing *traptng, struct Thing *creatng)
@@ -627,6 +620,56 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     default:
         ERRORLOG("Illegal trap activation type %d (idx=%d)",(int)trapst->activation_type, traptng->index);
         break;
+    }
+}
+
+void activate_trap_by_slap(struct PlayerInfo *player, struct Thing* traptng)
+{
+    struct Thing* trgtng = INVALID_THING;
+    struct TrapConfigStats* trapst = get_trap_model_stats(traptng->model);
+    TbBool special_case = false;
+
+    if (trapst->slappable == 2)
+    {
+        trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(traptng);
+        activate_trap(traptng, trgtng);
+    }
+    if (trapst->slappable == 1)
+    {
+        switch (trapst->activation_type)
+        {
+        case TrpAcT_EffectonTrap:
+        case TrpAcT_ShotonTrap:
+        case TrpAcT_SlabChange:
+        case TrpAcT_CreatureSpawn:
+        case TrpAcT_Power:
+            activate_trap(traptng, trgtng);
+            break;
+        default:
+            special_case = true;
+            break;
+        }
+
+        if (special_case == true)
+        {
+            traptng->trap.revealed = 1;
+            if (trapst->notify == true)
+            {
+                event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
+            }
+            thing_play_sample(traptng, trapst->trigger_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+
+            switch (trapst->activation_type)
+            {
+            case TrpAcT_HeadforTarget90:
+            case TrpAcT_CreatureShot:
+                external_activate_trap_shot_at_angle(traptng, player->acamera->orient_a, trgtng);
+                break;
+            default:
+                ERRORLOG("Illegal trap activation type %d (idx=%d)", (int)trapst->activation_type, traptng->index);
+                break;
+            }
+        }
     }
 }
 
@@ -738,11 +781,11 @@ void process_trap_charge(struct Thing* traptng)
     if (trapst->attack_sprite_anim_idx != 0)
     {
         GameTurnDelta trigger_duration;
-        if (trapst->activation_type == 2) //Effect stays on trap, so the attack animation remains visible for as long as the effect is alive
+        if (trapst->activation_type == TrpAcT_EffectonTrap) // Effect stays on trap, so the attack animation remains visible for as long as the effect is alive.
         {
             trigger_duration = get_effect_model_stats(trapst->created_itm_model)->start_health;
         } else
-        if (trapst->activation_type == 3) //Shot stays on trap, so the attack animation remains visible for as long as the trap is alive
+        if (trapst->activation_type == TrpAcT_ShotonTrap) // Shot stays on trap, so the attack animation remains visible for as long as the trap is alive.
         {
             trigger_duration = get_shot_model_stats(trapst->created_itm_model)->health;
         }
@@ -773,14 +816,14 @@ void process_trap_charge(struct Thing* traptng)
             set_flag(traptng->rendering_flags, TRF_Transpar_4);
             if (!is_neutral_thing(traptng) && !is_hero_thing(traptng))
             {
-                if (placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model))
+                if ((placing_offmap_workshop_item(traptng->owner, TCls_Trap, traptng->model)) || (trapst->remove_once_depleted))
                 {
-                    //When there's only offmap traps, destroy the disarmed one so the player can place a new one.
+                    // When there's only offmap traps, destroy the disarmed one so the player can place a new one.
                     delete_thing_structure(traptng, 0);
                 }
                 else
                 {
-                    //Trap is available to be rearmed, so earmark a workshop crate for it.
+                    // Trap is available to be rearmed, so earmark a workshop crate for it.
                     remove_workshop_item_from_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
                 }
             }
@@ -824,6 +867,15 @@ void update_trap_trigger(struct Thing* traptng)
     }
     if (do_trig)
     {
+        struct Dungeon *dungeon = get_dungeon(traptng->owner);
+        if (!dungeon_invalid(dungeon))
+        {
+            dungeon->trap_info.activated[traptng->trap.flag_number]++;
+            if (traptng->trap.flag_number > 0)
+            {
+                memcpy(&dungeon->last_trap_event_location, &traptng->mappos, sizeof(struct Coord3d));
+            }
+        }
         process_trap_charge(traptng);
     }
 }
@@ -914,7 +966,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
         return INVALID_THING;
     }
     struct InitLight ilght;
-    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    memset(&ilght, 0, sizeof(struct InitLight));
     struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate trap %s for player %d, but failed.",trap_code_name(trpkind),(int)plyr_idx);
@@ -929,6 +981,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     thing->next_on_mapblk = 0;
     thing->parent_idx = thing->index;
     thing->owner = plyr_idx;
+    thing->trap.flag_number = trapst->flag_number;
     char start_frame;
     if (trapst->random_start_frame) {
         start_frame = -1;
@@ -1080,7 +1133,6 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, short angle, stru
         && (trapst->activation_type != TrpAcT_HeadforTarget90))
     {
         activate_trap(thing, trgtng);
-        process_trap_charge(thing);
         if (thing->trap.num_shots != INFINITE_CHARGES)
         {
             if (thing->trap.num_shots > 0) {
@@ -1123,7 +1175,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
     TbBool HasTrap = true;
     TbBool HasDoor = true;
     struct TrapConfigStats* trap_cfg = get_trap_model_stats(trpkind);
@@ -1131,7 +1183,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     if (!subtile_revealed(stl_x, stl_y, plyr_idx)) {
         return false;
     }
-    if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)) {
+    if (((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)) {
         return false;
     }
     if (slab_kind_is_liquid(slb->kind)) {
@@ -1175,7 +1227,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     return false;
 }
 
-void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, char shot_lvl, short angle_xy)
+void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, CrtrExpLevel shot_level, short angle_xy)
 {
     struct Thing* shotng;
     struct ComponentVector cvect;
@@ -1268,6 +1320,21 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
             shotng->state_flags |= TF1_PushAdd;
             shotng->shot.hit_type = trapst->hit_type;
             break;
+    }
+}
+
+void script_place_trap(PlayerNumber plyridx, ThingModel trapkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool free)
+{
+    if (can_place_trap_on(plyridx, stl_x, stl_y, trapkind))
+    {
+        if (free)
+        {
+            player_place_trap_without_check_at(stl_x, stl_y, plyridx, trapkind, free);
+        }
+        else
+        {
+            player_place_trap_at(stl_x, stl_y, plyridx, trapkind);
+        }
     }
 }
 
