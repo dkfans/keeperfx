@@ -3876,7 +3876,7 @@ msgctxt "Slab description"
 msgid ""
 "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
 "takes longer to mine than Gold."
-msgstr "宝石: 手下インプが採掘する無限な富。崩されことはできないが、金鉱よりも掘るのに時間がかかる。 [12.3]"
+msgstr "宝石: 手下インプが採掘する無限な富。崩すことはできないが、金鉱よりも掘るのに時間がかかる。 [12.3]"
 
 #: guitext:545
 #, fuzzy
@@ -3884,7 +3884,7 @@ msgctxt "Object description"
 msgid ""
 "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
 "closed on your side."
-msgstr "勇者の門: 勇者はこの門を通ってお前のダンジョンに侵入する。 [15.4]"
+msgstr "勇者の門: 勇者はこの門を通ってお前のダンジョンに侵入する。閉められない。 [15.4]"
 
 #: guitext:546
 msgctxt "Creature name"
