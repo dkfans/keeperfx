@@ -3876,7 +3876,7 @@ msgctxt "Slab description"
 msgid ""
 "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
 "takes longer to mine than Gold."
-msgstr "宝石: 手下インプが採掘する無限な富。崩されことができないが、金鉱よりも掘るのに時間がかかる。 [12.3]"
+msgstr "宝石: 手下インプが採掘する無限な富。崩されことはできないが、金鉱よりも掘るのに時間がかかる。 [12.3]"
 
 #: guitext:545
 #, fuzzy
