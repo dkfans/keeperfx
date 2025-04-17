@@ -6280,7 +6280,7 @@ msgid ""
 "Secret Door: This door remains hidden to enemies unless they observe it "
 "closely or see it opening. RMB zoom."
 msgstr ""
-"秘密のドア： このドアは、敵がよく観察するか、ドアが開くのを見ない限り、敵には"
+"秘密のドア: このドアは、敵がよく観察するか、ドアが開くのを見ない限り、敵には"
 "見えない。 右クリックで表示する。"
 
 #: guitext:937
@@ -6859,13 +6859,13 @@ msgstr "岩の形成。"
 msgctxt "Slab description"
 msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
 msgstr ""
-"基盤岩： 誰の所有でもない岩石の地面。それを占領できられない、それ上に建てられ"
+"基盤岩: 誰の所有でもない岩石の地面。それを占領できられない、それ上に建てられ"
 "ない。"
 
 #: guitext:1052
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
-msgstr "密な金の層：あなたのインプが採掘するための多くの富を保持しています。"
+msgstr "密な金の層: あなたのインプが採掘するための多くの富を保持しています。"
 
 #: guitext:1053
 #, fuzzy
@@ -6901,22 +6901,22 @@ msgstr "照準"
 #: guitext:1059
 msgctxt "Dungeon special decription"
 msgid "Heal All: Restore full health to all your creatures."
-msgstr "全員回復： 手下の全クリーチャーを全回復する。"
+msgstr "全員回復: 手下の全クリーチャーを全回復する。"
 
 #: guitext:1060
 msgctxt "Dungeon special decription"
 msgid "Increase Gold: Generates gold in your treasury."
-msgstr "ゴールド獲得： 金庫に財宝を生成する。"
+msgstr "ゴールド獲得: 金庫に財宝を生成する。"
 
 #: guitext:1061
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
-msgstr "不幸化： 敵の全クリーチャーが不幸になる。"
+msgstr "不幸化: 敵の全クリーチャーが不幸になる。"
 
 #: guitext:1062
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
-msgstr "壁弱体化： 敵の壁の防御施設を破壊する。"
+msgstr "壁弱体化: 敵の壁の防御施設を破壊する。"
 
 #: guitext:1063
 msgctxt "Game controls"
@@ -6941,7 +6941,7 @@ msgstr "治癒: 対象のクリーチャーを大分治す。"
 #: guitext:1067
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
-msgstr "自浄： クリーチャーに与えられている全ての悪影響を治す。"
+msgstr "自浄: クリーチャーに与えられている全ての悪影響を治す。"
 
 #: guitext:1068
 msgctxt "Creature spell"
@@ -6986,12 +6986,17 @@ msgstr "ミダースのドア"
 #: guitext:1077
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
-msgstr "ミダースのドア： 完全に不滅であるために、所有者の財宝を消費する。"
+msgstr "ミダースのドア: 完全に不滅であるために、所有者の財宝を消費する。"
 
-#: guitext:1078 guitext:1079
-msgctxt "Unused"
-msgid "Moo9"
-msgstr ""
+#: guitext:1078
+msgctxt "Game controls"
+msgid "Ascend"
+msgstr "上昇"
+
+#: guitext:1079
+msgctxt "Game controls"
+msgid "Descend"
+msgstr "下降"
 
 #: guitext:1080
 msgctxt "Creature spell"

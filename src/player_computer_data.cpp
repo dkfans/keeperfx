@@ -47,33 +47,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-
-//TODO COMPUTER_PLAYER move to config file
-unsigned short computer_types_tooltip_stridx[] = {
-    GUIStr_Empty, GUIStr_Empty,
-    GUIStr_Empty, GUIStr_Empty,
-    GUIStr_Empty, GUIStr_Empty,
-    GUIStr_AggressiveAssistDesc, GUIStr_DefensiveAssistDesc,
-    GUIStr_ConstructionAssistDesc, GUIStr_MoveOnlyAssistDesc, };
-
 
 /******************************************************************************/
 
 struct ValidRooms valid_rooms_to_build[] = {
-  {RoK_TREASURE,  &comp_player_conf.process_types[9]},
-  {RoK_LAIR,      &comp_player_conf.process_types[12]},
-  {RoK_GARDEN,    &comp_player_conf.process_types[11]},
-  {RoK_LIBRARY,   &comp_player_conf.process_types[10]},
-  {RoK_TRAINING,  &comp_player_conf.process_types[13]},
-  {RoK_WORKSHOP,  &comp_player_conf.process_types[14]},
-  {RoK_SCAVENGER, &comp_player_conf.process_types[5]},
-  {RoK_PRISON,    &comp_player_conf.process_types[3]},
-  {RoK_TEMPLE,    &comp_player_conf.process_types[6]},
-  {RoK_TORTURE,   &comp_player_conf.process_types[4]},
-  {RoK_GRAVEYARD, &comp_player_conf.process_types[7]},
-  {RoK_BARRACKS,  &comp_player_conf.process_types[8]},
-  {-1,            NULL},
+  {RoK_TREASURE,  9},
+  {RoK_LAIR,      12},
+  {RoK_GARDEN,    11},
+  {RoK_LIBRARY,   10},
+  {RoK_TRAINING,  13},
+  {RoK_WORKSHOP,  14},
+  {RoK_SCAVENGER, 5},
+  {RoK_PRISON,    3},
+  {RoK_TEMPLE,    6},
+  {RoK_TORTURE,   4},
+  {RoK_GRAVEYARD, 7},
+  {RoK_BARRACKS,  8},
+  {-1,            0},
 };
 
 /******************************************************************************/

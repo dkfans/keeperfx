@@ -68,12 +68,12 @@ struct Thing *create_cave_in(struct Coord3d *pos, ThingModel cimodel, unsigned s
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
-    struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
-    thing->cave_in.time = pwrdynst->duration;
+    struct PowerConfigStats * powerst = get_power_model_stats(PwrK_CAVEIN);
+    thing->cave_in.time = powerst->duration;
     thing->cave_in.x = pos->x.stl.num;
     thing->cave_in.y = pos->y.stl.num;
     thing->cave_in.model = cimodel;
-    thing->health = pwrdynst->duration;
+    thing->health = powerst->duration;
     if (owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_dungeon(owner);

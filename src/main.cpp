@@ -886,7 +886,6 @@ void init_keeper(void)
     init_key_to_strings();
     // Load configs which may have per-campaign part, and even be modified within a level
     init_custom_sprites(SPRITE_LAST_LEVEL);
-    load_computer_player_config(CnfLd_Standard);
     load_stats_files();
     check_and_auto_fix_stats();
     init_creature_scores();
@@ -897,10 +896,10 @@ void init_keeper(void)
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
     lbDisplay.GlassMap = pixmap.ghost;
     lbDisplay.DrawColour = colours[15][15][15];
-    game.comp_player_aggressive = 0;
-    game.comp_player_defensive = 1;
-    game.comp_player_construct = 0;
-    game.comp_player_creatrsonly = 0;
+    game.comp_player_aggressive  = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[0]);
+    game.comp_player_defensive   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[1]);
+    game.comp_player_construct   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[2]);
+    game.comp_player_creatrsonly = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[3]);
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     game.operation_flags |= GOF_ShowPanel;
@@ -1609,6 +1608,7 @@ void reinit_level_after_load(void)
 TbBool set_default_startup_parameters(void)
 {
     memset(&start_params, 0, sizeof(struct StartupParameters));
+    start_params.startup_flags = (SFlg_Legal|SFlg_FX|SFlg_Intro);
     start_params.packet_checksum_verify = 1;
     clear_flag(start_params.flags_font, FFlg_unk01);
     // Set levels to 0, as we may not have the campaign loaded yet
@@ -2542,8 +2542,8 @@ long update_cave_in(struct Thing *thing)
         return 1;
     }
 
-    const struct MagicStats *pwrdynst;
-    pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_CAVEIN);
     struct Thing *efftng;
     struct Coord3d pos;
     PlayerNumber owner;
@@ -2559,14 +2559,14 @@ long update_cave_in(struct Thing *thing)
             pos.z.val = get_ceiling_height(&pos) - 128;
             efftng = create_effect_element(&pos, TngEff_Flash, owner);
             if (!thing_is_invalid(efftng)) {
-                efftng->health = pwrdynst->duration;
+                efftng->health = powerst->duration;
             }
         }
     }
 
     GameTurnDelta turns_between;
     GameTurnDelta turns_alive;
-    turns_between = pwrdynst->duration / 5;
+    turns_between = powerst->duration / 5;
     turns_alive = game.play_gameturn - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
@@ -2593,9 +2593,9 @@ long update_cave_in(struct Thing *thing)
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
     }
 
-    if ((8 * pwrdynst->duration / 10 >= thing->health) && (2 * pwrdynst->duration / 10 <= thing->health))
+    if ((8 * powerst->duration / 10 >= thing->health) && (2 * powerst->duration / 10 <= thing->health))
     {
-        if ((pwrdynst->duration < 10) || ((thing->health % (pwrdynst->duration / 10)) == 0))
+        if ((powerst->duration < 10) || ((thing->health % (powerst->duration / 10)) == 0))
         {
             int round_idx;
             round_idx = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
@@ -2612,7 +2612,7 @@ long update_cave_in(struct Thing *thing)
                     pos2.y.val = subtile_coord(thing->cave_in.y,0);
                     pos2.z.val = subtile_coord(1,0);
                     dist = get_chessboard_distance(&pos, &pos2);
-                    if (pwrdynst->strength[thing->cave_in.model] >= coord_subtile(dist))
+                    if (powerst->strength[thing->cave_in.model] >= coord_subtile(dist))
                     {
                         ncavitng = create_thing(&pos, TCls_CaveIn, thing->cave_in.model, owner, -1);
                         if (!thing_is_invalid(ncavitng))
@@ -2699,6 +2699,7 @@ void update(void)
         event_process_events();
         update_all_events();
         process_level_script();
+        process_fx_lines();
         if ((game.numfield_D & GNFldD_Unkn04) != 0)
             process_computer_players2();
         process_players();

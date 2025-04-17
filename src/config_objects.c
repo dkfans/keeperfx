@@ -38,17 +38,23 @@ extern "C" {
 /******************************************************************************/
 struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 /******************************************************************************/
+static TbBool load_objects_config_file(const char *fname, unsigned short flags);
 
-const char keeper_objects_file[]="objects.cfg";
+const struct ConfigFileData keeper_objects_file_data = {
+    .filename = "objects.cfg",
+    .load_func = load_objects_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
 
 const struct NamedCommand objects_properties_commands[] = {
-  {"EXISTS_ONLY_IN_ROOM",     1},
-  {"DESTROYED_ON_ROOM_CLAIM", 2},
-  {"CHOWNED_ON_ROOM_CLAIM",   3},
-  {"DESTROYED_ON_ROOM_PLACE", 4},
-  {"BUOYANT",                 5},
-  {"BEATING",                 6},
-  {"HEART",                   7},
+  {"EXISTS_ONLY_IN_ROOM",     OMF_ExistsOnlyInRoom    },
+  {"DESTROYED_ON_ROOM_CLAIM", OMF_DestroyedOnRoomClaim},
+  {"CHOWNED_ON_ROOM_CLAIM",   OMF_ChOwnedOnRoomClaim  },
+  {"DESTROYED_ON_ROOM_PLACE", OMF_DestroyedOnRoomPlace},
+  {"BUOYANT",                 OMF_Buoyant             },
+  {"BEATING",                 OMF_Beating             },
+  {"HEART",                   OMF_Heart               },
   {NULL,                      0},
   };
 
@@ -74,7 +80,7 @@ static const struct NamedField objects_named_fields[] = {
     {"NAME",                     0, field(game.conf.object_conf.object_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, object_desc,                 value_name,      assign_null},
     {"GENRE",                    0, field(game.conf.object_conf.object_cfgstats[0].genre),                         0, LONG_MIN,ULONG_MAX, objects_genres_desc,         value_default,   assign_default},
     {"RELATEDCREATURE",          0, field(game.conf.object_conf.object_cfgstats[0].related_creatr_model),          0, LONG_MIN,ULONG_MAX, creature_desc,               value_default,   assign_default},
-    {"PROPERTIES",              -1, field(game.conf.object_conf.object_cfgstats[0].model_flags),                   0, LONG_MIN,ULONG_MAX, objects_properties_commands, value_flagsfieldshift,assign_default},
+    {"PROPERTIES",              -1, field(game.conf.object_conf.object_cfgstats[0].model_flags),                   0, LONG_MIN,ULONG_MAX, objects_properties_commands, value_flagsfield,assign_default},
     {"ANIMATIONID",              0, field(game.conf.object_conf.object_cfgstats[0].sprite_anim_idx),               0, LONG_MIN,ULONG_MAX, NULL,                        value_animid,    assign_animid},
     {"ANIMATIONSPEED",           0, field(game.conf.object_conf.object_cfgstats[0].anim_speed),                    0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"SIZE_XY",                  0, field(game.conf.object_conf.object_cfgstats[0].size_xy),                       0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
@@ -89,7 +95,9 @@ static const struct NamedField objects_named_fields[] = {
     {"LIGHTINTENSITY",           0, field(game.conf.object_conf.object_cfgstats[0].ilght.intensity),               0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"LIGHTRADIUS",              0, field(game.conf.object_conf.object_cfgstats[0].ilght.radius),                  0, LONG_MIN,ULONG_MAX, NULL,                        value_stltocoord,assign_default},
     {"LIGHTISDYNAMIC",           0, field(game.conf.object_conf.object_cfgstats[0].ilght.is_dynamic),              0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
-    {"MAPICON",                  0, field(game.conf.object_conf.object_cfgstats[0].map_icon),                      0, LONG_MIN,ULONG_MAX, NULL,                        value_icon,      assign_default},
+    {"MAPICON",                  0, field(game.conf.object_conf.object_cfgstats[0].map_icon),                      0, LONG_MIN,ULONG_MAX, NULL,                        value_icon,      assign_icon},
+    {"TOOLTIPTEXTID",            0, field(game.conf.object_conf.object_cfgstats[0].tooltip_stridx),               -1, SHRT_MIN, SHRT_MAX, NULL,                        value_default,   assign_default},
+    {"TOOLTIPTEXTID",            1, field(game.conf.object_conf.object_cfgstats[0].tooltip_optional),              0,        0,        1, NULL,                        value_default,   assign_default},
     {"AMBIENCESOUND",            0, field(game.conf.object_conf.object_cfgstats[0].fp_smpl_idx),                   0,        0,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"UPDATEFUNCTION",           0, field(game.conf.object_conf.object_cfgstats[0].updatefn_idx),                  0, LONG_MIN,ULONG_MAX, object_update_functions_desc,value_default,   assign_default},
     {"DRAWCLASS",                0, field(game.conf.object_conf.object_cfgstats[0].draw_class),          ODC_Default, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
@@ -125,7 +133,6 @@ const struct NamedFieldSet objects_named_fields_set = {
     OBJECT_TYPES_MAX,
     sizeof(game.conf.object_conf.object_cfgstats[0]),
     game.conf.object_conf.object_cfgstats,
-    {"objects.cfg","SET_OBJECT_CONFIGURATION"},
 };
 
 /******************************************************************************/
@@ -170,14 +177,14 @@ ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
     return game.conf.object_conf.object_to_door_or_trap[tngmodel];
 }
 
-TbBool load_objects_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_objects_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);
@@ -186,7 +193,7 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     
-    parse_named_field_blocks(buf, len, textname, flags, &objects_named_fields_set);
+    parse_named_field_blocks(buf, len, fname, flags, &objects_named_fields_set);
     //Freeing and exiting
     free(buf);
     return true;
@@ -245,27 +252,6 @@ void update_all_objects_of_model(ThingModel model)
             thing->light_id = light_create_light(&ilight);
         }
     }
-}
-
-TbBool load_objects_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global objects config";
-    static const char config_campgn_textname[] = "campaign objects config";
-    static const char config_level_textname[] = "level objects config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_objects_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_objects_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_objects_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
-    return result;
 }
 
 /**
