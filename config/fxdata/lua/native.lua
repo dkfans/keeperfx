@@ -579,6 +579,12 @@ function Place_door(player,doorname,slab_x,slab_y,locked,free) end
 ---@param free boolean Whether the trap is free or not.
 function Place_trap(player,trapname,subtile_x,subtile_y,free) end
 
+---Restores or drains health from a players Dungeon Heart. Can't exceed the standard max health value.
+---@param player playersingle
+---@param healthdelta integer
+---@param warn_on_damage boolean
+function Add_heart_health(player,healthdelta,warn_on_damage) end
+
 ------------------------
 --Manipulating Configs--
 ------------------------
