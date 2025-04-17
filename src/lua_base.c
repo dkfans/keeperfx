@@ -59,21 +59,30 @@ void close_lua_script()
     Lvl_script = NULL;
 }
 
-/*
-int setLuaPath( lua_State* L, const char* path )
+
+int setLuaPath( lua_State* L)
 {
-    lua_getglobal( L, "package" );
-    lua_getfield( L, -1, "path" ); // get field "path" from table at top of stack (-1)
-    std::string cur_path = lua_tostring( L, -1 ); // grab path string from top of stack
-    cur_path.append( ";" );
-    cur_path.append( path );
-    lua_pop( L, 1 ); // get rid of the string on the stack we just pushed on line 5
-    lua_pushstring( L, cur_path.c_str() ); // push the new one
-    lua_setfield( L, -2, "path" ); // set the field "path" in table at -2 with value at top of stack
-    lua_pop( L, 1 ); // get rid of package table from top of stack
+    #define PATH_LENGTH 4096
+    char fx_data_path[PATH_LENGTH];
+    prepare_file_path_buf(fx_data_path, FGrp_FxData, "lua/?.lua");
+    char campaignpath[PATH_LENGTH];
+    prepare_file_path_buf(campaignpath, FGrp_CmpgConfig, "lua/?.lua");
+    char levelpath[PATH_LENGTH];
+    prepare_file_path_buf(levelpath, FGrp_CmpgLvls, "?.lua");
+
+    
+    lua_getglobal(L, "package");
+    lua_getfield(L, -1, "path"); // get field "path" from table at top of stack (-1)
+    const char *cur_path = lua_tostring(L, -1); // grab path string from top of stack
+    char new_path[PATH_LENGTH];
+    snprintf(new_path, sizeof(new_path), "%s;%s;%s;%s", levelpath,campaignpath,fx_data_path,cur_path);
+    lua_pop(L, 1); // get rid of the string on the stack we just pushed on line 5
+    lua_pushstring(L, new_path); // push the new one
+    lua_setfield(L, -2, "path"); // set the field "path" in table at -2 with value at top of stack
+    lua_pop(L, 1); // get rid of package table from top of stack
     return 0; // all done!
 }
-*/
+
 
 // Function to execute a piece of Lua code, and on failure, print the error message to the console
 TbBool execute_lua_code_from_console(const char* code)
@@ -123,6 +132,8 @@ TbBool open_lua_script(LevelNumber lvnum)
 
 	reg_host_functions(Lvl_script);
 	 
+    setLuaPath(Lvl_script);
+    
     short fgroup = get_level_fgroup(lvnum);
     char* fname = prepare_file_fmtpath(fgroup, "map%05lu.lua", (unsigned long)lvnum);
 
@@ -130,7 +141,6 @@ TbBool open_lua_script(LevelNumber lvnum)
     if ( !LbFileExists(fname) )
       return false;
 
-    //setLuaPath(Lvl_script);
     
 	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"script_loading"))
 	{
