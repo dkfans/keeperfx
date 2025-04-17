@@ -2926,7 +2926,7 @@ msgstr "デザイン制作"
 #: guitext:363
 msgctxt "Credits"
 msgid "Project Leader"
-msgstr "プロジェクト/・リーダー"
+msgstr "プロジェクト・リーダー"
 
 #: guitext:364
 msgctxt "Credits"
