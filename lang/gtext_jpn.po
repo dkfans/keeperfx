@@ -5799,7 +5799,7 @@ msgstr "追加シナリオ"
 #: guitext:885
 msgctxt "Easter egg"
 msgid "Happy Birthday"
-msgstr "誕生日おめでとう"
+msgstr "お誕生日おめでとう"
 
 #: guitext:886
 msgctxt "Menu interface message"
