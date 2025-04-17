@@ -2714,7 +2714,7 @@ msgctxt "Slab description"
 msgid ""
 "Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
 "to go round. It is visible even if far from your territory."
-msgstr "貫通不可能な岩: 手下インプはこれを掘り進むことができない。 [12.4]"
+msgstr "貫通不可能な岩: 手下インプはこれを掘り進むことができない。迂回が唯一の解決方法だ。遠くからでも見える。 [12.4]"
 
 #: guitext:325
 #, fuzzy
@@ -2731,7 +2731,7 @@ msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
 "your Treasure Room. You can also pick up the lumps of treasure left on the "
 "ground."
-msgstr "金鉱: 富の源だ。採掘すれば手下インプが宝物庫へと運ぶ。 [12.2]"
+msgstr "金鉱: 富の源だ。採掘すれば手下インプが宝物庫へと運ぶ。床に落ちている財宝の塊を拾うこともできる。 [12.2]"
 
 #: guitext:327
 #, fuzzy
@@ -2739,7 +2739,7 @@ msgctxt "Slab description"
 msgid ""
 "Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
 "or building a Bridge."
-msgstr "溶岩: ここを踏むとクリーチャーは焼けてしまう。 [14.2]"
+msgstr "溶岩: ここを踏むとクリーチャーは焼けてしまう。渡るには、橋を架けなければならない。 [14.2]"
 
 #: guitext:328
 #, fuzzy
@@ -2747,7 +2747,7 @@ msgctxt "Slab description"
 msgid ""
 "Water: Creatures move more slowly through water. Build the Bridge to make "
 "new land on the water."
-msgstr "水: 水の中ではクリーチャーの動きは遅くなる。 [14.1]"
+msgstr "水: 水の中ではクリーチャーの動きは遅くなる。水上に新しい陸地を作るために橋を建てる。 [14.1]"
 
 #: guitext:329
 #, fuzzy
@@ -2768,7 +2768,7 @@ msgctxt "Slab description"
 msgid ""
 "Path: Unclaimed earth floor. You can claim it if it is connected to already "
 "claimed territory."
-msgstr "通路: 誰の所有でもない土の地面。 [12.1]"
+msgstr "通路: 誰の所有でもない土の地面。占有した領土に隣接している場合は、占有得る。 [12.1]"
 
 #: guitext:332
 #, fuzzy
@@ -2776,7 +2776,7 @@ msgctxt "Slab description"
 msgid ""
 "Claimed area: Your dungeon territory. You can build rooms and drop your "
 "creatures on it."
-msgstr "占有地: ダンジョン領地。 [12.1]"
+msgstr "占有地: ダンジョン領地。ここに部屋を建てたり、クリーチャーを落としたりできる。 [12.1]"
 
 #: guitext:333
 msgctxt "In-game interface item"
