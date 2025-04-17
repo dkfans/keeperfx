@@ -6859,13 +6859,12 @@ msgstr "岩の形成。"
 msgctxt "Slab description"
 msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
 msgstr ""
-"基盤岩: 誰の所有でもない岩石の地面。それを占領できられない、それ上に建てられ"
-"ない。"
+"基盤岩： 誰の所有でもない岩石の地面。それを占領できられない、それ上に建てられない。"
 
 #: guitext:1052
 msgctxt "Slab description"
-msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
-msgstr "密な金の層: あなたのインプが採掘するための多くの富を保持しています。"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
+msgstr "濃い金鉱： 手下インプが採掘する莫大な富。"
 
 #: guitext:1053
 #, fuzzy
