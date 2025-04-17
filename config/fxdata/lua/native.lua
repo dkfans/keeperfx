@@ -970,7 +970,7 @@ function Set_digger(player,creature) end
 
 ---runs a command trough the engine of the old dkscript, most commands are reimplemented in lua, so generally not needed
 ---@param command string the command to run
-function RunDKScriptCommand(command) end
+function Run_DKScript_command(command) end
 
 
 
@@ -979,7 +979,7 @@ function RunDKScriptCommand(command) end
 ---@param action_point actionpoint
 ---@return boolean
 ---@nodiscard
-function isActionPointActivatedByPlayer(player,action_point) return true end
+function Is_actionpoint_activated_by_player(player,action_point) return true end
 
 -------------------------------------------------------
 --Thing Functions
@@ -992,7 +992,7 @@ function isActionPointActivatedByPlayer(player,action_point) return true end
 ---@param class thing_class
 ---@return Thing[] | Creature[]
 ---@nodiscard
-function getThingsOfClass(class) end
+function Get_things_of_class(class) end
 
 ---gets a single creature based on the given criteria
 ---@param player playerrange
@@ -1000,20 +1000,19 @@ function getThingsOfClass(class) end
 ---@param criterion creature_select_criteria
 ---@return Creature
 ---@nodiscard
-function getCreatureByCriterion(player,creature_type,criterion) return Creature end
-
+function Get_creature_by_criterion(player,creature_type,criterion) return Creature end
 ---returns a creature close to the given coordinates
 ---@param stl_x integer
 ---@param stl_y integer
 ---@return Creature
 ---@nodiscard
-function GetCreatureNear(stl_x,stl_y) end
+function Get_creature_near(stl_x,stl_y) end
 
 ---returns the thing with the given index
 ---@param index integer
 ---@return Thing
 ---@nodiscard
-function getThingByIdx(index) end
+function Get_thing_by_idx(index) end
 
 
 
@@ -1067,6 +1066,6 @@ function Change_creatures_annoyance(player,creature,operation,annoyance) end
 ---@param slb_y integer
 ---@return Slab
 ---@nodiscard
-function getSlab(slb_x,slb_y) end
+function Get_slab(slb_x,slb_y) end
 
 

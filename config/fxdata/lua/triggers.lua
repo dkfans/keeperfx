@@ -365,10 +365,10 @@ function RegisterOnActionPointEvent(action, actionPoint, player)
     local trigger = CreateTrigger("GameTick",action,trigData)
     TriggerAddCondition(trigger, function(eventData,triggerData)  
                                         if triggerData.triggered == false then
-                                            triggerData.triggered = isActionPointActivatedByPlayer(triggerData.Player,triggerData.actionPoint)
+                                            triggerData.triggered = Is_actionpoint_activated_by_player(triggerData.Player,triggerData.actionPoint)
                                             return triggerData.triggered
                                         -- make the trigger resettable
-                                        elseif isActionPointActivatedByPlayer(triggerData.Player,triggerData.actionPoint) == false then
+                                        elseif Is_actionpoint_activated_by_player(triggerData.Player,triggerData.actionPoint) == false then
                                             triggerData.triggered = false
                                             return false
                                         else
