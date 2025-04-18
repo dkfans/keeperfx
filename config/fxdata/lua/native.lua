@@ -1040,7 +1040,7 @@ function Creature:Teleport_creature(location,effect) end
 ---comment
 ---@param stl_x any
 ---@param stl_y any
-function Creature:walkTo(stl_x,stl_y) end
+function Creature:Creature_walk_to(stl_x,stl_y) end
 
 ---Kills the unit
 function Creature:Kill_creature() end
