@@ -37,15 +37,21 @@
 extern "C" {
 #endif
 /******************************************************************************/
-static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 
-static void assign_update_room_tab       (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
-static void assign_icon_update_room_tab  (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
-static void assign_reinitialise_rooms    (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
-static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_update_room_tab       (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static void assign_icon_update_room_tab  (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static void assign_reinitialise_rooms    (const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 /******************************************************************************/
+static TbBool load_terrain_config_file(const char *fname, unsigned short flags);
 
-const char keeper_terrain_file[]="terrain.cfg";
+const struct ConfigFileData keeper_terrain_file_data = {
+    .filename = "terrain.cfg",
+    .load_func = load_terrain_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
 
 static const struct NamedCommand terrain_flags[] = {
     {"VALUABLE",          SlbAtFlg_Valuable      },
@@ -113,6 +119,7 @@ static const struct NamedField terrain_slab_named_fields[] = {
     {"ANIMATED",          0, field(game.conf.slab_conf.slab_cfgstats[0].animated),                      0, LONG_MIN,ULONG_MAX, NULL,          value_default,    assign_default},
     {"ISOWNABLE",         0, field(game.conf.slab_conf.slab_cfgstats[0].is_ownable),                    0, LONG_MIN,ULONG_MAX, NULL,          value_default,    assign_default},
     {"INDESTRUCTIBLE",    0, field(game.conf.slab_conf.slab_cfgstats[0].indestructible),                0, LONG_MIN,ULONG_MAX, NULL,          value_default,    assign_default},
+    {"GOLDHELD",          0, field(game.conf.slab_conf.slab_cfgstats[0].gold_held),                     0, LONG_MIN,ULONG_MAX, NULL,          value_default,    assign_default},
     {NULL},
 };
 
@@ -124,7 +131,6 @@ const struct NamedFieldSet terrain_slab_named_fields_set = {
     TERRAIN_ITEMS_MAX,
     sizeof(game.conf.slab_conf.slab_cfgstats[0]),
     game.conf.slab_conf.slab_cfgstats,
-    {"terrain.cfg","INVALID_SCRIPT"},
 };
 
 static const struct NamedField terrain_room_named_fields[] = {
@@ -162,10 +168,9 @@ const struct NamedFieldSet terrain_room_named_fields_set = {
     TERRAIN_ITEMS_MAX,
     sizeof(game.conf.slab_conf.room_cfgstats[0]),
     game.conf.slab_conf.room_cfgstats,
-    {"terrain.cfg","SET_ROOM_CONFIGURATION"}
 };
 
-static void assign_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
     if (value == old_value)
@@ -173,14 +178,14 @@ static void assign_update_room_tab(const struct NamedField* named_field, int64_t
         return;
     }    
 
-    assign_default(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_room_tab_to_config();
     }
 }
 
-static void assign_icon_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_icon_update_room_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
     if (value == old_value)
@@ -188,14 +193,14 @@ static void assign_icon_update_room_tab(const struct NamedField* named_field, in
         return;
     }    
 
-    assign_icon(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_icon(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_room_tab_to_config();
     }
 }
 
-static void assign_reinitialise_rooms(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_reinitialise_rooms(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
     if (value == old_value)
@@ -203,14 +208,14 @@ static void assign_reinitialise_rooms(const struct NamedField* named_field, int6
         return;
     }    
 
-    assign_default(named_field,value,named_fields_set,idx, src);
-    if (src == ccs_DkScript)
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         reinitialise_rooms_of_kind(idx);
     }
 }
 
-static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_recalculate_effeciency(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     int64_t old_value = get_named_field_value(named_field,named_fields_set,idx);
     if (value == old_value)
@@ -218,8 +223,8 @@ static void assign_recalculate_effeciency(const struct NamedField* named_field, 
         return;
     }    
 
-    assign_default(named_field,value,named_fields_set,idx, src);
-    if (src == ccs_DkScript)
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         recalculate_effeciency_for_rooms_of_kind(idx);
     }
@@ -319,6 +324,7 @@ const struct NamedCommand terrain_health_commands[] = {
   {"DOOR_BRACE",      7},
   {"DOOR_STEEL",      8},
   {"DOOR_MAGIC",      9},
+  {"DENSE_GOLD",     10},
   {NULL,              0},
 };
 
@@ -386,12 +392,12 @@ const char *room_code_name(RoomKind rkind)
     return "INVALID";
 }
 
-static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static int64_t value_synergy(const struct NamedField* named_field,const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     if (strcasecmp(value_text, "none") == 0) {
         return -1;
     } else {
-        return value_default(named_field, value_text, named_fields_set, idx, src);
+        return value_default(named_field, value_text, named_fields_set, idx, src_str, flags);
     }
 }
 
@@ -432,6 +438,7 @@ TbBool parse_block_health_block(char *buf, long len, const char *config_textname
         case 7:
         case 8:
         case 9:
+        case 10:
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
@@ -459,14 +466,14 @@ TbBool parse_block_health_block(char *buf, long len, const char *config_textname
     return true;
 }
 
-TbBool load_terrain_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_terrain_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);
@@ -477,35 +484,14 @@ TbBool load_terrain_config_file(const char *textname, const char *fname, unsigne
     TbBool result = (len > 0);
     
     // Parse blocks of the config file
-    parse_named_field_blocks(buf, len, textname, flags, &terrain_slab_named_fields_set);
+    parse_named_field_blocks(buf, len, fname, flags, &terrain_slab_named_fields_set);
             
-    parse_block_health_block(buf, len, textname, flags);
+    parse_block_health_block(buf, len, fname, flags);
 
-    parse_named_field_blocks(buf, len, textname, flags, &terrain_room_named_fields_set);
+    parse_named_field_blocks(buf, len, fname, flags, &terrain_room_named_fields_set);
 
     //Freeing and exiting
     free(buf);
-    return result;
-}
-
-TbBool load_terrain_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global terrain config";
-    static const char config_campgn_textname[] = "campaign terrain config";
-    static const char config_level_textname[] = "level terrain config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_terrain_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_terrain_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_terrain_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
     return result;
 }
 

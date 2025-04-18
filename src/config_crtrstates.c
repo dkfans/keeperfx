@@ -51,21 +51,27 @@ const struct NamedFieldSet crstates_states_named_fields_set = {
     CREATURE_STATES_MAX,
     sizeof(game.conf.crtr_conf.states[0]),
     game.conf.crtr_conf.states,
-    {"crstates.cfg","INVALID_SCRIPT"},
 };
 
-const char creature_states_file[]="crstates.cfg";
+static TbBool load_creaturestates_config_file(const char *fname, unsigned short flags);
+
+const struct ConfigFileData creature_states_file_data = {
+    .filename = "crstates.cfg",
+    .load_func = load_creaturestates_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
 
 /******************************************************************************/
 
-TbBool load_creaturestates_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_creaturestates_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);
@@ -75,31 +81,10 @@ TbBool load_creaturestates_config_file(const char *textname, const char *fname, 
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
     // Parse blocks of the config file
-    parse_named_field_blocks(buf, len, textname, flags, &crstates_states_named_fields_set);
+    parse_named_field_blocks(buf, len, fname, flags, &crstates_states_named_fields_set);
 
     //Freeing and exiting
     free(buf);
-    return result;
-}
-
-TbBool load_creaturestates_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global creature states config";
-    static const char config_campgn_textname[] = "campaign creature states config";
-    static const char config_level_textname[] = "level creature states config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_creaturestates_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_creaturestates_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_creaturestates_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
     return result;
 }
 

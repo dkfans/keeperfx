@@ -38,8 +38,14 @@ extern "C" {
 /******************************************************************************/
 struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 /******************************************************************************/
+static TbBool load_objects_config_file(const char *fname, unsigned short flags);
 
-const char keeper_objects_file[]="objects.cfg";
+const struct ConfigFileData keeper_objects_file_data = {
+    .filename = "objects.cfg",
+    .load_func = load_objects_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
 
 const struct NamedCommand objects_properties_commands[] = {
   {"EXISTS_ONLY_IN_ROOM",     OMF_ExistsOnlyInRoom    },
@@ -127,7 +133,6 @@ const struct NamedFieldSet objects_named_fields_set = {
     OBJECT_TYPES_MAX,
     sizeof(game.conf.object_conf.object_cfgstats[0]),
     game.conf.object_conf.object_cfgstats,
-    {"objects.cfg","SET_OBJECT_CONFIGURATION"},
 };
 
 /******************************************************************************/
@@ -172,14 +177,14 @@ ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
     return game.conf.object_conf.object_to_door_or_trap[tngmodel];
 }
 
-TbBool load_objects_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_objects_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);
@@ -188,7 +193,7 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     
-    parse_named_field_blocks(buf, len, textname, flags, &objects_named_fields_set);
+    parse_named_field_blocks(buf, len, fname, flags, &objects_named_fields_set);
     //Freeing and exiting
     free(buf);
     return true;
@@ -247,27 +252,6 @@ void update_all_objects_of_model(ThingModel model)
             thing->light_id = light_create_light(&ilight);
         }
     }
-}
-
-TbBool load_objects_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global objects config";
-    static const char config_campgn_textname[] = "campaign objects config";
-    static const char config_level_textname[] = "level objects config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_objects_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_objects_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_objects_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting
-    return result;
 }
 
 /**

@@ -36,7 +36,7 @@ static inline MapCoord value_read_stl_coord(VALUE *value)
 int value_parse_class(VALUE *value);
 int value_parse_model(int oclass, VALUE *value);
 int value_parse_anim(VALUE *value);
-TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsigned short flags);
+TbBool load_toml_file(const char *fname,VALUE *value, unsigned short flags);
 
 #define KEY_SIZE 64
 

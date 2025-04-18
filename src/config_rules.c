@@ -40,15 +40,22 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 
-static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
-static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src);
+static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
+static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags);
 
 /******************************************************************************/
+static TbBool load_rules_config_file(const char *fname, unsigned short flags);
+static void set_rules_defaults();
 
+const struct ConfigFileData keeper_rules_file_data = {
+    .filename = "rules.cfg",
+    .load_func = load_rules_config_file,
+    .pre_load_func = set_rules_defaults,
+    .post_load_func = NULL,
+};
 
-const char keeper_rules_file[]="rules.cfg";
 
 const struct NamedCommand rules_game_classicbugs_commands[] = {
   {"RESURRECT_FOREVER",             ClscBug_ResurrectForever      },
@@ -70,7 +77,6 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
 
 static const struct NamedField rules_game_named_fields[] = {
     //name                    //param  //field                                             //default  //min               //max   //namedCommand                    //valueFunc
-  {"GOLDPERGOLDBLOCK",          0, field(game.conf.rules.game.gold_per_gold_block       ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
   {"POTOFGOLDHOLDS",            0, field(game.conf.rules.game.pot_of_gold_holds         ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
   {"CHESTGOLDHOLD",             0, field(game.conf.rules.game.chest_gold_hold           ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
   {"GOLDPILEVALUE",             0, field(game.conf.rules.game.gold_pile_value           ),         500, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
@@ -85,7 +91,6 @@ static const struct NamedField rules_game_named_fields[] = {
   {"DUNGEONHEARTHEALTIME",      0, field(game.conf.rules.game.dungeon_heart_heal_time   ),          10,        0,          ULONG_MAX,NULL,                           value_default, assign_default},
   {"DUNGEONHEARTHEALHEALTH",    0, field(game.conf.rules.game.dungeon_heart_heal_health ),           1, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
   {"HERODOORWAITTIME",          0, field(game.conf.rules.game.hero_door_wait_time       ),         100,        0,          ULONG_MAX,NULL,                           value_default, assign_default},
-  {"GEMEFFECTIVENESS",          0, field(game.conf.rules.game.gem_effectiveness         ),          17,        0,          ULONG_MAX,NULL,                           value_default, assign_default},
   {"ROOMSELLGOLDBACKPERCENT",   0, field(game.conf.rules.game.room_sale_percent         ),          50,        0,           LONG_MAX,NULL,                           value_default, assign_default},
   {"DOORSELLVALUEPERCENT",      0, field(game.conf.rules.game.door_sale_percent         ),         100,        0,           LONG_MAX,NULL,                           value_default, assign_default},
   {"TRAPSELLVALUEPERCENT",      0, field(game.conf.rules.game.trap_sale_percent         ),         100,        0,           LONG_MAX,NULL,                           value_default, assign_default},
@@ -213,7 +218,6 @@ const struct NamedFieldSet rules_named_fields_set = {
   1,
   0,
   &game.conf.rules,
-  {"rules.cfg","SET_GAME_RULE"},
 };
 
 const struct NamedCommand rules_research_commands[] = {
@@ -254,10 +258,10 @@ const struct NamedCommand sacrifice_unique_desc[] = {
 
 /******************************************************************************/
 
-static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_MapCreatureLimit_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_default(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
         short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
         if (count > 0)
@@ -267,16 +271,16 @@ static void assign_MapCreatureLimit_script(const struct NamedField* named_field,
     }
 }
 
-static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static void assign_AlliesShareVision_script(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_default(named_field,value,named_fields_set,idx,src);
-    if (src == ccs_DkScript)
+    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    if (flag_is_set(flags,ccf_DuringLevel))
     {
       panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
     }
 }
 
-static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, unsigned char src)
+static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     
     if (parameter_is_number(value_text))
@@ -324,12 +328,12 @@ static int long_compare_fn(const void *ptr_a, const void *ptr_b)
     return *a < *b;
 }
 
-static void set_defaults()
+static void set_rules_defaults()
 {
     for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++) {
       const struct NamedField* field = ruleblocks[i];
       while (field->name != NULL) {
-        assign_default(field, field->default_value, &rules_named_fields_set, 0, ccs_CfgFile);
+        assign_default(field, field->default_value, &rules_named_fields_set, 0,"rules",ccf_SplitExecution|ccf_DuringLevel);
         field++;
       }
     }
@@ -681,14 +685,14 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
     return true;
 }
 
-TbBool load_rules_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_rules_config_file(const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    SYNCDBG(0,"%s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+            WARNMSG("file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     char* buf = (char*)calloc(len + 256, 1);
@@ -699,56 +703,20 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
     TbBool result = (len > 0);
     // Parse blocks of the config file.
 
-    parse_named_field_block(buf, len, textname, flags,"game",     rules_game_named_fields,      &rules_named_fields_set, 0);
-    parse_named_field_block(buf, len, textname, flags,"creatures",rules_creatures_named_fields, &rules_named_fields_set, 0);
-    parse_named_field_block(buf, len, textname, flags,"rooms",    rules_rooms_named_fields,     &rules_named_fields_set, 0);
-    parse_named_field_block(buf, len, textname, flags,"magic",    rules_magic_named_fields,     &rules_named_fields_set, 0);
-    parse_named_field_block(buf, len, textname, flags,"computer", rules_computer_named_fields,  &rules_named_fields_set, 0);
-    parse_named_field_block(buf, len, textname, flags,"workers",  rules_workers_named_fields,   &rules_named_fields_set, 0);
-    parse_named_field_block(buf, len, textname, flags,"health",   rules_health_named_fields,    &rules_named_fields_set, 0);
-
     if (result)
     {
-        result = parse_rules_research_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" research blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_rules_sacrifices_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" sacrifices blocks failed.",textname,fname);
+        parse_named_field_block(buf, len, fname, flags,"game",     rules_game_named_fields,      &rules_named_fields_set, 0);
+        parse_named_field_block(buf, len, fname, flags,"creatures",rules_creatures_named_fields, &rules_named_fields_set, 0);
+        parse_named_field_block(buf, len, fname, flags,"rooms",    rules_rooms_named_fields,     &rules_named_fields_set, 0);
+        parse_named_field_block(buf, len, fname, flags,"magic",    rules_magic_named_fields,     &rules_named_fields_set, 0);
+        parse_named_field_block(buf, len, fname, flags,"computer", rules_computer_named_fields,  &rules_named_fields_set, 0);
+        parse_named_field_block(buf, len, fname, flags,"workers",  rules_workers_named_fields,   &rules_named_fields_set, 0);
+        parse_named_field_block(buf, len, fname, flags,"health",   rules_health_named_fields,    &rules_named_fields_set, 0);
+        parse_rules_research_blocks(buf, len, fname, flags);
+        parse_rules_sacrifices_blocks(buf, len, fname, flags);
     }
     //Freeing and exiting.
     free(buf);
-    return result;
-}
-
-TbBool load_rules_config(const char *conf_fname, unsigned short flags)
-{
-    static const char config_global_textname[] = "global rules config";
-    static const char config_campgn_textname[] = "campaign rules config";
-    static const char config_level_textname[] = "level rules config";
-
-    set_defaults();
-
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_rules_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_rules_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_rules_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    //Freeing and exiting.
     return result;
 }
 

@@ -580,21 +580,6 @@ static void command_add_creature_to_pool(const char *crtr_name, long amount)
     command_add_value(Cmd_ADD_CREATURE_TO_POOL, ALL_PLAYERS, crtr_id, amount, 0);
 }
 
-static void command_set_music(long val)
-{
-    if (get_script_current_condition() != CONDITION_ALWAYS)
-    {
-        SCRPTWRNLOG("Music set inside conditional block; condition ignored");
-    }
-    if (val == 0) {
-        SCRPTLOG("Stopping music");
-        stop_music();
-    } else {
-        SCRPTLOG("Playing music track %ld", val);
-        play_music_track(val);
-    }
-}
-
 static void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, long hate_val)
 {
     // Verify enemy player
@@ -1160,7 +1145,7 @@ static void command_export_variable(long plr_range_id, const char *varib_name, c
         SCRPTERRLOG("Unknown CAMPAIGN FLAG, '%s'", cmpflgname);
         return;
     }
-    if (!parse_get_varib(varib_name, &src_id, &src_type))
+    if (!parse_get_varib(varib_name, &src_id, &src_type, level_file_version))
     {
         SCRPTERRLOG("Unknown VARIABLE, '%s'", varib_name);
         return;
@@ -1253,7 +1238,7 @@ static void command_compute_flag(long plr_range_id, const char *flgname, const c
     src_flg_id = get_id(power_desc, src_flgname);
     if (src_flg_id == -1)
     {
-        if (!parse_get_varib(src_flgname, &src_flg_id, &src_flag_type))
+        if (!parse_get_varib(src_flgname, &src_flg_id, &src_flag_type, level_file_version))
         {
             SCRPTERRLOG("Unknown source flag, '%s'", src_flgname);
             return;
@@ -1407,9 +1392,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_TUTORIAL_FLASH_BUTTON:
         command_tutorial_flash_button(scline->np[0], scline->np[1]);
-        break;
-    case Cmd_SET_MUSIC:
-        command_set_music(scline->np[0]);
         break;
     case Cmd_SET_CREATURE_HEALTH:
         command_set_creature_health(scline->tp[0], scline->np[1]);
