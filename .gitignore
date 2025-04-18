@@ -34,3 +34,4 @@ res/keeperfx_icon.ico
 /deps/ffmpeg
 /deps/openal
 /deps/*.tar.gz
+.venv/
