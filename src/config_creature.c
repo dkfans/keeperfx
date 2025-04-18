@@ -351,10 +351,13 @@ void check_and_auto_fix_stats(void)
             ERRORLOG("Creature model %d (%s) HungerRate > 0 & Hunger Fill = 0 - Fixing", (int)model, creature_code_name(model));
             crstat->hunger_fill = 1;
         }
-        if ( (crstat->sleep_exp_slab != 0) && (crstat->sleep_experience == 0) )
+        for (unsigned int i = 0; i < SLEEP_XP_COUNT; i++)
         {
-            ERRORLOG("Creature model %d (%s) SleepSlab set but SleepExperience = 0 - Fixing", (int)model, creature_code_name(model));
-            crstat->sleep_exp_slab = 0;
+            if ( (crstat->sleep_exp_slab[i] != 0) && (crstat->sleep_experience[i] == 0) )
+            {
+                ERRORLOG("Creature model %d (%s) SleepSlab set but SleepExperience = 0 - Fixing", (int)model, creature_code_name(model));
+                crstat->sleep_exp_slab[i] = 0;
+            }
         }
         if ((crstat->grow_up >= game.conf.crtr_conf.model_count) && !(crstat->grow_up == CREATURE_NOT_A_DIGGER))
         {
@@ -518,8 +521,12 @@ void init_creature_model_stats(void)
         }
         crstat->grow_up = 0;
         crstat->grow_up_level = 0;
-        crstat->sleep_exp_slab = 0;
-        crstat->sleep_experience = 0;
+        crstat->sleep_exp_slab[0] = 0;
+        crstat->sleep_experience[0] = 0;
+        crstat->sleep_exp_slab[1] = 0;
+        crstat->sleep_experience[1] = 0;
+        crstat->sleep_exp_slab[2] = 0;
+        crstat->sleep_experience[2] = 0;
         crstat->exp_for_hitting = 0;
         crstat->rebirth = 0;
         // Jobs block.
