@@ -113,9 +113,9 @@ void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, 
             gem_slabs++;
         } else
         {
-            if (slb->kind == SlbT_DENSEGOLD)
+            if (slb->kind != SlbT_GOLD)
             {
-                struct SlabConfigStats* slabst = get_slab_kind_stats(SlbT_DENSEGOLD);
+                struct SlabConfigStats* slabst = get_slab_kind_stats(slb->kind);
                 GoldAmount gold_per_dense_block = slabst->gold_held;
                 slabst = get_slab_kind_stats(SlbT_GOLD);
                 GoldAmount gold_per_block = slabst->gold_held;
