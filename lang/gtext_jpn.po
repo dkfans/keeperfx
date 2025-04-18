@@ -2768,7 +2768,7 @@ msgctxt "Slab description"
 msgid ""
 "Path: Unclaimed earth floor. You can claim it if it is connected to already "
 "claimed territory."
-msgstr "通路: 誰の所有でもない土の地面。占有した領土に隣接している場合は、占有得る。 [12.1]"
+msgstr "通路: 誰の所有でもない土の地面。占有した領土に隣接している場合は、占有することができる。 [12.1]"
 
 #: guitext:332
 #, fuzzy
@@ -3876,7 +3876,7 @@ msgctxt "Slab description"
 msgid ""
 "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
 "takes longer to mine than Gold."
-msgstr "宝石: 手下インプが採掘する無限な富。崩されることがない。金鉱よりも掘り出すまでに長い時間がかかる。 [12.3]"
+msgstr "宝石: 手下インプが採掘する無限な富。崩されることはないが、金鉱よりも掘り出すまでに長い時間がかかる。 [12.3]"
 
 #: guitext:545
 #, fuzzy
