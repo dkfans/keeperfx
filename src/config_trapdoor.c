@@ -41,6 +41,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
 struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 
@@ -59,8 +60,10 @@ const struct ConfigFileData keeper_trapdoor_file_data = {
 static const struct NamedCommand door_properties_commands[] = {
     {"RESIST_NON_MAGIC",     DoMF_ResistNonMagic},
     {"SECRET",               DoMF_Secret},
-    {"THICK",                DoMF_Thick},  
+    {"THICK",                DoMF_Thick},
     {"MIDAS",                DoMF_Midas},
+    {"FREESTANDING",         DoMF_Freestanding},
+    {"ALWAYS_LOCKED",        DoMF_AlwaysLocked},
     {NULL,                   0},
   };
 

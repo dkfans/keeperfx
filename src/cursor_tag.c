@@ -146,7 +146,7 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     return (colour != SLC_RED);
 }
 
-TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel drmodel)
 {
     SYNCDBG(7,"Starting");
     MapSlabCoord slb_x = subtile_slab(stl_x);
@@ -155,12 +155,19 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     slb = get_slabmap_block(slb_x, slb_y);
     TbBool allowed = false;
     char Orientation;
-    TbBool Check = false;
+    TbBool Check = true;
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     if (floor_height_z == 1)
     {
         Orientation = find_door_angle(stl_x, stl_y, plyr_idx);
-        switch(Orientation)
+        
+        const struct DoorConfigStats* doorst = get_door_model_stats(drmodel);
+
+        if (doorst->model_flags & DoMF_Thick)
+        {
+            Check = !slab_has_trap_on(slb_x,slb_y);
+        }
+        else switch(Orientation)
         {
             case 0:
             {
@@ -174,7 +181,7 @@ TbBool tag_cursor_blocks_place_door(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
             }
         }
         if ( ( (slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED) )
-            && (Orientation != -1) && ( Check ) 
+            && (Orientation != -1 || (doorst->model_flags & DoMF_Freestanding)) && ( Check ) 
             && (!slab_has_door_thing_on(slb_x, slb_y)) )
         {
             allowed = true;
