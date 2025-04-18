@@ -2731,7 +2731,7 @@ msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
 "your Treasure Room. You can also pick up the lumps of treasure left on the "
 "ground."
-msgstr "金鉱: 富の源だ。採掘すれば手下インプが宝物庫へと運ぶ。床に落ちている財宝の塊を拾うこともできる。 [12.2]"
+msgstr "金鉱: 富の源だ。採掘すれば手下インプが宝物庫へと運ぶ。床に置いた財宝の塊を拾うこともできる。 [12.2]"
 
 #: guitext:327
 #, fuzzy
