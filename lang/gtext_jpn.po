@@ -2714,7 +2714,7 @@ msgctxt "Slab description"
 msgid ""
 "Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
 "to go round. It is visible even if far from your territory."
-msgstr "貫通不可能な岩: 手下インプはこれを掘り進むことができない。 [12.4]"
+msgstr "貫通不可能な岩: 手下インプはこれを掘り進むことができない。迂回が唯一の解決方法だ。遠くからでも見える。 [12.4]"
 
 #: guitext:325
 #, fuzzy
@@ -2731,7 +2731,7 @@ msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
 "your Treasure Room. You can also pick up the lumps of treasure left on the "
 "ground."
-msgstr "金鉱: 富の源だ。採掘すれば手下インプが宝物庫へと運ぶ。 [12.2]"
+msgstr "金鉱: 富の源だ。採掘すれば手下インプが宝物庫へと運ぶ。床に置いた財宝の塊を拾うこともできる。 [12.2]"
 
 #: guitext:327
 #, fuzzy
@@ -2739,7 +2739,7 @@ msgctxt "Slab description"
 msgid ""
 "Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
 "or building a Bridge."
-msgstr "溶岩: ここを踏むとクリーチャーは焼けてしまう。 [14.2]"
+msgstr "溶岩: ここを踏むとクリーチャーは焼けてしまう。渡るには、橋を架けなければならない。 [14.2]"
 
 #: guitext:328
 #, fuzzy
@@ -2747,7 +2747,7 @@ msgctxt "Slab description"
 msgid ""
 "Water: Creatures move more slowly through water. Build the Bridge to make "
 "new land on the water."
-msgstr "水: 水の中ではクリーチャーの動きは遅くなる。 [14.1]"
+msgstr "水: 水の中ではクリーチャーの動きは遅くなる。水上に新しい陸地を作るために橋を建てる。 [14.1]"
 
 #: guitext:329
 #, fuzzy
@@ -2768,7 +2768,7 @@ msgctxt "Slab description"
 msgid ""
 "Path: Unclaimed earth floor. You can claim it if it is connected to already "
 "claimed territory."
-msgstr "通路: 誰の所有でもない土の地面。 [12.1]"
+msgstr "通路: 誰の所有でもない土の地面。占有した領土に隣接している場合は、占有することができる。 [12.1]"
 
 #: guitext:332
 #, fuzzy
@@ -2776,7 +2776,7 @@ msgctxt "Slab description"
 msgid ""
 "Claimed area: Your dungeon territory. You can build rooms and drop your "
 "creatures on it."
-msgstr "占有地: ダンジョン領地。 [12.1]"
+msgstr "占有地: ダンジョン領地。ここに部屋を建てたり、クリーチャーを落としたりできる。 [12.1]"
 
 #: guitext:333
 msgctxt "In-game interface item"
@@ -2796,17 +2796,17 @@ msgstr "お前は、ぶざまにも敗北した。 再度挑むのならスペ�
 #: guitext:336
 msgctxt "On-screen message"
 msgid "Recording FLIC"
-msgstr "Recording FLIC"
+msgstr "FLICを録画している"
 
 #: guitext:337
 msgctxt "On-screen message"
 msgid "Error recording FLIC"
-msgstr "Error recording FLIC"
+msgstr "FLIC録画中にエラーが発生した"
 
 #: guitext:338
 msgctxt "On-screen message"
 msgid "Finished recording FLIC"
-msgstr "Finished recording FLIC"
+msgstr "FLIC録画が終了した"
 
 #: guitext:339
 msgctxt "Unused"
@@ -2921,167 +2921,167 @@ msgstr "これは勇気と名誉、そして、 いかに勇者どもがおい�
 #: guitext:362
 msgctxt "Credits"
 msgid "Designed By"
-msgstr "Designed By"
+msgstr "デザイン制作"
 
 #: guitext:363
 msgctxt "Credits"
 msgid "Project Leader"
-msgstr "Project Leader"
+msgstr "プロジェクト・リーダー"
 
 #: guitext:364
 msgctxt "Credits"
 msgid "Lead Programmer"
-msgstr "Lead Programmer"
+msgstr "リード・プログラマー"
 
 #: guitext:365
 msgctxt "Credits"
 msgid "Lead Artist"
-msgstr "Lead Artist"
+msgstr "リード・アーティスト"
 
 #: guitext:366
 msgctxt "Credits"
 msgid "Programming"
-msgstr "Programming"
+msgstr "プログラミング"
 
 #: guitext:367
 msgctxt "Credits"
 msgid "Engine Design"
-msgstr "Engine Design"
+msgstr "エンジン設計"
 
 #: guitext:368
 msgctxt "Credits"
 msgid "Music and Sfx"
-msgstr "Music and Sfx"
+msgstr "音楽と効果音"
 
 #: guitext:369
 msgctxt "Credits"
 msgid "Graphics Programmers"
-msgstr "Graphics Programmers"
+msgstr "グラフィックス・プログラマー"
 
 #: guitext:370
 msgctxt "Credits"
 msgid "Artists"
-msgstr "Artists"
+msgstr "アーティスト"
 
 #: guitext:371
 msgctxt "Credits"
 msgid "Network Programming"
-msgstr "Network Programming"
+msgstr "ネットワーク・プログラミング"
 
 #: guitext:372
 msgctxt "Credits"
 msgid "Testing Manager"
-msgstr "Testing Manager"
+msgstr "テスト管理責任者"
 
 #: guitext:373
 msgctxt "Credits"
 msgid "Lead Testers"
-msgstr "Lead Testers"
+msgstr "リード・テスター"
 
 #: guitext:374
 msgctxt "Credits"
 msgid "Lead Tester"
-msgstr "Lead Tester"
+msgstr "リード・テスター"
 
 #: guitext:375
 msgctxt "Credits"
 msgid "Management"
-msgstr "Management"
+msgstr "経営"
 
 #: guitext:376
 msgctxt "Credits"
 msgid "Marketing and PR"
-msgstr "Marketing and PR"
+msgstr "マーケティングと広報"
 
 #: guitext:377
 msgctxt "Credits"
 msgid "Tech Support"
-msgstr "Tech Support"
+msgstr "テクニカル・サポート"
 
 #: guitext:378
 msgctxt "Credits"
 msgid "Administration"
-msgstr "Administration"
+msgstr "運営"
 
 #: guitext:379
 msgctxt "Credits"
 msgid "Thanks To"
-msgstr "Thanks To"
+msgstr "感謝"
 
 #: guitext:380
 msgctxt "Credits"
 msgid "Producer"
-msgstr "Producer"
+msgstr "プロデューサー"
 
 #: guitext:381
 msgctxt "Credits"
 msgid "Level Design"
-msgstr "Level Design"
+msgstr "レベル・デザイン"
 
 #: guitext:382
 msgctxt "Credits"
 msgid "Script By"
-msgstr "Script By"
+msgstr "シナリオ"
 
 #: guitext:383
 msgctxt "Credits"
 msgid "Libraries and Tools"
-msgstr "Libraries and Tools"
+msgstr "ライブラリとツール"
 
 #: guitext:384
 msgctxt "Credits"
 msgid "Playtesters"
-msgstr "Playtesters"
+msgstr "プレイテスター"
 
 #: guitext:385
 msgctxt "Credits"
 msgid "Localisation"
-msgstr "Localisation"
+msgstr "ローカライズ"
 
 #: guitext:386
 msgctxt "Credits"
 msgid "Special Thanks To"
-msgstr "Special Thanks To"
+msgstr "特別謝辞"
 
 #: guitext:387
 msgctxt "Credits"
 msgid "Package Design"
-msgstr "Package Design"
+msgstr "パッケージ・デザイン"
 
 #: guitext:388
 msgctxt "Credits"
 msgid "Documentation"
-msgstr "Documentation"
+msgstr "ドキュメンテーション"
 
 #: guitext:389
 msgctxt "Credits"
 msgid "Documentation Layout"
-msgstr "Documentation Layout"
+msgstr "ドキュメント・レイアウト"
 
 #: guitext:390
 msgctxt "Credits"
 msgid "Production"
-msgstr "Production"
+msgstr "製作"
 
 #: guitext:391
 msgctxt "Credits"
 msgid "Quality Assurance"
-msgstr "Quality Assurance"
+msgstr "品質保証"
 
 #: guitext:392
 msgctxt "Credits"
 msgid "Lead Level Design"
-msgstr "Lead Level Design"
+msgstr "リード・レベル・デザイン"
 
 #: guitext:393
 msgctxt "Credits"
 msgid "Intro"
-msgstr "Intro"
+msgstr "イントロ"
 
 #: guitext:394
 msgctxt "Credits"
 msgid "Testers"
-msgstr "Testers"
+msgstr "テスター"
 
 #: guitext:395
 msgctxt "Menu interface item"
@@ -3488,7 +3488,7 @@ msgstr "エリアを拡大表示する"
 #: guitext:467
 msgctxt "Menu interface item"
 msgid "No mouse installed"
-msgstr "No mouse installed"
+msgstr "マウスが装着されていない"
 
 #: guitext:468
 msgctxt "Menu interface item"
@@ -3876,7 +3876,7 @@ msgctxt "Slab description"
 msgid ""
 "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
 "takes longer to mine than Gold."
-msgstr "宝石: 手下インプが採掘する無限な富。 [12.3]"
+msgstr "宝石: 手下インプが採掘する無限な富。崩されることはないが、金鉱よりも掘り出すまでに長い時間がかかる。 [12.3]"
 
 #: guitext:545
 #, fuzzy
@@ -3884,7 +3884,7 @@ msgctxt "Object description"
 msgid ""
 "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
 "closed on your side."
-msgstr "勇者の門: 勇者はこの門を通ってお前のダンジョンに侵入する。 [15.4]"
+msgstr "勇者の門: 勇者はこの門を通ってお前のダンジョンに侵入する。閉められることがない。 [15.4]"
 
 #: guitext:546
 msgctxt "Creature name"
@@ -4029,32 +4029,32 @@ msgstr "Alt"
 #: guitext:572
 msgctxt "Credits"
 msgid "Additional Artwork"
-msgstr "Additional Artwork"
+msgstr "追加アートワーク"
 
 #: guitext:573
 msgctxt "Credits"
 msgid "Additional Programming"
-msgstr "Additional Programming"
+msgstr "追加プログラミング"
 
 #: guitext:574
 msgctxt "Credits"
 msgid "Manual And Documentation"
-msgstr "Manual And Documentation"
+msgstr "取扱説明書と資料"
 
 #: guitext:575
 msgctxt "Credits"
 msgid "Installer"
-msgstr "Installer"
+msgstr "インストーラー"
 
 #: guitext:576
 msgctxt "Credits"
 msgid "Additional Level Design"
-msgstr "Additional Level Design"
+msgstr "追加レベルデザイン"
 
 #: guitext:577 guitext:863
 msgctxt "Credits"
 msgid "Additional Thanks"
-msgstr "Additional Thanks"
+msgstr "追加謝辞"
 
 #: guitext:578
 msgctxt "Trap names"
@@ -5360,18 +5360,17 @@ msgid ""
 "When night does not give way to day, And children are too scared to play, "
 "Abandon hope, embrace despair, You're destined for my Dragon's lair"
 msgstr ""
-"夜が昼に道を譲らぬ時、子どもらが怖くて遊べぬ時、希望を捨て絶望を胸に抱いた"
-"時、お前は我がドラゴンのねぐらへと向かう運命なのだ。"
+"夜が昼に道を譲らぬ時、子どもらが怖くて遊べぬ時、希望を捨て絶望を胸に抱いた時、お前は我がドラゴンのねぐらへと向かう運命なのだ。"
 
 #: guitext:804
 msgctxt "Easter egg"
 msgid "If thou art bold and pure of heart, Come down here, be torn apart."
-msgstr "大胆不敵で純粋な心を汝が持つならば、ここへ来い。 引き裂いてやる。"
+msgstr "大胆不敵で純粋な心を汝が持つならば、ここへ来い。引き裂いてやる。"
 
 #: guitext:805
 msgctxt "Easter egg"
 msgid "Through my dungeon you may tread, But rest assured, you'll end up dead."
-msgstr "わがダンジョンを歩むがよい。だが、自信過剰は死を招く"
+msgstr "わがダンジョンを歩むがよい。だが、自信過剰は死を招く。"
 
 #: guitext:806
 msgctxt "Easter egg"
@@ -5382,8 +5381,7 @@ msgstr "すべてを失くしたその時は、シンジケートウォーズで
 msgctxt "Easter egg"
 msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
 msgstr ""
-"鎧を着けたナイトには真の勇気が宿っている、つばを吐きかけいつも以上の早業で串"
-"刺しにしてあぶるがよい。"
+"鎧を着けたナイトには真の勇気が宿っている。つばを吐きかけいつも以上の早業で串刺しにしてあぶるがよい。"
 
 #: guitext:808
 msgctxt "Easter egg"
@@ -5428,7 +5426,7 @@ msgstr "侵入者どもは滅びるであろう、お前のダンジョンの拷
 #: guitext:816
 msgctxt "Easter egg"
 msgid "Though intruders' hearts be pure, They'll end up on your dungeon floor."
-msgstr "たとえ心は純粋でも、お前のダンジョンの土の上で、侵入者どもは息絶える。"
+msgstr "たとえ心は純粋でも、侵入者どもは息絶える、お前のダンジョンの土の上で。"
 
 #: guitext:817
 msgctxt "Easter egg"
@@ -5436,8 +5434,7 @@ msgid ""
 "Your tunnels will be dark and cold, And no place for a Knight of old, Even "
 "if he claims he's bold."
 msgstr ""
-"お前のダンジョンは暗く冷たく、いかに大胆不敵を自称していようとも、老ナイトの"
-"いるような場所ではない。"
+"お前のダンジョンは暗く冷たく、老ナイトのいるような場所ではない。いかに大胆不敵を自称していようとも。"
 
 #: guitext:818
 msgctxt "Easter egg"
@@ -5461,8 +5458,7 @@ msgctxt "Easter egg"
 msgid ""
 "Protect your gold and Dungeon Heart, And slap your minions till they fart."
 msgstr ""
-"財宝とダンジョンハートを守り抜け。そして手下に活を入れよ、奴らが思わず屁をこ"
-"くまで。"
+"財宝とダンジョンハートを守り抜け。そして手下に活を入れよ、奴らが思わず屁をこくまで。"
 
 #: guitext:822
 msgctxt "Easter egg"
@@ -5482,7 +5478,7 @@ msgstr "手下が悩みの種ならば、奴らを牢に閉じ込めろ。"
 #: guitext:825
 msgctxt "Easter egg"
 msgid "Torture is the crowning glory, Of your Dungeon Keeper story."
-msgstr "拷問は、ダンジョンキーパー物語における無上の栄誉なり"
+msgstr "拷問は、ダンジョンキーパー物語における無上の栄誉なり。"
 
 #: guitext:826
 msgctxt "Easter egg"
@@ -5505,8 +5501,7 @@ msgid ""
 "Imps are the lifeblood of your dungeon. Like blood, they must be allowed to "
 "circulate."
 msgstr ""
-"インプはお前のダンジョンの命の源なり。それは血のごとく、循環しているに違いな"
-"い。"
+"インプはお前のダンジョンの命の源なり。それは血のごとく、循環しているに違いない。"
 
 #: guitext:830
 msgctxt "In-game hint message"
@@ -5514,8 +5509,7 @@ msgid ""
 "Feeling mean? Set your minions to imprison and when your cells are full, "
 "spend some time torturing..."
 msgstr ""
-"気分が悪い？ 手下どもを投獄するがよい。牢が満員の時は、しばらく拷問して過ご"
-"せ。"
+"気分が悪い？ 手下どもを投獄するがよい。牢が満員の時は、しばらく拷問して過ごせ。"
 
 #: guitext:831
 msgctxt "In-game hint message"
@@ -5523,8 +5517,7 @@ msgid ""
 "If your creatures get unhappy, slap some sense into them. They'll soon "
 "realise how lucky they are."
 msgstr ""
-"手下クリーチャーが不幸を感じていたら、活を入れてやれ。じきに連中は自分たちの"
-"幸運に気づくであろう。"
+"手下クリーチャーが不幸を感じていたら、活を入れてやれ。じきに連中は自分たちの幸運に気づくであろう。"
 
 #: guitext:832
 msgctxt "In-game hint message"
@@ -5532,8 +5525,7 @@ msgid ""
 "The underworld is your domain and the adventurers come to steal it. Never "
 "show pity, even when the intruders are defenceless and pathetic."
 msgstr ""
-"お前の領地たる地底世界を、冒険者どもは奪いにやってくる。決して同情するな、た"
-"とえ侵入者どもが身を守る力もなく哀れを誘おうとも。"
+"お前の領地たる地底世界を、冒険者どもは奪いにやってくる。決して同情するな、たとえ侵入者どもが身を守る力もなく哀れを誘おうとも。"
 
 #: guitext:833
 msgctxt "In-game hint message"
@@ -5541,8 +5533,7 @@ msgid ""
 "Compassion is the hallmark of the good Keeper. But good Keepers never win. "
 "Only evil ones."
 msgstr ""
-"哀れみは良きキーパーの証明なり。しかし良きキーパーが勝利することはない。勝利"
-"するには邪悪であらねば。"
+"哀れみは良きキーパーの証明なり。しかし良きキーパーが勝利することはない。勝利するには邪悪であらねば。"
 
 #: guitext:834
 msgctxt "In-game hint message"
@@ -5550,8 +5541,7 @@ msgid ""
 "There's never a moment to waste. Already the bravest of the brave are "
 "queuing up to enter your dungeon. So stop reading this and get going."
 msgstr ""
-"一瞬たりとも無駄にはできぬ。すでに勇者の中の勇者がお前のダンジョンへ入ろうと"
-"列をなしている。こんなものを読んでいないで、早く行け。"
+"一瞬たりとも無駄にはできぬ。すでに勇者の中の勇者がお前のダンジョンへ入ろうと列をなしている。こんなものを読んでいないで、早く行け。"
 
 #: guitext:835
 msgctxt "In-game hint message"
@@ -5559,8 +5549,7 @@ msgid ""
 "Build fast. You'll want the biggest possible welcoming committee ready for "
 "the intruders."
 msgstr ""
-"建築を急げ。できるだけ大きな歓迎委員会を組織して、侵入者どもを迎えたいであろ"
-"う？"
+"建築を急げ。できるだけ大きな歓迎委員会を組織して、侵入者どもを迎えたいであろう？"
 
 #: guitext:836
 msgctxt "In-game hint message"
@@ -5665,7 +5654,7 @@ msgstr "マップ"
 #: guitext:855
 msgctxt "On-screen message"
 msgid "Insufficient Memory"
-msgstr "Insufficient Memory"
+msgstr "メモリ不足"
 
 #: guitext:856
 msgctxt "On-screen message"
@@ -5680,47 +5669,47 @@ msgstr "調査"
 #: guitext:858
 msgctxt "Credits"
 msgid "Support Art"
-msgstr "Support Art"
+msgstr "サポート・アート"
 
 #: guitext:859
 msgctxt "Credits"
 msgid "Navigation System"
-msgstr "Navigation System"
+msgstr "ナビゲーション・システム"
 
 #: guitext:860
 msgctxt "Credits"
 msgid "Script"
-msgstr "Script"
+msgstr "シナリオ"
 
 #: guitext:861
 msgctxt "Credits"
 msgid "Voice Over"
-msgstr "Voice Over"
+msgstr "ボイス・オーバー"
 
 #: guitext:862
 msgctxt "Credits"
 msgid "Finance"
-msgstr "Finance"
+msgstr "財務"
 
 #: guitext:864
 msgctxt "Credits"
 msgid "Localisation Management"
-msgstr "Localisation Management"
+msgstr "ローカライズ管理"
 
 #: guitext:865
 msgctxt "Credits"
 msgid "Language Test Supervisor"
-msgstr "Language Test Supervisor"
+msgstr "言語テスト監督"
 
 #: guitext:866
 msgctxt "Credits"
 msgid "Language Testers"
-msgstr "Language Testers"
+msgstr "言語テスター"
 
 #: guitext:867
 msgctxt "Credits"
 msgid "Localisation Audio Management"
-msgstr "Localisation Audio Management"
+msgstr "ローカライズ音声管理"
 
 #: guitext:868
 msgctxt "Network game message"
@@ -5770,22 +5759,22 @@ msgstr "ＩＰＸ"
 #: guitext:877
 msgctxt "World direction"
 msgid "N"
-msgstr "N"
+msgstr "北"
 
 #: guitext:878
 msgctxt "World direction"
 msgid "E"
-msgstr "E"
+msgstr "東"
 
 #: guitext:879
 msgctxt "World direction"
 msgid "S"
-msgstr "S"
+msgstr "南"
 
 #: guitext:880
 msgctxt "World direction"
 msgid "W"
-msgstr "W"
+msgstr "西"
 
 #: guitext:881
 msgctxt "Menu interface item"
@@ -5795,22 +5784,22 @@ msgstr "Vs"
 #: guitext:882
 msgctxt "Credits"
 msgid "Game design"
-msgstr "Game design"
+msgstr "ゲーム・デザイン"
 
 #: guitext:883
 msgctxt "Credits"
 msgid "Associate Producer"
-msgstr "Associate Producer"
+msgstr "アソシエイト・プロデューサー"
 
 #: guitext:884
 msgctxt "Credits"
 msgid "Additional Script"
-msgstr "Additional Script"
+msgstr "追加シナリオ"
 
 #: guitext:885
 msgctxt "Easter egg"
 msgid "Happy Birthday"
-msgstr "Happy Birthday"
+msgstr "お誕生日おめでとう"
 
 #: guitext:886
 msgctxt "Menu interface message"
@@ -6870,13 +6859,12 @@ msgstr "岩の形成。"
 msgctxt "Slab description"
 msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
 msgstr ""
-"基盤岩: 誰の所有でもない岩石の地面。それを占領できられない、それ上に建てられ"
-"ない。"
+"基盤岩： 誰の所有でもない岩石の地面。それを占領できられない、それ上に建てられない。"
 
 #: guitext:1052
 msgctxt "Slab description"
-msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
-msgstr "密な金の層: あなたのインプが採掘するための多くの富を保持しています。"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
+msgstr "濃い金鉱： 手下インプが採掘する富を莫大に含んでいる。"
 
 #: guitext:1053
 #, fuzzy
