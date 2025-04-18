@@ -2802,17 +2802,20 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         }
         case 5: // SLEEPEXPERIENCE
+        case 6: // SLEEPEXPERIENCE2
+        case 7: // SLEEPEXPERIENCE3
         {
-            crstat->sleep_exp_slab = value;
-            crstat->sleep_experience = value2;
+            unsigned int index = creature_variable - 5;
+            crstat->sleep_exp_slab[index] = value;
+            crstat->sleep_experience[index] = value2;
             break;
         }
-        case 6: // EXPERIENCEFORHITTING
+        case 8: // EXPERIENCEFORHITTING
         {
             crstat->exp_for_hitting = value;
             break;
         }
-        case 7: // REBIRTH
+        case 9: // REBIRTH
         {
             crstat->rebirth = value;
             break;

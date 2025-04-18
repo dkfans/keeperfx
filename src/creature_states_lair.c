@@ -552,12 +552,15 @@ short creature_sleep(struct Thing *thing)
             dungeon->lvstats.backs_stabbed++;
         }
     }
-    if (crstat->sleep_exp_slab != SlbT_ROCK)
-    { // To think about: Should SlbT_ROCK be ignored? Settings the experience gain to 0 is enough to disable the feature.
-        if (creature_can_gain_experience(thing) && room_has_slab_adjacent(room, crstat->sleep_exp_slab))
+    for (unsigned int i = 0; i < SLEEP_XP_COUNT; i++)
+    {
+        if (crstat->sleep_experience[i] != 0)
         {
-            cctrl->exp_points += crstat->sleep_experience;
-            check_experience_upgrade(thing);
+            if (creature_can_gain_experience(thing) && room_has_slab_adjacent(room, crstat->sleep_exp_slab[i]))
+            {
+                cctrl->exp_points += crstat->sleep_experience[i];
+                check_experience_upgrade(thing);
+            }
         }
     }
     {

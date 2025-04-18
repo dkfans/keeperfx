@@ -47,6 +47,7 @@ extern "C" {
 #define ENTRANCE_ROOMS_COUNT               3
 #define INSTANCE_TYPES_MAX 2000
 #define LAIR_ENEMY_MAX 5
+#define SLEEP_XP_COUNT 3
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
@@ -433,8 +434,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short annoy_level;
     unsigned char lair_size;
     unsigned char hurt_by_lava;
-    unsigned char sleep_exp_slab;
-    short sleep_experience;
+    SlabKind sleep_exp_slab[SLEEP_XP_COUNT];
+    short sleep_experience[SLEEP_XP_COUNT];
     short exp_for_hitting;
     short gold_hold;
     short training_cost;
