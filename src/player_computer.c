@@ -191,20 +191,26 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
 {
     struct Dungeon* dungeon = comp->dungeon;
     long i;
+    if (room_role_matches(rkind,RoRoF_LairStorage))
+    {
+        //the first lair might be bigger if the portal limit is high
+        if (!dungeon_has_room(dungeon, rkind))
+        {
+            if (width_slabs * height_slabs < dungeon->max_creatures_attracted)
+            {
+                width_slabs++;
+                if (width_slabs * height_slabs < dungeon->max_creatures_attracted)
+                {
+                    height_slabs++;
+                }
+            }
+        }
+    }
     long max_slabs = height_slabs;
     if (max_slabs < width_slabs)
         max_slabs = width_slabs;
     long area_min = (max_slabs + 1) / 2 + 1;
     long area_max = area_min / 3 + 2 * area_min;
-    if (room_role_matches(rkind,RoRoF_LairStorage))
-    {
-        if (width_slabs*height_slabs < dungeon->max_creatures_attracted)
-        {
-            i = LbSqrL(dungeon->max_creatures_attracted);
-            width_slabs = i + 1;
-            height_slabs = i + 1;
-        }
-    }
     const long arr_length = sizeof(look_through_rooms)/sizeof(look_through_rooms[0]);
     for (long area = area_min; area < area_max; area++)
     {
