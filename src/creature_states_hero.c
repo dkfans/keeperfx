@@ -1289,7 +1289,7 @@ TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatn
     struct Coord3d pos;
     plyr_idx = get_best_dungeon_to_tunnel_to(creatng);
     if (plyr_idx == -1) {
-        //ERRORLOG("Could not find appropriate dungeon to send %s to",thing_model_name(creatng));
+        ERRORLOG("Could not find appropriate dungeon to send %s to",thing_model_name(creatng));
         return false;
     }
     if (!get_random_position_in_dungeon_for_creature(plyr_idx, CrWaS_WithinDungeon, creatng, &pos)) {
