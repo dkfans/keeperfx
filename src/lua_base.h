@@ -20,7 +20,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_basics.h"
-#include "../deps/luajit/src/lua.h"
+#include <lua.h>
 
 #ifdef __cplusplus
 extern "C" {

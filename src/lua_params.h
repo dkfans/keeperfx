@@ -19,7 +19,7 @@
 
 #include "globals.h"
 #include "map_locations.h"
-#include "../deps/luajit/src/lua.h"
+#include <lua.h>
 
 #ifdef __cplusplus
 extern "C" {

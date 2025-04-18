@@ -1,8 +1,8 @@
 #include "pre_inc.h"
 
-#include "../deps/luajit/src/lua.h"
-#include "../deps/luajit/src/lauxlib.h"
-#include "../deps/luajit/src/lualib.h"
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 
 
 #include "lua_triggers.h"

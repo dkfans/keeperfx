@@ -362,7 +362,7 @@ LINKLIB = -mwindows \
 	-L"deps/spng" -lspng \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
-	-L"deps/luajit/src" -llua51 -lminilua -lluajit -lbuildvm \
+	deps/luajit/lib/libluajit.a \
 	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid
 INCS = \
 	-I"deps/zlib/include" \
@@ -375,6 +375,7 @@ INCS = \
 	-I"deps/astronomy/include" \
 	-I"deps/ffmpeg" \
 	-I"deps/openal/include" \
+	-I"deps/luajit/include" \
 	-I"obj" # To find ver_defs.h
 CXXINCS =  $(INCS)
 
@@ -598,7 +599,7 @@ clean-libexterns: libexterns.mk
 	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson
 	-$(RM) libexterns
 
-deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal:
+deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit:
 	$(MKDIR) $@
 
 src/api.c: deps/centijson/include/json.h
@@ -609,6 +610,7 @@ deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 src/bflib_fmvids.cpp: deps/ffmpeg/libavformat/avformat.h
 src/bflib_sndlib.cpp: deps/openal/AL/al.h
+src/console_cmd.c: deps/luajit/include/lua.h
 
 deps/enet-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/enet-mingw32.tar.gz"
@@ -651,6 +653,15 @@ deps/openal-mingw32.tar.gz:
 
 deps/openal/AL/al.h: deps/openal-mingw32.tar.gz | deps/openal
 	tar xzmf $< -C deps/openal
+
+#luajit todo replace dkfans version of url
+deps/luajit-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/PieterVdc/kfx-deps/releases/download/3/luajit-mingw32.tar.gz"
+
+deps/luajit/lib/libluajit.a: deps/luajit-mingw32.tar.gz | deps/luajit
+	tar xzmf $< -C deps/luajit
+
+std-before: deps/luajit/lib/libluajit.a
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk

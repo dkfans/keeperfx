@@ -4,9 +4,9 @@
 //#include <string>
 
 //#include "../deps/luajit/src/lua.hpp"
-#include "../deps/luajit/src/lua.h"
-#include "../deps/luajit/src/lauxlib.h"
-#include "../deps/luajit/src/lualib.h"
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 
 #include "lua_api.h"
 

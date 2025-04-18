@@ -33,4 +33,5 @@ res/keeperfx_icon.ico
 /deps/centijson
 /deps/ffmpeg
 /deps/openal
+/deps/luajit
 /deps/*.tar.gz
