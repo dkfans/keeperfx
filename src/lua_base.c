@@ -1,9 +1,5 @@
 #include "pre_inc.h"
 
-
-//#include <string>
-
-//#include "../deps/luajit/src/lua.hpp"
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
