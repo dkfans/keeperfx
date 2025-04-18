@@ -338,6 +338,9 @@ struct PowerConfigStats {
     EffectOrEffElModel effect_id;
     short magic_use_func_idx;
     ThingModel creature_model;
+    long cost[MAGIC_OVERCHARGE_LEVELS];
+    long duration;
+    long strength[MAGIC_OVERCHARGE_LEVELS+1];
 };
 
 /**
@@ -391,12 +394,6 @@ struct SpellConfig {
     unsigned char properties_flags;
 };
 
-struct MagicStats {
-  long cost[MAGIC_OVERCHARGE_LEVELS];
-  long duration;
-  long strength[MAGIC_OVERCHARGE_LEVELS+1];
-};
-
 struct MagicConfig {
     long spell_types_count;
     struct SpellConfig spell_config[MAGIC_ITEMS_MAX];// should get merged into SpellConfigStats
@@ -408,11 +405,10 @@ struct MagicConfig {
     long special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
     struct InstanceInfo instance_info[INSTANCE_TYPES_MAX]; //count in crtr_conf
-    struct MagicStats keeper_power_stats[POWER_TYPES_MAX]; // should get merged into PowerConfigStats
 };
 
 /******************************************************************************/
-extern const char keeper_magic_file[];
+extern const struct ConfigFileData keeper_magic_file_data;
 extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
@@ -435,14 +431,12 @@ struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel);
 struct ShotConfigStats *get_shot_model_stats(ThingModel tngmodel);
 struct PowerConfigStats *get_power_model_stats(PowerKind pwmodel);
 TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst);
-struct MagicStats *get_power_dynamic_stats(PowerKind pwkind);
 struct SpecialConfigStats *get_special_model_stats(SpecialKind spckind);
 const char *spell_code_name(SpellKind spmodel);
 const char *shot_code_name(ThingModel tngmodel);
 const char *power_code_name(PowerKind pwkind);
 int power_model_id(const char * code_name);
 /******************************************************************************/
-TbBool load_magic_config(const char *conf_fname,unsigned short flags);
 TbBool make_all_powers_cost_free(void);
 TbBool make_all_powers_researchable(PlayerNumber plyr_idx);
 TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spl_idx, long resrch, long avail);

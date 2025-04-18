@@ -125,11 +125,6 @@ struct BoxInfo
     uint16_t              activated[CUSTOM_BOX_COUNT];
 };
 
-struct ComputerInfo
-{
-    struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
-    struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
-};
 
 /** Used to set player modifier with script command. */
 struct Modifiers
@@ -300,7 +295,6 @@ struct Dungeon {
     unsigned long         manufacture_gold;
     long                  creatures_total_backpay;
     long                  cheaper_diggers;
-    struct ComputerInfo   computer_info;
     long                  event_last_run_turn[EVENT_KIND_COUNT];
     long                  script_flags[SCRIPT_FLAGS_COUNT];
     unsigned short        room_kind[TERRAIN_ITEMS_MAX];
@@ -357,6 +351,8 @@ TbBool dungeon_has_any_buildable_doors(struct Dungeon *dungeon);
 TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id);
 TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value);
 void add_to_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, long value);
+
+void add_heart_health(PlayerNumber plyr_idx,HitPoints healthdelta,TbBool warn_on_damage);
 
 /******************************************************************************/
 #ifdef __cplusplus

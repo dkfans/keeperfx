@@ -4,7 +4,7 @@
 #include "api.h"
 #include <json.h>
 #include <json-dom.h>
-#include "config.h"
+#include "config_keeperfx.h"
 #include "config_campaigns.h"
 #include "lvl_script.h"
 #include "lvl_script_commands.h"
@@ -977,7 +977,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
 
         // Recognize variable
         long variable_id, variable_type;
-        if (parse_get_varib(variable_name, &variable_id, &variable_type) == false)
+        if (parse_get_varib(variable_name, &variable_id, &variable_type,1) == false)
         {
             api_err("UNKNOWN_VAR", ack_id);
             value_fini(&data);
@@ -1013,7 +1013,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
 
         // Recognize variable
         long variable_id, variable_type;
-        if (parse_get_varib(variable_name, &variable_id, &variable_type) == false)
+        if (parse_get_varib(variable_name, &variable_id, &variable_type,1) == false)
         {
             api_err("UNKNOWN_VAR", ack_id);
             value_fini(&data);
@@ -1245,7 +1245,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
 
         // Recognize variable
         long variable_id, variable_type;
-        if (parse_get_varib(variable_name, &variable_id, &variable_type) == false)
+        if (parse_get_varib(variable_name, &variable_id, &variable_type,1) == false)
         {
             api_err("UNKNOWN_VAR", ack_id);
             value_fini(&data);
@@ -1277,7 +1277,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
 
         // Recognize variable
         long variable_id, variable_type;
-        if (parse_get_varib(variable_name, &variable_id, &variable_type) == false)
+        if (parse_get_varib(variable_name, &variable_id, &variable_type,1) == false)
         {
             api_err("UNKNOWN_VAR", ack_id);
             value_fini(&data);

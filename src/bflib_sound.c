@@ -266,13 +266,13 @@ TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z)
     return true;
 }
 
-TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long fil1D, char ctype, long flags, long priority)
+TbBool S3DAddSampleToEmitterPri(SoundEmitterID eidx, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long repeats, char ctype, long flags, long priority)
 {
     struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
-    return start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, fil1D, ctype, flags, priority) != 0;
+    return start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, repeats, ctype, flags, priority) != 0;
 }
 
-long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long fil1D, long flags, long priority)
+long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, SoundBankID bank_id, SoundPitch pitch, SoundVolume loudness, long repeats, long flags, long priority)
 {
     long eidx = allocate_free_sound_emitter();
     struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
@@ -284,7 +284,7 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, 
     emit->field_1 = flags;
     emit->curr_pitch = 100;
     emit->target_pitch = 100;
-    if (start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, fil1D, 3, flags, priority))
+    if (start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, repeats, 3, flags, priority))
         return eidx;
     delete_sound_emitter(eidx);
     return 0;
@@ -504,15 +504,19 @@ TbBool process_sound_emitters(void)
     long volume;
     long pitch;
     long i;
-    for (i=1; i < NoSoundEmitters; i++)
+    for (i = 0; i < NoSoundEmitters; i++)
     {
         emit = S3DGetSoundEmitter(i);
         if ( ((emit->flags & Emi_IsAllocated) != 0) && ((emit->flags & Emi_UnknownPlay) != 0) )
         {
             if ( emitter_is_playing(emit) )
             {
-                get_emitter_pan_volume_pitch(&Receiver, emit, &pan, &volume, &pitch);
-                set_emitter_pan_volume_pitch(emit, pan, volume, pitch);
+                if (i == Non3DEmitter || i == SpeechEmitter) {
+                    continue; // don't touch
+                } else {
+                    get_emitter_pan_volume_pitch(&Receiver, emit, &pan, &volume, &pitch);
+                    set_emitter_pan_volume_pitch(emit, pan, volume, pitch);
+                }
             } else
             {
                 emit->flags ^= Emi_UnknownPlay;

@@ -136,19 +136,19 @@ short warning_dialog(const char *codefile,const int ecode,const char *message)
   LbWarnLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
 
   const SDL_MessageBoxButtonData buttons[] = {
-		{ .flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .buttonid = 1, .text = "Ignore" },
+        { .flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .buttonid = 1, .text = "Ignore" },
     { .flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, .buttonid = 0, .text = "Abort" },
-	};
+    };
 
-	const SDL_MessageBoxData messageboxdata = {
-		.flags = SDL_MESSAGEBOX_WARNING,
-		.window = NULL,
-		.title = PROGRAM_FULL_NAME,
-		.message = message,
-		.numbuttons = SDL_arraysize(buttons),
-		.buttons = buttons,
-		.colorScheme = NULL //colorScheme not supported on windows
-	};
+    const SDL_MessageBoxData messageboxdata = {
+        .flags = SDL_MESSAGEBOX_WARNING,
+        .window = NULL,
+        .title = PROGRAM_FULL_NAME,
+        .message = message,
+        .numbuttons = SDL_arraysize(buttons),
+        .buttons = buttons,
+        .colorScheme = NULL //colorScheme not supported on windows
+    };
 
   int button = 0;
   SDL_ShowMessageBox(&messageboxdata, &button);

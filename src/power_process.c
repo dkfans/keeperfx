@@ -344,11 +344,11 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
             long dist = get_2d_distance(&shotng->mappos, &thing->mappos);
             if (dist < best_dist)
             {
-                const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_LIGHTNING);
+                const struct PowerConfigStats *powerst = get_power_model_stats(PwrK_LIGHTNING);
                 KeepPwrLevel power_level = shotng->shot.shot_level;
                 if (power_level > POWER_MAX_LEVEL)
                     power_level = POWER_MAX_LEVEL;
-                if (subtile_coord(pwrdynst->strength[power_level],0) > dist)
+                if (subtile_coord(powerst->strength[power_level],0) > dist)
                 {
                     if (line_of_sight_2d(&shotng->mappos, &thing->mappos)) {
                         best_dist = dist;
@@ -512,8 +512,8 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
                             reveal_map_block(mapblk, player->id_number);
                             long slb_x = subtile_slab(stl_x + i);
                             struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-                            struct SlabAttr* slbattr = get_slab_attrs(slb);
-                            if ( !slbattr->is_diggable )
+                            struct SlabConfigStats* slabst = get_slab_stats(slb);
+                            if ( !slabst->is_diggable )
                                 mapblk->flags &= ~(SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored);
                             mapblk++;
                         }
@@ -604,8 +604,8 @@ void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, 
                           struct Map* mapblk = get_map_block_at(stl_x, stl_y + i);
                           reveal_map_block(mapblk, player->id_number);
                           struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-                          struct SlabAttr* slbattr = get_slab_attrs(slb);
-                          if ( !slbattr->is_diggable )
+                          struct SlabConfigStats* slabst = get_slab_stats(slb);
+                          if ( !slabst->is_diggable )
                               mapblk->flags &= ~(SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored);
                       }
                       stl_y += delta;

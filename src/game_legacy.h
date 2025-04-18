@@ -37,6 +37,7 @@
 #include "config_objects.h"
 #include "config_rules.h"
 #include "config_players.h"
+#include "config_slabsets.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_traps.h"
@@ -123,6 +124,7 @@ struct Configs {
     struct ObjectsConfig object_conf;
     struct RulesConfig rules;
     struct PlayerStateConfig plyr_conf;
+    struct ColumnConfig column_conf;
 };
 
 struct Game {
@@ -214,7 +216,7 @@ struct Game {
     PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
-    HitPoints block_health[9];
+    HitPoints block_health[10];
     unsigned short generate_speed;
     unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;
@@ -229,7 +231,6 @@ struct Game {
     TbBool frame_step;
     TbBool paused_at_gameturn;
     GameTurnDelta pay_day_progress;
-    TbBool no_intro;
     GameTurn armageddon_cast_turn;
     GameTurn armageddon_over_turn;
     PlayerNumber armageddon_caster_idx;

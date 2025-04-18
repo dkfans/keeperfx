@@ -76,6 +76,7 @@ struct TrapConfigStats {
     unsigned char trigger_type;
     unsigned char activation_type;
     unsigned short created_itm_model; // Shot model, effect model, slab kind.
+    unsigned char activation_level;
     unsigned char hit_type;
     TbBool hidden;
     unsigned char slappable;
@@ -138,13 +139,12 @@ struct TrapDoorConfig {
     struct ManufactureData manufacture_data[2*TRAPDOOR_TYPES_MAX];
 };
 /******************************************************************************/
-extern const char keeper_trapdoor_file[];
+extern const struct ConfigFileData keeper_trapdoor_file_data;
 extern struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 extern struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
-extern const struct NamedCommand trapdoor_door_commands[];
+extern const struct NamedFieldSet trapdoor_door_named_fields_set;
+extern const struct NamedFieldSet trapdoor_trap_named_fields_set;
 /******************************************************************************/
-TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
-
 struct TrapConfigStats* get_trap_model_stats(int tngmodel);
 struct DoorConfigStats *get_door_model_stats(int tngmodel);
 struct ManufactureData *get_manufacture_data(int manufctr_idx);
@@ -166,9 +166,6 @@ TbBool is_door_built(PlayerNumber plyr_idx, long door_idx);
 TbBool create_manufacture_array_from_trapdoor_data(void);
 TbBool make_available_all_doors(PlayerNumber plyr_idx);
 TbBool make_available_all_traps(PlayerNumber plyr_idx);
-
-void script_set_door_configuration(ThingModel door_type, short property, long value, long value2);
-void script_set_trap_configuration(ThingModel trap_type, short property, long value, long value2, long value3, long value4);
 
 /******************************************************************************/
 #ifdef __cplusplus

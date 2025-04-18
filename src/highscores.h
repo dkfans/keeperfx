@@ -1,10 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file config_spritecolors.h
- *     Header file for config_spritecolors.c.
- * @par Purpose:
- *     texture animation configuration loading functions.
+/** @file highscores.h
+ *     Header file for highscores.c.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @par  Copying and copyrights:
@@ -14,27 +12,22 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CFGSPRITECOLORS_H
-#define DK_CFGSPRITECOLORS_H
 
-#include "globals.h"
+#ifndef HIGHSCORES_H
+#define HIGHSCORES_H
+
 #include "bflib_basics.h"
-
-#include "config.h"
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-extern const struct ConfigFileData keeper_spritecolors_file_data;
+void load_or_create_high_score_table(void);
+TbBool save_high_score_table(void);
+int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *name);
+unsigned long get_level_highest_score(LevelNumber lvnum);
 
-short get_player_colored_icon_idx(short base_icon_idx,PlayerNumber plyr_idx);
-short get_player_colored_pointer_icon_idx(short base_icon_idx,PlayerNumber plyr_idx);
-short get_player_colored_button_sprite_idx(short base_icon_idx,PlayerNumber plyr_idx);
-ThingModel get_player_colored_object_model(ThingModel base_model_idx,PlayerNumber plyr_idx);
-ThingModel get_coloured_object_base_model(ThingModel model_idx);
-
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

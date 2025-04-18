@@ -32,6 +32,7 @@
 #include "config_terrain.h"
 #include "config_effects.h"
 #include "config_crtrstates.h"
+#include "config_keeperfx.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_objects.h"
@@ -151,6 +152,7 @@ short state_cleanup_dragging_body(struct Thing *creatng);
 short state_cleanup_dragging_object(struct Thing *creatng);
 short state_cleanup_in_room(struct Thing *creatng);
 short state_cleanup_unable_to_fight(struct Thing *creatng);
+short cleanup_creature_leaves_or_dies(struct Thing* creatng);
 short state_cleanup_unconscious(struct Thing *creatng);
 short state_cleanup_wait_at_door(struct Thing* creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *creatng);
@@ -443,7 +445,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_eating_at_garden, NULL, NULL, NULL,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Feed, 0, 0, 2, 0, GBS_creature_states_hungry, 1, 0, 1},
-  {creature_leaves_or_dies, NULL, NULL, NULL,
+  {creature_leaves_or_dies, cleanup_creature_leaves_or_dies, NULL, NULL,
     1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,  CrStTyp_OwnNeeds, 1, 1, 1, 0, GBS_creature_states_livid, 1, 0, 0},
   {creature_moan, NULL, NULL, NULL, // [140]
     1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0,  0, 0, 0, 1},
@@ -1631,15 +1633,15 @@ short creature_being_dropped(struct Thing *creatng)
 short creature_cannot_find_anything_to_do(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-	struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-	if ((game.play_gameturn - cctrl->countdown) >= 128)
-	{
-		set_start_state(creatng);
-		return 0;
-	}
-	if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
-		creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
-	return 1;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if ((game.play_gameturn - cctrl->countdown) >= 128)
+    {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+        creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
+    return 1;
 }
 
 /**
@@ -1919,8 +1921,8 @@ short creature_doing_nothing(struct Thing *creatng)
 TbBool slab_is_valid_for_creature_choose_move(const struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ( ((slbattr->block_flags & SlbAtFlg_IsRoom) != 0) || ((slbattr->block_flags & SlbAtFlg_Blocking) == 0) )
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
+    if ( ((slabst->block_flags & SlbAtFlg_IsRoom) != 0) || ((slabst->block_flags & SlbAtFlg_Blocking) == 0) )
         return true;
     MapSubtlCoord stl_x = slab_subtile_center(slb_x);
     MapSubtlCoord stl_y = slab_subtile_center(slb_y);
@@ -2399,6 +2401,15 @@ short creature_leaves_or_dies(struct Thing *creatng)
     }
     // Otherwise, try heading for nearest entrance
     return setup_creature_leaves_or_dies(creatng);
+}
+
+
+short cleanup_creature_leaves_or_dies(struct Thing* creatng)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+    return 1;
 }
 
 short creature_leaving_dungeon(struct Thing *creatng)
@@ -3612,11 +3623,11 @@ CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
         struct SlabMap* slb = get_slabmap_for_subtile(wall_x, wall_y);
         PlayerNumber slab_owner = slabmap_owner(slb);
         struct Map* mapblk = get_map_block_at(wall_x, wall_y);
-        struct SlabAttr* slbattr = get_slab_attrs(slb);
+        struct SlabConfigStats* slabst = get_slab_stats(slb);
 
         if ( (mapblk->flags & SlbAtFlg_Blocking) != 0
             && slab_owner == creatng->owner
-            && slbattr->category == SlbAtCtg_FortifiedWall )
+            && slabst->category == SlbAtCtg_FortifiedWall )
         {
             instruct_creature_to_damage_wall(creatng, wall_x, wall_y);
             return 1;
@@ -4209,6 +4220,22 @@ TbBool process_creature_hunger(struct Thing *thing)
     return false;
 }
 
+/**
+ * Check if thing is an enemy trap and can be destroyed by the creature.
+ * @param fightng The creature that might destroy the trap.
+ * @param enmtng The trap to be checked if it could be destroyed.
+ */
+TbBool trap_is_valid_combat_target_for_creature(const struct Thing* fightng, const struct Thing* enmtng)
+{
+    if(!players_are_enemies(fightng->owner,enmtng->owner))
+        return false;
+    if (thing_is_destructible_trap(enmtng) < 0)
+        return false;
+    if (thing_is_destructible_trap(enmtng) == 1)
+        return true;
+    return creature_has_disarming_weapon(fightng);
+}
+
 TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
@@ -4533,7 +4560,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         creatng->mappos.y.val,
         pos->x.val,
         pos->y.val,
-	    -2, nav_sizexy, __func__);
+        -2, nav_sizexy, __func__);
     nav_thing_can_travel_over_lava = 0;
 
     int distance = 0;
@@ -5002,19 +5029,23 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng)
         if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
             return 0;
         }
-        if ( (game.play_gameturn - cctrl->healing_sleep_check_turn > 128) &&
-          ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng))) )
+        if ((game.play_gameturn - cctrl->healing_sleep_check_turn) > 128)
         {
-            SYNCDBG(4,"Healing critical for %s",thing_model_name(creatng));
-            if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep)) {
-                return 1;
+            if ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng)))
+            {
+                SYNCDBG(4, "Healing critical for %s", thing_model_name(creatng));
+                if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep))
+                {
+                    return 1;
+                }
             }
-        } else
-        {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-            anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
+            else
+            {
+                struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+                anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
+            }
+            cctrl->healing_sleep_check_turn = game.play_gameturn;
         }
-        cctrl->healing_sleep_check_turn = game.play_gameturn;
     }
     return 0;
 }
@@ -5327,18 +5358,21 @@ long process_creature_needs_to_heal(struct Thing *creatng, const struct Creature
         if (!creature_free_for_sleep(creatng, CrSt_CreatureGoingHomeToSleep)) {
             return 0;
         }
-        if (((game.play_gameturn - cctrl->healing_sleep_check_turn) > 128)
-            && ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng))))
+        if ((game.play_gameturn - cctrl->healing_sleep_check_turn) > 128)
         {
-            if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep)) {
-                return 1;
+            if ((cctrl->lair_room_id != 0) || !room_is_invalid(get_best_new_lair_for_creature(creatng)))
+            {
+                if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep))
+                {
+                    return 1;
+                }
             }
+            else
+            {
+                anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
+            }
+            cctrl->healing_sleep_check_turn = game.play_gameturn;
         }
-        else
-        {
-            anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
-        }
-        cctrl->healing_sleep_check_turn = game.play_gameturn;
     }
     return 0;
 }
@@ -5441,9 +5475,9 @@ TbBool setup_move_off_lava(struct Thing* thing)
         slb = get_slabmap_for_subtile(cx, cy);
         if (slabmap_block_invalid(slb))
             continue;
-        const struct SlabAttr* slbattr;
-        slbattr = get_slab_attrs(slb);
-        if (!slbattr->is_safe_land)
+        const struct SlabConfigStats* slabst;
+        slabst = get_slab_stats(slb);
+        if (!slabst->is_safe_land)
             continue;
         // Check all subtiles of the slab in random order
         long k;

@@ -307,7 +307,6 @@ extern const struct NamedCommand hero_objective_desc[];
 extern const struct NamedCommand msgtype_desc[];
 extern const struct NamedCommand tendency_desc[];
 extern const struct NamedCommand creature_select_criteria_desc[];
-extern const struct NamedCommand trap_config_desc[];
 extern const struct NamedCommand gui_button_group_desc[];
 extern const struct NamedCommand campaign_flag_desc[];
 extern const struct NamedCommand script_operator_desc[];
@@ -317,10 +316,6 @@ extern const struct NamedCommand fill_desc[];
 extern const struct NamedCommand set_door_desc[];
 extern const struct NamedCommand texture_pack_desc[];
 extern const struct NamedCommand locked_desc[];
-
-// 1/4 turn minimal
-#define FX_LINE_TIME_PARTS 4
-
 
 ThingModel parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
@@ -335,11 +330,13 @@ TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
 long parse_criteria(const char *criteria);
 #define get_players_range_single(plr_range_id) get_players_range_single_f(plr_range_id, __func__, text_line_number)
 long get_players_range_single_f(long plr_range_id, const char *func_name, long ln_num);
-TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type);
+TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type, long level_file_version);
 void get_chat_icon_from_value(const char* txt, char* id, char* type);
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
 TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num);
 TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, KeepPwrLevel power_level, PlayerNumber caster, TbBool is_free);
+const char * script_strval(long offset);
+long script_strdup(const char *src);
 
 #define ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id) \
     struct ScriptValue tmp_value = {0}; \

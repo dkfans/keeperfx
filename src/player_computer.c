@@ -52,37 +52,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-ComputerType computer_assist_types[] = { 6, 7, 8, 9 };
-
-
-char const event_pay_day_text[] = "EVENT PAY DAY";
-char const event_save_imps_text[] = "EVENT SAVE IMPS";
-char const event_check_room_text[] = "EVENT CHECK ROOMS FULL";
-char const event_magic_foe_text[] = "EVENT MAGIC FOE";
-char const event_check_fighters_text[] = "EVENT CHECK FIGHTERS";
-char const event_fight_test_text[] = "EVENT FIGHT TEST";
-char const event_fight_text[] = "EVENT FIGHT";
-char const event_living_space_full_text[] = "EVENT LIVING SPACE FULL";
-char const event_treasure_room_full_text[] = "EVENT TREASURE ROOM FULL";
-char const event_heart_under_attack_text[] = "EVENT HEART UNDER ATTACK";
-char const event_room_attack_text[] = "EVENT ROOM ATTACK";
-char const event_dungeon_breach_text[] = "EVENT DUNGEON BREACH";
-
-char const check_money_text[] = "CHECK MONEY";
-char const check_expand_room_text[] = "CHECK EXPAND ROOM";
-char const check_avail_trap_text[] = "CHECK AVAILIABLE TRAP";
-char const check_neutral_places_text[] = "CHECK FOR NEUTRAL PLACES";
-char const check_avail_door_text[] = "CHECK AVAILIABLE DOOR";
-char const check_enemy_entrances_text[] = "CHECK FOR ENEMY ENTRANCES";
-char const check_for_slap_imp_text[] = "CHECK FOR SLAP IMP";
-char const check_for_speed_up_text[] = "CHECK FOR SPEED UP";
-char const check_for_quick_attack_text[] = "CHECK FOR QUICK ATTACK";
-char const check_to_pretty_text[] = "CHECK TO PRETTY";
-char const check_enough_imps_text[] = "CHECK FOR ENOUGH IMPS";
-char const move_creature_to_train_text[] = "MOVE CREATURE TO TRAINING";
-char const move_creature_to_best_text[] = "MOVE CREATURE TO BEST ROOM";
-char const computer_check_hates_text[] = "COMPUTER CHECK HATES";
 
 /******************************************************************************/
 // Function definition needed to compare pointers - remove pending
@@ -134,7 +103,7 @@ GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
 
 long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
 {
-    setup_a_computer_player(plyr_idx, computer_assist_types[aptype-1]);
+    setup_a_computer_player(plyr_idx, comp_player_conf.computer_assist_types[aptype-1]);
     return 1;
 }
 
@@ -222,20 +191,26 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
 {
     struct Dungeon* dungeon = comp->dungeon;
     long i;
+    if (room_role_matches(rkind,RoRoF_LairStorage))
+    {
+        //the first lair might be bigger if the portal limit is high
+        if (!dungeon_has_room(dungeon, rkind))
+        {
+            if (width_slabs * height_slabs < dungeon->max_creatures_attracted)
+            {
+                width_slabs++;
+                if (width_slabs * height_slabs < dungeon->max_creatures_attracted)
+                {
+                    height_slabs++;
+                }
+            }
+        }
+    }
     long max_slabs = height_slabs;
     if (max_slabs < width_slabs)
         max_slabs = width_slabs;
     long area_min = (max_slabs + 1) / 2 + 1;
     long area_max = area_min / 3 + 2 * area_min;
-    if (room_role_matches(rkind,RoRoF_LairStorage))
-    {
-        if (width_slabs*height_slabs < dungeon->max_creatures_attracted)
-        {
-            i = LbSqrL(dungeon->max_creatures_attracted);
-            width_slabs = i + 1;
-            height_slabs = i + 1;
-        }
-    }
     const long arr_length = sizeof(look_through_rooms)/sizeof(look_through_rooms[0]);
     for (long area = area_min; area < area_max; area++)
     {
@@ -960,10 +935,10 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+            if (flag_is_set(cproc->flags, ComProc_ListEnd))
                 break;
             //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
-            if (cproc->func_check == computer_check_dig_to_gold)
+            if (cproc->func_check == cpfl_computer_check_dig_to_gold)
             {
                 cproc->priority++;
                 if (game.play_gameturn - cproc->last_run_turn > 20) {
@@ -1257,10 +1232,8 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         return false;
     }
     memset(comp, 0, sizeof(struct Computer2));
-    comp->events = &get_dungeon(plyr_idx)->computer_info.events[0];
-    comp->checks = &get_dungeon(plyr_idx)->computer_info.checks[0];
 
-    struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp_model);
+    struct ComputerType* cpt = get_computer_type_template(comp_model);
     comp->dungeon = get_players_num_dungeon(plyr_idx);
     comp->model = comp_model;
     if (dungeon_invalid(comp->dungeon)) {
@@ -1293,26 +1266,26 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 
     for (i=0; i < COMPUTER_PROCESSES_COUNT; i++)
     {
-        struct ComputerProcess* cproc = cpt->processes[i];
+        struct ComputerProcess* cproc = &comp_player_conf.process_types[cpt->processes[i]];
         newproc = &comp->processes[i];
-        if ((cproc == NULL) || (cproc->name == NULL))
+        if ((cproc == NULL) || (cproc->name[0] == '\0'))
         {
-          newproc->name = NULL;
+          newproc->name[0] = '\0';
           break;
         }
         memcpy(newproc, cproc, sizeof(struct ComputerProcess));
-        newproc->parent = cproc;
+        newproc->parent = cpt->processes[i];
     }
     newproc = &comp->processes[i];
-    newproc->flags |= ComProc_Unkn0002;
+    newproc->flags |= ComProc_ListEnd;
 
     for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
     {
-        struct ComputerCheck* ccheck = &cpt->checks[i];
+        struct ComputerCheck* ccheck = &comp_player_conf.check_types[cpt->checks[i]];
         newchk = &comp->checks[i];
-        if ((ccheck == NULL) || (ccheck->name == NULL))
+        if ((ccheck == NULL) || (ccheck->name[0] == '\0'))
         {
-            newchk->name = NULL;
+            newchk->name[0] = '\0';
             break;
         }
         memcpy(newchk, ccheck, sizeof(struct ComputerCheck));
@@ -1325,11 +1298,11 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 
     for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
     {
-        struct ComputerEvent* event = &cpt->events[i];
+        struct ComputerEvent* event = &comp_player_conf.event_types[cpt->events[i]];
         struct ComputerEvent* newevnt = &comp->events[i];
-        if ((event == NULL) || (event->name == NULL))
+        if ((event == NULL) || (event->name[0] == '\0'))
         {
-            newevnt->name = NULL;
+            newevnt->name[0] = '\0';
             break;
         }
         memcpy(newevnt, event, sizeof(struct ComputerEvent));
@@ -1371,7 +1344,7 @@ void computer_check_events(struct Computer2 *comp)
     for (long i = 0; i < COMPUTER_EVENTS_COUNT; i++)
     {
         struct ComputerEvent* cevent = &comp->events[i];
-        if (cevent->name == NULL)
+        if (cevent->name[0] == '\0')
             break;
         switch (cevent->cetype)
         {
@@ -1387,7 +1360,7 @@ void computer_check_events(struct Computer2 *comp)
                       (event->owner == dungeon->owner) &&
                       (event->kind == cevent->mevent_kind) )
                 {
-                    if (cevent->func_event(comp, cevent, event) == 1) {
+                    if (computer_event_func_list[cevent->func_event](comp, cevent, event) == 1) {
                         SYNCDBG(5,"Player %d reacted on %s",(int)dungeon->owner,cevent->name);
                         cevent->last_test_gameturn = game.play_gameturn;
                     }
@@ -1402,7 +1375,7 @@ void computer_check_events(struct Computer2 *comp)
                 break;
             }
             {
-                if (cevent->func_test(comp,cevent) == 1) {
+                if (computer_event_test_func_list[cevent->func_test](comp,cevent) == 1) {
                     SYNCDBG(5,"Player %d reacted on %s",(int)dungeon->owner,cevent->name);
                 }
                 // Update test turn no matter if event triggered something
@@ -1429,10 +1402,10 @@ TbBool process_checks(struct Computer2 *comp)
         if ((ccheck->flags & ComChk_Unkn0001) == 0)
         {
             long delta = (game.play_gameturn - ccheck->last_run_turn);
-            if ((delta > ccheck->turns_interval) && (ccheck->func != NULL))
+            if ((delta > ccheck->turns_interval) && (computer_check_func_list[ccheck->func] != NULL))
             {
                 SYNCDBG(8,"Executing check %ld, \"%s\"",i,ccheck->name);
-                ccheck->func(comp, ccheck);
+                computer_check_func_list[ccheck->func](comp, ccheck);
                 ccheck->last_run_turn = game.play_gameturn;
             }
         }
@@ -1469,7 +1442,7 @@ TbBool process_processes_and_task(struct Computer2 *comp)
             Comp_Process_Func callback = NULL;
             struct ComputerProcess* cproc = get_computer_process(comp, comp->ongoing_process);
             if (cproc != NULL) {
-                callback = cproc->func_task;
+                callback = computer_process_func_list[cproc->func_task];
                 SYNCDBG(7,"Performing process \"%s\"",cproc->name);
             } else {
                 ERRORLOG("Invalid computer process %d referenced",(int)comp->ongoing_process);
@@ -1531,9 +1504,9 @@ struct ComputerProcess *computer_player_find_process_by_func_setup(PlayerNumber 
         return NULL;
   }
   struct ComputerProcess* cproc = &comp->processes[0];
-  while (!flag_is_set(cproc->flags, ComProc_Unkn0002))
+  while (!flag_is_set(cproc->flags, ComProc_ListEnd))
   {
-      if (cproc->func_setup == func_setup)
+      if (computer_process_func_list[cproc->func_setup] == func_setup)
       {
           return cproc;
       }
@@ -1644,10 +1617,9 @@ void setup_computer_players2(void)
         int maxSkirmishAI = comp_player_conf.skirmish_last;
 
         int skirmish_AI_type = GAME_RANDOM(maxSkirmishAI + 1 - minSkirmishAI) + minSkirmishAI;
-        // Always set human player to computer7 (a computer assistant) by default
         if (i == game.local_plyr_idx)
         {
-            skirmish_AI_type = 7;
+            skirmish_AI_type = comp_player_conf.player_assist_default;
         }
         setup_a_computer_player(i, skirmish_AI_type);
         if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0)
@@ -1660,8 +1632,6 @@ void setup_computer_players2(void)
         }
 #endif
       }
-      get_computer_player(i)->events = &get_dungeon(i)->computer_info.events[0];
-      get_computer_player(i)->checks = &get_dungeon(i)->computer_info.checks[0];
     }
   }
 }
@@ -1689,43 +1659,6 @@ void restore_computer_player_after_load(void)
             continue;
         }
         comp->dungeon = get_players_dungeon(player);
-        comp->events = &get_dungeon(plyr_idx)->computer_info.events[0];
-        comp->checks = &get_dungeon(plyr_idx)->computer_info.checks[0];
-        struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp->model);
-
-        long i;
-        for (i = 0; i < COMPUTER_PROCESSES_COUNT; i++)
-        {
-            if (cpt->processes[i] == NULL)
-                break;
-            //if (cpt->processes[i]->name == NULL)
-            //    break;
-            SYNCDBG(12,"Player %ld process %ld is \"%s\"",plyr_idx,i,cpt->processes[i]->name);
-            comp->processes[i].name = cpt->processes[i]->name;
-            comp->processes[i].parent = cpt->processes[i];
-            comp->processes[i].func_check = cpt->processes[i]->func_check;
-            comp->processes[i].func_setup = cpt->processes[i]->func_setup;
-            comp->processes[i].func_task = cpt->processes[i]->func_task;
-            comp->processes[i].func_complete = cpt->processes[i]->func_complete;
-            comp->processes[i].func_pause = cpt->processes[i]->func_pause;
-        }
-        for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
-        {
-            if (cpt->checks[i].name == NULL)
-              break;
-            SYNCDBG(12,"Player %ld check %ld is \"%s\"",plyr_idx,i,cpt->checks[i].name);
-            comp->checks[i].name = cpt->checks[i].name;
-            comp->checks[i].func = cpt->checks[i].func;
-        }
-        for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
-        {
-            if (cpt->events[i].name == NULL)
-              break;
-            comp->events[i].name = cpt->events[i].name;
-            comp->events[i].func_event = cpt->events[i].func_event;
-            comp->events[i].func_test = cpt->events[i].func_test;
-            comp->events[i].process = cpt->events[i].process;
-        }
     }
 }
 

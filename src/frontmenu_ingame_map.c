@@ -137,8 +137,8 @@ void panel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
  */
 void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, long y2, long zoom)
 {
-    const struct MagicStats *pwrdynst;
-    pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_CALL2ARMS);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(owner);
     int units_per_px;
@@ -158,7 +158,7 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     } else {
         circle_time = ((game.play_gameturn + owner) & 7);
     }
-    cscale = circle_time * pwrdynst->strength[dungeon->cta_power_level];
+    cscale = circle_time * powerst->strength[dungeon->cta_power_level];
     int dxq1;
     int dyq1;
     int dxq2;
@@ -736,7 +736,7 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
     }
     else if (map_block_revealed(mapblk, plyr_idx))
     {
-        if (slb->kind == SlbT_GOLD)
+        if ((slb->kind == SlbT_GOLD) || (slb->kind == SlbT_DENSEGOLD))
         {
             col = PnC_Gold;
             if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
