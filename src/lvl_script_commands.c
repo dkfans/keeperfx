@@ -5489,7 +5489,7 @@ static void set_computer_process_process(struct ScriptContext* context)
         for (long k = 0; k < COMPUTER_PROCESSES_COUNT; k++)
         {
             struct ComputerProcess* cproc = &comp->processes[k];
-            if (flag_is_set(cproc->flags, ComProc_ListEnd))
+            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                 break;
             if (strcasecmp(procname, cproc->name) == 0)
             {

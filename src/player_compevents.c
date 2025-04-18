@@ -227,18 +227,13 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
         struct ComputerProcess* cproc = &comp->processes[i];
-        if (flag_is_set(cproc->flags, ComProc_ListEnd))
-        {
-            //JUSTLOG("TESTLOG: %d %s is ComProc_ListEnd", i, cproc->name);
+        if (flag_is_set(cproc->flags, ComProc_Unkn0002))
             break;
-        }
         if (cproc->parent == cevent->process)
         {
-            cproc = &comp->processes[i+1];
             clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001|ComProc_Unkn0004));
             cproc->last_run_turn = 0;
             cproc_idx = 1;
-            JUSTLOG("TESTLOG: Reactivate %d %s",i+1, cproc->name);
         }
     }
     return cproc_idx;
@@ -541,7 +536,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
             {
                 struct ComputerProcess* cproc = &comp->processes[i];
-                if (flag_is_set(cproc->flags, ComProc_ListEnd))
+                if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                     break;
                 if (cproc->parent == bldroom->process_idx)
                 {
@@ -700,7 +695,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
         for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if (flag_is_set(cproc->flags, ComProc_ListEnd))
+            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                 break;
             if ((cproc->func_check == cpfl_computer_check_any_room) && (cproc->confval_4 == event->target))
             {
