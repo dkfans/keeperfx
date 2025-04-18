@@ -516,7 +516,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                 long total_capacity;
                 long storaged_capacity;
                 get_room_kind_total_used_and_storage_capacity(dungeon, bldroom->rkind, &total_capacity, &used_capacity, &storaged_capacity);
-                if (storaged_capacity > (used_capacity / 2))
+                if ((cevent->param1 != 0) && (storaged_capacity > (used_capacity * cevent->param1 / 100)))
                 {
                     if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
                     {
