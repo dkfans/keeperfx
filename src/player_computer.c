@@ -191,20 +191,26 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
 {
     struct Dungeon* dungeon = comp->dungeon;
     long i;
+    if (room_role_matches(rkind,RoRoF_LairStorage))
+    {
+        //the first lair might be bigger if the portal limit is high
+        if (!dungeon_has_room(dungeon, rkind))
+        {
+            if (width_slabs * height_slabs < dungeon->max_creatures_attracted)
+            {
+                width_slabs++;
+                if (width_slabs * height_slabs < dungeon->max_creatures_attracted)
+                {
+                    height_slabs++;
+                }
+            }
+        }
+    }
     long max_slabs = height_slabs;
     if (max_slabs < width_slabs)
         max_slabs = width_slabs;
     long area_min = (max_slabs + 1) / 2 + 1;
     long area_max = area_min / 3 + 2 * area_min;
-    if (room_role_matches(rkind,RoRoF_LairStorage))
-    {
-        if (width_slabs*height_slabs < dungeon->max_creatures_attracted)
-        {
-            i = LbSqrL(dungeon->max_creatures_attracted);
-            width_slabs = i + 1;
-            height_slabs = i + 1;
-        }
-    }
     const long arr_length = sizeof(look_through_rooms)/sizeof(look_through_rooms[0]);
     for (long area = area_min; area < area_max; area++)
     {
@@ -929,7 +935,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+            if (flag_is_set(cproc->flags, ComProc_ListEnd))
                 break;
             //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
             if (cproc->func_check == cpfl_computer_check_dig_to_gold)
@@ -1268,10 +1274,10 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
           break;
         }
         memcpy(newproc, cproc, sizeof(struct ComputerProcess));
-        newproc->parent = i;
+        newproc->parent = cpt->processes[i];
     }
     newproc = &comp->processes[i];
-    newproc->flags |= ComProc_Unkn0002;
+    newproc->flags |= ComProc_ListEnd;
 
     for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
     {
@@ -1498,7 +1504,7 @@ struct ComputerProcess *computer_player_find_process_by_func_setup(PlayerNumber 
         return NULL;
   }
   struct ComputerProcess* cproc = &comp->processes[0];
-  while (!flag_is_set(cproc->flags, ComProc_Unkn0002))
+  while (!flag_is_set(cproc->flags, ComProc_ListEnd))
   {
       if (computer_process_func_list[cproc->func_setup] == func_setup)
       {
