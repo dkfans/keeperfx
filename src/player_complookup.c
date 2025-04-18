@@ -71,16 +71,16 @@ long smaller_gold_vein_lookup_idx(long higher_gold_slabs, long higher_gem_slabs)
         struct GoldLookup* gldlook = get_gold_lookup(i);
         if (gldlook->num_gem_slabs == gem_slabs)
         {
-            if (gldlook->num_gold_slabs < gold_slabs)
+            if (gldlook->field_A < gold_slabs)
             {
-              gold_slabs = gldlook->num_gold_slabs;
+              gold_slabs = gldlook->field_A;
               gold_idx = i;
             }
         } else
         if (gldlook->num_gem_slabs < gem_slabs)
         {
             gem_slabs = gldlook->num_gem_slabs;
-            gold_slabs = gldlook->num_gold_slabs;
+            gold_slabs = gldlook->field_A;
             gold_idx = i;
         }
     }
@@ -113,26 +113,7 @@ void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, 
             gem_slabs++;
         } else
         {
-            if (slb->kind == SlbT_DENSEGOLD)
-            {
-                struct SlabConfigStats* slabst = get_slab_kind_stats(SlbT_DENSEGOLD);
-                GoldAmount gold_per_dense_block = slabst->gold_held;
-                slabst = get_slab_kind_stats(SlbT_GOLD);
-                GoldAmount gold_per_block = slabst->gold_held;
-                if (gold_per_block != 0)
-                {
-                    gold_slabs = gold_slabs + (gold_per_dense_block / gold_per_block);
-                }
-                else
-                {
-                    ERRORLOG("Gold slabs hold no gold");
-                    gold_slabs++;
-                }
-            }
-            else
-            {
-                gold_slabs++;
-            }
+            gold_slabs++;
             slb_around = get_slab_number(slb_x-1, slb_y);
             if ((treasure_map[slb_around] & 0x03) == 0)
             {
@@ -183,6 +164,7 @@ void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, 
         gldlook->flags |= 0x01;
         gldlook->stl_x = slab_subtile_center(gld_v1 / gld_v3);
         gldlook->stl_y = slab_subtile_center(gld_v2 / gld_v3);
+        gldlook->field_A = gold_slabs;
         gldlook->num_gold_slabs = gold_slabs;
         gldlook->num_gem_slabs = gem_slabs;
         SYNCDBG(8,"Added vein %d at (%d,%d)",(int)gold_idx,(int)gldlook->stl_x,(int)gldlook->stl_y);

@@ -39,6 +39,7 @@ struct GoldLookup { // sizeof = 28
     unsigned char player_interested[PLAYERS_COUNT];
 MapSubtlCoord stl_x;
 MapSubtlCoord stl_y;
+unsigned short field_A;
 unsigned short num_gold_slabs;
 unsigned long num_gem_slabs;
 };
