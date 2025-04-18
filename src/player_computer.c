@@ -1268,7 +1268,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
           break;
         }
         memcpy(newproc, cproc, sizeof(struct ComputerProcess));
-        newproc->parent = i;
+        newproc->parent = cpt->processes[i];
     }
     newproc = &comp->processes[i];
     newproc->flags |= ComProc_ListEnd;
