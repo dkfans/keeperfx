@@ -227,7 +227,7 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
         struct ComputerProcess* cproc = &comp->processes[i];
-        if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+        if (flag_is_set(cproc->flags, ComProc_ListEnd))
             break;
         if (cproc->parent == cevent->process)
         {
@@ -536,7 +536,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
             {
                 struct ComputerProcess* cproc = &comp->processes[i];
-                if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+                if (flag_is_set(cproc->flags, ComProc_ListEnd))
                     break;
                 if (cproc->parent == bldroom->process_idx)
                 {
@@ -695,7 +695,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
         for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+            if (flag_is_set(cproc->flags, ComProc_ListEnd))
                 break;
             if ((cproc->func_check == cpfl_computer_check_any_room) && (cproc->confval_4 == event->target))
             {
