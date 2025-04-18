@@ -501,7 +501,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
     TbBool emergency_state = computer_player_in_emergency_state(comp);
     for (struct ValidRooms* bldroom = valid_rooms_to_build; bldroom->rkind > 0; bldroom++)
     {
-        if (computer_get_room_kind_free_capacity(comp, bldroom->rkind) > 0) {
+        if (computer_get_room_kind_free_capacity(comp, bldroom->rkind) > cevent->param2) {
             continue;
         }
         struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[bldroom->rkind];
