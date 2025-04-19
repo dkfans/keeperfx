@@ -186,6 +186,7 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         return false;
     return true;
 }
+
 int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
 {
     long chunks_done = 0;
