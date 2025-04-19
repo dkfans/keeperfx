@@ -660,6 +660,9 @@ deps/luajit-mingw32.tar.gz:
 deps/luajit/lib/libluajit.a: deps/luajit-mingw32.tar.gz | deps/luajit
 	tar xzmf $< -C deps/luajit
 
+deps/luajit/include/lua.h: deps/luajit-mingw32.tar.gz | deps/luajit
+	tar xzmf $< -C deps/openal
+
 std-before: deps/luajit/lib/libluajit.a
 
 include tool_png2ico.mk
