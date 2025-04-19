@@ -654,9 +654,8 @@ deps/openal-mingw32.tar.gz:
 deps/openal/AL/al.h: deps/openal-mingw32.tar.gz | deps/openal
 	tar xzmf $< -C deps/openal
 
-#luajit todo replace dkfans version of url
 deps/luajit-mingw32.tar.gz:
-	curl -Lso $@ "https://github.com/PieterVdc/kfx-deps/releases/download/3/luajit-mingw32.tar.gz"
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20250418/luajit-mingw32.tar.gz"
 
 deps/luajit/lib/libluajit.a: deps/luajit-mingw32.tar.gz | deps/luajit
 	tar xzmf $< -C deps/luajit
