@@ -335,7 +335,17 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel
     case GA_StopPwrHoldAudnc:
         dungeon->hold_audience_cast_turn = 0;
         return Lb_SUCCESS;
-    case GA_Unk13:
+    case GA_UnmarkDig: {
+        const MapSubtlCoord stl_cx = slab_subtile(slb_x, 0);
+        const MapSubtlCoord stl_cy = slab_subtile(slb_y, 0);
+        if (untag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx)) {
+            if (is_my_player_number(plyr_idx)) {
+                play_non_3d_sample(118);
+            }
+            return Lb_SUCCESS;
+        }
+        return Lb_FAIL;
+    }
     case GA_MarkDig: {
         slb = get_slabmap_block(slb_x, slb_y);
         if ((slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER))

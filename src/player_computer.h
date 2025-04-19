@@ -99,7 +99,7 @@ enum GameActionTypes {
     GA_UsePwrCaveIn,
     GA_StopPwrCall2Arms,
     GA_StopPwrHoldAudnc,
-    GA_Unk13,
+    GA_UnmarkDig,
     GA_MarkDig,
     GA_Unk15,
     GA_PlaceRoom,
