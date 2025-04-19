@@ -336,7 +336,7 @@ struct PowerConfigStats {
     unsigned char cost_formula;
     SpellKind spell_idx;
     EffectOrEffElModel effect_id;
-    short magic_use_func_idx;
+    FuncIdx magic_use_func_idx;
     ThingModel creature_model;
     long cost[MAGIC_OVERCHARGE_LEVELS];
     long duration;
