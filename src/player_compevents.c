@@ -501,7 +501,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
     TbBool emergency_state = computer_player_in_emergency_state(comp);
     for (struct ValidRooms* bldroom = valid_rooms_to_build; bldroom->rkind > 0; bldroom++)
     {
-        if (computer_get_room_kind_free_capacity(comp, bldroom->rkind) > cevent->param2) {
+        if (computer_get_room_kind_free_capacity(comp, bldroom->rkind) > 0) {
             continue;
         }
         struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[bldroom->rkind];
@@ -516,7 +516,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                 long total_capacity;
                 long storaged_capacity;
                 get_room_kind_total_used_and_storage_capacity(dungeon, bldroom->rkind, &total_capacity, &used_capacity, &storaged_capacity);
-                if ((cevent->param1 != 0) && (storaged_capacity > (used_capacity * cevent->param1 / 100)))
+                if ((cevent->param2 != 0) && (storaged_capacity > (used_capacity * cevent->param2 / 100)))
                 {
                     if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
                     {
