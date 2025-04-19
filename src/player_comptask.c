@@ -2949,7 +2949,12 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
     SYNCDBG(9,"Starting for player %d",(int)dungeon->owner);
     struct Thing *thing;
     struct Coord3d pos;
-    long i;
+    long i = ctask->move_gold.items_amount;
+    if (i <= 0)
+    {
+        remove_task(comp, ctask);
+        return CTaskRet_Unk1;
+    }
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
@@ -2971,13 +2976,6 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
-    i = ctask->move_gold.items_amount;
-    ctask->move_gold.items_amount--;
-    if (i <= 0)
-    {
-        remove_task(comp, ctask);
-        return CTaskRet_Unk1;
-    }
     thing = find_gold_laying_in_dungeon(comp->dungeon);
     if (!thing_is_invalid(thing))
     {
@@ -2991,6 +2989,7 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
             pos.y.val = subtile_coord_center(slab_subtile_center(slb_num_decode_y(room->slabs_list)));
             pos.z.val = subtile_coord(1,0);
             if (computer_place_thing_in_power_hand(comp, thing, &pos)) {
+                ctask->move_gold.items_amount--;
                 SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)comp->dungeon->owner,
                     thing_model_name(thing),(int)thing->index,room_code_name(room->kind),(int)room->index);
                 return CTaskRet_Unk2;
@@ -3274,6 +3273,10 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
         return CTaskRet_Unk0;
     }
     SYNCDBG(19,"Starting for player %d",(int)dungeon->owner);
+    if (ctask->sell_traps_doors.items_amount <= 0) {
+        remove_task(comp, ctask);
+        return CTaskRet_Unk1;
+    }
     if ((ctask->sell_traps_doors.gold_gain <= ctask->sell_traps_doors.gold_gain_limit) && (dungeon->total_money_owned <= ctask->sell_traps_doors.total_money_limit))
     {
         i = 0;
@@ -3443,10 +3446,6 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 player_add_offmap_gold(dungeon->owner, value);
                 // Mark that we've sold the item; if enough was sold, end the task
                 ctask->sell_traps_doors.items_amount--;
-                if (ctask->sell_traps_doors.items_amount <= 0) {
-                    remove_task(comp, ctask);
-                    return CTaskRet_Unk1;
-                }
                 return CTaskRet_Unk1;
             }
         }
