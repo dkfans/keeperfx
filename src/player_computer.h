@@ -75,6 +75,7 @@ enum ComputerTaskTypes {
     CTT_AttackMagic,
     CTT_SellTrapsAndDoors,
     CTT_MoveGoldToTreasury,
+    CTT_UnmarkGems,
 };
 
 enum TrapDoorSellingCategory {

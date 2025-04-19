@@ -909,6 +909,7 @@ long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *c
     return new_tasks;
 }
 
+
 /**
  * Checks how much money the player lacks for next payday.
  * @param comp Computer player who controls the target dungeon.
@@ -1033,6 +1034,10 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
                 ret = CTaskRet_Unk1;
             }
         }
+    }
+    if (game.play_gameturn > 10000) //todo make smarter condition
+    {
+        create_task_unmark_gems(comp);
     }
     return ret;
 }

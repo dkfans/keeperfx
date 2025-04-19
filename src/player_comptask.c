@@ -102,6 +102,7 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *ctask);
+long task_unmark_gems(struct Computer2* comp, struct ComputerTask* ctask);
 TbBool find_next_gold(struct Computer2 *comp, struct ComputerTask *ctask);
 long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_idx);
 /******************************************************************************/
@@ -130,6 +131,7 @@ const struct TaskFunctions task_function[] = {
     {"COMPUTER_ATTACK_MAGIC",     task_attack_magic},
     {"COMPUTER_SELL_TRAPS_AND_DOORS", task_sell_traps_and_doors},
     {"COMPUTER_MOVE_GOLD_TO_TREASURY", task_move_gold_to_treasury},
+    {"COMPUTER_UNMARK_GEMS", task_unmark_gems},
 };
 
 const struct TrapDoorSelling trapdoor_sell[] = {
@@ -3021,6 +3023,18 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
     return CTaskRet_Unk0;
 }
 
+
+long task_unmark_gems(struct Computer2* comp, struct ComputerTask* ctask)
+{
+    //todo find all gem slabs
+    if (try_game_action(comp, comp->dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1) >= Lb_OK)
+    {
+        shut_down_task_process(comp, ctask);
+        return CTaskRet_Unk0;
+    }
+    return true;
+}
+
 long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct Dungeon *dungeon;
@@ -3881,6 +3895,26 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
     return true;
 }
 
+
+//todo document it
+TbBool create_task_unmark_gems(struct Computer2* comp)
+{
+
+    struct ComputerTask* ctask;
+    SYNCDBG(7, "Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce))
+    {
+        message_add_fmt(MsgType_Player, comp->dungeon->owner, "Let's stop mining gems!");
+    }
+    ctask->ttype = CTT_UnmarkGems;
+    ctask->created_turn = game.play_gameturn;
+    return true;
+}
+
 TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, KeepPwrLevel power_level, int gaction)
 {
     struct ComputerTask *ctask;
@@ -3889,7 +3923,8 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce))//we want compuchat for new task here too
+    {
         struct PowerConfigStats *powerst;
         powerst = get_power_model_stats(pwkind);
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatng->model];
