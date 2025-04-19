@@ -119,6 +119,30 @@ TbBool execute_lua_code_from_script(const char* code)
 
     return true;
 }
+void lua_set_random_seed(unsigned int seed)
+{
+    if (Lvl_script == NULL) {
+        ERRORLOG("Lua state is not initialized");
+        return;
+    }
+
+    lua_getglobal(Lvl_script, "math");
+    if (lua_istable(Lvl_script, -1)) {
+        lua_getfield(Lvl_script, -1, "randomseed");
+        if (lua_isfunction(Lvl_script, -1)) {
+            lua_pushinteger(Lvl_script, seed);
+            if (!CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0), "math.randomseed")) {
+                ERRORLOG("Failed to call math.randomseed");
+            }
+        } else {
+            ERRORLOG("failed to find math.randomseed function");
+            lua_pop(Lvl_script, 1); // Pop nil
+        }
+    } else {
+        ERRORLOG("failed to find math table");
+    }
+    lua_pop(Lvl_script, 1); // Pop math table or nil
+}
 
 TbBool open_lua_script(LevelNumber lvnum)
 {

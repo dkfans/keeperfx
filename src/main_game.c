@@ -486,5 +486,6 @@ void init_seeds()
             init_network_seed();
         }
         start_seed = game.action_rand_seed;
+        lua_set_random_seed(game.action_rand_seed);
     }
 }
