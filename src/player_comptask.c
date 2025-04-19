@@ -3303,7 +3303,9 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         item_sold = true;
+                        dungeon->doors_sold++;
                         value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
+                        dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Offmap door %s crate sold for %d gold",door_code_name(model),(int)value);
                         break;
                     case WrkCrtS_Stored:
@@ -3311,6 +3313,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_object_from_player(dungeon->owner, door_crate_object_model(model));
                         item_sold = true;
                         value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
+                        dungeon->doors_sold++;
+                        dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Stored door %s crate sold for %ld gold by player %d",door_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3337,6 +3341,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         item_sold = true;
                         value = compute_value_percentage(trapst->selling_value, game.conf.rules.game.trap_sale_percent);
+                        dungeon->traps_sold++;
+                        dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Offmap trap %s crate sold for %ld gold",trap_code_name(model),value);
                         break;
                     case WrkCrtS_Stored:
@@ -3344,6 +3350,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
                         value = compute_value_percentage(trapst->selling_value, game.conf.rules.game.trap_sale_percent);
+                        dungeon->traps_sold++;
+                        dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Stored trap %s crate sold for %ld gold by player %d",trap_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3372,6 +3380,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         stl_x = stl_slab_center_subtile(doortng->mappos.x.stl.num);
                         stl_y = stl_slab_center_subtile(doortng->mappos.y.stl.num);
                         value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
+                        dungeon->doors_sold++;
+                        dungeon->manufacture_gold += value;
                         destroy_door(doortng);
                         if (is_my_player_number(dungeon->owner))
                         {
@@ -3411,8 +3421,9 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         MapSubtlCoord stl_y;
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(traptng->mappos.x.stl.num);
-                        stl_y = stl_slab_center_subtile(traptng->mappos.y.stl.num);
-                        remove_traps_around_subtile(stl_x, stl_y, &value);
+                        stl_y = stl_slab_center_subtile(traptng->mappos.y.stl.num);                        
+                        dungeon->traps_sold += remove_traps_around_subtile(stl_x, stl_y, &value);
+                        dungeon->manufacture_gold += value;
                         if (is_my_player_number(dungeon->owner))
                         {
                             play_non_3d_sample(115);
