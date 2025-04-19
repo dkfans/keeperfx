@@ -165,16 +165,14 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
         ERRORLOG("Attempt to tag area outside of map");
         return 0;
     }
-    TbBool task_added;
-    task_added = false;
+    TbBool task_added = false;
     struct Map *mapblk;
     mapblk = get_map_block_at(x+1, y+1);
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(x+1, y+1);
     struct SlabConfigStats *slabst;
     slabst = get_slab_stats(slb);
-    long i;
-    i = get_subtile_number(x+1,y+1);
+    long i = get_subtile_number(x+1,y+1);
     if ((find_from_task_list(plyr_idx, i) == -1)
       && (slabst->is_diggable || !map_block_revealed(mapblk, plyr_idx))
       && (((mapblk->flags & SlbAtFlg_IsRoom) == 0) || slabmap_owner(slb) != plyr_idx)
