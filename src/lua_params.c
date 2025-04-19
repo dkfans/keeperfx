@@ -103,11 +103,11 @@ long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * 
         const char* text = lua_tostring(L, index);
         long id = get_rid(commanddesc, text);
 
-        luaL_argcheck(L,id != -1,index,"invalid namedcommandoption");
+        luaL_argcheck(L,id != -1,index,"unrecognized command");
 
         return id;
     }
-    luaL_argerror(L,index,"invalid namedcommandoption");
+    luaL_argerror(L,index,"unrecognized command");
     return 0;
 
 }
@@ -392,7 +392,7 @@ long luaL_checkCreature_or_creature_wildcard(lua_State *L, int index)
             return CREATURE_NOT_A_DIGGER; //For scripts, when we say 'ANY_CREATURE' we exclude diggers.
         }
 
-        luaL_argcheck(L,id != -1,index,"invalid namedcommandoption");
+        luaL_argcheck(L,id != -1,index,"unrecognized creature type");
 
         return id;
     }

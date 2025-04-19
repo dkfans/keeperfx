@@ -77,40 +77,58 @@ static const struct luaL_Reg player_methods[] = {
 };
 
 
-static int player_get_control(lua_State *L) {
-    luaL_checktype(L, 1, LUA_TTABLE);
-    //int plyr_idx;
-
-    // Get the player_id from the table
-    lua_getfield(L, 1, "player_id");
-    //plyr_idx = luaL_checkinteger(L, -1);
-    lua_pop(L, 1);
+static int player_get_controls(lua_State *L) {
+    // Upvalue is the player number
+    PlayerNumber plyr_idx = lua_tointeger(L, lua_upvalueindex(1));
 
     // Get the requested control key
-    //const char* action = luaL_checkstring(L, 2);
-    //lua_pushinteger(L, get_control_value(plyr_idx, action));
+    ThingModel crt_id = luaL_checkNamedCommand(L, 2, creature_desc);
+
+    lua_pushinteger(L, get_condition_value(plyr_idx, SVar_CONTROLS_CREATURE, crt_id));
     return 1;
 }
 
-static int player_get_controls(lua_State *L) {
-    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
+static int player_get_available(lua_State *L) {
+    // Upvalue is the player number
+    PlayerNumber plyr_idx = lua_tointeger(L, lua_upvalueindex(1));
 
-    // Create a new table for CONTROLS
-    lua_newtable(L);
+    if(lua_isstring(L, 2))
+    {
+        unsigned char svartype = 0;
 
-    // Set its __index to another function
-    lua_pushvalue(L, -1);
-    lua_setmetatable(L, -2);
+        //creature_type|room_type|power_kind|trap_type|door_type
+        const char* text = lua_tostring(L, 2);
+        long id = get_rid(creature_desc, text);
+        svartype = SVar_AVAILABLE_CREATURE;
+        if(id == -1)
+        {
+            id = get_rid(room_desc, text);
+            svartype = SVar_AVAILABLE_ROOM;
+        }
+        if(id == -1)
+        {
+            id = get_rid(power_desc, text);
+            svartype = SVar_AVAILABLE_MAGIC;
+        }
+        if(id == -1)
+        {
+            id = get_rid(trap_desc, text);
+            svartype = SVar_AVAILABLE_TRAP;
+        }
+        if(id == -1)
+        {
+            id = get_rid(door_desc, text);
+            svartype = SVar_AVAILABLE_DOOR;
+        }
+        if(id == -1)
+        {
+            return luaL_argerror(L, 2, "unrecognized command");
+        }
+        lua_pushinteger(L, get_condition_value(plyr_idx, svartype, id));
+        return 1;
+    }
 
-    // Attach a function that handles the control lookup
-    lua_pushcfunction(L, player_get_control);
-    lua_setfield(L, -2, "__index");
-
-    // Store the player index inside the table
-    lua_pushinteger(L, plyr_idx);
-    lua_setfield(L, -2, "player_id");
-
-    return 1;
+    return luaL_argerror(L, 2, "unrecognized command");
 }
 
 static int player_tostring(lua_State *L)
@@ -162,8 +180,11 @@ static int player_get_field(lua_State *L) {
         lua_pushThing(L, heartng);
         return 1;
     }
-    else if (strcmp(key, "CONTROLS") == 0) {
-        return player_get_controls(L);
+    else if (strcmp(key, "controls") == 0) {
+        // Push the player index as upvalue
+        lua_pushinteger(L, plyr_idx);
+        lua_pushcclosure(L, player_get_controls, 1);
+        return 1;
     }
 
     long variable_type;

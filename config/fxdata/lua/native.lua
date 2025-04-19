@@ -155,7 +155,6 @@ local Pos3d = {}
 ---@field CREATURES_TRANSFERRED integer
 ---@field TOTAL_SLAPS integer
 ---
----
 ---@field heart Thing The player's primary dungeon heart
 local Player = {}
 
@@ -986,6 +985,25 @@ function Run_DKScript_command(command) end
 ---@return boolean
 ---@nodiscard
 function Is_actionpoint_activated_by_player(player,action_point) return true end
+
+
+-------------------------------------------------------
+--Player Functions
+-------------------------------------------------------
+
+---gets the number of creatures controlled by a player. Units in an enemy prison are excluded here.
+---@param creature_type creature_type The type of creature to count.
+---@return integer The number of creatures of the specified type.
+function Player:controls(creature_type) end
+
+---Checks availability of an item.
+---Checking creature availability returns how many creatures of that kind can come from portal to that player. The check includes creature pool, players creature limit and whether attraction criteria are met.
+---Checking room availability returns whether the room can be built by a player. Cost of the room is not considered.
+---Checking power availability returns whether the power can be cast by a player. Cost of the power is not considered.
+---Checking trap or door availability returns amount of traps and doors a player has stored, either in workshop or in off-map storage.
+---@param variable creature_type|room_type|power_kind|trap_type|door_type
+---@return integer
+function Player:available(variable) end
 
 -------------------------------------------------------
 --Thing Functions
