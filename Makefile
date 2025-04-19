@@ -66,7 +66,8 @@ GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 
 DEPS = \
-obj/centitoml/toml_api.o
+obj/centitoml/toml_api.o \
+deps/luajit/lib/libluajit.a
 
 # functional test debugging flags/objs
 FTEST_DEBUG ?= 0
