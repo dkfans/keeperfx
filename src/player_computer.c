@@ -956,7 +956,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
             if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
             {
                 SYNCDBG(8,"Creating task to sell any player %d traps and doors",(int)dungeon->owner);
-                if (create_task_sell_traps_and_doors(comp, 5, max(check->param2-money_left,1),true)) {
+                if (create_task_sell_traps_and_doors(comp, 6, max(check->param2-money_left,1),true)) {
                     ret = CTaskRet_Unk1;
                 }
             }
@@ -970,7 +970,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
             if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
             {
                 SYNCDBG(8,"Creating task to sell player %d trap and door boxes",(int)dungeon->owner);
-                if (create_task_sell_traps_and_doors(comp, 5, max(check->param1-money_left,1),false)) {
+                if (create_task_sell_traps_and_doors(comp, 6, max(check->param1-money_left,1),false)) {
                     ret = CTaskRet_Unk1;
                 }
             }
