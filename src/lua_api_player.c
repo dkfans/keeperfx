@@ -186,7 +186,13 @@ static int player_get_field(lua_State *L) {
         lua_pushcclosure(L, player_get_controls, 1);
         return 1;
     }
-
+    else if (strcmp(key, "available") == 0) {
+        // Push the player index as upvalue
+        lua_pushinteger(L, plyr_idx);
+        lua_pushcclosure(L, player_get_available, 1);
+        return 1;
+    }
+    
     long variable_type;
     long variable_id;
 
