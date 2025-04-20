@@ -516,18 +516,17 @@ void lua_pushPartyTable(lua_State *L, struct Thing* thing) {
     long k = 0;
     while (i != 0)
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        i = cctrl->next_in_group;
-        // Per-thing code
-        lua_pushThing(L, thing);
-        lua_rawseti(L, -2, k + 1);
-        
         thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");
             break;
         }
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->next_in_group;
+        // Per-thing code
+        lua_pushThing(L, thing);
+        lua_rawseti(L, -2, k + 1);
         
         // Per-thing code ends
         k++;
