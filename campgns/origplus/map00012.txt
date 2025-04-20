@@ -16,7 +16,7 @@ REM ****************************************************************************
 LEVEL_VERSION(1)
 
 REM Flags used:
-REM   PLAYER0,FLAG1 - Transfer flag, win level without attacking heroes.
+REM   PLAYER0,FLAG7 - Transfer flag, win level without attacking heroes.
 
 SET_GENERATE_SPEED(400)
 
@@ -116,7 +116,6 @@ ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
 	IF(PLAYER2,DUNGEON_DESTROYED == 1)
-	SET_FLAG(PLAYER0,FLAG7,1)
 		IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 			REM "You have overcome all resistance to your rule, O despicable one. It's time to flex the old misery muscle on the pathetic inhabitants of the land above."
 			DISPLAY_OBJECTIVE(89,ALL_PLAYERS)
