@@ -2949,7 +2949,12 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
     SYNCDBG(9,"Starting for player %d",(int)dungeon->owner);
     struct Thing *thing;
     struct Coord3d pos;
-    long i;
+    long i = ctask->move_gold.items_amount;
+    if (i <= 0)
+    {
+        remove_task(comp, ctask);
+        return CTaskRet_Unk1;
+    }
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
@@ -2971,13 +2976,6 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
-    i = ctask->move_gold.items_amount;
-    ctask->move_gold.items_amount--;
-    if (i <= 0)
-    {
-        remove_task(comp, ctask);
-        return CTaskRet_Unk1;
-    }
     thing = find_gold_laying_in_dungeon(comp->dungeon);
     if (!thing_is_invalid(thing))
     {
@@ -2991,6 +2989,7 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
             pos.y.val = subtile_coord_center(slab_subtile_center(slb_num_decode_y(room->slabs_list)));
             pos.z.val = subtile_coord(1,0);
             if (computer_place_thing_in_power_hand(comp, thing, &pos)) {
+                ctask->move_gold.items_amount--;
                 SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)comp->dungeon->owner,
                     thing_model_name(thing),(int)thing->index,room_code_name(room->kind),(int)room->index);
                 return CTaskRet_Unk2;
@@ -3274,6 +3273,10 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
         return CTaskRet_Unk0;
     }
     SYNCDBG(19,"Starting for player %d",(int)dungeon->owner);
+    if (ctask->sell_traps_doors.items_amount <= 0) {
+        remove_task(comp, ctask);
+        return CTaskRet_Unk1;
+    }
     if ((ctask->sell_traps_doors.gold_gain <= ctask->sell_traps_doors.gold_gain_limit) && (dungeon->total_money_owned <= ctask->sell_traps_doors.total_money_limit))
     {
         i = 0;
@@ -3300,7 +3303,9 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         item_sold = true;
+                        dungeon->doors_sold++;
                         value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
+                        dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Offmap door %s crate sold for %d gold",door_code_name(model),(int)value);
                         break;
                     case WrkCrtS_Stored:
@@ -3308,6 +3313,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_object_from_player(dungeon->owner, door_crate_object_model(model));
                         item_sold = true;
                         value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
+                        dungeon->doors_sold++;
+                        dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Stored door %s crate sold for %ld gold by player %d",door_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3334,6 +3341,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         item_sold = true;
                         value = compute_value_percentage(trapst->selling_value, game.conf.rules.game.trap_sale_percent);
+                        dungeon->traps_sold++;
+                        dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Offmap trap %s crate sold for %ld gold",trap_code_name(model),value);
                         break;
                     case WrkCrtS_Stored:
@@ -3341,6 +3350,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
                         value = compute_value_percentage(trapst->selling_value, game.conf.rules.game.trap_sale_percent);
+                        dungeon->traps_sold++;
+                        dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Stored trap %s crate sold for %ld gold by player %d",trap_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3369,6 +3380,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         stl_x = stl_slab_center_subtile(doortng->mappos.x.stl.num);
                         stl_y = stl_slab_center_subtile(doortng->mappos.y.stl.num);
                         value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
+                        dungeon->doors_sold++;
+                        dungeon->manufacture_gold += value;
                         destroy_door(doortng);
                         if (is_my_player_number(dungeon->owner))
                         {
@@ -3408,8 +3421,9 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         MapSubtlCoord stl_y;
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(traptng->mappos.x.stl.num);
-                        stl_y = stl_slab_center_subtile(traptng->mappos.y.stl.num);
-                        remove_traps_around_subtile(stl_x, stl_y, &value);
+                        stl_y = stl_slab_center_subtile(traptng->mappos.y.stl.num);                        
+                        dungeon->traps_sold += remove_traps_around_subtile(stl_x, stl_y, &value);
+                        dungeon->manufacture_gold += value;
                         if (is_my_player_number(dungeon->owner))
                         {
                             play_non_3d_sample(115);
@@ -3443,10 +3457,6 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 player_add_offmap_gold(dungeon->owner, value);
                 // Mark that we've sold the item; if enough was sold, end the task
                 ctask->sell_traps_doors.items_amount--;
-                if (ctask->sell_traps_doors.items_amount <= 0) {
-                    remove_task(comp, ctask);
-                    return CTaskRet_Unk1;
-                }
                 return CTaskRet_Unk1;
             }
         }
