@@ -521,12 +521,11 @@ void init_creature_model_stats(void)
         }
         crstat->grow_up = 0;
         crstat->grow_up_level = 0;
-        crstat->sleep_exp_slab[0] = 0;
-        crstat->sleep_experience[0] = 0;
-        crstat->sleep_exp_slab[1] = 0;
-        crstat->sleep_experience[1] = 0;
-        crstat->sleep_exp_slab[2] = 0;
-        crstat->sleep_experience[2] = 0;
+        for (n = 0; n < SLEEP_XP_COUNT; n++)
+        {
+            crstat->sleep_exp_slab[n] = 0;
+            crstat->sleep_experience[n] = 0;
+        }
         crstat->exp_for_hitting = 0;
         crstat->rebirth = 0;
         // Jobs block.
