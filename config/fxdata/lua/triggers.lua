@@ -135,6 +135,7 @@ local function ProcessTrigger(trigger,eventData, errors)
             local success, val = pfunc(condition,eventData,trigger.triggerData)
             if ( success == false) then
                 --condition errored out, assume it'll never be true again, and destroy the trigger
+                trigger.triggerData = trigger.triggerData or {}
                 trigger.triggerData.destroyAfterUse = true
                 return true
             
