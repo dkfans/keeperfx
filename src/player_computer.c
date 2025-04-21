@@ -948,7 +948,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Try selling traps and doors - aggressive way
-    if ((money_left < check->param2) && is_room_of_role_available(dungeon->owner, RoRoF_CratesManufctr))
+    if ((money_left < check->param2) && dungeon_has_room_of_role(dungeon, RoRoF_CratesManufctr))
     {
         if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon) ||
             player_has_deployed_trap_of_model(dungeon->owner, -1) || player_has_deployed_door_of_model(dungeon->owner, -1, 0))
@@ -956,21 +956,21 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
             if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
             {
                 SYNCDBG(8,"Creating task to sell any player %d traps and doors",(int)dungeon->owner);
-                if (create_task_sell_traps_and_doors(comp, 5, max(check->param2-money_left,1),true)) {
+                if (create_task_sell_traps_and_doors(comp, 6, max(check->param2-money_left,1),true)) {
                     ret = CTaskRet_Unk1;
                 }
             }
         }
     }
     // Try selling traps and doors - cautious way
-    if ((money_left < check->param1) && is_room_of_role_available(dungeon->owner, RoRoF_CratesManufctr))
+    if ((money_left < check->param1) && dungeon_has_room_of_role(dungeon, RoRoF_CratesManufctr))
     {
         if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon))
         {
             if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
             {
                 SYNCDBG(8,"Creating task to sell player %d trap and door boxes",(int)dungeon->owner);
-                if (create_task_sell_traps_and_doors(comp, 5, max(check->param1-money_left,1),false)) {
+                if (create_task_sell_traps_and_doors(comp, 6, max(check->param1-money_left,1),false)) {
                     ret = CTaskRet_Unk1;
                 }
             }
