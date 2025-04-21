@@ -169,7 +169,7 @@ int64_t value_min1(const struct NamedField* named_field, const char* value_text,
 {
     if (parameter_is_number(value_text))
     {
-        return atoi(value_text) - 1;
+        return max(0,atoi(value_text) - 1);
     }
     else
     {
