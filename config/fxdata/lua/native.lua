@@ -1025,6 +1025,7 @@ function Get_things_of_class(class) end
 ---@return Creature
 ---@nodiscard
 function Get_creature_by_criterion(player,creature_type,criterion) return Creature end
+
 ---returns a creature close to the given coordinates
 ---@param stl_x integer
 ---@param stl_y integer

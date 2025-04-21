@@ -323,7 +323,7 @@ function RegisterDungeonDestroyedEvent(action, player, actionParams)
     return trigger
 end
 
----comment
+---triggers when a trap is placed
 ---@param action function|string the function to call when the event happens
 ---@param player Player|nil the player who placed the trap (nil for any player)
 ---@param trapType trap_type|nil the kind of trap that was placed (nil for any trap)
@@ -337,7 +337,7 @@ function RegisterTrapPlacedEvent(action, player, trapType, actionParams)
     return trigger
 end
 
----comment
+---Triggers when a unit dies
 ---@param action function|string the function to call when the event happens
 ---@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return table
@@ -349,7 +349,6 @@ function RegisterUnitDeathEvent(action, unit, actionParams)
         TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.unit == triggerData.unit end)
     end
     return trigger
-    
 end
 
 
