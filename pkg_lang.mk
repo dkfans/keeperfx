@@ -34,7 +34,8 @@ pkg/fxdata/gtext_lat.dat \
 pkg/fxdata/gtext_pol.dat \
 pkg/fxdata/gtext_rus.dat \
 pkg/fxdata/gtext_spa.dat \
-pkg/fxdata/gtext_swe.dat
+pkg/fxdata/gtext_swe.dat \
+pkg/fxdata/gtext_ukr.dat \
 
 NCTEXTDATS = \
 pkg/campgns/ami2019/text_eng.dat \
@@ -125,6 +126,9 @@ pkg/fxdata/gtext_jpn.dat: lang/gtext_jpn.po $(POTONGDAT) $(JP_CHAR_ENCODING) | p
 	$(POTONGDAT) -o $@ -e $(JP_CHAR_ENCODING) $< >/dev/null
 
 pkg/fxdata/gtext_rus.dat: lang/gtext_rus.po $(POTONGDAT) $(RU_CHAR_ENCODING) | pkg/fxdata
+	$(POTONGDAT) -o $@ -e $(RU_CHAR_ENCODING) $< >/dev/null
+
+pkg/fxdata/gtext_ukr.dat: lang/gtext_ukr.po $(POTONGDAT) $(RU_CHAR_ENCODING) | pkg/fxdata
 	$(POTONGDAT) -o $@ -e $(RU_CHAR_ENCODING) $< >/dev/null
 
 pkg/fxdata/gtext_chi.dat: lang/gtext_chi.po $(POTONGDAT) $(CH_CHAR_ENCODING) | pkg/fxdata
