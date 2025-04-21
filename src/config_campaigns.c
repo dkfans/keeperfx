@@ -27,9 +27,11 @@
 
 #include "config.h"
 #include "config_strings.h"
+#include "config_keeperfx.h"
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
 #include "map_data.h"
+#include "highscores.h"
 
 #include "game_merge.h"
 #include "post_inc.h"
@@ -1144,7 +1146,6 @@ TbBool change_campaign(const char *cmpgn_fname)
     else
         result = load_campaign(keeper_campaign_file,&campaign,CnfLd_Standard, FGrp_Campgn);
     // Configs which may change within a level should be initialized outside
-    //load_computer_player_config(CnfLd_Standard);
     //load_stats_files();
     //check_and_auto_fix_stats();
     // Make sure all additional levels are loaded

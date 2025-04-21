@@ -70,7 +70,6 @@ struct SacrificeRecipe {
 };
 
 struct GameRulesConfig {
-    GoldAmount gold_per_gold_block;
     GoldAmount pot_of_gold_holds;
     GoldAmount chest_gold_hold;
     GoldAmount gold_pile_value;
@@ -86,7 +85,6 @@ struct GameRulesConfig {
     HitPoints dungeon_heart_heal_health;
     unsigned long hero_door_wait_time;
     unsigned long classic_bugs_flags;
-    unsigned long gem_effectiveness;
     long door_sale_percent;
     long room_sale_percent;
     long trap_sale_percent;
@@ -194,12 +192,11 @@ struct RulesConfig {
     struct SacrificesRulesConfig sacrifices;
 };
 /******************************************************************************/
-extern const char keeper_rules_file[];
+extern const struct ConfigFileData keeper_rules_file_data;
 extern const struct NamedCommand research_desc[];
 extern const struct NamedCommand rules_game_classicbugs_commands[];
 /******************************************************************************/
 long get_research_id(long item_type, const char *trg_name, const char *func_name);
-TbBool load_rules_config(const char *conf_fname, unsigned short flags);
 struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void);
 
 const char *player_code_name(PlayerNumber plyr_idx);
@@ -207,13 +204,9 @@ const char *player_code_name(PlayerNumber plyr_idx);
 extern const struct NamedCommand rules_sacrifices_commands[];
 extern const struct NamedCommand sacrifice_unique_desc[];
 
-extern const struct NamedField rules_magic_named_fields[];
-extern const struct NamedField rules_rooms_named_fields[];
-extern const struct NamedField rules_game_named_fields[];
-extern const struct NamedField rules_creatures_named_fields[];
-extern const struct NamedField rules_computer_named_fields[];
-extern const struct NamedField rules_workers_named_fields[];
-extern const struct NamedField rules_health_named_fields[];
+extern const struct NamedField* ruleblocks[8];
+
+extern const struct NamedFieldSet rules_named_fields_set;
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -49,6 +49,32 @@ void command_init_value(struct ScriptValue* value, unsigned long var_index, unsi
     value->condit_idx = get_script_current_condition();
 }
 
+// For dynamic strings
+long script_strdup(const char *src)
+{
+    // TODO: add string deduplication to save space
+
+    const long offset = gameadd.script.next_string_offset;
+    const long remaining_size = sizeof(gameadd.script.strings) - offset;
+    const long string_size = strlen(src) + 1;
+    if (string_size >= remaining_size)
+    {
+        return -1;
+    }
+    memcpy(&gameadd.script.strings[offset], src, string_size);
+    gameadd.script.next_string_offset += string_size;
+    return offset;
+}
+
+const char * script_strval(long offset)
+{
+    if (offset >= sizeof(gameadd.script.strings))
+    {
+        return NULL;
+    }
+    return &gameadd.script.strings[offset];
+}
+
 struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx, short move_angle)
 {
     struct Coord3d pos;

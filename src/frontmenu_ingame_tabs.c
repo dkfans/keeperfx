@@ -321,9 +321,9 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
     struct PlayerInfo* player = get_my_player();
     struct Computer2* comp = get_computer_player(player->id_number);
     unsigned long cplr_model = comp->model;
-    //TODO COMPUTER_PLAYER change limit to comp_player_conf.computers_count when the array is inside computer player config
-    if (cplr_model < COMPUTER_MODELS_COUNT) {
-        gbtn->tooltip_stridx = computer_types_tooltip_stridx[cplr_model];
+    if (cplr_model < comp_player_conf.computers_count) {
+        struct ComputerType* cpt = get_computer_type_template(cplr_model);
+        gbtn->tooltip_stridx = cpt->tooltip_stridx;
     } else {
         ERRORLOG("Illegal computer player model %d",(int)cplr_model);
     }
@@ -1023,8 +1023,15 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
         amount = 0;
         break;
     }
-    // Note that "@" is "x" in that font
-    sprintf(gui_textbuf, "@%ld", (long)amount);
+    if (dbc_enabled && dbc_initialized)
+    {
+        sprintf(gui_textbuf, "x%ld", (long)amount);
+    }
+    else
+    {
+        // Note that "@" is "×" in that font
+        sprintf(gui_textbuf, "@%ld", (long)amount);
+    }
     if (amount <= 0) {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
     } else
@@ -2151,6 +2158,13 @@ void maintain_creature_button(struct GuiButton* gbtn)
         gbtn->flags &= ~LbBtnF_Enabled;
         gbtn->tooltip_stridx = GUIStr_Empty;
     }
+}
+
+void maintain_compsetting_button(struct GuiButton* gbtn)
+{
+    struct ComputerType* cpt = get_computer_type_template(comp_player_conf.computer_assist_types[gbtn->btype_value]);
+    gbtn->tooltip_stridx = cpt->tooltip_stridx;
+    gbtn->sprite_idx = cpt->sprite_idx;
 }
 
 void pick_up_next_wanderer(struct GuiButton *gbtn)

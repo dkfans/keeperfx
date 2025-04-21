@@ -1317,7 +1317,7 @@ long dbc_char_widthM(unsigned long chr, long units_per_px)
     }
     if (!is_wide_charcode(chr))
     {
-        ret -= 8;
+        ret = ret / 2;
     }
     else
     {

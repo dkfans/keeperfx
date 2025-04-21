@@ -591,6 +591,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               clear_flag(crconf->model_flags, CMF_IsDiggingCreature);
           }
+          recalculate_all_creature_digger_lists();
           update_creatr_model_activities_list(1);
           break;
       default:
@@ -690,7 +691,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       break;
     case Cmd_USE_SPELL_ON_CREATURE:
-      script_use_spell_on_creature(plr_range_id, val2, val3, val4);
+      script_use_spell_on_creature_with_criteria(plr_range_id, val2, val3, val4);
       break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         for (i = plr_start; i < plr_end; i++)

@@ -227,7 +227,7 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
         struct ComputerProcess* cproc = &comp->processes[i];
-        if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+        if (flag_is_set(cproc->flags, ComProc_ListEnd))
             break;
         if (cproc->parent == cevent->process)
         {
@@ -536,9 +536,9 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
             {
                 struct ComputerProcess* cproc = &comp->processes[i];
-                if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+                if (flag_is_set(cproc->flags, ComProc_ListEnd))
                     break;
-                if (cproc->parent == bldroom->process)
+                if (cproc->parent == bldroom->process_idx)
                 {
                     SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
                     ret = CTaskRet_Unk1;
@@ -695,9 +695,9 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
         for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+            if (flag_is_set(cproc->flags, ComProc_ListEnd))
                 break;
-            if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == event->target))
+            if ((cproc->func_check == cpfl_computer_check_any_room) && (cproc->confval_4 == event->target))
             {
                 SYNCDBG(8,"Resetting process for player %d to build room %s", (int)comp->dungeon->owner, room_code_name(event->target));
                 clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
@@ -887,7 +887,7 @@ long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *c
         if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
         {
             SYNCDBG(8,"Creating task to sell player %d traps and doors",(int)dungeon->owner);
-            if (create_task_sell_traps_and_doors(comp, cevent->param2, 3*(dungeon->creatures_total_pay-dungeon->total_money_owned)/2,true)) {
+            if (create_task_sell_traps_and_doors(comp, cevent->param1, 3*(dungeon->creatures_total_pay-dungeon->total_money_owned)/2,true)) {
                 return CTaskRet_Unk1;
             }
         }

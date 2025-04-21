@@ -32,6 +32,7 @@
 #include "config_slabsets.h"
 #include "config_strings.h"
 #include "config_terrain.h"
+#include "config_keeperfx.h"
 #include "light_data.h"
 #include "map_ceiling.h"
 #include "map_utils.h"
@@ -1041,25 +1042,13 @@ TbBool create_columns_from_list(struct Column *cols, long ccount)
 TbBool load_slab_datclm_files(void)
 {
     SYNCDBG(5,"Starting");
-    // Load Column Set
-    long cols_tot = 0;
-    struct Column* cols = (struct Column*)calloc(COLUMNS_COUNT, sizeof(struct Column));
-    if (cols == NULL)
-    {
-      WARNMSG("Can't allocate memory for %d column sets.",COLUMNS_COUNT);
-      return false;
-    }
-    if (!load_columns_config(keeper_columns_file,CnfLd_Standard,cols,&cols_tot))
-    {
-      free(cols);
-      return false;
-    }
+
     long slbset_tot = game.conf.slab_conf.slab_types_count * SLABSETS_PER_SLAB;
     game.slabset_num = slbset_tot;
-    update_columns_use(cols,cols_tot,game.slabset,slbset_tot);
-    create_columns_from_list(cols,cols_tot);
-    update_slabset_column_indices(cols,cols_tot);
-    free(cols);
+    
+    update_columns_use(game.conf.column_conf.cols,game.conf.column_conf.columns_count,game.slabset,slbset_tot);
+    create_columns_from_list(game.conf.column_conf.cols,game.conf.column_conf.columns_count);
+    update_slabset_column_indices(game.conf.column_conf.cols,game.conf.column_conf.columns_count);
     return true;
 }
 
@@ -1129,7 +1118,7 @@ short load_map_ownership_file(LevelNumber lv_num)
 TbBool initialise_map_wlb_auto(void)
 {
     struct SlabMap *slb;
-    struct SlabAttr *slbattr;
+    struct SlabConfigStats *slabst;
     unsigned long x;
     unsigned long y;
     unsigned long n;
@@ -1152,8 +1141,8 @@ TbBool initialise_map_wlb_auto(void)
             {
                 n = slb->kind;
             }
-            slbattr = get_slab_kind_attrs(n);
-            slb->wlb_type = slbattr->wlb_type;
+            slabst = get_slab_kind_stats(n);
+            slb->wlb_type = slabst->wlb_type;
         }
     }
     SYNCMSG("Regenerated WLB flags, unsure for %d bridge blocks.",(int)nbridge);
@@ -1390,7 +1379,8 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         ERRORLOG("Map Strings file %s does not exist or can't be opened", fname);
         return;
     }
-    level_strings_data = malloc(filelen + 256);
+    size_t size = filelen + 256;
+    level_strings_data = calloc(size, sizeof(char)); // we're allocating extra memory, which we can't just assume is already clear; this could cause weird issues
     if (level_strings_data == NULL)
     {
         ERRORLOG("Can't allocate memory for Map Strings data");
@@ -1403,7 +1393,7 @@ void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short 
         return;
     }
     unsigned long loaded_strings_count = count_strings(level_strings_data, loaded_size);
-    char* strings_data_end = level_strings_data + filelen + 255;
+    char* strings_data_end = level_strings_data + size;
     // Resetting all values to empty strings
     reset_strings(level_strings, STRINGS_MAX);
     // Analyzing strings data and filling correct values

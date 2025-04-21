@@ -118,10 +118,12 @@
 #include "vidfade.h"
 #include "KeeperSpeech.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "game_legacy.h"
 #include "room_list.h"
 #include "steam_api.hpp"
 #include "game_loop.h"
+#include "moonphase.h"
 #include "frontmenu_ingame_map.h"
 
 #ifdef FUNCTESTING
@@ -884,7 +886,6 @@ void init_keeper(void)
     init_key_to_strings();
     // Load configs which may have per-campaign part, and even be modified within a level
     init_custom_sprites(SPRITE_LAST_LEVEL);
-    load_computer_player_config(CnfLd_Standard);
     load_stats_files();
     check_and_auto_fix_stats();
     init_creature_scores();
@@ -895,10 +896,10 @@ void init_keeper(void)
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
     lbDisplay.GlassMap = pixmap.ghost;
     lbDisplay.DrawColour = colours[15][15][15];
-    game.comp_player_aggressive = 0;
-    game.comp_player_defensive = 1;
-    game.comp_player_construct = 0;
-    game.comp_player_creatrsonly = 0;
+    game.comp_player_aggressive  = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[0]);
+    game.comp_player_defensive   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[1]);
+    game.comp_player_construct   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[2]);
+    game.comp_player_creatrsonly = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[3]);
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     game.operation_flags |= GOF_ShowPanel;
@@ -1000,7 +1001,6 @@ short setup_game(void)
   features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
   features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
   features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
-  features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
   features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
   features_enabled |= Ft_DeltaTime; // enable delta time
   features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
@@ -1013,7 +1013,8 @@ short setup_game(void)
   }
 
   #ifdef FUNCTESTING
-    features_enabled |= Ft_SkipSplashScreens;
+    start_params.startup_flags &= ~SFlg_Legal;
+    start_params.startup_flags &= ~SFlg_FX;
     features_enabled |= Ft_SkipHeartZoom;
   #endif
 
@@ -1038,25 +1039,25 @@ short setup_game(void)
       return 0;
   }
 
-  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  if (flag_is_set(start_params.startup_flags, SFlg_Legal))
   {
-
-      if(is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
+      if (is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
       {
         result = init_actv_bitmap_screen(RBmp_SplashLegalWide);
       } else {
         result = init_actv_bitmap_screen(RBmp_SplashLegal);
       }
-
-      if ( result )
+       if ( result )
       {
           result = show_actv_bitmap_screen(3000);
           free_actv_bitmap_screen();
       } else
           SYNCLOG("Legal image skipped");
-  } else {
-        // Make the white screen into a black screen faster
-        draw_clear_screen();
+  }
+  else
+  {
+      // Make the white screen into a black screen faster
+      draw_clear_screen();
   }
 
   // Now do more setup
@@ -1071,22 +1072,22 @@ short setup_game(void)
   // init_sound(). This will probably change when we'll move sound
   // to SDL - then we'll put that line earlier, before setup_game().
   LbErrorParachuteInstall();
-  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  // View second splash screen
+  if (flag_is_set(start_params.startup_flags, SFlg_FX))
   {
-    // View second splash screen
-    result = init_actv_bitmap_screen(RBmp_SplashFx);
-    if ( result == 1 )
-    {
-        result = show_actv_bitmap_screen(4000);
-        free_actv_bitmap_screen();
-    } else
-        SYNCLOG("startup_fx image skipped");
+      result = init_actv_bitmap_screen(RBmp_SplashFx);
+      if ( result == 1 )
+      {
+          result = show_actv_bitmap_screen(4000);
+          free_actv_bitmap_screen();
+      } else
+          SYNCLOG("startup_fx image skipped");
   }
 
   draw_clear_screen();
   // View Bullfrog company logo animation when new moon
-  if ( is_new_moon )
-    if ( !game.no_intro )
+  if ( ( is_new_moon ) || (flag_is_set(start_params.startup_flags, SFlg_Bullfrog)) )
+    if (!start_params.no_intro)
     {
         result = moon_video();
         if ( !result ) {
@@ -1096,7 +1097,7 @@ short setup_game(void)
 
   result = 1;
   // Setup the intro video mode
-  if ( result && (!game.no_intro) )
+  if (result && (!start_params.no_intro) )
   {
       if (!setup_screen_mode_zero(get_movies_vidmode()))
       {
@@ -1112,14 +1113,21 @@ short setup_game(void)
       {
           //result = -1; // Helps with better warning message later
       }
+      if (!start_params.no_intro)
+      {
+         if (flag_is_set(start_params.startup_flags, SFlg_EA))
+         {
+             ea_video();
+         }
+         if (flag_is_set(start_params.startup_flags, SFlg_Intro))
+         {
+            result = intro_replay();
+         }
+      }
   }
 
   game.frame_skip = start_params.frame_skip;
 
-  if ( (result == 1) && (!game.no_intro) )
-  {
-     result = intro_replay();
-  }
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
   if (result == 0)
@@ -1587,7 +1595,6 @@ void reinit_level_after_load(void)
     erstats_clear();
     player = get_my_player();
     reinit_tagged_blocks_for_player(player->id_number);
-    restore_room_update_functions_after_load();
     restore_computer_player_after_load();
     sound_reinit_after_load();
     update_panel_colors();
@@ -1601,6 +1608,7 @@ void reinit_level_after_load(void)
 TbBool set_default_startup_parameters(void)
 {
     memset(&start_params, 0, sizeof(struct StartupParameters));
+    start_params.startup_flags = (SFlg_Legal|SFlg_FX|SFlg_Intro);
     start_params.packet_checksum_verify = 1;
     clear_flag(start_params.flags_font, FFlg_unk01);
     // Set levels to 0, as we may not have the campaign loaded yet
@@ -2175,9 +2183,9 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
     if (!thing_is_invalid(doortng)) {
         destroy_door(doortng);
     }
-    struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
-    if (slbattr->category == SlbAtCtg_FortifiedGround)
+    struct SlabConfigStats *slabst;
+    slabst = get_slab_stats(slb);
+    if (slabst->category == SlbAtCtg_FortifiedGround)
     {
       place_slab_type_on_map(SlbT_PATH, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 1);
       decrease_dungeon_area(plyr_idx, 1);
@@ -2534,8 +2542,8 @@ long update_cave_in(struct Thing *thing)
         return 1;
     }
 
-    const struct MagicStats *pwrdynst;
-    pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_CAVEIN);
     struct Thing *efftng;
     struct Coord3d pos;
     PlayerNumber owner;
@@ -2551,14 +2559,14 @@ long update_cave_in(struct Thing *thing)
             pos.z.val = get_ceiling_height(&pos) - 128;
             efftng = create_effect_element(&pos, TngEff_Flash, owner);
             if (!thing_is_invalid(efftng)) {
-                efftng->health = pwrdynst->duration;
+                efftng->health = powerst->duration;
             }
         }
     }
 
     GameTurnDelta turns_between;
     GameTurnDelta turns_alive;
-    turns_between = pwrdynst->duration / 5;
+    turns_between = powerst->duration / 5;
     turns_alive = game.play_gameturn - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
@@ -2585,9 +2593,9 @@ long update_cave_in(struct Thing *thing)
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
     }
 
-    if ((8 * pwrdynst->duration / 10 >= thing->health) && (2 * pwrdynst->duration / 10 <= thing->health))
+    if ((8 * powerst->duration / 10 >= thing->health) && (2 * powerst->duration / 10 <= thing->health))
     {
-        if ((pwrdynst->duration < 10) || ((thing->health % (pwrdynst->duration / 10)) == 0))
+        if ((powerst->duration < 10) || ((thing->health % (powerst->duration / 10)) == 0))
         {
             int round_idx;
             round_idx = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
@@ -2604,7 +2612,7 @@ long update_cave_in(struct Thing *thing)
                     pos2.y.val = subtile_coord(thing->cave_in.y,0);
                     pos2.z.val = subtile_coord(1,0);
                     dist = get_chessboard_distance(&pos, &pos2);
-                    if (pwrdynst->strength[thing->cave_in.model] >= coord_subtile(dist))
+                    if (powerst->strength[thing->cave_in.model] >= coord_subtile(dist))
                     {
                         ncavitng = create_thing(&pos, TCls_CaveIn, thing->cave_in.model, owner, -1);
                         if (!thing_is_invalid(ncavitng))
@@ -2691,6 +2699,7 @@ void update(void)
         event_process_events();
         update_all_events();
         process_level_script();
+        process_fx_lines();
         if ((game.numfield_D & GNFldD_Unkn04) != 0)
             process_computer_players2();
         process_players();
@@ -3493,9 +3502,9 @@ void initialise_map_health(void)
         {
             struct SlabMap *slb;
             slb = get_slabmap_block(slb_x, slb_y);
-            struct SlabAttr *slbattr;
-            slbattr = get_slab_attrs(slb);
-            slb->health = game.block_health[slbattr->block_health_index];
+            struct SlabConfigStats *slabst;
+            slabst = get_slab_stats(slb);
+            slb->health = game.block_health[slabst->block_health_index];
         }
     }
 }
@@ -3895,7 +3904,7 @@ short process_command_line(unsigned short argc, char *argv[])
 
       if (strcasecmp(parstr, "nointro") == 0)
       {
-        start_params.no_intro = 1;
+        start_params.no_intro = true;
       } else
       if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
       {
@@ -3912,12 +3921,12 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "1player") == 0)
       {
-          start_params.one_player = 1;
-          one_player_mode = 1;
+          start_params.one_player = true;
+          one_player_mode = true;
       } else
       if ((strcasecmp(parstr, "s") == 0) || (strcasecmp(parstr, "nosound") == 0))
       {
-          SoundDisabled = 1;
+          SoundDisabled = true;
       } else
       if (strcasecmp(parstr, "fps") == 0)
       {
@@ -3932,7 +3941,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "vidsmooth") == 0)
       {
-          smooth_on = 1;
+          smooth_on = true;
       } else
       if ( strcasecmp(parstr,"level") == 0 )
       {
@@ -4063,6 +4072,14 @@ short process_command_line(unsigned short argc, char *argv[])
         strcpy(start_params.config_file, pr2str);
         start_params.overrides[Clo_ConfigFile] = true;
         narg++;
+      }
+      else if ( strcasecmp(parstr,"Bullfrog") == 0 ) // force playing the Bullfrog video
+      {
+        set_flag(start_params.startup_flags, SFlg_Bullfrog);
+      }
+      else if ( strcasecmp(parstr,"ea") == 0 ) // force playing the EA video
+      {
+        set_flag(start_params.startup_flags, SFlg_EA);
       }
       else if (strcasecmp(parstr, "ftests") == 0)
       {

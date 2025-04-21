@@ -451,8 +451,8 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
 long slab_is_my_door(long plyr_idx, long slb_x, long slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    return (slabmap_owner(slb) == plyr_idx) && ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0);
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
+    return (slabmap_owner(slb) == plyr_idx) && ((slabst->block_flags & SlbAtFlg_IsDoor) != 0);
 }
 
 long check_out_place_for_convert_behind_door(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -1079,9 +1079,9 @@ short imp_converts_dungeon(struct Thing *spdigtng)
           {
               set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0);
               struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-              struct SlabAttr* slbattr = get_slab_attrs(slb);
+              struct SlabConfigStats* slabst = get_slab_stats(slb);
               // If the area we're converting is an enemy room, issue event to that player
-              if (slbattr->category == SlbAtCtg_RoomInterior)
+              if (slabst->category == SlbAtCtg_RoomInterior)
               {
                   struct Room* room = room_get(slb->room_index);
                   if (!room_is_invalid(room))

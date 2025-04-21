@@ -25,6 +25,7 @@
 #include "config_spritecolors.h"
 #include "config_trapdoor.h"
 #include "console_cmd.h"
+#include "config_rules.h"
 #include "creature_instances.h"
 #include "creature_states.h"
 #include "creature_states_mood.h"
@@ -59,7 +60,7 @@ extern "C" {
 
 extern long level_file_version;
 
-
+#define MAX_CONFIG_VALUES 4
 
 const struct CommandDesc subfunction_desc[] = {
     {"RANDOM",                     "Aaaaaaaa", Cmd_RANDOM, NULL, NULL},
@@ -214,102 +215,6 @@ const struct NamedCommand creature_select_criteria_desc[] = {
   {"ON_NEUTRAL_GROUND",    CSelCrit_OnNeutralGround},
   {"ANYWHERE",             CSelCrit_Any},
   {NULL,                   0},
-};
-
-const struct NamedCommand trap_config_desc[] = {
-  {"NameTextID",               1},
-  {"TooltipTextID",            2},
-  {"SymbolSprites",            3},
-  {"PointerSprites",           4},
-  {"PanelTabIndex",            5},
-  {"Crate",                    6},
-  {"ManufactureLevel",         7},
-  {"ManufactureRequired",      8},
-  {"Shots",                    9},
-  {"TimeBetweenShots",        10},
-  {"SellingValue",            11},
-  {"AnimationID",             12},
-  {"Model",                   12}, // Legacy name.
-  {"ModelSize",               13},
-  {"AnimationSpeed",          14},
-  {"TriggerType",             15},
-  {"ActivationType",          16},
-  {"EffectType",              17},
-  {"Hidden",                  18},
-  {"TriggerAlarm",            19},
-  {"Slappable",               20},
-  {"Unanimated",              21},
-  {"Health",                  22},
-  {"Unshaded",                23},
-  {"RandomStartFrame",        24},
-  {"ThingSize",               25},
-  {"HitType",                 26},
-  {"LightRadius",             27},
-  {"LightIntensity",          28},
-  {"LightFlags",              29},
-  {"TransparencyFlags",       30},
-  {"ShotVector",              31},
-  {"Destructible",            32},
-  {"Unstable",                33},
-  {"Unsellable",              34},
-  {"PlaceOnBridge",           35},
-  {"ShotOrigin",              36},
-  {"PlaceSound",              37},
-  {"TriggerSound",            38},
-  {"RechargeAnimationID",     39},
-  {"AttackAnimationID",       40},
-  {"DestroyedEffect",         41},
-  {"InitialDelay",            42},
-  {"PlaceOnSubtile",          43},
-  {"FlameAnimationID",        44},
-  {"FlameAnimationSpeed",     45},
-  {"FlameAnimationSize",      46},
-  {"FlameAnimationOffset",    47},
-  {"FlameTransparencyFlags",  48},
-  {"DetectInvisible",         49},
-  {"InstantPlacement",        50},
-  {"RemoveOnceDepleted",      51},
-  {"FlagNumber",              52},
-  {NULL,                       0},
-};
-
-const struct NamedCommand room_config_desc[] = {
-  {"NameTextID",           1},
-  {"TooltipTextID",        2},
-  {"SymbolSprites",        3},
-  {"PointerSprites",       4},
-  {"PanelTabIndex",        5},
-  {"Cost",                 6},
-  {"Health",               7},
-  {"CreatureCreation",     8},
-  {"AmbientSndSample",     9},
-  {"SlabAssign",          10},
-  {"Messages",            11},
-  {"Properties",          12},
-  {"Roles",               13},
-  {"TotalCapacity",       14},
-  {"UsedCapacity",        15},
-  {"SlabSynergy",         16},
-  {"StorageHeight",       17},
-  {NULL,                   0},
-};
-
-
-
-static const struct NamedField rules_script_only_named_fields[] = {
-    //name            //field                //field type                   //min //max
-  {"PayDayProgress",&game.pay_day_progress,var_type(game.pay_day_progress),0,LONG_MAX},
-  {NULL,                            NULL,0,0,0 },
-};
-
-static const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,
-rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fields,rules_health_named_fields,rules_script_only_named_fields};
-
-static const struct NamedCommand game_rule_desc[] = {
-  {"PreserveClassicBugs",            1},
-  {"AlliesShareVision",              2},
-  {"MapCreatureLimit",               3},
-  {NULL,                             0},
 };
 
 const struct NamedCommand on_experience_desc[] = {
@@ -545,82 +450,6 @@ const struct NamedCommand texture_pack_desc[] = {
   {NULL,           0},
 };
 
-// For dynamic strings
-static char* script_strdup(const char *src)
-{
-    char *ret = gameadd.script.next_string;
-    int remain_len = sizeof(gameadd.script.strings) - (gameadd.script.next_string - gameadd.script.strings);
-    if (strlen(src) >= remain_len)
-    {
-        return NULL;
-    }
-    strcpy(ret, src);
-    gameadd.script.next_string += strlen(src) + 1;
-    return ret;
-}
-
-
-/**
- * Modifies player's creatures' anger.
- * @param plyr_idx target player
- * @param anger anger value. Use double AnnoyLevel (from creature's config file) to fully piss creature. More for longer calm time
- */
-TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmodel, long operation, long anger)
-{
-    SYNCDBG(8, "Starting");
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    unsigned long k = 0;
-    int i = dungeon->creatr_list_start;
-    if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,crmodel))
-    {
-        i = dungeon->digger_list_start;
-    }
-    while (i != 0)
-    {
-        struct Thing* thing = thing_get(i);
-        TRACE_THING(thing);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-        {
-            ERRORLOG("Jump to invalid creature detected");
-            break;
-        }
-        i = cctrl->players_next_creature_idx;
-        // Per creature code
-
-        if (thing_matches_model(thing,crmodel))
-        {
-            i = cctrl->players_next_creature_idx;
-            if (operation == SOpr_SET)
-            {
-                anger_set_creature_anger(thing, anger, AngR_Other);
-            }
-            else if (operation == SOpr_INCREASE)
-            {
-                anger_increase_creature_anger(thing, anger, AngR_Other);
-            }
-            else if (operation == SOpr_DECREASE)
-            {
-                anger_reduce_creature_anger(thing, -anger, AngR_Other);
-            }
-            else if (operation == SOpr_MULTIPLY)
-            {
-                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Other] * anger, AngR_Other);
-            }
-
-        }
-        // Thing list loop body ends
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures list");
-            break;
-        }
-    }
-    SYNCDBG(19, "Finished");
-    return true;
-}
-
 ThingModel parse_creature_name(const char *creature_name)
 {
     ThingModel ret = get_rid(creature_desc, creature_name);
@@ -688,13 +517,13 @@ TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
     return true;
 }
 
-TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
+TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type, long lvl_file_version)
 {
     char c;
     int len = 0;
     char arg[MAX_TEXT_LENGTH];
 
-    if (level_file_version > 0)
+    if (lvl_file_version > 0)
     {
         *varib_type = get_id(variable_desc, varib_name);
     } else
@@ -779,6 +608,91 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
       return false;
     }
     return true;
+}
+
+static void set_config_check(const struct NamedFieldSet* named_fields_set, const struct ScriptLine* scline, const char* src_str)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    const char* id_str = scline->tp[0];
+    const char* property = scline->tp[1];
+    const char* valuestrings[MAX_CONFIG_VALUES] = {scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]};
+    
+    short id = get_id(named_fields_set->names, id_str);
+    if (id == -1)
+    {
+        SCRPTERRLOG("Unknown %s, '%s'",named_fields_set->block_basename, id_str);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    long property_id = get_named_field_id(named_fields_set->named_fields, property);
+    if (property_id == -1)
+    {
+        SCRPTERRLOG("Unknown property, '%s'", property);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    if (id > named_fields_set->max_count)
+    {
+        SCRPTERRLOG("'%s%d' is out of range",named_fields_set->block_basename, id);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    const struct NamedField* field = &named_fields_set->named_fields[property_id];
+
+    char concatenated_values[MAX_TEXT_LENGTH];
+    if (field->argnum == -1)
+    {
+        snprintf(concatenated_values, sizeof(concatenated_values), "%s %s %s %s", scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]);
+        value->longs[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id,src_str,ccf_SplitExecution|ccf_DuringLevel);
+    }
+    else
+    {
+        for (size_t i = 0; i < MAX_CONFIG_VALUES; i++)
+        {
+            if(valuestrings[i][0] == '\0')
+            {
+                break;
+            }
+
+            if( named_fields_set->named_fields[property_id + i].name == NULL || (strcmp(named_fields_set->named_fields[property_id + i].name, named_fields_set->named_fields[property_id].name) != 0))
+            {
+                SCRPTERRLOG("more values then expected for property: '%s' '%s'", property, valuestrings[i]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            else if (valuestrings[i][0] == '\0')
+            {
+                break;
+            }
+            value->longs[1 + i] = parse_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id,src_str,ccf_SplitExecution|ccf_DuringLevel);
+        }
+    }
+
+    value->shorts[0] = id;
+    value->shorts[1] = property_id;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_config_process(const struct NamedFieldSet* named_fields_set, struct ScriptContext* context, const char* src_str)
+{
+    short id          = context->value->shorts[0];
+    short property_id = context->value->shorts[1];
+
+    for (size_t i = 0; i < MAX_CONFIG_VALUES; i++)
+    {
+        if( named_fields_set->named_fields[property_id + i].name == NULL || 
+            (strcmp(named_fields_set->named_fields[property_id + i].name, named_fields_set->named_fields[property_id].name) != 0))
+        {
+            return;
+        }
+        else
+        {
+            assign_named_field_value(&named_fields_set->named_fields[property_id + i],context->value->longs[i+1],named_fields_set,id,src_str,ccf_SplitExecution|ccf_DuringLevel);
+        }
+    }
 }
 
 static void add_to_party_check(const struct ScriptLine *scline)
@@ -899,7 +813,7 @@ static void display_objective_process(struct ScriptContext *context)
 
 static void conceal_map_rect_check(const struct ScriptLine *scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     TbBool conceal_all = false;
 
     if (scline->np[5] == -1)
@@ -1110,384 +1024,12 @@ static void change_creatures_annoyance_process(struct ScriptContext* context)
 
 static void set_trap_configuration_check(const struct ScriptLine* scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-
-    const char *trapname = scline->tp[0];
-    const char *valuestring = scline->tp[2];
-    long newvalue;
-    short trap_id = get_id(trap_desc, trapname);
-    if (trap_id == -1)
-    {
-        SCRPTERRLOG("Unknown trap, '%s'", trapname);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    short trapvar = get_id(trap_config_desc, scline->tp[1]);
-    if (trapvar == -1)
-    {
-        SCRPTERRLOG("Unknown trap variable");
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    value->shorts[0] = trap_id;
-    value->shorts[1] = trapvar;
-    value->ulongs[1] = scline->np[2];
-    value->shorts[4] = scline->np[3];
-    value->shorts[5] = scline->np[4];
-    if (trapvar == 3) // SymbolSprites
-    {
-        char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
-        // Pass two vars along as one merged val like: first\nsecond\m
-        strcpy(tmp, scline->tp[2]);
-        strcat(tmp, "|");
-        strcat(tmp,scline->tp[3]);
-        value->strs[2] = script_strdup(tmp); // first\0second
-        value->strs[2][strlen(scline->tp[2])] = 0;
-        free(tmp);
-        if (value->strs[2] == NULL)
-        {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    else if (trapvar == 17) // EffectType
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-        }
-        else
-        {
-            struct TrapConfigStats *trapst = get_trap_model_stats(trap_id);
-            switch (trapst->activation_type)
-            {
-                case TrpAcT_EffectonTrap:
-                {
-                    newvalue = get_id(effect_desc, valuestring);
-                    break;
-                }
-                case TrpAcT_SlabChange:
-                {
-                    newvalue = get_id(slab_desc, valuestring);
-                    break;
-                }
-                case TrpAcT_CreatureSpawn:
-                {
-                    newvalue = get_id(creature_desc, valuestring);
-                    break;
-                }
-                case TrpAcT_Power:
-                {
-                    newvalue = get_id(power_desc, valuestring);
-                    break;
-                }
-                case TrpAcT_HeadforTarget90:
-                case TrpAcT_ShotonTrap:
-                case TrpAcT_CreatureShot:
-                default:
-                {
-                    newvalue = get_id(shot_desc, valuestring);
-                    break;
-                }
-            }
-        }
-        if ((newvalue > USHRT_MAX) || (newvalue < 0))
-        {
-            SCRPTERRLOG("Value out of range: %ld", newvalue);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        value->shorts[2] = newvalue;
-    }
-    else if (trapvar == 41) // DestroyedEffect
-    {
-        newvalue = effect_or_effect_element_id(valuestring);
-        if ((newvalue == 0) && (!parameter_is_number(valuestring)))
-        {
-            SCRPTERRLOG("Unknown effect or effect element: '%s'", valuestring);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        value->ulongs[1] = newvalue;
-    }
-    else if (trapvar == 46) // FlameAnimationOffset
-    {
-        value->longs[1]  = atoi(scline->tp[2]);
-        value->shorts[4] = scline->np[3];
-        value->shorts[5] = scline->np[4];
-        value->shorts[6] = scline->np[5];
-    }
-    else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39) && (trapvar != 40))  // PointerSprites && AnimationIDs
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-            if ((newvalue > LONG_MAX) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %ld", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->shorts[2] = newvalue;
-        }
-        else if (trapvar == 6)
-        {
-            newvalue = get_id(object_desc, valuestring);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Unknown crate object: '%s'", valuestring);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->ulongs[1] = newvalue;
-        }
-        else
-        {
-            SCRPTERRLOG("Trap property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    else
-    {
-        value->strs[2] = script_strdup(scline->tp[2]);
-        if (value->strs[2] == NULL)
-        {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    SCRIPTDBG(7, "Setting trap %s property %s to %d", trapname, scline->tp[1], value->shorts[2]);
-    PROCESS_SCRIPT_VALUE(scline->command);
+    set_config_check(&trapdoor_trap_named_fields_set, scline, "SET_TRAP_CONFIGURATION");
 }
 
 static void set_room_configuration_check(const struct ScriptLine* scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-
-    const char *roomname = scline->tp[0];
-    const char *valuestring = scline->tp[2];
-    const char* valuestring2 = scline->tp[3];
-    long newvalue;
-    long newvalue2;
-    short room_id = get_id(room_desc, roomname);
-    if (room_id == -1)
-    {
-        SCRPTERRLOG("Unknown room, '%s'", roomname);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    short roomvar = get_id(room_config_desc, scline->tp[1]);
-    if (roomvar == -1)
-    {
-        SCRPTERRLOG("Unknown room variable");
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    value->shorts[0] = room_id;
-    value->shorts[1] = roomvar;
-    value->shorts[2] = scline->np[2];
-    value->shorts[3] = scline->np[3];
-    value->shorts[4] = scline->np[4];
-    if (roomvar == 3) // SymbolSprites
-    {
-        char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
-        // Pass two vars along as one merged val like: first\nsecond\m
-        strcpy(tmp, scline->tp[2]);
-        strcat(tmp, "|");
-        strcat(tmp,scline->tp[3]);
-        value->strs[2] = script_strdup(tmp); // first\0second
-        free(tmp);
-        if (value->strs[2] == NULL) {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        value->strs[2][strlen(scline->tp[2])] = 0;
-    }
-    else if (roomvar == 5) // PanelTabIndex
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-            if ((newvalue > 32) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %ld", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->shorts[2] = newvalue;
-        }
-        else
-        {
-            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    else if (roomvar == 8) // CreatureCreation
-    {
-        newvalue = get_id(creature_desc, valuestring);
-        if (newvalue == -1)
-            {
-                SCRPTERRLOG("Unknown CreatureCreation variable");
-                DEALLOCATE_SCRIPT_VALUE
-                    return;
-            }
-        value->shorts[2] = newvalue;
-    }
-    else if ((roomvar == 10) || (roomvar == 16)) // SlabAssign & SlabSynergy
-    {
-        newvalue = get_id(slab_desc, valuestring);
-        if (newvalue == -1)
-            {
-                SCRPTERRLOG("Unknown slab variable");
-                DEALLOCATE_SCRIPT_VALUE
-                    return;
-            }
-        value->shorts[2] = newvalue;
-    }
-    else if (roomvar == 12) // Properties
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-            if ((newvalue >= RoCFlg_ListEnd) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %ld", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->shorts[2] = newvalue;
-        }
-        else
-        {
-            newvalue = get_id(terrain_room_properties_commands, valuestring);
-            if (newvalue == -1)
-                {
-                    SCRPTERRLOG("Unknown Properties variable");
-                    DEALLOCATE_SCRIPT_VALUE
-                        return;
-                }
-            value->shorts[2] = newvalue;
-        }
-    }
-    else if (roomvar == 13) // Roles
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-            if ((newvalue > 33554431) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %ld", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->ulongs[1] = newvalue;
-        }
-        else
-        {
-            newvalue = get_id(room_roles_desc, valuestring);
-            if (newvalue == -1)
-                {
-                    SCRPTERRLOG("Unknown Roles variable");
-                    DEALLOCATE_SCRIPT_VALUE
-                        return;
-                }
-            value->ulongs[1] = newvalue;
-        }
-        if (parameter_is_number(valuestring2))
-        {
-            newvalue2 = atoi(valuestring2);
-            if ((newvalue2 > 33554431) || (newvalue2 < 0))
-            {
-                SCRPTERRLOG("Value out of range: %ld", newvalue2);
-                DEALLOCATE_SCRIPT_VALUE
-                    return;
-            }
-            value->ulongs[2] = newvalue2;
-        }
-        else
-        {
-            newvalue2 = get_id(room_roles_desc, valuestring2);
-            if (newvalue2 == -1)
-            {
-                SCRPTERRLOG("Unknown Roles variable");
-                DEALLOCATE_SCRIPT_VALUE
-                    return;
-            }
-            value->ulongs[2] = newvalue2;
-        }
-    }
-    else if (roomvar == 14) // TotalCapacity
-    {
-        newvalue = get_id(terrain_room_total_capacity_func_type, valuestring);
-        if (newvalue == -1)
-            {
-                SCRPTERRLOG("Unknown TotalCapacity variable '%s'", valuestring);
-                DEALLOCATE_SCRIPT_VALUE
-                    return;
-            }
-        value->shorts[2] = newvalue;
-    }
-    else if (roomvar == 15) // UsedCapacity
-    {
-        newvalue = get_id(terrain_room_used_capacity_func_type, valuestring);
-        if (newvalue == -1)
-            {
-                SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring);
-                DEALLOCATE_SCRIPT_VALUE
-                    return;
-            }
-        value->shorts[2] = newvalue;
-
-        newvalue2 = get_id(terrain_room_used_capacity_func_type, valuestring2);
-        if (newvalue2 == -1)
-        {
-            SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring2);
-            DEALLOCATE_SCRIPT_VALUE
-                return;
-        }
-        value->shorts[3] = newvalue2;
-    }
-    else if (roomvar != 4) // NameTextID, TooltipTextID, Cost, Health, AmbientSndSample, Messages, StorageHeight
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %ld", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->shorts[2] = newvalue;
-        }
-        else
-        {
-            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    else // PointerSprites
-    {
-        value->strs[2] = script_strdup(scline->tp[2]);
-        if (value->strs[2] == NULL)
-        {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    SCRIPTDBG(7, "Setting room %s property %s to %d", roomname, scline->tp[1], value->shorts[2]);
-    PROCESS_SCRIPT_VALUE(scline->command);
+    set_config_check(&terrain_room_named_fields_set, scline, "SET_ROOM_CONFIGURATION");
 }
 
 static void set_hand_rule_check(const struct ScriptLine* scline)
@@ -1627,7 +1169,7 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     const char *flag_name = scline->tp[4];
 
     long flag_id, flag_type;
-    if (!parse_get_varib(flag_name, &flag_id, &flag_type))
+    if (!parse_get_varib(flag_name, &flag_id, &flag_type, level_file_version))
     {
         SCRPTERRLOG("Unknown flag, '%s'", flag_name);
         return;
@@ -1717,7 +1259,6 @@ static void new_object_type_check(const struct ScriptLine* scline)
     struct ObjectConfigStats* objst = get_object_model_stats(tmodel);
     memset(objst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
-    objst->name_stridx = 201;
     objst->map_icon = 0;
     objst->genre = 0;
     objst->draw_class = ODC_Default;
@@ -1796,138 +1337,12 @@ static void new_trap_type_check(const struct ScriptLine* scline)
 
 static void set_trap_configuration_process(struct ScriptContext *context)
 {
-    long trap_type = context->value->shorts[0];
-    long property = context->value->shorts[1];
-    long value = context->value->longs[1];
-    short value2 = context->value->shorts[4];
-    short value3 = context->value->shorts[5];
-    short value4 = context->value->shorts[6];
-
-    char *valuestr = context->value->strs[2];
-
-    if (property == 3)
-    {
-        value = get_icon_id(valuestr);
-        value2 = get_icon_id(valuestr + strlen(valuestr) + 1);
-    }else if (property == 4)
-    {
-        value = get_icon_id(valuestr);
-    }else if (property == 12 || property == 39 || property == 40 || property == 44)
-    {
-        value = get_anim_id_(valuestr);
-    }
-
-    script_set_trap_configuration(trap_type, property, value, value2, value3, value4);
-
-
+    set_config_process(&trapdoor_trap_named_fields_set, context, "SET_TRAP_CONFIGURATION");
 }
 
 static void set_room_configuration_process(struct ScriptContext *context)
 {
-    long room_type = context->value->shorts[0];
-    struct RoomConfigStats *roomst = &game.conf.slab_conf.room_cfgstats[room_type];
-    unsigned short value;
-    short value2;
-    short value3;
-    int old_value, old_value2;
-    if (context->value->shorts[1] != 13) // Roles need larger values, so can fit fewer
-    {
-        value = context->value->shorts[2];
-        value2 = context->value->shorts[3];
-        value3 = context->value->shorts[4];
-    }
-    switch (context->value->shorts[1])
-    {
-        case 1: // NameTextID
-            roomst->name_stridx = value;
-            break;
-        case 2: // TooltipTextID
-            old_value = roomst->tooltip_stridx;
-            roomst->tooltip_stridx = value;
-            if (roomst->tooltip_stridx != old_value)
-            {
-                update_room_tab_to_config();
-            }
-            break;
-        case 3: // SymbolSprites
-            old_value = roomst->medsym_sprite_idx;
-            old_value2 = roomst->bigsym_sprite_idx;
-            roomst->bigsym_sprite_idx = get_icon_id(context->value->strs[2]); // First
-            roomst->medsym_sprite_idx = get_icon_id(context->value->strs[2] + strlen(context->value->strs[2]) + 1); // Second
-            if ( (roomst->medsym_sprite_idx != old_value) || (roomst->bigsym_sprite_idx != old_value2) )
-            {
-                update_room_tab_to_config();
-            }
-            break;
-        case 4: // PointerSprites
-            old_value = roomst->pointer_sprite_idx;
-            roomst->pointer_sprite_idx = get_icon_id(context->value->strs[2]);
-            if (roomst->pointer_sprite_idx != old_value)
-            {
-                update_room_tab_to_config();
-            }
-            break;
-        case 5: // PanelTabIndex
-            old_value = roomst->panel_tab_idx;
-            roomst->panel_tab_idx = value;
-            if (roomst->panel_tab_idx != old_value)
-            {
-                update_room_tab_to_config();
-            }
-            break;
-        case 6: // Cost
-            roomst->cost = value;
-            break;
-        case 7: // Health
-            roomst->health = value;
-            break;
-        case 8: // CreatureCreation
-            roomst->creature_creation_model = value;
-            break;
-        case 9: // AmbientSndSample
-            roomst->ambient_snd_smp_id = value;
-            break;
-        case 10: // SlabAssign
-            roomst->assigned_slab = value;
-            break;
-        case 11: // Messages
-            roomst->msg_needed = value;
-            roomst->msg_too_small = value2;
-            roomst->msg_no_route = value3;
-            break;
-        case 12: // Properties
-            roomst->flags = value;
-            roomst->flags |= value2;
-            roomst->flags |= value3;
-            break;
-        case 13: // Roles
-            roomst->roles = context->value->ulongs[1];
-            if (context->value->ulongs[2] > 0)
-                roomst->roles |= context->value->ulongs[2];
-            break;
-        case 14: // TotalCapacity
-            roomst->update_total_capacity_idx = value;
-            roomst->update_total_capacity = terrain_room_total_capacity_func_list[value];
-            reinitialise_rooms_of_kind(room_type);
-            break;
-        case 15: // UsedCapacity
-            roomst->update_storage_in_room_idx = value;
-            roomst->update_storage_in_room = terrain_room_used_capacity_func_list[value];
-            roomst->update_workers_in_room_idx = value2;
-            roomst->update_workers_in_room = terrain_room_used_capacity_func_list[value2];
-            reinitialise_rooms_of_kind(room_type);
-            break;
-        case 16: // SlabSynergy
-            roomst->synergy_slab = value;
-            recalculate_effeciency_for_rooms_of_kind(room_type);
-            break;
-        case 17: // StorageHeight
-            roomst->storage_height = value;
-            break;
-        default:
-            WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);
-            break;
-    }
+    set_config_process(&terrain_room_named_fields_set, context, "SET_ROOM_CONFIGURATION");
 }
 
 static void set_hand_rule_process(struct ScriptContext* context)
@@ -1950,40 +1365,8 @@ static void move_creature_process(struct ScriptContext* context)
     long count = context->value->bytes[10];
     long crmodel = context->value->bytes[11];
     PlayerNumber plyr_idx = context->player_idx;
-    for (int i = 0; i < count; i++)
-    {
-        struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, select_id);
-        if (thing_is_invalid(thing) || thing_is_picked_up(thing)) {
-            continue;
-        }
 
-        if (effect_id < 0)
-        {
-            effect_id = ball_puff_effects[thing->owner];
-        }
-
-        struct Coord3d pos;
-        if(!get_coords_at_location(&pos,location,false)) {
-            SYNCDBG(5,"No valid coords for location %d",(int)location);
-            return;
-        }
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-
-        if (effect_id > 0)
-        {
-            create_effect(&thing->mappos, effect_id, game.neutral_player_num);
-            create_effect(&pos, effect_id, game.neutral_player_num);
-        }
-        move_thing_in_map(thing, &pos);
-        reset_interpolation_of_thing(thing);
-        if (!is_thing_some_way_controlled(thing))
-        {
-            initialise_thing_state(thing, CrSt_CreatureDoingNothing);
-        }
-        cctrl->turns_at_job = -1;
-        check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    }
+    script_move_creature_with_criteria(plyr_idx, crmodel, select_id, location, effect_id, count);
 }
 
 static void count_creatures_at_action_point_process(struct ScriptContext* context)
@@ -2014,144 +1397,12 @@ static void count_creatures_at_action_point_process(struct ScriptContext* contex
 
 static void set_door_configuration_check(const struct ScriptLine* scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-
-    const char *doorname = scline->tp[0];
-    short door_id = get_id(door_desc, doorname);
-    const char* valuestring = scline->tp[2];
-    long newvalue;
-
-    if (door_id == -1)
-    {
-        SCRPTERRLOG("Unknown door, '%s'", doorname);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    short doorvar = get_id(trapdoor_door_commands, scline->tp[1]);
-    if (doorvar == -1)
-    {
-        SCRPTERRLOG("Unknown door variable");
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    value->shorts[0] = door_id;
-    value->shorts[1] = doorvar;
-    if (doorvar == 11) // SlabKind
-    {
-        const char* slab_name = scline->tp[2];
-        const char* slab2_name = scline->tp[3];
-        long slab_id = get_rid(slab_desc, slab_name);
-        long slab2_id = get_rid(slab_desc, slab2_name);
-        if (slab_id == -1)
-        {
-            if (parameter_is_number(slab_name))
-            {
-                slab_id = atoi(slab_name);
-            }
-            else
-            {
-                SCRPTERRLOG("Error slab %s not recognized", scline->tp[2]);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-        }
-        if (slab2_id == -1)
-        {
-            if (parameter_is_number(slab2_name))
-            {
-                slab_id = atoi(slab2_name);
-            }
-            else
-            {
-                SCRPTERRLOG("Error slab %s not recognized", scline->tp[2]);
-                DEALLOCATE_SCRIPT_VALUE
-                    return;
-            }
-        }
-        value->ulongs[1] = slab_id;
-        value->shorts[4] = slab2_id;
-    }
-    else if (doorvar == 4) // SymbolSprites
-    {
-        char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
-        // Pass two vars along as one merged val like: first\nsecond\m
-        strcpy(tmp, scline->tp[2]);
-        strcat(tmp, "|");
-        strcat(tmp,scline->tp[3]);
-        value->strs[2] = script_strdup(tmp); // first\0second
-        free(tmp);
-        if (value->strs[2] == NULL) {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        value->strs[2][strlen(scline->tp[2])] = 0;
-    }
-    else if (doorvar != 5) // Not PointerSprites
-    {
-        if (parameter_is_number(valuestring))
-        {
-            newvalue = atoi(valuestring);
-            if ((newvalue > LONG_MAX) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %ld", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->ulongs[1] = newvalue;
-        }
-        else if (doorvar == 7) // Crate
-        {
-            newvalue = get_id(object_desc, valuestring);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Unknown crate object: %s", valuestring);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->ulongs[1] = newvalue;
-        }
-        else
-        {
-            SCRPTERRLOG("Door property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    else
-    {
-        value->strs[2] = script_strdup(scline->tp[2]);
-        if (value->strs[2] == NULL)
-        {
-            SCRPTERRLOG("Run out script strings space");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    SCRIPTDBG(7, "Setting door %s property %s to %lu", doorname, scline->tp[1], value->ulongs[1]);
-    PROCESS_SCRIPT_VALUE(scline->command);
+    set_config_check(&trapdoor_door_named_fields_set, scline, "SET_DOOR_CONFIGURATION");
 }
 
 static void set_door_configuration_process(struct ScriptContext *context)
 {
-    long door_type = context->value->shorts[0];
-    short property = context->value->shorts[1];
-    short value = context->value->longs[1];
-    short value2 = context->value->shorts[4];
-    const char* valuestr = context->value->strs[2];
-
-    if (property == 4)
-    {
-        value = get_icon_id(valuestr);
-        value2 = get_icon_id(valuestr + strlen(valuestr) + 1);
-    }else if (property == 5)
-    {
-        value = get_icon_id(valuestr);
-    }
-
-    script_set_door_configuration(door_type,property, value, value2);
+    set_config_process(&trapdoor_door_named_fields_set, context, "SET_DOOR_CONFIGURATION");
 }
 
 static void create_effect_at_pos_process(struct ScriptContext* context)
@@ -2159,27 +1410,8 @@ static void create_effect_at_pos_process(struct ScriptContext* context)
     struct Coord3d pos;
     set_coords_to_subtile_center(&pos, context->value->shorts[1], context->value->shorts[2], 0);
     pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
-    TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
-    if (Price)
-    {
-        pos.z.val += 128;
-    }
-    else
-    {
-        pos.z.val += context->value->longs[2];
-    }
-    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num, 0);
-    if (!thing_is_invalid(efftng))
-    {
-        if (thing_in_wall_at(efftng, &efftng->mappos))
-        {
-            move_creature_to_nearest_valid_position(efftng);
-        }
-        if (Price)
-        {
-            efftng->price_effect.number = context->value->longs[2];
-        }
-    }
+    script_create_effect(&pos,context->value->shorts[0],context->value->longs[2]);
+
 }
 
 static void create_effect_process(struct ScriptContext *context)
@@ -2188,28 +1420,10 @@ static void create_effect_process(struct ScriptContext *context)
     if (!get_coords_at_location(&pos, context->value->ulongs[1],true))
     {
         SCRPTWRNLOG("Could not find location %lu to create effect", context->value->ulongs[1]);
+        return;
     }
-    TbBool Price = (context->value->shorts[0] == -(TngEffElm_Price));
-    if (Price)
-    {
-        pos.z.val += 128;
-    }
-    else
-    {
-        pos.z.val += context->value->longs[2];
-    }
-    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->shorts[0], game.neutral_player_num, 0);
-    if (!thing_is_invalid(efftng))
-    {
-        if (thing_in_wall_at(efftng, &efftng->mappos))
-        {
-            move_creature_to_nearest_valid_position(efftng);
-        }
-        if (Price)
-        {
-            efftng->price_effect.number = context->value->longs[2];
-        }
-    }
+    script_create_effect(&pos,context->value->shorts[0],context->value->longs[2]);
+
 }
 
 static void set_heart_health_check(const struct ScriptLine *scline)
@@ -2248,31 +1462,11 @@ static void add_heart_health_check(const struct ScriptLine *scline)
 
 static void add_heart_health_process(struct ScriptContext *context)
 {
-    struct Thing* heartng = get_player_soul_container(context->player_idx);
-    if (!thing_is_invalid(heartng))
-    {
-        struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
-        long old_health = heartng->health;
-        long long new_health = heartng->health + context->value->longs[1];
-        if (new_health > objst->health)
-        {
-            SCRIPTDBG(7,"Player %u's calculated heart health (%I64d) is greater than maximum: %ld", heartng->owner, new_health, objst->health);
-            new_health = objst->health;
-        }
-        heartng->health = new_health;
-        TbBool warn_on_damage = (context->value->longs[2]);
-        if (warn_on_damage)
-        {
-            if (heartng->health < old_health)
-            {
-                event_create_event_or_update_nearby_existing_event(heartng->mappos.x.val, heartng->mappos.y.val, EvKind_HeartAttacked, heartng->owner, heartng->index);
-                if (is_my_player_number(heartng->owner))
-                {
-                    output_message(SMsg_HeartUnderAttack, 400);
-                }
-            }
-        }
-    }
+    PlayerNumber plyr_idx = context->player_idx;
+    HitPoints healthdelta = context->value->longs[1];
+    TbBool warn_on_damage = context->value->longs[2];
+    
+    add_heart_health(plyr_idx,healthdelta,warn_on_damage);
 }
 
 static void lock_possession_check(const struct ScriptLine* scline)
@@ -2539,162 +1733,19 @@ static void create_effects_line_check(const struct ScriptLine *scline)
 
 static void create_effects_line_process(struct ScriptContext *context)
 {
-    struct ScriptFxLine *fx_line = NULL;
-    for (int i = 0; i < (sizeof(gameadd.fx_lines) / sizeof(gameadd.fx_lines[0])); i++)
-    {
-        if (!gameadd.fx_lines[i].used)
-        {
-            fx_line = &gameadd.fx_lines[i];
-            fx_line->used = true;
-            gameadd.active_fx_lines++;
-            break;
-        }
-    }
-    if (fx_line == NULL)
-    {
-        ERRORLOG("Too many fx_lines");
-        return;
-    }
-    find_location_pos(context->value->longs[0], context->player_idx, &fx_line->from, __func__);
-    find_location_pos(context->value->longs[1], context->player_idx, &fx_line->to, __func__);
-    fx_line->curvature = (int)context->value->chars[8];
-    fx_line->spatial_step = context->value->bytes[9] * 32;
-    fx_line->steps_per_turn = context->value->bytes[10];
-    fx_line->effect = context->value->shorts[6];
-    fx_line->here = fx_line->from;
-    fx_line->step = 0;
+    TbMapLocation from = context->value->longs[0];
+    TbMapLocation to   = context->value->longs[1];
+    char curvature = context->value->chars[8];
+    unsigned char spatial_stepping = context->value->bytes[9];
+    unsigned char temporal_stepping = context->value->bytes[10];
+    EffectOrEffElModel effct_id = context->value->shorts[6];
 
-    if (fx_line->steps_per_turn <= 0)
-    {
-        fx_line->steps_per_turn = 32 * 255; // whole map
-    }
-
-    int dx = fx_line->to.x.val - fx_line->from.x.val;
-    int dy = fx_line->to.y.val - fx_line->from.y.val;
-    if ((dx * dx + dy * dy) != 0)
-    {
-        double len = sqrt((double)dx * dx + (double)dy * dy);
-        fx_line->total_steps = (int)(len / fx_line->spatial_step) + 1;
-
-        int d_cx = -dy * fx_line->curvature / 32;
-        int d_cy = +dx * fx_line->curvature / 32;
-        fx_line->cx = (fx_line->to.x.val + fx_line->from.x.val - d_cx)/2;
-        fx_line->cy = (fx_line->to.y.val + fx_line->from.y.val - d_cy)/2;
-    }
-    else
-    {
-      fx_line->total_steps = 1;
-    }
-    fx_line->partial_steps = FX_LINE_TIME_PARTS;
+    create_effects_line(from, to, curvature, spatial_stepping, temporal_stepping, effct_id);
 }
 
 static void set_object_configuration_check(const struct ScriptLine *scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    const char *objectname = scline->tp[0];
-    const char *property = scline->tp[1];
-    const char *new_value = scline->tp[2];
-    short second_value = scline->np[3];
-    short third_value = scline->np[4];
-    short forth_value = scline->np[5];
-
-    long objct_id = get_id(object_desc, objectname);
-    if (objct_id == -1)
-    {
-        SCRPTERRLOG("Unknown object, '%s'", objectname);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    long number_value = 0;
-    long objectvar = get_id(objects_object_commands, property);
-    if (objectvar == -1)
-    {
-        SCRPTERRLOG("Unknown object variable");
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-    switch (objectvar)
-    {
-        case 2: // Genre
-            number_value = get_id(objects_genres_desc, new_value);
-            if (number_value == -1)
-            {
-                SCRPTERRLOG("Unknown object variable");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->longs[1] = number_value;
-            break;
-        case 3: // RelatedCreature
-            number_value = get_id(creature_desc, new_value);
-            if (number_value == -1)
-            {
-                SCRPTERRLOG("Unknown object variable");
-                DEALLOCATE_SCRIPT_VALUE
-                    return;
-            }
-            value->longs[1] = number_value;
-            break;
-        case  5: // AnimationID
-        case 33: // FlameAnimationID
-        {
-            number_value = get_anim_id_(new_value);
-            if (number_value == 0)
-            {
-                SCRPTERRLOG("Invalid animation id");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->strs[2] = script_strdup(new_value);
-            if (value->strs[2] == NULL)
-            {
-                SCRPTERRLOG("Run out script strings space");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->longs[1] = number_value;
-            break;
-        }
-        case 18: // MapIcon
-        {
-            number_value = get_icon_id(new_value);
-            if (number_value < 0)
-            {
-                SCRPTERRLOG("Invalid icon id");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->longs[1] = number_value;
-            break;
-        }
-        case 20: // UpdateFunction
-        {
-            number_value = get_id(object_update_functions_desc,new_value);
-            if (number_value < 0)
-            {
-                SCRPTERRLOG("Invalid object update function id");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->longs[1] = number_value;
-            break;
-        }
-        case 36: //FlameAnimationOffset
-            value->chars[5] = atoi(new_value);
-            value->chars[6] = second_value;
-            value->chars[7] = third_value;
-            value->chars[8] = forth_value;
-            break;
-        default:
-            value->longs[1] = atoi(new_value);
-            value->shorts[5] = second_value;
-    }
-
-    SCRIPTDBG(7, "Setting object %s property %s to %ld", objectname, property, number_value);
-    value->longs[0] = objct_id;
-    value->shorts[4] = objectvar;
-    PROCESS_SCRIPT_VALUE(scline->command);
+    set_config_check(&objects_named_fields_set, scline, "SET_OBJECT_CONFIGURATION");
 }
 
 enum CreatureConfiguration
@@ -3899,126 +2950,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
 static void set_object_configuration_process(struct ScriptContext *context)
 {
-    ThingModel model = context->value->longs[0];
-    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[model];
-    switch (context->value->shorts[4])
-    {
-        case 2: // GENRE
-            objst->genre = context->value->longs[1];
-            break;
-        case 3: // RELATEDCREATURE
-            objst->related_creatr_model = context->value->longs[1];
-            break;
-        case 4: // PROPERTIES
-            objst->model_flags = context->value->longs[1];
-            break;
-        case 5: // ANIMATIONID
-            objst->sprite_anim_idx = context->value->longs[1];
-            break;
-        case 6: // ANIMATIONSPEED
-            objst->anim_speed = context->value->longs[1];
-            break;
-        case 7: //SIZE_XY
-            objst->size_xy = context->value->longs[1];
-            break;
-        case 8: // SIZE_Z
-            objst->size_z = context->value->longs[1];
-            break;
-        case 9: // MAXIMUMSIZE
-            objst->sprite_size_max = context->value->longs[1];
-            break;
-        case 10: // DESTROYONLIQUID
-            objst->destroy_on_liquid = context->value->longs[1];
-            break;
-        case 11: // DESTROYONLAVA
-            objst->destroy_on_lava = context->value->longs[1];
-            break;
-        case 12: // HEALTH
-            objst->health = context->value->longs[1];
-            break;
-        case 13: // FALLACCELERATION
-            objst->fall_acceleration = context->value->longs[1];
-            break;
-        case 14: // LIGHTUNAFFECTED
-            objst->light_unaffected = context->value->longs[1];
-            break;
-        case 15: // LIGHTINTENSITY
-            objst->ilght.intensity = context->value->longs[1];
-            break;
-        case 16: // LIGHTRADIUS
-            objst->ilght.radius = context->value->longs[1] * COORD_PER_STL;
-            break;
-        case 17: // LIGHTISDYNAMIC
-            objst->ilght.is_dynamic = context->value->longs[1];
-            break;
-        case 18: // MAPICON
-            objst->map_icon = context->value->longs[1];
-            break;
-        case 19: // AMBIENCESOUND
-            objst->fp_smpl_idx = context->value->longs[1];
-            break;
-        case 20: // UPDATEFUNCTION
-            objst->updatefn_idx = context->value->longs[1];
-            break;
-        case 21: // DRAWCLASS
-            objst->draw_class = context->value->longs[1];
-            break;
-        case 22: // PERSISTENCE
-            objst->persistence = context->value->longs[1];
-            break;
-        case 23: // Immobile
-            objst->immobile = context->value->longs[1];
-            break;
-        case 24: // INITIALSTATE
-            objst->initial_state = context->value->longs[1];
-            break;
-        case 25: // RANDOMSTARTFRAME
-            objst->random_start_frame = context->value->longs[1];
-            break;
-        case 26: // TRANSPARENCYFLAGS
-            objst->transparency_flags = context->value->longs[1]<<4;
-            break;
-        case 27: // EFFECTBEAM
-            objst->effect.beam = context->value->longs[1];
-            break;
-        case 28: // EFFECTPARTICLE
-            objst->effect.particle = context->value->longs[1];
-            break;
-        case 29: // EFFECTEXPLOSION1
-            objst->effect.explosion1 = context->value->longs[1];
-            break;
-        case 30: // EFFECTEXPLOSION2
-            objst->effect.explosion2 = context->value->longs[1];
-            break;
-        case 31: // EFFECTSPACING
-            objst->effect.spacing = context->value->longs[1];
-            break;
-        case 32: // EFFECTSOUND
-            objst->effect.sound_idx = context->value->longs[1];
-            objst->effect.sound_range = (unsigned char)context->value->shorts[5];
-            break;
-        case 33: // FLAMEANIMATIONID
-            objst->flame.animation_id = context->value->longs[1];
-            break;
-        case 34: // FLAMEANIMATIONSPEED
-            objst->flame.anim_speed = context->value->longs[1];
-            break;
-        case 35: // FLAMEANIMATIONSIZE
-            objst->flame.sprite_size = context->value->longs[1];
-            break;
-        case 36: // FLAMEANIMATIONOFFSET
-            objst->flame.fp_add_x = context->value->chars[5];
-            objst->flame.fp_add_y = context->value->chars[6];
-            objst->flame.td_add_x = context->value->chars[7];
-            objst->flame.td_add_y = context->value->chars[8];
-            break;
-        case 37: // FLAMETRANSPARENCYFLAGS
-            objst->flame.transparency_flags = context->value->longs[1] << 4;
-            break;
-        default:
-            WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);
-            break;
-    }
+    set_config_process(&objects_named_fields_set, context,"SET_OBJECT_CONFIGURATION");
+    
+    ThingModel model = context->value->shorts[0];
     update_all_objects_of_model(model);
 }
 
@@ -4082,7 +3016,7 @@ static void add_bonus_time_process(struct ScriptContext *context)
 static void display_variable_check(const struct ScriptLine *scline)
 {
     long varib_id, varib_type;
-    if (!parse_get_varib(scline->tp[1], &varib_id, &varib_type))
+    if (!parse_get_varib(scline->tp[1], &varib_id, &varib_type, level_file_version))
     {
         SCRPTERRLOG("Unknown variable, '%s'", scline->tp[1]);
         return;
@@ -4289,8 +3223,8 @@ static void set_box_tooltip_check(const struct ScriptLine* scline)
     {
         SCRPTWRNLOG("Tooltip TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN - 1);
     }
-    value->strs[2] = script_strdup(scline->tp[1]);
-    if (value->strs[2] == NULL)
+    value->longs[2] = script_strdup(scline->tp[1]);
+    if (value->longs[2] < 0)
     {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
@@ -4304,7 +3238,7 @@ static void set_box_tooltip_check(const struct ScriptLine* scline)
 static void set_box_tooltip_process(struct ScriptContext* context)
 {
     int idx = context->value->shorts[0];
-    snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", context->value->strs[2]);
+    snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", script_strval(context->value->longs[2]));
 }
 
 static void set_box_tooltip_id_check(const struct ScriptLine *scline)
@@ -4855,11 +3789,11 @@ static void if_check(const struct ScriptLine *scline)
       return;
     }
     // Recognize variable
-    if (!parse_get_varib(varib_name, &varib_id, &varib_type))
+    if (!parse_get_varib(varib_name, &varib_id, &varib_type, level_file_version))
     {
         return;
     }
-    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right))
+    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right, level_file_version))
     {
         return;
     }
@@ -5001,7 +3935,7 @@ static void if_available_check(const struct ScriptLine *scline)
             }
         }
     }
-    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right))
+    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right, level_file_version))
     {
         return;
     }
@@ -5102,7 +4036,7 @@ static void if_controls_check(const struct ScriptLine *scline)
         }
     }
 
-    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right))
+    if (double_var_mode && !parse_get_varib(varib_name_right, &varib_id_right, &varib_type_right, level_file_version))
     {
         return;
     }
@@ -5156,30 +4090,10 @@ static void set_texture_check(const struct ScriptLine *scline)
 
 static void set_texture_process(struct ScriptContext *context)
 {
-    long texture_id = context->value->shorts[0];
-    struct Dungeon* dungeon;
     PlayerNumber plyr_idx = context->player_idx;
-    dungeon = get_dungeon(plyr_idx);
-    dungeon->texture_pack = texture_id;
+    long texture_id = context->value->shorts[0];
 
-    for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
-    {
-        for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
-        {
-            struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
-            if (slabmap_owner(slb) == plyr_idx)
-            {
-                if (texture_id == 0)
-                {
-                    gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
-                }
-                else
-                {
-                    gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
-                }
-            }
-        }
-    }
+    set_player_texture(plyr_idx, texture_id);
 }
 
 static void set_music_check(const struct ScriptLine *scline)
@@ -5189,8 +4103,8 @@ static void set_music_check(const struct ScriptLine *scline)
         value->chars[0] = atoi(scline->tp[0]);
     } else {
         value->chars[0] = -1;
-        value->strs[1] = script_strdup(scline->tp[0]);
-        if (value->strs[1] == NULL) {
+        value->longs[1] = script_strdup(scline->tp[0]);
+        if (value->longs[1] < 0) {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
@@ -5206,8 +4120,9 @@ static void set_music_process(struct ScriptContext *context)
         SCRPTLOG("Stopping music");
         stop_music();
     } else if (track < 0) {
-        SCRPTLOG("Playing music from %s", context->value->strs[1]);
-        play_music(prepare_file_fmtpath(FGrp_CmpgMedia, "%s", context->value->strs[1]));
+        const char * fname = script_strval(context->value->longs[1]);
+        SCRPTLOG("Playing music from %s", fname);
+        play_music(prepare_file_fmtpath(FGrp_CmpgMedia, "%s", fname));
     } else {
         SCRPTLOG("Playing music track %d", track);
         play_music_track(track);
@@ -5232,8 +4147,8 @@ static void play_message_check(const struct ScriptLine *scline)
     else
     {
         value->bytes[4] = 1;
-        value->strs[2] = script_strdup(scline->tp[2]);
-        if (value->strs[2] == NULL) {
+        value->longs[2] = script_strdup(scline->tp[2]);
+        if (value->longs[2] < 0) {
             SCRPTERRLOG("Run out script strings space");
             DEALLOCATE_SCRIPT_VALUE
             return;
@@ -5242,45 +4157,55 @@ static void play_message_check(const struct ScriptLine *scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void script_play_message(TbBool param_is_string, const char msgtype_id, const short msg_id, const char *filename)
+{
+    
+    if (!param_is_string)
+    {
+        switch (msgtype_id)
+        {
+            case 1: // speech message
+            {
+                output_message(msg_id, 0);
+                break;
+            }
+            case 2: // sound effect
+            {
+                play_non_3d_sample(msg_id);
+                break;
+            }
+        }
+    }
+    else
+    {
+        const char * filepath = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", filename);
+        switch (msgtype_id)
+        {
+            case 1: // speech message
+            {
+                output_custom_message(filepath, settings.mentor_volume);
+                break;
+            }
+            case 2: // sound effect
+            {
+                play_streamed_sample(filepath, settings.sound_volume);
+                break;
+            }
+        }
+    }
+}
+
 static void play_message_process(struct ScriptContext *context)
 {
+    const TbBool param_is_string = context->value->bytes[4];
     const char msgtype_id = context->value->chars[1];
+    const short msg_id = context->value->shorts[1];
+    const char * filename = script_strval(context->value->longs[2]);
+
+
     if (context->player_idx == my_player_number)
     {
-        const TbBool param_is_string = context->value->bytes[4];
-        if (!param_is_string)
-        {
-            switch (msgtype_id)
-            {
-                case 1: // speech message
-                {
-                    output_message(context->value->shorts[1], 0);
-                    break;
-                }
-                case 2: // sound effect
-                {
-                    play_non_3d_sample(context->value->shorts[1]);
-                    break;
-                }
-            }
-        }
-        else
-        {
-            const char * filename = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", context->value->strs[2]);
-            switch (msgtype_id)
-            {
-                case 1: // speech message
-                {
-                    output_custom_message(filename, settings.mentor_volume);
-                    break;
-                }
-                case 2: // sound effect
-                {
-                    play_streamed_sample(filename, settings.sound_volume);
-                    break;
-                }
-            }
-        }
+        script_play_message(param_is_string,msgtype_id,msg_id,filename);
     }
 }
 
@@ -5383,124 +4308,12 @@ static void add_effectgen_to_level_process(struct ScriptContext* context)
 
 static void set_effectgen_configuration_check(const struct ScriptLine* scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    const char* effgenname = scline->tp[0];
-    const char* property = scline->tp[1];
-    short value1 = 0;
-
-    ThingModel effgen_id = get_id(effectgen_desc, effgenname);
-    if (effgen_id == -1)
-    {
-        SCRPTERRLOG("Unknown effect generator, '%s'", effgenname);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-
-    long property_id = get_id(effect_generator_commands, property);
-    if (property_id == -1)
-    {
-        SCRPTERRLOG("Unknown effect generator variable");
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    } else
-    if (property_id == 5) // EFFECTELEMENTMODEL
-    {
-        value1 = effect_or_effect_element_id(scline->tp[2]);
-        if (value1 == 0)
-        {
-            SCRPTERRLOG("Unknown effect element value for Effect Generator");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    else
-    if ((property_id == 8) || (property_id == 9)) // ACCELERATIONMIN or ACCELERATIONMAX
-    {
-        if ((scline->np[3] == '\0') || (scline->np[4] == '\0'))
-        {
-            SCRPTERRLOG("Missing parameter for Effect Generator variable %s", property);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    } else
-    if (property_id == 10) // SOUND
-    {
-        if (scline->np[3] == '\0')
-        {
-            SCRPTERRLOG("Missing parameter for Effect Generator variable %s", property);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-    else
-    {
-        if (parameter_is_number(scline->tp[2]))
-        {
-            value1 = atoi(scline->tp[2]);
-        }
-        else
-        {
-            SCRPTERRLOG("Unsupported value %s for Effect Generator configuration %s", scline->tp[2], scline->tp[1]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-    }
-
-
-    SCRIPTDBG(7, "Setting effect generator %s property %s to %d", effectgenerator_code_name(effgen_id), property, value1);
-    value->shorts[0] = (short)effgen_id;
-    value->shorts[1] = property_id;
-    value->shorts[2] = value1;
-    value->shorts[3] = scline->np[3];
-    value->shorts[4] = scline->np[4];
-
-    PROCESS_SCRIPT_VALUE(scline->command);
+    set_config_check(&effects_effectgenerator_named_fields_set, scline,"SET_EFFECTGEN_CONFIG");
 }
 
 static void set_effectgen_configuration_process(struct ScriptContext* context)
 {
-    ThingModel effgen_id = context->value->shorts[0];
-    short property_id = context->value->shorts[1];
-
-    struct EffectGeneratorConfigStats* effgencst = &game.conf.effects_conf.effectgen_cfgstats[effgen_id];
-    switch (property_id)
-    {
-    case 2: // GENERATIONDELAYMIN
-        effgencst->generation_delay_min = context->value->shorts[2];
-        break;
-    case 3: // GENERATIONDELAYMAX
-        effgencst->generation_delay_max = context->value->shorts[2];
-        break;
-    case 4: // GENERATIONAMOUNT
-        effgencst->generation_amount = context->value->shorts[2];
-        break;
-    case 5: // EFFECTMODEL
-        effgencst->effect_model = context->value->shorts[2];
-        break;
-    case 6: // IGNORETERRAIN
-        effgencst->ignore_terrain = context->value->shorts[2];
-        break;
-    case 7: // SPAWNHEIGHT
-        effgencst->spawn_height = context->value->shorts[2];
-        break;
-    case 8: // ACCELERATIONMIN
-        effgencst->acc_x_min = context->value->shorts[2];
-        effgencst->acc_y_min = context->value->shorts[3];
-        effgencst->acc_z_min = context->value->shorts[4];
-        break;
-    case 9: // ACCELERATIONMAX
-        effgencst->acc_x_max = context->value->shorts[2];
-        effgencst->acc_y_max = context->value->shorts[3];
-        effgencst->acc_z_max = context->value->shorts[4];
-        break;
-    case 10: // SOUND
-        effgencst->sound_sample_idx = context->value->shorts[2];
-        effgencst->sound_sample_rng = context->value->shorts[3];
-        break;
-    default:
-        WARNMSG("Unsupported Effect Generator configuration, variable %d.", context->value->shorts[1]);
-        break;
-    }
+    set_config_process(&effects_effectgenerator_named_fields_set, context,"SET_EFFECTGEN_CONFIG");
 }
 
 static void set_power_configuration_check(const struct ScriptLine *scline)
@@ -5705,17 +4518,16 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
 static void set_power_configuration_process(struct ScriptContext *context)
 {
     struct PowerConfigStats *powerst = get_power_model_stats(context->value->shorts[0]);
-    struct MagicStats* pwrdynst = get_power_dynamic_stats(context->value->shorts[0]);
     switch (context->value->bytes[2])
     {
         case 2: // Power
-            pwrdynst->strength[context->value->bytes[3]] = context->value->longs[2];
+            powerst->strength[context->value->bytes[3]] = context->value->longs[2];
             break;
         case 3: // Cost
-            pwrdynst->cost[context->value->bytes[3]] = context->value->longs[2];
+            powerst->cost[context->value->bytes[3]] = context->value->longs[2];
             break;
         case 4: // Duration
-            pwrdynst->duration = context->value->longs[2];
+            powerst->duration = context->value->longs[2];
             break;
         case 5: // Castability
         {
@@ -5832,52 +4644,27 @@ static void set_game_rule_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    long rulegroup = 0;
-    long ruleval = scline->np[1];
+    const char* rulename = scline->tp[0];
+    const char* rulevalue_str = scline->tp[1];
 
-    long ruledesc = get_id(game_rule_desc, scline->tp[0]);
-    if(ruledesc != -1)
+    long rulegroup = 0;
+    long ruleval = 0;
+    long ruledesc = 0;
+
+    for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
     {
-        rulegroup = -1;
-        switch (ruledesc)
+        ruledesc = get_named_field_id(ruleblocks[i], rulename);
+        if (ruledesc != -1)
         {
-            case 1: //PreserveClassicBugs
-                //this one is a special case because in the cfg it's not done trough number
-                if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
-                {
-                    SCRPTERRLOG("Game Rule '%s' value %ld out of range", scline->tp[0], ruleval);
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                break;
-        }
-    }
-    else
-    {
-        for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
-        {
-            ruledesc = get_named_field_id(ruleblocks[i], scline->tp[0]);
-            if (ruledesc != -1)
-            {
-                rulegroup = i;
-                if (ruleval < (ruleblocks[i]+ruledesc)->min)
-                {
-                    ruleval = (ruleblocks[i]+ruledesc)->min;
-                    SCRPTERRLOG("Game Rule '%s' value %ld is smaller then minimum of %I64d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->min);
-                }
-                else if(ruleval > (ruleblocks[i]+ruledesc)->max)
-                {
-                    ruleval = (ruleblocks[i]+ruledesc)->max;
-                    SCRPTERRLOG("Game Rule '%s' value %ld is bigger then maximum of %I64d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->max);
-                }
-                break;
-            }
+            rulegroup = i;
+            ruleval = parse_named_field_value(ruleblocks[i]+ruledesc, rulevalue_str,&rules_named_fields_set, 0,"SET_GAME_RULE",ccf_SplitExecution|ccf_DuringLevel);
+            break;
         }
     }
 
     if (ruledesc == -1)
     {
-        SCRPTERRLOG("Unknown Game Rule '%s'.", scline->tp[0]);
+        SCRPTERRLOG("Unknown Game Rule '%s'.", rulename);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5894,45 +4681,8 @@ static void set_game_rule_process(struct ScriptContext* context)
     short ruledesc  = context->value->shorts[1];
     long rulevalue  = context->value->longs[1];
 
-
-    if(rulegroup != -1)
-    {
-        SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
-        assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue);
-        return;
-    }
-
-
-  #if (BFDEBUG_LEVEL >= 7)
-    const char *rulename = get_conf_parameter_text(game_rule_desc,ruledesc);
-  #endif
-    switch (ruledesc)
-    {
-    case 1: //PreserveClassicBugs
-        //this one is a special case because in the cfg it's not done trough number
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %lu to %ld", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
-        game.conf.rules.game.classic_bugs_flags = rulevalue;
-        break;
-    case 2: //AlliesShareVision
-        //this one is a special case because it updates minimap
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %ld", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
-        game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
-        panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
-        break;
-    case 3: //MapCreatureLimit
-        //this one is a special case because it needs to kill of additional creatures
-        SCRIPTDBG(7, "Changing Game Rule '%s' from %u to %ld", rulename, game.conf.rules.game.creatures_count, rulevalue);
-        game.conf.rules.game.creatures_count = rulevalue;
-        short count = setup_excess_creatures_to_leave_or_die(game.conf.rules.game.creatures_count);
-        if (count > 0)
-        {
-            SCRPTLOG("Map creature limit reduced, causing %d creatures to leave or die",count);
-        }
-        break;
-    default:
-        WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
-        break;
-    }
+    SCRIPTDBG(7,"Changing Game Rule '%s' to %ld", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
+    assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue,&rules_named_fields_set,0,"SET_GAME_RULE",ccf_SplitExecution|ccf_DuringLevel);
 }
 
 static void set_increase_on_experience_check(const struct ScriptLine* scline)
@@ -6710,8 +5460,8 @@ static void set_computer_process_check(const struct ScriptLine* scline)
     value->longs[3] = scline->np[4];
     value->longs[4] = scline->np[5];
     value->longs[5] = scline->np[6];
-    value->strs[6] = script_strdup(scline->tp[1]);
-    if (value->strs[6] == NULL) {
+    value->longs[6] = script_strdup(scline->tp[1]);
+    if (value->longs[6] < 0) {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
         return;
@@ -6723,7 +5473,7 @@ static void set_computer_process_process(struct ScriptContext* context)
 {
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
-    const char* procname = context->value->strs[6];
+    const char* procname = script_strval(context->value->longs[6]);
     long val1 = context->value->longs[1];
     long val2 = context->value->longs[2];
     long val3 = context->value->longs[3];
@@ -6739,9 +5489,7 @@ static void set_computer_process_process(struct ScriptContext* context)
         for (long k = 0; k < COMPUTER_PROCESSES_COUNT; k++)
         {
             struct ComputerProcess* cproc = &comp->processes[k];
-            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
-                break;
-            if (cproc->name == NULL)
+            if (flag_is_set(cproc->flags, ComProc_ListEnd))
                 break;
             if (strcasecmp(procname, cproc->name) == 0)
             {
@@ -6784,8 +5532,8 @@ static void set_computer_checks_check(const struct ScriptLine* scline)
     value->longs[3] = scline->np[4];
     value->longs[4] = scline->np[5];
     value->longs[5] = scline->np[6];
-    value->strs[6] = script_strdup(scline->tp[1]);
-    if (value->strs[6] == NULL) {
+    value->longs[6] = script_strdup(scline->tp[1]);
+    if (value->longs[6] < 0) {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
         return;
@@ -6797,7 +5545,7 @@ static void set_computer_checks_process(struct ScriptContext* context)
 {
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
-    const char* chkname = context->value->strs[6];
+    const char* chkname = script_strval(context->value->longs[6]);
     long val1 = context->value->longs[1];
     long val2 = context->value->longs[2];
     long val3 = context->value->longs[3];
@@ -6816,7 +5564,7 @@ static void set_computer_checks_process(struct ScriptContext* context)
             struct ComputerCheck* ccheck = &comp->checks[k];
             if ((ccheck->flags & ComChk_Unkn0002) != 0)
                 break;
-            if (ccheck->name == NULL)
+            if (ccheck->name[0] == '\0')
                 break;
             if (strcasecmp(chkname, ccheck->name) == 0)
             {
@@ -6863,8 +5611,8 @@ static void set_computer_event_check(const struct ScriptLine* scline)
     value->longs[3] = scline->np[4];
     value->longs[4] = scline->np[5];
     value->longs[5] = scline->np[6];
-    value->strs[6] = script_strdup(scline->tp[1]);
-    if (value->strs[6] == NULL) {
+    value->longs[6] = script_strdup(scline->tp[1]);
+    if (value->longs[6] < 0) {
         SCRPTERRLOG("Run out script strings space");
         DEALLOCATE_SCRIPT_VALUE
         return;
@@ -6876,7 +5624,7 @@ static void set_computer_event_process(struct ScriptContext* context)
 {
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
-    const char* evntname = context->value->strs[6];
+    const char* evntname = script_strval(context->value->longs[6]);
     long val1 = context->value->longs[1];
     long val2 = context->value->longs[2];
     long val3 = context->value->longs[3];
@@ -6893,7 +5641,7 @@ static void set_computer_event_process(struct ScriptContext* context)
         for (long k = 0; k < COMPUTER_EVENTS_COUNT; k++)
         {
             struct ComputerEvent* event = &comp->events[k];
-            if (event->name == NULL)
+            if (event->name[0] == '\0')
                 break;
             if (strcasecmp(evntname, event->name) == 0)
             {
@@ -7073,7 +5821,7 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"LEVEL_UP_PLAYERS_CREATURES",        "PC!n    ", Cmd_LEVEL_UP_PLAYERS_CREATURES, &level_up_players_creatures_check, level_up_players_creatures_process},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
-  {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, &set_game_rule_check, &set_game_rule_process},
+  {"SET_GAME_RULE",                     "AA      ", Cmd_SET_GAME_RULE, &set_game_rule_check, &set_game_rule_process},
   {"SET_ROOM_CONFIGURATION",            "AAAan   ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
   {"SET_TRAP_CONFIGURATION",            "AAAnnn  ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn    ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},

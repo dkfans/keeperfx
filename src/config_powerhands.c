@@ -34,17 +34,24 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_powerhands_file[]="powerhands.toml";
+static TbBool load_powerhands_config_file(const char *fname, unsigned short flags);
+
+const struct ConfigFileData keeper_powerhands_file_data = {
+    .filename = "powerhands.toml",
+    .load_func = load_powerhands_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
+};
 /******************************************************************************/
 typedef struct VALUE VALUE;
 
 struct NamedCommand powerhand_desc[NUM_VARIANTS + 1];
 
-TbBool load_powerhands_config_file(const char *textname, const char *fname, unsigned short flags)
+static TbBool load_powerhands_config_file(const char *fname, unsigned short flags)
 {
     VALUE file_root;
     
-    if (!load_toml_file(textname, fname,&file_root,flags))
+    if (!load_toml_file(fname,&file_root,flags))
         return false;
 
     char key[64];
@@ -88,26 +95,6 @@ TbBool load_powerhands_config_file(const char *textname, const char *fname, unsi
     value_fini(&file_root);
     
     return true;
-}
-
-TbBool load_powerhands_config(const char *conf_fname,unsigned short flags)
-{
-    static const char config_global_textname[] = "global powerhand config";
-    static const char config_campgn_textname[] = "campaign powerhand config";
-    static const char config_level_textname[] = "level powerhand config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
-    TbBool result = load_powerhands_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_powerhands_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
-    if (strlen(fname) > 0)
-    {
-        load_powerhands_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
-    }
-    return result;
 }
 
 /******************************************************************************/

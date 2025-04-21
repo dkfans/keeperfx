@@ -637,7 +637,7 @@ void update_room_total_capacity(struct Room *room)
 {
     SYNCDBG(7, "Starting for %s index %d owned by player %d", room_code_name(room->kind), (int)room->index, (int)room->owner);
     const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    Room_Update_Func cb = roomst->update_total_capacity;
+    Room_Update_Func cb = terrain_room_total_capacity_func_list[roomst->update_total_capacity_idx];
     if (cb != NULL) {
         cb(room);
     }
@@ -856,7 +856,7 @@ void add_slab_to_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabC
  * @param room
  * @param slb_num
  */
-void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num)
+TbBool add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num)
 {
     if (room->slabs_list == 0) {
         room->slabs_list = slb_num;
@@ -865,6 +865,7 @@ void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num
         pvslb->next_in_room = slb_num;
     }
     SlabCodedCoords tail_slb_num = slb_num;
+    unsigned short k = 0;
     while (1)
     {
         struct SlabMap* nxslb = get_slabmap_direct(tail_slb_num);
@@ -874,8 +875,16 @@ void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num
             break;
         }
         tail_slb_num = nxslb->next_in_room;
+        // Per room tile code ends
+        k++;
+        if (k > (MAX_TILES_X * MAX_TILES_Y))
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping Room (%d) '%s' at stl (%ld,%ld)",room->index,room_code_name(room->kind),room->central_stl_x,room->central_stl_y);
+            return false;
+        }
     }
     room->slabs_list_tail = tail_slb_num;
+    return true;
 }
 
 void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -901,7 +910,7 @@ void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, Map
         return;
     }
     // If the slab to remove is not first, we have to sweep the list
-    unsigned long k = 0;
+    unsigned short k = 0;
     long i = room->slabs_list;
     while (i > 0)
     {
@@ -1297,11 +1306,11 @@ TbBool update_room_contents(struct Room *room)
 {
     const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     SYNCDBG(17,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
-    Room_Update_Func cb = roomst->update_storage_in_room;
+    Room_Update_Func cb = terrain_room_used_capacity_func_list[roomst->update_storage_in_room_idx];
     if (cb != NULL) {
         cb(room);
     }
-    cb = roomst->update_workers_in_room;
+    cb = terrain_room_used_capacity_func_list[roomst->update_workers_in_room_idx];
     if (cb != NULL) {
         cb(room);
     }
@@ -1322,7 +1331,7 @@ struct Room* link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
     struct Room* room;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    long n;
+    short n;
     // Central slab coords - we will need it if we'll find adjacent room
     MapSlabCoord central_slb_x = subtile_slab(x);
     MapSlabCoord central_slb_y = subtile_slab(y);
@@ -1361,7 +1370,10 @@ struct Room* link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
             {
                 if (room != linkroom)
                 {
-                    add_slab_list_to_room_tiles_list(linkroom, room->slabs_list);
+                    if (!add_slab_list_to_room_tiles_list(linkroom, room->slabs_list))
+                    {
+                        return INVALID_ROOM;
+                    }
                     // Update slabs in the new list
                     recount_and_reassociate_room_slabs(linkroom);
                     update_room_total_capacity(linkroom);

@@ -886,7 +886,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
     struct CreatureStats *crstat = creature_stats_get(thing->model);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     struct SpellConfig *spconf = get_spell_config(spell_idx);
-    const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
+    const struct PowerConfigStats *powerst = get_power_model_stats(spconf->linked_power);
     struct ComponentVector cvect;
     struct Coord3d pos;
     struct Thing *ntng;
@@ -1162,7 +1162,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
         }
         else
         {
-            healing_recovery = (thing->health + pwrdynst->strength[spell_level]);
+            healing_recovery = (thing->health + powerst->strength[spell_level]);
         }
         if (healing_recovery < 0)
         {
@@ -1368,19 +1368,19 @@ GameTurnDelta get_spell_full_duration(SpellKind spell_idx, CrtrExpLevel spell_le
 {
     // If not linked to a keeper power, use the duration set on the spell, otherwise use the strength or duration of the linked power.
     struct SpellConfig *spconf = get_spell_config(spell_idx);
-    const struct MagicStats *pwrdynst = get_power_dynamic_stats(spconf->linked_power);
+    const struct PowerConfigStats *powerst = get_power_model_stats(spconf->linked_power);
     GameTurnDelta duration;
     if (spconf->linked_power == 0)
     {
         duration = spconf->duration;
     }
-    else if (pwrdynst->duration == 0)
+    else if (powerst->duration == 0)
     {
-        duration = pwrdynst->strength[spell_level];
+        duration = powerst->strength[spell_level];
     }
     else
     {
-        duration = pwrdynst->duration;
+        duration = powerst->duration;
     }
     return duration;
 }
@@ -3315,7 +3315,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn > game.play_gameturn))
     {
-        create_effect_around_thing(creatng, ball_puff_effects[creatng->owner]);
+        create_effect_around_thing(creatng, ball_puff_effects[get_player_color_idx(creatng->owner)]);
         set_flag(flags, CrDed_NotReallyDying | CrDed_NoEffects);
         return cause_creature_death(creatng, flags);
     }
@@ -4404,7 +4404,9 @@ void recalculate_all_creature_digger_lists()
 {
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-         recalculate_player_creature_digger_lists(plyr_idx);
+        if (plyr_idx == PLAYER_NEUTRAL)
+            continue;
+        recalculate_player_creature_digger_lists(plyr_idx);
     }
 
     for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
@@ -4586,16 +4588,28 @@ TbBool thing_is_dead_creature(const struct Thing *thing)
   return (thing->class_id == TCls_DeadCreature);
 }
 
-/** Returns if a thing is special digger creature.
+/** Returns if a thing is digger creature.
  *
  * @param thing The thing to be checked.
- * @return True if the thing is creature and special digger, false otherwise.
+ * @return True if the thing is creature and digger or special digger, false otherwise.
  */
 TbBool thing_is_creature_digger(const struct Thing *thing)
 {
   if (!thing_is_creature(thing))
     return false;
-  return ((get_creature_model_flags(thing) & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0);
+  return any_flag_is_set(get_creature_model_flags(thing),(CMF_IsSpecDigger|CMF_IsDiggingCreature));
+}
+
+/** Returns if a thing is special digger creature.
+ *
+ * @param thing The thing to be checked.
+ * @return True if the thing is creature and special digger, false otherwise.
+ */
+TbBool thing_is_creature_special_digger(const struct Thing* thing)
+{
+    if (!thing_is_creature(thing))
+        return false;
+    return flag_is_set(get_creature_model_flags(thing),CMF_IsSpecDigger);
 }
 
 /** Returns if a thing the creature type set as spectator, normally the floating spirit.
@@ -5893,7 +5907,10 @@ TbBool update_controlled_creature_movement(struct Thing *thing)
         {
             cctrl->moveaccel.x.val = distance3d_with_angles_to_coord_x(cctrl->move_speed, thing->move_angle_xy, thing->move_angle_z);
             cctrl->moveaccel.y.val = distance3d_with_angles_to_coord_y(cctrl->move_speed, thing->move_angle_xy, thing->move_angle_z);
-            cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->move_angle_z);
+            if (cctrl->vertical_speed == 0)
+            {
+                cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->move_angle_z);
+            }
         }
         if (cctrl->orthogn_speed != 0)
         {
@@ -6345,7 +6362,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     }
     if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn < game.play_gameturn))
     {
-        create_effect_around_thing(thing, (TngEff_BallPuffRed + thing->owner));
+        create_effect_around_thing(thing, ball_puff_effects[get_player_color_idx(thing->owner)]);
         kill_creature(thing, INVALID_THING, -1, CrDed_NotReallyDying| CrDed_NoEffects);
         return TUFRet_Deleted;
     }
@@ -6416,13 +6433,17 @@ TngUpdateRet update_creature(struct Thing *thing)
     move_creature(thing);
     if (flag_is_set(thing->alloc_flags, TAlF_IsControlled))
     {
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_Unknown40))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveY))
         {
             cctrl->move_speed /= 2;
         }
-        if (!flag_is_set(cctrl->flgfield_1, CCFlg_Unknown80))
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveX))
         {
             cctrl->orthogn_speed /= 2;
+        }
+        if (!flag_is_set(cctrl->flgfield_1, CCFlg_MoveZ))
+        {
+            cctrl->vertical_speed /= 2;
         }
     }
     else
@@ -6491,7 +6512,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->moveaccel.y.val = 0;
     cctrl->moveaccel.z.val = 0;
     // Clear flags and process spell effects.
-    clear_flag(cctrl->flgfield_1, CCFlg_Unknown40 | CCFlg_Unknown80);
+    clear_flag(cctrl->flgfield_1, CCFlg_MoveX | CCFlg_MoveY | CCFlg_MoveZ);
     clear_flag(cctrl->spell_flags, CSAfF_PoisonCloud | CSAfF_Wind);
     process_thing_spell_effects(thing);
     process_timebomb(thing);
@@ -7731,22 +7752,8 @@ TbBool grow_up_creature(struct Thing *thing, ThingModel grow_up_model, CrtrExpLe
     return true;
 }
 
-/**
- * Cast a spell on a creature which meets given criteria.
- * @param plyr_idx The player whose creature will be affected.
- * @param crmodel Model of the creature to find.
- * @param criteria Criteria, from CreatureSelectCriteria enumeration.
- * @param fmcl_bytes encoded bytes: f=cast for free flag,m=spell kind,c=caster player index,l=spell level.
- * @return TbResult whether the spell was successfully cast
- */
-TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
+TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, long fmcl_bytes)
 {
-    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing))
-    {
-        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
-        return Lb_FAIL;
-    }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
     struct SpellConfig *spconf = get_spell_config(spkind);
     if (!creature_is_immune_to_spell_effect(thing, spconf->spell_flags))
@@ -7774,6 +7781,129 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, ThingModel crmodel,
     {
         return Lb_FAIL;
     }
+}
+
+/**
+ * Cast a spell on a creature which meets given criteria.
+ * @param plyr_idx The player whose creature will be affected.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @param fmcl_bytes encoded bytes: f=cast for free flag,m=spell kind,c=caster player index,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_spell_on_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long criteria, long fmcl_bytes)
+{
+    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    if (thing_is_invalid(thing))
+    {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
+        return Lb_FAIL;
+    }
+    return script_use_spell_on_creature(plyr_idx, thing, fmcl_bytes);
+}
+
+void script_move_creature(struct Thing* thing, TbMapLocation location, ThingModel effect_id)
+{
+    
+    if (effect_id < 0)
+    {
+        effect_id = ball_puff_effects[thing->owner];
+    }
+
+    struct Coord3d pos;
+    if(!get_coords_at_location(&pos,location,false)) {
+        SYNCDBG(5,"No valid coords for location %d",(int)location);
+        return;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+
+    if (effect_id > 0)
+    {
+        create_effect(&thing->mappos, effect_id, game.neutral_player_num);
+        create_effect(&pos, effect_id, game.neutral_player_num);
+    }
+    move_thing_in_map(thing, &pos);
+    reset_interpolation_of_thing(thing);
+    if (!is_thing_some_way_controlled(thing))
+    {
+        initialise_thing_state(thing, CrSt_CreatureDoingNothing);
+    }
+    cctrl->turns_at_job = -1;
+    check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+}
+
+void script_move_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long select_id, TbMapLocation location, ThingModel effect_id, long count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, select_id);
+        if (thing_is_invalid(thing) || thing_is_picked_up(thing)) {
+            continue;
+        }
+        script_move_creature(thing, location, effect_id);
+    }
+}
+
+/**
+ * Modifies player's creatures' anger.
+ * @param plyr_idx target player
+ * @param anger anger value. Use double AnnoyLevel (from creature's config file) to fully piss creature. More for longer calm time
+ */
+TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmodel, long operation, long anger)
+{
+    SYNCDBG(8, "Starting");
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    unsigned long k = 0;
+    int i = dungeon->creatr_list_start;
+    if (creature_kind_is_for_dungeon_diggers_list(plyr_idx,crmodel))
+    {
+        i = dungeon->digger_list_start;
+    }
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+
+        if (thing_matches_model(thing,crmodel))
+        {
+            i = cctrl->players_next_creature_idx;
+            if (operation == SOpr_SET)
+            {
+                anger_set_creature_anger(thing, anger, AngR_Other);
+            }
+            else if (operation == SOpr_INCREASE)
+            {
+                anger_increase_creature_anger(thing, anger, AngR_Other);
+            }
+            else if (operation == SOpr_DECREASE)
+            {
+                anger_reduce_creature_anger(thing, -anger, AngR_Other);
+            }
+            else if (operation == SOpr_MULTIPLY)
+            {
+                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Other] * anger, AngR_Other);
+            }
+
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19, "Finished");
+    return true;
 }
 
 /******************************************************************************/
