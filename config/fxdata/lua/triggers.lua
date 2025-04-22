@@ -340,6 +340,7 @@ end
 
 ---Triggers when a unit dies
 ---@param action function|string the function to call when the event happens
+---@param unit Creature|nil the unit that triggers the event (nil for any unit)
 ---@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return table
 function RegisterUnitDeathEvent(action, unit, actionParams)
