@@ -1882,7 +1882,7 @@ static const luaL_Reg global_methods[] = {
    {"Set_door"                             ,lua_Set_door                        },
    {"Add_heart_health"                     ,lua_Add_heart_health                },
    {"Add_object_to_level"                  ,lua_Add_object_to_level             },
-   {"Add_object_to_level_AT_POS"           ,lua_Add_object_to_level_at_pos      },
+   {"Add_object_to_level_at_pos"           ,lua_Add_object_to_level_at_pos      },
    {"Add_effect_generator_to_level"        ,lua_Add_effect_generator_to_level   },
    {"Place_door"                           ,lua_Place_door                      },
    {"Place_trap"                           ,lua_Place_trap                      },

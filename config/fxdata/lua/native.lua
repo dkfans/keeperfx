@@ -944,7 +944,7 @@ function Add_object_to_level(object,location,property,player) local ob return ob
 ---@param property integer If the objects has properties, set it. For Gold, it's the amount. If you use SPECBOX_CUSTOM to place the mystery box, it's the box number in the BOX#_ACTIVATED variable.
 ---@param player? playersingle When used it sets the owner of the object.
 ---@return Thing object
-function Add_object_to_level_AT_POS(object,stl_x,stl_y,property,player) local ob return ob end
+function Add_object_to_level_at_pos(object,stl_x,stl_y,property,player) local ob return ob end
 
 ---Allows to set tendencies: IMPRISON and FLEE, for a player's creatures.
 ---@param player Player
