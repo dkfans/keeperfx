@@ -605,28 +605,30 @@ function Set_game_rule(rulename,val1) end
 ---@param value2? integer The SymbolSprites property has 2 values to set. For other properties, do not add this parameter.
 function Set_door_configuration(doorname,property,value,value2) end
 
----comment
+---Allows you to make changes to trap values set in trapdoor.cfg. Look in that file for explanations on the numbers.
 ---@param trapname trap_type
 ---@param property string The name of the trap property you want to change, as found in trapdoor.cfg. E.g. ManufactureLevel.
 ---@param value integer
 ---@param value2? integer
 ---@param value3? integer
 function Set_trap_configuration(trapname,property,value,value2,value3) end
---[[
----comment
+
+---Allows you to make changes to object values set in objects.cfg.
 ---@param objectname object_type
 ---@param property string
 ---@param value integer
 function Set_object_configuration(objectname,property,value) end
 
----llows you to make changes to attribute values set in the unit configuration files. E.g. Imp.cfg.
+--[[
+---allows you to make changes to attribute values set in the unit configuration files. E.g. Imp.cfg.
 ---@param creature_type creature_type
 ---@param property string
 ---@param value integer
 ---@param value2? integer
 function Set_creature_configuration(creature_type,property,value,value2) end
+--]]
 
----comment
+---Allows you to make changes to effect generator values set in effects.toml. Look in that file for the possible properties.
 ---@param effectgeneratorname effect_generator_type
 ---@param property any
 ---@param value any
@@ -634,14 +636,16 @@ function Set_creature_configuration(creature_type,property,value,value2) end
 ---@param value3 any
 function Set_effect_generator_configuration(effectgeneratorname,property,value,value2,value3) end
 
----comment
+--[[
+---Makes changes to keeper powers, as originally set in magic.cfg.
 ---@param power_kind power_kind
 ---@param property any
 ---@param value any
 ---@param value2 any
 function Set_power_configuration(power_kind,property,value,value2) end
+]]
 
----comment
+---Allows you to make changes to room values set in terrain.cfg. Look in that file for explanations on the numbers.
 ---@param room_type room_type
 ---@param property any
 ---@param value any
@@ -649,7 +653,6 @@ function Set_power_configuration(power_kind,property,value,value2) end
 ---@param value3 any
 function Set_room_configuration(room_type,property,value,value2,value3) end
 
-]]
 
 ---Creates or modifies a Temple recipe.
 ---@param command string The possible commands as listed in the sacrifices section in rules.cfg. Additionally, CUSTOMREWARD and CUSTOMPUNISH may be used. These play the respective sounds, and may increase the flag as configured for the reward parameter.
@@ -684,7 +687,7 @@ function Swap_creature(new_creature,creature) end
 ---@param max_level integer the max level they should train to
 function Set_creature_max_level(player,creature_type,max_level) end
 
----comment
+---sets properties of a creature.
 ---@param creature_type creature_type The creature name, e.g. BILE_DEMON.
 ---@param property creature_propery The name of the creature property you want to set, e.g. NEVER_CHICKENS. See imp.cfg for options.
 ---@param enable boolean Set this to true to enable the property, or false to disable to property.
@@ -723,27 +726,6 @@ function Research_order(player,Research_type,room_or_spell,research_value) end
 ---@param amount integer
 function Add_gold_to_player(player,amount) end
 
---[[
-
----Does a color swap for a player.
----Note: The change is only visual, and swapping PLAYER0 to Blue without Swapping PLAYER1 to another color will have 2 indistinguishable players.
----@param player playersingle
----@param colour "RED"|"BLUE"|"GREEN"|"YELLOW"|"WHITE"|"PURPLE"|"BLACK"|"ORANGE"
-function SET_PLAYER_COLOR(player,colour) end
-
----Allows you to make change to modifiers values to a specific player. Default value is set to 100.
----@param player playerrange
----@param modifier string
----@param value integer
-function SET_PLAYER_MODIFIER(player,modifier,value) end
-
----Allows you to increase or decrease the current value of choosen modifier for a specific player.
----@param player playerrange
----@param modifier string
----@param value integer
-function ADD_TO_PLAYER_MODIFIER(player,modifier,value) end
-
---]]
 -----------------------------
 --Tweaking computer players--
 -----------------------------
@@ -983,7 +965,7 @@ function Run_DKScript_command(command) end
 
 
 
----comment
+-----returns wether a specific action point is activated by a player or not.
 ---@param player Player
 ---@param action_point actionpoint
 ---@return boolean
@@ -1049,18 +1031,17 @@ function Get_thing_by_idx(index) end
 ---checks wether the given thing still exists
 function Thing:isValid() end
 
----comment
 function Thing:Delete_thing() end
 
----comment
+---makes the thing unresponsive
 function Thing:Make_thing_zombie() end
 
----comment
+---teleports the thing to a new location
 ---@param location location The location you want the creature to be teleported to.
 ---@param effect effect_type|effect_element_type|integer The effect that will be played when the creature is teleported.
 function Creature:Teleport_creature(location,effect) end
 
----comment
+---forces the creature to walk to a specific location.
 ---@param stl_x any
 ---@param stl_y any
 function Creature:Creature_walk_to(stl_x,stl_y) end
