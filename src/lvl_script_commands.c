@@ -3349,18 +3349,33 @@ static void change_slab_type_process(struct ScriptContext *context)
     long y = context->value->shorts[1];
     long slab_kind = context->value->shorts[2];
     long fill_type = context->value->shorts[3];
+    long width = context->value->shorts[4];
+    long height = context->value->shorts[5];
 
-    if (fill_type > 0)
+    // get the middle of the square
+    long half_w = width / 2;
+    long half_h = height / 2;
+
+    for (long dx = -half_w; dx <= half_w; ++dx)
     {
-        struct CompoundCoordFilterParam iter_param;
-        iter_param.num1 = slab_kind;
-        iter_param.num2 = fill_type;
-        iter_param.num3 = get_slabmap_block(x, y)->kind;
-        slabs_fill_iterate_from_slab(x, y, slabs_change_type, &iter_param);
-    }
-    else
-    {
-        replace_slab_from_script(x, y, slab_kind);
+        for (long dy = -half_h; dy <= half_h; ++dy)
+        {
+            long sx = x + dx;
+            long sy = y + dy;
+
+            if (fill_type > 0)
+            {
+                struct CompoundCoordFilterParam iter_param;
+                iter_param.num1 = slab_kind;
+                iter_param.num2 = fill_type;
+                iter_param.num3 = get_slabmap_block(sx, sy)->kind;
+                slabs_fill_iterate_from_slab(sx, sy, slabs_change_type, &iter_param);
+            }
+            else
+            {
+                replace_slab_from_script(sx, sy, slab_kind);
+            }
+        }
     }
 }
 
