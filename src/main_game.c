@@ -63,7 +63,7 @@ extern TbBool force_player_num;
 extern void setup_players_count();
 
 CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
-
+TbBool luascript_loaded = false;
 /**
  * Resets timers and flags of all players into default (zeroed) state.
  * Also enables spells which are always enabled by default.
@@ -163,7 +163,7 @@ static void init_level(void)
     lens_mode = 0;
     setup_heap_manager();
 
-    TbBool luascript_loaded = open_lua_script(get_selected_level_number());
+    luascript_loaded = open_lua_script(get_selected_level_number());
     // Load configs which may have per-campaign part, and can even be modified within a level
     init_custom_sprites(get_selected_level_number());
     load_stats_files();
