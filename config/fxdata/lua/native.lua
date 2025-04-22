@@ -315,7 +315,8 @@ function Lose_game(player) end
 
 ---Once an Action Point has been triggered, it cannot be triggered again unless it has been reset by this command.
 ---@param action_point integer Action Point number
-function RESET_ACTION_POINT(action_point) end
+---@param player playerrange
+function Reset_action_point(action_point,player) end
 
 
 ------------------------
@@ -460,7 +461,7 @@ function Quick_information_with_pos(slot,message,stl_x,stl_y) end
 ---Plays a sound message or sound effect.
 ---@param player Player The name of the player who gets to hear the sound.
 ---@param type "SPEECH"|"SOUND" If it is a sound effect or a speech. Speeches queue, sounds play at the same time.
----@param sound integer The sound file to be played. Use numbers(ID's) to play sounds from the original .dat files, or a file name(between parenthesis) to play custom sounds.
+---@param sound integer|string The sound file to be played. Use numbers(ID's) to play sounds from the original .dat files, or a file name(between parenthesis) to play custom sounds.
 function Play_message(player,type,sound) end
 
 ---Displays a script variable on screen.

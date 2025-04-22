@@ -335,6 +335,7 @@ static int lua_Bonus_level_time(lua_State *L)
     gameadd.timer_real = clocktime;
     return 0;
 }
+
 static int lua_Add_bonus_time(lua_State *L)
 {
     GameTurnDelta turns = luaL_checkinteger(L, 1);
@@ -342,6 +343,14 @@ static int lua_Add_bonus_time(lua_State *L)
     return 0;
 }
 
+static int lua_Reset_action_point(lua_State *L)
+{
+    ActionPointId apt_idx = luaL_checkActionPoint(L, 1);
+    struct PlayerRange player_range = luaL_checkPlayerRangeId(L, 2);
+    
+    action_point_reset_idx(apt_idx, player_range);
+    return 0;
+}
 
 //Adding New Creatures and Parties to the Level
 
@@ -604,7 +613,26 @@ static int lua_Heart_lost_quick_objective(lua_State *L)
     gameadd.heart_lost_message_target = target; 
     return 0;
 }
-//static int lua_Play_message(lua_State *L)
+
+static int lua_Play_message(lua_State *L)
+{
+    PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
+    long msgtype_id = luaL_checkNamedCommand(L, 2, msgtype_desc);
+
+    TbBool param_is_string;
+    if (lua_isstring(L, 3)) {
+        param_is_string = true;
+        filename = luaL_checkstring(L, 3);
+    } else {
+        param_is_string = false;
+        msg_id = luaL_checkinteger(L, 3);
+    }
+
+    if (player_idx == my_player_number)
+    {
+        script_play_message(param_is_string,msgtype_id,msg_id,filename);
+    }
+}
 
 static int lua_Tutorial_flash_button(lua_State *L)
 {
@@ -1846,6 +1874,7 @@ static const luaL_Reg global_methods[] = {
    {"Hide_timer"                           ,lua_Hide_timer                      },
    {"Bonus_level_time"                     ,lua_Bonus_level_time                },
    {"Add_bonus_time"                       ,lua_Add_bonus_time                  },
+   {"Reset_action_point"                   ,lua_Reset_action_point              },
 
 //Adding New Creatures and Parties to the Level
    {"Add_creature_to_level"                ,lua_Add_creature_to_level           },
@@ -1869,7 +1898,7 @@ static const luaL_Reg global_methods[] = {
    {"Quick_message"                        ,lua_Quick_message                   },
    {"Heart_lost_objective"                 ,lua_Heart_lost_objective            },
    {"Heart_lost_quick_objective"           ,lua_Heart_lost_quick_objective      },
-   //{"Play_message"                         ,lua_Play_message                    },
+   {"Play_message"                         ,lua_Play_message                    },
    {"Tutorial_flash_button"                ,lua_Tutorial_flash_button           },
    {"Display_countdown"                    ,lua_Display_countdown               },
    {"Display_variable"                     ,lua_Display_variable                },
