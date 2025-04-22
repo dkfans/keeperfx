@@ -515,7 +515,7 @@ static int lua_Display_information_with_pos(lua_State *L)
 static int lua_Quick_objective(lua_State *L)
 {
     const char *msg_text = lua_tostring(L, 1);
-    TbMapLocation target = luaL_checkLocation(L, 2);
+    TbMapLocation target = luaL_optLocation(L, 2);
 
     process_objective(msg_text, target, 0, 0);
     return 0;
@@ -525,7 +525,7 @@ static int lua_Quick_information(lua_State *L)
 {
     long slot = luaL_checkIntMinMax(L, 1, 0,QUICK_MESSAGES_COUNT-1);
     const char *msg_text = lua_tostring(L, 2);
-    TbMapLocation target = luaL_checkLocation(L, 3);
+    TbMapLocation target = luaL_optLocation(L, 3);
     snprintf(gameadd.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
 
     set_quick_information(slot, target, 0, 0);
