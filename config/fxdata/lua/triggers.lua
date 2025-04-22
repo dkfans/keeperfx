@@ -205,7 +205,7 @@ end
 --- @param unit Creature The unit that dies
 function OnUnitDeath(unit)
     local eventData = {}
-    eventData.Thing = unit
+    eventData.unit = unit
     ProcessEvent("Death",eventData)
 end
 
