@@ -165,18 +165,18 @@ struct Thing *luaL_checkCreature(lua_State *L, int index)
 
 TbMapLocation luaL_checkLocation(lua_State *L, int index)
 {
-    if (lua_istable(L, index)) {
+    if (luaL_isPlayer(L, index))
+    {
+        PlayerNumber playerId = luaL_checkPlayerSingle(L,index);
+        return  ((unsigned long)playerId << 4) | MLoc_PLAYERSHEART;
+    }
+    else if (lua_istable(L, index)) {
         lua_getfield(L, index, "stl_x");
         int stl_x = lua_tointeger(L, -1);
         lua_getfield(L, index, "stl_y");
         int stl_y = lua_tointeger(L, -1);
 
         return get_coord_encoded_location(stl_x,stl_y);
-    }
-    else if (luaL_isPlayer(L, index))
-    {
-        PlayerNumber playerId = luaL_checkPlayerSingle(L,index);
-        return  ((unsigned long)playerId << 4) | MLoc_PLAYERSHEART;
     }
 
     const char* locname = lua_tostring(L, index);
