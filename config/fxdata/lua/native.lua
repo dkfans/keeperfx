@@ -409,7 +409,7 @@ function Delete_from_party(party_name,creaturemodel,level) end
 ---If you wish to put player here, you must type player number, like 1, not player name. If you will type PLAYER1, the game won't be able to recognize the number and will treat it as 0.
 ---@param experience integer The experience level of the Tunneller.
 ---@param gold integer The amount of gold the Tunneller is carrying.
----@return Creature[] party_creatures list of creatures in the party
+---@return Creature[] party_creatures list of creatures in the party, first entry is the leader
 function Add_tunneller_party_to_level(owner,party_name,spawn_location,head_for,target,experience,gold) end
 
 ---Very similar to the Add_tunneller_party_to_level command, this adds a party to the level but does not include a Tunneller Dwarf.
@@ -417,7 +417,7 @@ function Add_tunneller_party_to_level(owner,party_name,spawn_location,head_for,t
 ---@param owner playersingle
 ---@param party_name string The name as defined with the Create_party command
 ---@param location location where the party should be spawned
----@return Creature[] party_creatures list of creatures in the party
+---@return Creature[] party_creatures list of creatures in the party, first entry is the leader
 function Add_party_to_level(owner,party_name,location) return {} end
 
 

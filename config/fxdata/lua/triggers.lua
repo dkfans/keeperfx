@@ -246,12 +246,7 @@ end
 
 
 
-
-
 -----------------------------------------------------------------------------------------------
-
-
-
 
 
 
@@ -379,22 +374,3 @@ function RegisterOnActionPointEvent(action, actionPoint, player)
 
     return trigger
 end
-
---function Thing:RegisterSpecialActivatedEvent(action) 
---    local trigger = CreateTrigger()
---    TriggerRegisterThingEvent(trigger, nil, "SpecialActivated")
---    TriggerAddCondition(trigger, function() return self == GetTriggeringThing() end)
---    TriggerAddAction(trigger, action)
---end
-
---TimerEvents
---  periodic or not
---PlayerEvents
---  "Win"|"Lose"|"AlliesChange"
---SlabEvent
---  "OwnerChange"|"TypeChange"
-
---ThingEvents
---  "powerCast"|"dies"|"SpecialActivated" --|"healthChange"|"happinessChange"|"stateChange"
---TrapEvents
---  "Placed"|"triggered"|"depleted"
