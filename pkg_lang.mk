@@ -71,6 +71,7 @@ pkg/campgns/origplus/text_pol.dat \
 pkg/campgns/origplus/text_rus.dat \
 pkg/campgns/origplus/text_spa.dat \
 pkg/campgns/origplus/text_swe.dat \
+pkg/campgns/origplus/text_ukr.dat \
 pkg/campgns/revlord/text_eng.dat \
 pkg/campgns/revlord/text_chi.dat \
 pkg/campgns/revlord/text_ger.dat \
@@ -180,6 +181,9 @@ pkg/%/text_pol.dat: lang/%/text_pol.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
 pkg/%/text_rus.dat: lang/%/text_rus.po $(POTONGDAT) $(RU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(RU_CHAR_ENCODING) $< >/dev/null
+
+pkg/%/text_ukr.dat: lang/%/text_ukr.po $(POTONGDAT) $(RU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(RU_CHAR_ENCODING) $< >/dev/null
 
 pkg/%/text_spa.dat: lang/%/text_spa.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
