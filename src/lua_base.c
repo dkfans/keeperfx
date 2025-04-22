@@ -165,7 +165,6 @@ TbBool open_lua_script(LevelNumber lvnum)
 	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"script_loading"))
 	{
         ERRORLOG("failed to load lua script");
-        close_lua_script();
         return false;
 	}
 
