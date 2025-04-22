@@ -1958,16 +1958,16 @@ static const luaL_Reg global_methods[] = {
     {"Set_digger"                           ,lua_Set_digger                      },
 
 //debug stuff
-    {"print"                        ,lua_print                     },
-    {"Run_DKScript_command"           ,lua_run_dkscript_command      },
+    {"print"                             ,lua_print                     },
+    {"Run_DKScript_command"              ,lua_run_dkscript_command      },
     
 //retrieving lua vars
-    {"Get_creature_near",               lua_get_creature_near},
-    {"Get_creature_by_criterion",        lua_get_creature_by_criterion},
-    {"Get_thing_by_idx",                 lua_get_thing_by_idx},
-    {"Get_things_of_class",              lua_get_things_of_class},
+    {"Get_creature_near",                 lua_get_creature_near},
+    {"Get_creature_by_criterion",         lua_get_creature_by_criterion},
+    {"Get_thing_by_idx",                  lua_get_thing_by_idx},
+    {"Get_things_of_class",               lua_get_things_of_class},
     {"Is_actionpoint_activated_by_player",lua_is_action_point_activated_by_player},
-    {"Get_slab",                       lua_get_slab},
+    {"Get_slab",                          lua_get_slab},
 };
 /*
 static const luaL_Reg game_meta[] = {
