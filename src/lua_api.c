@@ -11,6 +11,7 @@
 #include "creature_states.h"
 #include "creature_states_pray.h"
 #include "gui_msgs.h"
+#include "gui_soundmsgs.h"
 #include "thing_navigate.h"
 #include "map_data.h"
 #include "game_legacy.h"
@@ -346,7 +347,7 @@ static int lua_Add_bonus_time(lua_State *L)
 static int lua_Reset_action_point(lua_State *L)
 {
     ActionPointId apt_idx = luaL_checkActionPoint(L, 1);
-    struct PlayerRange player_range = luaL_checkPlayerRangeId(L, 2);
+    PlayerNumber player_range = luaL_checkPlayerRangeId(L, 2);
     
     action_point_reset_idx(apt_idx, player_range);
     return 0;
@@ -620,6 +621,8 @@ static int lua_Play_message(lua_State *L)
     long msgtype_id = luaL_checkNamedCommand(L, 2, msgtype_desc);
 
     TbBool param_is_string;
+    const char* filename = NULL;
+    long msg_id = 0;
     if (lua_isstring(L, 3)) {
         param_is_string = true;
         filename = luaL_checkstring(L, 3);
@@ -632,6 +635,7 @@ static int lua_Play_message(lua_State *L)
     {
         script_play_message(param_is_string,msgtype_id,msg_id,filename);
     }
+    return 0;
 }
 
 static int lua_Tutorial_flash_button(lua_State *L)
