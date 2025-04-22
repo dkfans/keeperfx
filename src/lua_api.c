@@ -535,8 +535,8 @@ static int lua_Quick_information(lua_State *L)
 static int lua_Quick_objective_with_pos(lua_State *L)
 {
     const char *msg_text = lua_tostring(L, 1);
-    MapSubtlCoord stl_x = luaL_checkstl_x(L, 3);
-    MapSubtlCoord stl_y = luaL_checkstl_y(L, 4);
+    MapSubtlCoord stl_x = luaL_checkstl_x(L, 2);
+    MapSubtlCoord stl_y = luaL_checkstl_y(L, 3);
 
     process_objective(msg_text, 0, stl_x, stl_y);
     return 0;
