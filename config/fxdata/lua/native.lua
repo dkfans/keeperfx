@@ -5,7 +5,7 @@
 --also serves as documentation of said function
 
 
----@alias playersingle Player | "PLAYER0" | "PLAYER1" | "PLAYER2" | "PLAYER3" | "PLAYER_GOOD" | "PLAYER_NEUTRAL"
+---@alias playersingle Player | "PLAYER0" | "PLAYER1" | "PLAYER2" | "PLAYER3" | "PLAYER_GOOD" | "PLAYER_NEUTRAL" | "PLAYER4" | "PLAYER5" | "PLAYER6"
 ---@alias playerrange  playersingle | "ALL_PLAYERS"
 ---@alias controls_variable "TOTAL_DIGGERS"|"TOTAL_CREATURES"|"TOTAL_DOORS"|"TOTAL_AREA"|"GOOD_CREATURES"|"EVIL_CREATURES"
 ---@alias timer "TIMER0"|"TIMER1"|"TIMER2"|"TIMER3"|"TIMER4"|"TIMER5"|"TIMER6"|"TIMER7"
