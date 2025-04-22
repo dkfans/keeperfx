@@ -554,7 +554,7 @@ static int lua_Quick_information_with_pos(lua_State *L)
     return 0;
 }
 
-static int lua_DisPlay_message(lua_State *L)
+static int lua_Display_message(lua_State *L)
 {
     int msg_id = luaL_checkinteger(L, 1);
     const char *msg =  get_string(msg_id);
@@ -1865,7 +1865,7 @@ static const luaL_Reg global_methods[] = {
    {"Quick_objective_with_pos"             ,lua_Quick_objective_with_pos        },
    {"Quick_information"                    ,lua_Quick_information               },
    {"Quick_information_with_pos"           ,lua_Quick_information_with_pos      },
-   {"DisPlay_message"                      ,lua_DisPlay_message                 },
+   {"Display_message"                      ,lua_Display_message                 },
    {"Quick_message"                        ,lua_Quick_message                   },
    {"Heart_lost_objective"                 ,lua_Heart_lost_objective            },
    {"Heart_lost_quick_objective"           ,lua_Heart_lost_quick_objective      },

@@ -483,9 +483,9 @@ function Display_countdown(player,timer,target,clocktime) end
 ---Displays one of the text messages from language-specific strings banks as a chat message, with a specific unit or player shown as the sender. It disappears automatically after some time.
 ---@param msg_id integer The number of the message, assigned to it in .po or .pot translation file.
 ---@param icon string|Player|Creature The name of the player, creature, creature spell, Keeper spell, creature instance, room, or query icon that is shown as the sender of the message. Accepts None for no icon.
-function DisPlay_message(msg_id,icon) end
+function Display_message(msg_id,icon) end
 
----Works like DisPlay_message, but instead of using a string from translations, allows to type it directly.
+---Works like Display_message, but instead of using a string from translations, allows to type it directly.
 ---@param msg string The chat message as a string
 ---@param icon string|Player|Creature The name of the player, creature, creature spell, Keeper spell, creature instance, room, or query icon that is shown as the sender of the message. Accepts None for no icon.
 function Quick_message(msg,icon) end
