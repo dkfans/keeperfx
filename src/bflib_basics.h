@@ -141,7 +141,6 @@ int LbWarnLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 int LbSyncLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 int LbNetLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 int LbJustLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
-int LbAiLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 int LbNaviLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 int Lbvsprintf(char* buffer, const char *format, ...) __attribute__ ((format(printf, 2, 3)));
 #ifdef FUNCTESTING
