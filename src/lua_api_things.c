@@ -169,6 +169,20 @@ static int thing_set_field(lua_State *L) {
             prepare_to_controlled_creature_death(thing);
         }
         change_creature_owner(thing, new_owner);
+    } else if (strcmp(key, "name") == 0) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+
+        if (creature_control_invalid(cctrl)) {
+            luaL_error(L, "Attempt to set name of non-creature thing");
+            return 0;
+        }
+        const char* name = luaL_checkstring(L, 3);
+        if (strlen(name) > CREATURE_NAME_MAX) {
+            luaL_error(L, "Creature name too long (%d)", CREATURE_NAME_MAX);
+            return 0;
+        }
+        strncpy(cctrl->creature_name, name, CREATURE_NAME_MAX);
+
     } else {
         luaL_error(L, "not a settable field: %s", key);
     }
@@ -204,7 +218,10 @@ static int thing_get_field(lua_State *L) {
         lua_pushPos(L, &thing->mappos);
     } else if (strcmp(key, "orientation") == 0) {
         lua_pushinteger(L, thing->move_angle_xy);
-
+    } else if (strcmp(key, "health") == 0) {
+        lua_pushinteger(L, thing->health);
+    } else if (strcmp(key, "max_health") == 0) {
+        lua_pushinteger(L, get_thing_max_health(thing));
     } else if (strcmp(key, "level") == 0) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl)) {
@@ -212,6 +229,14 @@ static int thing_get_field(lua_State *L) {
             return 0;
         }
         lua_pushinteger(L, cctrl->exp_level);
+    } else if (strcmp(key, "name") == 0) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+
+        if (creature_control_invalid(cctrl)) {
+            luaL_error(L, "Attempt to set name of non-creature thing");
+            return 0;
+        }
+        lua_pushstring(L, creature_own_name(thing));
     } else {
         // Check if the key exists in the metatable's __methods table (Lua functions)
         lua_getmetatable(L, 1);             // Get metatable

@@ -166,11 +166,14 @@ local Player = {}
 ---@field pos Pos3d
 ---@field orientation integer
 ---@field owner Player
+---@field health integer
+---@field max_health integer
 local Thing = {}
 
 
 ---@class Creature: Thing
 ---@field level integer
+---@field name string
 local Creature = {}
 
 ---@class Herogate:Thing
