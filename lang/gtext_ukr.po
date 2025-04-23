@@ -20,14 +20,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2025-04-21 15:44+0300\n"
+"PO-Revision-Date: 2025-04-23 21:13+0300\n"
 "Last-Translator: \n"
 "Language-Team: KeeperFX Team <github.com/dkfans>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.5\n"
 
 #. Generic victory message
 #: guitext:0
@@ -410,7 +410,7 @@ msgid ""
 "Already your research bears fruit. The Speed Creature spell has been perfected. Cast it on a creature and observe the dramatic increase in its speed. The "
 "effect wears off after a while."
 msgstr ""
-"Твої дослідження вже приносять плоди. Заклинання «Прискорення» було вдосконалено. Накладіть його на істоту і спостерігайте за різким збільшенням її швидкості. "
+"Твої дослідження вже приносять плоди. Заклинання Прискорення було вдосконалено. Накладіть його на істоту і спостерігайте за різким збільшенням її швидкості. "
 "Ефект зникає через деякий час."
 
 #. Level Flowerhat objective
@@ -1410,7 +1410,7 @@ msgstr "Чудово виконано! Ваше велике багатство 
 msgctxt "In-game message"
 msgid ""
 "Your researchers have discovered the Heal Creature spell that allows to replenish the health of your creatures and keep them from dying for a while longer."
-msgstr "Ваші дослідники відкрили заклинання \"Лікування Створіння\", яке дозволяє відновлювати здоров'я ваших створінь і затримувати їх смерть на деякий час."
+msgstr "Ваші дослідники відкрили заклинання Лікування Створіння, яке дозволяє відновлювати здоров'я ваших створінь і затримувати їх смерть на деякий час."
 
 #. Level Tulipscent information
 #: guitext:177
@@ -1419,8 +1419,8 @@ msgid ""
 "Try the Must Obey spell. When activated, it constantly forces your creatures to obey to all your orders, making all of them working faster without the "
 "possibility for them to take a nap. Be sure to have plenty of money so that the spell will stay activated."
 msgstr ""
-"Спробуйте заклинання \"Повинні Слухатися\". Коли воно активується, воно постійно змушує ваших створінь підкорятися всім вашим наказам, змушуючи їх працювати "
-"швидше без можливості відпочити. Переконайтеся, що у вас є достатньо грошей, щоб заклинання залишалося активним."
+"Спробуйте заклинання Повинні Слухатися. Коли воно активується, воно постійно змушує ваших створінь підкорятися всім вашим наказам, змушуючи їх працювати швидше "
+"без можливості відпочити. Переконайтеся, що у вас є достатньо грошей, щоб заклинання залишалося активним."
 
 #. Level Tulipscent information
 #: guitext:178
@@ -2078,7 +2078,7 @@ msgstr "Повноекранна мапа: Переносить тебе на е
 #: guitext:324
 msgctxt "Slab description"
 msgid "Impenetrable Rock: Your Imps cannot dig through this, the only solution is to go round. It is visible even if far from your territory."
-msgstr "Ваші Імпи не можуть пробити її, єдиний вихід — обійти її. Вона видима навіть далеко від вашої території."
+msgstr "Непробивна порода: Ваші Імпи не можуть пробити її, єдиний вихід — обійти її. Вона видима навіть далеко від вашої території."
 
 #: guitext:325
 msgctxt "Slab description"
