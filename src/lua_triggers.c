@@ -35,7 +35,7 @@ void lua_on_game_lost(PlayerNumber plyr_idx)
 void lua_on_chatmsg(PlayerNumber plyr_idx, char *msg)
 {
 	SYNCDBG(6,"Starting");
-    lua_getglobal(Lvl_script, "ChatMsg");
+    lua_getglobal(Lvl_script, "OnChatMsg");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushPlayer(Lvl_script, plyr_idx);
@@ -113,7 +113,7 @@ void lua_on_trap_placed(struct Thing *traptng)
 void lua_on_creature_death(struct Thing *crtng)
 {
 	SYNCDBG(6,"Starting");
-    lua_getglobal(Lvl_script, "OnTrapPlaced");
+    lua_getglobal(Lvl_script, "OnUnitDeath");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushThing(Lvl_script, crtng);
