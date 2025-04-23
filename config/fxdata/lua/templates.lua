@@ -9,12 +9,12 @@
 --------------------------------------
 ----- magic.cfg functions----------
 --------------------------------------
----@param player Player
----@param pwkind power_kind
----@param splevel integer
----@param stl_x integer
----@param stl_y integer
----@param thing Thing
----@param is_free boolean
+---@param player Player player who cast the power
+---@param pwkind power_kind what power was cast
+---@param splevel integer how much the power was charged up
+---@param stl_x integer|nil the x coordinate of the tile where the power was cast, will be nil for powers that are cast on the entire level
+---@param stl_y integer|nil the y coordinate of the tile where the power was cast, will be nil for powers that are cast on the entire level
+---@param thing Thing|nil the thing that was hit by the power, will be nil for powers that are cast on the entire level or on a tile
+---@param is_free boolean if the power should be cast for free (no gold cost)
 function Magic_power_UseFunction_template(player,pwkind,splevel,stl_x,stl_y,thing,is_free)
 end
