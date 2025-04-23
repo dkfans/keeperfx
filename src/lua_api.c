@@ -1632,6 +1632,31 @@ static int lua_Change_slab_type(lua_State *L)
     return 0;
 }
 
+static int lua_Change_slab_texture(lua_State *L)
+{
+    MapSlabCoord slb_x = luaL_checkslb_x(L, 1);
+    MapSlabCoord slb_y = luaL_checkslb_y(L, 2);
+    long texture_id = luaL_checkNamedCommand(L, 3,texture_pack_desc);
+    int fill_type = luaL_optNamedCommand(L, 4,fill_desc);
+
+    if (fill_type > 0)
+    {
+        struct CompoundCoordFilterParam iter_param;
+        iter_param.num1 = texture_id;
+        iter_param.num2 = fill_type;
+        iter_param.num3 = get_slabmap_block(slb_x, slb_y)->kind;
+        slabs_fill_iterate_from_slab(slb_x, slb_y, slabs_change_type, &iter_param);
+    }
+    else
+    {
+        SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
+        gameadd.slab_ext_data[slb_num] = texture_id;
+        gameadd.slab_ext_data_initial[slb_num] = texture_id;
+    }
+
+    return 0;
+}
+
 static int lua_Use_spell_on_creature(lua_State *L)
 {
     struct Thing *thing = luaL_checkThing(L, 1);
@@ -1921,6 +1946,7 @@ static const luaL_Reg global_methods[] = {
    {"Place_trap"                           ,lua_Place_trap                      },
    {"Change_slab_owner"                    ,lua_Change_slab_owner               },
    {"Change_slab_type"                     ,lua_Change_slab_type                },
+   {"Change_slab_texture"                  ,lua_Change_slab_texture               },
    {"Hide_hero_gate"                       ,lua_Hide_hero_gate                  },
    
 //Manipulating Configs
