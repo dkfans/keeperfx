@@ -1322,8 +1322,8 @@ void process_players_creature_control_packet_control(long idx)
     }
     
     // First person looking speed and limits are adjusted here. (pckt contains the base mouse movement inputs)
-    struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
-    long maxTurnSpeed = crstat->max_turning_speed;
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(cctng);
+    long maxTurnSpeed = crconf->max_turning_speed;
     if (maxTurnSpeed < 1) {
         maxTurnSpeed = 1;
     }

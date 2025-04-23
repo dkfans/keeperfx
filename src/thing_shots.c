@@ -103,12 +103,12 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     }
     // If the shot has area_range, then make area damage
     if (shotst->area_range != 0) {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(castng);
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(castng);
         //TODO SPELLS Spell level should be taken from within the shot, not from caster creature
         // Caster may have leveled up, or even may be already dead
         // But currently shot do not store its level, so we don't really have a choice
         struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
-        long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->exp_level);
+        long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crconf->luck, cctrl->exp_level);
         if (flag_is_set(shotst->model_flags, ShMF_StrengthBased))
         {
             if (shotst->area_damage == 0)
@@ -122,7 +122,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         }
         else
         {
-            damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->exp_level, castng);
+            damage = compute_creature_attack_spell_damage(shotst->area_damage, crconf->luck, cctrl->exp_level, castng);
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets);
@@ -235,7 +235,7 @@ struct Thing *get_shot_collided_with_same_type(struct Thing *shotng, struct Coor
 
 TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long damage)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     long gold = calculate_gold_digged_out_of_slab_with_single_hit(damage, slb);
@@ -243,7 +243,7 @@ TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, 
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.gold_mined += gold;
     }
-    if (crstat->gold_hold <= creatng->creature.gold_carried)
+    if (crconf->gold_hold <= creatng->creature.gold_carried)
     {
         struct Thing* gldtng = drop_gold_pile(creatng->creature.gold_carried, &creatng->mappos);
         creatng->creature.gold_carried = 0;
@@ -802,8 +802,8 @@ TbBool apply_shot_experience(struct Thing *shooter, long exp_factor, CrtrExpLeve
 TbBool apply_shot_experience_from_hitting_creature(struct Thing *shooter, struct Thing *target, long shot_model)
 {
     struct CreatureControl* tgcctrl = creature_control_get_from_thing(target);
-    struct CreatureStats* tgcrstat = creature_stats_get_from_thing(target);
-    return apply_shot_experience(shooter, tgcrstat->exp_for_hitting, tgcctrl->exp_level, shot_model);
+    struct CreatureModelConfig* tgcrconf = creature_stats_get_from_thing(target);
+    return apply_shot_experience(shooter, tgcrconf->exp_for_hitting, tgcctrl->exp_level, shot_model);
 }
 
 long shot_kill_object(struct Thing *shotng, struct Thing *target)
@@ -1472,8 +1472,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         } 
         else
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(trgtng);
-            shotng->health -= crstat->damage_to_boulder;
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(trgtng);
+            shotng->health -= crconf->damage_to_boulder;
         }
 
     }

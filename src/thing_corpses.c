@@ -455,10 +455,10 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
     thing->creation_turn = game.play_gameturn;
-    struct CreatureStats* crstat = creature_stats_get(model);
-    if (crstat->transparency_flags != 0)
+    struct CreatureModelConfig* crconf = creature_stats_get(model);
+    if (crconf->transparency_flags != 0)
     {
-        set_flag(thing->rendering_flags, crstat->transparency_flags);
+        set_flag(thing->rendering_flags, crconf->transparency_flags);
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
@@ -527,10 +527,10 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
 
 void delete_corpse(struct Thing *deadtng)
 {
-    struct CreatureStats* crstat = creature_stats_get(deadtng->model);
-    if (crstat->corpse_vanish_effect != 0)
+    struct CreatureModelConfig* crconf = creature_stats_get(deadtng->model);
+    if (crconf->corpse_vanish_effect != 0)
     {
-        create_used_effect_or_element(&deadtng->mappos, crstat->corpse_vanish_effect, deadtng->owner, deadtng->index);
+        create_used_effect_or_element(&deadtng->mappos, crconf->corpse_vanish_effect, deadtng->owner, deadtng->index);
     }
     delete_thing_structure(deadtng, 0);
 }

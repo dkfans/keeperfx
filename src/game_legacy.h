@@ -119,7 +119,6 @@ struct Configs {
     struct CubesConfig cube_conf;
     struct TrapDoorConfig trapdoor_conf;
     struct EffectsConfig effects_conf;
-    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
     struct CreatureConfig crtr_conf;
     struct ObjectsConfig object_conf;
     struct RulesConfig rules;

@@ -1817,8 +1817,8 @@ short get_creature_control_action_inputs(void)
                 {
                     struct Thing* cthing = thing_get(player->controlled_thing_idx);
                     TRACE_THING(cthing);
-                    struct CreatureStats* crstat = creature_stats_get_from_thing(cthing);
-                    int inst_id = crstat->learned_instance_id[idx];
+                    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(cthing);
+                    int inst_id = crconf->learned_instance_id[idx];
                     if (creature_instance_is_available(cthing, inst_id))
                     {
                         if (numkey == num_avail)

@@ -344,12 +344,12 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
 
 long compute_creature_kind_score(ThingModel crkind, CrtrExpLevel exp_level)
 {
-    struct CreatureStats* crstat = creature_stats_get(crkind);
-    return compute_creature_max_health(crstat->health, exp_level)
-           + compute_creature_max_defense(crstat->defense, exp_level)
-           + compute_creature_max_dexterity(crstat->dexterity, exp_level)
-           + compute_creature_max_armour(crstat->armour, exp_level)
-           + compute_creature_max_strength(crstat->strength, exp_level);
+    struct CreatureModelConfig* crconf = creature_stats_get(crkind);
+    return compute_creature_max_health(crconf->health, exp_level)
+           + compute_creature_max_defense(crconf->defense, exp_level)
+           + compute_creature_max_dexterity(crconf->dexterity, exp_level)
+           + compute_creature_max_armour(crconf->armour, exp_level)
+           + compute_creature_max_strength(crconf->strength, exp_level);
 }
 
 /* Computes max health of a creature on given level. */
@@ -634,25 +634,25 @@ long compute_creature_work_value(long base_param, long efficiency, CrtrExpLevel 
 
 long compute_creature_work_value_for_room_role(const struct Thing *creatng, RoomRole rrole, long efficiency)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long i = 256;
     if ((rrole & RoRoF_Research) != 0)
     {
-        i = compute_creature_work_value(crstat->research_value*256, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->research_value*256, efficiency, cctrl->exp_level);
     }
     if ((rrole & RoRoF_CratesManufctr) != 0)
     {
-        i = compute_creature_work_value(crstat->manufacture_value*256, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->manufacture_value*256, efficiency, cctrl->exp_level);
     }
     if ((rrole & RoRoF_CrTrainExp) != 0)
     {
         // Training speed does not grow with experience - otherwise it would be too fast.
-        i = compute_creature_work_value(crstat->training_value*256, efficiency, 0);
+        i = compute_creature_work_value(crconf->training_value*256, efficiency, 0);
     }
     if ((rrole & RoRoF_CrScavenge) != 0)
     {
-        i = compute_creature_work_value(crstat->scavenge_value*256, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->scavenge_value*256, efficiency, cctrl->exp_level);
     }
     return process_work_speed_on_work_value(creatng, i);
 }
@@ -691,8 +691,8 @@ HitPoints calculate_correct_creature_max_health(const struct Thing *thing)
 {
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    HitPoints max_health = compute_creature_max_health(crstat->health, cctrl->exp_level);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    HitPoints max_health = compute_creature_max_health(crconf->health, cctrl->exp_level);
     // Apply modifier.
     if (!is_neutral_thing(thing))
     {
@@ -713,8 +713,8 @@ long calculate_correct_creature_strength(const struct Thing *thing)
 {
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long max_param = compute_creature_max_strength(crstat->strength, cctrl->exp_level);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    long max_param = compute_creature_max_strength(crconf->strength, cctrl->exp_level);
     // Apply modifier.
     if (!is_neutral_thing(thing))
     {
@@ -729,8 +729,8 @@ long calculate_correct_creature_armour(const struct Thing *thing)
 {
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long max_param = compute_creature_max_armour(crstat->armour, cctrl->exp_level);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    long max_param = compute_creature_max_armour(crconf->armour, cctrl->exp_level);
     if (creature_under_spell_effect(thing, CSAfF_Armour))
         max_param = (320 * max_param) / 256;
     // This limit makes armour absorb up to 80% of damage even with the buff.
@@ -754,8 +754,8 @@ long calculate_correct_creature_armour(const struct Thing *thing)
 long calculate_correct_creature_defense(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long max_param = compute_creature_max_defense(crstat->defense, cctrl->exp_level);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    long max_param = compute_creature_max_defense(crconf->defense, cctrl->exp_level);
     // TODO: Add a dungeon modifier.
     return max_param;
 }
@@ -763,8 +763,8 @@ long calculate_correct_creature_defense(const struct Thing *thing)
 long calculate_correct_creature_dexterity(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long max_param = compute_creature_max_dexterity(crstat->dexterity, cctrl->exp_level);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    long max_param = compute_creature_max_dexterity(crconf->dexterity, cctrl->exp_level);
     // TODO: Add a dungeon modifier.
     return max_param;
 }
@@ -772,8 +772,8 @@ long calculate_correct_creature_dexterity(const struct Thing *thing)
 long calculate_correct_creature_maxspeed(const struct Thing *thing)
 {
     struct Dungeon* dungeon;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long speed = crstat->base_speed;
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    long speed = crconf->base_speed;
     if ((creature_affected_by_slap(thing)) || (creature_under_spell_effect(thing, CSAfF_Timebomb)))
         speed *= 2;
     if (creature_under_spell_effect(thing, CSAfF_Speed))
@@ -798,8 +798,8 @@ long calculate_correct_creature_loyalty(const struct Thing *thing)
 {
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long max_param = compute_creature_max_loyalty(crstat->scavenge_require, cctrl->exp_level);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    long max_param = compute_creature_max_loyalty(crconf->scavenge_require, cctrl->exp_level);
     // Apply modifier.
     if (!is_neutral_thing(thing))
     {
@@ -814,8 +814,8 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
 {
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    GoldAmount pay = compute_creature_max_pay(crstat->pay, cctrl->exp_level);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    GoldAmount pay = compute_creature_max_pay(crconf->pay, cctrl->exp_level);
     // Apply modifier.
     if (!is_neutral_thing(thing))
     {
@@ -833,8 +833,8 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
 {
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->exp_level);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    GoldAmount training_cost = compute_creature_max_training_cost(crconf->training_cost, cctrl->exp_level);
     // Apply modifier.
     if (!is_neutral_thing(thing))
     {
@@ -852,8 +852,8 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
 {
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->exp_level);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crconf->scavenger_cost, cctrl->exp_level);
     // Apply modifier.
     if (!is_neutral_thing(thing))
     {
@@ -1168,10 +1168,10 @@ long compute_creature_weight(const struct Thing* creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (!creature_control_invalid(cctrl))
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
         long eye_height = get_creature_eye_height(creatng);
         long weight = eye_height >> 2;
-        weight += (crstat->hunger_fill + crstat->lair_size + 1) * cctrl->exp_level;
+        weight += (crconf->hunger_fill + crconf->lair_size + 1) * cctrl->exp_level;
         if (creature_is_immune_to_spell_effect(creatng, CSAfF_Wind))
         {
             weight = weight * 3 / 2;
@@ -1184,7 +1184,7 @@ long compute_creature_weight(const struct Thing* creatng)
         {
             weight = weight / 2;
         }
-        if (crstat->can_go_locked_doors == true)
+        if (crconf->can_go_locked_doors == true)
         {
             weight = weight / 10;
         }
@@ -1196,7 +1196,7 @@ long compute_creature_weight(const struct Thing* creatng)
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId clstat_id)
 {
     const char *text;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     long i;
     static char loc_text[16];
@@ -1245,7 +1245,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_Luck:
-        i = compute_creature_max_luck(crstat->luck, cctrl->exp_level);
+        i = compute_creature_max_luck(crconf->luck, cctrl->exp_level);
         snprintf(loc_text, sizeof(loc_text), "%ld", i);
         text = loc_text;
         break;

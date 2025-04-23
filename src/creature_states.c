@@ -557,16 +557,16 @@ TbBool state_info_invalid(struct StateInfo *stati)
 
 TbBool creature_model_bleeds(unsigned long crmodel)
 {
-    struct CreatureStats* crstat = creature_stats_get(crmodel);
+    struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
     if (censorship_enabled())
     {
         // If censorship is on, only evil creatures can have blood
-        if (!crstat->bleeds)
+        if (!crconf->bleeds)
             return false;
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
         return ((crconf->model_flags & CMF_IsEvil) != 0);
   }
-  return crstat->bleeds;
+  return crconf->bleeds;
 }
 /******************************************************************************/
 /** Returns type of given creature state.
@@ -974,9 +974,9 @@ TbBool creature_state_is_unset(const struct Thing *thing)
 
 TbBool restore_creature_flight_flag(struct Thing *creatng)
 {
-    struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig *crconf = creature_stats_get_from_thing(creatng);
     // Creature can fly either by spell or naturally.
-    if ((crstat->flying) || creature_under_spell_effect(creatng, CSAfF_Flying))
+    if ((crconf->flying) || creature_under_spell_effect(creatng, CSAfF_Flying))
     {
         // Even flying creature is grounded while frozen.
         if (!creature_under_spell_effect(creatng, CSAfF_Freeze))
@@ -1854,10 +1854,10 @@ short creature_doing_nothing(struct Thing *creatng)
         }
         cctrl->job_assigned_check_turn = game.play_gameturn;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if ((crstat->job_primary != Job_NULL) && (game.play_gameturn - cctrl->job_primary_check_turn > 128))
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    if ((crconf->job_primary != Job_NULL) && (game.play_gameturn - cctrl->job_primary_check_turn > 128))
     {
-        if (attempt_job_preference(creatng, crstat->job_primary)) {
+        if (attempt_job_preference(creatng, crconf->job_primary)) {
             SYNCDBG(8,"The %s index %d will do primary job with state %s",thing_model_name(creatng),
                 (int)creatng->index,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
             return 1;
@@ -2360,8 +2360,8 @@ short creature_leaves(struct Thing *creatng)
     {
         struct Dungeon* dungeon = get_dungeon(creatng->owner);
         dungeon->total_creatures_left++;
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        apply_anger_to_all_players_creatures_excluding(creatng->owner, crstat->annoy_others_leaving, AngR_Other, creatng);
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+        apply_anger_to_all_players_creatures_excluding(creatng->owner, crconf->annoy_others_leaving, AngR_Other, creatng);
     }
     kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
     return CrStRet_Deleted;
@@ -2984,7 +2984,7 @@ short creature_slap_cowers(struct Thing *creatng)
 short creature_steal_gold(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct Room* room = get_room_thing_is_on(creatng);
     if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_GoldStorage))
     {
@@ -3001,7 +3001,7 @@ short creature_steal_gold(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    long max_amount = crstat->gold_hold - creatng->creature.gold_carried;
+    long max_amount = crconf->gold_hold - creatng->creature.gold_carried;
     if (max_amount <= 0)
     {
         set_start_state(creatng);
@@ -3087,11 +3087,11 @@ short creature_take_salary(struct Thing *creatng)
         }
     }
     set_start_state(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, received);
     if (!(game.conf.rules.game.classic_bugs_flags & ClscBug_FullyHappyWithGold))
     {
-        anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_got_wage);
+        anger_apply_anger_to_creature_all_types(creatng, crconf->annoy_got_wage);
     }
     thing_play_sample(efftng, 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     dungeon->lvstats.salary_cost += salary;
@@ -3236,7 +3236,7 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
 {
     MapSubtlCoord base_stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord base_stl_y = creatng->mappos.y.stl.num;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing *doortng;
     if (cctrl->blocking_door_id > 0)
@@ -3283,7 +3283,7 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
         return 1;
     }
-    anger_apply_anger_to_creature(creatng, crstat->annoy_queue, AngR_NotPaid, 1);
+    anger_apply_anger_to_creature(creatng, crconf->annoy_queue, AngR_NotPaid, 1);
     EventIndex evidx = event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_WorkRoomUnreachable, creatng->owner, RoK_TREASURE);
     if (evidx > 0)
     {
@@ -3317,8 +3317,8 @@ short creature_wants_a_home(struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if (crstat->lair_size <= 0) {
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    if (crconf->lair_size <= 0) {
         set_start_state(creatng);
         return 0;
     }
@@ -3395,8 +3395,8 @@ short creature_wants_salary(struct Thing *creatng)
             {
                 cctrl->paydays_advanced--;
             }
-            struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-            anger_apply_anger_to_creature(creatng, crstat->annoy_no_salary, AngR_NotPaid, 1);
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+            anger_apply_anger_to_creature(creatng, crconf->annoy_no_salary, AngR_NotPaid, 1);
         }
         SYNCDBG(5, "No player %d %s with used capacity found to pay %s", (int)creatng->owner, room_role_code_name(get_room_role_for_job(Job_TAKE_SALARY)), thing_model_name(creatng));
         set_start_state(creatng);
@@ -4001,8 +4001,8 @@ short person_sulk_at_lair(struct Thing *creatng)
     process_lair_enemy(creatng, room);
     internal_set_thing_state(creatng, CrSt_PersonSulking);
     cctrl->turns_at_job = 0;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_sulking);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    anger_apply_anger_to_creature_all_types(creatng, crconf->annoy_sulking);
     return 1;
 }
 
@@ -4019,8 +4019,8 @@ short person_sulk_head_for_lair(struct Thing *creatng)
         }
     }
     // For some reason we can't go to lair; either leave dungeon o reset.
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if ((crstat->lair_size <= 0) || creature_affected_by_slap(creatng) || player_uses_power_obey(creatng->owner)) {
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    if ((crconf->lair_size <= 0) || creature_affected_by_slap(creatng) || player_uses_power_obey(creatng->owner)) {
         set_start_state(creatng);
         return 0;
     }
@@ -4066,8 +4066,8 @@ short person_sulking(struct Thing *creatng)
             set_creature_instance(creatng, CrInst_MOAN, 0, 0);
         }
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_sulking);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    anger_apply_anger_to_creature_all_types(creatng, crconf->annoy_sulking);
     return 1;
 }
 
@@ -4200,8 +4200,8 @@ void remove_health_from_thing_and_display_health(struct Thing *thing, HitPoints 
 TbBool process_creature_hunger(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if ((crstat->hunger_rate == 0) || creature_under_spell_effect(thing, CSAfF_Freeze) || is_neutral_thing(thing))
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    if ((crconf->hunger_rate == 0) || creature_under_spell_effect(thing, CSAfF_Freeze) || is_neutral_thing(thing))
         return false;
     SYNCDBG(19,"Hungering %s index %d",thing_model_name(thing), (int)thing->index);
     cctrl->hunger_level++;
@@ -4238,10 +4238,10 @@ TbBool trap_is_valid_combat_target_for_creature(const struct Thing* fightng, con
 
 TbBool creature_is_hostile_towards(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(fightng);
     for (int i = 0; i < CREATURE_TYPES_MAX; i++)
     {
-        if ((crstat->hostile_towards[i] == enmtng->model) || (crstat->hostile_towards[i] == CREATURE_ANY))
+        if ((crconf->hostile_towards[i] == enmtng->model) || (crconf->hostile_towards[i] == CREATURE_ANY))
         {
             return true;
         }
@@ -4527,8 +4527,8 @@ TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist)
 {
     if (thing_is_creature(thing))
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-        return subtile_coord(crstat->hearing,0) >= dist;
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+        return subtile_coord(crconf->hearing,0) >= dist;
     }
     else if (thing_is_mature_food(thing))
     {
@@ -4742,8 +4742,8 @@ TbBool check_experience_upgrade(struct Thing *thing)
 {
     struct Dungeon *dungeon = get_dungeon(thing->owner);
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
-    long i = crstat->to_level[cctrl->exp_level] << 8;
+    struct CreatureModelConfig *crconf = creature_stats_get_from_thing(thing);
+    long i = crconf->to_level[cctrl->exp_level] << 8;
     if (cctrl->exp_points < i)
     {
         return false;
@@ -4751,7 +4751,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
     cctrl->exp_points -= i;
     if (cctrl->exp_level < dungeon->creature_max_level[thing->model])
     {
-        if ((cctrl->exp_level < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
+        if ((cctrl->exp_level < CREATURE_MAX_LEVEL - 1) || (crconf->grow_up != 0))
         {
             cctrl->exp_level_up = true;
         }
@@ -4898,7 +4898,7 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
 short set_start_state_f(struct Thing *thing,const char *func_name)
 {
     long i;
-    struct CreatureStats* crstat;
+    struct CreatureModelConfig* crconf;
     SYNCDBG(8,"%s: Starting for %s index %d, owner %d, last state %s, stacked %s",func_name,thing_model_name(thing),
         (int)thing->index,(int)thing->owner,creature_state_code_name(thing->active_state),creature_state_code_name(thing->continue_state));
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
@@ -4927,8 +4927,8 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     }
     if (is_hero_thing(thing))
     {
-        crstat = creature_stats_get_from_thing(thing);
-        i = crstat->good_start_state;
+        crconf = creature_stats_get_from_thing(thing);
+        i = crconf->good_start_state;
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, i);
         return thing->active_state;
@@ -4951,8 +4951,8 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
             return thing->active_state;
         }
     }
-    crstat = creature_stats_get_from_thing(thing);
-    i = crstat->evil_start_state;
+    crconf = creature_stats_get_from_thing(thing);
+    i = crconf->evil_start_state;
     cleanup_current_thing_state(thing);
     initialise_thing_state(thing, i);
     return thing->active_state;
@@ -4996,7 +4996,7 @@ long creature_free_for_toking(struct Thing* creatng)
 /**
  * If creature health is very low, go back to lair immediately for healing.
  * @param thing
- * @param crstat
+ * @param crconf
  */
 long process_creature_needs_to_heal_critical(struct Thing *creatng)
 {
@@ -5013,8 +5013,8 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng)
             {
                 return 0;
             }
-            struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-            if (crstat->toking_recovery <= 0)
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+            if (crconf->toking_recovery <= 0)
             {
                 return 0;
             }
@@ -5041,8 +5041,8 @@ long process_creature_needs_to_heal_critical(struct Thing *creatng)
             }
             else
             {
-                struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-                anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
+                struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+                anger_apply_anger_to_creature(creatng, crconf->annoy_no_lair, AngR_NoLair, 1);
             }
             cctrl->healing_sleep_check_turn = game.play_gameturn;
         }
@@ -5066,10 +5066,10 @@ long creature_setup_head_for_treasure_room_door(struct Thing *creatng, struct Ro
     return 0;
 }
 
-long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureStats *crstat)
+long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((crstat->pay == 0) || (cctrl->paydays_owed == 0)) {
+    if ((crconf->pay == 0) || (cctrl->paydays_owed == 0)) {
       return 0;
     }
     if (creature_is_taking_salary_activity(creatng)) {
@@ -5084,7 +5084,7 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureS
     {
         if (external_set_thing_state(creatng, CrSt_CreatureWantsSalary))
         {
-            anger_apply_anger_to_creature(creatng, crstat->annoy_got_wage, AngR_NotPaid, 1);
+            anger_apply_anger_to_creature(creatng, crconf->annoy_got_wage, AngR_NotPaid, 1);
             return 1;
         }
         return 0;
@@ -5124,7 +5124,7 @@ long process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureS
     {
         cctrl->paydays_advanced--;
     }
-    anger_apply_anger_to_creature(creatng, crstat->annoy_no_salary, AngR_NotPaid, 1);
+    anger_apply_anger_to_creature(creatng, crconf->annoy_no_salary, AngR_NotPaid, 1);
     return 0;
 }
 
@@ -5136,11 +5136,11 @@ char creature_free_for_lunchtime(struct Thing *creatng)
     && can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureToGarden);
 }
 
-long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureStats *crstat)
+long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     RoomKind rkind;
-    if ((crstat->hunger_rate == 0) || (cctrl->hunger_level <= (long)crstat->hunger_rate)) {
+    if ((crconf->hunger_rate == 0) || (cctrl->hunger_level <= (long)crconf->hunger_rate)) {
         return 0;
     }
     if (creature_is_doing_garden_activity(creatng)) {
@@ -5149,10 +5149,10 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
     if (!creature_free_for_lunchtime(creatng)) {
       return 0;
     }
-    if (crstat->hunger_fill <= cctrl->hunger_loss)
+    if (crconf->hunger_fill <= cctrl->hunger_loss)
     {
         cctrl->garden_eat_check_turn = game.play_gameturn;
-        cctrl->hunger_loss -= crstat->hunger_fill;
+        cctrl->hunger_loss -= crconf->hunger_fill;
         return 0;
     }
 
@@ -5160,11 +5160,11 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
     {
         rkind = find_first_roomkind_with_role(RoRoF_FoodStorage);
         output_room_message(creatng->owner, rkind, OMsg_RoomNeeded);
-        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
+        anger_apply_anger_to_creature(creatng, crconf->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
     if (game.play_gameturn - cctrl->garden_eat_check_turn <= 128) {
-        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
+        anger_apply_anger_to_creature(creatng, crconf->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
     struct Room* nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, RoRoF_FoodStorage, NavRtF_Default, 1);
@@ -5186,16 +5186,16 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
     }
     if (room_is_invalid(nroom)) {
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
-        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
+        anger_apply_anger_to_creature(creatng, crconf->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
     if (!external_set_thing_state(creatng, CrSt_CreatureToGarden)) {
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
-        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
+        anger_apply_anger_to_creature(creatng, crconf->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
     short hunger_loss = cctrl->hunger_loss;
-    short hunger_fill = crstat->hunger_fill;
+    short hunger_fill = crconf->hunger_fill;
     if (hunger_loss != 0)
     {
         short hunger = hunger_fill - hunger_loss;
@@ -5213,11 +5213,11 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
     return 1;
 }
 
-long anger_process_creature_anger(struct Thing *creatng, const struct CreatureStats *crstat)
+long anger_process_creature_anger(struct Thing *creatng, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     // Creatures with no annoyance level will never get angry
-    if (crstat->annoy_level == 0) {
+    if (crconf->annoy_level == 0) {
         return 0;
     }
     if (!creature_free_for_anger_job(creatng)) {
@@ -5228,7 +5228,7 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
         if (creature_under_spell_effect(creatng, CSAfF_MadKilling))
         {
             // Mad creature's mind is tortured, so apply torture anger
-            anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
+            anger_apply_anger_to_creature(creatng, crconf->annoy_in_torture, AngR_Other, 1);
         }
         return 0;
     }
@@ -5295,7 +5295,7 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
         if (creature_find_and_perform_anger_job(creatng))
             return 1;
     }
-    if ((crstat->annoy_in_temple < 0) && (game.play_gameturn - cctrl->temple_pray_check_turn > 128))
+    if ((crconf->annoy_in_temple < 0) && (game.play_gameturn - cctrl->temple_pray_check_turn > 128))
     {
         cctrl->temple_pray_check_turn = game.play_gameturn;
         if (creature_is_doing_temple_pray_activity(creatng))
@@ -5329,7 +5329,7 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
     return 0;
 }
 
-long process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureStats *crstat)
+long process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (game.play_gameturn >= cctrl->healing_sleep_check_turn)
@@ -5340,7 +5340,7 @@ long process_creature_needs_to_heal(struct Thing *creatng, const struct Creature
         if (!creature_can_do_healing_sleep(creatng)) {
             if (creature_free_for_toking(creatng))
             {
-                if (crstat->toking_recovery <= 0)
+                if (crconf->toking_recovery <= 0)
                 {
                     return 0;
                 }
@@ -5369,7 +5369,7 @@ long process_creature_needs_to_heal(struct Thing *creatng, const struct Creature
             }
             else
             {
-                anger_apply_anger_to_creature(creatng, crstat->annoy_no_lair, AngR_NoLair, 1);
+                anger_apply_anger_to_creature(creatng, crconf->annoy_no_lair, AngR_NoLair, 1);
             }
             cctrl->healing_sleep_check_turn = game.play_gameturn;
         }
@@ -5377,32 +5377,32 @@ long process_creature_needs_to_heal(struct Thing *creatng, const struct Creature
     return 0;
 }
 
-long process_training_need(struct Thing *thing, const struct CreatureStats *crstat)
+long process_training_need(struct Thing *thing, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((crstat->annoy_untrained == 0) || !creature_can_be_trained(thing)) {
+    if ((crconf->annoy_untrained == 0) || !creature_can_be_trained(thing)) {
         return 0;
     }
     if (creature_is_training(thing)) {
         return 0;
     }
     cctrl->annoy_untrained_turn++;
-    if (cctrl->annoy_untrained_turn >= crstat->annoy_untrained_time)
+    if (cctrl->annoy_untrained_turn >= crconf->annoy_untrained_time)
     {
-      anger_apply_anger_to_creature(thing, crstat->annoy_untrained, AngR_Other, 1);
+      anger_apply_anger_to_creature(thing, crconf->annoy_untrained, AngR_Other, 1);
       cctrl->annoy_untrained_turn = 0;
     }
     return 0;
 }
 
-long process_piss_need(struct Thing *thing, const struct CreatureStats *crstat)
+long process_piss_need(struct Thing *thing, const struct CreatureModelConfig *crconf)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (cctrl->corpse_to_piss_on == 0) {
         return 0;
     }
     struct Thing* pisstng = thing_get(cctrl->corpse_to_piss_on);
-    if ((pisstng->owner == thing->owner) || !crstat->piss_on_dead) {
+    if ((pisstng->owner == thing->owner) || !crconf->piss_on_dead) {
         return 0;
     }
     if (game.play_gameturn - cctrl->last_piss_turn <= 200) {
@@ -5431,7 +5431,7 @@ void process_person_moods_and_needs(struct Thing *thing)
     {
         return;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     // Now process the needs
     process_creature_hunger(thing);
     if (process_creature_needs_to_heal_critical(thing)) {
@@ -5440,20 +5440,20 @@ void process_person_moods_and_needs(struct Thing *thing)
     if (creature_affected_by_call_to_arms(thing)) {
         SYNCDBG(17,"The %s index %ld is called to arms, most needs suspended",thing_model_name(thing),(long)thing->index);
     } else
-    if (process_creature_needs_a_wage(thing, crstat)) {
+    if (process_creature_needs_a_wage(thing, crconf)) {
         SYNCDBG(17,"The %s index %ld has a need to get its wage",thing_model_name(thing),(long)thing->index);
     } else
-    if (process_creature_needs_to_eat(thing, crstat)) {
+    if (process_creature_needs_to_eat(thing, crconf)) {
         SYNCDBG(17,"The %s index %ld has a need to eat",thing_model_name(thing),(long)thing->index);
     } else
-    if (anger_process_creature_anger(thing, crstat)) {
+    if (anger_process_creature_anger(thing, crconf)) {
         SYNCDBG(17,"The %s index %ld has a need to cool its anger",thing_model_name(thing),(long)thing->index);
     } else
-    if (process_creature_needs_to_heal(thing, crstat)) {
+    if (process_creature_needs_to_heal(thing, crconf)) {
         SYNCDBG(17,"The %s index %ld has a need to heal",thing_model_name(thing),(long)thing->index);
     }
-    process_training_need(thing, crstat);
-    process_piss_need(thing, crstat);
+    process_training_need(thing, crconf);
+    process_piss_need(thing, crconf);
 }
 
 TbBool setup_move_off_lava(struct Thing* thing)

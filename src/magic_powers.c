@@ -579,16 +579,16 @@ TbBool power_sight_explored(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
 
 void slap_creature(struct PlayerInfo *player, struct Thing *thing)
 {
-    struct CreatureStats *crstat;
+    struct CreatureModelConfig *crconf;
     struct CreatureControl *cctrl;
     const struct PowerConfigStats *powerst;
     long i;
-    crstat = creature_stats_get_from_thing(thing);
+    crconf = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
-    anger_apply_anger_to_creature(thing, crstat->annoy_slapped, AngR_Other, 1);
-    if (crstat->slaps_to_kill > 0)
+    anger_apply_anger_to_creature(thing, crconf->annoy_slapped, AngR_Other, 1);
+    if (crconf->slaps_to_kill > 0)
     {
-        HitPoints slap_damage = calculate_correct_creature_max_health(thing) / crstat->slaps_to_kill;
+        HitPoints slap_damage = calculate_correct_creature_max_health(thing) / crconf->slaps_to_kill;
         apply_damage_to_thing_and_display_health(thing, slap_damage, player->id_number);
     }
     powerst = get_power_model_stats(PwrK_SLAP);

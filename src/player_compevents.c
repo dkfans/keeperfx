@@ -634,7 +634,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
     struct Dungeon* dungeon = comp->dungeon;
     struct Thing* creatng = thing_get(event->target);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     //struct Room* origroom = get_room_thing_is_on(creatng);
     struct Room* destroom;
 
@@ -673,7 +673,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
         }
         else if (cctrl->instance_available[CrInst_HEAL] == 0)
         {
-            if (((!crstat->humanoid_creature) && (actions_allowed >= 2)) || (actions_allowed == 2)) // 1 = move only, 2 = everybody, 3 = non_humanoids
+            if (((!crconf->humanoid_creature) && (actions_allowed >= 2)) || (actions_allowed == 2)) // 1 = move only, 2 = everybody, 3 = non_humanoids
             {
                 if (computer_able_to_use_power(comp, PwrK_HEALCRTR, power_level, amount))
                 {
@@ -765,10 +765,10 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
                 //slap creature so he will heal himself
                 if (can_cast_spell(dungeon->owner, PwrK_SLAP, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, CastChk_Default))
                 {
-                    struct CreatureStats* crstat;
-                    crstat = creature_stats_get_from_thing(creatng);
+                    struct CreatureModelConfig* crconf;
+                    crconf = creature_stats_get_from_thing(creatng);
                     // Check if the slap may cause death
-                    if ((crstat->slaps_to_kill < 1) || (get_creature_health_permil(creatng) >= 2 * 1000 / crstat->slaps_to_kill))
+                    if ((crconf->slaps_to_kill < 1) || (get_creature_health_permil(creatng) >= 2 * 1000 / crconf->slaps_to_kill))
                     {
                         if (try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, creatng->index, 0) > Lb_OK)
                         {

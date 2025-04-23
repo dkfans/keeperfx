@@ -302,32 +302,32 @@ const char *name_consonants[] = {
 
 /******************************************************************************/
 /**
- * Returns CreatureStats of given creature model.
+ * Returns CreatureModelConfig of given creature model.
  */
-struct CreatureStats *creature_stats_get(ThingModel crstat_idx)
+struct CreatureModelConfig *creature_stats_get(ThingModel crconf_idx)
 {
-  if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_MAX))
-    return &game.conf.creature_stats[0];
-  return &game.conf.creature_stats[crstat_idx];
+  if ((crconf_idx < 1) || (crconf_idx >= CREATURE_TYPES_MAX))
+    return &game.conf.crtr_conf.model[0];
+  return &game.conf.crtr_conf.model[crconf_idx];
 }
 
 /**
- * Returns CreatureStats assigned to given thing.
+ * Returns CreatureModelConfig assigned to given thing.
  * Thing must be a creature.
  */
-struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing)
+struct CreatureModelConfig *creature_stats_get_from_thing(const struct Thing *thing)
 {
   if ((thing->model < 1) || (thing->model >= game.conf.crtr_conf.model_count))
-    return &game.conf.creature_stats[0];
-  return &game.conf.creature_stats[thing->model];
+    return &game.conf.crtr_conf.model[0];
+  return &game.conf.crtr_conf.model[thing->model];
 }
 
 /**
- * Returns if given CreatureStats pointer is incorrect.
+ * Returns if given CreatureModelConfig pointer is incorrect.
  */
-TbBool creature_stats_invalid(const struct CreatureStats *crstat)
+TbBool creature_stats_invalid(const struct CreatureModelConfig *crconf)
 {
-  return (crstat <= &game.conf.creature_stats[0]) || (crstat == NULL);
+  return (crconf <= &game.conf.crtr_conf.model[0]) || (crconf == NULL);
 }
 
 void check_and_auto_fix_stats(void)
@@ -335,61 +335,61 @@ void check_and_auto_fix_stats(void)
     SYNCDBG(8,"Starting for %d models",(int)game.conf.crtr_conf.model_count);
     for (long model = 0; model < game.conf.crtr_conf.model_count; model++)
     {
-        struct CreatureStats* crstat = creature_stats_get(model);
-        if ( (crstat->lair_size <= 0) && (crstat->toking_recovery <= 0) && (crstat->heal_requirement != 0) )
+        struct CreatureModelConfig* crconf = creature_stats_get(model);
+        if ( (crconf->lair_size <= 0) && (crconf->toking_recovery <= 0) && (crconf->heal_requirement != 0) )
         {
             ERRORLOG("Creature model %d (%s) has no LairSize and no TokingRecovery but has HealRequirment - Fixing", (int)model, creature_code_name(model));
-            crstat->heal_requirement = 0;
+            crconf->heal_requirement = 0;
         }
-        if (crstat->heal_requirement > crstat->heal_threshold)
+        if (crconf->heal_requirement > crconf->heal_threshold)
         {
             ERRORLOG("Creature model %d (%s) Heal Requirment > Heal Threshold - Fixing", (int)model, creature_code_name(model));
-            crstat->heal_threshold = crstat->heal_requirement;
+            crconf->heal_threshold = crconf->heal_requirement;
         }
-        if ( (crstat->hunger_rate != 0) && (crstat->hunger_fill == 0) )
+        if ( (crconf->hunger_rate != 0) && (crconf->hunger_fill == 0) )
         {
             ERRORLOG("Creature model %d (%s) HungerRate > 0 & Hunger Fill = 0 - Fixing", (int)model, creature_code_name(model));
-            crstat->hunger_fill = 1;
+            crconf->hunger_fill = 1;
         }
-        if ( (crstat->sleep_exp_slab != 0) && (crstat->sleep_experience == 0) )
+        if ( (crconf->sleep_exp_slab != 0) && (crconf->sleep_experience == 0) )
         {
             ERRORLOG("Creature model %d (%s) SleepSlab set but SleepExperience = 0 - Fixing", (int)model, creature_code_name(model));
-            crstat->sleep_exp_slab = 0;
+            crconf->sleep_exp_slab = 0;
         }
-        if ((crstat->grow_up >= game.conf.crtr_conf.model_count) && !(crstat->grow_up == CREATURE_NOT_A_DIGGER))
+        if ((crconf->grow_up >= game.conf.crtr_conf.model_count) && !(crconf->grow_up == CREATURE_NOT_A_DIGGER))
         {
             ERRORLOG("Creature model %d (%s) Invalid GrowUp model - Fixing", (int)model, creature_code_name(model));
-            crstat->grow_up = 0;
+            crconf->grow_up = 0;
         }
-        if (crstat->grow_up > 0)
+        if (crconf->grow_up > 0)
         {
-            if (crstat->grow_up_level > CREATURE_MAX_LEVEL)
+            if (crconf->grow_up_level > CREATURE_MAX_LEVEL)
             {
                 ERRORLOG("Creature model %d (%s) GrowUp & GrowUpLevel invalid - Fixing", (int)model, creature_code_name(model));
-                crstat->grow_up_level = CREATURE_MAX_LEVEL;
+                crconf->grow_up_level = CREATURE_MAX_LEVEL;
             }
         }
-        if (crstat->rebirth > CREATURE_MAX_LEVEL)
+        if (crconf->rebirth > CREATURE_MAX_LEVEL)
         {
             ERRORLOG("Creature model %d (%s) Rebirth Invalid - Fixing", (int)model, creature_code_name(model));
-            crstat->rebirth = 0;
+            crconf->rebirth = 0;
         }
         for (long i = 0; i < LEARNED_INSTANCES_COUNT; i++)
         {
-            long n = crstat->learned_instance_level[i];
-            if (crstat->learned_instance_id[i] != CrInst_NULL)
+            long n = crconf->learned_instance_level[i];
+            if (crconf->learned_instance_id[i] != CrInst_NULL)
             {
                 if ((n < 1) || (n > CREATURE_MAX_LEVEL))
                 {
                     ERRORLOG("Creature model %d (%s) Learn Level for Instance slot %d Invalid - Fixing", (int)model, creature_code_name(model), (int)(i+1));
-                    crstat->learned_instance_level[i] = 1;
+                    crconf->learned_instance_level[i] = 1;
                 }
             } else
             {
                 if (n != 0)
                 {
                     ERRORLOG("Creature model %d (%s) Learn Level for Empty Instance slot %d - Fixing", (int)model, creature_code_name(model), (int)(i+1));
-                    crstat->learned_instance_level[i] = 0;
+                    crconf->learned_instance_level[i] = 0;
                 }
             }
         }
@@ -400,140 +400,138 @@ void check_and_auto_fix_stats(void)
 /* Initialize all creature model stats, called only once when first loading a map. */
 void init_creature_model_stats(void)
 {
-    struct CreatureStats *crstat;
     struct CreatureModelConfig *crconf;
     int n;
     for (int i = 0; i < CREATURE_TYPES_MAX; i++)
     {
-        crstat = creature_stats_get(i);
-        crconf = &game.conf.crtr_conf.model[i];
+        crconf = creature_stats_get(i);
         // Attributes block.
-        crstat->health = 100;
-        crstat->heal_requirement = 1;
-        crstat->heal_threshold = 1;
-        crstat->strength = 1;
-        crstat->armour = 0;
-        crstat->dexterity = 0;
-        crstat->fear_wounded = 12;
-        crstat->fear_stronger = 65000;
-        crstat->fearsome_factor = 100;
-        crstat->defense = 0;
-        crstat->luck = 0;
-        crstat->sleep_recovery = 1;
-        crstat->toking_recovery = 0;
-        crstat->hunger_rate = 1;
-        crstat->hunger_fill = 1;
-        crstat->lair_size = 1;
-        crstat->hurt_by_lava = 1;
-        crstat->base_speed = 32;
-        crstat->gold_hold = 100;
-        crstat->size_xy = 1;
-        crstat->size_z = 1;
-        crstat->attack_preference = 0;
-        crstat->pay = 1;
-        crstat->slaps_to_kill = 10;
-        crstat->damage_to_boulder = 4;
-        crstat->thing_size_xy = 128;
-        crstat->thing_size_z = 64;
-        crstat->bleeds = true;
-        crstat->humanoid_creature = true;
-        crstat->piss_on_dead = false;
-        crstat->flying = false;
-        crstat->can_see_invisible = false;
-        crstat->can_go_locked_doors = false;
-        crstat->prison_kind = 0;
-        crstat->torture_kind = 0;
-        crstat->immunity_flags = 0;
+        crconf->health = 100;
+        crconf->heal_requirement = 1;
+        crconf->heal_threshold = 1;
+        crconf->strength = 1;
+        crconf->armour = 0;
+        crconf->dexterity = 0;
+        crconf->fear_wounded = 12;
+        crconf->fear_stronger = 65000;
+        crconf->fearsome_factor = 100;
+        crconf->defense = 0;
+        crconf->luck = 0;
+        crconf->sleep_recovery = 1;
+        crconf->toking_recovery = 0;
+        crconf->hunger_rate = 1;
+        crconf->hunger_fill = 1;
+        crconf->lair_size = 1;
+        crconf->hurt_by_lava = 1;
+        crconf->base_speed = 32;
+        crconf->gold_hold = 100;
+        crconf->size_xy = 1;
+        crconf->size_z = 1;
+        crconf->attack_preference = 0;
+        crconf->pay = 1;
+        crconf->slaps_to_kill = 10;
+        crconf->damage_to_boulder = 4;
+        crconf->thing_size_xy = 128;
+        crconf->thing_size_z = 64;
+        crconf->bleeds = true;
+        crconf->humanoid_creature = true;
+        crconf->piss_on_dead = false;
+        crconf->flying = false;
+        crconf->can_see_invisible = false;
+        crconf->can_go_locked_doors = false;
+        crconf->prison_kind = 0;
+        crconf->torture_kind = 0;
+        crconf->immunity_flags = 0;
         for (n = 0; n < CREATURE_TYPES_MAX; n++)
         {
-            crstat->hostile_towards[n] = 0;
+            crconf->hostile_towards[n] = 0;
         }
         crconf->namestr_idx = 0;
         crconf->model_flags = 0;
         // Attraction block.
         for (n = 0; n < ENTRANCE_ROOMS_COUNT; n++)
         {
-            crstat->entrance_rooms[n] = 0;
-            crstat->entrance_slabs_req[n] = 0;
+            crconf->entrance_rooms[n] = 0;
+            crconf->entrance_slabs_req[n] = 0;
         }
-        crstat->entrance_score = 10;
-        crstat->scavenge_require = 1;
-        crstat->torture_break_time = 1;
+        crconf->entrance_score = 10;
+        crconf->scavenge_require = 1;
+        crconf->torture_break_time = 1;
         // Annoyance block.
         for (n = 0; n < LAIR_ENEMY_MAX; n++)
         {
-            crstat->lair_enemy[n] = 0;
+            crconf->lair_enemy[n] = 0;
         }
-        crstat->annoy_eat_food = 0;
-        crstat->annoy_will_not_do_job = 0;
-        crstat->annoy_in_hand = 0;
-        crstat->annoy_no_lair = 0;
-        crstat->annoy_no_hatchery = 0;
-        crstat->annoy_woken_up = 0;
-        crstat->annoy_on_dead_enemy = 0;
-        crstat->annoy_sulking = 0;
-        crstat->annoy_no_salary = 0;
-        crstat->annoy_slapped = 0;
-        crstat->annoy_on_dead_friend = 0;
-        crstat->annoy_in_torture = 0;
-        crstat->annoy_in_temple = 0;
-        crstat->annoy_sleeping = 0;
-        crstat->annoy_got_wage = 0;
-        crstat->annoy_win_battle = 0;
-        crstat->annoy_untrained_time = 0;
-        crstat->annoy_untrained = 0;
-        crstat->annoy_others_leaving = 0;
-        crstat->annoy_job_stress = 0;
-        crstat->annoy_going_postal = 0;
-        crstat->annoy_queue = 0;
-        crstat->annoy_level = 0;
-        crstat->jobs_anger = 0;
+        crconf->annoy_eat_food = 0;
+        crconf->annoy_will_not_do_job = 0;
+        crconf->annoy_in_hand = 0;
+        crconf->annoy_no_lair = 0;
+        crconf->annoy_no_hatchery = 0;
+        crconf->annoy_woken_up = 0;
+        crconf->annoy_on_dead_enemy = 0;
+        crconf->annoy_sulking = 0;
+        crconf->annoy_no_salary = 0;
+        crconf->annoy_slapped = 0;
+        crconf->annoy_on_dead_friend = 0;
+        crconf->annoy_in_torture = 0;
+        crconf->annoy_in_temple = 0;
+        crconf->annoy_sleeping = 0;
+        crconf->annoy_got_wage = 0;
+        crconf->annoy_win_battle = 0;
+        crconf->annoy_untrained_time = 0;
+        crconf->annoy_untrained = 0;
+        crconf->annoy_others_leaving = 0;
+        crconf->annoy_job_stress = 0;
+        crconf->annoy_going_postal = 0;
+        crconf->annoy_queue = 0;
+        crconf->annoy_level = 0;
+        crconf->jobs_anger = 0;
         // Senses block.
-        crstat->hearing = 12;
-        crstat->base_eye_height = 256;
-        crstat->field_of_view = 1024;
-        crstat->eye_effect = 0;
-        crstat->max_turning_speed = 15;
+        crconf->hearing = 12;
+        crconf->base_eye_height = 256;
+        crconf->field_of_view = 1024;
+        crconf->eye_effect = 0;
+        crconf->max_turning_speed = 15;
         // Appearance block.
-        crstat->walking_anim_speed = 32;
-        crstat->fixed_anim_speed = false;
-        crstat->visual_range = 18;
-        crstat->swipe_idx = 0;
-        crstat->natural_death_kind = Death_Normal;
-        crstat->shot_shift_x = 0;
-        crstat->shot_shift_y = 0;
-        crstat->shot_shift_z = 0;
-        crstat->footstep_pitch = 100;
-        crstat->corpse_vanish_effect = 0;
-        crstat->status_offset = 32;
+        crconf->walking_anim_speed = 32;
+        crconf->fixed_anim_speed = false;
+        crconf->visual_range = 18;
+        crconf->swipe_idx = 0;
+        crconf->natural_death_kind = Death_Normal;
+        crconf->shot_shift_x = 0;
+        crconf->shot_shift_y = 0;
+        crconf->shot_shift_z = 0;
+        crconf->footstep_pitch = 100;
+        crconf->corpse_vanish_effect = 0;
+        crconf->status_offset = 32;
         // Experience block.
         for (n = 0; n < LEARNED_INSTANCES_COUNT; n++)
         {
-            crstat->learned_instance_id[n] = 0;
-            crstat->learned_instance_level[n] = 0;
+            crconf->learned_instance_id[n] = 0;
+            crconf->learned_instance_level[n] = 0;
         }
         for (n = 0; n < CREATURE_MAX_LEVEL; n++)
         {
-            crstat->to_level[n] = 0;
+            crconf->to_level[n] = 0;
         }
-        crstat->grow_up = 0;
-        crstat->grow_up_level = 0;
-        crstat->sleep_exp_slab = 0;
-        crstat->sleep_experience = 0;
-        crstat->exp_for_hitting = 0;
-        crstat->rebirth = 0;
+        crconf->grow_up = 0;
+        crconf->grow_up_level = 0;
+        crconf->sleep_exp_slab = 0;
+        crconf->sleep_experience = 0;
+        crconf->exp_for_hitting = 0;
+        crconf->rebirth = 0;
         // Jobs block.
-        crstat->job_primary = 0;
-        crstat->job_secondary = 0;
-        crstat->jobs_not_do = 0;
-        crstat->job_stress = 0;
-        crstat->training_value = 0;
-        crstat->training_cost = 0;
-        crstat->scavenge_value = 0;
-        crstat->scavenger_cost = 0;
-        crstat->research_value = 0;
-        crstat->manufacture_value = 0;
-        crstat->partner_training = 0;
+        crconf->job_primary = 0;
+        crconf->job_secondary = 0;
+        crconf->jobs_not_do = 0;
+        crconf->job_stress = 0;
+        crconf->training_value = 0;
+        crconf->training_cost = 0;
+        crconf->scavenge_value = 0;
+        crconf->scavenger_cost = 0;
+        crconf->research_value = 0;
+        crconf->manufacture_value = 0;
+        crconf->partner_training = 0;
     }
 }
 
@@ -2207,7 +2205,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
     }
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     struct Room* room = get_room_thing_is_on(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     RoomKind rkind;
     if (!room_is_invalid(room))
     {
@@ -2229,10 +2227,10 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
             }
             else
             {
-                CreatureJob jobpref = get_job_for_room(rkind, required_kind_flags | JoKF_OwnedDiggers, crstat->job_primary | crstat->job_secondary);
+                CreatureJob jobpref = get_job_for_room(rkind, required_kind_flags | JoKF_OwnedDiggers, crconf->job_primary | crconf->job_secondary);
                 if (jobpref == Job_NULL)
                 {
-                    return get_job_for_room(rkind, required_kind_flags | JoKF_OwnedCreatures, crstat->job_primary | crstat->job_secondary);
+                    return get_job_for_room(rkind, required_kind_flags | JoKF_OwnedCreatures, crconf->job_primary | crconf->job_secondary);
                 }
                 else
                 {
@@ -2252,7 +2250,7 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
             required_kind_flags |= JoKF_EnemyCreatures;
         }
     }
-    return get_job_for_room(rkind, required_kind_flags, crstat->job_primary | crstat->job_secondary);
+    return get_job_for_room(rkind, required_kind_flags, crconf->job_primary | crconf->job_secondary);
 }
 
 /**
@@ -2431,8 +2429,8 @@ int get_required_room_capacity_for_job(CreatureJob jobpref, ThingModel crmodel)
     case RoRoF_LairStorage:
     case RoRoF_CrHealSleep:
     {
-        struct CreatureStats* crstat = creature_stats_get(crmodel);
-        return crstat->lair_size;
+        struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
+        return crconf->lair_size;
     }
     default:
         break;
@@ -2456,22 +2454,22 @@ CrtrStateId get_continue_state_for_job(CreatureJob jobpref)
     return jobcfg->continue_crstate;
 }
 
-CreatureJob get_job_for_creature_state(CrtrStateId crstat_id)
+CreatureJob get_job_for_creature_state(CrtrStateId crstate_id)
 {
-    if (crstat_id == CrSt_Unused) {
+    if (crconf_id == CrSt_Unused) {
         return Job_NULL;
     }
     for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++)
     {
         struct CreatureJobConfig* jobcfg = &game.conf.crtr_conf.jobs[i];
         //TODO CREATURE_JOBS Add other job-related states here
-        if ((jobcfg->initial_crstate == crstat_id)
-         || (jobcfg->continue_crstate == crstat_id)) {
+        if ((jobcfg->initial_crstate == crconf_id)
+         || (jobcfg->continue_crstate == crconf_id)) {
             return 1ULL << (i-1);
         }
     }
     // Some additional hacks
-    switch (crstat_id)
+    switch (crconf_id)
     {
     case CrSt_CreatureEat:
     case CrSt_CreatureEatingAtGarden:
