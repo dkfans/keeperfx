@@ -19,4 +19,5 @@
 ---@param stl_y integer|nil the y coordinate of the tile where the power was cast, will be nil for powers that are cast on the entire level
 ---@param thing Thing|nil the thing that was hit by the power, will be nil for powers that are cast on the entire level or on a tile
 ---@param is_free boolean if the power should be cast for free (no gold cost)
-function Magic_power_UseFunction_template(player,power_kind,power_level,stl_x,stl_y,thing,is_free) end
+---@return -1|0|1 if the power was cast successfully 1, if it failed -1, if it was cast but the power didn't do anything 0
+function Magic_power_UseFunction_template(player,power_kind,power_level,stl_x,stl_y,thing,is_free) return 0 end
