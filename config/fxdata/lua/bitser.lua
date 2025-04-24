@@ -427,7 +427,7 @@ local function deserialize_value(seen)
 	elseif t == 251 then
 		-- Function
 		local dumped = deserialize_value(seen)
-		local func, err = load(dumped)
+		local func, err = load(dumped, nil, "t", _G)
 		if not func then
 			error("Failed to deserialize function: " .. err)
 		end
