@@ -292,7 +292,7 @@ end
 ---@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return Trigger
 function RegisterDungeonDestroyedEvent(action, player, actionParams)
-    local trigData = {Player = player}
+    local trigData = {player = player}
     local trigger = CreateTrigger("GameLost",action,trigData)
     if player then
         TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.player == triggerData.player end)
