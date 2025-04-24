@@ -1,5 +1,5 @@
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"GameLost"|"TrapPlaced"
+---@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"GameLost"|"TrapPlaced"|"ApplyDamage"
 
 ---@class Trigger
 ---@field conditions function[]|string[]|nil
@@ -227,6 +227,19 @@ function OnGameLost(player)
     ProcessEvent("GameLost",eventData)
 end
 
+--- Called when a thing taked damage
+---@param thing Thing
+---@param damage integer
+---@param dealing_player Player
+function OnApplyDamage(thing, damage, dealing_player)
+    local eventData = {}
+    eventData.thing = thing
+    eventData.damage = damage
+    eventData.dealing_player = dealing_player
+    ProcessEvent("ApplyDamage",eventData)
+end
+
+
 -----------------------------------------------------------------------------------------------
 
 
@@ -235,7 +248,7 @@ end
 ---@param action function|string the function to call when the event happens
 ---@param SpecialBoxId? integer
 ---@return Trigger
-function RegisterSpecialActivatedEvent(action,SpecialBoxId, actionParams)
+function RegisterSpecialActivatedEvent(action,SpecialBoxId)
     local trigData = {SpecialBoxId = SpecialBoxId}
     local trigger = CreateTrigger("SpecialActivated",action,trigData)
     if SpecialBoxId then
@@ -248,10 +261,9 @@ end
 ---@param action function|string the function to call when the event happens
 ---@param time integer amount of gameticks (1/20 s)
 ---@param periodic boolean whether the trigger should activate once, or repeat every 'time' gameticks
----@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return Trigger
-function RegisterTimerEvent(action, time, periodic, actionParams)
-    local trigData = {creationTurn = PLAYER0.GAME_TURN, time = time, actionParams = actionParams}
+function RegisterTimerEvent(action, time, periodic)
+    local trigData = {creationTurn = PLAYER0.GAME_TURN, time = time}
     local trigger = CreateTrigger("GameTick",action,trigData)
     if periodic then
         TriggerAddCondition(trigger, function(eventData,triggerData) return ((eventData.CurrentTurn ~= triggerData.creationTurn) and (eventData.CurrentTurn - triggerData.creationTurn) % triggerData.time == 0) end)
@@ -265,9 +277,8 @@ end
 ---triggers once as soon as the given condition evaluates to true, checked once per gametick
 ---@param action function|string the function to call when the event happens
 ---@param condition function|string the condition that needs to be true for the action to be triggered
----@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return Trigger
-function RegisterOnConditionEvent(action, condition, actionParams)
+function RegisterOnConditionEvent(action, condition)
     local trigData = {destroyAfterUse = true}
     local trigger = CreateTrigger("GameTick",action,trigData)
     TriggerAddCondition(trigger, condition)
@@ -276,9 +287,8 @@ end
 
 ---@param action function|string the function to call when the event happens
 ---@param powerKind? power_kind the spell type that triggers the event
----@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return Trigger
-function RegisterPowerCastEvent(action,powerKind, actionParams)
+function RegisterPowerCastEvent(action,powerKind)
     local trigData = {PowerKind = powerKind}
     local trigger = CreateTrigger("PowerCast",action,trigData)
     if powerKind then
@@ -291,7 +301,7 @@ end
 ---@param player Player the player who lost (nil for any player)
 ---@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return Trigger
-function RegisterDungeonDestroyedEvent(action, player, actionParams)
+function RegisterDungeonDestroyedEvent(action, player)
     local trigData = {Player = player}
     local trigger = CreateTrigger("GameLost",action,trigData)
     if player then
@@ -304,9 +314,8 @@ end
 ---@param action function|string the function to call when the event happens
 ---@param player Player|nil the player who placed the trap (nil for any player)
 ---@param trapType trap_type|nil the kind of trap that was placed (nil for any trap)
----@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return table
-function RegisterTrapPlacedEvent(action, player, trapType, actionParams)
+function RegisterTrapPlacedEvent(action, player, trapType)
     local trigData = {Player = player, trapType = trapType}
 
     local trigger = CreateTrigger("TrapPlaced",action,trigData)
@@ -317,14 +326,27 @@ end
 ---Triggers when a unit dies
 ---@param action function|string the function to call when the event happens
 ---@param unit? Creature the unit that triggers the event
----@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return table
-function RegisterUnitDeathEvent(action, unit, actionParams)
+function RegisterUnitDeathEvent(action, unit)
     local trigData = {unit = unit}
 
     local trigger = CreateTrigger("Death",action,trigData)
     if unit then
         TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.unit == triggerData.unit end)
+    end
+    return trigger
+end
+
+---Triggers when a thing takes damage
+---@param action function|string the function to call when the event happens
+---@param thing? Thing the unit that triggers the event
+---@return table
+function RegisterThingDamageEvent(action, thing)
+    local trigData = {thing = thing}
+
+    local trigger = CreateTrigger("ApplyDamage",action,trigData)
+    if thing then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.thing == triggerData.thing end)
     end
     return trigger
 end

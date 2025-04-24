@@ -40,6 +40,7 @@
 #include "thing_physics.h"
 #include "thing_stats.h"
 #include "vidfade.h"
+#include "lua_triggers.h"
 
 #include "post_inc.h"
 
@@ -1128,6 +1129,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
     // If it's already dead, then don't interfere.
     if (thing->health < 0)
         return 0;
+    lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx);
+    
     HitPoints cdamage;
     switch (thing->class_id)
     {
