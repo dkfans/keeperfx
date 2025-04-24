@@ -233,13 +233,17 @@ static int thing_get_field(lua_State *L) {
         }
         lua_pushinteger(L, cctrl->exp_level);
     } else if (strcmp(key, "name") == 0) {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-
-        if (creature_control_invalid(cctrl)) {
-            luaL_error(L, "Attempt to set name of non-creature thing");
+        if (thing->class_id != TCls_Creature) {
+            luaL_error(L, "Attempt to get name of non-creature thing");
             return 0;
         }
         lua_pushstring(L, creature_own_name(thing));
+    } else if (strcmp(key, "party") == 0) {
+        if (thing->class_id != TCls_Creature) {
+            luaL_error(L, "Attempt to get party for non-creature thing");
+            return 0;
+        }
+        lua_pushPartyTable(L, get_group_leader(thing));
     } else {
         // Check if the key exists in the metatable's __methods table (Lua functions)
         lua_getmetatable(L, 1);             // Get metatable

@@ -173,7 +173,8 @@ local Thing = {}
 
 ---@class Creature: Thing
 ---@field level integer
----@field name string
+---@field name string name visible in possession or query menu
+---@field party Creature[] list of creatures in the party, first entry is the leader
 local Creature = {}
 
 ---@class Herogate:Thing
