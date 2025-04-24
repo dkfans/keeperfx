@@ -9,11 +9,14 @@
 --------------------------------------
 ----- magic.cfg functions----------
 --------------------------------------
+
+-- -first check if the power is castable, then call the Pay_for_power fuction to pay,
+--- if the player doesn't havve the gold said function will return false, implement it in a way that makes it return early in that case
 ---@param player Player player who cast the power
----@param pwkind power_kind what power was cast
----@param splevel integer how much the power was charged up
+---@param power_kind power_kind what power was cast
+---@param power_level integer how much the power was charged up
 ---@param stl_x integer|nil the x coordinate of the tile where the power was cast, will be nil for powers that are cast on the entire level
 ---@param stl_y integer|nil the y coordinate of the tile where the power was cast, will be nil for powers that are cast on the entire level
 ---@param thing Thing|nil the thing that was hit by the power, will be nil for powers that are cast on the entire level or on a tile
 ---@param is_free boolean if the power should be cast for free (no gold cost)
-function Magic_power_UseFunction_template(player,pwkind,splevel,stl_x,stl_y,thing,is_free) end
+function Magic_power_UseFunction_template(player,power_kind,power_level,stl_x,stl_y,thing,is_free) end

@@ -1087,3 +1087,15 @@ function Change_creatures_annoyance(player,creature,operation,annoyance) end
 function Get_slab(slb_x,slb_y) end
 
 
+-------------------------------------------------------
+--usecase specific Functions
+-------------------------------------------------------
+
+---used for the UseFunction of powers in magic.cfg all Use functions should include it
+---@param player playersingle
+---@param power_kind power_kind
+---@param power_level integer
+---@param is_free boolean
+---@return boolean success
+---@nodiscard
+function Pay_for_power(player, power_kind, power_level, is_free) end
