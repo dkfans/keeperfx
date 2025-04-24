@@ -972,6 +972,11 @@ function Run_DKScript_command(command) end
 ---@nodiscard
 function Is_actionpoint_activated_by_player(player,action_point) return true end
 
+---returns a translated string stored in gtext_***.dat in the current game language.
+---@param msg_id integer
+---@return string translated string.
+---@nodiscard
+function Get_string(msg_id) end
 
 -------------------------------------------------------
 --Player Functions
@@ -1029,6 +1034,8 @@ function Get_thing_by_idx(index) end
 
 
 ---checks wether the given thing still exists
+---@return boolean
+---@nodiscard
 function Thing:isValid() end
 
 function Thing:Delete_thing() end

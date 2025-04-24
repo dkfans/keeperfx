@@ -1878,6 +1878,22 @@ static int lua_run_dkscript_command(lua_State *L)
     return 0;
 }
 
+
+static int lua_Get_string(lua_State *L)
+{
+    long msg_id    = luaL_checkinteger(L, 1);
+    const char* msg = get_string(msg_id);
+    if (msg == NULL)
+    {
+        ERRORLOG("String ID %d not found", msg_id);
+        lua_pushnil(L);
+        return 1;
+    }
+    lua_pushstring(L, msg);
+    return 1;
+}
+
+
 static const luaL_Reg global_methods[] = {
 //Setup Commands
    {"Set_generate_speed"            ,lua_Set_generate_speed           },
@@ -2027,6 +2043,7 @@ static const luaL_Reg global_methods[] = {
     {"Get_things_of_class",               lua_get_things_of_class},
     {"Is_actionpoint_activated_by_player",lua_is_action_point_activated_by_player},
     {"Get_slab",                          lua_get_slab},
+    {"Get_string",                        lua_Get_string},
 };
 /*
 static const luaL_Reg game_meta[] = {

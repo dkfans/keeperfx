@@ -66,7 +66,8 @@ static int lua_delete_thing(lua_State *L)
 
 static int lua_is_valid(lua_State *L)
 {
-    return luaL_isThing(L,1);
+    pushboolean(L, luaL_isThing(L,1));
+    return 1;
 }
 
 
