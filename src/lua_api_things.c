@@ -184,6 +184,8 @@ static int thing_set_field(lua_State *L) {
         }
         strncpy(cctrl->creature_name, name, CREATURE_NAME_MAX);
 
+    } else if (strcmp(key, "health") == 0) {
+        thing->health = luaL_checkinteger(L, 3);
     } else {
         luaL_error(L, "not a settable field: %s", key);
     }
