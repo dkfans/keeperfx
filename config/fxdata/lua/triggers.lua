@@ -1,5 +1,5 @@
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"OnGameLost"|"TrapPlaced"
+---@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"GameLost"|"TrapPlaced"
 
 ---@class Trigger
 ---@field conditions function[]|string[]|nil
@@ -9,28 +9,6 @@
 
 
 require "debug"
-
-
--- Check for environment consistency, skipping 'Game' table if loaded beforehand
-local function checkFunctionEnvironment(func)
-    local env = getfenv(func)
-    
-    if _G.LuaFileLoaded then
-        -- If the Lua file was already loaded, skip checks for already-safe globals like 'Game'
-        return
-    end
-
-    for k, v in pairs(env) do
-        if k == "Game" then
-            -- Skip checks for Game, assuming it's properly initialized
-            return
-        end
-        
-        if type(v) == "table" or type(v) == "function" then
-            error("Function uses mutable object in its environment, which may cause issues during serialization.")
-        end
-    end
-end
 
 -- Check if the function relies on a specific environment (e.g., game state)
 local function validateClosure(func)
@@ -243,8 +221,11 @@ function OnTrapPlaced(trap)
     ProcessEvent("TrapPlaced",eventData)
 end
 
-
-
+--- @param player Player The player who lost
+function OnGameLost(player)
+    local eventData = {player = player}
+    ProcessEvent("GameLost",eventData)
+end
 
 -----------------------------------------------------------------------------------------------
 
@@ -307,12 +288,12 @@ function RegisterPowerCastEvent(action,powerKind, actionParams)
 end
 
 ---@param action function|string the function to call when the event happens
----@param player Player the function to call when the event happens
+---@param player Player the player who lost (nil for any player)
 ---@param actionParams? table optional parameters to pass to the action function, if none past function will recieve default eventData and triggerData
 ---@return Trigger
 function RegisterDungeonDestroyedEvent(action, player, actionParams)
     local trigData = {Player = player}
-    local trigger = CreateTrigger("OnGameLost",action,trigData)
+    local trigger = CreateTrigger("GameLost",action,trigData)
     if player then
         TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.player == triggerData.player end)
     end
