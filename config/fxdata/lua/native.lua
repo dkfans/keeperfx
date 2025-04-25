@@ -168,6 +168,7 @@ local Player = {}
 ---@field owner Player
 ---@field health integer
 ---@field max_health integer
+---@field picked_up boolean
 Thing = {}
 
 

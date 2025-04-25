@@ -256,6 +256,8 @@ static int thing_get_field(lua_State *L) {
             return 0;
         }
         lua_pushPartyTable(L, get_group_leader(thing));
+    } else if (strcmp(key, "picked_up") == 0) {
+        lua_pushboolean(L, thing_is_picked_up(thing));
     } else {
         // Check if the key exists in the metatable's __methods table (Lua functions)
         lua_getmetatable(L, 1);             // Get metatable
