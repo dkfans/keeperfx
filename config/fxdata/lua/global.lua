@@ -1,6 +1,6 @@
-require "fxdata.lua.serialisation"
-require "fxdata.lua.triggers"
-local inspect = require 'fxdata.lua.inspect'
+require "serialisation"
+require "triggers"
+local inspect = require 'lib.inspect'
 
 Game = {}
 
