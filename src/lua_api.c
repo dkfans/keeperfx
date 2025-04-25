@@ -1885,7 +1885,7 @@ static int lua_Get_string(lua_State *L)
     const char* msg = get_string(msg_id);
     if (msg == NULL)
     {
-        ERRORLOG("String ID %d not found", msg_id);
+        ERRORLOG("String ID %ld not found", msg_id);
         lua_pushnil(L);
         return 1;
     }
@@ -1897,16 +1897,16 @@ static int lua_Pay_for_power(lua_State *L)
 {
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
     PowerKind power_kind = luaL_checkNamedCommand(L,2,power_desc);
-    PowerLevel power_level = luaL_checkinteger(L, 3);
+    KeepPwrLevel power_level = luaL_checkinteger(L, 3);
     TbBool is_free = lua_toboolean(L, 4);
 
     if (is_free)
     {
         // If the power is free, we don't need to check if the player has enough gold
-        push_bool(L, true);
+        lua_pushboolean(L, true);
         return 1;
     }
-    push_bool(L, pay_for_spell(player_idx, power_kind, power_level));
+    lua_pushboolean(L, pay_for_spell(player_idx, power_kind, power_level));
     return 1;
 }
 

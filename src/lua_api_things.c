@@ -66,7 +66,7 @@ static int lua_delete_thing(lua_State *L)
 
 static int lua_is_valid(lua_State *L)
 {
-    pushboolean(L, luaL_isThing(L,1));
+    lua_pushboolean(L, luaL_isThing(L,1));
     return 1;
 }
 
@@ -357,32 +357,33 @@ static const struct luaL_Reg thing_meta[] = {
     {NULL, NULL}
 };
 
-
-int Thing_register(lua_State *L)
-{
-    // Create a metatable for thing and add it to the registry
+void Thing_register(lua_State *L) {
+    // Create and register the metatable as "Thing"
     luaL_newmetatable(L, "Thing");
 
-    // Set the __index and __newindex metamethods
+    // Set metamethods (__index, __eq, etc.) from thing_meta[]
     luaL_setfuncs(L, thing_meta, 0);
 
-    // Create a methods table
-    luaL_newlib(L, thing_methods);
+    // Create the method table for Lua-accessible methods
+    lua_newtable(L);
+    luaL_setfuncs(L, thing_methods, 0); // your C methods
 
-    for (int i = 0; thing_methods[i].name != NULL; i++) {
-        const char *name = thing_methods[i].name;
-        lua_pushcfunction(L, thing_methods[i].func);
-        lua_setfield(L, -2, name);
-    }
+    // Save method table into metatable under __methods
+    lua_setfield(L, -2, "__methods");
 
-
-    // Hide the metatable by setting the __metatable field to nil
+    // Hide metatable from Lua code
     lua_pushliteral(L, "__metatable");
     lua_pushnil(L);
     lua_rawset(L, -3);
 
-    // Pop the metatable from the stack
-    lua_pop(L, 1);
+    // Save methods table globally as "Thing" for Lua access
+    lua_getfield(L, -1, "__methods");
+    lua_setglobal(L, "Thing");
 
-    return 1; // Return the methods table
+    // Alias methods to Creature (Lua-side)
+    lua_getglobal(L, "Thing");
+    lua_setglobal(L, "Creature");
+
+    // Pop the metatable
+    lua_pop(L, 1);
 }

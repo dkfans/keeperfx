@@ -121,3 +121,18 @@ void lua_on_creature_death(struct Thing *crtng)
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnUnitDeath");
 	}
 }
+
+
+void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx)
+{
+	SYNCDBG(6,"Starting");
+    lua_getglobal(Lvl_script, "OnApplyDamage");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushThing(Lvl_script, thing);
+		lua_pushinteger(Lvl_script, dmg);
+		lua_pushPlayer(Lvl_script, dealing_plyr_idx);
+
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 3, 0, 0),"OnApplyDamage");
+	}
+}

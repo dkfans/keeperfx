@@ -168,14 +168,14 @@ local Player = {}
 ---@field owner Player
 ---@field health integer
 ---@field max_health integer
-local Thing = {}
+Thing = {}
 
 
 ---@class Creature: Thing
 ---@field level integer
 ---@field name string name visible in possession or query menu
 ---@field party Creature[] list of creatures in the party, first entry is the leader
-local Creature = {}
+Creature = {}
 
 ---@class Herogate:Thing
 ---@field hidden boolean
