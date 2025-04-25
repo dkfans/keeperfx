@@ -1063,7 +1063,7 @@ function Creature:Kill_creature() end
 
 ---increases creatures level by a given amount
 ---@param levels integer
-function Creature:levelUp(levels) end
+function Creature:level_up(levels) end
 
 ---sends the creature to the next level, similar to using the special box and selecting said unit
 function Creature:Transfer() end

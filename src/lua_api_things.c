@@ -354,10 +354,10 @@ static const struct luaL_Reg thing_methods[] = {
     {"Delete_thing",     lua_delete_thing},
     {"isValid",         lua_is_valid},
     
-   {"Transfer_creature"                    ,lua_Transfer_creature               },
-   {"Level_up_creature"                    ,lua_Level_up_creature               },
-   {"Teleport_creature"                    ,lua_Teleport_creature               },
-   {"Change_creature_owner"                ,lua_Change_creature_owner           },
+   {"Transfer"                    ,lua_Transfer_creature               },
+   {"Level_up"                    ,lua_Level_up_creature               },
+   {"Teleport"                    ,lua_Teleport_creature               },
+   {"Change_owner"                ,lua_Change_creature_owner           },
     {NULL, NULL}
 };
 
