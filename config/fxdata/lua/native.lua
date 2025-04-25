@@ -177,6 +177,10 @@ Thing = {}
 ---@field party Creature[] list of creatures in the party, first entry is the leader
 Creature = {}
 
+---@class Trap: Thing
+---@field shots integer
+Trap = {}
+
 ---@class Herogate:Thing
 ---@field hidden boolean
 local Herogate = {}
