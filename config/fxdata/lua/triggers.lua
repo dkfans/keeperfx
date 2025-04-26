@@ -269,6 +269,7 @@ function RegisterTimerEvent(action, time, periodic)
         TriggerAddCondition(trigger, function(eventData,triggerData) return ((eventData.CurrentTurn ~= triggerData.creationTurn) and (eventData.CurrentTurn - triggerData.creationTurn) % triggerData.time == 0) end)
     else
         TriggerAddCondition(trigger, function(eventData,triggerData) return (eventData.CurrentTurn == (triggerData.creationTurn + triggerData.time)) end)
+        trigger.triggerData.destroyAfterUse = true
     end
 
     return trigger
