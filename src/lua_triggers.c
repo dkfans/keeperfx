@@ -78,7 +78,7 @@ void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
 		lua_pushThing(Lvl_script, thing); 
 		lua_pushinteger(Lvl_script, stl_x);
 		lua_pushinteger(Lvl_script, stl_y);
-		lua_pushinteger(Lvl_script, splevel);
+		lua_pushinteger(Lvl_script, splevel + 1); // Lua is 1-based, so we add 1 to the level
 
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 6, 0, 0),"OnPowerCast");
 	}

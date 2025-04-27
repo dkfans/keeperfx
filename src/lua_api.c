@@ -1531,7 +1531,7 @@ static int lua_Use_power_on_creature(lua_State *L)
 {
     struct Thing *thing = luaL_checkThing(L, 1);
     long pwkind = luaL_checkNamedCommand(L,2,power_desc);
-    long power_level = luaL_checkinteger(L, 3);
+    long power_level = luaL_checkinteger(L, 3) + 1; //+1 because lua starts at 1
     PlayerNumber caster = luaL_checkPlayerSingle(L, 4);
     TbBool is_free = lua_toboolean(L, 5);
 
@@ -1545,7 +1545,7 @@ static int lua_Use_power_at_pos(lua_State *L)
     MapSubtlCoord stl_x = luaL_checkstl_x(L, 2);
     MapSubtlCoord stl_y = luaL_checkstl_y(L, 3);
     PowerKind pwkind = luaL_checkNamedCommand(L,4,power_desc);
-    KeepPwrLevel power_level = luaL_checkinteger(L, 5);
+    KeepPwrLevel power_level = luaL_checkinteger(L, 5) + 1; //+1 because lua starts at 1
     TbBool is_free = lua_toboolean(L, 6);
 
     unsigned long allow_flags = PwCast_AllGround | PwCast_Unrevealed;
@@ -1562,7 +1562,7 @@ static int lua_Use_power_at_location(lua_State *L)
     PlayerNumber caster = luaL_checkPlayerSingle(L, 1);
     TbMapLocation location = luaL_checkLocation(L, 2);
     PowerKind pwkind = luaL_checkNamedCommand(L,3,power_desc);
-    KeepPwrLevel power_level = luaL_checkinteger(L, 4);
+    KeepPwrLevel power_level = luaL_checkinteger(L, 4) + 1; //+1 because lua starts at 1
     TbBool is_free = lua_toboolean(L, 5);
 
     MapSubtlCoord stl_x = 0;

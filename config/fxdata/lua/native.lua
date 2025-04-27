@@ -805,7 +805,7 @@ function Use_power(caster_player,power_name,free) end
 ---@param caster_player Player
 ---@param location location
 ---@param power_name power_kind
----@param power_level integer
+---@param power_level integer The charge level of the power. Range 1-9. Is ignored for powers that cannot be charged.
 ---@param free boolean
 function Use_power_at_location(caster_player,location,power_name,power_level,free) end
 
@@ -814,7 +814,7 @@ function Use_power_at_location(caster_player,location,power_name,power_level,fre
 ---@param stl_x integer
 ---@param stl_y integer
 ---@param power_name power_kind
----@param power_level integer
+---@param power_level integer The charge level of the power. Range 1-9. Is ignored for powers that cannot be charged.
 ---@param free boolean
 function Use_power_at_pos(caster_player,stl_x,stl_y,power_name,power_level,free) end
 
@@ -822,7 +822,7 @@ function Use_power_at_pos(caster_player,stl_x,stl_y,power_name,power_level,free)
 ---@param creature Creature
 ---@param caster_player Player
 ---@param power_name power_kind
----@param power_level integer
+---@param power_level integer The charge level of the power. Range 1-9. Is ignored for powers that cannot be charged.
 ---@param free boolean
 function Use_power_on_creature(player,creature,caster_player,power_name,power_level,free) end
 

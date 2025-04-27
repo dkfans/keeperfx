@@ -59,7 +59,7 @@ TbResult luafunc_magic_use_power(FuncIdx func_idx, PlayerNumber plyr_idx, PowerK
     if (lua_isfunction(Lvl_script, -1)) {
         lua_pushPlayer(Lvl_script, plyr_idx);
         lua_pushinteger(Lvl_script, pwkind);
-        lua_pushinteger(Lvl_script, splevel);
+        lua_pushinteger(Lvl_script, splevel + 1); // Lua is 1-based, so we add 1 to the level
         lua_pushinteger(Lvl_script, stl_x);
         lua_pushinteger(Lvl_script, stl_y);
         lua_pushThing(Lvl_script, thing);
