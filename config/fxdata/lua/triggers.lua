@@ -332,7 +332,7 @@ end
 ---@param action function|string the function to call when the event happens
 ---@param unit? Creature the unit that triggers the event
 ---@return table
-function RegisterUnitDeathEvent(action, unit)
+function RegisterCreatureDeathEvent(action, unit)
     local trigData = {unit = unit}
 
     local trigger = CreateTrigger("Death",action,trigData)
@@ -387,7 +387,7 @@ end
 
 --- @param action function|string the function to call when the event happens
 function Creature:OnDeath(action)
-    RegisterUnitDeathEvent(action,self)
+    RegisterCreatureDeathEvent(action,self)
 end
 
 --- @param action function|string the function to call when the event happens
