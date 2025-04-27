@@ -1,5 +1,5 @@
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"GameLost"|"TrapPlaced"|"ApplyDamage"
+---@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"
 
 ---@class Trigger
 ---@field conditions function[]|string[]|nil
@@ -222,9 +222,9 @@ function OnTrapPlaced(trap)
 end
 
 --- @param player Player The player who lost
-function OnGameLost(player)
+function OnDungeonDestroyed(player)
     local eventData = {player = player}
-    ProcessEvent("GameLost",eventData)
+    ProcessEvent("DungeonDestroyed",eventData)
 end
 
 --- Called when a thing taked damage
@@ -303,7 +303,7 @@ end
 ---@return Trigger
 function RegisterDungeonDestroyedEvent(action, player)
     local trigData = {player = player}
-    local trigger = CreateTrigger("GameLost",action,trigData)
+    local trigger = CreateTrigger("DungeonDestroyed",action,trigData)
     if player then
         TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.player == triggerData.player end)
     end

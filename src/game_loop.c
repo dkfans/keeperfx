@@ -33,6 +33,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "game_loop.h"
+#include "lua_triggers.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -59,6 +60,8 @@ static void powerful_magic_breaking_sparks(struct Thing* breaktng)
 
 void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
 {
+    lua_on_dungeon_destroyed(plyr_idx);
+
     struct Dungeon* dungeon;
     dungeon = get_dungeon(plyr_idx);
     if (dungeon->devastation_turn == 0)

@@ -54,7 +54,6 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
-#include "lua_triggers.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -153,8 +152,6 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         }
         return;
     }
-
-    lua_on_game_lost(player->id_number);
 
     SYNCLOG("Player %d lost",(int)player->id_number);
     if (is_my_player(player))

@@ -21,14 +21,14 @@
 
 #include "post_inc.h"
 
-void lua_on_game_lost(PlayerNumber plyr_idx)
+void lua_on_dungeon_destroyed(PlayerNumber plyr_idx)
 {
 	SYNCDBG(6,"Starting");
-	lua_getglobal(Lvl_script, "OnGameLost");
+	lua_getglobal(Lvl_script, "OnDungeonDestroyed");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushPlayer(Lvl_script, plyr_idx);
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnGameLost");
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnDungeonDestroyed");
 	}
 }
 
