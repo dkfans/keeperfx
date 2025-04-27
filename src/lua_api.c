@@ -618,17 +618,18 @@ static int lua_Heart_lost_quick_objective(lua_State *L)
 static int lua_Play_message(lua_State *L)
 {
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
+    
     long msgtype_id = luaL_checkNamedCommand(L, 2, msgtype_desc);
 
     TbBool param_is_string;
     const char* filename = NULL;
     long msg_id = 0;
-    if (lua_isstring(L, 3)) {
-        param_is_string = true;
-        filename = luaL_checkstring(L, 3);
-    } else {
+    if (lua_isnumber(L, 3)) {
         param_is_string = false;
         msg_id = luaL_checkinteger(L, 3);
+    } else {
+        param_is_string = true;
+        filename = luaL_checkstring(L, 3);
     }
 
     if (player_idx == my_player_number)
