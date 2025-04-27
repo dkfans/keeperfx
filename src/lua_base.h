@@ -42,6 +42,8 @@ void cleanup_serialized_data();
 
 void lua_set_random_seed(unsigned int seed);
 
+void generate_lua_types_file();
+
 extern struct lua_State *Lvl_script;
 
 #ifdef __cplusplus

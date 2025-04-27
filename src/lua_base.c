@@ -12,6 +12,11 @@
 #include "globals.h"
 #include "gui_msgs.h"
 
+#include "config_creature.h"
+#include "config_terrain.h"
+#include "config_magic.h"
+#include "config_effects.h"
+#include "config_objects.h"
 
 #include "post_inc.h"
 
@@ -255,6 +260,63 @@ void cleanup_serialized_data() {
         free(lua_serialized_data);
         lua_serialized_data = NULL;
     }
+}
+
+void generate_lua_types_file()
+{
+    const char *filename = "native_types.lua";
+    FILE *out = fopen(filename, "w");
+    if (!out) {
+        perror("Failed to open output file");
+        return;
+    }
+    fprintf(out, "---@meta native\n");
+    fprintf(out, "-- file not used by the game, but used for telling the IDE about what exists\n");
+    fprintf(out, "-- this file contains fields changeble through cfg files, the one here in fxdata is the default\n");
+    fprintf(out, "-- custom maps/campaigns can generate their own version, so all custom types are still recognized by the IDE\n\n");
+    fprintf(out, "-- to generate one with the values specific to your map use the !luatypedump on the specific map you'd like the file for\n\n");
+
+    #define GENERATE_ALIAS(alias_name, desc)                \
+    do {                                                 \
+        fprintf(out, "---@alias %s ", alias_name);        \
+        for (int i = 0; desc[i].name != NULL; ++i) {      \
+            if (desc[i].name[0] == '\0') continue; \
+            if (i > 0) fprintf(out, "|");                 \
+                fprintf(out, "\"%s\"", desc[i].name);         \
+            }                                                \
+            fprintf(out, "\n");                             \
+        } while (0)
+
+    #define GENERATE_FIELDS(class_name, desc)               \
+    do {                                                 \
+        fprintf(out, "---@class %s\n", class_name);       \
+        for (int i = 0; desc[i].name != NULL; ++i) {      \
+            if (desc[i].name[0] == '\0') continue; \
+            fprintf(out, "---@field %s integer\n", desc[i].name); \
+        }                                                \
+        fprintf(out, "\n");                               \
+        } while (0)
+
+    // Generate sections
+    GENERATE_ALIAS("creature_type", creature_desc);
+    GENERATE_ALIAS("room_type", room_desc);
+    GENERATE_ALIAS("power_kind", power_desc);
+    GENERATE_ALIAS("object_type", object_desc);
+    GENERATE_ALIAS("effect_generator_type", effectgen_desc);
+    GENERATE_ALIAS("effect_element_type", effectelem_desc);
+    GENERATE_ALIAS("effect_type", effect_desc);
+    GENERATE_ALIAS("spell_type", spell_desc);
+    GENERATE_ALIAS("slab_type", slab_desc);
+    fprintf(out, "\n"); 
+
+    GENERATE_FIELDS("roomfields", room_desc);
+    GENERATE_FIELDS("creaturefields", creature_desc);
+
+    // Cleanup
+    #undef GENERATE_ALIAS
+    #undef GENERATE_FIELDS
+
+    fclose(out);
 }
 
 

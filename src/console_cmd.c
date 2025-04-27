@@ -1928,6 +1928,15 @@ TbBool cmd_lua(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_luatypedump(PlayerNumber plyr_idx, char * args)
+{
+    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+        return false;
+    }
+    generate_lua_types_file(args);
+    return true;
+}
+
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
     struct ConsoleCommand {
@@ -2034,6 +2043,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
         { "string.show", cmd_string_show},
         { "quick.show", cmd_quick_show},
         { "lua", cmd_lua},
+        { "luatypedump", cmd_luatypedump},
     };
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");
