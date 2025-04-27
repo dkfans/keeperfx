@@ -41,6 +41,7 @@ NCTEXTDATS = \
 pkg/campgns/ami2019/text_eng.dat \
 pkg/campgns/ami2019/text_chi.dat \
 pkg/campgns/ami2019/text_spa.dat \
+pkg/campgns/ami2019/text_ukr.dat \
 pkg/campgns/ancntkpr/text_eng.dat \
 pkg/campgns/ancntkpr/text_chi.dat \
 pkg/campgns/ancntkpr/text_fre.dat \
