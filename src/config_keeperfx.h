@@ -79,6 +79,7 @@ enum TbLanguage {
     Lang_Bengali,
     Lang_Javanese,
     Lang_Latin,
+    Lang_Ukrainian,
 };
 
 enum StartupFlags {
