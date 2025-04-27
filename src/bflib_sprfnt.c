@@ -1068,7 +1068,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         }
 
         long w;
-        if (chr >= 15)
+        if ((chr >= 15) && (chr != 32))
         {
             // Align when ansi and unicode are mixed on one screen
             w = LbTextCharWidthM(chr, units_per_px);
