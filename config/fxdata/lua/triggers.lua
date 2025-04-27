@@ -319,7 +319,12 @@ function RegisterTrapPlacedEvent(action, player, trapType)
     local trigData = {Player = player, trapType = trapType}
 
     local trigger = CreateTrigger("TrapPlaced",action,trigData)
-    TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.Trap.model == triggerData.TrapKind end)
+    if player then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.Trap.owner == triggerData.Player end)
+    end
+    if trapType then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.Trap.model == triggerData.trapType end)
+    end
     return trigger
 end
 
