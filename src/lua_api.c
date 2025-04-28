@@ -1898,7 +1898,7 @@ static int lua_Pay_for_power(lua_State *L)
 {
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
     PowerKind power_kind = luaL_checkNamedCommand(L,2,power_desc);
-    KeepPwrLevel power_level = luaL_checkinteger(L, 3);
+    KeepPwrLevel power_level = luaL_checkinteger(L, 3) + 1; //+1 because lua starts at 1
     TbBool is_free = lua_toboolean(L, 4);
 
     if (is_free)
