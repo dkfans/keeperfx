@@ -110,6 +110,12 @@ pkg/fxdata/%.toml: config/fxdata/%.toml | pkg/fxdata
 pkg/fxdata/lua/%.lua: config/fxdata/lua/%.lua | pkg/fxdata/lua
 	$(CP) $^ $@
 
+pkg/fxdata/lua/lib/%.lua: config/fxdata/lua/lib/%.lua | pkg/fxdata/lua/lib
+	$(CP) $^ $@
+
+pkg/fxdata/lua/class/%.lua: config/fxdata/lua/class/%.lua | pkg/fxdata/lua/class
+	$(CP) $^ $@
+
 pkg/levels/%.cfg: levels/%.cfg | $(PKG_MAPPACK_DIRS)
 	$(CP) $^ $@
 
