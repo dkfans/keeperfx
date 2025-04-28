@@ -301,6 +301,8 @@ void generate_lua_types_file()
     GENERATE_ALIAS("creature_type", creature_desc);
     GENERATE_ALIAS("room_type", room_desc);
     GENERATE_ALIAS("power_kind", power_desc);
+    GENERATE_ALIAS("trap_kind", trap_desc);
+    GENERATE_ALIAS("door_kind", door_desc);
     GENERATE_ALIAS("object_type", object_desc);
     GENERATE_ALIAS("effect_generator_type", effectgen_desc);
     GENERATE_ALIAS("effect_element_type", effectelem_desc);
