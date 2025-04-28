@@ -476,14 +476,22 @@ void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx) {
 }
 
 void lua_pushPos(lua_State *L, struct Coord3d* pos) {
+    // Create a new table
+    lua_createtable(L, 0, 3);
 
-    lua_createtable(L, 0, 2);
+    lua_pushinteger(L, pos->x.val);
+    lua_setfield(L, -2, "val_x");
 
-    lua_pushinteger(L, pos->x.stl.num);
-    lua_setfield(L, -2, "stl_x");
+    // Push val_y
+    lua_pushinteger(L, pos->y.val);
+    lua_setfield(L, -2, "val_y");
 
-    lua_pushinteger(L,  pos->y.stl.num);
-    lua_setfield(L, -2, "stl_y");
+    lua_pushinteger(L, pos->z.val);
+    lua_setfield(L, -2, "val_z");
+
+    // Set metatable
+    luaL_getmetatable(L, "Pos3d"); // Push the Pos3d metatable onto stack
+    lua_setmetatable(L, -2);       // Set it as metatable of the table
 }
 
 void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y) {

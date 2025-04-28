@@ -29,15 +29,6 @@
 ---@alias location playersingle|actionpoint|"LAST_EVENT"|"COMBAT"
 ---@alias thing_class "Object"|"Shot"|"EffectElem"|"DeadCreature"|"Creature"|"Effect"|"EffectGen"|"Trap"|"Door"|"AmbientSnd"|"CaveIn"
 
----@class Pos3d
----@field val_x integer full value 256 more then stl version
----@field val_y integer full value 256 more then stl version
----@field val_z integer full value 256 more then stl version
----@field stl_x integer value in subtiles not including pos within subtile
----@field stl_y integer value in subtiles not including pos within subtile
----@field stl_z integer value in subtiles not including pos within subtile
-local Pos3d = {}
-
 
 ---@class Player: creaturefields,roomfields
 ---@field private name string
