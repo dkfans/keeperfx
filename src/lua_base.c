@@ -33,16 +33,8 @@ TbBool CheckLua(lua_State *L, int result,const char* func)
     if (result != LUA_OK) {
         const char *message = lua_tostring(L, -1);
         ERRORLOG("Lua error in %s: %s", func, message ? message : "Unknown error");
-
-        if (message) {
-            luaL_traceback(L, L, NULL, 1);
-            const char *trace = lua_tostring(L, -1);
-            ERRORLOG("Stack trace:\n%s", trace ? trace : "No stack trace available");
-            lua_pop(L, 2); // Pop both message and traceback
-        } else {
-            lua_pop(L, 1); // Pop the non-existent error message
-        }
-
+        lua_pop(L, 1); // Pop the non-existent error message
+        
         if (exit_on_lua_error)
         {
             ERRORLOG("Exiting due to Lua error");
