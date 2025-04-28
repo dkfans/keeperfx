@@ -7,7 +7,6 @@
 ---@field stl_z integer calculated based on val always val/256 floored when assigned it does the center, so *256 +128
 ---@field slb_x integer
 ---@field slb_y integer
----@field slb_z integer
 local Pos3d = {}
 Pos3d.__index = Pos3d
 
@@ -36,8 +35,6 @@ function Pos3d:__index(key)
         return math.floor(self.val_x / COORD_PER_SLB)
     elseif key == "slb_y" then
         return math.floor(self.val_y / COORD_PER_SLB)
-    elseif key == "slb_z" then
-        return math.floor(self.val_z / COORD_PER_SLB)
     else
         return rawget(Pos3d, key)
     end
@@ -55,8 +52,6 @@ function Pos3d:__newindex(key, value)
         rawset(self, "val_x", value * COORD_PER_SLB + COORD_PER_SLB_HALF)
     elseif key == "slb_y" then
         rawset(self, "val_y", value * COORD_PER_SLB + COORD_PER_SLB_HALF)
-    elseif key == "slb_z" then
-        rawset(self, "val_z", value * COORD_PER_SLB + COORD_PER_SLB_HALF)
     else
         rawset(self, key, value)
     end
