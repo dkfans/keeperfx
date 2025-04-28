@@ -204,7 +204,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {creature_doing_nothing, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_to_garden, NULL, NULL, NULL,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Feed, 0, 0, 1, 0, GBS_creature_states_hungry, 1, 0, 1},
+    0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Feed, 0, 0, 1, 0, GBS_creature_states_hungry, 1, 0, 1},
   {creature_arrived_at_garden, state_cleanup_in_room, NULL, move_check_on_head_for_room,
     0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Feed, 0, 0, 2, 0, GBS_creature_states_hungry, 1, 0, 1},
   {creature_wants_a_home, NULL, NULL, NULL, // [20]
@@ -825,7 +825,7 @@ TbBool creature_is_called_to_arms(const struct Thing *thing)
 TbBool creature_is_taking_salary_activity(const struct Thing *thing)
 {
     CrtrStateId crstate = get_creature_state_besides_move(thing);
-    if ((crstate == CrSt_CreatureWantsSalary) || (crstate == CrSt_CreatureTakeSalary))
+    if ((crstate == CrSt_CreatureWantsSalary) || (crstate == CrSt_CreatureTakeSalary) || (crstate == CrSt_CreatureWaitAtTreasureRoomDoor))
         return true;
     return false;
 }
@@ -5440,11 +5440,11 @@ void process_person_moods_and_needs(struct Thing *thing)
     if (creature_affected_by_call_to_arms(thing)) {
         SYNCDBG(17,"The %s index %ld is called to arms, most needs suspended",thing_model_name(thing),(long)thing->index);
     } else
-    if (process_creature_needs_a_wage(thing, crstat)) {
-        SYNCDBG(17,"The %s index %ld has a need to get its wage",thing_model_name(thing),(long)thing->index);
-    } else
     if (process_creature_needs_to_eat(thing, crstat)) {
         SYNCDBG(17,"The %s index %ld has a need to eat",thing_model_name(thing),(long)thing->index);
+    } else
+    if (process_creature_needs_a_wage(thing, crstat)) {
+        SYNCDBG(17,"The %s index %ld has a need to get its wage",thing_model_name(thing),(long)thing->index);
     } else
     if (anger_process_creature_anger(thing, crstat)) {
         SYNCDBG(17,"The %s index %ld has a need to cool its anger",thing_model_name(thing),(long)thing->index);
