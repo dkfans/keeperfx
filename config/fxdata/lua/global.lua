@@ -1,10 +1,5 @@
 require "serialisation"
 require "triggers"
-local inspect = require 'lib.inspect'
 
+--the Game table contains all the game data that needs to be serialized on save, anything not in this table could break save games
 Game = {}
-
-function dg()
-    print("Game")
-    print(inspect(Game))
-end
