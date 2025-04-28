@@ -1,4 +1,3 @@
---some of the Thing functions are implemented in C, those can be found in native.lua file
 --Creature, Trap inherit from this class, so all functions and fields here, are available to them as well
 
 ---@class Thing
@@ -20,3 +19,14 @@ function Thing:OnDamage(action)
 end
 
 
+----functions below are implemented in C, so they have no body here
+
+---checks wether the given thing still exists
+---@return boolean
+---@nodiscard
+function Thing:isValid() return false end
+
+function Thing:delete_thing() end
+
+---makes the thing unresponsive
+function Thing:make_thing_zombie() end

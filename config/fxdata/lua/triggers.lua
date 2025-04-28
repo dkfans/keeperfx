@@ -181,7 +181,7 @@ end
 
 --- Called when a unit dies
 --- @param unit Creature The unit that dies
-function OnUnitDeath(unit)
+function OnCreatureDeath(unit)
     local eventData = {}
     eventData.unit = unit
     ProcessEvent("Death",eventData)

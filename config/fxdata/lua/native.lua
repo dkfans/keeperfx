@@ -942,39 +942,6 @@ function Get_creature_near(stl_x,stl_y) end
 ---@nodiscard
 function Get_thing_by_idx(index) end
 
-
-
-
----checks wether the given thing still exists
----@return boolean
----@nodiscard
-function Thing:isValid() end
-
-function Thing:Delete_thing() end
-
----makes the thing unresponsive
-function Thing:Make_thing_zombie() end
-
----teleports the thing to a new location
----@param location location The location you want the creature to be teleported to.
----@param effect effect_type|effect_element_type|integer The effect that will be played when the creature is teleported.
-function Creature:Teleport_creature(location,effect) end
-
----forces the creature to walk to a specific location.
----@param stl_x any
----@param stl_y any
-function Creature:Creature_walk_to(stl_x,stl_y) end
-
----Kills the unit
-function Creature:Kill_creature() end
-
----increases creatures level by a given amount
----@param levels integer
-function Creature:level_up(levels) end
-
----sends the creature to the next level, similar to using the special box and selecting said unit
-function Creature:Transfer() end
-
 function Change_creature_owner(creature,new_owner) end
 
 ---Can set, increase or decrease the happiness level of all your units.

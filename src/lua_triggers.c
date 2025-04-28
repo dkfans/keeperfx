@@ -113,12 +113,12 @@ void lua_on_trap_placed(struct Thing *traptng)
 void lua_on_creature_death(struct Thing *crtng)
 {
 	SYNCDBG(6,"Starting");
-    lua_getglobal(Lvl_script, "OnUnitDeath");
+    lua_getglobal(Lvl_script, "OnCreatureDeath");
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushThing(Lvl_script, crtng);
 
-		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnUnitDeath");
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnCreatureDeath");
 	}
 }
 

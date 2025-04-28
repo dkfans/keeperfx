@@ -350,16 +350,16 @@ static int thing_eq(lua_State *L) {
 
 
 static const struct luaL_Reg thing_methods[] = {
-    {"Make_thing_zombie", make_thing_zombie},
-    {"Creature_walk_to",  lua_creature_walk_to},
-    {"Kill_creature",    lua_kill_creature},
-    {"Delete_thing",     lua_delete_thing},
+    {"make_thing_zombie", make_thing_zombie},
+    {"creature_walk_to",  lua_creature_walk_to},
+    {"kill",    lua_kill_creature},
+    {"delete_thing",     lua_delete_thing},
     {"isValid",         lua_is_valid},
     
-   {"Transfer"                    ,lua_Transfer_creature               },
-   {"Level_up"                    ,lua_Level_up_creature               },
-   {"Teleport"                    ,lua_Teleport_creature               },
-   {"Change_owner"                ,lua_Change_creature_owner           },
+   {"transfer"                    ,lua_Transfer_creature               },
+   {"level_up"                    ,lua_Level_up_creature               },
+   {"teleport"                    ,lua_Teleport_creature               },
+   {"change_owner"                ,lua_Change_creature_owner           },
     {NULL, NULL}
 };
 
