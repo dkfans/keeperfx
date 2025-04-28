@@ -1,4 +1,5 @@
 --some of the Thing functions are implemented in C, those can be found in native.lua file
+--Creature, Trap inherit from this class, so all functions and fields here, are available to them as well
 
 ---@class Thing
 ---@field idx integer
@@ -12,8 +13,6 @@
 ---@field max_health integer
 ---@field picked_up boolean
 Thing = {}
-
-
 
 --- @param action function|string the function to call when the event happens
 function Thing:OnDamage(action)
