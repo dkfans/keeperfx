@@ -17,6 +17,7 @@
 #include "config_magic.h"
 #include "config_effects.h"
 #include "config_objects.h"
+#include "config_trapdoor.h"
 
 #include "post_inc.h"
 
