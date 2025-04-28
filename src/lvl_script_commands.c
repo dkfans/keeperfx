@@ -5150,6 +5150,13 @@ static void computer_player_check(const struct ScriptLine* scline)
     char type = PT_Keeper;
     TbBool toggle = true;
 
+    if (level_file_version == 0 && plr_range_id == PLAYER_GOOD)
+    {
+        SCRPTERRLOG("PLAYER_GOOD COMPUTER_PLAYER cannot be set in level version 0.");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    
     if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
     {
         SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
