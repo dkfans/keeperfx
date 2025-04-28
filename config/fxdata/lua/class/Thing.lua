@@ -12,7 +12,7 @@
 ---@field health integer
 ---@field max_health integer
 ---@field picked_up boolean
-Thing = {}
+
 
 --- @param action function|string the function to call when the event happens
 function Thing:OnDamage(action)
@@ -20,6 +20,3 @@ function Thing:OnDamage(action)
 end
 
 
-debug.getregistry()["Thing"] = Thing
-
-return Thing

@@ -95,6 +95,10 @@ local Player = {}
 ---@field shots integer
 Trap = {}
 
+
+Thing = {}
+Creature = {}
+
 ---@class Herogate:Thing
 ---@field hidden boolean
 local Herogate = {}

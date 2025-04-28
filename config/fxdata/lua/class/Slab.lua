@@ -8,10 +8,3 @@
 ---@field kind slab_type
 ---@field style texture_pack
 local Slab = {}
-
-
-
-debug.getregistry()["Slab"] = Slab
-
-
-return Slab
