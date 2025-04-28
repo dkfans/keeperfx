@@ -29,7 +29,9 @@ PKG_CAMPAIGN_DIRS = $(sort $(dir $(PKG_CAMPAIGN_FILES)))
 PKG_CREATURE_FILES = $(patsubst config/creatrs/%,pkg/creatrs/%,$(wildcard config/creatrs/*.cfg))
 PKG_FXDATA_FILES = $(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.cfg)) \
 				   $(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.toml)) \
-				   $(patsubst config/fxdata/lua/%,pkg/fxdata/lua/%,$(wildcard config/fxdata/lua/*.lua))
+				   $(patsubst config/fxdata/lua/%,pkg/fxdata/lua/%,$(wildcard config/fxdata/lua/*.lua)) \
+				   $(patsubst config/fxdata/lua/class/%,pkg/fxdata/lua/class/%,$(wildcard config/fxdata/lua/class/*.lua)) \
+				   $(patsubst config/fxdata/lua/lib/%,pkg/fxdata/lua/lib/%,$(wildcard config/fxdata/lua/lib/*.lua))
 PKG_MAPPACK_FILES = \
 	$(patsubst %,pkg/levels/mappck_order.txt,$(MAPPACKS)) \
 	$(patsubst %,pkg/levels/%.cfg,$(MAPPACKS)) \
@@ -69,7 +71,7 @@ PKG_FILES = \
 
 .PHONY: package
 
-pkg pkg/creatrs pkg/fxdata pkg/fxdata/lua pkg/campgns $(PKG_MAPPACK_DIRS) $(PKG_CAMPAIGN_DIRS):
+pkg pkg/creatrs pkg/fxdata pkg/fxdata/lua pkg/fxdata/lua/lib pkg/fxdata/lua/class pkg/campgns $(PKG_MAPPACK_DIRS) $(PKG_CAMPAIGN_DIRS):
 	$(MKDIR) $@
 
 pkg/keeperfx.cfg: config/keeperfx.cfg | pkg

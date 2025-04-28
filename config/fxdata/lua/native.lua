@@ -923,7 +923,7 @@ function Get_things_of_class(class) end
 ---@param criterion creature_select_criteria
 ---@return Creature
 ---@nodiscard
-function Get_creature_by_criterion(player,creature_type,criterion) return Creature end
+function Get_creature_by_criterion(player,creature_type,criterion) end
 
 ---returns a creature close to the given coordinates
 ---@param stl_x integer
