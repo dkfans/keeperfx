@@ -17,7 +17,6 @@ function Get_creatures()
 end
 
 ---returns a table containing all creatures on the map belonging to the given player
----comment
 ---@param player Player
 ---@return Creature[]
 function Get_creatures_of_player(player)
