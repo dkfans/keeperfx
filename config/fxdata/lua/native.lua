@@ -90,25 +90,6 @@
 ---@field heart Thing The player's primary dungeon heart
 local Player = {}
 
----@class Thing
----@field idx integer
----@field creation_turn integer
----@field class string
----@field model string
----@field pos Pos3d
----@field orientation integer
----@field owner Player
----@field health integer
----@field max_health integer
----@field picked_up boolean
-Thing = {}
-
-
----@class Creature: Thing
----@field level integer
----@field name string name visible in possession or query menu
----@field party Creature[] list of creatures in the party, first entry is the leader
-Creature = {}
 
 ---@class Trap: Thing
 ---@field shots integer
@@ -117,17 +98,6 @@ Trap = {}
 ---@class Herogate:Thing
 ---@field hidden boolean
 local Herogate = {}
-
----@class Slab
----@field slb_x integer
----@field slb_y integer
----@field revealed boolean
----@field owner Player
----@field kind slab_type
----@field style texture_pack
-local Slab = {}
-
-
 
 
 ---@return Player

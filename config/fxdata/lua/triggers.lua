@@ -382,15 +382,3 @@ function RegisterOnActionPointEvent(action, actionPoint, player)
 
     return trigger
 end
-
--------
-
---- @param action function|string the function to call when the event happens
-function Creature:OnDeath(action)
-    RegisterCreatureDeathEvent(action,self)
-end
-
---- @param action function|string the function to call when the event happens
-function Thing:OnDamage(action)
-    RegisterThingDamageEvent(action,self)
-end
