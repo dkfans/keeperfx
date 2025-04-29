@@ -263,7 +263,7 @@ void generate_lua_types_file()
         perror("Failed to open output file");
         return;
     }
-    fprintf(out, "---@meta native\n");
+    fprintf(out, "---@meta native_types\n");
     fprintf(out, "-- file not used by the game, but used for telling the IDE about what exists\n");
     fprintf(out, "-- this file contains fields changeble through cfg files, the one here in fxdata is the default\n");
     fprintf(out, "-- custom maps/campaigns can generate their own version, so all custom types are still recognized by the IDE\n\n");
