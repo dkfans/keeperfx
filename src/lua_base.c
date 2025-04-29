@@ -269,49 +269,59 @@ void generate_lua_types_file()
     fprintf(out, "-- custom maps/campaigns can generate their own version, so all custom types are still recognized by the IDE\n\n");
     fprintf(out, "-- to generate one with the values specific to your map use the !luatypedump on the specific map you'd like the file for\n\n");
 
-    // Max entries per alias split (tune if needed)
+    // Max entries per alias split
     #define ALIAS_SPLIT_LIMIT 50
 
-    #define GENERATE_ALIAS(alias_name, desc)                      \
-    do {                                                          \
-        int count = 0;                                             \
-        for (int i = 0; desc[i].name != NULL; ++i) {               \
-            if (desc[i].name[0] != '\0') {                         \
-                ++count;                                           \
-            }                                                      \
-        }                                                          \
+    #define GENERATE_ALIAS(alias_name, desc)                             \
+    do {                                                                 \
+        int count = 0;                                                   \
+        for (int i = 0; desc[i].name != NULL; ++i) {                     \
+            if (desc[i].name[0] != '\0') ++count;                        \
+        }                                                                \
         int parts = (count + ALIAS_SPLIT_LIMIT - 1) / ALIAS_SPLIT_LIMIT; \
-        int idx = 0;                                               \
-        for (int p = 0; p < parts; ++p) {                          \
-            fprintf(out, "---@alias %s_part%d ", alias_name, p+1); \
-            int first = 1;                                         \
-            for (int j = 0; j < ALIAS_SPLIT_LIMIT && desc[idx].name != NULL; ++idx) { \
-                if (desc[idx].name[0] == '\0') continue;           \
-                if (!first) fprintf(out, "|");                     \
-                fprintf(out, "\"%s\"", desc[idx].name);            \
-                first = 0;                                         \
-                ++j;                                               \
-            }                                                      \
-            fprintf(out, "\n");                                    \
-        }                                                          \
-        if (parts > 1) {                                           \
-            fprintf(out, "---@alias %s ", alias_name);             \
-            for (int p = 0; p < parts; ++p) {                      \
-                if (p > 0) fprintf(out, "|");                      \
-                fprintf(out, "%s_part%d", alias_name, p+1);        \
-            }                                                      \
-            fprintf(out, "\n");                                    \
-        }                                                          \
+        int idx = 0;                                                     \
+        if (parts <= 1) {                                                \
+            /* Only one part, no splitting needed */                    \
+            fprintf(out, "---@alias %s ", alias_name);                   \
+            int first = 1;                                               \
+            for (int i = 0; desc[i].name != NULL; ++i) {                 \
+                if (desc[i].name[0] == '\0') continue;                   \
+                if (!first) fprintf(out, "|");                           \
+                fprintf(out, "\"%s\"", desc[i].name);                    \
+                first = 0;                                               \
+            }                                                            \
+            fprintf(out, "\n");                                          \
+        } else {                                                         \
+            /* Multiple parts, split and reference */                   \
+            for (int p = 0; p < parts; ++p) {                            \
+                fprintf(out, "---@alias %s_part%d ", alias_name, p+1);   \
+                int first = 1;                                           \
+                for (int j = 0; j < ALIAS_SPLIT_LIMIT && desc[idx].name != NULL; ++idx) { \
+                    if (desc[idx].name[0] == '\0') continue;             \
+                    if (!first) fprintf(out, "|");                       \
+                    fprintf(out, "\"%s\"", desc[idx].name);              \
+                    first = 0;                                           \
+                    ++j;                                                 \
+                }                                                        \
+                fprintf(out, "\n");                                      \
+            }                                                            \
+            fprintf(out, "---@alias %s ", alias_name);                   \
+            for (int p = 0; p < parts; ++p) {                            \
+                if (p > 0) fprintf(out, "|");                            \
+                fprintf(out, "%s_part%d", alias_name, p+1);              \
+            }                                                            \
+            fprintf(out, "\n");                                          \
+        }                                                                \
     } while (0)
 
-    #define GENERATE_FIELDS(class_name, desc)                     \
-    do {                                                          \
-        fprintf(out, "---@class %s\n", class_name);                \
-        for (int i = 0; desc[i].name != NULL; ++i) {               \
-            if (desc[i].name[0] == '\0') continue;                 \
-            fprintf(out, "---@field %s integer\n", desc[i].name);  \
-        }                                                          \
-        fprintf(out, "\n");                                        \
+    #define GENERATE_FIELDS(class_name, desc)                             \
+    do {                                                                  \
+        fprintf(out, "---@class %s\n", class_name);                       \
+        for (int i = 0; desc[i].name != NULL; ++i) {                      \
+            if (desc[i].name[0] == '\0') continue;                        \
+            fprintf(out, "---@field %s integer\n", desc[i].name);          \
+        }                                                                 \
+        fprintf(out, "\n");                                               \
     } while (0)
 
     // Generate sections
