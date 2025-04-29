@@ -95,8 +95,10 @@ local Player = {}
 ---@field shots integer
 Trap = {}
 
-
+---@class Thing
 Thing = {}
+
+---@class Creature
 Creature = {}
 
 ---@class Herogate:Thing
