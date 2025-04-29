@@ -353,7 +353,7 @@ static const struct luaL_Reg thing_methods[] = {
     {"make_thing_zombie", make_thing_zombie},
     {"creature_walk_to",  lua_creature_walk_to},
     {"kill",    lua_kill_creature},
-    {"delete_thing",     lua_delete_thing},
+    {"delete",     lua_delete_thing},
     {"isValid",         lua_is_valid},
     
    {"transfer"                    ,lua_Transfer_creature               },

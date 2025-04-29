@@ -18,11 +18,6 @@ end
 ---@param effect effect_type|effect_element_type|integer The effect that will be played when the creature is teleported.
 function Creature:teleport(location,effect) end
 
----forces the creature to walk to a specific location.
----@param stl_x any
----@param stl_y any
-function Creature:creature_walk_to(stl_x,stl_y) end
-
 ---Kills the creature
 function Creature:kill() end
 

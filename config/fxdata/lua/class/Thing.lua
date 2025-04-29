@@ -26,7 +26,4 @@ end
 ---@nodiscard
 function Thing:isValid() return false end
 
-function Thing:delete_thing() end
-
----makes the thing unresponsive
-function Thing:make_thing_zombie() end
+function Thing:delete() end
