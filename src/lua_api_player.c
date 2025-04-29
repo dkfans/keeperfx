@@ -51,26 +51,11 @@ static int lua_Set_texture(lua_State *L)
     return 0;
 }
 
-static int lua_SET_PLAYER_COLOR(lua_State *L)
-{
-    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
-    long color = luaL_checkNamedCommand(L, 2,cmpgn_human_player_options);
-    
-    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
-    {
-        if (i == PLAYER_NEUTRAL)
-        {
-            continue;;
-        }
-        set_player_colour(i, color);
-    }
-    return 0;
-}
 
 static const struct luaL_Reg player_methods[] = {
-   {"Set_texture"                          ,lua_Set_texture                     },   
-   {"Add_gold"                             ,lua_Add_gold_to_player              },
-   {"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
+   {"set_texture"                          ,lua_Set_texture                     },   
+   {"add_gold"                             ,lua_Add_gold_to_player              },
+   //{"SET_PLAYER_COLOR"                     ,lua_SET_PLAYER_COLOR                },
    //{"SET_PLAYER_MODIFIER"                  ,lua_SET_PLAYER_MODIFIER             },
    //{"ADD_TO_PLAYER_MODIFIER"               ,lua_ADD_TO_PLAYER_MODIFIER          },
     {NULL, NULL}
