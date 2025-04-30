@@ -1,14 +1,7 @@
---contains various functions that could be useful in the game
+-- CreatureManager.lua
+-- Provides global utility functions for creature handling (e.g. searching, counting, filtering).
+-- Operates on all creatures, not just individual instances.
 
-local inspect = require 'lib.inspect'
-
-
---- dump the Game table to a human readable format in the log file,
---- mostly used through the console by doing !lua dg()
-function dg()
-    print("Game")
-    print(inspect(Game))
-end
 
 ---returns a table containing all creatures on the map
 ---@return Creature[]

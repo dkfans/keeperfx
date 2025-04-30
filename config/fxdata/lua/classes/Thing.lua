@@ -1,4 +1,6 @@
---Creature, Trap inherit from this class, so all functions and fields here, are available to them as well
+-- Thing.lua
+-- Base class module that other game objects (like Creature) inherit from.
+-- Shared fields and methods go here.
 
 ---@class Thing
 ---@field idx integer

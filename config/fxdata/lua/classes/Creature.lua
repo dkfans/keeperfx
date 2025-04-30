@@ -1,4 +1,6 @@
---this class inherits from Thing class, so it has all the functions and fields of Thing
+-- Creature.lua
+-- Class-like module that extends Thing.
+-- Contains instance methods for a single creature, including teleportation, level up, death handling, etc.
 
 ---@class Creature: Thing
 ---@field level integer

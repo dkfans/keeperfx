@@ -176,7 +176,7 @@ TbBool open_lua_script(LevelNumber lvnum)
 
 
 
-    fname = prepare_file_fmtpath(FGrp_FxData, "lua/global.lua");
+    fname = prepare_file_fmtpath(FGrp_FxData, "lua/init.lua");
 
 	// Load and parse the Lua File
     if ( !LbFileExists(fname) )

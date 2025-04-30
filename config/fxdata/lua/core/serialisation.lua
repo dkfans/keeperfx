@@ -1,5 +1,9 @@
-local binser = require 'lib.binser'
-local base64 = require 'lib.base64'
+-- serialization.lua
+-- Internal serialization logic for Lua<->C data.
+-- Used by the engine to serialize complex Lua state; not intended for API users.
+
+local binser = require 'external.binser'
+local base64 = require 'external.base64'
 
 -- Get C metatables
 local PlayerMeta = getmetatable(debug.getregistry()["Player"])
