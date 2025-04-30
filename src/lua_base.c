@@ -277,16 +277,25 @@ void generate_lua_types_file()
     fprintf(out, "-- custom maps/campaigns can generate their own version, so all custom types are still recognized by the IDE\n\n");
     fprintf(out, "-- to generate one with the values specific to your map use the !luatypedump on the specific map you'd like the file for\n\n");
 
-    #define GENERATE_ALIAS(alias_name, desc)                \
-    do {                                                 \
-        fprintf(out, "---@alias %s ", alias_name);        \
-        for (int i = 0; desc[i].name != NULL; ++i) {      \
-            if (desc[i].name[0] == '\0') continue; \
-            if (i > 0) fprintf(out, "|");                 \
-                fprintf(out, "\"%s\"", desc[i].name);         \
-            }                                                \
-            fprintf(out, "\n");                             \
-        } while (0)
+    #define GENERATE_ALIAS(alias_name, desc)            \
+    do {                                                \
+        int count = 0;                                  \
+        for (int i = 0; desc[i].name != NULL; ++i) {    \
+            if (desc[i].name[0] != '\0') ++count;       \
+        }                                               \
+        fprintf(out, "---@alias %s ", alias_name);      \
+        if (count >= 90) {                              \
+            fprintf(out, "string|");                    \
+        }                                               \
+        int written = 0;                                \
+        for (int i = 0; desc[i].name != NULL; ++i) {    \
+            if (desc[i].name[0] == '\0') continue;      \
+            if (written > 0) fprintf(out, "|");         \
+            fprintf(out, "\"%s\"", desc[i].name);       \
+            ++written;                                  \
+        }                                               \
+        fprintf(out, "\n");                             \
+    } while (0)
 
     #define GENERATE_FIELDS(class_name, desc)               \
     do {                                                 \
