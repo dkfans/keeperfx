@@ -4810,7 +4810,7 @@ msgstr "Kist met deuren gevonden"
 #: guitext:689
 msgctxt "Game event name"
 msgid "Dungeon Special found"
-msgstr "Speciale Dungeon gevonden"
+msgstr "Mysterieuze doos gevonden"
 
 #: guitext:690
 msgctxt "Game event description"
@@ -4940,7 +4940,7 @@ msgstr "Kist met deuren gevonden: LMK: bladeren. RMK: wissen."
 #: guitext:715
 msgctxt "Game event description"
 msgid "Dungeon special found: LMB toggle. RMB delete."
-msgstr "Speciale kerker gevonden: LMK: bladeren. RMK: wissen."
+msgstr "Mysterieuze doos gevonden: LMK: bladeren. RMK: wissen."
 
 #: guitext:716
 msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
