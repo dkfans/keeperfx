@@ -59,8 +59,8 @@ TbBool creature_can_do_scavenging(const struct Thing *creatng)
     if (is_neutral_thing(creatng)) {
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return (crstat->scavenge_value > 0);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    return (crconf->scavenge_value > 0);
 }
 
 short at_scavenger_room(struct Thing *thing)
@@ -118,8 +118,8 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
         // Thing list loop body
         if ((n <= 0) && (thing->index != creatng->index))
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            if (!creature_model_is_lair_enemy(crstat->lair_enemy, creatng->model))
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+            if (!creature_model_is_lair_enemy(crconf->lair_enemy, creatng->model))
             {
                 return thing;
             }
@@ -519,7 +519,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
         set_start_state(calltng);
         return CrCkRet_Continue;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(calltng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(calltng);
     if (!player_can_afford_to_scavenge_creature(calltng))
     {
         if (is_my_player_number(calltng->owner))
@@ -543,7 +543,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
         process_scavenge_creature_from_pool(calltng, work_value);
     } else
     {
-        if (crstat->entrance_force) {
+        if (crconf->entrance_force) {
           calldngn->portal_scavenge_boost++;
         }
         return 0;

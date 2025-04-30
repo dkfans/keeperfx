@@ -216,8 +216,8 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_t
 
         if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary) || (cctrl->job_assigned == 0))
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+            if ((cctrl->job_assigned == crconf->job_primary) || (cctrl->job_assigned == crconf->job_secondary) || (cctrl->job_assigned == 0))
             {
                 creatures_doing_primary_or_secondary_job += 1;
             } else {
@@ -425,10 +425,10 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
             return -1;
         if ((param->class_id > 0) && (thing->class_id != param->class_id))
             return -1;
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
         // Let us estimate value of the creature in gold
         long priority = thing->creature.gold_carried;             // base value
-        priority += param->num1 * thing->health / crstat->health; // full health valued at this many gold
+        priority += param->num1 * thing->health / crconf->health; // full health valued at this many gold
         priority += 10000 * cctrl->exp_level; // experience earned by the creature has a big value
         if (get_creature_state_type(thing) == CrStTyp_Work)
             priority += 500; // aborted work valued at this many gold

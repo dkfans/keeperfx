@@ -184,7 +184,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
 
 void process_spells_affected_by_effect_elements(struct Thing *thing)
 {
-    struct CreatureStats* crstat;
+    struct CreatureModelConfig* crconf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     GameTurnDelta dturn;
     long angle;
@@ -311,11 +311,11 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         } else
         if (spconf->duration / 2 > dturn)
         {
-            crstat = creature_stats_get_from_thing(thing);
+            crconf = creature_stats_get_from_thing(thing);
             if ((dturn % 2) == 0) {
                 effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
             }
-            creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
+            creature_turn_to_face_angle(thing, thing->move_angle_xy + crconf->max_turning_speed);
         }
     }
 }

@@ -183,8 +183,8 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     {
         if (thing->class_id == TCls_Creature)
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            setup_eye_lens(crstat->eye_effect);
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+            setup_eye_lens(crconf->eye_effect);
         }
     }
     return thing;
@@ -342,8 +342,8 @@ TbBool creature_can_gain_experience(const struct Thing *thing)
     if (cctrl->exp_level >= dungeon->creature_max_level[thing->model])
         return false;
     // Creatures which reached absolute max level and have no grow up creature
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if ((cctrl->exp_level >= (CREATURE_MAX_LEVEL-1)) && (crstat->grow_up == 0))
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    if ((cctrl->exp_level >= (CREATURE_MAX_LEVEL-1)) && (crconf->grow_up == 0))
         return false;
     return true;
 }
