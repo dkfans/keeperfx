@@ -35,6 +35,7 @@ const struct NamedCommand head_for_desc[] = {
   {"DUNGEON",              MLoc_PLAYERSDUNGEON},
   {"DUNGEON_HEART",        MLoc_PLAYERSHEART},
   {"APPROPIATE_DUNGEON",   MLoc_APPROPRTDUNGEON},
+  {"APPROPRIATE_DUNGEON",  MLoc_APPROPRTDUNGEON},
   {NULL,                   0},
 };
 
