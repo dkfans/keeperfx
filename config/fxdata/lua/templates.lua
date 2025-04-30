@@ -11,7 +11,7 @@
 --------------------------------------
 
 -- -first check if the power is castable, then call the Pay_for_power fuction to pay,
---- if the player doesn't havve the gold said function will return false, implement it in a way that makes it return early in that case
+--- if the player doesn't have the gold said function will return false, implement it in a way that makes it return early in that case
 ---@param player Player player who cast the power
 ---@param power_kind power_kind what power was cast
 ---@param power_level integer The charge level of the power. Range 1-9. Is ignored for powers that cannot be charged.

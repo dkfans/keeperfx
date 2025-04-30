@@ -133,7 +133,7 @@ local function ProcessTrigger(trigger,eventData, errors)
     return false
 end
 
---- goes trough all triggers and checks if they have an event that matches the eventType
+--- goes through all triggers and checks if they have an event that matches the eventType
 --- @param eventType event_type
 --- @param eventData table
 local function ProcessEvent(eventType, eventData)
@@ -259,8 +259,8 @@ end
 
 ---
 ---@param action function|string the function to call when the event happens
----@param time integer amount of gameticks (1/20 s)
----@param periodic boolean whether the trigger should activate once, or repeat every 'time' gameticks
+---@param time integer amount of game ticks (1/20 s)
+---@param periodic boolean whether the trigger should activate once, or repeat every 'time' game ticks
 ---@return Trigger
 function RegisterTimerEvent(action, time, periodic)
     local trigData = {creationTurn = PLAYER0.GAME_TURN, time = time}

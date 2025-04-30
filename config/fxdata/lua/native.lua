@@ -864,7 +864,7 @@ function Set_digger(player,creature) end
 
 
 
----runs a command trough the engine of the old dkscript, most commands are reimplemented in lua, so generally not needed
+---runs a command through the engine of the old dkscript, most commands are reimplemented in lua, so generally not needed
 ---@param command string the command to run
 function Run_DKScript_command(command) end
 
