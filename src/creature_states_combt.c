@@ -241,7 +241,7 @@ TbBool creature_has_other_attackers(const struct Thing *fightng, ThingModel enmo
 TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thing *enmtng)
 {
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
-    struct CreatureModelConfig* enmstat = creature_stats_get_from_thing(enmtng);
+    struct CreatureModelConfig* enm_crconf = creature_stats_get_from_thing(enmtng);
     // Neutral creatures are not easily scared, as they shouldn't have enemies
     if (is_neutral_thing(creatng))
         return false;
@@ -294,7 +294,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
         return false;
     // If the enemy is way stronger, a creature may be scared anyway
     fear = crconf->fear_stronger;
-    long long enmstrength = LbSqrL(project_melee_damage(enmtng)) * (enmstat->fearsome_factor) / 100 * ((long long)enmaxhealth + (long long)enmtng->health) / 2;
+    long long enmstrength = LbSqrL(project_melee_damage(enmtng)) * (enm_crconf->fearsome_factor) / 100 * ((long long)enmaxhealth + (long long)enmtng->health) / 2;
     long long ownstrength = LbSqrL(project_melee_damage(creatng)) * (crconf->fearsome_factor) / 100 * ((long long)crmaxhealth + (long long)creatng->health) / 2;
     if (enmstrength >= (fear * ownstrength) / 100)
     {
