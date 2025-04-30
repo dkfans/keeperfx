@@ -563,7 +563,6 @@ TbBool creature_model_bleeds(unsigned long crmodel)
         // If censorship is on, only evil creatures can have blood
         if (!crconf->bleeds)
             return false;
-        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
         return ((crconf->model_flags & CMF_IsEvil) != 0);
   }
   return crconf->bleeds;

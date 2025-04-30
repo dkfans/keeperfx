@@ -4411,7 +4411,6 @@ void recalculate_all_creature_digger_lists()
 
     for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
     {
-        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
         struct CreatureModelConfig *crconf = creature_stats_get(crtr_model);
         if ((crconf->model_flags & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0)
         {

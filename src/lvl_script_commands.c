@@ -2281,7 +2281,6 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 {
     short creatid = context->value->shorts[0];
     struct CreatureModelConfig* crconf = creature_stats_get(creatid);
-    struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatid];
 
     short creature_variable = context->value->shorts[1];
     short block  = context->value->shorts[2];

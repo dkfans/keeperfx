@@ -2456,20 +2456,20 @@ CrtrStateId get_continue_state_for_job(CreatureJob jobpref)
 
 CreatureJob get_job_for_creature_state(CrtrStateId crstate_id)
 {
-    if (crconf_id == CrSt_Unused) {
+    if (crstate_id == CrSt_Unused) {
         return Job_NULL;
     }
     for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++)
     {
         struct CreatureJobConfig* jobcfg = &game.conf.crtr_conf.jobs[i];
         //TODO CREATURE_JOBS Add other job-related states here
-        if ((jobcfg->initial_crstate == crconf_id)
-         || (jobcfg->continue_crstate == crconf_id)) {
+        if ((jobcfg->initial_crstate == crstate_id)
+         || (jobcfg->continue_crstate == crstate_id)) {
             return 1ULL << (i-1);
         }
     }
     // Some additional hacks
-    switch (crconf_id)
+    switch (crstate_id)
     {
     case CrSt_CreatureEat:
     case CrSt_CreatureEatingAtGarden:

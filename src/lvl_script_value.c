@@ -126,7 +126,6 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
 void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value)
 {
   struct CreatureModelConfig *crconf;
-  struct CreatureModelConfig *crconf;
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   int plr_start;
