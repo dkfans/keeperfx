@@ -631,15 +631,6 @@ function Research(player,Research_type,room_or_spell,research_value) end
 ---@param research_value integer The new Research value. This must be a number below 16777216.
 function Research_order(player,Research_type,room_or_spell,research_value) end
 
-
-----------------------------------------
---Tweaking players--
-----------------------------------------
----Allows to add some off-map gold as a reward to a player.
----@param player playerrange
----@param amount integer
-function Add_gold_to_player(player,amount) end
-
 -----------------------------
 --Tweaking computer players--
 -----------------------------
