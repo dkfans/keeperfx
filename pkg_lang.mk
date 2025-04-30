@@ -40,6 +40,7 @@ pkg/fxdata/gtext_ukr.dat \
 NCTEXTDATS = \
 pkg/campgns/ami2019/text_eng.dat \
 pkg/campgns/ami2019/text_chi.dat \
+pkg/campgns/ami2019/text_ger.dat \
 pkg/campgns/ami2019/text_spa.dat \
 pkg/campgns/ancntkpr/text_eng.dat \
 pkg/campgns/ancntkpr/text_chi.dat \

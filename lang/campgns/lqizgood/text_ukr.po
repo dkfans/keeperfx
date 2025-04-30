@@ -28,7 +28,7 @@ msgid ""
 "Welcome to the Good Guys campaign. It is your job to utterly destroy the Evil "
 "keepers."
 msgstr ""
-"Ласкаво просимо до кампанії \"Хороші хлопці\". Ваше завдання - повністю знищити "
+"Ласкаво просимо до кампанії "Хороші хлопці". Ваше завдання - повністю знищити "
 "Хранителів Зла."
 
 #: guitext:2
