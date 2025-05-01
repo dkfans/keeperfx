@@ -3147,7 +3147,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     lua_on_creature_death(thing);
 
     if ((!flag_is_set(flags,CrDed_NoEffects)) && (crconf->rebirth != 0)
-     && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->exp_level)
+     && (cctrl->lairtng_idx > 0) && (crconf->rebirth-1 <= cctrl->exp_level)
         && (!flag_is_set(flags,CrDed_NoRebirth)) )
     {
         creature_rebirth_at_lair(thing);
