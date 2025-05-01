@@ -53,8 +53,8 @@ TbBool creature_can_do_manufacturing(const struct Thing *creatng)
     }
     struct Dungeon* dungeon;
     dungeon = get_dungeon(creatng->owner);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return ((crstat->manufacture_value > 0) && get_next_manufacture(dungeon));
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    return ((crconf->manufacture_value > 0) && get_next_manufacture(dungeon));
 }
 
 TbBool setup_workshop_move(struct Thing *thing, SubtlCodedCoords stl_num)

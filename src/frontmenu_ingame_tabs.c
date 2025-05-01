@@ -1558,8 +1558,8 @@ void gui_area_anger_button(struct GuiButton *gbtn)
 long anger_get_creature_highest_anger_type_and_byte_percentage(struct Thing *creatng, long *out_angr_typ, long *out_angr_prct)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    long angr_lmt = crstat->annoy_level;
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    long angr_lmt = crconf->annoy_level;
     int angr_typ = 0;
     long angr_lvl = 0;
     for (int i = 1; i < 5; i++)
@@ -1631,10 +1631,10 @@ void gui_area_experience_button(struct GuiButton *gbtn)
     if (thing_is_creature(ctrltng))
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
-        struct CreatureStats* crstat = creature_stats_get_from_thing(ctrltng);
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(ctrltng);
         struct CreatureControl* cctrl = creature_control_get_from_thing(ctrltng);
         long points_progress = cctrl->exp_points;
-        long points_required = (crstat->to_level[cctrl->exp_level] << 8);
+        long points_required = (crconf->to_level[cctrl->exp_level] << 8);
         gui_area_progress_bar_med2(gbtn, units_per_px, points_progress, points_required);
         char* text = buf_sprintf("%d", (int)(cctrl->exp_level + 1));
         draw_button_string(gbtn, 56, text);

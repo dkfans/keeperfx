@@ -288,8 +288,8 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, 10, plyr_idx, GUI_MESSAGES_DELAY, "Invalid instance");
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get(creature);
-    crstat->learned_instance_id[slot] = instance;
+    struct CreatureModelConfig* crconf = creature_stats_get(creature);
+    crconf->learned_instance_id[slot] = instance;
     for (long i = 0; i < THINGS_COUNT; i++) {
         struct Thing * thing = thing_get(i);
         if ((thing->alloc_flags & TAlF_Exists) != 0) {

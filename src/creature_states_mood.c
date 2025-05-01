@@ -48,8 +48,8 @@ TbBool creature_can_get_angry(const struct Thing *creatng)
     if (is_neutral_thing(creatng)) {
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return (crstat->annoy_level > 0);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    return (crconf->annoy_level > 0);
 }
 
 short creature_moan(struct Thing *thing)
@@ -187,15 +187,15 @@ short mad_killing_psycho(struct Thing *creatng)
 void anger_calculate_creature_is_angry(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     cctrl->mood_flags &= ~CCMoo_Angry;
     cctrl->mood_flags &= ~CCMoo_Livid;
     for (int i = 1; i < 5; i++)
     {
-        if (crstat->annoy_level <= cctrl->annoyance_level[i])
+        if (crconf->annoy_level <= cctrl->annoyance_level[i])
         {
             cctrl->mood_flags |= CCMoo_Angry;
-            if (2*crstat->annoy_level <= cctrl->annoyance_level[i])
+            if (2*crconf->annoy_level <= cctrl->annoyance_level[i])
             {
                 cctrl->mood_flags |= CCMoo_Livid;
                 break;
@@ -249,7 +249,7 @@ void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotiv
 {
     SYNCDBG(18,"%s: Setting reason %d to %d for %s index %d",func_name,(int)reason,(int)annoy_lv,thing_model_name(creatng),(int)creatng->index);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     if (!creature_can_get_angry(creatng))
     {
         return;
@@ -258,9 +258,9 @@ void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotiv
     {
         annoy_lv = 0;
     } else
-    if (annoy_lv > (3 * crstat->annoy_level)) 
+    if (annoy_lv > (3 * crconf->annoy_level)) 
     {
-        annoy_lv = (3 * crstat->annoy_level);
+        annoy_lv = (3 * crconf->annoy_level);
     } else
     if (annoy_lv > 65534) 
     {
@@ -312,8 +312,8 @@ TbBool anger_is_creature_angry(const struct Thing *creatng)
 AnnoyMotive anger_get_creature_anger_type(const struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if (crstat->annoy_level == 0)
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    if (crconf->annoy_level == 0)
         return AngR_None;
     if ((cctrl->mood_flags & CCMoo_Angry) == 0)
         return AngR_None;
@@ -327,7 +327,7 @@ AnnoyMotive anger_get_creature_anger_type(const struct Thing *creatng)
             anger_type = i;
         }
     }
-    if (anger_level < (long)crstat->annoy_level)
+    if (anger_level < (long)crconf->annoy_level)
         return AngR_None;
     return anger_type;
 }
@@ -355,19 +355,19 @@ void anger_apply_anger_to_creature_all_types_f(struct Thing *thing, long anger, 
 TbBool anger_make_creature_angry(struct Thing *creatng, AnnoyMotive reason)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if ((crstat->annoy_level <= 0) || ((cctrl->mood_flags & CCMoo_Angry) != 0))
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    if ((crconf->annoy_level <= 0) || ((cctrl->mood_flags & CCMoo_Angry) != 0))
         return false;
-    anger_set_creature_anger(creatng, crstat->annoy_level, reason);
+    anger_set_creature_anger(creatng, crconf->annoy_level, reason);
     return true;
 }
 
 TbBool anger_give_creatures_annoyance_percentage(struct Thing* creatng, short percentage, AnnoyMotive reason)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if ((crstat->annoy_level <= 0))
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    if ((crconf->annoy_level <= 0))
         return false;
-    anger_increase_creature_anger(creatng, (crstat->annoy_level * percentage/100), reason);
+    anger_increase_creature_anger(creatng, (crconf->annoy_level * percentage/100), reason);
     return true;
 }
 
@@ -375,8 +375,8 @@ TbBool creature_mark_if_woken_up(struct Thing *creatng)
 {
     if (creature_is_sleeping(creatng))
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        anger_apply_anger_to_creature(creatng, crstat->annoy_woken_up, AngR_Other, 1);
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+        anger_apply_anger_to_creature(creatng, crconf->annoy_woken_up, AngR_Other, 1);
         return true;
     }
     return false;
@@ -506,7 +506,7 @@ TbBool find_combat_target_passing_by_room_but_having_unrelated_job(const struct 
 
 TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room, CreatureJob going_postal_job)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     // Find a target
     unsigned long combt_dist = LONG_MAX;
     struct Thing* combt_thing = INVALID_THING;
@@ -525,7 +525,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
         external_set_thing_state(combt_thing, CrSt_CreatureEvacuateRoom);
         struct CreatureControl* combctrl = creature_control_get_from_thing(combt_thing);
         combctrl->evacuate.room_idx = room->index;
-        anger_apply_anger_to_creature(creatng, crstat->annoy_going_postal, AngR_Other, 1);
+        anger_apply_anger_to_creature(creatng, crconf->annoy_going_postal, AngR_Other, 1);
         return true;
     }
     if (thing_is_invalid(combt_thing)) {
@@ -554,7 +554,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
 TbBool process_job_stress_and_going_postal(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     SYNCDBG(18,"Starting for %s index %d state %s",thing_model_name(creatng),(int)creatng->index,creatrtng_realstate_name(creatng));
     if (cctrl->instance_id != CrInst_NULL) {
         return false;
@@ -569,20 +569,20 @@ TbBool process_job_stress_and_going_postal(struct Thing *creatng)
         return false;
     }
     // Process the job stress
-    if (crstat->annoy_job_stress != 0)
+    if (crconf->annoy_job_stress != 0)
     {
         // Note that this kind of code won't allow one-time jobs, or jobs not related to rooms, to be stressful
-        CreatureJob stressful_job = get_creature_job_causing_stress(crstat->job_stress, room->kind);
+        CreatureJob stressful_job = get_creature_job_causing_stress(crconf->job_stress, room->kind);
         if (stressful_job != Job_NULL)
         {
-            anger_apply_anger_to_creature(creatng, crstat->annoy_job_stress, AngR_Other, 1);
+            anger_apply_anger_to_creature(creatng, crconf->annoy_job_stress, AngR_Other, 1);
         }
     }
     // Process going postal
-    if (crstat->annoy_going_postal != 0)
+    if (crconf->annoy_going_postal != 0)
     {
         // Make sure we really should go postal in that room
-        CreatureJob going_postal_job = get_creature_job_causing_going_postal(crstat->job_primary, room->kind);
+        CreatureJob going_postal_job = get_creature_job_causing_going_postal(crconf->job_primary, room->kind);
         if (going_postal_job != Job_NULL)
         {
             SYNCDBG(18,"The %s index %d has postal job %s",thing_model_name(creatng),(int)creatng->index,creature_job_code_name(going_postal_job));
@@ -628,10 +628,10 @@ TbBool any_worker_will_go_postal_on_creature_in_room(const struct Room *room, co
         }
         i = cctrl->next_in_room;
         // Per creature code
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
         CreatureJob going_postal_job = Job_NULL;
-        if (crstat->annoy_going_postal != 0) {
-            going_postal_job = get_creature_job_causing_going_postal(crstat->job_primary,room->kind);
+        if (crconf->annoy_going_postal != 0) {
+            going_postal_job = get_creature_job_causing_going_postal(crconf->job_primary,room->kind);
         }
         if (going_postal_job != Job_NULL)
         {

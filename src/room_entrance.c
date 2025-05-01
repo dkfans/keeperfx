@@ -177,7 +177,7 @@ static long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerN
 {
     SYNCDBG(11, "Starting");
 
-    struct CreatureStats* stats = creature_stats_get(crmodel);
+    struct CreatureModelConfig* stats = creature_stats_get(crmodel);
     long excess_attraction = 0;
     for (int i = 0; i < ENTRANCE_ROOMS_COUNT; i++)
     {
@@ -229,7 +229,7 @@ TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingM
     }
 
     // Typical way is to allow creatures which meet attraction conditions
-    struct CreatureStats* stats = creature_stats_get(crmodel);
+    struct CreatureModelConfig* stats = creature_stats_get(crmodel);
 
     // Check if we've got rooms of enough size for attraction
     for (int i = 0; i < ENTRANCE_ROOMS_COUNT; ++i)
@@ -275,11 +275,11 @@ static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dun
     {
         if (creature_will_generate_for_dungeon(dungeon, crmodel))
         {
-            struct CreatureStats* crstat = creature_stats_get(crmodel);
+            struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
 
             gen_count += 1;
 
-            long score = (long)crstat->entrance_score + calculate_excess_attraction_for_creature(crmodel, dungeon->owner);
+            long score = (long)crconf->entrance_score + calculate_excess_attraction_for_creature(crmodel, dungeon->owner);
             if (score < 1) {
                 score = 1;
             }
@@ -346,11 +346,11 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 
     if (crmodel > 0)
     {
-        struct CreatureStats* crstat = creature_stats_get(crmodel);
+        struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
         long lair_space = calculate_free_lair_space(dungeon);
-        if ((long)crstat->pay > dungeon->total_money_owned)
+        if ((long)crconf->pay > dungeon->total_money_owned)
         {
-            SYNCDBG(8,"The %s will not come as player %d has less than %d gold",creature_code_name(crmodel),(int)dungeon->owner,(int)crstat->pay);
+            SYNCDBG(8,"The %s will not come as player %d has less than %d gold",creature_code_name(crmodel),(int)dungeon->owner,(int)crconf->pay);
             if (is_my_player_number(dungeon->owner)) {
                 output_message(SMsg_GoldLow, MESSAGE_DURATION_TREASURY);
             }

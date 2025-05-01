@@ -125,7 +125,6 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
  */
 void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value)
 {
-  struct CreatureStats *crstat;
   struct CreatureModelConfig *crconf;
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
@@ -270,77 +269,77 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       change_max_health_of_creature_kind(val2, val3);
       break;
   case Cmd_SET_CREATURE_STRENGTH:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
+      crconf = creature_stats_get(val2);
+      if (creature_stats_invalid(crconf))
           break;
-      crstat->strength = saturate_set_unsigned(val3, 16);
+      crconf->strength = saturate_set_unsigned(val3, 16);
       break;
   case Cmd_SET_CREATURE_ARMOUR:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
+      crconf = creature_stats_get(val2);
+      if (creature_stats_invalid(crconf))
           break;
-      crstat->armour = saturate_set_unsigned(val3, 8);
+      crconf->armour = saturate_set_unsigned(val3, 8);
       break;
   case Cmd_SET_CREATURE_FEAR_WOUNDED:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
+      crconf = creature_stats_get(val2);
+      if (creature_stats_invalid(crconf))
           break;
-      crstat->fear_wounded = saturate_set_unsigned(val3, 8);
+      crconf->fear_wounded = saturate_set_unsigned(val3, 8);
       break;
   case Cmd_SET_CREATURE_FEAR_STRONGER:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
+      crconf = creature_stats_get(val2);
+      if (creature_stats_invalid(crconf))
           break;
-      crstat->fear_stronger = saturate_set_unsigned(val3, 16);
+      crconf->fear_stronger = saturate_set_unsigned(val3, 16);
       break;
   case Cmd_SET_CREATURE_FEARSOME_FACTOR:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
+      crconf = creature_stats_get(val2);
+      if (creature_stats_invalid(crconf))
           break;
-      crstat->fearsome_factor = saturate_set_unsigned(val3, 16);
+      crconf->fearsome_factor = saturate_set_unsigned(val3, 16);
       break;
   case Cmd_SET_CREATURE_PROPERTY:
       crconf = &game.conf.crtr_conf.model[val2];
-      crstat = creature_stats_get(val2);
+      crconf = creature_stats_get(val2);
       switch (val3)
       {
       case 1: // BLEEDS
-          crstat->bleeds = val4;
+          crconf->bleeds = val4;
           break;
       case 2: // UNAFFECTED_BY_WIND
           if (val4 >= 1)
           {
-              set_flag(crstat->immunity_flags, CSAfF_Wind);
+              set_flag(crconf->immunity_flags, CSAfF_Wind);
           }
           else
           {
-              clear_flag(crstat->immunity_flags, CSAfF_Wind);
+              clear_flag(crconf->immunity_flags, CSAfF_Wind);
           }
           break;
       case 3: // IMMUNE_TO_GAS
           if (val4 >= 1)
           {
-              set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+              set_flag(crconf->immunity_flags, CSAfF_PoisonCloud);
           }
           else
           {
-              clear_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+              clear_flag(crconf->immunity_flags, CSAfF_PoisonCloud);
           }
           break;
       case 4: // HUMANOID_SKELETON
-          crstat->humanoid_creature = val4;
+          crconf->humanoid_creature = val4;
           break;
       case 5: // PISS_ON_DEAD
-          crstat->piss_on_dead = val4;
+          crconf->piss_on_dead = val4;
           break;
       case 7: // FLYING
-          crstat->flying = val4;
+          crconf->flying = val4;
           break;
       case 8: // SEE_INVISIBLE
-          crstat->can_see_invisible = val4;
+          crconf->can_see_invisible = val4;
           break;
       case 9: // PASS_LOCKED_DOORS
-          crstat->can_go_locked_doors = val4;
+          crconf->can_go_locked_doors = val4;
           break;
       case 10: // SPECIAL_DIGGER
           if (val4 >= 1)
@@ -407,11 +406,11 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 16: // NEVER_CHICKENS
           if (val4 >= 1)
           {
-              set_flag(crstat->immunity_flags, CSAfF_Chicken);
+              set_flag(crconf->immunity_flags, CSAfF_Chicken);
           }
           else
           {
-              clear_flag(crstat->immunity_flags, CSAfF_Chicken);
+              clear_flag(crconf->immunity_flags, CSAfF_Chicken);
           }
           break;
       case 17: // IMMUNE_TO_BOULDER
@@ -499,18 +498,18 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 25: // NEVER_SICK
           if (val4 >= 1)
           {
-              set_flag(crstat->immunity_flags, CSAfF_Disease);
+              set_flag(crconf->immunity_flags, CSAfF_Disease);
           }
           else
           {
-              clear_flag(crstat->immunity_flags, CSAfF_Disease);
+              clear_flag(crconf->immunity_flags, CSAfF_Disease);
           }
           break;
       case 26: // ILLUMINATED
-          crstat->illuminated = val4;
+          crconf->illuminated = val4;
           break;
       case 27: // ALLURING_SCVNGR
-          crstat->entrance_force = val4;
+          crconf->entrance_force = val4;
           break;
       case 28: // NO_RESURRECT
           if (val4 >= 1)

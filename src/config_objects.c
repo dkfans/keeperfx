@@ -293,16 +293,16 @@ ThingModel object_model_id(const char * code_name)
  */
 int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmodel, ThingModel relmodel)
 {
-    struct CreatureStats *crstat;
+    struct CreatureModelConfig *crconf;
     struct ObjectConfigStats *objst;
     switch (room_role)
     {
     case RoRoF_LairStorage:
-        crstat = creature_stats_get(relmodel);
-        return crstat->lair_size;
+        crconf = creature_stats_get(relmodel);
+        return crconf->lair_size;
     case RoRoF_DeadStorage:
-        crstat = creature_stats_get(relmodel);
-        if (!creature_stats_invalid(crstat))
+        crconf = creature_stats_get(relmodel);
+        if (!creature_stats_invalid(crconf))
             return 1;
         break;
     case RoRoF_KeeperStorage:

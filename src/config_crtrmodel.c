@@ -256,8 +256,7 @@ void strtolower(char * str) {
 TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
   // Block name and parameter word store variables
-  struct CreatureStats* crstat = creature_stats_get(crtr_model);
-  struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
+  struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
   sprintf(block_buf, "attributes");
@@ -287,7 +286,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->health = k;
+            crconf->health = k;
             n++;
           }
           if (n < 1)
@@ -300,7 +299,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->heal_requirement = k;
+            crconf->heal_requirement = k;
             n++;
           }
           if (n < 1)
@@ -313,7 +312,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->heal_threshold = k;
+            crconf->heal_threshold = k;
             n++;
           }
           if (n < 1)
@@ -326,7 +325,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->strength = k;
+            crconf->strength = k;
             n++;
           }
           if (n < 1)
@@ -339,7 +338,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->armour = k;
+            crconf->armour = k;
             n++;
           }
           if (n < 1)
@@ -352,7 +351,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->dexterity = k;
+            crconf->dexterity = k;
             n++;
           }
           if (n < 1)
@@ -365,7 +364,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->fear_wounded = k;
+            crconf->fear_wounded = k;
             n++;
           }
           if (n < 1)
@@ -378,7 +377,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->fear_stronger = k;
+            crconf->fear_stronger = k;
             n++;
           }
           if (n < 1)
@@ -391,7 +390,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->defense = k;
+            crconf->defense = k;
             n++;
           }
           if (n < 1)
@@ -404,7 +403,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->luck = k;
+            crconf->luck = k;
             n++;
           }
           if (n < 1)
@@ -417,7 +416,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->sleep_recovery = k;
+            crconf->sleep_recovery = k;
             n++;
           }
           if (n < 1)
@@ -430,7 +429,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->hunger_rate = k;
+            crconf->hunger_rate = k;
             n++;
           }
           if (n < 1)
@@ -443,7 +442,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->hunger_fill = k;
+            crconf->hunger_fill = k;
             n++;
           }
           if (n < 1)
@@ -456,7 +455,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->lair_size = k;
+            crconf->lair_size = k;
             n++;
           }
           if (n < 1)
@@ -469,7 +468,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->hurt_by_lava = k;
+            crconf->hurt_by_lava = k;
             n++;
           }
           if (n < 1)
@@ -482,7 +481,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->base_speed = k;
+            crconf->base_speed = k;
             n++;
           }
           if (n < 1)
@@ -495,7 +494,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->gold_hold = k;
+            crconf->gold_hold = k;
             n++;
           }
           if (n < 1)
@@ -508,13 +507,13 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->size_xy = k;
+            crconf->size_xy = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->size_z = k;
+            crconf->size_z = k;
             n++;
           }
           if (n < 2)
@@ -529,7 +528,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
             k = get_id(attackpref_desc, word_buf);
             if (k > 0)
             {
-              crstat->attack_preference = k;
+              crconf->attack_preference = k;
               n++;
             }
           }
@@ -543,7 +542,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->pay = k;
+            crconf->pay = k;
             n++;
           }
           if (n < 1)
@@ -558,7 +557,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->slaps_to_kill = k;
+            crconf->slaps_to_kill = k;
             n++;
           }
           if (n < 1)
@@ -577,7 +576,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->damage_to_boulder = k;
+            crconf->damage_to_boulder = k;
             n++;
           }
           if (n < 1)
@@ -590,13 +589,13 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->thing_size_xy = k;
+            crconf->thing_size_xy = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->thing_size_z = k;
+            crconf->thing_size_z = k;
             n++;
           }
           if (n < 2)
@@ -606,12 +605,12 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           break;
       case 28: // PROPERTIES
-          crstat->bleeds = false;
-          crstat->humanoid_creature = false;
-          crstat->piss_on_dead = false;
-          crstat->flying = false;
-          crstat->can_see_invisible = false;
-          crstat->can_go_locked_doors = false;
+          crconf->bleeds = false;
+          crconf->humanoid_creature = false;
+          crconf->piss_on_dead = false;
+          crconf->flying = false;
+          crconf->can_see_invisible = false;
+          crconf->can_go_locked_doors = false;
           crconf->model_flags = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
@@ -619,35 +618,35 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
             switch (k)
             {
             case 1: // BLEEDS
-              crstat->bleeds = true;
+              crconf->bleeds = true;
               n++;
               break;
             case 2: // UNAFFECTED_BY_WIND
-              set_flag(crstat->immunity_flags, CSAfF_Wind);
+              set_flag(crconf->immunity_flags, CSAfF_Wind);
               n++;
               break;
             case 3: // IMMUNE_TO_GAS
-              set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+              set_flag(crconf->immunity_flags, CSAfF_PoisonCloud);
               n++;
               break;
             case 4: // HUMANOID_SKELETON
-              crstat->humanoid_creature = true;
+              crconf->humanoid_creature = true;
               n++;
               break;
             case 5: // PISS_ON_DEAD
-              crstat->piss_on_dead = true;
+              crconf->piss_on_dead = true;
               n++;
               break;
             case 7: // FLYING
-              crstat->flying = true;
+              crconf->flying = true;
               n++;
               break;
             case 8: // SEE_INVISIBLE
-              crstat->can_see_invisible = true;
+              crconf->can_see_invisible = true;
               n++;
               break;
             case 9: // PASS_LOCKED_DOORS
-              crstat->can_go_locked_doors = true;
+              crconf->can_go_locked_doors = true;
               n++;
               break;
             case 10: // SPECIAL_DIGGER
@@ -675,7 +674,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 16: // NEVER_CHICKENS
-              set_flag(crstat->immunity_flags, CSAfF_Chicken);
+              set_flag(crconf->immunity_flags, CSAfF_Chicken);
               n++;
               break;
             case 17: // IMMUNE_TO_BOULDER
@@ -712,15 +711,15 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 n++;
                 break;
             case 25: // IMMUNE_TO_DISEASE
-                set_flag(crstat->immunity_flags, CSAfF_Disease);
+                set_flag(crconf->immunity_flags, CSAfF_Disease);
                 n++;
                 break;
             case 26: // ILLUMINATED
-                crstat->illuminated = true;
+                crconf->illuminated = true;
                 n++;
                 break;
             case 27: // ALLURING_SCVNGR
-                crstat->entrance_force = true;
+                crconf->entrance_force = true;
                 n++;
                 break;
             case 28: // NO_RESURRECT
@@ -782,7 +781,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->fearsome_factor = k;
+            crconf->fearsome_factor = k;
             n++;
           }
           if (n < 1)
@@ -795,7 +794,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->toking_recovery = k;
+            crconf->toking_recovery = k;
             n++;
           }
           if (n < 1)
@@ -810,7 +809,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               k = get_id(object_desc, word_buf);
               if (k > 0)
               {
-                  crstat->lair_object = k;
+                  crconf->lair_object = k;
                   n++;
               }
           }
@@ -826,7 +825,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               k = get_id(creature_desc, word_buf);
               if (k > 0)
               {
-                  crstat->prison_kind = k;
+                  crconf->prison_kind = k;
                   n++;
               }
               else if (strcasecmp(word_buf,"NULL") == 0)
@@ -846,7 +845,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               k = get_id(creature_desc, word_buf);
               if (k > 0)
               {
-                  crstat->torture_kind = k;
+                  crconf->torture_kind = k;
                   n++;
               }
               else if (strcasecmp(word_buf,"NULL") == 0)
@@ -863,22 +862,22 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
         case 37: // SPELLIMMUNITY
         {
             // Backward compatibility check.
-            TbBool unaffected_by_wind = flag_is_set(crstat->immunity_flags, CSAfF_Wind);
-            TbBool immune_to_gas = flag_is_set(crstat->immunity_flags, CSAfF_PoisonCloud);
-            TbBool never_chickens = flag_is_set(crstat->immunity_flags, CSAfF_Chicken);
-            TbBool immune_to_disease = flag_is_set(crstat->immunity_flags, CSAfF_Disease);
-            crstat->immunity_flags = 0; // Clear flags, this is necessary for partial config if modder wants to remove all flags.
+            TbBool unaffected_by_wind = flag_is_set(crconf->immunity_flags, CSAfF_Wind);
+            TbBool immune_to_gas = flag_is_set(crconf->immunity_flags, CSAfF_PoisonCloud);
+            TbBool never_chickens = flag_is_set(crconf->immunity_flags, CSAfF_Chicken);
+            TbBool immune_to_disease = flag_is_set(crconf->immunity_flags, CSAfF_Disease);
+            crconf->immunity_flags = 0; // Clear flags, this is necessary for partial config if modder wants to remove all flags.
             // Backward compatibility fix.
-            if (unaffected_by_wind) { set_flag(crstat->immunity_flags, CSAfF_Wind); }
-            if (immune_to_gas) { set_flag(crstat->immunity_flags, CSAfF_PoisonCloud); }
-            if (never_chickens) { set_flag(crstat->immunity_flags, CSAfF_Chicken); }
-            if (immune_to_disease) { set_flag(crstat->immunity_flags, CSAfF_Disease); }
+            if (unaffected_by_wind) { set_flag(crconf->immunity_flags, CSAfF_Wind); }
+            if (immune_to_gas) { set_flag(crconf->immunity_flags, CSAfF_PoisonCloud); }
+            if (never_chickens) { set_flag(crconf->immunity_flags, CSAfF_Chicken); }
+            if (immune_to_disease) { set_flag(crconf->immunity_flags, CSAfF_Disease); }
             while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 if (parameter_is_number(word_buf))
                 {
                     k = atoi(word_buf);
-                    crstat->immunity_flags = k;
+                    crconf->immunity_flags = k;
                     n++;
                 }
                 else
@@ -886,7 +885,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                     k = get_id(spell_effect_flags, word_buf);
                     if (k > 0)
                     {
-                        set_flag(crstat->immunity_flags, k);
+                        set_flag(crconf->immunity_flags, k);
                         n++;
                     }
                 }
@@ -906,17 +905,17 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                     k = get_id(creature_desc, word_buf);
                     if (k >= 0)
                     {
-                        crstat->hostile_towards[i] = k;
+                        crconf->hostile_towards[i] = k;
                         n++;
                     }
                     else if (0 == strcmp(word_buf, "ANY_CREATURE"))
                     {
-                        crstat->hostile_towards[i] = CREATURE_ANY;
+                        crconf->hostile_towards[i] = CREATURE_ANY;
                         n++;
                     }
                     else
                     {
-                        crstat->hostile_towards[i] = 0;
+                        crconf->hostile_towards[i] = 0;
                         if (strcasecmp(word_buf, "NULL") == 0)
                         {
                             n++;
@@ -958,12 +957,12 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   // Set creature start states based on the flags
   if ((crconf->model_flags & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0)
   {
-      crstat->evil_start_state = CrSt_ImpDoingNothing;
-      crstat->good_start_state = CrSt_TunnellerDoingNothing;
+      crconf->evil_start_state = CrSt_ImpDoingNothing;
+      crconf->good_start_state = CrSt_TunnellerDoingNothing;
   } else
   {
-      crstat->evil_start_state = CrSt_CreatureDoingNothing;
-      crstat->good_start_state = CrSt_GoodDoingNothing;
+      crconf->evil_start_state = CrSt_CreatureDoingNothing;
+      crconf->good_start_state = CrSt_GoodDoingNothing;
   }
   return true;
 }
@@ -972,7 +971,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
 {
   int n;
   // Block name and parameter word store variables
-  struct CreatureStats* crstat = creature_stats_get(crtr_model);
+  struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
   sprintf(block_buf, "attraction");
@@ -997,13 +996,13 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
       {
       case 1: // ENTRANCEROOM
           for (k=0; k < ENTRANCE_ROOMS_COUNT; k++)
-            crstat->entrance_rooms[k] = 0;
+            crconf->entrance_rooms[k] = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = get_id(room_desc, word_buf);
             if ((k >= 0) && (n < ENTRANCE_ROOMS_COUNT))
             {
-              crstat->entrance_rooms[n] = k;
+              crconf->entrance_rooms[n] = k;
               n++;
             } else
             {
@@ -1014,13 +1013,13 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
           break;
       case 2: // ROOMSLABSREQUIRED
           for (k=0; k < ENTRANCE_ROOMS_COUNT; k++)
-            crstat->entrance_slabs_req[k] = 0;
+            crconf->entrance_slabs_req[k] = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
             if (n < ENTRANCE_ROOMS_COUNT)
             {
-              crstat->entrance_slabs_req[n] = k;
+              crconf->entrance_slabs_req[n] = k;
               n++;
             } else
             {
@@ -1033,7 +1032,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->entrance_score = k;
+            crconf->entrance_score = k;
             n++;
           }
           if (n < 1)
@@ -1046,7 +1045,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->scavenge_require = k;
+            crconf->scavenge_require = k;
             n++;
           }
           if (n < 1)
@@ -1059,7 +1058,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->torture_break_time = k;
+            crconf->torture_break_time = k;
             n++;
           }
           if (n < 1)
@@ -1086,7 +1085,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
 TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    struct CreatureStats* crstat = creature_stats_get(crtr_model);
+    struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "annoyance");
@@ -1113,7 +1112,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_eat_food = k;
+              crconf->annoy_eat_food = k;
               n++;
             }
             if (n < 1)
@@ -1126,7 +1125,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_will_not_do_job = k;
+              crconf->annoy_will_not_do_job = k;
               n++;
             }
             if (n < 1)
@@ -1139,7 +1138,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_in_hand = k;
+              crconf->annoy_in_hand = k;
               n++;
             }
             if (n < 1)
@@ -1152,7 +1151,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_no_lair = k;
+              crconf->annoy_no_lair = k;
               n++;
             }
             if (n < 1)
@@ -1165,7 +1164,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_no_hatchery = k;
+              crconf->annoy_no_hatchery = k;
               n++;
             }
             if (n < 1)
@@ -1178,7 +1177,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_woken_up = k;
+              crconf->annoy_woken_up = k;
               n++;
             }
             if (n < 1)
@@ -1191,7 +1190,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_on_dead_enemy = k;
+              crconf->annoy_on_dead_enemy = k;
               n++;
             }
             if (n < 1)
@@ -1204,7 +1203,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_sulking = k;
+              crconf->annoy_sulking = k;
               n++;
             }
             if (n < 1)
@@ -1217,7 +1216,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_no_salary = k;
+              crconf->annoy_no_salary = k;
               n++;
             }
             if (n < 1)
@@ -1230,7 +1229,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_slapped = k;
+              crconf->annoy_slapped = k;
               n++;
             }
             if (n < 1)
@@ -1243,7 +1242,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_on_dead_friend = k;
+              crconf->annoy_on_dead_friend = k;
               n++;
             }
             if (n < 1)
@@ -1256,7 +1255,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_in_torture = k;
+              crconf->annoy_in_torture = k;
               n++;
             }
             if (n < 1)
@@ -1269,7 +1268,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_in_temple = k;
+              crconf->annoy_in_temple = k;
               n++;
             }
             if (n < 1)
@@ -1282,7 +1281,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_sleeping = k;
+              crconf->annoy_sleeping = k;
               n++;
             }
             if (n < 1)
@@ -1295,7 +1294,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_got_wage = k;
+              crconf->annoy_got_wage = k;
               n++;
             }
             if (n < 1)
@@ -1308,7 +1307,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_win_battle = k;
+              crconf->annoy_win_battle = k;
               n++;
             }
             if (n < 1)
@@ -1321,13 +1320,13 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_untrained_time = k;
+              crconf->annoy_untrained_time = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_untrained = k;
+              crconf->annoy_untrained = k;
               n++;
             }
             if (n < 2)
@@ -1340,7 +1339,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_others_leaving = k;
+              crconf->annoy_others_leaving = k;
               n++;
             }
             if (n < 1)
@@ -1353,7 +1352,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_job_stress = k;
+              crconf->annoy_job_stress = k;
               n++;
             }
             if (n < 1)
@@ -1366,7 +1365,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_queue = k;
+              crconf->annoy_queue = k;
               n++;
             }
             if (n < 1)
@@ -1383,17 +1382,17 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
                     k = get_id(creature_desc, word_buf);
                     if (k >= 0)
                     {
-                        crstat->lair_enemy[i] = k;
+                        crconf->lair_enemy[i] = k;
                         n++;
                     }
                     else if (0 == strcmp(word_buf, "ANY_CREATURE"))
                     {
-                        crstat->lair_enemy[i] = CREATURE_ANY;
+                        crconf->lair_enemy[i] = CREATURE_ANY;
                         n++;
                     }
                     else
                     {
-                        crstat->lair_enemy[i] = 0;
+                        crconf->lair_enemy[i] = 0;
                         if (strcasecmp(word_buf, "NULL") == 0)
                             n++;
                     }
@@ -1409,7 +1408,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_level = k;
+              crconf->annoy_level = k;
               n++;
             }
             if (n < 1)
@@ -1419,13 +1418,13 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             break;
         case 23: // ANGERJOBS
-            crstat->jobs_anger = 0;
+            crconf->jobs_anger = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(angerjob_desc, word_buf);
               if (k > 0)
               {
-                crstat->jobs_anger |= k;
+                crconf->jobs_anger |= k;
                 n++;
               } else
               {
@@ -1438,7 +1437,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_going_postal = k;
+              crconf->annoy_going_postal = k;
               n++;
             }
             if (n < 1)
@@ -1465,7 +1464,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
 TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    struct CreatureStats* crstat = creature_stats_get(crtr_model);
+    struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "senses");
@@ -1492,7 +1491,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->hearing = k;
+              crconf->hearing = k;
               n++;
             }
             if (n < 1)
@@ -1505,7 +1504,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->base_eye_height = k;
+              crconf->base_eye_height = k;
               n++;
             }
             if (n < 1)
@@ -1518,7 +1517,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->field_of_view = k;
+              crconf->field_of_view = k;
               n++;
             }
             if (n < 1)
@@ -1533,7 +1532,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
               k = get_id(lenses_desc, word_buf);
               if (k >= 0)
               {
-                  crstat->eye_effect = k;
+                  crconf->eye_effect = k;
                   n++;
               }
             }
@@ -1549,7 +1548,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
               k = atoi(word_buf);
               if (k > 0)
               {
-                  crstat->max_turning_speed = (k * LbFPMath_PI) / 180;
+                  crconf->max_turning_speed = (k * LbFPMath_PI) / 180;
                   n++;
               }
             }
@@ -1577,7 +1576,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
 TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    struct CreatureStats* crstat = creature_stats_get(crtr_model);
+    struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "appearance");
@@ -1604,7 +1603,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->walking_anim_speed = k;
+              crconf->walking_anim_speed = k;
               n++;
             }
             if (n < 1)
@@ -1617,7 +1616,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->visual_range = k;
+              crconf->visual_range = k;
               n++;
             }
             if (n < 1)
@@ -1632,7 +1631,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    crstat->swipe_idx = k;
+                    crconf->swipe_idx = k;
                     n++;
                 }
             }
@@ -1648,7 +1647,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = get_id(creature_deathkind_desc, word_buf);
                 if (k > 0)
                 {
-                    crstat->natural_death_kind = k;
+                    crconf->natural_death_kind = k;
                 }
                 n++;
             }
@@ -1662,19 +1661,19 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->shot_shift_x = k;
+                crconf->shot_shift_x = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->shot_shift_y = k;
+                crconf->shot_shift_y = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->shot_shift_z = k;
+                crconf->shot_shift_z = k;
                 n++;
             }
             if (n < 3)
@@ -1687,7 +1686,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->corpse_vanish_effect = k;
+                crconf->corpse_vanish_effect = k;
                 n++;
             }
             break;
@@ -1695,7 +1694,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->footstep_pitch = k;
+                crconf->footstep_pitch = k;
                 n++;
             }
             break;
@@ -1703,13 +1702,13 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->creature_picked_up_offset.delta_x = k;
+                crconf->creature_picked_up_offset.delta_x = k;
                 n++;
             }
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->creature_picked_up_offset.delta_y = k;
+                crconf->creature_picked_up_offset.delta_y = k;
                 n++;
             }
             if (n < 2)
@@ -1722,7 +1721,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->status_offset = k;
+                crconf->status_offset = k;
                 n++;
             }
             if (n < 1)
@@ -1737,7 +1736,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = atoi(word_buf);
                 if (k > 0)
                 {
-                    crstat->transparency_flags = k<<4; // Bitshift to get the transparancy bit in the render flag
+                    crconf->transparency_flags = k<<4; // Bitshift to get the transparancy bit in the render flag
                 }
                 n++;
             }
@@ -1753,7 +1752,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    crstat->fixed_anim_speed = k;
+                    crconf->fixed_anim_speed = k;
                 }
                 n++;
             }
@@ -1782,7 +1781,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
 {
     int n;
     // Block name and parameter word store variables
-    struct CreatureStats* crstat = creature_stats_get(crtr_model);
+    struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "experience");
@@ -1811,7 +1810,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
               k = get_id(instance_desc, word_buf);
               if ((k >= 0) && (n < LEARNED_INSTANCES_COUNT))
               {
-                crstat->learned_instance_id[n] = k;
+                crconf->learned_instance_id[n] = k;
                 n++;
               } else
               {
@@ -1826,7 +1825,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
               k = atoi(word_buf);
               if ((k >= 0) && (n < LEARNED_INSTANCES_COUNT))
               {
-                crstat->learned_instance_level[n] = k;
+                crconf->learned_instance_level[n] = k;
                 n++;
               } else
               {
@@ -1841,7 +1840,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
               k = atoi(word_buf);
               if ((k >= 0) && (n < CREATURE_MAX_LEVEL-1))
               {
-                crstat->to_level[n] = k;
+                crconf->to_level[n] = k;
                 n++;
               } else
               {
@@ -1854,7 +1853,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->to_level[CREATURE_MAX_LEVEL-1] = k;
+              crconf->to_level[CREATURE_MAX_LEVEL-1] = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -1862,11 +1861,11 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
               k = parse_creature_name(word_buf);
               if (k >= 0)
               {
-                crstat->grow_up = k;
+                crconf->grow_up = k;
                 n++;
               } else
               {
-                crstat->grow_up = 0;
+                crconf->grow_up = 0;
                 if (strcasecmp(word_buf,"NULL") == 0)
                   n++;
               }
@@ -1874,7 +1873,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->grow_up_level = k;
+              crconf->grow_up_level = k;
               n++;
             }
             if (n < 3)
@@ -1889,17 +1888,17 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
               k = get_id(slab_desc, word_buf);
               if (k >= 0)
               {
-                crstat->sleep_exp_slab = k;
+                crconf->sleep_exp_slab = k;
                 n++;
               } else
               {
-                crstat->sleep_exp_slab = 0;
+                crconf->sleep_exp_slab = 0;
               }
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->sleep_experience = k;
+              crconf->sleep_experience = k;
               n++;
             }
             if (n < 2)
@@ -1912,7 +1911,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->exp_for_hitting = k;
+              crconf->exp_for_hitting = k;
               n++;
             }
             if (n < 1)
@@ -1925,7 +1924,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->rebirth = k;
+              crconf->rebirth = k;
               n++;
             }
             if (n < 1)
@@ -1952,7 +1951,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
 TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    struct CreatureStats* crstat = creature_stats_get(crtr_model);
+    struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
     sprintf(block_buf, "jobs");
@@ -1976,13 +1975,13 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
         switch (cmd_num)
         {
         case 1: // PRIMARYJOBS
-            crstat->job_primary = 0;
+            crconf->job_primary = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(creaturejob_desc, word_buf);
               if (k > 0)
               {
-                crstat->job_primary |= k;
+                crconf->job_primary |= k;
                 n++;
               } else
               {
@@ -1992,13 +1991,13 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
             }
             break;
         case 2: // SECONDARYJOBS
-            crstat->job_secondary = 0;
+            crconf->job_secondary = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(creaturejob_desc, word_buf);
               if (k > 0)
               {
-                crstat->job_secondary |= k;
+                crconf->job_secondary |= k;
                 n++;
               } else
               {
@@ -2008,13 +2007,13 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
             }
             break;
         case 3: // NOTDOJOBS
-            crstat->jobs_not_do = 0;
+            crconf->jobs_not_do = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(creaturejob_desc, word_buf);
               if (k > 0)
               {
-                crstat->jobs_not_do |= k;
+                crconf->jobs_not_do |= k;
                 n++;
               } else
               {
@@ -2024,13 +2023,13 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
             }
             break;
         case 4: // STRESSFULJOBS
-            crstat->job_stress = 0;
+            crconf->job_stress = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(creaturejob_desc, word_buf);
               if (k > 0)
               {
-                crstat->job_stress |= k;
+                crconf->job_stress |= k;
                 n++;
               } else
               {
@@ -2043,7 +2042,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->training_value = k;
+              crconf->training_value = k;
               n++;
             }
             if (n < 1)
@@ -2056,7 +2055,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->training_cost = k;
+              crconf->training_cost = k;
               n++;
             }
             if (n < 1)
@@ -2069,7 +2068,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->scavenge_value = k;
+              crconf->scavenge_value = k;
               n++;
             }
             if (n < 1)
@@ -2082,7 +2081,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->scavenger_cost = k;
+              crconf->scavenger_cost = k;
               n++;
             }
             if (n < 1)
@@ -2095,7 +2094,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->research_value = k;
+              crconf->research_value = k;
               n++;
             }
             if (n < 1)
@@ -2108,7 +2107,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->manufacture_value = k;
+              crconf->manufacture_value = k;
               n++;
             }
             if (n < 1)
@@ -2121,7 +2120,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->partner_training = k;
+              crconf->partner_training = k;
               n++;
             }
             if (n < 1)
@@ -2500,8 +2499,8 @@ static TbBool load_creaturemodel_config_file(long crtr_model,const char *textnam
     TbBool result = (len > 0);
     if (!flag_is_set(flags,CnfLd_AcceptPartial))
     {
-        struct CreatureStats* crstat = creature_stats_get(crtr_model);
-        memset(crstat, '\0', sizeof(struct CreatureStats));
+        struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
+        memset(crconf, '\0', sizeof(struct CreatureModelConfig));
     }
     // Parse blocks of the config file
     if (result)
@@ -2608,11 +2607,11 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
         ERRORLOG("Creature index %d is invalid", ncrt_id);
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get(crtr_id);
-    ThingModel oldlair = crstat->lair_object;
+    struct CreatureModelConfig* crconf = creature_stats_get(crtr_id);
+    ThingModel oldlair = crconf->lair_object;
     do_creature_swap(ncrt_id, crtr_id);
-    struct CreatureStats* ncrstat = creature_stats_get(crtr_id);
-    ThingModel newlair = ncrstat->lair_object;
+    struct CreatureModelConfig* ncrconf = creature_stats_get(crtr_id);
+    ThingModel newlair = ncrconf->lair_object;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         do_to_players_all_creatures_of_model(plyr_idx, crtr_id, update_relative_creature_health);
@@ -2637,10 +2636,10 @@ TbBool make_all_creatures_free(void)
 {
     for (long i = 0; i < game.conf.crtr_conf.model_count; i++)
     {
-        struct CreatureStats* crstat = creature_stats_get(i);
-        crstat->training_cost = 0;
-        crstat->scavenger_cost = 0;
-        crstat->pay = 0;
+        struct CreatureModelConfig* crconf = creature_stats_get(i);
+        crconf->training_cost = 0;
+        crconf->scavenger_cost = 0;
+        crconf->pay = 0;
     }
     return true;
 }
@@ -2650,13 +2649,13 @@ TbBool make_all_creatures_free(void)
  */
 TbBool change_max_health_of_creature_kind(ThingModel crmodel, HitPoints new_max)
 {
-    struct CreatureStats* crstat = creature_stats_get(crmodel);
-    if (creature_stats_invalid(crstat)) {
+    struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
+    if (creature_stats_invalid(crconf)) {
         ERRORLOG("Invalid creature model %d",(int)crmodel);
         return false;
     }
-    SYNCDBG(3,"Changing all %s health from %d to %d.",creature_code_name(crmodel),(int)crstat->health,(int)new_max);
-    crstat->health = saturate_set_signed(new_max, 16);
+    SYNCDBG(3,"Changing all %s health from %d to %d.",creature_code_name(crmodel),(int)crconf->health,(int)new_max);
+    crconf->health = saturate_set_signed(new_max, 16);
     int n = do_to_all_things_of_class_and_model(TCls_Creature, crmodel, update_creature_health_to_max);
     return (n > 0);
 }

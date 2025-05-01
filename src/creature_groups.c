@@ -704,10 +704,10 @@ long process_obey_leader(struct Thing *thing)
         {
             struct Room *room;
             room = get_room_creature_works_in(leadtng);
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(thing);
+            struct CreatureModelConfig *crconf;
+            crconf = creature_stats_get_from_thing(thing);
             CreatureJob jobpref;
-            jobpref = get_job_for_room(room->kind, JoKF_None, crstat->job_primary|crstat->job_secondary);
+            jobpref = get_job_for_room(room->kind, JoKF_None, crconf->job_primary|crconf->job_secondary);
             cleanup_current_thing_state(thing);
             send_creature_to_room(thing, room, jobpref);
         }

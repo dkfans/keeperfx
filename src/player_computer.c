@@ -1067,10 +1067,10 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                     ( crtr_state != CrSt_CreatureAtChangedLair ) &&
                     ( crtr_state != CrSt_CreatureBeingDropped ))
                 {
-                    struct CreatureStats* crstat = creature_stats_get_from_thing(i);
-                    if (crstat->health > 0)
+                    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(i);
+                    if (crconf->health > 0)
                     {
-                        if (100 * i->health / (game.conf.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->exp_level / 100 + crstat->health) > 20)
+                        if (100 * i->health / (game.conf.crtr_conf.exp.health_increase_on_exp * crconf->health * cctrl->exp_level / 100 + crconf->health) > 20)
                         {
                             ++count;
                         }

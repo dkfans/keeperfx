@@ -2281,8 +2281,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
 static void set_creature_configuration_process(struct ScriptContext* context)
 {
     short creatid = context->value->shorts[0];
-    struct CreatureStats* crstat = creature_stats_get(creatid);
-    struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatid];
+    struct CreatureModelConfig* crconf = creature_stats_get(creatid);
 
     short creature_variable = context->value->shorts[1];
     short block  = context->value->shorts[2];
@@ -2298,9 +2297,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             CONFWRNLOG("Attribute (%d) not supported", creature_variable);
             break;
         case 2: // HEALTH
-            if (crstat->health != value)
+            if (crconf->health != value)
             {
-                crstat->health = value;
+                crconf->health = value;
                 for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
                 {
                     do_to_players_all_creatures_of_model(plyr_idx, creatid, update_relative_creature_health);
@@ -2308,51 +2307,51 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             }
             break;
         case 3: // HEALREQUIREMENT
-            crstat->heal_requirement = value;
+            crconf->heal_requirement = value;
             break;
         case 4: // HEALTHRESHOLD
-            crstat->heal_threshold = value;
+            crconf->heal_threshold = value;
             break;
         case 5: // STRENGTH
-            crstat->strength = value;
+            crconf->strength = value;
             break;
         case 6: // ARMOUR
-            crstat->armour = value;
+            crconf->armour = value;
             break;
         case 7: // DEXTERITY
-            crstat->dexterity = value;
+            crconf->dexterity = value;
             break;
         case 8: // FEARWOUNDED
-            crstat->fear_wounded = value;
+            crconf->fear_wounded = value;
             break;
         case 9: // FEARSTRONGER
-            crstat->fear_stronger = value;
+            crconf->fear_stronger = value;
             break;
         case 10: // DEFENCE
-            crstat->defense = value;
+            crconf->defense = value;
             break;
         case 11: // LUCK
-            crstat->luck = value;
+            crconf->luck = value;
             break;
         case 12: // RECOVERY
-            crstat->sleep_recovery = value;
+            crconf->sleep_recovery = value;
             break;
         case 13: // HUNGERRATE
-            crstat->hunger_rate = value;
+            crconf->hunger_rate = value;
             break;
         case 14: // HUNGERFILL
-            crstat->hunger_fill = value;
+            crconf->hunger_fill = value;
             break;
         case 15: // LAIRSIZE
-            crstat->lair_size = value;
+            crconf->lair_size = value;
             break;
         case 16: // HURTBYLAVA
-            crstat->hurt_by_lava = value;
+            crconf->hurt_by_lava = value;
             break;
         case 17: // BASESPEED
-            if (crstat->base_speed != value)
+            if (crconf->base_speed != value)
             {
-                crstat->base_speed = value;
+                crconf->base_speed = value;
                 for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
                 {
                     update_speed_of_player_creatures_of_model(plyr_idx, creatid);
@@ -2360,22 +2359,22 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             }
             break;
         case 18: // GOLDHOLD
-            crstat->gold_hold = value;
+            crconf->gold_hold = value;
             break;
         case 19: // SIZE
-            crstat->size_xy = value;
-            crstat->size_z = value2;
+            crconf->size_xy = value;
+            crconf->size_z = value2;
             break;
         case 20: // ATTACKPREFERENCE
-            crstat->attack_preference = value;
+            crconf->attack_preference = value;
             break;
         case 21: // PAY
-            crstat->pay = value;
+            crconf->pay = value;
             break;
         case 22: // HEROVSKEEPERCOST
             break;
         case 23: // SLAPSTOKILL
-            crstat->slaps_to_kill = value;
+            crconf->slaps_to_kill = value;
             break;
         case 24: // CREATURELOYALTY
         case 25: // LOYALTYLEVEL
@@ -2383,66 +2382,66 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             CONFWRNLOG("Attribute (%d) not supported", creature_variable);
             break;
         case 26: // DAMAGETOBOULDER
-            crstat->damage_to_boulder = value;
+            crconf->damage_to_boulder = value;
             break;
         case 27: // THINGSIZE
-            crstat->thing_size_xy = value;
-            crstat->thing_size_z = value2;
+            crconf->thing_size_xy = value;
+            crconf->thing_size_z = value2;
             break;
         case 29: // NAMETEXTID
             crconf->namestr_idx = value;
             break;
         case 30: // FEARSOMEFACTOR
-            crstat->fearsome_factor = value;
+            crconf->fearsome_factor = value;
             break;
         case 31: // TOKINGRECOVERY
-            crstat->toking_recovery = value;
+            crconf->toking_recovery = value;
             break;
         case 32: // CORPSEVANISHEFFECT
-            crstat->corpse_vanish_effect = value;
+            crconf->corpse_vanish_effect = value;
             break;
         case 33: // FOOTSTEPPITCH
-            crstat->footstep_pitch = value;
+            crconf->footstep_pitch = value;
             break;
         case 34: // LAIROBJECT
-            if (crstat->lair_object != value)
+            if (crconf->lair_object != value)
             {
                 for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
                 {
                     do_to_players_all_creatures_of_model(plyr_idx, creatid, remove_creature_lair);
                 }
-                crstat->lair_object = value;
+                crconf->lair_object = value;
             }
             break;
         case 35: // PRISONKIND
-            crstat->prison_kind = value;
+            crconf->prison_kind = value;
             break;
         case 36: // TORTUREKIND
-            crstat->torture_kind = value;
+            crconf->torture_kind = value;
             break;
         case 37: // SPELLIMMUNITY
             if (value2 == 0)
             {
-                clear_flag(crstat->immunity_flags, value);
+                clear_flag(crconf->immunity_flags, value);
             }
             else if (value2 == 1)
             {
-                set_flag(crstat->immunity_flags, value);
+                set_flag(crconf->immunity_flags, value);
             }
             else
             {
-                crstat->immunity_flags = value;
+                crconf->immunity_flags = value;
             }
             break;
         case 38: // HOSTILETOWARDS
             // Assume the mapmaker wants to reset it.
             for (int i = 0; i < CREATURE_TYPES_MAX; i++)
             {
-                crstat->hostile_towards[i] = 0;
+                crconf->hostile_towards[i] = 0;
             }
             if (value != 0)
             {
-                crstat->hostile_towards[0] = value; // Then apply the change on the first only.
+                crconf->hostile_towards[0] = value; // Then apply the change on the first only.
             }
             break;
         case ccr_comment:
@@ -2461,79 +2460,79 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 1: // PRIMARYJOBS
             if (value2 == 0)
             {
-                clear_flag(crstat->job_primary, value);
+                clear_flag(crconf->job_primary, value);
             }
             else if (value2 == 1)
             {
-                set_flag(crstat->job_primary, value);
+                set_flag(crconf->job_primary, value);
             }
             else
             {
-                crstat->job_primary = value;
+                crconf->job_primary = value;
             }
             break;
         case 2: // SECONDARYJOBS
             if (value2 == 0)
             {
-                clear_flag(crstat->job_secondary, value);
+                clear_flag(crconf->job_secondary, value);
             }
             else if (value2 == 1)
             {
-                set_flag(crstat->job_secondary, value);
+                set_flag(crconf->job_secondary, value);
             }
             else
             {
-                crstat->job_secondary = value;
+                crconf->job_secondary = value;
             }
             break;
         case 3: // NOTDOJOBS
             if (value2 == 0)
             {
-                clear_flag(crstat->jobs_not_do, value);
+                clear_flag(crconf->jobs_not_do, value);
             }
             else if (value2 == 1)
             {
-                set_flag(crstat->jobs_not_do, value);
+                set_flag(crconf->jobs_not_do, value);
             }
             else
             {
-                crstat->jobs_not_do = value;
+                crconf->jobs_not_do = value;
             }
             break;
         case 4: // STRESSFULJOBS
             if (value2 == 0)
             {
-                clear_flag(crstat->job_stress, value);
+                clear_flag(crconf->job_stress, value);
             }
             else if (value2 == 1)
             {
-                set_flag(crstat->job_stress, value);
+                set_flag(crconf->job_stress, value);
             }
             else
             {
-                crstat->job_stress = value;
+                crconf->job_stress = value;
             }
             break;
         case 5: // TRAININGVALUE
-            crstat->training_value = value;
+            crconf->training_value = value;
             break;
         case 6: // TRAININGCOST
-            crstat->training_cost = value;
+            crconf->training_cost = value;
             break;
         case 7: // SCAVENGEVALUE
-            crstat->scavenge_value = value;
+            crconf->scavenge_value = value;
             break;
         case 8: // SCAVENGERCOST
-            crstat->scavenger_cost = value;
+            crconf->scavenger_cost = value;
             break;
         case 9: // RESEARCHVALUE
-            crstat->research_value = value;
+            crconf->research_value = value;
             break;
         case 10: // MANUFACTUREVALUE
-            crstat->manufacture_value = value;
+            crconf->manufacture_value = value;
             break;
         case 11: // PARTNERTRAINING
-            crstat->partner_training = value;
+            crconf->partner_training = value;
             break;
         default:
             CONFWRNLOG("Unrecognized Job command (%d)", creature_variable);
@@ -2546,23 +2545,23 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         switch (creature_variable)
         {
         case 1: // ENTRANCEROOM
-            crstat->entrance_rooms[0] = value;
-            crstat->entrance_rooms[1] = value2;
-            crstat->entrance_rooms[2] = value3;
+            crconf->entrance_rooms[0] = value;
+            crconf->entrance_rooms[1] = value2;
+            crconf->entrance_rooms[2] = value3;
             break;
         case 2: // ROOMSLABSREQUIRED
-            crstat->entrance_slabs_req[0] = value;
-            crstat->entrance_slabs_req[1] = value2;
-            crstat->entrance_slabs_req[2] = value3;
+            crconf->entrance_slabs_req[0] = value;
+            crconf->entrance_slabs_req[1] = value2;
+            crconf->entrance_slabs_req[2] = value3;
             break;
         case 3: // BASEENTRANCESCORE
-            crstat->entrance_score = value;
+            crconf->entrance_score = value;
             break;
         case 4: // SCAVENGEREQUIREMENT
-            crstat->scavenge_require = value;
+            crconf->scavenge_require = value;
             break;
         case 5: // TORTURETIME
-            crstat->torture_break_time = value;
+            crconf->torture_break_time = value;
             break;
         default:
             CONFWRNLOG("Unrecognized Attraction command (%d)", creature_variable);
@@ -2636,139 +2635,139 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // EATFOOD
         {
-            crstat->annoy_eat_food = value;
+            crconf->annoy_eat_food = value;
             break;
         }
         case 2: // WILLNOTDOJOB
         {
-            crstat->annoy_will_not_do_job = value;
+            crconf->annoy_will_not_do_job = value;
             break;
         }
         case 3: // INHAND
         {
-            crstat->annoy_in_hand = value;
+            crconf->annoy_in_hand = value;
             break;
         }
         case 4: // NOLAIR
         {
-            crstat->annoy_no_lair = value;
+            crconf->annoy_no_lair = value;
             break;
         }
         case 5: // NOHATCHERY
         {
-            crstat->annoy_no_hatchery = value;
+            crconf->annoy_no_hatchery = value;
             break;
         }
         case 6: // WOKENUP
         {
-            crstat->annoy_woken_up = value;
+            crconf->annoy_woken_up = value;
             break;
         }
         case 7: // STANDINGONDEADENEMY
         {
-            crstat->annoy_on_dead_enemy = value;
+            crconf->annoy_on_dead_enemy = value;
             break;
         }
         case 8: // SULKING
         {
-            crstat->annoy_sulking = value;
+            crconf->annoy_sulking = value;
             break;
         }
         case 9: // NOSALARY
         {
-            crstat->annoy_no_salary = value;
+            crconf->annoy_no_salary = value;
             break;
         }
         case 10: // SLAPPED
         {
-            crstat->annoy_slapped = value;
+            crconf->annoy_slapped = value;
             break;
         }
         case 11: // STANDINGONDEADFRIEND
         {
-            crstat->annoy_on_dead_friend = value;
+            crconf->annoy_on_dead_friend = value;
             break;
         }
         case 12: // INTORTURE
         {
-            crstat->annoy_in_torture = value;
+            crconf->annoy_in_torture = value;
             break;
         }
         case 13: // INTEMPLE
         {
-            crstat->annoy_in_temple = value;
+            crconf->annoy_in_temple = value;
             break;
         }
         case 14: // SLEEPING
         {
-            crstat->annoy_sleeping = value;
+            crconf->annoy_sleeping = value;
             break;
         }
         case 15: // GOTWAGE
         {
-            crstat->annoy_got_wage = value;
+            crconf->annoy_got_wage = value;
             break;
         }
         case 16: // WINBATTLE
         {
-            crstat->annoy_win_battle = value;
+            crconf->annoy_win_battle = value;
             break;
         }
         case 17: // UNTRAINED
         {
-            crstat->annoy_untrained_time = value;
-            crstat->annoy_untrained = value2;
+            crconf->annoy_untrained_time = value;
+            crconf->annoy_untrained = value2;
             break;
         }
         case 18: // OTHERSLEAVING
         {
-            crstat->annoy_others_leaving = value;
+            crconf->annoy_others_leaving = value;
             break;
         }
         case 19: // JOBSTRESS
         {
-            crstat->annoy_job_stress = value;
+            crconf->annoy_job_stress = value;
             break;
         }
         case 20: // QUEUE
         {
-            crstat->annoy_queue = value;
+            crconf->annoy_queue = value;
             break;
         }
         case 21: // LAIRENEMY
         {
-            crstat->lair_enemy[0] = value;
-            crstat->lair_enemy[1] = value2;
-            crstat->lair_enemy[2] = value3;
+            crconf->lair_enemy[0] = value;
+            crconf->lair_enemy[1] = value2;
+            crconf->lair_enemy[2] = value3;
             //clear out the other ones.
-            crstat->lair_enemy[3] = 0;
-            crstat->lair_enemy[4] = 0;
+            crconf->lair_enemy[3] = 0;
+            crconf->lair_enemy[4] = 0;
             break;
         }
         case 22: // ANNOYLEVEL
         {
-            crstat->annoy_level = value;
+            crconf->annoy_level = value;
             break;
         }
         case 23: // ANGERJOBS
         {
             if (value2 == 0)
             {
-                clear_flag(crstat->jobs_anger, value);
+                clear_flag(crconf->jobs_anger, value);
             }
             else if (value2 == 1)
             {
-                set_flag(crstat->jobs_anger, value);
+                set_flag(crconf->jobs_anger, value);
             }
             else
             {
-                crstat->jobs_anger = value;
+                crconf->jobs_anger = value;
             }
             break;
         }
         case 24: // GOINGPOSTAL
         {
-            crstat->annoy_going_postal = value;
+            crconf->annoy_going_postal = value;
             break;
         }
         default:
@@ -2782,40 +2781,40 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // POWERS
         {
-            crstat->learned_instance_id[value2-1] = value;
+            crconf->learned_instance_id[value2-1] = value;
             break;
         }
         case 2: // POWERSLEVELREQUIRED
         {
-            crstat->learned_instance_level[value2-1] = value;
+            crconf->learned_instance_level[value2-1] = value;
             break;
         }
         case 3: // LEVELSTRAINVALUES
         {
-            crstat->to_level[value2-1] = value;
+            crconf->to_level[value2-1] = value;
             break;
         }
         case 4: // GROWUP
         {
-            crstat->to_level[CREATURE_MAX_LEVEL - 1] = value;
-            crstat->grow_up = value2;
-            crstat->grow_up_level = value3;
+            crconf->to_level[CREATURE_MAX_LEVEL - 1] = value;
+            crconf->grow_up = value2;
+            crconf->grow_up_level = value3;
             break;
         }
         case 5: // SLEEPEXPERIENCE
         {
-            crstat->sleep_exp_slab = value;
-            crstat->sleep_experience = value2;
+            crconf->sleep_exp_slab = value;
+            crconf->sleep_experience = value2;
             break;
         }
         case 6: // EXPERIENCEFORHITTING
         {
-            crstat->exp_for_hitting = value;
+            crconf->exp_for_hitting = value;
             break;
         }
         case 7: // REBIRTH
         {
-            crstat->rebirth = value;
+            crconf->rebirth = value;
             break;
         }
         default:
@@ -2829,60 +2828,60 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // WALKINGANIMSPEED
         {
-            crstat->walking_anim_speed = value;
+            crconf->walking_anim_speed = value;
             break;
         }
         case 2: // VISUALRANGE
         {
-            crstat->visual_range = value;
+            crconf->visual_range = value;
             break;
         }
         case 3: // SWIPEINDEX
         {
-            crstat->swipe_idx = value;
+            crconf->swipe_idx = value;
             break;
         }
         case 4: // NATURALDEATHKIND
         {
-            crstat->natural_death_kind = value;
+            crconf->natural_death_kind = value;
             break;
         }
         case 5: // SHOTORIGIN
         {
-            crstat->shot_shift_x = value;
-            crstat->shot_shift_y = value2;
-            crstat->shot_shift_z = value3;
+            crconf->shot_shift_x = value;
+            crconf->shot_shift_y = value2;
+            crconf->shot_shift_z = value3;
             break;
         }
         case 6: // CORPSEVANISHEFFECT
         {
-            crstat->corpse_vanish_effect = value;
+            crconf->corpse_vanish_effect = value;
             break;
         }
         case 7: // FOOTSTEPPITCH
         {
-            crstat->footstep_pitch = value;
+            crconf->footstep_pitch = value;
             break;
         }
         case 8: // PICKUPOFFSET
         {
-            crstat->creature_picked_up_offset.delta_x = value;
-            crstat->creature_picked_up_offset.delta_y = value2;
+            crconf->creature_picked_up_offset.delta_x = value;
+            crconf->creature_picked_up_offset.delta_y = value2;
             break;
         }
         case 9: // STATUSOFFSET
         {
-            crstat->status_offset = value;
+            crconf->status_offset = value;
             break;
         }
         case 10: // TRANSPARENCYFLAGS
         {
-            crstat->transparency_flags = value<<4;
+            crconf->transparency_flags = value<<4;
             break;
         }
         case 11: // FIXEDANIMSPEED
         {
-            crstat->fixed_anim_speed = value;
+            crconf->fixed_anim_speed = value;
             break;
         }
         default:
@@ -2896,22 +2895,22 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // HEARING
         {
-            crstat->hearing = value;
+            crconf->hearing = value;
             break;
         }
         case 2: // EYEHEIGHT
         {
-            crstat->base_eye_height = value;
+            crconf->base_eye_height = value;
             break;
         }
         case 3: // FIELDOFVIEW
         {
-            crstat->field_of_view = value;
+            crconf->field_of_view = value;
             break;
         }
         case 4: // EYEEFFECT
         {
-            crstat->eye_effect = value;
+            crconf->eye_effect = value;
             struct Thing* thing = thing_get(get_my_player()->influenced_thing_idx);
             if(!thing_is_invalid(thing))
             {
@@ -2934,7 +2933,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         }
         case 5: // MAXANGLECHANGE
         {
-            crstat->max_turning_speed = (value * LbFPMath_PI) / 180;
+            crconf->max_turning_speed = (value * LbFPMath_PI) / 180;
             break;
         }
         default:
