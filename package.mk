@@ -32,6 +32,8 @@ PKG_FXDATA_FILES = \
 	$(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.toml)) \
 	$(patsubst config/%,pkg/%,$(wildcard config/fxdata/lua/**/*.lua)) \
 	pkg/fxdata/lua/init.lua
+PKG_FXDATA_DIRS = $(sort $(dir $(PKG_FXDATA_FILES)))
+
 PKG_MAPPACK_FILES = \
 	$(patsubst %,pkg/levels/mappck_order.txt,$(MAPPACKS)) \
 	$(patsubst %,pkg/levels/%.cfg,$(MAPPACKS)) \
@@ -71,7 +73,7 @@ PKG_FILES = \
 
 .PHONY: package
 
-pkg pkg/creatrs pkg/fxdata pkg/campgns $(PKG_MAPPACK_DIRS) $(PKG_CAMPAIGN_DIRS):
+pkg pkg/creatrs pkg/fxdata pkg/campgns $(PKG_MAPPACK_DIRS) $(PKG_CAMPAIGN_DIRS) $(PKG_FXDATA_DIRS):
 	$(MKDIR) $@
 
 pkg/fxdata/lua/init.lua: config/fxdata/lua/init.lua | pkg/fxdata/lua
