@@ -73,8 +73,12 @@ PKG_FILES = \
 
 .PHONY: package
 
-pkg pkg/creatrs pkg/fxdata pkg/campgns $(PKG_MAPPACK_DIRS) $(PKG_CAMPAIGN_DIRS) $(PKG_FXDATA_DIRS):
+pkg pkg/creatrs pkg/fxdata pkg/campgns pkg/fxdata/lua $(PKG_MAPPACK_DIRS) $(PKG_CAMPAIGN_DIRS) $(PKG_FXDATA_DIRS):
 	$(MKDIR) $@
+	
+pkg/fxdata/lua/%.lua: config/fxdata/lua/%.lua
+	@mkdir -p $(dir $@)
+	$(CP) $^ $@
 
 pkg/fxdata/lua/init.lua: config/fxdata/lua/init.lua | pkg/fxdata/lua
 	@mkdir -p $(dir $@)
