@@ -2497,11 +2497,6 @@ static TbBool load_creaturemodel_config_file(long crtr_model,const char *textnam
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
-    if (!flag_is_set(flags,CnfLd_AcceptPartial))
-    {
-        struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
-        memset(crconf, '\0', sizeof(struct CreatureModelConfig));
-    }
     // Parse blocks of the config file
     if (result)
     {
