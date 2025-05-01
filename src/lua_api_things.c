@@ -60,7 +60,15 @@ static int make_thing_zombie (lua_State *L)
 static int lua_delete_thing(lua_State *L)
 {
     struct Thing *thing = luaL_checkThing(L, 1);
-    delete_thing_structure(thing,0);
+
+    if (thing->class_id == TCls_Creature)
+    {
+        kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
+    }
+    else
+    {
+        delete_thing_structure(thing,0);
+    }
     return 0;
 }
 
