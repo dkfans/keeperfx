@@ -1,3 +1,5 @@
+---@meta
+
 ---Once an Action Point has been triggered, it cannot be triggered again unless it has been reset by this command.
 ---@param action_point integer Action Point number
 ---@param player playerrange

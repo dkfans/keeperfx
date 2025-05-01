@@ -1,3 +1,5 @@
+---@meta
+
 ---If you have placed down an enemy dungeon heart (not a hero dungeon heart), this command tells Dungeon Keeper that a computer player needs to be assigned.
 ---@param player playersingle
 ---@param attitude integer|"ROAMING"
