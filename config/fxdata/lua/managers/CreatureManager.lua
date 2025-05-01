@@ -23,3 +23,16 @@ function Get_creatures_of_player(player)
     return player_creatures
 end
 
+---returns a table containing all creatures on the map that satisfy the given filter function
+---@param filter function A function that takes a Creature as an argument and returns a boolean
+---@return Creature[]
+function Get_creatures_by_filter(filter)
+    local creatures = Get_things_of_class("Creature")
+    local filtered_creatures = {}
+    for _, creature in ipairs(creatures) do
+        if filter(creature) then
+            table.insert(filtered_creatures, creature)
+        end
+    end
+    return filtered_creatures
+end

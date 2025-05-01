@@ -1,3 +1,0 @@
--- ConfigAPI.lua
--- Unified interface for setting gameplay configuration values (e.g. via magic.cfg, creature.cfg).
--- Wraps functions like Set_creature_configuration and Set_trap_configuration.

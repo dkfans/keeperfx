@@ -13,7 +13,7 @@
 ---@field health integer
 ---@field max_health integer
 ---@field picked_up boolean
-
+if not Thing then Thing = {} end
 
 --- @param action function|string the function to call when the event happens
 function Thing:OnDamage(action)

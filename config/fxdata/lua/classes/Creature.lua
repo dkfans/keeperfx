@@ -6,7 +6,7 @@
 ---@field level integer
 ---@field name string name visible in possession or query menu
 ---@field party Creature[] list of creatures in the party, first entry is the leader
-
+if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens
 function Creature:OnDeath(action)

@@ -1,2 +1,0 @@
--- MapManager.lua
--- Utility module for map manipulation (reveal/conceal tiles, spawn entities, change slabs).
