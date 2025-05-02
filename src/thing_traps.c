@@ -791,7 +791,7 @@ void process_trap_charge(struct Thing* traptng)
         }
         else
         {
-            trigger_duration = get_lifespan_of_animation(trapst->attack_sprite_anim_idx, trapst->anim_speed);
+            trigger_duration = get_lifespan_of_animation(trapst->attack_sprite_anim_idx, trapst->attack_anim_speed);
         }
         traptng->trap.shooting_finished_turn = (game.play_gameturn + trigger_duration);
         traptng->current_frame = 0;

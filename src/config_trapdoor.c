@@ -250,8 +250,12 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"ACTIVATIONLEVEL",        0, field(game.conf.trapdoor_conf.trap_cfgstats[0].activation_level),                 0,          0,                 9, NULL,                        value_min1, assign_default},
     {"ANIMATIONID",            0, field(game.conf.trapdoor_conf.trap_cfgstats[0].sprite_anim_idx),                  0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_refresh_trap_anim_anim_id},
     {"MODEL",                  0, field(game.conf.trapdoor_conf.trap_cfgstats[0].sprite_anim_idx),                  0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_refresh_trap_anim_anim_id}, // Backward compatibility.
+    {"RECHARGEANIMATIONID",    0, field(game.conf.trapdoor_conf.trap_cfgstats[0].recharge_sprite_anim_idx),         0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_refresh_trap_anim_anim_id},
+    {"ATTACKANIMATIONID",      0, field(game.conf.trapdoor_conf.trap_cfgstats[0].attack_sprite_anim_idx),           0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_animid},
     {"MODELSIZE",              0, field(game.conf.trapdoor_conf.trap_cfgstats[0].sprite_size_max),                  0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_refresh_trap_anim},
     {"ANIMATIONSPEED",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].anim_speed),                       0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_refresh_trap_anim},
+    {"ATTACKANIMATIONSPEED",   0, field(game.conf.trapdoor_conf.trap_cfgstats[0].attack_anim_speed),                0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_refresh_trap_anim},
+    {"RECHARGEANIMATIONSPEED", 0, field(game.conf.trapdoor_conf.trap_cfgstats[0].recharge_anim_speed),              0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_refresh_trap_anim},
     {"UNANIMATED",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].unanimated),                       0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_refresh_trap_anim},
     {"HIDDEN",                 0, field(game.conf.trapdoor_conf.trap_cfgstats[0].hidden),                        true,          0,                 1, NULL,                     value_default, assign_default},
     {"SLAPPABLE",              0, field(game.conf.trapdoor_conf.trap_cfgstats[0].slappable),                        0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
@@ -278,8 +282,6 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"SHOTORIGIN",             2, field(game.conf.trapdoor_conf.trap_cfgstats[0].shot_shift_z),                     0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"PLACESOUND",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].place_sound_idx),                117,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"TRIGGERSOUND",           0, field(game.conf.trapdoor_conf.trap_cfgstats[0].trigger_sound_idx),              176,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
-    {"RECHARGEANIMATIONID",    0, field(game.conf.trapdoor_conf.trap_cfgstats[0].recharge_sprite_anim_idx),         0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_refresh_trap_anim_anim_id},
-    {"ATTACKANIMATIONID",      0, field(game.conf.trapdoor_conf.trap_cfgstats[0].attack_sprite_anim_idx),           0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_animid},
     {"DESTROYEDEFFECT",        0, field(game.conf.trapdoor_conf.trap_cfgstats[0].destroyed_effect), -TngEffElm_Blast2,   LONG_MIN,         ULONG_MAX, NULL,                  value_effOrEffEl, assign_default},
     {"INITIALDELAY",           0, field(game.conf.trapdoor_conf.trap_cfgstats[0].initial_delay),                    0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"PLACEONSUBTILE",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].place_on_subtile),                 0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
@@ -714,6 +716,7 @@ static void refresh_trap_anim(long trap_id)
     const struct StructureList* slist = get_list_for_thing_class(TCls_Trap);
     struct TrapConfigStats *trapst_old = get_trap_model_stats(trap_id);
     struct TrapConfigStats *trapst_new;
+    long correct_anim_speed;
     int i = slist->index;
     while (i != 0)
     {
@@ -730,10 +733,12 @@ static void refresh_trap_anim(long trap_id)
             if ((traptng->trap.wait_for_rearm == true) || (trapst_old->recharge_sprite_anim_idx == 0))
             {
                 traptng->anim_sprite = trapst_old->sprite_anim_idx;
+                correct_anim_speed = trapst_old->anim_speed;
             }
             else
             {
                 traptng->anim_sprite = trapst_old->recharge_sprite_anim_idx;
+                correct_anim_speed = trapst_old->recharge_anim_speed;
             }
             trapst_new = get_trap_model_stats(traptng->model);
             char start_frame;
@@ -743,7 +748,7 @@ static void refresh_trap_anim(long trap_id)
             else {
                 start_frame = 0;
             }
-            set_thing_draw(traptng, trapst_new->sprite_anim_idx, trapst_new->anim_speed, trapst_new->sprite_size_max, trapst_new->unanimated, start_frame, ODC_Default);
+            set_thing_draw(traptng, trapst_new->sprite_anim_idx, correct_anim_speed, trapst_new->sprite_size_max, trapst_new->unanimated, start_frame, ODC_Default);
         }
         // Per thing code ends.
         k++;
