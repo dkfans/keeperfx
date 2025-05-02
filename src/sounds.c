@@ -114,7 +114,7 @@ void play_thing_walking(struct Thing *thing)
 {
     struct PlayerInfo* myplyr = get_my_player();
     struct Camera* cam = myplyr->acamera;
-    struct CreatureStats* crstat;
+    struct CreatureModelConfig* crconf;
     { // Skip the thing if its distance to camera is too big
         MapSubtlDelta dist_x = coord_subtile(abs(cam->mappos.x.val - (MapCoordDelta)thing->mappos.x.val));
         MapSubtlDelta dist_y = coord_subtile(abs(cam->mappos.y.val - (MapCoordDelta)thing->mappos.y.val));
@@ -163,8 +163,8 @@ void play_thing_walking(struct Thing *thing)
                 cctrl->mood_flags |=  (UNSYNC_RANDOM(4) << 2);
                 cctrl->sound_flag &= ~0x1F;
             }
-            crstat = creature_stats_get(thing->model);
-            thing_play_sample(thing, smpl_idx, crstat->footstep_pitch, 0, 3, 3, 1, loudness);
+            crconf = creature_stats_get(thing->model);
+            thing_play_sample(thing, smpl_idx, crconf->footstep_pitch, 0, 3, 3, 1, loudness);
             if ((thing->movement_flags & TMvF_IsOnWater) != 0) {
                 thing_play_sample(thing, 21 + UNSYNC_RANDOM(4), 90 + UNSYNC_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
             }
@@ -539,8 +539,8 @@ void update_first_person_object_ambience(struct Thing *thing)
     struct ObjectConfigStats* objst;
     if (thing->class_id == TCls_Creature)
     {
-        struct CreatureStats* crstat = creature_stats_get(thing->model);
-        hearing_range = (long)subtile_coord(crstat->hearing, 0) / 2;
+        struct CreatureModelConfig* crconf = creature_stats_get(thing->model);
+        hearing_range = (long)subtile_coord(crconf->hearing, 0) / 2;
     }
     else
     {

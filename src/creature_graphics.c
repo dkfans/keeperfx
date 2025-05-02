@@ -162,8 +162,8 @@ struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing
     ThingModel crmodel = thing->model;
     if ((crmodel < 1) || (crmodel >= game.conf.crtr_conf.model_count))
         crmodel = 0;
-    struct CreatureStats* crstat = creature_stats_get(crmodel);
-    return &crstat->creature_picked_up_offset;
+    struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
+    return &crconf->creature_picked_up_offset;
 }
 
 unsigned char keepersprite_frames(unsigned short n)
@@ -393,10 +393,10 @@ void update_creature_rendering_flags(struct Thing *thing)
     }
     if (thing_is_creature(thing))
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-        if (crstat->transparency_flags != 0)
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+        if (crconf->transparency_flags != 0)
         {
-            set_flag(thing->rendering_flags, crstat->transparency_flags);
+            set_flag(thing->rendering_flags, crconf->transparency_flags);
         }
     }
     if (creature_is_invisible(thing))
@@ -432,7 +432,7 @@ void update_creature_graphic_anim(struct Thing *thing)
 
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
 
     if ((thing->size_change & TSC_ChangeSize) != 0)
     {
@@ -493,15 +493,15 @@ void update_creature_graphic_anim(struct Thing *thing)
         } else
         if ((cctrl->dragtng_idx != 0) && (thing_get(cctrl->dragtng_idx)->state_flags & TF1_IsDragged1))
         {
-            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed+1);
             update_creature_anim(thing, i, CGI_Drag);
         } else
-        if (crstat->fixed_anim_speed)
+        if (crconf->fixed_anim_speed)
         {
             update_creature_anim(thing, 256, CGI_Ambulate);
         } else
         {
-            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed+1);
             if (!update_creature_anim(thing, i, CGI_Ambulate))
             {
                 thing->anim_speed = i;
@@ -518,12 +518,12 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim_td(thing, 256, 820);
         } else
-        if (crstat->fixed_anim_speed)
+        if (crconf->fixed_anim_speed)
         {
             update_creature_anim_td(thing, 256, 819);
         } else
         {
-            i = (((long)cctrl->distance_to_destination) << 8) / (crstat->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed+1);
             if (!update_creature_anim_td(thing, i, 819))
             {
                 thing->anim_speed = i;

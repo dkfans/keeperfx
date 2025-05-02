@@ -551,9 +551,9 @@ static TbBool check_out_undug_drop_place(struct Thing *spdigtng)
 
 long check_out_unclaimed_gold(struct Thing *spdigtng, long range)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(spdigtng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(spdigtng);
     // If the creature holds more gold than its able
-    if (spdigtng->creature.gold_carried >= crstat->gold_hold) {
+    if (spdigtng->creature.gold_carried >= crconf->gold_hold) {
         return 0;
     }
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
@@ -1036,9 +1036,9 @@ short imp_birth(struct Thing *thing)
     if ((i % 2) == 0) {
       create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     thing->movement_flags &= ~TMvF_Flying;
-    creature_turn_to_face_angle(thing, i * (long)crstat->max_turning_speed);
+    creature_turn_to_face_angle(thing, i * (long)crconf->max_turning_speed);
     return 0;
 }
 
@@ -1178,9 +1178,9 @@ short imp_digs_mines(struct Thing *spdigtng)
 
     if (mtask->kind == SDDigTask_MineGold)
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(spdigtng);
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(spdigtng);
         // If the creature holds more gold than its able
-        if (spdigtng->creature.gold_carried > crstat->gold_hold)
+        if (spdigtng->creature.gold_carried > crconf->gold_hold)
         {
             if (game.play_gameturn - cctrl->tasks_check_turn > 128)
             {
@@ -1190,8 +1190,8 @@ short imp_digs_mines(struct Thing *spdigtng)
                 }
                 cctrl->tasks_check_turn = game.play_gameturn;
             }
-            drop_gold_pile(spdigtng->creature.gold_carried - crstat->gold_hold, &spdigtng->mappos);
-            spdigtng->creature.gold_carried = crstat->gold_hold;
+            drop_gold_pile(spdigtng->creature.gold_carried - crconf->gold_hold, &spdigtng->mappos);
+            spdigtng->creature.gold_carried = crconf->gold_hold;
         }
     }
     return 1;
@@ -1399,9 +1399,9 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
 {
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(spdigtng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(spdigtng);
     unsigned char state = CrSt_ImpLastDidJob;
-    if (crstat->gold_hold > spdigtng->creature.gold_carried)
+    if (crconf->gold_hold > spdigtng->creature.gold_carried)
     {
         MapSubtlCoord stl_x, stl_y;
         if (is_thing_directly_controlled(spdigtng))
@@ -1417,7 +1417,7 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
             stl_x = spdigtng->mappos.x.stl.num;
             stl_y = spdigtng->mappos.y.stl.num;
         }
-        long gold_taken = take_from_gold_pile(stl_x, stl_y, crstat->gold_hold - spdigtng->creature.gold_carried);
+        long gold_taken = take_from_gold_pile(stl_x, stl_y, crconf->gold_hold - spdigtng->creature.gold_carried);
         spdigtng->creature.gold_carried += gold_taken;
         if (gold_taken > 0)
         {
@@ -1513,10 +1513,10 @@ short imp_toking(struct Thing *creatng)
     }
     if ((cctrl->instance_id == CrInst_TOKING) && (cctrl->inst_turn == cctrl->inst_action_turns))
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        if (crstat->toking_recovery != 0)
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+        if (crconf->toking_recovery != 0)
         {
-            HitPoints recover = compute_creature_max_health(crstat->toking_recovery, cctrl->exp_level);
+            HitPoints recover = compute_creature_max_health(crconf->toking_recovery, cctrl->exp_level);
             apply_health_to_thing_and_display_health(creatng, recover);
         }
     }

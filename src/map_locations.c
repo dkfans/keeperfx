@@ -34,7 +34,8 @@ const struct NamedCommand head_for_desc[] = {
   {"ACTION_POINT",         MLoc_ACTIONPOINT},
   {"DUNGEON",              MLoc_PLAYERSDUNGEON},
   {"DUNGEON_HEART",        MLoc_PLAYERSHEART},
-  {"APPROPIATE_DUNGEON",   MLoc_APPROPRTDUNGEON},
+  {"APPROPIATE_DUNGEON",   MLoc_APPROPRTDUNGEON}, //bullfrog spelling, kept until 2025. Keep for legacy.
+  {"APPROPRIATE_DUNGEON",  MLoc_APPROPRTDUNGEON},
   {NULL,                   0},
 };
 

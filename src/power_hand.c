@@ -632,18 +632,18 @@ void draw_power_hand(void)
                 pickoffs = get_creature_picked_up_offset(picktng);
                 inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x*global_hand_scale);
                 inputpos_y = GetMouseY() + scale_ui_value(pickoffs->delta_y*global_hand_scale);
-                struct CreatureStats* crstat = creature_stats_get(picktng->model);
-                if (crstat->transparency_flags == TRF_Transpar_8)
+                struct CreatureModelConfig* crconf = creature_stats_get(picktng->model);
+                if (crconf->transparency_flags == TRF_Transpar_8)
                 {
                     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
                     lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;  
                 }
-                else if (crstat->transparency_flags == TRF_Transpar_4)
+                else if (crconf->transparency_flags == TRF_Transpar_4)
                 {
                     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
                     lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
                 }
-                else if(crstat->transparency_flags == TRF_Transpar_Alpha)
+                else if(crconf->transparency_flags == TRF_Transpar_Alpha)
                 {
                     EngineSpriteDrawUsingAlpha = 1;
                 }
@@ -880,9 +880,9 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
             cctrl->paydays_advanced++;
         }
     }
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
-    anger_apply_anger_to_creature_all_types(creatng, (crstat->annoy_got_wage * tribute / salary * 2));
+    struct CreatureModelConfig *crconf;
+    crconf = creature_stats_get_from_thing(creatng);
+    anger_apply_anger_to_creature_all_types(creatng, (crconf->annoy_got_wage * tribute / salary * 2));
     if (game.conf.rules.game.classic_bugs_flags & ClscBug_FullyHappyWithGold)
     {
         anger_set_creature_anger_all_types(creatng, 0);
@@ -932,8 +932,8 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
             play_creature_sound(droptng, 6, 3, 0);
         }
         dungeon->last_creature_dropped_gameturn = game.play_gameturn;
-        struct CreatureStats* crstat = creature_stats_get(droptng->model);
-        if ((crstat->illuminated) || (creature_under_spell_effect(droptng, CSAfF_Light)))
+        struct CreatureModelConfig* crconf = creature_stats_get(droptng->model);
+        if ((crconf->illuminated) || (creature_under_spell_effect(droptng, CSAfF_Light)))
         {
             illuminate_creature(droptng);
         }
@@ -1082,9 +1082,9 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
             }
         }
     }
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
-    anger_apply_anger_to_creature(thing, crstat->annoy_in_hand, AngR_Other, 1);
+    struct CreatureModelConfig *crconf;
+    crconf = creature_stats_get_from_thing(thing);
+    anger_apply_anger_to_creature(thing, crconf->annoy_in_hand, AngR_Other, 1);
     process_thing_spell_effects_while_blocked(thing);
     update_creature_levels(thing);
     return true;

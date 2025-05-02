@@ -4002,9 +4002,9 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
 static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
     struct EngineCoord coord = *ecor;
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    const struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    short offset = thing->clipbox_size_z + crstat->status_offset;
+    short offset = thing->clipbox_size_z + crconf->status_offset;
     offset += (offset * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
     coord.y += offset;
     rotpers(&coord, &camera_matrix);

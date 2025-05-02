@@ -2529,15 +2529,15 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
                 {
                     if (creature_can_do_job_near_position(thing, stl_x, stl_y, new_job, JobChk_None))
                     {
-                        struct CreatureStats *crstat;
-                        crstat = creature_stats_get_from_thing(thing);
+                        struct CreatureModelConfig *crconf;
+                        crconf = creature_stats_get_from_thing(thing);
                         switch (room->kind)
                         {
                         case RoK_LIBRARY:
-                            score = compute_creature_work_value(crstat->research_value*256, ROOM_EFFICIENCY_MAX, cctrl->exp_level);
+                            score = compute_creature_work_value(crconf->research_value*256, ROOM_EFFICIENCY_MAX, cctrl->exp_level);
                             break;
                         case RoK_WORKSHOP:
-                            score = compute_creature_work_value(crstat->manufacture_value*256, ROOM_EFFICIENCY_MAX, cctrl->exp_level);
+                            score = compute_creature_work_value(crconf->manufacture_value*256, ROOM_EFFICIENCY_MAX, cctrl->exp_level);
                             break;
                         case RoK_TRAINING:
                             score = get_creature_thing_score(thing);
@@ -2716,10 +2716,10 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         }
         if (thing_is_creature(thing) && room_exists(room))
         {
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(thing);
+            struct CreatureModelConfig *crconf;
+            crconf = creature_stats_get_from_thing(thing);
             CreatureJob jobpref;
-            jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crstat->job_primary|crstat->job_secondary);
+            jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crconf->job_primary|crconf->job_secondary);
             if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref, thing))
             {
                 if (computer_dump_held_things_on_map(comp, thing, &pos, CrSt_Unused) > 0) {
@@ -3041,10 +3041,10 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
                 // Check if we really can use the spell on that creature, considering its position and state
                 if (can_cast_spell(dungeon->owner, PwrK_SLAP, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
                 {
-                    struct CreatureStats *crstat;
-                    crstat = creature_stats_get_from_thing(thing);
+                    struct CreatureModelConfig *crconf;
+                    crconf = creature_stats_get_from_thing(thing);
                     // Check if the slap may cause death
-                    if (allow_slap_to_kill || (crstat->slaps_to_kill < 1) || (get_creature_health_permil(thing) >= 2*1000/crstat->slaps_to_kill))
+                    if (allow_slap_to_kill || (crconf->slaps_to_kill < 1) || (get_creature_health_permil(thing) >= 2*1000/crconf->slaps_to_kill))
                     {
                         long state_type;
                         state_type = get_creature_state_type(thing);

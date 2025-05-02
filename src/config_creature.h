@@ -224,6 +224,124 @@ struct CreatureModelConfig {
     char name[COMMAND_WORD_LEN];
     long namestr_idx;
     unsigned long model_flags;
+    unsigned short job_primary;
+    unsigned short job_secondary;
+    unsigned short jobs_not_do;
+    unsigned char eye_effect;
+    HitPoints health;
+    unsigned char heal_requirement;
+    unsigned char heal_threshold;
+    unsigned short strength;
+    unsigned char armour;
+    unsigned char dexterity;
+    unsigned char fear_wounded;
+    unsigned char defense;
+    unsigned char luck;
+    unsigned char sleep_recovery;
+    unsigned short hunger_rate;
+    unsigned char hunger_fill;
+    unsigned short annoy_level;
+    unsigned char lair_size;
+    unsigned char hurt_by_lava;
+    unsigned char sleep_exp_slab;
+    short sleep_experience;
+    short exp_for_hitting;
+    short gold_hold;
+    short training_cost;
+    short scavenger_cost;
+    short scavenge_require;
+    unsigned char scavenge_value;
+    unsigned long to_level[CREATURE_MAX_LEVEL];
+    unsigned char base_speed;
+    ThingModel grow_up;
+    CrtrExpLevel grow_up_level;
+    TbBool entrance_force;
+    short max_turning_speed;
+    short base_eye_height;
+    unsigned short size_xy;
+    unsigned short size_z;
+    unsigned short thing_size_xy;
+    unsigned short thing_size_z;
+    short shot_shift_x; /**< Initial position of shot created by the creature relative to creature position, X coord. */
+    short shot_shift_y; /**< Initial position of shot created by the creature relative to creature position, Y coord. */
+    short shot_shift_z; /**< Initial position of shot created by the creature relative to creature position, Z coord. */
+    unsigned short walking_anim_speed;
+    TbBool flying;
+    TbBool fixed_anim_speed;
+    unsigned char attack_preference;
+    short field_of_view;
+    /** Instance identifiers of the instances creature can learn. */
+    CrInstance learned_instance_id[LEARNED_INSTANCES_COUNT];
+    /** Required level to use the instances creature can learn. Scaled 1..CREATURE_MAX_LEVEL. */
+    unsigned char learned_instance_level[LEARNED_INSTANCES_COUNT];
+    unsigned char research_value;
+    TbBool humanoid_creature;
+    TbBool piss_on_dead;
+    unsigned char training_value;
+    short pay;
+    unsigned char manufacture_value;
+    unsigned char hearing;
+    unsigned char entrance_rooms[ENTRANCE_ROOMS_COUNT];
+    unsigned char entrance_slabs_req[ENTRANCE_ROOMS_COUNT];
+    unsigned char visual_range;
+    unsigned char partner_training;
+    /** Minimal game turns a creature must be tortured before it gets a chance to be broken */
+    short torture_break_time;
+    short annoy_no_lair;
+    short annoy_no_hatchery;
+    short annoy_woken_up;
+    short annoy_on_dead_friend;
+    short annoy_sulking;
+    short annoy_no_salary;
+    short annoy_slapped;
+    short annoy_on_dead_enemy;
+    short annoy_in_temple;
+    short annoy_sleeping;
+    short annoy_got_wage;
+    short annoy_in_torture;
+    short annoy_win_battle;
+    short annoy_untrained_time;
+    short annoy_untrained;
+    short annoy_queue;
+    /* Annoyance caused by tries to assign creature to a job it won't do */
+    short annoy_will_not_do_job;
+    /* Job kinds which cause stress for the creature */
+    unsigned short job_stress;
+    /* Amount of annoyance given to creature under stressful job */
+    short annoy_job_stress;
+    /* Job kinds which the creature will start when it is angry */
+    unsigned short jobs_anger;
+    short annoy_others_leaving;
+    unsigned char slaps_to_kill;
+    ThingModel lair_enemy[LAIR_ENEMY_MAX];
+    unsigned char rebirth;
+    TbBool can_see_invisible;
+    TbBool can_go_locked_doors;
+    TbBool bleeds;
+    short annoy_eat_food;
+    short annoy_in_hand;
+    short damage_to_boulder;
+    // New fields go there; don't change earlier fields.
+    unsigned short fear_stronger;
+    unsigned short fearsome_factor;
+    short entrance_score;
+    short annoy_going_postal;
+    short toking_recovery;
+    TbBool illuminated;
+    unsigned char transparency_flags;
+    char corpse_vanish_effect;
+    short footstep_pitch;
+    short lair_object;
+    short status_offset;
+    unsigned short evil_start_state;
+    unsigned short good_start_state;
+    unsigned char natural_death_kind;
+    unsigned char swipe_idx;
+    ThingModel prison_kind;
+    ThingModel torture_kind;
+    ThingModel hostile_towards[CREATURE_TYPES_MAX];
+    unsigned long immunity_flags;
+    struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 
 /**
@@ -290,9 +408,9 @@ extern const struct NamedCommand creature_deathkind_desc[];
 extern const struct NamedCommand spawn_type_desc[];
 extern Creature_Job_Player_Check_Func creature_job_player_check_func_list[];
 /******************************************************************************/
-struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
-struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
-TbBool creature_stats_invalid(const struct CreatureStats *crstat);
+struct CreatureModelConfig *creature_stats_get(ThingModel crconf_idx);
+struct CreatureModelConfig *creature_stats_get_from_thing(const struct Thing *thing);
+TbBool creature_stats_invalid(const struct CreatureModelConfig *crconf);
 void check_and_auto_fix_stats(void);
 void init_creature_model_stats(void);
 void init_creature_model_graphics(void);
@@ -318,7 +436,7 @@ EventKind get_event_for_job(CreatureJob job_flags);
 CrtrStateId get_initial_state_for_job(CreatureJob jobpref);
 CrtrStateId get_arrive_at_state_for_job(CreatureJob jobpref);
 CrtrStateId get_continue_state_for_job(CreatureJob jobpref);
-CreatureJob get_job_for_creature_state(CrtrStateId crstat_id);
+CreatureJob get_job_for_creature_state(CrtrStateId crstate_id);
 CreatureJob get_jobs_enemies_may_do_in_room(RoomKind rkind);
 CreatureJob get_jobs_enemies_may_do_in_room_role(RoomRole rrole);
 unsigned long get_flags_for_job(CreatureJob jobpref);
