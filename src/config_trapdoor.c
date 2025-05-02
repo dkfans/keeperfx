@@ -178,6 +178,19 @@ int64_t value_min1(const struct NamedField* named_field, const char* value_text,
     }
 }
 
+static void assign_multiple_refresh_trap_anim(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    assign_default(named_field, value, named_fields_set, idx, src_str, flags);
+    named_field++;
+    assign_default(named_field, value, named_fields_set, idx, src_str, flags);
+    named_field++;
+    assign_default(named_field, value, named_fields_set, idx, src_str, flags);
+    if (flag_is_set(flags, ccf_DuringLevel))
+    {
+        refresh_trap_anim(idx);
+    }
+}
+
 static void assign_refresh_trap_anim(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     assign_default(named_field,value,named_fields_set,idx,src_str,flags);
@@ -253,7 +266,7 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"RECHARGEANIMATIONID",    0, field(game.conf.trapdoor_conf.trap_cfgstats[0].recharge_sprite_anim_idx),         0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_refresh_trap_anim_anim_id},
     {"ATTACKANIMATIONID",      0, field(game.conf.trapdoor_conf.trap_cfgstats[0].attack_sprite_anim_idx),           0,   LONG_MIN,         ULONG_MAX, NULL,                      value_animid, assign_animid},
     {"MODELSIZE",              0, field(game.conf.trapdoor_conf.trap_cfgstats[0].sprite_size_max),                  0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_refresh_trap_anim},
-    {"ANIMATIONSPEED",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].anim_speed),                       0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_refresh_trap_anim},
+    {"ANIMATIONSPEED",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].anim_speed),                       0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_multiple_refresh_trap_anim},
     {"ATTACKANIMATIONSPEED",   0, field(game.conf.trapdoor_conf.trap_cfgstats[0].attack_anim_speed),                0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_refresh_trap_anim},
     {"RECHARGEANIMATIONSPEED", 0, field(game.conf.trapdoor_conf.trap_cfgstats[0].recharge_anim_speed),              0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_refresh_trap_anim},
     {"UNANIMATED",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].unanimated),                       0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_refresh_trap_anim},
