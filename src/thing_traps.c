@@ -915,6 +915,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
             if (trapst->attack_sprite_anim_idx != 0)
             {
                 traptng->anim_sprite = convert_td_iso(trapst->attack_sprite_anim_idx);
+                traptng->anim_speed = trapst->attack_anim_speed;
                 traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
             }
         }
@@ -923,10 +924,12 @@ TngUpdateRet update_trap(struct Thing *traptng)
             if (trapst->recharge_sprite_anim_idx != 0)
             {
                 traptng->anim_sprite = convert_td_iso(trapst->recharge_sprite_anim_idx);
+                traptng->anim_speed = trapst->recharge_anim_speed;
             }
             else
             {
                 traptng->anim_sprite = convert_td_iso(trapst->sprite_anim_idx);
+                traptng->anim_speed = trapst->anim_speed;
             }
             traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
         }
