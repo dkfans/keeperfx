@@ -92,6 +92,7 @@
 #include "thing_shots.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -3142,6 +3143,9 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     {
         set_flag(flags,CrDed_NoEffects);
     }
+
+    lua_on_creature_death(thing);
+
     if ((!flag_is_set(flags,CrDed_NoEffects)) && (crconf->rebirth != 0)
      && (cctrl->lairtng_idx > 0) && (crconf->rebirth-1 <= cctrl->exp_level)
         && (!flag_is_set(flags,CrDed_NoRebirth)) )

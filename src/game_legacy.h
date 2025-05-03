@@ -62,6 +62,7 @@
 #include "sounds.h"
 #include "game_lghtshdw.h"
 #include "game_merge.h"
+#include "lua_cfg_funcs.h"
 #include "engine_textures.h"
 
 #define BOOKMARKS_COUNT               5
@@ -124,6 +125,7 @@ struct Configs {
     struct RulesConfig rules;
     struct PlayerStateConfig plyr_conf;
     struct ColumnConfig column_conf;
+    struct LuaFuncsConf lua;
 };
 
 struct Game {

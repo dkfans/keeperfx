@@ -39,6 +39,7 @@
 #include "lvl_script_commands.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_lib.h"
+#include "lua_base.h"
 #include "map_blocks.h"
 #include "player_instances.h"
 #include "player_utils.h"
@@ -4156,44 +4157,6 @@ static void play_message_check(const struct ScriptLine *scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void script_play_message(TbBool param_is_string, const char msgtype_id, const short msg_id, const char *filename)
-{
-    
-    if (!param_is_string)
-    {
-        switch (msgtype_id)
-        {
-            case 1: // speech message
-            {
-                output_message(msg_id, 0);
-                break;
-            }
-            case 2: // sound effect
-            {
-                play_non_3d_sample(msg_id);
-                break;
-            }
-        }
-    }
-    else
-    {
-        const char * filepath = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", filename);
-        switch (msgtype_id)
-        {
-            case 1: // speech message
-            {
-                output_custom_message(filepath, settings.mentor_volume);
-                break;
-            }
-            case 2: // sound effect
-            {
-                play_streamed_sample(filepath, settings.sound_volume);
-                break;
-            }
-        }
-    }
-}
-
 static void play_message_process(struct ScriptContext *context)
 {
     const TbBool param_is_string = context->value->bytes[4];
@@ -5728,6 +5691,27 @@ static void set_digger_process(struct ScriptContext* context)
     update_players_special_digger_model(plyr_idx, new_dig_model);
 }
 
+static void run_lua_code_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    const char* code = scline->tp[0];
+
+    value->longs[0] = script_strdup(code);
+    if (value->longs[0] < 0) {
+        SCRPTERRLOG("Run out script strings space");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void run_lua_code_process(struct ScriptContext* context)
+{
+    const char* code = script_strval(context->value->longs[0]);
+    execute_lua_code_from_script(code);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P-player, R-room kind, L-location, O-operator, S-slab kind, B-boolean
@@ -5892,6 +5876,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNpa  ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
   {"LOCK_POSSESSION",                   "PB!     ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
   {"SET_DIGGER",                        "PC      ", Cmd_SET_DIGGER , &set_digger_check, &set_digger_process},
+  {"RUN_LUA_CODE",                      "A       ", Cmd_RUN_LUA_CODE , &run_lua_code_check, &run_lua_code_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

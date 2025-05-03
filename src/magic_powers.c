@@ -60,6 +60,7 @@
 #include "game_legacy.h"
 #include "creature_instances.h"
 #include "map_locations.h"
+#include "lua_triggers.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1947,10 +1948,16 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
 TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
     KeepPwrLevel power_level, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
 {
+    lua_on_power_cast(plyr_idx, pwkind, power_level, stl_x, stl_y, thing);
+    
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
-    if(magic_use_func_list[powerst->magic_use_func_idx] != NULL)
+    if(powerst->magic_use_func_idx > 0 && magic_use_func_list[powerst->magic_use_func_idx] != NULL)
     {
         return magic_use_func_list[powerst->magic_use_func_idx](pwkind, plyr_idx, thing, stl_x, stl_y, power_level, allow_flags);
+    }
+    else if (powerst->magic_use_func_idx < 0)
+    {
+        return luafunc_magic_use_power(powerst->magic_use_func_idx, plyr_idx, pwkind, power_level, stl_x, stl_y, thing, allow_flags);
     }
     else
     {
