@@ -32,20 +32,15 @@ struct lua_State *Lvl_script = NULL;
 TbBool CheckLua(lua_State *L, int result,const char* func)
 {
     if (result != LUA_OK) {
-        const char *message = lua_tostring(L, -1);
-        ERRORLOG("Lua error in %s: %s", func, message ? message : "Unknown error");
-
-        if (message) {
-            luaL_traceback(L, L, NULL, 1);
-            const char *trace = lua_tostring(L, -1);
-            ERRORLOG("Stack trace:\n%s", trace ? trace : "No stack trace available");
-            lua_pop(L, 2); // Pop both message and traceback
-        } else {
-            lua_pop(L, 1); // Pop the non-existent error message
+        const char *message = NULL;
+        if (lua_isstring(L, -1)) {
+            message = lua_tostring(L, -1);
         }
-
-        if (exit_on_lua_error)
-        {
+    
+        ERRORLOG("Lua error in %s: %s", func, message ? message : "Unknown error");    
+        lua_pop(L, 1); // Pop error and traceback
+    
+        if (exit_on_lua_error) {
             ERRORLOG("Exiting due to Lua error");
             exit(EXIT_FAILURE);
         }
