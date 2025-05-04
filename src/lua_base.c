@@ -38,7 +38,7 @@ TbBool CheckLua(lua_State *L, int result,const char* func)
         }
     
         ERRORLOG("Lua error in %s: %s", func, message ? message : "Unknown error");    
-        lua_pop(L, 1); // Pop error and traceback
+        lua_pop(L, 1); // Pop error
     
         if (exit_on_lua_error) {
             ERRORLOG("Exiting due to Lua error");
