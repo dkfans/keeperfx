@@ -28,18 +28,21 @@ extern "C" {
 struct lua_State *Lvl_script = NULL;
 
 
-// Little error checking utility function
-TbBool CheckLua(lua_State *L, int result,const char* func)
+TbBool CheckLua(lua_State *L, int result, const char* func)
 {
     if (result != LUA_OK) {
-        const char *message = NULL;
-        if (lua_isstring(L, -1)) {
-            message = lua_tostring(L, -1);
+        // Coerce error to string using tostring()
+        if (!lua_isstring(L, -1)) {
+            lua_getglobal(L, "tostring"); // push tostring
+            lua_pushvalue(L, -2);         // push error object
+            lua_call(L, 1, 1);            // call tostring(err)
+            lua_remove(L, -2);            // remove original error
         }
-    
+
+        const char *message = lua_tostring(L, -1);
         ERRORLOG("Lua error in %s: %s", func, message ? message : "Unknown error");
-        lua_pop(L, 1); // Pop error
-    
+        lua_pop(L, 1); // pop error string
+
         if (exit_on_lua_error) {
             ERRORLOG("Exiting due to Lua error");
             exit(EXIT_FAILURE);
@@ -48,6 +51,7 @@ TbBool CheckLua(lua_State *L, int result,const char* func)
     }
     return true;
 }
+
 
 void close_lua_script()
 {
