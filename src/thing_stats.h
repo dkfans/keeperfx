@@ -133,6 +133,7 @@ TbBool set_creature_health_to_max_with_heal_effect(struct Thing *thing);
 TbBool apply_health_to_thing(struct Thing *thing, HitPoints amount);
 void apply_health_to_thing_and_display_health(struct Thing *thing, HitPoints amount);
 HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx);
+HitPoints get_thing_max_health(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

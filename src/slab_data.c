@@ -376,7 +376,7 @@ int check_room_at_slab_loose(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord
                 {
                     result = 4;
                 }
-                else if (slb->kind == SlbT_GOLD)
+                else if ((slb->kind == SlbT_GOLD) || (slb->kind == SlbT_DENSEGOLD))
                 {
                     result = 5;
                 }
@@ -489,6 +489,7 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
                 {
                   case SlbT_ROCK:
                   case SlbT_GOLD:
+                  case SlbT_DENSEGOLD:
                   case SlbT_EARTH:
                   case SlbT_GEMS:
                     eff_score++;
@@ -838,6 +839,31 @@ TbBool player_can_claim_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabC
         return false;
     }
     return true;
+}
+
+void set_player_texture(PlayerNumber plyr_idx, long texture_id)
+{
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    dungeon->texture_pack = texture_id;
+
+    for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+    {
+        for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+        {
+            struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+            if (slabmap_owner(slb) == plyr_idx)
+            {
+                if (texture_id == 0)
+                {
+                    gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
+                }
+                else
+                {
+                    gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
+                }
+            }
+        }
+    }
 }
 /******************************************************************************/
 #ifdef __cplusplus

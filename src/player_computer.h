@@ -140,7 +140,7 @@ enum ToolDigResults {
 
 enum CompProcessFlags {
     ComProc_Unkn0001 = 0x0001,
-    ComProc_Unkn0002 = 0x0002, /**< Last? */
+    ComProc_ListEnd  = 0x0002, /**< Last? */
     ComProc_Unkn0004 = 0x0004, /**< Finished */
     ComProc_Unkn0008 = 0x0008, /**< Done (for subprocesses) */
     ComProc_Unkn0010 = 0x0010,

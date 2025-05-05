@@ -241,8 +241,8 @@ long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, Cr
         }
         return CmbtSt_Waiting;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
-    if (crstat->attack_preference == AttckT_Ranged)
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(fightng);
+    if (crconf->attack_preference == AttckT_Ranged)
     {
         if (creature_has_ranged_weapon(fightng) && can_add_ranged_combat_attacker(enmtng)) {
             return CmbtSt_Ranged;

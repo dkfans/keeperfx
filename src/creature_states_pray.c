@@ -162,8 +162,8 @@ CrCheckRet process_temple_function(struct Thing *thing)
         return CrCkRet_Continue;
     }
     { // Modify anger
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-        long anger_change = process_work_speed_on_work_value(thing, crstat->annoy_in_temple);
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+        long anger_change = process_work_speed_on_work_value(thing, crconf->annoy_in_temple);
         anger_apply_anger_to_creature(thing, anger_change, AngR_Other, 1);
     }
     // Terminate spells
@@ -276,8 +276,8 @@ TbBool make_all_players_creatures_angry(long plyr_idx)
 
 TbBool anger_make_creature_happy(struct Thing* creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if ((crstat->annoy_level <= 0))
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    if ((crconf->annoy_level <= 0))
         return false;
     if (!anger_free_for_anger_decrease(creatng))
     {

@@ -60,6 +60,7 @@
 #include "config_creature.h"
 #include "config_compp.h"
 #include "config_effects.h"
+#include "lua_triggers.h"
 #include "lvl_script.h"
 #include "lvl_filesdk1.h"
 #include "thing_list.h"
@@ -1498,8 +1499,8 @@ void instant_instance_selected(CrInstance check_inst_id)
     player = get_player(my_player_number);
     struct Thing *ctrltng;
     ctrltng = thing_get(player->controlled_thing_idx);
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(ctrltng);
+    struct CreatureModelConfig *crconf;
+    crconf = creature_stats_get_from_thing(ctrltng);
     long i;
     long k;
     int avail_pos;
@@ -1508,7 +1509,7 @@ void instant_instance_selected(CrInstance check_inst_id)
     match_avail_pos = 0;
     for (i=0; i < CREATURE_MAX_LEVEL; i++)
     {
-        k = crstat->learned_instance_id[i];
+        k = crconf->learned_instance_id[i];
         if (creature_instance_is_available(ctrltng, k))
         {
             if (k == check_inst_id) {
@@ -2255,9 +2256,9 @@ void count_players_creatures_being_paid(int *creatures_count)
         // Per-thing code
         if (!player_is_roaming(thing->owner) && (thing->owner != game.neutral_player_num))
         {
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(thing);
-            if (crstat->pay != 0)
+            struct CreatureModelConfig *crconf;
+            crconf = creature_stats_get_from_thing(thing);
+            if (crconf->pay != 0)
             {
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
@@ -2699,6 +2700,8 @@ void update(void)
         event_process_events();
         update_all_events();
         process_level_script();
+        process_fx_lines();
+        lua_on_game_tick();
         if ((game.numfield_D & GNFldD_Unkn04) != 0)
             process_computer_players2();
         process_players();
@@ -4331,6 +4334,8 @@ LONG __stdcall Vex_handler(
         return EXCEPTION_CONTINUE_EXECUTION; // Thrown by OutputDebugStringW, intended for debugger
     } else if (exception_code == DBG_PRINTEXCEPTION_C) {
         return EXCEPTION_CONTINUE_EXECUTION; // Thrown by OutputDebugStringA, intended for debugger
+    }else if (exception_code == 0xe24c4a02) {
+        return EXCEPTION_EXECUTE_HANDLER; //Thrown by luaJIT for some reason
     }
     LbJustLog("Exception 0x%08lx thrown: %s\n", exception_code, exception_name(exception_code));
     return EXCEPTION_CONTINUE_SEARCH;

@@ -90,6 +90,8 @@
 #include "vidfade.h"
 #include "spdigger_stack.h"
 #include "frontmenu_ingame_map.h"
+#include "lua_triggers.h"
+
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
@@ -509,7 +511,7 @@ TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMod
         || (chr == '(') || (chr == ')') || (chr == '.') || (chr == '_')
         || (chr == '\'') || (chr == '+') || (chr == '=') || (chr == '-')
         || (chr == '"') || (chr == '?') || (chr == '/') || (chr == '#')
-        || (chr == '<') || (chr == '>') || (chr == '^'))
+        || (chr == '<') || (chr == '>') || (chr == '^') || (chr == ','))
     {
         if (chpos < maxlen)
         {
@@ -680,6 +682,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_PlyrMsgEnd:
       player->allocflags &= ~PlaF_NewMPMessage;
+      lua_on_chatmsg(player->id_number,player->mp_message_text);
       if (player->mp_message_text[0] == cmd_char)
       {
           if ( (!cmd_exec(player->id_number, player->mp_message_text + 1)) || ((game.system_flags & GSF_NetworkActive) != 0) )
@@ -1322,8 +1325,8 @@ void process_players_creature_control_packet_control(long idx)
     }
     
     // First person looking speed and limits are adjusted here. (pckt contains the base mouse movement inputs)
-    struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
-    long maxTurnSpeed = crstat->max_turning_speed;
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(cctng);
+    long maxTurnSpeed = crconf->max_turning_speed;
     if (maxTurnSpeed < 1) {
         maxTurnSpeed = 1;
     }

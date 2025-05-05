@@ -560,6 +560,10 @@ int64_t value_effOrEffEl(const struct NamedField* named_field, const char* value
     return effect_or_effect_element_id(value_text);
 }
 
+int64_t value_function(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    return get_function_idx(value_text, named_field->namedCommand);
+}
 
 void assign_icon(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {

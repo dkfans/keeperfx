@@ -704,10 +704,10 @@ long process_obey_leader(struct Thing *thing)
         {
             struct Room *room;
             room = get_room_creature_works_in(leadtng);
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(thing);
+            struct CreatureModelConfig *crconf;
+            crconf = creature_stats_get_from_thing(thing);
             CreatureJob jobpref;
-            jobpref = get_job_for_room(room->kind, JoKF_None, crstat->job_primary|crstat->job_secondary);
+            jobpref = get_job_for_room(room->kind, JoKF_None, crconf->job_primary|crconf->job_secondary);
             cleanup_current_thing_state(thing);
             send_creature_to_room(thing, room, jobpref);
         }
@@ -954,21 +954,23 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
     return leadtng;
 }
 
-void script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, CrtrExpLevel exp_level, unsigned long carried_gold)
+struct Thing* script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, CrtrExpLevel exp_level, unsigned long carried_gold)
 {
     struct Thing* ldthing = script_process_new_tunneler(plyr_idx, location, heading, exp_level, carried_gold);
     if (thing_is_invalid(ldthing))
     {
         ERRORLOG("Couldn't create tunneling group leader");
-        return;
+        return INVALID_THING;
     }
     struct Thing* gpthing = script_process_new_party(&gameadd.script.creature_partys[prty_id], plyr_idx, location, 1);
     if (thing_is_invalid(gpthing))
     {
         ERRORLOG("Couldn't create creature group");
-        return;
+        return ldthing;
     }
     add_creature_to_group_as_leader(ldthing, gpthing);
+
+    return ldthing;
 }
 
 /******************************************************************************/

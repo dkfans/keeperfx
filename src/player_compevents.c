@@ -227,7 +227,7 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
         struct ComputerProcess* cproc = &comp->processes[i];
-        if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+        if (flag_is_set(cproc->flags, ComProc_ListEnd))
             break;
         if (cproc->parent == cevent->process)
         {
@@ -516,7 +516,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                 long total_capacity;
                 long storaged_capacity;
                 get_room_kind_total_used_and_storage_capacity(dungeon, bldroom->rkind, &total_capacity, &used_capacity, &storaged_capacity);
-                if (storaged_capacity > (used_capacity / 2))
+                if ((cevent->param2 != 0) && (storaged_capacity > (used_capacity * cevent->param2 / 100)))
                 {
                     if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
                     {
@@ -536,7 +536,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
             {
                 struct ComputerProcess* cproc = &comp->processes[i];
-                if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+                if (flag_is_set(cproc->flags, ComProc_ListEnd))
                     break;
                 if (cproc->parent == bldroom->process_idx)
                 {
@@ -634,7 +634,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
     struct Dungeon* dungeon = comp->dungeon;
     struct Thing* creatng = thing_get(event->target);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     //struct Room* origroom = get_room_thing_is_on(creatng);
     struct Room* destroom;
 
@@ -673,7 +673,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
         }
         else if (cctrl->instance_available[CrInst_HEAL] == 0)
         {
-            if (((!crstat->humanoid_creature) && (actions_allowed >= 2)) || (actions_allowed == 2)) // 1 = move only, 2 = everybody, 3 = non_humanoids
+            if (((!crconf->humanoid_creature) && (actions_allowed >= 2)) || (actions_allowed == 2)) // 1 = move only, 2 = everybody, 3 = non_humanoids
             {
                 if (computer_able_to_use_power(comp, PwrK_HEALCRTR, power_level, amount))
                 {
@@ -695,7 +695,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
         for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+            if (flag_is_set(cproc->flags, ComProc_ListEnd))
                 break;
             if ((cproc->func_check == cpfl_computer_check_any_room) && (cproc->confval_4 == event->target))
             {
@@ -765,10 +765,10 @@ long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* 
                 //slap creature so he will heal himself
                 if (can_cast_spell(dungeon->owner, PwrK_SLAP, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, CastChk_Default))
                 {
-                    struct CreatureStats* crstat;
-                    crstat = creature_stats_get_from_thing(creatng);
+                    struct CreatureModelConfig* crconf;
+                    crconf = creature_stats_get_from_thing(creatng);
                     // Check if the slap may cause death
-                    if ((crstat->slaps_to_kill < 1) || (get_creature_health_permil(creatng) >= 2 * 1000 / crstat->slaps_to_kill))
+                    if ((crconf->slaps_to_kill < 1) || (get_creature_health_permil(creatng) >= 2 * 1000 / crconf->slaps_to_kill))
                     {
                         if (try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, creatng->index, 0) > Lb_OK)
                         {
@@ -887,7 +887,7 @@ long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *c
         if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
         {
             SYNCDBG(8,"Creating task to sell player %d traps and doors",(int)dungeon->owner);
-            if (create_task_sell_traps_and_doors(comp, cevent->param2, 3*(dungeon->creatures_total_pay-dungeon->total_money_owned)/2,true)) {
+            if (create_task_sell_traps_and_doors(comp, cevent->param1, 3*(dungeon->creatures_total_pay-dungeon->total_money_owned)/2,true)) {
                 return CTaskRet_Unk1;
             }
         }

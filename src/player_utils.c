@@ -152,6 +152,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         }
         return;
     }
+
     SYNCLOG("Player %d lost",(int)player->id_number);
     if (is_my_player(player))
     {

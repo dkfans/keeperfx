@@ -53,10 +53,10 @@
  */
 TbBool creature_can_be_trained(const struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // Creatures without training value can't be trained
-    if (crstat->training_value <= 0)
+    if (crconf->training_value <= 0)
         return false;
     if ((cctrl->exp_level >= game.conf.rules.rooms.training_room_max_level-1) &! (game.conf.rules.rooms.training_room_max_level == 0))
         return false;
@@ -157,11 +157,11 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
     struct Coord3d pos;
     SYNCDBG(8,"Starting for %s",thing_model_name(thing));
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     if ( restart )
       cctrl->training.search_timeout = 50;
     // Try partner training
-    if ((crstat->partner_training > 0) && (CREATURE_RANDOM(thing, 100) < crstat->partner_training))
+    if ((crconf->partner_training > 0) && (CREATURE_RANDOM(thing, 100) < crconf->partner_training))
     {
         struct Thing* prtng = get_creature_in_training_room_which_could_accept_partner(room, thing);
         if (!thing_is_invalid(prtng))
@@ -283,7 +283,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         {2, 1},
     };
     struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
+    struct CreatureModelConfig *crconf;
     struct Thing *traintng;
     struct Thing *crtng;
     struct CreatureControl *cctrl2;
@@ -435,7 +435,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             setup_move_to_new_training_position(thing, room, false);
             break;
         }
-        crstat = creature_stats_get_from_thing(thing);
+        crconf = creature_stats_get_from_thing(thing);
         dist = get_combat_distance(thing, crtng);
         if (dist > 284)
         {
@@ -467,7 +467,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
                 {
                     cctrl->training.train_timeout = 1;
                 }
-                cctrl->exp_points += (room->efficiency * crstat->training_value);
+                cctrl->exp_points += (room->efficiency * crconf->training_value);
               }
             }
         } else

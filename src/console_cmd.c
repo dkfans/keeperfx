@@ -68,6 +68,7 @@
 #include "version.h"
 #include "frontmenu_ingame_map.h"
 #include <string.h>
+#include "lua_base.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -287,8 +288,8 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, 10, plyr_idx, GUI_MESSAGES_DELAY, "Invalid instance");
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get(creature);
-    crstat->learned_instance_id[slot] = instance;
+    struct CreatureModelConfig* crconf = creature_stats_get(creature);
+    crconf->learned_instance_id[slot] = instance;
     for (long i = 0; i < THINGS_COUNT; i++) {
         struct Thing * thing = thing_get(i);
         if ((thing->alloc_flags & TAlF_Exists) != 0) {
@@ -1918,6 +1919,24 @@ TbBool cmd_quick_show(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_lua(PlayerNumber plyr_idx, char * args)
+{
+    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+        return false;
+    }
+    execute_lua_code_from_console(args);
+    return true;
+}
+
+TbBool cmd_luatypedump(PlayerNumber plyr_idx, char * args)
+{
+    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+        return false;
+    }
+    generate_lua_types_file(args);
+    return true;
+}
+
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
     struct ConsoleCommand {
@@ -2023,6 +2042,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
         { "possession.unlock", cmd_possession_unlock},
         { "string.show", cmd_string_show},
         { "quick.show", cmd_quick_show},
+        { "lua", cmd_lua},
+        { "luatypedump", cmd_luatypedump},
     };
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");

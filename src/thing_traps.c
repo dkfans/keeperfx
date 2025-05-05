@@ -891,6 +891,22 @@ TbBool rearm_trap(struct Thing *traptng)
     return true;
 }
 
+void set_trap_shots(struct Thing *traptng, int shots)
+{
+    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+    traptng->trap.num_shots = shots;
+    if (shots > 0)
+    {
+        clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);
+        set_flag(traptng->rendering_flags, trapst->transparency_flag);
+    }
+    else
+    {
+        clear_flag(traptng->rendering_flags, TRF_Transpar_Flags);
+        set_flag(traptng->rendering_flags, TRF_Transpar_4);
+    }
+}
+
 TngUpdateRet update_trap(struct Thing *traptng)
 {
     SYNCDBG(18,"Starting");

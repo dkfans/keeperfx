@@ -18,6 +18,8 @@
 /******************************************************************************/
 #include "pre_inc.h"
 
+#include "thing_effects.h"
+
 #include "bflib_math.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
@@ -37,8 +39,8 @@
 #include "map_data.h"
 #include "math.h"
 #include "player_utils.h"
+#include "player_instances.h"
 #include "room_util.h"
-#include "thing_effects.h"
 #include "thing_factory.h"
 #include "thing_list.h"
 #include "thing_navigate.h"
@@ -182,7 +184,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
 
 void process_spells_affected_by_effect_elements(struct Thing *thing)
 {
-    struct CreatureStats* crstat;
+    struct CreatureModelConfig* crconf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     GameTurnDelta dturn;
     long angle;
@@ -309,11 +311,11 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         } else
         if (spconf->duration / 2 > dturn)
         {
-            crstat = creature_stats_get_from_thing(thing);
+            crconf = creature_stats_get_from_thing(thing);
             if ((dturn % 2) == 0) {
                 effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
             }
-            creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
+            creature_turn_to_face_angle(thing, thing->move_angle_xy + crconf->max_turning_speed);
         }
     }
 }
@@ -1596,6 +1598,139 @@ struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long
         elemtng->price_effect.number = abs(price);
     }
     return elemtng;
+}
+
+struct Thing *script_create_effect(struct Coord3d *pos, EffectOrEffElModel mdl, long val)
+{
+    TbBool Price = (mdl == -(TngEffElm_Price));
+    if (Price)
+    {
+        pos->z.val += 128;
+    }
+    else
+    {
+        pos->z.val += val;
+    }
+    struct Thing* efftng = create_used_effect_or_element(pos, mdl, game.neutral_player_num, 0);
+    if (!thing_is_invalid(efftng))
+    {
+        if (thing_in_wall_at(efftng, &efftng->mappos))
+        {
+            move_creature_to_nearest_valid_position(efftng);
+        }
+        if (Price)
+        {
+            efftng->price_effect.number = val;
+        }
+    }
+    return efftng;
+}
+
+// 1/4 turn minimal
+#define FX_LINE_TIME_PARTS 4
+
+static void process_fx_line(struct ScriptFxLine *fx_line)
+{
+    fx_line->partial_steps += fx_line->steps_per_turn;
+    for (;fx_line->partial_steps >= FX_LINE_TIME_PARTS; fx_line->partial_steps -= FX_LINE_TIME_PARTS)
+    {
+        fx_line->here.z.val = get_floor_height_at(&fx_line->here);
+        if (fx_line->here.z.val < FILLED_COLUMN_HEIGHT)
+        {
+            if (fx_line->effect != 0)
+            {
+                create_used_effect_or_element(&fx_line->here, fx_line->effect, PLAYER_NEUTRAL, 0);
+            }
+        }
+
+        fx_line->step++;
+        if (fx_line->step >= fx_line->total_steps)
+        {
+          fx_line->used = false;
+          break;
+        }
+
+        int64_t remain_t = fx_line->total_steps - fx_line->step;
+
+        int64_t bx = fx_line->from.x.val * remain_t + fx_line->cx * fx_line->step;
+        int64_t by = fx_line->from.y.val * remain_t + fx_line->cy * fx_line->step;
+        int64_t dx = fx_line->cx * remain_t + fx_line->to.x.val * fx_line->step;
+        int64_t dy = fx_line->cy * remain_t + fx_line->to.y.val * fx_line->step;
+
+        fx_line->here.x.val = (bx * remain_t + dx * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
+        fx_line->here.y.val = (by * remain_t + dy * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
+    }
+}
+
+void process_fx_lines()
+{
+    SYNCDBG(6,"Starting");
+    for (int i = 0; i < gameadd.active_fx_lines; i++)
+    {
+        if (gameadd.fx_lines[i].used)
+        {
+            process_fx_line(&gameadd.fx_lines[i]);
+        }
+    }
+    for (int i = gameadd.active_fx_lines; i > 0; i--)
+    {
+        if (gameadd.fx_lines[i-1].used)
+        {
+            break;
+        }
+        gameadd.active_fx_lines--;
+    }
+}
+
+void create_effects_line(TbMapLocation from, TbMapLocation to, char curvature, unsigned char spatial_stepping, unsigned char temporal_stepping, EffectOrEffElModel effct_id)
+{
+    struct ScriptFxLine *fx_line = NULL;
+    for (int i = 0; i < (sizeof(gameadd.fx_lines) / sizeof(gameadd.fx_lines[0])); i++)
+    {
+        if (!gameadd.fx_lines[i].used)
+        {
+            fx_line = &gameadd.fx_lines[i];
+            fx_line->used = true;
+            gameadd.active_fx_lines++;
+            break;
+        }
+    }
+    if (fx_line == NULL)
+    {
+        ERRORLOG("Too many fx_lines");
+        return;
+    }
+    find_location_pos(from, PLAYER_NEUTRAL, &fx_line->from, __func__);
+    find_location_pos(to  , PLAYER_NEUTRAL, &fx_line->to, __func__);
+    fx_line->curvature = (int)curvature;
+    fx_line->spatial_step = spatial_stepping * 32;
+    fx_line->steps_per_turn = temporal_stepping;
+    fx_line->effect = effct_id;
+    fx_line->here = fx_line->from;
+    fx_line->step = 0;
+
+    if (fx_line->steps_per_turn <= 0)
+    {
+        fx_line->steps_per_turn = 32 * 255; // whole map
+    }
+
+    int dx = fx_line->to.x.val - fx_line->from.x.val;
+    int dy = fx_line->to.y.val - fx_line->from.y.val;
+    if ((dx * dx + dy * dy) != 0)
+    {
+        double len = sqrt((double)dx * dx + (double)dy * dy);
+        fx_line->total_steps = (int)(len / fx_line->spatial_step) + 1;
+
+        int d_cx = -dy * fx_line->curvature / 32;
+        int d_cy = +dx * fx_line->curvature / 32;
+        fx_line->cx = (fx_line->to.x.val + fx_line->from.x.val - d_cx)/2;
+        fx_line->cy = (fx_line->to.y.val + fx_line->from.y.val - d_cy)/2;
+    }
+    else
+    {
+      fx_line->total_steps = 1;
+    }
+    fx_line->partial_steps = FX_LINE_TIME_PARTS;
 }
 
 /******************************************************************************/
