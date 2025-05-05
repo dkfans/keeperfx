@@ -190,7 +190,7 @@ TbBool output_message_far_from_thing(const struct Thing*, SoundSmplTblID, long d
 void clear_messages(void);
 void process_messages(void);
 TbBool output_room_message(PlayerNumber, RoomKind, OutputMessageKind);
-
+void script_play_message(TbBool param_is_string, const char msgtype_id, const short msg_id, const char *filename);
 #ifdef __cplusplus
 }
 #endif

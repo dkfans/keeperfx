@@ -92,6 +92,7 @@
 #include "thing_shots.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1880,6 +1881,21 @@ void process_thing_spell_effects(struct Thing *thing)
             continue;
         }
         struct SpellConfig *spconf = get_spell_config(cspell->spkind);
+        // Terminate the spell if its duration expires, or if the spell flags are cleared and no other continuous effects are active.
+        if ((cspell->duration <= 0)
+            || ((spconf->spell_flags > 0) && !flag_is_set(cctrl->spell_flags, spconf->spell_flags) && !spell_is_continuous(cspell->spkind, cspell->duration)))
+        {
+            terminate_thing_spell_effect(thing, cspell->spkind);
+            continue;
+        }
+        else if (spconf->aura_frequency > 0)
+        {
+            if (cspell->duration % spconf->aura_frequency == 0)
+            {
+                // Reapply aura effect if possible.
+                update_aura_effect_to_thing(thing, cspell->spkind);
+            }
+        }
         // Process spell with damage (or heal) over time.
         if ((spconf->damage != 0) && (spconf->damage_frequency > 0))
         {
@@ -1900,20 +1916,6 @@ void process_thing_spell_effects(struct Thing *thing)
             clean_spell_effect(thing, spconf->cleanse_flags);
         } TODO: Implements CSAfF_SpellBlocks. */
         cspell->duration--;
-        // Terminate the spell if its duration expires, or if the spell flags are cleared and no other continuous effects are active.
-        if ((cspell->duration <= 0)
-        || ((spconf->spell_flags > 0) && !flag_is_set(cctrl->spell_flags, spconf->spell_flags) && !spell_is_continuous(cspell->spkind, cspell->duration)))
-        {
-            terminate_thing_spell_effect(thing, cspell->spkind);
-        }
-        else if (spconf->aura_frequency > 0)
-        {
-            if (cspell->duration % spconf->aura_frequency == 0)
-            {
-                // Reapply aura effect if possible.
-                update_aura_effect_to_thing(thing, cspell->spkind);
-            }
-        }
     }
     // Slap is not in spell array, it is so common that has its own dedicated duration.
     if (cctrl->slap_turns > 0)
@@ -3142,6 +3144,9 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     {
         set_flag(flags,CrDed_NoEffects);
     }
+
+    lua_on_creature_death(thing);
+
     if ((!flag_is_set(flags,CrDed_NoEffects)) && (crconf->rebirth != 0)
      && (cctrl->lairtng_idx > 0) && (crconf->rebirth-1 <= cctrl->exp_level)
         && (!flag_is_set(flags,CrDed_NoRebirth)) )
@@ -6513,8 +6518,8 @@ TngUpdateRet update_creature(struct Thing *thing)
     // Clear flags and process spell effects.
     clear_flag(cctrl->flgfield_1, CCFlg_MoveX | CCFlg_MoveY | CCFlg_MoveZ);
     clear_flag(cctrl->spell_flags, CSAfF_PoisonCloud | CSAfF_Wind);
-    process_thing_spell_effects(thing);
     process_timebomb(thing);
+    process_thing_spell_effects(thing);
     SYNCDBG(19,"Finished");
     return TUFRet_Modified;
 }

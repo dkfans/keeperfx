@@ -45,6 +45,8 @@
 #include "keeperfx.hpp"
 #include "api.h"
 #include "lvl_filesdk1.h"
+#include "lua_base.h"
+#include "lua_triggers.h"
 #include "moonphase.h"
 #include "post_inc.h"
 
@@ -75,11 +77,11 @@ TbBool is_primitive_save_version(long filesize)
     return false;
 }
 
-TbBool save_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
+TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
 {
     struct FileChunkHeader hdr;
     long chunks_done = 0;
-    // Currently there is some game data oustide of structs - make sure it is updated
+    // Currently there is some game data outside of structs - make sure it is updated
     light_export_system_state(&gameadd.lightst);
     { // Info chunk
         hdr.id = SGC_InfoBlock;
@@ -113,6 +115,21 @@ TbBool save_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         if (LbFileWrite(fhandle, &intralvl, sizeof(struct IntralevelData)) == sizeof(struct IntralevelData))
             chunks_done |= SGF_IntralevelData;
     }
+
+    // Adding Lua serialized data chunk
+    {
+        size_t lua_data_len;
+        const char* lua_data = lua_get_serialised_data(&lua_data_len);
+
+        hdr.id = SGC_LuaData;
+        hdr.ver = 0;
+        hdr.len = lua_data_len;
+        if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+        if (LbFileWrite(fhandle, lua_data, lua_data_len) == lua_data_len)
+            chunks_done |= SGF_LuaData;
+        cleanup_serialized_data();
+    }
+
     if (chunks_done != SGF_SavedGame)
         return false;
     return true;
@@ -170,7 +187,7 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
     return true;
 }
 
-int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
+int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
 {
     long chunks_done = 0;
     while (!LbFileEof(fhandle))
@@ -178,10 +195,10 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         struct FileChunkHeader hdr;
         if (LbFileRead(fhandle, &hdr, sizeof(struct FileChunkHeader)) != sizeof(struct FileChunkHeader))
             break;
-        switch(hdr.id)
+        switch (hdr.id)
         {
         case SGC_InfoBlock:
-            if (load_catalogue_entry(fhandle,&hdr,centry))
+            if (load_catalogue_entry(fhandle, &hdr, centry))
             {
                 chunks_done |= SGF_InfoBlock;
                 if (!change_campaign(centry->campaign_fname)) {
@@ -271,8 +288,29 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                 WARNLOG("Could not read IntralevelData chunk");
             }
             break;
+        case SGC_LuaData:
+            {
+                char* lua_data = (char*)malloc(hdr.len);
+                if (lua_data == NULL) {
+                    WARNLOG("Could not allocate memory for LuaData chunk");
+                    break;
+                }
+                if (LbFileRead(fhandle, lua_data, hdr.len) == hdr.len) {
+                    //has to be loaded here as level num only filled while gamestruct loaded, and need it for setting serialised_data
+                    open_lua_script(get_loaded_level_number());
+
+                    lua_set_serialised_data(lua_data, hdr.len);
+                    chunks_done |= SGF_LuaData;
+                } else {
+                    WARNLOG("Could not read LuaData chunk");
+                    free(lua_data);
+                }
+            }
+            break;
         default:
-            WARNLOG("Unrecognized chunk, ID = %08lx",hdr.id);
+            WARNLOG("Unrecognized chunk, ID = %08lx", hdr.id);
+            if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
+                LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
             break;
         }
     }

@@ -40,6 +40,7 @@
 #include "thing_physics.h"
 #include "thing_stats.h"
 #include "vidfade.h"
+#include "lua_triggers.h"
 
 #include "post_inc.h"
 
@@ -938,6 +939,33 @@ TbBool update_creature_health_to_max(struct Thing * creatng)
     return true;
 }
 
+HitPoints get_thing_max_health(const struct Thing *thing)
+{
+    switch (thing->class_id)
+    {
+    case TCls_Creature:
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        return cctrl->max_health;
+    case TCls_Object:
+        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        return objst->health;
+    case TCls_Door:
+        struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+        return doorst->health;
+    case TCls_Shot:
+        struct ShotConfigStats* shotst = get_shot_model_stats(thing->model);
+        return shotst->health;
+    case TCls_Trap:
+        struct TrapConfigStats* trapst = get_trap_model_stats(thing->model);
+        return trapst->health;
+    case TCls_EffectElem:
+    case TCls_EffectGen:
+    default:
+        ERRORLOG("class %s not supported in get_thing_max_health()", thing_class_code_name(thing->class_id) );
+        return 0;
+    }
+}
+
 /**
  * Re-computes new max health of a creature and updates the health value to stay relative to the old max.
  * @param thing
@@ -1101,6 +1129,8 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
     // If it's already dead, then don't interfere.
     if (thing->health < 0)
         return 0;
+    lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx);
+    
     HitPoints cdamage;
     switch (thing->class_id)
     {

@@ -1,0 +1,31 @@
+---@meta native
+
+--file not used by the game, but used for telling the IDE about the
+--functions exported from the C code
+--also serves as documentation of said function
+
+
+---@alias playersingle Player | "PLAYER0" | "PLAYER1" | "PLAYER2" | "PLAYER3" | "PLAYER_GOOD" | "PLAYER_NEUTRAL" | "PLAYER4" | "PLAYER5" | "PLAYER6"
+---@alias playerrange  playersingle | "ALL_PLAYERS"
+---@alias controls_variable "TOTAL_DIGGERS"|"TOTAL_CREATURES"|"TOTAL_DOORS"|"TOTAL_AREA"|"GOOD_CREATURES"|"EVIL_CREATURES"
+---@alias timer "TIMER0"|"TIMER1"|"TIMER2"|"TIMER3"|"TIMER4"|"TIMER5"|"TIMER6"|"TIMER7"
+---@alias flag_desc 0|1|2|3|4|5|6|7|"FLAG0"|"FLAG1"|"FLAG2"|"FLAG3"|"FLAG4"|"FLAG5"|"FLAG6"|"FLAG7"|"CAMPAIGN_FLAG0"|"CAMPAIGN_FLAG1"|"CAMPAIGN_FLAG2"|"CAMPAIGN_FLAG3"|"CAMPAIGN_FLAG4"|"CAMPAIGN_FLAG5"|"CAMPAIGN_FLAG6"|"CAMPAIGN_FLAG7"
+---@alias hand_rule "ALWAYS"|"AGE_LOWER"|"AGE_HIGHER"|"LEVEL_LOWER"|"LEVEL_HIGHER"|"AT_ACTION_POINT"|"AFFECTED_BY"|"WANDERING"|"WORKING"|"FIGHTING"
+---@alias rule_slot 0|1|2|3|4|5|6|7|"RULE0"|"RULE1"|"RULE2"|"RULE3"|"RULE4"|"RULE5"|"RULE6"|"RULE7"
+---@alias rule_action "DENY"|"ALLOW"|"ENABLE"|"DISABLE"
+---@alias hero_objective "STEAL_GOLD"|"STEAL_SPELLS"|"ATTACK_ENEMIES"|"ATTACK_DUNGEON_HEART"|"SNIPE_DUNGEON_HEART"|"ATTACK_ROOMS"|"SABOTAGE_ROOMS"|"DEFEND_PARTY"|"DEFEND_LOCATION"|"DEFEND_HEART"|"DEFEND_ROOMS"
+---@alias msgtype "SPEECH"|"SOUND"
+---@alias creature_select_criteria "MOST_EXPERIENCED"|"MOST_EXP_WANDERING"|"MOST_EXP_WORKING"|"MOST_EXP_FIGHTING"|"LEAST_EXPERIENCED"|"LEAST_EXP_WANDERING"|"LEAST_EXP_WORKING"|"LEAST_EXP_FIGHTING"|"NEAR_OWN_HEART"|"NEAR_ENEMY_HEART"|"ON_ENEMY_GROUND"|"ON_FRIENDLY_GROUND"|"ON_NEUTRAL_GROUND"|"ANYWHERE"
+---@alias trap_config "NameTextID"|"TooltipTextID"|"SymbolSprites"|"PointerSprites"|"PanelTabIndex"|"Crate"|"ManufactureLevel"|"ManufactureRequired"|"Shots"|"TimeBetweenShots"|"SellingValue"|"Model"|"ModelSize"|"AnimationSpeed"|"TriggerType"|"ActivationType"|"EffectType"|"Hidden"|"TriggerAlarm"|"Slappable"|"Unanimated"|"Health"|"Unshaded"|"RandomStartFrame"|"ThingSize"|"HitType"|"LightRadius"|"LightIntensity"|"LightFlags"|"TransparencyFlags"|"ShotVector"|"Destructible"|"Unstable"|"Unsellable"
+---@alias gui_button_group "MINIMAP"|"TABS"|"INFO"|"ROOM"|"POWER"|"TRAP"|"DOOR"|"CREATURE"|"MESSAGE"
+---@alias script_operator "SET"|"INCREASE"|"DECREASE"|"MULTIPLY"
+---@alias variable flag_desc|timer|room_type|"MONEY"|"GAME_TURN"|"BREAK_IN"|"TOTAL_DIGGERS"|"TOTAL_CREATURES"|"TOTAL_RESEARCH"|"TOTAL_DOORS"|"TOTAL_AREA"|"TOTAL_CREATURES_LEFT"|"CREATURES_ANNOYED"|"BATTLES_LOST"|"BATTLES_WON"|"ROOMS_DESTROYED"|"SPELLS_STOLEN"|"TIMES_BROKEN_INTO"|"GOLD_POTS_STOLEN"|"HEART_HEALTH"|"GHOSTS_RAISED"|"SKELETONS_RAISED"|"VAMPIRES_RAISED"|"CREATURES_CONVERTED"|"EVIL_CREATURES_CONVERTED"|"GOOD_CREATURES_CONVERTED"|"TIMES_ANNOYED_CREATURE"|"TIMES_TORTURED_CREATURE"|"TOTAL_DOORS_MANUFACTURED"|"TOTAL_TRAPS_MANUFACTURED"|"TOTAL_MANUFACTURED"|"TOTAL_TRAPS_USED"|"TOTAL_DOORS_USED"|"KEEPERS_DESTROYED"|"CREATURES_SACRIFICED"|"CREATURES_FROM_SACRIFICE"|"TIMES_LEVELUP_CREATURE"|"TOTAL_SALARY"|"CURRENT_SALARY"|"DUNGEON_DESTROYED"|"TOTAL_GOLD_MINED"|"DOORS_DESTROYED"|"CREATURES_SCAVENGED_LOST"|"CREATURES_SCAVENGED_GAINED"|"ALL_DUNGEONS_DESTROYED"|"GOOD_CREATURES"|"EVIL_CREATURES"|"TRAPS_SOLD"|"DOORS_SOLD"|"MANUFACTURED_SOLD"|"MANUFACTURE_GOLD"|"TOTAL_SCORE"|"BONUS_TIME"|"CREATURES_TRANSFERRED"
+---@alias fill "NONE"|"MATCH"|"FLOOR"|"BRIDGE"
+---@alias set_door "LOCKED"|"UNLOCKED"
+---@alias texture_pack "NONE"|"STANDARD"|"ANCIENT"|"WINTER"|"SNAKE_KEY"|"STONE_FACE"|"VOLUPTUOUS"|"BIG_BREASTS"|"ROUGH_ANCIENT"|"SKULL_RELIEF"|"DESERT_TOMB"|"GYPSUM"|"LILAC_STONE"|"SWAMP_SERPENT"|"LAVA_CAVERN"
+---@alias creature_propery "BLEEDS"|"UNAFFECTED_BY_WIND"|"IMMUNE_TO_GAS"|"HUMANOID_SKELETON"|"PISS_ON_DEAD"|"FLYING"|"SEE_INVISIBLE"|"PASS_LOCKED_DOORS"|"SPECIAL_DIGGER"|"ARACHNID"|"DIPTERA"|"LORD"|"SPECTATOR"|"EVIL"|"NEVER_CHICKENS"|"IMMUNE_TO_BOULDER"|"NO_CORPSE_ROTTING"|"NO_ENMHEART_ATTCK"|"TREMBLING_FAT"|"FEMALE"|"INSECT"|"ONE_OF_KIND"|"NO_IMPRISONMENT"|"IMMUNE_TO_DISEASE"|"ILLUMINATED"|"ALLURING_SCVNGR"
+---@alias actionpoint integer
+---@alias location playersingle|actionpoint|"LAST_EVENT"|"COMBAT"
+---@alias thing_class "Object"|"Shot"|"EffectElem"|"DeadCreature"|"Creature"|"Effect"|"EffectGen"|"Trap"|"Door"|"AmbientSnd"|"CaveIn"
+---@alias effect_or_effelem_type integer|string|effect_type|effect_element_type -- I allow string here because there's to many entries for, the language server to handle 
+

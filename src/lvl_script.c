@@ -40,6 +40,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+extern TbBool luascript_loaded;
 unsigned char next_command_reusable;
 /******************************************************************************/
 
@@ -1149,7 +1150,7 @@ short load_script(long lvnum)
       buf = p;
     }
     free(script_data);
-    if (gameadd.script.win_conditions_num == 0)
+    if (gameadd.script.win_conditions_num == 0 && luascript_loaded == false)
       WARNMSG("No WIN GAME conditions in script file.");
     if (get_script_current_condition() != CONDITION_ALWAYS)
       WARNMSG("Missing ENDIF's in script file.");
