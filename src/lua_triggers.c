@@ -132,7 +132,10 @@ void lua_on_trap_placed(struct Thing *traptng)
 
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnTrapPlaced");
 	}
-	lua_pop(Lvl_script, 1);
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
 }
 
 void lua_on_creature_death(struct Thing *crtng)
