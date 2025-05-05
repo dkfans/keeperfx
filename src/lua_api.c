@@ -928,38 +928,38 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
 
 static int lua_Set_door_configuration(lua_State *L)
 {
-    set_configuration(L, &trapdoor_door_named_fields_set, "SET_DOOR_CONFIGURATION");
+    set_configuration(L, &trapdoor_door_named_fields_set, "Set_door_configuration");
     return 0;
 }
 
 static int lua_Set_object_configuration(lua_State *L)
 {
-    set_configuration(L, &objects_named_fields_set, "SET_OBJECT_CONFIGURATION");
+    set_configuration(L, &objects_named_fields_set, "Set_object_configuration");
     return 0;
 }
 
 static int lua_Set_trap_configuration(lua_State *L)
 {
-    set_configuration(L, &trapdoor_trap_named_fields_set, "SET_TRAP_CONFIGURATION");
+    set_configuration(L, &trapdoor_trap_named_fields_set, "Set_trap_configuration");
     return 0;
 }
 
 //static int lua_Set_creature_configuration(lua_State *L)
 static int lua_Set_effect_generator_configuration(lua_State *L)
 {
-    set_configuration(L, &effects_effectgenerator_named_fields_set, "SET_EFFECT_GENERATOR_CONFIGURATION");
+    set_configuration(L, &effects_effectgenerator_named_fields_set, "Set_effect_generator_configuration");
     return 0;
 }
 
-//static int lua_Set_power_configuration(lua_State *L)
-//{
-//    set_configuration(L, &terrain_room_named_fields_set, "SET_POWER_CONFIGURATION");
-//    return 0;
-//}
+static int lua_Set_power_configuration(lua_State *L)
+{
+    set_configuration(L, &magic_powers_named_fields_set, "Set_power_configuration");
+    return 0;
+}
 
 static int lua_Set_room_configuration(lua_State *L)
 {
-    set_configuration(L, &terrain_room_named_fields_set, "SET_ROOM_CONFIGURATION");
+    set_configuration(L, &terrain_room_named_fields_set, "Set_room_configuration");
     return 0;
 }
 
@@ -1991,8 +1991,8 @@ static const luaL_Reg global_methods[] = {
     {"Set_object_configuration"            ,lua_Set_object_configuration        },
     {"Set_trap_configuration"              ,lua_Set_trap_configuration          },
     //{"Set_creature_configuration"           ,lua_Set_creature_configuration      },
-    {"Set_effect_generator_configuration"   ,lua_Set_effect_generator_configuration},
-    //{"Set_power_configuration"              ,lua_Set_power_configuration         },
+    {"Set_effect_generator_configuration"  ,lua_Set_effect_generator_configuration},
+    {"Set_power_configuration"             ,lua_Set_power_configuration         },
     {"Set_room_configuration"              ,lua_Set_room_configuration          },
     {"Set_game_rule"                       ,lua_Set_game_rule                   },
     {"Set_hand_rule"                       ,lua_Set_hand_rule                   },
