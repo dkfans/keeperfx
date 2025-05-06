@@ -52,7 +52,7 @@ static int roomset_field(lua_State *L) {
         return 1;
     }
     
-    luaL_error(L, "Invalid field name '%s' for Room", key);
+    luaL_error(L, "attempt to assign unassignable field '%s'", key);
     return 0;
 }
 
