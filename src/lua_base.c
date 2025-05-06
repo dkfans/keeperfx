@@ -159,23 +159,7 @@ TbBool open_lua_script(LevelNumber lvnum)
 	 
     setLuaPath(Lvl_script);
     
-    short fgroup = get_level_fgroup(lvnum);
-    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.lua", (unsigned long)lvnum);
-
-	// Load and parse the Lua File
-    if ( !LbFileExists(fname) )
-      return false;
-
-    
-	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"script_loading"))
-	{
-        ERRORLOG("failed to load lua script");
-        return false;
-	}
-
-
-
-    fname = prepare_file_fmtpath(FGrp_FxData, "lua/init.lua");
+    char* fname = prepare_file_fmtpath(FGrp_FxData, "lua/init.lua");
 
 	// Load and parse the Lua File
     if ( !LbFileExists(fname) )
@@ -190,6 +174,20 @@ TbBool open_lua_script(LevelNumber lvnum)
         close_lua_script();
         return false;
 	}
+
+    short fgroup = get_level_fgroup(lvnum);
+    fname = prepare_file_fmtpath(fgroup, "map%05lu.lua", (unsigned long)lvnum);
+
+	// Load and parse the Lua File
+    if ( !LbFileExists(fname) )
+      return false;
+
+    if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"level_script_loading"))
+	{
+        ERRORLOG("failed to load lua script");
+        return false;
+	}
+
     return true;
     
 }
