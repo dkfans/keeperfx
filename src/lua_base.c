@@ -159,7 +159,7 @@ TbBool open_lua_script(LevelNumber lvnum)
 	 
     setLuaPath(Lvl_script);
     
-    fname = prepare_file_fmtpath(FGrp_FxData, "lua/init.lua");
+    char* fname = prepare_file_fmtpath(FGrp_FxData, "lua/init.lua");
 
 	// Load and parse the Lua File
     if ( !LbFileExists(fname) )
@@ -176,7 +176,7 @@ TbBool open_lua_script(LevelNumber lvnum)
 	}
 
     short fgroup = get_level_fgroup(lvnum);
-    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.lua", (unsigned long)lvnum);
+    fname = prepare_file_fmtpath(fgroup, "map%05lu.lua", (unsigned long)lvnum);
 
 	// Load and parse the Lua File
     if ( !LbFileExists(fname) )
