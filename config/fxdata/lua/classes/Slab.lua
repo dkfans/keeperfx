@@ -6,5 +6,6 @@
 ---@field revealed boolean
 ---@field owner Player
 ---@field kind slab_type
----@field style texture_pack
+---@field style texture_pack 
+---@field room Room
 local Slab = {}
