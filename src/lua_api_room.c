@@ -40,26 +40,25 @@ static int room_tostring(lua_State *L)
 // Function to set field values
 static int roomset_field(lua_State *L) {
 
-    PlayerNumber room_idx = luaL_checkPlayerSingle(L, 1);
+    struct Room* room = luaL_checkRoom(L, 1);
     const char* key = luaL_checkstring(L, 2);
-    int value = luaL_checkinteger(L, 3);
 
-    long variable_type;
-    long variable_id;
-
-    if (parse_get_varib(key, &variable_id, &variable_type,1))
-    {
-        set_variable(room_idx,variable_type,variable_id,value);
+    if (strcmp(key, "owner") == 0) {
+        take_over_room(room, luaL_checkPlayerSingle(L, 3));
         return 0;
     }
+    else if (strcmp(key, "health") == 0) {
+        roopm->health = luaL_checkinteger(L, 3);
+        return 1;
+    }
     
-
+    luaL_error(L, "Invalid field name '%s' for Room", key);
     return 0;
 }
 
 // Function to get field values
 static int room_get_field(lua_State *L) {
-    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
+    struct Room* room = luaL_checkRoom(L, 1);
     const char* key = luaL_checkstring(L, 2);
 
     // Check if the key exists in room_methods
@@ -71,49 +70,42 @@ static int room_get_field(lua_State *L) {
         }
     }
 
-
-    //heart
-    if (strcmp(key, "heart") == 0) {
-        struct Thing* heartng = get_room_soul_container(plyr_idx);
-        lua_pushThing(L, heartng);
+    if (strcmp(key, "type") == 0) {
+        
         return 1;
     }
-    else if (strcmp(key, "controls") == 0) {
-        // Push the player index as upvalue
-        lua_pushinteger(L, plyr_idx);
-        lua_pushcclosure(L, room_get_controls, 1);
+    else if (strcmp(key, "owner") == 0) {
+        lua_pushPlayer(L, room->owner);
         return 1;
     }
-    else if (strcmp(key, "available") == 0) {
-        // Push the player index as upvalue
-        lua_pushinteger(L, plyr_idx);
-        lua_pushcclosure(L, room_get_available, 1);
+    else if (strcmp(key, "slabs") == 0) {
         return 1;
     }
-    
-    long variable_type;
-    long variable_id;
-
-    if (parse_get_varib(key, &variable_id, &variable_type,1))
-    {
-        lua_pushinteger(L, get_condition_value(plyr_idx, variable_type, variable_id));
+    else if (strcmp(key, "workers") == 0) {
+        return 1;
+    }
+    else if (strcmp(key, "health") == 0) {
+        lua_pushinteger(L, room->health);
+        return 1;
+    }
+    else if (strcmp(key, "max_health") == 0) {
+        lua_pushinteger(L, compute_room_max_health(room->slabs_count, room->efficiency));
+        return 1;
+    }
+    else if (strcmp(key, "used_capacity") == 0) {
+        lua_pushinteger(L, room->used_capacity);
+        return 1;
+    }
+    else if (strcmp(key, "max_capacity") == 0) {
+        lua_pushinteger(L, room->total_capacity);
+        return 1;
+    }
+    else if (strcmp(key, "efficiency") == 0) {
+        lua_pushinteger(L, room->efficiency);
         return 1;
     }
 
-/*
-    if (strcmp(key, "index") == 0) {
-        lua_pushinteger(L, thing->index);
-    } else if (strcmp(key, "creation_turn") == 0) {
-        lua_pushinteger(L, thing->creation_turn);
-    } else if (strcmp(key, "Owner") == 0) {
-        lua_pushPlayer(L, thing->owner);
-
-
-    } else {
-        lua_pushnil(L);
-    }
-*/
-    return 1;
+    return 0;
 
 }
 
