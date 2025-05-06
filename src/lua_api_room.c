@@ -38,7 +38,7 @@ static int room_tostring(lua_State *L)
 }
 
 // Function to set field values
-static int roomset_field(lua_State *L) {
+static int room_set_field(lua_State *L) {
 
     struct Room* room = luaL_checkRoom(L, 1);
     const char* key = luaL_checkstring(L, 2);
@@ -48,12 +48,44 @@ static int roomset_field(lua_State *L) {
         return 0;
     }
     else if (strcmp(key, "health") == 0) {
-        roopm->health = luaL_checkinteger(L, 3);
+        room->health = luaL_checkinteger(L, 3);
         return 1;
     }
     
     luaL_error(L, "Invalid field name '%s' for Room", key);
     return 0;
+}
+
+static void push_room_slabs(lua_State *L, struct Room* room) {
+    // Create a new table for slabs
+    lua_newtable(L);
+
+
+    while (1)
+    {
+        MapSlabCoord slb_x = slb_num_decode_x(slbnum);
+        MapSlabCoord slb_y = slb_num_decode_y(slbnum);
+        // Per slab code
+        if (gold_store <= 0)
+            break;
+        gold_store = add_gold_to_treasure_room_slab(slb_x, slb_y, gold_store);
+        // Per slab code ends
+        slbnum = get_next_slab_number_in_room(slbnum);
+        if (slbnum == 0) {
+            slbnum = room->slabs_list;
+        }
+        k++;
+        if (k >= room->slabs_count) {
+            break;
+        }
+    }
+
+    // Iterate through the slabs and add them to the table
+    for (int i = 0; i < room->slabs_count; i++) {
+        struct Slab* slab = get_slab(room->slabs_list[i]);
+        lua_pushinteger(L, slab->index);
+        lua_seti(L, -2, i + 1); // Lua tables are 1-indexed
+    }
 }
 
 // Function to get field values
@@ -79,6 +111,7 @@ static int room_get_field(lua_State *L) {
         return 1;
     }
     else if (strcmp(key, "slabs") == 0) {
+        push_room_slabs(L, room);
         return 1;
     }
     else if (strcmp(key, "workers") == 0) {
