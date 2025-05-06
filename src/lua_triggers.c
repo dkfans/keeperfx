@@ -30,7 +30,10 @@ void lua_on_dungeon_destroyed(PlayerNumber plyr_idx)
 		lua_pushPlayer(Lvl_script, plyr_idx);
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnDungeonDestroyed");
 	}
-	lua_pop(Lvl_script, 1);
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
 }
 
 void lua_on_chatmsg(PlayerNumber plyr_idx, char *msg)
@@ -44,7 +47,10 @@ void lua_on_chatmsg(PlayerNumber plyr_idx, char *msg)
 
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 2, 0, 0),"OnChatMsg");
 	}
-	lua_pop(Lvl_script, 1);
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
 }
 
 
@@ -56,7 +62,10 @@ void lua_on_game_start()
 	{
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 0),"OnGameStart");
 	}
-	lua_pop(Lvl_script, 1);
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
 }
 
 void lua_on_game_tick()
@@ -67,7 +76,10 @@ void lua_on_game_tick()
 	{
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 0, 0, 0), "OnGameTick");
 	}
-	lua_pop(Lvl_script, 1);
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
 }
 
 void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
@@ -86,7 +98,10 @@ void lua_on_power_cast(PlayerNumber plyr_idx, PowerKind pwkind,
 
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 6, 0, 0),"OnPowerCast");
 	}
-	lua_pop(Lvl_script, 1);
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
 }
 
 void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng)
@@ -101,7 +116,10 @@ void lua_on_special_box_activate(PlayerNumber plyr_idx, struct Thing *cratetng)
 
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 3, 0, 0),"OnSpecialActivated");
 	}
-	lua_pop(Lvl_script, 1);
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
 }
 
 void lua_on_trap_placed(struct Thing *traptng)
@@ -114,7 +132,10 @@ void lua_on_trap_placed(struct Thing *traptng)
 
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnTrapPlaced");
 	}
-	lua_pop(Lvl_script, 1);
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
 }
 
 void lua_on_creature_death(struct Thing *crtng)
@@ -127,7 +148,10 @@ void lua_on_creature_death(struct Thing *crtng)
 
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnCreatureDeath");
 	}
-	lua_pop(Lvl_script, 1);
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
 }
 
 
@@ -143,5 +167,8 @@ void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumb
 
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 3, 0, 0),"OnApplyDamage");
 	}
-	lua_pop(Lvl_script, 1);
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
 }

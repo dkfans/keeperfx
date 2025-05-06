@@ -10,6 +10,7 @@ require "classes.Pos3d"
 require "classes.Creature"
 require "classes.Thing"
 require "classes.Slab"
+require "managers.CreatureManager"
 
 --the Game table contains all the game data that needs to be serialized on save, anything not in this table could break save games
 Game = {}
