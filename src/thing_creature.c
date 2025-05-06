@@ -3144,10 +3144,6 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     {
         set_flag(flags,CrDed_NoEffects);
     }
-    if (!flag_is_set(flags,CrDed_NotReallyDying))
-    {
-        lua_on_creature_death(thing);
-    }
 
     if ((!flag_is_set(flags,CrDed_NoEffects)) && (crconf->rebirth != 0)
      && (cctrl->lairtng_idx > 0) && (crconf->rebirth-1 <= cctrl->exp_level)
@@ -3156,6 +3152,12 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         creature_rebirth_at_lair(thing);
         return INVALID_THING;
     }
+
+    if (!flag_is_set(flags,CrDed_NotReallyDying))
+    {
+        lua_on_creature_death(thing);
+    }
+    
     creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
     if ((!flag_is_set(flags,CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_ResurrectRemoved)))
