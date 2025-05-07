@@ -436,34 +436,39 @@ int luaL_checkSlab(lua_State *L, int idx, MapSlabCoord* slb_x, MapSlabCoord* slb
 struct Room* luaL_checkRoom(lua_State *L, int idx)
 {
     if (!lua_istable(L, idx)) {
-        return luaL_argerror(L, idx, "Expected a room");
+        luaL_argerror(L, idx, "Expected a room");
+        return INVALID_ROOM;
     }
 
     lua_getfield(L, idx, "room_idx");
     if (!lua_isnumber(L, -1)) {
-        return luaL_argerror(L, idx, "Expected a room");
+        luaL_argerror(L, idx, "Expected a room");
+        return INVALID_ROOM;
     }
     RoomIndex room_idx = lua_tointeger(L, -1);
     lua_pop(L, 1);
 
 
-    struct Room* room = get_room(room_idx);
-    if ((room->alloc_flags & 0x01) == 0)
+    struct Room* room = room_get(room_idx);
+    if ((room->alloc_flags & RoF_Allocated) == 0)
     {
-        return luaL_argerror(L, idx, "Room no longer exists");
+        luaL_argerror(L, idx, "Room no longer exists");
+        return INVALID_ROOM;
     }
 
 
     lua_getfield(L, idx, "creation_turn");
     if (!lua_isnumber(L, -1)) {
-        return luaL_argerror(L, idx, "Table must have a numeric 'creation_turn' field");
+        luaL_argerror(L, idx, "Table must have a numeric 'creation_turn' field");
+        return INVALID_ROOM;
     }
     GameTurn creation_turn = lua_tointeger(L, -1);
     lua_pop(L, 1);
     if (room_is_invalid(room) || room->creation_turn != creation_turn) {
-        return luaL_argerror(L, idx, "Failed to resolve room");
+        luaL_argerror(L, idx, "Failed to resolve room");
+        return INVALID_ROOM;
     }
-    return get_room(room_idx);
+    return room;
 }
 
 /***************************************************************************************************/
