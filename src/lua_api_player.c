@@ -142,46 +142,35 @@ static int player_set_field(lua_State *L) {
     return 0;
 }
 
-// Function to get field values
 static int player_get_field(lua_State *L) {
-    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
     const char* key = luaL_checkstring(L, 2);
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
 
+    long variable_type, variable_id;
+
+    // C method lookup
     if (try_get_c_method(L, key, player_methods))
-    {
         return 1;
-    }
 
-    //heart
+    // Built-in fields
     if (strcmp(key, "heart") == 0) {
-        struct Thing* heartng = get_player_soul_container(plyr_idx);
-        lua_pushThing(L, heartng);
-        return 1;
-    }
-    else if (strcmp(key, "controls") == 0) {
-        // Push the player index as upvalue
+        lua_pushThing(L, get_player_soul_container(plyr_idx));
+    } else if (strcmp(key, "controls") == 0) {
         lua_pushinteger(L, plyr_idx);
         lua_pushcclosure(L, player_get_controls, 1);
-        return 1;
-    }
-    else if (strcmp(key, "available") == 0) {
-        // Push the player index as upvalue
+    } else if (strcmp(key, "available") == 0) {
         lua_pushinteger(L, plyr_idx);
         lua_pushcclosure(L, player_get_available, 1);
-        return 1;
     }
-    
-    long variable_type;
-    long variable_id;
-
-    if (parse_get_varib(key, &variable_id, &variable_type,1))
-    {
+    else if (parse_get_varib(key, &variable_id, &variable_type, 1)) {
         lua_pushinteger(L, get_condition_value(plyr_idx, variable_type, variable_id));
+    } else if (try_get_from_methods(L, 1, key)) {
         return 1;
+    } else {
+        return luaL_error(L, "Unknown field or method '%s' for Player", key);
     }
 
     return 1;
-
 }
 
 static int player_eq(lua_State *L) {
