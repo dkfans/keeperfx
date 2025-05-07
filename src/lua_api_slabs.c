@@ -133,9 +133,13 @@ static const struct luaL_Reg slab_methods[] = {
     } else if (strcmp(key, "style") == 0) {
         SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
         lua_pushstring(L, get_conf_parameter_text(texture_pack_desc,gameadd.slab_ext_data[slb_num]));
+    } else if (try_get_from_methods(L, 1, key)) {
+        return 1;
+    } else {
+        return luaL_error(L, "Unknown field or method '%s' for Player", key);
     }
 
-     return 1;
+    return 1;
  
  }
  
