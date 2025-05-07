@@ -57,7 +57,7 @@ function RegisterPowerCastEvent(action,powerKind)
 end
 
 ---@param action function|string the function to call when the event happens
----@param player Player the player who lost (nil for any player)
+---@param player? Player the player who lost (nil for any player)
 ---@return Trigger
 function RegisterDungeonDestroyedEvent(action, player)
     local trigData = {player = player}
@@ -70,8 +70,8 @@ end
 
 ---triggers when a trap is placed
 ---@param action function|string the function to call when the event happens
----@param player Player|nil the player who placed the trap (nil for any player)
----@param trapType trap_type|nil the kind of trap that was placed (nil for any trap)
+---@param player? Player|nil the player who placed the trap (nil for any player)
+---@param trapType? trap_type|nil the kind of trap that was placed (nil for any trap)
 ---@return table
 function RegisterTrapPlacedEvent(action, player, trapType)
     local trigData = {Player = player, trapType = trapType}
