@@ -1089,14 +1089,16 @@ long computer_check_for_vision(struct Computer2 *comp, struct ComputerCheck * ch
 long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
+    long slap_percentage = check->param1;
+    TbBool skip_imps_with_speed = check->param2;
     struct Dungeon* dungeon = comp->dungeon;
     if (!is_power_available(dungeon->owner, PwrK_SLAP)) {
         return CTaskRet_Unk4;
     }
-    long creatrs_num = check->param1 * dungeon->num_active_diggers / 100;
+    long creatrs_num = slap_percentage * dungeon->num_active_diggers / 100;
     if (!is_task_in_progress(comp, CTT_SlapDiggers))
     {
-        if (create_task_slap_imps(comp, creatrs_num)) {
+        if (create_task_slap_imps(comp, creatrs_num, skip_imps_with_speed)) {
             return CTaskRet_Unk1;
         }
     }
