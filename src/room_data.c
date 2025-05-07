@@ -71,13 +71,6 @@ void count_workers_in_room(struct Room *room);
 long find_random_valid_position_for_item_in_different_room_avoiding_object(struct Thing* thing, struct Room* skip_room, struct Coord3d* pos);
 /******************************************************************************/
 
-RoomKind look_through_rooms[] = {
-    RoK_DUNGHEART, RoK_LAIR,      RoK_GARDEN,    RoK_TREASURE,
-    RoK_TRAINING,  RoK_WORKSHOP,  RoK_SCAVENGER, RoK_BARRACKS,
-    RoK_PRISON,    RoK_TORTURE,   RoK_GRAVEYARD, RoK_TEMPLE,
-    RoK_LIBRARY,   RoK_BRIDGE,    RoK_GUARDPOST, RoK_ENTRANCE,
-    RoK_TYPES_COUNT,};
-
 struct AroundLByte const room_spark_offset[] = {
   {-256,  256},
   {-256,    0},
@@ -153,17 +146,6 @@ TbBool room_exists(const struct Room *room)
   if (room_is_invalid(room))
     return false;
   return ((room->alloc_flags & 0x01) != 0);
-}
-
-long get_room_look_through(RoomKind rkind)
-{
-  const long arr_length = sizeof(look_through_rooms)/sizeof(look_through_rooms[0]);
-  for (long i = 0; i < arr_length; i++)
-  {
-    if (look_through_rooms[i] == rkind)
-      return i;
-  }
-  return -1;
 }
 
 /**
