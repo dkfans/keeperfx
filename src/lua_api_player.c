@@ -4,15 +4,13 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
-
 #include "lua_base.h"
 #include "lua_params.h"
-
+#include "lua_utils.h"
 
 #include "player_data.h"
 #include "lvl_script_lib.h"
 #include "player_utils.h"
-
 
 #include "post_inc.h"
 
@@ -149,15 +147,10 @@ static int player_get_field(lua_State *L) {
     PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
     const char* key = luaL_checkstring(L, 2);
 
-    // Check if the key exists in player_methods
-    for (int i = 0; player_methods[i].name != NULL; i++) {
-        if (strcmp(key, player_methods[i].name) == 0) {
-            // Instead of calling the function, return its reference
-            lua_pushcfunction(L, player_methods[i].func);
-            return 1;
-        }
+    if (try_get_c_method(L, key, player_methods))
+    {
+        return 1;
     }
-
 
     //heart
     if (strcmp(key, "heart") == 0) {
@@ -187,19 +180,6 @@ static int player_get_field(lua_State *L) {
         return 1;
     }
 
-/*
-    if (strcmp(key, "index") == 0) {
-        lua_pushinteger(L, thing->index);
-    } else if (strcmp(key, "creation_turn") == 0) {
-        lua_pushinteger(L, thing->creation_turn);
-    } else if (strcmp(key, "Owner") == 0) {
-        lua_pushPlayer(L, thing->owner);
-
-
-    } else {
-        lua_pushnil(L);
-    }
-*/
     return 1;
 
 }

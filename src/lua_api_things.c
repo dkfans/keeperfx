@@ -26,6 +26,7 @@
 
 #include "lua_base.h"
 #include "lua_params.h"
+#include "lua_utils.h"
 
 
 #include "post_inc.h"
