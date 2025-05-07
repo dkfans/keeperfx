@@ -165,44 +165,47 @@ static int thing_tostring(lua_State *L)
 
 // Function to set field values
 static int thing_set_field(lua_State *L) {
-
     struct Thing* thing = luaL_checkThing(L, 1);
     const char* key = luaL_checkstring(L, 2);
 
     if (strcmp(key, "orientation") == 0) {
         thing->move_angle_xy = luaL_checkinteger(L, 3);
+
     } else if (strcmp(key, "owner") == 0) {
         PlayerNumber new_owner = luaL_checkPlayerSingle(L, 3);
-        if (is_thing_some_way_controlled(thing))
-        {
-            //does not kill the creature, but does the preparations needed for when it is possessed
+        if (is_thing_some_way_controlled(thing)) {
             prepare_to_controlled_creature_death(thing);
         }
         change_creature_owner(thing, new_owner);
-    } else if (strcmp(key, "name") == 0) {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
 
-        if (creature_control_invalid(cctrl)) {
-            luaL_error(L, "Attempt to set name of non-creature thing");
-            return 0;
+    } else if (strcmp(key, "name") == 0) {
+        if (thing->class_id != TCls_Creature) {
+            return luaL_error(L, "Attempt to set name of non-creature thing");
         }
+
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl)) {
+            return luaL_error(L, "Invalid creature control block");
+        }
+
         const char* name = luaL_checkstring(L, 3);
         if (strlen(name) > CREATURE_NAME_MAX) {
-            luaL_error(L, "Creature name too long (%d)", CREATURE_NAME_MAX);
-            return 0;
+            return luaL_error(L, "Creature name too long (max %d)", CREATURE_NAME_MAX);
         }
+
         strncpy(cctrl->creature_name, name, CREATURE_NAME_MAX);
 
     } else if (strcmp(key, "health") == 0) {
         thing->health = luaL_checkinteger(L, 3);
+
     } else if (strcmp(key, "shots") == 0) {
         if (thing->class_id != TCls_Trap) {
-            luaL_error(L, "Attempt to set shots of non-trap thing");
-            return 0;
+            return luaL_error(L, "Attempt to set shots of non-trap thing");
         }
         set_trap_shots(thing, luaL_checkinteger(L, 3));
+
     } else {
-        luaL_error(L, "not a settable field: %s", key);
+        return luaL_error(L, "Field '%s' is not writable on Thing", key);
     }
 
     return 1;
