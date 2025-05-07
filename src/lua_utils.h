@@ -20,13 +20,14 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include <lua.h>
+#include <lauxlib.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-bool try_get_from_methods(lua_State *L, int obj_index, const char *key);
-bool try_get_c_method(lua_State *L, const char *key, const luaL_Reg *methods);
+TbBool try_get_from_methods(lua_State *L, int obj_index, const char *key);
+TbBool try_get_c_method(lua_State *L, const char *key, const luaL_Reg *methods);
 
 #ifdef __cplusplus
 }

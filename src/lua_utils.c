@@ -23,7 +23,7 @@ TbBool try_get_from_methods(lua_State *L, int obj_index, const char *key) {
 }
 
 
-bool try_get_c_method(lua_State *L, const char *key, const luaL_Reg *methods) {
+TbBool try_get_c_method(lua_State *L, const char *key, const luaL_Reg *methods) {
     for (int i = 0; methods[i].name != NULL; i++) {
         if (strcmp(key, methods[i].name) == 0) {
             lua_pushcfunction(L, methods[i].func);
