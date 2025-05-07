@@ -207,22 +207,17 @@ static int thing_set_field(lua_State *L) {
     return 1;
 }
 
-// Function to get field values
 static int thing_get_field(lua_State *L) {
     const char* key = luaL_checkstring(L, 2);
 
-    // Check if the key exists in thing_methods (C functions)
-    for (int i = 0; thing_methods[i].name != NULL; i++) {
-        if (strcmp(key, thing_methods[i].name) == 0) {
-            lua_pushcfunction(L, thing_methods[i].func);
-            return 1;
-        }
+    if (try_get_c_method(L, key, thing_methods))
+    {
+        return 1;
     }
 
-    // Get the Thing object
     struct Thing* thing = luaL_checkThing(L, 1);
 
-    // Check known fields (direct fields of the Thing struct)
+    // Built-in fields
     if (strcmp(key, "ThingIndex") == 0) {
         lua_pushinteger(L, thing->index);
     } else if (strcmp(key, "creation_turn") == 0) {
@@ -240,70 +235,34 @@ static int thing_get_field(lua_State *L) {
     } else if (strcmp(key, "max_health") == 0) {
         lua_pushinteger(L, get_thing_max_health(thing));
     } else if (strcmp(key, "shots") == 0) {
-        if (thing->class_id != TCls_Trap) {
-            luaL_error(L, "Attempt to access shots of non-trap thing");
-            return 0;
-        }
+        if (thing->class_id != TCls_Trap)
+            return luaL_error(L, "Attempt to access 'shots' of non-trap thing");
         lua_pushinteger(L, thing->trap.num_shots);
     } else if (strcmp(key, "level") == 0) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl)) {
-            luaL_error(L, "Attempt to access level of non-creature thing");
-            return 0;
-        }
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'level' of non-creature thing");
         lua_pushinteger(L, cctrl->exp_level);
     } else if (strcmp(key, "name") == 0) {
-        if (thing->class_id != TCls_Creature) {
-            luaL_error(L, "Attempt to get name of non-creature thing");
-            return 0;
-        }
+        if (thing->class_id != TCls_Creature)
+            return luaL_error(L, "Attempt to get 'name' of non-creature thing");
         lua_pushstring(L, creature_own_name(thing));
     } else if (strcmp(key, "party") == 0) {
-        if (thing->class_id != TCls_Creature) {
-            luaL_error(L, "Attempt to get party for non-creature thing");
-            return 0;
-        }
+        if (thing->class_id != TCls_Creature)
+            return luaL_error(L, "Attempt to get 'party' of non-creature thing");
         lua_pushPartyTable(L, get_group_leader(thing));
     } else if (strcmp(key, "picked_up") == 0) {
         lua_pushboolean(L, thing_is_picked_up(thing));
+    } else if (try_get_from_methods(L, 1, key)) {
+        return 1;
     } else {
-        // Check if the key exists in the metatable's __methods table (Lua functions)
-        lua_getmetatable(L, 1);             // Get metatable
-        lua_getfield(L, -1, "__methods");   // Get the __methods table
-        if (lua_istable(L, -1)) {
-            lua_getfield(L, -1, key);  // Try to get the key from __methods
-            if (!lua_isnil(L, -1)) {
-                lua_remove(L, -2);  // Remove __methods table, leaving the function
-                return 1;
-            }
-        }
-        lua_pop(L, 2); // Pop metatable and __methods table (or nil)
-
-        // If not found in __methods, check the table directly (standard field lookup)
-        lua_getfield(L, 1, key);
-        if (lua_isnil(L, -1)) {
-            // If key is not found, check if __index is defined in the metatable
-            lua_getmetatable(L, 1);  // Push metatable again
-            lua_getfield(L, -1, "__index");  // Check for __index
-            if (lua_istable(L, -1)) {
-                // If __index is a table, attempt to access the key in __index
-                lua_getfield(L, -1, key);
-                if (!lua_isnil(L, -1)) {
-                    lua_remove(L, -2);  // Remove __index
-                    return 1;
-                }
-            }
-            lua_pop(L, 2);  // Pop metatable and __index (or nil)
-        }
+        return luaL_error(L, "Unknown field or method '%s' for Thing", key);
     }
 
     return 1;
 }
 
-
 static int thing_eq(lua_State *L) {
-
-
 
     if (!lua_istable(L, 1) || !lua_istable(L, 2)) {
         luaL_error(L, "Expected a table");
