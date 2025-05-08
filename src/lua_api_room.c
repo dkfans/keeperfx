@@ -18,7 +18,6 @@
 
 
 static const struct luaL_Reg room_methods[] = {
-   //{"set_texture"                          ,lua_Set_texture                     },
     {NULL, NULL}
 };
 
@@ -146,6 +145,14 @@ static int room_get_field(lua_State *L) {
     }
     else if (strcmp(key, "efficiency") == 0) {
         lua_pushinteger(L, room->efficiency);
+        return 1;
+    }
+    else if (strcmp(key, "centerpos") == 0) {
+        struct Coord3d centerpos;
+        centerpos.x.val = subtile_coord_center(room->center_x);
+        centerpos.y.val = subtile_coord_center(room->center_y);
+        centerpos.z.val = get_floor_height_at(&centerpos);
+        lua_pushPos(L, &centerpos);
         return 1;
     }
 
