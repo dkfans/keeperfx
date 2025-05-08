@@ -60,31 +60,18 @@ static void push_room_slabs(lua_State *L, struct Room* room) {
     // Create a new table for slabs
     lua_newtable(L);
 
+    SlabCodedCoords slbnum = room->slabs_list;
+    int i = 1; // Lua tables are 1-indexed
 
-    while (1)
-    {
-        MapSlabCoord slb_x = slb_num_decode_x(slbnum);
-        MapSlabCoord slb_y = slb_num_decode_y(slbnum);
-        // Per slab code
-        if (gold_store <= 0)
-            break;
-        gold_store = add_gold_to_treasure_room_slab(slb_x, slb_y, gold_store);
-        // Per slab code ends
+    while (1) {
+        lua_pushSlab(L, slb_num_decode_x(slbnum), slb_num_decode_y(slbnum));
+        lua_seti(L, -2, i); // Insert at index i
+        i++;
+
         slbnum = get_next_slab_number_in_room(slbnum);
-        if (slbnum == 0) {
-            slbnum = room->slabs_list;
-        }
-        k++;
-        if (k >= room->slabs_count) {
+        if (slbnum == 0 || i > room->slabs_count) {
             break;
         }
-    }
-
-    // Iterate through the slabs and add them to the table
-    for (int i = 0; i < room->slabs_count; i++) {
-        struct Slab* slab = get_slab(room->slabs_list[i]);
-        lua_pushinteger(L, slab->index);
-        lua_seti(L, -2, i + 1); // Lua tables are 1-indexed
     }
 }
 
