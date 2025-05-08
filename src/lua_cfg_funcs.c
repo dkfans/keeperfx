@@ -9,6 +9,11 @@
 #include "post_inc.h"
 
 FuncIdx get_function_idx(const char *func_name, const struct NamedCommand *Cfuncs) {
+
+    if (strcasecmp(func_name, "none") == 0) {
+        return 0;
+    }
+
     // If it's a C function, return positive index
     FuncIdx id = get_id(Cfuncs, func_name);
     if (id > 0) {
