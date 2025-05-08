@@ -582,3 +582,25 @@ void lua_pushPartyTable(lua_State *L, struct Thing* thing) {
         }
     }
 }
+
+void lua_pushRoom(lua_State *L, struct Room* room) {
+    if (room_is_invalid(room)) {
+        lua_pushnil(L);
+        return;
+    }
+
+    lua_createtable(L, 0, 2);
+
+    lua_pushinteger(L, room->index);
+    lua_setfield(L, -2, "room_idx");
+
+    lua_pushinteger(L, room->creation_turn);
+    lua_setfield(L, -2, "creation_turn");
+
+    // Store a class name for Bitser
+    lua_pushstring(L, "Room");
+    lua_setfield(L, -2, "__class");
+
+    luaL_getmetatable(L, "Room");
+    lua_setmetatable(L, -2);  
+}
