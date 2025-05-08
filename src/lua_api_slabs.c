@@ -137,6 +137,13 @@ static const struct luaL_Reg slab_methods[] = {
     } else if (strcmp(key, "style") == 0) {
         SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
         lua_pushstring(L, get_conf_parameter_text(texture_pack_desc,gameadd.slab_ext_data[slb_num]));
+    } else if (strcmp(key, "centerpos") == 0) {
+        struct Coord3d centerpos;
+        centerpos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
+        centerpos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
+        centerpos.z.val = get_floor_height_at(&centerpos);
+        lua_pushPos(L, &centerpos);
+        return 1;
     }
 
      return 1;
