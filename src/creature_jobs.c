@@ -365,21 +365,51 @@ TbBool attempt_anger_job_persuade(struct Thing *creatng)
 
 TbBool attempt_anger_job_join_enemy(struct Thing *creatng)
 {
-    int n = CREATURE_RANDOM(creatng, PLAYERS_COUNT);
-    for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
+    int new_owner = CREATURE_RANDOM(creatng, PLAYERS_COUNT);
+    for (int i = 0; i < PLAYERS_COUNT; i++, new_owner = (new_owner + 1) % PLAYERS_COUNT)
     {
-        if ((n == game.neutral_player_num) || (n == creatng->owner))
+        struct PlayerInfo* player = get_player(new_owner);
+        if (!player_exists(player))
             continue;
-        struct PlayerInfo* player = get_player(n);
-        if (!player_exists(player) || (player->is_active != 1))
-            continue;
-        struct Thing* heartng = get_player_soul_container(n);
-        if (thing_exists(heartng) && (heartng->active_state != 3))
+        if (players_are_enemies(creatng->owner, new_owner))
         {
-            TRACE_THING(heartng);
-            if (creature_can_navigate_to(creatng, &heartng->mappos, NavRtF_Default)) {
-                change_creature_owner(creatng, n);
+            TbBool can_join;
+            struct Thing* heartng = get_player_soul_container(new_owner);
+            if (thing_exists(heartng))
+            {
+                if (heartng->active_state == ObSt_BeingDestroyed)
+                {
+                    heartng = find_players_backup_dungeon_heart(new_owner);
+                    if (thing_exists(heartng))
+                    {
+                        TRACE_THING(heartng);
+                        can_join = creature_can_navigate_to(creatng, &heartng->mappos, NavRtF_Default);
+                    }
+                    else
+                    {
+                        can_join = player_is_roaming(new_owner);
+                    }
+                }
+                else
+                {
+                    TRACE_THING(heartng);
+                    can_join = creature_can_navigate_to(creatng, &heartng->mappos, NavRtF_Default);
+                }
+            }
+            else
+            {
+                can_join = player_is_roaming(new_owner);
+            }
+            if (can_join)
+            {
+                PlayerNumber old_owner = creatng->owner;
+                change_creature_owner(creatng, new_owner);
                 anger_set_creature_anger_all_types(creatng, 0);
+                if (is_my_player_number(old_owner))
+                {
+                    output_message(SMsg_CreatureJoinedEnemy, 0);
+                }
+                return true;
             }
         }
     }
