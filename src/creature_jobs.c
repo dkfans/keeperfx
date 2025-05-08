@@ -383,7 +383,7 @@ TbBool attempt_anger_job_join_enemy(struct Thing *creatng)
                     if (thing_exists(heartng))
                     {
                         TRACE_THING(heartng);
-                        can_join = creature_can_navigate_to(creatng, &heartng->mappos, NavRtF_Default);
+                        can_join = (heartng->active_state != ObSt_BeingDestroyed) ? creature_can_navigate_to(creatng, &heartng->mappos, NavRtF_Default) : player_is_roaming(new_owner);
                     }
                     else
                     {
