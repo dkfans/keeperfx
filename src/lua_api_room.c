@@ -103,60 +103,40 @@ static int room_get_field(lua_State *L) {
     const char* key = luaL_checkstring(L, 2);
 
     // Check if the key exists in room_methods
-    for (int i = 0; room_methods[i].name != NULL; i++) {
-        if (strcmp(key, room_methods[i].name) == 0) {
-            // Instead of calling the function, return its reference
-            lua_pushcfunction(L, room_methods[i].func);
-            return 1;
-        }
+    if (try_get_c_method(L, key, room_methods))
+    {
+        return 1;
     }
 
     if (strcmp(key, "type") == 0) {
         lua_pushstring(L, get_conf_parameter_text(room_desc, room->kind));
-        return 1;
-    }
-    else if (strcmp(key, "owner") == 0) {
+    } else if (strcmp(key, "owner") == 0) {
         lua_pushPlayer(L, room->owner);
-        return 1;
-    }
-    else if (strcmp(key, "slabs") == 0) {
+    } else if (strcmp(key, "slabs") == 0) {
         push_room_slabs(L, room);
-        return 1;
-    }
-    else if (strcmp(key, "workers") == 0) {
+    } else if (strcmp(key, "workers") == 0) {
         push_room_workers(L, room);
-        return 1;
-    }
-    else if (strcmp(key, "health") == 0) {
+    } else if (strcmp(key, "health") == 0) {
         lua_pushinteger(L, room->health);
-        return 1;
-    }
-    else if (strcmp(key, "max_health") == 0) {
+    } else if (strcmp(key, "max_health") == 0) {
         lua_pushinteger(L, compute_room_max_health(room->slabs_count, room->efficiency));
-        return 1;
-    }
-    else if (strcmp(key, "used_capacity") == 0) {
+    } else if (strcmp(key, "used_capacity") == 0) {
         lua_pushinteger(L, room->used_capacity);
-        return 1;
-    }
-    else if (strcmp(key, "max_capacity") == 0) {
+    } else if (strcmp(key, "max_capacity") == 0) {
         lua_pushinteger(L, room->total_capacity);
-        return 1;
-    }
-    else if (strcmp(key, "efficiency") == 0) {
+    } else if (strcmp(key, "efficiency") == 0) {
         lua_pushinteger(L, room->efficiency);
-        return 1;
-    }
-    else if (strcmp(key, "centerpos") == 0) {
+    } else if (strcmp(key, "centerpos") == 0) {
         struct Coord3d centerpos;
         centerpos.x.val = subtile_coord_center(room->center_x);
         centerpos.y.val = subtile_coord_center(room->center_y);
         centerpos.z.val = get_floor_height_at(&centerpos);
         lua_pushPos(L, &centerpos);
-        return 1;
+    } else {
+        return luaL_error(L, "Unknown field or method '%s' for Room", key);
     }
 
-    return 0;
+    return 1;
 
 }
 
