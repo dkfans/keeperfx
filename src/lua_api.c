@@ -1847,6 +1847,42 @@ static int lua_get_things_of_class(lua_State *L)
     return 1; // return value is the amount of args you push back
 }
 
+static int lua_get_rooms_of_player(lua_State *L)
+{
+    strtuct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+
+    lua_newtable(L);
+
+    unsigned long k = 0;
+
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
+    {
+        struct Dungeon* dungeon = get_dungeon(i);
+        int i = dungeon->room_kind[rkind];
+        while (i != 0)
+        {
+            struct Room* room = room_get(i);
+            if (room_is_invalid(room))
+            {
+                ERRORLOG("Jump to invalid room detected");
+                break;
+            }
+
+            lua_pushRoom(L, room);
+            lua_rawseti(L, -2, k + 1);
+            
+            i = room->next_of_owner;
+            k++;
+            if (k > ROOMS_COUNT)
+            {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+            }
+        }
+    }
+
+    return 1; // return value is the amount of args you push back
+}
 
 static int lua_is_action_point_activated_by_player(lua_State *L)
 {
@@ -2061,6 +2097,7 @@ static const luaL_Reg global_methods[] = {
     {"Is_actionpoint_activated_by_player",lua_is_action_point_activated_by_player},
     {"Get_slab",                          lua_get_slab},
     {"Get_string",                        lua_Get_string},
+    {"Get_rooms_of_player",               lua_get_rooms_of_player},
 
 //usecase specific functions
     {"Pay_for_power",                     lua_Pay_for_power},
