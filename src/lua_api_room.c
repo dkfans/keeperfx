@@ -113,7 +113,7 @@ static int room_get_field(lua_State *L) {
     }
 
     if (strcmp(key, "type") == 0) {
-        
+        lua_pushstring(L, get_conf_parameter_text(room_desc, room->kind));
         return 1;
     }
     else if (strcmp(key, "owner") == 0) {
