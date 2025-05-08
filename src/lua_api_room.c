@@ -75,6 +75,29 @@ static void push_room_slabs(lua_State *L, struct Room* room) {
     }
 }
 
+
+static void push_room_workers(lua_State *L, struct Room* room) {
+    // Create a new table for slabs
+    lua_newtable(L);
+
+    ThingIndex worker_idx = room->creatures_list;
+    int i = 1; // Lua tables are 1-indexed
+
+    while (1) {
+        struct Thing* worker = thing_get(worker_idx);
+        lua_pushThing(L, worker);
+        lua_seti(L, -2, i); // Insert at index i
+        i++;
+
+        worker_idx = worker->next_in_room;
+        if (i > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures list");
+          break;
+        }
+    }
+}
+
 // Function to get field values
 static int room_get_field(lua_State *L) {
     struct Room* room = luaL_checkRoom(L, 1);
@@ -102,6 +125,7 @@ static int room_get_field(lua_State *L) {
         return 1;
     }
     else if (strcmp(key, "workers") == 0) {
+        push_room_workers(L, room);
         return 1;
     }
     else if (strcmp(key, "health") == 0) {
