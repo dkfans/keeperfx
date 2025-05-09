@@ -45,14 +45,12 @@ function Set_creature_configuration(creature_type,property,value,value2) end
 ---@param value3 any
 function Set_effect_generator_configuration(effectgeneratorname,property,value,value2,value3) end
 
---[[
 ---Makes changes to keeper powers, as originally set in magic.cfg.
 ---@param power_kind power_kind
 ---@param property any
 ---@param value any
 ---@param value2 any
 function Set_power_configuration(power_kind,property,value,value2) end
-]]
 
 ---Allows you to make changes to room values set in terrain.cfg. Look in that file for explanations on the numbers.
 ---@param room_type room_type
