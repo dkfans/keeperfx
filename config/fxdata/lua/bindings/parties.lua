@@ -12,8 +12,14 @@
 ---@param location location where the creature(s) should be spawned
 ---@param level integer
 ---@param carried_gold integer
+---@param spawn_type? "DEFAULT"|"JUMP"|"FALL"|"INIT"|"INITIALIZE" Optional value determining how the creature spawns, which can be set to:
+        --DEFAULT - The behavior it has without the param. This means at action point heroes will fall from ceilings, and at hero gates they jump in.
+        --NONE - The behaviors non-roaming creatures show when they enter at an action point: nothing
+        --JUMP - The behavior units do at a hero gate, jumping in.
+        --FALL - Falling from the ceiling with a short delay and rocks.
+        --INIT / INITIALIZE - Looks like 'NONE', but acts like the unit is preplaced on the map. Can be used to assign units to rooms like guard post and prisons.
 ---@return Creature
-function AddCreatureToLevel(owner,creature_model,location,level,carried_gold) return Creature end
+function AddCreatureToLevel(owner,creature_model,location,level,carried_gold,spawn_type) return Creature end
 
 ---This commands adds a number of Tunneller Dwarves to the level. They will immediately start digging towards their target.
 ---Tunneller Dwarves are the only creatures that can tunnel towards a target.

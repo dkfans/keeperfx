@@ -362,7 +362,15 @@ static int lua_Add_creature_to_level(lua_State *L)
     TbMapLocation location = luaL_checkLocation(L,  3);
     long crtr_level        = luaL_checkinteger(L, 4);
     long carried_gold      = luaL_checkinteger(L, 5);
-    long spawn_type        = SpwnT_Default;
+    long spawn_type;
+    if(!lua_isnoneornil(L, 6))
+    {
+        spawn_type = luaL_checkNamedCommand(L, 6,spawn_type_desc);
+    }
+    else
+    {
+        spawn_type = SpwnT_Default;
+    }
 
     if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
     {
