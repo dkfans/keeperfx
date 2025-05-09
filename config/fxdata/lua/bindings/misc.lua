@@ -15,20 +15,13 @@ function ZoomToLocation(player,location) end
 ---@param hand string The name of the hand, as defined in powerhands.toml.
 function SetHandGraphic(player,hand) end
 
-
-
 ---Chooses what music track to play
 ---@param track_number integer  The music track to be played. Numbers 2~7 select from original tracks, or a file name(between parenthesis) to set custom music.
 function SetMusic(track_number) end
 
-
-
-
 ---runs a command through the engine of the old dkscript, most commands are reimplemented in lua, so generally not needed
 ---@param command string the command to run
 function RunDKScriptCommand(command) end
-
-
 
 -----returns wether a specific action point is activated by a player or not.
 ---@param player Player
@@ -43,15 +36,12 @@ function IsActionpointActivatedByPlayer(player,action_point) return true end
 ---@nodiscard
 function GetString(msg_id) end
 
-
-
 ---returns the slab at the given coordinates
 ---@param slb_x integer
 ---@param slb_y integer
 ---@return Slab
 ---@nodiscard
 function GetSlab(slb_x,slb_y) end
-
 
 ---used for the UseFunction of powers in magic.cfg all Use functions should include it
 ---@param player playersingle
@@ -61,7 +51,6 @@ function GetSlab(slb_x,slb_y) end
 ---@return boolean success
 ---@nodiscard
 function PayForPower(player, power_kind, power_level, is_free) end
-
 
 ---returns the amount of creatures at the ap
 ---@param action_point integer
