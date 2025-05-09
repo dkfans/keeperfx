@@ -50,7 +50,7 @@ function Get_string(msg_id) end
 ---@param slb_y integer
 ---@return Slab
 ---@nodiscard
-function Get_slab(slb_x,slb_y) end
+function GetSlab(slb_x,slb_y) end
 
 
 ---used for the UseFunction of powers in magic.cfg all Use functions should include it
@@ -60,7 +60,7 @@ function Get_slab(slb_x,slb_y) end
 ---@param is_free boolean
 ---@return boolean success
 ---@nodiscard
-function Pay_for_power(player, power_kind, power_level, is_free) end
+function PayForPower(player, power_kind, power_level, is_free) end
 
 
 ---returns the amount of creatures at the ap
@@ -69,4 +69,4 @@ function Pay_for_power(player, power_kind, power_level, is_free) end
 ---@param creature_type creature_type|"ANY_CREATURE"
 ---@return integer amount amount of creatures matching the conditions
 ---@nodiscard
-function Count_creatures_at_action_point(action_point,player,creature_type) return 0 end
+function CountCreaturesAtActionPoint(action_point,player,creature_type) return 0 end
