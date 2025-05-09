@@ -3,30 +3,30 @@
 ---Once an Action Point has been triggered, it cannot be triggered again unless it has been reset by this command.
 ---@param action_point integer Action Point number
 ---@param player playerrange
-function Reset_action_point(action_point,player) end
+function ResetActionPoint(action_point,player) end
 
 ---Moves the camera of a player to a specific location like an action point.
 ---@param player playersingle
 ---@param location location The location the camera will zoom to.
-function Zoom_to_location(player,location) end
+function ZoomToLocation(player,location) end
 
 ---Changes the sprite of the power hand to a different one.
 ---@param player playersingle The name of the player who's hand is changed.
 ---@param hand string The name of the hand, as defined in powerhands.toml.
-function Set_hand_graphic(player,hand) end
+function SetHandGraphic(player,hand) end
 
 
 
 ---Chooses what music track to play
 ---@param track_number integer  The music track to be played. Numbers 2~7 select from original tracks, or a file name(between parenthesis) to set custom music.
-function Set_music(track_number) end
+function SetMusic(track_number) end
 
 
 
 
 ---runs a command through the engine of the old dkscript, most commands are reimplemented in lua, so generally not needed
 ---@param command string the command to run
-function Run_DKScript_command(command) end
+function RunDKScriptCommand(command) end
 
 
 
@@ -35,13 +35,13 @@ function Run_DKScript_command(command) end
 ---@param action_point actionpoint
 ---@return boolean
 ---@nodiscard
-function Is_actionpoint_activated_by_player(player,action_point) return true end
+function IsActionpointActivatedByPlayer(player,action_point) return true end
 
 ---returns a translated string stored in gtext_***.dat in the current game language.
 ---@param msg_id integer
 ---@return string translated string.
 ---@nodiscard
-function Get_string(msg_id) end
+function GetString(msg_id) end
 
 
 
