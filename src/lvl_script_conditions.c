@@ -301,6 +301,15 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, short val
     case SVar_TOTAL_SLAPS:
         dungeon = get_dungeon(plyr_idx);
         return dungeon->lvstats.num_slaps;
+    case SVar_SCORE:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->score;
+    case SVar_PLAYER_SCORE:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->lvstats.player_score;
+    case SVar_MANAGE_SCORE:
+        dungeon = get_dungeon(plyr_idx);
+        return dungeon->manage_score;
     default:
         break;
     };

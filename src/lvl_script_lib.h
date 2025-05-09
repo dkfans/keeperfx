@@ -293,6 +293,9 @@ enum ScriptVariables {
   SVar_AVAILABLE_TOTAL_CREATURES       = 84,
   SVar_DESTROYED_KEEPER                = 85,
   SVar_TOTAL_SLAPS                     = 87,
+  SVar_SCORE                           = 88,
+  SVar_PLAYER_SCORE                    = 89,
+  SVar_MANAGE_SCORE                    = 90,
  };
 
 
