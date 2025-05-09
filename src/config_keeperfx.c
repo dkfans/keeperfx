@@ -125,7 +125,6 @@ const struct NamedCommand conf_commands[] = {
   {"ATMOS_FREQUENCY",     12},
   {"ATMOS_SAMPLES",       13},
   {"RESIZE_MOVIES",       14},
-  {"MUSIC_TRACKS",        15},
   {"FREEZE_GAME_ON_FOCUS_LOST"     , 17},
   {"UNLOCK_CURSOR_WHEN_GAME_PAUSED", 18},
   {"LOCK_CURSOR_IN_POSSESSION"     , 19},
@@ -145,6 +144,7 @@ const struct NamedCommand conf_commands[] = {
   {"API_ENABLED"                   , 33},
   {"API_PORT"                      , 34},
   {"EXIT_ON_LUA_ERROR"             , 35},
+  {"TURNS_PER_SECOND"              , 36},
   {NULL,                   0},
   };
 
@@ -562,9 +562,6 @@ short load_configuration(void)
             features_enabled &= ~Ft_Resizemovies;
           }
           break;
-      case 15: // MUSIC_TRACKS
-          // obsolete, no longer needed
-          break;
       case 17: // FREEZE_GAME_ON_FOCUS_LOST
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
@@ -809,6 +806,22 @@ short load_configuration(void)
             break;
           }
           exit_on_lua_error = (i == 1);
+          break;
+      case 36: // TURNS_PER_SECOND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i < ULONG_MAX))
+          {
+              if (!start_params.overrides[Clo_CDMusic])
+              {
+                  start_params.num_fps = i;
+              }
+          }
+          else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+          }
           break;
       case ccr_comment:
           break;
