@@ -2239,7 +2239,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
                 i = THit_CrtrsOnlyNotOwn;
             }
         }
-        thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
+        thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_level, i);
     }
     // Check if the spell can be self-casted
     else if (spconf->caster_affected)
