@@ -1808,7 +1808,6 @@ short creature_change_to_chicken(struct Thing *creatng)
     set_flag(cctrl->spell_flags, CSAfF_Chicken);
     clear_flag(creatng->rendering_flags, TRF_Invisible);
     set_creature_size_stuff(creatng);
-    clear_flag(creatng->state_flags, TF1_Unkn10);
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
     creatng->continue_state = CrSt_Unused;
     cctrl->stopped_for_hand_turns = 0;
@@ -4820,7 +4819,6 @@ TbBool check_experience_upgrade(struct Thing *thing)
 TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState)
 {
     thing->active_state = nState;
-    thing->state_flags &= ~TF1_Unkn10;
     thing->continue_state = CrSt_Unused;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->stopped_for_hand_turns = 0;
@@ -4835,7 +4833,6 @@ TbBool initialise_thing_state_f(struct Thing *thing, CrtrStateId nState, const c
         creature_state_code_name(nState), thing_model_name(thing),(int)thing->index);
     cleanup_current_thing_state(thing);
     thing->active_state = nState;
-    thing->state_flags &= ~TF1_Unkn10;
     thing->continue_state = CrSt_Unused;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -4860,7 +4857,6 @@ TbBool cleanup_current_thing_state(struct Thing *creatng)
     if (cleanup_cb != NULL)
     {
         cleanup_cb(creatng);
-        creatng->state_flags |= TF1_Unkn10;
     } else
     {
         clear_creature_instance(creatng);
