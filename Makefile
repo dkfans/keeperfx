@@ -254,6 +254,7 @@ obj/lua_base.o \
 obj/lua_cfg_funcs.o \
 obj/lua_params.o \
 obj/lua_triggers.o \
+obj/lua_utils.o \
 obj/lvl_filesdk1.o \
 obj/lvl_script.o \
 obj/lvl_script_commands.o \

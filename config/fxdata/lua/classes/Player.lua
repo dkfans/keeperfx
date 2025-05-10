@@ -77,4 +77,10 @@ function Player:controls(creature_type) end
 ---@return integer
 function Player:available(variable) end
 
+---adds a specified amount of gold to the player. The amount of gold is not limited by the maximum amount of gold a player can have.
+---@param amount integer The amount of gold to add. This can be negative, but the player will not go below 0 gold.
+function Player:add_gold(amount) end
 
+---sets the player's texture, this affects the look of the slabs and walls of the player.
+---@param texture texture_pack
+function Player:set_texture(texture) end
