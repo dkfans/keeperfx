@@ -1604,7 +1604,7 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
         {
             if (creature_affected_by_call_to_arms(thing))
             {
-                struct StateInfo *stati;
+                struct CreatureStateConfig *stati;
                 stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
                 if (stati->react_to_cta || creature_is_called_to_arms(thing))
                 {
@@ -1767,7 +1767,7 @@ TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, 
 {
     int nstat;
     nstat = get_creature_state_besides_interruptions(creatng);
-    struct StateInfo *stati;
+    struct CreatureStateConfig *stati;
     stati = get_thing_state_info_num(nstat);
     if (!creature_affected_by_call_to_arms(creatng) || stati->react_to_cta)
     {

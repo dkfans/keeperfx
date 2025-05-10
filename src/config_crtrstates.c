@@ -38,26 +38,48 @@ extern "C" {
 struct NamedCommand creatrstate_desc[CREATURE_STATES_MAX];
 /******************************************************************************/
 const struct NamedCommand creature_state_types_commands[] = {
-    {"Idle", CrStTyp_Idle},
-    {"Work", CrStTyp_Work},
-    {"OwnNeeds", CrStTyp_OwnNeeds},
-    {"Sleep", CrStTyp_Sleep},
-    {"Feed", CrStTyp_Feed},
-    {"FightCrtr", CrStTyp_FightCrtr},
-    {"Move", CrStTyp_Move},
-    {"GetsSalary", CrStTyp_GetsSalary},
-    {"Escape", CrStTyp_Escape},
+    {"Idle",        CrStTyp_Idle},
+    {"Work",        CrStTyp_Work},
+    {"OwnNeeds",    CrStTyp_OwnNeeds},
+    {"Sleep",       CrStTyp_Sleep},
+    {"Feed",        CrStTyp_Feed},
+    {"FightCrtr",   CrStTyp_FightCrtr},
+    {"Move",        CrStTyp_Move},
+    {"GetsSalary",  CrStTyp_GetsSalary},
+    {"Escape",      CrStTyp_Escape},
     {"Unconscious", CrStTyp_Unconscious},
-    {"AngerJob", CrStTyp_AngerJob},
-    {"FightDoor", CrStTyp_FightDoor},
-    {"FightObj", CrStTyp_FightObj},
+    {"AngerJob",    CrStTyp_AngerJob},
+    {"FightDoor",   CrStTyp_FightDoor},
+    {"FightObj",    CrStTyp_FightObj},
     {"Called2Arms", CrStTyp_Called2Arms},
-    {"Follow", CrStTyp_Follow},
+    {"Follow",      CrStTyp_Follow},
+    {NULL,0}
+};
+
+const struct NamedCommand follow_behavior_commands[] = {
+    {"none",                FlwB_None},
+    {"FollowLeader",        FlwB_FollowLeader},
+    {"MatchWorkRoom",       FlwB_MatchWorkRoom},
+    {"JoinCombatOrFollow",  FlwB_JoinCombatOrFollow},
+    {NULL,0}
 };
 
 const struct NamedField crstates_states_named_fields[] = {
-    //name   //pos   //field                                //default //min   //max //NamedCommand   //parse function //script assign function
-    {"NAME",   0, field(game.conf.crtr_conf.states[0].name), 0,        0,      0, creatrstate_desc,  value_name,      assign_null},
+    {"NAME",                   0, field(game.conf.crtr_conf.states[0].name),                        0,        0,      0,              creatrstate_desc,  value_name,      assign_null},
+    {"PROCESSFUNCTION",        0, field(game.conf.crtr_conf.states[0].process_state),               0,        0,      0,                          NULL,  value_function,  assign_default},
+    {"CLEANUPFUNCTION",        0, field(game.conf.crtr_conf.states[0].cleanup_state),               0,        0,      0,                          NULL,  value_function,  assign_default},
+    {"MOVEFROMSLABFUNCTION",   0, field(game.conf.crtr_conf.states[0].move_from_slab),              0,        0,      0,                          NULL,  value_function,  assign_default},
+    {"MOVECHECKFUNCTION",      0, NULL,0,                                                           0,        0,      0,                          NULL,  value_function,  assign_default},
+    {"OVERRIDES",              0, field(game.conf.crtr_conf.states[0].name),                        0,        0,      0,                          NULL,  value_default,   assign_default},
+    {"STATETYPE",              0, field(game.conf.crtr_conf.states[0].state_type),                  0,        0,      0, creature_state_types_commands,  value_default,   assign_default},
+    {"CAPTIVE",                0, field(game.conf.crtr_conf.states[0].captive),                     0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"TRANSITION",             0, field(game.conf.crtr_conf.states[0].transition),                  0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"FOLLOWBEHAVIOR",         0, field(game.conf.crtr_conf.states[0].follow_behavior),             0,        0,      0,      follow_behavior_commands,  value_default,   assign_default},
+    {"BLOCKSALLSTATECHANGES",  0, field(game.conf.crtr_conf.states[0].blocks_all_state_changes),    0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"SPRITEIDX",              0, field(game.conf.crtr_conf.states[0].sprite_idx),                  0,        0,      0,                          NULL,  value_icon,   assign_icon},
+    {"DISPLAYTHOUGHTBUBBLE",   0, field(game.conf.crtr_conf.states[0].display_thought_bubble),      0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"SNEAKY",                 0, field(game.conf.crtr_conf.states[0].sneaky),                      0,        0,      1,                          NULL,  value_default,   assign_default},
+    {"REACTTOCTA",             0, field(game.conf.crtr_conf.states[0].react_to_cta),                0,        0,      1,                          NULL,  value_default,   assign_default},
     {NULL},
 };
 

@@ -5177,41 +5177,41 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
         cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
         if (cctrl->thought_bubble_display_timer == 40)
         {
-            struct StateInfo *stati;
+            struct CreatureStateConfig *stati;
             stati = get_creature_state_with_task_completion(thing);
             if (!stati->blocks_all_state_changes)
             {
                 if (creature_under_spell_effect(thing, CSAfF_MadKilling))
                 {
-                    stati = &states[CrSt_MadKillingPsycho];
+                    stati = &game.conf.crtr_conf.states[CrSt_MadKillingPsycho];
                 }
                 else if (anger_is_creature_livid(thing))
                 {
-                    stati = &states[CrSt_CreatureLeavingDungeon];
+                    stati = &game.conf.crtr_conf.states[CrSt_CreatureLeavingDungeon];
                 }
                 else if (creature_is_called_to_arms(thing))
                 {
-                    stati = &states[CrSt_ArriveAtCallToArms];
+                    stati = &game.conf.crtr_conf.states[CrSt_ArriveAtCallToArms];
                 }
                 else if (creature_is_at_alarm(thing))
                 {
-                    stati = &states[CrSt_ArriveAtAlarm];
+                    stati = &game.conf.crtr_conf.states[CrSt_ArriveAtAlarm];
                 }
                 else if (anger_is_creature_angry(thing))
                 {
-                    stati = &states[CrSt_PersonSulkAtLair];
+                    stati = &game.conf.crtr_conf.states[CrSt_PersonSulkAtLair];
                 }
                 else if (hunger_is_creature_hungry(thing))
                 {
-                    stati = &states[CrSt_CreatureArrivedAtGarden];
+                    stati = &game.conf.crtr_conf.states[CrSt_CreatureArrivedAtGarden];
                 }
                 else if (creature_requires_healing(thing))
                 {
-                    stati = &states[CrSt_CreatureSleep];
+                    stati = &game.conf.crtr_conf.states[CrSt_CreatureSleep];
                 }
                 else if (cctrl->paydays_owed)
                 {
-                    stati = &states[CrSt_CreatureWantsSalary];
+                    stati = &game.conf.crtr_conf.states[CrSt_CreatureWantsSalary];
                 }
                 else
                 {

@@ -2513,9 +2513,9 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     //TODO CREATURE_AI rewrite state subfunctions so they won't hang
     //if (game.play_gameturn > 119800)
     SYNCDBG(18,"Executing state %s for %s index %d.",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
-    struct StateInfo* stati = get_thing_active_state_info(thing);
-    if (stati->process_state != NULL) {
-        short k = stati->process_state(thing);
+    struct CreatureStateConfig* stati = get_thing_active_state_info(thing);
+    if (stati->process_state != 0) {
+        short k = process_func_list[stati->process_state](thing);
         if (k == CrStRet_Deleted) {
             SYNCDBG(18,"Finished with creature deleted");
             return TUFRet_Deleted;
@@ -2801,9 +2801,9 @@ long move_creature(struct Thing *thing)
              || (subtile_slab(tngpos->y.stl.num) != subtile_slab(nxpos.y.stl.num)))
             {
                 check_map_explored(thing, nxpos.x.stl.num, nxpos.y.stl.num);
-                struct StateInfo* stati = get_thing_active_state_info(thing);
+                struct CreatureStateConfig* stati = get_thing_active_state_info(thing);
                 if (!state_info_invalid(stati)) {
-                    CreatureStateFunc2 callback = stati->move_from_slab;
+                    CreatureStateFunc2 callback = move_from_slab_func_list[stati->move_from_slab];
                     if (callback != NULL) {
                         callback(thing);
                     }

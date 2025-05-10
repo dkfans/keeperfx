@@ -4,7 +4,7 @@
 /** @file creature_states.c
  *     Creature states structure and function definitions.
  * @par Purpose:
- *     Defines elements of states[] array, containing valid creature states.
+ *     Defines elements of game.conf.crtr_conf.states[] array, containing valid creature states.
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
@@ -547,25 +547,25 @@ long const state_type_to_gui_state[STATE_TYPES_COUNT] = {
 };
 
 /******************************************************************************/
-struct StateInfo *get_thing_active_state_info(struct Thing *thing)
+struct CreatureStateConfig *get_thing_active_state_info(struct Thing *thing)
 {
   if (thing->active_state >= CREATURE_STATES_COUNT)
-    return &states[0];
-  return &states[thing->active_state];
+    return &game.conf.crtr_conf.states[0];
+  return &game.conf.crtr_conf.states[thing->active_state];
 }
 
-struct StateInfo *get_thing_continue_state_info(struct Thing *thing)
+struct CreatureStateConfig *get_thing_continue_state_info(struct Thing *thing)
 {
     if (thing->continue_state >= CREATURE_STATES_COUNT)
-        return &states[0];
-    return &states[thing->continue_state];
+        return &game.conf.crtr_conf.states[0];
+    return &game.conf.crtr_conf.states[thing->continue_state];
 }
 
-struct StateInfo *get_thing_state_info_num(CrtrStateId state_id)
+struct CreatureStateConfig *get_thing_state_info_num(CrtrStateId state_id)
 {
     if (state_id >= CREATURE_STATES_COUNT)
-        return &states[0];
-    return &states[state_id];
+        return &game.conf.crtr_conf.states[0];
+    return &game.conf.crtr_conf.states[state_id];
 }
 
 CrtrStateId get_creature_state_besides_interruptions(const struct Thing *thing)
@@ -599,17 +599,17 @@ CrtrStateId get_creature_state_besides_drag(const struct Thing *thing)
     return i;
 }
 
-struct StateInfo *get_creature_state_with_task_completion(struct Thing *thing)
+struct CreatureStateConfig *get_creature_state_with_task_completion(struct Thing *thing)
 {
-    struct StateInfo* stati = get_thing_active_state_info(thing);
+    struct CreatureStateConfig* stati = get_thing_active_state_info(thing);
     if (stati->state_type == CrStTyp_Move)
         stati = get_thing_continue_state_info(thing);
     return stati;
 }
 
-TbBool state_info_invalid(struct StateInfo *stati)
+TbBool state_info_invalid(struct CreatureStateConfig *stati)
 {
-  if (stati <= &states[0])
+  if (stati <= &game.conf.crtr_conf.states[0])
     return true;
   return false;
 }
@@ -638,10 +638,10 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
   unsigned long state = thing->active_state;
   if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
   {
-      state_type = states[state].state_type;
+      state_type = game.conf.crtr_conf.states[state].state_type;
   } else
   {
-      state_type = states[0].state_type;
+      state_type = game.conf.crtr_conf.states[0].state_type;
       WARNLOG("%s: The %s index %d active state %lu (%s) is out of range",
         func_name,thing_model_name(thing),(int)thing->index,state,creature_state_code_name(state));
   }
@@ -650,10 +650,10 @@ long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
       state = thing->continue_state;
       if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
       {
-          state_type = states[state].state_type;
+          state_type = game.conf.crtr_conf.states[state].state_type;
       } else
       {
-          state_type = states[0].state_type;
+          state_type = game.conf.crtr_conf.states[0].state_type;
           // Show message with text name of active state - it's good as the state was checked before
           WARNLOG("%s: The %s index %d owner %d continue state %lu (%s) is out of range; active state %u (%s)",func_name,
               thing_model_name(thing),(int)thing->index,(int)thing->owner,state,creature_state_code_name(state),thing->active_state,creature_state_code_name(thing->active_state));
@@ -799,7 +799,7 @@ TbBool creature_is_training(const struct Thing *thing)
 TbBool creature_is_doing_anger_job(const struct Thing *thing)
 {
     CrtrStateId i = get_creature_state_besides_interruptions(thing);
-    if (states[i].state_type == CrStTyp_AngerJob)
+    if (game.conf.crtr_conf.states[i].state_type == CrStTyp_AngerJob)
         return true;
     return false;
 }
@@ -1025,7 +1025,7 @@ short player_keeping_creature_in_custody(const struct Thing* thing)
 TbBool creature_state_is_unset(const struct Thing *thing)
 {
     CrtrStateId crstate = get_creature_state_besides_move(thing);
-    if (states[crstate].state_type == 0)
+    if (game.conf.crtr_conf.states[crstate].state_type == 0)
         return true;
     return false;
 }
@@ -3004,9 +3004,9 @@ TbBool init_creature_state(struct Thing *creatng)
 
 TbBool restore_backup_state(struct Thing *creatng, CrtrStateId active_state, CrtrStateId continue_state)
 {
-    struct StateInfo* active_stati = &states[active_state];
-    struct StateInfo* continue_stati = &states[continue_state];
-    if ((active_stati->cleanup_state != NULL) || ((continue_state != CrSt_Unused) && (continue_stati->cleanup_state != NULL)))
+    struct CreatureStateConfig* active_stati = &game.conf.crtr_conf.states[active_state];
+    struct CreatureStateConfig* continue_stati = &game.conf.crtr_conf.states[continue_state];
+    if ((active_stati->cleanup_state != 0) || ((continue_state != CrSt_Unused) && (continue_stati->cleanup_state != 0)))
     {
         if ((active_state == CrSt_CreatureInPrison) || (active_state == CrSt_Torturing)
           || (continue_state == CrSt_CreatureInPrison) || (continue_state == CrSt_Torturing))
@@ -4855,8 +4855,8 @@ TbBool initialise_thing_state_f(struct Thing *thing, CrtrStateId nState, const c
 
 TbBool cleanup_current_thing_state(struct Thing *creatng)
 {
-    struct StateInfo* stati = get_creature_state_with_task_completion(creatng);
-    CreatureStateFunc1 cleanup_cb = stati->cleanup_state;
+    struct CreatureStateConfig* stati = get_creature_state_with_task_completion(creatng);
+    CreatureStateFunc1 cleanup_cb = cleanup_func_list[stati->cleanup_state];
     if (cleanup_cb != NULL)
     {
         cleanup_cb(creatng);
@@ -4899,10 +4899,10 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
 
 TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_state, CrtrStateId next_state)
 {
-    struct StateInfo* curr_stati = get_thing_state_info_num(curr_state);
+    struct CreatureStateConfig* curr_stati = get_thing_state_info_num(curr_state);
     if (curr_stati->state_type == CrStTyp_Move)
       curr_stati = get_thing_state_info_num(thing->continue_state);
-    struct StateInfo* next_stati = get_thing_state_info_num(next_state);
+    struct CreatureStateConfig* next_stati = get_thing_state_info_num(next_state);
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         if ( (next_stati->state_type != CrStTyp_Idle) )
