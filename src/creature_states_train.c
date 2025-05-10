@@ -53,12 +53,12 @@
  */
 TbBool creature_can_be_trained(const struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // Creatures without training value can't be trained
-    if (crstat->training_value <= 0)
+    if (crconf->training_value <= 0)
         return false;
-    if ((cctrl->explevel >= game.conf.rules.rooms.training_room_max_level-1) &! (game.conf.rules.rooms.training_room_max_level == 0))
+    if ((cctrl->exp_level >= game.conf.rules.rooms.training_room_max_level-1) &! (game.conf.rules.rooms.training_room_max_level == 0))
         return false;
     // If its model can train, check if this one can gain more experience
     return creature_can_gain_experience(thing);
@@ -157,11 +157,11 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
     struct Coord3d pos;
     SYNCDBG(8,"Starting for %s",thing_model_name(thing));
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     if ( restart )
       cctrl->training.search_timeout = 50;
     // Try partner training
-    if ((crstat->partner_training > 0) && (CREATURE_RANDOM(thing, 100) < crstat->partner_training))
+    if ((crconf->partner_training > 0) && (CREATURE_RANDOM(thing, 100) < crconf->partner_training))
     {
         struct Thing* prtng = get_creature_in_training_room_which_could_accept_partner(room, thing);
         if (!thing_is_invalid(prtng))
@@ -283,7 +283,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         {2, 1},
     };
     struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
+    struct CreatureModelConfig *crconf;
     struct Thing *traintng;
     struct Thing *crtng;
     struct CreatureControl *cctrl2;
@@ -435,7 +435,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             setup_move_to_new_training_position(thing, room, false);
             break;
         }
-        crstat = creature_stats_get_from_thing(thing);
+        crconf = creature_stats_get_from_thing(thing);
         dist = get_combat_distance(thing, crtng);
         if (dist > 284)
         {
@@ -467,7 +467,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
                 {
                     cctrl->training.train_timeout = 1;
                 }
-                cctrl->exp_points += (room->efficiency * crstat->training_value);
+                cctrl->exp_points += (room->efficiency * crconf->training_value);
               }
             }
         } else
@@ -513,14 +513,14 @@ short at_training_room(struct Thing *thing)
     cctrl->target_room_id = 0;
     if (!creature_can_be_trained(thing))
     {
-        SYNCDBG(9,"Ending training of %s level %d; creature is not trainable",thing_model_name(thing),(int)cctrl->explevel);
+        SYNCDBG(9,"Ending training of %s level %d; creature is not trainable",thing_model_name(thing),(int)cctrl->exp_level);
         set_start_state(thing);
         return 0;
     }
     if (!player_can_afford_to_train_creature(thing))
     {
         if (is_my_player_number(thing->owner))
-            output_message(SMsg_NoGoldToTrain, MESSAGE_DELAY_TREASURY, true);
+            output_message(SMsg_NoGoldToTrain, MESSAGE_DURATION_TREASURY);
         set_start_state(thing);
         return 0;
     }
@@ -550,7 +550,7 @@ CrStateRet training(struct Thing *thing)
     // Check if we should finish training
     if (!creature_can_be_trained(thing))
     {
-        SYNCDBG(9,"Ending training of %s level %d; creature is not trainable",thing_model_name(thing),(int)cctrl->explevel);
+        SYNCDBG(9,"Ending training of %s level %d; creature is not trainable",thing_model_name(thing),(int)cctrl->exp_level);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrStRet_ResetOk;
@@ -559,7 +559,7 @@ CrStateRet training(struct Thing *thing)
     {
         SYNCDBG(19,"Ending training %s index %d; cannot afford",thing_model_name(thing),(int)thing->index);
         if (is_my_player_number(thing->owner))
-            output_message(SMsg_NoGoldToTrain, MESSAGE_DELAY_TREASURY, true);
+            output_message(SMsg_NoGoldToTrain, MESSAGE_DURATION_TREASURY);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrStRet_ResetFail;
@@ -594,7 +594,7 @@ CrStateRet training(struct Thing *thing)
     } else
     {
         if (external_set_thing_state(thing, CrSt_CreatureBeHappy)) {
-            cctrl->countdown_282 = 50;
+            cctrl->countdown = 50;
         }
         dungeon->lvstats.creatures_trained++;
     }

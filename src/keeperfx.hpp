@@ -82,7 +82,7 @@ enum ModeFlags {
     MFlg_NoCdMusic          =  0x10, // unused
     MFlg_unk20              =  0x20,
     MFlg_unk40              =  0x40,
-    MFlg_NoHeroHealthFlower              =  0x80,
+    MFlg_NoHeroHealthFlower =  0x80,
 };
 
 enum FFlags {
@@ -129,16 +129,16 @@ struct TbLoadFiles;
 
 struct StartupParameters {
     LevelNumber selected_level_number;
-    unsigned char no_intro;
-    unsigned char one_player;
+    TbBool no_intro;
+    TbBool one_player;
     unsigned char operation_flags;
     unsigned char flags_font;
     unsigned char flags_cd;
     unsigned char debug_flags;
     unsigned short computer_chat_flags;
     long num_fps;
-    unsigned char packet_save_enable;
-    unsigned char packet_load_enable;
+    TbBool packet_save_enable;
+    TbBool packet_load_enable;
     char packet_fname[150];
     unsigned char packet_checksum_verify;
     unsigned char force_ppro_poly;
@@ -147,7 +147,7 @@ struct StartupParameters {
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
     GameTurn pause_at_gameturn;
-    TbBool ungrab_mouse;
+    unsigned char startup_flags;
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];
@@ -161,6 +161,7 @@ extern unsigned char *blue_palette;
 extern unsigned char *red_palette;
 extern unsigned char *dog_palette;
 extern unsigned char *vampire_palette;
+extern unsigned char* engine_palette;
 extern unsigned char exit_keeper;
 extern unsigned char quit_game;
 extern unsigned char is_running_under_wine;
@@ -226,7 +227,7 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model);
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model, ThingIndex parent_idx);
 void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, long eeinterspace, short ef_or_efel_model);
 void toggle_hero_health_flowers(void);
 void check_players_won(void);
@@ -242,8 +243,7 @@ void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
-void reset_hand_rules(void);
-void add_creature_to_pool(long kind, long amount, unsigned long a3);
+void add_creature_to_pool(long kind, long amount);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 
 short zoom_to_next_annoyed_creature(void);
@@ -262,8 +262,7 @@ void engine(struct PlayerInfo *player, struct Camera *cam);
 void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_per_px, long long value);
 void draw_mini_things_in_hand(long x, long y);
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
-void update_creatr_model_activities_list(void);
-void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name);
+void update_creatr_model_activities_list(TbBool forced);
 TbBool any_player_close_enough_to_see(const struct Coord3d *pos);
 void affect_nearby_stuff_with_vortex(struct Thing *thing);
 void affect_nearby_friends_with_alarm(struct Thing *thing);
@@ -282,10 +281,10 @@ short winning_player_quitting(struct PlayerInfo *player, long *plyr_count);
 short lose_level(struct PlayerInfo *player);
 short resign_level(struct PlayerInfo *player);
 short complete_level(struct PlayerInfo *player);
-void set_general_information(long msg_id, long target, long x, long y);
-void set_quick_information(long msg_id, long target, long x, long y);
-void process_objective(const char *msg_text, long target, long x, long y);
-void set_general_objective(long msg_id, long target, long x, long y);
+void set_general_information(long msg_id, TbMapLocation target, long x, long y);
+void set_quick_information(long msg_id, TbMapLocation target, long x, long y);
+void process_objective(const char *msg_text, TbMapLocation target, long x, long y);
+void set_general_objective(long msg_id, TbMapLocation target, long x, long y);
 void turn_off_power_sight_of_evil(PlayerNumber plridx);
 void turn_off_power_obey(PlayerNumber plyr_idx);
 
@@ -296,7 +295,6 @@ void dump_thing_held_by_any_player(struct Thing *thing);
 void instant_instance_selected(CrInstance check_inst_id);
 void centre_engine_window(void);
 void change_engine_window_relative_size(long w_delta, long h_delta);
-void init_messages(void);
 void update_thing_animation(struct Thing *thing);
 long update_cave_in(struct Thing *thing);
 void initialise_map_collides(void);

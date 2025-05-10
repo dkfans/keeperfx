@@ -35,7 +35,6 @@ class CHex {
  public:
     CHex(long, long);
     void BlitHex(void);
-    void DrawOutline(void);
     static void AddScan(struct CScan *scan, long a2, long a3, long a4, long a5);
     static void BlitScan(struct CScan *scan, long h);
  private:
@@ -108,17 +107,6 @@ CHex::CHex(long width, long height)
     }
     this->source_strip_w = ((long double)-width * ldpar1);
     this->source_strip_h = (ldpar1 * (long double)-height);
-}
-
-void CHex::DrawOutline(void)
-{
-    long i;
-    long k;
-    for (i=0; i < 6; i++)
-    {
-        k = (i + 1) % 6;
-        LbDrawLine(this->arrA[i], this->arrB[i], this->arrA[k], this->arrB[k], 0xFFu);
-    }
 }
 
 void CHex::AddScan(struct CScan *scan, long strip_len, long len_limit, long nstrip_w, long nstrip_h)
@@ -234,7 +222,7 @@ void CHex::BlitHex(void)
           return;
         if ( (scan_num >= 0) && (scan_num < ScrHeight) )
         {
-            SYNCDBG(19,"ScanBuffer %d pos %d,%d from %d,%d",scan_num, posV1, posV2, (int)this->source_strip_w, (int)this->source_strip_h);
+            SYNCDBG(19,"ScanBuffer %ld pos %d,%d from %d,%d",scan_num, posV1, posV2, (int)this->source_strip_w, (int)this->source_strip_h);
             AddScan(&ScanBuffer[scan_num], posV1 >> 16, posV2 >> 16, this->source_strip_w, this->source_strip_h);
         }
         counter1--;
@@ -281,7 +269,7 @@ void CHex::BlitScan(struct CScan *scan, long h)
   long w;
   long end_w;
   long i;
-  SYNCDBG(16,"Starting line %d",h);
+  SYNCDBG(16,"Starting line %ld",h);
   for(i=0; i < scan->strips_num; i++)
   {
       w = scan->strip_len[i];

@@ -21,8 +21,8 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "game_legacy.h"
+#include "moonphase.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -154,11 +154,11 @@ TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *play
     if (!set_bonus_level_visibility(bn_lvnum, visible))
     {
         if (visible)
-            WARNMSG("Couldn't store bonus award for level %d", sp_lvnum);
+            WARNMSG("Couldn't store bonus award for level %lu", sp_lvnum);
         return false;
     }
     if (visible)
-        SYNCMSG("Bonus award for level %d enabled",sp_lvnum);
+        SYNCMSG("Bonus award for level %lu enabled",sp_lvnum);
     return true;
 }
 

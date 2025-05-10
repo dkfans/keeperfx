@@ -59,8 +59,8 @@ TbBool creature_can_do_scavenging(const struct Thing *creatng)
     if (is_neutral_thing(creatng)) {
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return (crstat->scavenge_value > 0);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    return (crconf->scavenge_value > 0);
 }
 
 short at_scavenger_room(struct Thing *thing)
@@ -78,7 +78,7 @@ short at_scavenger_room(struct Thing *thing)
     if (scavenger_cost >= dungeon->total_money_owned)
     {
         if (is_my_player_number(thing->owner))
-            output_message(SMsg_NoGoldToScavenge, MESSAGE_DELAY_TREASURY, true);
+            output_message(SMsg_NoGoldToScavenge, MESSAGE_DURATION_TREASURY);
         set_start_state(thing);
         return 0;
     }
@@ -118,8 +118,8 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
         // Thing list loop body
         if ((n <= 0) && (thing->index != creatng->index))
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            if (!creature_model_is_lair_enemy(crstat->lair_enemy, creatng->model))
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+            if (!creature_model_is_lair_enemy(crconf->lair_enemy, creatng->model))
             {
                 return thing;
             }
@@ -195,7 +195,7 @@ short creature_scavenged_disappear(struct Thing *thing)
         reset_interpolation_of_thing(thing);
         anger_set_creature_anger_all_types(thing, 0);
         if (is_my_player_number(thing->owner))
-          output_message(SMsg_MinionScanvenged, 0, true);
+          output_message(SMsg_MinionScanvenged, 0);
         cctrl->scavenge.previous_owner = thing->owner;
         change_creature_owner(thing, cctrl->scavenge.effect_id);
         internal_set_thing_state(thing, CrSt_CreatureScavengedReappear);
@@ -425,7 +425,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
         // Start the new scavenging
         calldngn->scavenge_targets[calltng->model] = scavtng->index;
         if (is_my_player_number(scavtng->owner)) {
-            output_message(SMsg_CreatureScanvenged, 500, 1);
+            output_message(SMsg_CreatureScanvenged, 500);
         }
         event_create_event(scavtng->mappos.x.val, scavtng->mappos.y.val, EvKind_CreatrScavenged, scavtng->owner, scavtng->index);
     } else
@@ -519,11 +519,11 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
         set_start_state(calltng);
         return CrCkRet_Continue;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(calltng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(calltng);
     if (!player_can_afford_to_scavenge_creature(calltng))
     {
         if (is_my_player_number(calltng->owner))
-            output_message(SMsg_NoGoldToScavenge, 500, 1);
+            output_message(SMsg_NoGoldToScavenge, 500);
         set_start_state(calltng);
         return CrCkRet_Continue;
     }
@@ -543,7 +543,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
         process_scavenge_creature_from_pool(calltng, work_value);
     } else
     {
-        if (crstat->entrance_force) {
+        if (crconf->entrance_force) {
           calldngn->portal_scavenge_boost++;
         }
         return 0;

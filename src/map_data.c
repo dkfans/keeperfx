@@ -21,7 +21,6 @@
 #include "globals.h"
 #include "map_columns.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "slab_data.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
@@ -576,7 +575,7 @@ void clear_mapmap(void)
         {
             struct Map* mapblk = get_map_block_at(x, y);
             NavColour* flg = &game.navigation_map[get_subtile_number(x, y)];
-            LbMemorySet(mapblk, 0, sizeof(struct Map));
+            memset(mapblk, 0, sizeof(struct Map));
             *flg = 0;
         }
     }
@@ -593,13 +592,13 @@ void clear_mapmap(void)
 void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
 {
     const struct SlabMap *slb = get_slabmap_block(slb_x,slb_y);
-    if ( get_slab_attrs(slb)->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) )
+    if ( get_slab_stats(slb)->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) )
     {
         if (slb->kind == SlbT_ROCK) // fix #1128
         {
             untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
         }
-        else if ( (get_slab_attrs(slb)->category == SlbAtCtg_FortifiedWall)
+        else if ( (get_slab_stats(slb)->category == SlbAtCtg_FortifiedWall)
             && (slabmap_owner(slb) != plyr_idx ))
         {
         untag_blocks_for_digging_in_area(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
@@ -646,15 +645,31 @@ void reveal_map_rect(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
         }
 }
 
+
+/**
+ * Reveals map subtiles rectangle for given player centered around a specific point.
+ */
+void player_reveal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h)
+{
+  SYNCDBG(0,"Revealing around (%ld,%ld)",x,y);
+  reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
+}
+
+void player_conceal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h, TbBool all)
+{
+  SYNCDBG(0,"Revealing around (%ld,%ld)",x,y);
+  conceal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1),all);
+}
+
 /**
  * Reveals map subtiles rectangle for given player.
  */
 void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y)
 {
-  start_x = stl_slab_starting_subtile(start_x);
-  start_y = stl_slab_starting_subtile(start_y);
-  end_x = stl_slab_ending_subtile(end_x)+1;
-  end_y = stl_slab_ending_subtile(end_y)+1;
+  start_x = max(stl_slab_starting_subtile(start_x),0);
+  start_y = max(stl_slab_starting_subtile(start_y),0);
+  end_x = min(stl_slab_ending_subtile(end_x)+1, gameadd.map_subtiles_x);
+  end_y = min(stl_slab_ending_subtile(end_y)+1, gameadd.map_subtiles_y);
   clear_dig_for_map_rect(plyr_idx,subtile_slab(start_x),subtile_slab(end_x),
       subtile_slab(start_y),subtile_slab(end_y));
   reveal_map_rect(plyr_idx,start_x,end_x,start_y,end_y);
@@ -682,6 +697,7 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
                     case SlbT_ROCK:
                     case SlbT_GEMS:
                     case SlbT_GOLD:
+                    case SlbT_DENSEGOLD:
                         continue;
                     default:
                         break;
@@ -818,15 +834,15 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
             return false;
         }
     }
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
+    if (((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
     {
         if (enemy_wall_diggable)
         {
             return true;
         }
-        if (!(((slbattr->is_diggable) == 0) || 
-        ((slabmap_owner(slb) != plyr_idx) && ((slbattr->block_flags & SlbAtFlg_Filled) != 0))))
+        if (!(((slabst->is_diggable) == 0) || 
+        ((slabmap_owner(slb) != plyr_idx) && ((slabst->block_flags & SlbAtFlg_Filled) != 0))))
         {
             return true;
         }

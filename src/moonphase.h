@@ -1,14 +1,17 @@
 #ifndef MOONPHASE_H
 #define MOONPHASE_H
 
-#include "../deps/astronomy/astronomy.h"
-
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-    double moonphase_calculate();
+    extern short is_full_moon;
+    extern short is_near_full_moon;
+    extern short is_new_moon;
+    extern short is_near_new_moon;
+    
+    short calculate_moon_phase(short do_calculate, short add_to_log);
 
 #ifdef __cplusplus
 }

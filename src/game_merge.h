@@ -162,12 +162,13 @@ struct GameAdd {
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
     LevelNumber last_level; // Used to restore custom sprites
     struct LevelScript script;
-    PlayerNumber script_player;
+    PlayerNumber script_timer_player;
     unsigned char script_timer_id;
     unsigned long script_timer_limit;
     TbBool timer_real;
     unsigned char script_value_type;
     unsigned char script_value_id;
+    PlayerNumber script_variable_player;
     long script_variable_target;
     unsigned char script_variable_target_type;
     TbBool heart_lost_display_message;
@@ -212,6 +213,7 @@ unsigned short get_extra_level_kind_visibility(unsigned short elv_kind);
 short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
 void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
+TbBool emulate_integer_overflow(unsigned short nbits);
 /******************************************************************************/
 
 #ifdef __cplusplus

@@ -315,7 +315,7 @@ void creature_set_speed(struct Thing *thing, long speed)
     {
         cctrl->move_speed = speed;
     }
-    cctrl->flgfield_1 |= CCFlg_Unknown40;
+    cctrl->flgfield_1 |= CCFlg_MoveY;
 }
 
 TbBool cross_x_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -588,8 +588,8 @@ TbBool map_is_solid_at_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapCoord
 
 TbBool creature_can_pass_through_wall_at(const struct Thing *creatng, const struct Coord3d *pos)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if (crstat->can_go_locked_doors)
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    if (crconf->can_go_locked_doors)
     {
         long i;
         if (thing_is_creature(creatng)) {

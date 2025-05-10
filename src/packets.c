@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
@@ -43,13 +42,13 @@
 #include "frontmenu_net.h"
 #include "frontend.h"
 #include "vidmode.h"
-#include "config.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_effects.h"
 #include "config_terrain.h"
 #include "config_players.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "config_players.h"
@@ -73,7 +72,7 @@
 #include "room_data.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "light_data.h"
@@ -91,10 +90,9 @@
 #include "vidfade.h"
 #include "spdigger_stack.h"
 #include "frontmenu_ingame_map.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
-
-#include "music_player.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -165,22 +163,21 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     struct Dungeon* dungeon = get_players_dungeon(player);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    if ((pckt->control_flags & PCtr_LBtnHeld) != 0)
+    if (flag_is_set(pckt->control_flags,PCtr_LBtnHeld))
     {
-        struct PlayerStateConfigStats* plrst_cfg_stat = get_player_state_stats(player->work_state);
-        struct PowerConfigStats *powerst = get_power_model_stats(plrst_cfg_stat->power_kind);
+        struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);
 
         switch (powerst->overcharge_check_idx)
         {
             case OcC_CallToArms_expand:
                 if (player_uses_power_call_to_arms(plyr_idx))
-                    player->cast_expand_level = (dungeon->cta_splevel << 2);
+                    player->cast_expand_level = (dungeon->cta_power_level << 2);
                 else
-                    update_power_overcharge(player, plrst_cfg_stat->power_kind);
+                    update_power_overcharge(player, player->chosen_power_kind);
                 break;
             case OcC_SightOfEvil_expand:
             case OcC_General_expand:
-                update_power_overcharge(player, plrst_cfg_stat->power_kind);
+                update_power_overcharge(player, player->chosen_power_kind);
                 break;
             case OcC_do_not_expand:
             case OcC_Null:
@@ -290,13 +287,11 @@ void process_pause_packet(long curr_pause, long new_pause)
         if ((game.operation_flags & GOF_Paused) != 0)
         {
           SetSoundMasterVolume(settings.sound_volume >> 1);
-          SetMusicPlayerVolume(settings.redbook_volume >> 1);
-          SetMusicMasterVolume(settings.sound_volume >> 1);
+          set_music_volume(settings.music_volume >> 1);
         } else
         {
           SetSoundMasterVolume(settings.sound_volume);
-          SetMusicPlayerVolume(settings.redbook_volume);
-          SetMusicMasterVolume(settings.sound_volume);
+          set_music_volume(settings.music_volume);
         }
       }
       if ((game.operation_flags & GOF_Paused) != 0)
@@ -516,7 +511,7 @@ TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMod
         || (chr == '(') || (chr == ')') || (chr == '.') || (chr == '_')
         || (chr == '\'') || (chr == '+') || (chr == '=') || (chr == '-')
         || (chr == '"') || (chr == '?') || (chr == '/') || (chr == '#')
-        || (chr == '<') || (chr == '>') || (chr == '^'))
+        || (chr == '<') || (chr == '>') || (chr == '^') || (chr == ','))
     {
         if (chpos < maxlen)
         {
@@ -687,6 +682,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_PlyrMsgEnd:
       player->allocflags &= ~PlaF_NewMPMessage;
+      lua_on_chatmsg(player->id_number,player->mp_message_text);
       if (player->mp_message_text[0] == cmd_char)
       {
           if ( (!cmd_exec(player->id_number, player->mp_message_text + 1)) || ((game.system_flags & GSF_NetworkActive) != 0) )
@@ -694,11 +690,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       else if (player->mp_message_text[0] != '\0')
           message_add(MsgType_Player, player->id_number, player->mp_message_text);
-      LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+      memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
   case PckA_PlyrMsgClear:
       player->allocflags &= ~PlaF_NewMPMessage;
-      LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+      memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
   case PckA_ToggleLights:
       if (is_my_player(player))
@@ -803,7 +799,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_UpdatePause:
       process_pause_packet(pckt->actn_par1, pckt->actn_par2);
       return 1;
-  case PckA_Unknown083:
+  case PckA_ZoomToEvent:
       if (player->work_state == PSt_CreatrInfo)
         turn_off_query(plyr_idx);
       event_move_player_towards_event(player, pckt->actn_par1);
@@ -904,12 +900,12 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           powerst = get_power_model_stats(pckt->actn_par1);
           i = get_power_index_for_work_state(player->work_state);
           if (i > 0)
-            set_player_state(player, powerst->work_state, 0);
+            set_player_state(player, powerst->work_state, pckt->actn_par1);
       }
       return 0;
   case PckA_PlyrFastMsg:
       //show_onscreen_msg(game.num_fps, "Message from player %d", plyr_idx);
-      output_message(SMsg_EnemyHarassments+pckt->actn_par1, 0, true);
+      output_message(SMsg_EnemyHarassments+pckt->actn_par1, 0);
       return 0;
   case PckA_SetComputerKind:
       set_autopilot_type(plyr_idx, pckt->actn_par1);
@@ -1091,7 +1087,7 @@ void process_players_packet(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    SYNCDBG(6, "Processing player %d packet of type %d.", plyr_idx, (int)pckt->action);
+    SYNCDBG(6, "Processing player %ld packet of type %d.", plyr_idx, (int)pckt->action);
     player->input_crtr_control = ((pckt->additional_packet_values & PCAdV_CrtrContrlPressed) != 0);
     player->input_crtr_query = ((pckt->additional_packet_values & PCAdV_CrtrQueryPressed) != 0);
     if (((player->allocflags & PlaF_NewMPMessage) != 0) && (pckt->action == PckA_PlyrMsgChar))
@@ -1105,24 +1101,24 @@ void process_players_packet(long plyr_idx)
       // and action perform (which does specific action set in packet).
       switch (player->view_type)
       {
-      case PVT_DungeonTop:
-        process_players_dungeon_control_packet_control(plyr_idx);
-        process_players_dungeon_control_packet_action(plyr_idx);
-        break;
-      case PVT_CreatureContrl:
-        process_players_creature_control_packet_control(plyr_idx);
-        process_players_creature_control_packet_action(plyr_idx);
-        break;
-      case PVT_CreaturePasngr:
-        //process_players_creature_passenger_packet_control(plyr_idx); -- there are no control changes in passenger mode
-        process_players_creature_passenger_packet_action(plyr_idx);
-        break;
-      case PVT_MapScreen:
-        process_players_map_packet_control(plyr_idx);
-        //process_players_map_packet_action(plyr_idx); -- there are no actions to perform from map screen
-        break;
-      default:
-        break;
+          case PVT_DungeonTop:
+            process_players_dungeon_control_packet_control(plyr_idx);
+            process_players_dungeon_control_packet_action(plyr_idx);
+            break;
+          case PVT_CreatureContrl:
+            process_players_creature_control_packet_control(plyr_idx);
+            process_players_creature_control_packet_action(plyr_idx);
+            break;
+          case PVT_CreaturePasngr:
+            //process_players_creature_passenger_packet_control(plyr_idx); -- there are no control changes in passenger mode
+            process_players_creature_passenger_packet_action(plyr_idx);
+            break;
+          case PVT_MapScreen:
+            process_players_map_packet_control(plyr_idx);
+            //process_players_map_packet_action(plyr_idx); -- there are no actions to perform from map screen
+            break;
+          default:
+            break;
       }
   }
   SYNCDBG(8,"Finished");
@@ -1174,7 +1170,6 @@ void process_players_creature_control_packet_control(long idx)
 {
     struct InstanceInfo *inst_inf;
     long i;
-    long n;
 
     SYNCDBG(6,"Starting");
     struct PlayerInfo* player = get_player(idx);
@@ -1187,13 +1182,15 @@ void process_players_creature_control_packet_control(long idx)
         return;
     if ((ccctrl->stateblock_flags != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
         return;
+    if (flag_is_set(pckt->control_flags, PCtr_Gui))
+        return;
     long speed_limit = get_creature_speed(cctng);
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
     {
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->move_speed = compute_controlled_speed_increase(ccctrl->move_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_Unknown40;
+            ccctrl->flgfield_1 |= CCFlg_MoveY;
         } else
         {
             ERRORLOG("No creature to increase speed");
@@ -1204,7 +1201,7 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_Unknown40;
+            ccctrl->flgfield_1 |= CCFlg_MoveY;
         } else
         {
             ERRORLOG("No creature to decrease speed");
@@ -1215,7 +1212,7 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->orthogn_speed = compute_controlled_speed_increase(ccctrl->orthogn_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_Unknown80;
+            ccctrl->flgfield_1 |= CCFlg_MoveX;
         } else
         {
             ERRORLOG("No creature to increase speed");
@@ -1226,10 +1223,61 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->orthogn_speed = compute_controlled_speed_decrease(ccctrl->orthogn_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_Unknown80;
+            ccctrl->flgfield_1 |= CCFlg_MoveX;
         } else
         {
             ERRORLOG("No creature to decrease speed");
+        }
+    }
+    if (flag_is_set(cctng->movement_flags, TMvF_Flying))
+    {
+        MapCoord floor_height, ceiling_height;
+        if ((pckt->control_flags & PCtr_Ascend) != 0)
+        {
+            if (!creature_control_invalid(ccctrl))
+            {
+                ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
+                ccctrl->flgfield_1 |= CCFlg_MoveZ;
+                if (ccctrl->vertical_speed != 0)
+                {
+                    get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
+                    if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
+                    {
+                        ccctrl->moveaccel.z.val = distance_with_angle_to_coord_z(ccctrl->vertical_speed, 227);
+                    }
+                    else
+                    {
+                        ccctrl->moveaccel.z.val = 0;
+                    }
+                }
+            } else
+            {
+                ERRORLOG("No creature to ascend");
+            }
+        }
+        if ((pckt->control_flags & PCtr_Descend) != 0)
+        {
+            if (!creature_control_invalid(ccctrl))
+            {
+                // We want increase here, not decrease, because we don't want it angle-dependent
+                ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
+                ccctrl->flgfield_1 |= CCFlg_MoveZ;
+                if (ccctrl->vertical_speed != 0)
+                {
+                    get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
+                    if ( (cctng->mappos.z.val >= floor_height) && (cctng->mappos.z.val <= ceiling_height) )
+                    {
+                        ccctrl->moveaccel.z.val = distance_with_angle_to_coord_z(ccctrl->vertical_speed, 1820);
+                    }
+                    else
+                    {
+                        ccctrl->moveaccel.z.val = 0;
+                    }
+                }
+            } else
+            {
+                ERRORLOG("No creature to descend");
+            }
         }
     }
 
@@ -1242,19 +1290,17 @@ void process_players_creature_control_packet_control(long idx)
             {
                 if (creature_instance_has_reset(cctng, i))
                 {
-                    if (!creature_affected_by_spell(cctng, SplK_Chicken))
+                    if (!creature_under_spell_effect(cctng, CSAfF_Chicken))
                     {
                         inst_inf = creature_instance_info_get(i);
-                        n = get_human_controlled_creature_target(cctng, i, pckt);
-                        set_creature_instance(cctng, i, n, 0);
+                        process_player_use_instance(cctng, i, pckt);
                     }
                 }
             }
             else
             {
                 inst_inf = creature_instance_info_get(i);
-                n = get_human_controlled_creature_target(cctng, i, pckt);
-                set_creature_instance(cctng, i, n, 0);
+                process_player_use_instance(cctng, i, pckt);
             }
         }
     }
@@ -1271,8 +1317,7 @@ void process_players_creature_control_packet_control(long idx)
                 {
                     if (creature_instance_has_reset(cctng, i))
                     {
-                        n = get_human_controlled_creature_target(cctng, i, pckt);
-                        set_creature_instance(cctng, i, n, 0);
+                        process_player_use_instance(cctng, i, pckt);
                     }
                 }
             }
@@ -1280,8 +1325,8 @@ void process_players_creature_control_packet_control(long idx)
     }
     
     // First person looking speed and limits are adjusted here. (pckt contains the base mouse movement inputs)
-    struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
-    long maxTurnSpeed = crstat->max_turning_speed;
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(cctng);
+    long maxTurnSpeed = crconf->max_turning_speed;
     if (maxTurnSpeed < 1) {
         maxTurnSpeed = 1;
     }
@@ -1305,7 +1350,7 @@ void process_players_creature_control_packet_control(long idx)
     // Limits the vertical view.
     // 227 is default. To support anything above this we need to adjust the terrain culling. (when you look at the ceiling for example)
     // 512 allows for looking straight up and down. 360+ is about where sprite glitches become more obvious.
-    long viewable_angle = 227;
+    #define viewable_angle 227;
     long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & LbFPMath_AngleMask;
 
     long lowerLimit = LbFPMath_AngleMask - viewable_angle;
@@ -1330,7 +1375,6 @@ void process_players_creature_control_packet_action(long plyr_idx)
   struct Thing *thing;
   struct Packet *pckt;
   long i;
-  long k;
   player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
@@ -1365,9 +1409,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
         if (creature_instance_is_available(thing,i) && creature_instance_has_reset(thing, pckt->actn_par1))
         {
           i = pckt->actn_par1;
-          inst_inf = creature_instance_info_get(i);
-          k = get_human_controlled_creature_target(thing, i, pckt);
-          set_creature_instance(thing, i, k, 0);
+          process_player_use_instance(thing, i, pckt);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);
           }
@@ -1390,9 +1432,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
       if (cctrl->instance_id == CrInst_NULL)
       {
           i = pckt->actn_par1;
-          inst_inf = creature_instance_info_get(i);
-          k = get_human_controlled_creature_target(thing, i, pckt);
-          set_creature_instance(thing, i, k, 0);
+          process_player_use_instance(thing, i, pckt);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);
           }

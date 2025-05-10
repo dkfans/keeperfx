@@ -29,7 +29,7 @@
 
 #include "frontend.h"
 #include "front_simple.h"
-#include "config.h"
+#include "config_keeperfx.h"
 #include "vidmode.h"
 #include "vidfade.h"
 #include "game_legacy.h"
@@ -41,13 +41,13 @@ extern "C" {
 #endif
 /******************************************************************************/
 const struct DemoItem demo_item[] = {
-    {DIK_SwitchState, (char *)FeSt_CREDITS},
+    {DIK_SwitchState, .state = FeSt_CREDITS},
 /*
     {DIK_LoadPacket, "PACKET1.SAV"},
     {DIK_LoadPacket, "PACKET2.SAV"},
 */
-    {DIK_PlaySmkVideo, "intromix.smk"},
-    {DIK_ListEnd, NULL},
+    {DIK_PlaySmkVideo, .fname = "intromix.smk"},
+    {DIK_ListEnd, .fname = NULL},
 };
 /******************************************************************************/
 #ifdef __cplusplus
@@ -68,7 +68,7 @@ short play_smacker_file(char *filename, FrontendMenuState nstate)
     movie_flags |= vid_scale_flags; // get new scaling settings from command line
   }
   if ( SoundDisabled )
-    movie_flags |= 0x01;
+    movie_flags |= SMK_NoSound;
 
   short result = 1;
   if ((result)&&(nstate>-2))
@@ -86,8 +86,7 @@ short play_smacker_file(char *filename, FrontendMenuState nstate)
   }
   if (result)
   {
-    // Fail in playing shouldn't set result=0, because result=0 means fatal error.
-    if (play_smk_(filename, 0, movie_flags | 0x100) == 0)
+    if (!play_smk(filename, movie_flags))
     {
       ERRORLOG("Smacker play error");
       result=0;
@@ -157,15 +156,22 @@ TbBool campaign_outro(void)
 TbBool moon_video(void)
 {
     char* fname = prepare_file_path(FGrp_LoData, "bullfrog.smk");
-    SYNCDBG(0,"Playing outro movie \"%s\"",fname);
+    SYNCDBG(0,"Playing movie \"%s\"",fname);
     return play_smacker_file(fname, -2);
 }
 
 TbBool drag_video(void)
 {
     char* fname = prepare_file_path(FGrp_LoData, "drag.smk");
-    SYNCDBG(0,"Playing outro movie \"%s\"",fname);
+    SYNCDBG(0,"Playing movie \"%s\"",fname);
     return play_smacker_file(fname, FeSt_TORTURE);
+}
+
+TbBool ea_video(void)
+{
+    char* fname = prepare_file_path(FGrp_LoData, "ea.smk");
+    SYNCDBG(0,"Playing movie \"%s\"",fname);
+    return play_smacker_file(fname, -2);
 }
 
 void demo(void)
@@ -189,7 +195,7 @@ void demo(void)
         }
         break;
     case DIK_SwitchState:
-        frontend_set_state((long)demo_item[index].fname);
+        frontend_set_state(demo_item[index].state);
         break;
     }
     index++;

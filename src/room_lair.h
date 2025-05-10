@@ -22,6 +22,9 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "creature_control.h"
+#include "thing_data.h"
+#include "room_data.h"
+#include "dungeon_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,15 +33,14 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct Room;
-struct Thing;
-struct Dungeon;
-
 #pragma pack()
 /******************************************************************************/
 long calculate_free_lair_space(struct Dungeon * dungeon);
 TbBool creature_model_is_lair_enemy(const short lair_enemy[LAIR_ENEMY_MAX], short crmodel);
 struct Room *get_best_new_lair_for_creature(struct Thing *thing);
+void count_lair_occupants_on_slab(struct Room *room,MapSlabCoord slb_x, MapSlabCoord slb_y);
+void count_lair_occupants(struct Room *room);
+struct Thing *find_lair_totem_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 /******************************************************************************/
 #ifdef __cplusplus

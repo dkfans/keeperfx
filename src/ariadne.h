@@ -82,7 +82,7 @@ enum NavigationStateValues {
 #define NAVMAP_FLOORHEIGHT_MAX  0x0f
 #define NAVMAP_FLOORHEIGHT_MASK 0x0f
 #define NAVMAP_UNSAFE_SURFACE   0x10
-#define NAVMAP_OWNERSELECT_BIT  6
+#define NAVMAP_OWNERSELECT_BIT  5
 #define NAVMAP_OWNERSELECT_MASK 0x3FE0
 
 struct Ariadne { // sizeof = 102

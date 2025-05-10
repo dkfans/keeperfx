@@ -34,7 +34,7 @@
 #include "creature_states.h"
 #include "creature_states_mood.h"
 #include "spdigger_stack.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "dungeon_data.h"
@@ -216,8 +216,8 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_t
 
         if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary) || (cctrl->job_assigned == 0))
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+            if ((cctrl->job_assigned == crconf->job_primary) || (cctrl->job_assigned == crconf->job_secondary) || (cctrl->job_assigned == 0))
             {
                 creatures_doing_primary_or_secondary_job += 1;
             } else {
@@ -334,38 +334,38 @@ static TbBool any_digger_is_digging_indestructible_valuables(struct Dungeon *dun
     unsigned long k = 0;
     long i = dungeon->digger_list_start;
     while (i != 0)
-	{
+    {
         struct Thing* thing = thing_get(i);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-		{
-			ERRORLOG("Jump to invalid creature detected");
-			break;
-		}
-		i = cctrl->players_next_creature_idx;
-		// Thing list loop body
-		if (cctrl->combat_flags == 0)
-		{
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (cctrl->combat_flags == 0)
+        {
             long state_type = get_creature_state_type(thing);
 
             if ((state_type == CrStTyp_Work)
-				&& (cctrl->digger.last_did_job == SDLstJob_DigOrMine)
-				&& is_digging_indestructible_place(thing))
-			{
-				SYNCDBG(18, "Indestructible valuables being dug by player %d", (int)dungeon->owner);
-				return true;
-			}
-		}
-		// Thing list loop body ends
-		k++;
-		if (k > CREATURES_COUNT)
-		{
-			ERRORLOG("Infinite loop detected when sweeping creatures list");
-			return false;
-		}
-	}
-	SYNCDBG(18, "Indestructible valuables NOT being dug by player %d", (int)dungeon->owner);
-	return false;
+                && (cctrl->digger.last_did_job == SDLstJob_DigOrMine)
+                && is_digging_indestructible_place(thing))
+            {
+                SYNCDBG(18, "Indestructible valuables being dug by player %d", (int)dungeon->owner);
+                return true;
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            return false;
+        }
+    }
+    SYNCDBG(18, "Indestructible valuables NOT being dug by player %d", (int)dungeon->owner);
+    return false;
 }
 
 /**
@@ -390,8 +390,8 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
         if (subtile_revealed(stl_x, stl_y, dungeon->owner))
         {
             struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-            const struct SlabAttr* slbattr = get_slab_attrs(slb);
-            if (((slbattr->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
+            const struct SlabConfigStats* slabst = get_slab_stats(slb);
+            if (((slabst->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
             {
                 num_faces += block_count_diggable_sides(subtile_slab(stl_x), subtile_slab(stl_y));
             }
@@ -415,7 +415,7 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
 
     if ((cctrl->combat_flags == 0) && (param->num2 || thing->creature.gold_carried == 0)) //no gold carried if no gem access
     {
-        if (creature_is_being_unconscious(thing) || creature_affected_by_spell(thing, SplK_Chicken))
+        if (creature_is_being_unconscious(thing) || creature_under_spell_effect(thing, CSAfF_Chicken))
             return -1;
         if (creature_is_being_dropped(thing) || !can_thing_be_picked_up_by_player(thing, param->plyr_idx))
             return -1;
@@ -425,11 +425,11 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
             return -1;
         if ((param->class_id > 0) && (thing->class_id != param->class_id))
             return -1;
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
         // Let us estimate value of the creature in gold
         long priority = thing->creature.gold_carried;             // base value
-        priority += param->num1 * thing->health / crstat->health; // full health valued at this many gold
-        priority += 10000 * cctrl->explevel; // experience earned by the creature has a big value
+        priority += param->num1 * thing->health / crconf->health; // full health valued at this many gold
+        priority += 10000 * cctrl->exp_level; // experience earned by the creature has a big value
         if (get_creature_state_type(thing) == CrStTyp_Work)
             priority += 500; // aborted work valued at this many gold
         if (anger_is_creature_angry(thing))
@@ -486,29 +486,29 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
 
     GoldAmount power_price = compute_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
     GoldAmount lowest_price = compute_lowest_power_price(dungeon->owner, PwrK_MKDIGGER, 0);
-    SYNCDBG(18, "Digger creation power price: %d, lowest: %d", power_price, lowest_price);
+    SYNCDBG(18, "Digger creation power price: %ld, lowest: %ld", power_price, lowest_price);
 
-	if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
-		&& computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
-	{
+    if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
+        && computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
+    {
         struct Thing* creatng = find_creature_for_sacrifice(comp, game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model);
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-        if (!thing_is_invalid(creatng) && (cctrl->explevel < 2))
-		{
-		    SYNCDBG(18, "Got digger to sacrifice, %s index %d owner %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
-	        if (creature_can_do_job_for_player(creatng, dungeon->owner, Job_TEMPLE_SACRIFICE, JobChk_None))
-	        {
-	            struct Coord3d pos;
-	            // Let's pretend a human does the drop here; computers normally should not be allowed to sacrifice
-	            if (get_drop_position_for_creature_job_in_dungeon(&pos, dungeon, creatng, Job_TEMPLE_SACRIFICE, JoKF_AssignHumanDrop))
-	            {
-	                if (create_task_move_creature_to_pos(comp, creatng, pos, get_initial_state_for_job(Job_TEMPLE_SACRIFICE))) {
-	                    return CTaskRet_Unk1;
-	                }
-	            }
-	        }
-		}
-	}
+        if (!thing_is_invalid(creatng) && (cctrl->exp_level < 2))
+        {
+            SYNCDBG(18, "Got digger to sacrifice, %s index %d owner %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+            if (creature_can_do_job_for_player(creatng, dungeon->owner, Job_TEMPLE_SACRIFICE, JobChk_None))
+            {
+                struct Coord3d pos;
+                // Let's pretend a human does the drop here; computers normally should not be allowed to sacrifice
+                if (get_drop_position_for_creature_job_in_dungeon(&pos, dungeon, creatng, Job_TEMPLE_SACRIFICE, JoKF_AssignHumanDrop))
+                {
+                    if (create_task_move_creature_to_pos(comp, creatng, pos, get_initial_state_for_job(Job_TEMPLE_SACRIFICE))) {
+                        return CTaskRet_Unk1;
+                    }
+                }
+            }
+        }
+    }
     return CTaskRet_Unk4;
 }
 
@@ -597,7 +597,7 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
     {
         struct Thing* thing = thing_get(i);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        if (!thing_is_creature(thing) || creature_control_invalid(cctrl))
         {
           ERRORLOG("Jump to invalid creature detected");
           break;
@@ -606,7 +606,7 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
         // Thing list loop body
         if (cctrl->combat_flags == 0)
         {
-            if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken))
+            if (!creature_is_being_unconscious(thing) && !creature_under_spell_effect(thing, CSAfF_Chicken))
             {
                 if (!creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
                 {
@@ -653,6 +653,9 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     if (!computer_able_to_use_power(comp, PwrK_HAND, 1, 1)) {
+        return CTaskRet_Unk4;
+    }
+    if (is_task_in_progress_using_hand(comp)) {
         return CTaskRet_Unk4;
     }
     {
@@ -764,7 +767,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
         return CTaskRet_Unk4;
     }
     SYNCLOG("Player %d decided to attack %s owned by player %d",(int)dungeon->owner,room_code_name(room->kind),(int)room->owner);
-    output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), MESSAGE_DELAY_KEEPR_TAUNT, 1);
+    output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), MESSAGE_DURATION_KEEPR_TAUNT);
     return CTaskRet_Unk1;
 }
 
@@ -784,13 +787,14 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
         }
         i = cctrl->next_in_room;
         // Per creature code
-        if (!thing_affected_by_spell(thing, SplK_Speed))
+        if (!creature_under_spell_effect(thing, CSAfF_Speed)
+        && !creature_is_immune_to_spell_effect(thing, CSAfF_Speed))
         {
             long n = get_creature_state_besides_move(thing);
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }
@@ -823,13 +827,14 @@ struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp
         }
         i = cctrl->next_in_room;
         // Per creature code
-        if (!thing_affected_by_spell(thing, SplK_Fly))
+        if (!creature_under_spell_effect(thing, CSAfF_Flying)
+        && !creature_is_immune_to_spell_effect(thing, CSAfF_Flying))
         {
             long n = get_creature_state_besides_move(thing);
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }
@@ -862,13 +867,14 @@ struct Thing *computer_check_creatures_in_room_for_vision(struct Computer2 *comp
         }
         i = cctrl->next_in_room;
         // Per creature code
-        if (!thing_affected_by_spell(thing, SplK_Sight))
+        if (!creature_under_spell_effect(thing, CSAfF_Sight)
+        && !creature_is_immune_to_spell_effect(thing, CSAfF_Sight))
         {
             long n = get_creature_state_besides_move(thing);
             struct StateInfo* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
-                if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
                 {
                     return thing;
                 }
@@ -1083,14 +1089,16 @@ long computer_check_for_vision(struct Computer2 *comp, struct ComputerCheck * ch
 long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
+    long slap_percentage = check->param1;
+    TbBool skip_imps_with_speed = check->param2;
     struct Dungeon* dungeon = comp->dungeon;
     if (!is_power_available(dungeon->owner, PwrK_SLAP)) {
         return CTaskRet_Unk4;
     }
-    long creatrs_num = check->param1 * dungeon->num_active_diggers / 100;
+    long creatrs_num = slap_percentage * dungeon->num_active_diggers / 100;
     if (!is_task_in_progress(comp, CTT_SlapDiggers))
     {
-        if (create_task_slap_imps(comp, creatrs_num)) {
+        if (create_task_slap_imps(comp, creatrs_num, skip_imps_with_speed)) {
             return CTaskRet_Unk1;
         }
     }
@@ -1196,8 +1204,8 @@ static TbBool find_place_to_put_door_around_room(const struct Room *room, struct
             MapSlabCoord nxslb_x = slb_x + small_around[m].delta_x;
             MapSlabCoord nxslb_y = slb_y + small_around[m].delta_y;
             struct SlabMap* nxslb = get_slabmap_block(nxslb_x, nxslb_y);
-            struct SlabAttr* slbattr = get_slab_attrs(nxslb);
-            if ((slabmap_owner(nxslb) == room->owner) && ((slbattr->block_flags & SlbAtFlg_Filled) == 0))
+            struct SlabConfigStats* slabst = get_slab_stats(nxslb);
+            if ((slabmap_owner(nxslb) == room->owner) && ((slabst->block_flags & SlbAtFlg_Filled) == 0))
             {
                 if (!subtile_has_door_thing_on(slab_subtile_center(nxslb_x), slab_subtile_center(nxslb_y))) {
                     pos->x.val = subtile_coord_center(slab_subtile_center(slb_x));

@@ -37,6 +37,7 @@
 #include "config_objects.h"
 #include "config_rules.h"
 #include "config_players.h"
+#include "config_slabsets.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_traps.h"
@@ -51,7 +52,6 @@
 #include "creature_battle.h"
 #include "map_columns.h"
 #include "map_events.h"
-#include "music_player.h"
 #include "lvl_script.h"
 #include "gui_msgs.h"
 #include "player_computer.h"
@@ -62,6 +62,7 @@
 #include "sounds.h"
 #include "game_lghtshdw.h"
 #include "game_merge.h"
+#include "lua_cfg_funcs.h"
 #include "engine_textures.h"
 
 #define BOOKMARKS_COUNT               5
@@ -117,16 +118,14 @@ struct Configs {
     struct PowerHandConfig power_hand_conf;
     struct MagicConfig magic_conf;
     struct CubesConfig cube_conf;
-    struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
-    struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
-    struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
     struct TrapDoorConfig trapdoor_conf;
     struct EffectsConfig effects_conf;
-    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
     struct CreatureConfig crtr_conf;
     struct ObjectsConfig object_conf;
     struct RulesConfig rules;
     struct PlayerStateConfig plyr_conf;
+    struct ColumnConfig column_conf;
+    struct LuaFuncsConf lua;
 };
 
 struct Game {
@@ -140,11 +139,11 @@ struct Game {
     unsigned char eastegg01_cntr;
     unsigned char flags_cd;
     unsigned char eastegg02_cntr;
-    char audiotrack;
-    char last_audiotrack;
-char numfield_15;
+    char music_track; // cdrom / default music track to resume after load
+    char music_fname[DISKPATH_SIZE]; // custom music file to resume after load
+    char numfield_15;
     LevelNumber selected_level_number;
-char numfield_1A;
+    char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
@@ -174,7 +173,7 @@ char numfield_1A;
     char packet_fname[150];
     char packet_fopened;
     TbFileHandle packet_save_fp;
-unsigned int packet_file_pos;
+    unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
     unsigned long turns_stored;
     unsigned long turns_fastforward;
@@ -185,7 +184,7 @@ unsigned int packet_file_pos;
     unsigned long turns_packetoff;
     PlayerNumber local_plyr_idx;
     unsigned char numfield_149F47; // something with packetload
-// Originally, save_catalogue was here.
+    // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     struct Event event[EVENTS_COUNT];
     unsigned long ceiling_height_max;
@@ -218,7 +217,7 @@ unsigned int packet_file_pos;
     PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
-    HitPoints block_health[9];
+    HitPoints block_health[10];
     unsigned short generate_speed;
     unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;
@@ -233,13 +232,11 @@ unsigned int packet_file_pos;
     TbBool frame_step;
     TbBool paused_at_gameturn;
     GameTurnDelta pay_day_progress;
-    TbBool no_intro;
     GameTurn armageddon_cast_turn;
     GameTurn armageddon_over_turn;
     PlayerNumber armageddon_caster_idx;
     struct SoundSettings sound_settings;
     struct CreatureBattle battles[BATTLES_COUNT];
-    long music_track_index;
     char evntbox_text_objective[MESSAGE_TEXT_LEN];
     char evntbox_text_buffer[MESSAGE_TEXT_LEN];
     struct TextScrollWindow evntbox_scroll_window;
@@ -268,9 +265,6 @@ unsigned int packet_file_pos;
     int manufactr_element;
     int manufactr_spridx;
     int manufactr_tooltip;
-    char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
-    char loaded_sound[EXTERNAL_SOUNDS_COUNT+1][DISKPATH_SIZE];
-    unsigned char sounds_count;
     struct Configs conf;
 };
 

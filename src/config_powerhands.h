@@ -28,9 +28,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-extern const char keeper_powerhands_file[];
-
-TbBool load_powerhands_config(const char *conf_fname,unsigned short flags);
+extern const struct ConfigFileData keeper_powerhands_file_data;
 
 #define NUM_VARIANTS 16
 #define NUM_ANIMS_PER_VARIANT 7
@@ -48,7 +46,7 @@ enum HandAnims {
 struct PowerHandConfigStats {
     char  code_name[COMMAND_WORD_LEN];
     short anim_idx[NUM_ANIMS_PER_VARIANT];
-    short anim_speed[NUM_ANIMS_PER_VARIANT];;
+    short anim_speed[NUM_ANIMS_PER_VARIANT];
 };
 
 struct PowerHandConfig {

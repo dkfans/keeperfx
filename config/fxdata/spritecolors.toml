@@ -1,64 +1,63 @@
-#equivilents for player colored gui elements
-#in other cfgs just reference the first entry, followed by red (used as first entry but could be swapped) blue, green, yellow, white, neutral
-# can also use custom sprites eg.
-# [ 93,"CTA_RED_64","CTA_BLUE_64","CTA_GREEN_64","CTA_YELLOW_64"],#cta_high
+# Equivalents for player coloured gui elements.
+# In others cfgs just reference the first entry, followed by Red (used as first entry but could be swapped) Blue, Green, Yellow, White, Neutral, Purple, Black and Orange.
+# Can also use custom sprites: [ 93,"CTA_RED_64","CTA_BLUE_64","CTA_GREEN_64","CTA_YELLOW_64"],#cta_high
 
-#stuff in gui2-xx.dat
+# Stuff in gui2-xx.dat
 gui_panel_sprites = [
-    [116,116,558,560,564,562,  0,678,708,738],#cta_low
-    [ 93, 93,574,576,580,578,  0,682,712,742],#cta_high
-    [ 83, 83,601,603,607,605,669,691,721,751],#grdpost_low
-    [ 55, 55,609,611,615,613,671,693,723,753],#grdpost_high
-    [468,468,649,650,652,651,677,703,733,763],#creatr_mood_vhappy
-    [469,469,641,642,644,643,675,701,731,761],#creatr_mood_happy
-    [470,470,637,638,640,639,674,700,730,760],#creatr_mood_content
-    [471,471,633,634,636,635,673,699,729,759],#creatr_mood_angry
-    [472,472,645,646,648,647,676,702,732,762],#creatr_mood_livid
-    [108,108,566,568,572,570,  0,680,710,740],#sight_low
-    [ 85, 85,582,584,588,586,  0,684,714,744],#sight_high
-    [ 15, 15,617,619,623,621,  0,695,725,755],#rpanel_tab_crtra
-    [ 16, 16,618,620,624,622,  0,696,726,756],#rpanel_tab_crtrd
-    [  9,  9,625,627,631,629,  0,697,727,757],#rpanel_tab_rooma
-    [ 10, 10,626,628,632,630,  0,698,728,758],#rpanel_tab_roomd
-    [154,154,653,655,659,657,  0,704,734,764],#trap_alarm_low
-    [132,132,661,663,667,665,  0,706,736,766],#trap_alarm_high
-    [323,323,325,327,329,533,468,689,719,749],#plyrsym_symbol_player
-    [535,535,536,537,538,539,541,688,718,748],#plyrsym_symbol_player_dead
-    [324,324,326,328,330,542,  0,690,720,750],#plyrsym_symbol_room
-    [488,488,489,490,491,533,468,689,719,749],#plyrsym_symbol_player_ally
-    [257,257,590,591,593,592,  0,686,716,746],#rpanel_msg_creatr
-    [251,251,594,595,597,596,  0,687,717,747],#rpanel_msg_room
+    [116, 116, 558, 560, 564, 562,   0, 678, 708, 738],#cta_low
+    [ 93,  93, 574, 576, 580, 578,   0, 682, 712, 742],#cta_high
+    [ 83,  83, 601, 603, 607, 605, 669, 691, 721, 751],#grdpost_low
+    [ 55,  55, 609, 611, 615, 613, 671, 693, 723, 753],#grdpost_high
+    [468, 468, 649, 650, 652, 651, 677, 703, 733, 763],#creatr_mood_vhappy
+    [469, 469, 641, 642, 644, 643, 675, 701, 731, 761],#creatr_mood_happy
+    [470, 470, 637, 638, 640, 639, 674, 700, 730, 760],#creatr_mood_content
+    [471, 471, 633, 634, 636, 635, 673, 699, 729, 759],#creatr_mood_angry
+    [472, 472, 645, 646, 648, 647, 676, 702, 732, 762],#creatr_mood_livid
+    [108, 108, 566, 568, 572, 570,   0, 680, 710, 740],#sight_low
+    [ 85,  85, 582, 584, 588, 586,   0, 684, 714, 744],#sight_high
+    [ 15,  15, 617, 619, 623, 621,   0, 695, 725, 755],#rpanel_tab_crtra
+    [ 16,  16, 618, 620, 624, 622,   0, 696, 726, 756],#rpanel_tab_crtrd
+    [  9,   9, 625, 627, 631, 629,   0, 697, 727, 757],#rpanel_tab_rooma
+    [ 10,  10, 626, 628, 632, 630,   0, 698, 728, 758],#rpanel_tab_roomd
+    [154, 154, 653, 655, 659, 657,   0, 704, 734, 764],#trap_alarm_low
+    [132, 132, 661, 663, 667, 665,   0, 706, 736, 766],#trap_alarm_high
+    [323, 323, 325, 327, 329, 533, 468, 689, 719, 749],#plyrsym_symbol_player
+    [535, 535, 536, 537, 538, 539, 541, 688, 718, 748],#plyrsym_symbol_player_dead
+    [324, 324, 326, 328, 330, 542,   0, 690, 720, 750],#plyrsym_symbol_room
+    [488, 488, 489, 490, 491, 533, 468, 689, 719, 749],#plyrsym_symbol_player_ally
+    [257, 257, 590, 591, 593, 592,   0, 686, 716, 746],#rpanel_msg_creatr
+    [251, 251, 594, 595, 597, 596,   0, 687, 717, 747],#rpanel_msg_room
+    [801, 801, 802, 803, 804, 805,   0, 806, 807, 808],#cta_tabfall
 ]
 
-#stuff in pointerxx.dat
+# Stuff in pointerxx.dat
 pointer_sprites = [
-    [ 40, 40,203,211,227,219,  0,279,317,298],#quadptr_power_cta
-    [193,193,267,268,270,269,  0,295,333,314],#tileptr_power_cta
-    [ 80, 80,235,243,259,251,  0,287,325,306],#quadptr_power_mkdigger
-    [ 38, 38,271,272,274,273,  0,296,334,315],#tileptr_room_guardpst
-    [  9,  9,275,276,278,277,  0,297,335,316],#tileptr_trap_alarm
+    [ 40,  40, 203, 211, 227, 219,   0, 279, 317, 298],#quadptr_power_cta
+    [193, 193, 267, 268, 270, 269,   0, 295, 333, 314],#tileptr_power_cta
+    [ 80,  80, 235, 243, 259, 251,   0, 287, 325, 306],#quadptr_power_mkdigger
+    [ 38,  38, 271, 272, 274, 273,   0, 296, 334, 315],#tileptr_room_guardpst
+    [  9,   9, 275, 276, 278, 277,   0, 297, 335, 316],#tileptr_trap_alarm
+    [344, 344, 352, 360, 368, 376,   0, 384, 400, 392],#quadptr_power_mktunlr
+    [408, 408, 416, 424, 432, 440,   0, 448, 464, 456],#quadptr_power_mkdiggergeneric
 ]
 
-#stuff in gui1-xx.dat
+# Stuff in gui1-xx.dat
 button_sprite = [
-    [ 62, 62,127,128,129,130,  0,131,132,133],#creatr_state_cta
-    [ 58, 58,134,135,136,137,  0,138,139,140],#creatr_state_lair
-    [ 88, 88, 96,104,112,120,  0,222,230,238],#creature_flower_health
+    [ 62,  62, 127, 128, 129, 130,   0, 131, 132, 133],#creatr_state_cta
+    [ 58,  58, 134, 135, 136, 137,   0, 138, 139, 140],#creatr_state_lair
+    [ 88,  88,  96, 104, 112, 120,   0, 222, 230, 238],#creature_flower_health
 ]
 
-
-#stuff in creatures.jty
-#only works for cta flag
+# Stuff in creatures.jty
+# Only works for CTA flag.
 animationIds = [
-    [ 867, 867,873,879,885,"CTA_WHITE_ACTIVATE",  0,"CTA_PURPLE_ACTIVATE",  "CTA_BLACK_ACTIVATE",  "CTA_ORANGE_ACTIVATE"  ],#cta_birth_anim_idx
-    [ 868, 868,874,880,886,"CTA_WHITE_ACTIVE",    0,"CTA_PURPLE_ACTIVE",    "CTA_BLACK_ACTIVE",    "CTA_ORANGE_ACTIVE"    ],#cta_alive_anim_idx
-    [ 869, 869,875,881,887,"CTA_WHITE_DEACTIVATE",0,"CTA_PURPLE_DEACTIVATE","CTA_BLACK_DEACTIVATE","CTA_ORANGE_DEACTIVATE"],#cta_leave_anim_idx
+    [867, 867, 873, 879, 885, "CTA_WHITE_ACTIVATE",     0, "CTA_PURPLE_ACTIVATE",   "CTA_BLACK_ACTIVATE",   "CTA_ORANGE_ACTIVATE"  ],#cta_birth_anim_idx
+    [868, 868, 874, 880, 886, "CTA_WHITE_ACTIVE",       0, "CTA_PURPLE_ACTIVE",     "CTA_BLACK_ACTIVE",     "CTA_ORANGE_ACTIVE"    ],#cta_alive_anim_idx
+    [869, 869, 875, 881, 887, "CTA_WHITE_DEACTIVATE",   0, "CTA_PURPLE_DEACTIVATE", "CTA_BLACK_DEACTIVATE", "CTA_ORANGE_DEACTIVATE"],#cta_leave_anim_idx
 ]
 
+# Stuff in objects.cfg
 objects = [
-    [ 115, 115,116,117,118,119,161,164,166,168],#guardflag
-    [ 111, 111,120,121,122,  0,162,165,167,169],#heartflame
+    [115, 115, 116, 117, 118, 161, 119, 164, 166, 168],#guardflag
+    [111, 111, 120, 121, 122, 162,   0, 165, 167, 169],#heartflame
 ]
-
-
-    

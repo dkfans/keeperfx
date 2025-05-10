@@ -136,7 +136,7 @@ long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
     for (long i = 0; i < imax; i++)
     {
         struct MapTask* mtask = &dungeon->task_list[i];
-        if ((mtask->coords == srch_tsk))
+        if (mtask->coords == srch_tsk)
             return i;
     }
     return -1;

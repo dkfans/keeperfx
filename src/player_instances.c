@@ -45,7 +45,7 @@
 #include "player_utils.h"
 #include "config_players.h"
 #include "room_workshop.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "engine_arrays.h"
@@ -58,6 +58,7 @@
 #include "thing_shots.h"
 #include "bflib_inputctrl.h"
 #include "map_blocks.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -214,7 +215,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   case TCls_Creature:
   {
       struct Coord3d pos;
-      if (creature_affected_by_spell(thing, SplK_Freeze))
+      if (creature_under_spell_effect(thing, CSAfF_Freeze))
       {
           kill_creature(thing, INVALID_THING, thing->owner, CrDed_Default);
       } else
@@ -240,31 +241,32 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       if (shotst->model_flags & ShMF_Boulder)
       {
           thing->move_angle_xy = player->acamera->orient_a;
-          if (thing->model != ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
+          if (thing->model != ShM_SolidBoulder) // TODO CONFIG shot model dependency, make config option instead.
           {
               thing->health -= game.conf.rules.game.boulder_reduce_health_slap;
           }
-      } else
+      }
+      else
       {
           detonate_shot(thing,true);
       }
       break;
   case TCls_Trap:
-      trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
+      trapst = get_trap_model_stats(thing->model);
       if ((trapst->slappable > 0) && trap_is_active(thing))
       {
-          struct TrapStats* trapstat = &game.conf.trap_stats[thing->model];
-          struct Thing* trgtng = INVALID_THING;
-          shotst = get_shot_model_stats(trapstat->created_itm_model);
-          if (trapst->slappable == 1)
+          activate_trap_by_slap(player, thing);
+
+          struct Dungeon* dungeon = get_dungeon(thing->owner);
+          if (!dungeon_invalid(dungeon))
           {
-              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
-          } else
-          if (trapst->slappable == 2)
-          {
-              trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(thing);
-              external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, trgtng);
+              dungeon->trap_info.activated[thing->trap.flag_number]++;
+              if (thing->trap.flag_number > 0)
+              {
+                  memcpy(&dungeon->last_trap_event_location, &thing->mappos, sizeof(struct Coord3d));
+              }
           }
+          process_trap_charge(thing);
       }
       break;
       case TCls_Object:
@@ -330,7 +332,8 @@ long pinstfs_direct_control_creature(struct PlayerInfo *player, long *n)
 {
     // Reset state of the thing being possessed
     struct Thing* thing = thing_get(player->influenced_thing_idx);
-    if (thing_is_creature(thing)) {
+    if (thing_can_be_controlled_as_controller(thing))
+    {
         SYNCDBG(8,"Cleaning up state %s of %s index %d",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
         initialise_thing_state(thing, CrSt_ManualControl);
         LbGrabMouseCheck(MG_OnPossessionEnter);
@@ -372,7 +375,6 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         }
         cam->orient_a += mv_a;
         cam->orient_a &= LbFPMath_AngleMask;
-        thing = thing_get(player->influenced_thing_idx);
         // Now mv_a becomes a circle radius
         mv_a = get_creature_eye_height(thing) + thing->mappos.z.val;
         long mv_x = thing->mappos.x.val + distance_with_angle_to_coord_x(mv_a, cam->orient_a) - (MapCoordDelta)cam->mappos.x.val;
@@ -433,7 +435,8 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
         load_swipe_graphic_for_creature(thing);
         if (my_player)
         {
-            if (creature_affected_by_spell(thing, SplK_Freeze)) {
+            if (creature_under_spell_effect(thing, CSAfF_Freeze))
+            {
                 PaletteSetPlayerPalette(player, blue_palette);
             }
         }
@@ -722,7 +725,7 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, long *n)
 long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
 {
     struct Camera* cam = player->acamera;
-    player->field_4BD = 0;
+    player->palette_fade_step_map = 0;
     player->allocflags |= PlaF_MouseInputDisabled;
     player->view_mode_restore = cam->view_mode;
     if (is_my_player(player))
@@ -759,7 +762,7 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
     settings.tooltips_on = false; // don't show tooltips during the fade
     game.operation_flags &= ~GOF_ShowPanel;
   }
-  player->field_4BD = 32;
+  player->palette_fade_step_map = 32;
   set_player_mode(player, PVT_DungeonTop);
   set_engine_view(player, PVM_ParchFadeOut);
   return 0;
@@ -953,7 +956,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->view_mode_restore);
     long i = player->acamera->orient_a;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     long k = thing->mappos.z.val + get_creature_eye_height(thing);
     player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
@@ -970,7 +973,8 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
           disband_creatures_group(thing);
         }
     }
-    if ( (thing->light_id != 0) && (!crstat->illuminated) && (!creature_affected_by_spell(thing, SplK_Light)) ) {
+    if ((thing->light_id != 0) && (!crconf->illuminated) && (!creature_under_spell_effect(thing, CSAfF_Light)))
+    {
         light_delete_light(thing->light_id);
         thing->light_id = 0;
     }
@@ -1185,7 +1189,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         if (take_money_from_dungeon(plyr_idx, roomst->cost, 1) < 0)
         {
             if (is_my_player(player))
-                output_message(SMsg_GoldNotEnough, 0, true);
+                output_message(SMsg_GoldNotEnough, 0);
             return INVALID_ROOM;
         }
         if (player->boxsize > 0)
@@ -1196,7 +1200,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     else
     {
         if (is_my_player(player))
-            output_message(SMsg_GoldNotEnough, 0, true);
+            output_message(SMsg_GoldNotEnough, 0);
         return INVALID_ROOM;
     }
     struct Room* room = place_room(plyr_idx, rkind, stl_x, stl_y);
@@ -1224,12 +1228,8 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     return room;
 }
 
-TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
+TbBool player_place_trap_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool free)
 {
-    if (!is_trap_placeable(plyr_idx, tngmodel)) {
-        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,trap_code_name(tngmodel));
-        return false;
-    }
     struct TrapConfigStats* trap_cfg = get_trap_model_stats(tngmodel);
     struct Coord3d pos;
     if (trap_cfg->place_on_subtile)
@@ -1240,25 +1240,100 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     {
         set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
     }
-    delete_room_slabbed_objects(get_slab_number(subtile_slab(stl_x),subtile_slab(stl_y)));
+    delete_room_slabbed_objects(get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y)));
     struct Thing* traptng = create_trap(&pos, tngmodel, plyr_idx);
-    if (thing_is_invalid(traptng)) {
+    if (thing_is_invalid(traptng))
+    {
         return false;
     }
     traptng->mappos.z.val = get_thing_height_at(traptng, &traptng->mappos);
     traptng->trap.revealed = 0;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-
-    remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Trap, tngmodel);
-    if (placing_offmap_workshop_item(plyr_idx, TCls_Trap, tngmodel)) {
-        remove_workshop_item_from_amount_stored(plyr_idx, TCls_Trap, tngmodel, WrkCrtF_NoStored);
+    if (free)
+    {
         rearm_trap(traptng);
-        dungeon->lvstats.traps_armed++;
+        if (!dungeon_invalid(dungeon))
+            dungeon->lvstats.traps_armed++;
     }
-    dungeon->camera_deviate_jump = 192;
+    else
+    {
+        remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Trap, tngmodel);
+        if (placing_offmap_workshop_item(plyr_idx, TCls_Trap, tngmodel))
+        {
+            remove_workshop_item_from_amount_stored(plyr_idx, TCls_Trap, tngmodel, WrkCrtF_NoStored);
+            rearm_trap(traptng);
+            if (!dungeon_invalid(dungeon))
+                dungeon->lvstats.traps_armed++;
+        }
+        else if (trap_cfg->instant_placement)
+        {
+            remove_workshop_item_from_amount_stored(plyr_idx, TCls_Trap, tngmodel, WrkCrtF_NoOffmap);
+            remove_workshop_object_from_player(plyr_idx, trap_crate_object_model(tngmodel));
+            rearm_trap(traptng);
+            if (!dungeon_invalid(dungeon))
+                dungeon->lvstats.traps_armed++;
+        }
+    }
+    if (!dungeon_invalid(dungeon))
+        dungeon->camera_deviate_jump = 192;
     if (is_my_player_number(plyr_idx))
     {
         play_non_3d_sample(trap_cfg->place_sound_idx);
+    }
+
+    lua_on_trap_placed(traptng);
+    return true;
+}
+
+TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
+{
+    if (!is_trap_placeable(plyr_idx, tngmodel))
+    {
+        WARNLOG("Player %d tried to build %s but has none to place", (int)plyr_idx, trap_code_name(tngmodel));
+        return false;
+    }
+    return player_place_trap_without_check_at(stl_x, stl_y, plyr_idx, tngmodel,false);
+}
+
+TbBool player_place_door_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel,TbBool free)
+{
+    unsigned char orient = find_door_angle(stl_x, stl_y, plyr_idx);
+    struct Coord3d pos;
+    set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
+    struct Thing *door = create_door(&pos, tngmodel, orient, plyr_idx, 0);
+    if (thing_is_invalid(door))
+    {
+        return false;
+    }
+    do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    if (!free)
+    {
+        int crate_source = remove_workshop_item_from_amount_stored(plyr_idx, TCls_Door, tngmodel, WrkCrtF_Default);
+        switch (crate_source)
+        {
+        case WrkCrtS_Offmap:
+            remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Door, tngmodel);
+            break;
+        case WrkCrtS_Stored:
+            remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Door, tngmodel);
+            remove_workshop_object_from_player(plyr_idx, door_crate_object_model(tngmodel));
+            break;
+        default:
+            if (!dungeon_invalid(dungeon))
+            {
+                WARNLOG("Placeable door %s amount for player %d was incorrect; fixed", door_code_name(tngmodel), (int)dungeon->owner);
+                dungeon->mnfct_info.door_amount_placeable[tngmodel] = 0;
+            }
+            break;
+        }
+    }
+    if (!dungeon_invalid(dungeon))
+        dungeon->camera_deviate_jump = 192;
+    if (is_my_player_number(plyr_idx))
+    {
+        struct DoorConfigStats* door_cfg = get_door_model_stats(tngmodel);
+        play_non_3d_sample(door_cfg->place_sound_idx);
     }
     return true;
 }
@@ -1267,36 +1342,9 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
 {
     if (!is_door_placeable(plyr_idx, tngmodel)) {
         WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,door_code_name(tngmodel));
-        return 0;
+        return false;
     }
-    unsigned char orient = find_door_angle(stl_x, stl_y, plyr_idx);
-    struct Coord3d pos;
-    set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
-    create_door(&pos, tngmodel, orient, plyr_idx, 0);
-    do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    int crate_source = remove_workshop_item_from_amount_stored(plyr_idx, TCls_Door, tngmodel, WrkCrtF_Default);
-    switch (crate_source)
-    {
-    case WrkCrtS_Offmap:
-        remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Door, tngmodel);
-        break;
-    case WrkCrtS_Stored:
-        remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Door, tngmodel);
-        remove_workshop_object_from_player(plyr_idx, door_crate_object_model(tngmodel));
-        break;
-    default:
-        WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(tngmodel),(int)dungeon->owner);
-        dungeon->mnfct_info.door_amount_placeable[tngmodel] = 0;
-        break;
-    }
-    dungeon->camera_deviate_jump = 192;
-    if (is_my_player_number(plyr_idx))
-    {
-        struct DoorConfigStats* door_cfg = get_door_model_stats(tngmodel);
-        play_non_3d_sample(door_cfg->place_sound_idx);
-    }
-    return 1;
+    return player_place_door_without_check_at(stl_x, stl_y, plyr_idx, tngmodel,0);
 }
 
 TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
@@ -1306,7 +1354,7 @@ TbBool is_thing_directly_controlled_by_player(const struct Thing *thing, PlayerN
      struct PlayerInfo* player = get_player(plyr_idx);
      if (player_invalid(player))
      {
-         ERRORLOG("Bad player: $d", plyr_idx);
+         ERRORLOG("Bad player: %d", plyr_idx);
          return false;
      }
      else
@@ -1353,7 +1401,7 @@ TbBool is_thing_passenger_controlled_by_player(const struct Thing *thing, Player
      struct PlayerInfo* player = get_player(plyr_idx);
      if (player_invalid(player))
      {
-         ERRORLOG("Bad player: $d", plyr_idx);
+         ERRORLOG("Bad player: %d", plyr_idx);
          return false;
      }
     else

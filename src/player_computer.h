@@ -24,26 +24,15 @@
 #include "globals.h"
 
 #include "config.h"
+#include "config_compp.h"
 #include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-#define COMPUTER_TASKS_COUNT        100
-#define COMPUTER_PROCESSES_COUNT     20
-#define COMPUTER_CHECKS_COUNT        32
-#define COMPUTER_CHECKS_COUNT_OLD    15
-#define COMPUTER_EVENTS_COUNT        33
-#define COMPUTER_EVENTS_COUNT_OLD    12
-// To add additional computer players update the folowing number. Update ComputerCount in keepcompp.cfg to match.
-// Must match the actual number of consecutive computers listed in that file (don't forget to count computer0).
-#define COMPUTER_MODELS_COUNT        17 // renamed from COMPUTER_PROCESS_LISTS_COUNT, for clarity
 #define COMPUTER_TRAP_LOC_COUNT      20
 
-#define COMPUTER_PROCESS_TYPES_COUNT 26
-#define COMPUTER_CHECKS_TYPES_COUNT  52
-#define COMPUTER_EVENTS_TYPES_COUNT  31
 #define COMPUTER_SPARK_POSITIONS_COUNT 64
 #define COMPUTER_SOE_GRID_SIZE        8
 
@@ -151,7 +140,7 @@ enum ToolDigResults {
 
 enum CompProcessFlags {
     ComProc_Unkn0001 = 0x0001,
-    ComProc_Unkn0002 = 0x0002, /**< Last? */
+    ComProc_ListEnd  = 0x0002, /**< Last? */
     ComProc_Unkn0004 = 0x0004, /**< Finished */
     ComProc_Unkn0008 = 0x0008, /**< Done (for subprocesses) */
     ComProc_Unkn0010 = 0x0010,
@@ -227,6 +216,29 @@ enum CompChatFlags {
     CChat_TasksFrequent = 0x02,
 };
 
+enum computer_process_func_list 
+{
+    cpfl_computer_check_build_all_rooms = 1,
+    cpfl_computer_setup_any_room_continue,
+    cpfl_computer_check_any_room,
+    cpfl_computer_setup_any_room,
+    cpfl_computer_check_dig_to_entrance,
+    cpfl_computer_setup_dig_to_entrance,
+    cpfl_computer_check_dig_to_gold,
+    cpfl_computer_setup_dig_to_gold,
+    cpfl_computer_check_sight_of_evil,
+    cpfl_computer_setup_sight_of_evil,
+    cpfl_computer_process_sight_of_evil,
+    cpfl_computer_check_attack1,
+    cpfl_computer_setup_attack1,
+    cpfl_computer_completed_attack1,
+    cpfl_computer_check_safe_attack,
+    cpfl_computer_process_task,
+    cpfl_computer_completed_build_a_room,
+    cpfl_computer_paused_task,
+    cpfl_computer_completed_task
+  };
+
 //TODO COMPUTER This returns NULL, which is unsafe
 #define INVALID_COMPUTER_PLAYER NULL
 #define INVALID_COMPUTER_PROCESS NULL
@@ -245,9 +257,7 @@ struct ComputerTask;
 struct GoldLookup;
 struct THate;
 
-typedef unsigned char ComputerType;
 typedef unsigned short ComputerTaskType;
-typedef char ComputerName[LINEMSG_SIZE];
 
 typedef long (*Comp_Process_Func)(struct Computer2 *, struct ComputerProcess *);
 typedef long (*Comp_Check_Func)(struct Computer2 *, struct ComputerCheck *);
@@ -256,84 +266,16 @@ typedef long (*Comp_EvntTest_Func)(struct Computer2 *, struct ComputerEvent *);
 typedef long (*Comp_Task_Func)(struct Computer2 *, struct ComputerTask *);
 typedef TbBool (*Comp_HateTest_Func)(const struct Computer2 *, const struct ComputerProcess *, const struct THate *);
 
-struct Comp_Check_Func_ListItem {
-  const char *name;
-  Comp_Check_Func func;
-};
-
 struct TaskFunctions {
-  const char *name;
-  Comp_Task_Func func;
-};
-
-struct ComputerProcess { // sizeof = 72
-  char *name;
-  long priority;
-  // Signed process config values
-  long confval_2;
-  long confval_3;
-  long confval_4; /**< room kind or amount of creatures or gameturn or count of slabs */
-  long confval_5;
-  Comp_Process_Func func_check;
-  Comp_Process_Func func_setup;
-  Comp_Process_Func func_task;
-  Comp_Process_Func func_complete;
-  Comp_Process_Func func_pause;
-  struct ComputerProcess *parent;
-  // Unsigned process parameters storage (stores gameturns)
-  unsigned long param_1;
-  unsigned long param_2;
-  unsigned long param_3;
-  unsigned long last_run_turn;
-  // Signed process parameters storage
-  long param_5;
-  unsigned long flags; /**< Values from ComProc_* enumeration. */
-};
-
-struct ComputerCheck { // sizeof = 32
-  char *name;
-  unsigned long flags; /**< Values from ComChk_* enumeration. */
-  long turns_interval;
-  Comp_Check_Func func;
-  long param1;
-  long param2;
-  long param3;
-  long last_run_turn;
-};
-
-struct ComputerEvent { // sizeof = 44
-  char *name;
-  unsigned long cetype;
-  unsigned long mevent_kind;
-  Comp_Event_Func func_event;
-  Comp_EvntTest_Func func_test;
-  long test_interval;
-  struct ComputerProcess *process;
-  long param1;
-  long param2;
-  long param3;
-  long last_test_gameturn; /**< event last checked time */
+    const char *name;
+    Comp_Task_Func func;
 };
 
 struct ValidRooms { // sizeof = 8
-  long rkind;
-  struct ComputerProcess *process;
+    long rkind;
+    unsigned char process_idx;
 };
 
-struct ComputerProcessMnemonic {
-  char name[16];
-  struct ComputerProcess *process;
-};
-
-struct ComputerCheckMnemonic {
-  char name[16];
-  struct ComputerCheck *check;
-};
-
-struct ComputerEventMnemonic {
-  char name[16];
-  struct ComputerEvent *event;
-};
 struct ComputerDig {
     struct Coord3d pos_E; /**< used by dig to position - set to pos_begin when a dig action fails ?? */
     struct Coord3d pos_dest; /**< used by dig to position - the destination */
@@ -349,17 +291,17 @@ struct ComputerDig {
     long calls_count; /**< used by dig to position */
     long valuable_slabs_tagged; /**< used by dig to position - Amount of valuable slabs tagged for digging during this dig process. */
     /** Variables for digging (or placing) a room. */
-	struct { 
-		long area; /**< The number of slabs in the room. */
-		long slabs_processed; /**< The number of slabs marked for digging or converted in to a room. */
+    struct { 
+        long area; /**< The number of slabs in the room. */
+        long slabs_processed; /**< The number of slabs marked for digging or converted in to a room. */
         /** Variables for the spiral used to dig slabs/place rooms. */
-		struct {
-			SmallAroundIndex forward_direction; /**< The current direction we are moving through the spiral. */
-			long turns_made; /**< The number of turns made in the spiral. */
-			long steps_to_take_before_turning; /**< The number of steps to take before the next turn in the spiral. */
-			long steps_remaining_before_turn; /**< The number of steps we have left to take before we need to turn in the spiral. */
-		} spiral;
-	} room;
+        struct {
+            SmallAroundIndex forward_direction; /**< The current direction we are moving through the spiral. */
+            long turns_made; /**< The number of turns made in the spiral. */
+            long steps_to_take_before_turning; /**< The number of steps to take before the next turn in the spiral. */
+            long steps_remaining_before_turn; /**< The number of steps we have left to take before we need to turn in the spiral. */
+        } spiral;
+    } room;
 };
 
 struct ComputerTask {
@@ -402,7 +344,7 @@ struct ComputerTask {
         long repeat_num;
     } magic_cta;
     struct {
-        long splevel;
+        KeepPwrLevel power_level;
         short target_thing_idx;
         long repeat_num;
         long gaction;
@@ -459,6 +401,9 @@ struct ComputerTask {
         RoomKind kind;
         long area;
     } create_room;
+    struct {
+        TbBool skip_speed;
+    } slap_imps;
     };
     unsigned short cproc_idx; /**< CProcessId */
     GameTurnDelta cta_duration;
@@ -488,31 +433,13 @@ struct Computer2 { // sizeof = 5322
   unsigned long max_room_build_tasks;
   unsigned long task_delay;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
-  union
-  {
-      struct ComputerCheck checks_OLD[COMPUTER_CHECKS_COUNT_OLD];
-      struct
-      {
-          struct ComputerCheck checks_guard[2];
-          struct ComputerCheck *checks;
-      };
-  };
-  union
-  {
-      struct ComputerEvent events_OLD[COMPUTER_EVENTS_COUNT_OLD];
-      struct
-      {
-          struct ComputerEvent event_guard[2]; // Set to invalid event if some would like to list events
-          struct ComputerEvent *events;
-      };
-  };
+  struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
+  struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
   struct OpponentRelation opponent_relations[PLAYERS_COUNT];
   // TODO we could use coord2d for trap locations
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
   /** Stores Sight Of Evil target points data. */
   unsigned long soe_targets[COMPUTER_SOE_GRID_SIZE];
-  /* seem unused */
-  unsigned char field_13E4[224];
   short ongoing_process;
   short task_idx;
   short held_thing_idx;
@@ -537,19 +464,10 @@ struct ExpandRooms {
 
 #pragma pack()
 /******************************************************************************/
-struct ComputerPlayerConfig {
-    int processes_count;
-    int checks_count;
-    int events_count;
-    int computers_count;
-    int skirmish_first; /*new*/
-    int skirmish_last; /*new*/
-};
+
 /******************************************************************************/
-extern unsigned short computer_types_tooltip_stridx[];
 extern struct ValidRooms valid_rooms_to_build[];
 
-extern struct ComputerProcessMnemonic computer_process_config_list[];
 extern const struct NamedCommand computer_process_func_type[];
 extern Comp_Process_Func computer_process_func_list[];
 
@@ -614,24 +532,23 @@ TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_mov
 TbBool create_task_move_creature_to_subtile(struct Computer2 *comp, const struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CrtrStateId dst_state);
 TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thing *thing, const struct Coord3d pos, CrtrStateId dst_state);
 TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, PlayerNumber victim_plyr_idx, long parent_cproc_idx);
-TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num);
+TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num, TbBool skip_speed);
 TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos);
 TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long count_slabs_to_dig, long gold_lookup_idx);
 TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long entroom_idx);
-TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
-TbBool create_task_magic_flight_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
-TbBool create_task_magic_vision_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
-TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, int splevel, int gaction);
+TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, KeepPwrLevel power_level);
+TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, KeepPwrLevel power_level, int gaction);
+TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, TbMapLocation destination);
 
-TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount);
+TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, KeepPwrLevel power_level, long amount);
 long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrole);
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
 TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
 long process_tasks(struct Computer2 *comp);
 long computer_check_any_room(struct Computer2* comp, struct ComputerProcess* cproc);
-TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
+TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel power_level,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
-TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
+TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, KeepPwrLevel power_level,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, DigFlags digflags, const char *func_name);
 TbBool add_trap_location_if_requested(struct Computer2 *comp, struct ComputerTask *ctask, TbBool is_task_dig_to_attack);

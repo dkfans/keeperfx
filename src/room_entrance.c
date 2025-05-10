@@ -177,7 +177,7 @@ static long calculate_excess_attraction_for_creature(ThingModel crmodel, PlayerN
 {
     SYNCDBG(11, "Starting");
 
-    struct CreatureStats* stats = creature_stats_get(crmodel);
+    struct CreatureModelConfig* stats = creature_stats_get(crmodel);
     long excess_attraction = 0;
     for (int i = 0; i < ENTRANCE_ROOMS_COUNT; i++)
     {
@@ -229,7 +229,7 @@ TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingM
     }
 
     // Typical way is to allow creatures which meet attraction conditions
-    struct CreatureStats* stats = creature_stats_get(crmodel);
+    struct CreatureModelConfig* stats = creature_stats_get(crmodel);
 
     // Check if we've got rooms of enough size for attraction
     for (int i = 0; i < ENTRANCE_ROOMS_COUNT; ++i)
@@ -251,12 +251,13 @@ TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingM
 
 TbBool remove_creature_from_generate_pool(ThingModel crmodel)
 {
-    if (game.pool.crtr_kind[crmodel] <= 0) {
-        WARNLOG("Could not remove creature %s from the creature pool",creature_code_name(crmodel));
-        return false;
+    if (game.pool.crtr_kind[crmodel] > LONG_MIN)
+    {
+        game.pool.crtr_kind[crmodel]--;
+        return true;
     }
-    game.pool.crtr_kind[crmodel]--;
-    return true;
+    WARNLOG("Could not remove creature %s from the creature pool", creature_code_name(crmodel));
+    return false;
 }
 
 static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dungeon)
@@ -274,11 +275,11 @@ static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dun
     {
         if (creature_will_generate_for_dungeon(dungeon, crmodel))
         {
-            struct CreatureStats* crstat = creature_stats_get(crmodel);
+            struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
 
             gen_count += 1;
 
-            long score = (long)crstat->entrance_score + calculate_excess_attraction_for_creature(crmodel, dungeon->owner);
+            long score = (long)crconf->entrance_score + calculate_excess_attraction_for_creature(crmodel, dungeon->owner);
             if (score < 1) {
                 score = 1;
             }
@@ -345,13 +346,13 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 
     if (crmodel > 0)
     {
-        struct CreatureStats* crstat = creature_stats_get(crmodel);
+        struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
         long lair_space = calculate_free_lair_space(dungeon);
-        if ((long)crstat->pay > dungeon->total_money_owned)
+        if ((long)crconf->pay > dungeon->total_money_owned)
         {
-            SYNCDBG(8,"The %s will not come as player %d has less than %d gold",creature_code_name(crmodel),(int)dungeon->owner,(int)crstat->pay);
+            SYNCDBG(8,"The %s will not come as player %d has less than %d gold",creature_code_name(crmodel),(int)dungeon->owner,(int)crconf->pay);
             if (is_my_player_number(dungeon->owner)) {
-                output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
+                output_message(SMsg_GoldLow, MESSAGE_DURATION_TREASURY);
             }
         } else
         if (lair_space > 0)
@@ -371,10 +372,10 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
             if (dungeon_has_room_of_role(dungeon, RoRoF_LairStorage))
             {
                 event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NoMoreLivingSet, dungeon->owner, 0);
-                output_message_room_related_from_computer_or_player_action(dungeon->owner, rkind, OMsg_RoomTooSmall);
+                output_room_message(dungeon->owner, rkind, OMsg_RoomTooSmall);
             } else
             {
-                output_message_room_related_from_computer_or_player_action(dungeon->owner, rkind, OMsg_RoomNeeded);
+                output_room_message(dungeon->owner, rkind, OMsg_RoomNeeded);
             }
         } else
         {
@@ -432,16 +433,20 @@ TbBool update_creature_pool_state(void)
     return true;
 }
 
-void add_creature_to_pool(ThingModel kind, long amount, unsigned long a3)
+void add_creature_to_pool(ThingModel kind, long amount)
 {
-    long prev_amount;
     kind %= game.conf.crtr_conf.model_count;
-    prev_amount = game.pool.crtr_kind[kind];
-    if ((a3 == 0) || (prev_amount != -1))
+    
+    if (amount > 0 && game.pool.crtr_kind[kind] > LONG_MAX - amount)
     {
-        if ((amount != -1) && (amount != 0) && (prev_amount != -1))
-            game.pool.crtr_kind[kind] = prev_amount + amount;
-        else
-            game.pool.crtr_kind[kind] = amount;
+        game.pool.crtr_kind[kind] = LONG_MAX;
+    }
+    else if (amount < 0 && game.pool.crtr_kind[kind] < LONG_MIN - amount)
+    {
+        game.pool.crtr_kind[kind] = LONG_MIN;
+    }
+    else
+    {
+        game.pool.crtr_kind[kind] += amount;
     }
 }

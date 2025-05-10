@@ -193,7 +193,7 @@ IF(PLAYER_GOOD,FLAG0 == 0)
 	ENDIF
 ENDIF
 
-REM Stop spawning continous parties after a given amount of turns
+REM Stop spawning continuous parties after a given amount of turns
 IF(PLAYER_GOOD,GAME_TURN >= 13000)
 	SET_FLAG(PLAYER_GOOD,FLAG0,1)
 	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)

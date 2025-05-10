@@ -141,7 +141,7 @@ struct Room {
 struct RoomReposition {
     int used;
     ThingModel models[ROOM_REPOSITION_COUNT];
-    CrtrExpLevel explevels[ROOM_REPOSITION_COUNT];
+    CrtrExpLevel exp_level[ROOM_REPOSITION_COUNT];
 };
 
 #define INVALID_ROOM (&game.rooms[0])
@@ -154,9 +154,9 @@ extern unsigned short const room_effect_elements[];
 extern struct AroundLByte const room_spark_offset[];
 extern RoomKind look_through_rooms[ROOM_TYPES_COUNT_OLD + 1];
 /******************************************************************************/
-struct Room *room_get(long room_idx);
+struct Room *room_get(RoomIndex room_idx);
 struct Room *subtile_room_get(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-struct Room *slab_room_get(long slb_x, long slb_y);
+struct Room *slab_room_get(MapSlabCoord slb_x, MapSlabCoord slb_y);
 struct Room *slab_number_room_get(SlabCodedCoords slab_num);
 TbBool room_is_invalid(const struct Room *room);
 TbBool room_exists(const struct Room *room);
@@ -201,16 +201,14 @@ struct Room *allocate_free_room_structure(void);
 unsigned short i_can_allocate_free_room_structure(void);
 void add_slab_to_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y);
-void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num);
+TbBool add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num);
 void delete_all_room_structures(void);
 void delete_room_structure(struct Room *room);
 void delete_room_slabbed_objects(SlabCodedCoords slb_num);
 struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, MapSubtlCoord y, RoomKind rkind);
 struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-short room_grow_food(struct Room *room);
 TbBool update_room_contents(struct Room *room);
 struct Room *get_room_of_given_role_for_thing(const struct Thing *thing, const struct Dungeon *dungeon, RoomRole rrole, int needed_capacity);
-struct Thing *find_lair_totem_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool slab_is_area_outer_border(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_is_area_inner_fill(MapSlabCoord slb_x, MapSlabCoord slb_y);
@@ -239,9 +237,9 @@ TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx);
 void do_room_integration(struct Room *room);
 void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heartng);
 
-void count_gold_hoardes_in_room(struct Room *room);
 void update_room_total_capacity(struct Room *room);
 long reinitialise_rooms_of_kind(RoomKind rkind);
+long recalculate_effeciency_for_rooms_of_kind(RoomKind rkind);
 
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *thing, struct Room *room, struct Coord3d *pos, long slbnum);
 
@@ -252,6 +250,10 @@ struct Room *find_random_room_of_role_for_thing_with_spare_room_item_capacity(st
 struct Room *pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
 
 void redraw_slab_map_elements(MapSlabCoord slb_x, MapSlabCoord slb_y);
+
+TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel);
+void init_reposition_struct(struct RoomReposition * rrepos);
+TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel exp_level);
 /******************************************************************************/
 #ifdef __cplusplus
 }

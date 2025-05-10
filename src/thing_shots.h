@@ -58,11 +58,14 @@ enum ShotModels {
     ShM_Disease,
     ShM_Chicken,
     ShM_TimeBomb,
-    ShM_TrapLightning, // 29
-    ShM_WordOfPower, 
+    ShM_TrapLightning,
+    ShM_WordOfPower, // 30
     ShM_TrapWordOfPower,
     ShM_TrapTNT = 32,
     ShM_RangedHeal = 33,
+    ShM_RangedSpeed = 34,
+    ShM_RangedArmour = 35,
+    ShM_RangedRebound = 36,
 };
 
 enum ShotFireLogics {

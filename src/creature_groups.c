@@ -45,7 +45,7 @@ extern "C" {
 struct Thing *get_highest_experience_and_score_creature_in_group(struct Thing *grptng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
-    CrtrExpLevel best_explevel = 0;
+    CrtrExpLevel best_exp_level = 0;
     long best_score = 0;
     struct Thing* best_creatng = INVALID_THING;
     long i = cctrl->group_info & TngGroup_LeaderIndex;
@@ -62,11 +62,11 @@ struct Thing *get_highest_experience_and_score_creature_in_group(struct Thing *g
         if (creature_control_invalid(cctrl))
             break;
         // Per-thing code
-        if (best_explevel <= cctrl->explevel) {
+        if (best_exp_level <= cctrl->exp_level) {
             long score = get_creature_thing_score(ctng);
             // If got a new best score, or best level changed - update best values
-            if ((best_score < score) || (best_explevel < cctrl->explevel)) {
-                best_explevel = cctrl->explevel;
+            if ((best_score < score) || (best_exp_level < cctrl->exp_level)) {
+                best_exp_level = cctrl->exp_level;
                 best_score = score;
                 best_creatng = ctng;
             }
@@ -324,7 +324,7 @@ TbBool remove_creature_from_group_without_leader_consideration(struct Thing *cre
 static short creature_could_be_lead_digger(struct Thing* creatng, struct CreatureControl* cctrl)
 {
     short potential_leader = 0;
-    if (thing_is_creature_special_digger(creatng))
+    if (thing_is_creature_digger(creatng))
     {
         if (cctrl->party_objective != CHeroTsk_DefendParty)
         {
@@ -388,7 +388,7 @@ static short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
 struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
-    CrtrExpLevel best_explevel = 0;
+    CrtrExpLevel best_exp_level = 0;
     long best_score = 0;
     short has_digger = 0;
     TbBool is_digger = 0;
@@ -406,7 +406,7 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
         TRACE_THING(ctng);
         if (has_digger > 0)
         {
-            is_digger = thing_is_creature_special_digger(ctng);
+            is_digger = thing_is_creature_digger(ctng);
         }
         cctrl = creature_control_get_from_thing(ctng);
         struct CreatureControl* bcctrl = creature_control_get_from_thing(best_creatng);
@@ -424,19 +424,19 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
                 // If the current unit does not defend party, overwrite any unit that does.
                 if (bcctrl->party_objective == CHeroTsk_DefendParty)
                 {
-                    best_explevel = cctrl->explevel;
+                    best_exp_level = cctrl->exp_level;
                     best_score = score;
                     best_creatng = ctng;
                 }
                 else
                 {
                     // Otherwise the level needs to be at least as high
-                    if (best_explevel <= cctrl->explevel)
+                    if (best_exp_level <= cctrl->exp_level)
                     {
                         // For equal levels, the score is most important
-                        if ((score > best_score) || (cctrl->explevel > best_explevel))
+                        if ((score > best_score) || (cctrl->exp_level > best_exp_level))
                         {
-                            best_explevel = cctrl->explevel;
+                            best_exp_level = cctrl->exp_level;
                             best_score = score;
                             best_creatng = ctng;
                         }
@@ -451,12 +451,12 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
             {
                 if (has_digger < 1 || is_digger) // if we want a digger, do not consider non-diggers
                 {
-                    if (best_explevel <= cctrl->explevel)
+                    if (best_exp_level <= cctrl->exp_level)
                     {
                         // For equal levels, the score is most important
-                        if ((score > best_score) || (cctrl->explevel > best_explevel))
+                        if ((score > best_score) || (cctrl->exp_level > best_exp_level))
                         {
-                            best_explevel = cctrl->explevel;
+                            best_exp_level = cctrl->exp_level;
                             best_score = score;
                             best_creatng = ctng;
                         }
@@ -585,7 +585,7 @@ TbBool create_party(const char *prtname)
     return true;
 }
 
-TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown)
+TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level, long carried_gold, long objctv_id, long countdown)
 {
     if ((party_id < 0) && (party_id >= CREATURE_PARTYS_COUNT))
     {
@@ -603,7 +603,7 @@ TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long 
     member->flags &= ~TrgF_DISABLED;
     member->crtr_kind = crtr_model;
     member->carried_gold = carried_gold;
-    member->crtr_level = crtr_level-1;
+    member->exp_level = exp_level-1;
     member->field_6F = 1;
     member->objectv = objctv_id;
     member->countdown = countdown;
@@ -611,7 +611,7 @@ TbBool add_member_to_party(int party_id, long crtr_model, long crtr_level, long 
     return true;
 }
 
-TbBool delete_member_from_party(int party_id, long crtr_model, long crtr_level)
+TbBool delete_member_from_party(int party_id, long crtr_model, CrtrExpLevel exp_level)
 {
     if ((party_id < 0) && (party_id >= CREATURE_PARTYS_COUNT))
     {
@@ -623,7 +623,7 @@ TbBool delete_member_from_party(int party_id, long crtr_model, long crtr_level)
     for (int i = 0; i < party->members_num; i++)
     {
         struct PartyMember* member = &(party->members[i]);
-        if ((member->crtr_kind == crtr_model) && (member->crtr_level == (crtr_level-1)))
+        if ((member->crtr_kind == crtr_model) && (member->exp_level == (exp_level-1)))
         {
             memmove(member, member + 1, sizeof(*member) * (party->members_num - i - 1));
             party->members_num--;
@@ -704,10 +704,10 @@ long process_obey_leader(struct Thing *thing)
         {
             struct Room *room;
             room = get_room_creature_works_in(leadtng);
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(thing);
+            struct CreatureModelConfig *crconf;
+            crconf = creature_stats_get_from_thing(thing);
             CreatureJob jobpref;
-            jobpref = get_job_for_room(room->kind, JoKF_None, crstat->job_primary|crstat->job_secondary);
+            jobpref = get_job_for_room(room->kind, JoKF_None, crconf->job_primary|crconf->job_secondary);
             cleanup_current_thing_state(thing);
             send_creature_to_room(thing, room, jobpref);
         }
@@ -903,12 +903,14 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
               break;
           }
           struct PartyMember* member = &(party->members[k]);
-          struct Thing* thing = script_create_new_creature(plyr_idx, member->crtr_kind, location, member->carried_gold, member->crtr_level);
+          struct Thing* thing = script_create_new_creature(plyr_idx, member->crtr_kind, location, member->carried_gold, member->exp_level, SpwnT_Default);
           if (!thing_is_invalid(thing))
           {
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
               cctrl->party_objective = member->objectv;
+              cctrl->original_party_objective = cctrl->party_objective;
               cctrl->wait_to_turn = game.play_gameturn + member->countdown;
+              cctrl->hero.wait_time = game.play_gameturn + member->countdown;
               if (thing_is_invalid(grptng))
               {
                   // If it is the first creature - set it as only group member and leader
@@ -929,7 +931,7 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
                   // if best and current unit want to defend party, or neither do, the strongest will be leader
                   if (((cctrl->party_objective == CHeroTsk_DefendParty) && (bestctrl->party_objective == CHeroTsk_DefendParty)) || ((cctrl->party_objective != CHeroTsk_DefendParty) && (bestctrl->party_objective != CHeroTsk_DefendParty)))
                   {
-                      if ((cctrl->explevel > bestctrl->explevel) || ((cctrl->explevel == bestctrl->explevel) && (get_creature_thing_score(thing) > get_creature_thing_score(bestng))))
+                      if ((cctrl->exp_level > bestctrl->exp_level) || ((cctrl->exp_level == bestctrl->exp_level) && (get_creature_thing_score(thing) > get_creature_thing_score(bestng))))
                       {
                           add_creature_to_group_as_leader(thing, grptng);
                           leadtng = thing;
@@ -952,21 +954,23 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
     return leadtng;
 }
 
-void script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold)
+struct Thing* script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, CrtrExpLevel exp_level, unsigned long carried_gold)
 {
-    struct Thing* ldthing = script_process_new_tunneler(plyr_idx, location, heading, crtr_level, carried_gold);
+    struct Thing* ldthing = script_process_new_tunneler(plyr_idx, location, heading, exp_level, carried_gold);
     if (thing_is_invalid(ldthing))
     {
         ERRORLOG("Couldn't create tunneling group leader");
-        return;
+        return INVALID_THING;
     }
     struct Thing* gpthing = script_process_new_party(&gameadd.script.creature_partys[prty_id], plyr_idx, location, 1);
     if (thing_is_invalid(gpthing))
     {
         ERRORLOG("Couldn't create creature group");
-        return;
+        return ldthing;
     }
     add_creature_to_group_as_leader(ldthing, gpthing);
+
+    return ldthing;
 }
 
 /******************************************************************************/

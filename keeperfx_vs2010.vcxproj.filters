@@ -99,22 +99,13 @@
     <ClCompile Include="src\bflib_render_gpoly.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_render_gtblock.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_render_trig.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\bflib_sndlib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_sound.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_sprfnt.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\bflib_sprite.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_string.c">
@@ -378,9 +369,6 @@
     <ClCompile Include="src\gui_parchment.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gui_soundmsgs.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\gui_tooltips.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -405,9 +393,6 @@
     <ClCompile Include="src\lvl_script.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\magic.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\map_blocks.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -421,9 +406,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\map_utils.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\music_player.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\net_game.c">
@@ -603,9 +585,6 @@
     <ClCompile Include="src\bflib_network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_semphr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_server_tcp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -613,9 +592,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\config_magic_data.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\front_credits_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\front_lvlstats_data.cpp">
@@ -658,9 +634,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\player_computer_data.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\thing_creature_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\vidmode_data.cpp">
@@ -745,6 +718,57 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_enet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spritesheet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\room_treasure.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\magic_powers.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cdrom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui_soundmsgs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bflib_sndlib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\highscores.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config_keeperfx.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_api.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_api_player.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_api_slabs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_api_things.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_base.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_cfg_funcs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_params.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_triggers.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua_utils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -870,9 +894,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_render.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bflib_semphr.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_server_tcp.hpp">
@@ -1184,9 +1205,6 @@
     <ClInclude Include="src\lvl_script.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\magic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\map_blocks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1200,9 +1218,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\map_utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\music_player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\net_game.h">
@@ -1263,6 +1278,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\room_scavenge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\room_treasure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\room_util.h">
@@ -1401,6 +1419,39 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_enet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mutex.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\magic_powers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cdrom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config_keeperfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\highscores.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_cfg_funcs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_params.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_triggers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lua_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

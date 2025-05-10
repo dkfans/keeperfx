@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
@@ -201,7 +200,7 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
         {
             if (!is_hero_thing(creatng))
             {
-                ERRORLOG("The %s index %d has no dungeon heart or lair to flee to", thing_model_name(creatng), (int)creatng->index);
+                SYNCDBG(8,"The %s index %d has no dungeon heart or lair to flee to", thing_model_name(creatng), (int)creatng->index);
             }
             return 0;
         }
@@ -223,7 +222,7 @@ TbBool setup_combat_flee_position(struct Thing *thing)
     {
         if (!is_hero_thing(thing))
         {
-            ERRORLOG("Couldn't get a flee position for %s index %d", thing_model_name(thing), (int)thing->index);
+            SYNCDBG(8,"Couldn't get a flee position for %s index %d", thing_model_name(thing), (int)thing->index);
         }
         cctrl->flee_pos.x.stl.pos = thing->mappos.x.stl.pos;
         cctrl->flee_pos.y.stl.pos = thing->mappos.y.stl.pos;
@@ -242,8 +241,8 @@ long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, Cr
         }
         return CmbtSt_Waiting;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
-    if (crstat->attack_preference == AttckT_Ranged)
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(fightng);
+    if (crconf->attack_preference == AttckT_Ranged)
     {
         if (creature_has_ranged_weapon(fightng) && can_add_ranged_combat_attacker(enmtng)) {
             return CmbtSt_Ranged;
@@ -343,7 +342,7 @@ void battle_initialise(void)
 {
     for (int battle_idx = 0; battle_idx < BATTLES_COUNT; battle_idx++)
     {
-        LbMemorySet(&game.battles[battle_idx], 0, sizeof(struct CreatureBattle));
+        memset(&game.battles[battle_idx], 0, sizeof(struct CreatureBattle));
     }
 }
 

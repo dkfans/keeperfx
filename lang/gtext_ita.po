@@ -14,7 +14,6 @@
 #      it under the terms of the GNU General Public License as published by
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
-#
 # ******************************************************************************
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
@@ -4631,11 +4630,10 @@ msgstr ""
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "Crea Folletto: Evoca un nuovo folletto in un punto qualsiasi della tua "
-"prigione. TSM: seleziona. [18.2]"
+"prigione. TSM: seleziona."
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -6584,16 +6582,21 @@ msgstr ""
 "attacchi di cuore."
 
 #: guitext:960
+msgctxt "In-game interface description"
+msgid "Score: Estimate of an overall creature value. Added to player score when finishing the level."
+msgstr ""
+
+#: guitext:961
 msgctxt "Keeper spell name"
 msgid "Hand Of Evil"
 msgstr "Mano del male"
 
-#: guitext:961
+#: guitext:962
 msgctxt "Keeper spell name"
 msgid "Slap"
 msgstr "Schiaffi"
 
-#: guitext:962
+#: guitext:963
 msgctxt "Keeper spell description"
 msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
@@ -6602,17 +6605,9 @@ msgstr ""
 "Mano del male: Capacità di raccogliere le tue creature e tenerle in mano. "
 "Basta non tenerle per sempre o possono diventare irritati."
 
-#: guitext:963
-msgctxt "Keeper spell description"
-msgid ""
-"Slap: Makes your creatures work harder, for some time. Your creatures take "
-"some damage from each slap they receive."
-msgstr ""
-"Se vuoi che le tue creature lavorino più duramente, schiaffeggiale cliccando "
-"la mano con il pulsante destro. Ogni schiaffo causerà loro dei danni."
-
 #: guitext:964
 msgctxt "Keeper spell description"
+msgid ""
 msgid "Slap: Makes your creatures work harder, for some time. "
 "Your creatures take some damage from each slap they receive."
 msgstr ""
@@ -6963,7 +6958,7 @@ msgctxt "Trap description"
 msgid ""
 "Demolition Trap: An explosive with unrivaled destructive power."
 msgstr ""
-"Trappola Demolizione: un esplosivo con potere distruttivo senza pari."
+"Trappola Demolizione: Un esplosivo con potere distruttivo senza pari."
 
 #: guitext:1038
 msgctxt "Trap description"
@@ -6979,19 +6974,45 @@ msgstr ""
 #: guitext:1041
 msgctxt "Creature name"
 msgid "Spirit"
-msgstr ""
+msgstr "Spirito"
 
 #: guitext:1042
 msgctxt "Creature name"
 msgid "Druid"
-msgstr ""
+msgstr "Druido"
 
 #: guitext:1043
 msgctxt "Creature name"
 msgid "Time Mage"
-msgstr ""
+msgstr "Mago del Tempo"
 
-#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+#: guitext:1044
+msgctxt "Creature name"
+msgid "Bird"
+msgstr "Uccello"
+
+#: guitext:1045
+msgctxt "Creature name"
+msgid "Maiden"
+msgstr "Fanciulla"
+
+#: guitext:1046
+msgctxt "Creature name"
+msgid "Spiderling"
+msgstr "Piccolo Ragno"
+
+#: guitext:1047
+msgctxt "Creature name"
+msgid "Goblin"
+msgstr "Spiritello Maligno"
+
+#: guitext:1048
+msgctxt "Creature name"
+msgid "Fallen Angel"
+msgstr "Angelo Caduto"
+
+
+#: guitext:1049
 msgctxt "Unused"
 msgid "Moo7"
 msgstr ""
@@ -7004,7 +7025,7 @@ msgstr "Formazione rocciosa."
 #: guitext:1051
 msgctxt "Slab description"
 msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
-msgstr "Roccia madre: Pavimento roccioso non reclamato. Non puoi reclamarlo o costruire sopra."
+msgstr "Letto di Roccia: Pavimento roccioso non reclamato. Non puoi reclamarlo o costruire sopra."
 
 #: guitext:1052
 msgctxt "Slab description"
@@ -7014,7 +7035,7 @@ msgstr "Vena d'oro densa: Contiene molta ricchezza che i tuoi Folletti possono e
 #: guitext:1053
 msgctxt "Keeper spell name"
 msgid "Magic Shield"
-msgstr "Rimbalzo"
+msgstr "Scudo Magico"
 
 #: guitext:1054
 msgctxt "Keeper spell name"
@@ -7044,7 +7065,7 @@ msgstr "Vista"
 #: guitext:1059
 msgctxt "Dungeon special decription"
 msgid "Heal All: Restore full health to all your creatures."
-msgstr "Guarisci Tutti: Tutte le tue creature vengono curate."
+msgstr "Cura Tutti: Tutte le tue creature vengono curate."
 
 #: guitext:1060
 msgctxt "Dungeon special decription"
@@ -7079,7 +7100,7 @@ msgstr "Reset Inclinazione"
 #: guitext:1066
 msgctxt "Creature spell"
 msgid "Heal Monster: The target creature is massively healed."
-msgstr "Super Guarigione: la creatura bersaglio riceve una super cura."
+msgstr "Cura Creatura: la creatura bersaglio riceve una super cura."
 
 #: guitext:1067
 msgctxt "Creature spell"
@@ -7089,7 +7110,7 @@ msgstr "Purifica: Purifica la creatura da tutti gli effetti negativi."
 #: guitext:1068
 msgctxt "Creature spell"
 msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
-msgstr "Purifica il mostro: cura tutti gli effetti negativi inflitti alla creatura bersaglio."
+msgstr "Purifica Creatura: Cura tutti gli effetti negativi inflitti alla creatura bersaglio."
 
 #: guitext:1069
 msgctxt "Keeper spell description"
@@ -7104,9 +7125,19 @@ msgstr "Levitazione: Fa fluttuare in aria la creatura bersaglio in modo che poss
 #: guitext:1071
 msgctxt "Keeper spell description"
 msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
-msgstr "Vista: Permette alla creatura bersaglio di aumentare temporaneamente la sua consapevolezza e notare l'invisibile."
+msgstr "Vista Magica: Permette alla creatura bersaglio di aumentare temporaneamente la sua consapevolezza e notare l'invisibile."
 
-#: guitext:1072 guitext:1073 guitext:1074 guitext:1075
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr ""
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr ""
+
+#: guitext:1074 guitext:1075
 msgctxt "Unused"
 msgid "Moo8"
 msgstr ""
@@ -7120,3 +7151,22 @@ msgstr "Porta di Mida"
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
 msgstr "Porta di Mida: Questa porta consuma oro del suo proprietario per rimanere indistruttibile. RMB zoom."
+
+#: guitext:1078
+msgctxt "Game controls"
+msgid "Ascend"
+msgstr ""
+
+#: guitext:1079
+msgctxt "Game controls"
+msgid "Descend"
+
+#: guitext:1080
+msgctxt "Creature spell"
+msgid "Familiar: Summons a companion to guard and assist the creature."
+msgstr ""
+
+#: guitext:1081
+msgctxt "Creature spell"
+msgid "Summon: Call upon temporary guardians to assist the creature in combat."
+msgstr ""

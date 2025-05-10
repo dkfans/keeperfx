@@ -19,7 +19,6 @@
 
 #include "bflib_coroutine.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
 #include "bflib_datetm.h"
@@ -61,7 +60,9 @@
 #include "config_creature.h"
 #include "config_compp.h"
 #include "config_effects.h"
+#include "lua_triggers.h"
 #include "lvl_script.h"
+#include "lvl_filesdk1.h"
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"
@@ -100,10 +101,11 @@
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
+#include "creature_states_combt.h"
 #include "creature_states_mood.h"
 #include "lens_api.h"
 #include "light_data.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "power_process.h"
 #include "power_hand.h"
 #include "game_merge.h"
@@ -117,11 +119,12 @@
 #include "vidfade.h"
 #include "KeeperSpeech.h"
 #include "config_settings.h"
+#include "config_keeperfx.h"
 #include "game_legacy.h"
 #include "room_list.h"
 #include "steam_api.hpp"
 #include "game_loop.h"
-#include "music_player.h"
+#include "moonphase.h"
 #include "frontmenu_ingame_map.h"
 
 #ifdef FUNCTESTING
@@ -314,7 +317,7 @@ void process_keeper_spell_aura(struct Thing *thing)
     pos.y.val = thing->mappos.y.val - (delta_y >> 8);
     pos.z.val = thing->mappos.z.val;
 
-    create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner);
+    create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner, thing->index);
 }
 
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
@@ -545,7 +548,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
     return 0; // Default: No collision OR boulder destroyed on door
 }
 
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model)
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model, ThingIndex parent_idx)
 {
   MapCoordDelta dist_x;
   MapCoordDelta dist_y;
@@ -641,7 +644,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
                 {
                     struct Thing *eelemtng;
 
-                    eelemtng = create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num);
+                    eelemtng = create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num, parent_idx);
                     if (!thing_is_invalid(eelemtng)) {
                         eelemtng->sprite_size = sprsize >> 8;
                     }
@@ -719,7 +722,7 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             tngpos.z.val = curpos.z.val + deviat_z;
             if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
             {
-                create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num);
+                create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num, 0);
             }
             if (UNSYNC_RANDOM(6) >= 3) {
                 deviat_x -= 32;
@@ -884,7 +887,6 @@ void init_keeper(void)
     init_key_to_strings();
     // Load configs which may have per-campaign part, and even be modified within a level
     init_custom_sprites(SPRITE_LAST_LEVEL);
-    load_computer_player_config(CnfLd_Standard);
     load_stats_files();
     check_and_auto_fix_stats();
     init_creature_scores();
@@ -895,10 +897,10 @@ void init_keeper(void)
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
     lbDisplay.GlassMap = pixmap.ghost;
     lbDisplay.DrawColour = colours[15][15][15];
-    game.comp_player_aggressive = 0;
-    game.comp_player_defensive = 1;
-    game.comp_player_construct = 0;
-    game.comp_player_creatrsonly = 0;
+    game.comp_player_aggressive  = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[0]);
+    game.comp_player_defensive   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[1]);
+    game.comp_player_construct   = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[2]);
+    game.comp_player_creatrsonly = (comp_player_conf.player_assist_default == comp_player_conf.computer_assist_types[3]);
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     game.operation_flags |= GOF_ShowPanel;
@@ -920,12 +922,6 @@ TbBool initial_setup(void)
     if (LbDataLoadAllV2(game_load_files))
     {
         ERRORLOG("Unable to load game_load_files");
-        return false;
-    }
-    // was LoadMcgaData, but minimal should be enough at this point.
-    if (!LoadMcgaDataMinimal())
-    {
-        ERRORLOG("Loading MCGA files failed");
         return false;
     }
     load_pointer_file(0);
@@ -950,7 +946,7 @@ short setup_game(void)
   OSVERSIONINFO v;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
-  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08x",cpu_info.vendor,
+  SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08lx",cpu_info.vendor,
       (int)cpu_get_type(&cpu_info),(int)cpu_get_family(&cpu_info),(int)cpu_get_model(&cpu_info),
       (int)cpu_get_stepping(&cpu_info),cpu_info.feature_edx);
   if (cpu_info.BrandString)
@@ -970,7 +966,8 @@ short setup_game(void)
       if(hNTDLL)
       {
           // Get Wine version
-          PROC wine_get_version = (PROC) GetProcAddress(hNTDLL, "wine_get_version");
+          typedef const char * (CDECL * pwine_get_version)(void);
+          pwine_get_version wine_get_version = (pwine_get_version) (void*) GetProcAddress(hNTDLL, "wine_get_version");
           if (wine_get_version)
           {
               SYNCMSG("Running on Wine v%s", wine_get_version());
@@ -978,26 +975,25 @@ short setup_game(void)
           }
 
           // Get Wine host OS
-          // We have to use a union to make sure there is no weird cast warnings
-          union
-          {
-              FARPROC func;
-              void (*wine_get_host_version)(const char**, const char**);
-          } wineHostVersionUnion;
-          wineHostVersionUnion.func = GetProcAddress(hNTDLL, "wine_get_host_version");
-          if (wineHostVersionUnion.wine_get_host_version)
+          typedef void (CDECL *pwine_get_host_version)(const char **, const char **);
+          pwine_get_host_version wine_get_host_version = (pwine_get_host_version) (void*) GetProcAddress(hNTDLL, "wine_get_host_version");
+          if (wine_get_host_version)
           {
               const char* sys_name = NULL;
               const char* release_name = NULL;
-              wineHostVersionUnion.wine_get_host_version(&sys_name, &release_name);
+              wine_get_host_version(&sys_name, &release_name);
               SYNCMSG("Wine Host: %s %s", sys_name, release_name);
           }
       }
   #endif
 
-  update_memory_constraits();
-  // Enable features that require more resources
-  update_features(mem_size);
+  // Enable features that require more than 32 megs of memory
+  features_enabled |= Ft_HiResCreatr;
+  // Enable features that require more than 16 megs of memory
+  features_enabled |= Ft_EyeLens;
+  features_enabled |= Ft_HiResVideo;
+  features_enabled |= Ft_BigPointer;
+  features_enabled |= Ft_AdvAmbSound;
 
   // Default feature settings (in case the options are absent from keeperfx.cfg)
   features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
@@ -1006,7 +1002,6 @@ short setup_game(void)
   features_enabled &= ~Ft_PauseMusicOnGamePause; // don't pause the music, if the user pauses the game
   features_enabled &= ~Ft_MuteAudioOnLoseFocus; // don't mute the audio, if the game window loses focus
   features_enabled &= ~Ft_SkipHeartZoom; // don't skip the dungeon heart zoom in
-  features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
   features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
   features_enabled |= Ft_DeltaTime; // enable delta time
   features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
@@ -1019,7 +1014,8 @@ short setup_game(void)
   }
 
   #ifdef FUNCTESTING
-    features_enabled |= Ft_SkipSplashScreens;
+    start_params.startup_flags &= ~SFlg_Legal;
+    start_params.startup_flags &= ~SFlg_FX;
     features_enabled |= Ft_SkipHeartZoom;
   #endif
 
@@ -1044,25 +1040,25 @@ short setup_game(void)
       return 0;
   }
 
-  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  if (flag_is_set(start_params.startup_flags, SFlg_Legal))
   {
-
-      if(is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
+      if (is_ar_wider_than_original(LbGraphicsScreenWidth(), LbGraphicsScreenHeight()))
       {
         result = init_actv_bitmap_screen(RBmp_SplashLegalWide);
       } else {
         result = init_actv_bitmap_screen(RBmp_SplashLegal);
       }
-
-      if ( result )
+       if ( result )
       {
           result = show_actv_bitmap_screen(3000);
           free_actv_bitmap_screen();
       } else
           SYNCLOG("Legal image skipped");
-  } else {
-        // Make the white screen into a black screen faster
-        draw_clear_screen();
+  }
+  else
+  {
+      // Make the white screen into a black screen faster
+      draw_clear_screen();
   }
 
   // Now do more setup
@@ -1077,22 +1073,22 @@ short setup_game(void)
   // init_sound(). This will probably change when we'll move sound
   // to SDL - then we'll put that line earlier, before setup_game().
   LbErrorParachuteInstall();
-  if (is_feature_on(Ft_SkipSplashScreens) == false)
+  // View second splash screen
+  if (flag_is_set(start_params.startup_flags, SFlg_FX))
   {
-    // View second splash screen
-    result = init_actv_bitmap_screen(RBmp_SplashFx);
-    if ( result == 1 )
-    {
-        result = show_actv_bitmap_screen(4000);
-        free_actv_bitmap_screen();
-    } else
-        SYNCLOG("startup_fx image skipped");
+      result = init_actv_bitmap_screen(RBmp_SplashFx);
+      if ( result == 1 )
+      {
+          result = show_actv_bitmap_screen(4000);
+          free_actv_bitmap_screen();
+      } else
+          SYNCLOG("startup_fx image skipped");
   }
 
   draw_clear_screen();
   // View Bullfrog company logo animation when new moon
-  if ( is_new_moon )
-    if ( !game.no_intro )
+  if ( ( is_new_moon ) || (flag_is_set(start_params.startup_flags, SFlg_Bullfrog)) )
+    if (!start_params.no_intro)
     {
         result = moon_video();
         if ( !result ) {
@@ -1102,7 +1098,7 @@ short setup_game(void)
 
   result = 1;
   // Setup the intro video mode
-  if ( result && (!game.no_intro) )
+  if (result && (!start_params.no_intro) )
   {
       if (!setup_screen_mode_zero(get_movies_vidmode()))
       {
@@ -1118,14 +1114,21 @@ short setup_game(void)
       {
           //result = -1; // Helps with better warning message later
       }
+      if (!start_params.no_intro)
+      {
+         if (flag_is_set(start_params.startup_flags, SFlg_EA))
+         {
+             ea_video();
+         }
+         if (flag_is_set(start_params.startup_flags, SFlg_Intro))
+         {
+            result = intro_replay();
+         }
+      }
   }
 
   game.frame_skip = start_params.frame_skip;
 
-  if ( (result == 1) && (!game.no_intro) )
-  {
-     result = intro_replay();
-  }
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
   if (result == 0)
@@ -1180,9 +1183,8 @@ short setup_game(void)
           break;
       }
       set_gamma(settings.gamma_correction, 0);
-      SetMusicPlayerVolume(settings.redbook_volume);
+      set_music_volume(settings.music_volume);
       SetSoundMasterVolume(settings.sound_volume);
-      SetMusicMasterVolume(settings.sound_volume);
       setup_3d();
       setup_stuff();
       init_lookups();
@@ -1301,48 +1303,51 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
     return result;
 }
 
-void update_creatr_model_activities_list(void)
+void update_creatr_model_activities_list(TbBool forced)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_my_dungeon();
+    struct Dungeon *dungeon = get_my_dungeon();
     ThingModel crmodel;
-    int num_breeds;
-    num_breeds = no_of_breeds_owned;
+    int num_breeds = no_of_breeds_owned;
+    TbBool changed = false;
+
     // Add to breed activities
-    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
+    for (crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] > 0)
             && (crmodel != get_players_spectator_model(my_player_number)))
         {
-            int i;
-            for (i=0; i < num_breeds; i++)
+            TbBool found = false;
+            for (int i = 0; i < num_breeds; i++)
             {
                 if (breed_activities[i] == crmodel)
                 {
+                    found = true;
                     break;
                 }
             }
-            if (num_breeds == i)
+            if (!found)
             {
-                breed_activities[i] = crmodel;
+                changed = true;
+                breed_activities[num_breeds] = crmodel;
                 num_breeds++;
             }
         }
     }
+
     // Remove from breed activities
-    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
+    for (crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] <= 0)
           && (crmodel != get_players_special_digger_model(my_player_number)))
         {
-            int i;
-            for (i=0; i < num_breeds; i++)
+            for (int i = 0; i < num_breeds; i++)
             {
                 if (breed_activities[i] == crmodel)
                 {
                     for (; i < num_breeds-1;  i++) {
                         breed_activities[i] = breed_activities[i+1];
                     }
+                    changed = true;
                     num_breeds--;
                     breed_activities[i] = 0;
                     break;
@@ -1350,6 +1355,25 @@ void update_creatr_model_activities_list(void)
             }
         }
         no_of_breeds_owned = num_breeds;
+    }
+
+    // Reorder breed activities to ensure diggers are correctly positioned
+    if (changed || forced)
+    {
+        struct CreatureModelConfig* crconf;
+        ThingModel temp;
+        int write_idx = 1;
+        for (int i = 1; i < num_breeds; i++)
+        {
+            crconf = &game.conf.crtr_conf.model[breed_activities[i]];
+            if (any_flag_is_set(crconf->model_flags, (CMF_IsDiggingCreature | CMF_IsSpecDigger)))
+            {
+                temp = breed_activities[i];
+                memmove(&breed_activities[write_idx + 1], &breed_activities[write_idx], (i - write_idx) * sizeof(ThingModel));
+                breed_activities[write_idx] = temp;
+                write_idx++;
+            }
+        }
     }
 }
 
@@ -1475,8 +1499,8 @@ void instant_instance_selected(CrInstance check_inst_id)
     player = get_player(my_player_number);
     struct Thing *ctrltng;
     ctrltng = thing_get(player->controlled_thing_idx);
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(ctrltng);
+    struct CreatureModelConfig *crconf;
+    crconf = creature_stats_get_from_thing(ctrltng);
     long i;
     long k;
     int avail_pos;
@@ -1485,7 +1509,7 @@ void instant_instance_selected(CrInstance check_inst_id)
     match_avail_pos = 0;
     for (i=0; i < CREATURE_MAX_LEVEL; i++)
     {
-        k = crstat->learned_instance_id[i];
+        k = crconf->learned_instance_id[i];
         if (creature_instance_is_available(ctrltng, k))
         {
             if (k == check_inst_id) {
@@ -1553,28 +1577,29 @@ void reinit_level_after_load(void)
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-      player = get_player(i);
-      if (player_exists(player))
-        set_engine_view(player, player->view_mode);
+        player = get_player(i);
+        if (player_exists(player))
+        {
+            set_engine_view(player, player->view_mode);
+            update_panel_color_player_color(player->id_number, get_dungeon(i)->color_idx);
+        }
     }
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
     update_room_tab_to_config();
     update_powers_tab_to_config();
     update_trap_tab_to_config();
-    load_texture_map_file(game.texture_id);
+    load_texture_map_file(game.texture_id, get_loaded_level_number(), get_level_fgroup(get_loaded_level_number()));
     init_animating_texture_maps();
     init_gui();
     reset_gui_based_on_player_mode();
     erstats_clear();
     player = get_my_player();
     reinit_tagged_blocks_for_player(player->id_number);
-    restore_room_update_functions_after_load();
     restore_computer_player_after_load();
     sound_reinit_after_load();
-    music_reinit_after_load();
     update_panel_colors();
-
+    reset_postal_instance_cache();    
 }
 
 /**
@@ -1584,6 +1609,7 @@ void reinit_level_after_load(void)
 TbBool set_default_startup_parameters(void)
 {
     memset(&start_params, 0, sizeof(struct StartupParameters));
+    start_params.startup_flags = (SFlg_Legal|SFlg_FX|SFlg_Intro);
     start_params.packet_checksum_verify = 1;
     clear_flag(start_params.flags_font, FFlg_unk01);
     // Set levels to 0, as we may not have the campaign loaded yet
@@ -1628,15 +1654,15 @@ void clear_computer(void)
     SYNCDBG(8,"Starting");
     for (i=0; i < COMPUTER_TASKS_COUNT; i++)
     {
-        LbMemorySet(&game.computer_task[i], 0, sizeof(struct ComputerTask));
+        memset(&game.computer_task[i], 0, sizeof(struct ComputerTask));
     }
     for (i=0; i < GOLD_LOOKUP_COUNT; i++)
     {
-        LbMemorySet(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
+        memset(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
     }
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-        LbMemorySet(&game.computer[i], 0, sizeof(struct Computer2));
+        memset(&game.computer[i], 0, sizeof(struct Computer2));
     }
 }
 
@@ -1672,13 +1698,13 @@ void clear_players_for_save(void)
       id_mem = player->id_number;
       mem2 = player->is_active;
       memflg = player->allocflags;
-      LbMemoryCopy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
+      memcpy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = id_mem;
       player->is_active = mem2;
       set_flag_value(player->allocflags, PlaF_Allocated, ((memflg & PlaF_Allocated) != 0));
       set_flag_value(player->allocflags, PlaF_CompCtrl, ((memflg & PlaF_CompCtrl) != 0));
-      LbMemoryCopy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
+      memcpy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
       player->acamera = &player->cameras[CamIV_FirstPerson];
     }
 }
@@ -1736,7 +1762,7 @@ void clear_game(void)
 {
     SYNCDBG(6,"Starting");
     clear_game_for_summary();
-    game.audiotrack = 0;
+    game.music_track = 0;
     clear_map();
     clear_computer();
     clear_script();
@@ -1773,16 +1799,6 @@ void reset_creature_max_levels(void)
         {
             dungeon->creature_max_level[k] = CREATURE_MAX_LEVEL+1;
         }
-    }
-}
-
-void reset_hand_rules(void)
-{
-    struct Dungeon* dungeon;
-    for (int i = 0; i < DUNGEONS_COUNT; i++)
-    {
-        dungeon = get_dungeon(i);
-        memset(dungeon->hand_rules, 0, sizeof(dungeon->hand_rules));
     }
 }
 
@@ -1895,92 +1911,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-// TODO: replace this function by find_location_pos
-void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name)
-{
-    struct ActionPoint *apt;
-    struct Thing *thing;
-    struct Coord3d pos;
-
-    long pos_x;
-    long pos_y;
-    long i;
-    SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, *x, *y);
-    pos_y = 0;
-    pos_x = 0;
-    i = get_map_location_longval(location);
-    switch (get_map_location_type(location))
-    {
-    case MLoc_ACTIONPOINT:
-        // Location stores action point index
-        apt = action_point_get(i);
-        if (!action_point_is_invalid(apt))
-        {
-          pos_y = apt->mappos.y.stl.num;
-          pos_x = apt->mappos.x.stl.num;
-        } else
-          WARNMSG("%s: Action Point %d location not found",func_name,i);
-        break;
-    case MLoc_HEROGATE:
-        thing = find_hero_gate_of_number(i);
-        if (!thing_is_invalid(thing))
-        {
-          pos_y = thing->mappos.y.stl.num;
-          pos_x = thing->mappos.x.stl.num;
-        } else
-          WARNMSG("%s: Hero Gate %d location not found",func_name,i);
-        break;
-    case MLoc_PLAYERSHEART:
-        if (i < PLAYERS_COUNT)
-        {
-            thing = get_player_soul_container(i);
-        } else
-          thing = INVALID_THING;
-        if (!thing_is_invalid(thing))
-        {
-          pos_y = thing->mappos.y.stl.num;
-          pos_x = thing->mappos.x.stl.num;
-        } else
-          WARNMSG("%s: Dungeon Heart location for player %d not found",func_name,i);
-        break;
-    case MLoc_NONE:
-        pos_y = *y;
-        pos_x = *x;
-        break;
-    case MLoc_THING:
-        thing = thing_get(i);
-        if (!thing_is_invalid(thing))
-        {
-          pos_y = thing->mappos.y.stl.num;
-          pos_x = thing->mappos.x.stl.num;
-        } else
-          WARNMSG("%s: Thing %d location not found",func_name,i);
-        break;
-    case MLoc_METALOCATION:
-        if (get_coords_at_meta_action(&pos, plyr_idx, i))
-        {
-            pos_x = pos.x.stl.num;
-            pos_y = pos.y.stl.num;
-        }
-        else
-          WARNMSG("%s: Metalocation not found %d",func_name,i);
-        break;
-    case MLoc_CREATUREKIND:
-    case MLoc_OBJECTKIND:
-    case MLoc_ROOMKIND:
-    case MLoc_PLAYERSDUNGEON:
-    case MLoc_APPROPRTDUNGEON:
-    case MLoc_DOORKIND:
-    case MLoc_TRAPKIND:
-    default:
-          WARNMSG("%s: Unsupported location, %lu.",func_name,location);
-        break;
-    }
-    *y = pos_y;
-    *x = pos_x;
-}
-
-void set_general_information(long msg_id, long target, long x, long y)
+void set_general_information(long msg_id, TbMapLocation target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -1997,7 +1928,7 @@ void set_general_information(long msg_id, long target, long x, long y)
     event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
-void set_quick_information(long msg_id, long target, long x, long y)
+void set_quick_information(long msg_id, TbMapLocation target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -2014,12 +1945,12 @@ void set_quick_information(long msg_id, long target, long x, long y)
     event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }
 
-void set_general_objective(long msg_id, long target, long x, long y)
+void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
 {
     process_objective(get_string(msg_id), target, x, y);
 }
 
-void process_objective(const char *msg_text, long target, long x, long y)
+void process_objective(const char *msg_text, TbMapLocation target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -2253,9 +2184,9 @@ void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
     if (!thing_is_invalid(doortng)) {
         destroy_door(doortng);
     }
-    struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
-    if (slbattr->category == SlbAtCtg_FortifiedGround)
+    struct SlabConfigStats *slabst;
+    slabst = get_slab_stats(slb);
+    if (slabst->category == SlbAtCtg_FortifiedGround)
     {
       place_slab_type_on_map(SlbT_PATH, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 1);
       decrease_dungeon_area(plyr_idx, 1);
@@ -2325,9 +2256,9 @@ void count_players_creatures_being_paid(int *creatures_count)
         // Per-thing code
         if (!player_is_roaming(thing->owner) && (thing->owner != game.neutral_player_num))
         {
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(thing);
-            if (crstat->pay != 0)
+            struct CreatureModelConfig *crconf;
+            crconf = creature_stats_get_from_thing(thing);
+            if (crconf->pay != 0)
             {
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
@@ -2370,7 +2301,7 @@ void process_payday(void)
     }
     if (game.conf.rules.game.pay_day_gap <= game.pay_day_progress)
     {
-        output_message(SMsg_Payday, 0, true);
+        output_message(SMsg_Payday, 0);
         game.pay_day_progress = 0;
         // Prepare a list which counts how many creatures of each owner needs pay
         int player_paid_creatures_count[PLAYERS_COUNT];
@@ -2554,7 +2485,7 @@ int clear_active_dungeons_stats(void)
       dungeon = get_dungeon(i);
       if (dungeon_invalid(dungeon))
           break;
-      memset((char *)dungeon->field_64, 0, game.conf.crtr_conf.model_count * 15 * sizeof(unsigned short));
+      memset((char *)dungeon->crmodel_state_type_count, 0, game.conf.crtr_conf.model_count * STATE_TYPES_COUNT * sizeof(unsigned short));
       memset((char *)dungeon->guijob_all_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
       memset((char *)dungeon->guijob_angry_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
   }
@@ -2570,7 +2501,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
     }
     if (thing_is_creature(thing))
     {
-        apply_damage_to_thing_and_display_health(thing, param->num2, DmgT_Physical, param->num1);
+        apply_damage_to_thing_and_display_health(thing, param->num2, param->num1);
         if ((thing->health >= 0) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             if (((thing->alloc_flags & TAlF_IsControlled) == 0) && !creature_is_kept_in_custody(thing))
@@ -2612,8 +2543,8 @@ long update_cave_in(struct Thing *thing)
         return 1;
     }
 
-    const struct MagicStats *pwrdynst;
-    pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
+    const struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_CAVEIN);
     struct Thing *efftng;
     struct Coord3d pos;
     PlayerNumber owner;
@@ -2629,14 +2560,14 @@ long update_cave_in(struct Thing *thing)
             pos.z.val = get_ceiling_height(&pos) - 128;
             efftng = create_effect_element(&pos, TngEff_Flash, owner);
             if (!thing_is_invalid(efftng)) {
-                efftng->health = pwrdynst->duration;
+                efftng->health = powerst->duration;
             }
         }
     }
 
     GameTurnDelta turns_between;
     GameTurnDelta turns_alive;
-    turns_between = pwrdynst->duration / 5;
+    turns_between = powerst->duration / 5;
     turns_alive = game.play_gameturn - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
@@ -2663,9 +2594,9 @@ long update_cave_in(struct Thing *thing)
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
     }
 
-    if ((8 * pwrdynst->duration / 10 >= thing->health) && (2 * pwrdynst->duration / 10 <= thing->health))
+    if ((8 * powerst->duration / 10 >= thing->health) && (2 * powerst->duration / 10 <= thing->health))
     {
-        if ((pwrdynst->duration < 10) || ((thing->health % (pwrdynst->duration / 10)) == 0))
+        if ((powerst->duration < 10) || ((thing->health % (powerst->duration / 10)) == 0))
         {
             int round_idx;
             round_idx = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
@@ -2682,7 +2613,7 @@ long update_cave_in(struct Thing *thing)
                     pos2.y.val = subtile_coord(thing->cave_in.y,0);
                     pos2.z.val = subtile_coord(1,0);
                     dist = get_chessboard_distance(&pos, &pos2);
-                    if (pwrdynst->strength[thing->cave_in.model] >= coord_subtile(dist))
+                    if (powerst->strength[thing->cave_in.model] >= coord_subtile(dist))
                     {
                         ncavitng = create_thing(&pos, TCls_CaveIn, thing->cave_in.model, owner, -1);
                         if (!thing_is_invalid(ncavitng))
@@ -2750,9 +2681,9 @@ void update(void)
     player = get_my_player();
     set_previous_camera_values(player);
 
-    if ((game.operation_flags & GOF_Paused) == 0)
+    if (!flag_is_set(game.operation_flags,GOF_Paused))
     {
-        if (player->additional_flags & PlaAF_LightningPaletteIsActive)
+        if (flag_is_set(player->additional_flags,PlaAF_LightningPaletteIsActive))
         {
             PaletteSetPlayerPalette(player, engine_palette);
             clear_flag(player->additional_flags, PlaAF_LightningPaletteIsActive);
@@ -2769,6 +2700,8 @@ void update(void)
         event_process_events();
         update_all_events();
         process_level_script();
+        process_fx_lines();
+        lua_on_game_tick();
         if ((game.numfield_D & GNFldD_Unkn04) != 0)
             process_computer_players2();
         process_players();
@@ -2793,7 +2726,6 @@ void update(void)
     message_update();
     update_all_players_cameras();
     update_player_sounds();
-    game.map_changed_for_nagivation = 0;
     SYNCDBG(6,"Finished");
 }
 
@@ -3572,9 +3504,9 @@ void initialise_map_health(void)
         {
             struct SlabMap *slb;
             slb = get_slabmap_block(slb_x, slb_y);
-            struct SlabAttr *slbattr;
-            slbattr = get_slab_attrs(slb);
-            slb->health = game.block_health[slbattr->block_health_index];
+            struct SlabConfigStats *slabst;
+            slabst = get_slab_stats(slb);
+            slb->health = game.block_health[slabst->block_health_index];
         }
     }
 }
@@ -3625,7 +3557,7 @@ static TbBool wait_at_frontend(void)
                 WARNMSG("Unable to load campaign associated with the specified level CMD Line parameter, default loaded.");
             }
             else {
-                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%d).", start_params.selected_level_number);
+                JUSTLOG("No campaign specified. Default campaign loaded for selected level (%lu).", start_params.selected_level_number);
             }
         }
         set_selected_level_number(start_params.selected_level_number);
@@ -3739,7 +3671,6 @@ static TbBool wait_at_frontend(void)
       if (!SoundDisabled)
       {
         process_3d_sounds();
-        process_sound_heap();
         MonitorStreamedSoundTrack();
       }
 
@@ -3878,10 +3809,9 @@ void game_loop(void)
       set_pointer_graphic_none();
       LbScreenClear(0);
       LbScreenSwap();
-      StopMusicPlayer();
-      free_custom_music();
-      free_sound_chunks();
-      memset(&game.loaded_sound,0,DISKPATH_SIZE * EXTERNAL_SOUNDS_COUNT+1);
+      stop_music();
+      stop_streamed_samples();
+      free_level_strings_data();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
@@ -3890,7 +3820,7 @@ void game_loop(void)
       if ((game.operation_flags & GOF_SingleLevel) != 0)
           exit_keeper=true;
       playtime += endtime-starttime;
-      SYNCDBG(0,"Play time is %d seconds",playtime>>10);
+      SYNCDBG(0,"Play time is %lu seconds",playtime>>10);
       total_play_turns += game.play_gameturn;
       reset_eye_lenses();
       close_packet_file();
@@ -3898,7 +3828,6 @@ void game_loop(void)
       game.packet_save_enable = false;
     } // end while
 
-    ShutdownMusicPlayer();
     // Stop the movie recording if it's on
     if ((game.system_flags & GSF_CaptureMovie) != 0) {
         movie_record_stop();
@@ -3918,8 +3847,9 @@ short reset_game(void)
     LbScreenReset(false);
     LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
+    free_level_strings_data();
     FreeAudio();
-    return LbMemoryReset();
+    return 1;
 }
 
 short process_command_line(unsigned short argc, char *argv[])
@@ -3976,7 +3906,7 @@ short process_command_line(unsigned short argc, char *argv[])
 
       if (strcasecmp(parstr, "nointro") == 0)
       {
-        start_params.no_intro = 1;
+        start_params.no_intro = true;
       } else
       if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
       {
@@ -3993,12 +3923,12 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "1player") == 0)
       {
-          start_params.one_player = 1;
-          one_player_mode = 1;
+          start_params.one_player = true;
+          one_player_mode = true;
       } else
       if ((strcasecmp(parstr, "s") == 0) || (strcasecmp(parstr, "nosound") == 0))
       {
-          SoundDisabled = 1;
+          SoundDisabled = true;
       } else
       if (strcasecmp(parstr, "fps") == 0)
       {
@@ -4013,7 +3943,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "vidsmooth") == 0)
       {
-          smooth_on = 1;
+          smooth_on = true;
       } else
       if ( strcasecmp(parstr,"level") == 0 )
       {
@@ -4035,10 +3965,6 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           SYNCLOG("Mouse auto reset disabled");
           lbMouseGrab = false;
-      }
-      else if (strcasecmp(parstr, "ungrab") == 0)
-      {
-          start_params.ungrab_mouse = true;
       }
       else if (strcasecmp(parstr,"packetload") == 0)
       {
@@ -4149,6 +4075,14 @@ short process_command_line(unsigned short argc, char *argv[])
         start_params.overrides[Clo_ConfigFile] = true;
         narg++;
       }
+      else if ( strcasecmp(parstr,"Bullfrog") == 0 ) // force playing the Bullfrog video
+      {
+        set_flag(start_params.startup_flags, SFlg_Bullfrog);
+      }
+      else if ( strcasecmp(parstr,"ea") == 0 ) // force playing the EA video
+      {
+        set_flag(start_params.startup_flags, SFlg_EA);
+      }
       else if (strcasecmp(parstr, "ftests") == 0)
       {
 #ifdef FUNCTESTING
@@ -4245,9 +4179,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
-
-    init_miles_sound_system();
-
     srand(LbTimerClock());
 
 #ifdef FUNCTESTING
@@ -4319,7 +4250,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 
     LbErrorLogClose();
     steam_api_shutdown();
-    unload_miles_sound_system();
     return 0;
 }
 
@@ -4369,16 +4299,53 @@ void get_cmdln_args(unsigned short &argc, char *argv[])
     }
 }
 
+const char * exception_name(DWORD exception_code) {
+    switch (exception_code) {
+        case EXCEPTION_ACCESS_VIOLATION: return "EXCEPTION_ACCESS_VIOLATION";
+        case EXCEPTION_ARRAY_BOUNDS_EXCEEDED: return "EXCEPTION_ARRAY_BOUNDS_EXCEEDED";
+        case EXCEPTION_BREAKPOINT: return "EXCEPTION_BREAKPOINT";
+        case EXCEPTION_DATATYPE_MISALIGNMENT: return "EXCEPTION_DATATYPE_MISALIGNMENT";
+        case EXCEPTION_FLT_DENORMAL_OPERAND: return "EXCEPTION_FLT_DENORMAL_OPERAND";
+        case EXCEPTION_FLT_DIVIDE_BY_ZERO: return "EXCEPTION_FLT_DIVIDE_BY_ZERO";
+        case EXCEPTION_FLT_INEXACT_RESULT: return "EXCEPTION_FLT_INEXACT_RESULT";
+        case EXCEPTION_FLT_INVALID_OPERATION: return "EXCEPTION_FLT_INVALID_OPERATION";
+        case EXCEPTION_FLT_OVERFLOW: return "EXCEPTION_FLT_OVERFLOW";
+        case EXCEPTION_FLT_STACK_CHECK: return "EXCEPTION_FLT_STACK_CHECK";
+        case EXCEPTION_FLT_UNDERFLOW: return "EXCEPTION_FLT_UNDERFLOW";
+        case EXCEPTION_ILLEGAL_INSTRUCTION: return "EXCEPTION_ILLEGAL_INSTRUCTION";
+        case EXCEPTION_IN_PAGE_ERROR: return "EXCEPTION_IN_PAGE_ERROR";
+        case EXCEPTION_INT_DIVIDE_BY_ZERO: return "EXCEPTION_INT_DIVIDE_BY_ZERO";
+        case EXCEPTION_INT_OVERFLOW: return "EXCEPTION_INT_OVERFLOW";
+        case EXCEPTION_INVALID_DISPOSITION: return "EXCEPTION_INVALID_DISPOSITION";
+        case EXCEPTION_NONCONTINUABLE_EXCEPTION: return "EXCEPTION_NONCONTINUABLE_EXCEPTION";
+        case EXCEPTION_PRIV_INSTRUCTION: return "EXCEPTION_PRIV_INSTRUCTION";
+        case EXCEPTION_SINGLE_STEP: return "EXCEPTION_SINGLE_STEP";
+        case EXCEPTION_STACK_OVERFLOW: return "EXCEPTION_STACK_OVERFLOW";
+    }
+    return "Unknown";
+}
+
 LONG __stdcall Vex_handler(
     _EXCEPTION_POINTERS *ExceptionInfo
 )
 {
-    LbJustLog("=== Crash ===\n");
-    LbCloseLog();
-    return 0;
+	const auto exception_code = ExceptionInfo->ExceptionRecord->ExceptionCode;
+    if (exception_code == DBG_PRINTEXCEPTION_WIDE_C) {
+        return EXCEPTION_CONTINUE_EXECUTION; // Thrown by OutputDebugStringW, intended for debugger
+    } else if (exception_code == DBG_PRINTEXCEPTION_C) {
+        return EXCEPTION_CONTINUE_EXECUTION; // Thrown by OutputDebugStringA, intended for debugger
+    }else if (exception_code == 0xe24c4a02) {
+        return EXCEPTION_EXECUTE_HANDLER; //Thrown by luaJIT for some reason
+    }
+    LbJustLog("Exception 0x%08lx thrown: %s\n", exception_code, exception_name(exception_code));
+    return EXCEPTION_CONTINUE_SEARCH;
 }
 
+#ifdef _WIN32
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+#else
 int main(int argc, char *argv[])
+#endif
 {
   char *text;
 

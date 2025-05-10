@@ -508,7 +508,8 @@ TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmode
  */
 long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind)
 {
-    struct ManfctrConfig *mconf;
+    struct DoorConfigStats *doorst;
+    struct TrapConfigStats *trapst;
     int tngmodel;
     long amount;
     int chosen_class = TCls_Empty;
@@ -519,34 +520,34 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
     // Try getting door kind for manufacture
     for (tngmodel = 1; tngmodel < game.conf.trapdoor_conf.door_types_count; tngmodel++)
     {
-        mconf = &game.conf.doors_config[tngmodel];
-        if (((dungeon->mnfct_info.door_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level))
+        doorst = get_door_model_stats(tngmodel);
+        if (((dungeon->mnfct_info.door_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= doorst->manufct_level))
         {
             amount = dungeon->mnfct_info.door_amount_stored[tngmodel];
             if ( (chosen_amount > amount) ||
-                ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
+                ((chosen_amount == amount) && (chosen_level > doorst->manufct_level)) )
             {
                 chosen_class = TCls_Door;
                 chosen_amount = dungeon->mnfct_info.door_amount_stored[tngmodel];
                 chosen_kind = tngmodel;
-                chosen_level = mconf->manufct_level;
+                chosen_level = doorst->manufct_level;
             }
         }
     }
     // Try getting trap kind for manufacture
     for (tngmodel = 1; tngmodel < game.conf.trapdoor_conf.trap_types_count; tngmodel++)
     {
-        mconf = &game.conf.traps_config[tngmodel];
-        if (((dungeon->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level))
+        trapst = get_trap_model_stats(tngmodel);
+        if (((dungeon->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= trapst->manufct_level))
         {
             amount = dungeon->mnfct_info.trap_amount_stored[tngmodel];
             if ( (chosen_amount > amount) ||
-                ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
+                ((chosen_amount == amount) && (chosen_level > trapst->manufct_level)) )
             {
                 chosen_class = TCls_Trap;
                 chosen_amount = dungeon->mnfct_info.trap_amount_stored[tngmodel];
                 chosen_kind = tngmodel;
-                chosen_level = mconf->manufct_level;
+                chosen_level = trapst->manufct_level;
             }
         }
     }
@@ -588,15 +589,16 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
 
 long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, const char *func_name)
 {
-    const struct ManfctrConfig *mconf;
+    const struct DoorConfigStats *doorst;
+    const struct TrapConfigStats *trapst;
     switch (mfcr_type)
     {
     case TCls_Trap:
-        mconf = &game.conf.traps_config[mfcr_kind%game.conf.trapdoor_conf.trap_types_count ];
-        return mconf->manufct_required;
+        trapst = get_trap_model_stats(mfcr_kind%game.conf.trapdoor_conf.trap_types_count);
+        return trapst->manufct_required;
     case TCls_Door:
-        mconf = &game.conf.doors_config[mfcr_kind%game.conf.trapdoor_conf.door_types_count];
-        return mconf->manufct_required;
+        doorst = get_door_model_stats(mfcr_kind%game.conf.trapdoor_conf.door_types_count);
+        return doorst->manufct_required;
     default:
         ERRORMSG("%s: Invalid type of manufacture: %d",func_name,(int)mfcr_type);
         return 0;
@@ -650,13 +652,13 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
         dungeon->lvstats.manufactured_traps++;
         // If that's local player - make a message
         if (is_my_player_number(plyr_idx))
-            output_message(SMsg_ManufacturedTrap, 0, true);
+            output_message(SMsg_ManufacturedTrap, 0);
         break;
     case TCls_Door:
         dungeon->lvstats.manufactured_doors++;
         // If that's local player - make a message
         if (is_my_player_number(plyr_idx))
-            output_message(SMsg_ManufacturedDoor, 0, true);
+            output_message(SMsg_ManufacturedDoor, 0);
         break;
     default:
         ERRORLOG("Invalid type of new manufacture: %d (%s)",(int)dungeon->manufacture_class, thing_class_code_name(dungeon->manufacture_class));
@@ -686,8 +688,8 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
             EvKind_TrapCrateFound, creatng->owner, picktng->index);
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
             {
-                output_message(SMsg_TrapStolen, 0, true);
-            } 
+                output_message(SMsg_TrapStolen, 0);
+            }
             else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
             {
                 if (picktng->owner != game.neutral_player_num)
@@ -695,7 +697,7 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
                     player = get_my_player();
                     if (creatng->index != player->influenced_thing_idx)
                     {
-                        output_message(SMsg_TrapTaken, 0, true);
+                        output_message(SMsg_TrapTaken, 0);
                     }
                 }
             }
@@ -706,8 +708,8 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
             EvKind_DoorCrateFound, creatng->owner, picktng->index);
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
             {
-                output_message(SMsg_DoorStolen, 0, true);
-            } 
+                output_message(SMsg_DoorStolen, 0);
+            }
             else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
             {
                 if (picktng->owner != game.neutral_player_num)
@@ -715,7 +717,7 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
                     player = get_my_player();
                     if (creatng->index != player->influenced_thing_idx)
                     {
-                        output_message(SMsg_DoorTaken, 0, true);
+                        output_message(SMsg_DoorTaken, 0);
                     }
                 }
             }
@@ -725,5 +727,204 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
         evidx = 0;
     }
     return evidx;
+}
+
+TbBool recreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+{
+    if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity)) {
+        return false;
+    }
+    for (int ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
+    {
+        if (rrepos->models[ri] != 0)
+        {
+            struct Thing* objtng = create_crate_in_workshop(room, rrepos->models[ri], stl_x, stl_y);
+            if (!thing_is_invalid(objtng))
+            {
+                rrepos->used--;
+                rrepos->models[ri] = 0;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+        return -2; // do nothing
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    if ((roomst->storage_height >= 0) && (get_map_floor_filled_subtiles(mapblk) != roomst->storage_height)) {
+        return -1; // re-create all
+    }
+    int matching_things_at_subtile = 0;
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code
+        if (thing_is_workshop_crate(thing) && !thing_is_dragged_or_pulled(thing) && (thing->owner == room->owner))
+        {
+            // If exceeded capacity of the library
+            if (room->used_capacity >= room->total_capacity)
+            {
+                WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
+                return -1; // re-create all (this could save the object if there are duplicates)
+            } else
+            // If the thing is in wall, remove it but store to re-create later
+            if (thing_in_wall_at(thing, &thing->mappos))
+            {
+                if (position_over_floor_level(thing, &thing->mappos)) //If it's inside the floors, simply move it up and count it.
+                {
+                    matching_things_at_subtile++;
+                }
+                else
+                {
+                    return -1; // If it's inside the wall or cannot be moved up, recreate all items.
+                }
+            } else
+            {
+                matching_things_at_subtile++;
+            }
+        }
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    return matching_things_at_subtile; // Increase used capacity
+}
+
+void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+{
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+        return;
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code
+        if (thing_is_workshop_crate(thing) && !thing_is_dragged_or_pulled(thing) && (thing->owner == room->owner))
+        {
+            ThingModel objkind = thing->model;
+            ThingClass tngclass = crate_thing_to_workshop_item_class(thing);
+            ThingModel tngmodel = crate_thing_to_workshop_item_model(thing);
+            if (!store_reposition_entry(rrepos, objkind)) {
+                WARNLOG("Too many things to reposition in %s index %d",room_code_name(room->kind),(int)room->index);
+            }
+            if (!is_neutral_thing(thing) && player_exists(get_player(thing->owner)))
+            {
+                if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap) > WrkCrtS_None) {
+                    remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);
+                }
+            }
+            delete_thing_structure(thing, 0);
+        }
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+}
+
+void count_and_reposition_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+{
+    int matching_things_at_subtile = check_crates_on_subtile_for_reposition_in_room(room, stl_x, stl_y);
+    if (matching_things_at_subtile > 0) {
+        // This subtile contains matching things
+        SYNCDBG(19,"Got %d matching things at (%d,%d)",(int)matching_things_at_subtile,(int)stl_x,(int)stl_y);
+        room->used_capacity += matching_things_at_subtile;
+    } else
+    {
+        switch (matching_things_at_subtile)
+        {
+        case -2:
+            // No matching things, but also cannot recreate anything on this subtile
+            break;
+        case -1:
+            // All matching things are to be removed from the subtile and stored for re-creation
+            reposition_all_crates_in_room_on_subtile(room, stl_x, stl_y, rrepos);
+            break;
+        case 0:
+            // There are no matching things there, something can be re-created
+            recreate_repositioned_crate_in_room_on_subtile(room, stl_x, stl_y, rrepos);
+            break;
+        default:
+            WARNLOG("Invalid value returned by reposition check");
+            break;
+        }
+    }
+}
+
+/**
+ * Updates count of crates (used capacity) in a workshop.
+ * Also repositions crates which are in solid columns.
+ * @param room The room to be recomputed and repositioned.
+ */
+void count_crates_in_room(struct Room *room)
+{
+    SYNCDBG(17,"Starting for %s",room_code_name(room->kind));
+    struct RoomReposition rrepos;
+    init_reposition_struct(&rrepos);
+    // Making two loops guarantees that no rrepos things will be lost
+    for (long n = 0; n < 2; n++)
+    {
+        // The correct count should be taken from last sweep
+        room->used_capacity = 0;
+        room->capacity_used_for_storage = 0;
+        unsigned long k = 0;
+        unsigned long i = room->slabs_list;
+        while (i > 0)
+        {
+            MapSubtlCoord slb_x = slb_num_decode_x(i);
+            MapSubtlCoord slb_y = slb_num_decode_y(i);
+            // Per-slab code
+            for (long dy = 0; dy < STL_PER_SLB; dy++)
+            {
+                for (long dx = 0; dx < STL_PER_SLB; dx++)
+                {
+                    count_and_reposition_crates_in_room_on_subtile(room, STL_PER_SLB*slb_x+dx, STL_PER_SLB*slb_y+dy, &rrepos);
+                }
+            }
+            // Per-slab code ends
+            i = get_next_slab_number_in_room(i);
+            k++;
+            if (k > room->slabs_count)
+            {
+                ERRORLOG("Infinite loop detected when sweeping room slabs");
+                break;
+            }
+        }
+    }
+    if (rrepos.used > 0) {
+        ERRORLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
+          room_code_name(room->kind),(int)room->index,(int)room->total_capacity,(int)rrepos.used,(int)room->owner);
+    }
+    room->capacity_used_for_storage = room->used_capacity;
 }
 /******************************************************************************/

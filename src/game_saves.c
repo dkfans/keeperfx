@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_bufrw.h"
@@ -46,6 +45,9 @@
 #include "keeperfx.hpp"
 #include "api.h"
 #include "lvl_filesdk1.h"
+#include "lua_base.h"
+#include "lua_triggers.h"
+#include "moonphase.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -74,33 +76,12 @@ TbBool is_primitive_save_version(long filesize)
         return true;
     return false;
 }
-/*
-short save_version_compatible(long filesize,struct Game *header)
-{
-  // Native version
-  if ((filesize == sizeof(struct Game)) &&
-    (header->version_major == VersionMajor) &&
-    (header->version_minor == VersionMinor))
-    return true;
-  // Compatibility list
-  if ((filesize == sizeof(struct Game)) &&
-    (header->version_major == VersionMajor) &&
-    (header->version_minor <= 8) &&
-    (VersionMinor == 10))
-    return true;
-  if ((filesize == sizeof(struct Game)) &&
-    (header->version_major == VersionMajor) &&
-    (header->version_minor <= 10) &&
-    (VersionMinor == 12))
-    return true;
-  return false;
-}*/
 
-TbBool save_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
+TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
 {
     struct FileChunkHeader hdr;
     long chunks_done = 0;
-    // Currently there is some game data oustide of structs - make sure it is updated
+    // Currently there is some game data outside of structs - make sure it is updated
     light_export_system_state(&gameadd.lightst);
     { // Info chunk
         hdr.id = SGC_InfoBlock;
@@ -134,6 +115,21 @@ TbBool save_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         if (LbFileWrite(fhandle, &intralvl, sizeof(struct IntralevelData)) == sizeof(struct IntralevelData))
             chunks_done |= SGF_IntralevelData;
     }
+
+    // Adding Lua serialized data chunk
+    {
+        size_t lua_data_len;
+        const char* lua_data = lua_get_serialised_data(&lua_data_len);
+
+        hdr.id = SGC_LuaData;
+        hdr.ver = 0;
+        hdr.len = lua_data_len;
+        if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
+        if (LbFileWrite(fhandle, lua_data, lua_data_len) == lua_data_len)
+            chunks_done |= SGF_LuaData;
+        cleanup_serialized_data();
+    }
+
     if (chunks_done != SGF_SavedGame)
         return false;
     return true;
@@ -191,7 +187,7 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
     return true;
 }
 
-int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
+int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
 {
     long chunks_done = 0;
     while (!LbFileEof(fhandle))
@@ -199,25 +195,21 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
         struct FileChunkHeader hdr;
         if (LbFileRead(fhandle, &hdr, sizeof(struct FileChunkHeader)) != sizeof(struct FileChunkHeader))
             break;
-        switch(hdr.id)
+        switch (hdr.id)
         {
         case SGC_InfoBlock:
-            if (load_catalogue_entry(fhandle,&hdr,centry))
+            if (load_catalogue_entry(fhandle, &hdr, centry))
             {
                 chunks_done |= SGF_InfoBlock;
                 if (!change_campaign(centry->campaign_fname)) {
                     ERRORLOG("Unable to load campaign");
                     return GLoad_Failed;
                 }
+                free_level_strings_data();
                 struct GameCampaign *campgn = &campaign;
-                if (reload_campaign_strings)
-                {
-                    setup_campaign_strings_data(campgn);
-                }
                 load_map_string_data(campgn, centry->level_num, get_level_fgroup(centry->level_num));
                 // Load configs which may have per-campaign part, and even be modified within a level
                 init_custom_sprites(centry->level_num);
-                load_computer_player_config(CnfLd_Standard);
                 load_stats_files();
                 check_and_auto_fix_stats();
                 init_creature_scores();
@@ -296,8 +288,29 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                 WARNLOG("Could not read IntralevelData chunk");
             }
             break;
+        case SGC_LuaData:
+            {
+                char* lua_data = (char*)malloc(hdr.len);
+                if (lua_data == NULL) {
+                    WARNLOG("Could not allocate memory for LuaData chunk");
+                    break;
+                }
+                if (LbFileRead(fhandle, lua_data, hdr.len) == hdr.len) {
+                    //has to be loaded here as level num only filled while gamestruct loaded, and need it for setting serialised_data
+                    open_lua_script(get_loaded_level_number());
+
+                    lua_set_serialised_data(lua_data, hdr.len);
+                    chunks_done |= SGF_LuaData;
+                } else {
+                    WARNLOG("Could not read LuaData chunk");
+                    free(lua_data);
+                }
+            }
+            break;
         default:
-            WARNLOG("Unrecognized chunk, ID = %08lx",hdr.id);
+            WARNLOG("Unrecognized chunk, ID = %08lx", hdr.id);
+            if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
+                LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
             break;
         }
     }
@@ -320,14 +333,9 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
  */
 TbBool save_game(long slot_num)
 {
-    if (!save_game_save_catalogue())
-        return false;
-/*  game.version_major = VersionMajor;
-    game.version_minor = VersionMinor;
-    game.load_restart_level = get_loaded_level_number();*/
     char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-    if (handle == -1)
+    if (!handle)
     {
         WARNMSG("Cannot open file to save, \"%s\".",fname);
         return false;
@@ -348,7 +356,7 @@ TbBool is_save_game_loadable(long slot_num)
     // Prepare filename and open the file
     char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
     TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (fh != -1)
+    if (fh)
     {
         // Let's try to read the file, just to be sure
         struct FileChunkHeader hdr;
@@ -373,7 +381,7 @@ TbBool load_game(long slot_num)
         // Use fname only here - it is overwritten by next use of prepare_file_fmtpath()
         char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
         fh = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
-        if (fh == -1)
+        if (!fh)
         {
           WARNMSG("Cannot open saved game file \"%s\".",fname);
           save_catalogue_slot_disable(slot_num);
@@ -383,32 +391,11 @@ TbBool load_game(long slot_num)
     long file_len = LbFileLengthHandle(fh);
     if (is_primitive_save_version(file_len))
     {
-        //if (LbFileRead(handle, buf, sizeof(buf)) != sizeof(buf))
         {
           LbFileClose(fh);
           save_catalogue_slot_disable(slot_num);
           return false;
         }
-        /*LbFileSeek(fh, (char *)&game.campaign_fname[0] - (char *)&game, Lb_FILE_SEEK_BEGINNING);
-        LbFileRead(fh, cmpgn_fname, CAMPAIGN_FNAME_LEN);
-        cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
-        if (!change_campaign(cmpgn_fname))
-        {
-          ERRORLOG("Unable to load campaign associated with saved game");
-        }
-        LbFileClose(fh);
-        WARNMSG("Saved game file \"%s\" has incompatible version; restarting level.",fname);
-        player = get_my_player();
-        player->lens_palette = 0;
-        my_player_number = default_loc_player;
-        player = get_my_player();
-        game.flagfield_14EA4A = 2;
-        clear_flag(game.system_flags, GSF_NetworkActive);
-        player->is_active = 1;
-        set_selected_level_number(((struct Game *)buf)->load_restart_level);
-        set_continue_level_number(((struct Game *)buf)->continue_level_number);
-        startup_network_game();
-        return true;*/
     }
     struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
     LbFileSeek(fh, 0, Lb_FILE_SEEK_BEGINNING);
@@ -426,9 +413,9 @@ TbBool load_game(long slot_num)
     }
     my_player_number = game.local_plyr_idx;
     LbFileClose(fh);
-    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
+    snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     reinit_level_after_load();
-    output_message(SMsg_GameLoaded, 0, true);
+    output_message(SMsg_GameLoaded, 0);
     panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();
@@ -451,7 +438,7 @@ TbBool load_game(long slot_num)
       dungeon->lvstats.allow_save_score = 1;
     }
     game.loaded_swipe_idx = -1;
-    JUSTMSG("Loaded level %d from %s", game.continue_level_number, campaign.name);
+    JUSTMSG("Loaded level %ld from %s", game.continue_level_number, campaign.name);
 
     api_event("GAME_LOADED");
 
@@ -493,29 +480,17 @@ TbBool fill_game_catalogue_slot(long slot_num,const char *textname)
     return fill_game_catalogue_entry(centry,textname);
 }
 
-TbBool game_save_catalogue(struct CatalogueEntry *game_catalg,int nentries)
-{
-  //Saved games descriptions are no longer stored in catalogue file - so writing is disabled.
-    return true;
-}
-
 TbBool game_catalogue_slot_disable(struct CatalogueEntry *game_catalg,unsigned int slot_idx)
 {
   if (slot_idx >= TOTAL_SAVE_SLOTS_COUNT)
     return false;
   clear_flag(game_catalg[slot_idx].flags, CEF_InUse);
-  game_save_catalogue(game_catalg,TOTAL_SAVE_SLOTS_COUNT);
   return true;
 }
 
 TbBool save_catalogue_slot_disable(unsigned int slot_idx)
 {
   return game_catalogue_slot_disable(save_game_catalogue,slot_idx);
-}
-
-TbBool save_game_save_catalogue(void)
-{
-  return game_save_catalogue(save_game_catalogue,TOTAL_SAVE_SLOTS_COUNT);
 }
 
 TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct CatalogueEntry *centry)
@@ -539,15 +514,14 @@ TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct C
 
 TbBool load_game_save_catalogue(void)
 {
-    //return load_game_catalogue(save_game_catalogue);
     long saves_found = 0;
     for (long slot_num = 0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
     {
         struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
-        LbMemorySet(centry, 0, sizeof(struct CatalogueEntry));
+        memset(centry, 0, sizeof(struct CatalogueEntry));
         char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
         TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-        if (fh == -1)
+        if (!fh)
             continue;
         struct FileChunkHeader hdr;
         if (LbFileRead(fh, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
@@ -575,7 +549,7 @@ short save_continue_game(LevelNumber lvnum)
     char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
     long fsize = LbFileSaveAt(fname, &game, sizeof(struct Game) + sizeof(struct IntralevelData));
     // Appending IntralevelData
-    TbFileHandle fh = LbFileOpen(fname,Lb_FILE_MODE_NEW);
+    TbFileHandle fh = LbFileOpen(fname,Lb_FILE_MODE_OLD);
     LbFileSeek(fh, sizeof(struct Game), Lb_FILE_SEEK_BEGINNING);
     LbFileWrite(fh, &intralvl, sizeof(struct IntralevelData));
     LbFileClose(fh);
@@ -591,7 +565,7 @@ short read_continue_game_part(unsigned char *buf,long pos,long buf_len)
         return false;
   }
   TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-  if (fh == -1)
+  if (!fh)
   {
     SYNCDBG(7,"Can't open .SAV file; there's no continue");
     return false;
@@ -672,13 +646,13 @@ short load_continue_game(void)
     // Restoring intralevel data
     read_continue_game_part((unsigned char *)&intralvl, sizeof(struct Game),
         sizeof(struct IntralevelData));
-    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
+    snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     update_extra_levels_visibility();
-    JUSTMSG("Continued level %d from %s", lvnum, campaign.name);
+    JUSTMSG("Continued level %ld from %s", lvnum, campaign.name);
     return true;
 }
 
-TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel, char *name)
+TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, CrtrExpLevel exp_level, char *name)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
@@ -690,7 +664,7 @@ TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long exp
     short i = dungeon->creatures_transferred; //makes sure it fits 255 units
 
     intralvl.transferred_creatures[plyr_idx][i].model = model;
-    intralvl.transferred_creatures[plyr_idx][i].explevel = explevel;
+    intralvl.transferred_creatures[plyr_idx][i].exp_level = exp_level;
     strcpy(intralvl.transferred_creatures[plyr_idx][i].creature_name, name);
     return true;
 }
@@ -702,7 +676,7 @@ void clear_transfered_creatures(void)
         for (int i = 0; i < TRANSFER_CREATURE_STORAGE_COUNT; i++)
         {
             intralvl.transferred_creatures[p][i].model = 0;
-            intralvl.transferred_creatures[p][i].explevel = 0;
+            intralvl.transferred_creatures[p][i].exp_level = 0;
         }
     }
 }

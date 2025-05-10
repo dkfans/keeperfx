@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
-#include "bflib_memory.h"
 #include "creature_control.h"
 #include "creature_instances.h"
 #include "creature_states.h"
@@ -336,10 +335,10 @@ TbBool move_creature_to_nearest_valid_position(struct Thing *thing)
  */
 TbBool creature_can_travel_over_lava(const struct Thing *creatng)
 {
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    const struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     // Check if a creature can fly in this moment - we don't care if it's natural ability
     // or temporary spell effect
-    return (crstat->hurt_by_lava <= 0) || flag_is_set(creatng->movement_flags, TMvF_Flying);
+    return (crconf->hurt_by_lava <= 0) || flag_is_set(creatng->movement_flags, TMvF_Flying);
 }
 
 TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -354,11 +353,11 @@ TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSu
 
 TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     // If the position is over lava, and we can't continuously fly, then it's toxic
-    if ((crstat->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
+    if ((crconf->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
         // Check not only if a creature is now flying, but also whether it's natural ability
-        if (!flag_is_set(creatng->movement_flags, TMvF_Flying) || (!crstat->flying))
+        if (!flag_is_set(creatng->movement_flags, TMvF_Flying) || (!crconf->flying))
             return true;
     }
     return false;
@@ -441,10 +440,10 @@ long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
 long creature_turn_to_face_angle(struct Thing *thing, long angle)
 {
 
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     long angle_diff = get_angle_difference(thing->move_angle_xy, angle);
     long angle_sign = get_angle_sign(thing->move_angle_xy, angle);
-    int angle_delta = crstat->max_turning_speed;
+    int angle_delta = crconf->max_turning_speed;
 
     if (angle_delta > angle_diff) {
         angle_delta = angle_diff;
@@ -831,8 +830,8 @@ TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb))
         return false;
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if (flag_is_set(slbattr->block_flags, SlbAtFlg_IsDoor))
+    struct SlabConfigStats* slabst = get_slab_stats(slb);
+    if (flag_is_set(slabst->block_flags, SlbAtFlg_IsDoor))
     {
         struct Thing* doortng = get_door_for_position(stl_x, stl_y);
         if (!thing_is_invalid(doortng) && door_will_open_for_thing(doortng,creatng))
@@ -842,7 +841,7 @@ TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord
     }
     else
     {
-        if (slbattr->is_safe_land || can_step_on_unsafe_terrain_at_position(creatng, stl_x, stl_y))
+        if (slabst->is_safe_land || can_step_on_unsafe_terrain_at_position(creatng, stl_x, stl_y))
         {
             return true;
         }

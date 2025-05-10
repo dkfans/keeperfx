@@ -63,6 +63,7 @@ short creature_attack_rooms(struct Thing *thing);
 short creature_damage_walls(struct Thing *thing);
 short creature_attempt_to_damage_walls(struct Thing *thing);
 CrAttackType creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long dist, long move_on_ground, long set_if_seen);
+CrAttackType creature_can_have_combat_with_object(struct Thing* fighter1, struct Thing* fighter2, long dist, long move_on_ground, long set_if_seen);
 TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy);
 TbBool creature_is_being_attacked_by_enemy_player(struct Thing *fightng);
 TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fightng);
@@ -73,7 +74,8 @@ TbBool creature_would_benefit_from_healing(const struct Thing* thing);
 
 long project_creature_attack_target_damage(const struct Thing *firing, const struct Thing *target);
 
-CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing);
+void reset_postal_instance_cache();
+CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long dist);
 
 TbBool creature_will_do_combat(const struct Thing *thing);
 TbBool creature_look_for_combat(struct Thing *creatng);
@@ -87,6 +89,7 @@ struct Thing *check_for_door_to_fight(struct Thing *thing);
 struct Thing* check_for_object_to_fight(struct Thing* thing);
 CrAttackType check_for_possible_combat_with_attacker_within_distance(struct Thing *figtng, struct Thing **outenmtng, long maxdist, unsigned long *outscore);
 CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist);
+CrAttackType check_for_possible_combat_with_enemy_object_within_distance(struct Thing* fightng, struct Thing** outenmtng, long maxdist);
 TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, CrtrStateId continue_state, long a4);
 TbBool creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta dist);
 long get_combat_distance(const struct Thing *thing, const struct Thing *enemy);

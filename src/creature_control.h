@@ -68,6 +68,7 @@ enum CreatureSoundTypes {
     CrSnd_Die       = 9,
     CrSnd_Foot      = 10,
     CrSnd_Fight     = 11,
+    CrSnd_Piss      = 12,
 };
 
 enum CreatureControlFlags {
@@ -77,19 +78,16 @@ enum CreatureControlFlags {
     CCFlg_Unknown08     = 0x08,
     CCFlg_Unknown10     = 0x10,
     CCFlg_IsInRoomList  = 0x20,
-    CCFlg_Unknown40     = 0x40,
-    CCFlg_Unknown80     = 0x80,
+    CCFlg_MoveX         = 0x40,
+    CCFlg_MoveY         = 0x80,
+    CCFlg_MoveZ         = 0x100,
 };
 
+/* The creature will not move if any of these flags are set. */
 enum CreatureControlSpells {
-    CCSpl_ChickenRel    = 0x01,// This is something related to chicken spell, but the spell itself is CSAfF_Chicken
-    CCSpl_Freeze        = 0x02,
-    CCSpl_Teleport      = 0x04,
-    CCSpl_Unknown08     = 0x08,
-    CCSpl_Unknown10     = 0x10,
-    CCSpl_Unknown20     = 0x20,
-    CCSpl_Unknown40     = 0x40,
-    CCSpl_Unknown80     = 0x80,
+    CCSpl_ChickenRel    = 0x01, // This is something related to chicken spell, but the spell itself is CSAfF_Chicken.
+    CCSpl_Freeze        = 0x02, // Related to CSAfF_Freeze.
+    CCSpl_Teleport      = 0x04, // Related to CSAfF_Teleport.
 };
 
 enum CreatureControlMoodFlags {
@@ -134,26 +132,29 @@ enum ObjectCombatStates {
 };
 
 struct CastedSpellData {
-    unsigned char spkind;
-    short duration;
+    SpellKind spkind;
+    GameTurnDelta duration;
+    CrtrExpLevel caster_level;
+    PlayerNumber caster_owner;
 };
 
 struct CreatureControl {
-    unsigned short index;
-    unsigned char flgfield_1;
+    CctrlIndex index;
+    unsigned short flgfield_1;
     unsigned char flgfield_2;
     unsigned char combat_flags;
     unsigned char party_objective;
+    unsigned char original_party_objective;
     unsigned long wait_to_turn;
     short distance_to_destination;
-    short opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
-    short opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
+    ThingIndex opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
+    ThingIndex opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
     unsigned char opponents_melee_count;
     unsigned char opponents_ranged_count;
-    unsigned short players_prev_creature_idx;
-    unsigned short players_next_creature_idx;
+    ThingIndex players_prev_creature_idx;
+    ThingIndex players_next_creature_idx;
     unsigned short slap_turns;
-    unsigned char explevel;
+    CrtrExpLevel exp_level;
     long exp_points;
     long prev_exp_points;
     struct Coord3d moveto_pos;
@@ -168,7 +169,7 @@ struct CreatureControl {
     long annoy_untrained_turn;
     unsigned long last_roar_turn;
    /** The game enumerates the elements of annoyance array periodically and looks for the highest value.
-    * When the highest value is above CreatureStats->annoy_level, the creature becomes angry/livid,
+    * When the highest value is above CreatureModelConfig->annoy_level, the creature becomes angry/livid,
     * depending on how high the highest value is.
     */
     long annoyance_level[5];
@@ -181,9 +182,9 @@ unsigned char sound_flag;
     /** Index of a thing being dragged by the creature, or index of a thing which is dragging this thing.
      *  Specific case is determined by flags. */
     short dragtng_idx;
-    unsigned short arming_thing_id;
-    unsigned short pickup_object_id;
-    unsigned short pickup_creature_id;
+    ThingIndex arming_thing_id;
+    ThingIndex pickup_object_id;
+    ThingIndex pickup_creature_id;
     unsigned short next_in_group;
     unsigned short prev_in_group;
     unsigned long group_info;// offset 7A
@@ -238,8 +239,8 @@ unsigned char sound_flag;
   union {
   struct {
     GameTurn start_gameturn;
-    GameTurn gameturn_9Ex;
-    GameTurn gameturn_A2x;
+    GameTurn state_start_turn;
+    GameTurn torturer_start_turn;
     ThingIndex assigned_torturer;
     unsigned char vis_state;
   } tortured;
@@ -276,7 +277,7 @@ unsigned char sound_flag;
     GameTurn last_mood_sound_turn;
   } imprison;
   struct {
-    unsigned char byte_9A;
+    unsigned char job_stage;
     unsigned char swing_weapon_counter;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -307,22 +308,14 @@ unsigned char sound_flag;
     short word_9A;
     short word_9C;
   }sacrifice;
-  struct {
-    unsigned char byte_9A;
-  }mad_psycho;
-
-  struct {
-    unsigned char byte_9A;
-  }unknown_state;
-
-
 
   };
     unsigned char fight_til_death;
     TbBool field_AA;
+    TbBool called_to_arms;
+    TbBool exp_level_up;
     unsigned char stateblock_flags;
-    unsigned long spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
-    unsigned char field_AE;
+    unsigned long spell_flags;
     short force_visible;
     unsigned char frozen_on_hit;
     long last_piss_turn;
@@ -366,7 +359,7 @@ unsigned char sound_flag;
     unsigned char continue_state_bkp;
     unsigned char cowers_from_slap_turns;
     short conscious_back_turns;
-    short countdown_282; // signed
+    short countdown; // signed
     unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
@@ -376,14 +369,14 @@ unsigned char sound_flag;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;
-    short spell_aura;
-    short spell_aura_duration;
+    EffectOrEffElModel spell_aura;
+    GameTurnDelta spell_aura_duration;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
-    unsigned short shot_shift_x;
-    unsigned short shot_shift_y;
-    unsigned short shot_shift_z;
+    short shot_shift_x;
+    short shot_shift_y;
+    short shot_shift_z;
     unsigned long tasks_check_turn;
     unsigned long wander_around_check_turn;
     unsigned long job_primary_check_turn;
@@ -412,127 +405,12 @@ unsigned char sound_flag;
     TbBool timebomb_death;
     GameTurn unsummon_turn;
     ThingIndex summoner_idx;
-    long summon_spl_idx;
+    SpellKind summon_spl_idx;
     ThingIndex familiar_idx[FAMILIAR_MAX];
-};
-
-struct CreatureStats { // These stats are not compatible with original DK - they have more fields
-    unsigned short job_primary;
-    unsigned short job_secondary;
-    unsigned short jobs_not_do;
-    unsigned char eye_effect;
-    HitPoints health;
-    unsigned char heal_requirement;
-    unsigned char heal_threshold;
-    unsigned char strength;
-    unsigned char armour;
-    unsigned char dexterity;
-    unsigned char fear_wounded;
-    unsigned char defense;
-    unsigned char luck;
-    unsigned char sleep_recovery;
-    unsigned short hunger_rate;
-    unsigned char hunger_fill;
-    unsigned short annoy_level;
-    unsigned char lair_size;
-    unsigned char hurt_by_lava;
-    unsigned char sleep_exp_slab;
-    short sleep_experience;
-    short exp_for_hitting;
-    short gold_hold;
-    short training_cost;
-    short scavenger_cost;
-    short scavenge_require;
-    unsigned char scavenge_value;
-    unsigned long to_level[CREATURE_MAX_LEVEL];
-    unsigned char base_speed;
-    ThingModel grow_up;
-    unsigned char grow_up_level;
-    TbBool entrance_force;
-    short max_turning_speed;
-    short base_eye_height;
-    unsigned short size_xy;
-    unsigned short size_z;
-    unsigned short thing_size_xy;
-    unsigned short thing_size_z;
-    short shot_shift_x; /**< Initial position of shot created by the creature relative to creature position, X coord. */
-    short shot_shift_y; /**< Initial position of shot created by the creature relative to creature position, Y coord. */
-    short shot_shift_z; /**< Initial position of shot created by the creature relative to creature position, Z coord. */
-    unsigned short walking_anim_speed;
-    TbBool flying;
-    TbBool fixed_anim_speed;
-    TbBool immune_to_gas;
-    unsigned char attack_preference;
-    short field_of_view;
-    /** Instance identifiers of the instances creature can learn. */
-    CrInstance learned_instance_id[LEARNED_INSTANCES_COUNT];
-    /** Required level to use the instances creature can learn. Scaled 1..CREATURE_MAX_LEVEL. */
-    unsigned char learned_instance_level[LEARNED_INSTANCES_COUNT];
-    unsigned char research_value;
-    TbBool humanoid_creature;
-    TbBool piss_on_dead;
-    unsigned char training_value;
-    short pay;
-    unsigned char manufacture_value;
-    unsigned char hearing;
-    unsigned char entrance_rooms[ENTRANCE_ROOMS_COUNT];
-    unsigned char entrance_slabs_req[ENTRANCE_ROOMS_COUNT];
-    unsigned char visual_range;
-    unsigned char partner_training;
-    /** Minimal game turns a creature must be tortured before it gets a chance to be broken */
-    short torture_break_time;
-    short annoy_no_lair;
-    short annoy_no_hatchery;
-    short annoy_woken_up;
-    short annoy_on_dead_friend;
-    short annoy_sulking;
-    short annoy_no_salary;
-    short annoy_slapped;
-    short annoy_on_dead_enemy;
-    short annoy_in_temple;
-    short annoy_sleeping;
-    short annoy_got_wage;
-    short annoy_in_torture;
-    short annoy_win_battle;
-    short annoy_untrained_time;
-    short annoy_untrained;
-    short annoy_queue;
-    /* Annoyance caused by tries to assign creature to a job it won't do */
-    short annoy_will_not_do_job;
-    /* Job kinds which cause stress for the creature */
-    unsigned short job_stress;
-    /* Amount of annoyance given to creature under stressful job */
-    short annoy_job_stress;
-    /* Job kinds which the creature will start when it is angry */
-    unsigned short jobs_anger;
-    short annoy_others_leaving;
-    unsigned char slaps_to_kill;
-    short lair_enemy[LAIR_ENEMY_MAX];
-    unsigned char rebirth;
-    TbBool can_see_invisible;
-    TbBool can_go_locked_doors;
-    TbBool bleeds;
-    TbBool affected_by_wind;
-    short annoy_eat_food;
-    short annoy_in_hand;
-    short damage_to_boulder;
-    // New fields go there; don't change earlier fields.
-    unsigned short fear_stronger;
-    unsigned short fearsome_factor;
-    short entrance_score;
-    short annoy_going_postal;
-    short toking_recovery;
-    TbBool illuminated;
-    unsigned char transparency_flags;
-    char corpse_vanish_effect;
-    short footstep_pitch;
-    short lair_object;
-    short status_offset;
-    unsigned short evil_start_state;
-    unsigned short good_start_state;
-    unsigned char natural_death_kind;
-    unsigned char swipe_idx;
-    struct CreaturePickedUpOffset creature_picked_up_offset;
+    SpellKind active_disease_spell;
+    SpellKind active_teleport_spell;
+    SpellKind active_timebomb_spell;
+    short vertical_speed;
 };
 
 struct Persons {
@@ -557,6 +435,7 @@ struct CreatureSounds {
     struct CreatureSound torture;
     struct CreatureSound slap;
     struct CreatureSound fight;
+    struct CreatureSound piss;
 };
 
 extern int creature_swap_idx[CREATURE_TYPES_MAX];
