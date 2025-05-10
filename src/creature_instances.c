@@ -497,7 +497,9 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
     if (cctrl->targtng_idx == 0)
     {
         if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
+        {
             hittype = THit_CrtrsOnlyNotOwn;
+        }
         else
             hittype = THit_CrtrsNObjcts;
     }
@@ -523,7 +525,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         else if (target->class_id == TCls_Trap)
             hittype = THit_TrapsAll;
         else if (target->owner == creatng->owner)
-            hittype = THit_CrtrsOnly;
+            hittype = THit_CrtrsOnlyOwn;
         else
             hittype = THit_CrtrsOnlyNotOwn;
     }
