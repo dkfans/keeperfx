@@ -498,14 +498,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
     {
         if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
         {
-            if (creatng->owner == target->owner)
-            {
-                hittype = THit_CrtrsOnlyOwn;
-            }
-            else
-            {
-                hittype = THit_CrtrsOnlyNotOwn;
-            }
+            hittype = THit_CrtrsOnlyNotOwn;
         }
         else
             hittype = THit_CrtrsNObjcts;
