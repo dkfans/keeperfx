@@ -814,7 +814,7 @@ short load_configuration(void)
           }
           if ((i >= 0) && (i < ULONG_MAX))
           {
-              if (!start_params.overrides[Clo_CDMusic])
+              if (!start_params.overrides[Clo_GameTurns])
               {
                   start_params.num_fps = i;
               }
