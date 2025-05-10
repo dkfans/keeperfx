@@ -277,6 +277,10 @@ struct StateInfo {
 
 /******************************************************************************/
 extern struct StateInfo states[CREATURE_STATES_COUNT];
+extern const struct NamedCommand process_func_commands[];
+extern const struct NamedCommand cleanup_func_commands[];
+extern const struct NamedCommand move_from_slab_func_commands[];
+extern const struct NamedCommand move_check_func_commands[];
 
 #pragma pack()
 /******************************************************************************/
