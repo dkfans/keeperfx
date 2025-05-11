@@ -64,6 +64,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "sprites.h"
+#include "lua_cfg_funcs.h"
 
 #include "creature_states_gardn.h"
 #include "creature_states_hero.h"
@@ -4853,11 +4854,15 @@ TbBool initialise_thing_state_f(struct Thing *thing, CrtrStateId nState, const c
 TbBool cleanup_current_thing_state(struct Thing *creatng)
 {
     struct CreatureStateConfig* stati = get_creature_state_with_task_completion(creatng);
-    CreatureStateFunc1 cleanup_cb = cleanup_func_list[stati->cleanup_state];
-    if (cleanup_cb != NULL)
+    if (stati->cleanup_state > 0)
     {
-        cleanup_cb(creatng);
-    } else
+        cleanup_func_list[stati->cleanup_state](creatng);
+    } 
+    else if (stati->cleanup_state < 0)
+    {
+        luafunc_crstate_func(stati->cleanup_state, creatng);
+    } 
+    else
     {
         clear_creature_instance(creatng);
     }

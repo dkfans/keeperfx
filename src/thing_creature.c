@@ -93,6 +93,7 @@
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "lua_triggers.h"
+#include "lua_cfg_funcs.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -2515,7 +2516,12 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     SYNCDBG(18,"Executing state %s for %s index %d.",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
     struct CreatureStateConfig* stati = get_thing_active_state_info(thing);
     if (stati->process_state != 0) {
-        short k = process_func_list[stati->process_state](thing);
+        short k = 0;
+        if (stati->process_state > 0)
+            k = process_func_list[stati->process_state](thing);
+        else 
+            k = luafunc_crstate_func(stati->process_state, thing);
+
         if (k == CrStRet_Deleted) {
             SYNCDBG(18,"Finished with creature deleted");
             return TUFRet_Deleted;
@@ -2803,9 +2809,13 @@ long move_creature(struct Thing *thing)
                 check_map_explored(thing, nxpos.x.stl.num, nxpos.y.stl.num);
                 struct CreatureStateConfig* stati = get_thing_active_state_info(thing);
                 if (!state_info_invalid(stati)) {
-                    CreatureStateFunc2 callback = move_from_slab_func_list[stati->move_from_slab];
-                    if (callback != NULL) {
-                        callback(thing);
+                    if (stati->move_from_slab > 0)
+                    {
+                        move_from_slab_func_list[stati->move_from_slab](thing);
+                    }
+                    else if (stati->move_from_slab < 0)
+                    {
+                        luafunc_crstate_func(stati->move_from_slab, thing);
                     }
                 }
             }
