@@ -3934,6 +3934,7 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           narg++;
           start_params.num_fps = atoi(pr2str);
+          start_params.overrides[Clo_GameTurns] = true;
       } else
       if (strcasecmp(parstr, "human") == 0)
       {
