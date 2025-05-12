@@ -561,7 +561,7 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
 TbBool imp_can_be_moved_to_dig(const struct Thing *creatng)
 {
     CrtrStateId curr_state = get_creature_state_besides_move(creatng);
-    struct StateInfo* curr_stati = get_thing_state_info_num(curr_state);
+    struct CreatureStateConfig* curr_stati = get_thing_state_info_num(curr_state);
     switch (curr_stati->state_type)
     {
       case CrStTyp_Work:
@@ -591,7 +591,7 @@ TbBool imp_can_be_moved_to_dig(const struct Thing *creatng)
 TbBool imp_can_be_moved_to_mine(const struct Thing *creatng)
 {
     CrtrStateId curr_state = get_creature_state_besides_move(creatng);
-    struct StateInfo* curr_stati = get_thing_state_info_num(curr_state);
+    struct CreatureStateConfig* curr_stati = get_thing_state_info_num(curr_state);
     switch (curr_stati->state_type)
     {
       case CrStTyp_Work:

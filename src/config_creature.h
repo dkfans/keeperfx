@@ -190,6 +190,33 @@ extern ThingModel breed_activities[CREATURE_TYPES_MAX];
 
 struct CreatureStateConfig {
     char name[COMMAND_WORD_LEN];
+    FuncIdx process_state;
+    FuncIdx cleanup_state;
+    FuncIdx move_from_slab;
+    FuncIdx move_check; /**< Check function to be used when the creature is in moving sub-state during that state. */
+    TbBool override_feed;
+    TbBool override_own_needs;
+    TbBool override_sleep;
+    TbBool override_fight_crtr;
+    TbBool override_gets_salary;
+    TbBool override_captive;
+    TbBool override_transition;
+    TbBool override_escape;
+    TbBool override_unconscious;
+    TbBool override_anger_job;
+    TbBool override_fight_object;
+    TbBool override_fight_door;
+    TbBool override_call2arms;
+    TbBool override_follow;
+    unsigned char state_type;
+    TbBool captive;
+    TbBool transition;
+    unsigned short follow_behavior;
+    TbBool blocks_all_state_changes;
+    unsigned short sprite_idx;
+    TbBool display_thought_bubble;
+    TbBool sneaky;
+    TbBool react_to_cta;
 };
 
 struct CreatureInstanceConfig {
