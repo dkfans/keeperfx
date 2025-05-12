@@ -2002,7 +2002,7 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
             hit_type = THit_CrtrsNObjctsNotOwn;
         else
         if (targetng->owner == castng->owner)
-            hit_type = THit_CrtrsOnly;
+            hit_type = THit_CrtrsOnlyOwn;
         else
             hit_type = THit_CrtrsOnlyNotOwn;
     }
@@ -2223,8 +2223,26 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
         cctrl->teleport_x = trg_x;
         cctrl->teleport_y = trg_y;
     }
-
-    if (spconf->caster_affected)
+    // Check if the spell can be fired as a shot. It is definitely not if casted on itself.
+    if ((spconf->shot_model > 0) && (cctrl->targtng_idx != castng->index))
+    {
+        if ((castng->alloc_flags & TAlF_IsControlled) != 0)
+          i = THit_CrtrsNObjcts;
+        else
+        {
+            if (castng->owner == thing_get(cctrl->targtng_idx)->owner)
+            {
+                i = THit_CrtrsOnlyOwn;
+            }
+            else
+            {
+                i = THit_CrtrsOnlyNotOwn;
+            }
+        }
+        thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_level, i);
+    }
+    // Check if the spell can be self-casted
+    else if (spconf->caster_affected)
     {
         if (spconf->caster_affect_sound > 0)
         {
