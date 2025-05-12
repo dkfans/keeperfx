@@ -1013,6 +1013,16 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                         give_shooter_drained_health(origtng, damage / 2);
                     }
                     apply_damage_to_thing_and_display_health(tngdst, damage, owner);
+                    if (flag_is_set(shotst->model_flags,ShMF_GroupUp))
+                    {
+                        if (thing_is_creature(origtng))
+                        {
+                            if (get_no_creatures_in_group(origtng) < GROUP_MEMBERS_COUNT)
+                            {
+                                add_creature_to_group(tngdst, origtng);
+                            }
+                        }
+                    }
                 }
                 affected = true;
                 if (shotst->cast_spell_kind != 0)
