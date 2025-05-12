@@ -470,6 +470,7 @@ const struct NamedCommand cleanup_func_commands[] = {
 };
 
 const CreatureStateFunc1 cleanup_func_list[] = {  
+    NULL,
     state_cleanup_dragging_object,
     state_cleanup_in_room,
     cleanup_sleep,
