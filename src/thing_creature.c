@@ -2513,7 +2513,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
             process_obey_leader(thing);
         }
     }
-    if ((thing->active_state < 1) || (thing->active_state >= CREATURE_STATES_COUNT))
+    if ((thing->active_state < 1) || (thing->active_state >= game.conf.crtr_conf.states_count))
     {
         ERRORLOG("The %s index %d has illegal state[1], S=%d, TCS=%d, reset", thing_model_name(thing), (int)thing->index, (int)thing->active_state, (int)thing->continue_state);
         set_start_state(thing);
