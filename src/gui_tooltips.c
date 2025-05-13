@@ -159,7 +159,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     struct Thing* thing = thing_get(player->thing_under_hand);
     if (thing_is_invalid(thing))
     {
-        thing = get_nearest_object_at_position(pos->x.stl.num, pos->y.stl.num);
+        thing = get_nearest_object_with_tooltip_at_position(pos->x.stl.num, pos->y.stl.num);
     }
     struct ObjectConfigStats* objst;
     if (!thing_is_invalid(thing))
