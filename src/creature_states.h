@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "config.h"
 
 /** Count of creature states, originally 147. */
 #define CREATURE_STATES_COUNT CrSt_ListEnd
@@ -245,38 +246,16 @@ typedef short (*CreatureStateFunc1)(struct Thing *);
 typedef char (*CreatureStateFunc2)(struct Thing *);
 typedef CrCheckRet (*CreatureStateCheck)(struct Thing *);
 
-struct StateInfo {
-    CreatureStateFunc1 process_state;
-    CreatureStateFunc1 cleanup_state;
-    CreatureStateFunc2 move_from_slab;
-    CreatureStateCheck move_check; /**< Check function to be used when the creature is in moving sub-state during that state. */
-    TbBool override_feed;
-    TbBool override_own_needs;
-    TbBool override_sleep;
-    TbBool override_fight_crtr;
-    TbBool override_gets_salary;
-    TbBool override_captive;
-    TbBool override_transition;
-    TbBool override_escape;
-    TbBool override_unconscious;
-    TbBool override_anger_job;
-    TbBool override_fight_object;
-    TbBool override_fight_door;
-    TbBool override_call2arms;
-    TbBool override_follow;
-    unsigned char state_type;
-    TbBool captive;
-    TbBool transition;
-    unsigned short follow_behavior;
-    TbBool blocks_all_state_changes;
-    unsigned short sprite_idx;
-    TbBool display_thought_bubble;
-    TbBool sneaky;
-    TbBool react_to_cta;
-};
 
 /******************************************************************************/
-extern struct StateInfo states[CREATURE_STATES_COUNT];
+extern const struct NamedCommand process_func_commands[];
+extern const struct NamedCommand cleanup_func_commands[];
+extern const struct NamedCommand move_from_slab_func_commands[];
+extern const struct NamedCommand move_check_func_commands[];
+
+extern const CreatureStateFunc1 process_func_list[];
+extern const CreatureStateFunc2 move_from_slab_func_list[];
+extern const CreatureStateCheck move_check_func_list[];
 
 #pragma pack()
 /******************************************************************************/
@@ -289,10 +268,10 @@ CrtrStateId get_creature_state_besides_interruptions(const struct Thing *thing);
 long get_creature_state_type_f(const struct Thing *thing, const char *func_name);
 #define get_creature_state_type(thing) get_creature_state_type_f(thing,__func__)
 
-struct StateInfo *get_thing_active_state_info(struct Thing *thing);
-struct StateInfo *get_thing_continue_state_info(struct Thing *thing);
-struct StateInfo *get_thing_state_info_num(CrtrStateId state_id);
-struct StateInfo *get_creature_state_with_task_completion(struct Thing *thing);
+struct CreatureStateConfig *get_thing_active_state_info(struct Thing *thing);
+struct CreatureStateConfig *get_thing_continue_state_info(struct Thing *thing);
+struct CreatureStateConfig *get_thing_state_info_num(CrtrStateId state_id);
+struct CreatureStateConfig *get_creature_state_with_task_completion(struct Thing *thing);
 
 struct TunnelDistance{
     unsigned int creatid;
@@ -300,7 +279,7 @@ struct TunnelDistance{
     unsigned long newdist;
 };
 
-TbBool state_info_invalid(struct StateInfo *stati);
+TbBool state_info_invalid(struct CreatureStateConfig *stati);
 TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_state, CrtrStateId next_state);
 TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState);
 TbBool external_set_thing_state_f(struct Thing *thing, CrtrStateId state, const char *func_name);

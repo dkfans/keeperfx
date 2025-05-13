@@ -361,7 +361,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
             !creature_is_being_unconscious(thing) && !creature_is_kept_in_custody(thing) &&
             (cctrl->combat_flags == 0) && !creature_is_dragging_something(thing) && !creature_is_dying(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
-            struct StateInfo *stati;
+            struct CreatureStateConfig *stati;
             stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
             if (stati->react_to_cta && (get_chessboard_distance(&traptng->mappos, &thing->mappos) < 4096))
             {
@@ -3934,6 +3934,7 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           narg++;
           start_params.num_fps = atoi(pr2str);
+          start_params.overrides[Clo_GameTurns] = true;
       } else
       if (strcasecmp(parstr, "human") == 0)
       {

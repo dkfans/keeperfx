@@ -2358,7 +2358,7 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
             state = i->continue_state;
         else
             state = i->active_state;
-        struct StateInfo *stati = get_thing_state_info_num(state);
+        struct CreatureStateConfig *stati = get_thing_state_info_num(state);
 
         if (cctrl->called_to_arms)
         {
@@ -2622,7 +2622,7 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
             {
                 if (!creature_is_called_to_arms(thing) && !creature_is_being_dropped(thing))
                 {
-                    struct StateInfo *stati;
+                    struct CreatureStateConfig *stati;
                     int n;
                     n = get_creature_state_besides_move(thing);
                     stati = get_thing_state_info_num(n);
