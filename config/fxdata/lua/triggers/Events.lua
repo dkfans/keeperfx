@@ -140,3 +140,17 @@ function RegisterOnActionPointEvent(action, actionPoint, player)
 
     return trigger
 end
+
+---Triggers when a thing takes damage
+---@param action function|string the function to call when the event happens
+---@param creature? Creature the unit that triggers the event
+---@return table
+function RegisterLevelUpEvent(action, creature)
+    local trigData = {creature = creature}
+
+    local trigger = CreateTrigger("LevelUp",action,trigData)
+    if creature then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.creature == triggerData.creature end)
+    end
+    return trigger
+end
