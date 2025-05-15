@@ -141,7 +141,7 @@ function RegisterOnActionPointEvent(action, actionPoint, player)
     return trigger
 end
 
----Triggers when a thing takes damage
+---Triggers when a unit levels up
 ---@param action function|string the function to call when the event happens
 ---@param creature? Creature the unit that triggers the event
 ---@return table
