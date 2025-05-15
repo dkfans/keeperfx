@@ -16,7 +16,7 @@ FuncIdx get_function_idx(const char *func_name, const struct NamedCommand *Cfunc
 
     // If it's a C function, return positive index
     FuncIdx id = get_id(Cfuncs, func_name);
-    if (id > 0) {
+    if (id >= 0) {
         return id;
     }
 
