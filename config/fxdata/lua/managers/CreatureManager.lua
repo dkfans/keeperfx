@@ -5,15 +5,15 @@
 
 ---returns a table containing all creatures on the map
 ---@return Creature[]
-function Get_creatures()
-    return Get_things_of_class("Creature")
+function GetCreatures()
+    return GetThingsOfClass("Creature")
 end
 
 ---returns a table containing all creatures on the map belonging to the given player
 ---@param player Player
 ---@return Creature[]
-function Get_creatures_of_player(player)
-    local creatures = Get_things_of_class("Creature")
+function GetCreaturesOfPlayer(player)
+    local creatures = GetThingsOfClass("Creature")
     local player_creatures = {}
     for _, creature in ipairs(creatures) do
         if creature.owner == player then
@@ -26,8 +26,8 @@ end
 ---returns a table containing all creatures on the map that satisfy the given filter function
 ---@param filter function A function that takes a Creature as an argument and returns a boolean
 ---@return Creature[]
-function Get_creatures_by_filter(filter)
-    local creatures = Get_things_of_class("Creature")
+function GetCreaturesByFilter(filter)
+    local creatures = GetThingsOfClass("Creature")
     local filtered_creatures = {}
     for _, creature in ipairs(creatures) do
         if filter(creature) then

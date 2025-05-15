@@ -3430,14 +3430,16 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnly:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs;
+    case THit_CrtrsOnlyNotOwn:
+        return HitTF_EnemyCreatures | HitTF_AlliedCreatures | HitTF_ArmourAffctdCreatrs;
+    case THit_CrtrsOnlyOwn:
+        return HitTF_OwnedCreatures | HitTF_ArmourAffctdCreatrs;
     case THit_CrtrsNObjctsNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs|
         HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|
         HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
         HitTF_EnemyDestructibleTraps | HitTF_AlliedDestructibleTraps|
         HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
-    case THit_CrtrsOnlyNotOwn:
-        return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs;
     case THit_CrtrsNotArmourNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures;
     case THit_HeartOnly:

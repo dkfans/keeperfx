@@ -4,15 +4,13 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
-
 #include "lua_base.h"
 #include "lua_params.h"
-
+#include "lua_utils.h"
 
 #include "player_data.h"
 #include "lvl_script_lib.h"
 #include "player_utils.h"
-
 
 #include "post_inc.h"
 
@@ -144,64 +142,35 @@ static int player_set_field(lua_State *L) {
     return 0;
 }
 
-// Function to get field values
 static int player_get_field(lua_State *L) {
-    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
     const char* key = luaL_checkstring(L, 2);
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
 
-    // Check if the key exists in player_methods
-    for (int i = 0; player_methods[i].name != NULL; i++) {
-        if (strcmp(key, player_methods[i].name) == 0) {
-            // Instead of calling the function, return its reference
-            lua_pushcfunction(L, player_methods[i].func);
-            return 1;
-        }
-    }
+    long variable_type, variable_id;
 
-
-    //heart
-    if (strcmp(key, "heart") == 0) {
-        struct Thing* heartng = get_player_soul_container(plyr_idx);
-        lua_pushThing(L, heartng);
+    // C method lookup
+    if (try_get_c_method(L, key, player_methods))
         return 1;
-    }
-    else if (strcmp(key, "controls") == 0) {
-        // Push the player index as upvalue
+
+    // Built-in fields
+    if (strcmp(key, "heart") == 0) {
+        lua_pushThing(L, get_player_soul_container(plyr_idx));
+    } else if (strcmp(key, "controls") == 0) {
         lua_pushinteger(L, plyr_idx);
         lua_pushcclosure(L, player_get_controls, 1);
-        return 1;
-    }
-    else if (strcmp(key, "available") == 0) {
-        // Push the player index as upvalue
+    } else if (strcmp(key, "available") == 0) {
         lua_pushinteger(L, plyr_idx);
         lua_pushcclosure(L, player_get_available, 1);
-        return 1;
     }
-    
-    long variable_type;
-    long variable_id;
-
-    if (parse_get_varib(key, &variable_id, &variable_type,1))
-    {
+    else if (parse_get_varib(key, &variable_id, &variable_type, 1)) {
         lua_pushinteger(L, get_condition_value(plyr_idx, variable_type, variable_id));
+    } else if (try_get_from_methods(L, 1, key)) {
         return 1;
-    }
-
-/*
-    if (strcmp(key, "index") == 0) {
-        lua_pushinteger(L, thing->index);
-    } else if (strcmp(key, "creation_turn") == 0) {
-        lua_pushinteger(L, thing->creation_turn);
-    } else if (strcmp(key, "Owner") == 0) {
-        lua_pushPlayer(L, thing->owner);
-
-
     } else {
-        lua_pushnil(L);
+        return luaL_error(L, "Unknown field or method '%s' for Player", key);
     }
-*/
-    return 1;
 
+    return 1;
 }
 
 static int player_eq(lua_State *L) {
