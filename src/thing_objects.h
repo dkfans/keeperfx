@@ -161,7 +161,9 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
 void destroy_object(struct Thing *thing);
 TngUpdateRet update_object(struct Thing *thing);
 TbBool thing_is_object(const struct Thing *thing);
-TbBool thing_is_object_with_tooltip(const struct Thing* thing);
+TbBool thing_is_object_with_mandatory_tooltip(const struct Thing* thing);
+TbBool thing_is_object_with_optional_tooltip(const struct Thing* thing);
+TbBool thing_is_object_with_tooltip(const struct Thing* thing, TbBool is_optional);
 void change_object_owner(struct Thing *objtng, PlayerNumber nowner);
 void destroy_food(struct Thing *foodtng);
 

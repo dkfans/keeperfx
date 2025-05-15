@@ -4131,10 +4131,18 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
-struct Thing* get_nearest_object_with_tooltip_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+struct Thing* get_nearest_object_with_tooltip_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool optional)
 {
-    return get_object_around_owned_by_and_matching_bool_filter(
-        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object_with_tooltip);
+    if (optional)
+    {
+        return get_object_around_owned_by_and_matching_bool_filter(
+            subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object_with_optional_tooltip);
+    }
+    else
+    {
+        return get_object_around_owned_by_and_matching_bool_filter(
+            subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object_with_mandatory_tooltip);
+    }
 }
 
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
