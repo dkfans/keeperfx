@@ -57,6 +57,9 @@
 ---@field BONUS_TIME integer
 ---@field CREATURES_TRANSFERRED integer
 ---@field TOTAL_SLAPS integer
+---@field SCORE integer
+---@field PLAYER_SCORE integer
+---@field MANAGE_SCORE integer
 ---
 ---@field heart Thing The player's primary dungeon heart
 if not Player then Player = {} end
