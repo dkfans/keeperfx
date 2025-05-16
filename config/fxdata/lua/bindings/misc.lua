@@ -59,3 +59,9 @@ function PayForPower(player, power_kind, power_level, is_free) end
 ---@return integer amount amount of creatures matching the conditions
 ---@nodiscard
 function CountCreaturesAtActionPoint(action_point,player,creature_type) return 0 end
+
+---gets all rooms belonging to a player
+---@param player playerrange
+---@return Room[]
+---@nodiscard
+function GetRoomsOfPlayer(player) return {} end
