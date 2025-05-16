@@ -1610,12 +1610,21 @@ static int lua_Use_special_Transfer_creature(lua_State *L)
 
 static int lua_Change_slab_owner(lua_State *L)
 {
-    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 1);
-    MapSlabCoord slb_x = luaL_checkslb_x(L, 2);
-    MapSlabCoord slb_y = luaL_checkslb_y(L, 3);
+    MapSlabCoord slb_x = luaL_checkslb_x(L, 1);
+    MapSlabCoord slb_y = luaL_checkslb_y(L, 2);
+    PlayerNumber plyr_idx = luaL_checkPlayerSingle(L, 3);
+    long fill_type = luaL_optNamedCommand(L,4,fill_desc);
 
-    change_slab_owner_from_script(plyr_idx, slb_x, slb_y);
-    return 0;
+    if (fill_type > 0)
+    {
+        struct CompoundCoordFilterParam iter_param;
+        iter_param.plyr_idx = plyr_idx;
+        iter_param.num1 = fill_type;
+        iter_param.num2 = get_slabmap_block(slb_x, slb_y)->kind;
+        slabs_fill_iterate_from_slab(slb_x, slb_y, slabs_change_owner, &iter_param);
+    } else {
+        change_slab_owner_from_script(slb_x, slb_y, plyr_idx);
+    }
 }
 
 static int lua_Change_slab_type(lua_State *L)
