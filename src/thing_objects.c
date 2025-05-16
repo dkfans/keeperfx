@@ -51,6 +51,7 @@
 #include "keeperfx.hpp"
 #include "game_loop.h"
 #include "config_spritecolors.h"
+#include "lua_cfg_funcs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1797,16 +1798,27 @@ TngUpdateRet update_object(struct Thing *thing)
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
     TRACE_THING(thing);
 
-    Thing_Class_Func upcallback = NULL;
+    
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    upcallback = object_update_functions[objst->updatefn_idx];
 
-    if (upcallback != NULL)
+    if (objst->updatefn_idx > 0)
     {
-        if (upcallback(thing) <= 0) {
+        Thing_Class_Func upcallback = NULL;
+        upcallback = object_update_functions[objst->updatefn_idx];
+        if (upcallback != NULL)
+        {
+            if (upcallback(thing) <= 0) {
+                return TUFRet_Deleted;
+            }
+        }
+    }
+    else if (objst->updatefn_idx < 0)
+    {
+        if (luafunc_obj_update_func(objst->updatefn_idx, thing) <= 0) {
             return TUFRet_Deleted;
         }
     }
+
     Thing_State_Func stcallback = NULL;
     if (thing->active_state < sizeof(object_state_functions)/sizeof(object_state_functions[0])) {
         stcallback = object_state_functions[thing->active_state];
