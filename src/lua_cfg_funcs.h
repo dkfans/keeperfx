@@ -37,6 +37,7 @@ TbResult luafunc_magic_use_power(FuncIdx func_idx, PlayerNumber plyr_idx, PowerK
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
 
 short luafunc_crstate_func(FuncIdx func_idx,struct Thing *thing);
+short luafunc_obj_update_func(FuncIdx func_idx,struct Thing *thing);
 
 #ifdef __cplusplus
 }
