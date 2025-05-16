@@ -490,6 +490,25 @@ static int lua_Add_party_to_level(lua_State *L)
     return 1;
 }
 
+static int lua_Send_tunneller_to_location(lua_State *L)
+{
+    struct Thing* creatng = luaL_checkThing(L, 1);
+    TbMapLocation destination_location = luaL_checkLocation(L,  2);
+
+    if(!thing_is_hero(creatng) || !thing_is_creature_digger(creatng))
+    {
+        SYNCERRLOG("Tried to send %s to location %d which is not a tunneller",thing_model_name(creatng),(int)spawn_location);
+        return 0;
+    }
+
+    struct Coord3d pos;
+    get_coords_at_location(&pos, destination_location,0);
+    send_tunneller_to_point(creatng, &pos);
+
+    return 0;
+}
+
+
 //Displaying information and affecting interface
 
 static int lua_Display_objective(lua_State *L)
@@ -1954,6 +1973,7 @@ static const luaL_Reg global_methods[] = {
    {"DeleteFromParty",                  lua_Delete_from_party               },
    {"AddTunnellerPartyToLevel",         lua_Add_tunneller_party_to_level    },
    {"AddPartyToLevel",                  lua_Add_party_to_level              },
+   {"SendTunnellerToLocation",          lua_Send_tunneller_to_location      },
 
 //Displaying information and affecting interface
    {"DisplayObjective"                      ,lua_Display_objective               },
