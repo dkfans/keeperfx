@@ -1625,6 +1625,7 @@ static int lua_Change_slab_owner(lua_State *L)
     } else {
         change_slab_owner_from_script(slb_x, slb_y, plyr_idx);
     }
+    return 0;
 }
 
 static int lua_Change_slab_type(lua_State *L)
