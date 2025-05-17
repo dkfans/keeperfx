@@ -204,6 +204,8 @@ static int thing_set_field(lua_State *L) {
         }
         set_trap_shots(thing, luaL_checkinteger(L, 3));
 
+    } else if (strcmp(key, "pos") == 0) {
+        luaL_checkCoord3d(L, 3, &thing->mappos);
     } else {
         return luaL_error(L, "Field '%s' is not writable on Thing", key);
     }
