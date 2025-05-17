@@ -288,6 +288,24 @@ TbBool object_can_be_damaged (const struct Thing* thing)
     return false;
 }
 
+TbBool thing_is_object_with_tooltip(const struct Thing* thing, TbBool is_optional)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if (thing->class_id != TCls_Object)
+        return false;
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return ((objst->tooltip_stridx != GUIStr_Empty) && (objst->tooltip_optional == is_optional));
+}
+TbBool thing_is_object_with_mandatory_tooltip(const struct Thing* thing)
+{
+    return thing_is_object_with_tooltip(thing, 0);
+}
+TbBool thing_is_object_with_optional_tooltip(const struct Thing* thing)
+{
+    return thing_is_object_with_tooltip(thing, 1);
+}
+
 TbBool thing_is_object(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
