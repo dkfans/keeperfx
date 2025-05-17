@@ -934,7 +934,7 @@ TbBool cmd_create_creature(PlayerNumber plyr_idx, char * args)
         return false;
     }
     char * pr3str = strsep(&args, " ");
-    int level = (pr3str != NULL) ? atoi(pr3str) : 0;
+    int level = (pr3str != NULL) ? (atoi(pr3str) - 1) : 0;
     char * pr4str = strsep(&args, " ");
     unsigned int count = (pr4str != NULL) ? atoi(pr4str) : 1;
     char * pr5str = strsep(&args, " ");

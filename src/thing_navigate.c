@@ -589,14 +589,18 @@ short move_to_position(struct Thing *creatng)
     }
     long move_result = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 0);
     CrCheckRet state_check = CrCkRet_Available;
-    struct StateInfo* stati = get_thing_continue_state_info(creatng);
+    struct CreatureStateConfig* stati = get_thing_continue_state_info(creatng);
     if (!state_info_invalid(stati))
     {
-        CreatureStateCheck callback = stati->move_check;
-        if (callback != NULL)
+        if (stati->move_check > 0)
         {
             SYNCDBG(18,"Doing move check callback for continue state %s",creature_state_code_name(creatng->continue_state));
-            state_check = callback(creatng);
+            state_check = move_check_func_list[stati->move_check](creatng);
+        }
+        else if (stati->move_check < 0)
+        {
+            SYNCDBG(18,"Doing move check callback for continue state %s",creature_state_code_name(creatng->continue_state));
+            state_check = luafunc_crstate_func(stati->move_check,creatng);
         }
     }
     if (state_check == CrCkRet_Available)

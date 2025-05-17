@@ -155,8 +155,7 @@ function ProcessEvent(eventType, eventData)
     end
     if #errors > 0 then
         for _, error in ipairs(errors) do
-            print("Error in trigger: " .. error)
+            print(eventType .. ": Error in trigger: " .. error)
         end
-        error(#errors .. " error(s) in triggers of event " .. eventType)
     end
 end

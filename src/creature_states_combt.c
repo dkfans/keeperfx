@@ -4,7 +4,7 @@
 /** @file creature_states_combt.c
  *     Creature state machine functions related to combat.
  * @par Purpose:
- *     Defines elements of states[] array, containing valid creature states.
+ *     Defines elements of game.conf.crtr_conf.states[] array, containing valid creature states.
  * @par Comment:
  *     None.
  * @author   KeeperFX Team
@@ -3191,7 +3191,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
                 return false;
         }
         crstate = get_creature_state_besides_move(creatng);
-        if (states[crstate].sneaky == 1)
+        if (game.conf.crtr_conf.states[crstate].sneaky == 1)
             return false;
     }
 

@@ -2358,7 +2358,7 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
             state = i->continue_state;
         else
             state = i->active_state;
-        struct StateInfo *stati = get_thing_state_info_num(state);
+        struct CreatureStateConfig *stati = get_thing_state_info_num(state);
 
         if (cctrl->called_to_arms)
         {
@@ -2622,7 +2622,7 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
             {
                 if (!creature_is_called_to_arms(thing) && !creature_is_being_dropped(thing))
                 {
-                    struct StateInfo *stati;
+                    struct CreatureStateConfig *stati;
                     int n;
                     n = get_creature_state_besides_move(thing);
                     stati = get_thing_state_info_num(n);
@@ -3036,7 +3036,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
             i = cctrl->players_next_creature_idx;
             // Per-thing code
             // Don't slap if picked up or already slapped
-            if (!thing_is_picked_up(thing) && !creature_affected_by_slap(thing))
+            if (!thing_is_picked_up(thing) && !creature_affected_by_slap(thing) && !(creature_under_spell_effect(thing, CSAfF_Speed) && ctask->slap_imps.skip_speed))
             {
                 // Check if we really can use the spell on that creature, considering its position and state
                 if (can_cast_spell(dungeon->owner, PwrK_SLAP, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
@@ -3844,7 +3844,7 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
     return true;
 }
 
-TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
+TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num, TbBool skip_speed)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -3858,6 +3858,7 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
     ctask->ttype = CTT_SlapDiggers;
     ctask->attack_magic.repeat_num = creatrs_num;
     ctask->created_turn = game.play_gameturn;
+    ctask->slap_imps.skip_speed = skip_speed;
     return true;
 }
 

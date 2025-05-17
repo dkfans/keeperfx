@@ -66,12 +66,13 @@ extern "C" {
 #define LENSES_COUNT           15
 #define SPELL_POINTER_GROUPS   14
 #define ZOOM_KEY_ROOMS_COUNT   15
-#define CMDLINE_OVERRIDES      2
+#define CMDLINE_OVERRIDES      3
 
 /** Command Line overrides for config settings. Checked after the config file is loaded. */
 enum CmdLineOverrides {
     Clo_ConfigFile = 0, /**< Special: handled before the config file is loaded. */
     Clo_CDMusic,
+    Clo_GameTurns,
 };
 
 enum ModeFlags {

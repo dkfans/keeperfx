@@ -272,7 +272,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
     case ObjMdl_GoldPot:
     case ObjMdl_Goldl:
     case ObjMdl_GoldBag:
-      i = thing->creature.gold_carried;
+      i = thing->valuable.gold_stored;
       if (i != 0)
       {
         pos.x.val = thing->mappos.x.val;

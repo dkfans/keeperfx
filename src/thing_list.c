@@ -3430,14 +3430,16 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnly:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs;
+    case THit_CrtrsOnlyNotOwn:
+        return HitTF_EnemyCreatures | HitTF_AlliedCreatures | HitTF_ArmourAffctdCreatrs;
+    case THit_CrtrsOnlyOwn:
+        return HitTF_OwnedCreatures | HitTF_ArmourAffctdCreatrs;
     case THit_CrtrsNObjctsNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs|
         HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|
         HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
         HitTF_EnemyDestructibleTraps | HitTF_AlliedDestructibleTraps|
         HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
-    case THit_CrtrsOnlyNotOwn:
-        return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs;
     case THit_CrtrsNotArmourNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures;
     case THit_HeartOnly:
@@ -4127,6 +4129,20 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
     long i = get_mapwho_thing_index(mapblk);
     long n = 0;
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
+}
+
+struct Thing* get_nearest_object_with_tooltip_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool optional)
+{
+    if (optional)
+    {
+        return get_object_around_owned_by_and_matching_bool_filter(
+            subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object_with_optional_tooltip);
+    }
+    else
+    {
+        return get_object_around_owned_by_and_matching_bool_filter(
+            subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object_with_mandatory_tooltip);
+    }
 }
 
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)

@@ -2,7 +2,7 @@
 -- Entry points for engine-triggered events (e.g. OnPowerCast, OnGameTick).
 -- These functions are called by the C engine and dispatch event data to the Lua trigger system.
 
----@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"
+---@alias event_type "PowerCast"|"Death"|"SpecialActivated"|"GameTick"|"ChatMsg"|"DungeonDestroyed"|"TrapPlaced"|"ApplyDamage"|"LevelUp"
 
 --- Called when a spell is cast on a unit
 --- @param pwkind power_kind
@@ -80,4 +80,13 @@ function OnApplyDamage(thing, damage, dealing_player)
     eventData.damage = damage
     eventData.dealing_player = dealing_player
     ProcessEvent("ApplyDamage",eventData)
+end
+
+
+--- Called when a creature levels up
+---@param creature Creature
+function OnLevelUp(creature)
+    local eventData = {}
+    eventData.creature = creature
+    ProcessEvent("LevelUp",eventData)
 end

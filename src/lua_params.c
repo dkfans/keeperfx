@@ -433,6 +433,23 @@ int luaL_checkSlab(lua_State *L, int idx, MapSlabCoord* slb_x, MapSlabCoord* slb
     return 0;
 }
 
+void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos)
+{
+    if (lua_istable(L, index)) {
+
+        lua_getfield(L, index, "val_x");
+        pos->x.val = lua_tointeger(L, -1);
+        lua_getfield(L, index, "val_y");
+        pos->y.val = lua_tointeger(L, -1);
+        lua_getfield(L, index, "val_z");
+        pos->z.val = lua_tointeger(L, -1);
+
+        return;
+    }
+    luaL_argerror(L, index, "expected a pos");
+    return;
+
+}
 
 /***************************************************************************************************/
 /************    Outputs   *************************************************************************/
@@ -476,22 +493,24 @@ void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx) {
 }
 
 void lua_pushPos(lua_State *L, struct Coord3d* pos) {
-    // Create a new table
+    // Create a new table with 3 fields
     lua_createtable(L, 0, 3);
 
+    // Set val_x
     lua_pushinteger(L, pos->x.val);
     lua_setfield(L, -2, "val_x");
 
-    // Push val_y
+    // Set val_y
     lua_pushinteger(L, pos->y.val);
     lua_setfield(L, -2, "val_y");
 
+    // Set val_z
     lua_pushinteger(L, pos->z.val);
     lua_setfield(L, -2, "val_z");
 
-    // Set metatable
-    luaL_getmetatable(L, "Pos3d"); // Push the Pos3d metatable onto stack
-    lua_setmetatable(L, -2);       // Set it as metatable of the table
+    // Get metatable from registry
+    lua_getfield(L, LUA_REGISTRYINDEX, "Pos3d");
+    lua_setmetatable(L, -2);
 }
 
 void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y) {
