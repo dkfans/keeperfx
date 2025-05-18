@@ -948,6 +948,25 @@ void gui_area_trap_button(struct GuiButton *gbtn)
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, i);
     }
+        // Overlay "can't make" sprite if not buildable but placeable/built
+    if (manufctr->tngclass == TCls_Trap)
+    {
+        if (!is_trap_buildable(my_player_number, manufctr->tngmodel)
+          && (is_trap_placeable(my_player_number, manufctr->tngmodel)
+          || is_trap_built(my_player_number, manufctr->tngmodel)))
+        {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_cant_make);
+        }
+    }
+    else if (manufctr->tngclass == TCls_Door)
+    {
+        if (!is_door_buildable(my_player_number, manufctr->tngmodel)
+          && (is_door_placeable(my_player_number, manufctr->tngmodel)
+          || is_door_built(my_player_number, manufctr->tngmodel)))
+        {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_cant_make);
+        }
+    }
     lbDisplay.DrawFlags = flg_mem;
 }
 
