@@ -170,7 +170,11 @@ TbBool set_manufacture_level(struct Dungeon *dungeon)
 {
     int mnfctr_slabs = get_room_of_role_slabs_count(dungeon->owner, RoRoF_CratesManufctr);
     int level = 0;
-    while (mnfctr_slabs > (level + 3) * (level + 3)) { level++; }
+    while (mnfctr_slabs > (level + 3) * (level + 3))
+    {
+        level++; 
+    }
+    SYNCDBG(19, "Dungeon %s manufacture level set to %d",dungeon->owner, level);
     dungeon->manufacture_level = level;
     return true;
 }
