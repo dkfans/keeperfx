@@ -5726,13 +5726,3 @@ msgstr ""
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr ""
-
-#: guitext:1082
-msgctxt "Game event name"
-msgid "Scavenge success: LMB toggle. RMB delete.""
-msgstr ""
-
-#: guitext:1083
-msgctxt "Game event name"
-msgid "Scavenge success"
-msgstr ""
