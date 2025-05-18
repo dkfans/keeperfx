@@ -174,7 +174,7 @@ TbBool set_manufacture_level(struct Dungeon *dungeon)
     {
         level++; 
     }
-    SYNCDBG(19, "Dungeon %s manufacture level set to %d",dungeon->owner, level);
+    SYNCDBG(19, "Dungeon %d manufacture level set to %d",dungeon->owner, level);
     dungeon->manufacture_level = level;
     return true;
 }
