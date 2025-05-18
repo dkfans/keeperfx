@@ -746,6 +746,9 @@ enum GUIPanelSprite {
     GPS_message_rpanel_msg_alarm_act = 800,
     GPS_message_rpanel_msg_alarm_std = 801,
 
+    GPS_message_rpanel_msg_scvnge_act = 829,
+    GPS_message_rpanel_msg_scvnge_act = 830,
+
     GUI_PANEL_SPRITES_COUNT = 900,
     GUI_PANEL_SPRITES_NEW = 512,
 };
