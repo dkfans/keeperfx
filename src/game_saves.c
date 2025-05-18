@@ -403,7 +403,7 @@ TbBool load_game(long slot_num)
     if ((centry->game_ver_major != VER_MAJOR) || (centry->game_ver_minor != VER_MINOR) || 
         (centry->game_ver_release != VER_RELEASE) || (centry->game_ver_build != VER_BUILD))
     {
-        WARNLOG("loading incompatible savegame version %d.%d.%d.%d current %d.%d.%d.%d", 
+        WARNLOG("loading savegame made in different version %d.%d.%d.%d current %d.%d.%d.%d", 
             (int)centry->game_ver_major, (int)centry->game_ver_minor,
             (int)centry->game_ver_release, (int)centry->game_ver_build, 
             VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
