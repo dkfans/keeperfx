@@ -78,6 +78,10 @@ struct CatalogueEntry {
     char campaign_name[LINEMSG_SIZE];
     char campaign_fname[DISKPATH_SIZE];
     char player_name[PLAYER_NAME_LENGTH];
+    unsigned short game_ver_major;
+    unsigned short game_ver_minor;
+    unsigned short game_ver_release;
+    unsigned short game_ver_build;
 };
 
 struct FileChunkHeader {

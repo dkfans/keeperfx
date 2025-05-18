@@ -398,6 +398,17 @@ TbBool load_game(long slot_num)
         }
     }
     struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
+
+        // Check if the game version is compatible
+    if ((centry->game_ver_major != VER_MAJOR) || (centry->game_ver_minor != VER_MINOR) || 
+        (centry->game_ver_release != VER_RELEASE) || (centry->game_ver_build != VER_BUILD))
+    {
+        WARNLOG("loading incompatible savegame version %d.%d.%d.%d current %d.%d.%d.%d", 
+            (int)centry->game_ver_major, (int)centry->game_ver_minor,
+            (int)centry->game_ver_release, (int)centry->game_ver_build, 
+            VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
+    }
+
     LbFileSeek(fh, 0, Lb_FILE_SEEK_BEGINNING);
     // Here is the actual loading
     if (load_game_chunks(fh,centry) != GLoad_SavedGame)
@@ -466,6 +477,10 @@ TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textn
     snprintf(centry->campaign_fname, DISKPATH_SIZE, "%s", campaign.fname);
     snprintf(centry->player_name, PLAYER_NAME_LENGTH, "%s", high_score_entry);
     set_flag(centry->flags, CEF_InUse);
+    centry->game_ver_major = VER_MAJOR;
+    centry->game_ver_minor = VER_MINOR;
+    centry->game_ver_release = VER_RELEASE;
+    centry->game_ver_build = VER_BUILD;
     return true;
 }
 
@@ -508,6 +523,7 @@ TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct C
     centry->campaign_name[LINEMSG_SIZE-1] = '\0';
     centry->campaign_fname[DISKPATH_SIZE-1] = '\0';
     centry->player_name[PLAYER_NAME_LENGTH-1] = '\0';
+
     return ((centry->flags & CEF_InUse) != 0);
 }
 
