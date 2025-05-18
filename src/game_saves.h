@@ -96,8 +96,10 @@ extern const char* continue_game_filename;
 
 #pragma pack()
 /******************************************************************************/
-extern long const VersionMajor;
-extern long const VersionMinor;
+extern const short VersionMajor;
+extern const short VersionMinor;
+extern short const VersionRelease;
+extern short const VersionBuild;
 extern struct CatalogueEntry save_game_catalogue[];
 /******************************************************************************/
 int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry);

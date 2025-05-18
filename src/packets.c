@@ -1579,8 +1579,8 @@ void process_frontend_packets(void)
   nspckt->frontend_alliances = frontend_alliances;
   set_flag(nspckt->field_4, 0x01);
   nspckt->field_4 ^= ((nspckt->field_4 ^ (fe_computer_players << 1)) & 0x06);
-  nspckt->field_6 = VersionMajor;
-  nspckt->field_8 = VersionMinor;
+  nspckt->field_6 = VersionRelease;
+  nspckt->field_8 = VersionBuild;
   if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
   {
       ERRORLOG("LbNetwork_Exchange failed");

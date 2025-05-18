@@ -57,8 +57,10 @@ extern "C" {
 /******************************************************************************/
 TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct CatalogueEntry *centry);
 /******************************************************************************/
-long const VersionMajor = 1;
-long const VersionMinor = 12;
+const short VersionMajor    = VER_MAJOR;
+const short VersionMinor    = VER_MINOR;
+short const VersionRelease  = VER_RELEASE;
+short const VersionBuild    = VER_BUILD;
 
 const char *continue_game_filename="fx1contn.sav";
 const char *saved_game_filename="fx1g%04d.sav";
@@ -470,7 +472,7 @@ int count_valid_saved_games(void)
 
 TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textname)
 {
-    centry->version = (VersionMajor << 16) + VersionMinor;
+    centry->version = (VersionMajor << 16) + (VersionMinor << 12)+ (VersionRelease << 8) + VersionBuild;
     centry->level_num = get_loaded_level_number();
     snprintf(centry->textname, SAVE_TEXTNAME_LEN, "%s", textname);
     snprintf(centry->campaign_name, LINEMSG_SIZE, "%s", campaign.name);
