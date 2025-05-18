@@ -738,13 +738,16 @@ enum GUIPanelSprite {
     GPS_keepower_timebomb_std_l = 566,
     GPS_keepower_timebomb_dis_l = 567,
 
-    GPS_message_rpanel_msg_exclam2_act = 776,
-    GPS_message_rpanel_msg_exclam2_std = 777,
     GPS_message_rpanel_msg_payday_act = 778,
     GPS_message_rpanel_msg_payday_std = 779,
-
     GPS_message_rpanel_msg_alarm_act = 800,
     GPS_message_rpanel_msg_alarm_std = 801,
+    GPS_message_rpanel_msg_exclam2_act = 833,
+    GPS_message_rpanel_msg_exclam2_std = 834,
+    GPS_message_rpanel_msg_exclam2r_act = 835,
+    GPS_message_rpanel_msg_exclam2r_std = 836,
+
+    GPS_rpanel_cant_make = 837,
 
     GUI_PANEL_SPRITES_COUNT = 900,
     GUI_PANEL_SPRITES_NEW = 512,
