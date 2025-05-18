@@ -570,7 +570,7 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         MapSubtlCoord stl_y = heartng->mappos.y.stl.num;
         if (xy_walkable(stl_x, stl_y, dungeon->owner))
         {
-            if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+            if ((game.computer_chat_flags & CChat_TasksScarce) != 0) {
                 struct PowerConfigStats* powerst = get_power_model_stats(PwrK_MKDIGGER);
                 struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[get_players_special_digger_model(dungeon->owner)];
                 message_add_fmt(MsgType_Player, comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crconf->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));

@@ -3122,7 +3122,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
         }
         if (game.frame_skip == 0)
         {
-            gmnu->fade_time -= gameadd.delta_time;
+            gmnu->fade_time -= game.delta_time;
         } else {
             gmnu->fade_time -= 1.0;
         }
@@ -3135,7 +3135,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
         }
         if (game.frame_skip == 0)
         {
-            gmnu->fade_time -= gameadd.delta_time;
+            gmnu->fade_time -= game.delta_time;
         } else {
             gmnu->fade_time -= 1.0;
         }
@@ -3317,10 +3317,10 @@ void draw_gui(void)
     if (game.flash_button_index != 0)
     {
         draw_active_menus_highlights();
-        if (gameadd.flash_button_time > 0)
+        if (game.flash_button_time > 0)
         {
-            gameadd.flash_button_time -= gameadd.delta_time;
-            if (gameadd.flash_button_time <= 0) {
+            game.flash_button_time -= game.delta_time;
+            if (game.flash_button_time <= 0) {
                 game.flash_button_index = 0;
             }
         }

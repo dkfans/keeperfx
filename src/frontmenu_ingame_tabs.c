@@ -2418,7 +2418,7 @@ void draw_whole_status_panel(void)
 void gui_set_button_flashing(long btn_idx, long gameturns)
 {
     game.flash_button_index = btn_idx;
-    gameadd.flash_button_time = gameturns;
+    game.flash_button_time = gameturns;
 }
 
 void update_room_tab_to_config(void)

@@ -728,7 +728,7 @@ static void add_to_party_check(const struct ScriptLine *scline)
         add_member_to_party(party_id, crtr_id, scline->np[2], scline->np[3], objective_id, scline->np[5]);
     } else
     {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_ADD_TO_PARTY;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->party_id = party_id;
@@ -739,7 +739,7 @@ static void add_to_party_check(const struct ScriptLine *scline)
         pr_trig->countdown = scline->np[5];
         pr_trig->condit_idx = get_script_current_condition();
 
-        gameadd.script.party_triggers_num++;
+        game.script.party_triggers_num++;
     }
 }
 
@@ -762,7 +762,7 @@ static void delete_from_party_check(const struct ScriptLine *scline)
         delete_member_from_party(party_id, creature_id, scline->np[2]);
     } else
     {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_DELETE_FROM_PARTY;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->party_id = party_id;
@@ -770,7 +770,7 @@ static void delete_from_party_check(const struct ScriptLine *scline)
         pr_trig->exp_level = scline->np[2];
         pr_trig->condit_idx = get_script_current_condition();
 
-        gameadd.script.party_triggers_num++;
+        game.script.party_triggers_num++;
     }
 }
 
@@ -854,44 +854,44 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
         SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '0'.", start_x,x,width);
         start_x = 0;
     }
-    else if (start_x > gameadd.map_subtiles_x)
+    else if (start_x > game.map_subtiles_x)
     {
-        SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_x, x, width, gameadd.map_subtiles_x);
-        start_x = gameadd.map_subtiles_x;
+        SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_x, x, width, game.map_subtiles_x);
+        start_x = game.map_subtiles_x;
     }
     if (end_x < 0)
     {
         SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '0'.", end_x, x, width);
         end_x = 0;
     }
-    else if (end_x > gameadd.map_subtiles_x)
+    else if (end_x > game.map_subtiles_x)
     {
-        SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_x, x, width, gameadd.map_subtiles_x);
-        end_x = gameadd.map_subtiles_x;
+        SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_x, x, width, game.map_subtiles_x);
+        end_x = game.map_subtiles_x;
     }
     if (start_y < 0)
     {
         SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '0'.", start_y, y, height);
         start_y = 0;
     }
-    else if (start_y > gameadd.map_subtiles_y)
+    else if (start_y > game.map_subtiles_y)
     {
-        SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_y, y, height, gameadd.map_subtiles_y);
-        start_y = gameadd.map_subtiles_y;
+        SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_y, y, height, game.map_subtiles_y);
+        start_y = game.map_subtiles_y;
     }
     if (end_y < 0)
     {
         SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '0'.", end_y, y, height);
         end_y = 0;
     }
-    else if (end_y > gameadd.map_subtiles_y)
+    else if (end_y > game.map_subtiles_y)
     {
-        SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_y, y, height, gameadd.map_subtiles_y);
-        end_y = gameadd.map_subtiles_y;
+        SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_y, y, height, game.map_subtiles_y);
+        end_y = game.map_subtiles_y;
     }
-    if ((x < 0) || (x > gameadd.map_subtiles_x) || (y < 0) || (y > gameadd.map_subtiles_y))
+    if ((x < 0) || (x > game.map_subtiles_x) || (y < 0) || (y > game.map_subtiles_y))
     {
-        SCRPTERRLOG("Conceal coordinates out of range, trying to set conceal center point to (%ld,%ld) on map that's %ldx%ld subtiles", x, y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+        SCRPTERRLOG("Conceal coordinates out of range, trying to set conceal center point to (%ld,%ld) on map that's %ldx%ld subtiles", x, y, game.map_subtiles_x, game.map_subtiles_y);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -1510,11 +1510,11 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     {
         SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
     }
-    if ((gameadd.quick_messages[scline->np[0]][0] != '\0') && (strcmp(gameadd.quick_messages[scline->np[0]],scline->tp[1]) != 0))
+    if ((game.quick_messages[scline->np[0]][0] != '\0') && (strcmp(game.quick_messages[scline->np[0]],scline->tp[1]) != 0))
     {
         SCRPTWRNLOG("Quick Objective no %ld overwritten by different text", scline->np[0]);
     }
-    snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
+    snprintf(game.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
 
     TbMapLocation location = 0;
     if (scline->tp[2][0] != '\0')
@@ -1529,10 +1529,10 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
 
 static void heart_lost_quick_objective_process(struct ScriptContext *context)
 {
-    gameadd.heart_lost_display_message = true;
-    gameadd.heart_lost_quick_message = true;
-    gameadd.heart_lost_message_id = context->value->longs[0];
-    gameadd.heart_lost_message_target = context->value->longs[2];
+    game.heart_lost_display_message = true;
+    game.heart_lost_quick_message = true;
+    game.heart_lost_message_id = context->value->longs[0];
+    game.heart_lost_message_target = context->value->longs[2];
 }
 
 static void heart_lost_objective_check(const struct ScriptLine *scline)
@@ -1550,10 +1550,10 @@ static void heart_lost_objective_check(const struct ScriptLine *scline)
 
 static void heart_lost_objective_process(struct ScriptContext *context)
 {
-    gameadd.heart_lost_display_message = true;
-    gameadd.heart_lost_quick_message = false;
-    gameadd.heart_lost_message_id = context->value->longs[0];
-    gameadd.heart_lost_message_target = context->value->longs[1];
+    game.heart_lost_display_message = true;
+    game.heart_lost_quick_message = false;
+    game.heart_lost_message_id = context->value->longs[0];
+    game.heart_lost_message_target = context->value->longs[1];
 }
 
 static void set_door_check(const struct ScriptLine* scline)
@@ -2974,10 +2974,10 @@ static void display_timer_check(const struct ScriptLine *scline)
 
 static void display_timer_process(struct ScriptContext *context)
 {
-    gameadd.script_timer_player = context->player_idx;
-    gameadd.script_timer_id = context->value->bytes[1];
-    gameadd.script_timer_limit = context->value->longs[1];
-    gameadd.timer_real = context->value->bytes[2];
+    game.script_timer_player = context->player_idx;
+    game.script_timer_id = context->value->bytes[1];
+    game.script_timer_limit = context->value->longs[1];
+    game.timer_real = context->value->bytes[2];
     game.flags_gui |= GGUI_ScriptTimer;
 }
 
@@ -3031,11 +3031,11 @@ static void display_variable_check(const struct ScriptLine *scline)
 
 static void display_variable_process(struct ScriptContext *context)
 {
-   gameadd.script_variable_player = context->player_idx;
-   gameadd.script_value_type = context->value->bytes[2];
-   gameadd.script_value_id = context->value->longs[1];
-   gameadd.script_variable_target = context->value->longs[2];
-   gameadd.script_variable_target_type = context->value->bytes[1];
+   game.script_variable_player = context->player_idx;
+   game.script_value_type = context->value->bytes[2];
+   game.script_value_id = context->value->longs[1];
+   game.script_variable_target = context->value->longs[2];
+   game.script_variable_target_type = context->value->bytes[1];
    game.flags_gui |= GGUI_Variable;
 }
 
@@ -3238,7 +3238,7 @@ static void set_box_tooltip_check(const struct ScriptLine* scline)
 static void set_box_tooltip_process(struct ScriptContext* context)
 {
     int idx = context->value->shorts[0];
-    snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", script_strval(context->value->longs[2]));
+    snprintf(game.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", script_strval(context->value->longs[2]));
 }
 
 static void set_box_tooltip_id_check(const struct ScriptLine *scline)
@@ -3259,20 +3259,20 @@ static void set_box_tooltip_id_process(struct ScriptContext* context)
 {
     int idx = context->value->shorts[0];
     int string = context->value->shorts[1];
-    snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", get_string(string));
+    snprintf(game.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", get_string(string));
 }
 
 static void change_slab_owner_check(const struct ScriptLine *scline)
 {
 
-    if (scline->np[0] < 0 || scline->np[0] > gameadd.map_tiles_x) //x coord
+    if (scline->np[0] < 0 || scline->np[0] > game.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],game.map_tiles_x);
         return;
     }
-    if (scline->np[1] < 0 || scline->np[1] > gameadd.map_tiles_y) //y coord
+    if (scline->np[1] < 0 || scline->np[1] > game.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[1],gameadd.map_tiles_y);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[1],game.map_tiles_y);
         return;
     }
     long filltype = get_id(fill_desc, scline->tp[3]);
@@ -3305,9 +3305,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    if (scline->np[0] < 0 || scline->np[0] > gameadd.map_tiles_x) //x coord
+    if (scline->np[0] < 0 || scline->np[0] > game.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],game.map_tiles_x);
         return;
     }
     else
@@ -3315,9 +3315,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
         value->shorts[0] = scline->np[0];
     }
 
-    if (scline->np[1] < 0 || scline->np[1] > gameadd.map_tiles_y) //y coord
+    if (scline->np[1] < 0 || scline->np[1] > game.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_y);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],game.map_tiles_y);
         return;
     }
     else
@@ -3783,7 +3783,7 @@ static void if_check(const struct ScriptLine *scline)
     }
 
 
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
@@ -3876,7 +3876,7 @@ static void if_available_check(const struct ScriptLine *scline)
         }
     }
 
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
@@ -3987,7 +3987,7 @@ static void if_controls_check(const struct ScriptLine *scline)
     }
 
     long varib_id;
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
@@ -4058,7 +4058,7 @@ static void if_allied_check(const struct ScriptLine *scline)
     long op = scline->np[2];
     long val = scline->np[3];
 
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
         SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
         return;
@@ -4224,7 +4224,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE;
         return;
     }
-    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
     {
         SCRPTERRLOG("Too many ADD_CREATURE commands in script");
         DEALLOCATE_SCRIPT_VALUE;
@@ -4254,7 +4254,7 @@ static void add_effectgen_to_level_process(struct ScriptContext* context)
     }
     else
     {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_CREATE_EFFECT_GENERATOR;
         pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
         pr_trig->plyr_idx = 0; //not needed
@@ -4264,7 +4264,7 @@ static void add_effectgen_to_level_process(struct ScriptContext* context)
         pr_trig->location = location;
         pr_trig->ncopies = 1;
         pr_trig->condit_idx = get_script_current_condition();
-        gameadd.script.party_triggers_num++;
+        game.script.party_triggers_num++;
     }
 }
 
@@ -5050,11 +5050,11 @@ static void quick_message_check(const struct ScriptLine* scline)
     {
         SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
     }
-    if ((gameadd.quick_messages[scline->np[0]][0] != '\0') && (strcmp(gameadd.quick_messages[scline->np[0]],scline->tp[1]) != 0))
+    if ((game.quick_messages[scline->np[0]][0] != '\0') && (strcmp(game.quick_messages[scline->np[0]],scline->tp[1]) != 0))
     {
         SCRPTWRNLOG("Quick Message no %ld overwritten by different text", scline->np[0]);
     }
-    snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
+    snprintf(game.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
     value->longs[0]= scline->np[0];
     get_chat_icon_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -5062,7 +5062,7 @@ static void quick_message_check(const struct ScriptLine* scline)
 
 static void quick_message_process(struct ScriptContext* context)
 {
-    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", gameadd.quick_messages[context->value->ulongs[0]]);
+    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", game.quick_messages[context->value->ulongs[0]]);
 }
 
 static void display_message_check(const struct ScriptLine* scline)
@@ -5081,7 +5081,7 @@ static void display_message_process(struct ScriptContext* context)
 static void change_slab_texture_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    if ( (scline->np[0] < 0) || (scline->np[0] >= gameadd.map_tiles_x) || (scline->np[1] < 0) || (scline->np[1] >= gameadd.map_tiles_y) )
+    if ( (scline->np[0] < 0) || (scline->np[0] >= game.map_tiles_x) || (scline->np[1] < 0) || (scline->np[1] >= game.map_tiles_y) )
     {
         SCRPTERRLOG("Invalid co-ordinates: %ld, %ld", scline->np[0], scline->np[1]);
         DEALLOCATE_SCRIPT_VALUE
@@ -5133,8 +5133,8 @@ static void change_slab_texture_process(struct ScriptContext* context)
     else
     {
         SlabCodedCoords slb_num = get_slab_number(context->value->shorts[0], context->value->shorts[1]);
-        gameadd.slab_ext_data[slb_num] = context->value->bytes[4];
-        gameadd.slab_ext_data_initial[slb_num] = context->value->bytes[4];
+        game.slab_ext_data[slb_num] = context->value->bytes[4];
+        game.slab_ext_data_initial[slb_num] = context->value->bytes[4];
     }
 }
 

@@ -942,7 +942,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
          toggle_ally_with_player(plyr_idx, pckt->actn_par1);
          if (game.conf.rules.game.allies_share_vision)
          {
-            panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+            panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
          }
       }
       return false;
