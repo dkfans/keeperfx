@@ -1959,7 +1959,7 @@ void maintain_event_button(struct GuiButton *gbtn)
         turn_on_event_info_panel_if_necessary(dungeon->visible_event_idx);
         //TODO: that should be not here, Keys should be processed at one place
         if (is_game_key_pressed(Gkey_ToggleMessage, &keycode, false)
-            && ((get_player(my_player_number)->allocflags & PlaF_NewMPMessage) == 0) && (event->kind != EvKind_HeartAttacked))
+            && ((get_player(my_player_number)->allocflags & PlaF_NewMPMessage) == 0))
         {
             gui_kill_event(gbtn);
             clear_key_pressed(keycode);
