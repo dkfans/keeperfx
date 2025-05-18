@@ -35,6 +35,7 @@ void lua_on_dungeon_destroyed(PlayerNumber plyr_idx);
 void lua_on_creature_death(struct Thing *crtng);
 void lua_on_trap_placed(struct Thing *traptng);
 void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx);
+void lua_on_level_up(struct Thing *thing);
 //void lua_on_room_claimed(PlayerNumber plyr_idx, struct Room *room);
 
 

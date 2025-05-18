@@ -106,7 +106,7 @@ struct ObjectConfigStats {
     unsigned char persistence;
     unsigned char destroy_on_liquid;
     unsigned char rotation_flag;
-    unsigned char updatefn_idx;
+    FuncIdx updatefn_idx;
     unsigned char initial_state;
     unsigned char random_start_frame;
     unsigned char transparency_flags;  // Lower 2 bits are transparency flags.

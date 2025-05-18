@@ -28,6 +28,7 @@ void lua_on_dungeon_destroyed(PlayerNumber plyr_idx)
 	if (lua_isfunction(Lvl_script, -1))
 	{
 		lua_pushPlayer(Lvl_script, plyr_idx);
+		// the 1 there is the number of arguments, so the number of push lines above
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnDungeonDestroyed");
 	}
 	else
@@ -166,6 +167,21 @@ void lua_on_apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumb
 		lua_pushPlayer(Lvl_script, dealing_plyr_idx);
 
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 3, 0, 0),"OnApplyDamage");
+	}
+	else
+	{
+		lua_pop(Lvl_script, 1);
+	}
+}
+
+void lua_on_level_up(struct Thing *thing)
+{
+	SYNCDBG(6,"Starting");
+    lua_getglobal(Lvl_script, "OnLevelUp");
+	if (lua_isfunction(Lvl_script, -1))
+	{
+		lua_pushThing(Lvl_script, thing);
+		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"OnLevelUp");
 	}
 	else
 	{

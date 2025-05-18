@@ -883,7 +883,7 @@ long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
         cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
         return 1;
     }
-    if ( check_out_unclaimed_gold(spdigtng, 768) )
+    if ( check_out_unclaimed_gold(spdigtng, 3 * COORD_PER_STL) )
     {
         cctrl->digger.task_repeats = 0;
         return 1;
@@ -1729,10 +1729,8 @@ short creature_picks_up_corpse(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
-    if (!thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_PowersStorage, TngFRPickF_Default)
-     || (get_chessboard_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2,0)))
-    if ( thing_is_invalid(picktng) || ((picktng->alloc_flags & TAlF_IsDragged) != 0)
-      || (get_chessboard_distance(&creatng->mappos, &picktng->mappos) >= 512))
+    if (thing_is_invalid(picktng) || (flag_is_set(picktng->alloc_flags,TAlF_IsDragged))
+        || (get_chessboard_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2, 0)))
     {
         set_start_state(creatng);
         return 0;

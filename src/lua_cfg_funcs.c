@@ -16,7 +16,7 @@ FuncIdx get_function_idx(const char *func_name, const struct NamedCommand *Cfunc
 
     // If it's a C function, return positive index
     FuncIdx id = get_id(Cfuncs, func_name);
-    if (id > 0) {
+    if (id >= 0) {
         return id;
     }
 
@@ -97,7 +97,6 @@ TbResult luafunc_magic_use_power(FuncIdx func_idx, PlayerNumber plyr_idx, PowerK
 
 short luafunc_crstate_func(FuncIdx func_idx,struct Thing *thing)
 {
-    
     const char *func_name = get_function_name(func_idx);
     if (!func_name) {
         ERRORLOG("Invalid function index: %d", func_idx);
@@ -108,12 +107,34 @@ short luafunc_crstate_func(FuncIdx func_idx,struct Thing *thing)
     if (lua_isfunction(Lvl_script, -1)) {
         lua_pushThing(Lvl_script, thing);
         short result = 0;
-        if (lua_pcall(Lvl_script, 7, 1, 0) != LUA_OK) {
-            const char *error_msg = lua_tostring(Lvl_script, -1);
-            ERRORLOG("Error calling Lua function '%s': %s", func_name, error_msg);
-            lua_pop(Lvl_script, 1); // Remove error message from stack
-            return 0; // Indicate an error
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 1, 0),"crstate_func");
+
+        // Retrieve the result returned by the Lua function
+        if (lua_isnumber(Lvl_script, -1)) {
+            result = lua_tointeger(Lvl_script, -1);
         }
+        lua_pop(Lvl_script, 1);
+        return result;
+    } else {
+        ERRORLOG("Lua function '%s' not found or not a function", func_name);
+        lua_pop(Lvl_script, 1);
+        return 0;
+    }
+}
+
+short luafunc_obj_update_func(FuncIdx func_idx,struct Thing *thing)
+{
+    const char *func_name = get_function_name(func_idx);
+    if (!func_name) {
+        ERRORLOG("Invalid function index: %d", func_idx);
+        return 0;
+    }
+
+    lua_getglobal(Lvl_script, func_name);
+    if (lua_isfunction(Lvl_script, -1)) {
+        lua_pushThing(Lvl_script, thing);
+        short result = 0;
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 1, 0),"obj_update_func");
 
         // Retrieve the result returned by the Lua function
         if (lua_isnumber(Lvl_script, -1)) {
