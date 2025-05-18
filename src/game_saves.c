@@ -523,7 +523,6 @@ TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct C
     centry->campaign_name[LINEMSG_SIZE-1] = '\0';
     centry->campaign_fname[DISKPATH_SIZE-1] = '\0';
     centry->player_name[PLAYER_NAME_LENGTH-1] = '\0';
-
     return ((centry->flags & CEF_InUse) != 0);
 }
 
