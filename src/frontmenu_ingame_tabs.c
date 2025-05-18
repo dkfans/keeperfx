@@ -2030,7 +2030,7 @@ void maintain_event_button(struct GuiButton *gbtn)
         && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((game.play_gameturn & 0x01) != 0))
     {
         // Heart alert icon flashes when heart is being attacked
-        gbtn->sprite_idx += 1;
+        gbtn->sprite_idx += 2;
     }
     gbtn->tooltip_stridx = event_button_info[event->kind].tooltip_stridx;
     gbtn->flags |= LbBtnF_Enabled;
