@@ -69,22 +69,22 @@ void setup_default_settings(void)
           {KC_PGDOWN, KMod_NONE},            // Gkey_RotateCCW
           {KC_HOME, KMod_NONE},              // Gkey_ZoomIn
           {KC_END, KMod_NONE},               // Gkey_ZoomOut
-          {KC_T, KMod_NONE},                 // Gkey_ZoomRoom00
-          {KC_L, KMod_NONE},                 // Gkey_ZoomRoom01
-          {KC_L, KMod_SHIFT},                // Gkey_ZoomRoom02
-          {KC_P, KMod_SHIFT},                // Gkey_ZoomRoom03
-          {KC_T, KMod_ALT},                  // Gkey_ZoomRoom04
-          {KC_T, KMod_SHIFT},                // Gkey_ZoomRoom05
-          {KC_H, KMod_NONE},                 // Gkey_ZoomRoom06
-          {KC_W, KMod_ALT},                  // Gkey_ZoomRoom07
-          {KC_S, KMod_ALT},                  // Gkey_ZoomRoom08
-          {KC_T, KMod_CONTROL},              // Gkey_ZoomRoom09
-          {KC_G, KMod_NONE},                 // Gkey_ZoomRoom10
-          {KC_B, KMod_NONE},                 // Gkey_ZoomRoom11
-          {KC_H, KMod_SHIFT},                // Gkey_ZoomRoom12
-          {KC_G, KMod_SHIFT},                // Gkey_ZoomRoom13
-          {KC_B, KMod_SHIFT},                // Gkey_ZoomRoom14
-          {KC_P, KMod_CONTROL},              // Gkey_ZoomRoom15
+          {KC_T, KMod_NONE},                 // Gkey_ZoomRoomTreasure
+          {KC_L, KMod_NONE},                 // Gkey_ZoomRoomLibrary
+          {KC_L, KMod_SHIFT},                // Gkey_ZoomRoomLair
+          {KC_P, KMod_SHIFT},                // Gkey_ZoomRoomPrison
+          {KC_T, KMod_ALT},                  // Gkey_ZoomRoomTorture
+          {KC_T, KMod_SHIFT},                // Gkey_ZoomRoomTraining
+          {KC_H, KMod_NONE},                 // Gkey_ZoomRoomHeart
+          {KC_W, KMod_ALT},                  // Gkey_ZoomRoomWorkshop
+          {KC_S, KMod_ALT},                  // Gkey_ZoomRoomScavenger
+          {KC_T, KMod_CONTROL},              // Gkey_ZoomRoomTemple
+          {KC_G, KMod_NONE},                 // Gkey_ZoomRoomGraveyard
+          {KC_B, KMod_NONE},                 // Gkey_ZoomRoomBarracks
+          {KC_H, KMod_SHIFT},                // Gkey_ZoomRoomHatchery
+          {KC_G, KMod_SHIFT},                // Gkey_ZoomRoomGuardPost
+          {KC_B, KMod_SHIFT},                // Gkey_ZoomRoomBridge
+          {KC_P, KMod_CONTROL},              // Gkey_ZoomRoomPortal
           {KC_F, KMod_NONE},                 // Gkey_ZoomToFight
           {KC_A, KMod_ALT},                  // Gkey_ZoomCrAnnoyed
           {KC_LSHIFT, KMod_NONE},            // Gkey_CrtrContrlMod
