@@ -948,25 +948,6 @@ void gui_area_trap_button(struct GuiButton *gbtn)
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, i);
     }
-        // Overlay "can't make" sprite if not buildable but placeable/built
-    if (manufctr->tngclass == TCls_Trap)
-    {
-        if (!is_trap_buildable(my_player_number, manufctr->tngmodel)
-          && (is_trap_placeable(my_player_number, manufctr->tngmodel)
-          || is_trap_built(my_player_number, manufctr->tngmodel)))
-        {
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_cant_make);
-        }
-    }
-    else if (manufctr->tngclass == TCls_Door)
-    {
-        if (!is_door_buildable(my_player_number, manufctr->tngmodel)
-          && (is_door_placeable(my_player_number, manufctr->tngmodel)
-          || is_door_built(my_player_number, manufctr->tngmodel)))
-        {
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_cant_make);
-        }
-    }
     lbDisplay.DrawFlags = flg_mem;
 }
 
@@ -1065,6 +1046,33 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
     int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
     draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
     lbDisplay.DrawFlags = flg_mem;
+
+    // New aim is to overlay symbol depending on status:
+    // if not displayed, nothing, obviously
+    // if a ?, display 1) or 2)
+    // if lit up or greyed out, display 1), 2) or 3)
+    // 1) if manufacturable, manufacture level is enough, display lit hammer
+    // 2) if manufacturable, manufacture level not enough, display greyed hammer
+    // 3) if not manufacturable, display no entry hammer (would you want to distinguish between whether you have level if you can't even make it?)
+    // draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_wide_empty);
+    // if (manufctr->tngclass == TCls_Trap)
+    // {
+    //     if (!is_trap_buildable(my_player_number, manufctr->tngmodel)
+    //       && (is_trap_placeable(my_player_number, manufctr->tngmodel)
+    //       || is_trap_built(my_player_number, manufctr->tngmodel)))
+    //     {
+    //         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_cant_make);
+    //     }
+    // }
+    // else if (manufctr->tngclass == TCls_Door)
+    // {
+    //     if (!is_door_buildable(my_player_number, manufctr->tngmodel)
+    //       && (is_door_placeable(my_player_number, manufctr->tngmodel)
+    //       || is_door_built(my_player_number, manufctr->tngmodel)))
+    //     {
+    //         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_cant_make);
+    //     }
+    // }
 }
 
 void maintain_big_spell(struct GuiButton *gbtn)
