@@ -472,7 +472,6 @@ int count_valid_saved_games(void)
 
 TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textname)
 {
-    centry->version = (VersionMajor << 16) + (VersionMinor << 12)+ (VersionRelease << 8) + VersionBuild;
     centry->level_num = get_loaded_level_number();
     snprintf(centry->textname, SAVE_TEXTNAME_LEN, "%s", textname);
     snprintf(centry->campaign_name, LINEMSG_SIZE, "%s", campaign.name);

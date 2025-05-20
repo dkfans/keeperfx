@@ -72,7 +72,6 @@ enum CatalogueEntryFlags {
 
 struct CatalogueEntry {
     unsigned short flags;
-    unsigned long version;
     char textname[SAVE_TEXTNAME_LEN];
     LevelNumber level_num;
     char campaign_name[LINEMSG_SIZE];
