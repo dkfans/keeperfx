@@ -732,16 +732,19 @@ long in_action_point_thing_filter_is_of_class_and_model_and_owned_by(const struc
     {
         if (thing_matches_model(thing, param->model_id))
         {
-            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            if (!thing_is_in_limbo(thing))
             {
-                struct Coord3d refpos;
-                refpos.x.val = param->num1;
-                refpos.y.val = param->num2;
-                refpos.z.val = 0;
-                MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
-                if (dist <= param->num3) {
-                    // Return the largest value to stop sweeping
-                    return LONG_MAX;
+                if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+                {
+                    struct Coord3d refpos;
+                    refpos.x.val = param->num1;
+                    refpos.y.val = param->num2;
+                    refpos.z.val = 0;
+                    MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
+                    if (dist <= param->num3) {
+                        // Return the largest value to stop sweeping
+                        return LONG_MAX;
+                    }
                 }
             }
         }
@@ -4129,6 +4132,20 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
     long i = get_mapwho_thing_index(mapblk);
     long n = 0;
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
+}
+
+struct Thing* get_nearest_object_with_tooltip_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool optional)
+{
+    if (optional)
+    {
+        return get_object_around_owned_by_and_matching_bool_filter(
+            subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object_with_optional_tooltip);
+    }
+    else
+    {
+        return get_object_around_owned_by_and_matching_bool_filter(
+            subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object_with_mandatory_tooltip);
+    }
 }
 
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)

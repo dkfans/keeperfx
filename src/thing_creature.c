@@ -93,6 +93,7 @@
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "lua_triggers.h"
+#include "lua_cfg_funcs.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -2531,9 +2532,14 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     //TODO CREATURE_AI rewrite state subfunctions so they won't hang
     //if (game.play_gameturn > 119800)
     SYNCDBG(18,"Executing state %s for %s index %d.",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
-    struct StateInfo* stati = get_thing_active_state_info(thing);
-    if (stati->process_state != NULL) {
-        short k = stati->process_state(thing);
+    struct CreatureStateConfig* stati = get_thing_active_state_info(thing);
+    if (stati->process_state != 0) {
+        short k = 0;
+        if (stati->process_state > 0)
+            k = process_func_list[stati->process_state](thing);
+        else 
+            k = luafunc_crstate_func(stati->process_state, thing);
+
         if (k == CrStRet_Deleted) {
             SYNCDBG(18,"Finished with creature deleted");
             return TUFRet_Deleted;
@@ -2819,11 +2825,15 @@ long move_creature(struct Thing *thing)
              || (subtile_slab(tngpos->y.stl.num) != subtile_slab(nxpos.y.stl.num)))
             {
                 check_map_explored(thing, nxpos.x.stl.num, nxpos.y.stl.num);
-                struct StateInfo* stati = get_thing_active_state_info(thing);
+                struct CreatureStateConfig* stati = get_thing_active_state_info(thing);
                 if (!state_info_invalid(stati)) {
-                    CreatureStateFunc2 callback = stati->move_from_slab;
-                    if (callback != NULL) {
-                        callback(thing);
+                    if (stati->move_from_slab > 0)
+                    {
+                        move_from_slab_func_list[stati->move_from_slab](thing);
+                    }
+                    else if (stati->move_from_slab < 0)
+                    {
+                        luafunc_crstate_func(stati->move_from_slab, thing);
                     }
                 }
             }
@@ -6344,6 +6354,8 @@ long update_creature_levels(struct Thing *thing)
         return 0;
     }
     cctrl->exp_level_up = false;
+    lua_on_level_up(thing);
+    
     // If a creature is not on highest level, just update the level.
     if (cctrl->exp_level+1 < CREATURE_MAX_LEVEL)
     {

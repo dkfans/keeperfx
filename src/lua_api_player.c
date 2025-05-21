@@ -21,7 +21,6 @@ static int lua_Add_gold_to_player(lua_State *L)
 
 
     GoldAmount gold = luaL_checkinteger(L, 2);
-    JUSTLOG("gold %d",(int)gold);
 
     for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
     {
