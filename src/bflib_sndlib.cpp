@@ -755,7 +755,10 @@ extern "C" SoundMilesID play_sample(
 				return source.mss_id;
 			}
 		}
-		ERRORLOG("Can't play sample %d from bank %u, too many samples playing at once", smptbl_id, bank_id);
+        if (game.frame_skip < 2)
+        {
+            ERRORLOG("Can't play sample %d from bank %u, too many samples playing at once", smptbl_id, bank_id);
+        }
 		return 0;
 	} catch (const std::exception & e) {
 		ERRORLOG("%s", e.what());

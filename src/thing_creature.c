@@ -6354,6 +6354,8 @@ long update_creature_levels(struct Thing *thing)
         return 0;
     }
     cctrl->exp_level_up = false;
+    lua_on_level_up(thing);
+    
     // If a creature is not on highest level, just update the level.
     if (cctrl->exp_level+1 < CREATURE_MAX_LEVEL)
     {

@@ -364,6 +364,9 @@ const struct NamedCommand variable_desc[] = {
     {"ACTIVE_BATTLES",              SVar_ACTIVE_BATTLES},
     {"VIEW_TYPE",                   SVar_VIEW_TYPE},
     {"TOTAL_SLAPS",                 SVar_TOTAL_SLAPS},
+    {"SCORE",                       SVar_SCORE},
+    {"PLAYER_SCORE",                SVar_PLAYER_SCORE},
+    {"MANAGE_SCORE",                SVar_MANAGE_SCORE},
     {NULL,                          0},
 };
 
