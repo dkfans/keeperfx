@@ -62,6 +62,7 @@
 #include "sounds.h"
 #include "game_lghtshdw.h"
 #include "game_merge.h"
+#include "lua_cfg_funcs.h"
 #include "engine_textures.h"
 
 #define BOOKMARKS_COUNT               5
@@ -119,12 +120,12 @@ struct Configs {
     struct CubesConfig cube_conf;
     struct TrapDoorConfig trapdoor_conf;
     struct EffectsConfig effects_conf;
-    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
     struct CreatureConfig crtr_conf;
     struct ObjectsConfig object_conf;
     struct RulesConfig rules;
     struct PlayerStateConfig plyr_conf;
     struct ColumnConfig column_conf;
+    struct LuaFuncsConf lua;
 };
 
 struct Game {

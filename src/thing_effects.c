@@ -184,7 +184,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
 
 void process_spells_affected_by_effect_elements(struct Thing *thing)
 {
-    struct CreatureStats* crstat;
+    struct CreatureModelConfig* crconf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     GameTurnDelta dturn;
     long angle;
@@ -311,11 +311,11 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         } else
         if (spconf->duration / 2 > dturn)
         {
-            crstat = creature_stats_get_from_thing(thing);
+            crconf = creature_stats_get_from_thing(thing);
             if ((dturn % 2) == 0) {
                 effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
             }
-            creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_turning_speed);
+            creature_turn_to_face_angle(thing, thing->move_angle_xy + crconf->max_turning_speed);
         }
     }
 }
@@ -1008,7 +1008,21 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 {
                     HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
                     SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
+                    if (flag_is_set(shotst->model_flags,ShMF_LifeDrain))
+                    {
+                        give_shooter_drained_health(origtng, damage / 2);
+                    }
                     apply_damage_to_thing_and_display_health(tngdst, damage, owner);
+                    if (flag_is_set(shotst->model_flags,ShMF_GroupUp))
+                    {
+                        if (thing_is_creature(origtng))
+                        {
+                            if (get_no_creatures_in_group(origtng) < GROUP_MEMBERS_COUNT)
+                            {
+                                add_creature_to_group(tngdst, origtng);
+                            }
+                        }
+                    }
                 }
                 affected = true;
                 if (shotst->cast_spell_kind != 0)

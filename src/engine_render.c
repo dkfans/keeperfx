@@ -4002,9 +4002,9 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
 static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
     struct EngineCoord coord = *ecor;
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    const struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    short offset = thing->clipbox_size_z + crstat->status_offset;
+    short offset = thing->clipbox_size_z + crconf->status_offset;
     offset += (offset * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
     coord.y += offset;
     rotpers(&coord, &camera_matrix);
@@ -5177,41 +5177,41 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
         cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
         if (cctrl->thought_bubble_display_timer == 40)
         {
-            struct StateInfo *stati;
+            struct CreatureStateConfig *stati;
             stati = get_creature_state_with_task_completion(thing);
             if (!stati->blocks_all_state_changes)
             {
                 if (creature_under_spell_effect(thing, CSAfF_MadKilling))
                 {
-                    stati = &states[CrSt_MadKillingPsycho];
+                    stati = &game.conf.crtr_conf.states[CrSt_MadKillingPsycho];
                 }
                 else if (anger_is_creature_livid(thing))
                 {
-                    stati = &states[CrSt_CreatureLeavingDungeon];
+                    stati = &game.conf.crtr_conf.states[CrSt_CreatureLeavingDungeon];
                 }
                 else if (creature_is_called_to_arms(thing))
                 {
-                    stati = &states[CrSt_ArriveAtCallToArms];
+                    stati = &game.conf.crtr_conf.states[CrSt_ArriveAtCallToArms];
                 }
                 else if (creature_is_at_alarm(thing))
                 {
-                    stati = &states[CrSt_ArriveAtAlarm];
+                    stati = &game.conf.crtr_conf.states[CrSt_ArriveAtAlarm];
                 }
                 else if (anger_is_creature_angry(thing))
                 {
-                    stati = &states[CrSt_PersonSulkAtLair];
+                    stati = &game.conf.crtr_conf.states[CrSt_PersonSulkAtLair];
                 }
                 else if (hunger_is_creature_hungry(thing))
                 {
-                    stati = &states[CrSt_CreatureArrivedAtGarden];
+                    stati = &game.conf.crtr_conf.states[CrSt_CreatureArrivedAtGarden];
                 }
                 else if (creature_requires_healing(thing))
                 {
-                    stati = &states[CrSt_CreatureSleep];
+                    stati = &game.conf.crtr_conf.states[CrSt_CreatureSleep];
                 }
                 else if (cctrl->paydays_owed)
                 {
-                    stati = &states[CrSt_CreatureWantsSalary];
+                    stati = &game.conf.crtr_conf.states[CrSt_CreatureWantsSalary];
                 }
                 else
                 {

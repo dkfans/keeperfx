@@ -689,30 +689,31 @@ long process_obey_leader(struct Thing *thing)
     }
     struct CreatureControl *cctrl;
     struct CreatureControl *leadctrl;
-    struct StateInfo* stati = get_creature_state_with_task_completion(leadtng);
+    struct CreatureStateConfig* stati = get_creature_state_with_task_completion(leadtng);
+
     switch (stati->follow_behavior)
     {
-    case 1:
+    case FlwB_FollowLeader:
         if (thing->active_state != CrSt_CreatureFollowLeader) {
             external_set_thing_state(thing, CrSt_CreatureFollowLeader);
         }
         break;
-    case 2:
+    case FlwB_MatchWorkRoom:
         cctrl = creature_control_get_from_thing(thing);
         leadctrl = creature_control_get_from_thing(leadtng);
         if ((cctrl->work_room_id != leadctrl->work_room_id) && (cctrl->target_room_id != leadctrl->work_room_id))
         {
             struct Room *room;
             room = get_room_creature_works_in(leadtng);
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(thing);
+            struct CreatureModelConfig *crconf;
+            crconf = creature_stats_get_from_thing(thing);
             CreatureJob jobpref;
-            jobpref = get_job_for_room(room->kind, JoKF_None, crstat->job_primary|crstat->job_secondary);
+            jobpref = get_job_for_room(room->kind, JoKF_None, crconf->job_primary|crconf->job_secondary);
             cleanup_current_thing_state(thing);
             send_creature_to_room(thing, room, jobpref);
         }
         break;
-    case 3:
+    case FlwB_JoinCombatOrFollow:
         cctrl = creature_control_get_from_thing(thing);
         leadctrl = creature_control_get_from_thing(leadtng);
 

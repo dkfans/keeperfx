@@ -36,6 +36,8 @@
 #include "gui_soundmsgs.h"
 #include "kjm_input.h"
 #include "lvl_filesdk1.h"
+#include "lua_base.h"
+#include "lua_triggers.h"
 #include "net_sync.h"
 #include "room_library.h"
 #include "room_list.h"
@@ -61,7 +63,7 @@ extern TbBool force_player_num;
 extern void setup_players_count();
 
 CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
-
+TbBool luascript_loaded = false;
 /**
  * Resets timers and flags of all players into default (zeroed) state.
  * Also enables spells which are always enabled by default.
@@ -161,6 +163,7 @@ static void init_level(void)
     lens_mode = 0;
     setup_heap_manager();
 
+    luascript_loaded = open_lua_script(get_selected_level_number());
     // Load configs which may have per-campaign part, and can even be modified within a level
     init_custom_sprites(get_selected_level_number());
     load_stats_files();
@@ -185,6 +188,7 @@ static void init_level(void)
     clear_messages();
     init_seeds();
     // Load the actual level files
+    
     TbBool script_preloaded = preload_script(get_selected_level_number());
     if (!load_map_file(get_selected_level_number()))
     {
@@ -194,7 +198,7 @@ static void init_level(void)
     }
     else
     {
-        if (script_preloaded == false)
+        if (script_preloaded == false && luascript_loaded == false)
         {
             show_onscreen_msg(200,"%s: No Script %lu", get_string(GUIStr_Error), get_selected_level_number());
             JUSTMSG("Unable to load script level %lu from %s", get_selected_level_number(), campaign.name);
@@ -251,6 +255,7 @@ static void post_init_level(void)
     clear_creature_pool();
     setup_computer_players2();
     load_script(get_loaded_level_number());
+    lua_on_game_start();
     init_dungeons_research();
     init_dungeons_essential_position();
     if (!is_map_pack())
@@ -481,5 +486,6 @@ void init_seeds()
             init_network_seed();
         }
         start_seed = game.action_rand_seed;
+        lua_set_random_seed(game.action_rand_seed);
     }
 }

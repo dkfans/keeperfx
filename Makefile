@@ -66,7 +66,8 @@ GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 
 DEPS = \
-obj/centitoml/toml_api.o
+obj/centitoml/toml_api.o \
+deps/luajit/lib/libluajit.a
 
 # functional test debugging flags/objs
 FTEST_DEBUG ?= 0
@@ -245,6 +246,15 @@ obj/config_effects.o \
 obj/lens_flyeye.o \
 obj/lens_mist.o \
 obj/light_data.o \
+obj/lua_api.o \
+obj/lua_api_player.o \
+obj/lua_api_things.o \
+obj/lua_api_slabs.o \
+obj/lua_base.o \
+obj/lua_cfg_funcs.o \
+obj/lua_params.o \
+obj/lua_triggers.o \
+obj/lua_utils.o \
 obj/lvl_filesdk1.o \
 obj/lvl_script.o \
 obj/lvl_script_commands.o \
@@ -354,6 +364,7 @@ LINKLIB = -mwindows \
 	-L"deps/spng" -lspng \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
+	deps/luajit/lib/libluajit.a \
 	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid
 INCS = \
 	-I"deps/zlib/include" \
@@ -366,6 +377,7 @@ INCS = \
 	-I"deps/astronomy/include" \
 	-I"deps/ffmpeg" \
 	-I"deps/openal/include" \
+	-I"deps/luajit/include" \
 	-I"obj" # To find ver_defs.h
 CXXINCS =  $(INCS)
 
@@ -589,7 +601,7 @@ clean-libexterns: libexterns.mk
 	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson
 	-$(RM) libexterns
 
-deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal:
+deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit:
 	$(MKDIR) $@
 
 src/api.c: deps/centijson/include/json.h
@@ -600,6 +612,7 @@ deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 src/bflib_fmvids.cpp: deps/ffmpeg/libavformat/avformat.h
 src/bflib_sndlib.cpp: deps/openal/AL/al.h
+src/console_cmd.c: deps/luajit/include/lua.h
 
 deps/enet-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/initial/enet-mingw32.tar.gz"
@@ -642,6 +655,17 @@ deps/openal-mingw32.tar.gz:
 
 deps/openal/AL/al.h: deps/openal-mingw32.tar.gz | deps/openal
 	tar xzmf $< -C deps/openal
+
+deps/luajit-mingw32.tar.gz:
+	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20250418/luajit-mingw32.tar.gz"
+
+deps/luajit/lib/libluajit.a: deps/luajit-mingw32.tar.gz | deps/luajit
+	tar xzmf $< -C deps/luajit
+
+deps/luajit/include/lua.h: deps/luajit-mingw32.tar.gz | deps/luajit
+	tar xzmf $< -C deps/openal
+
+std-before: deps/luajit/lib/libluajit.a
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk

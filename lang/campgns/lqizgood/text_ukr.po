@@ -1,0 +1,484 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file lqizgood/text_ukr.po
+#      KeeperFX Campaign Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 12 Dec 2020
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid "Success! The land is yours. Press Space to proceed to the next realm."
+msgstr "Успіх! Земля ваша. Натисніть пробіл, щоб перейти до наступного царства."
+
+#: guitext:1
+msgctxt "In-game message"
+msgid ""
+"Welcome to the Good Guys campaign. It is your job to utterly destroy the Evil "
+"keepers."
+msgstr ""
+"Ласкаво просимо до кампанії "Хороші хлопці". Ваше завдання - повністю знищити "
+"Хранителів Зла."
+
+#: guitext:2
+msgctxt "In-game message"
+msgid ""
+"Gather up some gold, and forces, as rumour has it an evil keeper is gathering "
+"forces in the south! Nip him in the bud!"
+msgstr ""
+"Запасіться золотом і силами, адже ходять чутки, що на півдні збирає сили злий "
+"хранитель! Придуши його в зародку!"
+
+#: guitext:3
+msgctxt "In-game message"
+msgid ""
+"You have found a holy monk, ready to attack the enemy, but you got there first! "
+"Take him to the next level, he will be very useful."
+msgstr ""
+"Ви знайшли святого монаха, готового атакувати ворога, але ви встигли першим! "
+"Візьміть його на наступний рівень, він буде дуже корисним."
+
+#: guitext:4
+msgctxt "In-game message"
+msgid ""
+"Ah, a Dwarf has joined you, they are weak alone, but in a pack, can cause "
+"serious damage."
+msgstr ""
+"А, до вас приєднався гном, вони слабкі поодинці, але в зграї можуть завдати "
+"серйозної шкоди."
+
+#: guitext:5
+msgctxt "In-game message"
+msgid ""
+"You have recruited a Tunneller! They are like imps, but stronger. They are, "
+"however less efficient because they need food, sleep and gold."
+msgstr ""
+"Ви завербували гірського гнома! Вони схожі на імпів, але сильніші. Однак вони "
+"менш ефективні, бо потребують їжі, сну і золота."
+
+#: guitext:6 guitext:7 guitext:8 guitext:9
+msgctxt "In-game message"
+msgid "Moo2"
+msgstr "Moo2"
+
+#: guitext:10
+msgctxt "In-game message"
+msgid "The Spawners have come, be ready for their offspring."
+msgstr "Розплідники з'явилися, будьте готові до їхнього потомства."
+
+#: guitext:11
+msgctxt "In-game message"
+msgid ""
+"Welcome to this realm, noble hero. It is your holy quest to vanquish the "
+"spawners from here forever. They spawn in a pit of lava, heavily guarded. If "
+"only you could cover it up....."
+msgstr ""
+"Ласкаво просимо в це царство, благородний герою. Твій святий обов'язок - "
+"назавжди вигнати звідси потвор. Вони розмножуються в ямі з лавою, яку ретельно "
+"охороняють. Якби ти тільки міг її прикрити ....."
+
+#: guitext:12
+msgctxt "In-game message"
+msgid ""
+"There is new technology available to you, oh noble one. Build a library to "
+"research them. Wizards are attracted to libraries, but they do not see the "
+"spawners as much of a threat, and so will not come. Make do without them!"
+msgstr ""
+"Тобі, о благородний, доступні нові технології. Побудуй бібліотеку для їх "
+"дослідження. Чарівників приваблюють бібліотеки, але вони не бачать у спайнерах "
+"великої загрози, а тому не прийдуть. Обійдіться без них!"
+
+#: guitext:13
+msgctxt "In-game message"
+msgid ""
+"A Thief has joined you! They are weak at low levels, but later they can become "
+"very sneaky. One day, they will learn the error of their ways (level 11) :P"
+msgstr ""
+"До вас приєднався Злодій! Вони слабкі на низьких рівнях, але згодом можуть "
+"стати дуже підступними. Одного разу вони зрозуміють, наскільки помилковими були "
+"їхні дії (11 рівень) :P"
+
+#: guitext:14
+msgctxt "In-game message"
+msgid "A Barbarian has joined you! These are mean, strong heroes, with attitude!"
+msgstr "До вас приєднався Варвар! Це злі, сильні герої, з характером!"
+
+#: guitext:15
+msgctxt "In-game message"
+msgid "A Fairy, how lovely! They are good researchers, and very destructive."
+msgstr "Фея, як мило! Вони хороші дослідники, і дуже деструктивні."
+
+#: guitext:16
+msgctxt "In-game message"
+msgid ""
+"Very clever! But it looks like a Horned Reaper has come for revenge... and he "
+"looks angry!"
+msgstr ""
+"Дуже розумно! Але схоже, що Рогатий Жнець прийшов помститися... і він виглядає "
+"розлюченим!"
+
+#: guitext:17
+msgctxt "In-game message"
+msgid "Well done! That's another bit of evil destroyed! Congratulations!"
+msgstr "Молодець! Ще одна частинка зла знищена! Вітаємо!"
+
+#: guitext:18 guitext:19
+msgctxt "In-game message"
+msgid "Moo4"
+msgstr "Moo4"
+
+#: guitext:20
+msgctxt "In-game message"
+msgid ""
+"Welcome noble one. I have terrible news for you. Snow white and the 7 dwarves "
+"have been captured along with Jack, the beanstalk AND the giant!! The wizards "
+"have realised how important this is and joined you!"
+msgstr ""
+"Ласкаво просимо, благородний. У мене для тебе жахливі новини. Білосніжку та 7 "
+"гномів, а також Джека, бобове стебло та велетня схопили!!! Чарівники зрозуміли, "
+"наскільки це важливо, і приєдналися до вас!"
+
+#: guitext:21
+msgctxt "In-game message"
+msgid ""
+"A Wizard has come. They are truly the masters of research, and the best "
+"spellcaster in the game!"
+msgstr ""
+"Прийшов Чарівник. Вони справжні майстри досліджень і найкращі заклинателі в грі!"
+
+#: guitext:22
+msgctxt "In-game message"
+msgid "A giant! This brutal killing machine is no tank! Use him wisely!"
+msgstr ""
+"Велетень! Ця жорстока машина для вбивства - не танк! Використовуйте його з "
+"розумом!"
+
+#: guitext:23
+msgctxt "In-game message"
+msgid "A noble knight has come. They are powerful, and will never surrender!"
+msgstr "Приїхав шляхетний лицар. Вони сильні і ніколи не здадуться!"
+
+#: guitext:24
+msgctxt "In-game message"
+msgid ""
+"Oh thank god! Jack and the Giant are safe! Who knows what these monsters did to "
+"the beanstalk!"
+msgstr ""
+"О, дякувати Богу! Джек і Велетень врятовані! Хто знає, що ці монстри зробили з "
+"бобовим стеблом!"
+
+#: guitext:25
+msgctxt "In-game message"
+msgid "Snow white and the 7 dwarves are safe! Rejoice!"
+msgstr "Білосніжка та 7 гномів у безпеці! Радійте!"
+
+#: guitext:26
+msgctxt "In-game message"
+msgid "A Time Mage, I don't remember those. Perhaps this has not happened before."
+msgstr "Маг Часу, я таких не пам'ятаю. Можливо, такого ще не було."
+
+#: guitext:27 guitext:28 guitext:29
+msgctxt "In-game message"
+msgid "Moo14"
+msgstr "Moo14"
+
+#: guitext:30
+msgctxt "In-game message"
+msgid ""
+"All you have is one thief. You must use brains, courage and skill to pass the "
+"initial test, and then you must vanquish the evil Warlocks that keep you "
+"enslaved, and destroy the evil keeper once and for all!"
+msgstr ""
+"У вас є лише один злодій. Ви повинні використати розум, сміливість і "
+"майстерність, щоб пройти початкове випробування, а потім перемогти злих "
+"чаклунів, які тримають вас у рабстві, і знищити злого хранителя раз і назавжди!"
+
+#: guitext:31
+msgctxt "In-game message"
+msgid ""
+"The first warlock is dead! Use the limitless gold to build up enough force to "
+"take the rest of the dungeon!"
+msgstr ""
+"Перший чаклун мертвий! Використовуйте безмежне золото, щоб зібрати достатньо "
+"сили, щоб захопити решту підземелля!"
+
+#: guitext:32
+msgctxt "In-game message"
+msgid "You have killed the second warlock! Only 1 stands in your way!"
+msgstr "Ви вбили другого чаклуна! Лише 1 стоїть на твоєму шляху!"
+
+#: guitext:33
+msgctxt "In-game message"
+msgid "You have killed all the warlocks! Destroy the dungeon heart!"
+msgstr "Ви вбили всіх чаклунів! Знищ серце підземелля!"
+
+#: guitext:34 guitext:35 guitext:36 guitext:37 guitext:38 guitext:39
+msgctxt "In-game message"
+msgid "Moo17"
+msgstr "Moo17"
+
+#: guitext:40
+msgctxt "In-game message"
+msgid ""
+"We have stumbled across a land with no accessible portals. You also have the "
+"torture chamber and prison available, you know what to do! Persuade some people "
+"to join you, and torture the rest!"
+msgstr ""
+"Ми натрапили на землю, де немає доступних порталів. У вас також є камера тортур "
+"і в'язниця, ви знаєте, що робити! Переконайте частину людей приєднатися до вас, "
+"а решту катуйте!"
+
+#: guitext:41
+msgctxt "In-game message"
+msgid ""
+"There is a band of heroes that have joined the enemy under the lead of Ug the "
+"Barbarian! Convert them all!"
+msgstr ""
+"Існує група героїв, які приєдналися до ворога під проводом Уга-варвара! "
+"Навернути їх усіх!"
+
+#: guitext:42 guitext:43 guitext:44 guitext:45 guitext:46 guitext:47 guitext:48
+#: guitext:49
+msgctxt "In-game message"
+msgid "Moo18"
+msgstr "Moo18"
+
+#: guitext:50
+msgctxt "In-game message"
+msgid ""
+"Oh noble one, you have stumbled across 2 rival keepers battling it out. You "
+"must destroy both. The good news is that they are very preoccupied. If I were "
+"you, I would concentrate on blue first, and rumour has it there is a weakness "
+"at the back of blue's fortress."
+msgstr ""
+"О благородний, ви натрапив на двох ворогуючих хранителів, які б'ються між "
+"собою. Ти повинен знищити обох. Хороша новина в тому, що вони дуже заклопотані. "
+"На твоєму місці я б спершу сконцентрувався на синьому, і ходять чутки, що в "
+"задній частині фортеці синього є слабке місце."
+
+#: guitext:51
+msgctxt "In-game message"
+msgid ""
+"Graveyards and temples are available, which make monks also available, use them "
+"well."
+msgstr ""
+"Цвинтарі і храми доступні, що робить ченців також доступними, вони їх добре "
+"використовують."
+
+#: guitext:52
+msgctxt "In-game message"
+msgid ""
+"A holy monk has come! They are very good at healing and preventing damage, "
+"making them a very good tank."
+msgstr ""
+"Прийшов святий монах! Вони дуже добре зцілюють і запобігають пошкодженням, що "
+"робить їх дуже хорошим танком."
+
+#: guitext:53 guitext:54 guitext:55 guitext:56 guitext:57 guitext:58 guitext:59
+msgctxt "In-game message"
+msgid "Moo19"
+msgstr "Moo19"
+
+#: guitext:60
+msgctxt "In-game message"
+msgid ""
+"It looks like these keepers saw what happened last time. They have decided to "
+"ally against you. There is not much gold, so you must capture the centre gems "
+"and starve your enemies out! Traps are a good idea on this level, to prevent "
+"corridor rushing!"
+msgstr ""
+"Схоже, ці хранителі бачили, що сталося минулого разу. Вони вирішили об'єднатися "
+"проти вас. Золота не так багато, тому ви повинні захопити центральні камені і "
+"заморити ворогів голодом! Пастки - хороша ідея на цьому рівні, щоб запобігти "
+"поспішному проходженню коридором!"
+
+#: guitext:61
+msgctxt "In-game message"
+msgid ""
+"Well that was easy, wasn't it! I hear the evil keepers in the next realm are "
+"not such a push over."
+msgstr ""
+"Що ж, це було легко, чи не так! Я чув, що злі хранителі у потойбічному світі не "
+"такі вже й погані."
+
+#: guitext:62
+msgctxt "In-game message"
+msgid "You have a witch! They are full of powerful spells!"
+msgstr "У вас є відьма! Вони володіють могутніми заклинаннями!"
+
+#: guitext:63
+msgctxt "In-game message"
+msgid ""
+"The scavenger room has been discovered. When combined with the torture chamber, "
+"you can first convert 1 enemy, and then take them all!"
+msgstr ""
+"Виявлено кімнату навернення. У поєднанні з камерою тортур можна спочатку "
+"перетворити 1 ворога, а потім взяти всіх!"
+
+#: guitext:64 guitext:65 guitext:66 guitext:67 guitext:68 guitext:69
+msgctxt "In-game message"
+msgid "Moo20"
+msgstr "Moo20"
+
+#: guitext:70
+msgctxt "In-game message"
+msgid ""
+"This time there are 3 keepers after your blood, noble one. Starvation wont work "
+"this time, as they all have gem veins. Take one early to get a foothold, and "
+"the others will soon fall."
+msgstr ""
+"Цього разу за твоєю кров'ю, благородний, полюють троє хранителів. Цього разу "
+"голод не спрацює, бо всі вони мають дорогоцінні жили. Візьми одного раніше, щоб "
+"закріпитися, і інші скоро впадуть."
+
+#: guitext:71 guitext:72 guitext:73 guitext:74 guitext:75 guitext:76 guitext:77
+#: guitext:78 guitext:79
+msgctxt "In-game message"
+msgid "Moo21"
+msgstr "Moo21"
+
+#: guitext:80
+msgctxt "In-game message"
+msgid ""
+"You have come into the dungeon of a previous hero who attempted to destroy the "
+"evil fortress. He failed, but you shall succeed! YOu have all the time, and "
+"resources in the world to build up an army and crush the evil forever!"
+msgstr ""
+"Ви потрапили до підземелля попереднього героя, який намагався зруйнувати "
+"зловісну фортецю. Йому це не вдалося, але у вас все вийде! У вас є весь час і "
+"всі ресурси світу, щоб зібрати армію і назавжди розгромити зло!"
+
+#: guitext:81
+msgctxt "In-game message"
+msgid ""
+"You have reached the heart of the vampires! Drive a steak through every heart "
+"in this room!"
+msgstr "Ви досягли серця кровосісів! Пробий стейком кожне серце в цій кімнаті!"
+
+#: guitext:82 guitext:83 guitext:84 guitext:85 guitext:86 guitext:87 guitext:88
+#: guitext:89
+msgctxt "In-game message"
+msgid "Moo22"
+msgstr "Moo22"
+
+#: guitext:90
+msgctxt "In-game message"
+msgid ""
+"The evil keepers, father and son, have imprisoned our savior, the Avatar. Go "
+"and rescue him!"
+msgstr ""
+"Злі хранителі, батько і син, ув'язнили нашого рятівника, Аватара. Йди і врятуй "
+"його!"
+
+#: guitext:91
+msgctxt "In-game message"
+msgid "Thank God! The Avatar is safe! Now we must destroy Evil once and for all!"
+msgstr ""
+"Слава Богу! Аватар у безпеці! Тепер ми повинні знищити Зло раз і назавжди!"
+
+#: guitext:92 guitext:93 guitext:94 guitext:95 guitext:96 guitext:97 guitext:98
+#: guitext:99
+msgctxt "In-game message"
+msgid "Moo23"
+msgstr "Moo23"
+
+#: guitext:100
+msgctxt "In-game message"
+msgid ""
+"This is it, do or die. Use the Avatar to kill the evil at it's source. Killing "
+"this will wipe out all evil! YOU CAN DO IT!"
+msgstr ""
+"Ось воно, зроби або помри. Використовуйте Аватар, щоб вбити зло в його джерелі. "
+"Вбивши його, ви знищиш усе зло! ВИ МОЖЕШ ЗРОБИТИ ЦЕ!"
+
+#: guitext:101
+msgctxt "In-game message"
+msgid "You have defeated evil forever and your name will live on for centuries!"
+msgstr "Ви назавжди переміг зло, і твоє ім'я буде жити у віках!"
+
+#: guitext:102 guitext:103 guitext:104 guitext:105 guitext:106 guitext:107
+#: guitext:108 guitext:109 guitext:110 guitext:111 guitext:112 guitext:113
+#: guitext:114 guitext:115 guitext:116 guitext:117 guitext:118 guitext:119
+#: guitext:120 guitext:121 guitext:122 guitext:123 guitext:124 guitext:125
+#: guitext:126 guitext:127 guitext:128 guitext:129 guitext:130 guitext:131
+#: guitext:132 guitext:133 guitext:134 guitext:135 guitext:136 guitext:137
+#: guitext:138 guitext:139 guitext:140 guitext:141 guitext:142 guitext:143
+#: guitext:144 guitext:145 guitext:146 guitext:147 guitext:148 guitext:149
+#: guitext:150 guitext:151 guitext:152 guitext:153 guitext:154 guitext:155
+#: guitext:156 guitext:157 guitext:158 guitext:159 guitext:160 guitext:161
+#: guitext:162 guitext:163 guitext:164 guitext:165 guitext:166 guitext:167
+#: guitext:168 guitext:169 guitext:170 guitext:171 guitext:172 guitext:173
+#: guitext:174 guitext:175 guitext:176 guitext:177 guitext:178 guitext:179
+#: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
+#: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
+#: guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197
+#: guitext:198 guitext:199 guitext:200
+msgctxt "In-game message"
+msgid "Moo"
+msgstr "Moo"
+
+#: guitext:202
+msgctxt "Level name"
+msgid "First step"
+msgstr "Перший крок"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "Offspring"
+msgstr "Нащадки"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Snow white and dwarves"
+msgstr "Білосніжка та гноми"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Warlocks slave"
+msgstr "Раб чаклунів"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Ug the Barbarian"
+msgstr "Уг Варвар"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Power of Faith"
+msgstr "Сила віри"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Indoctrination"
+msgstr "Індоктринація"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Three on One"
+msgstr "Троє на одного"
+
+#: guitext:210
+msgctxt "Level name"
+msgid "Impure Blood"
+msgstr "Нечиста кров"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Save the Savior"
+msgstr "Врятуй Спасителя"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Do or die"
+msgstr "Зроби або помри"

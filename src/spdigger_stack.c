@@ -3372,11 +3372,11 @@ long check_out_worker_dig_or_mine(struct Thing *thing, struct DiggerStack *dstac
 
 long check_out_worker_pickup_gold_pile(struct Thing *thing, struct DiggerStack *dstack)
 {
-    struct CreatureStats *crstat;
+    struct CreatureModelConfig *crconf;
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
-    if (crstat->gold_hold <= thing->creature.gold_carried)
+    crconf = creature_stats_get_from_thing(thing);
+    if (crconf->gold_hold <= thing->creature.gold_carried)
     {
         if (game.play_gameturn - cctrl->tasks_check_turn > 128)
         {
