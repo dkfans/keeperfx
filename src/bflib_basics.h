@@ -134,7 +134,8 @@ void error(const char *codefile,const int ecode,const char *message);
 short warning_dialog(const char *codefile,const int ecode,const char *message);
 short error_dialog(const char *codefile,const int ecode,const char *message);
 short error_dialog_fatal(const char *codefile,const int ecode,const char *message);
-char *buf_sprintf(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
+int str_append(char * buffer, int size, const char * str);
+int str_appendf(char * buffer, int size, const char * format, ...) __attribute__ ((format(printf, 3, 4)));
 /******************************************************************************/
 int LbErrorLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
 int LbWarnLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));

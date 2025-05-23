@@ -116,14 +116,44 @@ unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits)
 /******************************************************************************/
 const char *log_file_name=DEFAULT_LOG_FILENAME;
 
-char *buf_sprintf(const char *format, ...)
+/**
+ * Appends a string to the end of a buffer.
+ * Returns the total length of the resulting string.
+ * @param buffer The buffer to append the formatted string to.
+ * @param size The size of the buffer.
+ * @param str The string to append.
+ */
+int str_append(char * buffer, int size, const char * str)
 {
-    va_list val;
-    va_start(val, format);
-    static char text[TEXT_BUFFER_LENGTH + 1];
-    vsnprintf(text, sizeof(text), format, val);
-    va_end(val);
-    return text;
+    const int len = strlen(buffer);
+    const int available = size - len;
+    if (available <= 0) {
+        return len;
+    }
+    strncat(buffer, str, available);
+    return strlen(buffer);
+}
+
+/**
+ * Appends a formatted string to the end of a buffer.
+ * Returns the total length of the resulting string.
+ * @param buffer The buffer to append the formatted string to.
+ * @param size The size of the buffer.
+ * @param format The format string, similar to printf.
+ * @param ... The values to format and append to the buffer.
+ */
+int str_appendf(char * buffer, int size, const char * format, ...)
+{
+    const int len = strlen(buffer);
+    const int available = size - len;
+    if (available <= 0) {
+        return len;
+    }
+    va_list args;
+    va_start(args, format);
+    vsnprintf(&buffer[len], available, format, args);
+    va_end(args);
+    return strlen(buffer);
 }
 
 void error(const char *codefile,const int ecode,const char *message)

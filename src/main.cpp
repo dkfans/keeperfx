@@ -4348,8 +4348,6 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 int main(int argc, char *argv[])
 #endif
 {
-  char *text;
-
   AddVectoredExceptionHandler(0, &Vex_handler);
   get_cmdln_args(bf_argc, bf_argv);
 
@@ -4357,8 +4355,7 @@ int main(int argc, char *argv[])
   LbBullfrogMain(bf_argc, bf_argv);
   } catch (...)
   {
-      text = buf_sprintf("Exception raised!");
-      error_dialog(__func__, 1, text);
+      error_dialog(__func__, 1, "Exception raised!");
       return 1;
   }
 
