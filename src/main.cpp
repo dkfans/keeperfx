@@ -3868,7 +3868,7 @@ short process_command_line(unsigned short argc, char *argv[])
   AssignCpuKeepers = 0;
   SoundDisabled = 0;
   // Note: the working log file is set up in LbBullfrogMain
-  LbErrorLogSetup(0, 0, 1);
+  LbErrorLogSetup(nullptr, nullptr, 1);
 
   set_default_startup_parameters();
 

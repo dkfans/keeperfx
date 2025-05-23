@@ -347,17 +347,15 @@ int LbJustLog(const char *format, ...)
 
 int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag)
 {
-  if ( error_log_initialised )
-    return -1;
-  const char *fixed_fname;
-  if ((filename != NULL) && (filename[0] != '\0'))
-    fixed_fname = filename;
-  else
-    fixed_fname = "error.log";
+  if ( error_log_initialised ) return -1;
+  if ((filename == NULL) && strlen(filename) == 0) {
+    filename = "error.log";
+  }
   char log_filename[DISKPATH_SIZE];
   int result;
-  if ( LbFileMakeFullPath(true,directory,fixed_fname,log_filename,DISKPATH_SIZE) != 1 )
+  if ( LbFileMakeFullPath(true, directory, filename, log_filename, DISKPATH_SIZE) != 1 ) {
     return -1;
+  }
   ulong flags = (flag == 0) + 1;
   flags |= LbLog_TimeInHeader | LbLog_DateInHeader | 0x04;
   if ( LbLogSetup(&error_log, log_filename, flags) == 1 )
@@ -526,33 +524,19 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
 
 int LbLogSetPrefix(struct TbLog *log, const char *prefix)
 {
-  if (!log->Initialised)
-    return -1;
-  if (prefix)
-  {
+    if (!log->Initialised) return -1;
     snprintf(log->prefix, LOG_PREFIX_LEN, "%s", prefix);
-  } else
-  {
-    memset(log->prefix, 0, LOG_PREFIX_LEN);
-  }
-  return 1;
+    return 1;
 }
 
 int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...)
 {
-  if (!log->Initialised)
-    return -1;
-  if (format)
-  {
-      va_list val;
-      va_start(val, format);
-      vsprintf(log->prefix, format, val);
-      va_end(val);
-  } else
-  {
-    memset(log->prefix, 0, LOG_PREFIX_LEN);
-  }
-  return 1;
+    if (!log->Initialised) return -1;
+    va_list val;
+    va_start(val, format);
+    vsprintf(log->prefix, format, val);
+    va_end(val);
+    return 1;
 }
 
 int LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
@@ -563,7 +547,7 @@ int LbLogSetup(struct TbLog *log, const char *filename, ulong flags)
   log->Initialised=false;
   log->Created=false;
   log->Suspended=false;
-  if (filename == NULL || strlen(filename) > DISKPATH_SIZE) {
+  if (strlen(filename) > DISKPATH_SIZE || strlen(filename) == 0) {
     return -1;
   }
   snprintf(log->filename, DISKPATH_SIZE, "%s", filename);
