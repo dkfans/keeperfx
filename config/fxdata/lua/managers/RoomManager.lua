@@ -19,7 +19,7 @@ function GetRoomsOfType(type)
 end
 
 ---returns a table containing all rooms of a given type
----@param player player
+---@param player Player
 ---@return Room[]
 ---@nodiscard
 function GetRoomsOfPlayer(player)
