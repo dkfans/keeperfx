@@ -1,5 +1,5 @@
 -- RoomManager.lua
--- Provides global utility functions for creature handling (e.g. searching, counting, filtering).
+-- Provides global utility functions for room handling (e.g. searching, counting, filtering).
 
 
 ---returns a table containing all rooms on the map
