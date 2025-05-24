@@ -360,7 +360,7 @@ short zoom_to_fight(PlayerNumber plyr_idx)
 void draw_bonus_timer(void)
 {
     int nturns = game.bonus_time - game.play_gameturn;
-    char* text;
+    char text[32];
     if (gameadd.timer_real)
     {
         unsigned long total_seconds = ((nturns) / game_num_fps) + 1;
@@ -368,7 +368,11 @@ void draw_bonus_timer(void)
         unsigned long total_minutes = total_seconds / 60;
         unsigned char minutes = total_minutes % 60;
         unsigned char hours = total_minutes / 60;
-        text = (nturns >= 0) ? buf_sprintf("%02d:%02d:%02d", hours, minutes, seconds) : buf_sprintf("00:00:00");
+        if (nturns >= 0) {
+            snprintf(text, sizeof(text), "%02d:%02d:%02d", hours, minutes, seconds);
+        } else {
+            snprintf(text, sizeof(text), "%s", "00:00:00");
+        }
     }
     else
     {
@@ -380,7 +384,7 @@ void draw_bonus_timer(void)
         {
             nturns = 99999;
         }
-        text = buf_sprintf("%05d", nturns / 2);
+        snprintf(text, sizeof(text), "%05d", nturns / 2);
     }
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
@@ -435,14 +439,14 @@ TbBool bonus_timer_enabled(void)
 
 void draw_timer(void)
 {
-    char* text;
+    char text[32];
     if (TimerGame)
     {
         if (get_my_player()->victory_state != VicS_WonLevel)
         {
             TimerTurns = game.play_gameturn;
         }
-        text = buf_sprintf("%08ld", TimerTurns);
+        snprintf(text, sizeof(text), "%08ld", TimerTurns);
     }
     else
     {
@@ -450,7 +454,7 @@ void draw_timer(void)
         {
             update_time();
         }
-        text = buf_sprintf("%02d:%02d:%02d", Timer.Hours, Timer.Minutes, Timer.Seconds);
+        snprintf(text, sizeof(text), "%02d:%02d:%02d", Timer.Hours, Timer.Minutes, Timer.Seconds);
     }
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel >> 4);
@@ -504,13 +508,13 @@ void draw_timer(void)
 void draw_gameturn_timer(void)
 {
     int nturns = game.play_gameturn;
-    char* text;
+    char text[32];
     {
         if (nturns < 0)
         {
             nturns = 0;
         }
-        text = buf_sprintf("GameTurn %lu", game.play_gameturn);
+        snprintf(text, sizeof(text), "GameTurn %lu", game.play_gameturn);
     }
     LbTextSetFont(winfont);
     int textLength = strlen(text);
@@ -592,7 +596,7 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
         game.flags_gui &= ~GGUI_ScriptTimer;
         return;
     }
-    char* text;
+    char text[32];
     if (real)
     {
         unsigned long total_seconds = ((nturns) / game_num_fps) + 1;
@@ -600,11 +604,15 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
         unsigned long total_minutes = total_seconds / 60;
         unsigned char minutes = total_minutes % 60;
         unsigned char hours = total_minutes / 60;
-        text = (nturns >= 0) ? buf_sprintf("%02d:%02d:%02d", hours, minutes, seconds) : buf_sprintf("00:00:00");
+        if (nturns >= 0) {
+            snprintf(text, sizeof(text), "%02d:%02d:%02d", hours, minutes, seconds);
+        } else {
+            snprintf(text, sizeof(text), "%s", "00:00:00");
+        }
     }
     else
     {
-        text = buf_sprintf("%08d", nturns);
+        snprintf(text, sizeof(text), "%08d", nturns);
     }
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
@@ -675,7 +683,8 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
             value = 0;
         }
     }
-    char* text = buf_sprintf("%ld", value);
+    char text[16];
+    snprintf(text, sizeof(text), "%ld", value);
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
@@ -778,7 +787,7 @@ void draw_consolelog()
 void draw_frametime()
 {
     float display_value;
-    char *text;
+    char text[64];
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
     int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
@@ -786,7 +795,7 @@ void draw_frametime()
     // FPS
     display_value = 1000 / frametime_measurements.frametime_display[Frametime_FullFrame];
 
-    text = buf_sprintf("FPS: %f", display_value);
+    snprintf(text, sizeof(text), "FPS: %f", display_value);
     LbTextDrawResized(0, 27*tx_units_per_px, tx_units_per_px, text);
 
     // Frametimes
@@ -794,16 +803,16 @@ void draw_frametime()
         display_value = frametime_measurements.frametime_display[i];
         switch (i) {
             case Frametime_FullFrame:
-                text = buf_sprintf("Frametime: %f ms", display_value);
+                snprintf(text, sizeof(text), "Frametime: %f ms", display_value);
                 break;
             case Frametime_Logic:
-                text = buf_sprintf("Logic: %f ms", display_value);
+                snprintf(text, sizeof(text), "Logic: %f ms", display_value);
                 break;
             case Frametime_Draw:
-                text = buf_sprintf("Draw: %f ms", display_value);
+                snprintf(text, sizeof(text), "Draw: %f ms", display_value);
                 break;
             case Frametime_Sleep:
-                text = buf_sprintf("Sleep: %f ms", display_value);
+                snprintf(text, sizeof(text), "Sleep: %f ms", display_value);
                 break;
         }
         LbTextDrawResized(0, (28+i)*tx_units_per_px, tx_units_per_px, text);

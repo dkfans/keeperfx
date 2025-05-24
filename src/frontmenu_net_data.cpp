@@ -220,38 +220,38 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
 
 void frontnet_session_create(struct GuiButton *gbtn)
 {
-  struct TbNetworkSessionNameEntry *nsname;
-  unsigned long plyr_num;
-  void *conn_options;
-  char *text;
-  char *txpos;
-  long i;
-  long idx;
-  idx = 0;
-  for (i=0; i < net_number_of_sessions; i++)
-  {
-      nsname = net_session[i];
-      if (nsname == NULL)
-        continue;
-      text = buf_sprintf("%s",nsname->text);
-      txpos = strchr(text, '\'');
-      if (txpos != NULL)
-        *txpos = '\0';
-      if (strcmp(text, net_player_name) != 0)
-        idx++;
-  }
-  if (idx > 0)
-    text = buf_sprintf("%s (%ld)", net_player_name, idx+1);
-  else
-    text = buf_sprintf("%s", net_player_name);
-  conn_options = NULL;
-  if (LbNetwork_Create(text, net_player_name, &plyr_num, conn_options))
-  {
-      process_network_error(-801);
-    return;
-  }
-  frontend_set_player_number(plyr_num);
-  fe_computer_players = 0;
-  frontend_set_state(FeSt_NET_START);
+    // Create a new session using the player name as the session name.
+    // Append a number to the session name if it already exists.
+    long idx = 0;
+    for (int i = 0; i < net_number_of_sessions; i++)
+    {
+        const auto nsname = net_session[i];
+        if (nsname == nullptr) continue;
+        const char * backslash = strchr(nsname->text, '\'');
+        if (backslash) {
+            if (strlen(net_player_name) == backslash - nsname->text) {
+                if (strncmp(nsname->text, net_player_name, backslash - nsname->text) == 0) {
+                    idx++;
+                }
+            }
+        } else if (strcmp(nsname->text, net_player_name) == 0) {
+            idx++;
+        }
+    }
+    char text[sizeof(net_session[0]->text) + 16];
+    if (idx > 0) {
+        snprintf(text, sizeof(text), "%s (%ld)", net_player_name, idx + 1);
+    } else {
+        snprintf(text, sizeof(text), "%s", net_player_name);
+    }
+    unsigned long plyr_num;
+    if (LbNetwork_Create(text, net_player_name, &plyr_num, nullptr))
+    {
+        process_network_error(-801);
+        return;
+    }
+    frontend_set_player_number(plyr_num);
+    fe_computer_players = 0;
+    frontend_set_state(FeSt_NET_START);
 }
 /******************************************************************************/
