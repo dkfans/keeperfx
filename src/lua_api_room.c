@@ -4,10 +4,9 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
-
 #include "lua_base.h"
 #include "lua_params.h"
-
+#include "lua_utils.h"
 
 #include "player_data.h"
 #include "lvl_script_lib.h"
@@ -26,7 +25,6 @@ static int room_tostring(lua_State *L)
 {
     struct Room* room = luaL_checkRoom(L, 1);
     
-    lua_pushstring(L,);
     char buffer[64];
     snprintf(buffer, sizeof(buffer), "[%s %s %d]", get_conf_parameter_text(room_desc,room->kind), 
                                               get_conf_parameter_text(player_desc,room->owner),
@@ -44,14 +42,15 @@ static int room_set_field(lua_State *L) {
 
     if (strcmp(key, "owner") == 0) {
         take_over_room(room, luaL_checkPlayerSingle(L, 3));
-        return 0;
     }
     else if (strcmp(key, "health") == 0) {
         room->health = luaL_checkinteger(L, 3);
-        return 1;
+    }
+    else
+    {
+        luaL_error(L, "attempt to assign unassignable field '%s'", key);
     }
     
-    luaL_error(L, "attempt to assign unassignable field '%s'", key);
     return 0;
 }
 
@@ -64,7 +63,7 @@ static void push_room_slabs(lua_State *L, struct Room* room) {
 
     while (1) {
         lua_pushSlab(L, slb_num_decode_x(slbnum), slb_num_decode_y(slbnum));
-        lua_seti(L, -2, i); // Insert at index i
+        lua_rawseti(L, -2, i); // Insert at index i
         i++;
 
         slbnum = get_next_slab_number_in_room(slbnum);
@@ -85,10 +84,15 @@ static void push_room_workers(lua_State *L, struct Room* room) {
     while (1) {
         struct Thing* worker = thing_get(worker_idx);
         lua_pushThing(L, worker);
-        lua_seti(L, -2, i); // Insert at index i
+        lua_rawseti(L, -2, i); // Insert at index i
         i++;
+        struct CreatureControl* cctrl = creature_control_get_from_thing(worker);
 
-        worker_idx = worker->next_in_room;
+        worker_idx = cctrl->next_in_room;
+        if (worker_idx == 0)
+        {
+          break;
+        }
         if (i > THINGS_COUNT)
         {
           ERRORLOG("Infinite loop detected when sweeping creatures list");
@@ -128,8 +132,8 @@ static int room_get_field(lua_State *L) {
         lua_pushinteger(L, room->efficiency);
     } else if (strcmp(key, "centerpos") == 0) {
         struct Coord3d centerpos;
-        centerpos.x.val = subtile_coord_center(room->center_x);
-        centerpos.y.val = subtile_coord_center(room->center_y);
+        centerpos.x.val = subtile_coord_center(room->central_stl_x);
+        centerpos.y.val = subtile_coord_center(room->central_stl_y);
         centerpos.z.val = get_floor_height_at(&centerpos);
         lua_pushPos(L, &centerpos);
     } else {
@@ -142,31 +146,9 @@ static int room_get_field(lua_State *L) {
 
 static int room_eq(lua_State *L) {
 
-    if (!lua_istable(L, 1) || !lua_istable(L, 2)) {
-        luaL_error(L, "Expected a table");
-        return 1;
-    }
-
-    // Get idx field
-    lua_getfield(L, 1, "playerId");
-    if (!lua_isnumber(L, -1)) {
-        luaL_error(L, "Expected 'playerId' to be an integer");
-        return 1;
-    }
-    int idx1 = lua_tointeger(L, -1);
-    lua_pop(L, 1);  // Pop the idx value off the stack
-
-    // Get idx field
-    lua_getfield(L, 2, "playerId");
-    if (!lua_isnumber(L, -1)) {
-        luaL_error(L, "Expected 'playerId' to be an integer");
-        return 1;
-    }
-    int idx2 = lua_tointeger(L, -1);
-    lua_pop(L, 1);  // Pop the idx value off the stack
-
-
-    lua_pushboolean(L, idx1 == idx2);
+    struct Room* r1 = luaL_checkRoom(L, 1);
+    struct Room* r2 = luaL_checkRoom(L, 2);
+    lua_pushboolean(L, r1 == r2);
     return 1;
 }
 
@@ -189,8 +171,8 @@ void room_register(lua_State *L) {
     luaL_newlib(L, room_methods);
 
     for (int i = 0; room_methods[i].name != NULL; i++) {
-        const char *name = roommethods[i].name;
-        lua_pushcfunction(L, roommethods[i].func);
+        const char *name = room_methods[i].name;
+        lua_pushcfunction(L, room_methods[i].func);
         lua_setfield(L, -2, name);
     }
 

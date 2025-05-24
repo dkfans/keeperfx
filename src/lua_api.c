@@ -1903,7 +1903,7 @@ static int lua_get_rooms_of_player_and_kind(lua_State *L)
         struct Dungeon* dungeon = get_dungeon(i);
         if (!dungeon) continue;
 
-        if (strcmp(room_name, "any") == 0)
+        if (strcmp(room_name, "ANY_ROOM") == 0)
         {
             for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
             {
@@ -2133,7 +2133,7 @@ static const luaL_Reg global_methods[] = {
     {"IsActionpointActivatedByPlayer",  lua_is_action_point_activated_by_player},
     {"GetSlab",                         lua_get_slab},
     {"GetString",                       lua_Get_string},
-    {"GetRoomsOfPlayerAndKind",         lua_get_rooms_of_player_and_kind},
+    {"GetRoomsOfPlayerAndType",         lua_get_rooms_of_player_and_kind},
   
 //usecase specific functions
     {"PayForPower",                     lua_Pay_for_power},
@@ -2158,6 +2158,7 @@ static void global_register(lua_State *L)
 void Player_register(lua_State *L);
 void Thing_register(lua_State *L);
 void Slab_register(lua_State *L);
+void room_register(lua_State *L);
 
 void reg_host_functions(lua_State *L)
 {
@@ -2165,4 +2166,5 @@ void reg_host_functions(lua_State *L)
     global_register(L);
     Thing_register(L);
     Slab_register(L);
+    room_register(L);
 }

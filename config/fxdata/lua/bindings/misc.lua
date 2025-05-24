@@ -60,8 +60,9 @@ function PayForPower(player, power_kind, power_level, is_free) end
 ---@nodiscard
 function CountCreaturesAtActionPoint(action_point,player,creature_type) return 0 end
 
----gets all rooms belonging to a player
+---returns a list of all rooms belonging to a player and of a specific kind.
 ---@param player playerrange
+---@param kind room_type|"ANY_ROOM"
 ---@return Room[]
 ---@nodiscard
-function GetRoomsOfPlayer(player) return {} end
+function GetRoomsOfPlayerAndType(player,kind) end
