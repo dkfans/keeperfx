@@ -306,10 +306,10 @@ static int lua_Display_timer(lua_State *L)
     long timr_id              = luaL_checkNamedCommand(L,2,timer_desc);
     long display              = luaL_checkinteger(L, 3);
 
-    gameadd.script_timer_player = player_id;
-    gameadd.script_timer_id = timr_id;
-    gameadd.script_timer_limit = 0;
-    gameadd.timer_real = display;
+    game.script_timer_player = player_id;
+    game.script_timer_id = timr_id;
+    game.script_timer_limit = 0;
+    game.timer_real = display;
     game.flags_gui |= GGUI_ScriptTimer;
     return 0;
 }
@@ -333,7 +333,7 @@ static int lua_Bonus_level_time(lua_State *L)
         game.bonus_time = 0;
         clear_flag(game.flags_gui, GGUI_CountdownTimer);
     }
-    gameadd.timer_real = clocktime;
+    game.timer_real = clocktime;
     return 0;
 }
 
@@ -454,7 +454,7 @@ static int lua_Add_tunneller_party_to_level(lua_State *L)
     GoldAmount carried_gold      = luaL_checkinteger(L, 7);
 
 
-    struct Party* party = &gameadd.script.creature_partys[prty_id];
+    struct Party* party = &game.script.creature_partys[prty_id];
     if (party->members_num >= GROUP_MEMBERS_COUNT-1)
     {
         SCRPTERRLOG("Party too big for ADD_TUNNELLER (Max %d members)", GROUP_MEMBERS_COUNT-1);
@@ -479,7 +479,7 @@ static int lua_Add_party_to_level(lua_State *L)
     // Recognize place where party is created
     if (location == 0)
         return 0;
-    struct Party* party = &gameadd.script.creature_partys[prty_id];
+    struct Party* party = &game.script.creature_partys[prty_id];
     struct Thing* leadtng = script_process_new_party(party, owner, location, 1);
 
     if (thing_is_invalid(leadtng))
@@ -544,7 +544,7 @@ static int lua_Quick_information(lua_State *L)
     long slot = luaL_checkIntMinMax(L, 1, 0,QUICK_MESSAGES_COUNT-1);
     const char *msg_text = lua_tostring(L, 2);
     TbMapLocation target = luaL_optLocation(L, 3);
-    snprintf(gameadd.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
+    snprintf(game.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
 
     set_quick_information(slot, target, 0, 0);
     return 0;
@@ -566,7 +566,7 @@ static int lua_Quick_information_with_pos(lua_State *L)
     const char *msg_text = lua_tostring(L, 2);
     MapSubtlCoord stl_x = luaL_checkstl_x(L, 3);
     MapSubtlCoord stl_y = luaL_checkstl_y(L, 4);
-    snprintf(gameadd.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
+    snprintf(game.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg_text);
 
     set_quick_information(slot, 0, stl_x, stl_y);
     return 0;
@@ -602,10 +602,10 @@ static int lua_Heart_lost_objective(lua_State *L)
     long message_id = luaL_checkinteger(L, 1);
     TbMapLocation target = luaL_checkLocation(L, 2);
 
-    gameadd.heart_lost_display_message = true;
-    gameadd.heart_lost_quick_message = false;
-    gameadd.heart_lost_message_id = message_id;
-    gameadd.heart_lost_message_target = target; 
+    game.heart_lost_display_message = true;
+    game.heart_lost_quick_message = false;
+    game.heart_lost_message_id = message_id;
+    game.heart_lost_message_target = target; 
     return 0;
 }
 static int lua_Heart_lost_quick_objective(lua_State *L)
@@ -614,12 +614,12 @@ static int lua_Heart_lost_quick_objective(lua_State *L)
     const char *msg = lua_tostring(L, 2);
     TbMapLocation target = luaL_checkLocation(L, 3);
 
-    snprintf(gameadd.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg);
+    snprintf(game.quick_messages[slot], MESSAGE_TEXT_LEN, "%s", msg);
 
-    gameadd.heart_lost_display_message = true;
-    gameadd.heart_lost_quick_message = true;
-    gameadd.heart_lost_message_id = slot;
-    gameadd.heart_lost_message_target = target; 
+    game.heart_lost_display_message = true;
+    game.heart_lost_quick_message = true;
+    game.heart_lost_message_id = slot;
+    game.heart_lost_message_target = target; 
     return 0;
 }
 
@@ -663,10 +663,10 @@ static int lua_Display_countdown(lua_State *L)
     int target = luaL_checkinteger(L,3);
     int clocktime = lua_toboolean(L,4);
 
-    gameadd.script_timer_player = player;
-    gameadd.script_timer_id = timer;
-    gameadd.script_timer_limit = target;
-    gameadd.timer_real = clocktime;
+    game.script_timer_player = player;
+    game.script_timer_id = timer;
+    game.script_timer_limit = target;
+    game.timer_real = clocktime;
     game.flags_gui |= GGUI_ScriptTimer;
     return 0;    
 }
@@ -677,9 +677,9 @@ static int lua_Display_variable(lua_State *L)
     int variable = luaL_checkinteger(L,2);
     int target = luaL_checkinteger(L,3);
 
-    gameadd.script_variable_player = player;
-    gameadd.script_value_type = variable;
-    gameadd.script_value_id = target;
+    game.script_variable_player = player;
+    game.script_value_type = variable;
+    game.script_value_id = target;
     game.flags_gui |= GGUI_Variable;
     return 0;
 }
@@ -1401,7 +1401,7 @@ static int lua_Set_box_tooltip(lua_State *L)
     long box_id = luaL_checkinteger(L, 1);
     const char* tooltip = luaL_checkstring(L, 2);
 
-    snprintf(gameadd.box_tooltip[box_id], MESSAGE_TEXT_LEN, "%s", tooltip);
+    snprintf(game.box_tooltip[box_id], MESSAGE_TEXT_LEN, "%s", tooltip);
     return 0;
 }
 static int lua_Set_box_tooltip_id(lua_State *L)
@@ -1409,7 +1409,7 @@ static int lua_Set_box_tooltip_id(lua_State *L)
     long box_id = luaL_checkinteger(L, 1);
     long tooltip_id = luaL_checkinteger(L, 2);
 
-    snprintf(gameadd.box_tooltip[box_id], MESSAGE_TEXT_LEN, "%s", get_string(tooltip_id));
+    snprintf(game.box_tooltip[box_id], MESSAGE_TEXT_LEN, "%s", get_string(tooltip_id));
     return 0;
 }
 
@@ -1669,8 +1669,8 @@ static int lua_Change_slab_texture(lua_State *L)
     else
     {
         SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
-        gameadd.slab_ext_data[slb_num] = texture_id;
-        gameadd.slab_ext_data_initial[slb_num] = texture_id;
+        game.slab_ext_data[slb_num] = texture_id;
+        game.slab_ext_data_initial[slb_num] = texture_id;
     }
 
     return 0;

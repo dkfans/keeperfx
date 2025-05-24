@@ -361,7 +361,7 @@ void draw_bonus_timer(void)
 {
     int nturns = game.bonus_time - game.play_gameturn;
     char text[32];
-    if (gameadd.timer_real)
+    if (game.timer_real)
     {
         unsigned long total_seconds = ((nturns) / game_num_fps) + 1;
         unsigned char seconds = total_seconds % 60;
@@ -393,7 +393,7 @@ void draw_bonus_timer(void)
     {
         height *= 2;
         width *= 2;
-        if ((dbc_language) > 0 && (gameadd.timer_real))
+        if ((dbc_language) > 0 && (game.timer_real))
         {
             width += (width / 8);
         }
@@ -530,7 +530,7 @@ void draw_gameturn_timer(void)
     {
         height *= 2;
         width *= 2;
-        if ((dbc_language) > 0 && (gameadd.timer_real))
+        if ((dbc_language) > 0 && (game.timer_real))
         {
             width += (width / 8);
         }

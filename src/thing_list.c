@@ -1291,8 +1291,8 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
         // the heart position - it's needed for Floating Spirit
         if (!keep_prev)
         {
-            dungeon->mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-            dungeon->mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+            dungeon->mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
+            dungeon->mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
             dungeon->mappos.z.val = subtile_coord_center(map_subtiles_z/2);
         }
     }
@@ -4165,12 +4165,12 @@ struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord s
   {
     n = 0;
     y = stl_y + k;  
-    if ( (y >= 0) && (y < gameadd.map_subtiles_y) )
+    if ( (y >= 0) && (y < game.map_subtiles_y) )
     {
       do
       {
         x = stl_x + n;  
-        if ( (x >= 0) && (x < gameadd.map_subtiles_x) )
+        if ( (x >= 0) && (x < game.map_subtiles_x) )
         {
           struct Map *blk = get_map_block_at(x, y);
           thing = thing_get(get_mapwho_thing_index(blk));

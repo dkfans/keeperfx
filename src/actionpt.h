@@ -52,7 +52,7 @@ struct ActionPoint { // sizeof = 0xA
 
 #pragma pack()
 
-#define INVALID_ACTION_POINT (&gameadd.action_points[0])
+#define INVALID_ACTION_POINT (&game.action_points[0])
 typedef struct VALUE VALUE;
 /******************************************************************************/
 struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_num);

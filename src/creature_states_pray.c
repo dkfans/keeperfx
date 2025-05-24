@@ -736,7 +736,7 @@ short creature_being_sacrificed(struct Thing *thing)
     pos.z.val = thing->mappos.z.val;
     long model = thing->model;
 
-    memcpy(&gameadd.triggered_object_location, &pos, sizeof(struct Coord3d));
+    memcpy(&game.triggered_object_location, &pos, sizeof(struct Coord3d));
 
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
     process_sacrifice_creature(&pos, model, owner, true);

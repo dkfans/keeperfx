@@ -3939,13 +3939,13 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance 
     MapSubtlCoord stl_x_upper = stl_x + range;
     if ((stl_x - range) < 0)
         stl_x_lower = 0;
-    if (stl_x_upper > gameadd.map_subtiles_x)
-        stl_x_upper = gameadd.map_subtiles_x;
+    if (stl_x_upper > game.map_subtiles_x)
+        stl_x_upper = game.map_subtiles_x;
     MapSubtlCoord stl_y = thing->mappos.y.stl.num;
     MapSubtlCoord stl_y_lower = stl_y - range;
     MapSubtlCoord stl_y_upper = stl_y + range;
-    if (stl_y + range > gameadd.map_subtiles_y)
-        stl_y_upper = gameadd.map_subtiles_y;
+    if (stl_y + range > game.map_subtiles_y)
+        stl_y_upper = game.map_subtiles_y;
     if (stl_y_lower < 0)
         stl_y_lower = 0;
 
@@ -6102,7 +6102,7 @@ ThingModel get_footstep_effect_element(struct Thing* thing)
     };
 
     short texture;
-        unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
+        unsigned char ext_txtr = game.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
     if (ext_txtr == 0)
     {
         // Default map texture
@@ -7235,7 +7235,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         char msg_buf[255];
         if (thing_is_custom_special_box(picktng))
         {
-            if (gameadd.box_tooltip[picktng->custom_box.box_kind][0] == 0)
+            if (game.box_tooltip[picktng->custom_box.box_kind][0] == 0)
             {
                 strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
                 strcpy(msg_buf, str);
@@ -7243,7 +7243,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             }
             else
             {
-                strcat(str, gameadd.box_tooltip[picktng->custom_box.box_kind]);
+                strcat(str, game.box_tooltip[picktng->custom_box.box_kind]);
                 char *split = strchr(str, ':');
                 if ((int)(split - str) > -1)
                 {

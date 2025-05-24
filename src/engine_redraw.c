@@ -688,17 +688,17 @@ void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
       {
         x = 0;
       } else
-      if (x > (gameadd.map_subtiles_x + 1) * COORD_PER_STL -1)
+      if (x > (game.map_subtiles_x + 1) * COORD_PER_STL -1)
       {
-        x = (gameadd.map_subtiles_x + 1) * COORD_PER_STL -1;
+        x = (game.map_subtiles_x + 1) * COORD_PER_STL -1;
       }
       if (y < 0)
       {
         y = 0;
       } else
-      if (y > (gameadd.map_subtiles_y + 1) * COORD_PER_STL -1)
+      if (y > (game.map_subtiles_y + 1) * COORD_PER_STL -1)
       {
-        y = (gameadd.map_subtiles_y + 1) * COORD_PER_STL -1;
+        y = (game.map_subtiles_y + 1) * COORD_PER_STL -1;
       }
       // setting deviated position
       player->acamera->mappos.x.val = x;
@@ -1115,7 +1115,7 @@ void redraw_display(void)
     }
     else if (script_timer_enabled())
     {
-        draw_script_timer(gameadd.script_timer_player, gameadd.script_timer_id, gameadd.script_timer_limit, gameadd.timer_real);
+        draw_script_timer(game.script_timer_player, game.script_timer_id, game.script_timer_limit, game.timer_real);
     }
     if (gameturn_timer_enabled())
     {
@@ -1123,7 +1123,7 @@ void redraw_display(void)
     }
     if (display_variable_enabled())
     {
-        draw_script_variable(gameadd.script_variable_player, gameadd.script_value_type, gameadd.script_value_id, gameadd.script_variable_target, gameadd.script_variable_target_type);
+        draw_script_variable(game.script_variable_player, game.script_value_type, game.script_value_id, game.script_variable_target, game.script_variable_target_type);
     }
     if (timer_enabled())
     {
