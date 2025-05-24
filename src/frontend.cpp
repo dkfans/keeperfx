@@ -601,7 +601,6 @@ void versions_different_error(void)
     const char *plyr_nam;
     struct ScreenPacket *nspckt;
     char text[MESSAGE_TEXT_LEN];
-    char *str;
     int i;
 
     NETMSG("Error: Players have different versions of DK");
@@ -621,9 +620,7 @@ void versions_different_error(void)
       nspckt = &net_screen_packet[i];
       if ((nspckt->field_4 & 0x01) != 0)
       {
-        str = buf_sprintf("%s(%d.%02d) ", plyr_nam, nspckt->field_6, nspckt->field_8);
-        strncat(text, str, MESSAGE_TEXT_LEN-strlen(text));
-        text[MESSAGE_TEXT_LEN-1] = '\0';
+        str_appendf(text, sizeof(text), "%s(%d.%02d) ", plyr_nam, nspckt->field_6, nspckt->field_8);
       }
     }
     // Waiting for users reaction
@@ -1592,7 +1589,6 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
 void gui_area_scroll_window(struct GuiButton *gbtn)
 {
     struct TextScrollWindow *scrollwnd;
-    char *text;
     if ((gbtn->flags & LbBtnF_Enabled) == 0) {
         return;
     }
@@ -1601,8 +1597,7 @@ void gui_area_scroll_window(struct GuiButton *gbtn)
         ERRORLOG("Button doesn't point to a TextScrollWindow data item");
         return;
     }
-    text = buf_sprintf("%s", scrollwnd->text);
-    draw_scrolling_button_string(gbtn, text);
+    draw_scrolling_button_string(gbtn, scrollwnd->text);
 }
 
 void gui_go_to_event(struct GuiButton *gbtn)
@@ -3863,7 +3858,8 @@ void frontend_draw_product_version(struct GuiButton *gbtn)
     int units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
     int h = LbTextLineHeight() * units_per_px / 16;
     LbTextSetWindow(0, gbtn->scr_pos_y, gbtn->width, h);
-    char* text = buf_sprintf("%s %s", PRODUCT_NAME, PRODUCT_VERSION);
+    char text[128];
+    snprintf(text, sizeof(text), "%s %s", PRODUCT_NAME, PRODUCT_VERSION);
     LbTextDrawResized(0, 0, units_per_px, text);
 }
 
