@@ -732,16 +732,19 @@ long in_action_point_thing_filter_is_of_class_and_model_and_owned_by(const struc
     {
         if (thing_matches_model(thing, param->model_id))
         {
-            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            if (!thing_is_in_limbo(thing))
             {
-                struct Coord3d refpos;
-                refpos.x.val = param->num1;
-                refpos.y.val = param->num2;
-                refpos.z.val = 0;
-                MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
-                if (dist <= param->num3) {
-                    // Return the largest value to stop sweeping
-                    return LONG_MAX;
+                if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+                {
+                    struct Coord3d refpos;
+                    refpos.x.val = param->num1;
+                    refpos.y.val = param->num2;
+                    refpos.z.val = 0;
+                    MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
+                    if (dist <= param->num3) {
+                        // Return the largest value to stop sweeping
+                        return LONG_MAX;
+                    }
                 }
             }
         }

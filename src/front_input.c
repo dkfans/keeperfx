@@ -489,7 +489,7 @@ short zoom_shortcuts(void)
     for (int i = 0; i <= ZOOM_KEY_ROOMS_COUNT; i++)
     {
         long val;
-        if (is_game_key_pressed(Gkey_ZoomRoom00 + i, &val, false))
+        if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, &val, false))
         {
             clear_key_pressed(val);
             go_to_my_next_room_of_type(zoom_key_room_order[i]);
@@ -1684,7 +1684,7 @@ short get_creature_control_action_inputs(void)
         TextStringId StrID = 0;
         for (int i = 0; i <= 15; i++)
         {
-            if (is_game_key_pressed(Gkey_ZoomRoom00 + i, &val, false))
+            if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, &val, false))
             {
                 clear_key_pressed(val);
                 set_players_packet_action(player, PckA_SwitchTeleportDest, i, 0, 0, 0);
