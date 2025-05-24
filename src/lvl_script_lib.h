@@ -365,7 +365,7 @@ long script_strdup(const char *src);
     if (value != &tmp_value) \
     {                           \
         value->flags = TrgF_DISABLED; \
-        gameadd.script.values_num--; \
+        game.script.values_num--; \
     }
 
     void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value);

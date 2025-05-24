@@ -262,7 +262,7 @@ PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
 MapSubtlCoord luaL_checkstl_x(lua_State *L, int index)
 {
     MapSubtlCoord stl_x = luaL_checkint(L,index);
-    luaL_argcheck(L, 0 <= stl_x && stl_x <= gameadd.map_subtiles_x, index,
+    luaL_argcheck(L, 0 <= stl_x && stl_x <= game.map_subtiles_x, index,
                        "x subtile coord out of range");
     return stl_x;
 }
@@ -270,7 +270,7 @@ MapSubtlCoord luaL_checkstl_x(lua_State *L, int index)
 MapSubtlCoord luaL_checkstl_y(lua_State *L, int index)
 {
     MapSubtlCoord stl_y = luaL_checkint(L,index);
-    luaL_argcheck(L, 0 <= stl_y && stl_y <= gameadd.map_subtiles_y, index,
+    luaL_argcheck(L, 0 <= stl_y && stl_y <= game.map_subtiles_y, index,
                        "y subtile coord out of range");
     return stl_y;
 }
@@ -278,7 +278,7 @@ MapSubtlCoord luaL_checkstl_y(lua_State *L, int index)
 MapSlabCoord luaL_checkslb_x(lua_State *L, int index)
 {
     MapSlabCoord slb_x = luaL_checkint(L,index);
-    luaL_argcheck(L, 0 <= slb_x && slb_x <= gameadd.map_tiles_x, index,
+    luaL_argcheck(L, 0 <= slb_x && slb_x <= game.map_tiles_x, index,
                        "x slab coord out of range");
     return slb_x;
 }
@@ -286,7 +286,7 @@ MapSlabCoord luaL_checkslb_x(lua_State *L, int index)
 MapSlabCoord luaL_checkslb_y(lua_State *L, int index)
 {
     MapSlabCoord slb_y = luaL_checkint(L,index);
-    luaL_argcheck(L, 0 <= slb_y && slb_y <= gameadd.map_tiles_y, index,
+    luaL_argcheck(L, 0 <= slb_y && slb_y <= game.map_tiles_y, index,
                        "y slab coord out of range");
     return slb_y;
 }
@@ -552,7 +552,7 @@ void lua_pushPos(lua_State *L, struct Coord3d* pos) {
 
 void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y) {
 
-    if (slb_x < 0 || slb_x >= gameadd.map_tiles_x || slb_y < 0 || slb_y >= gameadd.map_tiles_y) {
+    if (slb_x < 0 || slb_x >= game.map_tiles_x || slb_y < 0 || slb_y >= game.map_tiles_y) {
         lua_pushnil(L);
         return;
     }

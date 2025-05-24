@@ -608,7 +608,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
               i = -i;
               event->target = i;
             }
-            snprintf(game.evntbox_text_buffer, sizeof(game.evntbox_text_buffer), "%s", gameadd.quick_messages[i % QUICK_MESSAGES_COUNT]);
+            snprintf(game.evntbox_text_buffer, sizeof(game.evntbox_text_buffer), "%s", game.quick_messages[i % QUICK_MESSAGES_COUNT]);
             snprintf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), "%s", game.evntbox_text_buffer);
             other_off = 1;
             turn_on_menu(GMnu_TEXT_INFO);
@@ -790,7 +790,7 @@ void update_all_events(void)
 void event_kill_all_players_events(long plyr_idx)
 {
     SYNCDBG(8,"Starting");
-    TbBool keep_objective = gameadd.heart_lost_display_message;
+    TbBool keep_objective = game.heart_lost_display_message;
     for (int i = 1; i < EVENTS_COUNT; i++)
     {
         struct Event* event = &game.event[i];
