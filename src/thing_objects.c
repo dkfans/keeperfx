@@ -1676,10 +1676,10 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             pos.y.val = pos_y;
             pos.z.val = 1408;
             create_effect_element(&pos, twinkle_eff_elements[get_player_color_idx(objtng->owner)], objtng->owner);
-            if ( pos_x >= 0 && pos_x < gameadd.map_subtiles_x * COORD_PER_STL && pos_y >= 0 && pos_y < gameadd.map_subtiles_y * COORD_PER_STL ) {
+            if ( pos_x >= 0 && pos_x < game.map_subtiles_x * COORD_PER_STL && pos_y >= 0 && pos_y < game.map_subtiles_y * COORD_PER_STL ) {
                 const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + MAX_SOE_RADIUS;
                 const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + MAX_SOE_RADIUS;
-                dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < gameadd.map_subtiles_x * COORD_PER_STL && pos.y.val < gameadd.map_subtiles_y * COORD_PER_STL;
+                dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < game.map_subtiles_x * COORD_PER_STL && pos.y.val < game.map_subtiles_y * COORD_PER_STL;
             }
         }
         return 1;

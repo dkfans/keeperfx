@@ -92,14 +92,14 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
     struct Coord3d targetpos = {0};
     PlayerNumber loc_player = i & 0xF;
     if (loc_player == 15) // CURRENT_PLAYER
-        loc_player = gameadd.script_current_player;
+        loc_player = game.script_current_player;
 
     struct Dungeon* dungeon = get_dungeon(loc_player);
 
     switch (i >> 8)
     {
     case MML_LAST_EVENT:
-        src = &gameadd.triggered_object_location;
+        src = &game.triggered_object_location;
         break;
     case MML_RECENT_COMBAT:
         src = &dungeon->last_combat_location;

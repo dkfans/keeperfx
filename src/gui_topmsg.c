@@ -139,7 +139,7 @@ TbBool draw_onscreen_direct_messages(void)
         {
             LbTextDrawResized(scale_value_by_horizontal_resolution(160), 0, tx_units_per_px, onscreen_msg_text);
         }
-        render_onscreen_msg_time -= gameadd.delta_time;
+        render_onscreen_msg_time -= game.delta_time;
     }
     unsigned int msg_pos = scale_value_by_vertical_resolution(200);
     if ((game.system_flags & GSF_NetGameNoSync) != 0)
