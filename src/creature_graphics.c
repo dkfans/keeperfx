@@ -485,11 +485,11 @@ void update_creature_graphic_anim(struct Thing *thing)
         } else
         if (cctrl->distance_to_destination == 0)
         {
-            update_creature_anim(thing, 256, CGI_Stand);
+            update_creature_anim(thing, crconf->walking_anim_speed, CGI_Stand);
         } else
         if (thing->floor_height < thing->mappos.z.val)
         {
-            update_creature_anim(thing, 256, CGI_Stand);
+            update_creature_anim(thing, crconf->walking_anim_speed, CGI_Stand);
         } else
         if ((cctrl->dragtng_idx != 0) && (thing_get(cctrl->dragtng_idx)->state_flags & TF1_IsDragged1))
         {
