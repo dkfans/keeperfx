@@ -487,9 +487,6 @@ TbBool cmd_volume_music(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_compuchat(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
-        return false;
-    }
     char * pr2str = strsep(&args, " ");
     if (pr2str == NULL) {
         return false;
@@ -618,9 +615,6 @@ TbBool cmd_reveal(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
-        return false;
-    }
     struct PlayerInfo * player = get_player(plyr_idx);
     int r = 0;
     char * pr2str = strsep(&args, " ");
@@ -659,9 +653,6 @@ TbBool cmd_comp_kill(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_player_score(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
-        return false;
-    }
     char * pr2str = strsep(&args, " ");
     PlayerNumber id = get_player_number_for_command(pr2str);
     struct Dungeon * dungeon = get_dungeon(id);
@@ -1325,9 +1316,6 @@ TbBool cmd_set_creature_job(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_mapwho_info(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
-        return false;
-    }
     char * pr2str = strsep(&args, " ");
     struct Coord3d pos = {0};
     if (pr2str == NULL) {
@@ -1359,9 +1347,6 @@ TbBool cmd_mapwho_info(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_thing_info(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
-        return false;
-    }
     struct PlayerInfo * player = get_player(plyr_idx);
     struct Thing * thing = thing_get(player->influenced_thing_idx);
     if (thing_is_invalid(thing)) {
@@ -1692,9 +1677,6 @@ TbBool cmd_slow_creature(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_set_music(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
-        return false;
-    }
     char * pr2str = strsep(&args, " ");
     if (pr2str == NULL) {
         return false;
@@ -1834,9 +1816,6 @@ TbBool cmd_zoom_to_hero_gate(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_sound_test(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
-        return false;
-    }
     char * pr2str = strsep(&args, " ");
     if (pr2str == NULL) {
         return false;
@@ -1847,9 +1826,6 @@ TbBool cmd_sound_test(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_speech_test(PlayerNumber plyr_idx, char * args)
 {
-    if ((game.flags_font & FFlg_AlexCheat) == 0) {
-        return false;
-    }
     char * pr2str = strsep(&args, " ");
     if (pr2str == NULL) {
         return false;
