@@ -361,7 +361,8 @@ void tint_thing(struct Thing *thing, TbPixel colour, unsigned char tint)
 TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
 {
     unsigned long i = get_creature_anim(thing, seq_idx);
-    if (i != thing->anim_sprite)
+    // Only update when it's a different sprite, or a different animation speed.
+    if ((i != thing->anim_sprite) || ((speed != thing->anim_speed) && (speed != -1)))
     {
         set_thing_draw(thing, i, speed, -1, -1, 0, ODC_Default);
         return true;
@@ -372,7 +373,8 @@ TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
 TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
 {
     unsigned long i = convert_td_iso(td_idx);
-    if (i != thing->anim_sprite)
+    // Only update when it's a different sprite, or a different animation speed.
+    if ((i != thing->anim_sprite) || ((speed != thing->anim_speed) && (speed != -1)))
     {
         set_thing_draw(thing, i, speed, -1, -1, 0, ODC_Default);
         return true;
