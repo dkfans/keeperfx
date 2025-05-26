@@ -16,6 +16,8 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
+msgid ""
+msgstr ""
 "Project-Id-Version: Ancient Keeper campaign for KeeperFX\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"

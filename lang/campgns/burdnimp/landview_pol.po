@@ -14,6 +14,8 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
+msgid ""
+msgstr ""
 "Project-Id-Version: Burdened Imps' Level Pack for KeeperFX\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2014-02-10 00:11+0100\n"

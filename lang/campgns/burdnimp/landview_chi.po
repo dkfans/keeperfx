@@ -13,6 +13,8 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
+msgid ""
+msgstr ""
 "Project-Id-Version: Post Ancient Keeper campaign for KeeperFX\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"

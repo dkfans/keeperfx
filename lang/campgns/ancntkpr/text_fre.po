@@ -16,6 +16,8 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
+msgid ""
+msgstr ""
 "Project-Id-Version: Ancient Keeper campaign for KeeperFX\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "Language: fr_FR\n"

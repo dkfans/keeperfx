@@ -16,6 +16,8 @@
 #      (at your option) any later version.
 # 
 # ******************************************************************************
+msgid ""
+msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues\n"
 "Language-Team: KeeperFX Team <github.com/dkfans>\n"
