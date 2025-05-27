@@ -4140,6 +4140,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
 void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtng_idx, const struct Coord3d *pos)
 {
     long i;
+    short no_loop = 0;
     if (inst_idx == 0)
         return;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -4173,7 +4174,13 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtn
     cctrl->inst_total_turns = itime;
     cctrl->inst_action_turns = aitime;
     i = get_creature_model_graphics(thing->model,inst_inf->graphics_idx);
-    cctrl->instance_anim_step_turns = get_lifespan_of_animation(i, 1) / itime;
+    
+    //Animations loop so they end with the starting frame again
+    if (inst_inf->no_animation_loop)
+    {
+        no_loop = itime;
+    }
+    cctrl->instance_anim_step_turns = (get_lifespan_of_animation(i, 1) / itime) - no_loop;
     if (pos != NULL)
     {
         cctrl->targtstl_x = coord_subtile(pos->x.val);

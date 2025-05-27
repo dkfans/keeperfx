@@ -115,6 +115,7 @@ struct InstanceInfo {
     long range_max;
     long symbol_spridx;
     short tooltip_stridx;
+    TbBool no_animation_loop;
     // Refer to creature_instances_validate_func_list
     uint8_t validate_source_func;
     int32_t validate_source_func_params[2];
