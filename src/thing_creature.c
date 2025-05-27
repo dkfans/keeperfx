@@ -613,6 +613,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->instance_id == CrInst_NULL)
     {
+        internal_set_thing_state(creatng, CrSt_CreatureEat);
         set_creature_instance(creatng, CrInst_EAT, 0, 0);
     } else
     {
