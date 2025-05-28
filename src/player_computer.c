@@ -211,7 +211,7 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
         max_slabs = width_slabs;
     long area_min = (max_slabs + 1) / 2 + 1;
     long area_max = area_min / 3 + 2 * area_min;
-    const long arr_length = ROOM_TYPES_COUNT_OLD;
+    const long arr_length = game.conf.slab_conf.room_types_count;
     for (long area = area_min; area < area_max; area++)
     {
         for (long aparam = 1; aparam >= 0; aparam--)
