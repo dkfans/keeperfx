@@ -23,6 +23,9 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <wintrust.h>
+#include <softpub.h>
+#include <tchar.h>
 static HMODULE steam_lib;
 #endif
 
@@ -94,15 +97,44 @@ int steam_api_init()
 
     JUSTLOG("'steam_api.dll' and 'steam_appid.txt' found");
 
-    // Make sure we're not running KeeperFX under Wine.
+    // Check if we are running KeeperFX under Wine.
+    // The .dll can not connect to Steam running on the Host machine so we'll log a notice.
+    // Maybe there's cases where a person would also run Steam under Wine.
     // Even if we instead load 'libsteam_api.so' while in a Wine environment,
     // it will be unable to determine a Steam binary running on the Linux host.
-    // We do this check after looking for the files so there's only something in
-    // the log when the user is trying to enable the Steam API.
     if (is_running_under_wine == true)
     {
-        WARNLOG("Using the Steam API under Wine is not supported");
-        return -1;
+        JUSTLOG("The Steam API under Wine will not be able to connect to Steam on the host machine");
+    }
+
+    // Verify the Steam DLL
+    // We'll use the official Windows root cert for this
+    WINTRUST_FILE_INFO fileData = {};
+    fileData.cbStruct = sizeof(WINTRUST_FILE_INFO);
+    fileData.pcwszFilePath = L"steam_api.dll";
+    fileData.hFile = NULL;
+    fileData.pgKnownSubject = NULL;
+    GUID policyGUID = WINTRUST_ACTION_GENERIC_VERIFY_V2;
+    WINTRUST_DATA winTrustData = {};
+    winTrustData.cbStruct = sizeof(WINTRUST_DATA);
+    winTrustData.dwUIChoice = WTD_UI_NONE;            // No UI
+    winTrustData.fdwRevocationChecks = WTD_REVOKE_NONE; // No revocation checking
+    winTrustData.dwUnionChoice = WTD_CHOICE_FILE;     // We are verifying a file
+    winTrustData.pFile = &fileData;
+    winTrustData.dwStateAction = WTD_STATEACTION_VERIFY; // Start verification
+    winTrustData.dwProvFlags = WTD_SAFER_FLAG;        // Use safer flags
+    LONG verify_status = WinVerifyTrust(NULL, &policyGUID, &winTrustData);
+
+    // Close state data to free resources
+    winTrustData.dwStateAction = WTD_STATEACTION_CLOSE;
+    WinVerifyTrust(NULL, &policyGUID, &winTrustData);
+
+    // Check if certificate verification was successful
+    if(verify_status != ERROR_SUCCESS){
+        ERRORLOG("Failed to verify certificate of 'steam_api.dll'");
+        return 1;
+    } else {
+        JUSTLOG("'steam_api.dll' certificate successfully verified");
     }
 
     // Load the Steam API library

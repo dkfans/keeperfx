@@ -365,7 +365,7 @@ LINKLIB = -mwindows \
 	-L"deps/centijson" -ljson \
 	-L"deps/zlib" -lminizip -lz \
 	deps/luajit/lib/libluajit.a \
-	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid
+	-lwinmm -lmingw32 -limagehlp -lws2_32 -ldbghelp -lbcrypt -lole32 -luuid -lwintrust -lcrypt32
 INCS = \
 	-I"deps/zlib/include" \
 	-I"deps/spng/include" \
