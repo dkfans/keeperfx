@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-    int steam_api_init();
+    void steam_api_init();
     void steam_api_shutdown();
 
 #ifdef __cplusplus

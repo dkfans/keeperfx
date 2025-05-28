@@ -62,25 +62,23 @@ SteamApiShutdownFunc SteamAPI_Shutdown;
  * @brief Initializes the Steam API in KeeperFX.
  *
  * This function loads the necessary Steam API library and initializes it.
- * It also performs checks for required files and compatibility.
- *
- * @return Returns 0 on success, -1 when not on Windows, and 1 (or higher) on failure.
+ * It performs checks for required files and compatibility and verifies the certificate of the dll file.
  */
-int steam_api_init()
+void steam_api_init()
 {
 #ifndef _WIN32
-    // Windows only
-    return -1;
+    // On anything but Windows we just return 1 because the API is not supposed to get loaded
+    return;
 #else
 
     // Make sure the steam API is not initialized multiple times
     if (steam_lib != NULL || SteamAPI_Init != NULL)
     {
         WARNLOG("Steam API already initialized");
-        return 1;
+        return;
     }
 
-    // Make sure both files are present
+    // Check if both files are present
     if (LbFileExists("steam_api.dll") == false || LbFileExists("steam_appid.txt") == false)
     {
 
@@ -92,7 +90,7 @@ int steam_api_init()
             ERRORLOG("The Steam API requires both the 'steam_api.dll' and 'steam_appid.txt' files to be present");
         }
 
-        return 1;
+        return;
     }
 
     JUSTLOG("'steam_api.dll' and 'steam_appid.txt' found");
@@ -132,7 +130,7 @@ int steam_api_init()
     // Check if certificate verification was successful
     if(verify_status != ERROR_SUCCESS){
         ERRORLOG("Failed to verify certificate of 'steam_api.dll'");
-        return 1;
+        return;
     } else {
         JUSTLOG("'steam_api.dll' certificate successfully verified");
     }
@@ -142,7 +140,7 @@ int steam_api_init()
     if (!steam_lib)
     {
         ERRORLOG("Unable to load 'steam_api.dll' library");
-        return 1;
+        return;
     }
 
     JUSTLOG("'steam_api.dll' library loaded");
@@ -155,7 +153,7 @@ int steam_api_init()
     {
         ERRORLOG("Failed to get proc address for 'SteamAPI_InitFlat' in 'steam_api.dll'");
         FreeLibrary(steam_lib);
-        return 1;
+        return;
     }
 
     // Unionize the Init function address type to our local function type
@@ -167,7 +165,7 @@ int steam_api_init()
     {
         ERRORLOG("Failed to get proc address for 'SteamAPI_Shutdown' in 'steam_api.dll'");
         FreeLibrary(steam_lib);
-        return 1;
+        return;
     }
 
     // Initialize the Steam API
@@ -180,11 +178,10 @@ int steam_api_init()
     {
         JUSTLOG("Steam API Failure: %s", error);
         FreeLibrary(steam_lib);
-        return 1;
+        return;
     }
 
     FreeLibrary(steam_lib);
-    return 0;
 
 #endif
 }
