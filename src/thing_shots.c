@@ -699,7 +699,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     {
         return detonate_shot(shotng, true);
     }
-    if (!(shotst->model_flags & ShMF_Penetrating))
+    if (!flag_is_set(shotst->model_flags,ShMF_WallPierce))
     {
         if (shotng->bounce_angle <= 0)
         {
@@ -1649,7 +1649,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
     {
         if (shot_hit_something_while_moving(shotng, &pos))
         {
-            if ( (!(shotst->model_flags & ShMF_Penetrating)) || (!thing_exists(shotng)) ) // Shot may have been destroyed when it hit something
+            if ( (!flag_is_set(shotst->model_flags,ShMF_Penetrating)) || (!thing_exists(shotng)) ) // Shot may have been destroyed when it hit something
             {
                 return TUFRet_Deleted;
             }
