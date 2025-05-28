@@ -93,6 +93,7 @@
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "lua_triggers.h"
+#include "lua_cfg_funcs.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -612,6 +613,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->instance_id == CrInst_NULL)
     {
+        internal_set_thing_state(creatng, CrSt_CreatureEat);
         set_creature_instance(creatng, CrInst_EAT, 0, 0);
     } else
     {
@@ -2002,7 +2004,7 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
             hit_type = THit_CrtrsNObjctsNotOwn;
         else
         if (targetng->owner == castng->owner)
-            hit_type = THit_CrtrsOnly;
+            hit_type = THit_CrtrsOnlyOwn;
         else
             hit_type = THit_CrtrsOnlyNotOwn;
     }
@@ -2223,8 +2225,26 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
         cctrl->teleport_x = trg_x;
         cctrl->teleport_y = trg_y;
     }
-
-    if (spconf->caster_affected)
+    // Check if the spell can be fired as a shot. It is definitely not if casted on itself.
+    if ((spconf->shot_model > 0) && (cctrl->targtng_idx != castng->index))
+    {
+        if ((castng->alloc_flags & TAlF_IsControlled) != 0)
+          i = THit_CrtrsNObjcts;
+        else
+        {
+            if (castng->owner == thing_get(cctrl->targtng_idx)->owner)
+            {
+                i = THit_CrtrsOnlyOwn;
+            }
+            else
+            {
+                i = THit_CrtrsOnlyNotOwn;
+            }
+        }
+        thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_level, i);
+    }
+    // Check if the spell can be self-casted
+    else if (spconf->caster_affected)
     {
         if (spconf->caster_affect_sound > 0)
         {
@@ -2513,9 +2533,14 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     //TODO CREATURE_AI rewrite state subfunctions so they won't hang
     //if (game.play_gameturn > 119800)
     SYNCDBG(18,"Executing state %s for %s index %d.",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
-    struct StateInfo* stati = get_thing_active_state_info(thing);
-    if (stati->process_state != NULL) {
-        short k = stati->process_state(thing);
+    struct CreatureStateConfig* stati = get_thing_active_state_info(thing);
+    if (stati->process_state != 0) {
+        short k = 0;
+        if (stati->process_state > 0)
+            k = process_func_list[stati->process_state](thing);
+        else 
+            k = luafunc_crstate_func(stati->process_state, thing);
+
         if (k == CrStRet_Deleted) {
             SYNCDBG(18,"Finished with creature deleted");
             return TUFRet_Deleted;
@@ -2801,11 +2826,15 @@ long move_creature(struct Thing *thing)
              || (subtile_slab(tngpos->y.stl.num) != subtile_slab(nxpos.y.stl.num)))
             {
                 check_map_explored(thing, nxpos.x.stl.num, nxpos.y.stl.num);
-                struct StateInfo* stati = get_thing_active_state_info(thing);
+                struct CreatureStateConfig* stati = get_thing_active_state_info(thing);
                 if (!state_info_invalid(stati)) {
-                    CreatureStateFunc2 callback = stati->move_from_slab;
-                    if (callback != NULL) {
-                        callback(thing);
+                    if (stati->move_from_slab > 0)
+                    {
+                        move_from_slab_func_list[stati->move_from_slab](thing);
+                    }
+                    else if (stati->move_from_slab < 0)
+                    {
+                        luafunc_crstate_func(stati->move_from_slab, thing);
                     }
                 }
             }
@@ -3911,13 +3940,13 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance 
     MapSubtlCoord stl_x_upper = stl_x + range;
     if ((stl_x - range) < 0)
         stl_x_lower = 0;
-    if (stl_x_upper > gameadd.map_subtiles_x)
-        stl_x_upper = gameadd.map_subtiles_x;
+    if (stl_x_upper > game.map_subtiles_x)
+        stl_x_upper = game.map_subtiles_x;
     MapSubtlCoord stl_y = thing->mappos.y.stl.num;
     MapSubtlCoord stl_y_lower = stl_y - range;
     MapSubtlCoord stl_y_upper = stl_y + range;
-    if (stl_y + range > gameadd.map_subtiles_y)
-        stl_y_upper = gameadd.map_subtiles_y;
+    if (stl_y + range > game.map_subtiles_y)
+        stl_y_upper = game.map_subtiles_y;
     if (stl_y_lower < 0)
         stl_y_lower = 0;
 
@@ -4789,7 +4818,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->shot_shift_y = crconf->shot_shift_y;
     cctrl->shot_shift_z = crconf->shot_shift_z;
     long i = get_creature_anim(crtng, CGI_Stand);
-    set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
+    set_thing_draw(crtng, i, crconf->walking_anim_speed, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->exp_level = 1;
     cctrl->max_health = calculate_correct_creature_max_health(crtng);
     crtng->health = cctrl->max_health;
@@ -6074,7 +6103,7 @@ ThingModel get_footstep_effect_element(struct Thing* thing)
     };
 
     short texture;
-        unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
+        unsigned char ext_txtr = game.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
     if (ext_txtr == 0)
     {
         // Default map texture
@@ -6326,6 +6355,8 @@ long update_creature_levels(struct Thing *thing)
         return 0;
     }
     cctrl->exp_level_up = false;
+    lua_on_level_up(thing);
+    
     // If a creature is not on highest level, just update the level.
     if (cctrl->exp_level+1 < CREATURE_MAX_LEVEL)
     {
@@ -7205,7 +7236,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         char msg_buf[255];
         if (thing_is_custom_special_box(picktng))
         {
-            if (gameadd.box_tooltip[picktng->custom_box.box_kind][0] == 0)
+            if (game.box_tooltip[picktng->custom_box.box_kind][0] == 0)
             {
                 strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
                 strcpy(msg_buf, str);
@@ -7213,7 +7244,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             }
             else
             {
-                strcat(str, gameadd.box_tooltip[picktng->custom_box.box_kind]);
+                strcat(str, game.box_tooltip[picktng->custom_box.box_kind]);
                 char *split = strchr(str, ':');
                 if ((int)(split - str) > -1)
                 {

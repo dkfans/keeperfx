@@ -443,7 +443,6 @@ void faststartup_saved_packet_game(void)
 void clear_complete_game(void)
 {
     memset(&game, 0, sizeof(struct Game));
-    memset(&gameadd, 0, sizeof(struct GameAdd));
     memset(&intralvl, 0, sizeof(struct IntralevelData));
     game.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;
@@ -459,7 +458,7 @@ void clear_complete_game(void)
     game_num_fps = start_params.num_fps;
     game.flags_cd = start_params.flags_cd;
     set_flag_value(game.system_flags, GSF_AllowOnePlayer, start_params.one_player);
-    gameadd.computer_chat_flags = start_params.computer_chat_flags;
+    game.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;
     snprintf(game.packet_fname,150, "%s", start_params.packet_fname);
     game.packet_save_enable = start_params.packet_save_enable;

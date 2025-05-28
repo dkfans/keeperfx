@@ -43,6 +43,12 @@ enum TriggerFlags {
     TrgF_REUSABLE                      =  0x80,
 };
 
+enum FollowBehaviour {
+    FlwB_None               = 0,
+    FlwB_FollowLeader       = 1,
+    FlwB_MatchWorkRoom      = 2,
+    FlwB_JoinCombatOrFollow = 3,
+};
 /******************************************************************************/
 #pragma pack(1)
 

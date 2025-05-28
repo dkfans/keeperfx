@@ -16,4 +16,4 @@ function Research(player,Research_type,room_or_spell,research_value) end
 ---@param Research_type "MAGIC"|"ROOM"|"CREATURE" Whether it is a room or spell you are Researching. Use one of the following commands:
 ---@param room_or_spell power_kind|room_type|creature_type The name of the room or spell you want to adjust, e.g. TEMPLE or MAGIC_LIGHTNING. See room names section and spell names section for more information.
 ---@param research_value integer The new Research value. This must be a number below 16777216.
-function Research_order(player,Research_type,room_or_spell,research_value) end
+function ResearchOrder(player,Research_type,room_or_spell,research_value) end

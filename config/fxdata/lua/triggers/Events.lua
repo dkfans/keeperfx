@@ -57,7 +57,7 @@ function RegisterPowerCastEvent(action,powerKind)
 end
 
 ---@param action function|string the function to call when the event happens
----@param player Player the player who lost (nil for any player)
+---@param player? Player the player who lost (nil for any player)
 ---@return Trigger
 function RegisterDungeonDestroyedEvent(action, player)
     local trigData = {player = player}
@@ -70,8 +70,8 @@ end
 
 ---triggers when a trap is placed
 ---@param action function|string the function to call when the event happens
----@param player Player|nil the player who placed the trap (nil for any player)
----@param trapType trap_type|nil the kind of trap that was placed (nil for any trap)
+---@param player? Player|nil the player who placed the trap (nil for any player)
+---@param trapType? trap_type|nil the kind of trap that was placed (nil for any trap)
 ---@return table
 function RegisterTrapPlacedEvent(action, player, trapType)
     local trigData = {Player = player, trapType = trapType}
@@ -127,10 +127,10 @@ function RegisterOnActionPointEvent(action, actionPoint, player)
     local trigger = CreateTrigger("GameTick",action,trigData)
     TriggerAddCondition(trigger, function(eventData,triggerData)  
                                         if triggerData.triggered == false then
-                                            triggerData.triggered = Is_actionpoint_activated_by_player(triggerData.Player,triggerData.actionPoint)
+                                            triggerData.triggered = IsActionpointActivatedByPlayer(triggerData.Player,triggerData.actionPoint)
                                             return triggerData.triggered
                                         -- make the trigger resettable
-                                        elseif Is_actionpoint_activated_by_player(triggerData.Player,triggerData.actionPoint) == false then
+                                        elseif IsActionpointActivatedByPlayer(triggerData.Player,triggerData.actionPoint) == false then
                                             triggerData.triggered = false
                                             return false
                                         else
@@ -138,5 +138,19 @@ function RegisterOnActionPointEvent(action, actionPoint, player)
                                         end
                                   end )
 
+    return trigger
+end
+
+---Triggers when a unit levels up
+---@param action function|string the function to call when the event happens
+---@param creature? Creature the unit that triggers the event
+---@return table
+function RegisterLevelUpEvent(action, creature)
+    local trigData = {creature = creature}
+
+    local trigger = CreateTrigger("LevelUp",action,trigData)
+    if creature then
+        TriggerAddCondition(trigger, function(eventData,triggerData) return eventData.creature == triggerData.creature end)
+    end
     return trigger
 end

@@ -4,7 +4,7 @@
 /** @file creature_states_combt.c
  *     Creature state machine functions related to combat.
  * @par Purpose:
- *     Defines elements of states[] array, containing valid creature states.
+ *     Defines elements of game.conf.crtr_conf.states[] array, containing valid creature states.
  * @par Comment:
  *     None.
  * @author   KeeperFX Team
@@ -2223,11 +2223,11 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of(struct T
     if (stl_x_beg <= 0)
         stl_x_beg = 0;
     MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + square_size / 2);
-    if (stl_x_end >= gameadd.map_subtiles_x)
-        stl_x_end = gameadd.map_subtiles_x;
+    if (stl_x_end >= game.map_subtiles_x)
+        stl_x_end = game.map_subtiles_x;
     MapSubtlCoord stl_y_end = coord_subtile(pos->y.val + square_size / 2);
-    if (stl_y_end >= gameadd.map_subtiles_y)
-        stl_y_end = gameadd.map_subtiles_y;
+    if (stl_y_end >= game.map_subtiles_y)
+        stl_y_end = game.map_subtiles_y;
     MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - square_size / 2);
     if (stl_y_beg <= 0)
         stl_y_beg = 0;
@@ -3191,7 +3191,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
                 return false;
         }
         crstate = get_creature_state_besides_move(creatng);
-        if (states[crstate].sneaky == 1)
+        if (game.conf.crtr_conf.states[crstate].sneaky == 1)
             return false;
     }
 

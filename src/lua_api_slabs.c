@@ -14,7 +14,7 @@
 
 #include "lua_base.h"
 #include "lua_params.h"
-
+#include "lua_utils.h"
 
 #include "post_inc.h"
 #include "game_merge.h"
@@ -103,7 +103,7 @@ static const struct luaL_Reg slab_methods[] = {
         place_slab_type_on_map(luaL_checkNamedCommand(L, 3, slab_desc), slab_subtile_center(slb_x), slab_subtile_center(slb_y), slabmap_owner(slb), 0);
     } else if (strcmp(key, "style") == 0) {
         SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
-        gameadd.slab_ext_data[slb_num] = luaL_checkNamedCommand(L, 3, texture_pack_desc);
+        game.slab_ext_data[slb_num] = luaL_checkNamedCommand(L, 3, texture_pack_desc);
     }
     return 0;
  }
@@ -115,14 +115,10 @@ static const struct luaL_Reg slab_methods[] = {
     luaL_checkSlab(L, 1, &slb_x, &slb_y);
 
     const char* key = luaL_checkstring(L, 2);
- 
-    // Check if the key exists in slab_methods
-    for (int i = 0; slab_methods[i].name != NULL; i++) {
-        if (strcmp(key, slab_methods[i].name) == 0) {
-            // Instead of calling the function, return its reference
-            lua_pushcfunction(L, slab_methods[i].func);
-            return 1;
-        }
+
+    if (try_get_c_method(L, key, slab_methods))
+    {
+        return 1;
     }
 
     if (strcmp(key, "revealed") == 0) {
@@ -136,10 +132,14 @@ static const struct luaL_Reg slab_methods[] = {
         lua_pushstring(L, get_conf_parameter_text(slab_desc,slb->kind));
     } else if (strcmp(key, "style") == 0) {
         SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
-        lua_pushstring(L, get_conf_parameter_text(texture_pack_desc,gameadd.slab_ext_data[slb_num]));
+        lua_pushstring(L, get_conf_parameter_text(texture_pack_desc,game.slab_ext_data[slb_num]));
+    } else if (try_get_from_methods(L, 1, key)) {
+        return 1;
+    } else {
+        return luaL_error(L, "Unknown field or method '%s' for Player", key);
     }
 
-     return 1;
+    return 1;
  
  }
  

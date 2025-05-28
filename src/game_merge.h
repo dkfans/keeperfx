@@ -141,63 +141,12 @@ struct IntralevelData {
     long campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
 };
 
-/**
- * Defines additional elements, which are not stored in main 'Game' struct.
- */
-struct GameAdd {
-    unsigned long turn_last_checked_for_gold;
-    long scavenge_effectiveness_evil; //unused
-    long scavenge_effectiveness_good; //unused
-    unsigned short computer_chat_flags;
-    char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
-    struct GuiMessage messages[GUI_MESSAGES_COUNT];
-    struct LightSystemState lightst;
-    uint8_t               max_custom_box_kind;
-    unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
-    int                   script_current_player;
-    struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
-    char                  box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
-    struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
-    int                   active_fx_lines;
-    struct ActionPoint action_points[ACTN_POINTS_COUNT];
-    LevelNumber last_level; // Used to restore custom sprites
-    struct LevelScript script;
-    PlayerNumber script_timer_player;
-    unsigned char script_timer_id;
-    unsigned long script_timer_limit;
-    TbBool timer_real;
-    unsigned char script_value_type;
-    unsigned char script_value_id;
-    PlayerNumber script_variable_player;
-    long script_variable_target;
-    unsigned char script_variable_target_type;
-    TbBool heart_lost_display_message;
-    TbBool heart_lost_quick_message;
-    unsigned long heart_lost_message_id;
-    long heart_lost_message_target;
-    unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
-    unsigned char slab_ext_data_initial[MAX_TILES_X*MAX_TILES_Y];
-    float delta_time;
-    long double process_turn_time;
-    float flash_button_time;
-    MapSubtlCoord map_subtiles_x;
-    MapSubtlCoord map_subtiles_y;
-    MapSlabCoord map_tiles_x;
-    MapSlabCoord map_tiles_y;
-    long navigation_map_size_x;
-    long navigation_map_size_y;
-    short around_map[AROUND_MAP_LENGTH];
-    short around_slab[AROUND_SLAB_LENGTH];
-    short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
-    short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
-};
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
 
 #pragma pack()
 
 /******************************************************************************/
-extern struct GameAdd gameadd;
 extern struct IntralevelData intralvl;
 /******************************************************************************/
 LevelNumber get_loaded_level_number(void);

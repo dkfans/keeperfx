@@ -23,14 +23,14 @@
 #include "bflib_basics.h"
 
 #include "map_data.h"
-#include "game_merge.h"
+#include "game_legacy.h"
 #include "post_inc.h"
 
 /******************************************************************************/
 long get_subtile_lightness(const struct LightsShadows * lish, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    if (stl_x > gameadd.map_subtiles_x) stl_x = gameadd.map_subtiles_x;
-    if (stl_y > gameadd.map_subtiles_y) stl_y = gameadd.map_subtiles_y;
+    if (stl_x > game.map_subtiles_x) stl_x = game.map_subtiles_x;
+    if (stl_y > game.map_subtiles_y) stl_y = game.map_subtiles_y;
     if (stl_x < 0)  stl_x = 0;
     if (stl_y < 0) stl_y = 0;
     return lish->subtile_lightness[get_subtile_number(stl_x,stl_y)];
@@ -38,9 +38,9 @@ long get_subtile_lightness(const struct LightsShadows * lish, MapSubtlCoord stl_
 
 void clear_subtiles_lightness(struct LightsShadows * lish)
 {
-    for (MapSubtlCoord y = 0; y < (gameadd.map_subtiles_y + 1); y++)
+    for (MapSubtlCoord y = 0; y < (game.map_subtiles_y + 1); y++)
     {
-        for (MapSubtlCoord x = 0; x < (gameadd.map_subtiles_x + 1); x++)
+        for (MapSubtlCoord x = 0; x < (game.map_subtiles_x + 1); x++)
         {
             unsigned short* wptr = &lish->subtile_lightness[get_subtile_number(x, y)];
             *wptr = MINIMUM_LIGHTNESS;
