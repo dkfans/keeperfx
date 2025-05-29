@@ -540,7 +540,7 @@ long interpolate(long variable_to_interpolate, long previous, long current)
     long future = current + (current - previous);
     // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
     long desired_value = LbLerp(current, future, 0.5);
-    return LbLerp(variable_to_interpolate, desired_value, gameadd.delta_time);
+    return LbLerp(variable_to_interpolate, desired_value, game.delta_time);
 }
 
 long interpolate_angle(long variable_to_interpolate, long previous, long current)
@@ -550,7 +550,7 @@ long interpolate_angle(long variable_to_interpolate, long previous, long current
     }
     long future = current + (current - previous);
     long desired_value = lerp_angle(current, future, 0.5);
-    return lerp_angle(variable_to_interpolate, desired_value, gameadd.delta_time);
+    return lerp_angle(variable_to_interpolate, desired_value, game.delta_time);
 }
 
 void interpolate_thing(struct Thing *thing)
@@ -978,7 +978,7 @@ static struct BasicQ *get_bucket_item(int min_cor_z, enum QKinds kind, size_t si
 
 static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
+    if ((bstl_y < 0) || (bstl_y > game.map_subtiles_y-1)) {
         return;
     }
     long mmin;
@@ -987,8 +987,8 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
     mmax = max(mm[0].max,mm[1].max);
     if (mmin + bstl_x < 1)
       mmin = 1 - bstl_x;
-    if (mmax + bstl_x > gameadd.map_subtiles_x)
-      mmax = gameadd.map_subtiles_x - bstl_x;
+    if (mmax + bstl_x > game.map_subtiles_x)
+      mmax = game.map_subtiles_x - bstl_x;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     stl_y = bstl_y;
@@ -1117,7 +1117,7 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
 
 static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
+    if ((bstl_y < 0) || (bstl_y > game.map_subtiles_y-1)) {
         return;
     }
     long mmin;
@@ -1127,8 +1127,8 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
     if (mmin + bstl_x < 1) {
         mmin = 1 - bstl_x;
     }
-    if (mmax + bstl_x > gameadd.map_subtiles_x) {
-        mmax = gameadd.map_subtiles_x - bstl_x;
+    if (mmax + bstl_x > game.map_subtiles_x) {
+        mmax = game.map_subtiles_x - bstl_x;
     }
     if (mmax < mmin) {
         return;
@@ -1322,7 +1322,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
 
 static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
+    if ((bstl_y < 0) || (bstl_y > game.map_subtiles_y-1)) {
         return;
     }
     long mmin;
@@ -1337,9 +1337,9 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         clip_min = true;
         mmin = 1 - bstl_x;
     }
-    if (mmax + bstl_x > gameadd.map_subtiles_x) {
+    if (mmax + bstl_x > game.map_subtiles_x) {
         clip_max = true;
-        mmax = gameadd.map_subtiles_x - bstl_x;
+        mmax = game.map_subtiles_x - bstl_x;
     }
     if (mmax < mmin) {
         return;
@@ -1351,7 +1351,7 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
     TbBool lim_min;
     TbBool lim_max;
     lim_min = (stl_y <= 0);
-    lim_max = (stl_y >= gameadd.map_subtiles_y-1);
+    lim_max = (stl_y >= game.map_subtiles_y-1);
     TbBool clip;
     clip = clip_min | clip_max | lim_max | lim_min;
     apos += (mmin << 8);
@@ -1561,7 +1561,7 @@ void frame_wibble_generate(void)
         wibl->field_C = osc >> 6;
         wibl++;
     }
-    render_water_wibble += (LbFPMath_PI / 22) * gameadd.delta_time;
+    render_water_wibble += (LbFPMath_PI / 22) * game.delta_time;
     water_wibble_angle = (int)render_water_wibble & LbFPMath_AngleMask;
     int zoom;
     {
@@ -4027,7 +4027,7 @@ unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned shor
 {
     long slb_x = subtile_slab(stl_x);
     long slb_y = subtile_slab(stl_y);
-    return tex_id + (gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] & 0x1F) * TEXTURE_BLOCKS_COUNT;
+    return tex_id + (game.slab_ext_data[get_slab_number(slb_x,slb_y)] & 0x1F) * TEXTURE_BLOCKS_COUNT;
 }
 
 static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
@@ -4049,20 +4049,20 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
     unsigned short *cubenum_ptr;
     long i;
     long n;
-    if ((stl_y <= 0) || (stl_y >= gameadd.map_subtiles_y))
+    if ((stl_y <= 0) || (stl_y >= game.map_subtiles_y))
         return;
     clip_start = plane_start;
     if (stl_x + plane_start < 1)
         clip_start = 1 - stl_x;
     clip_end = plane_end;
-    if (stl_x + plane_end > gameadd.map_subtiles_x)
-        clip_end = gameadd.map_subtiles_x - stl_x;
+    if (stl_x + plane_end > game.map_subtiles_x)
+        clip_end = game.map_subtiles_x - stl_x;
     struct EngineCol *bec;
     struct EngineCol *fec;
     bec = &back_ec[clip_start + MINMAX_ALMOST_HALF];
     fec = &front_ec[clip_start + MINMAX_ALMOST_HALF];
     blank_colmn = get_column(game.unrevealed_column_idx);
-    center_block_idx = clip_start + stl_x + (stl_y * (gameadd.map_subtiles_x+1));
+    center_block_idx = clip_start + stl_x + (stl_y * (game.map_subtiles_x+1));
     for (i = clip_end-clip_start; i > 0; i--)
     {
         mapblk = get_map_block_at_pos(center_block_idx);
@@ -4085,12 +4085,12 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         solidmsk_right = blank_colmn->solidmask;
         solidmsk_bottom = blank_colmn->solidmask;
         solidmsk_left = blank_colmn->solidmask;
-        sib_mapblk = get_map_block_at_pos(center_block_idx-gameadd.map_subtiles_x-1);
+        sib_mapblk = get_map_block_at_pos(center_block_idx-game.map_subtiles_x-1);
         if (map_block_revealed(sib_mapblk, my_player_number)) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_top = sib_colmn->solidmask;
         }
-        sib_mapblk = get_map_block_at_pos(center_block_idx+gameadd.map_subtiles_x+1);
+        sib_mapblk = get_map_block_at_pos(center_block_idx+game.map_subtiles_x+1);
         if (map_block_revealed(sib_mapblk, my_player_number)) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_bottom = sib_colmn->solidmask;
@@ -4416,7 +4416,7 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
 
 static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    if ((stl_y < 1) || (stl_y > (gameadd.map_subtiles_y - 1))) {
+    if ((stl_y < 1) || (stl_y > (game.map_subtiles_y - 1))) {
         return;
     }
     long xaval;
@@ -4426,8 +4426,8 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > gameadd.map_subtiles_x) {
-        xbval = gameadd.map_subtiles_x - stl_x;
+    if (stl_x + plane_end > game.map_subtiles_x) {
+        xbval = game.map_subtiles_x - stl_x;
     }
     int xidx;
     int xdelta;
@@ -4617,7 +4617,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
 
 static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    if ((stl_y < 1) || (stl_y > gameadd.map_subtiles_y - 1)) {
+    if ((stl_y < 1) || (stl_y > game.map_subtiles_y - 1)) {
         return;
     }
 
@@ -4633,9 +4633,9 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > gameadd.map_subtiles_x) {
+    if (stl_x + plane_end > game.map_subtiles_x) {
         xbclip = 1;
-        xbval = gameadd.map_subtiles_x - stl_x;
+        xbval = game.map_subtiles_x - stl_x;
     }
     int xidx;
     int xdelta;
@@ -4694,7 +4694,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
             colmn = get_map_column(sib_mapblk);
             solidmsk_right = colmn->solidmask;
         }
-        if ( xaclip || xbclip || (stl_y <= 1) || (stl_y >= gameadd.map_subtiles_y - 1))
+        if ( xaclip || xbclip || (stl_y <= 1) || (stl_y >= game.map_subtiles_y - 1))
         {
             if (xaclip && (xidx == 0)) {
                 solidmsk_left = 0;
@@ -4705,7 +4705,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
             if (stl_y <= 1) {
                 solidmsk_back = 0;
             }
-            if (stl_y >= gameadd.map_subtiles_y - 1) {
+            if (stl_y >= game.map_subtiles_y - 1) {
                 solidmsk_front = 0;
             }
         }
@@ -4972,7 +4972,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
-                thing->time_spent_displaying_hurt_colour += gameadd.delta_time;
+                thing->time_spent_displaying_hurt_colour += game.delta_time;
                 if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
                 {
                     thing->time_spent_displaying_hurt_colour = 0;
@@ -5177,41 +5177,41 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
         cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
         if (cctrl->thought_bubble_display_timer == 40)
         {
-            struct StateInfo *stati;
+            struct CreatureStateConfig *stati;
             stati = get_creature_state_with_task_completion(thing);
             if (!stati->blocks_all_state_changes)
             {
                 if (creature_under_spell_effect(thing, CSAfF_MadKilling))
                 {
-                    stati = &states[CrSt_MadKillingPsycho];
+                    stati = &game.conf.crtr_conf.states[CrSt_MadKillingPsycho];
                 }
                 else if (anger_is_creature_livid(thing))
                 {
-                    stati = &states[CrSt_CreatureLeavingDungeon];
+                    stati = &game.conf.crtr_conf.states[CrSt_CreatureLeavingDungeon];
                 }
                 else if (creature_is_called_to_arms(thing))
                 {
-                    stati = &states[CrSt_ArriveAtCallToArms];
+                    stati = &game.conf.crtr_conf.states[CrSt_ArriveAtCallToArms];
                 }
                 else if (creature_is_at_alarm(thing))
                 {
-                    stati = &states[CrSt_ArriveAtAlarm];
+                    stati = &game.conf.crtr_conf.states[CrSt_ArriveAtAlarm];
                 }
                 else if (anger_is_creature_angry(thing))
                 {
-                    stati = &states[CrSt_PersonSulkAtLair];
+                    stati = &game.conf.crtr_conf.states[CrSt_PersonSulkAtLair];
                 }
                 else if (hunger_is_creature_hungry(thing))
                 {
-                    stati = &states[CrSt_CreatureArrivedAtGarden];
+                    stati = &game.conf.crtr_conf.states[CrSt_CreatureArrivedAtGarden];
                 }
                 else if (creature_requires_healing(thing))
                 {
-                    stati = &states[CrSt_CreatureSleep];
+                    stati = &game.conf.crtr_conf.states[CrSt_CreatureSleep];
                 }
                 else if (cctrl->paydays_owed)
                 {
-                    stati = &states[CrSt_CreatureWantsSalary];
+                    stati = &game.conf.crtr_conf.states[CrSt_CreatureWantsSalary];
                 }
                 else
                 {
@@ -7761,6 +7761,10 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     } else
     {
         cutoff = 6;
+        if (creature_sprites->shadow_offset > (2 * cutoff))
+        {
+            cutoff = creature_sprites->shadow_offset / 2;
+        }
         if ( (thing_being_displayed->movement_flags & TMvF_BeingSacrificed) != 0 )
         {
             get_keepsprite_unscaled_dimensions(thing_being_displayed->anim_sprite, thing_being_displayed->move_angle_xy, thing_being_displayed->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
@@ -7980,7 +7984,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
-                thing->time_spent_displaying_hurt_colour += gameadd.delta_time;
+                thing->time_spent_displaying_hurt_colour += game.delta_time;
                 if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
                 {
                     thing->time_spent_displaying_hurt_colour = 0;

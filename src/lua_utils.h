@@ -1,8 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file lua_cfg_funcs.h
- *     Header file for lua_cfg_funcs.c.
+/** @file lua_base.h
+ *     Header file for lua_utils.c.
  * @par Purpose:
  *     Console commands
  * @par Comment:
@@ -14,30 +14,20 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef LUACFGFUNCS_H
-#define LUACFGFUNCS_H
+#ifndef LUAUTILS_H
+#define LUAUTILS_H
 
 #include "globals.h"
+#include "bflib_basics.h"
+#include <lua.h>
+#include <lauxlib.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define LUA_FUNCS_MAX       256
-#define LUA_FUNCNAME_LENGTH 256
-
-struct LuaFuncsConf{
-    char lua_funcs[LUA_FUNCS_MAX][LUA_FUNCNAME_LENGTH];
-};
-
-
-FuncIdx get_function_idx(const char *func_name,const struct NamedCommand * Cfuncs);
-
-TbResult luafunc_magic_use_power(FuncIdx func_idx, PlayerNumber plyr_idx, PowerKind pwkind,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
-
-short luafunc_crstate_func(FuncIdx func_idx,struct Thing *thing);
-short luafunc_obj_update_func(FuncIdx func_idx,struct Thing *thing);
+TbBool try_get_from_methods(lua_State *L, int obj_index, const char *key);
+TbBool try_get_c_method(lua_State *L, const char *key, const luaL_Reg *methods);
 
 #ifdef __cplusplus
 }

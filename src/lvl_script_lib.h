@@ -293,6 +293,9 @@ enum ScriptVariables {
   SVar_AVAILABLE_TOTAL_CREATURES       = 84,
   SVar_DESTROYED_KEEPER                = 85,
   SVar_TOTAL_SLAPS                     = 87,
+  SVar_SCORE                           = 88,
+  SVar_PLAYER_SCORE                    = 89,
+  SVar_MANAGE_SCORE                    = 90,
  };
 
 
@@ -362,7 +365,7 @@ long script_strdup(const char *src);
     if (value != &tmp_value) \
     {                           \
         value->flags = TrgF_DISABLED; \
-        gameadd.script.values_num--; \
+        game.script.values_num--; \
     }
 
     void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value);

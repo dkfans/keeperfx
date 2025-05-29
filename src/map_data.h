@@ -77,7 +77,7 @@ extern long nav_map_initialised;
 /** Converts slab to coord value. */
 #define slab_coord(slb) ((slb) * (COORD_PER_SLB))
 #define subtile_coord_center(stl) ((stl)*COORD_PER_STL+COORD_PER_STL/2)
-#define navmap_tile_number(stl_x,stl_y) ((stl_y)*gameadd.navigation_map_size_x+(stl_x))
+#define navmap_tile_number(stl_x,stl_y) ((stl_y)*game.navigation_map_size_x+(stl_x))
 /******************************************************************************/
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Map *get_map_block_at_pos(long stl_num);

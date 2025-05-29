@@ -276,7 +276,7 @@ static void assign_AlliesShareVision_script(const struct NamedField* named_field
     assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     if (flag_is_set(flags,ccf_DuringLevel))
     {
-      panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+      panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
     }
 }
 

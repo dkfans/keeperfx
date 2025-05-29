@@ -51,6 +51,7 @@
 #include "keeperfx.hpp"
 #include "game_loop.h"
 #include "config_spritecolors.h"
+#include "lua_cfg_funcs.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -285,6 +286,24 @@ TbBool object_can_be_damaged (const struct Thing* thing)
     if (thing_is_dungeon_heart(thing) || object_is_mature_food(thing) || object_is_growing_food(thing))
         return true;
     return false;
+}
+
+TbBool thing_is_object_with_tooltip(const struct Thing* thing, TbBool is_optional)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if (thing->class_id != TCls_Object)
+        return false;
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return ((objst->tooltip_stridx != GUIStr_Empty) && (objst->tooltip_optional == is_optional));
+}
+TbBool thing_is_object_with_mandatory_tooltip(const struct Thing* thing)
+{
+    return thing_is_object_with_tooltip(thing, 0);
+}
+TbBool thing_is_object_with_optional_tooltip(const struct Thing* thing)
+{
+    return thing_is_object_with_tooltip(thing, 1);
 }
 
 TbBool thing_is_object(const struct Thing *thing)
@@ -1513,7 +1532,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
           cvect.z = pos.z.val;
         }
     }
-    objtng->state_flags |= 0x04;
+    objtng->state_flags |= TF1_PushAdd;
     objtng->veloc_push_add.x.val += cvect.x;
     objtng->veloc_push_add.y.val += cvect.y;
     objtng->veloc_push_add.z.val += cvect.z;
@@ -1657,10 +1676,10 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             pos.y.val = pos_y;
             pos.z.val = 1408;
             create_effect_element(&pos, twinkle_eff_elements[get_player_color_idx(objtng->owner)], objtng->owner);
-            if ( pos_x >= 0 && pos_x < gameadd.map_subtiles_x * COORD_PER_STL && pos_y >= 0 && pos_y < gameadd.map_subtiles_y * COORD_PER_STL ) {
+            if ( pos_x >= 0 && pos_x < game.map_subtiles_x * COORD_PER_STL && pos_y >= 0 && pos_y < game.map_subtiles_y * COORD_PER_STL ) {
                 const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + MAX_SOE_RADIUS;
                 const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + MAX_SOE_RADIUS;
-                dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < gameadd.map_subtiles_x * COORD_PER_STL && pos.y.val < gameadd.map_subtiles_y * COORD_PER_STL;
+                dungeon->soe_explored_flags[shift_y][shift_x] = pos.x.val < game.map_subtiles_x * COORD_PER_STL && pos.y.val < game.map_subtiles_y * COORD_PER_STL;
             }
         }
         return 1;
@@ -1797,16 +1816,27 @@ TngUpdateRet update_object(struct Thing *thing)
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
     TRACE_THING(thing);
 
-    Thing_Class_Func upcallback = NULL;
+    
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    upcallback = object_update_functions[objst->updatefn_idx];
 
-    if (upcallback != NULL)
+    if (objst->updatefn_idx > 0)
     {
-        if (upcallback(thing) <= 0) {
+        Thing_Class_Func upcallback = NULL;
+        upcallback = object_update_functions[objst->updatefn_idx];
+        if (upcallback != NULL)
+        {
+            if (upcallback(thing) <= 0) {
+                return TUFRet_Deleted;
+            }
+        }
+    }
+    else if (objst->updatefn_idx < 0)
+    {
+        if (luafunc_obj_update_func(objst->updatefn_idx, thing) <= 0) {
             return TUFRet_Deleted;
         }
     }
+
     Thing_State_Func stcallback = NULL;
     if (thing->active_state < sizeof(object_state_functions)/sizeof(object_state_functions[0])) {
         stcallback = object_state_functions[thing->active_state];

@@ -150,9 +150,9 @@ TbBool thing_create_thing(struct InitThing *itng)
             else if (thing_is_custom_special_box(thing))
             {
                 thing->custom_box.box_kind = itng->params[1];
-                if (itng->params[1] > gameadd.max_custom_box_kind)
+                if (itng->params[1] > game.max_custom_box_kind)
                 {
-                    gameadd.max_custom_box_kind = itng->params[1];
+                    game.max_custom_box_kind = itng->params[1];
                 }
             }
             check_and_asimilate_thing_by_room(thing);
@@ -264,9 +264,9 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                     if (box_kind == -1)
                         box_kind = 0;
                     thing->custom_box.box_kind = box_kind;
-                    if (box_kind > gameadd.max_custom_box_kind)
+                    if (box_kind > game.max_custom_box_kind)
                     {
-                        gameadd.max_custom_box_kind = box_kind;
+                        game.max_custom_box_kind = box_kind;
                     }
                 }
                 else if (object_is_gold_pile(thing))

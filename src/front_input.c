@@ -489,7 +489,7 @@ short zoom_shortcuts(void)
     for (int i = 0; i <= ZOOM_KEY_ROOMS_COUNT; i++)
     {
         long val;
-        if (is_game_key_pressed(Gkey_ZoomRoom00 + i, &val, false))
+        if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, &val, false))
         {
             clear_key_pressed(val);
             go_to_my_next_room_of_type(zoom_key_room_order[i]);
@@ -1684,7 +1684,7 @@ short get_creature_control_action_inputs(void)
         TextStringId StrID = 0;
         for (int i = 0; i <= 15; i++)
         {
-            if (is_game_key_pressed(Gkey_ZoomRoom00 + i, &val, false))
+            if (is_game_key_pressed(Gkey_ZoomRoomTreasure + i, &val, false))
             {
                 clear_key_pressed(val);
                 set_players_packet_action(player, PckA_SwitchTeleportDest, i, 0, 0, 0);
@@ -2250,14 +2250,14 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
    || (pointer_x >= player->engine_window_width/pixel_size)
    || (pointer_y >= player->engine_window_height/pixel_size))
       return false;
-  if (top_pointed_at_x <= gameadd.map_subtiles_x)
+  if (top_pointed_at_x <= game.map_subtiles_x)
     x = top_pointed_at_x;
   else
-    x = gameadd.map_subtiles_x;
-  if (top_pointed_at_y <= gameadd.map_subtiles_y)
+    x = game.map_subtiles_x;
+  if (top_pointed_at_y <= game.map_subtiles_y)
     y = top_pointed_at_y;
   else
-    y = gameadd.map_subtiles_y;
+    y = game.map_subtiles_y;
   unsigned int slb_x = subtile_slab(x);
   unsigned int slb_y = subtile_slab(y);
 
@@ -2281,7 +2281,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (((slb_x >= gameadd.map_tiles_x) || (slb_y >= gameadd.map_tiles_y)) && (!player->one_click_lock_cursor))
+  if (((slb_x >= game.map_tiles_x) || (slb_y >= game.map_tiles_y)) && (!player->one_click_lock_cursor))
   {
     *context = CSt_DefaultArrow;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
@@ -2302,10 +2302,10 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     else
       *context = CSt_DefaultArrow;
   }
-  if (pos->x.val >= (gameadd.map_subtiles_x << 8))
-    pos->x.val = (gameadd.map_subtiles_x << 8)-1;
-  if (pos->y.val >= (gameadd.map_subtiles_y << 8))
-    pos->y.val = (gameadd.map_subtiles_y << 8)-1;
+  if (pos->x.val >= (game.map_subtiles_x << 8))
+    pos->x.val = (game.map_subtiles_x << 8)-1;
+  if (pos->y.val >= (game.map_subtiles_y << 8))
+    pos->y.val = (game.map_subtiles_y << 8)-1;
   return true;
 }
 
