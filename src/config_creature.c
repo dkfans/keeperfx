@@ -105,6 +105,7 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"ValidateTargetFunc",   19},
   {"SearchTargetsFunc",    20},
   {"PostalPriority",       21},
+  {"NoAnimationLoop",      22},
   {NULL,              0},
   };
 
@@ -1384,11 +1385,24 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 }
             }
             break;
-        case 21: // Postal Instance priority
+        case 21: // PostalPriority
         if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
                 inst_inf->postal_priority = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 22: // NoAnimationLoop 
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                inst_inf->no_animation_loop = (k > 0);
                 n++;
             }
             if (n < 1)
@@ -1889,6 +1903,7 @@ static TbBool load_creaturetypes_config_file(const char *fname, unsigned short f
                 game.conf.magic_conf.instance_info[i].tooltip_stridx = 0;
                 game.conf.magic_conf.instance_info[i].range_min = 0;
                 game.conf.magic_conf.instance_info[i].range_max = 0;
+                game.conf.magic_conf.instance_info[i].no_animation_loop = false;
         }
     }
     // Loading file data
