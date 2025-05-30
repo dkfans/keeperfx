@@ -771,9 +771,6 @@ void add_room_to_global_list(struct Room *room)
 
 TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
 {
-    if (plyr_idx == game.neutral_player_num) {
-        return false;
-    }
     if (room->kind >= game.conf.slab_conf.room_types_count) {
         ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
         return false;
@@ -802,9 +799,6 @@ TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
 
 TbBool remove_room_from_players_list(struct Room *room, PlayerNumber plyr_idx)
 {
-    if (plyr_idx == game.neutral_player_num) {
-        return false;
-    }
     if (room->kind >= game.conf.slab_conf.room_types_count) {
         ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
         return false;
