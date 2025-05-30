@@ -66,6 +66,7 @@
 #include "custom_sprites.h"
 #include "sprites.h"
 #include "post_inc.h"
+#include "room_workshop.h"
 
 struct Around const draw_square[] = {
 { 0, 0},
@@ -1047,32 +1048,33 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
     draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
     lbDisplay.DrawFlags = flg_mem;
 
-    // New aim is to overlay symbol depending on status:
-    // if not displayed, nothing, obviously
-    // if a ?, display 1) or 2)
-    // if lit up or greyed out, display 1), 2) or 3)
-    // 1) if manufacturable, manufacture level is enough, display lit hammer
-    // 2) if manufacturable, manufacture level not enough, display greyed hammer
-    // 3) if not manufacturable, display no entry hammer (would you want to distinguish between whether you have level if you can't even make it?)
-    // draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_wide_empty);
-    // if (manufctr->tngclass == TCls_Trap)
-    // {
-    //     if (!is_trap_buildable(my_player_number, manufctr->tngmodel)
-    //       && (is_trap_placeable(my_player_number, manufctr->tngmodel)
-    //       || is_trap_built(my_player_number, manufctr->tngmodel)))
-    //     {
-    //         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_cant_make);
-    //     }
-    // }
-    // else if (manufctr->tngclass == TCls_Door)
-    // {
-    //     if (!is_door_buildable(my_player_number, manufctr->tngmodel)
-    //       && (is_door_placeable(my_player_number, manufctr->tngmodel)
-    //       || is_door_built(my_player_number, manufctr->tngmodel)))
-    //     {
-    //         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_cant_make);
-    //     }
-    // }
+    // Overlay a hammer symbol on the top-right to denote manufacturability
+    if (manufctr_idx > 0) {
+    	// Required manufacture level for this item
+        TbBool is_buildable = false;
+        int required_level = 0;
+        switch (manufctr->tngclass) {
+        case TCls_Trap:
+            is_buildable = is_trap_buildable(my_player_number, manufctr->tngmodel);
+            required_level = trapst[manufctr->tngmodel].manufct_level;
+            break;
+        case TCls_Door:
+            is_buildable = is_door_buildable(my_player_number, manufctr->tngmodel);
+            required_level = doorst[manufctr->tngmodel].manufct_level;
+            break;
+        }
+
+        if (gbtn->flags & LbBtnF_Enabled) {
+            if (is_buildable) {
+                if (dungeon->manufacture_level >= required_level)
+                    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_manufacture_std); // If manufacturable and high enough level: lit hammer
+                else
+                    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_manufacture_dis); // If manufacturable and level too low: greyed hammer
+            } else {
+                draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_manufacture_cant); // If owned but not manufacturable: no entry hammer
+            }
+        }
+    }
 }
 
 void maintain_big_spell(struct GuiButton *gbtn)
