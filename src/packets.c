@@ -1182,8 +1182,6 @@ void process_players_creature_control_packet_control(long idx)
         return;
     if ((ccctrl->stateblock_flags != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
         return;
-    if (flag_is_set(pckt->control_flags, PCtr_Gui))
-        return;
     long speed_limit = get_creature_speed(cctng);
     if ((pckt->control_flags & PCtr_MoveUp) != 0)
     {
