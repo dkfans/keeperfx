@@ -157,7 +157,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     SYNCDBG(18,"Starting");
     struct PlayerInfo* player = get_my_player();
     struct Thing* thing = thing_get(player->thing_under_hand);
-    if (thing_is_invalid(thing))
+    if (!thing_is_object(thing))
     {
         thing = get_nearest_object_with_tooltip_at_position(pos->x.stl.num, pos->y.stl.num,0);
     }
