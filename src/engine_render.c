@@ -7761,6 +7761,10 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     } else
     {
         cutoff = 6;
+        if (creature_sprites->shadow_offset > (2 * cutoff))
+        {
+            cutoff = creature_sprites->shadow_offset / 2;
+        }
         if ( (thing_being_displayed->movement_flags & TMvF_BeingSacrificed) != 0 )
         {
             get_keepsprite_unscaled_dimensions(thing_being_displayed->anim_sprite, thing_being_displayed->move_angle_xy, thing_being_displayed->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);

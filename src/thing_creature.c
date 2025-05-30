@@ -613,6 +613,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->instance_id == CrInst_NULL)
     {
+        internal_set_thing_state(creatng, CrSt_CreatureEat);
         set_creature_instance(creatng, CrInst_EAT, 0, 0);
     } else
     {
@@ -4140,6 +4141,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
 void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtng_idx, const struct Coord3d *pos)
 {
     long i;
+    short no_loop = 0;
     if (inst_idx == 0)
         return;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -4173,7 +4175,13 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtn
     cctrl->inst_total_turns = itime;
     cctrl->inst_action_turns = aitime;
     i = get_creature_model_graphics(thing->model,inst_inf->graphics_idx);
-    cctrl->instance_anim_step_turns = get_lifespan_of_animation(i, 1) / itime;
+    
+    //Animations loop so they end with the starting frame again
+    if (inst_inf->no_animation_loop)
+    {
+        no_loop = itime;
+    }
+    cctrl->instance_anim_step_turns = (get_lifespan_of_animation(i, 1) / itime) - no_loop;
     if (pos != NULL)
     {
         cctrl->targtstl_x = coord_subtile(pos->x.val);
@@ -4817,7 +4825,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->shot_shift_y = crconf->shot_shift_y;
     cctrl->shot_shift_z = crconf->shot_shift_z;
     long i = get_creature_anim(crtng, CGI_Stand);
-    set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
+    set_thing_draw(crtng, i, crconf->walking_anim_speed, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->exp_level = 1;
     cctrl->max_health = calculate_correct_creature_max_health(crtng);
     crtng->health = cctrl->max_health;

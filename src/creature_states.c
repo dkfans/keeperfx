@@ -930,7 +930,7 @@ TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing)
         creature_is_being_dropped(thing))
     {
         struct Room* room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room))
+        if (room_is_invalid(room) && !creature_is_being_dropped(thing))
         {
             //If the creature is not inside a room, or moving
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
