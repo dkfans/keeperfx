@@ -107,7 +107,6 @@ extern unsigned long LOC_vec_window_height;
 void draw_triangle(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 void draw_quad(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c, struct PolyPoint *point_d);
 /******************************************************************************/
-void gpoly_enable_pentium_pro(TbBool state);
 void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 /******************************************************************************/
 void gtblock_set_clipping_window(unsigned char *screen_addr, long clip_width, long clip_height, long screen_width);
