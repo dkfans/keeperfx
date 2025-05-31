@@ -219,7 +219,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     long owner = slabmap_owner(slb);
     if ((((mapblk->flags & SlbAtFlg_Unexplored) != 0) || ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0))
-        && ((game.play_gameturn & 4) != 0))
+        && ((game.play_gameturn % (8 * flash_rate)) >= 4 * flash_rate))
     {
         pixval = pixmap.ghost[background + 0x1A00];
         if (slb->kind == SlbT_GEMS)
@@ -242,7 +242,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
     else if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
     {
         struct Room* room = subtile_room_get(stl_x, stl_y);
-        if (((game.play_gameturn & 1) != 0) && (room->kind == gui_room_type_highlighted))
+        if (((game.play_gameturn % (2 * flash_rate)) >= flash_rate) && (room->kind == gui_room_type_highlighted))
         {
             pixval = player_highlight_colours[owner];
       } else
@@ -250,7 +250,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
         unsigned char color_idx = get_player_color_idx(owner);
         if (color_idx == PLAYER_NEUTRAL)
         {
-            pixval = player_room_colours[game.play_gameturn & 3];
+            pixval = player_room_colours[(game.play_gameturn % (4 * flash_rate)) / 4];
         } else
         {
             pixval = player_room_colours[color_idx];
@@ -279,7 +279,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
           {
             pixval = 60;
           } else
-          if ((game.play_gameturn & 1) && (thing->model == gui_door_type_highlighted))
+          if (((game.play_gameturn % (2 * flash_rate)) >= flash_rate) && (thing->model == gui_door_type_highlighted))
           {
             pixval = player_highlight_colours[owner];
           } else
@@ -356,7 +356,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
         const struct TbSprite* spr = get_panel_sprite(GPS_room_treasury_std_s);//only for size, room irrelevant
         ps_units_per_px = 32 * block_size * 4 / spr->SHeight;
     }
-    long rkind_select = (game.play_gameturn >> 1) % game.conf.slab_conf.room_types_count;
+    long rkind_select = (game.play_gameturn >> 1) % game.conf.slab_conf.room_types_count; //don't think this relates to room flashing
     for (struct Room* room = start_rooms; room < end_rooms; room++)
     {
       if (room_exists(room))
@@ -435,9 +435,9 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
             {
                 if (color_idx == game.neutral_player_num)
                 {
-                    col1 = player_room_colours[(game.play_gameturn + 1) & 3];
+                    col1 = player_room_colours[((game.play_gameturn + 1) % (4 * flash_rate)) / 4];
                 } else
-                if ((game.play_gameturn & 4) == 0)
+                if ((game.play_gameturn % (8 * flash_rate)) < 4 * flash_rate)
                 {
                     col2 = player_room_colours[color_idx];
                     col1 = player_room_colours[color_idx];
@@ -464,7 +464,7 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
             if (is_hero_tunnelling_to_attack(thing))
             {
                 struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                if ((game.play_gameturn & 4) == 0)
+                if ((game.play_gameturn % (8 * flash_rate)) < 4 * flash_rate)
                 {
                     col1 = player_room_colours[get_player_color_idx((int)(cctrl->party.target_plyr_idx>=0?cctrl->party.target_plyr_idx:0))];
                     col2 = player_room_colours[get_player_color_idx(thing->owner)];
@@ -602,7 +602,7 @@ void draw_overhead_things(const struct TbRect *map_area, long block_size, Player
 {
     draw_overhead_creatures(map_area, block_size, plyr_idx);
     draw_overhead_call_to_arms(map_area, block_size, plyr_idx);
-    if ((game.play_gameturn & 3) == 1) {
+    if ((((game.play_gameturn + 1) % (4 * flash_rate)) / 4) == 1) {
         draw_overhead_spells(map_area, block_size, plyr_idx);
     }
     draw_overhead_traps(map_area, block_size, plyr_idx);
@@ -693,7 +693,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
             case TCls_Creature:
             {
                 spridx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
-                if ((game.play_gameturn & 4) != 0)
+                if ((game.play_gameturn % (8 * flash_rate)) >= 4 * flash_rate)
                 {
                     TbPixel color = get_player_path_colour(thing->owner);
                     draw_gui_panel_sprite_occentered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx, color);
