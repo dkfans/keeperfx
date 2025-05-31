@@ -322,7 +322,7 @@ TbBool condition_inactive(long cond_idx)
   {
       return false;
   }
-  unsigned long i = gameadd.script.conditions[cond_idx].status;
+  unsigned long i = game.script.conditions[cond_idx].status;
   if (((i & 0x01) == 0) || ((i & 0x04) != 0))
     return true;
   return false;
@@ -423,11 +423,11 @@ static void process_condition(struct Condition *condt, int idx)
 
 void process_conditions(void)
 {
-    if (gameadd.script.conditions_num > CONDITIONS_COUNT)
-      gameadd.script.conditions_num = CONDITIONS_COUNT;
-    for (long i = 0; i < gameadd.script.conditions_num; i++)
+    if (game.script.conditions_num > CONDITIONS_COUNT)
+      game.script.conditions_num = CONDITIONS_COUNT;
+    for (long i = 0; i < game.script.conditions_num; i++)
     {
-      process_condition(&gameadd.script.conditions[i], i);
+      process_condition(&game.script.conditions[i], i);
     }
 }
 
@@ -462,7 +462,7 @@ void set_script_current_condition(int current_condition)
 void command_add_condition(long plr_range_id, long opertr_id, long varib_type, long varib_id, long value)
 {
     // TODO: replace with pointer to functions
-    struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
+    struct Condition* condt = &game.script.conditions[game.script.conditions_num];
     condt->condit_idx = script_current_condition;
     condt->plyr_range = plr_range_id;
     condt->variabl_type = varib_type;
@@ -473,7 +473,7 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
 
     if (condition_stack_pos >= CONDITIONS_COUNT)
     {
-        gameadd.script.conditions_num++;
+        game.script.conditions_num++;
         SCRPTWRNLOG("Conditions too deep in script");
         return;
     }
@@ -482,14 +482,14 @@ void command_add_condition(long plr_range_id, long opertr_id, long varib_type, l
         condition_stack[condition_stack_pos] = script_current_condition;
         condition_stack_pos++;
     }
-    script_current_condition = gameadd.script.conditions_num;
-    gameadd.script.conditions_num++;
+    script_current_condition = game.script.conditions_num;
+    game.script.conditions_num++;
 }
 
 void command_add_condition_2variables(long plr_range_id, long opertr_id, long varib_type, long varib_id,long plr_range_id_right, long varib_type_right, long varib_id_right)
 {
     // TODO: replace with pointer to functions
-    struct Condition* condt = &gameadd.script.conditions[gameadd.script.conditions_num];
+    struct Condition* condt = &game.script.conditions[game.script.conditions_num];
     condt->condit_idx = script_current_condition;
     condt->plyr_range = plr_range_id;
     condt->variabl_type = varib_type;
@@ -502,7 +502,7 @@ void command_add_condition_2variables(long plr_range_id, long opertr_id, long va
 
     if (condition_stack_pos >= CONDITIONS_COUNT)
     {
-        gameadd.script.conditions_num++;
+        game.script.conditions_num++;
         SCRPTWRNLOG("Conditions too deep in script");
         return;
     }
@@ -511,8 +511,8 @@ void command_add_condition_2variables(long plr_range_id, long opertr_id, long va
         condition_stack[condition_stack_pos] = script_current_condition;
         condition_stack_pos++;
     }
-    script_current_condition = gameadd.script.conditions_num;
-    gameadd.script.conditions_num++;
+    script_current_condition = game.script.conditions_num;
+    game.script.conditions_num++;
 }
 
 /******************************************************************************/

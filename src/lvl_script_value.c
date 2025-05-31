@@ -620,16 +620,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       if (level_file_version > 0)
       {
-          gameadd.timer_real = (TbBool)val3;
+          game.timer_real = (TbBool)val3;
       }
       else
       {
-          gameadd.timer_real = false;
+          game.timer_real = false;
       }
       break;
   case Cmd_QUICK_OBJECTIVE:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-          process_objective(gameadd.quick_messages[val2%QUICK_MESSAGES_COUNT], val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+          process_objective(game.quick_messages[val2%QUICK_MESSAGES_COUNT], val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
       break;
   case Cmd_QUICK_INFORMATION:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))

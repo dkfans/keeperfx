@@ -129,6 +129,7 @@ struct Room {
     SlabCodedCoords flame_slb;
     unsigned char flames_around_idx;
     unsigned char flame_stl;
+    GameTurn creation_turn;
 };
 
 

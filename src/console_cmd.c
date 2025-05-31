@@ -503,13 +503,13 @@ TbBool cmd_compuchat(PlayerNumber plyr_idx, char * args)
                 targeted_message_add(MsgType_Player, i, plyr_idx, GUI_MESSAGES_DELAY, "Ai model %d", (int) comp->model);
             }
         }
-        gameadd.computer_chat_flags = CChat_TasksScarce;
+        game.computer_chat_flags = CChat_TasksScarce;
     } else if ((strcasecmp(pr2str, "frequent") == 0) || (strcasecmp(pr2str, "2") == 0)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s", pr2str);
-        gameadd.computer_chat_flags = CChat_TasksScarce | CChat_TasksFrequent;
+        game.computer_chat_flags = CChat_TasksScarce | CChat_TasksFrequent;
     } else {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "none");
-        gameadd.computer_chat_flags = CChat_None;
+        game.computer_chat_flags = CChat_None;
     }
     return true;
 }
@@ -634,7 +634,7 @@ TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
         MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
         conceal_map_area(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2, false);
     } else {
-        conceal_map_area(player->id_number, 0, gameadd.map_subtiles_x - 1, 0, gameadd.map_subtiles_y - 1, false);
+        conceal_map_area(player->id_number, 0, game.map_subtiles_x - 1, 0, game.map_subtiles_y - 1, false);
     }
     return true;
 }
@@ -1340,7 +1340,7 @@ TbBool cmd_mapwho_info(PlayerNumber plyr_idx, char * args)
         pos.x.stl.num = atoi(pr2str);
         pos.y.stl.num = atoi(pr3str);
     }
-    if ((pos.x.stl.num >= gameadd.map_subtiles_x) || (pos.y.stl.num >= gameadd.map_subtiles_y)) {
+    if ((pos.x.stl.num >= game.map_subtiles_x) || (pos.y.stl.num >= game.map_subtiles_y)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid location");
         return false;
     }
@@ -1504,7 +1504,7 @@ TbBool cmd_move_thing(PlayerNumber plyr_idx, char * args)
     if (pr3str != NULL) {
         pos.x.stl.num = atoi(pr2str);
         pos.y.stl.num = atoi(pr3str);
-        if ((pos.x.stl.num >= gameadd.map_subtiles_x) || (pos.y.stl.num >= gameadd.map_subtiles_y)) {
+        if ((pos.x.stl.num >= game.map_subtiles_x) || (pos.y.stl.num >= game.map_subtiles_y)) {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid location");
             return false;
         }

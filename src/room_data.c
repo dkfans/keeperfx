@@ -152,7 +152,7 @@ TbBool room_exists(const struct Room *room)
 {
   if (room_is_invalid(room))
     return false;
-  return ((room->alloc_flags & 0x01) != 0);
+  return ((room->alloc_flags & RoF_Allocated) != 0);
 }
 
 long get_room_look_through(RoomKind rkind)
@@ -524,7 +524,7 @@ void delete_room_structure(struct Room *room)
         WARNLOG("Attempt to delete invalid room");
         return;
     }
-    if ((room->alloc_flags & 0x01) != 0)
+    if ((room->alloc_flags & RoF_Allocated) != 0)
     {
       // This is almost remove_room_from_players_list(room, room->owner);
       // but it doesn't change room_slabs_count and is less careful - better not use too much
@@ -669,7 +669,7 @@ void recount_and_reassociate_room_slabs(struct Room *room)
         slb->room_index = room->index;
         // Per room tile code ends
         k++;
-        if (k >= gameadd.map_tiles_x*gameadd.map_tiles_y)
+        if (k >= game.map_tiles_x*game.map_tiles_y)
         {
             ERRORLOG("Room slabs list length exceeded when sweeping");
             break;
@@ -722,8 +722,8 @@ void get_room_mass_centre_coords(long *mass_x, long *mass_y, const struct Room *
         *mass_y = tot_y;
     } else {
         ERRORLOG("Room %s index %d has no slabs.",room_code_name(room->kind),(int)room->index);
-        *mass_x = gameadd.map_tiles_x / 2;
-        *mass_y = gameadd.map_tiles_y / 2;
+        *mass_x = game.map_tiles_x / 2;
+        *mass_y = game.map_tiles_y / 2;
     }
 }
 
@@ -771,9 +771,6 @@ void add_room_to_global_list(struct Room *room)
 
 TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
 {
-    if (plyr_idx == game.neutral_player_num) {
-        return false;
-    }
     if (room->kind >= game.conf.slab_conf.room_types_count) {
         ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
         return false;
@@ -802,9 +799,6 @@ TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
 
 TbBool remove_room_from_players_list(struct Room *room, PlayerNumber plyr_idx)
 {
-    if (plyr_idx == game.neutral_player_num) {
-        return false;
-    }
     if (room->kind >= game.conf.slab_conf.room_types_count) {
         ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
         return false;
@@ -1034,11 +1028,12 @@ struct Room *allocate_free_room_structure(void)
     for (int i = 1; i < ROOMS_COUNT; i++)
     {
         struct Room* room = &game.rooms[i];
-        if ((room->alloc_flags & 0x01) == 0)
+        if ((room->alloc_flags & RoF_Allocated) == 0)
         {
             memset(room, 0, sizeof(struct Room));
-            room->alloc_flags |= 0x01;
+            room->alloc_flags |= RoF_Allocated;
             room->index = i;
+            room->creation_turn = game.play_gameturn;
             return room;
         }
     }
@@ -1050,7 +1045,7 @@ unsigned short i_can_allocate_free_room_structure(void)
     for ( int i = 1; i < ROOMS_COUNT; ++i )
     {
         struct Room* room = &game.rooms[i];
-        if ((room->alloc_flags & 0x01) == 0)
+        if ((room->alloc_flags & RoF_Allocated) == 0)
         {
             return i;
         }
@@ -1154,9 +1149,9 @@ void reinitialise_map_rooms(void)
 TbBool initialise_map_rooms(void)
 {
     SYNCDBG(7,"Starting");
-    for (unsigned long slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
+    for (unsigned long slb_y = 0; slb_y < game.map_tiles_y; slb_y++)
     {
-        for (unsigned long slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
+        for (unsigned long slb_x = 0; slb_x < game.map_tiles_x; slb_x++)
         {
             struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
             RoomKind rkind = slab_corresponding_room(slb->kind);
@@ -1900,8 +1895,8 @@ TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *
     if (!room_exists(room))
     {
         ERRORLOG("Tried to find position in non-existing room");
-        pos->x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-        pos->y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+        pos->x.val = subtile_coord_center(game.map_subtiles_x/2);
+        pos->y.val = subtile_coord_center(game.map_subtiles_y/2);
         pos->z.val = subtile_coord(1,0);
         return false;
     }
@@ -1946,8 +1941,8 @@ TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *
         }
     }
     ERRORLOG("Could not find valid FIRST point in %s for %s",room_code_name(room->kind),thing_model_name(thing));
-    pos->x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-    pos->y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+    pos->x.val = subtile_coord_center(game.map_subtiles_x/2);
+    pos->y.val = subtile_coord_center(game.map_subtiles_y/2);
     pos->z.val = subtile_coord(1,0);
     return false;
 }
@@ -3846,7 +3841,7 @@ void redraw_room_map_elements(struct Room *room)
         redraw_slab_map_elements(slb_x, slb_y);
         // Per-slab code end
         k++;
-        if (k > gameadd.map_tiles_x*gameadd.map_tiles_y)
+        if (k > game.map_tiles_x*game.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -3867,7 +3862,7 @@ void do_room_unprettying(struct Room *room, PlayerNumber plyr_idx)
         do_unprettying(plyr_idx, slb_x, slb_y);
         // Per-slab code end
         k++;
-        if (k > gameadd.map_tiles_x*gameadd.map_tiles_y)
+        if (k > game.map_tiles_x*game.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
