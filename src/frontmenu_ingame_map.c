@@ -480,7 +480,7 @@ int draw_overlay_possessed_thing(struct PlayerInfo* player, long mapos_x, long m
         return 0;
     if (cam->view_mode != PVM_CreatureView)
         return 0;
-    if ((game.play_gameturn % (8 * flash_rate)) < 4 * flash_rate) //not sure what this is - is it hovering over something, or looking at it while possessed?
+    if ((game.play_gameturn % (8 * flash_rate)) < 4 * flash_rate)
     {
         col = colours[15][15][15];
     }
