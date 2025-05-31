@@ -568,8 +568,12 @@ short load_configuration(void)
           {
               i = atoi(word_buf);
           }
-          if ((i >= 0) && (i <= 32768)) {
+          if ((i >= 1) && (i <= 32768)) {
+            if (i > 160) {
+              flash_rate = 160; // slowest flash speed (changes frame every 8 seconds), if they want it to not flash we'd need to code something for 0.
+            } else {
               flash_rate = i;
+            }
           }
           else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
