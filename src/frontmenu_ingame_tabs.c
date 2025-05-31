@@ -44,6 +44,7 @@
 #include "config_trapdoor.h"
 #include "config_terrain.h"
 #include "config_spritecolors.h"
+#include "engine_render.h"
 #include "room_workshop.h"
 #include "room_list.h"
 #include "gui_frontbtns.h"
@@ -210,10 +211,6 @@ short button_designation_to_tab_designation(short btn_designt_id)
         return BID_CREATR_TAB;
     return BID_DEFAULT;
 }
-
-int flash_rate = flash_rate_amount; // adjust as needed (higher = slower flashing)
-// default/original is k=1 (flash every other turn).
-// need to link k to a config/rules file so it's user-adjustable
 
 /**
  * Converts button group and item index into designation ID.
