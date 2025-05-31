@@ -211,6 +211,10 @@ short button_designation_to_tab_designation(short btn_designt_id)
     return BID_DEFAULT;
 }
 
+int flash_rate = flash_rate_amount; // adjust as needed (higher = slower flashing)
+// default/original is k=1 (flash every other turn).
+// need to link k to a config/rules file so it's user-adjustable
+
 /**
  * Converts button group and item index into designation ID.
  * To be used for referencing interface items within scripts.
@@ -555,7 +559,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     if ((roomst->cost * boxsize) <= dungeon->total_money_owned)
     {
         if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
-          && ((game.play_gameturn % (2 * flash_rate)) >= flash_rate))
+          && ((game.play_gameturn % (2 * flash_rate)) < flash_rate))
         {
             draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx, 44);
         } else {
@@ -635,7 +639,7 @@ void gui_area_spell_button(struct GuiButton *gbtn)
             {
                 if ((((i != PSt_CallToArms) || !player_uses_power_call_to_arms(my_player_number))
                   && ((i != PSt_SightOfEvil) || !player_uses_power_sight(my_player_number)))
-                 || ((game.play_gameturn % (2 * flash_rate)) >= flash_rate))
+                 || ((game.play_gameturn % (2 * flash_rate)) < flash_rate))
                 {
                     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
                     drawn = true;
@@ -1037,7 +1041,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
     } else
     if ((((manufctr->tngclass == TCls_Trap) && (player->chosen_trap_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceTrap))
       || ((manufctr->tngclass == TCls_Door) && (player->chosen_door_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceDoor)))
-      && ((game.play_gameturn % (2 * flash_rate)) >= flash_rate) )
+      && ((game.play_gameturn % (2 * flash_rate)) < flash_rate) )
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx, 44);
     } else {
@@ -1938,10 +1942,6 @@ void gui_area_stat_button(struct GuiButton *gbtn)
         draw_button_string(gbtn, 60, text);
     }
 }
-
-int flash_rate = flash_rate_amount; // adjust as needed (higher = slower flashing)
-// default/original is k=1 (flash every other turn).
-// need to link k to a config/rules file so it's user-adjustable
 
 void maintain_event_button(struct GuiButton *gbtn)
 {
