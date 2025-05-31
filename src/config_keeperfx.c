@@ -563,7 +563,7 @@ short load_configuration(void)
             features_enabled &= ~Ft_Resizemovies;
           }
           break;
-      case 15: // FLASH_RATE
+      case 15: // FLASH_SPEED
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               i = atoi(word_buf);
