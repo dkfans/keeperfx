@@ -1009,7 +1009,7 @@ void setup_background(long units_per_px)
 void setup_panel_colors(void)
 {
     int frame;
-    frame = game.play_gameturn & 3;
+    frame = game.play_gameturn % (4 * flash_rate);
     unsigned int frcol;
     frcol = player_room_colours[frame];
     int bkcol_idx;
@@ -1021,7 +1021,7 @@ void setup_panel_colors(void)
         bkcol = MapBackColours[bkcol_idx];
         int n;
         n = pncol_idx;
-        if (frame != 0)
+        if (frame >= flash_rate)
         {
             PanelColours[n + PnC_Unexplored] = pixmap.ghost[bkcol + 26*256];
             PanelColours[n + PnC_Tagged_Gold] = pixmap.ghost[bkcol + 140*256];
@@ -1114,7 +1114,7 @@ void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_
 void update_panel_colors(void)
 {
     int frame;
-    frame = game.play_gameturn & 3;
+    frame = game.play_gameturn % (4 * flash_rate);
     unsigned int frcol;
     frcol = player_room_colours[frame];
     int bkcol_idx;
@@ -1126,7 +1126,7 @@ void update_panel_colors(void)
         bkcol = MapBackColours[bkcol_idx];
         int n;
         n = pncol_idx;
-        if (frame != 0)
+        if (frame >= flash_rate)
         {
             PanelColours[n + PnC_Unexplored] = pixmap.ghost[bkcol + 26*256];
             PanelColours[n + PnC_Tagged_Gold] = pixmap.ghost[bkcol + 140*256];
@@ -1149,8 +1149,8 @@ void update_panel_colors(void)
 
     int highlight;
     highlight = gui_room_type_highlighted;
-    frame = game.play_gameturn & 1;
-    if (frame != 0)
+    frame = game.play_gameturn % (2 * flash_rate);
+    if (frame >= flash_rate)
         highlight = -1;
     if (PrevRoomHighlight != highlight)
     {
@@ -1198,7 +1198,7 @@ void update_panel_colors(void)
     }
 
     highlight = gui_door_type_highlighted;
-    if (frame != 0)
+    if (frame >= flash_rate)
         highlight = -1;
     if (highlight != PrevDoorHighlight)
     {
