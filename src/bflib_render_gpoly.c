@@ -344,14 +344,6 @@ long gploc_D8,gploc_D4,gploc_CC,gploc_C8,gploc_C4,gploc_C0,gploc_BC,gploc_B8,gpl
 long gploc_98,gploc_94,gploc_90,gploc_8C,gploc_88,gploc_84,gploc_80,gploc_7C,gploc_78,gploc_74,gploc_68,gploc_64,gploc_60;
 long gploc_5C,gploc_58,gploc_54,gploc_50,gploc_4C,gploc_48,gploc_44,gploc_34,gploc_30,gploc_2C,gploc_28;
 /******************************************************************************/
-void gpoly_enable_pentium_pro(TbBool state)
-{
-  SYNCMSG("Pentium Pro polygon rendering %s",state?"on":"off");
-  if (state)
-    gpoly_pro_enable_mode_ofs = (1<<6);
-  else
-    gpoly_pro_enable_mode_ofs = 0;
-}
 
 void draw_gpoly_sub1a();
 void draw_gpoly_sub1b();
