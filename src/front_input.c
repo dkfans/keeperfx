@@ -2263,7 +2263,22 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
 
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
   struct SlabConfigStats* slabst = get_slab_stats(slb);
-  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!player->one_click_lock_cursor))
+
+  TbBool lockable_door = (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!player->one_click_lock_cursor));
+
+  if (lockable_door)
+  {
+      struct Thing* doortng = get_door_for_position(x,y);
+      if(!thing_is_invalid(doortng))
+      {
+          const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
+          if(doorst->model_flags & DoMF_AlwaysLocked)
+          {
+              lockable_door = false;
+          }
+      }
+  }
+  if (lockable_door)
   {
     *context = CSt_DoorKey;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
