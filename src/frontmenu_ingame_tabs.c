@@ -1069,7 +1069,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
             required_level = doorst->manufct_level;
             break;
         }
-        manufacture_level = calculate_would_be_manufacture_level(dungeon);
+        manufacture_level = calculate_manufacture_level(dungeon);
         if (is_buildable) {
             if (manufacture_level >= required_level)
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_manufacture_std); // If manufacturable and high enough level: lit hammer
