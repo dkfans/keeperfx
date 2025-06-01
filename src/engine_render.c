@@ -420,6 +420,7 @@ float hud_scale;
 int line_box_size = 150; // Default value, overwritten by cfg setting
 int creature_status_size = 16; // Default value, overwritten by cfg setting
 int flash_rate = 1; // Default value, overwritten by cfg setting
+int neutral_flash_rate = 1; // Default value, overwritten by cfg setting
 static int water_wibble_angle = 0;
 static float render_water_wibble = 0; // Rendering float
 static unsigned long render_problems;
@@ -5358,7 +5359,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         int flash_color = get_player_color_idx(thing->owner);
         if (flash_color == PLAYER_NEUTRAL)
         {
-            flash_color = (game.play_gameturn % (4 * flash_rate)) / 4;
+            flash_color = (game.play_gameturn % (4 * neutral_flash_rate)) / 4;
         }
         spr = get_button_sprite_for_player(health_spridx, thing->owner);
         w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;

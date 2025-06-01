@@ -584,7 +584,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 } else
                 {
                     if (thing->owner == game.neutral_player_num) {
-                        col = player_room_colours[get_player_color_idx(((game.play_gameturn + 1) % (4 * flash_rate)) / 4)];
+                        col = player_room_colours[get_player_color_idx(((game.play_gameturn + 1) % (4 * neutral_flash_rate)) / 4)];
                     } else {
                         col = col1;
                     }
@@ -1009,7 +1009,7 @@ void setup_background(long units_per_px)
 void setup_panel_colors(void)
 {
     int frame;
-    frame = game.play_gameturn % (4 * flash_rate);
+    frame = game.play_gameturn % (4 * neutral_flash_rate);
     unsigned int frcol;
     frcol = player_room_colours[frame];
     int bkcol_idx;
@@ -1021,7 +1021,7 @@ void setup_panel_colors(void)
         bkcol = MapBackColours[bkcol_idx];
         int n;
         n = pncol_idx;
-        if (frame >= flash_rate)
+        if (frame >= neutral_flash_rate)
         {
             PanelColours[n + PnC_Unexplored] = pixmap.ghost[bkcol + 26*256];
             PanelColours[n + PnC_Tagged_Gold] = pixmap.ghost[bkcol + 140*256];
@@ -1114,7 +1114,7 @@ void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_
 void update_panel_colors(void)
 {
     int frame;
-    frame = game.play_gameturn % (4 * flash_rate);
+    frame = game.play_gameturn % (4 * neutral_flash_rate);
     unsigned int frcol;
     frcol = player_room_colours[frame];
     int bkcol_idx;
@@ -1126,7 +1126,7 @@ void update_panel_colors(void)
         bkcol = MapBackColours[bkcol_idx];
         int n;
         n = pncol_idx;
-        if (frame >= flash_rate)
+        if (frame >= neutral_flash_rate)
         {
             PanelColours[n + PnC_Unexplored] = pixmap.ghost[bkcol + 26*256];
             PanelColours[n + PnC_Tagged_Gold] = pixmap.ghost[bkcol + 140*256];
@@ -1166,7 +1166,7 @@ void update_panel_colors(void)
                 PanelColours[n + 2] = player_room_colours[get_player_color_idx(2)];
                 PanelColours[n + 3] = player_room_colours[get_player_color_idx(3)];
                 PanelColours[n + 4] = player_room_colours[get_player_color_idx(4)];
-                PanelColours[n + 5] = frcol;
+                PanelColours[n + 5] = frcol; //will still use old value of frame, don't need to set a new value right?
                 PanelColours[n + 6] = player_room_colours[get_player_color_idx(6)];
                 PanelColours[n + 7] = player_room_colours[get_player_color_idx(7)];
                 PanelColours[n + 8] = player_room_colours[get_player_color_idx(8)];

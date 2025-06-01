@@ -100,6 +100,7 @@ extern float hud_scale;
 extern int creature_status_size;
 extern int line_box_size;
 extern int flash_rate;
+extern int neutral_flash_rate;
 
 extern struct MapVolumeBox map_volume_box;
 extern long view_height_over_2;
