@@ -3595,28 +3595,28 @@ void draw_gpoly_sub14()
     addl    _LOC_vec_screen,%%edi\n \
     movl    _gploc_pt_ay,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
-    jg  locret69b\n \
+    jg  POPA_AND_RETURN\n \
     movl    _gploc_pt_by,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_782EC7\n \
+    jle INITIALIZE_SPAN_AND_LEFT_X\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
-loc_782EC7:         # 2CD0\n \
+INITIALIZE_SPAN_AND_LEFT_X: \
     subl    _gploc_pt_ay,%%eax\n \
     movl    %%eax,_gploc_C0\n \
     movl    _gploc_pt_ax,%%esi\n \
     movl    %%esi,_gploc_74\n \
     movl    _gploc_pt_shax,%%eax\n \
     movl    %%eax,%%ebp\n \
-    jz  loc_783338\n \
+    jz  EDGE_ADVANCE_CHECK\n \
     movl    _gploc_pt_ay,%%esi\n \
     orl %%esi,%%esi\n \
-    js  loc_7832B0\n \
+    js  SKEWED_SCAN_ADJUST\n \
     movl    _gploc_74,%%esi\n \
-    jmp loc_783239\n \
+    jmp REMAINDER_SCANLINE_STEP\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_782F01:         # 2FDB\n \
+UNROLLED_LOOP_PIXEL0: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3634,7 +3634,7 @@ loc_782F01:         # 2FDB\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_782F2C:         # 3EAC\n \
+UNROLLED_LOOP_PIXEL1: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3652,7 +3652,7 @@ loc_782F2C:         # 3EAC\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_782F58:         # 3EA8\n \
+UNROLLED_LOOP_PIXEL2: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3670,7 +3670,7 @@ loc_782F58:         # 3EA8\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_782F84:         # 3EA4\n \
+UNROLLED_LOOP_PIXEL3: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3688,7 +3688,7 @@ loc_782F84:         # 3EA4\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_782FB0:         # 3EA0\n \
+UNROLLED_LOOP_PIXEL4: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3706,7 +3706,7 @@ loc_782FB0:         # 3EA0\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_782FDC:         # 3E9C\n \
+UNROLLED_LOOP_PIXEL5: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3724,7 +3724,7 @@ loc_782FDC:         # 3E9C\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_783008:         # 3E98\n \
+UNROLLED_LOOP_PIXEL6: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3742,7 +3742,7 @@ loc_783008:         # 3E98\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_783034:         # 3E94\n \
+UNROLLED_LOOP_PIXEL7: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3760,7 +3760,7 @@ loc_783034:         # 3E94\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_783060:         # 3E90\n \
+UNROLLED_LOOP_PIXEL8: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3778,7 +3778,7 @@ loc_783060:         # 3E90\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_78308C:         # 3E8C\n \
+UNROLLED_LOOP_PIXEL9: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3796,7 +3796,7 @@ loc_78308C:         # 3E8C\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_7830B8:         # 3E88\n \
+UNROLLED_LOOP_PIXEL10: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3814,7 +3814,7 @@ loc_7830B8:         # 3E88\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_7830E4:         # 3E84\n \
+UNROLLED_LOOP_PIXEL11: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3832,7 +3832,7 @@ loc_7830E4:         # 3E84\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_783110:         # 3E80\n \
+UNROLLED_LOOP_PIXEL12: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3850,7 +3850,7 @@ loc_783110:         # 3E80\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_78313C:         # 3E7C\n \
+UNROLLED_LOOP_PIXEL13: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3868,7 +3868,7 @@ loc_78313C:         # 3E7C\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_783168:         # 3E78\n \
+UNROLLED_LOOP_PIXEL14: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3886,7 +3886,7 @@ loc_783168:         # 3E78\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-loc_783194:         # 3E74\n \
+UNROLLED_LOOP_PIXEL15: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -3905,9 +3905,9 @@ loc_783194:         # 3E74\n \
     roll    $8,%%ecx\n \
     addl    $0x10,%%edi\n \
     subl $0x10,_gploc_D4\n \
-    jg  loc_782F01\n \
+    jg  UNROLLED_LOOP_PIXEL0\n \
 \n \
-loc_7831D1:         # 3084\n \
+FALLBACK_SINGLE_PIXEL_LOOP: \
     movl    _gploc_FC,%%eax\n \
     movl    _gploc_F8,%%ebp\n \
     movl    _gploc_F4,%%edi\n \
@@ -3922,9 +3922,9 @@ loc_7831D1:         # 3084\n \
     adcl    _gploc_C4,%%ebx\n \
     addl    _gploc_104,%%edi\n \
     decl _gploc_C0\n \
-    jz  loc_783338\n \
+    jz  EDGE_ADVANCE_CHECK\n \
 \n \
-loc_783239:         # 2D0C\n \
+REMAINDER_SCANLINE_STEP: \
     movl    %%eax,_gploc_FC\n \
     movl    %%ebp,_gploc_F8\n \
     movl    %%edi,_gploc_F4\n \
@@ -3936,7 +3936,7 @@ loc_783239:         # 2D0C\n \
     sarl    $0x10,%%ebp\n \
     addl    %%eax,%%edi\n \
     subl    %%eax,%%ebp\n \
-    jle loc_7831D1\n \
+    jle FALLBACK_SINGLE_PIXEL_LOOP\n \
     movl    %%ebp,%%eax\n \
     andl    $0x0F,%%eax\n \
     addl    _gpoly_countdown(,%%eax,4),%%edi\n \
@@ -3949,7 +3949,7 @@ loc_783239:         # 2D0C\n \
     jmp   *off_784060(,%%eax,4)\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7832B0:         # 2CF\n \
+SKEWED_SCAN_ADJUST: \
     addl    _gploc_60,%%ecx\n \
     adcl    _gploc_CC,%%edx\n \
     adcl    _gploc_C4,%%ebx\n \
@@ -3965,25 +3965,25 @@ loc_7832B0:         # 2CF\n \
     movl    _gploc_FC,%%eax\n \
     addl    _gploc_104,%%edi\n \
     decl _gploc_C0\n \
-    jz  loc_783330\n \
+    jz  SKEWED_SCAN_END\n \
     incl    %%esi\n \
-    js  loc_7832B0\n \
+    js  SKEWED_SCAN_ADJUST\n \
     movl    _gploc_74,%%esi\n \
-    jmp loc_783239\n \
+    jmp REMAINDER_SCANLINE_STEP\n \
 # ---------------------------------------------------------------------------\n \
 \
 \n \
-loc_783330:         # 312\n \
+SKEWED_SCAN_END: \
     movl    _gploc_74,%%esi\n \
     nop \n \
 \n \
-loc_783338:         # 2CF3\n \
+EDGE_ADVANCE_CHECK: \
     decl _gploc_180\n \
-    jz  locret69b\n \
+    jz  POPA_AND_RETURN\n \
     movl    %%eax,_gploc_FC\n \
     movl    _factor_chk,%%eax\n \
     orl %%eax,%%eax\n \
-    js  loc_7833E0\n \
+    js  NEGATIVE_FACTOR_MODE_START\n \
     movl    _factor_cb,%%eax\n \
     movl    %%eax,_gploc_12C\n \
     movl    _gploc_64,%%eax\n \
@@ -3997,63 +3997,63 @@ loc_783338:         # 2CF3\n \
     movl    _gploc_7C,%%ebx\n \
     movl    _gploc_pt_cy,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_7833AB\n \
+    jle CLAMP_BOTTOM_Y_AND_RESTART\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
-loc_7833AB:         # 31B\n \
+CLAMP_BOTTOM_Y_AND_RESTART: \
     subl    _gploc_pt_by,%%eax\n \
     movl    %%eax,_gploc_C0\n \
     movl    _gploc_pt_bx,%%eax\n \
     movl    %%eax,_gploc_74\n \
     movl    _gploc_pt_shbx,%%eax\n \
-    jle locret69b\n \
+    jle POPA_AND_RETURN\n \
     movl    _gploc_pt_by,%%esi\n \
     orl %%esi,%%esi\n \
-    js  loc_7832B0\n \
+    js  SKEWED_SCAN_ADJUST\n \
     movl    _gploc_pt_bx,%%esi\n \
-    jmp loc_783239\n \
+    jmp REMAINDER_SCANLINE_STEP\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7833E0:         # 315\n \
+NEGATIVE_FACTOR_MODE_START: \
     movl    _factor_cb,%%ebp\n \
     movl    %%ebp,_gploc_128\n \
     movl    _gploc_pt_shbx,%%ebp\n \
     movl    _gploc_pt_cy,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
-    jle loc_783400\n \
+    jle NEGATIVE_FACTOR_MODE_END\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
-loc_783400:         # 320\n \
+NEGATIVE_FACTOR_MODE_END: \
     subl    _gploc_pt_by,%%eax\n \
     movl    %%eax,_gploc_C0\n \
     movl    _gploc_FC,%%eax\n \
-    jle locret69b\n \
+    jle POPA_AND_RETURN\n \
     movl    %%esi,_gploc_74\n \
     movl    _gploc_pt_by,%%esi\n \
     orl %%esi,%%esi\n \
-    js  loc_7832B0\n \
+    js  SKEWED_SCAN_ADJUST\n \
     movl    _gploc_74,%%esi\n \
-    jmp loc_783239\n \
+    jmp REMAINDER_SCANLINE_STEP\n \
 \n \
 off_784060:\n \
-    .int    loc_782F01\n \
-    .int    loc_783194\n \
-    .int    loc_783168\n \
-    .int    loc_78313C\n \
-    .int    loc_783110\n \
-    .int    loc_7830E4\n \
-    .int    loc_7830B8\n \
-    .int    loc_78308C\n \
-    .int    loc_783060\n \
-    .int    loc_783034\n \
-    .int    loc_783008\n \
-    .int    loc_782FDC\n \
-    .int    loc_782FB0\n \
-    .int    loc_782F84\n \
-    .int    loc_782F58\n \
-    .int    loc_782F2C\n \
+    .int    UNROLLED_LOOP_PIXEL0\n \
+    .int    UNROLLED_LOOP_PIXEL15\n \
+    .int    UNROLLED_LOOP_PIXEL14\n \
+    .int    UNROLLED_LOOP_PIXEL13\n \
+    .int    UNROLLED_LOOP_PIXEL12\n \
+    .int    UNROLLED_LOOP_PIXEL11\n \
+    .int    UNROLLED_LOOP_PIXEL10\n \
+    .int    UNROLLED_LOOP_PIXEL9\n \
+    .int    UNROLLED_LOOP_PIXEL8\n \
+    .int    UNROLLED_LOOP_PIXEL7\n \
+    .int    UNROLLED_LOOP_PIXEL6\n \
+    .int    UNROLLED_LOOP_PIXEL5\n \
+    .int    UNROLLED_LOOP_PIXEL4\n \
+    .int    UNROLLED_LOOP_PIXEL3\n \
+    .int    UNROLLED_LOOP_PIXEL2\n \
+    .int    UNROLLED_LOOP_PIXEL1\n \
 \n \
-locret69b:\n \
+POPA_AND_RETURN: \
     popa    \n \
 " : : : "memory", "cc");
 #endif
