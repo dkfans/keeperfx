@@ -179,6 +179,17 @@ TbBool set_manufacture_level(struct Dungeon *dungeon)
     return true;
 }
 
+long calculate_would_be_manufacture_level(struct Dungeon* dungeon)
+{
+    int mnfctr_slabs = get_room_of_role_slabs_count(dungeon->owner, RoRoF_CratesManufctr);
+    int level = 0;
+    while (mnfctr_slabs > (level + 3) * (level + 3))
+    {
+        level++;
+    }
+    return level;
+}
+
 struct Thing *get_workshop_box_thing(PlayerNumber owner, ThingModel objmodel)
 {
     int k = 0;

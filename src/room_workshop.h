@@ -67,6 +67,7 @@ TbBool check_workshop_item_limit_reached(PlayerNumber owner, ThingClass tngclass
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng);
 TbBool remove_workshop_object_from_workshop(struct Room *room,struct Thing *cratetng);
 TbBool set_manufacture_level(struct Dungeon *dungeon);
+long calculate_would_be_manufacture_level(struct Dungeon* dungeon);
 TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass tng_class, ThingModel tng_kind);
 struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
