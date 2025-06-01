@@ -354,7 +354,7 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
             if ((thing->trap.revealed) || (player->id_number == thing->owner))
             {
                 TbPixel col;
-                if ((thing->model == gui_trap_type_highlighted) && (game.play_gameturn & 1)) {
+                if ((thing->model == gui_trap_type_highlighted) && ((game.play_gameturn % (2 * flash_rate)) >= flash_rate)) {
                     col = player_highlight_colours[thing->owner];
                 } else {
                     col = 60;
@@ -432,7 +432,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 basepos = MapDiagonalLength/2;
                 
                 // Do the drawing
-                if ((game.play_gameturn & 3) == 1) {
+                if (((game.play_gameturn % (4 * flash_rate)) / 4) == 1) {
                     if (thing_is_special_box(thing) || thing_is_spellbook(thing))
                     {
                         short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
@@ -480,7 +480,7 @@ int draw_overlay_possessed_thing(struct PlayerInfo* player, long mapos_x, long m
         return 0;
     if (cam->view_mode != PVM_CreatureView)
         return 0;
-    if (game.play_gameturn & 4)
+    if ((game.play_gameturn % (8 * flash_rate)) >= 4 * flash_rate)
     {
         col = colours[15][15][15];
     }
@@ -584,7 +584,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 } else
                 {
                     if (thing->owner == game.neutral_player_num) {
-                        col = player_room_colours[get_player_color_idx((game.play_gameturn + 1) & 3)];
+                        col = player_room_colours[get_player_color_idx(((game.play_gameturn + 1) % (4 * neutral_flash_rate)) / 4)];
                     } else {
                         col = col1;
                     }
@@ -603,7 +603,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                     memberpos = cctrl->party.member_pos_stl[m];
                     if (memberpos == 0)
                         break;
-                    if ((game.play_gameturn & 4) == 0)
+                    if ((game.play_gameturn % (8 * flash_rate)) < 4 * flash_rate)
                     {
                         col1 = player_room_colours[get_player_color_idx((int)(cctrl->party.target_plyr_idx >= 0 ? cctrl->party.target_plyr_idx : 0))];
                         col2 = player_room_colours[get_player_color_idx(thing->owner)];
@@ -1009,7 +1009,7 @@ void setup_background(long units_per_px)
 void setup_panel_colors(void)
 {
     int frame;
-    frame = game.play_gameturn & 3;
+    frame = game.play_gameturn % (4 * neutral_flash_rate);
     unsigned int frcol;
     frcol = player_room_colours[frame];
     int bkcol_idx;
@@ -1021,7 +1021,7 @@ void setup_panel_colors(void)
         bkcol = MapBackColours[bkcol_idx];
         int n;
         n = pncol_idx;
-        if (frame != 0)
+        if (frame >= neutral_flash_rate)
         {
             PanelColours[n + PnC_Unexplored] = pixmap.ghost[bkcol + 26*256];
             PanelColours[n + PnC_Tagged_Gold] = pixmap.ghost[bkcol + 140*256];
@@ -1114,7 +1114,7 @@ void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_
 void update_panel_colors(void)
 {
     int frame;
-    frame = game.play_gameturn & 3;
+    frame = game.play_gameturn % (4 * neutral_flash_rate);
     unsigned int frcol;
     frcol = player_room_colours[frame];
     int bkcol_idx;
@@ -1126,7 +1126,7 @@ void update_panel_colors(void)
         bkcol = MapBackColours[bkcol_idx];
         int n;
         n = pncol_idx;
-        if (frame != 0)
+        if (frame >= neutral_flash_rate)
         {
             PanelColours[n + PnC_Unexplored] = pixmap.ghost[bkcol + 26*256];
             PanelColours[n + PnC_Tagged_Gold] = pixmap.ghost[bkcol + 140*256];
@@ -1149,8 +1149,8 @@ void update_panel_colors(void)
 
     int highlight;
     highlight = gui_room_type_highlighted;
-    frame = game.play_gameturn & 1;
-    if (frame != 0)
+    frame = game.play_gameturn % (2 * flash_rate);
+    if (frame >= flash_rate)
         highlight = -1;
     if (PrevRoomHighlight != highlight)
     {
@@ -1166,7 +1166,7 @@ void update_panel_colors(void)
                 PanelColours[n + 2] = player_room_colours[get_player_color_idx(2)];
                 PanelColours[n + 3] = player_room_colours[get_player_color_idx(3)];
                 PanelColours[n + 4] = player_room_colours[get_player_color_idx(4)];
-                PanelColours[n + 5] = frcol;
+                PanelColours[n + 5] = frcol; //will still use old value of frame, don't need to set a new value right?
                 PanelColours[n + 6] = player_room_colours[get_player_color_idx(6)];
                 PanelColours[n + 7] = player_room_colours[get_player_color_idx(7)];
                 PanelColours[n + 8] = player_room_colours[get_player_color_idx(8)];
@@ -1198,7 +1198,7 @@ void update_panel_colors(void)
     }
 
     highlight = gui_door_type_highlighted;
-    if (frame != 0)
+    if (frame >= flash_rate)
         highlight = -1;
     if (highlight != PrevDoorHighlight)
     {
