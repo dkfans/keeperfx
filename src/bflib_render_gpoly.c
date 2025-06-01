@@ -3946,7 +3946,7 @@ REMAINDER_SCANLINE_STEP: \
     roll    $8,%%ecx\n \
     movl    _LOC_vec_map,%%esi\n \
     movl    _gploc_5C,%%ebp\n \
-    jmp   *off_784060(,%%eax,4)\n \
+    jmp   *unrolled_loop_offsets(,%%eax,4)\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 SKEWED_SCAN_ADJUST: \
@@ -4035,7 +4035,7 @@ NEGATIVE_FACTOR_MODE_END: \
     movl    _gploc_74,%%esi\n \
     jmp REMAINDER_SCANLINE_STEP\n \
 \n \
-off_784060:\n \
+unrolled_loop_offsets:\n \
     .int    UNROLLED_LOOP_PIXEL0\n \
     .int    UNROLLED_LOOP_PIXEL15\n \
     .int    UNROLLED_LOOP_PIXEL14\n \
