@@ -19,6 +19,7 @@
 
 #include "globals.h"
 #include "map_locations.h"
+#include "room_data.h"
 #include <lua.h>
 
 #ifdef __cplusplus
@@ -54,7 +55,7 @@ long luaL_checkIntMinMax(lua_State *L, int index,long min, long max);
 EffectOrEffElModel luaL_checkEffectOrEffElModel(lua_State *L, int index);
 long luaL_checkCreature_or_creature_wildcard(lua_State *L, int index);
 int luaL_checkSlab(lua_State *L, int index, MapSlabCoord *slb_x, MapSlabCoord *slb_y);
-
+struct Room* luaL_checkRoom(lua_State *L, int idx);
 struct Thing *luaL_checkThing(lua_State *L, int index);
 struct Thing *luaL_checkCreature(lua_State *L, int index);
 void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos);
@@ -65,6 +66,7 @@ void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx) ;
 void lua_pushPos(lua_State *L, struct Coord3d* pos);
 void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void lua_pushPartyTable(lua_State *L, struct Thing* thing);
+void lua_pushRoom(lua_State *L, struct Room* room);
 
 #ifdef __cplusplus
 }

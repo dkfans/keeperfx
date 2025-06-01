@@ -243,11 +243,11 @@ void init_custom_sprites(LevelNumber lvnum)
     // This is a workaround because get_selected_level_number is zeroed on res change
     if (lvnum == SPRITE_LAST_LEVEL)
     {
-        lvnum = gameadd.last_level;
+        lvnum = game.last_level;
     }
     else if (lvnum > 0)
     {
-        gameadd.last_level = lvnum;
+        game.last_level = lvnum;
     }
     else
     {

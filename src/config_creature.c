@@ -105,6 +105,7 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"ValidateTargetFunc",   19},
   {"SearchTargetsFunc",    20},
   {"PostalPriority",       21},
+  {"NoAnimationLoop",      22},
   {NULL,              0},
   };
 
@@ -1384,11 +1385,24 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 }
             }
             break;
-        case 21: // Postal Instance priority
+        case 21: // PostalPriority
         if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
                 inst_inf->postal_priority = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%.*s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), blocknamelen, blockname, config_textname);
+            }
+            break;
+        case 22: // NoAnimationLoop 
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                inst_inf->no_animation_loop = (k > 0);
                 n++;
             }
             if (n < 1)
@@ -1889,6 +1903,7 @@ static TbBool load_creaturetypes_config_file(const char *fname, unsigned short f
                 game.conf.magic_conf.instance_info[i].tooltip_stridx = 0;
                 game.conf.magic_conf.instance_info[i].range_min = 0;
                 game.conf.magic_conf.instance_info[i].range_max = 0;
+                game.conf.magic_conf.instance_info[i].no_animation_loop = false;
         }
     }
     // Loading file data
@@ -2069,11 +2084,9 @@ const char *creature_own_name(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    char *text;
     if ((get_creature_model_flags(creatng) & CMF_OneOfKind) != 0) {
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatng->model];
-        text = buf_sprintf("%s",get_string(crconf->namestr_idx));
-        return text;
+        return get_string(crconf->namestr_idx);
     }
     if (cctrl->creature_name[0] > 0)
     {
@@ -2104,25 +2117,20 @@ const char *creature_own_name(const struct Thing *creatng)
     {
         unsigned long seed = creatng->creation_turn + creatng->index + (cctrl->blood_type << 8);
         // Get amount of nucleus
-        int name_len;
+        int name_len = 0;
         {
-        int n = LB_RANDOM(65536, &seed);
-        name_len = ((n & 7) + ((n>>8) & 7)) >> 1;
-        if (name_len < 2)
-            name_len = 2;
-        else
-        if (name_len > 8)
-            name_len = 8;
+            int n = LB_RANDOM(65536, &seed);
+            name_len = ((n & 7) + ((n>>8) & 7)) >> 1;
+            name_len = min(max(2, name_len), 8);
         }
         // Get starting part of a name
         {
             int n = LB_RANDOM(starts_len, &seed);
             const char* part = starts[n];
-            text = buf_sprintf("%s", part);
+            str_append(cctrl->creature_name, sizeof(cctrl->creature_name), part);
         }
         // Append nucleus items to the name
-        int i;
-        for (i=0; i < name_len-1; i++)
+        for (int i = 0; i < name_len - 1; i++)
         {
             const char *part;
             int n;
@@ -2133,23 +2141,22 @@ const char *creature_own_name(const struct Thing *creatng)
                 n = LB_RANDOM(vowels_len, &seed);
                 part = vowels[n];
             }
-            strcat(text,part);
+            str_append(cctrl->creature_name, sizeof(cctrl->creature_name), part);
         }
         {
             const char *part;
             int n;
-            if (i & 1) {
+            if ((name_len & 1) == 0) {
                 n = LB_RANDOM(end_consonants_len, &seed);
                 part = end_consonants[n];
             } else {
                 n = LB_RANDOM(end_vowels_len, &seed);
                 part = end_vowels[n];
             }
-            strcat(text,part);
+            str_append(cctrl->creature_name, sizeof(cctrl->creature_name), part);
         }
     }
-    strcpy(cctrl->creature_name, text);
-    return text;
+    return cctrl->creature_name;
 }
 
 struct CreatureInstanceConfig *get_config_for_instance(CrInstance inst_id)

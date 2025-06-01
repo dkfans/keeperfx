@@ -82,7 +82,7 @@ TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
     struct FileChunkHeader hdr;
     long chunks_done = 0;
     // Currently there is some game data outside of structs - make sure it is updated
-    light_export_system_state(&gameadd.lightst);
+    light_export_system_state(&game.lightst);
     { // Info chunk
         hdr.id = SGC_InfoBlock;
         hdr.ver = 0;
@@ -98,14 +98,6 @@ TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
         if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
         if (LbFileWrite(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game))
             chunks_done |= SGF_GameOrig;
-    }
-    { // GameAdd data chunk
-        hdr.id = SGC_GameAdd;
-        hdr.ver = 0;
-        hdr.len = sizeof(struct GameAdd);
-        if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
-        if (LbFileWrite(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd))
-            chunks_done |= SGF_GameAdd;
     }
     { // IntralevelData data chunk
         hdr.id = SGC_IntralevelData;
@@ -166,14 +158,6 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             if (LbFileWrite(fhandle, &game, sizeof(struct Game)) == sizeof(struct Game))
                 chunks_done |= SGF_GameOrig;
         }
-        { // GameAdd data chunk
-            hdr.id = SGC_GameAdd;
-            hdr.ver = 0;
-            hdr.len = sizeof(struct GameAdd);
-            if (LbFileWrite(fhandle, &hdr, sizeof(struct FileChunkHeader)) == sizeof(struct FileChunkHeader))
-            if (LbFileWrite(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd))
-                chunks_done |= SGF_GameAdd;
-        }
     }
     { // Packet file data start indicator
         hdr.id = SGC_PacketData;
@@ -214,21 +198,6 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
                 check_and_auto_fix_stats();
                 init_creature_scores();
                 snprintf(high_score_entry, PLAYER_NAME_LENGTH, "%s", centry->player_name);
-            }
-            break;
-        case SGC_GameAdd:
-            if (hdr.len != sizeof(struct GameAdd))
-            {
-                if (LbFileSeek(fhandle, hdr.len, Lb_FILE_SEEK_CURRENT) < 0)
-                    LbFileSeek(fhandle, 0, Lb_FILE_SEEK_END);
-                WARNLOG("Incompatible GameAdd chunk");
-                break;
-            }
-            if (LbFileRead(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd)) {
-            //accept invalid saves -- if (LbFileRead(fhandle, &gameadd, hdr.len) == hdr.len) {
-                chunks_done |= SGF_GameAdd;
-            } else {
-                WARNLOG("Could not read GameAdd chunk");
             }
             break;
         case SGC_GameOrig:
@@ -416,7 +385,7 @@ TbBool load_game(long slot_num)
     snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     reinit_level_after_load();
     output_message(SMsg_GameLoaded, 0);
-    panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+    panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();
     struct PlayerInfo* player = get_my_player();
@@ -428,7 +397,7 @@ TbBool load_game(long slot_num)
     PaletteSetPlayerPalette(player, engine_palette);
     reinitialise_eye_lens(game.numfield_1B);
     // Update the lights system state
-    light_import_system_state(&gameadd.lightst);
+    light_import_system_state(&game.lightst);
     // Victory state
     if (player->victory_state != VicS_Undecided)
     {

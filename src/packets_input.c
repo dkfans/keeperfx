@@ -64,8 +64,8 @@ TbBool is_mouse_on_map(struct Packet* pckt)
     int y = (pckt->pos_y >> 8) / 3;
     if (x == 0) {return false;}
     if (y == 0) {return false;}
-    if (x == gameadd.map_tiles_x-1) {return false;}
-    if (y == gameadd.map_tiles_y-1) {return false;}
+    if (x == game.map_tiles_x-1) {return false;}
+    if (y == game.map_tiles_y-1) {return false;}
     return true;
 }
 

@@ -746,7 +746,6 @@ enum GUIPanelSprite {
     GPS_message_rpanel_msg_exclam2_std = 834,
     GPS_message_rpanel_msg_exclam2r_act = 835,
     GPS_message_rpanel_msg_exclam2r_std = 836,
-
     GPS_rpanel_manufacture_std = 837,
     GPS_rpanel_manufacture_dis = 838,
     GPS_rpanel_manufacture_cant = 839,

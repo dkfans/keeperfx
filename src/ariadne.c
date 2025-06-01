@@ -351,17 +351,17 @@ unsigned long fits_thro(long tri_idx, long ormask_idx)
 
 void triangulate_map(NavColour *imap)
 {
-    triangulate_area(imap, 0, 0, gameadd.navigation_map_size_x, gameadd.navigation_map_size_y);
+    triangulate_area(imap, 0, 0, game.navigation_map_size_x, game.navigation_map_size_y);
 }
 
 void init_navigation_map(void)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    memset(game.navigation_map, 0, sizeof(NavColour)*gameadd.navigation_map_size_x*gameadd.navigation_map_size_y);
-    for (stl_y=0; stl_y < gameadd.navigation_map_size_y; stl_y++)
+    memset(game.navigation_map, 0, sizeof(NavColour)*game.navigation_map_size_x*game.navigation_map_size_y);
+    for (stl_y=0; stl_y < game.navigation_map_size_y; stl_y++)
     {
-        for (stl_x=0; stl_x < gameadd.navigation_map_size_x; stl_x++)
+        for (stl_x=0; stl_x < game.navigation_map_size_x; stl_x++)
         {
             set_navigation_map(stl_x, stl_y, get_navigation_colour(stl_x, stl_y));
         }
@@ -433,11 +433,11 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
     if (sy <= 2)
       sy = 2;
     ex = end_x + 1;
-    if (ex >= gameadd.map_subtiles_x-2)
-      ex = gameadd.map_subtiles_x-2;
+    if (ex >= game.map_subtiles_x-2)
+      ex = game.map_subtiles_x-2;
     ey = end_y + 1;
-    if (ey >= gameadd.map_subtiles_y-2)
-      ey = gameadd.map_subtiles_y-2;
+    if (ey >= game.map_subtiles_y-2)
+      ey = game.map_subtiles_y-2;
     // Fill a rectangle with nav colors (based on columns and blocks)
     for (y = sy; y <= ey; y++)
     {
@@ -2359,8 +2359,8 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
 void clear_wallhugging_path(struct Navigation *navi)
 {
     navi->navstate = NavS_Unkn1;
-    navi->pos_final.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-    navi->pos_final.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+    navi->pos_final.x.val = subtile_coord_center(game.map_subtiles_x/2);
+    navi->pos_final.y.val = subtile_coord_center(game.map_subtiles_y/2);
     navi->pos_final.z.val = subtile_coord(1,0);
     navi->field_3 = 0;
     navi->field_2 = 0;
@@ -4686,7 +4686,7 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
     for (dy = 1; dy < len_y; dy++)
     {
         // Our data is 0-terminated, so we can use string functions to compare
-        if (memcmp(&fri_map[(gameadd.map_subtiles_x + 1) * dy], &fri_map[0], dx*sizeof(NavColour)) != 0) {
+        if (memcmp(&fri_map[(game.map_subtiles_x + 1) * dy], &fri_map[0], dx*sizeof(NavColour)) != 0) {
             break;
         }
     }
@@ -4959,16 +4959,16 @@ TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x,
     }
     // Prepare some basic logic information
     one_tile = (((end_x - start_x) == 1) && ((end_y - start_y) == 1));
-    not_whole_map = (start_x != 0) || (start_y != 0) || (end_x != gameadd.map_subtiles_x + 1) || (end_y != gameadd.map_subtiles_y + 1);
+    not_whole_map = (start_x != 0) || (start_y != 0) || (end_x != game.map_subtiles_x + 1) || (end_y != game.map_subtiles_y + 1);
     // If coordinates are out of range, update the whole map area
-    if ((start_x < 1) || (start_y < 1) || (end_x >= gameadd.map_subtiles_x) || (end_y >= gameadd.map_subtiles_y))
+    if ((start_x < 1) || (start_y < 1) || (end_x >= game.map_subtiles_x) || (end_y >= game.map_subtiles_y))
     {
         one_tile = 0;
         not_whole_map = 0;
         start_x = 0;
-        end_x = gameadd.map_subtiles_x + 1;
+        end_x = game.map_subtiles_x + 1;
         start_y = 0;
-        end_y = gameadd.map_subtiles_y + 1;
+        end_y = game.map_subtiles_y + 1;
     }
     triangulation_init();
     if ( not_whole_map )
@@ -4983,7 +4983,7 @@ TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x,
         }
     } else
     {
-        triangulation_initxy(-(gameadd.map_subtiles_x + 1), -(gameadd.map_subtiles_y + 1), (gameadd.map_subtiles_x + 1) * 2, (gameadd.map_subtiles_y + 1) * 2);
+        triangulation_initxy(-(game.map_subtiles_x + 1), -(game.map_subtiles_y + 1), (game.map_subtiles_x + 1) * 2, (game.map_subtiles_y + 1) * 2);
         tri_set_rectangle(start_x, start_y, end_x, end_y, 0);
     }
     colour = -1;

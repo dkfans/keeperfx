@@ -499,8 +499,8 @@ void init_dungeon_essential_position(struct Dungeon *dungeon)
         room = room_get(dungeon->room_kind[rkind]);
     }
     if (room_is_invalid(room)) {
-        dungeon->essential_pos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-        dungeon->essential_pos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+        dungeon->essential_pos.x.val = subtile_coord_center(game.map_subtiles_x/2);
+        dungeon->essential_pos.y.val = subtile_coord_center(game.map_subtiles_y/2);
         dungeon->essential_pos.z.val = subtile_coord(0,1);
         return;
     }

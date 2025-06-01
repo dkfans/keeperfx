@@ -157,7 +157,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
     SYNCDBG(18,"Starting");
     struct PlayerInfo* player = get_my_player();
     struct Thing* thing = thing_get(player->thing_under_hand);
-    if (thing_is_invalid(thing))
+    if (!thing_is_object(thing))
     {
         thing = get_nearest_object_with_tooltip_at_position(pos->x.stl.num, pos->y.stl.num,0);
     }
@@ -200,7 +200,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
                 if (thing_is_custom_special_box(thing))
                 {
                     // TODO: get it from Map script
-                    if (gameadd.box_tooltip[thing->custom_box.box_kind][0] == 0)
+                    if (game.box_tooltip[thing->custom_box.box_kind][0] == 0)
                     {
                         i = box_thing_to_special(thing);
                         long strngindex = get_special_description_strindex(i);
@@ -211,7 +211,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
                     }
                     else
                     {
-                        set_gui_tooltip_box_fmt(5, "%s", gameadd.box_tooltip[thing->custom_box.box_kind]);
+                        set_gui_tooltip_box_fmt(5, "%s", game.box_tooltip[thing->custom_box.box_kind]);
                     }
                 }
                 else
@@ -484,10 +484,10 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
             if (-ttwidth >= render_tooltip_scroll_offset)
               render_tooltip_scroll_offset = viswidth;
             else
-              render_tooltip_scroll_offset -= ((MyScreenHeight >= 400) ? 4.0 : 2.0) * gameadd.delta_time;
+              render_tooltip_scroll_offset -= ((MyScreenHeight >= 400) ? 4.0 : 2.0) * game.delta_time;
         } else
         {
-            render_tooltip_scroll_timer -= 1.0 * gameadd.delta_time;
+            render_tooltip_scroll_timer -= 1.0 * game.delta_time;
             if (render_tooltip_scroll_timer < 0)
               render_tooltip_scroll_offset = 0;
         }

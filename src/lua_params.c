@@ -262,7 +262,7 @@ PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
 MapSubtlCoord luaL_checkstl_x(lua_State *L, int index)
 {
     MapSubtlCoord stl_x = luaL_checkint(L,index);
-    luaL_argcheck(L, 0 <= stl_x && stl_x <= gameadd.map_subtiles_x, index,
+    luaL_argcheck(L, 0 <= stl_x && stl_x <= game.map_subtiles_x, index,
                        "x subtile coord out of range");
     return stl_x;
 }
@@ -270,7 +270,7 @@ MapSubtlCoord luaL_checkstl_x(lua_State *L, int index)
 MapSubtlCoord luaL_checkstl_y(lua_State *L, int index)
 {
     MapSubtlCoord stl_y = luaL_checkint(L,index);
-    luaL_argcheck(L, 0 <= stl_y && stl_y <= gameadd.map_subtiles_y, index,
+    luaL_argcheck(L, 0 <= stl_y && stl_y <= game.map_subtiles_y, index,
                        "y subtile coord out of range");
     return stl_y;
 }
@@ -278,7 +278,7 @@ MapSubtlCoord luaL_checkstl_y(lua_State *L, int index)
 MapSlabCoord luaL_checkslb_x(lua_State *L, int index)
 {
     MapSlabCoord slb_x = luaL_checkint(L,index);
-    luaL_argcheck(L, 0 <= slb_x && slb_x <= gameadd.map_tiles_x, index,
+    luaL_argcheck(L, 0 <= slb_x && slb_x <= game.map_tiles_x, index,
                        "x slab coord out of range");
     return slb_x;
 }
@@ -286,7 +286,7 @@ MapSlabCoord luaL_checkslb_x(lua_State *L, int index)
 MapSlabCoord luaL_checkslb_y(lua_State *L, int index)
 {
     MapSlabCoord slb_y = luaL_checkint(L,index);
-    luaL_argcheck(L, 0 <= slb_y && slb_y <= gameadd.map_tiles_y, index,
+    luaL_argcheck(L, 0 <= slb_y && slb_y <= game.map_tiles_y, index,
                        "y slab coord out of range");
     return slb_y;
 }
@@ -433,6 +433,44 @@ int luaL_checkSlab(lua_State *L, int idx, MapSlabCoord* slb_x, MapSlabCoord* slb
     return 0;
 }
 
+struct Room* luaL_checkRoom(lua_State *L, int idx)
+{
+    if (!lua_istable(L, idx)) {
+        luaL_argerror(L, idx, "Expected a room");
+        return INVALID_ROOM;
+    }
+
+    lua_getfield(L, idx, "room_idx");
+    if (!lua_isnumber(L, -1)) {
+        luaL_argerror(L, idx, "Expected a room");
+        return INVALID_ROOM;
+    }
+    RoomIndex room_idx = lua_tointeger(L, -1);
+    lua_pop(L, 1);
+
+
+    struct Room* room = room_get(room_idx);
+    if ((room->alloc_flags & RoF_Allocated) == 0)
+    {
+        luaL_argerror(L, idx, "Room no longer exists");
+        return INVALID_ROOM;
+    }
+
+
+    lua_getfield(L, idx, "creation_turn");
+    if (!lua_isnumber(L, -1)) {
+        luaL_argerror(L, idx, "Table must have a numeric 'creation_turn' field");
+        return INVALID_ROOM;
+    }
+    GameTurn creation_turn = lua_tointeger(L, -1);
+    lua_pop(L, 1);
+    if (room_is_invalid(room) || room->creation_turn != creation_turn) {
+        luaL_argerror(L, idx, "Failed to resolve room");
+        return INVALID_ROOM;
+    }
+    return room;
+}
+
 void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos)
 {
     if (lua_istable(L, index)) {
@@ -448,7 +486,6 @@ void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos)
     }
     luaL_argerror(L, index, "expected a pos");
     return;
-
 }
 
 /***************************************************************************************************/
@@ -515,7 +552,7 @@ void lua_pushPos(lua_State *L, struct Coord3d* pos) {
 
 void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y) {
 
-    if (slb_x < 0 || slb_x >= gameadd.map_tiles_x || slb_y < 0 || slb_y >= gameadd.map_tiles_y) {
+    if (slb_x < 0 || slb_x >= game.map_tiles_x || slb_y < 0 || slb_y >= game.map_tiles_y) {
         lua_pushnil(L);
         return;
     }
@@ -563,4 +600,26 @@ void lua_pushPartyTable(lua_State *L, struct Thing* thing) {
             break;
         }
     }
+}
+
+void lua_pushRoom(lua_State *L, struct Room* room) {
+    if (room_is_invalid(room)) {
+        lua_pushnil(L);
+        return;
+    }
+
+    lua_createtable(L, 0, 2);
+
+    lua_pushinteger(L, room->index);
+    lua_setfield(L, -2, "room_idx");
+
+    lua_pushinteger(L, room->creation_turn);
+    lua_setfield(L, -2, "creation_turn");
+
+    // Store a class name for Bitser
+    lua_pushstring(L, "Room");
+    lua_setfield(L, -2, "__class");
+
+    luaL_getmetatable(L, "Room");
+    lua_setmetatable(L, -2);  
 }

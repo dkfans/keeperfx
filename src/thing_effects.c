@@ -1250,26 +1250,26 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
     if (stl_xmin < 0) {
         stl_xmin = 0;
     } else
-    if (stl_xmin > gameadd.map_subtiles_x) {
-        stl_xmin = gameadd.map_subtiles_x;
+    if (stl_xmin > game.map_subtiles_x) {
+        stl_xmin = game.map_subtiles_x;
     }
     if (stl_ymin < 0) {
       stl_ymin = 0;
     } else
-    if (stl_ymin > gameadd.map_subtiles_y) {
-      stl_ymin = gameadd.map_subtiles_y;
+    if (stl_ymin > game.map_subtiles_y) {
+      stl_ymin = game.map_subtiles_y;
     }
     if (stl_xmax < 0) {
       stl_xmax = 0;
     } else
-    if (stl_xmax > gameadd.map_subtiles_x) {
-      stl_xmax = gameadd.map_subtiles_x;
+    if (stl_xmax > game.map_subtiles_x) {
+      stl_xmax = game.map_subtiles_x;
     }
     if (stl_ymax < 0) {
       stl_ymax = 0;
     } else
-    if (stl_ymax > gameadd.map_subtiles_y) {
-      stl_ymax = gameadd.map_subtiles_y;
+    if (stl_ymax > game.map_subtiles_y) {
+      stl_ymax = game.map_subtiles_y;
     }
     for (long stl_y = stl_ymin; stl_y <= stl_ymax; stl_y++)
     {
@@ -1384,11 +1384,11 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
     else
       start_y = 0;
     MapSubtlCoord end_x = range_stl + pos->x.stl.num;
-    if (end_x >= gameadd.map_subtiles_x)
-      end_x = gameadd.map_subtiles_x;
+    if (end_x >= game.map_subtiles_x)
+      end_x = game.map_subtiles_x;
     MapSubtlCoord end_y = range_stl + pos->y.stl.num;
-    if (end_y > gameadd.map_subtiles_y)
-      end_y = gameadd.map_subtiles_y;
+    if (end_y > game.map_subtiles_y)
+      end_y = game.map_subtiles_y;
 #if (BFDEBUG_LEVEL > 0)
     if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
         create_price_effect(pos, my_player_number, max_damage);
@@ -1532,26 +1532,26 @@ long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long
     if (start_x < 0) {
         start_x = 0;
     } else
-    if (start_x > gameadd.map_subtiles_x) {
-        start_x = gameadd.map_subtiles_x;
+    if (start_x > game.map_subtiles_x) {
+        start_x = game.map_subtiles_x;
     }
     if (start_y < 0) {
         start_y = 0;
     } else
-    if (start_y > gameadd.map_subtiles_y) {
-        start_y = gameadd.map_subtiles_y;
+    if (start_y > game.map_subtiles_y) {
+        start_y = game.map_subtiles_y;
     }
     if (end_x < 0) {
         end_x = 0;
     } else
-    if (end_x > gameadd.map_subtiles_x) {
-        end_x = gameadd.map_subtiles_x;
+    if (end_x > game.map_subtiles_x) {
+        end_x = game.map_subtiles_x;
     }
     if (end_y < 0) {
         end_y = 0;
     } else
-    if (end_y > gameadd.map_subtiles_y) {
-        end_y = gameadd.map_subtiles_y;
+    if (end_y > game.map_subtiles_y) {
+        end_y = game.map_subtiles_y;
     }
     long num_affected = 0;
     for (MapSubtlCoord stl_y = start_y; stl_y <= end_y; stl_y++)
@@ -1679,33 +1679,33 @@ static void process_fx_line(struct ScriptFxLine *fx_line)
 void process_fx_lines()
 {
     SYNCDBG(6,"Starting");
-    for (int i = 0; i < gameadd.active_fx_lines; i++)
+    for (int i = 0; i < game.active_fx_lines; i++)
     {
-        if (gameadd.fx_lines[i].used)
+        if (game.fx_lines[i].used)
         {
-            process_fx_line(&gameadd.fx_lines[i]);
+            process_fx_line(&game.fx_lines[i]);
         }
     }
-    for (int i = gameadd.active_fx_lines; i > 0; i--)
+    for (int i = game.active_fx_lines; i > 0; i--)
     {
-        if (gameadd.fx_lines[i-1].used)
+        if (game.fx_lines[i-1].used)
         {
             break;
         }
-        gameadd.active_fx_lines--;
+        game.active_fx_lines--;
     }
 }
 
 void create_effects_line(TbMapLocation from, TbMapLocation to, char curvature, unsigned char spatial_stepping, unsigned char temporal_stepping, EffectOrEffElModel effct_id)
 {
     struct ScriptFxLine *fx_line = NULL;
-    for (int i = 0; i < (sizeof(gameadd.fx_lines) / sizeof(gameadd.fx_lines[0])); i++)
+    for (int i = 0; i < (sizeof(game.fx_lines) / sizeof(game.fx_lines[0])); i++)
     {
-        if (!gameadd.fx_lines[i].used)
+        if (!game.fx_lines[i].used)
         {
-            fx_line = &gameadd.fx_lines[i];
+            fx_line = &game.fx_lines[i];
             fx_line->used = true;
-            gameadd.active_fx_lines++;
+            game.active_fx_lines++;
             break;
         }
     }
