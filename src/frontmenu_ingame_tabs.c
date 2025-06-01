@@ -1056,11 +1056,13 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
         switch (manufctr->tngclass) {
         case TCls_Trap:
             is_buildable = is_trap_buildable(my_player_number, manufctr->tngmodel);
-            required_level = trapst[manufctr->tngmodel].manufct_level;
+            struct TrapConfigStats* trapst = get_trap_model_stats(manufctr->tngmodel);
+            required_level = trapst->manufct_level;
             break;
         case TCls_Door:
             is_buildable = is_door_buildable(my_player_number, manufctr->tngmodel);
-            required_level = doorst[manufctr->tngmodel].manufct_level;
+            struct DoorConfigStats* doorst = get_door_model_stats(manufctr->tngmodel);
+            required_level = doorst->manufct_level;
             break;
         }
 
