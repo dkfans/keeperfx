@@ -325,7 +325,6 @@ long gpoly_divtable[][64] = {
        50737,   52851,   54965,   57079,   59193,   61307,   63421,   65536,},
 };
 
-static long gpoly_pro_enable_mode_ofs;
 // Static variables used only inside draw_gpoly().
 // These don't really have to be global; but this helps
 // in using these inside assembly code
@@ -368,7 +367,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     LOC_vec_screen_width = vec_screen_width;
     LOC_vec_window_width = vec_window_width;
     LOC_vec_window_height = vec_window_height;
-    gpoly_mode = gpoly_pro_enable_mode_ofs + vec_mode;
+    gpoly_mode = 64 + vec_mode;
     { // Check for outranged poly size
         // test lengths
         int len_bc_x = point_b->X - point_c->X;
