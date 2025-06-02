@@ -280,15 +280,6 @@ int LbNaviLog(const char *format, ...)
     return result;
 }
 
-int Lbvsprintf(char* buffer, const char *format, ...)
-{
-    va_list val;
-    va_start(val, format);
-    int result=vsprintf(buffer, format, val);
-    va_end(val);
-    return result;
-}
-
 #ifdef FUNCTESTING
 int LbFTestLog(const char *format, ...)
 {
