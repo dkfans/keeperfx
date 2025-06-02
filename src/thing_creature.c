@@ -6768,7 +6768,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         return INVALID_THING;
     }
 
-    if (!get_coords_at_location(&pos, location,false))
+    if (!get_coords_at_location(&pos, location,true))
     {
         return INVALID_THING;
     }
