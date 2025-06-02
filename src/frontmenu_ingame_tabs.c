@@ -1003,8 +1003,8 @@ void gui_area_trap_build_info_button(struct GuiButton* gbtn)
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
     //We cannot use the actual manufacture level because that does not update enough.
     int manufacture_level = calculate_manufacture_level(dungeon);
-    //int units_per_px = (gbtn->width * 16 + 126 / 2) / 126;
-    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, GPS_rpanel_manufacture_cant, 100);
+    long spridx = GPS_rpanel_manufacture_cant;
+    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, spridx, 100);
 
     // Overlay a hammer symbol on the top-right to denote manufacturability
     if (manufctr_idx > 0) 
@@ -1012,29 +1012,32 @@ void gui_area_trap_build_info_button(struct GuiButton* gbtn)
         // Required manufacture level for this item
         TbBool is_buildable = false;
         int required_level = 0;
-        switch (manufctr->tngclass) {
-        case TCls_Trap:
-            is_buildable = is_trap_buildable(my_player_number, manufctr->tngmodel);
-            struct TrapConfigStats* trapst = get_trap_model_stats(manufctr->tngmodel);
-            required_level = trapst->manufct_level;
-            break;
-        case TCls_Door:
-            is_buildable = is_door_buildable(my_player_number, manufctr->tngmodel);
-            struct DoorConfigStats* doorst = get_door_model_stats(manufctr->tngmodel);
-            required_level = doorst->manufct_level;
-            break;
+        switch (manufctr->tngclass)
+        {
+            case TCls_Trap:
+                is_buildable = is_trap_buildable(my_player_number, manufctr->tngmodel);
+                struct TrapConfigStats* trapst = get_trap_model_stats(manufctr->tngmodel);
+                required_level = trapst->manufct_level;
+                break;
+            case TCls_Door:
+                is_buildable = is_door_buildable(my_player_number, manufctr->tngmodel);
+                struct DoorConfigStats* doorst = get_door_model_stats(manufctr->tngmodel);
+                required_level = doorst->manufct_level;
+                break;
         }
-    
 
-        if (is_buildable) {
+        if (is_buildable)
+        {
             if (manufacture_level >= required_level)
-                draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_manufacture_std); // If manufacturable and high enough level: lit hammer
+            {
+                spridx = GPS_rpanel_manufacture_std; // If manufacturable and high enough level: lit hammer
+            }
             else
-                draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_manufacture_dis); // If manufacturable and level too low: greyed hammer
-        }
-        else {
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_manufacture_cant); // If owned but not manufacturable: no entry hammer
-        }
+            {
+                spridx = GPS_rpanel_manufacture_dis; // If manufacturable and level too low: greyed hammer
+            }
+        } // else keep the no entry hammer
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spridx);
     }
 }
 
