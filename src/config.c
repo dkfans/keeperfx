@@ -1259,7 +1259,7 @@ long get_rid(const struct NamedCommand *desc, const char *itmname)
   return -1;
 }
 
-char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
+char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *fname)
 {
   const char *mdir;
   const char *sdir;
@@ -1375,27 +1375,27 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       break;
   }
   if (mdir == NULL)
-      ffullpath[0] = '\0';
+      dst[0] = '\0';
   else
   if (sdir == NULL)
-      sprintf(ffullpath,"%s/%s",mdir,fname);
+      snprintf(dst, dst_size, "%s/%s",mdir,fname);
   else
-      sprintf(ffullpath,"%s/%s/%s",mdir,sdir,fname);
-  return ffullpath;
+      snprintf(dst, dst_size, "%s/%s/%s",mdir,sdir,fname);
+  return dst;
 }
 
 char *prepare_file_path(short fgroup,const char *fname)
 {
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath,fgroup,fname);
+  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
 }
 
 char *prepare_file_path_va(short fgroup, const char *fmt_str, va_list arg)
 {
-  char fname[255];
-  vsprintf(fname, fmt_str, arg);
+  char fname[255] = "";
+  vsnprintf(fname, sizeof(fname), fmt_str, arg);
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath, fgroup, fname);
+  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
 }
 
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...)
@@ -1426,10 +1426,10 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   // Prepare file name
   va_list arg;
   va_start(arg, fmt_str);
-  char fname[255];
-  vsprintf(fname, fmt_str, arg);
+  char fname[255] = "";
+  vsnprintf(fname, sizeof(fname), fmt_str, arg);
   char ffullpath[2048];
-  prepare_file_path_buf(ffullpath, fgroup, fname);
+  prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
   va_end(arg);
   // Load the file
    long fsize = LbFileLengthRnc(ffullpath);
@@ -1585,16 +1585,14 @@ TbBool reset_credits(struct CreditsItem *credits)
 
 TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
 {
-  // Block name and parameter word store variables
-  char block_buf[32];
+  const char * block_name = "credits";
   // Find the block
-  sprintf(block_buf,"credits");
   long len = buf_end - buf;
   long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
+  int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in Credits file.",block_buf);
+    WARNMSG("Block [%s] not found in Credits file.", block_name);
     return 0;
   }
   int n = 0;
@@ -1669,8 +1667,9 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
       pos++;
     }
   }
-  if (credits[0].kind == CIK_None)
-    WARNMSG("Credits list empty after parsing [%s] block of Credits file.", block_buf);
+  if (credits[0].kind == CIK_None) {
+    WARNMSG("Credits list empty after parsing [%s] block of Credits file.", block_name);
+  }
   return true;
 }
 

@@ -95,12 +95,12 @@ struct NamedCommand effectelem_desc[EFFECTSELLEMENTS_TYPES_MAX];
 
 static void load_effects(VALUE *value, unsigned short flags)
 {
-    char key[64];
+    char key[64] = "";
     VALUE *section;
     for (int id = 0; id < EFFECTS_TYPES_MAX; id++)
     {
         {
-            sprintf(key, "effect%d", id);
+            snprintf(key, sizeof(key), "effect%d", id);
             section = value_dict_get(value, key);
         }
         if (value_type(section) == VALUE_DICT)
