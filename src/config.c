@@ -1259,7 +1259,7 @@ long get_rid(const struct NamedCommand *desc, const char *itmname)
   return -1;
 }
 
-char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
+char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *fname)
 {
   const char *mdir;
   const char *sdir;
@@ -1375,19 +1375,19 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       break;
   }
   if (mdir == NULL)
-      ffullpath[0] = '\0';
+      dst[0] = '\0';
   else
   if (sdir == NULL)
-      sprintf(ffullpath,"%s/%s",mdir,fname);
+      snprintf(dst, dst_size, "%s/%s",mdir,fname);
   else
-      sprintf(ffullpath,"%s/%s/%s",mdir,sdir,fname);
-  return ffullpath;
+      snprintf(dst, dst_size, "%s/%s/%s",mdir,sdir,fname);
+  return dst;
 }
 
 char *prepare_file_path(short fgroup,const char *fname)
 {
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath,fgroup,fname);
+  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
 }
 
 char *prepare_file_path_va(short fgroup, const char *fmt_str, va_list arg)
@@ -1395,7 +1395,7 @@ char *prepare_file_path_va(short fgroup, const char *fmt_str, va_list arg)
   char fname[255] = "";
   vsnprintf(fname, sizeof(fname), fmt_str, arg);
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath, fgroup, fname);
+  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
 }
 
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...)
@@ -1429,7 +1429,7 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   char fname[255] = "";
   vsnprintf(fname, sizeof(fname), fmt_str, arg);
   char ffullpath[2048];
-  prepare_file_path_buf(ffullpath, fgroup, fname);
+  prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
   va_end(arg);
   // Load the file
    long fsize = LbFileLengthRnc(ffullpath);
