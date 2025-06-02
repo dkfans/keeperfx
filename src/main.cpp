@@ -3547,7 +3547,8 @@ static TbBool wait_at_frontend(void)
         TbBool result = false;
         if (start_params.selected_campaign[0] != '\0')
         {
-            result = change_campaign(strcat(start_params.selected_campaign,".cfg"));
+            str_append(start_params.selected_campaign, sizeof(start_params.selected_campaign), ".cfg");
+            result = change_campaign(start_params.selected_campaign);
         }
         if (!result) {
             if (!change_campaign("")) {

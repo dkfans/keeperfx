@@ -7221,20 +7221,20 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     if (thing_is_trap_crate(picktng))
     {
         struct TrapConfigStats* trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(picktng));
-        strcat(str, get_string(trapst->name_stridx));
+        str_append(str, sizeof(str), get_string(trapst->name_stridx));
         id = RoK_WORKSHOP;
         type = MsgType_Room;
     }
     else if (thing_is_door_crate(picktng))
     {
         struct DoorConfigStats* doorst = get_door_model_stats(crate_thing_to_workshop_item_model(picktng));
-        strcat(str, get_string(doorst->name_stridx));
+        str_append(str, sizeof(str), get_string(doorst->name_stridx));
         id = RoK_WORKSHOP;
         type = MsgType_Room;
     }
     else if (thing_is_spellbook(picktng))
     {
-        strcat(str, get_string(get_power_name_strindex(book_thing_to_power_kind(picktng))));
+        str_append(str, sizeof(str), get_string(get_power_name_strindex(book_thing_to_power_kind(picktng))));
         id = RoK_LIBRARY;
         type = MsgType_Room;
     }
@@ -7245,13 +7245,13 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         {
             if (game.box_tooltip[picktng->custom_box.box_kind][0] == 0)
             {
-                strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
+                str_append(str, sizeof(str), get_string(get_special_description_strindex(box_thing_to_special(picktng))));
                 strcpy(msg_buf, str);
                 snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
             }
             else
             {
-                strcat(str, game.box_tooltip[picktng->custom_box.box_kind]);
+                str_append(str, sizeof(str), game.box_tooltip[picktng->custom_box.box_kind]);
                 char *split = strchr(str, ':');
                 if ((int)(split - str) > -1)
                 {
@@ -7262,7 +7262,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         }
         else
         {
-            strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
+            str_append(str, sizeof(str), get_string(get_special_description_strindex(box_thing_to_special(picktng))));
             strcpy(msg_buf, str);
             snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
         }
