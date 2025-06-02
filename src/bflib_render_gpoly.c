@@ -394,7 +394,8 @@ void draw_gpoly_sub3b();
 void draw_gpoly_sub4();
 void draw_gpoly_sub5();
 void draw_gpoly_sub6();
-void draw_gpoly_sub7();
+void draw_gpoly_sub7a();
+void draw_gpoly_sub7b();
 void draw_gpoly_sub13();
 void draw_gpoly_sub14();
 
@@ -624,7 +625,8 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
         draw_gpoly_sub6();
         break;
     case 69:
-        draw_gpoly_sub7();
+        draw_gpoly_sub7a();
+        draw_gpoly_sub7b();
         break;
     case 43:
     case 44:
@@ -2642,115 +2644,46 @@ gpo_loc_1CAA:\n \
 
 void draw_gpoly_sub7a()
 {
-#if __GNUC__
-    asm volatile (" \
-    pusha   \n \
-    movl    _gploc_pt_bx,%%esi\n \
-    movl    _factor_chk,%%edi\n \
-    orl     %%edi,%%edi\n \
-    subl    $0x0,%%esi\n \
-    addl    $0x0,%%esi\n \
-    movl    _gploc_pt_ax,%%eax\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_cx,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_by,%%ebx\n \
-    subl    %%eax,%%ebx\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-    movl    %%ecx,%%eax\n \
-    imull   %%esi,%%ecx\n \
-    movl    _factor_chk,%%ebp\n \
-    orl     %%ebp,%%ebp\n \
-    js      gpo_loc_1CEC\n \
-    subl    %%eax,%%ecx\n \
-    subl    %%eax,%%ecx\n \
-\n \
-gpo_loc_1CEC:         # 1AF6\n \
-    addl    %%eax,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    jz      gpo_loc_1DA6\n \
-    xorl    %%edx,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ebx\n \
-    movl    %%eax,%%ebp\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    movl    _gploc_pt_cy,%%esi\n \
-    subl    %%eax,%%esi\n \
-    movl    _gploc_pt_by,%%edi\n \
-    subl    %%eax,%%edi\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_170,%%edx\n \
-    movl    _gploc_140,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_158,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1D3D\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1D3D:         # 1B4A\n \
-    movl    %%eax,_gploc_A8\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_16C,%%edx\n \
-    movl    _gploc_13C,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_154,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1D6D\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1D6D:         # 1B7A\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%ebp,%%eax\n \
-    movl    _gploc_168,%%edx\n \
-    movl    _gploc_138,%%ebx\n \
-    subl    %%edx,%%ebx\n \
-    movl    _gploc_150,%%ecx\n \
-    subl    %%edx,%%ecx\n \
-    imull   %%esi,%%ecx\n \
-    imull   %%edi,%%ebx\n \
-    subl    %%ecx,%%ebx\n \
-    imull   %%ebx\n \
-    shll    $1,%%eax\n \
-    rcll    $1,%%edx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1D9D\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1D9D:         # 1BAA\n \
-    movl    %%eax,_gploc_AC\n \
-    jmp gpo_loc_1DBD\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1DA6:         # 1B03\n \
-    xorl    %%eax,%%eax\n \
-    movl    %%eax,_gploc_A8\n \
-    movl    %%eax,_gploc_B0\n \
-    movl    %%eax,_gploc_AC\n \
-\n \
-gpo_loc_1DBD:\n \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
+    int v0 = gploc_pt_cy - gploc_pt_ay;
+    int v1 = (gploc_pt_bx - gploc_pt_ax) * (gploc_pt_cy - gploc_pt_ay);
+    if (factor_chk >= 0)
+        v1 -= 2 * v0;
+
+    int v2 = (gploc_pt_cx - gploc_pt_ax) * (gploc_pt_by - gploc_pt_ay) - (v0 + v1);
+
+    if (v2 != 0)
+    {
+        int v3 = 0x7FFFFFFF / v2;
+        int v4 = gploc_pt_cy - gploc_pt_ay;
+        int v5 = gploc_pt_by - gploc_pt_ay;
+
+        // First component: gploc_A8
+        {
+            int64_t num = (int64_t)v5 * (gploc_140 - gploc_170) - (int64_t)v4 * (gploc_158 - gploc_170);
+            int64_t result = 2 * num * v3;
+            gploc_A8 = (int)((result >> 16) + ((result < 0) ? 1 : 0));
+        }
+
+        // Second component: gploc_B0
+        {
+            int64_t num = (int64_t)v5 * (gploc_13C - gploc_16C) - (int64_t)v4 * (gploc_154 - gploc_16C);
+            int64_t result = 2 * num * v3;
+            gploc_B0 = (int)((result >> 16) + ((result < 0) ? 1 : 0));
+        }
+
+        // Third component: gploc_AC
+        {
+            int64_t num = (int64_t)v5 * (gploc_138 - gploc_168) - (int64_t)v4 * (gploc_150 - gploc_168);
+            int64_t result = 2 * num * v3;
+            gploc_AC = (int)((result >> 16) + ((result < 0) ? 1 : 0));
+        }
+    }
+    else
+    {
+        gploc_A8 = 0;
+        gploc_B0 = 0;
+        gploc_AC = 0;
+    }
 }
 
 void draw_gpoly_sub7b()
@@ -3076,12 +3009,6 @@ gpo_case69_break:\n \
     popa    \n \
 " : : : "memory", "cc");
 #endif
-}
-
-void draw_gpoly_sub7()
-{
-    draw_gpoly_sub7a();
-    draw_gpoly_sub7b();
 }
 
 void draw_gpoly_sub13()
