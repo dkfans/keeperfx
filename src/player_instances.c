@@ -1297,7 +1297,7 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
 
 TbBool player_place_door_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel,TbBool free)
 {
-    unsigned char orient = find_door_angle(stl_x, stl_y, plyr_idx);
+    char orient = find_door_angle(stl_x, stl_y, plyr_idx);
     struct Coord3d pos;
     set_coords_to_slab_center(&pos, subtile_slab(stl_x), subtile_slab(stl_y));
     struct Thing *door = create_door(&pos, tngmodel, orient, plyr_idx, 0);

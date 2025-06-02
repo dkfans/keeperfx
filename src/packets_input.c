@@ -850,7 +850,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             {
                 player->full_slab_cursor = 1;
                 // Make the frame around active slab
-                i = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y);
+                i = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y, player->chosen_door_kind);
                 if ((pckt->control_flags & PCtr_LBtnClick) != 0)
                 {
                     packet_place_door(stl_x, stl_y, player->id_number, player->chosen_door_kind, i);

@@ -1162,7 +1162,7 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
     return result;
 }
 
-static TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3d *pos, PlayerNumber plyr_idx)
+static TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3d *pos, PlayerNumber plyr_idx, ThingModel drmodel)
 {
     long m = PLAYER_RANDOM(plyr_idx, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
@@ -1188,7 +1188,7 @@ static TbBool find_place_to_put_door_around_room(const struct Room *room, struct
                 i = 0;
                 break;
             }
-            if (tag_cursor_blocks_place_door(room->owner, slab_subtile_center(slb_x), slab_subtile_center(slb_y))) {
+            if (tag_cursor_blocks_place_door(room->owner, slab_subtile_center(slb_x), slab_subtile_center(slb_y),drmodel)) {
                 break;
             }
             if (!subtile_has_door_thing_on(slab_subtile_center(slb_x), slab_subtile_center(slb_y))) {
@@ -1224,9 +1224,9 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
-    for (ThingModel doorkind = game.conf.trapdoor_conf.door_types_count; doorkind > 1; doorkind--)
+    for (ThingModel drmodel = game.conf.trapdoor_conf.door_types_count; drmodel > 1; drmodel--)
     {
-        if (dungeon->mnfct_info.door_amount_stored[doorkind] <= 0) {
+        if (dungeon->mnfct_info.door_amount_stored[drmodel] <= 0) {
             continue;
         }
         long rkind = check->param1;
@@ -1251,9 +1251,9 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
             pos.x.val = 0;
             pos.y.val = 0;
             pos.z.val = 0;
-            if (find_place_to_put_door_around_room(room, &pos, dungeon->owner))
+            if (find_place_to_put_door_around_room(room, &pos, dungeon->owner,drmodel))
             {
-                if (try_game_action(comp, dungeon->owner, GA_PlaceDoor, 0, pos.x.stl.num, pos.y.stl.num, doorkind, 0) > Lb_OK) {
+                if (try_game_action(comp, dungeon->owner, GA_PlaceDoor, 0, pos.x.stl.num, pos.y.stl.num, drmodel, 0) > Lb_OK) {
                     return CTaskRet_Unk1;
                 }
             }

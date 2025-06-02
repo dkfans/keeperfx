@@ -98,7 +98,7 @@ char determine_door_angle(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return build_door_angle[wall_flags];
 }
 
-struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned char orient, PlayerNumber plyr_idx, TbBool is_locked)
+struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, char orient, PlayerNumber plyr_idx, TbBool is_locked)
 {
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
@@ -128,7 +128,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     doortng->active_state = DorSt_Closed;
     doortng->creation_turn = game.play_gameturn;
     doortng->health = doorst->health;
-    doortng->door.is_locked = is_locked;
+    doortng->door.is_locked = (is_locked || doorst->model_flags & DoMF_AlwaysLocked);
     if (doorst->model_flags & DoMF_Thick)
     {
         doortng->clipbox_size_xy = 3*COORD_PER_STL;
@@ -136,8 +136,12 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     add_thing_to_its_class_list(doortng);
     place_thing_in_mapwho(doortng);
     check_if_enemy_can_see_placement_of_hidden_door(doortng);
-    place_animating_slab_type_on_map(doorst->slbkind[orient], 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
+    place_animating_slab_type_on_map(doorst->slbkind[abs(orient)], 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
     ceiling_partially_recompute_heights(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
+    if (doorst->model_flags & DoMF_AlwaysLocked && game.play_gameturn != 0)
+    {
+        lock_door(doortng);
+    }
     if (nav_map_initialised) // Can't update triangulation before map start
     {
         update_navigation_triangulation(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
@@ -193,10 +197,14 @@ TbBool remove_key_on_door(struct Thing *thing)
 
 TbBool add_key_on_door(struct Thing *thing)
 {
+    const struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+    if (doorst->model_flags & DoMF_AlwaysLocked)
+    {
+        return true;
+    }
     struct Thing* keytng = create_object(&thing->mappos, ObjMdl_SpinningKey, thing->owner, 0);
     if (thing_is_invalid(keytng))
       return false;
-    struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
     if (flag_is_set(doorst->model_flags, DoMF_Secret))
     {
         if (is_my_player_number(thing->owner) || !door_is_hidden_to_player(thing,my_player_number))
@@ -217,6 +225,11 @@ TbBool add_key_on_door(struct Thing *thing)
 
 void unlock_door(struct Thing *thing)
 {
+    const struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+    if (doorst->model_flags & DoMF_AlwaysLocked)
+    {
+        return;
+    }
     thing->door.is_locked = false;
     game.map_changed_for_nagivation = 1;
     update_navigation_triangulation(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1,
@@ -236,7 +249,7 @@ void lock_door(struct Thing *doortng)
     doortng->door.closing_counter = 0;
     doortng->door.is_locked = 1;
     game.map_changed_for_nagivation = 1;
-    place_animating_slab_type_on_map(doorst->slbkind[doortng->door.orientation], 0, stl_x, stl_y, doortng->owner);
+    place_animating_slab_type_on_map(doorst->slbkind[abs(doortng->door.orientation)], 0, stl_x, stl_y, doortng->owner);
     update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
     panel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
     if (!add_key_on_door(doortng)) {
@@ -381,6 +394,13 @@ TbBool slab_has_sellable_door(MapSlabCoord slb_x, MapSlabCoord slb_y)
 TbBool door_can_stand(struct Thing *thing)
 {
     unsigned int wall_flags = 0;
+    
+    const struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+    if ( (doorst->model_flags & DoMF_Freestanding))
+    {
+        return true;
+    }
+
     for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
         wall_flags *= 2;
@@ -567,7 +587,9 @@ TngUpdateRet process_door(struct Thing *thing)
         destroy_door(thing);
         return TUFRet_Deleted;
     }
-    if ((thing->door.orientation > 1) || (thing->door.orientation < 0))
+    const struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+
+    if (!flag_is_set(doorst->model_flags,DoMF_Freestanding)&&((thing->door.orientation > 1) || (thing->door.orientation < 0)))
     {
         ERRORLOG("Invalid %s (index %d) orientation %d",thing_model_name(thing),(int)thing->index,(int)thing->door.orientation);
         thing->door.orientation &= 1;
@@ -793,7 +815,7 @@ void script_place_door(PlayerNumber plyridx, ThingModel doorkind, MapSlabCoord s
     MapSubtlCoord stl_y = slab_subtile_center(slb_y);
     TbBool success;
 
-    if (tag_cursor_blocks_place_door(plyridx, stl_x, stl_y))
+    if (tag_cursor_blocks_place_door(plyridx, stl_x, stl_y, doorkind))
     {
         if (!free)
         {

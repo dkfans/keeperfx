@@ -52,7 +52,7 @@ TbBool slab_row_has_door_thing_on(MapSlabCoord slb_x, MapSubtlCoord stl_y);
 TbBool slab_column_has_door_thing_on(MapSubtlCoord stl_x, MapSlabCoord slb_y);
 TbBool door_will_open_for_thing(const struct Thing *doortng,const struct Thing *creatng);
 
-struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned char orient, PlayerNumber plyr_idx, TbBool is_locked);
+struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, char orient, PlayerNumber plyr_idx, TbBool is_locked);
 TbBool thing_is_deployed_door(const struct Thing *thing);
 TbBool thing_is_sellable_door(const struct Thing* thing);
 TbBool slab_has_sellable_door(MapSlabCoord slb_x, MapSlabCoord slb_y);
