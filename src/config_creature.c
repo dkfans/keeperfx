@@ -610,14 +610,13 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
     creature_desc[CREATURE_TYPES_MAX - 1].name = NULL; // must be null for get_id
     snprintf(game.conf.crtr_conf.model[0].name, COMMAND_WORD_LEN, "%s", "NOCREATURE");
     // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "common");
+    const char * block_name = "common";
     long pos = 0;
-    int k = find_conf_block(buf,&pos,len,block_buf);
+    int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
         return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_common_commands,cmd_num)
@@ -638,7 +637,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
               if (n+1 >= CREATURE_TYPES_MAX)
               {
                 CONFWRNLOG("Too many species defined with \"%s\" in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
                 break;
               }
               // model 0 is reserved
@@ -660,7 +659,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 3: // ANGERJOBSCOUNT
@@ -676,7 +675,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 4: // ATTACKPREFERENCESCOUNT
@@ -692,7 +691,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 5: // SPRITESIZE
@@ -708,7 +707,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case ccr_comment:
@@ -717,7 +716,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+                cmd_num, block_name, config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -726,14 +725,13 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
     if (game.conf.crtr_conf.model_count < 1)
     {
         WARNLOG("No creature species defined in [%s] block of %s file.",
-            block_buf,config_textname);
+            block_name, config_textname);
     }
     return true;
 }
 
 TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-    // Block name and parameter word store variables
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
@@ -753,14 +751,13 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
         game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = 0;
     }
     // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "experience");
+    const char * block_name = "experience";
     long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
+    int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
         return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_experience_commands,cmd_num)
@@ -784,7 +781,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 2: // SPELLDAMAGEINCREASEONEXP
@@ -797,7 +794,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 3: // RANGEINCREASEONEXP
@@ -810,7 +807,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 4: // JOBVALUEINCREASEONEXP
@@ -823,7 +820,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 5: // HEALTHINCREASEONEXP
@@ -836,7 +833,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 6: // STRENGTHINCREASEONEXP
@@ -849,7 +846,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 7: // DEXTERITYINCREASEONEXP
@@ -862,7 +859,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 8: // DEFENSEINCREASEONEXP
@@ -875,7 +872,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 9: // LOYALTYINCREASEONEXP
@@ -888,7 +885,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 10: // ARMOURINCREASEONEXP
@@ -901,7 +898,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 11: // SIZEINCREASEONEXP
@@ -914,7 +911,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 12: // EXPFORHITTINGINCREASEONEXP
@@ -927,7 +924,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 13: // TRAININGCOSTINCREASEONEXP
@@ -940,7 +937,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 14: // SCAVENGINGCOSTINCREASEONEXP
@@ -953,7 +950,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case ccr_comment:
@@ -962,7 +959,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+                cmd_num, block_name, config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -971,7 +968,7 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
     if (game.conf.crtr_conf.model_count < 1)
     {
         WARNLOG("No creature species defined in [%s] block of %s file.",
-            block_buf,config_textname);
+            block_name, config_textname);
     }
     return true;
 }

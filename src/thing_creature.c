@@ -6768,7 +6768,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         return INVALID_THING;
     }
 
-    if (!get_coords_at_location(&pos, location,false))
+    if (!get_coords_at_location(&pos, location,true))
     {
         return INVALID_THING;
     }
@@ -7216,25 +7216,25 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
 void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout, PlayerNumber plyr_idx)
 {
     char id;
-    char str[255] = {'\0'};
+    char str[255] = "";
     char type;
     if (thing_is_trap_crate(picktng))
     {
         struct TrapConfigStats* trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(picktng));
-        strcat(str, get_string(trapst->name_stridx));
+        str_append(str, sizeof(str), get_string(trapst->name_stridx));
         id = RoK_WORKSHOP;
         type = MsgType_Room;
     }
     else if (thing_is_door_crate(picktng))
     {
         struct DoorConfigStats* doorst = get_door_model_stats(crate_thing_to_workshop_item_model(picktng));
-        strcat(str, get_string(doorst->name_stridx));
+        str_append(str, sizeof(str), get_string(doorst->name_stridx));
         id = RoK_WORKSHOP;
         type = MsgType_Room;
     }
     else if (thing_is_spellbook(picktng))
     {
-        strcat(str, get_string(get_power_name_strindex(book_thing_to_power_kind(picktng))));
+        str_append(str, sizeof(str), get_string(get_power_name_strindex(book_thing_to_power_kind(picktng))));
         id = RoK_LIBRARY;
         type = MsgType_Room;
     }
@@ -7245,13 +7245,13 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         {
             if (game.box_tooltip[picktng->custom_box.box_kind][0] == 0)
             {
-                strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
+                str_append(str, sizeof(str), get_string(get_special_description_strindex(box_thing_to_special(picktng))));
                 strcpy(msg_buf, str);
                 snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
             }
             else
             {
-                strcat(str, game.box_tooltip[picktng->custom_box.box_kind]);
+                str_append(str, sizeof(str), game.box_tooltip[picktng->custom_box.box_kind]);
                 char *split = strchr(str, ':');
                 if ((int)(split - str) > -1)
                 {
@@ -7262,7 +7262,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         }
         else
         {
-            strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
+            str_append(str, sizeof(str), get_string(get_special_description_strindex(box_thing_to_special(picktng))));
             strcpy(msg_buf, str);
             snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
         }
@@ -7280,11 +7280,11 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             long value = (picktng->creature.gold_carried > gold_remaining) ? gold_remaining : picktng->creature.gold_carried;
             if (value < picktng->creature.gold_carried)
             {
-                sprintf(str, "%ld (%ld)", picktng->creature.gold_carried, value);
+                snprintf(str, sizeof(str), "%ld (%ld)", picktng->creature.gold_carried, value);
             }
             else
             {
-                sprintf(str, "%ld", picktng->creature.gold_carried);
+                snprintf(str, sizeof(str), "%ld", picktng->creature.gold_carried);
             }
         }
         id = 3;
@@ -7295,14 +7295,14 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         id = picktng->owner;
         type = MsgType_Player;
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
-        sprintf(str, "%s", get_string(crconf->namestr_idx));
+        snprintf(str, sizeof(str), "%s", get_string(crconf->namestr_idx));
     }
     else if (picktng->class_id == TCls_DeadCreature)
     {
         id = RoK_GRAVEYARD;
         type = MsgType_Room;
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
-        sprintf(str, "%s", get_string(crconf->namestr_idx));
+        snprintf(str, sizeof(str), "%s", get_string(crconf->namestr_idx));
     }
     else
     {

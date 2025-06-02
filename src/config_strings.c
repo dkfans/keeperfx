@@ -162,7 +162,7 @@ const char * gui_string(unsigned int index)
 
     if (index > GUI_STRINGS_COUNT)
     {
-        sprintf(string_invalid, "untranslated <%d>", index);
+        snprintf(string_invalid, sizeof(string_invalid), "untranslated <%d>", index);
         return string_invalid;
     }
     return gui_strings[index];

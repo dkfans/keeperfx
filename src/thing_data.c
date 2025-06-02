@@ -311,20 +311,20 @@ void query_thing(struct Thing *thing)
     }
     if (!thing_is_invalid(querytng))
     {
-        const char title[24];
+        char title[24] = "";
         const char* name = thing_model_name(querytng);
-        const char owner[24]; 
-        const char health[24];
-        const char position[40];
-        const char amount[40] = "\0";
-        sprintf((char*)title, "Thing ID: %d", querytng->index);
-        sprintf((char*)owner, "Owner: %d", querytng->owner);
-        sprintf((char*)position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
+        char owner[24] = "";
+        char health[24] = "";
+        char position[40] = "";
+        char amount[40] = "";
+        snprintf(title, sizeof(title), "Thing ID: %d", querytng->index);
+        snprintf(owner, sizeof(owner), "Owner: %d", querytng->owner);
+        snprintf(position, sizeof(position), "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
         if (querytng->class_id == TCls_Trap)
         {
             struct TrapConfigStats *trapst = get_trap_model_stats(querytng->model);
-            sprintf((char*)health, "Health: %ld", querytng->health);
-            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, trapst->shots);
+            snprintf(health, sizeof(health), "Health: %ld", querytng->health);
+            snprintf(amount, sizeof(amount), "Shots: %d/%d", querytng->trap.num_shots, trapst->shots);
         }
         else
         {
@@ -333,27 +333,27 @@ void query_thing(struct Thing *thing)
                 struct ObjectConfigStats* objst = get_object_model_stats(querytng->model);
                 if (object_is_gold(querytng))
                 {
-                    sprintf((char*)amount, "Amount: %ld", querytng->valuable.gold_stored);   
+                    snprintf(amount, sizeof(amount), "Amount: %ld", querytng->valuable.gold_stored);
                 }
-                sprintf((char*)health, "Health: %ld/%ld", querytng->health, objst->health);
-            }  
-            else 
+                snprintf(health, sizeof(health), "Health: %ld/%ld", querytng->health, objst->health);
+            }
+            else
             if (querytng->class_id == TCls_Door)
             {
                 struct DoorConfigStats *doorst = get_door_model_stats(querytng->model);
-                sprintf((char*)health, "Health: %ld/%ld", querytng->health, doorst->health);
+                snprintf(health, sizeof(health), "Health: %ld/%ld", querytng->health, doorst->health);
             }
             else
             if (querytng->class_id == TCls_Creature)
             {
                 struct CreatureControl* cctrl = creature_control_get_from_thing(querytng);
-                sprintf((char*)health, "Health: %ld/%ld", querytng->health, cctrl->max_health);
-                sprintf((char*)position, "State: %s", creature_state_code_name(querytng->active_state));
-                sprintf((char*)amount, "Continue: %s", creature_state_code_name(querytng->continue_state));
+                snprintf(health, sizeof(health), "Health: %ld/%ld", querytng->health, cctrl->max_health);
+                snprintf(position, sizeof(position), "State: %s", creature_state_code_name(querytng->active_state));
+                snprintf(amount, sizeof(amount), "Continue: %s", creature_state_code_name(querytng->continue_state));
             }
             else
             {
-                sprintf((char*)health, "Health: %ld", querytng->health);
+                snprintf(health, sizeof(health), "Health: %ld", querytng->health);
             }
         }
         create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&position, (const char*)&amount);

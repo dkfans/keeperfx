@@ -203,10 +203,10 @@ FTestActionResult ftest_bug_ai_bridge_action003__delayed_screenshot(struct FTest
         {
             return FTRs_Repeat_Current_Action;
         }
-        
+
         struct FTestConfig* current_test_config = ftest_get_current_test_config();
-        char fname[FILENAME_MAX] = "\0";
-        sprintf(fname, "scrshots/scr%05u.%s", current_test_config->seed, ".png");
+        char fname[FILENAME_MAX] = "";
+        snprintf(fname, sizeof(fname), "scrshots/scr%05u.%s", current_test_config->seed, ".png");
         take_screenshot(fname);
         vars->take_screenshot = false;
     }

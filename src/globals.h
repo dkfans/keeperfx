@@ -120,13 +120,6 @@ extern "C" {
 #define NETLOG(format, ...) LbNetLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define NOLOG(format, ...)
 
-// Debug function-like macros - for dialogs windows
-#define WARNING_DIALOG(out_result, format, ...) { \
-  char buffer[TEXT_BUFFER_LENGTH]; \
-  Lbvsprintf(buffer, format, ##__VA_ARGS__); \
-  (*(&out_result)) = warning_dialog(__func__, 0, buffer); \
-}
-
 // Debug function-like macros - for debug code logging
 #if (BFDEBUG_LEVEL > 0)
   #define SYNCDBG(dblv,format, ...) {\
