@@ -4418,3 +4418,146 @@ POPA_AND_RETURN: \
 }
 
 /******************************************************************************/
+
+
+#include <stdint.h>
+#include <stdbool.h>
+
+#if defined(__AVX2__)
+#include <immintrin.h>
+#define USE_AVX2 1
+#else
+#define USE_AVX2 0
+#endif
+
+#if defined(__SSE2__)
+#include <emmintrin.h>
+#define USE_SSE2 1
+#else
+#define USE_SSE2 0
+#endif
+
+#if defined(__GNUC__) || defined(__clang__)
+#include <cpuid.h>
+bool cpu_has_avx2(void) {
+    unsigned int eax, ebx, ecx, edx;
+    if (!__get_cpuid_max(0, NULL)) return false;
+    __cpuid_count(0, 0, eax, ebx, ecx, edx);
+    if (eax < 7) return false;
+    __cpuid_count(7, 0, eax, ebx, ecx, edx);
+    return (ebx & (1 << 5)) != 0; // Bit 5 of EBX is AVX2
+}
+#else
+bool cpu_has_avx2(void) { return false; } // Stub for unsupported compilers
+#endif
+
+static void draw_gpoly_simd_core_avx2(
+    uint8_t* dst,
+    const uint8_t* vec_map,
+    const uint8_t* render_table,
+    const int* indices,
+    uint16_t high_byte_shifted
+) {
+#if USE_AVX2
+    __m256i idx_vec = _mm256_loadu_si256((const __m256i*)indices);
+    __m256i gathered = _mm256_i32gather_epi32((const int*)vec_map, idx_vec, 1);
+    __m256i mask = _mm256_set1_epi32(0xFF);
+    __m256i low_byte = _mm256_and_si256(gathered, mask);
+    __m256i high = _mm256_set1_epi32(high_byte_shifted);
+    __m256i final = _mm256_or_si256(low_byte, high);
+
+    alignas(32) uint32_t indices_buf[8];
+    _mm256_store_si256((__m256i*)indices_buf, _mm256_extracti128_si256(final, 0));
+    for (int i = 0; i < 8; ++i)
+        dst[i] = render_table[indices_buf[i]];
+
+    _mm256_store_si256((__m256i*)indices_buf, _mm256_extracti128_si256(final, 1));
+    for (int i = 0; i < 8; ++i)
+        dst[8 + i] = render_table[indices_buf[i]];
+#endif
+}
+
+static void draw_gpoly_simd_core_sse2(
+    uint8_t* dst,
+    const uint8_t* vec_map,
+    const uint8_t* render_table,
+    int base_idx,
+    uint16_t high_byte_shifted
+) {
+#if USE_SSE2
+    __m128i vec_bytes = _mm_loadu_si128((const __m128i*)&vec_map[base_idx]);
+    __m128i zero = _mm_setzero_si128();
+    __m128i lo = _mm_unpacklo_epi8(vec_bytes, zero);
+    __m128i hi = _mm_unpackhi_epi8(vec_bytes, zero);
+    __m128i high = _mm_set1_epi16(high_byte_shifted);
+    __m128i lo_idx = _mm_or_si128(lo, high);
+    __m128i hi_idx = _mm_or_si128(hi, high);
+
+    alignas(16) uint16_t indices16[16];
+    _mm_store_si128((__m128i*)&indices16[0], lo_idx);
+    _mm_store_si128((__m128i*)&indices16[8], hi_idx);
+
+    for (int i = 0; i < 16; ++i)
+        dst[i] = render_table[indices16[i]];
+#endif
+}
+
+static void draw_gpoly_simd_core_scalar(
+    uint8_t* dst,
+    const uint8_t* vec_map,
+    const uint8_t* render_table,
+    const int* indices,
+    uint16_t high_byte_shifted
+) {
+    for (int i = 0; i < 16; ++i) {
+        uint8_t idx = vec_map[indices[i]];
+        dst[i] = render_table[idx | high_byte_shifted];
+    }
+}
+
+void draw_gpoly_sub14_simd_variant(/* required gploc_* and other inputs */) {
+    // ...initial setup (same as your current draw_gpoly_sub14)...
+
+    // Inside the span processing loop, replacing the switch(v34) block:
+    if (v33 >= 16) {
+        int base_idx = v30;
+        bool indices_are_linear = true;
+
+        if (cpu_has_avx2()) {
+            int indices[16];
+            for (int i = 0; i < 16; ++i)
+                indices[i] = base_idx + i;
+            draw_gpoly_simd_core_avx2(v28, LOC_vec_map, render_fade_tables, indices, high_sum & 0xFF00);
+        }
+#if USE_SSE2
+        else {
+            draw_gpoly_simd_core_sse2(v28, LOC_vec_map, render_fade_tables, base_idx, high_sum & 0xFF00);
+        }
+#else
+        else {
+            int indices[16];
+            for (int i = 0; i < 16; ++i)
+                indices[i] = base_idx + i;
+            draw_gpoly_simd_core_scalar(v28, LOC_vec_map, render_fade_tables, indices, high_sum & 0xFF00);
+        }
+#endif
+
+        v28 += 16;
+        gploc_D4 -= 16;
+
+        for (int i = 0; i < 16; ++i) {
+            dstRowPtr = (PAIR64(gploc_2C, gploc_5C) + PAIR64(dstRowPtr, high_sum)) >> 32;
+            high_sum += gploc_5C;
+        }
+
+        // Prepare for next loop iteration
+        goto UNROLLED_LOOP_PIXEL0;
+    } else {
+        // fallback to your original unrolled code for v33 < 16
+        switch (v34) {
+            // original pixel-by-pixel rendering cases go here
+        }
+    }
+
+    // ...rest of draw_gpoly_sub14 logic...
+}
