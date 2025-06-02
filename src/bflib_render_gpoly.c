@@ -4451,9 +4451,17 @@ bool cpu_has_avx2(void) {
 bool cpu_has_avx2(void) { return false; } // Stub for unsupported compilers
 #endif
 
+#if defined(_MSC_VER)
+#define ALIGNED_16 __declspec(align(16))
+#define ALIGNED_32 __declspec(align(32))
+#else
+#define ALIGNED_16 __attribute__((aligned(16)))
+#define ALIGNED_32 __attribute__((aligned(32)))
+#endif
+
 static void draw_gpoly_simd_core_avx2(
     uint8_t* dst,
-    const uint8_t* vec_map,
+    const uint8_t* vec_map_,
     const uint8_t* render_table,
     const int* indices,
     uint16_t high_byte_shifted
@@ -4466,26 +4474,33 @@ static void draw_gpoly_simd_core_avx2(
     __m256i high = _mm256_set1_epi32(high_byte_shifted);
     __m256i final = _mm256_or_si256(low_byte, high);
 
-    alignas(32) uint32_t indices_buf[8];
-    _mm256_store_si256((__m256i*)indices_buf, _mm256_extracti128_si256(final, 0));
-    for (int i = 0; i < 8; ++i)
+    ALIGNED_16 uint32_t indices_buf[8];
+    _mm_store_si128((__m128i*)&indices_buf[0], _mm256_extracti128_si256(final, 0));
+    for (int i = 0; i < 4; ++i)
+    {
+        assert(indices_buf[i] < 65536);
         dst[i] = render_table[indices_buf[i]];
+    }
 
-    _mm256_store_si256((__m256i*)indices_buf, _mm256_extracti128_si256(final, 1));
-    for (int i = 0; i < 8; ++i)
-        dst[8 + i] = render_table[indices_buf[i]];
+    _mm_store_si128((__m128i*)&indices_buf[4], _mm256_extracti128_si256(final, 1));
+    for (int i = 4; i < 8; ++i)
+    {
+        
+        assert(indices_buf[i] < 65536);
+        dst[i] = render_table[indices_buf[i]];
+    }
 #endif
 }
 
 static void draw_gpoly_simd_core_sse2(
     uint8_t* dst,
-    const uint8_t* vec_map,
+    const uint8_t* vec_map_,
     const uint8_t* render_table,
     int base_idx,
     uint16_t high_byte_shifted
 ) {
 #if USE_SSE2
-    __m128i vec_bytes = _mm_loadu_si128((const __m128i*)&vec_map[base_idx]);
+    __m128i vec_bytes = _mm_loadu_si128((const __m128i*)&vec_map_[base_idx]);
     __m128i zero = _mm_setzero_si128();
     __m128i lo = _mm_unpacklo_epi8(vec_bytes, zero);
     __m128i hi = _mm_unpackhi_epi8(vec_bytes, zero);
@@ -4493,7 +4508,7 @@ static void draw_gpoly_simd_core_sse2(
     __m128i lo_idx = _mm_or_si128(lo, high);
     __m128i hi_idx = _mm_or_si128(hi, high);
 
-    alignas(16) uint16_t indices16[16];
+    ALIGNED_16 uint16_t indices16[16];
     _mm_store_si128((__m128i*)&indices16[0], lo_idx);
     _mm_store_si128((__m128i*)&indices16[8], hi_idx);
 
@@ -4501,27 +4516,117 @@ static void draw_gpoly_simd_core_sse2(
         dst[i] = render_table[indices16[i]];
 #endif
 }
-
-static void draw_gpoly_simd_core_scalar(
-    uint8_t* dst,
-    const uint8_t* vec_map,
-    const uint8_t* render_table,
-    const int* indices,
-    uint16_t high_byte_shifted
-) {
-    for (int i = 0; i < 16; ++i) {
-        uint8_t idx = vec_map[indices[i]];
-        dst[i] = render_table[idx | high_byte_shifted];
+/*
+    static void draw_gpoly_simd_core_scalar(
+        uint8_t* dst,
+        const uint8_t* vec_map_,
+        const uint8_t* render_table,
+        const int* indices,
+        uint16_t high_byte_shifted
+    ) {
+        for (int i = 0; i < 16; ++i) {
+            uint8_t idx = vec_map_[indices[i]];
+            dst[i] = render_table[idx | high_byte_shifted];
+        }
     }
-}
-
+*/
 void draw_gpoly_sub14_simd_variant(/* required gploc_* and other inputs */) {
     // ...initial setup (same as your current draw_gpoly_sub14)...
 
-    // Inside the span processing loop, replacing the switch(v34) block:
+      int low_sum; // ecx
+  int high_sum; // edx
+  int dstRowPtr; // ebx
+  uchar *v3; // edi
+  int v4; // eax
+  bool v5; // zf
+  int spanCount; // eax
+  int xStart; // esi
+  int shadeAccumulator; // eax
+  int shadeAccumulatorNext; // ebp
+  int v10; // esi
+  unsigned int v11; // ecx
+  int v12; // ecx
+  unsigned int v13; // ecx
+  unsigned int v14; // ecx
+  unsigned int v15; // ecx
+  unsigned int v16; // ecx
+  unsigned int v17; // ecx
+  unsigned int v18; // ecx
+  unsigned int v19; // ecx
+  unsigned int v20; // ecx
+  unsigned int v21; // ecx
+  unsigned int v22; // ecx
+  unsigned int v23; // ecx
+  unsigned int v24; // ecx
+  unsigned int v25; // ecx
+  unsigned int v26; // ecx
+  unsigned int v27; // ecx
+  unsigned __int8 *v28; // edi
+  bool v29; // cc
+  int v30; // eax
+  int v31; // ebp
+  unsigned __int8 *v32; // edi
+  int v33; // ebp
+  int v34; // eax
+  unsigned __int8 *v35; // esi
+  int v36; // ebp
+  bool carryLow32; // cf
+  int v38; // eax
+  int v39; // eax
+
+  low_sum = 0;
+  high_sum = gploc_8C;
+  dstRowPtr = gploc_88;
+  v3 = &LOC_vec_screen[gploc_pt_ay * LOC_vec_screen_width];
+  if ( gploc_pt_ay <= LOC_vec_window_height )
+  {
+    v4 = gploc_pt_by;
+    if ( gploc_pt_by > LOC_vec_window_height )
+      v4 = LOC_vec_window_height;
+    spanCount = v4 - gploc_pt_ay;
+    v5 = spanCount == 0;
+    gploc_C0 = spanCount;
+    xStart = gploc_pt_ax;
+    gploc_74 = gploc_pt_ax;
+    shadeAccumulator = gploc_pt_shax;
+    shadeAccumulatorNext = gploc_pt_shax;
+    if ( !v5 )
+    {
+      v10 = gploc_pt_ay;
+      if ( gploc_pt_ay < 0 )
+      {
+        JUSTLOG("draw_gpoly_sub14: gploc_pt_ay < 0\n");
+        goto SKEWED_SCAN_ADJUST;
+
+      }
+      do
+      {
+REMAINDER_SCANLINE_STEP:
+        g_shadeAccumulator = shadeAccumulator;
+        g_shadeAccumulatorNext = shadeAccumulatorNext;
+        gploc_F4 = v3;
+        v30 = shadeAccumulator >> 16;
+        gploc_34 = low_sum;
+        gploc_D8 = high_sum;
+        gploc_E4 = dstRowPtr;
+        v31 = shadeAccumulatorNext >> 16;
+        v32 = &v3[v30];
+        v29 = v31 <= v30;
+        v33 = v31 - v30;
+        if ( !v29 )
+        {
+          v34 = v33 & 0xF;
+          v28 = &v32[gpoly_countdown[v34]];
+          gploc_D4 = v33;
+          v12 = __ROL4__(dstRowPtr & 0xFF0000FF, 8);
+          v35 = LOC_vec_map;
+          v36 = gploc_5C;
+
+
+
     if (v33 >= 16) {
         int base_idx = v30;
-        bool indices_are_linear = true;
+       // bool indices_are_linear = true;
 
         if (cpu_has_avx2()) {
             int indices[16];
@@ -4554,10 +4659,222 @@ void draw_gpoly_sub14_simd_variant(/* required gploc_* and other inputs */) {
         goto UNROLLED_LOOP_PIXEL0;
     } else {
         // fallback to your original unrolled code for v33 < 16
-        switch (v34) {
-            // original pixel-by-pixel rendering cases go here
-        }
+switch ( v34 )
+          {
+            case 0:
+              goto UNROLLED_LOOP_PIXEL0;
+            case 1:
+              goto UNROLLED_LOOP_PIXEL1;
+            case 2:
+              goto UNROLLED_LOOP_PIXEL2;
+            case 3:
+              goto UNROLLED_LOOP_PIXEL3;
+            case 4:
+              goto UNROLLED_LOOP_PIXEL4;
+            case 5:
+              goto UNROLLED_LOOP_PIXEL5;
+            case 6:
+              goto UNROLLED_LOOP_PIXEL6;
+            case 7:
+              goto UNROLLED_LOOP_PIXEL7;
+            case 8:
+              goto UNROLLED_LOOP_PIXEL8;
+            case 9:
+              goto UNROLLED_LOOP_PIXEL9;
+            case 10:
+              goto UNROLLED_LOOP_PIXEL10;
+            case 11:
+              goto UNROLLED_LOOP_PIXEL11;
+            case 12:
+              goto UNROLLED_LOOP_PIXEL12;
+            case 13:
+              goto UNROLLED_LOOP_PIXEL13;
+            case 14:
+              goto UNROLLED_LOOP_PIXEL14;
+            case 15:
+              while ( 1 )
+              {
+                v28[1] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v13 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v13, 8);
+UNROLLED_LOOP_PIXEL14:
+                v28[2] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v14 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v14, 8);
+UNROLLED_LOOP_PIXEL13:
+                v28[3] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v15 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v15, 8);
+UNROLLED_LOOP_PIXEL12:
+                v28[4] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v16 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v16, 8);
+UNROLLED_LOOP_PIXEL11:
+                v28[5] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v17 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v17, 8);
+UNROLLED_LOOP_PIXEL10:
+                v28[6] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v18 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v18, 8);
+UNROLLED_LOOP_PIXEL9:
+                v28[7] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v19 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v19, 8);
+UNROLLED_LOOP_PIXEL8:
+                v28[8] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v20 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v20, 8);
+UNROLLED_LOOP_PIXEL7:
+                v28[9] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v21 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v21, 8);
+UNROLLED_LOOP_PIXEL6:
+                v28[10] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v22 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v22, 8);
+UNROLLED_LOOP_PIXEL5:
+                v28[11] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v23 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v23, 8);
+UNROLLED_LOOP_PIXEL4:
+                v28[12] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v24 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v24, 8);
+UNROLLED_LOOP_PIXEL3:
+                v28[13] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v25 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v25, 8);
+UNROLLED_LOOP_PIXEL2:
+                v28[14] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v26 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v26, 8);
+UNROLLED_LOOP_PIXEL1:
+                v28[15] = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v27 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v27, 8);
+                v28 += 16;
+                v29 = gploc_D4 <= 16;
+                gploc_D4 -= 16;
+                if ( v29 )
+                  break;
+UNROLLED_LOOP_PIXEL0:
+                *v28 = render_fade_tables[v35[v12] | (high_sum & 0xFF00)];
+                v11 = dstRowPtr & 0xFF0000FF;
+                dstRowPtr = (PAIR64(gploc_2C, v36) + PAIR64(dstRowPtr, high_sum)) >> 32;
+                high_sum += v36;
+                v12 = __ROL4__(v11, 8);
+              }
+              break;
+          }
     }
 
-    // ...rest of draw_gpoly_sub14 logic...
+            }
+        xStart = gploc_74;
+        shadeAccumulator = gploc_12C + g_shadeAccumulator;
+        shadeAccumulatorNext = gploc_128 + g_shadeAccumulatorNext;
+        high_sum = (PAIR64(gploc_CC, gploc_60) + PAIR64(gploc_D8, gploc_34)) >> 32;
+        low_sum = gploc_60 + gploc_34;
+        dstRowPtr = gploc_C4 + CFADD64(PAIR64(gploc_CC, gploc_60), PAIR64(gploc_D8, gploc_34)) + gploc_E4;
+        v3 = (uchar *)(gploc_104 + gploc_F4);
+        --gploc_C0;
+      }
+      while ( gploc_C0 );
+      goto EDGE_ADVANCE_CHECK;
+    }
+    while ( 1 )
+    {
+EDGE_ADVANCE_CHECK:
+      if ( !--gploc_180 )
+        return;
+      g_shadeAccumulator = shadeAccumulator;
+      if ( factor_chk >= 0 )
+        break;
+      gploc_128 = factor_cb;
+      shadeAccumulatorNext = gploc_pt_shbx;
+      v39 = gploc_pt_cy;
+      if ( gploc_pt_cy > LOC_vec_window_height )
+        v39 = LOC_vec_window_height;
+      v29 = v39 <= gploc_pt_by;
+      gploc_C0 = v39 - gploc_pt_by;
+      shadeAccumulator = g_shadeAccumulator;
+      if ( v29 )
+        return;
+      gploc_74 = xStart;
+      v10 = gploc_pt_by;
+      if ( gploc_pt_by >= 0 )
+        goto REMAINDER_SCANLINE_STEP;
+        
+SKEWED_SCAN_ADJUST:
+      while ( 1 )
+      {
+        carryLow32 = CFADD64(PAIR64(gploc_CC, gploc_60), PAIR64(high_sum, low_sum));
+        high_sum = (PAIR64(gploc_CC, gploc_60) + PAIR64(high_sum, low_sum)) >> 32;
+        low_sum += gploc_60;
+        dstRowPtr += gploc_C4 + carryLow32;
+        gploc_74 -= shadeAccumulator >> 16;
+        shadeAccumulatorNext += gploc_128;
+        g_shadeAccumulator = gploc_12C + shadeAccumulator;
+        gploc_74 += (gploc_12C + shadeAccumulator) >> 16;
+        shadeAccumulator += gploc_12C;
+        v3 += gploc_104;
+        if ( !--gploc_C0 )
+          break;
+        if ( ++v10 >= 0 )
+          goto REMAINDER_SCANLINE_STEP;
+      }
+      xStart = gploc_74;
+    }
+    gploc_12C = factor_cb;
+    gploc_60 = gploc_64;
+    gploc_CC = gploc_98;
+    gploc_C4 = gploc_94;
+    low_sum = 0;
+    high_sum = gploc_80;
+    dstRowPtr = gploc_7C;
+    v38 = gploc_pt_cy;
+    if ( gploc_pt_cy > LOC_vec_window_height )
+      v38 = LOC_vec_window_height;
+    v29 = v38 <= gploc_pt_by;
+    gploc_C0 = v38 - gploc_pt_by;
+    gploc_74 = gploc_pt_bx;
+    shadeAccumulator = gploc_pt_shbx;
+    if ( !v29 )
+    {
+      v10 = gploc_pt_by;
+      if ( gploc_pt_by < 0 )
+        goto SKEWED_SCAN_ADJUST;
+      goto REMAINDER_SCANLINE_STEP;
+    }
+  }
 }
