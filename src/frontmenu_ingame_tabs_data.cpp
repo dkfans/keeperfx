@@ -70,6 +70,7 @@ void maintain_door(struct GuiButton *gbtn);
 void gui_over_door_button(struct GuiButton *gbtn);
 void gui_remove_area_for_traps(struct GuiButton *gbtn);
 void gui_area_big_trap_button(struct GuiButton *gbtn);
+void gui_area_trap_build_info_button(struct GuiButton* gbtn);
 void maintain_big_trap(struct GuiButton *gbtn);
 void gui_creature_query_background1(struct GuiMenu *gmnu);
 void gui_creature_query_background2(struct GuiMenu *gmnu);
@@ -79,7 +80,7 @@ void maintain_spell(struct GuiButton *gbtn);
 void maintain_big_spell(struct GuiButton *gbtn);
 void maintain_trap(struct GuiButton *gbtn);
 void maintain_door(struct GuiButton *gbtn);
-void maintain_big_trap(struct GuiButton *gbtn);
+void maintain_buildable_info(struct GuiButton *gbtn);
 void pick_up_creature_doing_activity(struct GuiButton *gbtn);
 void gui_go_to_next_creature_activity(struct GuiButton *gbtn);
 void gui_go_to_next_room(struct GuiButton *gbtn);
@@ -285,9 +286,11 @@ struct GuiButtonInit trap_menu_buttons[] = {
   {LbBtnT_NormalBtn, BID_MNFCT_TD16, 0, 0, NULL,                      NULL, NULL, 0,  66, 352,  70, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,             0,       {0},               0, NULL },
   {LbBtnT_NormalBtn, BID_MNFCT_TD10, 0, 0, gui_remove_area_for_traps, NULL, NULL, 0,  98, 352, 102, 356, 32, 36, gui_area_new_no_anim_button, GPS_rpanel_frame_portrt_sell, GUIStr_SellItemDesc,      0,       {0},               0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   8, 210,   8, 194,126, 44, gui_area_big_trap_button,          0, GUIStr_Empty,             0,       {0},               0, maintain_big_trap },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0, 110, 215, 110, 216, 16, 20, gui_area_trap_build_info_button,   0, GUIStr_Empty,             0,       {0},               0, maintain_buildable_info },
   {LbBtnT_NormalBtn, BID_MNFCT_NXPG, 0, 1, NULL,                      NULL, NULL, 0,  78, 188,  78, 188, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty,&trap_menu2,{0},    0, maintain_trap_next_page_button },
   {              -1,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                      0,       {0},               0, NULL },
 };
+
 
 struct GuiButtonInit trap_menu2_buttons[] = {
   {LbBtnT_NormalBtn, BID_MNFCT_TD17, 0, 0, NULL,                      NULL, NULL, 0,   2, 238,   6, 242, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {2},               0, NULL },
@@ -307,6 +310,7 @@ struct GuiButtonInit trap_menu2_buttons[] = {
   {LbBtnT_NormalBtn, BID_MNFCT_TD31, 0, 0, NULL,                      NULL, NULL, 0,  66, 352,  70, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {0},               0, NULL },
   {LbBtnT_NormalBtn, BID_MNFCT_TD32, 0, 0, gui_remove_area_for_traps, NULL, NULL, 0,  98, 352, 102, 356, 32, 36, gui_area_new_no_anim_button, GPS_rpanel_frame_portrt_sell, GUIStr_SellItemDesc,      0,       {0},               0, NULL },
   {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   8, 210,   8, 194,126, 44, gui_area_big_trap_button,          0, GUIStr_Empty,             0,       {0},               0, maintain_big_trap },
+  //todo add to page 2 as well when done with the rest
   {LbBtnT_NormalBtn, BID_MNFCT_NXPG, 0, 1, NULL,                      NULL, NULL, 0,  78, 188,  78, 188, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty,&trap_menu,{0},    0, maintain_trap_next_page_button },
   {              -1,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                  0,       {0},               0, NULL },
 };
