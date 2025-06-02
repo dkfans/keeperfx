@@ -68,7 +68,7 @@ long erstat_inc(int stat_num)
 
 TbBool show_onscreen_msg_va(int nturns, const char *fmt_str, va_list arg)
 {
-    vsprintf(onscreen_msg_text, fmt_str, arg);
+    vsnprintf(onscreen_msg_text, sizeof(onscreen_msg_text), fmt_str, arg);
     SYNCMSG("Onscreen message: %s",onscreen_msg_text);
     render_onscreen_msg_time = (float)nturns;
     return true;

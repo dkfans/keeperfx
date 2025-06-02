@@ -146,7 +146,7 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
         }
     }
 
-    sprintf(cmd_comp_procs_label[i], "comp=%d, wait=%ld", 0, comp->gameturn_wait);
+    snprintf(cmd_comp_procs_label[i], sizeof(cmd_comp_procs_label[0]), "comp=%d, wait=%ld", 0, comp->gameturn_wait);
     return 1;
 }
 
@@ -160,8 +160,8 @@ long cmd_comp_checks_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, lon
         struct ComputerCheck* check = &comp->checks[i];
         if (check != NULL)
         {
-            char *label = (char*)goptn[i].label;
-            sprintf(label, "%02lx", check->flags);
+            char *label = (char*)goptn[i].label; // this is probably referencing some element of cmd_comp_procs_label
+            snprintf(label, sizeof(cmd_comp_procs_label[0]), "%02lx", check->flags);
             label[2] = ' ';
         }
     }
@@ -184,10 +184,11 @@ int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
     {
         unsigned long flags = get_flags(comp, i);
         const char *name = get_name(comp, i);
-        if (name == NULL)
-            sprintf(label_list[i], "%02lx %s", flags, "(null2)");
-        else
-          sprintf(label_list[i], "%02lx %s", flags, name);
+        if (name == NULL) {
+            snprintf(label_list[i], sizeof(label_list[i]), "%02lx %s", flags, "(null2)");
+        } else {
+            snprintf(label_list[i], sizeof(label_list[i]), "%02lx %s", flags, name);
+        }
         data_list[i].label = label_list[i];
 
         data_list[i].numfield_4 = 1;

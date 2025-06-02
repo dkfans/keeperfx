@@ -7216,7 +7216,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
 void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout, PlayerNumber plyr_idx)
 {
     char id;
-    char str[255] = {'\0'};
+    char str[255] = "";
     char type;
     if (thing_is_trap_crate(picktng))
     {
@@ -7280,11 +7280,11 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             long value = (picktng->creature.gold_carried > gold_remaining) ? gold_remaining : picktng->creature.gold_carried;
             if (value < picktng->creature.gold_carried)
             {
-                sprintf(str, "%ld (%ld)", picktng->creature.gold_carried, value);
+                snprintf(str, sizeof(str), "%ld (%ld)", picktng->creature.gold_carried, value);
             }
             else
             {
-                sprintf(str, "%ld", picktng->creature.gold_carried);
+                snprintf(str, sizeof(str), "%ld", picktng->creature.gold_carried);
             }
         }
         id = 3;
@@ -7295,14 +7295,14 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         id = picktng->owner;
         type = MsgType_Player;
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
-        sprintf(str, "%s", get_string(crconf->namestr_idx));
+        snprintf(str, sizeof(str), "%s", get_string(crconf->namestr_idx));
     }
     else if (picktng->class_id == TCls_DeadCreature)
     {
         id = RoK_GRAVEYARD;
         type = MsgType_Room;
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
-        sprintf(str, "%s", get_string(crconf->namestr_idx));
+        snprintf(str, sizeof(str), "%s", get_string(crconf->namestr_idx));
     }
     else
     {
