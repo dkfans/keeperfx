@@ -6760,6 +6760,7 @@ void illuminate_creature(struct Thing *creatng)
 
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, char spawn_type)
 {
+    long i = get_map_location_longval(location);
     struct Coord3d pos;
 
     if (!creature_count_below_map_limit(0))
@@ -6768,16 +6769,15 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         return INVALID_THING;
     }
 
-    if (!get_coords_at_location(&pos, location,false))
+    switch (get_map_location_type(location))
     {
-        return INVALID_THING;
-    }
-
-    if (spawn_type == SpwnT_Default)
-    {
-        switch (get_map_location_type(location))
+    case MLoc_ACTIONPOINT:
+        if (!get_coords_at_action_point(&pos, i, 1))
         {
-        case MLoc_ACTIONPOINT:
+            return INVALID_THING;
+        }
+        if (spawn_type == SpwnT_Default)
+        {
             if (player_is_roaming(plyr_idx))
             {
                 spawn_type = SpwnT_Fall;
@@ -6786,11 +6786,41 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
             {
                 spawn_type = SpwnT_None;
             }
-            break;
-        case MLoc_HEROGATE:
-            spawn_type = SpwnT_Jump;
-            break;
         }
+        break;
+    case MLoc_HEROGATE:
+        if (!get_coords_at_hero_door(&pos, i, 1))
+        {
+            return INVALID_THING;
+        }
+        if (spawn_type == SpwnT_Default)
+        {
+            spawn_type = SpwnT_Jump;
+        }
+        break;
+    case MLoc_PLAYERSHEART:
+        if (!get_coords_at_dungeon_heart(&pos, i))
+        {
+            return INVALID_THING;
+        }
+        break;
+    case MLoc_METALOCATION:
+        if (!get_coords_at_meta_action(&pos, plyr_idx, i))
+        {
+            return INVALID_THING;
+        }
+        break;
+    case MLoc_CREATUREKIND:
+    case MLoc_OBJECTKIND:
+    case MLoc_ROOMKIND:
+    case MLoc_THING:
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_APPROPRTDUNGEON:
+    case MLoc_DOORKIND:
+    case MLoc_TRAPKIND:
+    case MLoc_NONE:
+    default:
+        return INVALID_THING;
     }
 
     struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, TCls_Creature, crmodel, plyr_idx);
