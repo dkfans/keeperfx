@@ -3630,9 +3630,6 @@ locret69a:\n \
 #endif
 }
 
-#undef JUSTLOG
-#define JUSTLOG(format, ...) 
-
 void draw_gpoly_sub14()
 {
   int tex_x_accum_low;
@@ -3675,8 +3672,6 @@ void draw_gpoly_sub14()
   bool carryLow32; // cf
   int clamped_cy; // eax
   int clamped_cy2; // eax
-JUSTLOG("draw_gpoly_sub14: ENTER pt_ay=%ld, pt_by=%ld, pt_shax=%ld, pt_shbx=%ld",
-        gploc_pt_ay, gploc_pt_by, gploc_pt_shax, gploc_pt_shbx);
   tex_x_accum_low = 0;
   tex_x_accum_high = gploc_8C;
   tex_x_accum_combined = gploc_88;
@@ -3688,8 +3683,6 @@ JUSTLOG("draw_gpoly_sub14: ENTER pt_ay=%ld, pt_by=%ld, pt_shax=%ld, pt_shbx=%ld"
       clamped_by = LOC_vec_window_height;
     spanCount = clamped_by - gploc_pt_ay;
     skip_render = spanCount == 0;
-    JUSTLOG("draw_gpoly_sub14: spanCount=%li (by=%ld - ay=%ld), skipRender=%li",
-        (long)spanCount, gploc_pt_by, gploc_pt_ay, (long)skip_render);
     gploc_C0 = spanCount;
     xStart = gploc_pt_ax;
     gploc_74 = gploc_pt_ax;
@@ -3700,15 +3693,12 @@ JUSTLOG("draw_gpoly_sub14: ENTER pt_ay=%ld, pt_by=%ld, pt_shax=%ld, pt_shbx=%ld"
       scanline_y = gploc_pt_ay;
       if ( gploc_pt_ay < 0 )
       {
-        JUSTLOG("draw_gpoly_sub14: gploc_pt_ay < 0, starting SKEWED_SCAN_ADJUST");
         goto SKEWED_SCAN_ADJUST;
-
+        
       }
       do
       {
 REMAINDER_SCANLINE_STEP:
-        JUSTLOG("RENDER: scanline y=%ld, dst base offset=%ld, stride=%ld",
-                    (long)scanline_y, (long)gploc_F4, gploc_104);
         g_shadeAccumulator = shadeAccumulator;
         g_shadeAccumulatorNext = shadeAccumulatorNext;
         gploc_F4 = screen_line_ptr;
@@ -3909,8 +3899,6 @@ SKEWED_SCAN_ADJUST:
         tex_x_accum_high = (PAIR64(gploc_CC, gploc_60) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
         tex_x_accum_low += gploc_60;
         tex_x_accum_combined += gploc_C4 + carryLow32;
-        JUSTLOG("SKEWED_SCAN_ADJUST: skipping scanline, scanline_y=%ld, gploc_C0=%ld",
-            (long)scanline_y, gploc_C0);
         gploc_74 -= shadeAccumulator >> 16;
         shadeAccumulatorNext += gploc_128;
         g_shadeAccumulator = gploc_12C + shadeAccumulator;
@@ -3921,8 +3909,6 @@ SKEWED_SCAN_ADJUST:
           break;
         if ( ++scanline_y >= 0 )
         {
-            
-            JUSTLOG("SKEWED_SCAN_ADJUST: recovered into rendering at y=%ld", (long)scanline_y);
           goto REMAINDER_SCANLINE_STEP;
         }
       }
