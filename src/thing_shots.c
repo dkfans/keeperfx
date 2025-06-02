@@ -699,7 +699,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     {
         return detonate_shot(shotng, true);
     }
-    if (!(shotst->model_flags & ShMF_Penetrating))
+    if (!flag_is_set(shotst->model_flags,ShMF_WallPierce))
     {
         if (shotng->bounce_angle <= 0)
         {
@@ -771,13 +771,16 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     {
         return detonate_shot(shotng, true);
     }
-    if (shotng->bounce_angle <= 0)
+    if (!(shotst->model_flags & ShMF_Penetrating))
     {
-        slide_thing_against_wall_at(shotng, pos, blocked_flags);
-    }
-    else
-    {
-        bounce_thing_off_wall_at(shotng, pos, blocked_flags);
+        if (shotng->bounce_angle <= 0)
+        {
+            slide_thing_against_wall_at(shotng, pos, blocked_flags);
+        }
+        else
+        {
+            bounce_thing_off_wall_at(shotng, pos, blocked_flags);
+        }
     }
     return false;
 }
@@ -1646,7 +1649,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
     {
         if (shot_hit_something_while_moving(shotng, &pos))
         {
-            if ( (!(shotst->model_flags & ShMF_Penetrating)) || (!thing_exists(shotng)) ) // Shot may have been destroyed when it hit something
+            if ( (!flag_is_set(shotst->model_flags,ShMF_Penetrating)) || (!thing_exists(shotng)) ) // Shot may have been destroyed when it hit something
             {
                 return TUFRet_Deleted;
             }

@@ -362,9 +362,14 @@ TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
 {
     unsigned long i = get_creature_anim(thing, seq_idx);
     // Only update when it's a different sprite, or a different animation speed.
-    if ((i != thing->anim_sprite) || ((speed != thing->anim_speed) && (speed != -1)))
+    if (i != thing->anim_sprite)
     {
         set_thing_draw(thing, i, speed, -1, -1, 0, ODC_Default);
+        return true;
+    }
+    if ((speed != thing->anim_speed) && (speed != -1))
+    {
+        thing->anim_speed = speed;
         return true;
     }
     return false;

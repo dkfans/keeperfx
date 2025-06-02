@@ -104,7 +104,7 @@ TbBool packets_process_cheats(
         else
         {
             struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[player->cheatselection.chosen_hero_kind];
-            sprintf(str, "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
+            sprintf(str, "%.253s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
@@ -260,7 +260,7 @@ TbBool packets_process_cheats(
         else
         {
             struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[player->cheatselection.chosen_creature_kind];
-            sprintf(str, "%s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
+            sprintf(str, "%.253s %d", get_string(crconf->namestr_idx), player->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(MsgType_Player, player->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
