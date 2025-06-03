@@ -66,6 +66,7 @@
 #include "custom_sprites.h"
 #include "sprites.h"
 #include "post_inc.h"
+#include "room_workshop.h"
 
 struct Around const draw_square[] = {
 { 0, 0},
@@ -994,6 +995,12 @@ void gui_remove_area_for_traps(struct GuiButton *gbtn)
     set_players_packet_action(player, PckA_SetPlyrState, PSt_Sell, 0, 0, 0);
 }
 
+void gui_area_trap_build_info_button(struct GuiButton* gbtn)
+{
+    int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->sprite_idx, 100);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
+}
+
 void gui_area_big_trap_button(struct GuiButton *gbtn)
 {
     int manufctr_idx = gbtn->content.lval;
@@ -1196,6 +1203,69 @@ void maintain_big_trap(struct GuiButton *gbtn)
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags &= ~LbBtnF_Enabled;
+    }
+}
+
+void maintain_buildable_info(struct GuiButton* gbtn)
+{
+    int manufctr_idx = game.manufactr_element % game.conf.trapdoor_conf.manufacture_types_count;
+    struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
+    gbtn->content.lval = manufctr_idx;
+    if (((manufctr->tngclass == TCls_Trap) && is_trap_placeable(my_player_number, manufctr->tngmodel))
+        || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel)))
+    {
+        gbtn->flags |= LbBtnF_Enabled;
+    }
+    else
+    {
+        gbtn->flags &= ~LbBtnF_Enabled;
+        gbtn->tooltip_stridx = 0;
+        gbtn->sprite_idx = 0;
+        return;
+    }
+    struct PlayerInfo* player = get_my_player();
+    struct Dungeon* dungeon = get_players_dungeon(player);
+    //We cannot use the actual manufacture level because that does not update enough.
+    int manufacture_level = calculate_manufacture_level(dungeon);
+
+    // Overlay a hammer symbol on the top-right to denote manufacturability
+    if (manufctr_idx > 0)
+    {
+        // Required manufacture level for this item
+        TbBool is_buildable = false;
+        int required_level = 0;
+        switch (manufctr->tngclass)
+        {
+        case TCls_Trap:
+            is_buildable = is_trap_buildable(my_player_number, manufctr->tngmodel);
+            struct TrapConfigStats* trapst = get_trap_model_stats(manufctr->tngmodel);
+            required_level = trapst->manufct_level;
+            break;
+        case TCls_Door:
+            is_buildable = is_door_buildable(my_player_number, manufctr->tngmodel);
+            struct DoorConfigStats* doorst = get_door_model_stats(manufctr->tngmodel);
+            required_level = doorst->manufct_level;
+            break;
+        }
+
+        if (is_buildable)
+        {
+            if (manufacture_level >= required_level)
+            {
+                gbtn->sprite_idx = GPS_rpanel_manufacture_std; // If manufacturable and high enough level: lit hammer
+                gbtn->tooltip_stridx = GUIStr_TrapAvailable;
+            }
+            else
+            {
+                gbtn->tooltip_stridx = GUIStr_TrapWorkshopNeeded;
+                gbtn->sprite_idx = GPS_rpanel_manufacture_dis; // If manufacturable and level too low: greyed hammer
+            }
+        }
+        else
+        {
+            gbtn->tooltip_stridx = GUIStr_TrapUnavailable;
+            gbtn->sprite_idx = GPS_rpanel_manufacture_cant; // If owned but not manufacturable: no entry hammer
+        }
     }
 }
 
