@@ -1211,7 +1211,6 @@ void maintain_buildable_info(struct GuiButton* gbtn)
     int manufctr_idx = game.manufactr_element % game.conf.trapdoor_conf.manufacture_types_count;
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
     gbtn->content.lval = manufctr_idx;
-    gbtn->tooltip_stridx = 1; //todo replace with correct tooltip
     if (((manufctr->tngclass == TCls_Trap) && is_trap_placeable(my_player_number, manufctr->tngmodel))
         || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel)))
     {
