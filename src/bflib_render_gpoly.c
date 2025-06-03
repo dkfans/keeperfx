@@ -331,7 +331,8 @@ long gpoly_divtable[][64] = {
 long gpoly_mode;
 long factor_ca,factor_ba,factor_cb,factor_chk;
 // More variables - made global temporarly to ease assembly rewriting
-struct PolyPoint *gploc_point_a,*gploc_point_b,*gploc_point_c;
+struct PolyPoint *gploc_point_a,*gploc_point_b;
+long gploc_point_c;
 long gploc_1A4,gploc_1A0;
 short gploc_word01,gploc_word02,gploc_word03;
 long gploc_198,mapxveltop,gploc_18C,mapyveltop,gploc_180;
@@ -542,7 +543,6 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
 
     gploc_point_a = point_a;
     gploc_point_b = point_b;
-    gploc_point_c = point_c;
 
     switch (gpoly_mode)
     {
@@ -2708,111 +2708,46 @@ void draw_gpoly_sub7b()
 }
 
 
+static inline int32_t shift_mul(int32_t delta, int32_t scale)
+{
+    // 64-bit result of signed multiplication
+    int64_t result = (int64_t)delta * scale;
+
+    // Split into low and high 32-bit words
+    uint32_t lo = (uint32_t)(result & 0xFFFFFFFF);
+    uint32_t hi = (uint32_t)((uint64_t)result >> 32);
+
+    // Overwrite low 16 bits of lo with low 16 bits of hi
+    lo = (lo & 0xFFFF0000) | (hi & 0x0000FFFF);
+
+    // Rotate left by 16 bits
+    uint32_t rotated = (lo << 16) | (lo >> 16);
+
+    // If result is negative, increment
+    if ((int32_t)rotated < 0)
+        rotated++;
+
+    return (int32_t)rotated;
+}
+
 void draw_gpoly_sub7b_block1(void)
 {
-    asm volatile (" \
-    pusha   \n \
-    movl    _gploc_pt_by,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_1DE2\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_1DF0\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1DE2:         # 1BE7\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_1DF0:         # 1BF0\n \
-    movl    _gploc_pt_bs,%%eax\n \
-    subl    _gploc_pt_as,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1E05\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1E05:         # 1C12\n \
-    movl    %%eax,_gploc_point_c\n \
-    movl    _gploc_pt_bu,%%eax\n \
-    subl    _gploc_pt_au,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1E1E\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1E1E:         # 1C2B\n \
-    movl    %%eax,_mapxveltop\n \
-    movl    _gploc_pt_bv,%%eax\n \
-    subl    _gploc_pt_av,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1E37\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1E37:         # 1C4\n \
-    movl    %%eax,_mapyveltop\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_by,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_1E54\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_1E62\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1E54:         # 1C5\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_1E62:         # 1C62\n \
-    movl    _gploc_pt_cs,%%eax\n \
-    subl    _gploc_pt_bs,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1E77\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1E77:         # 1C8\n \
-    movl    %%eax,_gploc_1A0\n \
-    movl    _gploc_pt_cu,%%eax\n \
-    subl    _gploc_pt_bu,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1E90\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1E90:         # 1C9D\n \
-    movl    %%eax,_gploc_198\n \
-    movl    _gploc_pt_cv,%%eax\n \
-    subl    _gploc_pt_bv,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1EA9\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1EA9:         # 1CB6\n \
-    movl    %%eax,_gploc_18C\n \
-\n \
-    popa    \n \
-1:\n \
-" : : : "memory", "cc");
+    int32_t dy_ab = gploc_pt_by - gploc_pt_ay;
+    int32_t scale1 = (dy_ab > 255) ? (0x7FFFFFFF / dy_ab) : gpoly_reptable[dy_ab];
+
+    gploc_point_c = shift_mul(2 * (gploc_pt_bs - gploc_pt_as), scale1);
+    mapxveltop    = shift_mul(2 * (gploc_pt_bu - gploc_pt_au), scale1);
+    mapyveltop    = shift_mul(2 * (gploc_pt_bv - gploc_pt_av), scale1);
+
+    int32_t dy_bc = gploc_pt_cy - gploc_pt_by;
+    int32_t scale2 = (dy_bc > 255) ? (0x7FFFFFFF / dy_bc) : gpoly_reptable[dy_bc];
+
+    gploc_1A0 = shift_mul(2 * (gploc_pt_cs - gploc_pt_bs), scale2);
+    gploc_198 = shift_mul(2 * (gploc_pt_cu - gploc_pt_bu), scale2);
+    gploc_18C = shift_mul(2 * (gploc_pt_cv - gploc_pt_bv), scale2);
 }
+
+
 
 void draw_gpoly_sub7b_block2(void)
 {
