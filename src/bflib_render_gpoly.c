@@ -2766,34 +2766,13 @@ void draw_gpoly_sub7b_block2(void)
     int64_t product = (int64_t)factor * (delta * 2);
     gploc_point_c = rol16_from_product(product);
 
-    // Leave mapxveltop/mapyveltop in working ASM for now
-    asm volatile (
-        "pusha\n"
-        "movl _gploc_pt_cu, %%eax\n"
-        "subl _gploc_pt_au, %%eax\n"
-        "shll $1, %%eax\n"
-        "imull %0\n"
-        "movw %%dx, %%ax\n"
-        "roll $0x10, %%eax\n"
-        "jns 1f\n"
-        "incl %%eax\n"
-        "1:\n"
-        "movl %%eax, _mapxveltop\n"
-        "movl _gploc_pt_cv, %%eax\n"
-        "subl _gploc_pt_av, %%eax\n"
-        "shll $1, %%eax\n"
-        "imull %0\n"
-        "movw %%dx, %%ax\n"
-        "roll $0x10, %%eax\n"
-        "jns 2f\n"
-        "incl %%eax\n"
-        "2:\n"
-        "movl %%eax, _mapyveltop\n"
-        "popa\n"
-        :
-        : "r"(factor)
-        : "eax", "edx", "cc", "memory"
-    );
+    delta = gploc_pt_cu - gploc_pt_au;
+    product = (int64_t)factor * (delta * 2);
+    mapxveltop = rol16_from_product(product);
+
+    delta = gploc_pt_cv - gploc_pt_av;
+    product = (int64_t)factor * (delta * 2);
+    mapyveltop = rol16_from_product(product);
 }
 
 
