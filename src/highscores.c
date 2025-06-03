@@ -65,7 +65,7 @@ static TbBool create_empty_high_score_table(void)
   for (i=0; i < VISIBLE_HIGH_SCORES_COUNT; i++)
   {
     if (i >= campaign.hiscore_count) break;
-    sprintf(campaign.hiscore_table[i].name, "Bullfrog");
+    snprintf(campaign.hiscore_table[i].name, sizeof(campaign.hiscore_table[0].name), "Bullfrog");
     campaign.hiscore_table[i].score = npoints;
     campaign.hiscore_table[i].lvnum = nmap;
     npoints -= 100;

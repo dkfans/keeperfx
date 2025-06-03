@@ -3526,7 +3526,8 @@ static TbBool wait_at_frontend(void)
         TbBool result = false;
         if (start_params.selected_campaign[0] != '\0')
         {
-            result = change_campaign(strcat(start_params.selected_campaign,".cfg"));
+            str_append(start_params.selected_campaign, sizeof(start_params.selected_campaign), ".cfg");
+            result = change_campaign(start_params.selected_campaign);
         }
         if (!result) {
             if (!change_campaign("")) {
@@ -4099,9 +4100,9 @@ short process_command_line(unsigned short argc, char *argv[])
       else
       {
         // append bad parstr to bad_params string
-        char param_buffer[128] = "\0";
-        Lbvsprintf(param_buffer, "%s%s", strnlen(bad_params, TEXT_BUFFER_LENGTH) > 0 ? ", " : "" , parstr);
-        strcat(bad_params, param_buffer);
+        char param_buffer[128] = "";
+        snprintf(param_buffer, sizeof(param_buffer), "%s%s", strnlen(bad_params, TEXT_BUFFER_LENGTH) > 0 ? ", " : "" , parstr);
+        str_append(bad_params, sizeof(bad_params), param_buffer);
         bad_param=narg;
       }
       narg++;
@@ -4132,9 +4133,9 @@ short process_command_line(unsigned short argc, char *argv[])
 
   if(bad_param != 0)
   {
-    int res = 0;
-    WARNING_DIALOG(res, "Incorrect command line parameters: '%s'.\nPlease correct your Run options.", bad_params);
-    return res;
+    char message[TEXT_BUFFER_LENGTH];
+    snprintf(message, sizeof(message), "Incorrect command line parameters: '%s'.\nPlease correct your Run options.", bad_params);
+    warning_dialog(__func__, 0, message);
   }
 
   return (bad_param==0);

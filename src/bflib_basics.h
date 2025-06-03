@@ -144,7 +144,6 @@ int LbNetLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonn
 int LbJustLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
 int LbAiLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
 int LbNaviLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
-int Lbvsprintf(char* buffer, const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(1, 2)));
 #ifdef FUNCTESTING
 int LbFTestLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
 #endif

@@ -630,19 +630,19 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
 
 void query_room(struct Room *room)
 {
-    const char title[26];
+    char title[26] = "";
     const char* name = room_code_name(room->kind);
-    const char owner[26]; 
-    const char health[26];
-    const char capacity[26];
-    const char efficiency[26] = "\0";
-    sprintf((char*)title, "Room ID: %d", room->index);
-    sprintf((char*)owner, "Owner: %d", room->owner);
-    sprintf((char*)health, "Health: %d", (int)room->health);
-    sprintf((char*)capacity, "Capacity: %d/%d", room->used_capacity, room->total_capacity);
+    char owner[26] = "";
+    char health[26] = "";
+    char capacity[26] = "";
+    char efficiency[26] = "";
+    snprintf(title, sizeof(title), "Room ID: %d", room->index);
+    snprintf(owner, sizeof(owner), "Owner: %d", room->owner);
+    snprintf(health, sizeof(health), "Health: %d", (int)room->health);
+    snprintf(capacity, sizeof(capacity), "Capacity: %d/%d", room->used_capacity, room->total_capacity);
     float room_efficiency_percent = ((float)room->efficiency / (float)ROOM_EFFICIENCY_MAX) * 100;
-    sprintf((char*)efficiency, "Efficiency: %d", (unsigned char)round(room_efficiency_percent));
-    create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&capacity, (const char*)&efficiency);    
+    snprintf(efficiency, sizeof(efficiency), "Efficiency: %d", (unsigned char)round(room_efficiency_percent));
+    create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&capacity, (const char*)&efficiency);
 }
 
 /******************************************************************************/

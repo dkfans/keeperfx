@@ -88,7 +88,7 @@ TbBool take_screenshot(char *fname)
 
 TbBool cumulative_screen_shot(void)
 {
-    char fname[255];
+    char fname[255] = "";
     const char *fext;
     switch (screenshot_format)
     {
@@ -105,7 +105,7 @@ TbBool cumulative_screen_shot(void)
     unsigned long i;
     for (i = 0; i < 10000; i++)
     {
-        sprintf(fname, "scrshots/scr%05lu.%s", i, fext);
+        snprintf(fname, sizeof(fname), "scrshots/scr%05lu.%s", i, fext);
         if (!LbFileExists(fname)) break;
     }
     if (i >= 10000)

@@ -70,7 +70,7 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     if (idx == high_score_entry_input_active)
     {
         char str[HISCORE_NAME_LENGTH];
-        sprintf(str, "%s", high_score_entry);
+        snprintf(str, sizeof(str), "%s", high_score_entry);
         // Blinking cursor
         if ((LbTimerClock() & 0x0100) != 0)
         {

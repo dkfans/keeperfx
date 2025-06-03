@@ -408,17 +408,15 @@ const char *player_code_name(PlayerNumber plyr_idx)
 TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   int i;
-  // Block name and parameter word store variables.
-  char block_buf[COMMAND_WORD_LEN];
+  const char * block_name = "research";
   char word_buf[COMMAND_WORD_LEN];
   // Find the block.
-  sprintf(block_buf,"research");
   long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
+  int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+          WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
       return false;
   }
   // Clear research list if there's new one in this file.
@@ -457,7 +455,7 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
               if (n < 3)
               {
                   CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                      COMMAND_TEXT(cmd_num), block_name, config_textname);
                   break;
               }
               add_research_to_all_players(i, l, k);
@@ -468,7 +466,7 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
+              cmd_num, block_name, config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -505,17 +503,15 @@ static void mark_cheaper_diggers_sacrifice(void)
 TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     int i;
-    // Block name and parameter word store variables.
-    char block_buf[COMMAND_WORD_LEN];
+    const char * block_name = "sacrifices";
     char word_buf[COMMAND_WORD_LEN];
     // Find the block.
-    sprintf(block_buf,"sacrifices");
     long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
+    int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
         return false;
     }
     // If the block exists, clear previous data.
@@ -541,14 +537,14 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
             if (i <= 0)
             {
               CONFWRNLOG("Incorrect creature \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+                  word_buf, block_name, config_textname);
               break;
             }
             sac = get_unused_sacrifice_recipe_slot();
             if (sac <= &game.conf.rules.sacrifices.sacrifice_recipes[0])
             {
               CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+                  word_buf, block_name, config_textname);
               break;
             }
             sac->action = cmd_num;
@@ -564,7 +560,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
                 } else
                 {
                   CONFWRNLOG("Too many victims in \"%s\" from [%s] block of %s file.",
-                    word_buf,block_buf,config_textname);
+                    word_buf, block_name, config_textname);
                   break;
                 }
               }
@@ -572,7 +568,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
             if (n < 1)
             {
               CONFWRNLOG("No victims in \"%s\" from [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+                  word_buf, block_name, config_textname);
               break;
             }
             n++; // Delayed increase for first argument.
@@ -587,14 +583,14 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
             if (i <= 0)
             {
               CONFWRNLOG("Incorrect creature spell \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+                  word_buf, block_name, config_textname);
               break;
             }
             sac = get_unused_sacrifice_recipe_slot();
             if (sac <= &game.conf.rules.sacrifices.sacrifice_recipes[0])
             {
               CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+                  word_buf, block_name, config_textname);
               break;
             }
             sac->action = cmd_num;
@@ -610,7 +606,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
                 } else
                 {
                   CONFWRNLOG("Too many victims in \"%s\" from [%s] block of %s file.",
-                    word_buf,block_buf,config_textname);
+                    word_buf, block_name, config_textname);
                   break;
                 }
               }
@@ -618,7 +614,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
             if (n < 1)
             {
               CONFWRNLOG("No victims in \"%s\" from [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+                  word_buf, block_name, config_textname);
               break;
             }
             n++; // Delayed increase for first argument.
@@ -633,14 +629,14 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
             if (i <= 0)
             {
               CONFWRNLOG("Incorrect unique function \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+                  word_buf, block_name, config_textname);
               break;
             }
             sac = get_unused_sacrifice_recipe_slot();
             if (sac <= &game.conf.rules.sacrifices.sacrifice_recipes[0])
             {
               CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+                  word_buf, block_name, config_textname);
               break;
             }
             sac->action = cmd_num;
@@ -656,7 +652,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
                 } else
                 {
                   CONFWRNLOG("Too many victims in \"%s\" from [%s] block of %s file.",
-                    word_buf,block_buf,config_textname);
+                    word_buf, block_name, config_textname);
                   break;
                 }
               }
@@ -664,7 +660,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
             if (n < 1)
             {
               CONFWRNLOG("No victims in \"%s\" from [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
+                  word_buf, block_name, config_textname);
               break;
             }
             n++; // Delayed increase for first argument.
@@ -675,7 +671,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+                cmd_num, block_name, config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
