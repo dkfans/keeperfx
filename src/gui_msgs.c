@@ -62,15 +62,15 @@ void message_draw(void)
     }
     for (int i = 0; i < game.active_messages_count; i++)
     {
-        if ( (gameadd.messages[i].target_idx == my_player_number) || (gameadd.messages[i].target_idx == -1) )
+        if ( (game.messages[i].target_idx == my_player_number) || (game.messages[i].target_idx == -1) )
         {
             long x = 148 * units_per_pixel / 16;
             LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
             clear_flag(lbDisplay.DrawFlags, Lb_TEXT_ONE_COLOR);
-            LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
+            LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, game.messages[i].text);
             unsigned long spr_idx = 0;
-            PlayerNumber plyr_idx = gameadd.messages[i].plyr_idx;
-            switch (gameadd.messages[i].type)
+            PlayerNumber plyr_idx = game.messages[i].plyr_idx;
+            switch (game.messages[i].type)
             {
                 case MsgType_Player:
                 {
@@ -78,27 +78,27 @@ void message_draw(void)
                     {
                         spr_idx = GPS_plyrsym_symbol_player_red_std_b;
                     }
-                    else if (gameadd.messages[i].plyr_idx == game.neutral_player_num)
+                    else if (game.messages[i].plyr_idx == game.neutral_player_num)
                     {
                         spr_idx = ((game.play_gameturn >> 1) & 3) + GPS_plyrsym_symbol_player_red_std_b;
                         plyr_idx = 0;
                     }
                     else
                     {
-                        spr_idx = (player_has_heart(gameadd.messages[i].plyr_idx)) ? GPS_plyrsym_symbol_player_red_std_b : GPS_plyrsym_symbol_player_red_dead;
+                        spr_idx = (player_has_heart(game.messages[i].plyr_idx)) ? GPS_plyrsym_symbol_player_red_std_b : GPS_plyrsym_symbol_player_red_dead;
                     }
                     break;
                 }
                 case MsgType_Creature:
                 {
-                    spr_idx = get_creature_model_graphics(gameadd.messages[i].plyr_idx, CGI_HandSymbol);
+                    spr_idx = get_creature_model_graphics(game.messages[i].plyr_idx, CGI_HandSymbol);
                     x -= (7 * units_per_pixel / 16);
                     y -= (20 * units_per_pixel / 16);
                     break;
                 }
                 case MsgType_CreatureSpell:
                 {
-                    struct SpellConfig* spconf = get_spell_config(gameadd.messages[i].plyr_idx);
+                    struct SpellConfig* spconf = get_spell_config(game.messages[i].plyr_idx);
                     spr_idx = spconf->medsym_sprite_idx;
                     x -= (10 * units_per_pixel / 16);
                     y -= (10 * units_per_pixel / 16);
@@ -106,7 +106,7 @@ void message_draw(void)
                 }
                 case MsgType_Room:
                 {
-                    const struct RoomConfigStats* roomst = get_room_kind_stats(gameadd.messages[i].plyr_idx);
+                    const struct RoomConfigStats* roomst = get_room_kind_stats(game.messages[i].plyr_idx);
                     spr_idx = roomst->medsym_sprite_idx;
                     x -= (10 * units_per_pixel / 16);
                     y -= (10 * units_per_pixel / 16);
@@ -114,7 +114,7 @@ void message_draw(void)
                 }
                 case MsgType_KeeperSpell:
                 {
-                    struct PowerConfigStats* powerst = get_power_model_stats(gameadd.messages[i].plyr_idx);
+                    struct PowerConfigStats* powerst = get_power_model_stats(game.messages[i].plyr_idx);
                     spr_idx = powerst->medsym_sprite_idx;
                     x -= (10 * units_per_pixel / 16);
                     y -= (10 * units_per_pixel / 16);
@@ -122,7 +122,7 @@ void message_draw(void)
                 }
                 case MsgType_Query:
                 {
-                    spr_idx = (gameadd.messages[i].plyr_idx + GPS_plyrsym_symbol_room_yellow_std_a);
+                    spr_idx = (game.messages[i].plyr_idx + GPS_plyrsym_symbol_room_yellow_std_a);
                     x -= (10 * units_per_pixel / 16);
                     y -= (10 * units_per_pixel / 16);
                     break;
@@ -133,7 +133,7 @@ void message_draw(void)
                 }
                 case MsgType_CreatureInstance:
                 {
-                    struct InstanceInfo* inst_inf = creature_instance_info_get(gameadd.messages[i].plyr_idx);
+                    struct InstanceInfo* inst_inf = creature_instance_info_get(game.messages[i].plyr_idx);
                     spr_idx = inst_inf->symbol_spridx;
                     x -= (10 * units_per_pixel / 16);
                     y -= (10 * units_per_pixel / 16);
@@ -141,11 +141,11 @@ void message_draw(void)
                 }
                 default:
                 {
-                    ERRORLOG("Unrecognised message type: %u", gameadd.messages[i].type);
+                    ERRORLOG("Unrecognised message type: %u", game.messages[i].type);
                     break;
                 }
             }
-            switch (gameadd.messages[i].type)
+            switch (game.messages[i].type)
             {
                 case MsgType_Player:
                 {
@@ -170,7 +170,7 @@ void message_draw(void)
                 }
             }
             y += (h*units_per_pixel/16) << (unsigned char)low_res;
-            switch (gameadd.messages[i].type)
+            switch (game.messages[i].type)
             {
                 case MsgType_Player:
                 {
@@ -202,11 +202,11 @@ void message_update(void)
     // Set end turn for all messages
     while (i >= 0)
     {
-        struct GuiMessage* gmsg = &gameadd.messages[i];
+        struct GuiMessage* gmsg = &game.messages[i];
         if (gmsg->creation_turn < game.play_gameturn)
         {
             game.active_messages_count--;
-            gameadd.messages[game.active_messages_count].text[0] = 0;
+            game.messages[game.active_messages_count].text[0] = 0;
         }
         i--;
     }
@@ -217,7 +217,7 @@ void zero_messages(void)
     game.active_messages_count = 0;
     for (int i = 0; i < 3; i++)
     {
-      memset(&gameadd.messages[i], 0, sizeof(struct GuiMessage));
+      memset(&game.messages[i], 0, sizeof(struct GuiMessage));
     }
 }
 
@@ -225,9 +225,9 @@ void clear_messages_from_player(char type, PlayerNumber plyr_idx)
 {
     for (int i = 0; i < game.active_messages_count; i++)
     {
-        if (gameadd.messages[i].type == type)
+        if (game.messages[i].type == type)
         {
-            if ( (gameadd.messages[i].plyr_idx == plyr_idx) || (plyr_idx == -1) )
+            if ( (game.messages[i].plyr_idx == plyr_idx) || (plyr_idx == -1) )
             {
                 delete_message(i);
             }
@@ -237,14 +237,14 @@ void clear_messages_from_player(char type, PlayerNumber plyr_idx)
 
 void delete_message(unsigned char msg_idx)
 {
-    memset(&gameadd.messages[msg_idx], 0, sizeof(struct GuiMessage));
+    memset(&game.messages[msg_idx], 0, sizeof(struct GuiMessage));
     if (msg_idx < game.active_messages_count - 1)
     {
         for (int i = msg_idx; i < game.active_messages_count; i++)
         {
-            gameadd.messages[i] = gameadd.messages[i+1];
+            game.messages[i] = game.messages[i+1];
         }
-        memset(&gameadd.messages[game.active_messages_count - 1], 0, sizeof(struct GuiMessage));
+        memset(&game.messages[game.active_messages_count - 1], 0, sizeof(struct GuiMessage));
     }
     game.active_messages_count--;
 }
@@ -254,13 +254,13 @@ void message_add(char type, PlayerNumber plyr_idx, const char *text)
     SYNCDBG(2,"Player %d: %s",(int)plyr_idx,text);
     for (int i = GUI_MESSAGES_COUNT - 1; i > 0; i--)
     {
-        memcpy(&gameadd.messages[i], &gameadd.messages[i-1], sizeof(struct GuiMessage));
+        memcpy(&game.messages[i], &game.messages[i-1], sizeof(struct GuiMessage));
     }
-    snprintf(gameadd.messages[0].text, sizeof(gameadd.messages[0].text), "%s", text);
-    gameadd.messages[0].plyr_idx = plyr_idx;
-    gameadd.messages[0].creation_turn = game.play_gameturn + GUI_MESSAGES_DELAY;
-    gameadd.messages[0].target_idx = -1;
-    gameadd.messages[0].type = type;
+    snprintf(game.messages[0].text, sizeof(game.messages[0].text), "%s", text);
+    game.messages[0].plyr_idx = plyr_idx;
+    game.messages[0].creation_turn = game.play_gameturn + GUI_MESSAGES_DELAY;
+    game.messages[0].target_idx = -1;
+    game.messages[0].type = type;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {
         game.active_messages_count++;
     }
@@ -290,13 +290,13 @@ void targeted_message_add(char type, PlayerNumber plyr_idx, PlayerNumber target_
     SYNCDBG(2,"Player %d: %s",(int)plyr_idx,full_msg_text);
     for (int i = GUI_MESSAGES_COUNT - 1; i > 0; i--)
     {
-        memcpy(&gameadd.messages[i], &gameadd.messages[i-1], sizeof(struct GuiMessage));
+        memcpy(&game.messages[i], &game.messages[i-1], sizeof(struct GuiMessage));
     }
-    snprintf(gameadd.messages[0].text, sizeof(gameadd.messages[0].text), "%s", full_msg_text);
-    gameadd.messages[0].plyr_idx = plyr_idx;
-    gameadd.messages[0].creation_turn = game.play_gameturn + timeout;
-    gameadd.messages[0].target_idx = target_idx;
-    gameadd.messages[0].type = type;
+    snprintf(game.messages[0].text, sizeof(game.messages[0].text), "%s", full_msg_text);
+    game.messages[0].plyr_idx = plyr_idx;
+    game.messages[0].creation_turn = game.play_gameturn + timeout;
+    game.messages[0].target_idx = target_idx;
+    game.messages[0].type = type;
     if (game.active_messages_count < GUI_MESSAGES_COUNT) {
         game.active_messages_count++;
     }

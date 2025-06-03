@@ -361,9 +361,15 @@ void tint_thing(struct Thing *thing, TbPixel colour, unsigned char tint)
 TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
 {
     unsigned long i = get_creature_anim(thing, seq_idx);
+    // Only update when it's a different sprite, or a different animation speed.
     if (i != thing->anim_sprite)
     {
         set_thing_draw(thing, i, speed, -1, -1, 0, ODC_Default);
+        return true;
+    }
+    if ((speed != thing->anim_speed) && (speed != -1))
+    {
+        thing->anim_speed = speed;
         return true;
     }
     return false;
@@ -372,7 +378,8 @@ TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
 TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
 {
     unsigned long i = convert_td_iso(td_idx);
-    if (i != thing->anim_sprite)
+    // Only update when it's a different sprite, or a different animation speed.
+    if ((i != thing->anim_sprite) || ((speed != thing->anim_speed) && (speed != -1)))
     {
         set_thing_draw(thing, i, speed, -1, -1, 0, ODC_Default);
         return true;
@@ -485,11 +492,12 @@ void update_creature_graphic_anim(struct Thing *thing)
         } else
         if (cctrl->distance_to_destination == 0)
         {
-            update_creature_anim(thing, 256, CGI_Stand);
+            update_creature_anim(thing, crconf->walking_anim_speed, CGI_Stand);
         } else
         if (thing->floor_height < thing->mappos.z.val)
         {
-            update_creature_anim(thing, 256, CGI_Stand);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed + 1);
+            update_creature_anim(thing, i, CGI_Stand);
         } else
         if ((cctrl->dragtng_idx != 0) && (thing_get(cctrl->dragtng_idx)->state_flags & TF1_IsDragged1))
         {
@@ -501,7 +509,7 @@ void update_creature_graphic_anim(struct Thing *thing)
             update_creature_anim(thing, 256, CGI_Ambulate);
         } else
         {
-            i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed+1);
+            i = (((long)cctrl->distance_to_destination) << 8) / (crconf->walking_anim_speed + 1);
             if (!update_creature_anim(thing, i, CGI_Ambulate))
             {
                 thing->anim_speed = i;

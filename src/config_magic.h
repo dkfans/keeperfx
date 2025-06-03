@@ -122,6 +122,7 @@ enum ShotModelFlags {
     ShMF_BlocksRebirth  = 0x4000,
     ShMF_Penetrating    = 0x8000,
     ShMF_NeverBlock     = 0x10000,
+    ShMF_WallPierce     = 0x20000,
 };
 
 #define PwCast_None           (0LL)
@@ -336,7 +337,7 @@ struct PowerConfigStats {
     unsigned char cost_formula;
     SpellKind spell_idx;
     EffectOrEffElModel effect_id;
-    short magic_use_func_idx;
+    FuncIdx magic_use_func_idx;
     ThingModel creature_model;
     long cost[MAGIC_OVERCHARGE_LEVELS];
     long duration;

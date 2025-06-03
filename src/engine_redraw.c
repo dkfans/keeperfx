@@ -127,7 +127,8 @@ static void draw_creature_view_icons(struct Thing* creatng)
             lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
             lbDisplay.DrawColour = LbTextGetFontFaceColor();
             lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
-            char* text = buf_sprintf("%lu", (cctrl->timebomb_countdown / game_num_fps));
+            char text[16];
+            snprintf(text, sizeof(text), "%lu", (cctrl->timebomb_countdown / game_num_fps));
             LbTextDrawResized(0, 0, tx_units_per_px, text);
         }
         draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
@@ -687,17 +688,17 @@ void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
       {
         x = 0;
       } else
-      if (x > (gameadd.map_subtiles_x + 1) * COORD_PER_STL -1)
+      if (x > (game.map_subtiles_x + 1) * COORD_PER_STL -1)
       {
-        x = (gameadd.map_subtiles_x + 1) * COORD_PER_STL -1;
+        x = (game.map_subtiles_x + 1) * COORD_PER_STL -1;
       }
       if (y < 0)
       {
         y = 0;
       } else
-      if (y > (gameadd.map_subtiles_y + 1) * COORD_PER_STL -1)
+      if (y > (game.map_subtiles_y + 1) * COORD_PER_STL -1)
       {
-        y = (gameadd.map_subtiles_y + 1) * COORD_PER_STL -1;
+        y = (game.map_subtiles_y + 1) * COORD_PER_STL -1;
       }
       // setting deviated position
       player->acamera->mappos.x.val = x;
@@ -1033,7 +1034,6 @@ void process_pointer_graphic(void)
 
 void redraw_display(void)
 {
-    const char *text;
     SYNCDBG(5,"Starting");
     struct PlayerInfo* player = get_my_player();
     player->flgfield_6 &= ~PlaF6_Unknown01;
@@ -1082,7 +1082,8 @@ void redraw_display(void)
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     if ((player->allocflags & PlaF_NewMPMessage) != 0)
     {
-        text = buf_sprintf( ">%s_", player->mp_message_text);
+        char text[sizeof(player->mp_message_text) + 4];
+        snprintf(text, sizeof(text), ">%s_", player->mp_message_text);
         long pos_x = 148*units_per_pixel/16;
         long pos_y = 8*units_per_pixel/16;
         if (game.armageddon_cast_turn != 0)
@@ -1100,7 +1101,8 @@ void redraw_display(void)
         LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
         lbDisplay.DrawFlags = 0;
         LbTextSetFont(winfont);
-        text = buf_sprintf("%ld", draw_spell_cost);
+        char text[16];
+        snprintf(text, sizeof(text), "%ld", draw_spell_cost);
         long pos_y = GetMouseY() - (LbTextStringHeight(text) * units_per_pixel / 16) / 2 - 2 * units_per_pixel / 16;
         long pos_x = GetMouseX() - (LbTextStringWidth(text) * units_per_pixel / 16) / 2;
         LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
@@ -1113,7 +1115,7 @@ void redraw_display(void)
     }
     else if (script_timer_enabled())
     {
-        draw_script_timer(gameadd.script_timer_player, gameadd.script_timer_id, gameadd.script_timer_limit, gameadd.timer_real);
+        draw_script_timer(game.script_timer_player, game.script_timer_id, game.script_timer_limit, game.timer_real);
     }
     if (gameturn_timer_enabled())
     {
@@ -1121,7 +1123,7 @@ void redraw_display(void)
     }
     if (display_variable_enabled())
     {
-        draw_script_variable(gameadd.script_variable_player, gameadd.script_value_type, gameadd.script_value_id, gameadd.script_variable_target, gameadd.script_variable_target_type);
+        draw_script_variable(game.script_variable_player, game.script_value_type, game.script_value_id, game.script_variable_target, game.script_variable_target_type);
     }
     if (timer_enabled())
     {
@@ -1139,7 +1141,7 @@ void redraw_display(void)
     if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     {
           LbTextSetFont(winfont);
-          text = get_string(GUIStr_PausedMsg);
+          const char * text = get_string(GUIStr_PausedMsg);
           long w = (LbTextStringWidth(text) * units_per_pixel / 16 + 2 * (LbTextCharWidth(' ') * units_per_pixel / 16));
           long pos_x;
           if (
@@ -1186,7 +1188,8 @@ void redraw_display(void)
         i = game.play_gameturn - game.armageddon_cast_turn - game.armageddon.count_down;
       }
       LbTextSetFont(winfont);
-      text = buf_sprintf(" %s %03d", get_string(get_power_name_strindex(PwrK_ARMAGEDDON)), i/2); // Armageddon message
+      char text[64];
+      snprintf(text, sizeof(text), " %s %03d", get_string(get_power_name_strindex(PwrK_ARMAGEDDON)), i/2); // Armageddon message
       i = LbTextCharWidth(' ')*units_per_pixel/16;
       long w = LbTextStringWidth(text) * units_per_pixel / 16 + 6 * i;
       i = LbTextLineHeight()*units_per_pixel/16;

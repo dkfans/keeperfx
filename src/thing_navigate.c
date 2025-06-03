@@ -90,18 +90,18 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         {
             stl_x = 0; 
         }
-        else if ( stl_x > gameadd.map_subtiles_x )
+        else if ( stl_x > game.map_subtiles_x )
         {
-            stl_x = gameadd.map_subtiles_x;
+            stl_x = game.map_subtiles_x;
         }
 
         if ( stl_y < 0 )
         {
             stl_y = 0; 
         }
-        else if ( stl_y > gameadd.map_subtiles_y )
+        else if ( stl_y > game.map_subtiles_y )
         {
-            stl_y = gameadd.map_subtiles_y;
+            stl_y = game.map_subtiles_y;
         }
 
         mapblk = get_map_block_at(stl_x, stl_y);
@@ -589,14 +589,18 @@ short move_to_position(struct Thing *creatng)
     }
     long move_result = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->move_flags, 0);
     CrCheckRet state_check = CrCkRet_Available;
-    struct StateInfo* stati = get_thing_continue_state_info(creatng);
+    struct CreatureStateConfig* stati = get_thing_continue_state_info(creatng);
     if (!state_info_invalid(stati))
     {
-        CreatureStateCheck callback = stati->move_check;
-        if (callback != NULL)
+        if (stati->move_check > 0)
         {
             SYNCDBG(18,"Doing move check callback for continue state %s",creature_state_code_name(creatng->continue_state));
-            state_check = callback(creatng);
+            state_check = move_check_func_list[stati->move_check](creatng);
+        }
+        else if (stati->move_check < 0)
+        {
+            SYNCDBG(18,"Doing move check callback for continue state %s",creature_state_code_name(creatng->continue_state));
+            state_check = luafunc_crstate_func(stati->move_check,creatng);
         }
     }
     if (state_check == CrCkRet_Available)
@@ -646,11 +650,11 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
     if (start_y < 0)
         start_y = 0;
     MapCoord end_x = nav_radius + pos->x.val;
-    if (end_x > gameadd.map_subtiles_x * COORD_PER_STL - 1)
-        end_x = gameadd.map_subtiles_x * COORD_PER_STL - 1;
+    if (end_x > game.map_subtiles_x * COORD_PER_STL - 1)
+        end_x = game.map_subtiles_x * COORD_PER_STL - 1;
     MapCoord end_y = pos->y.val + nav_radius;
-    if (end_y > gameadd.map_subtiles_y * COORD_PER_STL - 1)
-        end_y = gameadd.map_subtiles_y * COORD_PER_STL - 1;
+    if (end_y > game.map_subtiles_y * COORD_PER_STL - 1)
+        end_y = game.map_subtiles_y * COORD_PER_STL - 1;
     MapSubtlCoord highest_floor_stl = 0;
     MapSubtlCoord lowest_ceiling_stl = 15;
 

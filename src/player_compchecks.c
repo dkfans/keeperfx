@@ -570,7 +570,7 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         MapSubtlCoord stl_y = heartng->mappos.y.stl.num;
         if (xy_walkable(stl_x, stl_y, dungeon->owner))
         {
-            if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+            if ((game.computer_chat_flags & CChat_TasksScarce) != 0) {
                 struct PowerConfigStats* powerst = get_power_model_stats(PwrK_MKDIGGER);
                 struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[get_players_special_digger_model(dungeon->owner)];
                 message_add_fmt(MsgType_Player, comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crconf->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));
@@ -791,7 +791,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
         && !creature_is_immune_to_spell_effect(thing, CSAfF_Speed))
         {
             long n = get_creature_state_besides_move(thing);
-            struct StateInfo* stati = get_thing_state_info_num(n);
+            struct CreatureStateConfig* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
                 if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
@@ -831,7 +831,7 @@ struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp
         && !creature_is_immune_to_spell_effect(thing, CSAfF_Flying))
         {
             long n = get_creature_state_besides_move(thing);
-            struct StateInfo* stati = get_thing_state_info_num(n);
+            struct CreatureStateConfig* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
                 if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
@@ -871,7 +871,7 @@ struct Thing *computer_check_creatures_in_room_for_vision(struct Computer2 *comp
         && !creature_is_immune_to_spell_effect(thing, CSAfF_Sight))
         {
             long n = get_creature_state_besides_move(thing);
-            struct StateInfo* stati = get_thing_state_info_num(n);
+            struct CreatureStateConfig* stati = get_thing_state_info_num(n);
             if (stati->state_type == CrStTyp_Work)
             {
                 if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, POWER_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
@@ -1089,14 +1089,16 @@ long computer_check_for_vision(struct Computer2 *comp, struct ComputerCheck * ch
 long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
+    long slap_percentage = check->param1;
+    TbBool skip_imps_with_speed = check->param2;
     struct Dungeon* dungeon = comp->dungeon;
     if (!is_power_available(dungeon->owner, PwrK_SLAP)) {
         return CTaskRet_Unk4;
     }
-    long creatrs_num = check->param1 * dungeon->num_active_diggers / 100;
+    long creatrs_num = slap_percentage * dungeon->num_active_diggers / 100;
     if (!is_task_in_progress(comp, CTT_SlapDiggers))
     {
-        if (create_task_slap_imps(comp, creatrs_num)) {
+        if (create_task_slap_imps(comp, creatrs_num, skip_imps_with_speed)) {
             return CTaskRet_Unk1;
         }
     }

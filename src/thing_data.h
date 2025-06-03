@@ -50,8 +50,7 @@ enum ThingFlags1 {
     TF1_InCtrldLimbo   = 0x02,
     TF1_PushAdd        = 0x04,
     TF1_PushOnce       = 0x08,
-    TF1_Unkn10         = 0x10,
-    TF1_DoFootsteps    = 0x20,
+    TF1_DoFootsteps    = 0x10,
 };
 
 enum ThingFlags2 {
