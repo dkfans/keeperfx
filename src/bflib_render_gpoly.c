@@ -2703,9 +2703,11 @@ void draw_gpoly_sub7b()
         draw_gpoly_sub7b_block1();
     }
 
-    draw_gpoly_sub7b_block3(); // block 3 is where gpo_loc_1F21 used to be 
+    draw_gpoly_sub7b_block3();
 
 }
+
+
 void draw_gpoly_sub7b_block1(void)
 {
     asm volatile (" \
@@ -2872,7 +2874,6 @@ gpo_loc_1F1D:         # 1D2A\n \
 \n \
     popa    \n \
 " : : : "memory", "cc");
-    draw_gpoly_sub7b_block3();
 }
 
 void draw_gpoly_sub7b_block3(void)
