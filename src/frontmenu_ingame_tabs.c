@@ -1249,22 +1249,21 @@ void maintain_buildable_info(struct GuiButton* gbtn)
 
         if (is_buildable)
         {
-            gbtn->tooltip_stridx = 1; //todo change to correct tooltip
             if (manufacture_level >= required_level)
             {
                 gbtn->sprite_idx = GPS_rpanel_manufacture_std; // If manufacturable and high enough level: lit hammer
+                gbtn->tooltip_stridx = GUIStr_TrapAvailable;
             }
             else
             {
-                gbtn->tooltip_stridx = 2;//todo change to correct tooltip
-                gbtn->tooltip_stridx++;
+                gbtn->tooltip_stridx = GUIStr_TrapWorkshopNeeded;
                 gbtn->sprite_idx = GPS_rpanel_manufacture_dis; // If manufacturable and level too low: greyed hammer
             }
         }
         else
         {
-            gbtn->tooltip_stridx = 3;//todo change to correct tooltip
-            gbtn->sprite_idx = GPS_rpanel_manufacture_cant;
+            gbtn->tooltip_stridx = GUIStr_TrapUnavailable;
+            gbtn->sprite_idx = GPS_rpanel_manufacture_cant; // If owned but not manufacturable: no entry hammer
         }
     }
 }
