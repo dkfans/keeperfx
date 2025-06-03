@@ -2747,69 +2747,56 @@ void draw_gpoly_sub7b_block1(void)
     gploc_18C = shift_mul(2 * (gploc_pt_cv - gploc_pt_bv), scale2);
 }
 
-
+static inline int rol16_from_product(int64_t product)
+{
+    uint32_t eax = (uint32_t)(product & 0xFFFFFFFF);
+    uint16_t dx = (uint16_t)(product >> 32);
+    eax = (dx << 16) | (eax >> 16); // this mimics: movw dx, ax; rol eax, 16
+    if ((int32_t)eax < 0)
+        ++eax;
+    return eax;
+}
 
 void draw_gpoly_sub7b_block2(void)
 {
+    int dy = gploc_pt_cy - gploc_pt_ay;
+    int factor = (dy > 255) ? (0x7FFFFFFF / dy) : gpoly_reptable[dy];
 
+    int delta = gploc_pt_cs - gploc_pt_as;
+    int64_t product = (int64_t)factor * (delta * 2);
+    gploc_point_c = rol16_from_product(product);
 
-asm volatile (" \
-    pusha   \n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1EAF:         # 1BD3\n \
-    movl    _gploc_pt_cy,%%ecx\n \
-    subl    _gploc_pt_ay,%%ecx\n \
-    cmpl    $0x0FF,%%ecx\n \
-    jg  gpo_loc_1EC8\n \
-    movl    _gpoly_reptable(,%%ecx,4),%%ebx\n \
-    jmp gpo_loc_1ED6\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-gpo_loc_1EC8:         # 1CCD\n \
-    movl    $0,%%edx\n \
-    movl    $0x7FFFFFFF,%%eax\n \
-    idivl   %%ecx\n \
-    movl    %%eax,%%ebx\n \
-\n \
-gpo_loc_1ED6:         # 1CD6\n \
-    movl    _gploc_pt_cs,%%eax\n \
-    subl    _gploc_pt_as,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1EEB\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1EEB:         # 1CF8\n \
-    movl    %%eax,_gploc_point_c\n \
-    movl    _gploc_pt_cu,%%eax\n \
-    subl    _gploc_pt_au,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1F04\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1F04:         # 1D1\n \
-    movl    %%eax,_mapxveltop\n \
-    movl    _gploc_pt_cv,%%eax\n \
-    subl    _gploc_pt_av,%%eax\n \
-    shll    $1,%%eax\n \
-    imull   %%ebx\n \
-    movw    %%dx,%%ax\n \
-    roll    $0x10,%%eax\n \
-    jns gpo_loc_1F1D\n \
-    incl    %%eax\n \
-\n \
-gpo_loc_1F1D:         # 1D2A\n \
-    movl    %%eax,_mapyveltop\n \
-\n \
-    popa    \n \
-" : : : "memory", "cc");
+    // Leave mapxveltop/mapyveltop in working ASM for now
+    asm volatile (
+        "pusha\n"
+        "movl _gploc_pt_cu, %%eax\n"
+        "subl _gploc_pt_au, %%eax\n"
+        "shll $1, %%eax\n"
+        "imull %0\n"
+        "movw %%dx, %%ax\n"
+        "roll $0x10, %%eax\n"
+        "jns 1f\n"
+        "incl %%eax\n"
+        "1:\n"
+        "movl %%eax, _mapxveltop\n"
+        "movl _gploc_pt_cv, %%eax\n"
+        "subl _gploc_pt_av, %%eax\n"
+        "shll $1, %%eax\n"
+        "imull %0\n"
+        "movw %%dx, %%ax\n"
+        "roll $0x10, %%eax\n"
+        "jns 2f\n"
+        "incl %%eax\n"
+        "2:\n"
+        "movl %%eax, _mapyveltop\n"
+        "popa\n"
+        :
+        : "r"(factor)
+        : "eax", "edx", "cc", "memory"
+    );
 }
+
+
 
 void draw_gpoly_sub7b_block3(void)
 {
