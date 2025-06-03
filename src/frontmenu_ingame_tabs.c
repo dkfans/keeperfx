@@ -1220,6 +1220,8 @@ void maintain_buildable_info(struct GuiButton* gbtn)
     else
     {
         gbtn->flags &= ~LbBtnF_Enabled;
+        gbtn->tooltip_stridx = 0;
+        gbtn->sprite_idx = 0;
         return;
     }
     struct PlayerInfo* player = get_my_player();
