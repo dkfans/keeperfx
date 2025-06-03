@@ -2686,14 +2686,22 @@ void draw_gpoly_sub7a()
     }
 }
 
+
+void draw_gpoly_sub7b_block2(void);
+void draw_gpoly_sub7b_block3(void);
+
 void draw_gpoly_sub7b()
 {
-#if __GNUC__
+
+    if (factor_chk < 0)
+    {
+        draw_gpoly_sub7b_block2();
+        draw_gpoly_sub7b_block3();
+        return;
+    }
+
     asm volatile (" \
     pusha   \n \
-    movl    _factor_chk,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  gpo_loc_1EAF\n \
     movl    _gploc_pt_by,%%ecx\n \
     subl    _gploc_pt_ay,%%ecx\n \
     cmpl    $0x0FF,%%ecx\n \
@@ -2790,11 +2798,21 @@ gpo_loc_1E90:         # 1C9D\n \
 \n \
 gpo_loc_1EA9:         # 1CB6\n \
     movl    %%eax,_gploc_18C\n \
-    jmp gpo_loc_1F21\n \
 \n \
+    popa    \n \
+1:\n \
 " : : : "memory", "cc");
 
+
+}
+
+
+void draw_gpoly_sub7b_block2(void)
+{
+
+
 asm volatile (" \
+    pusha   \n \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_1EAF:         # 1BD3\n \
@@ -2847,7 +2865,15 @@ gpo_loc_1F04:         # 1D1\n \
 gpo_loc_1F1D:         # 1D2A\n \
     movl    %%eax,_mapyveltop\n \
 \n \
-gpo_loc_1F21:         # 1CBD\n \
+    popa    \n \
+" : : : "memory", "cc");
+    draw_gpoly_sub7b_block3();
+}
+
+void draw_gpoly_sub7b_block3(void)
+{
+asm volatile (" \
+    pusha   \n \
     movl    _gploc_pt_as,%%eax\n \
     shll    $0x10,%%eax\n \
     movl    %%eax,_startposshadetop\n \
@@ -3018,7 +3044,6 @@ gpo_loc_2119:         # 1F26\n \
 gpo_case69_break:\n \
     popa    \n \
 " : : : "memory", "cc");
-#endif
 }
 
 void draw_gpoly_sub13()
