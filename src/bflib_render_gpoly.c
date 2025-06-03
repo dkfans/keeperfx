@@ -2791,6 +2791,10 @@ gpo_loc_1E90:         # 1C9D\n \
 gpo_loc_1EA9:         # 1CB6\n \
     movl    %%eax,_gploc_18C\n \
     jmp gpo_loc_1F21\n \
+\n \
+" : : : "memory", "cc");
+
+asm volatile (" \
 # ---------------------------------------------------------------------------\n \
 \n \
 gpo_loc_1EAF:         # 1BD3\n \
@@ -2903,6 +2907,9 @@ gpo_loc_1FC9:         # 1DD6\n \
     subl    $0x0FFFF,%%eax\n \
     sbbl    $0,%%edx\n \
 \n \
+" : : : "memory", "cc");
+
+asm volatile (" \
 gpo_loc_2006:         # 1E06\n \
     addl    %%ebx,%%eax\n \
     adcl    $0,%%edx\n \
@@ -2932,6 +2939,9 @@ gpo_loc_201E:         # 1E2B\n \
     subl    $0x10000,%%eax\n \
     sbbl    $0,%%edx\n \
 \n \
+" : : : "memory", "cc");
+
+asm volatile (" \
 gpo_loc_2063:         # 1E63\n \
     addl    %%ebx,%%eax\n \
     adcl    $0,%%edx\n \
