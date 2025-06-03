@@ -291,7 +291,6 @@ struct GuiButtonInit trap_menu_buttons[] = {
   {              -1,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                      0,       {0},               0, NULL },
 };
 
-
 struct GuiButtonInit trap_menu2_buttons[] = {
   {LbBtnT_NormalBtn, BID_MNFCT_TD17, 0, 0, NULL,                      NULL, NULL, 0,   2, 238,   6, 242, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {2},               0, NULL },
   {LbBtnT_NormalBtn, BID_MNFCT_TD18, 0, 0, NULL,                      NULL, NULL, 0,  34, 238,  38, 242, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {3},               0, NULL },

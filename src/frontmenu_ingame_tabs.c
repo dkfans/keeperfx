@@ -1011,7 +1011,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
     unsigned short flg_mem = lbDisplay.DrawFlags;
     int units_per_px = (gbtn->width * 16 + 126 / 2) / 126;
     int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, GPS_rpanel_frame_wide_empty, 100);
-    
+
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_wide_empty);
     if (manufctr_idx == 0) {
         lbDisplay.DrawFlags = flg_mem;
