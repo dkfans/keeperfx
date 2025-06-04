@@ -562,7 +562,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     case 98:
     case 101:
     case 102:
-    JUSTLOG("draw_gpoly1: gpoly_mode %ld\n", gpoly_mode);
+    ERRORLOG("draw_gpoly1: gpoly_mode %ld\n", gpoly_mode);
         draw_gpoly_sub1a();
         draw_gpoly_sub1b();
         draw_gpoly_sub1c();
@@ -579,7 +579,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     case 100:
     case 103:
     case 104:
-    JUSTLOG("draw_gpoly2: gpoly_mode %ld\n", gpoly_mode);
+    ERRORLOG("draw_gpoly2: gpoly_mode %ld\n", gpoly_mode);
         draw_gpoly_sub2a();
         draw_gpoly_sub2b();
         draw_gpoly_sub2c();
@@ -590,7 +590,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     case 68:
     case 80:
     case 81:
-    JUSTLOG("draw_gpoly3: gpoly_mode %ld\n", gpoly_mode);
+    ERRORLOG("draw_gpoly3: gpoly_mode %ld\n", gpoly_mode);
         draw_gpoly_sub3a();
         draw_gpoly_sub3b();
         break;
@@ -608,12 +608,12 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     case 83:
     case 86:
     case 87:
-    JUSTLOG("draw_gpoly4: gpoly_mode %ld\n", gpoly_mode);
+    ERRORLOG("draw_gpoly4: gpoly_mode %ld\n", gpoly_mode);
         draw_gpoly_sub4();
         break;
     case 2:
     case 66:
-    JUSTLOG("draw_gpoly5: gpoly_mode %ld\n", gpoly_mode);
+    ERRORLOG("draw_gpoly5: gpoly_mode %ld\n", gpoly_mode);
         draw_gpoly_sub5();
         break;
     case 5:
@@ -627,7 +627,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     case 85:
     case 88:
     case 89:
-    JUSTLOG("draw_gpoly6: gpoly_mode %ld\n", gpoly_mode);
+    ERRORLOG("draw_gpoly6: gpoly_mode %ld\n", gpoly_mode);
         draw_gpoly_sub6();
         break;
     case 69:
