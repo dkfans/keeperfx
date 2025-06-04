@@ -4,7 +4,7 @@
 /** @file creature_states_combt.c
  *     Creature state machine functions related to combat.
  * @par Purpose:
- *     Defines elements of states[] array, containing valid creature states.
+ *     Defines elements of game.conf.crtr_conf.states[] array, containing valid creature states.
  * @par Comment:
  *     None.
  * @author   KeeperFX Team
@@ -153,8 +153,8 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
 
 TbBool creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta dist)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if (dist > subtile_coord(crstat->visual_range,0)) {
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    if (dist > subtile_coord(crconf->visual_range,0)) {
         return false;
     }
     if (!jonty_creature_can_see_thing_including_lava_check(creatng, enmtng)) {
@@ -240,8 +240,8 @@ TbBool creature_has_other_attackers(const struct Thing *fightng, ThingModel enmo
 
 TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thing *enmtng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    struct CreatureStats* enmstat = creature_stats_get_from_thing(enmtng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* enm_crconf = creature_stats_get_from_thing(enmtng);
     // Neutral creatures are not easily scared, as they shouldn't have enemies
     if (is_neutral_thing(creatng))
         return false;
@@ -253,7 +253,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
         }
     }
     // Creature with fear 101 are scared of everything other that their own model
-    if (crstat->fear_wounded >= 101)
+    if (crconf->fear_wounded >= 101)
     {
         if (enmtng->model != creatng->model)
             return true;
@@ -267,7 +267,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     long fear;
     if (player_creature_tends_to(creatng->owner,CrTend_Flee)) {
         // In flee mode, use full fear value
-        fear = crstat->fear_wounded * 10;
+        fear = crconf->fear_wounded * 10;
     } else {
         fear = 0;
     }
@@ -290,12 +290,12 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
         return false;
     }
     // Accept 0 as a way to disable fear of stronger creatures
-    if (crstat->fear_stronger == 0)
+    if (crconf->fear_stronger == 0)
         return false;
     // If the enemy is way stronger, a creature may be scared anyway
-    fear = crstat->fear_stronger;
-    long long enmstrength = LbSqrL(project_melee_damage(enmtng)) * (enmstat->fearsome_factor) / 100 * ((long long)enmaxhealth + (long long)enmtng->health) / 2;
-    long long ownstrength = LbSqrL(project_melee_damage(creatng)) * (crstat->fearsome_factor) / 100 * ((long long)crmaxhealth + (long long)creatng->health) / 2;
+    fear = crconf->fear_stronger;
+    long long enmstrength = LbSqrL(project_melee_damage(enmtng)) * (enm_crconf->fearsome_factor) / 100 * ((long long)enmaxhealth + (long long)enmtng->health) / 2;
+    long long ownstrength = LbSqrL(project_melee_damage(creatng)) * (crconf->fearsome_factor) / 100 * ((long long)crmaxhealth + (long long)creatng->health) / 2;
     if (enmstrength >= (fear * ownstrength) / 100)
     {
         // check if there are allied creatures nearby enemy; assume that such creatures are multiplying strength of the creature we're checking
@@ -1194,8 +1194,8 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, CrA
         }
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(fighter);
-    if ((crstat->attack_preference == AttckT_Ranged) && creature_has_ranged_weapon(fighter))
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(fighter);
+    if ((crconf->attack_preference == AttckT_Ranged) && creature_has_ranged_weapon(fighter))
     {
         if (add_ranged_attacker(fighter, enemy))
         {
@@ -1483,12 +1483,12 @@ TbBool creature_has_creature_in_combat(const struct Thing *thing, const struct T
 long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrAttackType attack_type, long a4)
 {
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
 
     long score_extra;
     long score_base;
 
-    if (crstat->attack_preference == AttckT_Ranged)
+    if (crconf->attack_preference == AttckT_Ranged)
     {
         if ((attack_type == AttckT_Ranged) || creature_has_ranged_weapon(thing))
         {
@@ -1753,8 +1753,8 @@ TbBool combat_type_is_choice_of_creature(const struct Thing *thing, CrAttackType
     if (cctrl->combat.attack_type != AttckT_Ranged) {
         return true;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if (crstat->attack_preference != AttckT_Ranged)
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    if (crconf->attack_preference != AttckT_Ranged)
         return false;
     return creature_has_ranged_weapon(thing);
 }
@@ -1793,10 +1793,10 @@ long guard_post_combat_move(struct Thing *thing, long cntn_crstate)
 
 TbBool thing_in_field_of_view(struct Thing *thing, struct Thing *checktng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     long angle = get_angle_xy_to(&thing->mappos, &checktng->mappos);
     long angdiff = get_angle_difference(thing->move_angle_xy, angle);
-    return (angdiff < crstat->field_of_view);
+    return (angdiff < crconf->field_of_view);
 }
 
 long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta enmdist, CrtrStateId nstat)
@@ -1835,8 +1835,8 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
 TbBool creature_would_benefit_from_healing(const struct Thing* thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    HitPoints goodhealth = crstat->heal_threshold * cctrl->max_health / 256;
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    HitPoints goodhealth = crconf->heal_threshold * cctrl->max_health / 256;
     if ((long)thing->health <= goodhealth)
         return true;
     return false;
@@ -2223,11 +2223,11 @@ struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of(struct T
     if (stl_x_beg <= 0)
         stl_x_beg = 0;
     MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + square_size / 2);
-    if (stl_x_end >= gameadd.map_subtiles_x)
-        stl_x_end = gameadd.map_subtiles_x;
+    if (stl_x_end >= game.map_subtiles_x)
+        stl_x_end = game.map_subtiles_x;
     MapSubtlCoord stl_y_end = coord_subtile(pos->y.val + square_size / 2);
-    if (stl_y_end >= gameadd.map_subtiles_y)
-        stl_y_end = gameadd.map_subtiles_y;
+    if (stl_y_end >= game.map_subtiles_y)
+        stl_y_end = game.map_subtiles_y;
     MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - square_size / 2);
     if (stl_y_beg <= 0)
         stl_y_beg = 0;
@@ -2543,7 +2543,7 @@ long creature_has_spare_slot_for_combat(struct Thing *fighter, struct Thing *ene
         return false;
     }
     // Melee combat was requested; but we may still check for ranged attacker, if creature prefers it
-    struct CreatureStats* figstat = creature_stats_get_from_thing(fighter);
+    struct CreatureModelConfig* figstat = creature_stats_get_from_thing(fighter);
     if (figstat->attack_preference == AttckT_Ranged)
     {
         if (creature_has_ranged_weapon(fighter))
@@ -3186,12 +3186,12 @@ TbBool creature_look_for_combat(struct Thing *creatng)
     {
         if (creature_is_invisible(creatng))
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-            if (crstat->fear_wounded >= 101)
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+            if (crconf->fear_wounded >= 101)
                 return false;
         }
         crstate = get_creature_state_besides_move(creatng);
-        if (states[crstate].sneaky == 1)
+        if (game.conf.crtr_conf.states[crstate].sneaky == 1)
             return false;
     }
 
@@ -3350,9 +3350,9 @@ struct Thing *check_for_door_to_fight(struct Thing *thing)
 
 TbBool creature_look_for_enemy_door_combat(struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     // Creatures which can pass doors shouldn't pick a fight with them, unless they are ordered to
-    if (crstat->can_go_locked_doors) {
+    if (crconf->can_go_locked_doors) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (game.play_gameturn != cctrl->dropped_turn)
         {
@@ -3528,8 +3528,8 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
     // Determine most likely shot of the firing creature
     CrInstance inst_id;
     long dist = get_combat_distance(firing, target);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(firing);
-    if (crstat->attack_preference == AttckT_Ranged) {
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(firing);
+    if (crconf->attack_preference == AttckT_Ranged) {
         inst_id = get_best_combat_weapon_instance_to_use(firing, dist,2);
         if (inst_id == CrInst_NULL) {
             inst_id = get_best_combat_weapon_instance_to_use(firing, dist,4);

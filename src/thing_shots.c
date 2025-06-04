@@ -103,12 +103,12 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     }
     // If the shot has area_range, then make area damage
     if (shotst->area_range != 0) {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(castng);
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(castng);
         //TODO SPELLS Spell level should be taken from within the shot, not from caster creature
         // Caster may have leveled up, or even may be already dead
         // But currently shot do not store its level, so we don't really have a choice
         struct CreatureControl* cctrl = creature_control_get_from_thing(castng);
-        long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->exp_level);
+        long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crconf->luck, cctrl->exp_level);
         if (flag_is_set(shotst->model_flags, ShMF_StrengthBased))
         {
             if (shotst->area_damage == 0)
@@ -122,7 +122,7 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
         }
         else
         {
-            damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->exp_level, castng);
+            damage = compute_creature_attack_spell_damage(shotst->area_damage, crconf->luck, cctrl->exp_level, castng);
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets);
@@ -215,11 +215,11 @@ struct Thing *get_shot_collided_with_same_type(struct Thing *shotng, struct Coor
     if (stl_y_beg < 0)
         stl_y_beg = 0;
     MapSubtlCoord stl_x_end = coord_subtile(nxpos->x.val + 384);
-    if (stl_x_end >= gameadd.map_subtiles_x)
-      stl_x_end = gameadd.map_subtiles_x;
+    if (stl_x_end >= game.map_subtiles_x)
+      stl_x_end = game.map_subtiles_x;
     MapSubtlCoord stl_y_end = coord_subtile(nxpos->y.val + 384);
-    if (stl_y_end >= gameadd.map_subtiles_y)
-      stl_y_end = gameadd.map_subtiles_y;
+    if (stl_y_end >= game.map_subtiles_y)
+      stl_y_end = game.map_subtiles_y;
     for (MapSubtlCoord stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
         for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
@@ -235,7 +235,7 @@ struct Thing *get_shot_collided_with_same_type(struct Thing *shotng, struct Coor
 
 TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long damage)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     long gold = calculate_gold_digged_out_of_slab_with_single_hit(damage, slb);
@@ -243,7 +243,7 @@ TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, 
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.gold_mined += gold;
     }
-    if (crstat->gold_hold <= creatng->creature.gold_carried)
+    if (crconf->gold_hold <= creatng->creature.gold_carried)
     {
         struct Thing* gldtng = drop_gold_pile(creatng->creature.gold_carried, &creatng->mappos);
         creatng->creature.gold_carried = 0;
@@ -699,7 +699,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     {
         return detonate_shot(shotng, true);
     }
-    if (!(shotst->model_flags & ShMF_Penetrating))
+    if (!flag_is_set(shotst->model_flags,ShMF_WallPierce))
     {
         if (shotng->bounce_angle <= 0)
         {
@@ -771,13 +771,16 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     {
         return detonate_shot(shotng, true);
     }
-    if (shotng->bounce_angle <= 0)
+    if (!(shotst->model_flags & ShMF_Penetrating))
     {
-        slide_thing_against_wall_at(shotng, pos, blocked_flags);
-    }
-    else
-    {
-        bounce_thing_off_wall_at(shotng, pos, blocked_flags);
+        if (shotng->bounce_angle <= 0)
+        {
+            slide_thing_against_wall_at(shotng, pos, blocked_flags);
+        }
+        else
+        {
+            bounce_thing_off_wall_at(shotng, pos, blocked_flags);
+        }
     }
     return false;
 }
@@ -802,8 +805,8 @@ TbBool apply_shot_experience(struct Thing *shooter, long exp_factor, CrtrExpLeve
 TbBool apply_shot_experience_from_hitting_creature(struct Thing *shooter, struct Thing *target, long shot_model)
 {
     struct CreatureControl* tgcctrl = creature_control_get_from_thing(target);
-    struct CreatureStats* tgcrstat = creature_stats_get_from_thing(target);
-    return apply_shot_experience(shooter, tgcrstat->exp_for_hitting, tgcctrl->exp_level, shot_model);
+    struct CreatureModelConfig* tgcrconf = creature_stats_get_from_thing(target);
+    return apply_shot_experience(shooter, tgcrconf->exp_for_hitting, tgcctrl->exp_level, shot_model);
 }
 
 long shot_kill_object(struct Thing *shotng, struct Thing *target)
@@ -1472,8 +1475,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         } 
         else
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(trgtng);
-            shotng->health -= crstat->damage_to_boulder;
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(trgtng);
+            shotng->health -= crconf->damage_to_boulder;
         }
 
     }
@@ -1590,11 +1593,11 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng,
         if (stl_y_min < 0)
             stl_y_min = 0;
         stl_x_max = coord_subtile(pos->x.val + radius);
-        if (stl_x_max > gameadd.map_subtiles_x)
-            stl_x_max = gameadd.map_subtiles_x;
+        if (stl_x_max > game.map_subtiles_x)
+            stl_x_max = game.map_subtiles_x;
         stl_y_max = coord_subtile(pos->y.val + radius);
-        if (stl_y_max > gameadd.map_subtiles_y)
-            stl_y_max = gameadd.map_subtiles_y;
+        if (stl_y_max > game.map_subtiles_y)
+            stl_y_max = game.map_subtiles_y;
     }
     for (MapSubtlCoord stl_y = stl_y_min; stl_y <= stl_y_max; stl_y++)
     {
@@ -1646,7 +1649,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
     {
         if (shot_hit_something_while_moving(shotng, &pos))
         {
-            if ( (!(shotst->model_flags & ShMF_Penetrating)) || (!thing_exists(shotng)) ) // Shot may have been destroyed when it hit something
+            if ( (!flag_is_set(shotst->model_flags,ShMF_Penetrating)) || (!thing_exists(shotng)) ) // Shot may have been destroyed when it hit something
             {
                 return TUFRet_Deleted;
             }

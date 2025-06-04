@@ -243,6 +243,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"BLOCKS_REBIRTH",      19},
   {"PENETRATING",         20},
   {"NEVER_BLOCK",         21},
+  {"WALL_PIERCE",         22},
   {NULL,                   0},
   };
 
@@ -398,7 +399,7 @@ static const struct NamedField magic_powers_named_fields[] = {
     {"COOLDOWN",       0, field(game.conf.magic_conf.power_cfgstats[0].cast_cooldown),          0, LONG_MIN,ULONG_MAX, NULL,                                value_default,   assign_default},
     {"SPELL",          0, field(game.conf.magic_conf.power_cfgstats[0].spell_idx),              0, LONG_MIN,ULONG_MAX, spell_desc,                          value_default,   assign_default},
     {"EFFECT",         0, field(game.conf.magic_conf.power_cfgstats[0].effect_id),              0, LONG_MIN,ULONG_MAX, NULL,                                value_effOrEffEl,assign_default},
-    {"USEFUNCTION",    0, field(game.conf.magic_conf.power_cfgstats[0].magic_use_func_idx),     0, LONG_MIN,ULONG_MAX, magic_use_func_commands,             value_default,   assign_default},
+    {"USEFUNCTION",    0, field(game.conf.magic_conf.power_cfgstats[0].magic_use_func_idx),     0, LONG_MIN,ULONG_MAX, magic_use_func_commands,             value_function,  assign_default},
     {"CREATURETYPE",   0, field(game.conf.magic_conf.power_cfgstats[0].creature_model),         0, LONG_MIN,ULONG_MAX, creature_desc,                       value_default,   assign_default},
     {"COSTFORMULA",    0, field(game.conf.magic_conf.power_cfgstats[0].cost_formula),           0, LONG_MIN,ULONG_MAX, magic_cost_formula_commands,         value_default,   assign_default},
     {NULL},
@@ -1264,16 +1265,20 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_Disarming;
                 n++;
                 break;
-            case 19: // BlocksRebirth
+            case 19: // BLOCKS_REBIRTH
                 shotst->model_flags |= ShMF_BlocksRebirth;
                 n++;
                 break;
-            case 20: // Penetrating
+            case 20: // PENETRATING
                 shotst->model_flags |= ShMF_Penetrating;
                 n++;
                 break;
-            case 21: // NeverBlock
+            case 21: // NEVER_BLOCK
                 shotst->model_flags |= ShMF_NeverBlock;
+                n++;
+                break;
+            case 22: // WALL_PIERCE
+                shotst->model_flags |= ShMF_WallPierce;
                 n++;
                 break;
             default:

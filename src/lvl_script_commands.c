@@ -39,6 +39,7 @@
 #include "lvl_script_commands.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_lib.h"
+#include "lua_base.h"
 #include "map_blocks.h"
 #include "player_instances.h"
 #include "player_utils.h"
@@ -363,6 +364,9 @@ const struct NamedCommand variable_desc[] = {
     {"ACTIVE_BATTLES",              SVar_ACTIVE_BATTLES},
     {"VIEW_TYPE",                   SVar_VIEW_TYPE},
     {"TOTAL_SLAPS",                 SVar_TOTAL_SLAPS},
+    {"SCORE",                       SVar_SCORE},
+    {"PLAYER_SCORE",                SVar_PLAYER_SCORE},
+    {"MANAGE_SCORE",                SVar_MANAGE_SCORE},
     {NULL,                          0},
 };
 
@@ -727,7 +731,7 @@ static void add_to_party_check(const struct ScriptLine *scline)
         add_member_to_party(party_id, crtr_id, scline->np[2], scline->np[3], objective_id, scline->np[5]);
     } else
     {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_ADD_TO_PARTY;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->party_id = party_id;
@@ -738,7 +742,7 @@ static void add_to_party_check(const struct ScriptLine *scline)
         pr_trig->countdown = scline->np[5];
         pr_trig->condit_idx = get_script_current_condition();
 
-        gameadd.script.party_triggers_num++;
+        game.script.party_triggers_num++;
     }
 }
 
@@ -761,7 +765,7 @@ static void delete_from_party_check(const struct ScriptLine *scline)
         delete_member_from_party(party_id, creature_id, scline->np[2]);
     } else
     {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_DELETE_FROM_PARTY;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->party_id = party_id;
@@ -769,7 +773,7 @@ static void delete_from_party_check(const struct ScriptLine *scline)
         pr_trig->exp_level = scline->np[2];
         pr_trig->condit_idx = get_script_current_condition();
 
-        gameadd.script.party_triggers_num++;
+        game.script.party_triggers_num++;
     }
 }
 
@@ -853,44 +857,44 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
         SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '0'.", start_x,x,width);
         start_x = 0;
     }
-    else if (start_x > gameadd.map_subtiles_x)
+    else if (start_x > game.map_subtiles_x)
     {
-        SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_x, x, width, gameadd.map_subtiles_x);
-        start_x = gameadd.map_subtiles_x;
+        SCRPTWRNLOG("Starting X coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_x, x, width, game.map_subtiles_x);
+        start_x = game.map_subtiles_x;
     }
     if (end_x < 0)
     {
         SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '0'.", end_x, x, width);
         end_x = 0;
     }
-    else if (end_x > gameadd.map_subtiles_x)
+    else if (end_x > game.map_subtiles_x)
     {
-        SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_x, x, width, gameadd.map_subtiles_x);
-        end_x = gameadd.map_subtiles_x;
+        SCRPTWRNLOG("Ending X coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_x, x, width, game.map_subtiles_x);
+        end_x = game.map_subtiles_x;
     }
     if (start_y < 0)
     {
         SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '0'.", start_y, y, height);
         start_y = 0;
     }
-    else if (start_y > gameadd.map_subtiles_y)
+    else if (start_y > game.map_subtiles_y)
     {
-        SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_y, y, height, gameadd.map_subtiles_y);
-        start_y = gameadd.map_subtiles_y;
+        SCRPTWRNLOG("Starting Y coordinate '%ld' (from %ld-%ld/2) is out of range, fixing it to '%ld'.", start_y, y, height, game.map_subtiles_y);
+        start_y = game.map_subtiles_y;
     }
     if (end_y < 0)
     {
         SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '0'.", end_y, y, height);
         end_y = 0;
     }
-    else if (end_y > gameadd.map_subtiles_y)
+    else if (end_y > game.map_subtiles_y)
     {
-        SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_y, y, height, gameadd.map_subtiles_y);
-        end_y = gameadd.map_subtiles_y;
+        SCRPTWRNLOG("Ending Y coordinate '%ld' (from %ld+%ld/2) is out of range, fixing it to '%ld'.", end_y, y, height, game.map_subtiles_y);
+        end_y = game.map_subtiles_y;
     }
-    if ((x < 0) || (x > gameadd.map_subtiles_x) || (y < 0) || (y > gameadd.map_subtiles_y))
+    if ((x < 0) || (x > game.map_subtiles_x) || (y < 0) || (y > game.map_subtiles_y))
     {
-        SCRPTERRLOG("Conceal coordinates out of range, trying to set conceal center point to (%ld,%ld) on map that's %ldx%ld subtiles", x, y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+        SCRPTERRLOG("Conceal coordinates out of range, trying to set conceal center point to (%ld,%ld) on map that's %ldx%ld subtiles", x, y, game.map_subtiles_x, game.map_subtiles_y);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -1509,11 +1513,11 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
     {
         SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
     }
-    if ((gameadd.quick_messages[scline->np[0]][0] != '\0') && (strcmp(gameadd.quick_messages[scline->np[0]],scline->tp[1]) != 0))
+    if ((game.quick_messages[scline->np[0]][0] != '\0') && (strcmp(game.quick_messages[scline->np[0]],scline->tp[1]) != 0))
     {
         SCRPTWRNLOG("Quick Objective no %ld overwritten by different text", scline->np[0]);
     }
-    snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
+    snprintf(game.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
 
     TbMapLocation location = 0;
     if (scline->tp[2][0] != '\0')
@@ -1528,10 +1532,10 @@ static void heart_lost_quick_objective_check(const struct ScriptLine *scline)
 
 static void heart_lost_quick_objective_process(struct ScriptContext *context)
 {
-    gameadd.heart_lost_display_message = true;
-    gameadd.heart_lost_quick_message = true;
-    gameadd.heart_lost_message_id = context->value->longs[0];
-    gameadd.heart_lost_message_target = context->value->longs[2];
+    game.heart_lost_display_message = true;
+    game.heart_lost_quick_message = true;
+    game.heart_lost_message_id = context->value->longs[0];
+    game.heart_lost_message_target = context->value->longs[2];
 }
 
 static void heart_lost_objective_check(const struct ScriptLine *scline)
@@ -1549,10 +1553,10 @@ static void heart_lost_objective_check(const struct ScriptLine *scline)
 
 static void heart_lost_objective_process(struct ScriptContext *context)
 {
-    gameadd.heart_lost_display_message = true;
-    gameadd.heart_lost_quick_message = false;
-    gameadd.heart_lost_message_id = context->value->longs[0];
-    gameadd.heart_lost_message_target = context->value->longs[1];
+    game.heart_lost_display_message = true;
+    game.heart_lost_quick_message = false;
+    game.heart_lost_message_id = context->value->longs[0];
+    game.heart_lost_message_target = context->value->longs[1];
 }
 
 static void set_door_check(const struct ScriptLine* scline)
@@ -2280,8 +2284,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
 static void set_creature_configuration_process(struct ScriptContext* context)
 {
     short creatid = context->value->shorts[0];
-    struct CreatureStats* crstat = creature_stats_get(creatid);
-    struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatid];
+    struct CreatureModelConfig* crconf = creature_stats_get(creatid);
 
     short creature_variable = context->value->shorts[1];
     short block  = context->value->shorts[2];
@@ -2297,9 +2300,9 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             CONFWRNLOG("Attribute (%d) not supported", creature_variable);
             break;
         case 2: // HEALTH
-            if (crstat->health != value)
+            if (crconf->health != value)
             {
-                crstat->health = value;
+                crconf->health = value;
                 for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
                 {
                     do_to_players_all_creatures_of_model(plyr_idx, creatid, update_relative_creature_health);
@@ -2307,51 +2310,51 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             }
             break;
         case 3: // HEALREQUIREMENT
-            crstat->heal_requirement = value;
+            crconf->heal_requirement = value;
             break;
         case 4: // HEALTHRESHOLD
-            crstat->heal_threshold = value;
+            crconf->heal_threshold = value;
             break;
         case 5: // STRENGTH
-            crstat->strength = value;
+            crconf->strength = value;
             break;
         case 6: // ARMOUR
-            crstat->armour = value;
+            crconf->armour = value;
             break;
         case 7: // DEXTERITY
-            crstat->dexterity = value;
+            crconf->dexterity = value;
             break;
         case 8: // FEARWOUNDED
-            crstat->fear_wounded = value;
+            crconf->fear_wounded = value;
             break;
         case 9: // FEARSTRONGER
-            crstat->fear_stronger = value;
+            crconf->fear_stronger = value;
             break;
         case 10: // DEFENCE
-            crstat->defense = value;
+            crconf->defense = value;
             break;
         case 11: // LUCK
-            crstat->luck = value;
+            crconf->luck = value;
             break;
         case 12: // RECOVERY
-            crstat->sleep_recovery = value;
+            crconf->sleep_recovery = value;
             break;
         case 13: // HUNGERRATE
-            crstat->hunger_rate = value;
+            crconf->hunger_rate = value;
             break;
         case 14: // HUNGERFILL
-            crstat->hunger_fill = value;
+            crconf->hunger_fill = value;
             break;
         case 15: // LAIRSIZE
-            crstat->lair_size = value;
+            crconf->lair_size = value;
             break;
         case 16: // HURTBYLAVA
-            crstat->hurt_by_lava = value;
+            crconf->hurt_by_lava = value;
             break;
         case 17: // BASESPEED
-            if (crstat->base_speed != value)
+            if (crconf->base_speed != value)
             {
-                crstat->base_speed = value;
+                crconf->base_speed = value;
                 for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
                 {
                     update_speed_of_player_creatures_of_model(plyr_idx, creatid);
@@ -2359,22 +2362,22 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             }
             break;
         case 18: // GOLDHOLD
-            crstat->gold_hold = value;
+            crconf->gold_hold = value;
             break;
         case 19: // SIZE
-            crstat->size_xy = value;
-            crstat->size_z = value2;
+            crconf->size_xy = value;
+            crconf->size_z = value2;
             break;
         case 20: // ATTACKPREFERENCE
-            crstat->attack_preference = value;
+            crconf->attack_preference = value;
             break;
         case 21: // PAY
-            crstat->pay = value;
+            crconf->pay = value;
             break;
         case 22: // HEROVSKEEPERCOST
             break;
         case 23: // SLAPSTOKILL
-            crstat->slaps_to_kill = value;
+            crconf->slaps_to_kill = value;
             break;
         case 24: // CREATURELOYALTY
         case 25: // LOYALTYLEVEL
@@ -2382,66 +2385,66 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             CONFWRNLOG("Attribute (%d) not supported", creature_variable);
             break;
         case 26: // DAMAGETOBOULDER
-            crstat->damage_to_boulder = value;
+            crconf->damage_to_boulder = value;
             break;
         case 27: // THINGSIZE
-            crstat->thing_size_xy = value;
-            crstat->thing_size_z = value2;
+            crconf->thing_size_xy = value;
+            crconf->thing_size_z = value2;
             break;
         case 29: // NAMETEXTID
             crconf->namestr_idx = value;
             break;
         case 30: // FEARSOMEFACTOR
-            crstat->fearsome_factor = value;
+            crconf->fearsome_factor = value;
             break;
         case 31: // TOKINGRECOVERY
-            crstat->toking_recovery = value;
+            crconf->toking_recovery = value;
             break;
         case 32: // CORPSEVANISHEFFECT
-            crstat->corpse_vanish_effect = value;
+            crconf->corpse_vanish_effect = value;
             break;
         case 33: // FOOTSTEPPITCH
-            crstat->footstep_pitch = value;
+            crconf->footstep_pitch = value;
             break;
         case 34: // LAIROBJECT
-            if (crstat->lair_object != value)
+            if (crconf->lair_object != value)
             {
                 for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
                 {
                     do_to_players_all_creatures_of_model(plyr_idx, creatid, remove_creature_lair);
                 }
-                crstat->lair_object = value;
+                crconf->lair_object = value;
             }
             break;
         case 35: // PRISONKIND
-            crstat->prison_kind = value;
+            crconf->prison_kind = value;
             break;
         case 36: // TORTUREKIND
-            crstat->torture_kind = value;
+            crconf->torture_kind = value;
             break;
         case 37: // SPELLIMMUNITY
             if (value2 == 0)
             {
-                clear_flag(crstat->immunity_flags, value);
+                clear_flag(crconf->immunity_flags, value);
             }
             else if (value2 == 1)
             {
-                set_flag(crstat->immunity_flags, value);
+                set_flag(crconf->immunity_flags, value);
             }
             else
             {
-                crstat->immunity_flags = value;
+                crconf->immunity_flags = value;
             }
             break;
         case 38: // HOSTILETOWARDS
             // Assume the mapmaker wants to reset it.
             for (int i = 0; i < CREATURE_TYPES_MAX; i++)
             {
-                crstat->hostile_towards[i] = 0;
+                crconf->hostile_towards[i] = 0;
             }
             if (value != 0)
             {
-                crstat->hostile_towards[0] = value; // Then apply the change on the first only.
+                crconf->hostile_towards[0] = value; // Then apply the change on the first only.
             }
             break;
         case ccr_comment:
@@ -2460,79 +2463,79 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 1: // PRIMARYJOBS
             if (value2 == 0)
             {
-                clear_flag(crstat->job_primary, value);
+                clear_flag(crconf->job_primary, value);
             }
             else if (value2 == 1)
             {
-                set_flag(crstat->job_primary, value);
+                set_flag(crconf->job_primary, value);
             }
             else
             {
-                crstat->job_primary = value;
+                crconf->job_primary = value;
             }
             break;
         case 2: // SECONDARYJOBS
             if (value2 == 0)
             {
-                clear_flag(crstat->job_secondary, value);
+                clear_flag(crconf->job_secondary, value);
             }
             else if (value2 == 1)
             {
-                set_flag(crstat->job_secondary, value);
+                set_flag(crconf->job_secondary, value);
             }
             else
             {
-                crstat->job_secondary = value;
+                crconf->job_secondary = value;
             }
             break;
         case 3: // NOTDOJOBS
             if (value2 == 0)
             {
-                clear_flag(crstat->jobs_not_do, value);
+                clear_flag(crconf->jobs_not_do, value);
             }
             else if (value2 == 1)
             {
-                set_flag(crstat->jobs_not_do, value);
+                set_flag(crconf->jobs_not_do, value);
             }
             else
             {
-                crstat->jobs_not_do = value;
+                crconf->jobs_not_do = value;
             }
             break;
         case 4: // STRESSFULJOBS
             if (value2 == 0)
             {
-                clear_flag(crstat->job_stress, value);
+                clear_flag(crconf->job_stress, value);
             }
             else if (value2 == 1)
             {
-                set_flag(crstat->job_stress, value);
+                set_flag(crconf->job_stress, value);
             }
             else
             {
-                crstat->job_stress = value;
+                crconf->job_stress = value;
             }
             break;
         case 5: // TRAININGVALUE
-            crstat->training_value = value;
+            crconf->training_value = value;
             break;
         case 6: // TRAININGCOST
-            crstat->training_cost = value;
+            crconf->training_cost = value;
             break;
         case 7: // SCAVENGEVALUE
-            crstat->scavenge_value = value;
+            crconf->scavenge_value = value;
             break;
         case 8: // SCAVENGERCOST
-            crstat->scavenger_cost = value;
+            crconf->scavenger_cost = value;
             break;
         case 9: // RESEARCHVALUE
-            crstat->research_value = value;
+            crconf->research_value = value;
             break;
         case 10: // MANUFACTUREVALUE
-            crstat->manufacture_value = value;
+            crconf->manufacture_value = value;
             break;
         case 11: // PARTNERTRAINING
-            crstat->partner_training = value;
+            crconf->partner_training = value;
             break;
         default:
             CONFWRNLOG("Unrecognized Job command (%d)", creature_variable);
@@ -2545,23 +2548,23 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         switch (creature_variable)
         {
         case 1: // ENTRANCEROOM
-            crstat->entrance_rooms[0] = value;
-            crstat->entrance_rooms[1] = value2;
-            crstat->entrance_rooms[2] = value3;
+            crconf->entrance_rooms[0] = value;
+            crconf->entrance_rooms[1] = value2;
+            crconf->entrance_rooms[2] = value3;
             break;
         case 2: // ROOMSLABSREQUIRED
-            crstat->entrance_slabs_req[0] = value;
-            crstat->entrance_slabs_req[1] = value2;
-            crstat->entrance_slabs_req[2] = value3;
+            crconf->entrance_slabs_req[0] = value;
+            crconf->entrance_slabs_req[1] = value2;
+            crconf->entrance_slabs_req[2] = value3;
             break;
         case 3: // BASEENTRANCESCORE
-            crstat->entrance_score = value;
+            crconf->entrance_score = value;
             break;
         case 4: // SCAVENGEREQUIREMENT
-            crstat->scavenge_require = value;
+            crconf->scavenge_require = value;
             break;
         case 5: // TORTURETIME
-            crstat->torture_break_time = value;
+            crconf->torture_break_time = value;
             break;
         default:
             CONFWRNLOG("Unrecognized Attraction command (%d)", creature_variable);
@@ -2635,139 +2638,139 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // EATFOOD
         {
-            crstat->annoy_eat_food = value;
+            crconf->annoy_eat_food = value;
             break;
         }
         case 2: // WILLNOTDOJOB
         {
-            crstat->annoy_will_not_do_job = value;
+            crconf->annoy_will_not_do_job = value;
             break;
         }
         case 3: // INHAND
         {
-            crstat->annoy_in_hand = value;
+            crconf->annoy_in_hand = value;
             break;
         }
         case 4: // NOLAIR
         {
-            crstat->annoy_no_lair = value;
+            crconf->annoy_no_lair = value;
             break;
         }
         case 5: // NOHATCHERY
         {
-            crstat->annoy_no_hatchery = value;
+            crconf->annoy_no_hatchery = value;
             break;
         }
         case 6: // WOKENUP
         {
-            crstat->annoy_woken_up = value;
+            crconf->annoy_woken_up = value;
             break;
         }
         case 7: // STANDINGONDEADENEMY
         {
-            crstat->annoy_on_dead_enemy = value;
+            crconf->annoy_on_dead_enemy = value;
             break;
         }
         case 8: // SULKING
         {
-            crstat->annoy_sulking = value;
+            crconf->annoy_sulking = value;
             break;
         }
         case 9: // NOSALARY
         {
-            crstat->annoy_no_salary = value;
+            crconf->annoy_no_salary = value;
             break;
         }
         case 10: // SLAPPED
         {
-            crstat->annoy_slapped = value;
+            crconf->annoy_slapped = value;
             break;
         }
         case 11: // STANDINGONDEADFRIEND
         {
-            crstat->annoy_on_dead_friend = value;
+            crconf->annoy_on_dead_friend = value;
             break;
         }
         case 12: // INTORTURE
         {
-            crstat->annoy_in_torture = value;
+            crconf->annoy_in_torture = value;
             break;
         }
         case 13: // INTEMPLE
         {
-            crstat->annoy_in_temple = value;
+            crconf->annoy_in_temple = value;
             break;
         }
         case 14: // SLEEPING
         {
-            crstat->annoy_sleeping = value;
+            crconf->annoy_sleeping = value;
             break;
         }
         case 15: // GOTWAGE
         {
-            crstat->annoy_got_wage = value;
+            crconf->annoy_got_wage = value;
             break;
         }
         case 16: // WINBATTLE
         {
-            crstat->annoy_win_battle = value;
+            crconf->annoy_win_battle = value;
             break;
         }
         case 17: // UNTRAINED
         {
-            crstat->annoy_untrained_time = value;
-            crstat->annoy_untrained = value2;
+            crconf->annoy_untrained_time = value;
+            crconf->annoy_untrained = value2;
             break;
         }
         case 18: // OTHERSLEAVING
         {
-            crstat->annoy_others_leaving = value;
+            crconf->annoy_others_leaving = value;
             break;
         }
         case 19: // JOBSTRESS
         {
-            crstat->annoy_job_stress = value;
+            crconf->annoy_job_stress = value;
             break;
         }
         case 20: // QUEUE
         {
-            crstat->annoy_queue = value;
+            crconf->annoy_queue = value;
             break;
         }
         case 21: // LAIRENEMY
         {
-            crstat->lair_enemy[0] = value;
-            crstat->lair_enemy[1] = value2;
-            crstat->lair_enemy[2] = value3;
+            crconf->lair_enemy[0] = value;
+            crconf->lair_enemy[1] = value2;
+            crconf->lair_enemy[2] = value3;
             //clear out the other ones.
-            crstat->lair_enemy[3] = 0;
-            crstat->lair_enemy[4] = 0;
+            crconf->lair_enemy[3] = 0;
+            crconf->lair_enemy[4] = 0;
             break;
         }
         case 22: // ANNOYLEVEL
         {
-            crstat->annoy_level = value;
+            crconf->annoy_level = value;
             break;
         }
         case 23: // ANGERJOBS
         {
             if (value2 == 0)
             {
-                clear_flag(crstat->jobs_anger, value);
+                clear_flag(crconf->jobs_anger, value);
             }
             else if (value2 == 1)
             {
-                set_flag(crstat->jobs_anger, value);
+                set_flag(crconf->jobs_anger, value);
             }
             else
             {
-                crstat->jobs_anger = value;
+                crconf->jobs_anger = value;
             }
             break;
         }
         case 24: // GOINGPOSTAL
         {
-            crstat->annoy_going_postal = value;
+            crconf->annoy_going_postal = value;
             break;
         }
         default:
@@ -2781,40 +2784,40 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // POWERS
         {
-            crstat->learned_instance_id[value2-1] = value;
+            crconf->learned_instance_id[value2-1] = value;
             break;
         }
         case 2: // POWERSLEVELREQUIRED
         {
-            crstat->learned_instance_level[value2-1] = value;
+            crconf->learned_instance_level[value2-1] = value;
             break;
         }
         case 3: // LEVELSTRAINVALUES
         {
-            crstat->to_level[value2-1] = value;
+            crconf->to_level[value2-1] = value;
             break;
         }
         case 4: // GROWUP
         {
-            crstat->to_level[CREATURE_MAX_LEVEL - 1] = value;
-            crstat->grow_up = value2;
-            crstat->grow_up_level = value3;
+            crconf->to_level[CREATURE_MAX_LEVEL - 1] = value;
+            crconf->grow_up = value2;
+            crconf->grow_up_level = value3;
             break;
         }
         case 5: // SLEEPEXPERIENCE
         {
-            crstat->sleep_exp_slab = value;
-            crstat->sleep_experience = value2;
+            crconf->sleep_exp_slab = value;
+            crconf->sleep_experience = value2;
             break;
         }
         case 6: // EXPERIENCEFORHITTING
         {
-            crstat->exp_for_hitting = value;
+            crconf->exp_for_hitting = value;
             break;
         }
         case 7: // REBIRTH
         {
-            crstat->rebirth = value;
+            crconf->rebirth = value;
             break;
         }
         default:
@@ -2828,60 +2831,60 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // WALKINGANIMSPEED
         {
-            crstat->walking_anim_speed = value;
+            crconf->walking_anim_speed = value;
             break;
         }
         case 2: // VISUALRANGE
         {
-            crstat->visual_range = value;
+            crconf->visual_range = value;
             break;
         }
         case 3: // SWIPEINDEX
         {
-            crstat->swipe_idx = value;
+            crconf->swipe_idx = value;
             break;
         }
         case 4: // NATURALDEATHKIND
         {
-            crstat->natural_death_kind = value;
+            crconf->natural_death_kind = value;
             break;
         }
         case 5: // SHOTORIGIN
         {
-            crstat->shot_shift_x = value;
-            crstat->shot_shift_y = value2;
-            crstat->shot_shift_z = value3;
+            crconf->shot_shift_x = value;
+            crconf->shot_shift_y = value2;
+            crconf->shot_shift_z = value3;
             break;
         }
         case 6: // CORPSEVANISHEFFECT
         {
-            crstat->corpse_vanish_effect = value;
+            crconf->corpse_vanish_effect = value;
             break;
         }
         case 7: // FOOTSTEPPITCH
         {
-            crstat->footstep_pitch = value;
+            crconf->footstep_pitch = value;
             break;
         }
         case 8: // PICKUPOFFSET
         {
-            crstat->creature_picked_up_offset.delta_x = value;
-            crstat->creature_picked_up_offset.delta_y = value2;
+            crconf->creature_picked_up_offset.delta_x = value;
+            crconf->creature_picked_up_offset.delta_y = value2;
             break;
         }
         case 9: // STATUSOFFSET
         {
-            crstat->status_offset = value;
+            crconf->status_offset = value;
             break;
         }
         case 10: // TRANSPARENCYFLAGS
         {
-            crstat->transparency_flags = value<<4;
+            crconf->transparency_flags = value<<4;
             break;
         }
         case 11: // FIXEDANIMSPEED
         {
-            crstat->fixed_anim_speed = value;
+            crconf->fixed_anim_speed = value;
             break;
         }
         default:
@@ -2895,22 +2898,22 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // HEARING
         {
-            crstat->hearing = value;
+            crconf->hearing = value;
             break;
         }
         case 2: // EYEHEIGHT
         {
-            crstat->base_eye_height = value;
+            crconf->base_eye_height = value;
             break;
         }
         case 3: // FIELDOFVIEW
         {
-            crstat->field_of_view = value;
+            crconf->field_of_view = value;
             break;
         }
         case 4: // EYEEFFECT
         {
-            crstat->eye_effect = value;
+            crconf->eye_effect = value;
             struct Thing* thing = thing_get(get_my_player()->influenced_thing_idx);
             if(!thing_is_invalid(thing))
             {
@@ -2933,7 +2936,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         }
         case 5: // MAXANGLECHANGE
         {
-            crstat->max_turning_speed = (value * LbFPMath_PI) / 180;
+            crconf->max_turning_speed = (value * LbFPMath_PI) / 180;
             break;
         }
         default:
@@ -2974,10 +2977,10 @@ static void display_timer_check(const struct ScriptLine *scline)
 
 static void display_timer_process(struct ScriptContext *context)
 {
-    gameadd.script_timer_player = context->player_idx;
-    gameadd.script_timer_id = context->value->bytes[1];
-    gameadd.script_timer_limit = context->value->longs[1];
-    gameadd.timer_real = context->value->bytes[2];
+    game.script_timer_player = context->player_idx;
+    game.script_timer_id = context->value->bytes[1];
+    game.script_timer_limit = context->value->longs[1];
+    game.timer_real = context->value->bytes[2];
     game.flags_gui |= GGUI_ScriptTimer;
 }
 
@@ -3031,11 +3034,11 @@ static void display_variable_check(const struct ScriptLine *scline)
 
 static void display_variable_process(struct ScriptContext *context)
 {
-   gameadd.script_variable_player = context->player_idx;
-   gameadd.script_value_type = context->value->bytes[2];
-   gameadd.script_value_id = context->value->longs[1];
-   gameadd.script_variable_target = context->value->longs[2];
-   gameadd.script_variable_target_type = context->value->bytes[1];
+   game.script_variable_player = context->player_idx;
+   game.script_value_type = context->value->bytes[2];
+   game.script_value_id = context->value->longs[1];
+   game.script_variable_target = context->value->longs[2];
+   game.script_variable_target_type = context->value->bytes[1];
    game.flags_gui |= GGUI_Variable;
 }
 
@@ -3238,7 +3241,7 @@ static void set_box_tooltip_check(const struct ScriptLine* scline)
 static void set_box_tooltip_process(struct ScriptContext* context)
 {
     int idx = context->value->shorts[0];
-    snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", script_strval(context->value->longs[2]));
+    snprintf(game.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", script_strval(context->value->longs[2]));
 }
 
 static void set_box_tooltip_id_check(const struct ScriptLine *scline)
@@ -3259,20 +3262,20 @@ static void set_box_tooltip_id_process(struct ScriptContext* context)
 {
     int idx = context->value->shorts[0];
     int string = context->value->shorts[1];
-    snprintf(gameadd.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", get_string(string));
+    snprintf(game.box_tooltip[idx], MESSAGE_TEXT_LEN, "%s", get_string(string));
 }
 
 static void change_slab_owner_check(const struct ScriptLine *scline)
 {
 
-    if (scline->np[0] < 0 || scline->np[0] > gameadd.map_tiles_x) //x coord
+    if (scline->np[0] < 0 || scline->np[0] > game.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],game.map_tiles_x);
         return;
     }
-    if (scline->np[1] < 0 || scline->np[1] > gameadd.map_tiles_y) //y coord
+    if (scline->np[1] < 0 || scline->np[1] > game.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[1],gameadd.map_tiles_y);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[1],game.map_tiles_y);
         return;
     }
     long filltype = get_id(fill_desc, scline->tp[3]);
@@ -3305,9 +3308,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    if (scline->np[0] < 0 || scline->np[0] > gameadd.map_tiles_x) //x coord
+    if (scline->np[0] < 0 || scline->np[0] > game.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],game.map_tiles_x);
         return;
     }
     else
@@ -3315,9 +3318,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
         value->shorts[0] = scline->np[0];
     }
 
-    if (scline->np[1] < 0 || scline->np[1] > gameadd.map_tiles_y) //y coord
+    if (scline->np[1] < 0 || scline->np[1] > game.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_y);
+        SCRPTERRLOG("Value '%ld' out of range. Range 0-%d allowed.", scline->np[0],game.map_tiles_y);
         return;
     }
     else
@@ -3783,7 +3786,7 @@ static void if_check(const struct ScriptLine *scline)
     }
 
 
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
@@ -3876,7 +3879,7 @@ static void if_available_check(const struct ScriptLine *scline)
         }
     }
 
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
@@ -3987,7 +3990,7 @@ static void if_controls_check(const struct ScriptLine *scline)
     }
 
     long varib_id;
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
       SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
       return;
@@ -4058,7 +4061,7 @@ static void if_allied_check(const struct ScriptLine *scline)
     long op = scline->np[2];
     long val = scline->np[3];
 
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
         SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
         return;
@@ -4157,44 +4160,6 @@ static void play_message_check(const struct ScriptLine *scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void script_play_message(TbBool param_is_string, const char msgtype_id, const short msg_id, const char *filename)
-{
-    
-    if (!param_is_string)
-    {
-        switch (msgtype_id)
-        {
-            case 1: // speech message
-            {
-                output_message(msg_id, 0);
-                break;
-            }
-            case 2: // sound effect
-            {
-                play_non_3d_sample(msg_id);
-                break;
-            }
-        }
-    }
-    else
-    {
-        const char * filepath = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", filename);
-        switch (msgtype_id)
-        {
-            case 1: // speech message
-            {
-                output_custom_message(filepath, settings.mentor_volume);
-                break;
-            }
-            case 2: // sound effect
-            {
-                play_streamed_sample(filepath, settings.sound_volume);
-                break;
-            }
-        }
-    }
-}
-
 static void play_message_process(struct ScriptContext *context)
 {
     const TbBool param_is_string = context->value->bytes[4];
@@ -4262,7 +4227,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE;
         return;
     }
-    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
     {
         SCRPTERRLOG("Too many ADD_CREATURE commands in script");
         DEALLOCATE_SCRIPT_VALUE;
@@ -4292,7 +4257,7 @@ static void add_effectgen_to_level_process(struct ScriptContext* context)
     }
     else
     {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_CREATE_EFFECT_GENERATOR;
         pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
         pr_trig->plyr_idx = 0; //not needed
@@ -4302,7 +4267,7 @@ static void add_effectgen_to_level_process(struct ScriptContext* context)
         pr_trig->location = location;
         pr_trig->ncopies = 1;
         pr_trig->condit_idx = get_script_current_condition();
-        gameadd.script.party_triggers_num++;
+        game.script.party_triggers_num++;
     }
 }
 
@@ -5088,11 +5053,11 @@ static void quick_message_check(const struct ScriptLine* scline)
     {
         SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
     }
-    if ((gameadd.quick_messages[scline->np[0]][0] != '\0') && (strcmp(gameadd.quick_messages[scline->np[0]],scline->tp[1]) != 0))
+    if ((game.quick_messages[scline->np[0]][0] != '\0') && (strcmp(game.quick_messages[scline->np[0]],scline->tp[1]) != 0))
     {
         SCRPTWRNLOG("Quick Message no %ld overwritten by different text", scline->np[0]);
     }
-    snprintf(gameadd.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
+    snprintf(game.quick_messages[scline->np[0]], MESSAGE_TEXT_LEN, "%s", scline->tp[1]);
     value->longs[0]= scline->np[0];
     get_chat_icon_from_value(scline->tp[2], &value->chars[4], &value->chars[5]);
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -5100,7 +5065,7 @@ static void quick_message_check(const struct ScriptLine* scline)
 
 static void quick_message_process(struct ScriptContext* context)
 {
-    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", gameadd.quick_messages[context->value->ulongs[0]]);
+    message_add_fmt(context->value->chars[5], context->value->chars[4], "%s", game.quick_messages[context->value->ulongs[0]]);
 }
 
 static void display_message_check(const struct ScriptLine* scline)
@@ -5119,7 +5084,7 @@ static void display_message_process(struct ScriptContext* context)
 static void change_slab_texture_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    if ( (scline->np[0] < 0) || (scline->np[0] >= gameadd.map_tiles_x) || (scline->np[1] < 0) || (scline->np[1] >= gameadd.map_tiles_y) )
+    if ( (scline->np[0] < 0) || (scline->np[0] >= game.map_tiles_x) || (scline->np[1] < 0) || (scline->np[1] >= game.map_tiles_y) )
     {
         SCRPTERRLOG("Invalid co-ordinates: %ld, %ld", scline->np[0], scline->np[1]);
         DEALLOCATE_SCRIPT_VALUE
@@ -5171,8 +5136,8 @@ static void change_slab_texture_process(struct ScriptContext* context)
     else
     {
         SlabCodedCoords slb_num = get_slab_number(context->value->shorts[0], context->value->shorts[1]);
-        gameadd.slab_ext_data[slb_num] = context->value->bytes[4];
-        gameadd.slab_ext_data_initial[slb_num] = context->value->bytes[4];
+        game.slab_ext_data[slb_num] = context->value->bytes[4];
+        game.slab_ext_data_initial[slb_num] = context->value->bytes[4];
     }
 }
 
@@ -5187,6 +5152,13 @@ static void computer_player_check(const struct ScriptLine* scline)
     char type = PT_Keeper;
     TbBool toggle = true;
 
+    if (level_file_version == 0 && plr_range_id == PLAYER_GOOD)
+    {
+        SCRPTERRLOG("PLAYER_GOOD COMPUTER_PLAYER cannot be set in level version 0.");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    
     if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
     {
         SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
@@ -5722,6 +5694,27 @@ static void set_digger_process(struct ScriptContext* context)
     update_players_special_digger_model(plyr_idx, new_dig_model);
 }
 
+static void run_lua_code_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    const char* code = scline->tp[0];
+
+    value->longs[0] = script_strdup(code);
+    if (value->longs[0] < 0) {
+        SCRPTERRLOG("Run out script strings space");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void run_lua_code_process(struct ScriptContext* context)
+{
+    const char* code = script_strval(context->value->longs[0]);
+    execute_lua_code_from_script(code);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P-player, R-room kind, L-location, O-operator, S-slab kind, B-boolean
@@ -5886,6 +5879,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_OBJECT_TO_LEVEL_AT_POS",        "ANNNpa  ", Cmd_ADD_OBJECT_TO_LEVEL_AT_POS, &add_object_to_level_at_pos_check, &add_object_to_level_at_pos_process},
   {"LOCK_POSSESSION",                   "PB!     ", Cmd_LOCK_POSSESSION, &lock_possession_check, &lock_possession_process},
   {"SET_DIGGER",                        "PC      ", Cmd_SET_DIGGER , &set_digger_check, &set_digger_process},
+  {"RUN_LUA_CODE",                      "A       ", Cmd_RUN_LUA_CODE , &run_lua_code_check, &run_lua_code_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

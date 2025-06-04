@@ -58,6 +58,7 @@
 #include "thing_shots.h"
 #include "bflib_inputctrl.h"
 #include "map_blocks.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -623,8 +624,8 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     thing = get_player_soul_container(player->id_number);
     if (thing_is_invalid(thing))
     {
-        cam->mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x / 2);
-        cam->mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y / 2);
+        cam->mappos.x.val = subtile_coord_center(game.map_subtiles_x / 2);
+        cam->mappos.y.val = subtile_coord_center(game.map_subtiles_y / 2);
         cam->zoom = 24000;
         cam->orient_a = 0;
         return 0;
@@ -941,10 +942,10 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
         set_player_mode(player, PVT_DungeonTop);
         player->allocflags &= ~PlaF_Unknown8;
         set_engine_view(player, player->view_mode_restore);
-        player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-        player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
-        player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-        player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+        player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
+        player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
+        player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
+        player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
         clear_selected_thing(player);
         return;
     }
@@ -955,7 +956,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->view_mode_restore);
     long i = player->acamera->orient_a;
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     long k = thing->mappos.z.val + get_creature_eye_height(thing);
     player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
@@ -972,7 +973,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
           disband_creatures_group(thing);
         }
     }
-    if ((thing->light_id != 0) && (!crstat->illuminated) && (!creature_under_spell_effect(thing, CSAfF_Light)))
+    if ((thing->light_id != 0) && (!crconf->illuminated) && (!creature_under_spell_effect(thing, CSAfF_Light)))
     {
         light_delete_light(thing->light_id);
         thing->light_id = 0;
@@ -989,10 +990,10 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
     set_player_mode(player, PVT_DungeonTop);
     player->allocflags &= ~PlaF_Unknown8;
     set_engine_view(player, player->view_mode_restore);
-    player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-    player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
-    player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-    player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+    player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
+    player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
+    player->cameras[CamIV_FrontView].mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
+    player->cameras[CamIV_FrontView].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
     clear_selected_thing(player);
     return;
   }
@@ -1279,6 +1280,8 @@ TbBool player_place_trap_without_check_at(MapSubtlCoord stl_x, MapSubtlCoord stl
     {
         play_non_3d_sample(trap_cfg->place_sound_idx);
     }
+
+    lua_on_trap_placed(traptng);
     return true;
 }
 

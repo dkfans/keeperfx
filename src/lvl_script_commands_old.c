@@ -78,7 +78,7 @@ static void command_add_party_to_level(long plr_range_id, const char *prtname, c
         SCRPTERRLOG("Invalid NUMBER parameter");
         return;
     }
-    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
     {
         SCRPTERRLOG("Too many ADD_CREATURE commands in script");
         return;
@@ -101,11 +101,11 @@ static void command_add_party_to_level(long plr_range_id, const char *prtname, c
     }
     if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
-        struct Party* party = &gameadd.script.creature_partys[prty_id];
+        struct Party* party = &game.script.creature_partys[prty_id];
         script_process_new_party(party, plr_id, location, ncopies);
     } else
     {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_CREATE_PARTY;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
         pr_trig->plyr_idx = plr_id;
@@ -113,7 +113,7 @@ static void command_add_party_to_level(long plr_range_id, const char *prtname, c
         pr_trig->location = location;
         pr_trig->ncopies = ncopies;
         pr_trig->condit_idx = get_script_current_condition();
-        gameadd.script.party_triggers_num++;
+        game.script.party_triggers_num++;
     }
 }
 
@@ -134,7 +134,7 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
     {
         SCRPTWRNLOG("Trying to add %ld creatures which is over map limit %u", ncopies, game.conf.rules.game.creatures_count);
     }
-    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
     {
         SCRPTERRLOG("Too many ADD_CREATURE commands in script");
         return;
@@ -173,7 +173,7 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
         script_process_new_creatures(plr_id, crtr_id, location, ncopies, carried_gold, exp_level-1, spawn_type_id);
     } else
     {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
         pr_trig->flags = TrgF_CREATE_CREATURE;
         pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
 
@@ -185,7 +185,7 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
         pr_trig->ncopies = ncopies;
         pr_trig->spawn_type = spawn_type_id;
         pr_trig->condit_idx = get_script_current_condition();
-        gameadd.script.party_triggers_num++;
+        game.script.party_triggers_num++;
     }
 }
 
@@ -341,7 +341,7 @@ static void command_research_order(long plr_range_id, const char *trg_type, cons
 
 static void command_if_action_point(long apt_num, long plr_range_id)
 {
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
         SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
         return;
@@ -358,7 +358,7 @@ static void command_if_action_point(long apt_num, long plr_range_id)
 
 static void command_if_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, long plr_range_id)
 {
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
         SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
         return;
@@ -368,7 +368,7 @@ static void command_if_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, long p
 
 static void command_if_slab_type(MapSlabCoord slb_x, MapSlabCoord slb_y, long slab_type)
 {
-    if (gameadd.script.conditions_num >= CONDITIONS_COUNT)
+    if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
         SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
         return;
@@ -393,13 +393,13 @@ static void command_win_game(void)
     {
         SCRPTERRLOG("Command WIN GAME found with no condition");
     }
-    if (gameadd.script.win_conditions_num >= WIN_CONDITIONS_COUNT)
+    if (game.script.win_conditions_num >= WIN_CONDITIONS_COUNT)
     {
         SCRPTERRLOG("Too many WIN GAME conditions in script");
         return;
     }
-    gameadd.script.win_conditions[gameadd.script.win_conditions_num] = get_script_current_condition();
-    gameadd.script.win_conditions_num++;
+    game.script.win_conditions[game.script.win_conditions_num] = get_script_current_condition();
+    game.script.win_conditions_num++;
 }
 
 static void command_lose_game(void)
@@ -408,13 +408,13 @@ static void command_lose_game(void)
   {
     SCRPTERRLOG("Command LOSE GAME found with no condition");
   }
-  if (gameadd.script.lose_conditions_num >= WIN_CONDITIONS_COUNT)
+  if (game.script.lose_conditions_num >= WIN_CONDITIONS_COUNT)
   {
     SCRPTERRLOG("Too many LOSE GAME conditions in script");
     return;
   }
-  gameadd.script.lose_conditions[gameadd.script.lose_conditions_num] = get_script_current_condition();
-  gameadd.script.lose_conditions_num++;
+  game.script.lose_conditions[game.script.lose_conditions_num] = get_script_current_condition();
+  game.script.lose_conditions_num++;
 }
 
 static void command_set_flag(long plr_range_id, const char *flgname, long val)
@@ -467,7 +467,7 @@ static void command_add_tunneller_to_level(long plr_range_id, const char *locnam
         SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
         return;
     }
-    if (gameadd.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
+    if (game.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
     {
         SCRPTERRLOG("Too many ADD_TUNNELLER commands in script");
         return;
@@ -489,7 +489,7 @@ static void command_add_tunneller_to_level(long plr_range_id, const char *locnam
         script_process_new_tunneler(plr_id, location, heading, exp_level-1, carried_gold);
     } else
     {
-        struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[gameadd.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
+        struct TunnellerTrigger* tn_trig = &game.script.tunneller_triggers[game.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
         set_flag_value(tn_trig->flags, TrgF_REUSABLE, next_command_reusable);
         clear_flag(tn_trig->flags, TrgF_DISABLED);
         tn_trig->plyr_idx = plr_id;
@@ -500,7 +500,7 @@ static void command_add_tunneller_to_level(long plr_range_id, const char *locnam
         tn_trig->carried_gold = carried_gold;
         tn_trig->party_id = 0;
         tn_trig->condit_idx = get_script_current_condition();
-        gameadd.script.tunneller_triggers_num++;
+        game.script.tunneller_triggers_num++;
     }
 }
 
@@ -513,7 +513,7 @@ static void command_add_tunneller_party_to_level(long plr_range_id, const char *
         SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
         return;
     }
-    if (gameadd.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
+    if (game.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
     {
         SCRPTERRLOG("Too many ADD_TUNNELLER commands in script");
         return;
@@ -537,7 +537,7 @@ static void command_add_tunneller_party_to_level(long plr_range_id, const char *
         SCRPTERRLOG("Party of requested name, '%s', is not defined", prtname);
         return;
     }
-    struct Party* party = &gameadd.script.creature_partys[prty_id];
+    struct Party* party = &game.script.creature_partys[prty_id];
     if (party->members_num >= GROUP_MEMBERS_COUNT-1)
     {
         SCRPTERRLOG("Party too big for ADD_TUNNELLER (Max %d members)", GROUP_MEMBERS_COUNT-1);
@@ -549,7 +549,7 @@ static void command_add_tunneller_party_to_level(long plr_range_id, const char *
         script_process_new_tunneller_party(plr_id, prty_id, location, heading, exp_level-1, carried_gold);
     } else
     {
-        struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[gameadd.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
+        struct TunnellerTrigger* tn_trig = &game.script.tunneller_triggers[game.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
         set_flag_value(tn_trig->flags, TrgF_REUSABLE, next_command_reusable);
         clear_flag(tn_trig->flags, TrgF_DISABLED);
         tn_trig->plyr_idx = plr_id;
@@ -560,7 +560,7 @@ static void command_add_tunneller_party_to_level(long plr_range_id, const char *
         tn_trig->carried_gold = carried_gold;
         tn_trig->party_id = prty_id+1;
         tn_trig->condit_idx = get_script_current_condition();
-        gameadd.script.tunneller_triggers_num++;
+        game.script.tunneller_triggers_num++;
     }
 }
 
@@ -734,11 +734,11 @@ static void command_quick_objective(int idx, const char *msgtext, const char *wh
   {
       SCRPTWRNLOG("Objective TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
   }
-  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
+  if ((game.quick_messages[idx][0] != '\0') && (strcmp(game.quick_messages[idx],msgtext) != 0))
   {
       SCRPTWRNLOG("Quick Objective no %d overwritten by different text", idx);
   }
-  snprintf(gameadd.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
+  snprintf(game.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
   if (!get_map_location_id(where, &location))
     return;
   command_add_value(Cmd_QUICK_OBJECTIVE, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
@@ -756,11 +756,11 @@ static void command_quick_information(int idx, const char *msgtext, const char *
   {
       SCRPTWRNLOG("Information TEXT too long; truncating to %d characters", MESSAGE_TEXT_LEN-1);
   }
-  if ((gameadd.quick_messages[idx][0] != '\0') && (strcmp(gameadd.quick_messages[idx],msgtext) != 0))
+  if ((game.quick_messages[idx][0] != '\0') && (strcmp(game.quick_messages[idx],msgtext) != 0))
   {
       SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
   }
-  snprintf(gameadd.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
+  snprintf(game.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
   if (!get_map_location_id(where, &location))
     return;
   command_add_value(Cmd_QUICK_INFORMATION, ALL_PLAYERS, idx, location, get_subtile_number(x,y));

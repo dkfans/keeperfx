@@ -403,13 +403,12 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
   campgn->hiscore_count = VISIBLE_HIGH_SCORES_COUNT;
   campgn->human_player = 0;
   // Find the block
-  char block_buf[32];
-  sprintf(block_buf, "common");
+  const char * block_name = "common";
   long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
+  int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
-      WARNMSG("Block [%s] not found in %s %s file.",block_buf, campgn->name, config_textname);
+      WARNMSG("Block [%s] not found in %s %s file.", block_name, campgn->name, config_textname);
       return 0;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cmpgn_common_commands,cmd_num)
@@ -529,7 +528,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           if (n < 2)
           {
               CONFWRNLOG("Couldn't recognize \"%s\" parameters in [%s] block of '%s' file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 7: // LAND_VIEW_START
@@ -544,7 +543,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           if (n < 2)
           {
               CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of '%s' file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 8: // LAND_VIEW_END
@@ -559,7 +558,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           if (n < 2)
           {
               CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of '%s' file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 9: // LAND_AMBIENT
@@ -584,7 +583,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           if (n < 2)
           {
               CONFWRNLOG("Couldn't recognize \"%s\" coordinates in [%s] block of '%s' file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 10: // LEVELS_LOCATION
@@ -703,7 +702,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s %s file.",
-              cmd_num,block_buf,campgn->name,config_textname);
+              cmd_num, block_name, campgn->name,config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -712,22 +711,20 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
   if (campgn->single_levels_count != campgn->bonus_levels_index)
   {
     WARNMSG("Amount of SP levels (%lu) and bonuses (%lu) do not match in [%s] block of %s %s file.",
-      campgn->single_levels_count, campgn->bonus_levels_count, block_buf, campgn->name, config_textname);
+      campgn->single_levels_count, campgn->bonus_levels_count, block_name, campgn->name, config_textname);
   }
   return 1;
 }
 
 short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long len, const char* config_textname)
 {
-  // Block name and parameter word store variables
-  char block_buf[32];
   // Find the block
-  sprintf(block_buf,"strings");
+  const char * block_name = "strings";
   long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
+  int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
-      WARNMSG("Block [%s] not found in '%s' file.",block_buf,config_textname);
+      WARNMSG("Block [%s] not found in '%s' file.", block_name, config_textname);
       return 0;
   }
   int n = 0;
@@ -744,34 +741,33 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
       if (cmd_num <= 0)
       {
         if ((cmd_num != 0) && (cmd_num != -1))
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of '%s' file.",cmd_num,block_buf,config_textname);
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of '%s' file.", cmd_num, block_name, config_textname);
       } else
       if ((cmd_num == install_info.lang_id) || (n == 0))
       {
           int i = get_conf_parameter_whole(buf, &pos, len, campgn->strings_fname, LINEMSG_SIZE);
           if (i <= 0)
-              CONFWRNLOG("Couldn't read file name in [%s] block parameter of %s file.",block_buf,config_textname);
+              CONFWRNLOG("Couldn't read file name in [%s] block parameter of %s file.", block_name, config_textname);
           else
             n++;
       }
       skip_conf_to_next_line(buf,&pos,len);
   }
-  if (campgn->strings_fname[0] == '\0')
-    WARNMSG("Strings file name not set after parsing [%s] block of %s file.", block_buf,config_textname);
+  if (campgn->strings_fname[0] == '\0') {
+    WARNMSG("Strings file name not set after parsing [%s] block of %s file.", block_name, config_textname);
+  }
   return 1;
 }
 
 short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long len, const char *config_textname)
 {
-  // Block name and parameter word store variables
-  char block_buf[32];
+  const char * block_name = "speech";
   // Find the block
-  sprintf(block_buf,"speech");
   long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
+  int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
-      WARNMSG("Block [%s] not found in '%s' file.",block_buf,config_textname);
+      WARNMSG("Block [%s] not found in '%s' file.", block_name, config_textname);
       return 0;
   }
   int n = 0;
@@ -786,7 +782,7 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
         if ((cmd_num != 0) && (cmd_num != -1))
         {
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file, starting on byte %ld.",
-              cmd_num,block_buf,config_textname,pos);
+              cmd_num, block_name, config_textname,pos);
         }
       } else
       if ((cmd_num == install_info.lang_id) || (n == 0))
@@ -795,7 +791,7 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
           if (i <= 0)
           {
               CONFWRNLOG("Couldn't read folder name in [%s] block parameter of %s file.",
-                block_buf,config_textname);
+                block_name, config_textname);
           } else
             n++;
       }
@@ -804,7 +800,7 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
   if (campgn->speech_location[0] == '\0')
   {
       WARNMSG("Speech folder name not set after parsing [%s] block of %s file.",
-          block_buf,config_textname);
+          block_name, config_textname);
   }
   return 1;
 }
@@ -826,7 +822,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
     }
     lvinfo->location = LvLc_Campaign;
     char block_buf[32];
-    sprintf(block_buf, "map%05lu", lvnum);
+    snprintf(block_buf, sizeof(block_buf), "map%05lu", lvnum);
     long pos = 0;
     int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)

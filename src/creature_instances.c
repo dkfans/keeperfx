@@ -196,10 +196,10 @@ TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inst
 TbBool creature_choose_first_available_instance(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     for (long i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
-        long k = crstat->learned_instance_id[i];
+        long k = crconf->learned_instance_id[i];
         if (k > 0)
         {
             if (cctrl->instance_available[k]) {
@@ -214,17 +214,17 @@ TbBool creature_choose_first_available_instance(struct Thing *thing)
 
 void creature_increase_available_instances(struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     for (int i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
-        int k = crstat->learned_instance_id[i];
+        int k = crconf->learned_instance_id[i];
         if (k > 0)
         {
-            if (crstat->learned_instance_level[i] <= cctrl->exp_level+1) {
+            if (crconf->learned_instance_level[i] <= cctrl->exp_level+1) {
                 cctrl->instance_available[k] = true;
             }
-            else if ( (crstat->learned_instance_level[i] > cctrl->exp_level+1) && !(game.conf.rules.game.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
+            else if ( (crconf->learned_instance_level[i] > cctrl->exp_level+1) && !(game.conf.rules.game.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
             {
                 cctrl->instance_available[k] = false;
             }
@@ -241,11 +241,11 @@ void creature_increase_available_instances(struct Thing *thing)
  */
 int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     int avail_pos = 0;
     for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
-        CrInstance inst_id = crstat->learned_instance_id[avail_num];
+        CrInstance inst_id = crconf->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
             if (inst_id == req_inst_id) {
@@ -266,11 +266,11 @@ int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance r
  */
 int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     int avail_pos = 0;
     for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
-        CrInstance inst_id = crstat->learned_instance_id[avail_num];
+        CrInstance inst_id = crconf->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
             if (avail_pos == req_avail_pos) {
@@ -291,11 +291,11 @@ int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_
  */
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     int avail_pos = 0;
     for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
-        CrInstance inst_id = crstat->learned_instance_id[avail_num];
+        CrInstance inst_id = crconf->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
             if (avail_pos == req_avail_pos) {
@@ -497,7 +497,9 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
     if (cctrl->targtng_idx == 0)
     {
         if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
+        {
             hittype = THit_CrtrsOnlyNotOwn;
+        }
         else
             hittype = THit_CrtrsNObjcts;
     }
@@ -523,7 +525,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         else if (target->class_id == TCls_Trap)
             hittype = THit_TrapsAll;
         else if (target->owner == creatng->owner)
-            hittype = THit_CrtrsOnly;
+            hittype = THit_CrtrsOnlyOwn;
         else
             hittype = THit_CrtrsOnlyNotOwn;
     }
@@ -1585,7 +1587,7 @@ TbBool validate_target_benefits_from_wind
     {
         return true;
     }
-    struct CreatureStats* stats = creature_stats_get_from_thing(target);
+    struct CreatureModelConfig* stats = creature_stats_get_from_thing(target);
     if (stats->attack_preference == AttckT_Ranged && cctrl->opponents_melee_count >= 2)
     {
         // Surrounded by 2+ enemies. This could be definitely smarter but not now.
@@ -1831,13 +1833,13 @@ TbBool search_target_ranged_heal
 
 void script_set_creature_instance(ThingModel crmodel, short slot, int instance, short level)
 {
-    struct CreatureStats *crstat = creature_stats_get(crmodel);
+    struct CreatureModelConfig *crconf = creature_stats_get(crmodel);
 
-    if (!creature_stats_invalid(crstat))
+    if (!creature_stats_invalid(crconf))
     {
-        CrInstance old_instance = crstat->learned_instance_id[slot - 1];
-        crstat->learned_instance_id[slot - 1] = instance;
-        crstat->learned_instance_level[slot - 1] = level;
+        CrInstance old_instance = crconf->learned_instance_id[slot - 1];
+        crconf->learned_instance_id[slot - 1] = instance;
+        crconf->learned_instance_level[slot - 1] = level;
         const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
         unsigned long k = 0;
         int i = slist->index;

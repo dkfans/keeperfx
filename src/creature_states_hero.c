@@ -616,12 +616,12 @@ short good_back_at_start(struct Thing *thing)
     long m = CREATURE_RANDOM(thing, AROUND_MAP_LENGTH);
     for (long n = 0; n < AROUND_MAP_LENGTH; n++)
     {
-        struct Map* mapblk = get_map_block_at_pos(stl_num + gameadd.around_map[m]);
+        struct Map* mapblk = get_map_block_at_pos(stl_num + game.around_map[m]);
         // Per-block code
         if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
         {
-            MapSubtlCoord stl_x = stl_num_decode_x(stl_num + gameadd.around_map[m]);
-            MapSubtlCoord stl_y = stl_num_decode_y(stl_num + gameadd.around_map[m]);
+            MapSubtlCoord stl_x = stl_num_decode_x(stl_num + game.around_map[m]);
+            MapSubtlCoord stl_y = stl_num_decode_y(stl_num + game.around_map[m]);
             if (setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default)) {
                 thing->continue_state = CrSt_GoodDropsGold;
                 return 1;
@@ -790,8 +790,8 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
         return false;
     case CHeroTsk_StealGold:
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        if (creatng->creature.gold_carried < crstat->gold_hold)
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+        if (creatng->creature.gold_carried < crconf->gold_hold)
         {
             if (good_setup_loot_treasure_room(creatng, target_plyr_idx)) {
                 return true;
@@ -1234,8 +1234,8 @@ TbBool script_support_send_tunneller_to_action_point(struct Thing *thing, long a
         pos.y.val = apt->mappos.y.val;
     } else {
         ERRORLOG("Attempt to send to non-existing action point %d",(int)apt_idx);
-        pos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-        pos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+        pos.x.val = subtile_coord_center(game.map_subtiles_x/2);
+        pos.y.val = subtile_coord_center(game.map_subtiles_y/2);
     }
     pos.z.val = subtile_coord(1,0);
     send_tunneller_to_point(thing, &pos);
@@ -1545,8 +1545,8 @@ TbBool is_hero_tunnelling_to_attack(struct Thing *creatng)
 {
     if (creatng->model != get_players_special_digger_model(creatng->owner))
         return false;
-    CrtrStateId crstat = get_creature_state_besides_move(creatng);
-    if ((crstat != CrSt_Tunnelling) && (crstat != CrSt_TunnellerDoingNothing))
+    CrtrStateId crstate = get_creature_state_besides_move(creatng);
+    if ((crstate != CrSt_Tunnelling) && (crstate != CrSt_TunnellerDoingNothing))
         return false;
     return true;
 }

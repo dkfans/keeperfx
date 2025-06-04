@@ -68,8 +68,8 @@ TbBool creature_can_do_healing_sleep(const struct Thing *creatng)
     if (is_neutral_thing(creatng)) {
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return ((crstat->heal_requirement > 0) && (crstat->lair_size > 0));
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    return ((crconf->heal_requirement > 0) && (crconf->lair_size > 0));
 }
 
 TbBool creature_is_sleeping(const struct Thing *thing)
@@ -101,8 +101,8 @@ TbBool creature_is_doing_lair_activity(const struct Thing *thing)
 TbBool creature_requires_healing(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    HitPoints minhealth = crstat->heal_requirement * cctrl->max_health / 256;
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    HitPoints minhealth = crconf->heal_requirement * cctrl->max_health / 256;
     if ((long)thing->health <= minhealth)
         return true;
     return false;
@@ -205,9 +205,9 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
     {
         return 0;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     // End if the creature has no lair enemy
-    if (crstat->lair_enemy[0] == 0)
+    if (crconf->lair_enemy[0] == 0)
     {
         return 0;
     }
@@ -217,7 +217,7 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
         return 0;
     }
     struct Thing* enemytng;
-    long combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crstat->lair_enemy, &enemytng);
+    long combat_factor = find_fellow_creature_to_fight_in_room(thing, room, crconf->lair_enemy, &enemytng);
     if (combat_factor < 1)
         return 0;
     if (!set_creature_in_combat_to_the_death(thing, enemytng, combat_factor))
@@ -247,8 +247,8 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
     pos.z.val = creatng->mappos.z.val;
-    struct CreatureStats* crstat = creature_stats_get(creatng->model);
-    lairtng = create_object(&pos, crstat->lair_object, creatng->owner, -1);
+    struct CreatureModelConfig* crconf = creature_stats_get(creatng->model);
+    lairtng = create_object(&pos, crconf->lair_object, creatng->owner, -1);
     if (thing_is_invalid(lairtng))
     {
         ERRORLOG("Could not create lair totem");
@@ -489,7 +489,7 @@ long room_has_slab_adjacent(const struct Room *room, long slbkind)
         // Per room tile code
         for (long n = 0; n < AROUND_SLAB_LENGTH; n++)
         {
-            long slab_num = i + gameadd.around_slab[n];
+            long slab_num = i + game.around_slab[n];
             struct SlabMap* slb = get_slabmap_direct(slab_num);
             if (!slabmap_block_invalid(slb))
             {
@@ -528,18 +528,18 @@ short creature_sleep(struct Thing *thing)
         return 0;
     }
     thing->movement_flags &= ~0x0020;
-    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig *crconf = creature_stats_get_from_thing(thing);
     // Recovery is disabled if frequency is set to 0 on rules.cfg.
     if (game.conf.rules.creature.recovery_frequency > 0)
     {
         if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
         {
-            HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->exp_level);
+            HitPoints recover = compute_creature_max_health(crconf->sleep_recovery, cctrl->exp_level);
             apply_health_to_thing_and_display_health(thing, recover);
         }
     }
     anger_set_creature_anger(thing, 0, AngR_NoLair);
-    anger_apply_anger_to_creature(thing, crstat->annoy_sleeping, AngR_Other, 1);
+    anger_apply_anger_to_creature(thing, crconf->annoy_sleeping, AngR_Other, 1);
     if (cctrl->turns_at_job > 0)
     {
         cctrl->turns_at_job--;
@@ -552,16 +552,16 @@ short creature_sleep(struct Thing *thing)
             dungeon->lvstats.backs_stabbed++;
         }
     }
-    if (crstat->sleep_exp_slab != SlbT_ROCK)
+    if (crconf->sleep_exp_slab != SlbT_ROCK)
     { // To think about: Should SlbT_ROCK be ignored? Settings the experience gain to 0 is enough to disable the feature.
-        if (creature_can_gain_experience(thing) && room_has_slab_adjacent(room, crstat->sleep_exp_slab))
+        if (creature_can_gain_experience(thing) && room_has_slab_adjacent(room, crconf->sleep_exp_slab))
         {
-            cctrl->exp_points += crstat->sleep_experience;
+            cctrl->exp_points += crconf->sleep_experience;
             check_experience_upgrade(thing);
         }
     }
     {
-        if ((thing->health >= crstat->heal_threshold * cctrl->max_health / 256) && (!cctrl->turns_at_job))
+        if ((thing->health >= crconf->heal_threshold * cctrl->max_health / 256) && (!cctrl->turns_at_job))
         {
             set_start_state(thing);
             return 1;

@@ -401,6 +401,9 @@ struct ComputerTask {
         RoomKind kind;
         long area;
     } create_room;
+    struct {
+        TbBool skip_speed;
+    } slap_imps;
     };
     unsigned short cproc_idx; /**< CProcessId */
     GameTurnDelta cta_duration;
@@ -529,7 +532,7 @@ TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_mov
 TbBool create_task_move_creature_to_subtile(struct Computer2 *comp, const struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, CrtrStateId dst_state);
 TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thing *thing, const struct Coord3d pos, CrtrStateId dst_state);
 TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, PlayerNumber victim_plyr_idx, long parent_cproc_idx);
-TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num);
+TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num, TbBool skip_speed);
 TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos);
 TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long count_slabs_to_dig, long gold_lookup_idx);
 TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long entroom_idx);

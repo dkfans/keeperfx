@@ -40,6 +40,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+extern TbBool luascript_loaded;
 unsigned char next_command_reusable;
 /******************************************************************************/
 
@@ -543,7 +544,7 @@ static TbBool is_condition_met(unsigned short cond_idx)
       else
           return false;
     }
-    unsigned long i = gameadd.script.conditions[cond_idx].status;
+    unsigned long i = game.script.conditions[cond_idx].status;
     return ((i & 0x01) != 0);
 }
 
@@ -1005,7 +1006,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
 
 short clear_script(void)
 {
-    memset(&gameadd.script, 0, sizeof(struct LevelScript));
+    memset(&game.script, 0, sizeof(struct LevelScript));
     set_script_current_condition(CONDITION_ALWAYS);
     text_line_number = 1;
     return true;
@@ -1014,7 +1015,7 @@ short clear_script(void)
 short clear_quick_messages(void)
 {
     for (long i = 0; i < QUICK_MESSAGES_COUNT; i++)
-        memset(gameadd.quick_messages[i], 0, MESSAGE_TEXT_LEN);
+        memset(game.quick_messages[i], 0, MESSAGE_TEXT_LEN);
     return true;
 }
 
@@ -1149,16 +1150,16 @@ short load_script(long lvnum)
       buf = p;
     }
     free(script_data);
-    if (gameadd.script.win_conditions_num == 0)
+    if (game.script.win_conditions_num == 0 && luascript_loaded == false)
       WARNMSG("No WIN GAME conditions in script file.");
     if (get_script_current_condition() != CONDITION_ALWAYS)
       WARNMSG("Missing ENDIF's in script file.");
     JUSTLOG("Used script resources: %d/%d tunneller triggers, %d/%d party triggers, %d/%d script values, %d/%d IF conditions, %d/%d party definitions",
-        (int)gameadd.script.tunneller_triggers_num,TUNNELLER_TRIGGERS_COUNT,
-        (int)gameadd.script.party_triggers_num,PARTY_TRIGGERS_COUNT,
-        (int)gameadd.script.values_num,SCRIPT_VALUES_COUNT,
-        (int)gameadd.script.conditions_num,CONDITIONS_COUNT,
-        (int)gameadd.script.creature_partys_num,CREATURE_PARTYS_COUNT);
+        (int)game.script.tunneller_triggers_num,TUNNELLER_TRIGGERS_COUNT,
+        (int)game.script.party_triggers_num,PARTY_TRIGGERS_COUNT,
+        (int)game.script.values_num,SCRIPT_VALUES_COUNT,
+        (int)game.script.conditions_num,CONDITIONS_COUNT,
+        (int)game.script.creature_partys_num,CREATURE_PARTYS_COUNT);
     return true;
 }
 
@@ -1214,7 +1215,7 @@ static void process_party(struct PartyTrigger* pr_trig)
         break;
     case TrgF_CREATE_PARTY:
         SYNCDBG(6, "Adding player %d party %d at location %d", (int)pr_trig->plyr_idx, (int)n, (int)pr_trig->location);
-        script_process_new_party(&gameadd.script.creature_partys[n],
+        script_process_new_party(&game.script.creature_partys[n],
             pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
         break;
     case TrgF_CREATE_CREATURE:
@@ -1226,9 +1227,9 @@ static void process_party(struct PartyTrigger* pr_trig)
 
 void process_check_new_creature_partys(void)
 {
-    for (long i = 0; i < gameadd.script.party_triggers_num; i++)
+    for (long i = 0; i < game.script.party_triggers_num; i++)
     {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[i];
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[i];
         if ((pr_trig->flags & TrgF_DISABLED) == 0)
         {
             if (is_condition_met(pr_trig->condit_idx))
@@ -1243,9 +1244,9 @@ void process_check_new_creature_partys(void)
 
 void process_check_new_tunneller_partys(void)
 {
-    for (long i = 0; i < gameadd.script.tunneller_triggers_num; i++)
+    for (long i = 0; i < game.script.tunneller_triggers_num; i++)
     {
-        struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[i];
+        struct TunnellerTrigger* tn_trig = &game.script.tunneller_triggers[i];
         if ((tn_trig->flags & TrgF_DISABLED) == 0)
         {
             if (is_condition_met(tn_trig->condit_idx))
@@ -1259,7 +1260,7 @@ void process_check_new_tunneller_partys(void)
                         tn_trig->exp_level, tn_trig->carried_gold);
                     if (!thing_is_invalid(thing))
                     {
-                        struct Thing* grptng = script_process_new_party(&gameadd.script.creature_partys[k - 1], n, tn_trig->location, 1);
+                        struct Thing* grptng = script_process_new_party(&game.script.creature_partys[k - 1], n, tn_trig->location, 1);
                         if (!thing_is_invalid(grptng))
                         {
                             add_creature_to_group_as_leader(thing, grptng);
@@ -1288,17 +1289,17 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
     long i;
     long k;
     struct PlayerInfo* player = get_player(plyr_idx);
-    for (i=0; i < gameadd.script.win_conditions_num; i++)
+    for (i=0; i < game.script.win_conditions_num; i++)
     {
-        k = gameadd.script.win_conditions[i];
+        k = game.script.win_conditions[i];
         if (is_condition_met(k)) {
             SYNCDBG(8,"Win condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
             set_player_as_won_level(player);
         }
     }
-    for (i=0; i < gameadd.script.lose_conditions_num; i++)
+    for (i=0; i < game.script.lose_conditions_num; i++)
     {
-        k = gameadd.script.lose_conditions[i];
+        k = game.script.lose_conditions[i];
         if (is_condition_met(k))
         {
             SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
@@ -1311,9 +1312,9 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
 
 void process_values(void)
 {
-    for (long i = 0; i < gameadd.script.values_num; i++)
+    for (long i = 0; i < game.script.values_num; i++)
     {
-        struct ScriptValue* value = &gameadd.script.values[i];
+        struct ScriptValue* value = &game.script.values[i];
         if ((value->flags & TrgF_DISABLED) == 0)
         {
             if (is_condition_met(value->condit_idx))

@@ -732,16 +732,19 @@ long in_action_point_thing_filter_is_of_class_and_model_and_owned_by(const struc
     {
         if (thing_matches_model(thing, param->model_id))
         {
-            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            if (!thing_is_in_limbo(thing))
             {
-                struct Coord3d refpos;
-                refpos.x.val = param->num1;
-                refpos.y.val = param->num2;
-                refpos.z.val = 0;
-                MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
-                if (dist <= param->num3) {
-                    // Return the largest value to stop sweeping
-                    return LONG_MAX;
+                if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+                {
+                    struct Coord3d refpos;
+                    refpos.x.val = param->num1;
+                    refpos.y.val = param->num2;
+                    refpos.z.val = 0;
+                    MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
+                    if (dist <= param->num3) {
+                        // Return the largest value to stop sweeping
+                        return LONG_MAX;
+                    }
                 }
             }
         }
@@ -1288,8 +1291,8 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
         // the heart position - it's needed for Floating Spirit
         if (!keep_prev)
         {
-            dungeon->mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-            dungeon->mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+            dungeon->mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
+            dungeon->mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
             dungeon->mappos.z.val = subtile_coord_center(map_subtiles_z/2);
         }
     }
@@ -3430,14 +3433,16 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
             HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
     case THit_CrtrsOnly:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs;
+    case THit_CrtrsOnlyNotOwn:
+        return HitTF_EnemyCreatures | HitTF_AlliedCreatures | HitTF_ArmourAffctdCreatrs;
+    case THit_CrtrsOnlyOwn:
+        return HitTF_OwnedCreatures | HitTF_ArmourAffctdCreatrs;
     case THit_CrtrsNObjctsNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs|
         HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|
         HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
         HitTF_EnemyDestructibleTraps | HitTF_AlliedDestructibleTraps|
         HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
-    case THit_CrtrsOnlyNotOwn:
-        return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_ArmourAffctdCreatrs;
     case THit_CrtrsNotArmourNotOwn:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures;
     case THit_HeartOnly:
@@ -4129,6 +4134,20 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
+struct Thing* get_nearest_object_with_tooltip_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool optional)
+{
+    if (optional)
+    {
+        return get_object_around_owned_by_and_matching_bool_filter(
+            subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object_with_optional_tooltip);
+    }
+    else
+    {
+        return get_object_around_owned_by_and_matching_bool_filter(
+            subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_object_with_mandatory_tooltip);
+    }
+}
+
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   return get_object_around_owned_by_and_matching_bool_filter(
@@ -4146,12 +4165,12 @@ struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord s
   {
     n = 0;
     y = stl_y + k;  
-    if ( (y >= 0) && (y < gameadd.map_subtiles_y) )
+    if ( (y >= 0) && (y < game.map_subtiles_y) )
     {
       do
       {
         x = stl_x + n;  
-        if ( (x >= 0) && (x < gameadd.map_subtiles_x) )
+        if ( (x >= 0) && (x < game.map_subtiles_x) )
         {
           struct Map *blk = get_map_block_at(x, y);
           thing = thing_get(get_mapwho_thing_index(blk));

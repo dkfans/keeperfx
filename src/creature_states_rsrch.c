@@ -47,9 +47,9 @@ TbBool creature_can_do_research(const struct Thing *creatng)
     if (is_neutral_thing(creatng)) {
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
-    return (crstat->research_value > 0) && (dungeon->current_research_idx >= 0);
+    return (crconf->research_value > 0) && (dungeon->current_research_idx >= 0);
 }
 
 short at_research_room(struct Thing *thing)

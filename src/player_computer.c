@@ -1067,10 +1067,10 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                     ( crtr_state != CrSt_CreatureAtChangedLair ) &&
                     ( crtr_state != CrSt_CreatureBeingDropped ))
                 {
-                    struct CreatureStats* crstat = creature_stats_get_from_thing(i);
-                    if (crstat->health > 0)
+                    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(i);
+                    if (crconf->health > 0)
                     {
-                        if (100 * i->health / (game.conf.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->exp_level / 100 + crstat->health) > 20)
+                        if (100 * i->health / (game.conf.crtr_conf.exp.health_increase_on_exp * crconf->health * cctrl->exp_level / 100 + crconf->health) > 20)
                         {
                             ++count;
                         }
@@ -1532,7 +1532,7 @@ TbBool computer_player_demands_gold_check(PlayerNumber plyr_idx)
   }
   SYNCDBG(8,"Player %d wants to start digging.",(int)plyr_idx);
   // If the computer player needs to dig for gold
-  if (gameadd.turn_last_checked_for_gold+GOLD_DEMAND_CHECK_INTERVAL < game.play_gameturn)
+  if (game.turn_last_checked_for_gold+GOLD_DEMAND_CHECK_INTERVAL < game.play_gameturn)
   {
       dig_process->flags &= ~ComProc_Unkn0004;
       return true;
@@ -1571,19 +1571,19 @@ void process_computer_players2(void)
     if (needs_gold_check)
     {
       SYNCDBG(0,"Computer players demand gold check.");
-      gameadd.turn_last_checked_for_gold = game.play_gameturn;
+      game.turn_last_checked_for_gold = game.play_gameturn;
       check_map_for_gold();
     } else
-    if (gameadd.turn_last_checked_for_gold > game.play_gameturn)
+    if (game.turn_last_checked_for_gold > game.play_gameturn)
     {
-      gameadd.turn_last_checked_for_gold = 0;
+      game.turn_last_checked_for_gold = 0;
     }
 }
 
 void setup_computer_players2(void)
 {
   int i;
-  gameadd.turn_last_checked_for_gold = game.play_gameturn;
+  game.turn_last_checked_for_gold = game.play_gameturn;
   check_map_for_gold();
   for (i=0; i < COMPUTER_TASKS_COUNT; i++)
   {
@@ -1622,7 +1622,7 @@ void setup_computer_players2(void)
             skirmish_AI_type = comp_player_conf.player_assist_default;
         }
         setup_a_computer_player(i, skirmish_AI_type);
-        if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0)
+        if ((game.computer_chat_flags & CChat_TasksScarce) != 0)
         {
             message_add_fmt(MsgType_Player, i, "Ai model %d", skirmish_AI_type);
         }

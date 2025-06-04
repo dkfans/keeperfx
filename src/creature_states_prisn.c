@@ -77,7 +77,7 @@ TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
         }
         i = get_next_slab_number_in_room(i);
         k++;
-        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
+        if (k > game.map_tiles_x * game.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -324,10 +324,10 @@ CrStateRet creature_in_prison(struct Thing *thing)
 
 TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* crthing = INVALID_THING;
-    ThingModel crmodel = crstat->prison_kind;
+    ThingModel crmodel = crconf->prison_kind;
     if ((crmodel > game.conf.crtr_conf.model_count) || (crmodel <= 0))
     {
         // If not assigned or is unknown, default to the room creature creation.
@@ -361,8 +361,8 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
 
 TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if ((thing->health >= 0) || ((!crstat->humanoid_creature) && ((crstat->prison_kind > game.conf.crtr_conf.model_count) || (crstat->prison_kind <= 0)))) {
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    if ((thing->health >= 0) || ((!crconf->humanoid_creature) && ((crconf->prison_kind > game.conf.crtr_conf.model_count) || (crconf->prison_kind <= 0)))) {
         return false;
     }
     // TODO CONFIG: (?) Allow 'skelification' only if spent specific amount of turns in prison (set it to low value). (?)
@@ -399,9 +399,9 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
 {
     struct Thing *foodtng;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get(creatng->model);
+    struct CreatureModelConfig* crconf = creature_stats_get(creatng->model);
 
-    if ( crstat->hunger_rate == 0 )
+    if ( crconf->hunger_rate == 0 )
         return false;
     foodtng = get_food_at_subtile_available_to_eat_and_owned_by(creatng->mappos.x.stl.num,creatng->mappos.y.stl.num, -1);
 
@@ -458,12 +458,12 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         return CrCkRet_Continue;
     }
     process_creature_hunger(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     if (process_prisoner_skelification(creatng, room))
     {
         return CrCkRet_Deleted;
     }
-    else if ((creatng->health < 0) && ((!crstat->humanoid_creature) && ((crstat->prison_kind > game.conf.crtr_conf.model_count) || (crstat->prison_kind <= 0))))
+    else if ((creatng->health < 0) && ((!crconf->humanoid_creature) && ((crconf->prison_kind > game.conf.crtr_conf.model_count) || (crconf->prison_kind <= 0))))
     {
         if (is_my_player_number(room->owner))
         {

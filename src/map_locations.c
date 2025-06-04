@@ -34,7 +34,8 @@ const struct NamedCommand head_for_desc[] = {
   {"ACTION_POINT",         MLoc_ACTIONPOINT},
   {"DUNGEON",              MLoc_PLAYERSDUNGEON},
   {"DUNGEON_HEART",        MLoc_PLAYERSHEART},
-  {"APPROPIATE_DUNGEON",   MLoc_APPROPRTDUNGEON},
+  {"APPROPIATE_DUNGEON",   MLoc_APPROPRTDUNGEON}, //bullfrog spelling, kept until 2025. Keep for legacy.
+  {"APPROPRIATE_DUNGEON",  MLoc_APPROPRTDUNGEON},
   {NULL,                   0},
 };
 
@@ -91,14 +92,14 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
     struct Coord3d targetpos = {0};
     PlayerNumber loc_player = i & 0xF;
     if (loc_player == 15) // CURRENT_PLAYER
-        loc_player = gameadd.script_current_player;
+        loc_player = game.script_current_player;
 
     struct Dungeon* dungeon = get_dungeon(loc_player);
 
     switch (i >> 8)
     {
     case MML_LAST_EVENT:
-        src = &gameadd.triggered_object_location;
+        src = &game.triggered_object_location;
         break;
     case MML_RECENT_COMBAT:
         src = &dungeon->last_combat_location;

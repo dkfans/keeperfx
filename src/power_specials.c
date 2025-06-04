@@ -42,6 +42,7 @@
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "lua_triggers.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -336,9 +337,9 @@ void make_safe(struct PlayerInfo *player)
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     // Prepare the array to remember which slabs were already taken care of
-    for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
         {
             SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
             struct SlabMap* slb = get_slabmap_direct(slb_num);
@@ -358,7 +359,7 @@ void make_safe(struct PlayerInfo *player)
     }
 
     PlayerNumber plyr_idx = player->id_number;
-    SlabCodedCoords* slblist = (SlabCodedCoords*)(big_scratch + gameadd.map_tiles_x * gameadd.map_tiles_y);
+    SlabCodedCoords* slblist = (SlabCodedCoords*)(big_scratch + game.map_tiles_x * game.map_tiles_y);
     unsigned int list_len = 0;
     unsigned int list_cur = 0;
     while (list_cur <= list_len)
@@ -388,7 +389,7 @@ void make_safe(struct PlayerInfo *player)
                 list_len++;
             }
         }
-        if (slb_x < gameadd.map_tiles_x-1)
+        if (slb_x < game.map_tiles_x-1)
         {
             slb_num = get_slab_number(slb_x+1, slb_y);
             if ((areamap[slb_num] & 0x01) != 0)
@@ -434,7 +435,7 @@ void make_safe(struct PlayerInfo *player)
                 list_len++;
             }
         }
-        if (slb_y < gameadd.map_tiles_y-1)
+        if (slb_y < game.map_tiles_y-1)
         {
             slb_num = get_slab_number(slb_x, slb_y+1);
             if ((areamap[slb_num] & 0x01) != 0)
@@ -462,7 +463,7 @@ void make_safe(struct PlayerInfo *player)
         slb_y = slb_num_decode_y(slblist[list_cur]);
         list_cur++;
     }
-    panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+    panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
 }
 
 void make_unsafe(PlayerNumber plyr_idx)
@@ -475,9 +476,9 @@ void make_unsafe(PlayerNumber plyr_idx)
     struct PowerConfigStats* powerst;
     struct Dungeon* dungeon;
     struct Coord3d pos;
-    for (slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
+    for (slb_y = 0; slb_y < game.map_tiles_y; slb_y++)
     {
-        for (slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
+        for (slb_x = 0; slb_x < game.map_tiles_x; slb_x++)
         {
             slb_num = get_slab_number(slb_x, slb_y);
             slb = get_slabmap_direct(slb_num);
@@ -500,13 +501,15 @@ void make_unsafe(PlayerNumber plyr_idx)
             }
         }
     }
-    panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+    panel_map_update(0, 0, game.map_subtiles_x + 1, game.map_subtiles_y + 1);
 }
 
 void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
 {
     SYNCDBG(6,"Starting");
     struct Coord3d pos;
+
+    lua_on_special_box_activate(player->id_number,cratetng);
 
     // Gathering data which we'll need if the special is used and disposed.
     struct Dungeon* dungeon = get_dungeon(player->id_number);
@@ -603,15 +606,15 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
         default:
             if (thing_is_custom_special_box(cratetng))
             {
-                if (gameadd.current_player_turn == game.play_gameturn)
+                if (game.current_player_turn == game.play_gameturn)
                 {
-                    WARNLOG("box activation rejected turn:%lu", gameadd.current_player_turn);
+                    WARNLOG("box activation rejected turn:%lu", game.current_player_turn);
                     // If two players suddenly activated box at same turn it is not that we want to
                     return;
                 }
-                gameadd.current_player_turn = game.play_gameturn;
-                gameadd.script_current_player = player->id_number;
-                memcpy(&gameadd.triggered_object_location, &pos, sizeof(struct Coord3d));
+                game.current_player_turn = game.play_gameturn;
+                game.script_current_player = player->id_number;
+                memcpy(&game.triggered_object_location, &pos, sizeof(struct Coord3d));
                 dungeon->box_info.activated[cratetng->custom_box.box_kind]++;
                 no_speech = true;
                 remove_events_thing_is_attached_to(cratetng);

@@ -130,47 +130,49 @@ extern char consoleLogArray[MAX_CONSOLE_LOG_COUNT][MAX_TEXT_LENGTH];
 extern size_t consoleLogArraySize;
 
 // High level functions - DK specific
-void error(const char *codefile,const int ecode,const char *message);
-short warning_dialog(const char *codefile,const int ecode,const char *message);
-short error_dialog(const char *codefile,const int ecode,const char *message);
-short error_dialog_fatal(const char *codefile,const int ecode,const char *message);
-char *buf_sprintf(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
+void error(const char *codefile,const int ecode,const char *message) __attribute__ ((nonnull(1, 3)));
+short warning_dialog(const char *codefile,const int ecode,const char *message) __attribute__ ((nonnull(1, 3)));
+short error_dialog(const char *codefile,const int ecode,const char *message) __attribute__ ((nonnull(1, 3)));
+short error_dialog_fatal(const char *codefile,const int ecode,const char *message) __attribute__ ((nonnull(1, 3)));
+int str_append(char * buffer, int size, const char * str) __attribute__ ((nonnull(1, 3)));
+int str_appendf(char * buffer, int size, const char * format, ...) __attribute__ ((format(printf, 3, 4), nonnull(1, 3)));
 /******************************************************************************/
-int LbErrorLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
-int LbWarnLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
-int LbSyncLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
-int LbNetLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
-int LbJustLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
-int LbNaviLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
-int Lbvsprintf(char* buffer, const char *format, ...) __attribute__ ((format(printf, 2, 3)));
+int LbErrorLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
+int LbWarnLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
+int LbSyncLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
+int LbNetLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
+int LbJustLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
+int LbAiLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
+int LbNaviLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
+
 #ifdef FUNCTESTING
-int LbFTestLog(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
+int LbFTestLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
 #endif
-int LbScriptLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3)));
-int LbConfigLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3)));
-void LbPrint(const char *format, ...) __attribute__ ((format(printf, 1, 2)));
+int LbScriptLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
+int LbConfigLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
+void LbPrint(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
 
 int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
 int LbErrorLogClose(void);
 
-int LbLogClose(struct TbLog *log);
-int LbLogSetup(struct TbLog *log, const char *filename, ulong flags);
-int LbLogSetPrefix(struct TbLog *log, const char *prefix);
-int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...) __attribute__ ((format(printf, 2, 3)));
+int LbLogClose(struct TbLog *log) __attribute__ ((nonnull(1)));
+int LbLogSetup(struct TbLog *log, const char *filename, ulong flags) __attribute__ ((nonnull(1, 2)));
+int LbLogSetPrefix(struct TbLog *log, const char *prefix) __attribute__ ((nonnull(1, 2)));
+int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(1, 2)));
 
 void LbCloseLog();
 /******************************************************************************/
 typedef void (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
 /******************************************************************************/
-unsigned long blong (unsigned char *p);
-unsigned long llong (unsigned char *p);
-unsigned long bword (unsigned char *p);
-unsigned long lword (unsigned char *p);
+unsigned long blong (unsigned char *p) __attribute__ ((nonnull(1)));
+unsigned long llong (unsigned char *p) __attribute__ ((nonnull(1)));
+unsigned long bword (unsigned char *p) __attribute__ ((nonnull(1)));
+unsigned long lword (unsigned char *p) __attribute__ ((nonnull(1)));
 long saturate_set_signed(long long val,unsigned short nbits);
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);
-void make_lowercase(char *);
-void make_uppercase(char *);
-int natoi(const char * str, int len); // like atoi but stops after len bytes
+void make_lowercase(char *) __attribute__ ((nonnull(1)));
+void make_uppercase(char *) __attribute__ ((nonnull(1)));
+int natoi(const char * str, int len) __attribute__ ((nonnull(1))); // like atoi but stops after len bytes
 
 /**
  * Converts an index number to a flag - by creating a bitmask where only the nth bit is set to 1.

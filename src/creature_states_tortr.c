@@ -244,9 +244,9 @@ short kinky_torturing(struct Thing *thing)
         set_start_state(thing);
         return CrStRet_ResetFail;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((game.play_gameturn-cctrl->turns_at_job > crstat->torture_break_time) && !is_neutral_thing(thing))
+    if ((game.play_gameturn-cctrl->turns_at_job > crconf->torture_break_time) && !is_neutral_thing(thing))
     {
         set_start_state(thing);
         return CrStRet_ResetOk;
@@ -265,15 +265,15 @@ short kinky_torturing(struct Thing *thing)
 
 CrCheckRet process_kinky_function(struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, AngR_Other, 1);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    anger_apply_anger_to_creature(thing, crconf->annoy_in_torture, AngR_Other, 1);
     return CrCkRet_Available;
 }
 
 void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    ThingModel crmodel = crstat->torture_kind;
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    ThingModel crmodel = crconf->torture_kind;
     if ((crmodel > game.conf.crtr_conf.model_count) || (crmodel <= 0))
     {
         // If not assigned or is unknown, default to the room creature creation.
@@ -364,11 +364,11 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
     }
     TbBool reveal_success = 0;
 
-    unsigned char* ownership_map = (unsigned char*)malloc(gameadd.map_tiles_y * gameadd.map_tiles_x);
-    memset(ownership_map,0,gameadd.map_tiles_y*gameadd.map_tiles_x);
-    for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+    unsigned char* ownership_map = (unsigned char*)malloc(game.map_tiles_y * game.map_tiles_x);
+    memset(ownership_map,0,game.map_tiles_y*game.map_tiles_x);
+    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
         {
             slb_num = get_slab_number(slb_x, slb_y);
             slb = get_slabmap_direct(slb_num);
@@ -376,7 +376,7 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
                 ownership_map[slb_num] |= 0x01;
         }
     }
-    struct USPOINT_2D* revealed_pts = (struct USPOINT_2D*)malloc((gameadd.map_tiles_y * gameadd.map_tiles_x) * sizeof(struct USPOINT_2D));
+    struct USPOINT_2D* revealed_pts = (struct USPOINT_2D*)malloc((game.map_tiles_y * game.map_tiles_x) * sizeof(struct USPOINT_2D));
     unsigned int pts_to_reveal = 32;
     unsigned int pts_count = 0;
     unsigned int pt_idx = 0;
@@ -494,8 +494,8 @@ long compute_torture_convert_time(const struct Thing *thing, const struct Room *
 long compute_torture_broke_chance(const struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) - (long)crstat->torture_break_time;
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+    long i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) - (long)crconf->torture_break_time;
     return (i/64 + 1);
 }
 
@@ -516,9 +516,9 @@ CrCheckRet process_torture_function(struct Thing *creatng)
             return CrCkRet_Available;
         }
     }
-    struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig *crconf = creature_stats_get_from_thing(creatng);
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
-    anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
+    anger_apply_anger_to_creature(creatng, crconf->annoy_in_torture, AngR_Other, 1);
     if ((long)game.play_gameturn >= cctrl->turns_at_job + game.conf.rules.health.turns_per_torture_health_loss)
     {
         HitPoints torture_damage = compute_creature_max_health(game.conf.rules.health.torture_health_loss, cctrl->exp_level);
@@ -541,7 +541,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     }
     // Torture must take some time before it has any affect.
     i = compute_torture_convert_time(creatng, room);
-    if ((i < crstat->torture_break_time) || (cctrl->tortured.assigned_torturer == 0))
+    if ((i < crconf->torture_break_time) || (cctrl->tortured.assigned_torturer == 0))
     {
         return CrCkRet_Available;
     }
@@ -558,7 +558,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
             }
             else
             { // Revealing information about enemy and continuing the torture.
-                cctrl->tortured.start_gameturn = (long)game.play_gameturn - (long)crstat->torture_break_time / 2;
+                cctrl->tortured.start_gameturn = (long)game.play_gameturn - (long)crconf->torture_break_time / 2;
                 reveal_players_map_to_player(creatng, room->owner);
                 return CrCkRet_Available;
             }

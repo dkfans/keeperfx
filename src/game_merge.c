@@ -29,7 +29,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-struct GameAdd gameadd;
 struct IntralevelData intralvl;
 unsigned long game_flags2 = 0;
 /******************************************************************************/

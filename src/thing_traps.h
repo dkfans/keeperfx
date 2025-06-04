@@ -96,6 +96,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng);
 void activate_trap_by_slap(struct PlayerInfo* player, struct Thing* traptng);
 void process_trap_charge(struct Thing* traptng);
 void script_place_trap(PlayerNumber plyridx, ThingModel trapkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool free);
+void set_trap_shots(struct Thing *traptng, int shots);
 
 unsigned long remove_trap(struct Thing *traptng, long *sell_value);
 unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);

@@ -34,11 +34,13 @@ pkg/fxdata/gtext_lat.dat \
 pkg/fxdata/gtext_pol.dat \
 pkg/fxdata/gtext_rus.dat \
 pkg/fxdata/gtext_spa.dat \
-pkg/fxdata/gtext_swe.dat
+pkg/fxdata/gtext_swe.dat \
+pkg/fxdata/gtext_ukr.dat \
 
 NCTEXTDATS = \
 pkg/campgns/ami2019/text_eng.dat \
 pkg/campgns/ami2019/text_chi.dat \
+pkg/campgns/ami2019/text_ger.dat \
 pkg/campgns/ami2019/text_spa.dat \
 pkg/campgns/ancntkpr/text_eng.dat \
 pkg/campgns/ancntkpr/text_chi.dat \
@@ -55,6 +57,7 @@ pkg/campgns/lqizgood/text_eng.dat \
 pkg/campgns/lqizgood/text_chi.dat \
 pkg/campgns/lqizgood/text_fre.dat \
 pkg/campgns/lqizgood/text_pol.dat \
+pkg/campgns/lqizgood/text_ukr.dat \
 pkg/campgns/origplus/text_eng.dat \
 pkg/campgns/origplus/text_chi.dat \
 pkg/campgns/origplus/text_cht.dat \
@@ -70,6 +73,7 @@ pkg/campgns/origplus/text_pol.dat \
 pkg/campgns/origplus/text_rus.dat \
 pkg/campgns/origplus/text_spa.dat \
 pkg/campgns/origplus/text_swe.dat \
+pkg/campgns/origplus/text_ukr.dat \
 pkg/campgns/revlord/text_eng.dat \
 pkg/campgns/revlord/text_chi.dat \
 pkg/campgns/revlord/text_ger.dat \
@@ -127,6 +131,9 @@ pkg/fxdata/gtext_jpn.dat: lang/gtext_jpn.po $(POTONGDAT) $(JP_CHAR_ENCODING) | p
 pkg/fxdata/gtext_rus.dat: lang/gtext_rus.po $(POTONGDAT) $(RU_CHAR_ENCODING) | pkg/fxdata
 	$(POTONGDAT) -o $@ -e $(RU_CHAR_ENCODING) $< >/dev/null
 
+pkg/fxdata/gtext_ukr.dat: lang/gtext_ukr.po $(POTONGDAT) $(RU_CHAR_ENCODING) | pkg/fxdata
+	$(POTONGDAT) -o $@ -e $(RU_CHAR_ENCODING) $< >/dev/null
+
 pkg/fxdata/gtext_chi.dat: lang/gtext_chi.po $(POTONGDAT) $(CH_CHAR_ENCODING) | pkg/fxdata
 	$(POTONGDAT) -o $@ -e $(CH_CHAR_ENCODING) $< >/dev/null
 
@@ -176,6 +183,9 @@ pkg/%/text_pol.dat: lang/%/text_pol.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
 pkg/%/text_rus.dat: lang/%/text_rus.po $(POTONGDAT) $(RU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(RU_CHAR_ENCODING) $< >/dev/null
+
+pkg/%/text_ukr.dat: lang/%/text_ukr.po $(POTONGDAT) $(RU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(RU_CHAR_ENCODING) $< >/dev/null
 
 pkg/%/text_spa.dat: lang/%/text_spa.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%

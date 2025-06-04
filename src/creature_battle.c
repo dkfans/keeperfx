@@ -241,8 +241,8 @@ long get_combat_state_for_combat(struct Thing *fightng, struct Thing *enmtng, Cr
         }
         return CmbtSt_Waiting;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(fightng);
-    if (crstat->attack_preference == AttckT_Ranged)
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(fightng);
+    if (crconf->attack_preference == AttckT_Ranged)
     {
         if (creature_has_ranged_weapon(fightng) && can_add_ranged_combat_attacker(enmtng)) {
             return CmbtSt_Ranged;
@@ -328,8 +328,8 @@ long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex ba
     if (!thing_exists(thing))
     {
         ERRORLOG("Jump to invalid thing detected");
-        player->zoom_to_pos_x = subtile_coord_center(gameadd.map_subtiles_x/2);
-        player->zoom_to_pos_y = subtile_coord_center(gameadd.map_subtiles_y/2);
+        player->zoom_to_pos_x = subtile_coord_center(game.map_subtiles_x/2);
+        player->zoom_to_pos_y = subtile_coord_center(game.map_subtiles_y/2);
         return 0;
     }
     player->zoom_to_pos_x = thing->mappos.x.val;
