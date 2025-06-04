@@ -514,8 +514,8 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
 
         if ( pos_x >= 0 )
         {
-            if ( pos_x > gameadd.map_subtiles_x * COORD_PER_STL )
-                pos_x = gameadd.map_subtiles_x * COORD_PER_STL - 1;
+            if ( pos_x > game.map_subtiles_x * COORD_PER_STL )
+                pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
         }
         else
         {
@@ -523,8 +523,8 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
         }
         if ( pos_y >= 0 )
         {
-            if ( pos_y > gameadd.map_subtiles_y * COORD_PER_STL )
-                pos_y = gameadd.map_subtiles_y * COORD_PER_STL - 1;
+            if ( pos_y > game.map_subtiles_y * COORD_PER_STL )
+                pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
         }
         else
         {
@@ -633,13 +633,13 @@ void view_move_camera_left(struct Camera *cam, long distance)
 
         if ( pos_x < 0 )
             pos_x = 0;
-        if ( pos_x > gameadd.map_subtiles_x * COORD_PER_STL )
-            pos_x = gameadd.map_subtiles_x * COORD_PER_STL - 1;
+        if ( pos_x > game.map_subtiles_x * COORD_PER_STL )
+            pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
 
         if ( pos_y < 0 )
             pos_y = 0;
-        if ( pos_y > gameadd.map_subtiles_y * COORD_PER_STL )
-            pos_y = gameadd.map_subtiles_y * COORD_PER_STL - 1;
+        if ( pos_y > game.map_subtiles_y * COORD_PER_STL )
+            pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
 
         cam->mappos.x.val = pos_x;
         cam->mappos.y.val = pos_y;
@@ -652,8 +652,8 @@ void view_move_camera_left(struct Camera *cam, long distance)
 
         if ( parchment_pos_x < 0 )
             parchment_pos_x = 0;
-        if ( parchment_pos_x > gameadd.map_subtiles_x * COORD_PER_STL )
-            parchment_pos_x = gameadd.map_subtiles_x * COORD_PER_STL - 1;
+        if ( parchment_pos_x > game.map_subtiles_x * COORD_PER_STL )
+            parchment_pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
 
         cam->mappos.x.val = parchment_pos_x;
 
@@ -678,13 +678,13 @@ void view_move_camera_right(struct Camera *cam, long distance)
 
         if ( pos_x < 0 )
             pos_x = 0;
-        if ( pos_x > gameadd.map_subtiles_x * COORD_PER_STL )
-            pos_x = gameadd.map_subtiles_x * COORD_PER_STL - 1;
+        if ( pos_x > game.map_subtiles_x * COORD_PER_STL )
+            pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
 
         if ( pos_y < 0 )
             pos_y = 0;
-        if ( pos_y > gameadd.map_subtiles_y * COORD_PER_STL )
-            pos_y = gameadd.map_subtiles_y * COORD_PER_STL - 1;
+        if ( pos_y > game.map_subtiles_y * COORD_PER_STL )
+            pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
 
         cam->mappos.x.val = pos_x;
         cam->mappos.y.val = pos_y;
@@ -697,8 +697,8 @@ void view_move_camera_right(struct Camera *cam, long distance)
 
         if ( parchment_pos_x < 0 )
             parchment_pos_x = 0;
-        if ( parchment_pos_x > gameadd.map_subtiles_x * COORD_PER_STL )
-            parchment_pos_x = gameadd.map_subtiles_x * COORD_PER_STL - 1;
+        if ( parchment_pos_x > game.map_subtiles_x * COORD_PER_STL )
+            parchment_pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
 
         cam->mappos.x.val = parchment_pos_x;
 
@@ -723,13 +723,13 @@ void view_move_camera_up(struct Camera *cam, long distance)
 
         if ( pos_x < 0 )
             pos_x = 0;
-        if ( pos_x > gameadd.map_subtiles_x * COORD_PER_STL )
-            pos_x = gameadd.map_subtiles_x * COORD_PER_STL - 1;
+        if ( pos_x > game.map_subtiles_x * COORD_PER_STL )
+            pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
 
         if ( pos_y < 0 )
             pos_y = 0;
-        if ( pos_y > gameadd.map_subtiles_y * COORD_PER_STL )
-            pos_y = gameadd.map_subtiles_y * COORD_PER_STL - 1;
+        if ( pos_y > game.map_subtiles_y * COORD_PER_STL )
+            pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
 
         cam->mappos.x.val = pos_x;
         cam->mappos.y.val = pos_y;
@@ -741,8 +741,8 @@ void view_move_camera_up(struct Camera *cam, long distance)
 
         if ( parchment_pos_y < 0 )
             parchment_pos_y = 0;
-        if ( parchment_pos_y > gameadd.map_subtiles_y * COORD_PER_STL )
-            parchment_pos_y = gameadd.map_subtiles_y * COORD_PER_STL - 1;
+        if ( parchment_pos_y > game.map_subtiles_y * COORD_PER_STL )
+            parchment_pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
 
         cam->mappos.y.val = parchment_pos_y;
 
@@ -766,13 +766,13 @@ void view_move_camera_down(struct Camera *cam, long distance)
 
         if ( pos_x < 0 )
             pos_x = 0;
-        if ( pos_x > gameadd.map_subtiles_x * COORD_PER_STL )
-            pos_x = gameadd.map_subtiles_x * COORD_PER_STL - 1;
+        if ( pos_x > game.map_subtiles_x * COORD_PER_STL )
+            pos_x = game.map_subtiles_x * COORD_PER_STL - 1;
 
         if ( pos_y < 0 )
             pos_y = 0;
-        if ( pos_y > gameadd.map_subtiles_y * COORD_PER_STL )
-            pos_y = gameadd.map_subtiles_y * COORD_PER_STL - 1;
+        if ( pos_y > game.map_subtiles_y * COORD_PER_STL )
+            pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
 
         cam->mappos.x.val = pos_x;
         cam->mappos.y.val = pos_y;
@@ -785,8 +785,8 @@ void view_move_camera_down(struct Camera *cam, long distance)
 
         if ( parchment_pos_y < 0 )
             parchment_pos_y = 0;
-        if ( parchment_pos_y > gameadd.map_subtiles_y * COORD_PER_STL )
-            parchment_pos_y = gameadd.map_subtiles_y * COORD_PER_STL - 1;
+        if ( parchment_pos_y > game.map_subtiles_y * COORD_PER_STL )
+            parchment_pos_y = game.map_subtiles_y * COORD_PER_STL - 1;
 
         cam->mappos.y.val = parchment_pos_y;
 

@@ -215,11 +215,11 @@ struct Thing *get_shot_collided_with_same_type(struct Thing *shotng, struct Coor
     if (stl_y_beg < 0)
         stl_y_beg = 0;
     MapSubtlCoord stl_x_end = coord_subtile(nxpos->x.val + 384);
-    if (stl_x_end >= gameadd.map_subtiles_x)
-      stl_x_end = gameadd.map_subtiles_x;
+    if (stl_x_end >= game.map_subtiles_x)
+      stl_x_end = game.map_subtiles_x;
     MapSubtlCoord stl_y_end = coord_subtile(nxpos->y.val + 384);
-    if (stl_y_end >= gameadd.map_subtiles_y)
-      stl_y_end = gameadd.map_subtiles_y;
+    if (stl_y_end >= game.map_subtiles_y)
+      stl_y_end = game.map_subtiles_y;
     for (MapSubtlCoord stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
         for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
@@ -699,7 +699,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     {
         return detonate_shot(shotng, true);
     }
-    if (!(shotst->model_flags & ShMF_Penetrating))
+    if (!flag_is_set(shotst->model_flags,ShMF_WallPierce))
     {
         if (shotng->bounce_angle <= 0)
         {
@@ -771,13 +771,16 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     {
         return detonate_shot(shotng, true);
     }
-    if (shotng->bounce_angle <= 0)
+    if (!(shotst->model_flags & ShMF_Penetrating))
     {
-        slide_thing_against_wall_at(shotng, pos, blocked_flags);
-    }
-    else
-    {
-        bounce_thing_off_wall_at(shotng, pos, blocked_flags);
+        if (shotng->bounce_angle <= 0)
+        {
+            slide_thing_against_wall_at(shotng, pos, blocked_flags);
+        }
+        else
+        {
+            bounce_thing_off_wall_at(shotng, pos, blocked_flags);
+        }
     }
     return false;
 }
@@ -1590,11 +1593,11 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *shotng,
         if (stl_y_min < 0)
             stl_y_min = 0;
         stl_x_max = coord_subtile(pos->x.val + radius);
-        if (stl_x_max > gameadd.map_subtiles_x)
-            stl_x_max = gameadd.map_subtiles_x;
+        if (stl_x_max > game.map_subtiles_x)
+            stl_x_max = game.map_subtiles_x;
         stl_y_max = coord_subtile(pos->y.val + radius);
-        if (stl_y_max > gameadd.map_subtiles_y)
-            stl_y_max = gameadd.map_subtiles_y;
+        if (stl_y_max > game.map_subtiles_y)
+            stl_y_max = game.map_subtiles_y;
     }
     for (MapSubtlCoord stl_y = stl_y_min; stl_y <= stl_y_max; stl_y++)
     {
@@ -1646,7 +1649,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
     {
         if (shot_hit_something_while_moving(shotng, &pos))
         {
-            if ( (!(shotst->model_flags & ShMF_Penetrating)) || (!thing_exists(shotng)) ) // Shot may have been destroyed when it hit something
+            if ( (!flag_is_set(shotst->model_flags,ShMF_Penetrating)) || (!thing_exists(shotng)) ) // Shot may have been destroyed when it hit something
             {
                 return TUFRet_Deleted;
             }

@@ -161,7 +161,7 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     MapSubtlCoord y;
     x = STL_PER_SLB * (stl_x/STL_PER_SLB);
     y = STL_PER_SLB * (stl_y/STL_PER_SLB);
-    if ( (x < 0) || (x >= gameadd.map_subtiles_x) || (y < 0) || (y >= gameadd.map_subtiles_y) ) {
+    if ( (x < 0) || (x >= game.map_subtiles_x) || (y < 0) || (y >= game.map_subtiles_y) ) {
         ERRORLOG("Attempt to tag area outside of map");
         return 0;
     }
@@ -237,7 +237,7 @@ TbBool untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y
     long i;
     x = STL_PER_SLB * (stl_x/STL_PER_SLB);
     y = STL_PER_SLB * (stl_y/STL_PER_SLB);
-    if ( (x < 0) || (x > gameadd.map_subtiles_x) || (y < 0) || (y > gameadd.map_subtiles_y) ) {
+    if ( (x < 0) || (x > game.map_subtiles_x) || (y < 0) || (y > game.map_subtiles_y) ) {
         ERRORLOG("Attempt to tag (%ld,%ld), which is outside of map",x,y);
         return 0;
     }
@@ -402,7 +402,7 @@ long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, 
         struct Coord3d pos;
         unsigned long k;
         long i;
-        mapblk = get_map_block_at_pos(stl_num+gameadd.around_map[n]);
+        mapblk = get_map_block_at_pos(stl_num+game.around_map[n]);
         k = 0;
         i = get_mapwho_thing_index(mapblk);
         while (i != 0)
@@ -453,7 +453,7 @@ unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSla
     removed_num = 0;
     for (n=0; n < AROUND_MAP_LENGTH; n++)
     {
-        mapblk = get_map_block_at_pos(stl_num+gameadd.around_map[n]);
+        mapblk = get_map_block_at_pos(stl_num+game.around_map[n]);
         k = 0;
         i = get_mapwho_thing_index(mapblk);
         while (i != 0)
@@ -505,7 +505,7 @@ unsigned long remove_unwanted_things_from_wall_slab(MapSlabCoord slb_x, MapSlabC
     unsigned long removed_num = 0;
     for (long n=0; n < AROUND_MAP_LENGTH; n++)
     {
-        struct Map *mapblk = get_map_block_at_pos(stl_num+gameadd.around_map[n]);
+        struct Map *mapblk = get_map_block_at_pos(stl_num+game.around_map[n]);
         unsigned long k = 0;
         long i = get_mapwho_thing_index(mapblk);
         while (i != 0)
@@ -594,7 +594,7 @@ unsigned long remove_unwanted_things_from_floor_slab(MapSlabCoord slb_x, MapSlab
     unsigned long removed_num = 0;
     for (long n=0; n < AROUND_MAP_LENGTH; n++)
     {
-        struct Map *mapblk = get_map_block_at_pos(stl_num+gameadd.around_map[n]);
+        struct Map *mapblk = get_map_block_at_pos(stl_num+game.around_map[n]);
         unsigned long k = 0;
         long i = get_mapwho_thing_index(mapblk);
         while (i != 0)
@@ -1119,11 +1119,11 @@ void delete_attached_lights_on_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     if (start_stl_y <= 0)
       start_stl_y = 0;
     end_stl_x = 3 * slb_x + 4;
-    if (end_stl_x >= gameadd.map_subtiles_x)
-      end_stl_x = gameadd.map_subtiles_x;
+    if (end_stl_x >= game.map_subtiles_x)
+      end_stl_x = game.map_subtiles_x;
     end_stl_y = 3 * slb_y + 4;
-    if (end_stl_y >= gameadd.map_subtiles_y)
-      end_stl_y = gameadd.map_subtiles_y;
+    if (end_stl_y >= game.map_subtiles_y)
+      end_stl_y = game.map_subtiles_y;
     {
         long i;
         unsigned long k;
@@ -1618,11 +1618,11 @@ void dump_slab_on_map(SlabKind slbkind, long slabset_id, MapSubtlCoord stl_x, Ma
         MapSubtlCoord stl_xb;
         MapSubtlCoord stl_yb;
         stl_yb = stl_ya + STL_PER_SLB - 1;
-        if (stl_yb > gameadd.map_subtiles_y)
-            stl_yb = gameadd.map_subtiles_y;
+        if (stl_yb > game.map_subtiles_y)
+            stl_yb = game.map_subtiles_y;
         stl_xb = stl_xa + STL_PER_SLB - 1;
-        if (stl_xb > gameadd.map_subtiles_x)
-            stl_xb = gameadd.map_subtiles_x;
+        if (stl_xb > game.map_subtiles_x)
+            stl_xb = game.map_subtiles_x;
         update_blocks_in_area(stl_xa, stl_ya, stl_xb, stl_yb);
     }
 }
@@ -2143,7 +2143,7 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
     int delta_see;
     for (delta_see = -can_see_slabs; delta_see <= can_see_slabs; delta_see++)
     {
-        if ((delta_see + slb_x < 0) || (delta_see + slb_x >= gameadd.map_tiles_x)) {
+        if ((delta_see + slb_x < 0) || (delta_see + slb_x >= game.map_tiles_x)) {
             continue;
         }
         TbBool go_dir1;
@@ -2176,7 +2176,7 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
             hslb_x = slb_x + (rad_x >> 8);
             lslb_y = slb_y - (rad_y >> 8);
             hslb_y = slb_y + (rad_y >> 8);
-            if ((lslb_y < 0) || (hslb_y >= gameadd.map_tiles_y))
+            if ((lslb_y < 0) || (hslb_y >= game.map_tiles_y))
                 continue;
             if ( go_dir1 )
             {
@@ -2305,7 +2305,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
     int delta_see;
     for (delta_see = -can_see_slabs; delta_see <= can_see_slabs; delta_see++)
     {
-        if ((delta_see + slb_y < 0) || (delta_see + slb_y >= gameadd.map_tiles_y)) {
+        if ((delta_see + slb_y < 0) || (delta_see + slb_y >= game.map_tiles_y)) {
             continue;
         }
         TbBool go_dir1;
@@ -2338,7 +2338,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
             lslb_x = slb_x - (rad_x >> 8);
             hslb_x = slb_x + (rad_x >> 8);
             hslb_y = slb_y + (rad_y >> 8);
-            if ((lslb_x < 0) || (hslb_x >= gameadd.map_tiles_x))
+            if ((lslb_x < 0) || (hslb_x >= game.map_tiles_x))
                 continue;
             if ( go_dir1 )
             {

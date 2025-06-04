@@ -640,7 +640,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
                 tngpos.x.val = curpos.x.val + deviat - UNSYNC_RANDOM(devrange);
                 tngpos.y.val = curpos.y.val + deviat - UNSYNC_RANDOM(devrange);
                 tngpos.z.val = curpos.z.val + deviat - UNSYNC_RANDOM(devrange);
-                if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
+                if ((tngpos.x.val < subtile_coord(game.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(game.map_subtiles_y,0)))
                 {
                     struct Thing *eelemtng;
 
@@ -720,7 +720,7 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             tngpos.x.val = curpos.x.val + deviat_x;
             tngpos.y.val = curpos.y.val + deviat_y;
             tngpos.z.val = curpos.z.val + deviat_z;
-            if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
+            if ((tngpos.x.val < subtile_coord(game.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(game.map_subtiles_y,0)))
             {
                 create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num, 0);
             }
@@ -1162,26 +1162,6 @@ short setup_game(void)
   if (result == 1)
   {
       init_keeper();
-      switch (start_params.force_ppro_poly)
-      {
-      case 1:
-          gpoly_enable_pentium_pro(true);
-          break;
-      case 2:
-          gpoly_enable_pentium_pro(false);
-          break;
-      default:
-          if (cpu_info.feature_intl == 0)
-          {
-              gpoly_enable_pentium_pro(false);
-          } else
-          if ( ((cpu_info.feature_intl>>8) & 0x0F) < 0x06 ) {
-              gpoly_enable_pentium_pro(false);
-          } else {
-              gpoly_enable_pentium_pro(true);
-          }
-          break;
-      }
       set_gamma(settings.gamma_correction, 0);
       set_music_volume(settings.music_volume);
       SetSoundMasterVolume(settings.sound_volume);
@@ -1252,13 +1232,13 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
         if (*map_y < 0)
           *map_y = 0;
         else
-        if (*map_y > subtile_coord(gameadd.map_subtiles_y,-1))
-          *map_y = subtile_coord(gameadd.map_subtiles_y,-1);
+        if (*map_y > subtile_coord(game.map_subtiles_y,-1))
+          *map_y = subtile_coord(game.map_subtiles_y,-1);
         if (*map_x < 0)
           *map_x = 0;
         else
-        if (*map_x > subtile_coord(gameadd.map_subtiles_x,-1))
-          *map_x = subtile_coord(gameadd.map_subtiles_x,-1);
+        if (*map_x > subtile_coord(game.map_subtiles_x,-1))
+          *map_x = subtile_coord(game.map_subtiles_x,-1);
         return true;
     }
     return false;
@@ -1295,10 +1275,10 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
       mappos->x.val = x;
       mappos->y.val = y;
     }
-    if ( mappos->x.val > ((gameadd.map_subtiles_x<<8)-1) )
-      mappos->x.val = ((gameadd.map_subtiles_x<<8)-1);
-    if ( mappos->y.val > ((gameadd.map_subtiles_y<<8)-1) )
-      mappos->y.val = ((gameadd.map_subtiles_y<<8)-1);
+    if ( mappos->x.val > ((game.map_subtiles_x<<8)-1) )
+      mappos->x.val = ((game.map_subtiles_x<<8)-1);
+    if ( mappos->y.val > ((game.map_subtiles_y<<8)-1) )
+      mappos->y.val = ((game.map_subtiles_y<<8)-1);
     SYNCDBG(19,"Finished");
     return result;
 }
@@ -1440,9 +1420,9 @@ void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx)
     // Clear tagged blocks
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    for (stl_y=0; stl_y < gameadd.map_subtiles_y; stl_y++)
+    for (stl_y=0; stl_y < game.map_subtiles_y; stl_y++)
     {
-        for (stl_x=0; stl_x < gameadd.map_subtiles_x; stl_x++)
+        for (stl_x=0; stl_x < game.map_subtiles_x; stl_x++)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
@@ -1619,7 +1599,6 @@ TbBool set_default_startup_parameters(void)
     start_params.computer_chat_flags = CChat_None;
     clear_flag(start_params.flags_cd, MFlg_IsDemoMode);
     set_flag(start_params.flags_cd, MFlg_unk40);
-    start_params.force_ppro_poly = 0;
     return true;
 }
 
@@ -1639,8 +1618,8 @@ void clear_things_and_persons_data(void)
         thing = &game.things_data[i];
         memset(thing, 0, sizeof(struct Thing));
         thing->owner = PLAYERS_COUNT;
-        thing->mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-        thing->mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+        thing->mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
+        thing->mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
     }
     for (i=0; i < CREATURES_COUNT; i++)
     {
@@ -2213,7 +2192,7 @@ static void process_dungeon_devastation_effects(void)
         if ((game.play_gameturn & 1) != 0)
             continue;
         dungeon->devastation_turn++;
-        if (dungeon->devastation_turn >= max(gameadd.map_tiles_x,gameadd.map_tiles_y))
+        if (dungeon->devastation_turn >= max(game.map_tiles_x,game.map_tiles_y))
             continue;
         MapSlabCoord slb_x;
         MapSlabCoord slb_y;
@@ -3118,7 +3097,7 @@ void update_blocks_pointed(void)
           k = (hori_ptr_x - (hori_ptr_y >> 1)) / hvdiv_y;
           y_frac = (k & 3) << 6;
           y = k >> 2;
-          if ((x >= 0) && (x < gameadd.map_subtiles_x) && (y >= 0) && (y < gameadd.map_subtiles_y))
+          if ((x >= 0) && (x < game.map_subtiles_x) && (y >= 0) && (y < game.map_subtiles_y))
           {
               update_block_pointed(i,x,x_frac,y,y_frac);
           }
@@ -3311,10 +3290,10 @@ void gameplay_loop_logic()
     }
 
     if (is_feature_on(Ft_DeltaTime) == true) {
-        if (gameadd.process_turn_time < 1.0) {
+        if (game.process_turn_time < 1.0) {
             return;
         }
-        gameadd.process_turn_time -= 1.0;
+        game.process_turn_time -= 1.0;
     }
 
     frametime_start_measurement(Frametime_Logic);
@@ -3385,12 +3364,12 @@ void gameplay_loop_timestep()
 {
     frametime_start_measurement(Frametime_Sleep);
     if (is_feature_on(Ft_DeltaTime) == true) {
-        gameadd.delta_time = get_delta_time();
-        gameadd.process_turn_time += gameadd.delta_time;
+        game.delta_time = get_delta_time();
+        game.process_turn_time += game.delta_time;
     } else {
         // Set to 1 so that these variables don't affect anything. (if something is multiplied by 1 it doesn't change)
-        gameadd.delta_time = 1;
-        gameadd.process_turn_time = 1;
+        game.delta_time = 1;
+        game.process_turn_time = 1;
         // Make delay if the machine is too fast
         if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
             keeper_wait_for_next_turn();
@@ -3467,9 +3446,9 @@ void initialise_map_collides(void)
     SYNCDBG(7,"Starting");
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
-    for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
         {
             struct SlabMap *slb;
             slb = get_slabmap_block(slb_x, slb_y);
@@ -3498,9 +3477,9 @@ void initialise_map_health(void)
     SYNCDBG(7,"Starting");
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
-    for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
         {
             struct SlabMap *slb;
             slb = get_slabmap_block(slb_x, slb_y);
@@ -3547,7 +3526,8 @@ static TbBool wait_at_frontend(void)
         TbBool result = false;
         if (start_params.selected_campaign[0] != '\0')
         {
-            result = change_campaign(strcat(start_params.selected_campaign,".cfg"));
+            str_append(start_params.selected_campaign, sizeof(start_params.selected_campaign), ".cfg");
+            result = change_campaign(start_params.selected_campaign);
         }
         if (!result) {
             if (!change_campaign("")) {
@@ -3868,7 +3848,7 @@ short process_command_line(unsigned short argc, char *argv[])
   AssignCpuKeepers = 0;
   SoundDisabled = 0;
   // Note: the working log file is set up in LbBullfrogMain
-  LbErrorLogSetup(0, 0, 1);
+  LbErrorLogSetup(nullptr, nullptr, 1);
 
   set_default_startup_parameters();
 
@@ -3959,7 +3939,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if ( strcasecmp(parstr,"ppropoly") == 0 )
       {
-          start_params.force_ppro_poly = atoi(pr2str);
+          // old param, ignored
           narg++;
       } else
       if ( strcasecmp(parstr,"altinput") == 0 )
@@ -4120,9 +4100,9 @@ short process_command_line(unsigned short argc, char *argv[])
       else
       {
         // append bad parstr to bad_params string
-        char param_buffer[128] = "\0";
-        Lbvsprintf(param_buffer, "%s%s", strnlen(bad_params, TEXT_BUFFER_LENGTH) > 0 ? ", " : "" , parstr);
-        strcat(bad_params, param_buffer);
+        char param_buffer[128] = "";
+        snprintf(param_buffer, sizeof(param_buffer), "%s%s", strnlen(bad_params, TEXT_BUFFER_LENGTH) > 0 ? ", " : "" , parstr);
+        str_append(bad_params, sizeof(bad_params), param_buffer);
         bad_param=narg;
       }
       narg++;
@@ -4153,9 +4133,9 @@ short process_command_line(unsigned short argc, char *argv[])
 
   if(bad_param != 0)
   {
-    int res = 0;
-    WARNING_DIALOG(res, "Incorrect command line parameters: '%s'.\nPlease correct your Run options.", bad_params);
-    return res;
+    char message[TEXT_BUFFER_LENGTH];
+    snprintf(message, sizeof(message), "Incorrect command line parameters: '%s'.\nPlease correct your Run options.", bad_params);
+    warning_dialog(__func__, 0, message);
   }
 
   return (bad_param==0);
@@ -4348,8 +4328,6 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 int main(int argc, char *argv[])
 #endif
 {
-  char *text;
-
   AddVectoredExceptionHandler(0, &Vex_handler);
   get_cmdln_args(bf_argc, bf_argv);
 
@@ -4357,8 +4335,7 @@ int main(int argc, char *argv[])
   LbBullfrogMain(bf_argc, bf_argv);
   } catch (...)
   {
-      text = buf_sprintf("Exception raised!");
-      error_dialog(__func__, 1, text);
+      error_dialog(__func__, 1, "Exception raised!");
       return 1;
   }
 
