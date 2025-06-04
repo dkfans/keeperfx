@@ -562,6 +562,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     case 98:
     case 101:
     case 102:
+    JUSTLOG("draw_gpoly1: gpoly_mode %ld\n", gpoly_mode);
         draw_gpoly_sub1a();
         draw_gpoly_sub1b();
         draw_gpoly_sub1c();
@@ -578,6 +579,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     case 100:
     case 103:
     case 104:
+    JUSTLOG("draw_gpoly2: gpoly_mode %ld\n", gpoly_mode);
         draw_gpoly_sub2a();
         draw_gpoly_sub2b();
         draw_gpoly_sub2c();
@@ -588,6 +590,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     case 68:
     case 80:
     case 81:
+    JUSTLOG("draw_gpoly3: gpoly_mode %ld\n", gpoly_mode);
         draw_gpoly_sub3a();
         draw_gpoly_sub3b();
         break;
@@ -605,10 +608,12 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     case 83:
     case 86:
     case 87:
+    JUSTLOG("draw_gpoly4: gpoly_mode %ld\n", gpoly_mode);
         draw_gpoly_sub4();
         break;
     case 2:
     case 66:
+    JUSTLOG("draw_gpoly5: gpoly_mode %ld\n", gpoly_mode);
         draw_gpoly_sub5();
         break;
     case 5:
@@ -622,6 +627,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     case 85:
     case 88:
     case 89:
+    JUSTLOG("draw_gpoly6: gpoly_mode %ld\n", gpoly_mode);
         draw_gpoly_sub6();
         break;
     case 69:
@@ -2779,178 +2785,190 @@ void draw_gpoly_sub7b_block2(void)
 
 void draw_gpoly_sub7b_block3(void)
 {
-asm volatile (" \
-    pusha   \n \
-    movl    _gploc_pt_as,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_startposshadetop\n \
-    movl    _gploc_pt_au,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_startposmapxtop\n \
-    movl    _gploc_pt_av,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_startposmapytop\n \
-    movl    _gploc_pt_bs,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_startposshadebottom\n \
-    movl    _gploc_pt_bu,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_startposmapxbottom\n \
-    movl    _gploc_pt_bv,%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,_startposmapybottom\n \
-    movl    _mapyhstep,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movl    _shadehstep,%%ebx\n \
-    shll    $0x18,%%ebx\n \
-    movl    %%ebx,_gploc_30\n \
-    movl    _shadehstep,%%ebx\n \
-    sarl    $8,%%ebx\n \
-    orl %%ebx,%%ebx\n \
-    jns gpo_loc_1FB1\n \
-    andl    $0x0FFFF,%%ebx\n \
-    subl    $0x10000,%%eax\n \
-    sbbl    $0,%%edx\n \
-\n \
-gpo_loc_1FB1:         # 1DB\n \
-    addl    %%ebx,%%eax\n \
-    adcl    $0,%%edx\n \
-    movl    %%eax,_gploc_BC\n \
-    movl    _mapxhstep,%%eax\n \
-    orl %%edx,%%edx\n \
-    jns gpo_loc_1FC9\n \
-    decl    %%eax\n \
-\n \
-gpo_loc_1FC9:         # 1DD6\n \
-    shll    $8,%%eax\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_B8\n \
-    movl    _mapyhstep,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movl    _shadehstep,%%ebx\n \
-    sarl    $8,%%ebx\n \
-    orl %%ebx,%%ebx\n \
-    jns gpo_loc_2006\n \
-    andl    $0x0FFFF,%%ebx\n \
-    subl    $0x0FFFF,%%eax\n \
-    sbbl    $0,%%edx\n \
-\n \
-" : : : "memory", "cc");
+    //----------------------------------------------------------------
+    // 1) Write the six “startpos…” values exactly as in the ASM:
+    //----------------------------------------------------------------
+    startposshadetop    = (uint32_t)( (int32_t)gploc_pt_as   << 16 );
+    startposmapxtop     = (uint32_t)( (int32_t)gploc_pt_au   << 16 );
+    startposmapytop     = (uint32_t)( (int32_t)gploc_pt_av   << 16 );
+    startposshadebottom = (uint32_t)( (int32_t)gploc_pt_bs   << 16 );
+    startposmapxbottom  = (uint32_t)( (int32_t)gploc_pt_bu   << 16 );
+    startposmapybottom  = (uint32_t)( (int32_t)gploc_pt_bv   << 16 );
 
-asm volatile (" \
-gpo_loc_2006:         # 1E06\n \
-    addl    %%ebx,%%eax\n \
-    adcl    $0,%%edx\n \
-    movl    %%eax,_gploc_5C\n \
-    movl    _mapxhstep,%%eax\n \
-    orl %%edx,%%edx\n \
-    jns gpo_loc_201E\n \
-    decl    %%eax\n \
-\n \
-gpo_loc_201E:         # 1E2B\n \
-    shll    $8,%%eax\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_2C\n \
-    movl    _mapyveltop,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movl    _gploc_point_c,%%ebx\n \
-    shll    $0x18,%%ebx\n \
-    movl    %%ebx,_gploc_68\n \
-    movl    _gploc_point_c,%%ebx\n \
-    sarl    $8,%%ebx\n \
-    orl %%ebx,%%ebx\n \
-    jns gpo_loc_2063\n \
-    andl    $0x0FFFF,%%ebx\n \
-    subl    $0x10000,%%eax\n \
-    sbbl    $0,%%edx\n \
-\n \
-" : : : "memory", "cc");
+    //----------------------------------------------------------------
+    // 2) TOP‐SHADING INTERPOLATION → gploc_30, gploc_BC, gploc_B8
+    //----------------------------------------------------------------
+    {
 
-asm volatile (" \
-gpo_loc_2063:         # 1E63\n \
-    addl    %%ebx,%%eax\n \
-    adcl    $0,%%edx\n \
-    movl    %%eax,_gploc_A4\n \
-    movl    _mapxveltop,%%eax\n \
-    orl %%edx,%%edx\n \
-    jns gpo_loc_2078\n \
-    decl    %%eax\n \
-\n \
-gpo_loc_2078:         # 1E85\n \
-    shll    $8,%%eax\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_A0\n \
-    movl    _startposmapytop,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    movl    _startposshadetop,%%ebx\n \
-    shrl    $8,%%ebx\n \
-    orl %%ebx,%%eax\n \
-    movl    %%eax,_gploc_8C\n \
-    movl    _startposmapxtop,%%eax\n \
-    shll    $8,%%eax\n \
-    shrl    $0x10,%%edx\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_88\n \
-    movl    _factor_chk,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  gpo_case69_break\n \
-    movl    _gploc_18C,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    sarl    $0x10,%%edx\n \
-    movl    _gploc_1A0,%%ebx\n \
-    shll    $0x18,%%ebx\n \
-    movl    %%ebx,_gploc_64\n \
-    movl    _gploc_1A0,%%ebx\n \
-    sarl    $8,%%ebx\n \
-    orl %%ebx,%%ebx\n \
-    jns gpo_loc_2104\n \
-    andl    $0x0FFFF,%%ebx\n \
-    subl    $0x10000,%%eax\n \
-    sbbl    $0,%%edx\n \
-\n \
-gpo_loc_2104:         # 1F0\n \
-    addl    %%ebx,%%eax\n \
-    adcl    $0,%%edx\n \
-    movl    %%eax,_gploc_98\n \
-    movl    _gploc_198,%%eax\n \
-    orl %%edx,%%edx\n \
-    jns gpo_loc_2119\n \
-    decl    %%eax\n \
-\n \
-gpo_loc_2119:         # 1F26\n \
-    shll    $8,%%eax\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_94\n \
-    movl    _startposmapybottom,%%eax\n \
-    movl    %%eax,%%edx\n \
-    shll    $0x10,%%eax\n \
-    movl    _startposshadebottom,%%ebx\n \
-    shrl    $8,%%ebx\n \
-    orl %%ebx,%%eax\n \
-    movl    %%eax,_gploc_80\n \
-    movl    _startposmapxbottom,%%eax\n \
-    shll    $8,%%eax\n \
-    shrl    $0x10,%%edx\n \
-    andl    $0x0FF,%%edx\n \
-    orl %%eax,%%edx\n \
-    movl    %%edx,_gploc_7C\n \
-\n \
-gpo_case69_break:\n \
-    popa    \n \
-" : : : "memory", "cc");
+        int32_t m_y       = (int32_t)mapyhstep;
+        int32_t s         = (int32_t)(shadehstep >> 8);
+
+        // Build the 48-bit fixed‐point value in a 64‐bit container:
+        int64_t val       = ((int64_t)m_y << 16);
+
+        // If (shadehstep>>8) is negative, emulate the “andl $0x0FFFF; subl $0x10000; sbbl $0,EDX” exactly:
+        if (s < 0) {
+            // EBX = (uint16_t)s
+            uint32_t s16 = (uint32_t)( (uint16_t)s );
+            // EAX -= 0x10000  →  val -= 0x10000
+            val -= ((int64_t)0x10000);
+            // Add back (uint16_t)s
+            val += (int64_t)s16;
+        }
+        else {
+            // s ≥ 0  →  just add s
+            val += (int64_t)s;
+        }
+
+        // Now split val into “low32bits” = EAX and “high32bits” = EDX (signed):
+        uint32_t low32 = (uint32_t)val;
+        int32_t  high32 = (int32_t)( val >> 32 );  // arithmetic shift
+
+        // gploc_30 ← (shadehstep << 24):
+        gploc_30 = (uint32_t)( (int32_t)shadehstep << 24 );
+        // gploc_BC ← low‐word (EAX):
+        gploc_BC = low32;
+
+        // Next: gploc_B8 = ( (mapxhstep + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
+        int32_t mx = (int32_t)mapxhstep;
+        if (high32 < 0) {
+            mx -= 1;
+        }
+        gploc_B8 = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
+    }
+
+    //----------------------------------------------------------------
+    // 3) BOTTOM‐SHADING INTERPOLATION → gploc_5C, gploc_2C
+    //----------------------------------------------------------------
+    {
+
+        int32_t m_y   = (int32_t)mapyhstep;
+        int32_t s     = (int32_t)(shadehstep >> 8);
+
+        int64_t val   = ((int64_t)m_y << 16);
+
+        if (s < 0) {
+            // EBX = (uint16_t)s
+            uint32_t s16 = (uint32_t)((uint16_t)s);
+            // EAX -= 0x0FFFF
+            val -= ((int64_t)0x0FFFF);
+            // add EBX
+            val += (int64_t)s16;
+        }
+        else {
+            val += (int64_t)s;
+        }
+
+        uint32_t low32  = (uint32_t)val;
+        int32_t  high32 = (int32_t)(val >> 32);
+
+        // Store EAX→gploc_5C
+        gploc_5C = low32;
+
+        // gploc_2C = ( (mapxhstep + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
+        int32_t mx      = (int32_t)mapxhstep;
+        if (high32 < 0) {
+            mx -= 1;
+        }
+        gploc_2C = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
+    }
+
+    //----------------------------------------------------------------
+    // 4) TOP “POINT‐C” INTERPOLATION → gploc_68, gploc_A4, gploc_A0
+    //----------------------------------------------------------------
+    {
+        int32_t m_y   = (int32_t)mapyveltop;
+        int64_t val   = ((int64_t)m_y << 16);
+
+        // Build gploc_68 = (gploc_point_c << 24)
+        int32_t ptc     = (int32_t)gploc_point_c;
+        gploc_68        = (uint32_t)(ptc << 24);
+
+        int32_t s       = (int32_t)(ptc >> 8);
+        if (s < 0) {
+            uint32_t s16 = (uint32_t)((uint16_t)s);
+            val -= ((int64_t)0x10000);
+            val += (int64_t)s16;
+        }
+        else {
+            val += (int64_t)s;
+        }
+
+        uint32_t low32  = (uint32_t)val;
+        int32_t  high32 = (int32_t)(val >> 32);
+        gploc_A4        = low32;
+
+        // gploc_A0 = ( (mapxveltop + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
+        int32_t mx      = (int32_t)mapxveltop;
+        if (high32 < 0) {
+            mx -= 1;
+        }
+        gploc_A0 = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
+    }
+
+    //----------------------------------------------------------------
+    // 5) COMBINE STARTPOS FOR TOP: → gploc_8C, gploc_88
+    //----------------------------------------------------------------
+    {
+        uint32_t sp_y = startposmapytop;
+        uint32_t sp_s = startposshadetop;
+        uint32_t sp_x = startposmapxtop;
+
+        // gploc_8C = (sp_s >> 8) | (sp_y << 16)
+        gploc_8C = ( (uint32_t)sp_s >> 8 ) | ( (uint32_t)sp_y << 16 );
+
+        // gploc_88 = (sp_x << 8) | ((sp_y >> 16) & 0xFF)
+        gploc_88 = ( (uint32_t)sp_x << 8 ) | ( ((uint32_t)sp_y >> 16) & 0xFF );
+    }
+
+    //----------------------------------------------------------------
+    // 6) “IF (factor_chk >= 0) THEN…” → BOTTOM “POINT‐C” BLOCK
+    //----------------------------------------------------------------
+    if ( (int32_t)factor_chk >= 0 )
+    {
+        int32_t m_y   = (int32_t)gploc_18C;
+        int64_t val   = ((int64_t)m_y << 16);
+
+        // gploc_64 = (gploc_1A0 << 24)
+        int32_t s0    = (int32_t)gploc_1A0;
+        gploc_64      = (uint32_t)(s0 << 24);
+
+        int32_t s1    = (int32_t)(s0 >> 8);
+        if (s1 < 0) {
+            uint32_t s16 = (uint32_t)((uint16_t)s1);
+            val -= ((int64_t)0x10000);
+            val += (int64_t)s16;
+        }
+        else {
+            val += (int64_t)s1;
+        }
+
+        uint32_t low32  = (uint32_t)val;
+        int32_t  high32 = (int32_t)(val >> 32);
+        gploc_98        = low32;
+
+        // gploc_94 = ( (gploc_198 + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
+        int32_t mx      = (int32_t)gploc_198;
+        if (high32 < 0) {
+            mx -= 1;
+        }
+        gploc_94 = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
+
+        //----------------------------------------------------------------
+        // Finally, combine “bottom” startpos → gploc_80, gploc_7C
+        //----------------------------------------------------------------
+        {
+            uint32_t sp_yb = startposmapybottom;
+            uint32_t sp_sb = startposshadebottom;
+            uint32_t sp_xb = startposmapxbottom;
+
+            // gploc_80 = (sp_sb >> 8) | (sp_yb << 16)
+            gploc_80 = ( (uint32_t)sp_sb >> 8 ) | ( (uint32_t)sp_yb << 16 );
+
+            // gploc_7C = (sp_xb << 8) | ((sp_yb >> 16) & 0xFF)
+            gploc_7C = ( (uint32_t)sp_xb << 8 ) | ( ((uint32_t)sp_yb >> 16) & 0xFF );
+        }
+    }
 }
 
 void draw_gpoly_sub13()
