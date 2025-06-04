@@ -849,11 +849,11 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
     if (digres == -1)
     {
         set_flag(cproc->flags, ComProc_Unkn0004);
-        if (((gameadd.turn_last_checked_for_gold + GOLD_DEMAND_CHECK_INTERVAL) < game.play_gameturn) || (gameadd.turn_last_checked_for_gold == 0))
+        if (((game.turn_last_checked_for_gold + GOLD_DEMAND_CHECK_INTERVAL) < game.play_gameturn) || (game.turn_last_checked_for_gold == 0))
         {
             SYNCDBG(8, "Can't find nearest room to gold; will refresh gold map");
             check_map_for_gold();
-            gameadd.turn_last_checked_for_gold = game.play_gameturn;
+            game.turn_last_checked_for_gold = game.play_gameturn;
             digres = computer_finds_nearest_room_to_gold(comp, &startpos, &gldlook);
         }
     }
