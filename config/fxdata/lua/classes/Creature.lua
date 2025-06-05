@@ -13,6 +13,12 @@ function Creature:OnDeath(action)
     RegisterCreatureDeathEvent(action,self)
 end
 
+---@param location location where the tunneller should start digging towards
+function Creature:tunnel_to_location(location)
+    SendTunnellerToLocation(self,location)
+end
+
+
 ----functions below are implemented in C, so they have no body here
 
 ---teleports the thing to a new location
