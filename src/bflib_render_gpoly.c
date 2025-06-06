@@ -511,41 +511,26 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     draw_gpoly_sub7a();
     draw_gpoly_sub7b();
 
+    gploc_104 = LOC_vec_screen_width;
+    gploc_180 = 2;
+    gploc_60 = gploc_68;
+    gploc_CC = gploc_A4;
+    gploc_C4 = gploc_A0;
+    if (factor_chk < 0)
+    {
+        gploc_12C = factor_ca;
+        gploc_128 = factor_ba;
+    } else
+    {
+        gploc_12C = factor_ba;
+        gploc_128 = factor_ca;
+    }
 
     if (exceeds_window)
     {
-        gploc_104 = LOC_vec_screen_width;
-        gploc_180 = 2;
-        gploc_60 = gploc_68;
-        gploc_CC = gploc_A4;
-        gploc_C4 = gploc_A0;
-        if (factor_chk < 0)
-            {
-                gploc_12C = factor_ca;
-                gploc_128 = factor_ba;
-
-        } else
-        {
-            gploc_12C = factor_ba;
-            gploc_128 = factor_ca;
-        }
         draw_gpoly_sub13();
     } else // not exceeds_window
     {
-        gploc_104 = LOC_vec_screen_width;
-        gploc_180 = 2;
-        gploc_60 = gploc_68;
-        gploc_CC = gploc_A4;
-        gploc_C4 = gploc_A0;
-        if (factor_chk < 0)
-            {
-                gploc_12C = factor_ca;
-                gploc_128 = factor_ba;
-        } else
-            {
-                gploc_12C = factor_ba;
-                gploc_128 = factor_ca;
-            }
         draw_gpoly_sub14();
     }
 }
