@@ -1002,10 +1002,10 @@ UNROLLED_LOOP_PIXEL0:
     }
 }
     
-int gt_1;
-int gt_2;
-int gt_3;
-int gt_4;
+int gt_ecx;
+int gt_edx;
+int gt_ebx;
+int gt_edi;
 
 
 // this function draws all polygons that are cut off by the screen edges
@@ -1021,17 +1021,17 @@ void draw_gpoly_sub13()
     int tex_x_accum_combined = gploc_88;
     uchar *screen_line_ptr = &LOC_vec_screen[gploc_pt_ay * LOC_vec_screen_width];
 
-gt_1 = tex_x_accum_low;
-gt_2 = tex_x_accum_high;
-gt_3 = tex_x_accum_combined;
-gt_4 = (int)screen_line_ptr;
+gt_ecx = tex_x_accum_low;
+gt_edx = tex_x_accum_high;
+gt_ebx = tex_x_accum_combined;
+gt_edi = (int)screen_line_ptr;
 
     asm volatile (" \
     pusha   \n \
-    movl   _gt_1, %%ecx\n \
-    movl   _gt_2, %%edx\n \
-    movl   _gt_3, %%ebx\n \
-    movl   _gt_4, %%edi\n \
+    movl   _gt_ecx, %%ecx\n \
+    movl   _gt_edx, %%edx\n \
+    movl   _gt_ebx, %%ebx\n \
+    movl   _gt_edi, %%edi\n \
 \n \
     movl    _gploc_pt_by,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
@@ -1392,6 +1392,7 @@ SHADE_EQUAL_POST: \
     addl    %%esi,%%edi\n \
     subl    %%esi,%%ebp\n \
     jle SHADE_ADJUST_ENTRY\n \
+\
     movl    %%ebp,%%eax\n \
     andl    $0x0F,%%eax\n \
     addl    _gpoly_countdown(,%%eax,4),%%edi\n \
@@ -1402,6 +1403,8 @@ SHADE_EQUAL_POST: \
     movl    _LOC_vec_map,%%esi\n \
     movl    _gploc_5C,%%ebp\n \
     jmp     *JUMP_TABLE(,%%eax,4)\n \
+\
+\
 # ---------------------------------------------------------------------------\n \
 \n \
 SHADE_POS_SLOPE_LOOP: \
