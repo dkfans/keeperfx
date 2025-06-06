@@ -1424,25 +1424,12 @@ POPA_AND_RETURN: \
 // this function draws all polygons except the ones cut off by the screen edges
 void draw_gpoly_sub14()
 {
-  int clamped_by; // eax
-  bool skip_render; // zf
-  int spanCount; // eax
   int xStart; // esi
-  int shadeAccumulator; // eax
-  int shadeAccumulatorNext; // ebp
   int scanline_y; // esi
-  unsigned __int8 *pixel_dst; // edi
   bool span_too_small_or_complete; // cc
-  int x_start_int; // eax
-  int x_end_int; // ebp
   unsigned __int8 *screen_line_offset; // edi
   int pixel_span_len; // ebp
-  int span_mod16; // eax
   unsigned __int8 *texture_map; // esi
-  int texture_step_y; // ebp
-  bool carryLow32; // cf
-  int clamped_cy; // eax
-  int clamped_cy2; // eax
 
   int tex_x_accum_low = 0;
   int tex_x_accum_high = gploc_8C;
@@ -1451,16 +1438,16 @@ void draw_gpoly_sub14()
 
   if ( gploc_pt_ay <= LOC_vec_window_height )
   {
-    clamped_by = gploc_pt_by;
+    int clamped_by = gploc_pt_by;
     if ( gploc_pt_by > LOC_vec_window_height )
       clamped_by = LOC_vec_window_height;
-    spanCount = clamped_by - gploc_pt_ay;
-    skip_render = spanCount == 0;
+    int spanCount = clamped_by - gploc_pt_ay;
+    bool skip_render = spanCount == 0;
     gploc_C0 = spanCount;
     xStart = gploc_pt_ax;
     gploc_74 = gploc_pt_ax;
-    shadeAccumulator = gploc_pt_shax;
-    shadeAccumulatorNext = gploc_pt_shax;
+    int shadeAccumulator = gploc_pt_shax;
+    int shadeAccumulatorNext = gploc_pt_shax;
     if ( !skip_render )
     {
       scanline_y = gploc_pt_ay;
@@ -1475,22 +1462,22 @@ REMAINDER_SCANLINE_STEP:
         g_shadeAccumulator = shadeAccumulator;
         g_shadeAccumulatorNext = shadeAccumulatorNext;
         gploc_F4 = screen_line_ptr;
-        x_start_int = shadeAccumulator >> 16;
+        int x_start_int = shadeAccumulator >> 16;
         gploc_34 = tex_x_accum_low;
         gploc_D8 = tex_x_accum_high;
         gploc_E4 = tex_x_accum_combined;
-        x_end_int = shadeAccumulatorNext >> 16;
+        int x_end_int = shadeAccumulatorNext >> 16;
         screen_line_offset = &screen_line_ptr[x_start_int];
         span_too_small_or_complete = x_end_int <= x_start_int;
         pixel_span_len = x_end_int - x_start_int;
         if ( !span_too_small_or_complete )
         {
-          span_mod16 = pixel_span_len & 0xF;
-          pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
+          int span_mod16 = pixel_span_len & 0xF;
+          unsigned __int8 *pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
           gploc_D4 = pixel_span_len;
           int fade_lookup_index = __ROL4__(tex_x_accum_combined & 0xFF0000FF, 8);
           texture_map = LOC_vec_map;
-          texture_step_y = gploc_5C;
+          int texture_step_y = gploc_5C;
           switch ( span_mod16 )
           {
             case 0:
@@ -1652,7 +1639,7 @@ EDGE_ADVANCE_CHECK:
         break;
       gploc_128 = factor_cb;
       shadeAccumulatorNext = gploc_pt_shbx;
-      clamped_cy2 = gploc_pt_cy;
+      int clamped_cy2 = gploc_pt_cy;
       if ( gploc_pt_cy > LOC_vec_window_height )
         clamped_cy2 = LOC_vec_window_height;
       span_too_small_or_complete = clamped_cy2 <= gploc_pt_by;
@@ -1668,7 +1655,7 @@ EDGE_ADVANCE_CHECK:
 SKEWED_SCAN_ADJUST:
       while ( 1 )
       {
-        carryLow32 = CFADD64(PAIR64(gploc_CC, gploc_60), PAIR64(tex_x_accum_high, tex_x_accum_low));
+        bool carryLow32 = CFADD64(PAIR64(gploc_CC, gploc_60), PAIR64(tex_x_accum_high, tex_x_accum_low));
         tex_x_accum_high = (PAIR64(gploc_CC, gploc_60) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
         tex_x_accum_low += gploc_60;
         tex_x_accum_combined += gploc_C4 + carryLow32;
@@ -1694,7 +1681,7 @@ SKEWED_SCAN_ADJUST:
     tex_x_accum_low = 0;
     tex_x_accum_high = gploc_80;
     tex_x_accum_combined = gploc_7C;
-    clamped_cy = gploc_pt_cy;
+    int clamped_cy = gploc_pt_cy;
     if ( gploc_pt_cy > LOC_vec_window_height )
       clamped_cy = LOC_vec_window_height;
     span_too_small_or_complete = clamped_cy <= gploc_pt_by;
