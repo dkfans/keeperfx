@@ -1016,24 +1016,38 @@ UNROLLED_LOOP_PIXEL0:
         break;
     }
 }
+    
+int gt_1;
+int gt_2;
+int gt_3;
+int gt_4;
 
 
 // this function draws all polygons that are cut off by the screen edges
 void draw_gpoly_sub13()
 {
-#if __GNUC__
+    if ( gploc_pt_ay > LOC_vec_window_height )
+        return;
+
+    //int scanline_y; // esi
+
+    int tex_x_accum_low = 0;
+    int tex_x_accum_high = gploc_8C;
+    int tex_x_accum_combined = gploc_88;
+    uchar *screen_line_ptr = &LOC_vec_screen[gploc_pt_ay * LOC_vec_screen_width];
+
+gt_1 = tex_x_accum_low;
+gt_2 = tex_x_accum_high;
+gt_3 = tex_x_accum_combined;
+gt_4 = (int)screen_line_ptr;
+
     asm volatile (" \
     pusha   \n \
-    xorl    %%ecx,%%ecx\n \
-    movl    _gploc_8C,%%edx\n \
-    movl    _gploc_88,%%ebx\n \
-    movl    _gploc_pt_ay,%%esi\n \
-    movl    _LOC_vec_screen_width,%%edi\n \
-    imull   %%esi,%%edi\n \
-    addl    _LOC_vec_screen,%%edi\n \
-    movl    _gploc_pt_ay,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jg  POPA_AND_RETURN\n \
+    movl   _gt_1, %%ecx\n \
+    movl   _gt_2, %%edx\n \
+    movl   _gt_3, %%ebx\n \
+    movl   _gt_4, %%edi\n \
+\n \
     movl    _gploc_pt_by,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
     jle INITIALIZE_SPAN_AND_LEFT_X\n \
@@ -1560,11 +1574,11 @@ JUMP_TABLE: \
     .int    UNROLLED_LOOP_PIXEL1\n \
 \n \
 POPA_AND_RETURN: \
-    popa    \n \
-" : : : "memory", "cc");
-#endif
+    popa"
+    : /* no outputs */
+    : 
+    : "memory","cc");
 }
-
 
 // this function draws all polygons except the ones cut off by the screen edges
 void draw_gpoly_sub14()
