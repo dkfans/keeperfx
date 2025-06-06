@@ -874,6 +874,7 @@ void draw_gpoly_sub7b_block3(void)
     }
 }
 
+// this function draws all polygons that are cut off by the screen edges
 void draw_gpoly_sub13()
 {
 #if __GNUC__
@@ -1420,6 +1421,7 @@ POPA_AND_RETURN: \
 #endif
 }
 
+// this function draws all polygons except the ones cut off by the screen edges
 void draw_gpoly_sub14()
 {
   int clamped_by; // eax
@@ -1707,6 +1709,484 @@ SKEWED_SCAN_ADJUST:
       goto REMAINDER_SCANLINE_STEP;
     }
   }
+}
+
+void draw_gpoly_sub14_asm()
+{
+#if __GNUC__
+    asm volatile (" \
+    pusha   \n \
+    xorl    %%ecx,%%ecx\n \
+    movl    _gploc_8C,%%edx\n \
+    movl    _gploc_88,%%ebx\n \
+    movl    _gploc_pt_ay,%%esi\n \
+    movl    _LOC_vec_screen_width,%%edi\n \
+    imull   %%esi,%%edi\n \
+    addl    _LOC_vec_screen,%%edi\n \
+    movl    _gploc_pt_ay,%%eax\n \
+    cmpl    _LOC_vec_window_height,%%eax\n \
+    jg  POPA_AND_RETURN\n \
+    movl    _gploc_pt_by,%%eax\n \
+    cmpl    _LOC_vec_window_height,%%eax\n \
+    jle INITIALIZE_SPAN_AND_LEFT_X\n \
+    movl    _LOC_vec_window_height,%%eax\n \
+\n \
+INITIALIZE_SPAN_AND_LEFT_X: \
+    subl    _gploc_pt_ay,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_pt_ax,%%esi\n \
+    movl    %%esi,_gploc_74\n \
+    movl    _gploc_pt_shax,%%eax\n \
+    movl    %%eax,%%ebp\n \
+    jz  EDGE_ADVANCE_CHECK\n \
+    movl    _gploc_pt_ay,%%esi\n \
+    orl %%esi,%%esi\n \
+    js  SKEWED_SCAN_ADJUST\n \
+    movl    _gploc_74,%%esi\n \
+    jmp REMAINDER_SCANLINE_STEP\n \
+# ---------------------------------------------------------------------------\n \
+\n \
+UNROLLED_LOOP_PIXEL0: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL1: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,1(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL2: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,2(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL3: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,3(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL4: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,4(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL5: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,5(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL6: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,6(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL7: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,7(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL8: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl     %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,8(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL9: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,9(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL10: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,0x0A(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL11: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,0x0B(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL12: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,0x0C(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL13: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,0x0D(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL14: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl     %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,0x0E(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+\n \
+UNROLLED_LOOP_PIXEL15: \
+    xorl    %%eax,%%eax\n \
+    movb    (%%ecx,%%esi),%%al\n \
+    movl    $0x0FF00,%%ecx\n \
+    andl    %%edx,%%ecx\n \
+    orl %%eax,%%ecx\n \
+    xorl    %%eax,%%eax\n \
+    pushl   %%ebx\n \
+    movl    _render_fade_tables,%%ebx\n \
+    movb    (%%ebx,%%ecx),%%al\n \
+    popl    %%ebx\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    movb    %%al,0x0F(%%edi)\n \
+    andl    %%ebx,%%ecx\n \
+    addl    %%ebp,%%edx\n \
+    adcl    _gploc_2C,%%ebx\n \
+    roll    $8,%%ecx\n \
+    addl    $0x10,%%edi\n \
+    subl $0x10,_gploc_D4\n \
+    jg  UNROLLED_LOOP_PIXEL0\n \
+\n \
+FALLBACK_SINGLE_PIXEL_LOOP: \
+    movl    _g_shadeAccumulator,%%eax\n \
+    movl    _g_shadeAccumulatorNext,%%ebp\n \
+    movl    _gploc_F4,%%edi\n \
+    movl    _gploc_74,%%esi\n \
+    addl    _gploc_12C,%%eax\n \
+    addl    _gploc_128,%%ebp\n \
+    movl    _gploc_34,%%ecx\n \
+    movl    _gploc_D8,%%edx\n \
+    movl    _gploc_E4,%%ebx\n \
+    addl    _gploc_60,%%ecx\n \
+    adcl    _gploc_CC,%%edx\n \
+    adcl    _gploc_C4,%%ebx\n \
+    addl    _gploc_104,%%edi\n \
+    decl _gploc_C0\n \
+    jz  EDGE_ADVANCE_CHECK\n \
+\n \
+REMAINDER_SCANLINE_STEP: \
+    movl    %%eax,_g_shadeAccumulator\n \
+    movl    %%ebp,_g_shadeAccumulatorNext\n \
+    movl    %%edi,_gploc_F4\n \
+    sarl    $0x10,%%eax\n \
+    movl    _gploc_F4,%%edi\n \
+    movl    %%ecx,_gploc_34\n \
+    movl    %%edx,_gploc_D8\n \
+    movl    %%ebx,_gploc_E4\n \
+    sarl    $0x10,%%ebp\n \
+    addl    %%eax,%%edi\n \
+    subl    %%eax,%%ebp\n \
+    jle FALLBACK_SINGLE_PIXEL_LOOP\n \
+    movl    %%ebp,%%eax\n \
+    andl    $0x0F,%%eax\n \
+    addl    _gpoly_countdown(,%%eax,4),%%edi\n \
+    movl    %%ebp,_gploc_D4\n \
+    movl    $0x0FF0000FF,%%ecx\n \
+    andl    %%ebx,%%ecx\n \
+    roll    $8,%%ecx\n \
+    movl    _LOC_vec_map,%%esi\n \
+    movl    _gploc_5C,%%ebp\n \
+    jmp   *unrolled_loop_offsets(,%%eax,4)\n \
+# ---------------------------------------------------------------------------\n \
+\n \
+SKEWED_SCAN_ADJUST: \
+    addl    _gploc_60,%%ecx\n \
+    adcl    _gploc_CC,%%edx\n \
+    adcl    _gploc_C4,%%ebx\n \
+    movl    %%eax,_g_shadeAccumulator\n \
+    sarl    $0x10,%%eax\n \
+    subl    %%eax,_gploc_74\n \
+    movl    _g_shadeAccumulator,%%eax\n \
+    addl    _gploc_12C,%%eax\n \
+    addl    _gploc_128,%%ebp\n \
+    movl    %%eax,_g_shadeAccumulator\n \
+    sarl    $0x10,%%eax\n \
+    addl    %%eax,_gploc_74\n \
+    movl    _g_shadeAccumulator,%%eax\n \
+    addl    _gploc_104,%%edi\n \
+    decl _gploc_C0\n \
+    jz  SKEWED_SCAN_END\n \
+    incl    %%esi\n \
+    js  SKEWED_SCAN_ADJUST\n \
+    movl    _gploc_74,%%esi\n \
+    jmp REMAINDER_SCANLINE_STEP\n \
+# ---------------------------------------------------------------------------\n \
+\
+\n \
+SKEWED_SCAN_END: \
+    movl    _gploc_74,%%esi\n \
+    nop \n \
+\n \
+EDGE_ADVANCE_CHECK: \
+    decl _gploc_180\n \
+    jz  POPA_AND_RETURN\n \
+    movl    %%eax,_g_shadeAccumulator\n \
+    movl    _factor_chk,%%eax\n \
+    orl %%eax,%%eax\n \
+    js  NEGATIVE_FACTOR_MODE_START\n \
+    movl    _factor_cb,%%eax\n \
+    movl    %%eax,_gploc_12C\n \
+    movl    _gploc_64,%%eax\n \
+    movl    %%eax,_gploc_60\n \
+    movl    _gploc_98,%%eax\n \
+    movl    %%eax,_gploc_CC\n \
+    movl    _gploc_94,%%eax\n \
+    movl    %%eax,_gploc_C4\n \
+    xorl    %%ecx,%%ecx\n \
+    movl    _gploc_80,%%edx\n \
+    movl    _gploc_7C,%%ebx\n \
+    movl    _gploc_pt_cy,%%eax\n \
+    cmpl    _LOC_vec_window_height,%%eax\n \
+    jle CLAMP_BOTTOM_Y_AND_RESTART\n \
+    movl    _LOC_vec_window_height,%%eax\n \
+\n \
+CLAMP_BOTTOM_Y_AND_RESTART: \
+    subl    _gploc_pt_by,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _gploc_pt_bx,%%eax\n \
+    movl    %%eax,_gploc_74\n \
+    movl    _gploc_pt_shbx,%%eax\n \
+    jle POPA_AND_RETURN\n \
+    movl    _gploc_pt_by,%%esi\n \
+    orl %%esi,%%esi\n \
+    js  SKEWED_SCAN_ADJUST\n \
+    movl    _gploc_pt_bx,%%esi\n \
+    jmp REMAINDER_SCANLINE_STEP\n \
+# ---------------------------------------------------------------------------\n \
+\n \
+NEGATIVE_FACTOR_MODE_START: \
+    movl    _factor_cb,%%ebp\n \
+    movl    %%ebp,_gploc_128\n \
+    movl    _gploc_pt_shbx,%%ebp\n \
+    movl    _gploc_pt_cy,%%eax\n \
+    cmpl    _LOC_vec_window_height,%%eax\n \
+    jle NEGATIVE_FACTOR_MODE_END\n \
+    movl    _LOC_vec_window_height,%%eax\n \
+\n \
+NEGATIVE_FACTOR_MODE_END: \
+    subl    _gploc_pt_by,%%eax\n \
+    movl    %%eax,_gploc_C0\n \
+    movl    _g_shadeAccumulator,%%eax\n \
+    jle POPA_AND_RETURN\n \
+    movl    %%esi,_gploc_74\n \
+    movl    _gploc_pt_by,%%esi\n \
+    orl %%esi,%%esi\n \
+    js  SKEWED_SCAN_ADJUST\n \
+    movl    _gploc_74,%%esi\n \
+    jmp REMAINDER_SCANLINE_STEP\n \
+\n \
+unrolled_loop_offsets:\n \
+    .int    UNROLLED_LOOP_PIXEL0\n \
+    .int    UNROLLED_LOOP_PIXEL15\n \
+    .int    UNROLLED_LOOP_PIXEL14\n \
+    .int    UNROLLED_LOOP_PIXEL13\n \
+    .int    UNROLLED_LOOP_PIXEL12\n \
+    .int    UNROLLED_LOOP_PIXEL11\n \
+    .int    UNROLLED_LOOP_PIXEL10\n \
+    .int    UNROLLED_LOOP_PIXEL9\n \
+    .int    UNROLLED_LOOP_PIXEL8\n \
+    .int    UNROLLED_LOOP_PIXEL7\n \
+    .int    UNROLLED_LOOP_PIXEL6\n \
+    .int    UNROLLED_LOOP_PIXEL5\n \
+    .int    UNROLLED_LOOP_PIXEL4\n \
+    .int    UNROLLED_LOOP_PIXEL3\n \
+    .int    UNROLLED_LOOP_PIXEL2\n \
+    .int    UNROLLED_LOOP_PIXEL1\n \
+\n \
+POPA_AND_RETURN: \
+    popa    \n \
+" : : : "memory", "cc");
+#endif
 }
 
 /******************************************************************************/
