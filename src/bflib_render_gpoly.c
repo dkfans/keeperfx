@@ -1419,11 +1419,7 @@ POPA_AND_RETURN: \
 // this function draws all polygons except the ones cut off by the screen edges
 void draw_gpoly_sub14()
 {
-  int xStart; // esi
   int scanline_y; // esi
-  bool span_too_small_or_complete; // cc
-  int pixel_span_len; // ebp
-  unsigned __int8 *texture_map; // esi
 
   int tex_x_accum_low = 0;
   int tex_x_accum_high = gploc_8C;
@@ -1438,7 +1434,7 @@ void draw_gpoly_sub14()
     int spanCount = clamped_by - gploc_pt_ay;
     bool skip_render = spanCount == 0;
     gploc_C0 = spanCount;
-    xStart = gploc_pt_ax;
+    int xStart = gploc_pt_ax;
     gploc_74 = gploc_pt_ax;
     int shadeAccumulator = gploc_pt_shax;
     int shadeAccumulatorNext = gploc_pt_shax;
@@ -1462,15 +1458,15 @@ REMAINDER_SCANLINE_STEP:
         gploc_E4 = tex_x_accum_combined;
         int x_end_int = shadeAccumulatorNext >> 16;
         unsigned __int8 *screen_line_offset = &screen_line_ptr[x_start_int];
-        span_too_small_or_complete = x_end_int <= x_start_int;
-        pixel_span_len = x_end_int - x_start_int;
+        bool span_too_small_or_complete = x_end_int <= x_start_int;
+        int pixel_span_len = x_end_int - x_start_int;
         if ( !span_too_small_or_complete )
         {
           int span_mod16 = pixel_span_len & 0xF;
           unsigned __int8 *pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
           gploc_D4 = pixel_span_len;
           int fade_lookup_index = __ROL4__(tex_x_accum_combined & 0xFF0000FF, 8);
-          texture_map = LOC_vec_map;
+          unsigned __int8 *texture_map = LOC_vec_map;
           int texture_step_y = gploc_5C;
           switch ( span_mod16 )
           {
@@ -1597,7 +1593,7 @@ UNROLLED_LOOP_PIXEL1:
                 tex_x_accum_high += texture_step_y;
                 fade_lookup_index = __ROL4__(v27, 8);
                 pixel_dst += 16;
-                span_too_small_or_complete = gploc_D4 <= 16;
+                bool span_too_small_or_complete = gploc_D4 <= 16;
                 gploc_D4 -= 16;
                 if ( span_too_small_or_complete )
                   break;
@@ -1636,7 +1632,7 @@ EDGE_ADVANCE_CHECK:
       int clamped_cy2 = gploc_pt_cy;
       if ( gploc_pt_cy > LOC_vec_window_height )
         clamped_cy2 = LOC_vec_window_height;
-      span_too_small_or_complete = clamped_cy2 <= gploc_pt_by;
+      bool span_too_small_or_complete = clamped_cy2 <= gploc_pt_by;
       gploc_C0 = clamped_cy2 - gploc_pt_by;
       shadeAccumulator = g_shadeAccumulator;
       if ( span_too_small_or_complete )
@@ -1678,7 +1674,7 @@ SKEWED_SCAN_ADJUST:
     int clamped_cy = gploc_pt_cy;
     if ( gploc_pt_cy > LOC_vec_window_height )
       clamped_cy = LOC_vec_window_height;
-    span_too_small_or_complete = clamped_cy <= gploc_pt_by;
+    bool span_too_small_or_complete = clamped_cy <= gploc_pt_by;
     gploc_C0 = clamped_cy - gploc_pt_by;
     gploc_74 = gploc_pt_bx;
     shadeAccumulator = gploc_pt_shbx;
