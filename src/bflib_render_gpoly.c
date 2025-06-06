@@ -1416,6 +1416,155 @@ POPA_AND_RETURN: \
 #endif
 }
 
+
+void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_combined)
+{
+    int span_mod16 = pixel_span_len & 0xF;
+    unsigned __int8 *pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
+    gploc_D4 = pixel_span_len;
+    int fade_lookup_index = __ROL4__(tex_x_accum_combined & 0xFF0000FF, 8);
+    unsigned __int8 *texture_map = LOC_vec_map;
+    int texture_step_y = gploc_5C;
+    switch ( span_mod16 )
+    {
+      case 0:
+        goto UNROLLED_LOOP_PIXEL0;
+      case 1:
+        goto UNROLLED_LOOP_PIXEL1;
+      case 2:
+        goto UNROLLED_LOOP_PIXEL2;
+      case 3:
+        goto UNROLLED_LOOP_PIXEL3;
+      case 4:
+        goto UNROLLED_LOOP_PIXEL4;
+      case 5:
+        goto UNROLLED_LOOP_PIXEL5;
+      case 6:
+        goto UNROLLED_LOOP_PIXEL6;
+      case 7:
+        goto UNROLLED_LOOP_PIXEL7;
+      case 8:
+        goto UNROLLED_LOOP_PIXEL8;
+      case 9:
+        goto UNROLLED_LOOP_PIXEL9;
+      case 10:
+        goto UNROLLED_LOOP_PIXEL10;
+      case 11:
+        goto UNROLLED_LOOP_PIXEL11;
+      case 12:
+        goto UNROLLED_LOOP_PIXEL12;
+      case 13:
+        goto UNROLLED_LOOP_PIXEL13;
+      case 14:
+        goto UNROLLED_LOOP_PIXEL14;
+      case 15:
+        while ( 1 )
+        {
+            pixel_dst[1] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v13 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v13, 8);
+UNROLLED_LOOP_PIXEL14:
+            pixel_dst[2] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned intv14 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v14, 8);
+UNROLLED_LOOP_PIXEL13:
+            pixel_dst[3] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v15 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v15, 8);
+UNROLLED_LOOP_PIXEL12:
+            pixel_dst[4] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            v16 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v16, 8);
+UNROLLED_LOOP_PIXEL11:
+            pixel_dst[5] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v17 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v17, 8);
+UNROLLED_LOOP_PIXEL10:
+            pixel_dst[6] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v18 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v18, 8);
+UNROLLED_LOOP_PIXEL9:
+            pixel_dst[7] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v19 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v19, 8);
+UNROLLED_LOOP_PIXEL8:
+            pixel_dst[8] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v20 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v20, 8);
+UNROLLED_LOOP_PIXEL7:
+            pixel_dst[9] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v21 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v21, 8);
+UNROLLED_LOOP_PIXEL6:
+            pixel_dst[10] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v22 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v22, 8);
+UNROLLED_LOOP_PIXEL5:
+            pixel_dst[11] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v23 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v23, 8);
+UNROLLED_LOOP_PIXEL4:
+            pixel_dst[12] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v24 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v24, 8);
+UNROLLED_LOOP_PIXEL3:
+            pixel_dst[13] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v25 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v25, 8);
+UNROLLED_LOOP_PIXEL2:
+            pixel_dst[14] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v26 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v26, 8);
+UNROLLED_LOOP_PIXEL1:
+            pixel_dst[15] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v27 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v27, 8);
+            pixel_dst += 16;
+            bool span_too_small_or_complete = gploc_D4 <= 16;
+            gploc_D4 -= 16;
+            if ( span_too_small_or_complete )
+              break;
+UNROLLED_LOOP_PIXEL0:
+            *pixel_dst = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
+            unsigned int v11 = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            tex_x_accum_high += texture_step_y;
+            fade_lookup_index = __ROL4__(v11, 8);
+        } // while ( 1 );
+        break;
+    }
+}
+
 // this function draws all polygons except the ones cut off by the screen edges
 void draw_gpoly_sub14()
 {
@@ -1462,150 +1611,7 @@ REMAINDER_SCANLINE_STEP:
         int pixel_span_len = x_end_int - x_start_int;
         if ( !span_too_small_or_complete )
         {
-          int span_mod16 = pixel_span_len & 0xF;
-          unsigned __int8 *pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
-          gploc_D4 = pixel_span_len;
-          int fade_lookup_index = __ROL4__(tex_x_accum_combined & 0xFF0000FF, 8);
-          unsigned __int8 *texture_map = LOC_vec_map;
-          int texture_step_y = gploc_5C;
-          switch ( span_mod16 )
-          {
-            case 0:
-              goto UNROLLED_LOOP_PIXEL0;
-            case 1:
-              goto UNROLLED_LOOP_PIXEL1;
-            case 2:
-              goto UNROLLED_LOOP_PIXEL2;
-            case 3:
-              goto UNROLLED_LOOP_PIXEL3;
-            case 4:
-              goto UNROLLED_LOOP_PIXEL4;
-            case 5:
-              goto UNROLLED_LOOP_PIXEL5;
-            case 6:
-              goto UNROLLED_LOOP_PIXEL6;
-            case 7:
-              goto UNROLLED_LOOP_PIXEL7;
-            case 8:
-              goto UNROLLED_LOOP_PIXEL8;
-            case 9:
-              goto UNROLLED_LOOP_PIXEL9;
-            case 10:
-              goto UNROLLED_LOOP_PIXEL10;
-            case 11:
-              goto UNROLLED_LOOP_PIXEL11;
-            case 12:
-              goto UNROLLED_LOOP_PIXEL12;
-            case 13:
-              goto UNROLLED_LOOP_PIXEL13;
-            case 14:
-              goto UNROLLED_LOOP_PIXEL14;
-            case 15:
-              while ( 1 )
-              {
-                pixel_dst[1] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v13 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v13, 8);
-UNROLLED_LOOP_PIXEL14:
-                pixel_dst[2] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned intv14 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v14, 8);
-UNROLLED_LOOP_PIXEL13:
-                pixel_dst[3] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v15 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v15, 8);
-UNROLLED_LOOP_PIXEL12:
-                pixel_dst[4] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                v16 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v16, 8);
-UNROLLED_LOOP_PIXEL11:
-                pixel_dst[5] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v17 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v17, 8);
-UNROLLED_LOOP_PIXEL10:
-                pixel_dst[6] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v18 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v18, 8);
-UNROLLED_LOOP_PIXEL9:
-                pixel_dst[7] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v19 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v19, 8);
-UNROLLED_LOOP_PIXEL8:
-                pixel_dst[8] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v20 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v20, 8);
-UNROLLED_LOOP_PIXEL7:
-                pixel_dst[9] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v21 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v21, 8);
-UNROLLED_LOOP_PIXEL6:
-                pixel_dst[10] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v22 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v22, 8);
-UNROLLED_LOOP_PIXEL5:
-                pixel_dst[11] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v23 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v23, 8);
-UNROLLED_LOOP_PIXEL4:
-                pixel_dst[12] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v24 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v24, 8);
-UNROLLED_LOOP_PIXEL3:
-                pixel_dst[13] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v25 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v25, 8);
-UNROLLED_LOOP_PIXEL2:
-                pixel_dst[14] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v26 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v26, 8);
-UNROLLED_LOOP_PIXEL1:
-                pixel_dst[15] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v27 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v27, 8);
-                pixel_dst += 16;
-                bool span_too_small_or_complete = gploc_D4 <= 16;
-                gploc_D4 -= 16;
-                if ( span_too_small_or_complete )
-                  break;
-UNROLLED_LOOP_PIXEL0:
-                *pixel_dst = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-                unsigned int v11 = tex_x_accum_combined & 0xFF0000FF;
-                tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
-                tex_x_accum_high += texture_step_y;
-                fade_lookup_index = __ROL4__(v11, 8);
-              }
-              break;
-          }
+          unrolled_loop(pixel_span_len,tex_x_accum_high,tex_x_accum_combined);
         }
         xStart = gploc_74;
         shadeAccumulator = gploc_12C + g_shadeAccumulator;
