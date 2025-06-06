@@ -330,7 +330,6 @@ long gpoly_divtable[][64] = {
 // in using these inside assembly code
 long factor_ca,factor_ba,factor_cb,factor_chk;
 // More variables - made global temporarly to ease assembly rewriting
-struct PolyPoint *gploc_point_a,*gploc_point_b;
 long gploc_point_c;
 long gploc_1A4,gploc_1A0;
 short gploc_word01,gploc_word02,gploc_word03;
@@ -502,10 +501,6 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     gploc_pt_bv   = point_b->V >> 16;
     gploc_pt_cu   = point_c->U >> 16;
     gploc_pt_cv   = point_c->V >> 16;
-
-
-    gploc_point_a = point_a;
-    gploc_point_b = point_b;
 
     if(vec_mode != 5)
     {
@@ -1427,7 +1422,6 @@ void draw_gpoly_sub14()
   int xStart; // esi
   int scanline_y; // esi
   bool span_too_small_or_complete; // cc
-  unsigned __int8 *screen_line_offset; // edi
   int pixel_span_len; // ebp
   unsigned __int8 *texture_map; // esi
 
@@ -1467,7 +1461,7 @@ REMAINDER_SCANLINE_STEP:
         gploc_D8 = tex_x_accum_high;
         gploc_E4 = tex_x_accum_combined;
         int x_end_int = shadeAccumulatorNext >> 16;
-        screen_line_offset = &screen_line_ptr[x_start_int];
+        unsigned __int8 *screen_line_offset = &screen_line_ptr[x_start_int];
         span_too_small_or_complete = x_end_int <= x_start_int;
         pixel_span_len = x_end_int - x_start_int;
         if ( !span_too_small_or_complete )
