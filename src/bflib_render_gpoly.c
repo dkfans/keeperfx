@@ -857,7 +857,10 @@ void draw_gpoly_sub7b_block3(void)
 void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_combined, unsigned __int8 *screen_line_offset)
 {
     int span_mod16 = pixel_span_len & 0xF;
-    unsigned __int8 *pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
+    unsigned __int8 * pixel_dst = NULL;
+    
+    pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
+
     gploc_D4 = pixel_span_len;
     int fade_lookup_index = __ROL4__(tex_x_accum_combined & 0xFF0000FF, 8);
     unsigned __int8 *texture_map = LOC_vec_map;
@@ -1002,11 +1005,17 @@ UNROLLED_LOOP_PIXEL0:
     }
 }
     
-int gt_ecx;
-int gt_edx;
-int gt_ebx;
-int gt_edi;
 
+int gt_to_the_unrolled_loop = 0;
+int gt_to_shade_adjust_entry = 0;
+
+int g_pixel_span_len;
+int g_tex_x_accum_low;
+int g_tex_x_accum_high;
+int g_tex_x_accum_combined;
+int g_screen_line_offset;
+uchar *g_screen_line_ptr;
+int g_xStart;
 
 // this function draws all polygons that are cut off by the screen edges
 void draw_gpoly_sub13()
@@ -1016,22 +1025,22 @@ void draw_gpoly_sub13()
 
     //int scanline_y; // esi
 
-    int tex_x_accum_low = 0;
-    int tex_x_accum_high = gploc_8C;
-    int tex_x_accum_combined = gploc_88;
-    uchar *screen_line_ptr = &LOC_vec_screen[gploc_pt_ay * LOC_vec_screen_width];
+    g_tex_x_accum_low = 0;
+    g_tex_x_accum_high = gploc_8C;
+    g_tex_x_accum_combined = gploc_88;
+    g_screen_line_ptr = &LOC_vec_screen[gploc_pt_ay * LOC_vec_screen_width];
 
-gt_ecx = tex_x_accum_low;
-gt_edx = tex_x_accum_high;
-gt_ebx = tex_x_accum_combined;
-gt_edi = (int)screen_line_ptr;
-
+    ASM_BLOCK:
     asm volatile (" \
     pusha   \n \
-    movl   _gt_ecx, %%ecx\n \
-    movl   _gt_edx, %%edx\n \
-    movl   _gt_ebx, %%ebx\n \
-    movl   _gt_edi, %%edi\n \
+    movl  _gt_to_shade_adjust_entry, %%eax \n \
+    testl %%eax, %%eax\n \
+    jne SHADE_ADJUST_ENTRY\n \
+    \
+    movl   _g_tex_x_accum_low, %%ecx\n \
+    movl   _g_tex_x_accum_high, %%edx\n \
+    movl   _g_tex_x_accum_combined, %%ebx\n \
+    movl   _g_screen_line_ptr, %%edi\n \
 \n \
     movl    _gploc_pt_by,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
@@ -1345,6 +1354,9 @@ UNROLLED_LOOP_PIXEL15: \
     jg  UNROLLED_LOOP_PIXEL0\n \
 \n \
 SHADE_ADJUST_ENTRY: \
+    movl $0, _gt_to_shade_adjust_entry \n \
+\
+\
     movl    _g_shadeAccumulator,%%eax\n \
     movl    _g_shadeAccumulatorNext,%%ebp\n \
     movl    _gploc_F4,%%edi\n \
@@ -1393,17 +1405,12 @@ SHADE_EQUAL_POST: \
     subl    %%esi,%%ebp\n \
     jle SHADE_ADJUST_ENTRY\n \
 \
-    movl    %%ebp,%%eax\n \
-    andl    $0x0F,%%eax\n \
-    addl    _gpoly_countdown(,%%eax,4),%%edi\n \
-    movl    %%ebp,_gploc_D4\n \
-    movl    $0x0FF0000FF,%%ecx\n \
-    andl    %%ebx,%%ecx\n \
-    roll    $8,%%ecx\n \
-    movl    _LOC_vec_map,%%esi\n \
-    movl    _gploc_5C,%%ebp\n \
-    jmp     *JUMP_TABLE(,%%eax,4)\n \
-\
+    movl $1, _gt_to_the_unrolled_loop \n \
+    movl %%ebp, _g_pixel_span_len \n \
+    movl %%edx, _g_tex_x_accum_high \n \
+    movl %%ebx, _g_tex_x_accum_combined \n \
+    movl %%esi, _g_xStart \n \
+    jmp     POPA_AND_RETURN\n \
 \
 # ---------------------------------------------------------------------------\n \
 \n \
@@ -1566,6 +1573,14 @@ POPA_AND_RETURN: \
     : /* no outputs */
     : 
     : "memory","cc");
+
+    if (gt_to_the_unrolled_loop)
+    {
+        gt_to_the_unrolled_loop = 0;
+        unrolled_loop(g_pixel_span_len,g_tex_x_accum_high,g_tex_x_accum_combined,gploc_F4 + g_xStart);
+        gt_to_shade_adjust_entry = 1;
+        goto ASM_BLOCK;
+    }
 }
 
 // this function draws all polygons except the ones cut off by the screen edges
