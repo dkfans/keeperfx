@@ -888,28 +888,28 @@ void draw_gpoly_sub13()
     addl    _LOC_vec_screen,%%edi\n \
     movl    _gploc_pt_ay,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
-    jg  EPILOGUE_RET\n \
+    jg  POPA_AND_RETURN\n \
     movl    _gploc_pt_by,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
-    jle CLAMP_PT_BY\n \
+    jle INITIALIZE_SPAN_AND_LEFT_X\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
-CLAMP_PT_BY:         # 331\n \
+INITIALIZE_SPAN_AND_LEFT_X: \
     subl    _gploc_pt_ay,%%eax\n \
     movl    %%eax,_gploc_C0\n \
     movl    _gploc_pt_ax,%%esi\n \
     movl    %%esi,_gploc_74\n \
     movl    _gploc_pt_shax,%%eax\n \
     movl    %%eax,%%ebp\n \
-    jz  EPILOGUE_CHECK\n \
+    jz  EDGE_ADVANCE_CHECK\n \
     movl    _gploc_pt_ay,%%esi\n \
     orl %%esi,%%esi\n \
-    js  SHAX_ZERO_LOOP\n \
+    js  SKEWED_SCAN_ADJUST\n \
     movl    _gploc_74,%%esi\n \
-    jmp SHADE_MAIN_LOOP\n \
+    jmp REMAINDER_SCANLINE_STEP\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-DRAW_UNROLLED_LOOP_START:         # 361C\n \
+UNROLLED_LOOP_PIXEL0: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -927,7 +927,7 @@ DRAW_UNROLLED_LOOP_START:         # 361C\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_1:         # 3EEC\n \
+UNROLLED_LOOP_PIXEL1: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -945,7 +945,7 @@ DRAW_BYTE_1:         # 3EEC\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_2:         # 3EE8\n \
+UNROLLED_LOOP_PIXEL2: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -963,7 +963,7 @@ DRAW_BYTE_2:         # 3EE8\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_3:         # 3EE4\n \
+UNROLLED_LOOP_PIXEL3: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -981,7 +981,7 @@ DRAW_BYTE_3:         # 3EE4\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_4:         # 3EE0\n \
+UNROLLED_LOOP_PIXEL4: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -999,7 +999,7 @@ DRAW_BYTE_4:         # 3EE0\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_5:         # 3EDC\n \
+UNROLLED_LOOP_PIXEL5: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -1017,7 +1017,7 @@ DRAW_BYTE_5:         # 3EDC\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_6:         # 3ED8\n \
+UNROLLED_LOOP_PIXEL6: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -1035,7 +1035,7 @@ DRAW_BYTE_6:         # 3ED8\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_7:         # 3ED4\n \
+UNROLLED_LOOP_PIXEL7: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -1053,12 +1053,12 @@ DRAW_BYTE_7:         # 3ED4\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_8:         # 3ED0\n \
+UNROLLED_LOOP_PIXEL8: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
     andl    %%edx,%%ecx\n \
-    orl %%eax,%%ecx\n \
+    orl     %%eax,%%ecx\n \
     xorl    %%eax,%%eax\n \
     pushl   %%ebx\n \
     movl    _render_fade_tables,%%ebx\n \
@@ -1071,7 +1071,7 @@ DRAW_BYTE_8:         # 3ED0\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_9:         # 3ECC\n \
+UNROLLED_LOOP_PIXEL9: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -1089,7 +1089,7 @@ DRAW_BYTE_9:         # 3ECC\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_10:         # 3EC8\n \
+UNROLLED_LOOP_PIXEL10: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -1107,7 +1107,7 @@ DRAW_BYTE_10:         # 3EC8\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_11:         # 3EC4\n \
+UNROLLED_LOOP_PIXEL11: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -1125,7 +1125,7 @@ DRAW_BYTE_11:         # 3EC4\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_12:         # 3EC0\n \
+UNROLLED_LOOP_PIXEL12: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -1143,7 +1143,7 @@ DRAW_BYTE_12:         # 3EC0\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_13:         # 3EBC\n \
+UNROLLED_LOOP_PIXEL13: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -1161,7 +1161,7 @@ DRAW_BYTE_13:         # 3EBC\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_14:         # 3EB8\n \
+UNROLLED_LOOP_PIXEL14: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -1179,7 +1179,7 @@ DRAW_BYTE_14:         # 3EB8\n \
     adcl    _gploc_2C,%%ebx\n \
     roll    $8,%%ecx\n \
 \n \
-DRAW_BYTE_15:         # 3EB4\n \
+UNROLLED_LOOP_PIXEL15: \
     xorl    %%eax,%%eax\n \
     movb    (%%ecx,%%esi),%%al\n \
     movl    $0x0FF00,%%ecx\n \
@@ -1198,9 +1198,9 @@ DRAW_BYTE_15:         # 3EB4\n \
     roll    $8,%%ecx\n \
     addl    $0x10,%%edi\n \
     subl    $0x10,_gploc_D4\n \
-    jg  DRAW_UNROLLED_LOOP_START\n \
+    jg  UNROLLED_LOOP_PIXEL0\n \
 \n \
-SHADE_ADJUST_ENTRY:         # 370B\n \
+SHADE_ADJUST_ENTRY: \
     movl    _g_shadeAccumulator,%%eax\n \
     movl    _g_shadeAccumulatorNext,%%ebp\n \
     movl    _gploc_F4,%%edi\n \
@@ -1222,9 +1222,9 @@ SHADE_ADJUST_ENTRY:         # 370B\n \
     adcl    _gploc_C4,%%ebx\n \
     addl    _gploc_104,%%edi\n \
     decl _gploc_C0\n \
-    jz  EPILOGUE_CHECK\n \
+    jz  EDGE_ADVANCE_CHECK\n \
 \n \
-SHADE_MAIN_LOOP:         # 334D\n \
+REMAINDER_SCANLINE_STEP: \
     movl    %%eax,_g_shadeAccumulator\n \
     movl    %%ebp,_g_shadeAccumulatorNext\n \
     movl    %%edi,_gploc_F4\n \
@@ -1234,7 +1234,7 @@ SHADE_MAIN_LOOP:         # 334D\n \
     jg  SHADE_POS_SLOPE_LOOP\n \
     jl  SHADE_NEG_SLOPE_LOOP\n \
 \n \
-SHADE_EQUAL_LOOP:         # 3768\n \
+SHADE_EQUAL_LOOP: \
     movl    %%esi,_gploc_74\n \
     movl    _gploc_F4,%%edi\n \
     movl    %%ecx,_gploc_34\n \
@@ -1244,7 +1244,7 @@ SHADE_EQUAL_LOOP:         # 3768\n \
     cmpl    _LOC_vec_window_width,%%ebp\n \
     jg  SHADE_POS_CLAMP_WIDTH\n \
 \n \
-SHADE_EQUAL_POST:         # 37E6\n \
+SHADE_EQUAL_POST: \
     addl    %%esi,%%edi\n \
     subl    %%esi,%%ebp\n \
     jle SHADE_ADJUST_ENTRY\n \
@@ -1260,7 +1260,7 @@ SHADE_EQUAL_POST:         # 37E6\n \
     jmp     *JUMP_TABLE(,%%eax,4)\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-SHADE_POS_SLOPE_LOOP:         # 36C\n \
+SHADE_POS_SLOPE_LOOP: \
     addl    _gploc_30,%%ecx\n \
     adcl    _gploc_BC,%%edx\n \
     adcl    _gploc_B8,%%ebx\n \
@@ -1270,7 +1270,7 @@ SHADE_POS_SLOPE_LOOP:         # 36C\n \
     jmp SHADE_POS_SLOPE_LOOP\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-SHADE_NEG_SLOPE_LOOP:         # 36C\n \
+SHADE_NEG_SLOPE_LOOP: \
     subl    _gploc_30,%%ecx\n \
     sbbl    _gploc_BC,%%edx\n \
     sbbl    _gploc_B8,%%ebx\n \
@@ -1280,14 +1280,14 @@ SHADE_NEG_SLOPE_LOOP:         # 36C\n \
     jmp SHADE_NEG_SLOPE_LOOP\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-SHADE_POS_SLOPE_CHECK:         # 36C\n \
+SHADE_POS_SLOPE_CHECK: \
     orl %%esi,%%esi\n \
     jz  SHADE_EQUAL_LOOP\n \
     js  SHADE_POS_DOWN_LOOP\n \
     jmp SHADE_POS_FINAL\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-SHADE_POS_DOWN_LOOP:         # 3798\n \
+SHADE_POS_DOWN_LOOP: \
     addl    _gploc_30,%%ecx\n \
     adcl    _gploc_BC,%%edx\n \
     adcl    _gploc_B8,%%ebx\n \
@@ -1296,7 +1296,7 @@ SHADE_POS_DOWN_LOOP:         # 3798\n \
     jmp SHADE_POS_DOWN_LOOP\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-SHADE_POS_FINAL:         # 379A\n \
+SHADE_POS_FINAL: \
     subl    _gploc_30,%%ecx\n \
     sbbl    _gploc_BC,%%edx\n \
     sbbl    _gploc_B8,%%ebx\n \
@@ -1305,12 +1305,12 @@ SHADE_POS_FINAL:         # 379A\n \
     jmp SHADE_POS_FINAL\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-SHADE_POS_CLAMP_WIDTH:         # 370\n \
+SHADE_POS_CLAMP_WIDTH: \
     movl    _LOC_vec_window_width,%%ebp\n \
     jmp SHADE_EQUAL_POST\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-SHAX_ZERO_LOOP:         # 3340\n \
+SKEWED_SCAN_ADJUST: \
     addl    _gploc_60,%%ecx\n \
     adcl    _gploc_CC,%%edx\n \
     adcl    _gploc_C4,%%ebx\n \
@@ -1326,25 +1326,25 @@ SHAX_ZERO_LOOP:         # 3340\n \
     movl    _g_shadeAccumulator,%%eax\n \
     addl    _gploc_104,%%edi\n \
     decl _gploc_C0\n \
-    jz  SHAX_ZERO_FINAL\n \
+    jz  SKEWED_SCAN_END\n \
     incl    %%esi\n \
-    js  SHAX_ZERO_LOOP\n \
+    js  SKEWED_SCAN_ADJUST\n \
     movl    _gploc_74,%%esi\n \
-    jmp SHADE_MAIN_LOOP\n \
+    jmp REMAINDER_SCANLINE_STEP\n \
 # ---------------------------------------------------------------------------\n \
 \
 \n \
-SHAX_ZERO_FINAL:         # 385\n \
+SKEWED_SCAN_END: \
     movl    _gploc_74,%%esi\n \
     nop \n \
 \n \
-EPILOGUE_CHECK:         # 333\n \
+EDGE_ADVANCE_CHECK: \
     decl _gploc_180\n \
-    jz  EPILOGUE_RET\n \
+    jz  POPA_AND_RETURN\n \
     movl    %%eax,_g_shadeAccumulator\n \
     movl    _factor_chk,%%eax\n \
     orl %%eax,%%eax\n \
-    js  SHAX_ZERO_FACTOR_CHECK\n \
+    js  NEGATIVE_FACTOR_MODE_START\n \
     movl    _factor_cb,%%eax\n \
     movl    %%eax,_gploc_12C\n \
     movl    _gploc_64,%%eax\n \
@@ -1358,63 +1358,63 @@ EPILOGUE_CHECK:         # 333\n \
     movl    _gploc_7C,%%ebx\n \
     movl    _gploc_pt_cy,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
-    jle SHAX_ZERO_CLAMP\n \
+    jle CLAMP_BOTTOM_Y_AND_RESTART\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
-SHAX_ZERO_CLAMP:         # 38E\n \
+CLAMP_BOTTOM_Y_AND_RESTART: \
     subl    _gploc_pt_by,%%eax\n \
     movl    %%eax,_gploc_C0\n \
     movl    _gploc_pt_bx,%%eax\n \
     movl    %%eax,_gploc_74\n \
     movl    _gploc_pt_shbx,%%eax\n \
-    jle EPILOGUE_RET\n \
+    jle POPA_AND_RETURN\n \
     movl    _gploc_pt_by,%%esi\n \
     orl %%esi,%%esi\n \
-    js  SHAX_ZERO_LOOP\n \
+    js  SKEWED_SCAN_ADJUST\n \
     movl    _gploc_pt_bx,%%esi\n \
-    jmp SHADE_MAIN_LOOP\n \
+    jmp REMAINDER_SCANLINE_STEP\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-SHAX_ZERO_FACTOR_CHECK:         # 388\n \
+NEGATIVE_FACTOR_MODE_START: \
     movl    _factor_cb,%%ebp\n \
     movl    %%ebp,_gploc_128\n \
     movl    _gploc_pt_shbx,%%ebp\n \
     movl    _gploc_pt_cy,%%eax\n \
     cmpl    _LOC_vec_window_height,%%eax\n \
-    jle SHAX_ZERO_CONTINUE\n \
+    jle NEGATIVE_FACTOR_MODE_END\n \
     movl    _LOC_vec_window_height,%%eax\n \
 \n \
-SHAX_ZERO_CONTINUE:         # 393\n \
+NEGATIVE_FACTOR_MODE_END: \
     subl    _gploc_pt_by,%%eax\n \
     movl    %%eax,_gploc_C0\n \
     movl    _g_shadeAccumulator,%%eax\n \
-    jle EPILOGUE_RET\n \
+    jle POPA_AND_RETURN\n \
     movl    %%esi,_gploc_74\n \
     movl    _gploc_pt_by,%%esi\n \
     orl %%esi,%%esi\n \
-    js  SHAX_ZERO_LOOP\n \
+    js  SKEWED_SCAN_ADJUST\n \
     movl    _gploc_74,%%esi\n \
-    jmp SHADE_MAIN_LOOP\n \
+    jmp REMAINDER_SCANLINE_STEP\n \
 \n \
-JUMP_TABLE:\n \
-    .int    DRAW_UNROLLED_LOOP_START\n \
-    .int    DRAW_BYTE_15\n \
-    .int    DRAW_BYTE_14\n \
-    .int    DRAW_BYTE_13\n \
-    .int    DRAW_BYTE_12\n \
-    .int    DRAW_BYTE_11\n \
-    .int    DRAW_BYTE_10\n \
-    .int    DRAW_BYTE_9\n \
-    .int    DRAW_BYTE_8\n \
-    .int    DRAW_BYTE_7\n \
-    .int    DRAW_BYTE_6\n \
-    .int    DRAW_BYTE_5\n \
-    .int    DRAW_BYTE_4\n \
-    .int    DRAW_BYTE_3\n \
-    .int    DRAW_BYTE_2\n \
-    .int    DRAW_BYTE_1\n \
+JUMP_TABLE: \
+    .int    UNROLLED_LOOP_PIXEL0\n \
+    .int    UNROLLED_LOOP_PIXEL15\n \
+    .int    UNROLLED_LOOP_PIXEL14\n \
+    .int    UNROLLED_LOOP_PIXEL13\n \
+    .int    UNROLLED_LOOP_PIXEL12\n \
+    .int    UNROLLED_LOOP_PIXEL11\n \
+    .int    UNROLLED_LOOP_PIXEL10\n \
+    .int    UNROLLED_LOOP_PIXEL9\n \
+    .int    UNROLLED_LOOP_PIXEL8\n \
+    .int    UNROLLED_LOOP_PIXEL7\n \
+    .int    UNROLLED_LOOP_PIXEL6\n \
+    .int    UNROLLED_LOOP_PIXEL5\n \
+    .int    UNROLLED_LOOP_PIXEL4\n \
+    .int    UNROLLED_LOOP_PIXEL3\n \
+    .int    UNROLLED_LOOP_PIXEL2\n \
+    .int    UNROLLED_LOOP_PIXEL1\n \
 \n \
-EPILOGUE_RET:\n \
+POPA_AND_RETURN: \
     popa    \n \
 " : : : "memory", "cc");
 #endif
