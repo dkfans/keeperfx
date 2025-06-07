@@ -29,9 +29,9 @@
 
 /******************************************************************************/
 /******************************************************************************/
-long gpoly_countdown[] = { 0,-15,-14,-13,-12,-11,-10, -9,  -8, -7, -6, -5, -4, -3, -2, -1 };
+static const long gpoly_countdown[] = { 0,-15,-14,-13,-12,-11,-10, -9,  -8, -7, -6, -5, -4, -3, -2, -1 };
 
-long gpoly_reptable[] = {
+static const long gpoly_reptable[] = {
          0x0,0x7FFFFFFF,0x3FFFFFFF,0x2AAAAAAA,0x1FFFFFFF,0x19999999,0x15555555,0x12492492,
   0x0FFFFFFF,0x0E38E38E,0x0CCCCCCC,0x0BA2E8BA,0x0AAAAAAA, 0x9D89D89, 0x9249249, 0x8888888,
    0x7FFFFFF, 0x7878787, 0x71C71C7, 0x6BCA1AF, 0x6666666, 0x6186186, 0x5D1745D, 0x590B216,
@@ -66,7 +66,7 @@ long gpoly_reptable[] = {
    0x0842108, 0x0839930, 0x083126E, 0x0828CBF, 0x0820820, 0x081848D, 0x0810204, 0x0808080,
          0x0,       0x0 };
 
-long gpoly_divtable[][64] = {
+static const long gpoly_divtable[][64] = {
    {-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,
     -8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,
     -8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,-8388607,
@@ -325,23 +325,18 @@ long gpoly_divtable[][64] = {
        50737,   52851,   54965,   57079,   59193,   61307,   63421,   65536,},
 };
 
-// Static variables used only inside draw_gpoly().
-// These don't really have to be global; but this helps
-// in using these inside assembly code
-long factor_ca,factor_ba,factor_cb,factor_chk;
-// More variables - made global temporarly to ease assembly rewriting
-long gploc_point_c;
-long gploc_1A4,gploc_1A0;
-short gploc_word01,gploc_word02,gploc_word03;
-long gploc_198,mapxveltop,gploc_18C,mapyveltop,gploc_180;
-long gploc_pt_ay,gploc_pt_ax,gploc_pt_shax,gploc_pt_as,gploc_pt_au,gploc_pt_av;
-long gploc_pt_by,gploc_pt_bx,gploc_pt_shbx,gploc_pt_bs,gploc_pt_bu,gploc_pt_bv;
-long gploc_pt_cy,gploc_pt_cx,gploc_pt_shcx,gploc_pt_cs,gploc_pt_cu,gploc_pt_cv;
-long gploc_12C,gploc_128,gploc_104,g_shadeAccumulator,g_shadeAccumulatorNext,gploc_E4,gploc_E0;
-uint8_t * gploc_F4;
-long gploc_D8,gploc_D4,gploc_CC,gploc_C8,gploc_C4,gploc_C0,gploc_BC,gploc_B8,gploc_B4,mapxhstep,mapyhstep,gploc_A7,shadehstep,gploc_A4,gploc_A0,gploc_9C;
-long gploc_98,gploc_94,gploc_90,gploc_8C,gploc_88,gploc_84,gploc_80,gploc_7C,gploc_78,gploc_74,gploc_68,gploc_64,gploc_60;
-long gploc_5C,startposshadetop,startposmapxtop,startposmapytop,startposshadebottom,startposmapxbottom,startposmapybottom,gploc_34,gploc_30,gploc_2C,gploc_28;
+static long factor_ca,factor_ba,factor_cb,factor_chk;
+static long gploc_point_c;
+static long gploc_1A0;
+static long gploc_198,mapxveltop,gploc_18C,mapyveltop,gploc_180;
+static long gploc_pt_ay,gploc_pt_ax,gploc_pt_shax,gploc_pt_as,gploc_pt_au,gploc_pt_av;
+static long gploc_pt_by,gploc_pt_bx,gploc_pt_shbx,gploc_pt_bs,gploc_pt_bu,gploc_pt_bv;
+static long gploc_pt_cy,gploc_pt_cx,gploc_pt_shcx,gploc_pt_cs,gploc_pt_cu,gploc_pt_cv;
+static long gploc_12C,gploc_128,gploc_104,g_shadeAccumulator,g_shadeAccumulatorNext,gploc_E4;
+static uint8_t * gploc_F4;
+static long gploc_D8,gploc_D4,gploc_CC,gploc_C4,gploc_C0,gploc_BC,gploc_B8,mapxhstep,mapyhstep,shadehstep,gploc_A4,gploc_A0;
+static long gploc_98,gploc_94,gploc_8C,gploc_88,gploc_80,gploc_7C,gploc_74,gploc_68,gploc_64,gploc_60;
+static long gploc_5C,startposshadetop,startposmapxtop,startposmapytop,startposshadebottom,startposmapxbottom,startposmapybottom,gploc_34,gploc_30,gploc_2C;
 /******************************************************************************/
 
 #undef __ROL4__
