@@ -1006,272 +1006,213 @@ UNROLLED_LOOP_PIXEL0:
 }
     
 
-int gt_to_the_unrolled_loop = 0;
-int gt_to_shade_adjust_entry = 0;
 
-int g_pixel_span_len;
-int g_tex_x_accum_low;
-int g_tex_x_accum_high;
-int g_tex_x_accum_combined;
-int g_screen_line_offset;
-uchar *g_screen_line_ptr;
-int g_xStart;
 
-// this function draws all polygons that are cut off by the screen edges
+
+
+
 void draw_gpoly_sub13()
 {
-    if ( gploc_pt_ay > LOC_vec_window_height )
-        return;
+  int tex_x_accum_low; // ecx
+  int tex_x_accum_high; // edx
+  int tex_x_accum_combined; // ebx
+  uchar *screen_line_ptr; // edi
+  int clamped_by; // eax
+  bool skip_render; // zf
+  int spanCount; // eax
+  int xStart; // esi
+  int shadeAccumulator; // eax
+  int shadeAccumulatorNext; // ebp
+  int scanline_y_esi; // esi
+  bool v29; // cc
+  int v30; // esi
+  int v31; // eax
+  int v32; // ebp
+  int pixel_span_len; // ebp
+  bool v37; // cf
+  int v38; // eax
+  int v39; // eax
 
-    //int scanline_y; // esi
-
-    g_tex_x_accum_low = 0;
-    g_tex_x_accum_high = gploc_8C;
-    g_tex_x_accum_combined = gploc_88;
-    g_screen_line_ptr = &LOC_vec_screen[gploc_pt_ay * LOC_vec_screen_width];
-
-    ASM_BLOCK:
-    asm volatile (" \
-    pusha   \n \
-    movl  _gt_to_shade_adjust_entry, %%eax \n \
-    testl %%eax, %%eax\n \
-    jne SHADE_ADJUST_ENTRY\n \
-    \
-    movl   _g_tex_x_accum_low, %%ecx\n \
-    movl   _g_tex_x_accum_high, %%edx\n \
-    movl   _g_tex_x_accum_combined, %%ebx\n \
-    movl   _g_screen_line_ptr, %%edi\n \
-\n \
-    movl    _gploc_pt_by,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle INITIALIZE_SPAN_AND_LEFT_X\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-INITIALIZE_SPAN_AND_LEFT_X: \
-    subl    _gploc_pt_ay,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_ax,%%esi\n \
-    movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_shax,%%eax\n \
-    movl    %%eax,%%ebp\n \
-    jz  EDGE_ADVANCE_CHECK\n \
-    movl    _gploc_pt_ay,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  SKEWED_SCAN_ADJUST\n \
-    movl    _gploc_74,%%esi\n \
-    jmp REMAINDER_SCANLINE_STEP\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-SHADE_ADJUST_ENTRY: \
-    movl $0, _gt_to_shade_adjust_entry \n \
-\
-\
-    movl    _g_shadeAccumulator,%%eax\n \
-    movl    _g_shadeAccumulatorNext,%%ebp\n \
-    movl    _gploc_F4,%%edi\n \
-    movl    _gploc_74,%%esi\n \
-    sarl    $0x10,%%eax\n \
-    subl    %%eax,%%esi\n \
-    movl    _g_shadeAccumulator,%%eax\n \
-    addl    _gploc_12C,%%eax\n \
-    addl    _gploc_128,%%ebp\n \
-    movl    %%eax,_g_shadeAccumulator\n \
-    sarl    $0x10,%%eax\n \
-    addl    %%eax,%%esi\n \
-    movl    _g_shadeAccumulator,%%eax\n \
-    movl    _gploc_34,%%ecx\n \
-    movl    _gploc_D8,%%edx\n \
-    movl    _gploc_E4,%%ebx\n \
-    addl    _gploc_60,%%ecx\n \
-    adcl    _gploc_CC,%%edx\n \
-    adcl    _gploc_C4,%%ebx\n \
-    addl    _gploc_104,%%edi\n \
-    decl _gploc_C0\n \
-    jz  EDGE_ADVANCE_CHECK\n \
-\n \
-REMAINDER_SCANLINE_STEP: \
-    movl    %%eax,_g_shadeAccumulator\n \
-    movl    %%ebp,_g_shadeAccumulatorNext\n \
-    movl    %%edi,_gploc_F4\n \
-    sarl    $0x10,%%eax\n \
-    js  SHADE_POS_SLOPE_CHECK\n \
-    cmpl    %%esi,%%eax\n \
-    jg  SHADE_POS_SLOPE_LOOP\n \
-    jl  SHADE_NEG_SLOPE_LOOP\n \
-\n \
-SHADE_EQUAL_LOOP: \
-    movl    %%esi,_gploc_74\n \
-    movl    _gploc_F4,%%edi\n \
-    movl    %%ecx,_gploc_34\n \
-    movl    %%edx,_gploc_D8\n \
-    movl    %%ebx,_gploc_E4\n \
-    sarl    $0x10,%%ebp\n \
-    cmpl    _LOC_vec_window_width,%%ebp\n \
-    jg  SHADE_POS_CLAMP_WIDTH\n \
-\n \
-SHADE_EQUAL_POST: \
-    addl    %%esi,%%edi\n \
-    subl    %%esi,%%ebp\n \
-    jle SHADE_ADJUST_ENTRY\n \
-\
-    movl $1, _gt_to_the_unrolled_loop \n \
-    movl %%ebp, _g_pixel_span_len \n \
-    movl %%edx, _g_tex_x_accum_high \n \
-    movl %%ebx, _g_tex_x_accum_combined \n \
-    movl %%esi, _g_xStart \n \
-    jmp     POPA_AND_RETURN\n \
-\
-# ---------------------------------------------------------------------------\n \
-\n \
-SHADE_POS_SLOPE_LOOP: \
-    addl    _gploc_30,%%ecx\n \
-    adcl    _gploc_BC,%%edx\n \
-    adcl    _gploc_B8,%%ebx\n \
-    incl    %%esi\n \
-    cmpl    %%esi,%%eax\n \
-    jle SHADE_EQUAL_LOOP\n \
-    jmp SHADE_POS_SLOPE_LOOP\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-SHADE_NEG_SLOPE_LOOP: \
-    subl    _gploc_30,%%ecx\n \
-    sbbl    _gploc_BC,%%edx\n \
-    sbbl    _gploc_B8,%%ebx\n \
-    decl    %%esi\n \
-    cmpl    %%esi,%%eax\n \
-    jge SHADE_EQUAL_LOOP\n \
-    jmp SHADE_NEG_SLOPE_LOOP\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-SHADE_POS_SLOPE_CHECK: \
-    orl %%esi,%%esi\n \
-    jz  SHADE_EQUAL_LOOP\n \
-    js  SHADE_POS_DOWN_LOOP\n \
-    jmp SHADE_POS_FINAL\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-SHADE_POS_DOWN_LOOP: \
-    addl    _gploc_30,%%ecx\n \
-    adcl    _gploc_BC,%%edx\n \
-    adcl    _gploc_B8,%%ebx\n \
-    incl    %%esi\n \
-    jz  SHADE_EQUAL_LOOP\n \
-    jmp SHADE_POS_DOWN_LOOP\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-SHADE_POS_FINAL: \
-    subl    _gploc_30,%%ecx\n \
-    sbbl    _gploc_BC,%%edx\n \
-    sbbl    _gploc_B8,%%ebx\n \
-    decl    %%esi\n \
-    jz  SHADE_EQUAL_LOOP\n \
-    jmp SHADE_POS_FINAL\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-SHADE_POS_CLAMP_WIDTH: \
-    movl    _LOC_vec_window_width,%%ebp\n \
-    jmp SHADE_EQUAL_POST\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-SKEWED_SCAN_ADJUST: \
-    addl    _gploc_60,%%ecx\n \
-    adcl    _gploc_CC,%%edx\n \
-    adcl    _gploc_C4,%%ebx\n \
-    movl    %%eax,_g_shadeAccumulator\n \
-    sarl    $0x10,%%eax\n \
-    subl    %%eax,_gploc_74\n \
-    movl    _g_shadeAccumulator,%%eax\n \
-    addl    _gploc_12C,%%eax\n \
-    addl    _gploc_128,%%ebp\n \
-    movl    %%eax,_g_shadeAccumulator\n \
-    sarl    $0x10,%%eax\n \
-    addl    %%eax,_gploc_74\n \
-    movl    _g_shadeAccumulator,%%eax\n \
-    addl    _gploc_104,%%edi\n \
-    decl _gploc_C0\n \
-    jz  SKEWED_SCAN_END\n \
-    incl    %%esi\n \
-    js  SKEWED_SCAN_ADJUST\n \
-    movl    _gploc_74,%%esi\n \
-    jmp REMAINDER_SCANLINE_STEP\n \
-# ---------------------------------------------------------------------------\n \
-\
-\n \
-SKEWED_SCAN_END: \
-    movl    _gploc_74,%%esi\n \
-    nop \n \
-\n \
-EDGE_ADVANCE_CHECK: \
-    decl _gploc_180\n \
-    jz  POPA_AND_RETURN\n \
-    movl    %%eax,_g_shadeAccumulator\n \
-    movl    _factor_chk,%%eax\n \
-    orl %%eax,%%eax\n \
-    js  NEGATIVE_FACTOR_MODE_START\n \
-    movl    _factor_cb,%%eax\n \
-    movl    %%eax,_gploc_12C\n \
-    movl    _gploc_64,%%eax\n \
-    movl    %%eax,_gploc_60\n \
-    movl    _gploc_98,%%eax\n \
-    movl    %%eax,_gploc_CC\n \
-    movl    _gploc_94,%%eax\n \
-    movl    %%eax,_gploc_C4\n \
-    xorl    %%ecx,%%ecx\n \
-    movl    _gploc_80,%%edx\n \
-    movl    _gploc_7C,%%ebx\n \
-    movl    _gploc_pt_cy,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle CLAMP_BOTTOM_Y_AND_RESTART\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-CLAMP_BOTTOM_Y_AND_RESTART: \
-    subl    _gploc_pt_by,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _gploc_pt_bx,%%eax\n \
-    movl    %%eax,_gploc_74\n \
-    movl    _gploc_pt_shbx,%%eax\n \
-    jle POPA_AND_RETURN\n \
-    movl    _gploc_pt_by,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  SKEWED_SCAN_ADJUST\n \
-    movl    _gploc_pt_bx,%%esi\n \
-    jmp REMAINDER_SCANLINE_STEP\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-NEGATIVE_FACTOR_MODE_START: \
-    movl    _factor_cb,%%ebp\n \
-    movl    %%ebp,_gploc_128\n \
-    movl    _gploc_pt_shbx,%%ebp\n \
-    movl    _gploc_pt_cy,%%eax\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jle NEGATIVE_FACTOR_MODE_END\n \
-    movl    _LOC_vec_window_height,%%eax\n \
-\n \
-NEGATIVE_FACTOR_MODE_END: \
-    subl    _gploc_pt_by,%%eax\n \
-    movl    %%eax,_gploc_C0\n \
-    movl    _g_shadeAccumulator,%%eax\n \
-    jle POPA_AND_RETURN\n \
-    movl    %%esi,_gploc_74\n \
-    movl    _gploc_pt_by,%%esi\n \
-    orl %%esi,%%esi\n \
-    js  SKEWED_SCAN_ADJUST\n \
-    movl    _gploc_74,%%esi\n \
-    jmp REMAINDER_SCANLINE_STEP\n \
-\n \
-POPA_AND_RETURN: \
-    popa"
-    : /* no outputs */
-    : 
-    : "memory","cc");
-
-    if (gt_to_the_unrolled_loop)
+  tex_x_accum_low = 0;
+  tex_x_accum_high = gploc_8C;
+  tex_x_accum_combined = gploc_88;
+  screen_line_ptr = (uchar *)(LOC_vec_screen + gploc_pt_ay * LOC_vec_screen_width);
+  if ( gploc_pt_ay <= LOC_vec_window_height )
+  {
+    clamped_by = gploc_pt_by;
+    if ( gploc_pt_by > LOC_vec_window_height )
+      clamped_by = LOC_vec_window_height;
+    spanCount = clamped_by - gploc_pt_ay;
+    skip_render = spanCount == 0;
+    gploc_C0 = spanCount;
+    xStart = gploc_pt_ax;
+    gploc_74 = gploc_pt_ax;
+    shadeAccumulator = gploc_pt_shax;
+    shadeAccumulatorNext = gploc_pt_shax;
+    if ( !skip_render )
     {
-        gt_to_the_unrolled_loop = 0;
-        unrolled_loop(g_pixel_span_len,g_tex_x_accum_high,g_tex_x_accum_combined,gploc_F4 + g_xStart);
-        gt_to_shade_adjust_entry = 1;
-        goto ASM_BLOCK;
+      scanline_y_esi = gploc_pt_ay;
+      if ( gploc_pt_ay < 0 )
+        goto SKEWED_SCAN_ADJUST;
+      xStart = gploc_74;
+      goto REMAINDER_SCANLINE_STEP;
     }
+    while ( 1 )
+    {
+      if ( !--gploc_180 )
+        return;
+      g_shadeAccumulator = shadeAccumulator;
+      if ( factor_chk >= 0 )
+        break;
+      gploc_128 = factor_cb;
+      shadeAccumulatorNext = gploc_pt_shbx;
+      v39 = gploc_pt_cy;
+      if ( gploc_pt_cy > LOC_vec_window_height )
+        v39 = LOC_vec_window_height;
+      v29 = v39 <= gploc_pt_by;
+      gploc_C0 = v39 - gploc_pt_by;
+      shadeAccumulator = g_shadeAccumulator;
+      if ( v29 )
+        return;
+      gploc_74 = xStart;
+      scanline_y_esi = gploc_pt_by;
+      if ( gploc_pt_by >= 0 )
+      {
+        xStart = gploc_74;
+        do
+        {
+REMAINDER_SCANLINE_STEP:
+          g_shadeAccumulator = shadeAccumulator;
+          g_shadeAccumulatorNext = shadeAccumulatorNext;
+          gploc_F4 = screen_line_ptr;
+          v31 = shadeAccumulator >> 16;
+          if ( v31 < 0 )
+          {
+            if ( xStart )
+            {
+              if ( xStart >= 0 )
+              {
+                do
+                {
+                  v37 = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(gploc_BC, gploc_30);
+                  tex_x_accum_high = (PAIR64(tex_x_accum_high, tex_x_accum_low) - PAIR64(gploc_BC, gploc_30)) >> 32;
+                  tex_x_accum_low -= gploc_30;
+                  tex_x_accum_combined -= v37 + gploc_B8;
+                  --xStart;
+                }
+                while ( xStart );
+              }
+              else
+              {
+                do
+                {
+                  v37 = CFADD64(PAIR64(gploc_BC, gploc_30), PAIR64(tex_x_accum_high, tex_x_accum_low));
+                  tex_x_accum_high = (PAIR64(gploc_BC, gploc_30) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
+                  tex_x_accum_low += gploc_30;
+                  tex_x_accum_combined += gploc_B8 + v37;
+                  ++xStart;
+                }
+                while ( xStart );
+              }
+            }
+          }
+          else if ( v31 > xStart )
+          {
+            do
+            {
+              v37 = CFADD64(PAIR64(gploc_BC, gploc_30), PAIR64(tex_x_accum_high, tex_x_accum_low));
+              tex_x_accum_high = (PAIR64(gploc_BC, gploc_30) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
+              tex_x_accum_low += gploc_30;
+              tex_x_accum_combined += gploc_B8 + v37;
+              ++xStart;
+            }
+            while ( v31 > xStart );
+          }
+          else
+          {
+            for ( ; v31 < xStart; --xStart )
+            {
+              v37 = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(gploc_BC, gploc_30);
+              tex_x_accum_high = (PAIR64(tex_x_accum_high, tex_x_accum_low) - PAIR64(gploc_BC, gploc_30)) >> 32;
+              tex_x_accum_low -= gploc_30;
+              tex_x_accum_combined -= v37 + gploc_B8;
+            }
+          }
+          gploc_74 = xStart;
+          gploc_34 = tex_x_accum_low;
+          gploc_D8 = tex_x_accum_high;
+          gploc_E4 = tex_x_accum_combined;
+          v32 = shadeAccumulatorNext >> 16;
+          if ( v32 > LOC_vec_window_width )
+            v32 = LOC_vec_window_width;
+          v29 = v32 <= xStart;
+          pixel_span_len = v32 - xStart;
+          if ( !v29 )
+          {
+            unrolled_loop(pixel_span_len,tex_x_accum_high,tex_x_accum_combined,gploc_F4 + xStart);
+          }
+          v30 = gploc_74 - (g_shadeAccumulator >> 16);
+          shadeAccumulatorNext = gploc_128 + g_shadeAccumulatorNext;
+          g_shadeAccumulator += gploc_12C;
+          xStart = (g_shadeAccumulator >> 16) + v30;
+          shadeAccumulator = g_shadeAccumulator;
+          tex_x_accum_high = (PAIR64(gploc_CC, gploc_60) + PAIR64(gploc_D8, gploc_34)) >> 32;
+          tex_x_accum_low = gploc_60 + gploc_34;
+          tex_x_accum_combined = gploc_C4
+                               + CFADD64(PAIR64(gploc_CC, gploc_60), PAIR64(gploc_D8, gploc_34))
+                               + gploc_E4;
+          screen_line_ptr = &gploc_F4[gploc_104];
+          --gploc_C0;
+        }
+        while ( gploc_C0 );
+        continue;
+      }
+SKEWED_SCAN_ADJUST:
+      while ( 1 )
+      {
+        v37 = CFADD64(PAIR64(gploc_CC, gploc_60), PAIR64(tex_x_accum_high, tex_x_accum_low));
+        tex_x_accum_high = (PAIR64(gploc_CC, gploc_60) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
+        tex_x_accum_low += gploc_60;
+        tex_x_accum_combined += gploc_C4 + v37;
+        gploc_74 -= shadeAccumulator >> 16;
+        shadeAccumulatorNext += gploc_128;
+        g_shadeAccumulator = gploc_12C + shadeAccumulator;
+        gploc_74 += (gploc_12C + shadeAccumulator) >> 16;
+        shadeAccumulator += gploc_12C;
+        screen_line_ptr += gploc_104;
+        if ( !--gploc_C0 )
+          break;
+        if ( ++scanline_y_esi >= 0 )
+        {
+          xStart = gploc_74;
+          goto REMAINDER_SCANLINE_STEP;
+        }
+      }
+      xStart = gploc_74;
+    }
+    gploc_12C = factor_cb;
+    gploc_60 = gploc_64;
+    gploc_CC = gploc_98;
+    gploc_C4 = gploc_94;
+    tex_x_accum_low = 0;
+    tex_x_accum_high = gploc_80;
+    tex_x_accum_combined = gploc_7C;
+    v38 = gploc_pt_cy;
+    if ( gploc_pt_cy > LOC_vec_window_height )
+      v38 = LOC_vec_window_height;
+    v29 = v38 <= gploc_pt_by;
+    gploc_C0 = v38 - gploc_pt_by;
+    gploc_74 = gploc_pt_bx;
+    shadeAccumulator = gploc_pt_shbx;
+    if ( !v29 )
+    {
+      scanline_y_esi = gploc_pt_by;
+      if ( gploc_pt_by < 0 )
+        goto SKEWED_SCAN_ADJUST;
+      xStart = gploc_pt_bx;
+      goto REMAINDER_SCANLINE_STEP;
+    }
+  }
 }
 
 // this function draws all polygons except the ones cut off by the screen edges
