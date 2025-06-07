@@ -1000,12 +1000,6 @@ UNROLLED_LOOP_PIXEL0:
     }
 }
     
-
-
-
-
-
-
 void draw_gpoly_sub13()
 {
   int tex_x_accum_low; // ecx
@@ -1224,8 +1218,6 @@ void draw_gpoly_sub14()
     int tex_x_accum_combined = gploc_88;
     uchar *screen_line_ptr = &LOC_vec_screen[gploc_pt_ay * LOC_vec_screen_width];
 
-
-
     int clamped_by = gploc_pt_by;
     if ( gploc_pt_by > LOC_vec_window_height )
       clamped_by = LOC_vec_window_height;
@@ -1342,7 +1334,5 @@ SKEWED_SCAN_ADJUST:
     }
   
 }
-
-
 
 /******************************************************************************/
