@@ -29,6 +29,7 @@
 #include "player_instances.h"
 #include "game_legacy.h"
 #include "post_inc.h"
+#include "engine_render.h"
 
 #ifdef __cplusplus
 extern "C" {
