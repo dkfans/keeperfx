@@ -542,7 +542,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
             interpolate_minimap_thing(thing, cam);
             if (thing_revealed(thing, player->id_number))
             {
-                if ((game.play_gameturn & 4) == 0)
+                if (game.play_gameturn % (8 * flash_rate)) < 4 * flash_rate)
                 {
                     col1 = player_room_colours[get_player_color_idx(thing->owner)];
                     col2 = player_room_colours[get_player_color_idx(thing->owner)];
@@ -562,7 +562,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 // Do the drawing
                 if (thing->owner == player->id_number)
                 {
-                    if ((thing->model == gui_creature_type_highlighted) && (game.play_gameturn & 2))
+                    if ((thing->model == gui_creature_type_highlighted) && ((game.play_gameturn % (4 * flash_rate)) >= 2 * flash_rate))
                     {
                         short pixels_amount = scale_pixel(basic_zoom * 4);
                         panel_map_draw_creature_dot(mapos_x + pixels_amount, mapos_y, basepos, col2, basic_zoom, isLowRes);
