@@ -195,8 +195,8 @@ short error_dialog(const char *codefile,const int ecode,const char *message)
 short error_dialog_fatal(const char *codefile,const int ecode,const char *message)
 {
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
-  static char msg_text[2048];
-  sprintf(msg_text, "%s This error in '%s' makes the program unable to continue. See '%s' for details.", message, codefile, log_file_name);
+  char msg_text[2048];
+  snprintf(msg_text, sizeof(msg_text), "%s This error in '%s' makes the program unable to continue. See '%s' for details.", message, codefile, log_file_name);
   SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROGRAM_FULL_NAME, msg_text, NULL);
   return 0;
 }
@@ -225,18 +225,6 @@ int LbWarnLog(const char *format, ...)
     if (!error_log_initialised)
         return -1;
     LbLogSetPrefix(&error_log, "Warning: ");
-    va_list val;
-    va_start(val, format);
-    int result=LbLog(&error_log, format, val);
-    va_end(val);
-    return result;
-}
-
-int LbAiLog(const char *format, ...)
-{
-    if (!error_log_initialised)
-        return -1;
-    LbLogSetPrefix(&error_log, "Skirmish AI: ");
     va_list val;
     va_start(val, format);
     int result=LbLog(&error_log, format, val);
@@ -276,15 +264,6 @@ int LbNaviLog(const char *format, ...)
     va_list val;
     va_start(val, format);
     int result=LbLog(&error_log, format, val);
-    va_end(val);
-    return result;
-}
-
-int Lbvsprintf(char* buffer, const char *format, ...)
-{
-    va_list val;
-    va_start(val, format);
-    int result=vsprintf(buffer, format, val);
     va_end(val);
     return result;
 }
@@ -534,7 +513,7 @@ int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...)
     if (!log->Initialised) return -1;
     va_list val;
     va_start(val, format);
-    vsprintf(log->prefix, format, val);
+    vsnprintf(log->prefix, sizeof(log->prefix), format, val);
     va_end(val);
     return 1;
 }

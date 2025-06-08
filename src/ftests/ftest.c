@@ -167,7 +167,7 @@ TbBool ftest_parse_arg(char * const arg)
     if(strlen(arg) > 0 && arg[0] != '-')
     {
         FTESTLOG("Argument '%s' provided by user", arg);
-        snprintf(start_params.functest_name, sizeof(start_params.functest_name), "%s", arg);        
+        snprintf(start_params.functest_name, sizeof(start_params.functest_name), "%s", arg);
         return true;
     }
 
@@ -296,7 +296,8 @@ TbBool ftest_setup_test(struct FTestConfig* const test_config)
     strcpy(start_params.selected_campaign, test_config->level_file);
     LevelNumber selected_level = test_config->level;
 
-    TbBool result = change_campaign(strcat(start_params.selected_campaign,".cfg"));
+    str_append(start_params.selected_campaign, sizeof(start_params.selected_campaign), ".cfg");
+    TbBool result = change_campaign(start_params.selected_campaign);
     if(!result)
     {
         FTEST_FAIL_TEST("Failed to load campaign '%d'", start_params.selected_campaign)

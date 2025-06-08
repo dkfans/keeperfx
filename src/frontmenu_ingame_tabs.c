@@ -547,11 +547,11 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     }
     if ((player->work_state == PSt_BuildRoom) && (boxsize > 1))
     {
-        sprintf(gui_textbuf, "%ld", (long)roomst->cost * boxsize);
+        snprintf(gui_textbuf, sizeof(gui_textbuf), "%ld", (long)roomst->cost * boxsize);
     }
     else
     {
-        sprintf(gui_textbuf, "%ld", (long)roomst->cost);
+        snprintf(gui_textbuf, sizeof(gui_textbuf), "%ld", (long)roomst->cost);
     }
     if ((roomst->cost * boxsize) <= dungeon->total_money_owned)
     {
@@ -576,7 +576,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 
     long amount = count_player_rooms_of_type(player->id_number, rkind);
     // Note that "@" is "x" in that font
-    sprintf(gui_textbuf, "@%ld", amount);
+    snprintf(gui_textbuf, sizeof(gui_textbuf), "@%ld", amount);
     draw_string64k(gbtn->scr_pos_x + 40*units_per_px/16, gbtn->scr_pos_y - (14 + 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
     LbTextUseByteCoding(true);
     lbDisplay.DrawFlags = flg_mem;
@@ -1027,12 +1027,12 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
     }
     if (dbc_enabled && dbc_initialized)
     {
-        sprintf(gui_textbuf, "x%ld", (long)amount);
+        snprintf(gui_textbuf, sizeof(gui_textbuf), "x%ld", (long)amount);
     }
     else
     {
         // Note that "@" is "×" in that font
-        sprintf(gui_textbuf, "@%ld", (long)amount);
+        snprintf(gui_textbuf, sizeof(gui_textbuf), "@%ld", (long)amount);
     }
     if (amount <= 0) {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
@@ -1541,7 +1541,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
         }
         if (gbtn->content.lptr != NULL)
         {
-          sprintf(gui_textbuf, "%ld", cr_total);
+          snprintf(gui_textbuf, sizeof(gui_textbuf), "%ld", cr_total);
           // We will use a special coding for our "string" - we want chars to represent
           // sprite index directly, without code pages and multibyte chars interpretation
           if ((cr_total > 0) && (dungeon->guijob_all_creatrs_count[crmodel][(job_idx & 0x03)] ))

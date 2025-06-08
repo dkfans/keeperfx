@@ -776,8 +776,8 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
     if (buf == NULL)
         return false;
     VALUE file_root, *root_ptr = &file_root;
-    char err[255];
-    char key[64];
+    char err[255] = "";
+    char key[64] = "";
 
     if (toml_parse((char*)buf, err, sizeof(err), root_ptr))
     {
@@ -829,7 +829,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
         }
         else
         {
-            sprintf(key, section_fmt, k);
+            snprintf(key, sizeof(key), section_fmt, k);
             section = value_dict_get(root_ptr, key);
         }
         if (value_type(section) != VALUE_DICT)
