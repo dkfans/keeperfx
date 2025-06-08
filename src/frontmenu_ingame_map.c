@@ -542,7 +542,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
             interpolate_minimap_thing(thing, cam);
             if (thing_revealed(thing, player->id_number))
             {
-                if (game.play_gameturn % (8 * flash_rate)) < 4 * flash_rate)
+                if ((game.play_gameturn % (8 * flash_rate)) < 4 * flash_rate)
                 {
                     col1 = player_room_colours[get_player_color_idx(thing->owner)];
                     col2 = player_room_colours[get_player_color_idx(thing->owner)];
