@@ -882,7 +882,7 @@ void gui_over_trap_button(struct GuiButton *gbtn)
 void gui_area_trap_button(struct GuiButton *gbtn)
 {
     unsigned short flg_mem = lbDisplay.DrawFlags;
-
+    gbtn->display_qmark = false;
     int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_portrt_empty, 128);
 
     int manufctr_idx = gbtn->content.lval;
@@ -916,6 +916,7 @@ void gui_area_trap_button(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_qmark);
+        gbtn->display_qmark = true;
         lbDisplay.DrawFlags = flg_mem;
         return;
     }
@@ -1165,6 +1166,10 @@ void maintain_trap(struct GuiButton *gbtn)
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
+    } else if (gbtn->display_qmark)
+    {
+        gbtn->btype_value |= LbBFeF_NoTooltip;
+        gbtn->flags |= LbBtnF_Enabled;
     } else
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
@@ -1179,6 +1184,10 @@ void maintain_door(struct GuiButton *gbtn)
     if (is_door_placeable(my_player_number, manufctr->tngmodel) || is_door_built(my_player_number, manufctr->tngmodel))
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
+        gbtn->flags |= LbBtnF_Enabled;
+    } else if (gbtn->display_qmark)
+    {
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags |= LbBtnF_Enabled;
     } else
     {
@@ -1199,6 +1208,10 @@ void maintain_big_trap(struct GuiButton *gbtn)
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
+    } else if (gbtn->display_qmark)
+    {
+        gbtn->btype_value |= LbBFeF_NoTooltip;
+        gbtn->flags |= LbBtnF_Enabled;
     } else
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
@@ -1212,11 +1225,11 @@ void maintain_buildable_info(struct GuiButton* gbtn)
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
     gbtn->content.lval = manufctr_idx;
     if (((manufctr->tngclass == TCls_Trap) && is_trap_placeable(my_player_number, manufctr->tngmodel))
-        || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel)))
+        || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel))
+        || gbtn->display_qmark)
     {
         gbtn->flags |= LbBtnF_Enabled;
-    }
-    else
+    } else
     {
         gbtn->flags &= ~LbBtnF_Enabled;
         gbtn->tooltip_stridx = 0;
