@@ -432,7 +432,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 basepos = MapDiagonalLength/2;
                 
                 // Do the drawing
-                if (((game.play_gameturn % (4 * flash_rate)) / 4) == 1) {
+                if (((game.play_gameturn % (4 * flash_rate)) / flash_rate) == 1) {
                     if (thing_is_special_box(thing) || thing_is_spellbook(thing))
                     {
                         short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
@@ -584,7 +584,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 } else
                 {
                     if (thing->owner == game.neutral_player_num) {
-                        col = player_room_colours[get_player_color_idx(((game.play_gameturn + 1) % (4 * neutral_flash_rate)) / 4)];
+                        col = player_room_colours[get_player_color_idx(((game.play_gameturn + 1) % (4 * neutral_flash_rate)) / neutral_flash_rate)];
                     } else {
                         col = col1;
                     }

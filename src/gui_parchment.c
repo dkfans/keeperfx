@@ -250,7 +250,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
         unsigned char color_idx = get_player_color_idx(owner);
         if (color_idx == PLAYER_NEUTRAL)
         {
-            pixval = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / 4];
+            pixval = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
         } else
         {
             pixval = player_room_colours[color_idx];
@@ -435,7 +435,7 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
             {
                 if (color_idx == game.neutral_player_num)
                 {
-                    col1 = player_room_colours[((game.play_gameturn + 1) % (4 * neutral_flash_rate)) / 4];
+                    col1 = player_room_colours[((game.play_gameturn + 1) % (4 * neutral_flash_rate)) / neutral_flash_rate];
                 } else
                 if ((game.play_gameturn % (8 * flash_rate)) < 4 * flash_rate)
                 {
@@ -602,7 +602,7 @@ void draw_overhead_things(const struct TbRect *map_area, long block_size, Player
 {
     draw_overhead_creatures(map_area, block_size, plyr_idx);
     draw_overhead_call_to_arms(map_area, block_size, plyr_idx);
-    if ((((game.play_gameturn + 1) % (4 * flash_rate)) / 4) == 1) {
+    if ((((game.play_gameturn + 1) % (4 * flash_rate)) / flash_rate) == 1) {
         draw_overhead_spells(map_area, block_size, plyr_idx);
     }
     draw_overhead_traps(map_area, block_size, plyr_idx);

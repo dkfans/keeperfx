@@ -270,7 +270,7 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
             {
               if ((game.play_gameturn % (4 * flash_rate)) >= 2 * flash_rate)
               {
-                  TbPixel col = player_flash_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / 4];
+                  TbPixel col = player_flash_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
                   lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
                   LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
                     wdelta, gbtn->height, col);
@@ -333,7 +333,7 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
             {
               if ((game.play_gameturn % (4 * flash_rate)) >= 2 * flash_rate)
               {
-                  TbPixel col = player_flash_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / 4];
+                  TbPixel col = player_flash_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
                   lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
                   LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
                     wdelta, gbtn->height, col);

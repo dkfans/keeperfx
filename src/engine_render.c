@@ -5359,7 +5359,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         int flash_color = get_player_color_idx(thing->owner);
         if (flash_color == PLAYER_NEUTRAL)
         {
-            flash_color = (game.play_gameturn % (4 * neutral_flash_rate)) / 4;
+            flash_color = (game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate;
         }
         spr = get_button_sprite_for_player(health_spridx, thing->owner);
         w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
