@@ -1009,7 +1009,7 @@ void setup_background(long units_per_px)
 void setup_panel_colors(void)
 {
     int frame;
-    frame = game.play_gameturn % (4 * neutral_flash_rate);
+    frame = (game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate;
     unsigned int frcol;
     frcol = player_room_colours[frame];
     int bkcol_idx;
@@ -1021,7 +1021,7 @@ void setup_panel_colors(void)
         bkcol = MapBackColours[bkcol_idx];
         int n;
         n = pncol_idx;
-        if (frame >= neutral_flash_rate)
+        if (frame != 0)
         {
             PanelColours[n + PnC_Unexplored] = pixmap.ghost[bkcol + 26*256];
             PanelColours[n + PnC_Tagged_Gold] = pixmap.ghost[bkcol + 140*256];
@@ -1114,7 +1114,7 @@ void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_
 void update_panel_colors(void)
 {
     int frame;
-    frame = game.play_gameturn % (4 * neutral_flash_rate);
+    frame = (game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate;
     unsigned int frcol;
     frcol = player_room_colours[frame];
     int bkcol_idx;
@@ -1126,7 +1126,7 @@ void update_panel_colors(void)
         bkcol = MapBackColours[bkcol_idx];
         int n;
         n = pncol_idx;
-        if (frame >= neutral_flash_rate)
+        if (frame != 0)
         {
             PanelColours[n + PnC_Unexplored] = pixmap.ghost[bkcol + 26*256];
             PanelColours[n + PnC_Tagged_Gold] = pixmap.ghost[bkcol + 140*256];
