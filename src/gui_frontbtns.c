@@ -26,6 +26,7 @@
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_datetm.h"
+#include "engine_render.h"
 #include "kjm_input.h"
 #include "gui_draw.h"
 #include "gui_frontmenu.h"
