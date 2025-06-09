@@ -569,32 +569,34 @@ short load_configuration(void)
           {
               i = atoi(word_buf);
           }
-          if (i < 1) {
-            flash_rate = 1;
-          } else if (i > 160) {
-            flash_rate = 160; // slowest flash speed (changes frame every 8 seconds), if they want it to not flash we'd need to code something for 0.
-          } else {
-            flash_rate = i;
-          }
-          else {
+          if (i < 1)
+          {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+              break;
           }
+          else if (i > 160)
+          {
+              CONFWRNLOG("Value %d out of range for \"%s\" command of %s file. Set to 160.", i, COMMAND_TEXT(cmd_num), config_textname);
+              i = 160;
+          }
+          flash_rate = i;
           break;
       case 16: // NEUTRAL_FLASH_RATE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               i = atoi(word_buf);
           }
-          if (i < 1) {
-            neutral_flash_rate = 1;
-          } else if (i > 160) {
-            neutral_flash_rate = 160; // slowest flash speed (changes frame every 8 seconds), if they want it to not flash we'd need to code something for 0.
-          } else {
-            neutral_flash_rate = i;
-          }
-          else {
+          if (i < 1)
+          {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+              break;
           }
+          else if (i > 160)
+          {
+              CONFWRNLOG("Value %d out of range for \"%s\" command of %s file. Set to 160.",i, COMMAND_TEXT(cmd_num), config_textname);
+              i = 160;
+          }
+          neutral_flash_rate = i;
           break;
       case 17: // FREEZE_GAME_ON_FOCUS_LOST
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
