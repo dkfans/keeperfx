@@ -6,6 +6,9 @@
 ---@field level integer
 ---@field name string name visible in possession or query menu
 ---@field party Creature[] list of creatures in the party, first entry is the leader
+---@field workroom Room the room the creature is currently working in
+---@field state string
+---@field continue_state string
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens

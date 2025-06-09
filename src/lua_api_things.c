@@ -10,6 +10,7 @@
 #include "thing_data.h"
 #include "creature_states.h"
 #include "creature_states_pray.h"
+#include "config_crtrstates.h"
 #include "gui_msgs.h"
 #include "thing_navigate.h"
 #include "map_data.h"
@@ -23,6 +24,7 @@
 #include "thing_creature.h"
 #include "thing_effects.h"
 #include "magic_powers.h"
+#include "creature_states_combt.h"
 
 #include "lua_base.h"
 #include "lua_params.h"
@@ -44,19 +46,6 @@ static const struct luaL_Reg thing_methods[];
 // things
 /**********************************************/
 
-static int make_thing_zombie (lua_State *L)
-{
-    struct Thing *thing = luaL_checkThing(L, 1);
-
-    //internal_set_thing_state(thing, CrSt_Disabled);
-    //thing->active_state = CrSt_Disabled;
-    //thing->continue_state = CrSt_Disabled;
-
-    thing->alloc_flags |= TAlF_IsControlled;
-
-
-    return 0;
-}
 
 static int lua_delete_thing(lua_State *L)
 {
@@ -86,11 +75,9 @@ static int lua_creature_walk_to(lua_State *L)
     int stl_x = luaL_checkstl_x(L, 2);
     int stl_y = luaL_checkstl_y(L, 3);
 
-    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
-        WARNLOG("Move %s order failed", thing_model_name(thing));
-    thing->continue_state = CrSt_ManualControl;
-
-    return 0;
+    lua_pushboolean(L, setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default));
+    
+    return 1;
 }
 
 static int lua_kill_creature(lua_State *L)
@@ -152,6 +139,43 @@ static int lua_Change_creature_owner(lua_State *L)
 }
 
 
+static int lua_start_fighting(lua_State *L)
+{
+    struct Thing* creatng = luaL_checkThing(L, 1);
+    struct Thing* enemytng = luaL_checkThing(L, 2);
+    CrAttackType attack_type = 0;
+    
+    long distance = get_combat_distance(creatng, enemytng);
+
+    if (enemytng->class_id == TCls_Creature)
+    {
+        attack_type = creature_can_have_combat_with_creature(creatng, enemytng, distance, 1, 0);
+    }
+    else if (enemytng->class_id == TCls_Object)
+    {
+        attack_type = creature_can_have_combat_with_object(creatng, enemytng, distance, 1, 0);
+    }
+    
+
+    if (!set_creature_combat_state(creatng, enemytng, attack_type))
+    {
+        set_start_state(creatng);
+        lua_pushboolean(L, 0);
+    }
+    else
+    {
+        lua_pushboolean(L, 1);
+    }
+    return 1;
+}
+
+
+
+
+
+
+
+
 
 static int thing_tostring(lua_State *L)
 {
@@ -206,6 +230,10 @@ static int thing_set_field(lua_State *L) {
 
     } else if (strcmp(key, "pos") == 0) {
         luaL_checkCoord3d(L, 3, &thing->mappos);
+    } else if (strcmp(key, "state") == 0) {
+        thing->active_state = luaL_checkNamedCommand(L, 3, creatrstate_desc);
+    } else if (strcmp(key, "continue_state") == 0) {
+        thing->continue_state = luaL_checkNamedCommand(L, 3, creatrstate_desc);
     } else {
         return luaL_error(L, "Field '%s' is not writable on Thing", key);
     }
@@ -259,6 +287,16 @@ static int thing_get_field(lua_State *L) {
         lua_pushPartyTable(L, get_group_leader(thing));
     } else if (strcmp(key, "picked_up") == 0) {
         lua_pushboolean(L, thing_is_picked_up(thing));
+    } else if (strcmp(key, "state") == 0) {
+        lua_pushstring(L, get_conf_parameter_text(creatrstate_desc,thing->active_state));
+    } else if (strcmp(key, "continue_state") == 0) {
+        lua_pushstring(L, get_conf_parameter_text(creatrstate_desc,thing->continue_state));
+    } else if (strcmp(key, "workroom") == 0) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'level' of non-creature thing");
+        JUSTLOG("Getting workroom for thing %d, cctrl->work_room_id = %d", thing->index, cctrl->work_room_id);
+        lua_pushRoom(L, room_get(cctrl->work_room_id));
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     } else {
@@ -323,11 +361,11 @@ static int thing_eq(lua_State *L) {
 
 
 static const struct luaL_Reg thing_methods[] = {
-    {"make_thing_zombie", make_thing_zombie},
     {"creature_walk_to",  lua_creature_walk_to},
     {"kill",    lua_kill_creature},
     {"delete",     lua_delete_thing},
     {"isValid",         lua_is_valid},
+    {"start_fighting",  lua_start_fighting},
     
    {"transfer"                    ,lua_Transfer_creature               },
    {"level_up"                    ,lua_Level_up_creature               },
