@@ -419,8 +419,6 @@ float hud_scale;
 
 int line_box_size = 150; // Default value, overwritten by cfg setting
 int creature_status_size = 16; // Default value, overwritten by cfg setting
-int gui_blink_rate = 1; // No. frames before menu/map effects flash. Default value, overwritten by cfg setting.
-int neutral_flash_rate = 1; // No. frames before neutral rooms/creatures cycle colours. Default value, overwritten by cfg setting.
 static int water_wibble_angle = 0;
 static float render_water_wibble = 0; // Rendering float
 static unsigned long render_problems;
