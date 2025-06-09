@@ -5336,7 +5336,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    if (((game.play_gameturn % (4 * flash_rate)) < 2 * flash_rate) && (anger_spridx > 0))
+    if (((game.play_gameturn % (8 * flash_rate)) < 4 * flash_rate) && (anger_spridx > 0))
     {
         spr = get_button_sprite(anger_spridx);
         w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
