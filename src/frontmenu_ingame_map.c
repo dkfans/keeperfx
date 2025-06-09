@@ -1166,7 +1166,7 @@ void update_panel_colors(void)
                 PanelColours[n + 2] = player_room_colours[get_player_color_idx(2)];
                 PanelColours[n + 3] = player_room_colours[get_player_color_idx(3)];
                 PanelColours[n + 4] = player_room_colours[get_player_color_idx(4)];
-                PanelColours[n + 5] = frcol; //will still use old value of frame, don't need to set a new value right?
+                PanelColours[n + 5] = frcol;
                 PanelColours[n + 6] = player_room_colours[get_player_color_idx(6)];
                 PanelColours[n + 7] = player_room_colours[get_player_color_idx(7)];
                 PanelColours[n + 8] = player_room_colours[get_player_color_idx(8)];
