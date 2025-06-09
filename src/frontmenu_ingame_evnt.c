@@ -42,7 +42,6 @@
 #include "vidfade.h"
 #include "game_legacy.h"
 #include "sprites.h"
-#include "engine_render.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
