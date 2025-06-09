@@ -125,8 +125,8 @@ const struct NamedCommand conf_commands[] = {
   {"ATMOS_FREQUENCY",     12},
   {"ATMOS_SAMPLES",       13},
   {"RESIZE_MOVIES",       14},
-  {"FLASH_SPEED",         15},
-  {"NEUTRAL_FLASH_SPEED", 16},
+  {"FLASH_RATE",         15},
+  {"NEUTRAL_FLASH_RATE", 16},
   {"FREEZE_GAME_ON_FOCUS_LOST"     , 17},
   {"UNLOCK_CURSOR_WHEN_GAME_PAUSED", 18},
   {"LOCK_CURSOR_IN_POSSESSION"     , 19},
@@ -564,7 +564,7 @@ short load_configuration(void)
             features_enabled &= ~Ft_Resizemovies;
           }
           break;
-      case 15: // FLASH_SPEED
+      case 15: // FLASH_RATE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               i = atoi(word_buf);
@@ -580,7 +580,7 @@ short load_configuration(void)
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
           break;
-      case 16: // NEUTRAL_FLASH_SPEED
+      case 16: // NEUTRAL_FLASH_RATE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               i = atoi(word_buf);
