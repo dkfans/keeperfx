@@ -987,7 +987,7 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn)
             ctptr = (unsigned char *)gbtn->content.ptr;
             if ((ctptr != NULL) && (*ctptr > 0))
             {
-                if ((game.play_gameturn % (2 * flash_rate)) >= flash_rate) {
+                if ((game.play_gameturn % (2 * gui_blink_rate)) >= gui_blink_rate) {
                     spr_idx += 2;
                 }
             }

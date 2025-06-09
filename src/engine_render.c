@@ -419,7 +419,7 @@ float hud_scale;
 
 int line_box_size = 150; // Default value, overwritten by cfg setting
 int creature_status_size = 16; // Default value, overwritten by cfg setting
-int flash_rate = 1; // No. frames before menu/map effects flash. Default value, overwritten by cfg setting.
+int gui_blink_rate = 1; // No. frames before menu/map effects flash. Default value, overwritten by cfg setting.
 int neutral_flash_rate = 1; // No. frames before neutral rooms/creatures cycle colours. Default value, overwritten by cfg setting.
 static int water_wibble_angle = 0;
 static float render_water_wibble = 0; // Rendering float
@@ -4965,7 +4965,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         || (thing->class_id == TCls_DeadCreature)
         || (player->work_state == PSt_QueryAll))
     {
-        if ((player->thing_under_hand == thing->index) && ((game.play_gameturn % (4 * flash_rate)) >= 2 * flash_rate))
+        if ((player->thing_under_hand == thing->index) && ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
         {
             lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
             lbSpriteReMapPtr = white_pal;
@@ -5336,7 +5336,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    if (((game.play_gameturn % (8 * flash_rate)) < 4 * flash_rate) && (anger_spridx > 0))
+    if (((game.play_gameturn % (8 * gui_blink_rate)) < 4 * gui_blink_rate) && (anger_spridx > 0))
     {
         spr = get_button_sprite(anger_spridx);
         w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
@@ -5354,7 +5354,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         h_add += h;
     }
 
-    if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn % (2 * flash_rate)) >= flash_rate))
+    if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn % (2 * gui_blink_rate)) >= gui_blink_rate))
     {
         int flash_color = get_player_color_idx(thing->owner);
         if (flash_color == PLAYER_NEUTRAL)
@@ -7948,7 +7948,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 
     if (!thing_is_invalid(thing))
     {
-        if ((player->thing_under_hand == thing->index) && ((game.play_gameturn % (4 * flash_rate)) >= 2 * flash_rate))
+        if ((player->thing_under_hand == thing->index) && ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
         {
           if (player->acamera->view_mode == PVM_IsoWibbleView || player->acamera->view_mode == PVM_IsoStraightView)
           {

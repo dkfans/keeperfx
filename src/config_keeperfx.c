@@ -579,7 +579,7 @@ short load_configuration(void)
               CONFWRNLOG("Value %d out of range for \"%s\" command of %s file. Set to 160.", i, COMMAND_TEXT(cmd_num), config_textname);
               i = 160;
           }
-          flash_rate = i;
+          gui_blink_rate = i;
           break;
       case 16: // NEUTRAL_FLASH_RATE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
