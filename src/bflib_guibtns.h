@@ -167,7 +167,6 @@ struct GuiButton {
        union GuiVariant content;
        unsigned short slide_val; // slider value, scaled 0..255
        short has_shown_before; // GUI tooltips take longer to display the next time you show them
-       bool display_qmark;
 };
 
 struct GuiMenu {
