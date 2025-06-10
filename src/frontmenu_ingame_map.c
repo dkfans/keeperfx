@@ -47,6 +47,7 @@
 #include "vidfade.h"
 #include "player_instances.h"
 #include "engine_render.h"
+#include "gui_draw.h"
 #include "post_inc.h"
 
 /******************************************************************************/

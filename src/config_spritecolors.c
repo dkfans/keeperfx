@@ -21,15 +21,15 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "config_strings.h"
+#include "custom_sprites.h"
+#include "gui_draw.h"
+#include "game_legacy.h"
+#include "player_instances.h"
 #include "value_util.h"
 
 #include <toml.h>
-#include "config_strings.h"
-#include "custom_sprites.h"
-#include "player_instances.h"
-#include "game_legacy.h"
 #include "post_inc.h"
-#include "engine_render.h"
 
 #ifdef __cplusplus
 extern "C" {
