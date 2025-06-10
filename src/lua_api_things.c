@@ -169,8 +169,12 @@ static int lua_start_fighting(lua_State *L)
     return 1;
 }
 
-
-
+lua_set_start_state(lua_State *L)
+{
+    struct Thing* thing = luaL_checkThing(L, 1);
+    set_start_state(thing);
+    return 0;
+}
 
 
 
@@ -371,6 +375,7 @@ static const struct luaL_Reg thing_methods[] = {
    {"level_up"                    ,lua_Level_up_creature               },
    {"teleport"                    ,lua_Teleport_creature               },
    {"change_owner"                ,lua_Change_creature_owner           },
+   {"set_start_state"             ,lua_set_start_state                 },
     {NULL, NULL}
 };
 
