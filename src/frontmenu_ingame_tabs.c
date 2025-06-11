@@ -912,13 +912,6 @@ void gui_area_trap_button(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = flg_mem;
         return;
     }
-    // We should draw; maybe just disabled button
-    if ((gbtn->flags & LbBtnF_Enabled) == 0)
-    {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_qmark);
-        lbDisplay.DrawFlags = flg_mem;
-        return;
-    }
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     // Check how many traps/doors do we have to place
     unsigned int amount;
@@ -942,13 +935,22 @@ void gui_area_trap_button(struct GuiButton *gbtn)
         amount = 0;
         break;
     }
-    int i = gbtn->sprite_idx + (amount < 1);
-    if (gbtn->gbactn_1 || gbtn->gbactn_2)
+    if ((gbtn->flags & LbBtnF_Enabled) == 0 &&
+        ((manufctr->tngclass == TCls_Trap && is_trap_buildable(my_player_number, manufctr->tngmodel)) ||
+        (manufctr->tngclass == TCls_Door && is_door_buildable(my_player_number, manufctr->tngmodel))))
     {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, i, 22);
-    } else
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_qmark);
+    }
+    else
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, i);
+        int i = gbtn->sprite_idx + (amount < 1);
+        if (gbtn->gbactn_1 || gbtn->gbactn_2)
+        {
+            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, i, 22);
+        } else
+        {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, i);
+        }
     }
     lbDisplay.DrawFlags = flg_mem;
 }
