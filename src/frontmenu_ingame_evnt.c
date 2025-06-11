@@ -212,7 +212,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
     int ps_units_per_px = (50 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     int curscr_x = scr_x - (spr->SWidth * ps_units_per_px / 16) / 2;
     int curscr_y = scr_y - (spr->SHeight * ps_units_per_px / 16) / 2;
-    if ((thing->creature.health_bar_turns) && ((game.play_gameturn & 1) != 0)) {
+    if ((thing->creature.health_bar_turns) && ((game.play_gameturn % (2 * gui_blink_rate)) >= gui_blink_rate)) {
         LbSpriteDrawResizedOneColour(curscr_x, curscr_y, ps_units_per_px, spr, player_flash_colours[get_player_color_idx(thing->owner)]);
     } else {
         LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
@@ -267,9 +267,9 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
             draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
             if (thing->index == battle_creature_over)
             {
-              if (game.play_gameturn & 2)
+              if ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)
               {
-                  TbPixel col = player_flash_colours[game.play_gameturn & 3];
+                  TbPixel col = player_flash_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
                   lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
                   LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
                     wdelta, gbtn->height, col);
@@ -330,9 +330,9 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
             draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
             if (thing->index == battle_creature_over)
             {
-              if (game.play_gameturn & 2)
+              if ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)
               {
-                  TbPixel col = player_flash_colours[game.play_gameturn & 3];
+                  TbPixel col = player_flash_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
                   lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
                   LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
                     wdelta, gbtn->height, col);
