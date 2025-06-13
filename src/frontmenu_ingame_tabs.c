@@ -913,7 +913,14 @@ void gui_area_trap_button(struct GuiButton *gbtn)
         return;
     }
     // We should draw; maybe just disabled button
-    if ((gbtn->flags & LbBtnF_Enabled) == 0)
+    if ((manufctr->tngclass == TCls_Door &&
+     is_door_buildable(my_player_number, manufctr->tngmodel) &&
+     !is_door_placeable(my_player_number, manufctr->tngmodel) &&
+     !is_door_built(my_player_number, manufctr->tngmodel)) ||
+    (manufctr->tngclass == TCls_Trap &&
+     is_trap_buildable(my_player_number, manufctr->tngmodel) &&
+     !is_trap_placeable(my_player_number, manufctr->tngmodel) &&
+     !is_trap_built(my_player_number, manufctr->tngmodel)))
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_qmark);
         lbDisplay.DrawFlags = flg_mem;
@@ -1165,6 +1172,10 @@ void maintain_trap(struct GuiButton *gbtn)
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
+    } else if is_trap_buildable(my_player_number, manufctr->tngmodel)
+    {
+        gbtn->btype_value |= LbBFeF_NoTooltip;
+        gbtn->flags |= LbBtnF_Enabled;
     } else
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
@@ -1179,6 +1190,10 @@ void maintain_door(struct GuiButton *gbtn)
     if (is_door_placeable(my_player_number, manufctr->tngmodel) || is_door_built(my_player_number, manufctr->tngmodel))
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
+        gbtn->flags |= LbBtnF_Enabled;
+    } else if is_door_buildable(my_player_number, manufctr->tngmodel)
+    {
+        gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags |= LbBtnF_Enabled;
     } else
     {
