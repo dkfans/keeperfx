@@ -1172,7 +1172,7 @@ void maintain_trap(struct GuiButton *gbtn)
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
-    } else if is_trap_buildable(my_player_number, manufctr->tngmodel)
+    } else if (is_trap_buildable(my_player_number, manufctr->tngmodel))
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags |= LbBtnF_Enabled;
@@ -1191,7 +1191,7 @@ void maintain_door(struct GuiButton *gbtn)
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
-    } else if is_door_buildable(my_player_number, manufctr->tngmodel)
+    } else if (is_door_buildable(my_player_number, manufctr->tngmodel))
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags |= LbBtnF_Enabled;
