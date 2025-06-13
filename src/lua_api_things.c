@@ -169,7 +169,7 @@ static int lua_start_fighting(lua_State *L)
     return 1;
 }
 
-lua_set_start_state(lua_State *L)
+static int lua_set_start_state(lua_State *L)
 {
     struct Thing* thing = luaL_checkThing(L, 1);
     set_start_state(thing);
@@ -235,7 +235,7 @@ static int thing_set_field(lua_State *L) {
     } else if (strcmp(key, "pos") == 0) {
         luaL_checkCoord3d(L, 3, &thing->mappos);
     } else if (strcmp(key, "state") == 0) {
-        thing->active_state = luaL_checkNamedCommand(L, 3, creatrstate_desc);
+        internal_set_thing_state(thing, luaL_checkNamedCommand(L, 3, creatrstate_desc));
     } else if (strcmp(key, "continue_state") == 0) {
         thing->continue_state = luaL_checkNamedCommand(L, 3, creatrstate_desc);
     } else {
