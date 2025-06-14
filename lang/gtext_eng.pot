@@ -5678,6 +5678,16 @@ msgid "Recruit Tunneller"
 msgstr ""
 
 #: guitext:1079
-msgctxt "Keeper spell description"
-msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon.
+msgctxt "Game controls"
+msgid "Descend"
+msgstr ""
+
+#: guitext:1080
+msgctxt "Creature spell"
+msgid "Familiar: Summons a companion to guard and assist the creature."
+msgstr ""
+
+#: guitext:1081
+msgctxt "Creature spell"
+msgid "Summon: Call upon temporary guardians to assist the creature in combat."
 msgstr ""

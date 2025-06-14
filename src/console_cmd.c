@@ -146,7 +146,7 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
         }
     }
 
-    sprintf(cmd_comp_procs_label[i], "comp=%d, wait=%ld", 0, comp->gameturn_wait);
+    snprintf(cmd_comp_procs_label[i], sizeof(cmd_comp_procs_label[0]), "comp=%d, wait=%ld", 0, comp->gameturn_wait);
     return 1;
 }
 
@@ -160,8 +160,8 @@ long cmd_comp_checks_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, lon
         struct ComputerCheck* check = &comp->checks[i];
         if (check != NULL)
         {
-            char *label = (char*)goptn[i].label;
-            sprintf(label, "%02lx", check->flags);
+            char *label = (char*)goptn[i].label; // this is probably referencing some element of cmd_comp_procs_label
+            snprintf(label, sizeof(cmd_comp_procs_label[0]), "%02lx", check->flags);
             label[2] = ' ';
         }
     }
@@ -184,10 +184,11 @@ int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
     {
         unsigned long flags = get_flags(comp, i);
         const char *name = get_name(comp, i);
-        if (name == NULL)
-            sprintf(label_list[i], "%02lx %s", flags, "(null2)");
-        else
-          sprintf(label_list[i], "%02lx %s", flags, name);
+        if (name == NULL) {
+            snprintf(label_list[i], sizeof(label_list[i]), "%02lx %s", flags, "(null2)");
+        } else {
+            snprintf(label_list[i], sizeof(label_list[i]), "%02lx %s", flags, name);
+        }
         data_list[i].label = label_list[i];
 
         data_list[i].numfield_4 = 1;
@@ -503,13 +504,13 @@ TbBool cmd_compuchat(PlayerNumber plyr_idx, char * args)
                 targeted_message_add(MsgType_Player, i, plyr_idx, GUI_MESSAGES_DELAY, "Ai model %d", (int) comp->model);
             }
         }
-        gameadd.computer_chat_flags = CChat_TasksScarce;
+        game.computer_chat_flags = CChat_TasksScarce;
     } else if ((strcasecmp(pr2str, "frequent") == 0) || (strcasecmp(pr2str, "2") == 0)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s", pr2str);
-        gameadd.computer_chat_flags = CChat_TasksScarce | CChat_TasksFrequent;
+        game.computer_chat_flags = CChat_TasksScarce | CChat_TasksFrequent;
     } else {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "none");
-        gameadd.computer_chat_flags = CChat_None;
+        game.computer_chat_flags = CChat_None;
     }
     return true;
 }
@@ -634,7 +635,7 @@ TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
         MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
         conceal_map_area(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2, false);
     } else {
-        conceal_map_area(player->id_number, 0, gameadd.map_subtiles_x - 1, 0, gameadd.map_subtiles_y - 1, false);
+        conceal_map_area(player->id_number, 0, game.map_subtiles_x - 1, 0, game.map_subtiles_y - 1, false);
     }
     return true;
 }
@@ -1340,7 +1341,7 @@ TbBool cmd_mapwho_info(PlayerNumber plyr_idx, char * args)
         pos.x.stl.num = atoi(pr2str);
         pos.y.stl.num = atoi(pr3str);
     }
-    if ((pos.x.stl.num >= gameadd.map_subtiles_x) || (pos.y.stl.num >= gameadd.map_subtiles_y)) {
+    if ((pos.x.stl.num >= game.map_subtiles_x) || (pos.y.stl.num >= game.map_subtiles_y)) {
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid location");
         return false;
     }
@@ -1504,7 +1505,7 @@ TbBool cmd_move_thing(PlayerNumber plyr_idx, char * args)
     if (pr3str != NULL) {
         pos.x.stl.num = atoi(pr2str);
         pos.y.stl.num = atoi(pr3str);
-        if ((pos.x.stl.num >= gameadd.map_subtiles_x) || (pos.y.stl.num >= gameadd.map_subtiles_y)) {
+        if ((pos.x.stl.num >= game.map_subtiles_x) || (pos.y.stl.num >= game.map_subtiles_y)) {
             targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid location");
             return false;
         }

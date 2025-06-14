@@ -1423,14 +1423,14 @@ extern "C" TbBool anim_record_frame(unsigned char *screenbuf, unsigned char *pal
 extern "C" short anim_record()
 {
 	SYNCDBG(7,"Starting");
-	static char finalname[255];
+	char finalname[255] = "";
 	if (LbGraphicsScreenBPP() != 8) {
 		ERRORLOG("Cannot record movie in non-8bit screen mode");
 		return 0;
 	}
 	int idx;
 	for (idx=0; idx < 10000; idx++) {
-		sprintf(finalname, "%s/game%04d.flc","scrshots",idx);
+		snprintf(finalname, sizeof(finalname), "%s/game%04d.flc","scrshots",idx);
 		if (LbFileExists(finalname)) {
 			continue;
 		}

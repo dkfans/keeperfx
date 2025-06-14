@@ -417,7 +417,7 @@ std::array<std::vector<sound_sample>, 2> g_banks;
 
 void load_sound_banks() {
 	char snd_fname[2048];
-	prepare_file_path_buf(snd_fname, FGrp_LrgSound, "sound.dat");
+	prepare_file_path_buf(snd_fname, sizeof(snd_fname), FGrp_LrgSound, "sound.dat");
 	// language-specific speech file
 	char * spc_fname = prepare_file_fmtpath(FGrp_LrgSound, "speech_%s.dat", get_language_lwrstr(install_info.lang_id));
 	// default speech file
@@ -755,7 +755,10 @@ extern "C" SoundMilesID play_sample(
 				return source.mss_id;
 			}
 		}
-		ERRORLOG("Can't play sample %d from bank %u, too many samples playing at once", smptbl_id, bank_id);
+        if (game.frame_skip < 2)
+        {
+            ERRORLOG("Can't play sample %d from bank %u, too many samples playing at once", smptbl_id, bank_id);
+        }
 		return 0;
 	} catch (const std::exception & e) {
 		ERRORLOG("%s", e.what());

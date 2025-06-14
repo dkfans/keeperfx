@@ -120,13 +120,6 @@ extern "C" {
 #define NETLOG(format, ...) LbNetLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define NOLOG(format, ...)
 
-// Debug function-like macros - for dialogs windows
-#define WARNING_DIALOG(out_result, format, ...) { \
-  char buffer[TEXT_BUFFER_LENGTH]; \
-  Lbvsprintf(buffer, format, ##__VA_ARGS__); \
-  (*(&out_result)) = warning_dialog(__func__, 0, buffer); \
-}
-
 // Debug function-like macros - for debug code logging
 #if (BFDEBUG_LEVEL > 0)
   #define SYNCDBG(dblv,format, ...) {\
@@ -147,9 +140,6 @@ extern "C" {
   #define SCRIPTDBG(dblv,format, ...) {\
     if (BFDEBUG_LEVEL > dblv)\
       LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define AIDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbAiLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
 #else
   #define SYNCDBG(dblv,format, ...)
   #define WARNDBG(dblv,format, ...)
@@ -157,7 +147,6 @@ extern "C" {
   #define NAVIDBG(dblv,format, ...)
   #define NETDBG(dblv,format, ...)
   #define SCRIPTDBG(dblv,format, ...)
-  #define AIDBG(dblv,format, ...)
 #endif
 
 #define MAX_TILES_X 170

@@ -3939,13 +3939,13 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, CrInstance 
     MapSubtlCoord stl_x_upper = stl_x + range;
     if ((stl_x - range) < 0)
         stl_x_lower = 0;
-    if (stl_x_upper > gameadd.map_subtiles_x)
-        stl_x_upper = gameadd.map_subtiles_x;
+    if (stl_x_upper > game.map_subtiles_x)
+        stl_x_upper = game.map_subtiles_x;
     MapSubtlCoord stl_y = thing->mappos.y.stl.num;
     MapSubtlCoord stl_y_lower = stl_y - range;
     MapSubtlCoord stl_y_upper = stl_y + range;
-    if (stl_y + range > gameadd.map_subtiles_y)
-        stl_y_upper = gameadd.map_subtiles_y;
+    if (stl_y + range > game.map_subtiles_y)
+        stl_y_upper = game.map_subtiles_y;
     if (stl_y_lower < 0)
         stl_y_lower = 0;
 
@@ -4140,6 +4140,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
 void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtng_idx, const struct Coord3d *pos)
 {
     long i;
+    short no_loop = 0;
     if (inst_idx == 0)
         return;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -4173,7 +4174,13 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtn
     cctrl->inst_total_turns = itime;
     cctrl->inst_action_turns = aitime;
     i = get_creature_model_graphics(thing->model,inst_inf->graphics_idx);
-    cctrl->instance_anim_step_turns = get_lifespan_of_animation(i, 1) / itime;
+    
+    //Animations loop so they end with the starting frame again
+    if (inst_inf->no_animation_loop)
+    {
+        no_loop = itime;
+    }
+    cctrl->instance_anim_step_turns = (get_lifespan_of_animation(i, 1) / itime) - no_loop;
     if (pos != NULL)
     {
         cctrl->targtstl_x = coord_subtile(pos->x.val);
@@ -4817,7 +4824,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->shot_shift_y = crconf->shot_shift_y;
     cctrl->shot_shift_z = crconf->shot_shift_z;
     long i = get_creature_anim(crtng, CGI_Stand);
-    set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
+    set_thing_draw(crtng, i, crconf->walking_anim_speed, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->exp_level = 1;
     cctrl->max_health = calculate_correct_creature_max_health(crtng);
     crtng->health = cctrl->max_health;
@@ -6102,7 +6109,7 @@ ThingModel get_footstep_effect_element(struct Thing* thing)
     };
 
     short texture;
-        unsigned char ext_txtr = gameadd.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
+        unsigned char ext_txtr = game.slab_ext_data[get_slab_number(subtile_slab(thing->mappos.x.stl.num), subtile_slab(thing->mappos.y.stl.num))];
     if (ext_txtr == 0)
     {
         // Default map texture
@@ -6412,7 +6419,8 @@ TngUpdateRet update_creature(struct Thing *thing)
         cctrl->force_visible--;
     if (cctrl->unknown.byte_8B == 0)
         cctrl->unknown.byte_8B = game.map_changed_for_nagivation;
-    if (cctrl->stopped_for_hand_turns == 0) {
+    if ((cctrl->stopped_for_hand_turns == 0) || (cctrl->instance_id == CrInst_EAT)) 
+    {
         process_creature_instance(thing);
     }
     update_creature_count(thing);
@@ -6760,7 +6768,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         return INVALID_THING;
     }
 
-    if (!get_coords_at_location(&pos, location,false))
+    if (!get_coords_at_location(&pos, location,true))
     {
         return INVALID_THING;
     }
@@ -7208,25 +7216,25 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
 void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long timeout, PlayerNumber plyr_idx)
 {
     char id;
-    char str[255] = {'\0'};
+    char str[255] = "";
     char type;
     if (thing_is_trap_crate(picktng))
     {
         struct TrapConfigStats* trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(picktng));
-        strcat(str, get_string(trapst->name_stridx));
+        str_append(str, sizeof(str), get_string(trapst->name_stridx));
         id = RoK_WORKSHOP;
         type = MsgType_Room;
     }
     else if (thing_is_door_crate(picktng))
     {
         struct DoorConfigStats* doorst = get_door_model_stats(crate_thing_to_workshop_item_model(picktng));
-        strcat(str, get_string(doorst->name_stridx));
+        str_append(str, sizeof(str), get_string(doorst->name_stridx));
         id = RoK_WORKSHOP;
         type = MsgType_Room;
     }
     else if (thing_is_spellbook(picktng))
     {
-        strcat(str, get_string(get_power_name_strindex(book_thing_to_power_kind(picktng))));
+        str_append(str, sizeof(str), get_string(get_power_name_strindex(book_thing_to_power_kind(picktng))));
         id = RoK_LIBRARY;
         type = MsgType_Room;
     }
@@ -7235,15 +7243,15 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         char msg_buf[255];
         if (thing_is_custom_special_box(picktng))
         {
-            if (gameadd.box_tooltip[picktng->custom_box.box_kind][0] == 0)
+            if (game.box_tooltip[picktng->custom_box.box_kind][0] == 0)
             {
-                strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
+                str_append(str, sizeof(str), get_string(get_special_description_strindex(box_thing_to_special(picktng))));
                 strcpy(msg_buf, str);
                 snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
             }
             else
             {
-                strcat(str, gameadd.box_tooltip[picktng->custom_box.box_kind]);
+                str_append(str, sizeof(str), game.box_tooltip[picktng->custom_box.box_kind]);
                 char *split = strchr(str, ':');
                 if ((int)(split - str) > -1)
                 {
@@ -7254,7 +7262,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         }
         else
         {
-            strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
+            str_append(str, sizeof(str), get_string(get_special_description_strindex(box_thing_to_special(picktng))));
             strcpy(msg_buf, str);
             snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
         }
@@ -7272,11 +7280,11 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             long value = (picktng->creature.gold_carried > gold_remaining) ? gold_remaining : picktng->creature.gold_carried;
             if (value < picktng->creature.gold_carried)
             {
-                sprintf(str, "%ld (%ld)", picktng->creature.gold_carried, value);
+                snprintf(str, sizeof(str), "%ld (%ld)", picktng->creature.gold_carried, value);
             }
             else
             {
-                sprintf(str, "%ld", picktng->creature.gold_carried);
+                snprintf(str, sizeof(str), "%ld", picktng->creature.gold_carried);
             }
         }
         id = 3;
@@ -7287,14 +7295,14 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         id = picktng->owner;
         type = MsgType_Player;
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
-        sprintf(str, "%s", get_string(crconf->namestr_idx));
+        snprintf(str, sizeof(str), "%s", get_string(crconf->namestr_idx));
     }
     else if (picktng->class_id == TCls_DeadCreature)
     {
         id = RoK_GRAVEYARD;
         type = MsgType_Room;
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[picktng->model];
-        sprintf(str, "%s", get_string(crconf->namestr_idx));
+        snprintf(str, sizeof(str), "%s", get_string(crconf->namestr_idx));
     }
     else
     {

@@ -732,16 +732,19 @@ long in_action_point_thing_filter_is_of_class_and_model_and_owned_by(const struc
     {
         if (thing_matches_model(thing, param->model_id))
         {
-            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            if (!thing_is_in_limbo(thing))
             {
-                struct Coord3d refpos;
-                refpos.x.val = param->num1;
-                refpos.y.val = param->num2;
-                refpos.z.val = 0;
-                MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
-                if (dist <= param->num3) {
-                    // Return the largest value to stop sweeping
-                    return LONG_MAX;
+                if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+                {
+                    struct Coord3d refpos;
+                    refpos.x.val = param->num1;
+                    refpos.y.val = param->num2;
+                    refpos.z.val = 0;
+                    MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
+                    if (dist <= param->num3) {
+                        // Return the largest value to stop sweeping
+                        return LONG_MAX;
+                    }
                 }
             }
         }
@@ -1288,8 +1291,8 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
         // the heart position - it's needed for Floating Spirit
         if (!keep_prev)
         {
-            dungeon->mappos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-            dungeon->mappos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+            dungeon->mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
+            dungeon->mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
             dungeon->mappos.z.val = subtile_coord_center(map_subtiles_z/2);
         }
     }
@@ -4162,12 +4165,12 @@ struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord s
   {
     n = 0;
     y = stl_y + k;  
-    if ( (y >= 0) && (y < gameadd.map_subtiles_y) )
+    if ( (y >= 0) && (y < game.map_subtiles_y) )
     {
       do
       {
         x = stl_x + n;  
-        if ( (x >= 0) && (x < gameadd.map_subtiles_x) )
+        if ( (x >= 0) && (x < game.map_subtiles_x) )
         {
           struct Map *blk = get_map_block_at(x, y);
           thing = thing_get(get_mapwho_thing_index(blk));
