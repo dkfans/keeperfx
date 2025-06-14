@@ -1024,43 +1024,57 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = flg_mem;
         return;
     }
-    lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
-    unsigned int amount;
-    switch (manufctr->tngclass)
-    {
-    case TCls_Trap:
-        amount = dungeon->mnfct_info.trap_amount_placeable[manufctr->tngmodel];
-        break;
-    case TCls_Door:
-        amount = dungeon->mnfct_info.door_amount_placeable[manufctr->tngmodel];
-        break;
-    default:
-        amount = 0;
-        break;
-    }
-    if (dbc_enabled && dbc_initialized)
-    {
-        snprintf(gui_textbuf, sizeof(gui_textbuf), "x%ld", (long)amount);
-    }
-    else
-    {
-        // Note that "@" is "×" in that font
-        snprintf(gui_textbuf, sizeof(gui_textbuf), "@%ld", (long)amount);
-    }
-    if (amount <= 0) {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
+    if ((manufctr->tngclass == TCls_Door &&
+     !is_door_buildable(my_player_number, manufctr->tngmodel) ||
+     is_door_placeable(my_player_number, manufctr->tngmodel) ||
+     is_door_built(my_player_number, manufctr->tngmodel)) ||
+    (manufctr->tngclass == TCls_Trap &&
+     !is_trap_buildable(my_player_number, manufctr->tngmodel) ||
+     is_trap_placeable(my_player_number, manufctr->tngmodel) ||
+     is_trap_built(my_player_number, manufctr->tngmodel)))
+     {
+        lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
+        unsigned int amount;
+        switch (manufctr->tngclass)
+        {
+        case TCls_Trap:
+            amount = dungeon->mnfct_info.trap_amount_placeable[manufctr->tngmodel];
+            break;
+        case TCls_Door:
+            amount = dungeon->mnfct_info.door_amount_placeable[manufctr->tngmodel];
+            break;
+        default:
+            amount = 0;
+            break;
+        }
+        if (dbc_enabled && dbc_initialized)
+        {
+            snprintf(gui_textbuf, sizeof(gui_textbuf), "x%ld", (long)amount);
+        }
+        else
+        {
+            // Note that "@" is "×" in that font
+            snprintf(gui_textbuf, sizeof(gui_textbuf), "@%ld", (long)amount);
+        }
+        if (amount <= 0) {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx + 1);
+        } else
+        if ((((manufctr->tngclass == TCls_Trap) && (player->chosen_trap_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceTrap))
+        || ((manufctr->tngclass == TCls_Door) && (player->chosen_door_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceDoor)))
+        && ((game.play_gameturn & 1) == 0) )
+        {
+            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx, 44);
+        } else {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
+        }
+        int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
+        lbDisplay.DrawFlags = flg_mem;
     } else
-    if ((((manufctr->tngclass == TCls_Trap) && (player->chosen_trap_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceTrap))
-      || ((manufctr->tngclass == TCls_Door) && (player->chosen_door_kind == manufctr->tngmodel) && (player->work_state == PSt_PlaceDoor)))
-      && ((game.play_gameturn & 1) == 0) )
     {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx, 44);
-    } else {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 32*units_per_px/16, ps_units_per_px, gbtn->sprite_idx);
+        lbDisplay.DrawFlags = flg_mem;
+        return;
     }
-    int tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
-    draw_string64k(gbtn->scr_pos_x + 44*units_per_px/16, gbtn->scr_pos_y + (8 - 6)*units_per_px/16, tx_units_per_px, gui_textbuf);
-    lbDisplay.DrawFlags = flg_mem;
 }
 
 void maintain_big_spell(struct GuiButton *gbtn)
@@ -1214,6 +1228,18 @@ void maintain_big_trap(struct GuiButton *gbtn)
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
+    } else if ((manufctr->tngclass == TCls_Door &&
+     is_door_buildable(my_player_number, manufctr->tngmodel) &&
+     !is_door_placeable(my_player_number, manufctr->tngmodel) &&
+     !is_door_built(my_player_number, manufctr->tngmodel)) ||
+    (manufctr->tngclass == TCls_Trap &&
+     is_trap_buildable(my_player_number, manufctr->tngmodel) &&
+     !is_trap_placeable(my_player_number, manufctr->tngmodel) &&
+     !is_trap_built(my_player_number, manufctr->tngmodel)))
+     {
+        gbtn->btype_value |= LbBFeF_NoTooltip;
+        gbtn->flags |= LbBtnF_Enabled;
+     }
     } else
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
@@ -1230,7 +1256,20 @@ void maintain_buildable_info(struct GuiButton* gbtn)
         || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel)))
     {
         gbtn->flags |= LbBtnF_Enabled;
-    }
+    } else if ((manufctr->tngclass == TCls_Door &&
+     is_door_buildable(my_player_number, manufctr->tngmodel) &&
+     !is_door_placeable(my_player_number, manufctr->tngmodel) &&
+     !is_door_built(my_player_number, manufctr->tngmodel)) ||
+    (manufctr->tngclass == TCls_Trap &&
+     is_trap_buildable(my_player_number, manufctr->tngmodel) &&
+     !is_trap_placeable(my_player_number, manufctr->tngmodel) &&
+     !is_trap_built(my_player_number, manufctr->tngmodel)))
+     {
+        gbtn->flags |= LbBtnF_Enabled;
+        gbtn->tooltip_stridx = 0;
+        gbtn->sprite_idx = 0;
+     }
+
     else
     {
         gbtn->flags &= ~LbBtnF_Enabled;
@@ -1244,7 +1283,15 @@ void maintain_buildable_info(struct GuiButton* gbtn)
     int manufacture_level = calculate_manufacture_level(dungeon);
 
     // Overlay a hammer symbol on the top-right to denote manufacturability
-    if (manufctr_idx > 0)
+    if (manufctr_idx > 0 ||
+    (manufctr->tngclass == TCls_Door &&
+    is_door_buildable(my_player_number, manufctr->tngmodel) &&
+    !is_door_placeable(my_player_number, manufctr->tngmodel) &&
+    !is_door_built(my_player_number, manufctr->tngmodel)) ||
+    (manufctr->tngclass == TCls_Trap &&
+    is_trap_buildable(my_player_number, manufctr->tngmodel) &&
+    !is_trap_placeable(my_player_number, manufctr->tngmodel) &&
+    !is_trap_built(my_player_number, manufctr->tngmodel)))
     {
         // Required manufacture level for this item
         TbBool is_buildable = false;
