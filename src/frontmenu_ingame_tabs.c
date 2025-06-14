@@ -1025,14 +1025,14 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
         lbDisplay.DrawFlags = flg_mem;
         return;
     }
-    if ((manufctr->tngclass == TCls_Door &&
-     !is_door_buildable(my_player_number, manufctr->tngmodel) ||
+    if (((manufctr->tngclass == TCls_Door) &&
+     (!is_door_buildable(my_player_number, manufctr->tngmodel) ||
      is_door_placeable(my_player_number, manufctr->tngmodel) ||
-     is_door_built(my_player_number, manufctr->tngmodel)) ||
-    (manufctr->tngclass == TCls_Trap &&
-     !is_trap_buildable(my_player_number, manufctr->tngmodel) ||
+     is_door_built(my_player_number, manufctr->tngmodel))) ||
+    ((manufctr->tngclass == TCls_Trap) &&
+     (!is_trap_buildable(my_player_number, manufctr->tngmodel) ||
      is_trap_placeable(my_player_number, manufctr->tngmodel) ||
-     is_trap_built(my_player_number, manufctr->tngmodel)))
+     is_trap_built(my_player_number, manufctr->tngmodel))))
      {
         lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
         unsigned int amount;
@@ -1237,10 +1237,9 @@ void maintain_big_trap(struct GuiButton *gbtn)
      is_trap_buildable(my_player_number, manufctr->tngmodel) &&
      !is_trap_placeable(my_player_number, manufctr->tngmodel) &&
      !is_trap_built(my_player_number, manufctr->tngmodel)))
-     {
+    {
         gbtn->btype_value |= LbBFeF_NoTooltip;
         gbtn->flags |= LbBtnF_Enabled;
-     }
     } else
     {
         gbtn->btype_value |= LbBFeF_NoTooltip;
