@@ -66,6 +66,8 @@ TbBool check_workshop_item_limit_reached(PlayerNumber owner, ThingClass tngclass
 
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng);
 TbBool remove_workshop_object_from_workshop(struct Room *room,struct Thing *cratetng);
+long calculate_manufacture_level(struct Dungeon* dungeon);
+void set_manufacture_level(struct Dungeon *dungeon);
 TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass tng_class, ThingModel tng_kind);
 struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
@@ -74,6 +76,9 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
 TbBool get_next_manufacture(struct Dungeon *dungeon);
 short process_player_manufacturing(PlayerNumber plyr_idx);
 EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thing *picktng);
+
+TbBool is_trap_buildable(PlayerNumber plyr_idx, long tngmodel);
+TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx);
 
 TbBool recreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos);
 int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
