@@ -232,18 +232,6 @@ int LbWarnLog(const char *format, ...)
     return result;
 }
 
-int LbAiLog(const char *format, ...)
-{
-    if (!error_log_initialised)
-        return -1;
-    LbLogSetPrefix(&error_log, "Skirmish AI: ");
-    va_list val;
-    va_start(val, format);
-    int result=LbLog(&error_log, format, val);
-    va_end(val);
-    return result;
-}
-
 int LbNetLog(const char *format, ...)
 {
     if (!error_log_initialised)

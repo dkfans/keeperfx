@@ -47,6 +47,7 @@
 #include "vidfade.h"
 #include "player_instances.h"
 #include "engine_render.h"
+#include "gui_draw.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -354,7 +355,7 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
             if ((thing->trap.revealed) || (player->id_number == thing->owner))
             {
                 TbPixel col;
-                if ((thing->model == gui_trap_type_highlighted) && (game.play_gameturn & 1)) {
+                if ((thing->model == gui_trap_type_highlighted) && ((game.play_gameturn % (2 * gui_blink_rate)) >= gui_blink_rate)) {
                     col = player_highlight_colours[thing->owner];
                 } else {
                     col = 60;
@@ -432,7 +433,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 basepos = MapDiagonalLength/2;
                 
                 // Do the drawing
-                if ((game.play_gameturn & 3) == 1) {
+                if (((game.play_gameturn % (4 * gui_blink_rate)) / gui_blink_rate) == 1) {
                     if (thing_is_special_box(thing) || thing_is_spellbook(thing))
                     {
                         short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
@@ -480,7 +481,7 @@ int draw_overlay_possessed_thing(struct PlayerInfo* player, long mapos_x, long m
         return 0;
     if (cam->view_mode != PVM_CreatureView)
         return 0;
-    if (game.play_gameturn & 4)
+    if ((game.play_gameturn % (8 * gui_blink_rate)) >= 4 * gui_blink_rate)
     {
         col = colours[15][15][15];
     }
@@ -542,7 +543,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
             interpolate_minimap_thing(thing, cam);
             if (thing_revealed(thing, player->id_number))
             {
-                if ((game.play_gameturn & 4) == 0)
+                if ((game.play_gameturn % (8 * gui_blink_rate)) < 4 * gui_blink_rate)
                 {
                     col1 = player_room_colours[get_player_color_idx(thing->owner)];
                     col2 = player_room_colours[get_player_color_idx(thing->owner)];
@@ -562,7 +563,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 // Do the drawing
                 if (thing->owner == player->id_number)
                 {
-                    if ((thing->model == gui_creature_type_highlighted) && (game.play_gameturn & 2))
+                    if ((thing->model == gui_creature_type_highlighted) && ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
                     {
                         short pixels_amount = scale_pixel(basic_zoom * 4);
                         panel_map_draw_creature_dot(mapos_x + pixels_amount, mapos_y, basepos, col2, basic_zoom, isLowRes);
@@ -584,7 +585,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 } else
                 {
                     if (thing->owner == game.neutral_player_num) {
-                        col = player_room_colours[get_player_color_idx((game.play_gameturn + 1) & 3)];
+                        col = player_room_colours[get_player_color_idx(((game.play_gameturn + 1) % (4 * neutral_flash_rate)) / neutral_flash_rate)];
                     } else {
                         col = col1;
                     }
@@ -603,7 +604,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                     memberpos = cctrl->party.member_pos_stl[m];
                     if (memberpos == 0)
                         break;
-                    if ((game.play_gameturn & 4) == 0)
+                    if ((game.play_gameturn % (8 * gui_blink_rate)) < 4 * gui_blink_rate)
                     {
                         col1 = player_room_colours[get_player_color_idx((int)(cctrl->party.target_plyr_idx >= 0 ? cctrl->party.target_plyr_idx : 0))];
                         col2 = player_room_colours[get_player_color_idx(thing->owner)];
@@ -1009,7 +1010,7 @@ void setup_background(long units_per_px)
 void setup_panel_colors(void)
 {
     int frame;
-    frame = game.play_gameturn & 3;
+    frame = (game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate;
     unsigned int frcol;
     frcol = player_room_colours[frame];
     int bkcol_idx;
@@ -1114,7 +1115,7 @@ void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_
 void update_panel_colors(void)
 {
     int frame;
-    frame = game.play_gameturn & 3;
+    frame = (game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate;
     unsigned int frcol;
     frcol = player_room_colours[frame];
     int bkcol_idx;
@@ -1149,8 +1150,8 @@ void update_panel_colors(void)
 
     int highlight;
     highlight = gui_room_type_highlighted;
-    frame = game.play_gameturn & 1;
-    if (frame != 0)
+    frame = game.play_gameturn % (2 * gui_blink_rate);
+    if (frame >= gui_blink_rate)
         highlight = -1;
     if (PrevRoomHighlight != highlight)
     {
@@ -1198,7 +1199,7 @@ void update_panel_colors(void)
     }
 
     highlight = gui_door_type_highlighted;
-    if (frame != 0)
+    if (frame >= gui_blink_rate)
         highlight = -1;
     if (highlight != PrevDoorHighlight)
     {

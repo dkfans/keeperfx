@@ -613,7 +613,6 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->instance_id == CrInst_NULL)
     {
-        internal_set_thing_state(creatng, CrSt_CreatureEat);
         set_creature_instance(creatng, CrInst_EAT, 0, 0);
     } else
     {
@@ -6420,7 +6419,8 @@ TngUpdateRet update_creature(struct Thing *thing)
         cctrl->force_visible--;
     if (cctrl->unknown.byte_8B == 0)
         cctrl->unknown.byte_8B = game.map_changed_for_nagivation;
-    if (cctrl->stopped_for_hand_turns == 0) {
+    if ((cctrl->stopped_for_hand_turns == 0) || (cctrl->instance_id == CrInst_EAT)) 
+    {
         process_creature_instance(thing);
     }
     update_creature_count(thing);
