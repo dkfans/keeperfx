@@ -737,9 +737,11 @@ void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id)
 {
     struct PlayerInfo* player = get_my_player();
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
-    set_players_packet_action(player, PckA_SetPlyrState, manufctr->work_state,
-        manufctr->tngmodel, 0, 0);
-
+    if (is_trap_placeable(my_player_number, manufctr_idx))
+    {
+        set_players_packet_action(player, PckA_SetPlyrState, manufctr->work_state,
+            manufctr->tngmodel, 0, 0);
+    }
     game.manufactr_element = manufctr_idx;
     game.manufactr_spridx = manufctr->bigsym_sprite_idx;
     game.manufactr_tooltip = tooltip_id;
