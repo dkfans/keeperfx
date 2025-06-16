@@ -929,7 +929,16 @@ void gui_area_trap_button(struct GuiButton *gbtn)
      !is_trap_placeable(my_player_number, manufctr->tngmodel) &&
      !is_trap_built(my_player_number, manufctr->tngmodel)))
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_qmark);
+        if (game.manufactr_element == manufctr_idx)
+        {
+            //Draw here when the trap is selected
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_room_torture_std_l);
+        }
+        else
+        {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_qmark);
+        }
+
         lbDisplay.DrawFlags = flg_mem;
         return;
     }
