@@ -742,6 +742,10 @@ void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id)
         set_players_packet_action(player, PckA_SetPlyrState, manufctr->work_state,
             manufctr->tngmodel, 0, 0);
     }
+    else
+    {
+        set_players_packet_action(player, PckA_SetPlyrState, PSt_CtrlDungeon, 0, 0, 0);
+    }
     game.manufactr_element = manufctr_idx;
     game.manufactr_spridx = manufctr->bigsym_sprite_idx;
     game.manufactr_tooltip = tooltip_id;
