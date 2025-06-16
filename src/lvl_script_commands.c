@@ -4134,7 +4134,7 @@ static void set_music_process(struct ScriptContext *context)
 
 static void play_message_check(const struct ScriptLine *scline)
 {
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     long msgtype_id = get_id(msgtype_desc, scline->tp[1]);
     if (msgtype_id == -1)
     {
