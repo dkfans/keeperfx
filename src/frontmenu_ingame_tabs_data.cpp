@@ -60,7 +60,7 @@ void gui_go_to_next_spell(struct GuiButton *gbtn);
 void gui_area_spell_button(struct GuiButton *gbtn);
 void gui_choose_special_spell(struct GuiButton *gbtn);
 void gui_area_big_spell_button(struct GuiButton *gbtn);
-void gui_choose_trap(struct GuiButton *gbtn);
+void gui_choose_workshop_item(struct GuiButton *gbtn);
 void gui_go_to_next_trap(struct GuiButton *gbtn);
 void gui_over_trap_button(struct GuiButton *gbtn);
 void maintain_trap(struct GuiButton *gbtn);

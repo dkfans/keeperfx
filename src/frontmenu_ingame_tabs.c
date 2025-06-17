@@ -752,9 +752,8 @@ void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id)
     game.manufactr_tooltip = tooltip_id;
 }
 
-void gui_choose_trap(struct GuiButton *gbtn)
+void gui_choose_workshop_item(struct GuiButton *gbtn)
 {
-    //Note by Petter: factored out gui_choose_trap to choose_workshop_item (better name as well)
     choose_workshop_item(gbtn->content.lval, gbtn->tooltip_stridx);
 }
 
@@ -2691,14 +2690,14 @@ void update_trap_tab_to_config(void)
         switch (manufctr->tngclass)
         {
             case TCls_Trap:
-                ibtn->click_event = gui_choose_trap;
+                ibtn->click_event = gui_choose_workshop_item;
                 ibtn->rclick_event = gui_go_to_next_trap;
                 ibtn->ptover_event = gui_over_trap_button;
                 ibtn->draw_call = gui_area_trap_button;
                 ibtn->maintain_call = maintain_trap;
                 break;
             case TCls_Door:
-                ibtn->click_event = gui_choose_trap;
+                ibtn->click_event = gui_choose_workshop_item;
                 ibtn->rclick_event = gui_go_to_next_door;
                 ibtn->ptover_event = gui_over_door_button;
                 ibtn->draw_call = gui_area_trap_button;
