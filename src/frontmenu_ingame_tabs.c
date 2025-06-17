@@ -737,7 +737,8 @@ void choose_workshop_item(int manufctr_idx, TextStringId tooltip_id)
 {
     struct PlayerInfo* player = get_my_player();
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
-    if (is_trap_placeable(my_player_number, manufctr_idx))
+    if (   ((manufctr->tngclass == TCls_Trap) && is_trap_placeable(my_player_number, manufctr->tngmodel))
+        || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel))  )
     {
         set_players_packet_action(player, PckA_SetPlyrState, manufctr->work_state,
             manufctr->tngmodel, 0, 0);
