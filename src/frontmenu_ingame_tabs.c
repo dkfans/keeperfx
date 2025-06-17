@@ -932,7 +932,7 @@ void gui_area_trap_button(struct GuiButton *gbtn)
         if (game.manufactr_element == manufctr_idx)
         {
             //Draw here when the trap is selected
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_room_torture_std_l);
+            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_portrt_qmark, 44);
         }
         else
         {
