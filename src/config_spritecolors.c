@@ -21,13 +21,14 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "config_strings.h"
+#include "custom_sprites.h"
+#include "gui_draw.h"
+#include "game_legacy.h"
+#include "player_instances.h"
 #include "value_util.h"
 
 #include <toml.h>
-#include "config_strings.h"
-#include "custom_sprites.h"
-#include "player_instances.h"
-#include "game_legacy.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -154,7 +155,7 @@ short get_player_colored_button_sprite_idx(const short base_icon_idx,const Playe
     unsigned char color_idx;
     if (plyr_idx == PLAYER_NEUTRAL)
     {
-        color_idx = game.play_gameturn & 3;
+        color_idx = (game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate;
     }
     else
     {

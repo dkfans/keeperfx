@@ -140,9 +140,6 @@ extern "C" {
   #define SCRIPTDBG(dblv,format, ...) {\
     if (BFDEBUG_LEVEL > dblv)\
       LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define AIDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbAiLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
 #else
   #define SYNCDBG(dblv,format, ...)
   #define WARNDBG(dblv,format, ...)
@@ -150,7 +147,6 @@ extern "C" {
   #define NAVIDBG(dblv,format, ...)
   #define NETDBG(dblv,format, ...)
   #define SCRIPTDBG(dblv,format, ...)
-  #define AIDBG(dblv,format, ...)
 #endif
 
 #define MAX_TILES_X 170
