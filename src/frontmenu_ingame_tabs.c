@@ -1268,8 +1268,8 @@ void maintain_buildable_info(struct GuiButton* gbtn)
     int manufctr_idx = game.manufactr_element % game.conf.trapdoor_conf.manufacture_types_count;
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
     gbtn->content.lval = manufctr_idx;
-    if (((manufctr->tngclass == TCls_Trap) && is_trap_placeable(my_player_number, manufctr->tngmodel))
-        || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel)))
+    if (((manufctr->tngclass == TCls_Trap) && (is_trap_placeable(my_player_number, manufctr->tngmodel) || is_trap_built(my_player_number, manufctr->tngmodel)))
+        || ((manufctr->tngclass == TCls_Door) && (is_door_placeable(my_player_number, manufctr->tngmodel) || is_door_built(my_player_number, manufctr->tngmodel))))
     {
         gbtn->flags |= LbBtnF_Enabled;
     } else if ((manufctr->tngclass == TCls_Door &&
@@ -1280,13 +1280,11 @@ void maintain_buildable_info(struct GuiButton* gbtn)
      is_trap_buildable(my_player_number, manufctr->tngmodel) &&
      !is_trap_placeable(my_player_number, manufctr->tngmodel) &&
      !is_trap_built(my_player_number, manufctr->tngmodel)))
-     {
+    {
         gbtn->flags |= LbBtnF_Enabled;
         gbtn->tooltip_stridx = 0;
         gbtn->sprite_idx = 0;
-     }
-
-    else
+    } else
     {
         gbtn->flags &= ~LbBtnF_Enabled;
         gbtn->tooltip_stridx = 0;
