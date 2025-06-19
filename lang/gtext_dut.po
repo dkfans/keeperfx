@@ -459,7 +459,7 @@ msgid ""
 msgstr ""
 "Je hebt al aardig wat oorkonden en boeken verzameld. De meeste wezens kunnen "
 "onderzoek doen, maar Tovenaars zijn verreweg de beste. Die stomzinnige "
-"Kwelgeesten hebben zelfs moeite de boeken niet ondersteboven te houden. Soms "
+"Trollen hebben zelfs moeite de boeken niet ondersteboven te houden. Soms "
 "eten ze zelfs de pagina's op."
 
 #. Level Waterdream Warm objective after attracting warlock
@@ -619,7 +619,7 @@ msgid ""
 "best employed doing dark deeds in your Workshop. They don't complain about "
 "the hours, because their labours keep them away from combat."
 msgstr ""
-"Een Kwelgeest sluit zich bij jou aan. Kwelgeesten zijn goede ambachtslieden "
+"Een Trol sluit zich bij jou aan. Trollen zijn goede ambachtslieden "
 "die je het beste in de Werkplaats hun duistere werk kunt laten doen. Ze "
 "klagen niet over werktijden. Ze besteden hun tijd niet aan knokken maar aan "
 "werken."
@@ -2358,7 +2358,7 @@ msgstr "Tor"
 #: guitext:261
 msgctxt "Creature name"
 msgid "Troll"
-msgstr "Kwelgeest"
+msgstr "Trol"
 
 #: guitext:262
 msgctxt "Creature name"
