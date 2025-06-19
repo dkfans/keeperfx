@@ -4918,17 +4918,17 @@ msgstr "新关卡"
 #: guitext:889
 msgctxt "Menu interface message"
 msgid "Available: Creatures will manufacture this item in the Workshop."
-msgstr ""
+msgstr "可用：怪物会在工厂中制造这个物品。"
 
 #: guitext:890
 msgctxt "Menu interface message"
 msgid "Larger Workshop required: Expand the Workshop to manufacture."
-msgstr ""
+msgstr "需要更大的工厂：扩建工厂以进行制造。"
 
 #: guitext:891
 msgctxt "Menu interface message"
 msgid "Unavailable: This item cannot be manufactured."
-msgstr ""
+msgstr "不可用：这个物品无法被制造。"
 
 #. DD Level Korros Tor first objective
 #: guitext:892
