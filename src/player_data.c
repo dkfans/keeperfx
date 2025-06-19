@@ -355,6 +355,16 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   case PSt_CtrlDungeon:
       player->full_slab_cursor = 1;
       player->chosen_power_kind = PwrK_None; //Cleanup for spells. Traps, doors and rooms do not require cleanup.
+      player->chosen_room_kind = 0;
+      game.chosen_room_kind = 0;
+      game.chosen_room_spridx = 0;
+      game.chosen_room_tooltip = 0;
+      game.chosen_spell_type = 0;
+      game.chosen_spell_spridx = 0;
+      game.chosen_spell_tooltip = 0;
+      game.manufactr_element = 0;
+      game.manufactr_spridx = 0;
+      game.manufactr_tooltip = 0;
       break;
   case PSt_BuildRoom:
       player->chosen_room_kind = chosen_kind;
