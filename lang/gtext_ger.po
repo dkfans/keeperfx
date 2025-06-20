@@ -5999,18 +5999,18 @@ msgstr "Neue Level"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Please insert Data Disk CD-ROM"
-msgstr "Bitte legen Sie die Zusatz-CD ein"
+msgid "Available: Creatures will manufacture this item in the Workshop."
+msgstr "Verfügbar: Kreaturen stellen diesen Gegenstand in der Werkstatt her."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "Bitte legen Sie die Dungeon-Keeper-CD ein"
+msgid "Larger Workshop required: Expand the Workshop to manufacture."
+msgstr "Größere Werkstatt erforderlich: Erweitere die Werkstatt, um herzustellen."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "Bitte legen Sie die The Deeper Dungeons-CD ein"
+msgid "Unavailable: This item cannot be manufactured."
+msgstr "Nicht verfügbar: Dieser Gegenstand kann nicht hergestellt werden."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
