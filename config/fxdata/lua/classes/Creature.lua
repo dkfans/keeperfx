@@ -9,6 +9,7 @@
 ---@field workroom Room the room the creature is currently working in
 ---@field state string
 ---@field continue_state string
+---@field moveto_pos Pos3d should be combined with assigning a state that makes use of it
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens
