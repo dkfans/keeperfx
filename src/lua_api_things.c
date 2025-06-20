@@ -205,6 +205,10 @@ static int thing_set_field(lua_State *L) {
 
     } else if (strcmp(key, "pos") == 0) {
         luaL_checkCoord3d(L, 3, &thing->mappos);
+    } else if (strcmp(key, "moveto_pos") == 0) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+        luaL_checkCoord3d(L, 3, &cctrl->moveto_pos);
     } else if (strcmp(key, "state") == 0) {
         internal_set_thing_state(thing, luaL_checkNamedCommand(L, 3, creatrstate_desc));
     } else if (strcmp(key, "continue_state") == 0) {
@@ -271,6 +275,10 @@ static int thing_get_field(lua_State *L) {
         if (creature_control_invalid(cctrl))
             return luaL_error(L, "Attempt to access 'workroom' of non-creature thing");
         lua_pushRoom(L, room_get(cctrl->work_room_id));
+    } else if (strcmp(key, "moveto_pos") == 0) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+        lua_pushPos(L, &cctrl->moveto_pos);
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     } else {
