@@ -5982,17 +5982,17 @@ msgstr "Nowe poziomy"
 #: guitext:889
 msgctxt "Menu interface message"
 msgid "Available: Creatures will manufacture this item in the Workshop."
-msgstr ""
+msgstr "Dostępne: Stwory będą wytwarzać ten obiekt w Warsztacie."
 
 #: guitext:890
 msgctxt "Menu interface message"
 msgid "Larger Workshop required: Expand the Workshop to manufacture."
-msgstr ""
+msgstr "Wymagany większy Warsztat: Rozbuduj Warsztat, aby rozpocząć produkcję."
 
 #: guitext:891
 msgctxt "Menu interface message"
 msgid "Unavailable: This item cannot be manufactured."
-msgstr ""
+msgstr "Niedostępne: Tego obiektu nie da się wytworzyć."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
