@@ -1011,6 +1011,8 @@ void setup_panel_colors(void)
 {
     int frame;
     frame = (game.play_gameturn % (4 * gui_blink_rate)) / gui_blink_rate;
+    unsigned int frcol;
+    frcol = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
@@ -1051,7 +1053,7 @@ void setup_panel_colors(void)
             PanelColours[n + 2] = player_room_colours[get_player_color_idx(PLAYER2)];
             PanelColours[n + 3] = player_room_colours[get_player_color_idx(PLAYER3)];
             PanelColours[n + 4] = player_room_colours[get_player_color_idx(PLAYER_GOOD)];
-            PanelColours[n + 5] = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
+            PanelColours[n + 5] = frcol;
             PanelColours[n + 6] = player_room_colours[get_player_color_idx(PLAYER4)];
             PanelColours[n + 7] = player_room_colours[get_player_color_idx(PLAYER5)];
             PanelColours[n + 8] = player_room_colours[get_player_color_idx(PLAYER6)];
@@ -1114,6 +1116,8 @@ void update_panel_colors(void)
 {
     int frame;
     frame = (game.play_gameturn % (4 * gui_blink_rate)) / gui_blink_rate;
+    unsigned int frcol;
+    frcol = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
@@ -1138,7 +1142,7 @@ void update_panel_colors(void)
         int i;
         for (i=TERRAIN_ITEMS_MAX; i > 0; i--)
         {
-            PanelColours[n + PLAYER_NEUTRAL] = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
+            PanelColours[n + PLAYER_NEUTRAL] = frcol;
             n += PLAYERS_COUNT;
         }
         pncol_idx += PnC_End;
@@ -1163,7 +1167,7 @@ void update_panel_colors(void)
                 PanelColours[n + 2] = player_room_colours[get_player_color_idx(2)];
                 PanelColours[n + 3] = player_room_colours[get_player_color_idx(3)];
                 PanelColours[n + 4] = player_room_colours[get_player_color_idx(4)];
-                PanelColours[n + 5] = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
+                PanelColours[n + 5] = frcol;
                 PanelColours[n + 6] = player_room_colours[get_player_color_idx(6)];
                 PanelColours[n + 7] = player_room_colours[get_player_color_idx(7)];
                 PanelColours[n + 8] = player_room_colours[get_player_color_idx(8)];
