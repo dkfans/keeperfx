@@ -2354,18 +2354,21 @@ void get_dungeon_control_nonaction_inputs(void)
           turn_on_menu(GMnu_OPTIONS);
       }
   }
-  switch (player->view_mode)
+  if ((player->allocflags & PlaF_NewMPMessage) == 0)
   {
-  case PVM_IsoWibbleView:
-  case PVM_IsoStraightView:
-      get_isometric_view_nonaction_inputs();
-      break;
-  case PVM_ParchmentView:
-      get_overhead_view_nonaction_inputs();
-      break;
-  case PVM_FrontView:
-      get_front_view_nonaction_inputs();
-      break;
+      switch (player->view_mode)
+      {
+      case PVM_IsoWibbleView:
+      case PVM_IsoStraightView:
+          get_isometric_view_nonaction_inputs();
+          break;
+      case PVM_ParchmentView:
+          get_overhead_view_nonaction_inputs();
+          break;
+      case PVM_FrontView:
+          get_front_view_nonaction_inputs();
+          break;
+      }
   }
 }
 
