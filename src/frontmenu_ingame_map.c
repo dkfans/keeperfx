@@ -1011,8 +1011,6 @@ void setup_panel_colors(void)
 {
     int frame;
     frame = (game.play_gameturn % (4 * gui_blink_rate)) / gui_blink_rate;
-    unsigned int frcol;
-    frcol = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
@@ -1053,7 +1051,7 @@ void setup_panel_colors(void)
             PanelColours[n + 2] = player_room_colours[get_player_color_idx(PLAYER2)];
             PanelColours[n + 3] = player_room_colours[get_player_color_idx(PLAYER3)];
             PanelColours[n + 4] = player_room_colours[get_player_color_idx(PLAYER_GOOD)];
-            PanelColours[n + 5] = frcol;
+            PanelColours[n + 5] = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
             PanelColours[n + 6] = player_room_colours[get_player_color_idx(PLAYER4)];
             PanelColours[n + 7] = player_room_colours[get_player_color_idx(PLAYER5)];
             PanelColours[n + 8] = player_room_colours[get_player_color_idx(PLAYER6)];
