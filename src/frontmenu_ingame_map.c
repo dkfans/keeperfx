@@ -1010,9 +1010,9 @@ void setup_background(long units_per_px)
 void setup_panel_colors(void)
 {
     int frame;
-    frame = (game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate;
+    frame = (game.play_gameturn % (4 * gui_blink_rate)) / gui_blink_rate;
     unsigned int frcol;
-    frcol = player_room_colours[frame];
+    frcol = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
@@ -1115,9 +1115,9 @@ void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_
 void update_panel_colors(void)
 {
     int frame;
-    frame = (game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate;
+    frame = (game.play_gameturn % (4 * gui_blink_rate)) / gui_blink_rate;
     unsigned int frcol;
-    frcol = player_room_colours[frame];
+    frcol = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
