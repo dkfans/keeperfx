@@ -444,7 +444,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                         }
                         n++;
                     }
-                    if (thing_is_workshop_crate(thing))
+                    else if (thing_is_workshop_crate(thing))
                     {
                         short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
                         int p;
