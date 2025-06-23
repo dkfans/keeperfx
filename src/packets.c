@@ -504,20 +504,43 @@ TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMod
           return true;
       }
     } else
-    if (((chr >= 'a') && (chr <= 'z')) ||
-        ((chr >= 'A') && (chr <= 'Z')) ||
-        ((chr >= '0') && (chr <= '9')) ||
-        (chr == ' ')  || (chr == '!') || (chr == ':') || (chr == ';')
-        || (chr == '(') || (chr == ')') || (chr == '.') || (chr == '_')
-        || (chr == '\'') || (chr == '+') || (chr == '=') || (chr == '-')
-        || (chr == '"') || (chr == '?') || (chr == '/') || (chr == '#')
-        || (chr == '<') || (chr == '>') || (chr == '^') || (chr == ','))
     {
-        if (chpos < maxlen)
+        switch(chr)
         {
-            message[chpos] = chr;
-            message[chpos+1] = '\0';
-            return true;
+            case 'a'...'z':
+            case 'A'...'Z':
+            case '0'...'9':
+            case ' ':
+            case '!':
+            case ':':
+            case ';':
+            case '(':
+            case ')':
+            case '.': 
+            case '_': 
+            case '\'':
+            case '+':
+            case '=':
+            case '-':
+            case '"':
+            case '?':
+            case '/':
+            case '#':
+            case '<':
+            case '>':
+            case '^':
+            case ',':
+            {
+                if (chpos < maxlen)
+                {
+                    message[chpos] = chr;
+                    message[chpos+1] = '\0';
+                    return true;
+                }
+            }
+            // fall through
+            default:
+                return false;
         }
     }
     return false;
