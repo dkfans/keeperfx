@@ -592,7 +592,7 @@ int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerN
                   short pixel_end = get_pixels_scaled_and_zoomed(TWO_PIXELS);
                   for (int p = 0; p < pixel_end; p++)
                   {
-                      LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colours[7][15][0]);
+                      LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colours[7][6][7]);
                   }
               }
             }
