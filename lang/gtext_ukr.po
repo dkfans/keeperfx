@@ -4914,18 +4914,18 @@ msgstr "Нові рівні"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Available: Creatures will manufacture this item in the Workshop."
-msgstr "Доступно: Створіння виготовлятимуть цей предмет у Майстерні."
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "Можна виготовити: створіння можуть виготовити цей предмет у Майстерні."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Larger Workshop required: Expand the Workshop to manufacture."
-msgstr "Потрібна більша Майстерня: Розширте Майстерню, щоб виготовляти."
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "Майстерня замала: розширте майстерню, щоб виготовити цей предмет."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Unavailable: This item cannot be manufactured."
-msgstr "Недоступно: Цей предмет неможливо виготовити."
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "Виготовлення неможливе: цей предмет неможливо виготовити."
 
 #. DD Level Korros Tor first objective
 #: guitext:892

@@ -5957,18 +5957,18 @@ msgstr "Nuovi livelli"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Available: Creatures will manufacture this item in the Workshop."
-msgstr "Disponibile: Le creature fabbricheranno questo oggetto nella Sala Lavoro."
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "Producibile: Le creature possono produrre questo oggetto nella Sala Lavoro."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Larger Workshop required: Expand the Workshop to manufacture."
-msgstr "Serve una Sala Lavoro più grande: Espandila per fabbricare."
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "Sala Lavoro troppo piccola: Espandila per poter produrre questo oggetto."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Unavailable: This item cannot be manufactured."
-msgstr "Non disponibile: Questo oggetto non può essere fabbricato."
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "Non producibile: Questo oggetto non può essere prodotto."
 
 #. DD Level Korros Tor first objective
 #: guitext:892

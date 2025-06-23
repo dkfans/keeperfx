@@ -5818,18 +5818,18 @@ msgstr "新しいレベル"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Available: Creatures will manufacture this item in the Workshop."
-msgstr "利用可能: クリーチャーがこのアイテムを工房で製造します。"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "製造可能: クリーチャーがこのアイテムを工房で製造できる。"
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Larger Workshop required: Expand the Workshop to manufacture."
-msgstr "工房が不足: 製造にはより大きな工房が必要です。"
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "工房の拡張が必要: このアイテムを製造するには、もっと広い工房を用意する必要がある。"
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Unavailable: This item cannot be manufactured."
-msgstr "利用不可: このアイテムは製造できません。"
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "製造不可: このアイテムは製造できない。"
 
 #. DD Level Korros Tor first objective
 #: guitext:892
