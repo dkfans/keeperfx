@@ -5151,17 +5151,17 @@ msgstr "Nya nivåer"
 #: guitext:889
 msgctxt "Menu interface message"
 msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
-msgstr ""
+msgstr "Tillverkbar: Varelser kan tillverka detta föremål i verkstaden."
 
 #: guitext:890
 msgctxt "Menu interface message"
 msgid "Workshop too small: Expand the Workshop to manufacture this item."
-msgstr ""
+msgstr "Verkstadsutbyggnad krävs: En större verkstad behövs för att tillverka detta föremål."
 
 #: guitext:891
 msgctxt "Menu interface message"
 msgid "Not manufacturable: This item cannot be manufactured."
-msgstr ""
+msgstr "Ej tillverkbar: Det går inte att tillverka detta föremål."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
