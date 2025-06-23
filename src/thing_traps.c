@@ -911,12 +911,21 @@ TngUpdateRet update_trap(struct Thing *traptng)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(traptng);
+
+    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+
+    if (trapst->updatefn_idx < 0)
+    {
+        if (luafunc_thing_update_func(trapst->updatefn_idx, thing) <= 0) {
+            return TUFRet_Deleted;
+        }
+    }
+
     if (traptng->health < 0)
     {
         destroy_trap(traptng);
         return TUFRet_Deleted;
     }
-    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
     if (traptng->trap.wait_for_rearm == true) // Trap rearming, so either 'shooting' anim or 'recharge' anim.
     {
         if ((traptng->trap.rearm_turn <= game.play_gameturn)) // Recharge complete, rearm.
