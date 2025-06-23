@@ -4729,17 +4729,17 @@ msgstr ""
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Available: Creatures will manufacture this item in the Workshop."
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
 msgstr ""
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Larger Workshop required: Expand the Workshop to manufacture."
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
 msgstr ""
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Unavailable: This item cannot be manufactured."
+msgid "Not manufacturable: This item cannot be manufactured."
 msgstr ""
 
 #. DD Level Korros Tor first objective

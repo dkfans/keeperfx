@@ -6027,18 +6027,18 @@ msgstr "Hовые ypовни"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Available: Creatures will manufacture this item in the Workshop."
-msgstr "Доступно: Создания будут изготавливать этот предмет в мастерской."
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "Можно произвести: создания могут изготовить этот предмет в мастерской."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Larger Workshop required: Expand the Workshop to manufacture."
-msgstr "Требуется большая мастерская: расширьте её для производства."
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "Мастерская слишком мала: расширьте её, чтобы изготовить этот предмет."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Unavailable: This item cannot be manufactured."
-msgstr "Недоступно: Этот предмет нельзя изготовить."
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "Изготовление невозможно: этот предмет нельзя произвести."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
