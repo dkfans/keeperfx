@@ -916,7 +916,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
 
     if (trapst->updatefn_idx < 0)
     {
-        if (luafunc_thing_update_func(trapst->updatefn_idx, thing) <= 0) {
+        if (luafunc_thing_update_func(trapst->updatefn_idx, traptng) <= 0) {
             return TUFRet_Deleted;
         }
     }
