@@ -12,7 +12,7 @@
 function door_UpdateFunction_template(door) end
 
 
----@param trap Thing the trap that needs to be updated
+---@param trap Trap the trap that needs to be updated
 ---@return -1|0|1
 -- -- -1, /**< Returned if the trap being updated no longer exists. */
 -- --  0, /**< Returned if the trap is unmodified. */
