@@ -444,6 +444,16 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                         }
                         n++;
                     }
+                    else if (thing_is_workshop_crate(thing))
+                    {
+                        short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
+                        int p;
+                        for (p = 0; p < pixel_end; p++)
+                        {
+                            panel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, colours[7][6][7]);
+                        }
+                        n++;
+                    }
                 }
             }
         }
