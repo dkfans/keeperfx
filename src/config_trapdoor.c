@@ -71,6 +71,7 @@ static const struct NamedCommand trap_trigger_type_commands[] = {
     {"LINE_OF_SIGHT",    TrpTrg_LineOfSight},
     {"PRESSURE_SUBTILE", TrpTrg_Pressure_Subtile},
     {"ALWAYS",           TrpTrg_Always},
+    {NULL,                   0},
 };
 
 static const struct NamedCommand trap_activation_type_commands[] = {
@@ -82,6 +83,7 @@ static const struct NamedCommand trap_activation_type_commands[] = {
     {"CREATURE_SHOT",       TrpAcT_CreatureShot},
     {"CREATURE_SPAWN",      TrpAcT_CreatureSpawn},
     {"POWER",               TrpAcT_Power},
+    {NULL,                   0},
 };
 
 static void assign_update_trap_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
