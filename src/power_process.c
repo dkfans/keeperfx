@@ -325,6 +325,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
     long best_dist = LONG_MAX;
     struct Thing* best_thing = INVALID_THING;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     unsigned long k = 0;
     int i = slist->index;
     while (i != 0)
@@ -344,11 +345,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
             long dist = get_2d_distance(&shotng->mappos, &thing->mappos);
             if (dist < best_dist)
             {
-                const struct PowerConfigStats *powerst = get_power_model_stats(PwrK_LIGHTNING);
-                KeepPwrLevel power_level = shotng->shot.shot_level;
-                if (power_level > POWER_MAX_LEVEL)
-                    power_level = POWER_MAX_LEVEL;
-                if (subtile_coord(powerst->strength[power_level],0) > dist)
+                if (shotst->max_range > dist)
                 {
                     if (line_of_sight_2d(&shotng->mappos, &thing->mappos)) {
                         best_dist = dist;
