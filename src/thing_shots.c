@@ -1832,7 +1832,6 @@ TngUpdateRet update_shot(struct Thing *thing)
         case ShUL_TrapLightning:
             if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
             {
-              thing->shot.shot_level = 5;
               god_lightning_choose_next_creature(thing);
               target = thing_get(thing->shot.target_idx);
               if (thing_exists(target))
