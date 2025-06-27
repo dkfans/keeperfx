@@ -2269,16 +2269,19 @@ CreatureJob get_job_for_subtile(const struct Thing *creatng, MapSubtlCoord stl_x
  */
 CreatureJob get_job_for_room_role(RoomRole rrole, unsigned long required_kind_flags, CreatureJob has_jobs)
 {
-    for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++)
+    if (rrole != 0)
     {
-        struct CreatureJobConfig* jobcfg = &game.conf.crtr_conf.jobs[i];
-        if ((jobcfg->job_flags & required_kind_flags) == required_kind_flags)
+        for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++)
         {
-            CreatureJob new_job = 1ULL << (i - 1);
-            if (((jobcfg->job_flags & JoKF_NeedsHaveJob) == 0) || ((has_jobs & new_job) != 0))
+            struct CreatureJobConfig* jobcfg = &game.conf.crtr_conf.jobs[i];
+            if ((jobcfg->job_flags & required_kind_flags) == required_kind_flags)
             {
-                if (((jobcfg->room_role & rrole) != 0) || ((jobcfg->job_flags & JoKF_AssignAreaOutsideRoom) != 0)) {
-                    return new_job;
+                CreatureJob new_job = 1ULL << (i - 1);
+                if (((jobcfg->job_flags & JoKF_NeedsHaveJob) == 0) || ((has_jobs & new_job) != 0))
+                {
+                    if (((jobcfg->room_role & rrole) != 0) || ((jobcfg->job_flags & JoKF_AssignAreaOutsideRoom) != 0)) {
+                        return new_job;
+                    }
                 }
             }
         }

@@ -4756,6 +4756,7 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
         cctrl = creature_control_get_from_thing(creatng);
         cctrl->paydays_owed = 0;
         cctrl->paydays_advanced = 0;
+        cctrl->idle.start_gameturn = game.play_gameturn;
     }
 }
 
