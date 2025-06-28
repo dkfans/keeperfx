@@ -3935,7 +3935,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
     {
         struct PlayerInfo* player = get_player(i);
         struct Dungeon* dgn = get_dungeon(i);
-        if (!player_exists(player) || (player->is_active != 1))
+        if (!player_exists(player) || (player->is_active != 1) || players_are_mutual_allies(i,creatng->owner))
             continue;
 
         if (!dgn->dnheart_idx)
