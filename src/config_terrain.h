@@ -104,6 +104,7 @@ enum RoomRoleFlags {
     RoRoF_CrPoolLeave    = 0x00400000, /**< The room is a gate which allows a creature to leave the players dungeon back to pool. */
     RoRoF_PassWater      = 0x00800000, /**< The room is a bridge for use over water. */
     RoRoF_PassLava       = 0x01000000, /**< The room is a bridge for use over lava. */
+    RoRoF_Arena          = 0x02000000, /**< The room is an arena, allowing creatures to fight each other. */
 };
 
 struct SlabMap;
