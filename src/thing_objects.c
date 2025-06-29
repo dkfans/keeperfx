@@ -1832,7 +1832,7 @@ TngUpdateRet update_object(struct Thing *thing)
     }
     else if (objst->updatefn_idx < 0)
     {
-        if (luafunc_obj_update_func(objst->updatefn_idx, thing) <= 0) {
+        if (luafunc_thing_update_func(objst->updatefn_idx, thing) <= 0) {
             return TUFRet_Deleted;
         }
     }

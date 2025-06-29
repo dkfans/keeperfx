@@ -122,7 +122,7 @@ short luafunc_crstate_func(FuncIdx func_idx,struct Thing *thing)
     }
 }
 
-short luafunc_obj_update_func(FuncIdx func_idx,struct Thing *thing)
+short luafunc_thing_update_func(FuncIdx func_idx,struct Thing *thing)
 {
     const char *func_name = get_function_name(func_idx);
     if (!func_name) {
@@ -134,7 +134,7 @@ short luafunc_obj_update_func(FuncIdx func_idx,struct Thing *thing)
     if (lua_isfunction(Lvl_script, -1)) {
         lua_pushThing(Lvl_script, thing);
         short result = 0;
-        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 1, 0),"obj_update_func");
+        CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 1, 0),"thing_update_func");
 
         // Retrieve the result returned by the Lua function
         if (lua_isnumber(Lvl_script, -1)) {

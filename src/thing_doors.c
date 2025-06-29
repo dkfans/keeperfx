@@ -561,6 +561,16 @@ TngUpdateRet process_door(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
+
+    struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+
+    if (doorst->updatefn_idx < 0)
+    {
+        if (luafunc_thing_update_func(doorst->updatefn_idx, thing) <= 0) {
+            return TUFRet_Deleted;
+        }
+    }
+
     if ( !door_can_stand(thing) || (thing->health <= 0) )
     {
         thing->health = -1;
