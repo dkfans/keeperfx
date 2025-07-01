@@ -26,15 +26,18 @@
 #include "bflib_sound.h"
 
 #include "config.h"
+#include "config_players.h"
 #include "config_strings.h"
 #include "console_cmd.h"
+#include "custom_sprites.h"
+#include "frontend.h"
+#include "frontmenu_ingame_tabs.h"
+#include "game_legacy.h"
+#include "gui_frontmenu.h"
+#include "player_instances.h"
 #include "thing_doors.h"
 #include "thing_effects.h"
-#include "player_instances.h"
-#include "config_players.h"
-#include "game_legacy.h"
-#include "custom_sprites.h"
-#include "frontmenu_ingame_tabs.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -92,6 +95,19 @@ static void assign_update_trap_tab(const struct NamedField* named_field, int64_t
     if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_trap_tab_to_config();
+        if (player->view_type == PVT_DungeonTop)
+        {
+            if ( menu_is_active(GMnu_TRAP) )
+            {
+                turn_off_menu(GMnu_TRAP);
+                turn_on_menu(GMnu_TRAP);
+            }
+            else if ( menu_is_active(GMnu_TRAP2) )
+            {
+                turn_off_menu(GMnu_TRAP2);
+                turn_on_menu(GMnu_TRAP2);
+            }
+        }
     }
 }
 
@@ -101,6 +117,19 @@ static void assign_icon_update_trap_tab(const struct NamedField* named_field, in
     if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_trap_tab_to_config();
+        if (player->view_type == PVT_DungeonTop)
+        {
+            if ( menu_is_active(GMnu_TRAP) )
+            {
+                turn_off_menu(GMnu_TRAP);
+                turn_on_menu(GMnu_TRAP);
+            }
+            else if ( menu_is_active(GMnu_TRAP2) )
+            {
+                turn_off_menu(GMnu_TRAP2);
+                turn_on_menu(GMnu_TRAP2);
+            }
+        }
     }
 }
 
