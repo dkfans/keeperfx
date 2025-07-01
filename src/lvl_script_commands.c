@@ -4570,15 +4570,18 @@ static void set_power_configuration_process(struct ScriptContext *context)
             break;
     }
     update_powers_tab_to_config();
-    if (menu_is_active(GMnu_SPELL))
+    if (player->view_type == PVT_DungeonTop)
     {
-        turn_off_menu(GMnu_SPELL);
-        turn_on_menu(GMnu_SPELL);
-    }
-    else if (menu_is_active(GMnu_SPELL2))
-    {
-        turn_off_menu(GMnu_SPELL2);
-        turn_on_menu(GMnu_SPELL2);
+        if (menu_is_active(GMnu_SPELL))
+        {
+            turn_off_menu(GMnu_SPELL);
+            turn_on_menu(GMnu_SPELL);
+        }
+        else if (menu_is_active(GMnu_SPELL2))
+        {
+            turn_off_menu(GMnu_SPELL2);
+            turn_on_menu(GMnu_SPELL2);
+        }
     }
 }
 
