@@ -95,6 +95,7 @@ static void assign_update_trap_tab(const struct NamedField* named_field, int64_t
     if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_trap_tab_to_config();
+        struct PlayerInfo *player = get_my_player();
         if (player->view_type == PVT_DungeonTop)
         {
             if ( menu_is_active(GMnu_TRAP) )
@@ -117,6 +118,7 @@ static void assign_icon_update_trap_tab(const struct NamedField* named_field, in
     if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_trap_tab_to_config();
+        struct PlayerInfo *player = get_my_player();
         if (player->view_type == PVT_DungeonTop)
         {
             if ( menu_is_active(GMnu_TRAP) )

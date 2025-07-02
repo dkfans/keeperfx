@@ -32,8 +32,9 @@
 #include "frontmenu_ingame_tabs.h"
 #include "game_legacy.h"
 #include "gui_frontmenu.h"
-#include "post_inc.h"
 #include "thing_doors.h"
+
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -184,6 +185,7 @@ static void assign_update_room_tab(const struct NamedField* named_field, int64_t
     if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_room_tab_to_config();
+        struct PlayerInfo *player = get_my_player();
         if (player->view_type == PVT_DungeonTop)
         {
             if (menu_is_active(GMnu_ROOM))
@@ -212,6 +214,7 @@ static void assign_icon_update_room_tab(const struct NamedField* named_field, in
     if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_room_tab_to_config();
+        struct PlayerInfo *player = get_my_player();
         if (player->view_type == PVT_DungeonTop)
         {
             if (menu_is_active(GMnu_ROOM))
