@@ -273,8 +273,8 @@ TbBool update_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rki
         if ((resrch->rtyp == rtyp) && (resrch->rkind == rkind))
         {
             resrch->req_amount = amount;
+            n++;
         }
-        n++;
     }
     if (n > 0)
         return true;
