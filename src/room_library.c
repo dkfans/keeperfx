@@ -283,8 +283,8 @@ TbBool update_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rki
 
 TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount)
 {
-  if (!update_players_research_amount(plyr_idx, rtyp, rkind, amount))
-    return false;
+  if (update_players_research_amount(plyr_idx, rtyp, rkind, amount))
+    return true;
   return add_research_to_player(plyr_idx, rtyp, rkind, amount);
 }
 
