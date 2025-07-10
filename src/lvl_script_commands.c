@@ -4455,6 +4455,81 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             value->longs[2] = number_value;
             break;
         }
+        case 20: // Spell
+        {
+            k = get_id(spell_desc, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            else
+            {
+                SCRPTERRLOG("Incorrect Spell value");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            break;
+        }
+        case 21: // Effect
+        {
+            k = effect_or_effect_element_id(new_value);
+            if (k == 0)
+            {
+                SCRPTERRLOG("Unrecognised effect: %s", new_value);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            else
+            {
+                number_value = k;
+            }
+            break;
+        }
+        case 22: // UseFunction
+        {
+            k = get_id(magic_use_func_commands, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            else
+            {
+                SCRPTERRLOG("Incorrect UseFunction");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            break;
+        }
+        case 23: // CreatureType
+        {
+            k = get_id(creature_desc, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            else
+            {
+                SCRPTERRLOG("Incorrect Spell value");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            break;
+        }
+        case 24: // CostFormula
+        {
+            k = get_id(magic_cost_formula_commands, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            else
+            {
+                SCRPTERRLOG("Incorrect Cost formula");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            break;
+        }
         default:
             value->longs[2] = atoi(new_value);
     }
@@ -4562,6 +4637,21 @@ static void set_power_configuration_process(struct ScriptContext *context)
             break;
         case 19: // Cooldown
             powerst->cast_cooldown = context->value->longs[2];
+            break;
+        case 20: // Spell
+            powerst->cast_cooldown = context->value->longs[2];
+            break;
+        case 21: // Effect
+            powerst->effect_id = context->value->longs[2];
+            break;
+        case 22: // UseFunction
+            powerst->magic_use_func_idx = context->value->longs[2];
+            break;
+        case 23: // CreatureType
+            powerst->creature_model = context->value->longs[2];
+            break;
+        case 24: // CostFormula
+            powerst->cost_formula = context->value->longs[2];
             break;
         default:
             WARNMSG("Unsupported power configuration, variable %d.", context->value->bytes[2]);
