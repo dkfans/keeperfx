@@ -4299,7 +4299,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
     long powervar = get_id(magic_power_commands, property);
     if (powervar == -1)
     {
-        SCRPTERRLOG("Unknown power variable");
+        SCRPTERRLOG("Unknown power variable: %s", new_value);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -4322,7 +4322,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 j = get_long_id(powermodel_castability_commands, new_value);
                 if (j <= 0)
                 {
-                    SCRPTERRLOG("Incorrect castability value");
+                    SCRPTERRLOG("Incorrect castability value: %s", new_value);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
@@ -4349,7 +4349,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                             number_value |= j;
                         } else
                         {
-                            SCRPTERRLOG("Incorrect castability value");
+                            SCRPTERRLOG("Incorrect castability value: %s", new_value);
                             DEALLOCATE_SCRIPT_VALUE
                             return;
                         }
@@ -4384,7 +4384,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 k = get_id(powermodel_properties_commands, new_value);
                 if (k <= 0)
                 {
-                    SCRPTERRLOG("Incorrect property value");
+                    SCRPTERRLOG("Incorrect property value: %s", new_value);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
@@ -4411,7 +4411,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                             number_value |= k;
                         } else
                         {
-                            SCRPTERRLOG("Incorrect property value");
+                            SCRPTERRLOG("Incorrect property value: %s", new_value);
                             DEALLOCATE_SCRIPT_VALUE
                             return;
                         }
@@ -4428,7 +4428,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             number_value = get_id(powermodel_expand_check_func_type,new_value);
             if (number_value < 0)
             {
-                SCRPTERRLOG("Invalid power update function id");
+                SCRPTERRLOG("Invalid OverchargeCheckt: %s", new_value);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -4464,7 +4464,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             }
             else
             {
-                SCRPTERRLOG("Incorrect Spell value");
+                SCRPTERRLOG("Incorrect Spell valuet: %s", new_value);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -4494,7 +4494,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             }
             else
             {
-                SCRPTERRLOG("Incorrect UseFunction");
+                SCRPTERRLOG("Incorrect UseFunction: %s", new_value);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -4509,7 +4509,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             }
             else
             {
-                SCRPTERRLOG("Incorrect Spell value");
+                SCRPTERRLOG("Incorrect Creature type: %s", new_value);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -4524,7 +4524,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             }
             else
             {
-                SCRPTERRLOG("Incorrect Cost formula");
+                SCRPTERRLOG("Incorrect Cost formula: %s", new_value);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
