@@ -1201,6 +1201,8 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
 {
     struct Thing *heartng;
     struct Coord3d pos;
+    struct Dungeon *dungeon;
+    struct CreatureControl* cctrl;
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
     if (!i_can_allocate_free_control_structure()
      || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
@@ -1227,6 +1229,19 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     {
         ERRORLOG("There was place to create new creature, but creation failed");
         return Lb_OK;
+    }
+    // Temporary unit
+    if (powerst->duration > 0)
+    {
+        cctrl = creature_control_get_from_thing(thing);
+        dungeon = get_dungeon(thing->owner);
+        add_creature_to_summon_list(dungeon, thing->index);
+        //Just set it to self-summoned
+        cctrl->summoner_idx = thing->index;
+        cctrl->summon_spl_idx = 0;
+        remove_first_creature(thing); //temporary units are not real creatures
+        cctrl->unsummon_turn = game.play_gameturn + powerst->duration;
+        set_flag(cctrl->flgfield_2, TF2_SummonedCreature);
     }
     if (powerst->strength[power_level] != 0)
     {
@@ -1272,7 +1287,8 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
     create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner); //do breach before fail, for better player feedback
     if (thing_is_invalid(thing))
     {
-        return Lb_FAIL;
+        ERRORLOG("There was place to create new creature, but creation failed");
+        return Lb_OK;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (powerst->duration > 0)
