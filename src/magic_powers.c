@@ -1305,12 +1305,6 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
     initialise_thing_state(thing, CrSt_CreatureHeroEntering);
     thing->rendering_flags |= TRF_Invisible;
     cctrl->countdown = 16;
-
-    if (thing_is_invalid(thing))
-    {
-        ERRORLOG("There was place to create new creature, but creation failed");
-        return Lb_OK;
-    }
     if (powerst->strength[power_level] != 0)
     {
         creature_change_multiple_levels(thing, powerst->strength[power_level]);
