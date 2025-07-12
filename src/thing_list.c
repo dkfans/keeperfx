@@ -3424,7 +3424,7 @@ HitTargetFlags hit_type_to_hit_targets(long hit_type)
             HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
             HitTF_EnemyShotsCollide|HitTF_AlliedShotsCollide|HitTF_OwnedShotsCollide|
             HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
-            HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
+            HitTF_AnyFoodObjects|HitTF_AnyGoldPiles|HitTF_CreatureDeadBodies;
     case THit_CrtrsNObjcts:
         return HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|HitTF_PreventDmgCreatrs|
             HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
