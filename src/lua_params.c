@@ -263,11 +263,11 @@ PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
     return playerId;
 }
 
-long luaL_optPlayerSingle(lua_State *L, int index,const struct NamedCommand * commanddesc)
+PlayerNumber luaL_optPlayerSingle(lua_State *L, int index)
 {
     if (lua_isnone(L,index))
         return PLAYER_NEUTRAL;
-    return luaL_checkPlayerSingle(L,index,commanddesc);
+    return luaL_checkPlayerSingle(L,index);
 }
 
 MapSubtlCoord luaL_checkstl_x(lua_State *L, int index)
