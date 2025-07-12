@@ -65,13 +65,13 @@ int setLuaPath( lua_State* L)
 {
     #define PATH_LENGTH 4096
     char fx_data_path[PATH_LENGTH];
-    prepare_file_path_buf(fx_data_path, FGrp_FxData, "lua/?.lua");
+    prepare_file_path_buf(fx_data_path, sizeof(fx_data_path), FGrp_FxData, "lua/?.lua");
     char campaignpath[PATH_LENGTH];
-    prepare_file_path_buf(campaignpath, FGrp_CmpgConfig, "lua/?.lua");
+    prepare_file_path_buf(campaignpath, sizeof(campaignpath), FGrp_CmpgConfig, "lua/?.lua");
     char levelpath[PATH_LENGTH];
-    prepare_file_path_buf(levelpath, FGrp_CmpgLvls, "?.lua");
+    prepare_file_path_buf(levelpath, sizeof(levelpath), FGrp_CmpgLvls, "?.lua");
 
-    
+
     lua_getglobal(L, "package");
     lua_getfield(L, -1, "path"); // get field "path" from table at top of stack (-1)
     const char *cur_path = lua_tostring(L, -1); // grab path string from top of stack

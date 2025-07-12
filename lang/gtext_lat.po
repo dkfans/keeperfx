@@ -4886,18 +4886,18 @@ msgstr "Libellae novae"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Please insert Data Disk CD-ROM"
-msgstr "Quaeso, insere discum datuum"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr ""
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "Quaeso, insere discum Custodis Roboris"
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr ""
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "Quaeso, insere discum Robora Profundiora"
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr ""
 
 #. DD Level Korros Tor first objective
 #: guitext:892

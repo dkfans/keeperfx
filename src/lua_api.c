@@ -789,7 +789,7 @@ static int lua_Add_object_to_level(lua_State *L)
     long obj_id            = luaL_checkNamedCommand(L,1,object_desc);
     TbMapLocation location = luaL_checkLocation(L,  2);
     long arg               = lua_tointeger(L,3);
-    PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 4);
+    PlayerNumber plr_idx   = luaL_optPlayerSingle(L, 4);
     short angle            = lua_tointeger(L, 5);
 
     struct Coord3d pos;
@@ -807,7 +807,7 @@ static int lua_Add_object_to_level_at_pos(lua_State *L)
     MapSubtlCoord stl_x    = luaL_checkstl_x(L, 2);
     MapSubtlCoord stl_y    = luaL_checkstl_y(L, 3);
     long arg               = lua_tointeger(L,4);
-    PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 5);
+    PlayerNumber plr_idx   = luaL_optPlayerSingle(L, 5);
     short angle            = lua_tointeger(L, 6);
 
     lua_pushThing(L,script_process_new_object(obj_id, stl_x, stl_y, arg, plr_idx,angle));
@@ -1865,6 +1865,60 @@ static int lua_get_things_of_class(lua_State *L)
     return 1; // return value is the amount of args you push back
 }
 
+static void push_rooms_of_kind(lua_State *L, struct Dungeon* dungeon, RoomKind rkind, unsigned long *k)
+{
+    int ri = dungeon->room_kind[rkind];
+
+    while (ri != 0)
+    {
+        struct Room* room = room_get(ri);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+
+        lua_pushRoom(L, room);
+        lua_rawseti(L, -2, ++(*k));
+
+        ri = room->next_of_owner;
+        if (*k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+}
+
+static int lua_get_rooms_of_player_and_kind(lua_State *L)
+{
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    const char* room_name = luaL_checkstring(L, 2);
+
+    lua_newtable(L);
+    unsigned long k = 0;
+
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
+    {
+        struct Dungeon* dungeon = get_dungeon(i);
+        if (!dungeon) continue;
+
+        if (strcmp(room_name, "ANY_ROOM") == 0)
+        {
+            for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
+            {
+                push_rooms_of_kind(L, dungeon, rkind, &k);
+            }
+        }
+        else
+        {
+            RoomKind rkind = luaL_checkNamedCommand(L, 2, room_desc);
+            push_rooms_of_kind(L, dungeon, rkind, &k);
+        }
+    }
+
+    return 1;
+}
 
 static int lua_is_action_point_activated_by_player(lua_State *L)
 {
@@ -2079,7 +2133,8 @@ static const luaL_Reg global_methods[] = {
     {"IsActionpointActivatedByPlayer",  lua_is_action_point_activated_by_player},
     {"GetSlab",                         lua_get_slab},
     {"GetString",                       lua_Get_string},
-
+    {"GetRoomsOfPlayerAndType",         lua_get_rooms_of_player_and_kind},
+  
 //usecase specific functions
     {"PayForPower",                     lua_Pay_for_power},
 
@@ -2103,6 +2158,7 @@ static void global_register(lua_State *L)
 void Player_register(lua_State *L);
 void Thing_register(lua_State *L);
 void Slab_register(lua_State *L);
+void room_register(lua_State *L);
 
 void reg_host_functions(lua_State *L)
 {
@@ -2110,4 +2166,5 @@ void reg_host_functions(lua_State *L)
     global_register(L);
     Thing_register(L);
     Slab_register(L);
+    room_register(L);
 }

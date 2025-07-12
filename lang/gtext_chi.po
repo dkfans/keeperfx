@@ -4917,18 +4917,18 @@ msgstr "新关卡"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Please insert Data Disk CD-ROM"
-msgstr "请放入资料光盘"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "可制造：生物可以在工厂中制造此物品。"
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "请放入地下城守护者光盘"
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "工厂太小：需要扩建工厂才能制造此物品。"
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "请放入地下城守护者资料光盘"
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "无法制造：此物品无法制造。"
 
 #. DD Level Korros Tor first objective
 #: guitext:892

@@ -504,20 +504,43 @@ TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMod
           return true;
       }
     } else
-    if (((chr >= 'a') && (chr <= 'z')) ||
-        ((chr >= 'A') && (chr <= 'Z')) ||
-        ((chr >= '0') && (chr <= '9')) ||
-        (chr == ' ')  || (chr == '!') || (chr == ':') || (chr == ';')
-        || (chr == '(') || (chr == ')') || (chr == '.') || (chr == '_')
-        || (chr == '\'') || (chr == '+') || (chr == '=') || (chr == '-')
-        || (chr == '"') || (chr == '?') || (chr == '/') || (chr == '#')
-        || (chr == '<') || (chr == '>') || (chr == '^') || (chr == ','))
     {
-        if (chpos < maxlen)
+        switch(chr)
         {
-            message[chpos] = chr;
-            message[chpos+1] = '\0';
-            return true;
+            case 'a'...'z':
+            case 'A'...'Z':
+            case '0'...'9':
+            case ' ':
+            case '!':
+            case ':':
+            case ';':
+            case '(':
+            case ')':
+            case '.': 
+            case '_': 
+            case '\'':
+            case '+':
+            case '=':
+            case '-':
+            case '"':
+            case '?':
+            case '/':
+            case '#':
+            case '<':
+            case '>':
+            case '^':
+            case ',':
+            {
+                if (chpos < maxlen)
+                {
+                    message[chpos] = chr;
+                    message[chpos+1] = '\0';
+                    return true;
+                }
+            }
+            // fall through
+            default:
+                return false;
         }
     }
     return false;
@@ -1181,8 +1204,6 @@ void process_players_creature_control_packet_control(long idx)
     if (creature_is_dying(cctng))
         return;
     if ((ccctrl->stateblock_flags != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
-        return;
-    if (flag_is_set(pckt->control_flags, PCtr_Gui))
         return;
     long speed_limit = get_creature_speed(cctng);
     if ((pckt->control_flags & PCtr_MoveUp) != 0)

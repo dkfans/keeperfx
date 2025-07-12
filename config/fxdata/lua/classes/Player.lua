@@ -1,7 +1,25 @@
 
 ---@meta
 
----@class Player: creaturefields,roomfields
+---@class flagfields
+---@field FLAG0 integer
+---@field FLAG1 integer
+---@field FLAG2 integer
+---@field FLAG3 integer
+---@field FLAG4 integer
+---@field FLAG5 integer
+---@field FLAG6 integer
+---@field FLAG7 integer
+---@field CAMPAIGN_FLAG0 integer
+---@field CAMPAIGN_FLAG1 integer
+---@field CAMPAIGN_FLAG2 integer
+---@field CAMPAIGN_FLAG3 integer
+---@field CAMPAIGN_FLAG4 integer
+---@field CAMPAIGN_FLAG5 integer
+---@field CAMPAIGN_FLAG6 integer
+---@field CAMPAIGN_FLAG7 integer
+
+---@class Player: creaturefields,roomfields,flagfields
 ---@field private name string
 ---
 ---@field CONTROLS creaturefields

@@ -2718,15 +2718,26 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         {
             struct CreatureModelConfig *crconf;
             crconf = creature_stats_get_from_thing(thing);
-            CreatureJob jobpref;
-            jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crconf->job_primary|crconf->job_secondary);
-            if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref, thing))
+            CreatureJob jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crconf->job_primary|crconf->job_secondary);
+            struct CreatureJobConfig* jobcfg = get_config_for_job(jobpref);
+            if (creature_job_player_check_func_list[jobcfg->func_plyr_check_idx] != NULL)
             {
-                if (computer_dump_held_things_on_map(comp, thing, &pos, CrSt_Unused) > 0) {
-                    return CTaskRet_Unk2;
+                if (!creature_job_player_check_func_list[jobcfg->func_plyr_check_idx](thing, dungeon->owner, jobpref))
+                {
+                    SYNCDBG(13, "Cannot assign %s for %s index %d owner %d; check callback failed", creature_job_code_name(jobpref), thing_model_name(thing), (int)thing->index, (int)thing->owner);
+                    if (computer_dump_held_things_on_map(comp, thing, &pos, CrSt_Unused) > 0)
+                    {
+                        return CTaskRet_Unk2;
+                    }
+                } else
+                if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref, thing))
+                {
+                    if (computer_dump_held_things_on_map(comp, thing, &pos, CrSt_Unused) > 0) {
+                        return CTaskRet_Unk2;
+                    }
                 }
+                ERRORLOG("Could not find valid position in player %d %s for %s to be dropped", (int)dungeon->owner, room_code_name(room->kind), thing_model_name(thing));
             }
-            ERRORLOG("Could not find valid position in player %d %s for %s to be dropped",(int)dungeon->owner,room_code_name(room->kind),thing_model_name(thing));
         } else
         {
             WARNLOG("Could not move player %d creature by dropping %s into %s",(int)dungeon->owner,thing_model_name(thing),room_code_name(room->kind));

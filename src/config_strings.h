@@ -379,9 +379,9 @@ enum GUIStrings {
     GUIStr_Error,
     GUIStr_ErrorSaving,
     GUIStr_NewLevels = STRINGS_MAX+888,
-    GUIStr_InsertDataCD = STRINGS_MAX+889,
-    GUIStr_InsertKeeperCD,
-    GUIStr_InbsertDeeperCD,
+    GUIStr_TrapAvailable = STRINGS_MAX+889,
+    GUIStr_TrapWorkshopNeeded,
+    GUIStr_TrapUnavailable,
     GUIStr_LevelEventMessageDD = STRINGS_MAX+892, // range 892..940, Deeper Dungeons
     GUIStr_EventSecretDoorDiscovDesc = STRINGS_MAX+937,
     GUIStr_EventSecretDoorDiscovered,

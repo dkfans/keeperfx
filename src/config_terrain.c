@@ -409,14 +409,13 @@ TbBool parse_block_health_block(char *buf, long len, const char *config_textname
     int cmd_num = 0;
     char word_buf[COMMAND_WORD_LEN];
     // Block health - will be later integrated with slab blocks
-      char block_buf[COMMAND_WORD_LEN];
-      sprintf(block_buf,"block_health");
+    const char * block_name = "block_health";
       pos = 0;
-      k = find_conf_block(buf,&pos,len,block_buf);
+      k = find_conf_block(buf, &pos, len, block_name);
       if (k < 0)
       {
           if ((flags & CnfLd_AcceptPartial) == 0)
-              WARNMSG("aaBlock [%s] not found in %s file.",block_buf,config_textname);
+              WARNMSG("aaBlock [%s] not found in %s file.", block_name, config_textname);
           return false;
       } else
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_health_commands,cmd_num)
@@ -448,7 +447,7 @@ TbBool parse_block_health_block(char *buf, long len, const char *config_textname
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case ccr_comment:
@@ -457,7 +456,7 @@ TbBool parse_block_health_block(char *buf, long len, const char *config_textname
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+                cmd_num, block_name, config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);

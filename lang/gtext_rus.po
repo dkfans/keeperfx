@@ -3653,7 +3653,7 @@ msgid ""
 "LMB select."
 msgstr ""
 "Продать предмет: Позволяет продать ловушку или дверь, что дает возможность "
-"зарабатывать на производимых предметах. ЛКМ - выбор. [8.1.2]"
+"зарабатывать на производимых предметах. ЛКМ - выбор."
 
 #: guitext:464
 msgctxt "In-game interface description"
@@ -6027,18 +6027,18 @@ msgstr "Hовые ypовни"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Please insert Data Disk CD-ROM"
-msgstr "Вставьте компакт-диск с данными"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "Можно произвести: создания могут изготовить этот предмет в мастерской."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "Вставьте диск с игрой \"Хpанитель подземелья\""
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "Мастерская слишком мала: расширьте её, чтобы изготовить этот предмет."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "Вставьте диск с дополнением \"Глyбокие подземелья\""
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "Изготовление невозможно: этот предмет нельзя произвести."
 
 #. DD Level Korros Tor first objective
 #: guitext:892

@@ -256,7 +256,18 @@ PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
     {
         luaL_argerror(L,index,"player range not supported for this command");
     }
+    if(playerId > PLAYERS_COUNT || playerId < 0)
+    {
+        luaL_argerror(L,index,"expected a valid player");
+    }
     return playerId;
+}
+
+PlayerNumber luaL_optPlayerSingle(lua_State *L, int index)
+{
+    if (lua_isnone(L,index))
+        return PLAYER_NEUTRAL;
+    return luaL_checkPlayerSingle(L,index);
 }
 
 MapSubtlCoord luaL_checkstl_x(lua_State *L, int index)
@@ -433,6 +444,44 @@ int luaL_checkSlab(lua_State *L, int idx, MapSlabCoord* slb_x, MapSlabCoord* slb
     return 0;
 }
 
+struct Room* luaL_checkRoom(lua_State *L, int idx)
+{
+    if (!lua_istable(L, idx)) {
+        luaL_argerror(L, idx, "Expected a room");
+        return INVALID_ROOM;
+    }
+
+    lua_getfield(L, idx, "room_idx");
+    if (!lua_isnumber(L, -1)) {
+        luaL_argerror(L, idx, "Expected a room");
+        return INVALID_ROOM;
+    }
+    RoomIndex room_idx = lua_tointeger(L, -1);
+    lua_pop(L, 1);
+
+
+    struct Room* room = room_get(room_idx);
+    if ((room->alloc_flags & RoF_Allocated) == 0)
+    {
+        luaL_argerror(L, idx, "Room no longer exists");
+        return INVALID_ROOM;
+    }
+
+
+    lua_getfield(L, idx, "creation_turn");
+    if (!lua_isnumber(L, -1)) {
+        luaL_argerror(L, idx, "Table must have a numeric 'creation_turn' field");
+        return INVALID_ROOM;
+    }
+    GameTurn creation_turn = lua_tointeger(L, -1);
+    lua_pop(L, 1);
+    if (room_is_invalid(room) || room->creation_turn != creation_turn) {
+        luaL_argerror(L, idx, "Failed to resolve room");
+        return INVALID_ROOM;
+    }
+    return room;
+}
+
 void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos)
 {
     if (lua_istable(L, index)) {
@@ -448,7 +497,6 @@ void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos)
     }
     luaL_argerror(L, index, "expected a pos");
     return;
-
 }
 
 /***************************************************************************************************/
@@ -563,4 +611,26 @@ void lua_pushPartyTable(lua_State *L, struct Thing* thing) {
             break;
         }
     }
+}
+
+void lua_pushRoom(lua_State *L, struct Room* room) {
+    if (room_is_invalid(room)) {
+        lua_pushnil(L);
+        return;
+    }
+
+    lua_createtable(L, 0, 2);
+
+    lua_pushinteger(L, room->index);
+    lua_setfield(L, -2, "room_idx");
+
+    lua_pushinteger(L, room->creation_turn);
+    lua_setfield(L, -2, "creation_turn");
+
+    // Store a class name for Bitser
+    lua_pushstring(L, "Room");
+    lua_setfield(L, -2, "__class");
+
+    luaL_getmetatable(L, "Room");
+    lua_setmetatable(L, -2);  
 }

@@ -5150,18 +5150,18 @@ msgstr "Nya nivåer"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Please insert Data Disk CD-ROM"
-msgstr "Lägg i Data Disk-cd:n"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "Tillverkbar: Varelser kan tillverka detta föremål i verkstaden."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "Lägg i Dungeon Keeper-cd:n"
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "Verkstadsutbyggnad krävs: En större verkstad behövs för att tillverka detta föremål."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "Lägg i The Deeper Dungeons-cd:n"
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "Ej tillverkbar: Det går inte att tillverka detta föremål."
 
 #. DD Level Korros Tor first objective
 #: guitext:892

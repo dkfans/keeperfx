@@ -804,7 +804,6 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
-    char buf[16];
   /*if (spPtr == NULL)
   {
     ERRORLOG("ServiceProvider ptr is NULL");
@@ -846,7 +845,8 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
  
     if (ServerPort != 0)
     {
-        sprintf(buf, "%d", ServerPort);
+        char buf[16] = "";
+        snprintf(buf, sizeof(buf), "%d", ServerPort);
         if (netstate.sp->host(buf, optns) == Lb_FAIL) {
             return Lb_FAIL;
         }

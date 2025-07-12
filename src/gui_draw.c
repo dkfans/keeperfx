@@ -46,6 +46,8 @@ char gui_textbuf[TEXT_BUFFER_LENGTH];
 unsigned char *gui_slab;
 unsigned char *frontend_background;
 struct TbSpriteSheet * frontend_sprite = NULL;
+int gui_blink_rate = 1; // Number of frames before menu/map effects flash. Default value, overwritten by cfg setting.
+int neutral_flash_rate = 1; // Number of frames before neutral rooms/creatures cycle colours. Default value, overwritten by cfg setting.
 /******************************************************************************/
 
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)

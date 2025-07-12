@@ -3491,12 +3491,11 @@ msgstr ""
 "LTM. [6.4]"
 
 #: guitext:463
-#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Sell Item: Sell a Trap or Door. Allows you to earn gold on manufacturing. "
 "LMB select."
-msgstr "Prodat předmět: Prodá dveře nebo past. Položku vybereš LTM. [8.1.2]"
+msgstr "Prodat předmět: Prodá dveře nebo past. Výrobou předmětů získáš zlato. Položku vybereš LTM."
 
 #: guitext:464
 msgctxt "In-game interface description"
@@ -5872,18 +5871,18 @@ msgstr "Nové úrovně"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Please insert Data Disk CD-ROM"
-msgstr "Prosím vložte disk CD-ROM"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "Vyrobitelné: Příšery mohou tento předmět vyrobit v dílně."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "Prosím vložte Dungeon Keeper CD-ROM"
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "Dílna je příliš malá: Pro výrobu tohoto předmětu je třeba dílnu rozšířit."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "Prosím vložte The Deeper Dungeons CD-ROM"
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "Nelze vyrobit: Tento předmět nelze vyrobit."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -6472,8 +6471,7 @@ msgctxt "In-game interface description"
 msgid ""
 "Weight: Mass of the creature. Some people say overweight can lead to heart "
 "attack."
-msgstr ""
-"Váha: Hmotnost příšery. Někteří říkají, že nadváha může vést k infarktu."
+msgstr "Váha: Hmotnost příšery. Někteří říkají, že nadváha může vést k infarktu."
 
 #: guitext:960
 msgctxt "Keeper spell name"
@@ -6510,212 +6508,210 @@ msgstr ""
 
 #: guitext:965
 msgctxt "In-game interface description"
-msgid ""
-"Health: How much health points the creature has left to lose."
-msgstr ""
+msgid "Health: How much health points the creature has left to lose."
+msgstr "Zdraví: Kolik životů tomuto stvoření ještě zbývá."
 
 #: guitext:966
 msgctxt "In-game interface description"
-msgid ""
-"Health: The maximum amount of health points for this creature."
-msgstr ""
+msgid "Health: The maximum amount of health points for this creature."
+msgstr "Zdraví: Maximální počet životů tohoto stvoření."
 
 #: guitext:967
 msgctxt "Menu interface item"
 msgid "Toggle Message"
-msgstr ""
+msgstr "Přepnout zprávu"
 
 #: guitext:968
 msgctxt "Menu interface item"
 msgid "Return to Free Play levels"
-msgstr ""
+msgstr "Vrátit se na úrovně Volné hry"
 
 #: guitext:969
 msgctxt "Menu interface item"
 msgid "Map packs"
-msgstr ""
+msgstr "Balíčky map"
 
 #: guitext:970
 msgctxt "Menu interface item"
 msgid "The Deeper Dungeons"
-msgstr ""
+msgstr "Hlouběji v kobkách"
 
 #: guitext:971
 msgctxt "Menu interface item"
 msgid "Standard Levels"
-msgstr ""
+msgstr "Standardní úrovně"
 
 #: guitext:972
 msgctxt "Menu interface item"
 msgid "Classic Levels"
-msgstr ""
+msgstr "Klasické úrovně"
 
 #: guitext:973
 msgctxt "Menu interface item"
 msgid "Legacy Levels"
-msgstr ""
+msgstr "Legacy úrovně"
 
 #: guitext:974
 msgctxt "Menu interface item"
 msgid "Personal Levels"
-msgstr ""
+msgstr "Osobní úrovně"
 
 #: guitext:975
 msgctxt "Menu interface item"
 msgid "Lost Levels"
-msgstr ""
+msgstr "Ztracené úrovně"
 
 #: guitext:976 guitext:977 guitext:978 guitext:979 guitext:980
 msgctxt "Unused"
 msgid "Moo3"
-msgstr ""
+msgstr "Moo3"
 
 #: guitext:981
 msgctxt "Trap names"
 msgid "Special Trap"
-msgstr ""
+msgstr "Zvláštní past"
 
 #: guitext:982
 msgctxt "Trap names"
 msgid "Freeze Trap"
-msgstr ""
+msgstr "Zmrazovací past"
 
 #: guitext:983
 msgctxt "Trap names"
 msgid "Fear Trap"
-msgstr ""
+msgstr "Past strachu"
 
 #: guitext:984
 msgctxt "Trap names"
 msgid "Sentry Trap"
-msgstr ""
+msgstr "Strážní past"
 
 #: guitext:985
 msgctxt "Trap names"
 msgid "Mimic Trap"
-msgstr ""
+msgstr "Past Mimikry"
 
 #: guitext:986
 msgctxt "Trap names"
 msgid "Spawn Trap"
-msgstr ""
+msgstr "Past zrodu"
 
 #: guitext:987
 msgctxt "Trap names"
 msgid "Wind Trap"
-msgstr ""
+msgstr "Větrná past"
 
 #: guitext:988
 msgctxt "Trap names"
 msgid "Spitfire Trap"
-msgstr ""
+msgstr "Spitfire past"
 
 #: guitext:989
 msgctxt "Trap names"
 msgid "Chicken Trap"
-msgstr ""
+msgstr "Kuřecí past"
 
 #: guitext:990
 msgctxt "Trap names"
 msgid "Disease Trap"
-msgstr ""
+msgstr "Morová past"
 
 #: guitext:991
 msgctxt "Trap names"
 msgid "Power Trap"
-msgstr ""
+msgstr "Sílová past"
 
 #: guitext:992
 msgctxt "Trap names"
 msgid "Switch"
-msgstr ""
+msgstr "Spínač"
 
 #: guitext:993
 msgctxt "Trap names"
 msgid "Hidden Switch"
-msgstr ""
+msgstr "Skrytý spínač"
 
 #: guitext:994
 msgctxt "Door name"
 msgid "Special Door"
-msgstr ""
+msgstr "Zvláštní dveře"
 
 #: guitext:995
 msgctxt "Door name"
 msgid "Hidden Door"
-msgstr ""
+msgstr "Skryté dveře"
 
 #: guitext:996
 msgctxt "Mouse"
 msgid "Scroll Wheel Up"
-msgstr ""
+msgstr "Rolovací kolečko nahoru"
 
 #: guitext:997
 msgctxt "Mouse"
 msgid "Scroll Wheel Down"
-msgstr ""
+msgstr "Rolovací kolečko dolů"
 
 #: guitext:998
 msgctxt "Mouse"
 msgid "Mouse Button"
-msgstr ""
+msgstr "Tlačítko myši"
 
 #: guitext:999
 msgctxt "Game controls"
 msgid "Build Square Room"
-msgstr ""
+msgstr "Postavit čtvercovou místnost"
 
 #: guitext:1000
 msgctxt "Game controls"
 msgid "Detect Room"
-msgstr ""
+msgstr "Detekovat místnost"
 
 #: guitext:1001
 msgctxt "Game controls"
 msgid "Increase Room Size"
-msgstr ""
+msgstr "Zvětšit místnost"
 
 #: guitext:1002
 msgctxt "Game controls"
 msgid "Decrease Room Size"
-msgstr ""
+msgstr "Zmenšit místnost"
 
 #: guitext:1003
 msgctxt "Game controls"
 msgid "Precision Sell"
-msgstr ""
+msgstr "Přesný prodej"
 
 #: guitext:1004
 msgctxt "Game controls"
 msgid "Snap Camera"
-msgstr ""
+msgstr "Připnout kameru"
 
 #: guitext:1005
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
-msgstr ""
+msgstr "Tajemná truhla: Nelze předvídat, co to udělá."
 
 #: guitext:1006
 msgctxt "Network game message"
 msgid "Joined player has different map version from host."
-msgstr ""
+msgstr "Připojený hráč má jinou verzi mapy než hostitel."
 
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
-msgstr ""
+msgstr "Rozlišení zobrazení: Přepne na další nastavené rozlišení. Levé tlačítko – přepnutí, pravé tlačítko – zobraz aktuální."
 
 #: guitext:1008
 #, fuzzy
 msgctxt "In-game interface item"
 msgid "Voice"
-msgstr ""
+msgstr "Hlas"
 
 #: guitext:1009
 #, fuzzy
 msgctxt "In-game interface item"
 msgid "Ambience"
-msgstr ""
+msgstr "Atmosféra"
 
 #: guitext:1010
 msgctxt "Unused"
@@ -6845,64 +6841,62 @@ msgstr ""
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr ""
+msgstr "Demoliční past"
 
 #: guitext:1037
 msgctxt "Trap description"
-msgid ""
-"Demolition Trap: An explosive with unrivaled destructive power."
-msgstr ""
+msgid "Demolition Trap: An explosive with unrivaled destructive power."
+msgstr "Demoliční past: Výbušnina s nevídanou ničivou silou."
 
 #: guitext:1038
 msgctxt "Trap description"
-msgid ""
-"Sentry Trap: Stands guard and shoots at enemies in sight."
-msgstr ""
+msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
+msgstr "Strážní past: Hlídkuje a střílí na nepřátele v dohledu."
 
 #: guitext:1039 guitext:1040
 msgctxt "Unused"
 msgid "Moo6"
-msgstr ""
+msgstr "Moo6"
 
 #: guitext:1041
 msgctxt "Creature name"
 msgid "Spirit"
-msgstr ""
+msgstr "Duch"
 
 #: guitext:1042
 msgctxt "Creature name"
 msgid "Druid"
-msgstr ""
+msgstr "Druid"
 
 #: guitext:1043
 msgctxt "Creature name"
 msgid "Time Mage"
-msgstr ""
+msgstr "Časový mág"
 
 #: guitext:1044
 msgctxt "Creature name"
 msgid "Bird"
-msgstr ""
+msgstr "Pták"
 
 #: guitext:1045
 msgctxt "Creature name"
 msgid "Maiden"
-msgstr ""
+msgstr "Panna"
 
 #: guitext:1046
 msgctxt "Creature name"
 msgid "Spiderling"
-msgstr ""
+msgstr "Pavouček"
 
 #: guitext:1047
 msgctxt "Creature name"
 msgid "Goblin"
-msgstr ""
+msgstr "Skřet"
 
 #: guitext:1048
 msgctxt "Creature name"
 msgid "Fallen Angel"
-msgstr ""
+msgstr "Padlý anděl"
 
 #: guitext:1049
 msgctxt "Unused"
@@ -6974,26 +6968,25 @@ msgstr "Rozlít nespokojenost: Všechna stvoření nepřítele jsou rozčílená
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Oslabí zdi: Ničí opevnění nepřátelských zdí."
-
 #: guitext:1063
 msgctxt "Game controls"
 msgid "Tilt Up"
-msgstr ""
+msgstr "Naklonit nahoru"
 
 #: guitext:1064
 msgctxt "Game controls"
 msgid "Tilt Down"
-msgstr ""
+msgstr "Naklonit dolů"
 
 #: guitext:1065
 msgctxt "Game controls"
 msgid "Reset Tilt"
-msgstr ""
+msgstr "Obnovit náklon"
 
 #: guitext:1066
 msgctxt "Creature spell"
 msgid "Heal Monster: The target creature is massively healed."
-msgstr ""
+msgstr "Léčení nestvůry: Cílová bytost je silně uzdravena."
 
 #: guitext:1067
 msgctxt "Creature spell"
@@ -7003,32 +6996,32 @@ msgstr "Čištění: Vyléčí všechny negativní účinky postihující bytost
 #: guitext:1068
 msgctxt "Creature spell"
 msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
-msgstr ""
+msgstr "Čištění nestvůry: Vyléčí všechny negativní účinky u cílové bytosti."
 
 #: guitext:1069
 msgctxt "Keeper spell description"
 msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
-msgstr ""
+msgstr "Magický štít: Odrazí seslaná kouzla zpět na útočníka."
 
 #: guitext:1070
 msgctxt "Keeper spell description"
 msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
-msgstr ""
+msgstr "Levitace: Umožní bytosti vznášet se nad zemí, útočit ze vzduchu nebo přejít lávu bez újmy."
 
 #: guitext:1071
 msgctxt "Keeper spell description"
 msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
-msgstr ""
+msgstr "Zrak: Dočasně zvýší vnímavost bytosti a odhalí neviditelné."
 
 #: guitext:1072
 msgctxt "Keeper spell name"
 msgid "Recruit Tunneller"
-msgstr ""
+msgstr "Povolat tuneláře"
 
 #: guitext:1073
 msgctxt "Keeper spell description"
 msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
-msgstr ""
+msgstr "Povolat tuneláře: Přivolá nového tuneláře kdekoliv v podzemí."
 
 #: guitext:1074 guitext:1075
 msgctxt "Unused"
@@ -7038,29 +7031,29 @@ msgstr ""
 #: guitext:1076
 msgctxt "Door name"
 msgid "Midas Door"
-msgstr ""
+msgstr "Midova brána"
 
 #: guitext:1077
 msgctxt "Door description"
 msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
-msgstr ""
+msgstr "Midova brána: Tato brána spotřebovává zlato majitele, aby zůstala zcela nezničitelná. Pravé tlačítko myši – přiblížení."
 
 #: guitext:1078
 msgctxt "Game controls"
 msgid "Ascend"
-msgstr ""
+msgstr "Stoupat"
 
 #: guitext:1079
 msgctxt "Game controls"
 msgid "Descend"
-msgstr ""
+msgstr "Klesat"
 
 #: guitext:1080
 msgctxt "Creature spell"
 msgid "Familiar: Summons a companion to guard and assist the creature."
-msgstr ""
+msgstr "Znamení: Přivolá společníka, který hlídá a pomáhá stvoření."
 
 #: guitext:1081
 msgctxt "Creature spell"
 msgid "Summon: Call upon temporary guardians to assist the creature in combat."
-msgstr ""
+msgstr "Přivolání: Přivolá dočasné ochránce, kteří pomohou stvoření v boji."

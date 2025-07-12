@@ -166,17 +166,21 @@ TbBool remove_workshop_object_from_workshop(struct Room *room, struct Thing *cra
     return remove_item_from_room_capacity(room);
 }
 
-TbBool set_manufacture_level(struct Dungeon *dungeon)
+long calculate_manufacture_level(struct Dungeon* dungeon)
 {
     int mnfctr_slabs = get_room_of_role_slabs_count(dungeon->owner, RoRoF_CratesManufctr);
     int level = 0;
     while (mnfctr_slabs > (level + 3) * (level + 3))
     {
-        level++; 
+        level++;
     }
-    SYNCDBG(19, "Dungeon %d manufacture level set to %d",dungeon->owner, level);
-    dungeon->manufacture_level = level;
-    return true;
+    return level;
+}
+
+void set_manufacture_level(struct Dungeon *dungeon)
+{
+    dungeon->manufacture_level = calculate_manufacture_level(dungeon);
+    SYNCDBG(19, "Dungeon %d manufacture level set to %ld",dungeon->owner, dungeon->manufacture_level);
 }
 
 struct Thing *get_workshop_box_thing(PlayerNumber owner, ThingModel objmodel)

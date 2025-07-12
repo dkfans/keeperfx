@@ -417,7 +417,7 @@ std::array<std::vector<sound_sample>, 2> g_banks;
 
 void load_sound_banks() {
 	char snd_fname[2048];
-	prepare_file_path_buf(snd_fname, FGrp_LrgSound, "sound.dat");
+	prepare_file_path_buf(snd_fname, sizeof(snd_fname), FGrp_LrgSound, "sound.dat");
 	// language-specific speech file
 	char * spc_fname = prepare_file_fmtpath(FGrp_LrgSound, "speech_%s.dat", get_language_lwrstr(install_info.lang_id));
 	// default speech file

@@ -1515,8 +1515,8 @@ int LbTextStringPartWidth(const char *text, int part)
           if (len > max_len)
           {
             max_len = len;
-            len = 0;
           }
+          len = 0;
         } else
         if (chr == '\t')
         {
@@ -1622,8 +1622,8 @@ int LbTextNumberDraw(int pos_x, int pos_y, int units_per_px, long number, unsign
 {
     if (lbFontPtr == NULL)
       return 0;
-    char text[16];
-    sprintf(text, "%ld", number);
+    char text[16] = "";
+    snprintf(text, sizeof(text), "%ld", number);
     int h = LbTextLineHeight() * units_per_px / 16;
     int w = LbTextStringWidthM(text, units_per_px);
     switch (fdflags & 0x03)

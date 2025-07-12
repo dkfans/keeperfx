@@ -5907,18 +5907,18 @@ msgstr "신규 레벨"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Please insert Data Disk CD-ROM"
-msgstr "데이터 디스크 CD좀 넣어줘"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "제조 가능: 피조물이 이 아이템을 공방에서 제조할 수 있습니다."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "던전 키퍼 CD좀 넣어주라"
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "공방이 너무 작음: 이 아이템을 제조하려면 공방을 확장해야 합니다."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "던전 키퍼 CD좀 넣어 달라구"
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "제조 불가: 이 아이템은 제조할 수 없습니다."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
