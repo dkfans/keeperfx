@@ -1070,7 +1070,8 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(i);
                     if (crconf->health > 0)
                     {
-                        if (100 * i->health / (game.conf.crtr_conf.exp.health_increase_on_exp * crconf->health * cctrl->exp_level / 100 + crconf->health) > crconf->heal_requirement) //before it was 20%
+
+                        if (255 * i->health / (compute_creature_max_health(crconf->health,cctrl->exp_level)) > crconf->heal_requirement) //before it was 20%, but heal_requirement is 255 based.
                         {
                             ++count;
                         }
