@@ -1255,7 +1255,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     initialise_thing_state(thing, CrSt_ImpBirth);
 
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    play_creature_sound(thing, 3, 2, 0);
+    play_creature_sound(thing, CrSnd_Happy, 2, 0);
     return Lb_SUCCESS;
 }
 
@@ -1311,7 +1311,7 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
     }
     
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    play_creature_sound(thing, 3, 2, 0);
+    play_creature_sound(thing, CrSnd_Happy, 2, 0);
     return Lb_SUCCESS;
 }
 

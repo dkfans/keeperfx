@@ -2859,11 +2859,12 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
                             if (cctrl->dropped_turn < (COMPUTER_REDROP_DELAY + game.play_gameturn))
                             {
                                 struct PerExpLevelValues* expvalues;
+                                struct CreatureModelConfig* crconf = creature_stats_get(thing->model);
                                 expvalues = &game.creature_scores[thing->model];
                                 long expval = expvalues->value[cctrl->exp_level];
                                 HitPoints healthprm = get_creature_health_permil(thing);
                                 HitPoints new_factor = healthprm * expval / 1000;
-                                if ((new_factor > best_factor) && (healthprm > 20))
+                                if ((new_factor > best_factor) && (healthprm > (100 * crconf->heal_requirement/255)))
                                 {
                                     best_factor = new_factor;
                                     best_creatng = thing;
