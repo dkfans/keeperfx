@@ -479,7 +479,7 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
             if ((slabmap_owner(round_slb) == slabmap_owner(slb)) && (round_slb->kind == slb->kind))
             {
                 eff_score += 2;
-            } else if((slabmap_owner(round_slb) == slabmap_owner(slb)) || ((synergy_slab_num >= 0) && !(get_slab_kind_stats(synergy_slab_num)->is_ownable) && (round_slb->kind == synergy_slab_num)))
+            } else if (((slabmap_owner(round_slb) == slabmap_owner(slb)) || !(get_slab_kind_stats(synergy_slab_num)->is_ownable)) && ((round_slb->kind == synergy_slab_num) && (synergy_slab_num >= 0)))
             {
                 eff_score += 2;
             } else

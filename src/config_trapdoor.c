@@ -249,6 +249,7 @@ const struct NamedField trapdoor_door_named_fields[] = {
     {"SELLINGVALUE",         0, field(game.conf.trapdoor_conf.door_cfgstats[0].selling_value),            0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
     {"UNSELLABLE",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].unsellable),               0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
     {"PLACESOUND",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].place_sound_idx),        117,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
+    {"UPDATEFUNCTION",       0, field(game.conf.trapdoor_conf.door_cfgstats[0].updatefn_idx),             0,   LONG_MIN,         ULONG_MAX, NULL,                     value_function,   assign_default},
     {NULL},
 };
 
@@ -328,6 +329,7 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"INSTANTPLACEMENT",       0, field(game.conf.trapdoor_conf.trap_cfgstats[0].instant_placement),                0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"REMOVEONCEDEPLETED",     0, field(game.conf.trapdoor_conf.trap_cfgstats[0].remove_once_depleted),             0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"FLAGNUMBER",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].flag_number),                      0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
+    {"UPDATEFUNCTION",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].updatefn_idx),                     0,   LONG_MIN,         ULONG_MAX, NULL,                     value_function,assign_default},
     {NULL},
 };
 

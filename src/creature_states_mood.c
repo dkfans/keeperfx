@@ -91,7 +91,7 @@ short creature_roar(struct Thing *thing)
     }
     if (game.play_gameturn - cctrl->mood.last_mood_sound_turn > 32)
     {
-        play_creature_sound(thing, 4, 2, 0);
+        play_creature_sound(thing, CrSnd_Sad, 2, 0);
         cctrl->mood.last_mood_sound_turn = game.play_gameturn;
     }
     return 1;

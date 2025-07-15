@@ -789,7 +789,7 @@ static int lua_Add_object_to_level(lua_State *L)
     long obj_id            = luaL_checkNamedCommand(L,1,object_desc);
     TbMapLocation location = luaL_checkLocation(L,  2);
     long arg               = lua_tointeger(L,3);
-    PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 4);
+    PlayerNumber plr_idx   = luaL_optPlayerSingle(L, 4);
     short angle            = lua_tointeger(L, 5);
 
     struct Coord3d pos;
@@ -807,7 +807,7 @@ static int lua_Add_object_to_level_at_pos(lua_State *L)
     MapSubtlCoord stl_x    = luaL_checkstl_x(L, 2);
     MapSubtlCoord stl_y    = luaL_checkstl_y(L, 3);
     long arg               = lua_tointeger(L,4);
-    PlayerNumber plr_idx   = luaL_checkPlayerSingle(L, 5);
+    PlayerNumber plr_idx   = luaL_optPlayerSingle(L, 5);
     short angle            = lua_tointeger(L, 6);
 
     lua_pushThing(L,script_process_new_object(obj_id, stl_x, stl_y, arg, plr_idx,angle));
