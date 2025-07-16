@@ -182,6 +182,7 @@
     <ClCompile Include="src\light_data.c" />
     <ClCompile Include="src\lua_api.c" />
     <ClCompile Include="src\lua_api_player.c" />
+    <ClCompile Include="src\lua_api_room.c" />
     <ClCompile Include="src\lua_api_slabs.c" />
     <ClCompile Include="src\lua_api_things.c" />
     <ClCompile Include="src\lua_base.c" />

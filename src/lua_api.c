@@ -9,6 +9,7 @@
 #include "globals.h"
 #include "thing_data.h"
 #include "creature_states.h"
+#include "creature_states_mood.h"
 #include "creature_states_pray.h"
 #include "gui_msgs.h"
 #include "gui_soundmsgs.h"
@@ -1723,6 +1724,47 @@ static int lua_Change_creatures_annoyance(lua_State *L)
     return 0;
 }
 
+static int lua_Change_creature_annoyance(lua_State* L)
+{
+    struct Thing* thing = luaL_checkThing(L, 1);
+    long operation = luaL_checkNamedCommand(L, 2, script_operator_desc);
+    long anger = luaL_checkinteger(L, 3);
+
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    //todo if invalid thing
+        if (operation == SOpr_SET)
+        {
+            anger_set_creature_anger(thing, 0, AngR_NotPaid);
+            anger_set_creature_anger(thing, 0, AngR_NoLair);
+            anger_set_creature_anger(thing, 0, AngR_Hungry);
+            anger_set_creature_anger(thing, anger, AngR_Other);
+        }
+        else if (operation == SOpr_INCREASE)
+        {
+            AnnoyMotive motive = anger_get_creature_anger_type(thing);
+            if (motive)
+            {
+                anger_increase_creature_anger(thing, anger, motive);
+            }
+            else
+            {
+                anger_increase_creature_anger(thing, anger, AngR_Other);
+            }
+        }
+        else if (operation == SOpr_DECREASE)
+        {
+            anger_apply_anger_to_creature_all_types(thing, -anger);
+        }
+        else if (operation == SOpr_MULTIPLY)
+        {
+            anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Other] * anger, AngR_Other);
+            anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_NotPaid] * anger, AngR_NotPaid);
+            anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_NoLair] * anger, AngR_NoLair);
+            anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Hungry] * anger, AngR_Hungry);
+        }
+    return 0;
+}
+
 /*
 static int lua_SET_PLAYER_MODIFIER(lua_State *L)
 {
@@ -2079,6 +2121,7 @@ static const luaL_Reg global_methods[] = {
    {"SetCreatureTendencies",                lua_Set_creature_tendencies         },
    {"CreatureEntranceLevel",                lua_Creature_entrance_level         },
    {"ChangeCreaturesAnnoyance",             lua_Change_creatures_annoyance      },
+   {"ChangeCreatureAnnoyance",             lua_Change_creature_annoyance      },
 
 //Manipulating Research
    {"Research"                             ,lua_Research                        },
