@@ -814,6 +814,16 @@ static int lua_Add_object_to_level_at_pos(lua_State *L)
     return 1;
 }
 
+static int lua_Add_shot_to_level(lua_State *L)
+{
+    ThingModel shot_id      = luaL_checkNamedCommand(L,1,shot_desc);
+    TbMapLocation location = luaL_checkLocation(L,  2);
+    PlayerNumber owner     = luaL_checkPlayerSingle(L, 3);
+
+    lua_pushThing(L,script_process_new_shot(shot_id, location, owner));
+    return 1;
+}
+
 static int lua_Add_effect_generator_to_level(lua_State *L)
 {
     ThingModel gen_id      = luaL_checkNamedCommand(L,1,effectgen_desc);

@@ -2048,6 +2048,35 @@ void affect_nearby_enemy_creatures_with_wind(struct Thing *shotng)
     do_cb = affect_thing_by_wind;
     do_to_things_with_param_spiral_near_map_block(&shotng->mappos, param.num1-COORD_PER_STL, do_cb, &param);
 }
+
+struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation location, PlayerNumber owner)
+{
+    struct Coord3d pos;
+    if (!get_coords_at_location(&pos, location, false))
+    {
+        ERRORLOG("Couldn't find location %d to create %s", (int)location, thing_class_and_model_name(Tlc_Shot, tngmodel));
+        return INVALID_THING;
+    }
+    SlabCodedCoords place_slbnum = get_slab_number(subtile_slab(pos.x.stl.num), subtile_slab(pos.y.stl.num));
+    struct Thing* thing = create_shot(&pos, tngmodel, owner);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Couldn't create shot at location %d", thing_class_and_model_name(Tlc_Shot, tngmodel), (int)location);
+        return INVALID_THING;
+    }
+    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+    
+    // Try to move thing out of the solid wall if it's inside one
+    if (thing_in_wall_at(thing, &thing->mappos))
+    {
+        if (!move_creature_to_nearest_valid_position(thing)) {
+            ERRORLOG("The %s was created in wall, removing", thing_model_name(thing));
+            delete_thing_structure(thing, 0);
+            return INVALID_THING;
+        }
+    }
+    return thing;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
