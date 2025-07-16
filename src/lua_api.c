@@ -23,6 +23,7 @@
 #include "power_specials.h"
 #include "thing_creature.h"
 #include "thing_effects.h"
+#include "thing_shots.h"
 #include "magic_powers.h"
 
 #include "lua_base.h"
@@ -2056,6 +2057,7 @@ static const luaL_Reg global_methods[] = {
    {"AddHeartHealth"                      ,lua_Add_heart_health                },
    {"AddObjectToLevel"                    ,lua_Add_object_to_level             },
    {"AddObjectToLevelAtPos"               ,lua_Add_object_to_level_at_pos      },
+   {"AddShotToLevel"                      ,lua_Add_shot_to_level               },
    {"AddEffectGeneratorToLevel"           ,lua_Add_effect_generator_to_level   },
    {"PlaceDoor"                           ,lua_Place_door                      },
    {"PlaceTrap"                           ,lua_Place_trap                      },

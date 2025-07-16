@@ -2054,14 +2054,13 @@ struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation locatio
     struct Coord3d pos;
     if (!get_coords_at_location(&pos, location, false))
     {
-        ERRORLOG("Couldn't find location %d to create %s", (int)location, thing_class_and_model_name(Tlc_Shot, tngmodel));
+        ERRORLOG("Couldn't find location %d to create %s", (int)location, thing_class_and_model_name(TCls_Shot, tngmodel));
         return INVALID_THING;
     }
-    SlabCodedCoords place_slbnum = get_slab_number(subtile_slab(pos.x.stl.num), subtile_slab(pos.y.stl.num));
     struct Thing* thing = create_shot(&pos, tngmodel, owner);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create shot at location %d", thing_class_and_model_name(Tlc_Shot, tngmodel), (int)location);
+        ERRORLOG("Couldn't create shot at %d %s", (int)location, thing_class_and_model_name(TCls_Shot, tngmodel));
         return INVALID_THING;
     }
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
