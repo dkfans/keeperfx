@@ -245,6 +245,7 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel 
 void script_move_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmodel, long select_id, TbMapLocation location, ThingModel effect_id, long count);
 void script_move_creature(struct Thing* thing, TbMapLocation location, ThingModel effect_id);
 TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmodel, long operation, long anger);
+void apply_annoyance_script_operation(struct Thing* thing, long operation, long anger);
 /******************************************************************************/
 void throw_out_gold(struct Thing* thing, long amount);
 ThingModel get_random_creature_kind_with_model_flags(unsigned long model_flags);

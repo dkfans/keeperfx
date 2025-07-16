@@ -1730,38 +1730,7 @@ static int lua_Change_creature_annoyance(lua_State* L)
     long operation = luaL_checkNamedCommand(L, 2, script_operator_desc);
     long anger = luaL_checkinteger(L, 3);
 
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    //todo if invalid thing
-        if (operation == SOpr_SET)
-        {
-            anger_set_creature_anger(thing, 0, AngR_NotPaid);
-            anger_set_creature_anger(thing, 0, AngR_NoLair);
-            anger_set_creature_anger(thing, 0, AngR_Hungry);
-            anger_set_creature_anger(thing, anger, AngR_Other);
-        }
-        else if (operation == SOpr_INCREASE)
-        {
-            AnnoyMotive motive = anger_get_creature_anger_type(thing);
-            if (motive)
-            {
-                anger_increase_creature_anger(thing, anger, motive);
-            }
-            else
-            {
-                anger_increase_creature_anger(thing, anger, AngR_Other);
-            }
-        }
-        else if (operation == SOpr_DECREASE)
-        {
-            anger_apply_anger_to_creature_all_types(thing, -anger);
-        }
-        else if (operation == SOpr_MULTIPLY)
-        {
-            anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Other] * anger, AngR_Other);
-            anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_NotPaid] * anger, AngR_NotPaid);
-            anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_NoLair] * anger, AngR_NoLair);
-            anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Hungry] * anger, AngR_Hungry);
-        }
+    apply_annoyance_script_operation(thing, operation, anger);
     return 0;
 }
 

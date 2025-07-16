@@ -7892,6 +7892,41 @@ void script_move_creature_with_criteria(PlayerNumber plyr_idx, ThingModel crmode
     }
 }
 
+void apply_annoyance_script_operation(struct Thing* thing, long operation, long anger)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (operation == SOpr_SET)
+    {
+        anger_set_creature_anger(thing, 0, AngR_NotPaid);
+        anger_set_creature_anger(thing, 0, AngR_NoLair);
+        anger_set_creature_anger(thing, 0, AngR_Hungry);
+        anger_set_creature_anger(thing, anger, AngR_Other);
+    }
+    else if (operation == SOpr_INCREASE)
+    {
+        AnnoyMotive motive = anger_get_creature_anger_type(thing);
+        if (motive)
+        {
+            anger_increase_creature_anger(thing, anger, motive);
+        }
+        else
+        {
+            anger_increase_creature_anger(thing, anger, AngR_Other);
+        }
+    }
+    else if (operation == SOpr_DECREASE)
+    {
+        anger_apply_anger_to_creature_all_types(thing, -anger);
+    }
+    else if (operation == SOpr_MULTIPLY)
+    {
+        anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Other] * anger, AngR_Other);
+        anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_NotPaid] * anger, AngR_NotPaid);
+        anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_NoLair] * anger, AngR_NoLair);
+        anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Hungry] * anger, AngR_Hungry);
+    }
+}
+
 /**
  * Modifies player's creatures' anger.
  * @param plyr_idx target player
@@ -7923,37 +7958,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
         if (thing_matches_model(thing,crmodel))
         {
             i = cctrl->players_next_creature_idx;
-            if (operation == SOpr_SET)
-            {
-                anger_set_creature_anger(thing, 0, AngR_NotPaid);
-                anger_set_creature_anger(thing, 0, AngR_NoLair);
-                anger_set_creature_anger(thing, 0, AngR_Hungry);
-                anger_set_creature_anger(thing, anger, AngR_Other);
-            }
-            else if (operation == SOpr_INCREASE)
-            {
-                AnnoyMotive motive = anger_get_creature_anger_type(thing);
-                if (motive)
-                {
-                    anger_increase_creature_anger(thing, anger, motive);
-                }
-                else
-                {
-                    anger_increase_creature_anger(thing, anger, AngR_Other);
-                }
-            }
-            else if (operation == SOpr_DECREASE)
-            {
-                anger_apply_anger_to_creature_all_types(thing, -anger);
-            }
-            else if (operation == SOpr_MULTIPLY)
-            {
-                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Other] * anger, AngR_Other);
-                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_NotPaid] * anger, AngR_NotPaid);
-                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_NoLair] * anger, AngR_NoLair);
-                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Hungry] * anger, AngR_Hungry);
-            }
-
+            apply_annoyance_script_operation(thing, operation, anger);
         }
         // Thing list loop body ends
         k++;
