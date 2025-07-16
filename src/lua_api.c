@@ -2171,6 +2171,7 @@ void Player_register(lua_State *L);
 void Thing_register(lua_State *L);
 void Slab_register(lua_State *L);
 void room_register(lua_State *L);
+void Camera_register(lua_State *L);
 
 void reg_host_functions(lua_State *L)
 {
@@ -2179,4 +2180,5 @@ void reg_host_functions(lua_State *L)
     Thing_register(L);
     Slab_register(L);
     room_register(L);
+    Camera_register(L);
 }

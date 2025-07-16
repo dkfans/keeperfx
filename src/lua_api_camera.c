@@ -10,7 +10,7 @@
 #include "map_data.h"
 #include "thing_data.h"
 #include "thing_creature.h"
-#include "slab_data.h"
+#include "player_data.h"
 
 #include "lua_base.h"
 #include "lua_params.h"
@@ -32,7 +32,7 @@ int luaL_checkCamera(lua_State *L, int idx)
     if (!lua_isnumber(L, -1)) {
         return luaL_argerror(L, idx, "Table must have a numeric 'playerId' field");
     }
-    playerId = lua_tointeger(L, -1);
+    PlayerNumber playerId = lua_tointeger(L, -1);
     lua_pop(L, 1);
 
     return playerId;
@@ -54,14 +54,14 @@ static const struct luaL_Reg slab_methods[] = {
  
  // Function to set field values
  static int camera_set_field(lua_State *L) {
-    int playerId = luaL_checkCamera(L, 1, &playerId);
+    int playerId = luaL_checkCamera(L, 1);
     const char* key = luaL_checkstring(L, 2);
     
     struct PlayerInfo *player = get_player(playerId);
     struct Camera* cam = player->acamera;
 
     if (strcmp(key, "pos") == 0) {
-        luaL_checkPos(L, 3, &cam->mappos);
+        luaL_checkCoord3d(L, 3, &cam->mappos);
     } else if (strcmp(key, "yaw") == 0) {
         cam->orient_a = luaL_checkinteger(L, 3);
     } else if (strcmp(key, "pitch") == 0) {
@@ -84,7 +84,7 @@ static const struct luaL_Reg slab_methods[] = {
  // Function to get field values
  static int camera_get_field(lua_State *L) {
 
-    int playerId = luaL_checkCamera(L, 1, &playerId);
+    int playerId = luaL_checkCamera(L, 1);
 
     const char* key = luaL_checkstring(L, 2);
 
@@ -93,23 +93,23 @@ static const struct luaL_Reg slab_methods[] = {
         return 1;
     }
 
-    sturct PlayerInfo *player = get_player(playerId);
-    const struct Camera* cam = player->acamera;
+    struct PlayerInfo *player = get_player(playerId);
+    struct Camera* cam = player->acamera;
 
     if (strcmp(key, "pos") == 0) {
-        lua_pushPos(L, cam.mappos);
+        lua_pushPos(L, &cam->mappos);
     } else if (strcmp(key, "yaw") == 0) {
-        lua_pushinteger(L, cam.orient_a);
+        lua_pushinteger(L, cam->orient_a);
     } else if (strcmp(key, "pitch") == 0) {
-        lua_pushinteger(L, cam.orient_b);
+        lua_pushinteger(L, cam->orient_b);
     } else if (strcmp(key, "roll") == 0) {
-        lua_pushinteger(L, cam.orient_c);
+        lua_pushinteger(L, cam->orient_c);
     } else if (strcmp(key, "horizontal_fov") == 0) {
-        lua_pushinteger(L, cam.horizontal_fov);
+        lua_pushinteger(L, cam->horizontal_fov);
     } else if (strcmp(key, "zoom") == 0) {
-        lua_pushinteger(L, cam.zoom);
+        lua_pushinteger(L, cam->zoom);
     } else if (strcmp(key, "view_mode") == 0) {
-        lua_pushinteger(L, cam.view_mode);
+        lua_pushinteger(L, cam->view_mode);
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     } else {
@@ -144,7 +144,7 @@ static int camera_eq(lua_State *L) {
      luaL_newmetatable(L, "Camera");
  
      // Set the __index and __newindex metamethods
-     luaL_setfuncs(L, slab_meta, 0);
+     luaL_setfuncs(L, camera_meta, 0);
   
      // Hide the metatable by setting the __metatable field to nil
      lua_pushliteral(L, "__metatable");
