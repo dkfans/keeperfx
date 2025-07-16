@@ -771,6 +771,9 @@
     <ClCompile Include="src\lua_utils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\lua_api_camera.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
