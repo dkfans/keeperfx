@@ -58,6 +58,27 @@ static int make_thing_zombie (lua_State *L)
     return 0;
 }
 
+static int lua_set_velocity (lua_State *L)
+{
+    struct Thing *thing = luaL_checkThing(L, 1);
+    long angle_xy = luaL_checkinteger(L, 2);
+    long angle_z = luaL_checkinteger(L, 3);
+    long dist = luaL_checkinteger(L, 4);
+
+    struct ComponentVector cvect;
+    angles_to_vector(angle_xy, angle_z, dist, &cvect);
+    thing->veloc_push_add.x.val += cvect.x;
+    thing->veloc_push_add.y.val += cvect.y;
+    thing->veloc_push_add.z.val += cvect.z;
+    thing->state_flags |= TF1_PushAdd;
+
+    return 0;
+}
+
+
+
+
+
 static int lua_delete_thing(lua_State *L)
 {
     struct Thing *thing = luaL_checkThing(L, 1);
@@ -329,10 +350,11 @@ static const struct luaL_Reg thing_methods[] = {
     {"delete",     lua_delete_thing},
     {"isValid",         lua_is_valid},
     
-   {"transfer"                    ,lua_Transfer_creature               },
-   {"level_up"                    ,lua_Level_up_creature               },
-   {"teleport"                    ,lua_Teleport_creature               },
-   {"change_owner"                ,lua_Change_creature_owner           },
+    {"transfer"                    ,lua_Transfer_creature               },
+    {"level_up"                    ,lua_Level_up_creature               },
+    {"teleport"                    ,lua_Teleport_creature               },
+    {"change_owner"                ,lua_Change_creature_owner           },
+    {"set_velocity"               ,lua_set_velocity                    },
     {NULL, NULL}
 };
 
