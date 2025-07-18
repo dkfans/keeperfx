@@ -1104,6 +1104,16 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
             reset_interpolation_of_thing(thing);
             initialise_thing_state(thing, CrSt_CreatureInHoldAudience);
             cctrl->turns_at_job = -1;
+
+            struct Thing* famlrtng; //familiars are not in the dungeon creature list
+            for (short j = 0; j < FAMILIAR_MAX; j++)
+            {
+                if (cctrl->familiar_idx[j])
+                {
+                    famlrtng = thing_get(cctrl->familiar_idx[j]);
+                    teleport_familiar_to_summoner(famlrtng, thing);
+                }
+            }
         }
         // Thing list loop body ends
         k++;
