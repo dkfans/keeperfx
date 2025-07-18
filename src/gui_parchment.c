@@ -265,7 +265,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
       } else
       if (slb->kind == SlbT_ROCK_FLOOR)
       {
-          pixval = 0; //todo make it distinct from rock, preferably by showing a pattern like on walls
+          pixval = pixmap.ghost[3];
       }
       else
       if ((mapblk->flags & SlbAtFlg_Filled) != 0)

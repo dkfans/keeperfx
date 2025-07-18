@@ -7925,19 +7925,33 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
             i = cctrl->players_next_creature_idx;
             if (operation == SOpr_SET)
             {
+                anger_set_creature_anger(thing, 0, AngR_NotPaid);
+                anger_set_creature_anger(thing, 0, AngR_NoLair);
+                anger_set_creature_anger(thing, 0, AngR_Hungry);
                 anger_set_creature_anger(thing, anger, AngR_Other);
             }
             else if (operation == SOpr_INCREASE)
             {
-                anger_increase_creature_anger(thing, anger, AngR_Other);
+                AnnoyMotive motive = anger_get_creature_anger_type(thing);
+                if (motive)
+                {
+                    anger_increase_creature_anger(thing, anger, motive);
+                }
+                else
+                {
+                    anger_increase_creature_anger(thing, anger, AngR_Other);
+                }
             }
             else if (operation == SOpr_DECREASE)
             {
-                anger_reduce_creature_anger(thing, -anger, AngR_Other);
+                anger_apply_anger_to_creature_all_types(thing, -anger);
             }
             else if (operation == SOpr_MULTIPLY)
             {
                 anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Other] * anger, AngR_Other);
+                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_NotPaid] * anger, AngR_NotPaid);
+                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_NoLair] * anger, AngR_NoLair);
+                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Hungry] * anger, AngR_Hungry);
             }
 
         }

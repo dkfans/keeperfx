@@ -1201,6 +1201,8 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
 {
     struct Thing *heartng;
     struct Coord3d pos;
+    struct Dungeon *dungeon;
+    struct CreatureControl* cctrl;
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
     if (!i_can_allocate_free_control_structure()
      || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
@@ -1228,6 +1230,19 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
         ERRORLOG("There was place to create new creature, but creation failed");
         return Lb_OK;
     }
+    // Temporary unit
+    if (powerst->duration > 0)
+    {
+        cctrl = creature_control_get_from_thing(thing);
+        dungeon = get_dungeon(thing->owner);
+        add_creature_to_summon_list(dungeon, thing->index);
+        //Just set it to self-summoned
+        cctrl->summoner_idx = thing->index;
+        cctrl->summon_spl_idx = 0;
+        remove_first_creature(thing); //temporary units are not real creatures
+        cctrl->unsummon_turn = game.play_gameturn + powerst->duration;
+        set_flag(cctrl->flgfield_2, TF2_SummonedCreature);
+    }
     if (powerst->strength[power_level] != 0)
     {
         creature_change_multiple_levels(thing, powerst->strength[power_level]);
@@ -1240,7 +1255,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     initialise_thing_state(thing, CrSt_ImpBirth);
 
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    play_creature_sound(thing, 3, 2, 0);
+    play_creature_sound(thing, CrSnd_Happy, 2, 0);
     return Lb_SUCCESS;
 }
 
@@ -1248,6 +1263,7 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
 {
     struct Coord3d pos;
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
+    struct Dungeon* dungeon;
     if (!i_can_allocate_free_control_structure()
      || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         return Lb_FAIL;
@@ -1268,25 +1284,34 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_ceiling_height(&pos);
     thing = create_creature(&pos, powerst->creature_model, plyr_idx);
-
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner);
-    initialise_thing_state(thing, CrSt_CreatureHeroEntering);
-    thing->rendering_flags |= TRF_Invisible;
-    cctrl->countdown = 16;
-
+    create_effect(&thing->mappos, TngEff_CeilingBreach, thing->owner); //do breach before fail, for better player feedback
     if (thing_is_invalid(thing))
     {
         ERRORLOG("There was place to create new creature, but creation failed");
         return Lb_OK;
     }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (powerst->duration > 0)
+    {
+        dungeon = get_dungeon(thing->owner);
+        add_creature_to_summon_list(dungeon, thing->index);
+        //Just set it to self-summoned
+        cctrl->summoner_idx = thing->index;
+        cctrl->summon_spl_idx = 0;
+        remove_first_creature(thing); //temporary units are not real creatures
+        cctrl->unsummon_turn = game.play_gameturn + powerst->duration;
+        set_flag(cctrl->flgfield_2, TF2_SummonedCreature);
+    }
+    initialise_thing_state(thing, CrSt_CreatureHeroEntering);
+    thing->rendering_flags |= TRF_Invisible;
+    cctrl->countdown = 16;
     if (powerst->strength[power_level] != 0)
     {
         creature_change_multiple_levels(thing, powerst->strength[power_level]);
     }
     
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    play_creature_sound(thing, 3, 2, 0);
+    play_creature_sound(thing, CrSnd_Happy, 2, 0);
     return Lb_SUCCESS;
 }
 
