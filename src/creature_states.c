@@ -2225,6 +2225,11 @@ short creature_follow_leader(struct Thing *creatng)
         set_start_state(creatng);
         return 1;
     }
+    if (player_keeping_creature_in_custody(creatng) != player_keeping_creature_in_custody(leadtng))
+    {
+        remove_creature_from_group(creatng);
+        return 0;
+    }
     struct Coord3d follwr_pos;
     if (!get_free_position_behind_leader(leadtng, &follwr_pos))
     {
