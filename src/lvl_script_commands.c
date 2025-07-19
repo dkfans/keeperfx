@@ -5779,7 +5779,6 @@ static void set_generate_speed_process(struct ScriptContext* context)
             }
             break;
         }
-        
     }
     update_dungeon_generation_speeds();
 }
