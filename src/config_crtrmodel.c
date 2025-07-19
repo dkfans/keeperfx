@@ -228,7 +228,7 @@ const struct NamedCommand creatmodel_jobs_commands[] = {
   {"PARTNERTRAINING",     11},
   {NULL,                   0},
   };
-  
+
 const struct NamedCommand creatmodel_sounds_commands[] = {
   {"HURT",                 CrSnd_Hurt},
   {"HIT",                  CrSnd_Hit},
@@ -2240,7 +2240,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 k = atoi(word_buf);
                 game.conf.crtr_conf.creature_sounds[crtr_model].hurt.count = k;
                 n++;
-            }            
+            }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
@@ -2278,7 +2278,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 k = atoi(word_buf);
                 game.conf.crtr_conf.creature_sounds[crtr_model].happy.count = k;
                 n++;
-            }            
+            }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
@@ -2297,7 +2297,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 k = atoi(word_buf);
                 game.conf.crtr_conf.creature_sounds[crtr_model].sad.count = k;
                 n++;
-            }            
+            }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
@@ -2605,7 +2605,7 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
         }
         do_to_players_all_creatures_of_model(plyr_idx, crtr_id, process_job_stress_and_going_postal);
     }
-    
+
     recalculate_all_creature_digger_lists();
     update_creatr_model_activities_list(1);
 

@@ -2,7 +2,7 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file highscores.c
- *     
+ *
  * @par Purpose:
  * @par Comment:
  *     None.

@@ -309,7 +309,7 @@ extern "C" TbBool output_room_message(
 
 void script_play_message(TbBool param_is_string, const char msgtype_id, const short msg_id, const char *filename)
 {
-    
+
     if (!param_is_string)
     {
         switch (msgtype_id)
