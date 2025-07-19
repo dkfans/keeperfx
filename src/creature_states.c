@@ -2228,10 +2228,18 @@ short creature_follow_leader(struct Thing *creatng)
     struct Coord3d follwr_pos;
     if (!get_free_position_behind_leader(leadtng, &follwr_pos))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(leadtng));
-        set_start_state(creatng);
-        return 1;
+        if (thing_is_picked_up(leadtng))
+        {
+            SYNCDBG(3,"The %s index %d owned by player %d can no longer follow %s - leader is picked up",
+                thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng));
+        }
+        else
+        {
+            SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
+                thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng));
+            set_start_state(creatng);
+            return 1;
+        }
     }
     int fails_amount = cctrl->follow_leader_fails;
     if (fails_amount > 12) //When set too low, group might disband before a white wall is breached

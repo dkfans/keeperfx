@@ -120,6 +120,7 @@ void creature_cast_spell(struct Thing *caster, SpellKind spl_idx, CrtrExpLevel s
 
 void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration, long spl_idx);
 void level_up_familiar(struct Thing* famlrtng);
+void teleport_familiar_to_summoner(struct Thing* famlrtng, struct Thing* creatng);
 void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng);
 void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng);
 
