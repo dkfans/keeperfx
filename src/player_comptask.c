@@ -2809,7 +2809,6 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
         return CTaskRet_Unk0;
     }
     thing = thing_get(ctask->move_to_pos.target_thing_idx);
-    //not task in progress
     if (can_thing_be_picked_up_by_player(thing, dungeon->owner))
     {
         if (computer_place_thing_in_power_hand(comp, thing, &ctask->move_to_pos.target_pos)) {

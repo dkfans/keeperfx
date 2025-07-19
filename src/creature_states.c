@@ -2232,6 +2232,8 @@ short creature_follow_leader(struct Thing *creatng)
         {
             SYNCDBG(3,"The %s index %d owned by player %d can no longer follow %s - leader is picked up",
                 thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng));
+            remove_creature_from_group(creatng);
+            return 0;
         }
         else
         {
