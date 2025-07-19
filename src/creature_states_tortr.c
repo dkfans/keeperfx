@@ -323,7 +323,7 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
     change_creature_owner(creatng, new_owner);
     anger_set_creature_anger_all_types(creatng, 0);
     struct Dungeon* dungeon = get_dungeon(new_owner);
-    if (!dungeon_invalid(dungeon)) 
+    if (!dungeon_invalid(dungeon))
     {
         dungeon->lvstats.creatures_converted++;
         if (((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0) && ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) == 0))

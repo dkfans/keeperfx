@@ -469,7 +469,7 @@ const struct NamedCommand cleanup_func_commands[] = {
     {NULL,                                  0},
 };
 
-const CreatureStateFunc1 cleanup_func_list[] = {  
+const CreatureStateFunc1 cleanup_func_list[] = {
     NULL,
     state_cleanup_dragging_object,
     state_cleanup_in_room,
@@ -502,7 +502,7 @@ const CreatureStateFunc2 move_from_slab_func_list[] = {
     new_slab_tunneller_check_for_breaches
 };
 
-const struct NamedCommand move_check_func_commands[] = {    
+const struct NamedCommand move_check_func_commands[] = {
     {"none",                               0},
     {"move_check_on_head_for_room",        1},
     {"process_research_function",          2},
@@ -4875,11 +4875,11 @@ TbBool cleanup_current_thing_state(struct Thing *creatng)
     if (stati->cleanup_state > 0)
     {
         cleanup_func_list[stati->cleanup_state](creatng);
-    } 
+    }
     else if (stati->cleanup_state < 0)
     {
         luafunc_crstate_func(stati->cleanup_state, creatng);
-    } 
+    }
     else
     {
         clear_creature_instance(creatng);
