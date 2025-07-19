@@ -23,6 +23,9 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <wintrust.h>
+#include <softpub.h>
+#include <tchar.h>
 static HMODULE steam_lib;
 #endif
 
@@ -59,25 +62,23 @@ SteamApiShutdownFunc SteamAPI_Shutdown;
  * @brief Initializes the Steam API in KeeperFX.
  *
  * This function loads the necessary Steam API library and initializes it.
- * It also performs checks for required files and compatibility.
- *
- * @return Returns 0 on success, -1 when not on Windows, and 1 (or higher) on failure.
+ * It performs checks for required files and compatibility and verifies the certificate of the dll file.
  */
-int steam_api_init()
+void steam_api_init()
 {
 #ifndef _WIN32
-    // Windows only
-    return -1;
+    // On anything but Windows we just return 1 because the API is not supposed to get loaded
+    return;
 #else
 
     // Make sure the steam API is not initialized multiple times
     if (steam_lib != NULL || SteamAPI_Init != NULL)
     {
         WARNLOG("Steam API already initialized");
-        return 1;
+        return;
     }
 
-    // Make sure both files are present
+    // Check if both files are present
     if (LbFileExists("steam_api.dll") == false || LbFileExists("steam_appid.txt") == false)
     {
 
@@ -89,20 +90,49 @@ int steam_api_init()
             ERRORLOG("The Steam API requires both the 'steam_api.dll' and 'steam_appid.txt' files to be present");
         }
 
-        return 1;
+        return;
     }
 
     JUSTLOG("'steam_api.dll' and 'steam_appid.txt' found");
 
-    // Make sure we're not running KeeperFX under Wine.
+    // Check if we are running KeeperFX under Wine.
+    // The .dll can not connect to Steam running on the Host machine so we'll log a notice.
+    // Maybe there's cases where a person would also run Steam under Wine.
     // Even if we instead load 'libsteam_api.so' while in a Wine environment,
     // it will be unable to determine a Steam binary running on the Linux host.
-    // We do this check after looking for the files so there's only something in
-    // the log when the user is trying to enable the Steam API.
     if (is_running_under_wine == true)
     {
-        WARNLOG("Using the Steam API under Wine is not supported");
-        return -1;
+        JUSTLOG("The Steam API under Wine will not be able to connect to Steam on the host machine");
+    }
+
+    // Verify the Steam DLL
+    // We'll use the official Windows root cert for this
+    WINTRUST_FILE_INFO fileData = {};
+    fileData.cbStruct = sizeof(WINTRUST_FILE_INFO);
+    fileData.pcwszFilePath = L"steam_api.dll";
+    fileData.hFile = NULL;
+    fileData.pgKnownSubject = NULL;
+    GUID policyGUID = WINTRUST_ACTION_GENERIC_VERIFY_V2;
+    WINTRUST_DATA winTrustData = {};
+    winTrustData.cbStruct = sizeof(WINTRUST_DATA);
+    winTrustData.dwUIChoice = WTD_UI_NONE;            // No UI
+    winTrustData.fdwRevocationChecks = WTD_REVOKE_NONE; // No revocation checking
+    winTrustData.dwUnionChoice = WTD_CHOICE_FILE;     // We are verifying a file
+    winTrustData.pFile = &fileData;
+    winTrustData.dwStateAction = WTD_STATEACTION_VERIFY; // Start verification
+    winTrustData.dwProvFlags = WTD_SAFER_FLAG;        // Use safer flags
+    LONG verify_status = WinVerifyTrust(NULL, &policyGUID, &winTrustData);
+
+    // Close state data to free resources
+    winTrustData.dwStateAction = WTD_STATEACTION_CLOSE;
+    WinVerifyTrust(NULL, &policyGUID, &winTrustData);
+
+    // Check if certificate verification was successful
+    if(verify_status != ERROR_SUCCESS){
+        ERRORLOG("Failed to verify certificate of 'steam_api.dll'");
+        return;
+    } else {
+        JUSTLOG("'steam_api.dll' certificate successfully verified");
     }
 
     // Load the Steam API library
@@ -110,7 +140,7 @@ int steam_api_init()
     if (!steam_lib)
     {
         ERRORLOG("Unable to load 'steam_api.dll' library");
-        return 1;
+        return;
     }
 
     JUSTLOG("'steam_api.dll' library loaded");
@@ -123,7 +153,7 @@ int steam_api_init()
     {
         ERRORLOG("Failed to get proc address for 'SteamAPI_InitFlat' in 'steam_api.dll'");
         FreeLibrary(steam_lib);
-        return 1;
+        return;
     }
 
     // Unionize the Init function address type to our local function type
@@ -135,7 +165,7 @@ int steam_api_init()
     {
         ERRORLOG("Failed to get proc address for 'SteamAPI_Shutdown' in 'steam_api.dll'");
         FreeLibrary(steam_lib);
-        return 1;
+        return;
     }
 
     // Initialize the Steam API
@@ -148,11 +178,10 @@ int steam_api_init()
     {
         JUSTLOG("Steam API Failure: %s", error);
         FreeLibrary(steam_lib);
-        return 1;
+        return;
     }
 
     FreeLibrary(steam_lib);
-    return 0;
 
 #endif
 }
