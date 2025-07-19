@@ -366,7 +366,7 @@ static short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
         if (thing_is_invalid(ctng))
         {
             ERRORLOG("Invalid creature in group %s index %d", thing_model_name(grptng), (int)grptng->index);
-            return 0;
+            return potential_leader;
         }
 
         cctrl = creature_control_get_from_thing(ctng);
