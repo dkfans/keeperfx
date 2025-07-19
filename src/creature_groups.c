@@ -679,6 +679,10 @@ long process_obey_leader(struct Thing *thing)
         set_start_state(thing);
         return 1;
     }
+    if (creature_is_being_dropped(thing))
+    {
+        return 1;
+    }
     if ((leadtng->alloc_flags & TAlF_IsControlled) != 0)
     {
         // If leader is controlled, always force followers to stay
