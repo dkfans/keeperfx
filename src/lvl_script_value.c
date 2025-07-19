@@ -171,10 +171,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
         dungeon->hates_player[val2%DUNGEONS_COUNT] = val3;
       }
       break;
-  case Cmd_SET_GENERATE_SPEED:
-      game.generate_speed = saturate_set_unsigned(val2, 16);
-      update_dungeon_generation_speeds();
-      break;
   case Cmd_ROOM_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {

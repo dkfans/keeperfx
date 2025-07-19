@@ -265,6 +265,7 @@ struct PlayerInfo {
     unsigned char player_type; //enum PlayerTypes
     ThingModel special_digger;
     int isometric_tilt;
+    unsigned short generate_speed;
     };
 
 /******************************************************************************/

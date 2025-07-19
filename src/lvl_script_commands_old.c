@@ -203,16 +203,6 @@ static void command_display_information(long msg_num, const char *where, long x,
     command_add_value(Cmd_DISPLAY_INFORMATION, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
 }
 
-static void command_set_generate_speed(long game_turns)
-{
-    if (game_turns <= 0)
-    {
-      SCRPTERRLOG("Generation speed must be positive number");
-      return;
-    }
-    command_add_value(Cmd_SET_GENERATE_SPEED, ALL_PLAYERS, game_turns, 0, 0);
-}
-
 static void command_dead_creatures_return_to_pool(long val)
 {
     command_add_value(Cmd_DEAD_CREATURES_RETURN_TO_POOL, ALL_PLAYERS, val, 0, 0);
@@ -1322,9 +1312,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_SET_HATE:
         command_set_hate(scline->np[0], scline->np[1], scline->np[2]);
-        break;
-    case Cmd_SET_GENERATE_SPEED:
-        command_set_generate_speed(scline->np[0]);
         break;
     case Cmd_START_MONEY:
         command_set_start_money(scline->np[0], scline->np[1]);

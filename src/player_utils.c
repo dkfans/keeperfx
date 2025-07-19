@@ -404,14 +404,14 @@ long update_dungeon_generation_speeds(void)
         struct PlayerInfo* player = get_player(plyr_idx);
         if (player_exists(player) && (player->is_active == 1))
         {
+            unsigned short generate_speed = (player->generate_speed != 0) ? player->generate_speed : game.generate_speed;
             struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->manage_score > 0)
-                dungeon->turns_between_entrance_generation = max_manage_score * game.generate_speed / dungeon->manage_score;
+                dungeon->turns_between_entrance_generation = max_manage_score * generate_speed / dungeon->manage_score;
             else
-                dungeon->turns_between_entrance_generation = game.generate_speed;
+                dungeon->turns_between_entrance_generation = generate_speed;
         }
     }
-
     return 1;
 }
 
