@@ -420,6 +420,8 @@ extern const struct LongNamedCommand powermodel_castability_commands[];
 extern const struct NamedCommand powermodel_expand_check_func_type[];
 extern const struct NamedCommand magic_power_commands[];
 extern const Expand_Check_Func powermodel_expand_check_func_list[];
+extern const struct NamedCommand magic_use_func_commands[];
+extern const struct NamedCommand magic_cost_formula_commands[];
 /******************************************************************************/
 struct SpellConfig *get_spell_config(SpellKind spell_idx);
 TbBool spell_config_is_invalid(struct SpellConfig *mgcinfo);
