@@ -69,6 +69,8 @@ void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void lua_pushPartyTable(lua_State *L, struct Thing* thing);
 void lua_pushRoom(lua_State *L, struct Room* room);
 
+TbBool luaL_isPlayer(lua_State *L, int index);
+
 #ifdef __cplusplus
 }
 #endif
