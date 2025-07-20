@@ -33,6 +33,7 @@ struct PlayerRange
 };
 /****   Checks  *******/
 TbBool luaL_isThing(lua_State *L, int index);
+TbBool luaL_isPlayer(lua_State *L, int index);
 
 /****   Inputs  *******/
 long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
@@ -68,8 +69,6 @@ void lua_pushPos(lua_State *L, struct Coord3d* pos);
 void lua_pushSlab(lua_State *L, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void lua_pushPartyTable(lua_State *L, struct Thing* thing);
 void lua_pushRoom(lua_State *L, struct Room* room);
-
-TbBool luaL_isPlayer(lua_State *L, int index);
 
 #ifdef __cplusplus
 }
