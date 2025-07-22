@@ -815,6 +815,106 @@ static void display_objective_process(struct ScriptContext *context)
     }
 }
 
+static void tag_map_rect_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    MapSlabCoord x = scline->np[1];
+    MapSlabCoord y = scline->np[2];
+    MapSlabDelta width;
+    MapSlabDelta height;
+
+    if (scline->np[3] != '\0')
+        width = scline->np[3];
+    else
+        width = 1;
+    if (scline->np[4] != '\0')
+        height = scline->np[4];
+    else
+        height = 1;
+
+    MapSlabCoord start_x = x - (width / 2);
+    MapSlabCoord end_x = x + (width / 2) + (width & 1);
+    MapSlabCoord start_y = y - (height / 2);
+    MapSlabCoord end_y = y + (height / 2) + (height & 1);
+
+    if (start_x < 0)
+    {
+        SCRPTWRNLOG("Starting X slab '%d' (from %d-%d/2) is out of range, fixing it to '0'.", start_x, x, width);
+        start_x = 0;
+    }
+    else if (start_x > game.map_tiles_x)
+    {
+        SCRPTWRNLOG("Starting X slab '%d' (from %d-%d/2) is out of range, fixing it to '%d'.", start_x, x, width, game.map_tiles_x);
+        start_x = game.map_tiles_x;
+    }
+    if (end_x < 0)
+    {
+        SCRPTWRNLOG("Ending X slab '%d' (from %d+%d/2) is out of range, fixing it to '0'.", end_x, x, width);
+        end_x = 0;
+    }
+    else if (end_x > game.map_tiles_x)
+    {
+        SCRPTWRNLOG("Ending X slab '%d' (from %d+%d/2) is out of range, fixing it to '%d'.", end_x, x, width, game.map_tiles_x);
+        end_x = game.map_tiles_x;
+    }
+    if (start_y < 0)
+    {
+        SCRPTWRNLOG("Starting Y slab '%d' (from %d-%d/2) is out of range, fixing it to '0'.", start_y, y, height);
+        start_y = 0;
+    }
+    else if (start_y > game.map_tiles_y)
+    {
+        SCRPTWRNLOG("Starting Y slab '%d' (from %d-%d/2) is out of range, fixing it to '%d'.", start_y, y, height, game.map_tiles_y);
+        start_y = game.map_tiles_y;
+    }
+    if (end_y < 0)
+    {
+        SCRPTWRNLOG("Ending Y slab '%d' (from %d+%d/2) is out of range, fixing it to '0'.", end_y, y, height);
+        end_y = 0;
+    }
+    else if (end_y > game.map_tiles_y)
+    {
+        SCRPTWRNLOG("Ending Y slab '%d' (from %d+%d/2) is out of range, fixing it to '%d'.", end_y, y, height, game.map_tiles_y);
+        end_y = game.map_tiles_y;
+    }
+    if ((x < 0) || (x > game.map_tiles_y) || (y < 0) || (y > game.map_tiles_y))
+    {
+        SCRPTERRLOG("Conceal slabs out of range, trying to set conceal center point to (%d,%d) on map that's %dx%d slabs", x, y, game.map_tiles_x, game.map_tiles_y);
+        DEALLOCATE_SCRIPT_VALUE
+            return;
+    }
+    value->shorts[1] = start_x;
+    value->shorts[2] = end_x;
+    value->shorts[3] = start_y;
+    value->shorts[4] = end_y;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void tag_map_rect_process(struct ScriptContext* context)
+{
+    MapSlabCoord start_x = context->value->shorts[1];
+    MapSlabCoord end_x = context->value->shorts[2];
+    MapSlabCoord start_y = context->value->shorts[3];
+    MapSlabCoord end_y = context->value->shorts[4];
+
+    for (short x = start_x; x < end_x; x++)
+    {
+        for (short y = start_y; y < end_y; y++)
+        {
+            MapSubtlCoord stl_x = slab_subtile_center(x);
+            MapSubtlCoord stl_y = slab_subtile_center(y);
+
+            if (subtile_is_diggable_for_player(context->player_idx, stl_x, stl_y, false))
+            {
+                tag_blocks_for_digging_in_area(stl_x, stl_y, context->player_idx);
+            }
+        }
+    }
+}
+
+
 static void conceal_map_rect_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
@@ -5788,6 +5888,7 @@ const struct CommandDesc command_desc[] = {
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
   {"CONCEAL_MAP_RECT",                  "PNNNNb! ", Cmd_CONCEAL_MAP_RECT, &conceal_map_rect_check, &conceal_map_rect_process},
   {"REVEAL_MAP_LOCATION",               "PLN     ", Cmd_REVEAL_MAP_LOCATION, &reveal_map_location_check, &reveal_map_location_process},
+  {"TAG_MAP_RECT",                      "PNNnn   ", Cmd_TAG_MAP_RECT, &tag_map_rect_check, &tag_map_rect_process},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
