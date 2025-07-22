@@ -815,6 +815,106 @@ static void display_objective_process(struct ScriptContext *context)
     }
 }
 
+static void tag_map_rect_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    MapSlabCoord x = scline->np[1];
+    MapSlabCoord y = scline->np[2];
+    MapSlabDelta width;
+    MapSlabDelta height;
+
+    if (scline->np[3] != '\0')
+        width = scline->np[3];
+    else
+        width = 1;
+    if (scline->np[4] != '\0')
+        height = scline->np[4];
+    else
+        height = 1;
+
+    MapSlabCoord start_x = x - (width / 2);
+    MapSlabCoord end_x = x + (width / 2) + (width & 1);
+    MapSlabCoord start_y = y - (height / 2);
+    MapSlabCoord end_y = y + (height / 2) + (height & 1);
+
+    if (start_x < 0)
+    {
+        SCRPTWRNLOG("Starting X slab '%d' (from %d-%d/2) is out of range, fixing it to '0'.", start_x, x, width);
+        start_x = 0;
+    }
+    else if (start_x > game.map_tiles_x)
+    {
+        SCRPTWRNLOG("Starting X slab '%d' (from %d-%d/2) is out of range, fixing it to '%d'.", start_x, x, width, game.map_tiles_x);
+        start_x = game.map_tiles_x;
+    }
+    if (end_x < 0)
+    {
+        SCRPTWRNLOG("Ending X slab '%d' (from %d+%d/2) is out of range, fixing it to '0'.", end_x, x, width);
+        end_x = 0;
+    }
+    else if (end_x > game.map_tiles_x)
+    {
+        SCRPTWRNLOG("Ending X slab '%d' (from %d+%d/2) is out of range, fixing it to '%d'.", end_x, x, width, game.map_tiles_x);
+        end_x = game.map_tiles_x;
+    }
+    if (start_y < 0)
+    {
+        SCRPTWRNLOG("Starting Y slab '%d' (from %d-%d/2) is out of range, fixing it to '0'.", start_y, y, height);
+        start_y = 0;
+    }
+    else if (start_y > game.map_tiles_y)
+    {
+        SCRPTWRNLOG("Starting Y slab '%d' (from %d-%d/2) is out of range, fixing it to '%d'.", start_y, y, height, game.map_tiles_y);
+        start_y = game.map_tiles_y;
+    }
+    if (end_y < 0)
+    {
+        SCRPTWRNLOG("Ending Y slab '%d' (from %d+%d/2) is out of range, fixing it to '0'.", end_y, y, height);
+        end_y = 0;
+    }
+    else if (end_y > game.map_tiles_y)
+    {
+        SCRPTWRNLOG("Ending Y slab '%d' (from %d+%d/2) is out of range, fixing it to '%d'.", end_y, y, height, game.map_tiles_y);
+        end_y = game.map_tiles_y;
+    }
+    if ((x < 0) || (x > game.map_tiles_y) || (y < 0) || (y > game.map_tiles_y))
+    {
+        SCRPTERRLOG("Conceal slabs out of range, trying to set conceal center point to (%d,%d) on map that's %dx%d slabs", x, y, game.map_tiles_x, game.map_tiles_y);
+        DEALLOCATE_SCRIPT_VALUE
+            return;
+    }
+    value->shorts[1] = start_x;
+    value->shorts[2] = end_x;
+    value->shorts[3] = start_y;
+    value->shorts[4] = end_y;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void tag_map_rect_process(struct ScriptContext* context)
+{
+    MapSlabCoord start_x = context->value->shorts[1];
+    MapSlabCoord end_x = context->value->shorts[2];
+    MapSlabCoord start_y = context->value->shorts[3];
+    MapSlabCoord end_y = context->value->shorts[4];
+
+    for (short x = start_x; x < end_x; x++)
+    {
+        for (short y = start_y; y < end_y; y++)
+        {
+            MapSubtlCoord stl_x = slab_subtile_center(x);
+            MapSubtlCoord stl_y = slab_subtile_center(y);
+
+            if (subtile_is_diggable_for_player(context->player_idx, stl_x, stl_y, false))
+            {
+                tag_blocks_for_digging_in_area(stl_x, stl_y, context->player_idx);
+            }
+        }
+    }
+}
+
+
 static void conceal_map_rect_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
@@ -4299,7 +4399,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
     long powervar = get_id(magic_power_commands, property);
     if (powervar == -1)
     {
-        SCRPTERRLOG("Unknown power variable");
+        SCRPTERRLOG("Unknown power variable: %s", new_value);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -4322,7 +4422,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 j = get_long_id(powermodel_castability_commands, new_value);
                 if (j <= 0)
                 {
-                    SCRPTERRLOG("Incorrect castability value");
+                    SCRPTERRLOG("Incorrect castability value: %s", new_value);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
@@ -4349,7 +4449,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                             number_value |= j;
                         } else
                         {
-                            SCRPTERRLOG("Incorrect castability value");
+                            SCRPTERRLOG("Incorrect castability value: %s", new_value);
                             DEALLOCATE_SCRIPT_VALUE
                             return;
                         }
@@ -4384,7 +4484,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 k = get_id(powermodel_properties_commands, new_value);
                 if (k <= 0)
                 {
-                    SCRPTERRLOG("Incorrect property value");
+                    SCRPTERRLOG("Incorrect property value: %s", new_value);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
@@ -4411,7 +4511,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                             number_value |= k;
                         } else
                         {
-                            SCRPTERRLOG("Incorrect property value");
+                            SCRPTERRLOG("Incorrect property value: %s", new_value);
                             DEALLOCATE_SCRIPT_VALUE
                             return;
                         }
@@ -4428,7 +4528,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             number_value = get_id(powermodel_expand_check_func_type,new_value);
             if (number_value < 0)
             {
-                SCRPTERRLOG("Invalid power update function id");
+                SCRPTERRLOG("Invalid OverchargeCheckt: %s", new_value);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -4453,6 +4553,81 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
                 number_value = k;
             }
             value->longs[2] = number_value;
+            break;
+        }
+        case 20: // Spell
+        {
+            k = get_id(spell_desc, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            else
+            {
+                SCRPTERRLOG("Incorrect Spell valuet: %s", new_value);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            break;
+        }
+        case 21: // Effect
+        {
+            k = effect_or_effect_element_id(new_value);
+            if (k == 0)
+            {
+                SCRPTERRLOG("Unrecognised effect: %s", new_value);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            else
+            {
+                number_value = k;
+            }
+            break;
+        }
+        case 22: // UseFunction
+        {
+            k = get_id(magic_use_func_commands, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            else
+            {
+                SCRPTERRLOG("Incorrect UseFunction: %s", new_value);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            break;
+        }
+        case 23: // CreatureType
+        {
+            k = get_id(creature_desc, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            else
+            {
+                SCRPTERRLOG("Incorrect Creature type: %s", new_value);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            break;
+        }
+        case 24: // CostFormula
+        {
+            k = get_id(magic_cost_formula_commands, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            else
+            {
+                SCRPTERRLOG("Incorrect Cost formula: %s", new_value);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
             break;
         }
         default:
@@ -4562,6 +4737,21 @@ static void set_power_configuration_process(struct ScriptContext *context)
             break;
         case 19: // Cooldown
             powerst->cast_cooldown = context->value->longs[2];
+            break;
+        case 20: // Spell
+            powerst->cast_cooldown = context->value->longs[2];
+            break;
+        case 21: // Effect
+            powerst->effect_id = context->value->longs[2];
+            break;
+        case 22: // UseFunction
+            powerst->magic_use_func_idx = context->value->longs[2];
+            break;
+        case 23: // CreatureType
+            powerst->creature_model = context->value->longs[2];
+            break;
+        case 24: // CostFormula
+            powerst->cost_formula = context->value->longs[2];
             break;
         default:
             WARNMSG("Unsupported power configuration, variable %d.", context->value->bytes[2]);
@@ -5856,6 +6046,7 @@ const struct CommandDesc command_desc[] = {
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
   {"CONCEAL_MAP_RECT",                  "PNNNNb! ", Cmd_CONCEAL_MAP_RECT, &conceal_map_rect_check, &conceal_map_rect_process},
   {"REVEAL_MAP_LOCATION",               "PLN     ", Cmd_REVEAL_MAP_LOCATION, &reveal_map_location_check, &reveal_map_location_process},
+  {"TAG_MAP_RECT",                      "PNNnn   ", Cmd_TAG_MAP_RECT, &tag_map_rect_check, &tag_map_rect_process},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
