@@ -286,6 +286,7 @@ const struct LongNamedCommand powermodel_castability_commands[] = {
   {"ALL_GROUND",       PwCast_AllGround},
   {"NOT_ENEMY_GROUND", PwCast_NotEnemyGround},
   {"ALL_TALL",         PwCast_AllTall},
+  {"ALL_OBJECTS",      PwCast_AllObjects},
   {NULL,                0},
   };
 

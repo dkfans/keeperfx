@@ -138,7 +138,7 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
  * @param thing
  * @param plyr_idx
  */
-unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long plyr_idx)
+TbBool object_is_pickable_by_hand_for_use(const struct Thing *thing, long plyr_idx)
 {
     struct SlabMap *slb;
     if (thing_is_special_box(thing))
@@ -151,19 +151,24 @@ unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long
     return false;
 }
 
+
+TbBool object_is_pickable_by_hand_to_hold(const struct Thing* thing)
+{
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return flag_is_set(objst->model_flags, OMF_HoldInHand);
+}
+
 /**
  * Returns true when object has OMF_HoldInHand flag and is laying on own ground.
  * @param thing
  * @param plyr_idx
  */
-unsigned long object_is_pickable_by_hand_to_hold(const struct Thing* thing, long plyr_idx)
+TbBool object_is_pickable_by_hand_to_hold_by_player(const struct Thing* thing, long plyr_idx)
 {
     struct SlabMap* slb = get_slabmap_thing_is_on(thing);
     if ((slabmap_owner(slb) != plyr_idx) || thing_is_dragged_or_pulled(thing))
         return false;
-    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    return flag_is_set(objst->model_flags, OMF_HoldInHand);
-
+    return object_is_pickable_by_hand_to_hold(thing);
 }
 
 /**
@@ -231,7 +236,7 @@ long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber pl
     {
         if (object_is_pickable_by_hand_for_use(thing, plyr_idx))
             return true;
-        if (object_is_pickable_by_hand_to_hold(thing, plyr_idx))
+        if (object_is_pickable_by_hand_to_hold_by_player(thing, plyr_idx))
             return true;
     }
     // Other things are pickable only for placing in hand
@@ -311,7 +316,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
     {
         picktng = create_gold_for_hand_grab(thing, plyr_idx);
     }
-    else if (object_is_pickable_by_hand_to_hold(thing, plyr_idx))
+    else if (object_is_pickable_by_hand_to_hold_by_player(thing, plyr_idx))
     {
             picktng = thing;
     }
