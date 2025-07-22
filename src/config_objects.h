@@ -86,6 +86,7 @@ struct ObjectConfigStats {
     unsigned long model_flags;
     long genre;
     long map_icon;
+    long hand_icon;
     short tooltip_stridx;
     TbBool tooltip_optional;
     HitPoints health;
