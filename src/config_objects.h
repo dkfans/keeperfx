@@ -56,6 +56,7 @@ enum ObjectModelFlags {
     OMF_Buoyant              = 0x0010, // Some objects do not get their sprite cut off when on water/lava
     OMF_Beating              = 0x0020, // If the object is a heart, do the flashing, beating, back and forth animation that imitates a heartbeat
     OMF_Heart                = 0x0040, // Functions as the heart of the dungeon
+    OMF_HoldInHand           = 0x0080, // Object can be picked up to hold
 };
 
 

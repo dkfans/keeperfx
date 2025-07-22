@@ -307,6 +307,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
                 }
             }
         }
+        return object_is_pickable_by_hand_to_hold(thing,plyr_idx);// todo spell flags
     }
     if (thing_is_shot(thing))
     {

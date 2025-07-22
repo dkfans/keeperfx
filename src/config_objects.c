@@ -55,6 +55,7 @@ const struct NamedCommand objects_properties_commands[] = {
   {"BUOYANT",                 OMF_Buoyant             },
   {"BEATING",                 OMF_Beating             },
   {"HEART",                   OMF_Heart               },
+  {"HOLD_IN_HAND",            OMF_HoldInHand          },
   {NULL,                      0},
   };
 
