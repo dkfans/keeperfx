@@ -534,7 +534,7 @@ void draw_power_hand(void)
 {
     SYNCDBG(17,"Starting");
     struct PlayerInfo *player;
-    struct CreaturePickedUpOffset *pickoffs;
+    struct PickedUpOffset *pickoffs;
     struct Thing *thing;
     struct Thing *picktng;
     struct Room *room;
@@ -680,7 +680,15 @@ void draw_power_hand(void)
             {
                 break;
             }
-            // fall through
+            else
+            {
+                pickoffs = get_object_picked_up_offset(picktng);
+                inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x * global_hand_scale);
+                inputpos_y = GetMouseY() + scale_ui_value(pickoffs->delta_y * global_hand_scale);
+                process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                    picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64 * global_hand_scale));
+            }
+            break;
         default:
             inputpos_x = GetMouseX();
             inputpos_y = GetMouseY();

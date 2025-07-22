@@ -403,6 +403,12 @@ struct IRECT_2D {
     int b;
 };
 
+struct PickedUpOffset
+{
+    short delta_x;
+    short delta_y;
+};
+
 extern GameTurn get_gameturn();
 #ifdef __cplusplus
 }

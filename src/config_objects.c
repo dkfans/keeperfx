@@ -99,6 +99,8 @@ static const struct NamedField objects_named_fields[] = {
     {"LIGHTISDYNAMIC",           0, field(game.conf.object_conf.object_cfgstats[0].ilght.is_dynamic),              0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"MAPICON",                  0, field(game.conf.object_conf.object_cfgstats[0].map_icon),                      0, LONG_MIN,ULONG_MAX, NULL,                        value_icon,      assign_icon},
     {"HANDICON",                 0, field(game.conf.object_conf.object_cfgstats[0].hand_icon),                     0, LONG_MIN,ULONG_MAX, NULL,                        value_icon,      assign_icon},
+    {"PICKUPOFFSET",             0, field(game.conf.object_conf.object_cfgstats[0].object_picked_up_offset.delta_x), 0,SHRT_MIN,SHRT_MAX, NULL,                        value_default,   assign_default},
+    {"PICKUPOFFSET",             1, field(game.conf.object_conf.object_cfgstats[0].object_picked_up_offset.delta_y), 0,SHRT_MIN,SHRT_MAX, NULL,                        value_default,   assign_default},
     {"TOOLTIPTEXTID",            0, field(game.conf.object_conf.object_cfgstats[0].tooltip_stridx),     GUIStr_Empty, SHRT_MIN, SHRT_MAX, NULL,                        value_default,   assign_default},
     {"TOOLTIPTEXTID",            1, field(game.conf.object_conf.object_cfgstats[0].tooltip_optional),              0,        0,        1, NULL,                        value_default,   assign_default},
     {"AMBIENCESOUND",            0, field(game.conf.object_conf.object_cfgstats[0].fp_smpl_idx),                   0,        0,ULONG_MAX, NULL,                        value_default,   assign_default},

@@ -2227,6 +2227,13 @@ struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
     }
     return thing;
 }
+
+struct PickedUpOffset* get_object_picked_up_offset(struct Thing* thing)
+{
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return &objst->object_picked_up_offset;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

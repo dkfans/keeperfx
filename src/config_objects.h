@@ -88,6 +88,7 @@ struct ObjectConfigStats {
     long genre;
     long map_icon;
     long hand_icon;
+    struct PickedUpOffset object_picked_up_offset;
     short tooltip_stridx;
     TbBool tooltip_optional;
     HitPoints health;
