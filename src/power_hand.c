@@ -1226,6 +1226,17 @@ void draw_mini_things_in_hand(long x, long y)
                 }
             }
         } else
+        if (thing->class_id == TCls_DeadCreature)
+        {
+            spr_idx = GPS_room_graveyard_std_s;
+            if (irow > 0)
+                shift_y = 20;
+            else
+                shift_y = 0;
+            scrpos_x = scrbase_x + scale_ui_value(16) * icol;
+            scrpos_y = scrbase_y + scale_ui_value(14) * irow;
+            draw_gui_panel_sprite_left(scrpos_x - 2, scrpos_y + scale_ui_value(shift_y), ps_units_per_px, spr_idx);
+        } else
         if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
         {
             spr_idx = GPS_room_treasury_std_s;
