@@ -96,6 +96,7 @@ struct ObjectConfigStats {
     char immobile;
     struct InitLight ilght;
     short sprite_anim_idx;
+    short sprite_anim_idx_in_hand;
     short anim_speed;
     short size_xy;
     short size_z;

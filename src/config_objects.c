@@ -83,6 +83,7 @@ static const struct NamedField objects_named_fields[] = {
     {"RELATEDCREATURE",          0, field(game.conf.object_conf.object_cfgstats[0].related_creatr_model),          0, LONG_MIN,ULONG_MAX, creature_desc,               value_default,   assign_default},
     {"PROPERTIES",              -1, field(game.conf.object_conf.object_cfgstats[0].model_flags),                   0, LONG_MIN,ULONG_MAX, objects_properties_commands, value_flagsfield,assign_default},
     {"ANIMATIONID",              0, field(game.conf.object_conf.object_cfgstats[0].sprite_anim_idx),               0, LONG_MIN,ULONG_MAX, NULL,                        value_animid,    assign_animid},
+    {"HANDANIMATIONID",          0, field(game.conf.object_conf.object_cfgstats[0].sprite_anim_idx_in_hand),       0, LONG_MIN,ULONG_MAX, NULL,                        value_animid,    assign_animid},
     {"ANIMATIONSPEED",           0, field(game.conf.object_conf.object_cfgstats[0].anim_speed),                    0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"SIZE_XY",                  0, field(game.conf.object_conf.object_cfgstats[0].size_xy),                       0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},
     {"SIZE_YZ",                  0, field(game.conf.object_conf.object_cfgstats[0].size_z),                        0, LONG_MIN,ULONG_MAX, NULL,                        value_default,   assign_default},

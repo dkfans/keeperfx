@@ -950,6 +950,11 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
         if (object_is_mature_food(droptng)) {
             set_thing_draw(droptng, convert_td_iso(819), 256, -1, -1, 0, ODC_Default);
         }
+        else
+        {
+            struct ObjectConfigStats* objst = get_object_model_stats(droptng->model);
+            set_thing_draw(droptng, objst->sprite_anim_idx, objst->anim_speed, -1, -1, 0, ODC_Default); //return to normal after sprite_anim_idx_in_hand
+        }
         droptng->continue_state = droptng->active_state;
         droptng->active_state = ObSt_BeingDropped;
     }
@@ -1395,6 +1400,12 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         if (thing_is_invalid(thing)) {
             return false;
         }
+        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        if (objst->sprite_anim_idx_in_hand != 0)
+            i = convert_td_iso(objst->sprite_anim_idx_in_hand);
+        else
+            i = objst->sprite_anim_idx;
+        set_thing_draw(thing, i, objst->anim_speed, -1, -1, 0, ODC_Default);
     }
     insert_thing_into_power_hand_list(thing, plyr_idx);
     clear_thing_velocity(thing);
