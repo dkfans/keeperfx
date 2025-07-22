@@ -160,11 +160,11 @@ enum ShotModelFlags {
 #define PwCast_EnemyTall      (1LL << 15)
 
     /** Allow casting the spell on owned food things (chickens). */
-#define PwCast_OwnedFood      (1ULL << 32)
+#define PwCast_OwnedFood      (1LL << 16)
     /** Allow casting the spell on neutral food things. */
-#define PwCast_NeutrlFood     (1ULL << 33)
+#define PwCast_NeutrlFood     (1LL << 17)
     /** Allow casting the spell on enemy food things. */
-#define PwCast_EnemyFood      (1ULL << 34)
+#define PwCast_EnemyFood      (1LL << 18)
     /** Allow casting the spell on owned gold things (piles,pots etc.). */
 #define PwCast_OwnedGold      (1LL << 19)
     /** Allow casting the spell on neutral gold things. */
@@ -189,9 +189,9 @@ enum ShotModelFlags {
 #define PwCast_Anywhere       (1LL << 29)
 #define PwCast_DiggersOnly    (1LL << 30)
 #define PwCast_DiggersNot     (1LL << 31)
-#define PwCast_OwnedObjects   (1LL << 16)
-#define PwCast_NeutrlObjects  (1LL << 17)
-#define PwCast_EnemyObjects   (1LL << 18)
+#define PwCast_OwnedObjects   (1LL << 32)
+#define PwCast_NeutrlObjects  (1LL << 33)
+#define PwCast_EnemyObjects   (1LL << 34)
 
 #define PwCast_AllCrtrs (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_NConscCrtrs|PwCast_BoundCrtrs)
 #define PwCast_AllFood (PwCast_OwnedFood|PwCast_NeutrlFood|PwCast_EnemyFood)
