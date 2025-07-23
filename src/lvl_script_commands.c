@@ -828,6 +828,128 @@ static void display_objective_process(struct ScriptContext *context)
     }
 }
 
+static void tag_map_rect_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    MapSlabCoord x = scline->np[1];
+    MapSlabCoord y = scline->np[2];
+    MapSlabDelta width;
+    MapSlabDelta height;
+
+    if (scline->np[3] != '\0')
+        width = scline->np[3];
+    else
+        width = 1;
+    if (scline->np[4] != '\0')
+        height = scline->np[4];
+    else
+        height = 1;
+
+    MapSlabCoord start_x = x - (width / 2);
+    MapSlabCoord end_x = x + (width / 2) + (width & 1);
+    MapSlabCoord start_y = y - (height / 2);
+    MapSlabCoord end_y = y + (height / 2) + (height & 1);
+
+    if (start_x < 0)
+    {
+        SCRPTWRNLOG("Starting X slab '%d' (from %d-%d/2) is out of range, fixing it to '0'.", start_x, x, width);
+        start_x = 0;
+    }
+    else if (start_x > game.map_tiles_x)
+    {
+        SCRPTWRNLOG("Starting X slab '%d' (from %d-%d/2) is out of range, fixing it to '%d'.", start_x, x, width, game.map_tiles_x);
+        start_x = game.map_tiles_x;
+    }
+    if (end_x < 0)
+    {
+        SCRPTWRNLOG("Ending X slab '%d' (from %d+%d/2) is out of range, fixing it to '0'.", end_x, x, width);
+        end_x = 0;
+    }
+    else if (end_x > game.map_tiles_x)
+    {
+        SCRPTWRNLOG("Ending X slab '%d' (from %d+%d/2) is out of range, fixing it to '%d'.", end_x, x, width, game.map_tiles_x);
+        end_x = game.map_tiles_x;
+    }
+    if (start_y < 0)
+    {
+        SCRPTWRNLOG("Starting Y slab '%d' (from %d-%d/2) is out of range, fixing it to '0'.", start_y, y, height);
+        start_y = 0;
+    }
+    else if (start_y > game.map_tiles_y)
+    {
+        SCRPTWRNLOG("Starting Y slab '%d' (from %d-%d/2) is out of range, fixing it to '%d'.", start_y, y, height, game.map_tiles_y);
+        start_y = game.map_tiles_y;
+    }
+    if (end_y < 0)
+    {
+        SCRPTWRNLOG("Ending Y slab '%d' (from %d+%d/2) is out of range, fixing it to '0'.", end_y, y, height);
+        end_y = 0;
+    }
+    else if (end_y > game.map_tiles_y)
+    {
+        SCRPTWRNLOG("Ending Y slab '%d' (from %d+%d/2) is out of range, fixing it to '%d'.", end_y, y, height, game.map_tiles_y);
+        end_y = game.map_tiles_y;
+    }
+    if ((x < 0) || (x > game.map_tiles_y) || (y < 0) || (y > game.map_tiles_y))
+    {
+        SCRPTERRLOG("Conceal slabs out of range, trying to set conceal center point to (%d,%d) on map that's %dx%d slabs", x, y, game.map_tiles_x, game.map_tiles_y);
+        DEALLOCATE_SCRIPT_VALUE
+            return;
+    }
+    value->shorts[1] = start_x;
+    value->shorts[2] = end_x;
+    value->shorts[3] = start_y;
+    value->shorts[4] = end_y;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void tag_map_rect_process(struct ScriptContext* context)
+{
+    MapSlabCoord start_x = context->value->shorts[1];
+    MapSlabCoord end_x = context->value->shorts[2];
+    MapSlabCoord start_y = context->value->shorts[3];
+    MapSlabCoord end_y = context->value->shorts[4];
+
+    for (short x = start_x; x < end_x; x++)
+    {
+        for (short y = start_y; y < end_y; y++)
+        {
+            MapSubtlCoord stl_x = slab_subtile_center(x);
+            MapSubtlCoord stl_y = slab_subtile_center(y);
+
+            if (subtile_is_diggable_for_player(context->player_idx, stl_x, stl_y, false))
+            {
+                tag_blocks_for_digging_in_area(stl_x, stl_y, context->player_idx);
+            }
+        }
+    }
+}
+
+static void untag_map_rect_process(struct ScriptContext* context)
+{
+    MapSlabCoord start_x = context->value->shorts[1];
+    MapSlabCoord end_x = context->value->shorts[2];
+    MapSlabCoord start_y = context->value->shorts[3];
+    MapSlabCoord end_y = context->value->shorts[4];
+
+    for (short x = start_x; x < end_x; x++)
+    {
+        for (short y = start_y; y < end_y; y++)
+        {
+            MapSubtlCoord stl_x = slab_subtile_center(x);
+            MapSubtlCoord stl_y = slab_subtile_center(y);
+
+            if (subtile_is_diggable_for_player(context->player_idx, stl_x, stl_y, false))
+            {
+                untag_blocks_for_digging_in_area(stl_x, stl_y, context->player_idx);
+            }
+        }
+    }
+}
+
+
 static void conceal_map_rect_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
@@ -4297,11 +4419,381 @@ static void set_effectgen_configuration_process(struct ScriptContext* context)
 static void set_power_configuration_check(const struct ScriptLine *scline)
 {
     set_config_check(&magic_powers_named_fields_set, scline,"SET_POWER_CONFIG");
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    const char *powername = scline->tp[0];
+    const char *property = scline->tp[1];
+    char *new_value = (char*)scline->tp[2];
+
+    long power_id = get_id(power_desc, powername);
+    if (power_id == -1)
+    {
+        SCRPTERRLOG("Unknown power, '%s'", powername);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    long powervar = get_id(magic_power_commands, property);
+    if (powervar == -1)
+    {
+        SCRPTERRLOG("Unknown power variable: %s", new_value);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    long long number_value = 0;
+    long k;
+    switch (powervar)
+    {
+        case 2: // Power
+        case 3: // Cost
+        {
+            value->bytes[3] = atoi(scline->tp[3]) - 1; //-1 because we want slot 1 to 9, not 0 to 8
+            value->longs[2] = atoi(new_value);
+            break;
+        }
+        case 5: // Castability
+        {
+            long long j;
+            if (scline->tp[3][0] != '\0')
+            {
+                j = get_long_id(powermodel_castability_commands, new_value);
+                if (j <= 0)
+                {
+                    SCRPTERRLOG("Incorrect castability value: %s", new_value);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                else
+                {
+                    number_value = j;
+                }
+                value->chars[3] = atoi(scline->tp[3]);
+            }
+            else
+            {
+                if (parameter_is_number(new_value))
+                {
+                    number_value = atoll(new_value);
+                }
+                else
+                {
+                    char *flag = strtok(new_value," ");
+                    while ( flag != NULL )
+                    {
+                        j = get_long_id(powermodel_castability_commands, flag);
+                        if (j > 0)
+                        {
+                            number_value |= j;
+                        } else
+                        {
+                            SCRPTERRLOG("Incorrect castability value: %s", new_value);
+                            DEALLOCATE_SCRIPT_VALUE
+                            return;
+                        }
+                        flag = strtok(NULL, " " );
+                    }
+                }
+                value->chars[3] = -1;
+            }
+            value->ulonglongs[1] = number_value;
+            break;
+        }
+        case 6: // Artifact
+        {
+            k = get_id(object_desc, new_value);
+            if (k >= 0)
+            {
+                  number_value = k;
+            }
+            value->longs[2] = number_value;
+            break;
+        }
+        case 10: // SymbolSprites
+        {
+            value->longs[1] = atoi(new_value);
+            value->longs[2] = atoi(scline->tp[3]);
+            break;
+        }
+        case 14: // Properties
+        {
+            if (scline->tp[3][0] != '\0')
+            {
+                k = get_id(powermodel_properties_commands, new_value);
+                if (k <= 0)
+                {
+                    SCRPTERRLOG("Incorrect property value: %s", new_value);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                else
+                {
+                    number_value = k;
+                }
+                value->chars[3] = atoi(scline->tp[3]);
+            }
+            else
+            {
+                if (parameter_is_number(new_value))
+                {
+                    number_value = atoi(new_value);
+                }
+                else
+                {
+                    char *flag = strtok(new_value," ");
+                    while ( flag != NULL )
+                    {
+                        k = get_id(powermodel_properties_commands, flag);
+                        if (k > 0)
+                        {
+                            number_value |= k;
+                        } else
+                        {
+                            SCRPTERRLOG("Incorrect property value: %s", new_value);
+                            DEALLOCATE_SCRIPT_VALUE
+                            return;
+                        }
+                        flag = strtok(NULL, " " );
+                    }
+                }
+                value->chars[3] = -1;
+            }
+            value->longs[2] = number_value;
+            break;
+        }
+        case 15: // OverchargeCheck
+        {
+            number_value = get_id(powermodel_expand_check_func_type,new_value);
+            if (number_value < 0)
+            {
+                SCRPTERRLOG("Invalid OverchargeCheckt: %s", new_value);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->longs[2] = number_value;
+            break;
+        }
+        case 16: // PlayerState
+        {
+            k = get_id(player_state_commands, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            value->longs[2] = number_value;
+            break;
+        }
+        case 17: // ParentPower
+        {
+            k = get_id(power_desc, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            value->longs[2] = number_value;
+            break;
+        }
+        case 20: // Spell
+        {
+            k = get_id(spell_desc, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            else
+            {
+                SCRPTERRLOG("Incorrect Spell valuet: %s", new_value);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            break;
+        }
+        case 21: // Effect
+        {
+            k = effect_or_effect_element_id(new_value);
+            if (k == 0)
+            {
+                SCRPTERRLOG("Unrecognised effect: %s", new_value);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            else
+            {
+                number_value = k;
+            }
+            break;
+        }
+        case 22: // UseFunction
+        {
+            k = get_id(magic_use_func_commands, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            else
+            {
+                SCRPTERRLOG("Incorrect UseFunction: %s", new_value);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            break;
+        }
+        case 23: // CreatureType
+        {
+            k = get_id(creature_desc, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            else
+            {
+                SCRPTERRLOG("Incorrect Creature type: %s", new_value);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            break;
+        }
+        case 24: // CostFormula
+        {
+            k = get_id(magic_cost_formula_commands, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            else
+            {
+                SCRPTERRLOG("Incorrect Cost formula: %s", new_value);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            break;
+        }
+        default:
+            value->longs[2] = atoi(new_value);
+    }
+    #if (BFDEBUG_LEVEL >= 7)
+    {
+        if ( (powervar == 5) && (value->chars[3] != -1) )
+        {
+            SCRIPTDBG(7, "Toggling %s castability flag: %I64d", powername, number_value);
+        }
+        else if ( (powervar == 14) && (value->chars[3] != -1) )
+        {
+            SCRIPTDBG(7, "Toggling %s property flag: %I64d", powername, number_value);
+        }
+        else
+        {
+            SCRIPTDBG(7, "Setting power %s property %s to %I64d", powername, property, number_value);
+        }
+    }
+    #endif
+    value->shorts[0] = power_id;
+    value->bytes[2] = powervar;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_power_configuration_process(struct ScriptContext *context)
 {
     set_config_process(&magic_powers_named_fields_set, context,"SET_POWER_CONFIG");
+    struct PowerConfigStats *powerst = get_power_model_stats(context->value->shorts[0]);
+    switch (context->value->bytes[2])
+    {
+        case 2: // Power
+            powerst->strength[context->value->bytes[3]] = context->value->longs[2];
+            break;
+        case 3: // Cost
+            powerst->cost[context->value->bytes[3]] = context->value->longs[2];
+            break;
+        case 4: // Duration
+            powerst->duration = context->value->longs[2];
+            break;
+        case 5: // Castability
+        {
+            unsigned long long flag = context->value->ulonglongs[1];
+            if (context->value->chars[3] == 1)
+            {
+                set_flag(powerst->can_cast_flags, flag);
+            }
+            else if (context->value->chars[3] == 0)
+            {
+                clear_flag(powerst->can_cast_flags, flag);
+            }
+            else
+            {
+                powerst->can_cast_flags = flag;
+            }
+            break;
+        }
+        case 6: // Artifact
+            powerst->artifact_model = context->value->longs[2];
+            game.conf.object_conf.object_to_power_artifact[powerst->artifact_model] = context->value->shorts[0];
+            break;
+        case 7: // NameTextID
+            powerst->name_stridx = context->value->longs[2];
+            break;
+        case 8: // TooltipTextID
+            powerst->tooltip_stridx = context->value->longs[2];
+            break;
+        case 10: // SymbolSprites
+            powerst->bigsym_sprite_idx = context->value->longs[1];
+            powerst->medsym_sprite_idx = context->value->longs[2];
+            break;
+        case 11: // PointerSprites
+            powerst->pointer_sprite_idx = context->value->longs[2];
+            break;
+        case 12: // PanelTabIndex
+            powerst->panel_tab_idx = context->value->longs[2];
+            break;
+        case 13: // SoundSamples
+            powerst->select_sample_idx = context->value->longs[2];
+            break;
+        case 14: // Properties
+            if (context->value->chars[3] == 1)
+            {
+                set_flag(powerst->config_flags, context->value->longs[2]);
+            }
+            else if (context->value->chars[3] == 0)
+            {
+                clear_flag(powerst->config_flags, context->value->longs[2]);
+            }
+            else
+            {
+                powerst->config_flags = context->value->longs[2];
+            }
+            break;
+        case 15: // OverchargeCheck
+            powerst->overcharge_check_idx = context->value->longs[2];
+            break;
+        case 16: // PlayerState
+            powerst->work_state = context->value->longs[2];
+            break;
+        case 17: // ParentPower
+            powerst->parent_power = context->value->longs[2];
+            break;
+        case 18: // SoundPlayed
+            powerst->select_sound_idx = context->value->longs[2];
+            break;
+        case 19: // Cooldown
+            powerst->cast_cooldown = context->value->longs[2];
+            break;
+        case 20: // Spell
+            powerst->cast_cooldown = context->value->longs[2];
+            break;
+        case 21: // Effect
+            powerst->effect_id = context->value->longs[2];
+            break;
+        case 22: // UseFunction
+            powerst->magic_use_func_idx = context->value->longs[2];
+            break;
+        case 23: // CreatureType
+            powerst->creature_model = context->value->longs[2];
+            break;
+        case 24: // CostFormula
+            powerst->cost_formula = context->value->longs[2];
+            break;
+        default:
+            WARNMSG("Unsupported power configuration, variable %d.", context->value->bytes[2]);
+            break;
+    }
     update_powers_tab_to_config();
 }
 
@@ -5523,6 +6015,8 @@ const struct CommandDesc command_desc[] = {
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
   {"CONCEAL_MAP_RECT",                  "PNNNNb! ", Cmd_CONCEAL_MAP_RECT, &conceal_map_rect_check, &conceal_map_rect_process},
   {"REVEAL_MAP_LOCATION",               "PLN     ", Cmd_REVEAL_MAP_LOCATION, &reveal_map_location_check, &reveal_map_location_process},
+  {"TAG_MAP_RECT",                      "PNNnn   ", Cmd_TAG_MAP_RECT, &tag_map_rect_check, &tag_map_rect_process},
+  {"UNTAG_MAP_RECT",                    "PNNnn   ", Cmd_UNTAG_MAP_RECT, &tag_map_rect_check, &untag_map_rect_process},
   {"LEVEL_VERSION",                     "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},

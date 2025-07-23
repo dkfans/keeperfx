@@ -363,6 +363,12 @@ static short creatures_group_has_special_digger_to_lead(struct Thing* grptng)
     while (i > 0)
     {
         ctng = thing_get(i);
+        if (thing_is_invalid(ctng))
+        {
+            ERRORLOG("Invalid creature in group %s index %d", thing_model_name(grptng), (int)grptng->index);
+            return potential_leader;
+        }
+
         cctrl = creature_control_get_from_thing(ctng);
         potential_leader = creature_could_be_lead_digger(ctng, cctrl);
         if (potential_leader == 2)
@@ -677,6 +683,10 @@ long process_obey_leader(struct Thing *thing)
         WARNDBG(3,"Leader invalid, resetting %s index %d owned by player %d",
             thing_model_name(thing),(int)thing->index,(int)thing->owner);
         set_start_state(thing);
+        return 1;
+    }
+    if (creature_is_being_dropped(thing))
+    {
         return 1;
     }
     if ((leadtng->alloc_flags & TAlF_IsControlled) != 0)

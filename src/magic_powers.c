@@ -1104,6 +1104,16 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
             reset_interpolation_of_thing(thing);
             initialise_thing_state(thing, CrSt_CreatureInHoldAudience);
             cctrl->turns_at_job = -1;
+
+            struct Thing* famlrtng; //familiars are not in the dungeon creature list
+            for (short j = 0; j < FAMILIAR_MAX; j++)
+            {
+                if (cctrl->familiar_idx[j])
+                {
+                    famlrtng = thing_get(cctrl->familiar_idx[j]);
+                    teleport_familiar_to_summoner(famlrtng, thing);
+                }
+            }
         }
         // Thing list loop body ends
         k++;
@@ -1255,7 +1265,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     initialise_thing_state(thing, CrSt_ImpBirth);
 
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    play_creature_sound(thing, 3, 2, 0);
+    play_creature_sound(thing, CrSnd_Happy, 2, 0);
     return Lb_SUCCESS;
 }
 
@@ -1311,7 +1321,7 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
     }
     
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-    play_creature_sound(thing, 3, 2, 0);
+    play_creature_sound(thing, CrSnd_Happy, 2, 0);
     return Lb_SUCCESS;
 }
 

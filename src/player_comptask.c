@@ -2791,12 +2791,12 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
         {
             if (thing_is_creature(thing))
             {
-                if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_pos.pos_86, ctask->move_to_pos.target_state)) {
+                if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_pos.target_pos, ctask->move_to_pos.target_state)) {
                     remove_task(comp, ctask);
                     return CTaskRet_Unk2;
                 }
                 ERRORLOG("Could not dump player %d %s into (%d,%d)",(int)dungeon->owner,
-                    thing_model_name(thing),(int)ctask->move_to_pos.pos_86.x.stl.num,(int)ctask->move_to_pos.pos_86.y.stl.num);
+                    thing_model_name(thing),(int)ctask->move_to_pos.target_pos.x.stl.num,(int)ctask->move_to_pos.target_pos.y.stl.num);
             } else
             {
                 WARNLOG("Player %d computer hand holds %s instead of creature",(int)dungeon->owner, thing_model_name(thing));
@@ -2811,9 +2811,9 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
     thing = thing_get(ctask->move_to_pos.target_thing_idx);
     if (can_thing_be_picked_up_by_player(thing, dungeon->owner))
     {
-        if (computer_place_thing_in_power_hand(comp, thing, &ctask->move_to_pos.pos_86)) {
+        if (computer_place_thing_in_power_hand(comp, thing, &ctask->move_to_pos.target_pos)) {
             SYNCDBG(9,"Player %d picked %s index %d to move to (%d,%d)",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index,
-                (int)ctask->move_to_pos.pos_86.x.stl.num, (int)ctask->move_to_pos.pos_86.y.stl.num);
+                (int)ctask->move_to_pos.target_pos.x.stl.num, (int)ctask->move_to_pos.target_pos.y.stl.num);
             return CTaskRet_Unk2;
         }
     }
@@ -2859,11 +2859,12 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
                             if (cctrl->dropped_turn < (COMPUTER_REDROP_DELAY + game.play_gameturn))
                             {
                                 struct PerExpLevelValues* expvalues;
+                                struct CreatureModelConfig* crconf = creature_stats_get(thing->model);
                                 expvalues = &game.creature_scores[thing->model];
                                 long expval = expvalues->value[cctrl->exp_level];
                                 HitPoints healthprm = get_creature_health_permil(thing);
                                 HitPoints new_factor = healthprm * expval / 1000;
-                                if ((new_factor > best_factor) && (healthprm > 20))
+                                if ((new_factor > best_factor) && (healthprm > (100 * crconf->heal_requirement/255)))
                                 {
                                     best_factor = new_factor;
                                     best_creatng = thing;
@@ -3556,9 +3557,9 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
         }
     }
     ctask->ttype = CTT_MoveCreatureToPos;
-    ctask->move_to_pos.pos_86.x.val = pos.x.val;
-    ctask->move_to_pos.pos_86.y.val = pos.y.val;
-    ctask->move_to_pos.pos_86.z.val = pos.z.val;
+    ctask->move_to_pos.target_pos.x.val = pos.x.val;
+    ctask->move_to_pos.target_pos.y.val = pos.y.val;
+    ctask->move_to_pos.target_pos.z.val = pos.z.val;
     ctask->move_to_pos.target_thing_idx = thing->index;
     ctask->move_to_pos.target_state = dst_state;
     ctask->created_turn = game.play_gameturn;

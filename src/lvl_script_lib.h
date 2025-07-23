@@ -192,6 +192,8 @@ enum TbScriptCommands {
     Cmd_LOCK_POSSESSION                    = 179,
     Cmd_SET_DIGGER                         = 180,
     Cmd_RUN_LUA_CODE                       = 181,
+    Cmd_TAG_MAP_RECT                       = 182,
+    Cmd_UNTAG_MAP_RECT                     = 183,
 };
 
 struct ScriptLine {
