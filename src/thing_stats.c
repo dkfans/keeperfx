@@ -640,20 +640,20 @@ long compute_creature_work_value_for_room_role(const struct Thing *creatng, Room
     long i = 256;
     if ((rrole & RoRoF_Research) != 0)
     {
-        i = compute_creature_work_value(crconf->research_value*256, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->research_value* game.conf.rules.rooms.research_efficiency, efficiency, cctrl->exp_level);
     }
     if ((rrole & RoRoF_CratesManufctr) != 0)
     {
-        i = compute_creature_work_value(crconf->manufacture_value*256, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->manufacture_value* game.conf.rules.rooms.work_efficiency, efficiency, cctrl->exp_level);
     }
     if ((rrole & RoRoF_CrTrainExp) != 0)
     {
         // Training speed does not grow with experience - otherwise it would be too fast.
-        i = compute_creature_work_value(crconf->training_value*256, efficiency, 0);
+        i = compute_creature_work_value(crconf->training_value* game.conf.rules.rooms.train_efficiency, efficiency, 0);
     }
     if ((rrole & RoRoF_CrScavenge) != 0)
     {
-        i = compute_creature_work_value(crconf->scavenge_value*256, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->scavenge_value* game.conf.rules.rooms.scavenge_efficiency, efficiency, cctrl->exp_level);
     }
     return process_work_speed_on_work_value(creatng, i);
 }

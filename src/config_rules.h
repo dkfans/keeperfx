@@ -159,6 +159,10 @@ struct RoomRulesConfig {
     unsigned char torture_death_chance;
     unsigned char torture_convert_chance;
     unsigned long time_in_prison_without_break;
+    unsigned short train_efficiency;
+    unsigned short work_efficiency;
+    unsigned short scavenge_efficiency;
+    unsigned short research_efficiency;
 };
 struct WorkersRulesConfig {
     unsigned char hits_per_slab;
