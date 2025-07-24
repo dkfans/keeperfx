@@ -2264,10 +2264,11 @@ short creature_follow_leader(struct Thing *creatng)
     MapCoordDelta distance_to_follower_pos = get_chessboard_distance(&creatng->mappos, &follwr_pos);
     TbBool cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
+    int follower_speed = get_creature_speed(creatng);
     // If we're too far from the designated position, do a speed run
     if (distance_to_follower_pos > subtile_coord(12,0))
     {
-        speed = 2 * speed;
+        speed = max((2 * speed),(5 * follower_speed / 4));
         if (speed >= MAX_VELOCITY)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
@@ -2287,6 +2288,7 @@ short creature_follow_leader(struct Thing *creatng)
         } else {
             speed = speed + 1;
         }
+        speed = max(follower_speed, speed);
         if (speed >= MAX_VELOCITY)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
