@@ -481,7 +481,7 @@ TbBool object_is_gold_pile(const struct Thing *thing)
     if (thing->class_id != TCls_Object)
         return false;
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    return (objst->genre == OCtg_Valuable);
+    return ((objst->genre == OCtg_Valuable) || (thing->model == ObjMdl_SpinningCoin));
 }
 
 TbBool object_is_gold_laying_on_ground(const struct Thing *thing)
