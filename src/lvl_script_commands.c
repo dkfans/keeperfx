@@ -1386,6 +1386,7 @@ static void new_object_type_check(const struct ScriptLine* scline)
     memset(objst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     objst->map_icon = 0;
+    objst->hand_icon = 0;
     objst->genre = 0;
     objst->draw_class = ODC_Default;
     object_desc[tmodel].name = objst->code_name;
