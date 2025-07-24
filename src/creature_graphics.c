@@ -515,7 +515,7 @@ void update_creature_graphic_anim(struct Thing *thing)
                 thing->anim_speed = i;
             }
         }
-    } else
+    } else // chickened
     {
         thing->rendering_flags &= ~(TRF_Transpar_Flags);
         if (cctrl->distance_to_destination == 0)
