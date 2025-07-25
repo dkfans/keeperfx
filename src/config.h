@@ -248,7 +248,7 @@ int array_index_for_freeplay_level(LevelNumber fp_lvnum);
 int storage_index_for_bonus_level(LevelNumber bn_lvnum);
 LevelNumber first_singleplayer_level(void);
 LevelNumber last_singleplayer_level(void);
-LevelNumber next_singleplayer_level(LevelNumber sp_lvnum);
+LevelNumber next_singleplayer_level(LevelNumber sp_lvnum, TbBool ignore);
 LevelNumber prev_singleplayer_level(LevelNumber sp_lvnum);
 LevelNumber bonus_level_for_singleplayer_level(LevelNumber sp_lvnum);
 LevelNumber first_multiplayer_level(void);

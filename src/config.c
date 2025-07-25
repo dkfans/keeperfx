@@ -1959,20 +1959,41 @@ LevelNumber get_extra_level(unsigned short elv_kind)
  * Returns the next single player level. Gives SINGLEPLAYER_FINISHED if
  * last level was won, LEVELNUMBER_ERROR on error.
  */
-LevelNumber next_singleplayer_level(LevelNumber sp_lvnum)
+LevelNumber next_singleplayer_level(LevelNumber sp_lvnum, TbBool ignore)
 {
   if (sp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
   if (sp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_singleplayer_level();
   if (sp_lvnum < 1) return LEVELNUMBER_ERROR;
+  int next_level;
+  
+  if ((intralvl.next_level > 0) && !ignore)
+  {
+      next_level = intralvl.next_level;
+      intralvl.next_level = 0;
+      if (next_level < 0)
+          return SINGLEPLAYER_FINISHED;
+
+      for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+      {
+          if (campaign.single_levels[i] == next_level)
+          {
+              return next_level;
+          }
+      }
+      WARNLOG("Trying to jump to level %d that does not exist.", next_level);
+      return LEVELNUMBER_ERROR;
+  }
+
   for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.single_levels[i] == sp_lvnum)
     {
-      if (i+1 >= CAMPAIGN_LEVELS_COUNT)
+
+      if (i + 1 >= CAMPAIGN_LEVELS_COUNT)
         return SINGLEPLAYER_FINISHED;
-      if (campaign.single_levels[i+1] <= 0)
+      if (campaign.single_levels[i + 1] <= 0)
         return SINGLEPLAYER_FINISHED;
-      return campaign.single_levels[i+1];
+      return campaign.single_levels[i + 1];
     }
   }
   return LEVELNUMBER_ERROR;
