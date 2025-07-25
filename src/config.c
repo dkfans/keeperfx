@@ -1988,12 +1988,11 @@ LevelNumber next_singleplayer_level(LevelNumber sp_lvnum, TbBool ignore)
   {
     if (campaign.single_levels[i] == sp_lvnum)
     {
-
-      if (i + 1 >= CAMPAIGN_LEVELS_COUNT)
+      if (i+1 >= CAMPAIGN_LEVELS_COUNT)
         return SINGLEPLAYER_FINISHED;
-      if (campaign.single_levels[i + 1] <= 0)
+      if (campaign.single_levels[i+1] <= 0)
         return SINGLEPLAYER_FINISHED;
-      return campaign.single_levels[i + 1];
+      return campaign.single_levels[i+1];
     }
   }
   return LEVELNUMBER_ERROR;
