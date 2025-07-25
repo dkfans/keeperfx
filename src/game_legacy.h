@@ -83,7 +83,6 @@ enum GameKinds {
 enum GameOperationFlags {
     GOF_Paused           = 0x01,
     GOF_SingleLevel      = 0x02, /**< Play single level and then exit. */
-    GOF_ColumnConvert    = 0x08, /**< Converts old column format to current. Deprecated, does nothing. */
     GOF_LightConvert     = 0x10, /**< Converts old lights format to current. */
     GOF_ShowGui          = 0x20, /**< Showing main Gui. */
     GOF_ShowPanel        = 0x40, /**< Showing the tabbed panel. */
