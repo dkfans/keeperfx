@@ -5912,6 +5912,13 @@ static void set_next_level_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     short next_level = scline->np[0];
     TbBool correct = false;
+
+    if (!is_campaign_level(game.loaded_level_number))
+    {
+        SCRPTERRLOG("Script command %s only functions in campaigns.", scline->tcmnd);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
     for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
     {
         if (campaign.single_levels[i] == next_level)
