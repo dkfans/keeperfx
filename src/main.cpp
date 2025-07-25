@@ -3935,11 +3935,6 @@ short process_command_line(unsigned short argc, char *argv[])
         strcpy(start_params.selected_campaign, pr2str);
         narg++;
       } else
-      if ( strcasecmp(parstr,"ppropoly") == 0 )
-      {
-          // old param, ignored
-          narg++;
-      } else
       if ( strcasecmp(parstr,"altinput") == 0 )
       {
           SYNCLOG("Mouse auto reset disabled");
