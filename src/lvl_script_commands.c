@@ -5907,6 +5907,35 @@ static void set_digger_process(struct ScriptContext* context)
     update_players_special_digger_model(plyr_idx, new_dig_model);
 }
 
+static void set_next_level_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    short next_level = scline->np[0];
+    TbBool correct = false;
+    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+    {
+        if (campaign.single_levels[i] == next_level)
+        {
+            correct = true;
+            break;
+        }
+    }
+    if (correct == false)
+    {
+        SCRPTERRLOG("Cannot find level number '%d' in single levels of campaign.",next_level);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    value->shorts[1] = next_level;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_next_level_process(struct ScriptContext* context)
+{
+    intralvl.next_level = context->value->shorts[1];
+}
+
 static void run_lua_code_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -6026,6 +6055,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG, NULL, NULL},
   {"EXPORT_VARIABLE",                   "PAA     ", Cmd_EXPORT_VARIABLE, NULL, NULL},
   {"RUN_AFTER_VICTORY",                 "B       ", Cmd_RUN_AFTER_VICTORY, NULL, NULL},
+  {"SET_NEXT_LEVEL",                    "N       ", Cmd_SET_NEXT_LEVEL , &set_next_level_check, &set_next_level_process},
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"LEVEL_UP_PLAYERS_CREATURES",        "PC!n    ", Cmd_LEVEL_UP_PLAYERS_CREATURES, &level_up_players_creatures_check, level_up_players_creatures_process},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
