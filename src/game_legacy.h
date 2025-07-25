@@ -83,7 +83,6 @@ enum GameKinds {
 enum GameOperationFlags {
     GOF_Paused           = 0x01,
     GOF_SingleLevel      = 0x02, /**< Play single level and then exit. */
-    GOF_LightConvert     = 0x10, /**< Converts old lights format to current. */
     GOF_ShowGui          = 0x20, /**< Showing main Gui. */
     GOF_ShowPanel        = 0x40, /**< Showing the tabbed panel. */
     GOF_WorldInfluence   = 0x80, /**< Input to the in-game world is allowed. */

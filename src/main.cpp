@@ -3971,7 +3971,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
-         set_flag(start_params.operation_flags, GOF_LightConvert);
+         WARNLOG("The -%s commandline parameter is no longer functional.", parstr); //todo remove once it's no longer in the launcher
       } else
       if (strcasecmp(parstr, "dbgshots") == 0)
       {
