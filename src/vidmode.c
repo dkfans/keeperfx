@@ -714,7 +714,6 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     return Lb_SCREEN_MODE_INVALID;
   }
   setup_heap_manager();
-  game.operation_flags &= ~GOF_Unkn04;
   force_video_mode_reset = false;
   SYNCDBG(8,"Finished");
   return nmode;
