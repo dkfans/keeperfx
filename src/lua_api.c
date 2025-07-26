@@ -787,16 +787,12 @@ static int lua_Add_heart_health(lua_State *L)
 static int lua_Add_object_to_level(lua_State *L)
 {
     long obj_id            = luaL_checkNamedCommand(L,1,object_desc);
-    TbMapLocation location = luaL_checkLocation(L,  2);
+    struct Coord3d pos;
+    luaL_checkLocationPos(L,  2, &pos);
     long arg               = lua_tointeger(L,3);
     PlayerNumber plr_idx   = luaL_optPlayerSingle(L, 4);
     short angle            = lua_tointeger(L, 5);
 
-    struct Coord3d pos;
-    if (!get_coords_at_location(&pos, location,true))
-    {
-        return 0;
-    }
     lua_pushThing(L,script_process_new_object(obj_id, pos.x.stl.num, pos.y.stl.num, arg, plr_idx,angle));
     return 1;
 }
@@ -1423,14 +1419,9 @@ static int lua_Locate_hidden_world(lua_State *L)
 static int lua_Create_effect(lua_State *L)
 {
     EffectOrEffElModel effect_id = luaL_checkEffectOrEffElModel(L,1);
-    TbMapLocation location = luaL_checkLocation(L,  2);
-    long height = luaL_checkinteger(L, 3);
-
     struct Coord3d pos;
-    if (!get_coords_at_location(&pos, location,true))
-    {
-        return 0;
-    }
+    luaL_checkLocationPos(L,  2, &pos);
+    long height = luaL_checkinteger(L, 3);
 
     lua_pushThing(L,script_create_effect(&pos, effect_id, height));
     return 1;
@@ -1496,10 +1487,9 @@ static int lua_Set_hand_graphic(lua_State *L)
 static int lua_Zoom_to_location(lua_State *L)
 {
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
-    TbMapLocation location = luaL_checkLocation(L,  2);
     struct Coord3d pos;
+    luaL_checkLocationPos(L,  2, &pos);
     
-    find_location_pos(location, player_idx, &pos, __func__);
     set_player_zoom_to_position(get_player(player_idx),&pos);
 
     return 0;
