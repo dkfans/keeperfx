@@ -152,7 +152,9 @@ static int player_get_field(lua_State *L) {
         return 1;
 
     // Built-in fields
-    if (strcmp(key, "heart") == 0) {
+    if (strcmp(key, "camera") == 0) {
+        lua_pushCamera(L, plyr_idx);
+    } else if (strcmp(key, "heart") == 0) {
         lua_pushThing(L, get_player_soul_container(plyr_idx));
     } else if (strcmp(key, "controls") == 0) {
         lua_pushinteger(L, plyr_idx);
