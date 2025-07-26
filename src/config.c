@@ -2220,6 +2220,25 @@ short is_freeplay_level(LevelNumber lvnum)
   return false;
 }
 
+/**
+  * checks if currently in a campaign, and if the provided level number is also part of it.
+ */
+TbBool is_level_in_current_campaign(LevelNumber lvnum)
+{
+    if (!is_campaign_level(game.loaded_level_number))
+    {
+        return false;
+    }
+    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+    {
+        if (campaign.single_levels[i] == lvnum)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 {
     if (file_data->pre_load_func != NULL)

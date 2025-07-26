@@ -240,6 +240,7 @@ short is_singleplayer_like_level(LevelNumber lvnum);
 short is_multiplayer_level(LevelNumber lvnum);
 short is_campaign_level(LevelNumber lvnum);
 short is_freeplay_level(LevelNumber lvnum);
+TbBool is_level_in_current_campaign(LevelNumber lvnum);
 int array_index_for_bonus_level(LevelNumber bn_lvnum);
 int array_index_for_extra_level(LevelNumber ex_lvnum);
 int array_index_for_singleplayer_level(LevelNumber sp_lvnum);
