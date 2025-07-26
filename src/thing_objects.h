@@ -227,6 +227,8 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel);
 void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
+
+struct PickedUpOffset* get_object_picked_up_offset(struct Thing* thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
