@@ -621,6 +621,9 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
     const char* property = scline->tp[1];
     const char* valuestrings[MAX_CONFIG_VALUES] = {scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]};
     
+    TbBool run_directly = (get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0);
+    unsigned char flags = run_directly? ccf_DuringLevel : ccf_SplitExecution|ccf_DuringLevel;
+
     short id = get_id(named_fields_set->names, id_str);
     if (id == -1)
     {
@@ -650,7 +653,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
     if (field->argnum == -1)
     {
         snprintf(concatenated_values, sizeof(concatenated_values), "%s %s %s %s", scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]);
-        value->longs[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id,src_str,ccf_SplitExecution|ccf_DuringLevel);
+        value->longlongs[1] = parse_named_field_value(field, concatenated_values,named_fields_set,id,src_str,flags);
     }
     else
     {
@@ -671,30 +674,40 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
             {
                 break;
             }
-            value->longs[1 + i] = parse_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id,src_str,ccf_SplitExecution|ccf_DuringLevel);
+            value->longs[1 + i] = parse_named_field_value(&named_fields_set->named_fields[property_id + i], valuestrings[i],named_fields_set,id,src_str,flags);
         }
     }
 
     value->shorts[0] = id;
-    value->shorts[1] = property_id;
+    value->bytes[2] = property_id;
+    value->bytes[3] = flags;
+
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_config_process(const struct NamedFieldSet* named_fields_set, struct ScriptContext* context, const char* src_str)
 {
     short id          = context->value->shorts[0];
-    short property_id = context->value->shorts[1];
+    short property_id = context->value->bytes[2];
+    short flags       = context->value->bytes[3];
 
-    for (size_t i = 0; i < MAX_CONFIG_VALUES; i++)
+    if (named_fields_set->named_fields[property_id].argnum == -1)
     {
-        if( named_fields_set->named_fields[property_id + i].name == NULL || 
-            (strcmp(named_fields_set->named_fields[property_id + i].name, named_fields_set->named_fields[property_id].name) != 0))
+        assign_named_field_value(&named_fields_set->named_fields[property_id], context->value->longlongs[1], named_fields_set, id, src_str, flags);
+    }
+    else
+    {
+        for (size_t i = 0; i < MAX_CONFIG_VALUES; i++)
         {
-            return;
-        }
-        else
-        {
-            assign_named_field_value(&named_fields_set->named_fields[property_id + i],context->value->longs[i+1],named_fields_set,id,src_str,ccf_SplitExecution|ccf_DuringLevel);
+            if( named_fields_set->named_fields[property_id + i].name == NULL || 
+                (strcmp(named_fields_set->named_fields[property_id + i].name, named_fields_set->named_fields[property_id].name) != 0))
+            {
+                return;
+            }
+            else
+            {
+                assign_named_field_value(&named_fields_set->named_fields[property_id + i],context->value->longs[i+1],named_fields_set,  id, src_str, flags);
+            }
         }
     }
 }
@@ -4406,6 +4419,7 @@ static void set_effectgen_configuration_process(struct ScriptContext* context)
 
 static void set_power_configuration_check(const struct ScriptLine *scline)
 {
+    set_config_check(&magic_powers_named_fields_set, scline,"SET_POWER_CONFIG");
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     const char *powername = scline->tp[0];
     const char *property = scline->tp[1];
@@ -4680,6 +4694,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
 
 static void set_power_configuration_process(struct ScriptContext *context)
 {
+    set_config_process(&magic_powers_named_fields_set, context,"SET_POWER_CONFIG");
     struct PowerConfigStats *powerst = get_power_model_stats(context->value->shorts[0]);
     switch (context->value->bytes[2])
     {
