@@ -196,7 +196,7 @@ void update_ensigns_visibility(void)
       if (lvinfo != NULL)
         lvinfo->state = LvSt_Visible;
     }
-    lvnum = next_singleplayer_level(lvnum);
+    lvnum = next_singleplayer_level(lvnum, true);
   }
   // Extra level - full moon
   lvnum = get_extra_level(ExLv_FullMoon);
@@ -247,7 +247,7 @@ int compute_sound_good_to_bad_factor(void)
                 onscr_good++;
             }
         }
-        sp_lvnum = next_singleplayer_level(sp_lvnum);
+        sp_lvnum = next_singleplayer_level(sp_lvnum, true);
     }
     if ((onscr_bad+onscr_good) == 0)
         onscr_good++;
