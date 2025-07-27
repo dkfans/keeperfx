@@ -480,17 +480,8 @@ TbBool object_is_gold_pile(const struct Thing *thing)
 {
     if (thing->class_id != TCls_Object)
         return false;
-    switch (thing->model)
-    {
-      case ObjMdl_GoldChest:
-      case ObjMdl_GoldPot:
-      case ObjMdl_Goldl: // Gold laying on the ground
-      case ObjMdl_SpinningCoin: // Spinning coin
-      case ObjMdl_GoldBag: // Gold bag
-          return true;
-      default:
-          return false;
-    }
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return ((objst->genre == OCtg_Valuable) || (thing->model == ObjMdl_SpinningCoin));
 }
 
 TbBool object_is_gold_laying_on_ground(const struct Thing *thing)
@@ -2236,6 +2227,13 @@ struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
     }
     return thing;
 }
+
+struct PickedUpOffset* get_object_picked_up_offset(struct Thing* thing)
+{
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return &objst->object_picked_up_offset;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

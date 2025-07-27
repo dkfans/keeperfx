@@ -62,12 +62,6 @@ enum CreatureGraphicsInstances {
 
 struct Thing;
 
-struct CreaturePickedUpOffset
-{
-  short delta_x;
-  short delta_y;
-};
-
 /**
  * Enhanced TbSprite structure, with additional fields for thing animation sprites.
  */
@@ -116,7 +110,7 @@ extern struct KeeperSprite creature_table_add[];
 
 #pragma pack()
 /******************************************************************************/
-struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing);
+struct PickedUpOffset *get_creature_picked_up_offset(struct Thing *thing);
 
 unsigned long keepersprite_index(unsigned short n);
 struct KeeperSprite * keepersprite_array(unsigned short n);

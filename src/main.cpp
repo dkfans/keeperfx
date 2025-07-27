@@ -1729,7 +1729,6 @@ void clear_game_for_summary(void)
     clear_mapwho();
     game.entrance_room_id = 0;
     game.action_rand_seed = 0;
-    game.operation_flags &= ~GOF_Unkn04;
     game.operation_flags &= ~GOF_Paused;
     clear_columns();
     clear_action_points();
@@ -1760,7 +1759,6 @@ void clear_game_for_save(void)
     clear_mapwho();
     game.entrance_room_id = 0;
     game.action_rand_seed = 0;
-    clear_flag(game.operation_flags, GOF_Unkn04);
     clear_columns();
     clear_players_for_save();
     clear_dungeons();
@@ -3937,11 +3935,6 @@ short process_command_line(unsigned short argc, char *argv[])
         strcpy(start_params.selected_campaign, pr2str);
         narg++;
       } else
-      if ( strcasecmp(parstr,"ppropoly") == 0 )
-      {
-          // old param, ignored
-          narg++;
-      } else
       if ( strcasecmp(parstr,"altinput") == 0 )
       {
           SYNCLOG("Mouse auto reset disabled");
@@ -3978,7 +3971,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
-         set_flag(start_params.operation_flags, GOF_LightConvert);
+         WARNLOG("The -%s commandline parameter is no longer functional.", parstr); //todo remove once it's no longer in the launcher
       } else
       if (strcasecmp(parstr, "dbgshots") == 0)
       {
