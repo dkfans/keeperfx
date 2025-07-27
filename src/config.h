@@ -70,14 +70,20 @@ enum TbExtraLevels {
 };
 
 enum TbLevelOptions {
-    LvOp_None      =  0x00,
-    LvOp_IsSingle  =  0x01,
-    LvOp_IsMulti   =  0x02,
-    LvOp_IsBonus   =  0x04,
-    LvOp_IsExtra   =  0x08,
-    LvOp_IsFree    =  0x10,
-    LvOp_AlwsVisbl =  0x20,
-    LvOp_Tutorial  =  0x40,
+    LvKind_None      =  0x000,
+    LvKind_IsSingle  =  0x001,
+    LvKind_IsMulti   =  0x002,
+    LvKind_IsBonus   =  0x004,
+    LvKind_IsExtra   =  0x008,
+    LvKind_IsFree    =  0x010,
+};
+
+enum TBEnsignsFlag {
+    EnsTutorial     = 2,
+    EnsFullFlag     = 10,
+    EnsBonus        = 18,
+    EnsFullMoon     = 26,
+    EnsNewMoon      = 37
 };
 
 enum TbLevelState {

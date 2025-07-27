@@ -289,6 +289,29 @@ void update_frontmap_ambient_sound(void)
   }
 }
 
+enum Ensigns {
+    EnsTutorial = 2,
+    EnsFullFlag = 10,
+    EnsBonus = 18,
+    EnsFullMoon = 26,
+    EnsNewMoon = 37
+};
+
+short get_ensign_option(unsigned long ensign_flag)
+{
+    if (flag_is_set(ensign_flag, LvOp_Tutorial))
+        return EnsTutorial;
+    if (flag_is_set(ensign_flag, EnsBonus))
+        return EnsTutorial;
+    if (flag_is_set(ensign_flag, EnsFullMoon))
+        return EnsTutorial;
+    if (flag_is_set(ensign_flag, EnsNewMoon))
+        return EnsTutorial;
+    //todo return based on flag
+    return 18;
+    return 0;
+};
+
 const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame)
 {
   const struct TbSprite *spr;
@@ -297,15 +320,13 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
     return NULL;
   if (lvinfo->state == LvSt_Hidden)
     return NULL;
-  if (lvinfo->options & LvOp_IsSingle)
+  if ()
+  if (lvinfo->options & LvKind_IsSingle)
   {
     switch (lvinfo->state)
     {
     case LvSt_Visible:
-        if ((lvinfo->options & LvOp_Tutorial) == 0)
-          i = 10; // full red flag
-        else
-          i = 2; // 'T' flag - tutorial
+        i = get_ensign_option(lvinfo->options);
         if (lvinfo->lvnum == mouse_over_lvnum)
           i += 4;
         spr = get_map_ensign(i+(anim_frame & 3));
@@ -319,12 +340,12 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
         break;
     }
   } else
-  if (lvinfo->options & LvOp_IsBonus)
+  if (lvinfo->options & LvKind_IsBonus)
   {
     switch (lvinfo->state)
     {
     case LvSt_Visible:
-        i = 18;
+        i = get_ensign_option(lvinfo->options);
         if (lvinfo->lvnum == mouse_over_lvnum)
           i += 4;
         spr = get_map_ensign(i+(anim_frame & 3));
@@ -334,19 +355,13 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
         break;
     }
   } else
-  if (lvinfo->options & LvOp_IsExtra)
+  if (lvinfo->options & LvKind_IsExtra)
   {
     switch (lvinfo->state)
     {
     case LvSt_Visible:
-        if(lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
-        {
-            i = 37;
-        }
-        else // Full Moon
-        {
-            i = 26;
-        }
+        struct LevelInformation* lvinfo = get_level_info(get_extra_level(ExLv_NewMoon));
+        i = get_ensign_option(lvinfo->options);
         if (lvinfo->lvnum == mouse_over_lvnum)
           i += 4;
         spr = get_map_ensign(i+(anim_frame & 3));
@@ -356,7 +371,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
         break;
     }
   } else
-  if (lvinfo->options & LvOp_IsMulti) //Note that multiplayer flags have different file
+  if (lvinfo->options & LvKind_IsMulti) //Note that multiplayer flags have different file
   {
       if (frontend_menu_state == FeSt_NETLAND_VIEW)
       {
