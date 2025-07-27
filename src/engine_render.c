@@ -933,6 +933,10 @@ static void rotate_base_axis(struct M33 *matx, short angle, unsigned char axis)
 
 struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
+    if (table_index < 0 || table_index >= WIBBLE_TABLE_SIZE) {
+        ERRORLOG("Invalid wibble table index %ld", table_index);
+        return &blank_wibble_table[0];
+    }
     if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_CreatureView)
     {
         return &wibble_table[table_index];
