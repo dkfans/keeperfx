@@ -99,7 +99,18 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
  */
 TbBool generation_due_in_game(void)
 {
-    return ((game.play_gameturn - game.entrance_last_generate_turn) >= game.generate_speed);
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        struct Dungeon* dungeon = get_dungeon(plyr_idx);
+        if (!dungeon_invalid(dungeon))
+        {
+            if (generation_due_for_dungeon(dungeon))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 TbBool generation_due_for_dungeon(struct Dungeon * dungeon)

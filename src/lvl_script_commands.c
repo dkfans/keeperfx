@@ -5437,9 +5437,11 @@ static void computer_player_process(struct ScriptContext* context)
                 if (toggle == true)
                 {
                     script_support_setup_player_as_computer_keeper(i, model);
-                    get_dungeon(i)->turns_between_entrance_generation = game.generate_speed;
+                    player = get_player(i);
+                    struct Dungeon* dungeon = get_dungeon(i);
+                    dungeon->turns_between_entrance_generation = player->generate_speed;
                     init_creature_states_for_player(i);
-                    post_init_player(get_player(i));
+                    post_init_player(player);
                 }
                 else
                 {
@@ -5939,7 +5941,7 @@ static void set_generate_speed_check(const struct ScriptLine* scline)
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        value->chars[2] = -1;
+        value->chars[2] = ALL_PLAYERS;
     }
     else
     {
@@ -5966,17 +5968,12 @@ static void set_generate_speed_process(struct ScriptContext* context)
     struct PlayerInfo* player;
     switch (context->value->chars[2])
     {
-        case -1:
-        {
-            game.generate_speed = context->value->ushorts[0];
-            break;
-        }
         case ALL_PLAYERS:
         {
             for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
             {
                 player = get_player(plyr_idx);
-                if (player_exists(player) && (player->is_active == 1))
+                if (!player_invalid(player))
                 {
                     player->generate_speed = context->value->ushorts[0];
                 }
@@ -5986,7 +5983,7 @@ static void set_generate_speed_process(struct ScriptContext* context)
         default:
         {
             player = get_player(context->value->chars[2]);
-            if (player_exists(player) && (player->is_active == 1))
+            if (!player_invalid(player))
             {
                 player->generate_speed = context->value->ushorts[0];
             }
