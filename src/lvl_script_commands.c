@@ -5943,6 +5943,38 @@ static void set_next_level_process(struct ScriptContext* context)
     intralvl.next_level = context->value->shorts[1];
 }
 
+static void show_bonus_level_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    short bonus_level = scline->np[0];
+
+    if (!is_campaign_level(game.loaded_level_number))
+    {
+        SCRPTERRLOG("Script command %s only functions in campaigns.", scline->tcmnd);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    if (!is_bonus_level(bonus_level))
+    {
+        SCRPTERRLOG("Level %d not found as bonus level in campaign.", bonus_level);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    value->shorts[1] = bonus_level;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void show_bonus_level_process(struct ScriptContext* context)
+{
+    set_bonus_level_visibility(context->value->shorts[1], 1);
+}
+static void hide_bonus_level_process(struct ScriptContext* context)
+{
+    set_bonus_level_visibility(context->value->shorts[1], 0);
+}
+
 static void run_lua_code_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -6062,7 +6094,9 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TO_CAMPAIGN_FLAG",              "PAN     ", Cmd_ADD_TO_CAMPAIGN_FLAG, NULL, NULL},
   {"EXPORT_VARIABLE",                   "PAA     ", Cmd_EXPORT_VARIABLE, NULL, NULL},
   {"RUN_AFTER_VICTORY",                 "B       ", Cmd_RUN_AFTER_VICTORY, NULL, NULL},
-  {"SET_NEXT_LEVEL",                    "N       ", Cmd_SET_NEXT_LEVEL , &set_next_level_check, &set_next_level_process},
+  {"SET_NEXT_LEVEL",                    "N       ", Cmd_SET_NEXT_LEVEL, &set_next_level_check, &set_next_level_process},
+  {"SHOW_BONUS_LEVEL",                  "N       ", Cmd_SHOW_BONUS_LEVEL, &show_bonus_level_check, &show_bonus_level_process},
+  {"HIDE_BONUS_LEVEL",                  "N       ", Cmd_HIDE_BONUS_LEVEL, &show_bonus_level_check, &hide_bonus_level_process},
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"LEVEL_UP_PLAYERS_CREATURES",        "PC!n    ", Cmd_LEVEL_UP_PLAYERS_CREATURES, &level_up_players_creatures_check, level_up_players_creatures_process},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
