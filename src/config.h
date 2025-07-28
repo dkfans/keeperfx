@@ -76,7 +76,18 @@ enum TbLevelKinds {
     LvKind_IsBonus   =  0x04,
     LvKind_IsExtra   =  0x08,
     LvKind_IsFree    =  0x10,
-    LvKind_Tutorial  =  0x40,
+};
+
+enum Ensigns {
+    EnsTutorial = 2,
+    EnsFullFlag = 10,
+    EnsBonus = 18,
+    EnsFullMoon = 26,
+    EnsNewMoon = 37,
+    EnsDisTutorial = 35,
+    EnsDisFull = 36,
+    EnsDisMoonF = 34,
+    EnsDisMoonN = 45,
 };
 
 enum TbLevelState {

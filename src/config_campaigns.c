@@ -87,8 +87,12 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {NULL,                  0},
   };
 
-const struct NamedCommand cmpgn_map_cmnds_options[] = {
-  {"TUTORIAL",        LvKind_Tutorial},
+const struct NamedCommand cmpgn_map_ensign_flag_options[] = {
+  {"TUTORIAL",        EnsTutorial},
+  {"SINGLE",          EnsFullFlag},
+  {"BONUS",           EnsBonus},
+  {"FULL_MOON",       EnsFullMoon},
+  {"NEW_MOON",        EnsNewMoon},
   {NULL,              0},
   };
 
@@ -931,13 +935,17 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             }
             break;
         case 6: // OPTIONS
-            while ((k = recognize_conf_parameter(buf,&pos,len,cmpgn_map_cmnds_options)) > 0)
+            while ((k = recognize_conf_parameter(buf,&pos,len,cmpgn_map_ensign_flag_options)) > 0)
             {
               switch (k)
               {
-              case LvKind_Tutorial:
-                lvinfo->kind |= k;
-                break;
+                  case EnsTutorial:
+                  case EnsFullFlag:
+                  case EnsBonus:
+                  case EnsFullMoon:
+                  case EnsNewMoon:
+                      lvinfo->ensign_options |= k;
+                      break;
               }
               n++;
             }

@@ -466,11 +466,15 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
             }
             break;
         case 6: // OPTIONS
-            while ((k = recognize_conf_parameter(buf,&pos,len,cmpgn_map_cmnds_options)) > 0)
+            while ((k = recognize_conf_parameter(buf,&pos,len,cmpgn_map_ensign_flag_options)) > 0)
             {
               switch (k)
               {
-              case LvKind_Tutorial:
+              case EnsTutorial:
+              case EnsFullFlag:
+              case EnsBonus:
+              case EnsFullMoon:
+              case EnsNewMoon:
                 lvinfo->level_type |= k;
                 break;
               }

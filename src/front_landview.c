@@ -291,104 +291,124 @@ void update_frontmap_ambient_sound(void)
 
 const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame)
 {
-  const struct TbSprite *spr;
-  int i;
-  if (lvinfo == NULL)
-    return NULL;
-  if (lvinfo->state == LvSt_Hidden)
-    return NULL;
-  if (lvinfo->level_type & LvKind_IsSingle)
-  {
-    switch (lvinfo->state)
+    const struct TbSprite *spr;
+    int i = 0;
+    if (lvinfo == NULL)
+        return NULL;
+    if (lvinfo->state == LvSt_Hidden)
+        return NULL;
+    if (lvinfo->ensign_options != 0)
     {
-    case LvSt_Visible:
-        if ((lvinfo->level_type & LvKind_Tutorial) == 0)
-          i = 10; // full red flag
+        i = lvinfo->ensign_options; //todo handle multiple flags
+    }
+    if (lvinfo->level_type & LvKind_IsSingle)
+    {
+        switch (lvinfo->state)
+        {
+        case LvSt_Visible:
+            if (i == 0)
+                i = EnsFullFlag;
+            if (lvinfo->lvnum == mouse_over_lvnum)
+                i += 4;
+            spr = get_map_ensign(i + (anim_frame & 3));
+            break;
+        default:
+            if (!flag_is_set(lvinfo->ensign_options, EnsTutorial))
+                i = EnsDisFull;
+            else
+                i = EnsDisTutorial;
+            spr = get_map_ensign(i);
+            break;
+        }
+    } else
+    if (lvinfo->level_type & LvKind_IsBonus)
+    {
+        if (i == 0)
+            i = EnsBonus;
+        switch (lvinfo->state)
+        {
+        case LvSt_Visible:
+            if (lvinfo->lvnum == mouse_over_lvnum)
+                i += 4;
+            spr = get_map_ensign(i + (anim_frame & 3));
+            break;
+        default:
+            if (!flag_is_set(lvinfo->ensign_options, EnsTutorial))
+                i = EnsDisFull;
+            else
+                i = EnsDisTutorial;
+            spr = get_map_ensign(i);
+            break;
+        }
+    } else
+    if (lvinfo->level_type & LvKind_IsExtra)
+    {
+        if (i == 0)
+        {
+            if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
+            {
+                i = EnsNewMoon;
+            }
+            else
+            {
+                i = EnsFullMoon;
+            }
+        }
+        switch (lvinfo->state)
+        {
+        case LvSt_Visible:
+            if (lvinfo->lvnum == mouse_over_lvnum)
+                i += 4;
+            spr = get_map_ensign(i + (anim_frame & 3));
+            break;
+        default:
+            if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
+            {
+                i = EnsDisMoonN;
+            }
+            else
+            {
+                i = EnsDisMoonF;
+            }
+            spr = get_map_ensign(i);
+            break;
+        }
+    } else
+    if (lvinfo->level_type & LvKind_IsMulti) //Note that multiplayer flags have different file
+    {
+        if (frontend_menu_state == FeSt_NETLAND_VIEW)
+        {
+            switch (lvinfo->players)
+            {
+            case 2:
+                i = 5;
+                break;
+            case 3:
+                i = 7;
+                break;
+            case 4:
+                i = 9;
+                break;
+            default:
+                i = 5;
+                break;
+            }
+            if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
+                i++;
+        }
         else
-          i = 2; // 'T' flag - tutorial
-        if (lvinfo->lvnum == mouse_over_lvnum)
-          i += 4;
-        spr = get_map_ensign(i+(anim_frame & 3));
-        break;
-    default:
-        if ((lvinfo->level_type & LvKind_Tutorial) == 0)
-          i = 36; // full red flag
-        else
-          i = 35; // 'T' flag - tutorial
+        {
+            i = 35;
+        }
         spr = get_map_ensign(i);
-        break;
     }
-  } else
-  if (lvinfo->level_type & LvKind_IsBonus)
-  {
-    switch (lvinfo->state)
+    else
     {
-    case LvSt_Visible:
-        i = 18;
-        if (lvinfo->lvnum == mouse_over_lvnum)
-          i += 4;
-        spr = get_map_ensign(i+(anim_frame & 3));
-        break;
-    default:
         spr = get_map_ensign(36);
-        break;
     }
-  } else
-  if (lvinfo->level_type & LvKind_IsExtra)
-  {
-    switch (lvinfo->state)
-    {
-    case LvSt_Visible:
-        if(lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
-        {
-            i = 37;
-        }
-        else // Full Moon
-        {
-            i = 26;
-        }
-        if (lvinfo->lvnum == mouse_over_lvnum)
-          i += 4;
-        spr = get_map_ensign(i+(anim_frame & 3));
-        break;
-    default:
-        spr = get_map_ensign(34);
-        break;
-    }
-  } else
-  if (lvinfo->level_type & LvKind_IsMulti) //Note that multiplayer flags have different file
-  {
-      if (frontend_menu_state == FeSt_NETLAND_VIEW)
-      {
-          switch (lvinfo->players)
-          {
-          case 2:
-              i = 5;
-              break;
-          case 3:
-              i = 7;
-              break;
-          case 4:
-              i = 9;
-              break;
-          default:
-              i = 5;
-              break;
-          }
-          if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
-            i++;
-      } else
-      {
-          i = 35;
-      }
-      spr = get_map_ensign(i);
-  } else
-  {
-    spr = get_map_ensign(36);
-  }
-  if (spr == &dummy_sprite)
-    ERRORLOG("Can't get Land view Ensign sprite");
-  return spr;
+    if (spr == &dummy_sprite)
+        ERRORLOG("Can't get Land view Ensign sprite");
+    return spr;
 }
 
 /**
