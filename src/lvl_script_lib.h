@@ -195,6 +195,8 @@ enum TbScriptCommands {
     Cmd_TAG_MAP_RECT                       = 182,
     Cmd_UNTAG_MAP_RECT                     = 183,
     Cmd_SET_NEXT_LEVEL                     = 184,
+    Cmd_SHOW_BONUS_LEVEL                   = 185,
+    Cmd_HIDE_BONUS_LEVEL                   = 186,
 };
 
 struct ScriptLine {
