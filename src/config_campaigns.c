@@ -88,6 +88,7 @@ const struct NamedCommand cmpgn_map_commands[] = {
   };
 
 const struct NamedCommand cmpgn_map_ensign_flag_options[] = {
+  {"DEFAULT",         EnsNone},
   {"TUTORIAL",        EnsTutorial},
   {"SINGLE",          EnsFullFlag},
   {"BONUS",           EnsBonus},
@@ -935,19 +936,18 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             }
             break;
         case 6: // OPTIONS
-            while ((k = recognize_conf_parameter(buf,&pos,len,cmpgn_map_ensign_flag_options)) > 0)
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
-              switch (k)
-              {
-                  case EnsTutorial:
-                  case EnsFullFlag:
-                  case EnsBonus:
-                  case EnsFullMoon:
-                  case EnsNewMoon:
-                      lvinfo->ensign_options |= k;
-                      break;
-              }
-              n++;
+                k = get_id(cmpgn_map_ensign_flag_options, word_buf);
+                if (k >= 0)
+                {
+                    lvinfo->ensign_options = k;
+                }
+                else
+                {
+                    CONFWRNLOG("Couldn't recognize \"%s\" number in [%s] block of '%s' file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
             }
             break;
         case 7: // SPEECH

@@ -79,6 +79,7 @@ enum TbLevelKinds {
 };
 
 enum Ensigns {
+    EnsNone = 0,
     EnsTutorial = 2,
     EnsFullFlag = 10,
     EnsBonus = 18,
