@@ -292,7 +292,7 @@ void update_frontmap_ambient_sound(void)
 const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame)
 {
     const struct TbSprite *spr;
-    int i = lvinfo->ensign_options;
+    int i = lvinfo->ensign;
     if (lvinfo == NULL)
         return NULL;
     if (lvinfo->state == LvSt_Hidden)
@@ -310,9 +310,9 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
             spr = get_map_ensign(i + (anim_frame & 3));
             break;
         default: //todo add a function here to set all disabled flags
-            if (lvinfo->ensign_options == EnsTutorial)
+            if (lvinfo->ensign == EnsTutorial)
                 i = EnsDisTutorial;
-            else if (lvinfo->ensign_options == EnsFullMoon)
+            else if (lvinfo->ensign == EnsFullMoon)
                 i = EnsDisMoonF;
             else
                 i = EnsDisFull;
@@ -332,7 +332,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
             spr = get_map_ensign(i + (anim_frame & 3));
             break;
         default:
-            if (!flag_is_set(lvinfo->ensign_options, EnsTutorial))
+            if (!flag_is_set(lvinfo->ensign, EnsTutorial))
                 i = EnsDisFull;
             else
                 i = EnsDisTutorial;

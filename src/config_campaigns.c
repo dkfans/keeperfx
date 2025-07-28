@@ -75,7 +75,8 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"ENSIGN_POS",          3},
   {"ENSIGN_ZOOM",         4},
   {"PLAYERS",             5},
-  {"OPTIONS",             6},
+  {"ENSIGN",              6},
+  {"OPTIONS",             6}, // legacy name
   {"SPEECH",              7},
   {"LAND_VIEW",           8},
   {"KIND",                9}, // for LOF files only
@@ -941,7 +942,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
                 k = get_id(cmpgn_map_ensign_flag_options, word_buf);
                 if (k >= 0)
                 {
-                    lvinfo->ensign_options = k;
+                    lvinfo->ensign = k;
                 }
                 else
                 {
