@@ -465,20 +465,19 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
                   COMMAND_TEXT(cmd_num),fname);
             }
             break;
-        case 6: // OPTIONS
-            while ((k = recognize_conf_parameter(buf,&pos,len,cmpgn_map_ensign_flag_options)) > 0)
+        case 6: // ENSIGN
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
-              switch (k)
-              {
-              case EnsTutorial:
-              case EnsFullFlag:
-              case EnsBonus:
-              case EnsFullMoon:
-              case EnsNewMoon:
-                lvinfo->level_type |= k;
-                break;
-              }
-              n++;
+                k = get_id(cmpgn_map_ensign_flag_options, word_buf);
+                if (k >= 0)
+                {
+                    lvinfo->ensign = k;
+                }
+                else
+                {
+                    WARNMSG("Invalid value '%s' for \"%s\" in '%s' file.", word_buf,
+                        COMMAND_TEXT(cmd_num), fname);
+                }
             }
             break;
         case 7: // SPEECH

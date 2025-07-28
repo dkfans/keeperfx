@@ -936,7 +936,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 6: // OPTIONS
+        case 6: // ENSIGN
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = get_id(cmpgn_map_ensign_flag_options, word_buf);
@@ -946,7 +946,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
                 }
                 else
                 {
-                    CONFWRNLOG("Couldn't recognize \"%s\" number in [%s] block of '%s' file.",
+                    CONFWRNLOG("Invalid value '%s' for \"%s\" in [%s] block of '%s' file.", word_buf,
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
             }
