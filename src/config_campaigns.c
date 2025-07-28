@@ -154,7 +154,7 @@ void clear_level_info(struct LevelInformation *lvinfo)
   lvinfo->ensign_y = (LANDVIEW_MAP_HEIGHT>>1);
   lvinfo->ensign_zoom_x = (LANDVIEW_MAP_WIDTH>>1);
   lvinfo->ensign_zoom_y = (LANDVIEW_MAP_HEIGHT>>1);
-  lvinfo->options = LvKind_None;
+  lvinfo->kind = LvKind_None;
   lvinfo->state = LvSt_Hidden;
   lvinfo->location = LvLc_VarLevels;
   lvinfo->mapsize_x = DEFAULT_MAP_SIZE;
@@ -936,7 +936,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
               switch (k)
               {
               case LvKind_Tutorial:
-                lvinfo->options |= k;
+                lvinfo->kind |= k;
                 break;
               }
               n++;

@@ -471,7 +471,7 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
               switch (k)
               {
               case LvKind_Tutorial:
-                lvinfo->options |= k;
+                lvinfo->kind |= k;
                 break;
               }
               n++;
@@ -513,47 +513,47 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
               switch (k)
               {
               case LvKind_IsSingle:
-                if ((lvinfo->options & LvKind_IsSingle) == 0)
+                if ((lvinfo->kind & LvKind_IsSingle) == 0)
                 {
                     if (add_single_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
                         n++;
-                    lvinfo->options |= LvKind_IsSingle;
+                    lvinfo->kind |= LvKind_IsSingle;
                 } else
                     n++;
                 break;
               case LvKind_IsMulti:
-                if ((lvinfo->options & LvKind_IsMulti) == 0)
+                if ((lvinfo->kind & LvKind_IsMulti) == 0)
                 {
                     if (add_multi_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
                         n++;
-                    lvinfo->options |= LvKind_IsMulti;
+                    lvinfo->kind |= LvKind_IsMulti;
                 } else
                     n++;
                 break;
               case LvKind_IsBonus:
-                if ((lvinfo->options & LvKind_IsBonus) == 0)
+                if ((lvinfo->kind & LvKind_IsBonus) == 0)
                 {
                     if (add_bonus_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
                         n++;
-                    lvinfo->options |= LvKind_IsBonus;
+                    lvinfo->kind |= LvKind_IsBonus;
                 } else
                     n++;
                 break;
               case LvKind_IsExtra:
-                if ((lvinfo->options & LvKind_IsExtra) == 0)
+                if ((lvinfo->kind & LvKind_IsExtra) == 0)
                 {
                     if (add_extra_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
                         n++;
-                    lvinfo->options |= LvKind_IsExtra;
+                    lvinfo->kind |= LvKind_IsExtra;
                 } else
                     n++;
                 break;
               case LvKind_IsFree:
-                if ((lvinfo->options & LvKind_IsFree) == 0)
+                if ((lvinfo->kind & LvKind_IsFree) == 0)
                 {
                     if (add_freeplay_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
                         n++;
-                    lvinfo->options |= LvKind_IsFree;
+                    lvinfo->kind |= LvKind_IsFree;
                 } else
                     n++;
                 break;

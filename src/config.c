@@ -1471,13 +1471,13 @@ struct LevelInformation *get_or_create_level_info(LevelNumber lvnum, unsigned lo
     struct LevelInformation* lvinfo = get_campaign_level_info(&campaign, lvnum);
     if (lvinfo != NULL)
     {
-        lvinfo->options |= lvoptions;
+        lvinfo->kind |= lvoptions;
         return lvinfo;
   }
   lvinfo = new_level_info_entry(&campaign, lvnum);
   if (lvinfo != NULL)
   {
-    lvinfo->options |= lvoptions;
+    lvinfo->kind |= lvoptions;
     return lvinfo;
   }
   return NULL;
