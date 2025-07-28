@@ -192,9 +192,9 @@ void update_ensigns_visibility(void)
     long bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
     if (is_bonus_level_visible(player, bn_lvnum))
     {
-      lvinfo = get_level_info(bn_lvnum);
-      if (lvinfo != NULL)
-        lvinfo->state = LvSt_Visible;
+        lvinfo = get_level_info(bn_lvnum);
+        if (lvinfo != NULL)
+            lvinfo->state = LvSt_Visible;
     }
     lvnum = next_singleplayer_level(lvnum, true);
   }
@@ -202,31 +202,31 @@ void update_ensigns_visibility(void)
   lvnum = get_extra_level(ExLv_FullMoon);
   lvinfo = get_level_info(lvnum);
   if (lvinfo != NULL)
-    lvinfo->state = get_extra_level_kind_visibility(ExLv_FullMoon);
+      lvinfo->state = get_extra_level_kind_visibility(ExLv_FullMoon);
   // Extra level - new moon
   lvnum = get_extra_level(ExLv_NewMoon);
   lvinfo = get_level_info(lvnum);
   if (lvinfo != NULL)
-    lvinfo->state = get_extra_level_kind_visibility(ExLv_NewMoon);
+      lvinfo->state = get_extra_level_kind_visibility(ExLv_NewMoon);
 }
 
 void update_net_ensigns_visibility(void)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     set_all_ensigns_state(LvSt_Hidden);
     long lvnum = first_multiplayer_level();
     while (lvnum > 0)
     {
         struct LevelInformation* lvinfo = get_level_info(lvnum);
         if (lvinfo != NULL)
-          lvinfo->state = LvSt_Visible;
+            lvinfo->state = LvSt_Visible;
         lvnum = next_multiplayer_level(lvnum);
     }
 }
 
 int compute_sound_good_to_bad_factor(void)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     unsigned int onscr_bad = 0;
     unsigned int onscr_good = 0;
     LevelNumber continue_lvnum = get_continue_level_number();
@@ -235,21 +235,21 @@ int compute_sound_good_to_bad_factor(void)
     while (sp_lvnum > 0)
     {
         if (sp_lvnum == continue_lvnum)
-          lv_beaten = false;
+            lv_beaten = false;
         struct LevelInformation* lvinfo = get_level_info(sp_lvnum);
         if (lvinfo != NULL)
         {
             if (is_ensign_in_screen_rect(lvinfo))
             {
-              if (lv_beaten)
-                onscr_bad++;
-              else
-                onscr_good++;
+                if (lv_beaten)
+                    onscr_bad++;
+                else
+                    onscr_good++;
             }
         }
         sp_lvnum = next_singleplayer_level(sp_lvnum, true);
     }
-    if ((onscr_bad+onscr_good) == 0)
+    if ((onscr_bad + onscr_good) == 0)
         onscr_good++;
     // return a value between 0 (all bad) and 256 (all good)
     return (FULL_LOUDNESS * onscr_good) / (onscr_bad + onscr_good);
@@ -257,36 +257,61 @@ int compute_sound_good_to_bad_factor(void)
 
 void update_frontmap_ambient_sound(void)
 {
-  // NOTE: the good / bad samples start at a volume of zero.
-  SoundEmitterID emit_id = get_emitter_id(S3DGetSoundEmitter(Non3DEmitter));
-  if (map_sound_fade > 0)
-  {
-      long lvidx = array_index_for_singleplayer_level(get_continue_level_number());
-      if ((features_enabled & Ft_AdvAmbSound) != 0)
-      {
-          long factor = compute_sound_good_to_bad_factor();
-          SetSampleVolume(emit_id, campaign.ambient_good, (map_sound_fade * (((long) settings.sound_volume * factor) / FULL_LOUDNESS)) / FULL_LOUDNESS);
-          SetSampleVolume(emit_id, campaign.ambient_bad, (map_sound_fade * (((long) settings.sound_volume * (FULL_LOUDNESS - factor)) / FULL_LOUDNESS)) / FULL_LOUDNESS);
+    // NOTE: the good / bad samples start at a volume of zero.
+    SoundEmitterID emit_id = get_emitter_id(S3DGetSoundEmitter(Non3DEmitter));
+    if (map_sound_fade > 0)
+    {
+        long lvidx = array_index_for_singleplayer_level(get_continue_level_number());
+        if ((features_enabled & Ft_AdvAmbSound) != 0)
+        {
+            long factor = compute_sound_good_to_bad_factor();
+            SetSampleVolume(emit_id, campaign.ambient_good, (map_sound_fade * (((long)settings.sound_volume * factor) / FULL_LOUDNESS)) / FULL_LOUDNESS);
+            SetSampleVolume(emit_id, campaign.ambient_bad, (map_sound_fade * (((long)settings.sound_volume * (FULL_LOUDNESS - factor)) / FULL_LOUDNESS)) / FULL_LOUDNESS);
+        } else
+        if (lvidx > 13)
+        {
+            SetSampleVolume(emit_id, campaign.ambient_bad, ((long)settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+        } else
+        {
+        SetSampleVolume(emit_id, campaign.ambient_good, ((long)settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+        }
+        set_streamed_sample_volume(((long)settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+        set_music_volume((map_sound_fade * settings.music_volume) / FULL_LOUDNESS);
     } else
-    if (lvidx > 13)
     {
-      SetSampleVolume(emit_id, campaign.ambient_bad, ((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
-    } else
-    {
-      SetSampleVolume(emit_id, campaign.ambient_good, ((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+        if ((features_enabled & Ft_AdvAmbSound) != 0)
+        {
+            SetSampleVolume(emit_id, campaign.ambient_good, 0);
+            SetSampleVolume(emit_id, campaign.ambient_bad, 0);
+        }
+        set_music_volume(0);
+        set_streamed_sample_volume(0);
     }
-    set_streamed_sample_volume(((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
-    set_music_volume((map_sound_fade * settings.music_volume) / FULL_LOUDNESS);
-  } else
-  {
-    if ((features_enabled & Ft_AdvAmbSound) != 0)
+}
+
+int get_disabled_flag_option (unsigned short ensign, unsigned short default_ensign)
+{
+    int base_ensign;
+    if (ensign == 0)
     {
-      SetSampleVolume(emit_id, campaign.ambient_good, 0);
-      SetSampleVolume(emit_id, campaign.ambient_bad, 0);
+        base_ensign = default_ensign;
     }
-    set_music_volume(0);
-    set_streamed_sample_volume(0);
-  }
+    else
+    {
+        base_ensign = ensign;
+    }
+    if (base_ensign == EnsTutorial)
+        return EnsDisTutorial;
+    else if (base_ensign == EnsFullFlag)
+        return EnsDisFull;
+    else if (base_ensign == EnsBonus)
+        return EnsDisFull;
+    else if (base_ensign == EnsFullMoon)
+        return EnsDisMoonF;
+    else if (base_ensign == EnsNewMoon)
+        return EnsDisMoonN;
+    
+    return EnsDisFull;
 }
 
 const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame)
@@ -309,13 +334,8 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
                 i += 4;
             spr = get_map_ensign(i + (anim_frame & 3));
             break;
-        default: //todo add a function here to set all disabled flags
-            if (lvinfo->ensign == EnsTutorial)
-                i = EnsDisTutorial;
-            else if (lvinfo->ensign == EnsFullMoon)
-                i = EnsDisMoonF;
-            else
-                i = EnsDisFull;
+        default:
+            i = get_disabled_flag_option(lvinfo->ensign, EnsFullFlag);
             spr = get_map_ensign(i);
             break;
         }
@@ -332,10 +352,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
             spr = get_map_ensign(i + (anim_frame & 3));
             break;
         default:
-            if (!flag_is_set(lvinfo->ensign, EnsTutorial))
-                i = EnsDisFull;
-            else
-                i = EnsDisTutorial;
+            i = get_disabled_flag_option(lvinfo->ensign, EnsTutorial);
             spr = get_map_ensign(i);
             break;
         }
@@ -355,22 +372,22 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
         }
         switch (lvinfo->state)
         {
-        case LvSt_Visible:
-            if (lvinfo->lvnum == mouse_over_lvnum)
-                i += 4;
-            spr = get_map_ensign(i + (anim_frame & 3));
-            break;
-        default:
-            if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
-            {
-                i = EnsDisMoonN;
-            }
-            else
-            {
-                i = EnsDisMoonF;
-            }
-            spr = get_map_ensign(i);
-            break;
+            case LvSt_Visible:
+                if (lvinfo->lvnum == mouse_over_lvnum)
+                    i += 4;
+                spr = get_map_ensign(i + (anim_frame & 3));
+                break;
+            default:
+                if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
+                {
+                    i = get_disabled_flag_option(lvinfo->ensign, EnsFullMoon);
+                }
+                else
+                {
+                    i = get_disabled_flag_option(lvinfo->ensign, EnsNewMoon);
+                }
+                spr = get_map_ensign(i);
+                break;
         }
     } else
     if (lvinfo->level_type & LvKind_IsMulti) //Note that multiplayer flags have different file
