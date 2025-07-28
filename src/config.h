@@ -79,16 +79,19 @@ enum TbLevelKinds {
 };
 
 enum Ensigns {
-    EnsNone = 0,
-    EnsTutorial = 2,
-    EnsFullFlag = 10,
-    EnsBonus = 18,
-    EnsFullMoon = 26,
-    EnsNewMoon = 37,
-    EnsDisTutorial = 35,
-    EnsDisFull = 36,
-    EnsDisMoonF = 34,
-    EnsDisMoonN = 45,
+    EnsNone         = 0,
+    EnsTutorial     = 2,
+    EnsFullFlag     = 10,
+    EnsBonus        = 18,
+    EnsFullMoon     = 26,
+    EnsNewMoon      = 37,
+    EnsDisTutorial  = 35,
+    EnsDisFull      = 36,
+    EnsDisMoonF     = 34,
+    EnsDisMoonN     = 45,
+    EnsDisMulti2    = 46,
+    EnsDisMulti3    = 47,
+    EnsDisMulti4    = 48,
 };
 
 enum TbLevelState {

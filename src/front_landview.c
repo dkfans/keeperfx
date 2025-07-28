@@ -414,13 +414,27 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
         }
         else
         {
-            i = 35;
+            switch (lvinfo->players)
+            {
+            case 2:
+                i = EnsDisMulti2;
+                break;
+            case 3:
+                i = EnsDisMulti3;
+                break;
+            case 4:
+                i = EnsDisMulti4;
+                break;
+            default:
+                i = EnsDisMulti2;
+                break;
+            }
         }
         spr = get_map_ensign(i);
     }
     else
     {
-        spr = get_map_ensign(36);
+        spr = get_map_ensign(EnsDisFull);
     }
     if (spr == &dummy_sprite)
         ERRORLOG("Can't get Land view Ensign sprite");
