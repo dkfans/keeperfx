@@ -88,7 +88,7 @@ const struct NamedCommand cmpgn_map_commands[] = {
   };
 
 const struct NamedCommand cmpgn_map_cmnds_options[] = {
-  {"TUTORIAL",        LvOp_Tutorial},
+  {"TUTORIAL",        LvKind_Tutorial},
   {NULL,              0},
   };
 
@@ -99,11 +99,11 @@ const struct NamedCommand cmpgn_level_markers_options[] = {
   };
 
 const struct NamedCommand cmpgn_map_cmnds_kind[] = {
-  {"SINGLE",          LvOp_IsSingle},
-  {"MULTI",           LvOp_IsMulti},
-  {"BONUS",           LvOp_IsBonus},
-  {"EXTRA",           LvOp_IsExtra},
-  {"FREE",            LvOp_IsFree},
+  {"SINGLE",          LvKind_IsSingle},
+  {"MULTI",           LvKind_IsMulti},
+  {"BONUS",           LvKind_IsBonus},
+  {"EXTRA",           LvKind_IsExtra},
+  {"FREE",            LvKind_IsFree},
   {NULL,              0},
   };
 
@@ -154,7 +154,7 @@ void clear_level_info(struct LevelInformation *lvinfo)
   lvinfo->ensign_y = (LANDVIEW_MAP_HEIGHT>>1);
   lvinfo->ensign_zoom_x = (LANDVIEW_MAP_WIDTH>>1);
   lvinfo->ensign_zoom_y = (LANDVIEW_MAP_HEIGHT>>1);
-  lvinfo->options = LvOp_None;
+  lvinfo->options = LvKind_None;
   lvinfo->state = LvSt_Hidden;
   lvinfo->location = LvLc_VarLevels;
   lvinfo->mapsize_x = DEFAULT_MAP_SIZE;
@@ -935,7 +935,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             {
               switch (k)
               {
-              case LvOp_Tutorial:
+              case LvKind_Tutorial:
                 lvinfo->options |= k;
                 break;
               }
@@ -1037,24 +1037,24 @@ short parse_campaign_map_blocks(struct GameCampaign *campgn, char *buf, long len
     long lvnum = first_singleplayer_level();
     while (lvnum > 0)
     {
-        parse_campaign_map_block(lvnum, LvOp_IsSingle, buf, len, config_textname);
+        parse_campaign_map_block(lvnum, LvKind_IsSingle, buf, len, config_textname);
         long bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
         if (bn_lvnum > 0)
         {
-          parse_campaign_map_block(bn_lvnum, LvOp_IsBonus, buf, len, config_textname);
+          parse_campaign_map_block(bn_lvnum, LvKind_IsBonus, buf, len, config_textname);
         }
         lvnum = next_singleplayer_level(lvnum, true);
     }
     lvnum = first_multiplayer_level();
     while (lvnum > 0)
     {
-        parse_campaign_map_block(lvnum, LvOp_IsMulti, buf, len, config_textname);
+        parse_campaign_map_block(lvnum, LvKind_IsMulti, buf, len, config_textname);
         lvnum = next_multiplayer_level(lvnum);
     }
     lvnum = first_extra_level();
     while (lvnum > 0)
     {
-        parse_campaign_map_block(lvnum, LvOp_IsExtra, buf, len, config_textname);
+        parse_campaign_map_block(lvnum, LvKind_IsExtra, buf, len, config_textname);
         lvnum = next_extra_level(lvnum);
     }
     return 1;

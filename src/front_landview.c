@@ -297,12 +297,12 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
     return NULL;
   if (lvinfo->state == LvSt_Hidden)
     return NULL;
-  if (lvinfo->options & LvOp_IsSingle)
+  if (lvinfo->options & LvKind_IsSingle)
   {
     switch (lvinfo->state)
     {
     case LvSt_Visible:
-        if ((lvinfo->options & LvOp_Tutorial) == 0)
+        if ((lvinfo->options & LvKind_Tutorial) == 0)
           i = 10; // full red flag
         else
           i = 2; // 'T' flag - tutorial
@@ -311,7 +311,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
         spr = get_map_ensign(i+(anim_frame & 3));
         break;
     default:
-        if ((lvinfo->options & LvOp_Tutorial) == 0)
+        if ((lvinfo->options & LvKind_Tutorial) == 0)
           i = 36; // full red flag
         else
           i = 35; // 'T' flag - tutorial
@@ -319,7 +319,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
         break;
     }
   } else
-  if (lvinfo->options & LvOp_IsBonus)
+  if (lvinfo->options & LvKind_IsBonus)
   {
     switch (lvinfo->state)
     {
@@ -334,7 +334,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
         break;
     }
   } else
-  if (lvinfo->options & LvOp_IsExtra)
+  if (lvinfo->options & LvKind_IsExtra)
   {
     switch (lvinfo->state)
     {
@@ -356,7 +356,7 @@ const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvin
         break;
     }
   } else
-  if (lvinfo->options & LvOp_IsMulti) //Note that multiplayer flags have different file
+  if (lvinfo->options & LvKind_IsMulti) //Note that multiplayer flags have different file
   {
       if (frontend_menu_state == FeSt_NETLAND_VIEW)
       {
