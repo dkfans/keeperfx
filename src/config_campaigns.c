@@ -1043,7 +1043,7 @@ short parse_campaign_map_blocks(struct GameCampaign *campgn, char *buf, long len
         {
           parse_campaign_map_block(bn_lvnum, LvOp_IsBonus, buf, len, config_textname);
         }
-        lvnum = next_singleplayer_level(lvnum);
+        lvnum = next_singleplayer_level(lvnum, true);
     }
     lvnum = first_multiplayer_level();
     while (lvnum > 0)

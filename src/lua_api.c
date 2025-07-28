@@ -372,6 +372,18 @@ static int lua_Reset_action_point(lua_State *L)
     return 0;
 }
 
+static int lua_Set_next_level(lua_State *L)
+{
+    LevelNumber lvnum = luaL_checkinteger(L, 1);
+    if(!is_level_in_current_campaign(lvnum))
+    {
+        return luaL_argerror(L, 1, lua_pushfstring(L, "Level '%d' not part of current campaign", lvnum));
+    }
+    
+    intralvl.next_level = lvnum;
+    return 0;
+}
+
 //Adding New Creatures and Parties to the Level
 
 static int lua_Add_creature_to_level(lua_State *L)
@@ -2028,6 +2040,7 @@ static const luaL_Reg global_methods[] = {
    {"BonusLevelTime",                   lua_Bonus_level_time                },
    {"AddBonusTime",                     lua_Add_bonus_time                  },
    {"ResetActionPoint",                 lua_Reset_action_point              },
+   {"SetNextLevel",                     lua_Set_next_level                  },
 
 //Adding New Creatures and Parties to the Level
    {"AddCreatureToLevel",               lua_Add_creature_to_level           },
