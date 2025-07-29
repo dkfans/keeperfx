@@ -407,7 +407,6 @@ void process_entrance_generation(void)
         if (game.armageddon_cast_turn == 0) {
             update_dungeons_scores();
             update_dungeon_generation_speeds();
-            game.entrance_last_generate_turn = game.play_gameturn;
         }
     }
 
