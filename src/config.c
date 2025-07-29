@@ -1471,13 +1471,13 @@ struct LevelInformation *get_or_create_level_info(LevelNumber lvnum, unsigned lo
     struct LevelInformation* lvinfo = get_campaign_level_info(&campaign, lvnum);
     if (lvinfo != NULL)
     {
-        lvinfo->options |= lvoptions;
+        lvinfo->level_type |= lvoptions;
         return lvinfo;
   }
   lvinfo = new_level_info_entry(&campaign, lvnum);
   if (lvinfo != NULL)
   {
-    lvinfo->options |= lvoptions;
+    lvinfo->level_type |= lvoptions;
     return lvinfo;
   }
   return NULL;
@@ -1565,7 +1565,7 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
     if (lvinfo == NULL)
         return false;
     snprintf(lvinfo->name, LINEMSG_SIZE, "%s", name);
-    if ((lvoptions & LvOp_IsFree) != 0)
+    if ((lvoptions & LvKind_IsFree) != 0)
     {
         lvinfo->ensign_x += ((LANDVIEW_MAP_WIDTH >> 4) * (LbSinL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;
         lvinfo->ensign_y -= ((LANDVIEW_MAP_HEIGHT >> 4) * (LbCosL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;
