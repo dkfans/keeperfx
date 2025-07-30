@@ -26,6 +26,7 @@
 #include "room_lair.h"
 #include "player_data.h"
 #include "dungeon_data.h"
+#include "dungeon_stats.h"
 #include "player_utils.h"
 #include "thing_data.h"
 #include "thing_navigate.h"
@@ -91,26 +92,6 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
         set_start_state(creatng);
     }
     return creatng;
-}
-
-/** Checks if an entrance shall now generate next creature.
- *
- * @return Gives true if an entrance shall generate, false otherwise.
- */
-TbBool generation_due_in_game(void)
-{
-    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-    {
-        struct Dungeon* dungeon = get_dungeon(plyr_idx);
-        if (!dungeon_invalid(dungeon))
-        {
-            if (generation_due_for_dungeon(dungeon))
-            {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
@@ -401,32 +382,34 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 void process_entrance_generation(void)
 {
     SYNCDBG(8,"Starting");
-
-    if (generation_due_in_game())
-    {
-        if (game.armageddon_cast_turn == 0) {
-            update_dungeons_scores();
-            update_dungeon_generation_speeds();
-        }
-    }
-
     for (long i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* plyr = get_player(i);
         if (!player_exists(plyr)) {
             continue;
         }
-        if ((plyr->is_active == 1) && (plyr->victory_state != VicS_LostLevel) )
+        struct Dungeon* dungeon = get_players_dungeon(plyr);
+        if (!dungeon_invalid(dungeon))
         {
-            struct Dungeon* dungeon = get_players_dungeon(plyr);
             if (generation_due_for_dungeon(dungeon))
             {
-                if (generation_available_to_dungeon(dungeon)) {
-                    generate_creature_for_dungeon(dungeon);
+                if (game.armageddon_cast_turn == 0) 
+                {
+                    if (plyr->is_active)
+                    {
+                        update_dungeon_scores_for_player(plyr);
+                    }
+                    update_dungeon_generation_speeds();
                 }
-                dungeon->last_entrance_generation_gameturn = game.play_gameturn;
+                if ((plyr->is_active) && (plyr->victory_state != VicS_LostLevel) )
+                {
+                    if (generation_available_to_dungeon(dungeon)) {
+                        generate_creature_for_dungeon(dungeon);
+                    }
+                    dungeon->last_entrance_generation_gameturn = game.play_gameturn;
+                    dungeon->portal_scavenge_boost = 0;
+                }
             }
-            dungeon->portal_scavenge_boost = 0;
         }
     }
 }
