@@ -468,7 +468,7 @@ int64_t value_longflagsfield(const struct NamedField* named_field, const char* v
             }
         }
 
-        int k = get_long_id((struct LongNamedCommand*)named_field->namedCommand, word_buf);
+        int64_t k = get_long_id((struct LongNamedCommand*)named_field->namedCommand, word_buf);
         if(k >= 0)
             value |= k;
         else
