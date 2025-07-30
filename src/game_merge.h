@@ -39,7 +39,7 @@ extern "C" {
 /******************************************************************************/
 #define MESSAGE_TEXT_LEN           1024
 #define QUICK_MESSAGES_COUNT        256
-#define BONUS_LEVEL_STORAGE_COUNT     6
+#define BONUS_LEVEL_STORAGE_COUNT    20
 #define PLAYERS_FOR_CAMPAIGN_FLAGS    5
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
 #define TRANSFER_CREATURE_STORAGE_COUNT     255
@@ -136,7 +136,7 @@ struct TextScrollWindow {
  * This data is not lost between levels of a campaign.
  */
 struct IntralevelData {
-    unsigned char bonuses_found[BONUS_LEVEL_STORAGE_COUNT];
+    TbBool bonuses_found[BONUS_LEVEL_STORAGE_COUNT];
     struct CreatureStorage transferred_creatures[PLAYERS_COUNT][TRANSFER_CREATURE_STORAGE_COUNT];
     long campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
     char next_level;
