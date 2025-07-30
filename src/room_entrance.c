@@ -382,6 +382,7 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 void process_entrance_generation(void)
 {
     SYNCDBG(8,"Starting");
+    TbBool due = false;
     for (long i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* plyr = get_player(i);
@@ -393,14 +394,7 @@ void process_entrance_generation(void)
         {
             if (generation_due_for_dungeon(dungeon))
             {
-                if (game.armageddon_cast_turn == 0) 
-                {
-                    if (plyr->is_active)
-                    {
-                        update_dungeon_scores_for_player(plyr);
-                    }
-                    update_dungeon_generation_speeds();
-                }
+                due = true;
                 if ((plyr->is_active) && (plyr->victory_state != VicS_LostLevel) )
                 {
                     if (generation_available_to_dungeon(dungeon)) {
@@ -410,6 +404,14 @@ void process_entrance_generation(void)
                     dungeon->portal_scavenge_boost = 0;
                 }
             }
+        }
+    }
+    if (due)
+    {
+        if (game.armageddon_cast_turn == 0) 
+        {
+            update_dungeons_scores();
+            update_dungeon_generation_speeds();
         }
     }
 }
