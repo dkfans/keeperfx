@@ -2225,13 +2225,28 @@ short creature_follow_leader(struct Thing *creatng)
         set_start_state(creatng);
         return 1;
     }
+    if (player_keeping_creature_in_custody(creatng) != player_keeping_creature_in_custody(leadtng))
+    {
+        remove_creature_from_group(creatng);
+        return 0;
+    }
     struct Coord3d follwr_pos;
     if (!get_free_position_behind_leader(leadtng, &follwr_pos))
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
-            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(leadtng));
-        set_start_state(creatng);
-        return 1;
+        if (thing_is_picked_up(leadtng))
+        {
+            SYNCDBG(3,"The %s index %d owned by player %d can no longer follow %s - leader is picked up",
+                thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng));
+            remove_creature_from_group(creatng);
+            return 0;
+        }
+        else
+        {
+            SYNCLOG("The %s index %d owned by player %d can no longer follow %s - no place amongst followers",
+                thing_model_name(creatng), (int)creatng->index, (int)creatng->owner, thing_model_name(leadtng));
+            set_start_state(creatng);
+            return 1;
+        }
     }
     int fails_amount = cctrl->follow_leader_fails;
     if (fails_amount > 12) //When set too low, group might disband before a white wall is breached
@@ -2249,10 +2264,11 @@ short creature_follow_leader(struct Thing *creatng)
     MapCoordDelta distance_to_follower_pos = get_chessboard_distance(&creatng->mappos, &follwr_pos);
     TbBool cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
+    int follower_speed = get_creature_speed(creatng);
     // If we're too far from the designated position, do a speed run
     if (distance_to_follower_pos > subtile_coord(12,0))
     {
-        speed = 2 * speed;
+        speed = max((2 * speed),(5 * follower_speed / 4));
         if (speed >= MAX_VELOCITY)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
@@ -2272,6 +2288,7 @@ short creature_follow_leader(struct Thing *creatng)
         } else {
             speed = speed + 1;
         }
+        speed = max(follower_speed, speed);
         if (speed >= MAX_VELOCITY)
             speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)

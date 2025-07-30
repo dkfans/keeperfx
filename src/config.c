@@ -468,7 +468,7 @@ int64_t value_longflagsfield(const struct NamedField* named_field, const char* v
             }
         }
 
-        int k = get_long_id((struct LongNamedCommand*)named_field->namedCommand, word_buf);
+        int64_t k = get_long_id((struct LongNamedCommand*)named_field->namedCommand, word_buf);
         if(k >= 0)
             value |= k;
         else
@@ -1471,13 +1471,13 @@ struct LevelInformation *get_or_create_level_info(LevelNumber lvnum, unsigned lo
     struct LevelInformation* lvinfo = get_campaign_level_info(&campaign, lvnum);
     if (lvinfo != NULL)
     {
-        lvinfo->options |= lvoptions;
+        lvinfo->level_type |= lvoptions;
         return lvinfo;
   }
   lvinfo = new_level_info_entry(&campaign, lvnum);
   if (lvinfo != NULL)
   {
-    lvinfo->options |= lvoptions;
+    lvinfo->level_type |= lvoptions;
     return lvinfo;
   }
   return NULL;
@@ -1565,7 +1565,7 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
     if (lvinfo == NULL)
         return false;
     snprintf(lvinfo->name, LINEMSG_SIZE, "%s", name);
-    if ((lvoptions & LvOp_IsFree) != 0)
+    if ((lvoptions & LvKind_IsFree) != 0)
     {
         lvinfo->ensign_x += ((LANDVIEW_MAP_WIDTH >> 4) * (LbSinL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;
         lvinfo->ensign_y -= ((LANDVIEW_MAP_HEIGHT >> 4) * (LbCosL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;
@@ -1959,11 +1959,31 @@ LevelNumber get_extra_level(unsigned short elv_kind)
  * Returns the next single player level. Gives SINGLEPLAYER_FINISHED if
  * last level was won, LEVELNUMBER_ERROR on error.
  */
-LevelNumber next_singleplayer_level(LevelNumber sp_lvnum)
+LevelNumber next_singleplayer_level(LevelNumber sp_lvnum, TbBool ignore)
 {
   if (sp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
   if (sp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_singleplayer_level();
   if (sp_lvnum < 1) return LEVELNUMBER_ERROR;
+  int next_level;
+  
+  if ((intralvl.next_level > 0) && !ignore)
+  {
+      next_level = intralvl.next_level;
+      intralvl.next_level = 0;
+      if (next_level < 0)
+          return SINGLEPLAYER_FINISHED;
+
+      for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+      {
+          if (campaign.single_levels[i] == next_level)
+          {
+              return next_level;
+          }
+      }
+      WARNLOG("Trying to jump to level %d that does not exist.", next_level);
+      return LEVELNUMBER_ERROR;
+  }
+
   for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.single_levels[i] == sp_lvnum)
@@ -2198,6 +2218,25 @@ short is_freeplay_level(LevelNumber lvnum)
   }
   SYNCDBG(18,"%ld is NOT freeplay",lvnum);
   return false;
+}
+
+/**
+  * checks if currently in a campaign, and if the provided level number is also part of it.
+ */
+TbBool is_level_in_current_campaign(LevelNumber lvnum)
+{
+    if (!is_campaign_level(game.loaded_level_number))
+    {
+        return false;
+    }
+    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+    {
+        if (campaign.single_levels[i] == lvnum)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)

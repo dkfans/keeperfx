@@ -299,6 +299,30 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
                 }
             }
         }
+        if ((powerst->can_cast_flags & PwCast_OwnedObjects) != 0)
+        {
+            if (thing->owner == plyr_idx) {
+                if (object_is_pickable_by_hand_to_hold(thing)) {
+                    return true;
+                }
+            }
+        }
+        if ((powerst->can_cast_flags & PwCast_NeutrlObjects) != 0)
+        {
+            if (is_neutral_thing(thing)) {
+                if (object_is_pickable_by_hand_to_hold(thing)) {
+                    return true;
+                }
+            }
+        }
+        if ((powerst->can_cast_flags & PwCast_EnemyObjects) != 0)
+        {
+            if ((thing->owner != plyr_idx) && !is_neutral_thing(thing)) {
+                if (object_is_pickable_by_hand_to_hold(thing)) {
+                    return true;
+                }
+            }
+        }
         if ((powerst->can_cast_flags & PwCast_OwnedSpell) != 0)
         {
             if (thing->owner == plyr_idx) {
@@ -1104,6 +1128,16 @@ static TbResult magic_use_power_hold_audience(PowerKind power_kind, PlayerNumber
             reset_interpolation_of_thing(thing);
             initialise_thing_state(thing, CrSt_CreatureInHoldAudience);
             cctrl->turns_at_job = -1;
+
+            struct Thing* famlrtng; //familiars are not in the dungeon creature list
+            for (short j = 0; j < FAMILIAR_MAX; j++)
+            {
+                if (cctrl->familiar_idx[j])
+                {
+                    famlrtng = thing_get(cctrl->familiar_idx[j]);
+                    teleport_familiar_to_summoner(famlrtng, thing);
+                }
+            }
         }
         // Thing list loop body ends
         k++;

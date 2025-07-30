@@ -2019,6 +2019,21 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
     thing_fire_shot(castng, targetng, spconf->shot_model, shot_level, hit_type);
 }
 
+void teleport_familiar_to_summoner(struct Thing *famlrtng, struct Thing* creatng)
+{
+    create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
+    move_thing_in_map(famlrtng, &creatng->mappos);
+    cleanup_current_thing_state(famlrtng);
+    reset_interpolation_of_thing(famlrtng);
+
+    famlrtng->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
+    famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+    famlrtng->veloc_push_add.z.val += 0;
+    set_flag(famlrtng->state_flags, TF1_PushAdd);
+    set_flag(famlrtng->movement_flags, TMvF_MagicFall);
+    famlrtng->move_angle_xy = 0;
+}
+
 /**
  * Spell creates creatures to help the caster. When the creatures have a limited duration they will group up with caster.
  * @param model The creature kind to be creates.
@@ -2110,17 +2125,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                         level_up_familiar(famlrtng);
                         if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) //if it's not getting to the summoner, teleport it there
                         {
-                            create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
-                            move_thing_in_map(famlrtng, &creatng->mappos);
-                            cleanup_current_thing_state(famlrtng);
-                            reset_interpolation_of_thing(famlrtng);
-
-                            famlrtng->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
-                            famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
-                            famlrtng->veloc_push_add.z.val += 0;
-                            set_flag(famlrtng->state_flags, TF1_PushAdd);
-                            set_flag(famlrtng->movement_flags, TMvF_MagicFall);
-                            famlrtng->move_angle_xy = 0;
+                            teleport_familiar_to_summoner(famlrtng, creatng);
                         }
                     }
                     else
@@ -6523,8 +6528,14 @@ TngUpdateRet update_creature(struct Thing *thing)
         {
             if (cctrl->summoner_idx > 0)
             {
-                struct Thing* summoner = thing_get(cctrl->summoner_idx);
-                add_creature_to_group(thing, summoner);
+                if (!creature_is_kept_in_custody(thing))
+                {
+                    struct Thing* summoner = thing_get(cctrl->summoner_idx);
+                    if (!creature_is_kept_in_custody(summoner))
+                    {
+                        add_creature_to_group(thing, summoner);
+                    }
+                }
             }
         }
     }
@@ -7925,19 +7936,33 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
             i = cctrl->players_next_creature_idx;
             if (operation == SOpr_SET)
             {
+                anger_set_creature_anger(thing, 0, AngR_NotPaid);
+                anger_set_creature_anger(thing, 0, AngR_NoLair);
+                anger_set_creature_anger(thing, 0, AngR_Hungry);
                 anger_set_creature_anger(thing, anger, AngR_Other);
             }
             else if (operation == SOpr_INCREASE)
             {
-                anger_increase_creature_anger(thing, anger, AngR_Other);
+                AnnoyMotive motive = anger_get_creature_anger_type(thing);
+                if (motive)
+                {
+                    anger_increase_creature_anger(thing, anger, motive);
+                }
+                else
+                {
+                    anger_increase_creature_anger(thing, anger, AngR_Other);
+                }
             }
             else if (operation == SOpr_DECREASE)
             {
-                anger_reduce_creature_anger(thing, -anger, AngR_Other);
+                anger_apply_anger_to_creature_all_types(thing, -anger);
             }
             else if (operation == SOpr_MULTIPLY)
             {
                 anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Other] * anger, AngR_Other);
+                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_NotPaid] * anger, AngR_NotPaid);
+                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_NoLair] * anger, AngR_NoLair);
+                anger_set_creature_anger(thing, cctrl->annoyance_level[AngR_Hungry] * anger, AngR_Hungry);
             }
 
         }

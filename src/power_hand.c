@@ -138,7 +138,7 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
  * @param thing
  * @param plyr_idx
  */
-unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long plyr_idx)
+TbBool object_is_pickable_by_hand_for_use(const struct Thing *thing, long plyr_idx)
 {
     struct SlabMap *slb;
     if (thing_is_special_box(thing))
@@ -149,6 +149,26 @@ unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long
         return true;
     }
     return false;
+}
+
+
+TbBool object_is_pickable_by_hand_to_hold(const struct Thing* thing)
+{
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return flag_is_set(objst->model_flags, OMF_HoldInHand);
+}
+
+/**
+ * Returns true when object has OMF_HoldInHand flag and is laying on own ground.
+ * @param thing
+ * @param plyr_idx
+ */
+TbBool object_is_pickable_by_hand_to_hold_by_player(const struct Thing* thing, long plyr_idx)
+{
+    struct SlabMap* slb = get_slabmap_thing_is_on(thing);
+    if ((slabmap_owner(slb) != plyr_idx) || thing_is_dragged_or_pulled(thing))
+        return false;
+    return object_is_pickable_by_hand_to_hold(thing);
 }
 
 /**
@@ -216,6 +236,8 @@ long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber pl
     {
         if (object_is_pickable_by_hand_for_use(thing, plyr_idx))
             return true;
+        if (object_is_pickable_by_hand_to_hold_by_player(thing, plyr_idx))
+            return true;
     }
     // Other things are pickable only for placing in hand
     return can_cast_spell(plyr_idx, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default);
@@ -261,63 +283,48 @@ TbBool can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber
 
 struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
 {
-  struct PlayerInfo *player;
-  struct Thing *picktng;
-  struct Coord3d pos;
-  struct PowerConfigStats *powerst;
-  long i;
-  switch (thing->model)
-  {
-    case ObjMdl_GoldChest:
-    case ObjMdl_GoldPot:
-    case ObjMdl_Goldl:
-    case ObjMdl_GoldBag:
-      i = thing->valuable.gold_stored;
-      if (i != 0)
-      {
-        pos.x.val = thing->mappos.x.val;
-        pos.y.val = thing->mappos.y.val;
-        pos.z.val = thing->mappos.z.val + 128;
-        create_price_effect(&pos, thing->owner, i);
-      }
-      powerst = get_power_model_stats(PwrK_PICKUPGOLD);
-      thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-      picktng = thing;
-      break;
-    case ObjMdl_ChickenMature:
-      i = UNSYNC_RANDOM(3);
-      powerst = get_power_model_stats(PwrK_PICKUPFOOD);
-      thing_play_sample(thing, powerst->select_sound_idx+i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-      i = convert_td_iso(122);
-      set_thing_draw(thing, i, 256, -1, -1, 0, ODC_Default);
-      remove_food_from_food_room_if_possible(thing);
-      picktng = thing;
-      break;
-    case ObjMdl_GoldHoard1:
-    case ObjMdl_GoldHoard2:
-    case ObjMdl_GoldHoard3:
-    case ObjMdl_GoldHoard4:
-    case ObjMdl_GoldHoard5:
-      picktng = create_gold_for_hand_grab(thing, plyr_idx);
-      break;
-    case ObjMdl_SpecboxRevealMap:
-    case ObjMdl_SpecboxResurect:
-    case ObjMdl_SpecboxTransfer:
-    case ObjMdl_SpecboxStealHero:
-    case ObjMdl_SpecboxMultiply:
-    case ObjMdl_SpecboxIncreaseLevel:
-    case ObjMdl_SpecboxMakeSafe:
-    case ObjMdl_SpecboxHiddenWorld:
-      player = get_player(plyr_idx);
-      activate_dungeon_special(thing, player);
-      picktng = NULL;
-      break;
-    default:
-      ERRORLOG("Picking up invalid object");
-      picktng = NULL;
-      break;
-  }
-  return picktng;
+    struct Thing *picktng = INVALID_THING;
+    struct Coord3d pos;
+    struct PowerConfigStats *powerst;
+    long i;
+
+    if (object_is_gold_pile(thing))
+    {
+        i = thing->valuable.gold_stored;
+        if (i != 0)
+        {
+            pos.x.val = thing->mappos.x.val;
+            pos.y.val = thing->mappos.y.val;
+            pos.z.val = thing->mappos.z.val + 128;
+            create_price_effect(&pos, thing->owner, i);
+        }
+        powerst = get_power_model_stats(PwrK_PICKUPGOLD);
+        thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        picktng = thing;
+    }
+    else if (thing_is_mature_food(thing))
+    {
+        i = UNSYNC_RANDOM(3);
+        powerst = get_power_model_stats(PwrK_PICKUPFOOD);
+        thing_play_sample(thing, powerst->select_sound_idx + i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        i = convert_td_iso(122);
+        set_thing_draw(thing, i, 256, -1, -1, 0, ODC_Default);
+        remove_food_from_food_room_if_possible(thing);
+        picktng = thing;
+    }
+    else if (object_is_gold_hoard(thing))
+    {
+        picktng = create_gold_for_hand_grab(thing, plyr_idx);
+    }
+    else if (object_is_pickable_by_hand_to_hold_by_player(thing, plyr_idx))
+    {
+            picktng = thing;
+    }
+    else
+    {
+        ERRORLOG("Picking up invalid object");
+    }
+    return picktng;
 }
 
 void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
@@ -527,7 +534,7 @@ void draw_power_hand(void)
 {
     SYNCDBG(17,"Starting");
     struct PlayerInfo *player;
-    struct CreaturePickedUpOffset *pickoffs;
+    struct PickedUpOffset *pickoffs;
     struct Thing *thing;
     struct Thing *picktng;
     struct Room *room;
@@ -673,7 +680,15 @@ void draw_power_hand(void)
             {
                 break;
             }
-            // fall through
+            else
+            {
+                pickoffs = get_object_picked_up_offset(picktng);
+                inputpos_x = GetMouseX() + scale_ui_value(pickoffs->delta_x * global_hand_scale);
+                inputpos_y = GetMouseY() + scale_ui_value(pickoffs->delta_y * global_hand_scale);
+                process_keeper_sprite(inputpos_x / pixel_size, inputpos_y / pixel_size,
+                    picktng->anim_sprite, 0, picktng->current_frame, scale_ui_value(64 * global_hand_scale));
+            }
+            break;
         default:
             inputpos_x = GetMouseX();
             inputpos_y = GetMouseY();
@@ -942,6 +957,11 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
     {
         if (object_is_mature_food(droptng)) {
             set_thing_draw(droptng, convert_td_iso(819), 256, -1, -1, 0, ODC_Default);
+        }
+        else
+        {
+            struct ObjectConfigStats* objst = get_object_model_stats(droptng->model);
+            set_thing_draw(droptng, objst->sprite_anim_idx, objst->anim_speed, -1, -1, 0, ODC_Default); //return to normal after sprite_anim_idx_in_hand
         }
         droptng->continue_state = droptng->active_state;
         droptng->active_state = ObSt_BeingDropped;
@@ -1226,9 +1246,20 @@ void draw_mini_things_in_hand(long x, long y)
                 }
             }
         } else
-        if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
+        if (thing->class_id == TCls_DeadCreature)
         {
-            spr_idx = GPS_room_treasury_std_s;
+            spr_idx = GPS_room_graveyard_std_s;
+            if (irow > 0)
+                shift_y = 20;
+            else
+                shift_y = 0;
+            scrpos_x = scrbase_x + scale_ui_value(16) * icol;
+            scrpos_y = scrbase_y + scale_ui_value(14) * irow;
+            draw_gui_panel_sprite_left(scrpos_x - 2, scrpos_y + scale_ui_value(shift_y), ps_units_per_px, spr_idx);
+        } else
+        if ((thing->class_id == TCls_Object))
+        {
+            spr_idx = get_object_model_stats(thing->model)->hand_icon;
             if (irow > 0)
                 shift_y = 20;
             else
@@ -1377,6 +1408,12 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         if (thing_is_invalid(thing)) {
             return false;
         }
+        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        if (objst->sprite_anim_idx_in_hand != 0)
+            i = convert_td_iso(objst->sprite_anim_idx_in_hand);
+        else
+            i = objst->sprite_anim_idx;
+        set_thing_draw(thing, i, objst->anim_speed, -1, -1, 0, ODC_Default);
     }
     insert_thing_into_power_hand_list(thing, plyr_idx);
     clear_thing_velocity(thing);
