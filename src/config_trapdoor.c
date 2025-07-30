@@ -91,6 +91,7 @@ static void assign_update_trap_tab(const struct NamedField* named_field, int64_t
     assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     if (flag_is_set(flags,ccf_DuringLevel))
     {
+        create_manufacture_array_from_trapdoor_data();
         update_trap_tab_to_config();
     }
 }
