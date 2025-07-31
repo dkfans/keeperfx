@@ -185,20 +185,6 @@ static void assign_update_room_tab(const struct NamedField* named_field, int64_t
     if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_room_tab_to_config();
-        struct PlayerInfo *player = get_my_player();
-        if (player->view_type == PVT_DungeonTop)
-        {
-            if (menu_is_active(GMnu_ROOM))
-            {
-                turn_off_menu(GMnu_ROOM);
-                turn_on_menu(GMnu_ROOM);
-            }
-            else if (menu_is_active(GMnu_ROOM2))
-            {
-                turn_off_menu(GMnu_ROOM2);
-                turn_on_menu(GMnu_ROOM2);
-            }
-        }
     }
 }
 
