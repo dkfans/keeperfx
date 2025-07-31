@@ -25,12 +25,13 @@
 #include "bflib_dernc.h"
 
 #include "config.h"
-#include "thing_doors.h"
-#include "config_strings.h"
 #include "config_creature.h"
-#include "game_legacy.h"
 #include "custom_sprites.h"
+#include "config_strings.h"
 #include "frontmenu_ingame_tabs.h"
+#include "game_legacy.h"
+#include "thing_doors.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus

@@ -33,7 +33,9 @@
 #include "custom_sprites.h"
 #include "dungeon_data.h"
 #include "frontmenu_ingame_map.h"
+#include "frontend.h"
 #include "gui_soundmsgs.h"
+#include "gui_frontmenu.h"
 #include "keeperfx.hpp"
 #include "lens_api.h"
 #include "lvl_script_commands.h"
@@ -4781,6 +4783,20 @@ static void set_power_configuration_process(struct ScriptContext *context)
             break;
     }
     update_powers_tab_to_config();
+    struct PlayerInfo *player = get_my_player();
+    if (player->view_type == PVT_DungeonTop)
+    {
+        if (menu_is_active(GMnu_SPELL))
+        {
+            turn_off_menu(GMnu_SPELL);
+            turn_on_menu(GMnu_SPELL);
+        }
+        else if (menu_is_active(GMnu_SPELL2))
+        {
+            turn_off_menu(GMnu_SPELL2);
+            turn_on_menu(GMnu_SPELL2);
+        }
+    }
 }
 
 static void set_player_colour_check(const struct ScriptLine *scline)

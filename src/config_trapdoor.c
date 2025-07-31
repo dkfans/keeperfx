@@ -26,15 +26,16 @@
 #include "bflib_sound.h"
 
 #include "config.h"
+#include "config_players.h"
 #include "config_strings.h"
 #include "console_cmd.h"
-#include "thing_doors.h"
-#include "thing_effects.h"
-#include "player_instances.h"
-#include "config_players.h"
-#include "game_legacy.h"
 #include "custom_sprites.h"
 #include "frontmenu_ingame_tabs.h"
+#include "game_legacy.h"
+#include "player_instances.h"
+#include "thing_doors.h"
+#include "thing_effects.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
