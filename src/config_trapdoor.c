@@ -30,10 +30,8 @@
 #include "config_strings.h"
 #include "console_cmd.h"
 #include "custom_sprites.h"
-#include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
 #include "game_legacy.h"
-#include "gui_frontmenu.h"
 #include "player_instances.h"
 #include "thing_doors.h"
 #include "thing_effects.h"
@@ -134,20 +132,6 @@ static void assign_tooltip_idx_door(const struct NamedField* named_field, int64_
     if (flag_is_set(flags, ccf_DuringLevel))
     {
         update_trap_tab_to_config();
-        struct PlayerInfo *player = get_my_player();
-        if (player->view_type == PVT_DungeonTop)
-        {
-            if ( menu_is_active(GMnu_TRAP) )
-            {
-                turn_off_menu(GMnu_TRAP);
-                turn_on_menu(GMnu_TRAP);
-            }
-            else if ( menu_is_active(GMnu_TRAP2) )
-            {
-                turn_off_menu(GMnu_TRAP2);
-                turn_on_menu(GMnu_TRAP2);
-            }
-        }
     }
 }
 
@@ -157,20 +141,6 @@ static void assign_icon_update_trap_tab(const struct NamedField* named_field, in
     if (flag_is_set(flags,ccf_DuringLevel))
     {
         update_trap_tab_to_config();
-        struct PlayerInfo *player = get_my_player();
-        if (player->view_type == PVT_DungeonTop)
-        {
-            if ( menu_is_active(GMnu_TRAP) )
-            {
-                turn_off_menu(GMnu_TRAP);
-                turn_on_menu(GMnu_TRAP);
-            }
-            else if ( menu_is_active(GMnu_TRAP2) )
-            {
-                turn_off_menu(GMnu_TRAP2);
-                turn_on_menu(GMnu_TRAP2);
-            }
-        }
     }
 }
 

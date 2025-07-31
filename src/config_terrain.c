@@ -30,7 +30,6 @@
 #include "config_strings.h"
 #include "frontmenu_ingame_tabs.h"
 #include "game_legacy.h"
-#include "gui_frontmenu.h"
 #include "thing_doors.h"
 
 #include "post_inc.h"
