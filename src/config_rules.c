@@ -177,6 +177,10 @@ static const struct NamedField rules_rooms_named_fields[] = {
   {"TORTUREDEATHCHANCE",                  0, field(game.conf.rules.rooms.torture_death_chance            ),   0,        0,                 100,NULL,value_default, assign_default},
   {"BARRACKMAXPARTYSIZE",                 0, field(game.conf.rules.rooms.barrack_max_party_size          ),  10,        0, GROUP_MEMBERS_COUNT,NULL,value_default, assign_default},
   {"TRAININGROOMMAXLEVEL",                0, field(game.conf.rules.rooms.training_room_max_level         ),   0,        0,CREATURE_MAX_LEVEL+1,NULL,value_default, assign_default},
+  {"TRAINEFFICIENCY",                     0, field(game.conf.rules.rooms.train_efficiency                ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
+  {"WORKEFFICIENCY",                      0, field(game.conf.rules.rooms.work_efficiency                 ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
+  {"SCAVENGEEFFECIENCY",                  0, field(game.conf.rules.rooms.scavenge_efficiency             ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
+  {"RESEARCHEFFECIENCY",                  0, field(game.conf.rules.rooms.research_efficiency             ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
   {NULL},
 };
 

@@ -653,7 +653,7 @@ void clear_transfered_creatures(void)
 LevelNumber move_campaign_to_next_level(void)
 {
     LevelNumber curr_lvnum = get_continue_level_number();
-    LevelNumber lvnum = next_singleplayer_level(curr_lvnum);
+    LevelNumber lvnum = next_singleplayer_level(curr_lvnum, false);
     SYNCDBG(15,"Campaign move %ld to %ld",(long)curr_lvnum,(long)lvnum);
     {
         struct PlayerInfo* player = get_my_player();

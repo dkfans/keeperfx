@@ -5907,18 +5907,18 @@ msgstr "신규 레벨"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Available: Creatures will manufacture this item in the Workshop."
-msgstr "사용 가능: 피조물이 이 아이템을 공방에서 제조합니다."
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "제조 가능: 피조물이 이 아이템을 공방에서 제조할 수 있습니다."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Larger Workshop required: Expand the Workshop to manufacture."
-msgstr "공방 확장 필요: 제조하려면 공방을 확장하세요."
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "공방이 너무 작음: 이 아이템을 제조하려면 공방을 확장해야 합니다."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Unavailable: This item cannot be manufactured."
-msgstr "사용 불가: 이 아이템은 제조할 수 없습니다."
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "제조 불가: 이 아이템은 제조할 수 없습니다."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -6776,12 +6776,12 @@ msgstr "애스미스트 섬"
 
 #: guitext:1013
 msgctxt "Menu interface item"
-msgid "Ancient Keeper campaign"
+msgid "Ancient Keeper"
 msgstr "고대 키퍼 캠패인"
 
 #: guitext:1014
 msgctxt "Menu interface item"
-msgid "Burdened Imps' Level Pack"
+msgid "Burdened Imps"
 msgstr "피해욧 임프의 레벨 팩"
 
 #: guitext:1015
@@ -6811,7 +6811,7 @@ msgstr "DzjeeAr의 25레벨 캠패인"
 
 #: guitext:1020
 msgctxt "Menu interface item"
-msgid "Evil Keeper campaign"
+msgid "Evil Keeper"
 msgstr "사악한 키퍼 캠패인"
 
 #: guitext:1021
@@ -6836,12 +6836,12 @@ msgstr "선한 캠패인"
 
 #: guitext:1025
 msgctxt "Menu interface item"
-msgid "Lord Vexer campaign"
+msgid "Lord Vexer"
 msgstr "백서경 캠패인"
 
 #: guitext:1026
 msgctxt "Menu interface item"
-msgid "Nikolai's Castles campaign"
+msgid "Nikolai's Castles"
 msgstr "니콜라이의 성 캠패인"
 
 #: guitext:1027
@@ -6851,17 +6851,17 @@ msgstr "던전 키퍼 - 새 게임+"
 
 #: guitext:1028
 msgctxt "Menu interface item"
-msgid "Post Ancient Keeper campaign"
+msgid "Post Ancient Keeper"
 msgstr "고대 키퍼 공표 캠패인"
 
 #: guitext:1029
 msgctxt "Menu interface item"
-msgid "Post Undead Keeper campaign"
+msgid "Post Undead Keeper"
 msgstr "언데드 키퍼 공표 캠패인"
 
 #: guitext:1030
 msgctxt "Menu interface item"
-msgid "Quest for the Hero campaign"
+msgid "Quest for the Hero"
 msgstr "영웅 퀘스트 캠패인"
 
 #: guitext:1031
@@ -6871,12 +6871,12 @@ msgstr "군주의 복수"
 
 #: guitext:1032
 msgctxt "Menu interface item"
-msgid "Twin Keepers Campaign"
+msgid "Twin Keepers"
 msgstr "쌍둥이 키퍼 캠패인"
 
 #: guitext:1033
 msgctxt "Menu interface item"
-msgid "Undead Keeper campaign"
+msgid "Undead Keeper"
 msgstr "언데드 키퍼 캠패인"
 
 #: guitext:1034 guitext:1035

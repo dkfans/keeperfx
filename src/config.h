@@ -69,15 +69,29 @@ enum TbExtraLevels {
     ExLv_NewMoon   =  2,
 };
 
-enum TbLevelOptions {
-    LvOp_None      =  0x00,
-    LvOp_IsSingle  =  0x01,
-    LvOp_IsMulti   =  0x02,
-    LvOp_IsBonus   =  0x04,
-    LvOp_IsExtra   =  0x08,
-    LvOp_IsFree    =  0x10,
-    LvOp_AlwsVisbl =  0x20,
-    LvOp_Tutorial  =  0x40,
+enum TbLevelKinds {
+    LvKind_None      =  0x00,
+    LvKind_IsSingle  =  0x01,
+    LvKind_IsMulti   =  0x02,
+    LvKind_IsBonus   =  0x04,
+    LvKind_IsExtra   =  0x08,
+    LvKind_IsFree    =  0x10,
+};
+
+enum Ensigns {
+    EnsNone         = 0,
+    EnsTutorial     = 2,
+    EnsFullFlag     = 10,
+    EnsBonus        = 18,
+    EnsFullMoon     = 26,
+    EnsNewMoon      = 37,
+    EnsDisTutorial  = 35,
+    EnsDisFull      = 36,
+    EnsDisMoonF     = 34,
+    EnsDisMoonN     = 45,
+    EnsDisMulti2    = 46,
+    EnsDisMulti3    = 47,
+    EnsDisMulti4    = 48,
 };
 
 enum TbLevelState {
@@ -240,6 +254,7 @@ short is_singleplayer_like_level(LevelNumber lvnum);
 short is_multiplayer_level(LevelNumber lvnum);
 short is_campaign_level(LevelNumber lvnum);
 short is_freeplay_level(LevelNumber lvnum);
+TbBool is_level_in_current_campaign(LevelNumber lvnum);
 int array_index_for_bonus_level(LevelNumber bn_lvnum);
 int array_index_for_extra_level(LevelNumber ex_lvnum);
 int array_index_for_singleplayer_level(LevelNumber sp_lvnum);
@@ -248,7 +263,7 @@ int array_index_for_freeplay_level(LevelNumber fp_lvnum);
 int storage_index_for_bonus_level(LevelNumber bn_lvnum);
 LevelNumber first_singleplayer_level(void);
 LevelNumber last_singleplayer_level(void);
-LevelNumber next_singleplayer_level(LevelNumber sp_lvnum);
+LevelNumber next_singleplayer_level(LevelNumber sp_lvnum, TbBool ignore);
 LevelNumber prev_singleplayer_level(LevelNumber sp_lvnum);
 LevelNumber bonus_level_for_singleplayer_level(LevelNumber sp_lvnum);
 LevelNumber first_multiplayer_level(void);

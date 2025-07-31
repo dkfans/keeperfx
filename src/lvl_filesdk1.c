@@ -229,7 +229,7 @@ long level_lif_entry_parse(const char *fname, char *buf)
     if (cbuf[0] == '#')
     {
       cbuf++;
-      if (!set_level_info_string_index(lvnum,cbuf,LvOp_IsFree))
+      if (!set_level_info_string_index(lvnum,cbuf,LvKind_IsFree))
       {
         WARNMSG("Can't set string index of level %ld from file \"%s\"", lvnum, fname);
       }
@@ -263,7 +263,7 @@ long level_lif_entry_parse(const char *fname, char *buf)
     WARNMSG("Can't add freeplay level from \"%s\" to campaign \"%s\"", fname, campaign.name);
     return 0;
   }
-  if (!set_level_info_text_name(lvnum,cbuf,LvOp_IsFree))
+  if (!set_level_info_text_name(lvnum,cbuf,LvKind_IsFree))
   {
     WARNMSG("Can't set name of level from file \"%s\"", fname);
     return 0;
@@ -357,7 +357,7 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
         WARNLOG("Incorrect .LOF file name \"%s\", skipped.",fname);
         return false;
     }
-    lvinfo = get_or_create_level_info(lvnum, LvOp_None);
+    lvinfo = get_or_create_level_info(lvnum, LvKind_None);
     if (lvinfo == NULL)
     {
         WARNMSG("Can't get LevelInformation item to store level %ld data from LOF file.",lvnum);
@@ -465,16 +465,19 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
                   COMMAND_TEXT(cmd_num),fname);
             }
             break;
-        case 6: // OPTIONS
-            while ((k = recognize_conf_parameter(buf,&pos,len,cmpgn_map_cmnds_options)) > 0)
+        case 6: // ENSIGN
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
-              switch (k)
-              {
-              case LvOp_Tutorial:
-                lvinfo->options |= k;
-                break;
-              }
-              n++;
+                k = get_id(cmpgn_map_ensign_flag_options, word_buf);
+                if (k >= 0)
+                {
+                    lvinfo->ensign = k;
+                }
+                else
+                {
+                    WARNMSG("Invalid value '%s' for \"%s\" in '%s' file.", word_buf,
+                        COMMAND_TEXT(cmd_num), fname);
+                }
             }
             break;
         case 7: // SPEECH
@@ -512,48 +515,48 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
             {
               switch (k)
               {
-              case LvOp_IsSingle:
-                if ((lvinfo->options & LvOp_IsSingle) == 0)
+              case LvKind_IsSingle:
+                if ((lvinfo->level_type & LvKind_IsSingle) == 0)
                 {
                     if (add_single_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
                         n++;
-                    lvinfo->options |= LvOp_IsSingle;
+                    lvinfo->level_type |= LvKind_IsSingle;
                 } else
                     n++;
                 break;
-              case LvOp_IsMulti:
-                if ((lvinfo->options & LvOp_IsMulti) == 0)
+              case LvKind_IsMulti:
+                if ((lvinfo->level_type & LvKind_IsMulti) == 0)
                 {
                     if (add_multi_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
                         n++;
-                    lvinfo->options |= LvOp_IsMulti;
+                    lvinfo->level_type |= LvKind_IsMulti;
                 } else
                     n++;
                 break;
-              case LvOp_IsBonus:
-                if ((lvinfo->options & LvOp_IsBonus) == 0)
+              case LvKind_IsBonus:
+                if ((lvinfo->level_type & LvKind_IsBonus) == 0)
                 {
                     if (add_bonus_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
                         n++;
-                    lvinfo->options |= LvOp_IsBonus;
+                    lvinfo->level_type |= LvKind_IsBonus;
                 } else
                     n++;
                 break;
-              case LvOp_IsExtra:
-                if ((lvinfo->options & LvOp_IsExtra) == 0)
+              case LvKind_IsExtra:
+                if ((lvinfo->level_type & LvKind_IsExtra) == 0)
                 {
                     if (add_extra_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
                         n++;
-                    lvinfo->options |= LvOp_IsExtra;
+                    lvinfo->level_type |= LvKind_IsExtra;
                 } else
                     n++;
                 break;
-              case LvOp_IsFree:
-                if ((lvinfo->options & LvOp_IsFree) == 0)
+              case LvKind_IsFree:
+                if ((lvinfo->level_type & LvKind_IsFree) == 0)
                 {
                     if (add_freeplay_level_to_campaign(&campaign,lvinfo->lvnum) >= 0)
                         n++;
-                    lvinfo->options |= LvOp_IsFree;
+                    lvinfo->level_type |= LvKind_IsFree;
                 } else
                     n++;
                 break;

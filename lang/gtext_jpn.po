@@ -5818,18 +5818,18 @@ msgstr "新しいレベル"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Available: Creatures will manufacture this item in the Workshop."
-msgstr "利用可能: クリーチャーがこのアイテムを工房で製造します。"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "製造可能: クリーチャーがこのアイテムを工房で製造できる。"
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Larger Workshop required: Expand the Workshop to manufacture."
-msgstr "工房が不足: 製造にはより大きな工房が必要です。"
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "工房の拡張が必要: このアイテムを製造するには、もっと広い工房を用意する必要がある。"
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Unavailable: This item cannot be manufactured."
-msgstr "利用不可: このアイテムは製造できません。"
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "製造不可: このアイテムは製造できない。"
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -6677,12 +6677,12 @@ msgstr "アッスミスト島"
 
 #: guitext:1013
 msgctxt "Menu interface item"
-msgid "Ancient Keeper campaign"
+msgid "Ancient Keeper"
 msgstr "エンシェント・キーパー・キャンペーン"
 
 #: guitext:1014
 msgctxt "Menu interface item"
-msgid "Burdened Imps' Level Pack"
+msgid "Burdened Imps"
 msgstr "Burdened Impのレベルパック"
 
 #: guitext:1015
@@ -6697,7 +6697,7 @@ msgstr "忍者の運命"
 
 #: guitext:1017
 msgctxt "Menu interface item"
-msgid "DzjeeAr's  6-level campaign"
+msgid "DzjeeAr's 6-level campaign"
 msgstr "DzjeeArの６面レベルキャンペーン"
 
 #: guitext:1018
@@ -6712,7 +6712,7 @@ msgstr "DzjeeArの２５面レベルキャンペーン"
 
 #: guitext:1020
 msgctxt "Menu interface item"
-msgid "Evil Keeper campaign"
+msgid "Evil Keeper"
 msgstr "邪悪なキーパー・キャンペーン"
 
 #: guitext:1021
@@ -6737,12 +6737,12 @@ msgstr "勇者キャンペーン"
 
 #: guitext:1025
 msgctxt "Menu interface item"
-msgid "Lord Vexer campaign"
+msgid "Lord Vexer"
 msgstr "ヴェクサー卿キャンペーン"
 
 #: guitext:1026
 msgctxt "Menu interface item"
-msgid "Nikolai's Castles campaign"
+msgid "Nikolai's Castles"
 msgstr "ニコライの城キャンペーン"
 
 #: guitext:1027
@@ -6752,17 +6752,17 @@ msgstr "増強された原キャンペーン"
 
 #: guitext:1028
 msgctxt "Menu interface item"
-msgid "Post Ancient Keeper campaign"
+msgid "Post Ancient Keeper"
 msgstr "エンシェント・キーパー後キャンペーン"
 
 #: guitext:1029
 msgctxt "Menu interface item"
-msgid "Post Undead Keeper campaign"
+msgid "Post Undead Keeper"
 msgstr "アンデッド・キーパー後キャンペーン"
 
 #: guitext:1030
 msgctxt "Menu interface item"
-msgid "Quest for the Hero campaign"
+msgid "Quest for the Hero"
 msgstr "勇者の探求キャンペーン"
 
 #: guitext:1031
@@ -6772,12 +6772,12 @@ msgstr "主君の復讐"
 
 #: guitext:1032
 msgctxt "Menu interface item"
-msgid "Twin Keepers Campaign"
+msgid "Twin Keepers"
 msgstr "ツイン・キーパーズ・キャンペーン"
 
 #: guitext:1033
 msgctxt "Menu interface item"
-msgid "Undead Keeper campaign"
+msgid "Undead Keeper"
 msgstr "アンデッド・キーパー・キャンペーン"
 
 #: guitext:1034 guitext:1035

@@ -5171,18 +5171,18 @@ msgstr "Nuevos niveles"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Available: Creatures will manufacture this item in the Workshop."
-msgstr "Disponible: Las criaturas fabricarán este objeto en el taller."
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "Fabricable: Las criaturas pueden fabricar este objeto en el taller."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Larger Workshop required: Expand the Workshop to manufacture."
-msgstr "Se requiere un taller más grande: Amplía el taller para fabricar."
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "Taller demasiado pequeño: Amplía el taller para fabricar este objeto."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Unavailable: This item cannot be manufactured."
-msgstr "No disponible: Este objeto no puede ser fabricado."
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "No fabricable: Este objeto no se puede fabricar."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -5908,12 +5908,12 @@ msgstr "La Isla Asistida"
 
 #: guitext:1013
 msgctxt "Menu interface item"
-msgid "Ancient Keeper campaign"
+msgid "Ancient Keeper"
 msgstr "El Guardián Antiguo"
 
 #: guitext:1014
 msgctxt "Menu interface item"
-msgid "Burdened Imps' Level Pack"
+msgid "Burdened Imps"
 msgstr "Los Diablillos agobiados, paquete de niveles"
 
 #: guitext:1015
@@ -5928,7 +5928,7 @@ msgstr "El Destino del Ninja"
 
 #: guitext:1017
 msgctxt "Menu interface item"
-msgid "DzjeeAr's  6-level campaign"
+msgid "DzjeeAr's 6-level campaign"
 msgstr "DzjeeAr's : Nivel 6"
 
 #: guitext:1018
@@ -5943,7 +5943,7 @@ msgstr "DzjeeAr's : Nivel 25"
 
 #: guitext:1020
 msgctxt "Menu interface item"
-msgid "Evil Keeper campaign"
+msgid "Evil Keeper"
 msgstr "El Guardián Malvado"
 
 #: guitext:1021
@@ -5968,12 +5968,12 @@ msgstr "Buenos"
 
 #: guitext:1025
 msgctxt "Menu interface item"
-msgid "Lord Vexer campaign"
+msgid "Lord Vexer"
 msgstr "Lord Vexer"
 
 #: guitext:1026
 msgctxt "Menu interface item"
-msgid "Nikolai's Castles campaign"
+msgid "Nikolai's Castles"
 msgstr "El Castillo de Nikolai"
 
 #: guitext:1027
@@ -5983,17 +5983,17 @@ msgstr "Dungeon Keeper - Nuevo Juego+"
 
 #: guitext:1028
 msgctxt "Menu interface item"
-msgid "Post Ancient Keeper campaign"
+msgid "Post Ancient Keeper"
 msgstr "El Guardián Antiguo"
 
 #: guitext:1029
 msgctxt "Menu interface item"
-msgid "Post Undead Keeper campaign"
+msgid "Post Undead Keeper"
 msgstr "El Muerto Viviente"
 
 #: guitext:1030
 msgctxt "Menu interface item"
-msgid "Quest for the Hero campaign"
+msgid "Quest for the Hero"
 msgstr "La Búsqueda del Héroe"
 
 #: guitext:1031
@@ -6003,12 +6003,12 @@ msgstr "La Venganza del Caballero"
 
 #: guitext:1032
 msgctxt "Menu interface item"
-msgid "Twin Keepers Campaign"
+msgid "Twin Keepers"
 msgstr "Los Guardianes Gemelos"
 
 #: guitext:1033
 msgctxt "Menu interface item"
-msgid "Undead Keeper campaign"
+msgid "Undead Keeper"
 msgstr "El Guardián Muerto Viviente"
 
 #: guitext:1034 guitext:1035

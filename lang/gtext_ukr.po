@@ -4914,18 +4914,18 @@ msgstr "Нові рівні"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Available: Creatures will manufacture this item in the Workshop."
-msgstr "Доступно: Створіння виготовлятимуть цей предмет у Майстерні."
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "Можна виготовити: створіння можуть виготовити цей предмет у Майстерні."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Larger Workshop required: Expand the Workshop to manufacture."
-msgstr "Потрібна більша Майстерня: Розширте Майстерню, щоб виготовляти."
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "Майстерня замала: розширте майстерню, щоб виготовити цей предмет."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Unavailable: This item cannot be manufactured."
-msgstr "Недоступно: Цей предмет неможливо виготовити."
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "Виготовлення неможливе: цей предмет неможливо виготовити."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -5622,12 +5622,12 @@ msgstr "Острів Сракоміст"
 
 #: guitext:1013
 msgctxt "Menu interface item"
-msgid "Ancient Keeper campaign"
+msgid "Ancient Keeper"
 msgstr "Кампанія Стародавнього Хранителя"
 
 #: guitext:1014
 msgctxt "Menu interface item"
-msgid "Burdened Imps' Level Pack"
+msgid "Burdened Imps"
 msgstr "Загружені Імпи"
 
 #: guitext:1015
@@ -5642,7 +5642,7 @@ msgstr "Доля Ніндзя"
 
 #: guitext:1017
 msgctxt "Menu interface item"
-msgid "DzjeeAr's  6-level campaign"
+msgid "DzjeeAr's 6-level campaign"
 msgstr "6-рівнева кампанія DzjeeAr"
 
 #: guitext:1018
@@ -5657,7 +5657,7 @@ msgstr "25-рівнева кампанія DzjeeAr"
 
 #: guitext:1020
 msgctxt "Menu interface item"
-msgid "Evil Keeper campaign"
+msgid "Evil Keeper"
 msgstr "Кампанія Злого Хранителя"
 
 #: guitext:1021
@@ -5682,12 +5682,12 @@ msgstr "Хороша кампанія"
 
 #: guitext:1025
 msgctxt "Menu interface item"
-msgid "Lord Vexer campaign"
+msgid "Lord Vexer"
 msgstr "Лорд Вексер"
 
 #: guitext:1026
 msgctxt "Menu interface item"
-msgid "Nikolai's Castles campaign"
+msgid "Nikolai's Castles"
 msgstr "Замок Николая"
 
 #: guitext:1027
@@ -5697,17 +5697,17 @@ msgstr "Dungeon Keeper - NG+"
 
 #: guitext:1028
 msgctxt "Menu interface item"
-msgid "Post Ancient Keeper campaign"
+msgid "Post Ancient Keeper"
 msgstr "Кампанія Пост-Стародавнього Хранителя"
 
 #: guitext:1029
 msgctxt "Menu interface item"
-msgid "Post Undead Keeper campaign"
+msgid "Post Undead Keeper"
 msgstr "Кампанія Пост-Мертвого Хранителя"
 
 #: guitext:1030
 msgctxt "Menu interface item"
-msgid "Quest for the Hero campaign"
+msgid "Quest for the Hero"
 msgstr "Шлях до Героя"
 
 #: guitext:1031
@@ -5717,12 +5717,12 @@ msgstr "Помста Лорда"
 
 #: guitext:1032
 msgctxt "Menu interface item"
-msgid "Twin Keepers Campaign"
+msgid "Twin Keepers"
 msgstr "Хранителі Близнюки"
 
 #: guitext:1033
 msgctxt "Menu interface item"
-msgid "Undead Keeper campaign"
+msgid "Undead Keeper"
 msgstr "Кампанія Андеда-Хранителя"
 
 #: guitext:1034 guitext:1035

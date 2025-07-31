@@ -139,6 +139,8 @@ pkg-menugfx: $(TOTRUREGFX) $(FRONTENDGFX)
 
 pkg-enginegfx: $(ENGINEGFX)
 
+pkg-landviewtabs: $(LANDVIEWDATTABS)
+
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
 pkg/campgns/$(1)_lnd/rgmap%.pal: gfx/landviews/$(1)_lnd/rgmap%.png gfx/landviews/$(1)_lnd/viframe.png tools/png2bestpal/res/color_tbl_landview.txt $$(PNGTOBSPAL)

@@ -157,7 +157,7 @@ static const unsigned short creature_list[CREATURE_FRAMELIST_LENGTH] = {
 /******************************************************************************/
 
 /******************************************************************************/
-struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
+struct PickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
 {
     ThingModel crmodel = thing->model;
     if ((crmodel < 1) || (crmodel >= game.conf.crtr_conf.model_count))
@@ -515,7 +515,7 @@ void update_creature_graphic_anim(struct Thing *thing)
                 thing->anim_speed = i;
             }
         }
-    } else
+    } else // chickened
     {
         thing->rendering_flags &= ~(TRF_Transpar_Flags);
         if (cctrl->distance_to_destination == 0)

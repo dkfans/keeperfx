@@ -5957,18 +5957,18 @@ msgstr "Nuovi livelli"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Available: Creatures will manufacture this item in the Workshop."
-msgstr "Disponibile: Le creature fabbricheranno questo oggetto nella Sala Lavoro."
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "Producibile: Le creature possono produrre questo oggetto nella Sala Lavoro."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Larger Workshop required: Expand the Workshop to manufacture."
-msgstr "Serve una Sala Lavoro più grande: Espandila per fabbricare."
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "Sala Lavoro troppo piccola: Espandila per poter produrre questo oggetto."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Unavailable: This item cannot be manufactured."
-msgstr "Non disponibile: Questo oggetto non può essere fabbricato."
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "Non producibile: Questo oggetto non può essere prodotto."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -6838,12 +6838,12 @@ msgstr ""
 
 #: guitext:1013
 msgctxt "Menu interface item"
-msgid "Ancient Keeper campaign"
+msgid "Ancient Keeper"
 msgstr ""
 
 #: guitext:1014
 msgctxt "Menu interface item"
-msgid "Burdened Imps' Level Pack"
+msgid "Burdened Imps"
 msgstr ""
 
 #: guitext:1015
@@ -6858,7 +6858,7 @@ msgstr ""
 
 #: guitext:1017
 msgctxt "Menu interface item"
-msgid "DzjeeAr's  6-level campaign"
+msgid "DzjeeAr's 6-level campaign"
 msgstr ""
 
 #: guitext:1018
@@ -6873,7 +6873,7 @@ msgstr ""
 
 #: guitext:1020
 msgctxt "Menu interface item"
-msgid "Evil Keeper campaign"
+msgid "Evil Keeper"
 msgstr ""
 
 #: guitext:1021
@@ -6898,12 +6898,12 @@ msgstr ""
 
 #: guitext:1025
 msgctxt "Menu interface item"
-msgid "Lord Vexer campaign"
+msgid "Lord Vexer"
 msgstr ""
 
 #: guitext:1026
 msgctxt "Menu interface item"
-msgid "Nikolai's Castles campaign"
+msgid "Nikolai's Castles"
 msgstr ""
 
 #: guitext:1027
@@ -6913,17 +6913,17 @@ msgstr ""
 
 #: guitext:1028
 msgctxt "Menu interface item"
-msgid "Post Ancient Keeper campaign"
+msgid "Post Ancient Keeper"
 msgstr ""
 
 #: guitext:1029
 msgctxt "Menu interface item"
-msgid "Post Undead Keeper campaign"
+msgid "Post Undead Keeper"
 msgstr ""
 
 #: guitext:1030
 msgctxt "Menu interface item"
-msgid "Quest for the Hero campaign"
+msgid "Quest for the Hero"
 msgstr ""
 
 #: guitext:1031
@@ -6933,12 +6933,12 @@ msgstr ""
 
 #: guitext:1032
 msgctxt "Menu interface item"
-msgid "Twin Keepers Campaign"
+msgid "Twin Keepers"
 msgstr ""
 
 #: guitext:1033
 msgctxt "Menu interface item"
-msgid "Undead Keeper campaign"
+msgid "Undead Keeper"
 msgstr "Campagna Keeper non morto"
 
 #: guitext:1034 guitext:1035
