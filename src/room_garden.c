@@ -60,7 +60,7 @@ TbBool remove_food_from_food_room_if_possible(struct Thing *thing)
     {
         room->used_capacity--;
     }
-    thing->food.life_remaining = game.conf.rules[TODO_SO_ATM_0].game.food_life_out_of_hatchery;
+    thing->food.life_remaining = game.conf.rules[thing->owner].game.food_life_out_of_hatchery;
     thing->parent_idx = -1;
     return true;
 }
@@ -78,7 +78,7 @@ short room_grow_food(struct Room *room)
         count_food_in_room(room);
     }
     if ((room->used_capacity >= room->total_capacity)
-      || game.play_gameturn % ((game.conf.rules[TODO_SO_ATM_0].rooms.food_generation_speed / room->total_capacity) + 1))
+      || game.play_gameturn % ((game.conf.rules[room->owner].rooms.food_generation_speed / room->total_capacity) + 1))
     {
         return 0;
     }

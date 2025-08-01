@@ -1285,7 +1285,7 @@ TbBool link_room_health(struct Room* linkroom, struct Room* oldroom)
 TbBool recalculate_room_health(struct Room* room)
 {
     SYNCDBG(7, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
-    HitPoints newhealth = (room->health + game.conf.rules[TODO_SO_ATM_0].workers.hits_per_slab);
+    HitPoints newhealth = (room->health + game.conf.rules[room->owner].workers.hits_per_slab);
     HitPoints maxhealth = compute_room_max_health(room->slabs_count, room->efficiency);
     
     if ((newhealth <= maxhealth) && (newhealth >= 0))
@@ -3647,7 +3647,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
         destroy_object(thing);
         return;
     }
-    if ((game.conf.rules[TODO_SO_ATM_0].game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) {
+    if ((game.conf.rules[room->owner].game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) {
         // Preserve classic bug - object is claimed with the room
         thing->owner = newowner;
         return;

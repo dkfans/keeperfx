@@ -565,7 +565,7 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
         if (destination_valid)
          {
              // Use teleport only over large enough distances
-             if (get_chessboard_distance(&thing->mappos, pos) > COORD_PER_STL*game.conf.rules[TODO_SO_ATM_0].magic.min_distance_for_teleport)
+             if (get_chessboard_distance(&thing->mappos, pos) > COORD_PER_STL*game.conf.rules[thing->owner].magic.min_distance_for_teleport)
              {
                  set_creature_instance(thing, CrInst_TELEPORT, 0, pos);
                  return true;
