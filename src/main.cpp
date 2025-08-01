@@ -439,7 +439,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     {
       if ( (thing->model != ShM_SolidBoulder) && (collide == 0) )
       {
-        thing->health -= game.conf.rules.game.boulder_reduce_health_wall;
+        thing->health -= game.conf.rules[thing->owner].game.boulder_reduce_health_wall;
       }
       slide_thing_against_wall_at(thing, &pos, blocked_flags);
       if ( blocked_flags & SlbBloF_WalledX )
@@ -526,7 +526,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
             }
             if (boulder->model != ShM_SolidBoulder) // Solid Boulder (shot20) takes no damage when destroying guardposts
             {
-                boulder->health -= game.conf.rules.game.boulder_reduce_health_room; // decrease boulder health
+                boulder->health -= game.conf.rules[plyr_idx].game.boulder_reduce_health_room; // decrease boulder health
             }
             return 1; // guardpost destroyed
         }
@@ -2259,7 +2259,7 @@ void count_players_creatures_being_paid(int *creatures_count)
 
 void process_payday(void)
 {
-    game.pay_day_progress = game.pay_day_progress + (game.conf.rules.game.pay_day_speed / 100);
+    game.pay_day_progress = game.pay_day_progress + (game.conf.rules[plyr_idx].game.pay_day_speed / 100);
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
@@ -2274,7 +2274,7 @@ void process_payday(void)
             compute_and_update_player_backpay_total(plyr_idx);
         }
     }
-    if (game.conf.rules.game.pay_day_gap <= game.pay_day_progress)
+    if (game.conf.rules[plyr_idx].game.pay_day_gap <= game.pay_day_progress)
     {
         output_message(SMsg_Payday, 0);
         game.pay_day_progress = 0;
@@ -2552,7 +2552,7 @@ long update_cave_in(struct Thing *thing)
         create_effect(&pos, TngEff_HarmlessGas4, owner);
     }
 
-    if ((turns_alive % game.conf.rules.magic.turns_per_collapse_dngn_dmg) == 0)
+    if ((turns_alive % game.conf.rules[plyr_idx].magic.turns_per_collapse_dngn_dmg) == 0)
     {
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
@@ -2563,7 +2563,7 @@ long update_cave_in(struct Thing *thing)
         param.class_id = 0;
         param.model_id = 0;
         param.num1 = thing->owner;
-        param.num2 = game.conf.rules.magic.collapse_dungeon_damage;
+        param.num2 = game.conf.rules[plyr_idx].magic.collapse_dungeon_damage;
         param.ptr3 = 0;
         do_cb = damage_creatures_with_physical_force;
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
@@ -2616,20 +2616,20 @@ void update_global_lighting()
 {
     // Check if any values have changed
     if (
-        game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light ||
-        game.conf.rules.game.light_enabled != game.lish.light_enabled
+        game.conf.rules[plyr_idx].game.global_ambient_light != game.lish.global_ambient_light ||
+        game.conf.rules[plyr_idx].game.light_enabled != game.lish.light_enabled
     ){
 
         // GlobalAmbientLight
-        if (game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light)
+        if (game.conf.rules[plyr_idx].game.global_ambient_light != game.lish.global_ambient_light)
         {
-            game.lish.global_ambient_light = game.conf.rules.game.global_ambient_light;
+            game.lish.global_ambient_light = game.conf.rules[plyr_idx].game.global_ambient_light;
         }
 
         // LightEnabled
-        if (game.conf.rules.game.light_enabled != game.lish.light_enabled)
+        if (game.conf.rules[plyr_idx].game.light_enabled != game.lish.light_enabled)
         {
-            game.lish.light_enabled = game.conf.rules.game.light_enabled;
+            game.lish.light_enabled = game.conf.rules[plyr_idx].game.light_enabled;
         }
 
         // Refresh the lights

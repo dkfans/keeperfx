@@ -365,7 +365,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     *health = slb->health;
     // You can only dig your own tiles or non-fortified neutral ground (dirt/gold)
     // If you're not the tile owner, unless the classic bug mode is enabled.
-    if (!(game.conf.rules.game.classic_bugs_flags & ClscBug_BreakNeutralWalls))
+    if (!(game.conf.rules[plyr_idx].game.classic_bugs_flags & ClscBug_BreakNeutralWalls))
     {
         if (slabmap_owner(slb) != diggertng->owner)
         {
@@ -1095,7 +1095,7 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
         dieflags = CrDed_DiedInBattle | ((shotst->model_flags & ShMF_NoStun)?CrDed_NoUnconscious:0) | ((shotst->model_flags & ShMF_BlocksRebirth)? CrDed_NoRebirth : 0);
     }
     // Friendly fire should kill the creature, not knock out
-    if (players_creatures_tolerate_each_other(shotng->owner,creatng->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint))
+    if (players_creatures_tolerate_each_other(shotng->owner,creatng->owner) &! (game.conf.rules[plyr_idx].game.classic_bugs_flags & ClscBug_FriendlyFaint))
     {
         dieflags |= CrDed_NoUnconscious;
     }
@@ -1111,7 +1111,7 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 int weight_calculated_push_strenght(int weight, int push_strength)
 {
     const int min_weight = 6; // Minimum weight threshold for the creature.
-    const int max_weight = game.conf.rules.magic.weight_calculate_push; // Maximum weight threshold for the creature.
+    const int max_weight = game.conf.rules[plyr_idx].magic.weight_calculate_push; // Maximum weight threshold for the creature.
     const int percent_factor = 1000; // Factor used to scale the weight factor to a percentage.
 
     // Ensure that the weight is within the valid range of min_weight to max_weight.
@@ -1202,7 +1202,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         adjusted_throw_strength = throw_strength;
 
 
-        if (game.conf.rules.magic.weight_calculate_push > 0)
+        if (game.conf.rules[plyr_idx].magic.weight_calculate_push > 0)
         {
             int weight = compute_creature_weight(trgtng);
             adjusted_throw_strength = weight_calculated_push_strenght(weight, throw_strength);
@@ -1392,7 +1392,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
 
     adjusted_push_strength = push_strength;
-    if (game.conf.rules.magic.weight_calculate_push > 0)
+    if (game.conf.rules[plyr_idx].magic.weight_calculate_push > 0)
     {
         int weight = compute_creature_weight(trgtng);
         adjusted_push_strength = weight_calculated_push_strenght(weight, push_strength);
@@ -1411,7 +1411,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     {
         if (push_strength == 0)
             push_strength++;
-        if (game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
+        if (game.conf.rules[plyr_idx].game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
         {
         push_strength *= 5;
         int move_x = push_strength * shotng->velocity.x.val / 16.0;
@@ -1469,7 +1469,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->model_flags & ShMF_Boulder)
     {
-        if (creature_is_being_unconscious(trgtng)  && !(game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
+        if (creature_is_being_unconscious(trgtng)  && !(game.conf.rules[plyr_idx].game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
         {
             return 0;
         } 
@@ -1947,7 +1947,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                 creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;    
 
                 // if weight-affect-push-rule is on
-                if (game.conf.rules.magic.weight_calculate_push > 0)
+                if (game.conf.rules[thing->owner].magic.weight_calculate_push > 0)
                 {
                     long weight = compute_creature_weight(thing);
                     //max push distance
@@ -1974,7 +1974,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                     apply_velocity = true;
                     set_flag(cctrl->spell_flags, CSAfF_Wind);
                 } // If weight_affect_push_rule is on.
-                else if (game.conf.rules.magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected)
+                else if (game.conf.rules[thing->owner].magic.weight_calculate_push > 0 && creature_distance >= blow_distance && !creatureAlreadyAffected)
                 {
                     // Add creature index to wind_affected_creature array.
                     shotng->shot.wind_affected_creature[shotng->shot.num_wind_affected++] = cctrl->index;

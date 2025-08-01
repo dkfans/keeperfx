@@ -1748,8 +1748,8 @@ TbBool cmd_toggle_classic_bug(PlayerNumber plyr_idx, char * args)
         bug = atoi(pr2str);
     }
     unsigned long flg = (bug > 2) ? (1 << (bug - 1)) : bug;
-    toggle_flag(game.conf.rules.game.classic_bugs_flags, flg);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((game.conf.rules.game.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
+    toggle_flag(game.conf.rules[plyr_idx].game.classic_bugs_flags, flg);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((game.conf.rules[plyr_idx].game.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
     return true;
 }
 

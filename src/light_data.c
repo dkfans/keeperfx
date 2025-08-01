@@ -1537,8 +1537,8 @@ void light_set_lights_on(char state)
     if (state)
     {
         // Game rule
-        game.lish.global_ambient_light = game.conf.rules.game.global_ambient_light;
-        game.lish.light_enabled = game.conf.rules.game.light_enabled;
+        game.lish.global_ambient_light = game.conf.rules[0].game.global_ambient_light;
+        game.lish.light_enabled = game.conf.rules[0].game.light_enabled;
     } else
     {
         // Fullbright

@@ -995,8 +995,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     {
         // Friendly fire usually causes less damage and at smaller distance
         if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
-            max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_percent / 100;
-            max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_percent / 100;
+            max_dist = max_dist * game.conf.rules[plyr_idx].magic.friendly_fight_area_range_percent / 100;
+            max_damage = max_damage * game.conf.rules[plyr_idx].magic.friendly_fight_area_damage_percent / 100;
         }
         MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);
         if (distance <= max_dist)
@@ -1046,7 +1046,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if ((players_creatures_tolerate_each_other(tngsrc->owner,tngdst->owner) && !flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_FriendlyFaint)) || (flag_is_set(shot_model_flags,ShMF_NoStun)) )
+                    if ((players_creatures_tolerate_each_other(tngsrc->owner,tngdst->owner) && !flag_is_set(game.conf.rules[plyr_idx].game.classic_bugs_flags,ClscBug_FriendlyFaint)) || (flag_is_set(shot_model_flags,ShMF_NoStun)) )
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
@@ -1072,7 +1072,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
             } else // Explosions move creatures and other things
             {
                 int adjusted_blow_strength = blow_strength;
-                if (game.conf.rules.magic.weight_calculate_push > 0)
+                if (game.conf.rules[plyr_idx].magic.weight_calculate_push > 0)
                 {
                     int weight = compute_creature_weight(tngdst);
                     adjusted_blow_strength = weight_calculated_push_strenght(weight, blow_strength);

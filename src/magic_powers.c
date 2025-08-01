@@ -986,7 +986,7 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
         // Per-thing code
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        if (is_neutral_thing(thing) && !game.conf.rules.magic.armageddon_teleport_neutrals) // Creatures unaffected by Armageddon.
+        if (is_neutral_thing(thing) && !game.conf.rules[plyr_idx].magic.armageddon_teleport_neutrals) // Creatures unaffected by Armageddon.
         {
             cctrl->armageddon_teleport_turn = 0;
         }
@@ -998,9 +998,9 @@ static TbResult magic_use_power_armageddon(PowerKind power_kind, PlayerNumber pl
         {
             cctrl->armageddon_teleport_turn = your_time_gap;
             if (thing->owner == plyr_idx) {
-                your_time_gap += game.conf.rules.magic.armageddon_teleport_your_time_gap;
+                your_time_gap += game.conf.rules[plyr_idx].magic.armageddon_teleport_your_time_gap;
             } else {
-                enemy_time_gap += game.conf.rules.magic.armageddon_teleport_enemy_time_gap;
+                enemy_time_gap += game.conf.rules[plyr_idx].magic.armageddon_teleport_enemy_time_gap;
             }
         }
         // Per-thing code ends
@@ -1784,7 +1784,7 @@ static void magic_power_hold_audience_update(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     SYNCDBG(8,"Starting");
-    if ( game.play_gameturn - dungeon->hold_audience_cast_turn <= game.conf.rules.magic.hold_audience_time) {
+    if ( game.play_gameturn - dungeon->hold_audience_cast_turn <= game.conf.rules[plyr_idx].magic.hold_audience_time) {
         return;
     }
     // Dispose hold audience effect
@@ -1896,7 +1896,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     TbBool free = ((slabmap_owner(slb) == plyr_idx) || dungeon->cta_free);
     if (!free)
     {
-        if ((game.conf.rules.game.allies_share_cta) && (players_are_mutual_allies(plyr_idx, slabmap_owner(slb))))
+        if ((game.conf.rules[plyr_idx].game.allies_share_cta) && (players_are_mutual_allies(plyr_idx, slabmap_owner(slb))))
         {
             free = true;
         }

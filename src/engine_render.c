@@ -5385,9 +5385,9 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
             is_allied = players_are_mutual_allies(player->id_number, thing->owner) && (player->id_number != thing->owner);
             should_drag_to_lair = creature_is_being_unconscious(thing) && (player->id_number == thing->owner)
             // Check if the creature has a lair room or can heal in a lair.
-            && ((game.conf.rules.workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing)))
+            && ((game.conf.rules[thing->owner].workers.drag_to_lair == 1 && !room_is_invalid(get_creature_lair_room(thing)))
             // Or check if the creature can have lair and heal in it.
-            || (game.conf.rules.workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing)));
+            || (game.conf.rules[thing->owner].workers.drag_to_lair == 2 && creature_can_do_healing_sleep(thing)));
         }
         // Check if the creature is in combat.
         TbBool is_in_combat = (cctrl->combat_flags != 0);

@@ -41,7 +41,7 @@ unsigned long game_flags2 = 0;
 TbBool emulate_integer_overflow(unsigned short nbits)
 {
     if (nbits == 8)
-        return (game.conf.rules.game.classic_bugs_flags & ClscBug_Overflow8bitVal) != 0;
+        return (game.conf.rules[0].game.classic_bugs_flags & ClscBug_Overflow8bitVal) != 0;
     return false;
 }
 

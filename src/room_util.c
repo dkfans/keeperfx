@@ -185,7 +185,7 @@ void sell_room_slab_when_no_free_room_structures(struct Room *room, long slb_x, 
 {
     delete_room_slab_when_no_free_room_structures(slb_x, slb_y, gnd_slab);
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long revenue = compute_value_percentage(roomst->cost, game.conf.rules.game.room_sale_percent);
+    long revenue = compute_value_percentage(roomst->cost, game.conf.rules[plyr_idx].game.room_sale_percent);
     if (revenue != 0)
     {
         struct Coord3d pos;
@@ -455,7 +455,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_gold_hoard(thing))
     {
         room = get_room_thing_is_on(thing);
-        long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
+        long wealth_size_holds = game.conf.rules[plyr_idx].game.gold_per_hoard / get_wealth_size_types_count();
         unsigned long gold_value = wealth_size_holds * max(1, get_wealth_size_of_gold_hoard_object(thing));
         unsigned long value_left;
         unsigned long value_added;
@@ -492,7 +492,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
             if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_PowersStorage) || (!player_exists(get_player(room->owner)) && (game.play_gameturn >= 10)))
             {
                 // No room - oh well, leave it as free spell
-                if (((game.conf.rules.game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
+                if (((game.conf.rules[plyr_idx].game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
                     // Preserve classic bug - object is claimed with the room
                     thing->owner = room->owner;
                 }
@@ -523,7 +523,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
         if (room_is_invalid(room) || !room_role_matches(room->kind, RoRoF_CratesStorage) || !player_exists(get_player(room->owner)))
         {
             // No room - oh well, leave it as free box
-            if (((game.conf.rules.game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
+            if (((game.conf.rules[plyr_idx].game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
                 // Preserve classic bug - object is claimed with the room
                 thing->owner = room->owner;
             } else {
