@@ -2259,7 +2259,7 @@ void count_players_creatures_being_paid(int *creatures_count)
 
 void process_payday(void)
 {
-    game.pay_day_progress = game.pay_day_progress + (game.conf.rules[TODO_SO_ATM_0].game.pay_day_speed / 100);
+    game.pay_day_progress = game.pay_day_progress + (game.conf.rules[TODO_SO_ATM_0].game.pay_day_speed / 100); //todo change game.pay_day_progress
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
