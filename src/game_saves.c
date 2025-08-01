@@ -57,8 +57,10 @@ extern "C" {
 /******************************************************************************/
 TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct CatalogueEntry *centry);
 /******************************************************************************/
-long const VersionMajor = 1;
-long const VersionMinor = 12;
+const short VersionMajor    = VER_MAJOR;
+const short VersionMinor    = VER_MINOR;
+short const VersionRelease  = VER_RELEASE;
+short const VersionBuild    = VER_BUILD;
 
 const char *continue_game_filename="fx1contn.sav";
 const char *saved_game_filename="fx1g%04d.sav";
@@ -367,6 +369,17 @@ TbBool load_game(long slot_num)
         }
     }
     struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
+
+        // Check if the game version is compatible
+    if ((centry->game_ver_major != VER_MAJOR) || (centry->game_ver_minor != VER_MINOR) || 
+        (centry->game_ver_release != VER_RELEASE) || (centry->game_ver_build != VER_BUILD))
+    {
+        WARNLOG("loading savegame made in different version %d.%d.%d.%d current %d.%d.%d.%d", 
+            (int)centry->game_ver_major, (int)centry->game_ver_minor,
+            (int)centry->game_ver_release, (int)centry->game_ver_build, 
+            VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
+    }
+
     LbFileSeek(fh, 0, Lb_FILE_SEEK_BEGINNING);
     // Here is the actual loading
     if (load_game_chunks(fh,centry) != GLoad_SavedGame)
@@ -428,13 +441,16 @@ int count_valid_saved_games(void)
 
 TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textname)
 {
-    centry->version = (VersionMajor << 16) + VersionMinor;
     centry->level_num = get_loaded_level_number();
     snprintf(centry->textname, SAVE_TEXTNAME_LEN, "%s", textname);
     snprintf(centry->campaign_name, LINEMSG_SIZE, "%s", campaign.name);
     snprintf(centry->campaign_fname, DISKPATH_SIZE, "%s", campaign.fname);
     snprintf(centry->player_name, PLAYER_NAME_LENGTH, "%s", high_score_entry);
     set_flag(centry->flags, CEF_InUse);
+    centry->game_ver_major = VER_MAJOR;
+    centry->game_ver_minor = VER_MINOR;
+    centry->game_ver_release = VER_RELEASE;
+    centry->game_ver_build = VER_BUILD;
     return true;
 }
 
