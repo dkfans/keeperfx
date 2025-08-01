@@ -5453,9 +5453,11 @@ static void computer_player_process(struct ScriptContext* context)
                 if (toggle == true)
                 {
                     script_support_setup_player_as_computer_keeper(i, model);
-                    get_dungeon(i)->turns_between_entrance_generation = game.generate_speed;
+                    player = get_player(i);
+                    struct Dungeon* dungeon = get_dungeon(i);
+                    dungeon->turns_between_entrance_generation = player->generate_speed;
                     init_creature_states_for_player(i);
-                    post_init_player(get_player(i));
+                    post_init_player(player);
                 }
                 else
                 {
@@ -6012,6 +6014,69 @@ static void run_lua_code_process(struct ScriptContext* context)
     execute_lua_code_from_script(code);
 }
 
+static void set_generate_speed_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    if (scline->tp[1][0] == '\0')
+    {
+        if (scline->np[0] <= 0)
+        {
+            SCRPTERRLOG("Generation speed must be positive number");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value->chars[2] = ALL_PLAYERS;
+    }
+    else
+    {
+        if (scline->np[0] < 0)
+        {
+            SCRPTERRLOG("Generation speed must be positive number");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value->chars[2] = get_id(player_desc, scline->tp[1]);
+        if (value->chars[2] == -1)
+        {
+            SCRPTERRLOG("Invalid player: %d", value->chars[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    value->ushorts[0] = saturate_set_unsigned(scline->np[0], 16);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_generate_speed_process(struct ScriptContext* context)
+{
+    struct PlayerInfo* player;
+    switch (context->value->chars[2])
+    {
+        case ALL_PLAYERS:
+        {
+            for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+            {
+                player = get_player(plyr_idx);
+                if (!player_invalid(player))
+                {
+                    player->generate_speed = context->value->ushorts[0];
+                }
+            }
+            break;
+        }
+        default:
+        {
+            player = get_player(context->value->chars[2]);
+            if (!player_invalid(player))
+            {
+                player->generate_speed = context->value->ushorts[0];
+            }
+            break;
+        }
+    }
+    update_dungeon_generation_speeds();
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P-player, R-room kind, L-location, O-operator, S-slab kind, B-boolean
@@ -6028,7 +6093,7 @@ const struct CommandDesc command_desc[] = {
   {"IF_ACTION_POINT",                   "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                             "        ", Cmd_ENDIF, NULL, NULL},
   {"SET_HATE",                          "PPN     ", Cmd_SET_HATE, NULL, NULL},
-  {"SET_GENERATE_SPEED",                "N       ", Cmd_SET_GENERATE_SPEED, NULL, NULL},
+  {"SET_GENERATE_SPEED",                "Np      ", Cmd_SET_GENERATE_SPEED, &set_generate_speed_check, &set_generate_speed_process},
   {"REM",                               "        ", Cmd_REM, NULL, NULL},
   {"START_MONEY",                       "PN      ", Cmd_START_MONEY, NULL, NULL},
   {"ROOM_AVAILABLE",                    "PRNN    ", Cmd_ROOM_AVAILABLE, NULL, NULL},
@@ -6194,7 +6259,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"IF_ACTION_POINT",              "NP      ", Cmd_IF_ACTION_POINT, NULL, NULL},
   {"ENDIF",                        "        ", Cmd_ENDIF, NULL, NULL},
   {"SET_HATE",                     "PPN     ", Cmd_SET_HATE, NULL, NULL},
-  {"SET_GENERATE_SPEED",           "N       ", Cmd_SET_GENERATE_SPEED, NULL, NULL},
+  {"SET_GENERATE_SPEED",           "N       ", Cmd_SET_GENERATE_SPEED, &set_generate_speed_check, &set_generate_speed_process},
   {"REM",                          "        ", Cmd_REM, NULL, NULL},
   {"START_MONEY",                  "PN      ", Cmd_START_MONEY, NULL, NULL},
   {"ROOM_AVAILABLE",               "PRNN    ", Cmd_ROOM_AVAILABLE, NULL, NULL},

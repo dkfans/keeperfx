@@ -33,6 +33,7 @@ struct PlayerRange
 };
 /****   Checks  *******/
 TbBool luaL_isThing(lua_State *L, int index);
+TbBool luaL_isPlayer(lua_State *L, int index);
 
 /****   Inputs  *******/
 long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);

@@ -391,7 +391,7 @@ long update_dungeon_generation_speeds(void)
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
-        if (player_exists(player) && (player->is_active == 1))
+        if (player_exists(player) && (player->is_active))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->total_score > max_manage_score)
@@ -402,16 +402,15 @@ long update_dungeon_generation_speeds(void)
     for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
-        if (player_exists(player) && (player->is_active == 1))
+        if (!player_invalid(player))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->manage_score > 0)
-                dungeon->turns_between_entrance_generation = max_manage_score * game.generate_speed / dungeon->manage_score;
+                dungeon->turns_between_entrance_generation = max_manage_score * player->generate_speed / dungeon->manage_score;
             else
-                dungeon->turns_between_entrance_generation = game.generate_speed;
+                dungeon->turns_between_entrance_generation = player->generate_speed;
         }
     }
-
     return 1;
 }
 
@@ -797,6 +796,8 @@ void init_player(struct PlayerInfo *player, short no_explore)
     // By default, player is his own ally
     player->allied_players = to_flag(player->id_number);
     player->hand_busy_until_turn = 0;
+    if (player->generate_speed == 0)
+      player->generate_speed = game.conf.rules.rooms.default_generate_speed;
     if (is_my_player(player)) {
         // new game, play one of the default tracks
         LevelNumber lvnum = get_loaded_level_number();

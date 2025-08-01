@@ -43,9 +43,28 @@
 
 static int lua_Set_generate_speed(lua_State *L)
 {
-    GameTurnDelta interval   = luaL_checkinteger(L,1);
-
-    game.generate_speed = saturate_set_unsigned(interval, 16);
+    GameTurnDelta interval = luaL_checkinteger(L,1);
+    PlayerNumber player_idx = (luaL_isPlayer(L,2)) ? luaL_checkPlayerSingle(L,2) : ALL_PLAYERS;
+    struct PlayerInfo* player;
+    if (player_idx == ALL_PLAYERS)
+    {
+        for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+        {
+            player = get_player(plyr_idx);
+            if (!player_invalid(player))
+            {
+                player->generate_speed = saturate_set_unsigned(interval, 16);
+            }
+        }
+    }
+    else
+    {
+        player = get_player(player_idx);
+        if (!player_invalid(player))
+        {
+            player->generate_speed = saturate_set_unsigned(interval, 16);
+        }
+    }
     update_dungeon_generation_speeds();
     return 0;
 }

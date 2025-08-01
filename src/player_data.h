@@ -173,7 +173,7 @@ struct PlayerInfo {
     PlayerBitFlags allied_players;
     PlayerBitFlags players_with_locked_ally_status;
     unsigned char id_number;
-    unsigned char is_active;
+    TbBool is_active;
     short controlled_thing_idx;
     GameTurn controlled_thing_creatrn;
     short thing_under_hand;
@@ -265,6 +265,7 @@ struct PlayerInfo {
     unsigned char player_type; //enum PlayerTypes
     ThingModel special_digger;
     int isometric_tilt;
+    unsigned short generate_speed;
     };
 
 /******************************************************************************/
