@@ -211,7 +211,7 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
                 add_creature_to_group(thing, grthing);
             }
             n++;
-            if (n >= game.conf.rules[TODO_SO_ATM_0].rooms.barrack_max_party_size || n >= GROUP_MEMBERS_COUNT)
+            if (n >= game.conf.rules[grthing->owner].rooms.barrack_max_party_size || n >= GROUP_MEMBERS_COUNT)
             {
                 break;
             }

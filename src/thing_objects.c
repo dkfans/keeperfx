@@ -261,7 +261,7 @@ void destroy_food(struct Thing *foodtng)
             {
                 room->used_capacity -= required_cap;
             }
-            foodtng->food.life_remaining = game.conf.rules[TODO_SO_ATM_0].game.food_life_out_of_hatchery;
+            foodtng->food.life_remaining = game.conf.rules[plyr_idx].game.food_life_out_of_hatchery;
         }
     }
     delete_thing_structure(foodtng, 0);
