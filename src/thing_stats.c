@@ -825,7 +825,7 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
         pay = (pay * modifier) / 100;
         // If torturing creature of that model, change the salary with a percentage set in rules.cfg.
         if (dungeon->tortured_creatures[thing->model] > 0)
-            pay = (pay * game.conf.rules[TODO_SO_ATM_0].game.torture_payday) / 100;
+            pay = (pay * game.conf.rules[dungeon->owner].game.torture_payday) / 100;
     }
     return pay;
 }
