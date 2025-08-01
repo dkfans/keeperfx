@@ -3528,7 +3528,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     struct Thing* gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
 
     // If the random slab has enough space to drop all gold, go there to drop it
-    long wealth_size_holds = game.conf.rules[plyr_idx].game.gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = game.conf.rules[TODO_SO_ATM_0].game.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     if ((max_hoard_size_in_room - gldtng->valuable.gold_stored) >= thing->creature.gold_carried)
     {
@@ -5078,7 +5078,7 @@ long creature_free_for_toking(struct Thing* creatng)
 long process_creature_needs_to_heal_critical(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (get_creature_health_permil(creatng) >= game.conf.rules[plyr_idx].creature.critical_health_permil) {
+    if (get_creature_health_permil(creatng) >= game.conf.rules[TODO_SO_ATM_0].creature.critical_health_permil) {
         return 0;
     }
     if (game.play_gameturn >= cctrl->healing_sleep_check_turn)

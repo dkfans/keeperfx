@@ -1459,7 +1459,7 @@ short imp_reinforces(struct Thing *thing)
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 0;
     }
-    if (game.conf.rules[spdigtng->owner].workers.digger_work_experience != 0)
+    if (game.conf.rules[thing->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(thing);
         check_experience_upgrade(thing);

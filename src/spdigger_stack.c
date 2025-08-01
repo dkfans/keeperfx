@@ -1857,7 +1857,7 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
     int remain_num;
     unsigned long k;
     int i;
-    if(!game.conf.rules[plyr_idx].workers.drag_to_lair)
+    if(!game.conf.rules[TODO_SO_ATM_0].workers.drag_to_lair)
     {
         return 0;
     }
@@ -1886,7 +1886,7 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
             {
                 room = get_creature_lair_room(thing);
 
-                if (game.conf.rules[plyr_idx].workers.drag_to_lair == 1)
+                if (game.conf.rules[TODO_SO_ATM_0].workers.drag_to_lair == 1)
                 {
                     // if the creature doesn't have a lair
                     if (room_is_invalid(room))
@@ -1895,7 +1895,7 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
                         continue;
                     }
                 }
-                else if (game.conf.rules[plyr_idx].workers.drag_to_lair == 2)
+                else if (game.conf.rules[TODO_SO_ATM_0].workers.drag_to_lair == 2)
                 {
                     // if the creature doesn't have and doesn't need a lair
                     if (room_is_invalid(room) && !creature_can_do_healing_sleep(thing))
@@ -3049,7 +3049,7 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     SYNCDBG(18,"Starting");
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
-    if(!game.conf.rules[plyr_idx].workers.drag_to_lair)
+    if(!game.conf.rules[TODO_SO_ATM_0].workers.drag_to_lair)
     {
         return 0;
     }
@@ -3072,7 +3072,7 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     struct Room * room;
     room = get_creature_lair_room(sectng);
     // if no lair exist check if the creature can place one and look for best lair
-    if (room_is_invalid(room) && creature_can_do_healing_sleep(sectng) && game.conf.rules[plyr_idx].workers.drag_to_lair == 2)
+    if (room_is_invalid(room) && creature_can_do_healing_sleep(sectng) && game.conf.rules[TODO_SO_ATM_0].workers.drag_to_lair == 2)
     {
         room = get_best_new_lair_for_creature(thing);
         if (room_is_invalid(room)){

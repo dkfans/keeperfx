@@ -60,7 +60,7 @@ TbBool add_body_to_graveyard(struct Thing *deadtng, struct Room *room)
     }
     room->used_capacity++;
     deadtng->corpse.laid_to_rest = 1;
-    deadtng->health = game.conf.rules[plyr_idx].rooms.graveyard_convert_time;
+    deadtng->health = game.conf.rules[TODO_SO_ATM_0].rooms.graveyard_convert_time;
     return true;
 }
 
@@ -118,7 +118,7 @@ TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubt
             if (!thing_is_invalid(bodytng))
             {
                 bodytng->corpse.laid_to_rest = 1;
-                bodytng->health = game.conf.rules[plyr_idx].rooms.graveyard_convert_time;
+                bodytng->health = game.conf.rules[TODO_SO_ATM_0].rooms.graveyard_convert_time;
                 rrepos->used--;
                 rrepos->models[ri] = 0;
                 rrepos->exp_level[ri] = 0;

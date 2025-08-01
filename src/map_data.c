@@ -322,7 +322,7 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
     if (map_block_invalid(mapblk))
         return false;
-    if (game.conf.rules[plyr_idx].game.allies_share_vision)
+    if (game.conf.rules[TODO_SO_ATM_0].game.allies_share_vision)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {

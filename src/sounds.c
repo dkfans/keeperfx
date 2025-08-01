@@ -314,10 +314,10 @@ void update_player_sounds(void)
         // Easter Egg Speeches
 
         // Interval for easter egg speeches. Original DK value was 20000 (16.6 minutes)
-        if (game.conf.rules[plyr_idx].game.easter_egg_speech_interval != 0 && (game.play_gameturn % game.conf.rules[plyr_idx].game.easter_egg_speech_interval) == 0)
+        if (game.conf.rules[TODO_SO_ATM_0].game.easter_egg_speech_interval != 0 && (game.play_gameturn % game.conf.rules[TODO_SO_ATM_0].game.easter_egg_speech_interval) == 0)
         {
             // The chance for the easter egg speech to trigger. Original DK value was 1/2000
-            if (game.conf.rules[plyr_idx].game.easter_egg_speech_chance != 0 && UNSYNC_RANDOM(game.conf.rules[plyr_idx].game.easter_egg_speech_chance) == 0)
+            if (game.conf.rules[TODO_SO_ATM_0].game.easter_egg_speech_chance != 0 && UNSYNC_RANDOM(game.conf.rules[TODO_SO_ATM_0].game.easter_egg_speech_chance) == 0)
             {
                 // Select a random Easter egg speech
                 k = UNSYNC_RANDOM(10);

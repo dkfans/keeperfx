@@ -169,7 +169,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         turn_off_all_menus();
         clear_transfered_creatures();
     }
-    if ((game.conf.rules[plyr_idx].game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
+    if ((game.conf.rules[TODO_SO_ATM_0].game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
         clear_things_in_hand(player);
         dungeon->num_things_in_hand = 0;
     }
@@ -797,7 +797,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->allied_players = to_flag(player->id_number);
     player->hand_busy_until_turn = 0;
     if (player->generate_speed == 0)
-      player->generate_speed = game.conf.rules.rooms.default_generate_speed;
+      player->generate_speed = game.conf.rules[TODO_SO_ATM_0].rooms.default_generate_speed;
     if (is_my_player(player)) {
         // new game, play one of the default tracks
         LevelNumber lvnum = get_loaded_level_number();
@@ -1183,7 +1183,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct DoorConfigStats *doorst = get_door_model_stats(thing->model);
     struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
     dungeon->camera_deviate_jump = 192;
-    GoldAmount sell_value = compute_value_percentage(doorst->selling_value, game.conf.rules[plyr_idx].game.door_sale_percent);
+    GoldAmount sell_value = compute_value_percentage(doorst->selling_value, game.conf.rules[TODO_SO_ATM_0].game.door_sale_percent);
     dungeon->doors_sold++;
     dungeon->manufacture_gold += sell_value;
     destroy_door(thing);

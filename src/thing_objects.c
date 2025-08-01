@@ -261,7 +261,7 @@ void destroy_food(struct Thing *foodtng)
             {
                 room->used_capacity -= required_cap;
             }
-            foodtng->food.life_remaining = game.conf.rules[plyr_idx].game.food_life_out_of_hatchery;
+            foodtng->food.life_remaining = game.conf.rules[TODO_SO_ATM_0].game.food_life_out_of_hatchery;
         }
     }
     delete_thing_structure(foodtng, 0);
@@ -746,7 +746,7 @@ static long food_moves(struct Thing *objtng)
       {
             if ( (room_is_invalid(room)) || (!room_role_matches(room->kind, RoRoF_FoodStorage)) || (room->owner != objtng->owner) || (room->used_capacity > room->total_capacity) )
             {
-                objtng->food.life_remaining = game.conf.rules[plyr_idx].game.food_life_out_of_hatchery;
+                objtng->food.life_remaining = game.conf.rules[objtng->owner].game.food_life_out_of_hatchery;
                 struct Room* hatchroom = room_get(objtng->parent_idx);
                 if (!room_is_invalid(hatchroom))
                 {
@@ -1256,11 +1256,11 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         dungeon = get_players_num_dungeon(heartng->owner);
     }
 
-    if ((heartng->health > 0) && (game.conf.rules[plyr_idx].game.dungeon_heart_heal_time != 0))
+    if ((heartng->health > 0) && (game.conf.rules[TODO_SO_ATM_0].game.dungeon_heart_heal_time != 0))
     {
-        if ((game.play_gameturn % game.conf.rules[plyr_idx].game.dungeon_heart_heal_time) == 0)
+        if ((game.play_gameturn % game.conf.rules[TODO_SO_ATM_0].game.dungeon_heart_heal_time) == 0)
         {
-            heartng->health += game.conf.rules[plyr_idx].game.dungeon_heart_heal_health;
+            heartng->health += game.conf.rules[TODO_SO_ATM_0].game.dungeon_heart_heal_health;
             if (heartng->health < 0)
             {
               heartng->health = 0;
@@ -1934,7 +1934,7 @@ int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
  */
 int get_wealth_size_of_gold_amount(GoldAmount value)
 {
-    long wealth_size_holds = game.conf.rules[plyr_idx].game.gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = game.conf.rules[TODO_SO_ATM_0].game.gold_per_hoard / get_wealth_size_types_count();
     int wealth_size = (value + wealth_size_holds - 1) / wealth_size_holds;
     if (wealth_size > get_wealth_size_types_count()) {
         WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
@@ -1963,8 +1963,8 @@ int get_wealth_size_types_count(void)
  */
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, GoldAmount value)
 {
-    if (value >= game.conf.rules[plyr_idx].game.gold_per_hoard)
-        value = game.conf.rules[plyr_idx].game.gold_per_hoard;
+    if (value >= game.conf.rules[TODO_SO_ATM_0].game.gold_per_hoard)
+        value = game.conf.rules[TODO_SO_ATM_0].game.gold_per_hoard;
     int wealth_size = get_wealth_size_of_gold_amount(value);
     struct Thing* gldtng = create_object(pos, gold_hoard_objects[wealth_size-1], plyr_idx, -1);
     if (thing_is_invalid(gldtng))
@@ -1976,7 +1976,7 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value)
 {
     struct Thing* thing = INVALID_THING;
-    GoldAmount wealth_size_holds = game.conf.rules[plyr_idx].game.gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds = game.conf.rules[TODO_SO_ATM_0].game.gold_per_hoard / get_wealth_size_types_count();
     if ((value <= 0) || (room->slabs_count < 1)) {
         ERRORLOG("Attempt to create a gold hoard with %ld gold", (long)value);
         return thing;
@@ -2013,7 +2013,7 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
  */
 long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
-    GoldAmount wealth_size_holds = game.conf.rules[plyr_idx].game.gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds = game.conf.rules[TODO_SO_ATM_0].game.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // Fix amount
     if (gldtng->valuable.gold_stored + amount > max_hoard_size_in_room)
