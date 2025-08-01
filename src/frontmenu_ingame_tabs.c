@@ -2435,7 +2435,7 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
             draw_gui_panel_sprite_rmleft_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44, plyr_idx);
         }
         char text[32];
-        if (game.conf.rules[TODO_SO_ATM_0].game.display_portal_limit == true)
+        if (game.conf.rules[plyr_idx].game.display_portal_limit == true)
         {
             snprintf(text, sizeof(text), " %u/%ld", dungeon->num_active_creatrs, dungeon->max_creatures_attracted);
         } else {

@@ -305,7 +305,7 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
                 thing_model_name(thing),(int)thing->index,(int)thing->owner,
                 thing_model_name(calltng),(int)calltng->index,(int)calltng->owner);
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            if (game.play_gameturn - cctrl->temple_cure_gameturn > game.conf.rules[TODO_SO_ATM_0].rooms.temple_scavenge_protection_turns)
+            if (game.play_gameturn - cctrl->temple_cure_gameturn > game.conf.rules[calltng->owner].rooms.temple_scavenge_protection_turns)
             {
                 long thingpts = calculate_correct_creature_scavenge_required(thing, calltng->owner);
                 if (weakpts > thingpts)
