@@ -3352,7 +3352,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         item_sold = true;
-                        value = compute_value_percentage(trapst->selling_value, game.conf.rules[TODO_SO_ATM_0].game.trap_sale_percent);
+                        value = compute_value_percentage(trapst->selling_value, game.conf.rules[dungeon->owner].game.trap_sale_percent);
                         dungeon->traps_sold++;
                         dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Offmap trap %s crate sold for %ld gold",trap_code_name(model),value);
@@ -3361,7 +3361,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
-                        value = compute_value_percentage(trapst->selling_value, game.conf.rules[TODO_SO_ATM_0].game.trap_sale_percent);
+                        value = compute_value_percentage(trapst->selling_value, game.conf.rules[dungeon->owner].game.trap_sale_percent);
                         dungeon->traps_sold++;
                         dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Stored trap %s crate sold for %ld gold by player %d",trap_code_name(model),(long)value,(int)dungeon->owner);
@@ -3391,7 +3391,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(doortng->mappos.x.stl.num);
                         stl_y = stl_slab_center_subtile(doortng->mappos.y.stl.num);
-                        value = compute_value_percentage(doorst->selling_value, game.conf.rules[TODO_SO_ATM_0].game.door_sale_percent);
+                        value = compute_value_percentage(doorst->selling_value, game.conf.rules[doortng->owner].game.door_sale_percent);
                         dungeon->doors_sold++;
                         dungeon->manufacture_gold += value;
                         destroy_door(doortng);
@@ -3537,7 +3537,7 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
             message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should stop doing that.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureSacrifice:
-            if (thing->model == game.conf.rules[TODO_SO_ATM_0].sacrifices.cheaper_diggers_sacrifice_model) {
+            if (thing->model == game.conf.rules[comp->dungeon->owner].sacrifices.cheaper_diggers_sacrifice_model) {
                 struct PowerConfigStats *powerst;
                 powerst = get_power_model_stats(PwrK_MKDIGGER);
                 message_add_fmt(MsgType_Player, comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crconf->namestr_idx),get_string(powerst->name_stridx));
