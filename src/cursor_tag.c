@@ -69,6 +69,14 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     {
         line_color = SLC_YELLOW;
     }
+    else
+    {
+        struct Dungeon* dungeon = get_players_dungeon(player);
+        if (dungeon->task_count >= MAPTASKS_COUNT)
+        {
+            line_color = SLC_REDFLASH;
+        }
+    }
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
     {
         map_volume_box.visible = 1;
