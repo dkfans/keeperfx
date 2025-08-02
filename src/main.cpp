@@ -2274,21 +2274,17 @@ void process_payday(void)
             compute_and_update_player_backpay_total(plyr_idx);
         }
     }
-    if (game.conf.rules[TODO_SO_ATM_0].game.pay_day_gap <= game.pay_day_progress)
+    int player_paid_creatures_count[PLAYERS_COUNT];
+    for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        output_message(SMsg_Payday, 0);
-        game.pay_day_progress = 0;
-        // Prepare a list which counts how many creatures of each owner needs pay
-        int player_paid_creatures_count[PLAYERS_COUNT];
-
-        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+        if (game.conf.rules[plyr_idx].game.pay_day_gap <= game.pay_day_progress)
         {
+            output_message(SMsg_Payday, 0);
+            game.pay_day_progress = 0;
+            // Prepare a list which counts how many creatures of each owner needs pay
             player_paid_creatures_count[plyr_idx] = 0;
-        }
-        count_players_creatures_being_paid(player_paid_creatures_count);
-        // Players which have creatures being paid, should get payday notification
-        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-        {
+            count_players_creatures_being_paid(player_paid_creatures_count);
+            // Players which have creatures being paid, should get payday notification
             if (player_paid_creatures_count[plyr_idx] > 0)
             {
                 struct Dungeon *dungeon;
