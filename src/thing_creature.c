@@ -4775,7 +4775,7 @@ TbBool creature_count_below_map_limit(TbBool temp_creature)
     if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT-1)
         return false;
 
-    return ((game.thing_lists[TngList_Creatures].count - temp_creature) < game.conf.rules[TODO_SO_ATM_0].game.creatures_count);
+    return ((game.thing_lists[TngList_Creatures].count - temp_creature) < game.conf.rules[TODO_SO_ATM_0].game.creatures_count);  //todo Per player value or not?
 }
 
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)

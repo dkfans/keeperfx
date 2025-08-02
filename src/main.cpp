@@ -2612,20 +2612,20 @@ void update_global_lighting()
 {
     // Check if any values have changed
     if (
-        game.conf.rules[TODO_SO_ATM_0].game.global_ambient_light != game.lish.global_ambient_light ||
-        game.conf.rules[TODO_SO_ATM_0].game.light_enabled != game.lish.light_enabled
+        game.conf.rules[0].game.global_ambient_light != game.lish.global_ambient_light ||
+        game.conf.rules[0].game.light_enabled != game.lish.light_enabled
     ){
 
         // GlobalAmbientLight
-        if (game.conf.rules[TODO_SO_ATM_0].game.global_ambient_light != game.lish.global_ambient_light)
+        if (game.conf.rules[0].game.global_ambient_light != game.lish.global_ambient_light)
         {
-            game.lish.global_ambient_light = game.conf.rules[TODO_SO_ATM_0].game.global_ambient_light;
+            game.lish.global_ambient_light = game.conf.rules[0].game.global_ambient_light;
         }
 
         // LightEnabled
-        if (game.conf.rules[TODO_SO_ATM_0].game.light_enabled != game.lish.light_enabled)
+        if (game.conf.rules[0].game.light_enabled != game.lish.light_enabled)
         {
-            game.lish.light_enabled = game.conf.rules[TODO_SO_ATM_0].game.light_enabled;
+            game.lish.light_enabled = game.conf.rules[0].game.light_enabled;
         }
 
         // Refresh the lights
