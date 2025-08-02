@@ -898,7 +898,7 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     struct CreatureModelConfig *crconf;
     crconf = creature_stats_get_from_thing(creatng);
     anger_apply_anger_to_creature_all_types(creatng, (crconf->annoy_got_wage * tribute / salary * 2));
-    if (game.conf.rules[TODO_SO_ATM_0].game.classic_bugs_flags & ClscBug_FullyHappyWithGold)
+    if (game.conf.rules[plyr_idx].game.classic_bugs_flags & ClscBug_FullyHappyWithGold)
     {
         anger_set_creature_anger_all_types(creatng, 0);
     }
@@ -1549,7 +1549,7 @@ TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumbe
         return false;
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if (game.conf.rules[TODO_SO_ATM_0].game.allies_share_drop)
+    if (game.conf.rules[plyr_idx].game.allies_share_drop)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {

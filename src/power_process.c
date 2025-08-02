@@ -191,7 +191,7 @@ void process_disease(struct Thing *creatng)
     {
         return;
     }
-    if (CREATURE_RANDOM(creatng, 100) < game.conf.rules[TODO_SO_ATM_0].magic.disease_transfer_percentage)
+    if (CREATURE_RANDOM(creatng, 100) < game.conf.rules[creatng->owner].magic.disease_transfer_percentage)
     {
         SubtlCodedCoords stl_num = get_subtile_number(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         for (long n = 0; n < AROUND_MAP_LENGTH; n++)
@@ -231,9 +231,9 @@ void process_disease(struct Thing *creatng)
             }
         }
     }
-    if (((game.play_gameturn - cctrl->disease_start_turn) % game.conf.rules[TODO_SO_ATM_0].magic.disease_lose_health_time) == 0)
+    if (((game.play_gameturn - cctrl->disease_start_turn) % game.conf.rules[creatng->owner].magic.disease_lose_health_time) == 0)
     {
-        apply_damage_to_thing_and_display_health(creatng, game.conf.rules[TODO_SO_ATM_0].magic.disease_lose_percentage_health * cctrl->max_health / 100, cctrl->disease_caster_plyridx);
+        apply_damage_to_thing_and_display_health(creatng, game.conf.rules[creatng->owner].magic.disease_lose_percentage_health * cctrl->max_health / 100, cctrl->disease_caster_plyridx);
     }
 }
 
