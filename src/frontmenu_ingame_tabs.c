@@ -1580,34 +1580,35 @@ void gui_area_room_button(struct GuiButton *gbtn)
     unsigned short flg_mem = lbDisplay.DrawFlags;
 
     int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_portrt_empty, 128);
-
+    
     RoomKind rkind = gbtn->content.lval;
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_empty);
     struct Dungeon* dungeon = get_my_dungeon();
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
-        if (dungeon->room_kind[rkind] > 0)
+        if (dungeon->room_kind[rkind] > 0) {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_light);
+            int spr_idx;
             if (dungeon->room_buildable[rkind] & 1) {// One can build it now
-                int spr_idx = (dungeon->total_money_owned < get_room_kind_stats(rkind)->cost) + gbtn->sprite_idx;
+                spr_idx = (dungeon->total_money_owned < get_room_kind_stats(rkind)->cost) + gbtn->sprite_idx;
             } else {
-                int spr_idx = gbtn->sprite_idx;
+                spr_idx = 1 + gbtn->sprite_idx;
             }
-        if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) {
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
-        } else {
-            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
-        }
-    } else if (dungeon->room_kind[rkind] <= 0) 
-        && ((dungeon->room_resrchable[rkind] == 1) // One can research it at any time
+            if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) {
+                draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
+            } else {
+                draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
+            }
+        } else if ((dungeon->room_resrchable[rkind] == 1) // One can research it at any time
         || (dungeon->room_resrchable[rkind] == 2) // One can research it and get instantly when found
         || ((dungeon->room_resrchable[rkind] == 4) && (dungeon->room_buildable[rkind] & 2))) // Player able to research
-    {
-        // Draw a question mark over the button, to indicate it can be researched
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_qmark);
+        {
+            // Draw a question mark over the button, to indicate it can be researched
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_qmark);
+        }
     }
+    lbDisplay.DrawFlags = flg_mem;
 }
-lbDisplay.DrawFlags = flg_mem;
 
 void pick_up_next_creature(struct GuiButton *gbtn)
 {
