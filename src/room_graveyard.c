@@ -60,7 +60,7 @@ TbBool add_body_to_graveyard(struct Thing *deadtng, struct Room *room)
     }
     room->used_capacity++;
     deadtng->corpse.laid_to_rest = 1;
-    deadtng->health = game.conf.rules[TODO_SO_ATM_0].rooms.graveyard_convert_time;
+    deadtng->health = game.conf.rules[room->owner].rooms.graveyard_convert_time;
     return true;
 }
 
@@ -101,7 +101,7 @@ void reposition_all_bodies_in_room_on_subtile(struct Room *room, MapSubtlCoord s
     }
 }
 
-TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+TbBool recreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
 {
     if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity)) {
         return false;
@@ -118,7 +118,7 @@ TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubt
             if (!thing_is_invalid(bodytng))
             {
                 bodytng->corpse.laid_to_rest = 1;
-                bodytng->health = game.conf.rules[TODO_SO_ATM_0].rooms.graveyard_convert_time;
+                bodytng->health = game.conf.rules[room->owner].rooms.graveyard_convert_time;
                 rrepos->used--;
                 rrepos->models[ri] = 0;
                 rrepos->exp_level[ri] = 0;
@@ -200,7 +200,7 @@ void count_and_reposition_bodies_in_room_on_subtile(struct Room *room, MapSubtlC
             break;
         case 0:
             // There are no matching things there, something can be re-created
-            rectreate_repositioned_body_in_room_on_subtile(room, stl_x, stl_y, rrepos);
+            recreate_repositioned_body_in_room_on_subtile(room, stl_x, stl_y, rrepos);
             break;
         default:
             WARNLOG("Invalid value returned by reposition check");
