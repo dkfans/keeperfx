@@ -71,10 +71,13 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     }
     else
     {
-        struct Dungeon* dungeon = get_players_dungeon(player);
-        if (dungeon->task_count >= MAPTASKS_COUNT)
+        if (allowed)
         {
-            line_color = SLC_REDFLASH;
+            struct Dungeon* dungeon = get_players_dungeon(player);
+            if (dungeon->task_count >= MAPTASKS_COUNT)
+            {
+                line_color = SLC_REDFLASH;
+            }
         }
     }
     if (is_my_player_number(plyr_idx) && !game_is_busy_doing_gui() && (game.small_map_state != 2) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
