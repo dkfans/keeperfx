@@ -65,13 +65,13 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         allowed = true;
     }
     unsigned char line_color = allowed;
-    if (player->render_roomspace.untag_mode && allowed)
+    if (allowed)
     {
-        line_color = SLC_YELLOW;
-    }
-    else
-    {
-        if (allowed)
+        if (player->render_roomspace.untag_mode)
+        {
+            line_color = SLC_YELLOW;
+        }
+        else
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->task_count >= MAPTASKS_COUNT)
