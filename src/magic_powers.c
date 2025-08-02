@@ -2223,6 +2223,9 @@ int get_power_overcharge_level(struct PlayerInfo *player)
     return i;
 }
 
+/**
+ * @return Is it necessary to continue trying the operation of increasing spell level
+ */
 TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
 {
   struct Dungeon *dungeon;
@@ -2238,7 +2241,14 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
   if (powerst->cost[i] <= dungeon->total_money_owned)
   {
     // If we have more money, increase overcharge
-    player->cast_expand_level++;
+    if (((player->cast_expand_level+1) >> 2) <= POWER_MAX_LEVEL)
+    {
+      player->cast_expand_level++;
+    }
+    if (((player->cast_expand_level+1) >> 2) <= POWER_MAX_LEVEL)
+    {
+      return true;
+    }
   } else
   {
     // If we don't have money, decrease the charge
@@ -2252,7 +2262,7 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
     else
       player->cast_expand_level = 0;
   }
-  return (i < POWER_MAX_LEVEL);
+  return false;
 }
 
 /**
