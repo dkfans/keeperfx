@@ -968,6 +968,7 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
                     {
                         play_non_3d_sample(119);
                         output_message(SMsg_WorkerJobsLimit, 500); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
+                        player->cursor_button_down = 0;
                     }
                     if (blocks_tagged > 0) {
                         play_non_3d_sample(118);
