@@ -1164,9 +1164,6 @@ TbResult LbSpriteDrawRemapUsingScalingDownDataSolidLR(uchar *outbuf, int scanlin
     int ystep_delta;
     long *ycurstep;
 
-    if (!outbuf || !xstep || !ystep || !src_buf || !src_buf->data || !cmap)
-        return -1;
-
     ystep_delta = 2;
     if (scanline < 0) {
         ystep_delta = -2;
@@ -1198,24 +1195,16 @@ TbResult LbSpriteDrawRemapUsingScalingDownDataSolidLR(uchar *outbuf, int scanlin
                 }
                 else
                 {
-                    for (int i = 0; i < pxlen; i++)
+                    for (;pxlen > 0; pxlen--)
                     {
                         if (xcurstep[1] > 0)
                         {
                             unsigned char pxval;
                             pxval = (cmap[*sprdata]);
-                            if (out_end >= outbuf &&
-                                out_end < outbuf + scanline * outheight &&
-                                ((uintptr_t)out_end % sizeof(TbPixel) == 0))
                             {
                                 *out_end = pxval;
+                                out_end++;
                             }
-                            else
-                            {
-                                ERRORLOG("Attempted to write out of bounds at %p", out_end);
-                                return -2;
-                            }
-                            out_end++;
                         }
                         sprdata++;
                         xcurstep += 2;
