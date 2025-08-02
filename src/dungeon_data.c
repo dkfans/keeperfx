@@ -535,23 +535,23 @@ void init_dungeons(void)
     for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
         struct Dungeon* dungeon = get_dungeon(PLAYER_GOOD);
-        dungeon->hates_player[i] = game.conf.rules.creature.fight_max_hate;
+        dungeon->hates_player[i] = game.conf.rules[i].creature.fight_max_hate;
         dungeon = get_dungeon(i);
-        dungeon->hates_player[PLAYER_GOOD] = game.conf.rules.creature.fight_max_hate;
+        dungeon->hates_player[PLAYER_GOOD] = game.conf.rules[i].creature.fight_max_hate;
         dungeon->num_active_diggers = 0;
         dungeon->num_active_creatrs = 0;
         dungeon->creatr_list_start = 0;
         dungeon->digger_list_start = 0;
         dungeon->owner = i;
-        dungeon->max_creatures_attracted = game.conf.rules.rooms.default_max_crtrs_gen_entrance;
+        dungeon->max_creatures_attracted = game.conf.rules[i].rooms.default_max_crtrs_gen_entrance;
         dungeon->dead_creatures_count = 0;
         dungeon->dead_creature_idx = 0;
         for (int k = 0; k < DUNGEONS_COUNT; k++)
         {
           if (k == i)
-            dungeon->hates_player[k] = game.conf.rules.creature.fight_max_love;
+            dungeon->hates_player[k] = game.conf.rules[i].creature.fight_max_love;
           else
-            dungeon->hates_player[k] = game.conf.rules.creature.fight_max_hate;
+            dungeon->hates_player[k] = game.conf.rules[i].creature.fight_max_hate;
         }
         /** Player modifier default value is set to 100. */
         dungeon->modifier.health = 100;

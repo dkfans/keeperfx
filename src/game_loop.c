@@ -189,7 +189,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         break;
     case 3:
         // Drop all held things, by keeper
-        if ((dungeon->num_things_in_hand > 0) && ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
+        if ((dungeon->num_things_in_hand > 0) && ((game.conf.rules[plyr_idx].game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
         {
             if (no_backup)
                 dump_all_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);

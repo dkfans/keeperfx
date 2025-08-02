@@ -509,7 +509,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
-    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NeutralTortureConverts) == 0)
+    if ((game.conf.rules[room->owner].game.classic_bugs_flags & ClscBug_NeutralTortureConverts) == 0)
     {
         if (room->owner == game.neutral_player_num || is_neutral_thing(creatng))
         {
@@ -519,16 +519,16 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     struct CreatureModelConfig *crconf = creature_stats_get_from_thing(creatng);
     struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     anger_apply_anger_to_creature(creatng, crconf->annoy_in_torture, AngR_Other, 1);
-    if ((long)game.play_gameturn >= cctrl->turns_at_job + game.conf.rules.health.turns_per_torture_health_loss)
+    if ((long)game.play_gameturn >= cctrl->turns_at_job + game.conf.rules[room->owner].health.turns_per_torture_health_loss)
     {
-        HitPoints torture_damage = compute_creature_max_health(game.conf.rules.health.torture_health_loss, cctrl->exp_level);
+        HitPoints torture_damage = compute_creature_max_health(game.conf.rules[room->owner].health.torture_health_loss, cctrl->exp_level);
         remove_health_from_thing_and_display_health(creatng, torture_damage);
         cctrl->turns_at_job = (long)game.play_gameturn;
     }
     // Check if we should convert the creature into ghost.
-    if ((creatng->health < 0) && (game.conf.rules.rooms.ghost_convert_chance > 0))
+    if ((creatng->health < 0) && (game.conf.rules[room->owner].rooms.ghost_convert_chance > 0))
     {
-        if (CREATURE_RANDOM(creatng, 100) < game.conf.rules.rooms.ghost_convert_chance)
+        if (CREATURE_RANDOM(creatng, 100) < game.conf.rules[room->owner].rooms.ghost_convert_chance)
         {
             convert_creature_to_ghost(room, creatng);
             return CrCkRet_Deleted;
@@ -548,10 +548,10 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     // After that, every time broke chance is hit, do something.
     if (CREATURE_RANDOM(creatng, 100) < compute_torture_broke_chance(creatng))
     {
-        if (CREATURE_RANDOM(creatng, 100) >= (int)game.conf.rules.rooms.torture_death_chance)
+        if (CREATURE_RANDOM(creatng, 100) >= (int)game.conf.rules[room->owner].rooms.torture_death_chance)
         {
             SYNCDBG(4, "The %s has been broken", thing_model_name(creatng));
-            if (CREATURE_RANDOM(creatng, 100) < (int)game.conf.rules.rooms.torture_convert_chance)
+            if (CREATURE_RANDOM(creatng, 100) < (int)game.conf.rules[room->owner].rooms.torture_convert_chance)
             { // Converting creature and ending the torture.
                 convert_tortured_creature_owner(creatng, room->owner);
                 return CrCkRet_Continue;
@@ -566,7 +566,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         else
         {
             SYNCDBG(4, "The %s died from torture", thing_model_name(creatng));
-            if (CREATURE_RANDOM(creatng, 100) < game.conf.rules.rooms.ghost_convert_chance)
+            if (CREATURE_RANDOM(creatng, 100) < game.conf.rules[room->owner].rooms.ghost_convert_chance)
             {
                 convert_creature_to_ghost(room, creatng);
                 return CrCkRet_Deleted;

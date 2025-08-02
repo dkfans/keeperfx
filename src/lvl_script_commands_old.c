@@ -130,9 +130,9 @@ static void command_add_creature_to_level(long plr_range_id, const char *crtr_na
         SCRPTERRLOG("Invalid number of creatures to add");
         return;
     }
-    if (ncopies > game.conf.rules.game.creatures_count)
+    if (ncopies > game.conf.rules[0].game.creatures_count)
     {
-        SCRPTWRNLOG("Trying to add %ld creatures which is over map limit %u", ncopies, game.conf.rules.game.creatures_count);
+        SCRPTWRNLOG("Trying to add %ld creatures which is over map limit %u", ncopies, game.conf.rules[0].game.creatures_count);
     }
     if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
     {
