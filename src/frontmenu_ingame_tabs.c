@@ -1124,7 +1124,7 @@ void maintain_room(struct GuiButton *gbtn)
         ERRORDBG(8,"Cannot do; player %d has no dungeon",(int)my_player_number);
         return;
     }
-    if (dungeon->room_kind[rkind] > 0){
+    if (dungeon->room_buildable[rkind] & 1) {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {
@@ -1147,7 +1147,7 @@ void maintain_big_room(struct GuiButton *gbtn)
     gbtn->content.lval = rkind;
     gbtn->sprite_idx = game.chosen_room_spridx;
     gbtn->tooltip_stridx = game.chosen_room_tooltip;
-    if (dungeon->room_kind[rkind] > 0) {
+    if (dungeon->room_buildable[rkind] & 1) {
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
     } else {
