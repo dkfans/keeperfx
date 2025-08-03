@@ -329,6 +329,18 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                     if (player->thing_under_hand == 0)
                     {
                         set_tag_untag_mode(plyr_idx, stl_x, stl_y);
+                        if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false))
+                        {
+                            at_limit = (tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor) == SLC_REDFLASH);
+                            if (at_limit)
+                            {
+                                if (is_my_player(player))
+                                {
+                                    play_non_3d_sample(119);
+                                    output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
+                                }
+                            }
+                        }
                         player->additional_flags |= PlaAF_NoThingUnderPowerHand;
                     }
                     break;
