@@ -966,9 +966,7 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
                 {
                     if (subtile_is_diggable_for_player(plyr_idx, stl_cx, stl_cy, false))
                     {
-                        play_non_3d_sample(119);
                         output_message(SMsg_WorkerJobsLimit, 500); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
-                        player->cursor_button_down = 0;
                     }
                     if (blocks_tagged > 0) {
                         play_non_3d_sample(118);
