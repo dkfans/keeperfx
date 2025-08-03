@@ -971,6 +971,7 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
                     if (blocks_tagged > 0) {
                         play_non_3d_sample(118);
                     }
+                    player->cursor_button_down = 0;
                     return;
                 }
                 if (draw_path_x != current_x || draw_path_y != current_y) {

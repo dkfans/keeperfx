@@ -282,14 +282,14 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     player->pickup_all_gold = (pckt->additional_packet_values & PCAdV_RotatePressed);
 
     process_dungeon_power_hand_state(plyr_idx);
-
+    TbBool at_limit = false;
     if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
     {
         if (player->primary_cursor_state == CSt_PickAxe)
         {
             player->thing_under_hand = 0;
             get_dungeon_highlight_user_roomspace(&player->render_roomspace, player->id_number, stl_x, stl_y);
-            tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+            at_limit = (tag_cursor_blocks_dig(player->id_number, stl_x, stl_y, player->full_slab_cursor) == SLC_REDFLASH);
         }
         if ((pckt->control_flags & PCtr_LBtnClick) != 0)
         {
@@ -349,13 +349,12 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             {
                 if (player->primary_cursor_state == player->secondary_cursor_state)
                 {
-                    if (player->secondary_cursor_state == CSt_PickAxe)
+                    if ( (player->secondary_cursor_state == CSt_PickAxe) || ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0)) )
                     {
-                        keeper_highlight_roomspace(plyr_idx, &player->render_roomspace, 0);
-                    } else
-                    if ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0))
-                    {
-                        keeper_highlight_roomspace(plyr_idx, &player->render_roomspace, 0);
+                        if (!at_limit)
+                        {
+                            keeper_highlight_roomspace(plyr_idx, &player->render_roomspace, 0);
+                        }
                     }
                 }
             }
@@ -423,7 +422,22 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             {
                 if ((player->primary_cursor_state == CSt_PickAxe) || ((player->primary_cursor_state == CSt_PowerHand) && player->render_roomspace.drag_mode))
                 {
-                    keeper_highlight_roomspace(plyr_idx, &player->render_roomspace, 9);
+                    if (!at_limit)
+                    {
+                        keeper_highlight_roomspace(plyr_idx, &player->render_roomspace, 9);
+                    }
+                    else
+                    {
+                        if (is_my_player(player))
+                        {
+                            if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false))
+                            {
+                                play_non_3d_sample(119);
+                                output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
+                                player->cursor_button_down = 0;
+                            }
+                        }
+                    }
                 } else
                 if (player->primary_cursor_state == CSt_PowerHand)
                 {

@@ -43,7 +43,7 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
+unsigned char tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
 {
     SYNCDBG(7,"Starting for player %d at subtile (%d,%d)",(int)plyr_idx,(int)stl_x,(int)stl_y);
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -91,6 +91,7 @@ void tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         map_volume_box.floor_height_z = floor_height_z;
         player->render_roomspace.is_roomspace_a_single_subtile = !full_slab;
     }
+    return line_color;
 }
 
 void tag_cursor_blocks_thing_in_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool is_special_digger, TbBool full_slab)
