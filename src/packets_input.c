@@ -301,6 +301,17 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             {
                 case CSt_PickAxe:
                     set_tag_untag_mode(plyr_idx, stl_x, stl_y);
+                    if (at_limit)
+                    {
+                        if (is_my_player(player))
+                        {
+                            if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false))
+                            {
+                                play_non_3d_sample(119);
+                                output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
+                            }
+                        }
+                    }
                     break;
                 case CSt_DoorKey:
                     thing = get_door_for_position(player->cursor_clicked_subtile_x, player->cursor_clicked_subtile_y);
@@ -425,18 +436,6 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                     if (!at_limit)
                     {
                         keeper_highlight_roomspace(plyr_idx, &player->render_roomspace, 9);
-                    }
-                    else
-                    {
-                        if (is_my_player(player))
-                        {
-                            if (subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, false))
-                            {
-                                play_non_3d_sample(119);
-                                output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
-                                player->cursor_button_down = 0;
-                            }
-                        }
                     }
                 } else
                 if (player->primary_cursor_state == CSt_PowerHand)
