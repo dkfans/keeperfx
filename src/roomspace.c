@@ -591,7 +591,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
     if (player->swap_to_untag_mode == 2) // if swap_to_untag_mode == yes
     {
         // change to untag mode, as requested, and disable swap_to_untag_mode
-        set_tag_untag_mode(plyr_idx, stl_x, stl_y);
+        set_tag_untag_mode(plyr_idx);
         player->swap_to_untag_mode = -1; // disable
     }
     *roomspace = current_roomspace;
