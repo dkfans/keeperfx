@@ -367,10 +367,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 {
                     if ( (player->secondary_cursor_state == CSt_PickAxe) || ((player->secondary_cursor_state == CSt_PowerHand) && ((player->additional_flags & PlaAF_NoThingUnderPowerHand) != 0)) )
                     {
-                        if (!at_limit)
-                        {
-                            keeper_highlight_roomspace(plyr_idx, &player->render_roomspace, 0);
-                        }
+                        keeper_highlight_roomspace(plyr_idx, &player->render_roomspace, 0);
                     }
                 }
             }
@@ -438,10 +435,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             {
                 if ((player->primary_cursor_state == CSt_PickAxe) || ((player->primary_cursor_state == CSt_PowerHand) && player->render_roomspace.drag_mode))
                 {
-                    if (!at_limit)
-                    {
-                        keeper_highlight_roomspace(plyr_idx, &player->render_roomspace, 9);
-                    }
+                    keeper_highlight_roomspace(plyr_idx, &player->render_roomspace, 9);
                 } else
                 if (player->primary_cursor_state == CSt_PowerHand)
                 {
