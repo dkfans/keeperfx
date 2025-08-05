@@ -245,12 +245,26 @@ short get_button_designation(short btn_group, short btn_item)
             if (ibtn->content.lval == btn_item)
                 return ibtn->id_num;
         }
+        for (i=0; i < 4*4; i++)
+        {
+            struct GuiButtonInit * ibtn;
+            ibtn = &room_menu2.buttons[i];
+            if (ibtn->content.lval == btn_item)
+                return ibtn->id_num;
+        }
         break;
     case GID_POWER_PANE:
         for (i=0; i < 4*4; i++)
         {
             struct GuiButtonInit * ibtn;
             ibtn = &spell_menu.buttons[i];
+            if (ibtn->content.lval == btn_item)
+                return ibtn->id_num;
+        }
+        for (i=0; i < 4*4; i++)
+        {
+            struct GuiButtonInit * ibtn;
+            ibtn = &spell_menu2.buttons[i];
             if (ibtn->content.lval == btn_item)
                 return ibtn->id_num;
         }
@@ -269,6 +283,13 @@ short get_button_designation(short btn_group, short btn_item)
             if (ibtn->content.lval == n)
                 return ibtn->id_num;
         }
+        for (i=0; i < 4*4; i++)
+        {
+            struct GuiButtonInit * ibtn;
+            ibtn = &trap_menu2.buttons[i];
+            if (ibtn->content.lval == n)
+                return ibtn->id_num;
+        }
         break;
     case GID_DOOR_PANE:
         switch (btn_item)
@@ -281,6 +302,13 @@ short get_button_designation(short btn_group, short btn_item)
         {
             struct GuiButtonInit * ibtn;
             ibtn = &trap_menu.buttons[i];
+            if (ibtn->content.lval == n)
+                return ibtn->id_num;
+        }
+        for (i=0; i < 4*4; i++)
+        {
+            struct GuiButtonInit * ibtn;
+            ibtn = &trap_menu2.buttons[i];
             if (ibtn->content.lval == n)
                 return ibtn->id_num;
         }
