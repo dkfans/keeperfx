@@ -6086,18 +6086,18 @@ static void tutorial_flash_button_check(const struct ScriptLine* scline)
         if (parameter_is_number(scline->tp[0]))
         {
             id = atoi(scline->tp[0]);
-            value->bytes[1] = 1;
+            value->shorts[0] = GID_NONE;
         }
         else
         {
             static const struct NamedCommand *desc[4] = {room_desc, power_desc, trap_desc, door_desc};
+            static const short btn_group[4] = {GID_ROOM_PANE, GID_POWER_PANE, GID_TRAP_PANE, GID_DOOR_PANE};
             for (int i = 0; i < 4; i++)
             {
                 id = get_rid(desc[i], scline->tp[0]);
                 if (id >= 0)
                 {
-                    value->chars[0] = i + GID_ROOM_PANE;
-                    value->bytes[1] = 0;
+                    value->shorts[0] = btn_group[i];
                     break;
                 }
             }
@@ -6125,7 +6125,7 @@ static void tutorial_flash_button_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    value->ushorts[1] = saturate_set_unsigned(id, 16);
+    value->shorts[1] = saturate_set_signed(id, 16);
     value->longs[1] = scline->np[1];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -6134,11 +6134,7 @@ static void tutorial_flash_button_process(struct ScriptContext* context)
 {
     if (level_file_version > 0)
     {
-        if (context->value->bytes[1])
-        {
-            gui_set_button_flashing(context->value->ushorts[1], context->value->longs[1]);
-        }
-        else
+        if (context->value->shorts[0] > GID_NONE)
         {
             short button_id = get_button_designation(context->value->chars[0], context->value->ushorts[1]);
             if (button_id >= 0)
@@ -6146,10 +6142,14 @@ static void tutorial_flash_button_process(struct ScriptContext* context)
                 gui_set_button_flashing(button_id, context->value->longs[1]);
             }
         }
+        else
+        {
+            gui_set_button_flashing(context->value->shorts[1], context->value->longs[1]);
+        }
     }
     else
     {
-        gui_set_button_flashing(context->value->ushorts[1], context->value->longs[1]);
+        gui_set_button_flashing(context->value->shorts[1], context->value->longs[1]);
     }
 }
 
