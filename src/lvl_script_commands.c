@@ -6136,7 +6136,7 @@ static void tutorial_flash_button_process(struct ScriptContext* context)
     {
         if (context->value->shorts[0] > GID_NONE)
         {
-            short button_id = get_button_designation(context->value->shorts[0], context->value->ushorts[1]);
+            short button_id = get_button_designation(context->value->shorts[0], context->value->shorts[1]);
             if (button_id >= 0)
             {
                 gui_set_button_flashing(button_id, context->value->longs[1]);
