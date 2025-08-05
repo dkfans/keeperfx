@@ -6096,7 +6096,7 @@ static void tutorial_flash_button_check(const struct ScriptLine* scline)
                 id = get_rid(desc[i], scline->tp[0]);
                 if (id >= 0)
                 {
-                    value->chars[0] = i;
+                    value->chars[0] = i + GID_ROOM_PANE;
                     value->bytes[1] = 0;
                     break;
                 }
@@ -6140,7 +6140,7 @@ static void tutorial_flash_button_process(struct ScriptContext* context)
         }
         else
         {
-            short button_id = get_button_id(context->value->chars[0], context->value->ushorts[1]);
+            short button_id = get_button_designation(context->value->chars[0], context->value->ushorts[1]);
             if (button_id >= 0)
             {
                 gui_set_button_flashing(button_id, context->value->longs[1]);
