@@ -681,13 +681,14 @@ static int lua_Play_message(lua_State *L)
 static int lua_Tutorial_flash_button(lua_State *L)
 {
     long button = -1;
-    const char* str = luaL_checkstring(L, 1);
-    if (parameter_is_number(str))
+    
+    if (lua_isnumber(L, 1))
     {
-        button = atol(str);
+        button = luaL_checkinteger(L, 1);
     }
     else
     {
+        const char* str = luaL_checkstring(L, 1);
         static const struct NamedCommand *desc[4] = {room_desc, power_desc, trap_desc, door_desc};
         static const short btn_group[4] = {GID_ROOM_PANE, GID_POWER_PANE, GID_TRAP_PANE, GID_DOOR_PANE};
         for (int i = 0; i < 4; i++)
