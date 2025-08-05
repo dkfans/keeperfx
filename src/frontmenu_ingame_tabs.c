@@ -2869,4 +2869,83 @@ void maintain_trap_next_page_button(struct GuiButton *gbtn)
     }
     gbtn->flags &= ~(LbBtnF_Visible|LbBtnF_Enabled);
 }
+
+short get_button_id(char cat, unsigned short kind)
+{
+    #define MENU_COUNT 2
+    MenuID menus[MENU_COUNT];
+    ThingClass tngclass;
+    switch (cat)
+    {
+        case 0:
+        {
+            menus[0] = GMnu_ROOM; 
+            menus[1] = GMnu_ROOM2;
+            tngclass = TCls_Empty;
+            break;
+        }
+        case 1:
+        {
+            menus[0] = GMnu_SPELL;
+            menus[1] = GMnu_SPELL2;
+            tngclass = TCls_Empty;
+            break;
+        }
+        case 2:
+        {
+            menus[0] = GMnu_TRAP;
+            menus[1] = GMnu_TRAP2;
+            tngclass = TCls_Trap;
+            break;
+        }
+        case 3:
+        {
+            menus[0] = GMnu_TRAP;
+            menus[1] = GMnu_TRAP2;
+            tngclass = TCls_Door;
+            break;
+        }
+        default:
+        {
+            return -1;
+        }
+    }
+    for (int n = 0; n < MENU_COUNT; n++)
+    {
+        struct GuiMenu* gmnu = get_active_menu(menu_id_to_number(menus[n]));
+        for (int i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
+        {
+            struct GuiButton *gbtn = &active_buttons[i];
+            struct GuiMenu* gmnu2 = get_active_menu(gbtn->gmenu_idx);
+            if (gmnu->ident == gmnu2->ident)
+            {
+                switch (tngclass)
+                {
+                    case TCls_Empty:
+                    {
+                        if (gbtn->content.lval == kind)
+                        {
+                            return gbtn->id_num;
+                        }
+                        break;
+                    }
+                    case TCls_Trap:
+                    case TCls_Door:
+                    {
+                        struct ManufactureData* manufctr = get_manufacture_data(gbtn->content.lval);
+                        if (manufctr->tngclass == tngclass)
+                        {
+                            if (manufctr->tngmodel == kind)
+                            {
+                                return gbtn->id_num;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return -1;
+}
 /******************************************************************************/
