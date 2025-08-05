@@ -680,7 +680,7 @@ static int lua_Play_message(lua_State *L)
 
 static int lua_Tutorial_flash_button(lua_State *L)
 {
-    long button;
+    long button = -1;
     const char* str = luaL_checkstring(L, 1);
     if (parameter_is_number(str))
     {
@@ -699,7 +699,6 @@ static int lua_Tutorial_flash_button(lua_State *L)
                 break;
             }
         }
-        button = -1;
     }
     if (button >= 0)
     {
