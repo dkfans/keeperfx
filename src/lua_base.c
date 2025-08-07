@@ -119,6 +119,11 @@ TbBool execute_lua_code_from_script(const char* code)
         ERRORLOG("Lua state is not initialized");
         return false;
     }
+
+    if (code == NULL) {
+        return false;
+    }
+
     int result = luaL_dostring(Lvl_script, code);
     if (result != LUA_OK) {
         const char *message = lua_tostring(Lvl_script, -1);
