@@ -1925,7 +1925,6 @@ TbBool cmd_lua(PlayerNumber plyr_idx, char * args)
     if ((game.flags_font & FFlg_AlexCheat) == 0) {
         return false;
     }
-
     execute_lua_code_from_console(args);
     return true;
 }
