@@ -6077,6 +6077,82 @@ static void set_generate_speed_process(struct ScriptContext* context)
     update_dungeon_generation_speeds();
 }
 
+static void tutorial_flash_button_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long id;
+    if (level_file_version > 0)
+    {
+        if (parameter_is_number(scline->tp[0]))
+        {
+            id = atoi(scline->tp[0]);
+            value->shorts[0] = GID_NONE;
+        }
+        else
+        {
+            static const struct NamedCommand *desc[4] = {room_desc, power_desc, trap_desc, door_desc};
+            static const short btn_group[4] = {GID_ROOM_PANE, GID_POWER_PANE, GID_TRAP_PANE, GID_DOOR_PANE};
+            for (int i = 0; i < 4; i++)
+            {
+                id = get_rid(desc[i], scline->tp[0]);
+                if (id >= 0)
+                {
+                    value->shorts[0] = btn_group[i];
+                    break;
+                }
+            }
+            if (id < 0)
+            {
+                SCRPTERRLOG("Unrecognised parameter: %s", scline->tp[0]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+        }
+    }
+    else
+    {
+        id = scline->np[0];
+    }
+    if (id < 0)
+    {
+        SCRPTERRLOG("Button ID must be positive number");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    if (scline->np[1] < 0)
+    {
+        SCRPTERRLOG("Duration must be positive number");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[1] = saturate_set_signed(id, 16);
+    value->longs[1] = scline->np[1];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void tutorial_flash_button_process(struct ScriptContext* context)
+{
+    if (level_file_version > 0)
+    {
+        if (context->value->shorts[0] > GID_NONE)
+        {
+            short button_id = get_button_designation(context->value->shorts[0], context->value->shorts[1]);
+            if (button_id >= 0)
+            {
+                gui_set_button_flashing(button_id, context->value->longs[1]);
+            }
+        }
+        else
+        {
+            gui_set_button_flashing(context->value->shorts[1], context->value->longs[1]);
+        }
+    }
+    else
+    {
+        gui_set_button_flashing(context->value->shorts[1], context->value->longs[1]);
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P-player, R-room kind, L-location, O-operator, S-slab kind, B-boolean
@@ -6120,7 +6196,7 @@ const struct CommandDesc command_desc[] = {
   {"RESET_ACTION_POINT",                "Na      ", Cmd_RESET_ACTION_POINT, &reset_action_point_check, &reset_action_point_process},
   {"SET_CREATURE_MAX_LEVEL",            "PC!N    ", Cmd_SET_CREATURE_MAX_LEVEL, &set_creature_max_level_check, &set_creature_max_level_process},
   {"SET_MUSIC",                         "A       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
-  {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
+  {"TUTORIAL_FLASH_BUTTON",             "AN      ", Cmd_TUTORIAL_FLASH_BUTTON, &tutorial_flash_button_check, &tutorial_flash_button_process},
   {"SET_CREATURE_STRENGTH",             "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
   {"SET_CREATURE_HEALTH",               "CN      ", Cmd_SET_CREATURE_HEALTH, NULL, NULL},
   {"SET_CREATURE_ARMOUR",               "CN      ", Cmd_SET_CREATURE_ARMOUR, NULL, NULL},
@@ -6285,7 +6361,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT, &reset_action_point_check, &reset_action_point_process},
   {"SET_CREATURE_MAX_LEVEL",       "PC!N    ", Cmd_SET_CREATURE_MAX_LEVEL, &set_creature_max_level_check, &set_creature_max_level_process},
   {"SET_MUSIC",                    "N       ", Cmd_SET_MUSIC, NULL, NULL},
-  {"TUTORIAL_FLASH_BUTTON",        "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
+  {"TUTORIAL_FLASH_BUTTON",        "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, &tutorial_flash_button_check, &tutorial_flash_button_process},
   {"SET_CREATURE_STRENGTH",        "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
   {"SET_CREATURE_HEALTH",          "CN      ", Cmd_SET_CREATURE_HEALTH, NULL, NULL},
   {"SET_CREATURE_ARMOUR",          "CN      ", Cmd_SET_CREATURE_ARMOUR, NULL, NULL},

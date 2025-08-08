@@ -65,11 +65,6 @@ static void command_create_party(const char *prtname)
     create_party(prtname);
 }
 
-static void command_tutorial_flash_button(long btn_id, long duration)
-{
-    command_add_value(Cmd_TUTORIAL_FLASH_BUTTON, ALL_PLAYERS, btn_id, duration, 0);
-}
-
 static void command_add_party_to_level(long plr_range_id, const char *prtname, const char *locname, long ncopies)
 {
     TbMapLocation location;
@@ -1376,9 +1371,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_ADD_CREATURE_TO_POOL:
         command_add_creature_to_pool(scline->tp[0], scline->np[1]);
-        break;
-    case Cmd_TUTORIAL_FLASH_BUTTON:
-        command_tutorial_flash_button(scline->np[0], scline->np[1]);
         break;
     case Cmd_SET_CREATURE_HEALTH:
         command_set_creature_health(scline->tp[0], scline->np[1]);
