@@ -680,10 +680,32 @@ static int lua_Play_message(lua_State *L)
 
 static int lua_Tutorial_flash_button(lua_State *L)
 {
-    long          button    = luaL_checkinteger(L, 1);
-    GameTurnDelta gameturns = luaL_checkinteger(L, 2);
-
-    gui_set_button_flashing(button,gameturns);
+    long button = -1;
+    
+    if (lua_isnumber(L, 1))
+    {
+        button = luaL_checkinteger(L, 1);
+    }
+    else
+    {
+        const char* str = luaL_checkstring(L, 1);
+        static const struct NamedCommand *desc[4] = {room_desc, power_desc, trap_desc, door_desc};
+        static const short btn_group[4] = {GID_ROOM_PANE, GID_POWER_PANE, GID_TRAP_PANE, GID_DOOR_PANE};
+        for (int i = 0; i < 4; i++)
+        {
+            short id = get_rid(desc[i], str);
+            if (id >= 0)
+            {
+                button = get_button_designation(btn_group[i], id);
+                break;
+            }
+        }
+    }
+    if (button >= 0)
+    {
+        GameTurnDelta gameturns = luaL_checkinteger(L, 2);
+        gui_set_button_flashing(button,gameturns);
+    }
     return 0;
 }
 

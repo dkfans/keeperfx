@@ -258,9 +258,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_ADD_CREATURE_TO_POOL:
       add_creature_to_pool(val2, val3);
       break;
-  case Cmd_TUTORIAL_FLASH_BUTTON:
-      gui_set_button_flashing(val2, val3);
-      break;
   case Cmd_SET_CREATURE_HEALTH:
       change_max_health_of_creature_kind(val2, val3);
       break;
