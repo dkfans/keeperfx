@@ -38,3 +38,11 @@ function ChangeCreatureOwner(creature,new_owner) end
 ---@param operation any
 ---@param annoyance integer
 function ChangeCreaturesAnnoyance(player,creature,operation,annoyance) end
+
+
+---Place any object at a specific place on the map
+---@param shot_type shot_type The shot name from fxdata\magic.cfg
+---@param location location
+---@param player playersingle When used it sets the owner of the object.
+---@return Thing shot
+function AddShotToLevel(shot_type,location,player) local shot return shot end
