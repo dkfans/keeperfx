@@ -137,6 +137,7 @@ struct MagicRulesConfig {
     long friendly_fight_area_range_percent;
     TbBool armageddon_teleport_neutrals;
     short weight_calculate_push;
+    TbBool allow_instant_charge_up;
 };
 
 struct RoomRulesConfig {
