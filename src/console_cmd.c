@@ -1762,12 +1762,13 @@ TbBool cmd_get_action_point_pos(PlayerNumber plyr_idx, char * args)
     if (pr2str == NULL) {
         return false;
     }
-    unsigned char ap = atoi(pr2str);
-    if (!action_point_exists_idx(ap)) {
+    long num = atoi(pr2str);
+    ActionPointId idx = action_point_number_to_index(num);
+    if (!action_point_exists_idx(idx)) {
         return false;
     }
-    struct ActionPoint * actionpt = action_point_get(ap);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Action Point %d X: %d Y: %d", ap, actionpt->mappos.x.stl.num, actionpt->mappos.y.stl.num);
+    struct ActionPoint * actionpt = action_point_get(idx);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Action Point idx: %ld num: %ld X: %d Y: %d", idx, num, actionpt->mappos.x.stl.num, actionpt->mappos.y.stl.num);
     return true;
 }
 
@@ -1780,11 +1781,12 @@ TbBool cmd_zoom_to_action_point(PlayerNumber plyr_idx, char * args)
     if (pr2str == NULL) {
         return false;
     }
-    unsigned char ap = atoi(pr2str);
-    if (!action_point_exists_idx(ap)) {
+    long num = atoi(pr2str);
+    ActionPointId idx = action_point_number_to_index(num);
+    if (!action_point_exists_idx(idx)) {
         return false;
     }
-    struct ActionPoint * actionpt = action_point_get(ap);
+    struct ActionPoint * actionpt = action_point_get(idx);
     struct PlayerInfo * player = get_player(plyr_idx);
     player->zoom_to_pos_x = subtile_coord_center(actionpt->mappos.x.stl.num);
     player->zoom_to_pos_y = subtile_coord_center(actionpt->mappos.y.stl.num);
@@ -1801,13 +1803,14 @@ TbBool cmd_reset_action_point(PlayerNumber plyr_idx, char * args)
     if (pr2str == NULL) {
         return false;
     }
-    unsigned char ap = atoi(pr2str);
+    long num = atoi(pr2str);
+    ActionPointId idx = action_point_number_to_index(num);
     char * pr3str = strsep(&args, " ");
     PlayerNumber player_idx = (pr3str == NULL) ? ALL_PLAYERS : atoi(pr3str);
-    if (!action_point_exists_idx(ap)) {
+    if (!action_point_exists_idx(idx)) {
         return false;
     }
-    return action_point_reset_idx(ap, player_idx);
+    return action_point_reset_idx(idx, player_idx);
 }
 
 TbBool cmd_zoom_to_hero_gate(PlayerNumber plyr_idx, char * args)
