@@ -4903,7 +4903,7 @@ static void set_increase_on_experience_check(const struct ScriptLine* scline)
 static void set_increase_on_experience_process(struct ScriptContext* context)
 {
     short variable = context->value->shorts[0];
-  #if (BFDEBUG_LEVEL >= 7)
+  #if (BFDEBUG_LEVEL > 0)
     const char *varname = on_experience_desc[variable - 1].name;
   #endif
     switch (variable)
