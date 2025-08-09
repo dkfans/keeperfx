@@ -591,7 +591,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
     if (player->swap_to_untag_mode == 2) // if swap_to_untag_mode == yes
     {
         // change to untag mode, as requested, and disable swap_to_untag_mode
-        set_tag_untag_mode(plyr_idx, stl_x, stl_y);
+        set_tag_untag_mode(plyr_idx);
         player->swap_to_untag_mode = -1; // disable
     }
     *roomspace = current_roomspace;
@@ -964,8 +964,11 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
                 }
                 else if (is_my_player(player))
                 {
-                    output_message(SMsg_WorkerJobsLimit, 500); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
-                    if (blocks_tagged >= 0 && is_my_player_number(plyr_idx)) {
+                    if (subtile_is_diggable_for_player(plyr_idx, stl_cx, stl_cy, false))
+                    {
+                        output_message(SMsg_WorkerJobsLimit, 500); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
+                    }
+                    if (blocks_tagged > 0) {
                         play_non_3d_sample(118);
                     }
                     return;
