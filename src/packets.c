@@ -163,6 +163,26 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     struct Dungeon* dungeon = get_players_dungeon(player);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     struct Packet* pckt = get_packet_direct(player->packet_num);
+
+    while (game.conf.rules.magic.allow_instant_charge_up && is_game_key_pressed(Gkey_SpeedMod, NULL, true))
+    {
+        struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);
+
+        if (powerst->overcharge_check_idx == OcC_CallToArms_expand
+            || powerst->overcharge_check_idx == OcC_SightOfEvil_expand
+            || powerst->overcharge_check_idx == OcC_General_expand)
+        {
+            if (powerst->overcharge_check_idx == OcC_CallToArms_expand && player_uses_power_call_to_arms(plyr_idx))
+                break;
+
+            while(update_power_overcharge(player, player->chosen_power_kind))
+            {}
+
+            return true;
+        }
+        break;
+    }
+
     if (flag_is_set(pckt->control_flags,PCtr_LBtnHeld))
     {
         struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);

@@ -153,6 +153,7 @@ static const struct NamedField rules_magic_named_fields[] = {
   {"FRIENDLYFIGHTAREARANGEPERCENT",  0, field(game.conf.rules.magic.friendly_fight_area_range_percent ),   0, LONG_MIN, LONG_MAX,NULL,value_default, assign_default},
   {"FRIENDLYFIGHTAREADAMAGEPERCENT", 0, field(game.conf.rules.magic.friendly_fight_area_damage_percent),   0, LONG_MIN, LONG_MAX,NULL,value_default, assign_default},
   {"WEIGHTCALCULATEPUSH",            0, field(game.conf.rules.magic.weight_calculate_push             ),   0,        0, SHRT_MAX,NULL,value_default, assign_default},
+  {"ALLOWINSTANTCHARGEUP",           0, field(game.conf.rules.magic.allow_instant_charge_up           ),   0,        0,        1,NULL,value_default, assign_default},
   {NULL},
 };
 
