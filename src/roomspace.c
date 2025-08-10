@@ -537,6 +537,28 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
         }
         highlight_mode = true;
         current_roomspace = create_box_roomspace_from_drag(player->render_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
+        if (roomspace->drag_start_y > roomspace->drag_end_y)
+        {
+            if (roomspace->drag_start_x > roomspace->drag_end_x)
+            {
+                current_roomspace.drag_direction = bottom_right_to_top_left;
+            }
+            else
+            {
+                current_roomspace.drag_direction = bottom_left_to_top_right;
+            }
+        }
+        else
+        {
+            if (roomspace->drag_start_x > roomspace->drag_end_x)
+            {
+                current_roomspace.drag_direction = top_right_to_bottom_left;
+            }
+            else
+            {
+                current_roomspace.drag_direction = top_left_to_bottom_right;
+            }
+        }
     }
     else if (player->roomspace_highlight_mode == 2) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {
