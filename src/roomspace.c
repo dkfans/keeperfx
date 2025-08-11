@@ -537,6 +537,28 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
         }
         highlight_mode = true;
         current_roomspace = create_box_roomspace_from_drag(player->render_roomspace, drag_start_x, drag_start_y, slb_x, slb_y);
+        if (roomspace->drag_start_y > roomspace->drag_end_y)
+        {
+            if (roomspace->drag_start_x > roomspace->drag_end_x)
+            {
+                current_roomspace.drag_direction = bottom_right_to_top_left;
+            }
+            else
+            {
+                current_roomspace.drag_direction = bottom_left_to_top_right;
+            }
+        }
+        else
+        {
+            if (roomspace->drag_start_x > roomspace->drag_end_x)
+            {
+                current_roomspace.drag_direction = top_right_to_bottom_left;
+            }
+            else
+            {
+                current_roomspace.drag_direction = top_left_to_bottom_right;
+            }
+        }
     }
     else if (player->roomspace_highlight_mode == 2) // Define square room (mouse scroll-wheel changes size - default is 5x5)
     {
@@ -938,65 +960,133 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
     TbBool tag_for_digging = ((player->allocflags & PlaF_ChosenSlabHasActiveTask) == 0);
     int task_allowance = MAPTASKS_COUNT - task_allowance_reduction;
     int blocks_tagged = 0;
-    for (int y = 0; y < roomspace->height; y++)
+    int current_x, current_y;
+    TbBool finished = false;
+    switch (roomspace->drag_direction)
     {
-        int current_y = roomspace->top + y;
-        for (int x = 0; x < roomspace->width; x++)
+        case 0: // top-left to bottom-right
         {
-            int current_x = roomspace->left + x;
-
-            // Tag a line of slabs inbetween previous mouse slab position and current mouse slab position
-            int draw_path_x = player->previous_cursor_subtile_x / STL_PER_SLB;
-            int draw_path_y = player->previous_cursor_subtile_y / STL_PER_SLB;
-            while (true)
-            {
-                MapSubtlCoord stl_cx = stl_slab_center_subtile(draw_path_x * STL_PER_SLB);
-                MapSubtlCoord stl_cy = stl_slab_center_subtile(draw_path_y * STL_PER_SLB);
-                if (!tag_for_digging) // if the chosen slab is tagged for digging...
-                {
-                    // untag the slab for digging
-                    blocks_tagged += untag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
-                }
-                else if (dungeon->task_count < task_allowance)
-                {
-                    // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
-                    blocks_tagged += tag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
-                }
-                else if (is_my_player(player))
-                {
-                    if (subtile_is_diggable_for_player(plyr_idx, stl_cx, stl_cy, false))
-                    {
-                        output_message(SMsg_WorkerJobsLimit, 500); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
-                    }
-                    if (blocks_tagged > 0) {
-                        play_non_3d_sample(118);
-                    }
-                    return;
-                }
-                if (draw_path_x != current_x || draw_path_y != current_y) {
-                    // Choose the axis that has more ground to cover.
-                    if (abs(draw_path_x-current_x) > abs(draw_path_y-current_y)) {
-                        if (draw_path_x < current_x) {
-                            draw_path_x += 1;
-                        } else {
-                            draw_path_x -= 1;
-                        }
-                    } else {
-                        if (draw_path_y < current_y) {
-                            draw_path_y += 1;
-                        } else {
-                            draw_path_y -= 1;
-                        }
-                    }
-                } else {
-                    // Exit the While loop because the path has been drawn to the current_x & current_y
-                    break;
-                }
-            }
+            current_y = roomspace->top;
+            current_x = roomspace->left;
+            break;
+        }
+        case 1: // bottom-right to top-left
+        {
+            current_y = roomspace->bottom;
+            current_x = roomspace->right;
+            break;
+        }
+        case 2: // top-right to bottom-left
+        {
+            current_y = roomspace->top;
+            current_x = roomspace->right;
+            break;
+        }
+        case 3: // bottom-left to top-right
+        {
+            current_y = roomspace->bottom;
+            current_x = roomspace->left;
+            break;
+        }
+        default:
+        {
+            return;
         }
     }
-    if (blocks_tagged > 0 && is_my_player_number(plyr_idx)) {
-        play_non_3d_sample(118);
+    while (!finished)
+    {
+        MapSubtlCoord stl_cx = stl_slab_center_subtile(current_x * STL_PER_SLB);
+        MapSubtlCoord stl_cy = stl_slab_center_subtile(current_y * STL_PER_SLB);
+        if (!tag_for_digging) // if the chosen slab is tagged for digging...
+        {
+            // untag the slab for digging
+            blocks_tagged += untag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
+        }
+        else if (dungeon->task_count < task_allowance)
+        {
+            // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
+            blocks_tagged += tag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
+        }
+        else if (is_my_player(player))
+        {
+            if (subtile_is_diggable_for_player(plyr_idx, stl_cx, stl_cy, false))
+            {
+                output_message(SMsg_WorkerJobsLimit, 500); // show an error message if the task limit (MAPTASKS_COUNT) has been reached
+            }
+            if (blocks_tagged > 0) {
+                play_non_3d_sample(118);
+            }
+            return;
+        }
+        switch (roomspace->drag_direction)
+        {
+            case 0: // top-left to bottom-right
+            {
+                current_x++;
+                if (current_x > roomspace->right)
+                {
+                    current_x = roomspace->left;
+                    current_y++;
+                }
+                if (current_y > roomspace->bottom)
+                {
+                    finished = true;
+                }
+                break;
+            }
+            case 1: // bottom-right to top-left
+            {
+                current_x--;
+                if (current_x < roomspace->left)
+                {
+                    current_x = roomspace->right;
+                    current_y--;
+                }
+                if (current_y < roomspace->top)
+                {
+                    finished = true;
+                }
+                break;
+            }
+            case 2: // top-right to bottom-left
+            {
+                current_x--;
+                if (current_x < roomspace->left)
+                {
+                    current_x = roomspace->right;
+                    current_y++;
+                }
+                if (current_y > roomspace->bottom)
+                {
+                    finished = true;
+                }
+                break;
+            }
+            case 3: // bottom-left to top-right
+            {
+                current_x++;
+                if (current_x > roomspace->right)
+                {
+                    current_x = roomspace->left;
+                    current_y--;
+                }
+                if (current_y < roomspace->top)
+                {
+                    finished = true;
+                }
+                break;
+            }
+            default:
+            {
+                return;
+            }
+        } 
+    }
+    if (is_my_player(player))
+    {
+        if (blocks_tagged > 0) {
+            play_non_3d_sample(118);
+        }
     }
 }
 
