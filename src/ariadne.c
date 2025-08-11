@@ -82,7 +82,7 @@ static long fringe_x2;
 static long fringe_y[MAX_SUBTILES_Y];
 static long ix_Border;
 static long Border[BORDER_LENGTH];
-static long route_fwd[ROUTE_LENGTH];
+//static long route_fwd[ROUTE_LENGTH];
 static long route_bak[ROUTE_LENGTH];
 
 /******************************************************************************/
@@ -183,7 +183,6 @@ const struct HugStart blocked_xy_hug_start[][2][2] = {
     {{  LbFPMath_PI/2, 2}, {LbFPMath_PI, 1}}},
 };
 
-static struct Path fwd_path;
 static struct Path bak_path;
 static struct Path best_path;
 /******************************************************************************/
@@ -1880,34 +1879,16 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
  */
 long ma_triangle_route(long ttriA, long ttriB, long *routecost)
 {
-    long len_fwd;
     long len_bak;
-    long par_fwd;
     long par_bak;
-    long rcost_fwd;
     long rcost_bak;
     long tx;
     long ty;
     long i;
-    // We need to make testing system for routing, then fix the rewritten code
-    // and compare results with the original code.
-    // Forward route
-    NAVIDBG(19,"Making forward route");
-    rcost_fwd = 0;
-    len_fwd = triangle_route_do_fwd(ttriA, ttriB, route_fwd, &rcost_fwd);
-    if (len_fwd == -1)
-    {
-        NAVIDBG(19,"No forward route");
-        return -1;
-    }
-    route_to_path(tree_Ax8, tree_Ay8, tree_Bx8, tree_By8, route_fwd, len_fwd, &fwd_path, &par_fwd);
-    tx = tree_Ax8;
-    ty = tree_Ay8;
-    tree_Ax8 = tree_Bx8;
-    tree_Ay8 = tree_By8;
-    tree_Bx8 = tx;
-    tree_By8 = ty;
-    // Backward route
+    // Forward route disabled and related code removed. Unused in original game.
+    // len_fwd = triangle_route_do_fwd(ttriA, ttriB, route_fwd, &rcost_fwd);
+
+    // Determine backward route
     NAVIDBG(19,"Making backward route");
     rcost_bak = 0;
     len_bak = triangle_route_do_bak(ttriB, ttriA, route_bak, &rcost_bak);
@@ -1923,25 +1904,15 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     tree_Ay8 = tree_By8;
     tree_Bx8 = tx;
     tree_By8 = ty;
-    // Select a route
+
+    // Use the backward route
     NAVIDBG(19,"Selecting route");
-    if (par_fwd < par_bak)
+    for (i=0; i <= len_bak; i++)
     {
-        for (i=0; i < sizeof(tree_route)/sizeof(tree_route[0]); i++)
-        {
-             tree_route[i] = route_fwd[i];
-        }
-        *routecost = rcost_fwd;
-        return len_fwd;
-    } else
-    {
-        for (i=0; i <= len_bak; i++)
-        {
-             tree_route[i] = route_bak[len_bak-i];
-        }
-        *routecost = rcost_bak;
-        return len_bak;
+            tree_route[i] = route_bak[len_bak-i];
     }
+    *routecost = rcost_bak;
+    return len_bak;
 }
 
 void edgelen_init(void)
