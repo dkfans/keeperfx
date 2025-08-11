@@ -344,7 +344,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         {
             player->cursor_clicked_subtile_x = stl_x;
             player->cursor_clicked_subtile_y = stl_y;
-            player->cursor_button_down = 1;
+            player->cursor_button_down = (!player->render_roomspace.drag_mode);
             unset_packet_control(pckt, PCtr_RBtnClick);
         }
     }
