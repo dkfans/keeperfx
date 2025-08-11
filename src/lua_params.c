@@ -540,6 +540,21 @@ void lua_pushPlayer(lua_State *L, PlayerNumber plr_idx) {
     lua_setmetatable(L, -2);  
 }
 
+void lua_pushCamera(lua_State *L, PlayerNumber plr_idx) {
+
+    lua_createtable(L, 0, 2);
+
+    lua_pushinteger(L, plr_idx);
+    lua_setfield(L, -2, "playerId");
+
+    // Store a class name for Bitser
+    lua_pushstring(L, "Camera");
+    lua_setfield(L, -2, "__class");
+
+    luaL_getmetatable(L, "Camera");
+    lua_setmetatable(L, -2);  
+}
+
 void lua_pushPos(lua_State *L, struct Coord3d* pos) {
     // Create a new table with 3 fields
     lua_createtable(L, 0, 3);
