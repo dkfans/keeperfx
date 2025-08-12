@@ -6119,12 +6119,6 @@ static void tutorial_flash_button_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    if (scline->np[1] < 0)
-    {
-        SCRPTERRLOG("Duration must be positive number");
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
     value->shorts[1] = saturate_set_signed(id, 16);
     value->longs[1] = scline->np[1];
     PROCESS_SCRIPT_VALUE(scline->command);
