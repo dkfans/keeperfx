@@ -179,7 +179,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     // This text is a bit condensed - button size is smaller than text height
-    int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
+    int tx_units_per_px = (gbtn->height  * scale_ui_value_lofi(8)) / LbTextLineHeight();
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
     int height = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, get_string(definable_key_string[key_id]));
