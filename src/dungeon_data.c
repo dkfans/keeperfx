@@ -186,7 +186,7 @@ long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole
     {
         if (room_role_matches(rkind, rrole))
         {
-            count += dungeon->room_discrete_amount[rkind];
+            count += dungeon->room_discrete_count[rkind];
         }
     }
     return count;

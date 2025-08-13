@@ -793,7 +793,7 @@ TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
         nxroom->prev_of_owner = room->index;
     }
     dungeon->room_list_start[room->kind] = room->index; 
-    dungeon->room_discrete_amount[room->kind]++;
+    dungeon->room_discrete_count[room->kind]++;
     return true;
 }
 
@@ -822,7 +822,7 @@ TbBool remove_room_from_players_list(struct Room *room, PlayerNumber plyr_idx)
     }
     room->next_of_owner = 0;
     room->prev_of_owner = 0;
-    dungeon->room_discrete_amount[room->kind]--;
+    dungeon->room_discrete_count[room->kind]--;
     return true;
 }
 
@@ -3259,7 +3259,7 @@ void free_room_structure(struct Room *room)
             struct Room *prev_room = room_get(room->prev_of_owner);
             prev_room->next_of_owner = room->next_of_owner;
         }
-        --dungeon->room_discrete_amount[room->kind];
+        --dungeon->room_discrete_count[room->kind];
     }
     delete_room_structure(room);
 }
