@@ -252,7 +252,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
       }
     }
     str_append(text, sizeof(text), keytext);
-    height = LbTextLineHeight() * tx_units_per_px / 16;
+    height = LbTextLineHeight() * tx_units_per_px / 14;
     LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, text);
 }
 
