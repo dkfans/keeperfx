@@ -1603,29 +1603,39 @@ void gui_area_room_button(struct GuiButton *gbtn)
     int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_portrt_empty, 128);
 
     RoomKind rkind = gbtn->content.lval;
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_empty);
     struct Dungeon* dungeon = get_my_dungeon();
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_empty);
+    if (dungeon->room_kind[rkind] > 0) {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_light);
+    }
     if ((dungeon->room_buildable[rkind] & 1) // One can build it now
          || (dungeon->room_resrchable[rkind] == 1) // One can research it at any time
          || (dungeon->room_resrchable[rkind] == 2) // One can research it and get instantly then found
          || ((dungeon->room_resrchable[rkind] == 4) && (dungeon->room_buildable[rkind] & 2)) // Player able to research
          )
     {
-        if ((gbtn->flags & LbBtnF_Enabled) != 0)
-        {
-            if (dungeon->room_kind[rkind] > 0)
-                draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_light);
-            int spr_idx = (dungeon->total_money_owned < get_room_kind_stats(rkind)->cost) + gbtn->sprite_idx;
-            if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) {
-                draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
-            } else {
-                draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
-            }
-        } else
-        {
-            // Draw a question mark over the button, to indicate it can be researched
+        int spr_idx;
+        if ((gbtn->flags & LbBtnF_Enabled) != 0) {
+            spr_idx = (dungeon->total_money_owned < get_room_kind_stats(rkind)->cost) + gbtn->sprite_idx;
+        } else if (dungeon->room_kind[rkind] > 0) {// Disabled but owned: Show greyed out
+            spr_idx = 1 + gbtn->sprite_idx;
+        } else {
+            // Disabled and not owned: draw a question mark over the button, to indicate it can be researched
             draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_qmark);
+            lbDisplay.DrawFlags = flg_mem;
+            return;
         }
+        if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
+        } else {
+            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
+        }
+    }
+    else if (dungeon->room_kind[rkind] > 0)
+    {
+        // Can never make, but owned: show greyed out
+        int spr_idx = 1 + gbtn->sprite_idx;
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
     }
     lbDisplay.DrawFlags = flg_mem;
 }
