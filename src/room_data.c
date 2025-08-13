@@ -3468,7 +3468,7 @@ struct Room * pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
     if ( !player_has_room_of_role(plyr_idx,rrole) )
         return INVALID_ROOM;
 
-    int rand = PLAYER_RANDOM(plyr_idx, count_player_slabs_of_rooms_with_role(plyr_idx, rrole));
+    int rand = PLAYER_RANDOM(plyr_idx, count_player_discrete_rooms_with_role(plyr_idx, rrole));
 
     for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {

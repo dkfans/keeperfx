@@ -170,13 +170,13 @@ TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
     return false;
 }
 
-/** counts all slabs of any room with the given role.
+/** counts all discrete rooms with the given role.
  *
  * @param plyr_idx Player index being checked.
  * @param rrole Room role being checked.
  * @return
  */
-long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole)
+long count_player_discrete_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole)
 {
     if (plyr_idx == game.neutral_player_num)
         return 0;
