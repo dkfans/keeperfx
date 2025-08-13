@@ -1297,33 +1297,28 @@ long dbc_char_widthM(unsigned long chr, long units_per_px)
     {
         return 0;
     }
-    /*else
-    if (is_wide_charcode(chr))
-    {
-        return active_dbcfont->field_3C + active_dbcfont->bits_width;
-    }
-    else
-    {
-        return active_dbcfont->field_34 + active_dbcfont->field_24;
-    }*/
-    long ret = 0;;
-    if (units_per_px % 8 != 0)
-    {
-        ret = (units_per_px / 8) * 8;
-    }
-    else
-    {
-        ret = units_per_px;
-    }
+
+    long h = (units_per_px / 8) * 8;
+    long w = h;
     if (!is_wide_charcode(chr))
     {
-        ret = ret / 2;
+        w -= (8 * (w / 16));
     }
     else
     {
-        ret++;
+        // The old code has an additional 1. why?
+        // w++;
     }
-    return ret;
+
+    struct AsianDraw adraw = { 0 };
+    if (dbc_get_sprite_for_char(&adraw, chr) == 0)
+    {
+        w += adraw.field_C;
+    }
+    if (h == 16)
+        w = w * units_per_px / 16;
+
+    return w;
 }
 
 int LbTextCharWidthM(const long chr, long units_per_px)
