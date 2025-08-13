@@ -1065,6 +1065,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         } else if (ebuf[0] == '\xc2' && ebuf[1] == '\xa0') {
             ebuf++;
             chr = (chr<<8) + (unsigned char)*ebuf;
+            WideChar = true;
         }
 
         long w;
@@ -1076,6 +1077,8 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             if ((posx+w-justifyx <= lbTextJustifyWindow.width) || (count > 0) || !LbAlignMethodSet(lbDisplay.DrawFlags))
             {
                 posx += w;
+                if (WideChar)
+                    count = 0;
                 continue;
             }
             // If the char exceeds screen, and there were no spaces in that line, and alignment is set - divide the line here
@@ -1101,7 +1104,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         if (chr == ' ')
         {
             w = LbTextCharWidthM(' ', units_per_px);
-            len = LbSprFontWordWidth(lbFontPtr,ebuf+1) * units_per_px / 16;
+            len = LbTextWordWidthM(ebuf+1, units_per_px);
             if (posx+w+len-justifyx <= lbTextJustifyWindow.width)
             {
                 count++;
@@ -1597,6 +1600,52 @@ int LbTextStringWidthM(const char *text, long units_per_px)
     {
         return LbTextStringWidth(text) * units_per_px / 16;
     }
+}
+
+int LbTextWordWidthM(const char *str, long units_per_px)
+{
+  if (str == NULL || str[0] == 0)
+    return 0;
+
+  if ((dbc_initialized) && (dbc_enabled))
+  {
+    int len = 0;
+    for (int i=0; str[i] != 0 ; i++)
+    {
+      unsigned char c = str[i];
+
+      if ((c == ' ') || (c == '\t') || (c == '\0') || (c == '\r') || (c == '\n'))
+        break;
+
+      long chr = (unsigned char)c;
+      TbBool WideChar = (is_wide_charcode(chr));
+      if (WideChar)
+      {
+        if (str[i+1] == '\0')
+          break;
+
+        chr = (chr<<8) + (unsigned char)str[i+1];
+      } else if (str[i+0] == '\xc2' && str[i+1] == '\xa0') {
+        chr = (chr<<8) + (unsigned char)str[i+1];
+        WideChar = true;
+      }
+
+      if (WideChar)
+      {
+        if (len != 0)
+          break;
+        return dbc_char_widthM(chr, units_per_px);
+      }
+
+      len += dbc_char_widthM(chr, units_per_px);
+    }
+
+    return len;
+  }
+  else
+  {
+    return LbSprFontWordWidth(lbFontPtr, str) * units_per_px / 16;
+  }
 }
 
 int LbTextStringHeight(const char *str)
