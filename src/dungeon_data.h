@@ -297,7 +297,7 @@ struct Dungeon {
     long                  cheaper_diggers;
     long                  event_last_run_turn[EVENT_KIND_COUNT];
     long                  script_flags[SCRIPT_FLAGS_COUNT];
-    unsigned short        room_kind[TERRAIN_ITEMS_MAX];
+    unsigned short        room_list_start[TERRAIN_ITEMS_MAX];
     unsigned char         room_buildable[TERRAIN_ITEMS_MAX];
     unsigned char         room_resrchable[TERRAIN_ITEMS_MAX];
     unsigned char         room_discrete_amount[TERRAIN_ITEMS_MAX+1];

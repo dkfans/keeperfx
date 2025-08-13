@@ -1920,7 +1920,7 @@ static int lua_get_things_of_class(lua_State *L)
 
 static void push_rooms_of_kind(lua_State *L, struct Dungeon* dungeon, RoomKind rkind, unsigned long *k)
 {
-    int ri = dungeon->room_kind[rkind];
+    int ri = dungeon->room_list_start[rkind];
 
     while (ri != 0)
     {

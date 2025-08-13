@@ -497,7 +497,7 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
         i = game.entrance_room_id;
     } else {
         struct Dungeon* fromdngnadd = get_dungeon(from_plyr_idx);
-        i = fromdngnadd->room_kind[RoK_ENTRANCE];
+        i = fromdngnadd->room_list_start[RoK_ENTRANCE];
     }
     while (i != 0)
     {

@@ -829,7 +829,7 @@ TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
     {
         if(room_role_matches(rkind, RoRoF_CrSacrifice))
         {
-            int k = 0, i = dungeon->room_kind[rkind];
+            int k = 0, i = dungeon->room_list_start[rkind];
             while (i != 0)
             {
                 struct Room* room = room_get(i);
