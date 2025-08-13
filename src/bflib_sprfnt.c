@@ -1602,6 +1602,13 @@ int LbTextStringWidthM(const char *text, long units_per_px)
     }
 }
 
+/* @function
+ *   Get the scaled length of word for multiple encodings, that is, compatible with dbc or non-dbc.
+ *   Like LbTextCharWidthM, but change from one char to one word.
+ *   One word defined as continuous and uninterrupted letters.
+ *
+ * @param units_per_px Scale in pixels.
+ */
 int LbTextWordWidthM(const char *str, long units_per_px)
 {
   if (str == NULL || str[0] == 0)
@@ -1632,11 +1639,13 @@ int LbTextWordWidthM(const char *str, long units_per_px)
 
       if (WideChar)
       {
+        // one dbc-char/WideChar is considered as one word.
         if (len != 0)
-          break;
+          break; // letters before, need to stop.
         return dbc_char_widthM(chr, units_per_px);
       }
 
+      // Continuous letters
       len += dbc_char_widthM(chr, units_per_px);
     }
 
