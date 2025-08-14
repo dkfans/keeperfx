@@ -163,20 +163,20 @@ TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
     {
         if (room_role_matches(rkind, rrole))
         {
-            if (dungeon->room_kind[rkind] > 0)
+            if (dungeon->room_list_start[rkind] > 0)
                 return true;
         }
     }
     return false;
 }
 
-/** counts all slabs of any room with the given role.
+/** counts all discrete rooms with the given role.
  *
  * @param plyr_idx Player index being checked.
  * @param rrole Room role being checked.
  * @return
  */
-long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole)
+long count_player_discrete_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole)
 {
     if (plyr_idx == game.neutral_player_num)
         return 0;
@@ -186,7 +186,7 @@ long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole
     {
         if (room_role_matches(rkind, rrole))
         {
-            count += dungeon->room_slabs_count[rkind];
+            count += dungeon->room_discrete_count[rkind];
         }
     }
     return count;
@@ -249,7 +249,7 @@ TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind)
     if ((rkind < 1) || (rkind >= game.conf.slab_conf.room_types_count)) {
         return false;
     }
-    return (dungeon->room_kind[rkind] > 0);
+    return (dungeon->room_list_start[rkind] > 0);
 }
 
 /** Returns if given dungeon contains a room of given kind.
@@ -271,7 +271,7 @@ TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole)
             if ((rkind < 1) || (rkind >= game.conf.slab_conf.room_types_count)) {
                 return false;
             }
-            if (dungeon->room_kind[rkind] > 0)
+            if (dungeon->room_list_start[rkind] > 0)
             {
                 return true;
             }
@@ -491,12 +491,12 @@ TbBool mark_creature_joined_dungeon(struct Thing *creatng)
 
 void init_dungeon_essential_position(struct Dungeon *dungeon)
 {
-    struct Room* room = room_get(dungeon->room_kind[RoK_DUNGHEART]);
+    struct Room* room = room_get(dungeon->room_list_start[RoK_DUNGHEART]);
     for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (!room_is_invalid(room))
             break;
-        room = room_get(dungeon->room_kind[rkind]);
+        room = room_get(dungeon->room_list_start[rkind]);
     }
     if (room_is_invalid(room)) {
         dungeon->essential_pos.x.val = subtile_coord_center(game.map_subtiles_x/2);

@@ -396,7 +396,7 @@ static PlayerNumber get_player_with_more_entrances_than_computer(const struct Co
 {
     const struct Dungeon* dungeon = comp->dungeon;
     PlayerNumber max_plyr_idx = -1;
-    *max_entr_count = dungeon->room_slabs_count[RoK_ENTRANCE];
+    *max_entr_count = dungeon->room_discrete_count[RoK_ENTRANCE];
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if (plyr_idx == dungeon->owner)
@@ -462,7 +462,7 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
     }
     int better_entr_count;
     PlayerNumber better_plyr_idx = get_player_with_more_entrances_than_computer(comp, &better_entr_count);
-    int entr_count = dungeon->room_slabs_count[RoK_ENTRANCE];
+    int entr_count = dungeon->room_discrete_count[RoK_ENTRANCE];
     if ((better_plyr_idx >= 0) && (better_entr_count > entr_count))
     {
         return CProcRet_Continue;
@@ -496,8 +496,8 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
     if (from_plyr_idx == game.neutral_player_num) {
         i = game.entrance_room_id;
     } else {
-        struct Dungeon* fromdngnadd = get_dungeon(from_plyr_idx);
-        i = fromdngnadd->room_kind[RoK_ENTRANCE];
+        struct Dungeon* fromdngn = get_dungeon(from_plyr_idx);
+        i = fromdngn->room_list_start[RoK_ENTRANCE];
     }
     while (i != 0)
     {
