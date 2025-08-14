@@ -1054,7 +1054,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
     const char* sbuf = text;
     for (ebuf=text; *ebuf != '\0'; ebuf++)
     {
-        const char* prev_ebuf = ebuf - 1;
+        const char* ebuf_bak = ebuf;
         long chr = (unsigned char)*ebuf;
         TbBool WideChar = (is_wide_charcode(chr));
         if (WideChar)
@@ -1087,16 +1087,12 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             x = LbGetJustifiedCharPosX(startx, posx, w, 1, lbDisplay.DrawFlags);
             y = LbGetJustifiedCharPosY(starty, h, h, lbDisplay.DrawFlags);
             len = LbGetJustifiedCharWidth(posx, w, count, units_per_px, lbDisplay.DrawFlags);
-            ebuf = prev_ebuf;
-            put_down_sprites(sbuf, ebuf, x, y, len, units_per_px);
+            put_down_sprites(sbuf, ebuf_bak, x, y, len, units_per_px);
             // We already know that alignment is set - don't re-check
             {
                 posx = startx;
-                sbuf = ebuf; // sbuf points at start of char, while ebuf points at end of char
-                if (WideChar)
-                {
-                    sbuf++;
-                }
+                sbuf = ebuf_bak; // sbuf points at start of char for next loop. ebuf_bak points at unprocessed char.
+                ebuf = sbuf - 1; // The updateStatement of for loop will auto increment 1.
                 starty += h;
             }
             count = 0;
