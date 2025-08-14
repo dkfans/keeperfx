@@ -151,6 +151,8 @@ enum TbPacketAction {
         PckA_LoadViewType,//120
         PckA_PlyrMsgChar    =  121,
         PckA_PlyrMsgClear,
+        PckA_PlyrMsgLast,
+        PckA_PlyrMsgCmdAutoCompletion,
         PckA_DirectCtrlDragDrop,
         PckA_CheatPlaceTerrain,
         PckA_CheatMakeCreature,

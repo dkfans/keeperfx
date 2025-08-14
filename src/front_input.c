@@ -274,6 +274,19 @@ short get_players_message_inputs(void)
         clear_key_pressed(KC_ESCAPE);
         return true;
     }
+    else if (is_key_pressed(KC_TAB, KMod_NONE) && player->mp_message_text[0] == cmd_char)
+    {
+        set_players_packet_action(player, PckA_PlyrMsgCmdAutoCompletion, 0, 0, 0, 0);
+        clear_key_pressed(KC_TAB);
+        return true;
+    }
+    else if (is_key_pressed(KC_UP, KMod_NONE))
+    {
+        set_players_packet_action(player, PckA_PlyrMsgLast, 0, 0, 0, 0);
+        clear_key_pressed(KC_UP);
+        return true;
+    }
+
     LbTextSetFont(winfont);
     int msg_width = pixel_size * LbTextStringWidth(player->mp_message_text);
     if ( (is_key_pressed(KC_BACK,KMod_DONTCARE)) || (msg_width < 450) )

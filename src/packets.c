@@ -726,6 +726,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_PlyrMsgEnd:
       player->allocflags &= ~PlaF_NewMPMessage;
       lua_on_chatmsg(player->id_number,player->mp_message_text);
+      if (player->mp_message_text[0] != 0)
+          memcpy(player->mp_message_text_last, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
       if (player->mp_message_text[0] == cmd_char)
       {
           if ( (!cmd_exec(player->id_number, player->mp_message_text + 1)) || ((game.system_flags & GSF_NetworkActive) != 0) )
@@ -738,6 +740,15 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_PlyrMsgClear:
       player->allocflags &= ~PlaF_NewMPMessage;
       memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+      return 0;
+  case PckA_PlyrMsgLast:
+      memcpy(player->mp_message_text, player->mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
+      return 0;
+  case PckA_PlyrMsgCmdAutoCompletion:
+      if (player->mp_message_text[0] == cmd_char)
+      {
+          cmd_auto_completion(player->id_number, player->mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
+      }
       return 0;
   case PckA_ToggleLights:
       if (is_my_player(player))

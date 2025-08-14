@@ -1941,121 +1941,205 @@ TbBool cmd_luatypedump(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+
+struct ConsoleCommand {
+    const char * name;
+    TbBool (* function)(PlayerNumber, char *);
+};
+static const struct ConsoleCommand console_commands[] = {
+    { "stats", cmd_stats },
+    { "fps", cmd_fps },
+    { "frametime", cmd_frametime },
+    { "ft", cmd_frametime },
+    { "frametime.max", cmd_frametime_max },
+    { "ft.max", cmd_frametime_max },
+    { "quit", cmd_quit },
+    { "time", cmd_time },
+    { "timer.toggle", cmd_timer_toggle },
+    { "timer.switch", cmd_timer_switch },
+    { "turn", cmd_turn },
+    { "pause", cmd_pause },
+    { "step", cmd_step },
+    { "game.save", cmd_game_save },
+    { "game.load", cmd_game_load },
+    { "cls", cmd_cls },
+    { "ver", cmd_ver },
+    { "volume", cmd_volume },
+    { "volume.sound", cmd_volume_sound },
+    { "volume.sfx", cmd_volume_sound },
+    { "volume.music", cmd_volume_music },
+    { "volume.soundtrack", cmd_volume_music },
+    { "compuchat", cmd_compuchat },
+    { "comp.procs", cmd_comp_procs },
+    { "comp.events", cmd_comp_events },
+    { "comp.checks", cmd_comp_checks },
+    { "reveal", cmd_reveal },
+    { "conceal", cmd_conceal },
+    { "comp.kill", cmd_comp_kill },
+    { "player.score", cmd_player_score },
+    { "player.flag", cmd_player_flag },
+    { "comp.me", cmd_comp_me },
+    { "magic.instance", cmd_magic_instance },
+    { "give.trap", cmd_give_trap },
+    { "trap.give", cmd_give_trap },
+    { "give.door", cmd_give_door },
+    { "door.give", cmd_give_door },
+    { "map.pool", cmd_map_pool },
+    { "creature.pool", cmd_map_pool },
+    { "gold.create", cmd_create_gold },
+    { "create.gold", cmd_create_gold },
+    { "look", cmd_look },
+    { "object.create", cmd_create_object },
+    { "create.object", cmd_create_object },
+    { "creature.create", cmd_create_creature },
+    { "create.creature", cmd_create_creature },
+    { "thing.create", cmd_create_thing },
+    { "create.thing", cmd_create_thing },
+    { "slab.place", cmd_place_slab },
+    { "place.slab", cmd_place_slab },
+    { "room.available", cmd_room_available },
+    { "power.give", cmd_give_power },
+    { "spell.give", cmd_give_power },
+    { "player.heart.health", cmd_player_heart_health },
+    { "creature.available", cmd_creature_available },
+    { "creature.addhealth", cmd_creature_add_health },
+    { "creature.health.add", cmd_creature_add_health },
+    { "creature.subhealth", cmd_creature_sub_health },
+    { "creature.health.sub", cmd_creature_sub_health },
+    { "digger.sendto", cmd_send_digger_to },
+    { "creature.instance.set", cmd_set_creature_instance },
+    { "creature.state.set", cmd_set_creature_state },
+    { "creature.job.set", cmd_set_creature_job },
+    { "mapwho.info", cmd_mapwho_info },
+    { "thing.info", cmd_thing_info },
+    { "creature.attackheart", cmd_creature_attack_heart },
+    { "player.addgold", cmd_player_gold_add },
+    { "player.gold.add", cmd_player_gold_add },
+    { "cursor.pos", cmd_cursor_pos },
+    { "thing.get", cmd_get_thing },
+    { "thing.show_id", cmd_thing_show_id },
+    { "thing.health", cmd_thing_health },
+    { "thing.move", cmd_move_thing },
+    { "thing.destroy", cmd_destroy_thing },
+    { "room.get", cmd_get_room },
+    { "room.health", cmd_room_health },
+    { "slab.health", cmd_slab_health },
+    { "creature.pool.add", cmd_creature_pool_add },
+    { "creature.pool.sub", cmd_creature_pool_sub },
+    { "creature.pool.remove", cmd_creature_pool_sub },
+    { "creature.level", cmd_creature_level },
+    { "creature.freeze", cmd_freeze_creature },
+    { "creature.slow", cmd_slow_creature },
+    { "music.set", cmd_set_music },
+    { "zoomto", cmd_zoom_to },
+    { "bug.toggle", cmd_toggle_classic_bug },
+    { "actionpoint.pos", cmd_get_action_point_pos },
+    { "actionpoint.zoomto", cmd_zoom_to_action_point },
+    { "actionpoint.reset", cmd_reset_action_point },
+    { "herogate.zoomto", cmd_zoom_to_hero_gate },
+    { "sound.test", cmd_sound_test },
+    { "speech.test", cmd_speech_test },
+    { "player.color", cmd_player_colour},
+    { "player.colour", cmd_player_colour},
+    { "possession.lock", cmd_possession_lock},
+    { "possession.unlock", cmd_possession_unlock},
+    { "string.show", cmd_string_show},
+    { "quick.show", cmd_quick_show},
+    { "lua", cmd_lua},
+    { "luatypedump", cmd_luatypedump},
+};
+static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
+
+void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
+{
+    SYNCDBG(2, "Command auto completion %s", cmd_str);
+
+    char *space = strchr(cmd_str, ' ');
+    if (space != NULL){
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Parameters do not support auto completion");
+        return;
+    }
+
+    size_t cmd_len = strlen(cmd_str);
+
+    int *same_idx = (int *)calloc(sizeof(int), console_command_count);
+    int same_count = 0;
+    for (int i = 0; i < console_command_count; ++i) {
+        if (strncasecmp(cmd_str, console_commands[i].name, cmd_len) == 0) {
+            same_idx[same_count] = i;
+            same_count++;
+        }
+    }
+
+    if (same_count == 0){
+        free(same_idx);
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Unsupported command");
+        return;
+    }
+
+    int end_flag = 0;
+    int auto_len = 0;
+
+    while(1)
+    {
+        int last_char = -1;
+        for (int i=0; i<same_count; i++)
+        {
+            int idx = same_idx[i];
+            int cur_char = console_commands[idx].name[cmd_len+auto_len];
+            if (cur_char == 0)
+            {
+                end_flag = 1;
+                break;
+            }
+
+            if (last_char < 0)
+                last_char = cur_char;
+            else if (last_char != cur_char)
+            {
+                end_flag = 1;
+                break;
+            }
+        }
+        if (end_flag)
+            break;
+        auto_len++;
+    }
+
+    if (auto_len != 0)
+    {
+        int idx = same_idx[0];
+        int len = cmd_size-1 < cmd_len+auto_len ? cmd_size-1 : cmd_len+auto_len;
+        memcpy(cmd_str, console_commands[idx].name, len); // cover all, uniform capitalization.
+        cmd_str[len] = 0;
+    }
+    else
+    {
+        // multiple possibilities, list these
+        char *poss_str = (char *)calloc(64, same_count);
+        for (int i=0; i<same_count; i++)
+        {
+            int idx = same_idx[i];
+            if (i != 0)
+                strcat(poss_str, ", ");
+            strcat(poss_str, console_commands[idx].name);
+        }
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Possible commands: %s", poss_str);
+        free(poss_str);
+    }
+
+    free(same_idx);
+}
+
 TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
 {
-    struct ConsoleCommand {
-        const char * name;
-        TbBool (* function)(PlayerNumber, char *);
-    };
-    static const struct ConsoleCommand console_commands[] = {
-        { "stats", cmd_stats },
-        { "fps", cmd_fps },
-        { "frametime", cmd_frametime },
-        { "ft", cmd_frametime },
-        { "frametime.max", cmd_frametime_max },
-        { "ft.max", cmd_frametime_max },
-        { "quit", cmd_quit },
-        { "time", cmd_time },
-        { "timer.toggle", cmd_timer_toggle },
-        { "timer.switch", cmd_timer_switch },
-        { "turn", cmd_turn },
-        { "pause", cmd_pause },
-        { "step", cmd_step },
-        { "game.save", cmd_game_save },
-        { "game.load", cmd_game_load },
-        { "cls", cmd_cls },
-        { "ver", cmd_ver },
-        { "volume", cmd_volume },
-        { "volume.sound", cmd_volume_sound },
-        { "volume.sfx", cmd_volume_sound },
-        { "volume.music", cmd_volume_music },
-        { "volume.soundtrack", cmd_volume_music },
-        { "compuchat", cmd_compuchat },
-        { "comp.procs", cmd_comp_procs },
-        { "comp.events", cmd_comp_events },
-        { "comp.checks", cmd_comp_checks },
-        { "reveal", cmd_reveal },
-        { "conceal", cmd_conceal },
-        { "comp.kill", cmd_comp_kill },
-        { "player.score", cmd_player_score },
-        { "player.flag", cmd_player_flag },
-        { "comp.me", cmd_comp_me },
-        { "magic.instance", cmd_magic_instance },
-        { "give.trap", cmd_give_trap },
-        { "trap.give", cmd_give_trap },
-        { "give.door", cmd_give_door },
-        { "door.give", cmd_give_door },
-        { "map.pool", cmd_map_pool },
-        { "creature.pool", cmd_map_pool },
-        { "gold.create", cmd_create_gold },
-        { "create.gold", cmd_create_gold },
-        { "look", cmd_look },
-        { "object.create", cmd_create_object },
-        { "create.object", cmd_create_object },
-        { "creature.create", cmd_create_creature },
-        { "create.creature", cmd_create_creature },
-        { "thing.create", cmd_create_thing },
-        { "create.thing", cmd_create_thing },
-        { "slab.place", cmd_place_slab },
-        { "place.slab", cmd_place_slab },
-        { "room.available", cmd_room_available },
-        { "power.give", cmd_give_power },
-        { "spell.give", cmd_give_power },
-        { "player.heart.health", cmd_player_heart_health },
-        { "creature.available", cmd_creature_available },
-        { "creature.addhealth", cmd_creature_add_health },
-        { "creature.health.add", cmd_creature_add_health },
-        { "creature.subhealth", cmd_creature_sub_health },
-        { "creature.health.sub", cmd_creature_sub_health },
-        { "digger.sendto", cmd_send_digger_to },
-        { "creature.instance.set", cmd_set_creature_instance },
-        { "creature.state.set", cmd_set_creature_state },
-        { "creature.job.set", cmd_set_creature_job },
-        { "mapwho.info", cmd_mapwho_info },
-        { "thing.info", cmd_thing_info },
-        { "creature.attackheart", cmd_creature_attack_heart },
-        { "player.addgold", cmd_player_gold_add },
-        { "player.gold.add", cmd_player_gold_add },
-        { "cursor.pos", cmd_cursor_pos },
-        { "thing.get", cmd_get_thing },
-        { "thing.show_id", cmd_thing_show_id },
-        { "thing.health", cmd_thing_health },
-        { "thing.move", cmd_move_thing },
-        { "thing.destroy", cmd_destroy_thing },
-        { "room.get", cmd_get_room },
-        { "room.health", cmd_room_health },
-        { "slab.health", cmd_slab_health },
-        { "creature.pool.add", cmd_creature_pool_add },
-        { "creature.pool.sub", cmd_creature_pool_sub },
-        { "creature.pool.remove", cmd_creature_pool_sub },
-        { "creature.level", cmd_creature_level },
-        { "creature.freeze", cmd_freeze_creature },
-        { "creature.slow", cmd_slow_creature },
-        { "music.set", cmd_set_music },
-        { "zoomto", cmd_zoom_to },
-        { "bug.toggle", cmd_toggle_classic_bug },
-        { "actionpoint.pos", cmd_get_action_point_pos },
-        { "actionpoint.zoomto", cmd_zoom_to_action_point },
-        { "actionpoint.reset", cmd_reset_action_point },
-        { "herogate.zoomto", cmd_zoom_to_hero_gate },
-        { "sound.test", cmd_sound_test },
-        { "speech.test", cmd_speech_test },
-        { "player.color", cmd_player_colour},
-        { "player.colour", cmd_player_colour},
-        { "possession.lock", cmd_possession_lock},
-        { "possession.unlock", cmd_possession_unlock},
-        { "string.show", cmd_string_show},
-        { "quick.show", cmd_quick_show},
-        { "lua", cmd_lua},
-        { "luatypedump", cmd_luatypedump},
-    };
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");
     if (command == NULL) {
         return false;
     }
     // NOTE: execution can be optimized by pre-sorting commands by name and performing binary search
-    for (int i = 0; i < sizeof(console_commands) / sizeof(*console_commands); ++i) {
+    for (int i = 0; i < console_command_count; ++i) {
         if (strcasecmp(command, console_commands[i].name) == 0) {
             return console_commands[i].function(plyr_idx, args);
         }
