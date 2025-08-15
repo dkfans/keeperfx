@@ -41,7 +41,6 @@ enum TbScriptCommands {
     Cmd_MESSAGE                            =  5, // from beta
     Cmd_IF                                 =  6,
     Cmd_ENDIF                              =  7,
-    Cmd_SET_HATE                           =  8,
     Cmd_SET_GENERATE_SPEED                 =  9,
     Cmd_REM                                = 10,
     Cmd_START_MONEY                        = 11,

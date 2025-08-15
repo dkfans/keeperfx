@@ -122,11 +122,7 @@ static const struct NamedField rules_computer_named_fields[] = {
 static const struct NamedField rules_creatures_named_fields[] = {
     //name                    //param  //field                                           //default   //min     //max  //namedCommand //valueFunc
   {"RECOVERYFREQUENCY",          0, field(game.conf.rules.creature.recovery_frequency    ),  10,        0, UCHAR_MAX,NULL,value_default, assign_default},
-  {"FIGHTMAXHATE",               0, field(game.conf.rules.creature.fight_max_hate        ), 200, SHRT_MIN,  SHRT_MAX,NULL,value_default, assign_default},
-  {"FIGHTBORDERLINE",            0, field(game.conf.rules.creature.fight_borderline      ),   0, SHRT_MIN,  SHRT_MAX,NULL,value_default, assign_default},
-  {"FIGHTMAXLOVE",               0, field(game.conf.rules.creature.fight_max_love        ),-100, SHRT_MIN,  SHRT_MAX,NULL,value_default, assign_default},
   {"BODYREMAINSFOR",             0, field(game.conf.rules.creature.body_remains_for      ),1000,        0, USHRT_MAX,NULL,value_default, assign_default},
-  {"FIGHTHATEKILLVALUE",         0, field(game.conf.rules.creature.fight_hate_kill_value ),  -5, SHRT_MIN,  SHRT_MAX,NULL,value_default, assign_default},
   {"FLEEZONERADIUS",             0, field(game.conf.rules.creature.flee_zone_radius      ),2048,        0, ULONG_MAX,NULL,value_default, assign_default},
   {"GAMETURNSINFLEE",            0, field(game.conf.rules.creature.game_turns_in_flee    ), 200,        0,  LONG_MAX,NULL,value_default, assign_default},
   {"GAMETURNSUNCONSCIOUS",       0, field(game.conf.rules.creature.game_turns_unconscious),2000,        0, USHRT_MAX,NULL,value_default, assign_default},

@@ -210,7 +210,6 @@ struct Dungeon {
     short highest_task_number;
     int total_money_owned;
     int offmap_money_owned;
-    short hates_player[DUNGEONS_COUNT];
     struct MapTask task_list[MAPTASKS_COUNT];
     int task_count;
     unsigned char owner;
