@@ -57,6 +57,8 @@ short api_enabled = false;
 uint16_t api_port = 5599;
 unsigned long features_enabled = 0;
 TbBool exit_on_lua_error = false;
+TbBool FLEE_BUTTON_DEFAULT = false;
+TbBool IMPRISON_BUTTON_DEFAULT = false;
 
 /**
  * Language 3-char abbreviations.
@@ -147,6 +149,8 @@ const struct NamedCommand conf_commands[] = {
   {"API_PORT"                      , 34},
   {"EXIT_ON_LUA_ERROR"             , 35},
   {"TURNS_PER_SECOND"              , 36},
+  {"FLEE_BUTTON_DEFAULT"           , 37},
+  {"IMPRISON_BUTTON_DEFAULT"       , 38},
   {NULL,                   0},
   };
 
@@ -857,6 +861,34 @@ short load_configuration(void)
           }
           else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+          }
+          break;
+      case 37: // FLEE_BUTTON_DEFAULT
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1) {
+              FLEE_BUTTON_DEFAULT = true;
+          } else {
+              FLEE_BUTTON_DEFAULT = false;
+          }
+          break;
+      case 38: // IMPRISON_BUTTON_DEFAULT
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1) {
+              IMPRISON_BUTTON_DEFAULT = true;
+          } else {
+              IMPRISON_BUTTON_DEFAULT = false;
           }
           break;
       case ccr_comment:
