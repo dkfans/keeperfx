@@ -575,7 +575,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     {
         snprintf(gui_textbuf, sizeof(gui_textbuf), "%ld", (long)roomst->cost);
     }
-    if ((roomst->cost * boxsize) <= dungeon->total_money_owned)
+    if (player->render_roomspace.total_roomspace_cost <= dungeon->total_money_owned)
     {
         if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
           && ((game.play_gameturn % (2 * gui_blink_rate)) < gui_blink_rate))
