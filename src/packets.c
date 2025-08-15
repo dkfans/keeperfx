@@ -1075,6 +1075,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
             // exit out of click and drag mode
             if (player->render_roomspace.drag_mode)
             {
+                player->cursor_button_down = 0;
                 player->one_click_lock_cursor = false;
                 if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
                 {
