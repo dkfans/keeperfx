@@ -254,6 +254,11 @@ static int thing_get_field(lua_State *L) {
         if (creature_control_invalid(cctrl))
             return luaL_error(L, "Attempt to access 'level' of non-creature thing");
         lua_pushinteger(L, cctrl->exp_level);
+    } else if (strcmp(key, "exp_points") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'exp_points' of non-creature thing");
+        lua_pushinteger(L, cctrl->exp_points);
     } else if (strcmp(key, "opponents_melee_count") == 0) {
         cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
