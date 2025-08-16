@@ -238,6 +238,10 @@ static int thing_get_field(lua_State *L) {
         lua_pushinteger(L, thing->move_angle_xy);
     } else if (strcmp(key, "health") == 0) {
         lua_pushinteger(L, thing->health);
+    } else if (strcmp(key, "gold_held") == 0) {
+        if (thing->class_id != TCls_Creature)
+            return luaL_error(L, "Attempt to access 'gold_held' of non-creature thing");
+        lua_pushinteger(L, thing->creature.gold_carried);
     } else if (strcmp(key, "max_health") == 0) {
         lua_pushinteger(L, get_thing_max_health(thing));
     } else if (strcmp(key, "gold_held") == 0) {
