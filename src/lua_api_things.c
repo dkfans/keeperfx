@@ -253,20 +253,20 @@ static int thing_get_field(lua_State *L) {
         if (creature_control_invalid(cctrl))
             return luaL_error(L, "Attempt to access 'level' of non-creature thing");
         lua_pushinteger(L, cctrl->exp_level);
-    } else if (strcmp(key, "melee_opponents") == 0) {
+    } else if (strcmp(key, "opponents_melee_count") == 0) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access 'melee_opponents' of non-creature thing");
+            return luaL_error(L, "Attempt to access 'opponents_melee_count' of non-creature thing");
         lua_pushinteger(L, cctrl->opponents_melee_count);
-    } else if (strcmp(key, "ranged_opponents") == 0) {
+    } else if (strcmp(key, "opponents_ranged_count") == 0) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access 'ranged_opponents' of non-creature thing");
+            return luaL_error(L, "Attempt to access 'opponents_ranged_count' of non-creature thing");
         lua_pushinteger(L, cctrl->opponents_ranged_count);
-    } else if (strcmp(key, "opponents") == 0) {
+    } else if (strcmp(key, "opponents_count") == 0) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access 'opponents' of non-creature thing");
+            return luaL_error(L, "Attempt to access 'opponents_count' of non-creature thing");
         lua_pushinteger(L, (cctrl->opponents_melee_count+cctrl->opponents_ranged_count));
     } else if (strcmp(key, "name") == 0) {
         if (thing->class_id != TCls_Creature)
