@@ -524,9 +524,9 @@ long creature_sacrifice_average_exp_level(struct Dungeon *dungeon, struct Sacrif
 {
     long num = 0;
     long exp = 0;
-    for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
-        long model = sac->victims[i];
+        ThingModel model = sac->victims[i];
         // Do not count the same model twice
         if (i > 0)
         {
@@ -545,9 +545,9 @@ long creature_sacrifice_average_exp_level(struct Dungeon *dungeon, struct Sacrif
 void creature_sacrifice_reset(struct Dungeon *dungeon, struct SacrificeRecipe *sac)
 {
   // Some models may be set more than once; dut we don't really care...
-  for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+  for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
   {
-      long model = sac->victims[i];
+      ThingModel model = sac->victims[i];
       dungeon->creature_sacrifice[model] = 0;
       dungeon->creature_sacrifice_exp[model] = 0;
   }
@@ -556,7 +556,7 @@ void creature_sacrifice_reset(struct Dungeon *dungeon, struct SacrificeRecipe *s
 static long sacrifice_victim_model_count(struct SacrificeRecipe *sac, ThingModel model)
 {
     long k = 0;
-    for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
         if (sac->victims[i] == model)
             k++;
@@ -567,7 +567,7 @@ static long sacrifice_victim_model_count(struct SacrificeRecipe *sac, ThingModel
 TbBool sacrifice_victim_conditions_met(struct Dungeon *dungeon, struct SacrificeRecipe *sac)
 {
     // Some models may be checked more than once; dut we don't really care...
-    for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
         ThingModel model = sac->victims[i];
         if (model < 1)

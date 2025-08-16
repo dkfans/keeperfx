@@ -1062,7 +1062,7 @@ static int lua_Set_sacrifice_recipe(lua_State *L)
     ThingModel victims[MAX_SACRIFICE_VICTIMS];
     for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
-        long crtr_model  = luaL_optNamedCommand(L,i + 1,creature_desc);
+        ThingModel crtr_model  = luaL_optNamedCommand(L,i + 1,creature_desc);
         victims[i] = crtr_model;
     }
 
@@ -1108,7 +1108,7 @@ static int lua_Remove_sacrifice_recipe(lua_State *L)
 
     for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
-        long crtr_model  = luaL_optNamedCommand(L,i + 1,creature_desc);
+        ThingModel crtr_model  = luaL_optNamedCommand(L,i + 1,creature_desc);
         victims[i] = crtr_model;
     }
 
