@@ -201,6 +201,7 @@ long get_research_id(long item_type, const char *trg_name, const char *func_name
 struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void);
 
 const char *player_code_name(PlayerNumber plyr_idx);
+int sac_compare_fn(const void* ptr_a, const void* ptr_b);
 
 extern const struct NamedCommand rules_sacrifices_commands[];
 extern const struct NamedCommand sacrifice_unique_desc[];
