@@ -324,9 +324,9 @@ void clear_sacrifice_recipes(void)
 
 int sac_compare_fn(const void* ptr_a, const void* ptr_b)
 {
-    const char* a = (const char*)ptr_a;
-    const char* b = (const char*)ptr_b;
-    return *a < *b;
+    ThingModel a = *(const ThingModel*)ptr_a;
+    ThingModel b = *(const ThingModel*)ptr_b;
+    return a < b;
 }
 
 static void set_rules_defaults()
