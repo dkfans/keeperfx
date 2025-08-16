@@ -96,6 +96,7 @@ const long definable_key_string[] = {
     GUIStr_CtrlTiltReset,
     GUIStr_CtrlAscend,
     GUIStr_CtrlDescend,
+    GUIStr_CtrlHighlightModeToggle,
 };
 
 char video_cluedo_mode;

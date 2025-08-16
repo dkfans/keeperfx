@@ -1501,57 +1501,71 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     long keycode = 0;
     unsigned short par1, par2;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if (!is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
+    struct Packet* pckt;
+    if ( (is_game_key_pressed(Gkey_HighlightModeToggle, &keycode, true)) )
     {
-        par2 = 1;
-    }
-    else
-    {
+        par1 = settings.highlight_mode;
+        par1 ^= 1;
         par2 = 0;
-    }
-    if ( (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) ) // Use "modern" click and drag method
-    {
-        par1 = 1;
-        par2 = 0;
-    }
-    else if ( (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))  ) // Use "modern" click and drag method
-    {
-        par1 = 2;
-        par2 = (player->roomspace_no_default) ? player->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
-        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
-        {
-            if (par2 != MAX_USER_ROOMSPACE_WIDTH)
-            {
-                par2++;
-            }
-        }
-        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
-        {
-            if (par2 != MIN_USER_ROOMSPACE_WIDTH)
-            {
-                par2--;
-            }
-        }
-    }
-    else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true) )
-    {
-        if (player->primary_cursor_state == CSt_PowerHand)
-        {
-            player = get_player(plyr_idx);
-            if (player->roomspace_mode != single_subtile_mode)
-            {
-                struct Packet* pckt = get_packet(my_player_number);
-                set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
-            }
-        }
+        pckt = get_packet(my_player_number);
+        set_packet_action(pckt, PckA_RoomspaceHighlightToggle, par1, par2, 0, 0);
+        clear_key_pressed(keycode);
         return;
     }
-    else
+    if (!settings.highlight_mode)
     {
-        par1 = 0;
-        par2 = numpad_to_value(false);
+        if (!is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
+        {
+            par2 = 1;
+        }
+        else
+        {
+            par2 = 0;
+        }
+        if ( (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) ) // Use "modern" click and drag method
+        {
+            par1 = 1;
+            par2 = 0;
+        }
+        else if ( (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))  ) // Use "modern" click and drag method
+        {
+            par1 = 2;
+            par2 = (player->roomspace_no_default) ? player->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
+            if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
+            {
+                if (par2 != MAX_USER_ROOMSPACE_WIDTH)
+                {
+                    par2++;
+                }
+            }
+            if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+            {
+                if (par2 != MIN_USER_ROOMSPACE_WIDTH)
+                {
+                    par2--;
+                }
+            }
+        }
+        else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true) )
+        {
+            if (player->primary_cursor_state == CSt_PowerHand)
+            {
+                player = get_player(plyr_idx);
+                if (player->roomspace_mode != single_subtile_mode)
+                {
+                    pckt = get_packet(my_player_number);
+                    set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+                }
+            }
+            return;
+        }
+        else
+        {
+            par1 = 0;
+            par2 = numpad_to_value(false);
+        }
+        set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, 0, 0);
     }
-    set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, 0, 0);
 }
 
 void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool sell)

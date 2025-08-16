@@ -67,6 +67,13 @@ unsigned char tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     unsigned char line_color = allowed;
     if (allowed)
     {
+        if (player->render_roomspace.highlight_mode == 1)
+        {
+            if (player->render_roomspace.drag_mode)
+            {
+                line_color = SLC_BLUE;
+            }
+        }
         if (player->render_roomspace.untag_mode)
         {
             line_color = SLC_YELLOW;

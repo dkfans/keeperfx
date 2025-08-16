@@ -746,6 +746,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
     player->frontview_zoom_level = settings.frontview_zoom_level;
     player->isometric_tilt = settings.isometric_tilt;
+    player->roomspace_highlight_mode = settings.highlight_mode;
     if (is_my_player(player))
     {
         set_flag(game.operation_flags, GOF_ShowPanel);

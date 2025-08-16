@@ -23,7 +23,7 @@
 #include "bflib_basics.h"
 
 #define DK_GAME_KEYS_COUNT     32
-#define GAME_KEYS_COUNT        45
+#define GAME_KEYS_COUNT        46
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,6 +57,7 @@ struct GameSettings { // KFX settings
     unsigned long frontview_zoom_level;
     long mentor_volume;
     int isometric_tilt;
+    TbBool highlight_mode;
     };
 #pragma pack()
 /******************************************************************************/
