@@ -259,6 +259,21 @@ static int thing_get_field(lua_State *L) {
         if (creature_control_invalid(cctrl))
             return luaL_error(L, "Attempt to access 'exp_points' of non-creature thing");
         lua_pushinteger(L, cctrl->exp_points);
+    } else if (strcmp(key, "hunger_amount") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'hunger_amount' of non-creature thing");
+        lua_pushinteger(L, cctrl->hunger_amount);
+    } else if (strcmp(key, "hunger_level") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'hunger_level' of non-creature thing");
+        lua_pushinteger(L, cctrl->hunger_level);
+    } else if (strcmp(key, "hunger_loss") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'hunger_loss' of non-creature thing");
+        lua_pushinteger(L, cctrl->hunger_loss);
     } else if (strcmp(key, "opponents_melee_count") == 0) {
         cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
