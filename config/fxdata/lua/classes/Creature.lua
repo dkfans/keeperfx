@@ -6,6 +6,10 @@
 ---@field level integer
 ---@field name string name visible in possession or query menu
 ---@field party Creature[] list of creatures in the party, first entry is the leader
+---@field gold_held integer gold carried by the creature
+---@field opponents_count number of creatures it is in battle with, combined ranged and melee
+---@field opponents_count_melee number of creatures it is in melee battle with
+---@field opponents_count_ranged number of creatures it is in ranged battle
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens
