@@ -27,6 +27,7 @@
 #include "api.h"
 #include "player_data.h"
 #include "player_instances.h"
+#include "config_keeperfx.h"
 #include "config_players.h"
 #include "player_computer.h"
 #include "dungeon_data.h"
@@ -1047,6 +1048,23 @@ void post_init_players(void)
     }
 }
 
+void apply_default_flee_and_imprison_setting(struct PlayerInfo *player)
+{
+    SYNCDBG(8,"Starting for player %d",(int)player->id_number);
+    // Apply config default values for creature tendencies
+    struct Dungeon* dungeon = get_dungeon(player->id_number);
+    if (FLEE_BUTTON_DEFAULT) {
+        dungeon->creature_tendencies |= 0x02;
+    }
+    if (IMPRISON_BUTTON_DEFAULT) {
+        dungeon->creature_tendencies |= 0x01;
+    }
+    
+    // Sync UI variables with dungeon tendencies for local player
+    game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
+    game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+}
+
 void init_players_local_game(void)
 {
     SYNCDBG(4,"Starting");
@@ -1067,6 +1085,7 @@ void init_players_local_game(void)
         default: player->view_mode_restore = PVM_IsoWibbleView; break;
     }
     init_player(player, 0);
+    apply_default_flee_and_imprison_setting(player);
 }
 
 void process_player_states(void)
