@@ -1075,7 +1075,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 if (game.conf.rules.magic.weight_calculate_push > 0)
                 {
                     int weight = compute_creature_weight(tngdst);
-                    adjusted_blow_strength = weight_calculated_push_strenght(weight, blow_strength);
+                    adjusted_blow_strength = weight_calculated_push_strength(weight, blow_strength);
                 }
             
                 

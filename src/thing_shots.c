@@ -1108,7 +1108,7 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
  * @param push_strength The original push strength.
  * @return The adjusted push strength.
  */
-int weight_calculated_push_strenght(int weight, int push_strength)
+int weight_calculated_push_strength(int weight, int push_strength)
 {
     const int min_weight = 6; // Minimum weight threshold for the creature.
     const int max_weight = game.conf.rules.magic.weight_calculate_push; // Maximum weight threshold for the creature.
@@ -1205,7 +1205,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
         if (game.conf.rules.magic.weight_calculate_push > 0)
         {
             int weight = compute_creature_weight(trgtng);
-            adjusted_throw_strength = weight_calculated_push_strenght(weight, throw_strength);
+            adjusted_throw_strength = weight_calculated_push_strength(weight, throw_strength);
         }
         if (shotst->push_on_hit || creature_is_being_unconscious(trgtng))
         {
@@ -1395,7 +1395,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (game.conf.rules.magic.weight_calculate_push > 0)
     {
         int weight = compute_creature_weight(trgtng);
-        adjusted_push_strength = weight_calculated_push_strenght(weight, push_strength);
+        adjusted_push_strength = weight_calculated_push_strength(weight, push_strength);
     }
 
     if (push_strength != 0 )
@@ -1503,28 +1503,100 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     return 1;
 }
 
+long shot_hit_dead_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
+{
+    long i;
+    struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
+    long push_strength = shotst->push_on_hit;
+    long adjusted_push_strength = push_strength;
+    if (game.conf.rules.magic.weight_calculate_push > 0)
+    {
+        int weight = compute_creature_weight(trgtng);
+        adjusted_push_strength = weight_calculated_push_strength(weight, push_strength);
+    }
+    if (push_strength != 0 )
+    {
+        i = adjusted_push_strength * shotng->velocity.x.val;
+        trgtng->veloc_push_add.x.val += i / 16;
+        i = adjusted_push_strength * shotng->velocity.y.val;
+        trgtng->veloc_push_add.y.val += i / 16;
+        trgtng->state_flags |= TF1_PushAdd;
+    }
+    if (push_strength == 0)
+        push_strength++;
+    if (game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
+    {
+        push_strength *= 5;
+        int move_x = push_strength * shotng->velocity.x.val / 16.0;
+        int move_y = push_strength * shotng->velocity.y.val / 16.0;
+        trgtng->veloc_push_add.x.val += move_x;
+        trgtng->veloc_push_add.y.val += move_y;
+        trgtng->state_flags |= TF1_PushAdd;
+    }
+    else
+    {
+        if (shotst->model_flags & ShMF_Boulder) //Boulders move units slightly but without purpose
+        {
+            if (abs(shotng->velocity.x.val) >= abs(shotng->velocity.y.val))
+            {
+                i = push_strength * shotng->velocity.x.val;
+                trgtng->veloc_push_add.x.val += i / 64;
+                i = push_strength * shotng->velocity.x.val * (CREATURE_RANDOM(shotng, 3) - 1);
+                trgtng->veloc_push_add.y.val += i / 64;
+            }
+            else
+            {
+                i = push_strength * shotng->velocity.y.val;
+                trgtng->veloc_push_add.y.val += i / 64;
+                i = push_strength * shotng->velocity.y.val * (CREATURE_RANDOM(shotng, 3) - 1);
+                trgtng->veloc_push_add.x.val += i / 64;
+            }
+            trgtng->state_flags |= TF1_PushAdd;
+        }
+        else // Normal shots blast dead units out of the way
+        {
+            push_strength *= 5;
+            i = push_strength * shotng->velocity.x.val;
+            trgtng->veloc_push_add.x.val += i / 16;
+            i = push_strength * shotng->velocity.y.val;
+            trgtng->veloc_push_add.y.val += i / 16;
+            trgtng->state_flags |= TF1_PushAdd;
+        }
+    }
+    create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
+    if (shotst->model_flags & ShMF_Boulder)
+    {
+        return 0; // We're not actually hitting the dead units with a boulder
+    }
+    if (shotst->destroy_on_first_hit != 0) {
+        delete_thing_structure(shotng, 0);
+    }
+    return 1;
+}
+
 TbBool shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
 {
-    if (!thing_exists(target))
-        return false;
-    if (target->class_id == TCls_Object) {
-        return shot_hit_object_at(shotng, target, pos);
-    }
-    if (target->class_id == TCls_Creature) {
-        return shot_hit_creature_at(shotng, target, pos);
-    }
-    if (target->class_id == TCls_Trap) {
-        return shot_hit_trap_at(shotng, target, pos);
-    }
-    if (target->class_id == TCls_DeadCreature) {
-        //TODO implement shooting dead bodies
-    }
-    if (target->class_id == TCls_Shot) {
-        // On a shot for collision, both shots are destroyed
-        //TODO maybe make both shots explode instead?
-        shotng->health = -1;
-        target->health = -1;
-        return true;
+    if (thing_exists(target))
+    {
+        switch(target->class_id)
+        {
+            case TCls_Object:
+                return shot_hit_object_at(shotng, target, pos);
+            case TCls_Creature:
+                return shot_hit_creature_at(shotng, target, pos);
+            case TCls_Trap:
+                return shot_hit_trap_at(shotng, target, pos);
+            case TCls_DeadCreature:
+                return shot_hit_dead_creature_at(shotng, target, pos);
+            case TCls_Shot:
+            {
+                // On a shot for collision, both shots are destroyed
+                //TODO maybe make both shots explode instead?
+                shotng->health = -1;
+                target->health = -1;
+                return true;
+            }
+        }
     }
     return false;
 }
@@ -1630,7 +1702,7 @@ TbBool shot_hit_something_while_moving(struct Thing *shotng, struct Coord3d *nxp
     if (thing_is_invalid(targetng)) {
         return false;
     }
-    SYNCDBG(18,"The %s index %d, collided with %s index %d",thing_model_name(shotng),(int)shotng->index,thing_model_name(targetng),(int)targetng->index);
+    // SYNCDBG(18,"The %s index %d, collided with %s index %d",thing_model_name(shotng),(int)shotng->index,thing_model_name(targetng),(int)targetng->index);
     if (shot_hit_shootable_thing_at(shotng, targetng, nxpos)) {
         return true;
     }
@@ -1951,7 +2023,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                 {
                     long weight = compute_creature_weight(thing);
                     //max push distance
-                    blow_distance = maxdistance - (maxdistance - weight_calculated_push_strenght(weight, maxdistance)); 
+                    blow_distance = maxdistance - (maxdistance - weight_calculated_push_strength(weight, maxdistance)); 
                     // distance between startposition and actual position of the projectile
                     int origin_distance = get_chessboard_distance(&shotng->shot.originpos, &thing->mappos) + 1;
                     creature_distance = origin_distance;
