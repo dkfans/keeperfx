@@ -240,6 +240,10 @@ static int thing_get_field(lua_State *L) {
         lua_pushinteger(L, thing->health);
     } else if (strcmp(key, "max_health") == 0) {
         lua_pushinteger(L, get_thing_max_health(thing));
+    } else if (strcmp(key, "gold_held") == 0) {
+        if (thing->class_id != TCls_Creature)
+            return luaL_error(L, "Attempt to access 'gold_held' of non-creature thing");
+        lua_pushinteger(L, thing->creature.gold_carried);
     } else if (strcmp(key, "shots") == 0) {
         if (thing->class_id != TCls_Trap)
             return luaL_error(L, "Attempt to access 'shots' of non-trap thing");
@@ -249,6 +253,21 @@ static int thing_get_field(lua_State *L) {
         if (creature_control_invalid(cctrl))
             return luaL_error(L, "Attempt to access 'level' of non-creature thing");
         lua_pushinteger(L, cctrl->exp_level);
+    } else if (strcmp(key, "opponents_melee_count") == 0) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'opponents_melee_count' of non-creature thing");
+        lua_pushinteger(L, cctrl->opponents_melee_count);
+    } else if (strcmp(key, "opponents_ranged_count") == 0) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'opponents_ranged_count' of non-creature thing");
+        lua_pushinteger(L, cctrl->opponents_ranged_count);
+    } else if (strcmp(key, "opponents_count") == 0) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'opponents_count' of non-creature thing");
+        lua_pushinteger(L, (cctrl->opponents_melee_count+cctrl->opponents_ranged_count));
     } else if (strcmp(key, "name") == 0) {
         if (thing->class_id != TCls_Creature)
             return luaL_error(L, "Attempt to get 'name' of non-creature thing");
