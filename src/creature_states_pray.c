@@ -869,13 +869,6 @@ TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
     return true;
 }
 
-static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
-{
-    const char *a = (const char*)ptr_a;
-    const char *b = (const char*)ptr_b;
-    return *a < *b;
-}
-
 void script_set_sacrifice_recipe(const int action, const int param, ThingModel* victims)
 {
     qsort(victims, MAX_SACRIFICE_VICTIMS, sizeof(ThingModel), &sac_compare_fn);

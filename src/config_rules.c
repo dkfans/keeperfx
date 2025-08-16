@@ -322,10 +322,10 @@ void clear_sacrifice_recipes(void)
   }
 }
 
-static int long_compare_fn(const void *ptr_a, const void *ptr_b)
+int sac_compare_fn(const void* ptr_a, const void* ptr_b)
 {
-    long *a = (long*)ptr_a;
-    long *b = (long*)ptr_b;
+    const char* a = (const char*)ptr_a;
+    const char* b = (const char*)ptr_b;
     return *a < *b;
 }
 
@@ -351,7 +351,7 @@ TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
         if (sac->victims[i] == 0)
         {
             sac->victims[i] = crtr_idx;
-            qsort(sac->victims, MAX_SACRIFICE_VICTIMS, sizeof(sac->victims[0]), &long_compare_fn);
+            qsort(sac->victims, MAX_SACRIFICE_VICTIMS, sizeof(sac->victims[0]), &sac_compare_fn);
             return true;
         }
   }
