@@ -213,6 +213,7 @@ static int thing_set_field(lua_State *L) {
                 return luaL_error(L, "Invalid creature control block");
             }
             cctrl->exp_points = luaL_checkinteger(L, 3);
+            check_experience_upgrade(thing);
         } else if (strcmp(key, "hunger_amount") == 0)
         {
             cctrl = creature_control_get_from_thing(thing);
