@@ -3,8 +3,8 @@
 -- Contains instance methods for a single creature, including teleportation, level up, death handling, etc.
 
 ---@class Creature: Thing
----@field level integer
----@field exp_points integer amount of experience points the creature has
+---@field level integer the experience level of the creature
+---@field exp_points integer amount of experience points the creature has, 256 times as large as the LevelsTrainValues
 ---@field name string name visible in possession or query menu
 ---@field party Creature[] list of creatures in the party, first entry is the leader
 ---@field gold_held integer gold carried by the creature
