@@ -197,6 +197,11 @@ static int thing_set_field(lua_State *L) {
 
     } else if (strcmp(key, "health") == 0) {
         thing->health = luaL_checkinteger(L, 3);
+    } else if (strcmp(key, "gold_held") == 0) {
+        if (thing->class_id != TCls_Creature) {
+            return luaL_error(L, "Attempt to set gold_held of non-creature thing");
+        }
+        thing->creature.gold_carried = luaL_checkinteger(L, 3);
 
     } else if (strcmp(key, "shots") == 0) {
         if (thing->class_id != TCls_Trap) {
