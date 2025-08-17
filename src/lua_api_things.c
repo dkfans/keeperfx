@@ -269,7 +269,7 @@ static int thing_get_field(lua_State *L) {
     struct Thing* thing = luaL_checkThing(L, 1);
     struct CreatureControl* cctrl;
 
-    // Built-in fields
+    // Built-in fields shared by all thing classes
     if (strcmp(key, "ThingIndex") == 0) {
         lua_pushinteger(L, thing->index);
     } else if (strcmp(key, "creation_turn") == 0) {
@@ -286,64 +286,69 @@ static int thing_get_field(lua_State *L) {
         lua_pushinteger(L, thing->health);
     } else if (strcmp(key, "max_health") == 0) {
         lua_pushinteger(L, get_thing_max_health(thing));
-    } else if (strcmp(key, "gold_held") == 0) {
-        if (thing->class_id != TCls_Creature)
-            return luaL_error(L, "Attempt to access 'gold_held' of non-creature thing");
-        lua_pushinteger(L, thing->creature.gold_carried);
-    } else if (strcmp(key, "shots") == 0) {
-        if (thing->class_id != TCls_Trap)
-            return luaL_error(L, "Attempt to access 'shots' of non-trap thing");
-        lua_pushinteger(L, thing->trap.num_shots);
-    } else if (strcmp(key, "level") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access 'level' of non-creature thing");
-        lua_pushinteger(L, cctrl->exp_level);
-    } else if (strcmp(key, "exp_points") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access 'exp_points' of non-creature thing");
-        lua_pushinteger(L, cctrl->exp_points);
-    } else if (strcmp(key, "hunger_amount") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access 'hunger_amount' of non-creature thing");
-        lua_pushinteger(L, cctrl->hunger_amount);
-    } else if (strcmp(key, "hunger_level") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access 'hunger_level' of non-creature thing");
-        lua_pushinteger(L, cctrl->hunger_level);
-    } else if (strcmp(key, "hunger_loss") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access 'hunger_loss' of non-creature thing");
-        lua_pushinteger(L, cctrl->hunger_loss);
-    } else if (strcmp(key, "opponents_melee_count") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access 'opponents_melee_count' of non-creature thing");
-        lua_pushinteger(L, cctrl->opponents_melee_count);
-    } else if (strcmp(key, "opponents_ranged_count") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access 'opponents_ranged_count' of non-creature thing");
-        lua_pushinteger(L, cctrl->opponents_ranged_count);
-    } else if (strcmp(key, "opponents_count") == 0) {
-        cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl))
-            return luaL_error(L, "Attempt to access 'opponents_count' of non-creature thing");
-        lua_pushinteger(L, (cctrl->opponents_melee_count+cctrl->opponents_ranged_count));
-    } else if (strcmp(key, "name") == 0) {
-        if (thing->class_id != TCls_Creature)
-            return luaL_error(L, "Attempt to get 'name' of non-creature thing");
-        lua_pushstring(L, creature_own_name(thing));
-    } else if (strcmp(key, "party") == 0) {
-        if (thing->class_id != TCls_Creature)
-            return luaL_error(L, "Attempt to get 'party' of non-creature thing");
-        lua_pushPartyTable(L, get_group_leader(thing));
     } else if (strcmp(key, "picked_up") == 0) {
         lua_pushboolean(L, thing_is_picked_up(thing));
+    }
+
+    //build in fields specific to one thing class
+    else if (thing_is_creature(thing))
+    {
+        if (strcmp(key, "name") == 0) {
+            lua_pushstring(L, creature_own_name(thing));
+        } else if (strcmp(key, "gold_held") == 0) {
+            lua_pushinteger(L, thing->creature.gold_carried);
+        } else if (strcmp(key, "party") == 0) {
+            lua_pushPartyTable(L, get_group_leader(thing));
+        } else if (strcmp(key, "level") == 0) {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl))
+                return luaL_error(L, "Attempt to access 'level' of non-creature thing");
+            lua_pushinteger(L, cctrl->exp_level);
+        } else if (strcmp(key, "exp_points") == 0) {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl))
+                return luaL_error(L, "Attempt to access 'exp_points' of non-creature thing");
+            lua_pushinteger(L, cctrl->exp_points);
+        } else if (strcmp(key, "hunger_amount") == 0) {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl))
+                return luaL_error(L, "Attempt to access 'hunger_amount' of non-creature thing");
+            lua_pushinteger(L, cctrl->hunger_amount);
+        } else if (strcmp(key, "hunger_level") == 0) {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl))
+                return luaL_error(L, "Attempt to access 'hunger_level' of non-creature thing");
+            lua_pushinteger(L, cctrl->hunger_level);
+        } else if (strcmp(key, "hunger_loss") == 0) {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl))
+                return luaL_error(L, "Attempt to access 'hunger_loss' of non-creature thing");
+            lua_pushinteger(L, cctrl->hunger_loss);
+        } else if (strcmp(key, "opponents_melee_count") == 0) {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl))
+                return luaL_error(L, "Attempt to access 'opponents_melee_count' of non-creature thing");
+            lua_pushinteger(L, cctrl->opponents_melee_count);
+        } else if (strcmp(key, "opponents_ranged_count") == 0) {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl))
+                return luaL_error(L, "Attempt to access 'opponents_ranged_count' of non-creature thing");
+            lua_pushinteger(L, cctrl->opponents_ranged_count);
+        } else if (strcmp(key, "opponents_count") == 0) {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl))
+                return luaL_error(L, "Attempt to access 'opponents_count' of non-creature thing");
+            lua_pushinteger(L, (cctrl->opponents_melee_count + cctrl->opponents_ranged_count));
+        } else {
+            return luaL_error(L, "Unknown field or method '%s' for Creature thing", key);
+        }
+    } else if (thing->class_id == TCls_Trap)
+    {
+        if (strcmp(key, "shots") == 0) {
+            lua_pushinteger(L, thing->trap.num_shots);
+        } else {
+            return luaL_error(L, "Unknown field or method '%s' for Trap thing", key);
+        }
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     } else {
