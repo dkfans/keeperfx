@@ -275,6 +275,7 @@ extern int load_game_scroll_offset;
 extern unsigned char video_gamma_correction;
 extern MenuID vid_change_query_menu;
 extern TbBool right_click_tag_mode_toggle;
+extern unsigned char default_tag_mode;
 
 // *** SPRITES ***
 extern struct TbSpriteSheet *font_sprites;

@@ -149,6 +149,7 @@ const struct NamedCommand conf_commands[] = {
   {"EXIT_ON_LUA_ERROR"             , 35},
   {"TURNS_PER_SECOND"              , 36},
   {"TAG_MODE_TOGGLING"             , 37},
+  {"DEFAULT_TAG_MODE"              , 38},
   {NULL,                   0},
   };
 
@@ -179,6 +180,13 @@ const struct NamedCommand conf_commands[] = {
   {"EA",                      4}, // hidden
   {"INTRO",                   5},
   {NULL,                      0},
+  };
+  
+  const struct NamedCommand tag_modes[] = {
+  {"SINGLE",  1},
+  {"DRAG",    2},
+  {"PRESET",  3},
+  {NULL,      0},
   };
 
 unsigned int vid_scale_flags = SMK_FullscreenFit;
@@ -871,6 +879,18 @@ short load_configuration(void)
           }
           right_click_tag_mode_toggle = (TbBool)i;
           break;
+      case 38: // DEFAULT_TAG_MODE
+          i = recognize_conf_parameter(buf,&pos,len,tag_modes);
+          if (i <= 0)
+          {
+            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          else
+          {
+            default_tag_mode = i;
+            break;
+          }
       case ccr_comment:
           break;
       case ccr_endOfFile:

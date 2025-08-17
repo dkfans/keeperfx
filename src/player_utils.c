@@ -746,9 +746,13 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
     player->frontview_zoom_level = settings.frontview_zoom_level;
     player->isometric_tilt = settings.isometric_tilt;
-    player->roomspace_highlight_mode = settings.highlight_mode;
     if (is_my_player(player))
     {
+        if (default_tag_mode != 3)
+        {
+            settings.highlight_mode = default_tag_mode - 1;
+        }
+        player->roomspace_highlight_mode = settings.highlight_mode;
         set_flag(game.operation_flags, GOF_ShowPanel);
         set_gui_visible(true);
         init_gui();
