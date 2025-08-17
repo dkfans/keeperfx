@@ -508,44 +508,47 @@ void get_player_gui_clicks(void)
   default:
       if (right_button_clicked)
       {
-          switch (player->primary_cursor_state)
+          if (player->work_state == PSt_CtrlDungeon)
           {
-              case CSt_PickAxe:
+              switch (player->primary_cursor_state)
               {
-                  if (!player->ignore_next_PCtr_LBtnRelease)
+                  case CSt_PickAxe:
                   {
-                      if (!a_menu_window_is_active())
+                      if (!player->ignore_next_PCtr_LBtnRelease)
                       {
-                          if (!left_button_held)
+                          if (!a_menu_window_is_active())
                           {
-                              long mode = settings.highlight_mode;
-                              mode ^= 1;
-                              set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
+                              if (!left_button_held)
+                              {
+                                  long mode = settings.highlight_mode;
+                                  mode ^= 1;
+                                  set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
+                              }
                           }
                       }
+                     break;
                   }
-                 break;
-              }
-              case CSt_PowerHand:
-              {
-                  if (!player->ignore_next_PCtr_LBtnRelease)
+                  case CSt_PowerHand:
                   {
-                     if (player->thing_under_hand == 0)
-                     {
-                         if (!a_menu_window_is_active())
+                      if (!player->ignore_next_PCtr_LBtnRelease)
+                      {
+                         if (player->thing_under_hand == 0)
                          {
-                            if (!left_button_held)
-                            {
-                                long mode = settings.highlight_mode;
-                                mode ^= 1;
-                                set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
-                            }
-                         }
-                      }
-                   }
-                   break;
-                }                
-            }
+                             if (!a_menu_window_is_active())
+                             {
+                                if (!left_button_held)
+                                {
+                                    long mode = settings.highlight_mode;
+                                    mode ^= 1;
+                                    set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
+                                }
+                             }
+                          }
+                       }
+                       break;
+                    }                
+                }
+          }
         right_button_clicked = 0;
       }          
       if (right_button_released)
