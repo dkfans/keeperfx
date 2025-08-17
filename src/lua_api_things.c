@@ -168,6 +168,7 @@ static int thing_set_field(lua_State *L) {
     struct Thing* thing = luaL_checkThing(L, 1);
     const char* key = luaL_checkstring(L, 2);
 
+    //Fields working for all thing classes
     if (strcmp(key, "orientation") == 0) {
         thing->move_angle_xy = luaL_checkinteger(L, 3);
 
@@ -178,38 +179,82 @@ static int thing_set_field(lua_State *L) {
         }
         change_creature_owner(thing, new_owner);
 
-    } else if (strcmp(key, "name") == 0) {
-        if (thing->class_id != TCls_Creature) {
-            return luaL_error(L, "Attempt to set name of non-creature thing");
-        }
-
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (creature_control_invalid(cctrl)) {
-            return luaL_error(L, "Invalid creature control block");
-        }
-
-        const char* name = luaL_checkstring(L, 3);
-        if (strlen(name) > CREATURE_NAME_MAX) {
-            return luaL_error(L, "Creature name too long (max %d)", CREATURE_NAME_MAX);
-        }
-
-        strncpy(cctrl->creature_name, name, CREATURE_NAME_MAX);
-
-    } else if (strcmp(key, "health") == 0) {
+    } else if (strcmp(key, "health") == 0)
+    {
         thing->health = luaL_checkinteger(L, 3);
-
-    } else if (strcmp(key, "shots") == 0) {
-        if (thing->class_id != TCls_Trap) {
-            return luaL_error(L, "Attempt to set shots of non-trap thing");
-        }
-        set_trap_shots(thing, luaL_checkinteger(L, 3));
-
-    } else if (strcmp(key, "pos") == 0) {
+    } else if (strcmp(key, "pos") == 0) 
+    {
         luaL_checkCoord3d(L, 3, &thing->mappos);
-    } else {
-        return luaL_error(L, "Field '%s' is not writable on Thing", key);
     }
 
+    //Fields working for specific classes
+    else if (thing->class_id == TCls_Creature)
+    {
+        struct CreatureControl* cctrl;
+        if (strcmp(key, "name") == 0)
+        {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl)) {
+                return luaL_error(L, "Invalid creature control block");
+            }
+            const char* name = luaL_checkstring(L, 3);
+            if (strlen(name) > CREATURE_NAME_MAX)
+            {
+                return luaL_error(L, "Creature name too long (max %d)", CREATURE_NAME_MAX);
+            }
+            strncpy(cctrl->creature_name, name, CREATURE_NAME_MAX);
+        } else if (strcmp(key, "gold_held") == 0)
+        {
+             thing->creature.gold_carried = luaL_checkinteger(L, 3);
+        } else if (strcmp(key, "exp_points") == 0)
+        {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl)) {
+                return luaL_error(L, "Invalid creature control block");
+            }
+            cctrl->exp_points = luaL_checkinteger(L, 3);
+            check_experience_upgrade(thing);
+        } else if (strcmp(key, "hunger_amount") == 0)
+        {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl)) {
+                return luaL_error(L, "Invalid creature control block");
+            }
+            cctrl->hunger_amount = luaL_checkinteger(L, 3);
+        } else if (strcmp(key, "hunger_level") == 0)
+        {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl)) {
+                return luaL_error(L, "Invalid creature control block");
+            }
+            cctrl->hunger_level = luaL_checkinteger(L, 3);
+        }
+        else if (strcmp(key, "hunger_loss") == 0)
+        {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl)) {
+                return luaL_error(L, "Invalid creature control block");
+            }
+            cctrl->hunger_loss = luaL_checkinteger(L, 3);
+        }
+        else
+        {
+            return luaL_error(L, "Field '%s' is not writable on Creature thing", key);
+        }
+    } else if (thing->class_id == TCls_Trap) // Fields working for Traps
+    {
+        if (strcmp(key, "shots") == 0)
+        {
+            set_trap_shots(thing, luaL_checkinteger(L, 3));
+        }
+        else
+        {
+            return luaL_error(L, "Field '%s' is not writable on Trap thing", key);
+        }
+    }  else 
+    {
+        return luaL_error(L, "Field '%s' is not writable on Thing", key);
+    }
     return 1;
 }
 
@@ -222,6 +267,7 @@ static int thing_get_field(lua_State *L) {
     }
 
     struct Thing* thing = luaL_checkThing(L, 1);
+    struct CreatureControl* cctrl;
 
     // Built-in fields
     if (strcmp(key, "ThingIndex") == 0) {
@@ -240,15 +286,54 @@ static int thing_get_field(lua_State *L) {
         lua_pushinteger(L, thing->health);
     } else if (strcmp(key, "max_health") == 0) {
         lua_pushinteger(L, get_thing_max_health(thing));
+    } else if (strcmp(key, "gold_held") == 0) {
+        if (thing->class_id != TCls_Creature)
+            return luaL_error(L, "Attempt to access 'gold_held' of non-creature thing");
+        lua_pushinteger(L, thing->creature.gold_carried);
     } else if (strcmp(key, "shots") == 0) {
         if (thing->class_id != TCls_Trap)
             return luaL_error(L, "Attempt to access 'shots' of non-trap thing");
         lua_pushinteger(L, thing->trap.num_shots);
     } else if (strcmp(key, "level") == 0) {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
             return luaL_error(L, "Attempt to access 'level' of non-creature thing");
         lua_pushinteger(L, cctrl->exp_level);
+    } else if (strcmp(key, "exp_points") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'exp_points' of non-creature thing");
+        lua_pushinteger(L, cctrl->exp_points);
+    } else if (strcmp(key, "hunger_amount") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'hunger_amount' of non-creature thing");
+        lua_pushinteger(L, cctrl->hunger_amount);
+    } else if (strcmp(key, "hunger_level") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'hunger_level' of non-creature thing");
+        lua_pushinteger(L, cctrl->hunger_level);
+    } else if (strcmp(key, "hunger_loss") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'hunger_loss' of non-creature thing");
+        lua_pushinteger(L, cctrl->hunger_loss);
+    } else if (strcmp(key, "opponents_melee_count") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'opponents_melee_count' of non-creature thing");
+        lua_pushinteger(L, cctrl->opponents_melee_count);
+    } else if (strcmp(key, "opponents_ranged_count") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'opponents_ranged_count' of non-creature thing");
+        lua_pushinteger(L, cctrl->opponents_ranged_count);
+    } else if (strcmp(key, "opponents_count") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'opponents_count' of non-creature thing");
+        lua_pushinteger(L, (cctrl->opponents_melee_count+cctrl->opponents_ranged_count));
     } else if (strcmp(key, "name") == 0) {
         if (thing->class_id != TCls_Creature)
             return luaL_error(L, "Attempt to get 'name' of non-creature thing");
