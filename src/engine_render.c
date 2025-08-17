@@ -5289,7 +5289,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((game.flags_cd & MFlg_NoHeroHealthFlower) != 0)
+    if (flag_is_set(game.flags_cd,MFlg_NoHeroHealthFlower))
     {
         if (player->thing_under_hand != thing->index)
         {
@@ -5379,6 +5379,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         // Check if the creature belongs to an ally.
         TbBool is_allied = false;
         TbBool should_drag_to_lair = false;
+        TbBool is_zombie_player = !flag_is_set(get_player(thing->owner)->allocflags, PlaF_Allocated);
         if (!is_enemy_and_visible)
         {
             is_owned_and_hurt = creature_would_benefit_from_healing(thing) && !creature_is_being_unconscious(thing) && (player->id_number == thing->owner);
@@ -5399,6 +5400,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         || (is_enemy_and_visible)
         || (is_owned_and_hurt)
         || (is_allied)
+        || (is_zombie_player)
         || (thing->owner == PLAYER_NEUTRAL)
         // If drag_to_lair rule is active.
         || (should_drag_to_lair)
