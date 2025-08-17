@@ -14,6 +14,7 @@
 ---@field hunger_level integer hunger points of creature, increases by one each turn until hunger is started
 ---@field hunger_amount integer amount of chickens it will grab to eat
 ---@field hunger_loss integer amount of chickens it won't eat but would have wanted to
+---@field thought_bubble_last_turn_drawn integer last turn the thought bubble was drawn, it will display every 40 turns
 
 if not Creature then Creature = {} end
 

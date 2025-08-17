@@ -5179,7 +5179,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
             }
         }
         cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
-        if (cctrl->thought_bubble_display_timer == 40)
+        if (cctrl->thought_bubble_display_timer >= 40)
         {
             struct CreatureStateConfig *stati;
             stati = get_creature_state_with_task_completion(thing);

@@ -228,14 +228,20 @@ static int thing_set_field(lua_State *L) {
                 return luaL_error(L, "Invalid creature control block");
             }
             cctrl->hunger_level = luaL_checkinteger(L, 3);
-        }
-        else if (strcmp(key, "hunger_loss") == 0)
+        } else if (strcmp(key, "hunger_loss") == 0)
         {
             cctrl = creature_control_get_from_thing(thing);
             if (creature_control_invalid(cctrl)) {
                 return luaL_error(L, "Invalid creature control block");
             }
             cctrl->hunger_loss = luaL_checkinteger(L, 3);
+        } else if (strcmp(key, "thought_bubble_last_turn_drawn ") == 0)
+        {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl)) {
+                return luaL_error(L, "Invalid creature control block");
+            }
+            cctrl->thought_bubble_last_turn_drawn = luaL_checkinteger(L, 3);
         }
         else
         {
@@ -339,6 +345,11 @@ static int thing_get_field(lua_State *L) {
             if (creature_control_invalid(cctrl))
                 return luaL_error(L, "Attempt to access 'opponents_count' of non-creature thing");
             lua_pushinteger(L, (cctrl->opponents_melee_count + cctrl->opponents_ranged_count));
+        } else if (strcmp(key, "thought_bubble_last_turn_drawn") == 0) {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl))
+                return luaL_error(L, "Attempt to access 'thought_bubble_last_turn_drawn' of non-creature thing");
+            lua_pushinteger(L, cctrl->thought_bubble_last_turn_drawn);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Creature thing", key);
         }
