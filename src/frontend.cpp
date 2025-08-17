@@ -506,6 +506,41 @@ void get_player_gui_clicks(void)
   case PVT_MapFadeOut:
       break;
   default:
+      if (right_button_clicked)
+      {
+          switch (player->primary_cursor_state)
+          {
+              case CSt_PickAxe:
+              {
+                  if (!player->ignore_next_PCtr_LBtnRelease)
+                  {
+                      if (!a_menu_window_is_active())
+                      {
+                          long mode = settings.highlight_mode;
+                          mode ^= 1;
+                          set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
+                      }
+                  }
+                 break;
+              }
+              case CSt_PowerHand:
+              {
+                  if (!player->ignore_next_PCtr_LBtnRelease)
+                  {
+                     if (player->thing_under_hand == 0)
+                     {
+                         if (!a_menu_window_is_active())
+                         {
+                            long mode = settings.highlight_mode;
+                            mode ^= 1;
+                            set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
+                         }
+                      }
+                   }
+                   break;
+                }                
+            }
+      }          
       if (right_button_released)
       {
         if ((player->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
