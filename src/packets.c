@@ -1067,12 +1067,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         player->roomspace_mode = single_subtile_mode;
         return false;
     }
-    case PckA_RoomspaceHighlightToggle:
-    {
-        settings.highlight_mode = pckt->actn_par1;
-        save_settings();
-    }
-    // fall through
     case PckA_SetRoomspaceHighlight:
     {
         player->roomspace_mode = box_placement_mode;

@@ -104,7 +104,6 @@ void setup_default_settings(void)
           {KC_INSERT, KMod_SHIFT},           // Gkey_TiltReset
           {KC_X, KMod_NONE},                 // Gkey_Ascend
           {KC_Z, KMod_NONE},                 // Gkey_Descend
-          {KC_DIVIDE, KMod_NONE},            // Gkey_HighlightModeToggle
      },                         // kbkeys
      true,                      // tooltips_on
      0,                         // first_person_move_invert

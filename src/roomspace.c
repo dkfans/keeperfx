@@ -1501,17 +1501,6 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     long keycode = 0;
     unsigned short par1, par2;
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct Packet* pckt;
-    if ( (is_game_key_pressed(Gkey_HighlightModeToggle, &keycode, true)) )
-    {
-        par1 = settings.highlight_mode;
-        par1 ^= 1;
-        par2 = 0;
-        pckt = get_packet(my_player_number);
-        set_packet_action(pckt, PckA_RoomspaceHighlightToggle, par1, par2, 0, 0);
-        clear_key_pressed(keycode);
-        return;
-    }
     if (!settings.highlight_mode)
     {
         if (!is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
@@ -1553,7 +1542,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
                 player = get_player(plyr_idx);
                 if (player->roomspace_mode != single_subtile_mode)
                 {
-                    pckt = get_packet(my_player_number);
+                    struct Packet* pckt = get_packet(my_player_number);
                     set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
                 }
             }

@@ -432,7 +432,6 @@ enum GUIStrings {
     GUIStr_CtrlTiltReset = STRINGS_MAX + 1065,
     GUIStr_CtrlAscend = STRINGS_MAX + 1078,
     GUIStr_CtrlDescend = STRINGS_MAX + 1079,
-    GUIStr_CtrlHighlightModeToggle = STRINGS_MAX + 1080,
 };
 
 enum CampaignStrings {

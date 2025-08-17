@@ -45,6 +45,7 @@
 #include "room_workshop.h"
 #include "cursor_tag.h"
 #include "engine_render.h"
+#include "config_settings.h"
 #include "post_inc.h"
 
 extern TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx);
@@ -342,6 +343,29 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         }
         if ((pckt->control_flags & PCtr_RBtnClick) != 0)
         {
+            if (is_my_player(player))
+            {
+                switch (player->primary_cursor_state)
+                {
+                    case CSt_PickAxe:
+                    {
+                        settings.highlight_mode ^= 1;
+                        player->roomspace_highlight_mode = settings.highlight_mode;
+                        save_settings();
+                        break;
+                    }
+                    case CSt_PowerHand:
+                    {
+                        if (player->thing_under_hand == 0)
+                        {
+                            settings.highlight_mode ^= 1;
+                            player->roomspace_highlight_mode = settings.highlight_mode;
+                            save_settings();
+                        }
+                        break;
+                    }                
+                }
+            }
             player->cursor_clicked_subtile_x = stl_x;
             player->cursor_clicked_subtile_y = stl_y;
             player->cursor_button_down = (!player->render_roomspace.drag_mode);
