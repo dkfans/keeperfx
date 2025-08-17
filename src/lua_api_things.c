@@ -218,9 +218,12 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "hunger_loss") == 0)
         {
             cctrl->hunger_loss = luaL_checkinteger(L, 3);
-        } else if (strcmp(key, "thought_bubble_last_turn_drawn ") == 0)
+        } else if (strcmp(key, "force_health_flower_displayed") == 0)
         {
-            cctrl->thought_bubble_last_turn_drawn = luaL_checkinteger(L, 3);
+            cctrl->force_health_flower_displayed = lua_toboolean(L, 3);
+        } else if (strcmp(key, "force_health_flower_hidden") == 0)
+        {
+            cctrl->force_health_flower_hidden = lua_toboolean(L, 3);
         } else
         {
             return luaL_error(L, "Field '%s' is not writable on Creature thing", key);
@@ -305,8 +308,10 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, cctrl->opponents_ranged_count);
         } else if (strcmp(key, "opponents_count") == 0) {
             lua_pushinteger(L, (cctrl->opponents_melee_count + cctrl->opponents_ranged_count));
-        } else if (strcmp(key, "thought_bubble_last_turn_drawn") == 0) {
-            lua_pushinteger(L, cctrl->thought_bubble_last_turn_drawn);
+        } else if (strcmp(key, "force_health_flower_displayed") == 0) {
+            lua_pushinteger(L, cctrl->force_health_flower_displayed);
+        } else if (strcmp(key, "force_health_flower_hidden") == 0) {
+            lua_pushinteger(L, cctrl->force_health_flower_hidden);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Creature thing", key);
         }
