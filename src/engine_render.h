@@ -84,6 +84,7 @@ enum stripey_line_colors {
     SLC_BLUE,
     SLC_ORANGE,
     SLC_WHITE,
+    SLC_GREEN2,
     STRIPEY_LINE_COLOR_COUNT // Must always be the last entry (add new colours above this line)
 };
 
