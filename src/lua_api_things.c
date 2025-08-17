@@ -205,10 +205,36 @@ static int thing_set_field(lua_State *L) {
             strncpy(cctrl->creature_name, name, CREATURE_NAME_MAX);
         } else if (strcmp(key, "gold_held") == 0)
         {
-            if (thing->class_id != TCls_Creature) {
-                return luaL_error(L, "Attempt to set gold_held of non-creature thing");
+             thing->creature.gold_carried = luaL_checkinteger(L, 3);
+        } else if (strcmp(key, "exp_points") == 0)
+        {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl)) {
+                return luaL_error(L, "Invalid creature control block");
             }
-            thing->creature.gold_carried = luaL_checkinteger(L, 3);
+            cctrl->exp_points = luaL_checkinteger(L, 3);
+        } else if (strcmp(key, "hunger_amount") == 0)
+        {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl)) {
+                return luaL_error(L, "Invalid creature control block");
+            }
+            cctrl->hunger_amount = luaL_checkinteger(L, 3);
+        } else if (strcmp(key, "hunger_level") == 0)
+        {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl)) {
+                return luaL_error(L, "Invalid creature control block");
+            }
+            cctrl->hunger_level = luaL_checkinteger(L, 3);
+        }
+        else if (strcmp(key, "hunger_loss") == 0)
+        {
+            cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl)) {
+                return luaL_error(L, "Invalid creature control block");
+            }
+            cctrl->hunger_loss = luaL_checkinteger(L, 3);
         }
         else
         {
