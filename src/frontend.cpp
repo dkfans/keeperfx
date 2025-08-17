@@ -546,6 +546,7 @@ void get_player_gui_clicks(void)
                    break;
                 }                
             }
+        right_button_clicked = 0;
       }          
       if (right_button_released)
       {
