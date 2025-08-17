@@ -522,9 +522,12 @@ void get_player_gui_clicks(void)
                           {
                               if (!left_button_held)
                               {
-                                  long mode = settings.highlight_mode;
-                                  mode ^= 1;
-                                  set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
+                                  settings.highlight_mode ^= 1;
+                                  set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 0, 0, 0);
+                                  if (default_tag_mode == 3)
+                                  {
+                                      save_settings();
+                                  }
                               }
                               else
                               {
@@ -541,9 +544,12 @@ void get_player_gui_clicks(void)
                              {
                                 if (!left_button_held)
                                 {
-                                    long mode = settings.highlight_mode;
-                                    mode ^= 1;
-                                    set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
+                                    settings.highlight_mode ^= 1;
+                                    set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 0, 0, 0);
+                                    if (default_tag_mode == 3)
+                                    {
+                                        save_settings();
+                                    }
                                 }
                                 else
                                 {
