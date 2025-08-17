@@ -221,8 +221,7 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "thought_bubble_last_turn_drawn ") == 0)
         {
             cctrl->thought_bubble_last_turn_drawn = luaL_checkinteger(L, 3);
-        }
-        else
+        } else
         {
             return luaL_error(L, "Field '%s' is not writable on Creature thing", key);
         }
@@ -231,8 +230,10 @@ static int thing_set_field(lua_State *L) {
         if (strcmp(key, "shots") == 0)
         {
             set_trap_shots(thing, luaL_checkinteger(L, 3));
-        }
-        else
+        } else if (strcmp(key, "revealed") == 0)
+        {
+            thing->trap.revealed = luaL_checkinteger(L, 3);
+        } else
         {
             return luaL_error(L, "Field '%s' is not writable on Trap thing", key);
         }
@@ -311,13 +312,15 @@ static int thing_get_field(lua_State *L) {
     {
         if (strcmp(key, "shots") == 0) {
             lua_pushinteger(L, thing->trap.num_shots);
+        } else if (strcmp(key, "revealed") == 0) {
+            lua_pushinteger(L, thing->trap.revealed);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Trap thing", key);
         }
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     } else {
-        return luaL_error(L, "Unknown field or method '%s' for Thing", key);
+        return luaL_error(L, "Unknown or unavailable field or method '%s' for Thing", key);
     }
 
     return 1;
