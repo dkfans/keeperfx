@@ -274,6 +274,7 @@ extern int frontend_menu_state;
 extern int load_game_scroll_offset;
 extern unsigned char video_gamma_correction;
 extern MenuID vid_change_query_menu;
+extern TbBool right_click_tag_mode_toggle;
 
 // *** SPRITES ***
 extern struct TbSpriteSheet *font_sprites;

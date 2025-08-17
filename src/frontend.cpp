@@ -101,6 +101,7 @@ TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
 static char path_string[178];
 MenuID vid_change_query_menu = GMnu_CREATURE_QUERY1;
+TbBool right_click_tag_mode_toggle = false;
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
   { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, NULL },
@@ -508,48 +509,51 @@ void get_player_gui_clicks(void)
   default:
       if (right_button_clicked)
       {
-          if (player->work_state == PSt_CtrlDungeon)
+          if (right_click_tag_mode_toggle)
           {
-              switch (player->primary_cursor_state)
+              if (player->work_state == PSt_CtrlDungeon)
               {
-                  case CSt_PickAxe:
+                  switch (player->primary_cursor_state)
                   {
-                      if (!a_menu_window_is_active())
+                      case CSt_PickAxe:
                       {
-                          if (!left_button_held)
+                          if (!a_menu_window_is_active())
                           {
-                              long mode = settings.highlight_mode;
-                              mode ^= 1;
-                              set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
+                              if (!left_button_held)
+                              {
+                                  long mode = settings.highlight_mode;
+                                  mode ^= 1;
+                                  set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
+                              }
+                              else
+                              {
+                                  set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+                              }
                           }
-                          else
-                          {
-                              set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
-                          }
+                      break;
                       }
-                  break;
-                  }
-                  case CSt_PowerHand:
-                  {
-                     if (player->thing_under_hand == 0)
-                     {
-                         if (!a_menu_window_is_active())
+                      case CSt_PowerHand:
+                      {
+                         if (player->thing_under_hand == 0)
                          {
-                            if (!left_button_held)
-                            {
-                                long mode = settings.highlight_mode;
-                                mode ^= 1;
-                                set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
-                            }
-                            else
-                            {
-                                set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
-                            }
-                         }
-                      }
-                     break;
-                   }                
-            }
+                             if (!a_menu_window_is_active())
+                             {
+                                if (!left_button_held)
+                                {
+                                    long mode = settings.highlight_mode;
+                                    mode ^= 1;
+                                    set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
+                                }
+                                else
+                                {
+                                    set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+                                }
+                             }
+                          }
+                         break;
+                       }                
+                }
+              }
           }
         right_button_clicked = 0;
       }          

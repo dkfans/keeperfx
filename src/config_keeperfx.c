@@ -30,6 +30,7 @@
 #include "bflib_fmvids.h"
 #include "config_campaigns.h"
 #include "engine_render.h"
+#include "frontend.h"
 #include "front_simple.h"
 #include "gui_draw.h"
 #include "scrcapt.h"
@@ -147,6 +148,7 @@ const struct NamedCommand conf_commands[] = {
   {"API_PORT"                      , 34},
   {"EXIT_ON_LUA_ERROR"             , 35},
   {"TURNS_PER_SECOND"              , 36},
+  {"TAG_MODE_TOGGLING"             , 37},
   {NULL,                   0},
   };
 
@@ -858,6 +860,16 @@ short load_configuration(void)
           else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
+          break;
+      case 37: // TAG_MODE_TOGGLING
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          right_click_tag_mode_toggle = (TbBool)i;
           break;
       case ccr_comment:
           break;

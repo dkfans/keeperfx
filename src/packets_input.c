@@ -45,7 +45,6 @@
 #include "room_workshop.h"
 #include "cursor_tag.h"
 #include "engine_render.h"
-#include "config_settings.h"
 #include "post_inc.h"
 
 extern TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx);
