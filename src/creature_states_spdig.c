@@ -1713,7 +1713,7 @@ short creature_save_unconscious_creature(struct Thing *thing)
 
     if (!setup_person_move_backwards_to_coord(thing, &pos, NavRtF_Default))
         {
-            SYNCDBG(8,"Cannot drag %s to (%d,%d)",thing_model_name(picktng),(int)&pos.x.stl.num,(int)&pos.y.stl.num);
+            SYNCDBG(8,"Cannot drag %s to (%u,%u)",thing_model_name(picktng), pos.x.stl.num, pos.y.stl.num);
             set_start_state(thing);
             return 0;
         }
