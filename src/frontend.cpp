@@ -529,6 +529,7 @@ void get_player_gui_clicks(void)
                               else
                               {
                                   set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+                                  right_button_clicked = 0;
                               }
                           }
                       break;
@@ -539,24 +540,32 @@ void get_player_gui_clicks(void)
                          {
                              if (!a_menu_window_is_active())
                              {
-                                if (!left_button_held)
+                                struct Coord3d mappos;
+                                if (screen_to_map(player->acamera, right_button_clicked_x, right_button_clicked_y, &mappos))
                                 {
-                                    long mode = settings.highlight_mode;
-                                    mode ^= 1;
-                                    set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
-                                }
-                                else
-                                {
-                                    set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+                                    if (subtile_is_diggable_for_player(player->id_number, mappos.x.stl.num, mappos.y.stl.num, false))
+                                    {
+                                        if (!left_button_held)
+                                        {
+                                            long mode = settings.highlight_mode;
+                                            mode ^= 1;
+                                            set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
+                                        }
+                                        else
+                                        {
+                                            set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+                                            right_button_clicked = 0;
+                                        }
+                                    }
                                 }
                              }
                           }
                          break;
-                       }                
+                       } 
                 }
               }
           }
-        right_button_clicked = 0;
+        // do NOT do right_button_clicked = 0 here: it breaks dropping creatures!
       }          
       if (right_button_released)
       {
