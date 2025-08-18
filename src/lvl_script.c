@@ -968,7 +968,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
         if (args_count < 0)
         {
             SCRPTERRLOG("Syntax error at \"%s\"", line_start);
-            SCRPTERRLOG("   near - -      %*c", line - line_start, '^');
+            SCRPTERRLOG("   near - -      %*c", (int) (line - line_start), '^');
             free(scline);
             return false;
         }
@@ -976,7 +976,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     else
     {
         SCRPTERRLOG("Syntax error: ( expected at \"%s\"", line_start);
-        SCRPTERRLOG("   near - - - - - - -        %*c", line - line_start, '^');
+        SCRPTERRLOG("   near - - - - - - -        %*c", (int) (line - line_start), '^');
         free(scline);
         return false;
     }
