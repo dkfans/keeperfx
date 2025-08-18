@@ -12,9 +12,8 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
+#include "platform.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -138,9 +137,6 @@
 #define strcasecmp _stricmp
 #endif
 
-char cmndline[CMDLN_MAXLEN+1];
-unsigned short bf_argc;
-char *bf_argv[CMDLN_MAXLEN+1];
 short do_draw;
 short default_loc_player = 0;
 struct StartupParameters start_params;
@@ -963,7 +959,6 @@ short setup_game(void)
 {
   struct CPU_INFO cpu_info; // CPU status variable
   short result;
-  OSVERSIONINFO v;
   // Do only a very basic setup
   cpu_detect(&cpu_info);
   SYNCMSG("CPU %s type %d family %d model %d stepping %d features %08lx",cpu_info.vendor,
@@ -973,39 +968,16 @@ short setup_game(void)
   {
       SYNCMSG("%s", &cpu_info.brand[0]);
   }
-  SYNCMSG("Build image base: %p", GetModuleHandle(NULL));
-  v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-  if (GetVersionEx(&v))
-  {
-      SYNCMSG("Operating System: %s %ld.%ld.%ld", (v.dwPlatformId == VER_PLATFORM_WIN32_NT) ? "Windows NT" : "Windows", v.dwMajorVersion,v.dwMinorVersion,v.dwBuildNumber);
+  SYNCMSG("Build image base: %p", get_image_base());
+  SYNCMSG("Operating System: %s", get_os_version());
+
+  const auto wine_version = get_wine_version();
+  if (wine_version) {
+        SYNCMSG("Running on Wine v%s", wine_version);
+        is_running_under_wine = true;
+        const auto wine_host = get_wine_host();
+        SYNCMSG("Wine Host: %s", wine_host);
   }
-
-  // Check for Wine
-  #ifdef _WIN32
-      HMODULE hNTDLL = GetModuleHandle("ntdll.dll");
-      if(hNTDLL)
-      {
-          // Get Wine version
-          typedef const char * (CDECL * pwine_get_version)(void);
-          pwine_get_version wine_get_version = (pwine_get_version) (void*) GetProcAddress(hNTDLL, "wine_get_version");
-          if (wine_get_version)
-          {
-              SYNCMSG("Running on Wine v%s", wine_get_version());
-              is_running_under_wine = true;
-          }
-
-          // Get Wine host OS
-          typedef void (CDECL *pwine_get_host_version)(const char **, const char **);
-          pwine_get_host_version wine_get_host_version = (pwine_get_host_version) (void*) GetProcAddress(hNTDLL, "wine_get_host_version");
-          if (wine_get_host_version)
-          {
-              const char* sys_name = NULL;
-              const char* release_name = NULL;
-              wine_get_host_version(&sys_name, &release_name);
-              SYNCMSG("Wine Host: %s %s", sys_name, release_name);
-          }
-      }
-  #endif
 
   // Enable features that require more than 32 megs of memory
   features_enabled |= Ft_HiResCreatr;
@@ -4373,105 +4345,10 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     return 0;
 }
 
-void get_cmdln_args(unsigned short &argc, char *argv[])
+extern "C" int main(int argc, char *argv[])
 {
-    char *ptr;
-    const char *cmndln_orig;
-    cmndln_orig = GetCommandLineA();
-    snprintf(cmndline, CMDLN_MAXLEN, "%s", cmndln_orig);
-    ptr = cmndline;
-    bf_argc = 0;
-    while (*ptr != '\0')
-    {
-        if ((*ptr == '\t') || (*ptr == ' '))
-        {
-            ptr++;
-            continue;
-        }
-        if (*ptr == '\"')
-        {
-            ptr++;
-            bf_argv[bf_argc] = ptr;
-            bf_argc++;
-            while (*ptr != '\0')
-            {
-              if (*ptr == '\"')
-              {
-                  *ptr++ = '\0';
-                  break;
-              }
-              ptr++;
-            }
-        } else
-        {
-            bf_argv[bf_argc] = ptr;
-            bf_argc++;
-            while (*ptr != '\0')
-            {
-              if ((*ptr == '\t') || (*ptr == ' '))
-              {
-                  *ptr++ = '\0';
-                  break;
-              }
-              ptr++;
-            }
-        }
-    }
-}
-
-const char * exception_name(DWORD exception_code) {
-    switch (exception_code) {
-        case EXCEPTION_ACCESS_VIOLATION: return "EXCEPTION_ACCESS_VIOLATION";
-        case EXCEPTION_ARRAY_BOUNDS_EXCEEDED: return "EXCEPTION_ARRAY_BOUNDS_EXCEEDED";
-        case EXCEPTION_BREAKPOINT: return "EXCEPTION_BREAKPOINT";
-        case EXCEPTION_DATATYPE_MISALIGNMENT: return "EXCEPTION_DATATYPE_MISALIGNMENT";
-        case EXCEPTION_FLT_DENORMAL_OPERAND: return "EXCEPTION_FLT_DENORMAL_OPERAND";
-        case EXCEPTION_FLT_DIVIDE_BY_ZERO: return "EXCEPTION_FLT_DIVIDE_BY_ZERO";
-        case EXCEPTION_FLT_INEXACT_RESULT: return "EXCEPTION_FLT_INEXACT_RESULT";
-        case EXCEPTION_FLT_INVALID_OPERATION: return "EXCEPTION_FLT_INVALID_OPERATION";
-        case EXCEPTION_FLT_OVERFLOW: return "EXCEPTION_FLT_OVERFLOW";
-        case EXCEPTION_FLT_STACK_CHECK: return "EXCEPTION_FLT_STACK_CHECK";
-        case EXCEPTION_FLT_UNDERFLOW: return "EXCEPTION_FLT_UNDERFLOW";
-        case EXCEPTION_ILLEGAL_INSTRUCTION: return "EXCEPTION_ILLEGAL_INSTRUCTION";
-        case EXCEPTION_IN_PAGE_ERROR: return "EXCEPTION_IN_PAGE_ERROR";
-        case EXCEPTION_INT_DIVIDE_BY_ZERO: return "EXCEPTION_INT_DIVIDE_BY_ZERO";
-        case EXCEPTION_INT_OVERFLOW: return "EXCEPTION_INT_OVERFLOW";
-        case EXCEPTION_INVALID_DISPOSITION: return "EXCEPTION_INVALID_DISPOSITION";
-        case EXCEPTION_NONCONTINUABLE_EXCEPTION: return "EXCEPTION_NONCONTINUABLE_EXCEPTION";
-        case EXCEPTION_PRIV_INSTRUCTION: return "EXCEPTION_PRIV_INSTRUCTION";
-        case EXCEPTION_SINGLE_STEP: return "EXCEPTION_SINGLE_STEP";
-        case EXCEPTION_STACK_OVERFLOW: return "EXCEPTION_STACK_OVERFLOW";
-    }
-    return "Unknown";
-}
-
-LONG __stdcall Vex_handler(
-    _EXCEPTION_POINTERS *ExceptionInfo
-)
-{
-	const auto exception_code = ExceptionInfo->ExceptionRecord->ExceptionCode;
-    if (exception_code == DBG_PRINTEXCEPTION_WIDE_C) {
-        return EXCEPTION_CONTINUE_EXECUTION; // Thrown by OutputDebugStringW, intended for debugger
-    } else if (exception_code == DBG_PRINTEXCEPTION_C) {
-        return EXCEPTION_CONTINUE_EXECUTION; // Thrown by OutputDebugStringA, intended for debugger
-    }else if (exception_code == 0xe24c4a02) {
-        return EXCEPTION_EXECUTE_HANDLER; //Thrown by luaJIT for some reason
-    }
-    LbJustLog("Exception 0x%08lx thrown: %s\n", exception_code, exception_name(exception_code));
-    return EXCEPTION_CONTINUE_SEARCH;
-}
-
-#ifdef _WIN32
-int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
-#else
-int main(int argc, char *argv[])
-#endif
-{
-  AddVectoredExceptionHandler(0, &Vex_handler);
-  get_cmdln_args(bf_argc, bf_argv);
-
   try {
-  LbBullfrogMain(bf_argc, bf_argv);
+  LbBullfrogMain(argc, argv);
   } catch (...)
   {
       error_dialog(__func__, 1, "Exception raised!");

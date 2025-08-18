@@ -20,7 +20,6 @@
 #ifndef BFLIB_NETWRK_H
 #define BFLIB_NETWRK_H
 
-#include <basetyps.h>
 #include "bflib_basics.h"
 #include "globals.h"
 
