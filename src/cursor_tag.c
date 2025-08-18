@@ -71,7 +71,7 @@ unsigned char tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         {
             if (player->render_roomspace.drag_mode)
             {
-                line_color = SLC_DARKGREEN;
+                line_color = SLC_GREEN2;
             }
         }
         if (player->render_roomspace.untag_mode)
