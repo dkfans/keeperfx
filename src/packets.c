@@ -1069,10 +1069,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     }
     case PckA_RoomspaceHighlightToggle:
     {
-        settings.highlight_mode = pckt->actn_par1;
-        if (default_tag_mode == 3)
+        if (is_my_player(player))
         {
-            save_settings();
+            settings.highlight_mode = pckt->actn_par1;
+            if (default_tag_mode == 3)
+            {
+                save_settings();
+            }
         }
     }
     // fall through
