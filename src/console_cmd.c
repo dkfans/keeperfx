@@ -2142,6 +2142,8 @@ struct ConsoleCommand {
     const char * name;
     TbBool (* function)(PlayerNumber, char *);
 };
+// the name must have consistent capitalization to support auto completion functionality.
+// currently all are in lowercase.
 static const struct ConsoleCommand console_commands[] = {
     { "stats", cmd_stats },
     { "fps", cmd_fps },
@@ -2276,6 +2278,8 @@ void cmd_auto_completion(PlayerNumber plyr_idx, char *cmd_str, size_t cmd_size)
     int end_flag = 0;
     int auto_len = 0;
 
+    // calculate the length that can be automatically completed.
+    // since name of console_commands are all lowercase, there is no need to consider capitalization.
     while(1)
     {
         int last_char = -1;
@@ -2332,7 +2336,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
     SYNCDBG(2, "Command %d: %s",(int)plyr_idx, args);
     const char * command = strsep(&args, " ");
     if (command == NULL) {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "command is empty");
+        if ((game.flags_font & FFlg_AlexCheat) != 0) {
+            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "command is empty");
+	}
         return false;
     }
     // NOTE: execution can be optimized by pre-sorting commands by name and performing binary search
@@ -2341,7 +2347,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char * args)
             return console_commands[i].function(plyr_idx, args);
         }
     }
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "unsupported command");
+    if ((game.flags_font & FFlg_AlexCheat) != 0) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "unsupported command");
+    }
     return false;
 }
 
