@@ -953,12 +953,11 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
     }
 }
 
-void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction)
+void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     TbBool tag_for_digging = ((player->allocflags & PlaF_ChosenSlabHasActiveTask) == 0);
-    int task_allowance = MAPTASKS_COUNT - task_allowance_reduction;
     int blocks_tagged = 0;
     int current_x, current_y;
     MapSubtlCoord stl_cx, stl_cy;
@@ -982,7 +981,7 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
                         // untag the slab for digging
                         blocks_tagged += untag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
                     }
-                    else if (dungeon->task_count < task_allowance)
+                    else if (dungeon->task_count < MAPTASKS_COUNT)
                     {
                         // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
                         blocks_tagged += tag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
@@ -1064,7 +1063,7 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
                 // untag the slab for digging
                 blocks_tagged += untag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
             }
-            else if (dungeon->task_count < task_allowance)
+            else if (dungeon->task_count < MAPTASKS_COUNT)
             {
                 // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
                 blocks_tagged += tag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
