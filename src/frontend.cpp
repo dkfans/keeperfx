@@ -550,6 +550,7 @@ void get_player_gui_clicks(void)
                                             long mode = settings.highlight_mode;
                                             mode ^= 1;
                                             set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 0, 0, 0);
+                                            right_button_clicked = 0;
                                         }
                                         else
                                         {
