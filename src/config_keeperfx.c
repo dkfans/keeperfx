@@ -877,7 +877,7 @@ short load_configuration(void)
                 COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
-          right_click_tag_mode_toggle = (TbBool)i;
+          right_click_tag_mode_toggle = (i == 1);
           break;
       case 38: // DEFAULT_TAG_MODE
           i = recognize_conf_parameter(buf,&pos,len,tag_modes);
