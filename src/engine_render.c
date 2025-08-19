@@ -5179,7 +5179,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
             }
         }
         cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
-        if (cctrl->thought_bubble_display_timer == 40)
+        if (cctrl->thought_bubble_display_timer >= 40)
         {
             struct CreatureStateConfig *stati;
             stati = get_creature_state_with_task_completion(thing);
@@ -5289,12 +5289,17 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->force_health_flower_hidden == true)
+        return;
     if (flag_is_set(game.flags_cd,MFlg_NoHeroHealthFlower))
     {
         if (player->thing_under_hand != thing->index)
         {
             cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
-            return;
+            if (cctrl->force_health_flower_displayed == false)
+            {
+                return;
+            }
         }
         cctrl->thought_bubble_display_timer = 40;
     }
@@ -5380,6 +5385,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         TbBool is_allied = false;
         TbBool should_drag_to_lair = false;
         TbBool is_zombie_player = !flag_is_set(get_player(thing->owner)->allocflags, PlaF_Allocated);
+        TbBool forced_visible = cctrl->force_health_flower_displayed;
         if (!is_enemy_and_visible)
         {
             is_owned_and_hurt = creature_would_benefit_from_healing(thing) && !creature_is_being_unconscious(thing) && (player->id_number == thing->owner);
@@ -5396,7 +5402,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         TbBool has_lair = (thing->lair.spr_size > 0);
         // Determine if the current view is the schematic top-down map view.
         TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
-        if ((is_thing_under_hand)
+        if ((forced_visible)
+        || (is_thing_under_hand)
         || (is_enemy_and_visible)
         || (is_owned_and_hurt)
         || (is_allied)
