@@ -5,7 +5,7 @@
  *     "Improvised coroutine-like functions"
  * @par Purpose:
  *     Implementation
- * @author   KeeperFF Team
+ * @author   KeeperFX Team
  * @date     01 Nov 2020
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify

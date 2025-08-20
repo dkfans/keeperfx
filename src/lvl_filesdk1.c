@@ -2,7 +2,7 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file lvl_filesdk1.c
- *     Level files reading routines fore standard DK1 levels.
+ *     Level files reading routines for standard DK1 levels.
  * @par Purpose:
  *     Allows reading level files in DK1 format.
  * @par Comment:
