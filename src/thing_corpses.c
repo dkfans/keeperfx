@@ -443,19 +443,18 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->corpse.exp_level = exp_level;
     thing->mappos.x.val = pos->x.val;
     thing->mappos.y.val = pos->y.val;
-    thing->mappos.z.val = 0;
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-    thing->clipbox_size_xy = 0;
-    thing->clipbox_size_z = 0;
-    thing->solid_size_xy = 0;
-    thing->solid_size_z = 0;
+    struct CreatureModelConfig *crconf = creature_stats_get(model);
+    thing->clipbox_size_xy = crconf->size_xy;
+    thing->clipbox_size_z = crconf->size_z;
+    thing->solid_size_xy = crconf->thing_size_xy;
+    thing->solid_size_z = crconf->thing_size_z;
     thing->fall_acceleration = 16;
     thing->inertia_floor = 204;
     thing->inertia_air = 51;
     thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
     thing->creation_turn = game.play_gameturn;
-    struct CreatureModelConfig* crconf = creature_stats_get(model);
     if (crconf->transparency_flags != 0)
     {
         set_flag(thing->rendering_flags, crconf->transparency_flags);
