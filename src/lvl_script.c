@@ -995,8 +995,6 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     if (token.type != TkEnd)
     {
         SCRPTERRLOG("Syntax error: Unexpected end of line");
-        free(scline);
-        return false;
     }
     script_add_command(cmd_desc, scline, file_version);
     free(scline);
