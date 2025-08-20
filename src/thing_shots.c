@@ -935,11 +935,12 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
         {
             thing_play_sample(target, shotst->hit_heart.sndsample_idx + UNSYNC_RANDOM(shotst->hit_heart.sndsample_range), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
-        event_create_event_or_update_nearby_existing_event(
-            shootertng->mappos.x.val, shootertng->mappos.y.val,
-          EvKind_HeartAttacked, target->owner, shootertng->index);
-        if (is_my_player_number(target->owner)) {
-            output_message(SMsg_HeartUnderAttack, 400);
+        if (shotng->owner != target->owner)
+        {
+            event_create_event_or_update_nearby_existing_event(shootertng->mappos.x.val, shootertng->mappos.y.val, EvKind_HeartAttacked, target->owner, shootertng->index);
+            if (is_my_player_number(target->owner)) {
+                output_message(SMsg_HeartUnderAttack, 400);
+            }
         }
     } else
     {
