@@ -516,7 +516,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
     }
     if (player->roomspace_highlight_mode == 1)
     {
-        if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
+        if (((pckt->control_flags & PCtr_LBtnHeld) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
         {
             player->one_click_lock_cursor = true; // Allow click and drag over low slabs (if clicked on high slab)
             untag_mode = player->render_roomspace.untag_mode; // get tag/untag mode from the slab that was clicked (before the user started holding mouse button)
