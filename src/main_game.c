@@ -393,10 +393,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     set_selected_level_number(0);
     
     // Apply default flee and imprison settings after all initialization is complete
-    struct PlayerInfo* player = get_my_player();
-    if (player_exists(player)) {
-        apply_default_flee_and_imprison_setting(player);
-    }
+    apply_default_flee_and_imprison_setting();
 
 #ifdef FUNCTESTING
     set_flag(start_params.functest_flags, FTF_LevelLoaded);

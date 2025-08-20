@@ -1775,8 +1775,13 @@ void process_frontend_packets(void)
   }
 }
 
-void apply_default_flee_and_imprison_setting(struct PlayerInfo *player)
+void apply_default_flee_and_imprison_setting(void)
 {
+    struct PlayerInfo* player = get_my_player();
+    if (!player_exists(player)) {
+        return;
+    }
+    
     SYNCDBG(8,"Starting for player %d",(int)player->id_number);
     // Skip applying defaults during packet playback to avoid desync
     if (game.packet_load_enable) {
@@ -1785,14 +1790,21 @@ void apply_default_flee_and_imprison_setting(struct PlayerInfo *player)
     
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     
-    // Toggle if current state doesn't match desired default
-    TbBool current_imprison_button_state = (dungeon->creature_tendencies & 0x01) != 0;
-    TbBool current_flee_button_state = (dungeon->creature_tendencies & 0x02) != 0;
+    // Calculate which tendencies need to be toggled
+    TbBool current_imprison_state = (dungeon->creature_tendencies & 0x01) != 0;
+    TbBool current_flee_state = (dungeon->creature_tendencies & 0x02) != 0;
     
-    if (IMPRISON_BUTTON_DEFAULT != current_imprison_button_state) {
+    TbBool need_toggle_imprison = (IMPRISON_BUTTON_DEFAULT != current_imprison_state);
+    TbBool need_toggle_flee = (FLEE_BUTTON_DEFAULT != current_flee_state);
+    
+    // If both need to be toggled, combine them into a single packet parameter
+    if (need_toggle_imprison && need_toggle_flee) {
+        // Use a combined tendency value that represents both flags
+        unsigned short combined_tendency = CrTend_Imprison | CrTend_Flee;
+        set_players_packet_action(player, PckA_ToggleTendency, combined_tendency, 0, 0, 0);
+    } else if (need_toggle_imprison) {
         set_players_packet_action(player, PckA_ToggleTendency, CrTend_Imprison, 0, 0, 0);
-    }
-    if (FLEE_BUTTON_DEFAULT != current_flee_button_state) {
+    } else if (need_toggle_flee) {
         set_players_packet_action(player, PckA_ToggleTendency, CrTend_Flee, 0, 0, 0);
     }
 }

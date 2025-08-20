@@ -310,6 +310,10 @@ TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend
     case CrTend_Flee:
         dungeon->creature_tendencies ^= 0x02;
         return true;
+    case CrTend_Imprison | CrTend_Flee:
+        // Toggle both tendencies when combined value is passed
+        dungeon->creature_tendencies ^= 0x03; // 0x01 | 0x02
+        return true;
     default:
         ERRORLOG("Can't toggle tendency; bad tendency type %d",(int)tend_type);
         return false;
