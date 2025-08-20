@@ -14,7 +14,8 @@
 ---@field hunger_level integer hunger points of creature, increases by one each turn until hunger is started
 ---@field hunger_amount integer amount of chickens it will grab to eat
 ---@field hunger_loss integer amount of chickens it won't eat but would have wanted to
-
+---@field force_health_flower_displayed boolean always displays health flower
+---@field force_health_flower_hidden boolean always hides health flower
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens
