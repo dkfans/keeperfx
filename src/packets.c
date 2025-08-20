@@ -1775,4 +1775,26 @@ void process_frontend_packets(void)
   }
 }
 
+void apply_default_flee_and_imprison_setting(struct PlayerInfo *player)
+{
+    SYNCDBG(8,"Starting for player %d",(int)player->id_number);
+    // Skip applying defaults during packet playback to avoid desync
+    if (game.packet_load_enable) {
+        return;
+    }
+    
+    struct Dungeon* dungeon = get_dungeon(player->id_number);
+    
+    // Toggle if current state doesn't match desired default
+    TbBool current_imprison_button_state = (dungeon->creature_tendencies & 0x01) != 0;
+    TbBool current_flee_button_state = (dungeon->creature_tendencies & 0x02) != 0;
+    
+    if (IMPRISON_BUTTON_DEFAULT != current_imprison_button_state) {
+        set_players_packet_action(player, PckA_ToggleTendency, CrTend_Imprison, 0, 0, 0);
+    }
+    if (FLEE_BUTTON_DEFAULT != current_flee_button_state) {
+        set_players_packet_action(player, PckA_ToggleTendency, CrTend_Flee, 0, 0, 0);
+    }
+}
+
 /******************************************************************************/

@@ -59,6 +59,8 @@
 #include "post_inc.h"
 
 extern TbBool force_player_num;
+extern TbBool IMPRISON_BUTTON_DEFAULT;
+extern TbBool FLEE_BUTTON_DEFAULT;
 
 extern void setup_players_count();
 
@@ -312,6 +314,8 @@ void startup_saved_packet_game(void)
     settings.isometric_view_zoom_level = game.packet_save_head.isometric_view_zoom_level;
     settings.frontview_zoom_level = game.packet_save_head.frontview_zoom_level;
     settings.isometric_tilt = game.packet_save_head.isometric_tilt;
+    IMPRISON_BUTTON_DEFAULT = game.packet_save_head.default_imprison_button;
+    FLEE_BUTTON_DEFAULT = game.packet_save_head.default_flee_button;
     init_level();
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
@@ -387,6 +391,12 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     post_init_players();
     post_init_packets();
     set_selected_level_number(0);
+    
+    // Apply default flee and imprison settings after all initialization is complete
+    struct PlayerInfo* player = get_my_player();
+    if (player_exists(player)) {
+        apply_default_flee_and_imprison_setting(player);
+    }
 
 #ifdef FUNCTESTING
     set_flag(start_params.functest_flags, FTF_LevelLoaded);

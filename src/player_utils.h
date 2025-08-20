@@ -61,7 +61,6 @@ void init_player(struct PlayerInfo *player, short no_explore);
 void post_init_players(void);
 void post_init_player(struct PlayerInfo* player);
 void init_players_local_game(void);
-void apply_default_flee_and_imprison_setting(struct PlayerInfo *player);
 void init_keeper_map_exploration_by_terrain(struct PlayerInfo *player);
 void init_keeper_map_exploration_by_creatures(struct PlayerInfo *player);
 void process_players(void);
