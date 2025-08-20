@@ -1778,34 +1778,25 @@ void process_frontend_packets(void)
 void apply_default_flee_and_imprison_setting(void)
 {
     struct PlayerInfo* player = get_my_player();
-    if (!player_exists(player)) {
-        return;
-    }
-    
-    SYNCDBG(8,"Starting for player %d",(int)player->id_number);
-    // Skip applying defaults during packet playback to avoid desync
-    if (game.packet_load_enable) {
+    if (!player_exists(player) || game.packet_load_enable) {
         return;
     }
     
     struct Dungeon* dungeon = get_dungeon(player->id_number);
+    unsigned short tendencies_to_toggle = 0;
     
-    // Calculate which tendencies need to be toggled
     TbBool current_imprison_state = (dungeon->creature_tendencies & 0x01) != 0;
+    if (IMPRISON_BUTTON_DEFAULT != current_imprison_state) {
+        tendencies_to_toggle |= CrTend_Imprison;
+    }
+    
     TbBool current_flee_state = (dungeon->creature_tendencies & 0x02) != 0;
+    if (FLEE_BUTTON_DEFAULT != current_flee_state) {
+        tendencies_to_toggle |= CrTend_Flee;
+    }
     
-    TbBool need_toggle_imprison = (IMPRISON_BUTTON_DEFAULT != current_imprison_state);
-    TbBool need_toggle_flee = (FLEE_BUTTON_DEFAULT != current_flee_state);
-    
-    // If both need to be toggled, combine them into a single packet parameter
-    if (need_toggle_imprison && need_toggle_flee) {
-        // Use a combined tendency value that represents both flags
-        unsigned short combined_tendency = CrTend_Imprison | CrTend_Flee;
-        set_players_packet_action(player, PckA_ToggleTendency, combined_tendency, 0, 0, 0);
-    } else if (need_toggle_imprison) {
-        set_players_packet_action(player, PckA_ToggleTendency, CrTend_Imprison, 0, 0, 0);
-    } else if (need_toggle_flee) {
-        set_players_packet_action(player, PckA_ToggleTendency, CrTend_Flee, 0, 0, 0);
+    if (tendencies_to_toggle) {
+        set_players_packet_action(player, PckA_ToggleTendency, tendencies_to_toggle, 0, 0, 0);
     }
 }
 

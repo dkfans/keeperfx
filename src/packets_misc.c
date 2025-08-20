@@ -284,8 +284,8 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.isometric_tilt = settings.isometric_tilt;
     game.packet_save_head.video_rotate_mode = settings.video_rotate_mode;
     game.packet_save_head.action_seed = start_seed;
-    game.packet_save_head.default_imprison_button = IMPRISON_BUTTON_DEFAULT;
-    game.packet_save_head.default_flee_button = FLEE_BUTTON_DEFAULT;
+    game.packet_save_head.default_imprison_tendency = IMPRISON_BUTTON_DEFAULT;
+    game.packet_save_head.default_flee_tendency = FLEE_BUTTON_DEFAULT;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);

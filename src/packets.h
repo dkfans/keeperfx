@@ -284,8 +284,8 @@ struct PacketSaveHead {
     unsigned char video_rotate_mode;
     TbBool chksum_available; // if needed, this can be replaced with flags
     unsigned long action_seed;
-    TbBool default_imprison_button;
-    TbBool default_flee_button;
+    TbBool default_imprison_tendency;
+    TbBool default_flee_tendency;
 };
 
 struct PacketEx
