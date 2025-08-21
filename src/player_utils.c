@@ -759,6 +759,8 @@ void init_player(struct PlayerInfo *player, short no_explore)
         turn_on_menu(GMnu_MAIN);
         turn_on_menu(GMnu_ROOM);
     }
+    player->roomspace_width = 1;
+    player->roomspace_height = 1;
     switch (game.game_kind)
     {
     case GKind_LocalGame:

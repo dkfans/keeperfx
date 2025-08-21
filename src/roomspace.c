@@ -37,6 +37,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+TbBool reset_roomspace = false;
 /******************************************************************************/
 TbBool can_afford_roomspace(PlayerNumber plyr_idx, RoomKind rkind, int slab_count)
 {
@@ -1502,57 +1503,66 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     if (!settings.highlight_mode)
     {
-        if (!is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
-        {
-            par2 = 1;
-        }
-        else
-        {
-            par2 = 0;
-        }
         if ( (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) ) // Use "modern" click and drag method
         {
             par1 = 1;
             par2 = 0;
-        }
-        else if ( (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))  ) // Use "modern" click and drag method
-        {
-            par1 = 2;
-            par2 = (player->roomspace_no_default) ? player->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
-            if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
-            {
-                if (par2 != MAX_USER_ROOMSPACE_WIDTH)
-                {
-                    par2++;
-                }
-            }
-            if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
-            {
-                if (par2 != MIN_USER_ROOMSPACE_WIDTH)
-                {
-                    par2--;
-                }
-            }
-        }
-        else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true) )
-        {
-            if (player->primary_cursor_state == CSt_PowerHand)
-            {
-                player = get_player(plyr_idx);
-                if (player->roomspace_mode != single_subtile_mode)
-                {
-                    struct Packet* pckt = get_packet(my_player_number);
-                    set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
-                }
-            }
+            set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, 0, 0);
+            reset_roomspace = true;
             return;
         }
-        else
+    }
+    if ( (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))  ) // Use "modern" click and drag method
+    {
+        par1 = 2;
+        par2 = (player->roomspace_no_default) ? player->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
+        if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {
-            par1 = 0;
-            par2 = numpad_to_value(false);
+            if (par2 != MAX_USER_ROOMSPACE_WIDTH)
+            {
+                par2++;
+            }
+        }
+        if (is_game_key_pressed(Gkey_RoomSpaceDecSize, &keycode, true))
+        {
+            if (par2 != MIN_USER_ROOMSPACE_WIDTH)
+            {
+                par2--;
+            }
         }
         set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, 0, 0);
+        reset_roomspace = true;
+        return;
+    }
+    else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true) )
+    {
+        if (player->primary_cursor_state == CSt_PowerHand)
+        {
+            player = get_player(plyr_idx);
+            if (player->roomspace_mode != single_subtile_mode)
+            {
+                struct Packet* pckt = get_packet(my_player_number);
+                set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+                reset_roomspace = true;
+            }
+        }
+        return;
+    }
+    else
+    {
+        par1 = 0;
+        par2 = numpad_to_value(false);
+        if (par2 > 1)
+        {
+            set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, 0, 0);
+            reset_roomspace = true;
+            return;
+        }
+    }
+    if (reset_roomspace)
+    {
+        set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+        reset_roomspace = false; // don't constantly send packets we don't need to
     }
 }
 
