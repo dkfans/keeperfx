@@ -367,6 +367,8 @@ TbBool script_is_preloaded_command(long cmnd_index)
 #define get_players_range(plr_range_id, plr_start, plr_end) get_players_range_f(plr_range_id, plr_start, plr_end, __func__, text_line_number)
 long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const char *func_name, long ln_num)
 {
+    *plr_start = 0;
+    *plr_end = 0;
     if (plr_range_id < 0)
     {
         return -1;
