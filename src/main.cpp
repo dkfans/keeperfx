@@ -232,6 +232,26 @@ void setup_stuff(void)
     init_alpha_table();
 }
 
+TbBool should_use_delta_time_on_menu()
+{
+    switch (frontend_menu_state) {
+        case FeSt_MAIN_MENU:
+        case FeSt_FELOAD_GAME:
+        case FeSt_NET_SERVICE: /**< Network service selection, where player can select Serial/Modem/IPX/TCP IP/1 player. */
+        case FeSt_NET_SESSION: /**< Network session selection screen, where list of games is displayed, with possibility to join or create own game. */
+        case FeSt_NET_START: /**< Network game start screen (the menu with chat), when created new session or joined existing session. */
+        case FeSt_HIGH_SCORES:
+        case FeSt_FEDEFINE_KEYS:
+        case FeSt_FEOPTIONS:
+        case FeSt_LEVEL_SELECT:
+        case FeSt_CAMPAIGN_SELECT:
+        case FeSt_MAPPACK_SELECT:
+            return true;
+        default:
+            return false;
+    }
+}
+
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
 {
     long win_plyr_idx;
@@ -3656,8 +3676,8 @@ static TbBool wait_at_frontend(void)
         fade_in();
         fade_palette_in = 0;
       } else {
-        // Frontend delta time for smooth mouse, disable delta time when on land view to avoid zoom/scroll issues
-        if (is_feature_on(Ft_DeltaTime) == true && frontend_menu_state != FeSt_LAND_VIEW) {
+        // Frontend delta time for smooth mouse, disable delta time for states with zoom/scroll issues
+        if (is_feature_on(Ft_DeltaTime) == true && should_use_delta_time_on_menu()) {
           // No sleep needed as delta time handles frame timing
         } else {
           LbSleepUntil(fe_last_loop_time + 30);
