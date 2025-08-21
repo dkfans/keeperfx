@@ -40,6 +40,7 @@ long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * co
 long luaL_checkNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
 TbMapLocation luaL_checkLocation(lua_State *L, int index);
 TbMapLocation luaL_optLocation(lua_State *L, int index);
+void luaL_checkLocationPos(lua_State *L, int index, struct Coord3d* pos);
 TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index);
 struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index);
 PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index);

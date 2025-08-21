@@ -189,6 +189,23 @@ TbMapLocation luaL_checkLocation(lua_State *L, int index)
     return location;
 }
 
+void luaL_checkLocationPos(lua_State *L, int index, struct Coord3d* pos)
+{
+    if (lua_istable(L, index)) {
+        return luaL_checkCoord3d(L, index, pos);
+    }
+
+    TbMapLocation location = luaL_checkLocation(L, index);
+
+    struct Coord3d pos;
+    if (!get_coords_at_location(&pos, location,true))
+    {
+        const char* locname = lua_tostring(L, index);
+        const char* err_msg = lua_pushfstring(L, "Invalid location, '%s'", locname);
+        return luaL_argerror(L, index, err_msg);
+    }
+}
+
 TbMapLocation luaL_optLocation(lua_State *L, int index)
 {
     if (lua_isnone(L,index))
