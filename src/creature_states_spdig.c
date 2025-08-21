@@ -1475,7 +1475,7 @@ short imp_reinforces(struct Thing *thing)
 
 short creature_going_to_safety_for_toking(struct Thing *thing)
 {
-    struct Coord3d locpos;
+    struct Coord3d locpos = {};
     if (!get_flee_position(thing, &locpos))
     {
         ERRORLOG("Couldn't get a flee position for %s index %d",thing_model_name(thing),(int)thing->index);
