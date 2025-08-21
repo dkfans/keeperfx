@@ -561,7 +561,7 @@ void interpolate_thing(struct Thing *thing)
         // Set initial interp position when either Thing has just been created or goes off camera then comes back on camera
         thing->interp_mappos = thing->mappos;
         thing->interp_floor_height = thing->floor_height;
-        
+
         if (thing->interp_mappos.z.val == 65534) { // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1 turn) in certain situations, which can mess up the interpolation and cause things to fall from the sky.
             thing->interp_mappos.z.val = thing->interp_floor_height;
         }
@@ -571,7 +571,7 @@ void interpolate_thing(struct Thing *thing)
         thing->interp_mappos.z.val = interpolate(thing->interp_mappos.z.val, thing->previous_mappos.z.val, thing->mappos.z.val);
         thing->interp_mappos.y.val = interpolate(thing->interp_mappos.y.val, thing->previous_mappos.y.val, thing->mappos.y.val);
         thing->interp_floor_height = interpolate(thing->interp_floor_height, thing->previous_floor_height, thing->floor_height);
-        
+
         // Cancel interpolation if distance to interpolate is too far. This is a catch-all to solve any remaining interpolation bugs.
         if ((abs(thing->interp_mappos.x.val-thing->mappos.x.val) >= 10000) ||
             (abs(thing->interp_mappos.y.val-thing->mappos.y.val) >= 10000) ||
@@ -4120,7 +4120,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
             {
               if ((solidmsk_top & height_bit) == 0)
               {
-                  
+
                   textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_0]);
                   do_a_trig_gourad_tr(&bec[1].cors[bepos+1], &bec[0].cors[bepos+1], &bec[0].cors[bepos],   textr_idx, normal_shade_back);
                   do_a_trig_gourad_bl(&bec[0].cors[bepos],   &bec[1].cors[bepos],   &bec[1].cors[bepos+1], textr_idx, normal_shade_back);
@@ -5179,7 +5179,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
             }
         }
         cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
-        if (cctrl->thought_bubble_display_timer == 40)
+        if (cctrl->thought_bubble_display_timer >= 40)
         {
             struct CreatureStateConfig *stati;
             stati = get_creature_state_with_task_completion(thing);
@@ -5289,12 +5289,17 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((game.flags_cd & MFlg_NoHeroHealthFlower) != 0)
+    if (cctrl->force_health_flower_hidden == true)
+        return;
+    if (flag_is_set(game.flags_cd,MFlg_NoHeroHealthFlower))
     {
         if (player->thing_under_hand != thing->index)
         {
             cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
-            return;
+            if (cctrl->force_health_flower_displayed == false)
+            {
+                return;
+            }
         }
         cctrl->thought_bubble_display_timer = 40;
     }
@@ -5379,6 +5384,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         // Check if the creature belongs to an ally.
         TbBool is_allied = false;
         TbBool should_drag_to_lair = false;
+        TbBool is_zombie_player = !flag_is_set(get_player(thing->owner)->allocflags, PlaF_Allocated);
+        TbBool forced_visible = cctrl->force_health_flower_displayed;
         if (!is_enemy_and_visible)
         {
             is_owned_and_hurt = creature_would_benefit_from_healing(thing) && !creature_is_being_unconscious(thing) && (player->id_number == thing->owner);
@@ -5395,10 +5402,12 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         TbBool has_lair = (thing->lair.spr_size > 0);
         // Determine if the current view is the schematic top-down map view.
         TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
-        if ((is_thing_under_hand)
+        if ((forced_visible)
+        || (is_thing_under_hand)
         || (is_enemy_and_visible)
         || (is_owned_and_hurt)
         || (is_allied)
+        || (is_zombie_player)
         || (thing->owner == PLAYER_NEUTRAL)
         // If drag_to_lair rule is active.
         || (should_drag_to_lair)
@@ -5675,10 +5684,10 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     // Set up parameters before starting the drawing loop
     float custom_line_box_size = line_box_size / 100.0;
     int line_thickness = max(1, (custom_line_box_size * units_per_pixel_best / 16.0) );
-    
+
     // Make the line slightly thinner when zoomed out
     line_thickness = LbLerp(line_thickness, 1, 1.0-hud_scale);
-    
+
     int put_pixels_left = line_thickness/2; // Allocate half of the thickness to the left
     int put_pixels_right = line_thickness-put_pixels_left; // Remaining thickness is placed to the right
 
@@ -8325,7 +8334,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
         pos_y = (point_a / laaa) * y_step2[qdrant] + (point_b / laaa) * y_step1[qdrant] + (h << 8);
         stl_x = (pos_x >> 8) + x_offs[qdrant];
         stl_y = (pos_y >> 8) + y_offs[qdrant];
-        
+
         mapblk = get_map_block_at(stl_x, stl_y);
         if (!map_block_invalid(mapblk))
         {
@@ -8753,7 +8762,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         if (hud_scale == 0) {
             break;
         }
-        
+
         RoomIndex flag_room_index = thing->lair.belongs_to;
         if (cursor_on_room(flag_room_index) == false && room_is_damaged(flag_room_index) == false && placing_same_room_type(flag_room_index) == false) {
             break;

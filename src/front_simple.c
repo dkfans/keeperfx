@@ -196,13 +196,13 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
 /**
  * Copies the given RAW image to the center of the screen buffer and swaps video
  * buffers to make the image visible.
- * 
+ *
  * This function will also scale the image while maintaing its aspect ratio.
- * 
+ *
  * @param buf Pointer to the RAW image data.
  * @param img_width Width of the RAW image.
  * @param img_height Height of the RAW image.
- * 
+ *
  * @return Returns true if the operation succeeds.
  */
 TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_width, const int img_height)

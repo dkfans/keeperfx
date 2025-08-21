@@ -162,15 +162,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
 
   switch (var_index)
   {
-  case Cmd_SET_HATE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-        dungeon = get_dungeon(i);
-        if (dungeon_invalid(dungeon))
-            continue;
-        dungeon->hates_player[val2%DUNGEONS_COUNT] = val3;
-      }
-      break;
   case Cmd_ROOM_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {

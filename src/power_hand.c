@@ -643,7 +643,7 @@ void draw_power_hand(void)
                 if (crconf->transparency_flags == TRF_Transpar_8)
                 {
                     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;  
+                    lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
                 }
                 else if (crconf->transparency_flags == TRF_Transpar_4)
                 {
@@ -1560,7 +1560,7 @@ TbBool can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumbe
                     return true;
                 }
             }
-        } 
+        }
     }
     else
     {
@@ -1717,7 +1717,7 @@ void script_set_hand_rule(PlayerNumber plyr_idx, long crtr_id,long hand_rule_act
     long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
 
     struct Dungeon* dungeon;
-    
+
     for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
     {
 

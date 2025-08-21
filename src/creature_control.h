@@ -164,6 +164,8 @@ struct CreatureControl {
     unsigned char hunger_loss;
     long thought_bubble_last_turn_drawn;
     unsigned char thought_bubble_display_timer;
+    TbBool force_health_flower_displayed;
+    TbBool force_health_flower_hidden;
     unsigned char paydays_owed;
     char paydays_advanced;
     long annoy_untrained_turn;

@@ -302,7 +302,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
                                     {
                                         return -1;
                                     }
-                                } 
+                                }
                                 // This function should return max value when the distance is minimal.
                                 return LONG_MAX - distance;
                             }
@@ -1644,9 +1644,9 @@ struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel
     {
         current_slb = get_next_slab_number_in_room(current_slb);
     }
-        
+
     static const int STL_PER_SLB_2D = STL_PER_SLB * STL_PER_SLB;
-    
+
     for (size_t i = 0; i < room->slabs_count; i++)
     {
         if ( room->slabs_count == current_slab_idx )
@@ -1657,7 +1657,7 @@ struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel
 
         MapSlabCoord slb_x = slb_num_decode_x(current_slb);
         MapSlabCoord slb_y = slb_num_decode_y(current_slb);
-        
+
         unsigned char subtile = GAME_RANDOM(STL_PER_SLB_2D);
 
         for (size_t j = 0; j < STL_PER_SLB_2D; j++)
@@ -2354,13 +2354,13 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
     }
     TbBool is_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
     long count = 0;
-    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && !is_spec_digger) || 
-        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER)) 
+    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && !is_spec_digger) ||
+        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
     {
         count += count_player_list_creatures_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && is_spec_digger) || 
-        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER)) 
+    if (((crmodel > 0) && (!is_creature_model_wildcard(crmodel)) && is_spec_digger) ||
+        (crmodel == CREATURE_ANY) || (crmodel == CREATURE_DIGGER))
     {
         count += count_player_list_creatures_with_filter(dungeon->digger_list_start, filter, &param);
     }
@@ -2573,7 +2573,7 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
             {
                 match = 1;
             }
-        } 
+        }
         else if (friendly == 0)
         {
             if (players_are_enemies(thing->owner,slbwnr))
@@ -2591,7 +2591,7 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
 
         if ((thing_matches_model(thing, crmodel)) && (match == 1))
         {
-            nth_creature = thing; 
+            nth_creature = thing;
             crtr_idx--;
         }
         // Per creature code ends
@@ -3337,7 +3337,7 @@ TbBool update_thing(struct Thing *thing)
                 {
                     thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - thing->inertia_air) / 256;
                 }
-                else 
+                else
                 {
                     if (thing_above_flight_altitude(thing) && ((thing->alloc_flags & TAlF_IsControlled) == 0))
                     {
@@ -4160,21 +4160,21 @@ struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord s
   struct Thing *thing;
   unsigned char n,k = 0;
   struct Thing *result = NULL;
-  MapSubtlCoord x,y; 
+  MapSubtlCoord x,y;
   do
   {
     n = 0;
-    y = stl_y + k;  
+    y = stl_y + k;
     if ( (y >= 0) && (y < game.map_subtiles_y) )
     {
       do
       {
-        x = stl_x + n;  
+        x = stl_x + n;
         if ( (x >= 0) && (x < game.map_subtiles_x) )
         {
           struct Map *blk = get_map_block_at(x, y);
           thing = thing_get(get_mapwho_thing_index(blk));
-          while (!thing_is_invalid(thing)) 
+          while (!thing_is_invalid(thing))
           {
             TRACE_THING(thing);
             long NewDistance = chessboard_distance(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
@@ -4457,7 +4457,7 @@ struct Thing* get_timebomb_target(struct Thing *creatng)
     MapCoordDelta dist, new_dist;
     struct Thing* thing;
     struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
-    if (slist != NULL) 
+    if (slist != NULL)
     {
         dist = LONG_MAX;
         unsigned long i = slist->index;

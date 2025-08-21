@@ -167,7 +167,7 @@ TbBool open_lua_script(LevelNumber lvnum)
 	luaL_openlibs(Lvl_script);
 
 	reg_host_functions(Lvl_script);
-	 
+
     setLuaPath(Lvl_script);
     
     char* fname = prepare_file_fmtpath(FGrp_FxData, "lua/init.lua");
@@ -178,7 +178,7 @@ TbBool open_lua_script(LevelNumber lvnum)
         ERRORLOG("file %s missing",fname);
         return false;
     }
-    
+
 	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"global_lua_file"))
 	{
         ERRORLOG("failed to load global lua script");
@@ -200,7 +200,7 @@ TbBool open_lua_script(LevelNumber lvnum)
 	}
 
     return true;
-    
+
 }
 
 
@@ -254,7 +254,7 @@ void lua_set_serialised_data(const char *data, size_t len)
     lua_getglobal(Lvl_script, "SetSerializedData");
 	if (lua_isfunction(Lvl_script, -1))
 	{
-		lua_pushlstring(Lvl_script, data, len); 
+		lua_pushlstring(Lvl_script, data, len);
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"SetSerializedData");
 	}
 	else
@@ -327,7 +327,7 @@ void generate_lua_types_file()
     GENERATE_ALIAS("effect_type", effect_desc);
     GENERATE_ALIAS("spell_type", spell_desc);
     GENERATE_ALIAS("slab_type", slab_desc);
-    fprintf(out, "\n"); 
+    fprintf(out, "\n");
 
     GENERATE_FIELDS("roomfields", room_desc);
     GENERATE_FIELDS("creaturefields", creature_desc);

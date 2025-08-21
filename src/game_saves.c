@@ -304,6 +304,11 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
  */
 TbBool save_game(long slot_num)
 {
+    if ((slot_num < 0) || (slot_num >= TOTAL_SAVE_SLOTS_COUNT))
+    {
+        ERRORLOG("Outranged slot index %d",(int)slot_num);
+        return false;
+    }
     char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
     if (!handle)
@@ -343,6 +348,11 @@ TbBool is_save_game_loadable(long slot_num)
 
 TbBool load_game(long slot_num)
 {
+    if ((slot_num < 0) || (slot_num >= TOTAL_SAVE_SLOTS_COUNT))
+    {
+        ERRORLOG("Outranged slot index %d",(int)slot_num);
+        return false;
+    }
     TbFileHandle fh;
 //  unsigned char buf[14];
 //  char cmpgn_fname[CAMPAIGN_FNAME_LEN];

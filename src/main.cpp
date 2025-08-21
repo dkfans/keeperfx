@@ -610,7 +610,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             delta_y = dist_y * delta_y / (dist_x + dist_y + dist_z);
             delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
-        
+
         int sprsize = 0;
         int delta_size = 0;
 
@@ -937,6 +937,7 @@ TbBool initial_setup(void)
  *   gameplay impossible (usually files loading failure).
  * @note The current screen resolution at end of this function may vary.
  */
+
 short setup_game(void)
 {
   struct CPU_INFO cpu_info; // CPU status variable
@@ -1577,7 +1578,7 @@ void reinit_level_after_load(void)
     restore_computer_player_after_load();
     sound_reinit_after_load();
     update_panel_colors();
-    reset_postal_instance_cache();    
+    reset_postal_instance_cache();
 }
 
 /**
@@ -3654,9 +3655,13 @@ static TbBool wait_at_frontend(void)
       {
         fade_in();
         fade_palette_in = 0;
-      } else
-      {
-        LbSleepUntil(fe_last_loop_time + 30);
+      } else {
+        // Frontend delta time for smooth mouse, disable delta time when on land view to avoid zoom/scroll issues
+        if (is_feature_on(Ft_DeltaTime) == true && frontend_menu_state != FeSt_LAND_VIEW) {
+          // No sleep needed as delta time handles frame timing
+        } else {
+          LbSleepUntil(fe_last_loop_time + 30);
+        }
       }
       fe_last_loop_time = LbTimerClock();
 

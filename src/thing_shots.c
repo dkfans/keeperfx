@@ -496,7 +496,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     TbBool digging = (shotst->model_flags & ShMF_Digging);
-    HitPoints old_health;
+    HitPoints old_health = 0;
     EffectOrEffElModel eff_kind;
     short smpl_idx;
     unsigned char range;
@@ -865,7 +865,7 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     HitPoints damage_done = 0;
     if (shotng->shot.damage)
     {
-  
+
         if ((thing_is_destructible_trap(target) > 0) || ((thing_is_destructible_trap(target) > -1) && (shotst->model_flags & ShMF_Disarming)))
         {
             damage_done = apply_damage_to_thing(target, shotng->shot.damage, -1);
@@ -878,7 +878,7 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
         }
     }
     create_relevant_effect_for_shot_hitting_thing(shotng, target);
-    if (target->health < 0) 
+    if (target->health < 0)
     {
         struct TrapConfigStats* trapst = get_trap_model_stats(target->model);
         if (trapst->destroyed_effect != 0)
@@ -935,11 +935,12 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
         {
             thing_play_sample(target, shotst->hit_heart.sndsample_idx + UNSYNC_RANDOM(shotst->hit_heart.sndsample_range), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
-        event_create_event_or_update_nearby_existing_event(
-            shootertng->mappos.x.val, shootertng->mappos.y.val,
-          EvKind_HeartAttacked, target->owner, shootertng->index);
-        if (is_my_player_number(target->owner)) {
-            output_message(SMsg_HeartUnderAttack, 400);
+        if (shotng->owner != target->owner)
+        {
+            event_create_event_or_update_nearby_existing_event(shootertng->mappos.x.val, shootertng->mappos.y.val, EvKind_HeartAttacked, target->owner, shootertng->index);
+            if (is_my_player_number(target->owner)) {
+                output_message(SMsg_HeartUnderAttack, 400);
+            }
         }
     } else
     {
@@ -1131,7 +1132,7 @@ int weight_calculated_push_strenght(int weight, int push_strength)
         weight_factor = percent_factor;
     }
 
-    // Calculate the adjusted push strength based on the weight factor.     
+    // Calculate the adjusted push strength based on the weight factor.
     int adjusted_push_strength = (push_strength * weight_factor) / percent_factor;
 
     return adjusted_push_strength;
@@ -1194,7 +1195,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
                 WARNDBG(8, "The %s index %d owner %d cannot group; invalid parent", thing_model_name(shotng), (int)shotng->index, (int)shotng->owner);
             }
         }
-        if (shotst->target_hitstop_turns != 0) 
+        if (shotst->target_hitstop_turns != 0)
         {
             tgcctrl->frozen_on_hit = shotst->target_hitstop_turns;
         }
@@ -1472,7 +1473,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         if (creature_is_being_unconscious(trgtng)  && !(game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
         {
             return 0;
-        } 
+        }
         else
         {
             struct CreatureModelConfig* crconf = creature_stats_get_from_thing(trgtng);
@@ -1485,7 +1486,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         shot_kill_creature(shotng, trgtng);
     } else
     {
-        if (trgtng->owner != shotng->owner) 
+        if (trgtng->owner != shotng->owner)
         {
             check_hit_when_attacking_door(trgtng);
         }
@@ -1944,14 +1945,14 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                 TbBool creatureAlreadyAffected = false;
 
                 // distance between creature and actual position of the projectile
-                creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;    
+                creature_distance = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
 
                 // if weight-affect-push-rule is on
                 if (game.conf.rules.magic.weight_calculate_push > 0)
                 {
                     long weight = compute_creature_weight(thing);
                     //max push distance
-                    blow_distance = maxdistance - (maxdistance - weight_calculated_push_strenght(weight, maxdistance)); 
+                    blow_distance = maxdistance - (maxdistance - weight_calculated_push_strenght(weight, maxdistance));
                     // distance between startposition and actual position of the projectile
                     int origin_distance = get_chessboard_distance(&shotng->shot.originpos, &thing->mappos) + 1;
                     creature_distance = origin_distance;
@@ -1981,7 +1982,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                 }
             }
             break;
-        } 
+        }
         case TCls_EffectElem:
         {
             if (!thing_is_picked_up(thing))
@@ -1994,7 +1995,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                 }
             }
             break;
-        } 
+        }
         case TCls_Shot:
         {
             if (!thing_is_picked_up(thing))
@@ -2007,7 +2008,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
                 }
             }
             break;
-        } 
+        }
         case TCls_Effect:
         {
             if (!thing_is_picked_up(thing))
