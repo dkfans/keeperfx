@@ -3655,9 +3655,13 @@ static TbBool wait_at_frontend(void)
       {
         fade_in();
         fade_palette_in = 0;
-      } else
-      {
-        LbSleepUntil(fe_last_loop_time + 30);
+      } else {
+        // Frontend delta time for smooth mouse, disable delta time when on land view to avoid zoom/scroll issues
+        if (is_feature_on(Ft_DeltaTime) == true && frontend_menu_state != FeSt_LAND_VIEW) {
+          // No sleep needed as delta time handles frame timing
+        } else {
+          LbSleepUntil(fe_last_loop_time + 30);
+        }
       }
       fe_last_loop_time = LbTimerClock();
 
