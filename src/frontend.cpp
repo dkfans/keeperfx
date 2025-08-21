@@ -2259,9 +2259,9 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
 
 /**
  * Sets the status menu visiblity.
- * 
+ *
  * Doesn't change anything if the current menu visibility is the same as the passed parameter.
- * 
+ *
  * @param visible If TRUE show the menu, if FALSE hide the menu
  * @return The visibility of the menu before this function was called (used to store the user's previous setting when the menu is forcibly hidden).
  */
@@ -2337,7 +2337,7 @@ unsigned long toggle_status_menu(short visible)
       if (k >= 0)
         room_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_ROOM);
-      
+
       k = menu_id_to_number(GMnu_ROOM2);
       if (k >= 0)
         room_2_on = get_active_menu(k)->is_turned_on;
@@ -2347,7 +2347,7 @@ unsigned long toggle_status_menu(short visible)
       if (k >= 0)
         spell_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_SPELL);
-      
+
       k = menu_id_to_number(GMnu_SPELL2);
       if (k >= 0)
         spell_2_on = get_active_menu(k)->is_turned_on;
@@ -2362,7 +2362,7 @@ unsigned long toggle_status_menu(short visible)
       if (k >= 0)
       trap_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_TRAP);
-      
+
       k = menu_id_to_number(GMnu_TRAP2);
       if (k >= 0)
         trap_2_on = get_active_menu(k)->is_turned_on;

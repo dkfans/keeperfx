@@ -301,7 +301,7 @@ short setup_room_tooltips(struct Coord3d *pos)
   update_gui_tooltip_target(room);
   struct PlayerInfo* player = get_my_player();
   struct Thing *handthing = thing_get(player->thing_under_hand);
-  
+
   TbBool in_query_mode = (player->work_state == PSt_CreatrQuery || player->work_state == PSt_QueryAll);
   if (in_query_mode == false) {
       if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {

@@ -4808,7 +4808,7 @@ NavColour get_navigation_colour_for_door(long stl_x, long stl_y)
         }
     }
     return colour;
-    
+
 }
 
 NavColour get_navigation_colour_for_cube(long stl_x, long stl_y)

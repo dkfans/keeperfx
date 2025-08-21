@@ -1343,7 +1343,7 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
     {
         creature_change_multiple_levels(thing, powerst->strength[power_level]);
     }
-    
+
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     play_creature_sound(thing, CrSnd_Happy, 2, 0);
     return Lb_SUCCESS;
@@ -1397,7 +1397,7 @@ static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber p
     if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
     { // Only initialise state if spell_idx has 'CSAfF_Timebomb'.
         initialise_thing_state(thing, CrSt_Timebomb);
-    } 
+    }
     return Lb_SUCCESS;
 }
 
@@ -1833,7 +1833,7 @@ TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, 
         if (stati->react_to_cta
           && (creature_affected_by_call_to_arms(creatng) || get_chessboard_distance(&creatng->mappos, cta_pos) < range))
         {
-            if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos)) 
+            if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos))
             {
                 creature_mark_if_woken_up(creatng);
                 return true;
@@ -2008,7 +2008,7 @@ TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
     KeepPwrLevel power_level, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
 {
     lua_on_power_cast(plyr_idx, pwkind, power_level, stl_x, stl_y, thing);
-    
+
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
     if(powerst->magic_use_func_idx > 0 && magic_use_func_list[powerst->magic_use_func_idx] != NULL)
     {
@@ -2136,7 +2136,7 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
     {
         ret = magic_use_power_direct(plyr_idx,pwkind,power_level,stl_x, stl_y,INVALID_THING, mod_flags);
     }
-        
+
     if (ret == Lb_SUCCESS)
     {
         const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
