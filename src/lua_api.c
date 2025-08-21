@@ -90,7 +90,7 @@ static int lua_Computer_player(lua_State *L)
         player->allocflags |= PlaF_CompCtrl;
         player->id_number = player_idx;
         return 0;
-        
+
     }
     else
     {
@@ -367,7 +367,7 @@ static int lua_Reset_action_point(lua_State *L)
 {
     ActionPointId apt_idx = luaL_checkActionPoint(L, 1);
     PlayerNumber player_range = luaL_checkPlayerRangeId(L, 2);
-    
+
     action_point_reset_idx(apt_idx, player_range);
     return 0;
 }
@@ -414,7 +414,7 @@ static int lua_Add_creature_to_level(lua_State *L)
         return 0;
 
     lua_pushThing(L,script_create_new_creature(plr_idx, crtr_id, location, carried_gold, crtr_level-1,spawn_type));
-    
+
     return 1;
 }
 
@@ -494,7 +494,7 @@ static int lua_Add_tunneller_party_to_level(lua_State *L)
 
     struct Thing* leadtng = script_process_new_tunneller_party(owner, prty_id, spawn_location, head_for, crtr_level, carried_gold);
     if (thing_is_invalid(leadtng))
-    { 
+    {
         return 0;
     }
     lua_pushPartyTable(L, leadtng);
@@ -514,7 +514,7 @@ static int lua_Add_party_to_level(lua_State *L)
     struct Thing* leadtng = script_process_new_party(party, owner, location, 1);
 
     if (thing_is_invalid(leadtng))
-    { 
+    {
         return 0;
     }
     lua_pushPartyTable(L, leadtng);
@@ -636,7 +636,7 @@ static int lua_Heart_lost_objective(lua_State *L)
     game.heart_lost_display_message = true;
     game.heart_lost_quick_message = false;
     game.heart_lost_message_id = message_id;
-    game.heart_lost_message_target = target; 
+    game.heart_lost_message_target = target;
     return 0;
 }
 static int lua_Heart_lost_quick_objective(lua_State *L)
@@ -650,14 +650,14 @@ static int lua_Heart_lost_quick_objective(lua_State *L)
     game.heart_lost_display_message = true;
     game.heart_lost_quick_message = true;
     game.heart_lost_message_id = slot;
-    game.heart_lost_message_target = target; 
+    game.heart_lost_message_target = target;
     return 0;
 }
 
 static int lua_Play_message(lua_State *L)
 {
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
-    
+
     long msgtype_id = luaL_checkNamedCommand(L, 2, msgtype_desc);
 
     TbBool param_is_string;
@@ -721,7 +721,7 @@ static int lua_Display_countdown(lua_State *L)
     game.script_timer_limit = target;
     game.timer_real = clocktime;
     game.flags_gui |= GGUI_ScriptTimer;
-    return 0;    
+    return 0;
 }
 
 static int lua_Display_variable(lua_State *L)
@@ -831,7 +831,7 @@ static int lua_Add_heart_health(lua_State *L)
     PlayerNumber plyr_idx = luaL_checkPlayerSingle(L,1);
     HitPoints healthdelta = lua_tointeger(L,2);
     TbBool warn_on_damage = lua_toboolean(L,3);
-    
+
     add_heart_health(plyr_idx,healthdelta,warn_on_damage);
     return 0;
 }
@@ -925,7 +925,7 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
     }
     const char* id_str      = lua_tostring(L, 1);
     const char* property    = lua_tostring(L, 2);
-    
+
     short id = get_id(named_fields_set->names, id_str);
     if (id == -1)
     {
@@ -941,18 +941,18 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
         luaL_argerror(L, 1, error_msg);
         return;
     }
-    
+
     long property_id = get_named_field_id(named_fields_set->named_fields, property);
     if (property_id == -1)
-    {    
+    {
         char error_msg[256];
         snprintf(error_msg, sizeof(error_msg), "Expected a valid property name, got '%s'",property);
         luaL_argerror(L, 1, error_msg);
         return;
     }
-    
+
     const struct NamedField* field = &named_fields_set->named_fields[property_id];
-    
+
     char concatenated_values[MAX_TEXT_LENGTH];
     if (field->argnum == -1)
     {
@@ -965,14 +965,14 @@ static void set_configuration(lua_State *L, const struct NamedFieldSet* named_fi
         }
         int64_t value = parse_named_field_value(field, concatenated_values,named_fields_set,id,function_name,ccf_DuringLevel);
         assign_named_field_value(&named_fields_set->named_fields[property_id],value,named_fields_set,id,function_name,ccf_DuringLevel);
-        
+
     }
     else
     {
         int i = 0;
         while (lua_tostring(L, i + 3) != NULL)
-        {    
-            if( named_fields_set->named_fields[property_id + i].name == NULL || 
+        {
+            if( named_fields_set->named_fields[property_id + i].name == NULL ||
                 (strcmp(named_fields_set->named_fields[property_id + i].name, named_fields_set->named_fields[property_id].name) != 0))
             {
                 char error_msg[256];
@@ -1039,7 +1039,7 @@ static int lua_Set_hand_rule(lua_State *L)
     long rule_action = luaL_checkNamedCommand(L,4,rule_action_desc);
     long rule = luaL_checkNamedCommand(L,4,rule_action_desc);
     long param = luaL_checkinteger(L, 5);
-    
+
     script_set_hand_rule(player_idx, crtr_id, rule_action, rule_slot, rule, param);
     return 0;
 }
@@ -1263,7 +1263,7 @@ static int lua_Set_computer_process(lua_State *L)
     const char* procname = luaL_checkstring(L, 2);
     long val1 = luaL_checkinteger(L,3);
     long val2 = luaL_checkinteger(L,4);
-    long val3 = luaL_checkinteger(L,5);  
+    long val3 = luaL_checkinteger(L,5);
     long val4 = luaL_checkinteger(L,6);
     long val5 = luaL_checkinteger(L,7);
     long n = 0;
@@ -1298,7 +1298,7 @@ static int lua_Set_computer_checks(lua_State *L)
     const char* chkname = luaL_checkstring(L, 2);
     long val1 = luaL_checkinteger(L,3);
     long val2 = luaL_checkinteger(L,4);
-    long val3 = luaL_checkinteger(L,5);  
+    long val3 = luaL_checkinteger(L,5);
     long val4 = luaL_checkinteger(L,6);
     long val5 = luaL_checkinteger(L,7);
 
@@ -1366,7 +1366,7 @@ static int lua_Set_computer_event(lua_State *L)
     const char* evntname = luaL_checkstring(L, 2);
     long val1 = luaL_checkinteger(L,3);
     long val2 = luaL_checkinteger(L,4);
-    long val3 = luaL_checkinteger(L,5);  
+    long val3 = luaL_checkinteger(L,5);
     long val4 = luaL_checkinteger(L,6);
     long val5 = luaL_checkinteger(L,7);
 
@@ -1521,7 +1521,7 @@ static int lua_Create_effects_line(lua_State *L)
 static int lua_Set_music(lua_State *L)
 {
     if (lua_isnumber(L, 1)) {
-        
+
         long track_number = luaL_checkinteger(L, 1);
         if (track_number == 0) {
             stop_music();
@@ -1551,7 +1551,7 @@ static int lua_Zoom_to_location(lua_State *L)
     PlayerNumber player_idx = luaL_checkPlayerSingle(L, 1);
     TbMapLocation location = luaL_checkLocation(L,  2);
     struct Coord3d pos;
-    
+
     find_location_pos(location, player_idx, &pos, __func__);
     set_player_zoom_to_position(get_player(player_idx),&pos);
 
@@ -1906,7 +1906,7 @@ static int lua_get_things_of_class(lua_State *L)
 
         lua_pushThing(L, thing);  // Push the value onto the stack
         lua_rawseti(L, -2, k + 1);      // Set table[-2][i + 1] = value
-        
+
         // Per-thing code ends
         k++;
         if (k > THINGS_COUNT)
@@ -2107,7 +2107,7 @@ static const luaL_Reg global_methods[] = {
    {"ChangeSlabType"                      ,lua_Change_slab_type                },
    {"ChangeSlabTexture"                   ,lua_Change_slab_texture               },
    {"HideHeroGate"                        ,lua_Hide_hero_gate                  },
-   
+
 //Manipulating Configs
     //{"NewCreatureType"                    ,lua_New_creature_type               },
     //{"NewObjectType"                      ,lua_New_object_type                 },
@@ -2178,7 +2178,7 @@ static const luaL_Reg global_methods[] = {
 //debug stuff
     {"print"                             ,lua_print                     },
     {"RunDKScriptCommand"                ,lua_run_dkscript_command      },
-    
+
 //retrieving lua vars
     {"GetCreatureNear",                 lua_get_creature_near},
     {"GetCreatureByCriterion",          lua_get_creature_by_criterion},
@@ -2188,7 +2188,7 @@ static const luaL_Reg global_methods[] = {
     {"GetSlab",                         lua_get_slab},
     {"GetString",                       lua_Get_string},
     {"GetRoomsOfPlayerAndType",         lua_get_rooms_of_player_and_kind},
-  
+
 //usecase specific functions
     {"PayForPower",                     lua_Pay_for_power},
 

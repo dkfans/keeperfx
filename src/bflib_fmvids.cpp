@@ -504,7 +504,12 @@ struct movie_t {
 			m_resampler,
 			&buffer,
 			buffer_samples,
+#if LIBSWRESAMPLE_VERSION_INT >= AV_VERSION_INT(4, 4, 100)
+			// since 4.4.100, swr_convert expects a const pointer
+			const_cast<const uint8_t **>(m_frame->data),
+#else
 			m_frame->data,
+#endif
 			m_frame->nb_samples
 		);
 		SDL_QueueAudio(m_audio_device, buffer, num_samples * sample_size);
@@ -864,7 +869,7 @@ long anim_make_FLI_BRUN(unsigned char *screenbuf) {
 		}
 	}
 	// Make the block size even
-	if ((int)animation.field_C & 1) {
+	if ((size_t)animation.field_C & 1) {
 		*animation.field_C='\0';
 		animation.field_C++;
 	}
@@ -1006,7 +1011,7 @@ long anim_make_FLI_SS2(unsigned char *curdat, unsigned char *prvdat)
 		(*lines_count)--;
 	}
 	// Make the data size even
-	animation.field_C = (unsigned char *)(((unsigned int)animation.field_C + 1) & 0xFFFFFFFE);
+	animation.field_C = (unsigned char *)(((size_t)animation.field_C + 1) & 0xFFFFFFFE);
 	return animation.field_C - blk_begin;
 }
 
@@ -1159,7 +1164,7 @@ long anim_make_FLI_LC(unsigned char *curdat, unsigned char *prvdat)
 		animation.field_C++;
 	}
 	// Make the data size even
-	animation.field_C = (unsigned char *)(((unsigned int)animation.field_C + 1) & 0xFFFFFFFE);
+	animation.field_C = (unsigned char *)(((size_t)animation.field_C + 1) & 0xFFFFFFFE);
 	return animation.field_C - blk_begin;
 }
 

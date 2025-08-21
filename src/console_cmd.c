@@ -2,7 +2,7 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file console_cmd.c
- *     
+ *
  * @par Purpose:
  *     Define various console commans
  * @par Comment:
@@ -2062,7 +2062,7 @@ TbBool cmd_player_colour(PlayerNumber plyr_idx, char * args)
     int plr_end;
     PlayerNumber plr_range_id = get_player_number_for_command(pr2str);
     get_players_range(plr_range_id, &plr_start, &plr_end);
-    
+
     char * pr3str = strsep(&args, " ");
     char colour_idx = get_rid(cmpgn_human_player_options, pr3str);
     if (plr_start >= 0)

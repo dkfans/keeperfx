@@ -479,7 +479,8 @@ extern "C" void FreeAudio() {
 
 extern "C" void SetSoundMasterVolume(SoundVolume volume) {
 	try {
-		alListenerf(AL_GAIN, float(volume) / 64);
+		// Set OpenAL listener gain to maximum so we can split up the mentor speech volume slider from the sound effects volume slider
+		alListenerf(AL_GAIN, 1.0f);
 		const auto errcode = alGetError();
 		if (errcode != AL_NO_ERROR) {
 			throw openal_error("Cannot set master volume", errcode);

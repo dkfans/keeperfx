@@ -630,7 +630,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             delta_y = dist_y * delta_y / (dist_x + dist_y + dist_z);
             delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
-        
+
         int sprsize = 0;
         int delta_size = 0;
 
@@ -957,6 +957,7 @@ TbBool initial_setup(void)
  *   gameplay impossible (usually files loading failure).
  * @note The current screen resolution at end of this function may vary.
  */
+
 short setup_game(void)
 {
   struct CPU_INFO cpu_info; // CPU status variable
@@ -1597,7 +1598,7 @@ void reinit_level_after_load(void)
     restore_computer_player_after_load();
     sound_reinit_after_load();
     update_panel_colors();
-    reset_postal_instance_cache();    
+    reset_postal_instance_cache();
 }
 
 /**
