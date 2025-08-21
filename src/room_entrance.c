@@ -18,7 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "room_entrance.h"
-
+#include "keeperfx.hpp"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
