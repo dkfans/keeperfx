@@ -3547,11 +3547,11 @@ static long delete_4point(long tri1_id, long cor1_id)
         tri3->tags[MOD3[cor3_id+2]] = tri1_id;
 
         nreg = get_triangle_region_id(tri2_id);
-        if (nreg) {
+        if (nreg > 0) {
             region_unset(tri2_id, nreg);
         }
         nreg = get_triangle_region_id(tri4_id);
-        if (nreg) {
+        if (nreg > 0) {
             region_unset(tri4_id, nreg);
         }
         tri_dispose(tri2_id);
@@ -3581,11 +3581,11 @@ static long delete_4point(long tri1_id, long cor1_id)
         tri4->tags[MOD3[cor4_id+2]] = tri2_id;
 
         nreg = get_triangle_region_id(tri3_id);
-        if (nreg) {
+        if (nreg > 0) {
             region_unset(tri3_id, nreg);
         }
         nreg = get_triangle_region_id(tri1_id);
-        if (nreg) {
+        if (nreg > 0) {
             region_unset(tri1_id, nreg);
         }
         tri_dispose(tri3_id);
@@ -3644,12 +3644,12 @@ static long delete_3point(long tri1_id, long cor1_id)
     Triangles[cor5_id].tags[tri5_id] = tri1_id;
     int nreg;
     nreg = get_triangle_region_id(tri2_id);
-    if (nreg)
+    if (nreg > 0)
     {
         region_unset(tri2_id, nreg);
     }
     nreg = get_triangle_region_id(tri3_id);
-    if (nreg)
+    if (nreg > 0)
     {
         region_unset(tri3_id, nreg);
     }
