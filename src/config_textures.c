@@ -71,7 +71,7 @@ static TbBool load_textureanim_config_file(const char *fname, unsigned short fla
         }
     }
     value_fini(&file_root);
-
+    
     return true;
 }
 

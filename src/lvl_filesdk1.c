@@ -114,6 +114,7 @@ struct LegacyInitLight { // sizeof=0x14
 
 #pragma pack()
 
+
 /******************************************************************************/
 
 
@@ -1047,7 +1048,7 @@ TbBool load_slab_datclm_files(void)
 
     long slbset_tot = game.conf.slab_conf.slab_types_count * SLABSETS_PER_SLAB;
     game.slabset_num = slbset_tot;
-
+    
     update_columns_use(game.conf.column_conf.cols,game.conf.column_conf.columns_count,game.slabset,slbset_tot);
     create_columns_from_list(game.conf.column_conf.cols,game.conf.column_conf.columns_count);
     update_slabset_column_indices(game.conf.column_conf.cols,game.conf.column_conf.columns_count);

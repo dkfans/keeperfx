@@ -188,7 +188,7 @@ static void init_level(void)
     clear_messages();
     init_seeds();
     // Load the actual level files
-
+    
     TbBool script_preloaded = preload_script(get_selected_level_number());
     if (!load_map_file(get_selected_level_number()))
     {

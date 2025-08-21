@@ -266,8 +266,8 @@ void restart_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
         {
             clear_flag(cproc->flags, (ComProc_Unkn0020|ComProc_Unkn0008));
         }
-    }
-    else
+    } 
+    else 
     {
         ERRORLOG("Invalid computer process %d referenced",(int)ctask->cproc_idx);
     }
@@ -1183,7 +1183,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
             stl_x += lkp->delta_x;
             stl_y += lkp->delta_y;
         }
-
+        
         ctask->dig.room.spiral.steps_remaining_before_turn--;
         if (ctask->dig.room.spiral.steps_remaining_before_turn <= 0)
         {
@@ -1208,7 +1208,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     struct Room *room;
-
+    
     // check the surrounding subtiles to see if they are the requested room
     for (SmallAroundIndex n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
@@ -1459,14 +1459,14 @@ static TbBool other_build_here(struct Computer2 *comp, MapSubtlCoord stl_x, MapS
         if ( room_end_pos_y <= 0 )
             room_end_pos_y = 0;
         MapSubtlDelta longest_long_edge_length_subtl = long_edge_length_subtl;
-
+        
         if ( long_edge_length_subtl <= current_long_edge_length_subtl )
             longest_long_edge_length_subtl = current_long_edge_length_subtl;
         MapSubtlCoord room_end_pos_x = task->new_room_pos.x.stl.num - current_long_edge_length_subtl / 2;
 
         if ( room_end_pos_x <= 0 )
             room_end_pos_x = 0;
-        if ( (int)abs(room_end_pos_x - stl_2_x) <= longest_long_edge_length_subtl + STL_PER_SLB &&
+        if ( (int)abs(room_end_pos_x - stl_2_x) <= longest_long_edge_length_subtl + STL_PER_SLB && 
              (int)abs(room_end_pos_y - stl_2_y) <= longest_long_edge_length_subtl + STL_PER_SLB )
             break;
         }
@@ -1737,19 +1737,19 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
 
 /**
  * Tool function to do (or simulate) computer player "mark for digging".
- *
- * The tool finds a path from the start to the destination, and marks any dirt found for digging.
+ * 
+ * The tool finds a path from the start to the destination, and marks any dirt found for digging. 
  * It will continue to plot a path until it either:
  * reaches the destination, reaches a slab that requires an action, or hits some sort of error.
  * This function will be called again if the path was not completed (after any pending action has been completed).
- *
+ *  
  * @param comp The Computer player that started the task.
  * @param cdig The ComputerDig structure that will store all of the data for the computer digging task. Should be dummy if simulating.
  * @param simulation If true: we're only simulating, or if false: we're doing the real thing.
- * @param digflags Signifies what actions are allowed for the current digging task e.g.
- *                  whether bridges are allowed to be placed over water or lava, if valuables are allowed to be dug, or if only dirt can be dug.
+ * @param digflags Signifies what actions are allowed for the current digging task e.g. 
+ *                  whether bridges are allowed to be placed over water or lava, if valuables are allowed to be dug, or if only dirt can be dug. 
  *                  Uses values from ToolDigFlags enum.
- * @return Returns a ToolDigResult which is e.g. "Destination Reached", "Slab needs to be marked for digging", "Bridge needs to be built".
+ * @return Returns a ToolDigResult which is e.g. "Destination Reached", "Slab needs to be marked for digging", "Bridge needs to be built". 
  *         See enum ToolDigResults for the full list.
  */
 ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, DigFlags digflags, const char *func_name)
@@ -1801,7 +1801,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
                 (int)dungeon->owner,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
             return TDR_BuildBridgeOnSlab;
         }
-
+        
         dig_result = tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(comp, cdig, simulation, digflags, &gldstl_x, &gldstl_y, func_name);
         if (dig_result < TDR_DigSlab) {
             return dig_result;
@@ -1932,7 +1932,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
                         }
                     }
                 }
-                if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK)
+                if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK) 
                 {
                     ERRORLOG("%s: Couldn't do game action - cannot dig",func_name);
                     return TDR_ToolDigError;
@@ -2016,7 +2016,7 @@ long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_
 int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name)
 {
     SYNCDBG(7,"%s: Starting at (%d,%d)",func_name,pos->x.stl.num,pos->y.stl.num);
-
+   
     int valid_area = 0;
     MapSubtlCoord stl_x = pos->x.stl.num;
     MapSubtlCoord stl_y = pos->y.stl.num;
@@ -2223,7 +2223,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
             return dig_result;
         }
     }
-
+    
     // move to next task or return to enclosing task or return to try again later
     switch(dig_result)
     {
@@ -2298,7 +2298,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
                     return CTaskRet_Unk0;
                 }
             }
-            return CTaskRet_Unk0;
+            return CTaskRet_Unk0;   
         case TDR_BuildBridgeOnSlab:
             ctask->ottype = ctask->ttype;
             ctask->ttype = CTT_WaitForBridge;
@@ -2341,8 +2341,8 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
     thing = INVALID_THING;
     highest_score = INT_MAX;
 
-    for (struct Thing *i = thing_get(comp->dungeon->creatr_list_start);
-        !thing_is_invalid(i);
+    for (struct Thing *i = thing_get(comp->dungeon->creatr_list_start); 
+        !thing_is_invalid(i); 
         i = thing_get(creature_control_get_from_thing(i)->players_next_creature_idx))
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(i);
@@ -2448,7 +2448,7 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
         return CTaskRet_Unk0;
     case 2:
         // Keep CTA running until most creatures are able to reach it
-        if (count_creatures_at_call_to_arms(comp) < ctask->magic_cta.repeat_num - ctask->magic_cta.repeat_num / 4)
+        if (count_creatures_at_call_to_arms(comp) < ctask->magic_cta.repeat_num - ctask->magic_cta.repeat_num / 4) 
         {
             // For a minimum amount of time
             if ((game.play_gameturn - ctask->lastrun_turn) < (ctask->delay / 10)) 
@@ -3433,7 +3433,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         MapSubtlCoord stl_y;
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(traptng->mappos.x.stl.num);
-                        stl_y = stl_slab_center_subtile(traptng->mappos.y.stl.num);
+                        stl_y = stl_slab_center_subtile(traptng->mappos.y.stl.num);                        
                         dungeon->traps_sold += remove_traps_around_subtile(stl_x, stl_y, &value);
                         dungeon->manufacture_gold += value;
                         if (is_my_player_number(dungeon->owner))

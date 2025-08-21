@@ -71,42 +71,42 @@ const struct NamedCommand logicval_type[] = {
   {"0",        2},
   {NULL,       0},
   };
-
+  
   TbBool parameter_is_number(const char* parstr) {
       if (parstr == NULL) {
           return false;
       }
-
+  
       // Trim leading spaces
       while (*parstr == ' ') {
           parstr++;
       }
-
+  
       // Trim trailing spaces
       int len = strlen(parstr);
       while (len > 0 && parstr[len - 1] == ' ') {
           len--;
       }
-
+  
       if (len == 0) {
           return false;
       }
-
+  
       // Check if the first character is a valid start for a number
       if (!(parstr[0] == '-' || isdigit(parstr[0]))) {
           return false;
       }
-
+  
       // Check the remaining characters
       for (int i = 1; i < len; ++i) {
           if (!isdigit(parstr[i])) {
               return false;
           }
       }
-
+  
       return true;
   }
-
+  
 
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
 {
@@ -593,7 +593,7 @@ void assign_animid(const struct NamedField* named_field, int64_t value, const st
 
 int64_t value_transpflg(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-
+    
     if (parameter_is_number(value_text))
     {
         return atoll(value_text) << 4;
@@ -607,7 +607,7 @@ int64_t value_transpflg(const struct NamedField* named_field, const char* value_
 
 int64_t value_stltocoord(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-
+    
     if (parameter_is_number(value_text))
     {
         return atoll(value_text) * COORD_PER_STL;
@@ -771,7 +771,7 @@ void assign_named_field_value(const struct NamedField* named_field, int64_t valu
     else
     {
         named_field->assign_func(named_field,value,named_fields_set,idx,src_str,flags);
-    }
+    } 
 }
 
 /**
@@ -807,7 +807,7 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
     // Finding command number
     int i = 0;
     while (commands[i].name != NULL)
-    {
+    {   
         if (flag_is_set(flags,CnfLd_ListOnly) && strcasecmp(commands[i].name,"Name") != 0)
         {
             i++;
@@ -849,22 +849,22 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                }
             }
 
-
+            
             int64_t k = 0;
             if (commands[i].argnum == -1)
             {
                 #define MAX_LINE_LEN 1024
                 char line_buf[MAX_LINE_LEN];
                 int line_len = 0;
-
+                
                 // Copy characters until newline or end of buffer
-                while ((*pos) + line_len < buflen &&
-                      buf[(*pos) + line_len] != '\n' &&
+                while ((*pos) + line_len < buflen && 
+                      buf[(*pos) + line_len] != '\n' && 
                       buf[(*pos) + line_len] != '\r')
                 {
                     line_buf[line_len] = buf[(*pos) + line_len];
                     line_len++;
-
+                    
                     // Prevent buffer overflow
                     if (line_len >= MAX_LINE_LEN - 1)
                     {
@@ -875,10 +875,10 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
 
                 #undef MAX_LINE_LEN
                 line_buf[line_len] = '\0'; // Null-terminate the string
-
+            
                 // Move position to the next line
                 (*pos) += line_len;
-
+            
                 // Pass extracted string
               k = parse_named_field_value(&commands[i], line_buf,named_fields_set,idx,config_textname,ccf_None);
               assign_named_field_value(&commands[i],k,named_fields_set,idx,config_textname,ccf_None);
@@ -964,7 +964,7 @@ void set_defaults(const struct NamedFieldSet* named_fields_set, const char *conf
       }
 
   }
-
+  
   if (name_NamedField != NULL && named_fields_set->names != NULL)
   {
       for (int i = 0; i < named_fields_set->max_count; i++)
@@ -2260,7 +2260,7 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
     {
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
-
+    
     if (file_data->post_load_func != NULL)
     {
         file_data->post_load_func();

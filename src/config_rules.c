@@ -283,7 +283,7 @@ static void assign_AlliesShareVision_script(const struct NamedField* named_field
 
 static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-
+    
     if (parameter_is_number(value_text))
     {
         return 10 * atoll(value_text);
@@ -487,7 +487,7 @@ static void mark_cheaper_diggers_sacrifice(void)
         struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
         if (sac->action == SacA_None)
             continue;
-        if (((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp))
+        if (((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp)) 
             || ((sac->action == SacA_NegUniqFunc) && (sac->param == UnqF_CostlierImp)))
         {
             if ((sac->victims[1] == 0) && (game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model == 0)) {

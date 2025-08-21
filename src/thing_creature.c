@@ -1568,7 +1568,7 @@ void terminate_all_actives_damage_over_time_spell_effects(struct Thing *thing)
     }
 }
 
-/* Clears spell effect on a thing.
+/* Clears spell effect on a thing. 
  * It first checks for an active spell match and terminates the associated spell.
  * If no exact match is found, it clears only the flag without affecting others.
  * This ensures that spells with multiple flags remain intact.
@@ -2542,7 +2542,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         short k = 0;
         if (stati->process_state > 0)
             k = process_func_list[stati->process_state](thing);
-        else
+        else 
             k = luafunc_crstate_func(stati->process_state, thing);
 
         if (k == CrStRet_Deleted) {
@@ -3173,7 +3173,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
     ThingModel crmodel = thing->model;
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-    if (!thing_exists(thing))
+    if (!thing_exists(thing)) 
     {
         set_flag(flags,CrDed_NoEffects);
     }
@@ -3190,7 +3190,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     {
         lua_on_creature_death(thing);
     }
-
+    
     creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
     if ((!flag_is_set(flags,CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_ResurrectRemoved)))
@@ -4175,7 +4175,7 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtn
     cctrl->inst_total_turns = itime;
     cctrl->inst_action_turns = aitime;
     i = get_creature_model_graphics(thing->model,inst_inf->graphics_idx);
-
+    
     //Animations loop so they end with the starting frame again
     if (inst_inf->no_animation_loop)
     {
@@ -6364,7 +6364,7 @@ long update_creature_levels(struct Thing *thing)
     }
     cctrl->exp_level_up = false;
     lua_on_level_up(thing);
-
+    
     // If a creature is not on highest level, just update the level.
     if (cctrl->exp_level+1 < CREATURE_MAX_LEVEL)
     {
@@ -6421,7 +6421,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         cctrl->force_visible--;
     if (cctrl->unknown.byte_8B == 0)
         cctrl->unknown.byte_8B = game.map_changed_for_nagivation;
-    if ((cctrl->stopped_for_hand_turns == 0) || (cctrl->instance_id == CrInst_EAT))
+    if ((cctrl->stopped_for_hand_turns == 0) || (cctrl->instance_id == CrInst_EAT)) 
     {
         process_creature_instance(thing);
     }
@@ -7858,7 +7858,7 @@ TbResult script_use_spell_on_creature_with_criteria(PlayerNumber plyr_idx, Thing
 
 void script_move_creature(struct Thing* thing, TbMapLocation location, ThingModel effect_id)
 {
-
+    
     if (effect_id < 0)
     {
         effect_id = ball_puff_effects[thing->owner];

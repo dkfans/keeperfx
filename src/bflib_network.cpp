@@ -842,7 +842,7 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
     }
-
+ 
     if (ServerPort != 0)
     {
         char buf[16] = "";

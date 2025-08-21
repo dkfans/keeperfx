@@ -60,7 +60,7 @@ const struct ConfigFileData keeper_trapdoor_file_data = {
 static const struct NamedCommand door_properties_commands[] = {
     {"RESIST_NON_MAGIC",     DoMF_ResistNonMagic},
     {"SECRET",               DoMF_Secret},
-    {"THICK",                DoMF_Thick},
+    {"THICK",                DoMF_Thick},  
     {"MIDAS",                DoMF_Midas},
     {NULL,                   0},
   };
@@ -411,7 +411,7 @@ static TbBool load_trapdoor_config_file(const char *fname, unsigned short flags)
     char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
-
+    
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         for (int i = 0; i < TRAPDOOR_TYPES_MAX; i++)

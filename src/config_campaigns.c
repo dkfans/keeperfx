@@ -1323,7 +1323,7 @@ void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
 
     char line[DISKPATH_SIZE];
     while(fgets(line, DISKPATH_SIZE, fp)) {
-
+       
         //cut off trailing \n
         line[strlen(line)-1] = 0;
 

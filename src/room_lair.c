@@ -210,7 +210,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
                     {
                         if ( room_has_units_of_same_kind && room_has_units_of_different_kind && room_has_lair_enemy )
                             break;
-                        if ( room->content_per_model[model] > 0)
+                        if ( room->content_per_model[model] > 0) 
                         {
                             if ( creatng->model == model )
                             {
@@ -236,7 +236,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
             }
         }
     }
-
+        
     if (best_score == 0)
     {
         return INVALID_ROOM;

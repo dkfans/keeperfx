@@ -114,10 +114,10 @@ static TbBool load_spritecolors_config_file(const char *fname, unsigned short fl
         call_to_arms_graphics[plr_idx].alive_anim_idx = get_player_colored_idx(868,plr_idx + 1,animationIds_eq);
         call_to_arms_graphics[plr_idx].leave_anim_idx = get_player_colored_idx(869,plr_idx + 1,animationIds_eq);
     }
-
+    
 
     value_fini(&file_root);
-
+    
     return true;
 }
 

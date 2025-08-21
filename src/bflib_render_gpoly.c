@@ -502,7 +502,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
         ERRORLOG("unexpected vec_mode %d in draw_gpoly", vec_mode);
         return;
     }
-
+    
     draw_gpoly_sub7a();
     draw_gpoly_sub7b();
 
@@ -999,7 +999,7 @@ UNROLLED_LOOP_PIXEL0:
         break;
     }
 }
-
+    
 void draw_gpoly_sub13()
 {
   int tex_x_accum_low; // ecx
@@ -1234,7 +1234,7 @@ void draw_gpoly_sub14()
       if ( gploc_pt_ay < 0 )
       {
         goto SKEWED_SCAN_ADJUST;
-
+        
       }
       do
       {
@@ -1288,7 +1288,7 @@ EDGE_ADVANCE_CHECK:
       scanline_y = gploc_pt_by;
       if ( gploc_pt_by >= 0 )
         goto REMAINDER_SCANLINE_STEP;
-
+        
 SKEWED_SCAN_ADJUST:
       while ( 1 )
       {
@@ -1332,7 +1332,7 @@ SKEWED_SCAN_ADJUST:
         goto SKEWED_SCAN_ADJUST;
       goto REMAINDER_SCANLINE_STEP;
     }
-
+  
 }
 
 /******************************************************************************/

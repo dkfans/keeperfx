@@ -174,7 +174,7 @@ void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, Map
     if (solid_check_end_stl_y >= (game.map_subtiles_y + 1))
         solid_check_end_stl_y = (game.map_subtiles_y + 1);
 
-    MapSubtlCoord cstl_y = solid_check_start_stl_y;
+    MapSubtlCoord cstl_y = solid_check_start_stl_y;   
     while (cstl_y < solid_check_end_stl_y)
     {
         MapSubtlCoord cstl_x = solid_check_start_stl_x;
@@ -238,7 +238,7 @@ void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, Map
             unk_stl_x++;
         }
         unk_stl_y ++;
-    }
+    }  
 }
 
 static long get_ceiling_filled_subtiles_from_cubes(const struct Column *col)

@@ -376,7 +376,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
             output_message(SMsg_PrisonMadeSkeleton, 0);
         }
     }
-    return true; // Return true even if no skeleton could be created due to creature limit. Otherwise there's a confusing sound message.
+    return true; // Return true even if no skeleton could be created due to creature limit. Otherwise there's a confusing sound message. 
 }
 
 void food_set_wait_to_be_eaten(struct Thing *thing)
@@ -441,7 +441,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
         internal_set_thing_state(creatng, CrSt_CreatureInPrison);
     set_creature_instance(creatng, CrInst_EAT, 0, 0);
     delete_thing_structure(foodtng, 0);
-
+    
     struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
     dungeon->lvstats.chickens_eaten++;
     return true;

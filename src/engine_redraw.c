@@ -822,7 +822,7 @@ TbBool draw_spell_cursor(ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord 
         set_pointer_graphic(MousePG_Invisible);
         return false;
     }
-
+    
     struct Thing* thing = thing_get(tng_idx);
     TbBool allow_cast = false;
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);

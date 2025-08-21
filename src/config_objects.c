@@ -240,7 +240,7 @@ void update_all_objects_of_model(ThingModel model)
             }
         }
 
-
+        
         if (thing->light_id != 0)
         {
             light_delete_light(thing->light_id);

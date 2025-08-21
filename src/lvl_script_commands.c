@@ -622,7 +622,7 @@ static void set_config_check(const struct NamedFieldSet* named_fields_set, const
     const char* id_str = scline->tp[0];
     const char* property = scline->tp[1];
     const char* valuestrings[MAX_CONFIG_VALUES] = {scline->tp[2],scline->tp[3],scline->tp[4],scline->tp[5]};
-
+    
     short id = get_id(named_fields_set->names, id_str);
     if (id == -1)
     {
@@ -689,7 +689,7 @@ static void set_config_process(const struct NamedFieldSet* named_fields_set, str
 
     for (size_t i = 0; i < MAX_CONFIG_VALUES; i++)
     {
-        if( named_fields_set->named_fields[property_id + i].name == NULL ||
+        if( named_fields_set->named_fields[property_id + i].name == NULL || 
             (strcmp(named_fields_set->named_fields[property_id + i].name, named_fields_set->named_fields[property_id].name) != 0))
         {
             return;
@@ -1594,7 +1594,7 @@ static void add_heart_health_process(struct ScriptContext *context)
     PlayerNumber plyr_idx = context->player_idx;
     HitPoints healthdelta = context->value->longs[1];
     TbBool warn_on_damage = context->value->longs[2];
-
+    
     add_heart_health(plyr_idx,healthdelta,warn_on_damage);
 }
 
@@ -1728,7 +1728,7 @@ static void place_door_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     const char* doorname = scline->tp[1];
     short door_id = get_id(door_desc, doorname);
-
+    
     if (door_id == -1)
     {
         SCRPTERRLOG("Unknown door, '%s'", doorname);
@@ -2249,7 +2249,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 return;
             }
             value2 = atoi(scline->tp[3]);
-        } else
+        } else 
         if (creatvar == 2) // POWERSLEVELREQUIRED
         {
             if ((atoi(scline->tp[2]) <= 0) || (atoi(scline->tp[2]) > CREATURE_MAX_LEVEL)) //value
@@ -3079,7 +3079,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 static void set_object_configuration_process(struct ScriptContext *context)
 {
     set_config_process(&objects_named_fields_set, context,"SET_OBJECT_CONFIGURATION");
-
+    
     ThingModel model = context->value->shorts[0];
     update_all_objects_of_model(model);
 }
@@ -4367,7 +4367,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
     }
     value->shorts[0] = (short)gen_id;
     value->shorts[1] = location;
-    value->shorts[2] = range * COORD_PER_STL;
+    value->shorts[2] = range * COORD_PER_STL; 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -5387,7 +5387,7 @@ static void computer_player_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-
+    
     if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
     {
         SCRPTERRLOG("Given owning player range %d is not supported in this command", (int)plr_range_id);
@@ -5906,7 +5906,7 @@ static void set_digger_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     ThingModel crtr_id = get_rid(creature_desc, scline->tp[1]);
-
+   
     if (crtr_id == -1)
     {
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
@@ -5921,7 +5921,7 @@ static void set_digger_process(struct ScriptContext* context)
 {
     ThingModel new_dig_model = context->value->shorts[0];
     PlayerNumber plyr_idx = context->player_idx;
-
+    
     update_players_special_digger_model(plyr_idx, new_dig_model);
 }
 

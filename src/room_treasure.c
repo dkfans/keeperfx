@@ -111,7 +111,7 @@ struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_
             i = gldtng->next_on_mapblk;
             if (!thing_is_invalid(gldtng) && object_is_gold_pile(gldtng))
             {
-                gold_gathered += gldtng->valuable.gold_stored;
+                gold_gathered += gldtng->valuable.gold_stored; 
                 delete_thing_structure(gldtng, 0);
             }
             j++;

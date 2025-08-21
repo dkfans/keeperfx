@@ -719,7 +719,7 @@ ThingIndex get_thing_index_event_is_attached_to(const struct Event *event)
 struct Thing *event_is_attached_to_thing(EventIndex evidx)
 {
     struct Event* event = &game.event[evidx];
-    if ((event->flags & EvF_Exists) == 0)
+    if ((event->flags & EvF_Exists) == 0) 
     {
         return INVALID_THING;
     }

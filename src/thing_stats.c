@@ -1130,7 +1130,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
     if (thing->health < 0)
         return 0;
     lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx);
-
+    
     HitPoints cdamage;
     switch (thing->class_id)
     {
@@ -1180,7 +1180,7 @@ GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_
         gold += (gold_per_block % gold);
     }
     else if (slb->health < 0)
-    // If the damage dealt is more than the remaining health, then health is not divisible by damage,
+    // If the damage dealt is more than the remaining health, then health is not divisible by damage, 
     // so this should return whatever is left, as this is less than the gold given for a full hit.
     {
         gold = gold_per_block - (game.block_health[slabst->block_health_index] / damage_did_to_slab) * gold;

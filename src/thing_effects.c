@@ -465,7 +465,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     i = eestats->subeffect_delay;
     if (i > 0)
     {
-      if (((elemtng->creation_turn - game.play_gameturn) % i) == 0)
+      if (((elemtng->creation_turn - game.play_gameturn) % i) == 0) 
       {
           struct Thing *subeff = create_effect_element(&elemtng->mappos, eestats->subeffect_model, elemtng->owner);
           subeff->move_angle_xy = elemtng->move_angle_xy;
@@ -775,7 +775,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         }
         break;
     }
-    case 5:
+    case 5: 
         break;
     default:
         ERRORLOG("Unknown Effect Generation Type %d",(int)effcst->generation_type);
@@ -916,7 +916,7 @@ struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrE
 {
     if (effect == 0)
         return INVALID_THING;
-
+     
     struct Thing* efftng;
     if (effect > 0)
     {
@@ -1077,8 +1077,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     int weight = compute_creature_weight(tngdst);
                     adjusted_blow_strength = weight_calculated_push_strenght(weight, blow_strength);
                 }
-
-
+            
+                
                 long move_angle = get_angle_xy_to(pos, &tngdst->mappos);
                 long move_dist = 0;
                // long adjusted_max_dist = max_dist;
@@ -1119,7 +1119,7 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
         if (distance < max_dist)
         {
             HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
-
+            
             const struct DoorConfigStats* doorst = get_door_model_stats(tngdst->model);
             if (flag_is_set(doorst->model_flags, DoMF_Midas))
             {
@@ -1213,7 +1213,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
     if (efftng->creation_turn != game.play_gameturn) {
         return;
     }
-
+    
     struct ShotConfigStats* shotst;
     if (efftng->shot_effect.parent_class_id == TCls_Shot)
     {

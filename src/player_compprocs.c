@@ -309,8 +309,8 @@ long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrol
     long used_capacity_kind;
     long total_capacity_kind;
     long total_capacity = 0;
-
-
+    
+  
     for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
@@ -320,7 +320,7 @@ long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrol
             total_capacity += total_capacity_kind;
         }
     }
-
+    
     return total_capacity;
 }
 
@@ -617,7 +617,7 @@ TbBool imp_can_be_moved_to_mine(const struct Thing *creatng)
 long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount)
 {
     long amount_did = 0;
-    if (!is_task_in_progress_using_hand(comp))
+    if (!is_task_in_progress_using_hand(comp)) 
     {
         struct Dungeon* dungeon = comp->dungeon;
         unsigned long k = 0;
@@ -658,7 +658,7 @@ long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_
 long move_imp_to_mine_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount)
 {
     long amount_did = 0;
-    if (!is_task_in_progress_using_hand(comp))
+    if (!is_task_in_progress_using_hand(comp)) 
     {
         struct Dungeon* dungeon = comp->dungeon;
         unsigned long k = 0;
@@ -884,7 +884,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
             gldlook->player_interested[dungeon->owner] |= 0x02;
             return CProcRet_Fail;
         }
-        if ((long) dig_distance > max_distance)
+        if (dig_distance > max_distance)
         {
             SYNCDBG(8,"Gold is out of evaluation distance (%lu > %lu)",dig_distance,max_distance);
             return CProcRet_Fail;
@@ -1052,7 +1052,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
     if (stl_y_end >= game.map_subtiles_y)
         stl_y_end = game.map_subtiles_y;
 
-
+    
     MapSubtlCoord stl_y_current = stl_y_start;
 
     while (stl_y_current < stl_y_end)
@@ -1179,7 +1179,7 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     struct Coord3d* pos = &ctask->dig.pos_begin;
     if (xy_walkable(pos->x.stl.num, pos->y.stl.num, dungeon->owner))
     {
-        if (!create_task_pickup_for_attack(comp, pos, creatrs_num))
+        if (!create_task_pickup_for_attack(comp, pos, creatrs_num)) 
         {
             return CProcRet_Wait;
         }

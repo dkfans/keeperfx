@@ -75,10 +75,10 @@ unsigned short pixel_size;
 unsigned short pixels_per_block;
 unsigned short units_per_pixel;
 
-/**
+/** 
   * The id number of the current display that the game renders to, defaults to 0.
   * id 0 is the first (or only) screen, id 1 is the second screen, etc.
-  *
+  * 
   * The display number can be set in cfg file (as DISPLAY_NUMBER), display number = display id + 1.
   * Screen number 1 is the first (or only screen), etc.
   */
@@ -384,7 +384,7 @@ static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode, unsigned short display
                 ERRORLOG("SDL_GetDisplayBounds failed: %s", SDL_GetError());
                 return false; // for some reason we can't get the current display bounds!
             }
-            left = min(left, rect.x);
+            left = min(left, rect.x); 
             top = min(top, rect.y);
             right = max(right, rect.x + rect.w);
             bottom = max(bottom, rect.y + rect.h);
@@ -557,8 +557,8 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
                 ERRORLOG("SDL_SetWindowDisplayMode failed for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
                 return Lb_FAIL;
             }
-            // If we change to a fullscreen mode that is a higher res than the previous fullscreen mode (after having already changed
-            // to a normal window/fake fullscreen window at some point in the past), then the result is a small window in the
+            // If we change to a fullscreen mode that is a higher res than the previous fullscreen mode (after having already changed 
+            // to a normal window/fake fullscreen window at some point in the past), then the result is a small window in the 
             // top left of the screen, or potentially the buffer does not fill the whole mode's width/height (I don't know these things).
             // The above seems to be this SDL issue: https://github.com/libsdl-org/SDL/issues/3869
             // said issue was supposedly fixed in https://github.com/libsdl-org/SDL/pull/4392
@@ -881,7 +881,7 @@ TbBool LbScreenIsModeAvailable(TbScreenMode mode, unsigned short display)
   if (mode == Lb_SCREEN_MODE_INVALID)
   {
     return false;
-  }
+  } 
   if (!LbHwCheckIsModeAvailable(mode, display))
   {
     TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
@@ -1258,10 +1258,10 @@ long scale_fixed_DK_value(long base_value)
 }
 
 // TODO: The menu is currently always scaled so that the graphics FILL the screen on wider ARs than 4/3.
-// make a config setting to choose FIT or FILL for the menu background/map background (etc)
+// make a config setting to choose FIT or FILL for the menu background/map background (etc) 
 // (background image only really, buttons should always FIT the screen, but they currently FILL (so ultrawide is borked)).
 
-/**
+/** 
  * Takes a fixed value tuned for original DK main menu at 640x480 and scales it to FIT the game's current resolution.
  * If the screen is wider than 16:10 the height is used; if the screen is narrower than 16:10 the width is used.
  * Uses units_per_pixel_menu (which is 16 at 640x480)
@@ -1287,13 +1287,13 @@ long scale_value_landview(long base_value)
  * Calculate units_per_pixel_landview (DK 640x480 was upp = 16) based on the current window size and the relative aspect ratio compared to 640x480).
  * The aim is for the landview background image to be twice the size of the game window, but wider and taller aspect ratios inhibit this.
  * For example 1920x1080p is wider than 640x480, so the height is used. Which would lead to a upp of 36, and a background of 2880x2160 (which is twice as tall as the game window).
-
+ 
  * Calculate units_per_pixel_landview_frame based on the current window size and the landview background (scaled) size.
  * This is used to make the window frame on the landview the correct size.
  * The aim is to be half-way between these the window size and the background size (where the landview background is up to 2x larger than the game window).
- *
+ * 
  * Also calculates landview_frame_movement_scale_x, and landview_frame_movement_scale_y) for the landview window frame.
- *
+ * 
  * @param width the current window width
  * @param height the current window height
  * @param landview_width the current landview background image width (passed LANDVIEW_MAP_WIDTH)
@@ -1312,7 +1312,7 @@ void calculate_landview_upp(long width, long height, long landview_width, long l
         if  (1024 * 1024 / h_ar < 384)
         {
             units_per_pixel_landview = (((width / 2 * 1024 / 40 / 1024) + 1) / 2) * 2;
-
+            
             // setup the landview frame upp and movement speed
             landview_frame_movement_scale_x = 1024;
             landview_frame_movement_scale_y = 1024;
@@ -1320,7 +1320,7 @@ void calculate_landview_upp(long width, long height, long landview_width, long l
             return;
         }
         units_per_pixel_landview = (((height * 1024 / 30 / 1024) + 1) / 2) * 2;
-
+        
         // setup window frame movement speed (in land view)
         long temp_width = 480 * h_ar;
         landview_frame_movement_scale_x = (1024 * (1024 * 640 - (temp_width - (1024 * 640))) / 640) / (h_ar / (640 / 480));
@@ -1333,7 +1333,7 @@ void calculate_landview_upp(long width, long height, long landview_width, long l
     else
     {
         // **VERT+ land view**
-
+        
         // Is the game window more than twice as tall as 4:3? i.e. is it taller than 4:6?
         if  (1024 * 1024 / v_ar < 682)
         {

@@ -1425,7 +1425,7 @@ TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
         return false;
     }
     struct CreatureControl* enmcctrl = creature_control_get_from_thing(enmtng);
-    if (creature_control_invalid(enmcctrl) && (enmtng->class_id != TCls_Object) && (enmtng->class_id != TCls_Door)
+    if (creature_control_invalid(enmcctrl) && (enmtng->class_id != TCls_Object) && (enmtng->class_id != TCls_Door) 
         && (thing_is_destructible_trap(enmtng) <= 0) && !((thing_is_destructible_trap(enmtng) >= 0) && creature_has_disarming_weapon(thing))) //destructible traps -1 can't even be destroyed by disarming weapons, 1 by anybody
     {
         ERRORLOG("No control structure - C%d M%d GT%ld CA%d", (int)enmtng->class_id,
@@ -1634,7 +1634,7 @@ CrAttackType check_for_possible_combat_with_enemy_object_within_distance(struct 
         else {
             ERRORLOG("The %s index %d cannot fight with %s index %d returned as fight partner", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
         }
-
+        
     }
     return AttckT_Unset;
 }
@@ -1901,12 +1901,12 @@ static short postal_inst_num = 0;
 static TbBool initial = false;
 
 /** @brief Retrieves a random available "postal" instance within range for a given creature.
- *
+ * 
  * On the first call, the function creates a cache of all available "postal" instances.
  * It then loops through the cache to find instances available for the creature and fitting within the given range.
  * These available instances are added to a list.
  * The function then chooses a random instance from this list.
- *
+ * 
  * @param thing Pointer to the creature for which the instance is to be retrieved.
  * @param dist Distance to the target.
  * @return A random available "postal" CrInstance for the given range
@@ -1926,7 +1926,7 @@ CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long d
                     if (inst_inf->postal_priority > 0)
                     {
                         // Ensure we don't exceed the maximum array size
-                        if (postal_inst_num < INSTANCE_TYPES_MAX)
+                        if (postal_inst_num < INSTANCE_TYPES_MAX) 
                         {
                             // Add the instance ID to the cache
                             postal_inststance[postal_inst_num++] = i;
@@ -1981,7 +1981,7 @@ CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long d
     }
     else
     {
-    // Return NULL if no suitable instance is found
+    // Return NULL if no suitable instance is found 
         return CrInst_NULL;
     }
 }

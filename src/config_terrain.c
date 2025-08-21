@@ -101,7 +101,7 @@ const struct NamedCommand terrain_room_total_capacity_func_type[] = {
     {"none",                 8},
     {NULL,                   0},
   };
-
+  
 static const struct NamedField terrain_slab_named_fields[] = {
     //name                //field                                                        //default      //min     //max    //NamedCommand
     {"NAME",              0, field(game.conf.slab_conf.slab_cfgstats[0].code_name),                     0, LONG_MIN,ULONG_MAX, slab_desc,     value_name,       assign_null},
@@ -177,7 +177,7 @@ static void assign_update_room_tab(const struct NamedField* named_field, int64_t
     if (value == old_value)
     {
         return;
-    }
+    }    
 
     assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     if (flag_is_set(flags,ccf_DuringLevel))
@@ -192,7 +192,7 @@ static void assign_icon_update_room_tab(const struct NamedField* named_field, in
     if (value == old_value)
     {
         return;
-    }
+    }    
 
     assign_icon(named_field,value,named_fields_set,idx,src_str,flags);
     if (flag_is_set(flags,ccf_DuringLevel))
@@ -207,7 +207,7 @@ static void assign_reinitialise_rooms(const struct NamedField* named_field, int6
     if (value == old_value)
     {
         return;
-    }
+    }    
 
     assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     if (flag_is_set(flags,ccf_DuringLevel))
@@ -222,7 +222,7 @@ static void assign_recalculate_effeciency(const struct NamedField* named_field, 
     if (value == old_value)
     {
         return;
-    }
+    }    
 
     assign_default(named_field,value,named_fields_set,idx,src_str,flags);
     if (flag_is_set(flags,ccf_DuringLevel))

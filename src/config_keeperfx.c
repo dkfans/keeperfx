@@ -169,7 +169,7 @@ const struct NamedCommand conf_commands[] = {
   {"4BY3PP",       SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop}, // integer multiple scale only (4BY3)
   {NULL,           0},
   };
-
+  
   const struct NamedCommand startup_parameters[] = {
   {"LEGAL",                   1},
   {"FX",                      2},

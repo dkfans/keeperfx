@@ -2053,7 +2053,7 @@ static char light_render_light(struct Light* lgt)
       short intensity_per_tile = intensity / subtile_radius;
       if (intensity_per_tile == 0)
           intensity_per_tile++;
-
+        
     lighting_tables_idx = ((intensity - (game.lish.global_ambient_light << 8)) / intensity_per_tile) + 1;
     if ( lighting_tables_idx > 31 )
       lighting_tables_idx = 31;

@@ -232,7 +232,7 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_t
     if (work_capable_creatures == 0) {
         return 0;
     }
-
+    
     int percent_doing_other_jobs = (creatures_doing_other_jobs * 100) / work_capable_creatures;
     int num_to_move = work_capable_creatures * (percent_to_reassign - percent_doing_other_jobs) / 100;
     if (num_to_move <= 0) {return 0;}
@@ -251,9 +251,9 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
 {
     struct Dungeon* dungeon = comp->dungeon;
     SYNCDBG(8,"Starting for player %d",(int)dungeon->owner);
-
+    
     int num_to_move = calculate_number_of_creatures_to_move(dungeon, check->param1);
-
+    
     if (num_to_move <= 0) {
         SYNCDBG(8,"No player %d creatures to move, active %d percentage %d",
             (int)dungeon->owner,(int)dungeon->num_active_creatrs,(int)check->param1);
