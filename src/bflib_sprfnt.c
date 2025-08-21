@@ -1074,11 +1074,15 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             // Align when ansi and unicode are mixed on one screen
             w = LbTextCharWidthM(chr, units_per_px);
 
+            // if count>0, means that the current word has already been calculated.
+            // for letters, there must be a delimiter after the word.
+            // but not applicable to wide characters, one dbc-char/WideChar is considered as one word, can be no delimiter, so count cannot be used.
+            if (WideChar)
+                count = 0;
+
             if ((posx+w-justifyx <= lbTextJustifyWindow.width) || (count > 0) || !LbAlignMethodSet(lbDisplay.DrawFlags))
             {
                 posx += w;
-                if (WideChar)
-                    count = 0;
                 continue;
             }
             // If the char exceeds screen, and there were no spaces in that line, and alignment is set - divide the line here
