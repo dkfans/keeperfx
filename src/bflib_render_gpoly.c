@@ -849,16 +849,16 @@ void draw_gpoly_sub7b_block3(void)
     }
 }
 
-void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_combined, unsigned __int8 *screen_line_offset)
+void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_combined, uint8_t *screen_line_offset)
 {
     int span_mod16 = pixel_span_len & 0xF;
-    unsigned __int8 * pixel_dst = NULL;
-    
+    uint8_t * pixel_dst = NULL;
+
     pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
 
     gploc_D4 = pixel_span_len;
     int fade_lookup_index = __ROL4__(tex_x_accum_combined & 0xFF0000FF, 8);
-    unsigned __int8 *texture_map = LOC_vec_map;
+    uint8_t *texture_map = LOC_vec_map;
     int texture_step_y = gploc_5C;
     switch ( span_mod16 )
     {
@@ -1247,7 +1247,7 @@ REMAINDER_SCANLINE_STEP:
         gploc_D8 = tex_x_accum_high;
         gploc_E4 = tex_x_accum_combined;
         int x_end_int = shadeAccumulatorNext >> 16;
-        unsigned __int8 *screen_line_offset = &screen_line_ptr[x_start_int];
+        uint8_t *screen_line_offset = &screen_line_ptr[x_start_int];
         bool span_too_small_or_complete = x_end_int <= x_start_int;
         int pixel_span_len = x_end_int - x_start_int;
         if ( !span_too_small_or_complete )

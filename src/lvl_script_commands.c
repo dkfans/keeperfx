@@ -3878,7 +3878,7 @@ static void if_check(const struct ScriptLine *scline)
     const char *varib_name = scline->tp[1];
     const char *operatr = scline->tp[2];
 
-    long plr_range_id_right;
+    long plr_range_id_right = -1;
     const char *varib_name_right = scline->tp[4];
 
     long value = 0;

@@ -367,6 +367,8 @@ TbBool script_is_preloaded_command(long cmnd_index)
 #define get_players_range(plr_range_id, plr_start, plr_end) get_players_range_f(plr_range_id, plr_start, plr_end, __func__, text_line_number)
 long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const char *func_name, long ln_num)
 {
+    *plr_start = 0;
+    *plr_end = 0;
     if (plr_range_id < 0)
     {
         return -1;
@@ -966,7 +968,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
         if (args_count < 0)
         {
             SCRPTERRLOG("Syntax error at \"%s\"", line_start);
-            SCRPTERRLOG("   near - -      %*c", line - line_start, '^');
+            SCRPTERRLOG("   near - -      %*c", (int) (line - line_start), '^');
             free(scline);
             return false;
         }
@@ -974,7 +976,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     else
     {
         SCRPTERRLOG("Syntax error: ( expected at \"%s\"", line_start);
-        SCRPTERRLOG("   near - - - - - - -        %*c", line - line_start, '^');
+        SCRPTERRLOG("   near - - - - - - -        %*c", (int) (line - line_start), '^');
         free(scline);
         return false;
     }

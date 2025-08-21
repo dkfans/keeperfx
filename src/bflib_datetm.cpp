@@ -205,6 +205,18 @@ TbResult LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time)
 
 TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date,struct TbTime *curr_time)
 {
+  if (curr_date) {
+    curr_date->Day = 0;
+    curr_date->Month = 0;
+    curr_date->Year = 0;
+    curr_date->DayOfWeek = 0;
+  }
+  if (curr_time) {
+    curr_time->Hour = 0;
+    curr_time->Minute = 0;
+    curr_time->Second = 0;
+    curr_time->HSecond = 0;
+  }
   struct tm *ltime = localtime(datetime);
   if (ltime == NULL)
   {

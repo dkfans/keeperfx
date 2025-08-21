@@ -496,7 +496,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     long blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     TbBool digging = (shotst->model_flags & ShMF_Digging);
-    HitPoints old_health;
+    HitPoints old_health = 0;
     EffectOrEffElModel eff_kind;
     short smpl_idx;
     unsigned char range;

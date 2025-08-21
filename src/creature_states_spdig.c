@@ -1475,7 +1475,7 @@ short imp_reinforces(struct Thing *thing)
 
 short creature_going_to_safety_for_toking(struct Thing *thing)
 {
-    struct Coord3d locpos;
+    struct Coord3d locpos = {};
     if (!get_flee_position(thing, &locpos))
     {
         ERRORLOG("Couldn't get a flee position for %s index %d",thing_model_name(thing),(int)thing->index);
@@ -1713,7 +1713,7 @@ short creature_save_unconscious_creature(struct Thing *thing)
 
     if (!setup_person_move_backwards_to_coord(thing, &pos, NavRtF_Default))
         {
-            SYNCDBG(8,"Cannot drag %s to (%d,%d)",thing_model_name(picktng),(int)&pos.x.stl.num,(int)&pos.y.stl.num);
+            SYNCDBG(8,"Cannot drag %s to (%u,%u)",thing_model_name(picktng), pos.x.stl.num, pos.y.stl.num);
             set_start_state(thing);
             return 0;
         }

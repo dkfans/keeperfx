@@ -659,12 +659,12 @@ void create_error_box(TextStringId msg_idx)
 void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char* line4, const char* line5)
 {
     memset(&MsgBox,0, sizeof(MsgBox));
-    memcpy(&MsgBox.title, title, sizeof(MsgBox.title)-1);
-    memcpy(&MsgBox.line1, line1, sizeof(MsgBox.line1)-1);
-    memcpy(&MsgBox.line2, line2, sizeof(MsgBox.line2)-1);
-    memcpy(&MsgBox.line3, line3, sizeof(MsgBox.line3)-1);
-    memcpy(&MsgBox.line4, line4, sizeof(MsgBox.line4)-1);
-    memcpy(&MsgBox.line5, line5, sizeof(MsgBox.line5)-1);
+    snprintf(MsgBox.title, sizeof(MsgBox.title), "%s", title);
+    snprintf(MsgBox.line1, sizeof(MsgBox.line1), "%s", line1);
+    snprintf(MsgBox.line2, sizeof(MsgBox.line2), "%s", line2);
+    snprintf(MsgBox.line3, sizeof(MsgBox.line3), "%s", line3);
+    snprintf(MsgBox.line4, sizeof(MsgBox.line4), "%s", line4);
+    snprintf(MsgBox.line5, sizeof(MsgBox.line5), "%s", line5);
     turn_on_menu(GMnu_MSG_BOX);
 }
 
