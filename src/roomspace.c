@@ -1499,22 +1499,19 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
 {
     long keycode = 0;
-    unsigned short par1, par2;
+    unsigned long par2;
     struct PlayerInfo* player = get_player(plyr_idx);
     if (!settings.highlight_mode)
     {
         if ( (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) ) // Use "modern" click and drag method
         {
-            par1 = 1;
-            par2 = 0;
-            set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, 0, 0);
+            set_players_packet_action(player, PckA_SetRoomspaceHighlight, 1, 0, 0, 0);
             reset_roomspace = true;
             return;
         }
     }
     if ( (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))  ) // Use "modern" click and drag method
     {
-        par1 = 2;
         par2 = (player->roomspace_no_default) ? player->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
         if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {
@@ -1530,7 +1527,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
                 par2--;
             }
         }
-        set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, 0, 0);
+        set_players_packet_action(player, PckA_SetRoomspaceHighlight, 2, par2, 0, 0);
         reset_roomspace = true;
         return;
     }
@@ -1550,11 +1547,10 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     }
     else
     {
-        par1 = 0;
         par2 = numpad_to_value(false);
         if (par2 > 1)
         {
-            set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, 0, 0);
+            set_players_packet_action(player, PckA_SetRoomspaceHighlight, 0, par2, 0, 0);
             reset_roomspace = true;
             return;
         }
