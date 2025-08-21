@@ -1099,7 +1099,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         player->roomspace_highlight_mode = pckt->actn_par1;
         switch (pckt->actn_par1)
         {
-            case 0: // normal
+            case 0:
             {
                 reset_dungeon_build_room_ui_variables(plyr_idx);
                 player->roomspace_width = player->roomspace_height = pckt->actn_par2;
@@ -1114,7 +1114,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
                 }
                 break;
             }
-            case 2: // custom size
+            case 2:
             {
                 player->user_defined_roomspace_width = pckt->actn_par2;
                 player->roomspace_width = pckt->actn_par2;
