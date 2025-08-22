@@ -156,7 +156,7 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
 struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long area, long require_perfect)
 {
     struct Dungeon* dungeon = comp->dungeon;
-    long i = dungeon->room_kind[look_kind];
+    long i = dungeon->room_list_start[look_kind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -546,7 +546,7 @@ TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **
 
     for (RoomKind i = 0; i < game.conf.slab_conf.room_types_count; i++)
     {
-        struct Room* room = room_get(dungeon->room_kind[i]);
+        struct Room* room = room_get(dungeon->room_list_start[i]);
         
         while (!room_is_invalid(room))
         {
@@ -737,7 +737,7 @@ int computer_find_more_trap_place_locations(struct Computer2 *comp)
     for (int m = 0; m < game.conf.slab_conf.room_types_count; m++, rkind = (rkind + 1) % game.conf.slab_conf.room_types_count)
     {
         unsigned long k = 0;
-        int i = dungeon->room_kind[rkind];
+        int i = dungeon->room_list_start[rkind];
         while (i != 0)
         {
             struct Room* room = room_get(i);
@@ -890,7 +890,7 @@ long computer_pick_training_or_scavenging_creatures_and_place_on_room(struct Com
 long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *comp, long tasks_limit)
 {
     struct Dungeon* dungeon = comp->dungeon;
-    struct Room* room = room_get(dungeon->room_kind[RoK_LAIR]);
+    struct Room* room = room_get(dungeon->room_list_start[RoK_LAIR]);
     long new_tasks = 0;
     // If we don't have lair, then don't even bother
     if (room_is_invalid(room)) {

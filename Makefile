@@ -613,7 +613,7 @@ src/moonphase.c: deps/astronomy/include/astronomy.h
 deps/centitoml/toml_api.c: deps/centijson/include/json.h
 deps/centitoml/toml_conv.c: deps/centijson/include/json.h
 src/bflib_fmvids.cpp: deps/ffmpeg/libavformat/avformat.h
-src/bflib_sndlib.cpp: deps/openal/AL/al.h
+src/bflib_sndlib.cpp: deps/openal/include/AL/al.h
 src/console_cmd.c: deps/luajit/include/lua.h
 
 deps/enet-mingw32.tar.gz:
@@ -655,7 +655,7 @@ deps/ffmpeg/libavformat/avformat.h: deps/ffmpeg-mingw32.tar.gz | deps/ffmpeg
 deps/openal-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/2024-11-14/openal-mingw32.tar.gz"
 
-deps/openal/AL/al.h: deps/openal-mingw32.tar.gz | deps/openal
+deps/openal/include/AL/al.h: deps/openal-mingw32.tar.gz | deps/openal
 	tar xzmf $< -C deps/openal
 
 deps/luajit-mingw32.tar.gz:

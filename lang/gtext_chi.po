@@ -5627,12 +5627,12 @@ msgstr "亚米斯特岛战役"
 
 #: guitext:1013
 msgctxt "Menu interface item\""
-msgid "Ancient Keeper campaign"
+msgid "Ancient Keeper"
 msgstr "远古守护者战役"
 
 #: guitext:1014
 msgctxt "Menu interface item\""
-msgid "Burdened Imps' Level Pack"
+msgid "Burdened Imps"
 msgstr "不堪重负的小鬼战役"
 
 #: guitext:1015
@@ -5647,7 +5647,7 @@ msgstr "忍者的命运战役"
 
 #: guitext:1017
 msgctxt "Menu interface item\""
-msgid "DzjeeAr's  6-level campaign"
+msgid "DzjeeAr's 6-level campaign"
 msgstr "德吉尔的6关战役"
 
 #: guitext:1018
@@ -5662,7 +5662,7 @@ msgstr "德吉尔的25关战役"
 
 #: guitext:1020
 msgctxt "Menu interface item\""
-msgid "Evil Keeper campaign"
+msgid "Evil Keeper"
 msgstr "邪恶守护者战役"
 
 #: guitext:1021
@@ -5687,12 +5687,12 @@ msgstr "人类英雄战役"
 
 #: guitext:1025
 msgctxt "Menu interface item\""
-msgid "Lord Vexer campaign"
+msgid "Lord Vexer"
 msgstr "瓦瑟之主战役"
 
 #: guitext:1026
 msgctxt "Menu interface item\""
-msgid "Nikolai's Castles campaign"
+msgid "Nikolai's Castles"
 msgstr "尼古莱的城堡战役"
 
 #: guitext:1027
@@ -5702,17 +5702,17 @@ msgstr "原版增强战役"
 
 #: guitext:1028
 msgctxt "Menu interface item\""
-msgid "Post Ancient Keeper campaign"
+msgid "Post Ancient Keeper"
 msgstr "后远古守护者战役"
 
 #: guitext:1029
 msgctxt "Menu interface item\""
-msgid "Post Undead Keeper campaign"
+msgid "Post Undead Keeper"
 msgstr "后亡灵守护者战役"
 
 #: guitext:1030
 msgctxt "Menu interface item\""
-msgid "Quest for the Hero campaign"
+msgid "Quest for the Hero"
 msgstr "追寻英雄战役"
 
 #: guitext:1031
@@ -5722,12 +5722,12 @@ msgstr "领主的复仇战役"
 
 #: guitext:1032
 msgctxt "Menu interface item\""
-msgid "Twin Keepers Campaign"
+msgid "Twin Keepers"
 msgstr "双子守护者战役"
 
 #: guitext:1033
 msgctxt "Menu interface item\""
-msgid "Undead Keeper campaign"
+msgid "Undead Keeper"
 msgstr "亡灵守护者战役"
 
 #: guitext:1034 guitext:1035

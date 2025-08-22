@@ -94,7 +94,7 @@ TbBool actnpoint_create_actnpoint_adv(VALUE *init_data)
 
 struct ActionPoint *action_point_get(ActionPointId apt_idx)
 {
-    if ((apt_idx < 1) || (apt_idx > ACTN_POINTS_COUNT))
+    if ((apt_idx < 1) || (apt_idx >= ACTN_POINTS_COUNT))
         return INVALID_ACTION_POINT;
     return &game.action_points[apt_idx];
 }

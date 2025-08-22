@@ -120,6 +120,8 @@ extern char cmd_char;
 extern short api_enabled;
 extern uint16_t api_port;
 extern TbBool exit_on_lua_error;
+extern TbBool FLEE_BUTTON_DEFAULT;
+extern TbBool IMPRISON_BUTTON_DEFAULT;
 /******************************************************************************/
 short load_configuration(void);
 void process_cmdline_overrides(void);

@@ -1054,7 +1054,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
     const char* sbuf = text;
     for (ebuf=text; *ebuf != '\0'; ebuf++)
     {
-        const char* prev_ebuf = ebuf - 1;
+        const char* ebuf_bak = ebuf;
         long chr = (unsigned char)*ebuf;
         TbBool WideChar = (is_wide_charcode(chr));
         if (WideChar)
@@ -1065,6 +1065,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         } else if (ebuf[0] == '\xc2' && ebuf[1] == '\xa0') {
             ebuf++;
             chr = (chr<<8) + (unsigned char)*ebuf;
+            WideChar = true;
         }
 
         long w;
@@ -1072,6 +1073,12 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         {
             // Align when ansi and unicode are mixed on one screen
             w = LbTextCharWidthM(chr, units_per_px);
+
+            // if count>0, means that the current word has already been calculated.
+            // for letters, there must be a delimiter after the word.
+            // but not applicable to wide characters, one dbc-char/WideChar is considered as one word, can be no delimiter, so count cannot be used.
+            if (WideChar)
+                count = 0;
 
             if ((posx+w-justifyx <= lbTextJustifyWindow.width) || (count > 0) || !LbAlignMethodSet(lbDisplay.DrawFlags))
             {
@@ -1084,16 +1091,12 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             x = LbGetJustifiedCharPosX(startx, posx, w, 1, lbDisplay.DrawFlags);
             y = LbGetJustifiedCharPosY(starty, h, h, lbDisplay.DrawFlags);
             len = LbGetJustifiedCharWidth(posx, w, count, units_per_px, lbDisplay.DrawFlags);
-            ebuf = prev_ebuf;
-            put_down_sprites(sbuf, ebuf, x, y, len, units_per_px);
+            put_down_sprites(sbuf, ebuf_bak, x, y, len, units_per_px);
             // We already know that alignment is set - don't re-check
             {
                 posx = startx;
-                sbuf = ebuf; // sbuf points at start of char, while ebuf points at end of char
-                if (WideChar)
-                {
-                    sbuf++;
-                }
+                sbuf = ebuf_bak; // sbuf points at start of char for next loop. ebuf_bak points at unprocessed char.
+                ebuf = sbuf - 1; // The updateStatement of for loop will auto increment 1.
                 starty += h;
             }
             count = 0;
@@ -1101,7 +1104,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
         if (chr == ' ')
         {
             w = LbTextCharWidthM(' ', units_per_px);
-            len = LbSprFontWordWidth(lbFontPtr,ebuf+1) * units_per_px / 16;
+            len = LbTextWordWidthM(ebuf+1, units_per_px);
             if (posx+w+len-justifyx <= lbTextJustifyWindow.width)
             {
                 count++;
@@ -1297,33 +1300,28 @@ long dbc_char_widthM(unsigned long chr, long units_per_px)
     {
         return 0;
     }
-    /*else
-    if (is_wide_charcode(chr))
-    {
-        return active_dbcfont->field_3C + active_dbcfont->bits_width;
-    }
-    else
-    {
-        return active_dbcfont->field_34 + active_dbcfont->field_24;
-    }*/
-    long ret = 0;;
-    if (units_per_px % 8 != 0)
-    {
-        ret = (units_per_px / 8) * 8;
-    }
-    else
-    {
-        ret = units_per_px;
-    }
+
+    long h = (units_per_px / 8) * 8;
+    long w = h;
     if (!is_wide_charcode(chr))
     {
-        ret = ret / 2;
+        w -= (8 * (w / 16));
     }
     else
     {
-        ret++;
+        // The old code has an additional 1. why?
+        // w++;
     }
-    return ret;
+
+    struct AsianDraw adraw = { 0 };
+    if (dbc_get_sprite_for_char(&adraw, chr) == 0)
+    {
+        w += adraw.field_C;
+    }
+    if (h == 16)
+        w = w * units_per_px / 16;
+
+    return w;
 }
 
 int LbTextCharWidthM(const long chr, long units_per_px)
@@ -1602,6 +1600,61 @@ int LbTextStringWidthM(const char *text, long units_per_px)
     {
         return LbTextStringWidth(text) * units_per_px / 16;
     }
+}
+
+/* @function
+ *   Get the scaled length of word for multiple encodings, that is, compatible with dbc or non-dbc.
+ *   Like LbTextCharWidthM, but change from one char to one word.
+ *   One word defined as continuous and uninterrupted letters.
+ *
+ * @param units_per_px Scale in pixels.
+ */
+int LbTextWordWidthM(const char *str, long units_per_px)
+{
+  if (str == NULL || str[0] == 0)
+    return 0;
+
+  if ((dbc_initialized) && (dbc_enabled))
+  {
+    int len = 0;
+    for (int i=0; str[i] != 0 ; i++)
+    {
+      unsigned char c = str[i];
+
+      if ((c == ' ') || (c == '\t') || (c == '\0') || (c == '\r') || (c == '\n'))
+        break;
+
+      long chr = (unsigned char)c;
+      TbBool WideChar = (is_wide_charcode(chr));
+      if (WideChar)
+      {
+        if (str[i+1] == '\0')
+          break;
+
+        chr = (chr<<8) + (unsigned char)str[i+1];
+      } else if (str[i+0] == '\xc2' && str[i+1] == '\xa0') {
+        chr = (chr<<8) + (unsigned char)str[i+1];
+        WideChar = true;
+      }
+
+      if (WideChar)
+      {
+        // one dbc-char/WideChar is considered as one word.
+        if (len != 0)
+          break; // letters before, need to stop.
+        return dbc_char_widthM(chr, units_per_px);
+      }
+
+      // Continuous letters
+      len += dbc_char_widthM(chr, units_per_px);
+    }
+
+    return len;
+  }
+  else
+  {
+    return LbSprFontWordWidth(lbFontPtr, str) * units_per_px / 16;
+  }
 }
 
 int LbTextStringHeight(const char *str)

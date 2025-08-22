@@ -3,9 +3,19 @@
 -- Contains instance methods for a single creature, including teleportation, level up, death handling, etc.
 
 ---@class Creature: Thing
----@field level integer
+---@field level integer the experience level of the creature
+---@field exp_points integer amount of experience points the creature has, 256 times as large as the LevelsTrainValues
 ---@field name string name visible in possession or query menu
 ---@field party Creature[] list of creatures in the party, first entry is the leader
+---@field gold_held integer gold carried by the creature
+---@field opponents_count integer number of creatures it is in battle with, combined ranged and melee
+---@field opponents_melee_count integer number of creatures it is in melee battle with
+---@field opponents_ranged_count integer number of creatures it is in ranged battle
+---@field hunger_level integer hunger points of creature, increases by one each turn until hunger is started
+---@field hunger_amount integer amount of chickens it will grab to eat
+---@field hunger_loss integer amount of chickens it won't eat but would have wanted to
+---@field force_health_flower_displayed boolean always displays health flower
+---@field force_health_flower_hidden boolean always hides health flower
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens

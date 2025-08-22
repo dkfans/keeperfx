@@ -1568,7 +1568,7 @@ void terminate_all_actives_damage_over_time_spell_effects(struct Thing *thing)
     }
 }
 
-/* Clears spell effect on a thing. 
+/* Clears spell effect on a thing.
  * It first checks for an active spell match and terminates the associated spell.
  * If no exact match is found, it clears only the flag without affecting others.
  * This ensures that spells with multiple flags remain intact.
@@ -2019,6 +2019,21 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
     thing_fire_shot(castng, targetng, spconf->shot_model, shot_level, hit_type);
 }
 
+void teleport_familiar_to_summoner(struct Thing *famlrtng, struct Thing* creatng)
+{
+    create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
+    move_thing_in_map(famlrtng, &creatng->mappos);
+    cleanup_current_thing_state(famlrtng);
+    reset_interpolation_of_thing(famlrtng);
+
+    famlrtng->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
+    famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+    famlrtng->veloc_push_add.z.val += 0;
+    set_flag(famlrtng->state_flags, TF1_PushAdd);
+    set_flag(famlrtng->movement_flags, TMvF_MagicFall);
+    famlrtng->move_angle_xy = 0;
+}
+
 /**
  * Spell creates creatures to help the caster. When the creatures have a limited duration they will group up with caster.
  * @param model The creature kind to be creates.
@@ -2110,17 +2125,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
                         level_up_familiar(famlrtng);
                         if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) //if it's not getting to the summoner, teleport it there
                         {
-                            create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
-                            move_thing_in_map(famlrtng, &creatng->mappos);
-                            cleanup_current_thing_state(famlrtng);
-                            reset_interpolation_of_thing(famlrtng);
-
-                            famlrtng->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
-                            famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
-                            famlrtng->veloc_push_add.z.val += 0;
-                            set_flag(famlrtng->state_flags, TF1_PushAdd);
-                            set_flag(famlrtng->movement_flags, TMvF_MagicFall);
-                            famlrtng->move_angle_xy = 0;
+                            teleport_familiar_to_summoner(famlrtng, creatng);
                         }
                     }
                     else
@@ -2225,7 +2230,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
         cctrl->teleport_y = trg_y;
     }
     // Check if the spell can be fired as a shot. It is definitely not if casted on itself.
-    if ((spconf->shot_model > 0) && (cctrl->targtng_idx != castng->index))
+    if ((spconf->shot_model > 0) && (cctrl->targtng_idx != 0) && (cctrl->targtng_idx != castng->index))
     {
         if ((castng->alloc_flags & TAlF_IsControlled) != 0)
           i = THit_CrtrsNObjcts;
@@ -2537,7 +2542,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         short k = 0;
         if (stati->process_state > 0)
             k = process_func_list[stati->process_state](thing);
-        else 
+        else
             k = luafunc_crstate_func(stati->process_state, thing);
 
         if (k == CrStRet_Deleted) {
@@ -3168,7 +3173,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
     ThingModel crmodel = thing->model;
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-    if (!thing_exists(thing)) 
+    if (!thing_exists(thing))
     {
         set_flag(flags,CrDed_NoEffects);
     }
@@ -3185,7 +3190,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     {
         lua_on_creature_death(thing);
     }
-    
+
     creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
     if ((!flag_is_set(flags,CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_ResurrectRemoved)))
@@ -3406,10 +3411,6 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         {
             ERRORLOG("Hero have tend to imprison"); // What is the point of this log error? Check if it can be removed.
         }
-    }
-    if (!dungeon_invalid(dungeon))
-    {
-        dungeon->hates_player[killertng->owner] += game.conf.rules.creature.fight_hate_kill_value;
     }
     SYNCDBG(18, "Almost finished");
     if (!creature_can_be_set_unconscious(creatng, killertng, flags))
@@ -4174,7 +4175,7 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtn
     cctrl->inst_total_turns = itime;
     cctrl->inst_action_turns = aitime;
     i = get_creature_model_graphics(thing->model,inst_inf->graphics_idx);
-    
+
     //Animations loop so they end with the starting frame again
     if (inst_inf->no_animation_loop)
     {
@@ -6363,7 +6364,7 @@ long update_creature_levels(struct Thing *thing)
     }
     cctrl->exp_level_up = false;
     lua_on_level_up(thing);
-    
+
     // If a creature is not on highest level, just update the level.
     if (cctrl->exp_level+1 < CREATURE_MAX_LEVEL)
     {
@@ -6420,7 +6421,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         cctrl->force_visible--;
     if (cctrl->unknown.byte_8B == 0)
         cctrl->unknown.byte_8B = game.map_changed_for_nagivation;
-    if ((cctrl->stopped_for_hand_turns == 0) || (cctrl->instance_id == CrInst_EAT)) 
+    if ((cctrl->stopped_for_hand_turns == 0) || (cctrl->instance_id == CrInst_EAT))
     {
         process_creature_instance(thing);
     }
@@ -6523,8 +6524,14 @@ TngUpdateRet update_creature(struct Thing *thing)
         {
             if (cctrl->summoner_idx > 0)
             {
-                struct Thing* summoner = thing_get(cctrl->summoner_idx);
-                add_creature_to_group(thing, summoner);
+                if (!creature_is_kept_in_custody(thing))
+                {
+                    struct Thing* summoner = thing_get(cctrl->summoner_idx);
+                    if (!creature_is_kept_in_custody(summoner))
+                    {
+                        add_creature_to_group(thing, summoner);
+                    }
+                }
             }
         }
     }
@@ -7851,7 +7858,7 @@ TbResult script_use_spell_on_creature_with_criteria(PlayerNumber plyr_idx, Thing
 
 void script_move_creature(struct Thing* thing, TbMapLocation location, ThingModel effect_id)
 {
-    
+
     if (effect_id < 0)
     {
         effect_id = ball_puff_effects[thing->owner];

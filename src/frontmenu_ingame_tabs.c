@@ -224,6 +224,7 @@ short get_button_designation(short btn_group, short btn_item)
 {
     int i;
     int n;
+    struct GuiButtonInit * ibtn;
     switch (btn_group)
     {
     case GID_MINIMAP_AREA:
@@ -240,8 +241,13 @@ short get_button_designation(short btn_group, short btn_item)
         }
         for (i=0; i < 4*4; i++)
         {
-            struct GuiButtonInit * ibtn;
             ibtn = &room_menu.buttons[i];
+            if (ibtn->content.lval == btn_item)
+                return ibtn->id_num;
+        }
+        for (i=0; i < 4*4; i++)
+        {
+            ibtn = &room_menu2.buttons[i];
             if (ibtn->content.lval == btn_item)
                 return ibtn->id_num;
         }
@@ -249,8 +255,13 @@ short get_button_designation(short btn_group, short btn_item)
     case GID_POWER_PANE:
         for (i=0; i < 4*4; i++)
         {
-            struct GuiButtonInit * ibtn;
             ibtn = &spell_menu.buttons[i];
+            if (ibtn->content.lval == btn_item)
+                return ibtn->id_num;
+        }
+        for (i=0; i < 4*4; i++)
+        {
+            ibtn = &spell_menu2.buttons[i];
             if (ibtn->content.lval == btn_item)
                 return ibtn->id_num;
         }
@@ -264,8 +275,13 @@ short get_button_designation(short btn_group, short btn_item)
         n = get_manufacture_data_index_for_thing(TCls_Trap, btn_item);
         for (i=0; i < 4*4; i++)
         {
-            struct GuiButtonInit * ibtn;
             ibtn = &trap_menu.buttons[i];
+            if (ibtn->content.lval == n)
+                return ibtn->id_num;
+        }
+        for (i=0; i < 4*4; i++)
+        {
+            ibtn = &trap_menu2.buttons[i];
             if (ibtn->content.lval == n)
                 return ibtn->id_num;
         }
@@ -279,8 +295,13 @@ short get_button_designation(short btn_group, short btn_item)
         n = get_manufacture_data_index_for_thing(TCls_Door, btn_item);
         for (i=0; i < 4*4; i++)
         {
-            struct GuiButtonInit * ibtn;
             ibtn = &trap_menu.buttons[i];
+            if (ibtn->content.lval == n)
+                return ibtn->id_num;
+        }
+        for (i=0; i < 4*4; i++)
+        {
+            ibtn = &trap_menu2.buttons[i];
             if (ibtn->content.lval == n)
                 return ibtn->id_num;
         }
@@ -484,7 +505,7 @@ long find_room_type_capacity_total_percentage(PlayerNumber plyr_idx, RoomKind rk
     int used_cap = 0;
     int total_cap = 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long i = dungeon->room_kind[rkind];
+    long i = dungeon->room_list_start[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -554,7 +575,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
     {
         snprintf(gui_textbuf, sizeof(gui_textbuf), "%ld", (long)roomst->cost);
     }
-    if ((roomst->cost * boxsize) <= dungeon->total_money_owned)
+    if (player->render_roomspace.total_roomspace_cost <= dungeon->total_money_owned)
     {
         if ((player->work_state == PSt_BuildRoom) && (player->chosen_room_kind == game.chosen_room_kind)
           && ((game.play_gameturn % (2 * gui_blink_rate)) < gui_blink_rate))
@@ -1531,7 +1552,7 @@ RoomIndex find_next_room_of_type(PlayerNumber plyr_idx, RoomKind rkind)
     if (next_room[rkind] <= 0)
     {
         struct Dungeon* dungeon = get_dungeon(plyr_idx);
-        next_room[rkind] = dungeon->room_kind[rkind];
+        next_room[rkind] = dungeon->room_list_start[rkind];
     }
     return next_room[rkind];
 }
@@ -1592,7 +1613,7 @@ void gui_area_room_button(struct GuiButton *gbtn)
     {
         if ((gbtn->flags & LbBtnF_Enabled) != 0)
         {
-            if (dungeon->room_kind[rkind] > 0)
+            if (dungeon->room_list_start[rkind] > 0)
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_light);
             int spr_idx = (dungeon->total_money_owned < get_room_kind_stats(rkind)->cost) + gbtn->sprite_idx;
             if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) {

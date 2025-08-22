@@ -340,7 +340,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
     {
         if(room_role_matches(rkind,RoRoF_GoldStorage))
         {
-            long i = dungeon->room_kind[rkind];
+            long i = dungeon->room_list_start[rkind];
             unsigned long k = 0;
             while (i != 0)
             {
@@ -391,7 +391,7 @@ long update_dungeon_generation_speeds(void)
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
-        if (player_exists(player) && (player->is_active == 1))
+        if (player_exists(player) && (player->is_active))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->total_score > max_manage_score)
@@ -402,16 +402,15 @@ long update_dungeon_generation_speeds(void)
     for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
-        if (player_exists(player) && (player->is_active == 1))
+        if (!player_invalid(player))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->manage_score > 0)
-                dungeon->turns_between_entrance_generation = max_manage_score * game.generate_speed / dungeon->manage_score;
+                dungeon->turns_between_entrance_generation = max_manage_score * player->generate_speed / dungeon->manage_score;
             else
-                dungeon->turns_between_entrance_generation = game.generate_speed;
+                dungeon->turns_between_entrance_generation = player->generate_speed;
         }
     }
-
     return 1;
 }
 
@@ -510,7 +509,7 @@ TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlab
 
 void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    
+
     int block_flags;
     int v13;
     char *fs_par_slab;
@@ -606,7 +605,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         else if ((v15 & 2) == 0)
         {
             *(fs_par_slab - 1) = v15 | 2;
-           
+
             second_scratch[v24].x = slb_x - 1;
             second_scratch[v24].y = slb_y;
             v24++;
@@ -685,7 +684,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         }
     }
     panel_map_update(0, 0, 256, 256);
-    
+
 }
 
 void init_keeper_map_exploration_by_terrain(struct PlayerInfo *player)
@@ -797,6 +796,8 @@ void init_player(struct PlayerInfo *player, short no_explore)
     // By default, player is his own ally
     player->allied_players = to_flag(player->id_number);
     player->hand_busy_until_turn = 0;
+    if (player->generate_speed == 0)
+      player->generate_speed = game.conf.rules.rooms.default_generate_speed;
     if (is_my_player(player)) {
         // new game, play one of the default tracks
         LevelNumber lvnum = get_loaded_level_number();
@@ -853,7 +854,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
                 heartng = get_player_soul_container(wandr->plyr_idx);
                 if (!thing_is_invalid(heartng))
                 {
-                    
+
                     dstpos.x.val = subtile_coord_center(stl_x);
                     dstpos.y.val = subtile_coord_center(stl_y);
                     dstpos.z.val = subtile_coord(1, 0);

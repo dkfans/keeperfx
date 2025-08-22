@@ -207,6 +207,7 @@ TbBool force_player_num = false;
 extern void faststartup_network_game(CoroutineLoop *context);
 extern void faststartup_saved_packet_game(void);
 extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param);
+void first_gameturn_actions(void);
 extern CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 extern void startup_network_game(CoroutineLoop *context, TbBool local);
 
@@ -230,6 +231,26 @@ void setup_stuff(void)
     setup_texture_block_mem();
     init_fades_table();
     init_alpha_table();
+}
+
+TbBool should_use_delta_time_on_menu()
+{
+    switch (frontend_menu_state) {
+        case FeSt_MAIN_MENU:
+        case FeSt_FELOAD_GAME:
+        case FeSt_NET_SERVICE: /**< Network service selection, where player can select Serial/Modem/IPX/TCP IP/1 player. */
+        case FeSt_NET_SESSION: /**< Network session selection screen, where list of games is displayed, with possibility to join or create own game. */
+        case FeSt_NET_START: /**< Network game start screen (the menu with chat), when created new session or joined existing session. */
+        case FeSt_HIGH_SCORES:
+        case FeSt_FEDEFINE_KEYS:
+        case FeSt_FEOPTIONS:
+        case FeSt_LEVEL_SELECT:
+        case FeSt_CAMPAIGN_SELECT:
+        case FeSt_MAPPACK_SELECT:
+            return true;
+        default:
+            return false;
+    }
 }
 
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
@@ -610,7 +631,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             delta_y = dist_y * delta_y / (dist_x + dist_y + dist_z);
             delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
-        
+
         int sprsize = 0;
         int delta_size = 0;
 
@@ -892,8 +913,6 @@ void init_keeper(void)
     init_creature_scores();
     init_top_texture_to_cube_table();
     game.neutral_player_num = PLAYER_NEUTRAL;
-    if (game.generate_speed <= 0)
-      game.generate_speed = game.conf.rules.rooms.default_generate_speed;
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
     lbDisplay.GlassMap = pixmap.ghost;
     lbDisplay.DrawColour = colours[15][15][15];
@@ -939,6 +958,7 @@ TbBool initial_setup(void)
  *   gameplay impossible (usually files loading failure).
  * @note The current screen resolution at end of this function may vary.
  */
+
 short setup_game(void)
 {
   struct CPU_INFO cpu_info; // CPU status variable
@@ -1579,7 +1599,7 @@ void reinit_level_after_load(void)
     restore_computer_player_after_load();
     sound_reinit_after_load();
     update_panel_colors();
-    reset_postal_instance_cache();    
+    reset_postal_instance_cache();
 }
 
 /**
@@ -1729,7 +1749,6 @@ void clear_game_for_summary(void)
     clear_mapwho();
     game.entrance_room_id = 0;
     game.action_rand_seed = 0;
-    game.operation_flags &= ~GOF_Unkn04;
     game.operation_flags &= ~GOF_Paused;
     clear_columns();
     clear_action_points();
@@ -1760,7 +1779,6 @@ void clear_game_for_save(void)
     clear_mapwho();
     game.entrance_room_id = 0;
     game.action_rand_seed = 0;
-    clear_flag(game.operation_flags, GOF_Unkn04);
     clear_columns();
     clear_players_for_save();
     clear_dungeons();
@@ -2705,7 +2723,14 @@ void update(void)
     message_update();
     update_all_players_cameras();
     update_player_sounds();
+    first_gameturn_actions();
     SYNCDBG(6,"Finished");
+}
+
+void first_gameturn_actions() {
+    if (game.play_gameturn == 1) {
+        apply_default_flee_and_imprison_setting();
+    }
 }
 
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
@@ -3658,9 +3683,13 @@ static TbBool wait_at_frontend(void)
       {
         fade_in();
         fade_palette_in = 0;
-      } else
-      {
-        LbSleepUntil(fe_last_loop_time + 30);
+      } else {
+        // Frontend delta time for smooth mouse, disable delta time for states with zoom/scroll issues
+        if (is_feature_on(Ft_DeltaTime) == true && should_use_delta_time_on_menu()) {
+          // No sleep needed as delta time handles frame timing
+        } else {
+          LbSleepUntil(fe_last_loop_time + 30);
+        }
       }
       fe_last_loop_time = LbTimerClock();
 
@@ -3937,11 +3966,6 @@ short process_command_line(unsigned short argc, char *argv[])
         strcpy(start_params.selected_campaign, pr2str);
         narg++;
       } else
-      if ( strcasecmp(parstr,"ppropoly") == 0 )
-      {
-          // old param, ignored
-          narg++;
-      } else
       if ( strcasecmp(parstr,"altinput") == 0 )
       {
           SYNCLOG("Mouse auto reset disabled");
@@ -3978,7 +4002,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
-         set_flag(start_params.operation_flags, GOF_LightConvert);
+         WARNLOG("The -%s commandline parameter is no longer functional.", parstr); //todo remove once it's no longer in the launcher
       } else
       if (strcasecmp(parstr, "dbgshots") == 0)
       {

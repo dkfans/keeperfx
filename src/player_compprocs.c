@@ -309,8 +309,8 @@ long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrol
     long used_capacity_kind;
     long total_capacity_kind;
     long total_capacity = 0;
-    
-  
+
+
     for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
@@ -320,7 +320,7 @@ long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrol
             total_capacity += total_capacity_kind;
         }
     }
-    
+
     return total_capacity;
 }
 
@@ -396,7 +396,7 @@ static PlayerNumber get_player_with_more_entrances_than_computer(const struct Co
 {
     const struct Dungeon* dungeon = comp->dungeon;
     PlayerNumber max_plyr_idx = -1;
-    *max_entr_count = dungeon->room_slabs_count[RoK_ENTRANCE];
+    *max_entr_count = dungeon->room_discrete_count[RoK_ENTRANCE];
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if (plyr_idx == dungeon->owner)
@@ -462,7 +462,7 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
     }
     int better_entr_count;
     PlayerNumber better_plyr_idx = get_player_with_more_entrances_than_computer(comp, &better_entr_count);
-    int entr_count = dungeon->room_slabs_count[RoK_ENTRANCE];
+    int entr_count = dungeon->room_discrete_count[RoK_ENTRANCE];
     if ((better_plyr_idx >= 0) && (better_entr_count > entr_count))
     {
         return CProcRet_Continue;
@@ -496,8 +496,8 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
     if (from_plyr_idx == game.neutral_player_num) {
         i = game.entrance_room_id;
     } else {
-        struct Dungeon* fromdngnadd = get_dungeon(from_plyr_idx);
-        i = fromdngnadd->room_kind[RoK_ENTRANCE];
+        struct Dungeon* fromdngn = get_dungeon(from_plyr_idx);
+        i = fromdngn->room_list_start[RoK_ENTRANCE];
     }
     while (i != 0)
     {
@@ -617,7 +617,7 @@ TbBool imp_can_be_moved_to_mine(const struct Thing *creatng)
 long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount)
 {
     long amount_did = 0;
-    if (!is_task_in_progress_using_hand(comp)) 
+    if (!is_task_in_progress_using_hand(comp))
     {
         struct Dungeon* dungeon = comp->dungeon;
         unsigned long k = 0;
@@ -658,7 +658,7 @@ long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_
 long move_imp_to_mine_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount)
 {
     long amount_did = 0;
-    if (!is_task_in_progress_using_hand(comp)) 
+    if (!is_task_in_progress_using_hand(comp))
     {
         struct Dungeon* dungeon = comp->dungeon;
         unsigned long k = 0;
@@ -884,7 +884,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
             gldlook->player_interested[dungeon->owner] |= 0x02;
             return CProcRet_Fail;
         }
-        if (dig_distance > max_distance)
+        if ((long) dig_distance > max_distance)
         {
             SYNCDBG(8,"Gold is out of evaluation distance (%lu > %lu)",dig_distance,max_distance);
             return CProcRet_Fail;
@@ -1052,7 +1052,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
     if (stl_y_end >= game.map_subtiles_y)
         stl_y_end = game.map_subtiles_y;
 
-    
+
     MapSubtlCoord stl_y_current = stl_y_start;
 
     while (stl_y_current < stl_y_end)
@@ -1179,7 +1179,7 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     struct Coord3d* pos = &ctask->dig.pos_begin;
     if (xy_walkable(pos->x.stl.num, pos->y.stl.num, dungeon->owner))
     {
-        if (!create_task_pickup_for_attack(comp, pos, creatrs_num)) 
+        if (!create_task_pickup_for_attack(comp, pos, creatrs_num))
         {
             return CProcRet_Wait;
         }

@@ -151,6 +151,8 @@ enum TbPacketAction {
         PckA_LoadViewType,//120
         PckA_PlyrMsgChar    =  121,
         PckA_PlyrMsgClear,
+        PckA_PlyrMsgLast,
+        PckA_PlyrMsgCmdAutoCompletion,
         PckA_DirectCtrlDragDrop,
         PckA_CheatPlaceTerrain,
         PckA_CheatMakeCreature,
@@ -282,6 +284,8 @@ struct PacketSaveHead {
     unsigned char video_rotate_mode;
     TbBool chksum_available; // if needed, this can be replaced with flags
     unsigned long action_seed;
+    TbBool default_imprison_tendency;
+    TbBool default_flee_tendency;
 };
 
 struct PacketEx
@@ -304,6 +308,7 @@ void unset_packet_control(struct Packet *pckt, unsigned long flag);
 void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag);
 void set_players_packet_position(struct Packet *pckt, long x, long y, unsigned char context);
 void set_packet_pause_toggle(void);
+void apply_default_flee_and_imprison_setting(void);
 TbBool process_dungeon_control_packet_clicks(long idx);
 TbBool process_players_dungeon_control_packet_action(long idx);
 void process_players_creature_control_packet_control(long idx);
@@ -328,7 +333,9 @@ void close_packet_file(void);
 TbBool reinit_packets_after_load(void);
 struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind);
 TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
-void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void set_tag_untag_mode(PlayerNumber plyr_idx);
+TbBool packets_process_cheats(PlayerNumber plyr_idx, MapCoord x, MapCoord y,
+    struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

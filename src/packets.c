@@ -163,6 +163,26 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     struct Dungeon* dungeon = get_players_dungeon(player);
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     struct Packet* pckt = get_packet_direct(player->packet_num);
+
+    while (game.conf.rules.magic.allow_instant_charge_up && is_game_key_pressed(Gkey_SpeedMod, NULL, true))
+    {
+        struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);
+
+        if (powerst->overcharge_check_idx == OcC_CallToArms_expand
+            || powerst->overcharge_check_idx == OcC_SightOfEvil_expand
+            || powerst->overcharge_check_idx == OcC_General_expand)
+        {
+            if (powerst->overcharge_check_idx == OcC_CallToArms_expand && player_uses_power_call_to_arms(plyr_idx))
+                break;
+
+            while(update_power_overcharge(player, player->chosen_power_kind))
+            {}
+
+            return true;
+        }
+        break;
+    }
+
     if (flag_is_set(pckt->control_flags,PCtr_LBtnHeld))
     {
         struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);
@@ -706,6 +726,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_PlyrMsgEnd:
       player->allocflags &= ~PlaF_NewMPMessage;
       lua_on_chatmsg(player->id_number,player->mp_message_text);
+      if (player->mp_message_text[0] != 0)
+          memcpy(player->mp_message_text_last, player->mp_message_text, PLAYER_MP_MESSAGE_LEN);
       if (player->mp_message_text[0] == cmd_char)
       {
           if ( (!cmd_exec(player->id_number, player->mp_message_text + 1)) || ((game.system_flags & GSF_NetworkActive) != 0) )
@@ -718,6 +740,15 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_PlyrMsgClear:
       player->allocflags &= ~PlaF_NewMPMessage;
       memset(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
+      return 0;
+  case PckA_PlyrMsgLast:
+      memcpy(player->mp_message_text, player->mp_message_text_last, PLAYER_MP_MESSAGE_LEN);
+      return 0;
+  case PckA_PlyrMsgCmdAutoCompletion:
+      if (player->mp_message_text[0] == cmd_char)
+      {
+          cmd_auto_completion(player->id_number, player->mp_message_text + 1, PLAYER_MP_MESSAGE_LEN - 1);
+      }
       return 0;
   case PckA_ToggleLights:
       if (is_my_player(player))
@@ -1044,6 +1075,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
             // exit out of click and drag mode
             if (player->render_roomspace.drag_mode)
             {
+                player->cursor_button_down = 0;
                 player->one_click_lock_cursor = false;
                 if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
                 {
@@ -1600,8 +1632,8 @@ void process_frontend_packets(void)
   nspckt->frontend_alliances = frontend_alliances;
   set_flag(nspckt->field_4, 0x01);
   nspckt->field_4 ^= ((nspckt->field_4 ^ (fe_computer_players << 1)) & 0x06);
-  nspckt->field_6 = VersionMajor;
-  nspckt->field_8 = VersionMinor;
+  nspckt->field_6 = VersionRelease;
+  nspckt->field_8 = VersionBuild;
   if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
   {
       ERRORLOG("LbNetwork_Exchange failed");
@@ -1742,6 +1774,31 @@ void process_frontend_packets(void)
         frontend_set_alliance(my_player_number, i);
     }
   }
+}
+
+void apply_default_flee_and_imprison_setting(void)
+{
+    struct PlayerInfo* player = get_my_player();
+    if (!player_exists(player) || game.packet_load_enable) {
+        return;
+    }
+    
+    struct Dungeon* dungeon = get_dungeon(player->id_number);
+    unsigned short tendencies_to_toggle = 0;
+    
+    TbBool current_imprison_state = (dungeon->creature_tendencies & 0x01) != 0;
+    if (IMPRISON_BUTTON_DEFAULT != current_imprison_state) {
+        tendencies_to_toggle |= CrTend_Imprison;
+    }
+    
+    TbBool current_flee_state = (dungeon->creature_tendencies & 0x02) != 0;
+    if (FLEE_BUTTON_DEFAULT != current_flee_state) {
+        tendencies_to_toggle |= CrTend_Flee;
+    }
+    
+    if (tendencies_to_toggle) {
+        set_players_packet_action(player, PckA_ToggleTendency, tendencies_to_toggle, 0, 0, 0);
+    }
 }
 
 /******************************************************************************/

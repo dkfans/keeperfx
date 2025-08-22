@@ -9,7 +9,8 @@ function ComputerPlayer(player,attitude) end
 ---The type of creatures that appear cannot be scripted and will depend on the rooms the player has built.
 ---This is a global setting and will apply to all Portals.
 ---@param interval integer The number of game turns between each creature.
-function SetGenerateSpeed(interval) end
+---@param player? Player the player it affects (leaving it out applies it to all players)
+function SetGenerateSpeed(interval,player) end
 
 
 
