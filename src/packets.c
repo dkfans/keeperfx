@@ -1081,7 +1081,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     // fall through
     case PckA_SetRoomspaceHighlight:
     {
-        player->roomspace_mode = box_placement_mode;
+        player->roomspace_mode = pckt->actn_par1;
         if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == 2) )
         {
             // exit out of click and drag mode
