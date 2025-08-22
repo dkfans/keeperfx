@@ -617,10 +617,10 @@ void play_non_3d_sample(SoundSmplTblID sample_idx)
         return;
     if (GetCurrentSoundMasterVolume() <= 0)
         return;
-    
+
     // Set sound volume setting
     SoundVolume adjusted_volume = LbLerp(0, FULL_LOUDNESS, (float)settings.sound_volume/127.0); // [0-127] rescaled to [0-256]
-    
+
     if (Non3DEmitter != 0)
       if (!sound_emitter_in_use(Non3DEmitter))
       {
@@ -642,10 +642,10 @@ void play_non_3d_sample_no_overlap(SoundSmplTblID smpl_idx)
         return;
     if (GetCurrentSoundMasterVolume() <= 0)
         return;
-    
+
     // Set sound volume setting
     SoundVolume adjusted_volume = LbLerp(0, FULL_LOUDNESS, (float)settings.sound_volume/127.0); // [0-127] rescaled to [0-256]
-    
+
     if (Non3DEmitter != 0)
     {
         if (!sound_emitter_in_use(Non3DEmitter))
@@ -670,11 +670,11 @@ void play_atmos_sound(SoundSmplTblID smpl_idx)
         return;
     if (GetCurrentSoundMasterVolume() <= 0)
         return;
-    
+
     // Apply sound volume setting to atmospheric volume
     SoundVolume volume_scale = LbLerp(0, FULL_LOUDNESS, (float)settings.sound_volume/127.0); // [0-127] rescaled to [0-256]
     SoundVolume adjusted_volume = (atmos_sound_volume * volume_scale) / FULL_LOUDNESS;
-    
+
     int ATMOS_SOUND_PITCH = (73 + (UNSYNC_RANDOM(10) * 6));
     // ATMOS0 has bigger range in pitch than other atmos sounds.
     if (smpl_idx == 1013)
