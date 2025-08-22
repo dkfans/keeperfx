@@ -232,6 +232,26 @@ void setup_stuff(void)
     init_alpha_table();
 }
 
+TbBool should_use_delta_time_on_menu()
+{
+    switch (frontend_menu_state) {
+        case FeSt_MAIN_MENU:
+        case FeSt_FELOAD_GAME:
+        case FeSt_NET_SERVICE: /**< Network service selection, where player can select Serial/Modem/IPX/TCP IP/1 player. */
+        case FeSt_NET_SESSION: /**< Network session selection screen, where list of games is displayed, with possibility to join or create own game. */
+        case FeSt_NET_START: /**< Network game start screen (the menu with chat), when created new session or joined existing session. */
+        case FeSt_HIGH_SCORES:
+        case FeSt_FEDEFINE_KEYS:
+        case FeSt_FEOPTIONS:
+        case FeSt_LEVEL_SELECT:
+        case FeSt_CAMPAIGN_SELECT:
+        case FeSt_MAPPACK_SELECT:
+            return true;
+        default:
+            return false;
+    }
+}
+
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
 {
     long win_plyr_idx;
@@ -610,7 +630,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             delta_y = dist_y * delta_y / (dist_x + dist_y + dist_z);
             delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
-        
+
         int sprsize = 0;
         int delta_size = 0;
 
@@ -937,6 +957,7 @@ TbBool initial_setup(void)
  *   gameplay impossible (usually files loading failure).
  * @note The current screen resolution at end of this function may vary.
  */
+
 short setup_game(void)
 {
   struct CPU_INFO cpu_info; // CPU status variable
@@ -1577,7 +1598,7 @@ void reinit_level_after_load(void)
     restore_computer_player_after_load();
     sound_reinit_after_load();
     update_panel_colors();
-    reset_postal_instance_cache();    
+    reset_postal_instance_cache();
 }
 
 /**
@@ -3654,9 +3675,13 @@ static TbBool wait_at_frontend(void)
       {
         fade_in();
         fade_palette_in = 0;
-      } else
-      {
-        LbSleepUntil(fe_last_loop_time + 30);
+      } else {
+        // Frontend delta time for smooth mouse, disable delta time for states with zoom/scroll issues
+        if (is_feature_on(Ft_DeltaTime) == true && should_use_delta_time_on_menu()) {
+          // No sleep needed as delta time handles frame timing
+        } else {
+          LbSleepUntil(fe_last_loop_time + 30);
+        }
       }
       fe_last_loop_time = LbTimerClock();
 

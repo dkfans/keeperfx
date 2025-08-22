@@ -139,7 +139,7 @@ struct Thing* script_process_new_effectgen(ThingModel tngmodel, TbMapLocation lo
     }
     thing->effect_generator.range = range;
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-    
+
     // Try to move thing out of the solid wall if it's inside one
     if (thing_in_wall_at(thing, &thing->mappos))
     {

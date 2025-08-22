@@ -509,7 +509,7 @@ TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlab
 
 void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    
+
     int block_flags;
     int v13;
     char *fs_par_slab;
@@ -605,7 +605,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         else if ((v15 & 2) == 0)
         {
             *(fs_par_slab - 1) = v15 | 2;
-           
+
             second_scratch[v24].x = slb_x - 1;
             second_scratch[v24].y = slb_y;
             v24++;
@@ -684,7 +684,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         }
     }
     panel_map_update(0, 0, 256, 256);
-    
+
 }
 
 void init_keeper_map_exploration_by_terrain(struct PlayerInfo *player)
@@ -861,7 +861,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
                 heartng = get_player_soul_container(wandr->plyr_idx);
                 if (!thing_is_invalid(heartng))
                 {
-                    
+
                     dstpos.x.val = subtile_coord_center(stl_x);
                     dstpos.y.val = subtile_coord_center(stl_y);
                     dstpos.z.val = subtile_coord(1, 0);

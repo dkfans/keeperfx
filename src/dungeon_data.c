@@ -277,9 +277,9 @@ TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole)
             }
         }
     }
-    
+
     return false;
-        
+
 }
 
 TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type)

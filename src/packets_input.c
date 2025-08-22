@@ -48,12 +48,6 @@
 #include "post_inc.h"
 
 extern TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx);
-extern TbBool packets_process_cheats(
-          long plyr_idx,
-          MapCoord x, MapCoord y,
-          struct Packet *packet,
-          MapSubtlCoord stl_x, MapSubtlCoord stl_y,
-          MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 extern void update_double_click_detection(long plyr_idx);
 

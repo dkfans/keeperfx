@@ -222,7 +222,7 @@ int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
       return 0;
     }
   }
-  if ((key_id == Gkey_RotateMod) || (key_id == Gkey_SpeedMod) || (key_id == Gkey_CrtrContrlMod) 
+  if ((key_id == Gkey_RotateMod) || (key_id == Gkey_SpeedMod) || (key_id == Gkey_CrtrContrlMod)
       || (key_id == Gkey_CrtrQueryMod) || (key_id == Gkey_BestRoomSpace) || (key_id == Gkey_SquareRoomSpace)
       || (key_id == Gkey_SellTrapOnSubtile))
   {
@@ -2445,7 +2445,7 @@ TbBool get_packet_load_demo_inputs(void)
 }
 
 void get_creature_control_nonaction_inputs(void)
-{ 
+{
     struct PlayerInfo* player = get_my_player();
     if ((player->allocflags & PlaF_Unknown8) != 0)
     {
@@ -2457,7 +2457,7 @@ void get_creature_control_nonaction_inputs(void)
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     TRACE_THING(thing);
     TbBool cheat_menu_active = cheat_menu_is_active();
-    if (((MyScreenWidth >> 1) != x) || ((MyScreenHeight >> 1) != y)) 
+    if (((MyScreenWidth >> 1) != x) || ((MyScreenHeight >> 1) != y))
     {
         if (!cheat_menu_active && !a_menu_window_is_active())
         {
@@ -3150,7 +3150,7 @@ void process_cheat_mode_selection_inputs()
                            if (new_value == 0)
                            {
                                break;
-                           }                           
+                           }
                         }
                         crconf = &game.conf.crtr_conf.model[new_value];
                     }
@@ -3320,7 +3320,7 @@ TbBool process_cheat_heart_health_inputs(HitPoints *value, HitPoints max_health)
    HitPoints new_health = *value;
    if ( (is_key_pressed(KC_ADD, KMod_ALT)) || (is_key_pressed(KC_EQUALS, KMod_SHIFT)) || (is_key_pressed(KC_EQUALS, KMod_NONE)) )
    {
-        if (new_health < max_health) 
+        if (new_health < max_health)
         {
             new_health++;
             *value = new_health;

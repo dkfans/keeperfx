@@ -92,7 +92,7 @@ static unsigned long region_alloc(void)
             }
             if (Regions[reg_id].num_triangles == 0)
                 break;
-        }      
+        }
     }
     return reg_id;
 }

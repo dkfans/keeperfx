@@ -1807,7 +1807,7 @@ TngUpdateRet update_object(struct Thing *thing)
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
     TRACE_THING(thing);
 
-    
+
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
 
     if (objst->updatefn_idx > 0)
