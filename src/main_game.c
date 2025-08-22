@@ -391,7 +391,6 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     post_init_players();
     post_init_packets();
     set_selected_level_number(0);
-    apply_default_flee_and_imprison_setting(); // Apply default flee and imprison settings after all initialization is complete
 
 #ifdef FUNCTESTING
     set_flag(start_params.functest_flags, FTF_LevelLoaded);
