@@ -276,6 +276,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         player->secondary_cursor_state = CSt_DefaultArrow;
     player->primary_cursor_state = (unsigned short)(pckt->additional_packet_values & PCAdV_ContextMask) >> 1; // get current cursor state from pckt->additional_packet_values
     player->render_roomspace.highlight_mode = settings.highlight_mode; // reset one-click highlight mode
+    player->render_roomspace.drag_mode = player->one_click_lock_cursor;
     player->pickup_all_gold = (pckt->additional_packet_values & PCAdV_RotatePressed);
     process_dungeon_power_hand_state(plyr_idx);
     if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
