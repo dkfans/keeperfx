@@ -1802,4 +1802,29 @@ void process_frontend_packets(void)
   }
 }
 
+void apply_default_flee_and_imprison_setting(void)
+{
+    struct PlayerInfo* player = get_my_player();
+    if (!player_exists(player) || game.packet_load_enable) {
+        return;
+    }
+    
+    struct Dungeon* dungeon = get_dungeon(player->id_number);
+    unsigned short tendencies_to_toggle = 0;
+    
+    TbBool current_imprison_state = (dungeon->creature_tendencies & 0x01) != 0;
+    if (IMPRISON_BUTTON_DEFAULT != current_imprison_state) {
+        tendencies_to_toggle |= CrTend_Imprison;
+    }
+    
+    TbBool current_flee_state = (dungeon->creature_tendencies & 0x02) != 0;
+    if (FLEE_BUTTON_DEFAULT != current_flee_state) {
+        tendencies_to_toggle |= CrTend_Flee;
+    }
+    
+    if (tendencies_to_toggle) {
+        set_players_packet_action(player, PckA_ToggleTendency, tendencies_to_toggle, 0, 0, 0);
+    }
+}
+
 /******************************************************************************/

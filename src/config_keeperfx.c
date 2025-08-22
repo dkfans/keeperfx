@@ -58,6 +58,8 @@ short api_enabled = false;
 uint16_t api_port = 5599;
 unsigned long features_enabled = 0;
 TbBool exit_on_lua_error = false;
+TbBool FLEE_BUTTON_DEFAULT = false;
+TbBool IMPRISON_BUTTON_DEFAULT = false;
 
 /**
  * Language 3-char abbreviations.
@@ -148,9 +150,11 @@ const struct NamedCommand conf_commands[] = {
   {"API_PORT"                      , 34},
   {"EXIT_ON_LUA_ERROR"             , 35},
   {"TURNS_PER_SECOND"              , 36},
-  {"TAG_MODE_TOGGLING"             , 37},
-  {"DEFAULT_TAG_MODE"              , 38},
-  {NULL,                   0},
+  {"FLEE_BUTTON_DEFAULT"           , 37},
+  {"IMPRISON_BUTTON_DEFAULT"       , 38},
+  {"TAG_MODE_TOGGLING"             , 39},
+  {"DEFAULT_TAG_MODE"              , 40},
+  {NULL,                              0},
   };
 
   const struct NamedCommand vidscale_type[] = {
@@ -869,7 +873,35 @@ short load_configuration(void)
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
           break;
-      case 37: // TAG_MODE_TOGGLING
+      case 37: // FLEE_BUTTON_DEFAULT
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+                break;
+          }
+          if (i == 1) {
+              FLEE_BUTTON_DEFAULT = true;
+          } else {
+              FLEE_BUTTON_DEFAULT = false;
+          }
+          break;
+      case 38: // IMPRISON_BUTTON_DEFAULT
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1) {
+              IMPRISON_BUTTON_DEFAULT = true;
+          } else {
+              IMPRISON_BUTTON_DEFAULT = false;
+          }
+          break;
+       case 39: // TAG_MODE_TOGGLING
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -879,7 +911,7 @@ short load_configuration(void)
           }
           right_click_tag_mode_toggle = (i == 1);
           break;
-      case 38: // DEFAULT_TAG_MODE
+       case 40: // DEFAULT_TAG_MODE
           i = recognize_conf_parameter(buf,&pos,len,tag_modes);
           if (i <= 0)
           {
