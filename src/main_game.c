@@ -59,6 +59,8 @@
 #include "post_inc.h"
 
 extern TbBool force_player_num;
+extern TbBool IMPRISON_BUTTON_DEFAULT;
+extern TbBool FLEE_BUTTON_DEFAULT;
 
 extern void setup_players_count();
 
@@ -312,6 +314,8 @@ void startup_saved_packet_game(void)
     settings.isometric_view_zoom_level = game.packet_save_head.isometric_view_zoom_level;
     settings.frontview_zoom_level = game.packet_save_head.frontview_zoom_level;
     settings.isometric_tilt = game.packet_save_head.isometric_tilt;
+    IMPRISON_BUTTON_DEFAULT = game.packet_save_head.default_imprison_tendency;
+    FLEE_BUTTON_DEFAULT = game.packet_save_head.default_flee_tendency;
     init_level();
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
