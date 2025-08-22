@@ -435,26 +435,27 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             } else
             if (player->secondary_cursor_state == player->primary_cursor_state)
             {
-                if ( ( (player->primary_cursor_state == CSt_PickAxe) || (player->primary_cursor_state == CSt_PowerHand) ) && (player->render_roomspace.drag_mode) )
+                if ( (player->primary_cursor_state == CSt_PickAxe) || (player->primary_cursor_state == CSt_PowerHand) )
                 {
-                    if (at_limit)
+                    if (player->thing_under_hand != 0) 
                     {
-                        if (is_my_player(player))
-                        {
-                            play_non_3d_sample(119);
-                            output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
-                        }
-                    }
-                    else
-                    {
-                        keeper_highlight_roomspace(plyr_idx, &player->render_roomspace);
-                    }
-                } else
-                if (player->primary_cursor_state == CSt_PowerHand)
-                {
-                    if (player->thing_under_hand != 0) {
                         // TODO SPELLS it's not a good idea to use this directly; change to magic_use_available_power_on_*()
                         use_power_hand(plyr_idx, stl_x, stl_y, 0);
+                    }
+                    else if (player->render_roomspace.drag_mode)
+                    {
+                        if (at_limit)
+                        {
+                            if (is_my_player(player))
+                            {
+                                play_non_3d_sample(119);
+                                output_message(SMsg_WorkerJobsLimit, 500); // remind the user that the task limit (MAPTASKS_COUNT) has been reached
+                            }
+                        }
+                        else
+                        {
+                            keeper_highlight_roomspace(plyr_idx, &player->render_roomspace);
+                        }
                     }
                 }
             }
