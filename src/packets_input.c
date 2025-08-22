@@ -463,7 +463,6 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 player->cursor_button_down = 0;
                 player->one_click_lock_cursor = false;
             }
-            unset_packet_control(pckt, PCtr_LBtnRelease);
             if (player->render_roomspace.drag_mode)
             {
                 if ((pckt->control_flags & PCtr_RBtnHeld) == 0)
@@ -478,6 +477,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             }
             player->secondary_cursor_state = CSt_DefaultArrow;
             player->additional_flags &= ~PlaAF_NoThingUnderPowerHand;
+            unset_packet_control(pckt, PCtr_LBtnRelease);
         }
     }
 
