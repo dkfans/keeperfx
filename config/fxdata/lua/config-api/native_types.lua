@@ -17,6 +17,7 @@
 ---@alias spell_type "NOSPELL"|"SPELL_FIREBALL"|"SPELL_SUMMON_SPIDERLING"|"SPELL_FREEZE"|"SPELL_ARMOUR"|"SPELL_LIGHTNING"|"SPELL_REBOUND"|"SPELL_HEAL"|"SPELL_POISON_CLOUD"|"SPELL_INVISIBILITY"|"SPELL_TELEPORT"|"SPELL_SPEED"|"SPELL_SLOW"|"SPELL_DRAIN"|"SPELL_FEAR"|"SPELL_MELEE_SLOW"|"SPELL_NAVI_MISSILE"|"SPELL_FLAME_BREATH"|"SPELL_WIND"|"SPELL_LIGHT"|"SPELL_FLIGHT"|"SPELL_SIGHT"|"SPELL_GRENADE"|"SPELL_HAILSTORM"|"SPELL_WORD_OF_POWER"|"SPELL_CRAZY_GAS"|"SPELL_DISEASE"|"SPELL_CHICKEN"|"SPELL_TIME_BOMB"|"SPELL_LIZARD"|"SPELL_SUMMON_FAMILIAR"|"SPELL_SUMMON_CREATURE"
 ---@alias slab_type "HARD"|"GOLD"|"DIRT"|"TORCH_DIRT"|"DRAPE_WALL"|"TORCH_WALL"|"TWINS_WALL"|"WOMAN_WALL"|"PAIR_WALL"|"DAMAGED_WALL"|"PATH"|"PRETTY_PATH"|"LAVA"|"WATER"|"ENTRANCE_ZONE"|"ENTRANCE_WALL"|"TREASURY_AREA"|"TREASURY_WALL"|"BOOK_SHELVES"|"LIBRARY_WALL"|"PRISON_AREA"|"PRISON_WALL"|"TORTURE_AREA"|"TORTURE_WALL"|"TRAINING_AREA"|"TRAINING_WALL"|"HEART_PEDESTAL"|"HEART_WALL"|"WORKSHOP_AREA"|"WORKSHOP_WALL"|"SCAVENGE_AREA"|"SCAVENGER_WALL"|"TEMPLE_POOL"|"TEMPLE_WALL"|"GRAVE_AREA"|"GRAVE_WALL"|"HATCHERY"|"HATCHERY_WALL"|"LAIR_AREA"|"LAIR_WALL"|"BARRACK_AREA"|"BARRACK_WALL"|"DOOR_WOODEN"|"DOOR_WOODEN2"|"DOOR_BRACE"|"DOOR_BRACE2"|"DOOR_STEEL"|"DOOR_STEEL2"|"DOOR_MAGIC"|"DOOR_MAGIC2"|"SLAB50"|"BRIDGE_FRAME"|"GEMS"|"GUARD_AREA"|"PURPLE_PATH"|"DOOR_SECRET"|"DOOR_SECRET2"|"HARD_FLOOR"|"DOOR_MIDAS"|"DOOR_MIDAS2"|"DENSE_GOLD"
 ---@alias shot_type string
+---@alias hit_type "THit_None"|"THit_CrtrsNObjcts"|"THit_CrtrsOnly"|"THit_CrtrsNObjctsNotOwn"|"THit_CrtrsOnlyNotOwn"|"THit_CrtrsNotArmourNotOwn"|"THit_All"|"THit_HeartOnly"|"THit_HeartOnlyNotOwn"|"THit_CrtrsNObjctsNShot"|"THit_TrapsAll"|"THit_CrtrsOnlyOwn"
 
 ---@class roomfields
 ---@field NULL integer
@@ -75,3 +76,16 @@
 ---@field MAIDEN integer
 ---@field SPIDERLING integer
 
+---@class hittypes
+---@field THit_None integer Does not affect anything. 
+---@field THit_CrtrsNObjcts integer Affect all creatures and all objects
+---@field THit_CrtrsOnly integer Affect only creatures
+---@field THit_CrtrsNObjctsNotOwn integer Affect not own creatures and objects
+---@field THit_CrtrsOnlyNotOwn integer Affect not own creatures
+---@field THit_CrtrsNotArmourNotOwn integer Affect not own creatures which are not protected by Armour spell
+---@field THit_All integer Affect all things
+---@field THit_HeartOnly integer Affect only dungeon hearts
+---@field THit_HeartOnlyNotOwn integer Affect only not own dungeon hearts
+---@field THit_CrtrsNObjctsNShot integer Affect all creatures and all objects, also allow colliding with other shots
+---@field THit_TrapsAll integer Affect all traps, not just the ones that are destructable
+---@field THit_CrtrsOnlyOwn integer Affect only own creatures

@@ -43,7 +43,6 @@ TbMapLocation luaL_optLocation(lua_State *L, int index);
 TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index);
 struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index);
 PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index);
-PlayerNumber luaL_checkTarget(lua_State* L, int index);
 PlayerNumber luaL_optPlayerSingle(lua_State *L, int index);
 PlayerNumber luaL_checkPlayerRangeId(lua_State *L, int index);
 MapSubtlCoord luaL_checkstl_x(lua_State *L, int index);
@@ -61,6 +60,7 @@ long luaL_checkCreature_or_creature_wildcard(lua_State *L, int index);
 int luaL_checkSlab(lua_State *L, int index, MapSlabCoord *slb_x, MapSlabCoord *slb_y);
 struct Room* luaL_checkRoom(lua_State *L, int idx);
 struct Thing *luaL_checkThing(lua_State *L, int index);
+struct Thing *luaL_optCheckThing(lua_State* L, int index);
 struct Thing *luaL_checkCreature(lua_State *L, int index);
 void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos);
 

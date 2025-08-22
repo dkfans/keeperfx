@@ -120,18 +120,25 @@ long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * co
     return luaL_checkNamedCommand(L,index,commanddesc);
 }
 
+struct Thing *luaL_optCheckThing(lua_State* L, int index)
+{
+    if (lua_isnone(L, index))
+        return 0;
+    return luaL_checkThing(L, index);
+}
+
 struct Thing *luaL_checkThing(lua_State *L, int index)
 {
     if (!lua_istable(L, index)) {
         luaL_argerror(L,index, "Expected a table");
-        return NULL;
+        return INVALID_THING;
     }
 
     // Get idx field
     lua_getfield(L, index, "ThingIndex");
     if (!lua_isnumber(L, -1)) {
         luaL_argerror(L,index, "Expected 'index' to be an integer");
-        return NULL;
+        return INVALID_THING;
     }
     int idx = lua_tointeger(L, -1);
     lua_pop(L, 1);  // Pop the idx value off the stack
@@ -140,7 +147,7 @@ struct Thing *luaL_checkThing(lua_State *L, int index)
     lua_getfield(L, index, "creation_turn");
     if (!lua_isnumber(L, -1)) {
         luaL_argerror(L,index, "Expected 'creation_turn' to be an integer");
-        return NULL;
+        return INVALID_THING;
     }
     int creation_turn = lua_tointeger(L, -1);
     lua_pop(L, 1);  // Pop the creation_turn value off the stack
@@ -148,7 +155,7 @@ struct Thing *luaL_checkThing(lua_State *L, int index)
     struct Thing* thing = thing_get(idx);
     if (thing_is_invalid(thing) || thing->creation_turn != creation_turn) {
         luaL_argerror(L,index, "Failed to resolve thing");
-        return NULL;
+        return INVALID_THING;
     }
     return thing;
 }
@@ -262,15 +269,6 @@ PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
         luaL_argerror(L,index,"expected a valid player");
     }
     return playerId;
-}
-
-PlayerNumber luaL_checkTarget(lua_State* L, int index)
-{
-    if (index == 0)
-        return 0;
-    if (!thing_exists_idx(index))
-        luaL_argerror(L, index, "thing with index does not exist");
-    return index;
 }
 
 PlayerNumber luaL_optPlayerSingle(lua_State *L, int index)
