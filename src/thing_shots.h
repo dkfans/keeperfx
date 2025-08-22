@@ -117,7 +117,7 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, 
 
 void affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
 
-struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation location, PlayerNumber owner);
+struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation location, PlayerNumber owner, ThingIndex target, int hittype);
 /******************************************************************************/
 #ifdef __cplusplus
 }

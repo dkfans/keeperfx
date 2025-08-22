@@ -873,8 +873,10 @@ static int lua_Add_shot_to_level(lua_State *L)
     ThingModel shot_id      = luaL_checkNamedCommand(L,1,shot_desc);
     TbMapLocation location = luaL_checkLocation(L,  2);
     PlayerNumber owner     = luaL_checkPlayerSingle(L, 3);
+    ThingIndex target = luaL_checkTarget(L, 4);
+    int hittype = luaL_checkHitType(L, 5);
 
-    lua_pushThing(L,script_process_new_shot(shot_id, location, owner));
+    lua_pushThing(L,script_process_new_shot(shot_id, location, owner, target, hittype));
     return 1;
 }
 

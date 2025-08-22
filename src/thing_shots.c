@@ -2050,7 +2050,7 @@ void affect_nearby_enemy_creatures_with_wind(struct Thing *shotng)
     do_to_things_with_param_spiral_near_map_block(&shotng->mappos, param.num1-COORD_PER_STL, do_cb, &param);
 }
 
-struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation location, PlayerNumber owner)
+struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation location, PlayerNumber owner, ThingIndex target, int hittype)
 {
     struct Coord3d pos;
     if (!get_coords_at_location(&pos, location, false))
@@ -2065,6 +2065,8 @@ struct Thing* script_process_new_shot(ThingModel tngmodel, TbMapLocation locatio
         return INVALID_THING;
     }
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+    thing->shot.hit_type = hittype;
+    thing->shot.target_idx = target;
     
     // Try to move thing out of the solid wall if it's inside one
     if (thing_in_wall_at(thing, &thing->mappos))

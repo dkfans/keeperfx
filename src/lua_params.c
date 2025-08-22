@@ -13,6 +13,7 @@
 #include "creature_states.h"
 #include "gui_msgs.h"
 #include "thing_navigate.h"
+#include "thing_effects.h"
 #include "map_data.h"
 #include "game_legacy.h"
 #include "player_utils.h"
@@ -263,6 +264,15 @@ PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
     return playerId;
 }
 
+PlayerNumber luaL_checkTarget(lua_State* L, int index)
+{
+    if (index == 0)
+        return 0;
+    if (!thing_exists_idx(index))
+        luaL_argerror(L, index, "thing with index does not exist");
+    return index;
+}
+
 PlayerNumber luaL_optPlayerSingle(lua_State *L, int index)
 {
     if (lua_isnone(L,index))
@@ -480,6 +490,16 @@ struct Room* luaL_checkRoom(lua_State *L, int idx)
         return INVALID_ROOM;
     }
     return room;
+}
+
+int luaL_checkHitType(lua_State* L, int index)
+{
+    if ((index < THit_None) || (index >= THit_TypesCount))
+    {
+        luaL_argerror(L, index, "Invalid hittype");
+        return THit_None;
+    }
+    return index;
 }
 
 void luaL_checkCoord3d(lua_State *L, int index, struct Coord3d* pos)
