@@ -1244,22 +1244,6 @@ TbBool LbTextDrawResizedVA(int posx, int posy, int units_per_px, const char *fmt
  * @param fmt The text format to be drawn.
  * @return
  */
-TbBool LbTextDrawFmt(int posx, int posy, const char *fmt, ...)
-{
-    va_list val;
-    va_start(val, fmt);
-    TbBool result = LbTextDrawResizedVA(posx, posy, 16, fmt, val);
-    va_end(val);
-    return result;
-}
-
-/**
- * Draws a formatted string in the current text window.
- * @param posx Position of the text, X coord.
- * @param posy Position of the text, Y coord.
- * @param fmt The text format to be drawn.
- * @return
- */
 TbBool LbTextDrawResizedFmt(int posx, int posy, int units_per_px, const char *fmt, ...)
 {
     va_list val;
