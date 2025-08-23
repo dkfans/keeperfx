@@ -1965,7 +1965,7 @@ LevelNumber next_singleplayer_level(LevelNumber sp_lvnum, TbBool ignore)
   if (sp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_singleplayer_level();
   if (sp_lvnum < 1) return LEVELNUMBER_ERROR;
   int next_level;
-  
+
   if ((intralvl.next_level > 0) && !ignore)
   {
       next_level = intralvl.next_level;

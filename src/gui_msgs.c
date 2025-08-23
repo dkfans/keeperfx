@@ -266,18 +266,13 @@ void message_add(char type, PlayerNumber plyr_idx, const char *text)
     }
 }
 
-void message_add_va(char type, PlayerNumber plyr_idx, const char *fmt_str, va_list arg)
-{
-    static char full_msg_text[2048];
-    vsnprintf(full_msg_text, sizeof(full_msg_text), fmt_str, arg);
-    message_add(type, plyr_idx, full_msg_text);
-}
-
 void message_add_fmt(char type, PlayerNumber plyr_idx, const char *fmt_str, ...)
 {
+    static char full_msg_text[2048];
     va_list val;
     va_start(val, fmt_str);
-    message_add_va(type, plyr_idx, fmt_str, val);
+    vsnprintf(full_msg_text, sizeof(full_msg_text), fmt_str, val);
+    message_add(type, plyr_idx, full_msg_text);
     va_end(val);
 }
 
