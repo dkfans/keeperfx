@@ -349,8 +349,8 @@ TbBool cmd_time(PlayerNumber plyr_idx, char * args)
 {
     char * pr2str = strsep(&args, " ");
     char * pr3str = strsep(&args, " ");
-    unsigned long turn = (pr2str != NULL) ? atoi(pr2str) : game.play_gameturn;
-    unsigned char frames = (pr3str != NULL) ? atoi(pr3str) : game_num_fps;
+    GameTurn turn = (pr2str != NULL) ? (GameTurn) atoi(pr2str) : game.play_gameturn;
+    long frames = (pr3str != NULL) ? (long) atoi(pr3str) : game_num_fps;
     show_game_time_taken(frames, turn);
     return true;
 }

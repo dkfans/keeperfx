@@ -64,14 +64,14 @@ static void load_array(VALUE* file_root, const char *arr_name,short *arr, unsign
     VALUE *toml_arr = value_dict_get(file_root, arr_name);
     if (value_array_size(toml_arr) > MAX_COLORED_SPRITES)
     {
-        WARNLOG("too many colored frames, max %d got %d",MAX_COLORED_SPRITES,value_array_size(toml_arr));
+        WARNLOG("too many colored frames, max %d got %d",MAX_COLORED_SPRITES, (int) value_array_size(toml_arr));
     }
     for (size_t sprite_no = 0; sprite_no < value_array_size(toml_arr); sprite_no++)
     {
         VALUE *col_arr = value_array_get(toml_arr, sprite_no);
         if (value_array_size(col_arr) > PLAYER_COLORS_COUNT)
         {
-            WARNLOG("too many colors for %s, max %d got %d",arr_name,PLAYER_COLORS_COUNT,value_array_size(col_arr));
+            WARNLOG("too many colors for %s, max %d got %d",arr_name,PLAYER_COLORS_COUNT, (int) value_array_size(col_arr));
             continue;
         }
         for (size_t plr_idx = 0; plr_idx < value_array_size(col_arr); plr_idx++)

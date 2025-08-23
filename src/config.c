@@ -438,12 +438,12 @@ int64_t value_default(const struct NamedField* named_field, const char* value_te
         int64_t maximum = min(named_field->max, get_datatype_max(named_field->type));
         if( value < minimum)
         {
-            NAMFIELDWRNLOG("field '%s' smaller than min value '%I64d', was '%I64d'",named_field->name,minimum,value);
+            NAMFIELDWRNLOG("field '%s' smaller than min value '%" PRId64 "', was '%" PRId64 "'",named_field->name,minimum,value);
             value = minimum;
         }
         else if( value > maximum)
         {
-            NAMFIELDWRNLOG("field '%s' greater than max value '%I64d', was '%I64d'",named_field->name,maximum,value);
+            NAMFIELDWRNLOG("field '%s' greater than max value '%" PRId64 "', was '%" PRId64 "'",named_field->name,maximum,value);
             value = maximum;
         }
         return value;
@@ -717,7 +717,7 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
     {
     case dt_uchar:
         if (value < 0 || value > UCHAR_MAX)
-            NAMFIELDWRNLOG("Value out of range for unsigned char: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for unsigned char: %" PRId64, value);
         else
             *(unsigned char*)field = (unsigned char)value;
         break;
@@ -726,55 +726,55 @@ void assign_default(const struct NamedField* named_field, int64_t value, const s
         break;
     case dt_char:
         if (value < CHAR_MIN || value > CHAR_MAX)
-            NAMFIELDWRNLOG("Value out of range for char: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for char: %" PRId64, value);
         else
             *(char*)field = (char)value;
         break;
     case dt_short:
         if (value < SHRT_MIN || value > SHRT_MAX)
-            NAMFIELDWRNLOG("Value out of range for signed short: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for signed short: %" PRId64, value);
         else
             *(signed short*)field = (signed short)value;
         break;
     case dt_ushort:
         if (value < 0 || value > USHRT_MAX)
-            NAMFIELDWRNLOG("Value out of range for unsigned short: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for unsigned short: %" PRId64, value);
         else
             *(unsigned short*)field = (unsigned short)value;
         break;
     case dt_int:
         if (value < INT_MIN || value > INT_MAX)
-            NAMFIELDWRNLOG("Value out of range for signed int: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for signed int: %" PRId64, value);
         else
             *(signed int*)field = (signed int)value;
         break;
     case dt_uint:
         if (value < 0 || value > UINT_MAX)
-            NAMFIELDWRNLOG("Value out of range for unsigned int: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for unsigned int: %" PRId64, value);
         else
             *(unsigned int*)field = (unsigned int)value;
         break;
     case dt_long:
         if (value < LONG_MIN || value > INT32_MAX)
-            NAMFIELDWRNLOG("Value out of range for signed long: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for signed long: %" PRId64, value);
         else
             *(signed long*)field = (signed long)value;
         break;
     case dt_ulong:
         if (value < 0 || value > UINT32_MAX)
-            NAMFIELDWRNLOG("Value out of range for unsigned long: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for unsigned long: %" PRId64, value);
         else
             *(unsigned long*)field = (unsigned long)value;
         break;
     case dt_longlong:
         if (value < LLONG_MIN || value > INT64_MAX)
-            NAMFIELDWRNLOG("Value out of range for signed long long: %lld", value);
+            NAMFIELDWRNLOG("Value out of range for signed long long: %" PRId64, value);
         else
             *(signed long long*)field = (signed long long)value;
         break;
     case dt_ulonglong:
-        if (value < 0 || value > UINT64_MAX)
-            NAMFIELDWRNLOG("Value out of range for unsigned long long: %lld", value);
+        if (value < 0)
+            NAMFIELDWRNLOG("Value out of range for unsigned long long: %" PRId64, value);
         else
             *(unsigned long long*)field = (unsigned long long)value;
         break;
