@@ -413,6 +413,8 @@ unsigned char sound_flag;
     SpellKind active_teleport_spell;
     SpellKind active_timebomb_spell;
     short vertical_speed;
+    /** Index of manually tagged enemy target for prioritized combat targeting */
+    ThingIndex tagged_enemy_idx;
 };
 
 struct Persons {

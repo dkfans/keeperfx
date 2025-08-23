@@ -60,6 +60,8 @@
 #include "thing_navigate.h"
 #include "thing_creature.h"
 #include "creature_states.h"
+#include "creature_states_combt.h"
+#include "creature_states_mood.h"
 #include "creature_instances.h"
 #include "creature_groups.h"
 #include "console_cmd.h"
@@ -665,6 +667,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   struct PlayerInfo* player = get_player(plyr_idx);
   struct Packet* pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
+  JUSTLOG("DEBUG: Processing packet action %d for player %d", (int)pckt->action, (int)plyr_idx);
+  if (pckt->action == PckA_TagEnemy) { // Use the actual enum value
+    JUSTLOG("DEBUG: Processing TagEnemy action!");
+  }
   struct Dungeon *dungeon;
   struct Thing *thing;
   int i;
@@ -1104,6 +1110,95 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         query_creature(player, pckt->actn_par1, pckt->actn_par2, pckt->actn_par3);
         return false;
     }
+    case PckA_TagEnemy:
+    {
+        JUSTLOG("DEBUG: PckA_TagEnemy packet received!");
+        struct Thing* target_thing = thing_get(pckt->actn_par1);
+        if (!thing_is_creature(target_thing) || (target_thing->owner == plyr_idx))
+            return false;
+        
+        // Toggle tag status for the enemy for all player's creatures
+        dungeon = get_dungeon(plyr_idx);
+        if (dungeon_invalid(dungeon))
+            return false;
+        
+        // First check if this enemy is already tagged
+        TbBool is_already_tagged = false;
+        unsigned long k = 0;
+        i = dungeon->creatr_list_start;
+        while (i != 0 && !is_already_tagged)
+        {
+            thing = thing_get(i);
+            TRACE_THING(thing);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl))
+            {
+                ERRORLOG("Jump to invalid creature detected");
+                break;
+            }
+            i = cctrl->players_next_creature_idx;
+            k++;
+            if (k > CREATURES_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping creatures list");
+                break;
+            }
+            
+            if (cctrl->tagged_enemy_idx == target_thing->index) {
+                is_already_tagged = true;
+            }
+        }
+        
+        // Now toggle the tag status for all creatures
+        k = 0;
+        i = dungeon->creatr_list_start;
+        while (i != 0)
+        {
+            thing = thing_get(i);
+            TRACE_THING(thing);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl))
+            {
+                ERRORLOG("Jump to invalid creature detected");
+                break;
+            }
+            i = cctrl->players_next_creature_idx;
+            k++;
+            if (k > CREATURES_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping creatures list");
+                break;
+            }
+            
+            // If already tagged, untag it; if not tagged, tag it
+            if (is_already_tagged) {
+                if (cctrl->tagged_enemy_idx == target_thing->index) {
+                    cctrl->tagged_enemy_idx = 0; // Untag
+                    if (thing->model == 14) { // Skeleton debug
+                        JUSTLOG("SKELETON %d UNTAGGED enemy %d", thing->index, target_thing->index);
+                    }
+                }
+            } else {
+                cctrl->tagged_enemy_idx = target_thing->index; // Tag
+                // The creature AI will now handle seeking the tagged enemy in process_person_moods_and_needs()
+                if (thing->model == 14) { // Skeleton debug
+                    JUSTLOG("SKELETON %d TAGGED enemy %d (%s)", thing->index, target_thing->index, thing_model_name(target_thing));
+                }
+                JUSTLOG("DEBUG: Creature %d (%s) tagged enemy %d (%s)", thing->index, thing_model_name(thing), target_thing->index, thing_model_name(target_thing));
+            }
+        }
+        
+        // Debug confirmation
+        if (is_my_player_number(plyr_idx)) {
+            if (is_already_tagged) {
+                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Untagged %s", thing_model_name(target_thing));
+            } else {
+                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Tagged %s for attack", thing_model_name(target_thing));
+            }
+        }
+        
+        return false;
+    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
@@ -1197,6 +1292,10 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
+    JUSTLOG("DEBUG: DUNGEON CONTROL processing action %d for player %d", (int)pckt->action, (int)plyr_idx);
+    if (pckt->action == PckA_TagEnemy) {
+        JUSTLOG("DEBUG: Found TagEnemy action in dungeon control!");
+    }
     switch (pckt->action)
     {
     case PckA_HoldAudience:
@@ -1215,6 +1314,9 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     case PckA_ToggleComputer:
         toggle_computer_player(plyr_idx);
         break;
+    case PckA_TagEnemy:
+        JUSTLOG("DEBUG: Processing TagEnemy in dungeon control, delegating to global handler");
+        return process_players_global_packet_action(plyr_idx);
     default:
         return process_players_dungeon_control_cheats_packet_action(plyr_idx, pckt);
     }

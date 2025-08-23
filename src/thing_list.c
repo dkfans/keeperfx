@@ -402,6 +402,14 @@ long highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_b
                     if (attack_type > AttckT_Unset)
                     {
                         long score = get_combat_score(creatng, thing, attack_type, distance);
+                        
+                        // Check if this enemy is manually tagged - give it extremely high priority
+                        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                        if (!creature_control_invalid(cctrl) && (cctrl->tagged_enemy_idx == thing->index)) {
+                            // Add a huge bonus to prioritize tagged enemies, but keep base score component
+                            score += 10000;
+                        }
+                        
                         return score;
                     }
                 }

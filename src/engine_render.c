@@ -5379,6 +5379,29 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         TbBool is_thing_under_hand = (player->thing_under_hand == thing->index);
         // Check if the creature is an enemy and is visible.
         TbBool is_enemy_and_visible = players_are_enemies(player->id_number, thing->owner) && !creature_is_invisible(thing);
+        // Check if this creature is tagged as an enemy target by the player's creatures
+        TbBool is_tagged_enemy = false;
+        if (is_enemy_and_visible) {
+            struct Dungeon* dungeon = get_dungeon(player->id_number);
+            if (!dungeon_invalid(dungeon)) {
+                unsigned long k = 0;
+                int i = dungeon->creatr_list_start;
+                while (i != 0 && !is_tagged_enemy) {
+                    struct Thing* own_creature = thing_get(i);
+                    struct CreatureControl* own_cctrl = creature_control_get_from_thing(own_creature);
+                    if (creature_control_invalid(own_cctrl)) break;
+                    
+                    if (own_cctrl->tagged_enemy_idx == thing->index) {
+                        is_tagged_enemy = true;
+                        break;
+                    }
+                    
+                    i = own_cctrl->players_next_creature_idx;
+                    k++;
+                    if (k > CREATURES_COUNT) break;
+                }
+            }
+        }
         // Check if the creature belongs to the player, is hurt but not unconscious.
         TbBool is_owned_and_hurt = false;
         // Check if the creature belongs to an ally.
@@ -5413,7 +5436,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         || (should_drag_to_lair)
         || (is_in_combat)
         || (has_lair)
-        || (is_parchment_map_view))
+        || (is_parchment_map_view)
+        || (is_tagged_enemy))
         {
             if (health_spridx > 0)
             {
@@ -5425,6 +5449,13 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
             spr = get_button_sprite(GBS_creature_flower_level_01 + exp_level);
             w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
             h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
+            
+            // If this is a tagged enemy, make the health flower blink red to indicate targeting
+            if (is_tagged_enemy && ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
+                lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+                lbSpriteReMapPtr = red_pal;
+            }
+            
             LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
         }
     }

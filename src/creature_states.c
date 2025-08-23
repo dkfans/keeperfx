@@ -1125,9 +1125,31 @@ short arrive_at_call_to_arms(struct Thing *creatng)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    
+    // Check if creature has a tagged enemy - if so, prioritize fighting it
+    if (cctrl->tagged_enemy_idx != 0) {
+        struct Thing* tagged_enemy = thing_get(cctrl->tagged_enemy_idx);
+        if (!thing_is_invalid(tagged_enemy) && thing_is_creature(tagged_enemy) && (tagged_enemy->owner != creatng->owner)) {
+            // Try to start combat with the tagged enemy
+            long distance = get_combat_distance(creatng, tagged_enemy);
+            CrAttackType attack_type = creature_can_have_combat_with_creature(creatng, tagged_enemy, distance, 1, 0);
+            if (attack_type > AttckT_Unset) {
+                set_creature_combat_state(creatng, tagged_enemy, attack_type);
+                return 2;
+            }
+        }
+    }
+    
     if (!player_uses_power_call_to_arms(creatng->owner))
     {
+        // If not using call to arms but has tagged enemy, continue looking for combat
+        if (cctrl->tagged_enemy_idx != 0) {
+            if (creature_look_for_combat(creatng)) {
+                return 2;
+            }
+        }
         set_start_state(creatng);
         return 1;
     }
@@ -5496,6 +5518,10 @@ long process_piss_need(struct Thing *thing, const struct CreatureModelConfig *cr
 
 void process_person_moods_and_needs(struct Thing *thing)
 {
+    if (thing->model == 14) { // Skeleton debug
+        JUSTLOG("SKELETON %d processing moods and needs", thing->index);
+    }
+    
     if (is_hero_thing(thing) || is_neutral_thing(thing)) {
         // Heroes and neutral creatures have no special needs
         return;
@@ -5516,6 +5542,12 @@ void process_person_moods_and_needs(struct Thing *thing)
     } else
     if (creature_affected_by_call_to_arms(thing)) {
         SYNCDBG(17,"The %s index %ld is called to arms, most needs suspended",thing_model_name(thing),(long)thing->index);
+    } else 
+    if (process_creature_needs_to_seek_tagged_enemy(thing)) {
+        SYNCDBG(17,"The %s index %ld has a tagged enemy to seek",thing_model_name(thing),(long)thing->index);
+        if (thing->model == 14) { // Skeleton debug
+            JUSTLOG("SKELETON %d processed tagged enemy need - SUCCESS", thing->index);
+        }
     } else
     if (process_creature_needs_a_wage(thing, crconf)) {
         SYNCDBG(17,"The %s index %ld has a need to get its wage",thing_model_name(thing),(long)thing->index);
@@ -5531,6 +5563,61 @@ void process_person_moods_and_needs(struct Thing *thing)
     }
     process_training_need(thing, crconf);
     process_piss_need(thing, crconf);
+}
+
+TbBool process_creature_needs_to_seek_tagged_enemy(struct Thing *creatng)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->tagged_enemy_idx == 0) {
+        if (creatng->model == 14) { // Skeleton debug
+            JUSTLOG("SKELETON %d has no tagged enemy", creatng->index);
+        }
+        return false;
+    }
+    
+    if (creatng->model == 1) { // Skeleton debug
+        JUSTLOG("SKELETON %d checking tagged enemy %d", creatng->index, cctrl->tagged_enemy_idx);
+    }
+    
+    struct Thing* tagged_enemy = thing_get(cctrl->tagged_enemy_idx);
+    if (thing_is_invalid(tagged_enemy) || !thing_is_creature(tagged_enemy) || (tagged_enemy->owner == creatng->owner)) {
+        // Tagged enemy is invalid, clear it
+        if (creatng->model == 14) { // Skeleton debug
+            JUSTLOG("SKELETON %d tagged enemy %d is invalid, clearing", creatng->index, cctrl->tagged_enemy_idx);
+        }
+        cctrl->tagged_enemy_idx = 0;
+        return false;
+    }
+    
+    if (creatng->model == 1) { // Skeleton debug
+        JUSTLOG("SKELETON %d trying to navigate to tagged enemy %d (%s)", creatng->index, tagged_enemy->index, thing_model_name(tagged_enemy));
+    }
+    
+    // Force creature to seek the tagged enemy using the same mechanism as Call to Arms
+    if (creature_can_navigate_to_with_storage(creatng, &tagged_enemy->mappos, NavRtF_Default)) {
+        if (creatng->model == 14) { // Skeleton debug
+            JUSTLOG("SKELETON %d can navigate to enemy, setting CTA state", creatng->index);
+        }
+        if (external_set_thing_state(creatng, CrSt_ArriveAtCallToArms)) {
+            setup_person_move_to_coord(creatng, &tagged_enemy->mappos, NavRtF_Default);
+            creatng->continue_state = CrSt_ArriveAtCallToArms;
+            cctrl->called_to_arms = true;
+            creature_mark_if_woken_up(creatng);
+            if (creatng->model == 14) { // Skeleton debug
+                JUSTLOG("SKELETON %d successfully set to seek tagged enemy", creatng->index);
+            }
+            return true;
+        } else {
+            if (creatng->model == 14) { // Skeleton debug
+                JUSTLOG("SKELETON %d failed to set CTA state", creatng->index);
+            }
+        }
+    } else {
+        if (creatng->model == 14) { // Skeleton debug
+            JUSTLOG("SKELETON %d cannot navigate to tagged enemy", creatng->index);
+        }
+    }
+    return false;
 }
 
 TbBool setup_move_off_lava(struct Thing* thing)

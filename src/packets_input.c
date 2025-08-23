@@ -398,33 +398,64 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 }
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             } else
-            if (player->input_crtr_query != 0)
             {
+                // First check for enemy tagging with simple left click (high priority)
                 thing = get_creature_near(x, y);
-                if (!can_thing_be_queried(thing, plyr_idx))
+                JUSTLOG("DEBUG: Click at (%ld,%ld), found thing %d", (long)x, (long)y, thing ? thing->index : -1);
+                if (thing_is_creature(thing) && (thing->owner != plyr_idx) && players_are_enemies(plyr_idx, thing->owner))
                 {
-                    player->thing_under_hand = 0;
-                }
-                else
-                {
-                    player->thing_under_hand = thing->index;
-                }
-                if (player->thing_under_hand > 0)
-                {
-                    if (player->thing_under_hand != player->controlled_thing_idx)
+                    JUSTLOG("DEBUG: Found enemy creature %d (%s) to tag", thing->index, thing_model_name(thing));
+                    // Don't tag enemies that are in prison
+                    if (!creature_is_kept_in_custody(thing))
                     {
-                        if (is_my_player(player))
-                        {
-                            turn_off_all_panel_menus();
-                            turn_on_menu(GMnu_CREATURE_QUERY1);
+                        JUSTLOG("DEBUG: Creature not in custody, setting TagEnemy packet");
+                        // Set thing under hand for visual feedback
+                        player->thing_under_hand = thing->index;
+                        // Tag/untag the enemy creature
+                        set_packet_action(pckt, PckA_TagEnemy, thing->index, 0, 0, 0);
+                        JUSTLOG("DEBUG: Set PckA_TagEnemy packet for thing %d, packet action now = %d", thing->index, (int)pckt->action);
+                        unset_packet_control(pckt, PCtr_LBtnRelease);
+                        // Debug message to confirm tagging is working
+                        if (is_my_player(player)) {
+                            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Tagged enemy %s (ID: %d)", thing_model_name(thing), (int)thing->index);
                         }
-                        player->influenced_thing_idx = player->thing_under_hand;
-                        set_player_state(player, PSt_CreatrQuery, 0);
-                        set_player_instance(player, PI_QueryCrtr, 0);
+                    } else {
+                        JUSTLOG("DEBUG: Creature %d is in custody, cannot tag", thing->index);
                     }
-                    unset_packet_control(pckt, PCtr_LBtnRelease);
+                } else if (thing_is_creature(thing)) {
+                    JUSTLOG("DEBUG: Found creature %d (%s) but it's not an enemy (owner: %ld, my player: %ld)", thing->index, thing_model_name(thing), (long)thing->owner, (long)plyr_idx);
+                } else {
+                    JUSTLOG("DEBUG: No creature found at click location");
                 }
-            } else
+                
+                if (player->input_crtr_query != 0)
+                {
+                    thing = get_creature_near(x, y);
+                    if (!can_thing_be_queried(thing, plyr_idx))
+                    {
+                        player->thing_under_hand = 0;
+                    }
+                    else
+                    {
+                        player->thing_under_hand = thing->index;
+                    }
+                    if (player->thing_under_hand > 0)
+                    {
+                        if (player->thing_under_hand != player->controlled_thing_idx)
+                        {
+                            if (is_my_player(player))
+                            {
+                                turn_off_all_panel_menus();
+                                turn_on_menu(GMnu_CREATURE_QUERY1);
+                            }
+                            player->influenced_thing_idx = player->thing_under_hand;
+                            set_player_state(player, PSt_CreatrQuery, 0);
+                            set_player_instance(player, PI_QueryCrtr, 0);
+                        }
+                        unset_packet_control(pckt, PCtr_LBtnRelease);
+                    }
+                }
+            }
             if (player->secondary_cursor_state == player->primary_cursor_state)
             {
                 if ((player->primary_cursor_state == CSt_PickAxe) || ((player->primary_cursor_state == CSt_PowerHand) && player->render_roomspace.drag_mode))
