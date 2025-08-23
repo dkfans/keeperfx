@@ -1224,32 +1224,18 @@ TbBool LbTextDraw(int posx, int posy, const char *text)
  * @param posx Position of the text, X coord.
  * @param posy Position of the text, Y coord.
  * @param fmt The text format to be drawn.
- * @param arg Arguments to the formatting.
- * @return
- */
-TbBool LbTextDrawResizedVA(int posx, int posy, int units_per_px, const char *fmt, va_list arg)
-{
-    char * text = (char *)malloc(8192);
-    if (text == NULL) return false;
-    vsnprintf(text, TEXT_DRAW_MAX_LEN, fmt, arg);
-    TbBool result = LbTextDrawResized(posx, posy, units_per_px, text);
-    free(text);
-    return result;
-}
-
-/**
- * Draws a formatted string in the current text window.
- * @param posx Position of the text, X coord.
- * @param posy Position of the text, Y coord.
- * @param fmt The text format to be drawn.
  * @return
  */
 TbBool LbTextDrawResizedFmt(int posx, int posy, int units_per_px, const char *fmt, ...)
 {
+    char * text = (char *)malloc(8192);
+    if (text == NULL) return false;
     va_list val;
     va_start(val, fmt);
-    TbBool result = LbTextDrawResizedVA(posx, posy, units_per_px, fmt, val);
+    vsnprintf(text, TEXT_DRAW_MAX_LEN, fmt, val);
     va_end(val);
+    TbBool result = LbTextDrawResized(posx, posy, units_per_px, text);
+    free(text);
     return result;
 }
 
