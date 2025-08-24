@@ -3235,6 +3235,8 @@ void clear_all_tags_pointing_to_creature(struct Thing *target_creature)
     // Also remove this creature from all players' tagged enemy lists if it became unconscious
     for (PlayerNumber player_idx = 0; player_idx < PLAYERS_COUNT; player_idx++) {
         player_remove_tagged_enemy_creature(player_idx, target_creature->index);
+        // Update hunting creatures for this player since tags have changed
+        update_creatures_hunting_tagged_enemies(player_idx);
     }
 }
 
@@ -5712,6 +5714,58 @@ short hunt_tagged_enemy(struct Thing *creatng)
         return 1;
     }
     return 1;
+}
+
+void update_creatures_hunting_tagged_enemies(PlayerNumber plyr_idx)
+{
+    JUSTLOG("hello");
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+        return;
+    
+    // Iterate through all creatures belonging to this player
+    unsigned long k = 0;
+    long i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+        
+        // If this creature is in CrSt_HuntTaggedEnemy state, update its target
+        if (thing->active_state == CrSt_HuntTaggedEnemy) {
+            // Find the closest tagged enemy for this creature
+            ThingIndex closest_enemy_idx = player_get_closest_tagged_enemy_creature(thing->owner, thing);
+            
+            if (closest_enemy_idx == 0) {
+                // No tagged enemies left, stop hunting
+                cctrl->target_prey_idx = 0;
+                set_start_state(thing);
+            } else {
+                // Update target to the closest tagged enemy
+                cctrl->target_prey_idx = closest_enemy_idx;
+                struct Thing* target_enemy = thing_get(closest_enemy_idx);
+                if (thing_exists(target_enemy)) {
+                    // Set up movement to the new target
+                    if (creature_can_navigate_to_with_storage(thing, &target_enemy->mappos, NavRtF_Default)) {
+                        setup_person_move_to_coord(thing, &target_enemy->mappos, NavRtF_Default);
+                    }
+                }
+            }
+        }
+    }
 }
 
 TbBool setup_move_off_lava(struct Thing* thing)

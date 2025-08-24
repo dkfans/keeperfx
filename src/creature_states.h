@@ -326,6 +326,7 @@ void remove_health_from_thing_and_display_health(struct Thing *thing, HitPoints 
 TbBool process_creature_hunger(struct Thing *thing);
 TbBool process_creature_needs_to_seek_tagged_enemy(struct Thing *creatng);
 short hunt_tagged_enemy(struct Thing *creatng);
+void update_creatures_hunting_tagged_enemies(PlayerNumber plyr_idx);
 void process_person_moods_and_needs(struct Thing *thing);
 TbBool restore_creature_flight_flag(struct Thing *creatng);
 TbBool attempt_to_destroy_enemy_room(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y);

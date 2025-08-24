@@ -48,6 +48,7 @@
 #include "game_saves.h"
 #include "game_legacy.h"
 #include "frontend.h"
+#include "creature_states.h"
 #include "magic_powers.h"
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"
@@ -1383,6 +1384,9 @@ void player_clear_all_tagged_enemy_creatures(PlayerNumber plyr_idx)
     for (int i = 0; i < CREATURES_COUNT; i++) {
         player->tagged_enemy_creatures[i] = 0;
     }
+    
+    // Update all creatures that were hunting tagged enemies
+    update_creatures_hunting_tagged_enemies(plyr_idx);
 }
 
 /******************************************************************************/

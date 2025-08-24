@@ -667,7 +667,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   struct PlayerInfo* player = get_player(plyr_idx);
   struct Packet* pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
-  JUSTLOG("DEBUG: Processing packet action %d for player %d", (int)pckt->action, (int)plyr_idx);
   if (pckt->action == PckA_TagEnemy) { // Use the actual enum value
     JUSTLOG("DEBUG: Processing TagEnemy action!");
   }
@@ -1203,6 +1202,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
             }
         }
         
+        // Update all creatures that are currently hunting tagged enemies
+        update_creatures_hunting_tagged_enemies(plyr_idx);
+        
         return false;
     }
     default:
@@ -1298,7 +1300,6 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
-    JUSTLOG("DEBUG: DUNGEON CONTROL processing action %d for player %d", (int)pckt->action, (int)plyr_idx);
     if (pckt->action == PckA_TagEnemy) {
         JUSTLOG("DEBUG: Found TagEnemy action in dungeon control!");
     }
