@@ -267,6 +267,28 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     return true;
 }
 
+TbBool try_click_tag_enemy(long plyr_idx, MapCoord x, MapCoord y, struct Packet* pckt)
+{
+    struct Thing *thing;
+    struct PlayerInfo* player = get_player(plyr_idx);
+    
+    if (!game.conf.rules.game.click_tag_enemies_enabled)
+        return false;
+        
+    thing = get_creature_near(x, y);
+    if (thing_is_creature(thing) && (thing->owner != plyr_idx) && players_are_enemies(plyr_idx, thing->owner))
+    {
+        if (!creature_is_kept_in_custody(thing))
+        {
+            player->thing_under_hand = thing->index;
+            set_packet_action(pckt, PckA_TagEnemy, thing->index, 0, 0, 0);
+            unset_packet_control(pckt, PCtr_LBtnRelease);
+            return true;
+        }
+    }
+    return false;
+}
+
 TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 {
     struct Thing *thing;
@@ -405,9 +427,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                     set_player_state(player, player->continue_work_state, 0);
                 }
                 unset_packet_control(pckt, PCtr_LBtnRelease);
-            } else
-            if (player->input_crtr_query != 0)
-            {
+            } else {
+                TbBool enemy_tagged = try_click_tag_enemy(plyr_idx, x, y, pckt);
+                if (!enemy_tagged && (player->input_crtr_query != 0))
+                {
                 thing = get_creature_near(x, y);
                 if (!can_thing_be_queried(thing, plyr_idx))
                 {
@@ -432,7 +455,8 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                     }
                     unset_packet_control(pckt, PCtr_LBtnRelease);
                 }
-            } else
+            }
+            }
             if (player->secondary_cursor_state == player->primary_cursor_state)
             {
                 if ((player->primary_cursor_state == CSt_PickAxe) || ((player->primary_cursor_state == CSt_PowerHand) && player->render_roomspace.drag_mode))
