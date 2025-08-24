@@ -1181,14 +1181,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
             // If already tagged, untag it; if not tagged, tag it
             if (is_already_tagged) {
                 player_remove_tagged_enemy_creature(plyr_idx, target_thing->index);
-                if (thing->model == 14) { // Skeleton debug
-                    JUSTLOG("SKELETON %d UNTAGGED enemy %d", thing->index, target_thing->index);
-                }
             } else {
                 player_add_tagged_enemy_creature(plyr_idx, target_thing->index);
-                if (thing->model == 14) { // Skeleton debug
-                    JUSTLOG("SKELETON %d TAGGED enemy %d (%s)", thing->index, target_thing->index, thing_model_name(target_thing));
-                }
                 JUSTLOG("DEBUG: Player %d tagged enemy %d (%s)", plyr_idx, target_thing->index, thing_model_name(target_thing));
             }
         }

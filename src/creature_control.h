@@ -413,8 +413,7 @@ unsigned char sound_flag;
     SpellKind active_teleport_spell;
     SpellKind active_timebomb_spell;
     short vertical_speed;
-    /** Index of current prey target for this hunter creature */
-    ThingIndex target_prey_idx;
+    ThingIndex target_prey_idx; // Index of current prey target when in CrSt_HuntTaggedEnemy state
 };
 
 struct Persons {

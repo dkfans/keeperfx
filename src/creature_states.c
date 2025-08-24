@@ -1126,7 +1126,6 @@ short arrive_at_call_to_arms(struct Thing *creatng)
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
-    
     if (!player_uses_power_call_to_arms(creatng->owner))
     {
         set_start_state(creatng);
@@ -5544,10 +5543,6 @@ long process_piss_need(struct Thing *thing, const struct CreatureModelConfig *cr
 
 void process_person_moods_and_needs(struct Thing *thing)
 {
-    if (thing->model == 14) { // Skeleton debug
-        JUSTLOG("SKELETON %d processing moods and needs", thing->index);
-    }
-    
     if (is_hero_thing(thing) || is_neutral_thing(thing)) {
         // Heroes and neutral creatures have no special needs
         return;
@@ -5571,9 +5566,6 @@ void process_person_moods_and_needs(struct Thing *thing)
     } else 
     if (process_creature_needs_to_seek_tagged_enemy(thing)) {
         SYNCDBG(17,"The %s index %ld has a tagged enemy to seek",thing_model_name(thing),(long)thing->index);
-        if (thing->model == 14) { // Skeleton debug
-            JUSTLOG("SKELETON %d processed tagged enemy need - SUCCESS", thing->index);
-        }
     } else
     if (process_creature_needs_a_wage(thing, crconf)) {
         SYNCDBG(17,"The %s index %ld has a need to get its wage",thing_model_name(thing),(long)thing->index);
