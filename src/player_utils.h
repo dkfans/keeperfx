@@ -73,7 +73,6 @@ void player_add_tagged_enemy_creature(PlayerNumber plyr_idx, ThingIndex creature
 void player_remove_tagged_enemy_creature(PlayerNumber plyr_idx, ThingIndex creature_idx);
 TbBool player_has_tagged_enemy_creature(PlayerNumber plyr_idx, ThingIndex creature_idx);
 ThingIndex player_get_closest_tagged_enemy_creature(PlayerNumber plyr_idx, struct Thing *hunter_creature);
-void player_clear_all_tagged_enemy_creatures(PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

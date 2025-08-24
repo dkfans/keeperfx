@@ -1373,19 +1373,4 @@ ThingIndex player_get_closest_tagged_enemy_creature(PlayerNumber plyr_idx, struc
     return closest_idx;
 }
 
-void player_clear_all_tagged_enemy_creatures(PlayerNumber plyr_idx)
-{
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if (player_invalid(player)) {
-        return;
-    }
-    
-    for (int i = 0; i < CREATURES_COUNT; i++) {
-        player->tagged_enemy_creatures[i] = 0;
-    }
-    
-    // Update all creatures that were hunting tagged enemies
-    update_creatures_hunting_tagged_enemies(plyr_idx);
-}
-
 /******************************************************************************/
