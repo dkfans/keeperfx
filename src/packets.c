@@ -1117,6 +1117,14 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         if (!thing_is_creature(target_thing) || (target_thing->owner == plyr_idx))
             return false;
         
+        // Prevent tagging unconscious enemy creatures
+        if (creature_is_being_unconscious(target_thing)) {
+            if (is_my_player_number(plyr_idx)) {
+                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Cannot tag unconscious creatures");
+            }
+            return false;
+        }
+        
         // Toggle tag status for the enemy for all player's creatures
         dungeon = get_dungeon(plyr_idx);
         if (dungeon_invalid(dungeon))
