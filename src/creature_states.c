@@ -5596,6 +5596,11 @@ TbBool process_creature_needs_to_seek_tagged_enemy(struct Thing *creatng)
     cctrl->target_prey_idx = closest_enemy_idx;
     struct Thing* target_enemy = thing_get(closest_enemy_idx);
     
+    // Don't interrupt creatures that are currently teleporting
+    if (cctrl->instance_id == CrInst_TELEPORT) {
+        return false; // Let the teleport complete first
+    }
+    
     // Force creature to seek the closest tagged enemy
     if (creature_can_navigate_to_with_storage(creatng, &target_enemy->mappos, NavRtF_Default)) {
         if (external_set_thing_state(creatng, CrSt_HuntTaggedEnemy)) {
