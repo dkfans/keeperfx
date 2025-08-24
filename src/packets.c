@@ -1112,9 +1112,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         
         // Prevent tagging unconscious enemy creatures
         if (creature_is_being_unconscious(target_thing)) {
-            if (is_my_player_number(plyr_idx)) {
-                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Cannot tag unconscious creatures");
-            }
             return false;
         }
         
