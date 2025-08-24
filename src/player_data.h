@@ -32,9 +32,6 @@ extern "C" {
 #define PLAYERS_COUNT       9
 #define COLOURS_COUNT       9
 
-#ifndef CREATURES_COUNT
-#define CREATURES_COUNT     1024
-#endif
 
 #define INVALID_PLAYER (&bad_player)
 

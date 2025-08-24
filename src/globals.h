@@ -154,6 +154,9 @@ extern "C" {
 #define MAX_SUBTILES_X 511
 #define MAX_SUBTILES_Y 511
 
+/** Max amount of creatures supported on any map. */
+#define CREATURES_COUNT       1024
+
 #pragma pack(1)
 
 /** Screen coordinate in scale of the game (resolution independent). */

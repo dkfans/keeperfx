@@ -22,8 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-/** Max amount of creatures supported on any map. */
-#define CREATURES_COUNT       1024
 
 #ifdef __cplusplus
 extern "C" {
