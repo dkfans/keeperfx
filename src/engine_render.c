@@ -5257,8 +5257,38 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
     }
 }
 
-static void draw_tagged_enemy_background(long scrpos_x, long scrpos_y, struct Thing *thing, long base_size, int bs_units_per_px, long h_add, long exp_level)
+static void draw_tagged_enemy_indicator(long scrpos_x, long scrpos_y, struct Thing *thing, long base_size, int bs_units_per_px, long h_add, long exp_level, TbBool is_enemy_and_visible)
 {
+    struct PlayerInfo *player = get_my_player();
+    
+    // Check if this creature is tagged as an enemy target by the player's creatures
+    TbBool is_tagged_enemy = false;
+    if (is_enemy_and_visible) {
+        struct Dungeon* dungeon = get_dungeon(player->id_number);
+        if (!dungeon_invalid(dungeon)) {
+            unsigned long k = 0;
+            int i = dungeon->creatr_list_start;
+            while (i != 0 && !is_tagged_enemy) {
+                struct Thing* own_creature = thing_get(i);
+                struct CreatureControl* own_cctrl = creature_control_get_from_thing(own_creature);
+                if (creature_control_invalid(own_cctrl)) break;
+                
+                // Check if this enemy is tagged by the current player
+                if (player_has_tagged_enemy_creature(own_creature->owner, thing->index)) {
+                    is_tagged_enemy = true;
+                    break;
+                }
+                
+                i = own_cctrl->players_next_creature_idx;
+                k++;
+                if (k > CREATURES_COUNT) break;
+            }
+        }
+    }
+    
+    // Only draw if actually tagged
+    if (!is_tagged_enemy) return;
+    
     // Animate through quadptr_any_lv1 to quadptr_any_lv9 (indices 16-24) with ping-pong
     int anim_cycle = (game.play_gameturn * 2 / gui_blink_rate) % 16; // 9 forward + 7 backward = 16 total
     int anim_frame;
@@ -5404,30 +5434,6 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         TbBool is_thing_under_hand = (player->thing_under_hand == thing->index);
         // Check if the creature is an enemy and is visible.
         TbBool is_enemy_and_visible = players_are_enemies(player->id_number, thing->owner) && !creature_is_invisible(thing);
-        // Check if this creature is tagged as an enemy target by the player's creatures
-        TbBool is_tagged_enemy = false;
-        if (is_enemy_and_visible) {
-            struct Dungeon* dungeon = get_dungeon(player->id_number);
-            if (!dungeon_invalid(dungeon)) {
-                unsigned long k = 0;
-                int i = dungeon->creatr_list_start;
-                while (i != 0 && !is_tagged_enemy) {
-                    struct Thing* own_creature = thing_get(i);
-                    struct CreatureControl* own_cctrl = creature_control_get_from_thing(own_creature);
-                    if (creature_control_invalid(own_cctrl)) break;
-                    
-                    // Check if this enemy is tagged by the current player
-                    if (player_has_tagged_enemy_creature(own_creature->owner, thing->index)) {
-                        is_tagged_enemy = true;
-                        break;
-                    }
-                    
-                    i = own_cctrl->players_next_creature_idx;
-                    k++;
-                    if (k > CREATURES_COUNT) break;
-                }
-            }
-        }
         // Check if the creature belongs to the player, is hurt but not unconscious.
         TbBool is_owned_and_hurt = false;
         // Check if the creature belongs to an ally.
@@ -5452,10 +5458,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         // Determine if the current view is the schematic top-down map view.
         TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
         
-        // Draw tagged enemy background sprite independently of other flower conditions to prevent flickering
-        if (is_tagged_enemy) {
-            draw_tagged_enemy_background(scrpos_x, scrpos_y, thing, base_size, bs_units_per_px, h_add, exp_level);
-        }
+        // Draw tagged enemy indicator independently of other flower conditions
+        draw_tagged_enemy_indicator(scrpos_x, scrpos_y, thing, base_size, bs_units_per_px, h_add, exp_level, is_enemy_and_visible);
         
         if ((forced_visible)
         || (is_thing_under_hand)
@@ -5468,10 +5472,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         || (should_drag_to_lair)
         || (is_in_combat)
         || (has_lair)
-        || (is_parchment_map_view)
-        || (is_tagged_enemy))
+        || (is_parchment_map_view))
         {
-            
             if (health_spridx > 0)
             {
                 spr = get_button_sprite_for_player(health_spridx, thing->owner);
