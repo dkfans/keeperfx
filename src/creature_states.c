@@ -5595,6 +5595,11 @@ TbBool process_creature_needs_to_seek_tagged_enemy(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     
+    // Spec diggers (like imps) should not hunt tagged enemies
+    if (flag_is_set(get_creature_model_flags(creatng), CMF_IsSpecDigger)) {
+        return false;
+    }
+    
     // Find the closest tagged enemy for this creature's owner
     ThingIndex closest_enemy_idx = player_get_closest_tagged_enemy_creature(creatng->owner, creatng);
     
