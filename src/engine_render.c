@@ -5443,6 +5443,35 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         || (is_parchment_map_view)
         || (is_tagged_enemy))
         {
+            // If this is a tagged enemy, draw a quadptr_any_lv1 behind all flowers that flickers between white and grey
+            if (is_tagged_enemy) {
+                // Animate through quadptr_any_lv1 to quadptr_any_lv9 (indices 16-24) with ping-pong (faster)
+                int anim_cycle = (game.play_gameturn * 2 / gui_blink_rate) % 16; // 8 forward + 8 backward = 16 total
+                int anim_frame;
+                if (anim_cycle < 8) {
+                    anim_frame = anim_cycle; // 0-7
+                } else {
+                    anim_frame = 15 - anim_cycle; // 7-0
+                }
+                const struct TbSprite *bg_spr = get_sprite(pointer_sprites, 16 + anim_frame); // quadptr_any_lv1-9
+                long bg_w = (base_size * bg_spr->SWidth * bs_units_per_px / 16) >> 13;
+                long bg_h = (base_size * bg_spr->SHeight * bs_units_per_px / 16) >> 13;
+                // Make it 75% size
+                bg_w = (bg_w * 75) / 100;
+                bg_h = (bg_h * 75) / 100;
+                // Add intense flashing effect
+                long saved_flags = lbDisplay.DrawFlags;
+                if (gui_blink_rate > 0 && (game.play_gameturn % gui_blink_rate) < (gui_blink_rate / 2)) {
+                    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+                }
+                // Center with the level flower position, offset by 1 pixel down and right
+                const struct TbSprite *flower_spr = get_button_sprite(GBS_creature_flower_level_01 + exp_level);
+                long flower_h = (base_size * flower_spr->SHeight * bs_units_per_px / 16) >> 13;
+                LbSpriteDrawScaled(scrpos_x - bg_w / 2 + 1, scrpos_y - flower_h / 2 - bg_h / 2 - h_add + 1, bg_spr, bg_w, bg_h);
+                // Restore flags
+                lbDisplay.DrawFlags = saved_flags;
+            }
+            
             if (health_spridx > 0)
             {
                 spr = get_button_sprite_for_player(health_spridx, thing->owner);
@@ -5453,12 +5482,6 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
             spr = get_button_sprite(GBS_creature_flower_level_01 + exp_level);
             w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
             h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
-            
-            // If this is a tagged enemy, make the health flower blink red to indicate targeting
-            if (is_tagged_enemy && ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate)) {
-                lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-                lbSpriteReMapPtr = red_pal;
-            }
             
             LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
         }
