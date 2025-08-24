@@ -3200,6 +3200,9 @@ void clear_all_tags_pointing_to_creature(struct Thing *target_creature)
     TRACE_THING(target_creature);
     // Iterate through all players to clear tags pointing to this creature
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+        // Remove this creature from the player's tagged enemy list
+        player_remove_tagged_enemy_creature(plyr_idx, target_creature->index);
+        
         struct Dungeon* dungeon = get_dungeon(plyr_idx);
         if (dungeon_invalid(dungeon))
             continue;
@@ -3220,21 +3223,10 @@ void clear_all_tags_pointing_to_creature(struct Thing *target_creature)
                 
             // Clear target prey if it was targeting this unconscious creature
             if (cctrl->target_prey_idx == target_creature->index) {
-                cctrl->target_prey_idx = 0;
-                // Set the creature back to its start state to exit the hunt state
-                if (thing->active_state == CrSt_HuntTaggedEnemy) {
-                    set_start_state(thing);
-                }
+                update_creature_hunting_tagged_enemy(thing);
             }
             
         }
-    }
-    
-    // Also remove this creature from all players' tagged enemy lists if it became unconscious
-    for (PlayerNumber player_idx = 0; player_idx < PLAYERS_COUNT; player_idx++) {
-        player_remove_tagged_enemy_creature(player_idx, target_creature->index);
-        // Update hunting creatures for this player since tags have changed
-        update_creatures_hunting_tagged_enemies(player_idx);
     }
 }
 
@@ -5691,6 +5683,46 @@ short hunt_tagged_enemy(struct Thing *creatng)
     return 1;
 }
 
+void update_creature_hunting_tagged_enemy(struct Thing* creatng)
+{
+    if (thing_is_invalid(creatng))
+        return;
+
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (creature_control_invalid(cctrl))
+        return;
+
+    // If this creature is in CrSt_HuntTaggedEnemy state (or moving to hunt), update its target
+    if (creatng->active_state == CrSt_HuntTaggedEnemy || 
+        (creatng->active_state == CrSt_MoveToPosition && creatng->continue_state == CrSt_HuntTaggedEnemy)) {
+        // Find the closest tagged enemy for this creature
+        ThingIndex closest_enemy_idx = player_get_closest_tagged_enemy_creature(creatng->owner, creatng);
+        
+        if (closest_enemy_idx == 0) {
+            // No tagged enemies left, stop hunting
+            cctrl->target_prey_idx = 0;
+            // Force the creature to immediately stop current movement and return to start state
+            if (creatng->active_state == CrSt_HuntTaggedEnemy || creatng->active_state == CrSt_MoveToPosition) {
+                set_start_state(creatng);
+            }
+        } else {
+            // Update target to the closest tagged enemy
+            cctrl->target_prey_idx = closest_enemy_idx;
+            struct Thing* target_enemy = thing_get(closest_enemy_idx);
+            if (thing_exists(target_enemy)) {
+                // Force immediate re-evaluation by setting the state again
+                if (external_set_thing_state(creatng, CrSt_HuntTaggedEnemy)) {
+                    // Set up movement to the new target
+                    if (creature_can_navigate_to_with_storage(creatng, &target_enemy->mappos, NavRtF_Default)) {
+                        setup_person_move_to_coord(creatng, &target_enemy->mappos, NavRtF_Default);
+                    }
+                    creatng->continue_state = CrSt_HuntTaggedEnemy;
+                }
+            }
+        }
+    }
+}
+
 void update_creatures_hunting_tagged_enemies(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
@@ -5718,35 +5750,7 @@ void update_creatures_hunting_tagged_enemies(PlayerNumber plyr_idx)
             break;
         }
         
-        // If this creature is in CrSt_HuntTaggedEnemy state (or moving to hunt), update its target
-        if (thing->active_state == CrSt_HuntTaggedEnemy || 
-            (thing->active_state == CrSt_MoveToPosition && thing->continue_state == CrSt_HuntTaggedEnemy)) {
-            // Find the closest tagged enemy for this creature
-            ThingIndex closest_enemy_idx = player_get_closest_tagged_enemy_creature(thing->owner, thing);
-            
-            if (closest_enemy_idx == 0) {
-                // No tagged enemies left, stop hunting
-                cctrl->target_prey_idx = 0;
-                // Force the creature to immediately stop current movement and return to start state
-                if (thing->active_state == CrSt_HuntTaggedEnemy || thing->active_state == CrSt_MoveToPosition) {
-                    set_start_state(thing);
-                }
-            } else {
-                // Update target to the closest tagged enemy
-                cctrl->target_prey_idx = closest_enemy_idx;
-                struct Thing* target_enemy = thing_get(closest_enemy_idx);
-                if (thing_exists(target_enemy)) {
-                    // Force immediate re-evaluation by setting the state again
-                    if (external_set_thing_state(thing, CrSt_HuntTaggedEnemy)) {
-                        // Set up movement to the new target
-                        if (creature_can_navigate_to_with_storage(thing, &target_enemy->mappos, NavRtF_Default)) {
-                            setup_person_move_to_coord(thing, &target_enemy->mappos, NavRtF_Default);
-                        }
-                        thing->continue_state = CrSt_HuntTaggedEnemy;
-                    }
-                }
-            }
-        }
+        update_creature_hunting_tagged_enemy(thing);
     }
 }
 
