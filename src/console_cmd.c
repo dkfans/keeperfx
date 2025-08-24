@@ -2137,57 +2137,6 @@ TbBool cmd_luatypedump(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
-TbBool cmd_tag_enemy_mode(PlayerNumber plyr_idx, char *params)
-{
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if (player_invalid(player))
-        return false;
-    
-    // Check if we want to clear all tags
-    if (params && (strcasecmp(params, "clear") == 0)) {
-        struct Dungeon* dungeon = get_dungeon(plyr_idx);
-        if (dungeon_invalid(dungeon))
-            return false;
-        
-        unsigned long k = 0;
-        int i = dungeon->creatr_list_start;
-        int cleared_count = 0;
-        while (i != 0)
-        {
-            struct Thing* thing = thing_get(i);
-            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            if (creature_control_invalid(cctrl))
-                break;
-                
-            i = cctrl->players_next_creature_idx;
-            k++;
-            if (k > CREATURES_COUNT)
-                break;
-                
-            // Clear any target prey index for this creature
-            if (cctrl->target_prey_idx != 0) {
-                cctrl->target_prey_idx = 0;
-                cleared_count++;
-            }
-        }
-        // Also clear the player's tagged enemy array
-        player_clear_all_tagged_enemy_creatures(plyr_idx);
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Cleared %d enemy tags", cleared_count);
-        return true;
-    }
-    
-    // Otherwise, tag the creature under the cursor
-    struct Thing* thing = thing_get(player->thing_under_hand);
-    if (thing_is_creature(thing) && players_are_enemies(plyr_idx, thing->owner)) {
-        struct Packet* pckt = get_packet(plyr_idx);
-        set_packet_action(pckt, PckA_TagEnemy, thing->index, 0, 0, 0);
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Tagged/untagged enemy %s", thing_model_name(thing));
-        return true;
-    } else {
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "No enemy creature under cursor. Use 'tag.enemy clear' to clear all tags, or simply click on enemies to tag them.");
-        return true;
-    }
-}
 
 struct ConsoleCommand {
     const char * name;
@@ -2296,7 +2245,6 @@ static const struct ConsoleCommand console_commands[] = {
     { "quick.show", cmd_quick_show},
     { "lua", cmd_lua},
     { "luatypedump", cmd_luatypedump},
-    { "tag.enemy", cmd_tag_enemy_mode},
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
 
