@@ -75,6 +75,8 @@ extern "C" {
 /******************************************************************************/
 float global_hand_scale = 1.0;
 
+TbBool is_taggable_prey(const struct Thing *thing, long plyr_idx);
+
 struct Thing *create_gold_for_hand_grab(struct Thing *thing, long owner)
 {
     struct Thing *objtng;
@@ -768,7 +770,7 @@ long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thin
     if (!thing_is_picked_up(thing)
         && (thing->active_state != CrSt_CreatureUnconscious))
     {
-      if (can_thing_be_picked_up_by_player(thing, param->plyr_idx) || thing_slappable(thing, param->plyr_idx))
+      if (can_thing_be_picked_up_by_player(thing, param->plyr_idx) || thing_slappable(thing, param->plyr_idx) || is_taggable_prey(thing, param->plyr_idx))
       {
           // note that abs() is not required because we're computing square of the values
           dist_x = param->num1-(MapCoord)thing->mappos.x.val;
@@ -779,6 +781,15 @@ long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thin
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
+}
+
+TbBool is_taggable_prey(const struct Thing *thing, long plyr_idx)
+{
+    return (thing->class_id == TCls_Creature) && 
+           (thing->owner != plyr_idx) && 
+           !creature_is_invisible(thing) &&
+           !creature_is_kept_in_prison(thing) &&
+           !creature_is_being_tortured(thing);
 }
 
 TbBool thing_slappable(const struct Thing *thing, long plyr_idx)
