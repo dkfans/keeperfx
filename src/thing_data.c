@@ -40,6 +40,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern void clear_all_tags_pointing_to_creature(struct Thing *target_creature);
 /******************************************************************************/
 struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const char *func_name)
 {
@@ -161,6 +163,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
             {
                 remove_creature_from_group(thing);
             }
+            clear_all_tags_pointing_to_creature(thing);
             delete_control_structure(cctrl);
         }
         if (thing->light_id != 0)
