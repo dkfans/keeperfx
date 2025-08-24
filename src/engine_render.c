@@ -5257,6 +5257,28 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
     }
 }
 
+static void draw_tagged_enemy_background(long scrpos_x, long scrpos_y, struct Thing *thing, long base_size, int bs_units_per_px, long h_add, long exp_level)
+{
+    // Animate through quadptr_any_lv1 to quadptr_any_lv9 (indices 16-24) with ping-pong
+    int anim_cycle = (game.play_gameturn * 2 / gui_blink_rate) % 16; // 9 forward + 7 backward = 16 total
+    int anim_frame;
+    if (anim_cycle < 9) {
+        anim_frame = anim_cycle; // 0-8
+    } else {
+        anim_frame = 16 - anim_cycle; // 7-1
+    }
+    const struct TbSprite *bg_spr = get_sprite(pointer_sprites, 16 + anim_frame); // quadptr_any_lv1-9
+    long bg_w = (base_size * bg_spr->SWidth * bs_units_per_px / 16) >> 13;
+    long bg_h = (base_size * bg_spr->SHeight * bs_units_per_px / 16) >> 13;
+    // Make it 75% size
+    bg_w = (bg_w * 75) / 100;
+    bg_h = (bg_h * 75) / 100;
+    // Center with the level flower position, offset by 1 pixel down and right
+    const struct TbSprite *flower_spr = get_button_sprite(GBS_creature_flower_level_01 + exp_level);
+    long flower_h = (base_size * flower_spr->SHeight * bs_units_per_px / 16) >> 13;
+    LbSpriteDrawScaled(scrpos_x - bg_w / 2 + 1, scrpos_y - flower_h / 2 - bg_h / 2 - h_add + 1, bg_spr, bg_w, bg_h);
+}
+
 void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
@@ -5429,6 +5451,12 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         TbBool has_lair = (thing->lair.spr_size > 0);
         // Determine if the current view is the schematic top-down map view.
         TbBool is_parchment_map_view = (cam->view_mode == PVM_ParchmentView);
+        
+        // Draw tagged enemy background sprite independently of other flower conditions to prevent flickering
+        if (is_tagged_enemy) {
+            draw_tagged_enemy_background(scrpos_x, scrpos_y, thing, base_size, bs_units_per_px, h_add, exp_level);
+        }
+        
         if ((forced_visible)
         || (is_thing_under_hand)
         || (is_enemy_and_visible)
@@ -5443,27 +5471,6 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         || (is_parchment_map_view)
         || (is_tagged_enemy))
         {
-            // If this is a tagged enemy, draw a quadptr_any_lv1 behind all flowers that flickers between white and grey
-            if (is_tagged_enemy) {
-                // Animate through quadptr_any_lv1 to quadptr_any_lv9 (indices 16-24) with ping-pong
-                int anim_cycle = (game.play_gameturn * 2 / gui_blink_rate) % 16; // 9 forward + 7 backward = 16 total
-                int anim_frame;
-                if (anim_cycle < 9) {
-                    anim_frame = anim_cycle; // 0-8
-                } else {
-                    anim_frame = 16 - anim_cycle; // 7-1
-                }
-                const struct TbSprite *bg_spr = get_sprite(pointer_sprites, 16 + anim_frame); // quadptr_any_lv1-9
-                long bg_w = (base_size * bg_spr->SWidth * bs_units_per_px / 16) >> 13;
-                long bg_h = (base_size * bg_spr->SHeight * bs_units_per_px / 16) >> 13;
-                // Make it 75% size
-                bg_w = (bg_w * 75) / 100;
-                bg_h = (bg_h * 75) / 100;
-                // Center with the level flower position, offset by 1 pixel down and right
-                const struct TbSprite *flower_spr = get_button_sprite(GBS_creature_flower_level_01 + exp_level);
-                long flower_h = (base_size * flower_spr->SHeight * bs_units_per_px / 16) >> 13;
-                LbSpriteDrawScaled(scrpos_x - bg_w / 2 + 1, scrpos_y - flower_h / 2 - bg_h / 2 - h_add + 1, bg_spr, bg_w, bg_h);
-            }
             
             if (health_spridx > 0)
             {
