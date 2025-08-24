@@ -406,53 +406,33 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                 }
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             } else
+            if (player->input_crtr_query != 0)
             {
-                // First check for enemy tagging with simple left click (high priority)
-                if (game.conf.rules.game.click_tag_enemies_enabled)
+                thing = get_creature_near(x, y);
+                if (!can_thing_be_queried(thing, plyr_idx))
                 {
-                    thing = get_creature_near(x, y);
-                    if (thing_is_creature(thing) && (thing->owner != plyr_idx) && players_are_enemies(plyr_idx, thing->owner))
-                    {
-                        // Don't tag enemies that are in prison
-                        if (!creature_is_kept_in_custody(thing))
-                        {
-                            // Set thing under hand for visual feedback
-                            player->thing_under_hand = thing->index;
-                            // Tag/untag the enemy creature
-                            set_packet_action(pckt, PckA_TagEnemy, thing->index, 0, 0, 0);
-                            unset_packet_control(pckt, PCtr_LBtnRelease);
-                        }
-                    }
+                    player->thing_under_hand = 0;
                 }
-                
-                if (player->input_crtr_query != 0)
+                else
                 {
-                    thing = get_creature_near(x, y);
-                    if (!can_thing_be_queried(thing, plyr_idx))
-                    {
-                        player->thing_under_hand = 0;
-                    }
-                    else
-                    {
-                        player->thing_under_hand = thing->index;
-                    }
-                    if (player->thing_under_hand > 0)
-                    {
-                        if (player->thing_under_hand != player->controlled_thing_idx)
-                        {
-                            if (is_my_player(player))
-                            {
-                                turn_off_all_panel_menus();
-                                turn_on_menu(GMnu_CREATURE_QUERY1);
-                            }
-                            player->influenced_thing_idx = player->thing_under_hand;
-                            set_player_state(player, PSt_CreatrQuery, 0);
-                            set_player_instance(player, PI_QueryCrtr, 0);
-                        }
-                        unset_packet_control(pckt, PCtr_LBtnRelease);
-                    }
+                    player->thing_under_hand = thing->index;
                 }
-            }
+                if (player->thing_under_hand > 0)
+                {
+                    if (player->thing_under_hand != player->controlled_thing_idx)
+                    {
+                        if (is_my_player(player))
+                        {
+                            turn_off_all_panel_menus();
+                            turn_on_menu(GMnu_CREATURE_QUERY1);
+                        }
+                        player->influenced_thing_idx = player->thing_under_hand;
+                        set_player_state(player, PSt_CreatrQuery, 0);
+                        set_player_instance(player, PI_QueryCrtr, 0);
+                    }
+                    unset_packet_control(pckt, PCtr_LBtnRelease);
+                }
+            } else
             if (player->secondary_cursor_state == player->primary_cursor_state)
             {
                 if ((player->primary_cursor_state == CSt_PickAxe) || ((player->primary_cursor_state == CSt_PowerHand) && player->render_roomspace.drag_mode))
