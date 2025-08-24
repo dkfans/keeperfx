@@ -5445,13 +5445,13 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         {
             // If this is a tagged enemy, draw a quadptr_any_lv1 behind all flowers that flickers between white and grey
             if (is_tagged_enemy) {
-                // Animate through quadptr_any_lv1 to quadptr_any_lv9 (indices 16-24) with ping-pong (faster)
-                int anim_cycle = (game.play_gameturn * 2 / gui_blink_rate) % 16; // 8 forward + 8 backward = 16 total
+                // Animate through quadptr_any_lv1 to quadptr_any_lv9 (indices 16-24) with ping-pong
+                int anim_cycle = (game.play_gameturn * 2 / gui_blink_rate) % 16; // 9 forward + 7 backward = 16 total
                 int anim_frame;
-                if (anim_cycle < 8) {
-                    anim_frame = anim_cycle; // 0-7
+                if (anim_cycle < 9) {
+                    anim_frame = anim_cycle; // 0-8
                 } else {
-                    anim_frame = 15 - anim_cycle; // 7-0
+                    anim_frame = 16 - anim_cycle; // 7-1
                 }
                 const struct TbSprite *bg_spr = get_sprite(pointer_sprites, 16 + anim_frame); // quadptr_any_lv1-9
                 long bg_w = (base_size * bg_spr->SWidth * bs_units_per_px / 16) >> 13;
@@ -5459,17 +5459,10 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
                 // Make it 75% size
                 bg_w = (bg_w * 75) / 100;
                 bg_h = (bg_h * 75) / 100;
-                // Add intense flashing effect
-                long saved_flags = lbDisplay.DrawFlags;
-                if (gui_blink_rate > 0 && (game.play_gameturn % gui_blink_rate) < (gui_blink_rate / 2)) {
-                    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-                }
                 // Center with the level flower position, offset by 1 pixel down and right
                 const struct TbSprite *flower_spr = get_button_sprite(GBS_creature_flower_level_01 + exp_level);
                 long flower_h = (base_size * flower_spr->SHeight * bs_units_per_px / 16) >> 13;
                 LbSpriteDrawScaled(scrpos_x - bg_w / 2 + 1, scrpos_y - flower_h / 2 - bg_h / 2 - h_add + 1, bg_spr, bg_w, bg_h);
-                // Restore flags
-                lbDisplay.DrawFlags = saved_flags;
             }
             
             if (health_spridx > 0)
