@@ -408,17 +408,20 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             } else
             {
                 // First check for enemy tagging with simple left click (high priority)
-                thing = get_creature_near(x, y);
-                if (thing_is_creature(thing) && (thing->owner != plyr_idx) && players_are_enemies(plyr_idx, thing->owner))
+                if (game.conf.rules.game.click_tag_enemies_enabled)
                 {
-                    // Don't tag enemies that are in prison
-                    if (!creature_is_kept_in_custody(thing))
+                    thing = get_creature_near(x, y);
+                    if (thing_is_creature(thing) && (thing->owner != plyr_idx) && players_are_enemies(plyr_idx, thing->owner))
                     {
-                        // Set thing under hand for visual feedback
-                        player->thing_under_hand = thing->index;
-                        // Tag/untag the enemy creature
-                        set_packet_action(pckt, PckA_TagEnemy, thing->index, 0, 0, 0);
-                        unset_packet_control(pckt, PCtr_LBtnRelease);
+                        // Don't tag enemies that are in prison
+                        if (!creature_is_kept_in_custody(thing))
+                        {
+                            // Set thing under hand for visual feedback
+                            player->thing_under_hand = thing->index;
+                            // Tag/untag the enemy creature
+                            set_packet_action(pckt, PckA_TagEnemy, thing->index, 0, 0, 0);
+                            unset_packet_control(pckt, PCtr_LBtnRelease);
+                        }
                     }
                 }
                 
