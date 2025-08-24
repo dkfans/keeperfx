@@ -56,7 +56,6 @@
 #include "keeperfx.hpp"
 #include "kjm_input.h"
 #include "player_instances.h"
-#include "player_utils.h"
 #include "sprites.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
@@ -68,6 +67,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// Forward declarations
+extern TbBool player_has_tagged_enemy_creature(PlayerNumber plyr_idx, ThingIndex creature_idx);
 
 #define TO_FIXED(x)    ((x) << 16)
 #define FROM_FIXED(x)    ((x) >> 16)
