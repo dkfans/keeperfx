@@ -665,9 +665,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   struct PlayerInfo* player = get_player(plyr_idx);
   struct Packet* pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
-  if (pckt->action == PckA_TagEnemy) { // Use the actual enum value
-    JUSTLOG("DEBUG: Processing TagEnemy action!");
-  }
   struct Dungeon *dungeon;
   struct Thing *thing;
   int i;
@@ -1109,7 +1106,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     }
     case PckA_TagEnemy:
     {
-        JUSTLOG("DEBUG: PckA_TagEnemy packet received!");
         struct Thing* target_thing = thing_get(pckt->actn_par1);
         if (!thing_is_creature(target_thing) || (target_thing->owner == plyr_idx))
             return false;
@@ -1181,16 +1177,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
                 player_remove_tagged_enemy_creature(plyr_idx, target_thing->index);
             } else {
                 player_add_tagged_enemy_creature(plyr_idx, target_thing->index);
-                JUSTLOG("DEBUG: Player %d tagged enemy %d (%s)", plyr_idx, target_thing->index, thing_model_name(target_thing));
-            }
-        }
-        
-        // Debug confirmation
-        if (is_my_player_number(plyr_idx)) {
-            if (is_already_tagged) {
-                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Untagged %s", thing_model_name(target_thing));
-            } else {
-                targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Tagged %s for attack", thing_model_name(target_thing));
             }
         }
         
@@ -1292,9 +1278,6 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
-    if (pckt->action == PckA_TagEnemy) {
-        JUSTLOG("DEBUG: Found TagEnemy action in dungeon control!");
-    }
     switch (pckt->action)
     {
     case PckA_HoldAudience:
@@ -1314,7 +1297,6 @@ TbBool process_players_dungeon_control_packet_action(long plyr_idx)
         toggle_computer_player(plyr_idx);
         break;
     case PckA_TagEnemy:
-        JUSTLOG("DEBUG: Processing TagEnemy in dungeon control, delegating to global handler");
         return process_players_global_packet_action(plyr_idx);
     default:
         return process_players_dungeon_control_cheats_packet_action(plyr_idx, pckt);

@@ -5482,7 +5482,6 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
             spr = get_button_sprite(GBS_creature_flower_level_01 + exp_level);
             w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
             h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
-            
             LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
         }
     }
