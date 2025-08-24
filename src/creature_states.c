@@ -1125,31 +1125,10 @@ short arrive_at_call_to_arms(struct Thing *creatng)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
-    
-    // Check if creature has a tagged enemy - if so, prioritize fighting it
-    if (cctrl->tagged_enemy_idx != 0) {
-        struct Thing* tagged_enemy = thing_get(cctrl->tagged_enemy_idx);
-        if (!thing_is_invalid(tagged_enemy) && thing_is_creature(tagged_enemy) && (tagged_enemy->owner != creatng->owner)) {
-            // Try to start combat with the tagged enemy
-            long distance = get_combat_distance(creatng, tagged_enemy);
-            CrAttackType attack_type = creature_can_have_combat_with_creature(creatng, tagged_enemy, distance, 1, 0);
-            if (attack_type > AttckT_Unset) {
-                set_creature_combat_state(creatng, tagged_enemy, attack_type);
-                return 2;
-            }
-        }
-    }
     
     if (!player_uses_power_call_to_arms(creatng->owner))
     {
-        // If not using call to arms but has tagged enemy, continue looking for combat
-        if (cctrl->tagged_enemy_idx != 0) {
-            if (creature_look_for_combat(creatng)) {
-                return 2;
-            }
-        }
         set_start_state(creatng);
         return 1;
     }
@@ -5596,15 +5575,14 @@ TbBool process_creature_needs_to_seek_tagged_enemy(struct Thing *creatng)
     // Force creature to seek the tagged enemy using the same mechanism as Call to Arms
     if (creature_can_navigate_to_with_storage(creatng, &tagged_enemy->mappos, NavRtF_Default)) {
         if (creatng->model == 14) { // Skeleton debug
-            JUSTLOG("SKELETON %d can navigate to enemy, setting CTA state", creatng->index);
+            JUSTLOG("SKELETON %d can navigate to enemy, setting HuntTaggedEnemy state", creatng->index);
         }
-        if (external_set_thing_state(creatng, CrSt_ArriveAtCallToArms)) {
+        if (external_set_thing_state(creatng, CrSt_HuntTaggedEnemy)) {
             setup_person_move_to_coord(creatng, &tagged_enemy->mappos, NavRtF_Default);
-            creatng->continue_state = CrSt_ArriveAtCallToArms;
-            cctrl->called_to_arms = true;
+            creatng->continue_state = CrSt_HuntTaggedEnemy;
             creature_mark_if_woken_up(creatng);
             if (creatng->model == 14) { // Skeleton debug
-                JUSTLOG("SKELETON %d successfully set to seek tagged enemy", creatng->index);
+                JUSTLOG("SKELETON %d successfully set to hunt tagged enemy", creatng->index);
             }
             return true;
         } else {
@@ -5618,6 +5596,71 @@ TbBool process_creature_needs_to_seek_tagged_enemy(struct Thing *creatng)
         }
     }
     return false;
+}
+
+short hunt_tagged_enemy(struct Thing *creatng)
+{
+    SYNCDBG(18,"Starting");
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    
+    // Check if creature still has a valid tagged enemy
+    if (cctrl->tagged_enemy_idx == 0) {
+        set_start_state(creatng);
+        return 1;
+    }
+    
+    struct Thing* tagged_enemy = thing_get(cctrl->tagged_enemy_idx);
+    if (thing_is_invalid(tagged_enemy) || !thing_is_creature(tagged_enemy) || (tagged_enemy->owner == creatng->owner)) {
+        // Tagged enemy is invalid, clear it and return to normal state
+        cctrl->tagged_enemy_idx = 0;
+        set_start_state(creatng);
+        return 1;
+    }
+    
+    // Check for doors and objects to fight (same as Call to Arms)
+    struct Thing* cmbttng = check_for_door_to_fight(creatng);
+    if (!thing_is_invalid(cmbttng))
+    {
+        set_creature_door_combat(creatng, cmbttng);
+        return 2;
+    }
+    cmbttng = check_for_object_to_fight(creatng);
+    if (!thing_is_invalid(cmbttng))
+    {
+        set_creature_object_combat(creatng, cmbttng);
+        return 2;
+    }
+    
+    // Try to start combat with the tagged enemy if in range
+    long distance = get_combat_distance(creatng, tagged_enemy);
+    CrAttackType attack_type = creature_can_have_combat_with_creature(creatng, tagged_enemy, distance, 1, 0);
+    if (attack_type > AttckT_Unset) {
+        set_creature_combat_state(creatng, tagged_enemy, attack_type);
+        return 2;
+    }
+    
+    // Look for general combat while hunting
+    if (creature_look_for_combat(creatng)) {
+        return 2;
+    }
+    
+    // Continue moving toward the tagged enemy
+    if (CREATURE_RANDOM(creatng, 7) == 0)
+    {
+        if (setup_person_move_close_to_position(creatng, 
+            tagged_enemy->mappos.x.stl.num, tagged_enemy->mappos.y.stl.num, NavRtF_Default))
+        {
+            creatng->continue_state = CrSt_HuntTaggedEnemy;
+            return 1;
+        }
+    }
+    if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+    {
+        creatng->continue_state = CrSt_HuntTaggedEnemy;
+        return 1;
+    }
+    return 1;
 }
 
 TbBool setup_move_off_lava(struct Thing* thing)
