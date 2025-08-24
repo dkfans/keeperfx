@@ -48,7 +48,6 @@
 #include "game_saves.h"
 #include "game_legacy.h"
 #include "frontend.h"
-#include "creature_states.h"
 #include "magic_powers.h"
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"

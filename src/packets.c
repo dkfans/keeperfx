@@ -60,8 +60,6 @@
 #include "thing_navigate.h"
 #include "thing_creature.h"
 #include "creature_states.h"
-#include "creature_states_combt.h"
-#include "creature_states_mood.h"
 #include "creature_instances.h"
 #include "creature_groups.h"
 #include "console_cmd.h"

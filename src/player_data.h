@@ -32,7 +32,6 @@ extern "C" {
 #define PLAYERS_COUNT       9
 #define COLOURS_COUNT       9
 
-
 #define INVALID_PLAYER (&bad_player)
 
 #define PLAYER_MP_MESSAGE_LEN  64

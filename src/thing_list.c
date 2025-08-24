@@ -37,7 +37,6 @@
 #include "creature_senses.h"
 #include "spdigger_stack.h"
 #include "power_hand.h"
-#include "player_utils.h"
 #include "magic_powers.h"
 #include "map_utils.h"
 #include "config_creature.h"
@@ -54,6 +53,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern TbBool player_has_tagged_enemy_creature(PlayerNumber plyr_idx, ThingIndex creature_idx);
 
 /******************************************************************************/
 Thing_Class_Func class_functions[] = {
