@@ -239,7 +239,15 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
             (player->instance_num != PI_Whip) && (player->instance_num != PI_WhipEnd))
         {
             thing = get_first_thing_in_power_hand(player);
-            if ((player->thing_under_hand != 0) || thing_is_invalid(thing))
+            TbBool thing_under_hand_actionable = false;
+            if (player->thing_under_hand != 0) {
+                struct Thing* hand_thing = thing_get(player->thing_under_hand);
+                if (!thing_is_invalid(hand_thing)) {
+                    thing_under_hand_actionable = can_thing_be_picked_up_by_player(hand_thing, plyr_idx) || 
+                                                   thing_slappable(hand_thing, plyr_idx);
+                }
+            }
+            if (thing_under_hand_actionable || thing_is_invalid(thing))
             {
                 set_power_hand_graphic(plyr_idx, HndA_Hover);
                 if (!thing_is_invalid(thing))
@@ -411,10 +419,6 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
                         // Tag/untag the enemy creature
                         set_packet_action(pckt, PckA_TagEnemy, thing->index, 0, 0, 0);
                         unset_packet_control(pckt, PCtr_LBtnRelease);
-                        // Debug message to confirm tagging is working
-                        if (is_my_player(player)) {
-                            targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Tagged enemy %s (ID: %d)", thing_model_name(thing), (int)thing->index);
-                        }
                     }
                 }
                 

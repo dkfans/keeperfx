@@ -74,6 +74,8 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
+extern TbBool player_has_tagged_enemy_creature(PlayerNumber plyr_idx, ThingIndex creature_idx);
+
 void redraw_isometric_view(void);
 void redraw_frontview(void);
 /******************************************************************************/
@@ -941,6 +943,9 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                   set_pointer_graphic(MousePG_Invisible);
                 }
             }
+            break;
+        case CSt_CreatureTarget:
+            set_pointer_graphic(MousePG_Pickaxe);
             break;
         default:
             if (player->hand_busy_until_turn <= game.play_gameturn)

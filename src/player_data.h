@@ -95,6 +95,7 @@ enum PlayerCursorStates {
     CSt_PickAxe       = 1, // Dig - Pickake cursor
     CSt_DoorKey       = 2, // Lock/Unlock Door - Key cursor
     CSt_PowerHand     = 3, // Power Hand cursor
+    CSt_CreatureTarget = 4, // Creature targeting cursor
 };
 
 enum PlayerAdditionalFlags {
