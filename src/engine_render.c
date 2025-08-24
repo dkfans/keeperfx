@@ -56,6 +56,7 @@
 #include "keeperfx.hpp"
 #include "kjm_input.h"
 #include "player_instances.h"
+#include "player_utils.h"
 #include "sprites.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
@@ -5391,7 +5392,8 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
                     struct CreatureControl* own_cctrl = creature_control_get_from_thing(own_creature);
                     if (creature_control_invalid(own_cctrl)) break;
                     
-                    if (own_cctrl->tagged_enemy_idx == thing->index) {
+                    // Check if this enemy is tagged by the current player
+                    if (player_has_tagged_enemy_creature(own_creature->owner, thing->index)) {
                         is_tagged_enemy = true;
                         break;
                     }

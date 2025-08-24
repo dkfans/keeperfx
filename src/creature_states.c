@@ -3219,15 +3219,22 @@ void clear_all_tags_pointing_to_creature(struct Thing *target_creature)
             if (k > CREATURES_COUNT)
                 break;
                 
-            if (cctrl->tagged_enemy_idx == target_creature->index) {
-                JUSTLOG("Clearing tag for creature %d that was targeting unconscious creature %d", thing->index, target_creature->index);
-                cctrl->tagged_enemy_idx = 0;
+            // Clear target prey if it was targeting this unconscious creature
+            if (cctrl->target_prey_idx == target_creature->index) {
+                JUSTLOG("Clearing prey target for creature %d that was targeting unconscious creature %d", thing->index, target_creature->index);
+                cctrl->target_prey_idx = 0;
                 // Set the creature back to its start state to exit the hunt state
                 if (thing->active_state == CrSt_HuntTaggedEnemy) {
                     set_start_state(thing);
                 }
             }
+            
         }
+    }
+    
+    // Also remove this creature from all players' tagged enemy lists if it became unconscious
+    for (PlayerNumber player_idx = 0; player_idx < PLAYERS_COUNT; player_idx++) {
+        player_remove_tagged_enemy_creature(player_idx, target_creature->index);
     }
 }
 
@@ -5585,38 +5592,34 @@ void process_person_moods_and_needs(struct Thing *thing)
 TbBool process_creature_needs_to_seek_tagged_enemy(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->tagged_enemy_idx == 0) {
+    
+    // Find the closest tagged enemy for this creature's owner
+    ThingIndex closest_enemy_idx = player_get_closest_tagged_enemy_creature(creatng->owner, creatng);
+    
+    if (closest_enemy_idx == 0) {
+        // Clear target if no tagged enemies available
+        cctrl->target_prey_idx = 0;
         if (creatng->model == 14) { // Skeleton debug
-            JUSTLOG("SKELETON %d has no tagged enemy", creatng->index);
+            JUSTLOG("SKELETON %d has no tagged enemies", creatng->index);
         }
         return false;
     }
     
-    if (creatng->model == 1) { // Skeleton debug
-        JUSTLOG("SKELETON %d checking tagged enemy %d", creatng->index, cctrl->tagged_enemy_idx);
-    }
-    
-    struct Thing* tagged_enemy = thing_get(cctrl->tagged_enemy_idx);
-    if (thing_is_invalid(tagged_enemy) || !thing_is_creature(tagged_enemy) || (tagged_enemy->owner == creatng->owner)) {
-        // Tagged enemy is invalid, clear it
-        if (creatng->model == 14) { // Skeleton debug
-            JUSTLOG("SKELETON %d tagged enemy %d is invalid, clearing", creatng->index, cctrl->tagged_enemy_idx);
-        }
-        cctrl->tagged_enemy_idx = 0;
-        return false;
-    }
+    // Set the closest enemy as our target
+    cctrl->target_prey_idx = closest_enemy_idx;
+    struct Thing* target_enemy = thing_get(closest_enemy_idx);
     
     if (creatng->model == 1) { // Skeleton debug
-        JUSTLOG("SKELETON %d trying to navigate to tagged enemy %d (%s)", creatng->index, tagged_enemy->index, thing_model_name(tagged_enemy));
+        JUSTLOG("SKELETON %d targeting closest tagged enemy %d (%s)", creatng->index, target_enemy->index, thing_model_name(target_enemy));
     }
     
-    // Force creature to seek the tagged enemy using the same mechanism as Call to Arms
-    if (creature_can_navigate_to_with_storage(creatng, &tagged_enemy->mappos, NavRtF_Default)) {
+    // Force creature to seek the closest tagged enemy
+    if (creature_can_navigate_to_with_storage(creatng, &target_enemy->mappos, NavRtF_Default)) {
         if (creatng->model == 14) { // Skeleton debug
             JUSTLOG("SKELETON %d can navigate to enemy, setting HuntTaggedEnemy state", creatng->index);
         }
         if (external_set_thing_state(creatng, CrSt_HuntTaggedEnemy)) {
-            setup_person_move_to_coord(creatng, &tagged_enemy->mappos, NavRtF_Default);
+            setup_person_move_to_coord(creatng, &target_enemy->mappos, NavRtF_Default);
             creatng->continue_state = CrSt_HuntTaggedEnemy;
             creature_mark_if_woken_up(creatng);
             if (creatng->model == 14) { // Skeleton debug
@@ -5642,18 +5645,28 @@ short hunt_tagged_enemy(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     
-    // Check if creature still has a valid tagged enemy
-    if (cctrl->tagged_enemy_idx == 0) {
-        set_start_state(creatng);
-        return 1;
+    // Check if creature still has a valid target prey
+    if (cctrl->target_prey_idx == 0) {
+        // Try to get the closest tagged enemy
+        ThingIndex closest_enemy_idx = player_get_closest_tagged_enemy_creature(creatng->owner, creatng);
+        if (closest_enemy_idx == 0) {
+            set_start_state(creatng);
+            return 1;
+        }
+        cctrl->target_prey_idx = closest_enemy_idx;
     }
     
-    struct Thing* tagged_enemy = thing_get(cctrl->tagged_enemy_idx);
-    if (thing_is_invalid(tagged_enemy) || !thing_is_creature(tagged_enemy) || (tagged_enemy->owner == creatng->owner) || (tagged_enemy->active_state == CrSt_CreatureUnconscious)) {
-        // Tagged enemy is invalid, defeated (unconscious), or no longer an enemy - clear tag and return to normal state
-        cctrl->tagged_enemy_idx = 0;
-        set_start_state(creatng);
-        return 1;
+    struct Thing* target_prey = thing_get(cctrl->target_prey_idx);
+    if (thing_is_invalid(target_prey) || !thing_is_creature(target_prey) || (target_prey->owner == creatng->owner) || (target_prey->active_state == CrSt_CreatureUnconscious)) {
+        // Target is invalid, defeated (unconscious), or no longer an enemy - try to find a new target
+        ThingIndex closest_enemy_idx = player_get_closest_tagged_enemy_creature(creatng->owner, creatng);
+        if (closest_enemy_idx == 0) {
+            cctrl->target_prey_idx = 0;
+            set_start_state(creatng);
+            return 1;
+        }
+        cctrl->target_prey_idx = closest_enemy_idx;
+        target_prey = thing_get(closest_enemy_idx);
     }
     
     // Check for doors and objects to fight (same as Call to Arms)
@@ -5670,11 +5683,11 @@ short hunt_tagged_enemy(struct Thing *creatng)
         return 2;
     }
     
-    // Try to start combat with the tagged enemy if in range
-    long distance = get_combat_distance(creatng, tagged_enemy);
-    CrAttackType attack_type = creature_can_have_combat_with_creature(creatng, tagged_enemy, distance, 1, 0);
+    // Try to start combat with the target prey if in range
+    long distance = get_combat_distance(creatng, target_prey);
+    CrAttackType attack_type = creature_can_have_combat_with_creature(creatng, target_prey, distance, 1, 0);
     if (attack_type > AttckT_Unset) {
-        set_creature_combat_state(creatng, tagged_enemy, attack_type);
+        set_creature_combat_state(creatng, target_prey, attack_type);
         return 2;
     }
     
@@ -5683,11 +5696,11 @@ short hunt_tagged_enemy(struct Thing *creatng)
         return 2;
     }
     
-    // Continue moving toward the tagged enemy
+    // Continue moving toward the target prey
     if (CREATURE_RANDOM(creatng, 7) == 0)
     {
         if (setup_person_move_close_to_position(creatng, 
-            tagged_enemy->mappos.x.stl.num, tagged_enemy->mappos.y.stl.num, NavRtF_Default))
+            target_prey->mappos.x.stl.num, target_prey->mappos.y.stl.num, NavRtF_Default))
         {
             creatng->continue_state = CrSt_HuntTaggedEnemy;
             return 1;

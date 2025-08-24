@@ -741,6 +741,10 @@ void init_player(struct PlayerInfo *player, short no_explore)
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
+    // Initialize tagged enemy creatures array
+    for (int i = 0; i < CREATURES_COUNT; i++) {
+        player->tagged_enemy_creatures[i] = 0;
+    }
     player->main_palette = engine_palette;
     player->minimap_zoom = settings.minimap_zoom;
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
@@ -1274,6 +1278,110 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
                 }
             }
         }
+    }
+}
+
+void player_add_tagged_enemy_creature(PlayerNumber plyr_idx, ThingIndex creature_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player_invalid(player)) {
+        return;
+    }
+    
+    // Check if already tagged
+    if (player_has_tagged_enemy_creature(plyr_idx, creature_idx)) {
+        return;
+    }
+    
+    // Find first empty slot
+    for (int i = 0; i < CREATURES_COUNT; i++) {
+        if (player->tagged_enemy_creatures[i] == 0) {
+            player->tagged_enemy_creatures[i] = creature_idx;
+            return;
+        }
+    }
+}
+
+void player_remove_tagged_enemy_creature(PlayerNumber plyr_idx, ThingIndex creature_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player_invalid(player)) {
+        return;
+    }
+    
+    // Find and remove the creature
+    for (int i = 0; i < CREATURES_COUNT; i++) {
+        if (player->tagged_enemy_creatures[i] == creature_idx) {
+            player->tagged_enemy_creatures[i] = 0;
+            return;
+        }
+    }
+}
+
+TbBool player_has_tagged_enemy_creature(PlayerNumber plyr_idx, ThingIndex creature_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player_invalid(player)) {
+        return false;
+    }
+    
+    for (int i = 0; i < CREATURES_COUNT; i++) {
+        if (player->tagged_enemy_creatures[i] == creature_idx) {
+            return true;
+        }
+    }
+    return false;
+}
+
+ThingIndex player_get_closest_tagged_enemy_creature(PlayerNumber plyr_idx, struct Thing *hunter_creature)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player_invalid(player) || thing_is_invalid(hunter_creature)) {
+        return 0;
+    }
+    
+    ThingIndex closest_idx = 0;
+    long closest_distance = LONG_MAX;
+    
+    for (int i = 0; i < CREATURES_COUNT; i++) {
+        ThingIndex tagged_idx = player->tagged_enemy_creatures[i];
+        if (tagged_idx == 0) {
+            continue;
+        }
+        
+        struct Thing* tagged_creature = thing_get(tagged_idx);
+        if (thing_is_invalid(tagged_creature) || !thing_is_creature(tagged_creature)) {
+            // Remove invalid creature from the list
+            player->tagged_enemy_creatures[i] = 0;
+            continue;
+        }
+        
+        // Skip if same owner (shouldn't happen, but safety check)
+        if (tagged_creature->owner == hunter_creature->owner) {
+            player->tagged_enemy_creatures[i] = 0;
+            continue;
+        }
+        
+        // Calculate distance
+        long distance = get_2d_distance(&hunter_creature->mappos, &tagged_creature->mappos);
+        if (distance < closest_distance) {
+            closest_distance = distance;
+            closest_idx = tagged_idx;
+        }
+    }
+    
+    return closest_idx;
+}
+
+void player_clear_all_tagged_enemy_creatures(PlayerNumber plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (player_invalid(player)) {
+        return;
+    }
+    
+    for (int i = 0; i < CREATURES_COUNT; i++) {
+        player->tagged_enemy_creatures[i] = 0;
     }
 }
 

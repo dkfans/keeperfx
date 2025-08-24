@@ -1144,7 +1144,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
                 break;
             }
             
-            if (cctrl->tagged_enemy_idx == target_thing->index) {
+            // Check if this target is already tagged by this player
+            if (player_has_tagged_enemy_creature(thing->owner, target_thing->index)) {
                 is_already_tagged = true;
             }
         }
@@ -1172,19 +1173,16 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
             
             // If already tagged, untag it; if not tagged, tag it
             if (is_already_tagged) {
-                if (cctrl->tagged_enemy_idx == target_thing->index) {
-                    cctrl->tagged_enemy_idx = 0; // Untag
-                    if (thing->model == 14) { // Skeleton debug
-                        JUSTLOG("SKELETON %d UNTAGGED enemy %d", thing->index, target_thing->index);
-                    }
+                player_remove_tagged_enemy_creature(plyr_idx, target_thing->index);
+                if (thing->model == 14) { // Skeleton debug
+                    JUSTLOG("SKELETON %d UNTAGGED enemy %d", thing->index, target_thing->index);
                 }
             } else {
-                cctrl->tagged_enemy_idx = target_thing->index; // Tag
-                // The creature AI will now handle seeking the tagged enemy in process_person_moods_and_needs()
+                player_add_tagged_enemy_creature(plyr_idx, target_thing->index);
                 if (thing->model == 14) { // Skeleton debug
                     JUSTLOG("SKELETON %d TAGGED enemy %d (%s)", thing->index, target_thing->index, thing_model_name(target_thing));
                 }
-                JUSTLOG("DEBUG: Creature %d (%s) tagged enemy %d (%s)", thing->index, thing_model_name(thing), target_thing->index, thing_model_name(target_thing));
+                JUSTLOG("DEBUG: Player %d tagged enemy %d (%s)", plyr_idx, target_thing->index, thing_model_name(target_thing));
             }
         }
         

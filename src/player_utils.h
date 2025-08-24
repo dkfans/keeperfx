@@ -26,6 +26,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
+// Forward declarations
+struct Thing;
+/******************************************************************************/
 enum CreatureWanderingSlots {
     CrWaS_OutsideDungeon = 0,
     CrWaS_WithinDungeon,
@@ -66,6 +69,12 @@ void init_keeper_map_exploration_by_creatures(struct PlayerInfo *player);
 void process_players(void);
 
 void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx);
+
+void player_add_tagged_enemy_creature(PlayerNumber plyr_idx, ThingIndex creature_idx);
+void player_remove_tagged_enemy_creature(PlayerNumber plyr_idx, ThingIndex creature_idx);
+TbBool player_has_tagged_enemy_creature(PlayerNumber plyr_idx, ThingIndex creature_idx);
+ThingIndex player_get_closest_tagged_enemy_creature(PlayerNumber plyr_idx, struct Thing *hunter_creature);
+void player_clear_all_tagged_enemy_creatures(PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

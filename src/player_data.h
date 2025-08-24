@@ -32,6 +32,10 @@ extern "C" {
 #define PLAYERS_COUNT       9
 #define COLOURS_COUNT       9
 
+#ifndef CREATURES_COUNT
+#define CREATURES_COUNT     1024
+#endif
+
 #define INVALID_PLAYER (&bad_player)
 
 #define PLAYER_MP_MESSAGE_LEN  64
@@ -203,6 +207,8 @@ struct PlayerInfo {
     unsigned char secondary_cursor_state;
     PlayerState continue_work_state;
     short cursor_light_idx;
+    /** Array of creature indices that this player has tagged as enemies */
+    ThingIndex tagged_enemy_creatures[CREATURES_COUNT];
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;

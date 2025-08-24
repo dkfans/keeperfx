@@ -2164,11 +2164,14 @@ TbBool cmd_tag_enemy_mode(PlayerNumber plyr_idx, char *params)
             if (k > CREATURES_COUNT)
                 break;
                 
-            if (cctrl->tagged_enemy_idx != 0) {
-                cctrl->tagged_enemy_idx = 0;
+            // Clear any target prey index for this creature
+            if (cctrl->target_prey_idx != 0) {
+                cctrl->target_prey_idx = 0;
                 cleared_count++;
             }
         }
+        // Also clear the player's tagged enemy array
+        player_clear_all_tagged_enemy_creatures(plyr_idx);
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Cleared %d enemy tags", cleared_count);
         return true;
     }
