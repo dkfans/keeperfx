@@ -3220,7 +3220,6 @@ void clear_all_tags_pointing_to_creature(struct Thing *target_creature)
                 
             // Clear target prey if it was targeting this unconscious creature
             if (cctrl->target_prey_idx == target_creature->index) {
-                JUSTLOG("Clearing prey target for creature %d that was targeting unconscious creature %d", thing->index, target_creature->index);
                 cctrl->target_prey_idx = 0;
                 // Set the creature back to its start state to exit the hunt state
                 if (thing->active_state == CrSt_HuntTaggedEnemy) {
@@ -5598,9 +5597,6 @@ TbBool process_creature_needs_to_seek_tagged_enemy(struct Thing *creatng)
     if (closest_enemy_idx == 0) {
         // Clear target if no tagged enemies available
         cctrl->target_prey_idx = 0;
-        if (creatng->model == 14) { // Skeleton debug
-            JUSTLOG("SKELETON %d has no tagged enemies", creatng->index);
-        }
         return false;
     }
     
@@ -5608,31 +5604,13 @@ TbBool process_creature_needs_to_seek_tagged_enemy(struct Thing *creatng)
     cctrl->target_prey_idx = closest_enemy_idx;
     struct Thing* target_enemy = thing_get(closest_enemy_idx);
     
-    if (creatng->model == 1) { // Skeleton debug
-        JUSTLOG("SKELETON %d targeting closest tagged enemy %d (%s)", creatng->index, target_enemy->index, thing_model_name(target_enemy));
-    }
-    
     // Force creature to seek the closest tagged enemy
     if (creature_can_navigate_to_with_storage(creatng, &target_enemy->mappos, NavRtF_Default)) {
-        if (creatng->model == 14) { // Skeleton debug
-            JUSTLOG("SKELETON %d can navigate to enemy, setting HuntTaggedEnemy state", creatng->index);
-        }
         if (external_set_thing_state(creatng, CrSt_HuntTaggedEnemy)) {
             setup_person_move_to_coord(creatng, &target_enemy->mappos, NavRtF_Default);
             creatng->continue_state = CrSt_HuntTaggedEnemy;
             creature_mark_if_woken_up(creatng);
-            if (creatng->model == 14) { // Skeleton debug
-                JUSTLOG("SKELETON %d successfully set to hunt tagged enemy", creatng->index);
-            }
             return true;
-        } else {
-            if (creatng->model == 14) { // Skeleton debug
-                JUSTLOG("SKELETON %d failed to set CTA state", creatng->index);
-            }
-        }
-    } else {
-        if (creatng->model == 14) { // Skeleton debug
-            JUSTLOG("SKELETON %d cannot navigate to tagged enemy", creatng->index);
         }
     }
     return false;
@@ -5715,7 +5693,6 @@ short hunt_tagged_enemy(struct Thing *creatng)
 
 void update_creatures_hunting_tagged_enemies(PlayerNumber plyr_idx)
 {
-    JUSTLOG("update_creatures_hunting_tagged_enemies: Starting for player %d", plyr_idx);
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
         return;
@@ -5744,13 +5721,11 @@ void update_creatures_hunting_tagged_enemies(PlayerNumber plyr_idx)
         // If this creature is in CrSt_HuntTaggedEnemy state (or moving to hunt), update its target
         if (thing->active_state == CrSt_HuntTaggedEnemy || 
             (thing->active_state == CrSt_MoveToPosition && thing->continue_state == CrSt_HuntTaggedEnemy)) {
-            JUSTLOG("update_creatures_hunting_tagged_enemies: Found creature %d in hunt state", thing->index);
             // Find the closest tagged enemy for this creature
             ThingIndex closest_enemy_idx = player_get_closest_tagged_enemy_creature(thing->owner, thing);
             
             if (closest_enemy_idx == 0) {
                 // No tagged enemies left, stop hunting
-                JUSTLOG("update_creatures_hunting_tagged_enemies: No tagged enemies, stopping hunt for creature %d", thing->index);
                 cctrl->target_prey_idx = 0;
                 // Force the creature to immediately stop current movement and return to start state
                 if (thing->active_state == CrSt_HuntTaggedEnemy || thing->active_state == CrSt_MoveToPosition) {
@@ -5758,7 +5733,6 @@ void update_creatures_hunting_tagged_enemies(PlayerNumber plyr_idx)
                 }
             } else {
                 // Update target to the closest tagged enemy
-                JUSTLOG("update_creatures_hunting_tagged_enemies: Updating creature %d target to enemy %d", thing->index, closest_enemy_idx);
                 cctrl->target_prey_idx = closest_enemy_idx;
                 struct Thing* target_enemy = thing_get(closest_enemy_idx);
                 if (thing_exists(target_enemy)) {
