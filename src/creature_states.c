@@ -5718,7 +5718,7 @@ short hunt_tagged_enemy(struct Thing *creatng)
 
 void update_creatures_hunting_tagged_enemies(PlayerNumber plyr_idx)
 {
-    JUSTLOG("hello");
+    JUSTLOG("update_creatures_hunting_tagged_enemies: Starting for player %d", plyr_idx);
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
         return;
@@ -5744,23 +5744,34 @@ void update_creatures_hunting_tagged_enemies(PlayerNumber plyr_idx)
             break;
         }
         
-        // If this creature is in CrSt_HuntTaggedEnemy state, update its target
-        if (thing->active_state == CrSt_HuntTaggedEnemy) {
+        // If this creature is in CrSt_HuntTaggedEnemy state (or moving to hunt), update its target
+        if (thing->active_state == CrSt_HuntTaggedEnemy || 
+            (thing->active_state == CrSt_MoveToPosition && thing->continue_state == CrSt_HuntTaggedEnemy)) {
+            JUSTLOG("update_creatures_hunting_tagged_enemies: Found creature %d in hunt state", thing->index);
             // Find the closest tagged enemy for this creature
             ThingIndex closest_enemy_idx = player_get_closest_tagged_enemy_creature(thing->owner, thing);
             
             if (closest_enemy_idx == 0) {
                 // No tagged enemies left, stop hunting
+                JUSTLOG("update_creatures_hunting_tagged_enemies: No tagged enemies, stopping hunt for creature %d", thing->index);
                 cctrl->target_prey_idx = 0;
-                set_start_state(thing);
+                // Force the creature to immediately stop current movement and return to start state
+                if (thing->active_state == CrSt_HuntTaggedEnemy || thing->active_state == CrSt_MoveToPosition) {
+                    set_start_state(thing);
+                }
             } else {
                 // Update target to the closest tagged enemy
+                JUSTLOG("update_creatures_hunting_tagged_enemies: Updating creature %d target to enemy %d", thing->index, closest_enemy_idx);
                 cctrl->target_prey_idx = closest_enemy_idx;
                 struct Thing* target_enemy = thing_get(closest_enemy_idx);
                 if (thing_exists(target_enemy)) {
-                    // Set up movement to the new target
-                    if (creature_can_navigate_to_with_storage(thing, &target_enemy->mappos, NavRtF_Default)) {
-                        setup_person_move_to_coord(thing, &target_enemy->mappos, NavRtF_Default);
+                    // Force immediate re-evaluation by setting the state again
+                    if (external_set_thing_state(thing, CrSt_HuntTaggedEnemy)) {
+                        // Set up movement to the new target
+                        if (creature_can_navigate_to_with_storage(thing, &target_enemy->mappos, NavRtF_Default)) {
+                            setup_person_move_to_coord(thing, &target_enemy->mappos, NavRtF_Default);
+                        }
+                        thing->continue_state = CrSt_HuntTaggedEnemy;
                     }
                 }
             }
