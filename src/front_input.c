@@ -2310,15 +2310,17 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
     struct Thing* thing = get_nearest_thing_for_hand_or_slap(player->id_number, pos->x.val, pos->y.val);
-    if (!thing_is_invalid(thing))
-    {
-      if (can_thing_be_picked_up_by_player(thing, player->id_number) || thing_slappable(thing, player->id_number))
+    if (!thing_is_invalid(thing)) {
+      if (can_thing_be_picked_up_by_player(thing, player->id_number) || thing_slappable(thing, player->id_number)) {
         *context = CSt_PowerHand;
-      else
+      } else if (game.conf.rules.game.click_tag_enemies_enabled) {
         *context = CSt_CreatureTarget;
-    }
-    else
+      } else {
+        *context = CSt_DefaultArrow;
+      }
+    } else {
       *context = CSt_DefaultArrow;
+    }
   }
   if (pos->x.val >= (game.map_subtiles_x << 8))
     pos->x.val = (game.map_subtiles_x << 8)-1;
