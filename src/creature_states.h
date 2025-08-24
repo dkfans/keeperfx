@@ -312,6 +312,7 @@ TbBool creature_is_dragging_spellbook(const struct Thing *creatng);
 void stop_creature_being_dragged_by(struct Thing *dragtng, struct Thing *creatng);
 
 void make_creature_conscious(struct Thing *creatng);
+void clear_all_tags_pointing_to_creature(struct Thing *target_creature);
 void make_creature_unconscious(struct Thing *creatng);
 void make_creature_conscious_without_changing_state(struct Thing *creatng);
 

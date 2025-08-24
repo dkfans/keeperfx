@@ -3196,6 +3196,41 @@ void stop_creature_being_dragged_by(struct Thing *dragtng, struct Thing *creatng
     dragctrl->dragtng_idx = 0;
 }
 
+void clear_all_tags_pointing_to_creature(struct Thing *target_creature)
+{
+    TRACE_THING(target_creature);
+    // Iterate through all players to clear tags pointing to this creature
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++) {
+        struct Dungeon* dungeon = get_dungeon(plyr_idx);
+        if (dungeon_invalid(dungeon))
+            continue;
+        
+        unsigned long k = 0;
+        int i = dungeon->creatr_list_start;
+        while (i != 0)
+        {
+            struct Thing* thing = thing_get(i);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if (creature_control_invalid(cctrl))
+                break;
+                
+            i = cctrl->players_next_creature_idx;
+            k++;
+            if (k > CREATURES_COUNT)
+                break;
+                
+            if (cctrl->tagged_enemy_idx == target_creature->index) {
+                JUSTLOG("Clearing tag for creature %d that was targeting unconscious creature %d", thing->index, target_creature->index);
+                cctrl->tagged_enemy_idx = 0;
+                // Set the creature back to its start state to exit the hunt state
+                if (thing->active_state == CrSt_HuntTaggedEnemy) {
+                    set_start_state(thing);
+                }
+            }
+        }
+    }
+}
+
 void make_creature_unconscious(struct Thing *creatng)
 {
     TRACE_THING(creatng);
@@ -3212,6 +3247,9 @@ void make_creature_unconscious(struct Thing *creatng)
     cctrl->flgfield_1 |= CCFlg_PreventDamage;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     cctrl->conscious_back_turns = game.conf.rules.creature.game_turns_unconscious;
+    
+    // Clear all tags pointing to this creature since it's now unconscious
+    clear_all_tags_pointing_to_creature(creatng);
 }
 
 void make_creature_conscious_without_changing_state(struct Thing *creatng)
@@ -5611,8 +5649,8 @@ short hunt_tagged_enemy(struct Thing *creatng)
     }
     
     struct Thing* tagged_enemy = thing_get(cctrl->tagged_enemy_idx);
-    if (thing_is_invalid(tagged_enemy) || !thing_is_creature(tagged_enemy) || (tagged_enemy->owner == creatng->owner)) {
-        // Tagged enemy is invalid, clear it and return to normal state
+    if (thing_is_invalid(tagged_enemy) || !thing_is_creature(tagged_enemy) || (tagged_enemy->owner == creatng->owner) || (tagged_enemy->active_state == CrSt_CreatureUnconscious)) {
+        // Tagged enemy is invalid, defeated (unconscious), or no longer an enemy - clear tag and return to normal state
         cctrl->tagged_enemy_idx = 0;
         set_start_state(creatng);
         return 1;
