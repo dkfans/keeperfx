@@ -1,0 +1,106 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file postanck/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 30 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Post Ancient Keeper campaign for KeeperFX\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "Post Ancient Keeper"
+msgstr "Pós-Guardião Ancestral"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Armageddon. This land is heavily devastated by lava, yet the people are still happy. The time to change has come, my dark Master!"
+msgstr "Armagedom. Esta terra está fortemente devastada pela lava, mas o povo ainda está feliz. Chegou a hora de mudar, meu sombrio Mestre!"
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Bloody Harvest. The Horned Reaper had much joy cutting the heads and bodies of the inhabitants of this settlement! A perfect view, isn't it?"
+msgstr "Colheita Sangrenta. O Ceifador de Chifres se divertiu muito cortando as cabeças e os corpos dos habitantes deste assentamento! Uma vista perfeita, não é?"
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Collect. The land is less flooded with lava compared to the previous one, but it is also much more honest. People are kind and peaceful here. It's time to start a war!"
+msgstr "Coleta. A terra está menos inundada de lava em comparação com a anterior, mas também é muito mais honesta. As pessoas aqui são gentis e pacíficas. É hora de começar uma guerra!"
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Dark and Bloody. Now the land is no longer so peaceful; volcanic eruptions occur at least once every hour. The inhabitants did their best to save themselves, but fortunately did not succeed. Excellent work, my lord."
+msgstr "Escura e Sangrenta. Agora a terra não é mais tão pacífica; erupções vulcânicas ocorrem pelo menos uma vez por hora. Os habitantes fizeram o melhor para se salvar, mas felizmente não conseguiram. Excelente trabalho, meu senhor."
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Sacrifice. This land has a rich history, with many murders but also many sacrifices. Now it's our turn to sacrifice the population in our demonic pursuit to ravage this land!"
+msgstr "Sacrifício. Esta terra tem uma rica história, com muitos assassinatos, mas também muitos sacrifícios. Agora é a nossa vez de sacrificar a população em nossa busca demoníaca para devastar esta terra!"
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Thievery. The land has returned to its roots, showing the inhabitants to be corrupt. Even children steal. Excellent work, my Lord!"
+msgstr "Ladroagem. A terra voltou às suas raízes, mostrando que os habitantes são corruptos. Até as crianças roubam. Excelente trabalho, meu Senhor!"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Transformation. A land of love and peace; I abhor such places. We had better deal with this quickly, my Lord."
+msgstr "Transformação. Uma terra de amor e paz; eu abomino tais lugares. É melhor lidarmos com isso rapidamente, meu Senhor."
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Pain. A new name hangs over this land, Pain. The inhabitants are slowly perishing, of course with our help. Our dark arts will torture them well and slowly. A splendid sight, isn't it, sir?"
+msgstr "Dor. Um novo nome paira sobre esta terra, Dor. Os habitantes estão perecendo lentamente, é claro, com a nossa ajuda. Nossas artes sombrias os torturarão bem e lentamente. Uma visão esplêndida, não é, senhor?"
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Imps. In the mines of this land, there are Imps that hinder conquest. Many guards have tried, but none have succeeded. You must be the first!"
+msgstr "Diabretes. Nas minas desta terra, existem Diabretes que dificultam a conquista. Muitos guardas tentaram, mas nenhum teve sucesso. Você deve ser o primeiro!"
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Ravine of Death. Our Imps built a gigantic ravine around this land. Lava flowed through the ravine, and we began to lower the lively inhabitants of the settlement into it. A splendid pleasure to watch such an unparalleled spectacle, isn't it?"
+msgstr "Ravina da Morte. Nossos Diabretes construíram uma ravina gigantesca ao redor desta terra. A lava fluiu pela ravina, e começamos a baixar os habitantes vivos do assentamento nela. Um prazer esplêndido assistir a um espetáculo tão inigualável, não é?"
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Cloning. This land is ruled by a good and honest lord. It's time to teach him some manners. Of course, our manners!"
+msgstr "Clonagem. Esta terra é governada por um senhor bom e honesto. É hora de ensiná-lo algumas maneiras. Claro, as nossas maneiras!"
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Bloody Garden. We named this land so because we spread the remains of human bodies around the ruler's gardens after the mass slaughter by our favorite Horned Reaper. Excellent job, sir!"
+msgstr "Jardim Sangrento. Nomeamos esta terra assim porque espalhamos os restos de corpos humanos pelos jardins do governante após o massacre em massa pelo nosso Ceifador de Chifres favorito. Excelente trabalho, senhor!"
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Dig. We have yet another good land for destruction. The last remnants of the human, elf, and dwarf races hide in this land. We will track them down and kill them to rule over the entire world!"
+msgstr "Cavar. Temos mais uma boa terra para destruição. Os últimos remanescentes das raças humana, elfa e anã se escondem nesta terra. Nós os rastrearemos e os mataremos para governar o mundo inteiro!"
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Favorite Spot. This is certainly my favorite place. I love going outside and watching the red sky, the blood, and the flowing lava across this land. Excellent work, my Lord!"
+msgstr "Lugar Favorito. Este é certamente o meu lugar favorito. Adoro sair e observar o céu vermelho, o sangue e a lava fluindo por esta terra. Excelente trabalho, meu Senhor!"
