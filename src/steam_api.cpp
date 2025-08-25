@@ -61,7 +61,7 @@ SteamApiShutdownFunc SteamAPI_Shutdown;
 /**
  * @brief Initializes the Steam API in KeeperFX.
  *
- * This function loads the necessary Steam API library and initializes it.
+ * This function loads the Steam API library and initializes it.
  * It performs checks for required files and compatibility and verifies the certificate of the dll file.
  */
 void steam_api_init()
