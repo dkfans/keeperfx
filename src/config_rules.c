@@ -107,7 +107,7 @@ static const struct NamedField rules_game_named_fields[] = {
   {"EASTEREGGSPEECHINTERVAL",   0, field(game.conf.rules.game.easter_egg_speech_interval),       20000,        0,           LONG_MAX,NULL,                           value_default, assign_default},
   {"GLOBALAMBIENTLIGHT",        0, field(game.conf.rules.game.global_ambient_light      ),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
   {"LIGHTENABLED",              0, field(game.conf.rules.game.light_enabled             ),           1,        0,                  1,NULL,                           value_default, assign_default},
-  {"CLICKTAGENEMIES",           0, field(game.conf.rules.game.click_tag_enemies_enabled ),           0,        0,                  1,NULL,                           value_default, assign_default},
+  {"TAGCLICKENEMIES",           0, field(game.conf.rules.game.tag_click_enemies_enabled ),           0,        0,                  1,NULL,                           value_default, assign_default},
   {"MAPCREATURELIMIT",          0, field(game.conf.rules.game.creatures_count           ),         255,        0,  CREATURES_COUNT-2,NULL,                           value_default, assign_MapCreatureLimit_script},
   {"PRESERVECLASSICBUGS",      -1, field(game.conf.rules.game.classic_bugs_flags        ),ClscBug_None,ClscBug_None, ClscBug_ListEnd,rules_game_classicbugs_commands,value_flagsfield, assign_default},
   {NULL},

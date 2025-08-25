@@ -5261,8 +5261,8 @@ static void draw_tagged_enemy_indicator(long scrpos_x, long scrpos_y, struct Thi
 {
     struct PlayerInfo *player = get_my_player();
     
-    // Don't draw indicator if ClickTagEnemies is disabled
-    if (!game.conf.rules.game.click_tag_enemies_enabled) {
+    // Don't draw indicator if TagClickEnemies is disabled
+    if (!game.conf.rules.game.tag_click_enemies_enabled) {
         return;
     }
     

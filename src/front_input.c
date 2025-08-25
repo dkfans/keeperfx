@@ -2312,7 +2312,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     struct Thing* thing = get_nearest_thing_for_hand_or_slap(player->id_number, pos->x.val, pos->y.val);
     if (!thing_is_invalid(thing)) {
         *context = CSt_PowerHand;
-        if (game.conf.rules.game.click_tag_enemies_enabled && is_clickable_enemy_for_tagging(thing, player->id_number)) {
+        if (game.conf.rules.game.tag_click_enemies_enabled && is_clickable_enemy_for_tagging(thing, player->id_number)) {
             *context = CSt_CreatureTarget;
         }
     } else {

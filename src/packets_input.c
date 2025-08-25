@@ -264,7 +264,7 @@ TbBool try_click_tag_enemy(long plyr_idx, MapCoord x, MapCoord y, struct Packet*
     struct Thing *thing;
     struct PlayerInfo* player = get_player(plyr_idx);
     
-    if (!game.conf.rules.game.click_tag_enemies_enabled)
+    if (!game.conf.rules.game.tag_click_enemies_enabled)
         return false;
         
     thing = get_creature_near(x, y);

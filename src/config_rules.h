@@ -101,7 +101,7 @@ struct GameRulesConfig {
     unsigned long easter_egg_speech_interval;
     long global_ambient_light;
     TbBool light_enabled;
-    TbBool click_tag_enemies_enabled;
+    TbBool tag_click_enemies_enabled;
     unsigned short creatures_count;
 };
 

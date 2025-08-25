@@ -785,7 +785,7 @@ long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thin
 
 TbBool is_clickable_enemy_for_tagging(const struct Thing *thing, long plyr_idx)
 {
-    return game.conf.rules.game.click_tag_enemies_enabled &&
+    return game.conf.rules.game.tag_click_enemies_enabled &&
            (thing->class_id == TCls_Creature) && 
            (thing->owner != plyr_idx) && 
            !creature_is_invisible(thing) &&
