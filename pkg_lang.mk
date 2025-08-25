@@ -36,6 +36,7 @@ pkg/fxdata/gtext_rus.dat \
 pkg/fxdata/gtext_spa.dat \
 pkg/fxdata/gtext_swe.dat \
 pkg/fxdata/gtext_ukr.dat \
+pkg/fxdata/gtext_por.dat \
 
 NCTEXTDATS = \
 pkg/campgns/ami2019/text_eng.dat \
