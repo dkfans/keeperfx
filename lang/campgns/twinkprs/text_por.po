@@ -19,7 +19,7 @@
 # *****************************************************************************
 msgid ""
 msgstr ""
-"Project-Id-Version: Campanha Guardiões Gêmeos para KeeperFX\n"
+"Project-Id-Version: Twin Keepers campaign for KeeperFX\n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
@@ -286,7 +286,7 @@ msgstr "Com o Senhor derrotado, seu exército está agora em estado de pânico e te
 msgctxt "In-game message"
 msgid ""
 "The Lord has arrived and his army is out for blood. I trust you've "
-"prepared a way to deal with him? Or were you having a little lie down?"
+"prepared a way to deal with him? Or were you having a little lie down?" 
 msgstr "O Senhor chegou e seu exército está sedento por sangue. Confio que você preparou uma maneira de lidar com ele? Ou estava tirando uma soneca?"
 
 #. Level Embattled Formation opening message

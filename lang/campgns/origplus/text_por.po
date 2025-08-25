@@ -1,0 +1,46 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file text_eng.pot
+#      KeeperFX GUI Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the campaign.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 17 Nov 2023
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: GUI Strings for origplus "
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#. Level Eversmile information soon after start
+#: guitext:1
+msgctxt "In-game message"
+msgid ""
+"You are an experienced Keeper. Heroes will not wait for you to build a "
+"Dungeon. Rival Dungeon Keepers will give it their best to defeat you."
+msgstr "Você é um Guardião experiente. Os heróis não esperarão que você construa uma Masmorra. Os Guardiões de Masmorra rivais darão o seu melhor para derrotá-lo."
+
+#: guitext:2
+msgctxt "In-game message"
+msgid ""
+"Transferring creatures to a new realm has been made very difficult. But "
+"surely an experienced Keeper as yourself can conquer realms without help."
+msgstr "Transferir criaturas para um novo reino tornou-se muito difícil. Mas certamente um Guardião experiente como você pode conquistar reinos sem ajuda."
