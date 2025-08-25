@@ -790,7 +790,8 @@ TbBool is_clickable_enemy_for_tagging(const struct Thing *thing, long plyr_idx)
            (thing->owner != plyr_idx) && 
            !creature_is_invisible(thing) &&
            !creature_is_kept_in_prison(thing) &&
-           !creature_is_being_tortured(thing);
+           !creature_is_being_tortured(thing) &&
+           !creature_is_being_unconscious(thing);
 }
 
 TbBool thing_slappable(const struct Thing *thing, long plyr_idx)
