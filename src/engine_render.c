@@ -4972,17 +4972,8 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     {
         if ((player->thing_under_hand == thing->index) && ((game.play_gameturn % (4 * gui_blink_rate)) >= 2 * gui_blink_rate))
         {
-            // Check if this is an enemy creature and ClickTagEnemies is disabled
-            TbBool is_enemy_creature = (thing->class_id == TCls_Creature) && 
-                                      players_are_enemies(player->id_number, thing->owner) && 
-                                      !creature_is_invisible(thing);
-            
-            // Only flash if it's not an enemy creature, or if ClickTagEnemies is enabled
-            if (!is_enemy_creature || game.conf.rules.game.click_tag_enemies_enabled)
-            {
-                lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-                lbSpriteReMapPtr = white_pal;
-            }
+            lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+            lbSpriteReMapPtr = white_pal;
         } else {
             if ((thing->rendering_flags & TRF_BeingHit) != 0)
             {
@@ -5477,7 +5468,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         
         if ((forced_visible)
         || (is_thing_under_hand)
-        || (is_enemy_and_visible && game.conf.rules.game.click_tag_enemies_enabled)
+        || (is_enemy_and_visible)
         || (is_owned_and_hurt)
         || (is_allied)
         || (is_zombie_player)
@@ -8036,17 +8027,8 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
         {
           if (player->acamera->view_mode == PVM_IsoWibbleView || player->acamera->view_mode == PVM_IsoStraightView)
           {
-              // Check if this is an enemy creature and ClickTagEnemies is disabled
-              TbBool is_enemy_creature = (thing->class_id == TCls_Creature) && 
-                                        players_are_enemies(player->id_number, thing->owner) && 
-                                        !creature_is_invisible(thing);
-              
-              // Only flash if it's not an enemy creature, or if ClickTagEnemies is enabled
-              if (!is_enemy_creature || game.conf.rules.game.click_tag_enemies_enabled)
-              {
-                  lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-                  lbSpriteReMapPtr = white_pal;
-              }
+              lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+              lbSpriteReMapPtr = white_pal;
           }
           else if (player->acamera->view_mode == PVM_CreatureView)
           {
@@ -8057,17 +8039,8 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                   struct Thing *dragtng = thing_get(cctrl->dragtng_idx);
                   if (thing_is_invalid(dragtng))
                   {
-                    // Check if this is an enemy creature and ClickTagEnemies is disabled
-                    TbBool is_enemy_creature = (thing->class_id == TCls_Creature) && 
-                                              players_are_enemies(player->id_number, thing->owner) && 
-                                              !creature_is_invisible(thing);
-                    
-                    // Only flash if it's not an enemy creature, or if ClickTagEnemies is enabled
-                    if (!is_enemy_creature || game.conf.rules.game.click_tag_enemies_enabled)
-                    {
-                        lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-                        lbSpriteReMapPtr = white_pal;
-                    }
+                    lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+                    lbSpriteReMapPtr = white_pal;
                   }
                   else if (thing_is_trap_crate(dragtng))
                   {
@@ -8076,17 +8049,8 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                       {
                           if (handthing->class_id == TCls_Trap)
                           {
-                              // Check if this is an enemy creature and ClickTagEnemies is disabled
-                              TbBool is_enemy_creature = (thing->class_id == TCls_Creature) && 
-                                                        players_are_enemies(player->id_number, thing->owner) && 
-                                                        !creature_is_invisible(thing);
-                              
-                              // Only flash if it's not an enemy creature, or if ClickTagEnemies is enabled
-                              if (!is_enemy_creature || game.conf.rules.game.click_tag_enemies_enabled)
-                              {
-                                  lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-                                  lbSpriteReMapPtr = white_pal;
-                              }
+                              lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+                              lbSpriteReMapPtr = white_pal;
                           }
                       }
                   }
