@@ -354,20 +354,18 @@ struct ComputerTask {
         RoomIndex room_idx1;
         long repeat_num;
         RoomIndex room_idx2;
-        struct Coord3d pos_86;
     } move_to_room;
     struct {
         long evflags;
         struct Coord3d target_pos;
         long repeat_num;
         CrtrStateId target_state;
-        struct Coord3d pos_86;
     } move_to_defend;
     struct {
         short target_thing_idx;
+        struct Coord3d target_pos;
         long repeat_num;
         CrtrStateId target_state;
-        struct Coord3d pos_86;
     } move_to_pos;
     struct {
         struct Coord3d target_pos;

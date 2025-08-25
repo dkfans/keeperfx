@@ -818,10 +818,12 @@ long LbDiagonalLength(long a, long b)
     int propidx;
     long long tmpval;
     if (a > b) {
+        if (a == 0) {
+            return 0; // don't divide by zero
+        }
         propidx = (b << 8)/a;
         tmpval = a;
-    } else
-    {
+    } else {
         if (b == 0) {
             return 0; // Just to avoid dividing by 0
         }

@@ -192,41 +192,41 @@ void update_ensigns_visibility(void)
     long bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
     if (is_bonus_level_visible(player, bn_lvnum))
     {
-      lvinfo = get_level_info(bn_lvnum);
-      if (lvinfo != NULL)
-        lvinfo->state = LvSt_Visible;
+        lvinfo = get_level_info(bn_lvnum);
+        if (lvinfo != NULL)
+            lvinfo->state = LvSt_Visible;
     }
-    lvnum = next_singleplayer_level(lvnum);
+    lvnum = next_singleplayer_level(lvnum, true);
   }
   // Extra level - full moon
   lvnum = get_extra_level(ExLv_FullMoon);
   lvinfo = get_level_info(lvnum);
   if (lvinfo != NULL)
-    lvinfo->state = get_extra_level_kind_visibility(ExLv_FullMoon);
+      lvinfo->state = get_extra_level_kind_visibility(ExLv_FullMoon);
   // Extra level - new moon
   lvnum = get_extra_level(ExLv_NewMoon);
   lvinfo = get_level_info(lvnum);
   if (lvinfo != NULL)
-    lvinfo->state = get_extra_level_kind_visibility(ExLv_NewMoon);
+      lvinfo->state = get_extra_level_kind_visibility(ExLv_NewMoon);
 }
 
 void update_net_ensigns_visibility(void)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     set_all_ensigns_state(LvSt_Hidden);
     long lvnum = first_multiplayer_level();
     while (lvnum > 0)
     {
         struct LevelInformation* lvinfo = get_level_info(lvnum);
         if (lvinfo != NULL)
-          lvinfo->state = LvSt_Visible;
+            lvinfo->state = LvSt_Visible;
         lvnum = next_multiplayer_level(lvnum);
     }
 }
 
 int compute_sound_good_to_bad_factor(void)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     unsigned int onscr_bad = 0;
     unsigned int onscr_good = 0;
     LevelNumber continue_lvnum = get_continue_level_number();
@@ -235,21 +235,21 @@ int compute_sound_good_to_bad_factor(void)
     while (sp_lvnum > 0)
     {
         if (sp_lvnum == continue_lvnum)
-          lv_beaten = false;
+            lv_beaten = false;
         struct LevelInformation* lvinfo = get_level_info(sp_lvnum);
         if (lvinfo != NULL)
         {
             if (is_ensign_in_screen_rect(lvinfo))
             {
-              if (lv_beaten)
-                onscr_bad++;
-              else
-                onscr_good++;
+                if (lv_beaten)
+                    onscr_bad++;
+                else
+                    onscr_good++;
             }
         }
-        sp_lvnum = next_singleplayer_level(sp_lvnum);
+        sp_lvnum = next_singleplayer_level(sp_lvnum, true);
     }
-    if ((onscr_bad+onscr_good) == 0)
+    if ((onscr_bad + onscr_good) == 0)
         onscr_good++;
     // return a value between 0 (all bad) and 256 (all good)
     return (FULL_LOUDNESS * onscr_good) / (onscr_bad + onscr_good);
@@ -257,138 +257,188 @@ int compute_sound_good_to_bad_factor(void)
 
 void update_frontmap_ambient_sound(void)
 {
-  // NOTE: the good / bad samples start at a volume of zero.
-  SoundEmitterID emit_id = get_emitter_id(S3DGetSoundEmitter(Non3DEmitter));
-  if (map_sound_fade > 0)
-  {
-      long lvidx = array_index_for_singleplayer_level(get_continue_level_number());
-      if ((features_enabled & Ft_AdvAmbSound) != 0)
-      {
-          long factor = compute_sound_good_to_bad_factor();
-          SetSampleVolume(emit_id, campaign.ambient_good, (map_sound_fade * (((long) settings.sound_volume * factor) / FULL_LOUDNESS)) / FULL_LOUDNESS);
-          SetSampleVolume(emit_id, campaign.ambient_bad, (map_sound_fade * (((long) settings.sound_volume * (FULL_LOUDNESS - factor)) / FULL_LOUDNESS)) / FULL_LOUDNESS);
+    // NOTE: the good / bad samples start at a volume of zero.
+    SoundEmitterID emit_id = get_emitter_id(S3DGetSoundEmitter(Non3DEmitter));
+    if (map_sound_fade > 0)
+    {
+        long lvidx = array_index_for_singleplayer_level(get_continue_level_number());
+        if ((features_enabled & Ft_AdvAmbSound) != 0)
+        {
+            long factor = compute_sound_good_to_bad_factor();
+            SetSampleVolume(emit_id, campaign.ambient_good, (map_sound_fade * (((long)settings.sound_volume * factor) / FULL_LOUDNESS)) / FULL_LOUDNESS);
+            SetSampleVolume(emit_id, campaign.ambient_bad, (map_sound_fade * (((long)settings.sound_volume * (FULL_LOUDNESS - factor)) / FULL_LOUDNESS)) / FULL_LOUDNESS);
+        } else
+        if (lvidx > 13)
+        {
+            SetSampleVolume(emit_id, campaign.ambient_bad, ((long)settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+        } else
+        {
+        SetSampleVolume(emit_id, campaign.ambient_good, ((long)settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+        }
+        set_streamed_sample_volume(((long)settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+        set_music_volume((map_sound_fade * settings.music_volume) / FULL_LOUDNESS);
     } else
-    if (lvidx > 13)
     {
-      SetSampleVolume(emit_id, campaign.ambient_bad, ((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
-    } else
-    {
-      SetSampleVolume(emit_id, campaign.ambient_good, ((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
+        if ((features_enabled & Ft_AdvAmbSound) != 0)
+        {
+            SetSampleVolume(emit_id, campaign.ambient_good, 0);
+            SetSampleVolume(emit_id, campaign.ambient_bad, 0);
+        }
+        set_music_volume(0);
+        set_streamed_sample_volume(0);
     }
-    set_streamed_sample_volume(((long) settings.sound_volume * map_sound_fade) / FULL_LOUDNESS);
-    set_music_volume((map_sound_fade * settings.music_volume) / FULL_LOUDNESS);
-  } else
-  {
-    if ((features_enabled & Ft_AdvAmbSound) != 0)
+}
+
+int get_disabled_flag_option (unsigned short ensign, unsigned short default_ensign)
+{
+    int base_ensign;
+    if (ensign == 0)
     {
-      SetSampleVolume(emit_id, campaign.ambient_good, 0);
-      SetSampleVolume(emit_id, campaign.ambient_bad, 0);
+        base_ensign = default_ensign;
     }
-    set_music_volume(0);
-    set_streamed_sample_volume(0);
-  }
+    else
+    {
+        base_ensign = ensign;
+    }
+    if (base_ensign == EnsTutorial)
+        return EnsDisTutorial;
+    else if (base_ensign == EnsFullFlag)
+        return EnsDisFull;
+    else if (base_ensign == EnsBonus)
+        return EnsDisFull;
+    else if (base_ensign == EnsFullMoon)
+        return EnsDisMoonF;
+    else if (base_ensign == EnsNewMoon)
+        return EnsDisMoonN;
+    
+    return EnsDisFull;
 }
 
 const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame)
 {
-  const struct TbSprite *spr;
-  int i;
-  if (lvinfo == NULL)
-    return NULL;
-  if (lvinfo->state == LvSt_Hidden)
-    return NULL;
-  if (lvinfo->options & LvOp_IsSingle)
-  {
-    switch (lvinfo->state)
+    const struct TbSprite *spr;
+    int i = lvinfo->ensign;
+    if (lvinfo == NULL)
+        return NULL;
+    if (lvinfo->state == LvSt_Hidden)
+        return NULL;
+
+    if (lvinfo->level_type & LvKind_IsSingle)
     {
-    case LvSt_Visible:
-        if ((lvinfo->options & LvOp_Tutorial) == 0)
-          i = 10; // full red flag
+        switch (lvinfo->state)
+        {
+        case LvSt_Visible:
+            if (i == 0)
+                i = EnsFullFlag;
+            if (lvinfo->lvnum == mouse_over_lvnum)
+                i += 4;
+            spr = get_map_ensign(i + (anim_frame & 3));
+            break;
+        default:
+            i = get_disabled_flag_option(lvinfo->ensign, EnsFullFlag);
+            spr = get_map_ensign(i);
+            break;
+        }
+    } else
+    if (lvinfo->level_type & LvKind_IsBonus)
+    {
+        if (i == 0)
+            i = EnsBonus;
+        switch (lvinfo->state)
+        {
+        case LvSt_Visible:
+            if (lvinfo->lvnum == mouse_over_lvnum)
+                i += 4;
+            spr = get_map_ensign(i + (anim_frame & 3));
+            break;
+        default:
+            i = get_disabled_flag_option(lvinfo->ensign, EnsTutorial);
+            spr = get_map_ensign(i);
+            break;
+        }
+    } else
+    if (lvinfo->level_type & LvKind_IsExtra)
+    {
+        if (i == 0)
+        {
+            if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
+            {
+                i = EnsNewMoon;
+            }
+            else
+            {
+                i = EnsFullMoon;
+            }
+        }
+        switch (lvinfo->state)
+        {
+            case LvSt_Visible:
+                if (lvinfo->lvnum == mouse_over_lvnum)
+                    i += 4;
+                spr = get_map_ensign(i + (anim_frame & 3));
+                break;
+            default:
+                if (lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
+                {
+                    i = get_disabled_flag_option(lvinfo->ensign, EnsFullMoon);
+                }
+                else
+                {
+                    i = get_disabled_flag_option(lvinfo->ensign, EnsNewMoon);
+                }
+                spr = get_map_ensign(i);
+                break;
+        }
+    } else
+    if (lvinfo->level_type & LvKind_IsMulti) //Note that multiplayer flags have different file
+    {
+        if (frontend_menu_state == FeSt_NETLAND_VIEW)
+        {
+            switch (lvinfo->players)
+            {
+            case 2:
+                i = 5;
+                break;
+            case 3:
+                i = 7;
+                break;
+            case 4:
+                i = 9;
+                break;
+            default:
+                i = 5;
+                break;
+            }
+            if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
+                i++;
+        }
         else
-          i = 2; // 'T' flag - tutorial
-        if (lvinfo->lvnum == mouse_over_lvnum)
-          i += 4;
-        spr = get_map_ensign(i+(anim_frame & 3));
-        break;
-    default:
-        if ((lvinfo->options & LvOp_Tutorial) == 0)
-          i = 36; // full red flag
-        else
-          i = 35; // 'T' flag - tutorial
+        {
+            switch (lvinfo->players)
+            {
+            case 2:
+                i = EnsDisMulti2;
+                break;
+            case 3:
+                i = EnsDisMulti3;
+                break;
+            case 4:
+                i = EnsDisMulti4;
+                break;
+            default:
+                i = EnsDisMulti2;
+                break;
+            }
+        }
         spr = get_map_ensign(i);
-        break;
     }
-  } else
-  if (lvinfo->options & LvOp_IsBonus)
-  {
-    switch (lvinfo->state)
+    else
     {
-    case LvSt_Visible:
-        i = 18;
-        if (lvinfo->lvnum == mouse_over_lvnum)
-          i += 4;
-        spr = get_map_ensign(i+(anim_frame & 3));
-        break;
-    default:
-        spr = get_map_ensign(36);
-        break;
+        spr = get_map_ensign(EnsDisFull);
     }
-  } else
-  if (lvinfo->options & LvOp_IsExtra)
-  {
-    switch (lvinfo->state)
-    {
-    case LvSt_Visible:
-        if(lvinfo->lvnum == get_extra_level(ExLv_NewMoon))
-        {
-            i = 37;
-        }
-        else // Full Moon
-        {
-            i = 26;
-        }
-        if (lvinfo->lvnum == mouse_over_lvnum)
-          i += 4;
-        spr = get_map_ensign(i+(anim_frame & 3));
-        break;
-    default:
-        spr = get_map_ensign(34);
-        break;
-    }
-  } else
-  if (lvinfo->options & LvOp_IsMulti) //Note that multiplayer flags have different file
-  {
-      if (frontend_menu_state == FeSt_NETLAND_VIEW)
-      {
-          switch (lvinfo->players)
-          {
-          case 2:
-              i = 5;
-              break;
-          case 3:
-              i = 7;
-              break;
-          case 4:
-              i = 9;
-              break;
-          default:
-              i = 5;
-              break;
-          }
-          if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
-            i++;
-      } else
-      {
-          i = 35;
-      }
-      spr = get_map_ensign(i);
-  } else
-  {
-    spr = get_map_ensign(36);
-  }
-  if (spr == &dummy_sprite)
-    ERRORLOG("Can't get Land view Ensign sprite");
-  return spr;
+    if (spr == &dummy_sprite)
+        ERRORLOG("Can't get Land view Ensign sprite");
+    return spr;
 }
 
 /**
@@ -1552,9 +1602,9 @@ void frontnetmap_input(void)
               left_button_clicked = 0;
               lvinfo = get_level_info(fe_net_level_selected);
               if (lvinfo != NULL) {
-                sprintf(level_name, "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
+                snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
               } else {
-                sprintf(level_name, "%s", get_string(GUIStr_MnuLevel));
+                snprintf(level_name, sizeof(level_name), "%s", get_string(GUIStr_MnuLevel));
               }
               SYNCLOG("Selected level %d with description \"%s\"",(int)fe_net_level_selected,level_name);
           }
@@ -1753,7 +1803,7 @@ TbBool frontnetmap_update(void)
     if ((!nmps.tmp1) && (nmps.lvnum > 0) && (nmps.is_selected))
     {
         set_selected_level_number(nmps.lvnum);
-        sprintf(level_name, "%s %d", get_string(GUIStr_MnuLevel), (int)nmps.lvnum);
+        snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)nmps.lvnum);
         map_info.state_trigger = (fe_network_active < 1) ? FeSt_START_KPRLEVEL : FeSt_START_MPLEVEL;
         frontmap_zoom_in_init(nmps.lvnum);
         if (!fe_network_active)

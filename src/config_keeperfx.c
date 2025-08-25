@@ -27,13 +27,13 @@
 #include "bflib_datetm.h"
 #include "bflib_mouse.h"
 #include "bflib_sound.h"
-#include "sounds.h"
-#include "engine_render.h"
 #include "bflib_fmvids.h"
-
 #include "config_campaigns.h"
+#include "engine_render.h"
 #include "front_simple.h"
+#include "gui_draw.h"
 #include "scrcapt.h"
+#include "sounds.h"
 #include "vidmode.h"
 #include "moonphase.h"
 #include "post_inc.h"
@@ -57,6 +57,8 @@ short api_enabled = false;
 uint16_t api_port = 5599;
 unsigned long features_enabled = 0;
 TbBool exit_on_lua_error = false;
+TbBool FLEE_BUTTON_DEFAULT = false;
+TbBool IMPRISON_BUTTON_DEFAULT = false;
 
 /**
  * Language 3-char abbreviations.
@@ -125,6 +127,8 @@ const struct NamedCommand conf_commands[] = {
   {"ATMOS_FREQUENCY",     12},
   {"ATMOS_SAMPLES",       13},
   {"RESIZE_MOVIES",       14},
+  {"GUI_BLINK_RATE",      15},
+  {"NEUTRAL_FLASH_RATE",  16},
   {"FREEZE_GAME_ON_FOCUS_LOST"     , 17},
   {"UNLOCK_CURSOR_WHEN_GAME_PAUSED", 18},
   {"LOCK_CURSOR_IN_POSSESSION"     , 19},
@@ -145,6 +149,8 @@ const struct NamedCommand conf_commands[] = {
   {"API_PORT"                      , 34},
   {"EXIT_ON_LUA_ERROR"             , 35},
   {"TURNS_PER_SECOND"              , 36},
+  {"FLEE_BUTTON_DEFAULT"           , 37},
+  {"IMPRISON_BUTTON_DEFAULT"       , 38},
   {NULL,                   0},
   };
 
@@ -167,7 +173,7 @@ const struct NamedCommand conf_commands[] = {
   {"4BY3PP",       SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop}, // integer multiple scale only (4BY3)
   {NULL,           0},
   };
-  
+
   const struct NamedCommand startup_parameters[] = {
   {"LEGAL",                   1},
   {"FX",                      2},
@@ -562,6 +568,40 @@ short load_configuration(void)
             features_enabled &= ~Ft_Resizemovies;
           }
           break;
+      case 15: // GUI_BLINK_RATE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              i = atoi(word_buf);
+          }
+          if (i < 1)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+              break;
+          }
+          else if (i > 160)
+          {
+              CONFWRNLOG("Value %d out of range for \"%s\" command of %s file. Set to 160.", i, COMMAND_TEXT(cmd_num), config_textname);
+              i = 160;
+          }
+          gui_blink_rate = i;
+          break;
+      case 16: // NEUTRAL_FLASH_RATE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              i = atoi(word_buf);
+          }
+          if (i < 1)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+              break;
+          }
+          else if (i > 160)
+          {
+              CONFWRNLOG("Value %d out of range for \"%s\" command of %s file. Set to 160.",i, COMMAND_TEXT(cmd_num), config_textname);
+              i = 160;
+          }
+          neutral_flash_rate = i;
+          break;
       case 17: // FREEZE_GAME_ON_FOCUS_LOST
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
@@ -821,6 +861,34 @@ short load_configuration(void)
           }
           else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+          }
+          break;
+      case 37: // FLEE_BUTTON_DEFAULT
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1) {
+              FLEE_BUTTON_DEFAULT = true;
+          } else {
+              FLEE_BUTTON_DEFAULT = false;
+          }
+          break;
+      case 38: // IMPRISON_BUTTON_DEFAULT
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1) {
+              IMPRISON_BUTTON_DEFAULT = true;
+          } else {
+              IMPRISON_BUTTON_DEFAULT = false;
           }
           break;
       case ccr_comment:

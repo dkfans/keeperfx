@@ -33,6 +33,7 @@ struct PlayerRange
 };
 /****   Checks  *******/
 TbBool luaL_isThing(lua_State *L, int index);
+TbBool luaL_isPlayer(lua_State *L, int index);
 
 /****   Inputs  *******/
 long luaL_optNamedCommand(lua_State *L, int index,const struct NamedCommand * commanddesc);
@@ -42,6 +43,7 @@ TbMapLocation luaL_optLocation(lua_State *L, int index);
 TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index);
 struct PlayerRange luaL_checkPlayerRange(lua_State *L, int index);
 PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index);
+PlayerNumber luaL_optPlayerSingle(lua_State *L, int index);
 PlayerNumber luaL_checkPlayerRangeId(lua_State *L, int index);
 MapSubtlCoord luaL_checkstl_x(lua_State *L, int index);
 MapSubtlCoord luaL_checkstl_y(lua_State *L, int index);

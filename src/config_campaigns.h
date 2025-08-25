@@ -139,7 +139,8 @@ struct LevelInformation {
   long ensign_y;
   long ensign_zoom_x;
   long ensign_zoom_y;
-  unsigned long options;
+  unsigned long level_type;
+  unsigned short ensign;
   unsigned short state;
   unsigned short location;
   int mapsize_x;
@@ -157,7 +158,7 @@ extern struct GameCampaign campaign;
 extern struct CampaignsList campaigns_list;
 extern struct CampaignsList mappacks_list;
 extern const struct NamedCommand cmpgn_map_commands[];
-extern const struct NamedCommand cmpgn_map_cmnds_options[];
+extern const struct NamedCommand cmpgn_map_ensign_flag_options[];
 extern const struct NamedCommand cmpgn_map_cmnds_kind[];
 extern const struct NamedCommand cmpgn_human_player_options[];
 /******************************************************************************/

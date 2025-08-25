@@ -50,6 +50,8 @@ extern struct TbSpriteSheet * gui_panel_sprites;
 extern unsigned char *gui_slab;
 extern unsigned char *frontend_background;
 extern struct TbSpriteSheet * frontend_sprite;
+extern int gui_blink_rate;
+extern int neutral_flash_rate;
 
 #pragma pack()
 /******************************************************************************/

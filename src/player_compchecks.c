@@ -232,7 +232,7 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_t
     if (work_capable_creatures == 0) {
         return 0;
     }
-    
+
     int percent_doing_other_jobs = (creatures_doing_other_jobs * 100) / work_capable_creatures;
     int num_to_move = work_capable_creatures * (percent_to_reassign - percent_doing_other_jobs) / 100;
     if (num_to_move <= 0) {return 0;}
@@ -251,9 +251,9 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
 {
     struct Dungeon* dungeon = comp->dungeon;
     SYNCDBG(8,"Starting for player %d",(int)dungeon->owner);
-    
+
     int num_to_move = calculate_number_of_creatures_to_move(dungeon, check->param1);
-    
+
     if (num_to_move <= 0) {
         SYNCDBG(8,"No player %d creatures to move, active %d percentage %d",
             (int)dungeon->owner,(int)dungeon->num_active_creatrs,(int)check->param1);
@@ -293,7 +293,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
         return CTaskRet_Unk4;
     }
     unsigned long k = 0;
-    long i = dungeon->room_kind[check->param2];
+    long i = dungeon->room_list_start[check->param2];
     while (i != 0)
     {
         struct Room* room = room_get(i);
@@ -691,7 +691,7 @@ struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
     int n = opponent_room_kinds[PLAYER_RANDOM(comp->dungeon->owner, sizeof(opponent_room_kinds) / sizeof(opponent_room_kinds[0]))];
     for (int i = 0; i < game.conf.slab_conf.room_types_count; i++)
     {
-        struct Room* room = room_get(dungeon->room_kind[n]);
+        struct Room* room = room_get(dungeon->room_list_start[n]);
         if (room_exists(room)) {
             return room;
         }
@@ -904,7 +904,7 @@ struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(s
         ERRORLOG("Invalid computer players dungeon");
         return INVALID_THING;
     }
-    long i = dungeon->room_kind[rkind];
+    long i = dungeon->room_list_start[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -943,7 +943,7 @@ struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_flight(struc
         ERRORLOG("Invalid computer players dungeon");
         return INVALID_THING;
     }
-    long i = dungeon->room_kind[rkind];
+    long i = dungeon->room_list_start[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -982,7 +982,7 @@ struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_vision(struc
         ERRORLOG("Invalid computer players dungeon");
         return INVALID_THING;
     }
-    long i = dungeon->room_kind[rkind];
+    long i = dungeon->room_list_start[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -1118,7 +1118,7 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
             continue;
         }
         struct Dungeon* dungeon = get_dungeon(plyr_idx);
-        long i = dungeon->room_kind[RoK_ENTRANCE];
+        long i = dungeon->room_list_start[RoK_ENTRANCE];
         unsigned long k = 0;
         while (i != 0)
         {
@@ -1236,7 +1236,7 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
             check->param2 = rkind;
         }
         unsigned long k = 0;
-        long i = dungeon->room_kind[rkind];
+        long i = dungeon->room_list_start[rkind];
         while (i != 0)
         {
             struct Room* room = room_get(i);
@@ -1422,7 +1422,7 @@ TbBool computer_check_for_expand_room_kind(struct Computer2 *comp, struct Comput
     }
     // Don't allow the room to be made into long, narrow shape
     MapSubtlCoord max_radius = 3 * slab_subtile(LbSqrL(max_slabs), 2) / 4;
-    long i = dungeon->room_kind[rkind];
+    long i = dungeon->room_list_start[rkind];
     unsigned long k = 0;
     while (i != 0)
     {

@@ -41,7 +41,6 @@ enum TbScriptCommands {
     Cmd_MESSAGE                            =  5, // from beta
     Cmd_IF                                 =  6,
     Cmd_ENDIF                              =  7,
-    Cmd_SET_HATE                           =  8,
     Cmd_SET_GENERATE_SPEED                 =  9,
     Cmd_REM                                = 10,
     Cmd_START_MONEY                        = 11,
@@ -192,6 +191,11 @@ enum TbScriptCommands {
     Cmd_LOCK_POSSESSION                    = 179,
     Cmd_SET_DIGGER                         = 180,
     Cmd_RUN_LUA_CODE                       = 181,
+    Cmd_TAG_MAP_RECT                       = 182,
+    Cmd_UNTAG_MAP_RECT                     = 183,
+    Cmd_SET_NEXT_LEVEL                     = 184,
+    Cmd_SHOW_BONUS_LEVEL                   = 185,
+    Cmd_HIDE_BONUS_LEVEL                   = 186,
 };
 
 struct ScriptLine {

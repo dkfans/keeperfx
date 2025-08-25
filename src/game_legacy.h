@@ -83,9 +83,6 @@ enum GameKinds {
 enum GameOperationFlags {
     GOF_Paused           = 0x01,
     GOF_SingleLevel      = 0x02, /**< Play single level and then exit. */
-    GOF_Unkn04           = 0x04,
-    GOF_ColumnConvert    = 0x08, /**< Converts old column format to current. Deprecated, does nothing. */
-    GOF_LightConvert     = 0x10, /**< Converts old lights format to current. */
     GOF_ShowGui          = 0x20, /**< Showing main Gui. */
     GOF_ShowPanel        = 0x40, /**< Showing the tabbed panel. */
     GOF_WorldInfluence   = 0x80, /**< Input to the in-game world is allowed. */
@@ -218,8 +215,6 @@ struct Game {
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
     HitPoints block_health[10];
-    unsigned short generate_speed;
-    unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;
     unsigned short entrances_count;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */

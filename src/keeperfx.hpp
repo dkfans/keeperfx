@@ -142,7 +142,6 @@ struct StartupParameters {
     TbBool packet_load_enable;
     char packet_fname[150];
     unsigned char packet_checksum_verify;
-    unsigned char force_ppro_poly;
     int frame_skip;
     char selected_campaign[CMDLN_MAXLEN+1];
     TbBool overrides[CMDLINE_OVERRIDES];
@@ -244,7 +243,7 @@ void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
 void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
-void add_creature_to_pool(long kind, long amount);
+void add_creature_to_pool(ThingModel kind, long amount);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 
 short zoom_to_next_annoyed_creature(void);

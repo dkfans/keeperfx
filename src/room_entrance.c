@@ -18,7 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "room_entrance.h"
-
+#include "keeperfx.hpp"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
@@ -26,6 +26,7 @@
 #include "room_lair.h"
 #include "player_data.h"
 #include "dungeon_data.h"
+#include "dungeon_stats.h"
 #include "player_utils.h"
 #include "thing_data.h"
 #include "thing_navigate.h"
@@ -91,15 +92,6 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
         set_start_state(creatng);
     }
     return creatng;
-}
-
-/** Checks if an entrance shall now generate next creature.
- *
- * @return Gives true if an entrance shall generate, false otherwise.
- */
-TbBool generation_due_in_game(void)
-{
-    return ((game.play_gameturn - game.entrance_last_generate_turn) >= game.generate_speed);
 }
 
 TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
@@ -390,33 +382,36 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 void process_entrance_generation(void)
 {
     SYNCDBG(8,"Starting");
-
-    if (generation_due_in_game())
-    {
-        if (game.armageddon_cast_turn == 0) {
-            update_dungeons_scores();
-            update_dungeon_generation_speeds();
-            game.entrance_last_generate_turn = game.play_gameturn;
-        }
-    }
-
+    TbBool due = false;
     for (long i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* plyr = get_player(i);
         if (!player_exists(plyr)) {
             continue;
         }
-        if ((plyr->is_active == 1) && (plyr->victory_state != VicS_LostLevel) )
+        struct Dungeon* dungeon = get_players_dungeon(plyr);
+        if (!dungeon_invalid(dungeon))
         {
-            struct Dungeon* dungeon = get_players_dungeon(plyr);
             if (generation_due_for_dungeon(dungeon))
             {
-                if (generation_available_to_dungeon(dungeon)) {
-                    generate_creature_for_dungeon(dungeon);
+                due = true;
+                if ((plyr->is_active) && (plyr->victory_state != VicS_LostLevel) )
+                {
+                    if (generation_available_to_dungeon(dungeon)) {
+                        generate_creature_for_dungeon(dungeon);
+                    }
+                    dungeon->last_entrance_generation_gameturn = game.play_gameturn;
+                    dungeon->portal_scavenge_boost = 0;
                 }
-                dungeon->last_entrance_generation_gameturn = game.play_gameturn;
             }
-            dungeon->portal_scavenge_boost = 0;
+        }
+    }
+    if (due)
+    {
+        if (game.armageddon_cast_turn == 0) 
+        {
+            update_dungeons_scores();
+            update_dungeon_generation_speeds();
         }
     }
 }
@@ -436,7 +431,7 @@ TbBool update_creature_pool_state(void)
 void add_creature_to_pool(ThingModel kind, long amount)
 {
     kind %= game.conf.crtr_conf.model_count;
-    
+
     if (amount > 0 && game.pool.crtr_kind[kind] > LONG_MAX - amount)
     {
         game.pool.crtr_kind[kind] = LONG_MAX;

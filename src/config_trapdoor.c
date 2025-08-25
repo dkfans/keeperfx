@@ -26,15 +26,16 @@
 #include "bflib_sound.h"
 
 #include "config.h"
+#include "config_players.h"
 #include "config_strings.h"
 #include "console_cmd.h"
-#include "thing_doors.h"
-#include "thing_effects.h"
-#include "player_instances.h"
-#include "config_players.h"
-#include "game_legacy.h"
 #include "custom_sprites.h"
 #include "frontmenu_ingame_tabs.h"
+#include "game_legacy.h"
+#include "player_instances.h"
+#include "thing_doors.h"
+#include "thing_effects.h"
+
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -59,7 +60,7 @@ const struct ConfigFileData keeper_trapdoor_file_data = {
 static const struct NamedCommand door_properties_commands[] = {
     {"RESIST_NON_MAGIC",     DoMF_ResistNonMagic},
     {"SECRET",               DoMF_Secret},
-    {"THICK",                DoMF_Thick},  
+    {"THICK",                DoMF_Thick},
     {"MIDAS",                DoMF_Midas},
     {NULL,                   0},
   };
@@ -71,6 +72,7 @@ static const struct NamedCommand trap_trigger_type_commands[] = {
     {"LINE_OF_SIGHT",    TrpTrg_LineOfSight},
     {"PRESSURE_SUBTILE", TrpTrg_Pressure_Subtile},
     {"ALWAYS",           TrpTrg_Always},
+    {NULL,                   0},
 };
 
 static const struct NamedCommand trap_activation_type_commands[] = {
@@ -82,12 +84,52 @@ static const struct NamedCommand trap_activation_type_commands[] = {
     {"CREATURE_SHOT",       TrpAcT_CreatureShot},
     {"CREATURE_SPAWN",      TrpAcT_CreatureSpawn},
     {"POWER",               TrpAcT_Power},
+    {NULL,                   0},
 };
 
-static void assign_update_trap_tab(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+static void assign_panel_tab_idx_trap(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    assign_default(named_field,value,named_fields_set,idx,src_str,flags);
-    if (flag_is_set(flags,ccf_DuringLevel))
+    struct ManufactureData* manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(TCls_Trap, idx));
+
+    manufctr->panel_tab_idx = value;
+    assign_default(named_field, value, named_fields_set, idx, src_str, flags);
+    if (flag_is_set(flags, ccf_DuringLevel))
+    {
+        update_trap_tab_to_config();
+    }
+}
+
+static void assign_panel_tab_idx_door(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    struct ManufactureData* manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(TCls_Door, idx));
+
+    manufctr->panel_tab_idx = value;
+    assign_default(named_field, value, named_fields_set, idx, src_str, flags);
+    if (flag_is_set(flags, ccf_DuringLevel))
+    {
+        update_trap_tab_to_config();
+    }
+}
+
+static void assign_tooltip_idx_trap(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    struct ManufactureData* manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(TCls_Trap, idx));
+
+    manufctr->tooltip_stridx = value;
+    assign_default(named_field, value, named_fields_set, idx, src_str, flags);
+    if (flag_is_set(flags, ccf_DuringLevel))
+    {
+        update_trap_tab_to_config();
+    }
+}
+
+static void assign_tooltip_idx_door(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    struct ManufactureData* manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(TCls_Door, idx));
+
+    manufctr->tooltip_stridx = value;
+    assign_default(named_field, value, named_fields_set, idx, src_str, flags);
+    if (flag_is_set(flags, ccf_DuringLevel))
     {
         update_trap_tab_to_config();
     }
@@ -200,11 +242,11 @@ const struct NamedField trapdoor_door_named_fields[] = {
     //name           //pos    //field                                                                //default //min     //max    //NamedCommand
     {"NAME",                 0, field(game.conf.trapdoor_conf.door_cfgstats[0].code_name),                0,   LONG_MIN,         ULONG_MAX, door_desc,                value_name,       assign_null},
     {"NAMETEXTID",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].name_stridx),   GUIStr_Empty,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
-    {"TOOLTIPTEXTID",        0, field(game.conf.trapdoor_conf.door_cfgstats[0].tooltip_stridx),GUIStr_Empty,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_update_trap_tab},
+    {"TOOLTIPTEXTID",        0, field(game.conf.trapdoor_conf.door_cfgstats[0].tooltip_stridx),GUIStr_Empty,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_tooltip_idx_door},
     {"SYMBOLSPRITES",        0, field(game.conf.trapdoor_conf.door_cfgstats[0].bigsym_sprite_idx),        0,   LONG_MIN,         ULONG_MAX, NULL,                     value_icon,       assign_icon},
     {"SYMBOLSPRITES",        1, field(game.conf.trapdoor_conf.door_cfgstats[0].medsym_sprite_idx),        0,   LONG_MIN,         ULONG_MAX, NULL,                     value_icon,       assign_icon_update_trap_tab},
     {"POINTERSPRITES",       0, field(game.conf.trapdoor_conf.door_cfgstats[0].pointer_sprite_idx),       0,   LONG_MIN,         ULONG_MAX, NULL,                     value_icon,       assign_icon_update_trap_tab},
-    {"PANELTABINDEX",        0, field(game.conf.trapdoor_conf.door_cfgstats[0].panel_tab_idx),            0,          0,                32, NULL,                     value_default,    assign_update_trap_tab},
+    {"PANELTABINDEX",        0, field(game.conf.trapdoor_conf.door_cfgstats[0].panel_tab_idx),            0,          0,                32, NULL,                     value_default,    assign_panel_tab_idx_door},
     {"CRATE",                0, NULL,0,                                                                   0,   LONG_MIN,         ULONG_MAX, object_desc,              value_default,    assign_crate_door},
     {"MANUFACTURELEVEL",     0, field(game.conf.trapdoor_conf.door_cfgstats[0].manufct_level),            0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
     {"MANUFACTUREREQUIRED",  0, field(game.conf.trapdoor_conf.door_cfgstats[0].manufct_required),         0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
@@ -216,6 +258,7 @@ const struct NamedField trapdoor_door_named_fields[] = {
     {"SELLINGVALUE",         0, field(game.conf.trapdoor_conf.door_cfgstats[0].selling_value),            0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
     {"UNSELLABLE",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].unsellable),               0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
     {"PLACESOUND",           0, field(game.conf.trapdoor_conf.door_cfgstats[0].place_sound_idx),        117,   LONG_MIN,         ULONG_MAX, NULL,                     value_default,    assign_default},
+    {"UPDATEFUNCTION",       0, field(game.conf.trapdoor_conf.door_cfgstats[0].updatefn_idx),             0,   LONG_MIN,         ULONG_MAX, NULL,                     value_function,   assign_default},
     {NULL},
 };
 
@@ -238,12 +281,12 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"TIMEBETWEENSHOTS",       0, field(game.conf.trapdoor_conf.trap_cfgstats[0].shots_delay),                      0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"SELLINGVALUE",           0, field(game.conf.trapdoor_conf.trap_cfgstats[0].selling_value),                    0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"NAMETEXTID",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].name_stridx),                      0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
-    {"TOOLTIPTEXTID",          0, field(game.conf.trapdoor_conf.trap_cfgstats[0].tooltip_stridx),                   0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_update_trap_tab},
+    {"TOOLTIPTEXTID",          0, field(game.conf.trapdoor_conf.trap_cfgstats[0].tooltip_stridx),                   0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_tooltip_idx_trap},
     {"CRATE",                  0, NULL,0,                                                                           0,   LONG_MIN,         ULONG_MAX, object_desc,              value_default, assign_crate_trap},
     {"SYMBOLSPRITES",          0, field(game.conf.trapdoor_conf.trap_cfgstats[0].bigsym_sprite_idx),                0,   LONG_MIN,         ULONG_MAX, NULL,                        value_icon, assign_icon},
     {"SYMBOLSPRITES",          1, field(game.conf.trapdoor_conf.trap_cfgstats[0].medsym_sprite_idx),                0,   LONG_MIN,         ULONG_MAX, NULL,                        value_icon, assign_icon_update_trap_tab},
     {"POINTERSPRITES",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].pointer_sprite_idx),               0,   LONG_MIN,         ULONG_MAX, NULL,                        value_icon, assign_icon_update_trap_tab},
-    {"PANELTABINDEX",          0, field(game.conf.trapdoor_conf.trap_cfgstats[0].panel_tab_idx),                    0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_update_trap_tab},
+    {"PANELTABINDEX",          0, field(game.conf.trapdoor_conf.trap_cfgstats[0].panel_tab_idx),                    0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_panel_tab_idx_trap},
     {"TRIGGERTYPE",            0, field(game.conf.trapdoor_conf.trap_cfgstats[0].trigger_type),                     0,   LONG_MIN,         ULONG_MAX, trap_trigger_type_commands,value_default, assign_default},
     {"ACTIVATIONTYPE",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].activation_type),                  0,   LONG_MIN,         ULONG_MAX, trap_activation_type_commands,value_default, assign_default},
     {"EFFECTTYPE",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].created_itm_model),                0,   LONG_MIN,         ULONG_MAX, NULL,            value_activationeffect, assign_default},
@@ -295,6 +338,7 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"INSTANTPLACEMENT",       0, field(game.conf.trapdoor_conf.trap_cfgstats[0].instant_placement),                0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"REMOVEONCEDEPLETED",     0, field(game.conf.trapdoor_conf.trap_cfgstats[0].remove_once_depleted),             0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"FLAGNUMBER",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].flag_number),                      0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
+    {"UPDATEFUNCTION",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].updatefn_idx),                     0,   LONG_MIN,         ULONG_MAX, NULL,                     value_function,assign_default},
     {NULL},
 };
 
@@ -367,7 +411,7 @@ static TbBool load_trapdoor_config_file(const char *fname, unsigned short flags)
     char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
         return false;
-    
+
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         for (int i = 0; i < TRAPDOOR_TYPES_MAX; i++)

@@ -179,9 +179,9 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     // This text is a bit condensed - button size is smaller than text height
-    int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
+    int tx_units_per_px = ((MyScreenHeight < 400) && (dbc_language > 0)) ? scale_value_menu(32) : scale_value_menu(16);
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-    int height = LbTextLineHeight() * tx_units_per_px / 16;
+    int height = LbTextLineHeight() * tx_units_per_px / 14;
     LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, get_string(definable_key_string[key_id]));
     unsigned char mods = settings.kbkeys[key_id].mods;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
@@ -190,18 +190,15 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     text[0] = '\0';
     if (mods & KMod_CONTROL)
     {
-        strcat(text, get_string(GUIStr_KeyControl));
-        strcat(text, " + ");
+        str_appendf(text, sizeof(text), "%s + ", get_string(GUIStr_KeyControl));
     }
     if (mods & KMod_ALT)
     {
-        strcat(text, get_string(GUIStr_KeyAlt));
-        strcat(text, " + ");
+        str_appendf(text, sizeof(text), "%s + ", get_string(GUIStr_KeyAlt));
     }
     if (mods & KMod_SHIFT)
     {
-        strcat(text, get_string(GUIStr_KeyShift));
-        strcat(text, " + ");
+        str_appendf(text, sizeof(text), "%s + ", get_string(GUIStr_KeyShift));
     }
 
     unsigned char code = settings.kbkeys[key_id].code;
@@ -236,9 +233,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         int mouse_button_number = (KC_MOUSE1 + 1 - code);
         char mouse_button_number_string[8];
         snprintf(mouse_button_number_string, sizeof(mouse_button_number_string), "%d", mouse_button_number);
-        strcat(mouse_button_label, mouse_gui_string);
-        strcat(mouse_button_label, " ");
-        strcat(mouse_button_label, mouse_button_number_string);
+        str_appendf(mouse_button_label, sizeof(mouse_button_label), "%s %s", mouse_gui_string, mouse_button_number_string);
         keytext = mouse_button_label;
         break;
       }
@@ -256,8 +251,8 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         break;
       }
     }
-    strcat(text, keytext);
-    height = LbTextLineHeight() * tx_units_per_px / 16;
+    str_append(text, sizeof(text), keytext);
+    height = LbTextLineHeight() * tx_units_per_px / 14;
     LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, text);
 }
 

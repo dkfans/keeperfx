@@ -223,4 +223,3 @@ void TCP_NetServer::removeRemoteSocket(TCPsocket sock)
 		remote[removedIndex].recvThread = NULL;
 	}
 }
-

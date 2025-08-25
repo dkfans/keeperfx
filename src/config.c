@@ -71,42 +71,42 @@ const struct NamedCommand logicval_type[] = {
   {"0",        2},
   {NULL,       0},
   };
-  
+
   TbBool parameter_is_number(const char* parstr) {
       if (parstr == NULL) {
           return false;
       }
-  
+
       // Trim leading spaces
       while (*parstr == ' ') {
           parstr++;
       }
-  
+
       // Trim trailing spaces
       int len = strlen(parstr);
       while (len > 0 && parstr[len - 1] == ' ') {
           len--;
       }
-  
+
       if (len == 0) {
           return false;
       }
-  
+
       // Check if the first character is a valid start for a number
       if (!(parstr[0] == '-' || isdigit(parstr[0]))) {
           return false;
       }
-  
+
       // Check the remaining characters
       for (int i = 1; i < len; ++i) {
           if (!isdigit(parstr[i])) {
               return false;
           }
       }
-  
+
       return true;
   }
-  
+
 
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
 {
@@ -468,7 +468,7 @@ int64_t value_longflagsfield(const struct NamedField* named_field, const char* v
             }
         }
 
-        int k = get_long_id((struct LongNamedCommand*)named_field->namedCommand, word_buf);
+        int64_t k = get_long_id((struct LongNamedCommand*)named_field->namedCommand, word_buf);
         if(k >= 0)
             value |= k;
         else
@@ -593,7 +593,7 @@ void assign_animid(const struct NamedField* named_field, int64_t value, const st
 
 int64_t value_transpflg(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    
+
     if (parameter_is_number(value_text))
     {
         return atoll(value_text) << 4;
@@ -607,7 +607,7 @@ int64_t value_transpflg(const struct NamedField* named_field, const char* value_
 
 int64_t value_stltocoord(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    
+
     if (parameter_is_number(value_text))
     {
         return atoll(value_text) * COORD_PER_STL;
@@ -771,7 +771,7 @@ void assign_named_field_value(const struct NamedField* named_field, int64_t valu
     else
     {
         named_field->assign_func(named_field,value,named_fields_set,idx,src_str,flags);
-    } 
+    }
 }
 
 /**
@@ -807,7 +807,7 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
     // Finding command number
     int i = 0;
     while (commands[i].name != NULL)
-    {   
+    {
         if (flag_is_set(flags,CnfLd_ListOnly) && strcasecmp(commands[i].name,"Name") != 0)
         {
             i++;
@@ -849,22 +849,22 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                }
             }
 
-            
+
             int64_t k = 0;
             if (commands[i].argnum == -1)
             {
                 #define MAX_LINE_LEN 1024
                 char line_buf[MAX_LINE_LEN];
                 int line_len = 0;
-                
+
                 // Copy characters until newline or end of buffer
-                while ((*pos) + line_len < buflen && 
-                      buf[(*pos) + line_len] != '\n' && 
+                while ((*pos) + line_len < buflen &&
+                      buf[(*pos) + line_len] != '\n' &&
                       buf[(*pos) + line_len] != '\r')
                 {
                     line_buf[line_len] = buf[(*pos) + line_len];
                     line_len++;
-                    
+
                     // Prevent buffer overflow
                     if (line_len >= MAX_LINE_LEN - 1)
                     {
@@ -875,10 +875,10 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
 
                 #undef MAX_LINE_LEN
                 line_buf[line_len] = '\0'; // Null-terminate the string
-            
+
                 // Move position to the next line
                 (*pos) += line_len;
-            
+
                 // Pass extracted string
               k = parse_named_field_value(&commands[i], line_buf,named_fields_set,idx,config_textname,ccf_None);
               assign_named_field_value(&commands[i],k,named_fields_set,idx,config_textname,ccf_None);
@@ -964,7 +964,7 @@ void set_defaults(const struct NamedFieldSet* named_fields_set, const char *conf
       }
 
   }
-  
+
   if (name_NamedField != NULL && named_fields_set->names != NULL)
   {
       for (int i = 0; i < named_fields_set->max_count; i++)
@@ -1259,7 +1259,7 @@ long get_rid(const struct NamedCommand *desc, const char *itmname)
   return -1;
 }
 
-char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
+char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *fname)
 {
   const char *mdir;
   const char *sdir;
@@ -1375,27 +1375,27 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       break;
   }
   if (mdir == NULL)
-      ffullpath[0] = '\0';
+      dst[0] = '\0';
   else
   if (sdir == NULL)
-      sprintf(ffullpath,"%s/%s",mdir,fname);
+      snprintf(dst, dst_size, "%s/%s",mdir,fname);
   else
-      sprintf(ffullpath,"%s/%s/%s",mdir,sdir,fname);
-  return ffullpath;
+      snprintf(dst, dst_size, "%s/%s/%s",mdir,sdir,fname);
+  return dst;
 }
 
 char *prepare_file_path(short fgroup,const char *fname)
 {
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath,fgroup,fname);
+  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
 }
 
 char *prepare_file_path_va(short fgroup, const char *fmt_str, va_list arg)
 {
-  char fname[255];
-  vsprintf(fname, fmt_str, arg);
+  char fname[255] = "";
+  vsnprintf(fname, sizeof(fname), fmt_str, arg);
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath, fgroup, fname);
+  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
 }
 
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...)
@@ -1426,10 +1426,10 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   // Prepare file name
   va_list arg;
   va_start(arg, fmt_str);
-  char fname[255];
-  vsprintf(fname, fmt_str, arg);
+  char fname[255] = "";
+  vsnprintf(fname, sizeof(fname), fmt_str, arg);
   char ffullpath[2048];
-  prepare_file_path_buf(ffullpath, fgroup, fname);
+  prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
   va_end(arg);
   // Load the file
    long fsize = LbFileLengthRnc(ffullpath);
@@ -1471,13 +1471,13 @@ struct LevelInformation *get_or_create_level_info(LevelNumber lvnum, unsigned lo
     struct LevelInformation* lvinfo = get_campaign_level_info(&campaign, lvnum);
     if (lvinfo != NULL)
     {
-        lvinfo->options |= lvoptions;
+        lvinfo->level_type |= lvoptions;
         return lvinfo;
   }
   lvinfo = new_level_info_entry(&campaign, lvnum);
   if (lvinfo != NULL)
   {
-    lvinfo->options |= lvoptions;
+    lvinfo->level_type |= lvoptions;
     return lvinfo;
   }
   return NULL;
@@ -1565,7 +1565,7 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
     if (lvinfo == NULL)
         return false;
     snprintf(lvinfo->name, LINEMSG_SIZE, "%s", name);
-    if ((lvoptions & LvOp_IsFree) != 0)
+    if ((lvoptions & LvKind_IsFree) != 0)
     {
         lvinfo->ensign_x += ((LANDVIEW_MAP_WIDTH >> 4) * (LbSinL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;
         lvinfo->ensign_y -= ((LANDVIEW_MAP_HEIGHT >> 4) * (LbCosL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;
@@ -1585,16 +1585,14 @@ TbBool reset_credits(struct CreditsItem *credits)
 
 TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
 {
-  // Block name and parameter word store variables
-  char block_buf[32];
+  const char * block_name = "credits";
   // Find the block
-  sprintf(block_buf,"credits");
   long len = buf_end - buf;
   long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
+  int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in Credits file.",block_buf);
+    WARNMSG("Block [%s] not found in Credits file.", block_name);
     return 0;
   }
   int n = 0;
@@ -1669,8 +1667,9 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
       pos++;
     }
   }
-  if (credits[0].kind == CIK_None)
-    WARNMSG("Credits list empty after parsing [%s] block of Credits file.", block_buf);
+  if (credits[0].kind == CIK_None) {
+    WARNMSG("Credits list empty after parsing [%s] block of Credits file.", block_name);
+  }
   return true;
 }
 
@@ -1960,11 +1959,31 @@ LevelNumber get_extra_level(unsigned short elv_kind)
  * Returns the next single player level. Gives SINGLEPLAYER_FINISHED if
  * last level was won, LEVELNUMBER_ERROR on error.
  */
-LevelNumber next_singleplayer_level(LevelNumber sp_lvnum)
+LevelNumber next_singleplayer_level(LevelNumber sp_lvnum, TbBool ignore)
 {
   if (sp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
   if (sp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_singleplayer_level();
   if (sp_lvnum < 1) return LEVELNUMBER_ERROR;
+  int next_level;
+
+  if ((intralvl.next_level > 0) && !ignore)
+  {
+      next_level = intralvl.next_level;
+      intralvl.next_level = 0;
+      if (next_level < 0)
+          return SINGLEPLAYER_FINISHED;
+
+      for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+      {
+          if (campaign.single_levels[i] == next_level)
+          {
+              return next_level;
+          }
+      }
+      WARNLOG("Trying to jump to level %d that does not exist.", next_level);
+      return LEVELNUMBER_ERROR;
+  }
+
   for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.single_levels[i] == sp_lvnum)
@@ -2201,6 +2220,25 @@ short is_freeplay_level(LevelNumber lvnum)
   return false;
 }
 
+/**
+  * checks if currently in a campaign, and if the provided level number is also part of it.
+ */
+TbBool is_level_in_current_campaign(LevelNumber lvnum)
+{
+    if (!is_campaign_level(game.loaded_level_number))
+    {
+        return false;
+    }
+    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+    {
+        if (campaign.single_levels[i] == lvnum)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 {
     if (file_data->pre_load_func != NULL)
@@ -2222,7 +2260,7 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
     {
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
-    
+
     if (file_data->post_load_func != NULL)
     {
         file_data->post_load_func();

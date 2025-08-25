@@ -5,6 +5,10 @@
 ---@param player playerrange
 function ResetActionPoint(action_point,player) end
 
+---This function is used to set the next level to be played when the current level is completed
+---@param lvnum integer The level number to set the next level to.
+function SetNextLevel(lvnum) end
+
 ---Moves the camera of a player to a specific location like an action point.
 ---@param player playersingle
 ---@param location location The location the camera will zoom to.

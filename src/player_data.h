@@ -173,7 +173,7 @@ struct PlayerInfo {
     PlayerBitFlags allied_players;
     PlayerBitFlags players_with_locked_ally_status;
     unsigned char id_number;
-    unsigned char is_active;
+    TbBool is_active;
     short controlled_thing_idx;
     GameTurn controlled_thing_creatrn;
     short thing_under_hand;
@@ -204,6 +204,7 @@ struct PlayerInfo {
     PlayerState continue_work_state;
     short cursor_light_idx;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
+    char mp_message_text_last[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
     unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
     ThingModel chosen_trap_kind;
@@ -265,6 +266,7 @@ struct PlayerInfo {
     unsigned char player_type; //enum PlayerTypes
     ThingModel special_digger;
     int isometric_tilt;
+    unsigned short generate_speed;
     };
 
 /******************************************************************************/

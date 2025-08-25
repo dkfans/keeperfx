@@ -66,14 +66,6 @@ long erstat_inc(int stat_num)
     return (erstat[stat_num].n-erstat[stat_num].nprv);
 }
 
-TbBool show_onscreen_msg_va(int nturns, const char *fmt_str, va_list arg)
-{
-    vsprintf(onscreen_msg_text, fmt_str, arg);
-    SYNCMSG("Onscreen message: %s",onscreen_msg_text);
-    render_onscreen_msg_time = (float)nturns;
-    return true;
-}
-
 TbBool is_onscreen_msg_visible(void)
 {
     return (render_onscreen_msg_time > 0.0);
@@ -83,9 +75,11 @@ TbBool show_onscreen_msg(int nturns, const char *fmt_str, ...)
 {
     va_list val;
     va_start(val, fmt_str);
-    short result = show_onscreen_msg_va(nturns, fmt_str, val);
+    vsnprintf(onscreen_msg_text, sizeof(onscreen_msg_text), fmt_str, val);
     va_end(val);
-    return result;
+    SYNCMSG("Onscreen message: %s",onscreen_msg_text);
+    render_onscreen_msg_time = (float)nturns;
+    return true;
 }
 
 TbBool erstat_check(void)

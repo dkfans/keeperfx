@@ -65,13 +65,13 @@ int setLuaPath( lua_State* L)
 {
     #define PATH_LENGTH 4096
     char fx_data_path[PATH_LENGTH];
-    prepare_file_path_buf(fx_data_path, FGrp_FxData, "lua/?.lua");
+    prepare_file_path_buf(fx_data_path, sizeof(fx_data_path), FGrp_FxData, "lua/?.lua");
     char campaignpath[PATH_LENGTH];
-    prepare_file_path_buf(campaignpath, FGrp_CmpgConfig, "lua/?.lua");
+    prepare_file_path_buf(campaignpath, sizeof(campaignpath), FGrp_CmpgConfig, "lua/?.lua");
     char levelpath[PATH_LENGTH];
-    prepare_file_path_buf(levelpath, FGrp_CmpgLvls, "?.lua");
+    prepare_file_path_buf(levelpath, sizeof(levelpath), FGrp_CmpgLvls, "?.lua");
 
-    
+
     lua_getglobal(L, "package");
     lua_getfield(L, -1, "path"); // get field "path" from table at top of stack (-1)
     const char *cur_path = lua_tostring(L, -1); // grab path string from top of stack
@@ -92,6 +92,12 @@ TbBool execute_lua_code_from_console(const char* code)
         ERRORLOG("Lua state is not initialized");
         return false;
     }
+
+    if (code == NULL) {
+        message_add(MsgType_Blank, 0, "no Lua code provided");
+        return false;
+    }
+
     int result = luaL_dostring(Lvl_script, code);
     if (result != LUA_OK) {
         const char *message = lua_tostring(Lvl_script, -1);
@@ -113,6 +119,11 @@ TbBool execute_lua_code_from_script(const char* code)
         ERRORLOG("Lua state is not initialized");
         return false;
     }
+
+    if (code == NULL) {
+        return false;
+    }
+
     int result = luaL_dostring(Lvl_script, code);
     if (result != LUA_OK) {
         const char *message = lua_tostring(Lvl_script, -1);
@@ -156,7 +167,7 @@ TbBool open_lua_script(LevelNumber lvnum)
 	luaL_openlibs(Lvl_script);
 
 	reg_host_functions(Lvl_script);
-	 
+
     setLuaPath(Lvl_script);
     
     char* fname = prepare_file_fmtpath(FGrp_FxData, "lua/init.lua");
@@ -167,7 +178,7 @@ TbBool open_lua_script(LevelNumber lvnum)
         ERRORLOG("file %s missing",fname);
         return false;
     }
-    
+
 	if(!CheckLua(Lvl_script, luaL_dofile(Lvl_script, fname),"global_lua_file"))
 	{
         ERRORLOG("failed to load global lua script");
@@ -189,7 +200,7 @@ TbBool open_lua_script(LevelNumber lvnum)
 	}
 
     return true;
-    
+
 }
 
 
@@ -243,7 +254,7 @@ void lua_set_serialised_data(const char *data, size_t len)
     lua_getglobal(Lvl_script, "SetSerializedData");
 	if (lua_isfunction(Lvl_script, -1))
 	{
-		lua_pushlstring(Lvl_script, data, len); 
+		lua_pushlstring(Lvl_script, data, len);
 		CheckLua(Lvl_script, lua_pcall(Lvl_script, 1, 0, 0),"SetSerializedData");
 	}
 	else
@@ -316,7 +327,7 @@ void generate_lua_types_file()
     GENERATE_ALIAS("effect_type", effect_desc);
     GENERATE_ALIAS("spell_type", spell_desc);
     GENERATE_ALIAS("slab_type", slab_desc);
-    fprintf(out, "\n"); 
+    fprintf(out, "\n");
 
     GENERATE_FIELDS("roomfields", room_desc);
     GENERATE_FIELDS("creaturefields", creature_desc);

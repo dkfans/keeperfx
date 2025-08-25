@@ -21,13 +21,14 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "config_strings.h"
+#include "custom_sprites.h"
+#include "gui_draw.h"
+#include "game_legacy.h"
+#include "player_instances.h"
 #include "value_util.h"
 
 #include <toml.h>
-#include "config_strings.h"
-#include "custom_sprites.h"
-#include "player_instances.h"
-#include "game_legacy.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -113,10 +114,10 @@ static TbBool load_spritecolors_config_file(const char *fname, unsigned short fl
         call_to_arms_graphics[plr_idx].alive_anim_idx = get_player_colored_idx(868,plr_idx + 1,animationIds_eq);
         call_to_arms_graphics[plr_idx].leave_anim_idx = get_player_colored_idx(869,plr_idx + 1,animationIds_eq);
     }
-    
+
 
     value_fini(&file_root);
-    
+
     return true;
 }
 
@@ -154,7 +155,7 @@ short get_player_colored_button_sprite_idx(const short base_icon_idx,const Playe
     unsigned char color_idx;
     if (plyr_idx == PLAYER_NEUTRAL)
     {
-        color_idx = game.play_gameturn & 3;
+        color_idx = (game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate;
     }
     else
     {
