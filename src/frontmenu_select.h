@@ -32,11 +32,11 @@ struct GuiButton;
 
 #pragma pack()
 /******************************************************************************/
-#define frontend_select_level_items_max_visible  7
+#define frontend_select_level_items_max_visible  12
 extern struct GuiMenu frontend_select_level_menu;
-#define frontend_select_campaign_items_max_visible  7
+#define frontend_select_campaign_items_max_visible  12
 extern struct GuiMenu frontend_select_campaign_menu;
-#define frontend_select_mappack_items_max_visible  7
+#define frontend_select_mappack_items_max_visible  12
 extern struct GuiMenu frontend_select_mappack_menu;
 /******************************************************************************/
 // Level list selection screen
