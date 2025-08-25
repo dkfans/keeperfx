@@ -97,7 +97,7 @@ extern const struct TbSpriteSheet *lbFontPtr;
 #pragma pack()
 /******************************************************************************/
 TbBool LbTextDraw(int posx, int posy, const char *text);
-TbBool LbTextDrawFmt(int posx, int posy, const char *fmt, ...);
+#define LbTextDrawFmt(posx, posy, fmt, ...) LbTextDrawResizedFmt(posx, posy, 16, fmt, ##__VA_ARGS__)
 TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text);
 TbBool LbTextDrawResizedFmt(int posx, int posy, int units_per_px, const char *fmt, ...);
 int LbTextHeight(const char *text);
