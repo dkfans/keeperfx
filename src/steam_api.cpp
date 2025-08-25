@@ -67,7 +67,7 @@ SteamApiShutdownFunc SteamAPI_Shutdown;
 void steam_api_init()
 {
 #ifndef _WIN32
-    // On anything but Windows we just return 1 because the API is not supposed to get loaded
+    // On anything but Windows we just return because the API is not supposed to get loaded
     return;
 #else
 
@@ -105,7 +105,7 @@ void steam_api_init()
         JUSTLOG("The Steam API under Wine will not be able to connect to Steam on the host machine");
     }
 
-    // Verify the Steam DLL
+    // Setup the certificate verification
     // We'll use the official Windows root cert for this
     WINTRUST_FILE_INFO fileData = {};
     fileData.cbStruct = sizeof(WINTRUST_FILE_INFO);
@@ -121,6 +121,8 @@ void steam_api_init()
     winTrustData.pFile = &fileData;
     winTrustData.dwStateAction = WTD_STATEACTION_VERIFY; // Start verification
     winTrustData.dwProvFlags = WTD_SAFER_FLAG;        // Use safer flags
+
+    // Do the verification
     LONG verify_status = WinVerifyTrust(NULL, &policyGUID, &winTrustData);
 
     // Close state data to free resources
