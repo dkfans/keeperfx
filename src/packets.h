@@ -184,6 +184,7 @@ enum TbPacketAction {
         PckA_SetRoomspaceDragPaint,
         PckA_PlyrQueryCreature,
         PckA_CheatGiveDoorTrap,
+        PckA_RoomspaceHighlightToggle,
 };
 
 /** Packet flags for non-action player operation. */
@@ -286,6 +287,7 @@ struct PacketSaveHead {
     unsigned long action_seed;
     TbBool default_imprison_tendency;
     TbBool default_flee_tendency;
+    TbBool highlight_mode;
 };
 
 struct PacketEx

@@ -67,6 +67,13 @@ unsigned char tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     unsigned char line_color = allowed;
     if (allowed)
     {
+        if (player->render_roomspace.highlight_mode == 1)
+        {
+            if (player->render_roomspace.drag_mode)
+            {
+                line_color = SLC_MIXEDGREEN;
+            }
+        }
         if (player->render_roomspace.untag_mode)
         {
             line_color = SLC_YELLOW;
@@ -74,9 +81,13 @@ unsigned char tag_cursor_blocks_dig(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
         else
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
-            if (dungeon->task_count >= MAPTASKS_COUNT)
+            if ( (player->render_roomspace.drag_mode) && (dungeon->task_count + player->boxsize > MAPTASKS_COUNT) )
             {
                 line_color = SLC_REDFLASH;
+            }
+            else if (dungeon->task_count >= MAPTASKS_COUNT)
+            {
+                line_color = SLC_REDYELLOW;
             }
         }
     }

@@ -286,6 +286,7 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.action_seed = start_seed;
     game.packet_save_head.default_imprison_tendency = IMPRISON_BUTTON_DEFAULT;
     game.packet_save_head.default_flee_tendency = FLEE_BUTTON_DEFAULT;
+    game.packet_save_head.highlight_mode = settings.highlight_mode;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);

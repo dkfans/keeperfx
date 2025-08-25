@@ -30,6 +30,7 @@
 #include "bflib_fmvids.h"
 #include "config_campaigns.h"
 #include "engine_render.h"
+#include "frontend.h"
 #include "front_simple.h"
 #include "gui_draw.h"
 #include "scrcapt.h"
@@ -151,7 +152,9 @@ const struct NamedCommand conf_commands[] = {
   {"TURNS_PER_SECOND"              , 36},
   {"FLEE_BUTTON_DEFAULT"           , 37},
   {"IMPRISON_BUTTON_DEFAULT"       , 38},
-  {NULL,                   0},
+  {"TAG_MODE_TOGGLING"             , 39},
+  {"DEFAULT_TAG_MODE"              , 40},
+  {NULL,                              0},
   };
 
   const struct NamedCommand vidscale_type[] = {
@@ -181,6 +184,13 @@ const struct NamedCommand conf_commands[] = {
   {"EA",                      4}, // hidden
   {"INTRO",                   5},
   {NULL,                      0},
+  };
+  
+  const struct NamedCommand tag_modes[] = {
+  {"SINGLE",  1},
+  {"DRAG",    2},
+  {"PRESET",  3},
+  {NULL,      0},
   };
 
 unsigned int vid_scale_flags = SMK_FullscreenFit;
@@ -869,7 +879,7 @@ short load_configuration(void)
           {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
-            break;
+                break;
           }
           if (i == 1) {
               FLEE_BUTTON_DEFAULT = true;
@@ -891,6 +901,28 @@ short load_configuration(void)
               IMPRISON_BUTTON_DEFAULT = false;
           }
           break;
+       case 39: // TAG_MODE_TOGGLING
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          right_click_tag_mode_toggle = (i == 1);
+          break;
+       case 40: // DEFAULT_TAG_MODE
+          i = recognize_conf_parameter(buf,&pos,len,tag_modes);
+          if (i <= 0)
+          {
+            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          else
+          {
+            default_tag_mode = i;
+            break;
+          }
       case ccr_comment:
           break;
       case ccr_endOfFile:
