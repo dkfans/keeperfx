@@ -33,129 +33,129 @@ msgstr ""
 #: landview:10
 msgctxt "Level introduction"
 msgid "Ludim. A sickeningly cheerful town where even the most trivial of events is celebrated with great fanfare. The people here are so happy and carefree that it's almost nauseating. They sing and dance and frolic in the streets, completely unaware of the dangers that lurk just beyond their borders."
-msgstr "Ludim. Uma cidade nauseantemente alegre onde atÈ os eventos mais triviais s„o celebrados com grande fanfarra. As pessoas aqui s„o t„o felizes e despreocupadas que chega a ser enjoativo. Elas cantam, danÁam e brincam nas ruas, completamente inconscientes dos perigos que espreitam logo alÈm de suas fronteiras."
+msgstr "Ludim. Uma cidade nauseantemente alegre onde at√© os eventos mais triviais s√£o celebrados com grande fanfarra. As pessoas aqui s√£o t√£o felizes e despreocupadas que chega a ser enjoativo. Elas cantam, dan√ßam e brincam nas ruas, completamente inconscientes dos perigos que espreitam logo al√©m de suas fronteiras."
 
 #: landview:11
 msgctxt "Level summary"
 msgid "The once-cheerful town has been reduced to a smoldering ruin. The streets are littered with the bodies of the dead, and the survivors huddle in fear in whatever shelter they can find. The sound of weeping and wailing fills the air, and the stench of death is overpowering."
-msgstr "A cidade outrora alegre foi reduzida a uma ruÌna fumegante. As ruas est„o repletas de corpos dos mortos, e os sobreviventes se amontoam com medo em qualquer abrigo que possam encontrar. O som de choro e lamentos enche o ar, e o fedor da morte È avassalador."
+msgstr "A cidade outrora alegre foi reduzida a uma ru√≠na fumegante. As ruas est√£o repletas de corpos dos mortos, e os sobreviventes se amontoam com medo em qualquer abrigo que possam encontrar. O som de choro e lamentos enche o ar, e o fedor da morte √© avassalador."
 
 #: landview:20
 msgctxt "Level introduction"
 msgid "Havoth Dir. A serene and idyllic land where the sun always shines and the people are always smiling. The inhabitants of Havoth Dir are content and generous, sharing their wealth and resources with each other without complaint. The air is filled with the sweet scent of blooming flowers and the sound of laughter."
-msgstr "Havoth Dir. Uma terra serena e idÌlica onde o sol sempre brilha e as pessoas est„o sempre sorrindo. Os habitantes de Havoth Dir s„o contentes e generosos, compartilhando sua riqueza e recursos uns com os outros sem reclamar. O ar est· cheio do doce perfume de flores desabrochando e do som de risadas."
+msgstr "Havoth Dir. Uma terra serena e id√≠lica onde o sol sempre brilha e as pessoas est√£o sempre sorrindo. Os habitantes de Havoth Dir s√£o contentes e generosos, compartilhando sua riqueza e recursos uns com os outros sem reclamar. O ar est√° cheio do doce perfume de flores desabrochando e do som de risadas."
 
 #: landview:21
 msgctxt "Level summary"
 msgid "The once-beautiful Havoth Dir has been plunged into darkness and despair. The sun has been blocked out by thick clouds of ash and smoke, and the people now cower in fear of the Vampires that roam the land. The once-lush gardens and fields have been reduced to barren wastelands, and the screams of the tortured fill the air."
-msgstr "A outrora bela Havoth Dir foi mergulhada na escurid„o e no desespero. O sol foi bloqueado por nuvens espessas de cinza e fumaÁa, e as pessoas agora se encolhem de medo dos Vampiros que vagueiam pela terra. Os jardins e campos antes exuberantes foram reduzidos a terrenos baldios, e os gritos dos torturados enchem o ar."
+msgstr "A outrora bela Havoth Dir foi mergulhada na escurid√£o e no desespero. O sol foi bloqueado por nuvens espessas de cinza e fuma√ßa, e as pessoas agora se encolhem de medo dos Vampiros que vagueiam pela terra. Os jardins e campos antes exuberantes foram reduzidos a terrenos baldios, e os gritos dos torturados enchem o ar."
 
 #: landview:30
 msgctxt "Level introduction"
 msgid "Ebenazer. A perfect little town, where the people are friendly and helpful. The streets are clean and tidy, and the houses are brightly painted and well-maintained. The town square is filled with colorful flowers, and the children play games in the park."
-msgstr "Ebenazer. Uma pequena cidade perfeita, onde as pessoas s„o amig·veis e prestativas. As ruas s„o limpas e arrumadas, e as casas s„o pintadas com cores vivas e bem conservadas. A praÁa da cidade est· cheia de flores coloridas, e as crianÁas brincam no parque."
+msgstr "Ebenazer. Uma pequena cidade perfeita, onde as pessoas s√£o amig√°veis e prestativas. As ruas s√£o limpas e arrumadas, e as casas s√£o pintadas com cores vivas e bem conservadas. A pra√ßa da cidade est√° cheia de flores coloridas, e as crian√ßas brincam no parque."
 
 #: landview:31
 msgctxt "Level summary"
 msgid ""
 "The once-pleasant town has become a nightmare. The streets are filled with twisted and corrupted creatures, the buildings are coated in black mold, and the park is now home to a massive mausoleum. The children and the rest of the townsfolk have been transformed into the walking dead. The air is thick with the stench of decay and the "
 "screams of the damned."
-msgstr "A cidade outrora agrad·vel tornou-se um pesadelo. As ruas est„o cheias de criaturas retorcidas e corrompidas, os edifÌcios est„o cobertos de mofo preto, e o parque agora abriga um mausolÈu maciÁo. As crianÁas e o resto dos habitantes da cidade foram transformados em mortos-vivos. O ar est· denso com o fedor da decomposiÁ„o e os gritos dos condenados."
+msgstr "A cidade outrora agrad√°vel tornou-se um pesadelo. As ruas est√£o cheias de criaturas retorcidas e corrompidas, os edif√≠cios est√£o cobertos de mofo preto, e o parque agora abriga um mausol√©u maci√ßo. As crian√ßas e o resto dos habitantes da cidade foram transformados em mortos-vivos. O ar est√° denso com o fedor da decomposi√ß√£o e os gritos dos condenados."
 
 #: landview:40
 msgctxt "Level introduction"
 msgid ""
 "Chaerith. An ancient castle, built centuries ago by a powerful Samurai. The castle is filled with treasures and secrets, and the surrounding lands are fertile and prosperous. The people are proud and loyal, serving their lord with honor and bravery. The castle is a symbol of strength and power, standing tall and proud against the passage "
 "of time."
-msgstr "Chaerith. Um castelo antigo, construÌdo sÈculos atr·s por um poderoso Samurai. O castelo est· cheio de tesouros e segredos, e as terras ao redor s„o fÈrteis e prÛsperas. O povo È orgulhoso e leal, servindo seu senhor com honra e bravura. O castelo È um sÌmbolo de forÁa e poder, erguendo-se alto e orgulhoso contra a passagem do tempo."
+msgstr "Chaerith. Um castelo antigo, constru√≠do s√©culos atr√°s por um poderoso Samurai. O castelo est√° cheio de tesouros e segredos, e as terras ao redor s√£o f√©rteis e pr√≥speras. O povo √© orgulhoso e leal, servindo seu senhor com honra e bravura. O castelo √© um s√≠mbolo de for√ßa e poder, erguendo-se alto e orgulhoso contra a passagem do tempo."
 
 #: landview:41
 msgctxt "Level summary"
 msgid ""
 "The once-mighty castle has been reduced to a pile of rubble and ruins. The treasures and secrets have been looted and destroyed, and the surrounding lands have been ravaged by war and chaos. The people have been scattered and enslaved, their loyalty replaced with fear and despair. The castle is now a symbol of ruin and defeat, a haunting "
 "reminder of what was lost."
-msgstr "O castelo outrora poderoso foi reduzido a um monte de escombros e ruÌnas. Os tesouros e segredos foram saqueados e destruÌdos, e as terras ao redor foram devastadas pela guerra e pelo caos. O povo foi disperso e escravizado, sua lealdade substituÌda por medo e desespero. O castelo È agora um sÌmbolo de ruÌna e derrota, uma lembranÁa assustadora do que foi perdido."
+msgstr "O castelo outrora poderoso foi reduzido a um monte de escombros e ru√≠nas. Os tesouros e segredos foram saqueados e destru√≠dos, e as terras ao redor foram devastadas pela guerra e pelo caos. O povo foi disperso e escravizado, sua lealdade substitu√≠da por medo e desespero. O castelo √© agora um s√≠mbolo de ru√≠na e derrota, uma lembran√ßa assustadora do que foi perdido."
 
 #: landview:50
 msgctxt "Level introduction"
 msgid "Nazirite. A whimsical and fantastical realm, where the skies are filled with rainbows and the forests are home to unicorns and fairies. The people here are dreamers, with wild imaginations and a love of magic and mystery. The realm is a playground, and every day is an adventure."
-msgstr "Nazireu. Um reino excÍntrico e fant·stico, onde os cÈus est„o cheios de arco-Ìris e as florestas s„o o lar de unicÛrnios e fadas. As pessoas aqui s„o sonhadoras, com imaginaÁıes selvagens e um amor por magia e mistÈrio. O reino È um parquinho, e todo dia È uma aventura."
+msgstr "Nazireu. Um reino exc√™ntrico e fant√°stico, onde os c√©us est√£o cheios de arco-√≠ris e as florestas s√£o o lar de unic√≥rnios e fadas. As pessoas aqui s√£o sonhadoras, com imagina√ß√µes selvagens e um amor por magia e mist√©rio. O reino √© um parquinho, e todo dia √© uma aventura."
 
 #: landview:51
 msgctxt "Level summary"
 msgid ""
 "The once-enchanted realm has become a living nightmare. The skies are now filled with dark clouds and lightning, and the forests are twisted and corrupted. The unicorns and fairies have been replaced by skeletal creatures, and the dreamers have been turned into horrific abominations. This place is now a nightmare realm, where every "
 "moment is filled with terror and despair."
-msgstr "O reino outrora encantado tornou-se um pesadelo vivo. Os cÈus agora est„o cheios de nuvens escuras e rel‚mpagos, e as florestas est„o retorcidas e corrompidas. Os unicÛrnios e fadas foram substituÌdos por criaturas esquelÈticas, e os sonhadores foram transformados em abominaÁıes horrÌveis. Este lugar È agora um reino de pesadelo, onde cada momento È preenchido com terror e desespero."
+msgstr "O reino outrora encantado tornou-se um pesadelo vivo. Os c√©us agora est√£o cheios de nuvens escuras e rel√¢mpagos, e as florestas est√£o retorcidas e corrompidas. Os unic√≥rnios e fadas foram substitu√≠dos por criaturas esquel√©ticas, e os sonhadores foram transformados em abomina√ß√µes horr√≠veis. Este lugar √© agora um reino de pesadelo, onde cada momento √© preenchido com terror e desespero."
 
 #: landview:60
 msgctxt "Level introduction"
 msgid "Elysium. A beautiful winter wonderland, where the snow-covered hills and trees sparkle in the sunlight. The residents are hearty and resilient, thriving in the cold weather. They enjoy ice skating, skiing, and sipping hot cocoa by the fireplace. The realm is peaceful and quiet, with only the sound of snowflakes falling from the sky."
-msgstr "ElÌsio. Um belo paraÌso de inverno, onde as colinas e ·rvores cobertas de neve brilham ‡ luz do sol. Os residentes s„o resistentes e resilientes, prosperando no clima frio. Eles gostam de patinar no gelo, esquiar e tomar chocolate quente perto da lareira. O reino È pacÌfico e silencioso, com apenas o som dos flocos de neve caindo do cÈu."
+msgstr "El√≠sio. Um belo para√≠so de inverno, onde as colinas e √°rvores cobertas de neve brilham √† luz do sol. Os residentes s√£o resistentes e resilientes, prosperando no clima frio. Eles gostam de patinar no gelo, esquiar e tomar chocolate quente perto da lareira. O reino √© pac√≠fico e silencioso, com apenas o som dos flocos de neve caindo do c√©u."
 
 #: landview:61
 msgctxt "Level summary"
 msgid ""
 "The winter wonderland has been turned into a frozen wasteland. The snow is now hard as ice and the trees are twisted and gnarled. The residents have been transformed into ice zombies, their bodies frozen in place and their souls trapped in eternal torment. The world is now a frozen hell, where life is a struggle and death is a release."
-msgstr "O paraÌso de inverno foi transformado em um deserto congelado. A neve agora È dura como gelo e as ·rvores est„o retorcidas e nodulosas. Os residentes foram transformados em zumbis de gelo, seus corpos congelados no lugar e suas almas presas em tormento eterno. O mundo È agora um inferno congelado, onde a vida È uma luta e a morte È uma libertaÁ„o."
+msgstr "O para√≠so de inverno foi transformado em um deserto congelado. A neve agora √© dura como gelo e as √°rvores est√£o retorcidas e nodulosas. Os residentes foram transformados em zumbis de gelo, seus corpos congelados no lugar e suas almas presas em tormento eterno. O mundo √© agora um inferno congelado, onde a vida √© uma luta e a morte √© uma liberta√ß√£o."
 
 # Undead Campaign
 #: landview:100
 msgctxt "Level introduction"
 msgid "Winterrage - In the cold and icy mountains that are in the center of the country, is located a big city filled with pesky heroes. A real battlefield awaits you, where the white snow should be soaked of red!"
-msgstr "F˙ria Invernal - Nas montanhas frias e geladas que ficam no centro do paÌs, est· localizada uma grande cidade cheia de herÛis irritantes. Um verdadeiro campo de batalha o aguarda, onde a neve branca deve ser encharcada de vermelho!"
+msgstr "F√∫ria Invernal - Nas montanhas frias e geladas que ficam no centro do pa√≠s, est√° localizada uma grande cidade cheia de her√≥is irritantes. Um verdadeiro campo de batalha o aguarda, onde a neve branca deve ser encharcada de vermelho!"
 
 #: landview:101
 msgctxt "Level introduction"
 msgid "Deathmoore - This place has been overwhelmed, Keeper! There are bits and pieces everywhere! Some of our minions even had fun making some bloody snowmen using the remains of the corpses, using them afterwards for training purposes! Marvellous!"
-msgstr "P‚ntano da Morte - Este lugar foi subjugado, Guardi„o! H· pedaÁos por toda parte! Alguns de nossos lacaios atÈ se divertiram fazendo bonecos de neve sangrentos usando os restos dos cad·veres, usando-os depois para fins de treinamento! Maravilhoso!"
+msgstr "P√¢ntano da Morte - Este lugar foi subjugado, Guardi√£o! H√° peda√ßos por toda parte! Alguns de nossos lacaios at√© se divertiram fazendo bonecos de neve sangrentos usando os restos dos cad√°veres, usando-os depois para fins de treinamento! Maravilhoso!"
 
 #: landview:110
 msgctxt "Level introduction"
 msgid "Rosefield Cathedral - This is a very holy place, which is not good for our undead armies. A lot of paladins and monks are visiting this place, filled with the disgusting smell of flowers. A real place to reduce to ashes!"
-msgstr "Catedral do Campo das Rosas - Este È um lugar muito sagrado, o que n„o È bom para nossos exÈrcitos de mortos-vivos. Muitos paladinos e monges visitam este lugar, cheio do cheiro nojento de flores. Um lugar perfeito para reduzir a cinzas!"
+msgstr "Catedral do Campo das Rosas - Este √© um lugar muito sagrado, o que n√£o √© bom para nossos ex√©rcitos de mortos-vivos. Muitos paladinos e monges visitam este lugar, cheio do cheiro nojento de flores. Um lugar perfeito para reduzir a cinzas!"
 
 #: landview:111
 msgctxt "Level introduction"
 msgid "Sundew Ruins - The roses have been trampled and have been replaced with sundews; the kind of flower that entraps and devours insects. It fits perfectly with the scene of the now-desecrated cathedral, I must say!"
-msgstr "RuÌnas da DrÛsera - As rosas foram pisoteadas e substituÌdas por drÛseras; o tipo de flor que aprisiona e devora insetos. Combina perfeitamente com a cena da catedral agora profanada, devo dizer!"
+msgstr "Ru√≠nas da Dr√≥sera - As rosas foram pisoteadas e substitu√≠das por dr√≥seras; o tipo de flor que aprisiona e devora insetos. Combina perfeitamente com a cena da catedral agora profanada, devo dizer!"
 
 #: landview:120
 msgctxt "Level introduction"
 msgid "Arbor Heights - This is an ancient bastion of everlasting happiness, carved into a mountain... bleh. I highly suggest to reduce this pathetic fortress to rumbles by flattening it."
-msgstr "Alturas ArbÛreas - Este È um antigo basti„o de felicidade eterna, esculpido em uma montanha... bleh. Sugiro fortemente que reduza esta fortaleza patÈtica a escombros, achatando-a."
+msgstr "Alturas Arb√≥reas - Este √© um antigo basti√£o de felicidade eterna, esculpido em uma montanha... bleh. Sugiro fortemente que reduza esta fortaleza pat√©tica a escombros, achatando-a."
 
 #: landview:121
 msgctxt "Level introduction"
 msgid "The Low Lands - Nobody survived here. All of the pesky guards were bludgeoned, decapitated and burned! And the fortress has been reduced to a pile of shattered stones. A great victory for us, Master!"
-msgstr "As Terras Baixas - NinguÈm sobreviveu aqui. Todos os guardas irritantes foram espancados, decapitados e queimados! E a fortaleza foi reduzida a uma pilha de pedras estilhaÁadas. Uma grande vitÛria para nÛs, Mestre!"
+msgstr "As Terras Baixas - Ningu√©m sobreviveu aqui. Todos os guardas irritantes foram espancados, decapitados e queimados! E a fortaleza foi reduzida a uma pilha de pedras estilha√ßadas. Uma grande vit√≥ria para n√≥s, Mestre!"
 
 #: landview:130
 msgctxt "Level introduction"
 msgid "Drachenfeld - Dragons with a fiery temper rule this realm, stomping and burning everyone foolish enough that stands in their way. It's time someone teaches these overgrown lizards a lesson in humility."
-msgstr "Campo do Drag„o - Dragıes com um temperamento impetuoso governam este reino, pisoteando e queimando todos os tolos que ousam ficar em seu caminho. … hora de alguÈm ensinar a esses lagartos superdesenvolvidos uma liÁ„o de humildade."
+msgstr "Campo do Drag√£o - Drag√µes com um temperamento impetuoso governam este reino, pisoteando e queimando todos os tolos que ousam ficar em seu caminho. √â hora de algu√©m ensinar a esses lagartos superdesenvolvidos uma li√ß√£o de humildade."
 
 #: landview:131
 msgctxt "Level introduction"
 msgid "Dragontooth Wasteland - The great dragons have been torn to bloody shreds. Currently, our minions are collecting what remains of them to collect bones and decorate your dungeon with it, how stylish!"
-msgstr "Ermo do Dente de Drag„o - Os grandes dragıes foram rasgados em pedaÁos sangrentos. Atualmente, nossos lacaios est„o coletando o que resta deles para pegar ossos e decorar sua masmorra, que estilo!"
+msgstr "Ermo do Dente de Drag√£o - Os grandes drag√µes foram rasgados em peda√ßos sangrentos. Atualmente, nossos lacaios est√£o coletando o que resta deles para pegar ossos e decorar sua masmorra, que estilo!"
 
 #: landview:140
 msgctxt "Level introduction"
 msgid "Ashspire - Of all the places, the enemy make his stand inside a giant volcano with superior numbers and forces. Prepare to flush them all out, one way or another!"
-msgstr "Agulha de Cinzas - De todos os lugares, o inimigo faz sua resistÍncia dentro de um vulc„o gigante com n˙meros e forÁas superiores. Prepare-se para expuls·-los todos, de um jeito ou de outro!"
+msgstr "Agulha de Cinzas - De todos os lugares, o inimigo faz sua resist√™ncia dentro de um vulc√£o gigante com n√∫meros e for√ßas superiores. Prepare-se para expuls√°-los todos, de um jeito ou de outro!"
 
 #: landview:141
 msgctxt "Level introduction"
 msgid "Burntflesh - This realm has been filled with lava. There's a nice smell of rotten meat everywhere like if the volcano itself became a huge barbecue for all the remaining corpses lying all around!... Now, only one land remains before the total domination. Let's go, Keeper!"
-msgstr "Carne Queimada - Este reino foi preenchido com lava. H· um cheiro agrad·vel de carne podre por toda parte, como se o prÛprio vulc„o tivesse se tornado um enorme churrasco para todos os cad·veres restantes espalhados por aÌ!... Agora, resta apenas uma terra antes da dominaÁ„o total. Vamos l·, Guardi„o!"
+msgstr "Carne Queimada - Este reino foi preenchido com lava. H√° um cheiro agrad√°vel de carne podre por toda parte, como se o pr√≥prio vulc√£o tivesse se tornado um enorme churrasco para todos os cad√°veres restantes espalhados por a√≠!... Agora, resta apenas uma terra antes da domina√ß√£o total. Vamos l√°, Guardi√£o!"
 
 #: landview:150
 msgctxt "Level introduction"
 msgid "Dawnterror - This is truly a forsaken land; you cannot see the sun from this place and the howling wind cuts to the bone, lovely. The only thing I nitpick about the realm is the presence of Keeper Bane, who still sits on a false throne while the realms around it burned down. Have your final vengeance here."
-msgstr "Terror da Alvorada - Esta È verdadeiramente uma terra abandonada; vocÍ n„o pode ver o sol deste lugar e o vento uivante corta atÈ os ossos, ador·vel. A ˙nica coisa que me incomoda neste reino È a presenÁa do Guardi„o Bane, que ainda se senta em um falso trono enquanto os reinos ao seu redor queimavam. Tenha sua vinganÁa final aqui."
+msgstr "Terror da Alvorada - Esta √© verdadeiramente uma terra abandonada; voc√™ n√£o pode ver o sol deste lugar e o vento uivante corta at√© os ossos, ador√°vel. A √∫nica coisa que me incomoda neste reino √© a presen√ßa do Guardi√£o Bane, que ainda se senta em um falso trono enquanto os reinos ao seu redor queimavam. Tenha sua vingan√ßa final aqui."
 
 #: landview:151
 msgctxt "Level introduction"
 msgid "Deathterror - Finally! Bane is no more! All the surroundings are now piled with tons of bones and skulls into a dark atmosphere of death. The air is filled with ghost's evil screams and skeletons' laughter. After that intense battle, you are now the Keeper that rules the world... and the throne is now yours. Congratulations, Master!"
-msgstr "Terror da Morte - Finalmente! Bane n„o existe mais! Todos os arredores est„o agora empilhados com toneladas de ossos e cr‚nios em uma atmosfera sombria de morte. O ar est· cheio dos gritos malignos dos fantasmas e das risadas dos esqueletos. ApÛs essa intensa batalha, vocÍ È agora o Guardi„o que governa o mundo...
+msgstr "Terror da Morte - Finalmente! Bane n√£o existe mais! Todos os arredores est√£o agora empilhados com toneladas de ossos e cr√¢nios em uma atmosfera sombria de morte. O ar est√° cheio dos gritos malignos dos fantasmas e das risadas dos esqueletos. Ap√≥s essa intensa batalha, voc√™ √© agora o Guardi√£o que governa o mundo...

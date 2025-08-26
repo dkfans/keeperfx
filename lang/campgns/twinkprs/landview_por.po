@@ -34,64 +34,64 @@ msgstr ""
 #: landview:0
 msgctxt "Campaign introduction"
 msgid "Twin Keepers campaign"
-msgstr "Campanha Guardiıes GÍmeos"
+msgstr "Campanha Guardi√µes G√™meos"
 
 #: landview:10
 msgctxt "Level introduction"
 msgid "Softhome. The people here in this quaint little town are free of gastrointestinal pains by blessing of a local group of philanthropic wizards. Despicable; I expect you to use only the most painful tortures in your dealings with these rats."
-msgstr "Lar Macio. As pessoas aqui neste vilarejo pitoresco est„o livres de dores gastrointestinais pela bÍnÁ„o de um grupo local de magos filantropos. DesprezÌvel; espero que vocÍ use apenas as torturas mais dolorosas em seus negÛcios com esses ratos."
+msgstr "Lar Macio. As pessoas aqui neste vilarejo pitoresco est√£o livres de dores gastrointestinais pela b√™n√ß√£o de um grupo local de magos filantropos. Desprez√≠vel; espero que voc√™ use apenas as torturas mais dolorosas em seus neg√≥cios com esses ratos."
 
 #: landview:11
 msgctxt "Level summary"
 msgid "Hellmark. You will be overjoyed to hear that all the town's inhabitants have been butchered. Now their corpses are being burnt over the ruins of their hovels - savor the smell!"
-msgstr "Marca do Inferno. VocÍ ficar· radiante em saber que todos os habitantes da cidade foram massacrados. Agora seus cad·veres est„o sendo queimados sobre as ruÌnas de seus casebres - saboreie o cheiro!"
+msgstr "Marca do Inferno. Voc√™ ficar√° radiante em saber que todos os habitantes da cidade foram massacrados. Agora seus cad√°veres est√£o sendo queimados sobre as ru√≠nas de seus casebres - saboreie o cheiro!"
 
 #: landview:20
 msgctxt "Level introduction"
 msgid "Bloom. This enchanted forest is filled with huge trees and strange, stinking flowers; we must develop this blight for the sake of our creatures' noses."
-msgstr "Florescer. Esta floresta encantada est· cheia de ·rvores enormes e flores estranhas e fedorentas; devemos dar um jeito nesta praga pelo bem do olfato de nossas criaturas."
+msgstr "Florescer. Esta floresta encantada est√° cheia de √°rvores enormes e flores estranhas e fedorentas; devemos dar um jeito nesta praga pelo bem do olfato de nossas criaturas."
 
 #: landview:21
 msgctxt "Level summary"
 msgid "Doom. Your minions have chopped down all the trees and turned them into pleasing wooden demonic baubles, to be sold on the black market for exorbitant prices."
-msgstr "PerdiÁ„o. Seus lacaios derrubaram todas as ·rvores e as transformaram em agrad·veis bugigangas demonÌacas de madeira, para serem vendidas no mercado negro por preÁos exorbitantes."
+msgstr "Perdi√ß√£o. Seus lacaios derrubaram todas as √°rvores e as transformaram em agrad√°veis bugigangas demon√≠acas de madeira, para serem vendidas no mercado negro por pre√ßos exorbitantes."
 
 #: landview:30
 msgctxt "Level introduction"
 msgid "Joybelly. Food is consumed and stomachs are fattened here as hands reach for pastries. These 'heroes' eat enough to cause bile demons constipation. But let us get to the slaughter; obesity is not as quick a killer as the scythe."
-msgstr "Barriga Feliz. Comida È consumida e estÙmagos s„o engordados aqui enquanto m„os alcanÁam doces. Esses 'herÛis' comem o suficiente para causar constipaÁ„o em demÙnios de fel. Mas vamos ao massacre; a obesidade n„o È um assassino t„o r·pido quanto a foice."
+msgstr "Barriga Feliz. Comida √© consumida e est√¥magos s√£o engordados aqui enquanto m√£os alcan√ßam doces. Esses 'her√≥is' comem o suficiente para causar constipa√ß√£o em dem√¥nios de fel. Mas vamos ao massacre; a obesidade n√£o √© um assassino t√£o r√°pido quanto a foice."
 
 #: landview:31
 msgctxt "Level summary"
 msgid "Fat's Bane. The few in this realm who somehow avoided being immediately carved up by our demons have been put on a strict diet of cockroaches and plague infected rats. A delicious victory, wouldn't you say?"
-msgstr "MaldiÁ„o da Gordura. Os poucos neste reino que de alguma forma evitaram ser imediatamente esquartejados por nossos demÙnios foram colocados em uma dieta rigorosa de baratas e ratos infectados pela peste. Uma vitÛria deliciosa, n„o diria?"
+msgstr "Maldi√ß√£o da Gordura. Os poucos neste reino que de alguma forma evitaram ser imediatamente esquartejados por nossos dem√¥nios foram colocados em uma dieta rigorosa de baratas e ratos infectados pela peste. Uma vit√≥ria deliciosa, n√£o diria?"
 
 #: landview:40
 msgctxt "Level introduction"
 msgid "Featherburg. People here frolic in fields alongside giant poultry known as 'bird-friends'. It is a noxious, disgusting place; could use a heavy dose of bubonic plague."
-msgstr "Penaburgo. As pessoas aqui brincam nos campos ao lado de aves gigantes conhecidas como 'p·ssaros-amigos'. … um lugar nocivo e nojento; precisaria de uma dose pesada de peste bubÙnica."
+msgstr "Penaburgo. As pessoas aqui brincam nos campos ao lado de aves gigantes conhecidas como 'p√°ssaros-amigos'. √â um lugar nocivo e nojento; precisaria de uma dose pesada de peste bub√¥nica."
 
 #: landview:41
 msgctxt "Level summary"
 msgid "Grimm. It would be a gross understatement to say that you devastated this place; in fact, you totally sterilized it with brilliant hellfire. Only a Keeper of your stature could turn a ruin into such a warm, wonderful place to live."
-msgstr "Sombrio. Seria um eufemismo grosseiro dizer que vocÍ devastou este lugar; na verdade, vocÍ o esterilizou totalmente com um brilhante fogo do inferno. Apenas um Guardi„o de sua estatura poderia transformar uma ruÌna em um lugar t„o quente e maravilhoso para se viver."
+msgstr "Sombrio. Seria um eufemismo grosseiro dizer que voc√™ devastou este lugar; na verdade, voc√™ o esterilizou totalmente com um brilhante fogo do inferno. Apenas um Guardi√£o de sua estatura poderia transformar uma ru√≠na em um lugar t√£o quente e maravilhoso para se viver."
 
 #: landview:50
 msgctxt "Level introduction"
 msgid "Hopeville. Optimism is the word here. Families love each other; nothing could ever go wrong; the world looks bright. Indeed it will be when this land is covered in molten lava and all of these creeps are dead."
-msgstr "Vila EsperanÁa. Otimismo È a palavra aqui. As famÌlias se amam; nada poderia dar errado; o mundo parece brilhante. De fato, ele estar· quando esta terra estiver coberta de lava derretida e todos esses canalhas estiverem mortos."
+msgstr "Vila Esperan√ßa. Otimismo √© a palavra aqui. As fam√≠lias se amam; nada poderia dar errado; o mundo parece brilhante. De fato, ele estar√° quando esta terra estiver coberta de lava derretida e todos esses canalhas estiverem mortos."
 
 #: landview:51
 msgctxt "Level summary"
 msgid "Death's Edge. Volcanic eruptions, anthrax, and heavy taxes now hold this land in a death grip. The world looks bright!"
-msgstr "Beira da Morte. ErupÁıes vulc‚nicas, antraz e impostos pesados agora mantÍm esta terra em um abraÁo mortal. O mundo parece brilhante!"
+msgstr "Beira da Morte. Erup√ß√µes vulc√¢nicas, antraz e impostos pesados agora mant√™m esta terra em um abra√ßo mortal. O mundo parece brilhante!"
 
 #: landview:60
 msgctxt "Level introduction"
 msgid "Lovesmile. Absolute joy. Eternal love and happiness. Long lives and proper care for the elderly. This place is just terrible. It needs to be crushed into the ground."
-msgstr "Sorriso de Amor. Alegria absoluta. Amor e felicidade eternos. Vidas longas e cuidado adequado com os idosos. Este lugar È simplesmente terrÌvel. Precisa ser esmagado atÈ virar pÛ."
+msgstr "Sorriso de Amor. Alegria absoluta. Amor e felicidade eternos. Vidas longas e cuidado adequado com os idosos. Este lugar √© simplesmente terr√≠vel. Precisa ser esmagado at√© virar p√≥."
 
 #: landview:61
 msgctxt "Level summary"
 msgid "Reap. You, great destroyer, have crushed the good Kingdom of Love and destroyed your rivals, the Twin Keepers. Your charming efforts have left such deep, festering marks that great Demons have given you a seat in Hades itself. Now take a vacation."
-msgstr "Colheita. VocÍ, grande destruidor, esmagou o bom Reino do Amor e destruiu seus rivais, os Guardiıes GÍmeos. Seus esforÁos encantadores deixaram marcas t„o profundas e purulentas que grandes DemÙnios lhe der
+msgstr "Colheita. Voc√™, grande destruidor, esmagou o bom Reino do Amor e destruiu seus rivais, os Guardi√µes G√™meos. Seus esfor√ßos encantadores deixaram marcas t√£o profundas e purulentas que grandes Dem√¥nios lhe der

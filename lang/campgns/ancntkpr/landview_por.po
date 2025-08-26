@@ -33,22 +33,22 @@ msgstr ""
 #: landview:10
 msgctxt "Level introduction"
 msgid "Red Carpet. Welcome, Keeper, to the first of the Ancient Realms."
-msgstr "Tapete Vermelho. Bem-vindo, Guardião, ao primeiro dos Reinos Antigos."
+msgstr "Tapete Vermelho. Bem-vindo, GuardiÃ£o, ao primeiro dos Reinos Antigos."
 
 #: landview:11
 msgctxt "Level summary"
 msgid "Good job. It was easy, after the Archers guarding portal were defeated."
-msgstr "Bom trabalho. Foi fácil, depois que os Arqueiros que guardavam o portal foram derrotados."
+msgstr "Bom trabalho. Foi fÃ¡cil, depois que os Arqueiros que guardavam o portal foram derrotados."
 
 #: landview:20
 msgctxt "Level introduction"
 msgid "Harmony. A strange land this is, Keeper!"
-msgstr "Harmonia. Esta é uma terra estranha, Guardião!"
+msgstr "Harmonia. Esta Ã© uma terra estranha, GuardiÃ£o!"
 
 #: landview:21
 msgctxt "Level summary"
 msgid "You've learned that a bridge can be more powerful than an army. Congratulations!"
-msgstr "Você aprendeu que uma ponte pode ser mais poderosa que um exército. Parabéns!"
+msgstr "VocÃª aprendeu que uma ponte pode ser mais poderosa que um exÃ©rcito. ParabÃ©ns!"
 
 #: landview:30
 msgctxt "Level introduction"
@@ -58,7 +58,7 @@ msgstr "Avareza. Neste reino, um de seus inimigos capturou um bando de Avatares.
 #: landview:31
 msgctxt "Level summary"
 msgid "You've learned how to move objects without telepathy. Useful achievement."
-msgstr "Você aprendeu a mover objetos sem telepatia. Uma conquista útil."
+msgstr "VocÃª aprendeu a mover objetos sem telepatia. Uma conquista Ãºtil."
 
 #: landview:40
 msgctxt "Level introduction"
@@ -68,72 +68,72 @@ msgstr "A amante de T'Kaan foi exilada para este reino."
 #: landview:41
 msgctxt "Level summary"
 msgid "You've learned how to open your walls and seal them again. Good job!"
-msgstr "Você aprendeu a abrir seus muros e selá-los novamente. Bom trabalho!"
+msgstr "VocÃª aprendeu a abrir seus muros e selÃ¡-los novamente. Bom trabalho!"
 
 #: landview:50
 msgctxt "Level introduction"
 msgid "The Realm of Salaar. Paranoid heroes guard this realm with care!"
-msgstr "O Reino de Salaar. Heróis paranoicos guardam este reino com cuidado!"
+msgstr "O Reino de Salaar. HerÃ³is paranoicos guardam este reino com cuidado!"
 
 #: landview:51
 msgctxt "Level summary"
 msgid "Now you know that not only Training Rooms can be used for training. Impressive."
-msgstr "Agora você sabe que não apenas as Salas de Treino podem ser usadas para treinar. Impressionante."
+msgstr "Agora vocÃª sabe que nÃ£o apenas as Salas de Treino podem ser usadas para treinar. Impressionante."
 
 #: landview:60
 msgctxt "Level introduction"
 msgid "Save the Heroes. They are about to die, so act swiftly!"
-msgstr "Salve os Heróis. Eles estão prestes a morrer, então aja rapidamente!"
+msgstr "Salve os HerÃ³is. Eles estÃ£o prestes a morrer, entÃ£o aja rapidamente!"
 
 #: landview:61
 msgctxt "Level summary"
 msgid "You've learned the special properties of an unconscious body. I still have no idea how this works."
-msgstr "Você aprendeu as propriedades especiais de um corpo inconsciente. Ainda não faço ideia de como isso funciona."
+msgstr "VocÃª aprendeu as propriedades especiais de um corpo inconsciente. Ainda nÃ£o faÃ§o ideia de como isso funciona."
 
 #: landview:70
 msgctxt "Level introduction"
 msgid "Kwan Tek's Ordeal. He has gifted you a powerful spell."
-msgstr "A Provação de Kwan Tek. Ele lhe presenteou com um feitiço poderoso."
+msgstr "A ProvaÃ§Ã£o de Kwan Tek. Ele lhe presenteou com um feitiÃ§o poderoso."
 
 #: landview:71
 msgctxt "Level summary"
 msgid "You've destroyed the enemy without any creatures. Now you know that having a map revealed do have benefits."
-msgstr "Você destruiu o inimigo sem nenhuma criatura. Agora você sabe que ter o mapa revelado tem seus benefícios."
+msgstr "VocÃª destruiu o inimigo sem nenhuma criatura. Agora vocÃª sabe que ter o mapa revelado tem seus benefÃ­cios."
 
 #: landview:80
 msgctxt "Level introduction"
 msgid "Avatar's Revenge. He has tracked you down, and recalls a previous encounter!"
-msgstr "A Vingança do Avatar. Ele o rastreou e se lembra de um encontro anterior!"
+msgstr "A VinganÃ§a do Avatar. Ele o rastreou e se lembra de um encontro anterior!"
 
 #: landview:81
 msgctxt "Level summary"
 msgid "You now know that fortifying walls often comes in handy. Proceed."
-msgstr "Agora você sabe que fortificar muros muitas vezes é útil. Prossiga."
+msgstr "Agora vocÃª sabe que fortificar muros muitas vezes Ã© Ãºtil. Prossiga."
 
 #: landview:90
 msgctxt "Level introduction"
 msgid "Knight Manoeuvres. You must free your creatures, Master!"
-msgstr "Manobras de Cavaleiros. Você deve libertar suas criaturas, Mestre!"
+msgstr "Manobras de Cavaleiros. VocÃª deve libertar suas criaturas, Mestre!"
 
 #: landview:91
 msgctxt "Level summary"
 msgid "You've freed your creatures and survived against the hordes of knights. This is quite impressive."
-msgstr "Você libertou suas criaturas e sobreviveu contra as hordas de cavaleiros. Isso é bastante impressionante."
+msgstr "VocÃª libertou suas criaturas e sobreviveu contra as hordas de cavaleiros. Isso Ã© bastante impressionante."
 
 #: landview:100
 msgctxt "Level introduction"
 msgid "The University of Hades. Welcome, Keeper, to an esteemed seat of learning."
-msgstr "A Universidade de Hades. Bem-vindo, Guardião, a uma estimada sede de aprendizado."
+msgstr "A Universidade de Hades. Bem-vindo, GuardiÃ£o, a uma estimada sede de aprendizado."
 
 #: landview:101
 msgctxt "Level summary"
 msgid "You've learned triggering traps and blowing creatures through walls. Speaking of it sound strange."
-msgstr "Você aprendeu a acionar armadilhas e a arremessar criaturas através de muros. Falando assim, parece estranho."
+msgstr "VocÃª aprendeu a acionar armadilhas e a arremessar criaturas atravÃ©s de muros. Falando assim, parece estranho."
 
 #: landview:110
 msgctxt "Level introduction"
 msgid "Salaar's Test. Do not disappoint him!"
-msgstr "O Teste de Salaar. Não o desaponte!"
+msgstr "O Teste de Salaar. NÃ£o o desaponte!"
 
 #: landview:111
 msgctxt "Level summary"
@@ -143,7 +143,7 @@ msgstr "Foi um bom jogo de 'Esconde-Esconde e Cava-Cava'."
 #: landview:120
 msgctxt "Level introduction"
 msgid "Rescue the Avatar. Your most valued convert is being tortured!"
-msgstr "Resgate o Avatar. Seu convertido mais valioso está sendo torturado!"
+msgstr "Resgate o Avatar. Seu convertido mais valioso estÃ¡ sendo torturado!"
 
 #: landview:121
 msgctxt "Level summary"
@@ -153,7 +153,7 @@ msgstr "A FAZER 121"
 #: landview:130
 msgctxt "Level introduction"
 msgid "Sloth. This land requires aggression and speed, Keeper."
-msgstr "Preguiça. Esta terra requer agressão e velocidade, Guardião."
+msgstr "PreguiÃ§a. Esta terra requer agressÃ£o e velocidade, GuardiÃ£o."
 
 #: landview:131
 msgctxt "Level summary"
@@ -163,7 +163,7 @@ msgstr "A FAZER 131"
 #: landview:140
 msgctxt "Level introduction"
 msgid "Are you interested in Entomology, Keeper?"
-msgstr "Você se interessa por Entomologia, Guardião?"
+msgstr "VocÃª se interessa por Entomologia, GuardiÃ£o?"
 
 #: landview:141
 msgctxt "Level summary"
@@ -173,7 +173,7 @@ msgstr "A FAZER 141"
 #: landview:150
 msgctxt "Level introduction"
 msgid "Flowers of Despair. In this realm the Ancients have granted you have workers but no fighters."
-msgstr "Flores do Desespero. Neste reino, os Antigos lhe concederam trabalhadores, mas não lutadores."
+msgstr "Flores do Desespero. Neste reino, os Antigos lhe concederam trabalhadores, mas nÃ£o lutadores."
 
 #: landview:151
 msgctxt "Level summary"
@@ -183,7 +183,7 @@ msgstr "A FAZER 151"
 #: landview:160
 msgctxt "Level introduction"
 msgid "Dragonia. Welcome to the Land of Dragons, Keeper. With skill you will gain their services."
-msgstr "Dragonia. Bem-vindo à Terra dos Dragões, Guardião. Com habilidade, você obterá seus serviços."
+msgstr "Dragonia. Bem-vindo Ã  Terra dos DragÃµes, GuardiÃ£o. Com habilidade, vocÃª obterÃ¡ seus serviÃ§os."
 
 #: landview:161
 msgctxt "Level summary"
@@ -193,7 +193,7 @@ msgstr "A FAZER 161"
 #: landview:170
 msgctxt "Level introduction"
 msgid "Fortress of the Sun. You have attracted the hottest babe in the Underworld!"
-msgstr "Fortaleza do Sol. Você atraiu a gata mais quente do Submundo!"
+msgstr "Fortaleza do Sol. VocÃª atraiu a gata mais quente do Submundo!"
 
 #: landview:171
 msgctxt "Level summary"
@@ -203,7 +203,7 @@ msgstr "A FAZER 171"
 #: landview:180
 msgctxt "Level introduction"
 msgid "Thor's Diplomat. Go and negotiate a settlement in this land."
-msgstr "O Diplomata de Thor. Vá e negocie um acordo nesta terra."
+msgstr "O Diplomata de Thor. VÃ¡ e negocie um acordo nesta terra."
 
 #: landview:181
 msgctxt "Level summary"
@@ -213,7 +213,7 @@ msgstr "A FAZER 181"
 #: landview:190
 msgctxt "Level introduction"
 msgid "Antak's Ruin. You must be patient and persistent, Keeper, if you are not to share his fate!"
-msgstr "A Ruína de Antak. Você deve ser paciente e persistente, Guardião, se não quiser compartilhar o destino dele!"
+msgstr "A RuÃ­na de Antak. VocÃª deve ser paciente e persistente, GuardiÃ£o, se nÃ£o quiser compartilhar o destino dele!"
 
 #: landview:191
 msgctxt "Level summary"
@@ -223,7 +223,7 @@ msgstr "A FAZER 191"
 #: landview:200
 msgctxt "Level introduction"
 msgid "You have earned the right to the ultimate challenge - L'Cyfre's Challenge."
-msgstr "Você conquistou o direito ao desafio final - O Desafio de L'Cyfre."
+msgstr "VocÃª conquistou o direito ao desafio final - O Desafio de L'Cyfre."
 
 #: landview:201
 msgctxt "Level summary"
@@ -243,7 +243,7 @@ msgstr "Baixinho."
 #: landview:520
 msgctxt "Bonus introduction"
 msgid "Run fast."
-msgstr "Corra Rápido."
+msgstr "Corra RÃ¡pido."
 
 #: landview:530
 msgctxt "Bonus introduction"

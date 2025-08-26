@@ -40,7 +40,7 @@ msgstr ""
 #: guitext:1
 msgctxt "In-game message"
 msgid "We're done here but the siege just begins. Let's head for the Isle."
-msgstr "Terminamos aqui, mas o cerco apenas começou. Vamos para a Ilha."
+msgstr "Terminamos aqui, mas o cerco apenas comeÃ§ou. Vamos para a Ilha."
 
 #. Deserted Crypt Message Action Point 12
 #: guitext:2
@@ -52,19 +52,19 @@ msgstr "Consigo ver algumas estruturas familiares ao sul. Certifique-se de estar
 #: guitext:3
 msgctxt "In-game message"
 msgid "Great, a troop! Find the transfer creature special and you get to keep him."
-msgstr "Ótimo, uma tropa! Encontre o especial de transferir criatura e você poderá mantê-la."
+msgstr "Ã“timo, uma tropa! Encontre o especial de transferir criatura e vocÃª poderÃ¡ mantÃª-la."
 
 #. Deserted Crypt Message Action Point 2
 #: guitext:4
 msgctxt "In-game message"
 msgid "Heroes have been alerted and are heading to your dungeon now!"
-msgstr "Os heróis foram alertados e estão a caminho da sua masmorra agora!"
+msgstr "Os herÃ³is foram alertados e estÃ£o a caminho da sua masmorra agora!"
 
 #. Deserted Crypt Message on gaining workshop
 #: guitext:5
 msgctxt "In-game message"
 msgid "Locate and deploy any traps you can find to prevent these pests from attacking you. Acquiring 32000 pieces of gold is our goal."
-msgstr "Localize e posicione quaisquer armadilhas que encontrar para evitar que essas pragas o ataquem. Adquirir 32.000 peças de ouro é nosso objetivo."
+msgstr "Localize e posicione quaisquer armadilhas que encontrar para evitar que essas pragas o ataquem. Adquirir 32.000 peÃ§as de ouro Ã© nosso objetivo."
 
 #. Deserted Crypt Message on gaining library
 #: guitext:6
@@ -72,13 +72,13 @@ msgctxt "In-game message"
 msgid ""
 "As the library becomes a part of your dungeon, you have a strange vision uncovering a small area. Getting to the spell as soon as  possible should be your top "
 "priority. Acquiring 32000 pieces of gold is your goal."
-msgstr "À medida que a biblioteca se torna parte da sua masmorra, você tem uma estranha visão que revela uma pequena área. Chegar ao feitiço o mais rápido possível deve ser sua principal prioridade. Adquirir 32.000 peças de ouro é seu objetivo."
+msgstr "Ã€ medida que a biblioteca se torna parte da sua masmorra, vocÃª tem uma estranha visÃ£o que revela uma pequena Ã¡rea. Chegar ao feitiÃ§o o mais rÃ¡pido possÃ­vel deve ser sua principal prioridade. Adquirir 32.000 peÃ§as de ouro Ã© seu objetivo."
 
 #. Deserted Crypt Message on gaining AREA>150
 #: guitext:7
 msgctxt "In-game message"
 msgid "The sacred tombs are infested with pests of all kinds. You'll have to find a way to raid the tombs and resist pest attacks."
-msgstr "As tumbas sagradas estão infestadas com pragas de todos os tipos. Você terá que encontrar uma maneira de saquear as tumbas e resistir aos ataques das pragas."
+msgstr "As tumbas sagradas estÃ£o infestadas com pragas de todos os tipos. VocÃª terÃ¡ que encontrar uma maneira de saquear as tumbas e resistir aos ataques das pragas."
 
 #. Deserted Crypt Message on gaining MONEY>13,000
 #: guitext:8
@@ -86,7 +86,7 @@ msgctxt "In-game message"
 msgid ""
 "Unsurprisingly, even down here, far from any civilisation, a few cheap slavs are here to rob you. Your financial goal is in jeopardy!  I also think you can "
 "expect at least one more party."
-msgstr "Sem surpresa, mesmo aqui embaixo, longe de qualquer civilização, alguns miseráveis estão aqui para roubá-lo. Seu objetivo financeiro está em perigo! Também acho que você pode esperar pelo menos mais um grupo."
+msgstr "Sem surpresa, mesmo aqui embaixo, longe de qualquer civilizaÃ§Ã£o, alguns miserÃ¡veis estÃ£o aqui para roubÃ¡-lo. Seu objetivo financeiro estÃ¡ em perigo! TambÃ©m acho que vocÃª pode esperar pelo menos mais um grupo."
 
 #. Deserted Crypt opening message
 #: guitext:9
@@ -95,7 +95,7 @@ msgid ""
 "Pray and Work are the scared words here. Pray and Work! Your goal is to save the people living on Acemist Isle from their boring lives.  Don't think killing "
 "them is too cruel: they'll be glad their miserable lives are over, believe me!  Now, let's find a way how to get to the isle and take the island from Polish "
 "empire. "
-msgstr "Orar e Trabalhar são as palavras sagradas aqui. Orar e Trabalhar! Seu objetivo é salvar o povo que vive na Ilha da Névoa de suas vidas entediantes. Não pense que matá-los é cruel demais: eles ficarão felizes por suas vidas miseráveis terem acabado, acredite em mim! Agora, vamos encontrar uma maneira de chegar à ilha e tomá-la do império Polonês."
+msgstr "Orar e Trabalhar sÃ£o as palavras sagradas aqui. Orar e Trabalhar! Seu objetivo Ã© salvar o povo que vive na Ilha da NÃ©voa de suas vidas entediantes. NÃ£o pense que matÃ¡-los Ã© cruel demais: eles ficarÃ£o felizes por suas vidas miserÃ¡veis terem acabado, acredite em mim! Agora, vamos encontrar uma maneira de chegar Ã  ilha e tomÃ¡-la do impÃ©rio PolonÃªs."
 
 #. Deserted Crypt message when gaining an imp
 #: guitext:10
@@ -103,13 +103,13 @@ msgctxt "In-game message"
 msgid ""
 "There's a shipyard nearby. Although heavily guarded, some cheap Polish sailors agreed to transport you to the isle for a small bribe of  32,000 gold. Now raid "
 "these tombs, loot the required amount of gold and off we go. "
-msgstr "Há um estaleiro por perto. Embora fortemente guardado, alguns marinheiros Poloneses baratos concordaram em transportá-lo para a ilha por um pequeno suborno de 32.000 de ouro. Agora, saqueie estas tumbas, colete a quantidade de ouro necessária e vamos embora."
+msgstr "HÃ¡ um estaleiro por perto. Embora fortemente guardado, alguns marinheiros Poloneses baratos concordaram em transportÃ¡-lo para a ilha por um pequeno suborno de 32.000 de ouro. Agora, saqueie estas tumbas, colete a quantidade de ouro necessÃ¡ria e vamos embora."
 
 #. KeeperFX version check statement
 #: guitext:11
 msgctxt "In-game message"
 msgid "You have an old version of KeeperFX. You need to update to play this campaign correctly with all available features.  Go to www.keeperklan.com"
-msgstr "Você tem uma versão antiga do KeeperFX. Você precisa atualizar para jogar esta campanha corretamente com todos os recursos disponíveis. Vá para www.keeperklan.com"
+msgstr "VocÃª tem uma versÃ£o antiga do KeeperFX. VocÃª precisa atualizar para jogar esta campanha corretamente com todos os recursos disponÃ­veis. VÃ¡ para www.keeperklan.com"
 
 #. Don't Fear The Reaper (Level 2) Opening Objective
 #: guitext:12
@@ -117,7 +117,7 @@ msgctxt "In-game message"
 msgid ""
 "Your arrival has caused great alarm amongst the people of this land. As a way of saving money, a converted horned reaper was offered to  take on not one but "
 "two pathetic keepers and their minions all alone! An offer he just could not resist.  A simple yet difficult task: Make this day his last!"
-msgstr "Sua chegada causou grande alarme entre o povo desta terra. Como forma de economizar dinheiro, um ceifador de chifres convertido foi oferecido para enfrentar não um, mas dois guardiões patéticos e seus lacaios sozinho! Uma oferta que ele simplesmente não pôde resistir. Uma tarefa simples, porém difícil: Faça deste dia o último dele!"
+msgstr "Sua chegada causou grande alarme entre o povo desta terra. Como forma de economizar dinheiro, um ceifador de chifres convertido foi oferecido para enfrentar nÃ£o um, mas dois guardiÃµes patÃ©ticos e seus lacaios sozinho! Uma oferta que ele simplesmente nÃ£o pÃ´de resistir. Uma tarefa simples, porÃ©m difÃ­cil: FaÃ§a deste dia o Ãºltimo dele!"
 
 #. Don't Fear The Reaper (Level 2) Opening Information
 #: guitext:13
@@ -127,13 +127,13 @@ msgid ""
 "ludicrous beliefs! Some call it the second Poland. However, do not underestimate them. They have managed to convert some of your minions which they'll gladly "
 "use against you. Their abominable accent makes the isle name sound as if they were mumbling 'Assmist isle'. A fitting future name once your bile demons are "
 "done with it, don't you think? "
-msgstr "Você está nas margens da Ilha da Névoa. Um lugar terrivelmente pobre e cristão onde os cidadãos morrem de velhice, após uma vida puritana e entediante espalhando suas crenças ridículas! Alguns a chamam de segunda Polônia. No entanto, não os subestime. Eles conseguiram converter alguns de seus lacaios que usarão com prazer contra você. O sotaque abominável deles faz o nome da ilha soar como se estivessem resmungando 'Ilha da Merda'. Um nome futuro apropriado quando seus demônios de fel terminarem com ela, não acha?"
+msgstr "VocÃª estÃ¡ nas margens da Ilha da NÃ©voa. Um lugar terrivelmente pobre e cristÃ£o onde os cidadÃ£os morrem de velhice, apÃ³s uma vida puritana e entediante espalhando suas crenÃ§as ridÃ­culas! Alguns a chamam de segunda PolÃ´nia. No entanto, nÃ£o os subestime. Eles conseguiram converter alguns de seus lacaios que usarÃ£o com prazer contra vocÃª. O sotaque abominÃ¡vel deles faz o nome da ilha soar como se estivessem resmungando 'Ilha da Merda'. Um nome futuro apropriado quando seus demÃ´nios de fel terminarem com ela, nÃ£o acha?"
 
 #. Don't Fear The Reaper (lv2) message after Horny is killed
 #: guitext:14
 msgctxt "In-game message"
 msgid "Horny is not so horny any more! Good job."
-msgstr "O Chifrudo não está mais tão com tesão! Bom trabalho."
+msgstr "O Chifrudo nÃ£o estÃ¡ mais tÃ£o com tesÃ£o! Bom trabalho."
 
 #. Don't Fear The Reaper (lv2) message regarding transfer of money to next level.
 #: guitext:15
@@ -145,7 +145,7 @@ msgstr "20.000 de Ouro foram creditados em sua conta no Banco do Mal!"
 #: guitext:16
 msgctxt "In-game message"
 msgid "Creature limit reached. Do not expect any new arrivals until a creature is lost."
-msgstr "Limite de criaturas atingido. Não espere novas chegadas até que uma criatura seja perdida."
+msgstr "Limite de criaturas atingido. NÃ£o espere novas chegadas atÃ© que uma criatura seja perdida."
 
 #. Don't Fear The Reaper (lv2) message after TIMER2>1500
 #: guitext:17
@@ -154,25 +154,25 @@ msgid ""
 "A couple of dwarf miners to the north-west have mined this lucrative land. They jealously guard their treasure in a nearby garrison. Their warlock Dr. "
 "Goldstein has made a dark magic portal to transport their fortune to another land. You must reach it before they do if you wish to use it in the next realm. "
 "I'm sure you can think of a better use for it?!"
-msgstr "Um par de anões mineradores a noroeste minerou esta terra lucrativa. Eles guardam zelosamente seu tesouro em uma guarnição próxima. O bruxo deles, Dr. Goldstein, criou um portal de magia negra para transportar sua fortuna para outra terra. Você deve alcançá-lo antes deles se quiser usá-lo no próximo reino. Tenho certeza de que você pode pensar em um uso melhor para ele?!"
+msgstr "Um par de anÃµes mineradores a noroeste minerou esta terra lucrativa. Eles guardam zelosamente seu tesouro em uma guarniÃ§Ã£o prÃ³xima. O bruxo deles, Dr. Goldstein, criou um portal de magia negra para transportar sua fortuna para outra terra. VocÃª deve alcanÃ§Ã¡-lo antes deles se quiser usÃ¡-lo no prÃ³ximo reino. Tenho certeza de que vocÃª pode pensar em um uso melhor para ele?!"
 
 #. Don't Fear The Reaper (lv2) message after treasure is lost
 #: guitext:18
 msgctxt "In-game message"
 msgid "Dr Goldstein has transported the treasure beyond your reach. Your chance of great wealth has gone..."
-msgstr "Dr. Goldstein transportou o tesouro para além do seu alcance. Sua chance de grande riqueza se foi..."
+msgstr "Dr. Goldstein transportou o tesouro para alÃ©m do seu alcance. Sua chance de grande riqueza se foi..."
 
 #. Don't Fear The Reaper (lv2) message after TIMER2>1500
 #: guitext:19
 msgctxt "In-game message"
 msgid "Well done, Dr. Goldstein teleported the gold to the halls nearby! You will be 20,000 gold richer in the Martyr Halls dungeon!"
-msgstr "Muito bem, Dr. Goldstein teleportou o ouro para os salões próximos! Você ficará 20.000 de ouro mais rico na masmorra dos Salões dos Mártires!"
+msgstr "Muito bem, Dr. Goldstein teleportou o ouro para os salÃµes prÃ³ximos! VocÃª ficarÃ¡ 20.000 de ouro mais rico na masmorra dos SalÃµes dos MÃ¡rtires!"
 
 #. Don't Fear The Reaper (lv2) message after getting a wizard
 #: guitext:20
 msgctxt "In-game message"
 msgid "Hint: wizards have difficulty training in this realm, and cannot get past level 5 here."
-msgstr "Dica: magos têm dificuldade em treinar neste reino e não conseguem passar do nível 5 aqui."
+msgstr "Dica: magos tÃªm dificuldade em treinar neste reino e nÃ£o conseguem passar do nÃ­vel 5 aqui."
 
 #. Don't Fear The Reaper (lv2) message after getting a skeleton
 #: guitext:21
@@ -187,7 +187,7 @@ msgid ""
 "The plans have failed. The Guardians of this land have banished you down here, not far away from an entrance leading to the lighthouse on the surface. With no "
 "gold, rooms or army and walled in, the heroes have retreated as you pose no danger. The only people still here are accompanied by water dwelling creatures who "
 "are wary of newcomers and will not hesitate to attack you."
-msgstr "Os planos falharam. Os Guardiões desta terra o baniram para cá, não muito longe de uma entrada que leva ao farol na superfície. Sem ouro, salas ou exército e murado, os heróis recuaram, pois você não representa perigo. As únicas pessoas ainda aqui estão acompanhadas por criaturas aquáticas que desconfiam de recém-chegados e não hesitarão em atacá-lo."
+msgstr "Os planos falharam. Os GuardiÃµes desta terra o baniram para cÃ¡, nÃ£o muito longe de uma entrada que leva ao farol na superfÃ­cie. Sem ouro, salas ou exÃ©rcito e murado, os herÃ³is recuaram, pois vocÃª nÃ£o representa perigo. As Ãºnicas pessoas ainda aqui estÃ£o acompanhadas por criaturas aquÃ¡ticas que desconfiam de recÃ©m-chegados e nÃ£o hesitarÃ£o em atacÃ¡-lo."
 
 #. Lighthouse Underground (lv3) Second Message
 #: guitext:23
@@ -195,7 +195,7 @@ msgctxt "In-game message"
 msgid ""
 "Lucky for you, one of the samurais tried to use a tentacle to ... to .. Well let's just say the tentacle got really pissed and joined you. Quickly, Keeper! "
 "This is your chance! "
-msgstr "Sorte sua, um dos samurais tentou usar um tentáculo para... para... Bem, digamos apenas que o tentáculo ficou muito irritado e se juntou a você. Rápido, Guardião! Esta é a sua chance!"
+msgstr "Sorte sua, um dos samurais tentou usar um tentÃ¡culo para... para... Bem, digamos apenas que o tentÃ¡culo ficou muito irritado e se juntou a vocÃª. RÃ¡pido, GuardiÃ£o! Esta Ã© a sua chance!"
 
 #. Lighthouse Underground (lv3) Message on gaining an imp
 #: guitext:24
@@ -203,26 +203,26 @@ msgctxt "In-game message"
 msgid ""
 "Hearing unusual noise from your dungeon, an attentive lighthouse guard accompanied by his two-headed pet is heading to your dungeon. Defeat them and the "
 "victory is yours."
-msgstr "Ouvindo um barulho incomum de sua masmorra, um guarda atento do farol acompanhado por seu animal de estimação de duas cabeças está se dirigindo à sua masmorra. Derrote-os e a vitória será sua."
+msgstr "Ouvindo um barulho incomum de sua masmorra, um guarda atento do farol acompanhado por seu animal de estimaÃ§Ã£o de duas cabeÃ§as estÃ¡ se dirigindo Ã  sua masmorra. Derrote-os e a vitÃ³ria serÃ¡ sua."
 
 #. Lighthouse Underground (lv3) Information on gaining an imp
 #: guitext:25
 msgctxt "In-game message"
 msgid ""
 "Your creatures have difficulty training in this miserable land, and your bridge builders are slow and incompetent! Are you ruthless enough to prevail Keeper?"
-msgstr "Suas criaturas têm dificuldade em treinar nesta terra miserável, e seus construtores de pontes são lentos e incompetentes! Você é impiedoso o suficiente para prevalecer, Guardião?"
+msgstr "Suas criaturas tÃªm dificuldade em treinar nesta terra miserÃ¡vel, e seus construtores de pontes sÃ£o lentos e incompetentes! VocÃª Ã© impiedoso o suficiente para prevalecer, GuardiÃ£o?"
 
 #. Lighthouse Underground (Lv3) Information on gaining an imp
 #: guitext:26
 msgctxt "In-game message"
 msgid "Beware Keeper. These lighthouse guardians are no ordinary heroes. You must be prepared!"
-msgstr "Cuidado, Guardião. Estes guardiões do farol não são heróis comuns. Você deve estar preparado!"
+msgstr "Cuidado, GuardiÃ£o. Estes guardiÃµes do farol nÃ£o sÃ£o herÃ³is comuns. VocÃª deve estar preparado!"
 
 #. Lighthouse Underground (Lv3) Timer Objective
 #: guitext:27
 msgctxt "In-game message"
 msgid "Make haste Keeper! The Lord of this Land has gathered an army and they are on their way. Defeat the Warden and your work is done!"
-msgstr "Apresse-se, Guardião! O Senhor desta Terra reuniu um exército e eles estão a caminho. Derrote o Guardião e seu trabalho estará feito!"
+msgstr "Apresse-se, GuardiÃ£o! O Senhor desta Terra reuniu um exÃ©rcito e eles estÃ£o a caminho. Derrote o GuardiÃ£o e seu trabalho estarÃ¡ feito!"
 
 #. Lighthouse Underground (Lv3) Timer Objective
 #: guitext:28
@@ -234,7 +234,7 @@ msgstr "O Senhor desta terra chegou. Boa sorte!"
 #: guitext:29
 msgctxt "In-game message"
 msgid "Victory! The lighthouse sentinel lies dead!"
-msgstr "Vitória! O sentinela do farol jaz morto!"
+msgstr "VitÃ³ria! O sentinela do farol jaz morto!"
 
 #. Martyr Halls (lv4) Opening Message
 #: guitext:30
@@ -243,7 +243,7 @@ msgid ""
 "A novice Keeper with barely any knowledge of spells or rooms has little chance of victory. The Avatar in the North is comfortable that you pose no threat, but "
 "I'm certain you can surprise him? Start by claiming the poorly guarded prison and then exploring the room west of the portal. Use what you find to your best "
 "advantage if you wish to claim this land."
-msgstr "Um Guardião novato com quase nenhum conhecimento de feitiços ou salas tem pouca chance de vitória. O Avatar no Norte está confortável de que você não representa ameaça, mas tenho certeza de que pode surpreendê-lo? Comece reivindicando a prisão mal guardada e depois explore a sala a oeste do portal. Use o que encontrar a seu favor se quiser reivindicar esta terra."
+msgstr "Um GuardiÃ£o novato com quase nenhum conhecimento de feitiÃ§os ou salas tem pouca chance de vitÃ³ria. O Avatar no Norte estÃ¡ confortÃ¡vel de que vocÃª nÃ£o representa ameaÃ§a, mas tenho certeza de que pode surpreendÃª-lo? Comece reivindicando a prisÃ£o mal guardada e depois explore a sala a oeste do portal. Use o que encontrar a seu favor se quiser reivindicar esta terra."
 
 #. Martyr Halls (lv4) Flag0 message
 #: guitext:31
@@ -251,31 +251,31 @@ msgctxt "In-game message"
 msgid ""
 "Excellent! You have extracted information from your prisoners as you turn them to your cause. However, the heroes of this land despise betrayal over all else, "
 "and will gather greater forces to counter this treason!"
-msgstr "Excelente! Você extraiu informações de seus prisioneiros enquanto os converte à sua causa. No entanto, os heróis desta terra desprezam a traição acima de tudo e reunirão forças maiores para combater essa traição!"
+msgstr "Excelente! VocÃª extraiu informaÃ§Ãµes de seus prisioneiros enquanto os converte Ã  sua causa. No entanto, os herÃ³is desta terra desprezam a traiÃ§Ã£o acima de tudo e reunirÃ£o forÃ§as maiores para combater essa traiÃ§Ã£o!"
 
 #. Martyr Halls (lv4) on gaining a Bile Demon
 #: guitext:32
 msgctxt "In-game message"
 msgid "Bile Demons are a great asset, as long as you have lair space for him?"
-msgstr "Demônios de Fel são um grande trunfo, desde que você tenha espaço no covil para ele?"
+msgstr "DemÃ´nios de Fel sÃ£o um grande trunfo, desde que vocÃª tenha espaÃ§o no covil para ele?"
 
 #. Martyr Halls (lv4) on gaining a thief
 #: guitext:33
 msgctxt "In-game message"
 msgid "These thieves have seen many treasure rooms in their pathetic lives, and will now happily build one for you!"
-msgstr "Estes ladrões viram muitas salas do tesouro em suas vidas patéticas e agora construirão uma para você com prazer!"
+msgstr "Estes ladrÃµes viram muitas salas do tesouro em suas vidas patÃ©ticas e agora construirÃ£o uma para vocÃª com prazer!"
 
 #. Martyr Halls (lv4) on gaining a Barbarian
 #: guitext:34
 msgctxt "In-game message"
 msgid "With Barbarians on your side, you will learn some of their fighting tactics. They bring the Call-to-Arms spell to cement their loyalty!"
-msgstr "Com Bárbaros ao seu lado, você aprenderá algumas de suas táticas de luta. Eles trazem o feitiço Chamado às Armas para cimentar sua lealdade!"
+msgstr "Com BÃ¡rbaros ao seu lado, vocÃª aprenderÃ¡ algumas de suas tÃ¡ticas de luta. Eles trazem o feitiÃ§o Chamado Ã s Armas para cimentar sua lealdade!"
 
 #. Martyr Halls (lv4) on gaining a Samurai
 #: guitext:35
 msgctxt "In-game message"
 msgid "Aaah, you have converted a Samurai? These disciplined warriors bring the ability to hasten your other minions in their tasks!"
-msgstr "Aaah, você converteu um Samurai? Estes guerreiros disciplinados trazem a habilidade de apressar seus outros lacaios em suas tarefas!"
+msgstr "Aaah, vocÃª converteu um Samurai? Estes guerreiros disciplinados trazem a habilidade de apressar seus outros lacaios em suas tarefas!"
 
 #. Martyr Halls (lv4) on gaining a Monk
 #: guitext:36
@@ -287,7 +287,7 @@ msgstr "Seu monge convertido agora compartilhou a habilidade de curar suas criat
 #: guitext:37
 msgctxt "In-game message"
 msgid "The Archer brings with him the ability to build a workshop. Ironic given how lazy he is!"
-msgstr "O Arqueiro traz consigo a habilidade de construir uma oficina. Irônico, dada a preguiça dele!"
+msgstr "O Arqueiro traz consigo a habilidade de construir uma oficina. IrÃ´nico, dada a preguiÃ§a dele!"
 
 #. Martyr Halls (lv4) on gaining a Fairy
 #: guitext:38
@@ -299,37 +299,37 @@ msgstr "Esta Fada conhece o segredo para atrair seus inimigos para a sua causa. 
 #: guitext:39
 msgctxt "In-game message"
 msgid "This broken Witch brings with her a powerful spell."
-msgstr "Esta Bruxa derrotada traz consigo um feitiço poderoso."
+msgstr "Esta Bruxa derrotada traz consigo um feitiÃ§o poderoso."
 
 #. Martyr Halls (lv4) when hero wizards are <3
 #: guitext:40
 msgctxt "In-game message"
 msgid "Don't think you're the only one with a torture chamber. The warlocks didn't last for too long before they deserted. "
-msgstr "Não pense que você é o único com uma câmara de tortura. Os bruxos não duraram muito antes de desertarem."
+msgstr "NÃ£o pense que vocÃª Ã© o Ãºnico com uma cÃ¢mara de tortura. Os bruxos nÃ£o duraram muito antes de desertarem."
 
 #. Martyr Halls (lv4) on gaining a Vampire
 #: guitext:41
 msgctxt "In-game message"
 msgid "Behold this attempt to reclaim the Vampire! I'm sure you're eager to reunite them?"
-msgstr "Contemple esta tentativa de recuperar o Vampiro! Tenho certeza de que você está ansioso para reuni-los?"
+msgstr "Contemple esta tentativa de recuperar o Vampiro! Tenho certeza de que vocÃª estÃ¡ ansioso para reuni-los?"
 
 #. Martyr Halls (lv4) on gaining a Wizard
 #: guitext:42
 msgctxt "In-game message"
 msgid "Wizards of this land possess the knowledge required to construct a library."
-msgstr "Os Magos desta terra possuem o conhecimento necessário para construir uma biblioteca."
+msgstr "Os Magos desta terra possuem o conhecimento necessÃ¡rio para construir uma biblioteca."
 
 #. Martyr Halls (lv4) on gaining a DwarfA
 #: guitext:43
 msgctxt "In-game message"
 msgid "The conversion of this dwarf has revealed useful information for your cause."
-msgstr "A conversão deste anão revelou informações úteis para a sua causa."
+msgstr "A conversÃ£o deste anÃ£o revelou informaÃ§Ãµes Ãºteis para a sua causa."
 
 #. Martyr Halls (lv4) on gaining a Knight
 #: guitext:44
 msgctxt "In-game message"
 msgid "Word of the deserted Knight has travelled fast, and a party of vengeful heroes is on its way!"
-msgstr "A notícia do Cavaleiro desertor viajou rápido, e um grupo de heróis vingativos está a caminho!"
+msgstr "A notÃ­cia do Cavaleiro desertor viajou rÃ¡pido, e um grupo de herÃ³is vingativos estÃ¡ a caminho!"
 
 #. Martyr Halls (lv4) Hero dungeon destroyed
 #: guitext:45
@@ -337,7 +337,7 @@ msgctxt "In-game message"
 msgid ""
 "The battle is not over yet. The monks are reviving the Avatar and the sentinel groups are getting ready. Defeat the Avatar, withstand the hero waves and the "
 "land will be yours!"
-msgstr "A batalha ainda não acabou. Os monges estão revivendo o Avatar e os grupos de sentinelas estão se preparando. Derrote o Avatar, resista às ondas de heróis e a terra será sua!"
+msgstr "A batalha ainda nÃ£o acabou. Os monges estÃ£o revivendo o Avatar e os grupos de sentinelas estÃ£o se preparando. Derrote o Avatar, resista Ã s ondas de herÃ³is e a terra serÃ¡ sua!"
 
 #. Martyr Halls (lv4) victory message
 #: guitext:46
@@ -349,7 +349,7 @@ msgstr "Contemple a Grande Catedral queima. Chega de escolas dominicais aqui. Ho
 #: guitext:47
 msgctxt "In-game message"
 msgid "Some kind of alarm sets off as you take a step into the hallway. Heroes are taking precautions to avoid imprisonment. You must seek the Avatar. "
-msgstr "Algum tipo de alarme dispara quando você dá um passo no corredor. Os heróis estão tomando precauções para evitar o aprisionamento. Você deve procurar o Avatar."
+msgstr "Algum tipo de alarme dispara quando vocÃª dÃ¡ um passo no corredor. Os herÃ³is estÃ£o tomando precauÃ§Ãµes para evitar o aprisionamento. VocÃª deve procurar o Avatar."
 
 #. Opulent Point (lv5) Opening Objective
 #: guitext:48
@@ -358,13 +358,13 @@ msgid ""
 "You've found a rich vein below one of the towers. However, your presence is known, and people lurk near the western tombs hoping to steal what is yours. Some "
 "of them were wise enough to join forces with you as they sense you will conquer this realm. However, in response your two rival keepers have combined their "
 "forces against you. You must free your trapped reaper to ensure victory!"
-msgstr "Você encontrou um rico filão sob uma das torres. No entanto, sua presença é conhecida, e pessoas espreitam perto das tumbas ocidentais na esperança de roubar o que é seu. Algumas delas foram sábias o suficiente para se unirem a você, pois sentem que você conquistará este reino. No entanto, em resposta, seus dois guardiões rivais combinaram suas forças contra você. Você deve libertar seu ceifador aprisionado para garantir a vitória!"
+msgstr "VocÃª encontrou um rico filÃ£o sob uma das torres. No entanto, sua presenÃ§a Ã© conhecida, e pessoas espreitam perto das tumbas ocidentais na esperanÃ§a de roubar o que Ã© seu. Algumas delas foram sÃ¡bias o suficiente para se unirem a vocÃª, pois sentem que vocÃª conquistarÃ¡ este reino. No entanto, em resposta, seus dois guardiÃµes rivais combinaram suas forÃ§as contra vocÃª. VocÃª deve libertar seu ceifador aprisionado para garantir a vitÃ³ria!"
 
 #. Opulent Point (lv5) Early Information
 #: guitext:49
 msgctxt "In-game message"
 msgid "This land is so full of riches you will never run out of money. Little wonder you must fight many enemies to gain such a realm!"
-msgstr "Esta terra é tão rica que você nunca ficará sem dinheiro. Não é de se admirar que você deva lutar contra muitos inimigos para conquistar tal reino!"
+msgstr "Esta terra Ã© tÃ£o rica que vocÃª nunca ficarÃ¡ sem dinheiro. NÃ£o Ã© de se admirar que vocÃª deva lutar contra muitos inimigos para conquistar tal reino!"
 
 #. Opulent Point (lv5) Early Information
 #: guitext:50
@@ -372,43 +372,43 @@ msgctxt "In-game message"
 msgid ""
 "How can such a rich land have no bridge builders? Your Wizard knows this magic, so you must free him first, which will be a challenging task. The call-to-arms "
 "spell must be used to claim the tombs, which will allow you to unlock this essential magic. To work Keeper!"
-msgstr "Como pode uma terra tão rica não ter construtores de pontes? Seu Mago conhece essa magia, então você deve libertá-lo primeiro, o que será uma tarefa desafiadora. O feitiço de chamado às armas deve ser usado para reivindicar as tumbas, o que permitirá que você desbloqueie essa magia essencial. Ao trabalho, Guardião!"
+msgstr "Como pode uma terra tÃ£o rica nÃ£o ter construtores de pontes? Seu Mago conhece essa magia, entÃ£o vocÃª deve libertÃ¡-lo primeiro, o que serÃ¡ uma tarefa desafiadora. O feitiÃ§o de chamado Ã s armas deve ser usado para reivindicar as tumbas, o que permitirÃ¡ que vocÃª desbloqueie essa magia essencial. Ao trabalho, GuardiÃ£o!"
 
 #. Opulent Point (lv5) Action Point 3
 #: guitext:51
 msgctxt "In-game message"
 msgid "I can hear water dripping near the corner behind the guard post. A secret passage, perhaps?"
-msgstr "Estou ouvindo água pingando perto do canto atrás do posto de guarda. Uma passagem secreta, talvez?"
+msgstr "Estou ouvindo Ã¡gua pingando perto do canto atrÃ¡s do posto de guarda. Uma passagem secreta, talvez?"
 
 #. Opulent Point (lv5) on gaining an imp
 #: guitext:52
 msgctxt "In-game message"
 msgid "Traitors loyal to your cause have entered the tombs through the surface gate! Lead them in your quest to free the Wizard."
-msgstr "Traidores leais à sua causa entraram nas tumbas pelo portão da superfície! Lidere-os em sua busca para libertar o Mago."
+msgstr "Traidores leais Ã  sua causa entraram nas tumbas pelo portÃ£o da superfÃ­cie! Lidere-os em sua busca para libertar o Mago."
 
 #. Opulent Point (lv5)
 #: guitext:53
 msgctxt "In-game message"
 msgid "Your bearded wise man is a hero trophy no longer! But hurry Keeper; you must free the Reaper before he is starved to death!"
-msgstr "Seu sábio barbudo não é mais um troféu de herói! Mas apresse-se, Guardião; você deve libertar o Ceifador antes que ele morra de fome!"
+msgstr "Seu sÃ¡bio barbudo nÃ£o Ã© mais um trofÃ©u de herÃ³i! Mas apresse-se, GuardiÃ£o; vocÃª deve libertar o Ceifador antes que ele morra de fome!"
 
 #. Opulent Point (lv5) defeat message
 #: guitext:54
 msgctxt "In-game message"
 msgid "Horny has departed, and taken with him your only chance of victory. Your failure has deprived you of the riches in this Land."
-msgstr "O Chifrudo partiu, e levou consigo sua única chance de vitória. Sua falha o privou das riquezas desta Terra."
+msgstr "O Chifrudo partiu, e levou consigo sua Ãºnica chance de vitÃ³ria. Sua falha o privou das riquezas desta Terra."
 
 #. Opulent Point (lv5) victory message
 #: guitext:55
 msgctxt "In-game message"
 msgid "You are reunited with the symbol of your power, and victory in this land of riches has been achieved! The next realm awaits you."
-msgstr "Você está reunido com o símbolo de seu poder, e a vitória nesta terra de riquezas foi alcançada! O próximo reino o aguarda."
+msgstr "VocÃª estÃ¡ reunido com o sÃ­mbolo de seu poder, e a vitÃ³ria nesta terra de riquezas foi alcanÃ§ada! O prÃ³ximo reino o aguarda."
 
 #. Ziggurat Blitz Massacre after annoyed creature
 #: guitext:56
 msgctxt "In-game message"
 msgid "Your vampires are angry! treat them well if you wish to keep these fickle creatures on your side."
-msgstr "Seus vampiros estão zangados! Trate-os bem se quiser manter essas criaturas inconstantes do seu lado."
+msgstr "Seus vampiros estÃ£o zangados! Trate-os bem se quiser manter essas criaturas inconstantes do seu lado."
 
 #. Ziggurat Blitz Massacre (lv6) Opening Objective
 #: guitext:57
@@ -416,7 +416,7 @@ msgctxt "In-game message"
 msgid ""
 "It is rumoured that the people of this land have been preparing a once-and-for-all solution to the ziggurat you two managed to claim, yet barely control. Break "
 "out and see what you can do."
-msgstr "Há rumores de que o povo desta terra está preparando uma solução definitiva para o zigurate que vocês dois conseguiram reivindicar, mas mal controlam. Fuja e veja o que pode fazer."
+msgstr "HÃ¡ rumores de que o povo desta terra estÃ¡ preparando uma soluÃ§Ã£o definitiva para o zigurate que vocÃªs dois conseguiram reivindicar, mas mal controlam. Fuja e veja o que pode fazer."
 
 #. Ziggurat Blitz Massacre (lv6) after the first battle won
 #: guitext:58
@@ -425,25 +425,25 @@ msgid ""
 "The rumours are true. Although still in preparation, lots of people are prepared to fight you. They are training and learning how to avoid imprisonment. Find "
 "their dungeon heart, destroy it and defeat the lord of the land. There should be an imp gate somewhere nearby... look for an altar with a green light and "
 "examine it carefully."
-msgstr "Os rumores são verdadeiros. Embora ainda em preparação, muitas pessoas estão prontas para lutar contra você. Elas estão treinando e aprendendo a evitar o aprisionamento. Encontre o coração da masmorra delas, destrua-o e derrote o senhor da terra. Deve haver um portão de diabretes em algum lugar por perto... procure por um altar com uma luz verde e examine-o com cuidado."
+msgstr "Os rumores sÃ£o verdadeiros. Embora ainda em preparaÃ§Ã£o, muitas pessoas estÃ£o prontas para lutar contra vocÃª. Elas estÃ£o treinando e aprendendo a evitar o aprisionamento. Encontre o coraÃ§Ã£o da masmorra delas, destrua-o e derrote o senhor da terra. Deve haver um portÃ£o de diabretes em algum lugar por perto... procure por um altar com uma luz verde e examine-o com cuidado."
 
 #. Ziggurat Blitz Massacre (lv6) Action Point 7
 #: guitext:59
 msgctxt "In-game message"
 msgid "You have activated the Imp-Gate! Henceforth Imps will enter your dungeon whenever you need them."
-msgstr "Você ativou o Portão de Diabretes! A partir de agora, Diabretes entrarão em sua masmorra sempre que você precisar deles."
+msgstr "VocÃª ativou o PortÃ£o de Diabretes! A partir de agora, Diabretes entrarÃ£o em sua masmorra sempre que vocÃª precisar deles."
 
 #. Ziggurat Blitz Massacre (lv6) Action Point 8
 #: guitext:60
 msgctxt "In-game message"
 msgid "Be warned, Keeper. A Dungeon Heart beating is not the only thing I can hear behind these doors!"
-msgstr "Esteja avisado, Guardião. Um Coração de Masmorra batendo não é a única coisa que posso ouvir atrás destas portas!"
+msgstr "Esteja avisado, GuardiÃ£o. Um CoraÃ§Ã£o de Masmorra batendo nÃ£o Ã© a Ãºnica coisa que posso ouvir atrÃ¡s destas portas!"
 
 #. Ziggurat Blitz Massacre (lv6) Action Point 1
 #: guitext:61
 msgctxt "In-game message"
 msgid "Your breakout has caused great alarm amongst the people of this land. You must expect some resistance, pathetic though it may be!"
-msgstr "Sua fuga causou grande alarme entre o povo desta terra. Você deve esperar alguma resistência, por mais patética que seja!"
+msgstr "Sua fuga causou grande alarme entre o povo desta terra. VocÃª deve esperar alguma resistÃªncia, por mais patÃ©tica que seja!"
 
 #. Ziggurat Blitz Massacre (lv6) after claiming graveyard
 #: guitext:62
@@ -451,25 +451,25 @@ msgctxt "In-game message"
 msgid ""
 "You have reclaimed the graveyard, and so your Vampires begin to recover their powers! Their powers will recover further as you reclaim more of their native "
 "ground."
-msgstr "Você recuperou o cemitério, e assim seus Vampiros começam a recuperar seus poderes! Seus poderes se recuperarão ainda mais à medida que você recuperar mais de seu terreno nativo."
+msgstr "VocÃª recuperou o cemitÃ©rio, e assim seus Vampiros comeÃ§am a recuperar seus poderes! Seus poderes se recuperarÃ£o ainda mais Ã  medida que vocÃª recuperar mais de seu terreno nativo."
 
 #. Ziggurat Blitz Massacre (lv6) after claiming more graveyard
 #: guitext:63
 msgctxt "In-game message"
 msgid "Well done Keeper. Your Vampires' strength continues to recover!"
-msgstr "Muito bem, Guardião. A força de seus Vampiros continua a se recuperar!"
+msgstr "Muito bem, GuardiÃ£o. A forÃ§a de seus Vampiros continua a se recuperar!"
 
 #. Ziggurat Blitz Massacre (lv6) after claiming yet more graveyard
 #: guitext:64
 msgctxt "In-game message"
 msgid "Your Vampires' strength is returning. Are you keeping them happy Keeper?"
-msgstr "A força de seus Vampiros está retornando. Você os está mantendo felizes, Guardião?"
+msgstr "A forÃ§a de seus Vampiros estÃ¡ retornando. VocÃª os estÃ¡ mantendo felizes, GuardiÃ£o?"
 
 #. Ziggurat Blitz Massacre (lv6) after claiming all the graveyards
 #: guitext:65
 msgctxt "In-game message"
 msgid "All the graveyards are regained, and your Vampires' power is fully restored. And this last graveyard contained a hoarde of hidden gold!"
-msgstr "Todos os cemitérios foram recuperados, e o poder de seus Vampiros está totalmente restaurado. E este último cemitério continha um tesouro de ouro escondido!"
+msgstr "Todos os cemitÃ©rios foram recuperados, e o poder de seus Vampiros estÃ¡ totalmente restaurado. E este Ãºltimo cemitÃ©rio continha um tesouro de ouro escondido!"
 
 #. Ziggurat Blitz Massacre (lv6) on gaining a Vampire
 #: guitext:66
@@ -477,19 +477,19 @@ msgctxt "In-game message"
 msgid ""
 "You have a Vampire! However, be aware that a group of monks on the surface have blessed the Ziggurat which has drained the strength from these creatures. You "
 "must fight your way to their graveyards to counter the blessing and regain their strength."
-msgstr "Você tem um Vampiro! No entanto, esteja ciente de que um grupo de monges na superfície abençoou o Zigurate, o que drenou a força destas criaturas. Você deve lutar até seus cemitérios para neutralizar a bênção e recuperar sua força."
+msgstr "VocÃª tem um Vampiro! No entanto, esteja ciente de que um grupo de monges na superfÃ­cie abenÃ§oou o Zigurate, o que drenou a forÃ§a destas criaturas. VocÃª deve lutar atÃ© seus cemitÃ©rios para neutralizar a bÃªnÃ§Ã£o e recuperar sua forÃ§a."
 
 #. Ziggurat Blitz Massacre (lv6) on gaining a Vampire
 #: guitext:67
 msgctxt "In-game message"
 msgid "This is not a pleasant realm for Vampires. If you keep them happy, and lead them to victory, then some will surely accompany to you to the next realm."
-msgstr "Este não é um reino agradável para Vampiros. Se você os mantiver felizes e os levar à vitória, alguns certamente o acompanharão ao próximo reino."
+msgstr "Este nÃ£o Ã© um reino agradÃ¡vel para Vampiros. Se vocÃª os mantiver felizes e os levar Ã  vitÃ³ria, alguns certamente o acompanharÃ£o ao prÃ³ximo reino."
 
 #. Ziggurat Blitz Massacre (lv6) Timer message
 #: guitext:68
 msgctxt "In-game message"
 msgid "A group of virgin monks atop your dungeon have just begun their consecrations. Unfortunately for you, it is working and your vampires slowly perish."
-msgstr "Um grupo de monges virgens no topo de sua masmorra acaba de iniciar suas consagrações. Infelizmente para você, está funcionando e seus vampiros perecem lentamente."
+msgstr "Um grupo de monges virgens no topo de sua masmorra acaba de iniciar suas consagraÃ§Ãµes. Infelizmente para vocÃª, estÃ¡ funcionando e seus vampiros perecem lentamente."
 
 #. Ziggurat Blitz Massacre (lv6) win message
 #: guitext:69
@@ -501,7 +501,7 @@ msgstr "O Zigurate carrega o fedor de gente morta. Bom trabalho."
 #: guitext:70
 msgctxt "In-game message"
 msgid "The Ziggurat carries the stench of dead people. Good job. Two of your Vampires will accompany you to the next realm!"
-msgstr "O Zigurate carrega o fedor de gente morta. Bom trabalho. Dois de seus Vampiros o acompanharão ao próximo reino!"
+msgstr "O Zigurate carrega o fedor de gente morta. Bom trabalho. Dois de seus Vampiros o acompanharÃ£o ao prÃ³ximo reino!"
 
 #. Ziggurat Blitz Massacre (lv6) Action Point 10
 #: guitext:71
@@ -510,13 +510,13 @@ msgid ""
 "You've found an ancient acolyte altar. It is said to feast upon a dozen souls of believers situated nearby. The legends say it takes a whole century for it to "
 "recharge. And it certainly does look like it hasn't been touched in ages. Useful, right? Walk over when you need to kill any monks and priestesses located on "
 "your territory. This is powerful magic Keeper, but it can only be activated once, so use it wisely."
-msgstr "Você encontrou um antigo altar de acólito. Diz-se que ele se alimenta de uma dúzia de almas de crentes situadas nas proximidades. As lendas dizem que leva um século inteiro para recarregar. E certamente parece que não foi tocado há eras. Útil, certo? Passe por cima quando precisar matar quaisquer monges e sacerdotisas localizados em seu território. Esta é uma magia poderosa, Guardião, mas só pode ser ativada uma vez, então use-a com sabedoria."
+msgstr "VocÃª encontrou um antigo altar de acÃ³lito. Diz-se que ele se alimenta de uma dÃºzia de almas de crentes situadas nas proximidades. As lendas dizem que leva um sÃ©culo inteiro para recarregar. E certamente parece que nÃ£o foi tocado hÃ¡ eras. Ãštil, certo? Passe por cima quando precisar matar quaisquer monges e sacerdotisas localizados em seu territÃ³rio. Esta Ã© uma magia poderosa, GuardiÃ£o, mas sÃ³ pode ser ativada uma vez, entÃ£o use-a com sabedoria."
 
 #. Ziggurat Blitz Massacre (lv6) Action Point 9 The Altar
 #: guitext:72
 msgctxt "In-game message"
 msgid "You touched the acolyte altar and hear distant screams..."
-msgstr "Você tocou o altar de acólito e ouve gritos distantes..."
+msgstr "VocÃª tocou o altar de acÃ³lito e ouve gritos distantes..."
 
 #. Relic Tunnels (lv7) opening message
 #: guitext:73
@@ -526,7 +526,7 @@ msgid ""
 "eventually discovered and defeated, but he left behind a fascinating relic: a spell that is said to eliminate every living being recently exposed to sunlight. "
 "You must find it! But first, some bad news: only your ally the blue keeper can attract creatures in this land. However, whilst there are 2 scavengers capable "
 "of summoning heroes, one has joined the green keeper and the remaining one is guarded by dragons. To work Keeper!"
-msgstr "Em tempos antigos, este era um reino de Magos. Quando os Poloneses chegaram, eles foram eliminados, exceto por um Guardião que recuou para as cavernas do norte. Ele foi finalmente descoberto e derrotado, mas deixou para trás uma relíquia fascinante: um feitiço que dizem eliminar todo ser vivo recentemente exposto à luz solar. Você deve encontrá-lo! Mas primeiro, más notícias: apenas seu aliado, o guardião azul, pode atrair criaturas nesta terra. No entanto, embora existam 2 recrutadores capazes de invocar heróis, um se juntou ao guardião verde e o restante é guardado por dragões. Ao trabalho, Guardião!"
+msgstr "Em tempos antigos, este era um reino de Magos. Quando os Poloneses chegaram, eles foram eliminados, exceto por um GuardiÃ£o que recuou para as cavernas do norte. Ele foi finalmente descoberto e derrotado, mas deixou para trÃ¡s uma relÃ­quia fascinante: um feitiÃ§o que dizem eliminar todo ser vivo recentemente exposto Ã  luz solar. VocÃª deve encontrÃ¡-lo! Mas primeiro, mÃ¡s notÃ­cias: apenas seu aliado, o guardiÃ£o azul, pode atrair criaturas nesta terra. No entanto, embora existam 2 recrutadores capazes de invocar herÃ³is, um se juntou ao guardiÃ£o verde e o restante Ã© guardado por dragÃµes. Ao trabalho, GuardiÃ£o!"
 
 #. Relic Tunnels (lv7) second message
 #: guitext:74
@@ -535,7 +535,7 @@ msgid ""
 "Touch the scavenger to claim it! This one summons tunnellers. Not the strongest fighters, but indeed quite useful when imps are unavailable. Some imps might "
 "still hide in the tunnels. Now, I hope you know how to enter the area without letting the dragons in. Do not rush to eliminate your ally, as you still need "
 "him. Let him claim the portal somehow and he will be a source of recruits to your cause!"
-msgstr "Toque no recrutador para reivindicá-lo! Este invoca escavadores. Não são os lutadores mais fortes, mas são bastante úteis quando os diabretes não estão disponíveis. Alguns diabretes ainda podem se esconder nos túneis. Agora, espero que você saiba como entrar na área sem deixar os dragões entrarem. Não se apresse em eliminar seu aliado, pois você ainda precisa dele. Deixe-o reivindicar o portal de alguma forma e ele será uma fonte de recrutas para a sua causa!"
+msgstr "Toque no recrutador para reivindicÃ¡-lo! Este invoca escavadores. NÃ£o sÃ£o os lutadores mais fortes, mas sÃ£o bastante Ãºteis quando os diabretes nÃ£o estÃ£o disponÃ­veis. Alguns diabretes ainda podem se esconder nos tÃºneis. Agora, espero que vocÃª saiba como entrar na Ã¡rea sem deixar os dragÃµes entrarem. NÃ£o se apresse em eliminar seu aliado, pois vocÃª ainda precisa dele. Deixe-o reivindicar o portal de alguma forma e ele serÃ¡ uma fonte de recrutas para a sua causa!"
 
 #. Relic Tunnels (lv7) Game Turn 2000
 #: guitext:75
@@ -544,13 +544,13 @@ msgid ""
 "With only dwarves in the tunnels, the guards have long gone. Behold the relic - touch it and all the heroes are eliminated! Choosing the moment to unleash this "
 "power must be done with care? Only two altars with this awesome power exist in this land. Also, be aware that when this power is activated, your scavenging "
 "abilities are eliminated."
-msgstr "Com apenas anões nos túneis, os guardas já se foram há muito tempo. Contemple a relíquia - toque nela e todos os heróis serão eliminados! A escolha do momento para liberar este poder deve ser feita com cuidado? Apenas dois altares com este poder incrível existem nesta terra. Além disso, esteja ciente de que, quando este poder é ativado, suas habilidades de recrutamento são eliminadas."
+msgstr "Com apenas anÃµes nos tÃºneis, os guardas jÃ¡ se foram hÃ¡ muito tempo. Contemple a relÃ­quia - toque nela e todos os herÃ³is serÃ£o eliminados! A escolha do momento para liberar este poder deve ser feita com cuidado? Apenas dois altares com este poder incrÃ­vel existem nesta terra. AlÃ©m disso, esteja ciente de que, quando este poder Ã© ativado, suas habilidades de recrutamento sÃ£o eliminadas."
 
 #. Relic Tunnels (lv7) Game Turn 2000
 #: guitext:76
 msgctxt "In-game message"
 msgid "These Priestesses channel some sort of spell towards your dungeon, weakening your creatures. However, it also weakens their own abilities"
-msgstr "Estas Sacerdotisas canalizam algum tipo de feitiço em direção à sua masmorra, enfraquecendo suas criaturas. No entanto, isso também enfraquece suas próprias habilidades"
+msgstr "Estas Sacerdotisas canalizam algum tipo de feitiÃ§o em direÃ§Ã£o Ã  sua masmorra, enfraquecendo suas criaturas. No entanto, isso tambÃ©m enfraquece suas prÃ³prias habilidades"
 
 #. Relic Tunnels (lv7) Spell activation
 #: guitext:77
@@ -558,49 +558,49 @@ msgctxt "In-game message"
 msgid ""
 "You have activated the relic obliterating all non-dungeon native beings, and cancelling the Keeper's curse! However, this has attracted the unwelcome attention "
 "of the local heroes. Survive their aggression and victory is yours! You have one more use of this spell. Use it wisely!"
-msgstr "Você ativou a relíquia, obliterando todos os seres não nativos da masmorra e cancelando a maldição do Guardião! No entanto, isso atraiu a atenção indesejada dos heróis locais. Sobreviva à agressão deles e a vitória será sua! Você tem mais um uso deste feitiço. Use-o com sabedoria!"
+msgstr "VocÃª ativou a relÃ­quia, obliterando todos os seres nÃ£o nativos da masmorra e cancelando a maldiÃ§Ã£o do GuardiÃ£o! No entanto, isso atraiu a atenÃ§Ã£o indesejada dos herÃ³is locais. Sobreviva Ã  agressÃ£o deles e a vitÃ³ria serÃ¡ sua! VocÃª tem mais um uso deste feitiÃ§o. Use-o com sabedoria!"
 
 #. Relic Tunnels (lv7) Timer message
 #: guitext:78
 msgctxt "In-game message"
 msgid "No sign of the Heroes? Have they given up, or are they assembling ready for battle? Let's hope they just took a break to pray!"
-msgstr "Nenhum sinal dos Heróis? Eles desistiram ou estão se reunindo para a batalha? Vamos torcer para que tenham apenas tirado uma pausa para orar!"
+msgstr "Nenhum sinal dos HerÃ³is? Eles desistiram ou estÃ£o se reunindo para a batalha? Vamos torcer para que tenham apenas tirado uma pausa para orar!"
 
 #. Relic Tunnels (lv7) Timer message
 #: guitext:79
 msgctxt "In-game message"
 msgid "I'm sure you've noticed, but an angry mob has arrived!"
-msgstr "Tenho certeza de que você percebeu, mas uma multidão enfurecida chegou!"
+msgstr "Tenho certeza de que vocÃª percebeu, mas uma multidÃ£o enfurecida chegou!"
 
 #. Relic Tunnels (lv7) Timer message
 #: guitext:80
 msgctxt "In-game message"
 msgid "You have done well so far Keeper, but the Lord of the Land and his crew is on his way!"
-msgstr "Você se saiu bem até agora, Guardião, mas o Senhor da Terra e sua equipe estão a caminho!"
+msgstr "VocÃª se saiu bem atÃ© agora, GuardiÃ£o, mas o Senhor da Terra e sua equipe estÃ£o a caminho!"
 
 #. Relic Tunnels (lv7) Timer message
 #: guitext:81
 msgctxt "In-game message"
 msgid "The final battle for this realm begins. Victory is very close Keeper, if you can keep your nerve?"
-msgstr "A batalha final por este reino começa. A vitória está muito próxima, Guardião, se você conseguir manter a calma?"
+msgstr "A batalha final por este reino comeÃ§a. A vitÃ³ria estÃ¡ muito prÃ³xima, GuardiÃ£o, se vocÃª conseguir manter a calma?"
 
 #. Relic Tunnels (lv7) Victory message
 #: guitext:82
 msgctxt "In-game message"
 msgid "Wonderful job, Keeper. Onto the next realm!"
-msgstr "Trabalho maravilhoso, Guardião. Para o próximo reino!"
+msgstr "Trabalho maravilhoso, GuardiÃ£o. Para o prÃ³ximo reino!"
 
 #. Relic Tunnels (lv7) timer message
 #: guitext:83
 msgctxt "In-game message"
 msgid "The annoying humans will be entering your dungeon, exposing you more and more to the powerful Southern Keeper."
-msgstr "Os humanos irritantes entrarão em sua masmorra, expondo-o cada vez mais ao poderoso Guardião do Sul."
+msgstr "Os humanos irritantes entrarÃ£o em sua masmorra, expondo-o cada vez mais ao poderoso GuardiÃ£o do Sul."
 
 #. Relic Tunnels (lv7) timer message
 #: guitext:84
 msgctxt "In-game message"
 msgid "These infuriating humans are digging through the only opening separating you from the rival keeper!"
-msgstr "Esses humanos irritantes estão cavando através da única abertura que o separa do guardião rival!"
+msgstr "Esses humanos irritantes estÃ£o cavando atravÃ©s da Ãºnica abertura que o separa do guardiÃ£o rival!"
 
 #. Spring Execration (lv8) opening message
 #: guitext:85
@@ -608,7 +608,7 @@ msgctxt "In-game message"
 msgid ""
 "No time for preparation keeper, as the locals know of your presence and plan to attack. There is an enemy Keeper in the East who must also be dealt with! There "
 "is no rest for the wicked Master!"
-msgstr "Sem tempo para preparação, guardião, pois os locais sabem de sua presença e planejam atacar. Há um Guardião inimigo a Leste que também deve ser enfrentado! Não há descanso para os maus, Mestre!"
+msgstr "Sem tempo para preparaÃ§Ã£o, guardiÃ£o, pois os locais sabem de sua presenÃ§a e planejam atacar. HÃ¡ um GuardiÃ£o inimigo a Leste que tambÃ©m deve ser enfrentado! NÃ£o hÃ¡ descanso para os maus, Mestre!"
 
 #. Spring Execration (lv8) opening information.
 #: guitext:86
@@ -616,13 +616,13 @@ msgctxt "In-game message"
 msgid ""
 "Many people see joining you as the only way to defeat the Eastern Keeper and his vampires. Use this to your advantage: these reinforcements are wealthy, and "
 "their gold will prove extremely useful in your quest. Touch the 4 coloured flames to keep receiving the full power of the sentinels."
-msgstr "Muitas pessoas veem se juntar a você como a única maneira de derrotar o Guardião do Leste e seus vampiros. Use isso a seu favor: estes reforços são ricos, e o ouro deles será extremamente útil em sua busca. Toque nas 4 chamas coloridas para continuar recebendo o poder total dos sentinelas."
+msgstr "Muitas pessoas veem se juntar a vocÃª como a Ãºnica maneira de derrotar o GuardiÃ£o do Leste e seus vampiros. Use isso a seu favor: estes reforÃ§os sÃ£o ricos, e o ouro deles serÃ¡ extremamente Ãºtil em sua busca. Toque nas 4 chamas coloridas para continuar recebendo o poder total dos sentinelas."
 
 #. Spring Execration (lv8) when Barbarians join your army
 #: guitext:87
 msgctxt "In-game message"
 msgid "Look! A few Barbarians have joined you!"
-msgstr "Olhe! Alguns Bárbaros se juntaram a você!"
+msgstr "Olhe! Alguns BÃ¡rbaros se juntaram a vocÃª!"
 
 #. Spring Execration (lv8)
 #: guitext:88
@@ -634,67 +634,67 @@ msgstr "Todas as moradias dos sentinelas foram capturadas, Mestre."
 #: guitext:89
 msgctxt "In-game message"
 msgid "Can you hear some buzzing from the North-East?"
-msgstr "Você consegue ouvir algum zumbido vindo do Nordeste?"
+msgstr "VocÃª consegue ouvir algum zumbido vindo do Nordeste?"
 
 #. Spring Execration (lv8) on gaining Fairies
 #: guitext:90
 msgctxt "In-game message"
 msgid "Fairies have joined your cause."
-msgstr "Fadas se juntaram à sua causa."
+msgstr "Fadas se juntaram Ã  sua causa."
 
 #. Spring Execration (lv8) on gaining Monks
 #: guitext:91
 msgctxt "In-game message"
 msgid "Monks have joined your cause. Tedious minions, but they have their uses Master!"
-msgstr "Monges se juntaram à sua causa. Lacaios tediosos, mas eles têm suas utilidades, Mestre!"
+msgstr "Monges se juntaram Ã  sua causa. Lacaios tediosos, mas eles tÃªm suas utilidades, Mestre!"
 
 #. Spring Execration (lv8) on gaining Archers
 #: guitext:92
 msgctxt "In-game message"
 msgid "Archers have now joined your army. Noble warriors as they are, I'm sure they sicken you, but their skills will be of use to you."
-msgstr "Arqueiros agora se juntaram ao seu exército. Guerreiros nobres como são, tenho certeza de que o enojam, mas suas habilidades serão úteis para você."
+msgstr "Arqueiros agora se juntaram ao seu exÃ©rcito. Guerreiros nobres como sÃ£o, tenho certeza de que o enojam, mas suas habilidades serÃ£o Ãºteis para vocÃª."
 
 #. Spring Execration (lv8) on gaining Priestesses
 #: guitext:93
 msgctxt "In-game message"
 msgid "These priestesses have useful abilities Master, and will be very useful in the battles to come!"
-msgstr "Estas sacerdotisas têm habilidades úteis, Mestre, e serão muito úteis nas batalhas que virão!"
+msgstr "Estas sacerdotisas tÃªm habilidades Ãºteis, Mestre, e serÃ£o muito Ãºteis nas batalhas que virÃ£o!"
 
 #. Spring Execration (lv8) timer1
 #: guitext:94
 msgctxt "In-game message"
 msgid "You can thank those people for one thing though. A group of autistic monks have managed to limit the east keeper's vampires' power for some time."
-msgstr "Você pode agradecer a essas pessoas por uma coisa, no entanto. Um grupo de monges autistas conseguiu limitar o poder dos vampiros do guardião do leste por algum tempo."
+msgstr "VocÃª pode agradecer a essas pessoas por uma coisa, no entanto. Um grupo de monges autistas conseguiu limitar o poder dos vampiros do guardiÃ£o do leste por algum tempo."
 
 #. Spring Execration (lv8) timer1
 #: guitext:95
 msgctxt "In-game message"
 msgid "Beware Master! The Vampires have overcome the Monks' curse and are restored to full strength! "
-msgstr "Cuidado, Mestre! Os Vampiros superaram a maldição dos Monges e estão com força total!"
+msgstr "Cuidado, Mestre! Os Vampiros superaram a maldiÃ§Ã£o dos Monges e estÃ£o com forÃ§a total!"
 
 #. Spring Execration (lv8) timer1
 #: guitext:96
 msgctxt "In-game message"
 msgid "The Lord of the Land took his time but is finally here to revenge his comrades. Send him where he belongs!"
-msgstr "O Senhor da Terra demorou, mas finalmente está aqui para vingar seus companheiros. Mande-o para onde ele pertence!"
+msgstr "O Senhor da Terra demorou, mas finalmente estÃ¡ aqui para vingar seus companheiros. Mande-o para onde ele pertence!"
 
 #. Spring Execration (lv8) victory message
 #: guitext:97
 msgctxt "In-game message"
 msgid "What are you waiting for? You're done. To the next realm!"
-msgstr "O que você está esperando? Você terminou. Para o próximo reino!"
+msgstr "O que vocÃª estÃ¡ esperando? VocÃª terminou. Para o prÃ³ximo reino!"
 
 #. Spring Execration (lv8) player2 has >8 vampires
 #: guitext:98
 msgctxt "In-game message"
 msgid "The Eastern Keeper's vampire army grows ever larger Master. Defeat awaits if you don't do something about it!"
-msgstr "O exército de vampiros do Guardião do Leste cresce cada vez mais, Mestre. A derrota o aguarda se você não fizer algo a respeito!"
+msgstr "O exÃ©rcito de vampiros do GuardiÃ£o do Leste cresce cada vez mais, Mestre. A derrota o aguarda se vocÃª nÃ£o fizer algo a respeito!"
 
 #. Martyr Halls (lv4) Timer1
 #: guitext:99
 msgctxt "In-game message"
 msgid "Some of the resistance has arrived!"
-msgstr "Parte da resistência chegou!"
+msgstr "Parte da resistÃªncia chegou!"
 
 #. Abandoned Sanctum (lv9) after 4 creatures gained
 #: guitext:100
@@ -702,25 +702,25 @@ msgctxt "In-game message"
 msgid ""
 "The land is unusable with this many insects crawling around. Your task is to find and case any insect and spider lairs you find. Careful, for they are hidden "
 "well and they do like revenge. Flush them out."
-msgstr "A terra está inutilizável com tantos insetos rastejando por aí. Sua tarefa é encontrar e fechar quaisquer covis de insetos e aranhas que encontrar. Cuidado, pois eles estão bem escondidos e gostam de vingança. Expulse-os."
+msgstr "A terra estÃ¡ inutilizÃ¡vel com tantos insetos rastejando por aÃ­. Sua tarefa Ã© encontrar e fechar quaisquer covis de insetos e aranhas que encontrar. Cuidado, pois eles estÃ£o bem escondidos e gostam de vinganÃ§a. Expulse-os."
 
 #. Abandoned Sanctum (lv9) Opening Objective
 #: guitext:101
 msgctxt "In-game message"
 msgid "This realm was once an Imp prison beneath a monastery. A place of great suffering, it has now been abandoned. For good reason!"
-msgstr "Este reino já foi uma prisão de Diabretes sob um mosteiro. Um lugar de grande sofrimento, agora foi abandonado. Por um bom motivo!"
+msgstr "Este reino jÃ¡ foi uma prisÃ£o de Diabretes sob um mosteiro. Um lugar de grande sofrimento, agora foi abandonado. Por um bom motivo!"
 
 #. Abandoned Sanctum (lv9) cannot have more than 3 vampires
 #: guitext:102
 msgctxt "In-game message"
 msgid "Worms have spread through the bodies of your Vampires, killing some. Keeping more than a few vampires is impossible as they're getting eaten 'alive'!"
-msgstr "Vermes se espalharam pelos corpos de seus Vampiros, matando alguns. Manter mais do que alguns vampiros é impossível, pois eles estão sendo comidos 'vivos'!"
+msgstr "Vermes se espalharam pelos corpos de seus Vampiros, matando alguns. Manter mais do que alguns vampiros Ã© impossÃ­vel, pois eles estÃ£o sendo comidos 'vivos'!"
 
 #. Abandoned Sanctum (lv9) - spare / unused message
 #: guitext:103
 msgctxt "In-game message"
 msgid "The enemy are upon us. I'm just telling you in case you were having a doze."
-msgstr "O inimigo está sobre nós. Só estou avisando para o caso de você estar cochilando."
+msgstr "O inimigo estÃ¡ sobre nÃ³s. SÃ³ estou avisando para o caso de vocÃª estar cochilando."
 
 #. Abandoned Sanctum (lv9) action point 10
 #: guitext:104
@@ -728,25 +728,25 @@ msgctxt "In-game message"
 msgid ""
 "You've activated an old Imp portal from the time of the Monastery. Some imps may die, and you can no longer summon them at will. However, there remains other "
 "strange Imp magic in this land for you to discover!"
-msgstr "Você ativou um antigo portal de Diabretes da época do Mosteiro. Alguns diabretes podem morrer, e você não pode mais invocá-los à vontade. No entanto, ainda existe outra magia estranha de Diabrete nesta terra para você descobrir!"
+msgstr "VocÃª ativou um antigo portal de Diabretes da Ã©poca do Mosteiro. Alguns diabretes podem morrer, e vocÃª nÃ£o pode mais invocÃ¡-los Ã  vontade. No entanto, ainda existe outra magia estranha de Diabrete nesta terra para vocÃª descobrir!"
 
 #. Abandoned Sanctum (lv9) Heroes lose first guard post
 #: guitext:105
 msgctxt "In-game message"
 msgid "You hear insect noise in the tunnels... they sound angry."
-msgstr "Você ouve barulho de insetos nos túneis... eles parecem zangados."
+msgstr "VocÃª ouve barulho de insetos nos tÃºneis... eles parecem zangados."
 
 #. Abandoned Sanctum (lv9) Heroes lose 2nd guard post
 #: guitext:106
 msgctxt "In-game message"
 msgid "You hear insect noise in the tunnels... as if they seemed even more angry!"
-msgstr "Você ouve barulho de insetos nos túneis... como se parecessem ainda mais zangados!"
+msgstr "VocÃª ouve barulho de insetos nos tÃºneis... como se parecessem ainda mais zangados!"
 
 #. Abandoned Sanctum (lv9) Heroes lose 3rd guard post
 #: guitext:107
 msgctxt "In-game message"
 msgid "You have conquered more than half of the insect lairs now Master!"
-msgstr "Você conquistou mais da metade dos covis de insetos agora, Mestre!"
+msgstr "VocÃª conquistou mais da metade dos covis de insetos agora, Mestre!"
 
 #. Abandoned Sanctum (lv9) Heroes lose 4th guard post
 #: guitext:108
@@ -758,19 +758,19 @@ msgstr "Apenas mais alguns covis para destruir agora!"
 #: guitext:109
 msgctxt "In-game message"
 msgid "you have destroyed all the insect lairs now, and the inevitable counter-attack is imminent!"
-msgstr "você destruiu todos os covis de insetos agora, e o contra-ataque inevitável é iminente!"
+msgstr "vocÃª destruiu todos os covis de insetos agora, e o contra-ataque inevitÃ¡vel Ã© iminente!"
 
 #. Abandoned Sanctum (lv9) Final assault
 #: guitext:110
 msgctxt "In-game message"
 msgid "They are here, Keeper. Eliminate every foe, be it bug or otherwise!"
-msgstr "Eles estão aqui, Guardião. Elimine todos os inimigos, sejam insetos ou não!"
+msgstr "Eles estÃ£o aqui, GuardiÃ£o. Elimine todos os inimigos, sejam insetos ou nÃ£o!"
 
 #. Abandoned Sanctum (lv9) Victory message
 #: guitext:111
 msgctxt "In-game message"
 msgid "Finally. This land is now suitable to be added to your domain."
-msgstr "Finalmente. Esta terra está agora adequada para ser adicionada ao seu domínio."
+msgstr "Finalmente. Esta terra estÃ¡ agora adequada para ser adicionada ao seu domÃ­nio."
 
 #. Fervent Asylum (lv10) Opening objective
 #: guitext:112
@@ -778,7 +778,7 @@ msgctxt "In-game message"
 msgid ""
 "Insufferable heat, lack of portals and the constant danger of being raided by heroes makes this dune treasury a truly forsaken place. Could it be the "
 "mysterious scavenger eye that attracts them?"
-msgstr "Calor insuportável, falta de portais e o perigo constante de ser atacado por heróis tornam este tesouro das dunas um lugar verdadeiramente abandonado. Seria o misterioso olho do recrutador que os atrai?"
+msgstr "Calor insuportÃ¡vel, falta de portais e o perigo constante de ser atacado por herÃ³is tornam este tesouro das dunas um lugar verdadeiramente abandonado. Seria o misterioso olho do recrutador que os atrai?"
 
 #. Fervent Asylum (lv10) Opening Information
 #: guitext:113
@@ -787,13 +787,13 @@ msgid ""
 "This eerie scavenger eye works differently to a portal or a scavenger room. It attracts creatures from other realms based on the rooms you own. Claiming and "
 "expanding those rooms will summon higher level creatures. Barracks will summon Archers, hatchery summons Bile Demons. Warlocks and Wizards are attracted to "
 "your library, whilst Dragons are attracted by various other rooms you claim. The summoning works until your army is 30 strong!"
-msgstr "Este misterioso olho do recrutador funciona de forma diferente de um portal ou de uma sala de recrutamento. Ele atrai criaturas de outros reinos com base nas salas que você possui. Reivindicar e expandir essas salas invocará criaturas de nível superior. Quartéis invocarão Arqueiros, o criadouro invocará Demônios de Fel. Bruxos e Magos são atraídos para sua biblioteca, enquanto Dragões são atraídos por várias outras salas que você reivindica. A invocação funciona até que seu exército tenha 30 de força!"
+msgstr "Este misterioso olho do recrutador funciona de forma diferente de um portal ou de uma sala de recrutamento. Ele atrai criaturas de outros reinos com base nas salas que vocÃª possui. Reivindicar e expandir essas salas invocarÃ¡ criaturas de nÃ­vel superior. QuartÃ©is invocarÃ£o Arqueiros, o criadouro invocarÃ¡ DemÃ´nios de Fel. Bruxos e Magos sÃ£o atraÃ­dos para sua biblioteca, enquanto DragÃµes sÃ£o atraÃ­dos por vÃ¡rias outras salas que vocÃª reivindica. A invocaÃ§Ã£o funciona atÃ© que seu exÃ©rcito tenha 30 de forÃ§a!"
 
 #. Fervent Asylum (lv10) Avatar Message
 #: guitext:114
 msgctxt "In-game message"
 msgid "One of the heroes' most dangerous insurgents has entered this realm. Recruit him and he'll serve you well..."
-msgstr "Um dos insurgentes mais perigosos dos heróis entrou neste reino. Recrute-o e ele o servirá bem..."
+msgstr "Um dos insurgentes mais perigosos dos herÃ³is entrou neste reino. Recrute-o e ele o servirÃ¡ bem..."
 
 #. Fervent Asylum (lv10)
 #: guitext:115
@@ -801,7 +801,7 @@ msgctxt "In-game message"
 msgid ""
 "People of this land are sending their troops periodically. As they foolishly think you are outnumbered they prioritize mobilising their tougher parties to "
 "other realms. Find and destroy their dungeon heart before the offense becomes overwhelming and eliminate every foe to win this land."
-msgstr "O povo desta terra está enviando suas tropas periodicamente. Como eles pensam tolamente que você está em menor número, eles priorizam a mobilização de seus grupos mais fortes para outros reinos. Encontre e destrua o coração da masmorra deles antes que a ofensiva se torne esmagadora e elimine todos os inimigos para vencer esta terra."
+msgstr "O povo desta terra estÃ¡ enviando suas tropas periodicamente. Como eles pensam tolamente que vocÃª estÃ¡ em menor nÃºmero, eles priorizam a mobilizaÃ§Ã£o de seus grupos mais fortes para outros reinos. Encontre e destrua o coraÃ§Ã£o da masmorra deles antes que a ofensiva se torne esmagadora e elimine todos os inimigos para vencer esta terra."
 
 #. Fervent Asylum (lv10) unused message / blank for future use
 #: guitext:116
@@ -809,44 +809,44 @@ msgctxt "In-game message"
 msgid ""
 "This ancient dungeon possesses great archaeological significance. This simply means there should be some interesting treasure worth stealing. Now that's what I "
 "call practical archaeology."
-msgstr "Esta antiga masmorra possui grande significado arqueológico. Isso significa simplesmente que deve haver algum tesouro interessante que valha a pena roubar. Isso é o que eu chamo de arqueologia prática."
+msgstr "Esta antiga masmorra possui grande significado arqueolÃ³gico. Isso significa simplesmente que deve haver algum tesouro interessante que valha a pena roubar. Isso Ã© o que eu chamo de arqueologia prÃ¡tica."
 
 #. Fervent Asylum (lv10)
 #: guitext:117
 msgctxt "In-game message"
 msgid "The Mysterious Scavenger Eye will transfer your gold to the next realm when you are victorious. So amass what you can!"
-msgstr "O Olho Misterioso do Recrutador transferirá seu ouro para o próximo reino quando você for vitorioso. Então, acumule o que puder!"
+msgstr "O Olho Misterioso do Recrutador transferirÃ¡ seu ouro para o prÃ³ximo reino quando vocÃª for vitorioso. EntÃ£o, acumule o que puder!"
 
 #. Fervent Asylum (lv10)
 #: guitext:118
 msgctxt "In-game message"
 msgid "Spies have discovered that the dwarves will recede in the absence of workshops Master."
-msgstr "Espiões descobriram que os anões recuarão na ausência de oficinas, Mestre."
+msgstr "EspiÃµes descobriram que os anÃµes recuarÃ£o na ausÃªncia de oficinas, Mestre."
 
 #. Fervent Asylum (lv10)
 #: guitext:119
 msgctxt "In-game message"
 msgid "Look! The Scavenger Eye has summoned a few barbarians from Cloud Temple Ruins! It senses your impending victory perhaps?"
-msgstr "Olhe! O Olho do Recrutador invocou alguns bárbaros das Ruínas do Templo das Nuvens! Ele sente sua vitória iminente, talvez?"
+msgstr "Olhe! O Olho do Recrutador invocou alguns bÃ¡rbaros das RuÃ­nas do Templo das Nuvens! Ele sente sua vitÃ³ria iminente, talvez?"
 
 #. Fervent Asylum (lv10)
 #: guitext:120
 msgctxt "In-game message"
 msgid "You have finally caught their attention. They have begun sending their most forceful troops. Good luck!"
-msgstr "Você finalmente chamou a atenção deles. Eles começaram a enviar suas tropas mais fortes. Boa sorte!"
+msgstr "VocÃª finalmente chamou a atenÃ§Ã£o deles. Eles comeÃ§aram a enviar suas tropas mais fortes. Boa sorte!"
 
 #. Fervent Asylum (lv10) Final Party
 #: guitext:121
 msgctxt "In-game message"
 msgid "The final group is here to finish you off. Wreck them. Eliminate every foe in this land to win. "
-msgstr "O grupo final está aqui para acabar com você. Destrua-os. Elimine todos os inimigos nesta terra para vencer."
+msgstr "O grupo final estÃ¡ aqui para acabar com vocÃª. Destrua-os. Elimine todos os inimigos nesta terra para vencer."
 
 #. Fervent Asylum (lv10) Victory Message
 #: guitext:122
 msgctxt "In-game message"
 msgid ""
 "The Heroes are despatched and you have plundered the riches of this realm to fund your next conquest. Excellent! Now you may depart this unbearably hot land."
-msgstr "Os Heróis foram despachados e você saqueou as riquezas deste reino para financiar sua próxima conquista. Excelente! Agora você pode partir desta terra insuportavelmente quente."
+msgstr "Os HerÃ³is foram despachados e vocÃª saqueou as riquezas deste reino para financiar sua prÃ³xima conquista. Excelente! Agora vocÃª pode partir desta terra insuportavelmente quente."
 
 #. Phoenix Penitentiary (lv11) Opening Message
 #: guitext:123
@@ -855,31 +855,31 @@ msgid ""
 "The Phoenix Penitentiary. Where Knights keep watch over convicted Sorcerors, and the Polish government send their Warlocks for injecting whole marijuanas. And "
 "a home to two and a half keepers. Every keeper in this land has his own reason for dwelling this place. It's futile to  expect mercy from any of them; as if "
 "you care, right? Your task is to eliminate the Keepers and all Knights."
-msgstr "A Penitenciária Fênix. Onde Cavaleiros vigiam Feiticeiros condenados, e o governo Polonês envia seus Bruxos para injetar marijuanas inteiras. E um lar para dois guardiões e meio. Cada guardião nesta terra tem sua própria razão para habitar este lugar. É fútil esperar misericórdia de qualquer um deles; como se você se importasse, certo? Sua tarefa é eliminar os Guardiões e todos os Cavaleiros."
+msgstr "A PenitenciÃ¡ria FÃªnix. Onde Cavaleiros vigiam Feiticeiros condenados, e o governo PolonÃªs envia seus Bruxos para injetar marijuanas inteiras. E um lar para dois guardiÃµes e meio. Cada guardiÃ£o nesta terra tem sua prÃ³pria razÃ£o para habitar este lugar. Ã‰ fÃºtil esperar misericÃ³rdia de qualquer um deles; como se vocÃª se importasse, certo? Sua tarefa Ã© eliminar os GuardiÃµes e todos os Cavaleiros."
 
 #. Phoenix Penitentiary (lv11) Opening Information
 #: guitext:124
 msgctxt "In-game message"
 msgid "Spies have discovered that you may recruit Imps from the cavern to the east of your dungeon."
-msgstr "Espiões descobriram que você pode recrutar Diabretes da caverna a leste de sua masmorra."
+msgstr "EspiÃµes descobriram que vocÃª pode recrutar Diabretes da caverna a leste de sua masmorra."
 
 #. Phoenix Penitentiary (lv11) on gaining an imp
 #: guitext:125
 msgctxt "In-game message"
 msgid "These Knights are not exactly the loyal types. Convert as many of them as possible. Perhaps you could talk them into joining you in the next realm?"
-msgstr "Estes Cavaleiros não são exatamente os tipos leais. Converta o maior número possível deles. Talvez você pudesse convencê-los a se juntar a você no próximo reino?"
+msgstr "Estes Cavaleiros nÃ£o sÃ£o exatamente os tipos leais. Converta o maior nÃºmero possÃ­vel deles. Talvez vocÃª pudesse convencÃª-los a se juntar a vocÃª no prÃ³ximo reino?"
 
 #. Phoenix Penitentiary (lv11) AP6
 #: guitext:126
 msgctxt "In-game message"
 msgid "You have desecrated their Portal, so the Fairies should be no more."
-msgstr "Você profanou o Portal deles, então as Fadas não devem mais existir."
+msgstr "VocÃª profanou o Portal deles, entÃ£o as Fadas nÃ£o devem mais existir."
 
 #. Phoenix Penitentiary (lv11) AP7
 #: guitext:127
 msgctxt "In-game message"
 msgid "The Gems were surrounded by intruder alarms, so guess what? Heroes are on their way!"
-msgstr "As Gemas estavam cercadas por alarmes de intrusos, então adivinha? Os heróis estão a caminho!"
+msgstr "As Gemas estavam cercadas por alarmes de intrusos, entÃ£o adivinha? Os herÃ³is estÃ£o a caminho!"
 
 #. Phoenix Penitentiary (lv11) Timer0
 #: guitext:128
@@ -887,13 +887,13 @@ msgctxt "In-game message"
 msgid ""
 "The heroes have opened a fairy portal in a lava cove nearby. Though annoying, it is very delicate: desecrate the portal by touching it and it'll stop working. "
 "Simple, right?"
-msgstr "Os heróis abriram um portal de fadas em uma enseada de lava próxima. Embora irritante, é muito delicado: profane o portal tocando-o e ele deixará de funcionar. Simples, certo?"
+msgstr "Os herÃ³is abriram um portal de fadas em uma enseada de lava prÃ³xima. Embora irritante, Ã© muito delicado: profane o portal tocando-o e ele deixarÃ¡ de funcionar. Simples, certo?"
 
 #. Phoenix Penitentiary (lv11) Flag0
 #: guitext:129
 msgctxt "In-game message"
 msgid "You are taking too long, keeper. You don't want to be here when the heroes come to clean up!"
-msgstr "Você está demorando muito, guardião. Você não vai querer estar aqui quando os heróis vierem para limpar!"
+msgstr "VocÃª estÃ¡ demorando muito, guardiÃ£o. VocÃª nÃ£o vai querer estar aqui quando os herÃ³is vierem para limpar!"
 
 #. Phoenix Penitentiary (lv11) Timer4
 #: guitext:130
@@ -901,31 +901,31 @@ msgctxt "In-game message"
 msgid ""
 "Careful keeper, retribution has arrived. Eliminate every rival keeper and the four knights to win. Don't forget to convert knights if you  wish to see them "
 "accompany you in the next realm! Also, be aware that Spies inform us that this land has access to a hidden realm!"
-msgstr "Cuidado, guardião, a retribuição chegou. Elimine todos os guardiões rivais e os quatro cavaleiros para vencer. Não se esqueça de converter os cavaleiros se desejar que eles o acompanhem no próximo reino! Além disso, saiba que Espiões nos informam que esta terra tem acesso a um reino oculto!"
+msgstr "Cuidado, guardiÃ£o, a retribuiÃ§Ã£o chegou. Elimine todos os guardiÃµes rivais e os quatro cavaleiros para vencer. NÃ£o se esqueÃ§a de converter os cavaleiros se desejar que eles o acompanhem no prÃ³ximo reino! AlÃ©m disso, saiba que EspiÃµes nos informam que esta terra tem acesso a um reino oculto!"
 
 #. Phoenix Penitentiary (lv11) All dungeons destroyed
 #: guitext:131
 msgctxt "In-game message"
 msgid "Impressive job, Keeper. Most of the isle is now yours. "
-msgstr "Trabalho impressionante, Guardião. A maior parte da ilha agora é sua."
+msgstr "Trabalho impressionante, GuardiÃ£o. A maior parte da ilha agora Ã© sua."
 
 #. Phoenix Penitentiary (lv11) Knight transfer
 #: guitext:132
 msgctxt "In-game message"
 msgid "Impressive job, Keeper. One of your knights will join you in the next realm."
-msgstr "Trabalho impressionante, Guardião. Um de seus cavaleiros se juntará a você no próximo reino."
+msgstr "Trabalho impressionante, GuardiÃ£o. Um de seus cavaleiros se juntarÃ¡ a vocÃª no prÃ³ximo reino."
 
 #. Phoenix Penitentiary (lv11) Knights transfer
 #: guitext:133
 msgctxt "In-game message"
 msgid "Impressive job, Keeper. A couple of your knights will join you in the next realm. "
-msgstr "Trabalho impressionante, Guardião. Um par de seus cavaleiros se juntará a você no próximo reino."
+msgstr "Trabalho impressionante, GuardiÃ£o. Um par de seus cavaleiros se juntarÃ¡ a vocÃª no prÃ³ximo reino."
 
 #. Phoenix Penitentiary (lv11)
 #: guitext:134
 msgctxt "In-game message"
 msgid "This realm is begging to be plunged into darkness. The Avatar himself has a castle here. Another Keeper also seeks his soul. This could get messy."
-msgstr "Este reino está implorando para ser mergulhado na escuridão. O próprio Avatar tem um castelo aqui. Outro Guardião também busca sua alma. Isso pode ficar confuso."
+msgstr "Este reino estÃ¡ implorando para ser mergulhado na escuridÃ£o. O prÃ³prio Avatar tem um castelo aqui. Outro GuardiÃ£o tambÃ©m busca sua alma. Isso pode ficar confuso."
 
 #. Mill Vault (lv12) Opening Message
 #: guitext:135
@@ -933,7 +933,7 @@ msgctxt "In-game message"
 msgid ""
 "The plan for a first strike went bust. The people of this land have already launched attacks upon your dungeon from multiple directions. It's up to you to take "
 "control. Withstand the smite and defeat the lord of the land."
-msgstr "O plano para um primeiro ataque fracassou. O povo desta terra já lançou ataques à sua masmorra de várias direções. Cabe a você assumir o controle. Resista ao golpe e derrote o senhor da terra."
+msgstr "O plano para um primeiro ataque fracassou. O povo desta terra jÃ¡ lanÃ§ou ataques Ã  sua masmorra de vÃ¡rias direÃ§Ãµes. Cabe a vocÃª assumir o controle. Resista ao golpe e derrote o senhor da terra."
 
 #. Mill Vault (lv12) Opening Information
 #: guitext:136
@@ -942,7 +942,7 @@ msgid ""
 "There are 4 creature dwelling bases in this land: orc, comprising Samurai, Warlock and Bile Demon forts. Choose the one to raid, get one of their troops to "
 "join you and they'll be joining your army from the portal at a maximum 6 of each (of level of the unit type you obtain as first). Be careful, however: they "
 "will be only willing to join you as long as you have at least one of a kind in your dungeon! If they die off their time  is over in this land!"
-msgstr "Existem 4 bases de moradia de criaturas nesta terra: orc, compreendendo fortes de Samurai, Bruxo e Demônio de Fel. Escolha uma para atacar, faça com que uma de suas tropas se junte a você e elas se juntarão ao seu exército pelo portal, com um máximo de 6 de cada (do nível do tipo de unidade que você obtiver primeiro). Tenha cuidado, no entanto: eles só estarão dispostos a se juntar a você enquanto você tiver pelo menos um de cada tipo em sua masmorra! Se eles morrerem, seu tempo nesta terra acabou!"
+msgstr "Existem 4 bases de moradia de criaturas nesta terra: orc, compreendendo fortes de Samurai, Bruxo e DemÃ´nio de Fel. Escolha uma para atacar, faÃ§a com que uma de suas tropas se junte a vocÃª e elas se juntarÃ£o ao seu exÃ©rcito pelo portal, com um mÃ¡ximo de 6 de cada (do nÃ­vel do tipo de unidade que vocÃª obtiver primeiro). Tenha cuidado, no entanto: eles sÃ³ estarÃ£o dispostos a se juntar a vocÃª enquanto vocÃª tiver pelo menos um de cada tipo em sua masmorra! Se eles morrerem, seu tempo nesta terra acabou!"
 
 #. Mill Vault (lv12) Game Turn >15000
 #: guitext:137
@@ -950,32 +950,32 @@ msgctxt "In-game message"
 msgid ""
 "Occupying a fort absorbs their building knowledge and provides a financial income. The Samuari can build Training Rooms. Orcs build Guard posts. Warlocks can "
 "build bridges, and Bile Demons use the Workshop. Plan your strategy Keeper!"
-msgstr "Ocupar um forte absorve seu conhecimento de construção e fornece uma renda financeira. Os Samurais podem construir Salas de Treino. Orcs constroem Postos de Guarda. Bruxos podem construir pontes, e Demônios de Fel usam a Oficina. Planeje sua estratégia, Guardião!"
+msgstr "Ocupar um forte absorve seu conhecimento de construÃ§Ã£o e fornece uma renda financeira. Os Samurais podem construir Salas de Treino. Orcs constroem Postos de Guarda. Bruxos podem construir pontes, e DemÃ´nios de Fel usam a Oficina. Planeje sua estratÃ©gia, GuardiÃ£o!"
 
 #. Mill Vault (lv12) Game Turn >15000
 #: guitext:138
 msgctxt "In-game message"
 msgid ""
 "You cannot own a Torture Chamber in this land. Get rid of the prisoners as soon as possible, or the Heroes will try to rescue them on their way to erase you!"
-msgstr "Você não pode ter uma Câmara de Tortura nesta terra. Livre-se dos prisioneiros o mais rápido possível, ou os Heróis tentarão resgatá-los em seu caminho para eliminá-lo!"
+msgstr "VocÃª nÃ£o pode ter uma CÃ¢mara de Tortura nesta terra. Livre-se dos prisioneiros o mais rÃ¡pido possÃ­vel, ou os HerÃ³is tentarÃ£o resgatÃ¡-los em seu caminho para eliminÃ¡-lo!"
 
 #. Mill Vault (lv12) Flag1 Objective
 #: guitext:139
 msgctxt "In-game message"
 msgid "The Lord of the Land has arrived. I can smell his fear. Defeat him and the realm is yours."
-msgstr "O Senhor da Terra chegou. Posso sentir o cheiro de seu medo. Derrote-o e o reino é seu."
+msgstr "O Senhor da Terra chegou. Posso sentir o cheiro de seu medo. Derrote-o e o reino Ã© seu."
 
 #. Mill Vault (lv12)
 #: guitext:140
 msgctxt "In-game message"
 msgid "Highly skilled Imps will join your army through the Portal when you seize any fort."
-msgstr "Diabretes altamente habilidosos se juntarão ao seu exército através do Portal quando você tomar qualquer forte."
+msgstr "Diabretes altamente habilidosos se juntarÃ£o ao seu exÃ©rcito atravÃ©s do Portal quando vocÃª tomar qualquer forte."
 
 #. Mill Vault (lv12) Victory Message
 #: guitext:141
 msgctxt "In-game message"
 msgid "Perfect! Another piece of land added to your domain."
-msgstr "Perfeito! Mais um pedaço de terra adicionado ao seu domínio."
+msgstr "Perfeito! Mais um pedaÃ§o de terra adicionado ao seu domÃ­nio."
 
 #. Mill Vault (lv12) Bridge Message
 #: guitext:142
@@ -983,19 +983,19 @@ msgctxt "In-game message"
 msgid ""
 "Careful keeper. Resources are insufficient to build more than one slab of bridge! Think well where you place it as that is the last slab  of bridge you will "
 "ever build!"
-msgstr "Cuidado, guardião. Os recursos são insuficientes para construir mais de um bloco de ponte! Pense bem onde você o coloca, pois esse é o último bloco de ponte que você construirá!"
+msgstr "Cuidado, guardiÃ£o. Os recursos sÃ£o insuficientes para construir mais de um bloco de ponte! Pense bem onde vocÃª o coloca, pois esse Ã© o Ãºltimo bloco de ponte que vocÃª construirÃ¡!"
 
 #. Mill Vault (lv12) Vampires Message
 #: guitext:143
 msgctxt "In-game message"
 msgid "Autistic monks are at it again! Their exorcistical incantations prevent you from recruiting any more undead creatures."
-msgstr "Monges autistas estão de volta! Suas encantações exorcísticas o impedem de recrutar mais criaturas mortas-vivas."
+msgstr "Monges autistas estÃ£o de volta! Suas encantaÃ§Ãµes exorcÃ­sticas o impedem de recrutar mais criaturas mortas-vivas."
 
 #. Reapers' Yard (lv13) opening objective
 #: guitext:144
 msgctxt "In-game message"
 msgid "The platform has four points of access. Expect human parties attacking from all directions. You must protect your dungeon heart at all costs!"
-msgstr "A plataforma tem quatro pontos de acesso. Espere grupos humanos atacando de todas as direções. Você deve proteger o coração da sua masmorra a todo custo!"
+msgstr "A plataforma tem quatro pontos de acesso. Espere grupos humanos atacando de todas as direÃ§Ãµes. VocÃª deve proteger o coraÃ§Ã£o da sua masmorra a todo custo!"
 
 #. Reapers' Yard (lv13) after battle wins
 #: guitext:145
@@ -1003,19 +1003,19 @@ msgctxt "In-game message"
 msgid ""
 "Your once wealthy minions are guarded by Heroes in the eastern lava-flooded area. These Knights have confiscated their gold, so you have extra motivation to "
 "defeat them and reclaim what is rightfully yours!"
-msgstr "Seus lacaios, outrora ricos, são guardados por Heróis na área inundada de lava a leste. Estes Cavaleiros confiscaram seu ouro, então você tem motivação extra para derrotá-los e reivindicar o que é seu por direito!"
+msgstr "Seus lacaios, outrora ricos, sÃ£o guardados por HerÃ³is na Ã¡rea inundada de lava a leste. Estes Cavaleiros confiscaram seu ouro, entÃ£o vocÃª tem motivaÃ§Ã£o extra para derrotÃ¡-los e reivindicar o que Ã© seu por direito!"
 
 #. Reapers' Yard (lv13) 2nd wave Flag1
 #: guitext:146
 msgctxt "In-game message"
 msgid "The end of the resistance is near, Keeper. I can smell the desperation in their greedy faces!"
-msgstr "O fim da resistência está próximo, Guardião. Posso sentir o desespero em seus rostos gananciosos!"
+msgstr "O fim da resistÃªncia estÃ¡ prÃ³ximo, GuardiÃ£o. Posso sentir o desespero em seus rostos gananciosos!"
 
 #. Reapers' Yard (lv13) Flag2
 #: guitext:147
 msgctxt "In-game message"
 msgid "The final pathetic attempt to bring you down is on its way. Withstand the attack, defeat every Knight and the land is yours."
-msgstr "A última tentativa patética de derrubá-lo está a caminho. Resista ao ataque, derrote todos os Cavaleiros e a terra será sua."
+msgstr "A Ãºltima tentativa patÃ©tica de derrubÃ¡-lo estÃ¡ a caminho. Resista ao ataque, derrote todos os Cavaleiros e a terra serÃ¡ sua."
 
 #. Reapers' Yard (lv13) less than 7 Knights
 #: guitext:148
@@ -1023,19 +1023,19 @@ msgctxt "In-game message"
 msgid ""
 "Gold falls from the Knight's pockets as he mumbles something in Polish. Then he shuts up and dies. Kill some more of them. Not just for the fun but also for "
 "the gold they owe you."
-msgstr "Ouro cai dos bolsos do Cavaleiro enquanto ele resmunga algo em polonês. Então ele se cala e morre. Mate mais alguns deles. Não apenas pela diversão, mas também pelo ouro que eles lhe devem."
+msgstr "Ouro cai dos bolsos do Cavaleiro enquanto ele resmunga algo em polonÃªs. EntÃ£o ele se cala e morre. Mate mais alguns deles. NÃ£o apenas pela diversÃ£o, mas tambÃ©m pelo ouro que eles lhe devem."
 
 #. Reapers' Yard (lv13) when heroes lose library
 #: guitext:149
 msgctxt "In-game message"
 msgid "The library you have claimed contains plans for bridge building. Useful stuff! You know what to do. . "
-msgstr "A biblioteca que você reivindicou contém planos para a construção de pontes. Coisa útil! Você sabe o que fazer..."
+msgstr "A biblioteca que vocÃª reivindicou contÃ©m planos para a construÃ§Ã£o de pontes. Coisa Ãºtil! VocÃª sabe o que fazer..."
 
 #. Reapers' Yard (lv13) Victory Message
 #: guitext:150
 msgctxt "In-game message"
 msgid "Fantastic work, Keeper. Just one more land and the Isle is free from the Polish empire."
-msgstr "Trabalho fantástico, Guardião. Apenas mais uma terra e a Ilha estará livre do império Polonês."
+msgstr "Trabalho fantÃ¡stico, GuardiÃ£o. Apenas mais uma terra e a Ilha estarÃ¡ livre do impÃ©rio PolonÃªs."
 
 #. Comet Landing Grotto (lv14) Opening Objective
 #: guitext:151
@@ -1043,7 +1043,7 @@ msgctxt "In-game message"
 msgid ""
 "Something has fallen out of the sky, opening a path to the surface, and bestowing the area with life and riches. Could the esoteric Altars have attracted this "
 "object?"
-msgstr "Algo caiu do céu, abrindo um caminho para a superfície e concedendo vida e riquezas à área. Seriam os Altares esotéricos que atraíram este objeto?"
+msgstr "Algo caiu do cÃ©u, abrindo um caminho para a superfÃ­cie e concedendo vida e riquezas Ã  Ã¡rea. Seriam os Altares esotÃ©ricos que atraÃ­ram este objeto?"
 
 #. Comet Landing Grotto (lv14) Opening Information
 #: guitext:152
@@ -1052,7 +1052,7 @@ msgid ""
 "Touch the red Altar of the Elders to grant you a boulder trap. Touch the blue Altar of Kings to receive 25,000 gold. Touch the green Altar of the Damned and "
 "the Gods will destroy ten Undead minions in this realm. Touch the yellow Altar of Light and the Gods kill ten of the most powerful Monks and Priestesses. "
 "Touching an Altar makes you unable to activate another for some time. It also causes some dismay to the heroes on the surface."
-msgstr "Toque no Altar vermelho dos Anciões para receber uma armadilha de rocha. Toque no Altar azul dos Reis para receber 25.000 de ouro. Toque no Altar verde dos Condenados e os Deuses destruirão dez lacaios Mortos-Vivos neste reino. Toque no Altar amarelo da Luz e os Deuses matarão dez dos mais poderosos Monges e Sacerdotisas. Tocar um Altar o impede de ativar outro por algum tempo. Também causa algum desânimo aos heróis na superfície."
+msgstr "Toque no Altar vermelho dos AnciÃµes para receber uma armadilha de rocha. Toque no Altar azul dos Reis para receber 25.000 de ouro. Toque no Altar verde dos Condenados e os Deuses destruirÃ£o dez lacaios Mortos-Vivos neste reino. Toque no Altar amarelo da Luz e os Deuses matarÃ£o dez dos mais poderosos Monges e Sacerdotisas. Tocar um Altar o impede de ativar outro por algum tempo. TambÃ©m causa algum desÃ¢nimo aos herÃ³is na superfÃ­cie."
 
 #. Comet Landing Grotto (lv14) Green Altar activated
 #: guitext:153
@@ -1060,25 +1060,25 @@ msgctxt "In-game message"
 msgid ""
 "You have activated the Green Altar and destroyed the Heroes Undead allies! However, they are in no way defeated. Prepare well for they are greedy in nature, "
 "and will not relinquish their riches without a fight!"
-msgstr "Você ativou o Altar Verde e destruiu os aliados Mortos-Vivos dos Heróis! No entanto, eles não estão de forma alguma derrotados. Prepare-se bem, pois eles são gananciosos por natureza e não renunciarão às suas riquezas sem lutar!"
+msgstr "VocÃª ativou o Altar Verde e destruiu os aliados Mortos-Vivos dos HerÃ³is! No entanto, eles nÃ£o estÃ£o de forma alguma derrotados. Prepare-se bem, pois eles sÃ£o gananciosos por natureza e nÃ£o renunciarÃ£o Ã s suas riquezas sem lutar!"
 
 #. Comet Landing Grotto (lv14) Red Altar activated
 #: guitext:154
 msgctxt "In-game message"
 msgid "You have activated the Red Altar and gained a single boulder trap. use it wisely."
-msgstr "Você ativou o Altar Vermelho e ganhou uma única armadilha de rocha. Use-a com sabedoria."
+msgstr "VocÃª ativou o Altar Vermelho e ganhou uma Ãºnica armadilha de rocha. Use-a com sabedoria."
 
 #. Comet Landing Grotto (lv14) Blue Altar activated
 #: guitext:155
 msgctxt "In-game message"
 msgid "You have activated the Blue Altar and gained great wealth. Spend it wisely preparing for the battles to come."
-msgstr "Você ativou o Altar Azul e ganhou grande riqueza. Gaste-a com sabedoria, preparando-se para as batalhas que virão."
+msgstr "VocÃª ativou o Altar Azul e ganhou grande riqueza. Gaste-a com sabedoria, preparando-se para as batalhas que virÃ£o."
 
 #. Comet Landing Grotto (lv14) Yellow Altar activated
 #: guitext:156
 msgctxt "In-game message"
 msgid "You have activated the Yellow Altar and eliminated the enemy Monks & Priestesses! These Altars do indeed have great power!"
-msgstr "Você ativou o Altar Amarelo e eliminou os Monges e Sacerdotisas inimigos! Estes Altares realmente têm grande poder!"
+msgstr "VocÃª ativou o Altar Amarelo e eliminou os Monges e Sacerdotisas inimigos! Estes Altares realmente tÃªm grande poder!"
 
 #. Comet Landing Grotto (lv14) Avatar arrival
 #: guitext:157
@@ -1087,7 +1087,7 @@ msgid ""
 "The lord of the land has visited this land to examine the regeneration caused by the strange comet. He has now sealed himself off to raise an army of Fairies. "
 "Be aware that the Wizards in this realm are unusually powerful, and one of them guards a spell that can destroy walls. You must defeat them and use this "
 "valuable power!"
-msgstr "O senhor da terra visitou esta terra para examinar a regeneração causada pelo estranho cometa. Ele agora se isolou para criar um exército de Fadas. Esteja ciente de que os Magos neste reino são extraordinariamente poderosos, e um deles guarda um feitiço que pode destruir paredes. Você deve derrotá-los e usar este valioso poder!"
+msgstr "O senhor da terra visitou esta terra para examinar a regeneraÃ§Ã£o causada pelo estranho cometa. Ele agora se isolou para criar um exÃ©rcito de Fadas. Esteja ciente de que os Magos neste reino sÃ£o extraordinariamente poderosos, e um deles guarda um feitiÃ§o que pode destruir paredes. VocÃª deve derrotÃ¡-los e usar este valioso poder!"
 
 #. Comet Landing Grotto (lv14)
 #: guitext:158
@@ -1095,7 +1095,7 @@ msgctxt "In-game message"
 msgid ""
 "The Heroes and the Undead are allied in this strange land! These traditional foes must both sense your impending conquest? Quickly possess your Ghost and use "
 "the power of the Green Altar to send them back to where they belong!"
-msgstr "Os Heróis e os Mortos-Vivos estão aliados nesta terra estranha! Estes inimigos tradicionais devem ambos sentir sua conquista iminente? Possua rapidamente seu Fantasma e use o poder do Altar Verde para enviá-los de volta para onde pertencem!"
+msgstr "Os HerÃ³is e os Mortos-Vivos estÃ£o aliados nesta terra estranha! Estes inimigos tradicionais devem ambos sentir sua conquista iminente? Possua rapidamente seu Fantasma e use o poder do Altar Verde para enviÃ¡-los de volta para onde pertencem!"
 
 #. Comet Landing Grotto (lv14) gaining destroy wall spell
 #: guitext:159
@@ -1103,7 +1103,7 @@ msgctxt "In-game message"
 msgid ""
 "You have claimed the spell which destroys walls! As a bonus you also extracted Torture Chamber plans, which will make it interesting when you make a social "
 "call to your uninvited guests?"
-msgstr "Você reivindicou o feitiço que destrói paredes! Como bônus, você também extraiu os planos da Câmara de Tortura, o que tornará interessante quando você fizer uma visita social aos seus convidados indesejados?"
+msgstr "VocÃª reivindicou o feitiÃ§o que destrÃ³i paredes! Como bÃ´nus, vocÃª tambÃ©m extraiu os planos da CÃ¢mara de Tortura, o que tornarÃ¡ interessante quando vocÃª fizer uma visita social aos seus convidados indesejados?"
 
 #. Comet Landing Grotto (lv14) Avatar defeated
 #: guitext:160
@@ -1111,19 +1111,19 @@ msgctxt "In-game message"
 msgid ""
 "Is it not over yet? The altars begin to glow strangely... It's as if their glow is directed to the center of the impact, embodying the spirits glow into living "
 "beings! Eliminate every hero in this land to win!"
-msgstr "Ainda não acabou? Os altares começam a brilhar estranhamente... É como se seu brilho fosse direcionado para o centro do impacto, encarnando o brilho dos espíritos em seres vivos! Elimine todos os heróis nesta terra para vencer!"
+msgstr "Ainda nÃ£o acabou? Os altares comeÃ§am a brilhar estranhamente... Ã‰ como se seu brilho fosse direcionado para o centro do impacto, encarnando o brilho dos espÃ­ritos em seres vivos! Elimine todos os herÃ³is nesta terra para vencer!"
 
 #. Comet Landing Grotto (lv14) Hero replenishment
 #: guitext:161
 msgctxt "In-game message"
 msgid "Seems like they won't give up! Defeat them all!"
-msgstr "Parece que eles não vão desistir! Derrote todos eles!"
+msgstr "Parece que eles nÃ£o vÃ£o desistir! Derrote todos eles!"
 
 #. Comet Landing Grotto (lv14) Hero replenishment
 #: guitext:162
 msgctxt "In-game message"
 msgid "Another party of Heroes! Where are they coming from?!"
-msgstr "Outro grupo de Heróis! De onde eles estão vindo?!"
+msgstr "Outro grupo de HerÃ³is! De onde eles estÃ£o vindo?!"
 
 #. Comet Landing Grotto (lv14) Victory message
 #: guitext:163
@@ -1131,7 +1131,7 @@ msgctxt "In-game message"
 msgid ""
 "I see dead people. And dead undead. Congratulations, the Assmist Isle is yours! You'll be surprised to hear that living here has actually improved. Thanks for "
 "playing."
-msgstr "Eu vejo gente morta. E mortos-vivos mortos. Parabéns, a Ilha da Merda é sua! Você ficará surpreso ao saber que viver aqui realmente melhorou. Obrigado por jogar."
+msgstr "Eu vejo gente morta. E mortos-vivos mortos. ParabÃ©ns, a Ilha da Merda Ã© sua! VocÃª ficarÃ¡ surpreso ao saber que viver aqui realmente melhorou. Obrigado por jogar."
 
 #. Cloud Temple Ruins (bonus lv21) opening Objective
 #: guitext:164
@@ -1139,7 +1139,7 @@ msgctxt "In-game message"
 msgid ""
 "You'll be battling two Keepers and the natives for the riches of the land. Eliminate them all and the barbarians will be joining you throughout the campaign! "
 "Good luck!"
-msgstr "Você lutará contra dois Guardiões e os nativos pelas riquezas da terra. Elimine todos eles e os bárbaros se juntarão a você durante toda a campanha! Boa sorte!"
+msgstr "VocÃª lutarÃ¡ contra dois GuardiÃµes e os nativos pelas riquezas da terra. Elimine todos eles e os bÃ¡rbaros se juntarÃ£o a vocÃª durante toda a campanha! Boa sorte!"
 
 #. Cloud Temple Ruins (bonus lv21) Hero Heart destroyed
 #: guitext:165
@@ -1151,43 +1151,43 @@ msgstr "Um novo grupo de nativos apareceu!"
 #: guitext:166
 msgctxt "In-game message"
 msgid "Legends say the barbaric natives keep fairies somewhere near the ruins..."
-msgstr "As lendas dizem que os nativos bárbaros mantêm fadas em algum lugar perto das ruínas..."
+msgstr "As lendas dizem que os nativos bÃ¡rbaros mantÃªm fadas em algum lugar perto das ruÃ­nas..."
 
 #. Cloud Temple Ruins (bonus lv21) Victory message
 #: guitext:167
 msgctxt "In-game message"
 msgid "The natives are now under your command. New slaves! Wonderful!"
-msgstr "Os nativos estão agora sob seu comando. Novos escravos! Maravilhoso!"
+msgstr "Os nativos estÃ£o agora sob seu comando. Novos escravos! Maravilhoso!"
 
 #. Thieves Den Detour (bonus lv22) Opening objective
 #: guitext:168
 msgctxt "In-game message"
 msgid "A den of thieves. Or at least it used to be. Now it's training grounds for crusaders. FIX IT"
-msgstr "Um covil de ladrões. Ou pelo menos costumava ser. Agora são campos de treinamento para cruzados. CONSERTE ISSO"
+msgstr "Um covil de ladrÃµes. Ou pelo menos costumava ser. Agora sÃ£o campos de treinamento para cruzados. CONSERTE ISSO"
 
 #. Thieves Den Detour (bonus lv22) Opening information
 #: guitext:169
 msgctxt "In-game message"
 msgid "There are no libraries in this land. Acquire spellbooks as you find them. Bridge-building will be possible when you gather some gold."
-msgstr "Não há bibliotecas nesta terra. Adquira livros de feitiços conforme os encontrar. A construção de pontes será possível quando você juntar um pouco de ouro."
+msgstr "NÃ£o hÃ¡ bibliotecas nesta terra. Adquira livros de feitiÃ§os conforme os encontrar. A construÃ§Ã£o de pontes serÃ¡ possÃ­vel quando vocÃª juntar um pouco de ouro."
 
 #. Thieves Den Detour (bonus lv22) Opening information
 #: guitext:170
 msgctxt "In-game message"
 msgid "Be aware Keeper that victory in this realm is not possible if you sell any rooms."
-msgstr "Esteja ciente, Guardião, que a vitória neste reino não é possível se você vender qualquer sala."
+msgstr "Esteja ciente, GuardiÃ£o, que a vitÃ³ria neste reino nÃ£o Ã© possÃ­vel se vocÃª vender qualquer sala."
 
 #. Thieves Den Detour (bonus lv22)
 #: guitext:171
 msgctxt "In-game message"
 msgid "Eliminate the Knight and dungeon heart located southward to win this scenario. But first... reach them..."
-msgstr "Elimine o Cavaleiro e o coração da masmorra localizados ao sul para vencer este cenário. Mas primeiro... alcance-os..."
+msgstr "Elimine o Cavaleiro e o coraÃ§Ã£o da masmorra localizados ao sul para vencer este cenÃ¡rio. Mas primeiro... alcance-os..."
 
 #. Thieves Den Detour (bonus lv22) Victory message
 #: guitext:172
 msgctxt "In-game message"
 msgid "Good job! Use the Transfer Creature special to bring one of your minions to the next realm."
-msgstr "Bom trabalho! Use o especial de Transferir Criatura para levar um de seus lacaios para o próximo reino."
+msgstr "Bom trabalho! Use o especial de Transferir Criatura para levar um de seus lacaios para o prÃ³ximo reino."
 
 #. Thieves Den Detour (bonus lv22) AP1
 #: guitext:173
@@ -1199,20 +1199,20 @@ msgstr "Olhe! Aquela parede pode ser escavada!"
 #: guitext:174
 msgctxt "In-game message"
 msgid "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready to reduces your enemies into ashes!"
-msgstr "Você viu? Sua Cria Demoníaca evoluiu para um poderoso Dragão pronto para reduzir seus inimigos a cinzas!"
+msgstr "VocÃª viu? Sua Cria DemonÃ­aca evoluiu para um poderoso DragÃ£o pronto para reduzir seus inimigos a cinzas!"
 
 #. Level Bonus 6 objective
 #: guitext:175
 msgctxt "In-game message"
 msgid "Well done! Your immense wealth has drew the attention of a Thief. He will serve you well in the next realm!"
-msgstr "Muito bem! Sua imensa riqueza atraiu a atenção de um Ladrão. Ele o servirá bem no próximo reino!"
+msgstr "Muito bem! Sua imensa riqueza atraiu a atenÃ§Ã£o de um LadrÃ£o. Ele o servirÃ¡ bem no prÃ³ximo reino!"
 
 #. Level Flowerhat information
 #: guitext:176
 msgctxt "In-game message"
 msgid ""
 "Your researchers have discovered the Heal Creature spell that allows to replenish the health of your creatures and keep them from dying for a while longer."
-msgstr "Seus pesquisadores descobriram o feitiço Curar Criatura, que permite restaurar a saúde de suas criaturas e evitar que morram por mais um tempo."
+msgstr "Seus pesquisadores descobriram o feitiÃ§o Curar Criatura, que permite restaurar a saÃºde de suas criaturas e evitar que morram por mais um tempo."
 
 #. Level Tulipscent information
 #: guitext:177
@@ -1220,7 +1220,7 @@ msgctxt "In-game message"
 msgid ""
 "Try the Must Obey spell. When activated, it constantly forces your creatures to obey to all your orders, making all of them working faster without the "
 "possibility for them to take a nap. Be sure to have plenty of money so that the spell will stay activated."
-msgstr "Experimente o feitiço Forçar Obediência. Quando ativado, ele força constantemente suas criaturas a obedecerem a todas as suas ordens, fazendo com que todas trabalhem mais rápido, sem a possibilidade de tirar uma soneca. Certifique-se de ter bastante dinheiro para que o feitiço permaneça ativado."
+msgstr "Experimente o feitiÃ§o ForÃ§ar ObediÃªncia. Quando ativado, ele forÃ§a constantemente suas criaturas a obedecerem a todas as suas ordens, fazendo com que todas trabalhem mais rÃ¡pido, sem a possibilidade de tirar uma soneca. Certifique-se de ter bastante dinheiro para que o feitiÃ§o permaneÃ§a ativado."
 
 #. Level Tulipscent information
 #: guitext:178
@@ -1228,7 +1228,7 @@ msgctxt "In-game message"
 msgid ""
 "A Tentacle has joined your dungeon. These rare little creatures enjoy to be in water and their spine can even pierce the most solid armors and paralyze your "
 "enemies! Marvellous!"
-msgstr "Um Tentáculo se juntou à sua masmorra. Estas criaturinhas raras gostam de ficar na água e seus espinhos podem até perfurar as armaduras mais sólidas e paralisar seus inimigos! Maravilhoso!"
+msgstr "Um TentÃ¡culo se juntou Ã  sua masmorra. Estas criaturinhas raras gostam de ficar na Ã¡gua e seus espinhos podem atÃ© perfurar as armaduras mais sÃ³lidas e paralisar seus inimigos! Maravilhoso!"
 
 #. Level Bonus 1 objective
 #: guitext:179
@@ -1236,7 +1236,7 @@ msgctxt "In-game message"
 msgid ""
 "You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to "
 "make this place safe is to kill every hero in the realm."
-msgstr "Você entrou neste reino para obter uma criatura para seus futuros esforços. Você recebeu a criatura desde o início, então deve apenas mantê-la segura. E a única maneira de tornar este lugar seguro é matar todos os heróis do reino."
+msgstr "VocÃª entrou neste reino para obter uma criatura para seus futuros esforÃ§os. VocÃª recebeu a criatura desde o inÃ­cio, entÃ£o deve apenas mantÃª-la segura. E a Ãºnica maneira de tornar este lugar seguro Ã© matar todos os herÃ³is do reino."
 
 #: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191 guitext:192
 #: guitext:193 guitext:194 guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
@@ -1252,17 +1252,17 @@ msgstr "Cripta Deserta"
 #: guitext:203
 msgctxt "Level name"
 msgid "Don't Fear The Reaper"
-msgstr "Não Tema o Ceifador"
+msgstr "NÃ£o Tema o Ceifador"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Lighthouse Underground"
-msgstr "Subterrâneo do Farol"
+msgstr "SubterrÃ¢neo do Farol"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Martyr Halls"
-msgstr "Salões dos Mártires"
+msgstr "SalÃµes dos MÃ¡rtires"
 
 #: guitext:206
 msgctxt "Level name"
@@ -1277,17 +1277,17 @@ msgstr "Massacre Blitz do Zigurate"
 #: guitext:208
 msgctxt "Level name"
 msgid "Relic Tunnels"
-msgstr "Túneis da Relíquia"
+msgstr "TÃºneis da RelÃ­quia"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Spring Execration"
-msgstr "Execração da Primavera"
+msgstr "ExecraÃ§Ã£o da Primavera"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Abandoned Sanctum"
-msgstr "Santuário Abandonado"
+msgstr "SantuÃ¡rio Abandonado"
 
 #: guitext:211
 msgctxt "Level name"
@@ -1297,7 +1297,7 @@ msgstr "Asilo Fervente"
 #: guitext:212
 msgctxt "Level name"
 msgid "The Phoenix Penitentiary"
-msgstr "A Penitenciária Fênix"
+msgstr "A PenitenciÃ¡ria FÃªnix"
 
 #: guitext:213
 msgctxt "Level name"
@@ -1307,7 +1307,7 @@ msgstr "Cofre do Moinho"
 #: guitext:214
 msgctxt "Level name"
 msgid "Reapers' Yard"
-msgstr "Pátio dos Ceifadores"
+msgstr "PÃ¡tio dos Ceifadores"
 
 #: guitext:215
 msgctxt "Level name"
@@ -1317,9 +1317,9 @@ msgstr "Gruta da Aterrissagem do Cometa"
 #: guitext:216
 msgctxt "Level name"
 msgid "Cloud Temple Ruins"
-msgstr "Ruínas do Templo das Nuvens"
+msgstr "RuÃ­nas do Templo das Nuvens"
 
 #: guitext:217
 msgctxt "Level name"
 msgid "Thieves Den Detour"
-msgstr "Desvio do Covil dos Ladrões"
+msgstr "Desvio do Covil dos LadrÃµes"

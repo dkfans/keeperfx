@@ -58,52 +58,52 @@ msgstr "Muu"
 #: guitext:63
 msgctxt "In-game message"
 msgid "Money sits at the root of all Evil, and so it is appropriate that you start your Empire by building a Treasure Room. Select the Treasure Room Icon with the Left Mouse Button (LMB) and build a 3X3 Treasure Room in an empty space in your Dungeon."
-msgstr "O dinheiro está na raiz de todo o Mal, e por isso é apropriado que você comece seu Império construindo uma Sala do Tesouro. Selecione o Ícone da Sala do Tesouro com o Botão Esquerdo do Mouse (BEM) e construa uma Sala do Tesouro 3X3 em um espaço vazio em sua Masmorra."
+msgstr "O dinheiro estÃ¡ na raiz de todo o Mal, e por isso Ã© apropriado que vocÃª comece seu ImpÃ©rio construindo uma Sala do Tesouro. Selecione o Ãcone da Sala do Tesouro com o BotÃ£o Esquerdo do Mouse (BEM) e construa uma Sala do Tesouro 3X3 em um espaÃ§o vazio em sua Masmorra."
 
 #: guitext:64
 msgctxt "In-game message"
 msgid "You may see a map of the entire realm by pressing 'M' or clicking on the scroll at the top-left of your panel."
-msgstr "Você pode ver um mapa de todo o reino pressionando 'M' ou clicando no pergaminho no canto superior esquerdo do seu painel."
+msgstr "VocÃª pode ver um mapa de todo o reino pressionando 'M' ou clicando no pergaminho no canto superior esquerdo do seu painel."
 
 #: guitext:65
 msgctxt "In-game message"
 msgid "A Treasure Room is used to store any gold mined by your imps."
-msgstr "Uma Sala do Tesouro é usada para armazenar todo o ouro minerado por seus diabretes."
+msgstr "Uma Sala do Tesouro Ã© usada para armazenar todo o ouro minerado por seus diabretes."
 
 #: guitext:66
 msgctxt "In-game message"
 msgid "Your gold reserves are running low. Tag the gold seam to the South. Your imps will mine it out and replenish your coffers."
-msgstr "Suas reservas de ouro estão acabando. Marque o filão de ouro ao Sul. Seus diabretes irão minerá-lo e reabastecer seus cofres."
+msgstr "Suas reservas de ouro estÃ£o acabando. Marque o filÃ£o de ouro ao Sul. Seus diabretes irÃ£o minerÃ¡-lo e reabastecer seus cofres."
 
 #: guitext:67
 msgctxt "In-game message"
 msgid "Click with the right mouse button to stop building rooms. Now tunnel to the Portal in the East by tagging the rock with your left mouse button. Your Imps will then claim it for you."
-msgstr "Clique com o botão direito do mouse para parar de construir salas. Agora, cave um túnel até o Portal a Leste marcando a rocha com o botão esquerdo do mouse. Seus Diabretes irão reivindicá-lo para você."
+msgstr "Clique com o botÃ£o direito do mouse para parar de construir salas. Agora, cave um tÃºnel atÃ© o Portal a Leste marcando a rocha com o botÃ£o esquerdo do mouse. Seus Diabretes irÃ£o reivindicÃ¡-lo para vocÃª."
 
 #: guitext:68
 msgctxt "In-game message"
 msgid "Using the right mouse button (RMB), you may slap your creatures, thus making them work more quickly. Be careful not to beat them too frequently! This will make them angry, or at worst you will beat them to death!"
-msgstr "Usando o botão direito do mouse (BDM), você pode dar um tapa em suas criaturas, fazendo-as trabalhar mais rápido. Cuidado para não bater nelas com muita frequência! Isso as deixará irritadas ou, na pior das hipóteses, você as matará de tanto bater!"
+msgstr "Usando o botÃ£o direito do mouse (BDM), vocÃª pode dar um tapa em suas criaturas, fazendo-as trabalhar mais rÃ¡pido. Cuidado para nÃ£o bater nelas com muita frequÃªncia! Isso as deixarÃ¡ irritadas ou, na pior das hipÃ³teses, vocÃª as matarÃ¡ de tanto bater!"
 
 #: guitext:69
 msgctxt "In-game message"
 msgid "Clicking with the LMB whilst over a minion will pick that creature up. Any eight of the creatures you own can be carried in your hand like this. Use this method to place Imps next to the tasks that you wish them to carry out. Drop them on your own, or Neutral territory with the RMB."
-msgstr "Clicar com o BEM sobre um lacaio irá pegar essa criatura. Quaisquer oito das criaturas que você possui podem ser carregadas em sua mão desta forma. Use este método para colocar Diabretes perto das tarefas que você deseja que eles realizem. Solte-os em seu próprio território ou em território Neutro com o BDM."
+msgstr "Clicar com o BEM sobre um lacaio irÃ¡ pegar essa criatura. Quaisquer oito das criaturas que vocÃª possui podem ser carregadas em sua mÃ£o desta forma. Use este mÃ©todo para colocar Diabretes perto das tarefas que vocÃª deseja que eles realizem. Solte-os em seu prÃ³prio territÃ³rio ou em territÃ³rio Neutro com o BDM."
 
 #: guitext:70
 msgctxt "In-game message"
 msgid "Now you have claimed a portal creatures will enter your dungeon seeking employment. You must build a 3X3 Lair to house your creatures. Larger Lairs hold more creatures."
-msgstr "Agora que você reivindicou um portal, criaturas entrarão em sua masmorra em busca de emprego. Você deve construir um Covil 3X3 para abrigar suas criaturas. Covis maiores abrigam mais criaturas."
+msgstr "Agora que vocÃª reivindicou um portal, criaturas entrarÃ£o em sua masmorra em busca de emprego. VocÃª deve construir um Covil 3X3 para abrigar suas criaturas. Covis maiores abrigam mais criaturas."
 
 #: guitext:71
 msgctxt "In-game message"
 msgid "Now you have built a small lair, await the arrival of your first minion."
-msgstr "Agora que você construiu um pequeno covil, aguarde a chegada do seu primeiro lacaio."
+msgstr "Agora que vocÃª construiu um pequeno covil, aguarde a chegada do seu primeiro lacaio."
 
 #: guitext:72
 msgctxt "In-game message"
 msgid "Rooms become more efficient as they increase in size. Build neat, rectangular rooms to ensure maximum efficiency."
-msgstr "As salas se tornam mais eficientes à medida que aumentam de tamanho. Construa salas retangulares e organizadas para garantir a máxima eficiência."
+msgstr "As salas se tornam mais eficientes Ã  medida que aumentam de tamanho. Construa salas retangulares e organizadas para garantir a mÃ¡xima eficiÃªncia."
 
 #: guitext:73
 msgctxt "In-game message"
@@ -113,117 +113,117 @@ msgstr "Uma humilde Mosca se tornou a primeira de suas tropas. Criaturas mais po
 #: guitext:74
 msgctxt "In-game message"
 msgid "A Beetle has settled in your Lair. To make your dungeon more appealing to the creatures of this world you can build bigger rooms."
-msgstr "Um Besouro se instalou em seu Covil. Para tornar sua masmorra mais atraente para as criaturas deste mundo, você pode construir salas maiores."
+msgstr "Um Besouro se instalou em seu Covil. Para tornar sua masmorra mais atraente para as criaturas deste mundo, vocÃª pode construir salas maiores."
 
 #: guitext:75
 msgctxt "In-game message"
 msgid "While you are waiting for your ranks to grow, try possessing a creature. Select the icon from the spell menu and choose your creature, right clicking to release it from its bond."
-msgstr "Enquanto você espera suas fileiras crescerem, tente possuir uma criatura. Selecione o ícone no menu de feitiços e escolha sua criatura, clicando com o botão direito para liberá-la de seu vínculo."
+msgstr "Enquanto vocÃª espera suas fileiras crescerem, tente possuir uma criatura. Selecione o Ã­cone no menu de feitiÃ§os e escolha sua criatura, clicando com o botÃ£o direito para liberÃ¡-la de seu vÃ­nculo."
 
 #: guitext:76
 msgctxt "In-game message"
 msgid "Left Click on a creature in the creature panel to place it in your Hand of Evil. Clicking on the creature icon itself will select the most experienced specimen of the breed."
-msgstr "Clique com o botão esquerdo em uma criatura no painel de criaturas para colocá-la em sua Mão do Mal. Clicar no próprio ícone da criatura selecionará o espécime mais experiente da raça."
+msgstr "Clique com o botÃ£o esquerdo em uma criatura no painel de criaturas para colocÃ¡-la em sua MÃ£o do Mal. Clicar no prÃ³prio Ã­cone da criatura selecionarÃ¡ o espÃ©cime mais experiente da raÃ§a."
 
 #: guitext:77
 msgctxt "In-game message"
 msgid "Now dig out a 3X3 area and, once your imps have claimed the floor, build a Training Room in the space you have excavated."
-msgstr "Agora cave uma área de 3X3 e, assim que seus diabretes reivindicarem o chão, construa uma Sala de Treino no espaço que você escavou."
+msgstr "Agora cave uma Ã¡rea de 3X3 e, assim que seus diabretes reivindicarem o chÃ£o, construa uma Sala de Treino no espaÃ§o que vocÃª escavou."
 
 #: guitext:78
 msgctxt "In-game message"
 msgid "Creatures in the training room will improve their fighting prowess."
-msgstr "Criaturas na sala de treino melhorarão suas habilidades de luta."
+msgstr "Criaturas na sala de treino melhorarÃ£o suas habilidades de luta."
 
 #: guitext:79
 msgctxt "In-game message"
 msgid "Now that you have built the training room, you can tell your creatures to train by picking them up with the LMB and dropping them in it."
-msgstr "Agora que você construiu a sala de treino, pode mandar suas criaturas treinarem pegando-as com o BEM e soltando-as nela."
+msgstr "Agora que vocÃª construiu a sala de treino, pode mandar suas criaturas treinarem pegando-as com o BEM e soltando-as nela."
 
 #: guitext:80 guitext:91
 msgctxt "In-game message"
 msgid "You may create more imps by choosing the Create Imp spell in the spell panel and then clicking with the left mouse button on a section of your dungeon floor."
-msgstr "Você pode criar mais diabretes escolhendo o feitiço Criar Diabrete no painel de feitiços e clicando com o botão esquerdo do mouse em uma seção do chão da sua masmorra."
+msgstr "VocÃª pode criar mais diabretes escolhendo o feitiÃ§o Criar Diabrete no painel de feitiÃ§os e clicando com o botÃ£o esquerdo do mouse em uma seÃ§Ã£o do chÃ£o da sua masmorra."
 
 #: guitext:81
 msgctxt "In-game message"
 msgid "Your mission here is to use your power to rid this land of all good. Forge a path North!"
-msgstr "Sua missão aqui é usar seu poder para livrar esta terra de todo o bem. Abra um caminho para o Norte!"
+msgstr "Sua missÃ£o aqui Ã© usar seu poder para livrar esta terra de todo o bem. Abra um caminho para o Norte!"
 
 #: guitext:82
 msgctxt "In-game message"
 msgid "You have found a spell of acceleration. When cast on your creatures this will allow them to move at a greatly increased rate for a time. Holding down the LMB will increase the power and cost of the spell."
-msgstr "Você encontrou um feitiço de aceleração. Quando lançado em suas criaturas, isso permitirá que elas se movam a uma velocidade muito maior por um tempo. Manter o BEM pressionado aumentará o poder e o custo do feitiço."
+msgstr "VocÃª encontrou um feitiÃ§o de aceleraÃ§Ã£o. Quando lanÃ§ado em suas criaturas, isso permitirÃ¡ que elas se movam a uma velocidade muito maior por um tempo. Manter o BEM pressionado aumentarÃ¡ o poder e o custo do feitiÃ§o."
 
 #: guitext:83
 msgctxt "In-game message"
 msgid "The Heroes' castle lies out of reach on the far bank of the lava flow. Use bridges to connect your land to the north bank and seek out this nest of virtue."
-msgstr "O castelo dos Heróis está fora de alcance, na margem distante do fluxo de lava. Use pontes para conectar sua terra à margem norte e procure por este ninho de virtude."
+msgstr "O castelo dos HerÃ³is estÃ¡ fora de alcance, na margem distante do fluxo de lava. Use pontes para conectar sua terra Ã  margem norte e procure por este ninho de virtude."
 
 #: guitext:84
 msgctxt "In-game message"
 msgid "You now have the ability to cast Heal on your creatures. Hold down the LMB for more power. The hero forces are sure to retaliate."
-msgstr "Agora você tem a habilidade de lançar Curar em suas criaturas. Mantenha o BEM pressionado para mais poder. As forças dos heróis certamente retaliarão."
+msgstr "Agora vocÃª tem a habilidade de lanÃ§ar Curar em suas criaturas. Mantenha o BEM pressionado para mais poder. As forÃ§as dos herÃ³is certamente retaliarÃ£o."
 
 #: guitext:85
 msgctxt "In-game message"
 msgid "A goblin has entered your dungeon. While not as intelligent as the average human, goblins make excellent soldiers."
-msgstr "Um goblin entrou em sua masmorra. Embora não seja tão inteligente quanto um humano comum, goblins são excelentes soldados."
+msgstr "Um goblin entrou em sua masmorra. Embora nÃ£o seja tÃ£o inteligente quanto um humano comum, goblins sÃ£o excelentes soldados."
 
 #: guitext:86
 msgctxt "In-game message"
 msgid "You have found a new Bile Demon ally. The aggression and tenacity of these beasts is matched only by their appetites."
-msgstr "Você encontrou um novo aliado Demônio de Fel. A agressão e a tenacidade dessas feras só são igualadas por seus apetites."
+msgstr "VocÃª encontrou um novo aliado DemÃ´nio de Fel. A agressÃ£o e a tenacidade dessas feras sÃ³ sÃ£o igualadas por seus apetites."
 
 #: guitext:87
 msgctxt "In-game message"
 msgid "From the markings, you have broken into an old dungeon. Claim any assets remaining, but be on your guard!"
-msgstr "Pelas marcações, você invadiu uma antiga masmorra. Reivindique quaisquer bens restantes, mas fique de guarda!"
+msgstr "Pelas marcaÃ§Ãµes, vocÃª invadiu uma antiga masmorra. Reivindique quaisquer bens restantes, mas fique de guarda!"
 
 #: guitext:88
 msgctxt "In-game message"
 msgid "Danger! Your untidy exploration of this realm has left you exposed to the Lord's troops."
-msgstr "Perigo! Sua exploração desordenada deste reino o deixou exposto às tropas do Senhor."
+msgstr "Perigo! Sua exploraÃ§Ã£o desordenada deste reino o deixou exposto Ã s tropas do Senhor."
 
 #: guitext:89
 msgctxt "In-game message"
 msgid "You've discovered the Heroes' castle. Break down the doors and wreak havoc upon the enemy!"
-msgstr "Você descobriu o castelo dos Heróis. Arrombe as portas e cause estragos no inimigo!"
+msgstr "VocÃª descobriu o castelo dos HerÃ³is. Arrombe as portas e cause estragos no inimigo!"
 
 #: guitext:90
 msgctxt "In-game message"
 msgid "Congratulations. You have defeated the Lord of the Land and completed the Dungeon Keeper demo."
-msgstr "Parabéns. Você derrotou o Senhor da Terra e completou a demo de Dungeon Keeper."
+msgstr "ParabÃ©ns. VocÃª derrotou o Senhor da Terra e completou a demo de Dungeon Keeper."
 
 #: guitext:92
 msgctxt "In-game message"
 msgid "This will be your most difficult battle to date; you must use all of your skills to defeat your distant enemy."
-msgstr "Esta será sua batalha mais difícil até hoje; você deve usar todas as suas habilidades para derrotar seu inimigo distante."
+msgstr "Esta serÃ¡ sua batalha mais difÃ­cil atÃ© hoje; vocÃª deve usar todas as suas habilidades para derrotar seu inimigo distante."
 
 #: guitext:93
 msgctxt "In-game message"
 msgid "You are but one of four Dungeon Keepers in the land and all are as evil as yourself. Can you defeat them all?"
-msgstr "Você é apenas um dos quatro Guardiões da Masmorra na terra e todos são tão maus quanto você. Você consegue derrotá-los todos?"
+msgstr "VocÃª Ã© apenas um dos quatro GuardiÃµes da Masmorra na terra e todos sÃ£o tÃ£o maus quanto vocÃª. VocÃª consegue derrotÃ¡-los todos?"
 
 #: guitext:94
 msgctxt "In-game message"
 msgid "This realm is ruled by a noble Knight, whom another Keeper also seeks to destroy. His land has already been besieged, so make haste."
-msgstr "Este reino é governado por um nobre Cavaleiro, a quem outro Guardião também busca destruir. Suas terras já foram sitiadas, então apresse-se."
+msgstr "Este reino Ã© governado por um nobre Cavaleiro, a quem outro GuardiÃ£o tambÃ©m busca destruir. Suas terras jÃ¡ foram sitiadas, entÃ£o apresse-se."
 
 #: guitext:95
 msgctxt "In-game message"
 msgid "Your rival has already prevailed over the heroes of this realm. There is room for only one ultimate evil here though, so find out which one of you is worthy."
-msgstr "Seu rival já prevaleceu sobre os heróis deste reino. No entanto, só há espaço para um mal supremo aqui, então descubra qual de vocês é digno."
+msgstr "Seu rival jÃ¡ prevaleceu sobre os herÃ³is deste reino. No entanto, sÃ³ hÃ¡ espaÃ§o para um mal supremo aqui, entÃ£o descubra qual de vocÃªs Ã© digno."
 
 #: guitext:96
 msgctxt "In-game message"
 msgid "This level will test your ability to travel through these underground caverns at great speed. Indeed, speed is your only ally here. Make it to the end of the course in the time allowed to win."
-msgstr "Este nível testará sua habilidade de viajar por estas cavernas subterrâneas em alta velocidade. De fato, a velocidade é sua única aliada aqui. Chegue ao final do percurso no tempo permitido para vencer."
+msgstr "Este nÃ­vel testarÃ¡ sua habilidade de viajar por estas cavernas subterrÃ¢neas em alta velocidade. De fato, a velocidade Ã© sua Ãºnica aliada aqui. Chegue ao final do percurso no tempo permitido para vencer."
 
 #: guitext:97
 msgctxt "In-game message"
 msgid "Make haste to subjugate your adversaries here, the Dungeon Keeper cake-boys."
-msgstr "Apresse-se para subjugar seus adversários aqui, os Guardiões da Masmorra frangotes."
+msgstr "Apresse-se para subjugar seus adversÃ¡rios aqui, os GuardiÃµes da Masmorra frangotes."
 
 #: guitext:98
 msgctxt "In-game message"
@@ -238,42 +238,42 @@ msgstr "Muito bem. Agora construa um Covil e um Criadouro e atraia cinco criatur
 #: guitext:100
 msgctxt "In-game message"
 msgid "Excellent. Now continue to mine the area for gold, but beware, your success will have attracted the unwanted attentions of local heroes. Defend your dungeon from these do-gooders."
-msgstr "Excelente. Agora continue a minerar a área em busca de ouro, mas cuidado, seu sucesso terá atraído a atenção indesejada dos heróis locais. Defenda sua masmorra desses benfeitores."
+msgstr "Excelente. Agora continue a minerar a Ã¡rea em busca de ouro, mas cuidado, seu sucesso terÃ¡ atraÃ­do a atenÃ§Ã£o indesejada dos herÃ³is locais. Defenda sua masmorra desses benfeitores."
 
 #: guitext:101
 msgctxt "In-game message"
 msgid "Your continued success has attracted the attentions of the local lord. He must be defeated so you can claim this realm as your own."
-msgstr "Seu sucesso contínuo atraiu a atenção do senhor local. Ele deve ser derrotado para que você possa reivindicar este reino como seu."
+msgstr "Seu sucesso contÃ­nuo atraiu a atenÃ§Ã£o do senhor local. Ele deve ser derrotado para que vocÃª possa reivindicar este reino como seu."
 
 #: guitext:102
 msgctxt "In-game message"
 msgid "Great work. By defeating the lord, you have claimed this realm as your own."
-msgstr "Ótimo trabalho. Ao derrotar o senhor, você reivindicou este reino como seu."
+msgstr "Ã“timo trabalho. Ao derrotar o senhor, vocÃª reivindicou este reino como seu."
 
 #: guitext:103
 msgctxt "In-game message"
 msgid "You have been defeated. Better luck next time."
-msgstr "Você foi derrotado. Mais sorte da próxima vez."
+msgstr "VocÃª foi derrotado. Mais sorte da prÃ³xima vez."
 
 #: guitext:104
 msgctxt "In-game message"
 msgid "This is a holy place, and the most powerful magic will become available to you here from research. Subordinate your competition and then raise the electric church to reveal its powers."
-msgstr "Este é um lugar sagrado, e a magia mais poderosa estará disponível para você aqui através da pesquisa. Subjugue sua competição e então erga a igreja elétrica para revelar seus poderes."
+msgstr "Este Ã© um lugar sagrado, e a magia mais poderosa estarÃ¡ disponÃ­vel para vocÃª aqui atravÃ©s da pesquisa. Subjugue sua competiÃ§Ã£o e entÃ£o erga a igreja elÃ©trica para revelar seus poderes."
 
 #: guitext:105
 msgctxt "In-game message"
 msgid "You have researched the evil audience; if you are powerful enough, victory is now yours for the taking."
-msgstr "Você pesquisou a audiência maligna; se for poderoso o suficiente, a vitória agora é sua para tomar."
+msgstr "VocÃª pesquisou a audiÃªncia maligna; se for poderoso o suficiente, a vitÃ³ria agora Ã© sua para tomar."
 
 #: guitext:106
 msgctxt "In-game message"
 msgid "You have discovered an evil Temple, a source of great power, the uses of which will only be revealed to you in the worlds to come."
-msgstr "Você descobriu um Templo maligno, uma fonte de grande poder, cujos usos só serão revelados a você nos mundos vindouros."
+msgstr "VocÃª descobriu um Templo maligno, uma fonte de grande poder, cujos usos sÃ³ serÃ£o revelados a vocÃª nos mundos vindouros."
 
 #: guitext:107
 msgctxt "In-game message"
 msgid "Your competition has been put in its rightful place; take what is now yours. You will find the electric church to the south. You will require the ultimate weapon."
-msgstr "Sua competição foi colocada em seu devido lugar; pegue o que agora é seu. Você encontrará a igreja elétrica ao sul. Você precisará da arma suprema."
+msgstr "Sua competiÃ§Ã£o foi colocada em seu devido lugar; pegue o que agora Ã© seu. VocÃª encontrarÃ¡ a igreja elÃ©trica ao sul. VocÃª precisarÃ¡ da arma suprema."
 
 #: guitext:108
 msgctxt "In-game message"
@@ -283,32 +283,32 @@ msgstr "Construa sua masmorra, construa uma sala de pesquisa e veja o que ela te
 #: guitext:109
 msgctxt "In-game message"
 msgid "You have discovered a lost cave, home of the Tentacles. Take them into your dungeon; others are sure to follow them to you."
-msgstr "Você descobriu uma caverna perdida, lar dos Tentáculos. Leve-os para sua masmorra; outros certamente os seguirão."
+msgstr "VocÃª descobriu uma caverna perdida, lar dos TentÃ¡culos. Leve-os para sua masmorra; outros certamente os seguirÃ£o."
 
 #: guitext:110
 msgctxt "In-game message"
 msgid "You have researched a Workshop; with it, doors and traps will become available to you."
-msgstr "Você pesquisou uma Oficina; com ela, portas e armadilhas estarão disponíveis para você."
+msgstr "VocÃª pesquisou uma Oficina; com ela, portas e armadilhas estarÃ£o disponÃ­veis para vocÃª."
 
 #: guitext:111
 msgctxt "In-game message"
 msgid "Dispense with the particularly obnoxious Dwarves which wander this region while you build a well defended Dungeon."
-msgstr "Livre-se dos Anões particularmente desagradáveis que vagueiam por esta região enquanto você constrói uma Masmorra bem defendida."
+msgstr "Livre-se dos AnÃµes particularmente desagradÃ¡veis que vagueiam por esta regiÃ£o enquanto vocÃª constrÃ³i uma Masmorra bem defendida."
 
 #: guitext:112
 msgctxt "In-game message"
 msgid "The final battle is at hand. Find and destroy the heroic stronghold."
-msgstr "A batalha final está próxima. Encontre e destrua a fortaleza heróica."
+msgstr "A batalha final estÃ¡ prÃ³xima. Encontre e destrua a fortaleza herÃ³ica."
 
 #: guitext:113
 msgctxt "In-game message"
 msgid "In the caves of Savactor, a rival Keeper battles with the tireless forces of good. Vanquish the pathetic heroes and them proceed to conquer the rival Keeper to gain dominance over this land."
-msgstr "Nas cavernas de Savactor, um Guardião rival luta contra as incansáveis forças do bem. Derrote os heróis patéticos e prossiga para conquistar o Guardião rival para obter domínio sobre esta terra."
+msgstr "Nas cavernas de Savactor, um GuardiÃ£o rival luta contra as incansÃ¡veis forÃ§as do bem. Derrote os herÃ³is patÃ©ticos e prossiga para conquistar o GuardiÃ£o rival para obter domÃ­nio sobre esta terra."
 
 #: guitext:114
 msgctxt "In-game message"
 msgid "The corpses of the good lie strewn around you. Now go, and conquer your rival on this land. Dominion awaits ..."
-msgstr "Os cadáveres dos bons jazem espalhados ao seu redor. Agora vá e conquiste seu rival nesta terra. O domínio o aguarda..."
+msgstr "Os cadÃ¡veres dos bons jazem espalhados ao seu redor. Agora vÃ¡ e conquiste seu rival nesta terra. O domÃ­nio o aguarda..."
 
 #: guitext:122 guitext:123 guitext:124 guitext:149 guitext:150 guitext:151 guitext:152 guitext:170
 msgctxt "In-game message"
@@ -336,12 +336,12 @@ msgstr "Demo de Dungeon Keeper"
 #: guitext:203
 msgctxt "Level name"
 msgid "Skybird Trill 30"
-msgstr "Canto do Pássaro-do-céu 30"
+msgstr "Canto do PÃ¡ssaro-do-cÃ©u 30"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Skybird Trill 32"
-msgstr "Canto do Pássaro-do-céu 32"
+msgstr "Canto do PÃ¡ssaro-do-cÃ©u 32"
 
 #: guitext:205
 msgctxt "Level name"
@@ -351,17 +351,17 @@ msgstr "Gotejo do Riacho"
 #: guitext:206
 msgctxt "Level name"
 msgid "Bonus Level - Crush the Imp"
-msgstr "Nível Bônus - Esmague o Diabrete"
+msgstr "NÃ­vel BÃ´nus - Esmague o Diabrete"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Bonus Level - Time flies"
-msgstr "Nível Bônus - O tempo voa"
+msgstr "NÃ­vel BÃ´nus - O tempo voa"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Bonus Level - Cake Boy"
-msgstr "Nível Bônus - Frangote"
+msgstr "NÃ­vel BÃ´nus - Frangote"
 
 #: guitext:209
 msgctxt "Level name"
@@ -376,7 +376,7 @@ msgstr "Krowalocar"
 #: guitext:211
 msgctxt "Level name"
 msgid "Electric Church"
-msgstr "Igreja Elétrica"
+msgstr "Igreja ElÃ©trica"
 
 #: guitext:212
 msgctxt "Level name"
@@ -386,12 +386,12 @@ msgstr "Ponto de Encontro"
 #: guitext:213
 msgctxt "Level name"
 msgid "Quick Death in Chaos"
-msgstr "Morte Rápida no Caos"
+msgstr "Morte RÃ¡pida no Caos"
 
 #: guitext:214
 msgctxt "Level name"
 msgid "Single Example"
-msgstr "Exemplo Único"
+msgstr "Exemplo Ãšnico"
 
 #: guitext:215
 msgctxt "Level name"

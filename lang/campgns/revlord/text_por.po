@@ -44,7 +44,7 @@ msgid ""
 "delegated command over  lowly creatures like spiders, hell hounds and "
 "skeletons to his lieutenants - Dark Mistresses, Warlocks and  Vampires. Kill "
 "all of the enemy leadership, then find the keeper's heart and destroy it."
-msgstr "Um guardi„o maligno sitiou Dwarfton. PreguiÁoso e autoconfiante, ele delegou o comando sobre criaturas inferiores como aranhas, C„es Infernais e esqueletos a seus tenentes - Damas das Trevas, Bruxos e Vampiros. Mate toda a lideranÁa inimiga, depois encontre o coraÁ„o do guardi„o e destrua-o."
+msgstr "Um guardi√£o maligno sitiou Dwarfton. Pregui√ßoso e autoconfiante, ele delegou o comando sobre criaturas inferiores como aranhas, C√£es Infernais e esqueletos a seus tenentes - Damas das Trevas, Bruxos e Vampiros. Mate toda a lideran√ßa inimiga, depois encontre o cora√ß√£o do guardi√£o e destrua-o."
 
 #. Dwarfton (lv1)
 #: guitext:2
@@ -52,7 +52,7 @@ msgctxt "In-game message"
 msgid ""
 "You have received an ambassador from fairies of Sparkleforest. They are "
 "interested in studying malicious Warlocks to further their knowledge of evil."
-msgstr "VocÍ recebeu um embaixador das fadas da Floresta Cintilante. Elas est„o interessadas em estudar os Bruxos maliciosos para aprofundar seu conhecimento sobre o mal."
+msgstr "Voc√™ recebeu um embaixador das fadas da Floresta Cintilante. Elas est√£o interessadas em estudar os Bruxos maliciosos para aprofundar seu conhecimento sobre o mal."
 
 #. Dwarfton (lv1)
 #: guitext:3
@@ -60,7 +60,7 @@ msgctxt "In-game message"
 msgid ""
 "The Dark Mistresses are all killed; their subservient spiders are dispersed "
 "and will not bother you any longer."
-msgstr "As Damas das Trevas foram todas mortas; suas aranhas subservientes est„o dispersas e n„o o incomodar„o mais."
+msgstr "As Damas das Trevas foram todas mortas; suas aranhas subservientes est√£o dispersas e n√£o o incomodar√£o mais."
 
 #. Dwarfton (lv1)
 #: guitext:4
@@ -68,7 +68,7 @@ msgctxt "In-game message"
 msgid ""
 "The Vampires and their undead minions are all annihilated; they will no "
 "longer threaten the Dwarfton."
-msgstr "Os Vampiros e seus lacaios mortos-vivos foram todos aniquilados; eles n„o ameaÁar„o mais Dwarfton."
+msgstr "Os Vampiros e seus lacaios mortos-vivos foram todos aniquilados; eles n√£o amea√ßar√£o mais Dwarfton."
 
 #. Dwarfton (lv1)
 #: guitext:5
@@ -76,7 +76,7 @@ msgctxt "In-game message"
 msgid ""
 "The evil Warlocks are executed! Their infernal portal is thwarted and their "
 "Hell Hounds will attack no more."
-msgstr "Os Bruxos malignos foram executados! Seu portal infernal foi frustrado e seus C„es Infernais n„o atacar„o mais."
+msgstr "Os Bruxos malignos foram executados! Seu portal infernal foi frustrado e seus C√£es Infernais n√£o atacar√£o mais."
 
 #. Dwarfton (lv1)
 #: guitext:6
@@ -85,13 +85,13 @@ msgid ""
 "My Liege, one of the fleeing monks from besieged Abbeystone has joined your "
 "cause. He seeks to restore the toppled temples of Dwarfton, a noble goal the "
 "success of which will surely attract more of his surviving brothers."
-msgstr "Meu Senhor, um dos monges em fuga da sitiada Abbeystone juntou-se ‡ sua causa. Ele busca restaurar os templos derrubados de Dwarfton, um objetivo nobre cujo sucesso certamente atrair· mais de seus irm„os sobreviventes."
+msgstr "Meu Senhor, um dos monges em fuga da sitiada Abbeystone juntou-se √† sua causa. Ele busca restaurar os templos derrubados de Dwarfton, um objetivo nobre cujo sucesso certamente atrair√° mais de seus irm√£os sobreviventes."
 
 #. Dwarfton (lv1)
 #: guitext:7
 msgctxt "In-game message"
 msgid "My Liege, you shouldn't have heard that!"
-msgstr "Meu Senhor, vocÍ n„o deveria ter ouvido isso!"
+msgstr "Meu Senhor, voc√™ n√£o deveria ter ouvido isso!"
 
 #. Dwarfton (lv1)
 #: guitext:8
@@ -99,7 +99,7 @@ msgctxt "In-game message"
 msgid ""
 "The besieging forces of an evil keeper are broken, and only his personal "
 "Orcish guards remain. It's time to finish this coward - strike its heart! "
-msgstr "As forÁas sitiantes de um guardi„o maligno foram derrotadas, e apenas seus guardas Orcs pessoais permanecem. … hora de acabar com este covarde - ataque seu coraÁ„o!"
+msgstr "As for√ßas sitiantes de um guardi√£o maligno foram derrotadas, e apenas seus guardas Orcs pessoais permanecem. √â hora de acabar com este covarde - ataque seu cora√ß√£o!"
 
 #. Dwarfton (lv1)
 #: guitext:9
@@ -107,7 +107,7 @@ msgctxt "In-game message"
 msgid ""
 "The Second Lieutenant of the evil keeper is dead. Keep up with good work, my "
 "Liege! "
-msgstr "O Segundo Tenente do guardi„o maligno est· morto. Continue com o bom trabalho, meu Senhor!"
+msgstr "O Segundo Tenente do guardi√£o maligno est√° morto. Continue com o bom trabalho, meu Senhor!"
 
 #. Dwarfton (lv1)
 #: guitext:10
@@ -115,7 +115,7 @@ msgctxt "In-game message"
 msgid ""
 "My Liege, there is mad cackling heard in the distance! Something terrible is "
 "about to happen. "
-msgstr "Meu Senhor, ouvem-se gargalhadas loucas ‡ dist‚ncia! Algo terrÌvel est· prestes a acontecer."
+msgstr "Meu Senhor, ouvem-se gargalhadas loucas √† dist√¢ncia! Algo terr√≠vel est√° prestes a acontecer."
 
 #. Dwarfton (lv1)
 #: guitext:11
@@ -123,7 +123,7 @@ msgctxt "In-game message"
 msgid ""
 "You have an old version of KeeperFX. You need to update to play this "
 "campaign correctly with all available features.  Go to www.keeperklan.com"
-msgstr "VocÍ tem uma vers„o antiga do KeeperFX. VocÍ precisa atualizar para jogar esta campanha corretamente com todos os recursos disponÌveis. V· para www.keeperklan.com"
+msgstr "Voc√™ tem uma vers√£o antiga do KeeperFX. Voc√™ precisa atualizar para jogar esta campanha corretamente com todos os recursos dispon√≠veis. V√° para www.keeperklan.com"
 
 #. Dwarfton (lv1)
 #: guitext:12
@@ -131,7 +131,7 @@ msgctxt "In-game message"
 msgid ""
 "The First Lieutenant of the evil keeper is dead. This has surely enraged the "
 "survivors! "
-msgstr "O Primeiro Tenente do guardi„o maligno est· morto. Isso certamente enfureceu os sobreviventes!"
+msgstr "O Primeiro Tenente do guardi√£o maligno est√° morto. Isso certamente enfureceu os sobreviventes!"
 
 #. Dwarfton (lv1)
 #: guitext:13
@@ -140,7 +140,7 @@ msgid ""
 "My Liege, bands of orcs and trolls from Widerwilds have arrived to these "
 "lands, lured by promises of great wealth! Their vanguard is already here, "
 "tunnelling towards our fortress."
-msgstr "Meu Senhor, bandos de orcs e trolls das Selvas Remotas chegaram a estas terras, atraÌdos por promessas de grande riqueza! Sua vanguarda j· est· aqui, cavando t˙neis em direÁ„o ‡ nossa fortaleza."
+msgstr "Meu Senhor, bandos de orcs e trolls das Selvas Remotas chegaram a estas terras, atra√≠dos por promessas de grande riqueza! Sua vanguarda j√° est√° aqui, cavando t√∫neis em dire√ß√£o √† nossa fortaleza."
 
 #. Dwarfton (lv1)
 #: guitext:14
@@ -149,7 +149,7 @@ msgid ""
 "Once again the orcs and trolls from Widerwilds are attacking our fortress. "
 "They follow the well-trodden roads, surely a mistake which will see them "
 "crushed?"
-msgstr "Mais uma vez, os orcs e trolls das Selvas Remotas est„o atacando nossa fortaleza. Eles seguem as estradas bem conhecidas, certamente um erro que os levar· ‡ derrota?"
+msgstr "Mais uma vez, os orcs e trolls das Selvas Remotas est√£o atacando nossa fortaleza. Eles seguem as estradas bem conhecidas, certamente um erro que os levar√° √† derrota?"
 
 #. Dwarfton (lv1)
 #: guitext:15
@@ -157,7 +157,7 @@ msgctxt "In-game message"
 msgid ""
 "Another band of Orcs from Widerwilds have arrived at our fortress. It's "
 "hopefully the last we've seen of them, for now."
-msgstr "Outro bando de Orcs das Selvas Remotas chegou ‡ nossa fortaleza. Esperamos que seja o ˙ltimo que vemos deles, por enquanto."
+msgstr "Outro bando de Orcs das Selvas Remotas chegou √† nossa fortaleza. Esperamos que seja o √∫ltimo que vemos deles, por enquanto."
 
 #. Dwarfton (lv1)
 #: guitext:16
@@ -166,7 +166,7 @@ msgid ""
 "Here it is, the Heart of the evil Keeper who laid siege to Dwarfton, bared "
 "to your eyes. In an effort to stop you, he will surely summon all his "
 "surviving minions!"
-msgstr "Aqui est·, o CoraÁ„o do Guardi„o maligno que sitiou Dwarfton, exposto aos seus olhos. Em um esforÁo para detÍ-lo, ele certamente convocar· todos os seus lacaios sobreviventes!"
+msgstr "Aqui est√°, o Cora√ß√£o do Guardi√£o maligno que sitiou Dwarfton, exposto aos seus olhos. Em um esfor√ßo para det√™-lo, ele certamente convocar√° todos os seus lacaios sobreviventes!"
 
 #. Dwarfton (lv1)
 #: guitext:17
@@ -174,7 +174,7 @@ msgctxt "In-game message"
 msgid ""
 "Your discovery of this arcane library will attract more of the Fairies from "
 "Sparkleforest. Just ensure nothing chews on the tomes?"
-msgstr "Sua descoberta desta biblioteca arcana atrair· mais Fadas da Floresta Cintilante. Apenas certifique-se de que nada mastigue os tomos?"
+msgstr "Sua descoberta desta biblioteca arcana atrair√° mais Fadas da Floresta Cintilante. Apenas certifique-se de que nada mastigue os tomos?"
 
 #. Dwarfton (lv1)
 #: guitext:18
@@ -182,7 +182,7 @@ msgctxt "In-game message"
 msgid ""
 "Those temples took quite a lot of refurbishing, but the Abbeystone Monks "
 "managed the task with the aid of your dwarves."
-msgstr "Aqueles templos exigiram bastante reforma, mas os Monges de Abbeystone deram conta da tarefa com a ajuda de seus anıes."
+msgstr "Aqueles templos exigiram bastante reforma, mas os Monges de Abbeystone deram conta da tarefa com a ajuda de seus an√µes."
 
 #. Dwarfton (lv1)
 #: guitext:19
@@ -191,7 +191,7 @@ msgid ""
 "The evil keeper is no more and the inhabitants of Dwarfton are now safe, my "
 "Liege. But your revenge upon this evil has only just started - the long road "
 "to Wickedridge lies ahead."
-msgstr "O guardi„o maligno n„o existe mais e os habitantes de Dwarfton est„o agora seguros, meu Senhor. Mas sua vinganÁa contra este mal apenas comeÁou - a longa estrada para a Cordilheira Perversa est· ‡ frente."
+msgstr "O guardi√£o maligno n√£o existe mais e os habitantes de Dwarfton est√£o agora seguros, meu Senhor. Mas sua vingan√ßa contra este mal apenas come√ßou - a longa estrada para a Cordilheira Perversa est√° √† frente."
 
 #. Dwarfton (lv1)
 #: guitext:20
@@ -199,7 +199,7 @@ msgctxt "In-game message"
 msgid ""
 "The inhabitants of Dominus do not approve of building too many bridges. Make "
 "do with shorter ones!"
-msgstr "Os habitantes de Dominus n„o aprovam a construÁ„o de muitas pontes. Contente-se com pontes mais curtas!"
+msgstr "Os habitantes de Dominus n√£o aprovam a constru√ß√£o de muitas pontes. Contente-se com pontes mais curtas!"
 
 #. Sparkleforest (lv2)
 #: guitext:21
@@ -210,7 +210,7 @@ msgid ""
 "from the dark river below. With the aid of your subjects from Dwarfton, you "
 "are to drive these evil creatures from their dungeons. Seek their four main "
 "barracks, but be aware that all their rooms are home to monsters!"
-msgstr "Este reino est· localizado sob uma bela floresta. Os habitantes s„o Fadas e Elfos, que vivem em constante medo de Orcs e Trolls saqueadores do rio escuro abaixo. Com a ajuda de seus s˙ditos de Dwarfton, vocÍ deve expulsar estas criaturas malignas de suas masmorras. Procure seus quatro quartÈis principais, mas esteja ciente de que todas as suas salas abrigam monstros!"
+msgstr "Este reino est√° localizado sob uma bela floresta. Os habitantes s√£o Fadas e Elfos, que vivem em constante medo de Orcs e Trolls saqueadores do rio escuro abaixo. Com a ajuda de seus s√∫ditos de Dwarfton, voc√™ deve expulsar estas criaturas malignas de suas masmorras. Procure seus quatro quart√©is principais, mas esteja ciente de que todas as suas salas abrigam monstros!"
 
 #. Sparkleforest (lv2)
 #: guitext:22
@@ -218,7 +218,7 @@ msgctxt "In-game message"
 msgid ""
 "Make haste, my Liege: the longer you let the vile monsters breed, the harder "
 "it will be to overcome their numbers!"
-msgstr "Apresse-se, meu Senhor: quanto mais vocÍ deixar os monstros vis se reproduzirem, mais difÌcil ser· superar seus n˙meros!"
+msgstr "Apresse-se, meu Senhor: quanto mais voc√™ deixar os monstros vis se reproduzirem, mais dif√≠cil ser√° superar seus n√∫meros!"
 
 #. Sparkleforest (lv2)
 #: guitext:23
@@ -227,7 +227,7 @@ msgid ""
 "It seems the first monsters are already headed towards your dungeon, my "
 "Liege - mostly overgrown vermin which breed within piles of scrap, but your "
 "presence will surely be noticed by the sounds of combat."
-msgstr "Parece que os primeiros monstros j· est„o a caminho de sua masmorra, meu Senhor - principalmente vermes gigantes que se reproduzem em pilhas de sucata, mas sua presenÁa certamente ser· notada pelos sons do combate."
+msgstr "Parece que os primeiros monstros j√° est√£o a caminho de sua masmorra, meu Senhor - principalmente vermes gigantes que se reproduzem em pilhas de sucata, mas sua presen√ßa certamente ser√° notada pelos sons do combate."
 
 #. Sparkleforest (lv2)
 #: guitext:24
@@ -235,7 +235,7 @@ msgctxt "In-game message"
 msgid ""
 "While monsters still plunder the surface, your presence has attracted the "
 "attention of their leaders. Prepare for their counterattack!"
-msgstr "Enquanto os monstros ainda saqueiam a superfÌcie, sua presenÁa atraiu a atenÁ„o de seus lÌderes. Prepare-se para o contra-ataque deles!"
+msgstr "Enquanto os monstros ainda saqueiam a superf√≠cie, sua presen√ßa atraiu a aten√ß√£o de seus l√≠deres. Prepare-se para o contra-ataque deles!"
 
 #. Sparkleforest (lv2)
 #: guitext:25
@@ -243,7 +243,7 @@ msgctxt "In-game message"
 msgid ""
 "The rallying cries of Orcs and Trolls can be heard all along the underground "
 "river. They are preparing for an all-out onslaught!"
-msgstr "Os gritos de guerra de Orcs e Trolls podem ser ouvidos ao longo de todo o rio subterr‚neo. Eles est„o se preparando para um ataque total!"
+msgstr "Os gritos de guerra de Orcs e Trolls podem ser ouvidos ao longo de todo o rio subterr√¢neo. Eles est√£o se preparando para um ataque total!"
 
 #. Sparkleforest (lv2)
 #: guitext:26
@@ -253,7 +253,7 @@ msgid ""
 "Widerwilds have arrived to this underground realm. They have lost their "
 "families to raiders from Sparkleforest and thirst for revenge against the "
 "Orcs."
-msgstr "Ao saber de sua vitÛria em Dwarfton, v·rios B·rbaros das Selvas Remotas orientais chegaram a este reino subterr‚neo. Eles perderam suas famÌlias para invasores da Floresta Cintilante e anseiam por vinganÁa contra os Orcs."
+msgstr "Ao saber de sua vit√≥ria em Dwarfton, v√°rios B√°rbaros das Selvas Remotas orientais chegaram a este reino subterr√¢neo. Eles perderam suas fam√≠lias para invasores da Floresta Cintilante e anseiam por vingan√ßa contra os Orcs."
 
 #. Sparkleforest (lv2)
 #: guitext:27
@@ -261,7 +261,7 @@ msgctxt "In-game message"
 msgid ""
 "The inhabitants of Dominus do not approve of building too many bridges. Make "
 "do with shorter ones! "
-msgstr "Os habitantes de Dominus n„o aprovam a construÁ„o de muitas pontes. Contente-se com pontes mais curtas!"
+msgstr "Os habitantes de Dominus n√£o aprovam a constru√ß√£o de muitas pontes. Contente-se com pontes mais curtas!"
 
 #. Sparkleforest (lv2)
 #: guitext:28
@@ -270,7 +270,7 @@ msgid ""
 "All of the monsters are dead, and the people of Sparkleforest are now safe. "
 "But it is now time to head towards besieged Abbeystone, where the evil "
 "keeper seeks to quash one of the last few bastions of virtue in Dominus."
-msgstr "Todos os monstros est„o mortos, e o povo da Floresta Cintilante est· agora seguro. Mas agora È hora de seguir para a sitiada Abbeystone, onde o guardi„o maligno busca esmagar um dos ˙ltimos bastiıes da virtude em Dominus."
+msgstr "Todos os monstros est√£o mortos, e o povo da Floresta Cintilante est√° agora seguro. Mas agora √© hora de seguir para a sitiada Abbeystone, onde o guardi√£o maligno busca esmagar um dos √∫ltimos basti√µes da virtude em Dominus."
 
 #. Abbeystone (lv3)
 #: guitext:29
@@ -281,7 +281,7 @@ msgid ""
 "through the walls of the sacred keep and slaughters the defenders. The enemy "
 "forces seem to be gathering at various rooms across the region. If you can "
 "kill the guards and capture these rooms, the flow of attackers will abate."
-msgstr "O Mosteiro de Abbeystone est· sob ataque das forÁas do mal. Re˙na suas forÁas rapidamente e esmague o coraÁ„o do guardi„o maligno antes que ele rompa as muralhas da fortaleza sagrada e massacre os defensores. As forÁas inimigas parecem estar se reunindo em v·rias salas pela regi„o. Se vocÍ puder matar os guardas e capturar essas salas, o fluxo de atacantes diminuir·."
+msgstr "O Mosteiro de Abbeystone est√° sob ataque das for√ßas do mal. Re√∫na suas for√ßas rapidamente e esmague o cora√ß√£o do guardi√£o maligno antes que ele rompa as muralhas da fortaleza sagrada e massacre os defensores. As for√ßas inimigas parecem estar se reunindo em v√°rias salas pela regi√£o. Se voc√™ puder matar os guardas e capturar essas salas, o fluxo de atacantes diminuir√°."
 
 #. Abbeystone (lv3)
 #: guitext:30
@@ -291,7 +291,7 @@ msgid ""
 "The monsters will not hesitate to crush your unskilled troops. Do not rush "
 "into the fray, my Liege; as long as all the Monks are alive, they can take "
 "care of themselves for a while longer."
-msgstr "O ataque ao mosteiro j· est· em andamento, enquanto vocÍ est· despreparado. Os monstros n„o hesitar„o em esmagar suas tropas inexperientes. N„o se apresse para a luta, meu Senhor; enquanto todos os Monges estiverem vivos, eles podem cuidar de si mesmos por mais um tempo."
+msgstr "O ataque ao mosteiro j√° est√° em andamento, enquanto voc√™ est√° despreparado. Os monstros n√£o hesitar√£o em esmagar suas tropas inexperientes. N√£o se apresse para a luta, meu Senhor; enquanto todos os Monges estiverem vivos, eles podem cuidar de si mesmos por mais um tempo."
 
 #. Abbeystone (lv3)
 #: guitext:31
@@ -300,7 +300,7 @@ msgid ""
 "The Monks of Abbeystone are holding steady, but they warn you that the "
 "besieging forces are gathering their strength for a final assault. However "
 "it may be unwise to expose yourself just yet?"
-msgstr "Os Monges de Abbeystone est„o resistindo, mas eles o avisam que as forÁas sitiantes est„o reunindo suas forÁas para um ataque final. No entanto, talvez seja imprudente se expor agora?"
+msgstr "Os Monges de Abbeystone est√£o resistindo, mas eles o avisam que as for√ßas sitiantes est√£o reunindo suas for√ßas para um ataque final. No entanto, talvez seja imprudente se expor agora?"
 
 #. Abbeystone (lv3)
 #: guitext:32
@@ -309,7 +309,7 @@ msgid ""
 "My Liege, whilst your presence is not yet known to the beseiging forces, it "
 "is only a matterof time before your presence is known. An attack could come "
 "without any warning, so you must be prepared!"
-msgstr "Meu Senhor, embora sua presenÁa ainda n„o seja conhecida pelas forÁas sitiantes, È apenas uma quest„o de tempo atÈ que sua presenÁa seja conhecida. Um ataque pode vir sem aviso, ent„o vocÍ deve estar preparado!"
+msgstr "Meu Senhor, embora sua presen√ßa ainda n√£o seja conhecida pelas for√ßas sitiantes, √© apenas uma quest√£o de tempo at√© que sua presen√ßa seja conhecida. Um ataque pode vir sem aviso, ent√£o voc√™ deve estar preparado!"
 
 #. Abbeystone (lv3)
 #: guitext:33
@@ -319,7 +319,7 @@ msgid ""
 "multiple Horned Reapers among besieging forces earlier, but very few have "
 "been sighted recently. It is possible they are bound with powerful magic, "
 "awaiting your counterattack to be unleashed."
-msgstr "Meu senhor, os Monges enviaram uma missiva. Eles sentiram a presenÁa de m˙ltiplos Ceifadores de Chifres entre as forÁas sitiantes mais cedo, mas muito poucos foram vistos recentemente. … possÌvel que eles estejam presos por magia poderosa, aguardando seu contra-ataque para serem libertados."
+msgstr "Meu senhor, os Monges enviaram uma missiva. Eles sentiram a presen√ßa de m√∫ltiplos Ceifadores de Chifres entre as for√ßas sitiantes mais cedo, mas muito poucos foram vistos recentemente. √â poss√≠vel que eles estejam presos por magia poderosa, aguardando seu contra-ataque para serem libertados."
 
 #. Abbeystone (lv3)
 #: guitext:34
@@ -329,7 +329,7 @@ msgid ""
 "approaching from the south-east, and will arrive shortly after the next "
 "payday. I fear they will support the final assault upon Abbeystone, "
 "necessitating your involvement."
-msgstr "Meu Senhor, previ que uma forÁa de vampiros do P‚ntano Enevoado est· se aproximando do sudeste e chegar· logo apÛs o prÛximo dia de pagamento. Temo que eles apoiar„o o ataque final a Abbeystone, necessitando de seu envolvimento."
+msgstr "Meu Senhor, previ que uma for√ßa de vampiros do P√¢ntano Enevoado est√° se aproximando do sudeste e chegar√° logo ap√≥s o pr√≥ximo dia de pagamento. Temo que eles apoiar√£o o ataque final a Abbeystone, necessitando de seu envolvimento."
 
 #. Abbeystone (lv3)
 #: guitext:35
@@ -337,20 +337,20 @@ msgctxt "In-game message"
 msgid ""
 "It is time! The Monks of Abbeystone have sounded the alarm, with the forces "
 "of evil battering at their walls!"
-msgstr "… a hora! Os Monges de Abbeystone soaram o alarme, com as forÁas do mal batendo em suas muralhas!"
+msgstr "√â a hora! Os Monges de Abbeystone soaram o alarme, com as for√ßas do mal batendo em suas muralhas!"
 
 #. Abbeystone (lv3)
 #: guitext:36
 msgctxt "In-game message"
 msgid ""
 "Grave news, my Liege, - the enemy forces are gathering in great numbers! "
-msgstr "NotÌcias graves, meu Senhor, - as forÁas inimigas est„o se reunindo em grande n˙mero!"
+msgstr "Not√≠cias graves, meu Senhor, - as for√ßas inimigas est√£o se reunindo em grande n√∫mero!"
 
 #. Abbeystone (lv3)
 #: guitext:37
 msgctxt "In-game message"
 msgid "The Abbeystone has fallen, my Liege!.. It is a grim day indeed."
-msgstr "A Abadia de Pedra caiu, meu Senhor!.. … um dia sombrio, de fato."
+msgstr "A Abadia de Pedra caiu, meu Senhor!.. √â um dia sombrio, de fato."
 
 #. Abbeystone (lv3)
 #: guitext:38
@@ -360,7 +360,7 @@ msgid ""
 "undead of Misty Bog are still a threat, you must first head towards the "
 "Widerwilds, where the Barbarians resist the demonic incursions from the "
 "underground realm. "
-msgstr "Somos vitoriosos, meu Senhor! O cerco de Abbeystone foi quebrado. Embora os mortos-vivos do P‚ntano Enevoado ainda sejam uma ameaÁa, vocÍ deve primeiro seguir para as Selvas Remotas, onde os B·rbaros resistem ‡s incursıes demonÌacas do reino subterr‚neo."
+msgstr "Somos vitoriosos, meu Senhor! O cerco de Abbeystone foi quebrado. Embora os mortos-vivos do P√¢ntano Enevoado ainda sejam uma amea√ßa, voc√™ deve primeiro seguir para as Selvas Remotas, onde os B√°rbaros resistem √†s incurs√µes demon√≠acas do reino subterr√¢neo."
 
 #. Widerwilds (lv4)
 #: guitext:39
@@ -370,7 +370,7 @@ msgid ""
 "Upon your arrival, he has challenged you for supremacy, despite the monsters "
 "running wild in this land. Build up your army and prove your strength to "
 "this filthy barbarian!"
-msgstr "Aqui nas Selvas Remotas, um chefe local governa a terra com m„o de ferro. Ao chegar, ele o desafiou pela supremacia, apesar dos monstros que correm soltos nesta terra. Construa seu exÈrcito e prove sua forÁa a este b·rbaro imundo!"
+msgstr "Aqui nas Selvas Remotas, um chefe local governa a terra com m√£o de ferro. Ao chegar, ele o desafiou pela supremacia, apesar dos monstros que correm soltos nesta terra. Construa seu ex√©rcito e prove sua for√ßa a este b√°rbaro imundo!"
 
 #. Widerwilds (lv4)
 #: guitext:40
@@ -379,7 +379,7 @@ msgid ""
 "You have received a message from the clan of Samurai, hitherto neutral to "
 "your cause. They are willing to join forces if you can defeat the Barbarian "
 "Chieftain. This may be through battle, or by trickery and sleight of hand?"
-msgstr "VocÍ recebeu uma mensagem do cl„ dos Samurais, atÈ ent„o neutros ‡ sua causa. Eles est„o dispostos a unir forÁas se vocÍ puder derrotar o Chefe B·rbaro. Isso pode ser por meio de batalha, ou por ast˙cia e subterf˙gio?"
+msgstr "Voc√™ recebeu uma mensagem do cl√£ dos Samurais, at√© ent√£o neutros √† sua causa. Eles est√£o dispostos a unir for√ßas se voc√™ puder derrotar o Chefe B√°rbaro. Isso pode ser por meio de batalha, ou por ast√∫cia e subterf√∫gio?"
 
 #. Widerwilds (lv4)
 #: guitext:41
@@ -389,7 +389,7 @@ msgid ""
 "bretheren, imprisoned by the evil monsters in this region. It's possible "
 "they might join the Barbarian clans if you do not find them first. Make "
 "haste!"
-msgstr "Um dos Samurais juntou-se ‡ sua causa. Seu cl„ est· procurando por seus irm„os, aprisionados pelos monstros malignos nesta regi„o. … possÌvel que eles se juntem aos cl„s B·rbaros se vocÍ n„o os encontrar primeiro. Apresse-se!"
+msgstr "Um dos Samurais juntou-se √† sua causa. Seu cl√£ est√° procurando por seus irm√£os, aprisionados pelos monstros malignos nesta regi√£o. √â poss√≠vel que eles se juntem aos cl√£s B√°rbaros se voc√™ n√£o os encontrar primeiro. Apresse-se!"
 
 #. Widerwilds (lv4)
 #: guitext:42
@@ -397,7 +397,7 @@ msgctxt "In-game message"
 msgid ""
 "Grave news, my Liege! Some crazed Barbarians have allied with the monsters "
 "and are sowing chaos across the land!"
-msgstr "NotÌcias graves, meu Senhor! Alguns B·rbaros enlouquecidos aliaram-se aos monstros e est„o semeando o caos por toda a terra!"
+msgstr "Not√≠cias graves, meu Senhor! Alguns B√°rbaros enlouquecidos aliaram-se aos monstros e est√£o semeando o caos por toda a terra!"
 
 #. Widerwilds (lv4)
 #: guitext:43
@@ -405,7 +405,7 @@ msgctxt "In-game message"
 msgid ""
 "Well done, my Liege! You have utterly destroyed the fortress of this evil "
 "Keeper. You're now free to finish your contest  with the Barbarian Chieftain!"
-msgstr "Muito bem, meu Senhor! VocÍ destruiu completamente a fortaleza deste Guardi„o maligno. Agora vocÍ est· livre para terminar sua disputa com o Chefe B·rbaro!"
+msgstr "Muito bem, meu Senhor! Voc√™ destruiu completamente a fortaleza deste Guardi√£o maligno. Agora voc√™ est√° livre para terminar sua disputa com o Chefe B√°rbaro!"
 
 #. Widerwilds (lv4)
 #: guitext:44
@@ -413,7 +413,7 @@ msgctxt "In-game message"
 msgid ""
 "Congratulations, my Liege! You have defeated the barbarian chieftain fair "
 "and square."
-msgstr "ParabÈns, meu Senhor! VocÍ derrotou o chefe b·rbaro de forma justa e honesta."
+msgstr "Parab√©ns, meu Senhor! Voc√™ derrotou o chefe b√°rbaro de forma justa e honesta."
 
 #. Widerwilds (lv4)
 #: guitext:45
@@ -421,7 +421,7 @@ msgctxt "In-game message"
 msgid ""
 "Treachery! Turns out the Barbarian who challenged you was a demon all along! "
 "Put him and his remaining minions down, quickly!"
-msgstr "TraiÁ„o! Acontece que o B·rbaro que o desafiou era um demÙnio o tempo todo! Acabe com ele e seus lacaios restantes, rapidamente!"
+msgstr "Trai√ß√£o! Acontece que o B√°rbaro que o desafiou era um dem√¥nio o tempo todo! Acabe com ele e seus lacaios restantes, rapidamente!"
 
 #. Widerwilds (lv4) victory message
 #: guitext:46
@@ -430,7 +430,7 @@ msgid ""
 "It's done at last. Widerwilds are safe from the depredations of its vile "
 "Demon overlord. Now it's time to take revenge for the siege upon Dwarfston "
 "and Abbeystone and stake some vampires in the Misty Bog!"
-msgstr "Est· feito, finalmente. As Selvas Remotas est„o a salvo das depredaÁıes de seu vil suserano DemonÌaco. Agora È hora de se vingar pelo cerco a Dwarfton e Abbeystone e cravar estacas em alguns vampiros no P‚ntano Enevoado!"
+msgstr "Est√° feito, finalmente. As Selvas Remotas est√£o a salvo das depreda√ß√µes de seu vil suserano Demon√≠aco. Agora √© hora de se vingar pelo cerco a Dwarfton e Abbeystone e cravar estacas em alguns vampiros no P√¢ntano Enevoado!"
 
 #. Misty Bog (lv5)
 #: guitext:47
@@ -439,7 +439,7 @@ msgid ""
 "A vile Necromancer holds this realm in his deathgrip. Rally the locals to "
 "vanquish the Undead and enact your revenge against the vampires who have "
 "brought the Knightly Order of Dominus to ruin!"
-msgstr "Um vil Necromante mantÈm este reino em seu abraÁo mortal. Re˙na os locais para derrotar os Mortos-Vivos e execute sua vinganÁa contra os vampiros que levaram a Ordem dos Cavaleiros de Dominus ‡ ruÌna!"
+msgstr "Um vil Necromante mant√©m este reino em seu abra√ßo mortal. Re√∫na os locais para derrotar os Mortos-Vivos e execute sua vingan√ßa contra os vampiros que levaram a Ordem dos Cavaleiros de Dominus √† ru√≠na!"
 
 #. Misty Bog (lv5)
 #: guitext:48
@@ -447,7 +447,7 @@ msgctxt "In-game message"
 msgid ""
 "The Necromancer you oppose has created phylacteries to protect himself from "
 "death. It will probably be difficult to defeat him once and for all?"
-msgstr "O Necromante que vocÍ enfrenta criou filactÈrios para se proteger da morte. Provavelmente ser· difÌcil derrot·-lo de uma vez por todas?"
+msgstr "O Necromante que voc√™ enfrenta criou filact√©rios para se proteger da morte. Provavelmente ser√° dif√≠cil derrot√°-lo de uma vez por todas?"
 
 #. Misty Bog (lv5)
 #: guitext:49
@@ -456,7 +456,7 @@ msgid ""
 "My liege, the silence of the Misty Bog has turned especially oppressive and "
 "eerie - your presence has not gone unnoticed. It will be wise to prepare for "
 "an attack."
-msgstr "Meu senhor, o silÍncio do P‚ntano Enevoado tornou-se especialmente opressivo e sinistro - sua presenÁa n„o passou despercebida. Ser· prudente se preparar para um ataque."
+msgstr "Meu senhor, o sil√™ncio do P√¢ntano Enevoado tornou-se especialmente opressivo e sinistro - sua presen√ßa n√£o passou despercebida. Ser√° prudente se preparar para um ataque."
 
 #. Misty Bog (lv5)
 #: guitext:50
@@ -467,7 +467,7 @@ msgid ""
 "tentacles, native to underwater streams of the region. It might be wise to "
 "avoid direct confrontation with his forces until you are ready?If that's "
 "possible, of course."
-msgstr "Embora seus lacaios mortos-vivos sejam muitos, o prÛprio Necromante controla v·rios vampiros e uma grande horda de poderosas feras aqu·ticas conhecidas como tent·culos, nativas das correntes subaqu·ticas da regi„o. Talvez seja prudente evitar o confronto direto com suas forÁas atÈ que vocÍ esteja pronto? Se isso for possÌvel, È claro."
+msgstr "Embora seus lacaios mortos-vivos sejam muitos, o pr√≥prio Necromante controla v√°rios vampiros e uma grande horda de poderosas feras aqu√°ticas conhecidas como tent√°culos, nativas das correntes subaqu√°ticas da regi√£o. Talvez seja prudente evitar o confronto direto com suas for√ßas at√© que voc√™ esteja pronto? Se isso for poss√≠vel, √© claro."
 
 #. Misty Bog (lv5)
 #: guitext:51
@@ -475,7 +475,7 @@ msgctxt "In-game message"
 msgid ""
 "I have divined more Undead minions of the Necromancer, who are approaching "
 "from the north."
-msgstr "Eu previ mais lacaios Mortos-Vivos do Necromante, que est„o se aproximando do norte."
+msgstr "Eu previ mais lacaios Mortos-Vivos do Necromante, que est√£o se aproximando do norte."
 
 #. Misty Bog (lv5)
 #: guitext:52
@@ -483,13 +483,13 @@ msgctxt "In-game message"
 msgid ""
 "My Liege, the Necromancer has finally requested aid from the Vampires. They "
 "have been scarce in the surface world for the last fortnight!"
-msgstr "Meu Senhor, o Necromante finalmente pediu ajuda aos Vampiros. Eles tÍm sido escassos no mundo da superfÌcie nas ˙ltimas duas semanas!"
+msgstr "Meu Senhor, o Necromante finalmente pediu ajuda aos Vampiros. Eles t√™m sido escassos no mundo da superf√≠cie nas √∫ltimas duas semanas!"
 
 #. Misty Bog (lv5)
 #: guitext:53
 msgctxt "In-game message"
 msgid "Our dungeon heart is breached by the Undead forces!"
-msgstr "Nosso coraÁ„o da masmorra foi violado pelas forÁas dos Mortos-Vivos!"
+msgstr "Nosso cora√ß√£o da masmorra foi violado pelas for√ßas dos Mortos-Vivos!"
 
 #. Misty Bog (lv5)
 #: guitext:54
@@ -497,7 +497,7 @@ msgctxt "In-game message"
 msgid ""
 "The people speak of a haunted Temple in the area. You would be wise to "
 "cleanse it of the taint?"
-msgstr "O povo fala de um Templo assombrado na ·rea. Seria prudente purific·-lo da m·cula?"
+msgstr "O povo fala de um Templo assombrado na √°rea. Seria prudente purific√°-lo da m√°cula?"
 
 #. Misty Bog (lv5)
 #: guitext:55
@@ -506,7 +506,7 @@ msgid ""
 "The heart of the evil Necromancer is destroyed, but he has another! Find and "
 "destroy his second phylactery, and then proceed to stake all surviving "
 "vampires in the bog."
-msgstr "O coraÁ„o do Necromante maligno foi destruÌdo, mas ele tem outro! Encontre e destrua seu segundo filactÈrio, e ent„o prossiga para cravar estacas em todos os vampiros sobreviventes no p‚ntano."
+msgstr "O cora√ß√£o do Necromante maligno foi destru√≠do, mas ele tem outro! Encontre e destrua seu segundo filact√©rio, e ent√£o prossiga para cravar estacas em todos os vampiros sobreviventes no p√¢ntano."
 
 #. Misty Bog (lv5)
 #: guitext:56
@@ -515,7 +515,7 @@ msgid ""
 "The Necromancer is defeated at last. Now, you must stake all surviving "
 "Vampires in the bog, who have belatedly arrived seeking vengeance on your "
 "heroes."
-msgstr "O Necromante foi finalmente derrotado. Agora, vocÍ deve cravar estacas em todos os Vampiros sobreviventes no p‚ntano, que chegaram tardiamente em busca de vinganÁa contra seus herÛis."
+msgstr "O Necromante foi finalmente derrotado. Agora, voc√™ deve cravar estacas em todos os Vampiros sobreviventes no p√¢ntano, que chegaram tardiamente em busca de vingan√ßa contra seus her√≥is."
 
 #: guitext:57 guitext:99 guitext:100 guitext:101 guitext:102 guitext:103
 #: guitext:104 guitext:105 guitext:106 guitext:107 guitext:108 guitext:109
@@ -546,7 +546,7 @@ msgid ""
 "Glorious victory, my Liege! The Undead are defeated and Misty Bog is safe! "
 "It is now possible to restore Knight's Castle, which fell into disrepair "
 "after the Vampires settled here."
-msgstr "VitÛria gloriosa, meu Senhor! Os Mortos-Vivos foram derrotados e o P‚ntano Enevoado est· seguro! Agora È possÌvel restaurar o Castelo do Cavaleiro, que caiu em desuso depois que os Vampiros se estabeleceram aqui."
+msgstr "Vit√≥ria gloriosa, meu Senhor! Os Mortos-Vivos foram derrotados e o P√¢ntano Enevoado est√° seguro! Agora √© poss√≠vel restaurar o Castelo do Cavaleiro, que caiu em desuso depois que os Vampiros se estabeleceram aqui."
 
 #. Widerwilds (lv4)
 #: guitext:59
@@ -555,7 +555,7 @@ msgid ""
 "Treachery! Turns out the Barbarian who challenged you was a demon all along! "
 "You now must breach his fortress and destroy both the dungeon heart and the "
 "monster himself!"
-msgstr "TraiÁ„o! Acontece que o B·rbaro que o desafiou era um demÙnio o tempo todo! Agora vocÍ deve invadir sua fortaleza e destruir tanto o coraÁ„o da masmorra quanto o prÛprio monstro!"
+msgstr "Trai√ß√£o! Acontece que o B√°rbaro que o desafiou era um dem√¥nio o tempo todo! Agora voc√™ deve invadir sua fortaleza e destruir tanto o cora√ß√£o da masmorra quanto o pr√≥prio monstro!"
 
 #. Knight's castle (lv6)
 #: guitext:60
@@ -565,7 +565,7 @@ msgid ""
 "of Knights' Castle. It'd be fitting if you create a  new Knightly Order "
 "comprised of at least five Knights, and deliver a valiant victory against "
 "the forces of evil nested in  this underground realm."
-msgstr "Enquanto seus pedreiros reconstroem as fundaÁıes, vocÍ deve restaurar a glÛria perdida do Castelo dos Cavaleiros. Seria apropriado se vocÍ criasse uma nova Ordem de Cavaleiros composta por pelo menos cinco Cavaleiros e obtivesse uma vitÛria valente contra as forÁas do mal aninhadas neste reino subterr‚neo."
+msgstr "Enquanto seus pedreiros reconstroem as funda√ß√µes, voc√™ deve restaurar a gl√≥ria perdida do Castelo dos Cavaleiros. Seria apropriado se voc√™ criasse uma nova Ordem de Cavaleiros composta por pelo menos cinco Cavaleiros e obtivesse uma vit√≥ria valente contra as for√ßas do mal aninhadas neste reino subterr√¢neo."
 
 #. Knight's castle (lv6)
 #: guitext:61
@@ -575,7 +575,7 @@ msgid ""
 "It will be necessary to expand outwards very soon, and this will expose you "
 "to attack from two enemy keepers controlling the region. It might be wise to "
 "focus on a single opponent at a time?"
-msgstr "Meu Senhor, as adegas do Castelo do Cavaleiro est„o quase vazias de ouro e gr„os. Ser· necess·rio expandir para fora muito em breve, e isso o expor· ao ataque de dois guardiıes inimigos que controlam a regi„o. Talvez seja prudente se concentrar em um ˙nico oponente de cada vez?"
+msgstr "Meu Senhor, as adegas do Castelo do Cavaleiro est√£o quase vazias de ouro e gr√£os. Ser√° necess√°rio expandir para fora muito em breve, e isso o expor√° ao ataque de dois guardi√µes inimigos que controlam a regi√£o. Talvez seja prudente se concentrar em um √∫nico oponente de cada vez?"
 
 #. Knight's castle (lv6)
 #: guitext:62
@@ -583,7 +583,7 @@ msgctxt "In-game message"
 msgid ""
 "My Liege, the monsters are attacking! They seem to be gathering at the "
 "libraries and workshops, as well as dungeons of enemy keepers."
-msgstr "Meu Senhor, os monstros est„o atacando! Eles parecem estar se reunindo nas bibliotecas e oficinas, bem como nas masmorras dos guardiıes inimigos."
+msgstr "Meu Senhor, os monstros est√£o atacando! Eles parecem estar se reunindo nas bibliotecas e oficinas, bem como nas masmorras dos guardi√µes inimigos."
 
 #. Knight's castle (lv6)
 #: guitext:63
@@ -593,7 +593,7 @@ msgid ""
 "dungeons of Wickedridge, and are now staging more attacks  upon your "
 "castle's cellar. If you do not capture or destroy the libraries and "
 "workshops soon, they will bring in even more reinforcements."
-msgstr "Os guardiıes inimigos construÌram portıes infernais que est„o conectados ‡s masmorras da Cordilheira Perversa e agora est„o organizando mais ataques ao por„o do seu castelo. Se vocÍ n„o capturar ou destruir as bibliotecas e oficinas em breve, eles trar„o ainda mais reforÁos."
+msgstr "Os guardi√µes inimigos constru√≠ram port√µes infernais que est√£o conectados √†s masmorras da Cordilheira Perversa e agora est√£o organizando mais ataques ao por√£o do seu castelo. Se voc√™ n√£o capturar ou destruir as bibliotecas e oficinas em breve, eles trar√£o ainda mais refor√ßos."
 
 #. Knight's castle (lv6)
 #: guitext:64
@@ -601,7 +601,7 @@ msgctxt "In-game message"
 msgid ""
 "Infernal heat scours the tunnels; forces of Wickedridge have arrived to "
 "drive you out. Rally your troops, and defeat the invaders."
-msgstr "Calor infernal percorre os t˙neis; forÁas da Cordilheira Perversa chegaram para expuls·-lo. Re˙na suas tropas e derrote os invasores."
+msgstr "Calor infernal percorre os t√∫neis; for√ßas da Cordilheira Perversa chegaram para expuls√°-lo. Re√∫na suas tropas e derrote os invasores."
 
 #. Knight's castle (lv6)
 #: guitext:65
@@ -609,7 +609,7 @@ msgctxt "In-game message"
 msgid ""
 "My Liege, after your last offensive the vile monsters are staging a "
 "counterattack!"
-msgstr "Meu Senhor, apÛs sua ˙ltima ofensiva, os monstros vis est„o organizando um contra-ataque!"
+msgstr "Meu Senhor, ap√≥s sua √∫ltima ofensiva, os monstros vis est√£o organizando um contra-ataque!"
 
 #. Knight's castle (lv6)
 #: guitext:66
@@ -617,7 +617,7 @@ msgctxt "In-game message"
 msgid ""
 "My Liege, an alarm has sounded within the enemy dungeon. Undoubtedly more "
 "monsters will arrive soon as reinforcements! "
-msgstr "Meu Senhor, um alarme soou dentro da masmorra inimiga. Sem d˙vida, mais monstros chegar„o em breve como reforÁos!"
+msgstr "Meu Senhor, um alarme soou dentro da masmorra inimiga. Sem d√∫vida, mais monstros chegar√£o em breve como refor√ßos!"
 
 #. Knight's castle (lv6)
 #: guitext:67
@@ -627,7 +627,7 @@ msgid ""
 "has joined your cause! he brings with him the ability to  Destroy Walls. It "
 "is now possible to finally eradicate the evil presence in these lands by "
 "destroying its very heart."
-msgstr "VocÍ estabeleceu uma nova Ordem de Cavaleiros, e um Mago s·bio e poderoso juntou-se ‡ sua causa! ele traz consigo a habilidade de Destruir Muralhas. Agora È possÌvel finalmente erradicar a presenÁa maligna nestas terras, destruindo seu prÛprio coraÁ„o."
+msgstr "Voc√™ estabeleceu uma nova Ordem de Cavaleiros, e um Mago s√°bio e poderoso juntou-se √† sua causa! ele traz consigo a habilidade de Destruir Muralhas. Agora √© poss√≠vel finalmente erradicar a presen√ßa maligna nestas terras, destruindo seu pr√≥prio cora√ß√£o."
 
 #. Knight's castle (lv6)
 #: guitext:68
@@ -636,7 +636,7 @@ msgid ""
 "The evil polluting this land is no more, and the walls of Knights' Castle "
 "once again stand proud at the dawn. It is now time to move  upon the "
 "Wickedridge itself."
-msgstr "O mal que poluÌa esta terra n„o existe mais, e as muralhas do Castelo dos Cavaleiros mais uma vez se erguem orgulhosas ao amanhecer. Agora È hora de avanÁar sobre a prÛpria Cordilheira Perversa."
+msgstr "O mal que polu√≠a esta terra n√£o existe mais, e as muralhas do Castelo dos Cavaleiros mais uma vez se erguem orgulhosas ao amanhecer. Agora √© hora de avan√ßar sobre a pr√≥pria Cordilheira Perversa."
 
 #. Knight's castle (lv6)
 #: guitext:69
@@ -644,7 +644,7 @@ msgctxt "In-game message"
 msgid ""
 "By capturing this portal, you have established a firm foothold which allows "
 "you to build more Hatcheries and Treasure Rooms."
-msgstr "Ao capturar este portal, vocÍ estabeleceu uma base sÛlida que lhe permite construir mais Criadouros e Salas do Tesouro."
+msgstr "Ao capturar este portal, voc√™ estabeleceu uma base s√≥lida que lhe permite construir mais Criadouros e Salas do Tesouro."
 
 #. Intentional blank
 #: guitext:70
@@ -652,7 +652,7 @@ msgctxt "In-game message"
 msgid ""
 "The Ziggurat carries the stench of dead people. Good job. Two of your "
 "Vampires will accompany you to the next realm!"
-msgstr "O Zigurate carrega o fedor de gente morta. Bom trabalho. Dois de seus Vampiros o acompanhar„o ao prÛximo reino!"
+msgstr "O Zigurate carrega o fedor de gente morta. Bom trabalho. Dois de seus Vampiros o acompanhar√£o ao pr√≥ximo reino!"
 
 #. Hellspring (lv7)
 #: guitext:71
@@ -661,7 +661,7 @@ msgid ""
 "The Hellspring is home to many monsters we'd rather see dead. Yet the reason "
 "we're here is to destroy enchantments upon the magma  streams which bar your "
 "way to Wickedridge. It's best to search the local keeper's sanctum?"
-msgstr "A Nascente Infernal È o lar de muitos monstros que preferirÌamos ver mortos. No entanto, a raz„o pela qual estamos aqui È para destruir os encantamentos sobre os rios de magma que barram seu caminho para a Cordilheira Perversa. … melhor procurar no santu·rio do guardi„o local?"
+msgstr "A Nascente Infernal √© o lar de muitos monstros que preferir√≠amos ver mortos. No entanto, a raz√£o pela qual estamos aqui √© para destruir os encantamentos sobre os rios de magma que barram seu caminho para a Cordilheira Perversa. √â melhor procurar no santu√°rio do guardi√£o local?"
 
 #. Hellspring (lv7)
 #: guitext:72
@@ -670,7 +670,7 @@ msgid ""
 "It turns out we have forgotten to pack the library books and workshop "
 "schemes, thus we'll likely have to rely on the few scriptures provided by "
 "the local shrine."
-msgstr "Acontece que esquecemos de embalar os livros da biblioteca e os esquemas da oficina, ent„o provavelmente teremos que contar com as poucas escrituras fornecidas pelo santu·rio local."
+msgstr "Acontece que esquecemos de embalar os livros da biblioteca e os esquemas da oficina, ent√£o provavelmente teremos que contar com as poucas escrituras fornecidas pelo santu√°rio local."
 
 #. Hellspring (lv7)
 #: guitext:73
@@ -679,7 +679,7 @@ msgid ""
 "The enemy keeper gathers his hellhounds and demonspawns at the Scavenger and "
 "Training rooms, while Warlocks reside within Library. Capture or destroy "
 "those rooms, and the tide of attackers will be lessened. "
-msgstr "O guardi„o inimigo re˙ne seus C„es Infernais e Crias DemonÌacas nas salas de Recrutador e de Treino, enquanto os Bruxos residem na Biblioteca. Capture ou destrua essas salas, e a marÈ de atacantes diminuir·."
+msgstr "O guardi√£o inimigo re√∫ne seus C√£es Infernais e Crias Demon√≠acas nas salas de Recrutador e de Treino, enquanto os Bruxos residem na Biblioteca. Capture ou destrua essas salas, e a mar√© de atacantes diminuir√°."
 
 #. Hellspring (lv7)
 #: guitext:74
@@ -688,7 +688,7 @@ msgid ""
 "Some dragons were attracted by the recently unearthed treasures. It might be "
 "wise to destroy the enemy keeper as quickly as possible, for these beasts "
 "will not otherwise relent. "
-msgstr "Alguns dragıes foram atraÌdos pelos tesouros recentemente desenterrados. Talvez seja prudente destruir o guardi„o inimigo o mais r·pido possÌvel, pois essas feras n„o ceder„o de outra forma."
+msgstr "Alguns drag√µes foram atra√≠dos pelos tesouros recentemente desenterrados. Talvez seja prudente destruir o guardi√£o inimigo o mais r√°pido poss√≠vel, pois essas feras n√£o ceder√£o de outra forma."
 
 #. Hellspring (lv7)
 #: guitext:75
@@ -697,7 +697,7 @@ msgid ""
 "My Liege, the infernal baying and frenzied shrieks sound across the river of "
 "lava. It means your presence here has been discovered, and an attack is "
 "imminent. "
-msgstr "Meu Senhor, os uivos infernais e os gritos frenÈticos ecoam do outro lado do rio de lava. Isso significa que sua presenÁa aqui foi descoberta, e um ataque È iminente."
+msgstr "Meu Senhor, os uivos infernais e os gritos fren√©ticos ecoam do outro lado do rio de lava. Isso significa que sua presen√ßa aqui foi descoberta, e um ataque √© iminente."
 
 #. Hellspring (lv7)
 #: guitext:76
@@ -706,7 +706,7 @@ msgid ""
 "No longer agitated by demons of Wickedridge, the volcanoes of Hellspring "
 "stop flooding the land with fiery death. It is now safe to pass towards "
 "Verminfeast."
-msgstr "N„o mais agitados por demÙnios da Cordilheira Perversa, os vulcıes da Nascente Infernal param de inundar a terra com morte Ìgnea. Agora È seguro passar em direÁ„o ao Banquete de Vermes."
+msgstr "N√£o mais agitados por dem√¥nios da Cordilheira Perversa, os vulc√µes da Nascente Infernal param de inundar a terra com morte √≠gnea. Agora √© seguro passar em dire√ß√£o ao Banquete de Vermes."
 
 #. Hellspring (lv7)
 #: guitext:77
@@ -716,7 +716,7 @@ msgid ""
 "ignorant of Verminfeast, it revealed the last refuge of Vampires from Misty "
 "Bog. Those bloodsuckers thirst for revenge - now that you are aware of their "
 "presence, expect them to arrive shortly. "
-msgstr "Meu Senhor, o monstro capturado foi interrogado. Embora em grande parte ignorante sobre o Banquete de Vermes, ele revelou o ˙ltimo ref˙gio dos Vampiros do P‚ntano Enevoado. Esses sugadores de sangue anseiam por vinganÁa - agora que vocÍ est· ciente de sua presenÁa, espere que cheguem em breve."
+msgstr "Meu Senhor, o monstro capturado foi interrogado. Embora em grande parte ignorante sobre o Banquete de Vermes, ele revelou o √∫ltimo ref√∫gio dos Vampiros do P√¢ntano Enevoado. Esses sugadores de sangue anseiam por vingan√ßa - agora que voc√™ est√° ciente de sua presen√ßa, espere que cheguem em breve."
 
 #. Hellspring (lv7)
 #: guitext:78
@@ -727,7 +727,7 @@ msgid ""
 "are of ancient origin and have nothing to do with the local keeper. It "
 "changes nothing, since the only way through to the vale of Verminfeast is "
 "beyond the enemy's inner sanctum."
-msgstr "A multitude de tomos m·gicos e grimÛrios arcanos escondidos nesta biblioteca fornece evidÍncias de que os encantamentos que protegem a Cordilheira Perversa s„o de origem antiga e n„o tÍm nada a ver com o guardi„o local. Isso n„o muda nada, j· que o ˙nico caminho para o vale do Banquete de Vermes est· alÈm do santu·rio interno do inimigo."
+msgstr "A multitude de tomos m√°gicos e grim√≥rios arcanos escondidos nesta biblioteca fornece evid√™ncias de que os encantamentos que protegem a Cordilheira Perversa s√£o de origem antiga e n√£o t√™m nada a ver com o guardi√£o local. Isso n√£o muda nada, j√° que o √∫nico caminho para o vale do Banquete de Vermes est√° al√©m do santu√°rio interno do inimigo."
 
 #. Hellspring (lv7)
 #: guitext:79
@@ -735,7 +735,7 @@ msgctxt "In-game message"
 msgid ""
 "So far, we know next to nothing about the Vale of Verminfeast. Capture one "
 "of the monsters to learn about this realm."
-msgstr "AtÈ agora, n„o sabemos quase nada sobre o Vale do Banquete de Vermes. Capture um dos monstros para aprender sobre este reino."
+msgstr "At√© agora, n√£o sabemos quase nada sobre o Vale do Banquete de Vermes. Capture um dos monstros para aprender sobre este reino."
 
 #. Wickedrige (lv8)
 #: guitext:80
@@ -743,7 +743,7 @@ msgctxt "In-game message"
 msgid ""
 "You have arrived to the source of all evil in Dominus. Gather your heroes, "
 "and strike into the heart of darkness!"
-msgstr "VocÍ chegou ‡ fonte de todo o mal em Dominus. Re˙na seus herÛis e ataque o coraÁ„o das trevas!"
+msgstr "Voc√™ chegou √† fonte de todo o mal em Dominus. Re√∫na seus her√≥is e ataque o cora√ß√£o das trevas!"
 
 #. Wickedrige (lv8)
 #: guitext:81
@@ -755,7 +755,7 @@ msgid ""
 "reside in their training rooms. Undead creatures rise from the temples, and "
 "the Bile Demons lazily fart within their filthy lairs. Capture these rooms, "
 "and their attacks will weaken and finally cease. "
-msgstr "Os seres monstruosos nesta terra s„o muitos, e s„o em sua maioria autossuficientes e separados do guardi„o supremo que parece se importar pouco com sua invas„o. Os Orcs vivem em seus quartÈis, Crias DemonÌacas e Dragıes residem em suas salas de treino. Criaturas mortas-vivas surgem dos templos, e os DemÙnios de Fel peidam preguiÁosamente dentro de seus covis imundos. Capture estas salas, e seus ataques enfraquecer„o e finalmente cessar„o."
+msgstr "Os seres monstruosos nesta terra s√£o muitos, e s√£o em sua maioria autossuficientes e separados do guardi√£o supremo que parece se importar pouco com sua invas√£o. Os Orcs vivem em seus quart√©is, Crias Demon√≠acas e Drag√µes residem em suas salas de treino. Criaturas mortas-vivas surgem dos templos, e os Dem√¥nios de Fel peidam pregui√ßosamente dentro de seus covis imundos. Capture estas salas, e seus ataques enfraquecer√£o e finalmente cessar√£o."
 
 #. Wickedrige (lv8)
 #: guitext:82
@@ -763,7 +763,7 @@ msgctxt "In-game message"
 msgid ""
 "Your troops have breached the final bastion of evil! Beware, for the last "
 "vile creatures are pouring forth! "
-msgstr "Suas tropas romperam o ˙ltimo basti„o do mal! Cuidado, pois as ˙ltimas criaturas vis est„o saindo!"
+msgstr "Suas tropas romperam o √∫ltimo basti√£o do mal! Cuidado, pois as √∫ltimas criaturas vis est√£o saindo!"
 
 #. Wickedrige (lv8)
 #: guitext:83
@@ -771,7 +771,7 @@ msgctxt "In-game message"
 msgid ""
 "Warning drums can be faintly heard in the distance! The evil Keeper will "
 "soon attempt to remove you from this land. "
-msgstr "Tambores de aviso podem ser ouvidos fracamente ‡ dist‚ncia! O Guardi„o maligno em breve tentar· removÍ-lo desta terra."
+msgstr "Tambores de aviso podem ser ouvidos fracamente √† dist√¢ncia! O Guardi√£o maligno em breve tentar√° remov√™-lo desta terra."
 
 #. Wickedrige (lv8)
 #: guitext:84
@@ -779,7 +779,7 @@ msgctxt "In-game message"
 msgid ""
 "Your crusade against forces of evil entrenched at Wickedridge ends! Dominus "
 "is safe, and the Lord has his Revenge!  Congratulations!"
-msgstr "Sua cruzada contra as forÁas do mal entrincheiradas na Cordilheira Perversa termina! Dominus est· seguro, e o Senhor tem sua VinganÁa! ParabÈns!"
+msgstr "Sua cruzada contra as for√ßas do mal entrincheiradas na Cordilheira Perversa termina! Dominus est√° seguro, e o Senhor tem sua Vingan√ßa! Parab√©ns!"
 
 #. Verminfeast (lv9)secret 1
 #: guitext:85
@@ -788,7 +788,7 @@ msgid ""
 "The haunted land of Verminfeast is crawling with insects. The food is "
 "scarce, and the training room and library cannot be built here. It will be "
 "necessary to capture Hatcheries to sustain even your modest army. "
-msgstr "A terra assombrada do Banquete de Vermes est· infestada de insetos. A comida È escassa, e a sala de treino e a biblioteca n„o podem ser construÌdas aqui. Ser· necess·rio capturar Criadouros para sustentar atÈ mesmo seu modesto exÈrcito."
+msgstr "A terra assombrada do Banquete de Vermes est√° infestada de insetos. A comida √© escassa, e a sala de treino e a biblioteca n√£o podem ser constru√≠das aqui. Ser√° necess√°rio capturar Criadouros para sustentar at√© mesmo seu modesto ex√©rcito."
 
 #. Verminfeast (lv9)secret 1
 #: guitext:86
@@ -797,7 +797,7 @@ msgid ""
 "My Liege, the vermin infesting this land grow agitated. You must protect "
 "your hatcheries from their attacks, as you prepare your forces  to destroy "
 "the Keeper who stands on your way to Wickedridge. "
-msgstr "Meu Senhor, os vermes que infestam esta terra est„o ficando agitados. VocÍ deve proteger seus criadouros de seus ataques, enquanto prepara suas forÁas para destruir o Guardi„o que est· em seu caminho para a Cordilheira Perversa."
+msgstr "Meu Senhor, os vermes que infestam esta terra est√£o ficando agitados. Voc√™ deve proteger seus criadouros de seus ataques, enquanto prepara suas for√ßas para destruir o Guardi√£o que est√° em seu caminho para a Cordilheira Perversa."
 
 #. Verminfeast (lv9) secret 1
 #: guitext:87
@@ -805,7 +805,7 @@ msgctxt "In-game message"
 msgid ""
 "The Verminfeast crawls no more with itchies and insects. The road to the "
 "last bastion of evil at Wickedridge is now open! "
-msgstr "O Banquete de Vermes n„o rasteja mais com coceiras e insetos. O caminho para o ˙ltimo basti„o do mal na Cordilheira Perversa est· agora aberto!"
+msgstr "O Banquete de Vermes n√£o rasteja mais com coceiras e insetos. O caminho para o √∫ltimo basti√£o do mal na Cordilheira Perversa est√° agora aberto!"
 
 #. Thiefhaven (lv10) secret 2
 #: guitext:88
@@ -814,7 +814,7 @@ msgid ""
 "A fearsome Horned Reaper commands the forces of evil in this land, hidden "
 "beyond a labyrinthine maze of traps and many bodyguards. Find a way into his "
 "fortress using your Thieves, and kill the demon! "
-msgstr "Um temÌvel Ceifador de Chifres comanda as forÁas do mal nesta terra, escondido alÈm de um labirinto de armadilhas e muitos guarda-costas. Encontre um caminho para sua fortaleza usando seus Ladrıes e mate o demÙnio!"
+msgstr "Um tem√≠vel Ceifador de Chifres comanda as for√ßas do mal nesta terra, escondido al√©m de um labirinto de armadilhas e muitos guarda-costas. Encontre um caminho para sua fortaleza usando seus Ladr√µes e mate o dem√¥nio!"
 
 #. Thiefhaven (lv10) secret 2
 #: guitext:89
@@ -822,25 +822,25 @@ msgctxt "In-game message"
 msgid ""
 "The forces of evil have grown immensely strong. It is no longer possible to "
 "prevail. "
-msgstr "As forÁas do mal cresceram imensamente. N„o È mais possÌvel prevalecer."
+msgstr "As for√ßas do mal cresceram imensamente. N√£o √© mais poss√≠vel prevalecer."
 
 #. Thiefhaven (lv10) secret 2
 #: guitext:90
 msgctxt "In-game message"
 msgid "Beware - the first attackers are approaching Thiefhaven! "
-msgstr "Cuidado - os primeiros atacantes est„o se aproximando do Ref˙gio dos Ladrıes!"
+msgstr "Cuidado - os primeiros atacantes est√£o se aproximando do Ref√∫gio dos Ladr√µes!"
 
 #. Thiefhaven (lv10) secret 2
 #: guitext:91
 msgctxt "In-game message"
 msgid "The forces of evil are attacking once again!"
-msgstr "As forÁas do mal est„o atacando mais uma vez!"
+msgstr "As for√ßas do mal est√£o atacando mais uma vez!"
 
 #. Thiefhaven (lv10) secret 2
 #: guitext:92
 msgctxt "In-game message"
 msgid "More Demonspawn have departed their lair, and are on their way! "
-msgstr "Mais Crias DemonÌacas deixaram seu covil e est„o a caminho!"
+msgstr "Mais Crias Demon√≠acas deixaram seu covil e est√£o a caminho!"
 
 #. Thiefhaven (lv10) secret 2
 #: guitext:93
@@ -849,7 +849,7 @@ msgid ""
 "The fortress of the Horned Reaper is demolished, with its heart shattered. "
 "Brace yourself, for the Demon is angry at your defiance  and his minions "
 "will soon attack!"
-msgstr "A fortaleza do Ceifador de Chifres foi demolida, com seu coraÁ„o estilhaÁado. Prepare-se, pois o DemÙnio est· furioso com sua ousadia e seus lacaios atacar„o em breve!"
+msgstr "A fortaleza do Ceifador de Chifres foi demolida, com seu cora√ß√£o estilha√ßado. Prepare-se, pois o Dem√¥nio est√° furioso com sua ousadia e seus lacaios atacar√£o em breve!"
 
 #. Thiefhaven (lv10) secret 2
 #: guitext:94
@@ -857,13 +857,13 @@ msgctxt "In-game message"
 msgid ""
 "The Horned Reaper is dead, and you now can enlist any hero to accompany you "
 "into the next realm. But be wary for this land isn't safe, even now! "
-msgstr "O Ceifador de Chifres est· morto, e agora vocÍ pode alistar qualquer herÛi para acompanh·-lo ao prÛximo reino. Mas tenha cuidado, pois esta terra n„o È segura, mesmo agora!"
+msgstr "O Ceifador de Chifres est√° morto, e agora voc√™ pode alistar qualquer her√≥i para acompanh√°-lo ao pr√≥ximo reino. Mas tenha cuidado, pois esta terra n√£o √© segura, mesmo agora!"
 
 #. Coldamned (lv11) secret 3
 #: guitext:95
 msgctxt "In-game message"
 msgid "Victory! The Wizard is dead, and it is time to leave this dungeon. "
-msgstr "VitÛria! O Mago est· morto, e È hora de deixar esta masmorra."
+msgstr "Vit√≥ria! O Mago est√° morto, e √© hora de deixar esta masmorra."
 
 #. Coldamned (lv11) secret 3
 #: guitext:96
@@ -873,7 +873,7 @@ msgid ""
 "Heroes somewhere in his dungeon. If rescued, they will gladly accompany you "
 "in future conquests if you help them slay the renegade Wizard. Make haste, "
 "for the way back will not remain open for much longer! "
-msgstr "Um Mago maligno governa este reino subterr‚neo congelado. Ele aprisionou dois HerÛis em algum lugar de sua masmorra. Se resgatados, eles o acompanhar„o com prazer em futuras conquistas se vocÍ os ajudar a matar o Mago renegado. Apresse-se, pois o caminho de volta n„o permanecer· aberto por muito mais tempo!"
+msgstr "Um Mago maligno governa este reino subterr√¢neo congelado. Ele aprisionou dois Her√≥is em algum lugar de sua masmorra. Se resgatados, eles o acompanhar√£o com prazer em futuras conquistas se voc√™ os ajudar a matar o Mago renegado. Apresse-se, pois o caminho de volta n√£o permanecer√° aberto por muito mais tempo!"
 
 #. Coldamned (lv11) secret 3
 #: guitext:97
@@ -881,7 +881,7 @@ msgctxt "In-game message"
 msgid ""
 "The evil Wizard has finished his sinister spell, and the way back is now "
 "barred. "
-msgstr "O Mago maligno terminou seu feitiÁo sinistro, e o caminho de volta est· agora bloqueado."
+msgstr "O Mago maligno terminou seu feiti√ßo sinistro, e o caminho de volta est√° agora bloqueado."
 
 #. Coldamned (lv11) secret 3
 #: guitext:98
@@ -889,7 +889,7 @@ msgctxt "In-game message"
 msgid ""
 "All of your Heroes are dead, while the evil Wizard survives. This realm is "
 "lost. "
-msgstr "Todos os seus HerÛis est„o mortos, enquanto o Mago maligno sobrevive. Este reino est· perdido."
+msgstr "Todos os seus Her√≥is est√£o mortos, enquanto o Mago maligno sobrevive. Este reino est√° perdido."
 
 #: guitext:202
 msgctxt "Level name"
@@ -914,7 +914,7 @@ msgstr "Selvas Remotas"
 #: guitext:206
 msgctxt "Level name"
 msgid "Misty Bog"
-msgstr "P‚ntano Enevoado"
+msgstr "P√¢ntano Enevoado"
 
 #: guitext:207
 msgctxt "Level name"
@@ -939,7 +939,7 @@ msgstr "Banquete de Vermes"
 #: guitext:211
 msgctxt "Level name"
 msgid "Thiefhaven"
-msgstr "Ref˙gio dos Ladrıes"
+msgstr "Ref√∫gio dos Ladr√µes"
 
 #: guitext:212
 msgctxt "Level name"
@@ -949,4 +949,4 @@ msgstr "Frio Maldito"
 #: guitext:213
 msgctxt "Level name"
 msgid "Revenge of the Lord"
-msgstr "A VinganÁa do Senhor"
+msgstr "A Vingan√ßa do Senhor"
