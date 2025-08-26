@@ -7,7 +7,6 @@
 #include <wintrust.h>
 #include <softpub.h>
 #include <stdlib.h>
-#include <string.h>
 #endif
 
 #include "post_inc.h"
