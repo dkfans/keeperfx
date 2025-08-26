@@ -1,15 +1,13 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file revlord/text_eng.pot
-#      KeeperFX Campaign Strings translation template
+#   @file revlord/text_por.po
+#      KeeperFX Campaign Strings translation file
 #  @par Purpose:
-#      Allows to create .po files used for translating the game.
-#      Also, acts as a source of english translation strings.
+#      Contains translation of the national strings in the game.
 #  @par Comment:
-#      Use this file to create or update source strings in translations.
+#      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     Dec 2020
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -20,8 +18,6 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Revenge of the Lord campaign for KeeperFX\n"
-"POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2020-11-19 10:34+0100\n"
 "Last-Translator: \n"
 "Language-Team: KeeperFX Team"
 "Language: pt_BR\n"

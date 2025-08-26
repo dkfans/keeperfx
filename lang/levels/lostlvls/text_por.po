@@ -1,14 +1,13 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file levels/lostlvls/text_eng.pot
-#      KeeperFX Campaign Strings translation template
+#   @file levels/lostlvls/text_por.po
+#      KeeperFX GUI Strings translation file
 #  @par Purpose:
-#      Allows to create .po files used for translating the game.
-#      Also, acts as a source of english translation strings.
+#      Contains translation of the national strings in the game.
 #  @par Comment:
-#      Use this file to create or update source strings in translations.
-#  @date     Nov 2020 - Jun 2024
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
