@@ -24,8 +24,6 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#include <wintrust.h>
-#include <softpub.h>
 #include <tchar.h>
 static HMODULE steam_lib;
 #endif
