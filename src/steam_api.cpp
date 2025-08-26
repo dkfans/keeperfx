@@ -20,6 +20,7 @@
  */
 #include "pre_inc.h"
 #include "steam_api.hpp"
+#include "certificate.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -105,32 +106,8 @@ void steam_api_init()
         JUSTLOG("The Steam API under Wine will not be able to connect to Steam on the host machine");
     }
 
-    // Setup the certificate verification
-    // We'll use the official Windows root cert for this
-    WINTRUST_FILE_INFO fileData = {};
-    fileData.cbStruct = sizeof(WINTRUST_FILE_INFO);
-    fileData.pcwszFilePath = L"steam_api.dll";
-    fileData.hFile = NULL;
-    fileData.pgKnownSubject = NULL;
-    GUID policyGUID = WINTRUST_ACTION_GENERIC_VERIFY_V2;
-    WINTRUST_DATA winTrustData = {};
-    winTrustData.cbStruct = sizeof(WINTRUST_DATA);
-    winTrustData.dwUIChoice = WTD_UI_NONE;            // No UI
-    winTrustData.fdwRevocationChecks = WTD_REVOKE_NONE; // No revocation checking
-    winTrustData.dwUnionChoice = WTD_CHOICE_FILE;     // We are verifying a file
-    winTrustData.pFile = &fileData;
-    winTrustData.dwStateAction = WTD_STATEACTION_VERIFY; // Start verification
-    winTrustData.dwProvFlags = WTD_SAFER_FLAG;        // Use safer flags
-
-    // Do the verification
-    LONG verify_status = WinVerifyTrust(NULL, &policyGUID, &winTrustData);
-
-    // Close state data to free resources
-    winTrustData.dwStateAction = WTD_STATEACTION_CLOSE;
-    WinVerifyTrust(NULL, &policyGUID, &winTrustData);
-
-    // Check if certificate verification was successful
-    if(verify_status != ERROR_SUCCESS){
+    // Verify certificate
+    if(verify_certificate("steam_api.dll") == 0){
         ERRORLOG("Failed to verify certificate of 'steam_api.dll'");
         return;
     } else {
