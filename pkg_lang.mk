@@ -193,6 +193,9 @@ pkg/%/text_lat.dat: lang/%/text_lat.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 pkg/%/text_pol.dat: lang/%/text_pol.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
+pkg/%/text_por.dat: lang/%/text_por.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
+
 pkg/%/text_rus.dat: lang/%/text_rus.po $(POTONGDAT) $(RU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(RU_CHAR_ENCODING) $< >/dev/null
 
