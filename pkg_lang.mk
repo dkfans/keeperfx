@@ -48,16 +48,19 @@ pkg/campgns/ancntkpr/text_chi.dat \
 pkg/campgns/ancntkpr/text_fre.dat \
 pkg/campgns/ancntkpr/text_ger.dat \
 pkg/campgns/ancntkpr/text_pol.dat \
+pkg/campgns/ancntkpr/text_por.dat \
 pkg/campgns/ancntkpr/text_spa.dat \
 pkg/campgns/ancntkpr/text_lat.dat \
 pkg/campgns/burdnimp/text_eng.dat \
 pkg/campgns/burdnimp/text_chi.dat \
 pkg/campgns/burdnimp/text_pol.dat \
+pkg/campgns/burdnimp/text_por.dat \
 pkg/campgns/burdnimp/text_spa.dat \
 pkg/campgns/lqizgood/text_eng.dat \
 pkg/campgns/lqizgood/text_chi.dat \
 pkg/campgns/lqizgood/text_fre.dat \
 pkg/campgns/lqizgood/text_pol.dat \
+pkg/campgns/lqizgood/text_por.dat \
 pkg/campgns/lqizgood/text_ukr.dat \
 pkg/campgns/origplus/text_eng.dat \
 pkg/campgns/origplus/text_chi.dat \
@@ -71,6 +74,7 @@ pkg/campgns/origplus/text_jpn.dat \
 pkg/campgns/origplus/text_kor.dat \
 pkg/campgns/origplus/text_lat.dat \
 pkg/campgns/origplus/text_pol.dat \
+pkg/campgns/origplus/text_por.dat \
 pkg/campgns/origplus/text_rus.dat \
 pkg/campgns/origplus/text_spa.dat \
 pkg/campgns/origplus/text_swe.dat \
@@ -78,18 +82,21 @@ pkg/campgns/origplus/text_ukr.dat \
 pkg/campgns/revlord/text_eng.dat \
 pkg/campgns/revlord/text_chi.dat \
 pkg/campgns/revlord/text_ger.dat \
+pkg/campgns/revlord/text_por.dat \
 pkg/campgns/revlord/text_spa.dat \
 pkg/campgns/twinkprs/text_eng.dat \
 pkg/campgns/twinkprs/text_chi.dat \
 pkg/campgns/twinkprs/text_fre.dat \
 pkg/campgns/twinkprs/text_jpn.dat \
 pkg/campgns/twinkprs/text_pol.dat \
+pkg/campgns/twinkprs/text_por.dat \
 pkg/campgns/twinkprs/text_spa.dat \
 pkg/campgns/twinkprs/text_lat.dat \
 pkg/campgns/undedkpr/text_eng.dat \
 pkg/campgns/undedkpr/text_chi.dat \
 pkg/campgns/undedkpr/text_ger.dat \
 pkg/campgns/undedkpr/text_pol.dat \
+pkg/campgns/undedkpr/text_por.dat \
 pkg/campgns/undedkpr/text_spa.dat
 
 MPTEXTDATS = \
@@ -97,13 +104,16 @@ pkg/levels/classic/text_eng.dat \
 pkg/levels/classic/text_chi.dat \
 pkg/levels/classic/text_fre.dat \
 pkg/levels/classic/text_ger.dat \
+pkg/levels/classic/text_por.dat \
 pkg/levels/classic/text_spa.dat \
 pkg/levels/standard/text_eng.dat \
 pkg/levels/standard/text_chi.dat \
 pkg/levels/standard/text_fre.dat \
 pkg/levels/standard/text_ger.dat \
+pkg/levels/standard/text_por.dat \
 pkg/levels/standard/text_spa.dat \
 pkg/levels/lostlvls/text_eng.dat \
+pkg/levels/lostlvls/text_por.dat \
 pkg/levels/lostlvls/text_chi.dat
 
 EU_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_eu.txt
