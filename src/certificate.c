@@ -12,11 +12,18 @@
 
 #include "post_inc.h"
 
+unsigned char verify_certificates = 1;
+
 int verify_certificate(const char* path)
 {
 #ifndef _WIN32
-    return 0;
+    return -1;
 #else
+
+    // Check if certificate verification is disabled
+    if(verify_certificates != 1){
+        return -1;
+    }
 
     // Convert char* to wchar_t*
     int char_len = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);

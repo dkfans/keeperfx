@@ -107,17 +107,19 @@ void steam_api_init()
     }
 
     // Verify certificate
-    if(verify_certificate("steam_api.dll") == 0){
+    int verify_status = verify_certificate("steam_api.dll");
+    if(verify_status == 1){
+        JUSTLOG("'steam_api.dll' certificate successfully verified");
+    } else if (verify_status == -1){
+        JUSTLOG("'steam_api.dll' certificate verification is disabled");
+    } else {
         ERRORLOG("Failed to verify certificate of 'steam_api.dll'");
         return;
-    } else {
-        JUSTLOG("'steam_api.dll' certificate successfully verified");
     }
 
     // Load the Steam API library
     steam_lib = LoadLibraryA("steam_api.dll");
-    if (!steam_lib)
-    {
+    if (!steam_lib) {
         ERRORLOG("Unable to load 'steam_api.dll' library");
         return;
     }
