@@ -3788,7 +3788,9 @@ void game_loop(void)
             if (is_feature_on(Ft_SkipHeartZoom) == false) {
                 set_player_instance(player, PI_HeartZoom, 0);
             } else {
-                toggle_status_menu(1); // Required when skipping PI_HeartZoom
+                if (!game.packet_load_enable) {
+                    toggle_status_menu(1); // Required when skipping PI_HeartZoom
+                }
             }
         } else
         {
@@ -3796,7 +3798,9 @@ void game_loop(void)
           clear_flag(game.operation_flags, GOF_Paused);
         }
       } else {
-          toggle_status_menu(1); // Required when skipping PI_HeartZoom
+          if (!game.packet_load_enable) {
+              toggle_status_menu(1); // Required when skipping PI_HeartZoom
+          }
       }
 
       unsigned long starttime;
