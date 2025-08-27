@@ -149,7 +149,7 @@ enum TbNetworkService {
 struct ClientDataEntry {
   unsigned long plyrid;
   unsigned long isactive;
-  unsigned long data_exchanged;
+  unsigned long need_data_exchange;
   char name[32];
 };
 
