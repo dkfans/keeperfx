@@ -524,7 +524,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     unsigned int v24;
     unsigned int v30;
 
-    static const char byte_522148[80] =
+    static const char exploration_direction_lookup_table[80] =
     {
     0,0,0,0,0,
     0,0,0,0,0,
@@ -549,7 +549,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         MapSlabCoord y;
     };
 
-    static const struct XY byte_522199[6] =
+    static const struct XY exploration_direction_offsets[6] =
     {
         { 0, 0},
         { 1,-1},
@@ -649,7 +649,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
             second_scratch[v24].y = slb_y + 1;
             v24++;
         }
-        for (i = &byte_522148[5 * v13]; *i; i = &byte_522148[5 * v13])
+        for (i = &exploration_direction_lookup_table[5 * v13]; *i; i = &exploration_direction_lookup_table[5 * v13])
         {
             if (v13 == 15)
             {
@@ -661,7 +661,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
             }
             else
             {
-                v20 = &first_scratch[get_slab_number(byte_522199[*(int *)i].x,byte_522199[*(int *)i].y) + game.map_tiles_x * slb_y];
+                v20 = &first_scratch[get_slab_number(exploration_direction_offsets[*(int *)i].x,exploration_direction_offsets[*(int *)i].y) + game.map_tiles_x * slb_y];
                 v20[slb_x] |= 2u;
                 v13 &= i[4];
             }
@@ -945,7 +945,7 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
     wandr->plyr_bit = to_flag(plyr_idx);
     wandr->num_check_per_run = 20;
     wandr->max_found_per_check = 4;
-    wandr->wdrfield_14 = 0;
+    wandr->search_limiting_enabled = 0;
 
     long stl_num_list_count = 0;
     SubtlCodedCoords* stl_num_list = (SubtlCodedCoords*)big_scratch;
@@ -994,7 +994,7 @@ long wander_point_update(struct Wander *wandr)
                 break;
             stl_num_list[stl_num_list_count] = stl_num;
             stl_num_list_count++;
-            if ((wandr->wdrfield_14 != 0) && (stl_num_list_count == wandr->max_found_per_check))
+            if ((wandr->search_limiting_enabled != 0) && (stl_num_list_count == wandr->max_found_per_check))
             {
                 slb_num = (wandr->num_check_per_run + wandr->last_checked_slb_num) % (game.map_tiles_x*game.map_tiles_y);
                 break;

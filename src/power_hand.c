@@ -540,7 +540,7 @@ void draw_power_hand(void)
     struct Room *room;
     struct RoomConfigStats* roomst;
     player = get_my_player();
-    if ((player->flgfield_6 & PlaF6_Unknown01) != 0)
+    if ((player->display_flags & PlaF6_DisplayNeedsUpdate) != 0)
         return;
     if (game.small_map_state == 2)
         return;

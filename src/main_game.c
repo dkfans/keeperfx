@@ -220,7 +220,7 @@ static void init_level(void)
             }
         }
     }
-    game.numfield_D |= GNFldD_Unkn04;
+    game.view_mode_flags |= GNFldD_ComputerPlayerProcessing;
     //memcpy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
     memcpy(&intralvl,&transfer_mem,sizeof(struct IntralevelData));
     event_initialise_all();
@@ -421,7 +421,7 @@ void faststartup_network_game(CoroutineLoop *context)
 
 CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
 {
-    get_my_player()->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+    get_my_player()->display_flags &= ~PlaF6_PlyrHasQuit;
     return CLS_CONTINUE;
 }
 
@@ -432,7 +432,7 @@ void faststartup_saved_packet_game(void)
     {
         struct PlayerInfo *player;
         player = get_my_player();
-        player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+        player->display_flags &= ~PlaF6_PlyrHasQuit;
     }
     set_gui_visible(false);
     clear_flag(game.operation_flags, GOF_ShowPanel);

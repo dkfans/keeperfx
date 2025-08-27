@@ -1635,7 +1635,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         navi = &cctrl->navi;
         speed = cctrl->max_speed;
-        cctrl->flgfield_2 = 0;
+        cctrl->creature_state_flags = 0;
         cctrl->combat_flags = 0;
     }
     set_flag(crt_owner_flags, to_flag(creatng->owner));

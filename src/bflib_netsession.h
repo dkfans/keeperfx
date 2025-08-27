@@ -55,7 +55,7 @@ struct TbNetworkPlayerEntry {
   unsigned char field_0;
   unsigned long id;
   unsigned long field_5;
-  unsigned long field_9;
+  unsigned long is_active;
   char name[32];
 };
 

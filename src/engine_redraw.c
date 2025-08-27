@@ -926,13 +926,13 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                 } else {
                     set_pointer_graphic(MousePG_Arrow);
                 }
-                player->flgfield_6 |= PlaF6_Unknown01;
+                player->display_flags |= PlaF6_DisplayNeedsUpdate;
             } else
             if (((player->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number))
             {
                 set_pointer_graphic(MousePG_Query);
-                player->flgfield_6 |= PlaF6_Unknown01;
+                player->display_flags |= PlaF6_DisplayNeedsUpdate;
             } else
             {
                 if ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0) {
@@ -1036,7 +1036,7 @@ void redraw_display(void)
 {
     SYNCDBG(5,"Starting");
     struct PlayerInfo* player = get_my_player();
-    player->flgfield_6 &= ~PlaF6_Unknown01;
+    player->display_flags &= ~PlaF6_DisplayNeedsUpdate;
     if (game.game_kind == GKind_Unknown1)
       return;
     if (game.small_map_state == 2)

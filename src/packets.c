@@ -641,7 +641,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
           if (player_exists(swplyr))
           {
             swplyr->allocflags &= ~PlaF_Allocated;
-            swplyr->flgfield_6 |= PlaF6_PlyrHasQuit;
+            swplyr->display_flags |= PlaF6_PlyrHasQuit;
           }
         }
       } else
@@ -677,7 +677,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         frontend_save_continue_game(true);
         free_swipe_graphic();
       }
-      player->flgfield_6 |= PlaF6_PlyrHasQuit;
+      player->display_flags |= PlaF6_PlyrHasQuit;
       process_quit_packet(player, 0);
       return 1;
   case PckA_Unknown003:
@@ -686,7 +686,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         turn_off_all_menus();
         frontend_save_continue_game(true);
       }
-      player->flgfield_6 |= PlaF6_PlyrHasQuit;
+      player->display_flags |= PlaF6_PlyrHasQuit;
       process_quit_packet(player, 1);
       return 1;
   case PckA_Unknown004:
@@ -901,7 +901,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       set_player_instance(player, PI_ZoomToPos, 0);
       return 0;
   case PckA_Unknown088:
-      game.numfield_D ^= (game.numfield_D ^ (GNFldD_Unkn04 * ((game.numfield_D & GNFldD_Unkn04) == 0))) & GNFldD_Unkn04;
+      game.view_mode_flags ^= (game.view_mode_flags ^ (GNFldD_ComputerPlayerProcessing * ((game.view_mode_flags & GNFldD_ComputerPlayerProcessing) == 0))) & GNFldD_ComputerPlayerProcessing;
       return 0;
   case PckA_PwrCTADis:
       turn_off_power_call_to_arms(plyr_idx);
@@ -1243,7 +1243,7 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->move_speed = compute_controlled_speed_increase(ccctrl->move_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_MoveY;
+            ccctrl->creature_control_flags |= CCFlg_MoveY;
         } else
         {
             ERRORLOG("No creature to increase speed");
@@ -1254,7 +1254,7 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_MoveY;
+            ccctrl->creature_control_flags |= CCFlg_MoveY;
         } else
         {
             ERRORLOG("No creature to decrease speed");
@@ -1265,7 +1265,7 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->orthogn_speed = compute_controlled_speed_increase(ccctrl->orthogn_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_MoveX;
+            ccctrl->creature_control_flags |= CCFlg_MoveX;
         } else
         {
             ERRORLOG("No creature to increase speed");
@@ -1276,7 +1276,7 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->orthogn_speed = compute_controlled_speed_decrease(ccctrl->orthogn_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_MoveX;
+            ccctrl->creature_control_flags |= CCFlg_MoveX;
         } else
         {
             ERRORLOG("No creature to decrease speed");
@@ -1290,7 +1290,7 @@ void process_players_creature_control_packet_control(long idx)
             if (!creature_control_invalid(ccctrl))
             {
                 ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
-                ccctrl->flgfield_1 |= CCFlg_MoveZ;
+                ccctrl->creature_control_flags |= CCFlg_MoveZ;
                 if (ccctrl->vertical_speed != 0)
                 {
                     get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
@@ -1314,7 +1314,7 @@ void process_players_creature_control_packet_control(long idx)
             {
                 // We want increase here, not decrease, because we don't want it angle-dependent
                 ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
-                ccctrl->flgfield_1 |= CCFlg_MoveZ;
+                ccctrl->creature_control_flags |= CCFlg_MoveZ;
                 if (ccctrl->vertical_speed != 0)
                 {
                     get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
