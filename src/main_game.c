@@ -61,8 +61,10 @@
 extern TbBool force_player_num;
 extern TbBool IMPRISON_BUTTON_DEFAULT;
 extern TbBool FLEE_BUTTON_DEFAULT;
+extern unsigned long features_enabled;
 
 extern void setup_players_count();
+extern void set_skip_heart_zoom_feature(TbBool enable);
 
 CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 TbBool luascript_loaded = false;
@@ -316,6 +318,7 @@ void startup_saved_packet_game(void)
     settings.isometric_tilt = game.packet_save_head.isometric_tilt;
     IMPRISON_BUTTON_DEFAULT = game.packet_save_head.default_imprison_tendency;
     FLEE_BUTTON_DEFAULT = game.packet_save_head.default_flee_tendency;
+    set_skip_heart_zoom_feature(game.packet_save_head.skip_heart_zoom);
     init_level();
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();

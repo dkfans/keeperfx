@@ -267,6 +267,19 @@ TbBool is_feature_on(unsigned long feature)
   return ((features_enabled & feature) != 0);
 }
 
+void set_skip_heart_zoom_feature(TbBool enable)
+{
+  if (enable)
+    features_enabled |= Ft_SkipHeartZoom;
+  else
+    features_enabled &= ~Ft_SkipHeartZoom;
+}
+
+TbBool get_skip_heart_zoom_feature(void)
+{
+  return ((features_enabled & Ft_SkipHeartZoom) != 0);
+}
+
 /**
  * Returns current language string.
  */
