@@ -1465,7 +1465,7 @@ TbError SendRequestToAllExchangeDataMsg(unsigned long src_id,unsigned long seq, 
   spPtr->EncodeRequestExchangeDataMsg(requestExchangeDataBuffer, src_id, seq);
   for (i=0; i < maximumPlayers; i++)
   {
-    if ((clientDataTable[i].isactive) && (!clientDataTable[i].field_8))
+    if ((clientDataTable[i].isactive) && (!clientDataTable[i].need_data_exchange))
     {
       if (spPtr->Send(clientDataTable[i].plyrid,requestExchangeDataBuffer))
         WARNMSG("%s: Failure on SP::Send()",func_name);
@@ -1525,7 +1525,7 @@ TbError HostDataCollection(void)
     exchngNeeded = 0;
     for (i=0; i < maximumPlayers; i++)
     {
-      if ((clientDataTable[i].isactive) && (!clientDataTable[i].field_8))
+      if ((clientDataTable[i].isactive) && (!clientDataTable[i].need_data_exchange))
       {
         exchngNeeded = 1;
         break;
@@ -1565,7 +1565,7 @@ TbError HostDataCollection(void)
         {
           for (i=0; i < maximumPlayers; i++)
           {
-            if ((clientDataTable[i].isactive) && (!clientDataTable[i].field_8))
+            if ((clientDataTable[i].isactive) && (!clientDataTable[i].need_data_exchange))
             {
               spPtr->EncodeDeletePlayerMsg(deletePlayerBuffer, clientDataTable[i].plyrid);
               for (k=0; k < maximumPlayers; k++)
@@ -1649,10 +1649,10 @@ TbError StartMultiPlayerExchange(void *buf)
   {
     clidat = &clientDataTable[i];
     if (clidat->isactive)
-      clidat->field_8 = 0;
+      clidat->need_data_exchange = 0;
   }
   memcpy((uchar *)exchangeBuffer + exchangeSize * localPlayerIndex, buf, exchangeSize);
-  clientDataTable[localPlayerIndex].field_8 = 1;
+  clientDataTable[localPlayerIndex].need_data_exchange = 1;
   startTime = LbTimerClock();
   actualTimeout = basicTimeout;
   if (hostId == localPlayerId)
@@ -1908,7 +1908,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
       WARNLOG("Unexpected sequence number, Got %lu, expected %lu",seq,sequenceNumber);
       return NULL;
     }
-    clientDataTable[plr_id].field_8 = 1;
+    clientDataTable[plr_id].need_data_exchange = 1;
     return (uchar *)exchangeBuffer + plr_id * exchangeSize;
   }
   if (xch_size != maximumPlayers * exchangeSize)
@@ -1937,7 +1937,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
       WARNLOG("Invalid id: %lu",plr_id);
       return NULL;
     }
-    clientDataTable[plr_id].field_8 = 1;
+    clientDataTable[plr_id].need_data_exchange = 1;
     return (uchar *)exchangeBuffer + plr_id * exchangeSize;
   }
   if (hostId != plr_id)
