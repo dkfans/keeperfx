@@ -337,7 +337,7 @@ struct GuiBox *gui_allocate_box_structure(void)
         struct GuiBox* gbox = &gui_boxes[i];
         if (gui_box_is_not_valid(gbox))
         {
-            gbox->field_1 = i;
+            gbox->box_index = i;
             gbox->flags |= GBoxF_Allocated;
             gui_insert_box_at_list_top(gbox);
             return gbox;
@@ -641,7 +641,7 @@ struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, 
             long width = LbTextStringWidth(gboptn->label) * ((long)pixel_size);
             if ((x >= sx) && (x < sx + width))
             {
-                if ((gboptn->numfield_4 == 2) || (gboptn->enabled == 0))
+                if ((gboptn->is_enabled == 2) || (gboptn->enabled == 0))
                     return NULL;
                 return gboptn;
             }
@@ -786,7 +786,7 @@ TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn
       right_button_released = 0;
       button_num = 2;
     }
-    if (goptn->numfield_4 == 1)
+    if (goptn->is_enabled == 1)
     {
       if (goptn->callback != NULL)
         goptn->callback(gbox, goptn, button_num, &goptn->cb_param1);

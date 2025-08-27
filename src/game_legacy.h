@@ -89,13 +89,13 @@ enum GameOperationFlags {
 };
 
 enum GameNumfieldDFlags {
-    GNFldD_Unkn01 = 0x01,
+    GNFldD_CreatureViewMode = 0x01,
     GNFldD_Unkn02 = 0x02,
-    GNFldD_Unkn04 = 0x04,
+    GNFldD_ComputerPlayerProcessing = 0x04,
     GNFldD_CreaturePasngr = 0x08, // Possessing a creature as a passenger (no direct control)
-    GNFldD_Unkn10 = 0x10,
-    GNFldD_Unkn20 = 0x20,
-    GNFldD_Unkn40 = 0x40,
+    GNFldD_WaitSleepMode = 0x10,
+    GNFldD_StatusPanelDisplay = 0x20,
+    GNFldD_RoomFlameProcessing = 0x40,
     GNFldD_Unkn80 = 0x80,
 };
 /******************************************************************************/
@@ -130,7 +130,7 @@ struct Game {
     unsigned char system_flags;
     /** Flags which control how the game operates, mostly defined by command line. */
     unsigned char operation_flags;
-    unsigned char numfield_D; //flags in enum GameNumfieldDFlags
+    unsigned char view_mode_flags; //flags in enum GameNumfieldDFlags
     unsigned char flags_font;
     unsigned char flags_gui;
     unsigned char eastegg01_cntr;

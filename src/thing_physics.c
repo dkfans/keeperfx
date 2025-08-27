@@ -315,7 +315,7 @@ void creature_set_speed(struct Thing *thing, long speed)
     {
         cctrl->move_speed = speed;
     }
-    cctrl->flgfield_1 |= CCFlg_MoveY;
+    cctrl->creature_control_flags |= CCFlg_MoveY;
 }
 
 TbBool cross_x_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2)

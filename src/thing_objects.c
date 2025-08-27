@@ -782,13 +782,13 @@ static long food_moves(struct Thing *objtng)
         struct Thing* near_creatng;
         if (room->hatch_gameturn == game.play_gameturn)
         {
-            near_creatng = thing_get(room->hatchfield_1B);
+            near_creatng = thing_get(room->cached_nearby_creature_index);
         } else
         {
             room->hatch_gameturn = game.play_gameturn;
             near_creatng = get_nearest_thing_of_class_and_model_owned_by(pos.x.val, pos.y.val, -1, TCls_Creature, -1);
             if (!thing_is_invalid(near_creatng))
-                room->hatchfield_1B = near_creatng->index;
+                room->cached_nearby_creature_index = near_creatng->index;
         }
         has_near_creature = (thing_exists(near_creatng) && (get_chessboard_distance(&objtng->mappos, &near_creatng->mappos) < 768));
         if (has_near_creature)

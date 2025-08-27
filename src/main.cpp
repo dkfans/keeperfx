@@ -923,7 +923,7 @@ void init_keeper(void)
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     game.operation_flags |= GOF_ShowPanel;
-    game.numfield_D |= (GNFldD_Unkn20 | GNFldD_Unkn40);
+    game.view_mode_flags |= (GNFldD_StatusPanelDisplay | GNFldD_RoomFlameProcessing);
     init_censorship();
     SYNCDBG(9,"Finished");
 }
@@ -1904,7 +1904,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
         return;
     }
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->flgfield_1 |= CCFlg_NoCompControl;
+    cctrl->creature_control_flags |= CCFlg_NoCompControl;
     SYNCDBG(8,"Finished");
 }
 
@@ -2699,7 +2699,7 @@ void update(void)
         process_level_script();
         process_fx_lines();
         lua_on_game_tick();
-        if ((game.numfield_D & GNFldD_Unkn04) != 0)
+        if ((game.view_mode_flags & GNFldD_ComputerPlayerProcessing) != 0)
             process_computer_players2();
         process_players();
         process_action_points();
@@ -3250,7 +3250,7 @@ TbBool keeper_screen_swap(void)
  */
 TbBool keeper_wait_for_next_turn(void)
 {
-    if ((game.numfield_D & GNFldD_Unkn10) != 0)
+    if ((game.view_mode_flags & GNFldD_WaitSleepMode) != 0)
     {
         // No idea when such situation occurs
         TbClockMSec sleep_end = last_loop_time + 1000;
@@ -3706,7 +3706,7 @@ static TbBool wait_at_frontend(void)
     if (exit_keeper)
     {
       player = get_my_player();
-      player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+      player->display_flags &= ~PlaF6_PlyrHasQuit;
       return true;
     }
     reenter_video_mode();

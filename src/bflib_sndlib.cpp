@@ -349,8 +349,8 @@ struct sound_sample {
 
 #pragma pack(1)
 struct SoundBankHead { // sizeof = 18
-	uint8_t field_0[14];
-	uint32_t field_E;
+	uint8_t signature[14];
+	uint32_t version;
 };
 #pragma pack()
 
@@ -359,12 +359,12 @@ struct SoundBankSample { // sizeof = 32
 	/** Name of the sound file the sample comes from. */
 	char filename[18];
 	/** Offset of the sample data. */
-	uint32_t field_12;
-	uint32_t field_16;
+	uint32_t data_offset;
+	uint32_t sample_rate;
 	/** Size of the sample file. */
 	uint32_t data_size;
 	SoundSFXID sfxid;
-	uint8_t field_1F;
+	uint8_t format_flags;
 };
 #pragma pack()
 
@@ -373,7 +373,7 @@ struct SoundBankEntry { // sizeof = 16
 	uint32_t first_sample_offset;
 	uint32_t first_data_offset;
 	uint32_t total_samples_size;
-	uint32_t field_C;
+	uint32_t entries_count;
 };
 #pragma pack()
 
@@ -405,7 +405,7 @@ std::vector<sound_sample> load_sound_bank(const char * filename) {
 	for (int i = 0; i < sample_count; ++i) {
 		stream.seekg(directory.first_sample_offset + (sizeof(sample) * i), std::ios::beg);
 		stream.read(reinterpret_cast<char *>(&sample), sizeof(sample));
-		stream.seekg(directory.first_data_offset + sample.field_12, std::ios::beg);
+		stream.seekg(directory.first_data_offset + sample.data_offset, std::ios::beg);
 		buffers.emplace_back(sample.filename, sample.sfxid, wave_file(stream));
 	}
 	JUSTLOG("Loaded %d sound samples from %s", buffers.size(), filename);
