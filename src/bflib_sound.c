@@ -281,7 +281,7 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, 
     emit->pos.val_x = x;
     emit->pos.val_y = y;
     emit->pos.val_z = z;
-    emit->field_1 = flags;
+    emit->emitter_flags = flags;
     emit->curr_pitch = 100;
     emit->target_pitch = 100;
     if (start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, repeats, 3, flags, priority))
@@ -444,7 +444,7 @@ long get_emitter_pitch_from_doppler(const struct SoundReceiver *recv, struct Sou
 long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitter *emit, long *pan, long *volume, long *pitch)
 {
     TbBool on_sight;
-    if ((emit->field_1 & 0x08) != 0)
+    if ((emit->emitter_flags & 0x08) != 0)
     {
         *volume = 127;
         *pan = 64;
@@ -452,7 +452,7 @@ long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitte
         return 1;
     }
     long dist = get_emitter_distance(recv, emit);
-    if ((emit->field_1 & 0x04) != 0) {
+    if ((emit->emitter_flags & 0x04) != 0) {
         on_sight = 1;
     } else {
         on_sight = get_emitter_sight(recv, emit);
@@ -546,7 +546,7 @@ TbBool remove_active_samples_from_emitter(struct SoundEmitter *emit)
         struct S3DSample* sample = &SampleList[i];
         if ( (sample->is_playing != 0) && (sample->emit_ptr == emit) )
         {
-            if (sample->field_1D == -1)
+            if (sample->repeat_count == -1)
             {
                 stop_sample(get_emitter_id(emit), sample->smptbl_id, sample->bank_id);
                 sample->is_playing = 0;
@@ -788,7 +788,7 @@ TbBool process_sound_samples(void)
             if (sample->emit_ptr != NULL)
             {
               if ( (sample->volume == 0) ||
-                 ( ((sample->emit_ptr->field_1 & 0x08) == 0) && (get_sound_distance(&sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance) ) )
+                 ( ((sample->emit_ptr->emitter_flags & 0x08) == 0) && (get_sound_distance(&sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance) ) )
                 kick_out_sample(i);
             }
         }
@@ -886,7 +886,7 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     sample->smptbl_id = smptbl_id;
     sample->bank_id = bank_id;
     sample->emit_ptr = emit;
-    sample->field_1D = fild1D;
+    sample->repeat_count = fild1D;
     sample->volume = volume;
     sample->pan = pan;
     sample->base_pitch = smpitch;

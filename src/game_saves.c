@@ -683,7 +683,7 @@ LevelNumber move_campaign_to_next_level(void)
     SYNCDBG(15,"Campaign move %ld to %ld",(long)curr_lvnum,(long)lvnum);
     {
         struct PlayerInfo* player = get_my_player();
-        player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+        player->display_flags &= ~PlaF6_PlyrHasQuit;
     }
     if (lvnum != LEVELNUMBER_ERROR)
     {

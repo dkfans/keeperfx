@@ -69,10 +69,10 @@ void fake_button_click(int gmbtn_idx)
         gmnu = &active_menus[(unsigned)gbtn->gmenu_idx];
         if (((gbtn->flags & LbBtnF_Active) != 0) && (gmnu->is_turned_on != 0) && (gbtn->id_num == gmbtn_idx))
         {
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn)) {
+            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn)) {
                 do_button_press_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
             }
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn)) {
+            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn)) {
                 do_button_click_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
             }
         }
@@ -90,7 +90,7 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
     if ((gbtn->gbactn_1) && (left_button_released))
     {
         callback = gbtn->click_event;
-        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
+        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) ||
             (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
             left_button_released = 0;
@@ -224,7 +224,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         SYNCDBG(8,"Left down for button %d",(int)gmbtn_idx);
         result = true;
         callback = gbtn->click_event;
-        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
+        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) ||
            (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
             if ((gbtn->flags & LbBtnF_Enabled) != 0)
@@ -283,7 +283,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
             game.flash_button_index = 0;
         }
         callback = gbtn->click_event;
-        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
+        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Clickable) != 0) ||
            (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
           left_button_clicked = 0;

@@ -1176,7 +1176,7 @@ TbBool frontmap_load(void)
     frontend_load_data_reset();
     struct PlayerInfo* player = get_my_player();
     lvnum = get_continue_level_number();
-    if ((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0)
+    if ((player->display_flags & PlaF6_PlyrHasQuit) != 0)
     {
         lvnum = get_loaded_level_number();
         frontmap_zoom_out_init(lvnum, lvnum);
