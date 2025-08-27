@@ -1527,7 +1527,6 @@ TbError HostDataCollection(void)
     {
       if ((clientDataTable[i].isactive) && (!clientDataTable[i].field_8))
       {
-        exchngNeeded = clientDataTable[i].field_8;
         exchngNeeded = 1;
         break;
       }
