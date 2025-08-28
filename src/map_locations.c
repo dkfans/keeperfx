@@ -59,7 +59,7 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location, TbBoo
 
     case MLoc_PLAYERSHEART:
         return get_coords_at_dungeon_heart(pos, i);
-        
+
     case MLoc_METALOCATION:
         return get_coords_at_meta_action(pos, 0, i);
 
@@ -68,7 +68,7 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location, TbBoo
         pos->y.val = subtile_coord_center(((location >> 8) & 0xFFF));
         pos->z.val = get_floor_height_at(pos);
       return true;
-        
+
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
     case MLoc_ROOMKIND:
@@ -81,12 +81,12 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location, TbBoo
     default:
         return false;
     }
-    
+
 }
 
 TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i)
 {
-    
+
     SYNCDBG(7,"Starting with loc:%ld", i);
     struct Coord3d *src;
     struct Coord3d targetpos = {0};
@@ -116,7 +116,7 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
         targetpos.x.val = subtile_coord_center(dungeon->cta_stl_x);
         targetpos.y.val = subtile_coord_center(dungeon->cta_stl_y);
         targetpos.z.val = get_floor_height_at(pos);
-        src = &targetpos; 
+        src = &targetpos;
         break;
     default:
         return false;
@@ -126,7 +126,7 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
     pos->y.val = src->y.val + PLAYER_RANDOM(target_plyr_idx, 33) - 16;
     pos->z.val = src->z.val;
     return true;
-    
+
 }
 
 TbBool get_coords_at_hero_door(struct Coord3d *pos, long gate_num, unsigned char random_factor)

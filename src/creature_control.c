@@ -74,7 +74,7 @@ TbBool creature_control_exists(const struct CreatureControl *cctrl)
 {
   if (creature_control_invalid(cctrl))
       return false;
-  if ((cctrl->flgfield_1 & CCFlg_Exists) == 0)
+  if ((cctrl->creature_control_flags & CCFlg_Exists) == 0)
       return false;
   return true;
 }
@@ -91,7 +91,7 @@ long i_can_allocate_free_control_structure(void)
         struct CreatureControl* cctrl = game.persons.cctrl_lookup[i];
         if (!creature_control_invalid(cctrl))
         {
-            if ((cctrl->flgfield_1 & CCFlg_Exists) == 0)
+            if ((cctrl->creature_control_flags & CCFlg_Exists) == 0)
                 return i;
         }
   }
@@ -105,10 +105,10 @@ struct CreatureControl *allocate_free_control_structure(void)
         struct CreatureControl* cctrl = game.persons.cctrl_lookup[i];
         if (!creature_control_invalid(cctrl))
         {
-            if ((cctrl->flgfield_1 & CCFlg_Exists) == 0)
+            if ((cctrl->creature_control_flags & CCFlg_Exists) == 0)
             {
                 memset(cctrl, 0, sizeof(struct CreatureControl));
-                cctrl->flgfield_1 |= CCFlg_Exists;
+                cctrl->creature_control_flags |= CCFlg_Exists;
                 cctrl->index = i;
                 return cctrl;
             }
@@ -129,7 +129,7 @@ void delete_all_control_structures(void)
         struct CreatureControl* cctrl = creature_control_get(i);
         if (!creature_control_invalid(cctrl))
         {
-            if ((cctrl->flgfield_1 & CCFlg_Exists) != 0)
+            if ((cctrl->creature_control_flags & CCFlg_Exists) != 0)
                 delete_control_structure(cctrl);
       }
     }
@@ -157,7 +157,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     thing->alloc_flags |= TAlF_IsControlled;
     thing->rendering_flags |= TRF_Invisible;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->flgfield_2 |= TF2_Spectator;
+    cctrl->creature_state_flags |= TF2_Spectator;
     cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
     set_player_mode(player, PVT_CreatureContrl);
     set_start_state(thing);

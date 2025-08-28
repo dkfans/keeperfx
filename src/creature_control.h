@@ -140,8 +140,8 @@ struct CastedSpellData {
 
 struct CreatureControl {
     CctrlIndex index;
-    unsigned short flgfield_1;
-    unsigned char flgfield_2;
+    unsigned short creature_control_flags;
+    unsigned char creature_state_flags;
     unsigned char combat_flags;
     unsigned char party_objective;
     unsigned char original_party_objective;
@@ -164,6 +164,8 @@ struct CreatureControl {
     unsigned char hunger_loss;
     long thought_bubble_last_turn_drawn;
     unsigned char thought_bubble_display_timer;
+    TbBool force_health_flower_displayed;
+    TbBool force_health_flower_hidden;
     unsigned char paydays_owed;
     char paydays_advanced;
     long annoy_untrained_turn;
@@ -202,7 +204,7 @@ unsigned char sound_flag;
     char target_plyr_idx;
     PlayerBitFlags player_broken_into_flags;
     long long_8B;
-    unsigned char byte_8F;
+    unsigned char tunnel_dig_direction;
     SubtlCodedCoords member_pos_stl[5];
   } party;
   struct {
@@ -223,16 +225,16 @@ unsigned char sound_flag;
   struct {
     char sbyte_89;
     unsigned char hero_gate_creation_turn;
-    TbBool byte_8B;
-    TbBool byte_8C;
+    TbBool hero_state_reset_flag;
+    TbBool ready_for_attack_flag;
     long look_for_enemy_dungeon_turn;
     long wait_time;
   } hero;
   struct {
     char sbyte_89_unused;
     unsigned char unused;
-    TbBool byte_8B;
-    TbBool byte_8C;
+    TbBool navigation_map_changed;
+    TbBool unknown_8C;
   } unknown;
   };
 
@@ -311,7 +313,7 @@ unsigned char sound_flag;
 
   };
     unsigned char fight_til_death;
-    TbBool field_AA;
+    TbBool fighting_at_same_position;
     TbBool called_to_arms;
     TbBool exp_level_up;
     unsigned char stateblock_flags;

@@ -57,6 +57,8 @@ short api_enabled = false;
 uint16_t api_port = 5599;
 unsigned long features_enabled = 0;
 TbBool exit_on_lua_error = false;
+TbBool FLEE_BUTTON_DEFAULT = false;
+TbBool IMPRISON_BUTTON_DEFAULT = false;
 
 /**
  * Language 3-char abbreviations.
@@ -147,6 +149,8 @@ const struct NamedCommand conf_commands[] = {
   {"API_PORT"                      , 34},
   {"EXIT_ON_LUA_ERROR"             , 35},
   {"TURNS_PER_SECOND"              , 36},
+  {"FLEE_BUTTON_DEFAULT"           , 37},
+  {"IMPRISON_BUTTON_DEFAULT"       , 38},
   {NULL,                   0},
   };
 
@@ -169,7 +173,7 @@ const struct NamedCommand conf_commands[] = {
   {"4BY3PP",       SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop}, // integer multiple scale only (4BY3)
   {NULL,           0},
   };
-  
+
   const struct NamedCommand startup_parameters[] = {
   {"LEGAL",                   1},
   {"FX",                      2},
@@ -261,6 +265,19 @@ TbBool mute_audio_on_focus_lost(void)
 TbBool is_feature_on(unsigned long feature)
 {
   return ((features_enabled & feature) != 0);
+}
+
+void set_skip_heart_zoom_feature(TbBool enable)
+{
+  if (enable)
+    features_enabled |= Ft_SkipHeartZoom;
+  else
+    features_enabled &= ~Ft_SkipHeartZoom;
+}
+
+TbBool get_skip_heart_zoom_feature(void)
+{
+  return ((features_enabled & Ft_SkipHeartZoom) != 0);
 }
 
 /**
@@ -857,6 +874,34 @@ short load_configuration(void)
           }
           else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+          }
+          break;
+      case 37: // FLEE_BUTTON_DEFAULT
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1) {
+              FLEE_BUTTON_DEFAULT = true;
+          } else {
+              FLEE_BUTTON_DEFAULT = false;
+          }
+          break;
+      case 38: // IMPRISON_BUTTON_DEFAULT
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1) {
+              IMPRISON_BUTTON_DEFAULT = true;
+          } else {
+              IMPRISON_BUTTON_DEFAULT = false;
           }
           break;
       case ccr_comment:

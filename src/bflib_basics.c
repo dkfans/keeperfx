@@ -371,7 +371,10 @@ void write_log_to_array_for_live_viewing(const char* fmt_str, va_list args, cons
     }
 
     char formattedString[MAX_TEXT_LENGTH];
-    vsnprintf(formattedString, sizeof(formattedString), fmt_str, args);
+    va_list copy;
+    va_copy(copy, args);
+    vsnprintf(formattedString, sizeof(formattedString), fmt_str, copy);
+    va_end(copy);
 
     char buffer[MAX_TEXT_LENGTH];
     snprintf(buffer, sizeof(buffer), "%s%s", add_log_prefix, formattedString); // merge prefix and formatted string

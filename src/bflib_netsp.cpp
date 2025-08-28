@@ -608,7 +608,7 @@ TbError ServiceProvider::AddPlayer(unsigned long plyr_id, const char *namestr, u
   netplyr->id = plyr_id;
   net_copy_name_string(netplyr->name,namestr,NETSP_PLAYER_NAME_MAX_LEN);
   netplyr->field_5 = a3;
-  netplyr->field_9 = a4;
+  netplyr->is_active = a4;
   this->players_count++;
   return Lb_OK;
 }
@@ -798,7 +798,7 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
   for (i=0; i < players_count; i++)
   {
     netplyr = &this->players[i];
-    if ((plyr_id == netplyr->id) && (netplyr->field_9))
+    if ((plyr_id == netplyr->id) && (netplyr->is_active))
     {
       //idx1 = i;
       got = 1;
@@ -812,7 +812,7 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
   for (i=0; i < players_count; i++)
   {
     netplyr = &this->players[i];
-    if (!netplyr->field_9)
+    if (!netplyr->is_active)
     {
       if ( got )
       {
@@ -833,9 +833,9 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
   if ( got )
   {
     netplyr = &this->players[idx1];
-    netplyr->field_9 = 1;
+    netplyr->is_active = 1;
     netplyr = &this->players[idx1];
-    netplyr->field_9 = 0;
+    netplyr->is_active = 0;
     if (recvCallbacks->deleteMsg != NULL)
       (recvCallbacks->deleteMsg(ebp0, *(_DWORD *)&this1[1].nsnames[23].field_9[16]);
   }

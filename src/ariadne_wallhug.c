@@ -384,7 +384,7 @@ void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *c
 
 /**
  * Returns the first subtile that the creature will collide with.
- * 
+ *
  * @param slab_flags Contains slab attribute flags (SlabAttrFlags) passed to this function; flagging the attributes that we want the creature to collide with.
  * @param crt_owner_flags Contains player bitflags (type PlayerBitFlags) passed to this function; this variable is used to check a dungeon wall's owner (if crt_owner_flags is 0, the ownership check is nullified).
 */
@@ -399,7 +399,7 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
     MapSubtlCoord end_stl_x = (pos->x.val + nav_radius) / COORD_PER_STL + 1;
     if (end_stl_x >= game.map_subtiles_x)
         end_stl_x = game.map_subtiles_x;
-        
+
 
     MapSubtlCoord start_stl_y = (pos->y.val - nav_radius) / COORD_PER_STL;
     if (start_stl_y <= 0)
@@ -451,7 +451,7 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
             // Continue the loop and check the next subtile.
         }
     }
-    return -1;        
+    return -1;
 }
 
 static long creature_cannot_move_directly_to_with_collide_sub(struct Thing *creatng, struct Coord3d pos, long slab_flags, PlayerBitFlags crt_owner_flags)
@@ -972,7 +972,7 @@ static int get_starting_angle_and_side_of_hug_sub1(
     long slab_flags,
     PlayerBitFlags crt_owner_flags)
 {
-    
+
     struct Coord3d pos_2;
 
     int hugging_blocked_flags = get_hugging_blocked_flags(creatng, pos, slab_flags, crt_owner_flags);
@@ -1506,7 +1506,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
                 pos.x.stl.num = creature_pos.x.stl.num + 1;
                 pos.x.stl.pos = 0;
             }
-            
+
             pos.y.val = (int)(delta_y * abs(pos.x.val - v27_x) / delta_x + v27_y);
             pos.z.val = creature_pos.z.val;
             stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, slab_flags, crt_owner_flags);
@@ -1635,7 +1635,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         navi = &cctrl->navi;
         speed = cctrl->max_speed;
-        cctrl->flgfield_2 = 0;
+        cctrl->creature_state_flags = 0;
         cctrl->combat_flags = 0;
     }
     set_flag(crt_owner_flags, to_flag(creatng->owner));

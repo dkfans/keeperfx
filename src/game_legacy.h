@@ -83,22 +83,19 @@ enum GameKinds {
 enum GameOperationFlags {
     GOF_Paused           = 0x01,
     GOF_SingleLevel      = 0x02, /**< Play single level and then exit. */
-    GOF_Unkn04           = 0x04,
-    GOF_ColumnConvert    = 0x08, /**< Converts old column format to current. Deprecated, does nothing. */
-    GOF_LightConvert     = 0x10, /**< Converts old lights format to current. */
     GOF_ShowGui          = 0x20, /**< Showing main Gui. */
     GOF_ShowPanel        = 0x40, /**< Showing the tabbed panel. */
     GOF_WorldInfluence   = 0x80, /**< Input to the in-game world is allowed. */
 };
 
 enum GameNumfieldDFlags {
-    GNFldD_Unkn01 = 0x01,
+    GNFldD_CreatureViewMode = 0x01,
     GNFldD_Unkn02 = 0x02,
-    GNFldD_Unkn04 = 0x04,
+    GNFldD_ComputerPlayerProcessing = 0x04,
     GNFldD_CreaturePasngr = 0x08, // Possessing a creature as a passenger (no direct control)
-    GNFldD_Unkn10 = 0x10,
-    GNFldD_Unkn20 = 0x20,
-    GNFldD_Unkn40 = 0x40,
+    GNFldD_WaitSleepMode = 0x10,
+    GNFldD_StatusPanelDisplay = 0x20,
+    GNFldD_RoomFlameProcessing = 0x40,
     GNFldD_Unkn80 = 0x80,
 };
 /******************************************************************************/
@@ -133,7 +130,7 @@ struct Game {
     unsigned char system_flags;
     /** Flags which control how the game operates, mostly defined by command line. */
     unsigned char operation_flags;
-    unsigned char numfield_D; //flags in enum GameNumfieldDFlags
+    unsigned char view_mode_flags; //flags in enum GameNumfieldDFlags
     unsigned char flags_font;
     unsigned char flags_gui;
     unsigned char eastegg01_cntr;
@@ -218,8 +215,6 @@ struct Game {
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
     HitPoints block_health[10];
-    unsigned short generate_speed;
-    unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;
     unsigned short entrances_count;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */

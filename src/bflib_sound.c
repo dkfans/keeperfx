@@ -281,7 +281,7 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, 
     emit->pos.val_x = x;
     emit->pos.val_y = y;
     emit->pos.val_z = z;
-    emit->field_1 = flags;
+    emit->emitter_flags = flags;
     emit->curr_pitch = 100;
     emit->target_pitch = 100;
     if (start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, repeats, 3, flags, priority))
@@ -444,7 +444,7 @@ long get_emitter_pitch_from_doppler(const struct SoundReceiver *recv, struct Sou
 long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitter *emit, long *pan, long *volume, long *pitch)
 {
     TbBool on_sight;
-    if ((emit->field_1 & 0x08) != 0)
+    if ((emit->emitter_flags & 0x08) != 0)
     {
         *volume = 127;
         *pan = 64;
@@ -452,7 +452,7 @@ long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitte
         return 1;
     }
     long dist = get_emitter_distance(recv, emit);
-    if ((emit->field_1 & 0x04) != 0) {
+    if ((emit->emitter_flags & 0x04) != 0) {
         on_sight = 1;
     } else {
         on_sight = get_emitter_sight(recv, emit);
@@ -546,7 +546,7 @@ TbBool remove_active_samples_from_emitter(struct SoundEmitter *emit)
         struct S3DSample* sample = &SampleList[i];
         if ( (sample->is_playing != 0) && (sample->emit_ptr == emit) )
         {
-            if (sample->field_1D == -1)
+            if (sample->repeat_count == -1)
             {
                 stop_sample(get_emitter_id(emit), sample->smptbl_id, sample->bank_id);
                 sample->is_playing = 0;
@@ -617,6 +617,10 @@ void play_non_3d_sample(SoundSmplTblID sample_idx)
         return;
     if (GetCurrentSoundMasterVolume() <= 0)
         return;
+
+    // Set sound volume setting
+    SoundVolume adjusted_volume = LbLerp(0, FULL_LOUDNESS, (float)settings.sound_volume/127.0); // [0-127] rescaled to [0-256]
+
     if (Non3DEmitter != 0)
       if (!sound_emitter_in_use(Non3DEmitter))
       {
@@ -625,10 +629,10 @@ void play_non_3d_sample(SoundSmplTblID sample_idx)
       }
     if (Non3DEmitter == 0)
     {
-        Non3DEmitter = S3DCreateSoundEmitterPri(0, 0, 0, sample_idx, 0, 100, 256, 0, 8, 2147483646);
+        Non3DEmitter = S3DCreateSoundEmitterPri(0, 0, 0, sample_idx, 0, 100, adjusted_volume, 0, 8, 2147483646);
     } else
     {
-        S3DAddSampleToEmitterPri(Non3DEmitter, sample_idx, 0, 100, 256, 0, 3, 8, 2147483646);
+        S3DAddSampleToEmitterPri(Non3DEmitter, sample_idx, 0, 100, adjusted_volume, 0, 3, 8, 2147483646);
     }
 }
 
@@ -638,6 +642,10 @@ void play_non_3d_sample_no_overlap(SoundSmplTblID smpl_idx)
         return;
     if (GetCurrentSoundMasterVolume() <= 0)
         return;
+
+    // Set sound volume setting
+    SoundVolume adjusted_volume = LbLerp(0, FULL_LOUDNESS, (float)settings.sound_volume/127.0); // [0-127] rescaled to [0-256]
+
     if (Non3DEmitter != 0)
     {
         if (!sound_emitter_in_use(Non3DEmitter))
@@ -648,11 +656,11 @@ void play_non_3d_sample_no_overlap(SoundSmplTblID smpl_idx)
     }
     if (Non3DEmitter == 0)
     {
-        Non3DEmitter = S3DCreateSoundEmitterPri(0, 0, 0, smpl_idx, 0, 100, 256, 0, 8, 0x7FFFFFFE);
+        Non3DEmitter = S3DCreateSoundEmitterPri(0, 0, 0, smpl_idx, 0, 100, adjusted_volume, 0, 8, 0x7FFFFFFE);
     } else
     if (!S3DEmitterIsPlayingSample(Non3DEmitter, smpl_idx, 0))
     {
-        S3DAddSampleToEmitterPri(Non3DEmitter, smpl_idx, 0, 100, 256, 0, 3, 8, 0x7FFFFFFE);
+        S3DAddSampleToEmitterPri(Non3DEmitter, smpl_idx, 0, 100, adjusted_volume, 0, 3, 8, 0x7FFFFFFE);
     }
 }
 
@@ -662,6 +670,11 @@ void play_atmos_sound(SoundSmplTblID smpl_idx)
         return;
     if (GetCurrentSoundMasterVolume() <= 0)
         return;
+
+    // Apply sound volume setting to atmospheric volume
+    SoundVolume volume_scale = LbLerp(0, FULL_LOUDNESS, (float)settings.sound_volume/127.0); // [0-127] rescaled to [0-256]
+    SoundVolume adjusted_volume = (atmos_sound_volume * volume_scale) / FULL_LOUDNESS;
+
     int ATMOS_SOUND_PITCH = (73 + (UNSYNC_RANDOM(10) * 6));
     // ATMOS0 has bigger range in pitch than other atmos sounds.
     if (smpl_idx == 1013)
@@ -678,11 +691,11 @@ void play_atmos_sound(SoundSmplTblID smpl_idx)
     }
     if (Non3DEmitter == 0)
     {
-        Non3DEmitter = S3DCreateSoundEmitterPri(0, 0, 0, smpl_idx, 0, ATMOS_SOUND_PITCH, atmos_sound_volume, 0, 8, 0x7FFFFFFE);
+        Non3DEmitter = S3DCreateSoundEmitterPri(0, 0, 0, smpl_idx, 0, ATMOS_SOUND_PITCH, adjusted_volume, 0, 8, 0x7FFFFFFE);
     } else
     if (!S3DEmitterIsPlayingSample(Non3DEmitter, smpl_idx, 0))
     {
-        S3DAddSampleToEmitterPri(Non3DEmitter, smpl_idx, 0, ATMOS_SOUND_PITCH, atmos_sound_volume, 0, 3, 8, 0x7FFFFFFE);
+        S3DAddSampleToEmitterPri(Non3DEmitter, smpl_idx, 0, ATMOS_SOUND_PITCH, adjusted_volume, 0, 3, 8, 0x7FFFFFFE);
         SYNCDBG(9,"Playing atmos sound %d with pitch %d",(int)smpl_idx,(int)ATMOS_SOUND_PITCH);
     }
 }
@@ -775,7 +788,7 @@ TbBool process_sound_samples(void)
             if (sample->emit_ptr != NULL)
             {
               if ( (sample->volume == 0) ||
-                 ( ((sample->emit_ptr->field_1 & 0x08) == 0) && (get_sound_distance(&sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance) ) )
+                 ( ((sample->emit_ptr->emitter_flags & 0x08) == 0) && (get_sound_distance(&sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance) ) )
                 kick_out_sample(i);
             }
         }
@@ -820,7 +833,7 @@ long play_speech_sample(SoundSmplTblID smptbl_id)
 {
     if (SoundDisabled)
       return false;
-    if (GetCurrentSoundMasterVolume() <= 0)
+    if (settings.mentor_volume <= 0)
       return false;
     long sp_emiter = SpeechEmitter;
     if (sp_emiter != 0)
@@ -835,16 +848,16 @@ long play_speech_sample(SoundSmplTblID smptbl_id)
       }
     }
     SpeechEmitter = sp_emiter;
-    long vol = LbLerp(0, 256, (float)settings.mentor_volume/127.0); // [0-127] rescaled to [0-256]
+    long adjusted_volume = LbLerp(0, FULL_LOUDNESS, (float)settings.mentor_volume/127.0); // [0-127] rescaled to [0-256]
 
     if (sp_emiter != 0)
     {
       if (S3DEmitterHasFinishedPlaying(sp_emiter))
-        if (S3DAddSampleToEmitterPri(SpeechEmitter, smptbl_id, 1, 100, vol, 0, 3, 8, 2147483647))
+        if (S3DAddSampleToEmitterPri(SpeechEmitter, smptbl_id, 1, 100, adjusted_volume, 0, 3, 8, 2147483647))
           return true;
       return false;
     }
-    sp_emiter = S3DCreateSoundEmitterPri(0, 0, 0, smptbl_id, 1, 100, vol, 0, 8, 2147483647);
+    sp_emiter = S3DCreateSoundEmitterPri(0, 0, 0, smptbl_id, 1, 100, adjusted_volume, 0, 8, 2147483647);
     SpeechEmitter = sp_emiter;
     if (sp_emiter == 0)
     {
@@ -873,7 +886,7 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     sample->smptbl_id = smptbl_id;
     sample->bank_id = bank_id;
     sample->emit_ptr = emit;
-    sample->field_1D = fild1D;
+    sample->repeat_count = fild1D;
     sample->volume = volume;
     sample->pan = pan;
     sample->base_pitch = smpitch;

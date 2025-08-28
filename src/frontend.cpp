@@ -353,7 +353,7 @@ struct EventTypeInfo event_button_info[] = {
   {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventCreaturesHungryDesc,    GUIStr_EventCreaturesHungry,     300, 500, EvKind_Nothing},
   {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventTrapCrateFoundDesc,     GUIStr_EventTrapCrateFound,      300,   0, EvKind_Nothing},
   {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventDoorCrateFoundDesc,     GUIStr_EventDoorCrateFound,      300,   0, EvKind_Nothing}, // EvKind_DoorCrateFound
-  {GPS_message_rpanel_msg_inforb_act,     GUIStr_EventDnSpecialFoundDesc,     GUIStr_EventDnSpecialFound,      300,   0, EvKind_Nothing},
+  {GPS_message_rpanel_msg_bonusbox_act,   GUIStr_EventDnSpecialFoundDesc,     GUIStr_EventDnSpecialFound,      300,   0, EvKind_Nothing},
   {GPS_message_rpanel_msg_inforg_act,     GUIStr_EventInformationDesc,        GUIStr_Empty,                   1200,   0, EvKind_Nothing},
   {GPS_message_rpanel_msg_battle_act,     GUIStr_EventFightDesc,              GUIStr_EventFight,                -1,   0, EvKind_EnemyFight},
   {GPS_message_rpanel_msg_exclam_act,     GUIStr_EventWorkRoomUnreachblDesc,  GUIStr_EventWorkRoomUnreachbl,  1200, 500, EvKind_Nothing}, // EvKind_WorkRoomUnreachable
@@ -488,12 +488,12 @@ void get_player_gui_clicks(void)
         {
           if (a_menu_window_is_active())
           {
-            game.numfield_D &= ~GNFldD_CreaturePasngr;
+            game.view_mode_flags &= ~GNFldD_CreaturePasngr;
             player->allocflags &= ~PlaF_Unknown8;
             turn_off_all_window_menus();
           } else
           {
-            game.numfield_D |= GNFldD_CreaturePasngr;
+            game.view_mode_flags |= GNFldD_CreaturePasngr;
             player->allocflags |= PlaF_Unknown8;
             turn_on_menu(GMnu_QUERY);
           }
@@ -659,12 +659,12 @@ void create_error_box(TextStringId msg_idx)
 void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char* line4, const char* line5)
 {
     memset(&MsgBox,0, sizeof(MsgBox));
-    memcpy(&MsgBox.title, title, sizeof(MsgBox.title)-1);
-    memcpy(&MsgBox.line1, line1, sizeof(MsgBox.line1)-1);
-    memcpy(&MsgBox.line2, line2, sizeof(MsgBox.line2)-1);
-    memcpy(&MsgBox.line3, line3, sizeof(MsgBox.line3)-1);
-    memcpy(&MsgBox.line4, line4, sizeof(MsgBox.line4)-1);
-    memcpy(&MsgBox.line5, line5, sizeof(MsgBox.line5)-1);
+    snprintf(MsgBox.title, sizeof(MsgBox.title), "%s", title);
+    snprintf(MsgBox.line1, sizeof(MsgBox.line1), "%s", line1);
+    snprintf(MsgBox.line2, sizeof(MsgBox.line2), "%s", line2);
+    snprintf(MsgBox.line3, sizeof(MsgBox.line3), "%s", line3);
+    snprintf(MsgBox.line4, sizeof(MsgBox.line4), "%s", line4);
+    snprintf(MsgBox.line5, sizeof(MsgBox.line5), "%s", line5);
     turn_on_menu(GMnu_MSG_BOX);
 }
 
@@ -705,7 +705,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             gbtn->gbactn_1 = 0;
             (gbtn->click_event)(gbtn);
             input_button = 0;
-            if ((gbtn->flags & LbBtnF_Unknown02) != 0)
+            if ((gbtn->flags & LbBtnF_Clickable) != 0)
             {
                 struct GuiMenu *gmnu;
                 gmnu = get_active_menu(gbtn->gmenu_idx);
@@ -1686,7 +1686,7 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
         player = get_player(i);
-        player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+        player->display_flags &= ~PlaF6_PlyrHasQuit;
     }
     player = get_my_player();
     clear_transfered_creatures();
@@ -1938,7 +1938,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
     gmnu = get_active_menu(gbtn->gmenu_idx);
     if (gbtn->parent_menu != NULL)
       create_menu(gbtn->parent_menu);
-    if ((gbtn->flags & LbBtnF_Unknown02) && (gbtn->gbtype != LbBtnT_EditBox))
+    if ((gbtn->flags & LbBtnF_Clickable) && (gbtn->gbtype != LbBtnT_EditBox))
     {
       if (callback == NULL)
         do_sound_menu_click();
@@ -2025,7 +2025,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->gmenu_idx = gmnu->number;
     gbtn->gbtype = gbinit->gbtype;
     gbtn->id_num = gbinit->id_num;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown02 * (gbinit->gbifield_5 & 0xff)) & LbBtnF_Unknown02;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Clickable * (gbinit->button_flags & 0xff)) & LbBtnF_Clickable;
     gbtn->click_event = gbinit->click_event;
     gbtn->rclick_event = gbinit->rclick_event;
     gbtn->ptover_event = gbinit->ptover_event;
@@ -2043,7 +2043,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->flags &= ~LbBtnF_MouseOver;
     gbtn->gbactn_1 = 0;
     gbtn->flags |= LbBtnF_Visible;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown20 * (gbinit->gbifield_5 >> 8)) & LbBtnF_Unknown20;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Toggle * (gbinit->button_flags >> 8)) & LbBtnF_Toggle;
     if ((gbinit->scr_pos_x == 999) || (gbinit->pos_x == 999))
     {
         i = gmnu->pos_x + ((gmnuinit->width >> 1) - (gbinit->width >> 1)) * units_per_px / 16;
@@ -2235,7 +2235,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     amnu->draw_cb = gmnu->draw_cb;
     amnu->create_cb = gmnu->create_cb;
     amnu->is_monopoly_menu = gmnu->is_monopoly_menu;
-    amnu->field_1F = gmnu->field_1F;
+    amnu->is_active_panel = gmnu->is_active_panel;
     amnu->is_turned_on = ((game.operation_flags & GOF_ShowGui) != 0) || (!is_toggleable_menu(gmnu->ident));
     callback = amnu->create_cb;
     if (callback != NULL)
@@ -2259,9 +2259,9 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
 
 /**
  * Sets the status menu visiblity.
- * 
+ *
  * Doesn't change anything if the current menu visibility is the same as the passed parameter.
- * 
+ *
  * @param visible If TRUE show the menu, if FALSE hide the menu
  * @return The visibility of the menu before this function was called (used to store the user's previous setting when the menu is forcibly hidden).
  */
@@ -2337,7 +2337,7 @@ unsigned long toggle_status_menu(short visible)
       if (k >= 0)
         room_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_ROOM);
-      
+
       k = menu_id_to_number(GMnu_ROOM2);
       if (k >= 0)
         room_2_on = get_active_menu(k)->is_turned_on;
@@ -2347,7 +2347,7 @@ unsigned long toggle_status_menu(short visible)
       if (k >= 0)
         spell_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_SPELL);
-      
+
       k = menu_id_to_number(GMnu_SPELL2);
       if (k >= 0)
         spell_2_on = get_active_menu(k)->is_turned_on;
@@ -2362,7 +2362,7 @@ unsigned long toggle_status_menu(short visible)
       if (k >= 0)
       trap_on = get_active_menu(k)->is_turned_on;
       set_menu_visible_off(GMnu_TRAP);
-      
+
       k = menu_id_to_number(GMnu_TRAP2);
       if (k >= 0)
         trap_2_on = get_active_menu(k)->is_turned_on;
@@ -2493,7 +2493,7 @@ void set_gui_visible(TbBool visible)
       toggle_status_menu(is_visbl);
       break;
   }
-  if (((game.numfield_D & GNFldD_Unkn20) != 0) && ((game.operation_flags & GOF_ShowGui) != 0))
+  if (((game.view_mode_flags & GNFldD_StatusPanelDisplay) != 0) && ((game.operation_flags & GOF_ShowGui) != 0))
   {
       setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
   }
@@ -3760,7 +3760,7 @@ FrontendMenuState get_startup_menu_state(void)
           player->additional_flags &= ~PlaAF_UnlockedLordTorture;
           return FeSt_TORTURE;
         } else
-        if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
+        if ((player->display_flags & PlaF6_PlyrHasQuit) == 0)
         {
           return FeSt_LEVEL_STATS;
         } else
@@ -3772,7 +3772,7 @@ FrontendMenuState get_startup_menu_state(void)
           return FeSt_MAIN_MENU;
         }
     } else
-    if (((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0) || (player->victory_state == VicS_Undecided))
+    if (((player->display_flags & PlaF6_PlyrHasQuit) != 0) || (player->victory_state == VicS_Undecided))
     {
         SYNCLOG("Undecided victory state selected");
         return get_menu_state_based_on_last_level(lvnum);

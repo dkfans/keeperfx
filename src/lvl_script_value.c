@@ -162,19 +162,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
 
   switch (var_index)
   {
-  case Cmd_SET_HATE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-        dungeon = get_dungeon(i);
-        if (dungeon_invalid(dungeon))
-            continue;
-        dungeon->hates_player[val2%DUNGEONS_COUNT] = val3;
-      }
-      break;
-  case Cmd_SET_GENERATE_SPEED:
-      game.generate_speed = saturate_set_unsigned(val2, 16);
-      update_dungeon_generation_speeds();
-      break;
   case Cmd_ROOM_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
@@ -261,9 +248,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       break;
   case Cmd_ADD_CREATURE_TO_POOL:
       add_creature_to_pool(val2, val3);
-      break;
-  case Cmd_TUTORIAL_FLASH_BUTTON:
-      gui_set_button_flashing(val2, val3);
       break;
   case Cmd_SET_CREATURE_HEALTH:
       change_max_health_of_creature_kind(val2, val3);

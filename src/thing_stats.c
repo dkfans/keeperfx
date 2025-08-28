@@ -640,20 +640,20 @@ long compute_creature_work_value_for_room_role(const struct Thing *creatng, Room
     long i = 256;
     if ((rrole & RoRoF_Research) != 0)
     {
-        i = compute_creature_work_value(crconf->research_value*256, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->research_value* game.conf.rules.rooms.research_efficiency, efficiency, cctrl->exp_level);
     }
     if ((rrole & RoRoF_CratesManufctr) != 0)
     {
-        i = compute_creature_work_value(crconf->manufacture_value*256, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->manufacture_value* game.conf.rules.rooms.work_efficiency, efficiency, cctrl->exp_level);
     }
     if ((rrole & RoRoF_CrTrainExp) != 0)
     {
         // Training speed does not grow with experience - otherwise it would be too fast.
-        i = compute_creature_work_value(crconf->training_value*256, efficiency, 0);
+        i = compute_creature_work_value(crconf->training_value* game.conf.rules.rooms.train_efficiency, efficiency, 0);
     }
     if ((rrole & RoRoF_CrScavenge) != 0)
     {
-        i = compute_creature_work_value(crconf->scavenge_value*256, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->scavenge_value* game.conf.rules.rooms.scavenge_efficiency, efficiency, cctrl->exp_level);
     }
     return process_work_speed_on_work_value(creatng, i);
 }
@@ -1026,7 +1026,7 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, HitPoints amo
 static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0) {
+    if ((cctrl->creature_control_flags & CCFlg_PreventDamage) != 0) {
         return 0;
     }
     // Get correct armour value.
@@ -1130,7 +1130,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
     if (thing->health < 0)
         return 0;
     lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx);
-    
+
     HitPoints cdamage;
     switch (thing->class_id)
     {
@@ -1180,7 +1180,7 @@ GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_
         gold += (gold_per_block % gold);
     }
     else if (slb->health < 0)
-    // If the damage dealt is more than the remaining health, then health is not divisible by damage, 
+    // If the damage dealt is more than the remaining health, then health is not divisible by damage,
     // so this should return whatever is left, as this is less than the gold given for a full hit.
     {
         gold = gold_per_block - (game.block_health[slabst->block_health_index] / damage_did_to_slab) * gold;

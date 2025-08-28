@@ -77,8 +77,8 @@ struct TrigLocals {
     union {
         unsigned short flag_26; // 6+
     struct {
-        unsigned char byte_26a;
-        unsigned char byte_26b;
+        unsigned char flag_low_byte;
+        unsigned char flag_high_byte;
     };
     };
     unsigned long var_28; // 8+
@@ -95,8 +95,8 @@ struct TrigLocals {
     union {
     unsigned long var_50; // 0x30
     struct {
-        unsigned short word_50a;
-        unsigned short word_50b;
+        unsigned short var_low_word;
+        unsigned short var_high_word;
     };
     };
     unsigned long var_54; // 0x34

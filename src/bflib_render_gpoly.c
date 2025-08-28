@@ -502,7 +502,7 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
         ERRORLOG("unexpected vec_mode %d in draw_gpoly", vec_mode);
         return;
     }
-    
+
     draw_gpoly_sub7a();
     draw_gpoly_sub7b();
 
@@ -849,16 +849,16 @@ void draw_gpoly_sub7b_block3(void)
     }
 }
 
-void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_combined, unsigned __int8 *screen_line_offset)
+void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_combined, uint8_t *screen_line_offset)
 {
     int span_mod16 = pixel_span_len & 0xF;
-    unsigned __int8 * pixel_dst = NULL;
-    
+    uint8_t * pixel_dst = NULL;
+
     pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
 
     gploc_D4 = pixel_span_len;
     int fade_lookup_index = __ROL4__(tex_x_accum_combined & 0xFF0000FF, 8);
-    unsigned __int8 *texture_map = LOC_vec_map;
+    uint8_t *texture_map = LOC_vec_map;
     int texture_step_y = gploc_5C;
     switch ( span_mod16 )
     {
@@ -999,7 +999,7 @@ UNROLLED_LOOP_PIXEL0:
         break;
     }
 }
-    
+
 void draw_gpoly_sub13()
 {
   int tex_x_accum_low; // ecx
@@ -1234,7 +1234,7 @@ void draw_gpoly_sub14()
       if ( gploc_pt_ay < 0 )
       {
         goto SKEWED_SCAN_ADJUST;
-        
+
       }
       do
       {
@@ -1247,7 +1247,7 @@ REMAINDER_SCANLINE_STEP:
         gploc_D8 = tex_x_accum_high;
         gploc_E4 = tex_x_accum_combined;
         int x_end_int = shadeAccumulatorNext >> 16;
-        unsigned __int8 *screen_line_offset = &screen_line_ptr[x_start_int];
+        uint8_t *screen_line_offset = &screen_line_ptr[x_start_int];
         bool span_too_small_or_complete = x_end_int <= x_start_int;
         int pixel_span_len = x_end_int - x_start_int;
         if ( !span_too_small_or_complete )
@@ -1288,7 +1288,7 @@ EDGE_ADVANCE_CHECK:
       scanline_y = gploc_pt_by;
       if ( gploc_pt_by >= 0 )
         goto REMAINDER_SCANLINE_STEP;
-        
+
 SKEWED_SCAN_ADJUST:
       while ( 1 )
       {
@@ -1332,7 +1332,7 @@ SKEWED_SCAN_ADJUST:
         goto SKEWED_SCAN_ADJUST;
       goto REMAINDER_SCANLINE_STEP;
     }
-  
+
 }
 
 /******************************************************************************/

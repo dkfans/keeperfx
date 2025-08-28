@@ -481,7 +481,7 @@ void activate_trap_effect_on_trap(struct Thing *traptng)
     shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.z.val += trapst->shot_shift_z;
     struct Thing* efftng = create_effect(&shot_origin, trapst->created_itm_model, traptng->owner);
-    if (!thing_is_invalid(efftng)) 
+    if (!thing_is_invalid(efftng))
     {
         efftng->shot_effect.hit_type = trapst->hit_type;
         efftng->shot_effect.parent_class_id = TCls_Trap;
@@ -561,7 +561,7 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
         return thing;
     }
     init_creature_level(thing, trapst->activation_level);
-    
+
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
     // Try to move thing out of the solid wall if it's inside one.
     if (thing_in_wall_at(thing, &thing->mappos))
@@ -911,12 +911,21 @@ TngUpdateRet update_trap(struct Thing *traptng)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(traptng);
+
+    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+
+    if (trapst->updatefn_idx < 0)
+    {
+        if (luafunc_thing_update_func(trapst->updatefn_idx, traptng) <= 0) {
+            return TUFRet_Deleted;
+        }
+    }
+
     if (traptng->health < 0)
     {
         destroy_trap(traptng);
         return TUFRet_Deleted;
     }
-    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
     if (traptng->trap.wait_for_rearm == true) // Trap rearming, so either 'shooting' anim or 'recharge' anim.
     {
         if ((traptng->trap.rearm_turn <= game.play_gameturn)) // Recharge complete, rearm.
@@ -1117,16 +1126,16 @@ unsigned long remove_trap(struct Thing *traptng, long *sell_value)
             destroy_trap(traptng);
         }
         total++;
-    } 
-    return total;        
+    }
+    return total;
 }
- 
+
 unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
 {
     struct Thing* traptng = get_trap_for_position(stl_x, stl_y);
     return remove_trap(traptng, sell_value);
 }
- 
+
 unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
 {
     unsigned long total = 0;
@@ -1254,7 +1263,7 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
         case ShFL_Beam:
         {
             struct Coord3d pos2;
-            long damage;      
+            long damage;
             // Prepare source position
             struct Coord3d pos1;
             pos1.x.val = firing->mappos.x.val;

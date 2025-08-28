@@ -374,7 +374,7 @@ void turn_on_menu(MenuID mnu_idx)
     struct GuiMenu* gmnu = menu_list[mnu_idx];
     if (create_menu(gmnu) >= 0)
     {
-      if (gmnu->field_1F)
+      if (gmnu->is_active_panel)
         game.active_panel_mnu_idx = mnu_idx;
     }
 }

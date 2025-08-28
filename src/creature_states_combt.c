@@ -186,7 +186,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
     {
         return false;
     }
-    if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
+    if (flag_is_set(cctrl->creature_control_flags, CCFlg_NoCompControl))
     {
         return false;
     }
@@ -1245,7 +1245,7 @@ TbBool set_creature_in_combat_to_the_death(struct Thing *fighter, struct Thing *
         set_start_state(fighter);
         return false;
     }
-    cctrl->field_AA = 0;
+    cctrl->fighting_at_same_position = 0;
     cctrl->fight_til_death = 1;
     return true;
 }
@@ -1425,7 +1425,7 @@ TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
         return false;
     }
     struct CreatureControl* enmcctrl = creature_control_get_from_thing(enmtng);
-    if (creature_control_invalid(enmcctrl) && (enmtng->class_id != TCls_Object) && (enmtng->class_id != TCls_Door) 
+    if (creature_control_invalid(enmcctrl) && (enmtng->class_id != TCls_Object) && (enmtng->class_id != TCls_Door)
         && (thing_is_destructible_trap(enmtng) <= 0) && !((thing_is_destructible_trap(enmtng) >= 0) && creature_has_disarming_weapon(thing))) //destructible traps -1 can't even be destroyed by disarming weapons, 1 by anybody
     {
         ERRORLOG("No control structure - C%d M%d GT%ld CA%d", (int)enmtng->class_id,
@@ -1634,7 +1634,7 @@ CrAttackType check_for_possible_combat_with_enemy_object_within_distance(struct 
         else {
             ERRORLOG("The %s index %d cannot fight with %s index %d returned as fight partner", thing_model_name(fightng), (int)fightng->index, thing_model_name(thing), (int)thing->index);
         }
-        
+
     }
     return AttckT_Unset;
 }
@@ -1901,12 +1901,12 @@ static short postal_inst_num = 0;
 static TbBool initial = false;
 
 /** @brief Retrieves a random available "postal" instance within range for a given creature.
- * 
+ *
  * On the first call, the function creates a cache of all available "postal" instances.
  * It then loops through the cache to find instances available for the creature and fitting within the given range.
  * These available instances are added to a list.
  * The function then chooses a random instance from this list.
- * 
+ *
  * @param thing Pointer to the creature for which the instance is to be retrieved.
  * @param dist Distance to the target.
  * @return A random available "postal" CrInstance for the given range
@@ -1926,7 +1926,7 @@ CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long d
                     if (inst_inf->postal_priority > 0)
                     {
                         // Ensure we don't exceed the maximum array size
-                        if (postal_inst_num < INSTANCE_TYPES_MAX) 
+                        if (postal_inst_num < INSTANCE_TYPES_MAX)
                         {
                             // Add the instance ID to the cache
                             postal_inststance[postal_inst_num++] = i;
@@ -1981,7 +1981,7 @@ CrInstance get_postal_instance_to_use(const struct Thing *thing, unsigned long d
     }
     else
     {
-    // Return NULL if no suitable instance is found 
+    // Return NULL if no suitable instance is found
         return CrInst_NULL;
     }
 }
@@ -2178,7 +2178,7 @@ HitTargetFlags collide_filter_thing_is_in_my_fight(const struct Thing *firstng, 
     }
     struct CreatureControl* firsctrl = creature_control_get_from_thing(firstng);
     struct CreatureControl* coldctrl = creature_control_get_from_thing(coldtng);
-    return (firsctrl->combat_flags != 0) && (firsctrl->field_AA) && (coldctrl->combat_flags == firsctrl->combat_flags) && (firstng->index != coldtng->index);
+    return (firsctrl->combat_flags != 0) && (firsctrl->fighting_at_same_position) && (coldctrl->combat_flags == firsctrl->combat_flags) && (firstng->index != coldtng->index);
 }
 
 struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subtile(struct Thing *shotng, struct Coord3d *pos,
@@ -2320,11 +2320,11 @@ long old_combat_move(struct Thing *thing, struct Thing *enmtng, long enm_distanc
     }
     if (creature_fighting_is_occupying_my_position(thing, &thing->mappos))
     {
-        cctrl->field_AA = 1;
+        cctrl->fighting_at_same_position = 1;
         creature_turn_to_face(thing, &enmtng->mappos);
         return 0;
     }
-    cctrl->field_AA = 0;
+    cctrl->fighting_at_same_position = 0;
     return creature_move_to_a_space_around_enemy(thing, enmtng, enm_distance, ncrstate);
 }
 
@@ -2349,7 +2349,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
     if (enmdist < 156)
     {
         creature_retreat_from_combat(thing, enmtng, nstat, 0);
-        cctrl->field_AA = 0;
+        cctrl->fighting_at_same_position = 0;
         return thing_in_field_of_view(thing, enmtng);
     }
     if (enmdist <= 284)
@@ -2359,7 +2359,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
         }
         return thing_in_field_of_view(thing, enmtng);
     }
-    cctrl->field_AA = 0;
+    cctrl->fighting_at_same_position = 0;
     if (thing_in_field_of_view(thing, enmtng))
     {
         // Firstly, check if any self buff is available.

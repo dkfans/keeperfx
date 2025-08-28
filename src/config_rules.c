@@ -83,8 +83,8 @@ static const struct NamedField rules_game_named_fields[] = {
   {"GOLDPILEMAXIMUM",           0, field(game.conf.rules.game.gold_pile_maximum         ),        5000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
   {"GOLDPERHOARD",              0, field(game.conf.rules.game.gold_per_hoard            ),        2000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
   {"FOODLIFEOUTOFHATCHERY",     0, field(game.conf.rules.game.food_life_out_of_hatchery ),         100,        0,          USHRT_MAX,NULL,                           value_default, assign_default},
-  {"BOULDERREDUCEHEALTHSLAP",   0, field(game.conf.rules.game.boulder_reduce_health_wall),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"BOULDERREDUCEHEALTHWALL",   0, field(game.conf.rules.game.boulder_reduce_health_slap),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"BOULDERREDUCEHEALTHSLAP",   0, field(game.conf.rules.game.boulder_reduce_health_slap),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"BOULDERREDUCEHEALTHWALL",   0, field(game.conf.rules.game.boulder_reduce_health_wall),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
   {"BOULDERREDUCEHEALTHROOM",   0, field(game.conf.rules.game.boulder_reduce_health_room),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
   {"PAYDAYGAP",                 0, field(game.conf.rules.game.pay_day_gap               ),        5000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
   {"PAYDAYSPEED",               0, field(game.conf.rules.game.pay_day_speed             ),         100,        0,          ULONG_MAX,NULL,                           value_default, assign_default},
@@ -122,11 +122,7 @@ static const struct NamedField rules_computer_named_fields[] = {
 static const struct NamedField rules_creatures_named_fields[] = {
     //name                    //param  //field                                           //default   //min     //max  //namedCommand //valueFunc
   {"RECOVERYFREQUENCY",          0, field(game.conf.rules.creature.recovery_frequency    ),  10,        0, UCHAR_MAX,NULL,value_default, assign_default},
-  {"FIGHTMAXHATE",               0, field(game.conf.rules.creature.fight_max_hate        ), 200, SHRT_MIN,  SHRT_MAX,NULL,value_default, assign_default},
-  {"FIGHTBORDERLINE",            0, field(game.conf.rules.creature.fight_borderline      ),   0, SHRT_MIN,  SHRT_MAX,NULL,value_default, assign_default},
-  {"FIGHTMAXLOVE",               0, field(game.conf.rules.creature.fight_max_love        ),-100, SHRT_MIN,  SHRT_MAX,NULL,value_default, assign_default},
   {"BODYREMAINSFOR",             0, field(game.conf.rules.creature.body_remains_for      ),1000,        0, USHRT_MAX,NULL,value_default, assign_default},
-  {"FIGHTHATEKILLVALUE",         0, field(game.conf.rules.creature.fight_hate_kill_value ),  -5, SHRT_MIN,  SHRT_MAX,NULL,value_default, assign_default},
   {"FLEEZONERADIUS",             0, field(game.conf.rules.creature.flee_zone_radius      ),2048,        0, ULONG_MAX,NULL,value_default, assign_default},
   {"GAMETURNSINFLEE",            0, field(game.conf.rules.creature.game_turns_in_flee    ), 200,        0,  LONG_MAX,NULL,value_default, assign_default},
   {"GAMETURNSUNCONSCIOUS",       0, field(game.conf.rules.creature.game_turns_unconscious),2000,        0, USHRT_MAX,NULL,value_default, assign_default},
@@ -153,6 +149,7 @@ static const struct NamedField rules_magic_named_fields[] = {
   {"FRIENDLYFIGHTAREARANGEPERCENT",  0, field(game.conf.rules.magic.friendly_fight_area_range_percent ),   0, LONG_MIN, LONG_MAX,NULL,value_default, assign_default},
   {"FRIENDLYFIGHTAREADAMAGEPERCENT", 0, field(game.conf.rules.magic.friendly_fight_area_damage_percent),   0, LONG_MIN, LONG_MAX,NULL,value_default, assign_default},
   {"WEIGHTCALCULATEPUSH",            0, field(game.conf.rules.magic.weight_calculate_push             ),   0,        0, SHRT_MAX,NULL,value_default, assign_default},
+  {"ALLOWINSTANTCHARGEUP",           0, field(game.conf.rules.magic.allow_instant_charge_up           ),   0,        0,        1,NULL,value_default, assign_default},
   {NULL},
 };
 
@@ -177,6 +174,10 @@ static const struct NamedField rules_rooms_named_fields[] = {
   {"TORTUREDEATHCHANCE",                  0, field(game.conf.rules.rooms.torture_death_chance            ),   0,        0,                 100,NULL,value_default, assign_default},
   {"BARRACKMAXPARTYSIZE",                 0, field(game.conf.rules.rooms.barrack_max_party_size          ),  10,        0, GROUP_MEMBERS_COUNT,NULL,value_default, assign_default},
   {"TRAININGROOMMAXLEVEL",                0, field(game.conf.rules.rooms.training_room_max_level         ),   0,        0,CREATURE_MAX_LEVEL+1,NULL,value_default, assign_default},
+  {"TRAINEFFICIENCY",                     0, field(game.conf.rules.rooms.train_efficiency                ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
+  {"WORKEFFICIENCY",                      0, field(game.conf.rules.rooms.work_efficiency                 ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
+  {"SCAVENGEEFFECIENCY",                  0, field(game.conf.rules.rooms.scavenge_efficiency             ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
+  {"RESEARCHEFFECIENCY",                  0, field(game.conf.rules.rooms.research_efficiency             ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
   {NULL},
 };
 
@@ -282,7 +283,7 @@ static void assign_AlliesShareVision_script(const struct NamedField* named_field
 
 static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    
+
     if (parameter_is_number(value_text))
     {
         return 10 * atoll(value_text);
@@ -321,11 +322,11 @@ void clear_sacrifice_recipes(void)
   }
 }
 
-static int long_compare_fn(const void *ptr_a, const void *ptr_b)
+int sac_compare_fn(const void* ptr_a, const void* ptr_b)
 {
-    long *a = (long*)ptr_a;
-    long *b = (long*)ptr_b;
-    return *a < *b;
+    ThingModel a = *(const ThingModel*)ptr_a;
+    ThingModel b = *(const ThingModel*)ptr_b;
+    return a < b;
 }
 
 static void set_rules_defaults()
@@ -339,18 +340,18 @@ static void set_rules_defaults()
     }
 }
 
-TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
+TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, ThingModel crtr_idx)
 {
     // If all slots are taken, then just drop it.
     if (sac->victims[MAX_SACRIFICE_VICTIMS - 1] != 0)
         return false;
     // Otherwise, find place for our item (array is sorted).
-    for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
         if (sac->victims[i] == 0)
         {
             sac->victims[i] = crtr_idx;
-            qsort(sac->victims, MAX_SACRIFICE_VICTIMS, sizeof(sac->victims[0]), &long_compare_fn);
+            qsort(sac->victims, MAX_SACRIFICE_VICTIMS, sizeof(sac->victims[0]), &sac_compare_fn);
             return true;
         }
   }
@@ -486,7 +487,7 @@ static void mark_cheaper_diggers_sacrifice(void)
         struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
         if (sac->action == SacA_None)
             continue;
-        if (((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp)) 
+        if (((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp))
             || ((sac->action == SacA_NegUniqFunc) && (sac->param == UnqF_CostlierImp)))
         {
             if ((sac->victims[1] == 0) && (game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model == 0)) {

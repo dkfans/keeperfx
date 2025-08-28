@@ -1164,6 +1164,9 @@ TbResult LbSpriteDrawRemapUsingScalingDownDataSolidLR(uchar *outbuf, int scanlin
     int ystep_delta;
     long *ycurstep;
 
+    if (!outbuf || !xstep || !ystep || !src_buf || !src_buf->data || !cmap)
+        return -1;
+
     ystep_delta = 2;
     if (scanline < 0) {
         ystep_delta = -2;

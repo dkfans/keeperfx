@@ -120,11 +120,15 @@ extern char cmd_char;
 extern short api_enabled;
 extern uint16_t api_port;
 extern TbBool exit_on_lua_error;
+extern TbBool FLEE_BUTTON_DEFAULT;
+extern TbBool IMPRISON_BUTTON_DEFAULT;
 /******************************************************************************/
 short load_configuration(void);
 void process_cmdline_overrides(void);
 /******************************************************************************/
 TbBool is_feature_on(unsigned long feature);
+void set_skip_heart_zoom_feature(TbBool enable);
+TbBool get_skip_heart_zoom_feature(void);
 TbBool censorship_enabled(void);
 TbBool atmos_sounds_enabled(void);
 TbBool resize_movies_enabled(void);

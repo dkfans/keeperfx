@@ -60,7 +60,7 @@ void gui_go_to_next_spell(struct GuiButton *gbtn);
 void gui_area_spell_button(struct GuiButton *gbtn);
 void gui_choose_special_spell(struct GuiButton *gbtn);
 void gui_area_big_spell_button(struct GuiButton *gbtn);
-void gui_choose_trap(struct GuiButton *gbtn);
+void gui_choose_workshop_item(struct GuiButton *gbtn);
 void gui_go_to_next_trap(struct GuiButton *gbtn);
 void gui_over_trap_button(struct GuiButton *gbtn);
 void maintain_trap(struct GuiButton *gbtn);
@@ -70,6 +70,7 @@ void maintain_door(struct GuiButton *gbtn);
 void gui_over_door_button(struct GuiButton *gbtn);
 void gui_remove_area_for_traps(struct GuiButton *gbtn);
 void gui_area_big_trap_button(struct GuiButton *gbtn);
+void gui_area_trap_build_info_button(struct GuiButton* gbtn);
 void maintain_big_trap(struct GuiButton *gbtn);
 void gui_creature_query_background1(struct GuiMenu *gmnu);
 void gui_creature_query_background2(struct GuiMenu *gmnu);
@@ -79,7 +80,7 @@ void maintain_spell(struct GuiButton *gbtn);
 void maintain_big_spell(struct GuiButton *gbtn);
 void maintain_trap(struct GuiButton *gbtn);
 void maintain_door(struct GuiButton *gbtn);
-void maintain_big_trap(struct GuiButton *gbtn);
+void maintain_buildable_info(struct GuiButton *gbtn);
 void pick_up_creature_doing_activity(struct GuiButton *gbtn);
 void gui_go_to_next_creature_activity(struct GuiButton *gbtn);
 void gui_go_to_next_room(struct GuiButton *gbtn);
@@ -268,25 +269,26 @@ struct GuiButtonInit spell_lost_menu_buttons[] = {
 };
 
 struct GuiButtonInit trap_menu_buttons[] = {
-  {LbBtnT_NormalBtn, BID_MNFCT_TD02, 0, 0, NULL,                      NULL, NULL, 0,   2, 238,   6, 242, 32, 36, NULL, GPS_trapdoor_trap_alarm_std_s, CpgStr_AlarmTrapDesc,     0,       {2},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD03, 0, 0, NULL,                      NULL, NULL, 0,  34, 238,  38, 242, 32, 36, NULL, GPS_trapdoor_trap_gas_std_s, CpgStr_PoisonGasTrapDesc, 0,       {3},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD04, 0, 0, NULL,                      NULL, NULL, 0,  66, 238,  70, 242, 32, 36, NULL, GPS_trapdoor_trap_lightning_std_s, CpgStr_LightningTrapDesc, 0,       {4},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD15, 0, 0, NULL,                      NULL, NULL, 0,  98, 238, 102, 242, 32, 36, NULL, GPS_trapdoor_trap_lava_std_s, CpgStr_LavaTrapDesc,      0,       {6},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD01, 0, 0, NULL,                      NULL, NULL, 0,   2, 276,   6, 280, 32, 36, NULL, GPS_trapdoor_trap_boulder_std_s, CpgStr_TrapBoulderDesc,   0,       {1},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD05, 0, 0, NULL,                      NULL, NULL, 0,  34, 276,  38, 280, 32, 36, NULL, GPS_trapdoor_trap_wop_std_s, CpgStr_WordOfPowerTrapDesc,0,      {5},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD11, 0, 0, NULL,                      NULL, NULL, 0,  66, 276,  70, 280, 32, 36, NULL, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,             0,       {0},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD12, 0, 0, NULL,                      NULL, NULL, 0,  98, 276, 102, 280, 32, 36, NULL, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,             0,       {0},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD06, 0, 0, NULL,                      NULL, NULL, 0,   2, 314,   6, 318, 32, 36, NULL, GPS_trapdoor_door_wood_std_s, CpgStr_WoodenDoorDesc,    0,       {7},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD07, 0, 0, NULL,                      NULL, NULL, 0,  34, 314,  38, 318, 32, 36, NULL, GPS_trapdoor_door_braced_std_s, CpgStr_BracedDoorDesc,    0,       {8},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD08, 0, 0, NULL,                      NULL, NULL, 0,  66, 314,  70, 318, 32, 36, NULL, GPS_trapdoor_door_iron_std_s, CpgStr_IronDoorDesc,      0,       {9},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD09, 0, 0, NULL,                      NULL, NULL, 0,  98, 314, 102, 318, 32, 36, NULL, GPS_trapdoor_door_magic_std_s, CpgStr_MagicDoorDesc,     0,      {10},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD13, 0, 0, NULL,                      NULL, NULL, 0,   2, 352,   6, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,             0,       {0},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD14, 0, 0, NULL,                      NULL, NULL, 0,  34, 352,  38, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,             0,       {0},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD16, 0, 0, NULL,                      NULL, NULL, 0,  66, 352,  70, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,             0,       {0},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD10, 0, 0, gui_remove_area_for_traps, NULL, NULL, 0,  98, 352, 102, 356, 32, 36, gui_area_new_no_anim_button, GPS_rpanel_frame_portrt_sell, GUIStr_SellItemDesc,      0,       {0},               0, NULL },
-  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   8, 210,   8, 194,126, 44, gui_area_big_trap_button,          0, GUIStr_Empty,             0,       {0},               0, maintain_big_trap },
-  {LbBtnT_NormalBtn, BID_MNFCT_NXPG, 0, 1, NULL,                      NULL, NULL, 0,  78, 188,  78, 188, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty,&trap_menu2,{0},    0, maintain_trap_next_page_button },
-  {              -1,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                      0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD02, 0, 0, NULL,                      NULL, NULL, 0,   2, 238,   6, 242, 32, 36, NULL, GPS_trapdoor_trap_alarm_std_s, CpgStr_AlarmTrapDesc,                     0,       {2},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD03, 0, 0, NULL,                      NULL, NULL, 0,  34, 238,  38, 242, 32, 36, NULL, GPS_trapdoor_trap_gas_std_s, CpgStr_PoisonGasTrapDesc,                   0,       {3},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD04, 0, 0, NULL,                      NULL, NULL, 0,  66, 238,  70, 242, 32, 36, NULL, GPS_trapdoor_trap_lightning_std_s, CpgStr_LightningTrapDesc,             0,       {4},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD15, 0, 0, NULL,                      NULL, NULL, 0,  98, 238, 102, 242, 32, 36, NULL, GPS_trapdoor_trap_lava_std_s, CpgStr_LavaTrapDesc,                       0,       {6},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD01, 0, 0, NULL,                      NULL, NULL, 0,   2, 276,   6, 280, 32, 36, NULL, GPS_trapdoor_trap_boulder_std_s, CpgStr_TrapBoulderDesc,                 0,       {1},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD05, 0, 0, NULL,                      NULL, NULL, 0,  34, 276,  38, 280, 32, 36, NULL, GPS_trapdoor_trap_wop_std_s, CpgStr_WordOfPowerTrapDesc,                 0,       {5},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD11, 0, 0, NULL,                      NULL, NULL, 0,  66, 276,  70, 280, 32, 36, NULL, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,                             0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD12, 0, 0, NULL,                      NULL, NULL, 0,  98, 276, 102, 280, 32, 36, NULL, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,                             0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD06, 0, 0, NULL,                      NULL, NULL, 0,   2, 314,   6, 318, 32, 36, NULL, GPS_trapdoor_door_wood_std_s, CpgStr_WoodenDoorDesc,                     0,       {7},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD07, 0, 0, NULL,                      NULL, NULL, 0,  34, 314,  38, 318, 32, 36, NULL, GPS_trapdoor_door_braced_std_s, CpgStr_BracedDoorDesc,                   0,       {8},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD08, 0, 0, NULL,                      NULL, NULL, 0,  66, 314,  70, 318, 32, 36, NULL, GPS_trapdoor_door_iron_std_s, CpgStr_IronDoorDesc,                       0,       {9},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD09, 0, 0, NULL,                      NULL, NULL, 0,  98, 314, 102, 318, 32, 36, NULL, GPS_trapdoor_door_magic_std_s, CpgStr_MagicDoorDesc,                     0,      {10},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD13, 0, 0, NULL,                      NULL, NULL, 0,   2, 352,   6, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,         0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD14, 0, 0, NULL,                      NULL, NULL, 0,  34, 352,  38, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,         0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD16, 0, 0, NULL,                      NULL, NULL, 0,  66, 352,  70, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,         0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD10, 0, 0, gui_remove_area_for_traps, NULL, NULL, 0,  98, 352, 102, 356, 32, 36, gui_area_new_no_anim_button, GPS_rpanel_frame_portrt_sell, GUIStr_SellItemDesc,0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   8, 210,   8, 194,126, 44, gui_area_big_trap_button,          0, GUIStr_Empty,                            0,       {0},               0, maintain_big_trap },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0, 110, 215, 110, 216, 16, 20, gui_area_trap_build_info_button,   0, GUIStr_Empty,                            0,       {0},               0, maintain_buildable_info },
+  {LbBtnT_NormalBtn, BID_MNFCT_NXPG, 0, 1, NULL,                      NULL, NULL, 0,  78, 188,  78, 188, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty,&trap_menu2, {0},               0, maintain_trap_next_page_button },
+  {              -1,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                                     0,       {0},               0, NULL },
 };
 
 struct GuiButtonInit trap_menu2_buttons[] = {
@@ -295,7 +297,7 @@ struct GuiButtonInit trap_menu2_buttons[] = {
   {LbBtnT_NormalBtn, BID_MNFCT_TD19, 0, 0, NULL,                      NULL, NULL, 0,  66, 238,  70, 242, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {4},               0, NULL },
   {LbBtnT_NormalBtn, BID_MNFCT_TD20, 0, 0, NULL,                      NULL, NULL, 0,  98, 238, 102, 242, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {6},               0, NULL },
   {LbBtnT_NormalBtn, BID_MNFCT_TD21, 0, 0, NULL,                      NULL, NULL, 0,   2, 276,   6, 280, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {1},               0, NULL },
-  {LbBtnT_NormalBtn, BID_MNFCT_TD22, 0, 0, NULL,                      NULL, NULL, 0,  34, 276,  38, 280, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,      {5},               0, NULL },
+  {LbBtnT_NormalBtn, BID_MNFCT_TD22, 0, 0, NULL,                      NULL, NULL, 0,  34, 276,  38, 280, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {5},               0, NULL },
   {LbBtnT_NormalBtn, BID_MNFCT_TD23, 0, 0, NULL,                      NULL, NULL, 0,  66, 276,  70, 280, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {0},               0, NULL },
   {LbBtnT_NormalBtn, BID_MNFCT_TD24, 0, 0, NULL,                      NULL, NULL, 0,  98, 276, 102, 280, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {0},               0, NULL },
   {LbBtnT_NormalBtn, BID_MNFCT_TD25, 0, 0, NULL,                      NULL, NULL, 0,   2, 314,   6, 318, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {7},               0, NULL },
@@ -306,9 +308,10 @@ struct GuiButtonInit trap_menu2_buttons[] = {
   {LbBtnT_NormalBtn, BID_MNFCT_TD30, 0, 0, NULL,                      NULL, NULL, 0,  34, 352,  38, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {0},               0, NULL },
   {LbBtnT_NormalBtn, BID_MNFCT_TD31, 0, 0, NULL,                      NULL, NULL, 0,  66, 352,  70, 356, 32, 36, gui_area_new_null_button, GPS_rpanel_frame_portrt_empty, GUIStr_Empty,               0,       {0},               0, NULL },
   {LbBtnT_NormalBtn, BID_MNFCT_TD32, 0, 0, gui_remove_area_for_traps, NULL, NULL, 0,  98, 352, 102, 356, 32, 36, gui_area_new_no_anim_button, GPS_rpanel_frame_portrt_sell, GUIStr_SellItemDesc,      0,       {0},               0, NULL },
-  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   8, 210,   8, 194,126, 44, gui_area_big_trap_button,          0, GUIStr_Empty,             0,       {0},               0, maintain_big_trap },
-  {LbBtnT_NormalBtn, BID_MNFCT_NXPG, 0, 1, NULL,                      NULL, NULL, 0,  78, 188,  78, 188, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty,&trap_menu,{0},    0, maintain_trap_next_page_button },
-  {              -1,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                  0,       {0},               0, NULL },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   8, 210,   8, 194,126, 44, gui_area_big_trap_button,          0, GUIStr_Empty,                                  0,       {0},               0,    maintain_big_trap },
+  {LbBtnT_NormalBtn,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0, 110, 215, 110, 216, 16, 20, gui_area_trap_build_info_button,   0, GUIStr_Empty,                                  0,       {0},               0,    maintain_buildable_info },
+  {LbBtnT_NormalBtn, BID_MNFCT_NXPG, 0, 1, NULL,                      NULL, NULL, 0,  78, 188,  78, 188, 52, 20, gui_area_new_normal_button, GPS_rpanel_rpanel_btn_nxpage_act, GUIStr_Empty, &trap_menu,       {0},               0, maintain_trap_next_page_button },
+  {              -1,    BID_DEFAULT, 0, 0, NULL,                      NULL, NULL, 0,   0,   0,   0,   0,  0,  0,                    NULL,           0,                              0,                0,       {0},               0, NULL },
 };
 
 struct GuiButtonInit creature_menu_buttons[] = {

@@ -210,7 +210,6 @@ struct Dungeon {
     short highest_task_number;
     int total_money_owned;
     int offmap_money_owned;
-    short hates_player[DUNGEONS_COUNT];
     struct MapTask task_list[MAPTASKS_COUNT];
     int task_count;
     unsigned char owner;
@@ -297,10 +296,10 @@ struct Dungeon {
     long                  cheaper_diggers;
     long                  event_last_run_turn[EVENT_KIND_COUNT];
     long                  script_flags[SCRIPT_FLAGS_COUNT];
-    unsigned short        room_kind[TERRAIN_ITEMS_MAX];
+    unsigned short        room_list_start[TERRAIN_ITEMS_MAX];
     unsigned char         room_buildable[TERRAIN_ITEMS_MAX];
     unsigned char         room_resrchable[TERRAIN_ITEMS_MAX];
-    unsigned char         room_slabs_count[TERRAIN_ITEMS_MAX+1];
+    unsigned char         room_discrete_count[TERRAIN_ITEMS_MAX+1];
     unsigned short        backup_heart_idx;
     unsigned short        free_soul_idx;
     struct HandRule       hand_rules[CREATURE_TYPES_MAX][HAND_RULE_SLOTS_COUNT];
@@ -337,7 +336,7 @@ struct Thing *get_player_soul_container(PlayerNumber plyr_idx);
 TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
 TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind);
 TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole);
-long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole);
+long count_player_discrete_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole);
 
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);

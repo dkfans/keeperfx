@@ -98,7 +98,7 @@ short at_torture_room(struct Thing *thing)
         return 0;
     }
     add_creature_to_torture_room(thing, room);
-    cctrl->flgfield_1 |= CCFlg_NoCompControl;
+    cctrl->creature_control_flags |= CCFlg_NoCompControl;
     cctrl->tortured.assigned_torturer = 0;
     cctrl->turns_at_job = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
@@ -123,7 +123,7 @@ short cleanup_torturing(struct Thing *creatng)
     }
     // If the creature has flight ability, return it to flying state
     restore_creature_flight_flag(creatng);
-    cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+    cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
     remove_creature_from_torture_room(creatng);
     state_cleanup_in_room(creatng);
     return 1;
@@ -323,7 +323,7 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
     change_creature_owner(creatng, new_owner);
     anger_set_creature_anger_all_types(creatng, 0);
     struct Dungeon* dungeon = get_dungeon(new_owner);
-    if (!dungeon_invalid(dungeon)) 
+    if (!dungeon_invalid(dungeon))
     {
         dungeon->lvstats.creatures_converted++;
         if (((get_creature_model_flags(creatng) & CMF_IsSpectator) == 0) && ((get_creature_model_flags(creatng) & CMF_IsSpecDigger) == 0))
