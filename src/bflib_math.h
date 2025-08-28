@@ -60,7 +60,7 @@ enum MathOperator {
 };
 
 struct Proportion { // sizeof = 8
-    long field_0;
+    long base_value;
     long distance_ratio;
 };
 

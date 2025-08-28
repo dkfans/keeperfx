@@ -700,7 +700,7 @@ struct AnimFLIPrefix { //sizeof=0x6
 #pragma pack()
 
 struct Animation {
-	long field_0;
+	long state_flags;
 	unsigned char *videobuf;
 	unsigned char *chunkdata;
 	unsigned char *field_C;
@@ -1199,14 +1199,14 @@ short anim_format_matches(int width,int height,int bpp)
 
 short anim_open(char *fname, int arg1, short arg2, int width, int height, int bpp, unsigned int flags)
 {
-	if ( flags & animation.field_0 ) {
+	if ( flags & animation.state_flags ) {
 		ERRORLOG("Cannot record movie");
 		return false;
 	}
 	if (flags & 0x01) {
 		SYNCLOG("Starting to record new movie, \"%s\".",fname);
 		memset(&animation, 0, sizeof(Animation));
-		animation.field_0 |= flags;
+		animation.state_flags |= flags;
 		animation.videobuf = static_cast<unsigned char *>(calloc(2 * height*width, 1));
 		if (animation.videobuf==NULL) {
 			ERRORLOG("Cannot allocate video buffer.");
@@ -1254,7 +1254,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
 	}
 	if (flags & 0x02)  {
 		SYNCLOG("Resuming movie recording, \"%s\".",fname);
-		animation.field_0 |= flags;
+		animation.state_flags |= flags;
 		animation.inpfhndl = LbFileOpen(fname, 2);
 		if (!animation.inpfhndl) {
 			return false;
@@ -1397,7 +1397,7 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
 extern "C" short anim_stop()
 {
 	SYNCLOG("Finishing movie recording.");
-	if ( ((animation.field_0 & 0x01)==0) || (!animation.outfhndl)) {
+	if ( ((animation.state_flags & 0x01)==0) || (!animation.outfhndl)) {
 	  ERRORLOG("Can't stop recording movie");
 	  return false;
 	}
@@ -1411,13 +1411,13 @@ extern "C" short anim_stop()
 	animation.outfhndl = nullptr;
 	free(animation.chunkdata);
 	animation.chunkdata=NULL;
-	animation.field_0 = 0;
+	animation.state_flags = 0;
 	return true;
 }
 
 extern "C" TbBool anim_record_frame(unsigned char *screenbuf, unsigned char *palette)
 {
-	if ((animation.field_0 & 0x01)==0) {
+	if ((animation.state_flags & 0x01)==0) {
 		return false;
 	} else if (!anim_format_matches(MyScreenWidth/pixel_size,MyScreenHeight/pixel_size,LbGraphicsScreenBPP())) {
 		return false;

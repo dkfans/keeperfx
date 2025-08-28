@@ -3482,7 +3482,7 @@ TbBool thing_is_shootable(const struct Thing *thing, PlayerNumber shot_owner, Hi
         // Prevent Damage flag may be either respected or ignored
         if ((hit_targets & HitTF_PreventDmgCreatrs) == 0) {
             struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0)
+            if ((cctrl->creature_control_flags & CCFlg_PreventDamage) != 0)
                 return false;
         }
         if (shot_owner == thing->owner) {

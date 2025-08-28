@@ -857,7 +857,7 @@ TbBool get_level_lost_inputs(void)
           if (thing->class_id == TCls_Creature)
           {
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-              if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+              if ((cctrl->creature_state_flags & TF2_Spectator) == 0)
               {
                   set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx, 0, 0, 0);
                   inp_done = true;
@@ -2718,7 +2718,7 @@ short get_inputs(void)
             return true;
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        if ((cctrl->creature_state_flags & TF2_Spectator) == 0)
         {
             get_level_lost_inputs();
             return true;

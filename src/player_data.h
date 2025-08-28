@@ -50,7 +50,7 @@ enum PlayerInitFlags {
 };
 
 enum PlayerField6Flags {
-    PlaF6_Unknown01         = 0x01,
+    PlaF6_DisplayNeedsUpdate = 0x01,
     PlaF6_PlyrHasQuit       = 0x02,
     // The below are unused
     PlaF6_Unknown04         = 0x04,
@@ -135,7 +135,7 @@ struct Wander
   unsigned long num_check_per_run;
   /** Max amount of points added in one run of the search function. */
   unsigned long max_found_per_check;
-  unsigned char wdrfield_14;
+  unsigned char search_limiting_enabled;
   unsigned char wandr_slot;
   unsigned char plyr_idx;
   PlayerBitFlags plyr_bit; // unused?
@@ -162,7 +162,7 @@ struct PlayerInfo {
     unsigned char additional_flags; // Uses PlayerAdditionalFlags
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
-    unsigned char flgfield_6;
+    unsigned char display_flags;
     unsigned char *lens_palette;
     /** Index of packet slot associated with this player. */
     unsigned char packet_num;

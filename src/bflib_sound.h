@@ -73,10 +73,10 @@ struct SoundCoord3d {
 
 struct SoundEmitter {
     unsigned char flags;
-    unsigned char field_1;
+    unsigned char emitter_flags;
     short index;
     struct SoundCoord3d pos;
-    unsigned char field_A[6];
+    unsigned char reserved[6];
     long pitch_doppler;
     unsigned char curr_pitch;
     unsigned char target_pitch;
@@ -102,7 +102,7 @@ struct S3DSample { // sizeof = 37
   SoundMilesID mss_id;
   struct SoundEmitter *emit_ptr;
   long emit_idx;
-  char field_1D; // signed
+  char repeat_count; // signed
   unsigned char flags;
   unsigned char is_playing;
   unsigned char sfxid;

@@ -437,8 +437,8 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   player->allocflags &= ~PlaF_Unknown8;
   if (is_my_player(player))
   {
-    game.numfield_D &= ~GNFldD_CreaturePasngr;
-    game.numfield_D |= GNFldD_Unkn01;
+    game.view_mode_flags &= ~GNFldD_CreaturePasngr;
+    game.view_mode_flags |= GNFldD_CreatureViewMode;
     if (is_my_player(player))
       stop_all_things_playing_samples();
   }
@@ -465,7 +465,7 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   case PVT_CreaturePasngr:
       set_engine_view(player, PVM_CreatureView);
       if (is_my_player(player))
-        game.numfield_D &= ~GNFldD_Unkn01;
+        game.view_mode_flags &= ~GNFldD_CreatureViewMode;
       setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
       break;
   case PVT_MapScreen:
@@ -496,20 +496,20 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview)
         set_engine_view(player, PVM_IsoWibbleView);
       }
       if (is_my_player(player))
-        game.numfield_D &= ~GNFldD_Unkn01;
+        game.view_mode_flags &= ~GNFldD_CreatureViewMode;
       break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
       player->work_state = player->continue_work_state;
       set_engine_view(player, PVM_CreatureView);
       if (is_my_player(player))
-        game.numfield_D |= GNFldD_Unkn01;
+        game.view_mode_flags |= GNFldD_CreatureViewMode;
       break;
     case PVT_MapScreen:
       player->work_state = player->continue_work_state;
       set_engine_view(player, PVM_ParchmentView);
       if (is_my_player(player))
-        game.numfield_D &= ~GNFldD_Unkn01;
+        game.view_mode_flags &= ~GNFldD_CreatureViewMode;
       break;
     default:
       break;

@@ -287,6 +287,7 @@ struct PacketSaveHead {
     unsigned long action_seed;
     TbBool default_imprison_tendency;
     TbBool default_flee_tendency;
+    TbBool skip_heart_zoom;
     TbBool highlight_mode;
 };
 

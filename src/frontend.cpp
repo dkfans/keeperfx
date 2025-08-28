@@ -490,12 +490,12 @@ void get_player_gui_clicks(void)
         {
           if (a_menu_window_is_active())
           {
-            game.numfield_D &= ~GNFldD_CreaturePasngr;
+            game.view_mode_flags &= ~GNFldD_CreaturePasngr;
             player->allocflags &= ~PlaF_Unknown8;
             turn_off_all_window_menus();
           } else
           {
-            game.numfield_D |= GNFldD_CreaturePasngr;
+            game.view_mode_flags |= GNFldD_CreaturePasngr;
             player->allocflags |= PlaF_Unknown8;
             turn_on_menu(GMnu_QUERY);
           }
@@ -766,7 +766,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
             gbtn->gbactn_1 = 0;
             (gbtn->click_event)(gbtn);
             input_button = 0;
-            if ((gbtn->flags & LbBtnF_Unknown02) != 0)
+            if ((gbtn->flags & LbBtnF_Clickable) != 0)
             {
                 struct GuiMenu *gmnu;
                 gmnu = get_active_menu(gbtn->gmenu_idx);
@@ -1747,7 +1747,7 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
     for (i=0; i < PLAYERS_COUNT; i++)
     {
         player = get_player(i);
-        player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+        player->display_flags &= ~PlaF6_PlyrHasQuit;
     }
     player = get_my_player();
     clear_transfered_creatures();
@@ -1999,7 +1999,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
     gmnu = get_active_menu(gbtn->gmenu_idx);
     if (gbtn->parent_menu != NULL)
       create_menu(gbtn->parent_menu);
-    if ((gbtn->flags & LbBtnF_Unknown02) && (gbtn->gbtype != LbBtnT_EditBox))
+    if ((gbtn->flags & LbBtnF_Clickable) && (gbtn->gbtype != LbBtnT_EditBox))
     {
       if (callback == NULL)
         do_sound_menu_click();
@@ -2086,7 +2086,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->gmenu_idx = gmnu->number;
     gbtn->gbtype = gbinit->gbtype;
     gbtn->id_num = gbinit->id_num;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown02 * (gbinit->gbifield_5 & 0xff)) & LbBtnF_Unknown02;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Clickable * (gbinit->button_flags & 0xff)) & LbBtnF_Clickable;
     gbtn->click_event = gbinit->click_event;
     gbtn->rclick_event = gbinit->rclick_event;
     gbtn->ptover_event = gbinit->ptover_event;
@@ -2104,7 +2104,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->flags &= ~LbBtnF_MouseOver;
     gbtn->gbactn_1 = 0;
     gbtn->flags |= LbBtnF_Visible;
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown20 * (gbinit->gbifield_5 >> 8)) & LbBtnF_Unknown20;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Toggle * (gbinit->button_flags >> 8)) & LbBtnF_Toggle;
     if ((gbinit->scr_pos_x == 999) || (gbinit->pos_x == 999))
     {
         i = gmnu->pos_x + ((gmnuinit->width >> 1) - (gbinit->width >> 1)) * units_per_px / 16;
@@ -2296,7 +2296,7 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     amnu->draw_cb = gmnu->draw_cb;
     amnu->create_cb = gmnu->create_cb;
     amnu->is_monopoly_menu = gmnu->is_monopoly_menu;
-    amnu->field_1F = gmnu->field_1F;
+    amnu->is_active_panel = gmnu->is_active_panel;
     amnu->is_turned_on = ((game.operation_flags & GOF_ShowGui) != 0) || (!is_toggleable_menu(gmnu->ident));
     callback = amnu->create_cb;
     if (callback != NULL)
@@ -2554,7 +2554,7 @@ void set_gui_visible(TbBool visible)
       toggle_status_menu(is_visbl);
       break;
   }
-  if (((game.numfield_D & GNFldD_Unkn20) != 0) && ((game.operation_flags & GOF_ShowGui) != 0))
+  if (((game.view_mode_flags & GNFldD_StatusPanelDisplay) != 0) && ((game.operation_flags & GOF_ShowGui) != 0))
   {
       setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
   }
@@ -3821,7 +3821,7 @@ FrontendMenuState get_startup_menu_state(void)
           player->additional_flags &= ~PlaAF_UnlockedLordTorture;
           return FeSt_TORTURE;
         } else
-        if ((player->flgfield_6 & PlaF6_PlyrHasQuit) == 0)
+        if ((player->display_flags & PlaF6_PlyrHasQuit) == 0)
         {
           return FeSt_LEVEL_STATS;
         } else
@@ -3833,7 +3833,7 @@ FrontendMenuState get_startup_menu_state(void)
           return FeSt_MAIN_MENU;
         }
     } else
-    if (((player->flgfield_6 & PlaF6_PlyrHasQuit) != 0) || (player->victory_state == VicS_Undecided))
+    if (((player->display_flags & PlaF6_PlyrHasQuit) != 0) || (player->victory_state == VicS_Undecided))
     {
         SYNCLOG("Undecided victory state selected");
         return get_menu_state_based_on_last_level(lvnum);

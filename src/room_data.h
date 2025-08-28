@@ -103,7 +103,7 @@ struct Room {
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
     struct {
       unsigned long capacity_used_for_storage;
-      ThingIndex hatchfield_1B;
+      ThingIndex cached_nearby_creature_index;
     };
     /** For rooms which are often browsed for various reasons, list of all rooms of given kind.
      *  Rooms which have such list are entrances (only?). */
