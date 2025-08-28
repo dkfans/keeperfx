@@ -1079,7 +1079,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                             current_idx = comp->opponent_relations[slab_owner].next_idx;
                             pos = &comp->opponent_relations[slab_owner].pos_A[current_idx];
                             comp->opponent_relations[slab_owner].next_idx = (current_idx + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
-                            comp->opponent_relations[slab_owner].field_0 = game.play_gameturn;
+                            comp->opponent_relations[slab_owner].last_interaction_turn = game.play_gameturn;
                             pos->x.stl.num = stl_x_current;
                             pos->x.stl.pos = 0;
                             pos->y.stl.num = stl_y_current;

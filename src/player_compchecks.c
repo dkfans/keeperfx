@@ -1143,7 +1143,7 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
             {
                 n = oprel->next_idx;
                 oprel->next_idx = (n + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
-                oprel->field_0 = game.play_gameturn;
+                oprel->last_interaction_turn = game.play_gameturn;
                 struct Coord3d* pos = &oprel->pos_A[n];
                 pos->x.val = subtile_coord(room->central_stl_x,0);
                 pos->y.val = subtile_coord(room->central_stl_y,0);

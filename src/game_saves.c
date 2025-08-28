@@ -418,7 +418,7 @@ TbBool load_game(long slot_num)
     player->palette_fade_step_possession = 0;
     player->lens_palette = 0;
     PaletteSetPlayerPalette(player, engine_palette);
-    reinitialise_eye_lens(game.numfield_1B);
+    reinitialise_eye_lens(game.applied_lens_type);
     // Update the lights system state
     light_import_system_state(&game.lightst);
     // Victory state

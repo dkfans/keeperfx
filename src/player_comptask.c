@@ -913,7 +913,7 @@ void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos
     cdig->room.spiral.forward_direction = 0; // start facing NORTH
     cdig->room.area = room_area;
     cdig->room.slabs_processed = 0;
-    cdig->subfield_2C = 1;
+    cdig->action_success_flag = 1;
 }
 
 /** Dig a passage, to connect a new roomspace to the dungeon. */
@@ -974,7 +974,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     MapSubtlCoord stl_x = stl_slab_center_subtile(ctask->dig.pos_begin.x.stl.num);
     MapSubtlCoord stl_y = stl_slab_center_subtile(ctask->dig.pos_begin.y.stl.num);
-    if (ctask->dig.subfield_2C == 1) // this check might be unneeded, can't see when subfield_2C != 1
+    if (ctask->dig.action_success_flag == 1) // this check might be unneeded, can't see when action_success_flag != 1
     {
         if (ctask->dig.room.spiral.steps_remaining_before_turn > 0)
         {
@@ -1160,7 +1160,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     MapSubtlCoord stl_x = ctask->dig.pos_begin.x.stl.num;
     MapSubtlCoord stl_y = ctask->dig.pos_begin.y.stl.num;
-    if (ctask->dig.subfield_2C == 1) // this check might be unneeded, can't see when subfield_2C != 1
+    if (ctask->dig.action_success_flag == 1) // this check might be unneeded, can't see when action_success_flag != 1
     {
         if (ctask->dig.room.spiral.steps_remaining_before_turn > 0)
         {
@@ -1676,7 +1676,7 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
     MapSlabCoord nextslb_y;
     SmallAroundIndex around_index;
     ToolDigResult dig_result;
-    for (dig_result = TDR_DigSlab; dig_result < cdig->subfield_2C; dig_result++)
+    for (dig_result = TDR_DigSlab; dig_result < cdig->action_success_flag; dig_result++)
     {
         struct SlabConfigStats *slabst;
         struct SlabMap *slb;
@@ -1820,7 +1820,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
             SYNCDBG(5,"%s: Going through slab (%d,%d)",func_name,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
             return TDR_DigSlab;
         }
-        if (cdig->subfield_2C == comp->field_C)
+        if (cdig->action_success_flag == comp->action_status_flag)
         {
             gldstl_x -= STL_PER_SLB * small_around[around_index].delta_x;
             gldstl_y -= STL_PER_SLB * small_around[around_index].delta_y;
@@ -3497,7 +3497,7 @@ void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const
     cdig->pos_next.y.val = 0;
     cdig->pos_next.z.val = 0;
     cdig->distance = LONG_MAX;
-    cdig->subfield_2C = 1;
+    cdig->action_success_flag = 1;
     cdig->calls_count = 0;
 }
 

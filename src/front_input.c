@@ -590,7 +590,7 @@ short get_global_inputs(void)
       {
           if (menu_is_active(GMnu_QUIT))
           {
-              set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
+              set_players_packet_action(player, PckA_QuitToMainMenu, 0, 0, 0, 0);
               clear_key_pressed(KC_RETURN);
               return true;
           }
@@ -2447,7 +2447,7 @@ TbBool get_packet_load_demo_inputs(void)
 void get_creature_control_nonaction_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
-    if ((player->allocflags & PlaF_Unknown8) != 0)
+    if ((player->allocflags & PlaF_CreaturePassengerMode) != 0)
     {
         return;
     }
@@ -2843,7 +2843,7 @@ short get_gui_inputs(short gameplay_on)
       for (int idx = 0; idx < ACTIVE_BUTTONS_COUNT; idx++)
       {
         struct GuiButton *gbtn = &active_buttons[idx];
-        if ((gbtn->flags & LbBtnF_Active) && (gbtn->gbtype == LbBtnT_Unknown6))
+        if ((gbtn->flags & LbBtnF_Active) && (gbtn->gbtype == LbBtnT_Hotspot))
             gbtn->gbactn_1 = 0;
       }
   }
@@ -2870,7 +2870,7 @@ short get_gui_inputs(short gameplay_on)
       if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_panel_map(player->minimap_pos_x,player->minimap_pos_y))
           continue;
       if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
-        || ((gbtn->gbtype == LbBtnT_Unknown6) && (gbtn->gbactn_1 != 0)) )
+        || ((gbtn->gbtype == LbBtnT_Hotspot) && (gbtn->gbactn_1 != 0)) )
       {
           if ((fmmenu_idx == -1) || (gbtn->gmenu_idx == fmmenu_idx))
           {
@@ -2880,7 +2880,7 @@ short get_gui_inputs(short gameplay_on)
             callback = gbtn->ptover_event;
             if (callback != NULL)
                 callback(gbtn);
-            if (gbtn->gbtype == LbBtnT_Unknown6)
+            if (gbtn->gbtype == LbBtnT_Hotspot)
                 break;
             if (gbtn->gbtype == LbBtnT_HorizSlider)
                 nx_over_slider_button = gidx;

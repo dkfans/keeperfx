@@ -239,7 +239,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
                       gbtn->gbactn_1++;
                   }
                   break;
-                case LbBtnT_Unknown6:
+                case LbBtnT_Hotspot:
                   if (callback != NULL) {
                       callback(gbtn);
                   }
@@ -265,7 +265,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
                   gbtn->gbactn_2++;
               }
               break;
-            case LbBtnT_Unknown6:
+            case LbBtnT_Hotspot:
               if (callback != NULL) {
                   callback(gbtn);
               }

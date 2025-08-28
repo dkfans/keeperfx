@@ -1063,7 +1063,7 @@ TbBool frontnetmap_load(void)
         for (long i = 0; i < 4; i++)
         {
             struct ScreenPacket* nspck = &net_screen_packet[i];
-            if ((nspck->field_4 & 0x01) != 0)
+            if ((nspck->networkstatus_flags & 0x01) != 0)
               net_number_of_players++;
         }
     } else
@@ -1235,34 +1235,34 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
   if (is_my_player_number(plyr_idx))
     return false;
   struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
-  if ((nspck->field_4 >> 3) == 0x02)
+  if ((nspck->networkstatus_flags >> 3) == 0x02)
     return false;
   // Rectangle of given player
   nspck = &net_screen_packet[(int)plyr_idx];
   struct TbRect rcta;
-  rcta.left = nspck->field_6 - 7;
-  rcta.top = nspck->field_8 - 13;
+  rcta.left = nspck->hand_position_x - 7;
+  rcta.top = nspck->hand_position_y - 13;
   rcta.right = rcta.left + 30;
   rcta.bottom = rcta.top + 20;
   // Rectangle of local player
   nspck = &net_screen_packet[my_player_number];
-  if ((nspck->field_4 >> 3) == 0x01)
+  if ((nspck->networkstatus_flags >> 3) == 0x01)
   {
-    rctb.left = nspck->field_6 - 31;
-    rctb.top = nspck->field_8 - 27;
+    rctb.left = nspck->hand_position_x - 31;
+    rctb.top = nspck->hand_position_y - 27;
     rctb.right = get_sprite(map_hand, 9)->SWidth + rctb.left;
     rctb.bottom = rctb.top + get_sprite(map_hand, 9)->SHeight;
   } else
   if (nspck->param1 != SINGLEPLAYER_NOTSTARTED)
   {
-    rctb.left = nspck->field_6 - 20;
-    rctb.top = nspck->field_8 - 14;
+    rctb.left = nspck->hand_position_x - 20;
+    rctb.top = nspck->hand_position_y - 14;
     rctb.right = get_sprite(map_hand, 17)->SWidth + rctb.left;
     rctb.bottom = rctb.top + get_sprite(map_hand, 17)->SHeight;
   } else
   {
-    rctb.left = nspck->field_6 - 19;
-    rctb.top = nspck->field_8 - 25;
+    rctb.left = nspck->hand_position_x - 19;
+    rctb.top = nspck->hand_position_y - 25;
     rctb.right = get_sprite(map_hand, 1)->SWidth + rctb.left;
     rctb.bottom = rctb.top + get_sprite(map_hand, 1)->SHeight;
   }
@@ -1380,11 +1380,11 @@ void draw_netmap_players_hands(void)
       nspck = &net_screen_packet[i];
       plyr_nam = network_player_name(i);
       colr = net_player_colours[i];
-      if ((nspck->field_4 & 0x01) != 0)
+      if ((nspck->networkstatus_flags & 0x01) != 0)
       {
         x = 0;
         y = 0;
-        n = nspck->field_4 & 0xF8;
+        n = nspck->networkstatus_flags & 0xF8;
         if (n == 8)
         {
           k = (unsigned char)nspck->param1;
@@ -1410,8 +1410,8 @@ void draw_netmap_players_hands(void)
             k = LbTimerClock() / 150;
             spr = get_sprite(map_hand, 17 + (k%4));
         }
-        x += nspck->field_6 - map_info.screen_shift_x - 18;
-        y += nspck->field_8 - map_info.screen_shift_y - 25;
+        x += nspck->hand_position_x - map_info.screen_shift_x - 18;
+        y += nspck->hand_position_y - map_info.screen_shift_y - 25;
         LbSpriteDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, spr);
         w = LbTextStringWidth(plyr_nam);
         if (w > 0)
@@ -1667,13 +1667,13 @@ TbBool frontmap_exchange_screen_packet(void)
 {
     memset(net_screen_packet, 0, sizeof(net_screen_packet));
     struct ScreenPacket* nspck = &net_screen_packet[my_player_number];
-    nspck->field_4 |= 0x01;
+    nspck->networkstatus_flags |= 0x01;
     nspck->param1 = fe_net_level_selected;
     if (net_map_limp_time > 0)
     {
-      nspck->field_4 = (nspck->field_4 & 0x07) | 0x10;
-      nspck->field_6 = limp_hand_x;
-      nspck->field_8 = limp_hand_y;
+      nspck->networkstatus_flags = (nspck->networkstatus_flags & 0x07) | 0x10;
+      nspck->hand_position_x = limp_hand_x;
+      nspck->hand_position_y = limp_hand_y;
       net_map_limp_time--;
       nspck->param2 = net_map_limp_time;
       if (net_map_limp_time == 1)
@@ -1689,17 +1689,17 @@ TbBool frontmap_exchange_screen_packet(void)
         struct LevelInformation* lvinfo = get_level_info(fe_net_level_selected);
         if (lvinfo != NULL)
         {
-            nspck->field_6 = lvinfo->ensign_x + my_player_number * ((long)spr->SWidth);
-            nspck->field_8 = lvinfo->ensign_y - 48;
+            nspck->hand_position_x = lvinfo->ensign_x + my_player_number * ((long)spr->SWidth);
+            nspck->hand_position_y = lvinfo->ensign_y - 48;
         }
     } else
     if (net_map_slap_frame > 0)
     {
-        nspck->field_6 = GetMouseX()*16/units_per_pixel_landview + map_info.screen_shift_x;
-        nspck->field_8 = GetMouseY()*16/units_per_pixel_landview + map_info.screen_shift_y;
+        nspck->hand_position_x = GetMouseX()*16/units_per_pixel_landview + map_info.screen_shift_x;
+        nspck->hand_position_y = GetMouseY()*16/units_per_pixel_landview + map_info.screen_shift_y;
         if (net_map_slap_frame <= 16)
         {
-          nspck->field_4 = (nspck->field_4 & 0x07) | 0x08;
+          nspck->networkstatus_flags = (nspck->networkstatus_flags & 0x07) | 0x08;
           nspck->param1 = net_map_slap_frame;
           net_map_slap_frame++;
         } else
@@ -1708,8 +1708,8 @@ TbBool frontmap_exchange_screen_packet(void)
         }
     } else
     {
-        nspck->field_6 = GetMouseX()*16/units_per_pixel_landview + map_info.screen_shift_x;
-        nspck->field_8 = GetMouseY()*16/units_per_pixel_landview + map_info.screen_shift_y;
+        nspck->hand_position_x = GetMouseX()*16/units_per_pixel_landview + map_info.screen_shift_x;
+        nspck->hand_position_y = GetMouseY()*16/units_per_pixel_landview + map_info.screen_shift_y;
     }
     if (fe_network_active)
     {
@@ -1729,7 +1729,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
     for (long i = 0; i < NET_PLAYERS_COUNT; i++)
     {
         struct ScreenPacket* nspck = &net_screen_packet[i];
-        if ((nspck->field_4 & 0x01) == 0)
+        if ((nspck->networkstatus_flags & 0x01) == 0)
           continue;
         if (nspck->param1 == LEVELNUMBER_ERROR)
         {
@@ -1744,7 +1744,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             }
             return false;
         }
-        if ((nspck->param1 == SINGLEPLAYER_NOTSTARTED) || ((nspck->field_4 & 0xF8) == 8))
+        if ((nspck->param1 == SINGLEPLAYER_NOTSTARTED) || ((nspck->networkstatus_flags & 0xF8) == 8))
         {
             nmps->tmp1++;
         } else
@@ -1762,16 +1762,16 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
                 nmps->is_selected = true;
             }
         }
-        if (((nspck->field_4 & 0xF8) == 0x08) && (nspck->param1 == 13))
+        if (((nspck->networkstatus_flags & 0xF8) == 0x08) && (nspck->param1 == 13))
         {
             if ( test_hand_slap_collides(i) )
             {
                 net_map_limp_time = 12;
                 fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
                 net_map_slap_frame = 0;
-                limp_hand_x = nspck->field_6;
-                limp_hand_y = nspck->field_8;
-                nspck->field_4 = (nspck->field_4 & 7) | 0x10;
+                limp_hand_x = nspck->hand_position_x;
+                limp_hand_y = nspck->hand_position_y;
+                nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x10;
                 SYNCLOG("Slapped out of level");
             }
         }

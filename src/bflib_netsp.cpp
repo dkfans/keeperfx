@@ -192,12 +192,12 @@ ServiceProvider::ServiceProvider() :
     nsnames[i].in_use = false;
     memset(nsnames[i].text, 0, SESSION_NAME_MAX_LEN);
   }
-  this->field_7A4 = 0;
-  this->field_7A8 = 0;
+  this->reference_count = 0;
+  this->status_flags = 0;
   this->players_count = 0;
-  strcpy(this->field_D50,"");
+  strcpy(this->session_identifier,"");
   this->started = 0;
-  this->field_D78 = 0;
+  this->callback_context = 0;
   this->recvCallbacks = &nilReceiveAspect;
 }
 
@@ -209,16 +209,16 @@ ServiceProvider::~ServiceProvider()
 TbError ServiceProvider::Initialise(struct ReceiveCallbacks *nCallbacks, void *a2)
 {
   NETMSG("Initializing Service Provider");
-  if (this->field_7A4)
+  if (this->reference_count)
     WARNLOG("Service Provider already set up!");
   this->players_count = 0;
   ClearSessions();
-  this->field_D78 = a2;
+  this->callback_context = a2;
   if (nCallbacks != NULL)
     this->recvCallbacks = nCallbacks;
-  this->field_7A8 = 0;
+  this->status_flags = 0;
   this->started = false;
-  this->field_7A4++;
+  this->reference_count++;
   return Lb_OK;
 }
 
@@ -258,7 +258,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
         WARNLOG("NIL target for userDataMsgCallbackProc");
         break;
       }
-      imsg = recvCallbacks->multiPlayer(this->localPlayerId, dataLen+4, seqNbr, this->field_D78);
+      imsg = recvCallbacks->multiPlayer(this->localPlayerId, dataLen+4, seqNbr, this->callback_context);
       if (imsg == NULL)
         break;
       memcpy(imsg, buf, dataLen+4);
@@ -271,7 +271,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       {
         break;
       }
-      recvCallbacks->addMsg(p3, str, this->field_D78);
+      recvCallbacks->addMsg(p3, str, this->callback_context);
       break;
   case NETMSGTYPE_DELETE:
       this->CheckForDeletedHost(buf);
@@ -281,7 +281,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       {
         break;
       }
-      recvCallbacks->deleteMsg(dataLen, this->field_D78);
+      recvCallbacks->deleteMsg(dataLen, this->callback_context);
       break;
   case NETMSGTYPE_PROBABLYHOST:
       break;
@@ -291,7 +291,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
         WARNLOG("NIL target for systemUserMsgCallbackProc");
         break;
       }
-      recvCallbacks->systemUserMsg(this->localPlayerId, (char *)buf+4, dataLen, this->field_D78);
+      recvCallbacks->systemUserMsg(this->localPlayerId, (char *)buf+4, dataLen, this->callback_context);
       break;
   case NETMSGTYPE_MPREQEXDATA:
       memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
@@ -299,7 +299,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       {
         break;
       }
-      recvCallbacks->mpReqExDataMsg(p3, seqNbr, this->field_D78);
+      recvCallbacks->mpReqExDataMsg(p3, seqNbr, this->callback_context);
       break;
   case NETMSGTYPE_MPREQCOMPEXDATA:
       memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
@@ -307,16 +307,16 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       {
         break;
       }
-      recvCallbacks->mpReqCompsExDataMsg(p3, seqNbr, this->field_D78);
+      recvCallbacks->mpReqCompsExDataMsg(p3, seqNbr, this->callback_context);
       break;
   case NETMSGTYPE_UNKNOWN:
       // This callback seems to never be used
       p3 = 0;
-      if (recvCallbacks->field_24 == NULL)
+      if (recvCallbacks->unknownMsgCallback == NULL)
       {
         break;
       }
-      recvCallbacks->field_24(p3, buf);
+      recvCallbacks->unknownMsgCallback(p3, buf);
       break;
   default:
       WARNLOG("messageType is out of range");
@@ -374,7 +374,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           if (flags & 1) {
               somePtr = 0;
               if (recvCallbacks->multiPlayer) {
-                  somePtr = recvCallbacks->multiPlayer(playerId, dataLen + 4, seqNbr, field_D78);
+                  somePtr = recvCallbacks->multiPlayer(playerId, dataLen + 4, seqNbr, callback_context);
               }
               else {
                   NETMSG("NIL target for userDataMsgCallbackProc"); //rename
@@ -442,7 +442,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           }
 
           if (recvCallbacks->addMsg) {
-              recvCallbacks->addMsg(tmpInt2, array3, field_D78);
+              recvCallbacks->addMsg(tmpInt2, array3, callback_context);
           }
 
           break;
@@ -463,7 +463,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           DeletePlayer(id);
           memcpy(&tmpInt1, msgBuffer, sizeof(tmpInt1));
           if (recvCallbacks->deleteMsg) {
-              recvCallbacks->deleteMsg(tmpInt1, field_D78);
+              recvCallbacks->deleteMsg(tmpInt1, callback_context);
           }
 
           break;
@@ -482,7 +482,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           }
 
           if (recvCallbacks->systemUserMsg) {
-              recvCallbacks->systemUserMsg(playerId, msgBuffer, (*(ulong*) msgBuffer) & 0xFFFFF, field_D78);
+              recvCallbacks->systemUserMsg(playerId, msgBuffer, (*(ulong*) msgBuffer) & 0xFFFFF, callback_context);
           }
 
           break;
@@ -500,7 +500,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
           memcpy(&tmpInt1, msgBuffer + 4, sizeof(tmpInt1));
           if (recvCallbacks->mpReqExDataMsg) {
-              recvCallbacks->mpReqExDataMsg(tmpInt1, seqNbr, field_D78);
+              recvCallbacks->mpReqExDataMsg(tmpInt1, seqNbr, callback_context);
           }
 
           break;
@@ -517,14 +517,14 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
           memcpy(&tmpInt1, msgBuffer + 4, sizeof(tmpInt1));
           if (recvCallbacks->mpReqCompsExDataMsg) {
-              recvCallbacks->mpReqCompsExDataMsg(tmpInt1, seqNbr, field_D78);
+              recvCallbacks->mpReqCompsExDataMsg(tmpInt1, seqNbr, callback_context);
           }
 
           break;
       case NETMSGTYPE_UNIDIRECTIONAL:
           if (flags & 0x40) {
               if (recvCallbacks->unidirectionalMsg) {
-                  somePtr = recvCallbacks->unidirectionalMsg(playerId, dataLen + 4, field_D78);
+                  somePtr = recvCallbacks->unidirectionalMsg(playerId, dataLen + 4, callback_context);
               }
               else {
                   NETMSG("NIL target for unidirectionalMsgCallbackProc");
@@ -548,14 +548,14 @@ TbError ServiceProvider::Receive(unsigned long flags)
               break;
           }
 
-          if (!recvCallbacks->field_24) {
+          if (!recvCallbacks->unknownMsgCallback) {
               break;
           }
 
           msgLen = dataLen + 4;
           somePtr = calloc(msgLen, 1); //TODO NET check that this is freed somewhere...
           ReadMessage(&playerId, somePtr, &msgLen);
-          recvCallbacks->field_24(playerId, somePtr);
+          recvCallbacks->unknownMsgCallback(playerId, somePtr);
 
           break;
       default:
@@ -569,10 +569,10 @@ TbError ServiceProvider::Receive(unsigned long flags)
 TbError ServiceProvider::Release(void)
 {
   NETMSG("Releasing Service Provider");
-  this->field_7A8 = 0;
-  if (this->field_7A4 != 1)
+  this->status_flags = 0;
+  if (this->reference_count != 1)
     WARNLOG("Service Provider not set up!");
-  this->field_7A4--;
+  this->reference_count--;
   return Lb_OK;
 }
 
@@ -607,7 +607,7 @@ TbError ServiceProvider::AddPlayer(unsigned long plyr_id, const char *namestr, u
   netplyr = &this->players[i];
   netplyr->id = plyr_id;
   net_copy_name_string(netplyr->name,namestr,NETSP_PLAYER_NAME_MAX_LEN);
-  netplyr->field_5 = a3;
+  netplyr->reserved_data = a3;
   netplyr->is_active = a4;
   this->players_count++;
   return Lb_OK;
@@ -816,16 +816,16 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
     {
       if ( got )
       {
-        if ( ebp0 > *(_DWORD *)&v5->field_D50[1] )
+        if ( ebp0 > *(_DWORD *)&v5->session_identifier[1] )
         {
-          ebp0 = *(_DWORD *)&v5->field_D50[1];
+          ebp0 = *(_DWORD *)&v5->session_identifier[1];
           idx2 = i;
         }
       } else
       {
         got = 1;
         idx2 = i;
-        ebp0 = *(_DWORD *)&v5->field_D50[1];
+        ebp0 = *(_DWORD *)&v5->session_identifier[1];
       }
     }
   }

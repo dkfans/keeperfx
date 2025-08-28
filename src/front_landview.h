@@ -63,11 +63,12 @@ struct MapLevelInfo { // sizeof = 56
 };
 
 struct ScreenPacket {
-  unsigned char field_0[4];
-  unsigned char field_4;
+  unsigned char networkstatus_flags;
   char frontend_alliances;
-  short field_6;
-  short field_8;
+  short hand_position_x;
+  short hand_position_y;
+  short version_release;
+  short version_build;
   short param1;
   unsigned char param2;
 };

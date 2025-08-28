@@ -2670,7 +2670,7 @@ void update(void)
     if (quit_game || exit_keeper) {
         return;
     }
-    if (game.game_kind == GKind_Unknown1)
+    if (game.game_kind == GKind_NonInteractiveState)
     {
         game.map_changed_for_nagivation = 0;
         return;
@@ -3206,14 +3206,14 @@ short display_should_be_updated_this_turn(void)
 {
     if ((game.operation_flags & GOF_Paused) != 0)
       return true;
-    if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) )
+    if ( (game.turns_fastforward == 0) && (!game.packet_loading_in_progress) )
     {
       find_frame_rate();
       if ( (game.frame_skip == 0) || ((game.play_gameturn % game.frame_skip) == 0))
         return true;
     } else
     if ( ((game.play_gameturn & 0x3F)==0) ||
-         ((game.numfield_149F38) && ((game.play_gameturn & 7)==0)) )
+         ((game.packet_loading_in_progress) && ((game.play_gameturn & 7)==0)) )
     {
       packet_load_find_frame_rate(64);
       return true;
@@ -3532,7 +3532,7 @@ static TbBool wait_at_frontend(void)
       close_packet_file();
       game.packet_load_enable = 0;
     }
-    game.numfield_15 = -1;
+    game.save_game_slot = -1;
     // Make sure campaigns are loaded
     if (!load_campaigns_list())
     {
@@ -3600,7 +3600,7 @@ static TbBool wait_at_frontend(void)
     #endif
 
     // Prepare to enter PacketLoad game
-    if ((game.packet_load_enable) && (!game.numfield_149F47))
+    if ((game.packet_load_enable) && (!game.packet_load_initialized))
     {
       faststartup_saved_packet_game();
       return true;
@@ -3732,16 +3732,16 @@ static TbBool wait_at_frontend(void)
           startup_network_game(&loop, false);
           break;
     case FeSt_LOAD_GAME:
-          flgmem = game.numfield_15;
+          flgmem = game.save_game_slot;
           clear_flag(game.system_flags, GSF_NetworkActive);
           LbScreenClear(0);
           LbScreenSwap();
-          if (!load_game(game.numfield_15))
+          if (!load_game(game.save_game_slot))
           {
-              ERRORLOG("Loading game %d failed; quitting.",(int)game.numfield_15);
+              ERRORLOG("Loading game %d failed; quitting.",(int)game.save_game_slot);
               quit_game = 1;
           }
-          game.numfield_15 = flgmem;
+          game.save_game_slot = flgmem;
           break;
     case FeSt_PACKET_DEMO:
           game.flags_cd |= MFlg_IsDemoMode;
@@ -3783,7 +3783,7 @@ void game_loop(void)
       player = get_my_player();
       if (game.game_kind == GKind_LocalGame)
       {
-        if (game.numfield_15 == -1)
+        if (game.save_game_slot == -1)
         {
             if (is_feature_on(Ft_SkipHeartZoom) == false) {
                 set_player_instance(player, PI_HeartZoom, 0);
@@ -3794,7 +3794,7 @@ void game_loop(void)
             }
         } else
         {
-          game.numfield_15 = -1;
+          game.save_game_slot = -1;
           clear_flag(game.operation_flags, GOF_Paused);
         }
       } else {

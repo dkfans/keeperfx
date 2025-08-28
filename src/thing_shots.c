@@ -1886,7 +1886,7 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
     thing->fall_acceleration = shotst->fall_acceleration;
     thing->inertia_floor = shotst->inertia_floor;
     thing->inertia_air = shotst->inertia_air;
-    thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->soft_landing) & TMvF_Unknown08;
+    thing->movement_flags ^= (thing->movement_flags ^ TMvF_ZeroVerticalVelocity * shotst->soft_landing) & TMvF_ZeroVerticalVelocity;
     set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * shotst->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= thing->rendering_flags ^ ((thing->rendering_flags ^ TRF_Transpar_8 * shotst->animation_transparency) & (TRF_Transpar_Flags));

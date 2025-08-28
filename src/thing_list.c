@@ -3353,7 +3353,7 @@ TbBool update_thing(struct Thing *thing)
             if (thing->veloc_base.y.val != 0)
               thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_floor) / 256;
             thing->mappos.z.val = thing->floor_height;
-            if ((thing->movement_flags & TMvF_Unknown08) != 0)
+            if ((thing->movement_flags & TMvF_ZeroVerticalVelocity) != 0)
             {
               thing->veloc_base.z.val = 0;
             }

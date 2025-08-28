@@ -54,7 +54,7 @@ enum ThingFlags1 {
 };
 
 enum ThingFlags2 {
-    TF2_Unkn01              = 0x01,
+    TF2_CreatureIsMoving              = 0x01,
     TF2_Spectator           = 0x02,
     TF2_SummonedCreature    = 0x04,
 };
@@ -98,7 +98,7 @@ enum ThingMovementFlags {
     TMvF_IsOnWater          = 0x001, // The creature is walking on water.
     TMvF_IsOnLava           = 0x002, // The creature is walking on lava.
     TMvF_BeingSacrificed    = 0x004, // For creature falling in the temple pool, this informs its sacrificed state.
-    TMvF_Unknown08          = 0x008, // thing->veloc_base.z.val = 0;
+    TMvF_ZeroVerticalVelocity          = 0x008, // thing->veloc_base.z.val = 0;
     TMvF_GoThroughWalls     = 0x010,
     TMvF_Flying             = 0x020, // The creature is flying and can navigate in the air.
     TMvF_Immobile           = 0x040, // The creature cannot move.
@@ -131,8 +131,8 @@ struct Thing {
       } valuable;
       struct {
         short life_remaining;
-        char byte_15;
-        unsigned char byte_16;
+        char freshness_state;
+        unsigned char possession_freeze_timer;
         TbBool some_chicken_was_sacrificed;
         unsigned short angle;
       } food;
@@ -245,8 +245,8 @@ struct Thing {
       unsigned char is_locked;
       PlayerBitFlags revealed;
       } door;
-//TCls_Unkn10
-//TCls_Unkn11
+//TCls_unusedparam10
+//TCls_unusedparam11
 //TCls_AmbientSnd
 //TCls_CaveIn
       struct {

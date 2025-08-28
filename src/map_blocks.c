@@ -1804,7 +1804,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
         slabst = get_slab_kind_stats(slb->kind);
         if ((previous_slab_types_around[i] != slb->kind)
           || ((slabst->category != SlbAtCtg_Obstacle) && (slabst->category != SlbAtCtg_Unclaimed))
-          || (game.game_kind == GKind_Unknown1))
+          || (game.game_kind == GKind_NonInteractiveState))
         {
             place_single_slab_type_on_map(slb->kind, spos_x, spos_y, slabmap_owner(slb));
         }

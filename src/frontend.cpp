@@ -489,12 +489,12 @@ void get_player_gui_clicks(void)
           if (a_menu_window_is_active())
           {
             game.view_mode_flags &= ~GNFldD_CreaturePasngr;
-            player->allocflags &= ~PlaF_Unknown8;
+            player->allocflags &= ~PlaF_CreaturePassengerMode;
             turn_off_all_window_menus();
           } else
           {
             game.view_mode_flags |= GNFldD_CreaturePasngr;
-            player->allocflags |= PlaF_Unknown8;
+            player->allocflags |= PlaF_CreaturePassengerMode;
             turn_on_menu(GMnu_QUERY);
           }
         }
@@ -585,7 +585,7 @@ TbBool validate_versions(void)
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if ((net_screen_packet[i].field_4 & 0x01) != 0)
+      if ((net_screen_packet[i].networkstatus_flags & 0x01) != 0)
       {
         if (ver == -1)
           ver = player->game_version;
@@ -618,9 +618,9 @@ void versions_different_error(void)
     {
       plyr_nam = network_player_name(i);
       nspckt = &net_screen_packet[i];
-      if ((nspckt->field_4 & 0x01) != 0)
+      if ((nspckt->networkstatus_flags & 0x01) != 0)
       {
-        str_appendf(text, sizeof(text), "%s(%d.%02d) ", plyr_nam, nspckt->field_6, nspckt->field_8);
+        str_appendf(text, sizeof(text), "%s(%d.%02d) ", plyr_nam, nspckt->version_release, nspckt->version_build);
       }
     }
     // Waiting for users reaction
@@ -1093,7 +1093,7 @@ long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long fi
 void gui_quit_game(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player = get_my_player();
-    set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
+    set_players_packet_action(player, PckA_QuitToMainMenu, 0, 0, 0, 0);
 }
 
 void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
@@ -1461,9 +1461,9 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->field_4 & 0xF8) == 0)
+    if ((nspck->networkstatus_flags & 0xF8) == 0)
     {
-        nspck->field_4 = (nspck->field_4 & 0x07) | 0x38;
+        nspck->networkstatus_flags = (nspck->networkstatus_flags & 0x07) | 0x38;
         nspck->param1 = (fe_computer_players == 0);
     }
 }
@@ -1495,8 +1495,8 @@ void set_packet_start(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->field_4 & 0xF8) == 0)
-        nspck->field_4 = (nspck->field_4 & 7) | 0x18;
+    if ((nspck->networkstatus_flags & 0xF8) == 0)
+        nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x18;
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
@@ -1833,7 +1833,7 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
         case LbBtnT_NormalBtn:
         case LbBtnT_ToggleBtn:
         case LbBtnT_EditBox:
-        case LbBtnT_Unknown6:
+        case LbBtnT_Hotspot:
             *s = 1;
             break;
         case LbBtnT_RadioBtn:
@@ -1877,7 +1877,7 @@ void do_button_press_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
                 (*s)++;
             }
             break;
-        case LbBtnT_Unknown6:
+        case LbBtnT_Hotspot:
             if (callback != NULL) {
                 callback(gbtn);
             }

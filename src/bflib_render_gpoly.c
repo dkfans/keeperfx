@@ -327,13 +327,13 @@ static const long gpoly_divtable[][64] = {
 
 static long factor_ca,factor_ba,factor_cb,factor_chk;
 static long gploc_point_c;
-static long gploc_1A0;
-static long gploc_198,mapxveltop,gploc_18C,mapyveltop,gploc_180;
+static long shadingtop_deltashade;
+static long maptexturetop_deltau,mapxveltop,maptexturetop_deltav,mapyveltop,scanlinescounter;
 static long gploc_pt_ay,gploc_pt_ax,gploc_pt_shax,gploc_pt_as,gploc_pt_au,gploc_pt_av;
 static long gploc_pt_by,gploc_pt_bx,gploc_pt_shbx,gploc_pt_bs,gploc_pt_bu,gploc_pt_bv;
 static long gploc_pt_cy,gploc_pt_cx,gploc_pt_shcx,gploc_pt_cs,gploc_pt_cu,gploc_pt_cv;
-static long gploc_12C,gploc_128,gploc_104,g_shadeAccumulator,g_shadeAccumulatorNext,gploc_E4;
-static uint8_t * gploc_F4;
+static long shadingfactor_primary,shadingfactor_secondary,screenbuffer_linestride,g_shadeAccumulator,g_shadeAccumulatorNext,texture_xaccumulator_backup;
+static uint8_t * screenbuffer_lineptr;
 static long gploc_D8,gploc_D4,gploc_CC,gploc_C4,gploc_C0,gploc_BC,gploc_B8,mapxhstep,mapyhstep,shadehstep,gploc_A4,gploc_A0;
 static long gploc_98,gploc_94,gploc_8C,gploc_88,gploc_80,gploc_7C,gploc_74,gploc_68,gploc_64,gploc_60;
 static long gploc_5C,startposshadetop,startposmapxtop,startposmapytop,startposshadebottom,startposmapxbottom,startposmapybottom,gploc_34,gploc_30,gploc_2C;
@@ -506,19 +506,19 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     draw_gpoly_sub7a();
     draw_gpoly_sub7b();
 
-    gploc_104 = LOC_vec_screen_width;
-    gploc_180 = 2;
+    screenbuffer_linestride = LOC_vec_screen_width;
+    scanlinescounter = 2;
     gploc_60 = gploc_68;
     gploc_CC = gploc_A4;
     gploc_C4 = gploc_A0;
     if (factor_chk < 0)
     {
-        gploc_12C = factor_ca;
-        gploc_128 = factor_ba;
+        shadingfactor_primary = factor_ca;
+        shadingfactor_secondary = factor_ba;
     } else
     {
-        gploc_12C = factor_ba;
-        gploc_128 = factor_ca;
+        shadingfactor_primary = factor_ba;
+        shadingfactor_secondary = factor_ca;
     }
 
     if (exceeds_window)
@@ -628,9 +628,9 @@ void draw_gpoly_sub7b_block1(void)
     int32_t dy_bc = gploc_pt_cy - gploc_pt_by;
     int32_t scale2 = (dy_bc > 255) ? (0x7FFFFFFF / dy_bc) : gpoly_reptable[dy_bc];
 
-    gploc_1A0 = shift_mul(2 * (gploc_pt_cs - gploc_pt_bs), scale2);
-    gploc_198 = shift_mul(2 * (gploc_pt_cu - gploc_pt_bu), scale2);
-    gploc_18C = shift_mul(2 * (gploc_pt_cv - gploc_pt_bv), scale2);
+    shadingtop_deltashade = shift_mul(2 * (gploc_pt_cs - gploc_pt_bs), scale2);
+    maptexturetop_deltau = shift_mul(2 * (gploc_pt_cu - gploc_pt_bu), scale2);
+    maptexturetop_deltav = shift_mul(2 * (gploc_pt_cv - gploc_pt_bv), scale2);
 }
 
 static inline int rol16_from_product(int64_t product)
@@ -804,11 +804,11 @@ void draw_gpoly_sub7b_block3(void)
     //----------------------------------------------------------------
     if ( (int32_t)factor_chk >= 0 )
     {
-        int32_t m_y   = (int32_t)gploc_18C;
+        int32_t m_y   = (int32_t)maptexturetop_deltav;
         int64_t val   = ((int64_t)m_y << 16);
 
-        // gploc_64 = (gploc_1A0 << 24)
-        int32_t s0    = (int32_t)gploc_1A0;
+        // gploc_64 = (shadingtop_deltashade << 24)
+        int32_t s0    = (int32_t)shadingtop_deltashade;
         gploc_64      = (uint32_t)(s0 << 24);
 
         int32_t s1    = (int32_t)(s0 >> 8);
@@ -825,8 +825,8 @@ void draw_gpoly_sub7b_block3(void)
         int32_t  high32 = (int32_t)(val >> 32);
         gploc_98        = low32;
 
-        // gploc_94 = ( (gploc_198 + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
-        int32_t mx      = (int32_t)gploc_198;
+        // gploc_94 = ( (maptexturetop_deltau + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
+        int32_t mx      = (int32_t)maptexturetop_deltau;
         if (high32 < 0) {
             mx -= 1;
         }
@@ -1048,12 +1048,12 @@ void draw_gpoly_sub13()
     }
     while ( 1 )
     {
-      if ( !--gploc_180 )
+      if ( !--scanlinescounter )
         return;
       g_shadeAccumulator = shadeAccumulator;
       if ( factor_chk >= 0 )
         break;
-      gploc_128 = factor_cb;
+      shadingfactor_secondary = factor_cb;
       shadeAccumulatorNext = gploc_pt_shbx;
       v39 = gploc_pt_cy;
       if ( gploc_pt_cy > LOC_vec_window_height )
@@ -1073,7 +1073,7 @@ void draw_gpoly_sub13()
 REMAINDER_SCANLINE_STEP:
           g_shadeAccumulator = shadeAccumulator;
           g_shadeAccumulatorNext = shadeAccumulatorNext;
-          gploc_F4 = screen_line_ptr;
+          screenbuffer_lineptr = screen_line_ptr;
           v31 = shadeAccumulator >> 16;
           if ( v31 < 0 )
           {
@@ -1130,7 +1130,7 @@ REMAINDER_SCANLINE_STEP:
           gploc_74 = xStart;
           gploc_34 = tex_x_accum_low;
           gploc_D8 = tex_x_accum_high;
-          gploc_E4 = tex_x_accum_combined;
+          texture_xaccumulator_backup = tex_x_accum_combined;
           v32 = shadeAccumulatorNext >> 16;
           if ( v32 > LOC_vec_window_width )
             v32 = LOC_vec_window_width;
@@ -1138,19 +1138,19 @@ REMAINDER_SCANLINE_STEP:
           pixel_span_len = v32 - xStart;
           if ( !v29 )
           {
-            unrolled_loop(pixel_span_len,tex_x_accum_high,tex_x_accum_combined,gploc_F4 + xStart);
+            unrolled_loop(pixel_span_len,tex_x_accum_high,tex_x_accum_combined,screenbuffer_lineptr + xStart);
           }
           v30 = gploc_74 - (g_shadeAccumulator >> 16);
-          shadeAccumulatorNext = gploc_128 + g_shadeAccumulatorNext;
-          g_shadeAccumulator += gploc_12C;
+          shadeAccumulatorNext = shadingfactor_secondary + g_shadeAccumulatorNext;
+          g_shadeAccumulator += shadingfactor_primary;
           xStart = (g_shadeAccumulator >> 16) + v30;
           shadeAccumulator = g_shadeAccumulator;
           tex_x_accum_high = (PAIR64(gploc_CC, gploc_60) + PAIR64(gploc_D8, gploc_34)) >> 32;
           tex_x_accum_low = gploc_60 + gploc_34;
           tex_x_accum_combined = gploc_C4
                                + CFADD64(PAIR64(gploc_CC, gploc_60), PAIR64(gploc_D8, gploc_34))
-                               + gploc_E4;
-          screen_line_ptr = &gploc_F4[gploc_104];
+                               + texture_xaccumulator_backup;
+          screen_line_ptr = &screenbuffer_lineptr[screenbuffer_linestride];
           --gploc_C0;
         }
         while ( gploc_C0 );
@@ -1164,11 +1164,11 @@ SKEWED_SCAN_ADJUST:
         tex_x_accum_low += gploc_60;
         tex_x_accum_combined += gploc_C4 + v37;
         gploc_74 -= shadeAccumulator >> 16;
-        shadeAccumulatorNext += gploc_128;
-        g_shadeAccumulator = gploc_12C + shadeAccumulator;
-        gploc_74 += (gploc_12C + shadeAccumulator) >> 16;
-        shadeAccumulator += gploc_12C;
-        screen_line_ptr += gploc_104;
+        shadeAccumulatorNext += shadingfactor_secondary;
+        g_shadeAccumulator = shadingfactor_primary + shadeAccumulator;
+        gploc_74 += (shadingfactor_primary + shadeAccumulator) >> 16;
+        shadeAccumulator += shadingfactor_primary;
+        screen_line_ptr += screenbuffer_linestride;
         if ( !--gploc_C0 )
           break;
         if ( ++scanline_y_esi >= 0 )
@@ -1179,7 +1179,7 @@ SKEWED_SCAN_ADJUST:
       }
       xStart = gploc_74;
     }
-    gploc_12C = factor_cb;
+    shadingfactor_primary = factor_cb;
     gploc_60 = gploc_64;
     gploc_CC = gploc_98;
     gploc_C4 = gploc_94;
@@ -1241,11 +1241,11 @@ void draw_gpoly_sub14()
 REMAINDER_SCANLINE_STEP:
         g_shadeAccumulator = shadeAccumulator;
         g_shadeAccumulatorNext = shadeAccumulatorNext;
-        gploc_F4 = screen_line_ptr;
+        screenbuffer_lineptr = screen_line_ptr;
         int x_start_int = shadeAccumulator >> 16;
         gploc_34 = tex_x_accum_low;
         gploc_D8 = tex_x_accum_high;
-        gploc_E4 = tex_x_accum_combined;
+        texture_xaccumulator_backup = tex_x_accum_combined;
         int x_end_int = shadeAccumulatorNext >> 16;
         uint8_t *screen_line_offset = &screen_line_ptr[x_start_int];
         bool span_too_small_or_complete = x_end_int <= x_start_int;
@@ -1255,12 +1255,12 @@ REMAINDER_SCANLINE_STEP:
           unrolled_loop(pixel_span_len,tex_x_accum_high,tex_x_accum_combined,screen_line_offset);
         }
         xStart = gploc_74;
-        shadeAccumulator = gploc_12C + g_shadeAccumulator;
-        shadeAccumulatorNext = gploc_128 + g_shadeAccumulatorNext;
+        shadeAccumulator = shadingfactor_primary + g_shadeAccumulator;
+        shadeAccumulatorNext = shadingfactor_secondary + g_shadeAccumulatorNext;
         tex_x_accum_high = (PAIR64(gploc_CC, gploc_60) + PAIR64(gploc_D8, gploc_34)) >> 32;
         tex_x_accum_low = gploc_60 + gploc_34;
-        tex_x_accum_combined = gploc_C4 + CFADD64(PAIR64(gploc_CC, gploc_60), PAIR64(gploc_D8, gploc_34)) + gploc_E4;
-        screen_line_ptr = (uchar *)(gploc_104 + gploc_F4);
+        tex_x_accum_combined = gploc_C4 + CFADD64(PAIR64(gploc_CC, gploc_60), PAIR64(gploc_D8, gploc_34)) + texture_xaccumulator_backup;
+        screen_line_ptr = (uchar *)(screenbuffer_linestride + screenbuffer_lineptr);
         --gploc_C0;
       }
       while ( gploc_C0 );
@@ -1269,12 +1269,12 @@ REMAINDER_SCANLINE_STEP:
     while ( 1 )
     {
 EDGE_ADVANCE_CHECK:
-      if ( !--gploc_180 )
+      if ( !--scanlinescounter )
         return;
       g_shadeAccumulator = shadeAccumulator;
       if ( factor_chk >= 0 )
         break;
-      gploc_128 = factor_cb;
+      shadingfactor_secondary = factor_cb;
       shadeAccumulatorNext = gploc_pt_shbx;
       int clamped_cy2 = gploc_pt_cy;
       if ( gploc_pt_cy > LOC_vec_window_height )
@@ -1297,11 +1297,11 @@ SKEWED_SCAN_ADJUST:
         tex_x_accum_low += gploc_60;
         tex_x_accum_combined += gploc_C4 + carryLow32;
         gploc_74 -= shadeAccumulator >> 16;
-        shadeAccumulatorNext += gploc_128;
-        g_shadeAccumulator = gploc_12C + shadeAccumulator;
-        gploc_74 += (gploc_12C + shadeAccumulator) >> 16;
-        shadeAccumulator += gploc_12C;
-        screen_line_ptr += gploc_104;
+        shadeAccumulatorNext += shadingfactor_secondary;
+        g_shadeAccumulator = shadingfactor_primary + shadeAccumulator;
+        gploc_74 += (shadingfactor_primary + shadeAccumulator) >> 16;
+        shadeAccumulator += shadingfactor_primary;
+        screen_line_ptr += screenbuffer_linestride;
         if ( !--gploc_C0 )
           break;
         if ( ++scanline_y >= 0 )
@@ -1311,7 +1311,7 @@ SKEWED_SCAN_ADJUST:
       }
       xStart = gploc_74;
     }
-    gploc_12C = factor_cb;
+    shadingfactor_primary = factor_cb;
     gploc_60 = gploc_64;
     gploc_CC = gploc_98;
     gploc_C4 = gploc_94;

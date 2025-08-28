@@ -654,7 +654,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   compositeBufferSize = 0;
   //_wint_thread_data = &thread_data_mem;
   receiveCallbacks.multiPlayer = MultiPlayerCallback;
-  receiveCallbacks.field_24 = NULL;
+  receiveCallbacks.unknownMsgCallback = NULL;
   exchangeBuffer = exchng_buf;
   receiveCallbacks.mpReqExDataMsg = MultiPlayerReqExDataMsgCallback;
   localPlayerInfoPtr = locplayr;
@@ -1465,7 +1465,7 @@ TbError SendRequestToAllExchangeDataMsg(unsigned long src_id,unsigned long seq, 
   spPtr->EncodeRequestExchangeDataMsg(requestExchangeDataBuffer, src_id, seq);
   for (i=0; i < maximumPlayers; i++)
   {
-    if ((clientDataTable[i].isactive) && (!clientDataTable[i].need_data_exchange))
+    if ((clientDataTable[i].isactive) && (!clientDataTable[i].has_exchanged_data))
     {
       if (spPtr->Send(clientDataTable[i].plyrid,requestExchangeDataBuffer))
         WARNMSG("%s: Failure on SP::Send()",func_name);
@@ -1525,9 +1525,9 @@ TbError HostDataCollection(void)
     exchngNeeded = 1;
     for (i=0; i < maximumPlayers; i++)
     {
-      if ((clientDataTable[i].isactive) && (!clientDataTable[i].need_data_exchange))
+      if ((clientDataTable[i].isactive) && (!clientDataTable[i].has_exchanged_data))
       {
-        exchngNeeded = clientDataTable[i].need_data_exchange;
+        exchngNeeded = !clientDataTable[i].has_exchanged_data;
       }
     }
     if (exchngNeeded)
@@ -1564,7 +1564,7 @@ TbError HostDataCollection(void)
         {
           for (i=0; i < maximumPlayers; i++)
           {
-            if ((clientDataTable[i].isactive) && (!clientDataTable[i].need_data_exchange))
+            if ((clientDataTable[i].isactive) && (!clientDataTable[i].has_exchanged_data))
             {
               spPtr->EncodeDeletePlayerMsg(deletePlayerBuffer, clientDataTable[i].plyrid);
               for (k=0; k < maximumPlayers; k++)
@@ -1648,10 +1648,10 @@ TbError StartMultiPlayerExchange(void *buf)
   {
     clidat = &clientDataTable[i];
     if (clidat->isactive)
-      clidat->need_data_exchange = 0;
+      clidat->has_exchanged_data = 0;
   }
   memcpy((uchar *)exchangeBuffer + exchangeSize * localPlayerIndex, buf, exchangeSize);
-  clientDataTable[localPlayerIndex].need_data_exchange = 1;
+  clientDataTable[localPlayerIndex].has_exchanged_data = 1;
   startTime = LbTimerClock();
   actualTimeout = basicTimeout;
   if (hostId == localPlayerId)
@@ -1907,7 +1907,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
       WARNLOG("Unexpected sequence number, Got %lu, expected %lu",seq,sequenceNumber);
       return NULL;
     }
-    clientDataTable[plr_id].need_data_exchange = 1;
+    clientDataTable[plr_id].has_exchanged_data = 1;
     return (uchar *)exchangeBuffer + plr_id * exchangeSize;
   }
   if (xch_size != maximumPlayers * exchangeSize)
@@ -1936,7 +1936,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
       WARNLOG("Invalid id: %lu",plr_id);
       return NULL;
     }
-    clientDataTable[plr_id].need_data_exchange = 1;
+    clientDataTable[plr_id].has_exchanged_data = 1;
     return (uchar *)exchangeBuffer + plr_id * exchangeSize;
   }
   if (hostId != plr_id)

@@ -34,7 +34,7 @@ extern "C" {
 
 struct RegionT { // sizeof = 3
   unsigned short num_triangles;
-  unsigned char field_2;
+  unsigned char is_connected;
 };
 
 #pragma pack()

@@ -251,7 +251,7 @@ TbBool S3DEmitterHasFinishedPlaying(SoundEmitterID eidx)
     struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
         return true;
-    return ((emit->flags & Emi_UnknownPlay) == 0);
+    return ((emit->flags & Emi_IsPlaying) == 0);
 }
 
 TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z)
@@ -485,11 +485,11 @@ long set_emitter_pan_volume_pitch(struct SoundEmitter *emit, long pan, long volu
         struct S3DSample* sample = &SampleList[i];
         if ((sample->is_playing != 0) && (sample->emit_ptr == emit))
         {
-            if ((sample->flags & Smp_Unknown02) == 0) {
+            if ((sample->flags & Smp_NoVolumeUpdate) == 0) {
               SetSampleVolume(get_emitter_id(emit), sample->smptbl_id, volume * (long)sample->base_volume / 256);
               SetSamplePan(get_emitter_id(emit), sample->smptbl_id, pan);
             }
-            if ((sample->flags & Smp_Unknown01) == 0) {
+            if ((sample->flags & Smp_NoPitchUpdate) == 0) {
               SetSamplePitch(get_emitter_id(emit), sample->smptbl_id, pitch * (long)sample->base_pitch / 100);
             }
         }
@@ -507,7 +507,7 @@ TbBool process_sound_emitters(void)
     for (i = 0; i < NoSoundEmitters; i++)
     {
         emit = S3DGetSoundEmitter(i);
-        if ( ((emit->flags & Emi_IsAllocated) != 0) && ((emit->flags & Emi_UnknownPlay) != 0) )
+        if ( ((emit->flags & Emi_IsAllocated) != 0) && ((emit->flags & Emi_IsPlaying) != 0) )
         {
             if ( emitter_is_playing(emit) )
             {
@@ -519,7 +519,7 @@ TbBool process_sound_emitters(void)
                 }
             } else
             {
-                emit->flags ^= Emi_UnknownPlay;
+                emit->flags ^= Emi_IsPlaying;
             }
         }
     }
@@ -897,7 +897,7 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     sample->emit_idx = emit->index;
     sample->sfxid = get_sample_sfxid(smptbl_id, bank_id);
     sample->base_volume = loudness;
-    emit->flags |= Emi_UnknownPlay;
+    emit->flags |= Emi_IsPlaying;
     return 1;
 }
 

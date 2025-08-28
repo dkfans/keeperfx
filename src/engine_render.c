@@ -82,7 +82,7 @@ enum QKinds {
     QK_TrigMode6,
     QK_RotableSprite, // 8
     QK_PolygonNearFP,
-    QK_Unknown10,
+    QK_BasicPolygon,
     QK_JontySprite,
     QK_CreatureShadow,
     QK_SlabSelector,
@@ -92,7 +92,7 @@ enum QKinds {
     QK_RoomFlagBottomPole,
     QK_JontyISOSprite,
     QK_RoomFlagStatusBox,
-    QK_Unknown20,
+    QK_UnusedSlot,
 };
 
 struct MinMax;
@@ -329,10 +329,10 @@ struct EngineCol {
 };
 
 struct SideOri {
-    unsigned char field_0;
-    unsigned char field_1;
-    unsigned char field_2;
-    unsigned char field_3;
+    unsigned char back_texture_index;
+    unsigned char top_texture_index;
+    unsigned char front_texture_index;
+    unsigned char bottom_texture_index;
 };
 
 /******************************************************************************/
@@ -720,7 +720,7 @@ static void update_normal_shade(struct M33 *matx)
 
 void update_engine_settings(struct PlayerInfo *player)
 {
-    switch (settings.field_0)
+    switch (settings.video_detail_level)
     {
     case 0:
         split1at = 4;
@@ -1079,11 +1079,11 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
         int idxh;
         for (idxh = hmax-hmin+1; idxh > 0; idxh--)
         {
-            ecord->x = apos + wibl->field_0;
-            ecord->y = hpos + wibl->field_4;
-            ecord->z = bpos + wibl->field_8;
+            ecord->x = apos + wibl->offset_x;
+            ecord->y = hpos + wibl->offset_y;
+            ecord->z = bpos + wibl->offset_z;
             ecord->clip_flags = 0;
-            lightness += wibl->field_C;
+            lightness += wibl->lightness_offset;
             if (lightness < 0)
                 lightness = 0;
             if (lightness > 16128)
@@ -1105,9 +1105,9 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
         }
         ecord = &ecol->cors[8];
         {
-            ecord->x = apos + wibl->field_0;
-            ecord->y = hpos + wibl->field_4;
-            ecord->z = bpos + wibl->field_8;
+            ecord->x = apos + wibl->offset_x;
+            ecord->y = hpos + wibl->offset_y;
+            ecord->z = bpos + wibl->offset_z;
             ecord->clip_flags = 0;
             // Use lightness from last cube
             ecord->shade_intensity = lightness;
@@ -1280,8 +1280,8 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         int idxh;
         for (idxh = hmax-hmin+1; idxh > 0; idxh--)
         {
-            ecord->view_width = (eview_w + wibl->field_10) >> 8;
-            ecord->view_height = (eview_h + wibl->field_14) >> 8;
+            ecord->view_width = (eview_w + wibl->view_width_offset) >> 8;
+            ecord->view_height = (eview_h + wibl->view_height_offset) >> 8;
             ecord->z = eview_z;
             ecord->clip_flags = 0;
             lightness += *randmis;
@@ -1507,8 +1507,8 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         int idxh;
         for (idxh = hmax-hmin+1; idxh > 0; idxh--)
         {
-            ecord->view_width = (eview_w + wibl->field_10) >> 8;
-            ecord->view_height = (eview_h + wibl->field_14) >> 8;
+            ecord->view_width = (eview_w + wibl->view_width_offset) >> 8;
+            ecord->view_height = (eview_h + wibl->view_height_offset) >> 8;
             ecord->z = eview_z;
             ecord->clip_flags = 0;
             lightness += 4 * (*randmis & 0xff) - 512;
@@ -1561,8 +1561,8 @@ void frame_wibble_generate(void)
         int osc;
         angle = water_wibble_angle + ((i & 0xFFFC) * ((i & 3) + 1) << 7);
         osc = LbSinL(angle);
-        wibl->field_4 = osc >> 11;
-        wibl->field_C = osc >> 6;
+        wibl->offset_y = osc >> 11;
+        wibl->lightness_offset = osc >> 6;
         wibl++;
     }
     render_water_wibble += (LbFPMath_PI / 22) * game.delta_time;
@@ -1586,11 +1586,11 @@ void frame_wibble_generate(void)
     wibl = &wibble_table[32];
     for (i=64; i > 0; i--)
     {
-        wibl->field_10 =   ((zm00 * wibl->field_0) >> 8)
-                         + ((zm02 * wibl->field_8) >> 8);
-        wibl->field_14 = -(((zm12 * wibl->field_8) >> 8)
-                         + ((zm10 * wibl->field_0) >> 8)
-                         + ((zm11 * wibl->field_4) >> 8));
+        wibl->view_width_offset =   ((zm00 * wibl->offset_x) >> 8)
+                         + ((zm02 * wibl->offset_z) >> 8);
+        wibl->view_height_offset = -(((zm12 * wibl->offset_z) >> 8)
+                         + ((zm10 * wibl->offset_x) >> 8)
+                         + ((zm11 * wibl->offset_y) >> 8));
         wibl++;
     }
 }
@@ -4121,25 +4121,25 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
               if ((solidmsk_top & height_bit) == 0)
               {
 
-                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_0]);
+                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].back_texture_index]);
                   do_a_trig_gourad_tr(&bec[1].cors[bepos+1], &bec[0].cors[bepos+1], &bec[0].cors[bepos],   textr_idx, normal_shade_back);
                   do_a_trig_gourad_bl(&bec[0].cors[bepos],   &bec[1].cors[bepos],   &bec[1].cors[bepos+1], textr_idx, normal_shade_back);
               }
               if ((solidmsk_bottom & height_bit) == 0)
               {
-                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_2]);
+                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].front_texture_index]);
                   do_a_trig_gourad_tr(&fec[0].cors[fepos+1], &fec[1].cors[fepos+1], &fec[1].cors[fepos],   textr_idx, normal_shade_front);
                   do_a_trig_gourad_bl(&fec[1].cors[fepos],   &fec[0].cors[fepos],   &fec[0].cors[fepos+1], textr_idx, normal_shade_front);
               }
               if ((solidmsk_left & height_bit) == 0)
               {
-                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_3]);
+                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].bottom_texture_index]);
                   do_a_trig_gourad_tr(&bec[0].cors[bepos+1], &fec[0].cors[fepos+1], &fec[0].cors[fepos],   textr_idx, normal_shade_left);
                   do_a_trig_gourad_bl(&fec[0].cors[fepos],   &bec[0].cors[bepos],   &bec[0].cors[bepos+1], textr_idx, normal_shade_left);
               }
               if ((solidmsk_right & height_bit) == 0)
               {
-                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_1]);
+                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].top_texture_index]);
                   do_a_trig_gourad_tr(&fec[1].cors[fepos+1], &bec[1].cors[bepos+1], &bec[1].cors[bepos],   textr_idx, normal_shade_right);
                   do_a_trig_gourad_bl(&bec[1].cors[bepos],   &fec[1].cors[fepos],   &fec[1].cors[fepos+1], textr_idx, normal_shade_right);
               }
@@ -4542,25 +4542,25 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
             }
             if ((mask & solidmsk_back) == 0)
             {
-                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_0]);
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].back_texture_index]);
                 do_a_gpoly_gourad_tr(&bec[1].cors[ncor+1], &bec[0].cors[ncor+1], &bec[0].cors[ncor],   textr_id, normal_shade_back);
                 do_a_gpoly_gourad_bl(&bec[0].cors[ncor],   &bec[1].cors[ncor],   &bec[1].cors[ncor+1], textr_id, normal_shade_back);
             }
             if ((solidmsk_front & mask) == 0)
             {
-                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_2]);
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].front_texture_index]);
                 do_a_gpoly_gourad_tr(&fec[0].cors[ncor+1], &fec[1].cors[ncor+1], &fec[1].cors[ncor],   textr_id, normal_shade_front);
                 do_a_gpoly_gourad_bl(&fec[1].cors[ncor],   &fec[0].cors[ncor],   &fec[0].cors[ncor+1], textr_id, normal_shade_front);
             }
             if ((solidmsk_left & mask) == 0)
             {
-                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_3]);
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].bottom_texture_index]);
                 do_a_gpoly_gourad_tr(&bec[0].cors[ncor+1], &fec[0].cors[ncor+1], &fec[0].cors[ncor],   textr_id, normal_shade_left);
                 do_a_gpoly_gourad_bl(&fec[0].cors[ncor],   &bec[0].cors[ncor],   &bec[0].cors[ncor+1], textr_id, normal_shade_left);
             }
             if ((solidmsk_right & mask) == 0)
             {
-                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_1]);
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].top_texture_index]);
                 do_a_gpoly_gourad_tr(&fec[1].cors[ncor+1], &bec[1].cors[ncor+1], &bec[1].cors[ncor],   textr_id, normal_shade_right);
                 do_a_gpoly_gourad_bl(&bec[1].cors[ncor],   &fec[1].cors[ncor],   &fec[1].cors[ncor+1], textr_id, normal_shade_right);
             }
@@ -4731,25 +4731,25 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
             }
             if ((mask & solidmsk_back) == 0)
             {
-                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_0]);
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].back_texture_index]);
                 do_a_gpoly_gourad_tr(&bec[1].cors[ncor+1], &bec[0].cors[ncor+1], &bec[0].cors[ncor],   textr_id, normal_shade_back);
                 do_a_gpoly_gourad_bl(&bec[0].cors[ncor],   &bec[1].cors[ncor],   &bec[1].cors[ncor+1], textr_id, normal_shade_back);
             }
             if ((solidmsk_front & mask) == 0)
             {
-                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_2]);
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].front_texture_index]);
                 do_a_gpoly_gourad_tr(&fec[0].cors[ncor+1], &fec[1].cors[ncor+1], &fec[1].cors[ncor],   textr_id, normal_shade_front);
                 do_a_gpoly_gourad_bl(&fec[1].cors[ncor],   &fec[0].cors[ncor],   &fec[0].cors[ncor+1], textr_id, normal_shade_front);
             }
             if ((solidmsk_left & mask) == 0)
             {
-                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_3]);
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].bottom_texture_index]);
                 do_a_gpoly_gourad_tr(&bec[0].cors[ncor+1], &fec[0].cors[ncor+1], &fec[0].cors[ncor],   textr_id, normal_shade_left);
                 do_a_gpoly_gourad_bl(&fec[0].cors[ncor],   &bec[0].cors[ncor],   &bec[0].cors[ncor+1], textr_id, normal_shade_left);
             }
             if ((solidmsk_right & mask) == 0)
             {
-                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_1]);
+                textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].top_texture_index]);
                 do_a_gpoly_gourad_tr(&fec[1].cors[ncor+1], &bec[1].cors[ncor+1], &bec[1].cors[ncor],   textr_id, normal_shade_right);
                 do_a_gpoly_gourad_bl(&bec[1].cors[ncor],   &fec[1].cors[ncor],   &fec[1].cors[ncor+1], textr_id, normal_shade_right);
             }
@@ -5777,11 +5777,11 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
     switch (unk09->subtype)
     {
     case 0:
-        vec_mode = VM_Unknown5;
+        vec_mode = VM_QuadTextured;
         draw_gpoly(&unk09->p1,&unk09->p2,&unk09->p3);
         break;
     case 1:
-        vec_mode = VM_Unknown5;
+        vec_mode = VM_QuadTextured;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
@@ -5793,7 +5793,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&point_a, &unk09->p2, &unk09->p3);
         break;
     case 2:
-        vec_mode = VM_Unknown5;
+        vec_mode = VM_QuadTextured;
         coord_a.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_a.z = (unk09->c3.z + unk09->c2.z) >> 1;
@@ -5805,7 +5805,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&unk09->p1, &point_a, &unk09->p3);
         break;
     case 3:
-        vec_mode = VM_Unknown5;
+        vec_mode = VM_QuadTextured;
         coord_a.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c3.z + unk09->c1.z) >> 1;
@@ -5817,7 +5817,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&point_a, &unk09->p2, &unk09->p3);
         break;
     case 4:
-        vec_mode = VM_Unknown5;
+        vec_mode = VM_QuadTextured;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
@@ -5845,7 +5845,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&point_c, &point_b, &unk09->p3);
         break;
     case 5:
-        vec_mode = VM_Unknown5;
+        vec_mode = VM_QuadTextured;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
@@ -5873,7 +5873,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&point_c, &unk09->p2, &unk09->p3);
         break;
     case 6:
-        vec_mode = VM_Unknown5;
+        vec_mode = VM_QuadTextured;
         coord_a.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c3.y) >> 1;
         coord_a.z = (unk09->c3.z + unk09->c2.z) >> 1;
@@ -5901,7 +5901,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&unk09->p1, &point_c, &unk09->p3);
         break;
     case 7:
-        vec_mode = VM_Unknown5;
+        vec_mode = VM_QuadTextured;
         coord_a.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c3.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c3.z + unk09->c1.z) >> 1;
@@ -5929,7 +5929,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&unk09->p2, &point_c, &unk09->p1);
         break;
     case 8:
-        vec_mode = VM_Unknown5;
+        vec_mode = VM_QuadTextured;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
@@ -5973,7 +5973,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&point_c, &point_b, &unk09->p3);
         break;
     case 9:
-        vec_mode = VM_Unknown5;
+        vec_mode = VM_QuadTextured;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
@@ -6017,7 +6017,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&point_c, &point_e, &unk09->p3);
         break;
     case 10:
-        vec_mode = VM_Unknown5;
+        vec_mode = VM_QuadTextured;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
@@ -6061,7 +6061,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&point_d, &point_b, &unk09->p3);
         break;
     case 11: // Flickers in 1st person (before flicker_fix() was applied)
-        vec_mode = VM_Unknown5;
+        vec_mode = VM_QuadTextured;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
         coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
@@ -6164,12 +6164,12 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&point_h, &point_g, &unk09->p3);
         break;
     case 12:
-        vec_mode = VM_Unknown7;
+        vec_mode = VM_SolidColor;
         vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         trig(&unk09->p1, &unk09->p2, &unk09->p3);
         break;
     case 13:
-        vec_mode = VM_Unknown7;
+        vec_mode = VM_SolidColor;
         vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
@@ -6181,7 +6181,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         trig(&point_a, &unk09->p2, &unk09->p3);
         break;
     case 14:
-        vec_mode = VM_Unknown7;
+        vec_mode = VM_SolidColor;
         vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c3.y) >> 1;
@@ -6193,7 +6193,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         trig(&unk09->p1, &point_a, &unk09->p3);
         break;
     case 15:
-        vec_mode = VM_Unknown7;
+        vec_mode = VM_SolidColor;
         vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c3.y + unk09->c1.y) >> 1;
@@ -6205,7 +6205,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         trig(&point_a, &unk09->p2, &unk09->p3);
         break;
     case 16:
-        vec_mode = VM_Unknown7;
+        vec_mode = VM_SolidColor;
         vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
@@ -6231,7 +6231,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         trig(&point_c, &point_b, &unk09->p3);
         break;
     case 17:
-        vec_mode = VM_Unknown7;
+        vec_mode = VM_SolidColor;
         vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
@@ -6257,7 +6257,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         trig(&point_c, &unk09->p2, &unk09->p3);
         break;
     case 18:
-        vec_mode = VM_Unknown7;
+        vec_mode = VM_SolidColor;
         vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c3.y) >> 1;
@@ -6283,7 +6283,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         trig(&unk09->p1, &point_c, &unk09->p3);
         break;
     case 19:
-        vec_mode = VM_Unknown7;
+        vec_mode = VM_SolidColor;
         vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c1.x + unk09->c3.x) >> 1;
         coord_a.y = (unk09->c3.y + unk09->c1.y) >> 1;
@@ -6309,7 +6309,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         trig(&unk09->p2, &point_c, &unk09->p1);
         break;
     case 20:
-        vec_mode = VM_Unknown7;
+        vec_mode = VM_SolidColor;
         vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
@@ -6349,7 +6349,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         trig(&point_c, &point_b, &unk09->p3);
         break;
     case 21:
-        vec_mode = VM_Unknown7;
+        vec_mode = VM_SolidColor;
         vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
@@ -6389,7 +6389,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         trig(&point_c, &point_e, &unk09->p3);
         break;
     case 22:
-        vec_mode = VM_Unknown7;
+        vec_mode = VM_SolidColor;
         vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
@@ -6429,7 +6429,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         trig(&point_d, &point_b, &unk09->p3);
         break;
     case 23:
-        vec_mode = VM_Unknown7;
+        vec_mode = VM_SolidColor;
         vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
         coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
         coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
@@ -6573,18 +6573,18 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
             switch ( item.b->kind )
             {
             case QK_PolygonStandard: // All textured polygons for isometric and 'far' textures in 1st person view
-                vec_mode = VM_Unknown5;
+                vec_mode = VM_QuadTextured;
                 vec_map = block_ptrs[item.polygonStandard->block];
                 draw_gpoly(&item.polygonStandard->p1, &item.polygonStandard->p2, &item.polygonStandard->p3);
                 break;
             case QK_PolygonSimple: // Possibly unused
-                vec_mode = VM_Unknown7;
+                vec_mode = VM_SolidColor;
                 vec_colour = ((item.polygonSimple->p3.S + item.polygonSimple->p2.S + item.polygonSimple->p1.S)/3) >> 16;
                 vec_map = block_ptrs[item.polygonSimple->block];
                 trig(&item.polygonSimple->p1, &item.polygonSimple->p2, &item.polygonSimple->p3);
                 break;
             case QK_PolyMode0: // Possibly unused
-                vec_mode = VM_Unknown0;
+                vec_mode = VM_FlatColor;
                 vec_colour = item.polyMode0->colour;
                 point_a.X = item.polyMode0->x1;
                 point_a.Y = item.polyMode0->y1;
@@ -6595,7 +6595,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
             case QK_PolyMode4: // Possibly unused
-                vec_mode = VM_Unknown4;
+                vec_mode = VM_QuadFlatColor;
                 vec_colour = item.polyMode4->colour;
                 point_a.X = item.polyMode4->x1;
                 point_a.Y = item.polyMode4->y1;
@@ -6609,7 +6609,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
             case QK_TrigMode2: // Possibly unused
-                vec_mode = VM_Unknown2;
+                vec_mode = VM_TriangularGouraud;
                 point_a.X = item.trigMode2->x1;
                 point_a.Y = item.trigMode2->y1;
                 point_b.X = item.trigMode2->x2;
@@ -6625,7 +6625,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 trig(&point_a, &point_b, &point_c);
                 break;
             case QK_PolyMode5: // Possibly unused
-                vec_mode = VM_Unknown5;
+                vec_mode = VM_QuadTextured;
                 point_a.X = item.polyMode5->x1;
                 point_a.Y = item.polyMode5->y1;
                 point_b.X = item.polyMode5->x2;
@@ -6644,7 +6644,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 draw_gpoly(&point_a, &point_b, &point_c);
                 break;
             case QK_TrigMode3: // Possibly unused
-                vec_mode = VM_Unknown3;
+                vec_mode = VM_TriangularTexture;
                 point_a.X = item.trigMode3->x1;
                 point_a.Y = item.trigMode3->y1;
                 point_b.X = item.trigMode3->x2;
@@ -6660,7 +6660,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 trig(&point_a, &point_b, &point_c);
                 break;
             case QK_TrigMode6: // Possibly unused
-                vec_mode = VM_Unknown6;
+                vec_mode = VM_TriangularTextured;
                 point_a.X = item.trigMode6->x1;
                 point_a.Y = item.trigMode6->y1;
                 point_b.X = item.trigMode6->x2;
@@ -6684,8 +6684,8 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
             case QK_PolygonNearFP: // 'Near' textured polygons (closer to camera) in 1st person view
                 draw_unkn09(item.polygonNearFP);
                 break;
-            case QK_Unknown10: // Possibly unused
-                vec_mode = VM_Unknown0;
+            case QK_BasicPolygon:
+                vec_mode = VM_FlatColor;
                 vec_colour = item.basicUnk10->field_6;
                 draw_gpoly(&item.basicUnk10->p1, &item.basicUnk10->p2, &item.basicUnk10->p3);
                 break;
@@ -6696,7 +6696,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 // TODO: this could be cached
                 draw_keepsprite_unscaled_in_buffer(item.creatureShadow->anim_sprite, item.creatureShadow->angle, item.creatureShadow->current_frame, big_scratch);
                 vec_map = big_scratch;
-                vec_mode = VM_Unknown10;
+                vec_mode = VM_SpriteTranslucent;
                 vec_colour = item.creatureShadow->p1.S;
                 trig(&item.creatureShadow->p1, &item.creatureShadow->p2, &item.creatureShadow->p3);
                 trig(&item.creatureShadow->p1, &item.creatureShadow->p3, &item.creatureShadow->p4);
@@ -6931,7 +6931,7 @@ static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
     struct PolyPoint point_b;
     struct PolyPoint point_c;
     struct PolyPoint point_d;
-    vec_mode = VM_Unknown5;
+    vec_mode = VM_QuadTextured;
     switch (txquad->marked_mode) // Is visible/selected
     {
     case 0:
@@ -8737,7 +8737,7 @@ static void do_map_who_for_thing(struct Thing *thing)
             add_thing_sprite_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, bckt_idx);
         }
         break;
-    case ODC_DrawClass3:
+    case ODC_DrawAtOrigin:
         ecor.clip_flags = 0;
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);

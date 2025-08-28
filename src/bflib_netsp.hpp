@@ -106,11 +106,11 @@ public:
     virtual void update() = 0; //in case SP needs execution time once per frame
 
     struct TbNetworkSessionNameEntry nsnames[SESSION_ENTRIES_COUNT];
-    unsigned long field_7A4;
-    unsigned long field_7A8;
-    char field_D50[32];
+    unsigned long reference_count;
+    unsigned long status_flags;
+    char session_identifier[32];
     struct ReceiveCallbacks *recvCallbacks;
-    void *field_D78;
+    void *callback_context;
 };
 
 /******************************************************************************/

@@ -45,7 +45,7 @@ struct LightingTable { // sizeof = 8
 
 struct ShadowCache { // sizeof = 129
   unsigned char flags;
-  unsigned int field_1[32];
+  unsigned int lighting_bitmask[32];
 };
 
 /**

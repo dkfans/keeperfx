@@ -130,20 +130,20 @@ struct Path { // sizeof = 2068
 };
 
 struct Gate { // sizeof = 28
-  long field_0;
-  long field_4;
-  long field_8;
-  long field_C;
+  long start_coordinate_x;
+  long start_coordinate_y;
+  long end_coordinate_x;
+  long end_coordinate_y;
   long field_10;
   long field_14;
   long field_18;
 };
 
 struct Pathway { // sizeof = 7192
-  long field_0;
-  long field_4;
-  long field_8;
-  long field_C;
+  long start_coordinate_x;
+  long start_coordinate_y;
+  long finish_coordinate_x;
+  long finish_coordinate_y;
   struct Gate points[256];
   long points_num;
   long field_1C14;

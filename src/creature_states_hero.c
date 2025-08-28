@@ -1493,7 +1493,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     cctrl->moveaccel.x.val = cctrl->navi.pos_next.x.val - (MapCoordDelta)creatng->mappos.x.val;
     cctrl->moveaccel.y.val = cctrl->navi.pos_next.y.val - (MapCoordDelta)creatng->mappos.y.val;
     cctrl->moveaccel.z.val = 0;
-    cctrl->creature_state_flags |= TF2_Unkn01;
+    cctrl->creature_state_flags |= TF2_CreatureIsMoving;
     creature_set_speed(creatng, min(speed,dist));
     return 0;
 }

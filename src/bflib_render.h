@@ -31,17 +31,17 @@ extern "C" {
 #pragma pack(1)
 
 enum VecModes {
-    VM_Unknown0 = 0,
+    VM_FlatColor = 0,
     VM_Unknown1,
-    VM_Unknown2,
-    VM_Unknown3,
-    VM_Unknown4,
-    VM_Unknown5,
-    VM_Unknown6,
-    VM_Unknown7,
+    VM_TriangularGouraud,
+    VM_TriangularTexture,
+    VM_QuadFlatColor,
+    VM_QuadTextured,
+    VM_TriangularTextured,
+    VM_SolidColor,
     VM_Unknown8,
     VM_Unknown9,
-    VM_Unknown10,
+    VM_SpriteTranslucent,
     VM_Unknown11,
     VM_Unknown12,
     VM_Unknown13,
@@ -72,18 +72,18 @@ struct PolyPoint {
 };
 
 struct GtBlock { // sizeof = 48
-  unsigned char *field_0;
-  unsigned long field_4;
-  unsigned long field_8;
+  unsigned char *texturedata;
+  unsigned long width;
+  unsigned long height;
   unsigned long lightness0;
   unsigned long lightness1;
   unsigned long lightness3;
   unsigned long lightness2;
-  unsigned long field_1C;
-  unsigned long field_20;
-  unsigned long field_24;
-  unsigned long field_28;
-  unsigned long field_2C;
+  unsigned long texturestride;
+  unsigned long scalingfactor;
+  unsigned long colorformat;
+  unsigned long renderflags;
+  unsigned long textureoffset;
 };
 
 /******************************************************************************/

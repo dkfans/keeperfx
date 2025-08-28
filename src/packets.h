@@ -29,85 +29,85 @@ extern "C" {
 
 enum TbPacketAction {
         PckA_None = 0,
-        PckA_Unknown001, // Quit
-        PckA_Unknown002,
-        PckA_Unknown003,
-        PckA_Unknown004,
+        PckA_QuitToMainMenu, // Quit
+        PckA_UnusedSlot002,
+        PckA_SaveGameAndQuit,
+        PckA_NoOperation,
         PckA_FinishGame, // 5
         PckA_Login,      // From `enum NetMessageType`
         PckA_UserUpdate,
         PckA_Frame,
         PckA_Resync,
         PckA_InitPlayerNum,//10
-        PckA_Unknown011,
+        PckA_UnusedSlot011,
         PckA_LevelExactCheck,
         PckA_PlyrMsgBegin,
         PckA_PlyrMsgEnd,
-        PckA_Unknown015,//15
-        PckA_Unknown016,
-        PckA_Unknown017,
-        PckA_Unknown018,
-        PckA_Unknown019,
+        PckA_UnusedSlot015,//15
+        PckA_UnusedSlot016,
+        PckA_UnusedSlot017,
+        PckA_UnusedSlot018,
+        PckA_UnusedSlot019,
         PckA_ToggleLights,//20
         PckA_SwitchScrnRes,
         PckA_TogglePause,
-        PckA_Unknown023,
+        PckA_UnusedSlot023,
         PckA_SetCluedo,
-        PckA_Unknown025,//25
+        PckA_ChangeWindowSize,//25
         PckA_BookmarkLoad,
         PckA_SetGammaLevel,
         PckA_SetMinimapConf,
         PckA_SetMapRotation,
-        PckA_Unknown030,//30
-        PckA_Unknown031,
+        PckA_UnusedSlot030,//30
+        PckA_UnusedSlot031,
         PckA_PasngrCtrlExit,
         PckA_DirectCtrlExit,
-        PckA_Unknown034,
-        PckA_Unknown035,//35
+        PckA_UnusedSlot034,
+        PckA_UnusedSlot035,//35
         PckA_SetPlyrState,
         PckA_SwitchView,
-        PckA_Unknown038,
+        PckA_UnusedSlot038,
         PckA_CtrlCrtrSetInstnc,
-        PckA_Unknown040,//40
+        PckA_UnusedSlot040,//40
         PckA_HoldAudience,
-        PckA_Unknown042,
-        PckA_Unknown043,
-        PckA_Unknown044,
-        PckA_Unknown045,//45
-        PckA_Unknown046,
-        PckA_Unknown047,
-        PckA_Unknown048,
-        PckA_Unknown049,
-        PckA_Unknown050,//50
-        PckA_Unknown051,
-        PckA_Unknown052,
-        PckA_Unknown053,
-        PckA_Unknown054,
+        PckA_UnusedSlot042,
+        PckA_UnusedSlot043,
+        PckA_UnusedSlot044,
+        PckA_UnusedSlot045,//45
+        PckA_UnusedSlot046,
+        PckA_UnusedSlot047,
+        PckA_UnusedSlot048,
+        PckA_UnusedSlot049,
+        PckA_UnusedSlot050,//50
+        PckA_UnusedSlot051,
+        PckA_UnusedSlot052,
+        PckA_UnusedSlot053,
+        PckA_UnusedSlot054,
         PckA_ToggleTendency,//55
-        PckA_Unknown056,
-        PckA_Unknown057,
-        PckA_Unknown058,
-        PckA_Unknown059,
+        PckA_UnusedSlot056,
+        PckA_UnusedSlot057,
+        PckA_UnusedSlot058,
+        PckA_UnusedSlot059,
         PckA_CheatEnter,//60
         PckA_CheatAllFree,
         PckA_CheatCrtSpells,
         PckA_CheatRevealMap,
         PckA_CheatCrAllSpls,
-        PckA_Unknown065,//65
+        PckA_CheatUnusedPlaceholder065,//65
         PckA_CheatAllMagic,
         PckA_CheatAllRooms,
-        PckA_Unknown068,
-        PckA_Unknown069,
+        PckA_CheatUnusedPlaceholder068,
+        PckA_CheatUnusedPlaceholder069,
         PckA_CheatAllResrchbl,//70
-        PckA_Unknown071,
-        PckA_Unknown072,
-        PckA_Unknown073,
-        PckA_Unknown074,
-        PckA_Unknown075,//75
-        PckA_Unknown076,
-        PckA_Unknown077,
-        PckA_Unknown078,
-        PckA_Unknown079,
+        PckA_UnusedSlot071,
+        PckA_UnusedSlot072,
+        PckA_UnusedSlot073,
+        PckA_UnusedSlot074,
+        PckA_UnusedSlot075,//75
+        PckA_UnusedSlot076,
+        PckA_UnusedSlot077,
+        PckA_UnusedSlot078,
+        PckA_UnusedSlot079,
         PckA_SetViewType,//80
         PckA_ZoomFromMap,
         PckA_UpdatePause,
@@ -116,32 +116,32 @@ enum TbPacketAction {
         PckA_ZoomToTrap,//85
         PckA_ZoomToDoor,
         PckA_ZoomToPosition,
-        PckA_Unknown088,
+        PckA_ToggleComputerProcessing,
         PckA_PwrCTADis,
         PckA_UsePwrHandPick,//90
         PckA_UsePwrHandDrop,
-        PckA_Unknown092,
+        PckA_EventBoxTurnOff,
         PckA_UseSpecialBox,
-        PckA_Unknown094,
+        PckA_UnusedSlot094,
         PckA_ResurrectCrtr,//95
         PckA_TransferCreatr,
         PckA_UsePwrObey,
         PckA_UsePwrArmageddon,
-        PckA_Unknown099,
-        PckA_Unknown100,//100
-        PckA_Unknown101,
-        PckA_Unknown102,
-        PckA_Unknown103,
+        PckA_TurnOffQuery,
+        PckA_UnusedSlot100,//100
+        PckA_UnusedSlot101,
+        PckA_UnusedSlot102,
+        PckA_UnusedSlot103,
         PckA_ZoomToBattle,
-        PckA_Unknown105,//105
+        PckA_UnusedSlot105,//105
         PckA_ZoomToSpell,
         PckA_ToggleComputer,
         PckA_PlyrFastMsg,
         PckA_SetComputerKind,
         PckA_GoSpectator,//110
         PckA_DumpHeldThingToOldPos,
-        PckA_Unknown112,
-        PckA_Unknown113,
+        PckA_UnusedSlot112,
+        PckA_UnusedSlot113,
         PckA_PwrSOEDis,
         PckA_EventBoxActivate,//115
         PckA_EventBoxClose,

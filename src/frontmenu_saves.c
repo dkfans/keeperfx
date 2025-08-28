@@ -156,7 +156,7 @@ void frontend_load_game(struct GuiButton *gbtn)
     int i = frontend_load_game_button_to_index(gbtn);
     if (i < 0)
         return;
-    game.numfield_15 = i;
+    game.save_game_slot = i;
     if (is_save_game_loadable(i))
     {
         frontend_set_state(FeSt_LOAD_GAME);

@@ -53,7 +53,7 @@ enum TbButtonType {
     LbBtnT_RadioBtn,
     LbBtnT_HorizSlider,
     LbBtnT_EditBox,
-    LbBtnT_Unknown6,
+    LbBtnT_Hotspot,
 };
 
 enum TbButtonFlags {

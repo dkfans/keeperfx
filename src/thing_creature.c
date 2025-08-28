@@ -2732,7 +2732,7 @@ long move_creature(struct Thing *thing)
     int velo_x = thing->velocity.x.val;
     int velo_y = thing->velocity.y.val;
     int velo_z = thing->velocity.z.val;
-    cctrl->creature_control_flags &= ~CCFlg_Unknown08;
+    cctrl->creature_control_flags &= ~CCFlg_RepositionedInWall;
     struct Coord3d nxpos;
     if (thing_in_wall_at(thing, &thing->mappos) && !creature_can_pass_through_wall_at(thing, &thing->mappos))
     {
@@ -2742,7 +2742,7 @@ long move_creature(struct Thing *thing)
         if (get_nearest_valid_position_for_creature_at(thing, &nxpos)) {
             move_thing_in_map(thing, &nxpos);
         }
-        cctrl->creature_control_flags |= CCFlg_Unknown08;
+        cctrl->creature_control_flags |= CCFlg_RepositionedInWall;
     }
     if ((get_creature_model_flags(thing) & CMF_Fat) != 0)
     {
@@ -2811,7 +2811,7 @@ long move_creature(struct Thing *thing)
                 }
             }
         }
-        if ((cctrl->creature_control_flags & CCFlg_Unknown10) != 0)
+        if ((cctrl->creature_control_flags & CCFlg_AvoidCreatureCollision) != 0)
         {
             struct Thing* collidtng = get_thing_collided_with_at_satisfying_filter(thing, &nxpos, collide_filter_thing_is_of_type, 5, -1);
             if (!thing_is_invalid(collidtng))
@@ -4288,7 +4288,7 @@ void draw_creature_view(struct Thing *thing)
 {
   // If no eye lens required - just draw on the screen, directly
   struct PlayerInfo* player = get_my_player();
-  if (((game.flags_cd & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL) || (game.numfield_1B == 0))
+  if (((game.flags_cd & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL) || (game.applied_lens_type == 0))
   {
       engine(player,&player->cameras[CamIV_FirstPerson]);
       return;
@@ -4315,7 +4315,7 @@ void draw_creature_view(struct Thing *thing)
   // Draw the buffer on real screen
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
   draw_lens_effect(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem, eye_lens_width,
-      MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, game.numfield_1B);
+      MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, game.applied_lens_type);
 }
 
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
@@ -4817,7 +4817,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->bounce_angle = 0;
     crtng->inertia_floor = 32;
     crtng->inertia_air = 8;
-    crtng->movement_flags |= TMvF_Unknown08;
+    crtng->movement_flags |= TMvF_ZeroVerticalVelocity;
     crtng->owner = owner;
     crtng->move_angle_xy = 0;
     crtng->move_angle_z = 0;
@@ -4839,7 +4839,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
     if (player_is_roaming(owner))
     {
-        cctrl->hero.sbyte_89 = -1;
+        cctrl->hero.hero_state = -1;
         cctrl->hero.ready_for_attack_flag = 1;
     }
     cctrl->flee_pos.x.val = crtng->mappos.x.val;
@@ -6034,7 +6034,7 @@ short update_creature_movements(struct Thing *thing)
         cctrl->moveaccel.y.val = 0;
         cctrl->moveaccel.z.val = 0;
         cctrl->move_speed = 0;
-        cctrl->creature_state_flags &= ~TF2_Unkn01;
+        cctrl->creature_state_flags &= ~TF2_CreatureIsMoving;
     } else
     {
       if ((thing->alloc_flags & TAlF_IsControlled) != 0)
@@ -6043,10 +6043,10 @@ short update_creature_movements(struct Thing *thing)
               upd_done = 1;
           }
       } else
-      if ((cctrl->creature_state_flags & TF2_Unkn01) != 0)
+      if ((cctrl->creature_state_flags & TF2_CreatureIsMoving) != 0)
       {
           upd_done = 1;
-          cctrl->creature_state_flags &= ~TF2_Unkn01;
+          cctrl->creature_state_flags &= ~TF2_CreatureIsMoving;
       } else
       if (cctrl->move_speed != 0)
       {

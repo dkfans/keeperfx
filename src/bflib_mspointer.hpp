@@ -63,8 +63,8 @@ class LbI_PointerHandler {
     struct TbRect rect_1038;
     long draw_pos_x;
     long draw_pos_y;
-    bool field_1050;
-    bool field_1054;
+    bool is_active;
+    bool needs_redraw;
     const struct TbSprite *sprite;
     std::mutex lock;
 };

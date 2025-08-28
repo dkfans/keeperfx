@@ -122,8 +122,8 @@ struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT] = {
   { 8, 1, pinstfs_fade_to_map,                  pinstfm_fade_to_map,            pinstfe_fade_to_map,                 {0}, {0}, 0, 0}, // PI_MapFadeTo
   { 8, 1, pinstfs_fade_from_map,                pinstfm_fade_from_map,          pinstfe_fade_from_map,               {0}, {0}, 0, 0}, // PI_MapFadeFrom
   {-1, 1, pinstfs_zoom_to_position,             pinstfm_zoom_to_position,       pinstfe_zoom_to_position,            {0}, {0}, 0, 0}, // PI_ZoomToPos
-  { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_Unknown17
-  { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_Unknown18
+  { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_UnusedSlot17
+  { 0, 0, NULL,                                 NULL,                           NULL,                                {0}, {0}, 0, 0}, // PI_UnusedSlot18
 };
 
 /******************************************************************************/
@@ -800,8 +800,8 @@ void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
        player->instance_num == PI_MapFadeTo ||
        player->instance_num == PI_MapFadeFrom ||
        player->instance_num == PI_ZoomToPos ||
-       player->instance_num == PI_Unknown17 ||
-       player->instance_num == PI_Unknown18)
+       player->instance_num == PI_UnusedSlot17 ||
+       player->instance_num == PI_UnusedSlot18)
         return;
 
     // Set zoom position
@@ -881,14 +881,14 @@ void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force)
     long inum = player->instance_num;
     if (inum >= PLAYER_INSTANCES_COUNT)
         inum = 0;
-    if ((inum == 0) || (player_instance_info[inum].field_4 != 1) || (force))
+    if ((inum == 0) || (player_instance_info[inum].instance_state != 1) || (force))
     {
         player->instance_num = ninum%PLAYER_INSTANCES_COUNT;
         struct PlayerInstanceInfo* inst_info = &player_instance_info[player->instance_num];
         player->instance_remain_rurns = inst_info->length_turns;
         InstncInfo_Func callback = inst_info->start_cb;
         if (callback != NULL) {
-            callback(player, &inst_info->field_14[0]);
+            callback(player, &inst_info->start_callback_parameters[0]);
         }
     }
 }
@@ -907,7 +907,7 @@ void process_player_instance(struct PlayerInfo *player)
         inst_info = &player_instance_info[player->instance_num%PLAYER_INSTANCES_COUNT];
         callback = inst_info->maintain_cb;
         if (callback != NULL) {
-            callback(player, &inst_info->field_24);
+            callback(player, &inst_info->maintain_end_callback_parameter);
         }
     }
     if (player->instance_remain_rurns == 0)
@@ -916,7 +916,7 @@ void process_player_instance(struct PlayerInfo *player)
         player->instance_num = PI_Unset;
         callback = inst_info->end_cb;
         if (callback != NULL) {
-            callback(player, &inst_info->field_24);
+            callback(player, &inst_info->maintain_end_callback_parameter);
         }
     }
 }
@@ -940,7 +940,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     {
         set_player_instance(player, PI_Unset, 1);
         set_player_mode(player, PVT_DungeonTop);
-        player->allocflags &= ~PlaF_Unknown8;
+        player->allocflags &= ~PlaF_CreaturePassengerMode;
         set_engine_view(player, player->view_mode_restore);
         player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
         player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
@@ -953,7 +953,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     set_player_mode(player, PVT_DungeonTop);
     thing->alloc_flags &= ~TAlF_IsControlled;
     thing->rendering_flags &= ~TRF_Invisible;
-    player->allocflags &= ~PlaF_Unknown8;
+    player->allocflags &= ~PlaF_CreaturePassengerMode;
     set_engine_view(player, player->view_mode_restore);
     long i = player->acamera->orient_a;
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
@@ -988,7 +988,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   {
     set_player_instance(player, PI_Unset, 1);
     set_player_mode(player, PVT_DungeonTop);
-    player->allocflags &= ~PlaF_Unknown8;
+    player->allocflags &= ~PlaF_CreaturePassengerMode;
     set_engine_view(player, player->view_mode_restore);
     player->cameras[CamIV_Isometric].mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
     player->cameras[CamIV_Isometric].mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
@@ -999,7 +999,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   }
   set_player_mode(player, PVT_DungeonTop);
   thing->rendering_flags &= ~TRF_Invisible;
-  player->allocflags &= ~PlaF_Unknown8;
+  player->allocflags &= ~PlaF_CreaturePassengerMode;
   set_engine_view(player, player->view_mode_restore);
   long i = player->acamera->orient_a;
   long k = thing->mappos.z.val + get_creature_eye_height(thing);

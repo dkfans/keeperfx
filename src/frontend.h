@@ -232,7 +232,7 @@ struct GuiButton;
 struct TbLoadFiles;
 
 struct DemoItem { //sizeof = 5
-    uint8_t numfield_0;
+    uint8_t kind;
     union {
       FrontendMenuState state;
       const char *fname;

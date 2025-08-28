@@ -53,13 +53,13 @@ typedef long SoundMilesID;
 
 enum SoundEmitterFlags {
     Emi_IsAllocated  = 0x01,
-    Emi_UnknownPlay  = 0x02,
+    Emi_IsPlaying    = 0x02,
     Emi_IsMoving     = 0x04,
 };
 
 enum SoundSampleFlags {
-    Smp_Unknown01  = 0x01,
-    Smp_Unknown02  = 0x02,
+    Smp_NoPitchUpdate  = 0x01,
+    Smp_NoVolumeUpdate = 0x02,
 };
 
 typedef void *SndData;

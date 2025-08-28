@@ -766,8 +766,8 @@ void cull_gate_to_point(struct Gate *gt, long a2)
 {
     int diff_a;
     int diff_b;
-    diff_a = abs(gt->field_0 - gt->field_8);
-    diff_b = abs(gt->field_4 - gt->field_C);
+    diff_a = abs(gt->start_coordinate_x - gt->end_coordinate_x);
+    diff_b = abs(gt->start_coordinate_y - gt->end_coordinate_y);
     if (diff_a <= diff_b)
     {
       if (diff_b + (diff_a >> 1) < a2)
@@ -779,12 +779,12 @@ void cull_gate_to_point(struct Gate *gt, long a2)
     }
     if (gt->field_18 == 1)
     {
-        diff_a = (gt->field_0 - gt->field_8) << 6;
-        diff_b = (gt->field_4 - gt->field_C) << 6;
+        diff_a = (gt->start_coordinate_x - gt->end_coordinate_x) << 6;
+        diff_b = (gt->start_coordinate_y - gt->end_coordinate_y) << 6;
     } else
     {
-        diff_a = (gt->field_8 - gt->field_0) << 6;
-        diff_b = (gt->field_C - gt->field_4) << 6;
+        diff_a = (gt->end_coordinate_x - gt->start_coordinate_x) << 6;
+        diff_b = (gt->end_coordinate_y - gt->start_coordinate_y) << 6;
     }
     long div_a;
     long div_b;
@@ -810,12 +810,12 @@ void cull_gate_to_point(struct Gate *gt, long a2)
     val_y = cmul * ((unsigned long long)diff_b << 14) / div_b;
     if (gt->field_18 == 1)
     {
-        gt->field_0 = val_x + gt->field_8;
-        gt->field_4 = val_y + gt->field_C;
+        gt->start_coordinate_x = val_x + gt->end_coordinate_x;
+        gt->start_coordinate_y = val_y + gt->end_coordinate_y;
     } else
     {
-        gt->field_8 = val_x + gt->field_0;
-        gt->field_C = val_y + gt->field_4;
+        gt->end_coordinate_x = val_x + gt->start_coordinate_x;
+        gt->end_coordinate_y = val_y + gt->start_coordinate_y;
     }
 }
 
@@ -827,12 +827,12 @@ long calc_intersection(struct Gate *gt, long a2, long a3, long a4, long a5)
     int diff_d;
     int diff_e;
     int diff_f;
-    diff_a = (gt->field_0 - a2) << 6;
+    diff_a = (gt->start_coordinate_x - a2) << 6;
     diff_b = (a3 - a5) << 6;
-    diff_c = (gt->field_4 - a3) << 6;
+    diff_c = (gt->start_coordinate_y - a3) << 6;
     diff_d = (a2 - a4) << 6;
-    diff_e = (gt->field_8 - gt->field_0) << 6;
-    diff_f = (gt->field_C - gt->field_4) << 6;
+    diff_e = (gt->end_coordinate_x - gt->start_coordinate_x) << 6;
+    diff_f = (gt->end_coordinate_y - gt->start_coordinate_y) << 6;
     int area_m;
     int area_d;
     int factor;
@@ -849,31 +849,31 @@ long calc_intersection(struct Gate *gt, long a2, long a3, long a4, long a5)
     factor = ((unsigned long long)area_m << 14) / area_d;
     if ((factor < -16384) || (factor > 16384))
         return 0;
-    gt->field_10 = gt->field_0 + (((unsigned long long)(diff_e * factor) >> 14) >> 6);
-    gt->field_14 = gt->field_4 + (((unsigned long long)(diff_f * factor) >> 14) >> 6);
+    gt->field_10 = gt->start_coordinate_x + (((unsigned long long)(diff_e * factor) >> 14) >> 6);
+    gt->field_14 = gt->start_coordinate_y + (((unsigned long long)(diff_f * factor) >> 14) >> 6);
 
     int vmin;
-    vmin = gt->field_8;
-    if (vmin >= gt->field_0)
-      vmin = gt->field_0;
+    vmin = gt->end_coordinate_x;
+    if (vmin >= gt->start_coordinate_x)
+      vmin = gt->start_coordinate_x;
     if (vmin > gt->field_10)
         return 0;
 
-    vmin = gt->field_8;
-    if (vmin <= gt->field_0)
-      vmin = gt->field_0;
+    vmin = gt->end_coordinate_x;
+    if (vmin <= gt->start_coordinate_x)
+      vmin = gt->start_coordinate_x;
     if (vmin < gt->field_10)
         return 0;
 
-    vmin = gt->field_4;
-    if (vmin >= gt->field_C)
-      vmin = gt->field_C;
+    vmin = gt->start_coordinate_y;
+    if (vmin >= gt->end_coordinate_y)
+      vmin = gt->end_coordinate_y;
     if (vmin > gt->field_14)
         return 0;
 
-    vmin = gt->field_4;
-    if (vmin <= gt->field_C)
-      vmin = gt->field_C;
+    vmin = gt->start_coordinate_y;
+    if (vmin <= gt->end_coordinate_y)
+      vmin = gt->end_coordinate_y;
     if (vmin < gt->field_14)
         return 0;
 
@@ -887,14 +887,14 @@ void cull_gate_to_best_point(struct Gate *gt, long a2)
     {
         int diff_x;
         int diff_y;
-        diff_x = abs(gt->field_0 - gt->field_10);
-        diff_y = abs(gt->field_4 - gt->field_14);
+        diff_x = abs(gt->start_coordinate_x - gt->field_10);
+        diff_y = abs(gt->start_coordinate_y - gt->field_14);
         if (diff_x <= diff_y)
             diff_min1 = (diff_x >> 1) + diff_y;
         else
             diff_min1 = (diff_y >> 1) + diff_x;
-        diff_x = abs(gt->field_8 - gt->field_10);
-        diff_y = abs(gt->field_C - gt->field_14);
+        diff_x = abs(gt->end_coordinate_x - gt->field_10);
+        diff_y = abs(gt->end_coordinate_y - gt->field_14);
         if (diff_x <= diff_y)
             diff_min2 = diff_y + (diff_x >> 1);
         else
@@ -920,8 +920,8 @@ void cull_gate_to_best_point(struct Gate *gt, long a2)
             {
                 int diff_B;
                 int diff_A;
-                diff_A = (gt->field_8 - gt->field_0) << 6;
-                diff_B = (gt->field_C - gt->field_4) << 6;
+                diff_A = (gt->end_coordinate_x - gt->start_coordinate_x) << 6;
+                diff_B = (gt->end_coordinate_y - gt->start_coordinate_y) << 6;
                 int dlen_A;
                 int dlen_B;
                 dlen_A = LbSqrL(((unsigned long long)(diff_A * diff_A) >> 14) + ((unsigned long long)(diff_B * diff_B) >> 14)) << 7;
@@ -970,55 +970,55 @@ void cull_gate_to_best_point(struct Gate *gt, long a2)
             int ctst_y1;
             int ctst_y2;
 
-            ctst_x1 = gt->field_8;
-            if (ctst_x1 >= gt->field_0)
-              ctst_x1 = gt->field_0;
+            ctst_x1 = gt->end_coordinate_x;
+            if (ctst_x1 >= gt->start_coordinate_x)
+              ctst_x1 = gt->start_coordinate_x;
             if (ctst_x1 <= cmin_x)
             {
-                ctst_x2 = gt->field_8;
-                if (ctst_x2 <= gt->field_0)
-                    ctst_x2 = gt->field_0;
+                ctst_x2 = gt->end_coordinate_x;
+                if (ctst_x2 <= gt->start_coordinate_x)
+                    ctst_x2 = gt->start_coordinate_x;
                 if (ctst_x2 >= cmin_x)
                 {
-                  ctst_y2 = gt->field_4;
+                  ctst_y2 = gt->start_coordinate_y;
                   ctst_y1 = ctst_y2;
-                  if (ctst_y1 >= gt->field_C)
-                      ctst_y1 = gt->field_C;
+                  if (ctst_y1 >= gt->end_coordinate_y)
+                      ctst_y1 = gt->end_coordinate_y;
                   if (ctst_y1 <= cmin_y)
                   {
-                    if (ctst_y2 <= gt->field_C)
-                        ctst_y2 = gt->field_C;
+                    if (ctst_y2 <= gt->end_coordinate_y)
+                        ctst_y2 = gt->end_coordinate_y;
                     if (ctst_y2 >= cmin_y)
                     {
-                        gt->field_0 = cmin_x;
-                        gt->field_4 = cmin_y;
+                        gt->start_coordinate_x = cmin_x;
+                        gt->start_coordinate_y = cmin_y;
                     }
                   }
                 }
             }
 
-            ctst_x1 = gt->field_8;
-            if (ctst_x1 >= gt->field_0)
-                ctst_x1 = gt->field_0;
+            ctst_x1 = gt->end_coordinate_x;
+            if (ctst_x1 >= gt->start_coordinate_x)
+                ctst_x1 = gt->start_coordinate_x;
             if (ctst_x1 <= cmax_x)
             {
-                ctst_x2 = gt->field_8;
-                if (ctst_x2 <= gt->field_0)
-                    ctst_x2 = gt->field_0;
+                ctst_x2 = gt->end_coordinate_x;
+                if (ctst_x2 <= gt->start_coordinate_x)
+                    ctst_x2 = gt->start_coordinate_x;
                 if (ctst_x2 >= cmax_x)
                 {
-                  ctst_y2 = gt->field_4;
-                  ctst_y1 = gt->field_4;
-                  if (ctst_y2 >= gt->field_C)
-                      ctst_y1 = gt->field_C;
+                  ctst_y2 = gt->start_coordinate_y;
+                  ctst_y1 = gt->start_coordinate_y;
+                  if (ctst_y2 >= gt->end_coordinate_y)
+                      ctst_y1 = gt->end_coordinate_y;
                   if (ctst_y1 <= cmax_y)
                   {
-                    if (ctst_y2 <= gt->field_C)
-                      ctst_y2 = gt->field_C;
+                    if (ctst_y2 <= gt->end_coordinate_y)
+                      ctst_y2 = gt->end_coordinate_y;
                     if (ctst_y2 >= cmax_y)
                     {
-                        gt->field_8 = cmax_x;
-                        gt->field_C = cmax_y;
+                        gt->end_coordinate_x = cmax_x;
+                        gt->end_coordinate_y = cmax_y;
                     }
                   }
                 }
@@ -1031,16 +1031,16 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
 {
     long total_len;
     best_path.waypoints_num = route_to_path(trAx, trAy, trBx, trBy, a5, a6, &best_path, &total_len);
-    pway->field_0 = trAx;
-    pway->field_4 = trAy;
-    pway->field_8 = trBx;
-    pway->field_C = trBy;
+    pway->start_coordinate_x = trAx;
+    pway->start_coordinate_y = trAy;
+    pway->finish_coordinate_x = trBx;
+    pway->finish_coordinate_y = trBy;
     if (a6 < 1)
     {
-        pway->points[0].field_C = trBy;
-        pway->points[0].field_8 = trBx;
-        pway->points[0].field_0 = trBx;
-        pway->points[0].field_4 = trBy;
+        pway->points[0].end_coordinate_y = trBy;
+        pway->points[0].end_coordinate_x = trBx;
+        pway->points[0].start_coordinate_x = trBx;
+        pway->points[0].start_coordinate_y = trBy;
         pway->points[0].field_18 = 0;
         pway->points_num = 1;
         return 1;
@@ -1057,8 +1057,8 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
     pt_num = 0;
     int wp_x;
     int wp_y;
-    wp_x = pway->field_0;
-    wp_y = pway->field_4;
+    wp_x = pway->start_coordinate_x;
+    wp_y = pway->start_coordinate_y;
 
     struct Gate *gt;
     gt = pway->points;
@@ -1093,10 +1093,10 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
             if (pt_num == 256) {
                 ERRORLOG("grtc:Exceeded max path length (i:%d,rl:%ld)", wpi, a6);
             }
-            gt->field_0 = fov1.tipB.x;
-            gt->field_4 = fov1.tipB.y;
-            gt->field_8 = fov1.tipC.x;
-            gt->field_C = fov1.tipC.y;
+            gt->start_coordinate_x = fov1.tipB.x;
+            gt->start_coordinate_y = fov1.tipB.y;
+            gt->end_coordinate_x = fov1.tipC.x;
+            gt->end_coordinate_y = fov1.tipC.y;
             gt->field_18 = -1;
             int dist_x;
             int dist_y;
@@ -1106,9 +1106,9 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
             int dist_A;
             int dist_B;
             bwp_x = best_path.waypoints[wp_idx].x;
-            dist_x = abs(gt->field_0 - bwp_x);
+            dist_x = abs(gt->start_coordinate_x - bwp_x);
             bwp_y = best_path.waypoints[wp_idx].y;
-            dist_y = abs(gt->field_4 - bwp_y);
+            dist_y = abs(gt->start_coordinate_y - bwp_y);
             if (dist_x <= dist_y)
                 dist_A = (dist_x >> 1) + dist_y;
             else
@@ -1117,8 +1117,8 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
 
             int dist_C;
             int dist_D;
-            dist_x = abs(gt->field_8 - bwp_x);
-            dist_y = abs(gt->field_C - bwp_y);
+            dist_x = abs(gt->end_coordinate_x - bwp_x);
+            dist_y = abs(gt->end_coordinate_y - bwp_y);
             if ( dist_x <= dist_y )
                 dist_x >>= 1;
             else
@@ -1130,15 +1130,15 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
             if (wp_idx < best_path.waypoints_num-1)
             {
               bwp_x = best_path.waypoints[wp_idx+1].x;
-              dist_x = abs(gt->field_0 - bwp_x);
+              dist_x = abs(gt->start_coordinate_x - bwp_x);
               bwp_y = best_path.waypoints[wp_idx+1].y;
-              dist_y = abs(gt->field_4 - bwp_y);
+              dist_y = abs(gt->start_coordinate_y - bwp_y);
               if (dist_x <= dist_y)
                   dist_B = (dist_x >> 1) + dist_y;
               else
                   dist_B = dist_x + (dist_y >> 1);
-              dist_x = abs(gt->field_8 - bwp_x);
-              dist_y = abs(gt->field_C - bwp_y);
+              dist_x = abs(gt->end_coordinate_x - bwp_x);
+              dist_y = abs(gt->end_coordinate_y - bwp_y);
               if (dist_y >= dist_x)
                   dist_D = (dist_x >> 1) + dist_y;
               else
@@ -1202,10 +1202,10 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
                   gt->field_18 = fld18_mem;
               }
             }
-            fov1.tipA.x = gt->field_0;
-            fov1.tipA.y = gt->field_4;
-            fov2.tipA.x = gt->field_8;
-            fov2.tipA.y = gt->field_C;
+            fov1.tipA.x = gt->start_coordinate_x;
+            fov1.tipA.y = gt->start_coordinate_y;
+            fov2.tipA.x = gt->end_coordinate_x;
+            fov2.tipA.y = gt->end_coordinate_y;
             pt_num++;
             gt++;
         }
@@ -1222,10 +1222,10 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
         ERRORLOG("grtc:Exceeded max path length (i:%d,rl:%ld)", wpi, a6);
     }
     pt_num++;
-    gt->field_8 = trBx;
-    gt->field_0 = trBx;
-    gt->field_C = trBy;
-    gt->field_4 = trBy;
+    gt->end_coordinate_x = trBx;
+    gt->start_coordinate_x = trBx;
+    gt->end_coordinate_y = trBy;
+    gt->start_coordinate_y = trBy;
     gt->field_18 = 0;
     pway->points_num = pt_num;
     return pt_num;
@@ -1233,11 +1233,11 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
 
 void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char a7)
 {
-    pway->field_0 = trAx;
-    pway->field_4 = trAy;
-    pway->field_8 = trBx;
+    pway->start_coordinate_x = trAx;
+    pway->start_coordinate_y = trAy;
+    pway->finish_coordinate_x = trBx;
     pway->points_num = 0;
-    pway->field_C = trBy;
+    pway->finish_coordinate_y = trBy;
     tree_routelen = -1;
     tree_triA = triangle_findSE8(trAx, trAy);
     tree_triB = triangle_findSE8(trBx, trBy);
@@ -1265,10 +1265,10 @@ void route_through_gates(const struct Pathway *pway, struct Path *path, long sub
         subroute = 16383;
     if (subroute < 0)
         subroute = 0;
-    path->start.x = pway->field_0;
-    path->start.y = pway->field_4;
-    path->finish.x = pway->field_8;
-    path->finish.y = pway->field_C;
+    path->start.x = pway->start_coordinate_x;
+    path->start.y = pway->start_coordinate_y;
+    path->finish.x = pway->finish_coordinate_x;
+    path->finish.y = pway->finish_coordinate_y;
     path->waypoints_num = pway->points_num;
     ppoint = &pway->points[0];
     wpoint = &path->waypoints[0];
@@ -1276,18 +1276,18 @@ void route_through_gates(const struct Pathway *pway, struct Path *path, long sub
     {
         if (ppoint->field_18)
         {
-            wpoint->x = ppoint->field_8 - (subroute * (ppoint->field_8 - ppoint->field_0) >> 14);
-            wpoint->y = ppoint->field_C - (subroute * (ppoint->field_C - ppoint->field_4) >> 14);
+            wpoint->x = ppoint->end_coordinate_x - (subroute * (ppoint->end_coordinate_x - ppoint->start_coordinate_x) >> 14);
+            wpoint->y = ppoint->end_coordinate_y - (subroute * (ppoint->end_coordinate_y - ppoint->start_coordinate_y) >> 14);
         } else
         {
-            wpoint->x = ppoint->field_0 + (subroute * (ppoint->field_8 - ppoint->field_0) >> 14);
-            wpoint->y = ppoint->field_4 + (subroute * (ppoint->field_C - ppoint->field_4) >> 14);
+            wpoint->x = ppoint->start_coordinate_x + (subroute * (ppoint->end_coordinate_x - ppoint->start_coordinate_x) >> 14);
+            wpoint->y = ppoint->start_coordinate_y + (subroute * (ppoint->end_coordinate_y - ppoint->start_coordinate_y) >> 14);
         }
         wpoint++;
         ppoint++;
     }
-    path->waypoints[i].x = pway->field_8;
-    path->waypoints[i].y = pway->field_C;
+    path->waypoints[i].x = pway->finish_coordinate_x;
+    path->waypoints[i].y = pway->finish_coordinate_y;
 }
 
 static long triangle_findSE8(long ptfind_x, long ptfind_y)

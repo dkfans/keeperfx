@@ -1019,7 +1019,7 @@ void post_init_player(struct PlayerInfo *player)
 {
     switch (game.game_kind)
     {
-    case GKind_Unknown3:
+    case GKind_LimitedState:
         break;
     case GKind_LocalGame:
     case GKind_MultiGame:

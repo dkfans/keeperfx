@@ -374,7 +374,7 @@ void update_player_sounds(void)
 
     // Music and sound control
     if ( !SoundDisabled ) {
-        if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) ) {
+        if ( (game.turns_fastforward == 0) && (!game.packet_loading_in_progress) ) {
             MonitorStreamedSoundTrack();
         }
     }

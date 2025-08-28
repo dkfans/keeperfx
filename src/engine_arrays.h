@@ -39,14 +39,14 @@ extern "C" {
 #pragma pack(1)
 
 struct WibbleTable {
-  long field_0;
-  long field_4;
-  long field_8;
-  long field_C;
-  long field_10;
-  long field_14;
-  long field_18;
-  long field_1C;
+  long offset_x;
+  long offset_y;
+  long offset_z;
+  long lightness_offset;
+  long view_width_offset;
+  long view_height_offset;
+  long unusedparam_18;
+  long unusedparam_1C;
 };
 /******************************************************************************/
 extern long randomisors[512];

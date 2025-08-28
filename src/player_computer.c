@@ -1247,14 +1247,14 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     comp->max_room_build_tasks = cpt->max_room_build_tasks;
     comp->turn_begin = cpt->turn_begin;
     comp->sim_before_dig = cpt->sim_before_dig;
-    comp->field_C = 1;
+    comp->action_status_flag = 1;
     comp->task_delay = cpt->drop_delay;
     comp->task_state = CTaskSt_Select;
 
     for (i=0; i < PLAYERS_COUNT; i++)
     {
         struct OpponentRelation* oprel = &comp->opponent_relations[i];
-        oprel->field_0 = 0;
+        oprel->last_interaction_turn = 0;
         oprel->next_idx = 0;
         if (i == plyr_idx) {
             oprel->hate_amount = LONG_MIN;

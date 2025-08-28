@@ -1037,7 +1037,7 @@ void redraw_display(void)
     SYNCDBG(5,"Starting");
     struct PlayerInfo* player = get_my_player();
     player->display_flags &= ~PlaF6_DisplayNeedsUpdate;
-    if (game.game_kind == GKind_Unknown1)
+    if (game.game_kind == GKind_NonInteractiveState)
       return;
     if (game.small_map_state == 2)
       set_pointer_graphic_none();
