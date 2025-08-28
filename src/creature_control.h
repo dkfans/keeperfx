@@ -203,7 +203,7 @@ unsigned char sound_flag;
   struct {
     char target_plyr_idx;
     PlayerBitFlags player_broken_into_flags;
-    long long_8B;
+    long tunnel_steps_counter;
     unsigned char tunnel_dig_direction;
     SubtlCodedCoords member_pos_stl[5];
   } party;
@@ -235,7 +235,7 @@ unsigned char sound_flag;
     unsigned char unused;
     TbBool navigation_map_changed;
     TbBool unusedparam2;
-  } unknown;
+  } unknown_union;
   };
 
   union {
@@ -307,8 +307,8 @@ unsigned char sound_flag;
     RoomIndex room_idx;
   }evacuate;
   struct {
-    short word_9A;
-    short word_9C;
+    short animation_counter;
+    short animation_duration;
   }sacrifice;
 
   };
@@ -374,8 +374,8 @@ unsigned char sound_flag;
     EffectOrEffElModel spell_aura;
     GameTurnDelta spell_aura_duration;
     unsigned short job_assigned;
-    unsigned short spell_tngidx_armour[3];
-    unsigned short spell_tngidx_disease[3];
+    unsigned short spell_thing_index_armour[3];
+    unsigned short spell_thing_index_disease[3];
     short shot_shift_x;
     short shot_shift_y;
     short shot_shift_z;

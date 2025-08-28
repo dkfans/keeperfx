@@ -32,7 +32,7 @@ extern "C" {
 typedef unsigned short Thingid;
 
 /******************************************************************************/
-/** Enums for thing->field_0 bit fields. */
+/** Enums for thing->alloc_flags bit fields. */
 enum ThingAllocFlags {
     TAlF_Exists            = 0x01,
     TAlF_IsInMapWho        = 0x02,
@@ -44,7 +44,7 @@ enum ThingAllocFlags {
     TAlF_IsDragged         = 0x80,
 };
 
-/** Enums for thing->field_1 bit fields. */
+/** Enums for thing->state_flags bit fields. */
 enum ThingFlags1 {
     TF1_IsDragged1     = 0x01,
     TF1_InCtrldLimbo   = 0x02,
@@ -127,7 +127,7 @@ struct Thing {
 //TCls_Object
       struct {
         long gold_stored;
-        short word_17v;
+        short unusedparam;
       } valuable;
       struct {
         short life_remaining;

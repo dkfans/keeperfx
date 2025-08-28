@@ -63,19 +63,19 @@ enum AriadneUpdateStateValues {
 
 enum AriadneUpdateSubStateManoeuvreValues {
     AridUpSStM_Unset   = 0,
-    AridUpSStM_Unkn1,
-    AridUpSStM_Unkn2,
+    AridUpSStM_StartWallhug,
+    AridUpSStM_ContinueWallhug,
 };
 
 enum NavigationStateValues {
-    NavS_Unkn0   = 0,
-    NavS_Unkn1,
-    NavS_Unkn2,
-    NavS_Unkn3,
-    NavS_Unkn4,
-    NavS_Unkn5,
-    NavS_Unkn6,
-    NavS_Unkn7,
+    NavS_NavigationDisabled   = 0,
+    NavS_WallhugInProgress,
+    NavS_InitialWallhugSetup,
+    NavS_WallhugDirectionCheck,
+    NavS_WallhugPositionAdjust,
+    NavS_WallhugAngleCorrection,
+    NavS_WallhugGapDetected,
+    NavS_WallhugRestartSetup,
 };
 
 #define NAVMAP_FLOORHEIGHT_BIT  0
@@ -92,15 +92,15 @@ struct Ariadne { // sizeof = 102
     struct Coord3d endpos;
     /** Position of the last reached waypoint. */
     struct Coord3d current_waypoint_pos;
-  struct Coord3d pos_12;
-  struct Coord3d pos_18;
+  struct Coord3d next_position;
+  struct Coord3d previous_position;
   unsigned char route_flags;
-  unsigned char field_1F;
+  unsigned char unusedparam_1F;
   unsigned char hug_side;
   unsigned char update_state;
-  unsigned char field_22;
+  unsigned char wallhug_active;
   unsigned char may_need_reroute;
-  short field_24;
+  short wallhug_stored_angle;
   unsigned short move_speed;
     /** Index of the current waypoint in list of nearest waypoints stored. */
     unsigned char current_waypoint;
@@ -110,8 +110,8 @@ struct Ariadne { // sizeof = 102
     unsigned char stored_waypoints; // offs = 0x51
     /** Total amount of waypoints planned on the way towards endpos. */
     unsigned int total_waypoints;
-  struct Coord3d pos_53;
-  struct Coord3d pos_59;
+  struct Coord3d manoeuvre_fixed_position;
+  struct Coord3d manoeuvre_requested_position;
   unsigned char manoeuvre_state;
   short wallhug_angle;
   long straight_dist_to_next_waypoint;
@@ -134,9 +134,9 @@ struct Gate { // sizeof = 28
   long start_coordinate_y;
   long end_coordinate_x;
   long end_coordinate_y;
-  long field_10;
-  long field_14;
-  long field_18;
+  long intersection_coordinate_x;
+  long intersection_coordinate_y;
+  long pathfinding_direction;
 };
 
 struct Pathway { // sizeof = 7192
@@ -146,30 +146,30 @@ struct Pathway { // sizeof = 7192
   long finish_coordinate_y;
   struct Gate points[256];
   long points_num;
-  long field_1C14;
+  long unusedfield;
 };
 
 struct WayPoints {
-  long wpfield_0;
-  long wpfield_4;
-  long wpfield_8;
-  long wpfield_C;
-  long wpfield_10[ARID_PATH_WAYPOINTS_COUNT];
+  long edge1_start_index;
+  long edge2_start_index;
+  long edge1_current_index;
+  long edge2_current_index;
+  long waypoint_index_array[ARID_PATH_WAYPOINTS_COUNT];
 };
 
 struct Navigation { // sizeof = 0x27
   unsigned char navstate;
   unsigned char side;
-  unsigned char field_2;
-  unsigned char field_3;
-  unsigned char field_4;
+  unsigned char wallhug_retry_counter;
+  unsigned char wallhug_state;
+  unsigned char push_counter;
   long dist_to_final_pos;
   long distance_to_next_pos;
   long angle;
-  unsigned char field_11[4];
+  unsigned char unusedparam_11[4];
   SubtlCodedCoords first_colliding_block;
-  SubtlCodedCoords field_17;
-  PlayerBitFlags field_19[2];
+  SubtlCodedCoords second_colliding_block;
+  PlayerBitFlags owner_flags[2];
   struct Coord3d pos_next;
   struct Coord3d pos_final;
 };

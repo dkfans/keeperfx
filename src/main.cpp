@@ -1380,8 +1380,8 @@ void update_creatr_model_activities_list(TbBool forced)
 void toggle_hero_health_flowers(void)
 {
     const char *statstr;
-    toggle_flag(game.flags_cd, MFlg_NoHeroHealthFlower);
-    if (game.flags_cd & MFlg_NoHeroHealthFlower)
+    toggle_flag(game.mode_flags, MFlg_NoHeroHealthFlower);
+    if (game.mode_flags & MFlg_NoHeroHealthFlower)
     {
       statstr = "off";
     } else
@@ -1611,14 +1611,14 @@ TbBool set_default_startup_parameters(void)
     memset(&start_params, 0, sizeof(struct StartupParameters));
     start_params.startup_flags = (SFlg_Legal|SFlg_FX|SFlg_Intro);
     start_params.packet_checksum_verify = 1;
-    clear_flag(start_params.flags_font, FFlg_unk01);
+    clear_flag(start_params.flags_font, FFlg_Unusedparam01);
     // Set levels to 0, as we may not have the campaign loaded yet
     start_params.selected_level_number = 0;
     start_params.num_fps = 20;
     start_params.one_player = 1;
     start_params.computer_chat_flags = CChat_None;
-    clear_flag(start_params.flags_cd, MFlg_IsDemoMode);
-    set_flag(start_params.flags_cd, MFlg_unk40);
+    clear_flag(start_params.mode_flags, MFlg_IsDemoMode);
+    set_flag(start_params.mode_flags, MFlg_DemoMode);
     return true;
 }
 
@@ -3322,7 +3322,7 @@ void gameplay_loop_logic()
     }
 
     frametime_start_measurement(Frametime_Logic);
-    if ((game.flags_font & FFlg_unk10) != 0)
+    if ((game.flags_font & FFlg_NetworkTimeout) != 0)
     {
         if (game.play_gameturn == 4)
             LbNetwork_ChangeExchangeTimeout(0);
@@ -3527,7 +3527,7 @@ static TbBool wait_at_frontend(void)
     calculate_moon_phase(true,false);
     update_extra_levels_visibility();
     // Returning from Demo Mode
-    if (game.flags_cd & MFlg_IsDemoMode)
+    if (game.mode_flags & MFlg_IsDemoMode)
     {
       close_packet_file();
       game.packet_load_enable = 0;
@@ -3633,7 +3633,7 @@ static TbBool wait_at_frontend(void)
     try_restore_frontend_error_box();
 
     short finish_menu = 0;
-    clear_flag(game.flags_cd, MFlg_unk40);
+    clear_flag(game.mode_flags, MFlg_DemoMode);
     // TODO move to separate function
     // Begin the frontend loop
     long fe_last_loop_time = LbTimerClock();
@@ -3744,7 +3744,7 @@ static TbBool wait_at_frontend(void)
           game.save_game_slot = flgmem;
           break;
     case FeSt_PACKET_DEMO:
-          game.flags_cd |= MFlg_IsDemoMode;
+          game.mode_flags |= MFlg_IsDemoMode;
           startup_saved_packet_game();
           set_gui_visible(false);
           clear_flag(game.operation_flags, GOF_ShowPanel);

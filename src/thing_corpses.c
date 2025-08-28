@@ -210,7 +210,7 @@ long move_dead_creature(struct Thing *thing)
         move_thing_in_map(thing, &pos);
     } else
     {
-        // Even if no velocity, update field_60
+        // Even if no velocity, update floor_height
         thing->floor_height = get_thing_height_at(thing, &thing->mappos);
     }
     return TUFRet_Modified;

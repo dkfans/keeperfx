@@ -257,7 +257,7 @@ extern unsigned long start_seed;
  * Stores data exchanged between players each turn and used to re-create their input.
  */
 struct Packet {
-    int field_0;
+    int unusedparam;
     TbChecksum chksum; //! Checksum of all things within the game and synchronized random seed
     unsigned char action; //! Action kind performed by the player which owns this packet
     long actn_par1; //! Players action parameter #1

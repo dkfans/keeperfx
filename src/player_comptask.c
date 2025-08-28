@@ -925,11 +925,11 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         case TDR_ReachedDestination:
             // now we move on to build the room
-            pos.x.val = ctask->pos_6A.x.val;
-            pos.y.val = ctask->pos_6A.y.val;
-            pos.z.val = ctask->pos_6A.z.val;
+            pos.x.val = ctask->starting_position.x.val;
+            pos.y.val = ctask->starting_position.y.val;
+            pos.z.val = ctask->starting_position.z.val;
             {
-                SmallAroundIndex round_directn = small_around_index_towards_destination(ctask->pos_6A.x.stl.num,ctask->pos_6A.y.stl.num,
+                SmallAroundIndex round_directn = small_around_index_towards_destination(ctask->starting_position.x.stl.num,ctask->starting_position.y.stl.num,
                     ctask->new_room_pos.x.stl.num,ctask->new_room_pos.y.stl.num);
                 pos_move_in_direction_to_last_allowing_drop(&pos, round_directn, comp->dungeon->owner, ctask->create_room.width+ctask->create_room.height);
             }
@@ -1549,9 +1549,9 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         ctask->new_room_pos.x.val = subtile_coord_center(stl_slab_center_subtile(stl_x));
         ctask->new_room_pos.y.val = subtile_coord_center(stl_slab_center_subtile(stl_y));
         ctask->new_room_pos.z.val = subtile_coord(1,0);
-        ctask->pos_6A.x.val = pos->x.val;
-        ctask->pos_6A.y.val = pos->y.val;
-        ctask->pos_6A.z.val = pos->z.val;
+        ctask->starting_position.x.val = pos->x.val;
+        ctask->starting_position.y.val = pos->y.val;
+        ctask->starting_position.z.val = pos->z.val;
         ctask->create_room.startpos.x.val = startpos.x.val;
         ctask->create_room.startpos.y.val = startpos.y.val;
         ctask->create_room.startpos.z.val = startpos.z.val;
@@ -2276,7 +2276,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
             {
                 struct ComputerProcess *cproc;
                 cproc = get_computer_process(comp, ctask->cproc_idx);
-                cproc->param_5 = computer_task_index(ctask);
+                cproc->process_parameter_5 = computer_task_index(ctask);
                 computer_process_func_list[cproc->func_complete](comp, cproc);
             }
             suspend_task_process(comp, ctask);
@@ -2291,7 +2291,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
                     {
                         struct ComputerProcess *cproc;
                         cproc = get_computer_process(comp, ctask->cproc_idx);
-                        cproc->param_5 = computer_task_index(ctask);
+                        cproc->process_parameter_5 = computer_task_index(ctask);
                         computer_process_func_list[cproc->func_complete](comp, cproc);
                     }
                     suspend_task_process(comp, ctask);

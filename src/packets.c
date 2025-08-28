@@ -387,7 +387,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
              view_set_camera_rotation_inertia(cam, 16, 64);
             break;
         case PVM_FrontView:
-            cam->orient_a = (cam->orient_a + LbFPMath_PI/2) & LbFPMath_AngleMask;
+            cam->rotation_angle_x = (cam->rotation_angle_x + LbFPMath_PI/2) & LbFPMath_AngleMask;
             break;
         }
     }
@@ -400,7 +400,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             view_set_camera_rotation_inertia(cam, -16, -64);
             break;
         case PVM_FrontView:
-            cam->orient_a = (cam->orient_a - LbFPMath_PI/2) & LbFPMath_AngleMask;
+            cam->rotation_angle_x = (cam->rotation_angle_x - LbFPMath_PI/2) & LbFPMath_AngleMask;
             break;
         }
     }
@@ -413,7 +413,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             view_set_camera_tilt(cam, 1);
             if (is_my_player(player))
             {
-                settings.isometric_tilt = cam->orient_b;
+                settings.isometric_tilt = cam->rotation_angle_y;
                 save_settings();
             }
             break;
@@ -428,7 +428,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             view_set_camera_tilt(cam, 2);
             if (is_my_player(player))
             {
-                settings.isometric_tilt = cam->orient_b;
+                settings.isometric_tilt = cam->rotation_angle_y;
                 save_settings();
             }
             break;
@@ -443,7 +443,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             view_set_camera_tilt(cam, 0);
             if (is_my_player(player))
             {
-                settings.isometric_tilt = cam->orient_b;
+                settings.isometric_tilt = cam->rotation_angle_y;
                 save_settings();
             }
             break;
@@ -799,9 +799,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_SetMapRotation:
-      player->cameras[CamIV_Parchment].orient_a = pckt->actn_par1;
-      player->cameras[CamIV_FrontView].orient_a = pckt->actn_par1;
-      player->cameras[CamIV_Isometric].orient_a = pckt->actn_par1;
+      player->cameras[CamIV_Parchment].rotation_angle_x = pckt->actn_par1;
+      player->cameras[CamIV_FrontView].rotation_angle_x = pckt->actn_par1;
+      player->cameras[CamIV_Isometric].rotation_angle_x = pckt->actn_par1;
 
       if ((is_my_player(player)) && (player->acamera->view_mode == PVM_FrontView)) {
         // Fixes interpolated Things lagging for 1 turn when pressing middle mouse button to flip the camera in FrontView
@@ -836,9 +836,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_ZoomFromMap:
       set_player_cameras_position(player, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
-      player->cameras[CamIV_Parchment].orient_a = 0;
-      player->cameras[CamIV_FrontView].orient_a = 0;
-      player->cameras[CamIV_Isometric].orient_a = 0;
+      player->cameras[CamIV_Parchment].rotation_angle_x = 0;
+      player->cameras[CamIV_FrontView].rotation_angle_x = 0;
+      player->cameras[CamIV_Isometric].rotation_angle_x = 0;
       if (((game.system_flags & GSF_NetworkActive) != 0)
           || (lbDisplay.PhysicalScreenWidth > 320))
       {

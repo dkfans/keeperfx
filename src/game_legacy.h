@@ -134,7 +134,7 @@ struct Game {
     unsigned char flags_font;
     unsigned char flags_gui;
     unsigned char eastegg01_cntr;
-    unsigned char flags_cd;
+    unsigned char mode_flags;
     unsigned char eastegg02_cntr;
     char music_track; // cdrom / default music track to resume after load
     char music_fname[DISKPATH_SIZE]; // custom music file to resume after load

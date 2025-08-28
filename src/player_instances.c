@@ -230,8 +230,8 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           struct Camera* cam = player->acamera;
           if (cam != NULL)
           {
-            thing->veloc_base.x.val += distance_with_angle_to_coord_x(64, cam->orient_a);
-            thing->veloc_base.y.val += distance_with_angle_to_coord_y(64, cam->orient_a);
+            thing->veloc_base.x.val += distance_with_angle_to_coord_x(64, cam->rotation_angle_x);
+            thing->veloc_base.y.val += distance_with_angle_to_coord_y(64, cam->rotation_angle_x);
           }
       }
       break;
@@ -240,7 +240,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       shotst = get_shot_model_stats(thing->model);
       if (shotst->model_flags & ShMF_Boulder)
       {
-          thing->move_angle_xy = player->acamera->orient_a;
+          thing->move_angle_xy = player->acamera->rotation_angle_x;
           if (thing->model != ShM_SolidBoulder) // TODO CONFIG shot model dependency, make config option instead.
           {
               thing->health -= game.conf.rules.game.boulder_reduce_health_slap;
@@ -362,7 +362,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
     {
         view_zoom_camera_in(cam, 30000, 0);
         // Compute new camera angle
-        long mv_a = (thing->move_angle_xy - cam->orient_a) & LbFPMath_AngleMask;
+        long mv_a = (thing->move_angle_xy - cam->rotation_angle_x) & LbFPMath_AngleMask;
         if (mv_a > LbFPMath_PI)
           mv_a -= 2*LbFPMath_PI;
         if (mv_a < -LbFPMath_PI/6)
@@ -373,12 +373,12 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         {
             mv_a = LbFPMath_PI/6;
         }
-        cam->orient_a += mv_a;
-        cam->orient_a &= LbFPMath_AngleMask;
+        cam->rotation_angle_x += mv_a;
+        cam->rotation_angle_x &= LbFPMath_AngleMask;
         // Now mv_a becomes a circle radius
         mv_a = get_creature_eye_height(thing) + thing->mappos.z.val;
-        long mv_x = thing->mappos.x.val + distance_with_angle_to_coord_x(mv_a, cam->orient_a) - (MapCoordDelta)cam->mappos.x.val;
-        long mv_y = thing->mappos.y.val + distance_with_angle_to_coord_y(mv_a, cam->orient_a) - (MapCoordDelta)cam->mappos.y.val;
+        long mv_x = thing->mappos.x.val + distance_with_angle_to_coord_x(mv_a, cam->rotation_angle_x) - (MapCoordDelta)cam->mappos.x.val;
+        long mv_y = thing->mappos.y.val + distance_with_angle_to_coord_y(mv_a, cam->rotation_angle_x) - (MapCoordDelta)cam->mappos.y.val;
         if (mv_x < -128)
         {
             mv_x = -128;
@@ -397,13 +397,13 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         }
         cam->mappos.x.val += mv_x;
         cam->mappos.y.val += mv_y;
-        if (cam->orient_a < 0)
+        if (cam->rotation_angle_x < 0)
         {
-          cam->orient_a += 2*LbFPMath_PI;
+          cam->rotation_angle_x += 2*LbFPMath_PI;
         }
-        if (cam->orient_a >= 2*LbFPMath_PI)
+        if (cam->rotation_angle_x >= 2*LbFPMath_PI)
         {
-          cam->orient_a -= 2*LbFPMath_PI;
+          cam->rotation_angle_x -= 2*LbFPMath_PI;
         }
     }
     return 0;
@@ -627,7 +627,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         cam->mappos.x.val = subtile_coord_center(game.map_subtiles_x / 2);
         cam->mappos.y.val = subtile_coord_center(game.map_subtiles_y / 2);
         cam->zoom = 24000;
-        cam->orient_a = 0;
+        cam->rotation_angle_x = 0;
         return 0;
   }
   cam->mappos.x.val = thing->mappos.x.val;
@@ -640,7 +640,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     cam->mappos.y.val = thing->mappos.y.val - (thing->clipbox_size_z >> 1) -  thing->mappos.z.val;
     cam->zoom = 24000;
   }
-  cam->orient_a = 0;
+  cam->rotation_angle_x = 0;
   if (!TimerNoReset)
   {
      timerstarttime = LbTimerClock();
@@ -661,10 +661,10 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         if (cam != NULL)
         {
           cam->zoom -= (24000 - player->isometric_view_zoom_level) / 16;
-          cam->orient_a += LbFPMath_PI/64;
+          cam->rotation_angle_x += LbFPMath_PI/64;
           addval = (thing->clipbox_size_z >> 1);
-          deltax = distance_with_angle_to_coord_x((long)thing->mappos.z.val+addval, cam->orient_a);
-          deltay = distance_with_angle_to_coord_y((long)thing->mappos.z.val+addval, cam->orient_a);
+          deltax = distance_with_angle_to_coord_x((long)thing->mappos.z.val+addval, cam->rotation_angle_x);
+          deltay = distance_with_angle_to_coord_y((long)thing->mappos.z.val+addval, cam->rotation_angle_x);
         } else
         {
           addval = (thing->clipbox_size_z >> 1);
@@ -690,7 +690,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   if ((player->view_mode != PVM_FrontView) && (cam != NULL))
   {
     cam->zoom = player->isometric_view_zoom_level;
-    cam->orient_a = LbFPMath_PI/4;
+    cam->rotation_angle_x = LbFPMath_PI/4;
   }
   light_turn_light_on(player->cursor_light_idx);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
@@ -955,7 +955,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     thing->rendering_flags &= ~TRF_Invisible;
     player->allocflags &= ~PlaF_CreaturePassengerMode;
     set_engine_view(player, player->view_mode_restore);
-    long i = player->acamera->orient_a;
+    long i = player->acamera->rotation_angle_x;
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     long k = thing->mappos.z.val + get_creature_eye_height(thing);
@@ -1001,7 +1001,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   thing->rendering_flags &= ~TRF_Invisible;
   player->allocflags &= ~PlaF_CreaturePassengerMode;
   set_engine_view(player, player->view_mode_restore);
-  long i = player->acamera->orient_a;
+  long i = player->acamera->rotation_angle_x;
   long k = thing->mappos.z.val + get_creature_eye_height(thing);
   player->cameras[CamIV_Isometric].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
   player->cameras[CamIV_Isometric].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);

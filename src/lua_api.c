@@ -176,7 +176,7 @@ static int lua_Creature_available(lua_State *L)
 static int lua_Dead_creatures_return_to_pool(lua_State *L)
 {
     TbBool return_to_pool         = lua_toboolean(L, 3);
-    set_flag_value(game.flags_cd, MFlg_DeadBackToPool, return_to_pool);
+    set_flag_value(game.mode_flags, MFlg_DeadBackToPool, return_to_pool);
     return 0;
 }
 
@@ -1281,10 +1281,10 @@ static int lua_Set_computer_process(lua_State *L)
             if (strcasecmp(procname, cproc->name) == 0)
             {
                 cproc->priority = val1;
-                cproc->confval_2 = val2;
-                cproc->confval_3 = val3;
-                cproc->confval_4 = val4;
-                cproc->confval_5 = val5;
+                cproc->process_configuration_value_2 = val2;
+                cproc->process_configuration_value_3 = val3;
+                cproc->process_configuration_value_4 = val4;
+                cproc->process_configuration_value_5 = val5;
                 n++;
             }
         }

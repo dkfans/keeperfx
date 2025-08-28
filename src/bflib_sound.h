@@ -84,9 +84,9 @@ struct SoundEmitter {
 
 struct SoundReceiver { // sizeof = 17
     struct SoundCoord3d pos;
-    unsigned short orient_a;
-    unsigned short orient_b;
-    unsigned short orient_c;
+    unsigned short rotation_angle_x;
+    unsigned short rotation_angle_y;
+    unsigned short rotation_angle_z;
     unsigned long flags;
     unsigned char sensivity;
 };

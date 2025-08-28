@@ -930,7 +930,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
                 ntng = create_object(&pos, ObjMdl_LightBall, thing->owner, -1); // TODO: Make this configurable.
                 if (!thing_is_invalid(ntng))
                 {
-                    cctrl->spell_tngidx_armour[k] = ntng->index;
+                    cctrl->spell_thing_index_armour[k] = ntng->index;
                     ntng->health = duration + 1;
                     ntng->armor.belongs_to = thing->index;
                     ntng->armor.shspeed = k;
@@ -1027,7 +1027,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
                 ntng = create_object(&pos, ObjMdl_Disease, thing->owner, -1); // TODO: Make this configurable.
                 if (!thing_is_invalid(ntng))
                 {
-                    cctrl->spell_tngidx_disease[j] = ntng->index;
+                    cctrl->spell_thing_index_disease[j] = ntng->index;
                     ntng->health = duration + 1;
                     ntng->disease.belongs_to = thing->index;
                     ntng->disease.effect_slot = j;
@@ -3208,7 +3208,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     }
     if (flag_is_set(flags, CrDed_NoEffects))
     {
-        if (flag_is_set(game.flags_cd, MFlg_DeadBackToPool))
+        if (flag_is_set(game.mode_flags, MFlg_DeadBackToPool))
         {
             add_creature_to_pool(crmodel, 1);
         }
@@ -3217,24 +3217,24 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     if (!creature_model_bleeds(thing->model))
     {
         // Non-bleeding creatures have no flesh explosion effects
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        if ((game.mode_flags & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1);
         return creature_death_as_nature_intended(thing);
     } else
     if (creature_under_spell_effect(thing, CSAfF_Freeze))
     {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        if ((game.mode_flags & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1);
         return thing_death_ice_explosion(thing);
     } else
     if ( (shot_model_makes_flesh_explosion(cctrl->shot_model)) || (cctrl->timebomb_death) )
     {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        if ((game.mode_flags & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1);
         return thing_death_flesh_explosion(thing);
     } else
     {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        if ((game.mode_flags & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1);
         return creature_death_as_nature_intended(thing);
     }
@@ -3269,12 +3269,12 @@ void delete_armour_effects_attached_to_creature(struct Thing *thing)
     struct Thing *efftng;
     for (int i = 0; i < 3; i++)
     {
-        ThingIndex eff_idx = cctrl->spell_tngidx_armour[i];
+        ThingIndex eff_idx = cctrl->spell_thing_index_armour[i];
         if (eff_idx != 0)
         {
             efftng = thing_get(eff_idx);
             delete_thing_structure(efftng, 0);
-            cctrl->spell_tngidx_armour[i] = 0;
+            cctrl->spell_thing_index_armour[i] = 0;
         }
     }
 }
@@ -3289,12 +3289,12 @@ void delete_disease_effects_attached_to_creature(struct Thing *thing)
     struct Thing *efftng;
     for (int i = 0; i < 3; i++)
     {
-        ThingIndex eff_idx = cctrl->spell_tngidx_disease[i];
+        ThingIndex eff_idx = cctrl->spell_thing_index_disease[i];
         if (eff_idx != 0)
         {
             efftng = thing_get(eff_idx);
             delete_thing_structure(efftng, 0);
-            cctrl->spell_tngidx_disease[i] = 0;
+            cctrl->spell_thing_index_disease[i] = 0;
         }
     }
 }
@@ -4288,7 +4288,7 @@ void draw_creature_view(struct Thing *thing)
 {
   // If no eye lens required - just draw on the screen, directly
   struct PlayerInfo* player = get_my_player();
-  if (((game.flags_cd & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL) || (game.applied_lens_type == 0))
+  if (((game.mode_flags & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL) || (game.applied_lens_type == 0))
   {
       engine(player,&player->cameras[CamIV_FirstPerson]);
       return;
@@ -6419,8 +6419,8 @@ TngUpdateRet update_creature(struct Thing *thing)
         cctrl->frozen_on_hit--;
     if (cctrl->force_visible > 0)
         cctrl->force_visible--;
-    if (cctrl->unknown.navigation_map_changed == 0)
-        cctrl->unknown.navigation_map_changed = game.map_changed_for_nagivation;
+    if (cctrl->unknown_union.navigation_map_changed == 0)
+        cctrl->unknown_union.navigation_map_changed = game.map_changed_for_nagivation;
     if ((cctrl->stopped_for_hand_turns == 0) || (cctrl->instance_id == CrInst_EAT))
     {
         process_creature_instance(thing);

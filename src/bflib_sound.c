@@ -187,9 +187,9 @@ long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z)
 
 long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c)
 {
-    Receiver.orient_a = ori_a & LbFPMath_AngleMask;
-    Receiver.orient_b = ori_b & LbFPMath_AngleMask;
-    Receiver.orient_c = ori_c & LbFPMath_AngleMask;
+    Receiver.rotation_angle_x = ori_a & LbFPMath_AngleMask;
+    Receiver.rotation_angle_y = ori_b & LbFPMath_AngleMask;
+    Receiver.rotation_angle_z = ori_c & LbFPMath_AngleMask;
     return 1;
 }
 
@@ -404,7 +404,7 @@ long get_emitter_pan(const struct SoundReceiver *recv, const struct SoundEmitter
       return 64;
     }
     long angle_b = LbArcTanAngle(diff_x, diff_y);
-    long angle_a = recv->orient_a;
+    long angle_a = recv->rotation_angle_x;
     long angdiff = get_angle_difference(angle_a, angle_b);
     long angsign = get_angle_sign(angle_a, angle_b);
     long i = (radius - deadzone_radius) * LbSinL(angsign * angdiff) >> 16;

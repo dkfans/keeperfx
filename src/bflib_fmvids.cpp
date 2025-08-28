@@ -91,17 +91,17 @@ void copy_to_screen(const AVFrame & frame, const int flags)
 {
 	const auto src_pitch = frame.linesize[0];
 	auto srcbuf = frame.data[0];
-	long buf_center;
+	long screen_buffer_center_offset;
 	if (flags & (SMK_PixelDoubleLine | SMK_InterlaceLine)) {
-		buf_center = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - 2 * frame.height) >> 1);
+		screen_buffer_center_offset = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - 2 * frame.height) >> 1);
 	} else {
-		buf_center = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - frame.height) >> 1);
+		screen_buffer_center_offset = lbDisplay.GraphicsScreenWidth * ((LbScreenHeight() - frame.height) >> 1);
 	}
 	auto w = frame.width;
 	if (flags & SMK_PixelDoubleWidth) {
 		w = 2 * frame.width;
 	}
-	auto dstbuf = &lbDisplay.WScreen[buf_center + ((LbScreenWidth() - w) >> 1)];
+	auto dstbuf = &lbDisplay.WScreen[screen_buffer_center_offset + ((LbScreenWidth() - w) >> 1)];
 	if (flags & SMK_PixelDoubleLine) {
 		if (flags & SMK_PixelDoubleWidth) {
 			for (int h = frame.height; h > 0; h--) {

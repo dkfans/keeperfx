@@ -69,7 +69,7 @@ struct ReceiveCallbacks {
   void (*mpReqCompsExDataMsg)(unsigned long, unsigned long, void *);
   void *(*unidirectionalMsg)(unsigned long, unsigned long, void *);
   void (*systemUserMsg)(unsigned long, void *, unsigned long, void *);
-  void *(*unknownMsgCallback)(unsigned long, void *);
+  void *(*unhandledMessageTypeCallback)(unsigned long, void *);
 };
 /******************************************************************************/
 void net_copy_name_string(char *dst,const char *src,long max_len);

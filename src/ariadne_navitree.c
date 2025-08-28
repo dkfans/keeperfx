@@ -285,8 +285,8 @@ long optimise_heuristic(long tri_id1, long tri_id2)
         return 0;
     }
     long tri_lnk = link_find(tri_id3, tri_id1);
-    if (( (tri1->field_D & (1 << tri_id2)) == 0)
-     || ( (tri3->field_D & (1 << tri_lnk)) == 0))
+    if (( (tri1->navigation_flags & (1 << tri_id2)) == 0)
+     || ( (tri3->navigation_flags & (1 << tri_lnk)) == 0))
     {
         return 0;
     }

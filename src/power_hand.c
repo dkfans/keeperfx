@@ -737,9 +737,9 @@ TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
       ERRORLOG("Jump to invalid thing detected");
       break;
     }
-    i = thing->field_2;
+    i = thing->next_on_mapblk;
     // Begin per-loop code
-    if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) && (thing->field_7 != 67))
+    if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->state_flags & TF1_InCtrldLimbo) == 0) && (thing->continue_state != 67))
     {
       if (can_thing_be_picked_up_by_player(thing, plyr_idx) || thing_slappable(thing, plyr_idx))
       {

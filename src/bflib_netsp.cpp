@@ -312,11 +312,11 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   case NETMSGTYPE_UNKNOWN:
       // This callback seems to never be used
       p3 = 0;
-      if (recvCallbacks->unknownMsgCallback == NULL)
+      if (recvCallbacks->unhandledMessageTypeCallback == NULL)
       {
         break;
       }
-      recvCallbacks->unknownMsgCallback(p3, buf);
+      recvCallbacks->unhandledMessageTypeCallback(p3, buf);
       break;
   default:
       WARNLOG("messageType is out of range");
@@ -548,14 +548,14 @@ TbError ServiceProvider::Receive(unsigned long flags)
               break;
           }
 
-          if (!recvCallbacks->unknownMsgCallback) {
+          if (!recvCallbacks->unhandledMessageTypeCallback) {
               break;
           }
 
           msgLen = dataLen + 4;
           somePtr = calloc(msgLen, 1); //TODO NET check that this is freed somewhere...
           ReadMessage(&playerId, somePtr, &msgLen);
-          recvCallbacks->unknownMsgCallback(playerId, somePtr);
+          recvCallbacks->unhandledMessageTypeCallback(playerId, somePtr);
 
           break;
       default:

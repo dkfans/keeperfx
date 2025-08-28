@@ -255,16 +255,16 @@ void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *ari
     if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
         ERRORLOG("current_waypoint_pos DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
     }
-    p1 = &arid1->pos_12; p2 = &arid2->pos_12;
+    p1 = &arid1->next_position; p2 = &arid2->next_position;
     if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("pos_12 DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
+        ERRORLOG("next_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
     }
-    p1 = &arid1->pos_18; p2 = &arid2->pos_18;
+    p1 = &arid1->previous_position; p2 = &arid2->previous_position;
     if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("pos_18 DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
+        ERRORLOG("previous_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
     }
     if (memcmp(&arid1->route_flags,&arid2->route_flags,14) != 0) {
-        ERRORLOG("pos_18..field_24 DIFFERS");
+        ERRORLOG("previous_position..wallhug_stored_angle DIFFERS");
     }
     if (arid1->move_speed != arid2->move_speed) {
         ERRORLOG("move_speed DIFFERS");
@@ -287,13 +287,13 @@ void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *ari
     if (arid1->total_waypoints != arid2->total_waypoints) {
         ERRORLOG("total_waypoints DIFFERS");
     }
-    p1 = &arid1->pos_53; p2 = &arid2->pos_53;
+    p1 = &arid1->manoeuvre_fixed_position; p2 = &arid2->manoeuvre_fixed_position;
     if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("pos_53 DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
+        ERRORLOG("manoeuvre_fixed_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
     }
-    p1 = &arid1->pos_59; p2 = &arid2->pos_59;
+    p1 = &arid1->manoeuvre_requested_position; p2 = &arid2->manoeuvre_requested_position;
     if (memcmp(p1,p2,4) != 0) { // Compare only X and Y here; skip Z
-        ERRORLOG("pos_59 DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
+        ERRORLOG("manoeuvre_requested_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
     }
     if (arid1->manoeuvre_state != arid2->manoeuvre_state) {
         ERRORLOG("manoeuvre_state DIFFERS");
@@ -535,7 +535,7 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
       *total_len = LbSqrL((ptstart_x - ptfind_x) * (ptstart_x - ptfind_x) + (ptstart_y - ptfind_y) * (ptstart_y - ptfind_y));
       path->waypoints[0].x = ptstart_x;
       path->waypoints[0].y = ptstart_y;
-      wayPoints.wpfield_10[0] = 0;
+      wayPoints.waypoint_index_array[0] = 0;
       path->waypoints_num = 1;
       return 1;
     }
@@ -543,16 +543,16 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
     wp1 = 0;
     wpi = 0;
     edge_points8(route[wpi+0], route[wpi+1], &fov_AC.tipB.x, &fov_AC.tipB.y, &fov_AC.tipC.x, &fov_AC.tipC.y);
-    wayPoints.wpfield_8 = wpi;
-    wayPoints.wpfield_C = wpi;
+    wayPoints.edge1_current_index = wpi;
+    wayPoints.edge2_current_index = wpi;
     wpi++;
     while ( 1 )
     {
       if (wpi < wp_lim)
       {
           edge_points8(route[wpi+0], route[wpi+1], &edge1_x, &edge1_y, &edge2_x, &edge2_y);
-          wayPoints.wpfield_0 = wpi;
-          wayPoints.wpfield_4 = wpi;
+          wayPoints.edge1_start_index = wpi;
+          wayPoints.edge2_start_index = wpi;
           reg1 = fov_region(edge1_x, edge1_y, &fov_AC);
           reg2 = fov_region(edge2_x, edge2_y, &fov_AC);
       } else
@@ -566,14 +566,14 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
       {
           fov_AC.tipB.x = edge1_x;
           fov_AC.tipB.y = edge1_y;
-          wayPoints.wpfield_8 = wayPoints.wpfield_0;
+          wayPoints.edge1_current_index = wayPoints.edge1_start_index;
           wp1 = wpi;
       }
       if (reg2 == 0)
       {
           fov_AC.tipC.x = edge2_x;
           fov_AC.tipC.y = edge2_y;
-          wayPoints.wpfield_C = wayPoints.wpfield_4;
+          wayPoints.edge2_current_index = wayPoints.edge2_start_index;
           wp2 = wpi;
       }
       if (reg2 == -1)
@@ -587,13 +587,13 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
         fov_AC.tipA.x = fov_AC.tipB.x;
         path->waypoints[wp_num].x = fov_AC.tipB.x;
         path->waypoints[wp_num].y = fov_AC.tipB.y;
-        wayPoints.wpfield_10[wp_num] = wayPoints.wpfield_8;
+        wayPoints.waypoint_index_array[wp_num] = wayPoints.edge1_current_index;
         wp_num++;
         wpi = wp1;
         fov_AC.tipA.y = fov_AC.tipB.y;
         edge_points8(route[wpi+0], route[wpi+1], &fov_AC.tipB.x, &fov_AC.tipB.y, &fov_AC.tipC.x, &fov_AC.tipC.y);
-        wayPoints.wpfield_8 = wpi;
-        wayPoints.wpfield_C = wpi;
+        wayPoints.edge1_current_index = wpi;
+        wayPoints.edge2_current_index = wpi;
       } else
       if (reg1 == 1)
       {
@@ -606,13 +606,13 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
         fov_AC.tipA.x = fov_AC.tipC.x;
         path->waypoints[wp_num].x = fov_AC.tipC.x;
         path->waypoints[wp_num].y = fov_AC.tipC.y;
-        wayPoints.wpfield_10[wp_num] = wayPoints.wpfield_C;
+        wayPoints.waypoint_index_array[wp_num] = wayPoints.edge2_current_index;
         wp_num++;
         wpi = wp2;
         fov_AC.tipA.y = fov_AC.tipC.y;
         edge_points8(route[wpi+0], route[wpi+1], &fov_AC.tipB.x, &fov_AC.tipB.y, &fov_AC.tipC.x, &fov_AC.tipC.y);
-        wayPoints.wpfield_8 = wpi;
-        wayPoints.wpfield_C = wpi;
+        wayPoints.edge1_current_index = wpi;
+        wayPoints.edge2_current_index = wpi;
       }
       wpi++;
     }
@@ -623,7 +623,7 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
         + (ptstart_y - fov_AC.tipA.y) * (ptstart_y - fov_AC.tipA.y));
     path->waypoints[wp_num].x = ptstart_x;
     path->waypoints[wp_num].y = ptstart_y;
-    wayPoints.wpfield_10[wp_num] = wp_lim;
+    wayPoints.waypoint_index_array[wp_num] = wp_lim;
     wp_num++;
     path->waypoints_num = wp_num;
     return wp_num;
@@ -733,7 +733,7 @@ void path_out_a_bit(struct Path *path, const long *route)
     long link_fwd;
     long link_bak;
     long i;
-    wpoint = &wayPoints.wpfield_10[0];
+    wpoint = &wayPoints.waypoint_index_array[0];
     ppoint = &path->waypoints[0];
     for (i=0; i < path->waypoints_num-1; i++)
     {
@@ -777,7 +777,7 @@ void cull_gate_to_point(struct Gate *gt, long a2)
       if (diff_a + (diff_b >> 1) < a2)
           return;
     }
-    if (gt->field_18 == 1)
+    if (gt->pathfinding_direction == 1)
     {
         diff_a = (gt->start_coordinate_x - gt->end_coordinate_x) << 6;
         diff_b = (gt->start_coordinate_y - gt->end_coordinate_y) << 6;
@@ -808,7 +808,7 @@ void cull_gate_to_point(struct Gate *gt, long a2)
         div_b = -div_b;
     }
     val_y = cmul * ((unsigned long long)diff_b << 14) / div_b;
-    if (gt->field_18 == 1)
+    if (gt->pathfinding_direction == 1)
     {
         gt->start_coordinate_x = val_x + gt->end_coordinate_x;
         gt->start_coordinate_y = val_y + gt->end_coordinate_y;
@@ -849,32 +849,32 @@ long calc_intersection(struct Gate *gt, long a2, long a3, long a4, long a5)
     factor = ((unsigned long long)area_m << 14) / area_d;
     if ((factor < -16384) || (factor > 16384))
         return 0;
-    gt->field_10 = gt->start_coordinate_x + (((unsigned long long)(diff_e * factor) >> 14) >> 6);
-    gt->field_14 = gt->start_coordinate_y + (((unsigned long long)(diff_f * factor) >> 14) >> 6);
+    gt->intersection_coordinate_x = gt->start_coordinate_x + (((unsigned long long)(diff_e * factor) >> 14) >> 6);
+    gt->intersection_coordinate_y = gt->start_coordinate_y + (((unsigned long long)(diff_f * factor) >> 14) >> 6);
 
     int vmin;
     vmin = gt->end_coordinate_x;
     if (vmin >= gt->start_coordinate_x)
       vmin = gt->start_coordinate_x;
-    if (vmin > gt->field_10)
+    if (vmin > gt->intersection_coordinate_x)
         return 0;
 
     vmin = gt->end_coordinate_x;
     if (vmin <= gt->start_coordinate_x)
       vmin = gt->start_coordinate_x;
-    if (vmin < gt->field_10)
+    if (vmin < gt->intersection_coordinate_x)
         return 0;
 
     vmin = gt->start_coordinate_y;
     if (vmin >= gt->end_coordinate_y)
       vmin = gt->end_coordinate_y;
-    if (vmin > gt->field_14)
+    if (vmin > gt->intersection_coordinate_y)
         return 0;
 
     vmin = gt->start_coordinate_y;
     if (vmin <= gt->end_coordinate_y)
       vmin = gt->end_coordinate_y;
-    if (vmin < gt->field_14)
+    if (vmin < gt->intersection_coordinate_y)
         return 0;
 
     return 1;
@@ -887,14 +887,14 @@ void cull_gate_to_best_point(struct Gate *gt, long a2)
     {
         int diff_x;
         int diff_y;
-        diff_x = abs(gt->start_coordinate_x - gt->field_10);
-        diff_y = abs(gt->start_coordinate_y - gt->field_14);
+        diff_x = abs(gt->start_coordinate_x - gt->intersection_coordinate_x);
+        diff_y = abs(gt->start_coordinate_y - gt->intersection_coordinate_y);
         if (diff_x <= diff_y)
             diff_min1 = (diff_x >> 1) + diff_y;
         else
             diff_min1 = (diff_y >> 1) + diff_x;
-        diff_x = abs(gt->end_coordinate_x - gt->field_10);
-        diff_y = abs(gt->end_coordinate_y - gt->field_14);
+        diff_x = abs(gt->end_coordinate_x - gt->intersection_coordinate_x);
+        diff_y = abs(gt->end_coordinate_y - gt->intersection_coordinate_y);
         if (diff_x <= diff_y)
             diff_min2 = diff_y + (diff_x >> 1);
         else
@@ -906,12 +906,12 @@ void cull_gate_to_best_point(struct Gate *gt, long a2)
         diff_lim = (a2 + 2) >> 1;
         if (diff_min1 < diff_lim)
         {
-            gt->field_18 = 0;
+            gt->pathfinding_direction = 0;
             cull_gate_to_point(gt, a2);
         } else
         if (diff_min2 < diff_lim)
         {
-            gt->field_18 = 1;
+            gt->pathfinding_direction = 1;
             cull_gate_to_point(gt, a2);
         } else
         {
@@ -960,10 +960,10 @@ void cull_gate_to_best_point(struct Gate *gt, long a2)
             int cmin_x;
             int cmax_x;
             int cmax_y;
-            cmin_x = gt->field_10 - delta_A;
-            cmin_y = gt->field_14 - delta_B;
-            cmax_y = gt->field_14 + delta_B;
-            cmax_x = gt->field_10 + delta_A;
+            cmin_x = gt->intersection_coordinate_x - delta_A;
+            cmin_y = gt->intersection_coordinate_y - delta_B;
+            cmax_y = gt->intersection_coordinate_y + delta_B;
+            cmax_x = gt->intersection_coordinate_x + delta_A;
 
             int ctst_x1;
             int ctst_x2;
@@ -1041,7 +1041,7 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
         pway->points[0].end_coordinate_x = trBx;
         pway->points[0].start_coordinate_x = trBx;
         pway->points[0].start_coordinate_y = trBy;
-        pway->points[0].field_18 = 0;
+        pway->points[0].pathfinding_direction = 0;
         pway->points_num = 1;
         return 1;
     }
@@ -1097,7 +1097,7 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
             gt->start_coordinate_y = fov1.tipB.y;
             gt->end_coordinate_x = fov1.tipC.x;
             gt->end_coordinate_y = fov1.tipC.y;
-            gt->field_18 = -1;
+            gt->pathfinding_direction = -1;
             int dist_x;
             int dist_y;
             int bwp_x;
@@ -1154,7 +1154,7 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
               dist_min2 = dist_B;
             if (dist_min1 >= dist_min2)
             {
-                gt->field_18 = (dist_D <= dist_B);
+                gt->pathfinding_direction = (dist_D <= dist_B);
                 if (wp_idx < best_path.waypoints_num-1)
                 {
                     wp_x = best_path.waypoints[wp_idx].x;
@@ -1163,7 +1163,7 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
                 }
             } else
             {
-                gt->field_18 = (dist_C <= dist_A);
+                gt->pathfinding_direction = (dist_C <= dist_A);
                 dist_min2 = dist_min1;
             }
             if (dist_min2 < 256)
@@ -1172,8 +1172,8 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
             } else
             {
                 int fld18_mem;
-                fld18_mem = gt->field_18;
-                gt->field_18 = 2;
+                fld18_mem = gt->pathfinding_direction;
+                gt->pathfinding_direction = 2;
                 if ( !calc_intersection(gt, wp_x, wp_y, best_path.waypoints[wp_idx].x, best_path.waypoints[wp_idx].y) )
                 {
                   if (calc_intersection(gt,
@@ -1189,17 +1189,17 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
                   }
                   else
                   {
-                    gt->field_18 = fld18_mem;
+                    gt->pathfinding_direction = fld18_mem;
                   }
               }
-              if (gt->field_18 == 2)
+              if (gt->pathfinding_direction == 2)
               {
                   cull_gate_to_best_point(gt, a8);
-                  gt->field_18 = fld18_mem;
+                  gt->pathfinding_direction = fld18_mem;
               } else
               {
                   cull_gate_to_point(gt, a8);
-                  gt->field_18 = fld18_mem;
+                  gt->pathfinding_direction = fld18_mem;
               }
             }
             fov1.tipA.x = gt->start_coordinate_x;
@@ -1226,7 +1226,7 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
     gt->start_coordinate_x = trBx;
     gt->end_coordinate_y = trBy;
     gt->start_coordinate_y = trBy;
-    gt->field_18 = 0;
+    gt->pathfinding_direction = 0;
     pway->points_num = pt_num;
     return pt_num;
 }
@@ -1274,7 +1274,7 @@ void route_through_gates(const struct Pathway *pway, struct Path *path, long sub
     wpoint = &path->waypoints[0];
     for (i=0; i < pway->points_num-1; i++)
     {
-        if (ppoint->field_18)
+        if (ppoint->pathfinding_direction)
         {
             wpoint->x = ppoint->end_coordinate_x - (subroute * (ppoint->end_coordinate_x - ppoint->start_coordinate_x) >> 14);
             wpoint->y = ppoint->end_coordinate_y - (subroute * (ppoint->end_coordinate_y - ppoint->start_coordinate_y) >> 14);
@@ -1880,8 +1880,8 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
  */
 long ma_triangle_route(long ttriA, long ttriB, long *routecost)
 {
-    long len_fwd;
-    long len_bak;
+    long forward_route_length;
+    long backward_route_length;
     long par_fwd;
     long par_bak;
     long rcost_fwd;
@@ -1894,13 +1894,13 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     // Forward route
     NAVIDBG(19,"Making forward route");
     rcost_fwd = 0;
-    len_fwd = triangle_route_do_fwd(ttriA, ttriB, route_fwd, &rcost_fwd);
-    if (len_fwd == -1)
+    forward_route_length = triangle_route_do_fwd(ttriA, ttriB, route_fwd, &rcost_fwd);
+    if (forward_route_length == -1)
     {
         NAVIDBG(19,"No forward route");
         return -1;
     }
-    route_to_path(tree_Ax8, tree_Ay8, tree_Bx8, tree_By8, route_fwd, len_fwd, &fwd_path, &par_fwd);
+    route_to_path(tree_Ax8, tree_Ay8, tree_Bx8, tree_By8, route_fwd, forward_route_length, &fwd_path, &par_fwd);
     tx = tree_Ax8;
     ty = tree_Ay8;
     tree_Ax8 = tree_Bx8;
@@ -1910,13 +1910,13 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     // Backward route
     NAVIDBG(19,"Making backward route");
     rcost_bak = 0;
-    len_bak = triangle_route_do_bak(ttriB, ttriA, route_bak, &rcost_bak);
-    if (len_bak == -1)
+    backward_route_length = triangle_route_do_bak(ttriB, ttriA, route_bak, &rcost_bak);
+    if (backward_route_length == -1)
     {
         NAVIDBG(19,"No backward route");
         return -1;
     }
-    route_to_path(tree_Ax8, tree_Ay8, tree_Bx8, tree_By8, route_bak, len_bak, &bak_path, &par_bak);
+    route_to_path(tree_Ax8, tree_Ay8, tree_Bx8, tree_By8, route_bak, backward_route_length, &bak_path, &par_bak);
     tx = tree_Ax8;
     ty = tree_Ay8;
     tree_Ax8 = tree_Bx8;
@@ -1932,15 +1932,15 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
              tree_route[i] = route_fwd[i];
         }
         *routecost = rcost_fwd;
-        return len_fwd;
+        return forward_route_length;
     } else
     {
-        for (i=0; i <= len_bak; i++)
+        for (i=0; i <= backward_route_length; i++)
         {
-             tree_route[i] = route_bak[len_bak-i];
+             tree_route[i] = route_bak[backward_route_length-i];
         }
         *routecost = rcost_bak;
-        return len_bak;
+        return backward_route_length;
     }
 }
 
@@ -2306,25 +2306,25 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
     }
     if (!ariadne_get_starting_angle_and_side_of_wallhug(thing, arid, pos, &arid->wallhug_angle, &arid->hug_side))
     {
-        arid->pos_12.x.val = thing->mappos.x.val;
-        arid->pos_12.y.val = thing->mappos.y.val;
-        arid->pos_12.z.val = thing->mappos.z.val;
+        arid->next_position.x.val = thing->mappos.x.val;
+        arid->next_position.y.val = thing->mappos.y.val;
+        arid->next_position.z.val = thing->mappos.z.val;
         arid->update_state = AridUpSt_OnLine;
         return AridRet_OK;
     }
     arid->update_state = AridUpSt_Wallhug;
-    arid->pos_12.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, arid->wallhug_angle);
-    arid->pos_12.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, arid->wallhug_angle);
-    arid->pos_12.z.val = get_thing_height_at(thing, &arid->pos_12);
-    arid->pos_18 = thing->mappos;
-    arid->field_24 = arid->wallhug_angle;
-    if (ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->pos_12, arid->wallhug_angle))
+    arid->next_position.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, arid->wallhug_angle);
+    arid->next_position.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, arid->wallhug_angle);
+    arid->next_position.z.val = get_thing_height_at(thing, &arid->next_position);
+    arid->previous_position = thing->mappos;
+    arid->wallhug_stored_angle = arid->wallhug_angle;
+    if (ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->next_position, arid->wallhug_angle))
     {
-        arid->pos_53.x.val = arid->pos_12.x.val;
-        arid->pos_53.y.val = arid->pos_12.y.val;
-        arid->pos_53.z.val = arid->pos_12.z.val;
+        arid->manoeuvre_fixed_position.x.val = arid->next_position.x.val;
+        arid->manoeuvre_fixed_position.y.val = arid->next_position.y.val;
+        arid->manoeuvre_fixed_position.z.val = arid->next_position.z.val;
         arid->update_state = AridUpSt_Manoeuvre;
-        arid->manoeuvre_state = AridUpSStM_Unkn2;
+        arid->manoeuvre_state = AridUpSStM_ContinueWallhug;
         return AridRet_OK;
     }
     long cannot_move;
@@ -2332,8 +2332,8 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
         MapCoord tng_z_mem;
         tng_z_mem = thing->mappos.z.val;
         struct Coord3d mvpos;
-        mvpos.x.val = arid->pos_12.x.val;
-        mvpos.y.val = arid->pos_12.y.val;
+        mvpos.x.val = arid->next_position.x.val;
+        mvpos.y.val = arid->next_position.y.val;
         mvpos.z.val = get_floor_height_under_thing_at(thing, &thing->mappos);
         thing->mappos.z.val = mvpos.z.val;
         cannot_move = creature_cannot_move_directly_to(thing, &mvpos);
@@ -2342,15 +2342,15 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
     if ( cannot_move )
     {
         struct Coord3d pos2;
-        ariadne_push_position_against_wall(thing, &arid->pos_12, &pos2);
-        arid->pos_53.x.val = pos2.x.val;
-        arid->pos_53.y.val = pos2.y.val;
-        arid->pos_53.z.val = pos2.z.val;
-        arid->pos_59.x.val = arid->pos_12.x.val;
-        arid->pos_59.y.val = arid->pos_12.y.val;
-        arid->pos_59.z.val = arid->pos_12.z.val;
+        ariadne_push_position_against_wall(thing, &arid->next_position, &pos2);
+        arid->manoeuvre_fixed_position.x.val = pos2.x.val;
+        arid->manoeuvre_fixed_position.y.val = pos2.y.val;
+        arid->manoeuvre_fixed_position.z.val = pos2.z.val;
+        arid->manoeuvre_requested_position.x.val = arid->next_position.x.val;
+        arid->manoeuvre_requested_position.y.val = arid->next_position.y.val;
+        arid->manoeuvre_requested_position.z.val = arid->next_position.z.val;
         arid->update_state = AridUpSt_Manoeuvre;
-        arid->manoeuvre_state = AridUpSStM_Unkn1;
+        arid->manoeuvre_state = AridUpSStM_StartWallhug;
         return AridRet_OK;
     }
     return AridRet_OK;
@@ -2358,24 +2358,24 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
 
 void clear_wallhugging_path(struct Navigation *navi)
 {
-    navi->navstate = NavS_Unkn1;
+    navi->navstate = NavS_WallhugInProgress;
     navi->pos_final.x.val = subtile_coord_center(game.map_subtiles_x/2);
     navi->pos_final.y.val = subtile_coord_center(game.map_subtiles_y/2);
     navi->pos_final.z.val = subtile_coord(1,0);
-    navi->field_3 = 0;
-    navi->field_2 = 0;
-    navi->field_4 = 0;
+    navi->wallhug_state = 0;
+    navi->wallhug_retry_counter = 0;
+    navi->push_counter = 0;
 }
 
 void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend)
 {
-    navi->navstate = NavS_Unkn1;
+    navi->navstate = NavS_WallhugInProgress;
     navi->pos_final.x.val = mvend->x.val;
     navi->pos_final.y.val = mvend->y.val;
     navi->pos_final.z.val = mvend->z.val;
-    navi->field_3 = 0;
-    navi->field_2 = 0;
-    navi->field_4 = 0;
+    navi->wallhug_state = 0;
+    navi->wallhug_retry_counter = 0;
+    navi->push_counter = 0;
 }
 
 long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos)
@@ -2555,20 +2555,20 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
       || (((blk_flags & SlbBloF_WalledY) != 0) && (thing->mappos.y.val == fixed_pos.y.val)) )
     {
         ariadne_init_wallhug(thing, arid, &requested_pos);
-        arid->field_22 = 1;
+        arid->wallhug_active = 1;
         return 1;
     }
-    arid->pos_53.x.val = fixed_pos.x.val;
-    arid->pos_53.y.val = fixed_pos.y.val;
-    arid->pos_53.z.val = fixed_pos.z.val;
-    arid->pos_59.x.val = requested_pos.x.val;
-    arid->pos_59.y.val = requested_pos.y.val;
-    arid->pos_59.z.val = requested_pos.z.val;
-    arid->pos_12.x.val = fixed_pos.x.val;
-    arid->pos_12.y.val = fixed_pos.y.val;
-    arid->pos_12.z.val = fixed_pos.z.val;
+    arid->manoeuvre_fixed_position.x.val = fixed_pos.x.val;
+    arid->manoeuvre_fixed_position.y.val = fixed_pos.y.val;
+    arid->manoeuvre_fixed_position.z.val = fixed_pos.z.val;
+    arid->manoeuvre_requested_position.x.val = requested_pos.x.val;
+    arid->manoeuvre_requested_position.y.val = requested_pos.y.val;
+    arid->manoeuvre_requested_position.z.val = requested_pos.z.val;
+    arid->next_position.x.val = fixed_pos.x.val;
+    arid->next_position.y.val = fixed_pos.y.val;
+    arid->next_position.z.val = fixed_pos.z.val;
     arid->update_state = AridUpSt_Manoeuvre;
-    arid->manoeuvre_state = AridUpSStM_Unkn1;
+    arid->manoeuvre_state = AridUpSStM_StartWallhug;
     return 1;
 }
 
@@ -2643,9 +2643,9 @@ AriadneReturn ariadne_prepare_creature_route_target_reached(const struct Thing *
     arid->current_waypoint_pos.y.val = srcpos->y.val;
     arid->current_waypoint_pos.z.val = srcpos->z.val;
     arid->current_waypoint = 0;
-    arid->pos_12.x.val = thing->mappos.x.val;
-    arid->pos_12.y.val = thing->mappos.y.val;
-    arid->pos_12.z.val = thing->mappos.z.val;
+    arid->next_position.x.val = thing->mappos.x.val;
+    arid->next_position.y.val = thing->mappos.y.val;
+    arid->next_position.z.val = thing->mappos.z.val;
     arid->stored_waypoints = 1;
     arid->total_waypoints = 1;
     arid->route_flags = 0;
@@ -2722,9 +2722,9 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
     }
     arid->current_waypoint = 0;
     arid->route_flags = flags;
-    arid->pos_12.x.val = thing->mappos.x.val;
-    arid->pos_12.y.val = thing->mappos.y.val;
-    arid->pos_12.z.val = thing->mappos.z.val;
+    arid->next_position.x.val = thing->mappos.x.val;
+    arid->next_position.y.val = thing->mappos.y.val;
+    arid->next_position.z.val = thing->mappos.z.val;
     arid->move_speed = speed;
     return AridRet_OK;
 }
@@ -2853,7 +2853,7 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
     MapCoord dist;
     long hug_angle;
 
-    if (ariadne_creature_blocked_by_wall_at(thing, &arid->pos_53))
+    if (ariadne_creature_blocked_by_wall_at(thing, &arid->manoeuvre_fixed_position))
     {
         pos.x.val = arid->endpos.x.val;
         pos.y.val = arid->endpos.y.val;
@@ -2869,23 +2869,23 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
     dist = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
     if (arid->straight_dist_to_next_waypoint > dist)
         arid->straight_dist_to_next_waypoint = dist;
-    if ((thing->mappos.x.val != arid->pos_53.x.val)
-     || (thing->mappos.y.val != arid->pos_53.y.val))
+    if ((thing->mappos.x.val != arid->manoeuvre_fixed_position.x.val)
+     || (thing->mappos.y.val != arid->manoeuvre_fixed_position.y.val))
     {
-        arid->pos_12.x.val = arid->pos_53.x.val;
-        arid->pos_12.y.val = arid->pos_53.y.val;
-        arid->pos_12.z.val = arid->pos_53.z.val;
+        arid->next_position.x.val = arid->manoeuvre_fixed_position.x.val;
+        arid->next_position.y.val = arid->manoeuvre_fixed_position.y.val;
+        arid->next_position.z.val = arid->manoeuvre_fixed_position.z.val;
         return AridRet_OK;
     }
     switch (arid->manoeuvre_state)
     {
-    case AridUpSStM_Unkn1:
-        return ariadne_init_wallhug(thing, arid, &arid->pos_59);
-    case AridUpSStM_Unkn2:
+    case AridUpSStM_StartWallhug:
+        return ariadne_init_wallhug(thing, arid, &arid->manoeuvre_requested_position);
+    case AridUpSStM_ContinueWallhug:
         hug_angle = ariadne_get_wallhug_angle(thing, arid);
         arid->wallhug_angle = hug_angle;
-        arid->pos_12.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
-        arid->pos_12.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
+        arid->next_position.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
+        arid->next_position.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
         arid->update_state = AridUpSt_Wallhug;
         return AridRet_OK;
     default:
@@ -2905,9 +2905,9 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
     if ((distance - arid->straight_dist_to_next_waypoint) > 4 * COORD_PER_STL)
     {
         struct Coord3d pos;
-        arid->pos_12.x.val = thing->mappos.x.val;
-        arid->pos_12.y.val = thing->mappos.y.val;
-        arid->pos_12.z.val = thing->mappos.z.val;
+        arid->next_position.x.val = thing->mappos.x.val;
+        arid->next_position.y.val = thing->mappos.y.val;
+        arid->next_position.z.val = thing->mappos.z.val;
         pos.x.val = arid->endpos.x.val;
         pos.y.val = arid->endpos.y.val;
         pos.z.val = arid->endpos.z.val;
@@ -2918,21 +2918,21 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
     {
         if (distance <= arid->move_speed)
         {
-            arid->pos_12.x.val = arid->current_waypoint_pos.x.val;
-            arid->pos_12.y.val = arid->current_waypoint_pos.y.val;
-            arid->pos_12.z.val = arid->current_waypoint_pos.z.val;
+            arid->next_position.x.val = arid->current_waypoint_pos.x.val;
+            arid->next_position.y.val = arid->current_waypoint_pos.y.val;
+            arid->next_position.z.val = arid->current_waypoint_pos.z.val;
         }
         else
         {
-            arid->pos_12.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, angle);
-            arid->pos_12.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, angle);
-            arid->pos_12.z.val = get_thing_height_at(thing, &arid->pos_12);
+            arid->next_position.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, angle);
+            arid->next_position.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, angle);
+            arid->next_position.z.val = get_thing_height_at(thing, &arid->next_position);
         }
     }
     if (arid->straight_dist_to_next_waypoint > distance) {
         arid->straight_dist_to_next_waypoint = distance;
     }
-    if (ariadne_creature_blocked_by_wall_at(thing, &arid->pos_12))
+    if (ariadne_creature_blocked_by_wall_at(thing, &arid->next_position))
     {
         if ( arid->may_need_reroute )
         {
@@ -2947,22 +2947,22 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
         else
         {
             unsigned long blk_flags;
-            blk_flags = ariadne_get_blocked_flags(thing, &arid->pos_12);
-            if (!blocked_by_door_at(thing, &arid->pos_12, blk_flags))
+            blk_flags = ariadne_get_blocked_flags(thing, &arid->next_position);
+            if (!blocked_by_door_at(thing, &arid->next_position, blk_flags))
             {
                 struct Coord3d pos;
-                ariadne_push_position_against_wall(thing, &arid->pos_12, &pos);
+                ariadne_push_position_against_wall(thing, &arid->next_position, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
-                arid->manoeuvre_state = AridUpSStM_Unkn1;
-                arid->pos_53.x.val = pos.x.val;
-                arid->pos_53.y.val = pos.y.val;
-                arid->pos_53.z.val = pos.z.val;
-                arid->pos_59.x.val = arid->pos_12.x.val;
-                arid->pos_59.y.val = arid->pos_12.y.val;
-                arid->pos_59.z.val = arid->pos_12.z.val;
-                arid->pos_12.x.val = pos.x.val;
-                arid->pos_12.y.val = pos.y.val;
-                arid->pos_12.z.val = pos.z.val;
+                arid->manoeuvre_state = AridUpSStM_StartWallhug;
+                arid->manoeuvre_fixed_position.x.val = pos.x.val;
+                arid->manoeuvre_fixed_position.y.val = pos.y.val;
+                arid->manoeuvre_fixed_position.z.val = pos.z.val;
+                arid->manoeuvre_requested_position.x.val = arid->next_position.x.val;
+                arid->manoeuvre_requested_position.y.val = arid->next_position.y.val;
+                arid->manoeuvre_requested_position.z.val = arid->next_position.z.val;
+                arid->next_position.x.val = pos.x.val;
+                arid->next_position.y.val = pos.y.val;
+                arid->next_position.z.val = pos.z.val;
             }
         }
     }
@@ -3067,26 +3067,26 @@ TbBool ariadne_creature_on_circular_hug(const struct Thing *thing, const struct 
     long src_y;
     long dst_x;
     long dst_y;
-    dst_x = arid->pos_18.x.val;
+    dst_x = arid->previous_position.x.val;
     src_x = thing->mappos.x.val;
-    dst_y = arid->pos_18.y.val;
+    dst_y = arid->previous_position.y.val;
     src_y = thing->mappos.y.val;
     if (dst_x == src_x)
     {
-      if ((dst_y >= src_y) && (arid->pos_12.y.val >= dst_y)) {
+      if ((dst_y >= src_y) && (arid->next_position.y.val >= dst_y)) {
           return true;
       }
-      if ((dst_y <= src_y) && (arid->pos_12.y.val <= dst_y)) {
+      if ((dst_y <= src_y) && (arid->next_position.y.val <= dst_y)) {
           return true;
       }
       return false;
     }
     if (dst_y == src_y)
     {
-        if ((dst_x >= src_x) && (arid->pos_12.x.val >= dst_x)) {
+        if ((dst_x >= src_x) && (arid->next_position.x.val >= dst_x)) {
               return true;
         }
-        if ((dst_x <= src_x) && (arid->pos_12.x.val <= dst_x)) {
+        if ((dst_x <= src_x) && (arid->next_position.x.val <= dst_x)) {
             return true;
         }
     }
@@ -3102,9 +3102,9 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
     if ((distance - arid->straight_dist_to_next_waypoint) > 4 * COORD_PER_STL)
     {
         struct Coord3d pos;
-        arid->pos_12.x.val = thing->mappos.x.val;
-        arid->pos_12.y.val = thing->mappos.y.val;
-        arid->pos_12.z.val = thing->mappos.z.val;
+        arid->next_position.x.val = thing->mappos.x.val;
+        arid->next_position.y.val = thing->mappos.y.val;
+        arid->next_position.z.val = thing->mappos.z.val;
         pos.x.val = arid->endpos.x.val;
         pos.y.val = arid->endpos.y.val;
         pos.z.val = arid->endpos.z.val;
@@ -3115,10 +3115,10 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
     }
     if (distance <= arid->move_speed)
     {
-        arid->pos_12.x.val = arid->current_waypoint_pos.x.val;
-        arid->pos_12.y.val = arid->current_waypoint_pos.y.val;
-        arid->pos_12.z.val = arid->current_waypoint_pos.z.val;
-        if (ariadne_creature_blocked_by_wall_at(thing, &arid->pos_12))
+        arid->next_position.x.val = arid->current_waypoint_pos.x.val;
+        arid->next_position.y.val = arid->current_waypoint_pos.y.val;
+        arid->next_position.z.val = arid->current_waypoint_pos.z.val;
+        if (ariadne_creature_blocked_by_wall_at(thing, &arid->next_position))
         {
             if ( arid->may_need_reroute )
             {
@@ -3133,24 +3133,24 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             else
             {
                 struct Coord3d pos;
-                ariadne_push_position_against_wall(thing, &arid->pos_12, &pos);
+                ariadne_push_position_against_wall(thing, &arid->next_position, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
-                arid->manoeuvre_state = AridUpSStM_Unkn1;
-                arid->pos_53.x.val = pos.x.val;
-                arid->pos_53.y.val = pos.y.val;
-                arid->pos_53.z.val = pos.z.val;
-                arid->pos_59.x.val = arid->pos_12.x.val;
-                arid->pos_59.y.val = arid->pos_12.y.val;
-                arid->pos_59.z.val = arid->pos_12.z.val;
-                arid->pos_12.x.val = pos.x.val;
-                arid->pos_12.y.val = pos.y.val;
-                arid->pos_12.z.val = pos.z.val;
+                arid->manoeuvre_state = AridUpSStM_StartWallhug;
+                arid->manoeuvre_fixed_position.x.val = pos.x.val;
+                arid->manoeuvre_fixed_position.y.val = pos.y.val;
+                arid->manoeuvre_fixed_position.z.val = pos.z.val;
+                arid->manoeuvre_requested_position.x.val = arid->next_position.x.val;
+                arid->manoeuvre_requested_position.y.val = arid->next_position.y.val;
+                arid->manoeuvre_requested_position.z.val = arid->next_position.z.val;
+                arid->next_position.x.val = pos.x.val;
+                arid->next_position.y.val = pos.y.val;
+                arid->next_position.z.val = pos.z.val;
             }
         }
     } else
     if (thing->move_angle_xy == arid->wallhug_angle)
     {
-        if ((thing->mappos.x.val != arid->pos_12.x.val) || (arid->pos_12.y.val != thing->mappos.y.val))
+        if ((thing->mappos.x.val != arid->next_position.x.val) || (arid->next_position.y.val != thing->mappos.y.val))
         {
             ariadne_init_movement_to_current_waypoint(thing, arid);
             return 0;
@@ -3172,25 +3172,25 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             ariadne_init_movement_to_current_waypoint(thing, arid);
             return AridRet_OK;
         }
-        arid->pos_12.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
-        arid->pos_12.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
-        arid->pos_12.z.val = get_thing_height_at(thing, &arid->pos_12);
-        if ((thing->move_angle_xy == hug_angle) && ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->pos_12, hug_angle))
+        arid->next_position.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
+        arid->next_position.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
+        arid->next_position.z.val = get_thing_height_at(thing, &arid->next_position);
+        if ((thing->move_angle_xy == hug_angle) && ariadne_check_forward_for_wallhug_gap(thing, arid, &arid->next_position, hug_angle))
         {
             arid->update_state = AridUpSt_Manoeuvre;
-            arid->manoeuvre_state = AridUpSStM_Unkn2;
-            arid->pos_53.x.val = arid->pos_12.x.val;
-            arid->pos_53.y.val = arid->pos_12.y.val;
-            arid->pos_53.z.val = arid->pos_12.z.val;
+            arid->manoeuvre_state = AridUpSStM_ContinueWallhug;
+            arid->manoeuvre_fixed_position.x.val = arid->next_position.x.val;
+            arid->manoeuvre_fixed_position.y.val = arid->next_position.y.val;
+            arid->manoeuvre_fixed_position.z.val = arid->next_position.z.val;
             return AridRet_OK;
         }
         arid->wallhug_angle = hug_angle;
         if (ariadne_creature_on_circular_hug(thing, arid))
         {
             struct Coord3d pos;
-            arid->pos_12.x.val = thing->mappos.x.val;
-            arid->pos_12.y.val = thing->mappos.y.val;
-            arid->pos_12.z.val = thing->mappos.z.val;
+            arid->next_position.x.val = thing->mappos.x.val;
+            arid->next_position.y.val = thing->mappos.y.val;
+            arid->next_position.z.val = thing->mappos.z.val;
             pos.x.val = arid->endpos.x.val;
             pos.y.val = arid->endpos.y.val;
             pos.z.val = arid->endpos.z.val;
@@ -3199,23 +3199,23 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             }
             return AridRet_OK;
         }
-        if (ariadne_creature_blocked_by_wall_at(thing, &arid->pos_12))
+        if (ariadne_creature_blocked_by_wall_at(thing, &arid->next_position))
         {
             if (!arid->may_need_reroute)
             {
                 struct Coord3d pos;
-                ariadne_push_position_against_wall(thing, &arid->pos_12, &pos);
+                ariadne_push_position_against_wall(thing, &arid->next_position, &pos);
                 arid->update_state = AridUpSt_Manoeuvre;
-                arid->manoeuvre_state = AridUpSStM_Unkn2;
-                arid->pos_53.x.val = pos.x.val;
-                arid->pos_53.y.val = pos.y.val;
-                arid->pos_53.z.val = pos.z.val;
-                arid->pos_59.x.val = arid->pos_12.x.val;
-                arid->pos_59.y.val = arid->pos_12.y.val;
-                arid->pos_59.z.val = arid->pos_12.z.val;
-                arid->pos_12.x.val = pos.x.val;
-                arid->pos_12.y.val = pos.y.val;
-                arid->pos_12.z.val = pos.z.val;
+                arid->manoeuvre_state = AridUpSStM_ContinueWallhug;
+                arid->manoeuvre_fixed_position.x.val = pos.x.val;
+                arid->manoeuvre_fixed_position.y.val = pos.y.val;
+                arid->manoeuvre_fixed_position.z.val = pos.z.val;
+                arid->manoeuvre_requested_position.x.val = arid->next_position.x.val;
+                arid->manoeuvre_requested_position.y.val = arid->next_position.y.val;
+                arid->manoeuvre_requested_position.z.val = arid->next_position.z.val;
+                arid->next_position.x.val = pos.x.val;
+                arid->next_position.y.val = pos.y.val;
+                arid->next_position.z.val = pos.z.val;
                 return AridRet_OK;
             }
             struct Coord3d pos;
@@ -3242,7 +3242,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
         (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)finalpos->x.stl.num, (int)finalpos->y.stl.num);
     cctrl = creature_control_get_from_thing(thing);
     arid = &cctrl->arid;
-    arid->field_22 = 0;
+    arid->wallhug_active = 0;
     if ((finalpos->x.val != arid->endpos.x.val)
      || (finalpos->y.val != arid->endpos.y.val)
      || (arid->move_speed != speed))
@@ -3252,11 +3252,11 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
             return AridRet_Val2;
         }
         arid->move_speed = speed;
-        if (arid->field_22)
+        if (arid->wallhug_active)
         {
-            nextpos->x.val = arid->pos_12.x.val;
-            nextpos->y.val = arid->pos_12.y.val;
-            nextpos->z.val = arid->pos_12.z.val;
+            nextpos->x.val = arid->next_position.x.val;
+            nextpos->y.val = arid->next_position.y.val;
+            nextpos->z.val = arid->next_position.z.val;
             return AridRet_OK;
         }
     }
@@ -3288,21 +3288,21 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
     {
     case AridUpSt_OnLine:
         result = ariadne_update_state_on_line(thing, arid);
-        nextpos->x.val = arid->pos_12.x.val;
-        nextpos->y.val = arid->pos_12.y.val;
-        nextpos->z.val = arid->pos_12.z.val;
+        nextpos->x.val = arid->next_position.x.val;
+        nextpos->y.val = arid->next_position.y.val;
+        nextpos->z.val = arid->next_position.z.val;
         break;
     case AridUpSt_Wallhug:
         result = ariadne_update_state_wallhug(thing, arid);
-        nextpos->x.val = arid->pos_12.x.val;
-        nextpos->y.val = arid->pos_12.y.val;
-        nextpos->z.val = arid->pos_12.z.val;
+        nextpos->x.val = arid->next_position.x.val;
+        nextpos->y.val = arid->next_position.y.val;
+        nextpos->z.val = arid->next_position.z.val;
         break;
     case AridUpSt_Manoeuvre:
         result = ariadne_update_state_manoeuvre_to_position(thing, arid);
-        nextpos->x.val = arid->pos_12.x.val;
-        nextpos->y.val = arid->pos_12.y.val;
-        nextpos->z.val = arid->pos_12.z.val;
+        nextpos->x.val = arid->next_position.x.val;
+        nextpos->y.val = arid->next_position.y.val;
+        nextpos->z.val = arid->next_position.z.val;
         break;
     default:
         result = AridRet_PartOK;
@@ -3727,16 +3727,16 @@ long tri_split3(long btri_id, long pt_x, long pt_y)
     tri2->points[1] = pt_id;
     btri->tags[1] = tri_id1;
     btri->tags[2] = tri_id2;
-    btri->field_D |= 0x06;
-    btri->field_D &= 0x0F;
+    btri->navigation_flags |= 0x06;
+    btri->navigation_flags &= 0x0F;
     tri1->tags[0] = btri_id;
     tri1->tags[2] = tri_id2;
-    tri1->field_D |= 0x05;
-    tri1->field_D &= 0x17;
+    tri1->navigation_flags |= 0x05;
+    tri1->navigation_flags &= 0x17;
     tri2->tags[0] = btri_id;
     tri2->tags[1] = tri_id1;
-    tri2->field_D |= 0x03;
-    tri2->field_D &= 0x27;
+    tri2->navigation_flags |= 0x03;
+    tri2->navigation_flags &= 0x27;
 
     long ttri_id;
     long ltri_id;
@@ -3765,8 +3765,8 @@ long tri_split3(long btri_id, long pt_x, long pt_y)
     if (reg_id > 0) {
         region_unset(btri_id, reg_id);
     }
-    tri1->field_E = 0;
-    tri2->field_E = 0;
+    tri1->region_and_edgelen = 0;
+    tri2->region_and_edgelen = 0;
     edgelen_set(btri_id);
     edgelen_set(tri_id1);
     edgelen_set(tri_id2);
@@ -3791,13 +3791,13 @@ long tri_split2(long tri_id1, long cor_id1, long pt_x, long pt_y, long pt_id1)
     tri1->points[cor_id2] = pt_id1;
     tri2->points[cor_id1] = pt_id1;
     tri1->tags[cor_id2] = tri_id2;
-    tri1->field_D |= (1 << cor_id2);
-    tri1->field_D &= ~(1 << (cor_id2 + 3));
+    tri1->navigation_flags |= (1 << cor_id2);
+    tri1->navigation_flags &= ~(1 << (cor_id2 + 3));
     long tri_id3;
     tri_id3 = MOD3[cor_id1 + 2];
     tri2->tags[tri_id3] = tri_id1;
-    tri2->field_D |= (1 << tri_id3);
-    tri2->field_D &= ~(1 << (tri_id3 + 3));
+    tri2->navigation_flags |= (1 << tri_id3);
+    tri2->navigation_flags &= ~(1 << (tri_id3 + 3));
     long tri_id4;
     tri_id3 = tri2->tags[cor_id2];
     if (tri_id3 != -1)
@@ -3812,7 +3812,7 @@ long tri_split2(long tri_id1, long cor_id1, long pt_x, long pt_y, long pt_id1)
     if (reg_id1 > 0) {
         region_unset(tri_id1, reg_id1);
     }
-    tri2->field_E = 0;
+    tri2->region_and_edgelen = 0;
     edgelen_set(tri_id1);
     edgelen_set(tri_id2);
     return tri_id2;
@@ -4293,7 +4293,7 @@ TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, c
         }
         struct Triangle *tri;
         tri = get_triangle(tri_id);
-        tri->field_D |= 1 << (cor_id+3);
+        tri->navigation_flags |= 1 << (cor_id+3);
         struct Point *pt;
         pt = get_triangle_point(tri_id,MOD3[cor_id+1]);
         if (point_is_invalid(pt)) {
@@ -4337,7 +4337,7 @@ TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart
         region_unlock(tri_id);
         struct Triangle *tri;
         tri = get_triangle(tri_id);
-        tri->field_D &= ~(1 << (cor_id+3));
+        tri->navigation_flags &= ~(1 << (cor_id+3));
         struct Point *pt;
         pt = get_triangle_point(tri_id,MOD3[cor_id+1]);
         if (point_is_invalid(pt)) {

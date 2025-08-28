@@ -227,7 +227,7 @@ TbBool regions_connected(long tree_reg1, long tree_reg2)
         return (reg_id2 == reg_id1);
     region_connect(tree_reg1);
     // Fast version of comparing region id values
-    unsigned long intersect = (Triangles[tree_reg2].field_E ^ Triangles[tree_reg1].field_E);
+    unsigned long intersect = (Triangles[tree_reg2].region_and_edgelen ^ Triangles[tree_reg1].region_and_edgelen);
     return ((intersect & 0xFFC0) == 0);
 }
 

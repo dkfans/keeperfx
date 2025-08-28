@@ -315,7 +315,7 @@ struct ComputerTask {
     long lastrun_turn;
     long delay;
     struct Coord3d new_room_pos;
-    struct Coord3d pos_6A;
+    struct Coord3d starting_position;
     union {
     struct {
         /** Amount of items to be sold; task is removed when it reaches zero. */

@@ -5697,13 +5697,13 @@ static void set_computer_process_process(struct ScriptContext* context)
             if (strcasecmp(procname, cproc->name) == 0)
             {
                 SCRPTLOG("Changing computer %d process '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)", (int)i, cproc->name,
-                    (int)cproc->priority, (int)cproc->confval_2, (int)cproc->confval_3, (int)cproc->confval_4, (int)cproc->confval_5,
+                    (int)cproc->priority, (int)cproc->process_configuration_value_2, (int)cproc->process_configuration_value_3, (int)cproc->process_configuration_value_4, (int)cproc->process_configuration_value_5,
                     (int)val1, (int)val2, (int)val3, (int)val4, (int)val5);
                 cproc->priority = val1;
-                cproc->confval_2 = val2;
-                cproc->confval_3 = val3;
-                cproc->confval_4 = val4;
-                cproc->confval_5 = val5;
+                cproc->process_configuration_value_2 = val2;
+                cproc->process_configuration_value_3 = val3;
+                cproc->process_configuration_value_4 = val4;
+                cproc->process_configuration_value_5 = val5;
                 n++;
             }
         }

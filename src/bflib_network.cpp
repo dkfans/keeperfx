@@ -654,7 +654,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   compositeBufferSize = 0;
   //_wint_thread_data = &thread_data_mem;
   receiveCallbacks.multiPlayer = MultiPlayerCallback;
-  receiveCallbacks.unknownMsgCallback = NULL;
+  receiveCallbacks.unknownMessageTypeCallback = NULL;
   exchangeBuffer = exchng_buf;
   receiveCallbacks.mpReqExDataMsg = MultiPlayerReqExDataMsgCallback;
   localPlayerInfoPtr = locplayr;

@@ -145,9 +145,9 @@ struct BucketKindPolyMode4 {
     unsigned char vf1;
     unsigned char vf2;
     unsigned char vf3;
-    unsigned char field_15[3];
-    unsigned char field_18;
-    unsigned char field_19[3];
+    unsigned char unusedfield_15[3];
+    unsigned char unusedfield_18;
+    unsigned char unusedfield_19[3];
 };
 
 struct BucketKindTrigMode2 {
@@ -223,11 +223,11 @@ struct BucketKindTrigMode6 {
 struct BucketKindRotableSprite {
     struct BasicQ b;
     long clip_flags;
-    long field_C;
-    long field_10;
-    long field_14;
-    char field_18;
-    unsigned char field_19[3];
+    long unusedfield_C;
+    long unusedfield_10;
+    long depth_fade;
+    char unusedfield_18;
+    unsigned char unusedfield_19[3];
 };
 
 struct BucketKindPolygonNearFP {
@@ -244,8 +244,8 @@ struct BucketKindPolygonNearFP {
 
 struct BucketKindBasicUnk10 {
     struct BasicQ b;
-    unsigned char field_6;
-    unsigned char field_7;
+    unsigned char color_value;
+    unsigned char unusedfield_7;
     struct PolyPoint p1;
     struct PolyPoint p2;
     struct PolyPoint p3;
@@ -256,14 +256,14 @@ struct BucketKindJontySprite {  // BasicQ type 11,18
     struct Thing *thing;
     long scr_x;
     long scr_y;
-    long field_14;
-    unsigned char field_18;
-    unsigned char field_19[3];
+    long depth_fade;
+    unsigned char unusedfield_18;
+    unsigned char unusedfield_19[3];
 };
 
 struct BucketKindCreatureShadow {
     struct BasicQ b;
-    unsigned short field_6;
+    unsigned short color_value;
     struct PolyPoint p1;
     struct PolyPoint p2;
     struct PolyPoint p3;
@@ -275,9 +275,9 @@ struct BucketKindCreatureShadow {
 
 struct BucketKindSlabSelector {
     struct BasicQ b;
-    unsigned short field_6;
+    unsigned short color_value;
     struct PolyPoint p;
-    unsigned char field_19[3];
+    unsigned char unusedfield_19[3];
 };
 
 struct BucketKindCreatureStatus { // sizeof = 24
@@ -297,8 +297,8 @@ struct BucketKindTexturedQuad { // sizeof = 46
     struct BasicQ b;
     unsigned char orient;
     long texture_idx;
-    long unk_x;
-    long unk_y;
+    long texture_x;
+    long texture_y;
     long zoom_x;
     long zoom_y;
     long shade_intensity0;
@@ -589,9 +589,9 @@ void interpolate_camera(struct Camera *cam)
     // Smooth zoom
     interpolated_camera_zoom = interpolate(interpolated_camera_zoom, previous_camera_zoom, camera_zoom);
     // Smooth rotation, including possessed creature mouselook
-    interpolated_cam_orient_a = interpolate_angle(interpolated_cam_orient_a, previous_cam_orient_a, cam->orient_a);
-    interpolated_cam_orient_b = interpolate_angle(interpolated_cam_orient_b, previous_cam_orient_b, cam->orient_b);
-    interpolated_cam_orient_c = interpolate_angle(interpolated_cam_orient_c, previous_cam_orient_c, cam->orient_c);
+    interpolated_cam_rotation_angle_x = interpolate_angle(interpolated_cam_rotation_angle_x, previous_cam_rotation_angle_x, cam->rotation_angle_x);
+    interpolated_cam_rotation_angle_y = interpolate_angle(interpolated_cam_rotation_angle_y, previous_cam_rotation_angle_y, cam->rotation_angle_y);
+    interpolated_cam_rotation_angle_z = interpolate_angle(interpolated_cam_rotation_angle_z, previous_cam_rotation_angle_z, cam->rotation_angle_z);
     // Smooth camera position, including possessed creature position
     interpolated_cam_mappos_x = interpolate(interpolated_cam_mappos_x, previous_cam_mappos_x, cam->mappos.x.val);
     interpolated_cam_mappos_y = interpolate(interpolated_cam_mappos_y, previous_cam_mappos_y, cam->mappos.y.val);
@@ -2106,10 +2106,10 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
 
 static void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth, long ewheight, long ewzoom)
 {
-    long len_01;
-    long len_02;
-    long len_13;
-    long len_23;
+    long edge_length_01;
+    long edge_length_02;
+    long edge_length_13;
+    long edge_length_23;
     long tmp_y;
     long tmp_x;
     long i;
@@ -2155,33 +2155,33 @@ static void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth,
     }
 
     // Lengths of X vectors
-    len_01 = abs(floor_y[1] - floor_y[0]);
-    len_13 = abs(floor_y[3] - floor_y[1]);
-    len_02 = abs(floor_y[2] - floor_y[0]);
-    len_23 = abs(floor_y[3] - floor_y[2]);
+    edge_length_01 = abs(floor_y[1] - floor_y[0]);
+    edge_length_13 = abs(floor_y[3] - floor_y[1]);
+    edge_length_02 = abs(floor_y[2] - floor_y[0]);
+    edge_length_23 = abs(floor_y[3] - floor_y[2]);
     // Update points according to both coordinates
-    if ( (floor_x[1] > floor_x[0]) && (len_01 < len_13) )
+    if ( (floor_x[1] > floor_x[0]) && (edge_length_01 < edge_length_13) )
     {
         tmp_x = floor_x[1];
         floor_y[1] = floor_y[0];
         floor_x[1] = floor_x[0];
         floor_x[0] = tmp_x;
     }
-    if ( (floor_x[1] > floor_x[3]) && (len_13 < len_01) )
+    if ( (floor_x[1] > floor_x[3]) && (edge_length_13 < edge_length_01) )
     {
         tmp_x = floor_x[1];
         floor_y[1] = floor_y[3];
         floor_x[1] = floor_x[3];
         floor_x[3] = tmp_x;
     }
-    if ( (floor_x[2] < floor_x[0]) && (len_02 < len_23) )
+    if ( (floor_x[2] < floor_x[0]) && (edge_length_02 < edge_length_23) )
     {
         tmp_x = floor_x[2];
         floor_y[2] = floor_y[0];
         floor_x[2] = floor_x[0];
         floor_x[0] = tmp_x;
     }
-    if ( (floor_x[2] < floor_x[3]) && (len_23 < len_02) )
+    if ( (floor_x[2] < floor_x[3]) && (edge_length_23 < edge_length_02) )
     {
         tmp_x = floor_x[2];
         floor_x[2] = floor_x[3];
@@ -4907,7 +4907,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     alpha_mem = EngineSpriteDrawUsingAlpha;
     if (keepersprite_rotable(thing->anim_sprite))
     {
-        angle = thing->move_angle_xy - cam->orient_a; // orient_a maybe short
+        angle = thing->move_angle_xy - cam->rotation_angle_x; // rotation_angle_x maybe short
     }
     else
     {
@@ -5291,7 +5291,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->force_health_flower_hidden == true)
         return;
-    if (flag_is_set(game.flags_cd,MFlg_NoHeroHealthFlower))
+    if (flag_is_set(game.mode_flags,MFlg_NoHeroHealthFlower))
     {
         if (player->thing_under_hand != thing->index)
         {
@@ -5754,7 +5754,7 @@ static void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
     }
 }
 
-static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
+static void draw_subdivided_near_polygon(struct BucketKindPolygonNearFP *polygon_data)
 {
     struct XYZ coord_a;
     struct XYZ coord_b;
@@ -5773,357 +5773,357 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
     struct PolyPoint point_j;
     struct PolyPoint point_k;
     struct PolyPoint point_l;
-    vec_map = block_ptrs[unk09->block];
-    switch (unk09->subtype)
+    vec_map = block_ptrs[polygon_data->block];
+    switch (polygon_data->subtype)
     {
     case 0:
         vec_mode = VM_QuadTextured;
-        draw_gpoly(&unk09->p1,&unk09->p2,&unk09->p3);
+        draw_gpoly(&polygon_data->p1,&polygon_data->p2,&polygon_data->p3);
         break;
     case 1:
         vec_mode = VM_QuadTextured;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
-        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
+        point_a.S = (polygon_data->p2.S + polygon_data->p1.S) >> 1;
         perspective(&coord_a, &point_a);
-        draw_gpoly(&unk09->p1, &point_a, &unk09->p3);
-        draw_gpoly(&point_a, &unk09->p2, &unk09->p3);
+        draw_gpoly(&polygon_data->p1, &point_a, &polygon_data->p3);
+        draw_gpoly(&point_a, &polygon_data->p2, &polygon_data->p3);
         break;
     case 2:
         vec_mode = VM_QuadTextured;
-        coord_a.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_a.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p3.V + unk09->p2.V) >> 1;
-        point_a.S = (unk09->p3.S + unk09->p2.S) >> 1;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_a.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
+        point_a.S = (polygon_data->p3.S + polygon_data->p2.S) >> 1;
         perspective(&coord_a, &point_a);
-        draw_gpoly(&unk09->p1, &unk09->p2, &point_a);
-        draw_gpoly(&unk09->p1, &point_a, &unk09->p3);
+        draw_gpoly(&polygon_data->p1, &polygon_data->p2, &point_a);
+        draw_gpoly(&polygon_data->p1, &point_a, &polygon_data->p3);
         break;
     case 3:
         vec_mode = VM_QuadTextured;
-        coord_a.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_a.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_a.V = (unk09->p3.V + unk09->p1.V) >> 1;
-        point_a.S = (unk09->p3.S + unk09->p1.S) >> 1;
+        coord_a.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_a.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_a.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
+        point_a.S = (polygon_data->p3.S + polygon_data->p1.S) >> 1;
         perspective(&coord_a, &point_a);
-        draw_gpoly(&unk09->p1, &unk09->p2, &point_a);
-        draw_gpoly(&point_a, &unk09->p2, &unk09->p3);
+        draw_gpoly(&polygon_data->p1, &polygon_data->p2, &point_a);
+        draw_gpoly(&point_a, &polygon_data->p2, &polygon_data->p3);
         break;
     case 4:
         vec_mode = VM_QuadTextured;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
-        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
+        point_a.S = (polygon_data->p2.S + polygon_data->p1.S) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
-        point_b.S = (unk09->p3.S + unk09->p2.S) >> 1;
+        coord_b.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_b.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_b.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_b.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_b.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
+        point_b.S = (polygon_data->p3.S + polygon_data->p2.S) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
-        point_c.S = (unk09->p3.S + unk09->p1.S) >> 1;
+        coord_c.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_c.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_c.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_c.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_c.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
+        point_c.S = (polygon_data->p3.S + polygon_data->p1.S) >> 1;
         perspective(&coord_c, &point_c);
-        draw_gpoly(&unk09->p1, &point_a, &point_c);
-        draw_gpoly(&point_a, &unk09->p2, &point_b);
+        draw_gpoly(&polygon_data->p1, &point_a, &point_c);
+        draw_gpoly(&point_a, &polygon_data->p2, &point_b);
         draw_gpoly(&point_a, &point_b, &point_c);
-        draw_gpoly(&point_c, &point_b, &unk09->p3);
+        draw_gpoly(&point_c, &point_b, &polygon_data->p3);
         break;
     case 5:
         vec_mode = VM_QuadTextured;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
-        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
+        point_a.S = (polygon_data->p2.S + polygon_data->p1.S) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (coord_a.x + unk09->c1.x) >> 1;
-        coord_b.y = (coord_a.y + unk09->c1.y) >> 1;
-        coord_b.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_b.U = (point_a.U + unk09->p1.U) >> 1;
-        point_b.V = (point_a.V + unk09->p1.V) >> 1;
-        point_b.S = (point_a.S + unk09->p1.S) >> 1;
+        coord_b.x = (coord_a.x + polygon_data->c1.x) >> 1;
+        coord_b.y = (coord_a.y + polygon_data->c1.y) >> 1;
+        coord_b.z = (coord_a.z + polygon_data->c1.z) >> 1;
+        point_b.U = (point_a.U + polygon_data->p1.U) >> 1;
+        point_b.V = (point_a.V + polygon_data->p1.V) >> 1;
+        point_b.S = (point_a.S + polygon_data->p1.S) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (coord_a.x + unk09->c2.x) >> 1;
-        coord_c.y = (coord_a.y + unk09->c2.y) >> 1;
-        coord_c.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_c.U = (point_a.U + unk09->p2.U) >> 1;
-        point_c.V = (point_a.V + unk09->p2.V) >> 1;
-        point_c.S = (point_a.S + unk09->p2.S) >> 1;
+        coord_c.x = (coord_a.x + polygon_data->c2.x) >> 1;
+        coord_c.y = (coord_a.y + polygon_data->c2.y) >> 1;
+        coord_c.z = (coord_a.z + polygon_data->c2.z) >> 1;
+        point_c.U = (point_a.U + polygon_data->p2.U) >> 1;
+        point_c.V = (point_a.V + polygon_data->p2.V) >> 1;
+        point_c.S = (point_a.S + polygon_data->p2.S) >> 1;
         perspective(&coord_c, &point_c);
-        draw_gpoly(&unk09->p1, &point_b, &unk09->p3);
-        draw_gpoly(&point_b, &point_a, &unk09->p3);
-        draw_gpoly(&point_a, &point_c, &unk09->p3);
-        draw_gpoly(&point_c, &unk09->p2, &unk09->p3);
+        draw_gpoly(&polygon_data->p1, &point_b, &polygon_data->p3);
+        draw_gpoly(&point_b, &point_a, &polygon_data->p3);
+        draw_gpoly(&point_a, &point_c, &polygon_data->p3);
+        draw_gpoly(&point_c, &polygon_data->p2, &polygon_data->p3);
         break;
     case 6:
         vec_mode = VM_QuadTextured;
-        coord_a.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_a.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p3.V + unk09->p2.V) >> 1;
-        point_a.S = (unk09->p3.S + unk09->p2.S) >> 1;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_a.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
+        point_a.S = (polygon_data->p3.S + polygon_data->p2.S) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (coord_a.x + unk09->c2.x) >> 1;
-        coord_b.y = (coord_a.y + unk09->c2.y) >> 1;
-        coord_b.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_b.U = (point_a.U + unk09->p2.U) >> 1;
-        point_b.V = (point_a.V + unk09->p2.V) >> 1;
-        point_b.S = (point_a.S + unk09->p2.S) >> 1;
+        coord_b.x = (coord_a.x + polygon_data->c2.x) >> 1;
+        coord_b.y = (coord_a.y + polygon_data->c2.y) >> 1;
+        coord_b.z = (coord_a.z + polygon_data->c2.z) >> 1;
+        point_b.U = (point_a.U + polygon_data->p2.U) >> 1;
+        point_b.V = (point_a.V + polygon_data->p2.V) >> 1;
+        point_b.S = (point_a.S + polygon_data->p2.S) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (coord_a.x + unk09->c3.x) >> 1;
-        coord_c.y = (coord_a.y + unk09->c3.y) >> 1;
-        coord_c.z = (coord_a.z + unk09->c3.z) >> 1;
-        point_c.U = (point_a.U + unk09->p3.U) >> 1;
-        point_c.V = (point_a.V + unk09->p3.V) >> 1;
-        point_c.S = (point_a.S + unk09->p3.S) >> 1;
+        coord_c.x = (coord_a.x + polygon_data->c3.x) >> 1;
+        coord_c.y = (coord_a.y + polygon_data->c3.y) >> 1;
+        coord_c.z = (coord_a.z + polygon_data->c3.z) >> 1;
+        point_c.U = (point_a.U + polygon_data->p3.U) >> 1;
+        point_c.V = (point_a.V + polygon_data->p3.V) >> 1;
+        point_c.S = (point_a.S + polygon_data->p3.S) >> 1;
         perspective(&coord_c, &point_c);
-        draw_gpoly(&unk09->p1, &unk09->p2, &point_b);
-        draw_gpoly(&unk09->p1, &point_b, &point_a);
-        draw_gpoly(&unk09->p1, &point_a, &point_c);
-        draw_gpoly(&unk09->p1, &point_c, &unk09->p3);
+        draw_gpoly(&polygon_data->p1, &polygon_data->p2, &point_b);
+        draw_gpoly(&polygon_data->p1, &point_b, &point_a);
+        draw_gpoly(&polygon_data->p1, &point_a, &point_c);
+        draw_gpoly(&polygon_data->p1, &point_c, &polygon_data->p3);
         break;
     case 7:
         vec_mode = VM_QuadTextured;
-        coord_a.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_a.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_a.V = (unk09->p3.V + unk09->p1.V) >> 1;
-        point_a.S = (unk09->p3.S + unk09->p1.S) >> 1;
+        coord_a.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_a.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_a.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
+        point_a.S = (polygon_data->p3.S + polygon_data->p1.S) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (coord_a.x + unk09->c3.x) >> 1;
-        coord_b.y = (coord_a.y + unk09->c3.y) >> 1;
-        coord_b.z = (coord_a.z + unk09->c3.z) >> 1;
-        point_b.U = (point_a.U + unk09->p3.U) >> 1;
-        point_b.V = (point_a.V + unk09->p3.V) >> 1;
-        point_b.S = (point_a.S + unk09->p3.S) >> 1;
+        coord_b.x = (coord_a.x + polygon_data->c3.x) >> 1;
+        coord_b.y = (coord_a.y + polygon_data->c3.y) >> 1;
+        coord_b.z = (coord_a.z + polygon_data->c3.z) >> 1;
+        point_b.U = (point_a.U + polygon_data->p3.U) >> 1;
+        point_b.V = (point_a.V + polygon_data->p3.V) >> 1;
+        point_b.S = (point_a.S + polygon_data->p3.S) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (coord_a.x + unk09->c1.x) >> 1;
-        coord_c.y = (coord_a.y + unk09->c1.y) >> 1;
-        coord_c.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_c.U = (point_a.U + unk09->p1.U) >> 1;
-        point_c.V = (point_a.V + unk09->p1.V) >> 1;
-        point_c.S = (point_a.S + unk09->p1.S) >> 1;
+        coord_c.x = (coord_a.x + polygon_data->c1.x) >> 1;
+        coord_c.y = (coord_a.y + polygon_data->c1.y) >> 1;
+        coord_c.z = (coord_a.z + polygon_data->c1.z) >> 1;
+        point_c.U = (point_a.U + polygon_data->p1.U) >> 1;
+        point_c.V = (point_a.V + polygon_data->p1.V) >> 1;
+        point_c.S = (point_a.S + polygon_data->p1.S) >> 1;
         perspective(&coord_c, &point_c);
-        draw_gpoly(&unk09->p2, &unk09->p3, &point_b);
-        draw_gpoly(&unk09->p2, &point_b, &point_a);
-        draw_gpoly(&unk09->p2, &point_a, &point_c);
-        draw_gpoly(&unk09->p2, &point_c, &unk09->p1);
+        draw_gpoly(&polygon_data->p2, &polygon_data->p3, &point_b);
+        draw_gpoly(&polygon_data->p2, &point_b, &point_a);
+        draw_gpoly(&polygon_data->p2, &point_a, &point_c);
+        draw_gpoly(&polygon_data->p2, &point_c, &polygon_data->p1);
         break;
     case 8:
         vec_mode = VM_QuadTextured;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
-        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
+        point_a.S = (polygon_data->p2.S + polygon_data->p1.S) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
-        point_b.S = (unk09->p3.S + unk09->p2.S) >> 1;
+        coord_b.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_b.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_b.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_b.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_b.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
+        point_b.S = (polygon_data->p3.S + polygon_data->p2.S) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
-        point_c.S = (unk09->p3.S + unk09->p1.S) >> 1;
+        coord_c.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_c.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_c.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_c.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_c.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
+        point_c.S = (polygon_data->p3.S + polygon_data->p1.S) >> 1;
         perspective(&coord_c, &point_c);
-        coord_d.x = (coord_a.x + unk09->c1.x) >> 1;
-        coord_d.y = (coord_a.y + unk09->c1.y) >> 1;
-        coord_d.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_d.U = (point_a.U + unk09->p1.U) >> 1;
-        point_d.V = (point_a.V + unk09->p1.V) >> 1;
-        point_d.S = (point_a.S + unk09->p1.S) >> 1;
+        coord_d.x = (coord_a.x + polygon_data->c1.x) >> 1;
+        coord_d.y = (coord_a.y + polygon_data->c1.y) >> 1;
+        coord_d.z = (coord_a.z + polygon_data->c1.z) >> 1;
+        point_d.U = (point_a.U + polygon_data->p1.U) >> 1;
+        point_d.V = (point_a.V + polygon_data->p1.V) >> 1;
+        point_d.S = (point_a.S + polygon_data->p1.S) >> 1;
         perspective(&coord_d, &point_d);
-        coord_e.x = (coord_a.x + unk09->c2.x) >> 1;
-        coord_e.y = (coord_a.y + unk09->c2.y) >> 1;
-        coord_e.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_e.U = (point_a.U + unk09->p2.U) >> 1;
-        point_e.V = (point_a.V + unk09->p2.V) >> 1;
-        point_e.S = (point_a.S + unk09->p2.S) >> 1;
+        coord_e.x = (coord_a.x + polygon_data->c2.x) >> 1;
+        coord_e.y = (coord_a.y + polygon_data->c2.y) >> 1;
+        coord_e.z = (coord_a.z + polygon_data->c2.z) >> 1;
+        point_e.U = (point_a.U + polygon_data->p2.U) >> 1;
+        point_e.V = (point_a.V + polygon_data->p2.V) >> 1;
+        point_e.S = (point_a.S + polygon_data->p2.S) >> 1;
         perspective(&coord_e, &point_e);
-        draw_gpoly(&unk09->p1, &point_d, &point_c);
+        draw_gpoly(&polygon_data->p1, &point_d, &point_c);
         draw_gpoly(&point_d, &point_a, &point_c);
         draw_gpoly(&point_a, &point_e, &point_b);
-        draw_gpoly(&point_e, &unk09->p2, &point_b);
+        draw_gpoly(&point_e, &polygon_data->p2, &point_b);
         draw_gpoly(&point_a, &point_b, &point_c);
-        draw_gpoly(&point_c, &point_b, &unk09->p3);
+        draw_gpoly(&point_c, &point_b, &polygon_data->p3);
         break;
     case 9:
         vec_mode = VM_QuadTextured;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
-        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
+        point_a.S = (polygon_data->p2.S + polygon_data->p1.S) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
-        point_b.S = (unk09->p3.S + unk09->p2.S) >> 1;
+        coord_b.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_b.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_b.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_b.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_b.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
+        point_b.S = (polygon_data->p3.S + polygon_data->p2.S) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
-        point_c.S = (unk09->p3.S + unk09->p1.S) >> 1;
+        coord_c.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_c.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_c.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_c.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_c.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
+        point_c.S = (polygon_data->p3.S + polygon_data->p1.S) >> 1;
         perspective(&coord_c, &point_c);
-        coord_d.x = (coord_b.x + unk09->c2.x) >> 1;
-        coord_d.y = (coord_b.y + unk09->c2.y) >> 1;
-        coord_d.z = (coord_b.z + unk09->c2.z) >> 1;
-        point_d.U = (point_b.U + unk09->p2.U) >> 1;
-        point_d.V = (point_b.V + unk09->p2.V) >> 1;
-        point_d.S = (point_b.S + unk09->p2.S) >> 1;
+        coord_d.x = (coord_b.x + polygon_data->c2.x) >> 1;
+        coord_d.y = (coord_b.y + polygon_data->c2.y) >> 1;
+        coord_d.z = (coord_b.z + polygon_data->c2.z) >> 1;
+        point_d.U = (point_b.U + polygon_data->p2.U) >> 1;
+        point_d.V = (point_b.V + polygon_data->p2.V) >> 1;
+        point_d.S = (point_b.S + polygon_data->p2.S) >> 1;
         perspective(&coord_d, &point_d);
-        coord_e.x = (coord_b.x + unk09->c3.x) >> 1;
-        coord_e.y = (coord_b.y + unk09->c3.y) >> 1;
-        coord_e.z = (coord_b.z + unk09->c3.z) >> 1;
-        point_e.U = (point_b.U + unk09->p3.U) >> 1;
-        point_e.V = (point_b.V + unk09->p3.V) >> 1;
-        point_e.S = (point_b.S + unk09->p3.S) >> 1;
+        coord_e.x = (coord_b.x + polygon_data->c3.x) >> 1;
+        coord_e.y = (coord_b.y + polygon_data->c3.y) >> 1;
+        coord_e.z = (coord_b.z + polygon_data->c3.z) >> 1;
+        point_e.U = (point_b.U + polygon_data->p3.U) >> 1;
+        point_e.V = (point_b.V + polygon_data->p3.V) >> 1;
+        point_e.S = (point_b.S + polygon_data->p3.S) >> 1;
         perspective(&coord_e, &point_e);
-        draw_gpoly(&unk09->p1, &point_a, &point_c);
+        draw_gpoly(&polygon_data->p1, &point_a, &point_c);
         draw_gpoly(&point_a, &point_b, &point_c);
-        draw_gpoly(&point_a, &unk09->p2, &point_d);
+        draw_gpoly(&point_a, &polygon_data->p2, &point_d);
         draw_gpoly(&point_a, &point_d, &point_b);
         draw_gpoly(&point_c, &point_b, &point_e);
-        draw_gpoly(&point_c, &point_e, &unk09->p3);
+        draw_gpoly(&point_c, &point_e, &polygon_data->p3);
         break;
     case 10:
         vec_mode = VM_QuadTextured;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
-        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
+        point_a.S = (polygon_data->p2.S + polygon_data->p1.S) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
-        point_b.S = (unk09->p3.S + unk09->p2.S) >> 1;
+        coord_b.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_b.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_b.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_b.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_b.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
+        point_b.S = (polygon_data->p3.S + polygon_data->p2.S) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
-        point_c.S = (unk09->p3.S + unk09->p1.S) >> 1;
+        coord_c.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_c.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_c.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_c.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_c.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
+        point_c.S = (polygon_data->p3.S + polygon_data->p1.S) >> 1;
         perspective(&coord_c, &point_c);
-        coord_d.x = (coord_c.x + unk09->c3.x) >> 1;
-        coord_d.y = (coord_c.y + unk09->c3.y) >> 1;
-        coord_d.z = (coord_c.z + unk09->c3.z) >> 1;
-        point_d.U = (point_c.U + unk09->p3.U) >> 1;
-        point_d.V = (point_c.V + unk09->p3.V) >> 1;
-        point_d.S = (point_c.S + unk09->p3.S) >> 1;
+        coord_d.x = (coord_c.x + polygon_data->c3.x) >> 1;
+        coord_d.y = (coord_c.y + polygon_data->c3.y) >> 1;
+        coord_d.z = (coord_c.z + polygon_data->c3.z) >> 1;
+        point_d.U = (point_c.U + polygon_data->p3.U) >> 1;
+        point_d.V = (point_c.V + polygon_data->p3.V) >> 1;
+        point_d.S = (point_c.S + polygon_data->p3.S) >> 1;
         perspective(&coord_d, &point_d);
-        coord_e.x = (coord_c.x + unk09->c1.x) >> 1;
-        coord_e.y = (coord_c.y + unk09->c1.y) >> 1;
-        coord_e.z = (coord_c.z + unk09->c1.z) >> 1;
-        point_e.U = (point_c.U + unk09->p1.U) >> 1;
-        point_e.V = (point_c.V + unk09->p1.V) >> 1;
-        point_e.S = (point_c.S + unk09->p1.S) >> 1;
+        coord_e.x = (coord_c.x + polygon_data->c1.x) >> 1;
+        coord_e.y = (coord_c.y + polygon_data->c1.y) >> 1;
+        coord_e.z = (coord_c.z + polygon_data->c1.z) >> 1;
+        point_e.U = (point_c.U + polygon_data->p1.U) >> 1;
+        point_e.V = (point_c.V + polygon_data->p1.V) >> 1;
+        point_e.S = (point_c.S + polygon_data->p1.S) >> 1;
         perspective(&coord_e, &point_e);
-        draw_gpoly(&point_a, &unk09->p2, &point_b);
+        draw_gpoly(&point_a, &polygon_data->p2, &point_b);
         draw_gpoly(&point_a, &point_b, &point_c);
-        draw_gpoly(&unk09->p1, &point_a, &point_e);
+        draw_gpoly(&polygon_data->p1, &point_a, &point_e);
         draw_gpoly(&point_e, &point_a, &point_c);
         draw_gpoly(&point_c, &point_b, &point_d);
-        draw_gpoly(&point_d, &point_b, &unk09->p3);
+        draw_gpoly(&point_d, &point_b, &polygon_data->p3);
         break;
     case 11: // Flickers in 1st person (before flicker_fix() was applied)
         vec_mode = VM_QuadTextured;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
-        point_a.S = (unk09->p2.S + unk09->p1.S) >> 1;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
+        point_a.S = (polygon_data->p2.S + polygon_data->p1.S) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
-        point_b.S = (unk09->p3.S + unk09->p2.S) >> 1;
+        coord_b.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_b.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_b.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_b.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_b.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
+        point_b.S = (polygon_data->p3.S + polygon_data->p2.S) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
-        point_c.S = (unk09->p3.S + unk09->p1.S) >> 1;
+        coord_c.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_c.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_c.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_c.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_c.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
+        point_c.S = (polygon_data->p3.S + polygon_data->p1.S) >> 1;
         perspective(&coord_c, &point_c);
-        coord_d.x = (coord_a.x + unk09->c1.x) >> 1;
-        coord_d.y = (coord_a.y + unk09->c1.y) >> 1;
-        coord_d.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_d.U = (point_a.U + unk09->p1.U) >> 1;
-        point_d.V = (point_a.V + unk09->p1.V) >> 1;
-        point_d.S = (point_a.S + unk09->p1.S) >> 1;
+        coord_d.x = (coord_a.x + polygon_data->c1.x) >> 1;
+        coord_d.y = (coord_a.y + polygon_data->c1.y) >> 1;
+        coord_d.z = (coord_a.z + polygon_data->c1.z) >> 1;
+        point_d.U = (point_a.U + polygon_data->p1.U) >> 1;
+        point_d.V = (point_a.V + polygon_data->p1.V) >> 1;
+        point_d.S = (point_a.S + polygon_data->p1.S) >> 1;
         perspective(&coord_d, &point_d);
-        coord_e.x = (coord_a.x + unk09->c2.x) >> 1;
-        coord_e.y = (coord_a.y + unk09->c2.y) >> 1;
-        coord_e.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_e.U = (point_a.U + unk09->p2.U) >> 1;
-        point_e.V = (point_a.V + unk09->p2.V) >> 1;
-        point_e.S = (point_a.S + unk09->p2.S) >> 1;
+        coord_e.x = (coord_a.x + polygon_data->c2.x) >> 1;
+        coord_e.y = (coord_a.y + polygon_data->c2.y) >> 1;
+        coord_e.z = (coord_a.z + polygon_data->c2.z) >> 1;
+        point_e.U = (point_a.U + polygon_data->p2.U) >> 1;
+        point_e.V = (point_a.V + polygon_data->p2.V) >> 1;
+        point_e.S = (point_a.S + polygon_data->p2.S) >> 1;
         perspective(&coord_e, &point_e);
-        coord_d.x = (coord_b.x + unk09->c2.x) >> 1;
-        coord_d.y = (coord_b.y + unk09->c2.y) >> 1;
-        coord_d.z = (coord_b.z + unk09->c2.z) >> 1;
-        point_f.U = (point_b.U + unk09->p2.U) >> 1;
-        point_f.V = (point_b.V + unk09->p2.V) >> 1;
-        point_f.S = (point_b.S + unk09->p2.S) >> 1;
+        coord_d.x = (coord_b.x + polygon_data->c2.x) >> 1;
+        coord_d.y = (coord_b.y + polygon_data->c2.y) >> 1;
+        coord_d.z = (coord_b.z + polygon_data->c2.z) >> 1;
+        point_f.U = (point_b.U + polygon_data->p2.U) >> 1;
+        point_f.V = (point_b.V + polygon_data->p2.V) >> 1;
+        point_f.S = (point_b.S + polygon_data->p2.S) >> 1;
         perspective(&coord_d, &point_f);
-        coord_e.x = (coord_b.x + unk09->c3.x) >> 1;
-        coord_e.y = (coord_b.y + unk09->c3.y) >> 1;
-        coord_e.z = (coord_b.z + unk09->c3.z) >> 1;
-        point_g.U = (point_b.U + unk09->p3.U) >> 1;
-        point_g.V = (point_b.V + unk09->p3.V) >> 1;
-        point_g.S = (point_b.S + unk09->p3.S) >> 1;
+        coord_e.x = (coord_b.x + polygon_data->c3.x) >> 1;
+        coord_e.y = (coord_b.y + polygon_data->c3.y) >> 1;
+        coord_e.z = (coord_b.z + polygon_data->c3.z) >> 1;
+        point_g.U = (point_b.U + polygon_data->p3.U) >> 1;
+        point_g.V = (point_b.V + polygon_data->p3.V) >> 1;
+        point_g.S = (point_b.S + polygon_data->p3.S) >> 1;
         perspective(&coord_e, &point_g);
-        coord_d.x = (coord_c.x + unk09->c3.x) >> 1;
-        coord_d.y = (coord_c.y + unk09->c3.y) >> 1;
-        coord_d.z = (coord_c.z + unk09->c3.z) >> 1;
-        point_h.U = (point_c.U + unk09->p3.U) >> 1;
-        point_h.V = (point_c.V + unk09->p3.V) >> 1;
-        point_h.S = (point_c.S + unk09->p3.S) >> 1;
+        coord_d.x = (coord_c.x + polygon_data->c3.x) >> 1;
+        coord_d.y = (coord_c.y + polygon_data->c3.y) >> 1;
+        coord_d.z = (coord_c.z + polygon_data->c3.z) >> 1;
+        point_h.U = (point_c.U + polygon_data->p3.U) >> 1;
+        point_h.V = (point_c.V + polygon_data->p3.V) >> 1;
+        point_h.S = (point_c.S + polygon_data->p3.S) >> 1;
         perspective(&coord_d, &point_h);
-        coord_e.x = (coord_c.x + unk09->c1.x) >> 1;
-        coord_e.y = (coord_c.y + unk09->c1.y) >> 1;
-        coord_e.z = (coord_c.z + unk09->c1.z) >> 1;
-        point_i.U = (point_c.U + unk09->p1.U) >> 1;
-        point_i.V = (point_c.V + unk09->p1.V) >> 1;
-        point_i.S = (point_c.S + unk09->p1.S) >> 1;
+        coord_e.x = (coord_c.x + polygon_data->c1.x) >> 1;
+        coord_e.y = (coord_c.y + polygon_data->c1.y) >> 1;
+        coord_e.z = (coord_c.z + polygon_data->c1.z) >> 1;
+        point_i.U = (point_c.U + polygon_data->p1.U) >> 1;
+        point_i.V = (point_c.V + polygon_data->p1.V) >> 1;
+        point_i.S = (point_c.S + polygon_data->p1.S) >> 1;
         perspective(&coord_e, &point_i);
         coord_d.x = (coord_a.x + coord_c.x) >> 1;
         coord_d.y = (coord_a.y + coord_c.y) >> 1;
@@ -6146,10 +6146,10 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         point_l.V = (point_b.V + point_c.V) >> 1;
         point_l.S = (point_b.S + point_c.S) >> 1;
         perspective(&coord_d, &point_l);
-        draw_gpoly(&unk09->p1, &point_d, &point_i);
+        draw_gpoly(&polygon_data->p1, &point_d, &point_i);
         draw_gpoly(&point_d, &point_a, &point_j);
         draw_gpoly(&point_a, &point_e, &point_k);
-        draw_gpoly(&point_e, &unk09->p2, &point_f);
+        draw_gpoly(&point_e, &polygon_data->p2, &point_f);
         draw_gpoly(&point_d, &point_j, &point_i);
         draw_gpoly(&point_a, &point_k, &point_j);
         draw_gpoly(&point_e, &point_f, &point_k);
@@ -6161,329 +6161,329 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         draw_gpoly(&point_c, &point_l, &point_h);
         draw_gpoly(&point_l, &point_b, &point_g);
         draw_gpoly(&point_l, &point_g, &point_h);
-        draw_gpoly(&point_h, &point_g, &unk09->p3);
+        draw_gpoly(&point_h, &point_g, &polygon_data->p3);
         break;
     case 12:
         vec_mode = VM_SolidColor;
-        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
-        trig(&unk09->p1, &unk09->p2, &unk09->p3);
+        vec_colour = (polygon_data->p3.S + polygon_data->p2.S + polygon_data->p1.S) / 3 >> 16;
+        trig(&polygon_data->p1, &polygon_data->p2, &polygon_data->p3);
         break;
     case 13:
         vec_mode = VM_SolidColor;
-        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        vec_colour = (polygon_data->p3.S + polygon_data->p2.S + polygon_data->p1.S) / 3 >> 16;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
         perspective(&coord_a, &point_a);
-        trig(&unk09->p1, &point_a, &unk09->p3);
-        trig(&point_a, &unk09->p2, &unk09->p3);
+        trig(&polygon_data->p1, &point_a, &polygon_data->p3);
+        trig(&point_a, &polygon_data->p2, &polygon_data->p3);
         break;
     case 14:
         vec_mode = VM_SolidColor;
-        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
-        coord_a.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_a.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        vec_colour = (polygon_data->p3.S + polygon_data->p2.S + polygon_data->p1.S) / 3 >> 16;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_a.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
         perspective(&coord_a, &point_a);
-        trig(&unk09->p1, &unk09->p2, &point_a);
-        trig(&unk09->p1, &point_a, &unk09->p3);
+        trig(&polygon_data->p1, &polygon_data->p2, &point_a);
+        trig(&polygon_data->p1, &point_a, &polygon_data->p3);
         break;
     case 15:
         vec_mode = VM_SolidColor;
-        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
-        coord_a.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_a.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_a.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        vec_colour = (polygon_data->p3.S + polygon_data->p2.S + polygon_data->p1.S) / 3 >> 16;
+        coord_a.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_a.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_a.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
         perspective(&coord_a, &point_a);
-        trig(&unk09->p1, &unk09->p2, &point_a);
-        trig(&point_a, &unk09->p2, &unk09->p3);
+        trig(&polygon_data->p1, &polygon_data->p2, &point_a);
+        trig(&point_a, &polygon_data->p2, &polygon_data->p3);
         break;
     case 16:
         vec_mode = VM_SolidColor;
-        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        vec_colour = (polygon_data->p3.S + polygon_data->p2.S + polygon_data->p1.S) / 3 >> 16;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        coord_b.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_b.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_b.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_b.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_b.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        coord_c.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_c.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_c.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_c.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_c.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
         perspective(&coord_c, &point_c);
-        trig(&unk09->p1, &point_a, &point_c);
-        trig(&point_a, &unk09->p2, &point_b);
+        trig(&polygon_data->p1, &point_a, &point_c);
+        trig(&point_a, &polygon_data->p2, &point_b);
         trig(&point_a, &point_b, &point_c);
-        trig(&point_c, &point_b, &unk09->p3);
+        trig(&point_c, &point_b, &polygon_data->p3);
         break;
     case 17:
         vec_mode = VM_SolidColor;
-        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        vec_colour = (polygon_data->p3.S + polygon_data->p2.S + polygon_data->p1.S) / 3 >> 16;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (coord_a.x + unk09->c1.x) >> 1;
-        coord_b.y = (coord_a.y + unk09->c1.y) >> 1;
-        coord_b.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_b.U = (point_a.U + unk09->p1.U) >> 1;
-        point_b.V = (point_a.V + unk09->p1.V) >> 1;
+        coord_b.x = (coord_a.x + polygon_data->c1.x) >> 1;
+        coord_b.y = (coord_a.y + polygon_data->c1.y) >> 1;
+        coord_b.z = (coord_a.z + polygon_data->c1.z) >> 1;
+        point_b.U = (point_a.U + polygon_data->p1.U) >> 1;
+        point_b.V = (point_a.V + polygon_data->p1.V) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (coord_a.x + unk09->c2.x) >> 1;
-        coord_c.y = (coord_a.y + unk09->c2.y) >> 1;
-        coord_c.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_c.U = (point_a.U + unk09->p2.U) >> 1;
-        point_c.V = (point_a.V + unk09->p2.V) >> 1;
+        coord_c.x = (coord_a.x + polygon_data->c2.x) >> 1;
+        coord_c.y = (coord_a.y + polygon_data->c2.y) >> 1;
+        coord_c.z = (coord_a.z + polygon_data->c2.z) >> 1;
+        point_c.U = (point_a.U + polygon_data->p2.U) >> 1;
+        point_c.V = (point_a.V + polygon_data->p2.V) >> 1;
         perspective(&coord_c, &point_c);
-        trig(&unk09->p1, &point_b, &unk09->p3);
-        trig(&point_b, &point_a, &unk09->p3);
-        trig(&point_a, &point_c, &unk09->p3);
-        trig(&point_c, &unk09->p2, &unk09->p3);
+        trig(&polygon_data->p1, &point_b, &polygon_data->p3);
+        trig(&point_b, &point_a, &polygon_data->p3);
+        trig(&point_a, &point_c, &polygon_data->p3);
+        trig(&point_c, &polygon_data->p2, &polygon_data->p3);
         break;
     case 18:
         vec_mode = VM_SolidColor;
-        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
-        coord_a.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_a.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        vec_colour = (polygon_data->p3.S + polygon_data->p2.S + polygon_data->p1.S) / 3 >> 16;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_a.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (coord_a.x + unk09->c2.x) >> 1;
-        coord_b.y = (coord_a.y + unk09->c2.y) >> 1;
-        coord_b.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_b.U = (point_a.U + unk09->p2.U) >> 1;
-        point_b.V = (point_a.V + unk09->p2.V) >> 1;
+        coord_b.x = (coord_a.x + polygon_data->c2.x) >> 1;
+        coord_b.y = (coord_a.y + polygon_data->c2.y) >> 1;
+        coord_b.z = (coord_a.z + polygon_data->c2.z) >> 1;
+        point_b.U = (point_a.U + polygon_data->p2.U) >> 1;
+        point_b.V = (point_a.V + polygon_data->p2.V) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (coord_a.x + unk09->c3.x) >> 1;
-        coord_c.y = (coord_a.y + unk09->c3.y) >> 1;
-        coord_c.z = (coord_a.z + unk09->c3.z) >> 1;
-        point_c.U = (point_a.U + unk09->p3.U) >> 1;
-        point_c.V = (point_a.V + unk09->p3.V) >> 1;
+        coord_c.x = (coord_a.x + polygon_data->c3.x) >> 1;
+        coord_c.y = (coord_a.y + polygon_data->c3.y) >> 1;
+        coord_c.z = (coord_a.z + polygon_data->c3.z) >> 1;
+        point_c.U = (point_a.U + polygon_data->p3.U) >> 1;
+        point_c.V = (point_a.V + polygon_data->p3.V) >> 1;
         perspective(&coord_c, &point_c);
-        trig(&unk09->p1, &unk09->p2, &point_b);
-        trig(&unk09->p1, &point_b, &point_a);
-        trig(&unk09->p1, &point_a, &point_c);
-        trig(&unk09->p1, &point_c, &unk09->p3);
+        trig(&polygon_data->p1, &polygon_data->p2, &point_b);
+        trig(&polygon_data->p1, &point_b, &point_a);
+        trig(&polygon_data->p1, &point_a, &point_c);
+        trig(&polygon_data->p1, &point_c, &polygon_data->p3);
         break;
     case 19:
         vec_mode = VM_SolidColor;
-        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
-        coord_a.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_a.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_a.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        vec_colour = (polygon_data->p3.S + polygon_data->p2.S + polygon_data->p1.S) / 3 >> 16;
+        coord_a.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_a.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_a.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (coord_a.x + unk09->c3.x) >> 1;
-        coord_b.y = (coord_a.y + unk09->c3.y) >> 1;
-        coord_b.z = (coord_a.z + unk09->c3.z) >> 1;
-        point_b.U = (point_a.U + unk09->p3.U) >> 1;
-        point_b.V = (point_a.V + unk09->p3.V) >> 1;
+        coord_b.x = (coord_a.x + polygon_data->c3.x) >> 1;
+        coord_b.y = (coord_a.y + polygon_data->c3.y) >> 1;
+        coord_b.z = (coord_a.z + polygon_data->c3.z) >> 1;
+        point_b.U = (point_a.U + polygon_data->p3.U) >> 1;
+        point_b.V = (point_a.V + polygon_data->p3.V) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (coord_a.x + unk09->c1.x) >> 1;
-        coord_c.y = (coord_a.y + unk09->c1.y) >> 1;
-        coord_c.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_c.U = (point_a.U + unk09->p1.U) >> 1;
-        point_c.V = (point_a.V + unk09->p1.V) >> 1;
+        coord_c.x = (coord_a.x + polygon_data->c1.x) >> 1;
+        coord_c.y = (coord_a.y + polygon_data->c1.y) >> 1;
+        coord_c.z = (coord_a.z + polygon_data->c1.z) >> 1;
+        point_c.U = (point_a.U + polygon_data->p1.U) >> 1;
+        point_c.V = (point_a.V + polygon_data->p1.V) >> 1;
         perspective(&coord_c, &point_c);
-        trig(&unk09->p2, &unk09->p3, &point_b);
-        trig(&unk09->p2, &point_b, &point_a);
-        trig(&unk09->p2, &point_a, &point_c);
-        trig(&unk09->p2, &point_c, &unk09->p1);
+        trig(&polygon_data->p2, &polygon_data->p3, &point_b);
+        trig(&polygon_data->p2, &point_b, &point_a);
+        trig(&polygon_data->p2, &point_a, &point_c);
+        trig(&polygon_data->p2, &point_c, &polygon_data->p1);
         break;
     case 20:
         vec_mode = VM_SolidColor;
-        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        vec_colour = (polygon_data->p3.S + polygon_data->p2.S + polygon_data->p1.S) / 3 >> 16;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        coord_b.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_b.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_b.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_b.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_b.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        coord_c.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_c.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_c.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_c.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_c.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
         perspective(&coord_c, &point_c);
-        coord_d.x = (coord_a.x + unk09->c1.x) >> 1;
-        coord_d.y = (coord_a.y + unk09->c1.y) >> 1;
-        coord_d.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_d.U = (point_a.U + unk09->p1.U) >> 1;
-        point_d.V = (point_a.V + unk09->p1.V) >> 1;
+        coord_d.x = (coord_a.x + polygon_data->c1.x) >> 1;
+        coord_d.y = (coord_a.y + polygon_data->c1.y) >> 1;
+        coord_d.z = (coord_a.z + polygon_data->c1.z) >> 1;
+        point_d.U = (point_a.U + polygon_data->p1.U) >> 1;
+        point_d.V = (point_a.V + polygon_data->p1.V) >> 1;
         perspective(&coord_d, &point_d);
-        coord_e.x = (coord_a.x + unk09->c2.x) >> 1;
-        coord_e.y = (coord_a.y + unk09->c2.y) >> 1;
-        coord_e.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_e.U = (point_a.U + unk09->p2.U) >> 1;
-        point_e.V = (point_a.V + unk09->p2.V) >> 1;
+        coord_e.x = (coord_a.x + polygon_data->c2.x) >> 1;
+        coord_e.y = (coord_a.y + polygon_data->c2.y) >> 1;
+        coord_e.z = (coord_a.z + polygon_data->c2.z) >> 1;
+        point_e.U = (point_a.U + polygon_data->p2.U) >> 1;
+        point_e.V = (point_a.V + polygon_data->p2.V) >> 1;
         perspective(&coord_e, &point_e);
-        trig(&unk09->p1, &point_d, &point_c);
+        trig(&polygon_data->p1, &point_d, &point_c);
         trig(&point_d, &point_a, &point_c);
         trig(&point_a, &point_e, &point_b);
-        trig(&point_e, &unk09->p2, &point_b);
+        trig(&point_e, &polygon_data->p2, &point_b);
         trig(&point_a, &point_b, &point_c);
-        trig(&point_c, &point_b, &unk09->p3);
+        trig(&point_c, &point_b, &polygon_data->p3);
         break;
     case 21:
         vec_mode = VM_SolidColor;
-        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        vec_colour = (polygon_data->p3.S + polygon_data->p2.S + polygon_data->p1.S) / 3 >> 16;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        coord_b.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_b.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_b.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_b.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_b.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        coord_c.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_c.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_c.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_c.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_c.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
         perspective(&coord_c, &point_c);
-        coord_d.x = (coord_b.x + unk09->c2.x) >> 1;
-        coord_d.y = (coord_b.y + unk09->c2.y) >> 1;
-        coord_d.z = (coord_b.z + unk09->c2.z) >> 1;
-        point_d.U = (point_b.U + unk09->p2.U) >> 1;
-        point_d.V = (point_b.V + unk09->p2.V) >> 1;
+        coord_d.x = (coord_b.x + polygon_data->c2.x) >> 1;
+        coord_d.y = (coord_b.y + polygon_data->c2.y) >> 1;
+        coord_d.z = (coord_b.z + polygon_data->c2.z) >> 1;
+        point_d.U = (point_b.U + polygon_data->p2.U) >> 1;
+        point_d.V = (point_b.V + polygon_data->p2.V) >> 1;
         perspective(&coord_d, &point_d);
-        coord_e.x = (coord_b.x + unk09->c3.x) >> 1;
-        coord_e.y = (coord_b.y + unk09->c3.y) >> 1;
-        coord_e.z = (coord_b.z + unk09->c3.z) >> 1;
-        point_e.U = (point_b.U + unk09->p3.U) >> 1;
-        point_e.V = (point_b.V + unk09->p3.V) >> 1;
+        coord_e.x = (coord_b.x + polygon_data->c3.x) >> 1;
+        coord_e.y = (coord_b.y + polygon_data->c3.y) >> 1;
+        coord_e.z = (coord_b.z + polygon_data->c3.z) >> 1;
+        point_e.U = (point_b.U + polygon_data->p3.U) >> 1;
+        point_e.V = (point_b.V + polygon_data->p3.V) >> 1;
         perspective(&coord_e, &point_e);
-        trig(&unk09->p1, &point_a, &point_c);
+        trig(&polygon_data->p1, &point_a, &point_c);
         trig(&point_a, &point_b, &point_c);
-        trig(&point_a, &unk09->p2, &point_d);
+        trig(&point_a, &polygon_data->p2, &point_d);
         trig(&point_a, &point_d, &point_b);
         trig(&point_c, &point_b, &point_e);
-        trig(&point_c, &point_e, &unk09->p3);
+        trig(&point_c, &point_e, &polygon_data->p3);
         break;
     case 22:
         vec_mode = VM_SolidColor;
-        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        vec_colour = (polygon_data->p3.S + polygon_data->p2.S + polygon_data->p1.S) / 3 >> 16;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        coord_b.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_b.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_b.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_b.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_b.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        coord_c.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_c.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_c.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_c.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_c.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
         perspective(&coord_c, &point_c);
-        coord_d.x = (coord_c.x + unk09->c3.x) >> 1;
-        coord_d.y = (coord_c.y + unk09->c3.y) >> 1;
-        coord_d.z = (coord_c.z + unk09->c3.z) >> 1;
-        point_d.U = (point_c.U + unk09->p3.U) >> 1;
-        point_d.V = (point_c.V + unk09->p3.V) >> 1;
+        coord_d.x = (coord_c.x + polygon_data->c3.x) >> 1;
+        coord_d.y = (coord_c.y + polygon_data->c3.y) >> 1;
+        coord_d.z = (coord_c.z + polygon_data->c3.z) >> 1;
+        point_d.U = (point_c.U + polygon_data->p3.U) >> 1;
+        point_d.V = (point_c.V + polygon_data->p3.V) >> 1;
         perspective(&coord_d, &point_d);
-        coord_e.x = (coord_c.x + unk09->c1.x) >> 1;
-        coord_e.y = (coord_c.y + unk09->c1.y) >> 1;
-        coord_e.z = (coord_c.z + unk09->c1.z) >> 1;
-        point_e.U = (point_c.U + unk09->p1.U) >> 1;
-        point_e.V = (point_c.V + unk09->p1.V) >> 1;
+        coord_e.x = (coord_c.x + polygon_data->c1.x) >> 1;
+        coord_e.y = (coord_c.y + polygon_data->c1.y) >> 1;
+        coord_e.z = (coord_c.z + polygon_data->c1.z) >> 1;
+        point_e.U = (point_c.U + polygon_data->p1.U) >> 1;
+        point_e.V = (point_c.V + polygon_data->p1.V) >> 1;
         perspective(&coord_e, &point_e);
-        trig(&point_a, &unk09->p2, &point_b);
+        trig(&point_a, &polygon_data->p2, &point_b);
         trig(&point_a, &point_b, &point_c);
-        trig(&unk09->p1, &point_a, &point_e);
+        trig(&polygon_data->p1, &point_a, &point_e);
         trig(&point_e, &point_a, &point_c);
         trig(&point_c, &point_b, &point_d);
-        trig(&point_d, &point_b, &unk09->p3);
+        trig(&point_d, &point_b, &polygon_data->p3);
         break;
     case 23:
         vec_mode = VM_SolidColor;
-        vec_colour = (unk09->p3.S + unk09->p2.S + unk09->p1.S) / 3 >> 16;
-        coord_a.x = (unk09->c2.x + unk09->c1.x) >> 1;
-        coord_a.y = (unk09->c2.y + unk09->c1.y) >> 1;
-        coord_a.z = (unk09->c1.z + unk09->c2.z) >> 1;
-        point_a.U = (unk09->p1.U + unk09->p2.U) >> 1;
-        point_a.V = (unk09->p2.V + unk09->p1.V) >> 1;
+        vec_colour = (polygon_data->p3.S + polygon_data->p2.S + polygon_data->p1.S) / 3 >> 16;
+        coord_a.x = (polygon_data->c2.x + polygon_data->c1.x) >> 1;
+        coord_a.y = (polygon_data->c2.y + polygon_data->c1.y) >> 1;
+        coord_a.z = (polygon_data->c1.z + polygon_data->c2.z) >> 1;
+        point_a.U = (polygon_data->p1.U + polygon_data->p2.U) >> 1;
+        point_a.V = (polygon_data->p2.V + polygon_data->p1.V) >> 1;
         perspective(&coord_a, &point_a);
-        coord_b.x = (unk09->c2.x + unk09->c3.x) >> 1;
-        coord_b.y = (unk09->c2.y + unk09->c3.y) >> 1;
-        coord_b.z = (unk09->c3.z + unk09->c2.z) >> 1;
-        point_b.U = (unk09->p3.U + unk09->p2.U) >> 1;
-        point_b.V = (unk09->p3.V + unk09->p2.V) >> 1;
+        coord_b.x = (polygon_data->c2.x + polygon_data->c3.x) >> 1;
+        coord_b.y = (polygon_data->c2.y + polygon_data->c3.y) >> 1;
+        coord_b.z = (polygon_data->c3.z + polygon_data->c2.z) >> 1;
+        point_b.U = (polygon_data->p3.U + polygon_data->p2.U) >> 1;
+        point_b.V = (polygon_data->p3.V + polygon_data->p2.V) >> 1;
         perspective(&coord_b, &point_b);
-        coord_c.x = (unk09->c1.x + unk09->c3.x) >> 1;
-        coord_c.y = (unk09->c3.y + unk09->c1.y) >> 1;
-        coord_c.z = (unk09->c3.z + unk09->c1.z) >> 1;
-        point_c.U = (unk09->p1.U + unk09->p3.U) >> 1;
-        point_c.V = (unk09->p3.V + unk09->p1.V) >> 1;
+        coord_c.x = (polygon_data->c1.x + polygon_data->c3.x) >> 1;
+        coord_c.y = (polygon_data->c3.y + polygon_data->c1.y) >> 1;
+        coord_c.z = (polygon_data->c3.z + polygon_data->c1.z) >> 1;
+        point_c.U = (polygon_data->p1.U + polygon_data->p3.U) >> 1;
+        point_c.V = (polygon_data->p3.V + polygon_data->p1.V) >> 1;
         perspective(&coord_c, &point_c);
-        coord_d.x = (coord_a.x + unk09->c1.x) >> 1;
-        coord_d.y = (coord_a.y + unk09->c1.y) >> 1;
-        coord_d.z = (coord_a.z + unk09->c1.z) >> 1;
-        point_d.U = (point_a.U + unk09->p1.U) >> 1;
-        point_d.V = (point_a.V + unk09->p1.V) >> 1;
+        coord_d.x = (coord_a.x + polygon_data->c1.x) >> 1;
+        coord_d.y = (coord_a.y + polygon_data->c1.y) >> 1;
+        coord_d.z = (coord_a.z + polygon_data->c1.z) >> 1;
+        point_d.U = (point_a.U + polygon_data->p1.U) >> 1;
+        point_d.V = (point_a.V + polygon_data->p1.V) >> 1;
         perspective(&coord_d, &point_d);
-        coord_e.x = (coord_a.x + unk09->c2.x) >> 1;
-        coord_e.y = (coord_a.y + unk09->c2.y) >> 1;
-        coord_e.z = (coord_a.z + unk09->c2.z) >> 1;
-        point_e.U = (point_a.U + unk09->p2.U) >> 1;
-        point_e.V = (point_a.V + unk09->p2.V) >> 1;
+        coord_e.x = (coord_a.x + polygon_data->c2.x) >> 1;
+        coord_e.y = (coord_a.y + polygon_data->c2.y) >> 1;
+        coord_e.z = (coord_a.z + polygon_data->c2.z) >> 1;
+        point_e.U = (point_a.U + polygon_data->p2.U) >> 1;
+        point_e.V = (point_a.V + polygon_data->p2.V) >> 1;
         perspective(&coord_e, &point_e);
-        coord_d.x = (coord_b.x + unk09->c2.x) >> 1;
-        coord_d.y = (coord_b.y + unk09->c2.y) >> 1;
-        coord_d.z = (coord_b.z + unk09->c2.z) >> 1;
-        point_f.U = (point_b.U + unk09->p2.U) >> 1;
-        point_f.V = (point_b.V + unk09->p2.V) >> 1;
+        coord_d.x = (coord_b.x + polygon_data->c2.x) >> 1;
+        coord_d.y = (coord_b.y + polygon_data->c2.y) >> 1;
+        coord_d.z = (coord_b.z + polygon_data->c2.z) >> 1;
+        point_f.U = (point_b.U + polygon_data->p2.U) >> 1;
+        point_f.V = (point_b.V + polygon_data->p2.V) >> 1;
         perspective(&coord_d, &point_f);
-        coord_e.x = (coord_b.x + unk09->c3.x) >> 1;
-        coord_e.y = (coord_b.y + unk09->c3.y) >> 1;
-        coord_e.z = (coord_b.z + unk09->c3.z) >> 1;
-        point_g.U = (point_b.U + unk09->p3.U) >> 1;
-        point_g.V = (point_b.V + unk09->p3.V) >> 1;
+        coord_e.x = (coord_b.x + polygon_data->c3.x) >> 1;
+        coord_e.y = (coord_b.y + polygon_data->c3.y) >> 1;
+        coord_e.z = (coord_b.z + polygon_data->c3.z) >> 1;
+        point_g.U = (point_b.U + polygon_data->p3.U) >> 1;
+        point_g.V = (point_b.V + polygon_data->p3.V) >> 1;
         perspective(&coord_e, &point_g);
-        coord_d.x = (coord_c.x + unk09->c3.x) >> 1;
-        coord_d.y = (coord_c.y + unk09->c3.y) >> 1;
-        coord_d.z = (coord_c.z + unk09->c3.z) >> 1;
-        point_h.U = (point_c.U + unk09->p3.U) >> 1;
-        point_h.V = (point_c.V + unk09->p3.V) >> 1;
+        coord_d.x = (coord_c.x + polygon_data->c3.x) >> 1;
+        coord_d.y = (coord_c.y + polygon_data->c3.y) >> 1;
+        coord_d.z = (coord_c.z + polygon_data->c3.z) >> 1;
+        point_h.U = (point_c.U + polygon_data->p3.U) >> 1;
+        point_h.V = (point_c.V + polygon_data->p3.V) >> 1;
         perspective(&coord_d, &point_h);
-        coord_e.x = (coord_c.x + unk09->c1.x) >> 1;
-        coord_e.y = (coord_c.y + unk09->c1.y) >> 1;
-        coord_e.z = (coord_c.z + unk09->c1.z) >> 1;
-        point_i.U = (point_c.U + unk09->p1.U) >> 1;
-        point_i.V = (point_c.V + unk09->p1.V) >> 1;
+        coord_e.x = (coord_c.x + polygon_data->c1.x) >> 1;
+        coord_e.y = (coord_c.y + polygon_data->c1.y) >> 1;
+        coord_e.z = (coord_c.z + polygon_data->c1.z) >> 1;
+        point_i.U = (point_c.U + polygon_data->p1.U) >> 1;
+        point_i.V = (point_c.V + polygon_data->p1.V) >> 1;
         perspective(&coord_e, &point_i);
         coord_d.x = (coord_a.x + coord_c.x) >> 1;
         coord_d.y = (coord_a.y + coord_c.y) >> 1;
@@ -6503,10 +6503,10 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         point_l.U = (point_b.U + point_c.U) >> 1;
         point_l.V = (point_b.V + point_c.V) >> 1;
         perspective(&coord_d, &point_l);
-        trig(&unk09->p1, &point_d, &point_i);
+        trig(&polygon_data->p1, &point_d, &point_i);
         trig(&point_d, &point_a, &point_j);
         trig(&point_a, &point_e, &point_k);
-        trig(&point_e, &unk09->p2, &point_f);
+        trig(&point_e, &polygon_data->p2, &point_f);
         trig(&point_d, &point_j, &point_i);
         trig(&point_a, &point_k, &point_j);
         trig(&point_e, &point_f, &point_k);
@@ -6518,11 +6518,11 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         trig(&point_c, &point_l, &point_h);
         trig(&point_l, &point_b, &point_g);
         trig(&point_l, &point_g, &point_h);
-        trig(&point_h, &point_g, &unk09->p3);
+        trig(&point_h, &point_g, &polygon_data->p3);
         break;
     default:
         render_problems++;
-        render_prob_kind = unk09->b.kind;
+        render_prob_kind = polygon_data->b.kind;
         break;
     }
 
@@ -6682,11 +6682,11 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 // draw_map_who did nothing
                 break;
             case QK_PolygonNearFP: // 'Near' textured polygons (closer to camera) in 1st person view
-                draw_unkn09(item.polygonNearFP);
+                draw_subdivided_near_polygon(item.polygonNearFP);
                 break;
             case QK_BasicPolygon:
                 vec_mode = VM_FlatColor;
-                vec_colour = item.basicUnk10->field_6;
+                vec_colour = item.basicUnk10->color_value;
                 draw_gpoly(&item.basicUnk10->p1, &item.basicUnk10->p2, &item.basicUnk10->p3);
                 break;
             case QK_JontySprite: // All creatures and things in isometric and 1st person view
@@ -6874,13 +6874,13 @@ void draw_view(struct Camera *cam, unsigned char a2)
     rotpers = rotpers_routines[i];
     update_fade_limits(cells_away);
     init_coords_and_rotation(&object_origin,&camera_matrix);
-    rotate_base_axis(&camera_matrix, interpolated_cam_orient_a, 2);
+    rotate_base_axis(&camera_matrix, interpolated_cam_rotation_angle_x, 2);
     update_normal_shade(&camera_matrix);
-    rotate_base_axis(&camera_matrix, -interpolated_cam_orient_b, 1);
-    rotate_base_axis(&camera_matrix, -interpolated_cam_orient_c, 3);
-    cam_map_angle = interpolated_cam_orient_a;
-    map_roll = interpolated_cam_orient_c;
-    map_tilt = -interpolated_cam_orient_b;
+    rotate_base_axis(&camera_matrix, -interpolated_cam_rotation_angle_y, 1);
+    rotate_base_axis(&camera_matrix, -interpolated_cam_rotation_angle_z, 3);
+    cam_map_angle = interpolated_cam_rotation_angle_x;
+    map_roll = interpolated_cam_rotation_angle_z;
+    map_tilt = -interpolated_cam_rotation_angle_y;
 
     frame_wibble_generate();
     view_alt = z;
@@ -6945,23 +6945,23 @@ static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
         vec_map = block_ptrs[txquad->texture_idx];
         break;
     }
-    point_a.X = (txquad->unk_x >> 8) / pixel_size;
-    point_a.Y = (txquad->unk_y >> 8) / pixel_size;
+    point_a.X = (txquad->texture_x >> 8) / pixel_size;
+    point_a.Y = (txquad->texture_y >> 8) / pixel_size;
     point_a.U = orient_to_mapU1[txquad->orient];
     point_a.V = orient_to_mapV1[txquad->orient];
     point_a.S = txquad->shade_intensity0;
-    point_d.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
-    point_d.Y = (txquad->unk_y >> 8) / pixel_size;
+    point_d.X = ((txquad->zoom_x + txquad->texture_x) >> 8) / pixel_size;
+    point_d.Y = (txquad->texture_y >> 8) / pixel_size;
     point_d.U = orient_to_mapU2[txquad->orient];
     point_d.V = orient_to_mapV2[txquad->orient];
     point_d.S = txquad->shade_intensity1;
-    point_b.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
-    point_b.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
+    point_b.X = ((txquad->zoom_x + txquad->texture_x) >> 8) / pixel_size;
+    point_b.Y = ((txquad->zoom_y + txquad->texture_y) >> 8) / pixel_size;
     point_b.U = orient_to_mapU3[txquad->orient];
     point_b.V = orient_to_mapV3[txquad->orient];
     point_b.S = txquad->shade_intensity2;
-    point_c.X = (txquad->unk_x >> 8) / pixel_size;
-    point_c.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
+    point_c.X = (txquad->texture_x >> 8) / pixel_size;
+    point_c.Y = ((txquad->zoom_y + txquad->texture_y) >> 8) / pixel_size;
     point_c.U = orient_to_mapU4[txquad->orient];
     point_c.V = orient_to_mapV4[txquad->orient];
     point_c.S = txquad->shade_intensity3;
@@ -7059,7 +7059,7 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
  * @return true if projected point is withing player's window, false otherwise
  */
 
-#define UNKNOWN_PPH_MASK 0xFFFE
+#define PPH_EVEN_ALIGN_MASK 0xFFFE
 static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoordDelta vertical_delta, MapCoordDelta horizontal_delta, MapCoord pos_z, long *x_out, long *y_out, long *z_out)
 {
     int vertical_shift;
@@ -7070,10 +7070,10 @@ static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoord
 
     *x_out = (zoom * horizontal_delta >> 16) + (*(uint16_t *)&window_width / 2);
     vertical_shift = zoom * vertical_delta >> 8;
-    *z_out = window_height - ((vertical_shift + ((uint16_t)(window_height & UNKNOWN_PPH_MASK) << 7)) >> 8) + 64;
+    *z_out = window_height - ((vertical_shift + ((uint16_t)(window_height & PPH_EVEN_ALIGN_MASK) << 7)) >> 8) + 64;
     new_zoom = (zoom * ((int16_t) pos_z)) << 7;
     offset = *((uint8_t *)&new_zoom + 4);
-    *y_out = (vertical_shift + ((uint16_t)(window_height & UNKNOWN_PPH_MASK) << 7) - ((offset + (signed int)new_zoom) >> 16)) >> 8;
+    *y_out = (vertical_shift + ((uint16_t)(window_height & PPH_EVEN_ALIGN_MASK) << 7) - ((offset + (signed int)new_zoom) >> 16)) >> 8;
 
     return (*x_out >= 0 && *x_out < window_width && *y_out >= 0 && *y_out < window_height);
 }
@@ -7097,7 +7097,7 @@ static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos
     struct PlayerInfo* player = get_my_player();
 
     zoom = 32 * camera_zoom / 256;
-    orientation = ((unsigned int)(interpolated_cam_orient_a + (LbFPMath_PI / 4)) >> 9) & 3;
+    orientation = ((unsigned int)(interpolated_cam_rotation_angle_x + (LbFPMath_PI / 4)) >> 9) & 3;
 
     switch ( orientation )
     {
@@ -7148,7 +7148,7 @@ static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long s
         poly->scr_x = scr_x / pixel_size;
         poly->scr_y = scr_y / pixel_size;
     }
-    poly->field_14 = a4;
+    poly->depth_fade = a4;
 }
 
 static void add_spinning_key_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
@@ -7170,7 +7170,7 @@ static void add_spinning_key_to_polypool(struct Thing *thing, long scr_x, long s
       poly->scr_x = scr_x / pixel_size;
       poly->scr_y = scr_y / pixel_size;
     }
-    poly->field_14 = a4;
+    poly->depth_fade = a4;
 }
 
 // Creature status flower above head in FrontView
@@ -7212,8 +7212,8 @@ static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long
     buckets[bckt_idx] = (struct BasicQ *)poly;
 
     poly->texture_idx = texture_idx;
-    poly->unk_x = x;
-    poly->unk_y = y;
+    poly->texture_x = x;
+    poly->texture_y = y;
     poly->zoom_x = zoom;
     poly->zoom_y = zoom;
     poly->orient = orient;
@@ -7239,8 +7239,8 @@ static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long
     buckets[bckt_idx] = (struct BasicQ *)poly;
 
     poly->texture_idx = texture_idx;
-    poly->unk_x = x;
-    poly->unk_y = y;
+    poly->texture_x = x;
+    poly->texture_y = y;
     poly->zoom_x = zoom_x;
     poly->zoom_y = zoom_y;
     poly->orient = orient;
@@ -7341,7 +7341,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
 {
     struct PlayerInfo *myplyr;
     TbBool sibrevealed[3][3];
-    struct CubeConfigStats *unkstrcp;
+    struct CubeConfigStats *cube_config_stats;
     struct Map *mapblk;
     long lightness_arr[4][9];
     long bckt_idx;
@@ -7420,29 +7420,29 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     // Draw the columns cubes
 
     y = zoom + pos_y;
-    unkstrcp = NULL;
+    cube_config_stats = NULL;
     for (tc=0; tc < COLUMN_STACK_HEIGHT; tc++)
     {
       if (col->cubes[tc] == 0)
         break;
       y -= delta_y;
-      unkstrcp = get_cube_model_stats(col->cubes[tc]);
+      cube_config_stats = get_cube_model_stats(col->cubes[tc]);
       if (*ymax > y)
       {
         *ymax = y;
-        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
+        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, cube_config_stats->texture_id[cube_itm]);
         add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, zoom, delta_y, 0,
             lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
       }
     }
 
-    if (unkstrcp != NULL)
+    if (cube_config_stats != NULL)
     {
       i = y - zoom;
       if (*ymax > i)
       {
         *ymax = i;
-        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
+        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, cube_config_stats->texture_id[4]);
         if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
         {
           add_textruredquad_to_polypool(pos_x, i, textr_idx, zoom, qdrant, 2097152, 1, bckt_idx);
@@ -7474,20 +7474,20 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
             if (col->cubes[tc] == 0)
               break;
             y -= delta_y;
-            unkstrcp = get_cube_model_stats(col->cubes[tc]);
+            cube_config_stats = get_cube_model_stats(col->cubes[tc]);
             if (*ymax > y)
             {
-              textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
+              textr_idx = engine_remap_texture_blocks(stl_x, stl_y, cube_config_stats->texture_id[cube_itm]);
               add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, zoom, delta_y, 0,
                   lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
             }
         }
-        if (unkstrcp != NULL)
+        if (cube_config_stats != NULL)
         {
           i = y - zoom;
           if (*ymax > i)
           {
-              textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
+              textr_idx = engine_remap_texture_blocks(stl_x, stl_y, cube_config_stats->texture_id[4]);
             add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, zoom, zoom, qdrant,
                 lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
           }
@@ -7782,7 +7782,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         {
             get_keepsprite_unscaled_dimensions(thing_being_displayed->anim_sprite, thing_being_displayed->move_angle_xy, thing_being_displayed->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
             cctrl = creature_control_get_from_thing(thing_being_displayed);
-            lltemp = dim_oh * (48 - (long)cctrl->sacrifice.word_9A);
+            lltemp = dim_oh * (48 - (long)cctrl->sacrifice.animation_counter);
             cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
         }
         if (player->view_mode == PVM_CreatureView)
@@ -7847,18 +7847,18 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
             i = MINIMUM_LIGHTNESS;
         shade = i;
     } else
-    if (jspr->field_14 <= lfade_min)
+    if (jspr->depth_fade <= lfade_min)
     {
-        fade = jspr->field_14;
+        fade = jspr->depth_fade;
         if ((thing->rendering_flags & TRF_Unshaded) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
         shade = i;
     } else
-    if (jspr->field_14 < lfade_max)
+    if (jspr->depth_fade < lfade_max)
     {
-        fade = jspr->field_14;
+        fade = jspr->depth_fade;
         if ((thing->rendering_flags & TRF_Unshaded) == 0)
             i = get_thing_shade(thing);
         else
@@ -7866,7 +7866,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
         shade = i * (long long)(lfade_max - fade) / fade_mmm;
     } else
     {
-        fade = jspr->field_14;
+        fade = jspr->depth_fade;
         shade = 0;
     }
     shade_factor = shade >> 8;
@@ -8375,7 +8375,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
 
 void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)
 {
-    unsigned char orient = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
+    unsigned char orient = ((unsigned int)(cam->rotation_angle_x + LbFPMath_PI/4) >> 9) & 0x03;
     // _depth_ is "how far in to the screen" the box goes - it will be the width/height of a slab
     // _breadth_ is usually the same as the depth (a single slab), but for single subtile selection, this will be the width/height of a subtile
     // (if we are dealing with a single subtile, breadth will be a third of the depth.)
@@ -8434,7 +8434,7 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     {
         line_color = map_volume_box.color; //  set the "inner" box color to the default colour (usually red/green)
     }
-    unsigned char orient = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
+    unsigned char orient = ((unsigned int)(cam->rotation_angle_x + LbFPMath_PI/4) >> 9) & 0x03;
     int floor_height_z = (map_volume_box.floor_height_z == 0) ? 1 : map_volume_box.floor_height_z; // ignore "liquid height", and force it to "floor height". All fancy rooms are on the ground, and this ensures the boundboxes are drawn correctly. A different solution will be required if this function is used to draw fancy rooms over "liquid".
     long depth = ((5 - floor_height_z) * ((long)stl_width << 7) / 256);
     struct Coord3d pos;
@@ -8996,7 +8996,7 @@ void draw_frontview_engine(struct Camera *cam)
     clear_fast_bucket_list();
     store_engine_window(&ewnd,1);
     setup_engine_window(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
-    qdrant = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
+    qdrant = ((unsigned int)(cam->rotation_angle_x + LbFPMath_PI/4) >> 9) & 0x03;
     zoom = camera_zoom >> 3;
     w = (ewnd.width << 16) / zoom >> 1;
     h = (ewnd.height << 16) / zoom >> 1;
