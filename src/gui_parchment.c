@@ -717,7 +717,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
             case TCls_Trap:
             {
                 struct TrapConfigStats* trapst = get_trap_model_stats(thing->model);
-                if ((!thing->trap.revealed) && (player->id_number != thing->owner) && (trapst->hidden == 0))
+                if ((!thing->trap.revealed) && (player->id_number != thing->owner) && (trapst->hidden != 0))
                     break;
                 struct ManufactureData* manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(thing->class_id, thing->model));
                 spridx = manufctr->medsym_sprite_idx;
