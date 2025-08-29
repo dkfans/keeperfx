@@ -579,10 +579,10 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
     if (!thing_is_invalid(thing))
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        cctrl->flgfield_1 |= CCFlg_NoCompControl;
+        cctrl->creature_control_flags |= CCFlg_NoCompControl;
         player->allocflags |= PlaF_KeyboardInputDisabled;
         player->allocflags |= PlaF_MouseInputDisabled;
-        game.numfield_D |= GNFldD_CreaturePasngr;
+        game.view_mode_flags |= GNFldD_CreaturePasngr;
     }
     return 0;
 }
@@ -695,7 +695,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   light_turn_light_on(player->cursor_light_idx);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;
   player->allocflags &= ~PlaF_MouseInputDisabled;
-  game.numfield_D &= ~GNFldD_CreaturePasngr;
+  game.view_mode_flags &= ~GNFldD_CreaturePasngr;
   if (is_my_player(player))
     PaletteSetPlayerPalette(player, engine_palette);
   return 0;
@@ -967,7 +967,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     {
         set_start_state(thing);
         cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-        if ((cctrl->flgfield_2 & TF2_Spectator) != 0) {
+        if ((cctrl->creature_state_flags & TF2_Spectator) != 0) {
           delete_thing_structure(thing, 0);
         } else {
           disband_creatures_group(thing);

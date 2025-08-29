@@ -225,7 +225,7 @@ struct BucketKindTrigMode6 {
 
 struct BucketKindRotableSprite {
     struct BasicQ b;
-    long field_8;
+    long clip_flags;
     long field_C;
     long field_10;
     long field_14;
@@ -304,10 +304,10 @@ struct BucketKindTexturedQuad { // sizeof = 46
     long unk_y;
     long zoom_x;
     long zoom_y;
-    long lightness0;
-    long lightness1;
-    long lightness2;
-    long lightness3;
+    long shade_intensity0;
+    long shade_intensity1;
+    long shade_intensity2;
+    long shade_intensity3;
     long marked_mode;
 };
 
@@ -791,21 +791,21 @@ static void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long 
     epos->view_height = factor_h;
     if (factor_w < 0)
     {
-        epos->field_8 |= 0x0008;
+        epos->clip_flags |= 0x0008;
     } else
     if (vec_window_width <= factor_w)
     {
-        epos->field_8 |= 0x0010;
+        epos->clip_flags |= 0x0010;
     }
     if (factor_h < 0)
     {
-        epos->field_8 |= 0x0020;
+        epos->clip_flags |= 0x0020;
     } else
     if (factor_h >= vec_window_height)
     {
-        epos->field_8 |= 0x0040;
+        epos->clip_flags |= 0x0040;
     }
-    epos->field_8 |= 0x0400;
+    epos->clip_flags |= 0x0400;
 }
 
 static void base_vec_normalisation(struct M33 *matx, unsigned char a2)
@@ -1085,13 +1085,13 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
             ecord->x = apos + wibl->field_0;
             ecord->y = hpos + wibl->field_4;
             ecord->z = bpos + wibl->field_8;
-            ecord->field_8 = 0;
+            ecord->clip_flags = 0;
             lightness += wibl->field_C;
             if (lightness < 0)
                 lightness = 0;
             if (lightness > 16128)
                 lightness = 16128;
-            ecord->field_A = lightness;
+            ecord->shade_intensity = lightness;
             wibl += 2;
             hpos += COORD_PER_STL;
             rotpers(ecord, &camera_matrix);
@@ -1111,9 +1111,9 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
             ecord->x = apos + wibl->field_0;
             ecord->y = hpos + wibl->field_4;
             ecord->z = bpos + wibl->field_8;
-            ecord->field_8 = 0;
+            ecord->clip_flags = 0;
             // Use lightness from last cube
-            ecord->field_A = lightness;
+            ecord->shade_intensity = lightness;
             rotpers(ecord, &camera_matrix);
         }
         stl_x++;
@@ -1286,13 +1286,13 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
             ecord->view_width = (eview_w + wibl->field_10) >> 8;
             ecord->view_height = (eview_h + wibl->field_14) >> 8;
             ecord->z = eview_z;
-            ecord->field_8 = 0;
+            ecord->clip_flags = 0;
             lightness += *randmis;
             if (lightness < 0)
                 lightness = 0;
             if (lightness > 16128)
                 lightness = 16128;
-            ecord->field_A = lightness;
+            ecord->shade_intensity = lightness;
             if (ecord->z < 32) {
                 ecord->z = 0;
             } else
@@ -1300,16 +1300,16 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
                 ecord->z = Z_DRAW_DISTANCE_MAX;
             }
             if (ecord->view_width < 0) {
-                ecord->field_8 |= 0x08;
+                ecord->clip_flags |= 0x08;
             } else
             if (ecord->view_width >= vec_window_width) {
-                ecord->field_8 |= 0x10;
+                ecord->clip_flags |= 0x10;
             }
             if (ecord->view_height < 0) {
-                ecord->field_8 |= 0x20;
+                ecord->clip_flags |= 0x20;
             } else
             if (ecord->view_height >= vec_window_height) {
-                ecord->field_8 |= 0x40;
+                ecord->clip_flags |= 0x40;
             }
 
             wibl += 2;
@@ -1513,13 +1513,13 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
             ecord->view_width = (eview_w + wibl->field_10) >> 8;
             ecord->view_height = (eview_h + wibl->field_14) >> 8;
             ecord->z = eview_z;
-            ecord->field_8 = 0;
+            ecord->clip_flags = 0;
             lightness += 4 * (*randmis & 0xff) - 512;
             if (lightness < 0)
                 lightness = 0;
             if (lightness > 15872)
                 lightness = 15872;
-            ecord->field_A = lightness;
+            ecord->shade_intensity = lightness;
             if (ecord->z < 32) {
                 ecord->z = 0;
             } else
@@ -1527,16 +1527,16 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
                 ecord->z = Z_DRAW_DISTANCE_MAX;
             }
             if (ecord->view_width < 0) {
-                ecord->field_8 |= 0x08;
+                ecord->clip_flags |= 0x08;
             } else
             if (ecord->view_width >= vec_window_width) {
-                ecord->field_8 |= 0x10;
+                ecord->clip_flags |= 0x10;
             }
             if (ecord->view_height < 0) {
-                ecord->field_8 |= 0x20;
+                ecord->clip_flags |= 0x20;
             } else
             if (ecord->view_height >= vec_window_height) {
-                ecord->field_8 |= 0x40;
+                ecord->clip_flags |= 0x40;
             }
             wibl += 2;
             ecord++;
@@ -1616,7 +1616,7 @@ static void create_box_coords(struct EngineCoord *coord, long x, long z, long y)
 {
     coord->x = x;
     coord->z = z;
-    coord->field_8 = 0;
+    coord->clip_flags = 0;
     coord->y = y;
     rotpers(coord, &camera_matrix);
 }
@@ -2884,9 +2884,9 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
     struct XYZ *xyz4;
     struct XYZ *xyz5;
     struct XYZ *xyz6;
-    short coordinate_1_frustum = engine_coordinate_1->field_8;
-    short coordinate_2_frustum = engine_coordinate_2->field_8;
-    short coordinate_3_frustum = engine_coordinate_3->field_8;
+    short coordinate_1_frustum = engine_coordinate_1->clip_flags;
+    short coordinate_2_frustum = engine_coordinate_2->clip_flags;
+    short coordinate_3_frustum = engine_coordinate_3->clip_flags;
 
     if (((unsigned short)coordinate_1_frustum & (unsigned short)(coordinate_2_frustum & coordinate_3_frustum) & 0x1F8) == 0 && (engine_coordinate_1->view_height - engine_coordinate_2->view_height) * (engine_coordinate_3->view_width - engine_coordinate_2->view_width) + (engine_coordinate_3->view_height - engine_coordinate_2->view_height) * (engine_coordinate_2->view_width - engine_coordinate_1->view_width) > 0)
     {
@@ -2902,7 +2902,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
             {
                 triangle_bucket_near_1 = (struct BucketKindPolygonNearFP *)getpoly;
                 getpoly += sizeof(struct BucketKindPolygonNearFP);
-                triangle_bucket_near_1->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                triangle_bucket_near_1->subtype = splittypes[16 * (engine_coordinate_3->clip_flags & 3) + 4 * (engine_coordinate_1->clip_flags & 3) + (engine_coordinate_2->clip_flags & 3)];
                 triangle_bucket_near_1->b.next = buckets[divided_z];
                 triangle_bucket_near_1->b.kind = QK_PolygonNearFP;
                 buckets[divided_z] = &triangle_bucket_near_1->b;
@@ -2912,8 +2912,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_near_1->p1.U = 0;
                 triangle_bucket_near_1->p1.V = 0;
 
-                int coordinate_1_lightness = engine_coordinate_1->field_A;
-                int coordinate_1_distance = engine_coordinate_1->field_C;
+                int coordinate_1_lightness = engine_coordinate_1->shade_intensity;
+                int coordinate_1_distance = engine_coordinate_1->render_distance;
 
                 if (argument5 >= 0)
                     coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
@@ -2938,8 +2938,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_near_1->p2.U = 0x1FFFFF;
                 triangle_bucket_near_1->p2.V = 0;
 
-                int coordinate_2_lightness = engine_coordinate_2->field_A;
-                int coordinate_2_distance = engine_coordinate_2->field_C;
+                int coordinate_2_lightness = engine_coordinate_2->shade_intensity;
+                int coordinate_2_distance = engine_coordinate_2->render_distance;
 
                 if (argument5 >= 0)
                     coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
@@ -2964,8 +2964,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_near_1->p3.U = 0x1FFFFF;
                 triangle_bucket_near_1->p3.V = 0x1FFFFF;
 
-                int coordinate_3_lightness = engine_coordinate_3->field_A;
-                int coordinate_3_distance = engine_coordinate_3->field_C;
+                int coordinate_3_lightness = engine_coordinate_3->shade_intensity;
+                int coordinate_3_distance = engine_coordinate_3->render_distance;
 
                 if (argument5 >= 0)
                     coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
@@ -3011,7 +3011,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                         {
                             triangle_bucket_near_4 = (struct BucketKindPolygonNearFP *)getpoly;
                             getpoly += sizeof(struct BucketKindPolygonNearFP);
-                            triangle_bucket_near_4->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                            triangle_bucket_near_4->subtype = splittypes[16 * (engine_coordinate_3->clip_flags & 3) + 4 * (engine_coordinate_1->clip_flags & 3) + (engine_coordinate_2->clip_flags & 3)];
                             triangle_bucket_near_4->b.next = buckets[divided_z];
                             triangle_bucket_near_4->b.kind = QK_PolygonNearFP;
                             buckets[divided_z] = &triangle_bucket_near_4->b;
@@ -3063,7 +3063,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                     {
                         triangle_bucket_near_3 = (struct BucketKindPolygonNearFP *)getpoly;
                         getpoly += sizeof(struct BucketKindPolygonNearFP);
-                        triangle_bucket_near_3->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                        triangle_bucket_near_3->subtype = splittypes[16 * (engine_coordinate_3->clip_flags & 3) + 4 * (engine_coordinate_1->clip_flags & 3) + (engine_coordinate_2->clip_flags & 3)];
                         triangle_bucket_near_3->b.next = buckets[divided_z];
                         triangle_bucket_near_3->b.kind = QK_PolygonNearFP;
                         buckets[divided_z] = &triangle_bucket_near_3->b;
@@ -3147,7 +3147,7 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                     {
                         triangle_bucket_near_2 = (struct BucketKindPolygonNearFP *)getpoly;
                         getpoly += sizeof(struct BucketKindPolygonNearFP);
-                        triangle_bucket_near_2->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                        triangle_bucket_near_2->subtype = splittypes[16 * (engine_coordinate_3->clip_flags & 3) + 4 * (engine_coordinate_1->clip_flags & 3) + (engine_coordinate_2->clip_flags & 3)];
                         triangle_bucket_near_2->b.next = buckets[divided_z];
                         triangle_bucket_near_2->b.kind = QK_PolygonNearFP;
                         buckets[divided_z] = &triangle_bucket_near_2->b;
@@ -3262,8 +3262,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_far->p1.U = 0;
                 triangle_bucket_far->p1.V = 0;
 
-                int coordinate_1_lightness = engine_coordinate_1->field_A;
-                int coordinate_1_distance = engine_coordinate_1->field_C;
+                int coordinate_1_lightness = engine_coordinate_1->shade_intensity;
+                int coordinate_1_distance = engine_coordinate_1->render_distance;
 
                 if (argument5 >= 0)
                     coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
@@ -3288,8 +3288,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_far->p2.U = 0x1FFFFF;
                 triangle_bucket_far->p2.V = 0;
 
-                int coordinate_2_lightness = engine_coordinate_2->field_A;
-                int coordinate_2_distance = engine_coordinate_2->field_C;
+                int coordinate_2_lightness = engine_coordinate_2->shade_intensity;
+                int coordinate_2_distance = engine_coordinate_2->render_distance;
 
                 if (argument5 >= 0)
                     coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
@@ -3314,8 +3314,8 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_far->p3.U = 0x1FFFFF;
                 triangle_bucket_far->p3.V = 0x1FFFFF;
 
-                int coordinate_3_lightness = engine_coordinate_3->field_A;
-                int coordinate_3_distance = engine_coordinate_3->field_C;
+                int coordinate_3_lightness = engine_coordinate_3->shade_intensity;
+                int coordinate_3_distance = engine_coordinate_3->render_distance;
 
                 if (argument5 >= 0)
                     coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
@@ -3353,9 +3353,9 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
     struct XYZ *xyz4;
     struct XYZ *xyz5;
     struct XYZ *xyz6;
-    short coordinate_1_frustum = engine_coordinate_1->field_8;
-    short coordinate_2_frustum = engine_coordinate_2->field_8;
-    short coordinate_3_frustum = engine_coordinate_3->field_8;
+    short coordinate_1_frustum = engine_coordinate_1->clip_flags;
+    short coordinate_2_frustum = engine_coordinate_2->clip_flags;
+    short coordinate_3_frustum = engine_coordinate_3->clip_flags;
 
     if (((unsigned short)coordinate_2_frustum & (unsigned short)(coordinate_3_frustum & coordinate_1_frustum) & 0x1F8) == 0 && (engine_coordinate_2->view_width - engine_coordinate_1->view_width) * (engine_coordinate_3->view_height - engine_coordinate_2->view_height) + (engine_coordinate_3->view_width - engine_coordinate_2->view_width) * (engine_coordinate_1->view_height - engine_coordinate_2->view_height) > 0)
     {
@@ -3371,7 +3371,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
             {
                 triangle_bucket_near_1 = (struct BucketKindPolygonNearFP *)getpoly;
                 getpoly += sizeof(struct BucketKindPolygonNearFP);
-                triangle_bucket_near_1->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                triangle_bucket_near_1->subtype = splittypes[16 * (engine_coordinate_3->clip_flags & 3) + 4 * (engine_coordinate_1->clip_flags & 3) + (engine_coordinate_2->clip_flags & 3)];
                 triangle_bucket_near_1->b.next = buckets[divided_z];
                 triangle_bucket_near_1->b.kind = QK_PolygonNearFP;
                 buckets[divided_z] = &triangle_bucket_near_1->b;
@@ -3382,8 +3382,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_near_1->p1.U = 0x1FFFFF;
                 triangle_bucket_near_1->p1.V = 0x1FFFFF;
 
-                int coordinate_1_lightness = engine_coordinate_1->field_A;
-                int coordinate_1_distance = engine_coordinate_1->field_C;
+                int coordinate_1_lightness = engine_coordinate_1->shade_intensity;
+                int coordinate_1_distance = engine_coordinate_1->render_distance;
 
                 if (argument5 >= 0)
                     coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
@@ -3408,8 +3408,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_near_1->p2.U = 0;
                 triangle_bucket_near_1->p2.V = 0x1FFFFF;
 
-                int coordinate_2_lightness = engine_coordinate_2->field_A;
-                int coordinate_2_distance = engine_coordinate_2->field_C;
+                int coordinate_2_lightness = engine_coordinate_2->shade_intensity;
+                int coordinate_2_distance = engine_coordinate_2->render_distance;
 
                 if (argument5 >= 0)
                     coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
@@ -3434,8 +3434,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_near_1->p3.U = 0;
                 triangle_bucket_near_1->p3.V = 0;
 
-                int coordinate_3_lightness = engine_coordinate_3->field_A;
-                int coordinate_3_distance = engine_coordinate_3->field_C;
+                int coordinate_3_lightness = engine_coordinate_3->shade_intensity;
+                int coordinate_3_distance = engine_coordinate_3->render_distance;
 
                 if (argument5 >= 0)
                     coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
@@ -3481,7 +3481,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                         {
                             triangle_bucket_near_4 = (struct BucketKindPolygonNearFP *)getpoly;
                             getpoly += sizeof(struct BucketKindPolygonNearFP);
-                            triangle_bucket_near_4->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                            triangle_bucket_near_4->subtype = splittypes[16 * (engine_coordinate_3->clip_flags & 3) + 4 * (engine_coordinate_1->clip_flags & 3) + (engine_coordinate_2->clip_flags & 3)];
                             triangle_bucket_near_4->b.next = buckets[divided_z];
                             triangle_bucket_near_4->b.kind = QK_PolygonNearFP;
                             buckets[divided_z] = &triangle_bucket_near_4->b;
@@ -3533,7 +3533,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                     {
                         triangle_bucket_near_3 = (struct BucketKindPolygonNearFP *)getpoly;
                         getpoly += sizeof(struct BucketKindPolygonNearFP);
-                        triangle_bucket_near_3->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                        triangle_bucket_near_3->subtype = splittypes[16 * (engine_coordinate_3->clip_flags & 3) + 4 * (engine_coordinate_1->clip_flags & 3) + (engine_coordinate_2->clip_flags & 3)];
                         triangle_bucket_near_3->b.next = buckets[divided_z];
                         triangle_bucket_near_3->b.kind = QK_PolygonNearFP;
                         buckets[divided_z] = &triangle_bucket_near_3->b;
@@ -3617,7 +3617,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                     {
                         triangle_bucket_near_2 = (struct BucketKindPolygonNearFP *)getpoly;
                         getpoly += sizeof(struct BucketKindPolygonNearFP);
-                        triangle_bucket_near_2->subtype = splittypes[16 * (engine_coordinate_3->field_8 & 3) + 4 * (engine_coordinate_1->field_8 & 3) + (engine_coordinate_2->field_8 & 3)];
+                        triangle_bucket_near_2->subtype = splittypes[16 * (engine_coordinate_3->clip_flags & 3) + 4 * (engine_coordinate_1->clip_flags & 3) + (engine_coordinate_2->clip_flags & 3)];
                         triangle_bucket_near_2->b.next = buckets[divided_z];
                         triangle_bucket_near_2->b.kind = QK_PolygonNearFP;
                         buckets[divided_z] = &triangle_bucket_near_2->b;
@@ -3732,8 +3732,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_far->p1.U = 0x1FFFFF;
                 triangle_bucket_far->p1.V = 0x1FFFFF;
 
-                int coordinate_1_lightness = engine_coordinate_1->field_A;
-                int coordinate_1_distance = engine_coordinate_1->field_C;
+                int coordinate_1_lightness = engine_coordinate_1->shade_intensity;
+                int coordinate_1_distance = engine_coordinate_1->render_distance;
 
                 if (argument5 >= 0)
                     coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
@@ -3758,8 +3758,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_far->p2.U = 0;
                 triangle_bucket_far->p2.V = 0x1FFFFF;
 
-                int coordinate_2_lightness = engine_coordinate_2->field_A;
-                int coordinate_2_distance = engine_coordinate_2->field_C;
+                int coordinate_2_lightness = engine_coordinate_2->shade_intensity;
+                int coordinate_2_distance = engine_coordinate_2->render_distance;
 
                 if (argument5 >= 0)
                     coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
@@ -3784,8 +3784,8 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 triangle_bucket_far->p3.U = 0;
                 triangle_bucket_far->p3.V = 0;
 
-                int coordinate_3_lightness = engine_coordinate_3->field_A;
-                int coordinate_3_distance = engine_coordinate_3->field_C;
+                int coordinate_3_lightness = engine_coordinate_3->shade_intensity;
+                int coordinate_3_distance = engine_coordinate_3->render_distance;
 
                 if (argument5 >= 0)
                     coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
@@ -3877,13 +3877,13 @@ static long find_closest_lights(const struct Coord3d* pos, struct NearestLights*
 
 static long find_fade_S(struct EngineCoord *ecor)
 {
-    if (ecor->field_C <= fade_min) {
-        return ecor->field_A << 8;
+    if (ecor->render_distance <= fade_min) {
+        return ecor->shade_intensity << 8;
     }
-    else if (ecor->field_C >= fade_max) {
+    else if (ecor->render_distance >= fade_max) {
         return 32768;
     } else {
-        return ecor->field_A * (fade_scaler - ecor->field_C) / fade_range + 32768;
+        return ecor->shade_intensity * (fade_scaler - ecor->render_distance) / fade_range + 32768;
     }
 }
 
@@ -4210,7 +4210,7 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
     int ec2_fieldA;
     int ec3_fieldA;
 
-    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+    if ( (ec1->clip_flags & (uint16_t)(ec2->clip_flags & ec3->clip_flags) & 0x1F8) == 0
         && (ec2->view_width - ec1->view_width) * (ec3->view_height - ec2->view_height)
         + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0 )
     {
@@ -4231,9 +4231,9 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
             v6->b.kind = 0;
             buckets[v7] = &v6->b;
             v6->block = textr_id;
-            ec1_fieldA = ec1->field_A;
-            ec2_fieldA = ec2->field_A;
-            ec3_fieldA = ec3->field_A;
+            ec1_fieldA = ec1->shade_intensity;
+            ec2_fieldA = ec2->shade_intensity;
+            ec3_fieldA = ec3->shade_intensity;
             if ( a5 >= 0 )
             {
                 ec1_fieldA = (4 * ec1_fieldA * (a5 + 0x4000)) >> 17;
@@ -4270,7 +4270,7 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
     struct BucketKindPolygonStandard *v7;
     struct BasicQ *v8;
 
-    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+    if ( (ec1->clip_flags & (uint16_t)(ec2->clip_flags & ec3->clip_flags) & 0x1F8) == 0
         && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height)
         + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0 )
     {
@@ -4294,17 +4294,17 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
             v5->p1.Y = ec1->view_height;
             v5->p1.U = 0;
             v5->p1.V = 0;
-            v5->p1.S = (ec1->field_A + 3072) << 8;
+            v5->p1.S = (ec1->shade_intensity + 3072) << 8;
             v5->p2.X = ec2->view_width;
             v5->p2.Y = ec2->view_height;
             v5->p2.U = 0x1FFFFF;
             v5->p2.V = 0;
-            v5->p2.S = (ec2->field_A + 3072) << 8;
+            v5->p2.S = (ec2->shade_intensity + 3072) << 8;
             v7->p3.X = ec3->view_width;
             v7->p3.Y = ec3->view_height;
             v7->p3.U = 0x1FFFFF;
             v7->p3.V = 0x1FFFFF;
-            v7->p3.S = (ec3->field_A + 3072) << 8;
+            v7->p3.S = (ec3->shade_intensity + 3072) << 8;
         }
     }
 }
@@ -4317,7 +4317,7 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
     int v6;
     struct BasicQ *v7;
 
-    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+    if ( (ec1->clip_flags & (uint16_t)(ec2->clip_flags & ec3->clip_flags) & 0x1F8) == 0
         && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height)
         + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0 )
     {
@@ -4340,17 +4340,17 @@ static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2
         v5->p1.Y = ec1->view_height;
         v5->p1.U = 0x1FFFFF;
         v5->p1.V = 0x1FFFFF;
-        v5->p1.S = (ec1->field_A + 3072) << 8;
+        v5->p1.S = (ec1->shade_intensity + 3072) << 8;
         v5->p2.X = ec2->view_width;
         v5->p2.Y = ec2->view_height;
         v5->p2.U = 0;
         v5->p2.V = 0x1FFFFF;
-        v5->p2.S = (ec2->field_A + 3072) << 8;
+        v5->p2.S = (ec2->shade_intensity + 3072) << 8;
         v5->p3.X = ec3->view_width;
         v5->p3.Y = ec3->view_height;
         v5->p3.U = 0;
         v5->p3.V = 0;
-        v5->p3.S = (ec3->field_A + 3072) << 8;
+        v5->p3.S = (ec3->shade_intensity + 3072) << 8;
         }
     }
 }
@@ -4370,7 +4370,7 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
     struct PolyPoint *polypoint3;
     struct PolyPoint *polypoint1;
 
-    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
+    if ( (ec1->clip_flags & (uint16_t)(ec2->clip_flags & ec3->clip_flags) & 0x1F8) == 0
         && (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width)
         + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0 )
     {
@@ -4391,9 +4391,9 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
             v6->b.kind = 0;
             buckets[zdiv16] = &v6->b;
             v6->block = textr_id;
-            ec1_fieldA = ec1->field_A;
-            ec2_fieldA = ec2->field_A;
-            ec3_fieldA = ec3->field_A;
+            ec1_fieldA = ec1->shade_intensity;
+            ec2_fieldA = ec2->shade_intensity;
+            ec3_fieldA = ec3->shade_intensity;
             if ( a5 >= 0 )
             {
                 ec1_fieldA = (4 * (a5 + 0x4000) * ec1_fieldA) >> 17;
@@ -7013,22 +7013,22 @@ static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
     point_a.Y = (txquad->unk_y >> 8) / pixel_size;
     point_a.U = orient_to_mapU1[txquad->orient];
     point_a.V = orient_to_mapV1[txquad->orient];
-    point_a.S = txquad->lightness0;
+    point_a.S = txquad->shade_intensity0;
     point_d.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
     point_d.Y = (txquad->unk_y >> 8) / pixel_size;
     point_d.U = orient_to_mapU2[txquad->orient];
     point_d.V = orient_to_mapV2[txquad->orient];
-    point_d.S = txquad->lightness1;
+    point_d.S = txquad->shade_intensity1;
     point_b.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
     point_b.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
     point_b.U = orient_to_mapU3[txquad->orient];
     point_b.V = orient_to_mapV3[txquad->orient];
-    point_b.S = txquad->lightness2;
+    point_b.S = txquad->shade_intensity2;
     point_c.X = (txquad->unk_x >> 8) / pixel_size;
     point_c.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
     point_c.U = orient_to_mapU4[txquad->orient];
     point_c.V = orient_to_mapV4[txquad->orient];
-    point_c.S = txquad->lightness3;
+    point_c.S = txquad->shade_intensity3;
     draw_gpoly(&point_a, &point_d, &point_b);
     draw_gpoly(&point_a, &point_b, &point_c);
 }
@@ -7281,10 +7281,10 @@ static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long
     poly->zoom_x = zoom;
     poly->zoom_y = zoom;
     poly->orient = orient;
-    poly->lightness0 = lightness;
-    poly->lightness1 = lightness;
-    poly->lightness2 = lightness;
-    poly->lightness3 = lightness;
+    poly->shade_intensity0 = lightness;
+    poly->shade_intensity1 = lightness;
+    poly->shade_intensity2 = lightness;
+    poly->shade_intensity3 = lightness;
     poly->marked_mode = marked_mode;
 }
 
@@ -7308,10 +7308,10 @@ static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long
     poly->zoom_x = zoom_x;
     poly->zoom_y = zoom_y;
     poly->orient = orient;
-    poly->lightness0 = lg0;
-    poly->lightness1 = lg1;
-    poly->lightness2 = lg2;
-    poly->lightness3 = lg3;
+    poly->shade_intensity0 = lg0;
+    poly->shade_intensity1 = lg1;
+    poly->shade_intensity2 = lg2;
+    poly->shade_intensity3 = lg3;
     poly->marked_mode = 3;
 }
 
@@ -8759,7 +8759,7 @@ static void do_map_who_for_thing(struct Thing *thing)
     switch (thing->draw_class)
     {
     case ODC_Default:
-        ecor.field_8 = 0;
+        ecor.clip_flags = 0;
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
         ecor.y = (render_floorpos - map_z_pos); // For shadows
@@ -8802,7 +8802,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         }
         break;
     case ODC_DrawClass3:
-        ecor.field_8 = 0;
+        ecor.clip_flags = 0;
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
         ecor.y = (render_pos_y - map_z_pos);

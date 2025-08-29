@@ -71,10 +71,10 @@ TbBool has_available_enemy_dungeon_heart(struct Thing *thing, PlayerNumber plyr_
 {
     SYNCDBG(18,"Starting");
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->hero.byte_8C != 0) || (cctrl->hero.byte_8B != 0))
+    if ((cctrl->hero.ready_for_attack_flag != 0) || (cctrl->hero.hero_state_reset_flag != 0))
     {
-        cctrl->hero.byte_8C = 0;
-        cctrl->hero.byte_8B = 0;
+        cctrl->hero.ready_for_attack_flag = 0;
+        cctrl->hero.hero_state_reset_flag = 0;
     }
     // Try accessing dungeon heart of undefeated enemy players
     if (!player_is_friendly_or_defeated(plyr_idx, thing->owner) && (creature_can_get_to_dungeon_heart(thing, plyr_idx)))
@@ -88,10 +88,10 @@ TbBool has_available_rooms_to_attack(struct Thing* thing, PlayerNumber plyr_idx)
 {
     SYNCDBG(18, "Starting");
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->hero.byte_8C != 0) || (cctrl->hero.byte_8B != 0))
+    if ((cctrl->hero.ready_for_attack_flag != 0) || (cctrl->hero.hero_state_reset_flag != 0))
     {
-        cctrl->hero.byte_8C = 0;
-        cctrl->hero.byte_8B = 0;
+        cctrl->hero.ready_for_attack_flag = 0;
+        cctrl->hero.hero_state_reset_flag = 0;
     }
     if (players_are_enemies(thing->owner, plyr_idx) && creature_can_get_to_any_of_players_rooms(thing, plyr_idx))
     {
@@ -999,7 +999,7 @@ short good_doing_nothing(struct Thing *creatng)
         if ((nturns > 400) && (cctrl->hero.look_for_enemy_dungeon_turn != 0))
         {
             cctrl->hero.wait_time = game.play_gameturn;
-            cctrl->hero.byte_8C = 1;
+            cctrl->hero.ready_for_attack_flag = 1;
         }
         nturns = game.play_gameturn - cctrl->hero.look_for_enemy_dungeon_turn;
         if (nturns > 64)
@@ -1425,7 +1425,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
         pos->z.val = get_thing_height_at(creatng, pos);
         initialise_wallhugging_path_from_to(&cctrl->navi, &creatng->mappos, pos);
     }
-    long tnlret = get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, cctrl->party.byte_8F);
+    long tnlret = get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, cctrl->party.tunnel_dig_direction);
     if (tnlret == 2)
     {
         i = cctrl->navi.first_colliding_block;
@@ -1493,7 +1493,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     cctrl->moveaccel.x.val = cctrl->navi.pos_next.x.val - (MapCoordDelta)creatng->mappos.x.val;
     cctrl->moveaccel.y.val = cctrl->navi.pos_next.y.val - (MapCoordDelta)creatng->mappos.y.val;
     cctrl->moveaccel.z.val = 0;
-    cctrl->flgfield_2 |= TF2_Unkn01;
+    cctrl->creature_state_flags |= TF2_Unkn01;
     creature_set_speed(creatng, min(speed,dist));
     return 0;
 }

@@ -191,15 +191,15 @@ int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
         }
         data_list[i].label = label_list[i];
 
-        data_list[i].numfield_4 = 1;
+        data_list[i].is_enabled = 1;
         data_list[i].callback = click_fn;
         data_list[i].acb_param1 = plyr_idx;
-        data_list[i].field_11 = max_count;
+        data_list[i].max_count = max_count;
         data_list[i].cb_param1 = plyr_idx;
-        data_list[i].field_1D = i;
+        data_list[i].option_index = i;
     }
     data_list[i].label = "!";
-    data_list[i].numfield_4 = 0;
+    data_list[i].is_enabled = 0;
     return i;
 }
 
@@ -561,13 +561,13 @@ TbBool cmd_comp_procs(PlayerNumber plyr_idx, char * args)
         &cmd_comp_procs_click);
     cmd_comp_procs_data[0].active_cb = &cmd_comp_procs_update;
     cmd_comp_procs_data[i].label = "======";
-    cmd_comp_procs_data[i].numfield_4 = 1;
+    cmd_comp_procs_data[i].is_enabled = 1;
     i++;
     cmd_comp_procs_data[i].label = cmd_comp_procs_label[COMPUTER_PROCESSES_COUNT];
-    cmd_comp_procs_data[i].numfield_4 = 1;
+    cmd_comp_procs_data[i].is_enabled = 1;
     i++;
     cmd_comp_procs_data[i].label = "!";
-    cmd_comp_procs_data[i].numfield_4 = 0;
+    cmd_comp_procs_data[i].is_enabled = 0;
     gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_procs_data);
     return true;
 }

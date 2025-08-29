@@ -186,7 +186,7 @@ short creature_drop_unconscious_in_lair(struct Thing *thing)
     {
         initialise_thing_state(dragtng, CrSt_CreatureAtNewLair);
     }
-    set_flag(dragctrl->flgfield_1,CCFlg_NoCompControl);
+    set_flag(dragctrl->creature_control_flags,CCFlg_NoCompControl);
     set_start_state(thing);
     return 1;
 

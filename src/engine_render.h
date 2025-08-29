@@ -42,9 +42,9 @@ extern "C" {
 struct EngineCoord { // sizeof = 28
   long view_width; // X screen position, probably not a width
   long view_height; // Y screen position, probably not a height
-  unsigned short field_8; // Affects the drawing of offscreen triangles and something to do with Splittypes
-  unsigned short field_A; // Lightness
-  long field_C; // Distance to camera
+  unsigned short clip_flags; // Clipping and culling flags for frustum culling
+  unsigned short shade_intensity; // Shading intensity for vertex lighting
+  long render_distance; // Distance used for rendering calculations
   long x;
   long y;
   long z;
