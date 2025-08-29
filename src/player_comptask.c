@@ -873,20 +873,20 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
         return Job_NULL;
     }
     SYNCDBG(9,"Starting for player %d",(int)dungeon->owner);
-    param.ptr1 = (void *)comp;
-    param.num2 = Job_NULL; // Our filter function will update that
+    param.primary_pointer = (void *)comp;
+    param.secondary_number = Job_NULL; // Our filter function will update that
     filter = player_list_creature_filter_needs_to_be_placed_in_room_for_job;
     thing = get_player_list_random_creature_with_filter(dungeon->creatr_list_start, filter, &param, dungeon->owner);
     if (thing_is_invalid(thing)) {
         return Job_NULL;
     }
-    SYNCDBG(9,"Player %d wants to move %s index %d for job %s",(int)dungeon->owner,thing_model_name(thing),(int)thing->index,creature_job_code_name(param.num2));
+    SYNCDBG(9,"Player %d wants to move %s index %d for job %s",(int)dungeon->owner,thing_model_name(thing),(int)thing->index,creature_job_code_name(param.secondary_number));
     // We won't allow the creature to be picked if we want it to be placed in the same room it is now.
     // The filter function took care of most such situations, but it is still possible that the creature
     // won't be able or will not want to work in that room, and will be picked up and dropped over and over.
     // This will prevent such situation, at least to the moment when the creature leaves the room.
     room = get_room_thing_is_on(thing);
-    if (!room_is_invalid(room) && ((get_room_roles(room->kind) & get_room_role_for_job(param.num2)) != 0) && (room->owner == thing->owner)) {
+    if (!room_is_invalid(room) && ((get_room_roles(room->kind) & get_room_role_for_job(param.secondary_number)) != 0) && (room->owner == thing->owner)) {
         // Do not spam with warnings which we know to be expected
         if (!creature_is_called_to_arms(thing) && !creature_is_celebrating(thing)) {
             WARNDBG(4,"The %s index %d owner %d already is in %s, but goes for %s instead of work there",
@@ -894,12 +894,12 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
         }
         return Job_NULL;
     }
-    room = get_room_of_given_role_for_thing(thing, dungeon, get_room_role_for_job(param.num2), 1);
+    room = get_room_of_given_role_for_thing(thing, dungeon, get_room_role_for_job(param.secondary_number), 1);
     if (room_is_invalid(room))
         return Job_NULL;
     *roomp = room;
     *creatngp = thing;
-    return param.num2;
+    return param.secondary_number;
 }
 
 void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos, long room_area)

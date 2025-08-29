@@ -73,9 +73,9 @@ struct ComputerCheck {
   unsigned long flags; /**< Values from ComChk_* enumeration. */
   long turns_interval;
   FuncIdx func;
-  long param1;
-  long param2;
-  long param3;
+  long primary_parameter;
+  long secondary_parameter;
+  long tertiary_parameter;
   long last_run_turn;
 };
 
@@ -88,9 +88,9 @@ struct ComputerEvent {
   FuncIdx func_test;
   long test_interval;
   unsigned char process;
-  long param1;
-  long param2;
-  long param3;
+  long primary_parameter;
+  long secondary_parameter;
+  long tertiary_parameter;
   long last_test_gameturn; /**< event last checked time */
 };
 

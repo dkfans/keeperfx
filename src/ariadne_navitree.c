@@ -226,49 +226,49 @@ static void delaunay_stack_point(long pt_x, long pt_y)
     long cor_idx;
     long dst_tri_idx;
     long dst_cor_idx;
-    long tri_id2;
+    long adjacent_triangle_index;
     NAVIDBG(19,"Starting");
 
-    long tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
-    if (tri_idx == -1) {
+    long found_triangle_index = triangle_find8(pt_x << 8, pt_y << 8);
+    if (found_triangle_index == -1) {
         NAVIDBG(19,"Tri not found");
         return;
     }
-    delaunay_add_triangle(tri_idx);
+    delaunay_add_triangle(found_triangle_index);
     for (cor_idx=0; cor_idx < 3; cor_idx++)
     {
-        tri_id2 = Triangles[tri_idx].tags[cor_idx];
-        if (tri_id2 != -1) {
-            delaunay_add_triangle(tri_id2);
+        adjacent_triangle_index = Triangles[found_triangle_index].tags[cor_idx];
+        if (adjacent_triangle_index != -1) {
+            delaunay_add_triangle(adjacent_triangle_index);
         }
     }
     if (point_find(pt_x, pt_y, &dst_tri_idx, &dst_cor_idx))
     {
-      tri_idx = dst_tri_idx;
+      found_triangle_index = dst_tri_idx;
       cor_idx = dst_cor_idx;
       unsigned long k = 0;
       do
       {
-          tri_id2 = Triangles[tri_idx].tags[cor_idx];
-          if (tri_id2 == -1) {
+          adjacent_triangle_index = Triangles[found_triangle_index].tags[cor_idx];
+          if (adjacent_triangle_index == -1) {
               NAVIDBG(19,"Tag not found");
               break;
           }
-          long i = link_find(tri_id2, tri_idx);
+          long i = link_find(adjacent_triangle_index, found_triangle_index);
           if (i == -1) {
               NAVIDBG(19,"Link not found");
               break;
           }
           cor_idx = MOD3[i+1];
-          tri_idx = tri_id2;
-          delaunay_add_triangle(tri_idx);
+          found_triangle_index = adjacent_triangle_index;
+          delaunay_add_triangle(found_triangle_index);
           k++;
           if (k >= TRIANLGLES_COUNT) {
               ERRORDBG(9,"Infinite loop detected");
               break;
           }
       }
-      while (tri_idx != dst_tri_idx);
+      while (found_triangle_index != dst_tri_idx);
     }
     NAVIDBG(19,"Done");
 }
@@ -339,10 +339,10 @@ long delaunay_seeded(long start_x, long start_y, long end_x, long end_y)
             }
             for (long cor_id2 = 0; cor_id2 < 3; cor_id2++)
             {
-                long tri_id2 = Triangles[tri_idx].tags[cor_id2];
-                if (tri_id2 == -1)
+                long local_adjacent_triangle = Triangles[tri_idx].tags[cor_id2];
+                if (local_adjacent_triangle == -1)
                     continue;
-                delaunay_add_triangle(tri_id2);
+                delaunay_add_triangle(local_adjacent_triangle);
             }
         }
     }

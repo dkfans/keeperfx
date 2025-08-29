@@ -725,46 +725,46 @@ long LbSqrL(long x)
   return y;
 }
 
-long LbMathOperation(unsigned char opkind, long val1, long val2)
+long LbMathOperation(unsigned char opkind, long first_operand, long second_operand)
 {
   switch (opkind)
   {
     case MOp_EQUAL:
-      return val1 == val2;
+      return first_operand == second_operand;
     case MOp_NOT_EQUAL:
-      return val1 != val2;
+      return first_operand != second_operand;
     case MOp_SMALLER:
-      return val1 < val2;
+      return first_operand < second_operand;
     case MOp_GREATER:
-      return val1 > val2;
+      return first_operand > second_operand;
     case MOp_SMALLER_EQ:
-      return val1 <= val2;
+      return first_operand <= second_operand;
     case MOp_GREATER_EQ:
-      return val1 >= val2;
+      return first_operand >= second_operand;
     case MOp_LOGIC_AND:
-      return val1 && val2;
+      return first_operand && second_operand;
     case MOp_LOGIC_OR:
-      return val1 || val2;
+      return first_operand || second_operand;
     case MOp_LOGIC_XOR:
-      return (val1!=0) ^ (val2!=0);
+      return (first_operand!=0) ^ (second_operand!=0);
     case MOp_BITWS_AND:
-      return val1 & val2;
+      return first_operand & second_operand;
     case MOp_BITWS_OR:
-      return val1 | val2;
+      return first_operand | second_operand;
     case MOp_BITWS_XOR:
-      return val1 ^ val2;
+      return first_operand ^ second_operand;
     case MOp_SUM:
-      return val1 + val2;
+      return first_operand + second_operand;
     case MOp_SUBTRACT:
-      return val1 - val2;
+      return first_operand - second_operand;
     case MOp_MULTIPLY:
-      return val1 * val2;
+      return first_operand * second_operand;
     case MOp_DIVIDE:
-      return val1 / val2;
+      return first_operand / second_operand;
     case MOp_MODULO:
-      return val1 % val2;
+      return first_operand % second_operand;
     default:
-      return val1;
+      return first_operand;
   }
 }
 

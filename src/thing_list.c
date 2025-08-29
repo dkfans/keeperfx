@@ -249,13 +249,13 @@ long near_map_block_thing_filter_call_bool_filter(const struct Thing *thing, Max
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
-                Thing_Bool_Filter matcher_cb = (Thing_Bool_Filter)param->ptr3;
+                Thing_Bool_Filter matcher_cb = (Thing_Bool_Filter)param->tertiary_pointer;
                 if ((matcher_cb != NULL) && matcher_cb(thing))
                 {
                     // Prepare reference Coord3d struct for distance computation
                     struct Coord3d refpos;
-                    refpos.x.val = param->num1;
-                    refpos.y.val = param->num2;
+                    refpos.x.val = param->primary_number;
+                    refpos.y.val = param->secondary_number;
                     refpos.z.val = 0;
                     // This function should return max value when the distance is minimal, so:
                     return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
@@ -282,7 +282,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
-                struct Thing* traptng = thing_get(param->num1);
+                struct Thing* traptng = thing_get(param->primary_number);
                 if (players_are_enemies(traptng->owner, thing->owner) || is_neutral_thing(traptng))
                 {
                     if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing) && !thing_is_picked_up(thing)
@@ -290,7 +290,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
                         && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0))
                     {
                         MapCoordDelta distance = get_2d_distance(&thing->mappos, &traptng->mappos);
-                        MapCoordDelta max_range = param->num2;
+                        MapCoordDelta max_range = param->secondary_number;
                         if ((distance <= max_range) || (max_range <= 0))
                         {
                             if (line_of_sight_2d(&traptng->mappos, &thing->mappos))
@@ -330,7 +330,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_attacked_by_creature(cons
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
-                struct Thing* creatng = thing_get(param->num1);
+                struct Thing* creatng = thing_get(param->primary_number);
                 if (players_are_enemies(creatng->owner, thing->owner))
                 {
                     if (creature_will_attack_creature(creatng, thing))
@@ -360,7 +360,7 @@ long near_thing_pos_thing_filter_is_enemy_object_which_can_be_attacked_by_creatu
         {
             if ((param->plyr_idx == -1) || (objtng->owner == param->plyr_idx))
             {
-                struct Thing* creatng = thing_get(param->num1);
+                struct Thing* creatng = thing_get(param->primary_number);
                 if (players_are_enemies(creatng->owner, objtng->owner))
                 {
                     MapCoordDelta distance = get_2d_distance(&creatng->mappos, &objtng->mappos);
@@ -391,14 +391,14 @@ long highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_b
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
-                struct Thing* creatng = thing_get(param->num1);
+                struct Thing* creatng = thing_get(param->primary_number);
                 if (creature_will_attack_creature(creatng, thing) && !creature_has_creature_in_combat(creatng, thing))
                 {
                     long distance = get_combat_distance(creatng, thing);
-                    if (distance >= param->num2) {
+                    if (distance >= param->secondary_number) {
                         return -1;
                     }
-                    CrAttackType attack_type = creature_can_have_combat_with_creature(creatng, (struct Thing*)thing, distance, param->num3, 0);
+                    CrAttackType attack_type = creature_can_have_combat_with_creature(creatng, (struct Thing*)thing, distance, param->tertiary_number, 0);
                     if (attack_type > AttckT_Unset)
                     {
                         long score = get_combat_score(creatng, thing, attack_type, distance);
@@ -426,14 +426,14 @@ long highest_score_thing_filter_is_enemy_object_within_distance_which_can_be_att
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
-                struct Thing* objtng = thing_get(param->num1);
+                struct Thing* objtng = thing_get(param->primary_number);
                 if (trap_is_valid_combat_target_for_creature(objtng, thing))
                 {
                     long distance = get_combat_distance(objtng, thing);
-                    if (distance >= param->num2) {
+                    if (distance >= param->secondary_number) {
                         return -1;
                     }
-                    CrAttackType attack_type = creature_can_have_combat_with_object(objtng, (struct Thing*)thing, distance, param->num3, 0);
+                    CrAttackType attack_type = creature_can_have_combat_with_object(objtng, (struct Thing*)thing, distance, param->tertiary_number, 0);
                     if (attack_type > AttckT_Unset)
                     {
                         long score = get_combat_score(objtng, thing, attack_type, distance);
@@ -463,8 +463,8 @@ long near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger(c
             {
                 // Prepare reference Coord3d struct for distance computation
                 struct Coord3d refpos;
-                refpos.x.val = param->num1;
-                refpos.y.val = param->num2;
+                refpos.x.val = param->primary_number;
+                refpos.y.val = param->secondary_number;
                 refpos.z.val = 0;
                 // This function should return max value when the distance is minimal, so:
                 return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
@@ -493,8 +493,8 @@ long near_map_block_thing_filter_is_creature_of_model_owned_and_controlled_by(co
                 {
                     // Prepare reference Coord3d struct for distance computation
                     struct Coord3d refpos;
-                    refpos.x.val = param->num1;
-                    refpos.y.val = param->num2;
+                    refpos.x.val = param->primary_number;
+                    refpos.y.val = param->secondary_number;
                     refpos.z.val = 0;
                     // This function should return max value when the distance is minimal, so:
                     return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
@@ -522,8 +522,8 @@ long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, M
             {
                 if (!thing_is_picked_up(thing))
                 {
-                    MapCoordDelta dist = get_distance_xy(thing->mappos.x.val, thing->mappos.y.val, param->num1, param->num2);
-                    if (dist > param->num3) // Too far away
+                    MapCoordDelta dist = get_distance_xy(thing->mappos.x.val, thing->mappos.y.val, param->primary_number, param->secondary_number);
+                    if (dist > param->tertiary_number) // Too far away
                         return -1;
                     // It is not "correct" randomness (pick random N from list) but rolling a dice on each creature found
                     unsigned long tmp = maximizer + dist + 1;
@@ -554,11 +554,11 @@ long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const stru
                 {
                     // Prepare reference Coord3d struct for distance computation
                     struct Coord3d refpos;
-                    refpos.x.val = param->num1;
-                    refpos.y.val = param->num2;
+                    refpos.x.val = param->primary_number;
+                    refpos.y.val = param->secondary_number;
                     refpos.z.val = 0;
                     MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
-                    if (dist > param->num3) // Too far away
+                    if (dist > param->tertiary_number) // Too far away
                         return -1;
                     // This function should return max value when the distance is minimal, so:
                     return LONG_MAX-dist;
@@ -578,12 +578,12 @@ long near_map_block_thing_filter_is_thing_of_class_and_model_owned_by(const stru
  */
 long near_map_block_thing_filter_can_be_keeper_power_target(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    if (can_cast_power_on_thing(param->plyr_idx, thing, param->num3))
+    if (can_cast_power_on_thing(param->plyr_idx, thing, param->tertiary_number))
     {
         // Prepare reference Coord3d struct for distance computation
         struct Coord3d refpos;
-        refpos.x.val = param->num1;
-        refpos.y.val = param->num2;
+        refpos.x.val = param->primary_number;
+        refpos.y.val = param->secondary_number;
         refpos.z.val = 0;
         // This function should return max value when the distance is minimal, so:
         return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
@@ -621,8 +621,8 @@ long near_map_block_thing_filter_is_slappable(const struct Thing *thing, MaxTngF
         {
             // Prepare reference Coord3d struct for distance computation
             struct Coord3d refpos;
-            refpos.x.val = param->num1;
-            refpos.y.val = param->num2;
+            refpos.x.val = param->primary_number;
+            refpos.y.val = param->secondary_number;
             refpos.z.val = 0;
             // This function should return max value when the distance is minimal, so:
             return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
@@ -649,8 +649,8 @@ long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxTngFi
             {
                 // Prepare reference Coord3d struct for distance computation
                 struct Coord3d refpos;
-                refpos.x.val = param->num1;
-                refpos.y.val = param->num2;
+                refpos.x.val = param->primary_number;
+                refpos.y.val = param->secondary_number;
                 refpos.z.val = 0;
                 // This function should return max value when the distance is minimal, so:
                 return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
@@ -661,8 +661,8 @@ long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxTngFi
             {
                 // Prepare reference Coord3d struct for distance computation
                 struct Coord3d refpos;
-                refpos.x.val = param->num1;
-                refpos.y.val = param->num2;
+                refpos.x.val = param->primary_number;
+                refpos.y.val = param->secondary_number;
                 refpos.z.val = 0;
                 // This function should return max value when the distance is minimal, so:
                 return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
@@ -737,11 +737,11 @@ long in_action_point_thing_filter_is_of_class_and_model_and_owned_by(const struc
                 if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
                 {
                     struct Coord3d refpos;
-                    refpos.x.val = param->num1;
-                    refpos.y.val = param->num2;
+                    refpos.x.val = param->primary_number;
+                    refpos.y.val = param->secondary_number;
                     refpos.z.val = 0;
                     MapCoordDelta dist = get_2d_distance(&thing->mappos, &refpos);
-                    if (dist <= param->num3) {
+                    if (dist <= param->tertiary_number) {
                         // Return the largest value to stop sweeping
                         return LONG_MAX;
                     }
@@ -801,7 +801,7 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
-              if (((int)thing->index != param->num1) || (param->num1 == -1))
+              if (((int)thing->index != param->primary_number) || (param->primary_number == -1))
               {
                   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
                   if ((thing->active_state == CrSt_Training) && (cctrl->training.mode > 1))
@@ -886,7 +886,7 @@ long anywhere_thing_filter_call_bool_filter(const struct Thing *thing, MaxTngFil
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
-                Thing_Bool_Filter matcher_cb = (Thing_Bool_Filter)param->ptr3;
+                Thing_Bool_Filter matcher_cb = (Thing_Bool_Filter)param->tertiary_pointer;
                 if ((matcher_cb != NULL) && matcher_cb(thing))
                 {
                     return LONG_MAX;
@@ -912,7 +912,7 @@ long anywhere_thing_filter_call_neg_bool_filter(const struct Thing *thing, MaxTn
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
-                Thing_Bool_Filter matcher_cb = (Thing_Bool_Filter)param->ptr3;
+                Thing_Bool_Filter matcher_cb = (Thing_Bool_Filter)param->tertiary_pointer;
                 if ((matcher_cb != NULL) && !matcher_cb(thing))
                 {
                     return LONG_MAX;
@@ -938,8 +938,8 @@ long anywhere_thing_filter_is_trap_of_model_armed_and_owned_by(const struct Thin
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
-              if ((param->num1 && (thing->trap.num_shots != 0))
-              || (!param->num1 && (thing->trap.num_shots == 0)))
+              if ((param->primary_number && (thing->trap.num_shots != 0))
+              || (!param->primary_number && (thing->trap.num_shots == 0)))
               {
                   // Return the largest value to stop sweeping
                   return LONG_MAX;
@@ -965,8 +965,8 @@ long anywhere_thing_filter_is_door_of_model_locked_and_owned_by(const struct Thi
       {
           if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
           {
-              if ((param->num1 && (thing->door.is_locked))
-              || (!param->num1 && (!thing->door.is_locked)))
+              if ((param->primary_number && (thing->door.is_locked))
+              || (!param->primary_number && (!thing->door.is_locked)))
               {
                   // Return the largest value to stop sweeping
                   return LONG_MAX;
@@ -1022,9 +1022,9 @@ TngUpdateRet switch_object_on_destoyed_slab_to_new_owner(struct Thing *thing, Mo
     }
     if (thing_is_object(thing))
     {
-        if (object_is_gold_pile(thing) && (thing->owner != param->num1))
+        if (object_is_gold_pile(thing) && (thing->owner != param->primary_number))
         {
-            change_object_owner(thing, param->num1);
+            change_object_owner(thing, param->primary_number);
             return TUFRet_Modified;
         }
     }
@@ -1848,9 +1848,9 @@ struct Thing *get_nearest_object_owned_by_and_matching_bool_filter(MapCoord pos_
     param.class_id = TCls_Object;
     param.model_id = -1;
     param.plyr_idx = plyr_idx;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
-    param.ptr3 = (void *)matcher_cb;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
+    param.tertiary_pointer = (void *)matcher_cb;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
@@ -1869,9 +1869,9 @@ struct Thing *get_nearest_thing_of_class_and_model_owned_by(MapCoord pos_x, MapC
     param.class_id = tngclass;
     param.model_id = tngmodel;
     param.plyr_idx = plyr_idx;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
-    param.num3 = LONG_MAX;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
+    param.tertiary_number = LONG_MAX;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
@@ -1890,9 +1890,9 @@ struct Thing *get_nth_creature_owned_by_and_matching_bool_filter(PlayerNumber pl
     param.class_id = TCls_Creature;
     param.model_id = CREATURE_ANY;
     param.plyr_idx = plyr_idx;
-    param.num1 = -1;
-    param.num2 = -1;
-    param.ptr3 = (void *)matcher_cb;
+    param.primary_number = -1;
+    param.secondary_number = -1;
+    param.tertiary_pointer = (void *)matcher_cb;
     return get_nth_thing_of_class_with_filter(filter, &param, n);
 }
 
@@ -1911,9 +1911,9 @@ struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber ply
     param.class_id = TCls_Creature;
     param.model_id = CREATURE_ANY;
     param.plyr_idx = plyr_idx;
-    param.num1 = -1;
-    param.num2 = -1;
-    param.ptr3 = (void *)matcher_cb;
+    param.primary_number = -1;
+    param.secondary_number = -1;
+    param.tertiary_pointer = (void *)matcher_cb;
     return get_nth_thing_of_class_with_filter(filter, &param, n);
 }
 
@@ -1928,9 +1928,9 @@ struct Thing* get_nearest_enemy_creature_in_sight_and_range_of_trap(struct Thing
     param.class_id = TCls_Creature;
     param.model_id = CREATURE_ANY;
     param.plyr_idx = -1;
-    param.num1 = traptng->index;
-    param.num2 = shotst->max_range;
-    param.num3 = -1;
+    param.primary_number = traptng->index;
+    param.secondary_number = shotst->max_range;
+    param.tertiary_number = -1;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
@@ -1942,9 +1942,9 @@ struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *cre
     param.class_id = TCls_Creature;
     param.model_id = CREATURE_ANY;
     param.plyr_idx = -1;
-    param.num1 = creatng->index;
-    param.num2 = -1;
-    param.num3 = -1;
+    param.primary_number = creatng->index;
+    param.secondary_number = -1;
+    param.tertiary_number = -1;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
@@ -1956,9 +1956,9 @@ struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creat
     param.class_id = TCls_Object;
     param.model_id = -1;
     param.plyr_idx = -1;
-    param.num1 = creatng->index;
-    param.num2 = -1;
-    param.num3 = -1;
+    param.primary_number = creatng->index;
+    param.secondary_number = -1;
+    param.tertiary_number = -1;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
@@ -1970,9 +1970,9 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
     param.class_id = TCls_Creature;
     param.model_id = CREATURE_ANY;
     param.plyr_idx = -1;
-    param.num1 = creatng->index;
-    param.num2 = dist;
-    param.num3 = move_on_ground;
+    param.primary_number = creatng->index;
+    param.secondary_number = dist;
+    param.tertiary_number = move_on_ground;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
@@ -1984,9 +1984,9 @@ struct Thing* get_highest_score_enemy_object_within_distance_possible_to_attack_
     param.class_id = TCls_Trap;
     param.model_id = -1;
     param.plyr_idx = -1;
-    param.num1 = creatng->index;
-    param.num2 = dist;
-    param.num3 = move_on_ground;
+    param.primary_number = creatng->index;
+    param.secondary_number = dist;
+    param.tertiary_number = move_on_ground;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
@@ -1999,9 +1999,9 @@ struct Thing *get_random_trap_of_model_owned_by_and_armed(ThingModel tngmodel, P
     param.class_id = TCls_Trap;
     param.model_id = tngmodel;
     param.plyr_idx = plyr_idx;
-    param.num1 = armed;
-    param.num2 = -1;
-    param.num3 = -1;
+    param.primary_number = armed;
+    param.secondary_number = -1;
+    param.tertiary_number = -1;
     long match_count = count_things_of_class_with_filter(filter, &param);
     if (match_count < 1) {
         return INVALID_THING;
@@ -2018,9 +2018,9 @@ struct Thing *get_random_door_of_model_owned_by_and_locked(ThingModel tngmodel, 
     param.class_id = TCls_Door;
     param.model_id = tngmodel;
     param.plyr_idx = plyr_idx;
-    param.num1 = locked;
-    param.num2 = -1;
-    param.num3 = -1;
+    param.primary_number = locked;
+    param.secondary_number = -1;
+    param.tertiary_number = -1;
     long match_count = count_things_of_class_with_filter(filter, &param);
     if (match_count < 1) {
         return INVALID_THING;
@@ -2037,9 +2037,9 @@ struct Thing *find_gold_laying_in_dungeon(const struct Dungeon *dungeon)
     param.class_id = TCls_Object;
     param.model_id = -1;
     param.plyr_idx = dungeon->owner;
-    param.num1 = -1;
-    param.num2 = -1;
-    param.num3 = -1;
+    param.primary_number = -1;
+    param.secondary_number = -1;
+    param.tertiary_number = -1;
     return get_random_thing_of_class_with_filter(filter, &param, dungeon->owner);
 }
 
@@ -2345,9 +2345,9 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel)
     param.class_id = TCls_Creature;
     param.model_id = (is_creature_model_wildcard(crmodel)) ? CREATURE_ANY : crmodel;
     param.plyr_idx = plyr_idx;
-    param.num1 = -1;
-    param.num2 = -1;
-    param.num3 = -1;
+    param.primary_number = -1;
+    param.secondary_number = -1;
+    param.tertiary_number = -1;
     if (dungeon_invalid(dungeon)) {
         // Invalid dungeon - use list of creatures not associated to any dungeon
         return count_player_list_creatures_with_filter(game.nodungeon_creatr_list_start, filter, &param);
@@ -2388,9 +2388,9 @@ long count_player_creatures_of_model_in_action_point(PlayerNumber plyr_idx, int 
     param.class_id = TCls_Creature;
     param.model_id = (is_creature_model_wildcard(crmodel)) ? CREATURE_ANY : crmodel;
     param.plyr_idx = plyr_idx;
-    param.num1 = apt->mappos.x.val;
-    param.num2 = apt->mappos.y.val;
-    param.num3 = apt->range;
+    param.primary_number = apt->mappos.x.val;
+    param.secondary_number = apt->mappos.y.val;
+    param.tertiary_number = apt->range;
     if (dungeon_invalid(dungeon)) {
         // Invalid dungeon - use list of creatures not associated to any dungeon
         return count_player_list_creatures_with_filter(game.nodungeon_creatr_list_start, filter, &param);
@@ -2814,9 +2814,9 @@ long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr
     param.class_id = TCls_Creature;
     param.model_id = (crmodel <= 0) ? CREATURE_ANY : crmodel;
     param.plyr_idx = plyr_idx;
-    param.num1 = -1;
-    param.num2 = -1;
-    param.ptr3 = (void *)matcher_cb;
+    param.primary_number = -1;
+    param.secondary_number = -1;
+    param.tertiary_pointer = (void *)matcher_cb;
     if (dungeon_invalid(dungeon)) {
         // Invalid dungeon - use list of creatures not associated to any dungeon
         return count_player_list_creatures_with_filter(game.nodungeon_creatr_list_start, filter, &param);
@@ -3810,9 +3810,9 @@ struct Thing *get_object_around_owned_by_and_matching_bool_filter(MapCoord pos_x
     param.class_id = TCls_Object;
     param.model_id = -1;
     param.plyr_idx = plyr_idx;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
-    param.ptr3 = (void *)matcher_cb;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
+    param.tertiary_pointer = (void *)matcher_cb;
     return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, 9, filter, &param);
 }
 
@@ -3830,8 +3830,8 @@ struct Thing *get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specd
     Thing_Maximizer_Filter filter = near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger;
     struct CompoundTngFilterParam param;
     param.plyr_idx = plyr_idx;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
     return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, distance_stl*distance_stl, filter, &param);
 }
 
@@ -3850,8 +3850,8 @@ struct Thing *get_creature_in_range_of_model_owned_and_controlled_by(MapCoord po
     struct CompoundTngFilterParam param;
     param.plyr_idx = plyr_idx;
     param.model_id = crmodel;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
     return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, distance_stl*distance_stl, filter, &param);
 }
 
@@ -3869,9 +3869,9 @@ struct Thing *get_creature_near_to_be_keeper_power_target(MapCoord pos_x, MapCoo
     Thing_Maximizer_Filter filter = near_map_block_thing_filter_can_be_keeper_power_target;
     struct CompoundTngFilterParam param;
     param.plyr_idx = plyr_idx;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
-    param.num3 = pwmodel;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
+    param.tertiary_number = pwmodel;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
@@ -3889,8 +3889,8 @@ struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord pos_x, 
     struct CompoundTngFilterParam param;
     param.class_id = -1;
     param.plyr_idx = plyr_idx;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
@@ -3911,8 +3911,8 @@ struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, Pla
     param.class_id = TCls_Creature;
     param.plyr_idx = plyr_idx;
     param.model_id = crmodel;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
@@ -3930,8 +3930,8 @@ struct Thing *get_creature_near(MapCoord pos_x, MapCoord pos_y)
     param.class_id = TCls_Creature;
     param.plyr_idx = -1;
     param.model_id = CREATURE_ANY;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
@@ -3951,8 +3951,8 @@ struct Thing *get_creature_in_range_and_owned_by_or_allied_with(MapCoord pos_x, 
     param.class_id = TCls_Creature;
     param.model_id = CREATURE_ANY;
     param.plyr_idx = plyr_idx;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
     return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, distance_stl*distance_stl, filter, &param);
 }
 
@@ -3972,8 +3972,8 @@ long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord p
     param.class_id = TCls_Creature;
     param.model_id = CREATURE_ANY;
     param.plyr_idx = plyr_idx;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
     return count_things_spiral_near_map_block_with_filter(pos_x, pos_y, distance_stl*distance_stl, filter, &param);
 }
 
@@ -4065,8 +4065,8 @@ struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos
     param.class_id = TCls_Trap;
     param.model_id = model;
     param.plyr_idx = plyr_idx;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
     return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, 9, filter, &param);
 }
 
@@ -4123,7 +4123,7 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
     param.class_id = TCls_Creature;
     param.model_id = model_id;
     param.plyr_idx = plyr_idx;
-    param.num1 = skip_thing_id;
+    param.primary_number = skip_thing_id;
     const struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
     {
@@ -4213,9 +4213,9 @@ long switch_owned_objects_on_destoyed_slab_to_neutral(MapSlabCoord slb_x, MapSla
     param.plyr_idx = prev_owner;
     param.class_id = 0;
     param.model_id = 0;
-    param.num1 = game.neutral_player_num;
-    param.num2 = 0;
-    param.ptr3 = 0;
+    param.primary_number = game.neutral_player_num;
+    param.secondary_number = 0;
+    param.tertiary_pointer = 0;
     Thing_Modifier_Func do_cb = switch_object_on_destoyed_slab_to_new_owner;
     return do_to_things_with_param_around_map_block(&pos, do_cb, &param);
 }

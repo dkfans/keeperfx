@@ -344,14 +344,14 @@ int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const struct 
       {
         width += scr_x;
         if (width <= 0)
-          goto LABEL_21;
+          goto skip_sprite_draw;
         x = -scr_x;
         scr_x = 0;
       } else
       if (scr_x+adraw->bits_width > awind->width)
       {
         if (scr_x >= awind->width)
-          goto LABEL_21;
+          goto skip_sprite_draw;
         width = awind->width - scr_x;
       }
       if (scr_y < 0)
@@ -381,7 +381,7 @@ int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const struct 
         }
       }
     }
-LABEL_21:
+skip_sprite_draw:
     if ((colr1 >= 0) || (colr2 >= 0))
     {
       y = 0;

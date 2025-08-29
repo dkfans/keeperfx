@@ -227,7 +227,7 @@ long free_Points = -1;
 /******************************************************************************/
 long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, const long *route, long wp_lim, struct Path *path, long *total_len);
 void path_out_a_bit(struct Path *path, const long *route);
-void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char a7);
+void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char unusedparam);
 void route_through_gates(const struct Pathway *pway, struct Path *path, long subroute);
 long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out);
 static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long hug_angle);
@@ -241,27 +241,27 @@ void edgelen_init(void);
 // This function was added by mefisto: "Prepared a function for debugging Ariadne structure." - https://github.com/dkfans/keeperfx/commit/e92bb5d7a4ad9a9dc232df160e7fc9909fc822df
 void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *arid2)
 {
-    const struct Coord3d* p1;
-    const struct Coord3d* p2;
-    p1 = &arid1->startpos; p2 = &arid2->startpos;
-    if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("startpos DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
+    const struct Coord3d* first_structure_position;
+    const struct Coord3d* second_structure_position;
+    first_structure_position = &arid1->startpos; second_structure_position = &arid2->startpos;
+    if (memcmp(first_structure_position,second_structure_position,sizeof(struct Coord3d)) != 0) {
+        ERRORLOG("startpos DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
     }
-    p1 = &arid1->endpos; p2 = &arid2->endpos;
-    if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("endpos DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
+    first_structure_position = &arid1->endpos; second_structure_position = &arid2->endpos;
+    if (memcmp(first_structure_position,second_structure_position,sizeof(struct Coord3d)) != 0) {
+        ERRORLOG("endpos DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
     }
-    p1 = &arid1->current_waypoint_pos; p2 = &arid2->current_waypoint_pos;
-    if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("current_waypoint_pos DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
+    first_structure_position = &arid1->current_waypoint_pos; second_structure_position = &arid2->current_waypoint_pos;
+    if (memcmp(first_structure_position,second_structure_position,sizeof(struct Coord3d)) != 0) {
+        ERRORLOG("current_waypoint_pos DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
     }
-    p1 = &arid1->next_position; p2 = &arid2->next_position;
-    if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("next_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
+    first_structure_position = &arid1->next_position; second_structure_position = &arid2->next_position;
+    if (memcmp(first_structure_position,second_structure_position,sizeof(struct Coord3d)) != 0) {
+        ERRORLOG("next_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
     }
-    p1 = &arid1->previous_position; p2 = &arid2->previous_position;
-    if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("previous_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
+    first_structure_position = &arid1->previous_position; second_structure_position = &arid2->previous_position;
+    if (memcmp(first_structure_position,second_structure_position,sizeof(struct Coord3d)) != 0) {
+        ERRORLOG("previous_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
     }
     if (memcmp(&arid1->route_flags,&arid2->route_flags,14) != 0) {
         ERRORLOG("previous_position..wallhug_stored_angle DIFFERS");
@@ -274,11 +274,11 @@ void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *ari
     }
     int i;
     for (i=0; i < ARID_WAYPOINTS_COUNT; i++) {
-        const struct Coord2d* w1;
-        const struct Coord2d* w2;
-        w1 = &arid1->waypoints[i]; w2 = &arid2->waypoints[i];
-        if (memcmp(w1,w2,sizeof(struct Coord3d)) != 0) {
-            ERRORLOG("waypoints[%d] DIFFERS (%d,%d) (%d,%d)",i,(int)w1->x.val,(int)w1->y.val,(int)w2->x.val,(int)w2->y.val);
+        const struct Coord2d* first_structure_waypoint;
+        const struct Coord2d* second_structure_waypoint;
+        first_structure_waypoint = &arid1->waypoints[i]; second_structure_waypoint = &arid2->waypoints[i];
+        if (memcmp(first_structure_waypoint,second_structure_waypoint,sizeof(struct Coord3d)) != 0) {
+            ERRORLOG("waypoints[%d] DIFFERS (%d,%d) (%d,%d)",i,(int)first_structure_waypoint->x.val,(int)first_structure_waypoint->y.val,(int)second_structure_waypoint->x.val,(int)second_structure_waypoint->y.val);
         }
     }
     if (arid1->stored_waypoints != arid2->stored_waypoints) {
@@ -287,13 +287,13 @@ void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *ari
     if (arid1->total_waypoints != arid2->total_waypoints) {
         ERRORLOG("total_waypoints DIFFERS");
     }
-    p1 = &arid1->manoeuvre_fixed_position; p2 = &arid2->manoeuvre_fixed_position;
-    if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("manoeuvre_fixed_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
+    first_structure_position = &arid1->manoeuvre_fixed_position; second_structure_position = &arid2->manoeuvre_fixed_position;
+    if (memcmp(first_structure_position,second_structure_position,sizeof(struct Coord3d)) != 0) {
+        ERRORLOG("manoeuvre_fixed_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
     }
-    p1 = &arid1->manoeuvre_requested_position; p2 = &arid2->manoeuvre_requested_position;
-    if (memcmp(p1,p2,4) != 0) { // Compare only X and Y here; skip Z
-        ERRORLOG("manoeuvre_requested_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
+    first_structure_position = &arid1->manoeuvre_requested_position; second_structure_position = &arid2->manoeuvre_requested_position;
+    if (memcmp(first_structure_position,second_structure_position,4) != 0) { // Compare only X and Y here; skip Z
+        ERRORLOG("manoeuvre_requested_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
     }
     if (arid1->manoeuvre_state != arid2->manoeuvre_state) {
         ERRORLOG("manoeuvre_state DIFFERS");
@@ -486,12 +486,12 @@ static void edge_points8(long ntri_src, long ntri_dst, long *tipA_x, long *tipA_
     }
 }
 
-long fov_region(long a1, long a2, const struct FOV *fov)
+long fov_region(long point_x, long point_y, const struct FOV *fov)
 {
     long diff_ax;
     long diff_ay;
-    diff_ax = a1 - fov->tipA.x;
-    diff_ay = a2 - fov->tipA.y;
+    diff_ax = point_x - fov->tipA.x;
+    diff_ay = point_y - fov->tipA.y;
     long diff_bx;
     long diff_by;
     diff_bx = fov->tipB.x - fov->tipA.x;
@@ -515,10 +515,10 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
     long edge1_y;
     long edge2_x;
     long edge2_y;
-    char reg1;
-    char reg2;
-    long wp1;
-    long wp2;
+    char edge1_region;
+    char edge2_region;
+    long waypoint_edge1_index;
+    long waypoint_edge2_index;
     long wpi;
     int wp_num;
 
@@ -539,8 +539,8 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
       path->waypoints_num = 1;
       return 1;
     }
-    wp2 = 0;
-    wp1 = 0;
+    waypoint_edge2_index = 0;
+    waypoint_edge1_index = 0;
     wpi = 0;
     edge_points8(route[wpi+0], route[wpi+1], &fov_AC.tipB.x, &fov_AC.tipB.y, &fov_AC.tipC.x, &fov_AC.tipC.y);
     wayPoints.edge1_current_index = wpi;
@@ -553,30 +553,30 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
           edge_points8(route[wpi+0], route[wpi+1], &edge1_x, &edge1_y, &edge2_x, &edge2_y);
           wayPoints.edge1_start_index = wpi;
           wayPoints.edge2_start_index = wpi;
-          reg1 = fov_region(edge1_x, edge1_y, &fov_AC);
-          reg2 = fov_region(edge2_x, edge2_y, &fov_AC);
+          edge1_region = fov_region(edge1_x, edge1_y, &fov_AC);
+          edge2_region = fov_region(edge2_x, edge2_y, &fov_AC);
       } else
       {
-          reg2 = fov_region(ptstart_x, ptstart_y, &fov_AC);
-          reg1 = reg2;
-          if (reg2 == 0)
+          edge2_region = fov_region(ptstart_x, ptstart_y, &fov_AC);
+          edge1_region = edge2_region;
+          if (edge2_region == 0)
             break;
       }
-      if (reg1 == 0)
+      if (edge1_region == 0)
       {
           fov_AC.tipB.x = edge1_x;
           fov_AC.tipB.y = edge1_y;
           wayPoints.edge1_current_index = wayPoints.edge1_start_index;
-          wp1 = wpi;
+          waypoint_edge1_index = wpi;
       }
-      if (reg2 == 0)
+      if (edge2_region == 0)
       {
           fov_AC.tipC.x = edge2_x;
           fov_AC.tipC.y = edge2_y;
           wayPoints.edge2_current_index = wayPoints.edge2_start_index;
-          wp2 = wpi;
+          waypoint_edge2_index = wpi;
       }
-      if (reg2 == -1)
+      if (edge2_region == -1)
       {
         if (wp_num == ARID_PATH_WAYPOINTS_COUNT) {
             ERRORLOG("Exceeded max path length (i:%ld,L:%ld) (%ld,%ld)->(%ld,%ld)",
@@ -589,13 +589,13 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
         path->waypoints[wp_num].y = fov_AC.tipB.y;
         wayPoints.waypoint_index_array[wp_num] = wayPoints.edge1_current_index;
         wp_num++;
-        wpi = wp1;
+        wpi = waypoint_edge1_index;
         fov_AC.tipA.y = fov_AC.tipB.y;
         edge_points8(route[wpi+0], route[wpi+1], &fov_AC.tipB.x, &fov_AC.tipB.y, &fov_AC.tipC.x, &fov_AC.tipC.y);
         wayPoints.edge1_current_index = wpi;
         wayPoints.edge2_current_index = wpi;
       } else
-      if (reg1 == 1)
+      if (edge1_region == 1)
       {
         if (wp_num == ARID_PATH_WAYPOINTS_COUNT) {
             ERRORLOG("Exceeded max path length (i:%ld,R:%ld) (%ld,%ld)->(%ld,%ld)",
@@ -608,7 +608,7 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
         path->waypoints[wp_num].y = fov_AC.tipC.y;
         wayPoints.waypoint_index_array[wp_num] = wayPoints.edge2_current_index;
         wp_num++;
-        wpi = wp2;
+        wpi = waypoint_edge2_index;
         fov_AC.tipA.y = fov_AC.tipC.y;
         edge_points8(route[wpi+0], route[wpi+1], &fov_AC.tipB.x, &fov_AC.tipB.y, &fov_AC.tipC.x, &fov_AC.tipC.y);
         wayPoints.edge1_current_index = wpi;
@@ -697,12 +697,12 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
     int diff_y;
     if ((cor2_id >= 0) && (cor3_id >= 0))
     {
-        int pt1;
-        int pt2;
-        pt1 = Triangles[tri2_id].points[MOD3[cor2_id+1]];
-        pt2 = Triangles[tri3_id].points[cor3_id];
-        diff_y = ari_Points[pt1].y - ari_Points[pt2].y;
-        diff_x = ari_Points[pt2].x - ari_Points[pt1].x;
+        int triangle_point1_index;
+        int triangle_point2_index;
+        triangle_point1_index = Triangles[tri2_id].points[MOD3[cor2_id+1]];
+        triangle_point2_index = Triangles[tri3_id].points[cor3_id];
+        diff_y = ari_Points[triangle_point1_index].y - ari_Points[triangle_point2_index].y;
+        diff_x = ari_Points[triangle_point2_index].x - ari_Points[triangle_point1_index].x;
     } else
     {
         diff_y = 0;
@@ -762,7 +762,7 @@ void path_out_a_bit(struct Path *path, const long *route)
     }
 }
 
-void cull_gate_to_point(struct Gate *gt, long a2)
+void cull_gate_to_point(struct Gate *gt, long distance_threshold)
 {
     int diff_a;
     int diff_b;
@@ -770,11 +770,11 @@ void cull_gate_to_point(struct Gate *gt, long a2)
     diff_b = abs(gt->start_coordinate_y - gt->end_coordinate_y);
     if (diff_a <= diff_b)
     {
-      if (diff_b + (diff_a >> 1) < a2)
+      if (diff_b + (diff_a >> 1) < distance_threshold)
           return;
     } else
     {
-      if (diff_a + (diff_b >> 1) < a2)
+      if (diff_a + (diff_b >> 1) < distance_threshold)
           return;
     }
     if (gt->pathfinding_direction == 1)
@@ -800,7 +800,7 @@ void cull_gate_to_point(struct Gate *gt, long a2)
         diff_a = -diff_a;
         div_a = -div_b;
     }
-    cmul = (a2 >> 8) - 1;
+    cmul = (distance_threshold >> 8) - 1;
     val_x = cmul * ((unsigned long long)diff_a << 14) / div_a;
     if (diff_b < 0)
     {
@@ -819,38 +819,38 @@ void cull_gate_to_point(struct Gate *gt, long a2)
     }
 }
 
-long calc_intersection(struct Gate *gt, long a2, long a3, long a4, long a5)
+long calc_intersection(struct Gate *gt, long line_start_x, long line_start_y, long line_end_x, long line_end_y)
 {
-    int diff_a;
-    int diff_b;
-    int diff_c;
-    int diff_d;
-    int diff_e;
-    int diff_f;
-    diff_a = (gt->start_coordinate_x - a2) << 6;
-    diff_b = (a3 - a5) << 6;
-    diff_c = (gt->start_coordinate_y - a3) << 6;
-    diff_d = (a2 - a4) << 6;
-    diff_e = (gt->end_coordinate_x - gt->start_coordinate_x) << 6;
-    diff_f = (gt->end_coordinate_y - gt->start_coordinate_y) << 6;
-    int area_m;
-    int area_d;
-    int factor;
-    area_m = ((unsigned long long)(diff_a * diff_b) >> 14)
-       - ((unsigned long long)(diff_c * diff_d) >> 14);
-    area_d = ((unsigned long long)(diff_d * diff_f) >> 14)
-       - ((unsigned long long)(diff_b * diff_e) >> 14);
-    if (area_d == 0)
+    int gate_start_x_delta;
+    int line_y_delta;
+    int gate_start_y_delta;
+    int line_x_delta;
+    int gate_x_span;
+    int gate_y_span;
+    gate_start_x_delta = (gt->start_coordinate_x - line_start_x) << 6;
+    line_y_delta = (line_start_y - line_end_y) << 6;
+    gate_start_y_delta = (gt->start_coordinate_y - line_start_y) << 6;
+    line_x_delta = (line_start_x - line_end_x) << 6;
+    gate_x_span = (gt->end_coordinate_x - gt->start_coordinate_x) << 6;
+    gate_y_span = (gt->end_coordinate_y - gt->start_coordinate_y) << 6;
+    int intersection_numerator;
+    int intersection_denominator;
+    int intersection_factor;
+    intersection_numerator = ((unsigned long long)(gate_start_x_delta * line_y_delta) >> 14)
+       - ((unsigned long long)(gate_start_y_delta * line_x_delta) >> 14);
+    intersection_denominator = ((unsigned long long)(line_x_delta * gate_y_span) >> 14)
+       - ((unsigned long long)(line_y_delta * gate_x_span) >> 14);
+    if (intersection_denominator == 0)
         return 0;
-    if (area_m < 0) {
-      area_m = -area_m;
-      area_d = -area_d;
+    if (intersection_numerator < 0) {
+      intersection_numerator = -intersection_numerator;
+      intersection_denominator = -intersection_denominator;
     }
-    factor = ((unsigned long long)area_m << 14) / area_d;
-    if ((factor < -16384) || (factor > 16384))
+    intersection_factor = ((unsigned long long)intersection_numerator << 14) / intersection_denominator;
+    if ((intersection_factor < -16384) || (intersection_factor > 16384))
         return 0;
-    gt->intersection_coordinate_x = gt->start_coordinate_x + (((unsigned long long)(diff_e * factor) >> 14) >> 6);
-    gt->intersection_coordinate_y = gt->start_coordinate_y + (((unsigned long long)(diff_f * factor) >> 14) >> 6);
+    gt->intersection_coordinate_x = gt->start_coordinate_x + (((unsigned long long)(gate_x_span * intersection_factor) >> 14) >> 6);
+    gt->intersection_coordinate_y = gt->start_coordinate_y + (((unsigned long long)(gate_y_span * intersection_factor) >> 14) >> 6);
 
     int vmin;
     vmin = gt->end_coordinate_x;
@@ -880,39 +880,39 @@ long calc_intersection(struct Gate *gt, long a2, long a3, long a4, long a5)
     return 1;
 }
 
-void cull_gate_to_best_point(struct Gate *gt, long a2)
+void cull_gate_to_best_point(struct Gate *gt, long distance_threshold)
 {
-    int diff_min1;
-    int diff_min2;
+    int start_to_intersection_distance;
+    int end_to_intersection_distance;
     {
         int diff_x;
         int diff_y;
         diff_x = abs(gt->start_coordinate_x - gt->intersection_coordinate_x);
         diff_y = abs(gt->start_coordinate_y - gt->intersection_coordinate_y);
         if (diff_x <= diff_y)
-            diff_min1 = (diff_x >> 1) + diff_y;
+            start_to_intersection_distance = (diff_x >> 1) + diff_y;
         else
-            diff_min1 = (diff_y >> 1) + diff_x;
+            start_to_intersection_distance = (diff_y >> 1) + diff_x;
         diff_x = abs(gt->end_coordinate_x - gt->intersection_coordinate_x);
         diff_y = abs(gt->end_coordinate_y - gt->intersection_coordinate_y);
         if (diff_x <= diff_y)
-            diff_min2 = diff_y + (diff_x >> 1);
+            end_to_intersection_distance = diff_y + (diff_x >> 1);
         else
-            diff_min2 = (diff_y >> 1) + diff_x;
+            end_to_intersection_distance = (diff_y >> 1) + diff_x;
     }
-    if ((diff_min1 >= (a2 >> 1)) || (diff_min2 >= (a2 >> 1)))
+    if ((start_to_intersection_distance >= (distance_threshold >> 1)) || (end_to_intersection_distance >= (distance_threshold >> 1)))
     {
         int diff_lim;
-        diff_lim = (a2 + 2) >> 1;
-        if (diff_min1 < diff_lim)
+        diff_lim = (distance_threshold + 2) >> 1;
+        if (start_to_intersection_distance < diff_lim)
         {
             gt->pathfinding_direction = 0;
-            cull_gate_to_point(gt, a2);
+            cull_gate_to_point(gt, distance_threshold);
         } else
-        if (diff_min2 < diff_lim)
+        if (end_to_intersection_distance < diff_lim)
         {
             gt->pathfinding_direction = 1;
-            cull_gate_to_point(gt, a2);
+            cull_gate_to_point(gt, distance_threshold);
         } else
         {
             int rel_A;
@@ -954,8 +954,8 @@ void cull_gate_to_best_point(struct Gate *gt, long a2)
 
             long delta_A;
             long delta_B;
-            delta_A = (a2 >> 9) * rel_A;
-            delta_B = (a2 >> 9) * rel_B;
+            delta_A = (distance_threshold >> 9) * rel_A;
+            delta_B = (distance_threshold >> 9) * rel_B;
             int cmin_y;
             int cmin_x;
             int cmax_x;
@@ -965,30 +965,30 @@ void cull_gate_to_best_point(struct Gate *gt, long a2)
             cmax_y = gt->intersection_coordinate_y + delta_B;
             cmax_x = gt->intersection_coordinate_x + delta_A;
 
-            int ctst_x1;
-            int ctst_x2;
-            int ctst_y1;
-            int ctst_y2;
+            int clamp_min_x;
+            int clamp_max_x;
+            int clamp_min_y;
+            int clamp_max_y;
 
-            ctst_x1 = gt->end_coordinate_x;
-            if (ctst_x1 >= gt->start_coordinate_x)
-              ctst_x1 = gt->start_coordinate_x;
-            if (ctst_x1 <= cmin_x)
+            clamp_min_x = gt->end_coordinate_x;
+            if (clamp_min_x >= gt->start_coordinate_x)
+              clamp_min_x = gt->start_coordinate_x;
+            if (clamp_min_x <= cmin_x)
             {
-                ctst_x2 = gt->end_coordinate_x;
-                if (ctst_x2 <= gt->start_coordinate_x)
-                    ctst_x2 = gt->start_coordinate_x;
-                if (ctst_x2 >= cmin_x)
+                clamp_max_x = gt->end_coordinate_x;
+                if (clamp_max_x <= gt->start_coordinate_x)
+                    clamp_max_x = gt->start_coordinate_x;
+                if (clamp_max_x >= cmin_x)
                 {
-                  ctst_y2 = gt->start_coordinate_y;
-                  ctst_y1 = ctst_y2;
-                  if (ctst_y1 >= gt->end_coordinate_y)
-                      ctst_y1 = gt->end_coordinate_y;
-                  if (ctst_y1 <= cmin_y)
+                  clamp_max_y = gt->start_coordinate_y;
+                  clamp_min_y = clamp_max_y;
+                  if (clamp_min_y >= gt->end_coordinate_y)
+                      clamp_min_y = gt->end_coordinate_y;
+                  if (clamp_min_y <= cmin_y)
                   {
-                    if (ctst_y2 <= gt->end_coordinate_y)
-                        ctst_y2 = gt->end_coordinate_y;
-                    if (ctst_y2 >= cmin_y)
+                    if (clamp_max_y <= gt->end_coordinate_y)
+                        clamp_max_y = gt->end_coordinate_y;
+                    if (clamp_max_y >= cmin_y)
                     {
                         gt->start_coordinate_x = cmin_x;
                         gt->start_coordinate_y = cmin_y;
@@ -997,25 +997,25 @@ void cull_gate_to_best_point(struct Gate *gt, long a2)
                 }
             }
 
-            ctst_x1 = gt->end_coordinate_x;
-            if (ctst_x1 >= gt->start_coordinate_x)
-                ctst_x1 = gt->start_coordinate_x;
-            if (ctst_x1 <= cmax_x)
+            clamp_min_x = gt->end_coordinate_x;
+            if (clamp_min_x >= gt->start_coordinate_x)
+                clamp_min_x = gt->start_coordinate_x;
+            if (clamp_min_x <= cmax_x)
             {
-                ctst_x2 = gt->end_coordinate_x;
-                if (ctst_x2 <= gt->start_coordinate_x)
-                    ctst_x2 = gt->start_coordinate_x;
-                if (ctst_x2 >= cmax_x)
+                clamp_max_x = gt->end_coordinate_x;
+                if (clamp_max_x <= gt->start_coordinate_x)
+                    clamp_max_x = gt->start_coordinate_x;
+                if (clamp_max_x >= cmax_x)
                 {
-                  ctst_y2 = gt->start_coordinate_y;
-                  ctst_y1 = gt->start_coordinate_y;
-                  if (ctst_y2 >= gt->end_coordinate_y)
-                      ctst_y1 = gt->end_coordinate_y;
-                  if (ctst_y1 <= cmax_y)
+                  clamp_max_y = gt->start_coordinate_y;
+                  clamp_min_y = gt->start_coordinate_y;
+                  if (clamp_max_y >= gt->end_coordinate_y)
+                      clamp_min_y = gt->end_coordinate_y;
+                  if (clamp_min_y <= cmax_y)
                   {
-                    if (ctst_y2 <= gt->end_coordinate_y)
-                      ctst_y2 = gt->end_coordinate_y;
-                    if (ctst_y2 >= cmax_y)
+                    if (clamp_max_y <= gt->end_coordinate_y)
+                      clamp_max_y = gt->end_coordinate_y;
+                    if (clamp_max_y >= cmax_y)
                     {
                         gt->end_coordinate_x = cmax_x;
                         gt->end_coordinate_y = cmax_y;
@@ -1027,15 +1027,15 @@ void cull_gate_to_best_point(struct Gate *gt, long a2)
     }
 }
 
-long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, long a6, struct Pathway *pway, long a8)
+long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *route_array, long route_length, struct Pathway *pway, long distance_threshold)
 {
     long total_len;
-    best_path.waypoints_num = route_to_path(trAx, trAy, trBx, trBy, a5, a6, &best_path, &total_len);
+    best_path.waypoints_num = route_to_path(trAx, trAy, trBx, trBy, route_array, route_length, &best_path, &total_len);
     pway->start_coordinate_x = trAx;
     pway->start_coordinate_y = trAy;
     pway->finish_coordinate_x = trBx;
     pway->finish_coordinate_y = trBy;
-    if (a6 < 1)
+    if (route_length < 1)
     {
         pway->points[0].end_coordinate_y = trBy;
         pway->points[0].end_coordinate_x = trBx;
@@ -1049,7 +1049,7 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
     struct FOV fov2;
     fov1.tipA.x = trAx;
     fov1.tipA.y = trAy;
-    edge_points8(a5[0], a5[1], &fov1.tipB.x, &fov1.tipB.y, &fov1.tipC.x, &fov1.tipC.y);
+    edge_points8(route_array[0], route_array[1], &fov1.tipB.x, &fov1.tipB.y, &fov1.tipC.x, &fov1.tipC.y);
     memcpy(&fov2, &fov1, sizeof(struct FOV));
     int pt_num;
     int wp_idx;
@@ -1063,15 +1063,15 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
     struct Gate *gt;
     gt = pway->points;
     int wpi;
-    for (wpi=1; wpi <= a6; wpi++)
+    for (wpi=1; wpi <= route_length; wpi++)
     {
         long edge_x1;
         long edge_y1;
         long edge_x2;
         long edge_y2;
-        if (wpi < a6)
+        if (wpi < route_length)
         {
-            edge_points8(a5[wpi+0], a5[wpi+1], &edge_x1, &edge_y1, &edge_x2, &edge_y2);
+            edge_points8(route_array[wpi+0], route_array[wpi+1], &edge_x1, &edge_y1, &edge_x2, &edge_y2);
         } else
         {
             edge_x2 = trBx;
@@ -1079,19 +1079,19 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
             edge_y2 = trBy;
             edge_y1 = trBy;
         }
-        char reg1;
-        char reg2;
-        char reg3;
-        char reg4;
-        reg1 = fov_region(edge_x1, edge_y1, &fov1);
-        reg2 = fov_region(edge_x2, edge_y2, &fov1);
-        reg3 = fov_region(edge_x1, edge_y1, &fov2);
-        reg4 = fov_region(edge_x2, edge_y2, &fov2);
+        char edge1_region;
+        char edge2_region;
+        char edge1_region_secondary_fov;
+        char edge2_region_secondary_fov;
+        edge1_region = fov_region(edge_x1, edge_y1, &fov1);
+        edge2_region = fov_region(edge_x2, edge_y2, &fov1);
+        edge1_region_secondary_fov = fov_region(edge_x1, edge_y1, &fov2);
+        edge2_region_secondary_fov = fov_region(edge_x2, edge_y2, &fov2);
 
-        if ( reg1 || reg2 || reg3 || reg4 )
+        if ( edge1_region || edge2_region || edge1_region_secondary_fov || edge2_region_secondary_fov )
         {
             if (pt_num == 256) {
-                ERRORLOG("grtc:Exceeded max path length (i:%d,rl:%ld)", wpi, a6);
+                ERRORLOG("grtc:Exceeded max path length (i:%d,rl:%ld)", wpi, route_length);
             }
             gt->start_coordinate_x = fov1.tipB.x;
             gt->start_coordinate_y = fov1.tipB.y;
@@ -1144,15 +1144,15 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
               else
                   dist_D = dist_x + (dist_y >> 1);
             }
-            int dist_min1;
-            int dist_min2;
-            dist_min1 = dist_C;
-            if (dist_min1 >= dist_A)
-              dist_min1 = dist_A;
-            dist_min2 = dist_D;
-            if (dist_min2 >= dist_B)
-              dist_min2 = dist_B;
-            if (dist_min1 >= dist_min2)
+            int minimum_distance_first;
+            int minimum_distance_second;
+            minimum_distance_first = dist_C;
+            if (minimum_distance_first >= dist_A)
+              minimum_distance_first = dist_A;
+            minimum_distance_second = dist_D;
+            if (minimum_distance_second >= dist_B)
+              minimum_distance_second = dist_B;
+            if (minimum_distance_first >= minimum_distance_second)
             {
                 gt->pathfinding_direction = (dist_D <= dist_B);
                 if (wp_idx < best_path.waypoints_num-1)
@@ -1164,11 +1164,11 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
             } else
             {
                 gt->pathfinding_direction = (dist_C <= dist_A);
-                dist_min2 = dist_min1;
+                minimum_distance_second = minimum_distance_first;
             }
-            if (dist_min2 < 256)
+            if (minimum_distance_second < 256)
             {
-                cull_gate_to_point(gt, a8);
+                cull_gate_to_point(gt, distance_threshold);
             } else
             {
                 int fld18_mem;
@@ -1194,11 +1194,11 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
               }
               if (gt->pathfinding_direction == 2)
               {
-                  cull_gate_to_best_point(gt, a8);
+                  cull_gate_to_best_point(gt, distance_threshold);
                   gt->pathfinding_direction = fld18_mem;
               } else
               {
-                  cull_gate_to_point(gt, a8);
+                  cull_gate_to_point(gt, distance_threshold);
                   gt->pathfinding_direction = fld18_mem;
               }
             }
@@ -1219,7 +1219,7 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
         fov1.tipC.y = edge_y2;
     }
     if (pt_num == 256) {
-        ERRORLOG("grtc:Exceeded max path length (i:%d,rl:%ld)", wpi, a6);
+        ERRORLOG("grtc:Exceeded max path length (i:%d,rl:%ld)", wpi, route_length);
     }
     pt_num++;
     gt->end_coordinate_x = trBx;
@@ -1231,7 +1231,7 @@ long gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, 
     return pt_num;
 }
 
-void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char a7)
+void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long wp_lim, unsigned char unusedparam)
 {
     pway->start_coordinate_x = trAx;
     pway->start_coordinate_y = trAy;
@@ -1765,28 +1765,28 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
     // Do two of them at a time
     while (ttriA != naviheap_top())
     {
-        long ttriH1;
-        long ttriH2;
+        long triangle_heap_first;
+        long triangle_heap_second;
         if (naviheap_empty())
             break;
-        ttriH1 = naviheap_remove();
+        triangle_heap_first = naviheap_remove();
         if (naviheap_empty())
         {
-            ttriH2 = -1;
+            triangle_heap_second = -1;
         } else
         {
-            ttriH2 = naviheap_top();
-            if (ttriH2 == ttriA)
+            triangle_heap_second = naviheap_top();
+            if (triangle_heap_second == ttriA)
                 break;
             naviheap_remove();
         }
-        if (ttriH1 != -1)
+        if (triangle_heap_first != -1)
         {
-            triangle_check_and_add_navitree_fwd(ttriH1);
+            triangle_check_and_add_navitree_fwd(triangle_heap_first);
         }
-        if (ttriH2 != -1)
+        if (triangle_heap_second != -1)
         {
-            triangle_check_and_add_navitree_fwd(ttriH2);
+            triangle_check_and_add_navitree_fwd(triangle_heap_second);
         }
     }
     NAVIDBG(19,"Almost finished");
@@ -1833,28 +1833,28 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
     // Do two of them at a time
     while (ttriA != naviheap_top())
     {
-        long ttriH1;
-        long ttriH2;
+        long triangle_heap_first;
+        long triangle_heap_second;
         if (naviheap_empty())
             break;
-        ttriH1 = naviheap_remove();
+        triangle_heap_first = naviheap_remove();
         if (naviheap_empty())
         {
-            ttriH2 = -1;
+            triangle_heap_second = -1;
         } else
         {
-            ttriH2 = naviheap_top();
-            if (ttriH2 == ttriA)
+            triangle_heap_second = naviheap_top();
+            if (triangle_heap_second == ttriA)
                 break;
             naviheap_remove();
         }
-        if (ttriH1 != -1)
+        if (triangle_heap_first != -1)
         {
-            triangle_check_and_add_navitree_bak(ttriH1);
+            triangle_check_and_add_navitree_bak(triangle_heap_first);
         }
-        if (ttriH2 != -1)
+        if (triangle_heap_second != -1)
         {
-            triangle_check_and_add_navitree_bak(ttriH2);
+            triangle_check_and_add_navitree_bak(triangle_heap_second);
         }
     }
     NAVIDBG(19,"Almost finished");
@@ -2156,15 +2156,15 @@ void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct T
     }
     arid->move_speed = 256;
     int whsteps;
-    int whgot2;
-    int whgot1;
+    int wallhug_distance_left;
+    int wallhug_distance_right;
     int size_steps;
     size_steps = thing_nav_sizexy(thing) >> 9;
     thing->move_angle_xy = angle_beg;
     size_steps += 2;
     whsteps = size_steps;
-    whgot1 = size_steps;
-    whgot2 = size_steps;
+    wallhug_distance_right = size_steps;
+    wallhug_distance_left = size_steps;
     arid->hug_side = hug_side;
     struct Coord3d pos;
     int i;
@@ -2175,14 +2175,14 @@ void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct T
         if (hug_angle != -1)
         {
             if (hug_angle == inangle) {
-                whgot1 = i;
+                wallhug_distance_right = i;
                 break;
             }
             pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
             pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
             pos.z.val = get_thing_height_at(thing, &pos);
             if (ariadne_check_forward_for_wallhug_gap(thing, arid, &pos, hug_angle)) {
-                whgot1 = i;
+                wallhug_distance_right = i;
                 break;
             }
             thing->mappos = pos;
@@ -2197,14 +2197,14 @@ void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct T
         if (hug_angle != -1)
         {
             if (hug_angle == inangle) {
-                whgot2 = i;
+                wallhug_distance_left = i;
                 break;
             }
             pos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, hug_angle);
             pos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, hug_angle);
             pos.z.val = get_thing_height_at(thing, &pos);
             if (ariadne_check_forward_for_wallhug_gap(thing, arid, &pos, hug_angle)) {
-                whgot2 = i;
+                wallhug_distance_left = i;
                 break;
             }
             thing->mappos = pos;
@@ -2214,12 +2214,12 @@ void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct T
     thing->mappos = bkp_mappos;
     arid->move_speed = bkp_speed;
     arid->hug_side = bkp_hug_side;
-    if (whgot2 > whgot1)
+    if (wallhug_distance_left > wallhug_distance_right)
     {
         *rangle = angle_beg;
         *rflag = hug_side;
     } else
-    if (whgot2 >= whgot1)
+    if (wallhug_distance_left >= wallhug_distance_right)
     {
         *rangle = angle_beg;
         *rflag = hug_side;
@@ -2696,7 +2696,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
         NAVIDBG(18,"%s: Cannot find route", func_name);
         arid->total_waypoints = 0;
         arid->stored_waypoints = arid->total_waypoints;
-        return AridRet_Val2;
+        return AridRet_Failed;
     }
     // Fill total waypoints number
     if (path.waypoints_num < ARID_PATH_WAYPOINTS_COUNT) {
@@ -3249,7 +3249,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
     {
         aret = ariadne_initialise_creature_route(thing, finalpos, speed, flags);
         if (aret != AridRet_OK) {
-            return AridRet_Val2;
+            return AridRet_Failed;
         }
         arid->move_speed = speed;
         if (arid->wallhug_active)
@@ -3432,35 +3432,35 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
  */
 long make_3or4point(long *pt_tri, long *pt_cor)
 {
-    long l0;
-    long l1;
+    long initial_loop_result;
+    long final_loop_result;
     long n;
     do
     {
-        l0 = point_loop(*pt_tri, *pt_cor);
-        if (l0 == 3)
+        initial_loop_result = point_loop(*pt_tri, *pt_cor);
+        if (initial_loop_result == 3)
           return 3;
         n = reduce_point(pt_tri, pt_cor);
         if (n == 3)
           return 3;
         if (n < 0)
           return -1;
-        l1 = point_loop(*pt_tri, *pt_cor);
-        if (l1 == n)
+        final_loop_result = point_loop(*pt_tri, *pt_cor);
+        if (final_loop_result == n)
         {
             if ((n == 3) || (n == 4))
               break;
         }
-        if ((l1 != n) || (l1 >= l0))
+        if ((final_loop_result != n) || (final_loop_result >= initial_loop_result))
         {
-            ERRORLOG("bad state, l0:%02ld n:%02ld l1:%02ld", l0, n, l1);
+            ERRORLOG("bad state, l0:%02ld n:%02ld l1:%02ld", initial_loop_result, n, final_loop_result);
             return -1;
         }
     } while (n > 4);
     return n;
 }
 
-static long delete_4point(long tri1_id, long cor1_id)
+static long delete_quad_point(long tri1_id, long cor1_id)
 {
     struct Triangle *tri1;
     tri1 = &Triangles[tri1_id];
@@ -3597,7 +3597,7 @@ static long delete_4point(long tri1_id, long cor1_id)
     return 1;
 }
 
-static long delete_3point(long tri1_id, long cor1_id)
+static long delete_triangle_point(long tri1_id, long cor1_id)
 {
     struct Triangle *tri1;
     tri1 = &Triangles[tri1_id];
@@ -3675,14 +3675,14 @@ TbBool delete_point(long pt_tri, long pt_cor)
     }
     if (n == 4)
     {
-        if (!delete_4point(ntri, ncor))
+        if (!delete_quad_point(ntri, ncor))
         {
           ERRORLOG("variant 4 fails");
           return false;
         }
     } else
     {
-        if (!delete_3point(ntri, ncor))
+        if (!delete_triangle_point(ntri, ncor))
         {
           ERRORLOG("variant 3 fails");
           return false;
@@ -3697,44 +3697,44 @@ long tri_split3(long btri_id, long pt_x, long pt_y)
     struct Triangle *btri;
     struct Triangle *tri1;
     struct Triangle *tri2;
-    long tri_id1;
-    long tri_id2;
-    tri_id1 = tri_new();
-    if (tri_id1 < 0) {
+    long new_triangle1_id;
+    long new_triangle2_id;
+    new_triangle1_id = tri_new();
+    if (new_triangle1_id < 0) {
         return -1;
     }
-    tri_id2 = tri_new();
-    if (tri_id2 < 0) {
-        tri_dispose(tri_id1);
+    new_triangle2_id = tri_new();
+    if (new_triangle2_id < 0) {
+        tri_dispose(new_triangle1_id);
         return -1;
     }
     btri = &Triangles[btri_id];
-    tri1 = &Triangles[tri_id1];
-    tri2 = &Triangles[tri_id2];
+    tri1 = &Triangles[new_triangle1_id];
+    tri2 = &Triangles[new_triangle2_id];
     memcpy(tri1,btri,sizeof(struct Triangle));
     memcpy(tri2,btri,sizeof(struct Triangle));
     long pt_id;
     pt_id = point_set_new_or_reuse(pt_x, pt_y);
     //pt_id = point_new(); // from before point_set_new_or_reuse()
     if (pt_id < 0) {
-        tri_dispose(tri_id1);
-        tri_dispose(tri_id2);
+        tri_dispose(new_triangle1_id);
+        tri_dispose(new_triangle2_id);
         return -1;
     }
     //point_set(pt_id, pt_x, pt_y); // from before point_set_new_or_reuse()
     btri->points[2] = pt_id;
     tri1->points[0] = pt_id;
     tri2->points[1] = pt_id;
-    btri->tags[1] = tri_id1;
-    btri->tags[2] = tri_id2;
+    btri->tags[1] = new_triangle1_id;
+    btri->tags[2] = new_triangle2_id;
     btri->navigation_flags |= 0x06;
     btri->navigation_flags &= 0x0F;
     tri1->tags[0] = btri_id;
-    tri1->tags[2] = tri_id2;
+    tri1->tags[2] = new_triangle2_id;
     tri1->navigation_flags |= 0x05;
     tri1->navigation_flags &= 0x17;
     tri2->tags[0] = btri_id;
-    tri2->tags[1] = tri_id1;
+    tri2->tags[1] = new_triangle1_id;
     tri2->navigation_flags |= 0x03;
     tri2->navigation_flags &= 0x27;
 
@@ -3745,7 +3745,7 @@ long tri_split3(long btri_id, long pt_x, long pt_y)
     {
         ltri_id = link_find(ttri_id, btri_id);
         if (ltri_id >= 0) {
-            Triangles[ttri_id].tags[ltri_id] = tri_id1;
+            Triangles[ttri_id].tags[ltri_id] = new_triangle1_id;
         } else {
             ERRORLOG("A not found");
         }
@@ -3755,7 +3755,7 @@ long tri_split3(long btri_id, long pt_x, long pt_y)
     {
         ltri_id = link_find(ttri_id, btri_id);
         if (ltri_id >= 0) {
-            Triangles[ttri_id].tags[ltri_id] = tri_id2;
+            Triangles[ttri_id].tags[ltri_id] = new_triangle2_id;
         } else {
             ERRORLOG("B not found");
         }
@@ -3768,8 +3768,8 @@ long tri_split3(long btri_id, long pt_x, long pt_y)
     tri1->region_and_edgelen = 0;
     tri2->region_and_edgelen = 0;
     edgelen_set(btri_id);
-    edgelen_set(tri_id1);
-    edgelen_set(tri_id2);
+    edgelen_set(new_triangle1_id);
+    edgelen_set(new_triangle2_id);
     return pt_id;
 }
 
@@ -4096,16 +4096,16 @@ TbBool border_clip_horizontal(const NavColour *imap, long start_x, long end_x, l
     NavColour map_up;
     const NavColour* mapp_center;
     const NavColour* mapp_up;
-    TbBool r;
+    TbBool clipping_successful;
     long i;
-    r = true;
+    clipping_successful = true;
     NAVIDBG(19,"Starting from (%ld,%ld) to (%ld,%ld)",start_x, start_y, end_x, end_y);
     i = start_x;
     {
         mapp_center = &imap[navmap_tile_number(i,start_y)];
         mapp_up = &imap[navmap_tile_number(i,start_y-1)];
         {
-            r &= insert_point(i, start_y);
+            clipping_successful &= insert_point(i, start_y);
             map_up = *mapp_up;
             map_center = *mapp_center;
         }
@@ -4116,22 +4116,22 @@ TbBool border_clip_horizontal(const NavColour *imap, long start_x, long end_x, l
         mapp_up = &imap[navmap_tile_number(i,start_y-1)];
         if ((*mapp_center != map_center) || (*mapp_up != map_up))
         {
-            r &= insert_point(i, start_y);
+            clipping_successful &= insert_point(i, start_y);
             map_up = *mapp_up;
             map_center = *mapp_center;
         }
     }
-    r &= insert_point(end_x, start_y);
-    if (!r) {
+    clipping_successful &= insert_point(end_x, start_y);
+    if (!clipping_successful) {
         ERRORLOG("Couldn't insert points to make border");
         //TODO PATHFINDING on a failure, we could release all allocated points...
-        return r;
+        return clipping_successful;
     }
-    r &= make_edge(start_x, start_y, end_x, start_y);
-    if (!r) {
+    clipping_successful &= make_edge(start_x, start_y, end_x, start_y);
+    if (!clipping_successful) {
         ERRORLOG("Couldn't make edge for border");
     }
-    return r;
+    return clipping_successful;
 }
 
 TbBool border_clip_vertical(const NavColour *imap, long start_x, long end_x, long start_y, long end_y)
@@ -4140,16 +4140,16 @@ TbBool border_clip_vertical(const NavColour *imap, long start_x, long end_x, lon
     NavColour map_left;
     const NavColour* mapp_center;
     const NavColour* mapp_left;
-    TbBool r;
+    TbBool clipping_successful;
     long i;
-    r = true;
+    clipping_successful = true;
     NAVIDBG(19,"Starting from (%ld,%ld) to (%ld,%ld)",start_x, start_y, end_x, end_y);
     i = start_y;
     {
         mapp_center = &imap[navmap_tile_number(start_x,i)];
         mapp_left = &imap[navmap_tile_number(start_x-1,i)];
         {
-            r &= insert_point(start_x, i);
+            clipping_successful &= insert_point(start_x, i);
             map_left = *mapp_left;
             map_center = *mapp_center;
         }
@@ -4160,22 +4160,22 @@ TbBool border_clip_vertical(const NavColour *imap, long start_x, long end_x, lon
         mapp_left = &imap[navmap_tile_number(start_x-1,i)];
         if ((*mapp_center != map_center) || (*mapp_left != map_left))
         {
-            r &= insert_point(start_x, i);
+            clipping_successful &= insert_point(start_x, i);
             map_left = *mapp_left;
             map_center = *mapp_center;
         }
     }
-    r &= insert_point(start_x, end_y);
-    if (!r) {
+    clipping_successful &= insert_point(start_x, end_y);
+    if (!clipping_successful) {
         ERRORLOG("Couldn't insert points to make border");
         //TODO PATHFINDING on a failure, we could release all allocated points...
-        return r;
+        return clipping_successful;
     }
-    r &= make_edge(start_x, start_y, start_x, end_y);
-    if (!r) {
+    clipping_successful &= make_edge(start_x, start_y, start_x, end_y);
+    if (!clipping_successful) {
         ERRORLOG("Couldn't make edge for border");
     }
-    return r;
+    return clipping_successful;
 }
 
 TbBool point_redundant(long tri_idx, long cor_idx)
@@ -4364,14 +4364,14 @@ TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart
 
 TbBool border_lock(long start_x, long start_y, long end_x, long end_y)
 {
-    TbBool r;
+    TbBool lock_successful;
     NAVIDBG(19,"Starting");
-    r = true;
-    r &= edge_lock(start_x, start_y, start_x, end_y);
-    r &= edge_lock(start_x, end_y, end_x, end_y);
-    r &= edge_lock(end_x, end_y, end_x, start_y);
-    r &= edge_lock(end_x, start_y, start_x, start_y);
-    return r;
+    lock_successful = true;
+    lock_successful &= edge_lock(start_x, start_y, start_x, end_y);
+    lock_successful &= edge_lock(start_x, end_y, end_x, end_y);
+    lock_successful &= edge_lock(end_x, end_y, end_x, start_y);
+    lock_successful &= edge_lock(end_x, start_y, start_x, start_y);
+    return lock_successful;
 }
 
 void border_internal_points_delete(long start_x, long start_y, long end_x, long end_y)
@@ -4602,26 +4602,26 @@ TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, Nav
       sy = end_y;
       ey = start_y;
     }
-    TbBool r;
-    r = true;
-    r &= insert_point(sx, sy);
-    r &= insert_point(sx, ey);
-    r &= insert_point(ex, ey);
-    r &= insert_point(ex, sy);
-    if (!r) {
+    TbBool rectangle_creation_successful;
+    rectangle_creation_successful = true;
+    rectangle_creation_successful &= insert_point(sx, sy);
+    rectangle_creation_successful &= insert_point(sx, ey);
+    rectangle_creation_successful &= insert_point(ex, ey);
+    rectangle_creation_successful &= insert_point(ex, sy);
+    if (!rectangle_creation_successful) {
         ERRORLOG("Couldn't insert points to make rectangle; start (%d,%d), end (%d,%d)",(int)start_x,(int)start_y,(int)end_x,(int)end_y);
-        return r;
+        return rectangle_creation_successful;
     }
-    r &= make_edge(sx, sy, sx, ey);
-    r &= make_edge(sx, ey, ex, ey);
-    r &= make_edge(ex, ey, ex, sy);
-    r &= make_edge(ex, sy, sx, sy);
-    if (!r) {
+    rectangle_creation_successful &= make_edge(sx, sy, sx, ey);
+    rectangle_creation_successful &= make_edge(sx, ey, ex, ey);
+    rectangle_creation_successful &= make_edge(ex, ey, ex, sy);
+    rectangle_creation_successful &= make_edge(ex, sy, sx, sy);
+    if (!rectangle_creation_successful) {
         ERRORLOG("Couldn't make edge for rectangle; start (%d,%d), end (%d,%d)",(int)start_x,(int)start_y,(int)end_x,(int)end_y);
-        return r;
+        return rectangle_creation_successful;
     }
     fill_rectangle(sx, sy, ex, ey, nav_colour);
-    return r;
+    return rectangle_creation_successful;
 }
 
 long fringe_scan(long *outfri_x, long *outfri_y, long *outlen_x, long *outlen_y)
@@ -4702,7 +4702,7 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
     return 1;
 }
 
-void border_unlock(long a1, long a2, long a3, long a4)
+void border_unlock(long start_x, long start_y, long end_x, long end_y)
 {
     struct EdgePoint *ept;
     long ept_id;
@@ -4710,10 +4710,10 @@ void border_unlock(long a1, long a2, long a3, long a4)
     long cor_idx;
     long nerr;
     edge_points_clean();
-    edge_unlock_record_and_regions(a1, a2, a1, a4);
-    edge_unlock_record_and_regions(a1, a4, a3, a4);
-    edge_unlock_record_and_regions(a3, a4, a3, a2);
-    edge_unlock_record_and_regions(a3, a2, a1, a2);
+    edge_unlock_record_and_regions(start_x, start_y, start_x, end_y);
+    edge_unlock_record_and_regions(start_x, end_y, end_x, end_y);
+    edge_unlock_record_and_regions(end_x, end_y, end_x, start_y);
+    edge_unlock_record_and_regions(end_x, start_y, start_x, start_y);
     if (ix_EdgePoints < 1)
         return;
     nerr = 0;
@@ -4934,9 +4934,9 @@ TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x,
     long rect_sy;
     long rect_ex;
     long rect_ey;
-    TbBool r;
+    TbBool triangulation_successful;
     long i;
-    r = true;
+    triangulation_successful = true;
     LastTriangulatedMap = imap;
     NAVIDBG(9,"Area from (%03ld,%03ld) to (%03ld,%03ld) with %04ld triangles",start_x,start_y,end_x,end_y,count_Triangles);
     // Switch coords to make end_x larger than start_x
@@ -4973,11 +4973,11 @@ TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x,
     triangulation_init();
     if ( not_whole_map )
     {
-        r &= border_clip_horizontal(imap, start_x, end_x, start_y, 0);
-        r &= border_clip_horizontal(imap, start_x, end_x, end_y, -1);
-        r &= border_clip_vertical(imap, start_x, -1, start_y, end_y);
-        r &= border_clip_vertical(imap, end_x, 0, start_y, end_y);
-        r &= border_lock(start_x, start_y, end_x, end_y);
+        triangulation_successful &= border_clip_horizontal(imap, start_x, end_x, start_y, 0);
+        triangulation_successful &= border_clip_horizontal(imap, start_x, end_x, end_y, -1);
+        triangulation_successful &= border_clip_vertical(imap, start_x, -1, start_y, end_y);
+        triangulation_successful &= border_clip_vertical(imap, end_x, 0, start_y, end_y);
+        triangulation_successful &= border_lock(start_x, start_y, end_x, end_y);
         if ( !one_tile ) {
             border_internal_points_delete(start_x, start_y, end_x, end_y);
         }
@@ -5027,7 +5027,7 @@ TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x,
         border_unlock(start_x, start_y, end_x, end_y);
     triangulation_border_init();
     NAVIDBG(9,"Done");
-    return r;
+    return triangulation_successful;
 }
 /******************************************************************************/
 #ifdef __cplusplus

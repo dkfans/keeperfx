@@ -69,7 +69,7 @@ TbBool remove_active_samples_from_emitter(struct SoundEmitter *emit);
 /******************************************************************************/
 // Functions
 
-long dummy_line_of_sight_function(long a1, long a2, long a3, long a4, long a5, long a6)
+long dummy_line_of_sight_function(long receiver_x, long receiver_y, long receiver_z, long emitter_x, long emitter_y, long emitter_z)
 {
     return 1;
 }

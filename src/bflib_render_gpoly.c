@@ -532,37 +532,37 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
 
 void draw_gpoly_sub7a()
 {
-    int v0 = triangle_point_c_y - triangle_point_a_y;
-    int v1 = (triangle_point_b_x - triangle_point_a_x) * (triangle_point_c_y - triangle_point_a_y);
+    int triangle_height_ac = triangle_point_c_y - triangle_point_a_y;
+    int cross_product_adjustment = (triangle_point_b_x - triangle_point_a_x) * (triangle_point_c_y - triangle_point_a_y);
     if (factor_chk >= 0)
-        v1 -= 2 * v0;
+        cross_product_adjustment -= 2 * triangle_height_ac;
 
-    int v2 = (triangle_point_c_x - triangle_point_a_x) * (triangle_point_b_y - triangle_point_a_y) - (v0 + v1);
+    int triangle_area_determinant = (triangle_point_c_x - triangle_point_a_x) * (triangle_point_b_y - triangle_point_a_y) - (triangle_height_ac + cross_product_adjustment);
 
-    if (v2 != 0)
+    if (triangle_area_determinant != 0)
     {
-        int v3 = 0x7FFFFFFF / v2;
-        int v4 = triangle_point_c_y - triangle_point_a_y;
-        int v5 = triangle_point_b_y - triangle_point_a_y;
+        int division_factor = 0x7FFFFFFF / triangle_area_determinant;
+        int triangle_height_ac_copy = triangle_point_c_y - triangle_point_a_y;
+        int triangle_height_ab = triangle_point_b_y - triangle_point_a_y;
 
         // First component: shadehstep
         {
-            int64_t num = (int64_t)v5 * (triangle_point_c_shade - triangle_point_a_shade) - (int64_t)v4 * (triangle_point_b_shade - triangle_point_a_shade);
-            int64_t result = 2 * num * v3;
+            int64_t num = (int64_t)triangle_height_ab * (triangle_point_c_shade - triangle_point_a_shade) - (int64_t)triangle_height_ac_copy * (triangle_point_b_shade - triangle_point_a_shade);
+            int64_t result = 2 * num * division_factor;
             shadehstep = (int)((result >> 16) + ((result < 0) ? 1 : 0));
         }
 
         // Second component: mapxhstep
         {
-            int64_t num = (int64_t)v5 * (triangle_point_c_texture_u - triangle_point_a_texture_u) - (int64_t)v4 * (triangle_point_b_texture_u - triangle_point_a_texture_u);
-            int64_t result = 2 * num * v3;
+            int64_t num = (int64_t)triangle_height_ab * (triangle_point_c_texture_u - triangle_point_a_texture_u) - (int64_t)triangle_height_ac_copy * (triangle_point_b_texture_u - triangle_point_a_texture_u);
+            int64_t result = 2 * num * division_factor;
             mapxhstep = (int)((result >> 16) + ((result < 0) ? 1 : 0));
         }
 
         // Third component: mapyhstep
         {
-            int64_t num = (int64_t)v5 * (triangle_point_c_texture_v - triangle_point_a_texture_v) - (int64_t)v4 * (triangle_point_b_texture_v - triangle_point_a_texture_v);
-            int64_t result = 2 * num * v3;
+            int64_t num = (int64_t)triangle_height_ab * (triangle_point_c_texture_v - triangle_point_a_texture_v) - (int64_t)triangle_height_ac_copy * (triangle_point_b_texture_v - triangle_point_a_texture_v);
+            int64_t result = 2 * num * division_factor;
             mapyhstep = (int)((result >> 16) + ((result < 0) ? 1 : 0));
         }
     }
@@ -687,11 +687,11 @@ void draw_gpoly_sub7b_block3(void)
         // If (shadehstep>>8) is negative, emulate the “andl $0x0FFFF; subl $0x10000; sbbl $0,EDX” exactly:
         if (s < 0) {
             // EBX = (uint16_t)s
-            uint32_t s16 = (uint32_t)( (uint16_t)s );
+            uint32_t unsigned_lower_bits = (uint32_t)( (uint16_t)s );
             // EAX -= 0x10000  →  val -= 0x10000
             val -= ((int64_t)0x10000);
             // Add back (uint16_t)s
-            val += (int64_t)s16;
+            val += (int64_t)unsigned_lower_bits;
         }
         else {
             // s ≥ 0  →  just add s
@@ -727,11 +727,11 @@ void draw_gpoly_sub7b_block3(void)
 
         if (s < 0) {
             // EBX = (uint16_t)s
-            uint32_t s16 = (uint32_t)((uint16_t)s);
+            uint32_t unsigned_lower_bits = (uint32_t)((uint16_t)s);
             // EAX -= 0x0FFFF
             val -= ((int64_t)0x0FFFF);
             // add EBX
-            val += (int64_t)s16;
+            val += (int64_t)unsigned_lower_bits;
         }
         else {
             val += (int64_t)s;
@@ -764,9 +764,9 @@ void draw_gpoly_sub7b_block3(void)
 
         int32_t s       = (int32_t)(ptc >> 8);
         if (s < 0) {
-            uint32_t s16 = (uint32_t)((uint16_t)s);
+            uint32_t unsigned_lower_bits = (uint32_t)((uint16_t)s);
             val -= ((int64_t)0x10000);
-            val += (int64_t)s16;
+            val += (int64_t)unsigned_lower_bits;
         }
         else {
             val += (int64_t)s;
@@ -808,17 +808,17 @@ void draw_gpoly_sub7b_block3(void)
         int64_t val   = ((int64_t)m_y << 16);
 
         // shade_interpolation_pointc_low = (shadingtop_deltashade << 24)
-        int32_t s0    = (int32_t)shadingtop_deltashade;
-        shade_interpolation_pointc_low      = (uint32_t)(s0 << 24);
+        int32_t signed_shade_delta    = (int32_t)shadingtop_deltashade;
+        shade_interpolation_pointc_low      = (uint32_t)(signed_shade_delta << 24);
 
-        int32_t s1    = (int32_t)(s0 >> 8);
-        if (s1 < 0) {
-            uint32_t s16 = (uint32_t)((uint16_t)s1);
+        int32_t shifted_shade_delta    = (int32_t)(signed_shade_delta >> 8);
+        if (shifted_shade_delta < 0) {
+            uint32_t unsigned_lower_bits = (uint32_t)((uint16_t)shifted_shade_delta);
             val -= ((int64_t)0x10000);
-            val += (int64_t)s16;
+            val += (int64_t)unsigned_lower_bits;
         }
         else {
-            val += (int64_t)s1;
+            val += (int64_t)shifted_shade_delta;
         }
 
         uint32_t low32  = (uint32_t)val;
@@ -853,6 +853,7 @@ void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_comb
 {
     int span_mod16 = pixel_span_len & 0xF;
     uint8_t * pixel_dst = NULL;
+    unsigned int texture_fade_bits;
 
     pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
 
@@ -896,94 +897,94 @@ void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_comb
         while ( 1 )
         {
             pixel_dst[1] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v13 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v13, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL14:
             pixel_dst[2] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v14 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v14, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL13:
             pixel_dst[3] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v15 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v15, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL12:
             pixel_dst[4] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v16 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v16, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL11:
             pixel_dst[5] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v17 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v17, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL10:
             pixel_dst[6] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v18 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v18, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL9:
             pixel_dst[7] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v19 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v19, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL8:
             pixel_dst[8] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v20 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v20, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL7:
             pixel_dst[9] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v21 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v21, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL6:
             pixel_dst[10] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v22 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v22, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL5:
             pixel_dst[11] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v23 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v23, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL4:
             pixel_dst[12] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v24 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v24, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL3:
             pixel_dst[13] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v25 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v25, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL2:
             pixel_dst[14] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v26 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v26, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL1:
             pixel_dst[15] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v27 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v27, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
             pixel_dst += 16;
             bool span_too_small_or_complete = pixel_span_remaining_count <= 16;
             pixel_span_remaining_count -= 16;
@@ -991,10 +992,10 @@ UNROLLED_LOOP_PIXEL1:
               break;
 UNROLLED_LOOP_PIXEL0:
             *pixel_dst = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v11 = tex_x_accum_combined & 0xFF0000FF;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v11, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
         } // while ( 1 );
         break;
     }
@@ -1013,14 +1014,14 @@ void draw_gpoly_sub13()
   int shadeAccumulator; // eax
   int shadeAccumulatorNext; // ebp
   int scanline_y_esi; // esi
-  bool v29; // cc
-  int v30; // esi
-  int v31; // eax
-  int v32; // ebp
+  bool range_check_passed; // cc
+  int shade_position_adjustment; // esi
+  int shade_pixel_position; // eax
+  int next_shade_pixel_position; // ebp
   int pixel_span_len; // ebp
-  bool v37; // cf
-  int v38; // eax
-  int v39; // eax
+  bool carry_flag; // cf
+  int clipped_end_y; // eax
+  int clipped_triangle_end_y; // eax
 
   tex_x_accum_low = 0;
   tex_x_accum_high = startpos_top_shade_texture_combined;
@@ -1055,13 +1056,13 @@ void draw_gpoly_sub13()
         break;
       shadingfactor_secondary = factor_cb;
       shadeAccumulatorNext = triangle_point_b_shade_x;
-      v39 = triangle_point_c_y;
+      clipped_triangle_end_y = triangle_point_c_y;
       if ( triangle_point_c_y > LOC_vec_window_height )
-        v39 = LOC_vec_window_height;
-      v29 = v39 <= triangle_point_b_y;
-      scanline_span_count = v39 - triangle_point_b_y;
+        clipped_triangle_end_y = LOC_vec_window_height;
+      range_check_passed = clipped_triangle_end_y <= triangle_point_b_y;
+      scanline_span_count = clipped_triangle_end_y - triangle_point_b_y;
       shadeAccumulator = g_shadeAccumulator;
-      if ( v29 )
+      if ( range_check_passed )
         return;
       current_scanline_xposition = xStart;
       scanline_y_esi = triangle_point_b_y;
@@ -1074,8 +1075,8 @@ REMAINDER_SCANLINE_STEP:
           g_shadeAccumulator = shadeAccumulator;
           g_shadeAccumulatorNext = shadeAccumulatorNext;
           screenbuffer_lineptr = screen_line_ptr;
-          v31 = shadeAccumulator >> 16;
-          if ( v31 < 0 )
+          shade_pixel_position = shadeAccumulator >> 16;
+          if ( shade_pixel_position < 0 )
           {
             if ( xStart )
             {
@@ -1083,10 +1084,10 @@ REMAINDER_SCANLINE_STEP:
               {
                 do
                 {
-                  v37 = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted);
+                  carry_flag = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted);
                   tex_x_accum_high = (PAIR64(tex_x_accum_high, tex_x_accum_low) - PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted)) >> 32;
                   tex_x_accum_low -= shade_interpolation_top_shifted;
-                  tex_x_accum_combined -= v37 + shade_interpolation_top_high_combined;
+                  tex_x_accum_combined -= carry_flag + shade_interpolation_top_high_combined;
                   --xStart;
                 }
                 while ( xStart );
@@ -1095,55 +1096,55 @@ REMAINDER_SCANLINE_STEP:
               {
                 do
                 {
-                  v37 = CFADD64(PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted), PAIR64(tex_x_accum_high, tex_x_accum_low));
+                  carry_flag = CFADD64(PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted), PAIR64(tex_x_accum_high, tex_x_accum_low));
                   tex_x_accum_high = (PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
                   tex_x_accum_low += shade_interpolation_top_shifted;
-                  tex_x_accum_combined += shade_interpolation_top_high_combined + v37;
+                  tex_x_accum_combined += shade_interpolation_top_high_combined + carry_flag;
                   ++xStart;
                 }
                 while ( xStart );
               }
             }
           }
-          else if ( v31 > xStart )
+          else if ( shade_pixel_position > xStart )
           {
             do
             {
-              v37 = CFADD64(PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted), PAIR64(tex_x_accum_high, tex_x_accum_low));
+              carry_flag = CFADD64(PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted), PAIR64(tex_x_accum_high, tex_x_accum_low));
               tex_x_accum_high = (PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
               tex_x_accum_low += shade_interpolation_top_shifted;
-              tex_x_accum_combined += shade_interpolation_top_high_combined + v37;
+              tex_x_accum_combined += shade_interpolation_top_high_combined + carry_flag;
               ++xStart;
             }
-            while ( v31 > xStart );
+            while ( shade_pixel_position > xStart );
           }
           else
           {
-            for ( ; v31 < xStart; --xStart )
+            for ( ; shade_pixel_position < xStart; --xStart )
             {
-              v37 = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted);
+              carry_flag = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted);
               tex_x_accum_high = (PAIR64(tex_x_accum_high, tex_x_accum_low) - PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted)) >> 32;
               tex_x_accum_low -= shade_interpolation_top_shifted;
-              tex_x_accum_combined -= v37 + shade_interpolation_top_high_combined;
+              tex_x_accum_combined -= carry_flag + shade_interpolation_top_high_combined;
             }
           }
           current_scanline_xposition = xStart;
           texture_xaccumulator_low_backup = tex_x_accum_low;
           texture_xaccumulator_high_backup = tex_x_accum_high;
           texture_xaccumulator_backup = tex_x_accum_combined;
-          v32 = shadeAccumulatorNext >> 16;
-          if ( v32 > LOC_vec_window_width )
-            v32 = LOC_vec_window_width;
-          v29 = v32 <= xStart;
-          pixel_span_len = v32 - xStart;
-          if ( !v29 )
+          next_shade_pixel_position = shadeAccumulatorNext >> 16;
+          if ( next_shade_pixel_position > LOC_vec_window_width )
+            next_shade_pixel_position = LOC_vec_window_width;
+          range_check_passed = next_shade_pixel_position <= xStart;
+          pixel_span_len = next_shade_pixel_position - xStart;
+          if ( !range_check_passed )
           {
             unrolled_loop(pixel_span_len,tex_x_accum_high,tex_x_accum_combined,screenbuffer_lineptr + xStart);
           }
-          v30 = current_scanline_xposition - (g_shadeAccumulator >> 16);
+          shade_position_adjustment = current_scanline_xposition - (g_shadeAccumulator >> 16);
           shadeAccumulatorNext = shadingfactor_secondary + g_shadeAccumulatorNext;
           g_shadeAccumulator += shadingfactor_primary;
-          xStart = (g_shadeAccumulator >> 16) + v30;
+          xStart = (g_shadeAccumulator >> 16) + shade_position_adjustment;
           shadeAccumulator = g_shadeAccumulator;
           tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(texture_xaccumulator_high_backup, texture_xaccumulator_low_backup)) >> 32;
           tex_x_accum_low = texture_xaccumulator_low + texture_xaccumulator_low_backup;
@@ -1159,10 +1160,10 @@ REMAINDER_SCANLINE_STEP:
 SKEWED_SCAN_ADJUST:
       while ( 1 )
       {
-        v37 = CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(tex_x_accum_high, tex_x_accum_low));
+        carry_flag = CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(tex_x_accum_high, tex_x_accum_low));
         tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
         tex_x_accum_low += texture_xaccumulator_low;
-        tex_x_accum_combined += texture_yaccumulator_high_combined + v37;
+        tex_x_accum_combined += texture_yaccumulator_high_combined + carry_flag;
         current_scanline_xposition -= shadeAccumulator >> 16;
         shadeAccumulatorNext += shadingfactor_secondary;
         g_shadeAccumulator = shadingfactor_primary + shadeAccumulator;
@@ -1186,14 +1187,14 @@ SKEWED_SCAN_ADJUST:
     tex_x_accum_low = 0;
     tex_x_accum_high = startpos_bottom_shade_texture_combined;
     tex_x_accum_combined = startpos_bottom_texturex_texturey_combined;
-    v38 = triangle_point_c_y;
+    clipped_end_y = triangle_point_c_y;
     if ( triangle_point_c_y > LOC_vec_window_height )
-      v38 = LOC_vec_window_height;
-    v29 = v38 <= triangle_point_b_y;
-    scanline_span_count = v38 - triangle_point_b_y;
+      clipped_end_y = LOC_vec_window_height;
+    range_check_passed = clipped_end_y <= triangle_point_b_y;
+    scanline_span_count = clipped_end_y - triangle_point_b_y;
     current_scanline_xposition = triangle_point_b_x;
     shadeAccumulator = triangle_point_b_shade_x;
-    if ( !v29 )
+    if ( !range_check_passed )
     {
       scanline_y_esi = triangle_point_b_y;
       if ( triangle_point_b_y < 0 )

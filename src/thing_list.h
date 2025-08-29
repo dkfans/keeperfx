@@ -159,16 +159,16 @@ struct CompoundTngFilterParam {
      long class_id;
      ThingModel model_id;
      union {
-     long num1;
-     void *ptr1;
+     long primary_number;
+     void *primary_pointer;
      };
      union {
-     long num2;
-     void *ptr2;
+     long secondary_number;
+     void *secondary_pointer;
      };
      union {
-     long num3;
-     void *ptr3;
+     long tertiary_number;
+     void *tertiary_pointer;
      };
 };
 

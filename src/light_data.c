@@ -1702,27 +1702,27 @@ static char light_render_light_dynamic_uncached(struct Light *lgt, int radius, i
                             calculate_shadow_angle(lgt->mappos.x.val, lgt->mappos.y.val, quadrant, stl_x, stl_y, &shadow_angle_limit_secondary_index, &shadow_angle_limit_tertiary_index);
                             create_shadow_limits(&game.lish, shadow_angle_limit_secondary_index, shadow_angle_limit_tertiary_index);
                         }
-                        TbBool v24;
+                        TbBool should_compute_lighting;
                         if ( !too_high )
-                            goto LABEL_37;
+                            goto compute_lighting;
                         switch ( quadrant )
                         {
                             case 1:
-                            v24 = ( get_floor_filled_subtiles_at(stl_x - 1, stl_y - 1) <= lgt->mappos.z.stl.num );
+                            should_compute_lighting = ( get_floor_filled_subtiles_at(stl_x - 1, stl_y - 1) <= lgt->mappos.z.stl.num );
                             break;
                             case 3:
-                            v24 = ( !point_is_above_floor(stl_x, stl_y - 1, lgt->mappos.z.stl.num) );
+                            should_compute_lighting = ( !point_is_above_floor(stl_x, stl_y - 1, lgt->mappos.z.stl.num) );
                             break;
                             case 4:
-                            v24 = false;
+                            should_compute_lighting = false;
                             break;
                             default:
-                            v24 = true;
+                            should_compute_lighting = true;
                             break;
                         }
-                        if ( v24 )
+                        if ( should_compute_lighting )
                         {
-                            LABEL_37:
+                            compute_lighting:
                             {
                                 unsigned int subtile_center_y = stl_y << 8;
                                 unsigned int subtile_center_x = stl_x << 8;
@@ -1949,7 +1949,7 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
                         calculate_shadow_angle(lgt->mappos.x.val, lgt->mappos.y.val, quadrant, stl_x, stl_y, &shadow_start, &shadow_end);
                         create_shadow_limits(lish, shadow_start, shadow_end);
                     }
-                    TbBool v24 = false;
+                    TbBool should_compute_lighting = false;
 
                     if (too_high)
                     {
@@ -1957,28 +1957,28 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
                         {
                             case 1:
                             {
-                                v24 = (get_column_floor_filled_subtiles(col) <= lgt->mappos.z.stl.num);
+                                should_compute_lighting = (get_column_floor_filled_subtiles(col) <= lgt->mappos.z.stl.num);
                                 break;
                             }
                             case 3:
                             {
-                                v24 = (!point_is_above_floor(stl_x, stl_y - 1, lgt->mappos.z.stl.num));
+                                should_compute_lighting = (!point_is_above_floor(stl_x, stl_y - 1, lgt->mappos.z.stl.num));
                                 break;
                             }
                             case 4:
                             {
-                                v24 = false;
+                                should_compute_lighting = false;
                                 break;
                             }
                             default:
                             {
-                                v24 = true;
+                                should_compute_lighting = true;
                                 break;
                             }
                         }
                     }
 
-                    if ( (v24) || (!too_high) )
+                    if ( (should_compute_lighting) || (!too_high) )
                     {
                         floor_filled_stls = intensity * (radius - lish->lighting_tables[lighting_table_idx].diagonal_length) / radius;
                         if (floor_filled_stls <= lish->global_ambient_light)
@@ -2107,7 +2107,7 @@ static char light_render_light(struct Light* lgt)
           y_end = ((game.map_subtiles_y + 1) * COORD_PER_STL - 1);
         MapSubtlCoord stl_x = coord_subtile(x_start);
         MapSubtlCoord stl_y = coord_subtile(y_start);
-        int v33 = stl_x - coord_subtile(x_end) + game.map_subtiles_x;
+        int row_offset = stl_x - coord_subtile(x_end) + game.map_subtiles_x;
         unsigned short* lightness = &game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y)];
         struct ShadowCache *shdc = &game.lish.shadow_cache[lgt->shadow_index];
         lighting_tables_idx = *shdc->lighting_bitmask;
@@ -2134,7 +2134,7 @@ static char light_render_light(struct Light* lgt)
               lightness++;
             }
 
-            lightness += v33;
+            lightness += row_offset;
             y += COORD_PER_STL;
             lighting_tables_idx = shadow_cache_pointer[1];
             shadow_cache_pointer++;

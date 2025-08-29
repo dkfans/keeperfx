@@ -771,8 +771,8 @@ long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thin
       if (can_thing_be_picked_up_by_player(thing, param->plyr_idx) || thing_slappable(thing, param->plyr_idx))
       {
           // note that abs() is not required because we're computing square of the values
-          dist_x = param->num1-(MapCoord)thing->mappos.x.val;
-          dist_y = param->num2-(MapCoord)thing->mappos.y.val;
+          dist_x = param->primary_number-(MapCoord)thing->mappos.x.val;
+          dist_y = param->secondary_number-(MapCoord)thing->mappos.y.val;
           // This function should return max value when the distance is minimal, so:
           return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
       }
@@ -805,8 +805,8 @@ struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord
     SYNCDBG(19,"Starting");
     filter = near_map_block_thing_filter_ready_for_hand_or_slap;
     param.plyr_idx = plyr_idx;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 

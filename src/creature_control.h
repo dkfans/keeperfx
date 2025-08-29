@@ -235,7 +235,7 @@ unsigned char sound_flag;
     unsigned char unused;
     TbBool navigation_map_changed;
     TbBool unusedparam2;
-  } unknown_union;
+  } regular_creature;
   };
 
   union {

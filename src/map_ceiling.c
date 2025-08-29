@@ -108,20 +108,20 @@ static int ceiling_block_is_solid_including_corners_return_height(SubtlCodedCoor
 
 static int ceiling_calculate_height_from_nearest_walls(int result, int number_of_steps)
 {
-    int v2;
-    v2 = game.ceiling_step * number_of_steps;
+    int step_adjustment;
+    step_adjustment = game.ceiling_step * number_of_steps;
     if (result >= game.ceiling_height_max)
     {
         if (result > game.ceiling_height_max)
         {
-            result -= v2;
+            result -= step_adjustment;
             if (result <= game.ceiling_height_min)
                 return game.ceiling_height_min;
         }
     }
     else
     {
-        result += v2;
+        result += step_adjustment;
         if (result >= game.ceiling_height_max)
             return game.ceiling_height_max;
     }
@@ -131,15 +131,15 @@ static int ceiling_calculate_height_from_nearest_walls(int result, int number_of
 void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, MapSubtlCoord ex, MapSubtlCoord ey)
 {
     int ceiling_height;
-    int v23;
+    int spiral_step_count;
     struct MapOffset *spir;
     MapSubtlCoord search_stl_x;
     MapSubtlCoord search_stl_y;
-    int v27;
+    int found_ceiling_height;
     TbBool near_wall;
     unsigned int number_of_steps;
-    int v38;
-    int *v48;
+    int current_ceiling_height;
+    int *ceiling_height_result_ptr;
     int ceil_dist = game.ceiling_dist;
     if (game.ceiling_dist > 4)
         ceil_dist = 4;
@@ -195,11 +195,11 @@ void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, Map
         {
             SubtlCodedCoords stl_num2 = get_subtile_number(current_stl_x,current_stl_y);
             ceiling_height = ceiling_cache[stl_num2];
-            v38 = ceiling_height;
+            current_ceiling_height = ceiling_height;
             if (ceiling_height <= -1)
             {
-                v48 = &v38;
-                v23 = 0;
+                ceiling_height_result_ptr = &current_ceiling_height;
+                spiral_step_count = 0;
                 spir = spiral_step;
                 if (game.ceiling_search_dist > 0)
                 {
@@ -209,26 +209,26 @@ void ceiling_partially_recompute_heights(MapSubtlCoord sx, MapSubtlCoord sy, Map
                         search_stl_y = current_stl_y + spir->v;
                         if (search_stl_x >= 0 && search_stl_x < game.map_subtiles_x && search_stl_y >= 0 && search_stl_y < game.map_subtiles_y)
                         {
-                            v27 = ceiling_cache[get_subtile_number(search_stl_x ,search_stl_y)];
-                            if (v27 > -1)
+                            found_ceiling_height = ceiling_cache[get_subtile_number(search_stl_x ,search_stl_y)];
+                            if (found_ceiling_height > -1)
                                 break;
                         }
-                        ++v23;
+                        ++spiral_step_count;
                         ++spir;
-                        if (v23 >= game.ceiling_search_dist)
-                            goto LABEL_43;
+                        if (spiral_step_count >= game.ceiling_search_dist)
+                            goto search_distance_exceeded;
                     }
-                    *v48 = v27;
+                    *ceiling_height_result_ptr = found_ceiling_height;
                     number_of_steps = chessboard_distance(current_stl_x, current_stl_y, search_stl_x, search_stl_y);
                     near_wall = true;
                 }
                 else
                 {
-                LABEL_43:
+                search_distance_exceeded:
                     near_wall = false;
                 }
                 if (near_wall)
-                    ceiling_height = ceiling_calculate_height_from_nearest_walls(v38, number_of_steps);
+                    ceiling_height = ceiling_calculate_height_from_nearest_walls(current_ceiling_height, number_of_steps);
                 else
                     ceiling_height = game.ceiling_height_max;
             }

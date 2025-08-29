@@ -188,10 +188,10 @@ SubtlCodedCoords find_unused_adjacent_position_in_workshop(const struct Coord3d 
     return 0;
 }
 
-TbBool setup_move_to_new_workshop_position(struct Thing *thing, struct Room *room, unsigned long a3)
+TbBool setup_move_to_new_workshop_position(struct Thing *thing, struct Room *room, unsigned long set_work_timer)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ( a3 )
+    if ( set_work_timer )
         cctrl->workshop.work_timer = 50;
     cctrl->workshop.job_stage = 1;
     SubtlCodedCoords stl_num = find_position_around_in_room(&thing->mappos, thing->owner, room->kind, thing);

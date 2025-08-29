@@ -1944,46 +1944,46 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         }
     }
 
-    long value1 = 0, value2 = 0, value3 = 0;
+    long config_value_primary = 0, config_value_secondary = 0, config_value_tertiary = 0;
     if (block == CrtConf_ATTRIBUTES)
     {
         if (creatvar == 20) // ATTACKPREFERENCE
         {
-            value1 = get_id(attackpref_desc, scline->tp[2]);
+            config_value_primary = get_id(attackpref_desc, scline->tp[2]);
         }
         else if (creatvar == 34) // LAIROBJECT
         {
             if (parameter_is_number(scline->tp[2])) // Support name or number for lair object.
             {
-                value1 = atoi(scline->tp[2]);
+                config_value_primary = atoi(scline->tp[2]);
             }
             else
             {
-                value1 = get_id(object_desc, scline->tp[2]);
+                config_value_primary = get_id(object_desc, scline->tp[2]);
             }
         }
         else if ((creatvar == 35) || (creatvar == 36)) // PRISONKIND or TORTUREKIND
         {
             if (parameter_is_number(scline->tp[2])) // Support name or number for prison kind or torture kind.
             {
-                value1 = atoi(scline->tp[2]);
+                config_value_primary = atoi(scline->tp[2]);
             }
             else
             {
-                value1 = get_id(creature_desc, scline->tp[2]);
+                config_value_primary = get_id(creature_desc, scline->tp[2]);
             }
         }
         else if (creatvar == 37) // SPELLIMMUNITY
         {
             if (parameter_is_number(scline->tp[2]))
             {
-                value1 = atoi(scline->tp[2]);
+                config_value_primary = atoi(scline->tp[2]);
             }
             else
             {
-                value1 = get_id(spell_effect_flags, scline->tp[2]);
+                config_value_primary = get_id(spell_effect_flags, scline->tp[2]);
             }
-            if (value1 < 0)
+            if (config_value_primary < 0)
             {
                 SCRPTERRLOG("SpellImmunity flag %s is out of range or doesn't exist.", scline->tp[2]);
                 DEALLOCATE_SCRIPT_VALUE
@@ -1992,39 +1992,39 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
-                value2 = atoi(scline->tp[3]);
+                config_value_secondary = atoi(scline->tp[3]);
             }
             else
             {
                 // tp[3] is empty, set it to UCHAR_MAX to process.
-                value2 = UCHAR_MAX;
+                config_value_secondary = UCHAR_MAX;
             }
         }
         else if (creatvar == 38) // HOSTILETOWARDS
         {
             if (parameter_is_number(scline->tp[2])) // Support name or number for hostile towards.
             {
-                value1 = atoi(scline->tp[2]);
+                config_value_primary = atoi(scline->tp[2]);
             }
             else if (0 == strcmp(scline->tp[2], "ANY_CREATURE")) // Support ANY_CREATURE for hostile towards.
             {
-                value1 = CREATURE_ANY;
+                config_value_primary = CREATURE_ANY;
             }
             else if (strcasecmp(scline->tp[2], "NULL") == 0)  // Support NULL for hostile towards.
             {
-                value1 = 0;
+                config_value_primary = 0;
             }
             else
             {
-                value1 = get_id(creature_desc, scline->tp[2]);
+                config_value_primary = get_id(creature_desc, scline->tp[2]);
             }
         }
         else
         {
-            value1 = atoi(scline->tp[2]);
+            config_value_primary = atoi(scline->tp[2]);
             if (scline->tp[3][0] != '\0')
             {
-                value2 = atoi(scline->tp[3]);
+                config_value_secondary = atoi(scline->tp[3]);
             }
             // nothing there that would need the third value.
         }
@@ -2035,24 +2035,24 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         {
             if (parameter_is_number(scline->tp[2]))
             {
-                value1 = atoi(scline->tp[2]);
-                if ((value1 < 0) || (value1 > SHRT_MAX))
+                config_value_primary = atoi(scline->tp[2]);
+                if ((config_value_primary < 0) || (config_value_primary > SHRT_MAX))
                 {
-                    SCRPTERRLOG("Job value %ld out of range `0~%d`.", value1, SHRT_MAX);
+                    SCRPTERRLOG("Job value %ld out of range `0~%d`.", config_value_primary, SHRT_MAX);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
             }
             else
             {
-                value1 = get_id(creaturejob_desc, scline->tp[2]);
-                if (value1 > SHRT_MAX)
+                config_value_primary = get_id(creaturejob_desc, scline->tp[2]);
+                if (config_value_primary > SHRT_MAX)
                 {
-                    SCRPTERRLOG("Job %s not supported", creature_job_code_name(value1));
+                    SCRPTERRLOG("Job %s not supported", creature_job_code_name(config_value_primary));
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
-                else if (value1 < 0)
+                else if (config_value_primary < 0)
                 {
                     SCRPTERRLOG("Job %s is out of range or doesn't exist.", scline->tp[2]);
                     DEALLOCATE_SCRIPT_VALUE
@@ -2062,67 +2062,67 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
-                value2 = atoi(scline->tp[3]);
+                config_value_secondary = atoi(scline->tp[3]);
             }
             else
             {
                 // tp[3] is empty, set it to UCHAR_MAX to process.
-                value2 = UCHAR_MAX;
+                config_value_secondary = UCHAR_MAX;
             }
         }
         else
         {
-            value1 = atoi(scline->tp[2]);
+            config_value_primary = atoi(scline->tp[2]);
             // Nothing there that would need the second or third value.
         }
     }
     else if (block == CrtConf_SOUNDS)
     {
-        value1 = atoi(scline->tp[2]);
+        config_value_primary = atoi(scline->tp[2]);
         if (scline->tp[3][0] != '\0')
         {
-            value2 = atoi(scline->tp[3]);
+            config_value_secondary = atoi(scline->tp[3]);
         }
         if (scline->tp[3][0] != '\0')
         {
-            value3 = atoi(scline->tp[4]);
+            config_value_tertiary = atoi(scline->tp[4]);
         }
     }
     else if (block == CrtConf_SPRITES)
     {
         if ((creatvar == (CGI_HandSymbol + 1)) || (creatvar == (CGI_QuerySymbol + 1)))
         {
-            value1 = get_icon_id(scline->tp[2]);
+            config_value_primary = get_icon_id(scline->tp[2]);
         }
         else
         {
-            value1 = get_anim_id_(scline->tp[2]);
+            config_value_primary = get_anim_id_(scline->tp[2]);
         }
     }
     else if (block == CrtConf_ATTRACTION)
     {
         if (creatvar == 1) //ENTRANCEROOM
         {
-            value1 = get_id(room_desc, scline->tp[2]);
+            config_value_primary = get_id(room_desc, scline->tp[2]);
             if (scline->tp[3][0] != '\0')
             {
-                value2 = get_id(room_desc, scline->tp[3]);
+                config_value_secondary = get_id(room_desc, scline->tp[3]);
             }
             if (scline->tp[4][0] != '\0')
             {
-                value3 = get_id(room_desc, scline->tp[4]);
+                config_value_tertiary = get_id(room_desc, scline->tp[4]);
             }
         }
         else
         {
-            value1 = atoi(scline->tp[2]);
+            config_value_primary = atoi(scline->tp[2]);
             if (scline->tp[3][0] != '\0')
             {
-                value2 = atoi(scline->tp[3]);
+                config_value_secondary = atoi(scline->tp[3]);
             }
             if (scline->tp[4][0] != '\0')
             {
-                value3 = atoi(scline->tp[4]);
+                config_value_tertiary = atoi(scline->tp[4]);
             }
         }
     }
@@ -2169,32 +2169,32 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                     }
                 }
             }
-            value1 = creature_model[0];
-            value2 = creature_model[1];
-            value3 = creature_model[2];
+            config_value_primary = creature_model[0];
+            config_value_secondary = creature_model[1];
+            config_value_tertiary = creature_model[2];
         } else
         if (creatvar == 23) // AngerJobs
         {
             if (parameter_is_number(scline->tp[2]))
             {
-                value1 = atoi(scline->tp[2]);
-                if ((value1 < 0) || (value1 > SHRT_MAX))
+                config_value_primary = atoi(scline->tp[2]);
+                if ((config_value_primary < 0) || (config_value_primary > SHRT_MAX))
                 {
-                    SCRPTERRLOG("Job value %ld out of range `0~%d`.", value1, SHRT_MAX);
+                    SCRPTERRLOG("Job value %ld out of range `0~%d`.", config_value_primary, SHRT_MAX);
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
             }
             else
             {
-                value1 = get_id(angerjob_desc, scline->tp[2]);
-                if (value1 > SHRT_MAX)
+                config_value_primary = get_id(angerjob_desc, scline->tp[2]);
+                if (config_value_primary > SHRT_MAX)
                 {
-                    SCRPTERRLOG("Job %s not supported", creature_job_code_name(value1));
+                    SCRPTERRLOG("Job %s not supported", creature_job_code_name(config_value_primary));
                     DEALLOCATE_SCRIPT_VALUE
                     return;
                 }
-                else if (value1 < 0)
+                else if (config_value_primary < 0)
                 {
                     SCRPTERRLOG("Job %s is out of range or doesn't exist.", scline->tp[2]);
                     DEALLOCATE_SCRIPT_VALUE
@@ -2204,18 +2204,18 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             // value 2: 'empty' is 'set', '1' is 'add', '0' is 'clear'.
             if (scline->tp[3][0] != '\0')
             {
-                value2 = atoi(scline->tp[3]);
+                config_value_secondary = atoi(scline->tp[3]);
             }
             else
             {
                 // tp[3] is empty, set it to UCHAR_MAX to process.
-                value2 = UCHAR_MAX;
+                config_value_secondary = UCHAR_MAX;
             }
         }
         else
         {
-            value1 = atoi(scline->tp[2]);
-            value2 = atoi(scline->tp[3]);
+            config_value_primary = atoi(scline->tp[2]);
+            config_value_secondary = atoi(scline->tp[3]);
         }
     } else
     if (block == CrtConf_EXPERIENCE)
@@ -2234,7 +2234,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             }
             if (instance >= 0)
             {
-                value1 = instance;
+                config_value_primary = instance;
             }
             else
             {
@@ -2248,7 +2248,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value2 = atoi(scline->tp[3]);
+            config_value_secondary = atoi(scline->tp[3]);
         } else
         if (creatvar == 2) // POWERSLEVELREQUIRED
         {
@@ -2264,8 +2264,8 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value1 = atoi(scline->tp[2]);
-            value2 = atoi(scline->tp[3]);
+            config_value_primary = atoi(scline->tp[2]);
+            config_value_secondary = atoi(scline->tp[3]);
         } else
         if (creatvar == 3) // LEVELSTRAINVALUES
         {
@@ -2281,12 +2281,12 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value1 = atoi(scline->tp[2]);
-            value2 = atoi(scline->tp[3]);
+            config_value_primary = atoi(scline->tp[2]);
+            config_value_secondary = atoi(scline->tp[3]);
         } else
         if (creatvar == 4) // GROWUP
         {
-            value1 = atoi(scline->tp[2]);
+            config_value_primary = atoi(scline->tp[2]);
             ThingModel creature_model = 0;
             if (parameter_is_number(scline->tp[3]))
             {
@@ -2315,9 +2315,9 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                     }
                 }
             }
-            value2 = creature_model;
+            config_value_secondary = creature_model;
             short level = 0;
-            if (value2 > 0)
+            if (config_value_secondary > 0)
             {
                 level = atoi(scline->tp[4]);
                 if ((level < 1) || (level > CREATURE_MAX_LEVEL))
@@ -2327,7 +2327,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                     return;
                 }
             }
-            value3 = level;
+            config_value_tertiary = level;
         } else
         if (creatvar == 5) // SLEEPEXPERIENCE
         {
@@ -2340,54 +2340,54 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             }
             else
             {
-                value1 = slabtype;
+                config_value_primary = slabtype;
             }
-            value2 = atoi(scline->tp[3]);
+            config_value_secondary = atoi(scline->tp[3]);
         }
         else
         {
-            value1 = atoi(scline->tp[2]);
+            config_value_primary = atoi(scline->tp[2]);
         }
     } else
     if (block == CrtConf_APPEARANCE)
     {
         if (creatvar == 4) // NATURALDEATHKIND
         {
-            value1 = get_id(creature_deathkind_desc, scline->tp[2]);
+            config_value_primary = get_id(creature_deathkind_desc, scline->tp[2]);
         }
         else
         {
-            value1 = atoi(scline->tp[2]);
-            value2 = atoi(scline->tp[3]);
-            value3 = atoi(scline->tp[4]);
+            config_value_primary = atoi(scline->tp[2]);
+            config_value_secondary = atoi(scline->tp[3]);
+            config_value_tertiary = atoi(scline->tp[4]);
         }
     } else
     if (block == CrtConf_SENSES)
     {
         if (creatvar == 4) // EYEEFFECT
         {
-            value1 = get_id(lenses_desc, scline->tp[2]);
+            config_value_primary = get_id(lenses_desc, scline->tp[2]);
         }
         else
         {
-            value1 = atoi(scline->tp[2]);
-            // nothing to fill for value2 or value3
+            config_value_primary = atoi(scline->tp[2]);
+            // nothing to fill for config_value_secondary or config_value_tertiary
         }
     }
 
-    if (value1 == -1)
+    if (config_value_primary == -1)
     {
         SCRPTERRLOG("Unknown creature configuration value %s", scline->tp[2]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    if (value2 == -1)
+    if (config_value_secondary == -1)
     {
         SCRPTERRLOG("Unknown second creature configuration value %s", scline->tp[3]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    if (value3 == -1)
+    if (config_value_tertiary == -1)
     {
         SCRPTERRLOG("Unknown third creature configuration value %s", scline->tp[3]);
         DEALLOCATE_SCRIPT_VALUE
@@ -2397,9 +2397,9 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     value->shorts[0] = scline->np[0];
     value->shorts[1] = creatvar;
     value->shorts[2] = block;
-    value->longs[2] = value1;
-    value->longs[3] = value2;
-    value->longs[4] = value3;
+    value->longs[2] = config_value_primary;
+    value->longs[3] = config_value_secondary;
+    value->longs[4] = config_value_tertiary;
 
     SCRIPTDBG(7,"Setting creature %s configuration value %d:%d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[4], value->shorts[1], value->shorts[2], value->shorts[3]);
 
@@ -2414,8 +2414,8 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     short creature_variable = context->value->shorts[1];
     short block  = context->value->shorts[2];
     long value  = context->value->longs[2];
-    long value2 = context->value->longs[3];
-    long value3 = context->value->longs[4];
+    long config_value_secondary = context->value->longs[3];
+    long config_value_tertiary = context->value->longs[4];
 
     if (block == CrtConf_ATTRIBUTES)
     {
@@ -2491,7 +2491,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 19: // SIZE
             crconf->size_xy = value;
-            crconf->size_z = value2;
+            crconf->size_z = config_value_secondary;
             break;
         case 20: // ATTACKPREFERENCE
             crconf->attack_preference = value;
@@ -2514,7 +2514,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 27: // THINGSIZE
             crconf->thing_size_xy = value;
-            crconf->thing_size_z = value2;
+            crconf->thing_size_z = config_value_secondary;
             break;
         case 29: // NAMETEXTID
             crconf->namestr_idx = value;
@@ -2548,11 +2548,11 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crconf->torture_kind = value;
             break;
         case 37: // SPELLIMMUNITY
-            if (value2 == 0)
+            if (config_value_secondary == 0)
             {
                 clear_flag(crconf->immunity_flags, value);
             }
-            else if (value2 == 1)
+            else if (config_value_secondary == 1)
             {
                 set_flag(crconf->immunity_flags, value);
             }
@@ -2586,11 +2586,11 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         switch (creature_variable)
         {
         case 1: // PRIMARYJOBS
-            if (value2 == 0)
+            if (config_value_secondary == 0)
             {
                 clear_flag(crconf->job_primary, value);
             }
-            else if (value2 == 1)
+            else if (config_value_secondary == 1)
             {
                 set_flag(crconf->job_primary, value);
             }
@@ -2600,11 +2600,11 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             }
             break;
         case 2: // SECONDARYJOBS
-            if (value2 == 0)
+            if (config_value_secondary == 0)
             {
                 clear_flag(crconf->job_secondary, value);
             }
-            else if (value2 == 1)
+            else if (config_value_secondary == 1)
             {
                 set_flag(crconf->job_secondary, value);
             }
@@ -2614,11 +2614,11 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             }
             break;
         case 3: // NOTDOJOBS
-            if (value2 == 0)
+            if (config_value_secondary == 0)
             {
                 clear_flag(crconf->jobs_not_do, value);
             }
-            else if (value2 == 1)
+            else if (config_value_secondary == 1)
             {
                 set_flag(crconf->jobs_not_do, value);
             }
@@ -2628,11 +2628,11 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             }
             break;
         case 4: // STRESSFULJOBS
-            if (value2 == 0)
+            if (config_value_secondary == 0)
             {
                 clear_flag(crconf->job_stress, value);
             }
-            else if (value2 == 1)
+            else if (config_value_secondary == 1)
             {
                 set_flag(crconf->job_stress, value);
             }
@@ -2674,13 +2674,13 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // ENTRANCEROOM
             crconf->entrance_rooms[0] = value;
-            crconf->entrance_rooms[1] = value2;
-            crconf->entrance_rooms[2] = value3;
+            crconf->entrance_rooms[1] = config_value_secondary;
+            crconf->entrance_rooms[2] = config_value_tertiary;
             break;
         case 2: // ROOMSLABSREQUIRED
             crconf->entrance_slabs_req[0] = value;
-            crconf->entrance_slabs_req[1] = value2;
-            crconf->entrance_slabs_req[2] = value3;
+            crconf->entrance_slabs_req[1] = config_value_secondary;
+            crconf->entrance_slabs_req[2] = config_value_tertiary;
             break;
         case 3: // BASEENTRANCESCORE
             crconf->entrance_score = value;
@@ -2702,51 +2702,51 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // HURT
             game.conf.crtr_conf.creature_sounds[creatid].hurt.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].hurt.count = value2;
+            game.conf.crtr_conf.creature_sounds[creatid].hurt.count = config_value_secondary;
             break;
         case 2: // HIT
             game.conf.crtr_conf.creature_sounds[creatid].hit.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].hit.count = value2;
+            game.conf.crtr_conf.creature_sounds[creatid].hit.count = config_value_secondary;
             break;
         case 3: // HAPPY
             game.conf.crtr_conf.creature_sounds[creatid].happy.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].happy.count = value2;
+            game.conf.crtr_conf.creature_sounds[creatid].happy.count = config_value_secondary;
             break;
         case 4: // SAD
             game.conf.crtr_conf.creature_sounds[creatid].sad.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].sad.count = value2;
+            game.conf.crtr_conf.creature_sounds[creatid].sad.count = config_value_secondary;
             break;
         case 5: // HANG
             game.conf.crtr_conf.creature_sounds[creatid].hang.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].hang.count = value2;
+            game.conf.crtr_conf.creature_sounds[creatid].hang.count = config_value_secondary;
             break;
         case 6: // DROP
             game.conf.crtr_conf.creature_sounds[creatid].drop.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].drop.count = value2;
+            game.conf.crtr_conf.creature_sounds[creatid].drop.count = config_value_secondary;
             break;
         case 7: // TORTURE
             game.conf.crtr_conf.creature_sounds[creatid].torture.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].torture.count = value2;
+            game.conf.crtr_conf.creature_sounds[creatid].torture.count = config_value_secondary;
             break;
         case 8: // SLAP
             game.conf.crtr_conf.creature_sounds[creatid].slap.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].slap.count = value2;
+            game.conf.crtr_conf.creature_sounds[creatid].slap.count = config_value_secondary;
             break;
         case 9: // DIE
             game.conf.crtr_conf.creature_sounds[creatid].die.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].die.count = value2;
+            game.conf.crtr_conf.creature_sounds[creatid].die.count = config_value_secondary;
             break;
         case 10: // FOOT
             game.conf.crtr_conf.creature_sounds[creatid].foot.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].foot.count = value2;
+            game.conf.crtr_conf.creature_sounds[creatid].foot.count = config_value_secondary;
             break;
         case 11: // FIGHT
             game.conf.crtr_conf.creature_sounds[creatid].fight.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].fight.count = value2;
+            game.conf.crtr_conf.creature_sounds[creatid].fight.count = config_value_secondary;
             break;
         case 12: // PISS
             game.conf.crtr_conf.creature_sounds[creatid].piss.index = value;
-            game.conf.crtr_conf.creature_sounds[creatid].piss.count = value2;
+            game.conf.crtr_conf.creature_sounds[creatid].piss.count = config_value_secondary;
             break;
         default:
             CONFWRNLOG("Unrecognized Spound command (%d)", creature_variable);
@@ -2844,7 +2844,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 17: // UNTRAINED
         {
             crconf->annoy_untrained_time = value;
-            crconf->annoy_untrained = value2;
+            crconf->annoy_untrained = config_value_secondary;
             break;
         }
         case 18: // OTHERSLEAVING
@@ -2865,8 +2865,8 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 21: // LAIRENEMY
         {
             crconf->lair_enemy[0] = value;
-            crconf->lair_enemy[1] = value2;
-            crconf->lair_enemy[2] = value3;
+            crconf->lair_enemy[1] = config_value_secondary;
+            crconf->lair_enemy[2] = config_value_tertiary;
             //clear out the other ones.
             crconf->lair_enemy[3] = 0;
             crconf->lair_enemy[4] = 0;
@@ -2879,11 +2879,11 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         }
         case 23: // ANGERJOBS
         {
-            if (value2 == 0)
+            if (config_value_secondary == 0)
             {
                 clear_flag(crconf->jobs_anger, value);
             }
-            else if (value2 == 1)
+            else if (config_value_secondary == 1)
             {
                 set_flag(crconf->jobs_anger, value);
             }
@@ -2909,30 +2909,30 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // POWERS
         {
-            crconf->learned_instance_id[value2-1] = value;
+            crconf->learned_instance_id[config_value_secondary-1] = value;
             break;
         }
         case 2: // POWERSLEVELREQUIRED
         {
-            crconf->learned_instance_level[value2-1] = value;
+            crconf->learned_instance_level[config_value_secondary-1] = value;
             break;
         }
         case 3: // LEVELSTRAINVALUES
         {
-            crconf->to_level[value2-1] = value;
+            crconf->to_level[config_value_secondary-1] = value;
             break;
         }
         case 4: // GROWUP
         {
             crconf->to_level[CREATURE_MAX_LEVEL - 1] = value;
-            crconf->grow_up = value2;
-            crconf->grow_up_level = value3;
+            crconf->grow_up = config_value_secondary;
+            crconf->grow_up_level = config_value_tertiary;
             break;
         }
         case 5: // SLEEPEXPERIENCE
         {
             crconf->sleep_exp_slab = value;
-            crconf->sleep_experience = value2;
+            crconf->sleep_experience = config_value_secondary;
             break;
         }
         case 6: // EXPERIENCEFORHITTING
@@ -2977,8 +2977,8 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 5: // SHOTORIGIN
         {
             crconf->shot_shift_x = value;
-            crconf->shot_shift_y = value2;
-            crconf->shot_shift_z = value3;
+            crconf->shot_shift_y = config_value_secondary;
+            crconf->shot_shift_z = config_value_tertiary;
             break;
         }
         case 6: // CORPSEVANISHEFFECT
@@ -2994,7 +2994,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         case 8: // PICKUPOFFSET
         {
             crconf->creature_picked_up_offset.delta_x = value;
-            crconf->creature_picked_up_offset.delta_y = value2;
+            crconf->creature_picked_up_offset.delta_y = config_value_secondary;
             break;
         }
         case 9: // STATUSOFFSET
@@ -3421,8 +3421,8 @@ static void change_slab_owner_process(struct ScriptContext *context)
     {
         struct CompoundCoordFilterParam iter_param;
         iter_param.plyr_idx = context->player_idx;
-        iter_param.num1 = fill_type;
-        iter_param.num2 = get_slabmap_block(x, y)->kind;
+        iter_param.primary_number = fill_type;
+        iter_param.secondary_number = get_slabmap_block(x, y)->kind;
         slabs_fill_iterate_from_slab(x, y, slabs_change_owner, &iter_param);
     } else {
         change_slab_owner_from_script(x, y, context->player_idx);
@@ -3481,9 +3481,9 @@ static void change_slab_type_process(struct ScriptContext *context)
     if (fill_type > 0)
     {
         struct CompoundCoordFilterParam iter_param;
-        iter_param.num1 = slab_kind;
-        iter_param.num2 = fill_type;
-        iter_param.num3 = get_slabmap_block(x, y)->kind;
+        iter_param.primary_number = slab_kind;
+        iter_param.secondary_number = fill_type;
+        iter_param.tertiary_number = get_slabmap_block(x, y)->kind;
         slabs_fill_iterate_from_slab(x, y, slabs_change_type, &iter_param);
     }
     else
@@ -5357,9 +5357,9 @@ static void change_slab_texture_process(struct ScriptContext* context)
         MapSlabCoord slb_x = context->value->shorts[0];
         MapSlabCoord slb_y = context->value->shorts[1];
         struct CompoundCoordFilterParam iter_param;
-        iter_param.num1 = context->value->bytes[4]; // new texture
-        iter_param.num2 = context->value->chars[5]; // fill type
-        iter_param.num3 = get_slabmap_block(slb_x, slb_y)->kind;
+        iter_param.primary_number = context->value->bytes[4]; // new texture
+        iter_param.secondary_number = context->value->chars[5]; // fill type
+        iter_param.tertiary_number = get_slabmap_block(slb_x, slb_y)->kind;
         slabs_fill_iterate_from_slab(slb_x, slb_y, slabs_change_texture, &iter_param);
     }
     else
@@ -5616,13 +5616,13 @@ static void set_computer_globals_process(struct ScriptContext* context)
 {
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
-    long val1 = context->value->longs[1];
-    long val2 = context->value->longs[2];
-    long val3 = context->value->longs[3];
-    long val4 = context->value->longs[4];
-    long val5 = context->value->longs[5];
-    long val6 = context->value->longs[6];
-    long val7 = context->value->longs[7];
+    long dig_stack_size = context->value->longs[1];
+    long processes_time = context->value->longs[2];
+    long click_rate = context->value->longs[3];
+    long max_room_build_tasks = context->value->longs[4];
+    long turn_begin = context->value->longs[5];
+    long sim_before_dig = context->value->longs[6];
+    long task_delay = context->value->longs[7];
 
     for (long i = plr_start; i < plr_end; i++)
     {
@@ -5631,15 +5631,15 @@ static void set_computer_globals_process(struct ScriptContext* context)
         {
             continue;
         }
-        comp->dig_stack_size = val1;
-        comp->processes_time = val2;
-        comp->click_rate = val3;
-        comp->max_room_build_tasks = val4;
-        comp->turn_begin = val5;
-        comp->sim_before_dig = val6;
-        if (val7 != -1)
+        comp->dig_stack_size = dig_stack_size;
+        comp->processes_time = processes_time;
+        comp->click_rate = click_rate;
+        comp->max_room_build_tasks = max_room_build_tasks;
+        comp->turn_begin = turn_begin;
+        comp->sim_before_dig = sim_before_dig;
+        if (task_delay != -1)
         {
-            comp->task_delay = val7;
+            comp->task_delay = task_delay;
         }
     }
 }
@@ -5677,11 +5677,11 @@ static void set_computer_process_process(struct ScriptContext* context)
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
     const char* procname = script_strval(context->value->longs[6]);
-    long val1 = context->value->longs[1];
-    long val2 = context->value->longs[2];
-    long val3 = context->value->longs[3];
-    long val4 = context->value->longs[4];
-    long val5 = context->value->longs[5];
+    long priority = context->value->longs[1];
+    long config_value_2 = context->value->longs[2];
+    long config_value_3 = context->value->longs[3];
+    long config_value_4 = context->value->longs[4];
+    long config_value_5 = context->value->longs[5];
     long n = 0;
     for (long i = plr_start; i < plr_end; i++)
     {
@@ -5698,12 +5698,12 @@ static void set_computer_process_process(struct ScriptContext* context)
             {
                 SCRPTLOG("Changing computer %d process '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)", (int)i, cproc->name,
                     (int)cproc->priority, (int)cproc->process_configuration_value_2, (int)cproc->process_configuration_value_3, (int)cproc->process_configuration_value_4, (int)cproc->process_configuration_value_5,
-                    (int)val1, (int)val2, (int)val3, (int)val4, (int)val5);
-                cproc->priority = val1;
-                cproc->process_configuration_value_2 = val2;
-                cproc->process_configuration_value_3 = val3;
-                cproc->process_configuration_value_4 = val4;
-                cproc->process_configuration_value_5 = val5;
+                    (int)priority, (int)config_value_2, (int)config_value_3, (int)config_value_4, (int)config_value_5);
+                cproc->priority = priority;
+                cproc->process_configuration_value_2 = config_value_2;
+                cproc->process_configuration_value_3 = config_value_3;
+                cproc->process_configuration_value_4 = config_value_4;
+                cproc->process_configuration_value_5 = config_value_5;
                 n++;
             }
         }
@@ -5749,11 +5749,11 @@ static void set_computer_checks_process(struct ScriptContext* context)
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
     const char* chkname = script_strval(context->value->longs[6]);
-    long val1 = context->value->longs[1];
-    long val2 = context->value->longs[2];
-    long val3 = context->value->longs[3];
-    long val4 = context->value->longs[4];
-    long val5 = context->value->longs[5];
+    long turns_interval = context->value->longs[1];
+    long primary_parameter = context->value->longs[2];
+    long secondary_parameter = context->value->longs[3];
+    long tertiary_parameter = context->value->longs[4];
+    long last_run_turn = context->value->longs[5];
 
     long n = 0;
     for (long i = plr_start; i < plr_end; i++)
@@ -5772,13 +5772,13 @@ static void set_computer_checks_process(struct ScriptContext* context)
             if (strcasecmp(chkname, ccheck->name) == 0)
             {
                 SCRPTLOG("Changing computer %d check '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)", (int)i, ccheck->name,
-                    (int)ccheck->turns_interval, (int)ccheck->param1, (int)ccheck->param2, (int)ccheck->param3, (int)ccheck->last_run_turn,
-                    (int)val1, (int)val2, (int)val3, (int)val4, (int)val5);
-                ccheck->turns_interval = val1;
-                ccheck->param1 = val2;
-                ccheck->param2 = val3;
-                ccheck->param3 = val4;
-                ccheck->last_run_turn = val5;
+                    (int)ccheck->turns_interval, (int)ccheck->primary_parameter, (int)ccheck->secondary_parameter, (int)ccheck->tertiary_parameter, (int)ccheck->last_run_turn,
+                    (int)turns_interval, (int)primary_parameter, (int)secondary_parameter, (int)tertiary_parameter, (int)last_run_turn);
+                ccheck->turns_interval = turns_interval;
+                ccheck->primary_parameter = primary_parameter;
+                ccheck->secondary_parameter = secondary_parameter;
+                ccheck->tertiary_parameter = tertiary_parameter;
+                ccheck->last_run_turn = last_run_turn;
                 n++;
             }
         }
@@ -5828,11 +5828,11 @@ static void set_computer_event_process(struct ScriptContext* context)
     int plr_start = context->value->shorts[0];
     int plr_end = context->value->shorts[1];
     const char* evntname = script_strval(context->value->longs[6]);
-    long val1 = context->value->longs[1];
-    long val2 = context->value->longs[2];
-    long val3 = context->value->longs[3];
-    long val4 = context->value->longs[4];
-    long val5 = context->value->longs[5];
+    long test_interval = context->value->longs[1];
+    long primary_parameter = context->value->longs[2];
+    long secondary_parameter = context->value->longs[3];
+    long tertiary_parameter = context->value->longs[4];
+    long last_test_gameturn = context->value->longs[5];
 
     long n = 0;
     for (long i = plr_start; i < plr_end; i++)
@@ -5852,21 +5852,21 @@ static void set_computer_event_process(struct ScriptContext* context)
                 {
                     SCRPTLOG("Changing computer %d event '%s' config from (%d,%d,%d,%d,%d) to (%d,%d,%d,%d,%d)",
                         (int)i, event->name,
-                        (int)event->test_interval, (int)event->param1, (int)event->param2, (int)event->param3, (int)event->last_test_gameturn,
-                        (int)val1, (int)val2, (int)val3, (int)val4, (int)val5);
-                    event->test_interval = val1;
-                    event->param1 = val2;
-                    event->param2 = val3;
-                    event->param3 = val4;
-                    event->last_test_gameturn = val5;
+                        (int)event->test_interval, (int)event->primary_parameter, (int)event->secondary_parameter, (int)event->tertiary_parameter, (int)event->last_test_gameturn,
+                        (int)test_interval, (int)primary_parameter, (int)secondary_parameter, (int)tertiary_parameter, (int)last_test_gameturn);
+                    event->test_interval = test_interval;
+                    event->primary_parameter = primary_parameter;
+                    event->secondary_parameter = secondary_parameter;
+                    event->tertiary_parameter = tertiary_parameter;
+                    event->last_test_gameturn = last_test_gameturn;
                     n++;
                 }
                 else
                 {
                     SCRPTLOG("Changing computer %d event '%s' config from (%d,%d) to (%d,%d)", (int)i, event->name,
-                        (int)event->param1, (int)event->param2, (int)val1, (int)val2);
-                    event->param1 = val1;
-                    event->param2 = val2;
+                        (int)event->primary_parameter, (int)event->secondary_parameter, (int)test_interval, (int)primary_parameter);
+                    event->primary_parameter = test_interval;
+                    event->secondary_parameter = primary_parameter;
                     n++;
                 }
             }

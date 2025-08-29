@@ -478,7 +478,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         i = (thing->move_angle_xy + LbFPMath_PI);
         thing->move_angle_xy = i & LbFPMath_AngleMask;
     }
-    if ((follow_result == AridRet_PartOK) || (follow_result == AridRet_Val2))
+    if ((follow_result == AridRet_PartOK) || (follow_result == AridRet_Failed))
     {
         creature_set_speed(thing, 0);
         return -1;

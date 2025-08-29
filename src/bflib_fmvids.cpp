@@ -36,16 +36,16 @@ void copy_to_screen_pxquad(unsigned char *srcbuf, unsigned char *dstbuf, long wi
 	auto * dst = reinterpret_cast<unsigned long *>(dstbuf);
 	do {
 		const auto c = *src++;
-		const auto i1 = c & 0xFF;
-		const auto k1 = (c >> 8) & 0xFF;
-		const auto n1 = (k1 << 24) + (k1 << 16) + (i1 << 8) + i1;
-		dst[0] = n1;
-		dst[s] = n1;
-		const auto i2 = (c >> 16) & 0xFF;
-		const auto k2 = (c >> 24) & 0xFF;
-		const auto n2 = (k2 << 24) + (k2 << 16) + (i2 << 8) + i2;
-		dst[1] = n2;
-		dst[s+1] = n2;
+		const auto first_pixel_low_byte = c & 0xFF;
+		const auto first_pixel_high_byte = (c >> 8) & 0xFF;
+		const auto first_doubled_pixel = (first_pixel_high_byte << 24) + (first_pixel_high_byte << 16) + (first_pixel_low_byte << 8) + first_pixel_low_byte;
+		dst[0] = first_doubled_pixel;
+		dst[s] = first_doubled_pixel;
+		const auto second_pixel_low_byte = (c >> 16) & 0xFF;
+		const auto second_pixel_high_byte = (c >> 24) & 0xFF;
+		const auto second_doubled_pixel = (second_pixel_high_byte << 24) + (second_pixel_high_byte << 16) + (second_pixel_low_byte << 8) + second_pixel_low_byte;
+		dst[1] = second_doubled_pixel;
+		dst[s+1] = second_doubled_pixel;
 		dst += 2;
 		w--;
 	}
@@ -75,12 +75,12 @@ void copy_to_screen_pxdblw(unsigned char *srcbuf, unsigned char *dstbuf, long wi
 	auto dst = (unsigned long *)dstbuf;
 	do {
 		const auto c = *src++;
-		const auto i1 = c & 0xFF;
-		const auto k1 = (c >> 8) & 0xFF;
-		dst[0] = (k1 << 24) + (k1 << 16) + (i1 << 8) + i1;
-		const auto i2 = (c >> 16) & 0xFF;
-		const auto k2 = (c >> 24) & 0xFF;
-		dst[1] = (k2 << 24) + (k2 << 16) + (i2 << 8) + i2;
+		const auto first_pixel_low_byte = c & 0xFF;
+		const auto first_pixel_high_byte = (c >> 8) & 0xFF;
+		dst[0] = (first_pixel_high_byte << 24) + (first_pixel_high_byte << 16) + (first_pixel_low_byte << 8) + first_pixel_low_byte;
+		const auto second_pixel_low_byte = (c >> 16) & 0xFF;
+		const auto second_pixel_high_byte = (c >> 24) & 0xFF;
+		dst[1] = (second_pixel_high_byte << 24) + (second_pixel_high_byte << 16) + (second_pixel_low_byte << 8) + second_pixel_low_byte;
 		dst += 2;
 		w--;
 	}

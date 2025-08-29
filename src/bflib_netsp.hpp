@@ -37,16 +37,16 @@ protected:
     unsigned long nextPlayerId;
     unsigned long localPlayerId; //local player ID
 
-    TbError Initialise(struct ReceiveCallbacks *nCallbacks, void *a2);
+    TbError Initialise(struct ReceiveCallbacks *nCallbacks, void *context);
 
     //session management
     struct TbNetworkSessionNameEntry *AddSession(unsigned long sess_id, const char *namestr);
     void ClearSessions(void);
     long SessionIndex(unsigned long sess_id);
 
-    TbError EnumeratePlayers(TbNetworkCallbackFunc callback, void *a2);
+    TbError EnumeratePlayers(TbNetworkCallbackFunc callback, void *context);
     long PlayerIndex(unsigned long plyr_id);
-    TbError AddPlayer(unsigned long plyr_id, const char *namestr, unsigned long a3, unsigned long a4);
+    TbError AddPlayer(unsigned long plyr_id, const char *namestr, unsigned long player_flags, unsigned long unused_param);
     TbError DeletePlayer(unsigned long plyr_id);
     void ClearPlayers(void);
 

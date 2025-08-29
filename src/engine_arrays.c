@@ -996,7 +996,7 @@ void init_iso_3d_conversion_tables(void)
 /**
  * Fills randomisors array used for mesh deformations.
  */
-void setup_3d(void)
+void setup_mesh_randomizers(void)
 {
     unsigned long seed;
     long i;

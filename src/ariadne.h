@@ -45,7 +45,7 @@ typedef unsigned char AriadneRouteFlags;
 enum AriadneReturnValues {
     AridRet_OK    = 0,
     AridRet_FinalOK,
-    AridRet_Val2,
+    AridRet_Failed,
     AridRet_PartOK,
 };
 
@@ -166,7 +166,7 @@ struct Navigation { // sizeof = 0x27
   long dist_to_final_pos;
   long distance_to_next_pos;
   long angle;
-  unsigned char unusedparam_11[4];
+  unsigned char unusedparam[4];
   SubtlCodedCoords first_colliding_block;
   SubtlCodedCoords second_colliding_block;
   PlayerBitFlags owner_flags[2];
@@ -215,18 +215,18 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
 void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name);
 #define nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py) nearest_search_f(sizexy, srcx, srcy, dstx, dsty, px, py, __func__)
 NavColour get_navigation_colour(long stl_x, long stl_y);
-TbBool border_clip_horizontal(const NavColour *imap, long a1, long a2, long a3, long a4);
-TbBool border_clip_vertical(const NavColour *imap, long a1, long a2, long a3, long a4);
+TbBool border_clip_horizontal(const NavColour *imap, long start_x, long end_x, long start_y, long end_y);
+TbBool border_clip_vertical(const NavColour *imap, long start_x, long end_x, long start_y, long end_y);
 #define edge_lock(fin_x, fin_y, bgn_x, bgn_y) edge_lock_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
 TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name);
 #define edge_unlock_record_and_regions(fin_x, fin_y, bgn_x, bgn_y) edge_unlock_record_and_regions_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
 TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name);
-void border_internal_points_delete(long a1, long a2, long a3, long a4);
+void border_internal_points_delete(long start_x, long start_y, long end_x, long end_y);
 TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour);
 long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, long *outfri_y2, NavColour *oval);
-long delaunay_seeded(long a1, long a2, long a3, long a4);
-void border_unlock(long a1, long a2, long a3, long a4);
-TbBool triangulation_border_start(long *a1, long *a2);
+long delaunay_seeded(long start_x, long start_y, long end_x, long end_y);
+void border_unlock(long start_x, long start_y, long end_x, long end_y);
+TbBool triangulation_border_start(long *border_a, long *border_b);
 void triangulation_init(void);
 void triangulation_initxy(long sx, long sy, long ex, long ey);
 long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt);

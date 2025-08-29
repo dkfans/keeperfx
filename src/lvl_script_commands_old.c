@@ -41,17 +41,17 @@ extern "C" {
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
-void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
+void command_add_value(unsigned long var_index, unsigned long plr_range_id, long param1, long param2, long param3)
 {
     ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id);
 
-    value->longs[0] = val2;
-    value->longs[1] = val3;
-    value->longs[2] = val4;
+    value->longs[0] = param1;
+    value->longs[1] = param2;
+    value->longs[2] = param3;
 
     if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
-        script_process_value(var_index, plr_range_id, val2, val3, val4, value);
+        script_process_value(var_index, plr_range_id, param1, param2, param3, value);
         return;
     }
 }

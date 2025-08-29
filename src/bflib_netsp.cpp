@@ -52,51 +52,51 @@ struct ReceiveCallbacks nilReceiveAspect = {
 class ServiceProvider *spPtr;
 /******************************************************************************/
 // Nil callbacks content
-void NilAddMsgCallback(unsigned long a1, char *a2, void *a3)
+void NilAddMsgCallback(unsigned long player_id, char *message, void *data)
 {
-  WARNLOG("hit(%lu, \"%s\", *)",a1,a2);
+  WARNLOG("hit(%lu, \"%s\", *)",player_id,message);
 }
 
-void NilDeleteMsgCallback(unsigned long a1, void *a2)
+void NilDeleteMsgCallback(unsigned long player_id, void *data)
 {
-  WARNLOG("hit(%lu, *)",a1);
+  WARNLOG("hit(%lu, *)",player_id);
 }
 
-void NilHostMsgCallback(unsigned long a1, void *a2)
+void NilHostMsgCallback(unsigned long player_id, void *data)
 {
-  WARNLOG("hit(%lu, *)",a1);
+  WARNLOG("hit(%lu, *)",player_id);
 }
 
-void NilUserSysMsgCallback(void *a1)
+void NilUserSysMsgCallback(void *data)
 {
   WARNLOG("hit(*)");
 }
 
-void *NilUserDataMsgCallback(unsigned long a1, unsigned long a2, unsigned long a3, void *a4)
+void *NilUserDataMsgCallback(unsigned long player_id, unsigned long message_type, unsigned long data_size, void *data)
 {
-  WARNLOG("hit(%lu, %lu, %lu, *)",a1,a2,a3);
+  WARNLOG("hit(%lu, %lu, %lu, *)",player_id,message_type,data_size);
   return NULL;
 }
 
-void NilRequestExchangeDataMsgCallback(unsigned long a1, unsigned long a2, void *a3)
+void NilRequestExchangeDataMsgCallback(unsigned long player_id, unsigned long data_size, void *data)
 {
-  WARNLOG("hit(%lu, %lu, *)",a1,a2);
+  WARNLOG("hit(%lu, %lu, *)",player_id,data_size);
 }
 
-void NilRequestCompositeExchangeDataMsgCallback(unsigned long a1, unsigned long a2, void *a3)
+void NilRequestCompositeExchangeDataMsgCallback(unsigned long player_id, unsigned long data_size, void *data)
 {
-  WARNLOG("hit(%lu, %lu, *)",a1,a2);
+  WARNLOG("hit(%lu, %lu, *)",player_id,data_size);
 }
 
-void *NilUnidirectionalMsgCallback(unsigned long a1, unsigned long a2, void *a3)
+void *NilUnidirectionalMsgCallback(unsigned long player_id, unsigned long message_type, void *data)
 {
-  WARNLOG("hit(%lu, %lu, *)",a1,a2);
+  WARNLOG("hit(%lu, %lu, *)",player_id,message_type);
   return NULL;
 }
 
-void NilSystemUserMsgCallback(unsigned long a1, void *a2, unsigned long a3, void *a4)
+void NilSystemUserMsgCallback(unsigned long player_id, void *system_data, unsigned long data_size, void *user_data)
 {
-  WARNLOG("hit(%lu, *, %lu, *)",a1,a3);
+  WARNLOG("hit(%lu, *, %lu, *)",player_id,data_size);
 }
 /******************************************************************************/
 // methods of virtual class ServiceProvider
@@ -227,7 +227,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   unsigned char messageType;
   unsigned long dataLen;
   unsigned long seqNbr;
-  unsigned long p3;
+  unsigned long player_id_from_buffer;
   void *imsg;
   char str[32];
   long i;
@@ -264,14 +264,14 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       memcpy(imsg, buf, dataLen+4);
       break;
   case NETMSGTYPE_ADD:
-      memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
+      memcpy(&player_id_from_buffer, (uchar *)buf+4, sizeof(unsigned long));
       snprintf(str, sizeof(str), "%s", (char*)buf + 8);
-      this->AddPlayer(p3, str, 0, 0);
+      this->AddPlayer(player_id_from_buffer, str, 0, 0);
       if (recvCallbacks->addMsg == NULL)
       {
         break;
       }
-      recvCallbacks->addMsg(p3, str, this->callback_context);
+      recvCallbacks->addMsg(player_id_from_buffer, str, this->callback_context);
       break;
   case NETMSGTYPE_DELETE:
       this->CheckForDeletedHost(buf);
@@ -294,29 +294,29 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       recvCallbacks->systemUserMsg(this->localPlayerId, (char *)buf+4, dataLen, this->callback_context);
       break;
   case NETMSGTYPE_MPREQEXDATA:
-      memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
+      memcpy(&player_id_from_buffer, (uchar *)buf+4, sizeof(unsigned long));
       if (recvCallbacks->mpReqExDataMsg == NULL)
       {
         break;
       }
-      recvCallbacks->mpReqExDataMsg(p3, seqNbr, this->callback_context);
+      recvCallbacks->mpReqExDataMsg(player_id_from_buffer, seqNbr, this->callback_context);
       break;
   case NETMSGTYPE_MPREQCOMPEXDATA:
-      memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
+      memcpy(&player_id_from_buffer, (uchar *)buf+4, sizeof(unsigned long));
       if (recvCallbacks->mpReqCompsExDataMsg == NULL)
       {
         break;
       }
-      recvCallbacks->mpReqCompsExDataMsg(p3, seqNbr, this->callback_context);
+      recvCallbacks->mpReqCompsExDataMsg(player_id_from_buffer, seqNbr, this->callback_context);
       break;
   case NETMSGTYPE_UNKNOWN:
       // This callback seems to never be used
-      p3 = 0;
+      player_id_from_buffer = 0;
       if (recvCallbacks->unhandledMessageTypeCallback == NULL)
       {
         break;
       }
-      recvCallbacks->unhandledMessageTypeCallback(p3, buf);
+      recvCallbacks->unhandledMessageTypeCallback(player_id_from_buffer, buf);
       break;
   default:
       WARNLOG("messageType is out of range");

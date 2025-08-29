@@ -1185,7 +1185,7 @@ short setup_game(void)
       set_gamma(settings.gamma_correction, 0);
       set_music_volume(settings.music_volume);
       SetSoundMasterVolume(settings.sound_volume);
-      setup_3d();
+      setup_mesh_randomizers();
       setup_stuff();
       init_lookups();
   }
@@ -1686,23 +1686,23 @@ void init_keepers_map_exploration(void)
 void clear_players_for_save(void)
 {
     struct PlayerInfo *player;
-    unsigned short id_mem;
-    unsigned short mem2;
-    unsigned short memflg;
+    unsigned short saved_player_id;
+    unsigned short saved_is_active;
+    unsigned short saved_allocation_flags;
     struct Camera cammem;
     int i;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      id_mem = player->id_number;
-      mem2 = player->is_active;
-      memflg = player->allocflags;
+      saved_player_id = player->id_number;
+      saved_is_active = player->is_active;
+      saved_allocation_flags = player->allocflags;
       memcpy(&cammem,&player->cameras[CamIV_FirstPerson],sizeof(struct Camera));
       memset(player, 0, sizeof(struct PlayerInfo));
-      player->id_number = id_mem;
-      player->is_active = mem2;
-      set_flag_value(player->allocflags, PlaF_Allocated, ((memflg & PlaF_Allocated) != 0));
-      set_flag_value(player->allocflags, PlaF_CompCtrl, ((memflg & PlaF_CompCtrl) != 0));
+      player->id_number = saved_player_id;
+      player->is_active = saved_is_active;
+      set_flag_value(player->allocflags, PlaF_Allocated, ((saved_allocation_flags & PlaF_Allocated) != 0));
+      set_flag_value(player->allocflags, PlaF_CompCtrl, ((saved_allocation_flags & PlaF_CompCtrl) != 0));
       memcpy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
       player->acamera = &player->cameras[CamIV_FirstPerson];
     }
@@ -1864,15 +1864,15 @@ TbBool set_gamma(char corrlvl, TbBool do_set)
 
 void centre_engine_window(void)
 {
-    long x1;
-    long y1;
+    long window_center_x;
+    long window_center_y;
     struct PlayerInfo *player=get_my_player();
     if ((game.operation_flags & GOF_ShowGui) != 0)
-      x1 = (MyScreenWidth-player->engine_window_width-status_panel_width) / 2 + status_panel_width;
+      window_center_x = (MyScreenWidth-player->engine_window_width-status_panel_width) / 2 + status_panel_width;
     else
-      x1 = (MyScreenWidth-player->engine_window_width) / 2;
-    y1 = (MyScreenHeight-player->engine_window_height) / 2;
-    setup_engine_window(x1, y1, player->engine_window_width, player->engine_window_height);
+      window_center_x = (MyScreenWidth-player->engine_window_width) / 2;
+    window_center_y = (MyScreenHeight-player->engine_window_height) / 2;
+    setup_engine_window(window_center_x, window_center_y, player->engine_window_width, player->engine_window_height);
 }
 
 void turn_off_query(PlayerNumber plyr_idx)
@@ -2498,7 +2498,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
     }
     if (thing_is_creature(thing))
     {
-        apply_damage_to_thing_and_display_health(thing, param->num2, param->num1);
+        apply_damage_to_thing_and_display_health(thing, param->secondary_number, param->primary_number);
         if ((thing->health >= 0) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             if (((thing->alloc_flags & TAlF_IsControlled) == 0) && !creature_is_kept_in_custody(thing))
@@ -2512,7 +2512,7 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
             return TUFRet_Modified;
         } else
         {
-            kill_creature(thing, INVALID_THING, param->num1, CrDed_NoEffects|CrDed_DiedInBattle);
+            kill_creature(thing, INVALID_THING, param->primary_number, CrDed_NoEffects|CrDed_DiedInBattle);
             return TUFRet_Deleted;
         }
     }
@@ -2584,9 +2584,9 @@ long update_cave_in(struct Thing *thing)
         param.plyr_idx = -1;
         param.class_id = 0;
         param.model_id = 0;
-        param.num1 = thing->owner;
-        param.num2 = game.conf.rules.magic.collapse_dungeon_damage;
-        param.ptr3 = 0;
+        param.primary_number = thing->owner;
+        param.secondary_number = game.conf.rules.magic.collapse_dungeon_damage;
+        param.tertiary_pointer = 0;
         do_cb = damage_creatures_with_physical_force;
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
     }
@@ -2742,8 +2742,8 @@ long near_map_block_thing_filter_queryable_object(const struct Thing *thing, Max
       if (thing->owner == param->plyr_idx)
       {
           // note that abs() is not required because we're computing square of the values
-          dist_x = param->num1-(MapCoord)thing->mappos.x.val;
-          dist_y = param->num2-(MapCoord)thing->mappos.y.val;
+          dist_x = param->primary_number-(MapCoord)thing->mappos.x.val;
+          dist_y = param->secondary_number-(MapCoord)thing->mappos.y.val;
           // This function should return max value when the distance is minimal, so:
           return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
       }
@@ -2760,8 +2760,8 @@ struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long ply
     SYNCDBG(19,"Starting");
     filter = near_map_block_thing_filter_queryable_object;
     param.plyr_idx = plyr_idx;
-    param.num1 = pos_x;
-    param.num2 = pos_y;
+    param.primary_number = pos_x;
+    param.secondary_number = pos_y;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
@@ -2775,9 +2775,9 @@ void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos
     player->cameras[CamIV_Isometric].mappos.y.val = pos_y;
 }
 
-void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, long a6y)
+void scale_tmap2(long texture_block_index, long flags, long fade_level, long screen_x, long screen_y, long scaled_width, long scaled_height)
 {
-    if ((a6x == 0) || (a6y == 0)) {
+    if ((scaled_width == 0) || (scaled_height == 0)) {
         return;
     }
     long xstart;
@@ -2790,95 +2790,95 @@ void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, lon
     case 0:
         xstart = 0;
         ystart = 0;
-        xend = 2097151 / a6x;
-        yend = 2097151 / a6y;
+        xend = 2097151 / scaled_width;
+        yend = 2097151 / scaled_height;
         orient = 0;
         break;
     case 0x10:
         xstart = 2097151;
         ystart = 0;
-        xend = -2097151 / a6x;
-        yend = 2097151 / a6y;
+        xend = -2097151 / scaled_width;
+        yend = 2097151 / scaled_height;
         orient = 0;
         break;
     case 0x20:
         xstart = 0;
         ystart = 2097151;
-        xend = 2097151 / a6x;
-        yend = -2097151 / a6y;
+        xend = 2097151 / scaled_width;
+        yend = -2097151 / scaled_height;
         orient = 0;
         break;
     case 0x30:
         xstart = 2097151;
         ystart = 2097151;
-        xend = -2097151 / a6x;
-        yend = -2097151 / a6y;
+        xend = -2097151 / scaled_width;
+        yend = -2097151 / scaled_height;
         orient = 0;
         break;
     case 0x40:
         ystart = 0;
         xstart = 0;
-        yend = 2097151 / a6y;
-        xend = 2097151 / a6x;
+        yend = 2097151 / scaled_height;
+        xend = 2097151 / scaled_width;
         orient = 1;
         break;
     case 0x50:
         ystart = 0;
         xstart = 2097151;
-        yend = 2097151 / a6y;
-        xend = -2097151 / a6x;
+        yend = 2097151 / scaled_height;
+        xend = -2097151 / scaled_width;
         orient = 1;
         break;
     case 0x60:
         ystart = 2097151;
         xstart = 0;
-        yend = -2097151 / a6y;
-        xend = 2097151 / a6x;
+        yend = -2097151 / scaled_height;
+        xend = 2097151 / scaled_width;
         orient = 1;
         break;
     case 0x70:
         xstart = 2097151;
         ystart = 2097151;
-        yend = -2097151 / a6y;
-        xend = -2097151 / a6x;
+        yend = -2097151 / scaled_height;
+        xend = -2097151 / scaled_width;
         orient = 1;
         break;
     default:
           return;
     }
-    long v10;
-    long v12;
-    v10 = a4x;
-    if (v10 < 0)
+    long local_screen_x;
+    long local_screen_y;
+    local_screen_x = screen_x;
+    if (local_screen_x < 0)
     {
-        a6x += a4x;
-        if (a6x < 0) {
+        scaled_width += local_screen_x;
+        if (scaled_width < 0) {
             return;
         }
-        xstart -= xend * a4x;
-        v10 = 0;
+        xstart -= xend * local_screen_x;
+        local_screen_x = 0;
     }
-    if (v10 + a6x > vec_window_width)
+    if (local_screen_x + scaled_width > vec_window_width)
     {
-        a6x = vec_window_width - v10;
-        if (a6x < 0) {
+        scaled_width = vec_window_width - local_screen_x;
+        if (scaled_width < 0) {
             return;
         }
     }
-    v12 = a4y;
-    if (v12 < 0)
+    local_screen_y = screen_y;
+    if (local_screen_y < 0)
     {
-        a6y += a4y;
-        if (a6y < 0) {
+        scaled_height += local_screen_y;
+        if (scaled_height < 0) {
             return;
         }
-        ystart -= a4y * yend;
-        v12 = 0;
+        ystart -= local_screen_y * yend;
+        local_screen_y = 0;
     }
-    if (v12 + a6y > vec_window_height)
+    if (local_screen_y + scaled_height > vec_window_height)
     {
-        a6y = vec_window_height - v12;
-        if (a6y < 0) {
+        scaled_height = vec_window_height - local_screen_y;
+        if (scaled_height < 0) {
             return;
         }
     }
@@ -2892,39 +2892,39 @@ void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, lon
     if (!orient)
     {
         xlim = wlimits;
-        for (i = a6x; i > 0; i--)
+        for (i = scaled_width; i > 0; i--)
         {
             *xlim = xstart;
             xlim++;
             xstart += xend;
         }
         ylim = hlimits;
-        for (i = a6y; i > 0; i--)
+        for (i = scaled_height; i > 0; i--)
         {
             *ylim = ystart;
             ylim++;
             ystart += yend;
         }
-        dbuf = &vec_screen[v10 + v12 * vec_screen_width];
-        block = block_ptrs[a1];
+        dbuf = &vec_screen[local_screen_x + local_screen_y * vec_screen_width];
+        block = block_ptrs[texture_block_index];
         ylim = hlimits;
         long px;
         long py;
         int srcx;
         int srcy;
         unsigned char *d;
-        if ( a3 >= 0 )
+        if ( fade_level >= 0 )
         {
-          for (py = a6y; py > 0; py--)
+          for (py = scaled_height; py > 0; py--)
           {
               xlim = wlimits;
               d = dbuf;
               srcy = (((*ylim) & 0xFF0000u) >> 16);
-              for (px = a6x; px > 0; px--)
+              for (px = scaled_width; px > 0; px--)
               {
                 srcx = (((*xlim) & 0xFF0000u) >> 16);
                 xlim++;
-                *d = pixmap.fade_tables[256 * a3 + block[(srcy << 8) + srcx]];
+                *d = pixmap.fade_tables[256 * fade_level + block[(srcy << 8) + srcx]];
                 ++d;
               }
               dbuf += vec_screen_width;
@@ -2932,12 +2932,12 @@ void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, lon
           }
         } else
         {
-          for (py = a6y; py > 0; py--)
+          for (py = scaled_height; py > 0; py--)
           {
             xlim = wlimits;
             d = dbuf;
             srcy = (((*ylim) & 0xFF0000u) >> 16);
-            for (px = a6x; px > 0; px--)
+            for (px = scaled_width; px > 0; px--)
             {
               srcx = (((*xlim) & 0xFF0000u) >> 16);
               xlim++;
@@ -2951,39 +2951,39 @@ void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, lon
     } else
     {
         ylim = wlimits;
-        for (i = a6y; i > 0; i--)
+        for (i = scaled_height; i > 0; i--)
         {
           *ylim = ystart;
           ylim++;
           ystart += yend;
         }
         xlim = hlimits;
-        for (i = a6x; i > 0; i--)
+        for (i = scaled_width; i > 0; i--)
         {
           *xlim = xstart;
           xlim++;
           xstart += xend;
         }
-        dbuf = &vec_screen[v10 + v12 * vec_screen_width];
-        block = block_ptrs[a1];
+        dbuf = &vec_screen[local_screen_x + local_screen_y * vec_screen_width];
+        block = block_ptrs[texture_block_index];
         ylim = wlimits;
         long px;
         long py;
         int srcx;
         int srcy;
         unsigned char *d;
-        if ( a3 >= 0 )
+        if ( fade_level >= 0 )
         {
-          for (py = a6y; py > 0; py--)
+          for (py = scaled_height; py > 0; py--)
           {
               xlim = hlimits;
               d = dbuf;
               srcy = (((*ylim) & 0xFF0000u) >> 16);
-              for (px = a6x; px > 0; px--)
+              for (px = scaled_width; px > 0; px--)
               {
                 srcx = (((*xlim) & 0xFF0000u) >> 16);
                 xlim++;
-                *d = pixmap.fade_tables[256 * a3 + block[(srcx << 8) + srcy]];
+                *d = pixmap.fade_tables[256 * fade_level + block[(srcx << 8) + srcy]];
                 ++d;
               }
               dbuf += vec_screen_width;
@@ -2991,12 +2991,12 @@ void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, lon
           }
         } else
         {
-          for (py = a6y; py > 0; py--)
+          for (py = scaled_height; py > 0; py--)
           {
             xlim = hlimits;
             d = dbuf;
             srcy = (((*ylim) & 0xFF0000u) >> 16);
-            for (px = a6x; px > 0; px--)
+            for (px = scaled_width; px > 0; px--)
             {
               srcx = (((*xlim) & 0xFF0000u) >> 16);
               xlim++;
@@ -3010,9 +3010,9 @@ void scale_tmap2(long a1, long flags, long a3, long a4x, long a4y, long a6x, lon
     }
 }
 
-void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7)
+void draw_texture(long texture_x, long texture_y, long texture_width, long texture_height, long texture_block_index, long flags, long fade_level)
 {
-    scale_tmap2(a5, a6, a7, a1 / pixel_size, a2 / pixel_size, a3 / pixel_size, a4 / pixel_size);
+    scale_tmap2(texture_block_index, flags, fade_level, texture_x / pixel_size, texture_y / pixel_size, texture_width / pixel_size, texture_height / pixel_size);
 }
 
 void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)

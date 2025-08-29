@@ -1601,8 +1601,8 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
         {
             time_active = 0;
         }
-        const int v32 = (max_time_active / 16) / power_sight_close_instance_time[sight_casted_power_level];
-        dungeon->sight_casted_gameturn = game.play_gameturn - max_time_active + time_active / v32 - power_sight_close_instance_time[sight_casted_power_level];
+        const int time_interval_divisor = (max_time_active / 16) / power_sight_close_instance_time[sight_casted_power_level];
+        dungeon->sight_casted_gameturn = game.play_gameturn - max_time_active + time_active / time_interval_divisor - power_sight_close_instance_time[sight_casted_power_level];
     }
     if ( max_time_active <= game.play_gameturn - dungeon->sight_casted_gameturn )
     {

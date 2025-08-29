@@ -53,12 +53,12 @@ TbError CompleteMultiPlayerExchange(void *buf);
 TbError HostDataCollection(void);
 TbError HostDataBroadcast(void);
 void GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2);
-void *MultiPlayerCallback(unsigned long a1, unsigned long a2, unsigned long a3, void *a4);
-void MultiPlayerReqExDataMsgCallback(unsigned long a1, unsigned long a2, void *a3);
-void AddMsgCallback(unsigned long, char *, void *);
+void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned long seq, void *unusedparam);
+void MultiPlayerReqExDataMsgCallback(unsigned long plr_id, unsigned long seq, void *unusedparam);
+void AddMsgCallback(unsigned long is_local_player, char *player_name, void *unusedparam);
 void DeleteMsgCallback(unsigned long, void *);
 void HostMsgCallback(unsigned long, void *);
-void RequestCompositeExchangeDataMsgCallback(unsigned long, unsigned long, void *);
+void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long seq, void *unusedparam);
 void *UnidirectionalMsgCallback(unsigned long, unsigned long, void *);
 void SystemUserMsgCallback(unsigned long, void *, unsigned long, void *);
 TbError LbNetwork_StartExchange(void *buf);
@@ -1870,7 +1870,7 @@ void PlayerMapMsgHandler(unsigned long plr_id, void *msg, unsigned long msg_len)
   waitingForPlayerMapResponse = 0;
 }
 
-void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned long seq, void *a4)
+void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned long seq, void *unusedparam)
 {
   TbBool found_id;
   long i;
@@ -1971,7 +1971,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   return exchangeBuffer;
 }
 
-void MultiPlayerReqExDataMsgCallback(unsigned long plr_id, unsigned long seq, void *a3)
+void MultiPlayerReqExDataMsgCallback(unsigned long plr_id, unsigned long seq, void *unusedparam)
 {
   if (inside_sr)
     NETLOG("Got a request");
@@ -1994,11 +1994,11 @@ void MultiPlayerReqExDataMsgCallback(unsigned long plr_id, unsigned long seq, vo
   }
 }
 
-void AddMsgCallback(unsigned long a1, char *nmstr, void *a3)
+void AddMsgCallback(unsigned long is_local_player, char *player_name, void *unusedparam)
 {
   struct TbNetworkPlayerNameEntry npname;
-  npname.islocal = a1;
-  strcpy(npname.name,nmstr);
+  npname.islocal = is_local_player;
+  strcpy(npname.name,player_name);
   npname.ishost = 0;
   npname.is_active = 0;
   AddAPlayer(&npname);
@@ -2028,7 +2028,7 @@ void HostMsgCallback(unsigned long plr_id, void *a2)
   hostId = plr_id;
 }
 
-void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long seq, void *a3)
+void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long seq, void *unusedparam)
 {
   if (inside_sr)
     NETLOG("Got sequence %ld, expected %ld",seq,sequenceNumber);
@@ -2044,7 +2044,7 @@ void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long
   }
 }
 
-void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msglen, void *a4)
+void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msglen, void *unusedparam)
 {
   struct SystemUserMsg *msg;
   msg = (struct SystemUserMsg *)msgbuf;

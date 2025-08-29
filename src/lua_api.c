@@ -1261,11 +1261,11 @@ static int lua_Set_computer_process(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     const char* procname = luaL_checkstring(L, 2);
-    long val1 = luaL_checkinteger(L,3);
-    long val2 = luaL_checkinteger(L,4);
-    long val3 = luaL_checkinteger(L,5);
-    long val4 = luaL_checkinteger(L,6);
-    long val5 = luaL_checkinteger(L,7);
+    long priority = luaL_checkinteger(L,3);
+    long config_value_2 = luaL_checkinteger(L,4);
+    long config_value_3 = luaL_checkinteger(L,5);
+    long config_value_4 = luaL_checkinteger(L,6);
+    long config_value_5 = luaL_checkinteger(L,7);
     long n = 0;
     for (long i = player_range.start_idx; i < player_range.end_idx; i++)
     {
@@ -1280,11 +1280,11 @@ static int lua_Set_computer_process(lua_State *L)
                 break;
             if (strcasecmp(procname, cproc->name) == 0)
             {
-                cproc->priority = val1;
-                cproc->process_configuration_value_2 = val2;
-                cproc->process_configuration_value_3 = val3;
-                cproc->process_configuration_value_4 = val4;
-                cproc->process_configuration_value_5 = val5;
+                cproc->priority = priority;
+                cproc->process_configuration_value_2 = config_value_2;
+                cproc->process_configuration_value_3 = config_value_3;
+                cproc->process_configuration_value_4 = config_value_4;
+                cproc->process_configuration_value_5 = config_value_5;
                 n++;
             }
         }
@@ -1296,11 +1296,11 @@ static int lua_Set_computer_checks(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     const char* chkname = luaL_checkstring(L, 2);
-    long val1 = luaL_checkinteger(L,3);
-    long val2 = luaL_checkinteger(L,4);
-    long val3 = luaL_checkinteger(L,5);
-    long val4 = luaL_checkinteger(L,6);
-    long val5 = luaL_checkinteger(L,7);
+    long turns_interval = luaL_checkinteger(L,3);
+    long primary_parameter = luaL_checkinteger(L,4);
+    long secondary_parameter = luaL_checkinteger(L,5);
+    long tertiary_parameter = luaL_checkinteger(L,6);
+    long last_run_turn = luaL_checkinteger(L,7);
 
     long n = 0;
     for (long i = player_range.start_idx; i < player_range.end_idx; i++)
@@ -1316,11 +1316,11 @@ static int lua_Set_computer_checks(lua_State *L)
                 break;
             if (strcasecmp(chkname, ccheck->name) == 0)
             {
-                ccheck->turns_interval = val1;
-                ccheck->param1 = val2;
-                ccheck->param2 = val3;
-                ccheck->param3 = val4;
-                ccheck->last_run_turn = val5;
+                ccheck->turns_interval = turns_interval;
+                ccheck->primary_parameter = primary_parameter;
+                ccheck->secondary_parameter = secondary_parameter;
+                ccheck->tertiary_parameter = tertiary_parameter;
+                ccheck->last_run_turn = last_run_turn;
                 n++;
             }
         }
@@ -1364,11 +1364,11 @@ static int lua_Set_computer_event(lua_State *L)
 {
     struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
     const char* evntname = luaL_checkstring(L, 2);
-    long val1 = luaL_checkinteger(L,3);
-    long val2 = luaL_checkinteger(L,4);
-    long val3 = luaL_checkinteger(L,5);
-    long val4 = luaL_checkinteger(L,6);
-    long val5 = luaL_checkinteger(L,7);
+    long test_interval = luaL_checkinteger(L,3);
+    long primary_parameter = luaL_checkinteger(L,4);
+    long secondary_parameter = luaL_checkinteger(L,5);
+    long tertiary_parameter = luaL_checkinteger(L,6);
+    long last_test_gameturn = luaL_checkinteger(L,7);
 
     long n = 0;
     for (long i = player_range.start_idx; i < player_range.end_idx; i++)
@@ -1382,11 +1382,11 @@ static int lua_Set_computer_event(lua_State *L)
             struct ComputerEvent* event = &comp->events[k];
             if (strcasecmp(evntname, event->name) == 0)
             {
-                event->test_interval = val1;
-                event->param1 = val2;
-                event->param2 = val3;
-                event->param3 = val4;
-                event->last_test_gameturn = val5;
+                event->test_interval = test_interval;
+                event->primary_parameter = primary_parameter;
+                event->secondary_parameter = secondary_parameter;
+                event->tertiary_parameter = tertiary_parameter;
+                event->last_test_gameturn = last_test_gameturn;
                 n++;
             }
         }
@@ -1672,8 +1672,8 @@ static int lua_Change_slab_owner(lua_State *L)
     {
         struct CompoundCoordFilterParam iter_param;
         iter_param.plyr_idx = plyr_idx;
-        iter_param.num1 = fill_type;
-        iter_param.num2 = get_slabmap_block(slb_x, slb_y)->kind;
+        iter_param.primary_number = fill_type;
+        iter_param.secondary_number = get_slabmap_block(slb_x, slb_y)->kind;
         slabs_fill_iterate_from_slab(slb_x, slb_y, slabs_change_owner, &iter_param);
     } else {
         change_slab_owner_from_script(slb_x, slb_y, plyr_idx);
@@ -1691,9 +1691,9 @@ static int lua_Change_slab_type(lua_State *L)
     if (fill_type > 0)
     {
         struct CompoundCoordFilterParam iter_param;
-        iter_param.num1 = slb_kind;
-        iter_param.num2 = fill_type;
-        iter_param.num3 = get_slabmap_block(slb_x, slb_y)->kind;
+        iter_param.primary_number = slb_kind;
+        iter_param.secondary_number = fill_type;
+        iter_param.tertiary_number = get_slabmap_block(slb_x, slb_y)->kind;
         slabs_fill_iterate_from_slab(slb_x, slb_y, slabs_change_type, &iter_param);
     }
     else
@@ -1714,9 +1714,9 @@ static int lua_Change_slab_texture(lua_State *L)
     if (fill_type > 0)
     {
         struct CompoundCoordFilterParam iter_param;
-        iter_param.num1 = texture_id;
-        iter_param.num2 = fill_type;
-        iter_param.num3 = get_slabmap_block(slb_x, slb_y)->kind;
+        iter_param.primary_number = texture_id;
+        iter_param.secondary_number = fill_type;
+        iter_param.tertiary_number = get_slabmap_block(slb_x, slb_y)->kind;
         slabs_fill_iterate_from_slab(slb_x, slb_y, slabs_change_type, &iter_param);
     }
     else

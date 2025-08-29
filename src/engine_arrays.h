@@ -68,7 +68,7 @@ short straight_td_iso(short n);
 short straight_iso_td(short n);
 
 void init_iso_3d_conversion_tables(void);
-void setup_3d(void);
+void setup_mesh_randomizers(void);
 
 TbBool load_ceiling_table(void);
 void generate_wibble_table(void);

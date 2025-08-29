@@ -75,7 +75,7 @@ struct TrigLocals {
     unsigned char unused_24;// 4+
     unsigned char unused_25; // 5+
     union {
-        unsigned short flag_26; // 6+
+        unsigned short combined_flags; // 6+
     struct {
         unsigned char flags_low_byte;
         unsigned char flags_high_byte;
@@ -2253,7 +2253,7 @@ void trig_render_md02(struct TrigLocalRend *tlr)
 {
     struct PolyPoint *polygon_point;
     unsigned char *m;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     polygon_point = polyscans;
@@ -2261,7 +2261,7 @@ void trig_render_md02(struct TrigLocalRend *tlr)
         ERRORLOG("global arrays not set: 0x%p 0x%p", m, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->v_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -2326,8 +2326,8 @@ void trig_render_md02(struct TrigLocalRend *tlr)
             texture_u = (texture_u & 0xFFFF0000) | ((tlr->u_step + texture_u) & 0xFFFF);
             colL = (tlr->u_step >> 16) + texture_u_carry + colS;
 
-            texture_u_carry = __CFADDL__(lsh_var_54, texture_u);
-            texture_u = lsh_var_54 + texture_u;
+            texture_u_carry = __CFADDL__(texture_v_step_fixed, texture_u);
+            texture_u = texture_v_step_fixed + texture_u;
             colH = (tlr->v_step >> 16) + texture_u_carry + (colS >> 8);
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -2339,7 +2339,7 @@ void trig_render_md03(struct TrigLocalRend *tlr)
 {
     struct PolyPoint *polygon_point;
     unsigned char *m;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     polygon_point = polyscans;
@@ -2347,7 +2347,7 @@ void trig_render_md03(struct TrigLocalRend *tlr)
         ERRORLOG("global arrays not set: 0x%p 0x%p", m, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->v_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -2411,8 +2411,8 @@ void trig_render_md03(struct TrigLocalRend *tlr)
             texture_u_carry = __CFADDS__(tlr->u_step, texture_u);
             texture_u = (texture_u & 0xFFFF0000) | ((tlr->u_step + texture_u) & 0xFFFF);
             colL = (tlr->u_step >> 16) + texture_u_carry + colS;
-            texture_u_carry = __CFADDL__(lsh_var_54, texture_u);
-            texture_u = lsh_var_54 + texture_u;
+            texture_u_carry = __CFADDL__(texture_v_step_fixed, texture_u);
+            texture_u = texture_v_step_fixed + texture_u;
             colH = (tlr->v_step >> 16) + texture_u_carry + (colS >> 8);
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -2507,9 +2507,9 @@ void trig_render_md05(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
-    long lvr_var_54;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
+    long texture_v_lower_byte;
 
     m = vec_map;
     f = pixmap.fade_tables;
@@ -2527,9 +2527,9 @@ void trig_render_md05(struct TrigLocalRend *tlr)
         factorC = __ROL4__(factorC, 16);
         factorA = __ROL4__(tlr->v_step, 16);
         factorB = ((ulong)tlr->shade_step) >> 8;
-        lsh_var_54 = (factorC & 0xFFFF0000) | (factorB & 0xFFFF);
-        lsh_var_60 = (factorA & 0xFFFFFF00) | (factorC & 0xFF);
-        lvr_var_54 = (factorA & 0xFF);
+        texture_v_step_fixed = (factorC & 0xFFFF0000) | (factorB & 0xFFFF);
+        shade_step_fixed = (factorA & 0xFFFFFF00) | (factorC & 0xFF);
+        texture_v_lower_byte = (factorA & 0xFF);
     }
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
@@ -2603,13 +2603,13 @@ void trig_render_md05(struct TrigLocalRend *tlr)
             colM = (colM & 0xFF00) + (rfactB & 0xFF);
             colS = (((rfactA >> 8) & 0xFF) << 8) + m[colM];
 
-            rfactA_carry = __CFADDL__(rfactA, lsh_var_54);
-            rfactA = rfactA + lsh_var_54;
+            rfactA_carry = __CFADDL__(rfactA, texture_v_step_fixed);
+            rfactA = rfactA + texture_v_step_fixed;
 
-            rfactB_carry = __CFADDL__(rfactB + rfactA_carry, lsh_var_60);
-            rfactB = rfactB + lsh_var_60 + rfactA_carry;
+            rfactB_carry = __CFADDL__(rfactB + rfactA_carry, shade_step_fixed);
+            rfactB = rfactB + shade_step_fixed + rfactA_carry;
 
-            colH = lvr_var_54 + rfactB_carry + (colM >> 8);
+            colH = texture_v_lower_byte + rfactB_carry + (colM >> 8);
             colL = colM;
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
 
@@ -2628,8 +2628,8 @@ void trig_render_md06(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
@@ -2638,8 +2638,8 @@ void trig_render_md06(struct TrigLocalRend *tlr)
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->v_step << 16;
-    lsh_var_60 = tlr->shade_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
+    shade_step_fixed = tlr->shade_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -2720,17 +2720,17 @@ void trig_render_md06(struct TrigLocalRend *tlr)
             fct_carry = __CFADDS__(tlr->u_step, factorA);
             factorA = (factorA & 0xFFFF0000) | ((tlr->u_step + factorA) & 0xFFFF);
             colL = (tlr->u_step >> 16) + fct_carry + colM;
-            fct_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            fct_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             colH = (tlr->v_step >> 16) + fct_carry + (colM >> 8);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
 
             factorB = (factorB & 0xFFFF0000) | (point_y & 0xFFFF);
-            fct_carry = __CFADDL__(lsh_var_60, factorB);
-            factorB += lsh_var_60;
+            fct_carry = __CFADDL__(shade_step_fixed, factorB);
+            factorB += shade_step_fixed;
             point_x_a = (((point_x_a >> 8) + (tlr->shade_step >> 16) + fct_carry) << 8) | (point_x_a & 0xFF);
-            point_y += lsh_var_60; // Very alarming. Bug, maybe?
+            point_y += shade_step_fixed; // Very alarming. Bug, maybe?
         }
     }
 }
@@ -2740,7 +2740,7 @@ void trig_render_md07(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
@@ -2749,7 +2749,7 @@ void trig_render_md07(struct TrigLocalRend *tlr)
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->v_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -2814,8 +2814,8 @@ void trig_render_md07(struct TrigLocalRend *tlr)
             factorA_carry = __CFADDS__(tlr->u_step, factorA);
             factorA = (factorA & 0xFFFF0000) | ((tlr->u_step + factorA) & 0xFFFF);
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             *o = f[colS];
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
@@ -2829,7 +2829,7 @@ void trig_render_md08(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
@@ -2838,7 +2838,7 @@ void trig_render_md08(struct TrigLocalRend *tlr)
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->v_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -2905,8 +2905,8 @@ void trig_render_md08(struct TrigLocalRend *tlr)
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
             if (colS & 0xFF)
                 *o = f[colS];
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -2919,7 +2919,7 @@ void trig_render_md09(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
@@ -2928,7 +2928,7 @@ void trig_render_md09(struct TrigLocalRend *tlr)
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->v_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -2996,8 +2996,8 @@ void trig_render_md09(struct TrigLocalRend *tlr)
                 colS = (colS & 0xFF00) | (*o);
                 *o = f[colS];
             }
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3010,7 +3010,7 @@ void trig_render_md10(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *f;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     f = pixmap.fade_tables;
@@ -3019,7 +3019,7 @@ void trig_render_md10(struct TrigLocalRend *tlr)
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->v_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -3088,8 +3088,8 @@ void trig_render_md10(struct TrigLocalRend *tlr)
             factorA_carry = __CFADDS__(tlr->u_step, factorA);
             factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3102,7 +3102,7 @@ void trig_render_md12(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -3111,7 +3111,7 @@ void trig_render_md12(struct TrigLocalRend *tlr)
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, g, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->v_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -3176,8 +3176,8 @@ void trig_render_md12(struct TrigLocalRend *tlr)
             factorA_carry = __CFADDS__(tlr->u_step, factorA);
             factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             *o = g[colS];
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
@@ -3191,7 +3191,7 @@ void trig_render_md13(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -3200,7 +3200,7 @@ void trig_render_md13(struct TrigLocalRend *tlr)
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, g, polygon_point);
         return;
     }
-    lsh_var_54 = tlr->v_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -3264,8 +3264,8 @@ void trig_render_md13(struct TrigLocalRend *tlr)
             factorA_carry = __CFADDS__(tlr->u_step, factorA);
             factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             *o = g[colS];
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
@@ -3543,12 +3543,12 @@ void trig_render_md18(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
     polygon_point = polyscans;
-    lsh_var_54 = tlr->v_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -3614,8 +3614,8 @@ void trig_render_md18(struct TrigLocalRend *tlr)
             colL = *o;
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             *o = g[colS];
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
@@ -3629,12 +3629,12 @@ void trig_render_md19(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
     polygon_point = polyscans;
-    lsh_var_54 = tlr->v_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -3697,8 +3697,8 @@ void trig_render_md19(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
             colS = ((*o) << 8) + m[colM];
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             *o = g[colS];
             colH = (colM >> 8) + (tlr->v_step >> 16) + factorA_carry;
 
@@ -3713,15 +3713,15 @@ void trig_render_md20(struct TrigLocalRend *tlr)
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
     f = pixmap.fade_tables;
     polygon_point = polyscans;
-    lsh_var_54 = tlr->v_step << 16;
-    lsh_var_60 = tlr->shade_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
+    shade_step_fixed = tlr->shade_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -3789,12 +3789,12 @@ void trig_render_md20(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
             colS = ((factorC & 0xFF) << 8) + m[colM];
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             colS = ((f[colS] & 0xFF) << 8) + *o;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
-            factorA_carry = __CFADDL__(lsh_var_60, factorC);
-            factorC += lsh_var_60;
+            factorA_carry = __CFADDL__(shade_step_fixed, factorC);
+            factorC += shade_step_fixed;
             *o = g[colS];
             factorC = (factorC & 0xFFFFFF00) | (((tlr->shade_step >> 16) + factorA_carry + factorC) & 0xFF);
 
@@ -3809,15 +3809,15 @@ void trig_render_md21(struct TrigLocalRend *tlr)
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
     f = pixmap.fade_tables;
     polygon_point = polyscans;
-    lsh_var_54 = tlr->v_step << 16;
-    lsh_var_60 = tlr->shade_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
+    shade_step_fixed = tlr->shade_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -3886,11 +3886,11 @@ void trig_render_md21(struct TrigLocalRend *tlr)
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
             colS = ((factorC & 0xFF) << 8) + (m[colM] & 0xFF);
             colS = (((*o) & 0xFF) << 8) + (f[colS] & 0xFF);
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
-            factorA_carry = __CFADDL__(lsh_var_60, factorC);
-            factorC += lsh_var_60;
+            factorA_carry = __CFADDL__(shade_step_fixed, factorC);
+            factorC += shade_step_fixed;
             *o = g[colS];
             factorC = (factorC & 0xFFFFFF00) | (((tlr->shade_step >> 16) + factorA_carry + factorC) & 0xFF);
 
@@ -3904,12 +3904,12 @@ void trig_render_md22(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
     polygon_point = polyscans;
-    lsh_var_54 = tlr->v_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -3977,8 +3977,8 @@ void trig_render_md22(struct TrigLocalRend *tlr)
             factorA_carry = __CFADDS__(tlr->u_step, factorA);
             factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3991,12 +3991,12 @@ void trig_render_md23(struct TrigLocalRend *tlr)
     struct PolyPoint *polygon_point;
     unsigned char *m;
     unsigned char *g;
-    long lsh_var_54;
+    long texture_v_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
     polygon_point = polyscans;
-    lsh_var_54 = tlr->v_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -4064,8 +4064,8 @@ void trig_render_md23(struct TrigLocalRend *tlr)
             factorA_carry = __CFADDS__(tlr->u_step, factorA);
             factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -4079,15 +4079,15 @@ void trig_render_md24(struct TrigLocalRend *tlr)
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
     f = pixmap.fade_tables;
     polygon_point = polyscans;
-    lsh_var_54 = tlr->v_step << 16;
-    lsh_var_60 = tlr->shade_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
+    shade_step_fixed = tlr->shade_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -4162,11 +4162,11 @@ void trig_render_md24(struct TrigLocalRend *tlr)
             factorA_carry = __CFADDS__(tlr->u_step, factorA);
             factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
-            factorA_carry = __CFADDL__(lsh_var_60, factorC);
-            factorC += lsh_var_60;
+            factorA_carry = __CFADDL__(shade_step_fixed, factorC);
+            factorC += shade_step_fixed;
             factorC = (factorC & 0xFFFFFF00) + (((tlr->shade_step >> 16) + factorA_carry + factorC) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -4180,15 +4180,15 @@ void trig_render_md25(struct TrigLocalRend *tlr)
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
 
     m = vec_map;
     g = pixmap.ghost;
     f = pixmap.fade_tables;
     polygon_point = polyscans;
-    lsh_var_54 = tlr->v_step << 16;
-    lsh_var_60 = tlr->shade_step << 16;
+    texture_v_step_fixed = tlr->v_step << 16;
+    shade_step_fixed = tlr->shade_step << 16;
 
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -4263,11 +4263,11 @@ void trig_render_md25(struct TrigLocalRend *tlr)
             factorA_carry = __CFADDS__(tlr->u_step, factorA);
             factorA = (factorA & 0xFFFF0000) + ((tlr->u_step + factorA) & 0xFFFF);
             colL = ((tlr->u_step >> 16) & 0xFF) + factorA_carry + colM;
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA += lsh_var_54;
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA += texture_v_step_fixed;
             colH = (colM >> 8) + ((tlr->v_step >> 16) & 0xFF) + factorA_carry;
-            factorA_carry = __CFADDL__(lsh_var_60, factorC);
-            factorC += lsh_var_60;
+            factorA_carry = __CFADDL__(shade_step_fixed, factorC);
+            factorC += shade_step_fixed;
             factorC = (factorC & 0xFFFFFF00) | (((tlr->shade_step >> 16) + factorA_carry + factorC) & 0xFF);
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -4281,9 +4281,9 @@ void trig_render_md26(struct TrigLocalRend *tlr)
     unsigned char *m;
     unsigned char *g;
     unsigned char *f;
-    long lsh_var_54;
-    long lsh_var_60;
-    long lvr_var_54;
+    long texture_v_step_fixed;
+    long shade_step_fixed;
+    long texture_v_lower_byte;
 
     m = vec_map;
     g = pixmap.ghost;
@@ -4293,17 +4293,17 @@ void trig_render_md26(struct TrigLocalRend *tlr)
     {
         ulong texture_u_rotated;
         ulong texture_v_rotated;
-        unsigned char v3;
+        unsigned char local_texture_v_lower_byte;
 
         texture_u_rotated = __ROL4__(tlr->u_step, 16);
         texture_v_rotated = __ROL4__(tlr->v_step, 16);
-        v3 = texture_v_rotated;
+        local_texture_v_lower_byte = texture_v_rotated;
         texture_v_rotated = (texture_v_rotated & 0xFFFFFF00) + (texture_u_rotated & 0xFF);
         texture_u_rotated = (texture_u_rotated & 0xFFFF0000) + (((ulong)tlr->shade_step >> 8) & 0xFFFF);
         texture_v_rotated = (texture_v_rotated & 0xFFFF0000) + (texture_v_rotated & 0xFF);
-        lsh_var_54 = texture_u_rotated;
-        lsh_var_60 = texture_v_rotated;
-        lvr_var_54 = v3;
+        texture_v_step_fixed = texture_u_rotated;
+        shade_step_fixed = texture_v_rotated;
+        texture_v_lower_byte = local_texture_v_lower_byte;
     }
     for (; tlr->render_height; tlr->render_height--, polygon_point++)
     {
@@ -4365,11 +4365,11 @@ void trig_render_md26(struct TrigLocalRend *tlr)
 
             colM = (colM & 0xFF00) | (factorB & 0xFF);
             colS = (factorA & 0xFF00) | m[colM];
-            factorA_carry = __CFADDL__(lsh_var_54, factorA);
-            factorA = lsh_var_54 + factorA;
-            factorB_carry = __CFADDL__(lsh_var_60, factorB + factorA_carry);
-            factorB = lsh_var_60 + factorB + factorA_carry;
-            colM = (colM & 0xFF) + ((((colM >> 8) + lvr_var_54 + factorB_carry) & 0xFF) << 8);
+            factorA_carry = __CFADDL__(texture_v_step_fixed, factorA);
+            factorA = texture_v_step_fixed + factorA;
+            factorB_carry = __CFADDL__(shade_step_fixed, factorB + factorA_carry);
+            factorB = shade_step_fixed + factorB + factorA_carry;
+            colM = (colM & 0xFF) + ((((colM >> 8) + texture_v_lower_byte + factorB_carry) & 0xFF) << 8);
 
             if ((colS & 0xFF) <= 0xCu) {
                 colS = ((*o) << 8) | f[colS];
