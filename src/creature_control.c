@@ -292,7 +292,7 @@ void stop_creature_sound(struct Thing *thing, long snd_idx)
     }
 }
 
-void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
+void play_creature_sound(struct Thing *thing, long snd_idx, long priority, long use_flags)
 {
     SYNCDBG(8,"Starting");
     if (playing_creature_sound(thing, snd_idx)) {
@@ -305,14 +305,14 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
     }
     long i = UNSYNC_RANDOM(crsound->count);
     SYNCDBG(18,"Playing sample %ld (index %ld) for creature %d",snd_idx,crsound->index+i,thing->model);
-    if ( a4 ) {
-        thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 8, a3, FULL_LOUDNESS);
+    if ( use_flags ) {
+        thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 8, priority, FULL_LOUDNESS);
     } else {
-        thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 0, a3, FULL_LOUDNESS);
+        thing_play_sample(thing, crsound->index+i, NORMAL_PITCH, 0, 3, 0, priority, FULL_LOUDNESS);
     }
 }
 
-void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long a2)
+void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long sound_priority)
 {
     if (playing_creature_sound(thing, snd_idx)) {
         return;
@@ -325,7 +325,7 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
     long i = UNSYNC_RANDOM(crsound->count);
     struct Thing* efftng = create_effect(&thing->mappos, TngEff_Dummy, thing->owner);
     if (!thing_is_invalid(efftng)) {
-        thing_play_sample(efftng, crsound->index+i, NORMAL_PITCH, 0, 3, 0, a2, FULL_LOUDNESS);
+        thing_play_sample(efftng, crsound->index+i, NORMAL_PITCH, 0, 3, 0, sound_priority, FULL_LOUDNESS);
     }
 }
 

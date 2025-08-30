@@ -853,9 +853,9 @@ void place_slab_columns(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
         for (dx=0; dx  < STL_PER_SLB; dx++)
         {
             copy_block_with_cube_groups(*colid, stl_x+dx, stl_y+dy);
-            int v10;
-            v10 = -*colid;
-            if ( v10 < 0 )
+            int column_index_check;
+            column_index_check = -*colid;
+            if ( column_index_check < 0 )
               ERRORLOG("BBlocks instead of columns");
             update_map_collide(slbkind, stl_x+dx, stl_y+dy);
             set_alt_bit_based_on_slab(slbkind, stl_x+dx, stl_y+dy);
@@ -1804,7 +1804,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
         slabst = get_slab_kind_stats(slb->kind);
         if ((previous_slab_types_around[i] != slb->kind)
           || ((slabst->category != SlbAtCtg_Obstacle) && (slabst->category != SlbAtCtg_Unclaimed))
-          || (game.game_kind == GKind_Unknown1))
+          || (game.game_kind == GKind_NonInteractiveState))
         {
             place_single_slab_type_on_map(slb->kind, spos_x, spos_y, slabmap_owner(slb));
         }

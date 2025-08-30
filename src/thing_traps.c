@@ -663,7 +663,7 @@ void activate_trap_by_slap(struct PlayerInfo *player, struct Thing* traptng)
             {
             case TrpAcT_HeadforTarget90:
             case TrpAcT_CreatureShot:
-                external_activate_trap_shot_at_angle(traptng, player->acamera->orient_a, trgtng);
+                external_activate_trap_shot_at_angle(traptng, player->acamera->rotation_angle_x, trgtng);
                 break;
             default:
                 ERRORLOG("Illegal trap activation type %d (idx=%d)", (int)trapst->activation_type, traptng->index);

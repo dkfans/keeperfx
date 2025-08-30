@@ -163,7 +163,7 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
 void post_init_packets(void)
 {
     SYNCDBG(6,"Starting");
-    if ((game.packet_load_enable) && (game.numfield_149F47))
+    if ((game.packet_load_enable) && (game.packet_load_initialized))
     {
         struct CatalogueEntry centry;
         open_packet_file_for_load(game.packet_fname, &centry);

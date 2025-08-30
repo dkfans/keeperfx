@@ -276,8 +276,8 @@ TbBool slabs_iter_will_change(SlabKind orig_slab_kind, SlabKind current, long fi
 TbBool slabs_change_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
 {
     unsigned long plr_range_id = param->plyr_idx;
-    long fill_type = param->num1;
-    SlabKind orig_slab_kind = param->num2;
+    long fill_type = param->primary_number;
+    SlabKind orig_slab_kind = param->secondary_number;
     SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind;
     if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
     {
@@ -289,9 +289,9 @@ TbBool slabs_change_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilter
 
 TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
 {
-    SlabKind target_slab_kind = param->num1;
-    long fill_type = param->num2;
-    SlabKind orig_slab_kind = param->num3;
+    SlabKind target_slab_kind = param->primary_number;
+    long fill_type = param->secondary_number;
+    SlabKind orig_slab_kind = param->tertiary_number;
     SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind; // current kind
     if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
     {
@@ -304,9 +304,9 @@ TbBool slabs_change_type(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterP
 
 TbBool slabs_change_texture(MapSlabCoord slb_x, MapSlabCoord slb_y, MaxCoordFilterParam param)
 {
-    unsigned char target_slab_texture = param->num1;
-    long fill_type = param->num2;
-    SlabKind orig_slab_kind = param->num3;
+    unsigned char target_slab_texture = param->primary_number;
+    long fill_type = param->secondary_number;
+    SlabKind orig_slab_kind = param->tertiary_number;
     SlabKind current_kind = get_slabmap_block(slb_x, slb_y)->kind; // current kind
     if (slabs_iter_will_change(orig_slab_kind, current_kind, fill_type))
     {

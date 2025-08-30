@@ -62,7 +62,7 @@ typedef struct {
     uint32_t packed_size;
     uint16_t unpacked_crc32;
     uint16_t packed_crc32;
-    uint16_t unknown;
+    uint16_t unused_header_field;
 } rnc_header;
 #pragma pack()
 

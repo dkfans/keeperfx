@@ -511,18 +511,18 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
 {
 
     int block_flags;
-    int v13;
+    int direction_flags;
     char *fs_par_slab;
-    char v15;
-    char v16;
-    char v17;
-    char v18;
+    char west_slab_state;
+    char east_slab_state;
+    char north_slab_state;
+    char south_slab_state;
     const char *i;
-    char *v20;
+    char *scratch_slab_ptr;
     MapSlabCoord slb_y;
     MapSlabCoord slb_x;
-    unsigned int v24;
-    unsigned int v30;
+    unsigned int queue_write_index;
+    unsigned int queue_read_index;
 
     static const char exploration_direction_lookup_table[80] =
     {
@@ -587,73 +587,73 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         }
     }
 
-    v30 = 0;
-    v24 = 0;
+    queue_read_index = 0;
+    queue_write_index = 0;
     slb_x = stl_x / 3;
     slb_y = stl_y / 3;
     first_scratch[get_slab_number(slb_x,slb_y)] |= 2u;
     do
     {
-        v13 = 0;
+        direction_flags = 0;
         fs_par_slab = &first_scratch[get_slab_number(slb_x,slb_y)];
-        v15 = *(fs_par_slab - 1);
-        if ((v15 & 1) != 0)
+        west_slab_state = *(fs_par_slab - 1);
+        if ((west_slab_state & 1) != 0)
         {
-            v13 = 8;
-            *(fs_par_slab - 1) = v15 | 2;
+            direction_flags = 8;
+            *(fs_par_slab - 1) = west_slab_state | 2;
         }
-        else if ((v15 & 2) == 0)
+        else if ((west_slab_state & 2) == 0)
         {
-            *(fs_par_slab - 1) = v15 | 2;
+            *(fs_par_slab - 1) = west_slab_state | 2;
 
-            second_scratch[v24].x = slb_x - 1;
-            second_scratch[v24].y = slb_y;
-            v24++;
+            second_scratch[queue_write_index].x = slb_x - 1;
+            second_scratch[queue_write_index].y = slb_y;
+            queue_write_index++;
         }
-        v16 = fs_par_slab[1];
-        if ((v16 & 1) != 0)
+        east_slab_state = fs_par_slab[1];
+        if ((east_slab_state & 1) != 0)
         {
-            v13 |= 2u;
-            fs_par_slab[1] = v16 | 2;
+            direction_flags |= 2u;
+            fs_par_slab[1] = east_slab_state | 2;
         }
-        else if ((v16 & 2) == 0)
+        else if ((east_slab_state & 2) == 0)
         {
-            fs_par_slab[1] = v16 | 2;
-            second_scratch[v24].x = slb_x + 1;
-            second_scratch[v24].y = slb_y;
-            v24++;
+            fs_par_slab[1] = east_slab_state | 2;
+            second_scratch[queue_write_index].x = slb_x + 1;
+            second_scratch[queue_write_index].y = slb_y;
+            queue_write_index++;
         }
-        v17 = *(fs_par_slab - game.map_tiles_x);
-        if ((v17 & 1) != 0)
+        north_slab_state = *(fs_par_slab - game.map_tiles_x);
+        if ((north_slab_state & 1) != 0)
         {
-            v13 |= 1u;
-            *(fs_par_slab - game.map_tiles_x) = v17 | 2;
+            direction_flags |= 1u;
+            *(fs_par_slab - game.map_tiles_x) = north_slab_state | 2;
         }
-        else if ((v17 & 2) == 0)
+        else if ((north_slab_state & 2) == 0)
         {
-            *(fs_par_slab - game.map_tiles_x) = v17 | 2;
-            second_scratch[v24].x = slb_x;
-            second_scratch[v24].y = slb_y - 1;
-            v24++;
+            *(fs_par_slab - game.map_tiles_x) = north_slab_state | 2;
+            second_scratch[queue_write_index].x = slb_x;
+            second_scratch[queue_write_index].y = slb_y - 1;
+            queue_write_index++;
         }
-        v18 = fs_par_slab[game.map_tiles_x];
-        if ((v18 & 1) != 0)
+        south_slab_state = fs_par_slab[game.map_tiles_x];
+        if ((south_slab_state & 1) != 0)
         {
-            v13 |= 4u;
-            fs_par_slab[game.map_tiles_x] = v18 | 2;
+            direction_flags |= 4u;
+            fs_par_slab[game.map_tiles_x] = south_slab_state | 2;
         }
-        else if ((v18 & 2) == 0)
+        else if ((south_slab_state & 2) == 0)
         {
-            fs_par_slab[game.map_tiles_x] = v18 | 2;
-            second_scratch[v24].x = slb_x;
-            second_scratch[v24].y = slb_y + 1;
-            v24++;
+            fs_par_slab[game.map_tiles_x] = south_slab_state | 2;
+            second_scratch[queue_write_index].x = slb_x;
+            second_scratch[queue_write_index].y = slb_y + 1;
+            queue_write_index++;
         }
-        for (i = &exploration_direction_lookup_table[5 * v13]; *i; i = &exploration_direction_lookup_table[5 * v13])
+        for (i = &exploration_direction_lookup_table[5 * direction_flags]; *i; i = &exploration_direction_lookup_table[5 * direction_flags])
         {
-            if (v13 == 15)
+            if (direction_flags == 15)
             {
-                v13 = 0;
+                direction_flags = 0;
                 *(fs_par_slab - game.map_tiles_x - 1) |= 2u;
                 fs_par_slab[game.map_tiles_x + 1] |= 2u;
                 fs_par_slab[game.map_tiles_x -1] |= 2u;
@@ -661,15 +661,15 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
             }
             else
             {
-                v20 = &first_scratch[get_slab_number(exploration_direction_offsets[*(int *)i].x,exploration_direction_offsets[*(int *)i].y) + game.map_tiles_x * slb_y];
-                v20[slb_x] |= 2u;
-                v13 &= i[4];
+                scratch_slab_ptr = &first_scratch[get_slab_number(exploration_direction_offsets[*(int *)i].x,exploration_direction_offsets[*(int *)i].y) + game.map_tiles_x * slb_y];
+                scratch_slab_ptr[slb_x] |= 2u;
+                direction_flags &= i[4];
             }
         }
-        slb_x = second_scratch[v30].x;
-        slb_y = second_scratch[v30].y;
-        v30++;
-    } while (v24 >= v30);
+        slb_x = second_scratch[queue_read_index].x;
+        slb_y = second_scratch[queue_read_index].y;
+        queue_read_index++;
+    } while (queue_write_index >= queue_read_index);
 
 
     for (slb_y = 0; slb_y < game.map_tiles_y; ++slb_y)
@@ -1019,7 +1019,7 @@ void post_init_player(struct PlayerInfo *player)
 {
     switch (game.game_kind)
     {
-    case GKind_Unknown3:
+    case GKind_LimitedState:
         break;
     case GKind_LocalGame:
     case GKind_MultiGame:
