@@ -490,7 +490,9 @@ $(shell $(MKDIR) $(FOLDERS))
 build-before: libexterns
 
 std-before: build-before
+	@echo "Building all files..."
 hvlog-before: build-before
+	@echo "Building all files..."
 
 docs: docsdox
 
@@ -503,104 +505,96 @@ deep-clean: deep-clean-tools deep-clean-package
 clean: submodule clean-build clean-tools clean-libexterns clean-package
 
 submodule:
-	-git submodule init && git submodule update
+	@-git submodule init && git submodule update
 
 clean-build:
-	-$(RM) $(STDOBJS) $(STD_MAIN_OBJ) $(filter %.d,$(STDOBJS:%.o=%.d)) $(filter %.d,$(STD_MAIN_OBJ:%.o=%.d))
-	-$(RM) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(filter %.d,$(HVLOGOBJS:%.o=%.d)) $(filter %.d,$(HVLOG_MAIN_OBJ:%.o=%.d))
-	-$(RM) $(BIN) $(BIN:%.exe=%.map)
-	-$(RM) $(BIN) $(BIN:%.exe=%.pdb)
-	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.map)
-	-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.pdb)
-	-$(RM) bin/keeperfx.dll
-	-$(RM) $(GENSRC)
-	-$(RM) res/*.ico
-	-$(RM) obj/keeperfx.*
+	@-$(RM) $(STDOBJS) $(STD_MAIN_OBJ) $(filter %.d,$(STDOBJS:%.o=%.d)) $(filter %.d,$(STD_MAIN_OBJ:%.o=%.d))
+	@-$(RM) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(filter %.d,$(HVLOGOBJS:%.o=%.d)) $(filter %.d,$(HVLOG_MAIN_OBJ:%.o=%.d))
+	@-$(RM) $(BIN) $(BIN:%.exe=%.map)
+	@-$(RM) $(BIN) $(BIN:%.exe=%.pdb)
+	@-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.map)
+	@-$(RM) $(HVLOGBIN) $(HVLOGBIN:%.exe=%.pdb)
+	@-$(RM) bin/keeperfx.dll
+	@-$(RM) $(GENSRC)
+	@-$(RM) res/*.ico
+	@-$(RM) obj/keeperfx.*
 
 $(BIN): $(GENSRC) $(STDOBJS) $(STD_MAIN_OBJ) std-before
-	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(STDOBJS) $(STD_MAIN_OBJ) $(LDFLAGS)
+	-$(ECHO) '$@'
+	@$(CPP) -o "$@" $(STDOBJS) $(STD_MAIN_OBJ) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
-	-$(ECHO) ' '
 
 $(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) hvlog-before
-	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LDFLAGS)
+	-$(ECHO) '$@'
+	@$(CPP) -o "$@" $(HVLOGOBJS) $(HVLOG_MAIN_OBJ) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
-	-$(ECHO) ' '
 
 $(TEST_BIN): $(GENSRC) $(STDOBJS) $(TESTS_OBJ) $(CU_OBJS) std-before
-	-$(ECHO) 'Building target: $@'
-	$(CPP) -o "$@" $(TESTS_OBJ) $(STDOBJS) $(CU_OBJS) $(LDFLAGS)
+	-$(ECHO) '$@'
+	@$(CPP) -o "$@" $(TESTS_OBJ) $(STDOBJS) $(CU_OBJS) $(LDFLAGS)
 ifdef CV2PDB
 	$(CV2PDB) -C "$@"
 endif
 
 obj/std/centitoml/toml_api.o obj/hvlog/centitoml/toml_api.o: deps/centitoml/toml_api.c
-	-$(ECHO) 'Building file: $<'
-	$(CC) $(CFLAGS) -o"$@" "$<"
-	-$(ECHO) ' '
+	-$(ECHO) '$<'
+	@$(CC) $(CFLAGS) -o"$@" "$<"
 
 obj/tests/%.o: tests/%.cpp $(GENSRC)
-	-$(ECHO) 'Building file: $<'
-	$(CPP) $(CXXFLAGS) -I"src/" $(CU_INC) -o"$@" "$<"
-	-$(ECHO) ' '
+	-$(ECHO) '$<'
+	@$(CPP) $(CXXFLAGS) -I"src/" $(CU_INC) -o"$@" "$<"
 
 obj/cu/%.o: $(CU_DIR)/Sources/Framework/%.c
-	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
+	@$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
 
 obj/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
-	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
+	@$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
 
 obj/std/%.o obj/hvlog/%.o: src/%.cpp libexterns $(GENSRC)
-	-$(ECHO) 'Building file: $<'
+	-$(ECHO) '$<'
 	@grep -E "#include \"(\.\./)?(\.\./)?pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
 	@grep -E "#include \"(\.\./)?(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	-$(ECHO) ' '
+	@$(CPP) $(CXXFLAGS) -o"$@" "$<"
 
 obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
-	-$(ECHO) 'Building file: $<'
+	-$(ECHO) '$<'
 	@grep -E "#include \"(\.\./)?(\.\./)?pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
 	@grep -E "#include \"(\.\./)?(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
-	$(CC) $(CFLAGS) -o"$@" "$<"
-	-$(ECHO) ' '
+	@$(CC) $(CFLAGS) -o"$@" "$<"
 
 # Windows resources compilation
 obj/std/%.res obj/hvlog/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
-	-$(ECHO) 'Building resource: $<'
-	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff -I"obj/"
-	-$(ECHO) ' '
+	-$(ECHO) '$<'
+	@$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff -I"obj/"
 
 # Creation of Windows icon files from PNG files
 res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08bpp.png res/%128-08bpp.png res/%128-24bpp.png res/%256-24bpp.png res/%512-24bpp.png $(PNGTOICO)
-	-$(ECHO) 'Building icon: $@'
-	$(PNGTOICO) "$@" $(word 8,$^) $(word 7,$^) $(word 6,$^) --colors 256 $(word 5,$^) $(word 4,$^) $(word 3,$^) --colors 16 $(word 2,$^) $(word 1,$^)
-	-$(ECHO) ' '
+	-$(ECHO) '$@'
+	@$(PNGTOICO) "$@" $(word 8,$^) $(word 7,$^) $(word 6,$^) --colors 256 $(word 5,$^) $(word 4,$^) $(word 3,$^) --colors 16 $(word 2,$^) $(word 1,$^)
 
 obj/ver_defs.h: version.mk Makefile
-	$(ECHO) \#define VER_MAJOR   $(VER_MAJOR) > "$(@D)/tmp"
-	$(ECHO) \#define VER_MINOR   $(VER_MINOR) >> "$(@D)/tmp"
-	$(ECHO) \#define VER_RELEASE $(VER_RELEASE) >> "$(@D)/tmp"
-	$(ECHO) \#define VER_BUILD   $(BUILD_NUMBER) >> "$(@D)/tmp"
-	$(ECHO) \#define VER_STRING  \"$(VER_STRING)\" >> "$(@D)/tmp"
-	$(ECHO) \#define PACKAGE_SUFFIX  \"$(PACKAGE_SUFFIX)\" >> "$(@D)/tmp"
-	$(ECHO) \#define GIT_REVISION  \"`git describe  --always`\" >> "$(@D)/tmp"
-	$(MV) "$(@D)/tmp" "$@"
+	@$(ECHO) \#define VER_MAJOR   $(VER_MAJOR) > "$(@D)/tmp"
+	@$(ECHO) \#define VER_MINOR   $(VER_MINOR) >> "$(@D)/tmp"
+	@$(ECHO) \#define VER_RELEASE $(VER_RELEASE) >> "$(@D)/tmp"
+	@$(ECHO) \#define VER_BUILD   $(BUILD_NUMBER) >> "$(@D)/tmp"
+	@$(ECHO) \#define VER_STRING  \"$(VER_STRING)\" >> "$(@D)/tmp"
+	@$(ECHO) \#define PACKAGE_SUFFIX  \"$(PACKAGE_SUFFIX)\" >> "$(@D)/tmp"
+	@$(ECHO) \#define GIT_REVISION  \"`git describe  --always`\" >> "$(@D)/tmp"
+	@$(MV) "$(@D)/tmp" "$@"
 
 tests: std-before $(TEST_BIN)
 
 libexterns: libexterns.mk
-	$(MAKE) -f libexterns.mk
+	@$(MAKE) -f libexterns.mk
 
 clean-libexterns: libexterns.mk
-	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson
-	-$(RM) libexterns
+	@-$(MAKE) -f libexterns.mk clean-libexterns
+	@-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson
+	@-$(RM) libexterns
 
 deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit:
 	$(MKDIR) $@
