@@ -1058,7 +1058,6 @@ static signed char get_starting_angle_and_side_of_hug(
     int primary_priority_index;
     int secondary_priority_index;
     char secondary_side_priority;
-    // int angle_adjustment_multiplier; // unused
     int current_move_angle;
     int saved_move_angle;
     int adjusted_move_angle_plus;
@@ -1078,7 +1077,7 @@ static signed char get_starting_angle_and_side_of_hug(
     char selected_side_priority;
     int16_t move_angle_xy;
     uint16_t navigation_angle;
-    // int x_position_comparison_result; // unused
+    int x_direction_flag;
     uint16_t calculated_angle;
     int16_t stored_move_angle;
     int best_distance_squared;
@@ -1087,8 +1086,6 @@ static signed char get_starting_angle_and_side_of_hug(
     int movement_angle_difference;
     char v44_2;
     int accumulated_movement_distance;
-    char x_direction_flag;
-    int unusedparam;
     struct Coord3d next_movement_position;
     struct Navigation backup_navigation_state;
 
