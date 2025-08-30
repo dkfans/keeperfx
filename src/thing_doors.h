@@ -36,7 +36,7 @@ enum DoorStates {
     DorSt_Closed,
     DorSt_Opening,
     DorSt_Closing,
-    DorSt_unusedparam,
+    DorSt_ListEnd,
 };
 
 struct Thing;

@@ -92,7 +92,7 @@ enum QKinds {
     QK_RoomFlagBottomPole,
     QK_JontyISOSprite,
     QK_RoomFlagStatusBox,
-    QK_UnusedSlot,
+    QK_ListEnd,
 };
 
 struct MinMax;
