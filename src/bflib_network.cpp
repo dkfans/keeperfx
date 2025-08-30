@@ -1527,7 +1527,7 @@ TbError HostDataCollection(void)
     {
       if ((clientDataTable[i].isactive) && (!clientDataTable[i].has_exchanged_data))
       {
-        exchngNeeded = !clientDataTable[i].has_exchanged_data;
+        exchngNeeded = clientDataTable[i].has_exchanged_data;
       }
     }
     if (exchngNeeded)
