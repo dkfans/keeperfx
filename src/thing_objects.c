@@ -721,9 +721,9 @@ static long food_moves(struct Thing *objtng)
     TbBool dirct_ctrl = is_thing_directly_controlled(objtng);
     if (dirct_ctrl)
     {
-        if (objtng->food.possession_freeze_timer > 0)
+        if (objtng->food.possession_startup_timer > 0)
         {
-            objtng->food.possession_freeze_timer--;
+            objtng->food.possession_startup_timer--;
             return 1;
         }
     }
@@ -809,21 +809,21 @@ static long food_moves(struct Thing *objtng)
             objtng->food.freshness_state = -1;
             set_thing_draw(objtng, 820, -1, -1, -1, 0, ODC_Default);
             if (dirct_ctrl) {
-                objtng->food.possession_freeze_timer = 6;
+                objtng->food.possession_startup_timer = 6;
             } else {
-                objtng->food.possession_freeze_timer = CREATURE_RANDOM(objtng ,4) + 1;
+                objtng->food.possession_startup_timer = CREATURE_RANDOM(objtng ,4) + 1;
             }
         }
-        if ((has_near_creature && (objtng->food.possession_freeze_timer < 5)) || (objtng->food.possession_freeze_timer == 0))
+        if ((has_near_creature && (objtng->food.possession_startup_timer < 5)) || (objtng->food.possession_startup_timer == 0))
         {
             set_thing_draw(objtng, 819, -1, -1, -1, 0, ODC_Default);
             objtng->food.freshness_state = CREATURE_RANDOM(objtng, 0x39);
             objtng->food.angle = CREATURE_RANDOM(objtng, 0x7FF);
-            objtng->food.possession_freeze_timer = 0;
+            objtng->food.possession_startup_timer = 0;
         } else
-        if ((objtng->anim_speed * objtng->max_frames <= objtng->anim_speed + objtng->anim_time) && (objtng->food.possession_freeze_timer < 5))
+        if ((objtng->anim_speed * objtng->max_frames <= objtng->anim_speed + objtng->anim_time) && (objtng->food.possession_startup_timer < 5))
         {
-            objtng->food.possession_freeze_timer--;
+            objtng->food.possession_startup_timer--;
         }
     }
     else
@@ -921,7 +921,7 @@ static long food_grows(struct Thing *objtng)
         if (!thing_is_invalid(nobjtng)) {
             nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, 0x800);
             nobjtng->food.freshness_state = CREATURE_RANDOM(objtng, 0x6FF);
-            nobjtng->food.possession_freeze_timer = 0;
+            nobjtng->food.possession_startup_timer = 0;
           thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
           if (!is_neutral_thing(nobjtng)) {
               struct Dungeon *dungeon;

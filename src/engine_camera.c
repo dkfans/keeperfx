@@ -586,12 +586,12 @@ void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
             cam->rotation_angle_z = 0;
             cam->rotation_angle_y = thing->move_angle_z;
             thing->move_angle_z = 0;
-            if ( thing->food.possession_freeze_timer )
+            if ( thing->food.possession_startup_timer )
             {
-                if ( thing->food.possession_freeze_timer <= 3 )
-                    thing->move_angle_z = -116 * thing->food.possession_freeze_timer + 2048;
+                if ( thing->food.possession_startup_timer <= 3 )
+                    thing->move_angle_z = -116 * thing->food.possession_startup_timer + 2048;
                 else
-                    thing->move_angle_z = 116 * thing->food.possession_freeze_timer + 1352;
+                    thing->move_angle_z = 116 * thing->food.possession_startup_timer + 1352;
             }
         }
         else

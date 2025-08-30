@@ -391,7 +391,7 @@ void food_set_wait_to_be_eaten(struct Thing *thing)
     else
     {
         thing->food.freshness_state = -1;
-        thing->food.possession_freeze_timer = 127;
+        thing->food.possession_startup_timer = 127;
     }
 }
 

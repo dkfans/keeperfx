@@ -132,7 +132,7 @@ struct Thing {
       struct {
         short life_remaining;
         char freshness_state;
-        unsigned char possession_freeze_timer;
+        unsigned char possession_startup_timer;
         TbBool some_chicken_was_sacrificed;
         unsigned short angle;
       } food;
