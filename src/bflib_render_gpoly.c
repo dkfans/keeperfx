@@ -853,7 +853,6 @@ void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_comb
 {
     int span_mod16 = pixel_span_len & 0xF;
     uint8_t * pixel_dst = NULL;
-    unsigned int texture_fade_bits;
 
     pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
 
@@ -897,7 +896,7 @@ void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_comb
         while ( 1 )
         {
             pixel_dst[1] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            unsigned int texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
             tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
             fade_lookup_index = __ROL4__(texture_fade_bits, 8);
