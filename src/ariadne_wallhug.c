@@ -1058,6 +1058,7 @@ static signed char get_starting_angle_and_side_of_hug(
     int primary_priority_index;
     int secondary_priority_index;
     char secondary_side_priority;
+    int base_movement_index;
     int current_move_angle;
     int saved_move_angle;
     int adjusted_move_angle_plus;
@@ -1114,11 +1115,11 @@ static signed char get_starting_angle_and_side_of_hug(
     }
     else if ((hugging_blocked_flags & 2) != 0)
     {
-        unusedparam = 2 * (uint8_t)target_movement_position.x.stl.pos;
-        current_move_angle = unusedparam + (unsigned char)next_movement_position.x.stl.pos;
+        base_movement_index = 2 * (uint8_t)target_movement_position.x.stl.pos;
+        current_move_angle = base_movement_index + (unsigned char)next_movement_position.x.stl.pos;
         calculated_angle = blocked_y_hug_start[0][current_move_angle].wh_angle;
         primary_side_priority = wallhug_y_blocked_priorities[3 * current_move_angle];
-        saved_move_angle = unusedparam + (next_movement_position.x.stl.pos == 0);
+        saved_move_angle = base_movement_index + (next_movement_position.x.stl.pos == 0);
         navigation_angle = blocked_y_hug_start[0][saved_move_angle].wh_angle;
         secondary_side_priority = wallhug_y_blocked_priorities[3 * saved_move_angle];
     }
