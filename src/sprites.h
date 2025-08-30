@@ -61,7 +61,7 @@ enum GUIButtonSprite {
     GBS_creature_states_train = 57,
     GBS_creature_states_lair = 58,
     GBS_creature_states_hungry = 59,
-    GBS_creature_states_unk059 = 60,
+    GBS_creature_states_unusedparam = 60,
     GBS_creature_states_livid = 61,
     GBS_creature_states_cta = 62,
     GBS_creature_states_fight = 63,

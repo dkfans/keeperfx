@@ -34,7 +34,7 @@ extern "C" {
 
 struct RegionT { // sizeof = 3
   unsigned short num_triangles;
-  unsigned char field_2;
+  unsigned char is_connected;
 };
 
 #pragma pack()
@@ -42,7 +42,7 @@ struct RegionT { // sizeof = 3
 extern struct RegionT bad_region;
 #define INVALID_REGION &bad_region;
 /******************************************************************************/
-TbBool regions_connected(long tree_reg1, long tree_reg2);
+TbBool regions_connected(long first_tree_region, long second_tree_region);
 void region_store_init(void);
 long region_get(void);
 void region_put(long nreg);

@@ -70,9 +70,9 @@ struct ComponentVector {
 struct Camera {
     struct Coord3d mappos;
     unsigned char view_mode;
-    int orient_a;
-    int orient_b;
-    int orient_c;
+    int rotation_angle_x;
+    int rotation_angle_y;
+    int rotation_angle_z;
     int horizontal_fov; // Horizontal Field of View in degrees
     int zoom;
     int inertia_rotation;
@@ -89,12 +89,12 @@ extern long previous_cam_mappos_z;
 extern long interpolated_cam_mappos_x;
 extern long interpolated_cam_mappos_y;
 extern long interpolated_cam_mappos_z;
-extern long previous_cam_orient_a;
-extern long previous_cam_orient_b;
-extern long previous_cam_orient_c;
-extern long interpolated_cam_orient_a;
-extern long interpolated_cam_orient_b;
-extern long interpolated_cam_orient_c;
+extern long previous_cam_rotation_angle_x;
+extern long previous_cam_rotation_angle_y;
+extern long previous_cam_rotation_angle_z;
+extern long interpolated_cam_rotation_angle_x;
+extern long interpolated_cam_rotation_angle_y;
+extern long interpolated_cam_rotation_angle_z;
 extern long previous_camera_zoom;
 extern long interpolated_camera_zoom;
 

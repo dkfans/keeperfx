@@ -34,15 +34,15 @@ extern "C" {
 enum ThingTrapModels {
     TngTrp_None = 0,
     TngTrp_Boulder,
-    TngTrp_Unknown02,
-    TngTrp_Unknown03,
-    TngTrp_Unknown04,
-    TngTrp_Unknown05,
-    TngTrp_Unknown06,
-    TngTrp_Unknown07,
-    TngTrp_Unknown08,
-    TngTrp_Unknown09,
-    TngTrp_Unknown10,
+    TngTrp_Alarm,
+    TngTrp_PoisonGas,
+    TngTrp_Lightning,
+    TngTrp_WordOfPower,
+    TngTrp_Lava,
+    TngTrp_Tnt,
+    TngTrp_UnusedSlot08,
+    TngTrp_UnusedSlot09,
+    TngTrp_UnusedSlot10,
 };
 
 enum TrapTriggerTypes {

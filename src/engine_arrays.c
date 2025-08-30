@@ -996,7 +996,7 @@ void init_iso_3d_conversion_tables(void)
 /**
  * Fills randomisors array used for mesh deformations.
  */
-void setup_3d(void)
+void setup_mesh_randomizers(void)
 {
     unsigned long seed;
     long i;
@@ -1095,18 +1095,18 @@ void generate_wibble_table(void)
     {
         wibl = &wibble_table[i+32];
         n = wibble_random(65447,&seed);
-        wibl->field_0 = (n % 127) - 63;
+        wibl->offset_x = (n % 127) - 63;
         n = wibble_random(65447,&seed);
-        wibl->field_4 = ((n % 127) - 63) / 3;
+        wibl->offset_y = ((n % 127) - 63) / 3;
         n = wibble_random(65447,&seed);
-        wibl->field_8 = (n % 127) - 63;
+        wibl->offset_z = (n % 127) - 63;
         qwibl = &wibble_table[i+64];
         n = wibble_random(65447,&seed);
-        wibl->field_C = (n % 2047) - 1023;
+        wibl->lightness_offset = (n % 2047) - 1023;
         n = wibble_random(65447,&seed);
-        qwibl->field_0 = (n % 127) - 63;
+        qwibl->offset_x = (n % 127) - 63;
         n = wibble_random(65447,&seed);
-        qwibl->field_8 = (n % 127) - 63;
+        qwibl->offset_z = (n % 127) - 63;
     }
 }
 

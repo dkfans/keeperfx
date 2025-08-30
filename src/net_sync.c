@@ -42,7 +42,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct Boing {
-  unsigned char field_0;
+  unsigned char active_panel_menu_index;
   unsigned char comp_player_aggressive;
   unsigned char comp_player_defensive;
   unsigned char comp_player_construct;
@@ -102,7 +102,7 @@ TbBool receive_resync_game(void)
 
 void store_localised_game_structure(void)
 {
-    boing.field_0 = game.active_panel_mnu_idx;
+    boing.active_panel_menu_index = game.active_panel_mnu_idx;
     boing.comp_player_aggressive = game.comp_player_aggressive;
     boing.comp_player_defensive = game.comp_player_defensive;
     boing.comp_player_construct = game.comp_player_construct;
@@ -124,7 +124,7 @@ void store_localised_game_structure(void)
 
 void recall_localised_game_structure(void)
 {
-    game.active_panel_mnu_idx = boing.field_0;
+    game.active_panel_mnu_idx = boing.active_panel_menu_index;
     game.comp_player_aggressive = boing.comp_player_aggressive;
     game.comp_player_defensive = boing.comp_player_defensive;
     game.comp_player_construct = boing.comp_player_construct;

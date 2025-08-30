@@ -89,7 +89,7 @@ TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
 short cleanup_prison(struct Thing *thing)
 {
   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-  cctrl->creature_control_flags &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_Unknown08 | CCFlg_Unknown10 | CCFlg_IsInRoomList | CCFlg_MoveX | CCFlg_MoveY);
+  cctrl->creature_control_flags &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_RepositionedInWall | CCFlg_AvoidCreatureCollision | CCFlg_IsInRoomList | CCFlg_MoveX | CCFlg_MoveY);
   state_cleanup_in_room(thing);
   return 1;
 }
@@ -390,8 +390,8 @@ void food_set_wait_to_be_eaten(struct Thing *thing)
     }
     else
     {
-        thing->food.byte_15 = -1;
-        thing->food.byte_16 = 127;
+        thing->food.freshness_state = -1;
+        thing->food.possession_startup_timer = 127;
     }
 }
 

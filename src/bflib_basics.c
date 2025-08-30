@@ -89,11 +89,11 @@ unsigned long lword (unsigned char *p)
  */
 long saturate_set_signed(long long val,unsigned short nbits)
 {
-  long long max = (1 << (nbits-1)) - 1;
-  if (val >= max)
-    return max;
-  if (val <= -max)
-    return -max;
+  long long maximum_value = (1 << (nbits-1)) - 1;
+  if (val >= maximum_value)
+    return maximum_value;
+  if (val <= -maximum_value)
+    return -maximum_value;
   return val;
 }
 
@@ -105,11 +105,11 @@ long saturate_set_signed(long long val,unsigned short nbits)
  */
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits)
 {
-    unsigned long long max = (1 << (nbits)) - 1;
+    unsigned long long maximum_value = (1 << (nbits)) - 1;
     if (emulate_integer_overflow(nbits))
-        return (val & max);
-    if (val >= max)
-        return max;
+        return (val & maximum_value);
+    if (val >= maximum_value)
+        return maximum_value;
     return val;
 }
 
@@ -125,10 +125,10 @@ const char *log_file_name=DEFAULT_LOG_FILENAME;
  */
 int str_append(char * buffer, int size, const char * str)
 {
-    const int len = strlen(buffer);
-    const int available = size - len;
+    const int buffer_length = strlen(buffer);
+    const int available = size - buffer_length;
     if (available <= 0) {
-        return len;
+        return buffer_length;
     }
     strncat(buffer, str, available);
     return strlen(buffer);
@@ -144,14 +144,14 @@ int str_append(char * buffer, int size, const char * str)
  */
 int str_appendf(char * buffer, int size, const char * format, ...)
 {
-    const int len = strlen(buffer);
-    const int available = size - len;
+    const int buffer_length = strlen(buffer);
+    const int available = size - buffer_length;
     if (available <= 0) {
-        return len;
+        return buffer_length;
     }
     va_list args;
     va_start(args, format);
-    vsnprintf(&buffer[len], available, format, args);
+    vsnprintf(&buffer[buffer_length], available, format, args);
     va_end(args);
     return strlen(buffer);
 }

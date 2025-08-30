@@ -210,7 +210,7 @@ long move_dead_creature(struct Thing *thing)
         move_thing_in_map(thing, &pos);
     } else
     {
-        // Even if no velocity, update field_60
+        // Even if no velocity, update floor_height
         thing->floor_height = get_thing_height_at(thing, &thing->mappos);
     }
     return TUFRet_Modified;
@@ -453,7 +453,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->inertia_floor = 204;
     thing->inertia_air = 51;
     thing->bounce_angle = 0;
-    thing->movement_flags |= TMvF_Unknown08;
+    thing->movement_flags |= TMvF_ZeroVerticalVelocity;
     thing->creation_turn = game.play_gameturn;
     struct CreatureModelConfig* crconf = creature_stats_get(model);
     if (crconf->transparency_flags != 0)

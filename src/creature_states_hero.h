@@ -64,7 +64,7 @@ short good_arrived_at_attack_dungeon_heart(struct Thing* thing);
 short good_arrived_at_combat(struct Thing* thing);
 
 TbBool good_setup_wander_to_exit(struct Thing *creatng);
-short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char a4);
+short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char unusedparam);
 long get_best_dungeon_to_tunnel_to(struct Thing *creatng);
 TbBool send_tunneller_to_point_in_dungeon(struct Thing *creatng, PlayerNumber plyr_idx, struct Coord3d *pos);
 TbBool is_hero_tunnelling_to_attack(struct Thing *creatng);

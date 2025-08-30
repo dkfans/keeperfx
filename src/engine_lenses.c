@@ -182,7 +182,7 @@ void rotpers_standard(struct EngineCoord *epos, const struct M33 *matx)
     {
         wx = tx * (lens << 16) / tz;
         wy = ty * (lens << 16) / tz;
-        if (tz < split_1)
+        if (tz < z_threshold_near)
         {
             epos->clip_flags |= 0x0001;
             if (tz < split_2) {
@@ -218,7 +218,7 @@ void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx)
     } else
     {
         long adheight = (lens << 16) / tz;
-        if (tz < split_1)
+        if (tz < z_threshold_near)
         {
             epos->clip_flags |= 0x0001;
             if (tz < split_2) {
@@ -259,7 +259,7 @@ void rotpers_fisheye(struct EngineCoord *epos, const struct M33 *matx)
     }
     pers_set_view_width(epos, view_width_over_2 + (wx >> 16));
     pers_set_view_height(epos, view_height_over_2 - (wy >> 16));
-    if (tz < split_1) {
+    if (tz < z_threshold_near) {
         epos->clip_flags |= 0x0001;
         if (tz < split_2) {
             epos->clip_flags |= 0x0002;

@@ -40,16 +40,16 @@ class CMistFade {
     unsigned char *lens_data;
     unsigned char *fade_data;
     unsigned char *ghost_data;
-    unsigned char field_C;
-    unsigned char field_D;
-    unsigned char field_E;
-    unsigned char field_F;
-    long field_10;
-    long field_14;
-    unsigned char field_18;
-    unsigned char field_19;
-    unsigned char field_1A;
-    unsigned char field_1B;
+    unsigned char position_offset_x;
+    unsigned char position_offset_y;
+    unsigned char secondary_offset_x;
+    unsigned char secondary_offset_y;
+    long animation_counter;
+    long animation_speed;
+    unsigned char position_x_step;
+    unsigned char position_y_step;
+    unsigned char secondary_x_step;
+    unsigned char secondary_y_step;
     };
 
 /******************************************************************************/
@@ -62,41 +62,41 @@ void CMistFade::setup(unsigned char *lens_mem, unsigned char *fade, unsigned cha
   this->fade_data = fade;
   this->ghost_data = ghost;
   this->lens_dim = 256;
-  this->field_C = 0;
-  this->field_D = 0;
-  this->field_E = 50;
-  this->field_F = 128;
-  this->field_14 = 1024;
-  this->field_10 = 0;
-  this->field_18 = 2;
-  this->field_19 = 1;
-  this->field_1A = 253;
-  this->field_1B = 3;
+  this->position_offset_x = 0;
+  this->position_offset_y = 0;
+  this->secondary_offset_x = 50;
+  this->secondary_offset_y = 128;
+  this->animation_speed = 1024;
+  this->animation_counter = 0;
+  this->position_x_step = 2;
+  this->position_y_step = 1;
+  this->secondary_x_step = 253;
+  this->secondary_y_step = 3;
 }
 
 void CMistFade::animset(long a1, long a2)
 {
-  this->field_10 = a1;
-  this->field_14 = a2;
+  this->animation_counter = a1;
+  this->animation_speed = a2;
 }
 
 void CMistFade::animate(void)
 {
-  this->field_C += this->field_18;
-  this->field_D += this->field_19;
-  this->field_E -= this->field_1A;
-  this->field_10 += this->field_14;
-  this->field_F += this->field_1B;
+  this->position_offset_x += this->position_x_step;
+  this->position_offset_y += this->position_y_step;
+  this->secondary_offset_x -= this->secondary_x_step;
+  this->animation_counter += this->animation_speed;
+  this->secondary_offset_y += this->secondary_y_step;
 }
 
 void CMistFade::mist(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height)
 {
     unsigned char *src;
     unsigned char *dst;
-    unsigned long p2;
-    unsigned long c2;
-    unsigned long p1;
-    unsigned long c1;
+    unsigned long primary_offset_x;
+    unsigned long primary_offset_y;
+    unsigned long local_secondary_offset_x;
+    unsigned long local_secondary_offset_y;
     unsigned long lens_div;
     long i;
     long k;
@@ -111,10 +111,10 @@ void CMistFade::mist(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf
     }
     src = srcbuf;
     dst = dstbuf;
-    p2 = this->field_C;
-    c2 = this->field_D;
-    p1 = this->field_E;
-    c1 = this->field_F;
+    primary_offset_x = this->position_offset_x;
+    primary_offset_y = this->position_offset_y;
+    local_secondary_offset_x = this->secondary_offset_x;
+    local_secondary_offset_y = this->secondary_offset_y;
     lens_div = width/(2*lens_dim);
     if (lens_div < 1) lens_div = 1;
     for (h=height; h > 0; h--)
@@ -122,8 +122,8 @@ void CMistFade::mist(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf
         for (w=width; w > 0; w--)
         {
             //JUSTLOG("POS %d,%d Px %d,%d",w,h,p1,p2);
-            i = lens_data[(c1 * lens_dim) + p1];
-            k = lens_data[(c2 * lens_dim) + p2];
+            i = lens_data[(local_secondary_offset_y * lens_dim) + local_secondary_offset_x];
+            k = lens_data[(primary_offset_y * lens_dim) + primary_offset_x];
             n = (k + i) >> 3;
             if (n > 32)
               n = 32;
@@ -135,10 +135,10 @@ void CMistFade::mist(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf
             dst++;
             if ((w%lens_div) == 0)
             {
-                c1--;
-                c1 %= lens_dim;
-                p2++;
-                p2 %= lens_dim;
+                local_secondary_offset_y--;
+                local_secondary_offset_y %= lens_dim;
+                primary_offset_x++;
+                primary_offset_x %= lens_dim;
             }
         }
         // Move buffers to end of this line
@@ -147,14 +147,14 @@ void CMistFade::mist(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf
         // Update other counters
         if ((h%lens_div) == 0)
         {
-            c1 += width;
-            c1 %= lens_dim;
-            p2 -= width;
-            p2 %= lens_dim;
-            c2++;
-            c2 %= lens_dim;
-            p1--;
-            p1 %= lens_dim;
+            local_secondary_offset_y += width;
+            local_secondary_offset_y %= lens_dim;
+            primary_offset_x -= width;
+            primary_offset_x %= lens_dim;
+            primary_offset_y++;
+            primary_offset_y %= lens_dim;
+            local_secondary_offset_x--;
+            local_secondary_offset_x %= lens_dim;
         }
     }
 }

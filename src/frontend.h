@@ -59,7 +59,7 @@ enum FrontendMenuStates {
   FeSt_NET_START, /**< Network game start screen (the menu with chat), when created new session or joined existing session. */
   FeSt_START_KPRLEVEL,
   FeSt_START_MPLEVEL,
-  FeSt_UNKNOWN09,
+  FeSt_QUIT_GAME,
   FeSt_LOAD_GAME, // 10
   FeSt_INTRO,
   FeSt_STORY_POEM,
@@ -70,15 +70,15 @@ enum FrontendMenuStates {
   FeSt_LEVEL_STATS,
   FeSt_HIGH_SCORES,
   FeSt_TORTURE,
-  FeSt_UNKNOWN20, // 20
+  FeSt_UNUSED_STATE1, // 20 - Unused state, draws GUI but not used
   FeSt_OUTRO,
-  FeSt_UNKNOWN22,
-  FeSt_UNKNOWN23,
+  FeSt_UNUSED_STATE2, // Unused state
+  FeSt_UNUSED_STATE3, // Unused state
   FeSt_NETLAND_VIEW,
   FeSt_PACKET_DEMO,
   FeSt_FEDEFINE_KEYS,
   FeSt_FEOPTIONS,
-  FeSt_UNKNOWN28,
+  FeSt_UNUSED_STATE4, // Unused state
   FeSt_STORY_BIRTHDAY,
   FeSt_LEVEL_SELECT, //30
   FeSt_CAMPAIGN_SELECT,
@@ -232,7 +232,7 @@ struct GuiButton;
 struct TbLoadFiles;
 
 struct DemoItem { //sizeof = 5
-    uint8_t numfield_0;
+    uint8_t kind;
     union {
       FrontendMenuState state;
       const char *fname;

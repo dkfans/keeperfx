@@ -78,8 +78,8 @@ struct Dungeon;
 typedef void (*Room_Update_Func)(struct Room *);
 
 struct RoomInfo { // sizeof = 6
-  unsigned short field_0;
-  unsigned short field_2;
+  unsigned short unusedparam;
+  unsigned short unusedparam2;
   unsigned short ambient_snd_smp_id;
 };
 

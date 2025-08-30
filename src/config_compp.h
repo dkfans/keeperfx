@@ -47,10 +47,10 @@ struct ComputerProcess {
   char mnemonic[COMMAND_WORD_LEN];
   long priority;
   // Signed process config values
-  long confval_2;
-  long confval_3;
-  long confval_4; /**< room kind or amount of creatures or gameturn or count of slabs */
-  long confval_5;
+  long process_configuration_value_2;
+  long process_configuration_value_3;
+  long process_configuration_value_4; /**< room kind or amount of creatures or gameturn or count of slabs */
+  long process_configuration_value_5;
   FuncIdx func_check;
   FuncIdx func_setup;
   FuncIdx func_task;
@@ -58,12 +58,12 @@ struct ComputerProcess {
   FuncIdx func_pause;
   unsigned char parent;
   // Unsigned process parameters storage (stores gameturns)
-  unsigned long param_1;
-  unsigned long param_2;
-  unsigned long param_3;
+  unsigned long process_parameter_1;
+  unsigned long process_parameter_2;
+  unsigned long process_parameter_3;
   unsigned long last_run_turn;
   // Signed process parameters storage
-  long param_5;
+  long process_parameter_5;
   unsigned long flags; /**< Values from ComProc_* enumeration. */
 };
 
@@ -73,9 +73,9 @@ struct ComputerCheck {
   unsigned long flags; /**< Values from ComChk_* enumeration. */
   long turns_interval;
   FuncIdx func;
-  long param1;
-  long param2;
-  long param3;
+  long primary_parameter;
+  long secondary_parameter;
+  long tertiary_parameter;
   long last_run_turn;
 };
 
@@ -88,9 +88,9 @@ struct ComputerEvent {
   FuncIdx func_test;
   long test_interval;
   unsigned char process;
-  long param1;
-  long param2;
-  long param3;
+  long primary_parameter;
+  long secondary_parameter;
+  long tertiary_parameter;
   long last_test_gameturn; /**< event last checked time */
 };
 

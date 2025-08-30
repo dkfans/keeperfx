@@ -1583,11 +1583,11 @@ TbBool reset_credits(struct CreditsItem *credits)
   return true;
 }
 
-TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
+TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buffer_end_pointer)
 {
   const char * block_name = "credits";
   // Find the block
-  long len = buf_end - buf;
+  long len = buffer_end_pointer - buf;
   long pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)

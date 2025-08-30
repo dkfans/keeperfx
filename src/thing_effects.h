@@ -171,7 +171,7 @@ enum ThingEffectElements {
     TngEffElm_LargeRock1,
     TngEffElm_Drip2,
     TngEffElm_LavaFlameStationary, // 30
-    TngEffElm_Unknown31,
+    TngEffElm_Waterdrop,
     TngEffElm_LavaFlameMoving,
     TngEffElm_LargeRock2,
     TngEffElm_Unknown34,

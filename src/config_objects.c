@@ -60,7 +60,7 @@ const struct NamedCommand objects_properties_commands[] = {
   };
 
 const struct NamedCommand objects_genres_desc[] = {
-  {"NONE",            OCtg_Unknown},
+  {"NONE",            OCtg_None},
   {"DECORATION",      OCtg_Decoration},
   {"FURNITURE",       OCtg_Furniture},
   {"VALUABLE",        OCtg_Valuable},

@@ -631,7 +631,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     }
   }
   TbBool hi_res = ((LbGraphicsScreenHeight() < 400) ? false : true);
-  long lens_mem = game.numfield_1B;
+  long lens_mem = game.applied_lens_type;
   unsigned int flg_mem = lbDisplay.DrawFlags;
   TbBool was_minimal_res = (MinimalResolutionSetup || force_video_mode_reset);
   set_pointer_graphic_none();

@@ -75,8 +75,8 @@ enum CreatureControlFlags {
     CCFlg_Exists        = 0x01,
     CCFlg_NoCompControl = 0x02,
     CCFlg_PreventDamage = 0x04,
-    CCFlg_Unknown08     = 0x08,
-    CCFlg_Unknown10     = 0x10,
+    CCFlg_RepositionedInWall = 0x08,
+    CCFlg_AvoidCreatureCollision = 0x10,
     CCFlg_IsInRoomList  = 0x20,
     CCFlg_MoveX         = 0x40,
     CCFlg_MoveY         = 0x80,
@@ -102,9 +102,9 @@ enum CreatureCombatFlags {
     CmbtF_Waiting       = 0x04,
     CmbtF_ObjctFight    = 0x08,
     CmbtF_DoorFight     = 0x10,
-    CmbtF_Unknown20     = 0x20,
-    CmbtF_Unknown40     = 0x40,
-    CmbtF_Unknown80     = 0x80,
+    CmbtF_unusedparam20 = 0x20,
+    CmbtF_unusedparam40 = 0x40,
+    CmbtF_unusedparam80 = 0x80,
 };
 
 enum CreatureAngerReasons {
@@ -203,7 +203,7 @@ unsigned char sound_flag;
   struct {
     char target_plyr_idx;
     PlayerBitFlags player_broken_into_flags;
-    long long_8B;
+    long tunnel_steps_counter;
     unsigned char tunnel_dig_direction;
     SubtlCodedCoords member_pos_stl[5];
   } party;
@@ -223,7 +223,7 @@ unsigned char sound_flag;
     MapSubtlCoord stl_y;
   } patrol;
   struct {
-    char sbyte_89;
+    char hero_state;
     unsigned char hero_gate_creation_turn;
     TbBool hero_state_reset_flag;
     TbBool ready_for_attack_flag;
@@ -231,11 +231,11 @@ unsigned char sound_flag;
     long wait_time;
   } hero;
   struct {
-    char sbyte_89_unused;
+    char unusedparam;
     unsigned char unused;
     TbBool navigation_map_changed;
-    TbBool unknown_8C;
-  } unknown;
+    TbBool unusedparam2;
+  } regular_creature;
   };
 
   union {
@@ -283,7 +283,7 @@ unsigned char sound_flag;
     unsigned char swing_weapon_counter;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    unsigned char byte_9E;
+    unsigned char work_timer;
   } workshop;
   struct {
     ThingIndex foodtng_idx;
@@ -307,8 +307,8 @@ unsigned char sound_flag;
     RoomIndex room_idx;
   }evacuate;
   struct {
-    short word_9A;
-    short word_9C;
+    short animation_counter;
+    short animation_duration;
   }sacrifice;
 
   };
@@ -374,8 +374,8 @@ unsigned char sound_flag;
     EffectOrEffElModel spell_aura;
     GameTurnDelta spell_aura_duration;
     unsigned short job_assigned;
-    unsigned short spell_tngidx_armour[3];
-    unsigned short spell_tngidx_disease[3];
+    unsigned short spell_thing_index_armour[3];
+    unsigned short spell_thing_index_disease[3];
     short shot_shift_x;
     short shot_shift_y;
     short shot_shift_z;

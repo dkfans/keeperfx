@@ -44,8 +44,8 @@ enum ThingClassIndex {
     TCls_EffectGen    =  7,
     TCls_Trap         =  8,
     TCls_Door         =  9,
-    TCls_Unkn10       = 10,
-    TCls_Unkn11       = 11,
+    TCls_unusedparam10 = 10,
+    TCls_unusedparam11 = 11,
     TCls_AmbientSnd   = 12,
     TCls_CaveIn       = 13,
 };
@@ -159,16 +159,16 @@ struct CompoundTngFilterParam {
      long class_id;
      ThingModel model_id;
      union {
-     long num1;
-     void *ptr1;
+     long primary_number;
+     void *primary_pointer;
      };
      union {
-     long num2;
-     void *ptr2;
+     long secondary_number;
+     void *secondary_pointer;
      };
      union {
-     long num3;
-     void *ptr3;
+     long tertiary_number;
+     void *tertiary_pointer;
      };
 };
 

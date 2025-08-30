@@ -180,7 +180,7 @@ void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers, i
     }
 }
 
-long KeyboardProc(int a1, unsigned int a2, long code)
+long KeyboardProc(int message_type, unsigned int unused_param, long code)
 {
     unsigned char lbcode;
     unsigned char klcode = (code >> 16);

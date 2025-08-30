@@ -53,12 +53,12 @@ TbError CompleteMultiPlayerExchange(void *buf);
 TbError HostDataCollection(void);
 TbError HostDataBroadcast(void);
 void GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2);
-void *MultiPlayerCallback(unsigned long a1, unsigned long a2, unsigned long a3, void *a4);
-void MultiPlayerReqExDataMsgCallback(unsigned long a1, unsigned long a2, void *a3);
-void AddMsgCallback(unsigned long, char *, void *);
+void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned long seq, void *unusedparam);
+void MultiPlayerReqExDataMsgCallback(unsigned long plr_id, unsigned long seq, void *unusedparam);
+void AddMsgCallback(unsigned long is_local_player, char *player_name, void *unusedparam);
 void DeleteMsgCallback(unsigned long, void *);
 void HostMsgCallback(unsigned long, void *);
-void RequestCompositeExchangeDataMsgCallback(unsigned long, unsigned long, void *);
+void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long seq, void *unusedparam);
 void *UnidirectionalMsgCallback(unsigned long, unsigned long, void *);
 void SystemUserMsgCallback(unsigned long, void *, unsigned long, void *);
 TbError LbNetwork_StartExchange(void *buf);
@@ -654,7 +654,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   compositeBufferSize = 0;
   //_wint_thread_data = &thread_data_mem;
   receiveCallbacks.multiPlayer = MultiPlayerCallback;
-  receiveCallbacks.field_24 = NULL;
+  receiveCallbacks.unknownMessageTypeCallback = NULL;
   exchangeBuffer = exchng_buf;
   receiveCallbacks.mpReqExDataMsg = MultiPlayerReqExDataMsgCallback;
   localPlayerInfoPtr = locplayr;
@@ -1465,7 +1465,7 @@ TbError SendRequestToAllExchangeDataMsg(unsigned long src_id,unsigned long seq, 
   spPtr->EncodeRequestExchangeDataMsg(requestExchangeDataBuffer, src_id, seq);
   for (i=0; i < maximumPlayers; i++)
   {
-    if ((clientDataTable[i].isactive) && (!clientDataTable[i].need_data_exchange))
+    if ((clientDataTable[i].isactive) && (!clientDataTable[i].has_exchanged_data))
     {
       if (spPtr->Send(clientDataTable[i].plyrid,requestExchangeDataBuffer))
         WARNMSG("%s: Failure on SP::Send()",func_name);
@@ -1525,9 +1525,9 @@ TbError HostDataCollection(void)
     exchngNeeded = 1;
     for (i=0; i < maximumPlayers; i++)
     {
-      if ((clientDataTable[i].isactive) && (!clientDataTable[i].need_data_exchange))
+      if ((clientDataTable[i].isactive) && (!clientDataTable[i].has_exchanged_data))
       {
-        exchngNeeded = clientDataTable[i].need_data_exchange;
+        exchngNeeded = clientDataTable[i].has_exchanged_data;
       }
     }
     if (exchngNeeded)
@@ -1564,7 +1564,7 @@ TbError HostDataCollection(void)
         {
           for (i=0; i < maximumPlayers; i++)
           {
-            if ((clientDataTable[i].isactive) && (!clientDataTable[i].need_data_exchange))
+            if ((clientDataTable[i].isactive) && (!clientDataTable[i].has_exchanged_data))
             {
               spPtr->EncodeDeletePlayerMsg(deletePlayerBuffer, clientDataTable[i].plyrid);
               for (k=0; k < maximumPlayers; k++)
@@ -1648,10 +1648,10 @@ TbError StartMultiPlayerExchange(void *buf)
   {
     clidat = &clientDataTable[i];
     if (clidat->isactive)
-      clidat->need_data_exchange = 0;
+      clidat->has_exchanged_data = 0;
   }
   memcpy((uchar *)exchangeBuffer + exchangeSize * localPlayerIndex, buf, exchangeSize);
-  clientDataTable[localPlayerIndex].need_data_exchange = 1;
+  clientDataTable[localPlayerIndex].has_exchanged_data = 1;
   startTime = LbTimerClock();
   actualTimeout = basicTimeout;
   if (hostId == localPlayerId)
@@ -1870,7 +1870,7 @@ void PlayerMapMsgHandler(unsigned long plr_id, void *msg, unsigned long msg_len)
   waitingForPlayerMapResponse = 0;
 }
 
-void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned long seq, void *a4)
+void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned long seq, void *unusedparam)
 {
   TbBool found_id;
   long i;
@@ -1907,7 +1907,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
       WARNLOG("Unexpected sequence number, Got %lu, expected %lu",seq,sequenceNumber);
       return NULL;
     }
-    clientDataTable[plr_id].need_data_exchange = 1;
+    clientDataTable[plr_id].has_exchanged_data = 1;
     return (uchar *)exchangeBuffer + plr_id * exchangeSize;
   }
   if (xch_size != maximumPlayers * exchangeSize)
@@ -1936,7 +1936,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
       WARNLOG("Invalid id: %lu",plr_id);
       return NULL;
     }
-    clientDataTable[plr_id].need_data_exchange = 1;
+    clientDataTable[plr_id].has_exchanged_data = 1;
     return (uchar *)exchangeBuffer + plr_id * exchangeSize;
   }
   if (hostId != plr_id)
@@ -1971,7 +1971,7 @@ void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned
   return exchangeBuffer;
 }
 
-void MultiPlayerReqExDataMsgCallback(unsigned long plr_id, unsigned long seq, void *a3)
+void MultiPlayerReqExDataMsgCallback(unsigned long plr_id, unsigned long seq, void *unusedparam)
 {
   if (inside_sr)
     NETLOG("Got a request");
@@ -1994,11 +1994,11 @@ void MultiPlayerReqExDataMsgCallback(unsigned long plr_id, unsigned long seq, vo
   }
 }
 
-void AddMsgCallback(unsigned long a1, char *nmstr, void *a3)
+void AddMsgCallback(unsigned long is_local_player, char *player_name, void *unusedparam)
 {
   struct TbNetworkPlayerNameEntry npname;
-  npname.islocal = a1;
-  strcpy(npname.name,nmstr);
+  npname.islocal = is_local_player;
+  strcpy(npname.name,player_name);
   npname.ishost = 0;
   npname.is_active = 0;
   AddAPlayer(&npname);
@@ -2028,7 +2028,7 @@ void HostMsgCallback(unsigned long plr_id, void *a2)
   hostId = plr_id;
 }
 
-void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long seq, void *a3)
+void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long seq, void *unusedparam)
 {
   if (inside_sr)
     NETLOG("Got sequence %ld, expected %ld",seq,sequenceNumber);
@@ -2044,7 +2044,7 @@ void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long
   }
 }
 
-void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msglen, void *a4)
+void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msglen, void *unusedparam)
 {
   struct SystemUserMsg *msg;
   msg = (struct SystemUserMsg *)msgbuf;

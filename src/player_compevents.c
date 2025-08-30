@@ -140,9 +140,9 @@ TbBool get_computer_drop_position_near_subtile(struct Coord3d *pos, struct Dunge
     struct CompoundCoordFilterParam param;
     param.plyr_idx = dungeon->owner;
     param.slab_kind = -1;
-    param.num1 = 0;
-    param.num2 = 0;
-    param.num3 = 0;
+    param.primary_number = 0;
+    param.secondary_number = 0;
+    param.tertiary_number = 0;
     return get_position_spiral_near_map_block_with_filter(pos,
         subtile_coord_center(stl_x), subtile_coord_center(stl_y),
         81, near_coord_filter_battle_drop_point, &param);
@@ -156,9 +156,9 @@ TbBool get_computer_drop_position_next_to_subtile(struct Coord3d* pos, struct Du
     struct CompoundCoordFilterParam param;
     param.plyr_idx = dungeon->owner;
     param.slab_kind = -1;
-    param.num1 = 0;
-    param.num2 = 0;
-    param.num3 = 0;
+    param.primary_number = 0;
+    param.secondary_number = 0;
+    param.tertiary_number = 0;
     return get_position_next_to_map_block_with_filter(pos,
         subtile_coord_center(stl_x), subtile_coord_center(stl_y),
         near_coord_filter_battle_drop_point, &param);
@@ -180,7 +180,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
         return CTaskRet_Unk0;
     }
     long creatrs_def = count_creatures_for_defend_pickup(comp);
-    long creatrs_num = creatrs_def * (long)cevent->param1 / 100;
+    long creatrs_num = creatrs_def * (long)cevent->primary_parameter / 100;
     if ((creatrs_num < 1) && (creatrs_def > 0)) {
         creatrs_num = 1;
     }
@@ -194,9 +194,9 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
     }
     if (computer_able_to_use_power(comp, PwrK_HAND, 1, creatrs_num))
     {
-        if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->param2 & 0x02) != 0))
+        if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->secondary_parameter & 0x02) != 0))
         {
-            if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->param2)) {
+            if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->secondary_parameter)) {
                 SYNCDBG(18,"Cannot move to defend for %s",cevent->name);
                 return CTaskRet_Unk0;
             }
@@ -205,7 +205,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
     }
     if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 1, 1))
     {
-        if (!is_task_in_progress(comp, CTT_MagicCallToArms) || ((cevent->param2 & 0x02) != 0))
+        if (!is_task_in_progress(comp, CTT_MagicCallToArms) || ((cevent->secondary_parameter & 0x02) != 0))
         {
             if (check_call_to_arms(comp))
             {
@@ -321,7 +321,7 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     pos.y.val = creatng->mappos.y.val;
     pos.z.val = creatng->mappos.z.val;
     long creatrs_def = count_creatures_for_defend_pickup(comp);
-    long creatrs_num = creatrs_def * (long)cevent->param1 / 100;
+    long creatrs_num = creatrs_def * (long)cevent->primary_parameter / 100;
     if ((creatrs_num < 1) && (creatrs_def > 0)) {
         creatrs_num = 1;
     }
@@ -335,7 +335,7 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     {
         if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend))
         {
-            if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->param2)) {
+            if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->secondary_parameter)) {
                 return CTaskRet_Unk4;
             }
             return CTaskRet_Unk1;
@@ -373,9 +373,9 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
     {
         return CTaskRet_Unk4;
     }
-    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) ||
-          computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1)   || computer_able_to_use_power(comp, PwrK_FLIGHT, cevent->param1, 1) ||
-          computer_able_to_use_power(comp, PwrK_VISION, cevent->param1, 1)))
+    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->primary_parameter, 1) || computer_able_to_use_power(comp, PwrK_PROTECT, cevent->primary_parameter, 1) ||
+          computer_able_to_use_power(comp, PwrK_REBOUND, cevent->primary_parameter, 1)   || computer_able_to_use_power(comp, PwrK_FLIGHT, cevent->primary_parameter, 1) ||
+          computer_able_to_use_power(comp, PwrK_VISION, cevent->primary_parameter, 1)))
     {
         return CTaskRet_Unk4;
     }
@@ -402,7 +402,7 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
     }
     if (!is_task_in_progress(comp, CTT_MagicSpeedUp))
     {
-        if (!create_task_magic_speed_up(comp, fightng, cevent->param1))
+        if (!create_task_magic_speed_up(comp, fightng, cevent->primary_parameter))
         {
             return CTaskRet_Unk4;
         }
@@ -415,9 +415,9 @@ PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEv
     struct Dungeon* dungeon = comp->dungeon;
     struct PowerConfigStats *powerst;
     struct SpellConfig *spconf;
-    int i = (cevent->param3 + 1) % (sizeof(computer_attack_spells) / sizeof(computer_attack_spells[0]));
+    int i = (cevent->tertiary_parameter + 1) % (sizeof(computer_attack_spells) / sizeof(computer_attack_spells[0]));
     // Do the loop if we've reached starting value
-    while (i != cevent->param3)
+    while (i != cevent->tertiary_parameter)
     {
         struct ComputerSpells* caspl = &computer_attack_spells[i];
         // If we've reached end of array, loop it
@@ -440,8 +440,8 @@ PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEv
             if (!creature_under_spell_effect(creatng, spconf->spell_flags)
             && !creature_is_immune_to_spell_effect(creatng, spconf->spell_flags))
             {
-                if (computer_able_to_use_power(comp, caspl->pwkind, cevent->param1, caspl->amount_able)) {
-                    cevent->param3 = i;
+                if (computer_able_to_use_power(comp, caspl->pwkind, cevent->primary_parameter, caspl->amount_able)) {
+                    cevent->tertiary_parameter = i;
                     return caspl->pwkind;
                 }
             }
@@ -476,11 +476,11 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
     if (pwkind == PwrK_None) {
         return CTaskRet_Unk4;
     }
-    struct ComputerSpells* caspl = &computer_attack_spells[cevent->param3];
+    struct ComputerSpells* caspl = &computer_attack_spells[cevent->tertiary_parameter];
     int repeat_num = caspl->repeat_num;
     if (repeat_num < 0)
     {
-        repeat_num = cevent->param2;
+        repeat_num = cevent->secondary_parameter;
     }
     KeepPwrLevel power_level = caspl->power_level;
     int gaction = caspl->gaction;
@@ -506,7 +506,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
         }
         struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[bldroom->rkind];
         int tiles = get_room_slabs_count(comp->dungeon->owner,bldroom->rkind);
-        if ((tiles >= cevent->param3) && !(cevent->param3 == 0)) // Room has reached the preconfigured maximum size
+        if ((tiles >= cevent->tertiary_parameter) && !(cevent->tertiary_parameter == 0)) // Room has reached the preconfigured maximum size
         {
             SYNCDBG(8,"Player %d reached maximum size %d for %s",(int)comp->dungeon->owner,tiles,room_code_name(bldroom->rkind));
             if (room_role_matches(bldroom->rkind, RoRoF_CratesManufctr))
@@ -516,7 +516,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                 long total_capacity;
                 long storaged_capacity;
                 get_room_kind_total_used_and_storage_capacity(dungeon, bldroom->rkind, &total_capacity, &used_capacity, &storaged_capacity);
-                if ((cevent->param2 != 0) && (storaged_capacity > (used_capacity * cevent->param2 / 100)))
+                if ((cevent->secondary_parameter != 0) && (storaged_capacity > (used_capacity * cevent->secondary_parameter / 100)))
                 {
                     if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
                     {
@@ -576,7 +576,7 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
         if (!is_task_in_progress_using_hand(comp)) 
         {
             long creatrs_def = count_creatures_for_defend_pickup(comp);
-            if (creatrs_def < cevent->param1)
+            if (creatrs_def < cevent->primary_parameter)
             {
                 SYNCDBG(18, "Not enough creatures to drop for event %s", cevent->name);
                 return CTaskRet_Unk4;
@@ -602,11 +602,11 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
         {
             if (check_call_to_arms(comp))
             {
-                if (!create_task_magic_battle_call_to_arms(comp, &freepos, cevent->param2, cevent->param3))
+                if (!create_task_magic_battle_call_to_arms(comp, &freepos, cevent->secondary_parameter, cevent->tertiary_parameter))
                 {
                     if (computer_find_safe_non_solid_block(comp, &freepos))
                     {
-                        if (!create_task_magic_battle_call_to_arms(comp, &freepos, cevent->param2, cevent->param3))
+                        if (!create_task_magic_battle_call_to_arms(comp, &freepos, cevent->secondary_parameter, cevent->tertiary_parameter))
                         {
                             SYNCDBG(18, "Cannot call to arms for %s", cevent->name);
                             return CTaskRet_Unk0;
@@ -637,9 +637,9 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct Room* destroom;
 
-    int actions_allowed = cevent->param1;
-    int power_level = cevent->param2;
-    int amount = cevent->param3;
+    int actions_allowed = cevent->primary_parameter;
+    int power_level = cevent->secondary_parameter;
+    int amount = cevent->tertiary_parameter;
 
     if (actions_allowed == 0)
     {
@@ -696,7 +696,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
             struct ComputerProcess* cproc = &comp->processes[i];
             if (flag_is_set(cproc->flags, ComProc_ListEnd))
                 break;
-            if ((cproc->func_check == cpfl_computer_check_any_room) && (cproc->confval_4 == event->target))
+            if ((cproc->func_check == cpfl_computer_check_any_room) && (cproc->process_configuration_value_4 == event->target))
             {
                 SYNCDBG(8,"Resetting process for player %d to build room %s", (int)comp->dungeon->owner, room_code_name(event->target));
                 clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
@@ -710,7 +710,7 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
 long computer_event_save_tortured(struct Computer2* comp, struct ComputerEvent* cevent)
 {
     struct Dungeon* dungeon = comp->dungeon;
-    int health_permil = (cevent->param1 * 10);
+    int health_permil = (cevent->primary_parameter * 10);
     // Do not check for PwrK_HAND here; this would prevent the computer from taking other actions without it!
     // Do we have a prison to put the unit back into?
     struct Room* destroom = NULL;
@@ -886,7 +886,7 @@ long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *c
         if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
         {
             SYNCDBG(8,"Creating task to sell player %d traps and doors",(int)dungeon->owner);
-            if (create_task_sell_traps_and_doors(comp, cevent->param1, 3*(dungeon->creatures_total_pay-dungeon->total_money_owned)/2,true)) {
+            if (create_task_sell_traps_and_doors(comp, cevent->primary_parameter, 3*(dungeon->creatures_total_pay-dungeon->total_money_owned)/2,true)) {
                 return CTaskRet_Unk1;
             }
         }
@@ -896,10 +896,10 @@ long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *c
     {
         // If there's already task in progress which uses hand, then don't add more
         // content; the hand could be used by wrong task by mistake
-        if (!is_task_in_progress_using_hand(comp) && computer_able_to_use_power(comp, PwrK_HAND, 1, cevent->param2))
+        if (!is_task_in_progress_using_hand(comp) && computer_able_to_use_power(comp, PwrK_HAND, 1, cevent->secondary_parameter))
         {
             SYNCDBG(8,"Creating task to move neutral gold to treasury");
-            if (create_task_move_gold_to_treasury(comp, cevent->param2, 3*dungeon->creatures_total_pay/2)) {
+            if (create_task_move_gold_to_treasury(comp, cevent->secondary_parameter, 3*dungeon->creatures_total_pay/2)) {
                 return CTaskRet_Unk1;
             }
         }
@@ -920,8 +920,8 @@ long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent,
     if ((pos.x.val <= 0) || (pos.y.val <= 0)) {
         return CTaskRet_Unk0;
     }
-    long count = count_creatures_for_pickup(comp, &pos, 0, cevent->param2);
-    long i = count * cevent->param1 / 100;
+    long count = count_creatures_for_pickup(comp, &pos, 0, cevent->secondary_parameter);
+    long i = count * cevent->primary_parameter / 100;
     if ((i <= 0) && (count > 0)) {
         i = 1;
     }
@@ -933,7 +933,7 @@ long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent,
     }
     if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend))
     {
-        if (!create_task_move_creatures_to_defend(comp, &pos, i, cevent->param2)) {
+        if (!create_task_move_creatures_to_defend(comp, &pos, i, cevent->secondary_parameter)) {
             return CTaskRet_Unk4;
         }
     }

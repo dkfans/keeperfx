@@ -1886,7 +1886,7 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
     thing->fall_acceleration = shotst->fall_acceleration;
     thing->inertia_floor = shotst->inertia_floor;
     thing->inertia_air = shotst->inertia_air;
-    thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->soft_landing) & TMvF_Unknown08;
+    thing->movement_flags ^= (thing->movement_flags ^ TMvF_ZeroVerticalVelocity * shotst->soft_landing) & TMvF_ZeroVerticalVelocity;
     set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * shotst->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= thing->rendering_flags ^ ((thing->rendering_flags ^ TRF_Transpar_8 * shotst->animation_transparency) & (TRF_Transpar_Flags));
@@ -1906,7 +1906,7 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
         ilght.radius = shotst->light_radius;
         ilght.intensity = shotst->light_intensity;
         ilght.is_dynamic = 1;
-        ilght.flags = shotst->lightf_53;
+        ilght.flags = shotst->light_flags;
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id == 0) {
             // Being out of free lights is quite common - so info instead of warning here
@@ -1921,16 +1921,16 @@ struct Thing *create_shot(struct Coord3d *pos, ThingModel model, unsigned short 
 static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
 {
     SYNCDBG(18,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
-    if (thing->index == param->num2) {
+    if (thing->index == param->secondary_number) {
         return TUFRet_Unchanged;
     }
-    struct Thing *shotng = (struct Thing *)param->ptr3;
+    struct Thing *shotng = (struct Thing *)param->tertiary_pointer;
     struct ShotConfigStats *shotst = get_shot_model_stats(shotng->model);
     if ((thing->index == shotng->index) || (thing->index == shotng->parent_idx)) {
         return TUFRet_Unchanged;
     }
-    // param->num1 = 2048 from affect_nearby_enemy_creatures_with_wind
-    long blow_distance = param->num1;
+    // param->primary_number = 2048 from affect_nearby_enemy_creatures_with_wind
+    long blow_distance = param->primary_number;
     // calculate max distance
     int maxdistance = shotst->health * shotst->speed;
     MapCoordDelta creature_distance = LONG_MAX;
@@ -2043,11 +2043,11 @@ void affect_nearby_enemy_creatures_with_wind(struct Thing *shotng)
     param.plyr_idx = -1;
     param.class_id = 0;
     param.model_id = 0;
-    param.num1 = 2048;
-    param.num2 = shotng->parent_idx;
-    param.ptr3 = shotng;
+    param.primary_number = 2048;
+    param.secondary_number = shotng->parent_idx;
+    param.tertiary_pointer = shotng;
     do_cb = affect_thing_by_wind;
-    do_to_things_with_param_spiral_near_map_block(&shotng->mappos, param.num1-COORD_PER_STL, do_cb, &param);
+    do_to_things_with_param_spiral_near_map_block(&shotng->mappos, param.primary_number-COORD_PER_STL, do_cb, &param);
 }
 /******************************************************************************/
 #ifdef __cplusplus

@@ -33,7 +33,7 @@ extern "C" {
 #define OBJECT_TYPES_MAX  2000
 
 enum ObjectCategoryIndex {
-    OCtg_Unknown = 0,
+    OCtg_None = 0,
     OCtg_Decoration, //< Object has no strong function
     OCtg_Furniture,  //< Object is crucial part of a room
     OCtg_Valuable,   //< Object is gold in some form

@@ -633,18 +633,18 @@ TbBool cmd_reveal(PlayerNumber plyr_idx, char * args)
         r = atol(pr2str);
     }
     if (r > 0) {
-        int r2 = r / 2;
+        int radius_offset = r / 2;
         struct Packet * pckt = get_packet_direct(player->packet_num);
         MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
         MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
         clear_dig_for_map_rect(player->id_number,
-                                subtile_slab(stl_x - r2),
-                                subtile_slab(stl_x + r - r2),
-                                subtile_slab(stl_y - r2),
-                                subtile_slab(stl_y + r - r2)
+                                subtile_slab(stl_x - radius_offset),
+                                subtile_slab(stl_x + r - radius_offset),
+                                subtile_slab(stl_y - radius_offset),
+                                subtile_slab(stl_y + r - radius_offset)
         );
-        reveal_map_rect(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
-        panel_map_update(stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
+        reveal_map_rect(player->id_number, stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset);
+        panel_map_update(stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset);
     } else {
         reveal_whole_map(player);
     }
@@ -664,11 +664,11 @@ TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
         r = atol(pr2str);
     }
     if (r > 0) {
-        int r2 = r / 2;
+        int radius_offset = r / 2;
         struct Packet * pckt = get_packet_direct(player->packet_num);
         MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
         MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
-        conceal_map_area(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2, false);
+        conceal_map_area(player->id_number, stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset, false);
     } else {
         conceal_map_area(player->id_number, 0, game.map_subtiles_x - 1, 0, game.map_subtiles_y - 1, false);
     }

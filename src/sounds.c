@@ -269,7 +269,7 @@ TbBool update_3d_sound_receiver(struct PlayerInfo* player)
     if (cam == NULL)
         return false;
     S3DSetSoundReceiverPosition(cam->mappos.x.val, cam->mappos.y.val, cam->mappos.z.val);
-    S3DSetSoundReceiverOrientation(cam->orient_a, cam->orient_b, cam->orient_c);
+    S3DSetSoundReceiverOrientation(cam->rotation_angle_x, cam->rotation_angle_y, cam->rotation_angle_z);
     if (
         cam->view_mode == PVM_IsoWibbleView ||
         cam->view_mode == PVM_FrontView ||
@@ -374,7 +374,7 @@ void update_player_sounds(void)
 
     // Music and sound control
     if ( !SoundDisabled ) {
-        if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) ) {
+        if ( (game.turns_fastforward == 0) && (!game.packet_loading_in_progress) ) {
             MonitorStreamedSoundTrack();
         }
     }

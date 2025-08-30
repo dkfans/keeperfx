@@ -53,7 +53,7 @@ enum TbButtonType {
     LbBtnT_RadioBtn,
     LbBtnT_HorizSlider,
     LbBtnT_EditBox,
-    LbBtnT_Unknown6,
+    LbBtnT_Hotspot,
 };
 
 enum TbButtonFlags {
@@ -141,8 +141,8 @@ struct GuiButtonInit {
 
 struct GuiButton {
        unsigned char flags;
-       unsigned char gbactn_1;
-       unsigned char gbactn_2;
+       unsigned char button_state_left_pressed;
+       unsigned char button_state_right_pressed;
        char gmenu_idx;
        short id_num; /**< GUI Button ID, identifying the button designation within game code.*/
        unsigned char gbtype; /**< GUI Button Type, from LbBtnF_* enumeration. */

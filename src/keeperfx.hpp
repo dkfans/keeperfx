@@ -78,23 +78,23 @@ enum CmdLineOverrides {
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
     MFlg_EyeLensReady       =  0x02,
-    MFlg_unk04              =  0x04,
+    MFlg_Unusedparam04      =  0x04,
     MFlg_DeadBackToPool     =  0x08,
     MFlg_NoCdMusic          =  0x10, // unused
-    MFlg_unk20              =  0x20,
-    MFlg_unk40              =  0x40,
+    MFlg_Unusedparam20      =  0x20,
+    MFlg_DemoMode           =  0x40,
     MFlg_NoHeroHealthFlower =  0x80,
 };
 
 enum FFlags {
-    FFlg_unk01              =  0x01,
-    FFlg_unk02              =  0x02,
+    FFlg_Unusedparam01      =  0x01,
+    FFlg_ShowLevelIntroText =  0x02,
     FFlg_unk04              =  0x04, // unused, had something to do with Passenger Control
-    FFlg_unk08              =  0x08,
-    FFlg_unk10              =  0x10,
+    FFlg_HalfSizeRender     =  0x08,
+    FFlg_NetworkTimeout     =  0x10,
     FFlg_AlexCheat          =  0x20,
     FFlg_UsrSndFont         =  0x40, // now unused
-    FFlg_unk80              =  0x80,
+    FFlg_MainMenuReturn     =  0x80,
 };
 
 enum DebugFlags {
@@ -134,7 +134,7 @@ struct StartupParameters {
     TbBool one_player;
     unsigned char operation_flags;
     unsigned char flags_font;
-    unsigned char flags_cd;
+    unsigned char mode_flags;
     unsigned char debug_flags;
     unsigned short computer_chat_flags;
     long num_fps;
@@ -299,7 +299,7 @@ void update_thing_animation(struct Thing *thing);
 long update_cave_in(struct Thing *thing);
 void initialise_map_collides(void);
 void initialise_map_health(void);
-void setup_3d(void);
+void setup_mesh_randomizers(void);
 void setup_stuff(void);
 void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta);
 long get_foot_creature_has_down(struct Thing *thing);

@@ -74,7 +74,7 @@ struct PartyMember { // sizeof = 13
   long countdown;
   CrtrExpLevel exp_level;
   unsigned short carried_gold;
-  unsigned short field_6F;
+  unsigned short is_active;
 };
 
 struct Party {

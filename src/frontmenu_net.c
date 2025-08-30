@@ -124,9 +124,9 @@ TbBool frontnet_start_input(void)
         {
             struct ScreenPacket *nspck;
             nspck = &net_screen_packet[my_player_number];
-            if ((nspck->field_4 & 0xF8) == 0)
+            if ((nspck->networkstatus_flags & 0xF8) == 0)
             {
-                nspck->field_4 = (nspck->field_4 & 7) | 0x40;
+                nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x40;
                 nspck->param1 = lbInkey;
                 nspck->param2 = key_modifiers;
                 if (key_modifiers)
@@ -389,9 +389,9 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
     {
         struct ScreenPacket *nspck;
         nspck = &net_screen_packet[my_player_number];
-        if ((nspck->field_4 & 0xF8) == 0)
+        if ((nspck->networkstatus_flags & 0xF8) == 0)
         {
-            nspck->field_4 = (nspck->field_4 & 7) | 0x20;
+            nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x20;
             nspck->param1 = plyr1_idx;
             nspck->param2 = plyr2_idx;
         }

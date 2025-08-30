@@ -197,8 +197,8 @@ TbBool thing_create_thing(struct InitThing *itng)
             return false;
         }
         break;
-    case TCls_Unkn10:
-    case TCls_Unkn11:
+    case TCls_unusedparam10:
+    case TCls_unusedparam11:
         thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
         if (thing_is_invalid(thing))
         {
@@ -387,8 +387,8 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 return false;
             }
             break;
-        case TCls_Unkn10:
-        case TCls_Unkn11:
+        case TCls_unusedparam10:
+        case TCls_unusedparam11:
             thing = create_thing(&mappos, oclass, model, owner, (unsigned short)value_int32(value_dict_get(init_data, "ParentTile")));
             if (thing_is_invalid(thing))
             {

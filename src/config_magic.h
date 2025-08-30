@@ -298,7 +298,7 @@ struct ShotConfigStats {
     short fixed_damage;
     short light_radius;
     unsigned char light_intensity;
-    unsigned char lightf_53;
+    unsigned char light_flags;
     unsigned char unshaded;
     unsigned char soft_landing;
     EffectOrEffElModel effect_id;

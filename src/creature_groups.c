@@ -610,7 +610,7 @@ TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level
     member->crtr_kind = crtr_model;
     member->carried_gold = carried_gold;
     member->exp_level = exp_level-1;
-    member->field_6F = 1;
+    member->is_active = 1;
     member->objectv = objctv_id;
     member->countdown = countdown;
     party->members_num++;

@@ -216,7 +216,7 @@ short LbIKeyboardClose(void);
 void LbKeyboardSetLanguage(int lngnum);
 short LbKeyCodeValid(TbKeyCode key);
 void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers, int ScanCode);
-long KeyboardProc(int, unsigned int, long);
+long KeyboardProc(int message_type, unsigned int unused_param, long code);
 /******************************************************************************/
 #ifdef __cplusplus
 }

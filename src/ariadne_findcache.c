@@ -198,11 +198,11 @@ long triangle_find8(long pt_x, long pt_y)
  * Finds given point in list of triangles. Gives triangle index and cor number in triangle.
  * @param pt_x
  * @param pt_y
- * @param out_tri_idx
- * @param out_cor_idx
+ * @param output_triangle_index
+ * @param output_corner_index
  * @return
  */
-TbBool point_find(long pt_x, long pt_y, long *out_tri_idx, long *out_cor_idx)
+TbBool point_find(long pt_x, long pt_y, long *output_triangle_index, long *output_corner_index)
 {
     long tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
     if (tri_idx < 0)
@@ -214,8 +214,8 @@ TbBool point_find(long pt_x, long pt_y, long *out_tri_idx, long *out_cor_idx)
         struct Point* pt = get_triangle_point(tri_idx, cor_id);
         if ((pt->x == pt_x) && (pt->y == pt_y))
         {
-          *out_tri_idx = tri_idx;
-          *out_cor_idx = cor_id;
+          *output_triangle_index = tri_idx;
+          *output_corner_index = cor_id;
           return true;
         }
     }

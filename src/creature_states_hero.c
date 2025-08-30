@@ -1203,7 +1203,7 @@ long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
     return best_plyr_idx;
 }
 
-short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char a4)
+short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char unusedparam)
 {
     if ( internal_set_thing_state(creatng, CrSt_Tunnelling) )
     {
@@ -1406,17 +1406,17 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(6,"Move %s index %d from (%d,%d) to (%d,%d) with speed %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->mappos.x.stl.num,(int)creatng->mappos.y.stl.num,(int)pos->x.stl.num,(int)pos->y.stl.num,(int)speed);
-    cctrl->navi.field_19[0] = 0;
+    cctrl->navi.owner_flags[0] = 0;
     if (get_chessboard_distance(&creatng->mappos, pos) <= 32)
     {
         // We've reached the destination
         creature_set_speed(creatng, 0);
         return 1;
     }
-    long i = cctrl->party.long_8B;
+    long i = cctrl->party.tunnel_steps_counter;
     if ((i > 0) && (i < LONG_MAX))
     {
-        cctrl->party.long_8B++;
+        cctrl->party.tunnel_steps_counter++;
     }
     if ((pos->x.val != cctrl->navi.pos_final.x.val)
      || (pos->y.val != cctrl->navi.pos_final.y.val)
@@ -1429,9 +1429,9 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     if (tnlret == 2)
     {
         i = cctrl->navi.first_colliding_block;
-        if (cctrl->navi.field_17 != i)
+        if (cctrl->navi.second_colliding_block != i)
         {
-            cctrl->navi.field_17 = i;
+            cctrl->navi.second_colliding_block = i;
         } else
         if (cctrl->instance_id == CrInst_NULL)
         {
@@ -1493,7 +1493,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     cctrl->moveaccel.x.val = cctrl->navi.pos_next.x.val - (MapCoordDelta)creatng->mappos.x.val;
     cctrl->moveaccel.y.val = cctrl->navi.pos_next.y.val - (MapCoordDelta)creatng->mappos.y.val;
     cctrl->moveaccel.z.val = 0;
-    cctrl->creature_state_flags |= TF2_Unkn01;
+    cctrl->creature_state_flags |= TF2_CreatureIsMoving;
     creature_set_speed(creatng, min(speed,dist));
     return 0;
 }
