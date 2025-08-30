@@ -63,12 +63,11 @@ struct MapLevelInfo { // sizeof = 56
 };
 
 struct ScreenPacket {
+  unsigned char unused_bytes[4]; // Unused bytes, can probably be removed
   unsigned char networkstatus_flags;
   char frontend_alliances;
-  short hand_position_x;
-  short hand_position_y;
-  short version_release;
-  short version_build;
+  short stored_data1; // Can contain: VersionRelease (networking) or hand_position_x (landview)
+  short stored_data2; // Can contain: VersionBuild (networking) or hand_position_y (landview)
   short param1;
   unsigned char param2;
 };

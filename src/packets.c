@@ -1632,8 +1632,8 @@ void process_frontend_packets(void)
   nspckt->frontend_alliances = frontend_alliances;
   set_flag(nspckt->networkstatus_flags, 0x01);
   nspckt->networkstatus_flags ^= ((nspckt->networkstatus_flags ^ (fe_computer_players << 1)) & 0x06);
-  nspckt->version_release = VersionRelease;
-  nspckt->version_build = VersionBuild;
+  nspckt->stored_data1 = VersionRelease;
+  nspckt->stored_data2 = VersionBuild;
   if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
   {
       ERRORLOG("LbNetwork_Exchange failed");
@@ -1759,7 +1759,7 @@ void process_frontend_packets(void)
         if (k != 2)
           fe_computer_players = k;
       }
-      player->game_version = nspckt->version_build + (nspckt->version_release << 8);
+      player->game_version = nspckt->stored_data2 + (nspckt->stored_data1 << 8);
     }
     nspckt->networkstatus_flags &= 0x07;
   }
