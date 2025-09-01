@@ -5411,7 +5411,6 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureMo
       {
           cctrl->sulking_sleep_check_turn = game.play_gameturn;
           // If creature has lair, try to go to it
-          cleanup_current_thing_state(creatng);
           if (anger_get_creature_anger_type(creatng) == AngR_NoLair)
           {
               if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep))
