@@ -5398,6 +5398,7 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureMo
         if (creature_can_do_job_for_player(creatng, creatng->owner, Job_TEMPLE_PRAY, JobChk_PlayMsgOnFail)
             && can_change_from_state_to(creatng, creatng->active_state, CrSt_AtTemple))
         {
+            cleanup_current_thing_state(creatng);
             if (send_creature_to_job_for_player(creatng, creatng->owner, Job_TEMPLE_PRAY)) {
                 return 1;
             }
@@ -5410,6 +5411,7 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureMo
       {
           cctrl->sulking_sleep_check_turn = game.play_gameturn;
           // If creature has lair, try to go to it
+          cleanup_current_thing_state(creatng);
           if (anger_get_creature_anger_type(creatng) == AngR_NoLair)
           {
               if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep))
