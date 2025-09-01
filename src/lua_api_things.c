@@ -226,6 +226,10 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "hunger_level") == 0)
         {
             cctrl->hunger_level = luaL_checkinteger(L, 3);
+        }
+        else if (strcmp(key, "creature_kills") == 0)
+        {
+            cctrl->kills_num = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "hunger_loss") == 0)
         {
             cctrl->hunger_loss = luaL_checkinteger(L, 3);
@@ -320,6 +324,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, cctrl->exp_level);
         } else if (strcmp(key, "exp_points") == 0) {
             lua_pushinteger(L, cctrl->exp_points);
+        } else if (strcmp(key, "creature_kills") == 0) {
+            lua_pushinteger(L, cctrl->kills_num);
         } else if (strcmp(key, "hunger_amount") == 0) {
             lua_pushinteger(L, cctrl->hunger_amount);
         } else if (strcmp(key, "hunger_level") == 0) {

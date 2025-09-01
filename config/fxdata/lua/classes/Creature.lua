@@ -20,6 +20,7 @@
 ---@field hunger_loss integer amount of chickens it won't eat but would have wanted to
 ---@field force_health_flower_displayed boolean always displays health flower
 ---@field force_health_flower_hidden boolean always hides health flower
+---@field creature_kills integer how many creatires th creature has killed
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens
