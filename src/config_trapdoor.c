@@ -338,6 +338,7 @@ const struct NamedField trapdoor_trap_named_fields[] = {
     {"SHOTORIGIN",             2, field(game.conf.trapdoor_conf.trap_cfgstats[0].shot_shift_z),                     0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"PLACESOUND",             0, field(game.conf.trapdoor_conf.trap_cfgstats[0].place_sound_idx),                117,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"TRIGGERSOUND",           0, field(game.conf.trapdoor_conf.trap_cfgstats[0].trigger_sound_idx),              176,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
+    {"RECHARGESOUND",          0, field(game.conf.trapdoor_conf.trap_cfgstats[0].recharge_sound_idx),               0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"DESTROYEDEFFECT",        0, field(game.conf.trapdoor_conf.trap_cfgstats[0].destroyed_effect), -TngEffElm_Blast2,   LONG_MIN,         ULONG_MAX, NULL,                  value_effOrEffEl, assign_default},
     {"INITIALDELAY",           0, field(game.conf.trapdoor_conf.trap_cfgstats[0].initial_delay),                    0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
     {"PLACEONSUBTILE",         0, field(game.conf.trapdoor_conf.trap_cfgstats[0].place_on_subtile),                 0,   LONG_MIN,         ULONG_MAX, NULL,                     value_default, assign_default},
