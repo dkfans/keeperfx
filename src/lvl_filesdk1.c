@@ -99,15 +99,11 @@ struct LegacyInitActionPoint { // sizeof = 8
     unsigned short num;
 };
 
-struct LegacyInitLight { // sizeof=0x14
+struct LegacyInitLight { 
     short radius;
     unsigned char intensity;
     unsigned char flags;
-    short field_4_unused;
-    short field_6_unused;
-    short field_8_unused;
     struct LegacyCoord3d mappos;
-    unsigned char field_10_unused;
     unsigned char is_dynamic;
     short attached_slb;
 };
