@@ -344,7 +344,7 @@ long create_column(struct Column *col)
 {
     long result;
     struct Column *dst;
-    unsigned char v6;
+    unsigned char cube_index;
     unsigned char top_of_floor;
 
     // Find an empty column
@@ -366,12 +366,12 @@ long create_column(struct Column *col)
     make_solidmask(dst);
 
     // Find lowest cube
-    for (v6 = 0; v6 < COLUMN_STACK_HEIGHT;v6++)
+    for (cube_index = 0; cube_index < COLUMN_STACK_HEIGHT;cube_index++)
     {
-        if ( dst->cubes[v6] == 0)
+        if ( dst->cubes[cube_index] == 0)
             break;
     }
-    top_of_floor = v6;
+    top_of_floor = cube_index;
     // set lowest cube info
     dst->bitfields &= ~CLF_FLOOR_MASK;
     dst->bitfields |= (top_of_floor << 4);
@@ -396,15 +396,15 @@ long create_column(struct Column *col)
         }
         else
         {
-            unsigned short *v13 = &dst->cubes[7];
-            unsigned char v12 = 0;
+            unsigned short *ceiling_cube_ptr = &dst->cubes[7];
+            unsigned char ceiling_bit_shift = 0;
             // Counting ceiling height
             for (int i = 0; i < COLUMN_STACK_HEIGHT-1; i++)
             {
-                if (*v13)
-                    dst->bitfields ^= (v12 ^ dst->bitfields) & CLF_CEILING_MASK;
-                --v13;
-                v12 += 2;
+                if (*ceiling_cube_ptr)
+                    dst->bitfields ^= (ceiling_bit_shift ^ dst->bitfields) & CLF_CEILING_MASK;
+                --ceiling_cube_ptr;
+                ceiling_bit_shift += 2;
             }
         }
     }

@@ -77,11 +77,11 @@ const char *thing_classes[] = {
     "EFFECTGEN",
     "TRAP",
     "DOOR",
-    "UNKNOWN10",
-    "UNKNOWN11",
+    "UNUSEDPARAM10",
+    "UNUSEDPARAM11",
     "AMBIENTSND",
     "CAVEIN",
-    "UNKNOWN14",
+    "UNUSEDPARAM14",
 };
 /******************************************************************************/
 const char *thing_class_code_name(ThingClass class_id)

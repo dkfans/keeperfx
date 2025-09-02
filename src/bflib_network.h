@@ -149,7 +149,7 @@ enum TbNetworkService {
 struct ClientDataEntry {
   unsigned long plyrid;
   unsigned long isactive;
-  unsigned long need_data_exchange;
+  unsigned long has_exchanged_data;
   char name[32];
 };
 
@@ -231,8 +231,8 @@ TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
 TbBool  LbNetwork_Resync(void * buf, size_t len);
 void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
-TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
-TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
+TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *user_data);
+TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
 /******************************************************************************/

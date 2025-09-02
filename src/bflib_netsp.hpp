@@ -37,16 +37,16 @@ protected:
     unsigned long nextPlayerId;
     unsigned long localPlayerId; //local player ID
 
-    TbError Initialise(struct ReceiveCallbacks *nCallbacks, void *a2);
+    TbError Initialise(struct ReceiveCallbacks *nCallbacks, void *context);
 
     //session management
     struct TbNetworkSessionNameEntry *AddSession(unsigned long sess_id, const char *namestr);
     void ClearSessions(void);
     long SessionIndex(unsigned long sess_id);
 
-    TbError EnumeratePlayers(TbNetworkCallbackFunc callback, void *a2);
+    TbError EnumeratePlayers(TbNetworkCallbackFunc callback, void *context);
     long PlayerIndex(unsigned long plyr_id);
-    TbError AddPlayer(unsigned long plyr_id, const char *namestr, unsigned long a3, unsigned long a4);
+    TbError AddPlayer(unsigned long plyr_id, const char *namestr, unsigned long player_flags, unsigned long unused_param);
     TbError DeletePlayer(unsigned long plyr_id);
     void ClearPlayers(void);
 
@@ -106,11 +106,11 @@ public:
     virtual void update() = 0; //in case SP needs execution time once per frame
 
     struct TbNetworkSessionNameEntry nsnames[SESSION_ENTRIES_COUNT];
-    unsigned long field_7A4;
-    unsigned long field_7A8;
-    char field_D50[32];
+    unsigned long reference_count;
+    unsigned long status_flags;
+    char session_identifier[32];
     struct ReceiveCallbacks *recvCallbacks;
-    void *field_D78;
+    void *callback_context;
 };
 
 /******************************************************************************/

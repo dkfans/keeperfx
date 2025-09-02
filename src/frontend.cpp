@@ -491,12 +491,12 @@ void get_player_gui_clicks(void)
           if (a_menu_window_is_active())
           {
             game.view_mode_flags &= ~GNFldD_CreaturePasngr;
-            player->allocflags &= ~PlaF_Unknown8;
+            player->allocflags &= ~PlaF_CreaturePassengerMode;
             turn_off_all_window_menus();
           } else
           {
             game.view_mode_flags |= GNFldD_CreaturePasngr;
-            player->allocflags |= PlaF_Unknown8;
+            player->allocflags |= PlaF_CreaturePassengerMode;
             turn_on_menu(GMnu_QUERY);
           }
         }
@@ -646,7 +646,7 @@ TbBool validate_versions(void)
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
       player = get_player(i);
-      if ((net_screen_packet[i].field_4 & 0x01) != 0)
+      if ((net_screen_packet[i].networkstatus_flags & 0x01) != 0)
       {
         if (ver == -1)
           ver = player->game_version;
@@ -679,9 +679,9 @@ void versions_different_error(void)
     {
       plyr_nam = network_player_name(i);
       nspckt = &net_screen_packet[i];
-      if ((nspckt->field_4 & 0x01) != 0)
+      if ((nspckt->networkstatus_flags & 0x01) != 0)
       {
-        str_appendf(text, sizeof(text), "%s(%d.%02d) ", plyr_nam, nspckt->field_6, nspckt->field_8);
+        str_appendf(text, sizeof(text), "%s(%d.%02d) ", plyr_nam, nspckt->stored_data1, nspckt->stored_data2);
       }
     }
     // Waiting for users reaction
@@ -763,7 +763,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     {
         if ((str[0] != '\0') || (modifiers == -3))
         {
-            gbtn->gbactn_1 = 0;
+            gbtn->button_state_left_pressed = 0;
             (gbtn->click_event)(gbtn);
             input_button = 0;
             if ((gbtn->flags & LbBtnF_Clickable) != 0)
@@ -1154,7 +1154,7 @@ long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long fi
 void gui_quit_game(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player = get_my_player();
-    set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
+    set_players_packet_action(player, PckA_QuitToMainMenu, 0, 0, 0, 0);
 }
 
 void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
@@ -1316,7 +1316,7 @@ void frontend_draw_slider(struct GuiButton *gbtn)
     LbSpriteDrawResized(right_sprite_x, gbtn->scr_pos_y, fs_units_per_px, right_sprite);
 
     const int knob_position = gbtn->slide_val * (gbtn->width - int(64 * scale)) >> 8;
-    const auto knob_sprite = (gbtn->gbactn_1 != 0) ?
+    const auto knob_sprite = (gbtn->button_state_left_pressed != 0) ?
         get_frontend_sprite(GFS_slider_indicator_act) : get_frontend_sprite(GFS_slider_indicator_std);
     LbSpriteDrawResized(
         (gbtn->scr_pos_x + knob_position + (24 * scale)) / pixel_size,
@@ -1348,7 +1348,7 @@ void frontend_draw_small_slider(struct GuiButton *gbtn)
     LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     int val;
     val = gbtn->slide_val * (gbtn->width - 64*fs_units_per_px/16) >> 8;
-    if (gbtn->gbactn_1 != 0) {
+    if (gbtn->button_state_left_pressed != 0) {
         spr = get_frontend_sprite(GFS_slider_indicator_act);
     } else {
         spr = get_frontend_sprite(GFS_slider_indicator_std);
@@ -1371,7 +1371,7 @@ void gui_area_text(struct GuiButton *gbtn)
     switch (gbtn->sprite_idx)
     {
     case 1:
-        if ( gbtn->gbactn_1 || gbtn->gbactn_2 )
+        if ( gbtn->button_state_left_pressed || gbtn->button_state_right_pressed )
         {
             draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
             int lit_width = gbtn->width + 6*units_per_pixel/16;
@@ -1522,9 +1522,9 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->field_4 & 0xF8) == 0)
+    if ((nspck->networkstatus_flags & 0xF8) == 0)
     {
-        nspck->field_4 = (nspck->field_4 & 0x07) | 0x38;
+        nspck->networkstatus_flags = (nspck->networkstatus_flags & 0x07) | 0x38;
         nspck->param1 = (fe_computer_players == 0);
     }
 }
@@ -1556,8 +1556,8 @@ void set_packet_start(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
-    if ((nspck->field_4 & 0xF8) == 0)
-        nspck->field_4 = (nspck->field_4 & 7) | 0x18;
+    if ((nspck->networkstatus_flags & 0xF8) == 0)
+        nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x18;
 }
 
 void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
@@ -1884,7 +1884,7 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
     if (gbtn->gbtype == LbBtnT_RadioBtn)
     {
         //TODO: pointers comparison should be avoided
-        if (s == &gbtn->gbactn_2)
+        if (s == &gbtn->button_state_right_pressed)
             return;
     }
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
@@ -1894,7 +1894,7 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
         case LbBtnT_NormalBtn:
         case LbBtnT_ToggleBtn:
         case LbBtnT_EditBox:
-        case LbBtnT_Unknown6:
+        case LbBtnT_Hotspot:
             *s = 1;
             break;
         case LbBtnT_RadioBtn:
@@ -1924,7 +1924,7 @@ void do_button_press_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
     if (gbtn->gbtype == LbBtnT_RadioBtn)
     {
         //TODO: pointers comparison should be avoided
-        if (s == &gbtn->gbactn_2)
+        if (s == &gbtn->button_state_right_pressed)
             return;
     }
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
@@ -1938,7 +1938,7 @@ void do_button_press_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
                 (*s)++;
             }
             break;
-        case LbBtnT_Unknown6:
+        case LbBtnT_Hotspot:
             if (callback != NULL) {
                 callback(gbtn);
             }
@@ -1983,7 +1983,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       break;
   case LbBtnT_RadioBtn:
       //TODO: pointers comparison should be avoided
-      if (s == &gbtn->gbactn_2)
+      if (s == &gbtn->button_state_right_pressed)
         return;
       break;
   case LbBtnT_EditBox:
@@ -1994,7 +1994,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       break;
   }
 
-  if (s == &gbtn->gbactn_1)
+  if (s == &gbtn->button_state_left_pressed)
   {
     gmnu = get_active_menu(gbtn->gmenu_idx);
     if (gbtn->parent_menu != NULL)
@@ -2102,7 +2102,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->maintain_call = gbinit->maintain_call;
     gbtn->flags |= LbBtnF_Enabled;
     gbtn->flags &= ~LbBtnF_MouseOver;
-    gbtn->gbactn_1 = 0;
+    gbtn->button_state_left_pressed = 0;
     gbtn->flags |= LbBtnF_Visible;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Toggle * (gbinit->button_flags >> 8)) & LbBtnF_Toggle;
     if ((gbinit->scr_pos_x == 999) || (gbinit->pos_x == 999))
@@ -2131,17 +2131,17 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
         scrollwnd = (struct TextScrollWindow *)gbtn->content.ptr;
         if ((scrollwnd != NULL) && (scrollwnd->text[0] == 1))
         {
-            gbtn->gbactn_1 = 1;
-            gbtn->gbactn_2 = 0;
+            gbtn->button_state_left_pressed = 1;
+            gbtn->button_state_right_pressed = 0;
         } else
         {
-            gbtn->gbactn_1 = 0;
-            gbtn->gbactn_2 = 0;
+            gbtn->button_state_left_pressed = 0;
+            gbtn->button_state_right_pressed = 0;
         }
     } else
     {
-        gbtn->gbactn_1 = 0;
-        gbtn->gbactn_2 = 0;
+        gbtn->button_state_left_pressed = 0;
+        gbtn->button_state_right_pressed = 0;
     }
     SYNCDBG(11,"Created button %d at (%d,%d) size (%d,%d)",gidx,
         gbtn->pos_x,gbtn->pos_y,gbtn->width,gbtn->height);
@@ -2746,7 +2746,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         break;
     case FeSt_START_KPRLEVEL:
     case FeSt_START_MPLEVEL:
-    case FeSt_UNKNOWN09:
+    case FeSt_QUIT_GAME:
     case FeSt_LOAD_GAME:
     case FeSt_INTRO:
     case FeSt_CAMPAIGN_INTRO:
@@ -2826,7 +2826,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           set_pointer_graphic_menu();
           break;
       case FeSt_START_KPRLEVEL:
-      case FeSt_UNKNOWN09:
+      case FeSt_QUIT_GAME:
       case FeSt_LOAD_GAME:
       case FeSt_INTRO:
       case FeSt_CAMPAIGN_INTRO:
@@ -2836,7 +2836,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           fade_palette_in = 0;
           break;
       case FeSt_START_MPLEVEL:
-          if ((game.flags_font & FFlg_unk10) != 0)
+          if ((game.flags_font & FFlg_NetworkTimeout) != 0)
               LbNetwork_ChangeExchangeTimeout(30);
           fade_palette_in = 0;
           break;
@@ -2923,7 +2923,7 @@ static const char * menu_state_str(FrontendMenuState state)
         case FeSt_NET_START: return "FeSt_NET_START";
         case FeSt_START_KPRLEVEL: return "FeSt_START_KPRLEVEL";
         case FeSt_START_MPLEVEL: return "FeSt_START_MPLEVEL";
-        case FeSt_UNKNOWN09: return "FeSt_UNKNOWN09";
+        case FeSt_QUIT_GAME: return "FeSt_QUIT_GAME";
         case FeSt_LOAD_GAME: return "FeSt_LOAD_GAME";
         case FeSt_INTRO: return "FeSt_INTRO";
         case FeSt_STORY_POEM: return "FeSt_STORY_POEM";
@@ -2934,15 +2934,15 @@ static const char * menu_state_str(FrontendMenuState state)
         case FeSt_LEVEL_STATS: return "FeSt_LEVEL_STATS";
         case FeSt_HIGH_SCORES: return "FeSt_HIGH_SCORES";
         case FeSt_TORTURE: return "FeSt_TORTURE";
-        case FeSt_UNKNOWN20: return "FeSt_UNKNOWN20";
+        case FeSt_UNUSED_STATE1: return "FeSt_UNUSED_STATE1";
         case FeSt_OUTRO: return "FeSt_OUTRO";
-        case FeSt_UNKNOWN22: return "FeSt_UNKNOWN22";
-        case FeSt_UNKNOWN23: return "FeSt_UNKNOWN23";
+        case FeSt_UNUSED_STATE2: return "FeSt_UNUSED_STATE2";
+        case FeSt_UNUSED_STATE3: return "FeSt_UNUSED_STATE3";
         case FeSt_NETLAND_VIEW: return "FeSt_NETLAND_VIEW";
         case FeSt_PACKET_DEMO: return "FeSt_PACKET_DEMO";
         case FeSt_FEDEFINE_KEYS: return "FeSt_FEDEFINE_KEYS";
         case FeSt_FEOPTIONS: return "FeSt_FEOPTIONS";
-        case FeSt_UNKNOWN28: return "FeSt_UNKNOWN28";
+        case FeSt_UNUSED_STATE4: return "FeSt_UNUSED_STATE4";
         case FeSt_STORY_BIRTHDAY: return "FeSt_STORY_BIRTHDAY";
         case FeSt_LEVEL_SELECT: return "FeSt_LEVEL_SELECT";
         case FeSt_CAMPAIGN_SELECT: return "FeSt_CAMPAIGN_SELECT";
@@ -3219,7 +3219,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback = gbtn->draw_call;
         if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Active) && (gbtn->gmenu_idx == gmnu->number))
         {
-          if ( ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) || (gbtn->gbtype == LbBtnT_HorizSlider) || (callback == gui_area_null) )
+          if ( ((gbtn->button_state_left_pressed == 0) && (gbtn->button_state_right_pressed == 0)) || (gbtn->gbtype == LbBtnT_HorizSlider) || (callback == gui_area_null) )
             callback(gbtn);
         }
     }
@@ -3230,7 +3230,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback = gbtn->draw_call;
         if ((callback != NULL) && (gbtn->flags & LbBtnF_Visible) && (gbtn->flags & LbBtnF_Active) && (gbtn->gmenu_idx == gmnu->number))
         {
-          if (((gbtn->gbactn_1) || (gbtn->gbactn_2)) && (gbtn->gbtype != LbBtnT_HorizSlider) && (callback != gui_area_null))
+          if (((gbtn->button_state_left_pressed) || (gbtn->button_state_right_pressed)) && (gbtn->gbtype != LbBtnT_HorizSlider) && (callback != gui_area_null))
             callback(gbtn);
         }
     }
@@ -3441,7 +3441,7 @@ short frontend_draw(void)
     case FeSt_NET_START:
     case FeSt_LEVEL_STATS:
     case FeSt_HIGH_SCORES:
-    case FeSt_UNKNOWN20:
+    case FeSt_UNUSED_STATE1:
     case FeSt_FEOPTIONS:
     case FeSt_LEVEL_SELECT:
     case FeSt_MAPPACK_SELECT:
@@ -3642,7 +3642,7 @@ void frontend_update(short *finish_menu)
     case FeSt_PACKET_DEMO:
         *finish_menu = 1;
         break;
-    case FeSt_UNKNOWN09:
+    case FeSt_QUIT_GAME:
         *finish_menu = 1;
         exit_keeper = 1;
         break;
@@ -3793,7 +3793,7 @@ FrontendMenuState get_startup_menu_state(void)
           }
       }
   }
-  else if ((game.flags_cd & MFlg_unk40) != 0)
+  else if ((game.mode_flags & MFlg_DemoMode) != 0)
   { // If starting up the game after intro
     if (is_full_moon)
     {
@@ -3838,10 +3838,10 @@ FrontendMenuState get_startup_menu_state(void)
         SYNCLOG("Undecided victory state selected");
         return get_menu_state_based_on_last_level(lvnum);
     } else
-    if (game.flags_cd & MFlg_IsDemoMode)
+    if (game.mode_flags & MFlg_IsDemoMode)
     { // It wasn't a real game, just a demo - back to main menu
         SYNCLOG("Demo mode state selected");
-        game.flags_cd &= ~MFlg_IsDemoMode;
+        game.mode_flags &= ~MFlg_IsDemoMode;
         return FeSt_MAIN_MENU;
     } else
     if (player->victory_state == VicS_WonLevel)

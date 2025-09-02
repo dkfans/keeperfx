@@ -344,14 +344,14 @@ int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const struct 
       {
         width += scr_x;
         if (width <= 0)
-          goto LABEL_21;
+          goto skip_sprite_draw;
         x = -scr_x;
         scr_x = 0;
       } else
       if (scr_x+adraw->bits_width > awind->width)
       {
         if (scr_x >= awind->width)
-          goto LABEL_21;
+          goto skip_sprite_draw;
         width = awind->width - scr_x;
       }
       if (scr_y < 0)
@@ -381,7 +381,7 @@ int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const struct 
         }
       }
     }
-LABEL_21:
+skip_sprite_draw:
     if ((colr1 >= 0) || (colr2 >= 0))
     {
       y = 0;
@@ -1054,7 +1054,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
     const char* sbuf = text;
     for (ebuf=text; *ebuf != '\0'; ebuf++)
     {
-        const char* ebuf_bak = ebuf;
+        const char* text_backup_pointer = ebuf;
         long chr = (unsigned char)*ebuf;
         TbBool WideChar = (is_wide_charcode(chr));
         if (WideChar)
@@ -1091,11 +1091,11 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             x = LbGetJustifiedCharPosX(startx, posx, w, 1, lbDisplay.DrawFlags);
             y = LbGetJustifiedCharPosY(starty, h, h, lbDisplay.DrawFlags);
             len = LbGetJustifiedCharWidth(posx, w, count, units_per_px, lbDisplay.DrawFlags);
-            put_down_sprites(sbuf, ebuf_bak, x, y, len, units_per_px);
+            put_down_sprites(sbuf, text_backup_pointer, x, y, len, units_per_px);
             // We already know that alignment is set - don't re-check
             {
                 posx = startx;
-                sbuf = ebuf_bak; // sbuf points at start of char for next loop. ebuf_bak points at unprocessed char.
+                sbuf = text_backup_pointer; // sbuf points at start of char for next loop. text_backup_pointer points at unprocessed char.
                 ebuf = sbuf - 1; // The updateStatement of for loop will auto increment 1.
                 starty += h;
             }

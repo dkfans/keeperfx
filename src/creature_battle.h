@@ -37,7 +37,7 @@ struct PlayerInfo;
 
 struct CreatureBattle { // sizeof = 17
   unsigned long fighters_num;
-  unsigned char field_4[9];
+  unsigned char unusedparam[9];
   unsigned short first_creatr;
   unsigned short last_creatr;
 };

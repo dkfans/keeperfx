@@ -478,7 +478,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         i = (thing->move_angle_xy + LbFPMath_PI);
         thing->move_angle_xy = i & LbFPMath_AngleMask;
     }
-    if ((follow_result == AridRet_PartOK) || (follow_result == AridRet_Val2))
+    if ((follow_result == AridRet_PartOK) || (follow_result == AridRet_Failed))
     {
         creature_set_speed(thing, 0);
         return -1;
@@ -497,7 +497,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         } else
         {
             creature_set_speed(thing, -speed);
-            cctrl->creature_state_flags |= TF2_Unkn01;
+            cctrl->creature_state_flags |= TF2_CreatureIsMoving;
             if (get_chessboard_distance(&thing->mappos, &nextpos) > -2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive backward speed",
@@ -523,7 +523,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         } else
         {
             creature_set_speed(thing, speed);
-            cctrl->creature_state_flags |= TF2_Unkn01;
+            cctrl->creature_state_flags |= TF2_CreatureIsMoving;
             if (get_chessboard_distance(&thing->mappos, &nextpos) > 2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive forward speed",

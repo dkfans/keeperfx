@@ -106,7 +106,7 @@ extern int line_box_size;
 extern struct MapVolumeBox map_volume_box;
 extern long view_height_over_2;
 extern long view_width_over_2;
-extern long split_1;
+extern long z_threshold_near;
 extern long split_2;
 extern long fade_max;
 

@@ -2170,7 +2170,25 @@ short creature_explore_dungeon(struct Thing *creatng)
     }
     if (!ret)
     {
-        SYNCLOG("The %s owned by player %d can't navigate to subtile (%d,%d) for exploring",
+        // Nothing to explore found - do some random movement
+        if (CREATURE_RANDOM(creatng, 12) != 0)
+        {
+            if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+            {
+                creatng->continue_state = CrSt_CreatureExploreDungeon;
+                return CrCkRet_Continue;
+            }
+        }
+        else
+            if (get_random_position_in_dungeon_for_creature(creatng->owner, CrWaS_WithinDungeon, creatng, &pos))
+            {
+                if (setup_person_move_to_coord(creatng, &pos, NavRtF_Default))
+                {
+                    creatng->continue_state = CrSt_CreatureExploreDungeon;
+                }
+                return CrCkRet_Continue;
+            }
+        SYNCDBG(3, "The %s owned by player %d can't navigate from subtile (%d,%d) to explore",
             thing_model_name(creatng),(int)creatng->owner, (int)pos.x.stl.num, (int)pos.y.stl.num);
         set_start_state(creatng);
         return CrCkRet_Available;

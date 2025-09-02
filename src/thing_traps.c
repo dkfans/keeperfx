@@ -663,7 +663,7 @@ void activate_trap_by_slap(struct PlayerInfo *player, struct Thing* traptng)
             {
             case TrpAcT_HeadforTarget90:
             case TrpAcT_CreatureShot:
-                external_activate_trap_shot_at_angle(traptng, player->acamera->orient_a, trgtng);
+                external_activate_trap_shot_at_angle(traptng, player->acamera->rotation_angle_x, trgtng);
                 break;
             default:
                 ERRORLOG("Illegal trap activation type %d (idx=%d)", (int)trapst->activation_type, traptng->index);
@@ -791,7 +791,7 @@ void process_trap_charge(struct Thing* traptng)
         }
         else
         {
-            trigger_duration = get_lifespan_of_animation(trapst->attack_sprite_anim_idx, trapst->anim_speed);
+            trigger_duration = get_lifespan_of_animation(trapst->attack_sprite_anim_idx, trapst->attack_anim_speed);
         }
         traptng->trap.shooting_finished_turn = (game.play_gameturn + trigger_duration);
         traptng->current_frame = 0;
@@ -940,6 +940,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
             if (trapst->attack_sprite_anim_idx != 0)
             {
                 traptng->anim_sprite = convert_td_iso(trapst->attack_sprite_anim_idx);
+                traptng->anim_speed = trapst->attack_anim_speed;
                 traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
             }
         }
@@ -948,10 +949,12 @@ TngUpdateRet update_trap(struct Thing *traptng)
             if (trapst->recharge_sprite_anim_idx != 0)
             {
                 traptng->anim_sprite = convert_td_iso(trapst->recharge_sprite_anim_idx);
+                traptng->anim_speed = trapst->recharge_anim_speed;
             }
             else
             {
                 traptng->anim_sprite = convert_td_iso(trapst->sprite_anim_idx);
+                traptng->anim_speed = trapst->anim_speed;
             }
             traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
         }

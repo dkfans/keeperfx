@@ -82,7 +82,7 @@ namespace
             {
                 seq_nbr++;
                 screen_packet = reinterpret_cast<struct ScreenPacket *>(packet->data);
-                out.packet.field_4 = 0x15;
+                out.packet.reserved_padding[0] = 0x15;
                 ENetPacket *out_packet = enet_packet_create(&out, sizeof(out), ENET_PACKET_FLAG_RELIABLE);
                 enet_peer_send(peer, 0, out_packet);
                 break;

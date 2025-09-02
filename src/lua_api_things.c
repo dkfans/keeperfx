@@ -23,6 +23,7 @@
 #include "thing_creature.h"
 #include "thing_effects.h"
 #include "magic_powers.h"
+#include "config_crtrstates.h"
 
 #include "lua_base.h"
 #include "lua_params.h"
@@ -86,11 +87,9 @@ static int lua_creature_walk_to(lua_State *L)
     int stl_x = luaL_checkstl_x(L, 2);
     int stl_y = luaL_checkstl_y(L, 3);
 
-    if (!setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default))
-        WARNLOG("Move %s order failed", thing_model_name(thing));
-    thing->continue_state = CrSt_ManualControl;
+    lua_pushboolean(L, setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default));
 
-    return 0;
+    return 1;
 }
 
 static int lua_kill_creature(lua_State *L)
@@ -209,12 +208,28 @@ static int thing_set_field(lua_State *L) {
         {
             cctrl->exp_points = luaL_checkinteger(L, 3);
             check_experience_upgrade(thing);
+        } else if (strcmp(key, "pos") == 0)
+        {
+            luaL_checkCoord3d(L, 3, &thing->mappos);
+        } else if (strcmp(key, "moveto_pos") == 0)
+        {
+            luaL_checkCoord3d(L, 3, &cctrl->moveto_pos);
+        } else if (strcmp(key, "state") == 0)
+        {
+            internal_set_thing_state(thing, luaL_checkNamedCommand(L, 3, creatrstate_desc));
+        } else if (strcmp(key, "continue_state") == 0)
+        {
+            thing->continue_state = luaL_checkNamedCommand(L, 3, creatrstate_desc);
         } else if (strcmp(key, "hunger_amount") == 0)
         {
             cctrl->hunger_amount = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "hunger_level") == 0)
         {
             cctrl->hunger_level = luaL_checkinteger(L, 3);
+        }
+        else if (strcmp(key, "creature_kills") == 0)
+        {
+            cctrl->kills_num = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "hunger_loss") == 0)
         {
             cctrl->hunger_loss = luaL_checkinteger(L, 3);
@@ -240,7 +255,7 @@ static int thing_set_field(lua_State *L) {
         {
             return luaL_error(L, "Field '%s' is not writable on Trap thing", key);
         }
-    }  else 
+    } else
     {
         return luaL_error(L, "Field '%s' is not writable on Thing", key);
     }
@@ -275,6 +290,19 @@ static int thing_get_field(lua_State *L) {
         lua_pushinteger(L, get_thing_max_health(thing));
     } else if (strcmp(key, "picked_up") == 0) {
         lua_pushboolean(L, thing_is_picked_up(thing));
+    } else if (strcmp(key, "state") == 0) {
+        lua_pushstring(L, get_conf_parameter_text(creatrstate_desc,thing->active_state));
+    } else if (strcmp(key, "continue_state") == 0) {
+        lua_pushstring(L, get_conf_parameter_text(creatrstate_desc,thing->continue_state));
+    } else if (strcmp(key, "workroom") == 0) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access 'workroom' of non-creature thing");
+        lua_pushRoom(L, room_get(cctrl->work_room_id));
+    } else if (strcmp(key, "moveto_pos") == 0) {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+        lua_pushPos(L, &cctrl->moveto_pos);
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     }
@@ -296,6 +324,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, cctrl->exp_level);
         } else if (strcmp(key, "exp_points") == 0) {
             lua_pushinteger(L, cctrl->exp_points);
+        } else if (strcmp(key, "creature_kills") == 0) {
+            lua_pushinteger(L, cctrl->kills_num);
         } else if (strcmp(key, "hunger_amount") == 0) {
             lua_pushinteger(L, cctrl->hunger_amount);
         } else if (strcmp(key, "hunger_level") == 0) {
@@ -387,7 +417,7 @@ static int thing_eq(lua_State *L) {
 
 static const struct luaL_Reg thing_methods[] = {
     {"make_thing_zombie", make_thing_zombie},
-    {"creature_walk_to",  lua_creature_walk_to},
+    {"walk_to",  lua_creature_walk_to},
     {"kill",    lua_kill_creature},
     {"delete",     lua_delete_thing},
     {"isValid",         lua_is_valid},

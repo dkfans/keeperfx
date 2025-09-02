@@ -192,8 +192,8 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         set_flag(cctrl->stateblock_flags, CCSpl_ChickenRel);
     } else
     {
-        near_food_tng->food.byte_15 = 255;
-        near_food_tng->food.byte_16 = 127;
+        near_food_tng->food.freshness_state = 255;
+        near_food_tng->food.possession_startup_timer = 127;
     }
     creatng->continue_state = CrSt_CreatureEatingAtGarden;
     cctrl = creature_control_get_from_thing(creatng);

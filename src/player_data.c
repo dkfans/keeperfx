@@ -434,7 +434,7 @@ void set_player_mode(struct PlayerInfo *player, unsigned short nview)
   if (player->view_type == nview)
     return;
   player->view_type = nview;
-  player->allocflags &= ~PlaF_Unknown8;
+  player->allocflags &= ~PlaF_CreaturePassengerMode;
   if (is_my_player(player))
   {
     game.view_mode_flags &= ~GNFldD_CreaturePasngr;

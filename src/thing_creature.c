@@ -930,7 +930,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
                 ntng = create_object(&pos, ObjMdl_LightBall, thing->owner, -1); // TODO: Make this configurable.
                 if (!thing_is_invalid(ntng))
                 {
-                    cctrl->spell_tngidx_armour[k] = ntng->index;
+                    cctrl->spell_thing_index_armour[k] = ntng->index;
                     ntng->health = duration + 1;
                     ntng->armor.belongs_to = thing->index;
                     ntng->armor.shspeed = k;
@@ -1027,7 +1027,7 @@ TbBool set_thing_spell_flags_f(struct Thing *thing, SpellKind spell_idx, GameTur
                 ntng = create_object(&pos, ObjMdl_Disease, thing->owner, -1); // TODO: Make this configurable.
                 if (!thing_is_invalid(ntng))
                 {
-                    cctrl->spell_tngidx_disease[j] = ntng->index;
+                    cctrl->spell_thing_index_disease[j] = ntng->index;
                     ntng->health = duration + 1;
                     ntng->disease.belongs_to = thing->index;
                     ntng->disease.effect_slot = j;
@@ -2732,7 +2732,7 @@ long move_creature(struct Thing *thing)
     int velo_x = thing->velocity.x.val;
     int velo_y = thing->velocity.y.val;
     int velo_z = thing->velocity.z.val;
-    cctrl->creature_control_flags &= ~CCFlg_Unknown08;
+    cctrl->creature_control_flags &= ~CCFlg_RepositionedInWall;
     struct Coord3d nxpos;
     if (thing_in_wall_at(thing, &thing->mappos) && !creature_can_pass_through_wall_at(thing, &thing->mappos))
     {
@@ -2742,7 +2742,7 @@ long move_creature(struct Thing *thing)
         if (get_nearest_valid_position_for_creature_at(thing, &nxpos)) {
             move_thing_in_map(thing, &nxpos);
         }
-        cctrl->creature_control_flags |= CCFlg_Unknown08;
+        cctrl->creature_control_flags |= CCFlg_RepositionedInWall;
     }
     if ((get_creature_model_flags(thing) & CMF_Fat) != 0)
     {
@@ -2811,7 +2811,7 @@ long move_creature(struct Thing *thing)
                 }
             }
         }
-        if ((cctrl->creature_control_flags & CCFlg_Unknown10) != 0)
+        if ((cctrl->creature_control_flags & CCFlg_AvoidCreatureCollision) != 0)
         {
             struct Thing* collidtng = get_thing_collided_with_at_satisfying_filter(thing, &nxpos, collide_filter_thing_is_of_type, 5, -1);
             if (!thing_is_invalid(collidtng))
@@ -3208,7 +3208,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     }
     if (flag_is_set(flags, CrDed_NoEffects))
     {
-        if (flag_is_set(game.flags_cd, MFlg_DeadBackToPool))
+        if (flag_is_set(game.mode_flags, MFlg_DeadBackToPool))
         {
             add_creature_to_pool(crmodel, 1);
         }
@@ -3217,24 +3217,24 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
     if (!creature_model_bleeds(thing->model))
     {
         // Non-bleeding creatures have no flesh explosion effects
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        if ((game.mode_flags & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1);
         return creature_death_as_nature_intended(thing);
     } else
     if (creature_under_spell_effect(thing, CSAfF_Freeze))
     {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        if ((game.mode_flags & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1);
         return thing_death_ice_explosion(thing);
     } else
     if ( (shot_model_makes_flesh_explosion(cctrl->shot_model)) || (cctrl->timebomb_death) )
     {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        if ((game.mode_flags & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1);
         return thing_death_flesh_explosion(thing);
     } else
     {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+        if ((game.mode_flags & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1);
         return creature_death_as_nature_intended(thing);
     }
@@ -3269,12 +3269,12 @@ void delete_armour_effects_attached_to_creature(struct Thing *thing)
     struct Thing *efftng;
     for (int i = 0; i < 3; i++)
     {
-        ThingIndex eff_idx = cctrl->spell_tngidx_armour[i];
+        ThingIndex eff_idx = cctrl->spell_thing_index_armour[i];
         if (eff_idx != 0)
         {
             efftng = thing_get(eff_idx);
             delete_thing_structure(efftng, 0);
-            cctrl->spell_tngidx_armour[i] = 0;
+            cctrl->spell_thing_index_armour[i] = 0;
         }
     }
 }
@@ -3289,12 +3289,12 @@ void delete_disease_effects_attached_to_creature(struct Thing *thing)
     struct Thing *efftng;
     for (int i = 0; i < 3; i++)
     {
-        ThingIndex eff_idx = cctrl->spell_tngidx_disease[i];
+        ThingIndex eff_idx = cctrl->spell_thing_index_disease[i];
         if (eff_idx != 0)
         {
             efftng = thing_get(eff_idx);
             delete_thing_structure(efftng, 0);
-            cctrl->spell_tngidx_disease[i] = 0;
+            cctrl->spell_thing_index_disease[i] = 0;
         }
     }
 }
@@ -3318,7 +3318,7 @@ void delete_familiars_attached_to_creature(struct Thing* sumntng)
     }
 }
 
-struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags)
+struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags) 
 {
     SYNCDBG(18, "Starting");
     TRACE_THING(creatng);
@@ -4288,7 +4288,7 @@ void draw_creature_view(struct Thing *thing)
 {
   // If no eye lens required - just draw on the screen, directly
   struct PlayerInfo* player = get_my_player();
-  if (((game.flags_cd & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL) || (game.numfield_1B == 0))
+  if (((game.mode_flags & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL) || (game.applied_lens_type == 0))
   {
       engine(player,&player->cameras[CamIV_FirstPerson]);
       return;
@@ -4315,7 +4315,7 @@ void draw_creature_view(struct Thing *thing)
   // Draw the buffer on real screen
   setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
   draw_lens_effect(lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, scrmem, eye_lens_width,
-      MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, game.numfield_1B);
+      MyScreenWidth/pixel_size, MyScreenHeight/pixel_size, game.applied_lens_type);
 }
 
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
@@ -4817,7 +4817,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->bounce_angle = 0;
     crtng->inertia_floor = 32;
     crtng->inertia_air = 8;
-    crtng->movement_flags |= TMvF_Unknown08;
+    crtng->movement_flags |= TMvF_ZeroVerticalVelocity;
     crtng->owner = owner;
     crtng->move_angle_xy = 0;
     crtng->move_angle_z = 0;
@@ -4839,7 +4839,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
     if (player_is_roaming(owner))
     {
-        cctrl->hero.sbyte_89 = -1;
+        cctrl->hero.hero_state = -1;
         cctrl->hero.ready_for_attack_flag = 1;
     }
     cctrl->flee_pos.x.val = crtng->mappos.x.val;
@@ -5093,7 +5093,7 @@ struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber o
 long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    struct SpellConfig *spconf = get_spell_config(param->num1);
+    struct SpellConfig *spconf = get_spell_config(param->primary_number);
     if ((cctrl->combat_flags != 0) && !creature_is_being_unconscious(thing))
     {
         if ((param->plyr_idx >= 0) && (thing->owner != param->plyr_idx))
@@ -5134,9 +5134,9 @@ long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct
 long player_list_creature_filter_dragging_specific_thing(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (param->num1 > 0)
+    if (param->primary_number > 0)
     {
-        if (cctrl->dragtng_idx == param->num1) {
+        if (cctrl->dragtng_idx == param->primary_number) {
             return LONG_MAX;
         }
         return -1;
@@ -5161,7 +5161,7 @@ long player_list_creature_filter_most_experienced(const struct Thing *thing, Max
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
         && (thing->class_id == param->class_id)
         && ((thing_matches_model(thing,param->model_id)))
-        && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
+        && ((param->primary_number == -1) || (get_creature_gui_job(thing) == param->primary_number))
         && (nmaxim > maximizer) )
     {
         return nmaxim;
@@ -5186,7 +5186,7 @@ long player_list_creature_filter_most_experienced_and_pickable1(const struct Thi
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
         && (thing->class_id == param->class_id)
         && ((thing_matches_model(thing,param->model_id)))
-        && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
+        && ((param->primary_number == -1) || (get_creature_gui_job(thing) == param->primary_number))
         && !thing_is_picked_up(thing)
         && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
@@ -5215,7 +5215,7 @@ long player_list_creature_filter_most_experienced_and_pickable2(const struct Thi
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
         && (thing->class_id == param->class_id)
         && ((thing_matches_model(thing,param->model_id)))
-        && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
+        && ((param->primary_number == -1) || (get_creature_gui_job(thing) == param->primary_number))
         && !thing_is_picked_up(thing)
         && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
@@ -5244,7 +5244,7 @@ long player_list_creature_filter_least_experienced(const struct Thing *thing, Ma
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((thing_matches_model(thing,param->model_id)))
-      && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
+      && ((param->primary_number == -1) || (get_creature_gui_job(thing) == param->primary_number))
       && (nmaxim > maximizer) )
     {
         return nmaxim;
@@ -5269,7 +5269,7 @@ long player_list_creature_filter_least_experienced_and_pickable1(const struct Th
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((thing_matches_model(thing,param->model_id)))
-      && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
+      && ((param->primary_number == -1) || (get_creature_gui_job(thing) == param->primary_number))
       && !thing_is_picked_up(thing)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
@@ -5298,7 +5298,7 @@ long player_list_creature_filter_least_experienced_and_pickable2(const struct Th
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((thing_matches_model(thing,param->model_id)))
-      && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
+      && ((param->primary_number == -1) || (get_creature_gui_job(thing) == param->primary_number))
       && !thing_is_picked_up(thing)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
@@ -5324,7 +5324,7 @@ long player_list_creature_filter_of_gui_job(const struct Thing *thing, MaxTngFil
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((thing_matches_model(thing,param->model_id)))
-      && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))) // job_idx
+      && ((param->primary_number == -1) || (get_creature_gui_job(thing) == param->primary_number))) // job_idx
     {
         // New 'maximizer' equal to MAX_LONG will stop the sweeping
         // and return this thing immediately.
@@ -5348,7 +5348,7 @@ long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *th
       && (thing->class_id == param->class_id)
       && ((thing_matches_model(thing,param->model_id)))
       && !thing_is_picked_up(thing)
-      && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1)) // job_idx
+      && ((param->primary_number == -1) || (get_creature_gui_job(thing) == param->primary_number)) // job_idx
       && (thing->active_state != CrSt_CreatureUnconscious) )
     {
       if (can_thing_be_picked_up_by_player(thing, param->plyr_idx))
@@ -5376,7 +5376,7 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
       && (thing->class_id == param->class_id)
       && ((thing_matches_model(thing,param->model_id)))
       && !thing_is_picked_up(thing)
-      && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
+      && ((param->primary_number == -1) || (get_creature_gui_job(thing) == param->primary_number))
       && (thing->active_state != CrSt_CreatureUnconscious) )
     {
       if (can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
@@ -5401,7 +5401,7 @@ struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell
     param.plyr_idx = -1;
     param.class_id = 0;
     param.model_id = CREATURE_ANY;
-    param.num1 = spell_kind;
+    param.primary_number = spell_kind;
     Thing_Maximizer_Filter filter = player_list_creature_filter_in_fight_and_not_affected_by_spell;
     struct Thing* creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     if (thing_is_invalid(creatng)) {
@@ -5423,9 +5423,9 @@ struct Thing *find_creature_dragging_thing(const struct Thing *dragtng)
     param.class_id = TCls_Creature;
     param.model_id = CREATURE_ANY;
     param.plyr_idx = -1;
-    param.num1 = dragtng->index;
-    param.num2 = -1;
-    param.num3 = -1;
+    param.primary_number = dragtng->index;
+    param.secondary_number = -1;
+    param.tertiary_number = -1;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
@@ -5443,7 +5443,7 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmo
     param.plyr_idx = plyr_idx;
     param.class_id = TCls_Creature;
     param.model_id = crmodel;
-    param.num1 = job_idx;
+    param.primary_number = job_idx;
     switch (pick_check)
     {
     default:
@@ -5486,7 +5486,7 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmod
     param.plyr_idx = plyr_idx;
     param.class_id = TCls_Creature;
     param.model_id = crmodel;
-    param.num1 = job_idx;
+    param.primary_number = job_idx;
     switch (pick_check)
     {
     default:
@@ -5531,7 +5531,7 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, lon
     param.plyr_idx = plyr_idx;
     param.class_id = TCls_Creature;
     param.model_id = crmodel;
-    param.num1 = job_idx;
+    param.primary_number = job_idx;
     switch (pick_check)
     {
     default:
@@ -5632,7 +5632,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long
         param.plyr_idx = plyr_idx;
         param.class_id = TCls_Creature;
         param.model_id = crmodel;
-        param.num1 = job_idx;
+        param.primary_number = job_idx;
         Thing_Maximizer_Filter filter;
         if ((pick_flags & TPF_PickableCheck) != 0)
         {
@@ -5737,7 +5737,7 @@ TbBool creature_is_doing_job_in_room_role(const struct Thing *creatng, RoomRole 
 long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     SYNCDBG(19,"Starting for %s index %d owner %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
-    struct Computer2* comp = (struct Computer2*)(param->ptr1);
+    struct Computer2* comp = (struct Computer2*)(param->primary_pointer);
     struct Dungeon* dungeon = comp->dungeon;
     if (!can_thing_be_picked_up_by_player(thing, dungeon->owner)) {
         return -1;
@@ -5760,19 +5760,19 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         // Try torturing it
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_PAINFUL_TORTURE)))
         {
-            param->num2 = Job_PAINFUL_TORTURE;
+            param->secondary_number = Job_PAINFUL_TORTURE;
             return LONG_MAX;
         }
         // Or putting in prison
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_CAPTIVITY)))
         {
-            param->num2 = Job_CAPTIVITY;
+            param->secondary_number = Job_CAPTIVITY;
             return LONG_MAX;
         }
         // If we can't, then just let it leave the dungeon
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_EXEMPT)))
         {
-            param->num2 = Job_EXEMPT;
+            param->secondary_number = Job_EXEMPT;
             return LONG_MAX;
         }
     }
@@ -5788,7 +5788,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
             return -1;
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TEMPLE_PRAY)))
         {
-            param->num2 = Job_TEMPLE_PRAY;
+            param->secondary_number = Job_TEMPLE_PRAY;
             return LONG_MAX;
         }
     }
@@ -5820,7 +5820,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
                     {
                         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_SLEEP)))
                         {
-                            param->num2 = Job_TAKE_SLEEP;
+                            param->secondary_number = Job_TAKE_SLEEP;
                             return LONG_MAX;
                         }
                     }
@@ -5844,7 +5844,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
                 // otherwise, put it into room we want
                 if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_SLEEP)))
                 {
-                    param->num2 = Job_TAKE_SLEEP;
+                    param->secondary_number = Job_TAKE_SLEEP;
                     return LONG_MAX;
                 }
             }
@@ -5863,7 +5863,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         // otherwise, put it into room we want
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_FEED)))
         {
-            param->num2 = Job_TAKE_FEED;
+            param->secondary_number = Job_TAKE_FEED;
             return LONG_MAX;
         }
     }
@@ -5876,7 +5876,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
             return -1;
         if (player_has_room_of_role(dungeon->owner, get_room_role_for_job(Job_TAKE_SALARY)))
         {
-            param->num2 = Job_TAKE_SALARY;
+            param->secondary_number = Job_TAKE_SALARY;
             return LONG_MAX;
         }
     }
@@ -5896,7 +5896,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
         // Make sure the place we've selected is not the same as the one creature works in now
         if (!creature_is_doing_job_in_room_role(thing, get_room_role_for_job(new_job)))
         {
-            param->num2 = new_job;
+            param->secondary_number = new_job;
             return LONG_MAX;
         }
     }
@@ -6034,7 +6034,7 @@ short update_creature_movements(struct Thing *thing)
         cctrl->moveaccel.y.val = 0;
         cctrl->moveaccel.z.val = 0;
         cctrl->move_speed = 0;
-        cctrl->creature_state_flags &= ~TF2_Unkn01;
+        cctrl->creature_state_flags &= ~TF2_CreatureIsMoving;
     } else
     {
       if ((thing->alloc_flags & TAlF_IsControlled) != 0)
@@ -6043,10 +6043,10 @@ short update_creature_movements(struct Thing *thing)
               upd_done = 1;
           }
       } else
-      if ((cctrl->creature_state_flags & TF2_Unkn01) != 0)
+      if ((cctrl->creature_state_flags & TF2_CreatureIsMoving) != 0)
       {
           upd_done = 1;
-          cctrl->creature_state_flags &= ~TF2_Unkn01;
+          cctrl->creature_state_flags &= ~TF2_CreatureIsMoving;
       } else
       if (cctrl->move_speed != 0)
       {
@@ -6419,8 +6419,8 @@ TngUpdateRet update_creature(struct Thing *thing)
         cctrl->frozen_on_hit--;
     if (cctrl->force_visible > 0)
         cctrl->force_visible--;
-    if (cctrl->unknown.navigation_map_changed == 0)
-        cctrl->unknown.navigation_map_changed = game.map_changed_for_nagivation;
+    if (cctrl->regular_creature.navigation_map_changed == 0)
+        cctrl->regular_creature.navigation_map_changed = game.map_changed_for_nagivation;
     if ((cctrl->stopped_for_hand_turns == 0) || (cctrl->instance_id == CrInst_EAT))
     {
         process_creature_instance(thing);
@@ -7566,9 +7566,9 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, ThingModel 
         struct CompoundTngFilterParam param;
         param.model_id = crmodel;
         param.plyr_idx = (unsigned char)plyr_idx;
-        param.num1 = apt->mappos.x.val;
-        param.num2 = apt->mappos.y.val;
-        param.num3 = apt->range;
+        param.primary_number = apt->mappos.x.val;
+        param.secondary_number = apt->mappos.y.val;
+        param.tertiary_number = apt->range;
         return get_thing_spiral_near_map_block_with_filter(apt->mappos.x.val, apt->mappos.y.val,
             dist,
             filter, &param);

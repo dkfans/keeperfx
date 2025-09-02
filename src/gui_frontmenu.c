@@ -63,7 +63,7 @@ MenuNumber menu_id_to_number(MenuID menu_id)
     for (MenuNumber idx = 0; idx < ACTIVE_MENUS_COUNT; idx++)
     {
         struct GuiMenu* gmnu = &active_menus[idx];
-        //SYNCDBG(8,"ID %d use %d",(int)gmnu->ident,(int)gmnu->field_1);
+        //SYNCDBG(8,"ID %d use %d",(int)gmnu->ident,(int)gmnu->visual_state);
         if ((gmnu->visual_state != 0) && (gmnu->ident == menu_id))
             return idx;
     }
