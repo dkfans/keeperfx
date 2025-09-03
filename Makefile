@@ -247,6 +247,7 @@ obj/lens_flyeye.o \
 obj/lens_mist.o \
 obj/light_data.o \
 obj/lua_api.o \
+obj/lua_api_camera.o \
 obj/lua_api_player.o \
 obj/lua_api_room.o \
 obj/lua_api_things.o \
