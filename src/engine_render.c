@@ -145,9 +145,6 @@ struct BucketKindPolyMode4 {
     unsigned char texture_vertex_first;
     unsigned char texture_vertex_second;
     unsigned char texture_vertex_third;
-    unsigned char unusedfield_15[3];
-    unsigned char unusedfield_18;
-    unsigned char unusedfield_19[3];
 };
 
 struct BucketKindTrigMode2 {
@@ -223,11 +220,7 @@ struct BucketKindTrigMode6 {
 struct BucketKindRotableSprite {
     struct BasicQ b;
     long clip_flags;
-    long unusedfield_C;
-    long unusedfield_10;
     long depth_fade;
-    char unusedfield_18;
-    unsigned char unusedfield_19[3];
 };
 
 struct BucketKindPolygonNearFP {
@@ -245,7 +238,6 @@ struct BucketKindPolygonNearFP {
 struct BucketKindBasicUnk10 {
     struct BasicQ b;
     unsigned char color_value;
-    unsigned char unusedfield_7;
     struct PolyPoint vertex_first;
     struct PolyPoint vertex_second;
     struct PolyPoint vertex_third;
@@ -257,8 +249,6 @@ struct BucketKindJontySprite {  // BasicQ type 11,18
     long scr_x;
     long scr_y;
     long depth_fade;
-    unsigned char unusedfield_18;
-    unsigned char unusedfield_19[3];
 };
 
 struct BucketKindCreatureShadow {
@@ -277,7 +267,6 @@ struct BucketKindSlabSelector {
     struct BasicQ b;
     unsigned short color_value;
     struct PolyPoint p;
-    unsigned char unusedfield_19[3];
 };
 
 struct BucketKindCreatureStatus { // sizeof = 24
