@@ -2848,7 +2848,7 @@ long move_creature(struct Thing *thing)
     {
         long angle = LbArcTanAngle(cctrl->moveaccel.x.val, cctrl->moveaccel.y.val);
         long dist;
-        if (get_angle_difference(angle, thing->move_angle_xy) <= ANGLE_EAST)
+        if (get_angle_difference(angle, thing->move_angle_xy) <= DEGREES_90)
         {
             dist = get_2d_distance(&pvpos, tngpos);
         }

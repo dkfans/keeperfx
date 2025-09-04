@@ -175,6 +175,7 @@ enum AnglesAndDegrees {
     DEGREES_22_5 = 128,     // 22.5° - DEGREES_180 / 8
     DEGREES_30 = 170,       // 30° - DEGREES_180 / 6
     DEGREES_45 = 256,       // 45° - DEGREES_180 / 4
+    DEGREES_50 = 284,       // 50°
     DEGREES_60 = 341,       // 60° - DEGREES_180 / 3
     DEGREES_90 = 512,       // 90° - DEGREES_180 / 2
     DEGREES_120 = 682,      // 120° - 2 * DEGREES_180 / 3

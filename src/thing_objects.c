@@ -841,7 +841,7 @@ static long food_moves(struct Thing *objtng)
         if (dangle > 62)
             dangle = 62;
         objtng->move_angle_xy = (objtng->move_angle_xy + dangle * sangle) & ANGLE_MASK;
-        if (get_angle_difference(objtng->move_angle_xy, objtng->food.angle) < 284)
+        if (get_angle_difference(objtng->move_angle_xy, objtng->food.angle) < DEGREES_50)
         {
             struct ComponentVector cvec;
             cvec.x = vel_x;
