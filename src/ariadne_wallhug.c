@@ -127,7 +127,7 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *current_position_
         return -1;
     }
 
-    SmallAroundIndex quadrant = (((LbArcTanAngle(target_position_x - *current_position_x, target_position_y - *current_position_y) & ANGLE_MASK) + DEGREES_45) >> 9) & 3;
+    SmallAroundIndex quadrant = (((LbArcTanAngle(target_position_x - *current_position_x, target_position_y - *current_position_y) & ANGLE_MASK) + DEGREES_45) / DEGREES_90) & 3;
 
     int distance_to_target = chessboard_distance(*current_position_x, *current_position_y, target_position_x, target_position_y);
     if ((int)abs(distance_to_target) <= *delta && hug_can_move_on(
