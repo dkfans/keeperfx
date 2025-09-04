@@ -820,7 +820,7 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
         if (i > 0)
         {
             long angle;
-            angle = PLAYER_RANDOM(plyr_idx, 2*LbFPMath_PI);
+            angle = PLAYER_RANDOM(plyr_idx, DEGREES_360);
             locpos.x.val = pos->x.val + distance_with_angle_to_coord_x(127, angle);
             locpos.y.val = pos->y.val + distance_with_angle_to_coord_y(127, angle);
         } else

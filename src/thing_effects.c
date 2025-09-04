@@ -529,9 +529,9 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     if (eestats->unanimated != 1)
       return TUFRet_Modified;
     i = get_angle_yz_to_vec(&elemtng->veloc_base);
-    if (i > LbFPMath_PI)
-      i -= LbFPMath_PI;
-    long prop_val = i / (LbFPMath_PI / 8);
+    if (i > DEGREES_180)
+      i -= DEGREES_180;
+    long prop_val = i / DEGREES_22_5;
     elemtng->move_angle_xy = get_angle_xy_to_vec(&elemtng->veloc_base);
     elemtng->current_frame = prop_val;
     elemtng->anim_speed = 0;
@@ -694,8 +694,8 @@ void effect_generate_effect_elements(const struct Thing *thing)
             TRACE_THING(elemtng);
             if (thing_is_invalid(elemtng))
                 break;
-            arg = EFFECT_RANDOM(thing, LbFPMath_TAU);
-            argZ = EFFECT_RANDOM(thing, LbFPMath_PI);
+            arg = EFFECT_RANDOM(thing, DEGREES_360);
+            argZ = EFFECT_RANDOM(thing, DEGREES_180);
             // Setting XY acceleration
             long k = abs(effcst->accel_xy_max - effcst->accel_xy_min);
             if (k <= 1) k = 1;
@@ -708,7 +708,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
             mag = effcst->accel_z_min + EFFECT_RANDOM(thing, k);
             elemtng->veloc_push_add.z.val += distance_with_angle_to_coord_z(mag,argZ);
             elemtng->state_flags |= TF1_PushAdd;
-            elemtng->move_angle_xy = LbArcTanAngle(elemtng->veloc_push_add.x.val, elemtng->veloc_push_add.y.val) & LbFPMath_AngleMask;
+            elemtng->move_angle_xy = LbArcTanAngle(elemtng->veloc_push_add.x.val, elemtng->veloc_push_add.y.val) & ANGLE_MASK;
         }
         break;
     }
@@ -726,7 +726,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
             elemtng->move_angle_xy = thing->move_angle_xy;
             TRACE_THING(elemtng);
             SYNCDBG(18,"Created %s",thing_model_name(elemtng));
-            k += LbFPMath_TAU;
+            k += DEGREES_360;
         }
         break;
     }
@@ -743,7 +743,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
             elemtng = create_effect_element(&pos, n, thing->owner);
             elemtng->move_angle_xy = arg;
             TRACE_THING(elemtng);
-            k += LbFPMath_TAU;
+            k += DEGREES_360;
         }
         break;
     }
@@ -808,7 +808,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
     struct EffectGeneratorConfigStats* egenstat = get_effectgenerator_model_stats(thing->model);
     for (long i = 0; i < egenstat->generation_amount; i++)
     {
-        long deviation_angle = EFFECT_RANDOM(thing, 0x800);
+        long deviation_angle = EFFECT_RANDOM(thing, DEGREES_360);
         long deviation_mag = EFFECT_RANDOM(thing, thing->effect_generator.range + 1);
         struct Coord3d pos;
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
@@ -847,7 +847,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
             elemtng->veloc_push_add.x.val += acc_x;
             elemtng->veloc_push_add.y.val += acc_y;
             elemtng->veloc_push_add.z.val += acc_z;
-            elemtng->move_angle_xy = LbArcTanAngle(acc_x, acc_y) & LbFPMath_AngleMask;
+            elemtng->move_angle_xy = LbArcTanAngle(acc_x, acc_y) & ANGLE_MASK;
             elemtng->state_flags |= TF1_PushAdd;
             if (egenstat->sound_sample_idx > 0)
             {

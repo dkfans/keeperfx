@@ -204,7 +204,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
         return 1;
     case CTVS_TortureInDevice:
         sectng = thing_get(cctrl->tortured.assigned_torturer);
-        if (creature_turn_to_face_angle(creatng, sectng->move_angle_xy) >= LbFPMath_PI/12) {
+        if (creature_turn_to_face_angle(creatng, sectng->move_angle_xy) >= DEGREES_15) {
             return CrStRet_Unchanged;
         }
         creatng->movement_flags &= ~TMvF_Flying;

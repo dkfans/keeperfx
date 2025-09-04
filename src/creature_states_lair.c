@@ -256,7 +256,7 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
         place_thing_in_mapwho(creatng);
         return CrStRet_Modified; // Return that so we won't try to redo the action over and over
     }
-    lairtng->move_angle_xy = CREATURE_RANDOM(creatng, 2048);
+    lairtng->move_angle_xy = CREATURE_RANDOM(creatng, DEGREES_360);
     lairtng->mappos.z.val = get_thing_height_at(lairtng, &lairtng->mappos);
     // Associate creature with the lair
     cctrl->lairtng_idx = lairtng->index;
@@ -264,7 +264,7 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     lairtng->lair.cssize = 1;
     // Lair size depends on creature level
     lairtng->lair.spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
-    lairtng->move_angle_xy = CREATURE_RANDOM(creatng, 2*LbFPMath_PI);
+    lairtng->move_angle_xy = CREATURE_RANDOM(creatng, DEGREES_360);
     struct ObjectConfigStats* objst = get_object_model_stats(lairtng->model);
     unsigned long i = convert_td_iso(objst->sprite_anim_idx);
     set_thing_draw(lairtng, i, objst->anim_speed, lairtng->lair.cssize, 0, -1, objst->draw_class);

@@ -257,7 +257,7 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
 {
     TbBool val_in_range;
     struct KeeperSprite* kspr = sprite_by_frame(kspr_anim);
-    if (((angle & 0x7FF) <= 1151) || ((angle & 0x7FF) >= 1919) )
+    if (((angle & ANGLE_MASK) <= 1151) || ((angle & ANGLE_MASK) >= 1919) )
         val_in_range = 0;
     else
         val_in_range = 1;
@@ -283,7 +283,7 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
     }
     else if (kspr->Rotable == 2)
     {
-        kspr += frame + abs(4 - (((angle + 128) & 0x7FF) >> 8)) * kspr->FramesCount;
+        kspr += frame + abs(4 - (((angle + DEGREES_22_5) & ANGLE_MASK) >> 8)) * kspr->FramesCount;
         *orig_w = kspr->SWidth;
         *orig_h = kspr->SHeight;
         if ( val_in_range )

@@ -138,24 +138,24 @@ void angles_to_vector(short angle_xy, short angle_yz, long dist, struct Componen
 
 long get_angle_xy_to_vec(const struct CoordDelta3d *vec)
 {
-    return LbArcTanAngle(vec->x.val, vec->y.val) & LbFPMath_AngleMask;
+    return LbArcTanAngle(vec->x.val, vec->y.val) & ANGLE_MASK;
 }
 
 long get_angle_yz_to_vec(const struct CoordDelta3d *vec)
 {
     long dist = LbDiagonalLength(abs(vec->x.val), abs(vec->y.val));
-    return LbArcTanAngle(vec->z.val, dist) & LbFPMath_AngleMask;
+    return LbArcTanAngle(vec->z.val, dist) & ANGLE_MASK;
 }
 
 long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-    return LbArcTanAngle((long)pos2->x.val - (long)pos1->x.val, (long)pos2->y.val - (long)pos1->y.val) & LbFPMath_AngleMask;
+    return LbArcTanAngle((long)pos2->x.val - (long)pos1->x.val, (long)pos2->y.val - (long)pos1->y.val) & ANGLE_MASK;
 }
 
 long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
     long dist = get_2d_distance(pos1, pos2);
-    return LbArcTanAngle(pos2->z.val - pos1->z.val, dist) & LbFPMath_AngleMask;
+    return LbArcTanAngle(pos2->z.val - pos1->z.val, dist) & ANGLE_MASK;
 }
 
 // TODO these are actually Coord2d and Coord3d just inherits from it
@@ -443,7 +443,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->rotation_angle_y = 0;
     cam->rotation_angle_z = 0;
     cam->horizontal_fov = first_person_horizontal_fov;
-    cam->rotation_angle_x = LbFPMath_PI/2;
+    cam->rotation_angle_x = ANGLE_EAST;
     cam->view_mode = PVM_CreatureView;
 
     cam = &player->cameras[CamIV_Isometric];
@@ -453,7 +453,7 @@ void init_player_cameras(struct PlayerInfo *player)
     cam->rotation_angle_z = 0;
     cam->horizontal_fov = 94;
     cam->rotation_angle_y = player->isometric_tilt;
-    cam->rotation_angle_x = LbFPMath_PI/4;
+    cam->rotation_angle_x = DEGREES_45;
     if (settings.video_rotate_mode == 1) {
         cam->view_mode = PVM_IsoStraightView;
     } else {
@@ -628,8 +628,8 @@ void view_move_camera_left(struct Camera *cam, long distance)
         cam->view_mode == PVM_IsoStraightView
     ) {
 
-        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->rotation_angle_x - LbFPMath_PI/2);
-        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->rotation_angle_x - LbFPMath_PI/2);
+        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->rotation_angle_x - DEGREES_90);
+        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->rotation_angle_x - DEGREES_90);
 
         if ( pos_x < 0 )
             pos_x = 0;
@@ -673,8 +673,8 @@ void view_move_camera_right(struct Camera *cam, long distance)
         cam->view_mode == PVM_IsoStraightView
     ) {
 
-        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->rotation_angle_x + LbFPMath_PI/2);
-        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->rotation_angle_x + LbFPMath_PI/2);
+        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->rotation_angle_x + DEGREES_90);
+        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->rotation_angle_x + DEGREES_90);
 
         if ( pos_x < 0 )
             pos_x = 0;
@@ -761,8 +761,8 @@ void view_move_camera_down(struct Camera *cam, long distance)
         cam->view_mode == PVM_IsoStraightView
     ) {
 
-        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->rotation_angle_x + LbFPMath_PI);
-        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->rotation_angle_x + LbFPMath_PI);
+        pos_x = move_coord_with_angle_x(cam->mappos.x.val,distance,cam->rotation_angle_x + DEGREES_180);
+        pos_y = move_coord_with_angle_y(cam->mappos.y.val,distance,cam->rotation_angle_x + DEGREES_180);
 
         if ( pos_x < 0 )
             pos_x = 0;
@@ -822,7 +822,7 @@ void view_process_camera_inertia(struct Camera *cam)
         cam->inertia_y /= 2;
     }
     if (cam->inertia_rotation) {
-        cam->rotation_angle_x = (cam->inertia_rotation + cam->rotation_angle_x) & LbFPMath_AngleMask;
+        cam->rotation_angle_x = (cam->inertia_rotation + cam->rotation_angle_x) & ANGLE_MASK;
     }
     if (cam->in_active_movement_rotation) {
         cam->in_active_movement_rotation = false;

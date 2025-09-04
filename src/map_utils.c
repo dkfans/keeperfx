@@ -263,14 +263,14 @@ SmallAroundIndex small_around_index_towards_destination(long curr_x, long curr_y
     if ((i & 0xFF) != 0)
     {
         // Just compute the index
-        n = (i + LbFPMath_PI/4) >> 9;
+        n = (i + DEGREES_45) >> 9;
     } else
     {
         //Special case - the angle is exact multiplication of pi/4
         // Add some variant factor to make it little off this value.
         // this should give better results because tangens values are rounded up or down.
         //TODO: maybe it would be even better to get previous around_index as parameter - this way we could avoid taking same path without random factors.
-        n = (i + LbFPMath_PI/4 + 2*(((dest_x+dest_y)>>1)%2) - 1) >> 9;
+        n = (i + DEGREES_45 + 2*(((dest_x+dest_y)>>1)%2) - 1) >> 9;
     }
     SYNCDBG(18,"Vector (%ld,%ld) returned ArcTan=%ld, around (%d,%d)",dest_x - curr_x, dest_y - curr_y,i,(int)small_around[n].delta_x,(int)small_around[n].delta_y);
     return n & 3;
@@ -286,7 +286,7 @@ SmallAroundIndex small_around_index_towards_destination(long curr_x, long curr_y
  */
 SmallAroundIndex small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y)
 {
-    long i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & LbFPMath_AngleMask) + LbFPMath_PI / 4);
+    long i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & ANGLE_MASK) + DEGREES_45);
     return (i >> 9) & 3;
 }
 
