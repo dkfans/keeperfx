@@ -687,7 +687,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     long dist;
     long angle;
     dist = get_distance_xy(basepos, basepos, mapos_x + basepos, mapos_y + basepos);
-    angle = -(LbArcTanAngle(mapos_x, mapos_y) & ANGLE_MASK) & 0x1FFC;
+    angle = -(LbArcTanAngle(mapos_x, mapos_y) & ANGLE_MASK) & ANGLE_MASK_4;
     int delta_x;
     int delta_y;
     delta_x = scale_ui_value(-1536) * LbSinL(angle) >> 16;
@@ -846,7 +846,7 @@ static void do_map_rotate_stuff(long relpos_x, long relpos_y, long *stl_x, long 
     const struct Camera *cam;
     cam = player->acamera;
     int angle;
-    angle = interpolated_cam_rotation_angle_x & 0x1FFC;
+    angle = interpolated_cam_rotation_angle_x & ANGLE_MASK_4;
     int shift_x;
     int shift_y;
     shift_x = -LbSinL(angle);
@@ -1278,7 +1278,7 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     long shift_stl_y;
     {
         int angle;
-        angle = interpolated_cam_rotation_angle_x & 0x1FFC; //cam->rotation_angle_x
+        angle = interpolated_cam_rotation_angle_x & ANGLE_MASK_4; //cam->rotation_angle_x
         shift_x = -LbSinL(angle) * zoom / 256;
         shift_y = LbCosL(angle) * zoom / 256;
         long current_minimap_x = (cam->mappos.x.stl.num << 16);
