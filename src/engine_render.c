@@ -7086,7 +7086,7 @@ static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos
     struct PlayerInfo* player = get_my_player();
 
     zoom = 32 * camera_zoom / 256;
-    orientation = ((unsigned int)(interpolated_cam_rotation_angle_x + DEGREES_45) >> 9) & 3;
+    orientation = ((unsigned int)(interpolated_cam_rotation_angle_x + DEGREES_45) / DEGREES_90) & 3;
 
     switch ( orientation )
     {
@@ -8364,7 +8364,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
 
 void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)
 {
-    unsigned char orient = ((unsigned int)(cam->rotation_angle_x + DEGREES_45) >> 9) & 0x03;
+    unsigned char orient = ((unsigned int)(cam->rotation_angle_x + DEGREES_45) / DEGREES_90) & 0x03;
     // _depth_ is "how far in to the screen" the box goes - it will be the width/height of a slab
     // _breadth_ is usually the same as the depth (a single slab), but for single subtile selection, this will be the width/height of a subtile
     // (if we are dealing with a single subtile, breadth will be a third of the depth.)
@@ -8423,7 +8423,7 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     {
         line_color = map_volume_box.color; //  set the "inner" box color to the default colour (usually red/green)
     }
-    unsigned char orient = ((unsigned int)(cam->rotation_angle_x + DEGREES_45) >> 9) & 0x03;
+    unsigned char orient = ((unsigned int)(cam->rotation_angle_x + DEGREES_45) / DEGREES_90) & 0x03;
     int floor_height_z = (map_volume_box.floor_height_z == 0) ? 1 : map_volume_box.floor_height_z; // ignore "liquid height", and force it to "floor height". All fancy rooms are on the ground, and this ensures the boundboxes are drawn correctly. A different solution will be required if this function is used to draw fancy rooms over "liquid".
     long depth = ((5 - floor_height_z) * ((long)stl_width << 7) / 256);
     struct Coord3d pos;
@@ -8985,7 +8985,7 @@ void draw_frontview_engine(struct Camera *cam)
     clear_fast_bucket_list();
     store_engine_window(&ewnd,1);
     setup_engine_window(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
-    qdrant = ((unsigned int)(cam->rotation_angle_x + DEGREES_45) >> 9) & 0x03;
+    qdrant = ((unsigned int)(cam->rotation_angle_x + DEGREES_45) / DEGREES_90) & 0x03;
     zoom = camera_zoom >> 3;
     w = (ewnd.width << 16) / zoom >> 1;
     h = (ewnd.height << 16) / zoom >> 1;

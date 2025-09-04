@@ -2057,7 +2057,7 @@ void ariadne_init_current_waypoint(const struct Thing *thing, struct Ariadne *ar
 
 long angle_to_quadrant(long angle)
 {
-    return ((angle + DEGREES_45) & 0x600u) >> 9;
+    return ((angle + DEGREES_45) / DEGREES_90) & 3;
 }
 
 long ariadne_wallhug_angle_valid(struct Thing *thing, struct Ariadne *arid, long angle)

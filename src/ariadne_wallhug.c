@@ -1365,7 +1365,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
     }
     if ( navi->side == 1 )
     {
-        quadrant_angle = (((unsigned char)angle_to_quadrant(angle) - 1) & 3) << 9;
+        quadrant_angle = (((unsigned char)angle_to_quadrant(angle) - 1) & 3) * DEGREES_90;
 
         next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
         next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
@@ -1376,7 +1376,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             creatng->mappos.x.val = pos.x.val;
             creatng->mappos.y.val = pos.y.val;
             creatng->mappos.z.val = pos.z.val;
-            quadrant_angle = (((unsigned char)angle_to_quadrant(angle) - 1) & 3) << 9;
+            quadrant_angle = (((unsigned char)angle_to_quadrant(angle) - 1) & 3) * DEGREES_90;
             next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
             next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
             next_pos.z.val = get_thing_height_at(creatng, &next_pos);
@@ -1391,7 +1391,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
     }
     if ( navi->side != 2 )
         return false;
-    quadrant_angle = (((unsigned char)angle_to_quadrant(angle) + 1) & 3) << 9;
+    quadrant_angle = (((unsigned char)angle_to_quadrant(angle) + 1) & 3) * DEGREES_90;
     next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
     next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
     next_pos.z.val = get_thing_height_at(creatng, &next_pos);
@@ -1399,7 +1399,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
         return false;
     stored_creature_pos = creatng->mappos;
     creatng->mappos = pos;
-    quadrant_angle = (((unsigned char)angle_to_quadrant(angle) + 1) & 3) << 9;
+    quadrant_angle = (((unsigned char)angle_to_quadrant(angle) + 1) & 3) * DEGREES_90;
     next_pos.x.val = move_coord_with_angle_x(creatng->mappos.x.val,speed,quadrant_angle);
     next_pos.y.val = move_coord_with_angle_y(creatng->mappos.y.val,speed,quadrant_angle);
     next_pos.z.val = get_thing_height_at(creatng, &next_pos);
