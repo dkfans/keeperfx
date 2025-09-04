@@ -50,6 +50,10 @@
 #include "gui_draw.h"
 #include "post_inc.h"
 
+// Local constants
+#define ANGLE_MASK_4 8188    // Angle mask rounded to multiples of 4 (0x1FFC)
+#define MAP_ARROW_DISTANCE -1536    // Distance/scale factor for map arrow drawing
+
 /******************************************************************************/
 struct InterpMinimap
 {
@@ -690,8 +694,8 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     angle = -(LbArcTanAngle(mapos_x, mapos_y) & ANGLE_MASK) & ANGLE_MASK_4;
     int delta_x;
     int delta_y;
-    delta_x = scale_ui_value(-1536) * LbSinL(angle) >> 16;
-    delta_y = scale_ui_value(-1536) * LbCosL(angle) >> 16;
+    delta_x = scale_ui_value(MAP_ARROW_DISTANCE) * LbSinL(angle) >> 16;
+    delta_y = scale_ui_value(MAP_ARROW_DISTANCE) * LbCosL(angle) >> 16;
     long frame;
     frame = (game.play_gameturn & 3) + 1;
     int draw_x;

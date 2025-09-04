@@ -165,8 +165,7 @@ enum AnglesAndDegrees {
     ANGLE_WEST = 1536,      // 270° - West direction (left)
     ANGLE_NORTHWEST = 1792, // 315° - Northwest direction (up-left)
     ANGLE_MASK = 2047,      // Bitmask for angle/degrees values (0x7FF)
-    ANGLE_MASK_4 = 8188,    // Angle mask rounded to multiples of 4 (0x1FFC)
-    // Common angles
+    // Degrees
     DEGREES_2_8125 = 16,    // 2.8125° - DEGREES_180 / 64
     DEGREES_8_18 = 46,      // 8.18° - DEGREES_180 / 22
     DEGREES_10 = 56,        // 10° - DEGREES_180 / 18
@@ -181,12 +180,12 @@ enum AnglesAndDegrees {
     DEGREES_120 = 682,      // 120° - 2 * DEGREES_180 / 3
     DEGREES_135 = 768,      // 135°
     DEGREES_180 = 1024,     // 180° - Half a circle
+    DEGREES_202_5 = 1151,   // 202.5° - Sprite flip threshold
     DEGREES_225 = 1280,     // 225°
     DEGREES_270 = 1536,     // 270°
     DEGREES_315 = 1792,     // 315°
     DEGREES_337_5 = 1919,   // 337.5° - Sprite flip threshold
     DEGREES_360 = 2048,     // 360° - Full circle
-    DEGREES_202_5 = 1151,   // 202.5° - Sprite flip threshold
 };
 
 #pragma pack(1)
