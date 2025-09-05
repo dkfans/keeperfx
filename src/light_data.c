@@ -1568,26 +1568,26 @@ static long calculate_shadow_angle(
   {
     if ( y <= stl_y )
     {
-      shadow_start = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
-      shadow_end = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
+      shadow_start = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & ANGLE_MASK;
+      shadow_end = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & ANGLE_MASK;
     }
     else
     {
-      shadow_start = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x - 1, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
-      shadow_end = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
+      shadow_start = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x - 1, subtile_coord(stl_y + 1, 0) - pos_y) & ANGLE_MASK;
+      shadow_end = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & ANGLE_MASK;
     }
   }
   else if ( y == stl_y )
   {
     if ( x <= stl_x )
     {
-      shadow_start = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
-      shadow_end = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
+      shadow_start = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & ANGLE_MASK;
+      shadow_end = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & ANGLE_MASK;
     }
     else
     {
-      shadow_start = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
-      shadow_end = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
+      shadow_start = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & ANGLE_MASK;
+      shadow_end = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & ANGLE_MASK;
     }
   }
   else
@@ -1595,20 +1595,20 @@ static long calculate_shadow_angle(
     switch ( quadrant )
     {
       case 1:
-        shadow_start = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
-        shadow_end = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
+        shadow_start = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & ANGLE_MASK;
+        shadow_end = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & ANGLE_MASK;
         break;
       case 2:
-        shadow_start = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
-        shadow_end = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
+        shadow_start = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & ANGLE_MASK;
+        shadow_end = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & ANGLE_MASK;
         break;
       case 3:
-        shadow_start = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
-        shadow_end = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
+        shadow_start = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & ANGLE_MASK;
+        shadow_end = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & ANGLE_MASK;
         break;
       case 4:
-        shadow_start = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & LbFPMath_AngleMask;
-        shadow_end = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & LbFPMath_AngleMask;
+        shadow_start = LbArcTanAngle(subtile_coord(stl_x, 0) - pos_x, subtile_coord(stl_y + 1, 0) - pos_y) & ANGLE_MASK;
+        shadow_end = LbArcTanAngle(subtile_coord(stl_x + 1, 0) - pos_x, subtile_coord(stl_y, 0) - pos_y) & ANGLE_MASK;
         break;
       default:
         shadow_end = shadow_start;
@@ -1616,9 +1616,9 @@ static long calculate_shadow_angle(
     }
   }
   if ( (shadow_start / 512) << 9 != shadow_start )
-    shadow_start = (shadow_start + 1) & LbFPMath_AngleMask;
+    shadow_start = (shadow_start + 1) & ANGLE_MASK;
   if ( (shadow_end / 512) << 9 != shadow_end )
-    shadow_end = (shadow_end - 1) & LbFPMath_AngleMask;
+    shadow_end = (shadow_end - 1) & ANGLE_MASK;
   result = shadow_start;
   *shadow_angle_limit_start_index = shadow_start;
   *shadow_angle_limit_end_index = shadow_end;
@@ -1660,7 +1660,7 @@ static char light_render_light_dynamic_uncached(struct Light *lgt, int radius, i
                 if (!subtile_coords_invalid(stl_x, stl_y))
                 {
                     int quadrant;
-                    long shadow_angle_limit_primary_index = LbArcTanAngle((stl_x << 8) - lgt->mappos.x.val, (stl_y << 8) - lgt->mappos.y.val) & LbFPMath_AngleMask;
+                    long shadow_angle_limit_primary_index = LbArcTanAngle((stl_x << 8) - lgt->mappos.x.val, (stl_y << 8) - lgt->mappos.y.val) & ANGLE_MASK;
                     if ( stl_x < lgt->mappos.x.stl.num )
                     {
                         if (stl_y < lgt->mappos.y.stl.num)
@@ -1783,7 +1783,7 @@ static char light_render_light_dynamic(struct Light *lgt, int radius, int render
                 {
                     unsigned int coord_y = stl_y << 8; // must be unsigned
                     unsigned int coord_x = stl_x << 8; // must be unsigned
-                    int angle = LbArcTanAngle(coord_x - lgt->mappos.x.val, coord_y - lgt->mappos.y.val) & LbFPMath_AngleMask;
+                    int angle = LbArcTanAngle(coord_x - lgt->mappos.x.val, coord_y - lgt->mappos.y.val) & ANGLE_MASK;
                     int quadrant;
                     if (stl_x < lgt->mappos.x.stl.num)
                     {
@@ -1816,7 +1816,7 @@ static char light_render_light_dynamic(struct Light *lgt, int radius, int render
                             calculate_shadow_angle(lgt->mappos.x.val, lgt->mappos.y.val, quadrant, stl_x, stl_y, &shadow_angle_limit_index, &shadow_angle_limit_secondary_index);
                             if (shadow_angle_limit_secondary_index < shadow_angle_limit_index)
                             {
-                                memset(&lish->shadow_limits[shadow_angle_limit_index], 1u, 2047 - shadow_angle_limit_index);
+                                memset(&lish->shadow_limits[shadow_angle_limit_index], 1u, ANGLE_MASK - shadow_angle_limit_index);
                                 shadow = shadow_angle_limit_secondary_index;
                                 shadow_limits = &lish->shadow_limits[0];
                             }
@@ -1928,7 +1928,7 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
                 }
                 MapCoord coord_x = subtile_coord(stl_x, 0);
                 MapCoord coord_y = subtile_coord(stl_y, 0);
-                long angle = LbArcTanAngle(coord_x - lgt->mappos.x.val, coord_y - lgt->mappos.y.val) & LbFPMath_AngleMask;
+                long angle = LbArcTanAngle(coord_x - lgt->mappos.x.val, coord_y - lgt->mappos.y.val) & ANGLE_MASK;
                 unsigned char shadow_limit = lish->shadow_limits[angle];
                 long shadow_start, shadow_end;
                 col = get_column_at(stl_x, stl_y);

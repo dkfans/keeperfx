@@ -362,19 +362,19 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
     {
         view_zoom_camera_in(cam, 30000, 0);
         // Compute new camera angle
-        long mv_a = (thing->move_angle_xy - cam->rotation_angle_x) & LbFPMath_AngleMask;
-        if (mv_a > LbFPMath_PI)
-          mv_a -= 2*LbFPMath_PI;
-        if (mv_a < -LbFPMath_PI/6)
+        long mv_a = (thing->move_angle_xy - cam->rotation_angle_x) & ANGLE_MASK;
+        if (mv_a > DEGREES_180)
+          mv_a -= DEGREES_360;
+        if (mv_a < -DEGREES_30)
         {
-            mv_a = -LbFPMath_PI/6;
+            mv_a = -DEGREES_30;
         } else
-        if (mv_a > LbFPMath_PI/6)
+        if (mv_a > DEGREES_30)
         {
-            mv_a = LbFPMath_PI/6;
+            mv_a = DEGREES_30;
         }
         cam->rotation_angle_x += mv_a;
-        cam->rotation_angle_x &= LbFPMath_AngleMask;
+        cam->rotation_angle_x &= ANGLE_MASK;
         // Now mv_a becomes a circle radius
         mv_a = get_creature_eye_height(thing) + thing->mappos.z.val;
         long mv_x = thing->mappos.x.val + distance_with_angle_to_coord_x(mv_a, cam->rotation_angle_x) - (MapCoordDelta)cam->mappos.x.val;
@@ -399,11 +399,11 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         cam->mappos.y.val += mv_y;
         if (cam->rotation_angle_x < 0)
         {
-          cam->rotation_angle_x += 2*LbFPMath_PI;
+          cam->rotation_angle_x += DEGREES_360;
         }
-        if (cam->rotation_angle_x >= 2*LbFPMath_PI)
+        if (cam->rotation_angle_x >= DEGREES_360)
         {
-          cam->rotation_angle_x -= 2*LbFPMath_PI;
+          cam->rotation_angle_x -= DEGREES_360;
         }
     }
     return 0;
@@ -661,7 +661,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         if (cam != NULL)
         {
           cam->zoom -= (24000 - player->isometric_view_zoom_level) / 16;
-          cam->rotation_angle_x += LbFPMath_PI/64;
+          cam->rotation_angle_x += DEGREES_2_8125;
           addval = (thing->clipbox_size_z >> 1);
           deltax = distance_with_angle_to_coord_x((long)thing->mappos.z.val+addval, cam->rotation_angle_x);
           deltay = distance_with_angle_to_coord_y((long)thing->mappos.z.val+addval, cam->rotation_angle_x);
@@ -690,7 +690,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   if ((player->view_mode != PVM_FrontView) && (cam != NULL))
   {
     cam->zoom = player->isometric_view_zoom_level;
-    cam->rotation_angle_x = LbFPMath_PI/4;
+    cam->rotation_angle_x = DEGREES_45;
   }
   light_turn_light_on(player->cursor_light_idx);
   player->allocflags &= ~PlaF_KeyboardInputDisabled;

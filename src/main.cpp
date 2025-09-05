@@ -331,7 +331,7 @@ void process_keeper_spell_aura(struct Thing *thing)
     long delta_x;
     long delta_y;
     amp = 5 * thing->clipbox_size_xy / 8;
-    direction = CREATURE_RANDOM(thing, 2*LbFPMath_PI);
+    direction = CREATURE_RANDOM(thing, DEGREES_360);
     delta_x = (amp * LbSinL(direction) >> 8);
     delta_y = (amp * LbCosL(direction) >> 8);
     pos.x.val = thing->mappos.x.val + (delta_x >> 8);

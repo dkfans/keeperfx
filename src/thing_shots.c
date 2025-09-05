@@ -314,7 +314,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
         case SlbBloF_WalledX|SlbBloF_WalledY:
         case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
         {
-            k = (thing->move_angle_xy & 0x700) | 256;
+            k = (thing->move_angle_xy & DEGREES_315) | DEGREES_45;
             switch(k)
             {
                 case ANGLE_NORTHEAST:
@@ -546,7 +546,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             case SlbBloF_WalledX|SlbBloF_WalledY:
             case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
             {
-                angle = (shotng->move_angle_xy & 0x700) | 256;
+                angle = (shotng->move_angle_xy & DEGREES_315) | DEGREES_45;
                 switch(angle)
                 {
                     case ANGLE_NORTHEAST:
@@ -1320,8 +1320,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
         } else
         {
             clear_thing_acceleration(shotng);
-            i = (shotng->move_angle_xy + LbFPMath_PI) & LbFPMath_AngleMask;
-            n = (shotng->move_angle_z + LbFPMath_PI) & LbFPMath_AngleMask;
+            i = (shotng->move_angle_xy + DEGREES_180) & ANGLE_MASK;
+            n = (shotng->move_angle_z + DEGREES_180) & ANGLE_MASK;
             set_thing_acceleration_angles(shotng, i, n);
             if (trgtng->class_id == TCls_Creature)
             {
@@ -1792,7 +1792,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             affect_nearby_enemy_creatures_with_wind(thing);
             break;
         case ShUL_Grenade:
-            thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
+            thing->move_angle_xy = (thing->move_angle_xy + DEGREES_20) & ANGLE_MASK;
             break;
         case ShUL_GodLightning:
             draw_god_lightning(thing);
@@ -1804,7 +1804,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             break;
             **/
         case ShUL_Lizard:
-            thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
+            thing->move_angle_xy = (thing->move_angle_xy + DEGREES_20) & ANGLE_MASK;
             int skill = thing->shot_lizard2.range;
             target = thing_get(thing->shot_lizard.target_idx);
             if (thing_is_invalid(target)) break;

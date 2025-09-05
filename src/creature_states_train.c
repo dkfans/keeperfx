@@ -399,7 +399,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
     case CrTrMd_TurnToTrainPost:
         pos.x.val = subtile_coord_center(cctrl->training.pole_stl_x);
         pos.y.val = subtile_coord_center(cctrl->training.pole_stl_y);
-        if (creature_turn_to_face(thing, &pos) < LbFPMath_PI/18)
+        if (creature_turn_to_face(thing, &pos) < DEGREES_10)
         {
           cctrl->training.mode = CrTrMd_DoTrainWithTrainPost;
           cctrl->training.train_timeout = 75;
@@ -448,7 +448,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         } else
         if (dist >= 156)
         {
-            if (creature_turn_to_face(thing, &crtng->mappos) < LbFPMath_PI/18)
+            if (creature_turn_to_face(thing, &crtng->mappos) < DEGREES_10)
             {
               cctrl->training.train_timeout--;
               if (cctrl->training.train_timeout > 0)

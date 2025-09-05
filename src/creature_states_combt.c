@@ -2265,7 +2265,7 @@ long creature_move_to_a_space_around_enemy(struct Thing *creatng, struct Thing *
         long angle_dt = angle_final;
         do
         {
-            int calc_idx = angle_dt / (LbFPMath_PI / 8);
+            int calc_idx = angle_dt / DEGREES_22_5;
             pos.x.val += 128 * pos_calcs[calc_idx][0];
             pos.y.val += 128 * pos_calcs[calc_idx][1];
             pos.z.val = 0;
@@ -2290,7 +2290,7 @@ long creature_move_to_a_space_around_enemy(struct Thing *creatng, struct Thing *
 
             angle_dt = get_angle_xy_to(&enmtng->mappos, &pos);
         }
-        while (get_angle_difference(angle_final, angle_dt) < LbFPMath_PI/8);
+        while (get_angle_difference(angle_final, angle_dt) < DEGREES_22_5);
         // Update Z coord
         pos.z.val = get_thing_height_at(creatng, &pos);
         // Check if we can accept that position
@@ -2753,7 +2753,7 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
         creature_move_to(figtng, &enmtng->mappos, figctrl->max_speed, 0, 0);
         return 0;
     }
-    if (creature_turn_to_face(figtng, &enmtng->mappos) >= LbFPMath_PI/12) {
+    if (creature_turn_to_face(figtng, &enmtng->mappos) >= DEGREES_15) {
         return 0;
     }
     // If the creature has self buff, use it now.
