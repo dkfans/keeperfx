@@ -102,6 +102,9 @@ enum CreatureCombatFlags {
     CmbtF_Waiting       = 0x04,
     CmbtF_ObjctFight    = 0x08,
     CmbtF_DoorFight     = 0x10,
+    CmbtF_unusedparam20 = 0x20,
+    CmbtF_unusedparam40 = 0x40,
+    CmbtF_unusedparam80 = 0x80,
 };
 
 enum CreatureAngerReasons {

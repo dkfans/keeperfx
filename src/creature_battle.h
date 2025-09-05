@@ -35,8 +35,9 @@ extern "C" {
 struct Thing;
 struct PlayerInfo;
 
-struct CreatureBattle {
+struct CreatureBattle { // sizeof = 17
   unsigned long fighters_num;
+  unsigned char unusedparam[9];
   unsigned short first_creatr;
   unsigned short last_creatr;
 };
