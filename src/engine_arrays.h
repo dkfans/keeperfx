@@ -45,6 +45,8 @@ struct WibbleTable {
   long lightness_offset;
   long view_width_offset;
   long view_height_offset;
+  long unusedparam_18;
+  long unusedparam_1C;
 };
 /******************************************************************************/
 extern long randomisors[512];

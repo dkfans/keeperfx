@@ -95,6 +95,7 @@ struct Ariadne { // sizeof = 102
   struct Coord3d next_position;
   struct Coord3d previous_position;
   unsigned char route_flags;
+  unsigned char unusedparam_1F;
   unsigned char hug_side;
   unsigned char update_state;
   unsigned char wallhug_active;
@@ -138,13 +139,14 @@ struct Gate { // sizeof = 28
   long pathfinding_direction;
 };
 
-struct Pathway {
+struct Pathway { // sizeof = 7192
   long start_coordinate_x;
   long start_coordinate_y;
   long finish_coordinate_x;
   long finish_coordinate_y;
   struct Gate points[256];
   long points_num;
+  long unusedfield;
 };
 
 struct WayPoints {
@@ -155,7 +157,7 @@ struct WayPoints {
   long waypoint_index_array[ARID_PATH_WAYPOINTS_COUNT];
 };
 
-struct Navigation {
+struct Navigation { // sizeof = 0x27
   unsigned char navstate;
   unsigned char side;
   unsigned char wallhug_retry_counter;
@@ -164,6 +166,7 @@ struct Navigation {
   long dist_to_final_pos;
   long distance_to_next_pos;
   long angle;
+  unsigned char unusedparam[4];
   SubtlCodedCoords first_colliding_block;
   SubtlCodedCoords second_colliding_block;
   PlayerBitFlags owner_flags[2];
