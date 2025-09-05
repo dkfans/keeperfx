@@ -51,7 +51,6 @@ struct AsianFont {
   unsigned long ndata_scanline;
   unsigned long sdata_shift;
   unsigned long sdata_scanline;
-  unsigned long unusedparam;
   unsigned long narrow_width;
   unsigned long narrow_height;
   unsigned long bits_width;
