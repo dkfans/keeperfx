@@ -1483,21 +1483,8 @@ void process_players_creature_control_packet_action(long plyr_idx)
       if (creature_control_invalid(cctrl))
         break;
       i = pckt->actn_par1;
-      inst_inf = creature_instance_info_get(i);
-      // Fix the issue of FPInstantCast=1 instance not working in the instance cheat menu.
-      // Cheat mode no need check any, just do it.
-      if (1 || !inst_inf->instant)
-      {
-        cctrl->active_instance_id = i;
-      } else
-      if (cctrl->instance_id == CrInst_NULL)
-      {
-          i = pckt->actn_par1;
-          process_player_use_instance(thing, i, pckt);
-          if (plyr_idx == my_player_number) {
-              instant_instance_selected(i);
-          }
-      }
+      // Cheat mode no need check any, just do/select it.
+      cctrl->active_instance_id = i;
       break;
       case PckA_DirectCtrlDragDrop:
       {
