@@ -95,6 +95,10 @@ TbBool first_person_see_item_desc = false;
 long old_mx;
 long old_my;
 
+//arbitrary state machine, not deserving own enum
+int synthetic_left = 0;
+int synthetic_right = 0;
+
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
 void get_creature_control_nonaction_inputs(void);
@@ -1849,8 +1853,6 @@ short get_creature_control_action_inputs(void)
 
 void get_packet_control_mouse_clicks(void)
 {
-    static int synthetic_left = 0; //arbitrary state machine, not deserving own enum
-    static int synthetic_right = 0;
     SYNCDBG(8,"Starting");
 
     if (flag_is_set(game.operation_flags, GOF_Paused))

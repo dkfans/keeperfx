@@ -1352,6 +1352,7 @@ void process_players_creature_control_packet_control(long idx)
             }
             else
             {
+                // cheat mode
                 inst_inf = creature_instance_info_get(i);
                 process_player_use_instance(cctng, i, pckt);
             }
@@ -1372,6 +1373,11 @@ void process_players_creature_control_packet_control(long idx)
                     {
                         process_player_use_instance(cctng, i, pckt);
                     }
+                }
+                else
+                {
+                    // cheat mode
+                    process_player_use_instance(cctng, i, pckt);
                 }
             }
         }
@@ -1478,7 +1484,9 @@ void process_players_creature_control_packet_action(long plyr_idx)
         break;
       i = pckt->actn_par1;
       inst_inf = creature_instance_info_get(i);
-      if (!inst_inf->instant)
+      // Fix the issue of FPInstantCast=1 instance not working in the instance cheat menu.
+      // Cheat mode no need check any, just do it.
+      if (1 || !inst_inf->instant)
       {
         cctrl->active_instance_id = i;
       } else

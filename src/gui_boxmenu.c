@@ -27,6 +27,7 @@
 #include "bflib_video.h"
 #include "bflib_vidraw.h"
 #include "frontend.h"
+#include "front_input.h"
 #include "creature_instances.h"
 #include "player_data.h"
 #include "player_instances.h"
@@ -776,14 +777,16 @@ TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn
 {
   if (left_button_released || right_button_released)
   {
-      short button_num;
-      if (left_button_released)
-      {
-          left_button_released = 0;
-          button_num = 1;
+    short button_num;
+    if (left_button_released)
+    {
+      left_button_released = 0;
+      synthetic_left = 0;
+      button_num = 1;
     } else
     {
       right_button_released = 0;
+      synthetic_right = 0;
       button_num = 2;
     }
     if (goptn->numfield_4 == 1)
@@ -824,6 +827,7 @@ short gui_process_inputs(void)
       {
         dragging_box.gbox = NULL;
         left_button_released = 0;
+        synthetic_left = 0;
       }
       result = true;
     } else
