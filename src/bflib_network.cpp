@@ -1522,12 +1522,13 @@ TbError HostDataCollection(void)
   nRetries = 0;
   while ( keepExchng )
   {
-    exchngNeeded = 1;
+    exchngNeeded = 0;
     for (i=0; i < maximumPlayers; i++)
     {
       if ((clientDataTable[i].isactive) && (!clientDataTable[i].has_exchanged_data))
       {
-        exchngNeeded = clientDataTable[i].has_exchanged_data;
+        exchngNeeded = 1;
+        break;
       }
     }
     if (exchngNeeded)
