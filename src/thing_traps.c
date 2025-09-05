@@ -575,7 +575,7 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
     thing->veloc_push_add.z.val += 0;
     set_flag(thing->state_flags, TF1_PushAdd);
     set_flag(thing->movement_flags, TMvF_MagicFall);
-    thing->move_angle_xy = 0;
+    thing->move_angle_xy = ANGLE_NORTH;
     return thing;
 }
 

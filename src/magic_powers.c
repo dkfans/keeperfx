@@ -1285,7 +1285,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 160;
     thing->state_flags |= TF1_PushAdd;
-    thing->move_angle_xy = 0;
+    thing->move_angle_xy = ANGLE_NORTH;
     initialise_thing_state(thing, CrSt_ImpBirth);
 
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);

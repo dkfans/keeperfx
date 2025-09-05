@@ -2031,7 +2031,7 @@ void teleport_familiar_to_summoner(struct Thing *famlrtng, struct Thing* creatng
     famlrtng->veloc_push_add.z.val += 0;
     set_flag(famlrtng->state_flags, TF1_PushAdd);
     set_flag(famlrtng->movement_flags, TMvF_MagicFall);
-    famlrtng->move_angle_xy = 0;
+    famlrtng->move_angle_xy = ANGLE_NORTH;
 }
 
 /**
@@ -4819,7 +4819,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->inertia_air = 8;
     crtng->movement_flags |= TMvF_ZeroVerticalVelocity;
     crtng->owner = owner;
-    crtng->move_angle_xy = 0;
+    crtng->move_angle_xy = ANGLE_NORTH;
     crtng->move_angle_z = 0;
     cctrl->max_speed = calculate_correct_creature_maxspeed(crtng);
     cctrl->shot_shift_x = crconf->shot_shift_x;
