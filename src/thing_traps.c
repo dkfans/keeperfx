@@ -433,9 +433,9 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
             if (abs(trpos_x - crpos_x) <= abs(trpos_y - crpos_y))
             {
                 if (crpos_y >= trpos_y)
-                    shotng->move_angle_xy = DEGREES_180;
+                    shotng->move_angle_xy = ANGLE_SOUTH;
                 else
-                    shotng->move_angle_xy = 0;
+                    shotng->move_angle_xy = ANGLE_NORTH;
             } else
             {
                 if (crpos_x >= trpos_x)
