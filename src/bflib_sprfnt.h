@@ -71,8 +71,6 @@ struct AsianDraw {
   unsigned long vertical_offset;
   unsigned long y_spacing;
   unsigned char *sprite_data;
-  unsigned long unusedparam;
-  unsigned long unusedparam2;
 };
 
 /**
