@@ -2137,6 +2137,50 @@ TbBool cmd_luatypedump(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_cheat_menu(PlayerNumber plyr_idx, char * args)
+{
+    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
+        return false;
+    }
+    char * pr2str = strsep(&args, " ");
+    if (pr2str == NULL) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as menu type");
+        return false;
+    }
+
+    int menu_type = -1;
+    if (strcmp(pr2str, "0") == 0 || strcasecmp(pr2str, "none") == 0)
+        menu_type = 0;
+    else if (strcmp(pr2str, "1") == 0 || strcasecmp(pr2str, "main") == 0)
+        menu_type = 1;
+    else if (strcmp(pr2str, "2") == 0 || strcasecmp(pr2str, "creature") == 0)
+        menu_type = 2;
+    else if (strcmp(pr2str, "3") == 0 || strcasecmp(pr2str, "instance") == 0)
+        menu_type = 3;
+
+    if (menu_type < 0) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "menu type is invalid. possible values: 0/1/2/3, none/main/creature/instance");
+        return false;
+    }
+
+    if (menu_type != 1)
+        close_main_cheat_menu();
+    if (menu_type != 2)
+        close_creature_cheat_menu();
+    if (menu_type != 3)
+        close_instance_cheat_menu();
+
+    if (menu_type == 1)
+        toggle_main_cheat_menu();
+    if (menu_type == 2)
+        toggle_creature_cheat_menu();
+    if (menu_type == 3)
+        toggle_instance_cheat_menu();
+
+    return true;
+}
+
 
 struct ConsoleCommand {
     const char * name;
@@ -2245,6 +2289,7 @@ static const struct ConsoleCommand console_commands[] = {
     { "quick.show", cmd_quick_show},
     { "lua", cmd_lua},
     { "luatypedump", cmd_luatypedump},
+    { "cheat.menu", cmd_cheat_menu},
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
 
