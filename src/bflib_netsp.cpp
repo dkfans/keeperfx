@@ -52,51 +52,51 @@ struct ReceiveCallbacks nilReceiveAspect = {
 class ServiceProvider *spPtr;
 /******************************************************************************/
 // Nil callbacks content
-void NilAddMsgCallback(unsigned long a1, char *a2, void *a3)
+void NilAddMsgCallback(unsigned long player_id, char *message, void *data)
 {
-  WARNLOG("hit(%lu, \"%s\", *)",a1,a2);
+  WARNLOG("hit(%lu, \"%s\", *)",player_id,message);
 }
 
-void NilDeleteMsgCallback(unsigned long a1, void *a2)
+void NilDeleteMsgCallback(unsigned long player_id, void *data)
 {
-  WARNLOG("hit(%lu, *)",a1);
+  WARNLOG("hit(%lu, *)",player_id);
 }
 
-void NilHostMsgCallback(unsigned long a1, void *a2)
+void NilHostMsgCallback(unsigned long player_id, void *data)
 {
-  WARNLOG("hit(%lu, *)",a1);
+  WARNLOG("hit(%lu, *)",player_id);
 }
 
-void NilUserSysMsgCallback(void *a1)
+void NilUserSysMsgCallback(void *data)
 {
   WARNLOG("hit(*)");
 }
 
-void *NilUserDataMsgCallback(unsigned long a1, unsigned long a2, unsigned long a3, void *a4)
+void *NilUserDataMsgCallback(unsigned long player_id, unsigned long message_type, unsigned long data_size, void *data)
 {
-  WARNLOG("hit(%lu, %lu, %lu, *)",a1,a2,a3);
+  WARNLOG("hit(%lu, %lu, %lu, *)",player_id,message_type,data_size);
   return NULL;
 }
 
-void NilRequestExchangeDataMsgCallback(unsigned long a1, unsigned long a2, void *a3)
+void NilRequestExchangeDataMsgCallback(unsigned long player_id, unsigned long data_size, void *data)
 {
-  WARNLOG("hit(%lu, %lu, *)",a1,a2);
+  WARNLOG("hit(%lu, %lu, *)",player_id,data_size);
 }
 
-void NilRequestCompositeExchangeDataMsgCallback(unsigned long a1, unsigned long a2, void *a3)
+void NilRequestCompositeExchangeDataMsgCallback(unsigned long player_id, unsigned long data_size, void *data)
 {
-  WARNLOG("hit(%lu, %lu, *)",a1,a2);
+  WARNLOG("hit(%lu, %lu, *)",player_id,data_size);
 }
 
-void *NilUnidirectionalMsgCallback(unsigned long a1, unsigned long a2, void *a3)
+void *NilUnidirectionalMsgCallback(unsigned long player_id, unsigned long message_type, void *data)
 {
-  WARNLOG("hit(%lu, %lu, *)",a1,a2);
+  WARNLOG("hit(%lu, %lu, *)",player_id,message_type);
   return NULL;
 }
 
-void NilSystemUserMsgCallback(unsigned long a1, void *a2, unsigned long a3, void *a4)
+void NilSystemUserMsgCallback(unsigned long player_id, void *system_data, unsigned long data_size, void *user_data)
 {
-  WARNLOG("hit(%lu, *, %lu, *)",a1,a3);
+  WARNLOG("hit(%lu, *, %lu, *)",player_id,data_size);
 }
 /******************************************************************************/
 // methods of virtual class ServiceProvider
@@ -192,12 +192,12 @@ ServiceProvider::ServiceProvider() :
     nsnames[i].in_use = false;
     memset(nsnames[i].text, 0, SESSION_NAME_MAX_LEN);
   }
-  this->field_7A4 = 0;
-  this->field_7A8 = 0;
+  this->reference_count = 0;
+  this->status_flags = 0;
   this->players_count = 0;
-  strcpy(this->field_D50,"");
+  strcpy(this->session_identifier,"");
   this->started = 0;
-  this->field_D78 = 0;
+  this->callback_context = 0;
   this->recvCallbacks = &nilReceiveAspect;
 }
 
@@ -209,16 +209,16 @@ ServiceProvider::~ServiceProvider()
 TbError ServiceProvider::Initialise(struct ReceiveCallbacks *nCallbacks, void *a2)
 {
   NETMSG("Initializing Service Provider");
-  if (this->field_7A4)
+  if (this->reference_count)
     WARNLOG("Service Provider already set up!");
   this->players_count = 0;
   ClearSessions();
-  this->field_D78 = a2;
+  this->callback_context = a2;
   if (nCallbacks != NULL)
     this->recvCallbacks = nCallbacks;
-  this->field_7A8 = 0;
+  this->status_flags = 0;
   this->started = false;
-  this->field_7A4++;
+  this->reference_count++;
   return Lb_OK;
 }
 
@@ -227,7 +227,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   unsigned char messageType;
   unsigned long dataLen;
   unsigned long seqNbr;
-  unsigned long p3;
+  unsigned long player_id_from_buffer;
   void *imsg;
   char str[32];
   long i;
@@ -258,20 +258,20 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
         WARNLOG("NIL target for userDataMsgCallbackProc");
         break;
       }
-      imsg = recvCallbacks->multiPlayer(this->localPlayerId, dataLen+4, seqNbr, this->field_D78);
+      imsg = recvCallbacks->multiPlayer(this->localPlayerId, dataLen+4, seqNbr, this->callback_context);
       if (imsg == NULL)
         break;
       memcpy(imsg, buf, dataLen+4);
       break;
   case NETMSGTYPE_ADD:
-      memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
+      memcpy(&player_id_from_buffer, (uchar *)buf+4, sizeof(unsigned long));
       snprintf(str, sizeof(str), "%s", (char*)buf + 8);
-      this->AddPlayer(p3, str, 0, 0);
+      this->AddPlayer(player_id_from_buffer, str, 0, 0);
       if (recvCallbacks->addMsg == NULL)
       {
         break;
       }
-      recvCallbacks->addMsg(p3, str, this->field_D78);
+      recvCallbacks->addMsg(player_id_from_buffer, str, this->callback_context);
       break;
   case NETMSGTYPE_DELETE:
       this->CheckForDeletedHost(buf);
@@ -281,7 +281,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
       {
         break;
       }
-      recvCallbacks->deleteMsg(dataLen, this->field_D78);
+      recvCallbacks->deleteMsg(dataLen, this->callback_context);
       break;
   case NETMSGTYPE_PROBABLYHOST:
       break;
@@ -291,32 +291,32 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
         WARNLOG("NIL target for systemUserMsgCallbackProc");
         break;
       }
-      recvCallbacks->systemUserMsg(this->localPlayerId, (char *)buf+4, dataLen, this->field_D78);
+      recvCallbacks->systemUserMsg(this->localPlayerId, (char *)buf+4, dataLen, this->callback_context);
       break;
   case NETMSGTYPE_MPREQEXDATA:
-      memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
+      memcpy(&player_id_from_buffer, (uchar *)buf+4, sizeof(unsigned long));
       if (recvCallbacks->mpReqExDataMsg == NULL)
       {
         break;
       }
-      recvCallbacks->mpReqExDataMsg(p3, seqNbr, this->field_D78);
+      recvCallbacks->mpReqExDataMsg(player_id_from_buffer, seqNbr, this->callback_context);
       break;
   case NETMSGTYPE_MPREQCOMPEXDATA:
-      memcpy(&p3, (uchar *)buf+4, sizeof(unsigned long));
+      memcpy(&player_id_from_buffer, (uchar *)buf+4, sizeof(unsigned long));
       if (recvCallbacks->mpReqCompsExDataMsg == NULL)
       {
         break;
       }
-      recvCallbacks->mpReqCompsExDataMsg(p3, seqNbr, this->field_D78);
+      recvCallbacks->mpReqCompsExDataMsg(player_id_from_buffer, seqNbr, this->callback_context);
       break;
   case NETMSGTYPE_UNKNOWN:
       // This callback seems to never be used
-      p3 = 0;
-      if (recvCallbacks->field_24 == NULL)
+      player_id_from_buffer = 0;
+      if (recvCallbacks->unhandledMessageTypeCallback == NULL)
       {
         break;
       }
-      recvCallbacks->field_24(p3, buf);
+      recvCallbacks->unhandledMessageTypeCallback(player_id_from_buffer, buf);
       break;
   default:
       WARNLOG("messageType is out of range");
@@ -374,7 +374,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           if (flags & 1) {
               somePtr = 0;
               if (recvCallbacks->multiPlayer) {
-                  somePtr = recvCallbacks->multiPlayer(playerId, dataLen + 4, seqNbr, field_D78);
+                  somePtr = recvCallbacks->multiPlayer(playerId, dataLen + 4, seqNbr, callback_context);
               }
               else {
                   NETMSG("NIL target for userDataMsgCallbackProc"); //rename
@@ -442,7 +442,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           }
 
           if (recvCallbacks->addMsg) {
-              recvCallbacks->addMsg(tmpInt2, array3, field_D78);
+              recvCallbacks->addMsg(tmpInt2, array3, callback_context);
           }
 
           break;
@@ -463,7 +463,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           DeletePlayer(id);
           memcpy(&tmpInt1, msgBuffer, sizeof(tmpInt1));
           if (recvCallbacks->deleteMsg) {
-              recvCallbacks->deleteMsg(tmpInt1, field_D78);
+              recvCallbacks->deleteMsg(tmpInt1, callback_context);
           }
 
           break;
@@ -482,7 +482,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           }
 
           if (recvCallbacks->systemUserMsg) {
-              recvCallbacks->systemUserMsg(playerId, msgBuffer, (*(ulong*) msgBuffer) & 0xFFFFF, field_D78);
+              recvCallbacks->systemUserMsg(playerId, msgBuffer, (*(ulong*) msgBuffer) & 0xFFFFF, callback_context);
           }
 
           break;
@@ -500,7 +500,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
           memcpy(&tmpInt1, msgBuffer + 4, sizeof(tmpInt1));
           if (recvCallbacks->mpReqExDataMsg) {
-              recvCallbacks->mpReqExDataMsg(tmpInt1, seqNbr, field_D78);
+              recvCallbacks->mpReqExDataMsg(tmpInt1, seqNbr, callback_context);
           }
 
           break;
@@ -517,14 +517,14 @@ TbError ServiceProvider::Receive(unsigned long flags)
 
           memcpy(&tmpInt1, msgBuffer + 4, sizeof(tmpInt1));
           if (recvCallbacks->mpReqCompsExDataMsg) {
-              recvCallbacks->mpReqCompsExDataMsg(tmpInt1, seqNbr, field_D78);
+              recvCallbacks->mpReqCompsExDataMsg(tmpInt1, seqNbr, callback_context);
           }
 
           break;
       case NETMSGTYPE_UNIDIRECTIONAL:
           if (flags & 0x40) {
               if (recvCallbacks->unidirectionalMsg) {
-                  somePtr = recvCallbacks->unidirectionalMsg(playerId, dataLen + 4, field_D78);
+                  somePtr = recvCallbacks->unidirectionalMsg(playerId, dataLen + 4, callback_context);
               }
               else {
                   NETMSG("NIL target for unidirectionalMsgCallbackProc");
@@ -548,14 +548,14 @@ TbError ServiceProvider::Receive(unsigned long flags)
               break;
           }
 
-          if (!recvCallbacks->field_24) {
+          if (!recvCallbacks->unhandledMessageTypeCallback) {
               break;
           }
 
           msgLen = dataLen + 4;
           somePtr = calloc(msgLen, 1); //TODO NET check that this is freed somewhere...
           ReadMessage(&playerId, somePtr, &msgLen);
-          recvCallbacks->field_24(playerId, somePtr);
+          recvCallbacks->unhandledMessageTypeCallback(playerId, somePtr);
 
           break;
       default:
@@ -569,10 +569,10 @@ TbError ServiceProvider::Receive(unsigned long flags)
 TbError ServiceProvider::Release(void)
 {
   NETMSG("Releasing Service Provider");
-  this->field_7A8 = 0;
-  if (this->field_7A4 != 1)
+  this->status_flags = 0;
+  if (this->reference_count != 1)
     WARNLOG("Service Provider not set up!");
-  this->field_7A4--;
+  this->reference_count--;
   return Lb_OK;
 }
 
@@ -607,8 +607,8 @@ TbError ServiceProvider::AddPlayer(unsigned long plyr_id, const char *namestr, u
   netplyr = &this->players[i];
   netplyr->id = plyr_id;
   net_copy_name_string(netplyr->name,namestr,NETSP_PLAYER_NAME_MAX_LEN);
-  netplyr->field_5 = a3;
-  netplyr->field_9 = a4;
+  netplyr->reserved_data = a3;
+  netplyr->is_active = a4;
   this->players_count++;
   return Lb_OK;
 }
@@ -798,7 +798,7 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
   for (i=0; i < players_count; i++)
   {
     netplyr = &this->players[i];
-    if ((plyr_id == netplyr->id) && (netplyr->field_9))
+    if ((plyr_id == netplyr->id) && (netplyr->is_active))
     {
       //idx1 = i;
       got = 1;
@@ -812,20 +812,20 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
   for (i=0; i < players_count; i++)
   {
     netplyr = &this->players[i];
-    if (!netplyr->field_9)
+    if (!netplyr->is_active)
     {
       if ( got )
       {
-        if ( ebp0 > *(_DWORD *)&v5->field_D50[1] )
+        if ( ebp0 > *(_DWORD *)&v5->session_identifier[1] )
         {
-          ebp0 = *(_DWORD *)&v5->field_D50[1];
+          ebp0 = *(_DWORD *)&v5->session_identifier[1];
           idx2 = i;
         }
       } else
       {
         got = 1;
         idx2 = i;
-        ebp0 = *(_DWORD *)&v5->field_D50[1];
+        ebp0 = *(_DWORD *)&v5->session_identifier[1];
       }
     }
   }
@@ -833,9 +833,9 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
   if ( got )
   {
     netplyr = &this->players[idx1];
-    netplyr->field_9 = 1;
+    netplyr->is_active = 1;
     netplyr = &this->players[idx1];
-    netplyr->field_9 = 0;
+    netplyr->is_active = 0;
     if (recvCallbacks->deleteMsg != NULL)
       (recvCallbacks->deleteMsg(ebp0, *(_DWORD *)&this1[1].nsnames[23].field_9[16]);
   }

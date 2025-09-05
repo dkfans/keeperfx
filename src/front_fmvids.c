@@ -178,7 +178,7 @@ void demo(void)
 {
     static long index = 0;
     char *fname;
-    switch (demo_item[index].numfield_0)
+    switch (demo_item[index].kind)
     {
     case DIK_PlaySmkVideo:
         fname = prepare_file_path(FGrp_LoData,demo_item[index].fname);
@@ -199,7 +199,7 @@ void demo(void)
         break;
     }
     index++;
-    if (demo_item[index].numfield_0 == DIK_ListEnd)
+    if (demo_item[index].kind == DIK_ListEnd)
       index = 0;
 }
 /******************************************************************************/

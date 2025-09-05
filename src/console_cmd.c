@@ -191,15 +191,15 @@ int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
         }
         data_list[i].label = label_list[i];
 
-        data_list[i].numfield_4 = 1;
+        data_list[i].is_enabled = 1;
         data_list[i].callback = click_fn;
         data_list[i].acb_param1 = plyr_idx;
-        data_list[i].field_11 = max_count;
+        data_list[i].max_count = max_count;
         data_list[i].cb_param1 = plyr_idx;
-        data_list[i].field_1D = i;
+        data_list[i].option_index = i;
     }
     data_list[i].label = "!";
-    data_list[i].numfield_4 = 0;
+    data_list[i].is_enabled = 0;
     return i;
 }
 
@@ -561,13 +561,13 @@ TbBool cmd_comp_procs(PlayerNumber plyr_idx, char * args)
         &cmd_comp_procs_click);
     cmd_comp_procs_data[0].active_cb = &cmd_comp_procs_update;
     cmd_comp_procs_data[i].label = "======";
-    cmd_comp_procs_data[i].numfield_4 = 1;
+    cmd_comp_procs_data[i].is_enabled = 1;
     i++;
     cmd_comp_procs_data[i].label = cmd_comp_procs_label[COMPUTER_PROCESSES_COUNT];
-    cmd_comp_procs_data[i].numfield_4 = 1;
+    cmd_comp_procs_data[i].is_enabled = 1;
     i++;
     cmd_comp_procs_data[i].label = "!";
-    cmd_comp_procs_data[i].numfield_4 = 0;
+    cmd_comp_procs_data[i].is_enabled = 0;
     gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_procs_data);
     return true;
 }
@@ -633,18 +633,18 @@ TbBool cmd_reveal(PlayerNumber plyr_idx, char * args)
         r = atol(pr2str);
     }
     if (r > 0) {
-        int r2 = r / 2;
+        int radius_offset = r / 2;
         struct Packet * pckt = get_packet_direct(player->packet_num);
         MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
         MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
         clear_dig_for_map_rect(player->id_number,
-                                subtile_slab(stl_x - r2),
-                                subtile_slab(stl_x + r - r2),
-                                subtile_slab(stl_y - r2),
-                                subtile_slab(stl_y + r - r2)
+                                subtile_slab(stl_x - radius_offset),
+                                subtile_slab(stl_x + r - radius_offset),
+                                subtile_slab(stl_y - radius_offset),
+                                subtile_slab(stl_y + r - radius_offset)
         );
-        reveal_map_rect(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
-        panel_map_update(stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
+        reveal_map_rect(player->id_number, stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset);
+        panel_map_update(stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset);
     } else {
         reveal_whole_map(player);
     }
@@ -664,11 +664,11 @@ TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
         r = atol(pr2str);
     }
     if (r > 0) {
-        int r2 = r / 2;
+        int radius_offset = r / 2;
         struct Packet * pckt = get_packet_direct(player->packet_num);
         MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
         MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
-        conceal_map_area(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2, false);
+        conceal_map_area(player->id_number, stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset, false);
     } else {
         conceal_map_area(player->id_number, 0, game.map_subtiles_x - 1, 0, game.map_subtiles_y - 1, false);
     }

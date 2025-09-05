@@ -287,14 +287,14 @@ short researching(struct Thing *thing)
           // Do some random thinking
           if ((cctrl->turns_at_job % 16) == 0)
           {
-              long i = CREATURE_RANDOM(thing, LbFPMath_PI) - LbFPMath_PI / 2;
-              cctrl->research.random_thinking_angle = ((long)thing->move_angle_xy + i) & LbFPMath_AngleMask;
+              long i = CREATURE_RANDOM(thing, DEGREES_180) - DEGREES_90;
+              cctrl->research.random_thinking_angle = ((long)thing->move_angle_xy + i) & ANGLE_MASK;
               cctrl->research.job_stage = 4;
           }
       } else
       {
           // Look at different direction while thinking
-          if (creature_turn_to_face_angle(thing, cctrl->research.random_thinking_angle) < LbFPMath_PI/18)
+          if (creature_turn_to_face_angle(thing, cctrl->research.random_thinking_angle) < DEGREES_10)
           {
               cctrl->research.job_stage = 3;
           }

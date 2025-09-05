@@ -269,7 +269,7 @@ TbBool update_3d_sound_receiver(struct PlayerInfo* player)
     if (cam == NULL)
         return false;
     S3DSetSoundReceiverPosition(cam->mappos.x.val, cam->mappos.y.val, cam->mappos.z.val);
-    S3DSetSoundReceiverOrientation(cam->orient_a, cam->orient_b, cam->orient_c);
+    S3DSetSoundReceiverOrientation(cam->rotation_angle_x, cam->rotation_angle_y, cam->rotation_angle_z);
     if (
         cam->view_mode == PVM_IsoWibbleView ||
         cam->view_mode == PVM_FrontView ||
@@ -374,7 +374,7 @@ void update_player_sounds(void)
 
     // Music and sound control
     if ( !SoundDisabled ) {
-        if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) ) {
+        if ( (game.turns_fastforward == 0) && (!game.packet_loading_in_progress) ) {
             MonitorStreamedSoundTrack();
         }
     }
@@ -399,14 +399,14 @@ TbBool init_sound(void)
     snd_settng->sound_type = 1622;
     snd_settng->sound_data_path = sound_dir;
     snd_settng->dir3 = sound_dir;
-    snd_settng->field_12 = 1;
+    snd_settng->sound_buffer_enable = 1;
     snd_settng->stereo = 1;
     snd_settng->max_number_of_samples = 100;
     snd_settng->danger_music = 0;
     snd_settng->no_load_music = 1;
     snd_settng->no_load_sounds = 1;
-    snd_settng->field_16 = 0;
-    snd_settng->field_18 = 1;
+    snd_settng->sound_debug_mode = 0;
+    snd_settng->audio_device_enable = 1;
     snd_settng->redbook_enable = ((features_enabled & Ft_NoCdMusic) == 0);
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);

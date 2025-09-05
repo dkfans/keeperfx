@@ -51,28 +51,28 @@ struct AsianFont {
   unsigned long ndata_scanline;
   unsigned long sdata_shift;
   unsigned long sdata_scanline;
-  unsigned long field_20;
-  unsigned long field_24;
-  unsigned long field_28;
+  unsigned long unusedparam;
+  unsigned long narrow_width;
+  unsigned long narrow_height;
   unsigned long bits_width;
   unsigned long bits_height;
-  unsigned long field_34;
-  unsigned long field_38;
-  unsigned long field_3C;
-  unsigned long field_40;
-  unsigned long field_44;
+  unsigned long narrow_spacing;
+  unsigned long kana_spacing;
+  unsigned long wide_spacing;
+  unsigned long baseline_offset;
+  unsigned long line_spacing;
 };
 
 struct AsianDraw {
   unsigned long draw_char;
   unsigned long bits_width;
   unsigned long bits_height;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned long field_14;
+  unsigned long character_spacing;
+  unsigned long vertical_offset;
+  unsigned long y_spacing;
   unsigned char *sprite_data;
-  unsigned long field_1C;
-  unsigned long field_20;
+  unsigned long unusedparam;
+  unsigned long unusedparam2;
 };
 
 /**

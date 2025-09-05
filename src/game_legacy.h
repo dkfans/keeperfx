@@ -72,11 +72,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 enum GameKinds {
-    GKind_Unknown0 = 0,
-    GKind_Unknown1,
+    GKind_Unset = 0,
+    GKind_NonInteractiveState,
     GKind_LocalGame,
-    GKind_Unknown3,
-    GKind_Unknown4,
+    GKind_LimitedState,
+    GKind_UnusedSlot,
     GKind_MultiGame,
 };
 
@@ -89,14 +89,14 @@ enum GameOperationFlags {
 };
 
 enum GameNumfieldDFlags {
-    GNFldD_Unkn01 = 0x01,
-    GNFldD_Unkn02 = 0x02,
-    GNFldD_Unkn04 = 0x04,
+    GNFldD_CreatureViewMode = 0x01,
+    GNFldD_unusedparam02 = 0x02,
+    GNFldD_ComputerPlayerProcessing = 0x04,
     GNFldD_CreaturePasngr = 0x08, // Possessing a creature as a passenger (no direct control)
-    GNFldD_Unkn10 = 0x10,
-    GNFldD_Unkn20 = 0x20,
-    GNFldD_Unkn40 = 0x40,
-    GNFldD_Unkn80 = 0x80,
+    GNFldD_WaitSleepMode = 0x10,
+    GNFldD_StatusPanelDisplay = 0x20,
+    GNFldD_RoomFlameProcessing = 0x40,
+    GNFldD_unusedparam80 = 0x80,
 };
 /******************************************************************************/
 #pragma pack(1)
@@ -130,18 +130,18 @@ struct Game {
     unsigned char system_flags;
     /** Flags which control how the game operates, mostly defined by command line. */
     unsigned char operation_flags;
-    unsigned char numfield_D; //flags in enum GameNumfieldDFlags
+    unsigned char view_mode_flags; //flags in enum GameNumfieldDFlags
     unsigned char flags_font;
     unsigned char flags_gui;
     unsigned char eastegg01_cntr;
-    unsigned char flags_cd;
+    unsigned char mode_flags;
     unsigned char eastegg02_cntr;
     char music_track; // cdrom / default music track to resume after load
     char music_fname[DISKPATH_SIZE]; // custom music file to resume after load
-    char numfield_15;
+    char save_game_slot;
     LevelNumber selected_level_number;
-    char numfield_1A;
-    unsigned char numfield_1B;
+    char active_lens_type;
+    unsigned char applied_lens_type;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
     struct Things things;
@@ -174,13 +174,13 @@ struct Game {
     struct PacketSaveHead packet_save_head;
     unsigned long turns_stored;
     unsigned long turns_fastforward;
-    unsigned char numfield_149F38;
+    unsigned char packet_loading_in_progress;
     unsigned char packet_checksum_verify;
     unsigned long log_things_start_turn;
     unsigned long log_things_end_turn;
     unsigned long turns_packetoff;
     PlayerNumber local_plyr_idx;
-    unsigned char numfield_149F47; // something with packetload
+    unsigned char packet_load_initialized; // something with packetload
     // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     struct Event event[EVENTS_COUNT];

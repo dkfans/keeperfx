@@ -77,11 +77,11 @@ const char *thing_classes[] = {
     "EFFECTGEN",
     "TRAP",
     "DOOR",
-    "UNKNOWN10",
-    "UNKNOWN11",
+    "UNUSEDPARAM10",
+    "UNUSEDPARAM11",
     "AMBIENTSND",
     "CAVEIN",
-    "UNKNOWN14",
+    "UNUSEDPARAM14",
 };
 /******************************************************************************/
 const char *thing_class_code_name(ThingClass class_id)
@@ -1026,7 +1026,7 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, HitPoints amo
 static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0) {
+    if ((cctrl->creature_control_flags & CCFlg_PreventDamage) != 0) {
         return 0;
     }
     // Get correct armour value.

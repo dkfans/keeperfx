@@ -69,7 +69,7 @@ TbBool remove_active_samples_from_emitter(struct SoundEmitter *emit);
 /******************************************************************************/
 // Functions
 
-long dummy_line_of_sight_function(long a1, long a2, long a3, long a4, long a5, long a6)
+long dummy_line_of_sight_function(long receiver_x, long receiver_y, long receiver_z, long emitter_x, long emitter_y, long emitter_z)
 {
     return 1;
 }
@@ -187,9 +187,9 @@ long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z)
 
 long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c)
 {
-    Receiver.orient_a = ori_a & LbFPMath_AngleMask;
-    Receiver.orient_b = ori_b & LbFPMath_AngleMask;
-    Receiver.orient_c = ori_c & LbFPMath_AngleMask;
+    Receiver.rotation_angle_x = ori_a & ANGLE_MASK;
+    Receiver.rotation_angle_y = ori_b & ANGLE_MASK;
+    Receiver.rotation_angle_z = ori_c & ANGLE_MASK;
     return 1;
 }
 
@@ -251,7 +251,7 @@ TbBool S3DEmitterHasFinishedPlaying(SoundEmitterID eidx)
     struct SoundEmitter* emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
         return true;
-    return ((emit->flags & Emi_UnknownPlay) == 0);
+    return ((emit->flags & Emi_IsPlaying) == 0);
 }
 
 TbBool S3DMoveSoundEmitterTo(SoundEmitterID eidx, long x, long y, long z)
@@ -281,7 +281,7 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, SoundSmplTblID smptbl_id, 
     emit->pos.val_x = x;
     emit->pos.val_y = y;
     emit->pos.val_z = z;
-    emit->field_1 = flags;
+    emit->emitter_flags = flags;
     emit->curr_pitch = 100;
     emit->target_pitch = 100;
     if (start_emitter_playing(emit, smptbl_id, bank_id, pitch, loudness, repeats, 3, flags, priority))
@@ -404,7 +404,7 @@ long get_emitter_pan(const struct SoundReceiver *recv, const struct SoundEmitter
       return 64;
     }
     long angle_b = LbArcTanAngle(diff_x, diff_y);
-    long angle_a = recv->orient_a;
+    long angle_a = recv->rotation_angle_x;
     long angdiff = get_angle_difference(angle_a, angle_b);
     long angsign = get_angle_sign(angle_a, angle_b);
     long i = (radius - deadzone_radius) * LbSinL(angsign * angdiff) >> 16;
@@ -444,7 +444,7 @@ long get_emitter_pitch_from_doppler(const struct SoundReceiver *recv, struct Sou
 long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitter *emit, long *pan, long *volume, long *pitch)
 {
     TbBool on_sight;
-    if ((emit->field_1 & 0x08) != 0)
+    if ((emit->emitter_flags & 0x08) != 0)
     {
         *volume = 127;
         *pan = 64;
@@ -452,7 +452,7 @@ long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitte
         return 1;
     }
     long dist = get_emitter_distance(recv, emit);
-    if ((emit->field_1 & 0x04) != 0) {
+    if ((emit->emitter_flags & 0x04) != 0) {
         on_sight = 1;
     } else {
         on_sight = get_emitter_sight(recv, emit);
@@ -485,11 +485,11 @@ long set_emitter_pan_volume_pitch(struct SoundEmitter *emit, long pan, long volu
         struct S3DSample* sample = &SampleList[i];
         if ((sample->is_playing != 0) && (sample->emit_ptr == emit))
         {
-            if ((sample->flags & Smp_Unknown02) == 0) {
+            if ((sample->flags & Smp_NoVolumeUpdate) == 0) {
               SetSampleVolume(get_emitter_id(emit), sample->smptbl_id, volume * (long)sample->base_volume / 256);
               SetSamplePan(get_emitter_id(emit), sample->smptbl_id, pan);
             }
-            if ((sample->flags & Smp_Unknown01) == 0) {
+            if ((sample->flags & Smp_NoPitchUpdate) == 0) {
               SetSamplePitch(get_emitter_id(emit), sample->smptbl_id, pitch * (long)sample->base_pitch / 100);
             }
         }
@@ -507,7 +507,7 @@ TbBool process_sound_emitters(void)
     for (i = 0; i < NoSoundEmitters; i++)
     {
         emit = S3DGetSoundEmitter(i);
-        if ( ((emit->flags & Emi_IsAllocated) != 0) && ((emit->flags & Emi_UnknownPlay) != 0) )
+        if ( ((emit->flags & Emi_IsAllocated) != 0) && ((emit->flags & Emi_IsPlaying) != 0) )
         {
             if ( emitter_is_playing(emit) )
             {
@@ -519,7 +519,7 @@ TbBool process_sound_emitters(void)
                 }
             } else
             {
-                emit->flags ^= Emi_UnknownPlay;
+                emit->flags ^= Emi_IsPlaying;
             }
         }
     }
@@ -546,7 +546,7 @@ TbBool remove_active_samples_from_emitter(struct SoundEmitter *emit)
         struct S3DSample* sample = &SampleList[i];
         if ( (sample->is_playing != 0) && (sample->emit_ptr == emit) )
         {
-            if (sample->field_1D == -1)
+            if (sample->repeat_count == -1)
             {
                 stop_sample(get_emitter_id(emit), sample->smptbl_id, sample->bank_id);
                 sample->is_playing = 0;
@@ -788,7 +788,7 @@ TbBool process_sound_samples(void)
             if (sample->emit_ptr != NULL)
             {
               if ( (sample->volume == 0) ||
-                 ( ((sample->emit_ptr->field_1 & 0x08) == 0) && (get_sound_distance(&sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance) ) )
+                 ( ((sample->emit_ptr->emitter_flags & 0x08) == 0) && (get_sound_distance(&sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance) ) )
                 kick_out_sample(i);
             }
         }
@@ -886,7 +886,7 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     sample->smptbl_id = smptbl_id;
     sample->bank_id = bank_id;
     sample->emit_ptr = emit;
-    sample->field_1D = fild1D;
+    sample->repeat_count = fild1D;
     sample->volume = volume;
     sample->pan = pan;
     sample->base_pitch = smpitch;
@@ -897,7 +897,7 @@ long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, 
     sample->emit_idx = emit->index;
     sample->sfxid = get_sample_sfxid(smptbl_id, bank_id);
     sample->base_volume = loudness;
-    emit->flags |= Emi_UnknownPlay;
+    emit->flags |= Emi_IsPlaying;
     return 1;
 }
 

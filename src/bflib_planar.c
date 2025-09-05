@@ -41,46 +41,46 @@ void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBo
 }
 
 /**
- * Returns symmetrical difference between angles, ranged -LbFPMath_PI to LbFPMath_PI.
+ * Returns symmetrical difference between angles, ranged -DEGREES_180 to DEGREES_180.
  * @param angle_a
  * @param angle_b
  */
 long get_angle_symmetric_difference(long angle_a, long angle_b)
 {
-    long diff = (angle_a & LbFPMath_AngleMask) - (angle_b & LbFPMath_AngleMask);
-    if (diff > LbFPMath_PI)
-        diff = (2*LbFPMath_PI - diff);
+    long diff = (angle_a & ANGLE_MASK) - (angle_b & ANGLE_MASK);
+    if (diff > DEGREES_180)
+        diff = (DEGREES_360 - diff);
     else
-    if (diff < -LbFPMath_PI)
-        diff = (2*LbFPMath_PI + diff);
+    if (diff < -DEGREES_180)
+        diff = (DEGREES_360 + diff);
     return diff;
 }
 
 /**
- * Returns unsigned difference between angles, ranged 0 to LbFPMath_PI.
+ * Returns unsigned difference between angles, ranged 0 to DEGREES_180.
  * Information about sign of the angle is not provided.
  * @param angle_a
  * @param angle_b
  */
 long get_angle_difference(long angle_a, long angle_b)
 {
-    long diff = abs((angle_a & LbFPMath_AngleMask) - (angle_b & LbFPMath_AngleMask));
-    if (diff > LbFPMath_PI)
-        diff = (2*LbFPMath_PI - diff);
+    long diff = abs((angle_a & ANGLE_MASK) - (angle_b & ANGLE_MASK));
+    if (diff > DEGREES_180)
+        diff = (DEGREES_360 - diff);
     return diff;
 }
 
 long get_angle_sign(long angle_a, long angle_b)
 {
-    long diff = (angle_b & LbFPMath_AngleMask) - (angle_a & LbFPMath_AngleMask);
+    long diff = (angle_b & ANGLE_MASK) - (angle_a & ANGLE_MASK);
     if (diff == 0)
         return 0;
-    if (abs(diff) > LbFPMath_PI)
+    if (abs(diff) > DEGREES_180)
     {
       if (diff >= 0)
-          diff -= 2*LbFPMath_PI;
+          diff -= DEGREES_360;
       else
-          diff += 2*LbFPMath_PI;
+          diff += DEGREES_360;
     }
     if (diff == 0)
         return 0;

@@ -1275,7 +1275,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
         cctrl->summon_spl_idx = 0;
         remove_first_creature(thing); //temporary units are not real creatures
         cctrl->unsummon_turn = game.play_gameturn + powerst->duration;
-        set_flag(cctrl->flgfield_2, TF2_SummonedCreature);
+        set_flag(cctrl->creature_state_flags, TF2_SummonedCreature);
     }
     if (powerst->strength[power_level] != 0)
     {
@@ -1285,7 +1285,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 160;
     thing->state_flags |= TF1_PushAdd;
-    thing->move_angle_xy = 0;
+    thing->move_angle_xy = ANGLE_NORTH;
     initialise_thing_state(thing, CrSt_ImpBirth);
 
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -1334,7 +1334,7 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
         cctrl->summon_spl_idx = 0;
         remove_first_creature(thing); //temporary units are not real creatures
         cctrl->unsummon_turn = game.play_gameturn + powerst->duration;
-        set_flag(cctrl->flgfield_2, TF2_SummonedCreature);
+        set_flag(cctrl->creature_state_flags, TF2_SummonedCreature);
     }
     initialise_thing_state(thing, CrSt_CreatureHeroEntering);
     thing->rendering_flags |= TRF_Invisible;
@@ -1622,10 +1622,10 @@ TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, 
     setup_person_move_to_coord(creatng, cta_pos, NavRtF_Default);
     creatng->continue_state = CrSt_ArriveAtCallToArms;
     cctrl->called_to_arms = true;
-    if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
+    if (flag_is_set(cctrl->creature_control_flags, CCFlg_NoCompControl))
     {
         WARNLOG("The %s index %d is called to arms with no comp control, fixing", thing_model_name(creatng), (int)creatng->index);
-        clear_flag(cctrl->flgfield_1, CCFlg_NoCompControl);
+        clear_flag(cctrl->creature_control_flags, CCFlg_NoCompControl);
     }
     return true;
 }

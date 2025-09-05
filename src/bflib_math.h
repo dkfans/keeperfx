@@ -28,9 +28,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define LbFPMath_PI 1024
-#define LbFPMath_TAU 2048
-#define LbFPMath_AngleMask 0x7FF
 /** Amount of fractional bits in resulting values of trigonometric operations. */
 #define LbFPMath_TrigmBits 16
 
@@ -60,7 +57,7 @@ enum MathOperator {
 };
 
 struct Proportion { // sizeof = 8
-    long field_0;
+    long base_value;
     long distance_ratio;
 };
 
@@ -75,7 +72,7 @@ long LbCosL(long x);
 long LbSqrL(long x);
 long LbArcTanL(long arg);
 long LbArcTanAngle(long x,long n);
-long LbMathOperation(unsigned char opkind, long val1, long val2);
+long LbMathOperation(unsigned char opkind, long first_operand, long second_operand);
 unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 TbBool LbNumberSignsSame(long num_a, long num_b);
 char LbCompareMultiplications(long mul1a, long mul1b, long mul2a, long mul2b);

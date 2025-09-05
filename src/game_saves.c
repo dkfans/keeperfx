@@ -418,7 +418,7 @@ TbBool load_game(long slot_num)
     player->palette_fade_step_possession = 0;
     player->lens_palette = 0;
     PaletteSetPlayerPalette(player, engine_palette);
-    reinitialise_eye_lens(game.numfield_1B);
+    reinitialise_eye_lens(game.applied_lens_type);
     // Update the lights system state
     light_import_system_state(&game.lightst);
     // Victory state
@@ -683,7 +683,7 @@ LevelNumber move_campaign_to_next_level(void)
     SYNCDBG(15,"Campaign move %ld to %ld",(long)curr_lvnum,(long)lvnum);
     {
         struct PlayerInfo* player = get_my_player();
-        player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+        player->display_flags &= ~PlaF6_PlyrHasQuit;
     }
     if (lvnum != LEVELNUMBER_ERROR)
     {

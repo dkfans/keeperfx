@@ -40,9 +40,9 @@ extern "C" {
 
 enum PlayerInitFlags {
     PlaF_Allocated               = 0x01,
-    PlaF_Unknown2                = 0x02,
+    PlaF_unusedparam             = 0x02,
     PlaF_NewMPMessage            = 0x04,
-    PlaF_Unknown8                = 0x08,
+    PlaF_CreaturePassengerMode   = 0x08,
     PlaF_KeyboardInputDisabled   = 0x10,
     PlaF_ChosenSlabHasActiveTask = 0x20, // Enabled when there are active tasks for the current slab. Used to determine if a high slab is tagged for digging (or not).
     PlaF_CompCtrl                = 0x40,
@@ -50,15 +50,15 @@ enum PlayerInitFlags {
 };
 
 enum PlayerField6Flags {
-    PlaF6_Unknown01         = 0x01,
+    PlaF6_DisplayNeedsUpdate = 0x01,
     PlaF6_PlyrHasQuit       = 0x02,
     // The below are unused
-    PlaF6_Unknown04         = 0x04,
-    PlaF6_Unknown08         = 0x08,
-    PlaF6_Unknown10         = 0x10,
-    PlaF6_Unknown20         = 0x20,
-    PlaF6_Unknown40         = 0x40,
-    PlaF6_Unknown80         = 0x80,
+    PlaF6_unusedparam04     = 0x04,
+    PlaF6_unusedparam08     = 0x08,
+    PlaF6_unusedparam10     = 0x10,
+    PlaF6_unusedparam20     = 0x20,
+    PlaF6_unusedparam40     = 0x40,
+    PlaF6_unusedparam80     = 0x80,
 };
 
 enum PlayerViewModes {
@@ -66,7 +66,7 @@ enum PlayerViewModes {
     PVM_CreatureView, /**< View from a creature perspective, first person. */
     PVM_IsoWibbleView, /**< Dungeon overview from isometric front perspective, simplified version - only 4 angles. */
     PVM_ParchmentView, /**< Full screen parchment map view, showing dungeon schematic from top. */
-    PVM_Unknown4,
+    PVM_unusedparam,
     PVM_FrontView, /**< Dungeon overview from isometric front perspective, advanced version - fluent rotation. */
     PVM_ParchFadeIn, /**< Transitional view when fading from Isometric view to Parchment map. */
     PVM_ParchFadeOut, /**< Transitional view when fading from Parchment map back to Isometric view. */
@@ -135,7 +135,7 @@ struct Wander
   unsigned long num_check_per_run;
   /** Max amount of points added in one run of the search function. */
   unsigned long max_found_per_check;
-  unsigned char wdrfield_14;
+  unsigned char search_limiting_enabled;
   unsigned char wandr_slot;
   unsigned char plyr_idx;
   PlayerBitFlags plyr_bit; // unused?
@@ -162,7 +162,7 @@ struct PlayerInfo {
     unsigned char additional_flags; // Uses PlayerAdditionalFlags
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
-    unsigned char flgfield_6;
+    unsigned char display_flags;
     unsigned char *lens_palette;
     /** Index of packet slot associated with this player. */
     unsigned char packet_num;

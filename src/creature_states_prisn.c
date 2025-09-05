@@ -89,7 +89,7 @@ TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
 short cleanup_prison(struct Thing *thing)
 {
   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-  cctrl->flgfield_1 &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_Unknown08 | CCFlg_Unknown10 | CCFlg_IsInRoomList | CCFlg_MoveX | CCFlg_MoveY);
+  cctrl->creature_control_flags &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_RepositionedInWall | CCFlg_AvoidCreatureCollision | CCFlg_IsInRoomList | CCFlg_MoveX | CCFlg_MoveY);
   state_cleanup_in_room(thing);
   return 1;
 }
@@ -109,14 +109,14 @@ short creature_arrived_at_prison(struct Thing *creatng)
     if (!add_creature_to_work_room(creatng, room, Job_CAPTIVITY))
     {
         output_room_message(room->owner, room->kind, OMsg_RoomTooSmall);
-        cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+        cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
         set_start_state(creatng);
         return 0;
     }
     cctrl->turns_at_job = game.play_gameturn;
     cctrl->imprison.start_gameturn = game.play_gameturn;
     cctrl->imprison.last_mood_sound_turn = game.play_gameturn;
-    cctrl->flgfield_1 |= CCFlg_NoCompControl;
+    cctrl->creature_control_flags |= CCFlg_NoCompControl;
     internal_set_thing_state(creatng, get_continue_state_for_job(Job_CAPTIVITY));
     if (creature_under_spell_effect(creatng, CSAfF_Speed))
     {
@@ -158,7 +158,7 @@ short creature_drop_body_in_prison(struct Thing *thing)
     make_creature_conscious(dragtng);
     initialise_thing_state(dragtng, CrSt_CreatureArrivedAtPrison);
     struct CreatureControl* dragctrl = creature_control_get_from_thing(dragtng);
-    dragctrl->flgfield_1 |= CCFlg_NoCompControl;
+    dragctrl->creature_control_flags |= CCFlg_NoCompControl;
     set_start_state(thing);
     return 1;
 
@@ -390,8 +390,8 @@ void food_set_wait_to_be_eaten(struct Thing *thing)
     }
     else
     {
-        thing->food.byte_15 = -1;
-        thing->food.byte_16 = 127;
+        thing->food.freshness_state = -1;
+        thing->food.possession_startup_timer = 127;
     }
 }
 

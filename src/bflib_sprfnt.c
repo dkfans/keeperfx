@@ -191,10 +191,10 @@ int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
         adraw->draw_char = chr;
         adraw->bits_width = active_dbcfont->bits_width;
         adraw->bits_height = active_dbcfont->bits_height;
-        i = active_dbcfont->field_3C;
-        adraw->field_C = i;
-        adraw->field_10 = active_dbcfont->field_40;
-        adraw->field_14 = active_dbcfont->field_44;
+        i = active_dbcfont->wide_spacing;
+        adraw->character_spacing = i;
+        adraw->vertical_offset = active_dbcfont->baseline_offset;
+        adraw->y_spacing = active_dbcfont->line_spacing;
         i = c * active_dbcfont->sdata_scanline + active_dbcfont->sdata_shift;
         adraw->sprite_data = active_dbcfont->data + i;
         return 0;
@@ -202,15 +202,15 @@ int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
     {
         adraw->draw_char = chr;
         c = chr;
-        adraw->bits_width = active_dbcfont->field_24;
-        adraw->bits_height = active_dbcfont->field_28;
+        adraw->bits_width = active_dbcfont->narrow_width;
+        adraw->bits_height = active_dbcfont->narrow_height;
         if ((c < 0xA0) || (c > 0xDF))
-          i = active_dbcfont->field_34;
+          i = active_dbcfont->narrow_spacing;
         else
-          i = active_dbcfont->field_38;
-        adraw->field_C = i;
-        adraw->field_10 = active_dbcfont->field_40;
-        adraw->field_14 = active_dbcfont->field_44;
+          i = active_dbcfont->kana_spacing;
+        adraw->character_spacing = i;
+        adraw->vertical_offset = active_dbcfont->baseline_offset;
+        adraw->y_spacing = active_dbcfont->line_spacing;
         i = c * active_dbcfont->ndata_scanline + active_dbcfont->ndata_shift;
         adraw->sprite_data = active_dbcfont->data + i;
         return 0;
@@ -221,10 +221,10 @@ long dbc_char_height(unsigned long chr)
 {
   if (is_wide_charcode(chr))
   {
-    return active_dbcfont->field_44 + active_dbcfont->field_40 + active_dbcfont->bits_height;
+    return active_dbcfont->line_spacing + active_dbcfont->baseline_offset + active_dbcfont->bits_height;
   } else
   {
-    return active_dbcfont->field_44 + active_dbcfont->field_40 + active_dbcfont->field_28;
+    return active_dbcfont->line_spacing + active_dbcfont->baseline_offset + active_dbcfont->narrow_height;
   }
 }
 
@@ -236,10 +236,10 @@ long dbc_char_width(unsigned long chr)
   } else
   if (is_wide_charcode(chr))
   {
-    return active_dbcfont->field_3C + active_dbcfont->bits_width;
+    return active_dbcfont->wide_spacing + active_dbcfont->bits_width;
   } else
   {
-    return active_dbcfont->field_34 + active_dbcfont->field_24;
+    return active_dbcfont->narrow_spacing + active_dbcfont->narrow_width;
   }
 }
 
@@ -336,7 +336,7 @@ int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const struct 
     {
       x = 0;
       y = 0;
-      scr_y = adraw->field_10 + pos_y + 1;
+      scr_y = adraw->vertical_offset + pos_y + 1;
       scr_x = pos_x + 1;
       width = adraw->bits_width;
       height = adraw->bits_height;
@@ -344,14 +344,14 @@ int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const struct 
       {
         width += scr_x;
         if (width <= 0)
-          goto LABEL_21;
+          goto skip_sprite_draw;
         x = -scr_x;
         scr_x = 0;
       } else
       if (scr_x+adraw->bits_width > awind->width)
       {
         if (scr_x >= awind->width)
-          goto LABEL_21;
+          goto skip_sprite_draw;
         width = awind->width - scr_x;
       }
       if (scr_y < 0)
@@ -381,14 +381,14 @@ int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const struct 
         }
       }
     }
-LABEL_21:
+skip_sprite_draw:
     if ((colr1 >= 0) || (colr2 >= 0))
     {
       y = 0;
       x = 0;
       width = adraw->bits_width;
       height = adraw->bits_height;
-      scr_y = pos_y + adraw->field_10;
+      scr_y = pos_y + adraw->vertical_offset;
       scr_x = pos_x;
       if (pos_x >= 0)
       {
@@ -521,7 +521,7 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
               else
                 colour = lbDisplay.DrawColour;
               dbc_draw_font_sprite_text(&awind, &adraw, x, y, colour, -1, dbc_colour1);
-              w = adraw.field_C + adraw.bits_width;
+              w = adraw.character_spacing + adraw.bits_width;
               if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0) {
                   h = adraw.bits_height;
                   LbDrawCharUnderline(x,y,w,h,colour,lbDisplayEx.ShadowColour);
@@ -689,11 +689,11 @@ void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x
 
                 if (adraw.bits_height == 16)
                 {
-                   w = (adraw.field_C + adraw.bits_width) * units_per_px / 16;
+                   w = (adraw.character_spacing + adraw.bits_width) * units_per_px / 16;
                 }
                 else
                 {
-                    w = (adraw.field_C + adraw.bits_width);
+                    w = (adraw.character_spacing + adraw.bits_width);
                 }
                 if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
                 {
@@ -1054,7 +1054,7 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
     const char* sbuf = text;
     for (ebuf=text; *ebuf != '\0'; ebuf++)
     {
-        const char* ebuf_bak = ebuf;
+        const char* text_backup_pointer = ebuf;
         long chr = (unsigned char)*ebuf;
         TbBool WideChar = (is_wide_charcode(chr));
         if (WideChar)
@@ -1091,11 +1091,11 @@ TbBool LbTextDrawResized(int posx, int posy, int units_per_px, const char *text)
             x = LbGetJustifiedCharPosX(startx, posx, w, 1, lbDisplay.DrawFlags);
             y = LbGetJustifiedCharPosY(starty, h, h, lbDisplay.DrawFlags);
             len = LbGetJustifiedCharWidth(posx, w, count, units_per_px, lbDisplay.DrawFlags);
-            put_down_sprites(sbuf, ebuf_bak, x, y, len, units_per_px);
+            put_down_sprites(sbuf, text_backup_pointer, x, y, len, units_per_px);
             // We already know that alignment is set - don't re-check
             {
                 posx = startx;
-                sbuf = ebuf_bak; // sbuf points at start of char for next loop. ebuf_bak points at unprocessed char.
+                sbuf = text_backup_pointer; // sbuf points at start of char for next loop. text_backup_pointer points at unprocessed char.
                 ebuf = sbuf - 1; // The updateStatement of for loop will auto increment 1.
                 starty += h;
             }
@@ -1286,7 +1286,7 @@ long dbc_char_widthM(unsigned long chr, long units_per_px)
     struct AsianDraw adraw = { 0 };
     if (dbc_get_sprite_for_char(&adraw, chr) == 0)
     {
-        w += adraw.field_C;
+        w += adraw.character_spacing;
     }
     if (h == 16)
         w = w * units_per_px / 16;

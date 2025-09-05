@@ -53,13 +53,13 @@ typedef long SoundMilesID;
 
 enum SoundEmitterFlags {
     Emi_IsAllocated  = 0x01,
-    Emi_UnknownPlay  = 0x02,
+    Emi_IsPlaying    = 0x02,
     Emi_IsMoving     = 0x04,
 };
 
 enum SoundSampleFlags {
-    Smp_Unknown01  = 0x01,
-    Smp_Unknown02  = 0x02,
+    Smp_NoPitchUpdate  = 0x01,
+    Smp_NoVolumeUpdate = 0x02,
 };
 
 typedef void *SndData;
@@ -73,10 +73,10 @@ struct SoundCoord3d {
 
 struct SoundEmitter {
     unsigned char flags;
-    unsigned char field_1;
+    unsigned char emitter_flags;
     short index;
     struct SoundCoord3d pos;
-    unsigned char field_A[6];
+    unsigned char reserved[6];
     long pitch_doppler;
     unsigned char curr_pitch;
     unsigned char target_pitch;
@@ -84,9 +84,9 @@ struct SoundEmitter {
 
 struct SoundReceiver { // sizeof = 17
     struct SoundCoord3d pos;
-    unsigned short orient_a;
-    unsigned short orient_b;
-    unsigned short orient_c;
+    unsigned short rotation_angle_x;
+    unsigned short rotation_angle_y;
+    unsigned short rotation_angle_z;
     unsigned long flags;
     unsigned char sensivity;
 };
@@ -102,7 +102,7 @@ struct S3DSample { // sizeof = 37
   SoundMilesID mss_id;
   struct SoundEmitter *emit_ptr;
   long emit_idx;
-  char field_1D; // signed
+  char repeat_count; // signed
   unsigned char flags;
   unsigned char is_playing;
   unsigned char sfxid;

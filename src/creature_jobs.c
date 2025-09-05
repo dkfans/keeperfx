@@ -758,9 +758,9 @@ TbBool send_creature_to_job_for_player(struct Thing *creatng, PlayerNumber plyr_
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             // Set computer control accordingly to job flags
             if ((get_flags_for_job(new_job) & JoKF_NoSelfControl) != 0) {
-                cctrl->flgfield_1 |= CCFlg_NoCompControl;
+                cctrl->creature_control_flags |= CCFlg_NoCompControl;
             } else {
-                cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+                cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
             }
             // If a new task isn't a work-in-group thing, remove the creature from group
             if ((get_flags_for_job(new_job) & JoKF_NoGroups) != 0)
@@ -932,9 +932,9 @@ TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord s
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             // Set computer control accordingly to job flags
             if ((get_flags_for_job(new_job) & JoKF_NoSelfControl) != 0) {
-                cctrl->flgfield_1 |= CCFlg_NoCompControl;
+                cctrl->creature_control_flags |= CCFlg_NoCompControl;
             } else {
-                cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+                cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
             }
             // If a new task isn't a work-in-group thing, remove the creature from group
             if ((get_flags_for_job(new_job) & JoKF_NoGroups) != 0)

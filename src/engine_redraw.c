@@ -582,23 +582,23 @@ void draw_overlay_compass(long base_x, long base_y)
     int h = (LbSprFontCharHeight(lbFontPtr, '/') * tx_units_per_px / 16) / 2 + 2 * units_per_px / 16;
     int center_x = base_x * units_per_px / 16 + MapDiagonalLength / 2;
     int center_y = base_y * units_per_px / 16 + MapDiagonalLength / 2;
-    int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
-    int shift_y = (-(MapDiagonalLength * 7 / 16) * LbCosL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
+    int shift_x = (-(MapDiagonalLength * 7 / 16) * LbSinL(interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
+    int shift_y = (-(MapDiagonalLength * 7 / 16) * LbCosL(interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapN));
     }
-    shift_x = ( (MapDiagonalLength*7/16) * LbSinL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbCosL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbSinL(interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbCosL(interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapS));
     }
-    shift_x = ( (MapDiagonalLength*7/16) * LbCosL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = (-(MapDiagonalLength*7/16) * LbSinL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = ( (MapDiagonalLength*7/16) * LbCosL(interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_y = (-(MapDiagonalLength*7/16) * LbSinL(interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapE));
     }
-    shift_x = (-(MapDiagonalLength*7/16) * LbCosL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
-    shift_y = ( (MapDiagonalLength*7/16) * LbSinL(interpolated_cam_orient_a)) >> LbFPMath_TrigmBits;
+    shift_x = (-(MapDiagonalLength*7/16) * LbCosL(interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
+    shift_y = ( (MapDiagonalLength*7/16) * LbSinL(interpolated_cam_rotation_angle_x)) >> LbFPMath_TrigmBits;
     if (LbScreenIsLocked()) {
         LbTextDrawResized(center_x + shift_x - w, center_y + shift_y - h, tx_units_per_px, get_string(GUIStr_MapW));
     }
@@ -678,8 +678,8 @@ void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
     }
     if (dungeon->camera_deviate_jump != 0)
     {
-      x += ( (dungeon->camera_deviate_jump * LbSinL(player->acamera->orient_a) >> 8) >> 8);
-      y += (-(dungeon->camera_deviate_jump * LbCosL(player->acamera->orient_a) >> 8) >> 8);
+      x += ( (dungeon->camera_deviate_jump * LbSinL(player->acamera->rotation_angle_x) >> 8) >> 8);
+      y += (-(dungeon->camera_deviate_jump * LbCosL(player->acamera->rotation_angle_x) >> 8) >> 8);
     }
     if ((dungeon->camera_deviate_quake != 0) || (dungeon->camera_deviate_jump != 0))
     {
@@ -721,13 +721,13 @@ void redraw_isometric_view(void)
     // Camera position modifications
     make_camera_deviations(player,dungeon);
     update_explored_flags_for_power_sight(player);
-    if ((game.flags_font & FFlg_unk08) != 0)
+    if ((game.flags_font & FFlg_HalfSizeRender) != 0)
     {
         store_engine_window(&ewnd,1);
         setup_engine_window(ewnd.x, ewnd.y, ewnd.width >> 1, ewnd.height >> 1);
     }
     engine(player,&player->cameras[CamIV_Isometric]);
-    if ((game.flags_font & FFlg_unk08) != 0)
+    if ((game.flags_font & FFlg_HalfSizeRender) != 0)
     {
         load_engine_window(&ewnd);
     }
@@ -760,7 +760,7 @@ void redraw_frontview(void)
     long h;
     struct PlayerInfo* player = get_my_player();
     update_explored_flags_for_power_sight(player);
-    if ((game.flags_font & FFlg_unk08) != 0)
+    if ((game.flags_font & FFlg_HalfSizeRender) != 0)
     {
       w = player->engine_window_width;
       h = player->engine_window_height;
@@ -771,7 +771,7 @@ void redraw_frontview(void)
       h = 0;
     }
     draw_frontview_engine(&player->cameras[CamIV_FrontView]);
-    if ((game.flags_font & FFlg_unk08) != 0)
+    if ((game.flags_font & FFlg_HalfSizeRender) != 0)
       setup_engine_window(player->engine_window_x, player->engine_window_y, w, h);
     remove_explored_flags_for_power_sight(player);
     if ((game.operation_flags & GOF_ShowGui) != 0) {
@@ -926,13 +926,13 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                 } else {
                     set_pointer_graphic(MousePG_Arrow);
                 }
-                player->flgfield_6 |= PlaF6_Unknown01;
+                player->display_flags |= PlaF6_DisplayNeedsUpdate;
             } else
             if (((player->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
                 && can_thing_be_queried(thing, player->id_number))
             {
                 set_pointer_graphic(MousePG_Query);
-                player->flgfield_6 |= PlaF6_Unknown01;
+                player->display_flags |= PlaF6_DisplayNeedsUpdate;
             } else
             {
                 if ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0) {
@@ -1036,8 +1036,8 @@ void redraw_display(void)
 {
     SYNCDBG(5,"Starting");
     struct PlayerInfo* player = get_my_player();
-    player->flgfield_6 &= ~PlaF6_Unknown01;
-    if (game.game_kind == GKind_Unknown1)
+    player->display_flags &= ~PlaF6_DisplayNeedsUpdate;
+    if (game.game_kind == GKind_NonInteractiveState)
       return;
     if (game.small_map_state == 2)
       set_pointer_graphic_none();

@@ -387,7 +387,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
              view_set_camera_rotation_inertia(cam, 16, 64);
             break;
         case PVM_FrontView:
-            cam->orient_a = (cam->orient_a + LbFPMath_PI/2) & LbFPMath_AngleMask;
+            cam->rotation_angle_x = (cam->rotation_angle_x + DEGREES_90) & ANGLE_MASK;
             break;
         }
     }
@@ -400,7 +400,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             view_set_camera_rotation_inertia(cam, -16, -64);
             break;
         case PVM_FrontView:
-            cam->orient_a = (cam->orient_a - LbFPMath_PI/2) & LbFPMath_AngleMask;
+            cam->rotation_angle_x = (cam->rotation_angle_x - DEGREES_90) & ANGLE_MASK;
             break;
         }
     }
@@ -413,7 +413,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             view_set_camera_tilt(cam, 1);
             if (is_my_player(player))
             {
-                settings.isometric_tilt = cam->orient_b;
+                settings.isometric_tilt = cam->rotation_angle_y;
                 save_settings();
             }
             break;
@@ -428,7 +428,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             view_set_camera_tilt(cam, 2);
             if (is_my_player(player))
             {
-                settings.isometric_tilt = cam->orient_b;
+                settings.isometric_tilt = cam->rotation_angle_y;
                 save_settings();
             }
             break;
@@ -443,7 +443,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             view_set_camera_tilt(cam, 0);
             if (is_my_player(player))
             {
-                settings.isometric_tilt = cam->orient_b;
+                settings.isometric_tilt = cam->rotation_angle_y;
                 save_settings();
             }
             break;
@@ -641,7 +641,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
           if (player_exists(swplyr))
           {
             swplyr->allocflags &= ~PlaF_Allocated;
-            swplyr->flgfield_6 |= PlaF6_PlyrHasQuit;
+            swplyr->display_flags |= PlaF6_PlyrHasQuit;
           }
         }
       } else
@@ -670,26 +670,26 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   int i;
   switch (pckt->action)
   {
-  case PckA_Unknown001:
+  case PckA_QuitToMainMenu:
       if (is_my_player(player))
       {
         turn_off_all_menus();
         frontend_save_continue_game(true);
         free_swipe_graphic();
       }
-      player->flgfield_6 |= PlaF6_PlyrHasQuit;
+      player->display_flags |= PlaF6_PlyrHasQuit;
       process_quit_packet(player, 0);
       return 1;
-  case PckA_Unknown003:
+  case PckA_SaveGameAndQuit:
       if (is_my_player(player))
       {
         turn_off_all_menus();
         frontend_save_continue_game(true);
       }
-      player->flgfield_6 |= PlaF6_PlyrHasQuit;
+      player->display_flags |= PlaF6_PlyrHasQuit;
       process_quit_packet(player, 1);
       return 1;
-  case PckA_Unknown004:
+  case PckA_NoOperation:
       return 1;
   case PckA_FinishGame:
       if (is_my_player(player))
@@ -773,7 +773,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         save_settings();
       }
       return 0;
-  case PckA_Unknown025:
+  case PckA_ChangeWindowSize:
       if (is_my_player(player))
       {
         change_engine_window_relative_size(pckt->actn_par1, pckt->actn_par2);
@@ -799,9 +799,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_SetMapRotation:
-      player->cameras[CamIV_Parchment].orient_a = pckt->actn_par1;
-      player->cameras[CamIV_FrontView].orient_a = pckt->actn_par1;
-      player->cameras[CamIV_Isometric].orient_a = pckt->actn_par1;
+      player->cameras[CamIV_Parchment].rotation_angle_x = pckt->actn_par1;
+      player->cameras[CamIV_FrontView].rotation_angle_x = pckt->actn_par1;
+      player->cameras[CamIV_Isometric].rotation_angle_x = pckt->actn_par1;
 
       if ((is_my_player(player)) && (player->acamera->view_mode == PVM_FrontView)) {
         // Fixes interpolated Things lagging for 1 turn when pressing middle mouse button to flip the camera in FrontView
@@ -822,13 +822,13 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
       }
       return 0;
-  case PckA_Unknown065:
+  case PckA_CheatUnusedPlaceholder065:
       //TODO: remake from beta
       return 0;
-  case PckA_Unknown068:
+  case PckA_CheatUnusedPlaceholder068:
       //TODO: remake from beta
       return 0;
-  case PckA_Unknown069:
+  case PckA_CheatUnusedPlaceholder069:
       //TODO: remake from beta
       return 0;
   case PckA_SetViewType:
@@ -836,9 +836,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return 0;
   case PckA_ZoomFromMap:
       set_player_cameras_position(player, subtile_coord_center(pckt->actn_par1), subtile_coord_center(pckt->actn_par2));
-      player->cameras[CamIV_Parchment].orient_a = 0;
-      player->cameras[CamIV_FrontView].orient_a = 0;
-      player->cameras[CamIV_Isometric].orient_a = 0;
+      player->cameras[CamIV_Parchment].rotation_angle_x = 0;
+      player->cameras[CamIV_FrontView].rotation_angle_x = 0;
+      player->cameras[CamIV_Isometric].rotation_angle_x = 0;
       if (((game.system_flags & GSF_NetworkActive) != 0)
           || (lbDisplay.PhysicalScreenWidth > 320))
       {
@@ -900,8 +900,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->zoom_to_pos_y = pckt->actn_par2;
       set_player_instance(player, PI_ZoomToPos, 0);
       return 0;
-  case PckA_Unknown088:
-      game.numfield_D ^= (game.numfield_D ^ (GNFldD_Unkn04 * ((game.numfield_D & GNFldD_Unkn04) == 0))) & GNFldD_Unkn04;
+  case PckA_ToggleComputerProcessing:
+      game.view_mode_flags ^= (game.view_mode_flags ^ (GNFldD_ComputerPlayerProcessing * ((game.view_mode_flags & GNFldD_ComputerPlayerProcessing) == 0))) & GNFldD_ComputerPlayerProcessing;
       return 0;
   case PckA_PwrCTADis:
       turn_off_power_call_to_arms(plyr_idx);
@@ -913,7 +913,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_UsePwrHandDrop:
       dump_first_held_thing_on_map(plyr_idx, pckt->actn_par1, pckt->actn_par2, 1);
       return 0;
-  case PckA_Unknown092:
+  case PckA_EventBoxTurnOff:
       if (game.event[pckt->actn_par1].kind == 3)
       {
         turn_off_event_box_if_necessary(plyr_idx, pckt->actn_par1);
@@ -928,7 +928,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_UsePwrArmageddon:
       magic_use_available_power_on_level(plyr_idx, PwrK_ARMAGEDDON, 0, PwMod_Default);
       return 0;
-  case PckA_Unknown099:
+  case PckA_TurnOffQuery:
       turn_off_query(plyr_idx);
       return 0;
   case PckA_ZoomToBattle:
@@ -1243,7 +1243,7 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->move_speed = compute_controlled_speed_increase(ccctrl->move_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_MoveY;
+            ccctrl->creature_control_flags |= CCFlg_MoveY;
         } else
         {
             ERRORLOG("No creature to increase speed");
@@ -1254,7 +1254,7 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->move_speed = compute_controlled_speed_decrease(ccctrl->move_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_MoveY;
+            ccctrl->creature_control_flags |= CCFlg_MoveY;
         } else
         {
             ERRORLOG("No creature to decrease speed");
@@ -1265,7 +1265,7 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->orthogn_speed = compute_controlled_speed_increase(ccctrl->orthogn_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_MoveX;
+            ccctrl->creature_control_flags |= CCFlg_MoveX;
         } else
         {
             ERRORLOG("No creature to increase speed");
@@ -1276,7 +1276,7 @@ void process_players_creature_control_packet_control(long idx)
         if (!creature_control_invalid(ccctrl))
         {
             ccctrl->orthogn_speed = compute_controlled_speed_decrease(ccctrl->orthogn_speed, speed_limit);
-            ccctrl->flgfield_1 |= CCFlg_MoveX;
+            ccctrl->creature_control_flags |= CCFlg_MoveX;
         } else
         {
             ERRORLOG("No creature to decrease speed");
@@ -1290,7 +1290,7 @@ void process_players_creature_control_packet_control(long idx)
             if (!creature_control_invalid(ccctrl))
             {
                 ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
-                ccctrl->flgfield_1 |= CCFlg_MoveZ;
+                ccctrl->creature_control_flags |= CCFlg_MoveZ;
                 if (ccctrl->vertical_speed != 0)
                 {
                     get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
@@ -1314,7 +1314,7 @@ void process_players_creature_control_packet_control(long idx)
             {
                 // We want increase here, not decrease, because we don't want it angle-dependent
                 ccctrl->vertical_speed = compute_controlled_speed_increase(ccctrl->vertical_speed, speed_limit);
-                ccctrl->flgfield_1 |= CCFlg_MoveZ;
+                ccctrl->creature_control_flags |= CCFlg_MoveZ;
                 if (ccctrl->vertical_speed != 0)
                 {
                     get_floor_and_ceiling_height_under_thing_at(cctng, &cctng->mappos, &floor_height, &ceiling_height);
@@ -1404,9 +1404,9 @@ void process_players_creature_control_packet_control(long idx)
     // 227 is default. To support anything above this we need to adjust the terrain culling. (when you look at the ceiling for example)
     // 512 allows for looking straight up and down. 360+ is about where sprite glitches become more obvious.
     #define viewable_angle 227;
-    long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & LbFPMath_AngleMask;
+    long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & ANGLE_MASK;
 
-    long lowerLimit = LbFPMath_AngleMask - viewable_angle;
+    long lowerLimit = ANGLE_MASK - viewable_angle;
     long upperLimit = viewable_angle;
     if (verticalPos > upperLimit && verticalPos < lowerLimit) {
         if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit)) {
@@ -1416,7 +1416,7 @@ void process_players_creature_control_packet_control(long idx)
         }
     }
     cctng->move_angle_z = verticalPos; // Sets the vertical look
-    cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & LbFPMath_AngleMask; // Sets the horizontal look
+    cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & ANGLE_MASK; // Sets the horizontal look
     ccctrl->roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
 }
 
@@ -1565,7 +1565,7 @@ void process_packets(void)
             if (network_player_active(i))
                 old_active_players++;
         }
-        if (!game.packet_load_enable || game.numfield_149F47)
+        if (!game.packet_load_enable || game.packet_load_initialized)
         {
             struct Packet* pckt = get_packet_direct(player->packet_num);
             if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)) != 0)
@@ -1625,15 +1625,15 @@ void process_frontend_packets(void)
   long i;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
-    net_screen_packet[i].field_4 &= ~0x01;
+    net_screen_packet[i].networkstatus_flags &= ~0x01;
   }
   struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
-  set_flag(nspckt->field_4, 0x01);
+  set_flag(nspckt->networkstatus_flags, 0x01);
   nspckt->frontend_alliances = frontend_alliances;
-  set_flag(nspckt->field_4, 0x01);
-  nspckt->field_4 ^= ((nspckt->field_4 ^ (fe_computer_players << 1)) & 0x06);
-  nspckt->field_6 = VersionRelease;
-  nspckt->field_8 = VersionBuild;
+  set_flag(nspckt->networkstatus_flags, 0x01);
+  nspckt->networkstatus_flags ^= ((nspckt->networkstatus_flags ^ (fe_computer_players << 1)) & 0x06);
+  nspckt->stored_data1 = VersionRelease;
+  nspckt->stored_data2 = VersionBuild;
   if (LbNetwork_Exchange(nspckt, &net_screen_packet, sizeof(struct ScreenPacket)))
   {
       ERRORLOG("LbNetwork_Exchange failed");
@@ -1681,10 +1681,10 @@ void process_frontend_packets(void)
   {
     nspckt = &net_screen_packet[i];
     struct PlayerInfo* player = get_player(i);
-    if ((nspckt->field_4 & 0x01) != 0)
+    if ((nspckt->networkstatus_flags & 0x01) != 0)
     {
         long k;
-        switch (nspckt->field_4 >> 3)
+        switch (nspckt->networkstatus_flags >> 3)
         {
         case 2:
             add_message(i, (char*)&nspckt->param1);
@@ -1755,20 +1755,20 @@ void process_frontend_packets(void)
       }
       if (fe_computer_players == 2)
       {
-        k = ((nspckt->field_4 & 0x06) >> 1);
+        k = ((nspckt->networkstatus_flags & 0x06) >> 1);
         if (k != 2)
           fe_computer_players = k;
       }
-      player->game_version = nspckt->field_8 + (nspckt->field_6 << 8);
+      player->game_version = nspckt->stored_data2 + (nspckt->stored_data1 << 8);
     }
-    nspckt->field_4 &= 0x07;
+    nspckt->networkstatus_flags &= 0x07;
   }
   if (frontend_alliances == -1)
     frontend_alliances = 0;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
     nspckt = &net_screen_packet[i];
-    if ((nspckt->field_4 & 0x01) == 0)
+    if ((nspckt->networkstatus_flags & 0x01) == 0)
     {
       if (frontend_is_player_allied(my_player_number, i))
         frontend_set_alliance(my_player_number, i);

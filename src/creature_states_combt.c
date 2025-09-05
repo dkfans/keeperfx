@@ -186,7 +186,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
     {
         return false;
     }
-    if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
+    if (flag_is_set(cctrl->creature_control_flags, CCFlg_NoCompControl))
     {
         return false;
     }
@@ -1245,7 +1245,7 @@ TbBool set_creature_in_combat_to_the_death(struct Thing *fighter, struct Thing *
         set_start_state(fighter);
         return false;
     }
-    cctrl->field_AA = 0;
+    cctrl->fighting_at_same_position = 0;
     cctrl->fight_til_death = 1;
     return true;
 }
@@ -1480,7 +1480,7 @@ TbBool creature_has_creature_in_combat(const struct Thing *thing, const struct T
     return false;
 }
 
-long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrAttackType attack_type, long a4)
+long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrAttackType attack_type, long distance)
 {
     struct CreatureControl* enmctrl = creature_control_get_from_thing(enmtng);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
@@ -1521,9 +1521,9 @@ long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrA
             score_base = 258 * (4 - enmctrl->opponents_ranged_count) + score_extra;
         }
     }
-    if (a4 >= 5376)
-        a4 = 5376;
-    return score_base + ((5376 - a4) << 8) / 5376;
+    if (distance >= 5376)
+        distance = 5376;
+    return score_base + ((5376 - distance) << 8) / 5376;
 }
 
 CrAttackType check_for_possible_melee_combat_with_attacker_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist, unsigned long *outscore)
@@ -2171,14 +2171,14 @@ TbBool combat_has_line_of_sight(const struct Thing *creatng, const struct Thing 
     return cctrl->combat.seen_enemy_los;
 }
 
-HitTargetFlags collide_filter_thing_is_in_my_fight(const struct Thing *firstng, const struct Thing *coldtng, HitTargetFlags a3, long a4)
+HitTargetFlags collide_filter_thing_is_in_my_fight(const struct Thing *firstng, const struct Thing *coldtng, HitTargetFlags unused_hit_targets, long unused_param)
 {
     if (!thing_is_creature(firstng)) {
         return false;
     }
     struct CreatureControl* firsctrl = creature_control_get_from_thing(firstng);
     struct CreatureControl* coldctrl = creature_control_get_from_thing(coldtng);
-    return (firsctrl->combat_flags != 0) && (firsctrl->field_AA) && (coldctrl->combat_flags == firsctrl->combat_flags) && (firstng->index != coldtng->index);
+    return (firsctrl->combat_flags != 0) && (firsctrl->fighting_at_same_position) && (coldctrl->combat_flags == firsctrl->combat_flags) && (firstng->index != coldtng->index);
 }
 
 struct Thing *get_thing_collided_with_at_satisfying_filter_in_square_of_for_subtile(struct Thing *shotng, struct Coord3d *pos,
@@ -2265,7 +2265,7 @@ long creature_move_to_a_space_around_enemy(struct Thing *creatng, struct Thing *
         long angle_dt = angle_final;
         do
         {
-            int calc_idx = angle_dt / (LbFPMath_PI / 8);
+            int calc_idx = angle_dt / DEGREES_22_5;
             pos.x.val += 128 * pos_calcs[calc_idx][0];
             pos.y.val += 128 * pos_calcs[calc_idx][1];
             pos.z.val = 0;
@@ -2290,7 +2290,7 @@ long creature_move_to_a_space_around_enemy(struct Thing *creatng, struct Thing *
 
             angle_dt = get_angle_xy_to(&enmtng->mappos, &pos);
         }
-        while (get_angle_difference(angle_final, angle_dt) < LbFPMath_PI/8);
+        while (get_angle_difference(angle_final, angle_dt) < DEGREES_22_5);
         // Update Z coord
         pos.z.val = get_thing_height_at(creatng, &pos);
         // Check if we can accept that position
@@ -2320,11 +2320,11 @@ long old_combat_move(struct Thing *thing, struct Thing *enmtng, long enm_distanc
     }
     if (creature_fighting_is_occupying_my_position(thing, &thing->mappos))
     {
-        cctrl->field_AA = 1;
+        cctrl->fighting_at_same_position = 1;
         creature_turn_to_face(thing, &enmtng->mappos);
         return 0;
     }
-    cctrl->field_AA = 0;
+    cctrl->fighting_at_same_position = 0;
     return creature_move_to_a_space_around_enemy(thing, enmtng, enm_distance, ncrstate);
 }
 
@@ -2349,7 +2349,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
     if (enmdist < 156)
     {
         creature_retreat_from_combat(thing, enmtng, nstat, 0);
-        cctrl->field_AA = 0;
+        cctrl->fighting_at_same_position = 0;
         return thing_in_field_of_view(thing, enmtng);
     }
     if (enmdist <= 284)
@@ -2359,7 +2359,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
         }
         return thing_in_field_of_view(thing, enmtng);
     }
-    cctrl->field_AA = 0;
+    cctrl->fighting_at_same_position = 0;
     if (thing_in_field_of_view(thing, enmtng))
     {
         // Firstly, check if any self buff is available.
@@ -2753,7 +2753,7 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
         creature_move_to(figtng, &enmtng->mappos, figctrl->max_speed, 0, 0);
         return 0;
     }
-    if (creature_turn_to_face(figtng, &enmtng->mappos) >= LbFPMath_PI/12) {
+    if (creature_turn_to_face(figtng, &enmtng->mappos) >= DEGREES_15) {
         return 0;
     }
     // If the creature has self buff, use it now.
@@ -3367,7 +3367,7 @@ TbBool creature_look_for_enemy_door_combat(struct Thing *thing)
     return true;
 }
 
-TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, CrtrStateId continue_state, long a4)
+TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, CrtrStateId continue_state, long try_opposite_direction)
 {
     struct Coord3d pos;
     long i;
@@ -3378,7 +3378,7 @@ TbResult creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng
     MapCoordDelta dist_x = enmtng->mappos.x.val - (MapCoordDelta)figtng->mappos.x.val;
     MapCoordDelta dist_y = enmtng->mappos.y.val - (MapCoordDelta)figtng->mappos.y.val;
 
-    if (a4 && ((figctrl->combat_flags & (CmbtF_ObjctFight|CmbtF_DoorFight)) == 0))
+    if (try_opposite_direction && ((figctrl->combat_flags & (CmbtF_ObjctFight|CmbtF_DoorFight)) == 0))
     {
         pos.x.val = figtng->mappos.x.val - dist_x;
         pos.y.val = figtng->mappos.y.val - dist_y;

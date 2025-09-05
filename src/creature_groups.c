@@ -610,7 +610,7 @@ TbBool add_member_to_party(int party_id, long crtr_model, CrtrExpLevel exp_level
     member->crtr_kind = crtr_model;
     member->carried_gold = carried_gold;
     member->exp_level = exp_level-1;
-    member->field_6F = 1;
+    member->is_active = 1;
     member->objectv = objctv_id;
     member->countdown = countdown;
     party->members_num++;
@@ -780,10 +780,10 @@ void leader_find_positions_for_followers(struct Thing *leadtng)
     cctrl->group_info = (group_len << 12) | (cctrl->group_info & ~TngGroup_MemberCount);
     memset(cctrl->followers_pos, 0, sizeof(cctrl->followers_pos));
 
-    int len_xv = LbSinL(leadtng->move_angle_xy + LbFPMath_PI) << 8 >> 16;
-    int len_yv = -((LbCosL(leadtng->move_angle_xy + LbFPMath_PI) << 8) >> 8) >> 8;
-    int len_xh = LbSinL(leadtng->move_angle_xy - LbFPMath_PI / 2) << 8 >> 16;
-    int len_yh = -((LbCosL(leadtng->move_angle_xy - LbFPMath_PI / 2) << 8) >> 8) >> 8;
+    int len_xv = LbSinL(leadtng->move_angle_xy + DEGREES_180) << 8 >> 16;
+    int len_yv = -((LbCosL(leadtng->move_angle_xy + DEGREES_180) << 8) >> 8) >> 8;
+    int len_xh = LbSinL(leadtng->move_angle_xy - DEGREES_90) << 8 >> 16;
+    int len_yh = -((LbCosL(leadtng->move_angle_xy - DEGREES_90) << 8) >> 8) >> 8;
 
     int ih;
     int iv;

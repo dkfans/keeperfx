@@ -1019,9 +1019,9 @@ short clear_quick_messages(void)
     return true;
 }
 
-static char* process_multiline_comment(char *buf, char *buf_end)
+static char* process_multiline_comment(char *buf, char *buffer_end_pointer)
 {
-    for (char *p = buf; p < buf_end - 1; p++)
+    for (char *p = buf; p < buffer_end_pointer - 1; p++)
     {
         if ((*p == ' ') || (*p == 9)) // Tabs or spaces
             continue;
@@ -1030,7 +1030,7 @@ static char* process_multiline_comment(char *buf, char *buf_end)
             if (p[1] != '*') // /*
                 break;
             p += 2;
-            for (; p < buf_end - 1; p++)
+            for (; p < buffer_end_pointer - 1; p++)
             {
                 if ((p[0] == '*') && (p[1] == '/'))
                 {
@@ -1050,14 +1050,14 @@ static void parse_txt_data(char *script_data, long script_len)
 {// Process the file lines
     text_line_number = 1;
     char* buf = script_data;
-    char* buf_end = script_data + script_len;
-    while (buf < buf_end)
+    char* buffer_end_pointer = script_data + script_len;
+    while (buf < buffer_end_pointer)
     {
         // Check for long comment
-        buf = process_multiline_comment(buf, buf_end);
+        buf = process_multiline_comment(buf, buffer_end_pointer);
       // Find end of the line
       int lnlen = 0;
-      while (&buf[lnlen] < buf_end)
+      while (&buf[lnlen] < buffer_end_pointer)
       {
         if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
           break;
@@ -1066,7 +1066,7 @@ static void parse_txt_data(char *script_data, long script_len)
       // Get rid of the next line characters
       buf[lnlen] = 0;
       lnlen++;
-      if (&buf[lnlen] < buf_end)
+      if (&buf[lnlen] < buffer_end_pointer)
       {
         if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
           lnlen++;
@@ -1113,7 +1113,7 @@ short load_script(long lvnum)
     text_line_number = 1;
     game.bonus_time = 0;
     game.flags_gui &= ~GGUI_CountdownTimer;
-    game.flags_cd |= MFlg_DeadBackToPool;
+    game.mode_flags |= MFlg_DeadBackToPool;
     reset_creature_max_levels();
     reset_script_timers_and_flags();
     reset_hand_rules();
@@ -1124,13 +1124,13 @@ short load_script(long lvnum)
       return false;
     // Process the file lines
     char* buf = script_data;
-    char* buf_end = script_data + script_len;
-    while (buf < buf_end)
+    char* buffer_end_pointer = script_data + script_len;
+    while (buf < buffer_end_pointer)
     {
-        buf = process_multiline_comment(buf, buf_end);
+        buf = process_multiline_comment(buf, buffer_end_pointer);
       // Find end of the line
       char* p = buf;
-      for (;p < buf_end; p++)
+      for (;p < buffer_end_pointer; p++)
       {
         if (*p == '\n')
           break;

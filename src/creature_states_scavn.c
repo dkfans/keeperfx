@@ -152,7 +152,7 @@ short creature_being_scavenged(struct Thing *creatng)
     locpos.y.val = fellowtng->mappos.y.val;
     locpos.z.val = fellowtng->mappos.z.val;
     {
-        int angle = (((game.play_gameturn - creatng->creation_turn) >> 6) & 7) * LbFPMath_PI / 4;
+        int angle = (((game.play_gameturn - creatng->creation_turn) >> 6) & 7) * DEGREES_45;
         locpos.x.val += -LbSinL(angle)/128;
         locpos.y.val += LbCosL(angle)/128;
     }

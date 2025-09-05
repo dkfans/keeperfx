@@ -48,14 +48,14 @@ struct TbNetworkSessionNameEntry {
     unsigned long id;
     unsigned long in_use;
     char text[SESSION_NAME_MAX_LEN];
-    unsigned char field_29[20]; //does not appear to be a string
+    unsigned char unusedparam[20];
 };
 
 struct TbNetworkPlayerEntry {
-  unsigned char field_0;
+  unsigned char reserved_flags;
   unsigned long id;
-  unsigned long field_5;
-  unsigned long field_9;
+  unsigned long reserved_data;
+  unsigned long is_active;
   char name[32];
 };
 
@@ -69,7 +69,7 @@ struct ReceiveCallbacks {
   void (*mpReqCompsExDataMsg)(unsigned long, unsigned long, void *);
   void *(*unidirectionalMsg)(unsigned long, unsigned long, void *);
   void (*systemUserMsg)(unsigned long, void *, unsigned long, void *);
-  void *(*field_24)(unsigned long, void *);
+  void *(*unhandledMessageTypeCallback)(unsigned long, void *);
 };
 /******************************************************************************/
 void net_copy_name_string(char *dst,const char *src,long max_len);

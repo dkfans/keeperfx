@@ -57,8 +57,8 @@ enum PlayerInstanceNum {
     PI_MapFadeTo,
     PI_MapFadeFrom,
     PI_ZoomToPos,
-    PI_Unknown17,
-    PI_Unknown18,
+    PI_UnusedSlot17,
+    PI_UnusedSlot18,
 };
 /******************************************************************************/
 #pragma pack(1)
@@ -70,14 +70,14 @@ typedef long (*InstncInfo_Func)(struct PlayerInfo *player, long *n);
 
 struct PlayerInstanceInfo { // sizeof = 44
   long length_turns;
-  long field_4;
+  long instance_state;
   InstncInfo_Func start_cb;
   InstncInfo_Func maintain_cb;
   InstncInfo_Func end_cb;
-  long field_14[2];
-  unsigned char field_1C[8];
-  long field_24;
-  long field_28;
+  long start_callback_parameters[2];
+  unsigned char extra_callback_data[8];
+  long maintain_end_callback_parameter;
+  long reserved_callback_parameter;
 };
 
 #define PLAYER_INSTANCES_COUNT 19

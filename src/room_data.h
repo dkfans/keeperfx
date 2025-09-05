@@ -78,8 +78,8 @@ struct Dungeon;
 typedef void (*Room_Update_Func)(struct Room *);
 
 struct RoomInfo { // sizeof = 6
-  unsigned short field_0;
-  unsigned short field_2;
+  unsigned short unusedparam;
+  unsigned short unusedparam2;
   unsigned short ambient_snd_smp_id;
 };
 
@@ -103,7 +103,7 @@ struct Room {
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
     struct {
       unsigned long capacity_used_for_storage;
-      ThingIndex hatchfield_1B;
+      ThingIndex cached_nearby_creature_index;
     };
     /** For rooms which are often browsed for various reasons, list of all rooms of given kind.
      *  Rooms which have such list are entrances (only?). */

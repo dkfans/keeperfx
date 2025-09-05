@@ -432,7 +432,7 @@ long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
         return -1;*/
 
     long angle = (get_angle_xy_to(&thing->mappos, pos)
-        + LbFPMath_PI) & LbFPMath_AngleMask;
+        + DEGREES_180) & ANGLE_MASK;
 
     return creature_turn_to_face_angle(thing,angle);
 }
@@ -452,7 +452,7 @@ long creature_turn_to_face_angle(struct Thing *thing, long angle)
         angle_delta = -angle_delta;
     }
 
-    thing->move_angle_xy = (thing->move_angle_xy + angle_delta) & LbFPMath_AngleMask;
+    thing->move_angle_xy = (thing->move_angle_xy + angle_delta) & ANGLE_MASK;
 
     return get_angle_difference(thing->move_angle_xy, angle);
 }
@@ -466,8 +466,8 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     if ( backward )
     {
         // Rotate the creature 180 degrees to trace route with forward move
-        i = (thing->move_angle_xy + LbFPMath_PI);
-        thing->move_angle_xy = i & LbFPMath_AngleMask;
+        i = (thing->move_angle_xy + DEGREES_180);
+        thing->move_angle_xy = i & ANGLE_MASK;
     }
     struct Coord3d nextpos;
     AriadneReturn follow_result = creature_follow_route_to_using_gates(thing, pos, &nextpos, speed, flags);
@@ -475,10 +475,10 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     if ( backward )
     {
         // Rotate the creature back
-        i = (thing->move_angle_xy + LbFPMath_PI);
-        thing->move_angle_xy = i & LbFPMath_AngleMask;
+        i = (thing->move_angle_xy + DEGREES_180);
+        thing->move_angle_xy = i & ANGLE_MASK;
     }
-    if ((follow_result == AridRet_PartOK) || (follow_result == AridRet_Val2))
+    if ((follow_result == AridRet_PartOK) || (follow_result == AridRet_Failed))
     {
         creature_set_speed(thing, 0);
         return -1;
@@ -497,7 +497,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         } else
         {
             creature_set_speed(thing, -speed);
-            cctrl->flgfield_2 |= TF2_Unkn01;
+            cctrl->creature_state_flags |= TF2_CreatureIsMoving;
             if (get_chessboard_distance(&thing->mappos, &nextpos) > -2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive backward speed",
@@ -523,7 +523,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         } else
         {
             creature_set_speed(thing, speed);
-            cctrl->flgfield_2 |= TF2_Unkn01;
+            cctrl->creature_state_flags |= TF2_CreatureIsMoving;
             if (get_chessboard_distance(&thing->mappos, &nextpos) > 2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive forward speed",
