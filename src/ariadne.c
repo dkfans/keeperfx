@@ -167,20 +167,20 @@ static const unsigned long actual_sizexy_to_nav_sizexy_table[] = {
 };
 
 const struct HugStart blocked_x_hug_start[][2] = {
-    {{          0, 1}, {LbFPMath_PI, 2}},
-    {{          0, 2}, {LbFPMath_PI, 1}},
+    {{ANGLE_NORTH, 1}, {ANGLE_SOUTH, 2}},
+    {{ANGLE_NORTH, 2}, {ANGLE_SOUTH, 1}},
 };
 
 const struct HugStart blocked_y_hug_start[][2] = {
-    {{3*LbFPMath_PI/2, 2}, {LbFPMath_PI/2, 1}},
-    {{3*LbFPMath_PI/2, 1}, {LbFPMath_PI/2, 2}},
+    {{ANGLE_WEST, 2}, {ANGLE_EAST, 1}},
+    {{ANGLE_WEST, 1}, {ANGLE_EAST, 2}},
 };
 
 const struct HugStart blocked_xy_hug_start[][2][2] = {
-   {{{3*LbFPMath_PI/2, 2}, {          0, 1}},
-    {{  LbFPMath_PI/2, 1}, {          0, 2}}},
-   {{{3*LbFPMath_PI/2, 1}, {LbFPMath_PI, 2}},
-    {{  LbFPMath_PI/2, 2}, {LbFPMath_PI, 1}}},
+   {{{ANGLE_WEST, 2}, {ANGLE_NORTH, 1}},
+    {{ANGLE_EAST, 1}, {ANGLE_NORTH, 2}}},
+   {{{ANGLE_WEST, 1}, {ANGLE_SOUTH, 2}},
+    {{ANGLE_EAST, 2}, {ANGLE_SOUTH, 1}}},
 };
 
 static struct Path fwd_path;
@@ -2057,7 +2057,7 @@ void ariadne_init_current_waypoint(const struct Thing *thing, struct Ariadne *ar
 
 long angle_to_quadrant(long angle)
 {
-    return ((angle + LbFPMath_PI/4) & 0x600u) >> 9;
+    return ((angle + DEGREES_45) / DEGREES_90) & 3;
 }
 
 long ariadne_wallhug_angle_valid(struct Thing *thing, struct Ariadne *arid, long angle)
@@ -2074,31 +2074,31 @@ long ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid)
     long whangle;
     if (arid->hug_side == 1)
     {
-        whangle = (LbFPMath_PI/2) * ((angle_to_quadrant(thing->move_angle_xy) - 1) & 3);
+        whangle = DEGREES_90 * ((angle_to_quadrant(thing->move_angle_xy) - 1) & 3);
         if (ariadne_wallhug_angle_valid(thing, arid, whangle))
             return whangle;
-        whangle = (LbFPMath_PI/2) * (angle_to_quadrant(thing->move_angle_xy) & 3);
+        whangle = DEGREES_90 * (angle_to_quadrant(thing->move_angle_xy) & 3);
         if (ariadne_wallhug_angle_valid(thing, arid, whangle))
             return whangle;
-        whangle = (LbFPMath_PI/2) * ((angle_to_quadrant(thing->move_angle_xy) + 1) & 3);
+        whangle = DEGREES_90 * ((angle_to_quadrant(thing->move_angle_xy) + 1) & 3);
         if (ariadne_wallhug_angle_valid(thing, arid, whangle))
             return whangle;
-        whangle = (LbFPMath_PI/2) * ((angle_to_quadrant(thing->move_angle_xy) + 2) & 3);
+        whangle = DEGREES_90 * ((angle_to_quadrant(thing->move_angle_xy) + 2) & 3);
         if (ariadne_wallhug_angle_valid(thing, arid, whangle))
             return whangle;
     } else
     if (arid->hug_side == 2)
     {
-        whangle = (LbFPMath_PI/2) * ((angle_to_quadrant(thing->move_angle_xy) + 1) & 3);
+        whangle = DEGREES_90 * ((angle_to_quadrant(thing->move_angle_xy) + 1) & 3);
         if (ariadne_wallhug_angle_valid(thing, arid, whangle))
             return whangle;
-        whangle = (LbFPMath_PI/2) * (angle_to_quadrant(thing->move_angle_xy) & 3);
+        whangle = DEGREES_90 * (angle_to_quadrant(thing->move_angle_xy) & 3);
         if (ariadne_wallhug_angle_valid(thing, arid, whangle))
             return whangle;
-        whangle = (LbFPMath_PI/2) * ((angle_to_quadrant(thing->move_angle_xy) - 1) & 3);
+        whangle = DEGREES_90 * ((angle_to_quadrant(thing->move_angle_xy) - 1) & 3);
         if (ariadne_wallhug_angle_valid(thing, arid, whangle))
             return whangle;
-        whangle = (LbFPMath_PI/2) * ((angle_to_quadrant(thing->move_angle_xy) + 2) & 3);
+        whangle = DEGREES_90 * ((angle_to_quadrant(thing->move_angle_xy) + 2) & 3);
         if (ariadne_wallhug_angle_valid(thing, arid, whangle))
             return whangle;
     }
@@ -2119,32 +2119,32 @@ void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct T
     int angle_beg;
     int hug_side;
     int angle_end;
-    if (inangle == 0)
+    if (inangle == ANGLE_NORTH)
     {
-        angle_beg = 3*LbFPMath_PI/2;
+        angle_beg = ANGLE_WEST;
         hug_side = 2;
-        angle_end = LbFPMath_PI/2;
+        angle_end = ANGLE_EAST;
         inangle_oneaxis = 1;
     } else
-    if (inangle == LbFPMath_PI/2)
+    if (inangle == ANGLE_EAST)
     {
-        angle_beg = 0;
+        angle_beg = ANGLE_NORTH;
         hug_side = 2;
-        angle_end = LbFPMath_PI;
+        angle_end = ANGLE_SOUTH;
         inangle_oneaxis = 1;
     } else
-    if (inangle == LbFPMath_PI)
+    if (inangle == ANGLE_SOUTH)
     {
-        angle_beg = LbFPMath_PI/2;
+        angle_beg = ANGLE_EAST;
         hug_side = 2;
-        angle_end = 3*LbFPMath_PI/2;
+        angle_end = ANGLE_WEST;
         inangle_oneaxis = 1;
     } else
-    if (inangle == 3*LbFPMath_PI/2)
+    if (inangle == ANGLE_WEST)
     {
-        angle_beg = LbFPMath_PI;
+        angle_beg = ANGLE_SOUTH;
         hug_side = 2;
-        angle_end = 0;
+        angle_end = ANGLE_NORTH;
         inangle_oneaxis = 1;
     } else
     {
@@ -2265,9 +2265,9 @@ long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct 
         if ((wp_y >= cur_pos_y_beg) && (wp_y <= cur_pos_y_end))
         {
             if (nxdelta_x_neg)
-                ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, LbFPMath_PI/2, rangle, rflag);
+                ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, ANGLE_EAST, rangle, rflag);
             else
-                ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, 3*LbFPMath_PI/2, rangle, rflag);
+                ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, ANGLE_WEST, rangle, rflag);
         } else
         {
             *rangle = blocked_x_hug_start[crdelta_x_neg][nxdelta_y_neg].wh_angle;
@@ -2280,9 +2280,9 @@ long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct 
         if ((wp_x >= cur_pos_x_beg) && (wp_x <= cur_pos_x_end))
         {
             if (nxdelta_y_neg)
-                ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, LbFPMath_PI, rangle, rflag);
+                ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, ANGLE_SOUTH, rangle, rflag);
             else
-                ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, 0, rangle, rflag);
+                ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(thing, arid, ANGLE_NORTH, rangle, rflag);
         } else
         {
             *rangle = blocked_y_hug_start[crdelta_y_neg][nxdelta_x_neg].wh_angle;
@@ -3027,7 +3027,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
     else
         return 0;
 
-    long quadrant = (LbFPMath_PI / 2) * ((angle_to_quadrant(hug_angle) + angle_offset) & 3);
+    long quadrant = DEGREES_90 * ((angle_to_quadrant(hug_angle) + angle_offset) & 3);
 
     potentional_next_pos_3d.x.val = move_coord_with_angle_x(thing->mappos.x.val, arid->move_speed, quadrant);
     potentional_next_pos_3d.y.val = move_coord_with_angle_y(thing->mappos.y.val, arid->move_speed, quadrant);

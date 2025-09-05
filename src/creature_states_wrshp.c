@@ -365,7 +365,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
         struct Coord3d pos;
         pos.x.val = subtile_coord_center(cctrl->workshop.stl_x);
         pos.y.val = subtile_coord_center(cctrl->workshop.stl_y);
-        if (creature_turn_to_face(creatng, &pos) < LbFPMath_PI/18)
+        if (creature_turn_to_face(creatng, &pos) < DEGREES_10)
         {
             cctrl->workshop.job_stage = 5;
             cctrl->workshop.swing_weapon_counter = 75;

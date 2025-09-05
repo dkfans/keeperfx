@@ -412,13 +412,13 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapst->created_itm_model);
         return;
     }
-    traptng->move_angle_xy = (((get_angle_xy_to(&traptng->mappos, &creatng->mappos) + LbFPMath_PI / 4) & LbFPMath_AngleMask) / (LbFPMath_PI / 2)) * (LbFPMath_PI / 2);
+    traptng->move_angle_xy = (((get_angle_xy_to(&traptng->mappos, &creatng->mappos) + DEGREES_45) & ANGLE_MASK) / (DEGREES_90)) * (DEGREES_90);
     struct Coord3d shot_origin;
     shot_origin.x.val = traptng->mappos.x.val;
     shot_origin.y.val = traptng->mappos.y.val;
     shot_origin.z.val = traptng->mappos.z.val;
-    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
-    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
     shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.z.val += trapst->shot_shift_z;
@@ -433,15 +433,15 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
             if (abs(trpos_x - crpos_x) <= abs(trpos_y - crpos_y))
             {
                 if (crpos_y >= trpos_y)
-                    shotng->move_angle_xy = LbFPMath_PI;
+                    shotng->move_angle_xy = ANGLE_SOUTH;
                 else
-                    shotng->move_angle_xy = 0;
+                    shotng->move_angle_xy = ANGLE_NORTH;
             } else
             {
                 if (crpos_x >= trpos_x)
-                    shotng->move_angle_xy = LbFPMath_PI/2;
+                    shotng->move_angle_xy = ANGLE_EAST;
                 else
-                    shotng->move_angle_xy = 3*LbFPMath_PI/2;
+                    shotng->move_angle_xy = ANGLE_WEST;
             }
         }
         shotng->move_angle_z = 0;
@@ -475,8 +475,8 @@ void activate_trap_effect_on_trap(struct Thing *traptng)
     shot_origin.x.val = traptng->mappos.x.val;
     shot_origin.y.val = traptng->mappos.y.val;
     shot_origin.z.val = traptng->mappos.z.val;
-    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
-    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
     shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.z.val += trapst->shot_shift_z;
@@ -503,8 +503,8 @@ void activate_trap_shot_on_trap(struct Thing *traptng)
     shot_origin.x.val = traptng->mappos.x.val;
     shot_origin.y.val = traptng->mappos.y.val;
     shot_origin.z.val = traptng->mappos.z.val;
-    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
-    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
     shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.z.val += trapst->shot_shift_z;
@@ -550,8 +550,8 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
     shot_origin.x.val = traptng->mappos.x.val;
     shot_origin.y.val = traptng->mappos.y.val;
     shot_origin.z.val = traptng->mappos.z.val;
-    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
-    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
     shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.z.val += trapst->shot_shift_z;
@@ -575,7 +575,7 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
     thing->veloc_push_add.z.val += 0;
     set_flag(thing->state_flags, TF1_PushAdd);
     set_flag(thing->movement_flags, TMvF_MagicFall);
-    thing->move_angle_xy = 0;
+    thing->move_angle_xy = ANGLE_NORTH;
     return thing;
 }
 
@@ -1290,8 +1290,8 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
                 }
             }
             firing->move_angle_xy = angle_xy; //visually rotates the trap
-            pos1.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
-            pos1.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+            pos1.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, firing->move_angle_xy + DEGREES_90);
+            pos1.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, firing->move_angle_xy + DEGREES_90);
             pos1.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_y, firing->move_angle_xy);
             pos1.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_y, firing->move_angle_xy);
             pos1.z.val += trapst->shot_shift_z;

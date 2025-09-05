@@ -1541,7 +1541,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
               k = atoi(word_buf);
               if (k > 0)
               {
-                  crconf->max_turning_speed = (k * LbFPMath_PI) / 180;
+                  crconf->max_turning_speed = (k * DEGREES_180) / 180;
                   n++;
               }
             }

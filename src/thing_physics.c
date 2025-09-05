@@ -199,15 +199,15 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
   {
     case SlbBloF_WalledX:
       pos->x.val = thing->mappos.x.val;
-      thing->veloc_base.x.val = -(x * thing->bounce_angle / 128);
-      i = 256 - thing->inertia_floor;
+      thing->veloc_base.x.val = -(x * thing->bounce_angle / DEGREES_22_5);
+      i = DEGREES_45 - thing->inertia_floor;
       thing->veloc_base.y.val = i * thing->veloc_base.y.val / COORD_PER_STL;
       thing->veloc_base.z.val = i * thing->veloc_base.z.val / COORD_PER_STL;
       break;
     case SlbBloF_WalledY:
       pos->y.val = thing->mappos.y.val;
-      thing->veloc_base.y.val = -(y * thing->bounce_angle / 128);
-      i = 256 - thing->inertia_floor;
+      thing->veloc_base.y.val = -(y * thing->bounce_angle / DEGREES_22_5);
+      i = DEGREES_45 - thing->inertia_floor;
       thing->veloc_base.x.val = i * thing->veloc_base.x.val / COORD_PER_STL;
       thing->veloc_base.z.val = i * thing->veloc_base.z.val / COORD_PER_STL;
       break;
@@ -215,13 +215,13 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       pos->x.val = thing->mappos.x.val;
       pos->y.val = thing->mappos.y.val;
       i = thing->bounce_angle;
-      thing->veloc_base.x.val = -(i * x / 128);
-      thing->veloc_base.y.val = -(i * y / 128);
+      thing->veloc_base.x.val = -(i * x / DEGREES_22_5);
+      thing->veloc_base.y.val = -(i * y / DEGREES_22_5);
       break;
     case SlbBloF_WalledZ:
       pos->z.val = thing->mappos.z.val;
-      thing->veloc_base.z.val = -(z * thing->bounce_angle / 128);
-      i = 256 - thing->inertia_floor;
+      thing->veloc_base.z.val = -(z * thing->bounce_angle / DEGREES_22_5);
+      i = DEGREES_45 - thing->inertia_floor;
       thing->veloc_base.x.val = i * thing->veloc_base.x.val / COORD_PER_STL;
       thing->veloc_base.y.val = i * thing->veloc_base.y.val / COORD_PER_STL;
       break;
@@ -229,28 +229,28 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       pos->z.val = thing->mappos.z.val;
       pos->x.val = thing->mappos.x.val;
       i = thing->bounce_angle;
-      thing->veloc_base.x.val = -(i * x / 128);
-      thing->veloc_base.z.val = -(i * z / 128);
+      thing->veloc_base.x.val = -(i * x / DEGREES_22_5);
+      thing->veloc_base.z.val = -(i * z / DEGREES_22_5);
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledY:
       pos->y.val = thing->mappos.y.val;
       pos->z.val = thing->mappos.z.val;
       i = thing->bounce_angle;
-      thing->veloc_base.y.val = -(i * y / 128);
+      thing->veloc_base.y.val = -(i * y / DEGREES_22_5);
       int n = i * y;
       int j = thing->inertia_floor;
       int k = thing->veloc_base.x.val;
-      thing->veloc_base.z.val = -(n / 128);
-      thing->veloc_base.x.val = k * (256 - j) / 256;
+      thing->veloc_base.z.val = -(n / DEGREES_22_5);
+      thing->veloc_base.x.val = k * (DEGREES_45 - j) / DEGREES_45;
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
       pos->x.val = thing->mappos.x.val;
       pos->y.val = thing->mappos.y.val;
       pos->z.val = thing->mappos.z.val;
       i = thing->bounce_angle;
-      thing->veloc_base.x.val = -(i * x / 128);
-      thing->veloc_base.y.val = -(i * y / 128);
-      thing->veloc_base.z.val = -(i * z / 128);
+      thing->veloc_base.x.val = -(i * x / DEGREES_22_5);
+      thing->veloc_base.y.val = -(i * y / DEGREES_22_5);
+      thing->veloc_base.z.val = -(i * z / DEGREES_22_5);
       break;
     default:
       return;

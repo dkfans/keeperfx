@@ -387,7 +387,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
              view_set_camera_rotation_inertia(cam, 16, 64);
             break;
         case PVM_FrontView:
-            cam->rotation_angle_x = (cam->rotation_angle_x + LbFPMath_PI/2) & LbFPMath_AngleMask;
+            cam->rotation_angle_x = (cam->rotation_angle_x + DEGREES_90) & ANGLE_MASK;
             break;
         }
     }
@@ -400,7 +400,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             view_set_camera_rotation_inertia(cam, -16, -64);
             break;
         case PVM_FrontView:
-            cam->rotation_angle_x = (cam->rotation_angle_x - LbFPMath_PI/2) & LbFPMath_AngleMask;
+            cam->rotation_angle_x = (cam->rotation_angle_x - DEGREES_90) & ANGLE_MASK;
             break;
         }
     }
@@ -1404,9 +1404,9 @@ void process_players_creature_control_packet_control(long idx)
     // 227 is default. To support anything above this we need to adjust the terrain culling. (when you look at the ceiling for example)
     // 512 allows for looking straight up and down. 360+ is about where sprite glitches become more obvious.
     #define viewable_angle 227;
-    long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & LbFPMath_AngleMask;
+    long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & ANGLE_MASK;
 
-    long lowerLimit = LbFPMath_AngleMask - viewable_angle;
+    long lowerLimit = ANGLE_MASK - viewable_angle;
     long upperLimit = viewable_angle;
     if (verticalPos > upperLimit && verticalPos < lowerLimit) {
         if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit)) {
@@ -1416,7 +1416,7 @@ void process_players_creature_control_packet_control(long idx)
         }
     }
     cctng->move_angle_z = verticalPos; // Sets the vertical look
-    cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & LbFPMath_AngleMask; // Sets the horizontal look
+    cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & ANGLE_MASK; // Sets the horizontal look
     ccctrl->roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
 }
 
