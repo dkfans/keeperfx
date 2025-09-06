@@ -77,12 +77,6 @@ struct Dungeon;
 
 typedef void (*Room_Update_Func)(struct Room *);
 
-struct RoomInfo { // sizeof = 6
-  unsigned short unusedparam;
-  unsigned short unusedparam2;
-  unsigned short ambient_snd_smp_id;
-};
-
 struct Room {
     unsigned char alloc_flags;
     RoomIndex index; // index in the rooms array
