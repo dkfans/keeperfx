@@ -1705,7 +1705,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                     navi->pos_final.x.val = pos->x.val;
                     navi->pos_final.y.val = pos->y.val;
                     navi->pos_final.z.val = pos->z.val;
-                    navi->wallhug_state = 0;
+                    navi->wallhug_state = WallhugCurrentState_None;
                     navi->wallhug_retry_counter = 0;
                     navi->push_counter = 0;
                 }
@@ -1746,7 +1746,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                 navi->pos_final.x.val = pos->x.val;
                 navi->pos_final.y.val = pos->y.val;
                 navi->pos_final.z.val = pos->z.val;
-                navi->wallhug_state = 0;
+                navi->wallhug_state = WallhugCurrentState_None;
                 navi->wallhug_retry_counter = 0;
                 navi->push_counter = 0;
                 return 1;
@@ -1761,7 +1761,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             navi->pos_final.x.val = pos->x.val;
             navi->pos_final.y.val = pos->y.val;
             navi->pos_final.z.val = pos->z.val;
-            navi->wallhug_state = 0;
+            navi->wallhug_state = WallhugCurrentState_None;
             navi->wallhug_retry_counter = 0;
             navi->push_counter = 0;
             return 1;
@@ -1791,29 +1791,29 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         }
         if (((angle + DEGREES_90) & ANGLE_MASK) == navi->angle)
         {
-            if (navi->wallhug_state == 1)
+            if (navi->wallhug_state == WallhugCurrentState_Right)
             {
                 navi->wallhug_retry_counter++;
             } else
             {
-                navi->wallhug_state = 1;
+                navi->wallhug_state = WallhugCurrentState_Right;
                 navi->wallhug_retry_counter = 1;
             }
         } else
         if (((angle - DEGREES_90) & ANGLE_MASK) == navi->angle)
         {
-          if (navi->wallhug_state == 2)
+          if (navi->wallhug_state == WallhugCurrentState_Left)
           {
               navi->wallhug_retry_counter++;
           } else
           {
-              navi->wallhug_state = 2;
+              navi->wallhug_state = WallhugCurrentState_Left;
               navi->wallhug_retry_counter = 1;
           }
         } else
         {
           navi->wallhug_retry_counter = 0;
-          navi->wallhug_state = 0;
+          navi->wallhug_state = WallhugCurrentState_None;
         }
         if (navi->wallhug_retry_counter >= 4)
         {
@@ -1821,7 +1821,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             navi->pos_final.x.val = pos->x.val;
             navi->pos_final.y.val = pos->y.val;
             navi->pos_final.z.val = pos->z.val;
-            navi->wallhug_state = 0;
+            navi->wallhug_state = WallhugCurrentState_None;
             navi->wallhug_retry_counter = 0;
             navi->push_counter = 0;
             return 1;
@@ -1856,7 +1856,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
           navi->pos_final.x.val = pos->x.val;
           navi->pos_final.y.val = pos->y.val;
           navi->pos_final.z.val = pos->z.val;
-          navi->wallhug_state = 0;
+          navi->wallhug_state = WallhugCurrentState_None;
           navi->wallhug_retry_counter = 0;
           navi->push_counter = 0;
           navi->pos_next.x.val = creatng->mappos.x.val;
@@ -1877,7 +1877,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         find_approach_position_to_subtile(&creatng->mappos, stl_x, stl_y, nav_radius + 385, &navi->pos_next);
         navi->angle = get_angle_xy_to(&creatng->mappos, &navi->pos_next);
         navi->wallhug_retry_counter = 0;
-        navi->wallhug_state = 0;
+        navi->wallhug_state = WallhugCurrentState_None;
         navi->distance_to_next_pos = get_chessboard_distance(&creatng->mappos, &navi->pos_next);
         navi->navstate = NavS_WallhugPositionAdjust;
         return 1;
@@ -1892,7 +1892,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
                 navi->pos_final.x.val = pos->x.val;
                 navi->pos_final.y.val = pos->y.val;
                 navi->pos_final.z.val = pos->z.val;
-                navi->wallhug_state = 0;
+                navi->wallhug_state = WallhugCurrentState_None;
                 navi->wallhug_retry_counter = 0;
                 navi->push_counter = 0;
             }
@@ -1905,7 +1905,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         tmpos.y.val = subtile_coord_center(stl_y);
         navi->angle = get_angle_xy_to(&creatng->mappos, &tmpos);
         navi->wallhug_retry_counter = 0;
-        navi->wallhug_state = 0;
+        navi->wallhug_state = WallhugCurrentState_None;
         navi->distance_to_next_pos = 0;
         if (get_angle_difference(creatng->move_angle_xy, navi->angle) != 0) {
             navi->navstate = NavS_WallhugPositionAdjust;

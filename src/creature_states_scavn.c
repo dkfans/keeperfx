@@ -175,7 +175,7 @@ short creature_scavenged_disappear(struct Thing *thing)
     cctrl->scavenge.job_stage--;
     if (cctrl->scavenge.job_stage > 0)
     {
-      if ((cctrl->scavenge.job_stage == 7) && (cctrl->scavenge.effect_id < PLAYERS_COUNT))
+      if ((cctrl->scavenge.job_stage == JobStage_ScavengedDisappearing) && (cctrl->scavenge.effect_id < PLAYERS_COUNT))
       {
           //TODO EFFECTS Verify what is wrong here - we want either effect or effect element
           create_effect(&thing->mappos, get_scavenge_effect(cctrl->scavenge.effect_id), thing->owner);
@@ -374,7 +374,7 @@ long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
     }
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(scavtng);
-        cctrl->scavenge.job_stage = 8;
+        cctrl->scavenge.job_stage = JobStage_BeingScavenged;
         cctrl->scavenge.effect_id = calltng->owner;
         cctrl->scavenge.stl_9D_x = pos.x.stl.num;
         cctrl->scavenge.stl_9D_y = pos.y.stl.num;
