@@ -410,6 +410,7 @@ unsigned char sound_flag;
     SpellKind active_teleport_spell;
     SpellKind active_timebomb_spell;
     short vertical_speed;
+    GameTurnDelta hand_blocked_turns;
 };
 
 struct Persons {
