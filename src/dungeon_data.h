@@ -339,13 +339,13 @@ TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole);
 long count_player_discrete_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole);
 
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
-TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);
+TbBool toggle_creature_tendencies(const struct PlayerInfo *player, unsigned short tend_type);
 TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type);
 
 TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel trap_kind, long buildable, long amount);
 TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel door_kind, long buildable, long amount);
-TbBool dungeon_has_any_buildable_traps(struct Dungeon *dungeon);
-TbBool dungeon_has_any_buildable_doors(struct Dungeon *dungeon);
+TbBool dungeon_has_any_buildable_traps(const struct Dungeon *dungeon);
+TbBool dungeon_has_any_buildable_doors(const struct Dungeon *dungeon);
 
 TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id);
 TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value);
