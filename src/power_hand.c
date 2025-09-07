@@ -1095,7 +1095,7 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
         if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
         {
             cctrl->armageddon_teleport_turn = 0;
-            if (remove_creature_from_power_hand(thing, dungeon->owner))
+            if (remove_thing_from_power_hand(thing, dungeon->owner))
             {
                 teleport_armageddon_influenced_creature(thing);
                 return false;
@@ -1421,19 +1421,17 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
     return true;
 }
 
-TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
+TbBool remove_thing_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
 {
     if (!thing_is_in_power_hand_list(thing, plyr_idx)) {
         return false;
     }
     if (thing_is_creature(thing))
     {
-        remove_thing_from_limbo(thing);
         set_start_state(thing);
-        remove_thing_from_power_hand_list(thing, plyr_idx);
-        return true;
     }
-    return false;
+    remove_thing_from_limbo(thing);
+    return remove_thing_from_power_hand_list(thing, plyr_idx);;
 }
 
 TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
