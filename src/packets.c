@@ -1738,12 +1738,7 @@ void process_frontend_packets(void)
         switch (nspckt->networkstatus_flags >> 3)
         {
         case 2:
-            {
-                char msg[64];
-                strncpy(msg, (char*)&nspckt->param1, sizeof(nspckt->param1) + sizeof(nspckt->param2) + sizeof(nspckt->stored_data1) + sizeof(nspckt->stored_data2));
-                msg[63] = '\0';
-                handle_chat_message(msg, i, false, NULL);
-            }
+            handle_chat_message((char*)&nspckt->param1, i, false, NULL);
             break;
         case 3:
             if (!validate_versions())
