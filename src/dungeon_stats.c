@@ -25,6 +25,7 @@
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_objects.h"
+#include "config_modules.h"
 #include "config_lenses.h"
 #include "config_trapdoor.h"
 #include "config_effects.h"
@@ -43,6 +44,9 @@ TbBool load_stats_files(void)
 {
     SYNCDBG(8, "Starting");
     TbBool result = true;
+
+    load_module_config_file();
+
     clear_research_for_all_players();
     init_creature_model_stats();
     init_creature_model_graphics();

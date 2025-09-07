@@ -1259,10 +1259,14 @@ long get_rid(const struct NamedCommand *desc, const char *itmname)
   return -1;
 }
 
-char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *fname)
+/*
+ * @mod_dir insert before fgroup related sdir, set NULL if no module.
+ * @fname insert after fgroup related sdir.
+ */
+char *prepare_file_path_buf(char *dst, int dst_size, const char *mod_dir, short fgroup, const char *fname)
 {
-  const char *mdir;
-  const char *sdir;
+  const char *mdir = NULL;
+  const char *sdir = NULL;
   switch (fgroup)
   {
   case FGrp_StdData:
@@ -1376,33 +1380,41 @@ char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *f
   }
   if (mdir == NULL)
       dst[0] = '\0';
-  else
-  if (sdir == NULL)
-      snprintf(dst, dst_size, "%s/%s",mdir,fname);
-  else
-      snprintf(dst, dst_size, "%s/%s/%s",mdir,sdir,fname);
+  else {
+      if (mod_dir == NULL)
+          mod_dir = "";
+      if (sdir == NULL)
+          sdir = "";
+      if (fname == NULL)
+          fname = "";
+
+      const char *mod_sep = mod_dir[0] ==0 ? "" : "/";
+      const char *dir_sep = sdir[0] == 0 ? "" : "/";
+      const char *file_sep = fname[0] ==0 ? "" : "/";
+      snprintf(dst, dst_size, "%s%s%s%s%s%s%s", mdir, mod_sep, mod_dir, dir_sep, sdir, file_sep, fname);
+  }
   return dst;
 }
 
-char *prepare_file_path(short fgroup,const char *fname)
+char *prepare_file_path(const char *mod_dir, short fgroup, const char *fname)
 {
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
+  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
 }
 
-char *prepare_file_path_va(short fgroup, const char *fmt_str, va_list arg)
+char *prepare_file_path_va(const char *mod_dir, short fgroup, const char *fmt_str, va_list arg)
 {
   char fname[255] = "";
   vsnprintf(fname, sizeof(fname), fmt_str, arg);
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
+  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
 }
 
-char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...)
+char *prepare_file_fmtpath(const char *mod_dir, short fgroup, const char *fmt_str, ...)
 {
   va_list val;
   va_start(val, fmt_str);
-  char* result = prepare_file_path_va(fgroup, fmt_str, val);
+  char* result = prepare_file_path_va(mod_dir, fgroup, fmt_str, val);
   va_end(val);
   return result;
 }
@@ -1429,7 +1441,7 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   char fname[255] = "";
   vsnprintf(fname, sizeof(fname), fmt_str, arg);
   char ffullpath[2048];
-  prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
+  prepare_file_path_buf(ffullpath, sizeof(ffullpath), NULL, fgroup, fname);
   va_end(arg);
   // Load the file
    long fsize = LbFileLengthRnc(ffullpath);
@@ -1679,7 +1691,7 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buffer_en
 TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
 {
   SYNCDBG(18,"Starting");
-  char* fname = prepare_file_path(FGrp_LandView, campgn->credits_fname);
+  char* fname = prepare_file_path(NULL, FGrp_LandView, campgn->credits_fname);
   long filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
@@ -2239,6 +2251,31 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
     return false;
 }
 
+
+void load_config_for_module(const struct ConfigFileData* file_data, unsigned short flags, const char *mod_dir)
+{
+    set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+    const char* conf_fname = file_data->filename;
+
+    char* fname = prepare_file_path(mod_dir, FGrp_FxData, conf_fname);
+    if (strlen(fname) > 0)
+    {
+        file_data->load_func(fname, flags);
+    }
+
+    fname = prepare_file_path(mod_dir, FGrp_CmpgConfig,conf_fname);
+    if (strlen(fname) > 0)
+    {
+        file_data->load_func(fname,flags);
+    }
+
+    fname = prepare_file_fmtpath(mod_dir, FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        file_data->load_func(fname,flags);
+    }
+}
+
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 {
     if (file_data->pre_load_func != NULL)
@@ -2246,25 +2283,52 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
         file_data->pre_load_func();
     }
 
+    int i;
     const char* conf_fname = file_data->filename;
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
 
+    char* fname = prepare_file_path(NULL, FGrp_FxData, conf_fname);
     TbBool result = file_data->load_func(fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
+
+    for (i=0; i<game.conf.module_conf.mod_item_cnt; i++)
+    {
+        struct ModuleConfigItem *mod_item = game.conf.module_conf.mod_item + i;
+        if (mod_item->load_period != MOD_LOAD_PERIOD_FIRST || mod_item->disable != 0 || mod_item->exist == 0 || mod_item->name[0] == 0)
+            continue;
+
+        char mod_dir[256] = {0};
+        sprintf(mod_dir, "%s/%s", MODULE_DIR_NAME, mod_item->name);
+        load_config_for_module(file_data, flags, mod_dir);
+    }
+
+    fname = prepare_file_path(NULL, FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
-    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+
+    fname = prepare_file_fmtpath(NULL, FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
     if (strlen(fname) > 0)
     {
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+
+    for (i=0; i<game.conf.module_conf.mod_item_cnt; i++)
+    {
+        struct ModuleConfigItem *mod_item = game.conf.module_conf.mod_item + i;
+        if (mod_item->load_period != MOD_LOAD_PERIOD_LAST || mod_item->disable != 0 || mod_item->exist == 0 || mod_item->name[0] == 0)
+            continue;
+
+        char mod_dir[256] = {0};
+        sprintf(mod_dir, "%s/%s", MODULE_DIR_NAME, mod_item->name);
+        load_config_for_module(file_data, flags, mod_dir);
     }
 
     if (file_data->post_load_func != NULL)
     {
         file_data->post_load_func();
     }
+
     return result;
 }
+
 /******************************************************************************/

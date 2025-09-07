@@ -240,9 +240,9 @@ extern char keeper_runtime_directory[152];
 /******************************************************************************/
 extern unsigned long text_line_number;
 /******************************************************************************/
-char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *fname);
-char *prepare_file_path(short fgroup,const char *fname);
-char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
+char *prepare_file_path_buf(char *dst, int dst_size, const char *mod_dir, short fgroup, const char *fname);
+char *prepare_file_path(const char *mod_dir, short fgroup, const char *fname);
+char *prepare_file_fmtpath(const char *mod_dir, short fgroup, const char *fmt_str, ...);
 unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags);

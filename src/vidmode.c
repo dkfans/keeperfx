@@ -500,7 +500,7 @@ void unload_pointer_file(short hi_res)
 
 TbBool init_fades_table(void)
 {
-    char* fname = prepare_file_path(FGrp_StdData, "tables.dat");
+    char* fname = prepare_file_path(NULL, FGrp_StdData, "tables.dat");
     SYNCDBG(0,"Reading fade table file \"%s\".",fname);
     if (LbFileLoadAt(fname, &pixmap) != sizeof(struct TbColorTables))
     {
@@ -521,7 +521,7 @@ TbBool init_fades_table(void)
 
 TbBool init_alpha_table(void)
 {
-    char* fname = prepare_file_path(FGrp_StdData, "alpha.col");
+    char* fname = prepare_file_path(NULL, FGrp_StdData, "alpha.col");
     SYNCDBG(0,"Reading alpha color table file \"%s\".",fname);
     // Loading file data
     if (LbFileLoadAt(fname, &alpha_sprite_table) != sizeof(struct TbAlphaTables))
@@ -534,7 +534,7 @@ TbBool init_alpha_table(void)
 
 TbBool init_rgb2idx_table(void)
 {
-    char* fname = prepare_file_path(FGrp_StdData, "colours.col");
+    char* fname = prepare_file_path(NULL, FGrp_StdData, "colours.col");
     SYNCDBG(0,"Reading rgb-to-index color table file \"%s\".",fname);
     // Loading file data
     if (LbFileLoadAt(fname, &colours) != sizeof(TbRGBColorTable))
@@ -547,7 +547,7 @@ TbBool init_rgb2idx_table(void)
 
 TbBool init_redpal_table(void)
 {
-    char* fname = prepare_file_path(FGrp_StdData, "redpal.col");
+    char* fname = prepare_file_path(NULL, FGrp_StdData, "redpal.col");
     SYNCDBG(0,"Reading red-blended color table file \"%s\".",fname);
     // Loading file data
     if (LbFileLoadAt(fname, &red_pal) != 256)
@@ -560,7 +560,7 @@ TbBool init_redpal_table(void)
 
 TbBool init_whitepal_table(void)
 {
-    char* fname = prepare_file_path(FGrp_StdData, "whitepal.col");
+    char* fname = prepare_file_path(NULL, FGrp_StdData, "whitepal.col");
     SYNCDBG(0,"Reading white-blended color table file \"%s\".",fname);
     // Loading file data
     if (LbFileLoadAt(fname, &white_pal) != 256)

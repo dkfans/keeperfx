@@ -1,0 +1,23 @@
+; KeeperFX Modules Configuration file version 1.0.
+
+; mod0 is disabled by default, used for example.
+[mod0]
+; Module directory name
+Name = NULL
+; 0: First(load before campaign, it will be overwrite by campaign), 9: Last(load after campaign, it will overwrite the campaign). [0,9]
+LoadPeriod = 0
+; Effective for the same LoadPeriod. Larger value, will be loaded later and have higher priority. Allow same, but the order of the same items is unstable. [0-99]
+Priority = 0
+; allow configuration but not put into use. [0-1]
+Disable = 1
+
+[mod1]
+Name = first
+LoadPeriod = 0
+Priority = 0
+
+[mod2]
+Name = last
+LoadPeriod = 9
+Priority = 99
+

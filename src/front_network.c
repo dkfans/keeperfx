@@ -365,7 +365,7 @@ void display_attempting_to_join_message(void)
 void net_load_config_file(void)
 {
     // Try to load the config file
-    char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
+    char* fname = prepare_file_path(NULL, FGrp_Save, keeper_netconf_file);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (handle)
     {
@@ -384,7 +384,7 @@ void net_load_config_file(void)
 void net_write_config_file(void)
 {
     // Try to load the config file
-    char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
+    char* fname = prepare_file_path(NULL, FGrp_Save, keeper_netconf_file);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
     if (handle)
     {

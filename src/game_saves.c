@@ -309,7 +309,7 @@ TbBool save_game(long slot_num)
         ERRORLOG("Outranged slot index %d",(int)slot_num);
         return false;
     }
-    char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
+    char* fname = prepare_file_fmtpath(NULL, FGrp_Save, saved_game_filename, slot_num);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
     if (!handle)
     {
@@ -330,7 +330,7 @@ TbBool save_game(long slot_num)
 TbBool is_save_game_loadable(long slot_num)
 {
     // Prepare filename and open the file
-    char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
+    char* fname = prepare_file_fmtpath(NULL, FGrp_Save, saved_game_filename, slot_num);
     TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (fh)
     {
@@ -360,7 +360,7 @@ TbBool load_game(long slot_num)
     reset_eye_lenses();
     {
         // Use fname only here - it is overwritten by next use of prepare_file_fmtpath()
-        char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
+        char* fname = prepare_file_fmtpath(NULL, FGrp_Save, saved_game_filename, slot_num);
         fh = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
         if (!fh)
         {
@@ -514,7 +514,7 @@ TbBool load_game_save_catalogue(void)
     {
         struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
         memset(centry, 0, sizeof(struct CatalogueEntry));
-        char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
+        char* fname = prepare_file_fmtpath(NULL, FGrp_Save, saved_game_filename, slot_num);
         TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
         if (!fh)
             continue;
@@ -541,7 +541,7 @@ short save_continue_game(LevelNumber lvnum)
     if (is_singleplayer_like_level(lvnum))
       set_continue_level_number(lvnum);
     SYNCDBG(6,"Continue set to level %d (loaded is %d)",(int)get_continue_level_number(),(int)get_loaded_level_number());
-    char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
+    char* fname = prepare_file_path(NULL, FGrp_Save, continue_game_filename);
     long fsize = LbFileSaveAt(fname, &game, sizeof(struct Game) + sizeof(struct IntralevelData));
     // Appending IntralevelData
     TbFileHandle fh = LbFileOpen(fname,Lb_FILE_MODE_OLD);
@@ -553,7 +553,7 @@ short save_continue_game(LevelNumber lvnum)
 
 short read_continue_game_part(unsigned char *buf,long pos,long buf_len)
 {
-    char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
+    char* fname = prepare_file_path(NULL, FGrp_Save, continue_game_filename);
     if (LbFileLength(fname) != sizeof(struct Game) + sizeof(struct IntralevelData))
     {
         SYNCDBG(7, "No correct .SAV file; there's no continue");

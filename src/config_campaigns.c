@@ -1076,7 +1076,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
     snprintf(campgn->fname, DISKPATH_SIZE, "%s", cmpgn_fname);
     snprintf(campgn->name, DISKPATH_SIZE, "%s", cmpgn_fname);
     SYNCDBG(0,"%s campaign file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
-    char* fname = prepare_file_path(fgroup, cmpgn_fname);
+    char* fname = prepare_file_path(NULL, fgroup, cmpgn_fname);
     long len = LbFileLengthRnc(fname);
     if (len < 2)
     {
@@ -1350,7 +1350,7 @@ void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
 TbBool load_campaigns_list(void)
 {
     init_campaigns_list_entries(&campaigns_list, CAMPAIGNS_LIST_GROW_DELTA);
-    char* fname = prepare_file_path(FGrp_Campgn, "*.cfg"); // add campaigns
+    char* fname = prepare_file_path(NULL, FGrp_Campgn, "*.cfg"); // add campaigns
     struct TbFileEntry fe;
     struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
     long cnum_all = 0;
@@ -1366,7 +1366,7 @@ TbBool load_campaigns_list(void)
         LbFileFindEnd(ff);
     }
     SYNCDBG(0,"Found %ld campaign files, properly loaded %ld.",cnum_all,cnum_ok);
-    const char* ordfname = prepare_file_path(FGrp_Campgn, "campgn_order.txt");
+    const char* ordfname = prepare_file_path(NULL, FGrp_Campgn, "campgn_order.txt");
     sort_campaigns(&campaigns_list,ordfname);
     return (campaigns_list.items_num > 0);
 }
@@ -1377,7 +1377,7 @@ TbBool load_campaigns_list(void)
 TbBool load_mappacks_list(void)
 {
     init_campaigns_list_entries(&mappacks_list, CAMPAIGNS_LIST_GROW_DELTA);
-    char* fname = prepare_file_path(FGrp_VarLevels, "*.cfg"); // add map packs
+    char* fname = prepare_file_path(NULL, FGrp_VarLevels, "*.cfg"); // add map packs
     struct TbFileEntry fe;
     struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
     long cnum_all = 0;
@@ -1397,7 +1397,7 @@ TbBool load_mappacks_list(void)
         LbFileFindEnd(ff);
     }
     SYNCDBG(0,"Found %ld map pack files, properly loaded %ld.",cnum_all,cnum_ok);
-    const char* ordfname = prepare_file_path(FGrp_VarLevels, "mappck_order.txt");
+    const char* ordfname = prepare_file_path(NULL, FGrp_VarLevels, "mappck_order.txt");
     sort_campaigns(&mappacks_list,ordfname);
     return (mappacks_list.items_num > 0);
 }

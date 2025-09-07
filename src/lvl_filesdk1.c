@@ -126,7 +126,7 @@ struct LegacyInitLight { // sizeof=0x14
 unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext,long *ldsize,unsigned short flags)
 {
   short fgroup = get_level_fgroup(lvnum);
-  char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s", lvnum, fext);
+  char* fname = prepare_file_fmtpath(NULL, fgroup, "map%05lu.%s", lvnum, fext);
   long fsize = LbFileLengthRnc(fname);
   if (fsize < *ldsize)
   {
@@ -310,12 +310,12 @@ TbBool find_and_load_lif_files(void)
         return false;
   }
   short result = false;
-  char* fname = prepare_file_path(FGrp_CmpgLvls, "*.lif");
+  char* fname = prepare_file_path(NULL, FGrp_CmpgLvls, "*.lif");
   struct TbFileEntry fe;
   struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
   if (ff) {
     do {
-      fname = prepare_file_path(FGrp_CmpgLvls, fe.Filename);
+      fname = prepare_file_path(NULL, FGrp_CmpgLvls, fe.Filename);
       long i = LbFileLength(fname);
       if ((i < 0) || (i >= MAX_LIF_SIZE)) {
         WARNMSG("File \"%s\" too long (Max size %d)", fe.Filename, MAX_LIF_SIZE);
@@ -626,12 +626,12 @@ TbBool find_and_load_lof_files(void)
       return false;
     }
     short result = false;
-    char* fname = prepare_file_path(FGrp_CmpgLvls, "*.lof");
+    char* fname = prepare_file_path(NULL, FGrp_CmpgLvls, "*.lof");
     struct TbFileEntry fe;
     struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
     if (ff) {
         do {
-            fname = prepare_file_path(FGrp_CmpgLvls, fe.Filename);
+            fname = prepare_file_path(NULL, FGrp_CmpgLvls, fe.Filename);
             long i = LbFileLength(fname);
             if ((i < 0) || (i >= MAX_LIF_SIZE)) {
               WARNMSG("File '%s' too long (Max size %d)", fe.Filename, MAX_LIF_SIZE);
@@ -1337,7 +1337,7 @@ short load_and_setup_map_info(unsigned long lv_num)
 static void load_ext_slabs(LevelNumber lvnum)
 {
     short fgroup = get_level_fgroup(lvnum);
-    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slx", (unsigned long)lvnum);
+    char* fname = prepare_file_fmtpath(NULL, fgroup, "map%05lu.slx", (unsigned long)lvnum);
     if (LbFileExists(fname))
     {
         if (game.map_tiles_x * game.map_tiles_y != LbFileLoadAt(fname, game.slab_ext_data))
@@ -1357,14 +1357,14 @@ static void load_ext_slabs(LevelNumber lvnum)
 
 void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup)
 {
-    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(install_info.lang_id));
+    char* fname = prepare_file_fmtpath(NULL, fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(install_info.lang_id));
     if (!LbFileExists(fname))
     {
         SYNCMSG("Map string file %s doesn't exist.", fname);
         char buf[2048];
         buf[0] = 0;
         memcpy(&buf, fname, 2048);
-        fname = prepare_file_fmtpath(fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(campgn->default_language));
+        fname = prepare_file_fmtpath(NULL, fgroup, "map%05lu.%s.dat", (unsigned long)lvnum, get_language_lwrstr(campgn->default_language));
         if (strcasecmp(fname, buf) == 0)
         {
             return;
@@ -1412,7 +1412,7 @@ static TbBool load_level_file(LevelNumber lvnum)
     TbBool result;
     TbBool new_format = true;
     short fgroup = get_level_fgroup(lvnum);
-    char* fname = prepare_file_fmtpath(fgroup, "map%05lu.slb", (unsigned long)lvnum);
+    char* fname = prepare_file_fmtpath(NULL, fgroup, "map%05lu.slb", (unsigned long)lvnum);
     if (LbFileExists(fname))
     {
         result = true;

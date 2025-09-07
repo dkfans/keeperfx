@@ -417,16 +417,16 @@ std::array<std::vector<sound_sample>, 2> g_banks;
 
 void load_sound_banks() {
 	char snd_fname[2048];
-	prepare_file_path_buf(snd_fname, sizeof(snd_fname), FGrp_LrgSound, "sound.dat");
+	prepare_file_path_buf(snd_fname, sizeof(snd_fname), NULL, FGrp_LrgSound, "sound.dat");
 	// language-specific speech file
-	char * spc_fname = prepare_file_fmtpath(FGrp_LrgSound, "speech_%s.dat", get_language_lwrstr(install_info.lang_id));
+	char * spc_fname = prepare_file_fmtpath(NULL, FGrp_LrgSound, "speech_%s.dat", get_language_lwrstr(install_info.lang_id));
 	// default speech file
 	if (!LbFileExists(spc_fname)) {
-		spc_fname = prepare_file_path(FGrp_LrgSound, "speech.dat");
+		spc_fname = prepare_file_path(NULL, FGrp_LrgSound, "speech.dat");
 	}
 	// speech file for english
 	if (!LbFileExists(spc_fname)) {
-		spc_fname = prepare_file_fmtpath(FGrp_LrgSound, "speech_%s.dat", get_language_lwrstr(1));
+		spc_fname = prepare_file_fmtpath(NULL, FGrp_LrgSound, "speech_%s.dat", get_language_lwrstr(1));
 	}
 	g_banks[0] = load_sound_bank(snd_fname);
 	g_banks[1] = load_sound_bank(spc_fname);
@@ -526,7 +526,7 @@ extern "C" TbBool play_music_track(int track) {
 		stop_music();
 		return true;
 	} else if (features_enabled & Ft_NoCdMusic) {
-		return play_music(prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", track));
+		return play_music(prepare_file_fmtpath(NULL, FGrp_Music, "keeper%02d.ogg", track));
 	} else {
 		if (PlayRedbookTrack(track)) {
 			JUSTLOG("Playing track %d", game.music_track);

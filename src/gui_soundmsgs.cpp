@@ -328,7 +328,7 @@ void script_play_message(TbBool param_is_string, const char msgtype_id, const sh
     }
     else
     {
-        const char * filepath = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", filename);
+        const char * filepath = prepare_file_fmtpath(NULL, FGrp_CmpgMedia,"%s", filename);
         switch (msgtype_id)
         {
             case 1: // speech message

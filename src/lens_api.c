@@ -246,7 +246,7 @@ void setup_eye_lens(long nlens)
     if ((lenscfg->flags & LCF_HasMist) != 0)
     {
         SYNCDBG(9,"Mist config entered");
-        char* fname = prepare_file_path(FGrp_StdData, lenscfg->mist_file);
+        char* fname = prepare_file_path(NULL, FGrp_StdData, lenscfg->mist_file);
         LbFileLoadAt(fname, eye_lens_memory);
         setup_mist((unsigned char *)eye_lens_memory,
             &pixmap.fade_tables[(lenscfg->mist_lightness)*256],

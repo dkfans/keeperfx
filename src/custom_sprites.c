@@ -203,7 +203,7 @@ static int cmp_named_command(const void *a, const void *b)
 static void load_system_sprites(short fgroup)
 {
     SYNCDBG(8, "Starting");
-    char * fname = prepare_file_path(fgroup, "*.zip");
+    char * fname = prepare_file_path(NULL, fgroup, "*.zip");
     int cnt = 0, cnt_ok = 0, cnt_icons = 0;
     const char * path;
     if (0 == *fname) // No campaign
@@ -212,7 +212,7 @@ static void load_system_sprites(short fgroup)
     struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
     if (ff) {
         do {
-            path = prepare_file_path(fgroup, fe.Filename);
+            path = prepare_file_path(NULL, fgroup, fe.Filename);
 #ifdef OUTER
             fprintf(stderr, "F:%s\n", path);
             fprintf(stderr, "A:%d\n", SDL_GetTicks());
@@ -298,7 +298,7 @@ void init_custom_sprites(LevelNumber lvnum)
     load_system_sprites(FGrp_FxData);
     load_system_sprites(FGrp_CmpgConfig);
 
-    char *lvl = prepare_file_fmtpath(get_level_fgroup(lvnum), "map%05lu.zip", lvnum);
+    char *lvl = prepare_file_fmtpath(NULL, get_level_fgroup(lvnum), "map%05lu.zip", lvnum);
     if (add_custom_sprite(lvl))
     {
         JUSTLOG("Loaded per-map sprite file");
@@ -833,7 +833,7 @@ static void load_rgb_to_pal_table()
         ERRORLOG("Cannot allocate rgb conversion table");
         return;
     }
-    const char * fname = prepare_file_fmtpath(FGrp_StdData, "png_conv_pal.dat");
+    const char * fname = prepare_file_fmtpath(NULL, FGrp_StdData, "png_conv_pal.dat");
     if (!LbFileExists(fname))
     {
         WARNMSG("Palette file \"%s\" doesn't exist.", fname);
