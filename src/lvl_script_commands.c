@@ -152,6 +152,7 @@ const struct NamedCommand hand_rule_desc[] = {
   {"FIGHTING",              HandRule_Fighting},
   {"DROPPED_TIME_HIGHER",   HandRule_DroppedTimeHigher},
   {"DROPPED_TIME_LOWER",    HandRule_DroppedTimeLower},
+  {"BLOCKED_FOR_PICKUP",    HandRule_BlockedPickup},
   {NULL,                    0},
 };
 

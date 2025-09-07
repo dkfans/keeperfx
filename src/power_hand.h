@@ -102,7 +102,8 @@ enum HandRuleType {
     HandRule_Working,
     HandRule_Fighting,
     HandRule_DroppedTimeHigher,
-    HandRule_DroppedTimeLower
+    HandRule_DroppedTimeLower,
+    HandRule_BlockedPickup
 };
 
 enum HandRuleAction {
