@@ -98,7 +98,7 @@ static int64_t value_displace(const struct NamedField* named_field, const char* 
 static int64_t value_pallete(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
     lenses_conf.lenses[idx].flags |= LCF_HasPalette;
-    char* fname = prepare_file_path(NULL, FGrp_StdData, value_text);
+    char* fname = prepare_file_path(FGrp_StdData, value_text);
     if (LbFileLoadAt(fname, (char*)(named_field->field) + named_fields_set->struct_size * idx) != PALETTE_SIZE)
     {
         CONFWRNLOG("Couldn't load \"%s\" file for \"%s\" parameter in [%s%d] block of lens.cfg file.",

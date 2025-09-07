@@ -53,7 +53,7 @@ TbBool load_module_config_file()
     unsigned short flags = CnfLd_Standard|CnfLd_IgnoreErrors;
 
     const char *sname = MODULE_DIR_NAME "/" MODULE_CFG_FILE_NAME;
-    const char *fname = prepare_file_path(NULL, FGrp_Main, sname);
+    const char *fname = prepare_file_path(FGrp_Main, sname);
 
     long len = LbFileLengthRnc(fname);
     if (len < 2)
@@ -85,7 +85,7 @@ TbBool load_module_config_file()
     for (i=0; i<game.conf.module_conf.mod_item_cnt; i++)
     {
         struct ModuleConfigItem *mod_item = game.conf.module_conf.mod_item + i;
-        const char* fname1 = prepare_file_path(MODULE_DIR_NAME, FGrp_Main, mod_item->name);
+        const char* fname1 = prepare_file_path_mod(MODULE_DIR_NAME, FGrp_Main, mod_item->name);
         if (LbFileExists(fname1))
             mod_item->exist = 1;
     }

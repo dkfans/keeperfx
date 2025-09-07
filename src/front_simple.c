@@ -470,7 +470,7 @@ TbBool wait_for_installation_files(void)
 {
   char ffullpath[2048];
   short was_locked = LbScreenIsLocked();
-  prepare_file_path_buf(ffullpath, sizeof(ffullpath), NULL, FGrp_StdData, "bluepal.dat");
+  prepare_file_path_buf(ffullpath, sizeof(ffullpath), FGrp_StdData, "bluepal.dat");
   if ( LbFileExists(ffullpath) )
     return true;
   if ( was_locked )

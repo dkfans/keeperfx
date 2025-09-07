@@ -121,7 +121,7 @@ void setup_default_settings(void)
 TbBool load_settings(void)
 {
     SYNCDBG(6,"Starting");
-    char* fname = prepare_file_path(NULL, FGrp_Save, "settings.dat");
+    char* fname = prepare_file_path(FGrp_Save, "settings.dat");
     long len = LbFileLengthRnc(fname);
     if (len == sizeof(struct GameSettings))
     {
@@ -153,7 +153,7 @@ TbBool load_settings(void)
 
 short save_settings(void)
 {
-    char* fname = prepare_file_path(NULL, FGrp_Save, "settings.dat");
+    char* fname = prepare_file_path(FGrp_Save, "settings.dat");
     LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
     return true;
 }

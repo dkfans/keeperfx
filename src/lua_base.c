@@ -65,11 +65,11 @@ int setLuaPath( lua_State* L)
 {
     #define PATH_LENGTH 4096
     char fx_data_path[PATH_LENGTH];
-    prepare_file_path_buf(fx_data_path, sizeof(fx_data_path), NULL, FGrp_FxData, "lua/?.lua");
+    prepare_file_path_buf(fx_data_path, sizeof(fx_data_path), FGrp_FxData, "lua/?.lua");
     char campaignpath[PATH_LENGTH];
-    prepare_file_path_buf(campaignpath, sizeof(campaignpath), NULL, FGrp_CmpgConfig, "lua/?.lua");
+    prepare_file_path_buf(campaignpath, sizeof(campaignpath), FGrp_CmpgConfig, "lua/?.lua");
     char levelpath[PATH_LENGTH];
-    prepare_file_path_buf(levelpath, sizeof(levelpath), NULL, FGrp_CmpgLvls, "?.lua");
+    prepare_file_path_buf(levelpath, sizeof(levelpath), FGrp_CmpgLvls, "?.lua");
 
 
     lua_getglobal(L, "package");
@@ -170,7 +170,7 @@ TbBool open_lua_script(LevelNumber lvnum)
 
     setLuaPath(Lvl_script);
     
-    char* fname = prepare_file_fmtpath(NULL, FGrp_FxData, "lua/init.lua");
+    char* fname = prepare_file_fmtpath(FGrp_FxData, "lua/init.lua");
 
 	// Load and parse the Lua File
     if ( !LbFileExists(fname) )
@@ -187,7 +187,7 @@ TbBool open_lua_script(LevelNumber lvnum)
 	}
 
     short fgroup = get_level_fgroup(lvnum);
-    fname = prepare_file_fmtpath(NULL, fgroup, "map%05lu.lua", (unsigned long)lvnum);
+    fname = prepare_file_fmtpath(fgroup, "map%05lu.lua", (unsigned long)lvnum);
 
 	// Load and parse the Lua File
     if ( !LbFileExists(fname) )

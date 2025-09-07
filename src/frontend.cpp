@@ -897,9 +897,9 @@ TbResult frontend_load_data(void)
     ret = Lb_SUCCESS;
     frontend_background = (unsigned char *)game.map;
 #ifdef SPRITE_FORMAT_V2
-    fname = prepare_file_fmtpath(NULL, FGrp_LoData,"front-%d.raw",64);
+    fname = prepare_file_fmtpath(FGrp_LoData,"front-%d.raw",64);
 #else
-    fname = prepare_file_path(NULL, FGrp_LoData,"front.raw");
+    fname = prepare_file_path(FGrp_LoData,"front.raw");
 #endif
     len = LbFileLoadAt(fname, frontend_background);
     if (len < 307200) {
@@ -911,11 +911,11 @@ TbResult frontend_load_data(void)
     char dat_fname[2048];
     char tab_fname[2048];
 #ifdef SPRITE_FORMAT_V2
-    strcpy(dat_fname, prepare_file_fmtpath(NULL, FGrp_LoData,"frontbit-%d.dat",64));
-    strcpy(tab_fname, prepare_file_fmtpath(NULL, FGrp_LoData,"frontbit-%d.tab",64));
+    strcpy(dat_fname, prepare_file_fmtpath(FGrp_LoData,"frontbit-%d.dat",64));
+    strcpy(tab_fname, prepare_file_fmtpath(FGrp_LoData,"frontbit-%d.tab",64));
 #else
-    strcpy(dat_fname, prepare_file_path(NULL, FGrp_LoData,"frontbit.dat"));
-    strcpy(tab_fname, prepare_file_path(NULL, FGrp_LoData,"frontbit.tab"));
+    strcpy(dat_fname, prepare_file_path(FGrp_LoData,"frontbit.dat"));
+    strcpy(tab_fname, prepare_file_path(FGrp_LoData,"frontbit.tab"));
  #endif
     frontend_sprite = load_spritesheet(dat_fname, tab_fname);
     if (!frontend_sprite) {
@@ -2616,7 +2616,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     {
     case FeSt_INITIAL:
         init_gui();
-        fname = prepare_file_path(NULL, FGrp_LoData,"front.pal");
+        fname = prepare_file_path(FGrp_LoData,"front.pal");
         if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
             ERRORLOG("Unable to load FRONTEND PALETTE");
         LbMoveGameCursorToHostCursor(); // set the initial cursor position for the main menu
@@ -2725,7 +2725,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           continue_game_option_available = continue_game_available();
           if (!continue_game_option_available)
           {
-              char* fname = prepare_file_path(NULL, FGrp_Save, continue_game_filename);
+              char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
               LbFileDelete(fname);
           }
           turn_on_menu(GMnu_FEMAIN);

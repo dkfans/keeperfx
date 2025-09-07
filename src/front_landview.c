@@ -727,11 +727,11 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
           WARNLOG("No extension specified for good speech file; defaulting to '.wav'.");
           char path[DISKPATH_SIZE];
           snprintf(path, sizeof(path), "%s.wav", lvinfo->speech_before);
-          fname = prepare_file_fmtpath(NULL, FGrp_AtlSound, "%s", path);
+          fname = prepare_file_fmtpath(FGrp_AtlSound, "%s", path);
       }
       else
       {
-          fname = prepare_file_fmtpath(NULL, FGrp_AtlSound,"%s",lvinfo->speech_before);
+          fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",lvinfo->speech_before);
       }
       playing_good_descriptive_speech = 1;
     } else
@@ -744,11 +744,11 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
           WARNLOG("No extension specified for evil speech file; defaulting to '.wav'.");
           char path[DISKPATH_SIZE];
           snprintf(path, sizeof(path), "%s.wav", lvinfo->speech_after);
-          fname = prepare_file_fmtpath(NULL, FGrp_AtlSound, "%s", path);
+          fname = prepare_file_fmtpath(FGrp_AtlSound, "%s", path);
       }
       else
       {
-          fname = prepare_file_fmtpath(NULL, FGrp_AtlSound,"%s",lvinfo->speech_after);
+          fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",lvinfo->speech_after);
       }
       playing_bad_descriptive_speech = 1;
     }
@@ -916,7 +916,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
         return false;
     }
     // Prepare full file name and load the image
-    char* fname = prepare_file_fmtpath(NULL, FGrp_LandView, "%s.raw", land_view);
+    char* fname = prepare_file_fmtpath(FGrp_LandView, "%s.raw", land_view);
     long flen = LbFileLengthRnc(fname);
     if (flen < 1024)
     {
@@ -938,7 +938,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
     unsigned char* ptr = block_mem;
     memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
     // Now prepare window sprite file name and load the file
-    fname = prepare_file_fmtpath(NULL, FGrp_LandView,"%s.dat",land_window);
+    fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
     map_window_len = LbFileLoadAt(fname, ptr);
     if (map_window_len < (long)(WINDOW_Y_SIZE*sizeof(long)))
     {
@@ -956,7 +956,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
     // Update length, so that it corresponds to map_window pointer
     map_window_len -= WINDOW_Y_SIZE*sizeof(long);
     // Load palette
-    fname = prepare_file_fmtpath(NULL, FGrp_LandView,"%s.pal",land_view);
+    fname = prepare_file_fmtpath(FGrp_LandView,"%s.pal",land_view);
     if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
     {
         ERRORLOG("Unable to load Land Map palette \"%s.pal\"",land_view);
@@ -1004,7 +1004,7 @@ static void frontmap_start_music(void)
         if (track >= 1) {
             play_music_track(track);
         } else {
-            const char* fname = prepare_file_fmtpath(NULL, FGrp_CmpgMedia, campaign.soundtrack_fname);
+            const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, campaign.soundtrack_fname);
             play_music(fname);
         }
     } else {

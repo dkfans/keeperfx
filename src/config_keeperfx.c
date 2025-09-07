@@ -350,13 +350,13 @@ short load_configuration(void)
         fname = start_params.config_file; // Absolute path
     } else {
         sname = start_params.config_file;
-        fname = prepare_file_path(NULL, FGrp_Main, sname);
+        fname = prepare_file_path(FGrp_Main, sname);
     }
   }
   else
   {
     sname = keeper_config_file;
-    fname = prepare_file_path(NULL, FGrp_Main, sname);
+    fname = prepare_file_path(FGrp_Main, sname);
   }
 
   long len = LbFileLengthRnc(fname);

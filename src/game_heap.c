@@ -89,9 +89,9 @@ TbBool setup_heap_manager(void)
     }
     long i;
 #ifdef SPRITE_FORMAT_V2
-    fname = prepare_file_fmtpath(NULL, FGrp_StdData,"thingspr-%d.jty",32);
+    fname = prepare_file_fmtpath(FGrp_StdData,"thingspr-%d.jty",32);
 #else
-    const char* fname = prepare_file_path(NULL, FGrp_StdData, "creature.jty");
+    const char* fname = prepare_file_path(FGrp_StdData, "creature.jty");
 #endif
     jty_file_handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (!jty_file_handle) {

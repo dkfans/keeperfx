@@ -82,17 +82,17 @@ void reload_parchment_file(TbBool hires)
   if (hires)
   {
 #ifdef SPRITE_FORMAT_V2
-      fname = prepare_file_fmtpath(NULL, FGrp_StdData,"gmap-%d.raw",64);
+      fname = prepare_file_fmtpath(FGrp_StdData,"gmap-%d.raw",64);
 #else
-      fname = prepare_file_path(NULL, FGrp_StdData,"gmap64.raw");
+      fname = prepare_file_path(FGrp_StdData,"gmap64.raw");
 #endif
       LbFileLoadAt(fname, hires_parchment);
   } else
   {
 #ifdef SPRITE_FORMAT_V2
-      fname = prepare_file_fmtpath(NULL, FGrp_StdData,"gmap-%d.raw",32);
+      fname = prepare_file_fmtpath(FGrp_StdData,"gmap-%d.raw",32);
 #else
-      fname = prepare_file_path(NULL, FGrp_StdData,"gmap32.raw");
+      fname = prepare_file_path(FGrp_StdData,"gmap32.raw");
 #endif
       LbFileLoadAt(fname, poly_pool);
   }

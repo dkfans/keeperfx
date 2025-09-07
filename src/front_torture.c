@@ -131,19 +131,19 @@ void fronttorture_load(void)
     // Texture blocks memory isn't used here, so reuse it instead of allocating
     unsigned char* ptr = block_mem;
     // Load RAW/PAL background
-    char* fname = prepare_file_path(NULL, FGrp_LoData, "torture.raw");
+    char* fname = prepare_file_path(FGrp_LoData, "torture.raw");
     torture_background = ptr;
     long i = LbFileLoadAt(fname, ptr);
     ptr += i;
-    fname = prepare_file_path(NULL, FGrp_LoData,"torture.pal");
+    fname = prepare_file_path(FGrp_LoData,"torture.pal");
     torture_palette = ptr;
     i = LbFileLoadAt(fname, ptr);
     // Load DAT/TAB sprites for doors
     for (int idx = 0; idx < TORTURE_DOORS_COUNT; ++idx) {
         char tab_name[2048];
         char dat_name[2048];
-        strcpy(tab_name, prepare_file_fmtpath(NULL, FGrp_LoData,"door%02d.tab", idx + 1));
-        strcpy(dat_name, prepare_file_fmtpath(NULL, FGrp_LoData,"door%02d.dat", idx + 1));
+        strcpy(tab_name, prepare_file_fmtpath(FGrp_LoData,"door%02d.tab", idx + 1));
+        strcpy(dat_name, prepare_file_fmtpath(FGrp_LoData,"door%02d.dat", idx + 1));
         doors[idx].sprites = load_spritesheet(dat_name, tab_name);
         if (!doors[idx].sprites) ERRORLOG("Unable to load torture door %d", idx + 1);
     }

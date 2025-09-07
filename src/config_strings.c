@@ -82,7 +82,7 @@ TbBool setup_gui_strings_data(void)
 {
   SYNCDBG(8,"Starting");
 
-  char* fname = prepare_file_fmtpath(NULL, FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
+  char* fname = prepare_file_fmtpath(FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
   long filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
@@ -128,7 +128,7 @@ TbBool free_gui_strings_data(void)
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
 {
   SYNCDBG(18,"Starting");
-  char* fname = prepare_file_path(NULL, FGrp_Main, campgn->strings_fname);
+  char* fname = prepare_file_path(FGrp_Main, campgn->strings_fname);
   long filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {

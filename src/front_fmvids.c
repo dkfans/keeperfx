@@ -118,14 +118,14 @@ short play_smacker_file(char *filename, FrontendMenuState nstate)
 
 TbBool intro(void)
 {
-    char* fname = prepare_file_path(NULL, FGrp_LoData, "intromix.smk");
+    char* fname = prepare_file_path(FGrp_LoData, "intromix.smk");
     SYNCDBG(0,"Playing intro movie \"%s\"",fname);
     return play_smacker_file(fname, FeSt_MAIN_MENU);
 }
 
 TbBool intro_replay(void)
 {
-    char* fname = prepare_file_path(NULL, FGrp_LoData, "intromix.smk");
+    char* fname = prepare_file_path(FGrp_LoData, "intromix.smk");
     SYNCDBG(0,"Playing intro movie \"%s\"",fname);
     return play_smacker_file(fname, -2);
 }
@@ -137,7 +137,7 @@ TbBool campaign_intro(void)
         frontend_set_state(FeSt_LAND_VIEW);
         return 0;
     }
-    char* fname = prepare_file_path(NULL, FGrp_CmpgMedia, campaign.movie_intro_fname);
+    char* fname = prepare_file_path(FGrp_CmpgMedia, campaign.movie_intro_fname);
     SYNCDBG(0,"Playing intro movie \"%s\"",fname);
     return play_smacker_file(fname, FeSt_LAND_VIEW);
 }
@@ -148,28 +148,28 @@ TbBool campaign_outro(void)
         SYNCDBG(0,"No outro movie defined");
         return 0;
     }
-    char* fname = prepare_file_path(NULL, FGrp_CmpgMedia, campaign.movie_outro_fname);
+    char* fname = prepare_file_path(FGrp_CmpgMedia, campaign.movie_outro_fname);
     SYNCDBG(0,"Playing outro movie \"%s\"",fname);
     return play_smacker_file(fname, FeSt_LEVEL_STATS);
 }
 
 TbBool moon_video(void)
 {
-    char* fname = prepare_file_path(NULL, FGrp_LoData, "bullfrog.smk");
+    char* fname = prepare_file_path(FGrp_LoData, "bullfrog.smk");
     SYNCDBG(0,"Playing movie \"%s\"",fname);
     return play_smacker_file(fname, -2);
 }
 
 TbBool drag_video(void)
 {
-    char* fname = prepare_file_path(NULL, FGrp_LoData, "drag.smk");
+    char* fname = prepare_file_path(FGrp_LoData, "drag.smk");
     SYNCDBG(0,"Playing movie \"%s\"",fname);
     return play_smacker_file(fname, FeSt_TORTURE);
 }
 
 TbBool ea_video(void)
 {
-    char* fname = prepare_file_path(NULL, FGrp_LoData, "ea.smk");
+    char* fname = prepare_file_path(FGrp_LoData, "ea.smk");
     SYNCDBG(0,"Playing movie \"%s\"",fname);
     return play_smacker_file(fname, -2);
 }
@@ -181,11 +181,11 @@ void demo(void)
     switch (demo_item[index].kind)
     {
     case DIK_PlaySmkVideo:
-        fname = prepare_file_path(NULL, FGrp_LoData,demo_item[index].fname);
+        fname = prepare_file_path(FGrp_LoData,demo_item[index].fname);
         play_smacker_file(fname, FeSt_MAIN_MENU);
         break;
     case DIK_LoadPacket:
-        fname = prepare_file_path(NULL, FGrp_FxData,demo_item[index].fname);
+        fname = prepare_file_path(FGrp_FxData,demo_item[index].fname);
         if ( LbFileExists(fname) )
         {
           strcpy(game.packet_fname, fname);

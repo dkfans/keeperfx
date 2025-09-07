@@ -1259,11 +1259,15 @@ long get_rid(const struct NamedCommand *desc, const char *itmname)
   return -1;
 }
 
+char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *fname)
+{
+    return prepare_file_path_buf_mod(dst, dst_size, NULL, fgroup, fname);
+}
 /*
  * @mod_dir insert before fgroup related sdir, set NULL if no module.
  * @fname insert after fgroup related sdir.
  */
-char *prepare_file_path_buf(char *dst, int dst_size, const char *mod_dir, short fgroup, const char *fname)
+char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, short fgroup, const char *fname)
 {
   const char *mdir = NULL;
   const char *sdir = NULL;
@@ -1396,25 +1400,40 @@ char *prepare_file_path_buf(char *dst, int dst_size, const char *mod_dir, short 
   return dst;
 }
 
-char *prepare_file_path(const char *mod_dir, short fgroup, const char *fname)
+char *prepare_file_path_mod(const char *mod_dir, short fgroup, const char *fname)
 {
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
+  return prepare_file_path_buf_mod(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
 }
 
-char *prepare_file_path_va(const char *mod_dir, short fgroup, const char *fmt_str, va_list arg)
+char *prepare_file_path(short fgroup, const char *fname)
+{
+  static char ffullpath[2048];
+  return prepare_file_path_buf_mod(ffullpath, sizeof(ffullpath), NULL, fgroup, fname);
+}
+
+char *prepare_file_path_va_mod(const char *mod_dir, short fgroup, const char *fmt_str, va_list arg)
 {
   char fname[255] = "";
   vsnprintf(fname, sizeof(fname), fmt_str, arg);
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
+  return prepare_file_path_buf_mod(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
 }
 
-char *prepare_file_fmtpath(const char *mod_dir, short fgroup, const char *fmt_str, ...)
+char *prepare_file_fmtpath_mod(const char *mod_dir, short fgroup, const char *fmt_str, ...)
 {
   va_list val;
   va_start(val, fmt_str);
-  char* result = prepare_file_path_va(mod_dir, fgroup, fmt_str, val);
+  char* result = prepare_file_path_va_mod(mod_dir, fgroup, fmt_str, val);
+  va_end(val);
+  return result;
+}
+
+char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...)
+{
+  va_list val;
+  va_start(val, fmt_str);
+  char* result = prepare_file_path_va_mod(NULL, fgroup, fmt_str, val);
   va_end(val);
   return result;
 }
@@ -1441,7 +1460,7 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   char fname[255] = "";
   vsnprintf(fname, sizeof(fname), fmt_str, arg);
   char ffullpath[2048];
-  prepare_file_path_buf(ffullpath, sizeof(ffullpath), NULL, fgroup, fname);
+  prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
   va_end(arg);
   // Load the file
    long fsize = LbFileLengthRnc(ffullpath);
@@ -1691,7 +1710,7 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buffer_en
 TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
 {
   SYNCDBG(18,"Starting");
-  char* fname = prepare_file_path(NULL, FGrp_LandView, campgn->credits_fname);
+  char* fname = prepare_file_path(FGrp_LandView, campgn->credits_fname);
   long filelen = LbFileLengthRnc(fname);
   if (filelen <= 0)
   {
@@ -2252,30 +2271,36 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
 }
 
 
+/* @comment
+ *     The loading items of load_config and load_config_for_module need to be consistent.
+ */
 void load_config_for_module(const struct ConfigFileData* file_data, unsigned short flags, const char *mod_dir)
 {
     set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
     const char* conf_fname = file_data->filename;
 
-    char* fname = prepare_file_path(mod_dir, FGrp_FxData, conf_fname);
+    char* fname = prepare_file_path_mod(mod_dir, FGrp_FxData, conf_fname);
     if (strlen(fname) > 0)
     {
         file_data->load_func(fname, flags);
     }
 
-    fname = prepare_file_path(mod_dir, FGrp_CmpgConfig,conf_fname);
+    fname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         file_data->load_func(fname,flags);
     }
 
-    fname = prepare_file_fmtpath(mod_dir, FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
     if (strlen(fname) > 0)
     {
         file_data->load_func(fname,flags);
     }
 }
 
+/* @comment
+ *     The loading items of load_config and load_config_for_module need to be consistent.
+ */
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 {
     if (file_data->pre_load_func != NULL)
@@ -2286,7 +2311,7 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
     int i;
     const char* conf_fname = file_data->filename;
 
-    char* fname = prepare_file_path(NULL, FGrp_FxData, conf_fname);
+    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = file_data->load_func(fname, flags);
 
     for (i=0; i<game.conf.module_conf.mod_item_cnt; i++)
@@ -2300,13 +2325,13 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
         load_config_for_module(file_data, flags, mod_dir);
     }
 
-    fname = prepare_file_path(NULL, FGrp_CmpgConfig,conf_fname);
+    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
 
-    fname = prepare_file_fmtpath(NULL, FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
     if (strlen(fname) > 0)
     {
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
