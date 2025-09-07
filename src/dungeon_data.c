@@ -32,7 +32,7 @@ struct Dungeon bad_dungeon;
 /******************************************************************************/
 struct Dungeon *get_players_num_dungeon_f(long plyr_idx,const char *func_name)
 {
-    struct PlayerInfo* player = get_player(plyr_idx);
+    const struct PlayerInfo* player = get_player(plyr_idx);
     PlayerNumber plyr_num = player->id_number;
     if (player_invalid(player) || (plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
@@ -158,7 +158,7 @@ TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
 {
     if (plyr_idx == game.neutral_player_num)
         return false;
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    const struct Dungeon* dungeon = get_dungeon(plyr_idx);
     for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, rrole))
@@ -194,7 +194,7 @@ long count_player_discrete_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole
 
 struct Thing *get_player_soul_container(PlayerNumber plyr_idx)
 {
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    const struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon->dnheart_idx > 0) {
         return thing_get(dungeon->dnheart_idx);
     }
@@ -299,7 +299,7 @@ TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type)
     }
 }
 
-TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type)
+TbBool toggle_creature_tendencies(const struct PlayerInfo *player, unsigned short tend_type)
 {
     struct Dungeon* dungeon = get_dungeon(player->id_number);
     switch (tend_type)
@@ -400,7 +400,7 @@ TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
  * Returns if there are any traps in the dungeon which can be put on map.
  * @param dungeon
  */
-TbBool dungeon_has_any_buildable_traps(struct Dungeon *dungeon)
+TbBool dungeon_has_any_buildable_traps(const struct Dungeon *dungeon)
 {
     for (ThingModel tngmodel = 1; tngmodel < game.conf.trapdoor_conf.trap_types_count; tngmodel++)
     {
@@ -415,7 +415,7 @@ TbBool dungeon_has_any_buildable_traps(struct Dungeon *dungeon)
  * Returns if there are any doors in the dungeon which can be put on map.
  * @param dungeon
  */
-TbBool dungeon_has_any_buildable_doors(struct Dungeon *dungeon)
+TbBool dungeon_has_any_buildable_doors(const struct Dungeon *dungeon)
 {
     for (ThingModel tngmodel = 1; tngmodel < game.conf.trapdoor_conf.door_types_count; tngmodel++)
     {
@@ -495,7 +495,7 @@ TbBool mark_creature_joined_dungeon(struct Thing *creatng)
 
 void init_dungeon_essential_position(struct Dungeon *dungeon)
 {
-    struct Room* room = room_get(dungeon->room_list_start[RoK_DUNGHEART]);
+    const struct Room* room = room_get(dungeon->room_list_start[RoK_DUNGHEART]);
     for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (!room_is_invalid(room))
