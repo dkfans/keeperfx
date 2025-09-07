@@ -998,40 +998,32 @@ void init_iso_3d_conversion_tables(void)
  */
 void setup_mesh_randomizers(void)
 {
-    unsigned long seed;
-    long i;
-    long k;
-    SYNCDBG(6,"Starting");
-    seed = 0x0f0f0f0f;
-    for (i=0; i < RANDOMISORS_LEN; i++)
+    SYNCDBG(6, "Starting");
+    unsigned long seed = 0x0f0f0f0f;
+    for (long i=0; i < RANDOMISORS_LEN; i++)
     {
         // fill with value -RANDOMISORS_RANGE..RANDOMISORS_RANGE
-        k = LB_RANDOM(2*RANDOMISORS_RANGE+1, &seed);
+        long k = LB_RANDOM(2*RANDOMISORS_RANGE+1, &seed);
         randomisors[i] = k - RANDOMISORS_RANGE;
     }
 }
 
 void fill_floor_heights_table(void)
 {
-    long top_height;
-    long btm_height;
-    long shade_back;
     unsigned long flag_bit;
-    long i;
-    long n;
-    for (n=0; n < 256; n++)
+    for (long n=0; n < 256; n++)
     {
-        i = 0;
+        long i = 0;
         flag_bit = 1;
-        btm_height = i;
-        top_height = i;
+        long btm_height = i;
+        long top_height = i;
         for (; i < 8; i++)
         {
             if ((flag_bit & n) == 0)
               break;
             flag_bit = (flag_bit << 1);
         }
-        shade_back = i;
+        long shade_back = i;
         for (; i < 8; i++)
         {
             if ((flag_bit & n) != 0)
