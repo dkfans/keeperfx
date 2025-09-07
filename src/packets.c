@@ -105,6 +105,7 @@ extern "C" {
 /******************************************************************************/
 extern TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
+extern TbBool change_campaign(const char *cmpgn_fname);
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
@@ -1620,6 +1621,56 @@ void process_packets(void)
   SYNCDBG(7,"Finished");
 }
 
+static TbBool try_starting_level_from_chat(char* message, long player_id)
+{
+    char *colon_pos = strchr(message, ':');
+    if (!colon_pos || colon_pos == message) {
+        return false;
+    }
+    
+    int campaign_len = colon_pos - message;
+    if (campaign_len <= 0 || campaign_len >= 64) {
+        return false;
+    }
+    
+    char *level_str = colon_pos + 1;
+    if (!isdigit(level_str[0])) {
+        return false;
+    }
+    
+    LevelNumber level_num = atoi(level_str);
+    if (level_num <= 0) {
+        return false;
+    }
+    
+    char campaign_filename[80];
+    snprintf(campaign_filename, sizeof(campaign_filename), "%.*s.cfg", campaign_len, message);
+    
+    if (!change_campaign(campaign_filename)) {
+        ERRORLOG("Unable to load campaign '%.*s' for level %d", campaign_len, message, (int)level_num);
+        return false;
+    }
+    
+    set_selected_level_number(level_num);
+    frontend_set_state(FeSt_START_MPLEVEL);
+    return true;
+}
+
+static void handle_chat_message(char* message, long player_id, TbBool clear_text, char* text_to_clear)
+{
+    if (try_starting_level_from_chat(message, player_id)) {
+        if (clear_text) {
+            text_to_clear[0] = '\0';
+        }
+        return;
+    }
+    
+    add_message(player_id, message);
+    if (clear_text) {
+        text_to_clear[0] = '\0';
+    }
+}
+
 void process_frontend_packets(void)
 {
   long i;
@@ -1687,7 +1738,12 @@ void process_frontend_packets(void)
         switch (nspckt->networkstatus_flags >> 3)
         {
         case 2:
-            add_message(i, (char*)&nspckt->param1);
+            {
+                char msg[64];
+                strncpy(msg, (char*)&nspckt->param1, sizeof(nspckt->param1) + sizeof(nspckt->param2) + sizeof(nspckt->stored_data1) + sizeof(nspckt->stored_data2));
+                msg[63] = '\0';
+                handle_chat_message(msg, i, false, NULL);
+            }
             break;
         case 3:
             if (!validate_versions())
@@ -1696,7 +1752,14 @@ void process_frontend_packets(void)
                 break;
             }
             fe_network_active = 1;
-            frontend_set_state(FeSt_NETLAND_VIEW);
+            if (game_flags2 & GF2_Connect)
+            {
+                frontend_set_state(FeSt_START_MPLEVEL);
+            }
+            else
+            {
+                frontend_set_state(FeSt_NETLAND_VIEW);
+            }
             break;
         case 4:
             frontend_set_alliance(nspckt->param1, nspckt->param2);
@@ -1720,9 +1783,7 @@ void process_frontend_packets(void)
             {
                 if (k > 0)
                 {
-                    add_message(i, player->mp_message_text);
-                    k = 0;
-                    player->mp_message_text[k] = '\0';
+                    handle_chat_message(player->mp_message_text, i, true, player->mp_message_text);
                 }
             }
             else
