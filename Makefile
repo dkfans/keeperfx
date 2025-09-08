@@ -599,7 +599,7 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson
+	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit
 	-$(RM) libexterns
 
 deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit:
@@ -660,13 +660,10 @@ deps/openal/include/AL/al.h: deps/openal-mingw32.tar.gz | deps/openal
 deps/luajit-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20250418/luajit-mingw32.tar.gz"
 
-deps/luajit/lib/libluajit.a: deps/luajit-mingw32.tar.gz | deps/luajit
-	tar xzmf $< -C deps/luajit
+deps/luajit/lib/libluajit.a: | deps/luajit/include/lua.h
 
 deps/luajit/include/lua.h: deps/luajit-mingw32.tar.gz | deps/luajit
-	tar xzmf $< -C deps/openal
-
-std-before: deps/luajit/lib/libluajit.a
+	tar xzmf $< -C deps/luajit
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
