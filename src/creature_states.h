@@ -220,6 +220,18 @@ enum CreatureStateTypes {
     CrStTyp_ListEnd,
 };
 
+enum JobStage {
+    JobStage_Unused = 0,          // Initial job stage (unused in current implementation)
+    JobStage_SearchingForWork = 1,// Workshop: Finding an available work position in the room
+    JobStage_PreparingToWork = 2, // Workshop: Setting up equipment and work timer before starting
+    JobStage_MovingToPosition = 3,// Workshop/Research: Moving to or staying at work position
+    JobStage_TurningToFace = 4,   // Workshop/Research: Turning to face work direction or random thinking
+    JobStage_Manufacturing = 5,   // Workshop: Actively manufacturing items (swinging weapon animation)
+    JobStage_JobFailed = 6,       // Unused
+    JobStage_ScavengedDisappearing = 7, // Scavenging: This creature was successfully scavenged and is disappearing
+    JobStage_BeingScavenged = 8   // Scavenging: This creature is currently being scavenged by an enemy creature
+};
+
 /** Defines return values of creature state functions. */
 enum CreatureStateReturns {
     CrStRet_Deleted       = -1, /**< Returned if the creature being updated no longer exists. */
