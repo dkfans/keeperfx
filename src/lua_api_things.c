@@ -63,6 +63,14 @@ static int lua_delete_thing(lua_State *L)
 {
     struct Thing *thing = luaL_checkThing(L, 1);
 
+    if (thing_is_picked_up(thing))
+    {
+        for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+        {
+            if (remove_thing_from_power_hand(thing, plyr_idx))
+                break;
+        }
+    }
     if (thing->class_id == TCls_Creature)
     {
         kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
