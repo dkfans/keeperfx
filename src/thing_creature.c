@@ -1287,6 +1287,7 @@ TbBool clear_thing_spell_flags_f(struct Thing *thing, unsigned long spell_flags,
         external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
         cctrl->countdown = 10;
         cleared = true;
+        set_creature_size_stuff(thing);
     }
     // FREEZE.
     if (flag_is_set(spell_flags, CSAfF_Freeze)
