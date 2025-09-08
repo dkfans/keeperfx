@@ -36,29 +36,45 @@ extern "C" {
 
 
 #define MODULE_DIR_NAME "mods"
-#define MODULE_CFG_FILE_NAME "mods.cfg"
+#define MODULE_LOAD_ORDER_FILE_NAME "load_order.cfg"
 
-#define MOD_LOAD_PERIOD_FIRST 0
-#define MOD_LOAD_PERIOD_LAST 9
+#define MODULE_AFTER_BASE_BLOCK_NAME "after_base"
+#define MODULE_AFTER_CAMPAIGN_BLOCK_NAME "after_campaign"
+#define MODULE_AFTER_MAP_BLOCK_NAME "after_map"
 
-#define MODULE_ITEM_MAX  100
+#define MODULE_ITEM_MAX  50
+
 
 struct ModuleConfigItem {
     char name[COMMAND_WORD_LEN];
-    int load_period;
-    int priority;
-    int disable;
 
-    int exist;
+    int exist_mod;
+
+    // load_config
+    int exist_fx_data;
+    int exist_cmpg_config;
+    int exist_cmpg_lvls;
+
+    // load_creaturemodel_config
+    int exist_crtr_data;
+    int exist_cmpg_crtrs;
+    // int exist_cmpg_lvls; // dup
+
 };
 
 struct ModulesConfig {
-    long mod_item_cnt;
-    struct ModuleConfigItem mod_item[MODULE_ITEM_MAX];
+    long after_base_cnt;
+    struct ModuleConfigItem after_base_item[MODULE_ITEM_MAX];
+
+    long after_campaign_cnt;
+    struct ModuleConfigItem after_campaign_item[MODULE_ITEM_MAX];
+
+    long after_map_cnt;
+    struct ModuleConfigItem after_map_item[MODULE_ITEM_MAX];
 };
 
 
-TbBool load_module_config_file();
+TbBool load_module_order_config_file();
 
 
 

@@ -301,6 +301,7 @@ TbBool parameter_is_number(const char* parstr);
 short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname);
 TbBool iterate_conf_blocks(const char * buf, long * pos, long buflen, const char ** name, int * namelen);
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
+int get_conf_line(const char *buf, long *pos, long buflen, char *dst, long dstlen);
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen);
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen);

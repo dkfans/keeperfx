@@ -18,33 +18,78 @@ extern "C" {
 
 
 
-static const struct NamedField modules_named_fields[] = {
-    //name                     //pos    //field                                                    //default //min //max //NamedCommand
-    {"NAME",                     0, field(game.conf.module_conf.mod_item[0].name),                 0, LONG_MIN,ULONG_MAX, NULL,         value_name,     assign_null},
-    {"LOADPERIOD",               0, field(game.conf.module_conf.mod_item[0].load_period),          0, LONG_MIN,ULONG_MAX, NULL,         value_default,  assign_default},
-    {"PRIORITY",                 0, field(game.conf.module_conf.mod_item[0].priority),             0, LONG_MIN,ULONG_MAX, NULL,         value_default,  assign_default},
-    {"DISABLE",                  0, field(game.conf.module_conf.mod_item[0].disable),              0, LONG_MIN,ULONG_MAX, NULL,         value_default,  assign_default},
-    {NULL},
-};
-
-static const struct NamedFieldSet modules_named_fields_set = {
-    &game.conf.module_conf.mod_item_cnt,
-    "mod",
-    modules_named_fields,
-    NULL,
-    MODULE_ITEM_MAX,
-    sizeof(game.conf.module_conf.mod_item[0]),
-    game.conf.module_conf.mod_item,
-};
-
-static int module_compare_fn(const void *ptr_a, const void *ptr_b)
+static TbBool parse_module_block(char *buf, long len, const char *block_name, struct ModuleConfigItem* mod_items, long *mod_cnt, long mod_max)
 {
-    struct ModuleConfigItem *a = (struct ModuleConfigItem*)ptr_a;
-    struct ModuleConfigItem *b = (struct ModuleConfigItem*)ptr_b;
-    return a->priority - b->priority;
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, block_name);
+    if (k < 0)
+    {
+        return false;
+    }
+
+    while (pos<len)
+    {
+      if (*mod_cnt >= mod_max)
+          break;
+      char line_buf[COMMAND_WORD_LEN] = {0};
+      int line_len = get_conf_line(buf,&pos,len,line_buf,COMMAND_WORD_LEN);
+      if (line_len < 0)
+          break;
+      if (line_len > 0)
+      {
+          struct ModuleConfigItem* mod_item = mod_items + (*mod_cnt);
+          strncpy(mod_item->name, line_buf, COMMAND_WORD_LEN);
+          (*mod_cnt)++;
+      }
+      skip_conf_to_next_line(buf,&pos,len);
+  }
+
+  return true;
 }
 
-TbBool load_module_config_file()
+static void check_module_exist(struct ModuleConfigItem *mod_items, long mod_cnt)
+{
+    for (long i=0; i<mod_cnt; i++)
+    {
+        struct ModuleConfigItem *mod_item = mod_items + i;
+	if (mod_item->name[0] == 0)
+            continue;
+
+        const char* fname = prepare_file_path_mod(MODULE_DIR_NAME, FGrp_Main, mod_item->name);
+        if (fname[0] == 0 || !LbFileExists(fname))
+            continue;
+        mod_item->exist_mod = 1;
+
+
+        char mod_dir[256] = {0};
+        sprintf(mod_dir, "%s/%s", MODULE_DIR_NAME, mod_item->name);
+
+
+        fname = prepare_file_path_mod(mod_dir, FGrp_FxData, NULL);
+        if (fname[0] != 0 && LbFileExists(fname))
+            mod_item->exist_fx_data = 1;
+
+        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig, NULL);
+        if (fname[0] != 0 && LbFileExists(fname))
+            mod_item->exist_cmpg_config = 1;
+
+        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgLvls, NULL);
+        if (fname[0] != 0 && LbFileExists(fname))
+            mod_item->exist_cmpg_lvls = 1;
+
+
+        fname = prepare_file_path_mod(mod_dir, FGrp_CrtrData, NULL);
+        if (fname[0] != 0 && LbFileExists(fname))
+            mod_item->exist_crtr_data = 1;
+
+        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgCrtrs, NULL);
+        if (fname[0] != 0 && LbFileExists(fname))
+            mod_item->exist_cmpg_crtrs = 1;
+
+    }
+}
+
+TbBool load_module_order_config_file()
 {
     SYNCDBG(8, "Starting");
 
@@ -52,7 +97,7 @@ TbBool load_module_config_file()
 
     unsigned short flags = CnfLd_Standard|CnfLd_IgnoreErrors;
 
-    const char *sname = MODULE_DIR_NAME "/" MODULE_CFG_FILE_NAME;
+    const char *sname = MODULE_DIR_NAME "/" MODULE_LOAD_ORDER_FILE_NAME;
     const char *fname = prepare_file_path(FGrp_Main, sname);
 
     long len = LbFileLengthRnc(fname);
@@ -74,21 +119,15 @@ TbBool load_module_config_file()
     len = LbFileLoadAt(fname, buf);
     if (len>0)
     {
-        parse_named_field_blocks(buf, len, fname, flags, &modules_named_fields_set);
+        parse_module_block(buf, len, MODULE_AFTER_BASE_BLOCK_NAME, game.conf.module_conf.after_base_item, &game.conf.module_conf.after_base_cnt, MODULE_ITEM_MAX);
+        parse_module_block(buf, len, MODULE_AFTER_CAMPAIGN_BLOCK_NAME, game.conf.module_conf.after_campaign_item, &game.conf.module_conf.after_campaign_cnt, MODULE_ITEM_MAX);
+        parse_module_block(buf, len, MODULE_AFTER_MAP_BLOCK_NAME, game.conf.module_conf.after_map_item, &game.conf.module_conf.after_map_cnt, MODULE_ITEM_MAX);
     }
     free(buf);
 
-    if (game.conf.module_conf.mod_item_cnt > 1)
-        qsort(game.conf.module_conf.mod_item, game.conf.module_conf.mod_item_cnt, sizeof(game.conf.module_conf.mod_item[0]), &module_compare_fn);
-
-    int i;
-    for (i=0; i<game.conf.module_conf.mod_item_cnt; i++)
-    {
-        struct ModuleConfigItem *mod_item = game.conf.module_conf.mod_item + i;
-        const char* fname1 = prepare_file_path_mod(MODULE_DIR_NAME, FGrp_Main, mod_item->name);
-        if (LbFileExists(fname1))
-            mod_item->exist = 1;
-    }
+    check_module_exist(game.conf.module_conf.after_base_item, game.conf.module_conf.after_base_cnt);
+    check_module_exist(game.conf.module_conf.after_campaign_item, game.conf.module_conf.after_campaign_cnt);
+    check_module_exist(game.conf.module_conf.after_map_item, game.conf.module_conf.after_map_cnt);
 
     return true;
 }
