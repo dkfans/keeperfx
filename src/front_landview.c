@@ -310,7 +310,7 @@ int get_disabled_flag_option (unsigned short ensign, unsigned short default_ensi
         return EnsDisMoonF;
     else if (base_ensign == EnsNewMoon)
         return EnsDisMoonN;
-    
+
     return EnsDisFull;
 }
 

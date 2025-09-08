@@ -573,7 +573,7 @@ long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* ce
 
     if (computer_able_to_use_power(comp, PwrK_HAND, 1, 1))
     {
-        if (!is_task_in_progress_using_hand(comp)) 
+        if (!is_task_in_progress_using_hand(comp))
         {
             long creatrs_def = count_creatures_for_defend_pickup(comp);
             if (creatrs_def < cevent->primary_parameter)

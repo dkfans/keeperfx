@@ -132,13 +132,13 @@ enum ObjectModels
 };
 
 /**
- * Used for Objects->draw_class  EffectElementConfigStats->draw_class and Thing->draw_class. 
- * 
+ * Used for Objects->draw_class  EffectElementConfigStats->draw_class and Thing->draw_class.
+ *
  * Used in in draw_frontview_thing_on_element() and do_map_who_for_thing().
- * 
+ *
  * See also see set_object_configuration_process(), parse_objects_object_blocks(), objects_data_init[], effect_element_stats[] and objects.cfg for setting of draw_class.
  */
-enum ObjectsDrawClasses { 
+enum ObjectsDrawClasses {
   ODC_None           = 0x00, /**< Used by POWER_SIGHT and POWER_LIGHTNG - do nothing in draw_frontview_thing_on_element() or do_map_who_for_thing(). */
   ODC_Default        = 0x02, /**< Default behaviour in draw_frontview_thing_on_element() / do_map_who_for_thing(). */
   ODC_DrawAtOrigin   = 0x03, /**< Draw object at world origin rather than its position. */

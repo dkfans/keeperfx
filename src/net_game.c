@@ -200,7 +200,7 @@ long network_session_join(void)
 void init_network_seed()
 {
    if (!LbNetwork_Resync(&game.action_rand_seed, 4))
-      ERRORLOG("Action seed initialisation failed"); 
+      ERRORLOG("Action seed initialisation failed");
 }
 /******************************************************************************/
 #ifdef __cplusplus

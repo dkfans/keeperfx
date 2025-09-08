@@ -172,7 +172,7 @@ enum CreatureAttackType {
 
 enum CreatureSpawnType {
     SpwnT_None = 0,
-    SpwnT_Default, 
+    SpwnT_Default,
     SpwnT_Jump,
     SpwnT_Fall,
     SpwnT_Initialize

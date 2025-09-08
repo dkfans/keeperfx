@@ -118,7 +118,7 @@ long get_distance_xy(long x1, long y1, long x2, long y2)
 
 /**
  * This distance is "the number of moves needed by a king to move from one tile to another on a chess board".
- * 
+ *
  * This is known as Chebyshev distance (see https://en.wikipedia.org/wiki/Chebyshev_distance for details).
  */
 MapCoordDelta get_chessboard_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -128,7 +128,7 @@ MapCoordDelta get_chessboard_distance(const struct Coord3d *pos1, const struct C
 
 /**
  * This distance is "the number of moves needed by a king to move from one cube to another on a 3d chess board".
- * 
+ *
  * This is known as Chebyshev distance (see https://en.wikipedia.org/wiki/Chebyshev_distance and https://en.wikipedia.org/wiki/Three-dimensional_chess for details).
  */
 MapCoordDelta get_chessboard_3d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)

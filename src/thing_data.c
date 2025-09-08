@@ -34,7 +34,7 @@
 #include "game_legacy.h"
 #include "engine_arrays.h"
 #include "kjm_input.h"
-#include "gui_topmsg.h" 
+#include "gui_topmsg.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -304,7 +304,7 @@ void query_thing(struct Thing *thing)
     if ( (thing->class_id == TCls_Object) && (thing->model == ObjMdl_SpinningKey) && (!is_key_pressed(KC_LALT, KMod_DONTCARE)) )
     {
         querytng = get_door_for_position(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    }   
+    }
     else
     {
         querytng = thing;

@@ -3319,7 +3319,7 @@ void delete_familiars_attached_to_creature(struct Thing* sumntng)
     }
 }
 
-struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags) 
+struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags)
 {
     SYNCDBG(18, "Starting");
     TRACE_THING(creatng);

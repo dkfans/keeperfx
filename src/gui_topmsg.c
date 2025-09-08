@@ -89,7 +89,7 @@ TbBool erstat_check(void)
         return false;
 
     if (last_checked_stat_num >= sizeof(erstat) / sizeof(erstat[0]))
-    { 
+    {
         ERRORLOG("Invalid last checked stat number %d, resetting to 0", last_checked_stat_num);
         last_checked_stat_num = 0;
     }

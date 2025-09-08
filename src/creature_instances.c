@@ -1477,7 +1477,7 @@ TbBool validate_target_benefits_from_defensive
         ERRORLOG("Invalid creature control");
         return false;
     }
-    // When the target is fighting creatures, return true because it needs defensive buffs. 
+    // When the target is fighting creatures, return true because it needs defensive buffs.
     // Doors and Hearts do not fight back, and keepers only defend by dropping units.
     if (any_flag_is_set(cctrl->combat_flags, (CmbtF_Melee|CmbtF_Ranged|CmbtF_Waiting)))
     {

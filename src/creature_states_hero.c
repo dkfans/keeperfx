@@ -163,7 +163,7 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
 /**
  * Checks if given hero has money that should be placed in treasure room.
  * If he does, he is ordered to return them into nearest treasure room
- * which has the proper capacity. 
+ * which has the proper capacity.
  * @param thing The hero.
  * @return Gives 1 if the hero was ordered to go into treasure room, 0 otherwise.
  */
@@ -206,7 +206,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
                     creature_drops_spell_object_in_library(creatng);
                     return true;
                 }
-                else 
+                else
                 {
                     if (creature_drop_thing_to_another_room(creatng, dstroom, RoRoF_PowersStorage))
                     {

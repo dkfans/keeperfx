@@ -88,7 +88,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         stl_y = sstep->v + pos->y.stl.num;
         if ( stl_x < 0 )
         {
-            stl_x = 0; 
+            stl_x = 0;
         }
         else if ( stl_x > game.map_subtiles_x )
         {
@@ -97,7 +97,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
 
         if ( stl_y < 0 )
         {
-            stl_y = 0; 
+            stl_y = 0;
         }
         else if ( stl_y > game.map_subtiles_y )
         {
@@ -105,7 +105,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         }
 
         mapblk = get_map_block_at(stl_x, stl_y);
-        
+
         if ( (mapblk->flags & SlbAtFlg_Blocking) == 0 )
         {
             spiral_pos.x.val = (stl_x << 8) + 128;
@@ -667,7 +667,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
              MapSubtlCoord floor_height = get_column_floor_filled_subtiles(col);
              if (floor_height < highest_floor_stl)
                  highest_floor_stl = floor_height;
-             
+
              if ((col->bitfields & CLF_CEILING_MASK) != 0)
              {
                  MapSubtlCoord ceiling_height = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
@@ -689,7 +689,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
         MapSubtlCoord floor_height = get_column_floor_filled_subtiles(col);
         if (floor_height <= highest_floor_stl)
             highest_floor_stl = floor_height;
-        
+
         if ((col->bitfields & CLF_CEILING_MASK) != 0)
         {
             MapSubtlCoord ceiling_height = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
@@ -710,7 +710,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
         MapSubtlCoord floor_height = get_column_floor_filled_subtiles(col);
         if (floor_height <= highest_floor_stl)
             highest_floor_stl = floor_height;
-        
+
         if ((col->bitfields & CLF_CEILING_MASK) != 0)
         {
             MapSubtlCoord ceiling_height = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
@@ -741,7 +741,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
         if (filled_subtiles < lowest_ceiling_stl)
             lowest_ceiling_stl = filled_subtiles;
     }
-    
+
     update_floor_and_ceiling_heights_at(end_x / COORD_PER_STL, end_y / COORD_PER_STL, &highest_floor_stl, &lowest_ceiling_stl);
 
     MapCoord highest_floor = highest_floor_stl * COORD_PER_STL;
@@ -826,8 +826,8 @@ long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
 
 /**
  * Whether the current slab is safe land, unsafe land that the creature can pass, or is a door that the creature can pass.
- * 
- * Used for wallhugging by creature_can_have_combat_with_object and creature_can_have_combat_with_creature. 
+ *
+ * Used for wallhugging by creature_can_have_combat_with_object and creature_can_have_combat_with_creature.
  */
 TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {

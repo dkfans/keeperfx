@@ -102,7 +102,7 @@ unsigned char const slabs_to_centre_pieces[] = {
  21, 22, 23, 24, 25,
 };
 
-unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_WhiteFlame, 
+unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_WhiteFlame,
                                                 TngEffElm_None, TngEffElm_PurpleFlame, TngEffElm_BlackFlame, TngEffElm_OrangeFlame };
 /******************************************************************************/
 #ifdef __cplusplus
@@ -792,7 +792,7 @@ TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
         room->next_of_owner = nxroom_id;
         nxroom->prev_of_owner = room->index;
     }
-    dungeon->room_list_start[room->kind] = room->index; 
+    dungeon->room_list_start[room->kind] = room->index;
     dungeon->room_discrete_count[room->kind]++;
     return true;
 }
@@ -1287,7 +1287,7 @@ TbBool recalculate_room_health(struct Room* room)
     SYNCDBG(7, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
     HitPoints newhealth = (room->health + game.conf.rules.workers.hits_per_slab);
     HitPoints maxhealth = compute_room_max_health(room->slabs_count, room->efficiency);
-    
+
     if ((newhealth <= maxhealth) && (newhealth >= 0))
     {
         room->health = newhealth;
@@ -1745,7 +1745,7 @@ struct Room *find_room_of_role_for_thing_with_used_capacity(const struct Thing *
  * @note Function find_room_with_spare_room_capacity() should also redirect to this one.
  */
 struct Room *find_room_of_role_with_spare_capacity(PlayerNumber owner, RoomRole rrole, long spare)
-{   
+{
     struct Room *room;
     struct Dungeon* dungeon = get_dungeon(owner);
     if (dungeon_invalid(dungeon))
@@ -2046,7 +2046,7 @@ static long count_rooms_with_used_capacity_creature_can_navigate_to(struct Thing
             }
         }
     }
-        
+
     return count;
 }
 
@@ -2732,7 +2732,7 @@ void delete_room_slab_when_no_free_room_structures(MapCoord slb_x, MapCoord slb_
             {
                 MapCoord roomslb_x = slb_num_decode_x(room_slab);
                 MapCoord roomslb_y = slb_num_decode_y(room_slab);
-                struct SlabMap* roomslb = get_slabmap_block(roomslb_x, roomslb_y);    
+                struct SlabMap* roomslb = get_slabmap_block(roomslb_x, roomslb_y);
                 room_slab = roomslb->next_in_room;
                 kill_room_slab_and_contents(room->owner, roomslb_x, roomslb_y);
                 roomslb->next_in_room = 0;
@@ -2782,7 +2782,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
         return false;
     }
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long selected = CREATURE_RANDOM(thing, room->slabs_count);  
+    long selected = CREATURE_RANDOM(thing, room->slabs_count);
     unsigned long n = 0;
     long i = room->slabs_list;
     // Get the selected index
@@ -2801,7 +2801,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
         while (i == slbnum);
         n++;
     }
-    if (i == 0) 
+    if (i == 0)
     {
         if (n < room->slabs_count)
         {
@@ -2982,7 +2982,7 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
             if (curr_match_idx >= matching_rooms) {
                 // All rooms which were matched are checked
                 break;
-            }            
+            }
         }
     }
     ERRORLOG("Found %d matching rooms but couldn't find position within any",(int)matching_rooms);
@@ -3084,7 +3084,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                     } else
                     // Cannot store the spellbook anywhere - remove the spell
                     {
-                        if (!is_neutral_thing(thing)) 
+                        if (!is_neutral_thing(thing))
                         {
                             if (dungeon->magic_level[spl_idx] >= 2)
                             {
@@ -3566,7 +3566,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
             add_power_to_player(book_thing_to_power_kind(thing), newowner);
         }
         return;
-        
+
     }
     else if (room_role_matches(room->kind,RoRoF_CratesStorage) && thing_is_workshop_crate(thing))
     {
@@ -4048,7 +4048,7 @@ void destroy_room_leaving_unclaimed_ground(struct Room *room, TbBool create_rubb
         {
             create_dirt_rubble_for_dug_slab(slb_x, slb_y);
         }
-        delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room 
+        delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room
     }
     free(slbs);
 }

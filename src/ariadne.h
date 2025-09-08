@@ -103,7 +103,7 @@ enum NavigationRule {
 // Creature navigation radius sizes for pathfinding
 enum CreatureNavigationRadius {
     CreatureRadius_Small = 1,            // Small creature navigation radius
-    CreatureRadius_Medium = 2,           // Medium creature navigation radius  
+    CreatureRadius_Medium = 2,           // Medium creature navigation radius
     CreatureRadius_Large = 3             // Large creature navigation radius
 };
 

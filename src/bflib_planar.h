@@ -42,21 +42,21 @@ struct TbPoint {
 
 /**
  * This distance is "the number of moves needed by a king to move from one tile to another on a chess board".
- * 
+ *
  * This is known as Chebyshev distance (see https://en.wikipedia.org/wiki/Chebyshev_distance for details).
  */
 #define chessboard_distance(x1,y1,x2,y2) (max(abs(x1 - x2), abs(y1 - y2)))
 
 /**
  * This distance is "the number of moves needed by a king to move from one cube to another on a 3d chess board".
- * 
+ *
  * This is known as Chebyshev distance (see https://en.wikipedia.org/wiki/Chebyshev_distance and https://en.wikipedia.org/wiki/Three-dimensional_chess for details).
  */
 #define chessboard_3d_distance(x1,y1,z1,x2,y2,z2) (max(max(abs(x1 - x2), abs(y1 - y2)),abs(z1 - z2)))
 
 /**
  * This distance is "the number of moves needed to move from one tile on a grid to another tile on a grid; where each move must be directly up, down, left or right (Like D&D)".
- * 
+ *
  * This is known as Manhattan distance (see https://simple.wikipedia.org/wiki/Manhattan_distance and https://en.wikipedia.org/wiki/Taxicab_geometry for details).
  */
 #define grid_distance(x1,y1,x2,y2) (abs(x1 - x2) + abs(y1 - y2))
