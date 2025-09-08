@@ -446,7 +446,7 @@ include prebuilds.mk
 .PHONY: package clean-package deep-clean-package
 .PHONY: tools clean-tools deep-clean-tools
 .PHONY: clean-libexterns deep-clean-libexterns
-.PHONY: tests
+.PHONY: tests cppcheck
 
 # dependencies tracking
 -include $(filter %.d,$(STDOBJS:%.o=%.d))
@@ -664,6 +664,116 @@ deps/luajit/lib/libluajit.a: | deps/luajit/include/lua.h
 
 deps/luajit/include/lua.h: deps/luajit-mingw32.tar.gz | deps/luajit
 	tar xzmf $< -C deps/luajit
+
+cppcheck: | obj/ver_defs.h
+cppcheck: | deps/zlib/include/zlib.h
+cppcheck: | deps/spng/include/spng.h
+cppcheck: | deps/astronomy/include/astronomy.h
+cppcheck: | deps/centijson/include/json.h
+cppcheck: | deps/enet/include/enet/enet.h
+cppcheck: | deps/luajit/include/lua.h
+cppcheck: | deps/openal/include/AL/al.h
+cppcheck: | deps/ffmpeg/libavformat/avformat.h
+
+cppcheck:
+	$(MKDIR) cppcheck.cache
+	cppcheck \
+		--cppcheck-build-dir=cppcheck.cache \
+		--check-level=exhaustive \
+		--enable=all \
+		--platform=win32A \
+		--std=c++14 \
+		--inconclusive \
+		-j $(shell nproc) \
+		-q \
+		-I deps/zlib/include \
+		-I deps/spng/include \
+		-I sdl/include \
+		-I sdl/include/SDL2 \
+		-I deps/enet/include \
+		-I deps/centijson/include \
+		-I deps/centitoml \
+		-I deps/astronomy/include \
+		-I deps/ffmpeg \
+		-I deps/openal/include \
+		-I deps/luajit/include \
+		-I obj \
+		-D__WIN32__ \
+		-DBFDEBUG_LEVEL=99 \
+		-DSPNG_STATIC=1 \
+		-DAL_LIBTYPE_STATIC \
+		-DDEBUG_NETWORK_PACKETS=1 \
+		--suppress=missingInclude \
+		--suppress=missingIncludeSystem \
+		--suppress=constParameterPointer \
+		--suppress=constVariablePointer \
+		--suppress=functionConst \
+		--suppress=unreadVariable \
+		--suppress=uninitvar \
+		--suppress=variableScope \
+		--suppress=unusedStructMember \
+		--suppress=funcArgNamesDifferent \
+		--suppress=funcArgOrderDifferent \
+		--suppress=cstyleCast \
+		--suppress=functionStatic \
+		--suppress=unsignedLessThanZero \
+		--suppress=constParameterCallback \
+		--suppress=constParameter \
+		--suppress=knownConditionTrueFalse \
+		--suppress=negativeIndex \
+		--suppress=nullPointerRedundantCheck \
+		--suppress=nullPointerArithmeticRedundantCheck \
+		--suppress=invalidscanf \
+		--suppress=invalidScanfArgType_int \
+		--suppress=invalidPrintfArgType_uint \
+		--suppress=invalidPrintfArgType_sint \
+		--suppress=redundantAssignment \
+		--suppress=preprocessorErrorDirective \
+		--suppress=uninitMemberVar \
+		--suppress=truncLongCastAssignment \
+		--suppress=shiftNegativeLHS \
+		--suppress=bitwiseOnBoolean \
+		--suppress=shiftTooManyBits \
+		--suppress=shiftTooManyBitsSigned \
+		--suppress=arrayIndexOutOfBoundsCond \
+		--suppress=arrayIndexOutOfBounds \
+		--suppress=identicalConditionAfterEarlyExit \
+		--suppress=unusedPrivateFunction \
+		--suppress=useInitializationList \
+		--suppress=operatorEqVarError \
+		--suppress=noExplicitConstructor \
+		--suppress=useStlAlgorithm \
+		--suppress=duplicateExpression \
+		--suppress=duplicateBranch \
+		--suppress=duplicateConditionalAssign \
+		--suppress=duplicateAssignExpression \
+		--suppress=nullPointer \
+		--suppress=compareValueOutOfTypeRangeError \
+		--suppress=redundantInitialization \
+		--suppress=multiCondition \
+		--suppress=internalAstError \
+		--suppress=clarifyCondition \
+		--suppress=objectIndex \
+		--suppress=memsetClassFloat \
+		--suppress=comparePointers \
+		--suppress=identicalInnerCondition \
+		--suppress=uselessAssignmentPtrArg \
+		--suppress=unassignedVariable \
+		--suppress=shiftNegative \
+		--suppress=bufferAccessOutOfBounds \
+		--suppress=duplicateCondition \
+		--suppress=badBitmaskCheck \
+		--suppress=unreachableCode \
+		--suppress=shadowFunction \
+		--suppress=shadowVariable \
+		--suppress=uninitStructMember \
+		--suppress=CastIntegerToAddressAtReturn \
+		--suppress=zerodivcond \
+		--suppress=unusedAllocatedMemory \
+		--suppress=unusedFunction \
+		--suppress=moduloofone \
+		--suppress=memleak \
+		src 2>cppcheck.log
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk
