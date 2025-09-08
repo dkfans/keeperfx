@@ -176,15 +176,6 @@ const char *network_player_name(int plyr_idx)
     return net_player[plyr_idx].name;
 }
 
-void set_network_player_name(int plyr_idx, const char *name)
-{
-    if ((plyr_idx < 0) || (plyr_idx >= NET_PLAYERS_COUNT)) {
-        ERRORLOG("Outranged network player %d",plyr_idx);
-        return;
-    }
-    snprintf(net_player[plyr_idx].name, sizeof(net_player[0].name), "%s", name);
-}
-
 long network_session_join(void)
 {
     long plyr_num;

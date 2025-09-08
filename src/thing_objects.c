@@ -513,17 +513,6 @@ TbBool object_is_guard_flag(const struct Thing *thing)
     }
 }
 
-
-/**
- * Returns if given thing is a coloured object.
- * @param thing
- * @return
- */
-TbBool object_is_coloured_object(const struct Thing *thing)
-{
-    return (get_coloured_object_base_model(thing->model) != 0);
-}
-
 /**
  * Returns if given object thing is a room equipment.
  * Equipment are the objects which room always has, put there for the lifetime of a room.
@@ -604,55 +593,6 @@ TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole)
 
     return false;
 
-}
-
-TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing)
-{
-    if (thing_is_invalid(thing))
-        return false;
-    if (thing->class_id != TCls_Object)
-        return false;
-    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    return (objst->genre == OCtg_Power);
-}
-
-/**
- * Finds spellbook in a 3x3 subtiles area around given position.
- * Selects the spellbook which is nearest to center of given subtile.
- * @param stl_x Central search subtile X coord.
- * @param stl_y Central search subtile Y coord.
- * @return The nearest thing, or invalid thing if no match was found.
- */
-struct Thing *get_spellbook_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    return get_object_around_owned_by_and_matching_bool_filter(
-        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_spellbook);
-}
-
-/**
- * Finds special box in a 3x3 subtiles area around given position.
- * Selects the box which is nearest to center of given subtile.
- * @param stl_x Central search subtile X coord.
- * @param stl_y Central search subtile Y coord.
- * @return The nearest thing, or invalid thing if no match was found.
- */
-struct Thing *get_special_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    return get_object_around_owned_by_and_matching_bool_filter(
-        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_special_box);
-}
-
-/**
- * Finds crate box in a 3x3 subtiles area around given position.
- * Selects the box which is nearest to center of given subtile.
- * @param stl_x Central search subtile X coord.
- * @param stl_y Central search subtile Y coord.
- * @return The nearest thing, or invalid thing if no match was found.
- */
-struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    return get_object_around_owned_by_and_matching_bool_filter(
-        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_workshop_crate);
 }
 
 TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room)

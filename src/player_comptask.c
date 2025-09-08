@@ -2585,7 +2585,6 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
 
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4)
 {
-    //TODO COMPUTER_EVENT_BREACH needs this function; may be also used somewhere else - not sure
     struct CreatureControl *cctrl;
     struct Thing *thing;
     unsigned long k;

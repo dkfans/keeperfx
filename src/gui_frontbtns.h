@@ -44,7 +44,6 @@ void gui_set_menu_mode(struct GuiButton *gbtn);
 
 void gui_pretty_background(struct GuiMenu *gmnu);
 void gui_round_glass_background(struct GuiMenu *gmnu);
-void frontend_copy_mnu_background(struct GuiMenu *gmnu);
 void frontend_copy_background(void);
 
 void gui_area_new_normal_button(struct GuiButton *gbtn);

@@ -79,11 +79,6 @@ TbBool creature_control_exists(const struct CreatureControl *cctrl)
   return true;
 }
 
-TbBool creature_control_exists_in_thing(const struct Thing *thing)
-{
-    return creature_control_exists(creature_control_get_from_thing(thing));
-}
-
 long i_can_allocate_free_control_structure(void)
 {
     for (long i = 1; i < CREATURES_COUNT; i++)

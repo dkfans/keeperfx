@@ -132,13 +132,6 @@ struct Room *slab_room_get(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return room_get(slb->room_index);
 }
 
-struct Room *slab_number_room_get(SlabCodedCoords slab_num)
-{
-    MapSlabCoord slb_x = slb_num_decode_x(slab_num);
-    MapSlabCoord slb_y = slb_num_decode_y(slab_num);
-    return slab_room_get(slb_x, slb_y);
-}
-
 TbBool room_is_invalid(const struct Room *room)
 {
   if (room == NULL)
@@ -153,17 +146,6 @@ TbBool room_exists(const struct Room *room)
   if (room_is_invalid(room))
     return false;
   return ((room->alloc_flags & RoF_Allocated) != 0);
-}
-
-long get_room_look_through(RoomKind rkind)
-{
-  const long arr_length = sizeof(look_through_rooms)/sizeof(look_through_rooms[0]);
-  for (long i = 0; i < arr_length; i++)
-  {
-    if (look_through_rooms[i] == rkind)
-      return i;
-  }
-  return -1;
 }
 
 /**
@@ -2098,57 +2080,6 @@ struct Room* find_room_of_kind_creature_can_navigate_to(struct Thing* thing, Pla
  * Gives the n-th room of given kind and owner where the creature can navigate to.
  * @param thing
  * @param owner
- * @param kind
- * @param nav_flags
- * @param n
- * @return
- */
-struct Room* find_nth_room_of_kind_with_used_capacity_creature_can_navigate_to(struct Thing* thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long n)
-{
-    struct Dungeon* dungeon = get_dungeon(owner);
-    unsigned long k = 0;
-
-    int i = dungeon->room_list_start[rkind];
-    while (i != 0)
-    {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
-        {
-            ERRORLOG("Jump to invalid room detected");
-            break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        struct Coord3d pos;
-        if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos) && (room->used_capacity > 0))
-        {
-            if (creature_can_navigate_to(thing, &pos, nav_flags))
-            {
-                if (n > 0) {
-                    n--;
-                }
-                else {
-                    return room;
-                }
-            }
-        }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping rooms list");
-            break;
-        }
-    }
-
-    return INVALID_ROOM;
-
-}
-
-/**
- * Gives the n-th room of given kind and owner where the creature can navigate to.
- * @param thing
- * @param owner
  * @param role
  * @param nav_flags
  * @param n
@@ -2452,53 +2383,6 @@ long count_rooms_of_role_for_thing(struct Thing *thing, PlayerNumber owner, Room
         }
     }
     return result;
-}
-
-/**
- * Gives the n-th room of given kind and owner where the creature can navigate to.
- * @param thing
- * @param owner
- * @param kind
- * @param nav_flags
- * @param n
- * @return
- */
-struct Room *find_nth_room_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long n)
-{
-    struct Dungeon* dungeon = get_dungeon(owner);
-    unsigned long k = 0;
-    int i = dungeon->room_list_start[rkind];
-    while (i != 0)
-    {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
-        {
-            ERRORLOG("Jump to invalid room detected");
-            break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        struct Coord3d pos;
-        if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
-        {
-            if (!thing_is_creature(thing) || creature_can_navigate_to(thing, &pos, nav_flags))
-            {
-                if (n > 0) {
-                    n--;
-                } else {
-                    return room;
-                }
-            }
-        }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping rooms list");
-            break;
-        }
-    }
-    return INVALID_ROOM;
 }
 
 struct Room* find_first_room_of_role(PlayerNumber owner, RoomRole rrole)

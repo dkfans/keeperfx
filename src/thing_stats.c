@@ -503,35 +503,6 @@ long project_creature_attack_melee_damage(long base_param, short damage_percent,
 }
 
 /**
- * Projects expected damage of an attack shot, taking luck and creature level into account.
- * Uses no random factors - instead, projects a best estimate.
- * This function allows evaluating damage creature can make. It shouldn't be used to actually inflict the damage.
- * @param base_param Base damage.
- * @param luck Creature luck, scaled 0..100.
- * @param exp_level Creature level, 0..9.
- */
-long project_creature_attack_spell_damage(long base_param, long luck, CrtrExpLevel exp_level, const struct Thing* thing)
-{
-    struct Dungeon* dungeon;
-    if (exp_level >= CREATURE_MAX_LEVEL)
-        exp_level = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)exp_level) / 100;
-    // Apply modifier.
-    if (!is_neutral_thing(thing))
-    {
-        dungeon = get_dungeon(thing->owner);
-        unsigned short modifier = dungeon->modifier.spell_damage;
-        max_param = (max_param * modifier) / 100;
-    }
-    if (luck > 0)
-    {
-        if (luck > 100) luck = 100;
-            max_param += luck*max_param/100;
-    }
-    return max_param;
-}
-
-/**
  * Computes damage of a melee attack, taking luck and creature level into account.
  * @param base_param Base damage.
  * @param luck Creature luck, scaled 0..100.
@@ -904,26 +875,6 @@ long compute_value_percentage(long base_val, short npercent)
             base_val = LONG_MIN/(abs(npercent)+1);
     }
     return (base_val*(long)npercent+49)/100;
-}
-
-/** Computes 8-bit percentage of given value.
- * @param base_val Value to compute percentage of.
- * @param npercent Percentage; 0..256, but may be higher too.
- * @return Gives npercent of base_val, with proper rounding.
- */
-long compute_value_8bpercentage(long base_val, short npercent)
-{
-    if (base_val > 0)
-    {
-        if (base_val > LONG_MAX/(abs(npercent)+1))
-            base_val = LONG_MAX/(abs(npercent)+1);
-    } else
-    if (base_val < 0)
-    {
-        if (base_val < LONG_MIN/(abs(npercent)+1))
-            base_val = LONG_MIN/(abs(npercent)+1);
-    }
-    return (base_val*(long)npercent+127)/256;
 }
 
 /**

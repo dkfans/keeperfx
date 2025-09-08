@@ -97,7 +97,6 @@ obj/ariadne_tringls.o \
 obj/ariadne_wallhug.o \
 obj/bflib_base_tcp.o \
 obj/bflib_basics.o \
-obj/bflib_bufrw.o \
 obj/bflib_coroutine.o \
 obj/bflib_client_tcp.o \
 obj/bflib_cpu.o \
@@ -119,7 +118,6 @@ obj/bflib_mspointer.o \
 obj/bflib_netsession.o \
 obj/bflib_netsp.o \
 obj/bflib_netsp_ipx.o \
-obj/bflib_netsync.o \
 obj/bflib_network.o \
 obj/bflib_planar.o \
 obj/bflib_render.o \
@@ -131,7 +129,6 @@ obj/bflib_sound.o \
 obj/bflib_sprfnt.o \
 obj/bflib_string.o \
 obj/bflib_tcpsp.o \
-obj/bflib_threadcond.o \
 obj/bflib_video.o \
 obj/bflib_vidraw.o \
 obj/bflib_vidraw_spr_norm.o \
@@ -738,7 +735,6 @@ cppcheck:
 		--suppress=arrayIndexOutOfBoundsCond \
 		--suppress=arrayIndexOutOfBounds \
 		--suppress=identicalConditionAfterEarlyExit \
-		--suppress=unusedPrivateFunction \
 		--suppress=useInitializationList \
 		--suppress=operatorEqVarError \
 		--suppress=noExplicitConstructor \
@@ -770,7 +766,6 @@ cppcheck:
 		--suppress=CastIntegerToAddressAtReturn \
 		--suppress=zerodivcond \
 		--suppress=unusedAllocatedMemory \
-		--suppress=unusedFunction \
 		--suppress=moduloofone \
 		--suppress=memleak \
 		src 2>cppcheck.log

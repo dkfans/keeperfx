@@ -41,22 +41,6 @@ void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBo
 }
 
 /**
- * Returns symmetrical difference between angles, ranged -DEGREES_180 to DEGREES_180.
- * @param angle_a
- * @param angle_b
- */
-long get_angle_symmetric_difference(long angle_a, long angle_b)
-{
-    long diff = (angle_a & ANGLE_MASK) - (angle_b & ANGLE_MASK);
-    if (diff > DEGREES_180)
-        diff = (DEGREES_360 - diff);
-    else
-    if (diff < -DEGREES_180)
-        diff = (DEGREES_360 + diff);
-    return diff;
-}
-
-/**
  * Returns unsigned difference between angles, ranged 0 to DEGREES_180.
  * Information about sign of the angle is not provided.
  * @param angle_a

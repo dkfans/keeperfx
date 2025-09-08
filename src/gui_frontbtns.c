@@ -393,12 +393,6 @@ void setup_radio_buttons(struct GuiMenu *gmnu)
     }
 }
 
-void frontend_copy_mnu_background(struct GuiMenu *gmnu)
-{
-    SYNCDBG(9,"Starting");
-    draw_frontmenu_background(gmnu->pos_x, gmnu->pos_y, gmnu->width, gmnu->height);
-}
-
 void frontend_copy_background(void)
 {
     draw_frontmenu_background(0,0,POS_AUTO,POS_AUTO);

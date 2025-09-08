@@ -478,8 +478,6 @@ CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, unsigned long qu
 const char *creature_job_code_name(CreatureJob job_flag);
 struct Thing* thing_death_flesh_explosion(struct Thing* thing);
 /******************************************************************************/
-const char *attack_type_job_code_name(CrAttackType attack_type);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

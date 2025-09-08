@@ -230,36 +230,6 @@ TbBool light_create_light_adv(VALUE *init_data)
     return true;
 }
 
-long light_get_total_dynamic_lights(void)
-{
-    return light_total_dynamic_lights;
-}
-
-long light_get_total_stat_lights(void)
-{
-    return light_total_stat_lights;
-}
-
-long light_get_rendered_dynamic_lights(void)
-{
-    return light_rendered_dynamic_lights;
-}
-
-long light_get_rendered_optimised_dynamic_lights(void)
-{
-    return light_rendered_optimised_dynamic_lights;
-}
-
-long light_get_updated_stat_lights(void)
-{
-    return light_updated_stat_lights;
-}
-
-long light_get_out_of_date_stat_lights(void)
-{
-    return light_out_of_date_stat_lights;
-}
-
 void light_export_system_state(struct LightSystemState *lightst)
 {
     memcpy(lightst->bitmask,light_bitmask,sizeof(light_bitmask));

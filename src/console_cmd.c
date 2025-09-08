@@ -150,24 +150,6 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
     return 1;
 }
 
-long cmd_comp_checks_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *args)
-{
-    struct Computer2 *comp = get_computer_player(args[0]);
-    int i = 0;
-
-    for (; i < args[1]; i++)
-    {
-        struct ComputerCheck* check = &comp->checks[i];
-        if (check != NULL)
-        {
-            char *label = (char*)goptn[i].label; // this is probably referencing some element of cmd_comp_procs_label
-            snprintf(label, sizeof(cmd_comp_procs_label[0]), "%02lx", check->flags);
-            label[2] = ' ';
-        }
-    }
-    return 1;
-}
-
 int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
     struct GuiBoxOption *data_list, char label_list[][COMMAND_WORD_LEN + 8],
     const char *(*get_name)(struct Computer2 *, int),

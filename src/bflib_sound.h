@@ -129,7 +129,6 @@ extern long SpeechEmitter;
 // Exported functions
 long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);
 long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c);
-void S3DSetSoundReceiverFlags(unsigned long nflags);
 void S3DSetSoundReceiverSensitivity(unsigned short nsensivity);
 long S3DDestroySoundEmitter(SoundEmitterID);
 TbBool S3DEmitterHasFinishedPlaying(SoundEmitterID);
@@ -147,7 +146,6 @@ TbBool S3DDeleteAllSamplesFromEmitter(SoundEmitterID);
 TbBool S3DDestroySoundEmitterAndSamples(SoundEmitterID);
 void S3DSetLineOfSightFunction(S3D_LineOfSight_Func);
 void S3DSetDeadzoneRadius(long dzradius);
-long S3DGetDeadzoneRadius(void);
 
 void play_non_3d_sample(SoundSmplTblID);
 void play_non_3d_sample_no_overlap(SoundSmplTblID);

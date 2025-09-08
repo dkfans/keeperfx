@@ -59,7 +59,6 @@ long computer_event_rebuild_room(struct Computer2 *comp, struct ComputerEvent *c
 long computer_event_handle_prisoner(struct Computer2 *comp, struct ComputerEvent* cevent, struct Event *event);
 long computer_event_attack_door(struct Computer2* comp, struct ComputerEvent* cevent, struct Event* event);
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
-long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
 
 /******************************************************************************/
 struct ComputerSpells {
@@ -906,38 +905,6 @@ long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *c
     }
 
     return CTaskRet_Unk4;
-}
-
-long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)
-{
-    //TODO COMPUTER_EVENT_BREACH is remade from beta; make it work (if it's really needed)
-    struct Coord3d pos;
-
-    //TODO COMPUTER_EVENT_BREACH check why mappos_x and mappos_y isn't used normally
-    pos.x.val = event->mappos_x;
-    pos.y.val = event->mappos_y;
-    pos.z.val = 0;
-    if ((pos.x.val <= 0) || (pos.y.val <= 0)) {
-        return CTaskRet_Unk0;
-    }
-    long count = count_creatures_for_pickup(comp, &pos, 0, cevent->secondary_parameter);
-    long i = count * cevent->primary_parameter / 100;
-    if ((i <= 0) && (count > 0)) {
-        i = 1;
-    }
-    if (i <= 0) {
-        return CTaskRet_Unk4;
-    }
-    if (!computer_find_safe_non_solid_block(comp, &pos)) {
-        return CTaskRet_Unk4;
-    }
-    if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend))
-    {
-        if (!create_task_move_creatures_to_defend(comp, &pos, i, cevent->secondary_parameter)) {
-            return CTaskRet_Unk4;
-        }
-    }
-    return CTaskRet_Unk1;
 }
 
 /******************************************************************************/

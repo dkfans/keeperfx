@@ -287,7 +287,6 @@ extern SDL_Window *lbWindow;
 /******************************************************************************/
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
-TbBool LbScreenIsDoubleBufferred(void);
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid);
 TbResult LbScreenReset(TbBool exiting_application);

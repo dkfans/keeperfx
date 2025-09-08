@@ -26,7 +26,6 @@
 #include "bflib_fileio.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
-#include "bflib_bufrw.h"
 #include "engine_render.h"
 #include "map_utils.h"
 #include "engine_camera.h"

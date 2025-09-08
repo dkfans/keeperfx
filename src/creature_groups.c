@@ -41,48 +41,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-/******************************************************************************/
-struct Thing *get_highest_experience_and_score_creature_in_group(struct Thing *grptng)
-{
-    struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
-    CrtrExpLevel best_exp_level = 0;
-    long best_score = 0;
-    struct Thing* best_creatng = INVALID_THING;
-    long i = cctrl->group_info & TngGroup_LeaderIndex;
-    if (i == 0) {
-        // One creature is not a group, but we may still get its experience
-        i = grptng->index;
-    }
-    unsigned long k = 0;
-    while (i > 0)
-    {
-        struct Thing* ctng = thing_get(i);
-        TRACE_THING(ctng);
-        cctrl = creature_control_get_from_thing(ctng);
-        if (creature_control_invalid(cctrl))
-            break;
-        // Per-thing code
-        if (best_exp_level <= cctrl->exp_level) {
-            long score = get_creature_thing_score(ctng);
-            // If got a new best score, or best level changed - update best values
-            if ((best_score < score) || (best_exp_level < cctrl->exp_level)) {
-                best_exp_level = cctrl->exp_level;
-                best_score = score;
-                best_creatng = ctng;
-            }
-        }
-        // Per-thing code ends
-        i = cctrl->next_in_group;
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures group");
-            break;
-        }
-    }
-    return best_creatng;
-}
-
 long get_no_creatures_in_group(const struct Thing *grptng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(grptng);
@@ -553,17 +511,6 @@ long add_creature_to_group_as_leader(struct Thing *creatng, struct Thing *grptng
     // Now go through all group members and set leader index
     internal_update_leader_index_in_group(creatng);
     return 1;
-}
-
-struct Party *get_party_of_name(const char *prtname)
-{
-    for (int i = 0; i < game.script.creature_partys_num; i++)
-    {
-        struct Party* party = &game.script.creature_partys[i];
-        if (strcasecmp(party->prtname, prtname) == 0)
-            return party;
-    }
-    return NULL;
 }
 
 int get_party_index_of_name(const char *prtname)

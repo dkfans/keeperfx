@@ -165,74 +165,6 @@ TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
     return true;
 }
 
-struct Thing *get_shot_collided_with_same_type_on_subtile(struct Thing *shotng, struct Coord3d *nxpos, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    const struct Thing *parentng;
-    if (shotng->parent_idx > 0) {
-        parentng = thing_get(shotng->parent_idx);
-    } else {
-        parentng = INVALID_THING;
-    }
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    if (map_block_invalid(mapblk))
-        return INVALID_THING;
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
-    while (i != 0)
-    {
-        struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            WARNLOG("Jump out of things array");
-            break;
-        }
-        i = thing->next_on_mapblk;
-        // Per thing code
-        if ((thing->index != shotng->index) && collide_filter_thing_is_of_type(thing, parentng, shotng->class_id, shotng->model))
-        {
-            if (things_collide_while_first_moves_to(shotng, nxpos, thing)) {
-                return thing;
-            }
-        }
-        // Per thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break_mapwho_infinite_chain(mapblk);
-            break;
-        }
-    }
-    return INVALID_THING;
-}
-
-struct Thing *get_shot_collided_with_same_type(struct Thing *shotng, struct Coord3d *nxpos)
-{
-    MapSubtlCoord stl_x_beg = coord_subtile(nxpos->x.val - 384);
-    if (stl_x_beg < 0)
-        stl_x_beg = 0;
-    MapSubtlCoord stl_y_beg = coord_subtile(nxpos->y.val - 384);
-    if (stl_y_beg < 0)
-        stl_y_beg = 0;
-    MapSubtlCoord stl_x_end = coord_subtile(nxpos->x.val + 384);
-    if (stl_x_end >= game.map_subtiles_x)
-      stl_x_end = game.map_subtiles_x;
-    MapSubtlCoord stl_y_end = coord_subtile(nxpos->y.val + 384);
-    if (stl_y_end >= game.map_subtiles_y)
-      stl_y_end = game.map_subtiles_y;
-    for (MapSubtlCoord stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
-    {
-        for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
-        {
-            struct Thing* thing = get_shot_collided_with_same_type_on_subtile(shotng, nxpos, stl_x, stl_y);
-            if (!thing_is_invalid(thing)) {
-                return thing;
-            }
-        }
-    }
-    return INVALID_THING;
-}
-
 TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long damage)
 {
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
@@ -1000,26 +932,6 @@ long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, 
         return shotng->shot.damage;
     }
     return -1;
-}
-
-long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const struct Thing *target)
-{
-    long crdefense = calculate_correct_creature_defense(target);
-    long hitchance = (shot_dexterity - crdefense) / 2;
-    if (hitchance < -96) {
-        hitchance = -96;
-    } else
-    if (hitchance > 96) {
-        hitchance = 96;
-    }
-    // If we'd return something which rounds to 0, change it to 1. Otherwise, just use hit chance in computations.
-    if (abs(shot_damage) > 256/(128+hitchance))
-        return shot_damage * (128+hitchance)/256;
-    else if (shot_damage > 0)
-        return 1;
-    else if (shot_damage < 0)
-        return -1;
-    return 0;
 }
 
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target)

@@ -1544,15 +1544,6 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx)
     return;
 }
 
-void terminate_all_actives_spell_effects(struct Thing *thing)
-{
-    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    for (int i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
-    {
-        terminate_thing_spell_effect(thing, cctrl->casted_spells[i].spkind);
-    }
-}
-
 void terminate_all_actives_damage_over_time_spell_effects(struct Thing *thing)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
@@ -1954,32 +1945,6 @@ void process_thing_spell_effects_while_blocked(struct Thing *thing)
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         }
     }
-}
-
-short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *goldtng)
-{
-    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
-    if (goldtng->creature.gold_carried <= 0)
-    {
-      ERRORLOG("GoldPile had no gold so was deleted.");
-      delete_thing_structure(goldtng, 0);
-      return false;
-    }
-    if (creatng->creature.gold_carried < crconf->gold_hold)
-    {
-      if (goldtng->creature.gold_carried+creatng->creature.gold_carried > crconf->gold_hold)
-      {
-          long i = crconf->gold_hold - creatng->creature.gold_carried;
-          creatng->creature.gold_carried += i;
-          goldtng->creature.gold_carried -= i;
-      } else
-      {
-        creatng->creature.gold_carried += goldtng->creature.gold_carried;
-        delete_thing_structure(goldtng, 0);
-      }
-    }
-    anger_apply_anger_to_creature(creatng, crconf->annoy_got_wage, AngR_NotPaid, 1);
-    return true;
 }
 
 /**
@@ -3527,31 +3492,6 @@ long calculate_shot_damage(struct Thing *creatng, ThingModel shot_model)
     return compute_creature_attack_spell_damage(shotst->damage, crconf->luck, cctrl->exp_level, creatng);
 }
 
-/**
- * Projects damage made by a creature using specific shot model.
- * Gives a best estimate of the damage, but shouldn't be used to actually inflict it.
- * @param thing The creature which will be shooting.
- * @param shot_model Shot kind which will be created.
- */
-long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_model)
-{
-    const struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
-    const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    const struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-    long damage;
-    if ((shotst->model_flags & ShMF_StrengthBased) != 0 )
-    {
-        // Project melee damage.
-        long strength = calculate_correct_creature_strength(thing);
-        damage = project_creature_attack_melee_damage(strength, shotst->damage, crconf->luck, cctrl->exp_level, thing);
-    } else
-    {
-        // Project shot damage.
-        damage = project_creature_attack_spell_damage(shotst->damage, crconf->luck, cctrl->exp_level, thing);
-    }
-    return damage;
-}
-
 static void shot_init_lizard(const struct Thing *target, short angle_xy, unsigned char dexterity, struct Thing *shotng)
 {
     if (!thing_is_invalid(target))
@@ -4935,116 +4875,6 @@ TbBool creature_change_multiple_levels(struct Thing *thing, int count)
         }
         return true;
     }
-}
-
-/**
- * Creates creature of random evil kind, and with random experience level.
- * @param x
- * @param y
- * @param owner
- * @param max_level
- * @return
- */
-TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_level)
-{
-    ThingModel crmodel;
-    while (1) {
-        crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
-        // Accept only evil creatures
-        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
-        if ((crconf->model_flags & CMF_IsSpectator) != 0) {
-            continue;
-        }
-        if ((crconf->model_flags & CMF_IsEvil) != 0) {
-            break;
-        }
-    }
-    struct Coord3d pos;
-    pos.x.val = x;
-    pos.y.val = y;
-    pos.z.val = 0;
-    struct Thing* thing = create_creature(&pos, crmodel, owner);
-    if (thing_is_invalid(thing))
-    {
-        ERRORLOG("Cannot create evil creature %s at (%ld,%ld)",creature_code_name(crmodel),x,y);
-        return false;
-    }
-    pos.z.val = get_thing_height_at(thing, &pos);
-    if (thing_in_wall_at(thing, &pos))
-    {
-        delete_thing_structure(thing, 0);
-        ERRORLOG("Evil creature %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
-        return false;
-    }
-    thing->mappos.x.val = pos.x.val;
-    thing->mappos.y.val = pos.y.val;
-    thing->mappos.z.val = pos.z.val;
-    remove_first_creature(thing);
-    set_first_creature(thing);
-    set_start_state(thing);
-    CrtrExpLevel lv = GAME_RANDOM(max_level);
-    set_creature_level(thing, lv);
-    return true;
-}
-
-/**
- * Creates creature of random hero kind, and with random experience level.
- * @param x
- * @param y
- * @param owner
- * @param max_level
- * @return
- */
-TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_level)
-{
-  ThingModel crmodel;
-  while (1) {
-      crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
-
-      // model_count is always one higher than the last available index for creature models
-      // This will allow more creature models to be added, but still catch the out-of-bounds model number.
-      if (crmodel >= game.conf.crtr_conf.model_count) {
-          // try again
-          continue;
-      }
-
-      // Accept only evil creatures
-      struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
-      if ((crconf->model_flags & CMF_IsSpectator) != 0) {
-          continue;
-      }
-
-      if ((crconf->model_flags & CMF_IsEvil) == 0) {
-          //JUSTMSG("*** CREATURE MODEL NUMBER %d", (unsigned char)crmodel);
-          break;
-      }
-  }
-  struct Coord3d pos;
-  pos.x.val = x;
-  pos.y.val = y;
-  pos.z.val = 0;
-  struct Thing* thing = create_creature(&pos, crmodel, owner);
-  if (thing_is_invalid(thing))
-  {
-      ERRORLOG("Cannot create player %d hero %s at (%ld,%ld)",(int)owner,creature_code_name(crmodel),x,y);
-      return false;
-  }
-  pos.z.val = get_thing_height_at(thing, &pos);
-  if (thing_in_wall_at(thing, &pos))
-  {
-      delete_thing_structure(thing, 0);
-      ERRORLOG("Hero %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
-      return false;
-  }
-  thing->mappos.x.val = pos.x.val;
-  thing->mappos.y.val = pos.y.val;
-  thing->mappos.z.val = pos.z.val;
-  remove_first_creature(thing);
-  set_first_creature(thing);
-//  set_start_state(thing); - simplified to the following two commands
-  CrtrExpLevel lv = GAME_RANDOM(max_level);
-  set_creature_level(thing, lv);
-  return true;
 }
 
 /**

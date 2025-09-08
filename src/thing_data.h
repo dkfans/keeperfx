@@ -337,14 +337,11 @@ struct Thing *allocate_free_thing_structure_f(unsigned char a1, const char *func
 TbBool i_can_allocate_free_thing_structure(unsigned char allocflags);
 #define delete_thing_structure(thing, a2) delete_thing_structure_f(thing, a2, __func__)
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name);
-TbBool is_in_free_things_list(long tng_idx);
 
 #define thing_get(tng_idx) thing_get_f(tng_idx, __func__)
 struct Thing *thing_get_f(long tng_idx, const char *func_name);
-TbBool thing_exists_idx(long tng_idx);
 TbBool thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);
-long thing_get_index(const struct Thing *thing);
 
 TbBool thing_is_in_limbo(const struct Thing* thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);

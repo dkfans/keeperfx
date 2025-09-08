@@ -446,7 +446,6 @@ struct CreatureControl *creature_control_get(long cctrl_idx);
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing);
 TbBool creature_control_invalid(const struct CreatureControl *cctrl);
 TbBool creature_control_exists(const struct CreatureControl *cctrl);
-TbBool creature_control_exists_in_thing(const struct Thing *thing);
 void clear_creature_instance(struct Thing *thing);
 long i_can_allocate_free_control_structure(void);
 struct CreatureControl *allocate_free_control_structure(void);

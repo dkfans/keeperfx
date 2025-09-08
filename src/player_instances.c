@@ -1070,32 +1070,6 @@ TbBool is_thing_directly_controlled(const struct Thing *thing)
     return false;
 }
 
-TbBool is_thing_query_controlled(const struct Thing *thing)
-{
-    if (!thing_exists(thing))
-        return false;
-    if (is_neutral_thing(thing))
-        return false;
-    struct PlayerInfo* player = get_player(thing->owner);
-    if ( (player->work_state != PSt_CreatrInfo) && (player->work_state != PSt_CreatrInfoAll) )
-        return false;
-    switch (player->instance_num)
-    {
-    case PI_QueryCrtr:
-        return (thing->index == player->controlled_thing_idx);
-    case PI_UnqueryCrtr:
-        return (thing->index == player->influenced_thing_idx);
-    case PI_Unset:
-    case PI_Whip: // Whip can be used at any time by comp. assistant
-    case PI_WhipEnd:
-        return (thing->index == player->controlled_thing_idx);
-    default:
-        ERRORLOG("Bad player %d instance %d",(int)thing->owner,(int)player->instance_num);
-        break;
-    }
-    return false;
-}
-
 TbBool is_thing_some_way_controlled(const struct Thing *thing)
 {
     if (!thing_exists(thing))

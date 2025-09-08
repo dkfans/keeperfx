@@ -138,7 +138,6 @@ TbBool lock_cursor_in_possession(void);
 TbBool pause_music_when_game_paused(void);
 TbBool mute_audio_on_focus_lost(void);
 /******************************************************************************/
-const char *get_current_language_str(void);
 const char *get_language_lwrstr(int lang_id);
 /******************************************************************************/
 

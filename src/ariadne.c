@@ -237,75 +237,6 @@ long ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
 void edgelen_init(void);
 /******************************************************************************/
 
-// ariadne_compare_ways is unused by KFX code
-// This function was added by mefisto: "Prepared a function for debugging Ariadne structure." - https://github.com/dkfans/keeperfx/commit/e92bb5d7a4ad9a9dc232df160e7fc9909fc822df
-void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *arid2)
-{
-    const struct Coord3d* first_structure_position;
-    const struct Coord3d* second_structure_position;
-    first_structure_position = &arid1->startpos; second_structure_position = &arid2->startpos;
-    if (memcmp(first_structure_position,second_structure_position,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("startpos DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
-    }
-    first_structure_position = &arid1->endpos; second_structure_position = &arid2->endpos;
-    if (memcmp(first_structure_position,second_structure_position,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("endpos DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
-    }
-    first_structure_position = &arid1->current_waypoint_pos; second_structure_position = &arid2->current_waypoint_pos;
-    if (memcmp(first_structure_position,second_structure_position,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("current_waypoint_pos DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
-    }
-    first_structure_position = &arid1->next_position; second_structure_position = &arid2->next_position;
-    if (memcmp(first_structure_position,second_structure_position,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("next_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
-    }
-    first_structure_position = &arid1->previous_position; second_structure_position = &arid2->previous_position;
-    if (memcmp(first_structure_position,second_structure_position,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("previous_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
-    }
-    if (memcmp(&arid1->route_flags,&arid2->route_flags,14) != 0) {
-        ERRORLOG("previous_position..wallhug_stored_angle DIFFERS");
-    }
-    if (arid1->move_speed != arid2->move_speed) {
-        ERRORLOG("move_speed DIFFERS");
-    }
-    if (arid1->current_waypoint != arid2->current_waypoint) {
-        ERRORLOG("current_waypoint DIFFERS");
-    }
-    int i;
-    for (i=0; i < ARID_WAYPOINTS_COUNT; i++) {
-        const struct Coord2d* first_structure_waypoint;
-        const struct Coord2d* second_structure_waypoint;
-        first_structure_waypoint = &arid1->waypoints[i]; second_structure_waypoint = &arid2->waypoints[i];
-        if (memcmp(first_structure_waypoint,second_structure_waypoint,sizeof(struct Coord3d)) != 0) {
-            ERRORLOG("waypoints[%d] DIFFERS (%d,%d) (%d,%d)",i,(int)first_structure_waypoint->x.val,(int)first_structure_waypoint->y.val,(int)second_structure_waypoint->x.val,(int)second_structure_waypoint->y.val);
-        }
-    }
-    if (arid1->stored_waypoints != arid2->stored_waypoints) {
-        ERRORLOG("stored_waypoints DIFFERS");
-    }
-    if (arid1->total_waypoints != arid2->total_waypoints) {
-        ERRORLOG("total_waypoints DIFFERS");
-    }
-    first_structure_position = &arid1->manoeuvre_fixed_position; second_structure_position = &arid2->manoeuvre_fixed_position;
-    if (memcmp(first_structure_position,second_structure_position,sizeof(struct Coord3d)) != 0) {
-        ERRORLOG("manoeuvre_fixed_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
-    }
-    first_structure_position = &arid1->manoeuvre_requested_position; second_structure_position = &arid2->manoeuvre_requested_position;
-    if (memcmp(first_structure_position,second_structure_position,4) != 0) { // Compare only X and Y here; skip Z
-        ERRORLOG("manoeuvre_requested_position DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)first_structure_position->x.val,(int)first_structure_position->y.val,(int)first_structure_position->z.val,(int)second_structure_position->x.val,(int)second_structure_position->y.val,(int)second_structure_position->z.val);
-    }
-    if (arid1->manoeuvre_state != arid2->manoeuvre_state) {
-        ERRORLOG("manoeuvre_state DIFFERS");
-    }
-    if (arid1->wallhug_angle != arid2->wallhug_angle) {
-        ERRORLOG("wallhug_angle DIFFERS");
-    }
-    if (arid1->straight_dist_to_next_waypoint != arid2->straight_dist_to_next_waypoint) {
-        ERRORLOG("straight_dist_to_next_waypoint DIFFERS");
-    }
-}
-
 unsigned long fits_thro(long tri_idx, long ormask_idx)
 {
     static unsigned long const edgelen_ORmask[] = {60, 51, 15};
@@ -1373,17 +1304,6 @@ TbBool triangulation_border_tag(void)
     return true;
 }
 
-long dest_node(long tri_id, long cor_id)
-{
-    long n;
-    n = Triangles[tri_id].tags[cor_id];
-    if (n < 0)
-        return -1;
-    if (!nav_rulesA2B(get_triangle_tree_alt(tri_id), get_triangle_tree_alt(n)))
-        return -1;
-    return n;
-}
-
 void creature_radius_set(long radius)
 {
     edgelen_init();
@@ -2348,17 +2268,6 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
         return AridRet_OK;
     }
     return AridRet_OK;
-}
-
-void clear_wallhugging_path(struct Navigation *navi)
-{
-    navi->navstate = NavS_WallhugInProgress;
-    navi->pos_final.x.val = subtile_coord_center(game.map_subtiles_x/2);
-    navi->pos_final.y.val = subtile_coord_center(game.map_subtiles_y/2);
-    navi->pos_final.z.val = subtile_coord(1,0);
-    navi->wallhug_state = WallhugCurrentState_None;
-    navi->wallhug_retry_counter = 0;
-    navi->push_counter = 0;
 }
 
 void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend)
@@ -5007,8 +4916,6 @@ TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x,
             {
                 if (!tri_set_rectangle(rect_sx, rect_sy, rect_ex, rect_ey, ccolour))
                     break; // Run out of triangle space
-                //JUSTLOG("fringe_rect (%d, %d)-(%d,%d) triangles ix:%d, free:%d\n", rect_sx, rect_sy, rect_ex, rect_ey,
-                //          get_ix_points(), get_free_points());
                 delaunay_seeded(rect_sx, rect_sy, rect_ex, rect_ey);
             }
         }

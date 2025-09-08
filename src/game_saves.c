@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
-#include "bflib_bufrw.h"
 
 #include "config.h"
 #include "config_campaigns.h"

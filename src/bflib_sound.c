@@ -193,11 +193,6 @@ long S3DSetSoundReceiverOrientation(int ori_a, int ori_b, int ori_c)
     return 1;
 }
 
-void S3DSetSoundReceiverFlags(unsigned long nflags)
-{
-    Receiver.flags = nflags;
-}
-
 void S3DSetSoundReceiverSensitivity(unsigned short nsensivity)
 {
     Receiver.sensivity = nsensivity;
@@ -314,11 +309,6 @@ void S3DSetLineOfSightFunction(S3D_LineOfSight_Func callback)
 void S3DSetDeadzoneRadius(long dzradius)
 {
     deadzone_radius = dzradius;
-}
-
-long S3DGetDeadzoneRadius(void)
-{
-    return deadzone_radius;
 }
 
 SoundEmitterID get_emitter_id(struct SoundEmitter *emit)

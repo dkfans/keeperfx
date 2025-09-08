@@ -298,23 +298,6 @@ void event_update_on_battle_removal(void)
     }
 }
 
-/**
- * Returns event button index associated to given event.
- * @param event The event which associated button is to be found.
- * @param dungeon
- * @return Event button index, or -1 if the event doesn't have any button associated.
- */
-int event_get_button_index(const struct Dungeon *dungeon, EventIndex evidx)
-{
-    for (int i = 0; i <= EVENT_BUTTONS_COUNT; i++)
-    {
-        if (dungeon->event_button_index[i] == evidx) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 void event_add_to_event_buttons_list_or_replace_button(struct Event *event, struct Dungeon *dungeon)
 {
     if (dungeon->owner != event->owner) {
@@ -364,28 +347,6 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
         }
     }
     if (i < 0)
-    {
-        kill_oldest_my_event(dungeon);
-        dungeon->event_button_index[EVENT_BUTTONS_COUNT] = event->index;
-    }
-}
-
-void event_add_to_event_buttons_list(struct Event *event, struct Dungeon *dungeon)
-{
-    if (dungeon->owner != event->owner) {
-      ERRORLOG("Illegal my_event player allocation");
-    }
-    long i;
-    for (i=EVENT_BUTTONS_COUNT; i > 0; i--)
-    {
-        long ev_idx = dungeon->event_button_index[i];
-        if (ev_idx == 0)
-        {
-            dungeon->event_button_index[i] = event->index;
-            break;
-        }
-    }
-    if (i == 0)
     {
         kill_oldest_my_event(dungeon);
         dungeon->event_button_index[EVENT_BUTTONS_COUNT] = event->index;

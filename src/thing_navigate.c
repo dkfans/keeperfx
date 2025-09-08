@@ -755,22 +755,6 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
         return lowest_ceiling - 1 - thing->clipbox_size_z;
 }
 
-TbBool thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2)
-{
-    long nav_radius = thing_nav_sizexy(thing) /2;
-
-    if ((abs((pos2->x.val - nav_radius) - (pos1->x.val - nav_radius)) < COORD_PER_STL)
-     && (abs((pos2->x.val + nav_radius) - (pos1->x.val + nav_radius)) < COORD_PER_STL)
-     && (abs((pos2->y.val - nav_radius) - (pos1->y.val - nav_radius)) < COORD_PER_STL)
-     && (abs((pos2->y.val + nav_radius) - (pos1->y.val + nav_radius)) < COORD_PER_STL)
-     && (abs(pos2->z.val - pos1->z.val) < COORD_PER_STL)
-     && (abs((thing->clipbox_size_z + pos2->z.val) - (thing->clipbox_size_z + pos1->z.val)) < COORD_PER_STL) )
-    {
-        return true;
-    }
-    return false;
-}
-
 long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
 {
     unsigned short flags = SlbBloF_None;

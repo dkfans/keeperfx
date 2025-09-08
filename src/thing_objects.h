@@ -167,10 +167,6 @@ TbBool thing_is_object_with_tooltip(const struct Thing* thing, TbBool is_optiona
 void change_object_owner(struct Thing *objtng, PlayerNumber nowner);
 void destroy_food(struct Thing *foodtng);
 
-struct Thing *get_spellbook_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-struct Thing *get_special_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-
 SpecialKind box_thing_to_special(const struct Thing *thing);
 PowerKind book_thing_to_power_kind(const struct Thing *thing);
 
@@ -190,13 +186,11 @@ TbBool object_is_gold_pile(const struct Thing *thing);
 TbBool object_is_gold_hoard(const struct Thing *thing);
 TbBool object_is_gold_laying_on_ground(const struct Thing *thing);
 TbBool object_is_guard_flag(const struct Thing *thing);
-TbBool object_is_coloured_object(const struct Thing *thing);
 TbBool thing_is_gold_hoard(const struct Thing *thing);
 TbBool thing_is_spellbook(const struct Thing *thing);
 TbBool thing_is_lair_totem(const struct Thing *thing);
 TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole);
-TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
 TbBool object_can_be_damaged(const struct Thing* thing);
 TbBool object_is_buoyant(const struct Thing* thing);
 TbBool thing_is_hardcoded_special_box(const struct Thing* thing);

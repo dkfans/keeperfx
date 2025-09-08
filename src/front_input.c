@@ -189,12 +189,6 @@ short game_is_busy_doing_gui_string_input(void)
   return (input_button != NULL);
 }
 
-short current_view_supports_status_menu()
-{
-    struct PlayerInfo* player = get_my_player();
-    return (player->view_type != PVT_MapScreen);
-}
-
 int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
 {
   int result;

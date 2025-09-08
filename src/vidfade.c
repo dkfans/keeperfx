@@ -354,11 +354,6 @@ void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense)
     player->palette_fade_step_pain = i;
 }
 
-void PaletteClearPainFromPlayer(struct PlayerInfo *player)
-{
-    player->palette_fade_step_pain = 0;
-}
-
 
 /******************************************************************************/
 #ifdef __cplusplus
