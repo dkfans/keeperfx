@@ -840,6 +840,11 @@ TbBool draw_spell_cursor(ThingIndex tng_idx, MapSubtlCoord stl_x, MapSubtlCoord 
             i = get_power_overcharge_level(player);
             set_pointer_graphic(MousePG_SpellCharge0+i);
             draw_spell_cost = compute_power_price(player->id_number, pwkind, i);
+
+            // cheat mode. Everything is free. show charging level instead of none when cost is zero.
+            if (draw_spell_cost == 0)
+                draw_spell_cost = -(i+1);
+
             return true;
         }
     }
@@ -1104,7 +1109,10 @@ void redraw_display(void)
         lbDisplay.DrawFlags = 0;
         LbTextSetFont(winfont);
         char text[16];
-        snprintf(text, sizeof(text), "%ld", draw_spell_cost);
+        if (draw_spell_cost > 0)
+            snprintf(text, sizeof(text), "%ld", draw_spell_cost);
+	else
+            snprintf(text, sizeof(text), "lv%ld", (-draw_spell_cost));
         long pos_y = GetMouseY() - (LbTextStringHeight(text) * units_per_pixel / 16) / 2 - 2 * units_per_pixel / 16;
         long pos_x = GetMouseX() - (LbTextStringWidth(text) * units_per_pixel / 16) / 2;
         LbTextDrawResized(pos_x, pos_y, tx_units_per_px, text);
