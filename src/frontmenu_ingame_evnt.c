@@ -795,7 +795,7 @@ void draw_frametime()
     // FPS
     display_value = 1000 / frametime_measurements.frametime_display[Frametime_FullFrame];
 
-    snprintf(text, sizeof(text), "FPS: %f", display_value);
+    snprintf(text, sizeof(text), "FPS: %010.6f", display_value);
     LbTextDrawResized(0, 27*tx_units_per_px, tx_units_per_px, text);
 
     // Frametimes
@@ -803,16 +803,16 @@ void draw_frametime()
         display_value = frametime_measurements.frametime_display[i];
         switch (i) {
             case Frametime_FullFrame:
-                snprintf(text, sizeof(text), "Frametime: %f ms", display_value);
+                snprintf(text, sizeof(text), "Frametime: %010.6f ms", display_value);
                 break;
             case Frametime_Logic:
-                snprintf(text, sizeof(text), "Logic: %f ms", display_value);
+                snprintf(text, sizeof(text), "Logic: %010.6f ms", display_value);
                 break;
             case Frametime_Draw:
-                snprintf(text, sizeof(text), "Draw: %f ms", display_value);
+                snprintf(text, sizeof(text), "Draw: %010.6f ms", display_value);
                 break;
             case Frametime_Sleep:
-                snprintf(text, sizeof(text), "Sleep: %f ms", display_value);
+                snprintf(text, sizeof(text), "Sleep: %010.6f ms", display_value);
                 break;
         }
         LbTextDrawResized(0, (28+i)*tx_units_per_px, tx_units_per_px, text);
