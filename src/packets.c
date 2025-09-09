@@ -923,6 +923,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         event_delete_event(plyr_idx, pckt->actn_par1);
       }
       return 0;
+  case PckA_GenericLevelPower:
+      magic_use_available_power_on_level(plyr_idx, pckt->actn_par2, 0, PwMod_Default);
+      return 0;
   case PckA_UsePwrObey:
       magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, 0, PwMod_Default);
       return 0;
