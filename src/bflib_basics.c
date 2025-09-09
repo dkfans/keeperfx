@@ -352,11 +352,7 @@ int LbErrorLogClose(void)
 {
     if (!error_log_initialised)
         return -1;
-    int result = LbLogClose(&error_log);
-    if (result == 1) {
-        error_log_initialised = false;
-    }
-    return result;
+    return LbLogClose(&error_log);
 }
 
 FILE *file = NULL;
