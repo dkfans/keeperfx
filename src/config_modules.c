@@ -29,22 +29,25 @@ static TbBool parse_module_block(char *buf, long len, const char *block_name, st
 
     while (pos<len)
     {
-      if (*mod_cnt >= mod_max)
-          break;
-      char line_buf[COMMAND_WORD_LEN] = {0};
-      int line_len = get_conf_line(buf,&pos,len,line_buf,COMMAND_WORD_LEN);
-      if (line_len < 0)
-          break;
-      if (line_len > 0)
-      {
-          struct ModuleConfigItem* mod_item = mod_items + (*mod_cnt);
-          strncpy(mod_item->name, line_buf, COMMAND_WORD_LEN);
-          (*mod_cnt)++;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
+        if (*mod_cnt >= mod_max)
+            break;
+        char line_buf[COMMAND_WORD_LEN] = {0};
+        int line_len = get_conf_line(buf, &pos, len, line_buf, COMMAND_WORD_LEN);
+        if (line_len < 0)
+            break;
+        if (line_len > 0)
+        {
+            struct ModuleConfigItem* mod_item = mod_items + (*mod_cnt);
+            if (line_len < sizeof(mod_item->name))
+            {
+                memcpy(mod_item->name, line_buf, line_len);
+                (*mod_cnt)++;
+            }
+        }
+        skip_conf_to_next_line(buf,&pos,len);
+    }
 
-  return true;
+    return true;
 }
 
 static void check_module_exist(struct ModuleConfigItem *mod_items, long mod_cnt)
@@ -95,16 +98,12 @@ TbBool load_module_order_config_file()
 
     memset(&game.conf.module_conf, 0, sizeof(game.conf.module_conf));
 
-    unsigned short flags = CnfLd_Standard|CnfLd_IgnoreErrors;
-
     const char *sname = MODULE_DIR_NAME "/" MODULE_LOAD_ORDER_FILE_NAME;
     const char *fname = prepare_file_path(FGrp_Main, sname);
 
     long len = LbFileLengthRnc(fname);
     if (len < 2)
     {
-        if (!flag_is_set(flags,CnfLd_IgnoreErrors))
-          ERRORLOG("Module file \"%s\" doesn't exist or is too small.",fname);
         return false;
     }
     if (len > 65536)
