@@ -327,7 +327,7 @@ int LbJustLog(const char *format, ...)
 int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag)
 {
   if ( error_log_initialised ) return -1;
-  if ((filename == NULL) && strlen(filename) == 0) {
+  if ((filename == NULL) || (strlen(filename) == 0)) {
     filename = "error.log";
   }
   char log_filename[DISKPATH_SIZE];
@@ -352,7 +352,11 @@ int LbErrorLogClose(void)
 {
     if (!error_log_initialised)
         return -1;
-    return LbLogClose(&error_log);
+    int result = LbLogClose(&error_log);
+    if (result == 1) {
+        error_log_initialised = false;
+    }
+    return result;
 }
 
 FILE *file = NULL;
