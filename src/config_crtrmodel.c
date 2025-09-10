@@ -2511,11 +2511,12 @@ TbBool load_creaturemodel_config_for_module(ThingModel crmodel, unsigned short f
     set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
 
     TbBool result = false;
+    const struct ModuleExistState *mod_state = &mod_item->state;
     char* fname = NULL;
     char mod_dir[256] = {0};
     sprintf(mod_dir, "%s/%s", MODULE_DIR_NAME, mod_item->name);
 
-    if (mod_item->exist_crtr_data)
+    if (mod_state->crtr_data)
     {
         fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CrtrData, "%s.cfg", conf_fnstr);
         if (strlen(fname) > 0)
@@ -2524,7 +2525,7 @@ TbBool load_creaturemodel_config_for_module(ThingModel crmodel, unsigned short f
         }
     }
 
-    if (mod_item->exist_cmpg_crtrs)
+    if (mod_state->cmpg_crtrs)
     {
         fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
         if (strlen(fname) > 0)
@@ -2533,7 +2534,7 @@ TbBool load_creaturemodel_config_for_module(ThingModel crmodel, unsigned short f
         }
     }
 
-    if (mod_item->exist_cmpg_lvls)
+    if (mod_state->cmpg_lvls)
     {
         fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
         if (strlen(fname) > 0)
@@ -2552,7 +2553,7 @@ TbBool load_creaturemodel_config_for_modules(ThingModel crmodel, unsigned short 
     for (long i=0; i<mod_cnt; i++)
     {
         const struct ModuleConfigItem *mod_item = mod_items + i;
-        if (mod_item->exist_mod == 0)
+        if (mod_item->state.mod_dir == 0)
             continue;
 
         result |= load_creaturemodel_config_for_module(crmodel, flags, conf_fnstr, mod_item);

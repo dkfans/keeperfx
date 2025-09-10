@@ -45,21 +45,24 @@ extern "C" {
 #define MODULE_ITEM_MAX  50
 
 
+struct ModuleExistState{
+    int mod_dir;
+
+    // load_config
+    int fx_data;
+    int cmpg_config;
+    int cmpg_lvls;
+
+    // load_creaturemodel_config
+    int crtr_data;
+    int cmpg_crtrs;
+    // int cmpg_lvls; // dup
+};
+
 struct ModuleConfigItem {
     char name[COMMAND_WORD_LEN];
 
-    int exist_mod;
-
-    // load_config
-    int exist_fx_data;
-    int exist_cmpg_config;
-    int exist_cmpg_lvls;
-
-    // load_creaturemodel_config
-    int exist_crtr_data;
-    int exist_cmpg_crtrs;
-    // int exist_cmpg_lvls; // dup
-
+    struct ModuleExistState state;
 };
 
 struct ModulesConfig {
@@ -74,8 +77,8 @@ struct ModulesConfig {
 };
 
 
+void recheck_all_module_exist();
 TbBool load_module_order_config_file();
-
 
 
 #ifdef __cplusplus

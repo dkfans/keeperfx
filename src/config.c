@@ -2314,11 +2314,12 @@ void load_config_for_module(const struct ConfigFileData* file_data, unsigned sho
     set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
 
     const char* conf_fname = file_data->filename;
+    const struct ModuleExistState *mod_state = &mod_item->state;
     char* fname = NULL;
     char mod_dir[256] = {0};
     sprintf(mod_dir, "%s/%s", MODULE_DIR_NAME, mod_item->name);
 
-    if (mod_item->exist_fx_data)
+    if (mod_state->fx_data)
     {
         fname = prepare_file_path_mod(mod_dir, FGrp_FxData, conf_fname);
         if (strlen(fname) > 0)
@@ -2327,7 +2328,7 @@ void load_config_for_module(const struct ConfigFileData* file_data, unsigned sho
         }
     }
 
-    if (mod_item->exist_cmpg_config)
+    if (mod_state->cmpg_config)
     {
         fname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig,conf_fname);
         if (strlen(fname) > 0)
@@ -2336,7 +2337,7 @@ void load_config_for_module(const struct ConfigFileData* file_data, unsigned sho
         }
     }
 
-    if (mod_item->exist_cmpg_lvls)
+    if (mod_state->cmpg_lvls)
     {
         fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
         if (strlen(fname) > 0)
@@ -2351,7 +2352,7 @@ void load_config_for_modules(const struct ConfigFileData* file_data, unsigned sh
     for (long i=0; i<mod_cnt; i++)
     {
         const struct ModuleConfigItem *mod_item = mod_items + i;
-        if (mod_item->exist_mod == 0)
+        if (mod_item->state.mod_dir == 0)
             continue;
 
         load_config_for_module(file_data, flags, mod_item);

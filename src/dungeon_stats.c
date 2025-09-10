@@ -45,7 +45,7 @@ TbBool load_stats_files(void)
     SYNCDBG(8, "Starting");
     TbBool result = true;
 
-    load_module_order_config_file();
+    recheck_all_module_exist();
 
     clear_research_for_all_players();
     init_creature_model_stats();
