@@ -1659,6 +1659,12 @@ static TbBool hand_rule_fighting(struct HandRule *hand_rule, const struct Thing 
     return (get_creature_gui_job(thing) == CrGUIJob_Fighting) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
+static TbBool hand_rule_block_pickup(struct HandRule* hand_rule, const struct Thing* thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    return ((cctrl->hand_blocked_turns == 0) || hand_rule->allow);
+}
+
 typedef TbBool (*HandTestFn) (struct HandRule *rule, const struct Thing *thing);
 static HandTestFn hand_rule_test_fns[] = {
     hand_rule_unset,
@@ -1674,6 +1680,7 @@ static HandTestFn hand_rule_test_fns[] = {
     hand_rule_fighting,
     hand_rule_dropped_time_higher,
     hand_rule_dropped_time_lower,
+    hand_rule_block_pickup,
 };
 
 TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick)
@@ -1686,14 +1693,26 @@ TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, P
     if (thing_is_creature(thing_to_pick) && thing_to_pick->owner == plyr_idx)
     {
         struct HandRule hand_rule;
-        for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--) {
+        TbBool overwrite_default_block = false;
+        for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--) 
+        {
             hand_rule = dungeon->hand_rules[thing_to_pick->model][i];
-            if (
-                hand_rule.enabled
+            if (hand_rule.enabled
                 && hand_rule.type != HandRule_Unset
-                && eval_hand_rule_for_thing(&hand_rule, thing_to_pick)
-            )
+                && eval_hand_rule_for_thing(&hand_rule, thing_to_pick))
+            {
+                if (hand_rule.type == HandRule_BlockedPickup)
+                {
+                    overwrite_default_block = true;
+                }
+
                 return true;
+            }
+        }
+        if (overwrite_default_block == false)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing_to_pick);
+            return (cctrl->hand_blocked_turns != 0);
         }
     }
     return false;

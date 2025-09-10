@@ -3883,7 +3883,6 @@ short process_command_line(unsigned short argc, char *argv[])
   AssignCpuKeepers = 0;
   SoundDisabled = 0;
   // Note: the working log file is set up in LbBullfrogMain
-  LbErrorLogSetup(nullptr, nullptr, 1);
 
   set_default_startup_parameters();
 
@@ -4173,12 +4172,33 @@ short process_command_line(unsigned short argc, char *argv[])
   return (bad_param==0);
 }
 
+const char* determine_log_filename(unsigned short argc, char *argv[])
+{
+    // Quick scan for server/connect flags to determine log file
+    for (int i = 1; i < argc; i++) {
+        if (argv[i] && (argv[i][0] == '-' || argv[i][0] == '/')) {
+            char* flag = argv[i] + 1;
+            if (strcasecmp(flag, "server") == 0) {
+                remove("keeperfx.log");
+                return "keeperfx_host.log";
+            } else if (strcasecmp(flag, "connect") == 0) {
+                remove("keeperfx.log");
+                return "keeperfx_client.log";
+            }
+        }
+    }
+    return log_file_name;
+}
+
 int LbBullfrogMain(unsigned short argc, char *argv[])
 {
     short retval;
     retval=0;
-    LbErrorLogSetup("/", log_file_name, 5);
-
+    
+    // Determine correct log file based on command line flags
+    const char* selected_log_file_name = determine_log_filename(argc, argv);
+    LbErrorLogSetup("/", selected_log_file_name, 5);
+    
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {

@@ -6420,6 +6420,8 @@ TngUpdateRet update_creature(struct Thing *thing)
         cctrl->frozen_on_hit--;
     if (cctrl->force_visible > 0)
         cctrl->force_visible--;
+    if (cctrl->hand_blocked_turns > 0)
+        cctrl->hand_blocked_turns--;
     if (cctrl->regular_creature.navigation_map_changed == 0)
         cctrl->regular_creature.navigation_map_changed = game.map_changed_for_nagivation;
     if ((cctrl->stopped_for_hand_turns == 0) || (cctrl->instance_id == CrInst_EAT))
