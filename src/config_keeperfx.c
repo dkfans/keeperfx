@@ -334,7 +334,6 @@ short load_configuration(void)
   // Config file variables
   const char* sname; // Filename
   const char* fname; // Filepath
-
   // Check if custom config file is set '-config <file>'
   if (start_params.overrides[Clo_ConfigFile])
   {

@@ -114,7 +114,6 @@
 #include "gui_soundmsgs.h"
 #include "gui_frontbtns.h"
 #include "frontmenu_ingame_tabs.h"
-#include "frontmenu_ingame_evnt.h"
 #include "ariadne.h"
 #include "sounds.h"
 #include "vidfade.h"
@@ -3324,9 +3323,6 @@ void gameplay_loop_logic()
     }
 
     frametime_start_measurement(Frametime_Logic);
-    if (frametime_enabled())
-        framerate_measurement_capture(Framerate_Logic);
-
     if ((game.flags_font & FFlg_NetworkTimeout) != 0)
     {
         if (game.play_gameturn == 4)
@@ -3372,8 +3368,6 @@ void gameplay_loop_draw()
         do_draw = false;
     }
     if ( do_draw ) {
-        if (frametime_enabled())
-            framerate_measurement_capture(Framerate_Draw);
         keeper_screen_redraw();
     }
     keeper_wait_for_screen_focus();
@@ -3430,8 +3424,6 @@ void keeper_gameplay_loop(void)
     while ((!quit_game) && (!exit_keeper))
     {
         frametime_start_measurement(Frametime_FullFrame);
-        if (frametime_enabled())
-            framerate_measurement_capture(Framerate_FullFrame);
         gameplay_loop_logic();
         gameplay_loop_draw();
         gameplay_loop_timestep();

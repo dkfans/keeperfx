@@ -786,68 +786,37 @@ void draw_consolelog()
 
 void draw_frametime()
 {
+    float display_value;
     char text[64];
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
     int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
 
-    int iStartLine = 25;
+    // FPS
+    display_value = 1000 / frametime_measurements.frametime_display[Frametime_FullFrame];
+
+    snprintf(text, sizeof(text), "FPS: %f", display_value);
+    LbTextDrawResized(0, 27*tx_units_per_px, tx_units_per_px, text);
+
     // Frametimes
     for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
-        memset(text, 0, sizeof(text));
-        const char *frame_type = NULL;
+        display_value = frametime_measurements.frametime_display[i];
         switch (i) {
             case Frametime_FullFrame:
-                frame_type = "Frame";
+                snprintf(text, sizeof(text), "Frametime: %f ms", display_value);
                 break;
             case Frametime_Logic:
-                frame_type = "Logic";
+                snprintf(text, sizeof(text), "Logic: %f ms", display_value);
                 break;
             case Frametime_Draw:
-                frame_type = "Draw";
+                snprintf(text, sizeof(text), "Draw: %f ms", display_value);
                 break;
             case Frametime_Sleep:
-                frame_type = "Sleep";
+                snprintf(text, sizeof(text), "Sleep: %f ms", display_value);
                 break;
         }
-        if (frame_type != NULL) {
-            if (debug_display_frametime == 1) {
-                snprintf(text, sizeof(text), "%s: %010.6f ms", frame_type, frametime_measurements.frametime_display[i]);
-            } else if (debug_display_frametime == 2) {
-                snprintf(text, sizeof(text), "%s: %07.3f/%07.3f/%07.3f ms", frame_type, frametime_measurements.frametime_display[i], frametime_measurements.frametime_get_min[i], frametime_measurements.frametime_get_max[i]);
-            }
-        }
-        if (text[0] != 0)
-            LbTextDrawResized(0, (iStartLine+i)*tx_units_per_px, tx_units_per_px, text);
+        LbTextDrawResized(0, (28+i)*tx_units_per_px, tx_units_per_px, text);
     }
-
-    // Framerates
-    iStartLine += TOTAL_FRAMETIME_KINDS;
-    for (int i = 0; i < TOTAL_FRAMERATE_KINDS; i++) {
-        memset(text, 0, sizeof(text));
-        const char *frame_type = NULL;
-        switch (i) {
-            case Framerate_FullFrame:
-                frame_type = "Frame FPS";
-                break;
-            case Framerate_Logic:
-                frame_type = "Logic FPS";
-                break;
-            case Framerate_Draw:
-                frame_type = "Draw FPS";
-                break;
-        }
-        if (frame_type != NULL) {
-            if (debug_display_frametime == 1) {
-                snprintf(text, sizeof(text), "%s: %03d", frame_type, frametime_measurements.framerate_display[i]);
-            } else if (debug_display_frametime == 2) {
-                snprintf(text, sizeof(text), "%s: %03d/%03d/%03d", frame_type, frametime_measurements.framerate_display[i], frametime_measurements.framerate_min[i], frametime_measurements.framerate_max[i]);
-            }
-        }
-        if (text[0] > 0)
-            LbTextDrawResized(0, (iStartLine+i)*tx_units_per_px, tx_units_per_px, text);
-    }
-
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
 }
 /******************************************************************************/
