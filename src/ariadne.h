@@ -49,6 +49,64 @@ enum AriadneReturnValues {
     AridRet_PartOK,
 };
 
+// Current wall-hugging activity state - "What wall-hugging am I currently doing?"
+enum WallhugCurrentState {
+    WallhugCurrentState_None = 0,        // Not wall-hugging
+    WallhugCurrentState_Right = 1,       // Keep wall on creature's right side
+    WallhugCurrentState_Left = 2         // Keep wall on creature's left side
+};
+
+// Wall-hugging side preference configuration - "Which side should I prefer to hug?"
+enum WallhugPreference {
+    WallhugPreference_None = 0,       // No wall-hugging preference
+    WallhugPreference_Right = 1,      // Prefer to keep wall on right side
+    WallhugPreference_Left = 2        // Prefer to keep wall on left side
+};
+
+// Pathfinding direction states for gates
+enum PathfindingDirection {
+    PathDir_Reverse = -1,           // Direction from end to start
+    PathDir_StartToEnd = 0,         // Direction from start to end
+    PathDir_EndToStart = 1,         // Direction from end to start
+    PathDir_BestPoint = 2           // Direction to best point
+};
+
+// Wall-hugging activity state
+enum WallhugActive {
+    WallhugActive_Off = 0,          // Wall-hugging disabled
+    WallhugActive_On = 1            // Wall-hugging enabled
+};
+
+// Triangle navigation corner flags for pathfinding
+enum TriangleNavigationFlags {
+    TriangleFlag_TopLeft = 0x01,         // Top-left corner flag
+    TriangleFlag_TopRight = 0x02,        // Top-right corner flag
+    TriangleFlag_BottomLeft = 0x04,      // Bottom-left corner flag
+    TriangleFlag_BottomRight = 0x08,     // Bottom-right corner flag
+    TriangleFlag_All = 0x0F              // All corners flag
+};
+
+// Field of view region test results
+enum FieldOfViewRegion {
+    FieldOfViewRegion_OutsideLeft = -1,  // Point is outside FOV on left side
+    FieldOfViewRegion_WithinBounds = 0,  // Point is within FOV bounds
+    FieldOfViewRegion_OutsideRight = 1   // Point is outside FOV on right side
+};
+
+// Navigation rule results for pathfinding
+enum NavigationRule {
+    NavigationRule_Blocked = 0,          // Cannot navigate through this area
+    NavigationRule_Normal = 1,           // Normal navigation allowed
+    NavigationRule_Special = 2           // Special navigation (higher cost)
+};
+
+// Creature navigation radius sizes for pathfinding
+enum CreatureNavigationRadius {
+    CreatureRadius_Small = 1,            // Small creature navigation radius
+    CreatureRadius_Medium = 2,           // Medium creature navigation radius  
+    CreatureRadius_Large = 3             // Large creature navigation radius
+};
+
 enum AriadneRouteFlagValues {
     AridRtF_Default   = 0x00,
     AridRtF_NoOwner   = 0x01,
@@ -95,7 +153,6 @@ struct Ariadne { // sizeof = 102
   struct Coord3d next_position;
   struct Coord3d previous_position;
   unsigned char route_flags;
-  unsigned char unusedparam_1F;
   unsigned char hug_side;
   unsigned char update_state;
   unsigned char wallhug_active;
@@ -139,14 +196,13 @@ struct Gate { // sizeof = 28
   long pathfinding_direction;
 };
 
-struct Pathway { // sizeof = 7192
+struct Pathway {
   long start_coordinate_x;
   long start_coordinate_y;
   long finish_coordinate_x;
   long finish_coordinate_y;
   struct Gate points[256];
   long points_num;
-  long unusedfield;
 };
 
 struct WayPoints {
@@ -157,7 +213,7 @@ struct WayPoints {
   long waypoint_index_array[ARID_PATH_WAYPOINTS_COUNT];
 };
 
-struct Navigation { // sizeof = 0x27
+struct Navigation {
   unsigned char navstate;
   unsigned char side;
   unsigned char wallhug_retry_counter;
@@ -166,7 +222,6 @@ struct Navigation { // sizeof = 0x27
   long dist_to_final_pos;
   long distance_to_next_pos;
   long angle;
-  unsigned char unusedparam[4];
   SubtlCodedCoords first_colliding_block;
   SubtlCodedCoords second_colliding_block;
   PlayerBitFlags owner_flags[2];

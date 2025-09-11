@@ -956,6 +956,8 @@ long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool alr
     case PSt_CastPowerOnSubtile:
     case PST_CastPowerOnTarget:
         return PckA_SetPlyrState;
+    case PST_CastGenericLevelPower:
+        return PckA_GenericLevelPower;
     case PSt_None:
         switch (pwkind)
         {

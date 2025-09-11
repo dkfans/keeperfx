@@ -146,6 +146,8 @@ char *bf_argv[CMDLN_MAXLEN+1];
 short do_draw;
 short default_loc_player = 0;
 struct StartupParameters start_params;
+char autostart_multiplayer_campaign[80] = "";
+int autostart_multiplayer_level = 0;
 long game_num_fps;
 
 unsigned char *blue_palette;
@@ -3613,8 +3615,8 @@ static TbBool wait_at_frontend(void)
       faststartup_saved_packet_game();
       return true;
     }
-    // Prepare to enter network/standard game
-    if ((game.operation_flags & GOF_SingleLevel) != 0)
+    // Load single-player level directly from command line arguments (-server and -connect bypass this, autoloading a multiplayer map is handled elsewhere)
+    if ((game.operation_flags & GOF_SingleLevel) != 0 && !(game_flags2 & (GF2_Connect | GF2_Server)))
     {
       faststartup_network_game(&loop);
       coroutine_process(&loop);
@@ -3889,7 +3891,6 @@ short process_command_line(unsigned short argc, char *argv[])
   AssignCpuKeepers = 0;
   SoundDisabled = 0;
   // Note: the working log file is set up in LbBullfrogMain
-  LbErrorLogSetup(nullptr, nullptr, 1);
 
   set_default_startup_parameters();
 
@@ -3971,11 +3972,13 @@ short process_command_line(unsigned short argc, char *argv[])
       {
         set_flag(start_params.operation_flags, GOF_SingleLevel);
         level_num = atoi(pr2str);
+        autostart_multiplayer_level = atoi(pr2str);
         narg++;
       } else
       if ( strcasecmp(parstr,"campaign") == 0 )
       {
         strcpy(start_params.selected_campaign, pr2str);
+        strcpy(autostart_multiplayer_campaign, pr2str);
         narg++;
       } else
       if ( strcasecmp(parstr,"altinput") == 0 )
@@ -4177,12 +4180,33 @@ short process_command_line(unsigned short argc, char *argv[])
   return (bad_param==0);
 }
 
+const char* determine_log_filename(unsigned short argc, char *argv[])
+{
+    // Quick scan for server/connect flags to determine log file
+    for (int i = 1; i < argc; i++) {
+        if (argv[i] && (argv[i][0] == '-' || argv[i][0] == '/')) {
+            char* flag = argv[i] + 1;
+            if (strcasecmp(flag, "server") == 0) {
+                remove("keeperfx.log");
+                return "keeperfx_host.log";
+            } else if (strcasecmp(flag, "connect") == 0) {
+                remove("keeperfx.log");
+                return "keeperfx_client.log";
+            }
+        }
+    }
+    return log_file_name;
+}
+
 int LbBullfrogMain(unsigned short argc, char *argv[])
 {
     short retval;
     retval=0;
-    LbErrorLogSetup("/", log_file_name, 5);
-
+    
+    // Determine correct log file based on command line flags
+    const char* selected_log_file_name = determine_log_filename(argc, argv);
+    LbErrorLogSetup("/", selected_log_file_name, 5);
+    
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {
