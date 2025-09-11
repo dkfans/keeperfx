@@ -814,7 +814,7 @@ void draw_frametime()
             if (debug_display_frametime == 1) {
                 snprintf(text, sizeof(text), "%s: %010.6f ms", frame_type, frametime_measurements.frametime_display[i]);
             } else if (debug_display_frametime == 2) {
-                snprintf(text, sizeof(text), "%s: %07.3f/%07.3f/%07.3f ms", frame_type, frametime_measurements.frametime_display[i], frametime_measurements.frametime_get_min[i], frametime_measurements.frametime_get_max[i]);
+                snprintf(text, sizeof(text), "%s: %07.3f | %07.3f | %07.3f ms", frame_type, frametime_measurements.frametime_display[i], frametime_measurements.frametime_get_min[i], frametime_measurements.frametime_get_max[i]);
             }
         }
         if (text[0] != 0)
@@ -841,7 +841,7 @@ void draw_frametime()
             if (debug_display_frametime == 1) {
                 snprintf(text, sizeof(text), "%s: %03d", frame_type, frametime_measurements.framerate_display[i]);
             } else if (debug_display_frametime == 2) {
-                snprintf(text, sizeof(text), "%s: %03d/%03d/%03d", frame_type, frametime_measurements.framerate_display[i], frametime_measurements.framerate_min[i], frametime_measurements.framerate_max[i]);
+                snprintf(text, sizeof(text), "%s: %03d | %03d | %03d", frame_type, frametime_measurements.framerate_display[i], frametime_measurements.framerate_min[i], frametime_measurements.framerate_max[i]);
             }
         }
         if (text[0] > 0)
