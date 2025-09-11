@@ -68,7 +68,7 @@ enum TbPacketAction {
         PckA_SwitchView,
         PckA_UnusedSlot038,
         PckA_CtrlCrtrSetInstnc,
-        PckA_UnusedSlot040,//40
+        PckA_GenericLevelPower,//40
         PckA_HoldAudience,
         PckA_UnusedSlot042,
         PckA_UnusedSlot043,
