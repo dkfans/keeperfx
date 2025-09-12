@@ -368,7 +368,7 @@ TbBool lights_stats_debug_dump(void)
 
 void light_set_light_never_cache(long lgt_id)
 {
-    if (lgt_id <= 0)
+    if (lgt_id <= 0 || lgt_id >= LIGHTS_COUNT)
     {
         ERRORLOG("Attempt to set size of invalid light %d",(int)lgt_id);
         return;
@@ -384,7 +384,7 @@ void light_set_light_never_cache(long lgt_id)
 
 long light_is_light_allocated(long lgt_id)
 {
-    if (lgt_id <= 0)
+    if (lgt_id <= 0 || lgt_id >= LIGHTS_COUNT)
         return false;
     struct Light* lgt = &game.lish.lights[lgt_id];
     if ((lgt->flags & LgtF_Allocated) == 0)

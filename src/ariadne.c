@@ -239,7 +239,7 @@ void edgelen_init(void);
 
 unsigned long fits_thro(long tri_idx, long ormask_idx)
 {
-    static unsigned long const edgelen_ORmask[] = {60, 51, 15};
+    static unsigned long const edgelen_ORmask[] = {60, 51, 15, 0};
     unsigned long eidx;
     unsigned long emask;
 
@@ -503,10 +503,6 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
       }
       if (edge2_region == FieldOfViewRegion_OutsideLeft)
       {
-        if (wp_num == ARID_PATH_WAYPOINTS_COUNT) {
-            ERRORLOG("Exceeded max path length (i:%ld,L:%ld) (%ld,%ld)->(%ld,%ld)",
-            wpi, wp_lim, ptfind_x, ptfind_y, ptstart_x, ptstart_y);
-        }
         *total_len += LbSqrL((fov_AC.tipB.x - fov_AC.tipA.x) * (fov_AC.tipB.x - fov_AC.tipA.x)
             + (fov_AC.tipB.y - fov_AC.tipA.y) * (fov_AC.tipB.y - fov_AC.tipA.y));
         fov_AC.tipA.x = fov_AC.tipB.x;
@@ -519,13 +515,14 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
         edge_points8(route[wpi+0], route[wpi+1], &fov_AC.tipB.x, &fov_AC.tipB.y, &fov_AC.tipC.x, &fov_AC.tipC.y);
         wayPoints.edge1_current_index = wpi;
         wayPoints.edge2_current_index = wpi;
+        if (wp_num >= ARID_PATH_WAYPOINTS_COUNT) {
+            ERRORLOG("Exceeded max path length (i:%ld,L:%ld) (%ld,%ld)->(%ld,%ld)",
+            wpi, wp_lim, ptfind_x, ptfind_y, ptstart_x, ptstart_y);
+            break;
+        }
       } else
       if (edge1_region == FieldOfViewRegion_OutsideRight)
       {
-        if (wp_num == ARID_PATH_WAYPOINTS_COUNT) {
-            ERRORLOG("Exceeded max path length (i:%ld,R:%ld) (%ld,%ld)->(%ld,%ld)",
-            wpi, wp_lim, ptfind_x, ptfind_y, ptstart_x, ptstart_y);
-        }
         *total_len += LbSqrL((fov_AC.tipC.x - fov_AC.tipA.x) * (fov_AC.tipC.x - fov_AC.tipA.x)
             + (fov_AC.tipC.y - fov_AC.tipA.y) * (fov_AC.tipC.y - fov_AC.tipA.y));
         fov_AC.tipA.x = fov_AC.tipC.x;
@@ -538,11 +535,17 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
         edge_points8(route[wpi+0], route[wpi+1], &fov_AC.tipB.x, &fov_AC.tipB.y, &fov_AC.tipC.x, &fov_AC.tipC.y);
         wayPoints.edge1_current_index = wpi;
         wayPoints.edge2_current_index = wpi;
+        if (wp_num >= ARID_PATH_WAYPOINTS_COUNT) {
+            ERRORLOG("Exceeded max path length (i:%ld,R:%ld) (%ld,%ld)->(%ld,%ld)",
+            wpi, wp_lim, ptfind_x, ptfind_y, ptstart_x, ptstart_y);
+            break;
+        }
       }
       wpi++;
     }
-    if (wp_num == ARID_PATH_WAYPOINTS_COUNT) {
+    if (wp_num >= ARID_PATH_WAYPOINTS_COUNT) {
         ERRORLOG("Exceeded max path length - gate_route_to_coords");
+        wp_num = ARID_PATH_WAYPOINTS_COUNT - 1;
     }
     *total_len += LbSqrL((ptstart_x - fov_AC.tipA.x) * (ptstart_x - fov_AC.tipA.x)
         + (ptstart_y - fov_AC.tipA.y) * (ptstart_y - fov_AC.tipA.y));
@@ -1307,12 +1310,12 @@ TbBool triangulation_border_tag(void)
 void creature_radius_set(long radius)
 {
     edgelen_init();
-    if ((radius < CreatureRadius_Small) || (radius > EDGEOR_COUNT)) {
+    if ((radius < CreatureRadius_Small) || (radius >= EDGEOR_COUNT)) {
         ERRORLOG("only radius 1..%d allowed, got %d",EDGEOR_COUNT,(int)radius);
         if (radius < CreatureRadius_Small) {
             radius = CreatureRadius_Small;
         } else {
-            radius = EDGEOR_COUNT;
+            radius = EDGEOR_COUNT - 1;
         }
     }
     EdgeFit = RadiusEdgeFit[radius];

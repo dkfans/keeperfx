@@ -61,9 +61,12 @@ void erstats_clear(void)
 
 long erstat_inc(int stat_num)
 {
-    if ((stat_num >= 0) && (stat_num < sizeof(erstat)/sizeof(erstat[0])))
-        erstat[stat_num].n++;
-    return (erstat[stat_num].n-erstat[stat_num].nprv);
+    const int num_stats = sizeof(erstat) / sizeof(erstat[0]);
+    if ((stat_num < 0) || (stat_num >= num_stats)) {
+        return 1;
+    }
+    erstat[stat_num].n++;
+    return (erstat[stat_num].n - erstat[stat_num].nprv);
 }
 
 TbBool is_onscreen_msg_visible(void)

@@ -2031,7 +2031,7 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     {
         for (int j = 0; j < sumcount; j++)
         {
-            if (j > FAMILIAR_MAX)
+            if (j >= FAMILIAR_MAX)
             {
                 WARNLOG("Trying to summon creature beyond max %d", FAMILIAR_MAX);
                 break;
@@ -6158,7 +6158,7 @@ long get_creature_thing_score(const struct Thing *thing)
     CrtrExpLevel exp = cctrl->exp_level;
     if (exp >= CREATURE_MAX_LEVEL)
         exp = CREATURE_MAX_LEVEL;
-    return game.creature_scores[crmodel].value[exp];
+    return game.creature_scores[crmodel].value[exp - 1];
 }
 
 void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)

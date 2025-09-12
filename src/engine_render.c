@@ -7581,8 +7581,16 @@ static void draw_keepersprite(long x, long y, const struct KeeperSprite * kspr, 
     if (clipped_height <= 0) {
         return;
     }
-    const TbSpriteData * sprite_data_ptr = (kspr_idx < KEEPERSPRITE_ADD_OFFSET) ?
-        keepsprite[kspr_idx] : &keepersprite_add[kspr_idx - KEEPERSPRITE_ADD_OFFSET];
+    const TbSpriteData * sprite_data_ptr = NULL;
+    if (kspr_idx >= 0) {
+        if (kspr_idx >= KEEPERSPRITE_ADD_OFFSET) {
+            if (kspr_idx - KEEPERSPRITE_ADD_OFFSET < KEEPERSPRITE_ADD_NUM) {
+                sprite_data_ptr = &keepersprite_add[kspr_idx - KEEPERSPRITE_ADD_OFFSET];
+            }
+        } else if (kspr_idx < KEEPSPRITE_LENGTH) {
+            sprite_data_ptr = keepsprite[kspr_idx];
+        }
+    }
     if (sprite_data_ptr == NULL || *sprite_data_ptr == NULL) {
         WARNDBG(9,"Unallocated KeeperSprite %ld can't be drawn at (%ld,%ld)",kspr_idx,x,y);
         return;

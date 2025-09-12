@@ -793,6 +793,7 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     unsigned char* dst = dst_buf;
     long dst_width = scr_x;
     long dst_height = scr_y;
+    // FIXME: I'm sure there's a less convoluted way of doing this, code below is setting off lots of cppcheck alarms
     for (y=0; y <= dst_height; y++)
     {
         bpos_x = 0;

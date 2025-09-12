@@ -46,7 +46,7 @@ extern "C" {
  */
 struct CreatureControl *creature_control_get(long cctrl_idx)
 {
-  if ((cctrl_idx < 1) || (cctrl_idx > CREATURES_COUNT))
+  if ((cctrl_idx < 1) || (cctrl_idx >= CREATURES_COUNT))
     return INVALID_CRTR_CONTROL;
   return game.persons.cctrl_lookup[cctrl_idx];
 }
@@ -57,7 +57,7 @@ struct CreatureControl *creature_control_get(long cctrl_idx)
  */
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing)
 {
-  if ((thing->ccontrol_idx < 1) || (thing->ccontrol_idx > CREATURES_COUNT))
+  if ((thing->ccontrol_idx < 1) || (thing->ccontrol_idx >= CREATURES_COUNT))
     return INVALID_CRTR_CONTROL;
   return game.persons.cctrl_lookup[thing->ccontrol_idx];
 }

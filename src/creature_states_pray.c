@@ -910,7 +910,7 @@ void script_set_sacrifice_recipe(const int action, const int param, ThingModel* 
         return;
     }
 
-    memcpy(sac->victims, victims, MAX_SACRIFICE_VICTIMS * sizeof(int));
+    memcpy(sac->victims, victims, MAX_SACRIFICE_VICTIMS * sizeof(ThingModel));
     sac->action = action;
     sac->param = param;
 

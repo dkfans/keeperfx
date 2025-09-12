@@ -1845,7 +1845,8 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
 int get_wealth_size_of_gold_hoard_model(ThingModel objmodel)
 {
     // Check gold_hoard_objects array to determine wealth_size of the hoard model
-    for (int i = get_wealth_size_types_count(); i > 0; i--)
+    const int count = get_wealth_size_types_count();
+    for (int i = 0; i < count; ++i)
     {
         if (gold_hoard_objects[i] == objmodel) {
             int wealth_size = i+1;
