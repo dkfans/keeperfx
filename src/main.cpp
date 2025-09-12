@@ -3277,12 +3277,8 @@ TbBool keeper_wait_for_screen_focus(void)
     do {
         if ( !LbWindowsControl() )
         {
-          if ((game.system_flags & GSF_NetworkActive) == 0)
-          {
-            exit_keeper = 1;
-            break;
-          }
-          SYNCLOG("Alex's point reached");
+          force_application_close();
+          break;
         }
         if (LbIsActive())
           return true;
@@ -3651,12 +3647,9 @@ static TbBool wait_at_frontend(void)
     {
       if (!LbWindowsControl())
       {
-        if ((game.system_flags & GSF_NetworkActive) == 0)
-        {
-            exit_keeper = 1;
-            SYNCDBG(0,"Windows Control exit condition invoked");
-            break;
-        }
+        force_application_close();
+        SYNCDBG(0,"Windows Control exit condition invoked");
+        break;
       }
       update_mouse();
       update_key_modifiers();

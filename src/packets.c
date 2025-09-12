@@ -681,6 +681,25 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->display_flags |= PlaF6_PlyrHasQuit;
       process_quit_packet(player, 0);
       return 1;
+  case PckA_ForceApplicationClose:
+      {
+        extern unsigned char exit_keeper;
+        if (is_my_player(player))
+        {
+          turn_off_all_menus();
+          frontend_save_continue_game(true);
+          free_swipe_graphic();
+          // For ALT+F4, just exit directly without network cleanup
+          exit_keeper = 1;
+        }
+        else
+        {
+          // Other player force-quit, just mark them as quit
+          player->display_flags |= PlaF6_PlyrHasQuit;
+          process_quit_packet(player, 0);
+        }
+        return 1;
+      }
   case PckA_SaveGameAndQuit:
       if (is_my_player(player))
       {
@@ -1852,6 +1871,32 @@ void apply_default_flee_and_imprison_setting(void)
     
     if (tendencies_to_toggle) {
         set_players_packet_action(player, PckA_ToggleTendency, tendencies_to_toggle, 0, 0, 0);
+    }
+}
+
+// Using Alt-F4, or similar operating system close requests
+void force_application_close()
+{
+    extern unsigned char exit_keeper;
+    extern int frontend_menu_state;
+    
+    // Check if we're in gameplay vs frontend
+    if (frontend_menu_state == 0)
+    {
+        struct PlayerInfo* player = get_my_player();
+        if (player != INVALID_PLAYER)
+        {
+            set_players_packet_action(player, PckA_ForceApplicationClose, 0, 0, 0, 0);
+        }
+        else
+        {
+            exit_keeper = 1;
+        }
+    }
+    else
+    {
+        // We're in the frontend, just exit directly
+        exit_keeper = 1;
     }
 }
 
