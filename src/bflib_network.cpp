@@ -1169,6 +1169,9 @@ static size_t calculate_chunk_count(size_t len)
 
 static void draw_resync_progress(size_t bytes_processed, size_t total_bytes)
 {
+    if (game.play_gameturn == 0) { // Prevent resync bar from drawing on loading screen
+        return;
+    }
     if (total_bytes == 0) {
         return;
     }
