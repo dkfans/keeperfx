@@ -735,6 +735,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     line = get_next_token(line, &token);
     if (token.type == TkEnd)
     {
+        free(scline);
         return false;
     }
     if (token.type != TkCommand)

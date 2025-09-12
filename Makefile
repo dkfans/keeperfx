@@ -766,7 +766,6 @@ cppcheck:
 		--suppress=zerodivcond \
 		--suppress=unusedAllocatedMemory \
 		--suppress=moduloofone \
-		--suppress=memleak \
 		src 2>cppcheck.log
 
 include tool_png2ico.mk
