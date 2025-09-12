@@ -764,7 +764,6 @@ cppcheck:
 		--suppress=uninitStructMember \
 		--suppress=CastIntegerToAddressAtReturn \
 		--suppress=zerodivcond \
-		--suppress=unusedAllocatedMemory \
 		--suppress=moduloofone \
 		src 2>cppcheck.log
 
