@@ -759,7 +759,6 @@ cppcheck:
 		--suppress=shadowVariable \
 		--suppress=uninitStructMember \
 		--suppress=CastIntegerToAddressAtReturn \
-		--suppress=moduloofone \
 		src 2>cppcheck.log
 
 include tool_png2ico.mk
