@@ -1231,8 +1231,8 @@ long calculate_room_efficiency(const struct Room *room)
     }
     if (effic > ROOM_EFFICIENCY_MAX)
         effic = ROOM_EFFICIENCY_MAX;
-    return effic;
     SYNCDBG(7, "Finished");
+    return effic;
 }
 
 /**

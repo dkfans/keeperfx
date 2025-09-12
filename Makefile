@@ -754,7 +754,6 @@ cppcheck:
 		--suppress=shiftNegative \
 		--suppress=duplicateCondition \
 		--suppress=badBitmaskCheck \
-		--suppress=unreachableCode \
 		--suppress=shadowFunction \
 		--suppress=shadowVariable \
 		--suppress=uninitStructMember \
