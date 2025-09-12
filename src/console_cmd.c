@@ -309,11 +309,11 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
 TbBool cmd_stats(PlayerNumber plyr_idx, char * args)
 {
     targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "clock is %d, requested fps is %d",clock(),game_num_fps);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "clock is %d, requested fps is %d | %d",clock(), game_num_fps, game_num_fps_draw);
     return true;
 }
 
-TbBool cmd_fps(PlayerNumber plyr_idx, char * args)
+TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
 {
     char * pr2str = strsep(&args, " ");
     if (pr2str == NULL) {
@@ -321,6 +321,18 @@ TbBool cmd_fps(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate is %d fps", game_num_fps);
     } else {
         game_num_fps = atoi(pr2str);
+    }
+    return true;
+}
+
+TbBool cmd_fps_draw(PlayerNumber plyr_idx, char * args)
+{
+    char * pr2str = strsep(&args, " ");
+    if (pr2str == NULL) {
+        game_num_fps_draw = start_params.num_fps_draw;
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Drawrate is %d fps", game_num_fps_draw);
+    } else {
+        game_num_fps_draw = atoi(pr2str);
     }
     return true;
 }
@@ -2190,7 +2202,8 @@ struct ConsoleCommand {
 // currently all are in lowercase.
 static const struct ConsoleCommand console_commands[] = {
     { "stats", cmd_stats },
-    { "fps", cmd_fps },
+    { "fps", cmd_fps_turn },
+    { "fps.draw", cmd_fps_draw },
     { "frametime", cmd_frametime },
     { "ft", cmd_frametime },
     { "frametime.max", cmd_frametime_max },

@@ -508,6 +508,8 @@ TbResult LbScreenInitialize(void)
         ERRORLOG("SDL init: %s",SDL_GetError());
         return Lb_FAIL;
     }
+    SDL_GetTicks(); // trigger call SDL_TicksInit()
+    SDL_SetHint(SDL_HINT_TIMER_RESOLUTION, "1");
     // Setup the atexit() call to un-initialize
     atexit(SDL_Quit);
     return Lb_SUCCESS;

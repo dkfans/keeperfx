@@ -36,6 +36,9 @@ extern TbClockMSec (* LbTimerClock)(void);
 void LbDoMultitasking(void);
 TbBool LbSleepFor(TbClockMSec delay);
 TbBool LbSleepUntil(TbClockMSec endtime);
+void LbSleepExtInit();
+TbBool LbSleepUntilExt(long double tick_ns_end);
+TbBool LbSleepDelayExt(long double tick_ns_delay);
 TbResult LbTime(struct TbTime *curr_time);
 TbTimeSec LbTimeSec(void);
 TbResult LbDate(struct TbDate *curr_date);
@@ -92,6 +95,7 @@ struct FrametimeMeasurements {
 
 extern int debug_display_frametime;
 extern void initial_time_point();
+extern long double get_time_tick_ns();
 extern void frametime_start_measurement(int frametime_kind);
 extern void frametime_end_measurement(int frametime_kind);
 extern void framerate_measurement_capture(int framerate_kind);

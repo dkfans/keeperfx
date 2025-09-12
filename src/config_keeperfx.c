@@ -151,6 +151,7 @@ const struct NamedCommand conf_commands[] = {
   {"TURNS_PER_SECOND"              , 36},
   {"FLEE_BUTTON_DEFAULT"           , 37},
   {"IMPRISON_BUTTON_DEFAULT"       , 38},
+  {"FRAMES_PER_SECOND"             , 39},
   {NULL,                   0},
   };
 
@@ -902,6 +903,22 @@ short load_configuration(void)
               IMPRISON_BUTTON_DEFAULT = true;
           } else {
               IMPRISON_BUTTON_DEFAULT = false;
+          }
+          break;
+      case 39: // FRAMES_PER_SECOND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i < ULONG_MAX))
+          {
+              if (!start_params.overrides[Clo_FramesPerSecond])
+              {
+                  start_params.num_fps_draw = i;
+              }
+          }
+          else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
           break;
       case ccr_comment:

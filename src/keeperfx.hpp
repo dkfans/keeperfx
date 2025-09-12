@@ -66,13 +66,14 @@ extern "C" {
 #define LENSES_COUNT           15
 #define SPELL_POINTER_GROUPS   14
 #define ZOOM_KEY_ROOMS_COUNT   15
-#define CMDLINE_OVERRIDES      3
 
+#define CMDLINE_OVERRIDES      4
 /** Command Line overrides for config settings. Checked after the config file is loaded. */
 enum CmdLineOverrides {
     Clo_ConfigFile = 0, /**< Special: handled before the config file is loaded. */
     Clo_CDMusic,
     Clo_GameTurns,
+    Clo_FramesPerSecond,
 };
 
 enum ModeFlags {
@@ -138,6 +139,7 @@ struct StartupParameters {
     unsigned char debug_flags;
     unsigned short computer_chat_flags;
     long num_fps;
+    long num_fps_draw;
     TbBool packet_save_enable;
     TbBool packet_load_enable;
     char packet_fname[150];
