@@ -1299,7 +1299,7 @@ char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *f
     return prepare_file_path_buf_mod(dst, dst_size, NULL, fgroup, fname);
 }
 /*
- * @mod_dir insert before fgroup related sdir, set NULL if no module.
+ * @mod_dir insert before fgroup related sdir, set NULL if no mod.
  * @fname insert after fgroup related sdir.
  */
 char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, short fgroup, const char *fname)
@@ -2307,17 +2307,17 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
 
 
 /* @comment
- *     The loading items of load_config and load_config_for_module need to be consistent.
+ *     The loading items of load_config and load_config_for_mod_one need to be consistent.
  */
-void load_config_for_module(const struct ConfigFileData* file_data, unsigned short flags, const struct ModuleConfigItem *mod_item)
+static void load_config_for_mod_one(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_item)
 {
     set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
 
     const char* conf_fname = file_data->filename;
-    const struct ModuleExistState *mod_state = &mod_item->state;
+    const struct ModExistState *mod_state = &mod_item->state;
     char* fname = NULL;
     char mod_dir[256] = {0};
-    sprintf(mod_dir, "%s/%s", MODULE_DIR_NAME, mod_item->name);
+    sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
 
     if (mod_state->fx_data)
     {
@@ -2347,20 +2347,20 @@ void load_config_for_module(const struct ConfigFileData* file_data, unsigned sho
     }
 }
 
-void load_config_for_modules(const struct ConfigFileData* file_data, unsigned short flags, const struct ModuleConfigItem *mod_items, long mod_cnt)
+static void load_config_for_mod_list(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_items, long mod_cnt)
 {
     for (long i=0; i<mod_cnt; i++)
     {
-        const struct ModuleConfigItem *mod_item = mod_items + i;
+        const struct ModConfigItem *mod_item = mod_items + i;
         if (mod_item->state.mod_dir == 0)
             continue;
 
-        load_config_for_module(file_data, flags, mod_item);
+        load_config_for_mod_one(file_data, flags, mod_item);
     }
 }
 
 /* @comment
- *     The loading items of load_config and load_config_for_module need to be consistent.
+ *     The loading items of load_config and load_config_for_mod_one need to be consistent.
  */
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 {
@@ -2374,9 +2374,9 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = file_data->load_func(fname, flags);
 
-    if (game.conf.module_conf.after_base_cnt > 0)
+    if (game.conf.mods_conf.after_base_cnt > 0)
     {
-        load_config_for_modules(file_data, flags, game.conf.module_conf.after_base_item, game.conf.module_conf.after_base_cnt);
+        load_config_for_mod_list(file_data, flags, game.conf.mods_conf.after_base_item, game.conf.mods_conf.after_base_cnt);
     }
 
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
@@ -2385,9 +2385,9 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
 
-    if (game.conf.module_conf.after_campaign_cnt > 0)
+    if (game.conf.mods_conf.after_campaign_cnt > 0)
     {
-        load_config_for_modules(file_data, flags, game.conf.module_conf.after_campaign_item, game.conf.module_conf.after_campaign_cnt);
+        load_config_for_mod_list(file_data, flags, game.conf.mods_conf.after_campaign_item, game.conf.mods_conf.after_campaign_cnt);
     }
 
     fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
@@ -2396,9 +2396,9 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
 
-    if (game.conf.module_conf.after_map_cnt > 0)
+    if (game.conf.mods_conf.after_map_cnt > 0)
     {
-        load_config_for_modules(file_data, flags, game.conf.module_conf.after_map_item, game.conf.module_conf.after_map_cnt);
+        load_config_for_mod_list(file_data, flags, game.conf.mods_conf.after_map_item, game.conf.mods_conf.after_map_cnt);
     }
 
     if (file_data->post_load_func != NULL)

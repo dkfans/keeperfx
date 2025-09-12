@@ -165,7 +165,7 @@
     <ClCompile Include="src\config_objects.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\config_modules.c">
+    <ClCompile Include="src\config_mods.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\config_players.c">

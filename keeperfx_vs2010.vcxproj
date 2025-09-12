@@ -83,7 +83,7 @@
     <ClCompile Include="src\config_magic.c" />
     <ClCompile Include="src\config_magic_data.cpp" />
     <ClCompile Include="src\config_objects.c" />
-    <ClCompile Include="src\config_modules.c" />
+    <ClCompile Include="src\config_mods.c" />
     <ClCompile Include="src\config_players.c" />
     <ClCompile Include="src\config_rules.c" />
     <ClCompile Include="src\config_settings.c" />

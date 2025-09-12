@@ -1,8 +1,8 @@
-; KeeperFX Modules Order Configuration file version 1.0.
+; KeeperFX Mods/Modifications Order Configuration file version 1.0.
 
 
-; Put the module name/directory into the section, one module one line.
-; Modules loaded later will overwrite those loaded earlier. so, the later the configuration, the higher the priority.
+; Put the mod name/directory into the section, one mod one line.
+; Mods loaded later will overwrite those loaded earlier. so, the later the configuration, the higher the priority.
 ; Do not configure in the after_campaign or after_map section, unless you have a clear understanding, as this may break campaign/map rules which is necessary.
 
 

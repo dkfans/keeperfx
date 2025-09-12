@@ -4,7 +4,6 @@
 /* @par  Purpose:
  *     The original intention of the design is that users can customize any data, and can overwrite the default settings of KeeperFX.
  *     Typical, when upgrading to a new version, simply copying a mods directory can complete the annoying reconfiguration.
- *     So the version release should not integrate any modules.
  *
  * @par  Log:
  *     hzzdev - 07 Sep 2025
@@ -17,8 +16,8 @@
 
 
 
-#ifndef DK_CFGMODULES_H
-#define DK_CFGMODULES_H
+#ifndef DK_CFG_MODS_H
+#define DK_CFG_MODS_H
 
 
 
@@ -35,17 +34,17 @@ extern "C" {
 
 
 
-#define MODULE_DIR_NAME "mods"
-#define MODULE_LOAD_ORDER_FILE_NAME "load_order.cfg"
+#define MODS_DIR_NAME "mods"
+#define MODS_LOAD_ORDER_FILE_NAME "load_order.cfg"
 
-#define MODULE_AFTER_BASE_BLOCK_NAME "after_base"
-#define MODULE_AFTER_CAMPAIGN_BLOCK_NAME "after_campaign"
-#define MODULE_AFTER_MAP_BLOCK_NAME "after_map"
+#define MODS_AFTER_BASE_BLOCK_NAME "after_base"
+#define MODS_AFTER_CAMPAIGN_BLOCK_NAME "after_campaign"
+#define MODS_AFTER_MAP_BLOCK_NAME "after_map"
 
-#define MODULE_ITEM_MAX  50
+#define MOD_ITEM_MAX  50
 
 
-struct ModuleExistState{
+struct ModExistState{
     int mod_dir;
 
     // load_config
@@ -59,26 +58,26 @@ struct ModuleExistState{
     // int cmpg_lvls; // dup
 };
 
-struct ModuleConfigItem {
+struct ModConfigItem {
     char name[COMMAND_WORD_LEN];
 
-    struct ModuleExistState state;
+    struct ModExistState state;
 };
 
-struct ModulesConfig {
+struct ModsConfig {
     long after_base_cnt;
-    struct ModuleConfigItem after_base_item[MODULE_ITEM_MAX];
+    struct ModConfigItem after_base_item[MOD_ITEM_MAX];
 
     long after_campaign_cnt;
-    struct ModuleConfigItem after_campaign_item[MODULE_ITEM_MAX];
+    struct ModConfigItem after_campaign_item[MOD_ITEM_MAX];
 
     long after_map_cnt;
-    struct ModuleConfigItem after_map_item[MODULE_ITEM_MAX];
+    struct ModConfigItem after_map_item[MOD_ITEM_MAX];
 };
 
 
-void recheck_all_module_exist();
-TbBool load_module_order_config_file();
+void recheck_all_mod_exist();
+TbBool load_mods_order_config_file();
 
 
 #ifdef __cplusplus
@@ -87,4 +86,4 @@ TbBool load_module_order_config_file();
 
 
 
-#endif // DK_CFGMODULES_H
+#endif // DK_CFG_MODS_H

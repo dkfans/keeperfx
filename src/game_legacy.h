@@ -28,7 +28,7 @@
 #include "config_magic.h"
 #include "config_trapdoor.h"
 #include "config_objects.h"
-#include "config_modules.h"
+#include "config_mods.h"
 #include "config_cubes.h"
 #include "config_powerhands.h"
 #include "config_cubes.h"
@@ -124,7 +124,7 @@ struct Configs {
     struct PlayerStateConfig plyr_conf;
     struct ColumnConfig column_conf;
     struct LuaFuncsConf lua;
-    struct ModulesConfig module_conf;
+    struct ModsConfig mods_conf;
 };
 
 struct Game {
