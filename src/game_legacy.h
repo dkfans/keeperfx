@@ -124,7 +124,6 @@ struct Configs {
     struct PlayerStateConfig plyr_conf;
     struct ColumnConfig column_conf;
     struct LuaFuncsConf lua;
-    struct ModsConfig mods_conf;
 };
 
 struct Game {

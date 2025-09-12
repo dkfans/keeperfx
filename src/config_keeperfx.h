@@ -123,6 +123,7 @@ extern TbBool exit_on_lua_error;
 extern TbBool FLEE_BUTTON_DEFAULT;
 extern TbBool IMPRISON_BUTTON_DEFAULT;
 /******************************************************************************/
+void load_configuration_for_mod_all(void);
 short load_configuration(void);
 void process_cmdline_overrides(void);
 /******************************************************************************/

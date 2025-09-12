@@ -2506,7 +2506,7 @@ static TbBool load_creaturemodel_config_file(long crtr_model, const char *fname,
 /* @comment
  *     The loading items of load_creaturemodel_config and load_creaturemodel_config_for_mod_one need to be consistent.
  */
-TbBool load_creaturemodel_config_for_mod_one(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_item)
+static TbBool load_creaturemodel_config_for_mod_one(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_item)
 {
     set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
 
@@ -2546,7 +2546,7 @@ TbBool load_creaturemodel_config_for_mod_one(ThingModel crmodel, unsigned short 
     return result;
 }
 
-TbBool load_creaturemodel_config_for_mod_list(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_items, long mod_cnt)
+static TbBool load_creaturemodel_config_for_mod_list(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_items, long mod_cnt)
 {
     TbBool result = false;
 
@@ -2583,9 +2583,9 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
         set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
     }
 
-    if (game.conf.mods_conf.after_base_cnt > 0)
+    if (mods_conf.after_base_cnt > 0)
     {
-        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, game.conf.mods_conf.after_base_item, game.conf.mods_conf.after_base_cnt);
+        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_base_item, mods_conf.after_base_cnt);
         if (result)
         {
             set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
@@ -2602,9 +2602,9 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
         }
     }
 
-    if (game.conf.mods_conf.after_campaign_cnt > 0)
+    if (mods_conf.after_campaign_cnt > 0)
     {
-        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, game.conf.mods_conf.after_campaign_item, game.conf.mods_conf.after_campaign_cnt);
+        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
         if (result)
         {
             set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
@@ -2617,9 +2617,9 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
         result |= load_creaturemodel_config_file(crmodel, fname, flags);
     }
 
-    if (game.conf.mods_conf.after_map_cnt > 0)
+    if (mods_conf.after_map_cnt > 0)
     {
-        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, game.conf.mods_conf.after_map_item, game.conf.mods_conf.after_map_cnt);
+        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_map_item, mods_conf.after_map_cnt);
         if (result)
         {
             set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));

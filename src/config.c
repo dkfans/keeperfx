@@ -2374,9 +2374,9 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = file_data->load_func(fname, flags);
 
-    if (game.conf.mods_conf.after_base_cnt > 0)
+    if (mods_conf.after_base_cnt > 0)
     {
-        load_config_for_mod_list(file_data, flags, game.conf.mods_conf.after_base_item, game.conf.mods_conf.after_base_cnt);
+        load_config_for_mod_list(file_data, flags, mods_conf.after_base_item, mods_conf.after_base_cnt);
     }
 
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
@@ -2385,9 +2385,9 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
 
-    if (game.conf.mods_conf.after_campaign_cnt > 0)
+    if (mods_conf.after_campaign_cnt > 0)
     {
-        load_config_for_mod_list(file_data, flags, game.conf.mods_conf.after_campaign_item, game.conf.mods_conf.after_campaign_cnt);
+        load_config_for_mod_list(file_data, flags, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
     }
 
     fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
@@ -2396,9 +2396,9 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
 
-    if (game.conf.mods_conf.after_map_cnt > 0)
+    if (mods_conf.after_map_cnt > 0)
     {
-        load_config_for_mod_list(file_data, flags, game.conf.mods_conf.after_map_item, game.conf.mods_conf.after_map_cnt);
+        load_config_for_mod_list(file_data, flags, mods_conf.after_map_item, mods_conf.after_map_cnt);
     }
 
     if (file_data->post_load_func != NULL)

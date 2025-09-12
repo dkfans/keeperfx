@@ -1084,7 +1084,6 @@ short setup_game(void)
   // Now do more setup
   // Prepare the Game structure
   clear_complete_game();
-  load_mods_order_config_file();
   // Moon phase calculation
   calculate_moon_phase(true,true);
   // Start the sound system
