@@ -700,7 +700,6 @@ cppcheck:
 		-DSPNG_STATIC=1 \
 		-DAL_LIBTYPE_STATIC \
 		-DDEBUG_NETWORK_PACKETS=1 \
-		--suppress=missingInclude \
 		--suppress=missingIncludeSystem \
 		--suppress=constParameterPointer \
 		--suppress=constVariablePointer \

@@ -50,7 +50,6 @@
 #include "map_blocks.h"
 #include "map_columns.h"
 #include "map_utils.h"
-#include "math.h"
 #include "packets.h"
 #include "player_computer.h"
 #include "player_instances.h"
@@ -68,6 +67,7 @@
 #include "version.h"
 #include "frontmenu_ingame_map.h"
 #include <string.h>
+#include <math.h>
 #include "lua_base.h"
 #include "post_inc.h"
 
