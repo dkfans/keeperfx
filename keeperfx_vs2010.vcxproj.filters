@@ -48,9 +48,6 @@
     <ClCompile Include="src\bflib_basics.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_bufrw.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_cpu.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -85,9 +82,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_netsession.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\bflib_netsync.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\bflib_planar.c">
@@ -588,9 +582,6 @@
     <ClCompile Include="src\bflib_server_tcp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_threadcond.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\config_magic_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -809,9 +800,6 @@
     <ClInclude Include="src\bflib_basics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\bflib_bufrw.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\bflib_client_tcp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -884,9 +872,6 @@
     <ClInclude Include="src\bflib_netsp_tcp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\bflib_netsync.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\bflib_network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -912,9 +897,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_string.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bflib_threadcond.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_video.h">
