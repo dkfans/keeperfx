@@ -6157,8 +6157,8 @@ long get_creature_thing_score(const struct Thing *thing)
         crmodel = 0;
     CrtrExpLevel exp = cctrl->exp_level;
     if (exp >= CREATURE_MAX_LEVEL)
-        exp = CREATURE_MAX_LEVEL;
-    return game.creature_scores[crmodel].value[exp - 1];
+        exp = CREATURE_MAX_LEVEL - 1;
+    return game.creature_scores[crmodel].value[exp];
 }
 
 void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
