@@ -462,7 +462,7 @@ short creature_being_summoned(struct Thing *thing)
         return 0;
     }
     // Rotate the creature as it appears from temple
-    creature_turn_to_face_angle(thing, thing->move_angle_xy + LbFPMath_PI/4);
+    creature_turn_to_face_angle(thing, thing->move_angle_xy + DEGREES_45);
     return 0;
 }
 
@@ -723,7 +723,7 @@ short creature_being_sacrificed(struct Thing *thing)
     if (cctrl->sacrifice.animation_counter > 0)
     {
         // No flying while being sacrificed
-        creature_turn_to_face_angle(thing, thing->move_angle_xy + LbFPMath_PI/4);
+        creature_turn_to_face_angle(thing, thing->move_angle_xy + DEGREES_45);
         thing->movement_flags &= ~TMvF_Flying;
         return 0;
     }

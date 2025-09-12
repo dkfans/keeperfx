@@ -152,6 +152,7 @@ const struct NamedCommand hand_rule_desc[] = {
   {"FIGHTING",              HandRule_Fighting},
   {"DROPPED_TIME_HIGHER",   HandRule_DroppedTimeHigher},
   {"DROPPED_TIME_LOWER",    HandRule_DroppedTimeLower},
+  {"BLOCKED_FOR_PICKUP",    HandRule_BlockedPickup},
   {NULL,                    0},
 };
 
@@ -3061,7 +3062,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         }
         case 5: // MAXANGLECHANGE
         {
-            crconf->max_turning_speed = (value * LbFPMath_PI) / 180;
+            crconf->max_turning_speed = (value * DEGREES_180) / 180;
             break;
         }
         default:
@@ -5502,7 +5503,7 @@ static void add_object_to_level_at_pos_check(const struct ScriptLine* scline)
     {
         if (parameter_is_number(scline->tp[5]))
         {
-            angle = atoi(scline->tp[5]) % LbFPMath_TAU;
+            angle = atoi(scline->tp[5]) % DEGREES_360;
         }
         else
         {
@@ -5551,7 +5552,7 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
     {
         if (parameter_is_number(scline->tp[4]))
         {
-            angle = atoi(scline->tp[4]) % LbFPMath_TAU;
+            angle = atoi(scline->tp[4]) % DEGREES_360;
         }
         else
         {

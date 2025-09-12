@@ -114,6 +114,7 @@
 #include "gui_soundmsgs.h"
 #include "gui_frontbtns.h"
 #include "frontmenu_ingame_tabs.h"
+#include "frontmenu_ingame_evnt.h"
 #include "ariadne.h"
 #include "sounds.h"
 #include "vidfade.h"
@@ -145,6 +146,8 @@ char *bf_argv[CMDLN_MAXLEN+1];
 short do_draw;
 short default_loc_player = 0;
 struct StartupParameters start_params;
+char autostart_multiplayer_campaign[80] = "";
+int autostart_multiplayer_level = 0;
 long game_num_fps;
 
 unsigned char *blue_palette;
@@ -331,7 +334,7 @@ void process_keeper_spell_aura(struct Thing *thing)
     long delta_x;
     long delta_y;
     amp = 5 * thing->clipbox_size_xy / 8;
-    direction = CREATURE_RANDOM(thing, 2*LbFPMath_PI);
+    direction = CREATURE_RANDOM(thing, DEGREES_360);
     delta_x = (amp * LbSinL(direction) >> 8);
     delta_y = (amp * LbCosL(direction) >> 8);
     pos.x.val = thing->mappos.x.val + (delta_x >> 8);
@@ -3274,12 +3277,8 @@ TbBool keeper_wait_for_screen_focus(void)
     do {
         if ( !LbWindowsControl() )
         {
-          if ((game.system_flags & GSF_NetworkActive) == 0)
-          {
-            exit_keeper = 1;
-            break;
-          }
-          SYNCLOG("Alex's point reached");
+          force_application_close();
+          break;
         }
         if (LbIsActive())
           return true;
@@ -3322,6 +3321,9 @@ void gameplay_loop_logic()
     }
 
     frametime_start_measurement(Frametime_Logic);
+    if (frametime_enabled())
+        framerate_measurement_capture(Framerate_Logic);
+
     if ((game.flags_font & FFlg_NetworkTimeout) != 0)
     {
         if (game.play_gameturn == 4)
@@ -3367,6 +3369,8 @@ void gameplay_loop_draw()
         do_draw = false;
     }
     if ( do_draw ) {
+        if (frametime_enabled())
+            framerate_measurement_capture(Framerate_Draw);
         keeper_screen_redraw();
     }
     keeper_wait_for_screen_focus();
@@ -3423,6 +3427,8 @@ void keeper_gameplay_loop(void)
     while ((!quit_game) && (!exit_keeper))
     {
         frametime_start_measurement(Frametime_FullFrame);
+        if (frametime_enabled())
+            framerate_measurement_capture(Framerate_FullFrame);
         gameplay_loop_logic();
         gameplay_loop_draw();
         gameplay_loop_timestep();
@@ -3605,8 +3611,8 @@ static TbBool wait_at_frontend(void)
       faststartup_saved_packet_game();
       return true;
     }
-    // Prepare to enter network/standard game
-    if ((game.operation_flags & GOF_SingleLevel) != 0)
+    // Load single-player level directly from command line arguments (-server and -connect bypass this, autoloading a multiplayer map is handled elsewhere)
+    if ((game.operation_flags & GOF_SingleLevel) != 0 && !(game_flags2 & (GF2_Connect | GF2_Server)))
     {
       faststartup_network_game(&loop);
       coroutine_process(&loop);
@@ -3641,12 +3647,9 @@ static TbBool wait_at_frontend(void)
     {
       if (!LbWindowsControl())
       {
-        if ((game.system_flags & GSF_NetworkActive) == 0)
-        {
-            exit_keeper = 1;
-            SYNCDBG(0,"Windows Control exit condition invoked");
-            break;
-        }
+        force_application_close();
+        SYNCDBG(0,"Windows Control exit condition invoked");
+        break;
       }
       update_mouse();
       update_key_modifiers();
@@ -3881,7 +3884,6 @@ short process_command_line(unsigned short argc, char *argv[])
   AssignCpuKeepers = 0;
   SoundDisabled = 0;
   // Note: the working log file is set up in LbBullfrogMain
-  LbErrorLogSetup(nullptr, nullptr, 1);
 
   set_default_startup_parameters();
 
@@ -3963,11 +3965,13 @@ short process_command_line(unsigned short argc, char *argv[])
       {
         set_flag(start_params.operation_flags, GOF_SingleLevel);
         level_num = atoi(pr2str);
+        autostart_multiplayer_level = atoi(pr2str);
         narg++;
       } else
       if ( strcasecmp(parstr,"campaign") == 0 )
       {
         strcpy(start_params.selected_campaign, pr2str);
+        strcpy(autostart_multiplayer_campaign, pr2str);
         narg++;
       } else
       if ( strcasecmp(parstr,"altinput") == 0 )
@@ -4169,12 +4173,33 @@ short process_command_line(unsigned short argc, char *argv[])
   return (bad_param==0);
 }
 
+const char* determine_log_filename(unsigned short argc, char *argv[])
+{
+    // Quick scan for server/connect flags to determine log file
+    for (int i = 1; i < argc; i++) {
+        if (argv[i] && (argv[i][0] == '-' || argv[i][0] == '/')) {
+            char* flag = argv[i] + 1;
+            if (strcasecmp(flag, "server") == 0) {
+                remove("keeperfx.log");
+                return "keeperfx_host.log";
+            } else if (strcasecmp(flag, "connect") == 0) {
+                remove("keeperfx.log");
+                return "keeperfx_client.log";
+            }
+        }
+    }
+    return log_file_name;
+}
+
 int LbBullfrogMain(unsigned short argc, char *argv[])
 {
     short retval;
     retval=0;
-    LbErrorLogSetup("/", log_file_name, 5);
-
+    
+    // Determine correct log file based on command line flags
+    const char* selected_log_file_name = determine_log_filename(argc, argv);
+    LbErrorLogSetup("/", selected_log_file_name, 5);
+    
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {

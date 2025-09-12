@@ -1554,8 +1554,8 @@ void frame_wibble_generate(void)
         wibl->lightness_offset = osc >> 6;
         wibl++;
     }
-    render_water_wibble += (LbFPMath_PI / 22) * game.delta_time;
-    water_wibble_angle = (int)render_water_wibble & LbFPMath_AngleMask;
+    render_water_wibble += DEGREES_8_18 * game.delta_time;
+    water_wibble_angle = (int)render_water_wibble & ANGLE_MASK;
     int zoom;
     {
         zoom = camera_zoom / pixel_size;
@@ -3888,7 +3888,7 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
 
     mv_angle = thing->move_angle_xy;
     sh_angle = get_angle_xy_to(pos, &thing->mappos);
-    sprite_angle = (mv_angle - sh_angle) & LbFPMath_AngleMask;
+    sprite_angle = (mv_angle - sh_angle) & ANGLE_MASK;
     dist_sq = (get_2d_distance_squared(&thing->mappos, pos) >> 17) + 16;
     if (dist_sq < 16) {
         dist_sq = 16;
@@ -7086,7 +7086,7 @@ static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos
     struct PlayerInfo* player = get_my_player();
 
     zoom = 32 * camera_zoom / 256;
-    orientation = ((unsigned int)(interpolated_cam_rotation_angle_x + (LbFPMath_PI / 4)) >> 9) & 3;
+    orientation = ((unsigned int)(interpolated_cam_rotation_angle_x + DEGREES_45) / DEGREES_90) & 3;
 
     switch ( orientation )
     {
@@ -7727,7 +7727,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     player = get_my_player();
     creature_sprites = keepersprite_array(kspr_base);
 
-    if (((kspr_angle & 0x7FF) <= 1151) || ((kspr_angle & 0x7FF) >= 1919) || (creature_sprites->Rotable != 2) )
+    if (((kspr_angle & ANGLE_MASK) <= 1151) || ((kspr_angle & ANGLE_MASK) >= 1919) || (creature_sprites->Rotable != 2) )
         needs_xflip = 0;
     else
         needs_xflip = 1;
@@ -7737,7 +7737,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     else
       lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
     sprite_group = sprgroup;
-    lltemp = 4 - ((((long)kspr_angle + 128) & 0x7FF) >> 8);
+    lltemp = 4 - ((((long)kspr_angle + DEGREES_22_5) & ANGLE_MASK) >> 8);
     sprite_rot = llabs(lltemp);
     kspr_idx = keepersprite_index(kspr_base);
     global_scaler = scale;
@@ -7925,7 +7925,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     if (keepersprite_rotable(thing->anim_sprite))
     {
       angle = thing->move_angle_xy - spr_map_angle;
-      angle += 256 * (long)((thing->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
+      angle += DEGREES_45 * (long)((thing->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
     }
     else
       angle = thing->move_angle_xy;
@@ -8195,11 +8195,11 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
     TbBool flip_range;
     short quarter;
     int i;
-    if ( ((angle & 0x7FF) <= 1151) || ((angle & 0x7FF) >= 1919) )
+    if ( ((angle & ANGLE_MASK) <= 1151) || ((angle & ANGLE_MASK) >= 1919) )
         flip_range = false;
     else
         flip_range = true;
-    i = ((angle + 128) & 0x7FF);
+    i = ((angle + DEGREES_22_5) & ANGLE_MASK);
     quarter = abs(4 - (i >> 8)); // i is restricted by "&" so (i>>8) is 0..7
     kspr_idx = keepersprite_index(kspr_n);
     kspr_arr = keepersprite_array(kspr_n);
@@ -8364,7 +8364,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
 
 void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)
 {
-    unsigned char orient = ((unsigned int)(cam->rotation_angle_x + LbFPMath_PI/4) >> 9) & 0x03;
+    unsigned char orient = ((unsigned int)(cam->rotation_angle_x + DEGREES_45) / DEGREES_90) & 0x03;
     // _depth_ is "how far in to the screen" the box goes - it will be the width/height of a slab
     // _breadth_ is usually the same as the depth (a single slab), but for single subtile selection, this will be the width/height of a subtile
     // (if we are dealing with a single subtile, breadth will be a third of the depth.)
@@ -8423,7 +8423,7 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     {
         line_color = map_volume_box.color; //  set the "inner" box color to the default colour (usually red/green)
     }
-    unsigned char orient = ((unsigned int)(cam->rotation_angle_x + LbFPMath_PI/4) >> 9) & 0x03;
+    unsigned char orient = ((unsigned int)(cam->rotation_angle_x + DEGREES_45) / DEGREES_90) & 0x03;
     int floor_height_z = (map_volume_box.floor_height_z == 0) ? 1 : map_volume_box.floor_height_z; // ignore "liquid height", and force it to "floor height". All fancy rooms are on the ground, and this ensures the boundboxes are drawn correctly. A different solution will be required if this function is used to draw fancy rooms over "liquid".
     long depth = ((5 - floor_height_z) * ((long)stl_width << 7) / 256);
     struct Coord3d pos;
@@ -8985,7 +8985,7 @@ void draw_frontview_engine(struct Camera *cam)
     clear_fast_bucket_list();
     store_engine_window(&ewnd,1);
     setup_engine_window(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
-    qdrant = ((unsigned int)(cam->rotation_angle_x + LbFPMath_PI/4) >> 9) & 0x03;
+    qdrant = ((unsigned int)(cam->rotation_angle_x + DEGREES_45) / DEGREES_90) & 0x03;
     zoom = camera_zoom >> 3;
     w = (ewnd.width << 16) / zoom >> 1;
     h = (ewnd.height << 16) / zoom >> 1;

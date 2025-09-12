@@ -95,6 +95,10 @@ TbBool first_person_see_item_desc = false;
 long old_mx;
 long old_my;
 
+//arbitrary state machine, not deserving own enum
+int synthetic_left = 0;
+int synthetic_right = 0;
+
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
 void get_creature_control_nonaction_inputs(void);
@@ -1096,73 +1100,73 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
           int angle = cam->rotation_angle_x;
           if (key_modifiers & KMod_CONTROL)
           {
-              if ((angle >= 0 && angle < 256) || angle == 2048)
+              if ((angle >= ANGLE_NORTH && angle < ANGLE_NORTHEAST) || angle == DEGREES_360)
               {
-                  angle = 256;
+                  angle = ANGLE_NORTHEAST;
               }
-              else if (angle >= 256 && angle < 512)
+              else if (angle >= ANGLE_NORTHEAST && angle < ANGLE_EAST)
               {
-                  angle = 512;
+                  angle = ANGLE_EAST;
               }
-              else if (angle >= 512 && angle < 768)
+              else if (angle >= ANGLE_EAST && angle < ANGLE_SOUTHEAST)
               {
-                  angle = 768;
+                  angle = ANGLE_SOUTHEAST;
               }
-              else if (angle >= 768 && angle < 1024)
+              else if (angle >= ANGLE_SOUTHEAST && angle < ANGLE_SOUTH)
               {
-                  angle = 1024;
+                  angle = ANGLE_SOUTH;
               }
-              else if (angle >= 1024 && angle < 1280)
+              else if (angle >= ANGLE_SOUTH && angle < ANGLE_SOUTHWEST)
               {
-                  angle = 1280;
+                  angle = ANGLE_SOUTHWEST;
               }
-              else if (angle >= 1280 && angle < 1536)
+              else if (angle >= ANGLE_SOUTHWEST && angle < ANGLE_WEST)
               {
-                  angle = 1536;
+                  angle = ANGLE_WEST;
               }
-              else if (angle >= 1536 && angle < 1792)
+              else if (angle >= ANGLE_WEST && angle < ANGLE_NORTHWEST)
               {
-                  angle = 1792;
+                  angle = ANGLE_NORTHWEST;
               }
-              else if (angle >= 1792 && angle < 2048)
+              else if (angle >= ANGLE_NORTHWEST && angle < DEGREES_360)
               {
-                  angle = 0;
+                  angle = ANGLE_NORTH;
               }
         }
         else if (key_modifiers & KMod_SHIFT)
         {
-            if (angle > 0 && angle <= 256)
-            {angle = 2048;}
-            else if (angle > 256 && angle <= 512)
-            {angle = 256;}
-            else if (angle > 512 && angle <= 768)
-            {angle = 512;}
-            else if (angle > 768 && angle <= 1024)
-            {angle = 768;}
-            else if (angle > 1024 && angle <= 1280)
-            {angle = 1024;}
-            else if (angle > 1280 && angle <= 1536)
-            {angle = 1280;}
-            else if (angle > 1536 && angle <= 1792)
-            {angle = 1536;}
-            else if ((angle > 1792 && angle <= 2048) || angle == 0)
-            {angle = 1792;}
+            if (angle > ANGLE_NORTH && angle <= ANGLE_NORTHEAST)
+            {angle = DEGREES_360;}
+            else if (angle > ANGLE_NORTHEAST && angle <= ANGLE_EAST)
+            {angle = ANGLE_NORTHEAST;}
+            else if (angle > ANGLE_EAST && angle <= ANGLE_SOUTHEAST)
+            {angle = ANGLE_EAST;}
+            else if (angle > ANGLE_SOUTHEAST && angle <= ANGLE_SOUTH)
+            {angle = ANGLE_SOUTHEAST;}
+            else if (angle > ANGLE_SOUTH && angle <= ANGLE_SOUTHWEST)
+            {angle = ANGLE_SOUTH;}
+            else if (angle > ANGLE_SOUTHWEST && angle <= ANGLE_WEST)
+            {angle = ANGLE_SOUTHWEST;}
+            else if (angle > ANGLE_WEST && angle <= ANGLE_NORTHWEST)
+            {angle = ANGLE_WEST;}
+            else if ((angle > ANGLE_NORTHWEST && angle <= DEGREES_360) || angle == ANGLE_NORTH)
+            {angle = ANGLE_NORTHWEST;}
         }
-        else if (angle == 0 || angle == 2048)
+        else if (angle == ANGLE_NORTH || angle == DEGREES_360)
         {
-            (angle = 1024);
+            (angle = ANGLE_SOUTH);
         }
-        else if (angle == 512)
+        else if (angle == ANGLE_EAST)
         {
-            (angle = 1536);
+            (angle = ANGLE_WEST);
         }
-        else if (angle == 1536)
+        else if (angle == ANGLE_WEST)
         {
-            (angle = 512);
+            (angle = ANGLE_EAST);
         }
         else
         {
-            (angle = 0);
+            (angle = ANGLE_NORTH);
         }
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         clear_key_pressed(val);
@@ -1196,13 +1200,13 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
         }
         else
         {
-            if (angle == 0 || angle == 2048)
+            if (angle == ANGLE_NORTH || angle == DEGREES_360)
             {
-                (angle = 1024);
+                (angle = ANGLE_SOUTH);
             }
             else
             {
-                (angle = 0);
+                (angle = ANGLE_NORTH);
             }
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         }
@@ -1849,8 +1853,6 @@ short get_creature_control_action_inputs(void)
 
 void get_packet_control_mouse_clicks(void)
 {
-    static int synthetic_left = 0; //arbitrary state machine, not deserving own enum
-    static int synthetic_right = 0;
     SYNCDBG(8,"Starting");
 
     if (flag_is_set(game.operation_flags, GOF_Paused))

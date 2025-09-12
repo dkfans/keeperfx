@@ -105,6 +105,7 @@ extern "C" {
 /******************************************************************************/
 extern TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
+extern TbBool change_campaign(const char *cmpgn_fname);
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
@@ -387,7 +388,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
              view_set_camera_rotation_inertia(cam, 16, 64);
             break;
         case PVM_FrontView:
-            cam->rotation_angle_x = (cam->rotation_angle_x + LbFPMath_PI/2) & LbFPMath_AngleMask;
+            cam->rotation_angle_x = (cam->rotation_angle_x + DEGREES_90) & ANGLE_MASK;
             break;
         }
     }
@@ -400,7 +401,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
             view_set_camera_rotation_inertia(cam, -16, -64);
             break;
         case PVM_FrontView:
-            cam->rotation_angle_x = (cam->rotation_angle_x - LbFPMath_PI/2) & LbFPMath_AngleMask;
+            cam->rotation_angle_x = (cam->rotation_angle_x - DEGREES_90) & ANGLE_MASK;
             break;
         }
     }
@@ -680,6 +681,25 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->display_flags |= PlaF6_PlyrHasQuit;
       process_quit_packet(player, 0);
       return 1;
+  case PckA_ForceApplicationClose:
+      {
+        extern unsigned char exit_keeper;
+        if (is_my_player(player))
+        {
+          turn_off_all_menus();
+          frontend_save_continue_game(true);
+          free_swipe_graphic();
+          // For ALT+F4, just exit directly without network cleanup
+          exit_keeper = 1;
+        }
+        else
+        {
+          // Other player force-quit, just mark them as quit
+          player->display_flags |= PlaF6_PlyrHasQuit;
+          process_quit_packet(player, 0);
+        }
+        return 1;
+      }
   case PckA_SaveGameAndQuit:
       if (is_my_player(player))
       {
@@ -921,6 +941,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       {
         event_delete_event(plyr_idx, pckt->actn_par1);
       }
+      return 0;
+  case PckA_GenericLevelPower:
+      magic_use_available_power_on_level(plyr_idx, pckt->actn_par2, 0, PwMod_Default);
       return 0;
   case PckA_UsePwrObey:
       magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, 0, PwMod_Default);
@@ -1352,6 +1375,7 @@ void process_players_creature_control_packet_control(long idx)
             }
             else
             {
+                // cheat mode
                 inst_inf = creature_instance_info_get(i);
                 process_player_use_instance(cctng, i, pckt);
             }
@@ -1372,6 +1396,11 @@ void process_players_creature_control_packet_control(long idx)
                     {
                         process_player_use_instance(cctng, i, pckt);
                     }
+                }
+                else
+                {
+                    // cheat mode
+                    process_player_use_instance(cctng, i, pckt);
                 }
             }
         }
@@ -1404,9 +1433,9 @@ void process_players_creature_control_packet_control(long idx)
     // 227 is default. To support anything above this we need to adjust the terrain culling. (when you look at the ceiling for example)
     // 512 allows for looking straight up and down. 360+ is about where sprite glitches become more obvious.
     #define viewable_angle 227;
-    long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & LbFPMath_AngleMask;
+    long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & ANGLE_MASK;
 
-    long lowerLimit = LbFPMath_AngleMask - viewable_angle;
+    long lowerLimit = ANGLE_MASK - viewable_angle;
     long upperLimit = viewable_angle;
     if (verticalPos > upperLimit && verticalPos < lowerLimit) {
         if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit)) {
@@ -1416,7 +1445,7 @@ void process_players_creature_control_packet_control(long idx)
         }
     }
     cctng->move_angle_z = verticalPos; // Sets the vertical look
-    cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & LbFPMath_AngleMask; // Sets the horizontal look
+    cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & ANGLE_MASK; // Sets the horizontal look
     ccctrl->roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
 }
 
@@ -1477,19 +1506,8 @@ void process_players_creature_control_packet_action(long plyr_idx)
       if (creature_control_invalid(cctrl))
         break;
       i = pckt->actn_par1;
-      inst_inf = creature_instance_info_get(i);
-      if (!inst_inf->instant)
-      {
-        cctrl->active_instance_id = i;
-      } else
-      if (cctrl->instance_id == CrInst_NULL)
-      {
-          i = pckt->actn_par1;
-          process_player_use_instance(thing, i, pckt);
-          if (plyr_idx == my_player_number) {
-              instant_instance_selected(i);
-          }
-      }
+      // Cheat mode no need check any, just do/select it.
+      cctrl->active_instance_id = i;
       break;
       case PckA_DirectCtrlDragDrop:
       {
@@ -1620,6 +1638,56 @@ void process_packets(void)
   SYNCDBG(7,"Finished");
 }
 
+static TbBool try_starting_level_from_chat(char* message, long player_id)
+{
+    char *colon_pos = strchr(message, ':');
+    if (!colon_pos || colon_pos == message) {
+        return false;
+    }
+    
+    int campaign_len = colon_pos - message;
+    if (campaign_len <= 0 || campaign_len >= 64) {
+        return false;
+    }
+    
+    char *level_str = colon_pos + 1;
+    if (!isdigit(level_str[0])) {
+        return false;
+    }
+    
+    LevelNumber level_num = atoi(level_str);
+    if (level_num <= 0) {
+        return false;
+    }
+    
+    char campaign_filename[80];
+    snprintf(campaign_filename, sizeof(campaign_filename), "%.*s.cfg", campaign_len, message);
+    
+    if (!change_campaign(campaign_filename)) {
+        ERRORLOG("Unable to load campaign '%.*s' for level %d", campaign_len, message, (int)level_num);
+        return false;
+    }
+    
+    set_selected_level_number(level_num);
+    frontend_set_state(FeSt_START_MPLEVEL);
+    return true;
+}
+
+static void handle_chat_message(char* message, long player_id, TbBool clear_text, char* text_to_clear)
+{
+    if (try_starting_level_from_chat(message, player_id)) {
+        if (clear_text) {
+            text_to_clear[0] = '\0';
+        }
+        return;
+    }
+    
+    add_message(player_id, message);
+    if (clear_text) {
+        text_to_clear[0] = '\0';
+    }
+}
+
 void process_frontend_packets(void)
 {
   long i;
@@ -1687,7 +1755,7 @@ void process_frontend_packets(void)
         switch (nspckt->networkstatus_flags >> 3)
         {
         case 2:
-            add_message(i, (char*)&nspckt->param1);
+            handle_chat_message((char*)&nspckt->param1, i, false, NULL);
             break;
         case 3:
             if (!validate_versions())
@@ -1696,7 +1764,14 @@ void process_frontend_packets(void)
                 break;
             }
             fe_network_active = 1;
-            frontend_set_state(FeSt_NETLAND_VIEW);
+            if (game_flags2 & GF2_Connect)
+            {
+                frontend_set_state(FeSt_START_MPLEVEL);
+            }
+            else
+            {
+                frontend_set_state(FeSt_NETLAND_VIEW);
+            }
             break;
         case 4:
             frontend_set_alliance(nspckt->param1, nspckt->param2);
@@ -1720,9 +1795,7 @@ void process_frontend_packets(void)
             {
                 if (k > 0)
                 {
-                    add_message(i, player->mp_message_text);
-                    k = 0;
-                    player->mp_message_text[k] = '\0';
+                    handle_chat_message(player->mp_message_text, i, true, player->mp_message_text);
                 }
             }
             else
@@ -1798,6 +1871,32 @@ void apply_default_flee_and_imprison_setting(void)
     
     if (tendencies_to_toggle) {
         set_players_packet_action(player, PckA_ToggleTendency, tendencies_to_toggle, 0, 0, 0);
+    }
+}
+
+// Using Alt-F4, or similar operating system close requests
+void force_application_close()
+{
+    extern unsigned char exit_keeper;
+    extern int frontend_menu_state;
+    
+    // Check if we're in gameplay vs frontend
+    if (frontend_menu_state == 0)
+    {
+        struct PlayerInfo* player = get_my_player();
+        if (player != INVALID_PLAYER)
+        {
+            set_players_packet_action(player, PckA_ForceApplicationClose, 0, 0, 0, 0);
+        }
+        else
+        {
+            exit_keeper = 1;
+        }
+    }
+    else
+    {
+        // We're in the frontend, just exit directly
+        exit_keeper = 1;
     }
 }
 

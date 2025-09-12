@@ -820,7 +820,7 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
         if (i > 0)
         {
             long angle;
-            angle = PLAYER_RANDOM(plyr_idx, 2*LbFPMath_PI);
+            angle = PLAYER_RANDOM(plyr_idx, DEGREES_360);
             locpos.x.val = pos->x.val + distance_with_angle_to_coord_x(127, angle);
             locpos.y.val = pos->y.val + distance_with_angle_to_coord_y(127, angle);
         } else
@@ -1095,7 +1095,7 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
         if ((cctrl->armageddon_teleport_turn != 0) && (cctrl->armageddon_teleport_turn <= game.play_gameturn))
         {
             cctrl->armageddon_teleport_turn = 0;
-            if (remove_creature_from_power_hand(thing, dungeon->owner))
+            if (remove_thing_from_power_hand(thing, dungeon->owner))
             {
                 teleport_armageddon_influenced_creature(thing);
                 return false;
@@ -1421,19 +1421,17 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
     return true;
 }
 
-TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
+TbBool remove_thing_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
 {
     if (!thing_is_in_power_hand_list(thing, plyr_idx)) {
         return false;
     }
     if (thing_is_creature(thing))
     {
-        remove_thing_from_limbo(thing);
         set_start_state(thing);
-        remove_thing_from_power_hand_list(thing, plyr_idx);
-        return true;
     }
-    return false;
+    remove_thing_from_limbo(thing);
+    return remove_thing_from_power_hand_list(thing, plyr_idx);;
 }
 
 TbResult use_power_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short tng_idx)
@@ -1661,6 +1659,12 @@ static TbBool hand_rule_fighting(struct HandRule *hand_rule, const struct Thing 
     return (get_creature_gui_job(thing) == CrGUIJob_Fighting) ? !hand_rule->allow : !!hand_rule->allow;
 }
 
+static TbBool hand_rule_block_pickup(struct HandRule* hand_rule, const struct Thing* thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    return ((cctrl->hand_blocked_turns == 0) || hand_rule->allow);
+}
+
 typedef TbBool (*HandTestFn) (struct HandRule *rule, const struct Thing *thing);
 static HandTestFn hand_rule_test_fns[] = {
     hand_rule_unset,
@@ -1676,6 +1680,7 @@ static HandTestFn hand_rule_test_fns[] = {
     hand_rule_fighting,
     hand_rule_dropped_time_higher,
     hand_rule_dropped_time_lower,
+    hand_rule_block_pickup,
 };
 
 TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick)
@@ -1688,14 +1693,26 @@ TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, P
     if (thing_is_creature(thing_to_pick) && thing_to_pick->owner == plyr_idx)
     {
         struct HandRule hand_rule;
-        for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--) {
+        TbBool overwrite_default_block = false;
+        for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--) 
+        {
             hand_rule = dungeon->hand_rules[thing_to_pick->model][i];
-            if (
-                hand_rule.enabled
+            if (hand_rule.enabled
                 && hand_rule.type != HandRule_Unset
-                && eval_hand_rule_for_thing(&hand_rule, thing_to_pick)
-            )
+                && eval_hand_rule_for_thing(&hand_rule, thing_to_pick))
+            {
+                if (hand_rule.type == HandRule_BlockedPickup)
+                {
+                    overwrite_default_block = true;
+                }
+
                 return true;
+            }
+        }
+        if (overwrite_default_block == false)
+        {
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing_to_pick);
+            return (cctrl->hand_blocked_turns != 0);
         }
     }
     return false;

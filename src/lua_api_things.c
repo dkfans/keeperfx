@@ -63,6 +63,14 @@ static int lua_delete_thing(lua_State *L)
 {
     struct Thing *thing = luaL_checkThing(L, 1);
 
+    if (thing_is_picked_up(thing))
+    {
+        for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+        {
+            if (remove_thing_from_power_hand(thing, plyr_idx))
+                break;
+        }
+    }
     if (thing->class_id == TCls_Creature)
     {
         kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
@@ -233,6 +241,10 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "hunger_loss") == 0)
         {
             cctrl->hunger_loss = luaL_checkinteger(L, 3);
+        }
+        else if (strcmp(key, "hand_blocked_turns") == 0)
+        {
+            cctrl->hand_blocked_turns = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "force_health_flower_displayed") == 0)
         {
             cctrl->force_health_flower_displayed = lua_toboolean(L, 3);
@@ -342,6 +354,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, cctrl->force_health_flower_displayed);
         } else if (strcmp(key, "force_health_flower_hidden") == 0) {
             lua_pushinteger(L, cctrl->force_health_flower_hidden);
+        } else if (strcmp(key, "hand_blocked_turns") == 0) {
+            lua_pushinteger(L, cctrl->hand_blocked_turns);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Creature thing", key);
         }

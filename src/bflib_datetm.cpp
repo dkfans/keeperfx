@@ -54,6 +54,40 @@ void initial_time_point()
   game.process_turn_time = 1.0; // Begin initial turn as soon as possible (like original game)
 }
 
+
+void trigger_time_measurement_capture(struct TriggerTimeMeasurement *trigger)
+{
+  long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
+  long double current_milliseconds = current_nanoseconds/1000000.0;
+  if (trigger->trigger_cnt >= MAX_TRIGGER_TIME_CNT)
+  {
+    int keep_cnt = MAX_TRIGGER_TIME_CNT/2;
+    memmove(trigger->trigger_time, trigger->trigger_time+trigger->trigger_cnt-keep_cnt, sizeof(trigger->trigger_time[0])*keep_cnt);
+    trigger->trigger_cnt=keep_cnt;
+  }
+  trigger->trigger_time[trigger->trigger_cnt] = (float)current_milliseconds;
+  trigger->trigger_cnt++;
+}
+
+int get_trigger_time_measurement_fps(struct TriggerTimeMeasurement *trigger)
+{
+  int cnt = 0;
+  if (trigger->trigger_cnt > 0)
+  {
+    const float measurement_duration = 1000;
+    const float last_time = trigger->trigger_time[trigger->trigger_cnt-1];
+    cnt++;
+    for (int i=trigger->trigger_cnt-2; i>=0; i--)
+    {
+      if (last_time - trigger->trigger_time[i] >= measurement_duration)
+        break;
+      cnt++;
+    }
+  }
+  return cnt;
+}
+
+
 float get_delta_time()
 {
     // Allow frame skip to work correctly when delta time is enabled
@@ -91,18 +125,48 @@ void frametime_set_all_measurements_to_be_displayed()
             case 1: // Frametime (show constantly)
                 frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
                 break;
-            case 2: // Frametime max (shown once per half-second)
-                // Always get highest frametime
-                if (frametime_measurements.frametime_current[i] > frametime_measurements.frametime_get_max[i]) {
-                    frametime_measurements.frametime_get_max[i] = frametime_measurements.frametime_current[i];
-                }
-                // Display once per half-second
+            case 2: // Frametime min/max (shown once per half-second)
+                frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
+                 // Display once per half-second
                 if (once_per_half_second == true)
                 {
-                    frametime_measurements.frametime_display[i] = frametime_measurements.frametime_get_max[i];
+                    frametime_measurements.frametime_get_min[i] = 99999;
                     frametime_measurements.frametime_get_max[i] = 0;
                 }
+                if (frametime_measurements.frametime_get_min[i] > frametime_measurements.frametime_display[i]) {
+                    frametime_measurements.frametime_get_min[i] = frametime_measurements.frametime_display[i];
+                }
+                if (frametime_measurements.frametime_get_max[i] < frametime_measurements.frametime_display[i]) {
+                    frametime_measurements.frametime_get_max[i] = frametime_measurements.frametime_display[i];
+                }
                 break;
+        }
+    }
+
+    for (int i = 0; i < TOTAL_FRAMERATE_KINDS; i++)
+    {
+        switch (debug_display_frametime)
+        {
+            case 1: // Framerate (show constantly)
+            case 2: // Framerate min/max (shown once per half-second)
+              {
+                int cur_fps = get_trigger_time_measurement_fps(frametime_measurements.framerate_measurement+i);
+                frametime_measurements.framerate_display[i] = cur_fps;
+                if (debug_display_frametime == 2) {
+                  // Display once per half-second
+                  if (once_per_half_second == true) {
+                      frametime_measurements.framerate_min[i] = 99999;
+                      frametime_measurements.framerate_max[i] = 0;
+                  }
+                  if (frametime_measurements.framerate_min[i] > cur_fps) {
+                      frametime_measurements.framerate_min[i] = cur_fps;
+                  }
+                  if (frametime_measurements.framerate_max[i] < cur_fps) {
+                      frametime_measurements.framerate_max[i] = cur_fps;
+                  }
+                }
+              }
+              break;
         }
     }
 }
@@ -126,6 +190,14 @@ void frametime_end_measurement(int frametime_kind)
         frametime_set_all_measurements_to_be_displayed();
     }
 }
+
+void framerate_measurement_capture(int framerate_kind)
+{
+  if (framerate_kind < 0 || framerate_kind >= TOTAL_FRAMERATE_KINDS)
+    return;
+  trigger_time_measurement_capture(frametime_measurements.framerate_measurement + framerate_kind);
+}
+
 /******************************************************************************/
 /**
  * Returns the number of milliseconds elapsed since the program was launched.

@@ -818,7 +818,7 @@ static long food_moves(struct Thing *objtng)
         {
             set_thing_draw(objtng, 819, -1, -1, -1, 0, ODC_Default);
             objtng->food.freshness_state = CREATURE_RANDOM(objtng, 0x39);
-            objtng->food.angle = CREATURE_RANDOM(objtng, 0x7FF);
+            objtng->food.angle = CREATURE_RANDOM(objtng, ANGLE_MASK);
             objtng->food.possession_startup_timer = 0;
         } else
         if ((objtng->anim_speed * objtng->max_frames <= objtng->anim_speed + objtng->anim_time) && (objtng->food.possession_startup_timer < 5))
@@ -834,14 +834,14 @@ static long food_moves(struct Thing *objtng)
         pos.y.val += vel_y;
         if (thing_in_wall_at(objtng, &pos))
         {
-            objtng->food.angle = CREATURE_RANDOM(objtng, 0x7FF);
+            objtng->food.angle = CREATURE_RANDOM(objtng, ANGLE_MASK);
         }
         long dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.angle);
         int sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.angle);
         if (dangle > 62)
             dangle = 62;
-        objtng->move_angle_xy = (objtng->move_angle_xy + dangle * sangle) & LbFPMath_AngleMask;
-        if (get_angle_difference(objtng->move_angle_xy, objtng->food.angle) < 284)
+        objtng->move_angle_xy = (objtng->move_angle_xy + dangle * sangle) & ANGLE_MASK;
+        if (get_angle_difference(objtng->move_angle_xy, objtng->food.angle) < DEGREES_50)
         {
             struct ComponentVector cvec;
             cvec.x = vel_x;
@@ -919,7 +919,7 @@ static long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, ObjMdl_ChickenMature, tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, 0x800);
+            nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, DEGREES_360);
             nobjtng->food.freshness_state = CREATURE_RANDOM(objtng, 0x6FF);
             nobjtng->food.possession_startup_timer = 0;
           thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
@@ -1638,7 +1638,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             const int strength_radius = strength/4;
             const int radius = max(0, min(min(min(close_radius, max_duration_radius), anim_radius), strength_radius));
             for (int i = 0; i < 32; ++i) {
-                const int step = ((2*LbFPMath_PI) / 32);
+                const int step = ((DEGREES_360) / 32);
                 const int angle = step * i;
                 struct Coord3d pos;
                 pos.x.val = objtng->mappos.x.val + ((radius * LbSinL(angle)) / 8192);
@@ -1658,7 +1658,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
         const int strength_radius = strength/4;
         const int radius = max(0, min(min(max_duration_radius, anim_radius), strength_radius));
         for (int i = 0; i < 4; ++i) {
-            const int step = ((2*LbFPMath_PI) / 32);
+            const int step = ((DEGREES_360) / 32);
             const int angle = step * ((4 * anim_time) + i);
             const int pos_x = objtng->mappos.x.val + ((radius * LbSinL(angle)) / 8192);
             const int pos_y = objtng->mappos.y.val + ((radius * LbCosL(angle)) / 8192);
@@ -1686,7 +1686,7 @@ static TngUpdateRet object_update_power_lightning(struct Thing *objtng)
     long variation = NUM_ANGLES * exist_turns;
     for (long i = 0; i < NUM_ANGLES; i++)
     {
-        int angle = (variation % NUM_ANGLES) * 2 * LbFPMath_PI / NUM_ANGLES;
+        int angle = (variation % NUM_ANGLES) * DEGREES_360 / NUM_ANGLES;
         struct Coord3d pos;
         if (set_coords_to_cylindric_shift(&pos, &objtng->mappos, 8 * variation, angle, 0))
         {
