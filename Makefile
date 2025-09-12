@@ -763,7 +763,6 @@ cppcheck:
 		--suppress=shadowVariable \
 		--suppress=uninitStructMember \
 		--suppress=CastIntegerToAddressAtReturn \
-		--suppress=zerodivcond \
 		--suppress=moduloofone \
 		src 2>cppcheck.log
 
