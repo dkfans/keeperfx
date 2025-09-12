@@ -70,6 +70,7 @@
     <ClCompile Include="src\bflib_vidraw_spr_remp.c" />
     <ClCompile Include="src\bflib_vidsurface.c" />
     <ClCompile Include="src\cdrom.cpp" />
+    <ClCompile Include="src\certificate.c" />
     <ClCompile Include="src\config.c" />
     <ClCompile Include="src\config_campaigns.c" />
     <ClCompile Include="src\config_compp.c" />
