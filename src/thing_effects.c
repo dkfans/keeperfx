@@ -684,7 +684,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
     case 1:
     {
         unsigned long argZ;
-        for (long i = 0; i < effcst->elements_count; i++)
+        for (unsigned char i = 0; i < effcst->elements_count; i++)
         {
             if (effcst->kind_min <= 0)
                 continue;
