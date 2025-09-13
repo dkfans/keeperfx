@@ -149,6 +149,7 @@ struct StartupParameters start_params;
 char autostart_multiplayer_campaign[80] = "";
 int autostart_multiplayer_level = 0;
 long game_num_fps;
+long game_num_fps_draw = 0;
 
 unsigned char *blue_palette;
 unsigned char *red_palette;
@@ -3272,6 +3273,33 @@ TbBool keeper_wait_for_next_turn(void)
     return false;
 }
 
+
+TbBool keeper_wait_for_next_draw(void)
+{
+    // fps.draw is currently unable to work properly with frame_skip
+    if (game_num_fps_draw > 0 && game.frame_skip == 0)
+    {
+        const long double tick_ns_one_sec = 1000000000.0;
+        const long double tick_ns_one_frame = tick_ns_one_sec/game_num_fps_draw;
+
+        static long double tick_ns_last_draw = 0;
+        long double tick_ns_cur = get_time_tick_ns();
+        long double tick_ns_used = tick_ns_cur - tick_ns_last_draw;
+        long double tick_ns_delay = tick_ns_one_frame - tick_ns_used;
+
+        long double tick_ns_end = tick_ns_cur;
+        // tick_ns_used: every level, initialized_time_point will be reset, so tick_ns_used may be less than 0 when enter level for the non-first time, Skip it directly to solve the problem.
+        if (tick_ns_delay > 0 && tick_ns_used >= 0) {
+            tick_ns_end = tick_ns_cur + tick_ns_delay;
+            LbSleepUntilExt(tick_ns_end);
+        }
+        tick_ns_last_draw = tick_ns_end;
+
+        return true;
+    }
+    return false;
+}
+
 TbBool keeper_wait_for_screen_focus(void)
 {
     do {
@@ -3404,9 +3432,20 @@ void gameplay_loop_timestep()
             keeper_wait_for_next_turn();
         }
     }
+
     if (game.turns_packetoff == game.play_gameturn) {
         exit_keeper = 1;
     }
+
+    if (game_num_fps_draw > 0) {
+        keeper_wait_for_next_draw();
+
+        if (game.turns_packetoff == game.play_gameturn) {
+            exit_keeper = 1;
+        }
+    }
+
+
     frametime_end_measurement(Frametime_Sleep);
 }
 
@@ -3422,7 +3461,10 @@ void keeper_gameplay_loop(void)
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
+
     initial_time_point();
+    LbSleepExtInit();
+
     //the main gameplay loop starts
     while ((!quit_game) && (!exit_keeper))
     {
@@ -3432,6 +3474,7 @@ void keeper_gameplay_loop(void)
         gameplay_loop_logic();
         gameplay_loop_draw();
         gameplay_loop_timestep();
+
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
@@ -3950,6 +3993,12 @@ short process_command_line(unsigned short argc, char *argv[])
           narg++;
           start_params.num_fps = atoi(pr2str);
           start_params.overrides[Clo_GameTurns] = true;
+      } else
+      if (strcasecmp(parstr, "fps_draw") == 0)
+      {
+          narg++;
+          start_params.num_fps_draw = atoi(pr2str);
+          start_params.overrides[Clo_FramesPerSecond] = true;
       } else
       if (strcasecmp(parstr, "human") == 0)
       {

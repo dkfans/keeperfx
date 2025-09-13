@@ -36,6 +36,7 @@ extern "C" {
 #endif
 
 #define LARGE_DELAY_TIME 20
+long double sleep_precision_ns = 20000000; // 20ms
 /******************************************************************************/
 struct TbTime global_time;
 struct TbDate global_date;
@@ -43,6 +44,9 @@ TbClockMSec (* LbTimerClock)(void);
 /******************************************************************************/
 #define TimePoint std::chrono::high_resolution_clock::time_point
 #define TimeNow std::chrono::high_resolution_clock::now()
+#define TimeTickNs std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count()
+
+
 TimePoint initialized_time_point;
 struct FrametimeMeasurements frametime_measurements;
 TimePoint delta_time_previous_timepoint;
@@ -54,6 +58,10 @@ void initial_time_point()
   game.process_turn_time = 1.0; // Begin initial turn as soon as possible (like original game)
 }
 
+long double get_time_tick_ns()
+{
+  return TimeTickNs;
+}
 
 void trigger_time_measurement_capture(struct TriggerTimeMeasurement *trigger)
 {
@@ -343,6 +351,56 @@ TbBool LbSleepUntil(TbClockMSec endtime)
   while (currclk < endtime)
     currclk=LbTimerClock();
   return true;
+}
+
+// Ext(Extend): High Precision Sleep Version
+void LbSleepExtInit()
+{
+  // Test and obtain accurate precision values
+  long double tick_ns_begin = TimeTickNs;
+  long double tick_ns_end = 0;
+  const long double tick_ns_max_test = 100000000; // 100m
+  const int max_test_cnt = 30; // for 1ms precision, need 30ms
+  int cur_cnt_test = 0;
+  for (int i=0; i<max_test_cnt; i++)
+  {
+    SDL_Delay(1);
+    tick_ns_end = TimeTickNs;
+    cur_cnt_test++;
+    if (tick_ns_end - tick_ns_begin > tick_ns_max_test)
+       break;
+  }
+  sleep_precision_ns = (tick_ns_end - tick_ns_begin)/cur_cnt_test;
+}
+
+/* @comment for precision
+ *   Windows Platform, this function, the precision is more affected by std::chrono than SDL_Delay.
+ *   After deeper testing, it should be a compiler issue, at least MinGW has precision issue, std::chrono can only reach 1ms level.
+ *   For more information, please refer to
+ *   https://stackoverflow.com/questions/67584437/stdchrono-nanosecond-timer-works-on-msvc-but-not-gcc
+ *   https://github.com/msys2/MINGW-packages/issues/5086
+ */
+TbBool LbSleepUntilExt(long double tick_ns_end)
+{
+  while(1)
+  {
+    long double tick_ns_cur = TimeTickNs;
+    if (tick_ns_cur >= tick_ns_end)
+      break;
+    long double tick_ns_delay = tick_ns_end - tick_ns_cur;
+    if (tick_ns_delay > sleep_precision_ns) {
+      int ms_delay = (int)(tick_ns_delay/1000000);
+      SDL_Delay(ms_delay);
+    }
+  }
+  return true;
+}
+
+TbBool LbSleepDelayExt(long double tick_ns_delay)
+{
+    long double tick_ns_cur = TimeTickNs;
+    long double tick_ns_end = tick_ns_cur + tick_ns_delay;
+    return LbSleepUntilExt(tick_ns_end);
 }
 
 TbResult LbTimerInit(void)

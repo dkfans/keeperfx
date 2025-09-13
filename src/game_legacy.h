@@ -310,6 +310,7 @@ struct Game {
 /******************************************************************************/
 extern struct Game game;
 extern long game_num_fps;
+extern long game_num_fps_draw;
 /******************************************************************************/
 #ifdef __cplusplus
 }
