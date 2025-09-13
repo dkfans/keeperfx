@@ -45,7 +45,6 @@ void store_current_tag(long tag_id);
 
 TbBool navitree_add(long itm_pos, long itm_dat, long mvcost);
 long copy_tree_to_route(long tag_start_id, long tag_end_id, long *route_pts, long route_len);
-long tree_to_route(long tag_start_id, long tag_end_id, long *route_pts);
 
 void delaunay_init(void);
 TbBool delaunay_add(long itm_pos);

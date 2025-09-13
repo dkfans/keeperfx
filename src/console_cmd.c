@@ -50,7 +50,6 @@
 #include "map_blocks.h"
 #include "map_columns.h"
 #include "map_utils.h"
-#include "math.h"
 #include "packets.h"
 #include "player_computer.h"
 #include "player_instances.h"
@@ -68,6 +67,7 @@
 #include "version.h"
 #include "frontmenu_ingame_map.h"
 #include <string.h>
+#include <math.h>
 #include "lua_base.h"
 #include "post_inc.h"
 
@@ -147,24 +147,6 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
     }
 
     snprintf(cmd_comp_procs_label[i], sizeof(cmd_comp_procs_label[0]), "comp=%d, wait=%ld", 0, comp->gameturn_wait);
-    return 1;
-}
-
-long cmd_comp_checks_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *args)
-{
-    struct Computer2 *comp = get_computer_player(args[0]);
-    int i = 0;
-
-    for (; i < args[1]; i++)
-    {
-        struct ComputerCheck* check = &comp->checks[i];
-        if (check != NULL)
-        {
-            char *label = (char*)goptn[i].label; // this is probably referencing some element of cmd_comp_procs_label
-            snprintf(label, sizeof(cmd_comp_procs_label[0]), "%02lx", check->flags);
-            label[2] = ' ';
-        }
-    }
     return 1;
 }
 

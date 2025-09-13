@@ -37,7 +37,6 @@
 #include "keeperfx.hpp"
 #include "map_blocks.h"
 #include "map_data.h"
-#include "math.h"
 #include "player_utils.h"
 #include "player_instances.h"
 #include "room_util.h"
@@ -48,7 +47,7 @@
 #include "thing_physics.h"
 #include "thing_shots.h"
 #include "thing_stats.h"
-
+#include <math.h>
 #include "post_inc.h"
 
 #ifdef __cplusplus

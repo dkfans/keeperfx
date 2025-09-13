@@ -109,21 +109,6 @@ void set_column_floor_filled_subtiles(struct Column *col, MapSubtlCoord n)
 }
 
 /**
- * Sets amount of filled subtiles at bottom of a column at given map block.
- * @param mapblk The map block for which filled height should be set.
- * @param n Amount of subtiles.
- */
-void set_map_floor_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
-{
-    struct Column *col;
-    col = get_map_column(mapblk);
-    if (column_invalid(col))
-        return;
-    col->bitfields &= ~0xF0;
-    col->bitfields |= (n<<4) & 0xF0;
-}
-
-/**
  * Returns amount of filled subtiles at top of given column.
  * @param col The column which filled height should be returned.
  */
@@ -143,46 +128,6 @@ long get_map_ceiling_filled_subtiles(const struct Map *mapblk)
     if (column_invalid(col))
         return 0;
     return (col->bitfields & CLF_CEILING_MASK) >> 1;
-}
-
-/**
- * Returns amount of filled subtiles at top of column at given coords.
- * @param stl_x Subtile for which column height should be returned, X coord.
- * @param stl_y Subtile for which column height should be returned, Y coord.
- */
-long get_ceiling_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    const struct Column *colmn;
-    colmn = get_column_at(stl_x, stl_y);
-    if (column_invalid(colmn))
-        return 0;
-    return (colmn->bitfields & CLF_CEILING_MASK) >> 1;
-}
-
-/**
- * Sets amount of filled subtiles at top of given column.
- * @param col The column which filled height should be set.
- * @param n Amount of subtiles.
- */
-void set_column_ceiling_filled_subtiles(struct Column *col, MapSubtlCoord n)
-{
-    col->bitfields &= ~CLF_CEILING_MASK;
-    col->bitfields |= (n<<1) & CLF_CEILING_MASK;
-}
-
-/**
- * Sets amount of filled subtiles at top of a column at given map block.
- * @param mapblk The map block for which filled height should be set.
- * @param n Amount of subtiles.
- */
-void set_map_ceiling_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
-{
-    struct Column *col;
-    col = get_map_column(mapblk);
-    if (column_invalid(col))
-        return;
-    col->bitfields &= ~CLF_CEILING_MASK;
-    col->bitfields |= (n<<1) & CLF_CEILING_MASK;
 }
 
 TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y)

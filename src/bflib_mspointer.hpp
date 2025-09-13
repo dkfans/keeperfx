@@ -43,12 +43,8 @@ class LbI_PointerHandler {
     void Release(void);
     void NewMousePos(void);
     bool OnMove(void);
-    void OnBeginPartialUpdate(void);
-    void OnEndPartialUpdate(void);
     void OnBeginSwap(void);
     void OnEndSwap(void);
-    void OnBeginFlip(void);
-    void OnEndFlip(void);
  protected:
     void ClipHotspot(void);
     void Draw(bool);

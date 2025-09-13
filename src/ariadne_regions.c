@@ -197,13 +197,6 @@ void triangulation_init_regions(void)
     memset(Regions, 0, REGIONS_COUNT*sizeof(struct RegionT));
 }
 
-struct RegionT *get_region(long reg_id)
-{
-    if ((reg_id < 0) || (reg_id >= REGIONS_COUNT))
-        return INVALID_REGION;
-    return &Regions[reg_id];
-}
-
 /**
  * Returns whether two regions represented by tree triangles are connected.
  * @param first_tree_region

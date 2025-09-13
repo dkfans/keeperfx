@@ -281,14 +281,6 @@ TbBool get_skip_heart_zoom_feature(void)
 }
 
 /**
- * Returns current language string.
- */
-const char *get_current_language_str(void)
-{
-  return get_conf_parameter_text(lang_type,install_info.lang_id);
-}
-
-/**
  * Returns copy of the requested language string in lower case.
  */
 const char *get_language_lwrstr(int lang_id)

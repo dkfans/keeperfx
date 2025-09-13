@@ -110,7 +110,6 @@ int LbTextStringPartWidth(const char *text, int part);
 int LbTextStringHeight(const char *str);
 int LbTextWordWidth(const char *str);
 int LbTextCharWidth(const long chr);
-int LbTextCharHeight(const long chr);
 int LbTextCharWidthM(const long chr, long units_per_px);
 int LbTextStringWidthM(const char *str, long units_per_px);
 int LbTextWordWidthM(const char *str, long units_per_px);
@@ -123,7 +122,6 @@ TbBool LbAlignMethodSet(unsigned short fdflags);
 long LbGetJustifiedCharPosX(long startx, long all_chars_width, long spr_width, long mul_width, unsigned short fdflags);
 long LbGetJustifiedCharPosY(long starty, long all_lines_height, long spr_height, unsigned short fdflags);
 long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_count, int units_per_px, unsigned short fdflags);
-long LbGetJustifiedCharHeight(long all_lines_height, long spr_height, long lines_count, unsigned short fdflags);
 
 // Function which require font sprites as parameter
 int LbSprFontWordWidth(const struct TbSpriteSheet * font, const char * text);

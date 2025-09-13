@@ -94,21 +94,3 @@ void TCP_NetClient::update()
 	//nothing needed for client yet
 	return;
 }
-
-bool TCP_NetClient::sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen)
-{
-	bool retval = true;
-
-	size_t len = bufferLen;
-	char * msg = buildTCPMessageBuffer(playerId, buffer, len);
-
-	if (SDLNet_TCP_Send(mySocket, msg, len) < len) {
-		haltRecvThread();
-		NETMSG("Remote server closed");
-		retval = false;
-	}
-
-	free(msg);
-
-	return retval;
-}

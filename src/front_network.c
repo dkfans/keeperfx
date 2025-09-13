@@ -150,7 +150,6 @@ void process_network_error(long errcode)
       ERRORLOG("Unknown modem error code %ld",errcode);
       return;
   }
-  //display_centered_message(3000, text);
   create_frontend_error_box(3000, text);
 }
 
@@ -382,9 +381,9 @@ void handle_autostart_multiplayer_messaging(void)
     static char host_message[64] = "";
     static TbBool message_prepared = false;
     static int message_length = 0;
-    
+
     if (previous_player_count == 1 && net_number_of_enum_players == 2) {
-        if (my_player_number == 0 && message_char_index == -1 && 
+        if (my_player_number == 0 && message_char_index == -1 &&
             (autostart_multiplayer_campaign[0] != '\0' || autostart_multiplayer_level > 0)) {
           // Prepare the campaign:level message
           if (!message_prepared) {
@@ -408,7 +407,7 @@ void handle_autostart_multiplayer_messaging(void)
           message_char_index = 0;
         }
       }
-      
+
       // Send message one character per frame
       if (message_char_index >= 0 && my_player_number == 0) {
         struct ScreenPacket *nspck;
@@ -457,9 +456,9 @@ void frontnet_start_update(void)
       }
       player_last_time = LbTimerClock();
     }
-    
+
     handle_autostart_multiplayer_messaging();
-    
+
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
     {
       net_message_scroll_offset = 0;

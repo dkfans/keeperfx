@@ -97,7 +97,6 @@ obj/ariadne_tringls.o \
 obj/ariadne_wallhug.o \
 obj/bflib_base_tcp.o \
 obj/bflib_basics.o \
-obj/bflib_bufrw.o \
 obj/bflib_coroutine.o \
 obj/bflib_client_tcp.o \
 obj/bflib_cpu.o \
@@ -119,7 +118,6 @@ obj/bflib_mspointer.o \
 obj/bflib_netsession.o \
 obj/bflib_netsp.o \
 obj/bflib_netsp_ipx.o \
-obj/bflib_netsync.o \
 obj/bflib_network.o \
 obj/bflib_planar.o \
 obj/bflib_render.o \
@@ -131,7 +129,6 @@ obj/bflib_sound.o \
 obj/bflib_sprfnt.o \
 obj/bflib_string.o \
 obj/bflib_tcpsp.o \
-obj/bflib_threadcond.o \
 obj/bflib_video.o \
 obj/bflib_vidraw.o \
 obj/bflib_vidraw_spr_norm.o \
@@ -446,7 +443,7 @@ include prebuilds.mk
 .PHONY: package clean-package deep-clean-package
 .PHONY: tools clean-tools deep-clean-tools
 .PHONY: clean-libexterns deep-clean-libexterns
-.PHONY: tests
+.PHONY: tests cppcheck
 
 # dependencies tracking
 -include $(filter %.d,$(STDOBJS:%.o=%.d))
@@ -599,7 +596,7 @@ libexterns: libexterns.mk
 
 clean-libexterns: libexterns.mk
 	-$(MAKE) -f libexterns.mk clean-libexterns
-	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson
+	-$(RM) -rf deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/luajit
 	-$(RM) libexterns
 
 deps/enet deps/zlib deps/spng deps/astronomy deps/centijson deps/ffmpeg deps/openal deps/luajit:
@@ -660,13 +657,108 @@ deps/openal/include/AL/al.h: deps/openal-mingw32.tar.gz | deps/openal
 deps/luajit-mingw32.tar.gz:
 	curl -Lso $@ "https://github.com/dkfans/kfx-deps/releases/download/20250418/luajit-mingw32.tar.gz"
 
-deps/luajit/lib/libluajit.a: deps/luajit-mingw32.tar.gz | deps/luajit
-	tar xzmf $< -C deps/luajit
+deps/luajit/lib/libluajit.a: | deps/luajit/include/lua.h
 
 deps/luajit/include/lua.h: deps/luajit-mingw32.tar.gz | deps/luajit
-	tar xzmf $< -C deps/openal
+	tar xzmf $< -C deps/luajit
 
-std-before: deps/luajit/lib/libluajit.a
+cppcheck: | obj/ver_defs.h
+cppcheck: | deps/zlib/include/zlib.h
+cppcheck: | deps/spng/include/spng.h
+cppcheck: | deps/astronomy/include/astronomy.h
+cppcheck: | deps/centijson/include/json.h
+cppcheck: | deps/enet/include/enet/enet.h
+cppcheck: | deps/luajit/include/lua.h
+cppcheck: | deps/openal/include/AL/al.h
+cppcheck: | deps/ffmpeg/libavformat/avformat.h
+
+cppcheck:
+	$(MKDIR) cppcheck.cache
+	cppcheck \
+		--cppcheck-build-dir=cppcheck.cache \
+		--check-level=exhaustive \
+		--enable=all \
+		--platform=win32A \
+		--std=c++14 \
+		--inconclusive \
+		-j $(shell nproc) \
+		-q \
+		-I deps/zlib/include \
+		-I deps/spng/include \
+		-I sdl/include \
+		-I sdl/include/SDL2 \
+		-I deps/enet/include \
+		-I deps/centijson/include \
+		-I deps/centitoml \
+		-I deps/astronomy/include \
+		-I deps/ffmpeg \
+		-I deps/openal/include \
+		-I deps/luajit/include \
+		-I obj \
+		-D__WIN32__ \
+		-DBFDEBUG_LEVEL=99 \
+		-DSPNG_STATIC=1 \
+		-DAL_LIBTYPE_STATIC \
+		-DDEBUG_NETWORK_PACKETS=1 \
+		--suppress=missingIncludeSystem \
+		--suppress=constParameterPointer \
+		--suppress=constVariablePointer \
+		--suppress=functionConst \
+		--suppress=unreadVariable \
+		--suppress=uninitvar \
+		--suppress=variableScope \
+		--suppress=unusedStructMember \
+		--suppress=funcArgNamesDifferent \
+		--suppress=funcArgOrderDifferent \
+		--suppress=cstyleCast \
+		--suppress=functionStatic \
+		--suppress=unsignedLessThanZero \
+		--suppress=constParameterCallback \
+		--suppress=constParameter \
+		--suppress=knownConditionTrueFalse \
+		--suppress=negativeIndex \
+		--suppress=nullPointerRedundantCheck \
+		--suppress=nullPointerArithmeticRedundantCheck \
+		--suppress=invalidscanf \
+		--suppress=invalidScanfArgType_int \
+		--suppress=invalidPrintfArgType_uint \
+		--suppress=invalidPrintfArgType_sint \
+		--suppress=redundantAssignment \
+		--suppress=preprocessorErrorDirective \
+		--suppress=uninitMemberVar \
+		--suppress=truncLongCastAssignment \
+		--suppress=shiftNegativeLHS \
+		--suppress=bitwiseOnBoolean \
+		--suppress=shiftTooManyBits \
+		--suppress=shiftTooManyBitsSigned \
+		--suppress=identicalConditionAfterEarlyExit \
+		--suppress=useInitializationList \
+		--suppress=operatorEqVarError \
+		--suppress=noExplicitConstructor \
+		--suppress=useStlAlgorithm \
+		--suppress=duplicateExpression \
+		--suppress=duplicateBranch \
+		--suppress=duplicateConditionalAssign \
+		--suppress=duplicateAssignExpression \
+		--suppress=nullPointer \
+		--suppress=compareValueOutOfTypeRangeError \
+		--suppress=redundantInitialization \
+		--suppress=multiCondition \
+		--suppress=internalAstError \
+		--suppress=clarifyCondition \
+		--suppress=memsetClassFloat \
+		--suppress=comparePointers \
+		--suppress=identicalInnerCondition \
+		--suppress=uselessAssignmentPtrArg \
+		--suppress=unassignedVariable \
+		--suppress=shiftNegative \
+		--suppress=duplicateCondition \
+		--suppress=badBitmaskCheck \
+		--suppress=shadowFunction \
+		--suppress=shadowVariable \
+		--suppress=uninitStructMember \
+		--suppress=CastIntegerToAddressAtReturn \
+		src 2>cppcheck.log
 
 include tool_png2ico.mk
 include tool_pngpal2raw.mk

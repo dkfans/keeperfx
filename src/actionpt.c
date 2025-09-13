@@ -141,14 +141,6 @@ TbBool action_point_exists_idx(ActionPointId apt_idx)
     return ((apt->flags & AptF_Exists) != 0);
 }
 
-TbBool action_point_exists_number(long apt_num)
-{
-    struct ActionPoint* apt = action_point_get_by_number(apt_num);
-    if (action_point_is_invalid(apt))
-        return false;
-    return ((apt->flags & AptF_Exists) != 0);
-}
-
 TbBool action_point_reset_idx(ActionPointId apt_idx, PlayerNumber plyr_idx)
 {
     struct ActionPoint* apt = action_point_get(apt_idx);

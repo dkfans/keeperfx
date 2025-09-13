@@ -388,33 +388,6 @@ TbBool creature_setup_random_move_for_job_in_room_f(struct Thing *creatng, struc
     return result;
 }
 
-TbBool room_is_correct_to_perform_job(const struct Thing *creatng, const struct Room *room, CreatureJob jobpref)
-{
-    if ((get_room_role_for_job(jobpref) != RoRoF_None) && (!room_role_matches(room->kind,get_room_role_for_job(jobpref)))) {
-        return false;
-    }
-    if (creatng->owner == room->owner)
-    {
-        if (creature_is_for_dungeon_diggers_list(creatng)) {
-            if ((get_flags_for_job(jobpref) & JoKF_OwnedDiggers) == 0)
-                return false;
-        } else {
-            if ((get_flags_for_job(jobpref) & JoKF_OwnedCreatures) == 0)
-                return false;
-        }
-    } else
-    {
-        if (creature_is_for_dungeon_diggers_list(creatng)) {
-            if ((get_flags_for_job(jobpref) & JoKF_EnemyDiggers) == 0)
-                return false;
-        } else {
-            if ((get_flags_for_job(jobpref) & JoKF_EnemyCreatures) == 0)
-                return false;
-        }
-    }
-    return true;
-}
-
 /**
  * Sends creature to a room where it should be performing a job.
  * @param creatng The creature to be sent.
