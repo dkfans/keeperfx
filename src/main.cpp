@@ -3276,7 +3276,8 @@ TbBool keeper_wait_for_next_turn(void)
 
 TbBool keeper_wait_for_next_draw(void)
 {
-    if (game_num_fps_draw > 0)
+    // fps.draw is currently unable to work properly with frame_skip
+    if (game_num_fps_draw > 0 && game.frame_skip == 0)
     {
         const long double tick_ns_one_sec = 1000000000.0;
         const long double tick_ns_one_frame = tick_ns_one_sec/game_num_fps_draw;
