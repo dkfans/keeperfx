@@ -791,7 +791,17 @@ void draw_frametime()
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
     int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
 
-    int iStartLine = 25;
+    int iStartLine = 24;
+    memset(text, 0, sizeof(text));
+    if(debug_display_frametime == 1) {
+        snprintf(text, sizeof(text), "%-13s", "Current");
+    } else if(debug_display_frametime == 2) {
+        snprintf(text, sizeof(text), "%-7s | %-7s | %-10s", "Current", "Min", "Max");
+    }
+    if (text[0] != 0)
+        LbTextDrawResized(0, (iStartLine)*tx_units_per_px, tx_units_per_px, text);
+
+    iStartLine += 1;
     // Frametimes
     for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
         memset(text, 0, sizeof(text));
