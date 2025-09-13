@@ -3287,7 +3287,8 @@ TbBool keeper_wait_for_next_draw(void)
         long double tick_ns_delay = tick_ns_one_frame - tick_ns_used;
 
         long double tick_ns_end = tick_ns_cur;
-        if (tick_ns_delay > 0) {
+        // tick_ns_used: every level, initialized_time_point will be reset, so tick_ns_used may be less than 0 when enter level for the non-first time, Skip it directly to solve the problem.
+        if (tick_ns_delay > 0 && tick_ns_used >= 0) {
             tick_ns_end = tick_ns_cur + tick_ns_delay;
             LbSleepUntilExt(tick_ns_end);
         }
