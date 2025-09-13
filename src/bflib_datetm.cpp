@@ -373,8 +373,12 @@ void LbSleepExtInit()
   sleep_precision_ns = (tick_ns_end - tick_ns_begin)/cur_cnt_test;
 }
 
-/* @comment
+/* @comment for precision
  *   Windows Platform, this function, the precision is more affected by std::chrono than SDL_Delay.
+ *   After deeper testing, it should be a compiler issue, at least MinGW has precision issue, std::chrono can only reach 1ms level.
+ *   For more information, please refer to
+ *   https://stackoverflow.com/questions/67584437/stdchrono-nanosecond-timer-works-on-msvc-but-not-gcc
+ *   https://github.com/msys2/MINGW-packages/issues/5086
  */
 TbBool LbSleepUntilExt(long double tick_ns_end)
 {
