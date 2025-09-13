@@ -145,6 +145,7 @@ obj/config_keeperfx.o \
 obj/config_lenses.o \
 obj/config_magic.o \
 obj/config_objects.o \
+obj/config_mods.o \
 obj/config_players.o \
 obj/config_powerhands.o \
 obj/config_rules.o \
