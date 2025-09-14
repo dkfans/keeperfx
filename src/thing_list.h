@@ -277,7 +277,7 @@ unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);
 unsigned long update_cave_in_things(void);
 unsigned long update_creatures_not_in_list(void);
-unsigned long update_things_in_list(struct StructureList *list);
+void update_things_in_list(struct StructureList *list);
 void init_player_start(struct PlayerInfo *player, TbBool keep_prev);
 void setup_computer_players(void);
 void setup_zombie_players(void);
@@ -324,7 +324,6 @@ TbBool apply_anger_to_all_players_creatures_excluding(PlayerNumber plyr_idx, lon
 void break_mapwho_infinite_chain(const struct Map *mapblk);
 
 TbBool update_thing(struct Thing *thing);
-TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short update_thing_sound(struct Thing *thing);
 struct Thing* find_players_dungeon_heart(PlayerNumber plyridx);
 struct Thing* find_players_backup_dungeon_heart(PlayerNumber plyridx);

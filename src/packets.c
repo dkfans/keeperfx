@@ -245,30 +245,6 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
     return true;
 }
 
-TbBigChecksum get_thing_simple_checksum(const struct Thing *tng)
-{
-    return (ulong)tng->mappos.x.val + (ulong)tng->mappos.y.val + (ulong)tng->mappos.z.val
-         + (ulong)tng->move_angle_xy + (ulong)tng->owner;
-}
-
-  TbBigChecksum get_packet_save_checksum(void)
-  {
-      TbBigChecksum sum = 0;
-      for (long tng_idx = 0; tng_idx < THINGS_COUNT; tng_idx++)
-      {
-          struct Thing* tng = thing_get(tng_idx);
-          if ((tng->alloc_flags & TAlF_Exists) != 0)
-          {
-              // It would be nice to completely ignore effects, but since
-              // thing indices are used in packets, lack of effect may cause desync too.
-              if ((tng->class_id != TCls_AmbientSnd) && (tng->class_id != TCls_EffectElem))
-              {
-                  sum += get_thing_simple_checksum(tng);
-              }
-          }
-      }
-      return sum;
-}
 
 void process_pause_packet(long curr_pause, long new_pause)
 {

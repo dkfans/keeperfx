@@ -30,11 +30,17 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct Thing;
 
 #pragma pack()
 /******************************************************************************/
 void resync_game(void);
 CoroutineLoopState perform_checksum_verification(CoroutineLoop *con);
+void compute_multiplayer_checksum_sync(void);
+TbBigChecksum compute_players_checksum(void);
+void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const char *area_name);
+short checksums_different(void);
+TbBigChecksum get_thing_checksum(const struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

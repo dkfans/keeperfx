@@ -138,6 +138,8 @@
 #define strcasecmp _stricmp
 #endif
 
+extern "C" void compute_multiplayer_checksum_sync(void);
+
 int test_variable;
 
 char cmndline[CMDLN_MAXLEN+1];
@@ -2706,6 +2708,7 @@ void update(void)
         if ((game.view_mode_flags & GNFldD_ComputerPlayerProcessing) != 0)
             process_computer_players2();
         process_players();
+        compute_multiplayer_checksum_sync();
         process_action_points();
         player = get_my_player();
         if (player->view_mode == PVM_CreatureView)
