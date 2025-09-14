@@ -305,6 +305,30 @@ struct Game {
     short around_slab[AROUND_SLAB_LENGTH];
     short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
     short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
+
+    // Diagnostic checksums for desync analysis (sent by host during resync)
+    struct {
+        GameTurn desync_turn;                    // Turn when desync was detected
+        TbBigChecksum host_creatures_sum;        // Host's creatures checksum at desync
+        TbBigChecksum host_things_sum;           // Host's things checksum at desync
+        TbBigChecksum host_rooms_sum;            // Host's rooms checksum at desync
+        TbBigChecksum host_players_sum;          // Host's players checksum at desync
+
+        // Detailed thing category checksums for deeper analysis
+        TbBigChecksum host_traps_sum;            // Host's traps checksum
+        TbBigChecksum host_shots_sum;            // Host's shots checksum
+        TbBigChecksum host_objects_sum;          // Host's objects checksum
+        TbBigChecksum host_effects_sum;          // Host's effects checksum
+        TbBigChecksum host_dead_creatures_sum;   // Host's dead creatures checksum
+        TbBigChecksum host_effect_gens_sum;      // Host's effect generators checksum
+        TbBigChecksum host_doors_sum;            // Host's doors checksum
+
+        // Individual player checksums for detailed player analysis
+        TbBigChecksum host_player_checksums[PLAYERS_COUNT];  // Host's individual player checksums
+        TbBigChecksum host_action_rand_seed;     // Host's action random seed
+
+        TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
+    } desync_diagnostics;
 };
 
 #pragma pack()

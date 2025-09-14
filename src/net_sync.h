@@ -42,6 +42,9 @@ void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const 
 short checksums_different(void);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 
+void store_checksums_for_desync_analysis(void);
+void analyze_desync_diagnostics_from_host(void);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
