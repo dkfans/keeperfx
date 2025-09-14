@@ -295,7 +295,6 @@ static TbBigChecksum compute_things_checksum(void)
     sum += compute_things_list_checksum(&game.thing_lists[TngList_Shots]);
     sum += compute_things_list_checksum(&game.thing_lists[TngList_Objects]);
     sum += compute_things_list_checksum(&game.thing_lists[TngList_Effects]);
-    sum += compute_things_list_checksum(&game.thing_lists[TngList_EffectElems]);
     sum += compute_things_list_checksum(&game.thing_lists[TngList_DeadCreatrs]);
     sum += compute_things_list_checksum(&game.thing_lists[TngList_EffectGens]);
     sum += compute_things_list_checksum(&game.thing_lists[TngList_Doors]);
