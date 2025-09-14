@@ -2708,7 +2708,6 @@ void update(void)
         if ((game.view_mode_flags & GNFldD_ComputerPlayerProcessing) != 0)
             process_computer_players2();
         process_players();
-        compute_multiplayer_checksum_sync();
         process_action_points();
         player = get_my_player();
         if (player->view_mode == PVM_CreatureView)
@@ -2720,6 +2719,7 @@ void update(void)
         PaletteFadePlayer(player);
         process_armageddon();
         update_global_lighting();
+        compute_multiplayer_checksum_sync();
 #if (BFDEBUG_LEVEL > 9)
         lights_stats_debug_dump();
         things_stats_debug_dump();
