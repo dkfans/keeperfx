@@ -209,7 +209,7 @@ struct GuiMenu *menu_list[] = {
  *  Index in this array is accepted as value of button 'content' property.
  *  If adding entries here, you should also update FRONTEND_BUTTON_INFO_COUNT.
  */
-struct FrontEndButtonData frontend_button_info[] = {
+struct FrontEndButtonData frontend_button_info[FRONTEND_BUTTON_INFO_COUNT] = {
     {0,   0}, // [0]
     {GUIStr_MnuMainMenu, 0},
     {GUIStr_MnuStartNewGame, 1},
@@ -956,6 +956,8 @@ long player_state_to_packet(PlayerState work_state, PowerKind pwkind, TbBool alr
     case PSt_CastPowerOnSubtile:
     case PST_CastPowerOnTarget:
         return PckA_SetPlyrState;
+    case PST_CastGenericLevelPower:
+        return PckA_GenericLevelPower;
     case PSt_None:
         switch (pwkind)
         {

@@ -41,22 +41,6 @@ void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBo
 }
 
 /**
- * Returns symmetrical difference between angles, ranged -DEGREES_180 to DEGREES_180.
- * @param angle_a
- * @param angle_b
- */
-long get_angle_symmetric_difference(long angle_a, long angle_b)
-{
-    long diff = (angle_a & ANGLE_MASK) - (angle_b & ANGLE_MASK);
-    if (diff > DEGREES_180)
-        diff = (DEGREES_360 - diff);
-    else
-    if (diff < -DEGREES_180)
-        diff = (DEGREES_360 + diff);
-    return diff;
-}
-
-/**
  * Returns unsigned difference between angles, ranged 0 to DEGREES_180.
  * Information about sign of the angle is not provided.
  * @param angle_a
@@ -118,7 +102,7 @@ long get_distance_xy(long x1, long y1, long x2, long y2)
 
 /**
  * This distance is "the number of moves needed by a king to move from one tile to another on a chess board".
- * 
+ *
  * This is known as Chebyshev distance (see https://en.wikipedia.org/wiki/Chebyshev_distance for details).
  */
 MapCoordDelta get_chessboard_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -128,7 +112,7 @@ MapCoordDelta get_chessboard_distance(const struct Coord3d *pos1, const struct C
 
 /**
  * This distance is "the number of moves needed by a king to move from one cube to another on a 3d chess board".
- * 
+ *
  * This is known as Chebyshev distance (see https://en.wikipedia.org/wiki/Chebyshev_distance and https://en.wikipedia.org/wiki/Three-dimensional_chess for details).
  */
 MapCoordDelta get_chessboard_3d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)

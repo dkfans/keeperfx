@@ -24,7 +24,6 @@
     <ClCompile Include="src\ariadne_wallhug.c" />
     <ClCompile Include="src\bflib_base_tcp.cpp" />
     <ClCompile Include="src\bflib_basics.c" />
-    <ClCompile Include="src\bflib_bufrw.c" />
     <ClCompile Include="src\bflib_client_tcp.cpp" />
     <ClCompile Include="src\bflib_coroutine.c" />
     <ClCompile Include="src\bflib_cpu.c" />
@@ -50,7 +49,6 @@
     <ClCompile Include="src\bflib_netsp.cpp" />
     <ClCompile Include="src\bflib_netsp_ipx.cpp" />
     <ClCompile Include="src\bflib_netsp_tcp.cpp" />
-    <ClCompile Include="src\bflib_netsync.c" />
     <ClCompile Include="src\bflib_network.cpp" />
     <ClCompile Include="src\bflib_planar.c" />
     <ClCompile Include="src\bflib_render.c" />
@@ -62,7 +60,6 @@
     <ClCompile Include="src\bflib_sprfnt.c" />
     <ClCompile Include="src\bflib_string.c" />
     <ClCompile Include="src\bflib_tcpsp.c" />
-    <ClCompile Include="src\bflib_threadcond.cpp" />
     <ClCompile Include="src\bflib_video.c" />
     <ClCompile Include="src\bflib_vidraw.c" />
     <ClCompile Include="src\bflib_vidraw_spr_norm.c" />
@@ -279,7 +276,6 @@
     <ClInclude Include="src\ariadne_wallhug.h" />
     <ClInclude Include="src\bflib_base_tcp.hpp" />
     <ClInclude Include="src\bflib_basics.h" />
-    <ClInclude Include="src\bflib_bufrw.h" />
     <ClInclude Include="src\bflib_client_tcp.hpp" />
     <ClInclude Include="src\bflib_coroutine.h" />
     <ClInclude Include="src\bflib_cpu.h" />
@@ -306,7 +302,6 @@
     <ClInclude Include="src\bflib_netsp.hpp" />
     <ClInclude Include="src\bflib_netsp_ipx.hpp" />
     <ClInclude Include="src\bflib_netsp_tcp.hpp" />
-    <ClInclude Include="src\bflib_netsync.h" />
     <ClInclude Include="src\bflib_network.h" />
     <ClInclude Include="src\bflib_planar.h" />
     <ClInclude Include="src\bflib_render.h" />
@@ -316,7 +311,6 @@
     <ClInclude Include="src\bflib_sprfnt.h" />
     <ClInclude Include="src\bflib_sprite.h" />
     <ClInclude Include="src\bflib_string.h" />
-    <ClInclude Include="src\bflib_threadcond.hpp" />
     <ClInclude Include="src\bflib_video.h" />
     <ClInclude Include="src\bflib_vidraw.h" />
     <ClInclude Include="src\bflib_vidsurface.h" />

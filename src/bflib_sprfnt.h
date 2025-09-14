@@ -51,7 +51,6 @@ struct AsianFont {
   unsigned long ndata_scanline;
   unsigned long sdata_shift;
   unsigned long sdata_scanline;
-  unsigned long unusedparam;
   unsigned long narrow_width;
   unsigned long narrow_height;
   unsigned long bits_width;
@@ -71,8 +70,6 @@ struct AsianDraw {
   unsigned long vertical_offset;
   unsigned long y_spacing;
   unsigned char *sprite_data;
-  unsigned long unusedparam;
-  unsigned long unusedparam2;
 };
 
 /**
@@ -113,7 +110,6 @@ int LbTextStringPartWidth(const char *text, int part);
 int LbTextStringHeight(const char *str);
 int LbTextWordWidth(const char *str);
 int LbTextCharWidth(const long chr);
-int LbTextCharHeight(const long chr);
 int LbTextCharWidthM(const long chr, long units_per_px);
 int LbTextStringWidthM(const char *str, long units_per_px);
 int LbTextWordWidthM(const char *str, long units_per_px);
@@ -126,7 +122,6 @@ TbBool LbAlignMethodSet(unsigned short fdflags);
 long LbGetJustifiedCharPosX(long startx, long all_chars_width, long spr_width, long mul_width, unsigned short fdflags);
 long LbGetJustifiedCharPosY(long starty, long all_lines_height, long spr_height, unsigned short fdflags);
 long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_count, int units_per_px, unsigned short fdflags);
-long LbGetJustifiedCharHeight(long all_lines_height, long spr_height, long lines_count, unsigned short fdflags);
 
 // Function which require font sprites as parameter
 int LbSprFontWordWidth(const struct TbSpriteSheet * font, const char * text);

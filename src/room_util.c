@@ -42,7 +42,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "frontend.h"
-#include "math.h"
+#include <math.h>
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -311,7 +311,7 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
         {
             if (slab_kind_is_animated(slabkind))
             {
-                place_animating_slab_type_on_map(slabkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);  
+                place_animating_slab_type_on_map(slabkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
             }
             else
             {

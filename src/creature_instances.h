@@ -155,8 +155,6 @@ TbBool creature_has_ranged_object_weapon(const struct Thing *creatng);
 TbBool creature_has_weapon_for_postal(const struct Thing *creatng);
 TbBool creature_has_melee_attack(const struct Thing *creatng);
 
-int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id);
-int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos);
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos);
 
 TbBool instance_draws_possession_swipe(CrInstance inum);

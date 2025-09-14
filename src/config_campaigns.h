@@ -173,12 +173,10 @@ long add_freeplay_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnu
 struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, LevelNumber lvnum);
 TbBool init_level_info_entries(struct GameCampaign *campgn, long num_entries);
 TbBool grow_level_info_entries(struct GameCampaign *campgn, long add_entries);
-TbBool free_level_info_entries(struct GameCampaign *campgn);
 struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, LevelNumber lvnum);
 // Support for lists of campaigns
 TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries);
 TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries);
-TbBool free_campaigns_list_entries(struct CampaignsList *clist);
 TbBool load_campaigns_list(void);
 TbBool load_mappacks_list(void);
 TbBool change_campaign(const char *cmpgn_fname);

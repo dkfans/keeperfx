@@ -35,3 +35,4 @@ res/keeperfx_icon.ico
 /deps/openal
 /deps/luajit
 /deps/*.tar.gz
+/cppcheck.cache

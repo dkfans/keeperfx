@@ -910,17 +910,6 @@ TbResult LbScreenSetDoubleBuffering(TbBool state)
     return Lb_SUCCESS;
 }
 
-/** Retrieves actual state of the Double Buffering function.
- *  Note that if the function was requested, it still doesn't necessarily
- *  mean it was activated.
- *
- * @return True if the function is currently active, false otherwise.
- */
-TbBool LbScreenIsDoubleBufferred(void)
-{
-    return lbHasSecondSurface;
-}
-
 TbScreenMode LbRecogniseVideoModeString(const char *desc)
 {
     for (int mode = 0; mode < lbScreenModeInfoNum; mode++)

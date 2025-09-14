@@ -43,44 +43,6 @@ long delaunay_stack[DELAUNAY_COUNT];
 long tree_val[TREEVALS_COUNT];
 
 /******************************************************************************/
-/******************************************************************************/
-void nodes_classify(void)
-{
-}
-
-void tree_init(void)
-{
-    for (long i = 0; i < TREEVALS_COUNT; i++)
-    {
-        tree_val[i] = -LONG_MAX;
-    }
-}
-
-/** Computes the cost for route through the current tree.
- *
- * @param tag_start_id Starting tag ID to place in the route.
- * @param tag_end_id Ending tag ID to place in the route.
- * @return Returns cost of the route.
- */
-long compute_tree_move_cost(long tag_start_id, long tag_end_id)
-{
-    long long rcost = 0;
-    long itag = tag_start_id;
-    long ipt = 0;
-    while (itag != tag_end_id)
-    {
-        rcost += tree_val[itag];
-        ipt++;
-        if (ipt >= TREEITEMS_COUNT)
-            return LONG_MAX;
-        itag = tree_dad[itag];
-    }
-    if (rcost >= LONG_MAX)
-        return LONG_MAX;
-    if (rcost <= LONG_MIN)
-        return LONG_MIN;
-    return rcost;
-}
 
 /** Copies the current tree into given route.
  *
@@ -107,20 +69,6 @@ long copy_tree_to_route(long tag_start_id, long tag_end_id, long *route_pts, lon
     }
     route_pts[ipt] = tag_end_id;
     return ipt;
-}
-
-long tree_to_route(long tag_start_id, long tag_end_id, long *route_pts)
-{
-    if (tag_current != Tags[tag_start_id])
-        return -1;
-    long ipt = copy_tree_to_route(tag_start_id, tag_end_id, route_pts, 3000 + 1);
-    if (ipt < 0)
-    {
-        erstat_inc(ESE_BadRouteTree);
-        ERRORDBG(6,"route length overflow");
-    }
-    return ipt;
-
 }
 
 void tags_init(void)

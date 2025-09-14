@@ -2541,20 +2541,6 @@ CreatureJob get_creature_job_causing_going_postal(CreatureJob job_flags, RoomKin
     return (job_flags & qualified_job);
 }
 
-const char *attack_type_job_code_name(CrAttackType attack_type)
-{
-    const struct CommandWord * attack_type_info;
-    if (attack_type < game.conf.crtr_conf.attacktypes_count) {
-        attack_type_info = &game.conf.crtr_conf.attacktypes[attack_type];
-    } else {
-        attack_type_info = &game.conf.crtr_conf.attacktypes[0];
-    }
-    const char* name = attack_type_info->text;
-    if (name[0] != '\0')
-        return name;
-    return "INVALID";
-}
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

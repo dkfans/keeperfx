@@ -2451,13 +2451,13 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
         if (count_creatures_at_call_to_arms(comp) < ctask->magic_cta.repeat_num - ctask->magic_cta.repeat_num / 4)
         {
             // For a minimum amount of time
-            if ((game.play_gameturn - ctask->lastrun_turn) < (ctask->delay / 10)) 
+            if ((game.play_gameturn - ctask->lastrun_turn) < (ctask->delay / 10))
             {
                 return CTaskRet_Unk1;
             }
         }
         // There's a time limit for how long CTA may run
-        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->delay) 
+        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->delay)
             {
                 return CTaskRet_Unk1;
             }
@@ -2585,7 +2585,6 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
 
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4)
 {
-    //TODO COMPUTER_EVENT_BREACH needs this function; may be also used somewhere else - not sure
     struct CreatureControl *cctrl;
     struct Thing *thing;
     unsigned long k;

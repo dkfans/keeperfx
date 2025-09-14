@@ -381,64 +381,6 @@ unsigned short torch_flags_for_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return tflag;
 }
 
-/**
- * Deletes almost all of object things from a slab.
- * Leaves only those which are never bound to a slab.
- * @param slb_x
- * @param slb_y
- * @param rmeffect
- */
-long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, long rmeffect)
-{
-    SubtlCodedCoords stl_num;
-    long removed_num;
-    long n;
-    stl_num = get_subtile_number(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
-    removed_num = 0;
-    for (n=0; n < AROUND_MAP_LENGTH; n++)
-    {
-        struct Thing *thing;
-        struct Map *mapblk;
-        struct Coord3d pos;
-        unsigned long k;
-        long i;
-        mapblk = get_map_block_at_pos(stl_num+game.around_map[n]);
-        k = 0;
-        i = get_mapwho_thing_index(mapblk);
-        while (i != 0)
-        {
-          thing = thing_get(i);
-          if (thing_is_invalid(thing))
-          {
-            WARNLOG("Jump out of things array");
-            break;
-          }
-          i = thing->next_on_mapblk;
-          // Per thing code
-          if ((thing->class_id == TCls_Object) && !object_is_unaffected_by_terrain_changes(thing))
-          {
-              if (rmeffect > 0)
-              {
-                  set_coords_to_slab_center(&pos,slb_x,slb_y);
-                  pos.z.val = get_floor_height_at(&pos);
-                  create_effect(&pos, rmeffect, thing->owner);
-              }
-              delete_thing_structure(thing, 0);
-              removed_num++;
-          }
-          // Per thing code ends
-          k++;
-          if (k > THINGS_COUNT)
-          {
-              ERRORLOG("Infinite loop detected when sweeping things list");
-              break_mapwho_infinite_chain(mapblk);
-              break;
-          }
-        }
-    }
-    return removed_num;
-}
-
 unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, long rmeffect)
 {
     SubtlCodedCoords stl_num;

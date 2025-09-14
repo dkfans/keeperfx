@@ -597,22 +597,6 @@ long LbCosL(long x)
     return lbCosTable[(unsigned long)x & ANGLE_MASK];
 }
 
-long LbArcTanL(long arg)
-{
-    const int num_factors = sizeof(lbArcTanFactors)/sizeof(lbArcTanFactors[0]);
-    if (arg < 0)
-    {
-        if (-arg >= num_factors)
-            arg = -(num_factors - 1);
-        return -(long)lbArcTanFactors[-arg];
-    } else
-    {
-        if (arg >= num_factors)
-            arg = num_factors - 1;
-        return (long)lbArcTanFactors[arg];
-    }
-}
-
 /** Computes angle between negative Y axis and the line that crosses (0,0) and given (x,y).
  *  Uses arctan(x/y) with proper shift to get the angle.
  *  Returning 0 means direction towards negative y; 512 is towards positive x;

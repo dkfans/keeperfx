@@ -47,7 +47,6 @@ void process_disease(struct Thing *thing);
 void process_timebomb(struct Thing *creatng);
 void timebomb_explode(struct Thing *creatng);
 
-TbBool player_uses_power_armageddon(PlayerNumber plyr_idx);
 void process_armageddon(void);
 void process_armageddon_influencing_creature(struct Thing *creatng);
 void teleport_armageddon_influenced_creature(struct Thing *creatng);

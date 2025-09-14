@@ -37,7 +37,6 @@
 #include "keeperfx.hpp"
 #include "map_blocks.h"
 #include "map_data.h"
-#include "math.h"
 #include "player_utils.h"
 #include "player_instances.h"
 #include "room_util.h"
@@ -48,7 +47,7 @@
 #include "thing_physics.h"
 #include "thing_shots.h"
 #include "thing_stats.h"
-
+#include <math.h>
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1389,10 +1388,8 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
     MapSubtlCoord end_y = range_stl + pos->y.stl.num;
     if (end_y > game.map_subtiles_y)
       end_y = game.map_subtiles_y;
-#if (BFDEBUG_LEVEL > 0)
-    if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
+    if (flag_is_set(start_params.debug_flags,DFlg_ShotsDamage))
         create_price_effect(pos, my_player_number, max_damage);
-#endif
     long num_affected = 0;
     for (MapSubtlCoord stl_y = start_y; stl_y <= end_y; stl_y++)
     {

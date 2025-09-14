@@ -230,36 +230,6 @@ TbBool light_create_light_adv(VALUE *init_data)
     return true;
 }
 
-long light_get_total_dynamic_lights(void)
-{
-    return light_total_dynamic_lights;
-}
-
-long light_get_total_stat_lights(void)
-{
-    return light_total_stat_lights;
-}
-
-long light_get_rendered_dynamic_lights(void)
-{
-    return light_rendered_dynamic_lights;
-}
-
-long light_get_rendered_optimised_dynamic_lights(void)
-{
-    return light_rendered_optimised_dynamic_lights;
-}
-
-long light_get_updated_stat_lights(void)
-{
-    return light_updated_stat_lights;
-}
-
-long light_get_out_of_date_stat_lights(void)
-{
-    return light_out_of_date_stat_lights;
-}
-
 void light_export_system_state(struct LightSystemState *lightst)
 {
     memcpy(lightst->bitmask,light_bitmask,sizeof(light_bitmask));
@@ -398,7 +368,7 @@ TbBool lights_stats_debug_dump(void)
 
 void light_set_light_never_cache(long lgt_id)
 {
-    if (lgt_id <= 0)
+    if (lgt_id <= 0 || lgt_id >= LIGHTS_COUNT)
     {
         ERRORLOG("Attempt to set size of invalid light %d",(int)lgt_id);
         return;
@@ -414,7 +384,7 @@ void light_set_light_never_cache(long lgt_id)
 
 long light_is_light_allocated(long lgt_id)
 {
-    if (lgt_id <= 0)
+    if (lgt_id <= 0 || lgt_id >= LIGHTS_COUNT)
         return false;
     struct Light* lgt = &game.lish.lights[lgt_id];
     if ((lgt->flags & LgtF_Allocated) == 0)

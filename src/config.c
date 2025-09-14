@@ -1071,52 +1071,6 @@ int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,lon
   return i;
 }
 
-int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,long dstlen)
-{
-    int i;
-    TbBool esc = false;
-    if ((*pos) >= buflen) return 0;
-    // Skipping spaces after previous parameter
-    while ((buf[*pos] == ' ') || (buf[*pos] == '\t'))
-    {
-        (*pos)++;
-        if ((*pos) >= buflen) return 0;
-    }
-    // first quote
-    if (buf[*pos] != '"')
-        return 0;
-    (*pos)++;
-
-    for (i=0; i+1 < dstlen;)
-    {
-        if ((*pos) >= buflen) {
-            return 0; // End before quote
-        }
-        if (!esc)
-        {
-            if (buf[*pos] == '\\')
-            {
-                esc = true;
-                (*pos)++;
-                continue;
-            }
-            else if (buf[*pos] == '"')
-            {
-                (*pos)++;
-                break;
-            }
-        }
-        else
-        {
-            esc = false;
-        }
-        dst[i++]=buf[*pos];
-        (*pos)++;
-    }
-    dst[i]='\0';
-    return i;
-}
-
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen)
 {
     int i;
@@ -1143,28 +1097,6 @@ int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,lo
     return i;
 }
 
-int get_conf_list_int(const char *buf, const char **state, int *dst)
-{
-    int len = -1;
-    if (*state == NULL)
-    {
-        if (1 != sscanf(buf, " %d%n", dst, &len))
-        {
-            return 0;
-        }
-        *state = buf + len;
-        return 1;
-    }
-    else
-    {
-        if (1 != sscanf(*state, " , %d%n", dst, &len))
-        {
-            return 0;
-        }
-        *state = *state + len;
-        return 1;
-    }
-}
 /**
  * Returns parameter num from given NamedCommand array, or 0 if not found.
  */
@@ -1829,36 +1761,6 @@ int storage_index_for_bonus_level(LevelNumber bn_lvnum)
 }
 
 /**
- * Returns index for Campaign->bonus_levels associated with given bonus level.
- * If the level is not found, returns -1.
- */
-int array_index_for_bonus_level(LevelNumber bn_lvnum)
-{
-  if (bn_lvnum < 1) return -1;
-  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
-  {
-    if (campaign.bonus_levels[i] == bn_lvnum)
-        return i;
-  }
-  return -1;
-}
-
-/**
- * Returns index for Campaign->extra_levels associated with given extra level.
- * If the level is not found, returns -1.
- */
-int array_index_for_extra_level(LevelNumber ex_lvnum)
-{
-  if (ex_lvnum < 1) return -1;
-  for (int i = 0; i < EXTRA_LEVELS_COUNT; i++)
-  {
-    if (campaign.extra_levels[i] == ex_lvnum)
-        return i;
-  }
-  return -1;
-}
-
-/**
  * Returns index for Campaign->single_levels associated with given singleplayer level.
  * If the level is not found, returns -1.
  */
@@ -1868,36 +1770,6 @@ int array_index_for_singleplayer_level(LevelNumber sp_lvnum)
   for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.single_levels[i] == sp_lvnum)
-        return i;
-  }
-  return -1;
-}
-
-/**
- * Returns index for Campaign->multi_levels associated with given multiplayer level.
- * If the level is not found, returns -1.
- */
-int array_index_for_multiplayer_level(LevelNumber mp_lvnum)
-{
-  if (mp_lvnum < 1) return -1;
-  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
-  {
-    if (campaign.multi_levels[i] == mp_lvnum)
-        return i;
-  }
-  return -1;
-}
-
-/**
- * Returns index for Campaign->freeplay_levels associated with given freeplay level.
- * If the level is not found, returns -1.
- */
-int array_index_for_freeplay_level(LevelNumber fp_lvnum)
-{
-  if (fp_lvnum < 1) return -1;
-  for (int i = 0; i < FREE_LEVELS_COUNT; i++)
-  {
-    if (campaign.freeplay_levels[i] == fp_lvnum)
         return i;
   }
   return -1;
@@ -1949,42 +1821,6 @@ LevelNumber first_multiplayer_level(void)
   if (lvnum > 0)
     return lvnum;
   return SINGLEPLAYER_NOTSTARTED;
-}
-
-/**
- * Returns last multi player level number.
- * On error, returns SINGLEPLAYER_NOTSTARTED.
- */
-LevelNumber last_multiplayer_level(void)
-{
-    int i = campaign.multi_levels_count;
-    if ((i > 0) && (i <= CAMPAIGN_LEVELS_COUNT))
-        return campaign.multi_levels[i - 1];
-    return SINGLEPLAYER_NOTSTARTED;
-}
-
-/**
- * Returns first free play level number.
- * On error, returns SINGLEPLAYER_NOTSTARTED.
- */
-LevelNumber first_freeplay_level(void)
-{
-  long lvnum = campaign.freeplay_levels[0];
-  if (lvnum > 0)
-    return lvnum;
-  return SINGLEPLAYER_NOTSTARTED;
-}
-
-/**
- * Returns last free play level number.
- * On error, returns SINGLEPLAYER_NOTSTARTED.
- */
-LevelNumber last_freeplay_level(void)
-{
-    int i = campaign.freeplay_levels_count;
-    if ((i > 0) && (i <= FREE_LEVELS_COUNT))
-        return campaign.freeplay_levels[i - 1];
-    return SINGLEPLAYER_NOTSTARTED;
 }
 
 /**
@@ -2111,29 +1947,6 @@ LevelNumber next_multiplayer_level(LevelNumber mp_lvnum)
 }
 
 /**
- * Returns the previous multi player level. Gives SINGLEPLAYER_NOTSTARTED if
- * first level was given, LEVELNUMBER_ERROR on error.
- */
-LevelNumber prev_multiplayer_level(LevelNumber mp_lvnum)
-{
-  if (mp_lvnum == SINGLEPLAYER_NOTSTARTED) return SINGLEPLAYER_NOTSTARTED;
-  if (mp_lvnum == SINGLEPLAYER_FINISHED) return last_multiplayer_level();
-  if (mp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
-  {
-    if (campaign.multi_levels[i] == mp_lvnum)
-    {
-      if (i < 1)
-        return SINGLEPLAYER_NOTSTARTED;
-      if (campaign.multi_levels[i-1] <= 0)
-        return SINGLEPLAYER_NOTSTARTED;
-      return campaign.multi_levels[i-1];
-    }
-  }
-  return LEVELNUMBER_ERROR;
-}
-
-/**
  * Returns the next extra level. Gives SINGLEPLAYER_FINISHED if
  * last level was given, LEVELNUMBER_ERROR on error.
  */
@@ -2154,52 +1967,6 @@ LevelNumber next_extra_level(LevelNumber ex_lvnum)
         i++;
       }
       return SINGLEPLAYER_FINISHED;
-    }
-  }
-  return LEVELNUMBER_ERROR;
-}
-
-/**
- * Returns the next freeplay level. Gives SINGLEPLAYER_FINISHED if
- * last level was given, LEVELNUMBER_ERROR on error.
- */
-LevelNumber next_freeplay_level(LevelNumber fp_lvnum)
-{
-  if (fp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
-  if (fp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_freeplay_level();
-  if (fp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (int i = 0; i < FREE_LEVELS_COUNT; i++)
-  {
-    if (campaign.freeplay_levels[i] == fp_lvnum)
-    {
-      if (i+1 >= FREE_LEVELS_COUNT)
-        return SINGLEPLAYER_FINISHED;
-      if (campaign.freeplay_levels[i+1] <= 0)
-        return SINGLEPLAYER_FINISHED;
-      return campaign.freeplay_levels[i+1];
-    }
-  }
-  return LEVELNUMBER_ERROR;
-}
-
-/**
- * Returns the previous freeplay level. Gives SINGLEPLAYER_NOTSTARTED if
- * first level was given, LEVELNUMBER_ERROR on error.
- */
-LevelNumber prev_freeplay_level(LevelNumber fp_lvnum)
-{
-  if (fp_lvnum == SINGLEPLAYER_NOTSTARTED) return SINGLEPLAYER_NOTSTARTED;
-  if (fp_lvnum == SINGLEPLAYER_FINISHED) return last_freeplay_level();
-  if (fp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (int i = 0; i < FREE_LEVELS_COUNT; i++)
-  {
-    if (campaign.freeplay_levels[i] == fp_lvnum)
-    {
-      if (i < 1)
-        return SINGLEPLAYER_NOTSTARTED;
-      if (campaign.freeplay_levels[i-1] <= 0)
-        return SINGLEPLAYER_NOTSTARTED;
-      return campaign.freeplay_levels[i-1];
     }
   }
   return LEVELNUMBER_ERROR;

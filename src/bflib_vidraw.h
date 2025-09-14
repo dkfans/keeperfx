@@ -194,7 +194,6 @@ void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheigh
 
 TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr);
 TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
-int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,const unsigned char *cmap);
 
 TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height);
 TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour);

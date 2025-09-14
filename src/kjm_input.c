@@ -177,16 +177,6 @@ long GetMouseY(void)
     return result;
 }
 
-short is_mouse_pressed_leftbutton(void)
-{
-  return lbDisplay.LeftButton;
-}
-
-short is_mouse_pressed_rightbutton(void)
-{
-  return lbDisplay.RightButton;
-}
-
 short is_mouse_pressed_lrbutton(void)
 {
   return (lbDisplay.LeftButton || lbDisplay.RightButton);

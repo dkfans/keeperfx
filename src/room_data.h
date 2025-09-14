@@ -77,12 +77,6 @@ struct Dungeon;
 
 typedef void (*Room_Update_Func)(struct Room *);
 
-struct RoomInfo { // sizeof = 6
-  unsigned short unusedparam;
-  unsigned short unusedparam2;
-  unsigned short ambient_snd_smp_id;
-};
-
 struct Room {
     unsigned char alloc_flags;
     RoomIndex index; // index in the rooms array
@@ -158,11 +152,9 @@ extern RoomKind look_through_rooms[ROOM_TYPES_COUNT_OLD + 1];
 struct Room *room_get(RoomIndex room_idx);
 struct Room *subtile_room_get(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Room *slab_room_get(MapSlabCoord slb_x, MapSlabCoord slb_y);
-struct Room *slab_number_room_get(SlabCodedCoords slab_num);
 TbBool room_is_invalid(const struct Room *room);
 TbBool room_exists(const struct Room *room);
 
-long get_room_look_through(RoomKind rkind);
 unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency);
 void set_room_efficiency(struct Room *room);
 void do_room_recalculation(struct Room* room);

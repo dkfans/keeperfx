@@ -52,13 +52,6 @@ enum PlayerInitFlags {
 enum PlayerField6Flags {
     PlaF6_DisplayNeedsUpdate = 0x01,
     PlaF6_PlyrHasQuit       = 0x02,
-    // The below are unused
-    PlaF6_unusedparam04     = 0x04,
-    PlaF6_unusedparam08     = 0x08,
-    PlaF6_unusedparam10     = 0x10,
-    PlaF6_unusedparam20     = 0x20,
-    PlaF6_unusedparam40     = 0x40,
-    PlaF6_unusedparam80     = 0x80,
 };
 
 enum PlayerViewModes {

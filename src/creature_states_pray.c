@@ -376,7 +376,7 @@ void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel c
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
         if (creature_matches_model(thing,crmodel))
-        {      
+        {
             apply_spell_effect_to_thing(thing, spl_idx, overchrg, plyr_idx);
         }
         // Thing list loop body ends
@@ -910,7 +910,7 @@ void script_set_sacrifice_recipe(const int action, const int param, ThingModel* 
         return;
     }
 
-    memcpy(sac->victims, victims, MAX_SACRIFICE_VICTIMS * sizeof(int));
+    memcpy(sac->victims, victims, MAX_SACRIFICE_VICTIMS * sizeof(ThingModel));
     sac->action = action;
     sac->param = param;
 

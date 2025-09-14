@@ -102,9 +102,6 @@ enum CreatureCombatFlags {
     CmbtF_Waiting       = 0x04,
     CmbtF_ObjctFight    = 0x08,
     CmbtF_DoorFight     = 0x10,
-    CmbtF_unusedparam20 = 0x20,
-    CmbtF_unusedparam40 = 0x40,
-    CmbtF_unusedparam80 = 0x80,
 };
 
 enum CreatureAngerReasons {
@@ -413,6 +410,7 @@ unsigned char sound_flag;
     SpellKind active_teleport_spell;
     SpellKind active_timebomb_spell;
     short vertical_speed;
+    GameTurnDelta hand_blocked_turns;
 };
 
 struct Persons {
@@ -448,7 +446,6 @@ struct CreatureControl *creature_control_get(long cctrl_idx);
 struct CreatureControl *creature_control_get_from_thing(const struct Thing *thing);
 TbBool creature_control_invalid(const struct CreatureControl *cctrl);
 TbBool creature_control_exists(const struct CreatureControl *cctrl);
-TbBool creature_control_exists_in_thing(const struct Thing *thing);
 void clear_creature_instance(struct Thing *thing);
 long i_can_allocate_free_control_structure(void);
 struct CreatureControl *allocate_free_control_structure(void);

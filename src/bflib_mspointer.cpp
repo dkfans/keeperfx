@@ -316,20 +316,6 @@ bool LbI_PointerHandler::OnMove(void)
     return true;
 }
 
-void LbI_PointerHandler::OnBeginPartialUpdate(void)
-{
-    std::lock_guard<std::mutex> guard(lock);
-    Backup(false);
-    Draw(false);
-}
-
-void LbI_PointerHandler::OnEndPartialUpdate(void)
-{
-    std::lock_guard<std::mutex> guard(lock);
-    Undraw(false);
-    this->needs_redraw = true;
-}
-
 void LbI_PointerHandler::OnBeginSwap(void)
 {
     std::lock_guard<std::mutex> guard(lock);
@@ -354,17 +340,6 @@ void LbI_PointerHandler::OnEndSwap(void)
         Undraw(false);
         this->needs_redraw = true;
     }
-}
-
-void LbI_PointerHandler::OnBeginFlip(void)
-{
-    std::lock_guard<std::mutex> guard(lock);
-    Backup(false);
-    Draw(false);
-}
-
-void LbI_PointerHandler::OnEndFlip(void)
-{
 }
 
 /******************************************************************************/
