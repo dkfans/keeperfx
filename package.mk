@@ -33,10 +33,8 @@ PKG_FXDATA_FILES = \
 	$(patsubst config/%,pkg/%,$(wildcard config/fxdata/lua/**/*.lua)) \
 	pkg/fxdata/lua/init.lua
 PKG_FXDATA_DIRS = $(sort $(dir $(PKG_FXDATA_FILES)))
-PKG_MOD_FILES = \
-	$(patsubst config/mods/%,pkg/mods/%,$(wildcard config/mods/*)) \
-	$(patsubst config/mods/%,pkg/mods/%,$(wildcard config/mods/**/*))
-PKG_MOD_DIRS = $(sort $(dir $(PKG_MOD_FILES)))
+PKG_MOD_FILES := $(patsubst config/%,pkg/%,$(shell find config/mods -type f))
+PKG_MOD_DIRS := $(sort $(dir $(PKG_MOD_FILES)))
 
 PKG_MAPPACK_FILES = \
 	$(patsubst %,pkg/levels/mappck_order.txt,$(MAPPACKS)) \
@@ -131,15 +129,9 @@ pkg/fxdata/lua/lib/%.lua: config/fxdata/lua/lib/%.lua | pkg/fxdata/lua/lib
 pkg/fxdata/lua/class/%.lua: config/fxdata/lua/class/%.lua | pkg/fxdata/lua/class
 	$(CP) $^ $@
 
-pkg/mods/%.cfg: config/mods/%.cfg | pkg/mods
-	$(CP) $^ $@
-
-pkg/mods/%.example: config/mods/%.example | pkg/mods
-	$(CP) $^ $@
-
 pkg/mods/%: config/mods/% | $(PKG_MOD_DIRS)
 	@mkdir -p $(dir $@)
-	$(CP) -r $^ $@
+	$(CP) $< $@
 
 pkg/levels/%.cfg: levels/%.cfg | $(PKG_MAPPACK_DIRS)
 	$(CP) $^ $@
