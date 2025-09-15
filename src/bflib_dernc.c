@@ -81,30 +81,6 @@ static unsigned long bit_read (bit_stream *bs, unsigned long mask,
 
 static unsigned long mirror(unsigned long x, int n);
 
-/*
- * Return an error string corresponding to an error return code.
- */
-const char *rnc_error (long errcode) {
-    static const char *const errors[] = {
-        "No error",
-        "File is not RNC-1 format",
-        "Huffman decode error",
-        "File size mismatch",
-        "CRC error in packed data",
-        "CRC error in unpacked data",
-        "Compressed file header invalid",
-        "Huffman decode leads outside buffers",
-        "Unknown error"
-    };
-    long errlimit = sizeof(errors) / sizeof(*errors) - 1;
-    errcode = -errcode;
-    if (errcode < 0)
-        errcode = 0;
-    if (errcode > errlimit)
-        errcode = errlimit;
-    return errors[errcode];
-}
-
 // Decompress a packed data block. Returns the unpacked length if
 // successful, or negative error codes if not.
 

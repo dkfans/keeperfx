@@ -57,13 +57,6 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-TbBool player_has_won(PlayerNumber plyr_idx)
-{
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if (player_invalid(player))
-        return false;
-    return (player->victory_state == VicS_WonLevel);
-}
 
 TbBool player_has_lost(PlayerNumber plyr_idx)
 {

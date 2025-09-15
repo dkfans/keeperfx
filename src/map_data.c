@@ -652,13 +652,13 @@ void reveal_map_rect(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
 void player_reveal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h)
 {
   SYNCDBG(0,"Revealing around (%ld,%ld)",x,y);
-  reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
+  reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1), y-(h>>1), y+(h>>1));
 }
 
 void player_conceal_map_area(PlayerNumber plyr_idx, MapSubtlCoord x, MapSubtlCoord y, MapSubtlDelta w, MapSubtlDelta h, TbBool all)
 {
   SYNCDBG(0,"Revealing around (%ld,%ld)",x,y);
-  conceal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1),all);
+  conceal_map_area(plyr_idx, x-(w>>1), x+(w>>1), y-(h>>1), y+(h>>1),all);
 }
 
 /**
@@ -707,18 +707,6 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
         }
     }
     panel_map_update(start_x,start_y,end_x,end_y);
-}
-/**
- * Returns if given map position is unsafe (contains a terrain which may lead to creature death).
- * Unsafe terrain is currently lava and sacrificial ground.
- * @param stl_x
- * @param stl_y
- * @return
- */
-TbBool map_pos_is_unsafe(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    unsigned long navmap = get_navigation_map(stl_x, stl_y);
-    return ((navmap & NAVMAP_UNSAFE_SURFACE) != 0);
 }
 
 TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y)

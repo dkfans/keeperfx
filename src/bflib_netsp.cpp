@@ -143,12 +143,6 @@ void ServiceProvider::EncodeRequestCompositeExchangeDataMsg(unsigned char *buf, 
   memcpy(buf+4, &a1, 4);
 }
 
-unsigned long ServiceProvider::DecodeRequestCompositeExchangeDataMsg(unsigned char *buf, unsigned long &a1)
-{
-  memcpy(&a1, buf+4, 4);
-  return 1;
-}
-
 void ServiceProvider::DecodeMessageStub(const void *msgHeader, unsigned long *dataLen,
       unsigned char *messageType, unsigned long *seqNbr)
 {
@@ -630,11 +624,6 @@ TbError ServiceProvider::DeletePlayer(unsigned long plyr_id)
   return Lb_OK;
 }
 
-void ServiceProvider::ClearPlayers(void)
-{
-  this->players_count = 0;
-}
-
 long ServiceProvider::SessionIndex(unsigned long sess_id)
 {
   struct TbNetworkSessionNameEntry *nsname;
@@ -714,29 +703,6 @@ TbError ServiceProvider::EnumeratePlayers(TbNetworkCallbackFunc callback, void *
     callback((struct TbNetworkCallbackData *)netplyr, ptr);
   }
   return result;
-}
-
-unsigned long ServiceProvider::GetAddPlayerMsgSize(char *msg_str)
-{
-  return strlen(msg_str) + 1 + sizeof(unsigned long) + sizeof(unsigned long);
-}
-
-void ServiceProvider::EncodeAddPlayerMsg(unsigned char *enc_buf, unsigned long id, const char *msg_str)
-{
-  long len;
-  unsigned char *out;
-  out = enc_buf;
-  if (enc_buf == NULL)
-  {
-    WARNLOG("Can't write to NULL buffer!");
-    return;
-  }
-  len = strlen(msg_str) + 5;
-  *(unsigned long *)out = (len & 0xFFFFF) | 0x1000000;
-  out += sizeof(unsigned long);
-  memcpy(out, &id, sizeof(unsigned long));
-  out += sizeof(unsigned long);
-  strcpy((char *)out,msg_str);
 }
 
 TbBool ServiceProvider::DecodeAddPlayerMsg(const unsigned char *enc_buf, unsigned long &id, char *msg_str)

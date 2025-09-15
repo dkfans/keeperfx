@@ -160,7 +160,6 @@ TbBool activate_bonus_level(struct PlayerInfo *player);
 TbBool is_bonus_level_visible(struct PlayerInfo *player, long bn_lvnum);
 void hide_all_bonus_levels(struct PlayerInfo *player);
 unsigned short get_extra_level_kind_visibility(unsigned short elv_kind);
-short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
 void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
 TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible);

@@ -188,162 +188,6 @@ static struct CommandDesc const *find_command_desc(const struct CommandToken *to
     }
     return cmnd_desc;
 }
-const struct CommandDesc *get_next_word(char **line, char *param, int *para_level, const struct CommandDesc *cmdlist_desc)
-{
-    char chr;
-    SCRIPTDBG(12,"Starting");
-    const struct CommandDesc* cmnd_desc = NULL;
-    // Find start of an item to read
-    unsigned int pos = 0;
-    param[pos] = '\0';
-    while (1)
-    {
-        chr = **line;
-        // letter or number
-        if ((isalnum(chr)) || (chr == '-'))
-            break;
-        // operator
-        if ((chr == '\"') || (chr == '=') || (chr == '!') || (chr == '<') || (chr == '>') || (chr == '~'))
-            break;
-        // end of line
-        if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
-        {
-            (*para_level) = -1;
-            return NULL;
-        }
-        // paraenesis open
-        if (chr == '(') {
-            (*para_level)++;
-        } else
-        // paraenesis close
-        if (chr == ')') {
-            (*para_level)--;
-        }
-        (*line)++;
-    }
-
-    chr = **line;
-    // Text string
-    if (isalpha(chr))
-    {
-        // Read the parameter
-        while (isalnum(chr) || (chr == '_') || (chr == '[') || (chr == ']') || (chr == ':'))
-        {
-            param[pos] = chr;
-            pos++;
-            (*line)++;
-            chr = **line;
-            if (pos+1 >= MAX_TEXT_LENGTH) break;
-        }
-        param[pos] = '\0';
-        make_uppercase(param);
-        // Check if it's a command
-        int i = 0;
-        cmnd_desc = NULL;
-        while (cmdlist_desc[i].textptr != NULL)
-        {
-            if (strcmp(param, cmdlist_desc[i].textptr) == 0)
-            {
-                cmnd_desc = &cmdlist_desc[i];
-                break;
-            }
-            i++;
-        }
-    } else
-    // Number string
-    if (isdigit(chr) || (chr == '-'))
-    {
-        if (chr == '-')
-        {
-          param[pos] = chr;
-          pos++;
-          (*line)++;
-        }
-        chr = **line;
-        if (!isdigit(chr))
-        {
-          SCRPTERRLOG("Unexpected '-' not followed by a number");
-          return NULL;
-        }
-        while ( isdigit(chr) )
-        {
-          param[pos] = chr;
-          pos++;
-          (*line)++;
-          chr = **line;
-          if (pos+1 >= MAX_TEXT_LENGTH) break;
-        }
-    } else
-    // Multiword string taken into quotes
-    if (chr == '\"')
-    {
-        (*line)++;
-        chr = **line;
-        while ((chr != '\0') && (chr != '\n') && (chr != '\r'))
-        {
-          if (chr == '\"')
-          {
-            (*line)++;
-            break;
-          }
-          param[pos] = chr;
-          pos++;
-          (*line)++;
-          chr = **line;
-          if (pos+1 >= MAX_TEXT_LENGTH) break;
-      }
-    } else
-    // Other cases - only operators are left
-    {
-        param[pos] = chr;
-        pos++;
-        (*line)++;
-        switch (chr)
-        {
-        case '!':
-            chr = **line;
-            if (chr != '=')
-            {
-                SCRPTERRLOG("Expected '=' after '!'");
-                return NULL;
-            }
-            param[pos] = chr;
-            pos++;
-            (*line)++;
-            break;
-        case '>':
-        case '<':
-            chr = **line;
-            if (chr == '=')
-            {
-              param[pos] = chr;
-              pos++;
-              (*line)++;
-            }
-            break;
-        case '=':
-            chr = **line;
-            if (chr != '=')
-            {
-              SCRPTERRLOG("Expected '=' after '='");
-              return 0;
-            }
-            param[pos] = chr;
-            pos++;
-            (*line)++;
-            break;
-        default:
-            break;
-        }
-    }
-    chr = **line;
-    if ((chr == '\0') || (chr == '\r')  || (chr == '\n'))
-        *para_level = -1;
-    param[pos] = '\0';
-    return cmnd_desc;
-}
-
-
 
 /**
  * Returns if the command is 'preloaded'. Preloaded commands are initialized
@@ -386,32 +230,6 @@ long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const 
         return plr_range_id;
     }
     return -2;
-}
-
-#define get_players_range_from_str(plrname, plr_start, plr_end) get_players_range_from_str_f(plrname, plr_start, plr_end, __func__, text_line_number)
-long get_players_range_from_str_f(const char *plrname, int *plr_start, int *plr_end, const char *func_name, long ln_num)
-{
-    long plr_range_id = get_rid(player_desc, plrname);
-    if (plr_range_id == -1)
-    {
-        plr_range_id = get_rid(cmpgn_human_player_options, plrname);
-    }
-    switch (get_players_range_f(plr_range_id, plr_start, plr_end, func_name, ln_num))
-    {
-    case -1:
-        ERRORMSG("%s(line %lu): Invalid player name, '%s'",func_name,ln_num, plrname);
-        *plr_start = 0;
-        *plr_end = 0;
-        return -1;
-    case -2:
-        ERRORMSG("%s(line %lu): Player '%s' out of range",func_name,ln_num, plrname);
-        *plr_start = 0;
-        *plr_end = 0;
-        return -2;
-    default:
-        break;
-    }
-    return plr_range_id;
 }
 
 static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *scline, int idx, TbBool extended)
@@ -917,6 +735,7 @@ TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
     line = get_next_token(line, &token);
     if (token.type == TkEnd)
     {
+        free(scline);
         return false;
     }
     if (token.type != TkCommand)
@@ -1161,31 +980,6 @@ short load_script(long lvnum)
         (int)game.script.conditions_num,CONDITIONS_COUNT,
         (int)game.script.creature_partys_num,CREATURE_PARTYS_COUNT);
     return true;
-}
-
-/**
- * Returns if the action point condition was activated.
- * Action point index and player to be activated should be stored inside condition.
- */
-TbBool process_activation_status(struct Condition *condt)
-{
-    TbBool new_status;
-    int plr_start;
-    int plr_end;
-    if (get_players_range(condt->plyr_range, &plr_start, &plr_end) < 0)
-    {
-        WARNLOG("Invalid player range %d in CONDITION command %d.",(int)condt->plyr_range,(int)condt->variabl_type);
-        return false;
-    }
-    {
-        new_status = false;
-        for (long i = plr_start; i < plr_end; i++)
-        {
-            new_status = action_point_activated_by_player(condt->variabl_idx,i);
-            if (new_status) break;
-        }
-    }
-    return new_status;
 }
 
 static void add_to_party_process(struct ScriptContext *context)

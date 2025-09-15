@@ -262,7 +262,7 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
           latest_loop_time += lbFadeDelay;
-          
+
           if (flag_is_set(start_params.startup_flags, (SFlg_Legal|SFlg_FX))) {
               LbSleepUntil(latest_loop_time);
           }
@@ -352,11 +352,6 @@ void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense)
     if (i > 10)
         i = 10;
     player->palette_fade_step_pain = i;
-}
-
-void PaletteClearPainFromPlayer(struct PlayerInfo *player)
-{
-    player->palette_fade_step_pain = 0;
 }
 
 

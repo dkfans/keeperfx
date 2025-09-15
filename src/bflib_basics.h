@@ -130,7 +130,6 @@ extern char consoleLogArray[MAX_CONSOLE_LOG_COUNT][MAX_TEXT_LENGTH];
 extern size_t consoleLogArraySize;
 
 // High level functions - DK specific
-void error(const char *codefile,const int ecode,const char *message) __attribute__ ((nonnull(1, 3)));
 short warning_dialog(const char *codefile,const int ecode,const char *message) __attribute__ ((nonnull(1, 3)));
 short error_dialog(const char *codefile,const int ecode,const char *message) __attribute__ ((nonnull(1, 3)));
 short error_dialog_fatal(const char *codefile,const int ecode,const char *message) __attribute__ ((nonnull(1, 3)));
@@ -149,7 +148,6 @@ int LbFTestLog(const char *format, ...) __attribute__ ((format(printf, 1, 2), no
 #endif
 int LbScriptLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
 int LbConfigLog(unsigned long line,const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(2)));
-void LbPrint(const char *format, ...) __attribute__ ((format(printf, 1, 2), nonnull(1)));
 
 int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag);
 int LbErrorLogClose(void);
@@ -159,13 +157,10 @@ int LbLogSetup(struct TbLog *log, const char *filename, ulong flags) __attribute
 int LbLogSetPrefix(struct TbLog *log, const char *prefix) __attribute__ ((nonnull(1, 2)));
 int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...) __attribute__ ((format(printf, 2, 3), nonnull(1, 2)));
 
-void LbCloseLog();
 /******************************************************************************/
 typedef void (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
 /******************************************************************************/
-unsigned long blong (unsigned char *p) __attribute__ ((nonnull(1)));
 unsigned long llong (unsigned char *p) __attribute__ ((nonnull(1)));
-unsigned long bword (unsigned char *p) __attribute__ ((nonnull(1)));
 unsigned long lword (unsigned char *p) __attribute__ ((nonnull(1)));
 long saturate_set_signed(long long val,unsigned short nbits);
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);

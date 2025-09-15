@@ -593,14 +593,6 @@ CrtrStateId get_creature_state_besides_move(const struct Thing *thing)
     return i;
 }
 
-CrtrStateId get_creature_state_besides_drag(const struct Thing *thing)
-{
-    long i = thing->active_state;
-    if (i == CrSt_MoveBackwardsToPosition)
-        i = thing->continue_state;
-    return i;
-}
-
 struct CreatureStateConfig *get_creature_state_with_task_completion(struct Thing *thing)
 {
     struct CreatureStateConfig* stati = get_thing_active_state_info(thing);
@@ -887,19 +879,6 @@ TbBool creature_is_taking_salary_activity(const struct Thing *thing)
     CrtrStateId crstate = get_creature_state_besides_move(thing);
     if ((crstate == CrSt_CreatureWantsSalary) || (crstate == CrSt_CreatureTakeSalary))
         return true;
-    return false;
-}
-
-TbBool creature_is_arming_trap(const struct Thing *thing)
-{
-    CrtrStateId crstate = get_creature_state_besides_move(thing);
-    if (crstate == CrSt_CreaturePicksUpTrapObject) {
-        return true;
-    }
-    crstate = get_creature_state_besides_drag(thing);
-    if (crstate == CrSt_CreatureArmsTrap) {
-        return true;
-    }
     return false;
 }
 

@@ -37,7 +37,6 @@
 #include "keeperfx.hpp"
 #include "map_blocks.h"
 #include "map_data.h"
-#include "math.h"
 #include "player_utils.h"
 #include "player_instances.h"
 #include "room_util.h"
@@ -48,7 +47,7 @@
 #include "thing_physics.h"
 #include "thing_shots.h"
 #include "thing_stats.h"
-
+#include <math.h>
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -685,7 +684,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
     case 1:
     {
         unsigned long argZ;
-        for (long i = 0; i < effcst->elements_count; i++)
+        for (unsigned char i = 0; i < effcst->elements_count; i++)
         {
             if (effcst->kind_min <= 0)
                 continue;

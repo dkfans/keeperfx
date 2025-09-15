@@ -50,7 +50,6 @@
 #include "map_blocks.h"
 #include "map_columns.h"
 #include "map_utils.h"
-#include "math.h"
 #include "packets.h"
 #include "player_computer.h"
 #include "player_instances.h"
@@ -68,6 +67,7 @@
 #include "version.h"
 #include "frontmenu_ingame_map.h"
 #include <string.h>
+#include <math.h>
 #include "lua_base.h"
 #include "post_inc.h"
 
@@ -147,24 +147,6 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
     }
 
     snprintf(cmd_comp_procs_label[i], sizeof(cmd_comp_procs_label[0]), "comp=%d, wait=%ld", 0, comp->gameturn_wait);
-    return 1;
-}
-
-long cmd_comp_checks_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *args)
-{
-    struct Computer2 *comp = get_computer_player(args[0]);
-    int i = 0;
-
-    for (; i < args[1]; i++)
-    {
-        struct ComputerCheck* check = &comp->checks[i];
-        if (check != NULL)
-        {
-            char *label = (char*)goptn[i].label; // this is probably referencing some element of cmd_comp_procs_label
-            snprintf(label, sizeof(cmd_comp_procs_label[0]), "%02lx", check->flags);
-            label[2] = ' ';
-        }
-    }
     return 1;
 }
 
@@ -309,11 +291,11 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
 TbBool cmd_stats(PlayerNumber plyr_idx, char * args)
 {
     targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "clock is %d, requested fps is %d",clock(),game_num_fps);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "clock is %d, requested fps is %d | %d",clock(), game_num_fps, game_num_fps_draw);
     return true;
 }
 
-TbBool cmd_fps(PlayerNumber plyr_idx, char * args)
+TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
 {
     char * pr2str = strsep(&args, " ");
     if (pr2str == NULL) {
@@ -321,6 +303,18 @@ TbBool cmd_fps(PlayerNumber plyr_idx, char * args)
         targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate is %d fps", game_num_fps);
     } else {
         game_num_fps = atoi(pr2str);
+    }
+    return true;
+}
+
+TbBool cmd_fps_draw(PlayerNumber plyr_idx, char * args)
+{
+    char * pr2str = strsep(&args, " ");
+    if (pr2str == NULL) {
+        game_num_fps_draw = start_params.num_fps_draw;
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Drawrate is %d fps", game_num_fps_draw);
+    } else {
+        game_num_fps_draw = atoi(pr2str);
     }
     return true;
 }
@@ -2190,7 +2184,8 @@ struct ConsoleCommand {
 // currently all are in lowercase.
 static const struct ConsoleCommand console_commands[] = {
     { "stats", cmd_stats },
-    { "fps", cmd_fps },
+    { "fps", cmd_fps_turn },
+    { "fps.draw", cmd_fps_draw },
     { "frametime", cmd_frametime },
     { "ft", cmd_frametime },
     { "frametime.max", cmd_frametime_max },

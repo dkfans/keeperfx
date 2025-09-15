@@ -1317,17 +1317,6 @@ int LbTextCharWidth(const long chr)
     }
 }
 
-int LbTextCharHeight(const long chr)
-{
-    if ((dbc_initialized) && (dbc_enabled))
-    {
-        return dbc_char_height(chr);
-    } else
-    {
-        return LbSprFontCharHeight(lbFontPtr,(unsigned char)chr);
-    }
-}
-
 int LbTextWordWidth(const char *str)
 {
     if ((dbc_initialized) && (dbc_enabled))
@@ -1813,16 +1802,6 @@ long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_co
         return spr_width;
     }
     return spr_width;
-}
-
-/**
- * Returns height for an empty space between lines in text on screen.
- * Takes into account the current text window and justification settings.
- */
-long LbGetJustifiedCharHeight(long all_lines_height, long spr_height, long lines_count, unsigned short fdflags)
-{
-  // No vertical justification supported - so the decision is simple
-  return spr_height;
 }
 
 /**

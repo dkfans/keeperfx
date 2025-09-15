@@ -255,11 +255,7 @@ short is_multiplayer_level(LevelNumber lvnum);
 short is_campaign_level(LevelNumber lvnum);
 short is_freeplay_level(LevelNumber lvnum);
 TbBool is_level_in_current_campaign(LevelNumber lvnum);
-int array_index_for_bonus_level(LevelNumber bn_lvnum);
-int array_index_for_extra_level(LevelNumber ex_lvnum);
 int array_index_for_singleplayer_level(LevelNumber sp_lvnum);
-int array_index_for_multiplayer_level(LevelNumber mp_lvnum);
-int array_index_for_freeplay_level(LevelNumber fp_lvnum);
 int storage_index_for_bonus_level(LevelNumber bn_lvnum);
 LevelNumber first_singleplayer_level(void);
 LevelNumber last_singleplayer_level(void);
@@ -267,13 +263,7 @@ LevelNumber next_singleplayer_level(LevelNumber sp_lvnum, TbBool ignore);
 LevelNumber prev_singleplayer_level(LevelNumber sp_lvnum);
 LevelNumber bonus_level_for_singleplayer_level(LevelNumber sp_lvnum);
 LevelNumber first_multiplayer_level(void);
-LevelNumber last_multiplayer_level(void);
 LevelNumber next_multiplayer_level(LevelNumber mp_lvnum);
-LevelNumber prev_multiplayer_level(LevelNumber mp_lvnum);
-LevelNumber first_freeplay_level(void);
-LevelNumber last_freeplay_level(void);
-LevelNumber next_freeplay_level(LevelNumber fp_lvnum);
-LevelNumber prev_freeplay_level(LevelNumber fp_lvnum);
 LevelNumber first_extra_level(void);
 LevelNumber next_extra_level(LevelNumber ex_lvnum);
 LevelNumber get_extra_level(unsigned short elv_kind);
@@ -287,7 +277,6 @@ struct LevelInformation *get_prev_level_info(struct LevelInformation *nextinfo);
 short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvoptions);
 short set_level_info_string_index(LevelNumber lvnum, char *stridx, unsigned long lvoptions);
 short get_level_fgroup(LevelNumber lvnum);
-const char *get_current_language_str(void);
 const char *get_language_lwrstr(int lang_id);
 /******************************************************************************/
 TbBool reset_credits(struct CreditsItem *credits);
@@ -301,9 +290,7 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen);
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen);
-int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 
-int get_conf_list_int(const char *buf, const char **state, int *dst);
 TbBool parse_named_field_block(const char *buf, long len, const char *config_textname, unsigned short flags,const char* blockname,
     const struct NamedField named_field[], const struct NamedFieldSet* named_fields_set, int idx);
 TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname, unsigned short flags,

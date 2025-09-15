@@ -214,11 +214,6 @@ unsigned long get_map_location_plyrval(TbMapLocation location)
   return (location >> 12);
 }
 
-unsigned short get_map_location_plyridx(TbMapLocation location)
-{
-  return (location >> 4) & 0xFF;
-}
-
 /**
  * Writes Code Name (name to use in script file) of given map location to buffer.
  * @ name Output buffer. It should be COMMAND_WORD_LEN long.

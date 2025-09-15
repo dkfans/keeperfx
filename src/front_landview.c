@@ -310,7 +310,7 @@ int get_disabled_flag_option (unsigned short ensign, unsigned short default_ensi
         return EnsDisMoonF;
     else if (base_ensign == EnsNewMoon)
         return EnsDisMoonN;
-    
+
     return EnsDisFull;
 }
 
@@ -793,6 +793,7 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
     unsigned char* dst = dst_buf;
     long dst_width = scr_x;
     long dst_height = scr_y;
+    // FIXME: I'm sure there's a less convoluted way of doing this, code below is setting off lots of cppcheck alarms
     for (y=0; y <= dst_height; y++)
     {
         bpos_x = 0;

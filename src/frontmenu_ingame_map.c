@@ -998,6 +998,8 @@ void setup_background(long units_per_px)
     {
         for (w = MapShapeStart[h]; w < MapShapeEnd[h]; w++)
         {
+            if (w < 0) continue;
+
             TbPixel orig;
             orig = out[w];
             out[w] = 255;

@@ -34,7 +34,7 @@
 #include "game_legacy.h"
 #include "engine_arrays.h"
 #include "kjm_input.h"
-#include "gui_topmsg.h" 
+#include "gui_topmsg.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -119,21 +119,6 @@ TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
     return false;
 }
 
-/**
- * Returns if a thing of given index is in free things list.
- * @param tng_idx Index of the thing to be checked.
- * @return
- */
-TbBool is_in_free_things_list(long tng_idx)
-{
-    for (int i = game.free_things_start_index; i < THINGS_COUNT - 1; i++)
-    {
-        if (game.free_things[i] == tng_idx)
-            return true;
-    }
-    return false;
-}
-
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name)
 {
     TRACE_THING(thing);
@@ -206,22 +191,9 @@ struct Thing *thing_get_f(long tng_idx, const char *func_name)
     return INVALID_THING;
 }
 
-long thing_get_index(const struct Thing *thing)
-{
-    long tng_idx = (thing - game.things.lookup[0]);
-    if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
-        return tng_idx;
-    return 0;
-}
-
 short thing_is_invalid(const struct Thing *thing)
 {
     return (thing <= game.things.lookup[0]) || (thing > game.things.lookup[THINGS_COUNT-1]) || (thing == NULL);
-}
-
-TbBool thing_exists_idx(long tng_idx)
-{
-    return thing_exists(thing_get(tng_idx));
 }
 
 TbBool thing_exists(const struct Thing *thing)
@@ -304,7 +276,7 @@ void query_thing(struct Thing *thing)
     if ( (thing->class_id == TCls_Object) && (thing->model == ObjMdl_SpinningKey) && (!is_key_pressed(KC_LALT, KMod_DONTCARE)) )
     {
         querytng = get_door_for_position(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    }   
+    }
     else
     {
         querytng = thing;

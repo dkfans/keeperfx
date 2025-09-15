@@ -188,11 +188,6 @@ TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr
     return thing_is_in_computer_power_hand_list(thing, plyr_idx);
 }
 
-TbBool thing_is_picked_up_by_owner(const struct Thing *thing)
-{
-    return thing_is_picked_up_by_player(thing, thing->owner);
-}
-
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing)
 {
     if ((thing->alloc_flags & TAlF_IsInLimbo) == 0)

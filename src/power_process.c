@@ -103,11 +103,6 @@ unsigned char call_to_arms_expand_check(void)
     return (myplyr->cast_expand_level != 0) && (!player_uses_power_call_to_arms(myplyr->id_number));
 }
 
-TbBool player_uses_power_armageddon(PlayerNumber plyr_idx)
-{
-    return (game.armageddon_cast_turn != 0) && (game.armageddon_caster_idx == plyr_idx);
-}
-
 void process_armageddon(void)
 {
     struct PlayerInfo *player;

@@ -38,50 +38,6 @@ TCP_NetBase::~TCP_NetBase()
 	SDL_DestroyMutex(msgMutex);
 }
 
-bool TCP_NetBase::fetchDKMessage(ulong & playerId, char buffer[], size_t & bufferLen, bool peek)
-{
-	InternalMsg * msg = peek? peekIntMessage() : getIntMessage();
-
-	if (msg == NULL) {
-		return false;
-	}
-
-	playerId = msg->playerId;
-	if (bufferLen < msg->len) {
-		bufferLen = 0;
-	}
-	else {
-		bufferLen = msg->len;
-		memcpy(buffer, msg, msg->len);
-	}
-
-	if (!peek) {
-		delete msg;
-	}
-
-	return true;
-}
-
-char * TCP_NetBase::buildTCPMessageBuffer(ulong playerId, const char msg[], size_t & msgLen)
-{
-	ulong totalMsgLen = msgLen + TCP_HEADER_SIZE;
-
-	//build buffer
-	char * const buffer = reinterpret_cast<char *>(malloc(totalMsgLen));
-	if (buffer == NULL) {
-		NETMSG("malloc failure");
-		msgLen = 0;
-		return buffer;
-	}
-
-	SDLNet_Write32(playerId, buffer);
-	SDLNet_Write32(msgLen, buffer + 4);
-	memcpy(buffer + 8, msg, msgLen);
-	msgLen = totalMsgLen;
-
-	return buffer;
-}
-
 bool TCP_NetBase::receiveOnSocket(TCPsocket sock, char buffer[], size_t count)
 {
 	size_t numRead = 0;
@@ -134,20 +90,6 @@ TCP_NetBase::InternalMsg * TCP_NetBase::getIntMessage()
 		if (msgHead == NULL) {
 			msgTail = NULL;
 		}
-	}
-
-	SDL_UnlockMutex(msgMutex);
-
-	return retval;
-}
-
-TCP_NetBase::InternalMsg * TCP_NetBase::peekIntMessage()
-{
-	InternalMsg * retval = NULL;
-	SDL_LockMutex(msgMutex);
-
-	if (msgHead != NULL) {
-		retval = msgHead;
 	}
 
 	SDL_UnlockMutex(msgMutex);

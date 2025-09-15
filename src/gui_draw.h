@@ -57,7 +57,6 @@ extern int neutral_flash_rate;
 /******************************************************************************/
 extern char gui_textbuf[TEXT_BUFFER_LENGTH];
 /******************************************************************************/
-int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h);
 int simple_button_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
 int simple_button_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
 int simple_frontend_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
@@ -82,7 +81,6 @@ int scroll_box_get_units_per_px(struct GuiButton *gbtn);
 void draw_gui_panel_sprite_left_player(long x, long y, int units_per_px, long spridx, PlayerNumber plyr_idx);
 #define draw_gui_panel_sprite_rmleft(x, y, units_per_px, spridx, remap) draw_gui_panel_sprite_rmleft_player(x, y, units_per_px, spridx, remap, my_player_number)
 void draw_gui_panel_sprite_rmleft_player(long x, long y, int units_per_px, long spridx, unsigned long remap, PlayerNumber plyr_idx);
-void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx, TbPixel color);
 void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx);
 void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color);
 void draw_button_sprite_left(long x, long y, int units_per_px, long spridx);

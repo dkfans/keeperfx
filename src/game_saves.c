@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
-#include "bflib_bufrw.h"
 
 #include "config.h"
 #include "config_campaigns.h"
@@ -381,12 +380,12 @@ TbBool load_game(long slot_num)
     struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
 
         // Check if the game version is compatible
-    if ((centry->game_ver_major != VER_MAJOR) || (centry->game_ver_minor != VER_MINOR) || 
+    if ((centry->game_ver_major != VER_MAJOR) || (centry->game_ver_minor != VER_MINOR) ||
         (centry->game_ver_release != VER_RELEASE) || (centry->game_ver_build != VER_BUILD))
     {
-        WARNLOG("loading savegame made in different version %d.%d.%d.%d current %d.%d.%d.%d", 
+        WARNLOG("loading savegame made in different version %d.%d.%d.%d current %d.%d.%d.%d",
             (int)centry->game_ver_major, (int)centry->game_ver_minor,
-            (int)centry->game_ver_release, (int)centry->game_ver_build, 
+            (int)centry->game_ver_release, (int)centry->game_ver_build,
             VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
     }
 

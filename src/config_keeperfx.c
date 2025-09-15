@@ -152,9 +152,10 @@ const struct NamedCommand conf_commands[] = {
   {"TURNS_PER_SECOND"              , 36},
   {"FLEE_BUTTON_DEFAULT"           , 37},
   {"IMPRISON_BUTTON_DEFAULT"       , 38},
-  {"TAG_MODE_TOGGLING"             , 39},
-  {"DEFAULT_TAG_MODE"              , 40},
-  {NULL,                              0},
+  {"FRAMES_PER_SECOND"             , 39},
+  {"TAG_MODE_TOGGLING"             , 40},
+  {"DEFAULT_TAG_MODE"              , 41},
+  {NULL,                   0},
   };
 
   const struct NamedCommand vidscale_type[] = {
@@ -288,14 +289,6 @@ void set_skip_heart_zoom_feature(TbBool enable)
 TbBool get_skip_heart_zoom_feature(void)
 {
   return ((features_enabled & Ft_SkipHeartZoom) != 0);
-}
-
-/**
- * Returns current language string.
- */
-const char *get_current_language_str(void)
-{
-  return get_conf_parameter_text(lang_type,install_info.lang_id);
 }
 
 /**
@@ -914,7 +907,23 @@ short load_configuration(void)
               IMPRISON_BUTTON_DEFAULT = false;
           }
           break;
-       case 39: // TAG_MODE_TOGGLING
+      case 39: // FRAMES_PER_SECOND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i < ULONG_MAX))
+          {
+              if (!start_params.overrides[Clo_FramesPerSecond])
+              {
+                  start_params.num_fps_draw = i;
+              }
+          }
+          else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+          }
+          break;
+      case 40: // TAG_MODE_TOGGLING
           i = recognize_conf_parameter(buf,&pos,len,logicval_type);
           if (i <= 0)
           {
@@ -924,7 +933,7 @@ short load_configuration(void)
           }
           right_click_tag_mode_toggle = (i == 1);
           break;
-       case 40: // DEFAULT_TAG_MODE
+      case 41: // DEFAULT_TAG_MODE
           i = recognize_conf_parameter(buf,&pos,len,tag_modes);
           if (i <= 0)
           {
