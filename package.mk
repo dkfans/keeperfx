@@ -130,7 +130,6 @@ pkg/fxdata/lua/class/%.lua: config/fxdata/lua/class/%.lua | pkg/fxdata/lua/class
 	$(CP) $^ $@
 
 pkg/mods/%: config/mods/% | $(PKG_MOD_DIRS)
-	@mkdir -p $(dir $@)
 	$(CP) $< $@
 
 pkg/levels/%.cfg: levels/%.cfg | $(PKG_MAPPACK_DIRS)
