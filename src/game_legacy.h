@@ -328,6 +328,10 @@ struct Game {
         TbBigChecksum host_ai_random_seed;         // Host's AI random seed
         TbBigChecksum host_player_random_seed;     // Host's player random seed
 
+        // Individual Thing checksums for per-Thing desync analysis
+        TbBigChecksum host_thing_checksums[THINGS_COUNT];    // Host's individual Thing checksums
+        int host_thing_count;                               // Number of valid Things stored
+
         TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
     } desync_diagnostics;
 };

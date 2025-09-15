@@ -96,6 +96,29 @@ static struct {
     TbBool is_stored;
 } pre_resync_checksums = {0};
 
+/**
+ * Collects checksums for all individual Things in the game for detailed desync analysis.
+ * Used by host to store per-Thing state during desyncs for later comparison with client.
+ */
+static void collect_individual_thing_checksums(void)
+{
+    int count = 0;
+
+    // Clear existing data
+    memset(game.desync_diagnostics.host_thing_checksums, 0, sizeof(game.desync_diagnostics.host_thing_checksums));
+
+    // Collect checksums for all existing Things
+    for (int i = 1; i < THINGS_COUNT; i++) {
+        struct Thing* thing = thing_get(i);
+        if (thing_exists(thing)) {
+            game.desync_diagnostics.host_thing_checksums[i] = get_thing_checksum(thing);
+            count++;
+        }
+    }
+
+    game.desync_diagnostics.host_thing_count = count;
+}
+
 // Host populates game state with diagnostic checksums that clients receive during resync
 // This allows clients to compare their pre-resync state with host's pre-resync state
 static void populate_desync_diagnostics(void)
@@ -119,6 +142,10 @@ static void populate_desync_diagnostics(void)
     game.desync_diagnostics.host_action_random_seed = pre_resync_checksums.action_random_seed;
     game.desync_diagnostics.host_ai_random_seed = pre_resync_checksums.ai_random_seed;
     game.desync_diagnostics.host_player_random_seed = pre_resync_checksums.player_random_seed;
+
+    // Collect individual Thing checksums for detailed analysis
+    collect_individual_thing_checksums();
+
     game.desync_diagnostics.has_desync_diagnostics = true;
 }
 /******************************************************************************/
@@ -399,6 +426,7 @@ static TbBigChecksum compute_rooms_checksum(void)
     return sum;
 }
 
+
 /**
  * Centralized function to compute all game state checksums for multiplayer sync verification.
  * Used only in multiplayer games to detect desynchronization between networked players.
@@ -564,6 +592,55 @@ static void analyze_things_mismatch_details(void)
 
 }
 
+// Compare individual Thing checksums between current client state and host's stored checksums
+// Logs specific Things that have different checksums to pinpoint desync sources
+static void analyze_individual_thing_differences(void)
+{
+    if (game.desync_diagnostics.host_thing_count == 0) {
+        ERRORLOG("  No individual Thing checksums available from host");
+        return;
+    }
+
+    int mismatched_count = 0;
+
+    ERRORLOG("  Analyzing individual Thing checksums:");
+
+    for (int i = 1; i < THINGS_COUNT; i++) {
+        TbBigChecksum host_checksum = game.desync_diagnostics.host_thing_checksums[i];
+        struct Thing* thing = thing_get(i);
+        TbBool thing_exists_on_client = thing_exists(thing);
+
+        if (host_checksum != 0 && thing_exists_on_client) {
+            TbBigChecksum client_checksum = get_thing_checksum(thing);
+            if (client_checksum != host_checksum) {
+                ERRORLOG("    Thing[%d] MISMATCH - Class: %d, Model: %d, Owner: %d, Pos: (%d,%d,%d) - Client: %08lx vs Host: %08lx",
+                    i, thing->class_id, thing->model, thing->owner,
+                    thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num,
+                    client_checksum, host_checksum);
+                mismatched_count++;
+            }
+        } else if (host_checksum != 0 && !thing_exists_on_client) {
+            ERRORLOG("    Thing[%d] MISSING on client - Host had checksum: %08lx", i, host_checksum);
+            mismatched_count++;
+        } else if (host_checksum == 0 && thing_exists_on_client) {
+            TbBigChecksum client_checksum = get_thing_checksum(thing);
+            if (client_checksum == 0) { // Don't count unsynchronized types as mismatches - they're intentionally not synced
+                SYNCDBG(8, "    Thing[%d] on client (unsynchronized type) - Class: %d, Model: %d, Owner: %d, Pos: (%d,%d,%d) - Note: EffectElem/AmbientSnd not synced",
+                    i, thing->class_id, thing->model, thing->owner,
+                    thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
+            } else {
+                ERRORLOG("    Thing[%d] EXTRA on client (host has none) - Class: %d, Model: %d, Owner: %d, Pos: (%d,%d,%d) - Client checksum: %08lx",
+                    i, thing->class_id, thing->model, thing->owner,
+                    thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num,
+                    client_checksum);
+                mismatched_count++;
+            }
+        }
+    }
+
+    ERRORLOG("  Individual Thing analysis: %d mismatches found", mismatched_count);
+}
+
 
 // Client compares local pre-resync checksums with host diagnostic data
 // This analysis helps identify which game systems diverged between host and client
@@ -577,6 +654,7 @@ void analyze_desync_diagnostics_from_host(void)
     log_checksum_comparison("Things", pre_resync_checksums.things_sum, game.desync_diagnostics.host_things_sum);
     if (pre_resync_checksums.things_sum != game.desync_diagnostics.host_things_sum) {
         analyze_things_mismatch_details();
+        analyze_individual_thing_differences();
     }
 
     log_checksum_comparison("Rooms", pre_resync_checksums.rooms_sum, game.desync_diagnostics.host_rooms_sum);
