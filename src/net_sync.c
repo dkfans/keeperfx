@@ -307,7 +307,6 @@ TbBigChecksum compute_players_checksum(void)
             sum += compute_player_checksum(player);
         }
     }
-    sum += game.action_random_seed;
     return sum;
 }
 
@@ -417,6 +416,11 @@ void compute_multiplayer_checksum_sync(void)
 
     TbBigChecksum players_sum = compute_players_checksum();
     player_packet_checksum_add(my_player_number, players_sum, "players");
+
+    // Seeds
+    player_packet_checksum_add(my_player_number, game.action_random_seed, "action_random");
+    player_packet_checksum_add(my_player_number, game.player_random_seed, "player_random");
+    player_packet_checksum_add(my_player_number, game.ai_random_seed, "ai_random");
 }
 
 /**
@@ -531,23 +535,6 @@ void store_checksums_for_desync_analysis(void)
 }
 
 
-// Count entities in a thing list to help client identify source of desync
-// Used when logging detailed breakdown of thing category mismatches
-static int count_things_in_list(struct StructureList *list)
-{
-    int count = 0;
-    int i = list->index;
-
-    while (i != 0 && count < THINGS_COUNT) {
-        struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing)) {
-            break;
-        }
-        count++;
-        i = thing->next_of_class;
-    }
-    return count;
-}
 
 // Log checksum comparison between client local state and host diagnostic data
 // Shows whether specific category matches or differs to pinpoint desync source
@@ -575,17 +562,6 @@ static void analyze_things_mismatch_details(void)
     log_checksum_comparison("Effect Generators", client_checksums.effect_gens, game.desync_diagnostics.host_effect_gens_sum);
     log_checksum_comparison("Doors", client_checksums.doors, game.desync_diagnostics.host_doors_sum);
 
-    // Show current thing counts to help identify which lists have extra/missing entities
-    int trap_count = count_things_in_list(&game.thing_lists[TngList_Traps]);
-    int shot_count = count_things_in_list(&game.thing_lists[TngList_Shots]);
-    int object_count = count_things_in_list(&game.thing_lists[TngList_Objects]);
-    int effect_count = count_things_in_list(&game.thing_lists[TngList_Effects]);
-    int dead_creature_count = count_things_in_list(&game.thing_lists[TngList_DeadCreatrs]);
-    int effect_gen_count = count_things_in_list(&game.thing_lists[TngList_EffectGens]);
-    int door_count = count_things_in_list(&game.thing_lists[TngList_Doors]);
-
-    ERRORLOG("  Thing counts - Traps: %d, Shots: %d, Objects: %d, Effects: %d, Dead: %d, EffGens: %d, Doors: %d",
-             trap_count, shot_count, object_count, effect_count, dead_creature_count, effect_gen_count, door_count);
 }
 
 
