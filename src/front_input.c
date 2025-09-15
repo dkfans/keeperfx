@@ -353,7 +353,7 @@ void increaseFrameskip(void)
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)
         sprintf(speed_txt, "x%ld", game.frame_skip);
-    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Foward %s", speed_txt);
+    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Forward %s", speed_txt);
 }
 
 void decreaseFrameskip(void)
@@ -371,7 +371,7 @@ void decreaseFrameskip(void)
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)
         sprintf(speed_txt, "x%ld", game.frame_skip);
-    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Foward %s", speed_txt);
+    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Forward %s", speed_txt);
 }
 
 /**
