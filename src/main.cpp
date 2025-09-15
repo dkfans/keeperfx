@@ -138,10 +138,6 @@
 #define strcasecmp _stricmp
 #endif
 
-extern "C" void compute_multiplayer_checksum_sync(void);
-
-int test_variable;
-
 char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
@@ -207,14 +203,13 @@ extern "C" {
 TbBool force_player_num = false;
 
 /******************************************************************************/
-
 extern void faststartup_network_game(CoroutineLoop *context);
 extern void faststartup_saved_packet_game(void);
 extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param);
-void first_gameturn_actions(void);
 extern CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 extern void startup_network_game(CoroutineLoop *context, TbBool local);
-
+void first_gameturn_actions(void);
+void compute_multiplayer_checksum_sync(void);
 /******************************************************************************/
 
 TbClockMSec timerstarttime = 0;
