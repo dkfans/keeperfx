@@ -353,12 +353,12 @@ void increaseFrameskip(void)
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)
         sprintf(speed_txt, "x%ld", game.frame_skip);
-    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Game speed %s", speed_txt);
+    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Foward %s", speed_txt);
 }
 
 void decreaseFrameskip(void)
 {
-    // Defaulno longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
+    // Defaul no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
     int level = 16;
     for (int i=0; i<10; i++) {
         if (game.frame_skip <= level)
@@ -371,7 +371,7 @@ void decreaseFrameskip(void)
     char speed_txt[256] = "normal";
     if (game.frame_skip > 0)
         sprintf(speed_txt, "x%ld", game.frame_skip);
-    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Game speed %s", speed_txt);
+    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Foward %s", speed_txt);
 }
 
 /**
