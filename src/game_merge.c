@@ -31,6 +31,8 @@ extern "C" {
 /******************************************************************************/
 struct IntralevelData intralvl;
 unsigned long game_flags2 = 0;
+/** Local (non-synced) random seed for visual effects that don't affect game state */
+unsigned long unsync_random_seed = 0;
 /******************************************************************************/
 /******************************************************************************/
 /**

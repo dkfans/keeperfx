@@ -580,7 +580,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         {
             if (shotng->model == ShM_Lizard)
             {
-                if (shotng->shot_lizard2.range >= CREATURE_RANDOM(shotng, 90))
+                if (shotng->shot_lizard2.range >= THING_RANDOM(shotng, 90))
                 {
                     struct Coord3d target_pos;
                     target_pos.x.val = shotng->shot_lizard.x;
@@ -927,7 +927,7 @@ long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target, 
     {
         hitchance = 96;
     }
-    if (CREATURE_RANDOM(shotng, 256) < (128 + hitchance))
+    if (THING_RANDOM(shotng, 256) < (128 + hitchance))
     {
         return shotng->shot.damage;
     }
@@ -1347,14 +1347,14 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
                 {
                     i = push_strength * shotng->velocity.x.val;
                     trgtng->veloc_push_add.x.val += i / 64;
-                    i = push_strength * shotng->velocity.x.val * (CREATURE_RANDOM(shotng, 3) - 1);
+                    i = push_strength * shotng->velocity.x.val * (THING_RANDOM(shotng, 3) - 1);
                     trgtng->veloc_push_add.y.val += i / 64;
                 }
                 else
                 {
                     i = push_strength * shotng->velocity.y.val;
                     trgtng->veloc_push_add.y.val += i / 64;
-                    i = push_strength * shotng->velocity.y.val * (CREATURE_RANDOM(shotng, 3) - 1);
+                    i = push_strength * shotng->velocity.y.val * (THING_RANDOM(shotng, 3) - 1);
                     trgtng->veloc_push_add.x.val += i / 64;
                 }
                 trgtng->state_flags |= TF1_PushAdd;

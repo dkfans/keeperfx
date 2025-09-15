@@ -201,9 +201,9 @@ struct Game {
     GameTurn play_gameturn;
     GameTurn pckt_gameturn;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
-    unsigned long action_rand_seed;
-    /** Unsynchronized random seed. Shouldn't affect game actions, because it's local - other clients have different value. */
-    unsigned long unsync_rand_seed;
+    unsigned long action_random_seed;
+    unsigned long ai_random_seed;
+    unsigned long player_random_seed;
     int something_light_x;
     int something_light_y;
     unsigned long time_delta;
@@ -325,7 +325,7 @@ struct Game {
 
         // Individual player checksums for detailed player analysis
         TbBigChecksum host_player_checksums[PLAYERS_COUNT];  // Host's individual player checksums
-        TbBigChecksum host_action_rand_seed;     // Host's action random seed
+        TbBigChecksum host_action_random_seed;     // Host's action random seed
 
         TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
     } desync_diagnostics;

@@ -86,6 +86,7 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     }
     thing->alloc_flags |= TAlF_Exists;
     thing->index = game.free_things[i];
+    thing->random_seed = thing->index * 9377 + 9439 + game.play_gameturn;
     game.free_things[game.free_things_start_index] = 0;
     game.free_things_start_index++;
     TRACE_THING(thing);
@@ -259,7 +260,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     } else
     if (start_frame == -1)
     {
-      i = CREATURE_RANDOM(thing, thing->max_frames);
+      i = THING_RANDOM(thing, thing->max_frames);
       thing->current_frame = i;
       thing->anim_time = i << 8;
     } else

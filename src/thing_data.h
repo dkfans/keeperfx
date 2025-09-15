@@ -312,6 +312,7 @@ struct Thing {
     long interp_minimap_pos_y;
     long previous_minimap_pos_x;
     long previous_minimap_pos_y;
+    unsigned long random_seed;
     long interp_minimap_update_turn;
     PlayerNumber holding_player;
 };

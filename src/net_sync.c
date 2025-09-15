@@ -89,7 +89,7 @@ static struct {
     TbBigChecksum rooms_sum;
     TbBigChecksum players_sum;
     GameTurn gameturn;
-    TbBigChecksum action_rand_seed;
+    TbBigChecksum action_random_seed;
     TbBigChecksum player_checksums[PLAYERS_COUNT];
     struct DetailedThingChecksums things_detailed;
     TbBool is_stored;
@@ -116,7 +116,7 @@ static void populate_desync_diagnostics(void)
     for (int i = 0; i < PLAYERS_COUNT; i++) {
         game.desync_diagnostics.host_player_checksums[i] = pre_resync_checksums.player_checksums[i];
     }
-    game.desync_diagnostics.host_action_rand_seed = pre_resync_checksums.action_rand_seed;
+    game.desync_diagnostics.host_action_random_seed = pre_resync_checksums.action_random_seed;
     game.desync_diagnostics.has_desync_diagnostics = true;
 }
 /******************************************************************************/
@@ -251,7 +251,7 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     clear_packets();
     struct Packet* pckt = get_packet(my_player_number);
     set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
-    pckt->chksum = checksum_mem + game.action_rand_seed;
+    pckt->chksum = checksum_mem + game.action_random_seed;
     if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)))
     {
         ERRORLOG("Network exchange failed on level checksum verification");
@@ -305,7 +305,7 @@ TbBigChecksum compute_players_checksum(void)
             sum += compute_player_checksum(player);
         }
     }
-    sum += game.action_rand_seed;
+    sum += game.action_random_seed;
     return sum;
 }
 
@@ -507,8 +507,8 @@ void store_checksums_for_desync_analysis(void)
     pre_resync_checksums.rooms_sum = compute_rooms_checksum();
 
     // Players checksum includes action random seed plus individual player states
-    pre_resync_checksums.action_rand_seed = game.action_rand_seed;
-    pre_resync_checksums.players_sum = pre_resync_checksums.action_rand_seed;
+    pre_resync_checksums.action_random_seed = game.action_random_seed;
+    pre_resync_checksums.players_sum = pre_resync_checksums.action_random_seed;
 
     for (int i = 0; i < PLAYERS_COUNT; i++) {
         struct PlayerInfo* player = get_player(i);
@@ -592,7 +592,7 @@ static void analyze_players_mismatch_details(void)
 {
     ERRORLOG("  Breaking down PLAYERS MISMATCH by player:");
 
-    log_checksum_comparison("    Action rand seed", pre_resync_checksums.action_rand_seed, game.desync_diagnostics.host_action_rand_seed);
+    log_checksum_comparison("    Action rand seed", pre_resync_checksums.action_random_seed, game.desync_diagnostics.host_action_random_seed);
 
     for (int i = 0; i < PLAYERS_COUNT; i++) {
         struct PlayerInfo* player = get_player(i);

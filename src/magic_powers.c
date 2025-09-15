@@ -1281,8 +1281,8 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     {
         creature_change_multiple_levels(thing, powerst->strength[power_level]);
     }
-    thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
-    thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.x.val += THING_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.y.val += THING_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 160;
     thing->state_flags |= TF1_PushAdd;
     thing->move_angle_xy = ANGLE_NORTH;

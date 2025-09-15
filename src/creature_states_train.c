@@ -161,7 +161,7 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
     if ( restart )
       cctrl->training.search_timeout = 50;
     // Try partner training
-    if ((crconf->partner_training > 0) && (CREATURE_RANDOM(thing, 100) < crconf->partner_training))
+    if ((crconf->partner_training > 0) && (THING_RANDOM(thing, 100) < crconf->partner_training))
     {
         struct Thing* prtng = get_creature_in_training_room_which_could_accept_partner(room, thing);
         if (!thing_is_invalid(prtng))
@@ -210,7 +210,7 @@ void setup_training_search_for_post(struct Thing *creatng)
     long slb_y = -1;
     long min_distance = LONG_MAX;
     struct Thing* traintng = INVALID_THING;
-    long start_slab = CREATURE_RANDOM(creatng, room->slabs_count);
+    long start_slab = THING_RANDOM(creatng, room->slabs_count);
     long k = start_slab;
     long i = room->slabs_list;
     while (i != 0)

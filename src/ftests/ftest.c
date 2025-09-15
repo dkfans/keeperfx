@@ -329,14 +329,18 @@ void ftest_srand()
     {
         if(start_params.functest_seed == 0)
         {
-            game.action_rand_seed = game.play_gameturn;
-            game.unsync_rand_seed = game.play_gameturn;
+            game.action_random_seed = game.play_gameturn;
+            game.ai_random_seed = game.play_gameturn * 9377 + 9439 + game.play_gameturn;
+            game.player_random_seed = game.play_gameturn * 9439 + 9377 + game.play_gameturn;
+            unsync_random_seed = game.play_gameturn;
             srand(game.play_gameturn);
         }
         else
         {
-            game.action_rand_seed = start_params.functest_seed;
-            game.unsync_rand_seed = start_params.functest_seed;
+            game.action_random_seed = start_params.functest_seed;
+            game.ai_random_seed = start_params.functest_seed * 9377 + 9439 + game.play_gameturn;
+            game.player_random_seed = start_params.functest_seed * 9439 + 9377 + game.play_gameturn;
+            unsync_random_seed = start_params.functest_seed;
             srand(start_params.functest_seed);
         }
     }

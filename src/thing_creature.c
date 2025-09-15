@@ -1807,9 +1807,9 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
         check_map_explored(thing, pos.x.stl.num, pos.y.stl.num);
         if (!flag_is_set(thing->movement_flags, TMvF_Flying))
         {
-            thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 193) - 96;
-            thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 193) - 96;
-            thing->veloc_push_add.z.val += CREATURE_RANDOM(thing, 96) + 40;
+            thing->veloc_push_add.x.val += THING_RANDOM(thing, 193) - 96;
+            thing->veloc_push_add.y.val += THING_RANDOM(thing, 193) - 96;
+            thing->veloc_push_add.z.val += THING_RANDOM(thing, 96) + 40;
             set_flag(thing->state_flags, TF1_PushAdd);
         }
         player->teleport_destination = 19;
@@ -1992,8 +1992,8 @@ void teleport_familiar_to_summoner(struct Thing *famlrtng, struct Thing* creatng
     cleanup_current_thing_state(famlrtng);
     reset_interpolation_of_thing(famlrtng);
 
-    famlrtng->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
-    famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+    famlrtng->veloc_push_add.x.val += THING_RANDOM(famlrtng, 161) - 80;
+    famlrtng->veloc_push_add.y.val += THING_RANDOM(famlrtng, 161) - 80;
     famlrtng->veloc_push_add.z.val += 0;
     set_flag(famlrtng->state_flags, TF1_PushAdd);
     set_flag(famlrtng->movement_flags, TMvF_MagicFall);
@@ -2892,13 +2892,13 @@ void throw_out_gold(struct Thing* thing, long amount)
         if (thing_is_invalid(gldtng))
             break;
         // Update its position and acceleration
-        long angle = CREATURE_RANDOM(thing, DEGREES_360);
-        long radius = CREATURE_RANDOM(thing, 128);
+        long angle = THING_RANDOM(thing, DEGREES_360);
+        long radius = THING_RANDOM(thing, 128);
         long x = (radius * LbSinL(angle)) / 256;
         long y = (radius * LbCosL(angle)) / 256;
         gldtng->veloc_push_add.x.val += x/256;
         gldtng->veloc_push_add.y.val -= y/256;
-        gldtng->veloc_push_add.z.val += CREATURE_RANDOM(thing, 64) + 96;
+        gldtng->veloc_push_add.z.val += THING_RANDOM(thing, 64) + 96;
         gldtng->state_flags |= TF1_PushAdd;
         // Set the amount of gold and mark that we've dropped that gold
         GoldAmount delta = (amount - gold_dropped) / (num_pots_to_drop - npot);
@@ -3498,9 +3498,9 @@ static void shot_init_lizard(const struct Thing *target, short angle_xy, unsigne
     {
         long range = 2200 - (dexterity * 19);
         range = range < 1 ? 1 : range;
-        long rnd = (CREATURE_RANDOM(firing, 2 * range) - range);
-        rnd = rnd < (range / 3) && rnd > 0 ? (CREATURE_RANDOM(firing, range / 2) + (range / 2)) + 200 : rnd + 200;
-        rnd = rnd > -(range / 3) && rnd < 0 ? -(CREATURE_RANDOM(firing, range / 3) + (range / 3)) : rnd;
+        long rnd = (THING_RANDOM(shotng, 2 * range) - range);
+        rnd = rnd < (range / 3) && rnd > 0 ? (THING_RANDOM(shotng, range / 2) + (range / 2)) + 200 : rnd + 200;
+        rnd = rnd > -(range / 3) && rnd < 0 ? -(THING_RANDOM(shotng, range / 3) + (range / 3)) : rnd;
         long x = move_coord_with_angle_x(target->mappos.x.val, rnd, angle_xy);
         long y = move_coord_with_angle_y(target->mappos.y.val, rnd, angle_xy);
         int posint = y / game.conf.crtr_conf.sprite_size;
@@ -3564,7 +3564,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         pos1.z.val += trapst->shot_shift_z;
 
         max_dexterity = UCHAR_MAX;
-        dexterity = max_dexterity/4 + CREATURE_RANDOM(firing, max_dexterity/2);
+        dexterity = max_dexterity/4 + THING_RANDOM(firing, max_dexterity/2);
     }
     else
     {
@@ -3674,21 +3674,22 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shot_set_start_pos(firing, shotst, &pos1);
         for (i = 0; i < shotst->effect_amount; i++)
         {
+            tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
+            if (thing_is_invalid(tmptng))
+              break;
+            shotng = tmptng;
+
             if (shotst->speed_deviation)
             {
-                speed = (short)(shotst->speed - (shotst->speed_deviation/2) + (CREATURE_RANDOM(firing, shotst->speed_deviation)));
+                speed = (short)(shotst->speed - (shotst->speed_deviation/2) + (THING_RANDOM(shotng, shotst->speed_deviation)));
             }
             else
             {
                 speed = shotst->speed;
             }
-            tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
-            if (thing_is_invalid(tmptng))
-              break;
-            shotng = tmptng;
             shotng->shot.hit_type = hit_type;
-            shotng->move_angle_xy = (short)((angle_xy + CREATURE_RANDOM(firing, 2 * shotst->spread_xy + 1) - shotst->spread_xy) & ANGLE_MASK);
-            shotng->move_angle_z = (short)((angle_yz + CREATURE_RANDOM(firing, 2 * shotst->spread_z + 1) - shotst->spread_z) & ANGLE_MASK);
+            shotng->move_angle_xy = (short)((angle_xy + THING_RANDOM(shotng, 2 * shotst->spread_xy + 1) - shotst->spread_xy) & ANGLE_MASK);
+            shotng->move_angle_z = (short)((angle_yz + THING_RANDOM(shotng, 2 * shotst->spread_z + 1) - shotst->spread_z) & ANGLE_MASK);
             angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, speed, &cvect);
             shotng->veloc_push_add.x.val += cvect.x;
             shotng->veloc_push_add.y.val += cvect.y;
@@ -3711,8 +3712,8 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             return;
         if (shotst->spread_xy || shotst->spread_z)
         {
-            shotng->move_angle_xy = (short)((angle_xy + CREATURE_RANDOM(firing, 2 * shotst->spread_xy + 1) - shotst->spread_xy) & ANGLE_MASK);
-            shotng->move_angle_z = (short)((angle_yz + CREATURE_RANDOM(firing, 2 * shotst->spread_z + 1) - shotst->spread_z) & ANGLE_MASK);
+            shotng->move_angle_xy = (short)((angle_xy + THING_RANDOM(shotng, 2 * shotst->spread_xy + 1) - shotst->spread_xy) & ANGLE_MASK);
+            shotng->move_angle_z = (short)((angle_yz + THING_RANDOM(shotng, 2 * shotst->spread_z + 1) - shotst->spread_z) & ANGLE_MASK);
         }
         else
         {
@@ -3721,7 +3722,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         }
         if (shotst->speed_deviation)
         {
-            speed = (short)(shotst->speed - (shotst->speed_deviation / 2) + (CREATURE_RANDOM(firing, shotst->speed_deviation)));
+            speed = (short)(shotst->speed - (shotst->speed_deviation / 2) + (THING_RANDOM(shotng, shotst->speed_deviation)));
         }
         else
         {
@@ -4776,8 +4777,8 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->mappos.y.val = pos->y.val;
     crtng->mappos.z.val = pos->z.val;
     crtng->creation_turn = game.play_gameturn;
-    cctrl->joining_age = 17 + CREATURE_RANDOM(crtng, 13);
-    cctrl->blood_type = CREATURE_RANDOM(crtng, BLOOD_TYPES_COUNT);
+    cctrl->joining_age = 17 + THING_RANDOM(crtng, 13);
+    cctrl->blood_type = THING_RANDOM(crtng, BLOOD_TYPES_COUNT);
     if (player_is_roaming(owner))
     {
         cctrl->hero.hero_state = -1;

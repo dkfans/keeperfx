@@ -287,7 +287,7 @@ short researching(struct Thing *thing)
           // Do some random thinking
           if ((cctrl->turns_at_job % 16) == 0)
           {
-              long i = CREATURE_RANDOM(thing, DEGREES_180) - DEGREES_90;
+              long i = THING_RANDOM(thing, DEGREES_180) - DEGREES_90;
               cctrl->research.random_thinking_angle = ((long)thing->move_angle_xy + i) & ANGLE_MASK;
               cctrl->research.job_stage = JobStage_TurningToFace;
           }

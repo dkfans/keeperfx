@@ -570,8 +570,8 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
         delete_thing_structure(thing, 0);
         return INVALID_THING;
     }
-    thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
-    thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.x.val += THING_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.y.val += THING_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 0;
     set_flag(thing->state_flags, TF1_PushAdd);
     set_flag(thing->movement_flags, TMvF_MagicFall);
