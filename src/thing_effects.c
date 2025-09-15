@@ -88,7 +88,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
     struct EffectElementConfigStats* eestat = get_effect_element_model_stats(eelmodel);
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
-    struct Thing* thing = allocate_free_thing_structure(FTAF_Default);
+    struct Thing* thing = allocate_free_thing_structure(FTAF_Default | FTAF_NonSynchronized);
     if (thing->index == 0) {
         ERRORDBG(8,"Should be able to allocate effect element %d for player %d, but failed.",(int)eelmodel,(int)owner);
         return INVALID_THING;

@@ -428,7 +428,7 @@ struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, 
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots | FTAF_NonSynchronized);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate ambient sound %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);

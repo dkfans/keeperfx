@@ -198,6 +198,8 @@ struct Game {
     unsigned short free_things[THINGS_COUNT-1];
     /** Index of the first used element in free things array. All elements BEYOND this index are free. If all things are free, it is set to 0. */
     ThingIndex free_things_start_index;
+    /** Next index to try when allocating non-synchronized things (EffectElems, AmbientSnds). These don't use the free_things array. */
+    ThingIndex next_non_synced_thing_index;
     GameTurn play_gameturn;
     GameTurn pckt_gameturn;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */

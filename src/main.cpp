@@ -1645,6 +1645,15 @@ void clear_things_and_persons_data(void)
     {
       memset(&game.cctrl_data[i], 0, sizeof(struct CreatureControl));
     }
+
+    // Initialize free things list
+    game.free_things_start_index = 0;
+    for (i = 1; i < THINGS_COUNT; i++)
+    {
+        game.free_things[i-1] = i;
+    }
+    // Initialize non-synchronized things allocation
+    game.next_non_synced_thing_index = NON_SYNCED_THINGS_START;
 }
 
 void clear_computer(void)
@@ -1723,6 +1732,8 @@ void delete_all_thing_structures(void)
       game.free_things[i] = i+1;
     }
     game.free_things_start_index = 0;
+    // Reset non-synchronized things allocation
+    game.next_non_synced_thing_index = NON_SYNCED_THINGS_START;
 }
 
 void delete_all_structures(void)
