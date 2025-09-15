@@ -70,42 +70,77 @@ const struct NamedCommand logicval_type[] = {
   {"1",        1},
   {"0",        2},
   {NULL,       0},
-  };
+};
 
-  TbBool parameter_is_number(const char* parstr) {
-      if (parstr == NULL) {
-          return false;
-      }
+TbBool parameter_is_number(const char* parstr) {
+    if (parstr == NULL) {
+        return false;
+    }
 
-      // Trim leading spaces
-      while (*parstr == ' ') {
-          parstr++;
-      }
+    // Trim leading spaces
+    while (*parstr == ' ') {
+        parstr++;
+    }
 
-      // Trim trailing spaces
-      int len = strlen(parstr);
-      while (len > 0 && parstr[len - 1] == ' ') {
-          len--;
-      }
+    // Trim trailing spaces
+    int len = strlen(parstr);
+    while (len > 0 && parstr[len - 1] == ' ') {
+        len--;
+    }
 
-      if (len == 0) {
-          return false;
-      }
+    if (len == 0) {
+        return false;
+    }
 
-      // Check if the first character is a valid start for a number
-      if (!(parstr[0] == '-' || isdigit(parstr[0]))) {
-          return false;
-      }
+    // Check if the first character is a valid start for a number
+    if (!(parstr[0] == '-' || isdigit(parstr[0]))) {
+        return false;
+    }
 
-      // Check the remaining characters
-      for (int i = 1; i < len; ++i) {
-          if (!isdigit(parstr[i])) {
-              return false;
-          }
-      }
+    // Check the remaining characters
+    for (int i = 1; i < len; ++i) {
+        if (!isdigit(parstr[i])) {
+            return false;
+        }
+    }
 
-      return true;
-  }
+    return true;
+}
+
+int get_conf_line(const char *buf, long *pos, long buflen, char *dst, long dstlen)
+{
+    SYNCDBG(19,"Starting");
+    if ((*pos) >= buflen) return ccr_endOfFile;
+    // Skipping starting spaces
+    while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
+    {
+        (*pos)++;
+        if ((*pos) >= buflen) return ccr_endOfFile;
+    }
+    // Checking if this line is a comment
+    if (buf[*pos] == ';')
+        return ccr_comment;
+    // Checking if this line is start of a block
+    if (buf[*pos] == '[')
+        return ccr_endOfBlock;
+    int i = 0;
+    for (i=0; i+1 < dstlen; i++)
+    {
+        if ((buf[*pos]=='\r') || (buf[*pos]=='\n') || ((unsigned char)buf[*pos] < 7))
+            break;
+        dst[i]=buf[*pos];
+        (*pos)++;
+        if ((*pos) > buflen) break;
+    }
+    // Trim ending spaces
+    for (; i>0; i--)
+    {
+        if ( (dst[i-1] != ' ') && (dst[i-1] != '\t') && (dst[i-1] != 26) )
+            break;
+    }
+    dst[i]='\0';
+    return i;
+}
 
 
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
@@ -1193,8 +1228,16 @@ long get_rid(const struct NamedCommand *desc, const char *itmname)
 
 char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *fname)
 {
-  const char *mdir;
-  const char *sdir;
+    return prepare_file_path_buf_mod(dst, dst_size, NULL, fgroup, fname);
+}
+/*
+ * @mod_dir insert before fgroup related sdir, set NULL if no mod.
+ * @fname insert after fgroup related sdir.
+ */
+char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, short fgroup, const char *fname)
+{
+  const char *mdir = NULL;
+  const char *sdir = NULL;
   switch (fgroup)
   {
   case FGrp_StdData:
@@ -1308,33 +1351,56 @@ char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *f
   }
   if (mdir == NULL)
       dst[0] = '\0';
-  else
-  if (sdir == NULL)
-      snprintf(dst, dst_size, "%s/%s",mdir,fname);
-  else
-      snprintf(dst, dst_size, "%s/%s/%s",mdir,sdir,fname);
+  else {
+      if (mod_dir == NULL)
+          mod_dir = "";
+      if (sdir == NULL)
+          sdir = "";
+      if (fname == NULL)
+          fname = "";
+
+      const char *mod_sep = mod_dir[0] ==0 ? "" : "/";
+      const char *dir_sep = sdir[0] == 0 ? "" : "/";
+      const char *file_sep = fname[0] ==0 ? "" : "/";
+      snprintf(dst, dst_size, "%s%s%s%s%s%s%s", mdir, mod_sep, mod_dir, dir_sep, sdir, file_sep, fname);
+  }
   return dst;
 }
 
-char *prepare_file_path(short fgroup,const char *fname)
+char *prepare_file_path_mod(const char *mod_dir, short fgroup, const char *fname)
 {
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
+  return prepare_file_path_buf_mod(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
 }
 
-char *prepare_file_path_va(short fgroup, const char *fmt_str, va_list arg)
+char *prepare_file_path(short fgroup, const char *fname)
+{
+  static char ffullpath[2048];
+  return prepare_file_path_buf_mod(ffullpath, sizeof(ffullpath), NULL, fgroup, fname);
+}
+
+char *prepare_file_path_va_mod(const char *mod_dir, short fgroup, const char *fmt_str, va_list arg)
 {
   char fname[255] = "";
   vsnprintf(fname, sizeof(fname), fmt_str, arg);
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
+  return prepare_file_path_buf_mod(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
+}
+
+char *prepare_file_fmtpath_mod(const char *mod_dir, short fgroup, const char *fmt_str, ...)
+{
+  va_list val;
+  va_start(val, fmt_str);
+  char* result = prepare_file_path_va_mod(mod_dir, fgroup, fmt_str, val);
+  va_end(val);
+  return result;
 }
 
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...)
 {
   va_list val;
   va_start(val, fmt_str);
-  char* result = prepare_file_path_va(fgroup, fmt_str, val);
+  char* result = prepare_file_path_va_mod(NULL, fgroup, fmt_str, val);
   va_end(val);
   return result;
 }
@@ -2006,6 +2072,63 @@ TbBool is_level_in_current_campaign(LevelNumber lvnum)
     return false;
 }
 
+
+/* @comment
+ *     The loading items of load_config and load_config_for_mod_one need to be consistent.
+ */
+static void load_config_for_mod_one(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_item)
+{
+    set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+
+    const char* conf_fname = file_data->filename;
+    const struct ModExistState *mod_state = &mod_item->state;
+    char* fname = NULL;
+    char mod_dir[256] = {0};
+    sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
+
+    if (mod_state->fx_data)
+    {
+        fname = prepare_file_path_mod(mod_dir, FGrp_FxData, conf_fname);
+        if (strlen(fname) > 0)
+        {
+            file_data->load_func(fname, flags);
+        }
+    }
+
+    if (mod_state->cmpg_config)
+    {
+        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig,conf_fname);
+        if (strlen(fname) > 0)
+        {
+            file_data->load_func(fname,flags);
+        }
+    }
+
+    if (mod_state->cmpg_lvls)
+    {
+        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+        if (strlen(fname) > 0)
+        {
+            file_data->load_func(fname,flags);
+        }
+    }
+}
+
+static void load_config_for_mod_list(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_items, long mod_cnt)
+{
+    for (long i=0; i<mod_cnt; i++)
+    {
+        const struct ModConfigItem *mod_item = mod_items + i;
+        if (mod_item->state.mod_dir == 0)
+            continue;
+
+        load_config_for_mod_one(file_data, flags, mod_item);
+    }
+}
+
+/* @comment
+ *     The loading items of load_config and load_config_for_mod_one need to be consistent.
+ */
 TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
 {
     if (file_data->pre_load_func != NULL)
@@ -2014,24 +2137,43 @@ TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
     }
 
     const char* conf_fname = file_data->filename;
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
 
+    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = file_data->load_func(fname, flags);
+
+    if (mods_conf.after_base_cnt > 0)
+    {
+        load_config_for_mod_list(file_data, flags, mods_conf.after_base_item, mods_conf.after_base_cnt);
+    }
+
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
+
+    if (mods_conf.after_campaign_cnt > 0)
+    {
+        load_config_for_mod_list(file_data, flags, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
+    }
+
     fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
     if (strlen(fname) > 0)
     {
         file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
 
+    if (mods_conf.after_map_cnt > 0)
+    {
+        load_config_for_mod_list(file_data, flags, mods_conf.after_map_item, mods_conf.after_map_cnt);
+    }
+
     if (file_data->post_load_func != NULL)
     {
         file_data->post_load_func();
     }
+
     return result;
 }
+
 /******************************************************************************/

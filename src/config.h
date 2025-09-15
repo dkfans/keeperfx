@@ -240,8 +240,11 @@ extern char keeper_runtime_directory[152];
 /******************************************************************************/
 extern unsigned long text_line_number;
 /******************************************************************************/
+char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, short fgroup, const char *fname);
+char *prepare_file_path_mod(const char *mod_dir, short fgroup, const char *fname);
+char *prepare_file_fmtpath_mod(const char *mod_dir, short fgroup, const char *fmt_str, ...);
 char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *fname);
-char *prepare_file_path(short fgroup,const char *fname);
+char *prepare_file_path(short fgroup, const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
 unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
@@ -287,6 +290,7 @@ TbBool parameter_is_number(const char* parstr);
 short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname);
 TbBool iterate_conf_blocks(const char * buf, long * pos, long buflen, const char ** name, int * namelen);
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
+int get_conf_line(const char *buf, long *pos, long buflen, char *dst, long dstlen);
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen);
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen);
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen);
