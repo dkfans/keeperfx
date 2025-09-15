@@ -938,13 +938,12 @@ short load_configuration(void)
           if (i <= 0)
           {
             CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
-            break;
           }
           else
           {
             default_tag_mode = i;
-            break;
           }
+          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
