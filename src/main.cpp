@@ -199,8 +199,6 @@ unsigned char EngineSpriteDrawUsingAlpha;
 unsigned char temp_pal[768];
 unsigned char *lightning_palette;
 
-//static
-TbClockMSec last_loop_time=0;
 
 #ifdef __cplusplus
 extern "C" {
@@ -3257,22 +3255,40 @@ TbBool keeper_screen_swap(void)
  */
 TbBool keeper_wait_for_next_turn(void)
 {
+    const long double tick_ns_one_sec = 1000000000.0;
+    long double tick_ns_one_frame = -1;
     if ((game.view_mode_flags & GNFldD_WaitSleepMode) != 0)
     {
         // No idea when such situation occurs
-        TbClockMSec sleep_end = last_loop_time + 1000;
-        LbSleepUntil(sleep_end);
-        last_loop_time = LbTimerClock();
-        return true;
+        tick_ns_one_frame = tick_ns_one_sec;
     }
-    if (game.frame_skip == 0)
+    if (game.frame_skip >= 0)
     {
         // Standard delaying system
-        TbClockMSec sleep_end = last_loop_time + 1000/game_num_fps;
-        LbSleepUntil(sleep_end);
-        last_loop_time = LbTimerClock();
+        long num_fps = game_num_fps;
+        if (game.frame_skip > 0)
+            num_fps *= game.frame_skip;
+
+        tick_ns_one_frame = tick_ns_one_sec/num_fps;
+    }
+
+    if (tick_ns_one_frame >= 0) {
+        static long double tick_ns_last_turn = 0;
+
+        long double tick_ns_cur = get_time_tick_ns();
+        long double tick_ns_used = tick_ns_cur - tick_ns_last_turn;
+        long double tick_ns_delay = tick_ns_one_frame - tick_ns_used;
+
+        long double tick_ns_end = tick_ns_cur;
+        // tick_ns_used: every level, initialized_time_point will be reset, so tick_ns_used may be less than 0 when enter level for the non-first time, Skip it directly to solve the problem.
+        if (tick_ns_delay > 0 && tick_ns_used >= 0) {
+            tick_ns_end = tick_ns_cur + tick_ns_delay;
+            LbSleepUntilExt(tick_ns_end);
+        }
+        tick_ns_last_turn = tick_ns_end;
         return true;
     }
+
     return false;
 }
 
@@ -3280,7 +3296,7 @@ TbBool keeper_wait_for_next_turn(void)
 TbBool keeper_wait_for_next_draw(void)
 {
     // fps.draw is currently unable to work properly with frame_skip
-    if (game_num_fps_draw > 0 && game.frame_skip == 0)
+    if (game_num_fps_draw > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
     {
         const long double tick_ns_one_sec = 1000000000.0;
         const long double tick_ns_one_frame = tick_ns_one_sec/game_num_fps_draw;
@@ -3440,7 +3456,7 @@ void gameplay_loop_timestep()
         exit_keeper = 1;
     }
 
-    if (game_num_fps_draw > 0) {
+    if (game_num_fps_draw > 0 && is_feature_on(Ft_DeltaTime) == true) {
         keeper_wait_for_next_draw();
 
         if (game.turns_packetoff == game.play_gameturn) {
