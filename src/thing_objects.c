@@ -796,7 +796,7 @@ static long food_moves(struct Thing *objtng)
               thing_play_sample(objtng, snd_smplidx, 100, 0, 3u, 0, 1, 256);
               return 1;
             }
-            if (UNSYNC_RANDOM(0x50) == 0)
+            if (UNSYNC_RANDOM(80) == 0)
             {
               snd_smplidx = 100 + UNSYNC_RANDOM(9);
             }
