@@ -312,7 +312,6 @@ struct Game {
         TbBigChecksum host_creatures_sum;        // Host's creatures checksum at desync
         TbBigChecksum host_things_sum;           // Host's things checksum at desync
         TbBigChecksum host_rooms_sum;            // Host's rooms checksum at desync
-        TbBigChecksum host_players_sum;          // Host's players checksum at desync
 
         // Detailed thing category checksums for deeper analysis
         TbBigChecksum host_traps_sum;            // Host's traps checksum
@@ -326,6 +325,8 @@ struct Game {
         // Individual player checksums for detailed player analysis
         TbBigChecksum host_player_checksums[PLAYERS_COUNT];  // Host's individual player checksums
         TbBigChecksum host_action_random_seed;     // Host's action random seed
+        TbBigChecksum host_ai_random_seed;         // Host's AI random seed
+        TbBigChecksum host_player_random_seed;     // Host's player random seed
 
         TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
     } desync_diagnostics;

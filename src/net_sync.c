@@ -87,9 +87,10 @@ static struct {
     TbBigChecksum creatures_sum;
     TbBigChecksum things_sum;
     TbBigChecksum rooms_sum;
-    TbBigChecksum players_sum;
     GameTurn gameturn;
     TbBigChecksum action_random_seed;
+    TbBigChecksum ai_random_seed;
+    TbBigChecksum player_random_seed;
     TbBigChecksum player_checksums[PLAYERS_COUNT];
     struct DetailedThingChecksums things_detailed;
     TbBool is_stored;
@@ -103,7 +104,6 @@ static void populate_desync_diagnostics(void)
     game.desync_diagnostics.host_creatures_sum = pre_resync_checksums.creatures_sum;
     game.desync_diagnostics.host_things_sum = pre_resync_checksums.things_sum;
     game.desync_diagnostics.host_rooms_sum = pre_resync_checksums.rooms_sum;
-    game.desync_diagnostics.host_players_sum = pre_resync_checksums.players_sum;
 
     game.desync_diagnostics.host_traps_sum = pre_resync_checksums.things_detailed.traps;
     game.desync_diagnostics.host_shots_sum = pre_resync_checksums.things_detailed.shots;
@@ -117,6 +117,8 @@ static void populate_desync_diagnostics(void)
         game.desync_diagnostics.host_player_checksums[i] = pre_resync_checksums.player_checksums[i];
     }
     game.desync_diagnostics.host_action_random_seed = pre_resync_checksums.action_random_seed;
+    game.desync_diagnostics.host_ai_random_seed = pre_resync_checksums.ai_random_seed;
+    game.desync_diagnostics.host_player_random_seed = pre_resync_checksums.player_random_seed;
     game.desync_diagnostics.has_desync_diagnostics = true;
 }
 /******************************************************************************/
@@ -506,15 +508,15 @@ void store_checksums_for_desync_analysis(void)
     pre_resync_checksums.things_sum = compute_things_checksum();
     pre_resync_checksums.rooms_sum = compute_rooms_checksum();
 
-    // Players checksum includes action random seed plus individual player states
+    // Store random seeds for individual comparison
     pre_resync_checksums.action_random_seed = game.action_random_seed;
-    pre_resync_checksums.players_sum = pre_resync_checksums.action_random_seed;
+    pre_resync_checksums.ai_random_seed = game.ai_random_seed;
+    pre_resync_checksums.player_random_seed = game.player_random_seed;
 
     for (int i = 0; i < PLAYERS_COUNT; i++) {
         struct PlayerInfo* player = get_player(i);
         if (player_exists(player)) {
             pre_resync_checksums.player_checksums[i] = compute_player_checksum(player);
-            pre_resync_checksums.players_sum += pre_resync_checksums.player_checksums[i];
         } else {
             pre_resync_checksums.player_checksums[i] = 0;
         }
@@ -523,9 +525,9 @@ void store_checksums_for_desync_analysis(void)
     pre_resync_checksums.gameturn = game.play_gameturn;
     pre_resync_checksums.is_stored = true;
 
-    ERRORLOG("Stored pre-resync checksums at turn %ld: creatures=%08lx things=%08lx rooms=%08lx players=%08lx",
+    ERRORLOG("Stored pre-resync checksums at turn %ld: creatures=%08lx things=%08lx rooms=%08lx",
             pre_resync_checksums.gameturn, pre_resync_checksums.creatures_sum,
-            pre_resync_checksums.things_sum, pre_resync_checksums.rooms_sum, pre_resync_checksums.players_sum);
+            pre_resync_checksums.things_sum, pre_resync_checksums.rooms_sum);
 }
 
 
@@ -586,50 +588,6 @@ static void analyze_things_mismatch_details(void)
              trap_count, shot_count, object_count, effect_count, dead_creature_count, effect_gen_count, door_count);
 }
 
-// Client analyzes player-specific checksum differences to identify desync source
-// Compares individual player states and camera positions with host diagnostic data
-static void analyze_players_mismatch_details(void)
-{
-    ERRORLOG("  Breaking down PLAYERS MISMATCH by player:");
-
-    log_checksum_comparison("    Action rand seed", pre_resync_checksums.action_random_seed, game.desync_diagnostics.host_action_random_seed);
-
-    for (int i = 0; i < PLAYERS_COUNT; i++) {
-        struct PlayerInfo* player = get_player(i);
-        TbBigChecksum client_checksum = pre_resync_checksums.player_checksums[i];
-        TbBigChecksum host_checksum = game.desync_diagnostics.host_player_checksums[i];
-
-        if (player_exists(player)) {
-            if (client_checksum != host_checksum) {
-                ERRORLOG("    Player %d MISMATCH - Client: %08lx, Host: %08lx, exists=1, computer=%d",
-                         i, client_checksum, host_checksum, (player->allocflags & PlaF_CompCtrl) ? 1 : 0);
-            } else {
-                ERRORLOG("    Player %d match - Client: %08lx, Host: %08lx, exists=1, computer=%d",
-                         i, client_checksum, host_checksum, (player->allocflags & PlaF_CompCtrl) ? 1 : 0);
-            }
-
-            if ((player->allocflags & PlaF_CompCtrl) == 0) {
-                if (player->acamera != NULL) {
-                    struct Coord3d* mappos = &(player->acamera->mappos);
-                    ERRORLOG("      Camera pos: (%ld,%ld,%ld), instance_remain=%lu, instance_num=%u",
-                             mappos->x.val, mappos->y.val, mappos->z.val,
-                             player->instance_remain_rurns, (unsigned int)player->instance_num);
-                } else {
-                    ERRORLOG("      Camera: NULL, instance_remain=%lu, instance_num=%u",
-                             player->instance_remain_rurns, (unsigned int)player->instance_num);
-                }
-            }
-        } else {
-            if (host_checksum != 0) {
-                ERRORLOG("    Player %d MISMATCH - Client: does not exist (%08lx), Host: %08lx",
-                         i, client_checksum, host_checksum);
-            } else {
-                ERRORLOG("    Player %d does not exist on either side - Client: %08lx, Host: %08lx",
-                         i, client_checksum, host_checksum);
-            }
-        }
-    }
-}
 
 // Client compares local pre-resync checksums with host diagnostic data
 // This analysis helps identify which game systems diverged between host and client
@@ -647,9 +605,26 @@ void analyze_desync_diagnostics_from_host(void)
 
     log_checksum_comparison("Rooms", pre_resync_checksums.rooms_sum, game.desync_diagnostics.host_rooms_sum);
 
-    log_checksum_comparison("Players", pre_resync_checksums.players_sum, game.desync_diagnostics.host_players_sum);
-    if (pre_resync_checksums.players_sum != game.desync_diagnostics.host_players_sum) {
-        analyze_players_mismatch_details();
+    // Check each random seed individually
+    log_checksum_comparison("GAME_RANDOM seed", pre_resync_checksums.action_random_seed, game.desync_diagnostics.host_action_random_seed);
+    log_checksum_comparison("AI_RANDOM seed", pre_resync_checksums.ai_random_seed, game.desync_diagnostics.host_ai_random_seed);
+    log_checksum_comparison("PLAYER_RANDOM seed", pre_resync_checksums.player_random_seed, game.desync_diagnostics.host_player_random_seed);
+
+    // Check each player individually
+    for (int i = 0; i < PLAYERS_COUNT; i++) {
+        struct PlayerInfo* player = get_player(i);
+        TbBigChecksum client_checksum = pre_resync_checksums.player_checksums[i];
+        TbBigChecksum host_checksum = game.desync_diagnostics.host_player_checksums[i];
+
+        if (player_exists(player)) {
+            if (client_checksum != host_checksum) {
+                ERRORLOG("Player %d MISMATCH - Client: %08lx, Host: %08lx, exists=1, computer=%d",
+                         i, client_checksum, host_checksum, (player->allocflags & PlaF_CompCtrl) ? 1 : 0);
+            }
+        } else if (host_checksum != 0) {
+            ERRORLOG("Player %d MISMATCH - Client: does not exist (%08lx), Host: %08lx",
+                     i, client_checksum, host_checksum);
+        }
     }
 
     ERRORLOG("=== END DESYNC ANALYSIS ===");
