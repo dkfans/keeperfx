@@ -489,8 +489,7 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing)
     }
     else if (is_non_synchronized_thing_class(thing->class_id))
     {
-        // No syncing on Effect Elements or Sounds
-        return 0;
+        return 0; // No sync
     }
     else
     {

@@ -44,7 +44,7 @@ extern "C" {
 /******************************************************************************/
 TbBool is_non_synchronized_thing_class(unsigned char class_id)
 {
-    return (class_id == TCls_EffectElem) || (class_id == TCls_AmbientSnd);
+    return (class_id == TCls_EffectElem) || (class_id == TCls_AmbientSnd) || (class_id == TCls_Effect);
 }
 
 struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char *func_name)
