@@ -173,7 +173,8 @@ struct CreatureControl {
     */
     long annoyance_level[5];
     unsigned char mood_flags;
-unsigned char sound_flag;
+    unsigned char footstep_variant;
+    unsigned char footstep_counter;
     /** Lair room index, that is the room which holds creature's lair object. */
     unsigned short lair_room_id;
     /** Lair object thing index. */
