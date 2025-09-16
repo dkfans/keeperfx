@@ -20,6 +20,7 @@
 #include "thing_data.h"
 
 #include "globals.h"
+#include "thing_list.h"
 #include "bflib_keybrd.h"
 #include "bflib_basics.h"
 #include "bflib_sound.h"
@@ -46,29 +47,26 @@ TbBool is_non_synchronized_thing_class(unsigned char class_id)
     return (class_id == TCls_EffectElem) || (class_id == TCls_AmbientSnd);
 }
 
-struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const char *func_name)
+struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char *func_name)
 {
-    if ((allocflags & FTAF_NonSynchronized) != 0) {
-        return allocate_non_synced_thing_structure_f(allocflags, func_name);
+    if (is_non_synchronized_thing_class(class_id)) {
+        return allocate_non_synced_thing_structure_f(class_id, func_name);
     } else {
-        return allocate_synced_thing_structure_f(allocflags, func_name);
+        return allocate_synced_thing_structure_f(class_id, func_name);
     }
 }
 
-struct Thing *allocate_synced_thing_structure_f(unsigned char allocflags, const char *func_name)
+struct Thing *allocate_synced_thing_structure_f(unsigned char class_id, const char *func_name)
 {
     struct Thing *thing;
 
     long i = game.free_things_start_index;
     if (i >= THINGS_COUNT-1)
     {
-        if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0)
-        {
-            struct Thing *effect_thing = thing_get(game.thing_lists[TngList_EffectElems].index);
-            if (!thing_is_invalid(effect_thing)) {
-                delete_thing_structure(effect_thing, 0);
-                i = game.free_things_start_index;
-            }
+        struct Thing *effect_thing = thing_get(game.thing_lists[TngList_EffectElems].index);
+        if (!thing_is_invalid(effect_thing)) {
+            delete_thing_structure(effect_thing, 0);
+            i = game.free_things_start_index;
         }
         if (i >= THINGS_COUNT-1) {
 #if (BFDEBUG_LEVEL > 0)
@@ -98,7 +96,7 @@ struct Thing *allocate_synced_thing_structure_f(unsigned char allocflags, const 
     return thing;
 }
 
-struct Thing *allocate_non_synced_thing_structure_f(unsigned char allocflags, const char *func_name)
+struct Thing *allocate_non_synced_thing_structure_f(unsigned char class_id, const char *func_name)
 {
     struct Thing *thing;
 
@@ -137,13 +135,10 @@ struct Thing *allocate_non_synced_thing_structure_f(unsigned char allocflags, co
         }
     }
 
-    if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0)
-    {
-        struct Thing *effect_thing = thing_get(game.thing_lists[TngList_EffectElems].index);
-        if (!thing_is_invalid(effect_thing)) {
-            delete_thing_structure(effect_thing, 0);
-            return allocate_non_synced_thing_structure_f(allocflags, func_name);
-        }
+    struct Thing *effect_thing = thing_get(game.thing_lists[TngList_EffectElems].index);
+    if (!thing_is_invalid(effect_thing)) {
+        delete_thing_structure(effect_thing, 0);
+        return allocate_non_synced_thing_structure_f(class_id, func_name);
     }
 
     ERRORMSG("%s: Cannot allocate non-synchronized thing, no free slots in range %d-%d!",
@@ -152,9 +147,9 @@ struct Thing *allocate_non_synced_thing_structure_f(unsigned char allocflags, co
 }
 
 
-TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
+TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
 {
-    if ((allocflags & FTAF_NonSynchronized) != 0) {
+    if (is_non_synchronized_thing_class(class_id)) {
         // For non-synchronized things, check the dedicated range
         for (ThingIndex i = NON_SYNCED_THINGS_START; i <= NON_SYNCED_THINGS_END; i++) {
             struct Thing* thing = thing_get(i);
@@ -163,7 +158,7 @@ TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
             }
         }
         // Can still free effects if needed
-        if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0 && game.thing_lists[TngList_EffectElems].index > 0) {
+        if (game.thing_lists[TngList_EffectElems].index > 0) {
             return true;
         }
         return false;
@@ -175,13 +170,7 @@ TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
     }
 
     // For synchronized allocation, freeing effects won't help since they use separate ranges now
-    if ((allocflags & FTAF_LogFailures) != 0) {
-        ERRORLOG("Cannot allocate thing structure.");
-        things_stats_debug_dump();
-    }
-    if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0) {
-        show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create thing, %d/%d thing slots used.", game.free_things_start_index + 1, THINGS_COUNT);
-    }
+    show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create thing, %d/%d thing slots used.", game.free_things_start_index + 1, THINGS_COUNT);
     return false;
 }
 

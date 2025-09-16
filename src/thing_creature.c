@@ -4724,7 +4724,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
         ERRORLOG("Cannot create %s for player %d. Creature limit %d reached.", creature_code_name(model), (int)owner, CREATURES_COUNT);
         return INVALID_THING;
     }
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
+    if (!i_can_allocate_free_thing_structure(TCls_Creature))
     {
         ERRORDBG(3, "Cannot create %s for player %d. There are too many things allocated.", creature_code_name(model), (int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -4736,7 +4736,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
         erstat_inc(ESE_NoFreeCreatrs);
         return INVALID_THING;
     }
-    struct Thing *crtng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing *crtng = allocate_free_thing_structure(TCls_Creature);
     if (crtng->index == 0)
     {
         ERRORDBG(3, "Should be able to allocate %s for player %d, but failed.", creature_code_name(model), (int)owner);

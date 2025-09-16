@@ -93,12 +93,6 @@ enum ThingSizeChange {
   TSC_ChangeSizeContinuously = 0x02, /**< Used by TngEffElm_IceShard. */
 };
 
-enum FreeThingAllocFlags {
-    FTAF_Default             = 0x00,
-    FTAF_FreeEffectIfNoSlots = 0x01,
-    FTAF_NonSynchronized     = 0x02,
-    FTAF_LogFailures         = 0x80,
-};
 
 enum ThingMovementFlags {
     TMvF_Default            = 0x000, // Default.
@@ -340,13 +334,13 @@ enum ThingAddFlags //named this way because they were part of the ThingAdd struc
 
 #pragma pack()
 /******************************************************************************/
-#define allocate_free_thing_structure(a1) allocate_free_thing_structure_f(a1, __func__)
-struct Thing *allocate_free_thing_structure_f(unsigned char a1, const char *func_name);
-#define allocate_synced_thing_structure(a1) allocate_synced_thing_structure_f(a1, __func__)
-struct Thing *allocate_synced_thing_structure_f(unsigned char a1, const char *func_name);
-#define allocate_non_synced_thing_structure(a1) allocate_non_synced_thing_structure_f(a1, __func__)
-struct Thing *allocate_non_synced_thing_structure_f(unsigned char a1, const char *func_name);
-TbBool i_can_allocate_free_thing_structure(unsigned char allocflags);
+#define allocate_free_thing_structure(class_id) allocate_free_thing_structure_f(class_id, __func__)
+struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char *func_name);
+#define allocate_synced_thing_structure(class_id) allocate_synced_thing_structure_f(class_id, __func__)
+struct Thing *allocate_synced_thing_structure_f(unsigned char class_id, const char *func_name);
+#define allocate_non_synced_thing_structure(class_id) allocate_non_synced_thing_structure_f(class_id, __func__)
+struct Thing *allocate_non_synced_thing_structure_f(unsigned char class_id, const char *func_name);
+TbBool i_can_allocate_free_thing_structure(unsigned char class_id);
 #define delete_thing_structure(thing, a2) delete_thing_structure_f(thing, a2, __func__)
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name);
 

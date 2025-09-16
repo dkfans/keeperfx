@@ -79,7 +79,7 @@ struct EffectElementConfigStats *get_effect_element_model_stats(ThingModel tngmo
 struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmodel, PlayerNumber owner)
 {
     long i;
-    if (!i_can_allocate_free_thing_structure(FTAF_Default)) {
+    if (!i_can_allocate_free_thing_structure(TCls_EffectElem)) {
         return INVALID_THING;
     }
     if (!any_player_close_enough_to_see(pos)) {
@@ -88,7 +88,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
     struct EffectElementConfigStats* eestat = get_effect_element_model_stats(eelmodel);
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
-    struct Thing* thing = allocate_free_thing_structure(FTAF_Default | FTAF_NonSynchronized);
+    struct Thing* thing = allocate_free_thing_structure(TCls_EffectElem);
     if (thing->index == 0) {
         ERRORDBG(8,"Should be able to allocate effect element %d for player %d, but failed.",(int)eelmodel,(int)owner);
         return INVALID_THING;
@@ -542,13 +542,13 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
 struct Thing *create_effect_generator(struct Coord3d *pos, ThingModel model, unsigned short range, unsigned short owner, long parent_idx)
 {
 
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
+    if (!i_can_allocate_free_thing_structure(TCls_EffectGen))
     {
         ERRORDBG(3,"Cannot create effect generator model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct Thing* effgentng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* effgentng = allocate_free_thing_structure(TCls_EffectGen);
     if (effgentng->index == 0) {
         ERRORDBG(3,"Should be able to allocate effect generator %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -865,10 +865,10 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner)
 {
     struct EffectConfigStats* effcst = get_effect_model_stats(effmodel);
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+    if (!i_can_allocate_free_thing_structure(TCls_Effect)) {
         return INVALID_THING;
     }
-    struct Thing* thing = allocate_free_thing_structure(1);
+    struct Thing* thing = allocate_free_thing_structure(TCls_Effect);
     if (thing->index == 0) {
         ERRORDBG(8,"Should be able to allocate effect %d (%s) for player %d, but failed.",(int)effmodel,effect_code_name(effmodel),(int)owner);
         return INVALID_THING;
