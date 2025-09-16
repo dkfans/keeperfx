@@ -43,6 +43,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern const char *thing_class_code_name(ThingClass class_id);
+extern const char *thing_class_and_model_name(ThingClass class_id, ThingModel model);
 /******************************************************************************/
 struct Boing {
   unsigned char active_panel_menu_index;
@@ -608,16 +611,40 @@ static void analyze_individual_thing_differences(void)
 
         if (host_checksum != 0 && client_checksum != 0) {
             if (client_checksum != host_checksum) {
-                ERRORLOG("    Thing[%d] MISMATCH - Client: %08lx vs Host: %08lx",
-                    i, client_checksum, host_checksum);
+                struct Thing* thing = thing_get(i);
+                if (thing_exists(thing)) {
+                    ERRORLOG("    Thing[%d] MISMATCH - Client: %08lx vs Host: %08lx", i, client_checksum, host_checksum);
+                    ERRORLOG("      Type: %s, Model: %s, Owner: %d", thing_class_code_name(thing->class_id),
+                             thing_class_and_model_name(thing->class_id, thing->model), thing->owner);
+                    ERRORLOG("      Pos: (%d,%d,%d), Health: %ld, Seed: %08lx, Created: turn %ld",
+                             thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num,
+                             thing->health, thing->random_seed, thing->creation_turn);
+                    ERRORLOG("      State: %d, Continue: %d, Frames: %d/%d",
+                             thing->active_state, thing->continue_state, thing->current_frame, thing->max_frames);
+                } else {
+                    ERRORLOG("    Thing[%d] MISMATCH - Client: %08lx vs Host: %08lx (thing no longer exists)",
+                             i, client_checksum, host_checksum);
+                }
                 mismatched_count++;
             }
         } else if (host_checksum != 0 && client_checksum == 0) {
             ERRORLOG("    Thing[%d] MISSING on client - Host had checksum: %08lx", i, host_checksum);
             mismatched_count++;
         } else if (host_checksum == 0 && client_checksum != 0) {
-            ERRORLOG("    Thing[%d] EXTRA on client (host has none) - Client checksum: %08lx",
-                i, client_checksum);
+            struct Thing* thing = thing_get(i);
+            if (thing_exists(thing)) {
+                ERRORLOG("    Thing[%d] EXTRA on client (host has none) - Client checksum: %08lx", i, client_checksum);
+                ERRORLOG("      Type: %s, Model: %s, Owner: %d", thing_class_code_name(thing->class_id),
+                         thing_class_and_model_name(thing->class_id, thing->model), thing->owner);
+                ERRORLOG("      Pos: (%d,%d,%d), Health: %ld, Seed: %08lx, Created: turn %ld",
+                         thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num,
+                         thing->health, thing->random_seed, thing->creation_turn);
+                ERRORLOG("      State: %d, Continue: %d, Frames: %d/%d",
+                         thing->active_state, thing->continue_state, thing->current_frame, thing->max_frames);
+            } else {
+                ERRORLOG("    Thing[%d] EXTRA on client (host has none) - Client checksum: %08lx (thing no longer exists)",
+                         i, client_checksum);
+            }
             mismatched_count++;
         }
     }
