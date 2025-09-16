@@ -626,7 +626,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
         cctrl->hunger_level = 0;
     }
     // Food is destroyed just below, so the sound must be made by creature
-    thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, 112+SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     anger_apply_anger_to_creature(creatng, crconf->annoy_eat_food, AngR_Hungry, 1);
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
@@ -2218,7 +2218,7 @@ void creature_cast_spell(struct Thing *castng, SpellKind spl_idx, CrtrExpLevel s
     {
         if (spconf->caster_affect_sound > 0)
         {
-            thing_play_sample(castng, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+            thing_play_sample(castng, spconf->caster_affect_sound + SOUND_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         }
         apply_spell_effect_to_thing(castng, spl_idx, cctrl->exp_level, castng->owner);
     }
@@ -3759,7 +3759,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
       shotng->shot.hit_type = hit_type;
       if (shotst->firing_sound > 0)
       {
-        thing_play_sample(firing, shotst->firing_sound + UNSYNC_RANDOM(shotst->firing_sound_variants),
+        thing_play_sample(firing, shotst->firing_sound + SOUND_RANDOM(shotst->firing_sound_variants),
             100, 0, 3, 0, 3, FULL_LOUDNESS);
       }
       if (shotst->shot_sound > 0)
@@ -6647,7 +6647,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     if (flag_is_set(get_creature_model_flags(thing), CMF_IsLordOfLand))
     {
         output_message(SMsg_LordOfLandComming, MESSAGE_DURATION_LORD);
-        output_message(SMsg_EnemyLordQuote + UNSYNC_RANDOM(8), MESSAGE_DURATION_LORD);
+        output_message(SMsg_EnemyLordQuote + SOUND_RANDOM(8), MESSAGE_DURATION_LORD);
     }
 
     switch (spawn_type)
@@ -6764,7 +6764,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
     unsigned short smpl_idx, pitch;
     if (subtile_has_water_on_top(droptng->mappos.x.stl.num, droptng->mappos.y.stl.num))
     {
-        smpl_idx = 21 + UNSYNC_RANDOM(4);
+        smpl_idx = 21 + SOUND_RANDOM(4);
         pitch = 75;
     }
     else
@@ -6813,7 +6813,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                 {
                     pitch = 75;
                 }
-                smpl_idx = 17 + UNSYNC_RANDOM(4);
+                smpl_idx = 17 + SOUND_RANDOM(4);
                 break;
             }
             case TCls_DeadCreature:
@@ -7654,7 +7654,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing
         CrtrExpLevel spell_level = fmcl_bytes & 255;
         if (spconf->caster_affect_sound)
         {
-            thing_play_sample(thing, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+            thing_play_sample(thing, spconf->caster_affect_sound + SOUND_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         }
         apply_spell_effect_to_thing(thing, spkind, spell_level, plyr_idx);
         if (flag_is_set(spconf->spell_flags, CSAfF_Disease))

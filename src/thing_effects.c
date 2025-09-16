@@ -863,7 +863,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
                 struct Thing* sectng = create_effect(&elemtng->mappos, TngEff_Dummy, thing->owner);
                 TRACE_THING(sectng);
                 if (!thing_is_invalid(sectng)) {
-                    thing_play_sample(sectng, egenstat->sound_sample_idx + UNSYNC_RANDOM(egenstat->sound_sample_rng), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                    thing_play_sample(sectng, egenstat->sound_sample_idx + SOUND_RANDOM(egenstat->sound_sample_rng), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 }
             }
         }

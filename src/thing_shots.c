@@ -365,12 +365,12 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
                 }
                 give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
                 mine_out_block(stl_x, stl_y, diggertng->owner);
-                thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                thing_play_sample(diggertng, 72+SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             } else
             if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
             { // All non-gold and non-door slabs are just destroyed
                 dig_out_block(stl_x, stl_y, diggertng->owner);
-                thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                thing_play_sample(diggertng, 72+SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             }
             check_map_explored(diggertng, stl_x, stl_y);
         } else
@@ -401,7 +401,7 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, Effe
         {
             long i = snd_idx;
             if (snd_range > 1)
-                i += UNSYNC_RANDOM(snd_range);
+                i += SOUND_RANDOM(snd_range);
             thing_play_sample(efftng, i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
@@ -680,7 +680,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
                 if (!thing_is_invalid(efftng))
                 {
                     i = shotst->hit_door.sndsample_range;
-                    thing_play_sample(efftng, n + UNSYNC_RANDOM(i), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                    thing_play_sample(efftng, n + SOUND_RANDOM(i), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 }
             }
             // Shall the shot be destroyed on impact
@@ -865,7 +865,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
         }
         if (shotst->hit_heart.sndsample_idx > 0)
         {
-            thing_play_sample(target, shotst->hit_heart.sndsample_idx + UNSYNC_RANDOM(shotst->hit_heart.sndsample_range), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+            thing_play_sample(target, shotst->hit_heart.sndsample_idx + SOUND_RANDOM(shotst->hit_heart.sndsample_range), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
         if (shotng->owner != target->owner)
         {
@@ -1665,7 +1665,6 @@ TngUpdateRet update_shot(struct Thing *thing)
             {
                 for (i = shotst->visual.amount; i > 0; i--)
                 {
-                    // Somehow create_used_effect_or_element is creating Effects like EFFECT_EXPLOSION_1, which is not an EffectElem, which causes a desync if use UNSYNC_RANDOM here.
                     pos1.x.val = thing->mappos.x.val - THING_RANDOM(thing, shotst->visual.random_range) + (shotst->visual.random_range / 2);
                     pos1.y.val = thing->mappos.y.val - THING_RANDOM(thing, shotst->visual.random_range) + (shotst->visual.random_range / 2);
                     pos1.z.val = thing->mappos.z.val - THING_RANDOM(thing, shotst->visual.random_range) + (shotst->visual.random_range / 2);

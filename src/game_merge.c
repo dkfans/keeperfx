@@ -33,6 +33,8 @@ struct IntralevelData intralvl;
 unsigned long game_flags2 = 0;
 /** Local (non-synced) random seed for visual effects that don't affect game state */
 unsigned long unsync_random_seed = 0;
+/** Sound-specific random seed for audio effects and sound variations */
+unsigned long sound_random_seed = 0;
 /******************************************************************************/
 /******************************************************************************/
 /**

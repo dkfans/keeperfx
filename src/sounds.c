@@ -169,7 +169,7 @@ void play_thing_walking(struct Thing *thing)
             crconf = creature_stats_get(thing->model);
             thing_play_sample(thing, smpl_idx, crconf->footstep_pitch, 0, 3, 3, 1, loudness);
             if ((thing->movement_flags & TMvF_IsOnWater) != 0) {
-                thing_play_sample(thing, 21 + UNSYNC_RANDOM(4), 90 + UNSYNC_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
+                thing_play_sample(thing, 21 + SOUND_RANDOM(4), 90 + SOUND_RANDOM(20), 0, 3, 3, 1, FULL_LOUDNESS);
             }
         }
     }
@@ -320,10 +320,10 @@ void update_player_sounds(void)
         if (game.conf.rules.game.easter_egg_speech_interval != 0 && (game.play_gameturn % game.conf.rules.game.easter_egg_speech_interval) == 0)
         {
             // The chance for the easter egg speech to trigger. Original DK value was 1/2000
-            if (game.conf.rules.game.easter_egg_speech_chance != 0 && UNSYNC_RANDOM(game.conf.rules.game.easter_egg_speech_chance) == 0)
+            if (game.conf.rules.game.easter_egg_speech_chance != 0 && SOUND_RANDOM(game.conf.rules.game.easter_egg_speech_chance) == 0)
             {
                 // Select a random Easter egg speech
-                k = UNSYNC_RANDOM(10);
+                k = SOUND_RANDOM(10);
                 SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
 
                 if (k == 7)
@@ -346,13 +346,13 @@ void update_player_sounds(void)
             if ( atmos_sounds_enabled() )
             {
                 //Plays a sound on repeat, default sound sample 1013(water drops), with a small chance of a random other sound from the range.
-                k = UNSYNC_RANDOM(atmos_sound_frequency);
+                k = SOUND_RANDOM(atmos_sound_frequency);
                 if (k == 1)
                 {
                     // No atmos sounds the first 3 minutes
                     if (game.play_gameturn > 3600)
                     {
-                        play_atmos_sound(AtmosStart + UNSYNC_RANDOM((AtmosEnd + 1) - AtmosStart));
+                        play_atmos_sound(AtmosStart + SOUND_RANDOM((AtmosEnd + 1) - AtmosStart));
                     }
                 } else
                 {

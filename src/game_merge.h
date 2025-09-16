@@ -58,6 +58,8 @@ extern "C" {
 #define GAME_RANDOM(range) LbRandomSeries(range, &game.action_random_seed, __func__, __LINE__)
 // Unsynchronized random for visual/audio effects that don't affect game state (lighting, particles)
 #define UNSYNC_RANDOM(range) LbRandomSeries(range, &unsync_random_seed, __func__, __LINE__)
+// Sound-specific random for audio effects and sound variations
+#define SOUND_RANDOM(range) LbRandomSeries(range, &sound_random_seed, __func__, __LINE__)
 // AI-specific random seed for computer player decisions
 #define AI_RANDOM(range) LbRandomSeries(range, &game.ai_random_seed, __func__, __LINE__)
 // Player-specific random for actions tied to a particular player
@@ -142,6 +144,8 @@ extern unsigned long game_flags2; // Should be reset to zero on new level
 extern struct IntralevelData intralvl;
 /** Non-synchronized random seed for cosmetic effects that don't impact gameplay */
 extern unsigned long unsync_random_seed;
+/** Sound-specific random seed for audio effects and sound variations */
+extern unsigned long sound_random_seed;
 /******************************************************************************/
 LevelNumber get_loaded_level_number(void);
 LevelNumber set_loaded_level_number(LevelNumber lvnum);

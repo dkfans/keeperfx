@@ -247,7 +247,7 @@ void destroy_food(struct Thing *foodtng)
         struct Thing* efftng = create_effect(&foodtng->mappos, TngEff_FeatherPuff, plyr_idx);
         if (!thing_is_invalid(efftng))
         {
-            thing_play_sample(efftng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(efftng, 112 + SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
     create_effect(&pos, TngEff_ChickenBlood, plyr_idx);
@@ -736,8 +736,8 @@ static long food_moves(struct Thing *objtng)
             objtng->food.angle = get_angle_xy_to(&near_creatng->mappos, &pos);
             if (objtng->snd_emitter_id == 0)
             {
-                if (UNSYNC_RANDOM(16) == 0) {
-                  snd_smplidx = 109 + UNSYNC_RANDOM(3);
+                if (SOUND_RANDOM(16) == 0) {
+                  snd_smplidx = 109 + SOUND_RANDOM(3);
                 }
             }
         }
@@ -796,9 +796,9 @@ static long food_moves(struct Thing *objtng)
               thing_play_sample(objtng, snd_smplidx, 100, 0, 3u, 0, 1, 256);
               return 1;
             }
-            if (UNSYNC_RANDOM(0x50) == 0)
+            if (SOUND_RANDOM(0x50) == 0)
             {
-              snd_smplidx = 100 + UNSYNC_RANDOM(9);
+              snd_smplidx = 100 + SOUND_RANDOM(9);
             }
         }
     }
@@ -862,7 +862,7 @@ static long food_grows(struct Thing *objtng)
             nobjtng->move_angle_xy = THING_RANDOM(objtng, DEGREES_360);
             nobjtng->food.freshness_state = THING_RANDOM(objtng, 0x6FF);
             nobjtng->food.possession_startup_timer = 0;
-          thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
+          thing_play_sample(nobjtng, 80 + SOUND_RANDOM(3), 100, 0, 3u, 0, 1, 64);
           if (!is_neutral_thing(nobjtng)) {
               struct Dungeon *dungeon;
               dungeon = get_dungeon(nobjtng->owner);

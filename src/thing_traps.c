@@ -454,7 +454,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         shotng->state_flags |= TF1_PushAdd;
         shotng->shot.hit_type = trapst->hit_type;
         if (shotst->firing_sound > 0) {
-            thing_play_sample(traptng, shotst->firing_sound+UNSYNC_RANDOM(shotst->firing_sound_variants),
+            thing_play_sample(traptng, shotst->firing_sound+SOUND_RANDOM(shotst->firing_sound_variants),
                 NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
         }
         if (shotst->shot_sound > 0) {
