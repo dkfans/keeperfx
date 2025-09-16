@@ -61,14 +61,14 @@ struct Thing *allocate_synced_thing_structure_f(unsigned char class_id, const ch
     struct Thing *thing;
 
     long i = game.free_things_start_index;
-    if (i >= THINGS_COUNT-1)
+    if (i >= NON_SYNCED_THINGS_START-1)
     {
         struct Thing *effect_thing = thing_get(game.thing_lists[TngList_EffectElems].index);
         if (!thing_is_invalid(effect_thing)) {
             delete_thing_structure(effect_thing, 0);
             i = game.free_things_start_index;
         }
-        if (i >= THINGS_COUNT-1) {
+        if (i >= NON_SYNCED_THINGS_START-1) {
 #if (BFDEBUG_LEVEL > 0)
             ERRORMSG("%s: Cannot allocate new synced thing, no free slots!", func_name);
 #endif
@@ -165,12 +165,12 @@ TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
     }
 
     // For synchronized things, check the free_things array
-    if (game.free_things_start_index < THINGS_COUNT-1) {
+    if (game.free_things_start_index < NON_SYNCED_THINGS_START-1) {
         return true;
     }
 
     // For synchronized allocation, freeing effects won't help since they use separate ranges now
-    show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create thing, %d/%d thing slots used.", game.free_things_start_index + 1, THINGS_COUNT);
+    show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create synced thing, %d/%d synced slots used.", game.free_things_start_index + 1, NON_SYNCED_THINGS_START);
     return false;
 }
 

@@ -1646,9 +1646,9 @@ void clear_things_and_persons_data(void)
       memset(&game.cctrl_data[i], 0, sizeof(struct CreatureControl));
     }
 
-    // Initialize free things list
+    // Initialize free things list - exclude non-synced range
     game.free_things_start_index = 0;
-    for (i = 1; i < THINGS_COUNT; i++)
+    for (i = 1; i < NON_SYNCED_THINGS_START; i++)
     {
         game.free_things[i-1] = i;
     }
@@ -1728,7 +1728,7 @@ void delete_all_thing_structures(void)
           delete_thing_structure(thing, 1);
       }
     }
-    for (i=0; i < THINGS_COUNT-1; i++) {
+    for (i=0; i < NON_SYNCED_THINGS_START-1; i++) {
       game.free_things[i] = i+1;
     }
     game.free_things_start_index = 0;
