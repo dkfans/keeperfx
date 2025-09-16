@@ -154,14 +154,27 @@ struct Thing *allocate_non_synced_thing_structure_f(unsigned char allocflags, co
 
 TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
 {
+    if ((allocflags & FTAF_NonSynchronized) != 0) {
+        // For non-synchronized things, check the dedicated range
+        for (ThingIndex i = NON_SYNCED_THINGS_START; i <= NON_SYNCED_THINGS_END; i++) {
+            struct Thing* thing = thing_get(i);
+            if (!thing_is_invalid(thing) && (thing->alloc_flags & TAlF_Exists) == 0) {
+                return true;
+            }
+        }
+        // Can still free effects if needed
+        if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0 && game.thing_lists[TngList_EffectElems].index > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    // For synchronized things, check the free_things array
     if (game.free_things_start_index < THINGS_COUNT-1) {
         return true;
     }
 
-    if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0 && game.thing_lists[TngList_EffectElems].index > 0) {
-        return true;
-    }
-
+    // For synchronized allocation, freeing effects won't help since they use separate ranges now
     if ((allocflags & FTAF_LogFailures) != 0) {
         ERRORLOG("Cannot allocate thing structure.");
         things_stats_debug_dump();
