@@ -1665,9 +1665,10 @@ TngUpdateRet update_shot(struct Thing *thing)
             {
                 for (i = shotst->visual.amount; i > 0; i--)
                 {
-                    pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
-                    pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
-                    pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
+                    // Somehow create_used_effect_or_element is creating Effects like EFFECT_EXPLOSION_1, which is not an EffectElem, which causes a desync if use UNSYNC_RANDOM here.
+                    pos1.x.val = thing->mappos.x.val - THING_RANDOM(thing, shotst->visual.random_range) + (shotst->visual.random_range / 2);
+                    pos1.y.val = thing->mappos.y.val - THING_RANDOM(thing, shotst->visual.random_range) + (shotst->visual.random_range / 2);
+                    pos1.z.val = thing->mappos.z.val - THING_RANDOM(thing, shotst->visual.random_range) + (shotst->visual.random_range / 2);
                     if (shotst->visual.effect_model != 0)
                     {
                         create_used_effect_or_element(&pos1, shotst->visual.effect_model, thing->owner, thing->index);
