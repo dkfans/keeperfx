@@ -549,7 +549,7 @@ void store_checksums_for_desync_analysis(void)
     memset(pre_resync_checksums.individual_thing_checksums, 0, sizeof(pre_resync_checksums.individual_thing_checksums));
     for (int i = 1; i < THINGS_COUNT; i++) {
         struct Thing* thing = thing_get(i);
-        if (thing_exists(thing)) {
+        if (thing_exists(thing) && !is_non_synchronized_thing_class(thing->class_id)) {
             pre_resync_checksums.individual_thing_checksums[i] = get_thing_checksum(thing);
         }
     }
@@ -606,12 +606,16 @@ static void analyze_individual_thing_differences(void)
     ERRORLOG("  Analyzing individual Thing checksums:");
 
     for (int i = 1; i < THINGS_COUNT; i++) {
+        struct Thing* thing = thing_get(i);
+        if (thing_exists(thing) && is_non_synchronized_thing_class(thing->class_id)) {
+            continue; // Skip non-synced things like effect elements
+        }
+
         TbBigChecksum host_checksum = game.desync_diagnostics.host_thing_checksums[i];
         TbBigChecksum client_checksum = pre_resync_checksums.individual_thing_checksums[i];
 
         if (host_checksum != 0 && client_checksum != 0) {
             if (client_checksum != host_checksum) {
-                struct Thing* thing = thing_get(i);
                 if (thing_exists(thing)) {
                     ERRORLOG("    Thing[%d] MISMATCH - Client: %08lx vs Host: %08lx", i, client_checksum, host_checksum);
                     ERRORLOG("      Type: %s, Model: %s, Owner: %d", thing_class_code_name(thing->class_id),
@@ -631,7 +635,6 @@ static void analyze_individual_thing_differences(void)
             ERRORLOG("    Thing[%d] MISSING on client - Host had checksum: %08lx", i, host_checksum);
             mismatched_count++;
         } else if (host_checksum == 0 && client_checksum != 0) {
-            struct Thing* thing = thing_get(i);
             if (thing_exists(thing)) {
                 ERRORLOG("    Thing[%d] EXTRA on client (host has none) - Client checksum: %08lx", i, client_checksum);
                 ERRORLOG("      Type: %s, Model: %s, Owner: %d", thing_class_code_name(thing->class_id),
