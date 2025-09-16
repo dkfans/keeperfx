@@ -96,7 +96,7 @@ static struct {
     TbBigChecksum player_random_seed;
     TbBigChecksum player_checksums[PLAYERS_COUNT];
     struct DetailedThingChecksums things_detailed;
-    TbBigChecksum individual_thing_checksums[THINGS_COUNT];
+    struct ThingDesyncInfo individual_thing_info[THINGS_COUNT];
     TbBool is_stored;
 } pre_resync_checksums = {0};
 
@@ -125,17 +125,9 @@ static void populate_desync_diagnostics(void)
     game.desync_diagnostics.host_ai_random_seed = pre_resync_checksums.ai_random_seed;
     game.desync_diagnostics.host_player_random_seed = pre_resync_checksums.player_random_seed;
 
-    // Copy stored pre-resync individual Thing checksums for detailed analysis
-    memcpy(game.desync_diagnostics.host_thing_checksums, pre_resync_checksums.individual_thing_checksums, sizeof(game.desync_diagnostics.host_thing_checksums));
+    // Copy stored pre-resync individual Thing detailed info for detailed analysis
+    memcpy(game.desync_diagnostics.host_thing_info, pre_resync_checksums.individual_thing_info, sizeof(game.desync_diagnostics.host_thing_info));
 
-    // Count how many things we have checksums for
-    int count = 0;
-    for (int i = 1; i < THINGS_COUNT; i++) {
-        if (pre_resync_checksums.individual_thing_checksums[i] != 0) {
-            count++;
-        }
-    }
-    game.desync_diagnostics.host_thing_count = count;
 
     game.desync_diagnostics.has_desync_diagnostics = true;
 }
@@ -533,12 +525,20 @@ void store_checksums_for_desync_analysis(void)
         }
     }
 
-    // Store individual Thing checksums for detailed desync analysis
-    memset(pre_resync_checksums.individual_thing_checksums, 0, sizeof(pre_resync_checksums.individual_thing_checksums));
+    // Store individual Thing detailed info for detailed desync analysis
+    memset(pre_resync_checksums.individual_thing_info, 0, sizeof(pre_resync_checksums.individual_thing_info));
     for (int i = 1; i < THINGS_COUNT; i++) {
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing) && !is_non_synchronized_thing_class(thing->class_id)) {
-            pre_resync_checksums.individual_thing_checksums[i] = get_thing_checksum(thing);
+            struct ThingDesyncInfo* info = &pre_resync_checksums.individual_thing_info[i];
+            info->class_id = thing->class_id;
+            info->model = thing->model;
+            info->random_seed = thing->random_seed;
+            info->pos_x = thing->mappos.x.stl.num;
+            info->pos_y = thing->mappos.y.stl.num;
+            info->pos_z = thing->mappos.z.stl.num;
+            info->creation_turn = thing->creation_turn;
+            info->checksum = get_thing_checksum(thing);
         }
     }
 
@@ -584,10 +584,6 @@ static void analyze_things_mismatch_details(void)
 // Logs specific Things that have different checksums to pinpoint desync sources
 static void analyze_individual_thing_differences(void)
 {
-    if (game.desync_diagnostics.host_thing_count == 0) {
-        ERRORLOG("  No individual Thing checksums available from host");
-        return;
-    }
 
     int mismatched_count = 0;
 
@@ -599,43 +595,41 @@ static void analyze_individual_thing_differences(void)
             continue; // Skip non-synced things like effect elements
         }
 
-        TbBigChecksum host_checksum = game.desync_diagnostics.host_thing_checksums[i];
-        TbBigChecksum client_checksum = pre_resync_checksums.individual_thing_checksums[i];
+        struct ThingDesyncInfo* host_info = &game.desync_diagnostics.host_thing_info[i];
+        struct ThingDesyncInfo* client_info = &pre_resync_checksums.individual_thing_info[i];
+        TbBigChecksum host_checksum = host_info->checksum;
+        TbBigChecksum client_checksum = client_info->checksum;
 
         if (host_checksum != 0 && client_checksum != 0) {
             if (client_checksum != host_checksum) {
-                if (thing_exists(thing)) {
-                    ERRORLOG("    Thing[%d] MISMATCH - Client: %08lx vs Host: %08lx", i, client_checksum, host_checksum);
-                    ERRORLOG("      Type: %s, Model: %s, Owner: %d", thing_class_code_name(thing->class_id),
-                             thing_class_and_model_name(thing->class_id, thing->model), thing->owner);
-                    ERRORLOG("      Pos: (%d,%d,%d), Health: %ld, Seed: %08lx, Created: turn %ld",
-                             thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num,
-                             thing->health, thing->random_seed, thing->creation_turn);
-                    ERRORLOG("      State: %d, Continue: %d, Frames: %d/%d",
-                             thing->active_state, thing->continue_state, thing->current_frame, thing->max_frames);
-                } else {
-                    ERRORLOG("    Thing[%d] MISMATCH - Client: %08lx vs Host: %08lx (thing no longer exists)",
-                             i, client_checksum, host_checksum);
-                }
+                ERRORLOG("    Thing[%d] MISMATCH - Client: %08lx vs Host: %08lx", i, client_checksum, host_checksum);
+                ERRORLOG("      CLIENT: %s/%s (%ld,%ld,%ld) seed:%08lx turn:%ld",
+                         thing_class_code_name(client_info->class_id),
+                         thing_class_and_model_name(client_info->class_id, client_info->model),
+                         client_info->pos_x, client_info->pos_y, client_info->pos_z,
+                         client_info->random_seed, client_info->creation_turn);
+                ERRORLOG("      HOST: %s/%s (%ld,%ld,%ld) seed:%08lx turn:%ld",
+                         thing_class_code_name(host_info->class_id),
+                         thing_class_and_model_name(host_info->class_id, host_info->model),
+                         host_info->pos_x, host_info->pos_y, host_info->pos_z,
+                         host_info->random_seed, host_info->creation_turn);
                 mismatched_count++;
             }
         } else if (host_checksum != 0 && client_checksum == 0) {
             ERRORLOG("    Thing[%d] MISSING on client - Host had checksum: %08lx", i, host_checksum);
+            ERRORLOG("      HOST had: %s/%s (%ld,%ld,%ld) seed:%08lx turn:%ld",
+                     thing_class_code_name(host_info->class_id),
+                     thing_class_and_model_name(host_info->class_id, host_info->model),
+                     host_info->pos_x, host_info->pos_y, host_info->pos_z,
+                     host_info->random_seed, host_info->creation_turn);
             mismatched_count++;
         } else if (host_checksum == 0 && client_checksum != 0) {
-            if (thing_exists(thing)) {
-                ERRORLOG("    Thing[%d] EXTRA on client (host has none) - Client checksum: %08lx", i, client_checksum);
-                ERRORLOG("      Type: %s, Model: %s, Owner: %d", thing_class_code_name(thing->class_id),
-                         thing_class_and_model_name(thing->class_id, thing->model), thing->owner);
-                ERRORLOG("      Pos: (%d,%d,%d), Health: %ld, Seed: %08lx, Created: turn %ld",
-                         thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num,
-                         thing->health, thing->random_seed, thing->creation_turn);
-                ERRORLOG("      State: %d, Continue: %d, Frames: %d/%d",
-                         thing->active_state, thing->continue_state, thing->current_frame, thing->max_frames);
-            } else {
-                ERRORLOG("    Thing[%d] EXTRA on client (host has none) - Client checksum: %08lx (thing no longer exists)",
-                         i, client_checksum);
-            }
+            ERRORLOG("    Thing[%d] EXTRA on client (host has none) - Client checksum: %08lx", i, client_checksum);
+            ERRORLOG("      CLIENT had: %s/%s (%ld,%ld,%ld) seed:%08lx turn:%ld",
+                     thing_class_code_name(client_info->class_id),
+                     thing_class_and_model_name(client_info->class_id, client_info->model),
+                     client_info->pos_x, client_info->pos_y, client_info->pos_z,
+                     client_info->random_seed, client_info->creation_turn);
             mismatched_count++;
         }
     }

@@ -126,6 +126,18 @@ struct Configs {
     struct LuaFuncsConf lua;
 };
 
+// Structure to store detailed thing information for desync analysis
+struct ThingDesyncInfo {
+    ThingClass class_id;          // Type of thing (creature, object, etc.)
+    ThingModel model;             // Model within the class
+    TbBigChecksum random_seed;    // Thing's random seed
+    MapSubtlCoord pos_x;          // Position X coordinate
+    MapSubtlCoord pos_y;          // Position Y coordinate
+    MapSubtlCoord pos_z;          // Position Z coordinate
+    GameTurn creation_turn;       // Turn when thing was created
+    TbBigChecksum checksum;       // Thing's computed checksum
+};
+
 struct Game {
     LevelNumber continue_level_number;
     unsigned char system_flags;
@@ -330,9 +342,8 @@ struct Game {
         TbBigChecksum host_ai_random_seed;         // Host's AI random seed
         TbBigChecksum host_player_random_seed;     // Host's player random seed
 
-        // Individual Thing checksums for per-Thing desync analysis
-        TbBigChecksum host_thing_checksums[THINGS_COUNT];    // Host's individual Thing checksums
-        int host_thing_count;                               // Number of valid Things stored
+        // Individual Thing detailed info for per-Thing desync analysis
+        struct ThingDesyncInfo host_thing_info[THINGS_COUNT];  // Host's detailed Thing information
 
         TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
     } desync_diagnostics;
