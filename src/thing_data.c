@@ -63,17 +63,10 @@ struct Thing *allocate_synced_thing_structure_f(unsigned char class_id, const ch
     long i = game.free_things_start_index;
     if (i >= NON_SYNCED_THINGS_START-1)
     {
-        struct Thing *effect_thing = thing_get(game.thing_lists[TngList_EffectElems].index);
-        if (!thing_is_invalid(effect_thing)) {
-            delete_thing_structure(effect_thing, 0);
-            i = game.free_things_start_index;
-        }
-        if (i >= NON_SYNCED_THINGS_START-1) {
 #if (BFDEBUG_LEVEL > 0)
             ERRORMSG("%s: Cannot allocate new synced thing, no free slots!", func_name);
 #endif
-            return INVALID_THING;
-        }
+        return INVALID_THING;
     }
 
     thing = thing_get(game.free_things[i]);
