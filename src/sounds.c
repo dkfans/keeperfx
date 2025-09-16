@@ -164,7 +164,7 @@ void play_thing_walking(struct Thing *thing)
             if ((cctrl->sound_flag & 0x1F) >= 4)
             {
                 cctrl->mood_flags &= ~0x1C;
-                cctrl->mood_flags |=  (UNSYNC_RANDOM(4) << 2);
+                cctrl->mood_flags |=  (GAME_RANDOM(4) << 2);
                 cctrl->sound_flag &= ~0x1F;
             }
             crconf = creature_stats_get(thing->model);
