@@ -500,20 +500,8 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing)
         // No syncing on Effect Elements or Sounds
         return 0;
     }
-    else if (thing->class_id == TCls_Effect)
+    else
     {
-        const struct EffectConfigStats* effcst = get_effect_model_stats(thing->model);
-        if (effcst->area_affect_type != AAffT_None)
-        {
-            csum += (ulong)thing->mappos.z.val +
-                (ulong)thing->mappos.x.val +
-                (ulong)thing->mappos.y.val +
-                (ulong)thing->health;
-        } else {
-            // No syncing on Effects that do not affect the area around them
-            return 0;
-        }
-    } else {
         csum += (ulong)thing->mappos.z.val +
             (ulong)thing->mappos.x.val +
             (ulong)thing->mappos.y.val +
