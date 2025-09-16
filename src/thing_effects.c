@@ -467,7 +467,10 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
       if (((elemtng->creation_turn - game.play_gameturn) % i) == 0)
       {
           struct Thing *subeff = create_effect_element(&elemtng->mappos, eestats->subeffect_model, elemtng->owner);
-          subeff->move_angle_xy = elemtng->move_angle_xy;
+          if (!thing_is_invalid(subeff))
+          {
+              subeff->move_angle_xy = elemtng->move_angle_xy;
+          }
       }
     }
     switch (eestats->move_type)
@@ -691,23 +694,24 @@ void effect_generate_effect_elements(const struct Thing *thing)
             long n = effcst->kind_min + THING_RANDOM(thing, effcst->kind_max - effcst->kind_min + 1);
             elemtng = create_effect_element(&thing->mappos, n, thing->owner);
             TRACE_THING(elemtng);
-            if (thing_is_invalid(elemtng))
-                break;
             arg = THING_RANDOM(thing, DEGREES_360);
             argZ = THING_RANDOM(thing, DEGREES_180);
-            // Setting XY acceleration
-            long k = abs(effcst->accel_xy_max - effcst->accel_xy_min);
-            if (k <= 1) k = 1;
-            long mag = effcst->accel_xy_min + THING_RANDOM(thing, k);
-            elemtng->veloc_push_add.x.val += distance_with_angle_to_coord_x(mag,arg);
-            elemtng->veloc_push_add.y.val += distance_with_angle_to_coord_y(mag,arg);
-            // Setting Z acceleration
-            k = abs(effcst->accel_z_max - effcst->accel_z_min);
-            if (k <= 1) k = 1;
-            mag = effcst->accel_z_min + THING_RANDOM(thing, k);
-            elemtng->veloc_push_add.z.val += distance_with_angle_to_coord_z(mag,argZ);
-            elemtng->state_flags |= TF1_PushAdd;
-            elemtng->move_angle_xy = LbArcTanAngle(elemtng->veloc_push_add.x.val, elemtng->veloc_push_add.y.val) & ANGLE_MASK;
+            if (!thing_is_invalid(elemtng))
+            {
+                // Setting XY acceleration
+                long k = abs(effcst->accel_xy_max - effcst->accel_xy_min);
+                if (k <= 1) k = 1;
+                long mag = effcst->accel_xy_min + THING_RANDOM(thing, k);
+                elemtng->veloc_push_add.x.val += distance_with_angle_to_coord_x(mag,arg);
+                elemtng->veloc_push_add.y.val += distance_with_angle_to_coord_y(mag,arg);
+                // Setting Z acceleration
+                k = abs(effcst->accel_z_max - effcst->accel_z_min);
+                if (k <= 1) k = 1;
+                mag = effcst->accel_z_min + THING_RANDOM(thing, k);
+                elemtng->veloc_push_add.z.val += distance_with_angle_to_coord_z(mag,argZ);
+                elemtng->state_flags |= TF1_PushAdd;
+                elemtng->move_angle_xy = LbArcTanAngle(elemtng->veloc_push_add.x.val, elemtng->veloc_push_add.y.val) & ANGLE_MASK;
+            }
         }
         break;
     }
@@ -722,7 +726,10 @@ void effect_generate_effect_elements(const struct Thing *thing)
             arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
-            elemtng->move_angle_xy = thing->move_angle_xy;
+            if (!thing_is_invalid(elemtng))
+            {
+                elemtng->move_angle_xy = thing->move_angle_xy;
+            }
             TRACE_THING(elemtng);
             SYNCDBG(18,"Created %s",thing_model_name(elemtng));
             k += DEGREES_360;
@@ -740,7 +747,10 @@ void effect_generate_effect_elements(const struct Thing *thing)
             arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, 16*mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
-            elemtng->move_angle_xy = arg;
+            if (!thing_is_invalid(elemtng))
+            {
+                elemtng->move_angle_xy = arg;
+            }
             TRACE_THING(elemtng);
             k += DEGREES_360;
         }
@@ -926,7 +936,7 @@ struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrE
         efftng = create_effect_element(pos, ~(effect) + 1, plyr_idx);
     }
     TRACE_THING(efftng);
-    if (parent_idx > 0)
+    if (parent_idx > 0 && !thing_is_invalid(efftng))
     {
         efftng->parent_idx = parent_idx;
         struct Thing* parent = thing_get(parent_idx);
