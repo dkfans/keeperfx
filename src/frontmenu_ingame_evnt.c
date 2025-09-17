@@ -790,8 +790,10 @@ void draw_frametime()
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
     int tx_units_per_px = (11 * units_per_pixel) / LbTextLineHeight();
+    if (tx_units_per_px < 16)
+        tx_units_per_px = 16;
 
-    int iStartLine = 24;
+    int iStartLine = (MyScreenHeight/tx_units_per_px)/2-3;
     memset(text, 0, sizeof(text));
     if(debug_display_frametime == 1) {
         snprintf(text, sizeof(text), "%-13s", "Current");
