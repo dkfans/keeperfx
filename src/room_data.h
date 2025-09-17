@@ -29,7 +29,6 @@
 extern "C" {
 #endif
 
-#define ROOM_TYPES_COUNT_OLD  17
 #define SLAB_AROUND_COUNT      4
 #define ROOMS_COUNT          511
 /******************************************************************************/
@@ -147,7 +146,6 @@ struct RoomReposition {
 /******************************************************************************/
 extern unsigned short const room_effect_elements[];
 extern struct AroundLByte const room_spark_offset[];
-extern RoomKind look_through_rooms[ROOM_TYPES_COUNT_OLD + 1];
 /******************************************************************************/
 struct Room *room_get(RoomIndex room_idx);
 struct Room *subtile_room_get(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
