@@ -332,8 +332,8 @@ void ftest_srand()
             game.action_random_seed = game.play_gameturn;
             game.ai_random_seed = game.play_gameturn * 9377 + 9439 + game.play_gameturn;
             game.player_random_seed = game.play_gameturn * 9439 + 9377 + game.play_gameturn;
-            unsync_random_seed = game.play_gameturn;
-            sound_random_seed = game.play_gameturn * 7919 + 7927;
+            game.unsync_random_seed = game.play_gameturn;
+            game.sound_random_seed = game.play_gameturn * 7919 + 7927;
             srand(game.play_gameturn);
         }
         else
@@ -341,8 +341,8 @@ void ftest_srand()
             game.action_random_seed = start_params.functest_seed;
             game.ai_random_seed = start_params.functest_seed * 9377 + 9439 + game.play_gameturn;
             game.player_random_seed = start_params.functest_seed * 9439 + 9377 + game.play_gameturn;
-            unsync_random_seed = start_params.functest_seed;
-            sound_random_seed = start_params.functest_seed * 7919 + 7927;
+            game.unsync_random_seed = start_params.functest_seed;
+            game.sound_random_seed = start_params.functest_seed * 7919 + 7927;
             srand(start_params.functest_seed);
         }
     }

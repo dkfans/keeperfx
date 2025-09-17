@@ -218,6 +218,10 @@ struct Game {
     unsigned long action_random_seed;
     unsigned long ai_random_seed;
     unsigned long player_random_seed;
+    /** Local (non-synced) random seed for visual effects that don't affect game state */
+    unsigned long unsync_random_seed;
+    /** Sound-specific random seed for audio effects and sound variations */
+    unsigned long sound_random_seed;
     int something_light_x;
     int something_light_y;
     unsigned long time_delta;
