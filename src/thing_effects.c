@@ -868,17 +868,17 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
 // allocate_effect_structure is necessary to do because some effects are synced in multiplayer and some are not.
 struct Thing *allocate_effect_structure(ThingModel effmodel)
 {
-    struct EffectConfigStats* effcst = get_effect_model_stats(effmodel);
+    //struct EffectConfigStats* effcst = get_effect_model_stats(effmodel);
     if (!i_can_allocate_free_thing_structure(TCls_Effect)) {
         return INVALID_THING;
     }
 
     // Effects with area_affect_type need synchronization for multiplayer
-    if (effcst->area_affect_type != AAffT_None) {
-        return allocate_synced_thing_structure(TCls_Effect);
-    } else {
+    //if (effcst->area_affect_type != AAffT_None) {
+    //    return allocate_synced_thing_structure(TCls_Effect);
+    //} else {
         return allocate_non_synced_thing_structure(TCls_Effect);
-    }
+    //}
 }
 
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner)
