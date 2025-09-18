@@ -28,6 +28,7 @@
 #include "config_magic.h"
 #include "config_trapdoor.h"
 #include "config_objects.h"
+#include "config_mods.h"
 #include "config_cubes.h"
 #include "config_powerhands.h"
 #include "config_cubes.h"

@@ -138,8 +138,6 @@
 #define strcasecmp _stricmp
 #endif
 
-int test_variable;
-
 char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
@@ -197,8 +195,6 @@ unsigned char EngineSpriteDrawUsingAlpha;
 unsigned char temp_pal[768];
 unsigned char *lightning_palette;
 
-//static
-TbClockMSec last_loop_time=0;
 
 #ifdef __cplusplus
 extern "C" {
@@ -207,14 +203,13 @@ extern "C" {
 TbBool force_player_num = false;
 
 /******************************************************************************/
-
 extern void faststartup_network_game(CoroutineLoop *context);
 extern void faststartup_saved_packet_game(void);
 extern TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFilterParam param);
-void first_gameturn_actions(void);
 extern CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 extern void startup_network_game(CoroutineLoop *context, TbBool local);
-
+void first_gameturn_actions(void);
+void compute_multiplayer_checksum_sync(void);
 /******************************************************************************/
 
 TbClockMSec timerstarttime = 0;
@@ -911,6 +906,7 @@ void init_keeper(void)
     init_spiral_steps();
     init_key_to_strings();
     // Load configs which may have per-campaign part, and even be modified within a level
+    recheck_all_mod_exist();
     init_custom_sprites(SPRITE_LAST_LEVEL);
     load_stats_files();
     check_and_auto_fix_stats();
@@ -2717,6 +2713,7 @@ void update(void)
         PaletteFadePlayer(player);
         process_armageddon();
         update_global_lighting();
+        compute_multiplayer_checksum_sync();
 #if (BFDEBUG_LEVEL > 9)
         lights_stats_debug_dump();
         things_stats_debug_dump();
@@ -3254,22 +3251,40 @@ TbBool keeper_screen_swap(void)
  */
 TbBool keeper_wait_for_next_turn(void)
 {
+    const long double tick_ns_one_sec = 1000000000.0;
+    long double tick_ns_one_frame = -1;
     if ((game.view_mode_flags & GNFldD_WaitSleepMode) != 0)
     {
         // No idea when such situation occurs
-        TbClockMSec sleep_end = last_loop_time + 1000;
-        LbSleepUntil(sleep_end);
-        last_loop_time = LbTimerClock();
-        return true;
+        tick_ns_one_frame = tick_ns_one_sec;
     }
-    if (game.frame_skip == 0)
+    if (game.frame_skip >= 0)
     {
         // Standard delaying system
-        TbClockMSec sleep_end = last_loop_time + 1000/game_num_fps;
-        LbSleepUntil(sleep_end);
-        last_loop_time = LbTimerClock();
+        long num_fps = game_num_fps;
+        if (game.frame_skip > 0)
+            num_fps *= game.frame_skip;
+
+        tick_ns_one_frame = tick_ns_one_sec/num_fps;
+    }
+
+    if (tick_ns_one_frame >= 0) {
+        static long double tick_ns_last_turn = 0;
+
+        long double tick_ns_cur = get_time_tick_ns();
+        long double tick_ns_used = tick_ns_cur - tick_ns_last_turn;
+        long double tick_ns_delay = tick_ns_one_frame - tick_ns_used;
+
+        long double tick_ns_end = tick_ns_cur;
+        // tick_ns_used: every level, initialized_time_point will be reset, so tick_ns_used may be less than 0 when enter level for the non-first time, Skip it directly to solve the problem.
+        if (tick_ns_delay > 0 && tick_ns_used >= 0) {
+            tick_ns_end = tick_ns_cur + tick_ns_delay;
+            LbSleepUntilExt(tick_ns_end);
+        }
+        tick_ns_last_turn = tick_ns_end;
         return true;
     }
+
     return false;
 }
 
@@ -3277,7 +3292,7 @@ TbBool keeper_wait_for_next_turn(void)
 TbBool keeper_wait_for_next_draw(void)
 {
     // fps.draw is currently unable to work properly with frame_skip
-    if (game_num_fps_draw > 0 && game.frame_skip == 0)
+    if (game_num_fps_draw > 0 && is_feature_on(Ft_DeltaTime) == true && game.frame_skip == 0)
     {
         const long double tick_ns_one_sec = 1000000000.0;
         const long double tick_ns_one_frame = tick_ns_one_sec/game_num_fps_draw;
@@ -3437,7 +3452,7 @@ void gameplay_loop_timestep()
         exit_keeper = 1;
     }
 
-    if (game_num_fps_draw > 0) {
+    if (game_num_fps_draw > 0 && is_feature_on(Ft_DeltaTime) == true) {
         keeper_wait_for_next_draw();
 
         if (game.turns_packetoff == game.play_gameturn) {
@@ -4162,6 +4177,10 @@ short process_command_line(unsigned short argc, char *argv[])
         WARNLOG("Flag '%s' disabled for release builds.", parstr);
 #endif // FUNCTESTING
       }
+      else if (strcasecmp(parstr, "log") == 0)
+      {
+          narg++;
+      }
       else if(strcasecmp(parstr, "exitonfailedtest") == 0)
       {
 #ifdef FUNCTESTING
@@ -4222,18 +4241,14 @@ short process_command_line(unsigned short argc, char *argv[])
   return (bad_param==0);
 }
 
-const char* determine_log_filename(unsigned short argc, char *argv[])
+const char* determine_log_filename(unsigned short argument_count, char *argument_values[])
 {
-    // Quick scan for server/connect flags to determine log file
-    for (int i = 1; i < argc; i++) {
-        if (argv[i] && (argv[i][0] == '-' || argv[i][0] == '/')) {
-            char* flag = argv[i] + 1;
-            if (strcasecmp(flag, "server") == 0) {
+    for (int argument_index = 1; argument_index < argument_count; argument_index++) {
+        if (argument_values[argument_index] && (argument_values[argument_index][0] == '-' || argument_values[argument_index][0] == '/')) {
+            char* argument_name = argument_values[argument_index] + 1;
+            if (strcasecmp(argument_name, "log") == 0 && argument_index + 1 < argument_count) {
                 remove("keeperfx.log");
-                return "keeperfx_host.log";
-            } else if (strcasecmp(flag, "connect") == 0) {
-                remove("keeperfx.log");
-                return "keeperfx_client.log";
+                return argument_values[argument_index + 1];
             }
         }
     }

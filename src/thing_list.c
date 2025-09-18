@@ -977,12 +977,10 @@ TngUpdateRet switch_object_on_destoyed_slab_to_new_owner(struct Thing *thing, Mo
 /**
  * Makes per game turn update of all things in given StructureList.
  * @param list List of things to process.
- * @return Returns checksum computed from status of all things in list.
  */
-TbBigChecksum update_things_in_list(struct StructureList *list)
+void update_things_in_list(struct StructureList *list)
 {
     SYNCDBG(18,"Starting");
-    TbBigChecksum sum = 0;
     unsigned long k = 0;
     int i = list->index;
     while (i != 0)
@@ -1004,7 +1002,6 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
           }
       }
       set_previous_thing_position(thing);
-      sum += get_thing_checksum(thing);
       // Per-thing code ends
       k++;
       if (k > THINGS_COUNT)
@@ -1013,8 +1010,7 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
         break;
       }
     }
-    SYNCDBG(19,"Finished, %d items, checksum %06lX",(int)k,(unsigned long)sum);
-    return sum;
+    SYNCDBG(19,"Finished, %d items",(int)k);
 }
 
 /**
@@ -1126,22 +1122,18 @@ void update_things(void)
     optimised_lights = 0;
     total_lights = 0;
     do_lights = game.lish.light_enabled;
-    TbBigChecksum sum = 0;
-    sum += update_things_in_list(&game.thing_lists[TngList_Creatures]);
+    update_things_in_list(&game.thing_lists[TngList_Creatures]);
     update_creatures_not_in_list();
-    player_packet_checksum_add(my_player_number,sum,"creatures");
-    sum = 0;
-    sum += update_things_in_list(&game.thing_lists[TngList_Traps]);
-    sum += update_things_in_list(&game.thing_lists[TngList_Shots]);
-    sum += update_things_in_list(&game.thing_lists[TngList_Objects]);
-    sum += update_things_in_list(&game.thing_lists[TngList_Effects]);
-    sum += update_things_in_list(&game.thing_lists[TngList_EffectElems]);
-    sum += update_things_in_list(&game.thing_lists[TngList_DeadCreatrs]);
-    sum += update_things_in_list(&game.thing_lists[TngList_EffectGens]);
-    sum += update_things_in_list(&game.thing_lists[TngList_Doors]);
+    update_things_in_list(&game.thing_lists[TngList_Traps]);
+    update_things_in_list(&game.thing_lists[TngList_Shots]);
+    update_things_in_list(&game.thing_lists[TngList_Objects]);
+    update_things_in_list(&game.thing_lists[TngList_Effects]);
+    update_things_in_list(&game.thing_lists[TngList_EffectElems]);
+    update_things_in_list(&game.thing_lists[TngList_DeadCreatrs]);
+    update_things_in_list(&game.thing_lists[TngList_EffectGens]);
+    update_things_in_list(&game.thing_lists[TngList_Doors]);
     update_things_sounds_in_list(&game.thing_lists[TngList_AmbientSnds]);
     update_cave_in_things();
-    player_packet_checksum_add(my_player_number,sum,"things");
     game.map_changed_for_nagivation = 0;
     SYNCDBG(9,"Finished");
 }

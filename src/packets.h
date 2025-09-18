@@ -324,9 +324,7 @@ void process_pause_packet(long a1, long a2);
 void process_quit_packet(struct PlayerInfo *player, short complete_quit);
 void process_packets(void);
 void clear_packets(void);
-TbBigChecksum compute_players_checksum(void);
-void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const char *area_name);
-short checksums_different(void);
+TbBigChecksum compute_replay_integrity(void);
 void post_init_packets(void);
 
 TbBool open_new_packet_file_for_save(void);

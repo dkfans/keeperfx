@@ -172,13 +172,14 @@ void post_init_packets(void)
     clear_packets();
 }
 
-static TbBigChecksum get_thing_simple_checksum(const struct Thing *tng)
-{
-    return (ulong)tng->mappos.x.val + (ulong)tng->mappos.y.val + (ulong)tng->mappos.z.val
-         + (ulong)tng->move_angle_xy + (ulong)tng->owner;
-}
-
-static TbBigChecksum get_packet_save_checksum(void)
+/**
+ * Computes verification checksum for -packetsave/-packetload replay files.
+ * NOT used for multiplayer - only for single-player replay integrity checking.
+ * Sums position/movement data of all things except ambient sounds and effect elements.
+ *
+ * @return Checksum value for detecting replay file corruption
+ */
+TbBigChecksum compute_replay_integrity(void)
 {
     TbBigChecksum sum = 0;
     for (long tng_idx = 0; tng_idx < THINGS_COUNT; tng_idx++)
@@ -190,7 +191,8 @@ static TbBigChecksum get_packet_save_checksum(void)
             // thing indices are used in packets, lack of effect may cause desync too.
             if ((tng->class_id != TCls_AmbientSnd) && (tng->class_id != TCls_EffectElem))
             {
-                sum += get_thing_simple_checksum(tng);
+                sum += (ulong)tng->mappos.x.val + (ulong)tng->mappos.y.val + (ulong)tng->mappos.z.val
+                     + (ulong)tng->move_angle_xy + (ulong)tng->owner;
             }
         }
     }
@@ -204,7 +206,7 @@ short save_packets(void)
     TbBigChecksum chksum;
     SYNCDBG(6,"Starting");
     if (game.packet_checksum_verify)
-        chksum = get_packet_save_checksum();
+        chksum = compute_replay_integrity();
     else
         chksum = 0;
     LbFileSeek(game.packet_save_fp, 0, Lb_FILE_SEEK_END);
@@ -350,7 +352,7 @@ void load_packets_for_turn(GameTurn nturn)
     if (game.packet_checksum_verify)
     {
         pckt = get_packet(my_player_number);
-        if (get_packet_save_checksum() != tot_chksum)
+        if (compute_replay_integrity() != tot_chksum)
         {
             ERRORLOG("PacketSave checksum - Out of sync (GameTurn %lu)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
