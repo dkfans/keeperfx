@@ -306,7 +306,7 @@ void recalculate_total_gold(struct Dungeon* dungeon, const char* func_name)
     {
         if (room_role_matches(rkind, RoRoF_GoldStorage))
         {
-            long i = dungeon->room_kind[rkind];
+            long i = dungeon->room_list_start[rkind];
             unsigned long k = 0;
             while (i != 0)
             {
