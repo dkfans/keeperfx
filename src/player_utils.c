@@ -300,8 +300,12 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
     return amount_take-amount;
 }
 
-void recalculate_total_gold(struct Dungeon* dungeon)
+/**
+ * Resets dungeon->total_money_owned by taking the offmap gold and gold from all the treasure rooms it can find
+  */
+void recalculate_total_gold(struct Dungeon* dungeon, const char* func_name)
 {
+    GoldAmount gold_before = dungeon->total_money_owned;
     dungeon->offmap_money_owned = max(0, dungeon->offmap_money_owned);
     dungeon->total_money_owned = dungeon->offmap_money_owned;
 
@@ -331,7 +335,14 @@ void recalculate_total_gold(struct Dungeon* dungeon)
             }
         }
     }
-    
+    if (gold_before == dungeon->total_money_owned)
+    {
+        SYNCDBG(7, "%s: Dungeon %d did not need gold recalculation. Correct at %ld.", func_name, dungeon->owner, dungeon->total_money_owned);
+    }
+    else
+    {
+        ERRORLOG("%s: Gold recalculation found an error, Dungeon %d correct gold amount %ld not %ld.", func_name, dungeon->owner, dungeon->total_money_owned, gold_before);
+    }
 }
 
 long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name)
@@ -411,10 +422,8 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         }
     }
 
-
-
     WARNLOG("%s: Player %d could not give %d gold, %d was missing; his total gold was %d",func_name,(int)plyr_idx,(int)amount_take,(int)take_remain,(int)total_money);
-    recalculate_total_gold(dungeon);
+    recalculate_total_gold(dungeon, func_name);
     return -1;
 }
 
