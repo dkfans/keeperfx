@@ -25,6 +25,7 @@
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_objects.h"
+#include "config_mods.h"
 #include "config_lenses.h"
 #include "config_trapdoor.h"
 #include "config_effects.h"
@@ -43,6 +44,7 @@ TbBool load_stats_files(void)
 {
     SYNCDBG(8, "Starting");
     TbBool result = true;
+
     clear_research_for_all_players();
     init_creature_model_stats();
     init_creature_model_graphics();
@@ -216,7 +218,7 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     unsigned long manage_efficiency = 0;
     unsigned long max_manage_efficiency = 0;
     {
-        manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(dungeon->room_slabs_count[RoK_ENTRANCE],
+        manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(dungeon->room_discrete_count[RoK_ENTRANCE],
             dungeon->room_manage_area, dungeon->portal_scavenge_boost);
         max_manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(LONG_MAX, LONG_MAX, LONG_MAX);
     }
@@ -230,7 +232,7 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
         unsigned long room_types = 0;
         for (i=0; i < game.conf.slab_conf.room_types_count; i++)
         {
-            if (dungeon->room_slabs_count[i] > 0)
+            if (dungeon->room_discrete_count[i] > 0)
                 room_types++;
         }
         manage_efficiency += 40 * compute_dungeon_rooms_variety_score(room_types, dungeon->total_area);

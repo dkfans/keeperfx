@@ -59,8 +59,12 @@
 #include "post_inc.h"
 
 extern TbBool force_player_num;
+extern TbBool IMPRISON_BUTTON_DEFAULT;
+extern TbBool FLEE_BUTTON_DEFAULT;
+extern unsigned long features_enabled;
 
 extern void setup_players_count();
+extern void set_skip_heart_zoom_feature(TbBool enable);
 
 CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 TbBool luascript_loaded = false;
@@ -165,6 +169,7 @@ static void init_level(void)
 
     luascript_loaded = open_lua_script(get_selected_level_number());
     // Load configs which may have per-campaign part, and can even be modified within a level
+    recheck_all_mod_exist();
     init_custom_sprites(get_selected_level_number());
     load_stats_files();
     check_and_auto_fix_stats();
@@ -188,7 +193,7 @@ static void init_level(void)
     clear_messages();
     init_seeds();
     // Load the actual level files
-    
+
     TbBool script_preloaded = preload_script(get_selected_level_number());
     if (!load_map_file(get_selected_level_number()))
     {
@@ -218,7 +223,7 @@ static void init_level(void)
             }
         }
     }
-    game.numfield_D |= GNFldD_Unkn04;
+    game.view_mode_flags |= GNFldD_ComputerPlayerProcessing;
     //memcpy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
     memcpy(&intralvl,&transfer_mem,sizeof(struct IntralevelData));
     event_initialise_all();
@@ -312,6 +317,9 @@ void startup_saved_packet_game(void)
     settings.isometric_view_zoom_level = game.packet_save_head.isometric_view_zoom_level;
     settings.frontview_zoom_level = game.packet_save_head.frontview_zoom_level;
     settings.isometric_tilt = game.packet_save_head.isometric_tilt;
+    IMPRISON_BUTTON_DEFAULT = game.packet_save_head.default_imprison_tendency;
+    FLEE_BUTTON_DEFAULT = game.packet_save_head.default_flee_tendency;
+    set_skip_heart_zoom_feature(game.packet_save_head.skip_heart_zoom);
     init_level();
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
@@ -417,7 +425,7 @@ void faststartup_network_game(CoroutineLoop *context)
 
 CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
 {
-    get_my_player()->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+    get_my_player()->display_flags &= ~PlaF6_PlyrHasQuit;
     return CLS_CONTINUE;
 }
 
@@ -428,7 +436,7 @@ void faststartup_saved_packet_game(void)
     {
         struct PlayerInfo *player;
         player = get_my_player();
-        player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+        player->display_flags &= ~PlaF6_PlyrHasQuit;
     }
     set_gui_visible(false);
     clear_flag(game.operation_flags, GOF_ShowPanel);
@@ -448,7 +456,7 @@ void clear_complete_game(void)
     game.local_plyr_idx = default_loc_player;
     game.packet_checksum_verify = start_params.packet_checksum_verify;
     game.flags_font = start_params.flags_font;
-    game.numfield_149F47 = 0;
+    game.packet_load_initialized = 0;
     // Set levels to 0, as we may not have the campaign loaded yet
     set_continue_level_number(first_singleplayer_level());
     if ((start_params.operation_flags & GOF_SingleLevel) != 0)
@@ -456,7 +464,8 @@ void clear_complete_game(void)
     else
         set_selected_level_number(first_singleplayer_level());
     game_num_fps = start_params.num_fps;
-    game.flags_cd = start_params.flags_cd;
+    game_num_fps_draw = start_params.num_fps_draw;
+    game.mode_flags = start_params.mode_flags;
     set_flag_value(game.system_flags, GSF_AllowOnePlayer, start_params.one_player);
     game.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;

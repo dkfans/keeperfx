@@ -74,7 +74,7 @@ struct PartyMember { // sizeof = 13
   long countdown;
   CrtrExpLevel exp_level;
   unsigned short carried_gold;
-  unsigned short field_6F;
+  unsigned short is_active;
 };
 
 struct Party {
@@ -85,8 +85,6 @@ struct Party {
 
 #pragma pack()
 /******************************************************************************/
-/******************************************************************************/
-struct Thing *get_highest_experience_and_score_creature_in_group(struct Thing *grptng);
 struct Thing* get_best_creature_to_lead_group(struct Thing* grptng);
 long get_no_creatures_in_group(const struct Thing *grptng);
 TbBool get_free_position_behind_leader(struct Thing *leadtng, struct Coord3d *pos);

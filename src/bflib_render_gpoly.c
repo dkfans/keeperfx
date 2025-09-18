@@ -327,16 +327,16 @@ static const long gpoly_divtable[][64] = {
 
 static long factor_ca,factor_ba,factor_cb,factor_chk;
 static long gploc_point_c;
-static long gploc_1A0;
-static long gploc_198,mapxveltop,gploc_18C,mapyveltop,gploc_180;
-static long gploc_pt_ay,gploc_pt_ax,gploc_pt_shax,gploc_pt_as,gploc_pt_au,gploc_pt_av;
-static long gploc_pt_by,gploc_pt_bx,gploc_pt_shbx,gploc_pt_bs,gploc_pt_bu,gploc_pt_bv;
-static long gploc_pt_cy,gploc_pt_cx,gploc_pt_shcx,gploc_pt_cs,gploc_pt_cu,gploc_pt_cv;
-static long gploc_12C,gploc_128,gploc_104,g_shadeAccumulator,g_shadeAccumulatorNext,gploc_E4;
-static uint8_t * gploc_F4;
-static long gploc_D8,gploc_D4,gploc_CC,gploc_C4,gploc_C0,gploc_BC,gploc_B8,mapxhstep,mapyhstep,shadehstep,gploc_A4,gploc_A0;
-static long gploc_98,gploc_94,gploc_8C,gploc_88,gploc_80,gploc_7C,gploc_74,gploc_68,gploc_64,gploc_60;
-static long gploc_5C,startposshadetop,startposmapxtop,startposmapytop,startposshadebottom,startposmapxbottom,startposmapybottom,gploc_34,gploc_30,gploc_2C;
+static long shadingtop_deltashade;
+static long maptexturetop_deltau,mapxveltop,maptexturetop_deltav,mapyveltop,scanlinescounter;
+static long triangle_point_a_y,triangle_point_a_x,triangle_point_a_shade_x,triangle_point_a_shade,triangle_point_a_texture_u,triangle_point_a_texture_v;
+static long triangle_point_b_y,triangle_point_b_x,triangle_point_b_shade_x,triangle_point_b_shade,triangle_point_b_texture_u,triangle_point_b_texture_v;
+static long triangle_point_c_y,triangle_point_c_x,triangle_point_c_shade_x,triangle_point_c_shade,triangle_point_c_texture_u,triangle_point_c_texture_v;
+static long shadingfactor_primary,shadingfactor_secondary,screenbuffer_linestride,g_shadeAccumulator,g_shadeAccumulatorNext,texture_xaccumulator_backup;
+static uint8_t * screenbuffer_lineptr;
+static long texture_xaccumulator_high_backup,pixel_span_remaining_count,texture_yaccumulator_low,texture_yaccumulator_high_combined,scanline_span_count,shade_interpolation_top_low,shade_interpolation_top_high_combined,mapxhstep,mapyhstep,shadehstep,texture_pointc_interpolation_low,texture_pointc_interpolation_high_combined;
+static long shade_interpolation_bottom_low,shade_interpolation_bottom_high_combined,startpos_top_shade_texture_combined,startpos_top_texturex_texturey_combined,startpos_bottom_shade_texture_combined,startpos_bottom_texturex_texturey_combined,current_scanline_xposition,shade_interpolation_pointc_high,shade_interpolation_pointc_low,texture_xaccumulator_low;
+static long shade_interpolation_bottom_combined,startposshadetop,startposmapxtop,startposmapytop,startposshadebottom,startposmapxbottom,startposmapybottom,texture_xaccumulator_low_backup,shade_interpolation_top_shifted,texture_delta_bottom_high_combined;
 /******************************************************************************/
 
 #undef __ROL4__
@@ -369,26 +369,26 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
     LOC_vec_window_height = vec_window_height;
     { // Check for outranged poly size
         // test lengths
-        int len_bc_x = point_b->X - point_c->X;
-        if ((len_bc_x < -16383) || (len_bc_x > 16383))
+        int edge_bc_length_x = point_b->X - point_c->X;
+        if ((edge_bc_length_x < -16383) || (edge_bc_length_x > 16383))
             return;
-        int len_bc_y = point_b->Y - point_c->Y;
-        if ((len_bc_y < -16383) || (len_bc_y > 16383))
+        int edge_bc_length_y = point_b->Y - point_c->Y;
+        if ((edge_bc_length_y < -16383) || (edge_bc_length_y > 16383))
             return;
-        int len_ba_x = point_b->X - point_a->X;
-        if ((len_ba_x < -16383) || (len_ba_x > 16383))
+        int edge_ba_length_x = point_b->X - point_a->X;
+        if ((edge_ba_length_x < -16383) || (edge_ba_length_x > 16383))
             return;
-        int len_ca_y = point_c->Y - point_a->Y;
-        if ((len_ca_y < -16383) || (len_ca_y > 16383))
+        int edge_ca_length_y = point_c->Y - point_a->Y;
+        if ((edge_ca_length_y < -16383) || (edge_ca_length_y > 16383))
             return;
-        int len_ca_x = point_c->X - point_a->X;
-        if ((len_ca_x < -16383) || (len_ca_x > 16383))
+        int edge_ca_length_x = point_c->X - point_a->X;
+        if ((edge_ca_length_x < -16383) || (edge_ca_length_x > 16383))
             return;
-        int len_ba_y = point_b->Y - point_a->Y;
-        if ((len_ba_y < -16383) || (len_ba_y > 16383))
+        int edge_ba_length_y = point_b->Y - point_a->Y;
+        if ((edge_ba_length_y < -16383) || (edge_ba_length_y > 16383))
             return;
         // test area
-        if ((len_ca_x * len_ba_y) - (len_ba_x * len_ca_y) >= 0)
+        if ((edge_ca_length_x * edge_ba_length_y) - (edge_ba_length_x * edge_ca_length_y) >= 0)
             return;
     }
     long exceeds_window = ((point_a->X | point_b->X | point_c->X) < 0) || (point_a->X > vec_window_width) || (point_b->X > vec_window_width) || (point_c->X > vec_window_width);
@@ -478,47 +478,47 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
         factor_chk = len_y * factor_ca + len_x;
     }
 
-    gploc_pt_ax = point_a->X;
-    gploc_pt_ay = point_a->Y;
-    gploc_pt_shax = point_a->X << 16;
-    gploc_pt_bx = point_b->X;
-    gploc_pt_by = point_b->Y;
-    gploc_pt_shbx = point_b->X << 16;
-    gploc_pt_cx = point_c->X;
-    gploc_pt_cy = point_c->Y;
-    gploc_pt_shcx = point_c->X << 16;
-    gploc_pt_as   = point_a->S >> 16;
-    gploc_pt_bs   = point_b->S >> 16;
-    gploc_pt_cs   = point_c->S >> 16;
-    gploc_pt_au   = point_a->U >> 16;
-    gploc_pt_av   = point_a->V >> 16;
-    gploc_pt_bu   = point_b->U >> 16;
-    gploc_pt_bv   = point_b->V >> 16;
-    gploc_pt_cu   = point_c->U >> 16;
-    gploc_pt_cv   = point_c->V >> 16;
+    triangle_point_a_x = point_a->X;
+    triangle_point_a_y = point_a->Y;
+    triangle_point_a_shade_x = point_a->X << 16;
+    triangle_point_b_x = point_b->X;
+    triangle_point_b_y = point_b->Y;
+    triangle_point_b_shade_x = point_b->X << 16;
+    triangle_point_c_x = point_c->X;
+    triangle_point_c_y = point_c->Y;
+    triangle_point_c_shade_x = point_c->X << 16;
+    triangle_point_a_shade   = point_a->S >> 16;
+    triangle_point_b_shade   = point_b->S >> 16;
+    triangle_point_c_shade   = point_c->S >> 16;
+    triangle_point_a_texture_u   = point_a->U >> 16;
+    triangle_point_a_texture_v   = point_a->V >> 16;
+    triangle_point_b_texture_u   = point_b->U >> 16;
+    triangle_point_b_texture_v   = point_b->V >> 16;
+    triangle_point_c_texture_u   = point_c->U >> 16;
+    triangle_point_c_texture_v   = point_c->V >> 16;
 
     if(vec_mode != 5)
     {
         ERRORLOG("unexpected vec_mode %d in draw_gpoly", vec_mode);
         return;
     }
-    
+
     draw_gpoly_sub7a();
     draw_gpoly_sub7b();
 
-    gploc_104 = LOC_vec_screen_width;
-    gploc_180 = 2;
-    gploc_60 = gploc_68;
-    gploc_CC = gploc_A4;
-    gploc_C4 = gploc_A0;
+    screenbuffer_linestride = LOC_vec_screen_width;
+    scanlinescounter = 2;
+    texture_xaccumulator_low = shade_interpolation_pointc_high;
+    texture_yaccumulator_low = texture_pointc_interpolation_low;
+    texture_yaccumulator_high_combined = texture_pointc_interpolation_high_combined;
     if (factor_chk < 0)
     {
-        gploc_12C = factor_ca;
-        gploc_128 = factor_ba;
+        shadingfactor_primary = factor_ca;
+        shadingfactor_secondary = factor_ba;
     } else
     {
-        gploc_12C = factor_ba;
-        gploc_128 = factor_ca;
+        shadingfactor_primary = factor_ba;
+        shadingfactor_secondary = factor_ca;
     }
 
     if (exceeds_window)
@@ -532,37 +532,37 @@ void draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Pol
 
 void draw_gpoly_sub7a()
 {
-    int v0 = gploc_pt_cy - gploc_pt_ay;
-    int v1 = (gploc_pt_bx - gploc_pt_ax) * (gploc_pt_cy - gploc_pt_ay);
+    int triangle_height_ac = triangle_point_c_y - triangle_point_a_y;
+    int cross_product_adjustment = (triangle_point_b_x - triangle_point_a_x) * (triangle_point_c_y - triangle_point_a_y);
     if (factor_chk >= 0)
-        v1 -= 2 * v0;
+        cross_product_adjustment -= 2 * triangle_height_ac;
 
-    int v2 = (gploc_pt_cx - gploc_pt_ax) * (gploc_pt_by - gploc_pt_ay) - (v0 + v1);
+    int triangle_area_determinant = (triangle_point_c_x - triangle_point_a_x) * (triangle_point_b_y - triangle_point_a_y) - (triangle_height_ac + cross_product_adjustment);
 
-    if (v2 != 0)
+    if (triangle_area_determinant != 0)
     {
-        int v3 = 0x7FFFFFFF / v2;
-        int v4 = gploc_pt_cy - gploc_pt_ay;
-        int v5 = gploc_pt_by - gploc_pt_ay;
+        int division_factor = 0x7FFFFFFF / triangle_area_determinant;
+        int triangle_height_ac_copy = triangle_point_c_y - triangle_point_a_y;
+        int triangle_height_ab = triangle_point_b_y - triangle_point_a_y;
 
         // First component: shadehstep
         {
-            int64_t num = (int64_t)v5 * (gploc_pt_cs - gploc_pt_as) - (int64_t)v4 * (gploc_pt_bs - gploc_pt_as);
-            int64_t result = 2 * num * v3;
+            int64_t num = (int64_t)triangle_height_ab * (triangle_point_c_shade - triangle_point_a_shade) - (int64_t)triangle_height_ac_copy * (triangle_point_b_shade - triangle_point_a_shade);
+            int64_t result = 2 * num * division_factor;
             shadehstep = (int)((result >> 16) + ((result < 0) ? 1 : 0));
         }
 
         // Second component: mapxhstep
         {
-            int64_t num = (int64_t)v5 * (gploc_pt_cu - gploc_pt_au) - (int64_t)v4 * (gploc_pt_bu - gploc_pt_au);
-            int64_t result = 2 * num * v3;
+            int64_t num = (int64_t)triangle_height_ab * (triangle_point_c_texture_u - triangle_point_a_texture_u) - (int64_t)triangle_height_ac_copy * (triangle_point_b_texture_u - triangle_point_a_texture_u);
+            int64_t result = 2 * num * division_factor;
             mapxhstep = (int)((result >> 16) + ((result < 0) ? 1 : 0));
         }
 
         // Third component: mapyhstep
         {
-            int64_t num = (int64_t)v5 * (gploc_pt_cv - gploc_pt_av) - (int64_t)v4 * (gploc_pt_bv - gploc_pt_av);
-            int64_t result = 2 * num * v3;
+            int64_t num = (int64_t)triangle_height_ab * (triangle_point_c_texture_v - triangle_point_a_texture_v) - (int64_t)triangle_height_ac_copy * (triangle_point_b_texture_v - triangle_point_a_texture_v);
+            int64_t result = 2 * num * division_factor;
             mapyhstep = (int)((result >> 16) + ((result < 0) ? 1 : 0));
         }
     }
@@ -618,19 +618,19 @@ static inline int32_t shift_mul(int32_t delta, int32_t scale)
 
 void draw_gpoly_sub7b_block1(void)
 {
-    int32_t dy_ab = gploc_pt_by - gploc_pt_ay;
+    int32_t dy_ab = triangle_point_b_y - triangle_point_a_y;
     int32_t scale1 = (dy_ab > 255) ? (0x7FFFFFFF / dy_ab) : gpoly_reptable[dy_ab];
 
-    gploc_point_c = shift_mul(2 * (gploc_pt_bs - gploc_pt_as), scale1);
-    mapxveltop    = shift_mul(2 * (gploc_pt_bu - gploc_pt_au), scale1);
-    mapyveltop    = shift_mul(2 * (gploc_pt_bv - gploc_pt_av), scale1);
+    gploc_point_c = shift_mul(2 * (triangle_point_b_shade - triangle_point_a_shade), scale1);
+    mapxveltop    = shift_mul(2 * (triangle_point_b_texture_u - triangle_point_a_texture_u), scale1);
+    mapyveltop    = shift_mul(2 * (triangle_point_b_texture_v - triangle_point_a_texture_v), scale1);
 
-    int32_t dy_bc = gploc_pt_cy - gploc_pt_by;
+    int32_t dy_bc = triangle_point_c_y - triangle_point_b_y;
     int32_t scale2 = (dy_bc > 255) ? (0x7FFFFFFF / dy_bc) : gpoly_reptable[dy_bc];
 
-    gploc_1A0 = shift_mul(2 * (gploc_pt_cs - gploc_pt_bs), scale2);
-    gploc_198 = shift_mul(2 * (gploc_pt_cu - gploc_pt_bu), scale2);
-    gploc_18C = shift_mul(2 * (gploc_pt_cv - gploc_pt_bv), scale2);
+    shadingtop_deltashade = shift_mul(2 * (triangle_point_c_shade - triangle_point_b_shade), scale2);
+    maptexturetop_deltau = shift_mul(2 * (triangle_point_c_texture_u - triangle_point_b_texture_u), scale2);
+    maptexturetop_deltav = shift_mul(2 * (triangle_point_c_texture_v - triangle_point_b_texture_v), scale2);
 }
 
 static inline int rol16_from_product(int64_t product)
@@ -645,18 +645,18 @@ static inline int rol16_from_product(int64_t product)
 
 void draw_gpoly_sub7b_block2(void)
 {
-    int dy = gploc_pt_cy - gploc_pt_ay;
+    int dy = triangle_point_c_y - triangle_point_a_y;
     int factor = (dy > 255) ? (0x7FFFFFFF / dy) : gpoly_reptable[dy];
 
-    int delta = gploc_pt_cs - gploc_pt_as;
+    int delta = triangle_point_c_shade - triangle_point_a_shade;
     int64_t product = (int64_t)factor * (delta * 2);
     gploc_point_c = rol16_from_product(product);
 
-    delta = gploc_pt_cu - gploc_pt_au;
+    delta = triangle_point_c_texture_u - triangle_point_a_texture_u;
     product = (int64_t)factor * (delta * 2);
     mapxveltop = rol16_from_product(product);
 
-    delta = gploc_pt_cv - gploc_pt_av;
+    delta = triangle_point_c_texture_v - triangle_point_a_texture_v;
     product = (int64_t)factor * (delta * 2);
     mapyveltop = rol16_from_product(product);
 }
@@ -666,15 +666,15 @@ void draw_gpoly_sub7b_block3(void)
     //----------------------------------------------------------------
     // 1) Write the six “startpos…” values exactly as in the ASM:
     //----------------------------------------------------------------
-    startposshadetop    = (uint32_t)( (int32_t)gploc_pt_as   << 16 );
-    startposmapxtop     = (uint32_t)( (int32_t)gploc_pt_au   << 16 );
-    startposmapytop     = (uint32_t)( (int32_t)gploc_pt_av   << 16 );
-    startposshadebottom = (uint32_t)( (int32_t)gploc_pt_bs   << 16 );
-    startposmapxbottom  = (uint32_t)( (int32_t)gploc_pt_bu   << 16 );
-    startposmapybottom  = (uint32_t)( (int32_t)gploc_pt_bv   << 16 );
+    startposshadetop    = (uint32_t)( (int32_t)triangle_point_a_shade   << 16 );
+    startposmapxtop     = (uint32_t)( (int32_t)triangle_point_a_texture_u   << 16 );
+    startposmapytop     = (uint32_t)( (int32_t)triangle_point_a_texture_v   << 16 );
+    startposshadebottom = (uint32_t)( (int32_t)triangle_point_b_shade   << 16 );
+    startposmapxbottom  = (uint32_t)( (int32_t)triangle_point_b_texture_u   << 16 );
+    startposmapybottom  = (uint32_t)( (int32_t)triangle_point_b_texture_v   << 16 );
 
     //----------------------------------------------------------------
-    // 2) TOP‐SHADING INTERPOLATION → gploc_30, gploc_BC, gploc_B8
+    // 2) TOP‐SHADING INTERPOLATION → shade_interpolation_top_shifted, shade_interpolation_top_low, shade_interpolation_top_high_combined
     //----------------------------------------------------------------
     {
 
@@ -687,11 +687,11 @@ void draw_gpoly_sub7b_block3(void)
         // If (shadehstep>>8) is negative, emulate the “andl $0x0FFFF; subl $0x10000; sbbl $0,EDX” exactly:
         if (s < 0) {
             // EBX = (uint16_t)s
-            uint32_t s16 = (uint32_t)( (uint16_t)s );
+            uint32_t unsigned_lower_bits = (uint32_t)( (uint16_t)s );
             // EAX -= 0x10000  →  val -= 0x10000
             val -= ((int64_t)0x10000);
             // Add back (uint16_t)s
-            val += (int64_t)s16;
+            val += (int64_t)unsigned_lower_bits;
         }
         else {
             // s ≥ 0  →  just add s
@@ -702,21 +702,21 @@ void draw_gpoly_sub7b_block3(void)
         uint32_t low32 = (uint32_t)val;
         int32_t  high32 = (int32_t)( val >> 32 );  // arithmetic shift
 
-        // gploc_30 ← (shadehstep << 24):
-        gploc_30 = (uint32_t)( (int32_t)shadehstep << 24 );
-        // gploc_BC ← low‐word (EAX):
-        gploc_BC = low32;
+        // shade_interpolation_top_shifted ← (shadehstep << 24):
+        shade_interpolation_top_shifted = (uint32_t)( (int32_t)shadehstep << 24 );
+        // shade_interpolation_top_low ← low‐word (EAX):
+        shade_interpolation_top_low = low32;
 
-        // Next: gploc_B8 = ( (mapxhstep + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
+        // Next: shade_interpolation_top_high_combined = ( (mapxhstep + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
         int32_t mx = (int32_t)mapxhstep;
         if (high32 < 0) {
             mx -= 1;
         }
-        gploc_B8 = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
+        shade_interpolation_top_high_combined = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
     }
 
     //----------------------------------------------------------------
-    // 3) BOTTOM‐SHADING INTERPOLATION → gploc_5C, gploc_2C
+    // 3) BOTTOM‐SHADING INTERPOLATION → shade_interpolation_bottom_combined, shade_interpolation_bottom_high_combined
     //----------------------------------------------------------------
     {
 
@@ -727,11 +727,11 @@ void draw_gpoly_sub7b_block3(void)
 
         if (s < 0) {
             // EBX = (uint16_t)s
-            uint32_t s16 = (uint32_t)((uint16_t)s);
+            uint32_t unsigned_lower_bits = (uint32_t)((uint16_t)s);
             // EAX -= 0x0FFFF
             val -= ((int64_t)0x0FFFF);
             // add EBX
-            val += (int64_t)s16;
+            val += (int64_t)unsigned_lower_bits;
         }
         else {
             val += (int64_t)s;
@@ -740,33 +740,33 @@ void draw_gpoly_sub7b_block3(void)
         uint32_t low32  = (uint32_t)val;
         int32_t  high32 = (int32_t)(val >> 32);
 
-        // Store EAX→gploc_5C
-        gploc_5C = low32;
+        // Store EAX→shade_interpolation_bottom_combined
+        shade_interpolation_bottom_combined = low32;
 
-        // gploc_2C = ( (mapxhstep + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
+        // shade_interpolation_bottom_high_combined = ( (mapxhstep + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
         int32_t mx      = (int32_t)mapxhstep;
         if (high32 < 0) {
             mx -= 1;
         }
-        gploc_2C = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
+        shade_interpolation_bottom_high_combined = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
     }
 
     //----------------------------------------------------------------
-    // 4) TOP “POINT‐C” INTERPOLATION → gploc_68, gploc_A4, gploc_A0
+    // 4) TOP “POINT‐C” INTERPOLATION → shade_interpolation_pointc_high, texture_pointc_interpolation_low, texture_pointc_interpolation_high_combined
     //----------------------------------------------------------------
     {
         int32_t m_y   = (int32_t)mapyveltop;
         int64_t val   = ((int64_t)m_y << 16);
 
-        // Build gploc_68 = (gploc_point_c << 24)
+        // Build shade_interpolation_pointc_high = (gploc_point_c << 24)
         int32_t ptc     = (int32_t)gploc_point_c;
-        gploc_68        = (uint32_t)(ptc << 24);
+        shade_interpolation_pointc_high        = (uint32_t)(ptc << 24);
 
         int32_t s       = (int32_t)(ptc >> 8);
         if (s < 0) {
-            uint32_t s16 = (uint32_t)((uint16_t)s);
+            uint32_t unsigned_lower_bits = (uint32_t)((uint16_t)s);
             val -= ((int64_t)0x10000);
-            val += (int64_t)s16;
+            val += (int64_t)unsigned_lower_bits;
         }
         else {
             val += (int64_t)s;
@@ -774,29 +774,29 @@ void draw_gpoly_sub7b_block3(void)
 
         uint32_t low32  = (uint32_t)val;
         int32_t  high32 = (int32_t)(val >> 32);
-        gploc_A4        = low32;
+        texture_pointc_interpolation_low        = low32;
 
-        // gploc_A0 = ( (mapxveltop + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
+        // texture_pointc_interpolation_high_combined = ( (mapxveltop + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
         int32_t mx      = (int32_t)mapxveltop;
         if (high32 < 0) {
             mx -= 1;
         }
-        gploc_A0 = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
+        texture_pointc_interpolation_high_combined = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
     }
 
     //----------------------------------------------------------------
-    // 5) COMBINE STARTPOS FOR TOP: → gploc_8C, gploc_88
+    // 5) COMBINE STARTPOS FOR TOP: → startpos_top_shade_texture_combined, startpos_top_texturex_texturey_combined
     //----------------------------------------------------------------
     {
         uint32_t sp_y = startposmapytop;
         uint32_t sp_s = startposshadetop;
         uint32_t sp_x = startposmapxtop;
 
-        // gploc_8C = (sp_s >> 8) | (sp_y << 16)
-        gploc_8C = ( (uint32_t)sp_s >> 8 ) | ( (uint32_t)sp_y << 16 );
+        // startpos_top_shade_texture_combined = (sp_s >> 8) | (sp_y << 16)
+        startpos_top_shade_texture_combined = ( (uint32_t)sp_s >> 8 ) | ( (uint32_t)sp_y << 16 );
 
-        // gploc_88 = (sp_x << 8) | ((sp_y >> 16) & 0xFF)
-        gploc_88 = ( (uint32_t)sp_x << 8 ) | ( ((uint32_t)sp_y >> 16) & 0xFF );
+        // startpos_top_texturex_texturey_combined = (sp_x << 8) | ((sp_y >> 16) & 0xFF)
+        startpos_top_texturex_texturey_combined = ( (uint32_t)sp_x << 8 ) | ( ((uint32_t)sp_y >> 16) & 0xFF );
     }
 
     //----------------------------------------------------------------
@@ -804,62 +804,62 @@ void draw_gpoly_sub7b_block3(void)
     //----------------------------------------------------------------
     if ( (int32_t)factor_chk >= 0 )
     {
-        int32_t m_y   = (int32_t)gploc_18C;
+        int32_t m_y   = (int32_t)maptexturetop_deltav;
         int64_t val   = ((int64_t)m_y << 16);
 
-        // gploc_64 = (gploc_1A0 << 24)
-        int32_t s0    = (int32_t)gploc_1A0;
-        gploc_64      = (uint32_t)(s0 << 24);
+        // shade_interpolation_pointc_low = (shadingtop_deltashade << 24)
+        int32_t signed_shade_delta    = (int32_t)shadingtop_deltashade;
+        shade_interpolation_pointc_low      = (uint32_t)(signed_shade_delta << 24);
 
-        int32_t s1    = (int32_t)(s0 >> 8);
-        if (s1 < 0) {
-            uint32_t s16 = (uint32_t)((uint16_t)s1);
+        int32_t shifted_shade_delta    = (int32_t)(signed_shade_delta >> 8);
+        if (shifted_shade_delta < 0) {
+            uint32_t unsigned_lower_bits = (uint32_t)((uint16_t)shifted_shade_delta);
             val -= ((int64_t)0x10000);
-            val += (int64_t)s16;
+            val += (int64_t)unsigned_lower_bits;
         }
         else {
-            val += (int64_t)s1;
+            val += (int64_t)shifted_shade_delta;
         }
 
         uint32_t low32  = (uint32_t)val;
         int32_t  high32 = (int32_t)(val >> 32);
-        gploc_98        = low32;
+        shade_interpolation_bottom_low        = low32;
 
-        // gploc_94 = ( (gploc_198 + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
-        int32_t mx      = (int32_t)gploc_198;
+        // texture_delta_bottom_high_combined = ( (maptexturetop_deltau + (high32<0 ? -1 : 0)) << 8 ) | (high32 & 0xFF)
+        int32_t mx      = (int32_t)maptexturetop_deltau;
         if (high32 < 0) {
             mx -= 1;
         }
-        gploc_94 = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
+        texture_delta_bottom_high_combined = ( (uint32_t)mx << 8 ) | ( (uint32_t)high32 & 0xFF );
 
         //----------------------------------------------------------------
-        // Finally, combine “bottom” startpos → gploc_80, gploc_7C
+        // Finally, combine “bottom” startpos → startpos_bottom_shade_texture_combined, startpos_bottom_texturex_texturey_combined
         //----------------------------------------------------------------
         {
             uint32_t sp_yb = startposmapybottom;
             uint32_t sp_sb = startposshadebottom;
             uint32_t sp_xb = startposmapxbottom;
 
-            // gploc_80 = (sp_sb >> 8) | (sp_yb << 16)
-            gploc_80 = ( (uint32_t)sp_sb >> 8 ) | ( (uint32_t)sp_yb << 16 );
+            // startpos_bottom_shade_texture_combined = (sp_sb >> 8) | (sp_yb << 16)
+            startpos_bottom_shade_texture_combined = ( (uint32_t)sp_sb >> 8 ) | ( (uint32_t)sp_yb << 16 );
 
-            // gploc_7C = (sp_xb << 8) | ((sp_yb >> 16) & 0xFF)
-            gploc_7C = ( (uint32_t)sp_xb << 8 ) | ( ((uint32_t)sp_yb >> 16) & 0xFF );
+            // startpos_bottom_texturex_texturey_combined = (sp_xb << 8) | ((sp_yb >> 16) & 0xFF)
+            startpos_bottom_texturex_texturey_combined = ( (uint32_t)sp_xb << 8 ) | ( ((uint32_t)sp_yb >> 16) & 0xFF );
         }
     }
 }
 
-void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_combined, unsigned __int8 *screen_line_offset)
+void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_combined, uint8_t *screen_line_offset)
 {
     int span_mod16 = pixel_span_len & 0xF;
-    unsigned __int8 * pixel_dst = NULL;
-    
+    uint8_t * pixel_dst = NULL;
+
     pixel_dst = &screen_line_offset[gpoly_countdown[span_mod16]];
 
-    gploc_D4 = pixel_span_len;
+    pixel_span_remaining_count = pixel_span_len;
     int fade_lookup_index = __ROL4__(tex_x_accum_combined & 0xFF0000FF, 8);
-    unsigned __int8 *texture_map = LOC_vec_map;
-    int texture_step_y = gploc_5C;
+    uint8_t *texture_map = LOC_vec_map;
+    int texture_step_y = shade_interpolation_bottom_combined;
     switch ( span_mod16 )
     {
       case 0:
@@ -896,110 +896,110 @@ void unrolled_loop(int pixel_span_len, int tex_x_accum_high,int tex_x_accum_comb
         while ( 1 )
         {
             pixel_dst[1] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v13 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            unsigned int texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v13, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL14:
             pixel_dst[2] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v14 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v14, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL13:
             pixel_dst[3] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v15 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v15, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL12:
             pixel_dst[4] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v16 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v16, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL11:
             pixel_dst[5] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v17 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v17, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL10:
             pixel_dst[6] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v18 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v18, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL9:
             pixel_dst[7] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v19 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v19, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL8:
             pixel_dst[8] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v20 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v20, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL7:
             pixel_dst[9] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v21 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v21, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL6:
             pixel_dst[10] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v22 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v22, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL5:
             pixel_dst[11] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v23 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v23, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL4:
             pixel_dst[12] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v24 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v24, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL3:
             pixel_dst[13] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v25 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v25, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL2:
             pixel_dst[14] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v26 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v26, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
 UNROLLED_LOOP_PIXEL1:
             pixel_dst[15] = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v27 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v27, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
             pixel_dst += 16;
-            bool span_too_small_or_complete = gploc_D4 <= 16;
-            gploc_D4 -= 16;
+            bool span_too_small_or_complete = pixel_span_remaining_count <= 16;
+            pixel_span_remaining_count -= 16;
             if ( span_too_small_or_complete )
               break;
 UNROLLED_LOOP_PIXEL0:
             *pixel_dst = render_fade_tables[texture_map[fade_lookup_index] | (tex_x_accum_high & 0xFF00)];
-            unsigned int v11 = tex_x_accum_combined & 0xFF0000FF;
-            tex_x_accum_combined = (PAIR64(gploc_2C, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
+            texture_fade_bits = tex_x_accum_combined & 0xFF0000FF;
+            tex_x_accum_combined = (PAIR64(shade_interpolation_bottom_high_combined, texture_step_y) + PAIR64(tex_x_accum_combined, tex_x_accum_high)) >> 32;
             tex_x_accum_high += texture_step_y;
-            fade_lookup_index = __ROL4__(v11, 8);
+            fade_lookup_index = __ROL4__(texture_fade_bits, 8);
         } // while ( 1 );
         break;
     }
 }
-    
+
 void draw_gpoly_sub13()
 {
   int tex_x_accum_low; // ecx
@@ -1013,69 +1013,69 @@ void draw_gpoly_sub13()
   int shadeAccumulator; // eax
   int shadeAccumulatorNext; // ebp
   int scanline_y_esi; // esi
-  bool v29; // cc
-  int v30; // esi
-  int v31; // eax
-  int v32; // ebp
+  bool range_check_passed; // cc
+  int shade_position_adjustment; // esi
+  int shade_pixel_position; // eax
+  int next_shade_pixel_position; // ebp
   int pixel_span_len; // ebp
-  bool v37; // cf
-  int v38; // eax
-  int v39; // eax
+  bool carry_flag; // cf
+  int clipped_end_y; // eax
+  int clipped_triangle_end_y; // eax
 
   tex_x_accum_low = 0;
-  tex_x_accum_high = gploc_8C;
-  tex_x_accum_combined = gploc_88;
-  screen_line_ptr = (uchar *)(LOC_vec_screen + gploc_pt_ay * LOC_vec_screen_width);
-  if ( gploc_pt_ay <= LOC_vec_window_height )
+  tex_x_accum_high = startpos_top_shade_texture_combined;
+  tex_x_accum_combined = startpos_top_texturex_texturey_combined;
+  screen_line_ptr = (uchar *)(LOC_vec_screen + triangle_point_a_y * LOC_vec_screen_width);
+  if ( triangle_point_a_y <= LOC_vec_window_height )
   {
-    clamped_by = gploc_pt_by;
-    if ( gploc_pt_by > LOC_vec_window_height )
+    clamped_by = triangle_point_b_y;
+    if ( triangle_point_b_y > LOC_vec_window_height )
       clamped_by = LOC_vec_window_height;
-    spanCount = clamped_by - gploc_pt_ay;
+    spanCount = clamped_by - triangle_point_a_y;
     skip_render = spanCount == 0;
-    gploc_C0 = spanCount;
-    xStart = gploc_pt_ax;
-    gploc_74 = gploc_pt_ax;
-    shadeAccumulator = gploc_pt_shax;
-    shadeAccumulatorNext = gploc_pt_shax;
+    scanline_span_count = spanCount;
+    xStart = triangle_point_a_x;
+    current_scanline_xposition = triangle_point_a_x;
+    shadeAccumulator = triangle_point_a_shade_x;
+    shadeAccumulatorNext = triangle_point_a_shade_x;
     if ( !skip_render )
     {
-      scanline_y_esi = gploc_pt_ay;
-      if ( gploc_pt_ay < 0 )
+      scanline_y_esi = triangle_point_a_y;
+      if ( triangle_point_a_y < 0 )
         goto SKEWED_SCAN_ADJUST;
-      xStart = gploc_74;
+      xStart = current_scanline_xposition;
       goto REMAINDER_SCANLINE_STEP;
     }
     while ( 1 )
     {
-      if ( !--gploc_180 )
+      if ( !--scanlinescounter )
         return;
       g_shadeAccumulator = shadeAccumulator;
       if ( factor_chk >= 0 )
         break;
-      gploc_128 = factor_cb;
-      shadeAccumulatorNext = gploc_pt_shbx;
-      v39 = gploc_pt_cy;
-      if ( gploc_pt_cy > LOC_vec_window_height )
-        v39 = LOC_vec_window_height;
-      v29 = v39 <= gploc_pt_by;
-      gploc_C0 = v39 - gploc_pt_by;
+      shadingfactor_secondary = factor_cb;
+      shadeAccumulatorNext = triangle_point_b_shade_x;
+      clipped_triangle_end_y = triangle_point_c_y;
+      if ( triangle_point_c_y > LOC_vec_window_height )
+        clipped_triangle_end_y = LOC_vec_window_height;
+      range_check_passed = clipped_triangle_end_y <= triangle_point_b_y;
+      scanline_span_count = clipped_triangle_end_y - triangle_point_b_y;
       shadeAccumulator = g_shadeAccumulator;
-      if ( v29 )
+      if ( range_check_passed )
         return;
-      gploc_74 = xStart;
-      scanline_y_esi = gploc_pt_by;
-      if ( gploc_pt_by >= 0 )
+      current_scanline_xposition = xStart;
+      scanline_y_esi = triangle_point_b_y;
+      if ( triangle_point_b_y >= 0 )
       {
-        xStart = gploc_74;
+        xStart = current_scanline_xposition;
         do
         {
 REMAINDER_SCANLINE_STEP:
           g_shadeAccumulator = shadeAccumulator;
           g_shadeAccumulatorNext = shadeAccumulatorNext;
-          gploc_F4 = screen_line_ptr;
-          v31 = shadeAccumulator >> 16;
-          if ( v31 < 0 )
+          screenbuffer_lineptr = screen_line_ptr;
+          shade_pixel_position = shadeAccumulator >> 16;
+          if ( shade_pixel_position < 0 )
           {
             if ( xStart )
             {
@@ -1083,10 +1083,10 @@ REMAINDER_SCANLINE_STEP:
               {
                 do
                 {
-                  v37 = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(gploc_BC, gploc_30);
-                  tex_x_accum_high = (PAIR64(tex_x_accum_high, tex_x_accum_low) - PAIR64(gploc_BC, gploc_30)) >> 32;
-                  tex_x_accum_low -= gploc_30;
-                  tex_x_accum_combined -= v37 + gploc_B8;
+                  carry_flag = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted);
+                  tex_x_accum_high = (PAIR64(tex_x_accum_high, tex_x_accum_low) - PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted)) >> 32;
+                  tex_x_accum_low -= shade_interpolation_top_shifted;
+                  tex_x_accum_combined -= carry_flag + shade_interpolation_top_high_combined;
                   --xStart;
                 }
                 while ( xStart );
@@ -1095,110 +1095,110 @@ REMAINDER_SCANLINE_STEP:
               {
                 do
                 {
-                  v37 = CFADD64(PAIR64(gploc_BC, gploc_30), PAIR64(tex_x_accum_high, tex_x_accum_low));
-                  tex_x_accum_high = (PAIR64(gploc_BC, gploc_30) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
-                  tex_x_accum_low += gploc_30;
-                  tex_x_accum_combined += gploc_B8 + v37;
+                  carry_flag = CFADD64(PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted), PAIR64(tex_x_accum_high, tex_x_accum_low));
+                  tex_x_accum_high = (PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
+                  tex_x_accum_low += shade_interpolation_top_shifted;
+                  tex_x_accum_combined += shade_interpolation_top_high_combined + carry_flag;
                   ++xStart;
                 }
                 while ( xStart );
               }
             }
           }
-          else if ( v31 > xStart )
+          else if ( shade_pixel_position > xStart )
           {
             do
             {
-              v37 = CFADD64(PAIR64(gploc_BC, gploc_30), PAIR64(tex_x_accum_high, tex_x_accum_low));
-              tex_x_accum_high = (PAIR64(gploc_BC, gploc_30) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
-              tex_x_accum_low += gploc_30;
-              tex_x_accum_combined += gploc_B8 + v37;
+              carry_flag = CFADD64(PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted), PAIR64(tex_x_accum_high, tex_x_accum_low));
+              tex_x_accum_high = (PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
+              tex_x_accum_low += shade_interpolation_top_shifted;
+              tex_x_accum_combined += shade_interpolation_top_high_combined + carry_flag;
               ++xStart;
             }
-            while ( v31 > xStart );
+            while ( shade_pixel_position > xStart );
           }
           else
           {
-            for ( ; v31 < xStart; --xStart )
+            for ( ; shade_pixel_position < xStart; --xStart )
             {
-              v37 = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(gploc_BC, gploc_30);
-              tex_x_accum_high = (PAIR64(tex_x_accum_high, tex_x_accum_low) - PAIR64(gploc_BC, gploc_30)) >> 32;
-              tex_x_accum_low -= gploc_30;
-              tex_x_accum_combined -= v37 + gploc_B8;
+              carry_flag = PAIR64(tex_x_accum_high, tex_x_accum_low) < PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted);
+              tex_x_accum_high = (PAIR64(tex_x_accum_high, tex_x_accum_low) - PAIR64(shade_interpolation_top_low, shade_interpolation_top_shifted)) >> 32;
+              tex_x_accum_low -= shade_interpolation_top_shifted;
+              tex_x_accum_combined -= carry_flag + shade_interpolation_top_high_combined;
             }
           }
-          gploc_74 = xStart;
-          gploc_34 = tex_x_accum_low;
-          gploc_D8 = tex_x_accum_high;
-          gploc_E4 = tex_x_accum_combined;
-          v32 = shadeAccumulatorNext >> 16;
-          if ( v32 > LOC_vec_window_width )
-            v32 = LOC_vec_window_width;
-          v29 = v32 <= xStart;
-          pixel_span_len = v32 - xStart;
-          if ( !v29 )
+          current_scanline_xposition = xStart;
+          texture_xaccumulator_low_backup = tex_x_accum_low;
+          texture_xaccumulator_high_backup = tex_x_accum_high;
+          texture_xaccumulator_backup = tex_x_accum_combined;
+          next_shade_pixel_position = shadeAccumulatorNext >> 16;
+          if ( next_shade_pixel_position > LOC_vec_window_width )
+            next_shade_pixel_position = LOC_vec_window_width;
+          range_check_passed = next_shade_pixel_position <= xStart;
+          pixel_span_len = next_shade_pixel_position - xStart;
+          if ( !range_check_passed )
           {
-            unrolled_loop(pixel_span_len,tex_x_accum_high,tex_x_accum_combined,gploc_F4 + xStart);
+            unrolled_loop(pixel_span_len,tex_x_accum_high,tex_x_accum_combined,screenbuffer_lineptr + xStart);
           }
-          v30 = gploc_74 - (g_shadeAccumulator >> 16);
-          shadeAccumulatorNext = gploc_128 + g_shadeAccumulatorNext;
-          g_shadeAccumulator += gploc_12C;
-          xStart = (g_shadeAccumulator >> 16) + v30;
+          shade_position_adjustment = current_scanline_xposition - (g_shadeAccumulator >> 16);
+          shadeAccumulatorNext = shadingfactor_secondary + g_shadeAccumulatorNext;
+          g_shadeAccumulator += shadingfactor_primary;
+          xStart = (g_shadeAccumulator >> 16) + shade_position_adjustment;
           shadeAccumulator = g_shadeAccumulator;
-          tex_x_accum_high = (PAIR64(gploc_CC, gploc_60) + PAIR64(gploc_D8, gploc_34)) >> 32;
-          tex_x_accum_low = gploc_60 + gploc_34;
-          tex_x_accum_combined = gploc_C4
-                               + CFADD64(PAIR64(gploc_CC, gploc_60), PAIR64(gploc_D8, gploc_34))
-                               + gploc_E4;
-          screen_line_ptr = &gploc_F4[gploc_104];
-          --gploc_C0;
+          tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(texture_xaccumulator_high_backup, texture_xaccumulator_low_backup)) >> 32;
+          tex_x_accum_low = texture_xaccumulator_low + texture_xaccumulator_low_backup;
+          tex_x_accum_combined = texture_yaccumulator_high_combined
+                               + CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(texture_xaccumulator_high_backup, texture_xaccumulator_low_backup))
+                               + texture_xaccumulator_backup;
+          screen_line_ptr = &screenbuffer_lineptr[screenbuffer_linestride];
+          --scanline_span_count;
         }
-        while ( gploc_C0 );
+        while ( scanline_span_count );
         continue;
       }
 SKEWED_SCAN_ADJUST:
       while ( 1 )
       {
-        v37 = CFADD64(PAIR64(gploc_CC, gploc_60), PAIR64(tex_x_accum_high, tex_x_accum_low));
-        tex_x_accum_high = (PAIR64(gploc_CC, gploc_60) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
-        tex_x_accum_low += gploc_60;
-        tex_x_accum_combined += gploc_C4 + v37;
-        gploc_74 -= shadeAccumulator >> 16;
-        shadeAccumulatorNext += gploc_128;
-        g_shadeAccumulator = gploc_12C + shadeAccumulator;
-        gploc_74 += (gploc_12C + shadeAccumulator) >> 16;
-        shadeAccumulator += gploc_12C;
-        screen_line_ptr += gploc_104;
-        if ( !--gploc_C0 )
+        carry_flag = CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(tex_x_accum_high, tex_x_accum_low));
+        tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
+        tex_x_accum_low += texture_xaccumulator_low;
+        tex_x_accum_combined += texture_yaccumulator_high_combined + carry_flag;
+        current_scanline_xposition -= shadeAccumulator >> 16;
+        shadeAccumulatorNext += shadingfactor_secondary;
+        g_shadeAccumulator = shadingfactor_primary + shadeAccumulator;
+        current_scanline_xposition += (shadingfactor_primary + shadeAccumulator) >> 16;
+        shadeAccumulator += shadingfactor_primary;
+        screen_line_ptr += screenbuffer_linestride;
+        if ( !--scanline_span_count )
           break;
         if ( ++scanline_y_esi >= 0 )
         {
-          xStart = gploc_74;
+          xStart = current_scanline_xposition;
           goto REMAINDER_SCANLINE_STEP;
         }
       }
-      xStart = gploc_74;
+      xStart = current_scanline_xposition;
     }
-    gploc_12C = factor_cb;
-    gploc_60 = gploc_64;
-    gploc_CC = gploc_98;
-    gploc_C4 = gploc_94;
+    shadingfactor_primary = factor_cb;
+    texture_xaccumulator_low = shade_interpolation_pointc_low;
+    texture_yaccumulator_low = shade_interpolation_bottom_low;
+    texture_yaccumulator_high_combined = texture_delta_bottom_high_combined;
     tex_x_accum_low = 0;
-    tex_x_accum_high = gploc_80;
-    tex_x_accum_combined = gploc_7C;
-    v38 = gploc_pt_cy;
-    if ( gploc_pt_cy > LOC_vec_window_height )
-      v38 = LOC_vec_window_height;
-    v29 = v38 <= gploc_pt_by;
-    gploc_C0 = v38 - gploc_pt_by;
-    gploc_74 = gploc_pt_bx;
-    shadeAccumulator = gploc_pt_shbx;
-    if ( !v29 )
+    tex_x_accum_high = startpos_bottom_shade_texture_combined;
+    tex_x_accum_combined = startpos_bottom_texturex_texturey_combined;
+    clipped_end_y = triangle_point_c_y;
+    if ( triangle_point_c_y > LOC_vec_window_height )
+      clipped_end_y = LOC_vec_window_height;
+    range_check_passed = clipped_end_y <= triangle_point_b_y;
+    scanline_span_count = clipped_end_y - triangle_point_b_y;
+    current_scanline_xposition = triangle_point_b_x;
+    shadeAccumulator = triangle_point_b_shade_x;
+    if ( !range_check_passed )
     {
-      scanline_y_esi = gploc_pt_by;
-      if ( gploc_pt_by < 0 )
+      scanline_y_esi = triangle_point_b_y;
+      if ( triangle_point_b_y < 0 )
         goto SKEWED_SCAN_ADJUST;
-      xStart = gploc_pt_bx;
+      xStart = triangle_point_b_x;
       goto REMAINDER_SCANLINE_STEP;
     }
   }
@@ -1208,131 +1208,131 @@ SKEWED_SCAN_ADJUST:
 void draw_gpoly_sub14()
 {
 
-    if ( gploc_pt_ay > LOC_vec_window_height )
+    if ( triangle_point_a_y > LOC_vec_window_height )
         return;
 
     int scanline_y; // esi
 
     int tex_x_accum_low = 0;
-    int tex_x_accum_high = gploc_8C;
-    int tex_x_accum_combined = gploc_88;
-    uchar *screen_line_ptr = &LOC_vec_screen[gploc_pt_ay * LOC_vec_screen_width];
+    int tex_x_accum_high = startpos_top_shade_texture_combined;
+    int tex_x_accum_combined = startpos_top_texturex_texturey_combined;
+    uchar *screen_line_ptr = &LOC_vec_screen[triangle_point_a_y * LOC_vec_screen_width];
 
-    int clamped_by = gploc_pt_by;
-    if ( gploc_pt_by > LOC_vec_window_height )
+    int clamped_by = triangle_point_b_y;
+    if ( triangle_point_b_y > LOC_vec_window_height )
       clamped_by = LOC_vec_window_height;
-    int spanCount = clamped_by - gploc_pt_ay;
+    int spanCount = clamped_by - triangle_point_a_y;
     bool skip_render = spanCount == 0;
-    gploc_C0 = spanCount;
-    int xStart = gploc_pt_ax;
-    gploc_74 = gploc_pt_ax;
-    int shadeAccumulator = gploc_pt_shax;
-    int shadeAccumulatorNext = gploc_pt_shax;
+    scanline_span_count = spanCount;
+    int xStart = triangle_point_a_x;
+    current_scanline_xposition = triangle_point_a_x;
+    int shadeAccumulator = triangle_point_a_shade_x;
+    int shadeAccumulatorNext = triangle_point_a_shade_x;
     if ( !skip_render )
     {
-      scanline_y = gploc_pt_ay;
-      if ( gploc_pt_ay < 0 )
+      scanline_y = triangle_point_a_y;
+      if ( triangle_point_a_y < 0 )
       {
         goto SKEWED_SCAN_ADJUST;
-        
+
       }
       do
       {
 REMAINDER_SCANLINE_STEP:
         g_shadeAccumulator = shadeAccumulator;
         g_shadeAccumulatorNext = shadeAccumulatorNext;
-        gploc_F4 = screen_line_ptr;
+        screenbuffer_lineptr = screen_line_ptr;
         int x_start_int = shadeAccumulator >> 16;
-        gploc_34 = tex_x_accum_low;
-        gploc_D8 = tex_x_accum_high;
-        gploc_E4 = tex_x_accum_combined;
+        texture_xaccumulator_low_backup = tex_x_accum_low;
+        texture_xaccumulator_high_backup = tex_x_accum_high;
+        texture_xaccumulator_backup = tex_x_accum_combined;
         int x_end_int = shadeAccumulatorNext >> 16;
-        unsigned __int8 *screen_line_offset = &screen_line_ptr[x_start_int];
+        uint8_t *screen_line_offset = &screen_line_ptr[x_start_int];
         bool span_too_small_or_complete = x_end_int <= x_start_int;
         int pixel_span_len = x_end_int - x_start_int;
         if ( !span_too_small_or_complete )
         {
           unrolled_loop(pixel_span_len,tex_x_accum_high,tex_x_accum_combined,screen_line_offset);
         }
-        xStart = gploc_74;
-        shadeAccumulator = gploc_12C + g_shadeAccumulator;
-        shadeAccumulatorNext = gploc_128 + g_shadeAccumulatorNext;
-        tex_x_accum_high = (PAIR64(gploc_CC, gploc_60) + PAIR64(gploc_D8, gploc_34)) >> 32;
-        tex_x_accum_low = gploc_60 + gploc_34;
-        tex_x_accum_combined = gploc_C4 + CFADD64(PAIR64(gploc_CC, gploc_60), PAIR64(gploc_D8, gploc_34)) + gploc_E4;
-        screen_line_ptr = (uchar *)(gploc_104 + gploc_F4);
-        --gploc_C0;
+        xStart = current_scanline_xposition;
+        shadeAccumulator = shadingfactor_primary + g_shadeAccumulator;
+        shadeAccumulatorNext = shadingfactor_secondary + g_shadeAccumulatorNext;
+        tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(texture_xaccumulator_high_backup, texture_xaccumulator_low_backup)) >> 32;
+        tex_x_accum_low = texture_xaccumulator_low + texture_xaccumulator_low_backup;
+        tex_x_accum_combined = texture_yaccumulator_high_combined + CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(texture_xaccumulator_high_backup, texture_xaccumulator_low_backup)) + texture_xaccumulator_backup;
+        screen_line_ptr = (uchar *)(screenbuffer_linestride + screenbuffer_lineptr);
+        --scanline_span_count;
       }
-      while ( gploc_C0 );
+      while ( scanline_span_count );
       goto EDGE_ADVANCE_CHECK;
     }
     while ( 1 )
     {
 EDGE_ADVANCE_CHECK:
-      if ( !--gploc_180 )
+      if ( !--scanlinescounter )
         return;
       g_shadeAccumulator = shadeAccumulator;
       if ( factor_chk >= 0 )
         break;
-      gploc_128 = factor_cb;
-      shadeAccumulatorNext = gploc_pt_shbx;
-      int clamped_cy2 = gploc_pt_cy;
-      if ( gploc_pt_cy > LOC_vec_window_height )
+      shadingfactor_secondary = factor_cb;
+      shadeAccumulatorNext = triangle_point_b_shade_x;
+      int clamped_cy2 = triangle_point_c_y;
+      if ( triangle_point_c_y > LOC_vec_window_height )
         clamped_cy2 = LOC_vec_window_height;
-      bool span_too_small_or_complete = clamped_cy2 <= gploc_pt_by;
-      gploc_C0 = clamped_cy2 - gploc_pt_by;
+      bool span_too_small_or_complete = clamped_cy2 <= triangle_point_b_y;
+      scanline_span_count = clamped_cy2 - triangle_point_b_y;
       shadeAccumulator = g_shadeAccumulator;
       if ( span_too_small_or_complete )
         return;
-      gploc_74 = xStart;
-      scanline_y = gploc_pt_by;
-      if ( gploc_pt_by >= 0 )
+      current_scanline_xposition = xStart;
+      scanline_y = triangle_point_b_y;
+      if ( triangle_point_b_y >= 0 )
         goto REMAINDER_SCANLINE_STEP;
-        
+
 SKEWED_SCAN_ADJUST:
       while ( 1 )
       {
-        bool carryLow32 = CFADD64(PAIR64(gploc_CC, gploc_60), PAIR64(tex_x_accum_high, tex_x_accum_low));
-        tex_x_accum_high = (PAIR64(gploc_CC, gploc_60) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
-        tex_x_accum_low += gploc_60;
-        tex_x_accum_combined += gploc_C4 + carryLow32;
-        gploc_74 -= shadeAccumulator >> 16;
-        shadeAccumulatorNext += gploc_128;
-        g_shadeAccumulator = gploc_12C + shadeAccumulator;
-        gploc_74 += (gploc_12C + shadeAccumulator) >> 16;
-        shadeAccumulator += gploc_12C;
-        screen_line_ptr += gploc_104;
-        if ( !--gploc_C0 )
+        bool carryLow32 = CFADD64(PAIR64(texture_yaccumulator_low, texture_xaccumulator_low), PAIR64(tex_x_accum_high, tex_x_accum_low));
+        tex_x_accum_high = (PAIR64(texture_yaccumulator_low, texture_xaccumulator_low) + PAIR64(tex_x_accum_high, tex_x_accum_low)) >> 32;
+        tex_x_accum_low += texture_xaccumulator_low;
+        tex_x_accum_combined += texture_yaccumulator_high_combined + carryLow32;
+        current_scanline_xposition -= shadeAccumulator >> 16;
+        shadeAccumulatorNext += shadingfactor_secondary;
+        g_shadeAccumulator = shadingfactor_primary + shadeAccumulator;
+        current_scanline_xposition += (shadingfactor_primary + shadeAccumulator) >> 16;
+        shadeAccumulator += shadingfactor_primary;
+        screen_line_ptr += screenbuffer_linestride;
+        if ( !--scanline_span_count )
           break;
         if ( ++scanline_y >= 0 )
         {
           goto REMAINDER_SCANLINE_STEP;
         }
       }
-      xStart = gploc_74;
+      xStart = current_scanline_xposition;
     }
-    gploc_12C = factor_cb;
-    gploc_60 = gploc_64;
-    gploc_CC = gploc_98;
-    gploc_C4 = gploc_94;
+    shadingfactor_primary = factor_cb;
+    texture_xaccumulator_low = shade_interpolation_pointc_low;
+    texture_yaccumulator_low = shade_interpolation_bottom_low;
+    texture_yaccumulator_high_combined = texture_delta_bottom_high_combined;
     tex_x_accum_low = 0;
-    tex_x_accum_high = gploc_80;
-    tex_x_accum_combined = gploc_7C;
-    int clamped_cy = gploc_pt_cy;
-    if ( gploc_pt_cy > LOC_vec_window_height )
+    tex_x_accum_high = startpos_bottom_shade_texture_combined;
+    tex_x_accum_combined = startpos_bottom_texturex_texturey_combined;
+    int clamped_cy = triangle_point_c_y;
+    if ( triangle_point_c_y > LOC_vec_window_height )
       clamped_cy = LOC_vec_window_height;
-    bool span_too_small_or_complete = clamped_cy <= gploc_pt_by;
-    gploc_C0 = clamped_cy - gploc_pt_by;
-    gploc_74 = gploc_pt_bx;
-    shadeAccumulator = gploc_pt_shbx;
+    bool span_too_small_or_complete = clamped_cy <= triangle_point_b_y;
+    scanline_span_count = clamped_cy - triangle_point_b_y;
+    current_scanline_xposition = triangle_point_b_x;
+    shadeAccumulator = triangle_point_b_shade_x;
     if ( !span_too_small_or_complete )
     {
-      scanline_y = gploc_pt_by;
-      if ( gploc_pt_by < 0 )
+      scanline_y = triangle_point_b_y;
+      if ( triangle_point_b_y < 0 )
         goto SKEWED_SCAN_ADJUST;
       goto REMAINDER_SCANLINE_STEP;
     }
-  
+
 }
 
 /******************************************************************************/

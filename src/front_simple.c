@@ -196,13 +196,13 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
 /**
  * Copies the given RAW image to the center of the screen buffer and swaps video
  * buffers to make the image visible.
- * 
+ *
  * This function will also scale the image while maintaing its aspect ratio.
- * 
+ *
  * @param buf Pointer to the RAW image data.
  * @param img_width Width of the RAW image.
  * @param img_height Height of the RAW image.
- * 
+ *
  * @return Returns true if the operation succeeds.
  */
 TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_width, const int img_height)
@@ -429,15 +429,6 @@ TbBool free_actv_bitmap_screen(void)
 }
 
 /**
- * Draws active bitmap on screen using static struct.
- * @return Returns true on success.
- */
-TbBool draw_actv_bitmap_screen(void)
-{
-  return draw_bitmap_screen(&astd_bmp);
-}
-
-/**
  * Shows active bitmap screen from static struct for specific time.
  * @return Returns true on success.
  */
@@ -521,84 +512,6 @@ TbBool wait_for_installation_files(void)
   if ( was_locked )
     LbScreenLock();
   return (!exit_keeper);
-}
-
-/** Displays centered message; for logging errors.
- *  Deprecated - will be removed sooner or later; there are now menus for displaying such messages, both in menu and in game.
- *
- * @param showTime
- * @param text
- * @return
- */
-TbBool display_centered_message(long showTime, char *text)
-{
-    TbClockMSec tmEnd = LbTimerClock() + showTime;
-    long tmDelta = showTime / 10;
-    if (tmDelta < 10)
-        tmDelta = 10;
-    if (tmDelta > 250)
-        tmDelta = 100;
-    TbBool was_locked = LbScreenIsLocked();
-    if (was_locked)
-        LbScreenUnlock();
-    TbBool finish = false;
-    while (!finish)
-    {
-        // Redraw screen
-        if (LbScreenLock() == Lb_SUCCESS)
-        {
-            draw_text_box(text);
-            LbScreenUnlock();
-        }
-        LbScreenSwap();
-        // Check if the window is active
-        do
-        {
-            if (!LbWindowsControl())
-                exit_keeper = 1;
-            if ((exit_keeper) || (quit_game))
-            {
-                finish = true;
-                break;
-            }
-        } while (!LbIsActive());
-        // Process inputs
-        update_mouse();
-        update_key_modifiers();
-        if (is_key_pressed(KC_Q, KMod_DONTCARE) || is_key_pressed(KC_X, KMod_DONTCARE))
-        {
-            ERRORLOG("User requested quit, giving up");
-            clear_key_pressed(KC_Q);
-            clear_key_pressed(KC_X);
-            exit_keeper = 1;
-            finish = true;
-            break;
-        }
-        if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE) || is_key_pressed(KC_RETURN, KMod_DONTCARE) || is_key_pressed(KC_SPACE, KMod_DONTCARE))
-        {
-            clear_key_pressed(KC_ESCAPE);
-            clear_key_pressed(KC_RETURN);
-            clear_key_pressed(KC_SPACE);
-            finish = true;
-            break;
-        }
-        if (left_button_clicked || right_button_clicked)
-        {
-            left_button_clicked = 0;
-            right_button_clicked = 0;
-            finish = true;
-            break;
-        }
-        // Make delay and check if we should end
-        LbSleepFor(tmDelta);
-        if (LbTimerClock() > tmEnd)
-        {
-            finish = true;
-        }
-  }
-  if ( was_locked )
-    LbScreenLock();
-  return true;
 }
 
 /******************************************************************************/

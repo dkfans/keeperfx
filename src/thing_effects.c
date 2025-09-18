@@ -37,7 +37,6 @@
 #include "keeperfx.hpp"
 #include "map_blocks.h"
 #include "map_data.h"
-#include "math.h"
 #include "player_utils.h"
 #include "player_instances.h"
 #include "room_util.h"
@@ -48,7 +47,7 @@
 #include "thing_physics.h"
 #include "thing_shots.h"
 #include "thing_stats.h"
-
+#include <math.h>
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -123,7 +122,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
     thing->fall_acceleration = eestat->fall_acceleration;
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
-    thing->movement_flags |= TMvF_Unknown08;
+    thing->movement_flags |= TMvF_ZeroVerticalVelocity;
     set_flag_value(thing->movement_flags, TMvF_GoThroughWalls, eestat->through_walls);
     thing->creation_turn = game.play_gameturn;
 
@@ -465,7 +464,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     i = eestats->subeffect_delay;
     if (i > 0)
     {
-      if (((elemtng->creation_turn - game.play_gameturn) % i) == 0) 
+      if (((elemtng->creation_turn - game.play_gameturn) % i) == 0)
       {
           struct Thing *subeff = create_effect_element(&elemtng->mappos, eestats->subeffect_model, elemtng->owner);
           subeff->move_angle_xy = elemtng->move_angle_xy;
@@ -529,9 +528,9 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     if (eestats->unanimated != 1)
       return TUFRet_Modified;
     i = get_angle_yz_to_vec(&elemtng->veloc_base);
-    if (i > LbFPMath_PI)
-      i -= LbFPMath_PI;
-    long prop_val = i / (LbFPMath_PI / 8);
+    if (i > DEGREES_180)
+      i -= DEGREES_180;
+    long prop_val = i / DEGREES_22_5;
     elemtng->move_angle_xy = get_angle_xy_to_vec(&elemtng->veloc_base);
     elemtng->current_frame = prop_val;
     elemtng->anim_speed = 0;
@@ -685,7 +684,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
     case 1:
     {
         unsigned long argZ;
-        for (long i = 0; i < effcst->elements_count; i++)
+        for (unsigned char i = 0; i < effcst->elements_count; i++)
         {
             if (effcst->kind_min <= 0)
                 continue;
@@ -694,8 +693,8 @@ void effect_generate_effect_elements(const struct Thing *thing)
             TRACE_THING(elemtng);
             if (thing_is_invalid(elemtng))
                 break;
-            arg = EFFECT_RANDOM(thing, LbFPMath_TAU);
-            argZ = EFFECT_RANDOM(thing, LbFPMath_PI);
+            arg = EFFECT_RANDOM(thing, DEGREES_360);
+            argZ = EFFECT_RANDOM(thing, DEGREES_180);
             // Setting XY acceleration
             long k = abs(effcst->accel_xy_max - effcst->accel_xy_min);
             if (k <= 1) k = 1;
@@ -708,7 +707,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
             mag = effcst->accel_z_min + EFFECT_RANDOM(thing, k);
             elemtng->veloc_push_add.z.val += distance_with_angle_to_coord_z(mag,argZ);
             elemtng->state_flags |= TF1_PushAdd;
-            elemtng->move_angle_xy = LbArcTanAngle(elemtng->veloc_push_add.x.val, elemtng->veloc_push_add.y.val) & LbFPMath_AngleMask;
+            elemtng->move_angle_xy = LbArcTanAngle(elemtng->veloc_push_add.x.val, elemtng->veloc_push_add.y.val) & ANGLE_MASK;
         }
         break;
     }
@@ -726,7 +725,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
             elemtng->move_angle_xy = thing->move_angle_xy;
             TRACE_THING(elemtng);
             SYNCDBG(18,"Created %s",thing_model_name(elemtng));
-            k += LbFPMath_TAU;
+            k += DEGREES_360;
         }
         break;
     }
@@ -743,7 +742,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
             elemtng = create_effect_element(&pos, n, thing->owner);
             elemtng->move_angle_xy = arg;
             TRACE_THING(elemtng);
-            k += LbFPMath_TAU;
+            k += DEGREES_360;
         }
         break;
     }
@@ -775,7 +774,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         }
         break;
     }
-    case 5: 
+    case 5:
         break;
     default:
         ERRORLOG("Unknown Effect Generation Type %d",(int)effcst->generation_type);
@@ -808,7 +807,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
     struct EffectGeneratorConfigStats* egenstat = get_effectgenerator_model_stats(thing->model);
     for (long i = 0; i < egenstat->generation_amount; i++)
     {
-        long deviation_angle = EFFECT_RANDOM(thing, 0x800);
+        long deviation_angle = EFFECT_RANDOM(thing, DEGREES_360);
         long deviation_mag = EFFECT_RANDOM(thing, thing->effect_generator.range + 1);
         struct Coord3d pos;
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
@@ -847,7 +846,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
             elemtng->veloc_push_add.x.val += acc_x;
             elemtng->veloc_push_add.y.val += acc_y;
             elemtng->veloc_push_add.z.val += acc_z;
-            elemtng->move_angle_xy = LbArcTanAngle(acc_x, acc_y) & LbFPMath_AngleMask;
+            elemtng->move_angle_xy = LbArcTanAngle(acc_x, acc_y) & ANGLE_MASK;
             elemtng->state_flags |= TF1_PushAdd;
             if (egenstat->sound_sample_idx > 0)
             {
@@ -916,7 +915,7 @@ struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrE
 {
     if (effect == 0)
         return INVALID_THING;
-     
+
     struct Thing* efftng;
     if (effect > 0)
     {
@@ -1077,8 +1076,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     int weight = compute_creature_weight(tngdst);
                     adjusted_blow_strength = weight_calculated_push_strenght(weight, blow_strength);
                 }
-            
-                
+
+
                 long move_angle = get_angle_xy_to(pos, &tngdst->mappos);
                 long move_dist = 0;
                // long adjusted_max_dist = max_dist;
@@ -1119,7 +1118,7 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
         if (distance < max_dist)
         {
             HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
-            
+
             const struct DoorConfigStats* doorst = get_door_model_stats(tngdst->model);
             if (flag_is_set(doorst->model_flags, DoMF_Midas))
             {
@@ -1213,7 +1212,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
     if (efftng->creation_turn != game.play_gameturn) {
         return;
     }
-    
+
     struct ShotConfigStats* shotst;
     if (efftng->shot_effect.parent_class_id == TCls_Shot)
     {
@@ -1389,10 +1388,8 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
     MapSubtlCoord end_y = range_stl + pos->y.stl.num;
     if (end_y > game.map_subtiles_y)
       end_y = game.map_subtiles_y;
-#if (BFDEBUG_LEVEL > 0)
-    if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
+    if (flag_is_set(start_params.debug_flags,DFlg_ShotsDamage))
         create_price_effect(pos, my_player_number, max_damage);
-#endif
     long num_affected = 0;
     for (MapSubtlCoord stl_y = start_y; stl_y <= end_y; stl_y++)
     {

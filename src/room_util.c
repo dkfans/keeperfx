@@ -42,7 +42,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "frontend.h"
-#include "math.h"
+#include <math.h>
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -137,7 +137,6 @@ void recompute_rooms_count_in_dungeons(void)
 void process_rooms(void)
 {
   SYNCDBG(7,"Starting");
-  TbBigChecksum sum = 0;
   for (struct Room* room = start_rooms; room < end_rooms; room++)
   {
       if (!room_exists(room))
@@ -145,12 +144,10 @@ void process_rooms(void)
       if (room_role_matches(room->kind, RoRoF_FoodSpawn)) {
           room_grow_food(room);
       }
-      sum += room->slabs_count + room->central_stl_x + room->central_stl_y + room->efficiency + room->used_capacity;
-      if (room_has_surrounding_flames(room->kind) && ((game.numfield_D & GNFldD_Unkn40) != 0)) {
+      if (room_has_surrounding_flames(room->kind) && ((game.view_mode_flags & GNFldD_RoomFlameProcessing) != 0)) {
           process_room_surrounding_flames(room);
       }
   }
-  player_packet_checksum_add(my_player_number, sum, "rooms");
   recompute_rooms_count_in_dungeons();
   SYNCDBG(9,"Finished");
 }
@@ -311,7 +308,7 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
         {
             if (slab_kind_is_animated(slabkind))
             {
-                place_animating_slab_type_on_map(slabkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);  
+                place_animating_slab_type_on_map(slabkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
             }
             else
             {

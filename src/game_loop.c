@@ -121,7 +121,7 @@ void process_dungeon_destroy(struct Thing* heartng)
                     dungeon->num_active_creatrs--;
                     dungeon->owned_creatures_of_model[soultng->model]--;
                     sctrl = creature_control_get_from_thing(soultng);
-                    set_flag(sctrl->flgfield_2,TF2_Spectator);
+                    set_flag(sctrl->creature_state_flags,TF2_Spectator);
                     dungeon->free_soul_idx = soultng->index;
                     short xplevel = 0;
                     if (dungeon->lvstats.player_score > 1000)

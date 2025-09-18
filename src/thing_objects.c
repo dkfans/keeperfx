@@ -143,7 +143,7 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     thing->inertia_floor = 204;
     thing->inertia_air = 51;
     thing->bounce_angle = 0;
-    thing->movement_flags |= TMvF_Unknown08;
+    thing->movement_flags |= TMvF_ZeroVerticalVelocity;
 
     set_flag_value(thing->movement_flags, TMvF_Immobile, objst->immobile);
     thing->owner = owner;
@@ -513,17 +513,6 @@ TbBool object_is_guard_flag(const struct Thing *thing)
     }
 }
 
-
-/**
- * Returns if given thing is a coloured object.
- * @param thing
- * @return
- */
-TbBool object_is_coloured_object(const struct Thing *thing)
-{
-    return (get_coloured_object_base_model(thing->model) != 0);
-}
-
 /**
  * Returns if given object thing is a room equipment.
  * Equipment are the objects which room always has, put there for the lifetime of a room.
@@ -606,55 +595,6 @@ TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole)
 
 }
 
-TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing)
-{
-    if (thing_is_invalid(thing))
-        return false;
-    if (thing->class_id != TCls_Object)
-        return false;
-    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    return (objst->genre == OCtg_Power);
-}
-
-/**
- * Finds spellbook in a 3x3 subtiles area around given position.
- * Selects the spellbook which is nearest to center of given subtile.
- * @param stl_x Central search subtile X coord.
- * @param stl_y Central search subtile Y coord.
- * @return The nearest thing, or invalid thing if no match was found.
- */
-struct Thing *get_spellbook_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    return get_object_around_owned_by_and_matching_bool_filter(
-        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_spellbook);
-}
-
-/**
- * Finds special box in a 3x3 subtiles area around given position.
- * Selects the box which is nearest to center of given subtile.
- * @param stl_x Central search subtile X coord.
- * @param stl_y Central search subtile Y coord.
- * @return The nearest thing, or invalid thing if no match was found.
- */
-struct Thing *get_special_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    return get_object_around_owned_by_and_matching_bool_filter(
-        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_special_box);
-}
-
-/**
- * Finds crate box in a 3x3 subtiles area around given position.
- * Selects the box which is nearest to center of given subtile.
- * @param stl_x Central search subtile X coord.
- * @param stl_y Central search subtile Y coord.
- * @return The nearest thing, or invalid thing if no match was found.
- */
-struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    return get_object_around_owned_by_and_matching_bool_filter(
-        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_workshop_crate);
-}
-
 TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
@@ -721,9 +661,9 @@ static long food_moves(struct Thing *objtng)
     TbBool dirct_ctrl = is_thing_directly_controlled(objtng);
     if (dirct_ctrl)
     {
-        if (objtng->food.byte_16 > 0)
+        if (objtng->food.possession_startup_timer > 0)
         {
-            objtng->food.byte_16--;
+            objtng->food.possession_startup_timer--;
             return 1;
         }
     }
@@ -782,13 +722,13 @@ static long food_moves(struct Thing *objtng)
         struct Thing* near_creatng;
         if (room->hatch_gameturn == game.play_gameturn)
         {
-            near_creatng = thing_get(room->hatchfield_1B);
+            near_creatng = thing_get(room->cached_nearby_creature_index);
         } else
         {
             room->hatch_gameturn = game.play_gameturn;
             near_creatng = get_nearest_thing_of_class_and_model_owned_by(pos.x.val, pos.y.val, -1, TCls_Creature, -1);
             if (!thing_is_invalid(near_creatng))
-                room->hatchfield_1B = near_creatng->index;
+                room->cached_nearby_creature_index = near_creatng->index;
         }
         has_near_creature = (thing_exists(near_creatng) && (get_chessboard_distance(&objtng->mappos, &near_creatng->mappos) < 768));
         if (has_near_creature)
@@ -802,28 +742,28 @@ static long food_moves(struct Thing *objtng)
             }
         }
     }
-    if (objtng->food.byte_15 <= 0)
+    if (objtng->food.freshness_state <= 0)
     {
-        if (objtng->food.byte_15 == 0)
+        if (objtng->food.freshness_state == 0)
         {
-            objtng->food.byte_15 = -1;
+            objtng->food.freshness_state = -1;
             set_thing_draw(objtng, 820, -1, -1, -1, 0, ODC_Default);
             if (dirct_ctrl) {
-                objtng->food.byte_16 = 6;
+                objtng->food.possession_startup_timer = 6;
             } else {
-                objtng->food.byte_16 = CREATURE_RANDOM(objtng ,4) + 1;
+                objtng->food.possession_startup_timer = CREATURE_RANDOM(objtng ,4) + 1;
             }
         }
-        if ((has_near_creature && (objtng->food.byte_16 < 5)) || (objtng->food.byte_16 == 0))
+        if ((has_near_creature && (objtng->food.possession_startup_timer < 5)) || (objtng->food.possession_startup_timer == 0))
         {
             set_thing_draw(objtng, 819, -1, -1, -1, 0, ODC_Default);
-            objtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x39);
-            objtng->food.angle = CREATURE_RANDOM(objtng, 0x7FF);
-            objtng->food.byte_16 = 0;
+            objtng->food.freshness_state = CREATURE_RANDOM(objtng, 0x39);
+            objtng->food.angle = CREATURE_RANDOM(objtng, ANGLE_MASK);
+            objtng->food.possession_startup_timer = 0;
         } else
-        if ((objtng->anim_speed * objtng->max_frames <= objtng->anim_speed + objtng->anim_time) && (objtng->food.byte_16 < 5))
+        if ((objtng->anim_speed * objtng->max_frames <= objtng->anim_speed + objtng->anim_time) && (objtng->food.possession_startup_timer < 5))
         {
-            objtng->food.byte_16--;
+            objtng->food.possession_startup_timer--;
         }
     }
     else
@@ -834,20 +774,20 @@ static long food_moves(struct Thing *objtng)
         pos.y.val += vel_y;
         if (thing_in_wall_at(objtng, &pos))
         {
-            objtng->food.angle = CREATURE_RANDOM(objtng, 0x7FF);
+            objtng->food.angle = CREATURE_RANDOM(objtng, ANGLE_MASK);
         }
         long dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.angle);
         int sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.angle);
         if (dangle > 62)
             dangle = 62;
-        objtng->move_angle_xy = (objtng->move_angle_xy + dangle * sangle) & LbFPMath_AngleMask;
-        if (get_angle_difference(objtng->move_angle_xy, objtng->food.angle) < 284)
+        objtng->move_angle_xy = (objtng->move_angle_xy + dangle * sangle) & ANGLE_MASK;
+        if (get_angle_difference(objtng->move_angle_xy, objtng->food.angle) < DEGREES_50)
         {
             struct ComponentVector cvec;
             cvec.x = vel_x;
             cvec.y = vel_y;
             cvec.z = 0;
-            objtng->food.byte_15--;
+            objtng->food.freshness_state--;
             apply_transitive_velocity_to_thing(objtng, &cvec);
         }
         if (objtng->snd_emitter_id == 0)
@@ -919,9 +859,9 @@ static long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, ObjMdl_ChickenMature, tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, 0x800);
-            nobjtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x6FF);
-            nobjtng->food.byte_16 = 0;
+            nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, DEGREES_360);
+            nobjtng->food.freshness_state = CREATURE_RANDOM(objtng, 0x6FF);
+            nobjtng->food.possession_startup_timer = 0;
           thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
           if (!is_neutral_thing(nobjtng)) {
               struct Dungeon *dungeon;
@@ -1601,8 +1541,8 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
         {
             time_active = 0;
         }
-        const int v32 = (max_time_active / 16) / power_sight_close_instance_time[sight_casted_power_level];
-        dungeon->sight_casted_gameturn = game.play_gameturn - max_time_active + time_active / v32 - power_sight_close_instance_time[sight_casted_power_level];
+        const int time_interval_divisor = (max_time_active / 16) / power_sight_close_instance_time[sight_casted_power_level];
+        dungeon->sight_casted_gameturn = game.play_gameturn - max_time_active + time_active / time_interval_divisor - power_sight_close_instance_time[sight_casted_power_level];
     }
     if ( max_time_active <= game.play_gameturn - dungeon->sight_casted_gameturn )
     {
@@ -1638,7 +1578,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             const int strength_radius = strength/4;
             const int radius = max(0, min(min(min(close_radius, max_duration_radius), anim_radius), strength_radius));
             for (int i = 0; i < 32; ++i) {
-                const int step = ((2*LbFPMath_PI) / 32);
+                const int step = ((DEGREES_360) / 32);
                 const int angle = step * i;
                 struct Coord3d pos;
                 pos.x.val = objtng->mappos.x.val + ((radius * LbSinL(angle)) / 8192);
@@ -1658,7 +1598,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
         const int strength_radius = strength/4;
         const int radius = max(0, min(min(max_duration_radius, anim_radius), strength_radius));
         for (int i = 0; i < 4; ++i) {
-            const int step = ((2*LbFPMath_PI) / 32);
+            const int step = ((DEGREES_360) / 32);
             const int angle = step * ((4 * anim_time) + i);
             const int pos_x = objtng->mappos.x.val + ((radius * LbSinL(angle)) / 8192);
             const int pos_y = objtng->mappos.y.val + ((radius * LbCosL(angle)) / 8192);
@@ -1686,7 +1626,7 @@ static TngUpdateRet object_update_power_lightning(struct Thing *objtng)
     long variation = NUM_ANGLES * exist_turns;
     for (long i = 0; i < NUM_ANGLES; i++)
     {
-        int angle = (variation % NUM_ANGLES) * 2 * LbFPMath_PI / NUM_ANGLES;
+        int angle = (variation % NUM_ANGLES) * DEGREES_360 / NUM_ANGLES;
         struct Coord3d pos;
         if (set_coords_to_cylindric_shift(&pos, &objtng->mappos, 8 * variation, angle, 0))
         {
@@ -1807,7 +1747,7 @@ TngUpdateRet update_object(struct Thing *thing)
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
     TRACE_THING(thing);
 
-    
+
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
 
     if (objst->updatefn_idx > 0)
@@ -1905,7 +1845,8 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
 int get_wealth_size_of_gold_hoard_model(ThingModel objmodel)
 {
     // Check gold_hoard_objects array to determine wealth_size of the hoard model
-    for (int i = get_wealth_size_types_count(); i > 0; i--)
+    const int count = get_wealth_size_types_count();
+    for (int i = 0; i < count; ++i)
     {
         if (gold_hoard_objects[i] == objmodel) {
             int wealth_size = i+1;

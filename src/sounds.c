@@ -26,7 +26,6 @@
 #include "bflib_fileio.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
-#include "bflib_bufrw.h"
 #include "engine_render.h"
 #include "map_utils.h"
 #include "engine_camera.h"
@@ -75,6 +74,11 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
         return;
     if (thing_is_invalid(thing))
         return;
+
+    // Apply sound volume setting to current sound's loudness level
+    SoundVolume volume_scale = LbLerp(0, FULL_LOUDNESS, (float)settings.sound_volume/127.0); // [0-127] rescaled to [0-256]
+    SoundVolume adjusted_loudness = (loudness * volume_scale) / FULL_LOUDNESS;
+
     struct Coord3d rcpos;
     rcpos.x.val = Receiver.pos.val_x;
     rcpos.y.val = Receiver.pos.val_y;
@@ -84,11 +88,11 @@ void thing_play_sample(struct Thing *thing, SoundSmplTblID smptbl_idx, SoundPitc
         long eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
-            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, repeats, ctype, flags | 0x01, priority);
+            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, adjusted_loudness, repeats, ctype, flags | 0x01, priority);
         } else
         {
             eidx = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-               smptbl_idx, 0, pitch, loudness, repeats, flags | 0x01, priority);
+               smptbl_idx, 0, pitch, adjusted_loudness, repeats, flags | 0x01, priority);
            thing->snd_emitter_id = eidx;
         }
     }
@@ -148,7 +152,7 @@ void play_thing_walking(struct Thing *thing)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->distance_to_destination) && get_foot_creature_has_down(thing))
         {
-            int smpl_variant = foot_down_sound_sample_variant[4 * ((cctrl->mood_flags & 0x1C) >> 2) + (cctrl->sound_flag & 0x1F)];
+            int smpl_variant = foot_down_sound_sample_variant[4 * cctrl->footstep_variant + cctrl->footstep_counter];
             long smpl_idx;
             if ((thing->movement_flags & TMvF_IsOnSnow) != 0) {
                 smpl_idx = 181 + smpl_variant;
@@ -156,12 +160,11 @@ void play_thing_walking(struct Thing *thing)
                 struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Foot);
                 smpl_idx = crsound->index + smpl_variant;
             }
-            cctrl->sound_flag = (cctrl->sound_flag ^ (cctrl->sound_flag ^ (cctrl->sound_flag + 1))) & 0x1F;
-            if ((cctrl->sound_flag & 0x1F) >= 4)
+            cctrl->footstep_counter++;
+            if (cctrl->footstep_counter >= 4)
             {
-                cctrl->mood_flags &= ~0x1C;
-                cctrl->mood_flags |=  (UNSYNC_RANDOM(4) << 2);
-                cctrl->sound_flag &= ~0x1F;
+                cctrl->footstep_variant = UNSYNC_RANDOM(4);
+                cctrl->footstep_counter = 0;
             }
             crconf = creature_stats_get(thing->model);
             thing_play_sample(thing, smpl_idx, crconf->footstep_pitch, 0, 3, 3, 1, loudness);
@@ -264,7 +267,7 @@ TbBool update_3d_sound_receiver(struct PlayerInfo* player)
     if (cam == NULL)
         return false;
     S3DSetSoundReceiverPosition(cam->mappos.x.val, cam->mappos.y.val, cam->mappos.z.val);
-    S3DSetSoundReceiverOrientation(cam->orient_a, cam->orient_b, cam->orient_c);
+    S3DSetSoundReceiverOrientation(cam->rotation_angle_x, cam->rotation_angle_y, cam->rotation_angle_z);
     if (
         cam->view_mode == PVM_IsoWibbleView ||
         cam->view_mode == PVM_FrontView ||
@@ -369,7 +372,7 @@ void update_player_sounds(void)
 
     // Music and sound control
     if ( !SoundDisabled ) {
-        if ( (game.turns_fastforward == 0) && (!game.numfield_149F38) ) {
+        if ( (game.turns_fastforward == 0) && (!game.packet_loading_in_progress) ) {
             MonitorStreamedSoundTrack();
         }
     }
@@ -394,14 +397,14 @@ TbBool init_sound(void)
     snd_settng->sound_type = 1622;
     snd_settng->sound_data_path = sound_dir;
     snd_settng->dir3 = sound_dir;
-    snd_settng->field_12 = 1;
+    snd_settng->sound_buffer_enable = 1;
     snd_settng->stereo = 1;
     snd_settng->max_number_of_samples = 100;
     snd_settng->danger_music = 0;
     snd_settng->no_load_music = 1;
     snd_settng->no_load_sounds = 1;
-    snd_settng->field_16 = 0;
-    snd_settng->field_18 = 1;
+    snd_settng->sound_debug_mode = 0;
+    snd_settng->audio_device_enable = 1;
     snd_settng->redbook_enable = ((features_enabled & Ft_NoCdMusic) == 0);
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);

@@ -74,7 +74,7 @@ enum GameKeys {
     Gkey_TiltDown,
     Gkey_TiltReset,
     Gkey_Ascend,
-    Gkey_Descend
+    Gkey_Descend,
 };
 
 enum TbButtonFrontendFlags {
@@ -104,6 +104,8 @@ struct GuiButton;
 /******************************************************************************/
 extern long old_mx;
 extern long old_my;
+extern int synthetic_left;
+extern int synthetic_right;
 /******************************************************************************/
 void input(void);
 short get_inputs(void);

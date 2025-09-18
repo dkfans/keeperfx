@@ -68,40 +68,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-TbBool creature_is_doing_digger_activity(const struct Thing* thing)
-{
-    CrtrStateId i = get_creature_state_besides_interruptions(thing);
-    switch (i)
-    {
-        // case CrSt_ImpDoingNothing:
-        case CrSt_ImpArrivesAtDigDirt:
-        case CrSt_ImpArrivesAtMineGold:
-        case CrSt_ImpDigsDirt:
-        case CrSt_ImpMinesGold:
-        case CrSt_ImpDropsGold:
-        case CrSt_ImpLastDidJob:
-        case CrSt_ImpArrivesAtImproveDungeon:
-        case CrSt_ImpImprovesDungeon:
-        case CrSt_ImpToking:
-        case CrSt_ImpPicksUpGoldPile:
-        case CrSt_MoveBackwardsToPosition:
-        case CrSt_CreatureDropBodyInLair:
-        case CrSt_CreatureDropBodyInPrison:
-        case CrSt_ImpArrivesAtConvertDungeon:
-        case CrSt_ImpConvertsDungeon:
-        case CrSt_ImpArrivesAtReinforce:
-        case CrSt_ImpReinforces:
-        case CrSt_CreaturePicksUpSpellObject:
-        case CrSt_CreatureDropsSpellObjectInLibrary:
-        case CrSt_CreaturePicksUpCorpse:
-        case CrSt_CreatureDropsCorpseInGraveyard:
-        case CrSt_CreatureGoingToSafetyForToking:
-            return true;
-        default:
-            return false;
-    }
-}
-
 struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel)
 {
     TRACE_THING(spdigtng);
@@ -184,10 +150,10 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
 
 /**
  * @brief dropped special digger look for unconscious creature to save
- * 
+ *
  * only if drag_to_lair rule in activated
- * 
- * @param spdigtng 
+ *
+ * @param spdigtng
  * @param range maximum distance to look for unconscious creatures
  * @return return 1 if special digger is succesfully assigned
  */
@@ -216,22 +182,22 @@ long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
             if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
             {
                 if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
-                {   
+                {
                     // only save creatures with lair
                     if (game.conf.rules.workers.drag_to_lair == 1) {
                         struct Room * room = get_creature_lair_room(thing);
-                        if (room_is_invalid(room)) 
+                        if (room_is_invalid(room))
                         {
                             return 0;
                         }
-                    }    
+                    }
                     //or creature who can have have and use a lair
                     else if (game.conf.rules.workers.drag_to_lair == 2 && !creature_can_do_healing_sleep(thing))
                     {
                         return 0;
                     }
 
-                    if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default)) 
+                    if (setup_person_move_to_coord(spdigtng, &thing->mappos, NavRtF_Default))
                     {
                         spdigtng->continue_state = CrSt_CreatureSaveUnconsciousCreature;
                         cctrl->pickup_creature_id = thing->index;
@@ -239,7 +205,7 @@ long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
                     }
                 }
             }
-        }    
+        }
         // Per-thing code ends
         k++;
         if (k > slist->count)
@@ -505,7 +471,7 @@ long check_out_unconverted_drop_place(struct Thing *thing)
 }
 
 static TbBool check_out_undug_drop_place(struct Thing *spdigtng)
-{  
+{
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
 
@@ -1029,7 +995,7 @@ short imp_birth(struct Thing *thing)
         else
         {
             set_start_state(thing);
-        }            
+        }
         return 1;
     }
     long i = game.play_gameturn - thing->creation_turn;
@@ -1070,7 +1036,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
       if (cctrl->instance_id == CrInst_NULL)
       {
           CrInstance inst_idx = get_self_spell_casting(spdigtng);
-          if (inst_idx > CrInst_NULL) 
+          if (inst_idx > CrInst_NULL)
           {
               set_creature_instance(spdigtng, inst_idx, 0, 0);
               return 1;
@@ -1475,7 +1441,7 @@ short imp_reinforces(struct Thing *thing)
 
 short creature_going_to_safety_for_toking(struct Thing *thing)
 {
-    struct Coord3d locpos;
+    struct Coord3d locpos = {};
     if (!get_flee_position(thing, &locpos))
     {
         ERRORLOG("Couldn't get a flee position for %s index %d",thing_model_name(thing),(int)thing->index);
@@ -1643,9 +1609,9 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
 
 /**
  * @brief special digger will drag unconscious creature to their lair
- * 
+ *
  * only if drag_to_lair rule in activated
- * 
+ *
  * @param thing creature that is being dragged
  * @return returns 1 if creature successfully arrived at its lair
  */
@@ -1708,12 +1674,12 @@ short creature_save_unconscious_creature(struct Thing *thing)
             set_start_state(thing);
             return 0;
         }
-        pos = lairtng->mappos;   
+        pos = lairtng->mappos;
     }
 
     if (!setup_person_move_backwards_to_coord(thing, &pos, NavRtF_Default))
         {
-            SYNCDBG(8,"Cannot drag %s to (%d,%d)",thing_model_name(picktng),(int)&pos.x.stl.num,(int)&pos.y.stl.num);
+            SYNCDBG(8,"Cannot drag %s to (%u,%u)",thing_model_name(picktng), pos.x.stl.num, pos.y.stl.num);
             set_start_state(thing);
             return 0;
         }

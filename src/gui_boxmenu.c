@@ -27,6 +27,7 @@
 #include "bflib_video.h"
 #include "bflib_vidraw.h"
 #include "frontend.h"
+#include "front_input.h"
 #include "creature_instances.h"
 #include "player_data.h"
 #include "player_instances.h"
@@ -62,7 +63,6 @@ long gf_explore_everywhere(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsi
 long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag);
-long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag);
 long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
 long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, long* tag);
 long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag);
@@ -262,15 +262,6 @@ long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxO
     return true;
 }
 
-long gfa_controlled_creature_has_instance(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *tag)
-{
-    struct PlayerInfo* player = get_my_player();
-    if ((player->controlled_thing_idx <= 0) || (player->controlled_thing_idx >= THINGS_COUNT))
-        return false;
-    struct Thing* thing = thing_get(player->controlled_thing_idx);
-    return creature_instance_is_available(thing, *tag);
-}
-
 long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
     struct PlayerInfo* player = get_my_player();
@@ -337,7 +328,7 @@ struct GuiBox *gui_allocate_box_structure(void)
         struct GuiBox* gbox = &gui_boxes[i];
         if (gui_box_is_not_valid(gbox))
         {
-            gbox->field_1 = i;
+            gbox->box_index = i;
             gbox->flags |= GBoxF_Allocated;
             gui_insert_box_at_list_top(gbox);
             return gbox;
@@ -641,43 +632,13 @@ struct GuiBoxOption *gui_get_box_option_point_over(struct GuiBox *gbox, long x, 
             long width = LbTextStringWidth(gboptn->label) * ((long)pixel_size);
             if ((x >= sx) && (x < sx + width))
             {
-                if ((gboptn->numfield_4 == 2) || (gboptn->enabled == 0))
+                if ((gboptn->is_enabled == 2) || (gboptn->enabled == 0))
                     return NULL;
                 return gboptn;
             }
         }
         gboptn++;
         sy += lnheight;
-  }
-  return NULL;
-}
-
-struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
-{
-  if (gbox == NULL)
-    return NULL;
-  int opt_num = -1;
-  int opt_total = 0;
-  struct GuiBoxOption* goptn = gbox->optn_list;
-  while (goptn->label[0] != '!')
-  {
-    if (goptn->active)
-    {
-      opt_num = opt_total;
-//      goptn->active = 0;
-//TODO GUI: deactivate option
-    }
-    goptn++;
-    opt_total++;
-  }
-  opt_num += val;
-  if ((opt_num >= 0) && (opt_num < opt_total))
-  {
-    goptn = &gbox->optn_list[opt_num];
-    if (goptn->callback != NULL)
-      goptn->callback(gbox, goptn, 1, &goptn->cb_param1);
-//TODO GUI: activate option
-    return goptn;
   }
   return NULL;
 }
@@ -776,17 +737,19 @@ TbBool gui_process_option_inputs(struct GuiBox *gbox, struct GuiBoxOption *goptn
 {
   if (left_button_released || right_button_released)
   {
-      short button_num;
-      if (left_button_released)
-      {
-          left_button_released = 0;
-          button_num = 1;
+    short button_num;
+    if (left_button_released)
+    {
+      left_button_released = 0;
+      synthetic_left = 0;
+      button_num = 1;
     } else
     {
       right_button_released = 0;
+      synthetic_right = 0;
       button_num = 2;
     }
-    if (goptn->numfield_4 == 1)
+    if (goptn->is_enabled == 1)
     {
       if (goptn->callback != NULL)
         goptn->callback(gbox, goptn, button_num, &goptn->cb_param1);
@@ -824,6 +787,7 @@ short gui_process_inputs(void)
       {
         dragging_box.gbox = NULL;
         left_button_released = 0;
+        synthetic_left = 0;
       }
       result = true;
     } else
@@ -878,35 +842,6 @@ short gui_process_inputs(void)
         result = true;
       }
     }
-/* These are making incorrect mouse function in possesion - thus disabled
-    if (hpbox != NULL)
-    {
-      if (is_key_pressed(KC_UP,KM_NONE))
-      {
-        goptn = gui_move_active_box_option(hpbox,-1);
-        clear_key_pressed(KC_UP);
-        result = true;
-      } else
-      if (is_key_pressed(KC_DOWN,KM_NONE))
-      {
-        goptn = gui_move_active_box_option(hpbox,1);
-        clear_key_pressed(KC_DOWN);
-        result = true;
-      }
-      if (is_key_pressed(KC_PGUP,KM_NONE))
-      {
-        goptn = gui_move_active_box_option(hpbox,-2);
-        clear_key_pressed(KC_PGUP);
-        result = true;
-      }
-      if (is_key_pressed(KC_PGDOWN,KM_NONE))
-      {
-        goptn = gui_move_active_box_option(hpbox,2);
-        clear_key_pressed(KC_PGDOWN);
-        result = true;
-      }
-    }
-*/
     SYNCDBG(9,"Returning %s",result?"true":"false");
     return result;
 }

@@ -57,9 +57,9 @@ struct EnginePoint {
         long TMapX;
         long TMapY;
         long Shade;
-        long X3d;
-        long Y3d;
-        long Z3d;
+        long coordinate_x_3d;
+        long coordinate_y_3d;
+        long coordinate_z_3d;
         long DistSqr;
         unsigned short padw;
         unsigned char Flags;
@@ -97,20 +97,20 @@ struct TbDItmSprite {
 };
 
 struct TbDItmTrig {
-        short X2;
-        short Y2;
-        short X3;
-        short Y3;
+        short vertex_2_x;
+        short vertex_2_y;
+        short vertex_3_x;
+        short vertex_3_y;
         TbPixel Colour;
 };
 
 struct TbDItmTriangle {
-        short X1;
-        short Y1;
-        short X2;
-        short Y2;
-        short X3;
-        short Y3;
+        short vertex_1_x;
+        short vertex_1_y;
+        short vertex_2_x;
+        short vertex_2_y;
+        short vertex_3_x;
+        short vertex_3_y;
         TbPixel Colour;
 };
 
@@ -123,10 +123,10 @@ struct TbDItmBox {
 };
 
 struct TbDItmLine {
-        short X1;
-        short Y1;
-        short X2;
-        short Y2;
+        short vertex_1_x;
+        short vertex_1_y;
+        short vertex_2_x;
+        short vertex_2_y;
         TbPixel Colour;
 };
 
@@ -194,7 +194,6 @@ void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheigh
 
 TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr);
 TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
-int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,const unsigned char *cmap);
 
 TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height);
 TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour);

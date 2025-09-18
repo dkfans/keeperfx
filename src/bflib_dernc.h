@@ -63,7 +63,6 @@ long rnc_unpack (const void *packed, void *unpacked, unsigned int flags);
 #else
 long rnc_unpack (const void *packed, void *unpacked, unsigned int flags, long *leeway);
 #endif
-const char *rnc_error (long errcode);
 long rnc_crc (void *data, unsigned long len);
 /******************************************************************************/
 

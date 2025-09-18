@@ -163,7 +163,7 @@ TbBool add_creature_to_work_room(struct Thing *creatng, struct Room *room, Creat
             room_code_name(room->kind), (int)room->index, room_code_name(wrkroom->kind), (int)wrkroom->index);
         remove_creature_from_work_room(creatng);
     }
-    if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) != 0)
+    if ((cctrl->creature_control_flags & CCFlg_IsInRoomList) != 0)
     {
         ERRORLOG("Attempt to add creature to a room when he is in the list of another");
         return false;
@@ -191,7 +191,7 @@ TbBool add_creature_to_work_room(struct Thing *creatng, struct Room *room, Creat
         cctrl->next_in_room = 0;
     }
     room->creatures_list = creatng->index;
-    cctrl->flgfield_1 |= CCFlg_IsInRoomList;
+    cctrl->creature_control_flags |= CCFlg_IsInRoomList;
     return true;
 }
 
@@ -200,7 +200,7 @@ TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *ro
     struct Thing *sectng;
     struct CreatureControl *sectrl;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) == 0)
+    if ((cctrl->creature_control_flags & CCFlg_IsInRoomList) == 0)
     {
         ERRORLOG("Attempt to remove a creature from room, but it isn't in any");
         return false;
@@ -233,7 +233,7 @@ TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *ro
     }
     cctrl->last_work_room_id = cctrl->work_room_id;
     cctrl->work_room_id = 0;
-    cctrl->flgfield_1 &= ~CCFlg_IsInRoomList;
+    cctrl->creature_control_flags &= ~CCFlg_IsInRoomList;
     cctrl->next_in_room = 0;
     cctrl->prev_in_room = 0;
     return true;
@@ -242,7 +242,7 @@ TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *ro
 TbBool remove_creature_from_work_room(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) == 0)
+    if ((cctrl->creature_control_flags & CCFlg_IsInRoomList) == 0)
         return false;
     struct Room* room = room_get(cctrl->work_room_id);
     if (room_is_invalid(room))
@@ -386,33 +386,6 @@ TbBool creature_setup_random_move_for_job_in_room_f(struct Thing *creatng, struc
         SYNCDBG(4,"%s: No position to move %s index %d in %s room",func_name,thing_model_name(creatng),(int)creatng->index,room_code_name(room->kind));
     }
     return result;
-}
-
-TbBool room_is_correct_to_perform_job(const struct Thing *creatng, const struct Room *room, CreatureJob jobpref)
-{
-    if ((get_room_role_for_job(jobpref) != RoRoF_None) && (!room_role_matches(room->kind,get_room_role_for_job(jobpref)))) {
-        return false;
-    }
-    if (creatng->owner == room->owner)
-    {
-        if (creature_is_for_dungeon_diggers_list(creatng)) {
-            if ((get_flags_for_job(jobpref) & JoKF_OwnedDiggers) == 0)
-                return false;
-        } else {
-            if ((get_flags_for_job(jobpref) & JoKF_OwnedCreatures) == 0)
-                return false;
-        }
-    } else
-    {
-        if (creature_is_for_dungeon_diggers_list(creatng)) {
-            if ((get_flags_for_job(jobpref) & JoKF_EnemyDiggers) == 0)
-                return false;
-        } else {
-            if ((get_flags_for_job(jobpref) & JoKF_EnemyCreatures) == 0)
-                return false;
-        }
-    }
-    return true;
 }
 
 /**

@@ -233,56 +233,6 @@ void creature_increase_available_instances(struct Thing *thing)
 }
 
 /**
- * Given instance ID, returns its position in compacted list of instances.
- * Compacted list of instances is a list of available creature instances without holes.
- * @param thing
- * @param req_inst_id
- * @return
- */
-int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id)
-{
-    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-    int avail_pos = 0;
-    for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
-    {
-        CrInstance inst_id = crconf->learned_instance_id[avail_num];
-        if (creature_instance_is_available(thing, inst_id))
-        {
-            if (inst_id == req_inst_id) {
-                return avail_pos;
-            }
-            avail_pos++;
-        }
-    }
-    return -1;
-}
-
-/**
- * For position in compacted list of instances, gives instance position in availability list.
- * Compacted list of instances is a list of available creature instances without holes.
- * @param thing
- * @param req_avail_pos
- * @return
- */
-int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos)
-{
-    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
-    int avail_pos = 0;
-    for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
-    {
-        CrInstance inst_id = crconf->learned_instance_id[avail_num];
-        if (creature_instance_is_available(thing, inst_id))
-        {
-            if (avail_pos == req_avail_pos) {
-                return avail_num;
-            }
-            avail_pos++;
-        }
-    }
-    return -1;
-}
-
-/**
  * For position in compacted list of instances, gives instance ID from availability list.
  * Compacted list of instances is a list of available creature instances without holes.
  * @param thing
@@ -1477,7 +1427,7 @@ TbBool validate_target_benefits_from_defensive
         ERRORLOG("Invalid creature control");
         return false;
     }
-    // When the target is fighting creatures, return true because it needs defensive buffs. 
+    // When the target is fighting creatures, return true because it needs defensive buffs.
     // Doors and Hearts do not fight back, and keepers only defend by dropping units.
     if (any_flag_is_set(cctrl->combat_flags, (CmbtF_Melee|CmbtF_Ranged|CmbtF_Waiting)))
     {

@@ -32,7 +32,7 @@ extern "C" {
 typedef unsigned short Thingid;
 
 /******************************************************************************/
-/** Enums for thing->field_0 bit fields. */
+/** Enums for thing->alloc_flags bit fields. */
 enum ThingAllocFlags {
     TAlF_Exists            = 0x01,
     TAlF_IsInMapWho        = 0x02,
@@ -44,7 +44,7 @@ enum ThingAllocFlags {
     TAlF_IsDragged         = 0x80,
 };
 
-/** Enums for thing->field_1 bit fields. */
+/** Enums for thing->state_flags bit fields. */
 enum ThingFlags1 {
     TF1_IsDragged1     = 0x01,
     TF1_InCtrldLimbo   = 0x02,
@@ -54,7 +54,7 @@ enum ThingFlags1 {
 };
 
 enum ThingFlags2 {
-    TF2_Unkn01              = 0x01,
+    TF2_CreatureIsMoving              = 0x01,
     TF2_Spectator           = 0x02,
     TF2_SummonedCreature    = 0x04,
 };
@@ -78,7 +78,7 @@ enum ThingRenderingFlags {
 
  /**
   * Used for EffectElementConfigStats->size_change and Thing->size_change.
-  * 
+  *
   * See effect_element_stats[] for setting of size_change.
   */
 enum ThingSizeChange {
@@ -98,7 +98,7 @@ enum ThingMovementFlags {
     TMvF_IsOnWater          = 0x001, // The creature is walking on water.
     TMvF_IsOnLava           = 0x002, // The creature is walking on lava.
     TMvF_BeingSacrificed    = 0x004, // For creature falling in the temple pool, this informs its sacrificed state.
-    TMvF_Unknown08          = 0x008, // thing->veloc_base.z.val = 0;
+    TMvF_ZeroVerticalVelocity          = 0x008, // thing->veloc_base.z.val = 0;
     TMvF_GoThroughWalls     = 0x010,
     TMvF_Flying             = 0x020, // The creature is flying and can navigate in the air.
     TMvF_Immobile           = 0x040, // The creature cannot move.
@@ -127,12 +127,12 @@ struct Thing {
 //TCls_Object
       struct {
         long gold_stored;
-        short word_17v;
+        short unusedparam;
       } valuable;
       struct {
         short life_remaining;
-        char byte_15;
-        unsigned char byte_16;
+        char freshness_state;
+        unsigned char possession_startup_timer;
         TbBool some_chicken_was_sacrificed;
         unsigned short angle;
       } food;
@@ -177,7 +177,7 @@ struct Thing {
       short unused3;
       long last_turn_drawn;
       unsigned char display_timer;
-      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and last_turn_drawn 
+      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and last_turn_drawn
 //TCls_Shot
       struct {
         unsigned char dexterity;
@@ -196,7 +196,7 @@ struct Thing {
       } shot_lizard;
       struct {
         unsigned char range;
-      } shot_lizard2;// both shot_lizard and shot_lizard2 are used in same function on same object but have 1 byte overlapping between x and range 
+      } shot_lizard2;// both shot_lizard and shot_lizard2 are used in same function on same object but have 1 byte overlapping between x and range
 //TCls_EffectElem
 //TCls_DeadCreature
       struct {
@@ -245,8 +245,8 @@ struct Thing {
       unsigned char is_locked;
       PlayerBitFlags revealed;
       } door;
-//TCls_Unkn10
-//TCls_Unkn11
+//TCls_unusedparam10
+//TCls_unusedparam11
 //TCls_AmbientSnd
 //TCls_CaveIn
       struct {
@@ -337,14 +337,11 @@ struct Thing *allocate_free_thing_structure_f(unsigned char a1, const char *func
 TbBool i_can_allocate_free_thing_structure(unsigned char allocflags);
 #define delete_thing_structure(thing, a2) delete_thing_structure_f(thing, a2, __func__)
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name);
-TbBool is_in_free_things_list(long tng_idx);
 
 #define thing_get(tng_idx) thing_get_f(tng_idx, __func__)
 struct Thing *thing_get_f(long tng_idx, const char *func_name);
-TbBool thing_exists_idx(long tng_idx);
 TbBool thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);
-long thing_get_index(const struct Thing *thing);
 
 TbBool thing_is_in_limbo(const struct Thing* thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);

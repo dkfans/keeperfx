@@ -103,11 +103,6 @@ unsigned char call_to_arms_expand_check(void)
     return (myplyr->cast_expand_level != 0) && (!player_uses_power_call_to_arms(myplyr->id_number));
 }
 
-TbBool player_uses_power_armageddon(PlayerNumber plyr_idx)
-{
-    return (game.armageddon_cast_turn != 0) && (game.armageddon_caster_idx == plyr_idx);
-}
-
 void process_armageddon(void)
 {
     struct PlayerInfo *player;
@@ -379,11 +374,11 @@ void draw_god_lightning(struct Thing *shotng)
     if (cam == NULL) {
         return;
     }
-    for (int i = LbFPMath_PI / 4; i < 2 * LbFPMath_PI; i += LbFPMath_PI / 2)
+    for (int i = DEGREES_45; i < DEGREES_360; i += DEGREES_90)
     {
         struct Coord3d locpos;
-        locpos.x.val = (shotng->mappos.x.val + (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
-        locpos.y.val = (shotng->mappos.y.val - (LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
+        locpos.x.val = (shotng->mappos.x.val + (LbSinL(i + cam->rotation_angle_x) >> (LbFPMath_TrigmBits - 10))) + 128;
+        locpos.y.val = (shotng->mappos.y.val - (LbCosL(i + cam->rotation_angle_x) >> (LbFPMath_TrigmBits - 10))) + 128;
         locpos.z.val = shotng->mappos.z.val + subtile_coord(12,0);
         struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model); //default ShM_GodLightning
         draw_lightning(&locpos, &shotng->mappos, shotst->effect_spacing, shotst->effect_id);

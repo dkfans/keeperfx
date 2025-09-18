@@ -47,7 +47,7 @@ void setup_default_settings(void)
 {
     // CPU status variable
     const struct GameSettings default_settings = {
-     0,                         // field_0
+     0,                         // unusedfield_0
      4,                         // video_shadows
      3,                         // view_distance
      0,                         // video_rotate_mode
@@ -55,7 +55,7 @@ void setup_default_settings(void)
      0,                         // video_cluedo_mode
      127,                       // sound_volume
      90,                        // music_volume
-     1,                         // field_8
+     1,                         // unusedfield_8
      0,                         // gamma_correction
      Lb_SCREEN_MODE_INVALID,    // Screen mode, set to correct value below
      {
@@ -102,8 +102,8 @@ void setup_default_settings(void)
           {KC_PGUP, KMod_SHIFT},             // Gkey_TiltUp
           {KC_PGDOWN, KMod_SHIFT},           // Gkey_TiltDown
           {KC_INSERT, KMod_SHIFT},           // Gkey_TiltReset
-          {KC_X, KMod_NONE},                // Gkey_Ascend
-          {KC_Z, KMod_NONE},                // Gkey_Descend
+          {KC_X, KMod_NONE},                 // Gkey_Ascend
+          {KC_Z, KMod_NONE},                 // Gkey_Descend
      },                         // kbkeys
      true,                      // tooltips_on
      0,                         // first_person_move_invert

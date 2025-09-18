@@ -41,17 +41,17 @@ extern "C" {
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
-void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
+void command_add_value(unsigned long var_index, unsigned long plr_range_id, long param1, long param2, long param3)
 {
     ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id);
 
-    value->longs[0] = val2;
-    value->longs[1] = val3;
-    value->longs[2] = val4;
+    value->longs[0] = param1;
+    value->longs[1] = param2;
+    value->longs[2] = param3;
 
     if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
-        script_process_value(var_index, plr_range_id, val2, val3, val4, value);
+        script_process_value(var_index, plr_range_id, param1, param2, param3, value);
         return;
     }
 }
@@ -565,16 +565,6 @@ static void command_add_creature_to_pool(const char *crtr_name, long amount)
     command_add_value(Cmd_ADD_CREATURE_TO_POOL, ALL_PLAYERS, crtr_id, amount, 0);
 }
 
-static void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, long hate_val)
-{
-    // Verify enemy player
-    long enmy_plr_id = get_players_range_single(enmy_plr_range_id);
-    if (enmy_plr_id < 0) {
-        SCRPTERRLOG("Given enemy player is not supported in this command");
-        return;
-    }
-    command_add_value(Cmd_SET_HATE, trgt_plr_range_id, enmy_plr_id, hate_val, 0);
-}
 
 static void command_set_creature_health(const char *crtr_name, long val)
 {
@@ -1304,9 +1294,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_ENDIF:
         pop_condition();
-        break;
-    case Cmd_SET_HATE:
-        command_set_hate(scline->np[0], scline->np[1], scline->np[2]);
         break;
     case Cmd_START_MONEY:
         command_set_start_money(scline->np[0], scline->np[1]);

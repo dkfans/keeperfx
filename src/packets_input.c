@@ -48,12 +48,6 @@
 #include "post_inc.h"
 
 extern TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx);
-extern TbBool packets_process_cheats(
-          long plyr_idx,
-          MapCoord x, MapCoord y,
-          struct Packet *packet,
-          MapSubtlCoord stl_x, MapSubtlCoord stl_y,
-          MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 extern void update_double_click_detection(long plyr_idx);
 
@@ -344,7 +338,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         {
             player->cursor_clicked_subtile_x = stl_x;
             player->cursor_clicked_subtile_y = stl_y;
-            player->cursor_button_down = 1;
+            player->cursor_button_down = (!player->render_roomspace.drag_mode);
             unset_packet_control(pckt, PCtr_RBtnClick);
         }
     }

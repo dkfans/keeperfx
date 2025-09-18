@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 
 #include "bflib_dernc.h"
-#include "bflib_bufrw.h"
 #include "bflib_fileio.h"
 
 #include "front_simple.h"
@@ -113,7 +112,6 @@ struct LegacyInitLight { // sizeof=0x14
 };
 
 #pragma pack()
-
 
 /******************************************************************************/
 
@@ -927,37 +925,6 @@ TbBool update_columns_use(struct Column *cols,long ccount,struct SlabSet *sset,l
     return true;
 }
 
-TbBool load_slabclm_file(struct Column *cols, long *ccount)
-{
-  SYNCDBG(18,"Starting");
-  long fsize = 4;
-  unsigned char* buf = load_data_file_to_buffer(&fsize, FGrp_StdData, "slabs.clm");
-  if (buf == NULL)
-    return false;
-  long i = 0;
-  long total = llong(&buf[i]);
-  i += 4;
-  // Validate total amount of columns
-  if ((total < 0) || (total > (fsize-4)/sizeof(struct Column)))
-  {
-    total = (fsize-4)/sizeof(struct Column);
-    WARNMSG("Bad amount of columns in Column Set file; corrected to %ld.",total);
-  }
-  if (total > *ccount)
-  {
-    WARNMSG("Only %ld columns supported, Column Set file has %ld.",*ccount,total);
-    total = *ccount;
-  }
-  for (long k = 0; k < total; k++)
-  {
-    memcpy(&cols[k],&buf[i],sizeof(struct Column));
-    i += sizeof(struct Column);
-  }
-  *ccount = total;
-  free(buf);
-  return true;
-}
-
 TbBool columns_add_static_entries(void)
 {
     short c[3];
@@ -1048,7 +1015,7 @@ TbBool load_slab_datclm_files(void)
 
     long slbset_tot = game.conf.slab_conf.slab_types_count * SLABSETS_PER_SLAB;
     game.slabset_num = slbset_tot;
-    
+
     update_columns_use(game.conf.column_conf.cols,game.conf.column_conf.columns_count,game.slabset,slbset_tot);
     create_columns_from_list(game.conf.column_conf.cols,game.conf.column_conf.columns_count);
     update_slabset_column_indices(game.conf.column_conf.cols,game.conf.column_conf.columns_count);
