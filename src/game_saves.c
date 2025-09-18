@@ -194,6 +194,7 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
                 struct GameCampaign *campgn = &campaign;
                 load_map_string_data(campgn, centry->level_num, get_level_fgroup(centry->level_num));
                 // Load configs which may have per-campaign part, and even be modified within a level
+                recheck_all_mod_exist();
                 init_custom_sprites(centry->level_num);
                 load_stats_files();
                 check_and_auto_fix_stats();

@@ -906,6 +906,7 @@ void init_keeper(void)
     init_spiral_steps();
     init_key_to_strings();
     // Load configs which may have per-campaign part, and even be modified within a level
+    recheck_all_mod_exist();
     init_custom_sprites(SPRITE_LAST_LEVEL);
     load_stats_files();
     check_and_auto_fix_stats();
