@@ -793,7 +793,7 @@ void draw_frametime()
     if (tx_units_per_px < 16)
         tx_units_per_px = 16;
 
-    int iStartLine = (MyScreenHeight/tx_units_per_px)/2-3;
+    int iStartLine = (MyScreenHeight / tx_units_per_px) / 2 + 1;
     memset(text, 0, sizeof(text));
     if(debug_display_frametime == 1) {
         snprintf(text, sizeof(text), "%-13s", "Current");
