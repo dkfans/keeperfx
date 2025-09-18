@@ -4241,14 +4241,14 @@ short process_command_line(unsigned short argc, char *argv[])
   return (bad_param==0);
 }
 
-const char* determine_log_filename(unsigned short argc, char *argv[])
+const char* determine_log_filename(unsigned short argument_count, char *argument_values[])
 {
-    for (int i = 1; i < argc; i++) {
-        if (argv[i] && (argv[i][0] == '-' || argv[i][0] == '/')) {
-            char* flag = argv[i] + 1;
-            if (strcasecmp(flag, "log") == 0 && i + 1 < argc) {
+    for (int argument_index = 1; argument_index < argument_count; argument_index++) {
+        if (argument_values[argument_index] && (argument_values[argument_index][0] == '-' || argument_values[argument_index][0] == '/')) {
+            char* argument_name = argument_values[argument_index] + 1;
+            if (strcasecmp(argument_name, "log") == 0 && argument_index + 1 < argument_count) {
                 remove("keeperfx.log");
-                return argv[i + 1];
+                return argument_values[argument_index + 1];
             }
         }
     }
