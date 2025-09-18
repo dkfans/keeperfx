@@ -4177,6 +4177,10 @@ short process_command_line(unsigned short argc, char *argv[])
         WARNLOG("Flag '%s' disabled for release builds.", parstr);
 #endif // FUNCTESTING
       }
+      else if (strcasecmp(parstr, "log") == 0)
+      {
+          narg++;
+      }
       else if(strcasecmp(parstr, "exitonfailedtest") == 0)
       {
 #ifdef FUNCTESTING
@@ -4239,16 +4243,12 @@ short process_command_line(unsigned short argc, char *argv[])
 
 const char* determine_log_filename(unsigned short argc, char *argv[])
 {
-    // Quick scan for server/connect flags to determine log file
     for (int i = 1; i < argc; i++) {
         if (argv[i] && (argv[i][0] == '-' || argv[i][0] == '/')) {
             char* flag = argv[i] + 1;
-            if (strcasecmp(flag, "server") == 0) {
+            if (strcasecmp(flag, "log") == 0 && i + 1 < argc) {
                 remove("keeperfx.log");
-                return "keeperfx_host.log";
-            } else if (strcasecmp(flag, "connect") == 0) {
-                remove("keeperfx.log");
-                return "keeperfx_client.log";
+                return argv[i + 1];
             }
         }
     }
