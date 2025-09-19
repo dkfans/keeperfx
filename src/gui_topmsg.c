@@ -130,6 +130,7 @@ TbBool draw_onscreen_direct_messages(void)
         tx_units_per_px = scale_ui_value_lofi(16);
     }
     // Display in-game message for debug purposes
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     if ((render_onscreen_msg_time > 0.0) || erstat_check())
     {
         if (LbScreenIsLocked())

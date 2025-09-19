@@ -35,6 +35,9 @@
 #include "keeperfx.hpp"
 #include "frontend.h"
 #include "thing_effects.h"
+#include "thing_data.h"
+#include "room_data.h"
+#include "room_list.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -210,7 +213,7 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     return CLS_CONTINUE;
 }
 
-TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
+static TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
 {
     TbBigChecksum sum = 0;
     if (((player->allocflags & PlaF_CompCtrl) == 0) && (player->acamera != NULL))
@@ -237,7 +240,101 @@ TbBigChecksum compute_players_checksum(void)
             sum += compute_player_checksum(player);
         }
     }
+    sum += game.action_rand_seed;
     return sum;
+}
+
+/**
+ * Computes checksum for things in a specific list without updating them.
+ * Used for multiplayer synchronization verification to detect desync issues.
+ * @param list The thing list to compute checksum for. Can be NULL.
+ * @return The checksum value, or 0 if list is NULL or empty.
+ */
+static TbBigChecksum compute_things_list_checksum(struct StructureList *list)
+{
+    TbBigChecksum sum = 0;
+    unsigned long k = 0;
+    int i = list->index;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected in list");
+            break;
+        }
+        i = thing->next_of_class;
+        sum += get_thing_checksum(thing);
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected in thing list");
+            break;
+        }
+    }
+    return sum;
+}
+
+/**
+ * Computes checksum for all creatures in the game.
+ * @return The creatures checksum value for multiplayer sync verification.
+ */
+static TbBigChecksum compute_creatures_checksum(void)
+{
+    return compute_things_list_checksum(&game.thing_lists[TngList_Creatures]);
+}
+
+/**
+ * Computes checksum for all non-creature things (traps, shots, objects, effects, etc).
+ * @return The combined checksum value for multiplayer sync verification.
+ */
+static TbBigChecksum compute_things_checksum(void)
+{
+    TbBigChecksum sum = 0;
+    sum += compute_things_list_checksum(&game.thing_lists[TngList_Traps]);
+    sum += compute_things_list_checksum(&game.thing_lists[TngList_Shots]);
+    sum += compute_things_list_checksum(&game.thing_lists[TngList_Objects]);
+    sum += compute_things_list_checksum(&game.thing_lists[TngList_Effects]);
+    sum += compute_things_list_checksum(&game.thing_lists[TngList_DeadCreatrs]);
+    sum += compute_things_list_checksum(&game.thing_lists[TngList_EffectGens]);
+    sum += compute_things_list_checksum(&game.thing_lists[TngList_Doors]);
+    return sum;
+}
+
+/**
+ * Computes checksum for all rooms based on core room properties.
+ * @return The rooms checksum value for multiplayer sync verification.
+ */
+static TbBigChecksum compute_rooms_checksum(void)
+{
+    TbBigChecksum sum = 0;
+    for (struct Room* room = start_rooms; room < end_rooms; room++)
+    {
+        if (!room_exists(room)) {
+            continue;
+        }
+        sum += room->slabs_count + room->central_stl_x + room->central_stl_y + room->efficiency + room->used_capacity;
+    }
+    return sum;
+}
+
+/**
+ * Centralized function to compute all game state checksums for multiplayer sync verification.
+ * Used only in multiplayer games to detect desynchronization between networked players.
+ */
+void compute_multiplayer_checksum_sync(void)
+{
+    TbBigChecksum creatures_sum = compute_creatures_checksum();
+    player_packet_checksum_add(my_player_number, creatures_sum, "creatures");
+
+    TbBigChecksum things_sum = compute_things_checksum();
+    player_packet_checksum_add(my_player_number, things_sum, "things");
+
+    TbBigChecksum rooms_sum = compute_rooms_checksum();
+    player_packet_checksum_add(my_player_number, rooms_sum, "rooms");
+
+    TbBigChecksum players_sum = compute_players_checksum();
+    player_packet_checksum_add(my_player_number, players_sum, "players");
 }
 
 /**
@@ -301,6 +398,7 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing)
     else if ((thing->class_id == TCls_EffectElem) || (thing->class_id == TCls_AmbientSnd))
     {
         // No syncing on Effect Elements or Sounds
+        return 0;
     }
     else if (thing->class_id == TCls_Effect)
     {
@@ -311,11 +409,11 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing)
                 (ulong)thing->mappos.x.val +
                 (ulong)thing->mappos.y.val +
                 (ulong)thing->health;
+        } else {
+            // No syncing on Effects that do not affect the area around them
+            return 0;
         }
-        //else: No syncing on Effects that do not affect the area around them
-    }
-    else
-    {
+    } else {
         csum += (ulong)thing->mappos.z.val +
             (ulong)thing->mappos.x.val +
             (ulong)thing->mappos.y.val +
