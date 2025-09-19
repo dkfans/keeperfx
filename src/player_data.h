@@ -252,6 +252,7 @@ struct PlayerInfo {
     MapSubtlCoord previous_cursor_subtile_x;
     MapSubtlCoord previous_cursor_subtile_y;
     TbBool mouse_on_map;
+    TbBool interpolated_tagging;
     TbBool roomspace_drag_paint_mode;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;
