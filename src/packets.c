@@ -1608,6 +1608,8 @@ void process_packets(void)
   if (((game.system_flags & GSF_NetGameNoSync) != 0)
    || ((game.system_flags & GSF_NetSeedNoSync) != 0))
   {
+    // Store current checksums before resync for later analysis
+    store_checksums_for_desync_analysis();
     SYNCDBG(0,"Resyncing");
     resync_game();
   }

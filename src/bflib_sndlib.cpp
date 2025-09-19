@@ -739,9 +739,9 @@ extern "C" SoundMilesID play_sample(
 				source.repeat(repeats == -1);
 				if (g_bb_king_mode) {
 					// ben enjoyed dofi's stream so much I made random pitch an easter egg
-					if (UNSYNC_RANDOM(10) > 7) { // ~30% of the time
+					if (SOUND_RANDOM(10) > 7) { // ~30% of the time
 						source.flags |= bb_king_mode;
-						source.pitch((NORMAL_PITCH / 2) + UNSYNC_RANDOM(NORMAL_PITCH));
+						source.pitch((NORMAL_PITCH / 2) + SOUND_RANDOM(NORMAL_PITCH));
 					} else {
 						source.flags &= ~bb_king_mode;
 						source.pitch(pitch);

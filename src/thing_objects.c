@@ -112,13 +112,13 @@ struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigne
     long i;
     long start_frame;
 
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
+    if (!i_can_allocate_free_thing_structure(TCls_Object))
     {
         ERRORDBG(3,"Cannot create object model %d (%s) for player %d. There are too many things allocated.",(int)model,object_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* thing = allocate_free_thing_structure(TCls_Object);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate object %d (%s) for player %d, but failed.",(int)model,object_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -247,7 +247,7 @@ void destroy_food(struct Thing *foodtng)
         struct Thing* efftng = create_effect(&foodtng->mappos, TngEff_FeatherPuff, plyr_idx);
         if (!thing_is_invalid(efftng))
         {
-            thing_play_sample(efftng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+            thing_play_sample(efftng, 112 + SOUND_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
     create_effect(&pos, TngEff_ChickenBlood, plyr_idx);
@@ -736,8 +736,8 @@ static long food_moves(struct Thing *objtng)
             objtng->food.angle = get_angle_xy_to(&near_creatng->mappos, &pos);
             if (objtng->snd_emitter_id == 0)
             {
-                if (UNSYNC_RANDOM(16) == 0) {
-                  snd_smplidx = 109 + UNSYNC_RANDOM(3);
+                if (SOUND_RANDOM(16) == 0) {
+                  snd_smplidx = 109 + SOUND_RANDOM(3);
                 }
             }
         }
@@ -751,14 +751,14 @@ static long food_moves(struct Thing *objtng)
             if (dirct_ctrl) {
                 objtng->food.possession_startup_timer = 6;
             } else {
-                objtng->food.possession_startup_timer = CREATURE_RANDOM(objtng ,4) + 1;
+                objtng->food.possession_startup_timer = THING_RANDOM(objtng ,4) + 1;
             }
         }
         if ((has_near_creature && (objtng->food.possession_startup_timer < 5)) || (objtng->food.possession_startup_timer == 0))
         {
             set_thing_draw(objtng, 819, -1, -1, -1, 0, ODC_Default);
-            objtng->food.freshness_state = CREATURE_RANDOM(objtng, 0x39);
-            objtng->food.angle = CREATURE_RANDOM(objtng, ANGLE_MASK);
+            objtng->food.freshness_state = THING_RANDOM(objtng, 0x39);
+            objtng->food.angle = THING_RANDOM(objtng, ANGLE_MASK);
             objtng->food.possession_startup_timer = 0;
         } else
         if ((objtng->anim_speed * objtng->max_frames <= objtng->anim_speed + objtng->anim_time) && (objtng->food.possession_startup_timer < 5))
@@ -774,7 +774,7 @@ static long food_moves(struct Thing *objtng)
         pos.y.val += vel_y;
         if (thing_in_wall_at(objtng, &pos))
         {
-            objtng->food.angle = CREATURE_RANDOM(objtng, ANGLE_MASK);
+            objtng->food.angle = THING_RANDOM(objtng, ANGLE_MASK);
         }
         long dangle = get_angle_difference(objtng->move_angle_xy, objtng->food.angle);
         int sangle = get_angle_sign(objtng->move_angle_xy, objtng->food.angle);
@@ -796,9 +796,9 @@ static long food_moves(struct Thing *objtng)
               thing_play_sample(objtng, snd_smplidx, 100, 0, 3u, 0, 1, 256);
               return 1;
             }
-            if (UNSYNC_RANDOM(0x50) == 0)
+            if (SOUND_RANDOM(0x50) == 0)
             {
-              snd_smplidx = 100 + UNSYNC_RANDOM(9);
+              snd_smplidx = 100 + SOUND_RANDOM(9);
             }
         }
     }
@@ -859,10 +859,10 @@ static long food_grows(struct Thing *objtng)
         delete_thing_structure(objtng, 0);
         nobjtng = create_object(&pos, ObjMdl_ChickenMature, tngowner, room_idx);
         if (!thing_is_invalid(nobjtng)) {
-            nobjtng->move_angle_xy = CREATURE_RANDOM(objtng, DEGREES_360);
-            nobjtng->food.freshness_state = CREATURE_RANDOM(objtng, 0x6FF);
+            nobjtng->move_angle_xy = THING_RANDOM(objtng, DEGREES_360);
+            nobjtng->food.freshness_state = THING_RANDOM(objtng, 0x6FF);
             nobjtng->food.possession_startup_timer = 0;
-          thing_play_sample(nobjtng, 80 + UNSYNC_RANDOM(3), 100, 0, 3u, 0, 1, 64);
+          thing_play_sample(nobjtng, 80 + SOUND_RANDOM(3), 100, 0, 3u, 0, 1, 64);
           if (!is_neutral_thing(nobjtng)) {
               struct Dungeon *dungeon;
               dungeon = get_dungeon(nobjtng->owner);
@@ -908,7 +908,7 @@ long gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room)
         gold_store = add_gold_to_treasure_room_slab(slb_x, slb_y, gold_store);
     }
     unsigned long k;
-    long n = CREATURE_RANDOM(thing, room->slabs_count);
+    long n = THING_RANDOM(thing, room->slabs_count);
     SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -966,7 +966,7 @@ TbBool temple_check_for_arachnid_join_dungeon(struct Dungeon *dungeon)
                 return false;
             }
             struct Thing* ncreatng = create_creature_at_entrance(room, crmodel);
-            set_creature_level(ncreatng, CREATURE_RANDOM(ncreatng, CREATURE_MAX_LEVEL));
+            set_creature_level(ncreatng, THING_RANDOM(ncreatng, CREATURE_MAX_LEVEL));
             return true;
         }
     }
@@ -1656,7 +1656,7 @@ static TngUpdateRet object_update_power_lightning(struct Thing *objtng)
  */
 static TbBool find_free_position_on_slab(struct Thing* thing, struct Coord3d* pos)
 {
-    MapSubtlCoord start_stl = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
+    MapSubtlCoord start_stl = THING_RANDOM(thing, AROUND_TILES_COUNT);
     int nav_sizexy = subtile_coord(thing_nav_block_sizexy(thing), 0);
 
     for (long nround = 0; nround < AROUND_TILES_COUNT; nround++)

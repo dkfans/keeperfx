@@ -79,7 +79,7 @@ struct EffectElementConfigStats *get_effect_element_model_stats(ThingModel tngmo
 struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmodel, PlayerNumber owner)
 {
     long i;
-    if (!i_can_allocate_free_thing_structure(FTAF_Default)) {
+    if (!i_can_allocate_free_thing_structure(TCls_EffectElem)) {
         return INVALID_THING;
     }
     if (!any_player_close_enough_to_see(pos)) {
@@ -88,7 +88,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
     struct EffectElementConfigStats* eestat = get_effect_element_model_stats(eelmodel);
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
-    struct Thing* thing = allocate_free_thing_structure(FTAF_Default);
+    struct Thing* thing = allocate_free_thing_structure(TCls_EffectElem);
     if (thing->index == 0) {
         ERRORDBG(8,"Should be able to allocate effect element %d for player %d, but failed.",(int)eelmodel,(int)owner);
         return INVALID_THING;
@@ -108,8 +108,8 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
 
     if (eestat->sprite_idx != -1)
     {
-        i = EFFECT_RANDOM(thing, eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
-        long n = EFFECT_RANDOM(thing, eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
+        i = UNSYNC_RANDOM(eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
+        long n = UNSYNC_RANDOM(eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
         set_flag_value(thing->rendering_flags, TRF_Unshaded, eestat->unshaded);
         thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparent)) & (TRF_Transpar_Flags);
@@ -128,7 +128,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, ThingModel eelmod
 
     if (eestat->lifespan > 0)
     {
-        i = EFFECT_RANDOM(thing, eestat->lifespan_random - (long)eestat->lifespan + 1);
+        i = UNSYNC_RANDOM(eestat->lifespan_random - (long)eestat->lifespan + 1);
         thing->health = eestat->lifespan + i;
     } else
     {
@@ -403,8 +403,8 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
 {
     SYNCDBG(18,"Starting");
     struct EffectElementConfigStats* eestat = get_effect_element_model_stats(nmodel);
-    int speed = eestat->sprite_speed_min + EFFECT_RANDOM(thing, eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
-    int scale = eestat->sprite_size_min + EFFECT_RANDOM(thing, eestat->sprite_size_max - eestat->sprite_size_min + 1);
+    int speed = eestat->sprite_speed_min + UNSYNC_RANDOM(eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
+    int scale = eestat->sprite_size_min + UNSYNC_RANDOM(eestat->sprite_size_max - eestat->sprite_size_min + 1);
     thing->model = nmodel;
     set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->animate_once, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * eestat->unshaded) & TRF_Unshaded;
@@ -415,7 +415,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     if (eestat->lifespan <= 0) {
         thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
     } else {
-        thing->health = EFFECT_RANDOM(thing, eestat->lifespan_random - eestat->lifespan + 1) + eestat->lifespan;
+        thing->health = UNSYNC_RANDOM(eestat->lifespan_random - eestat->lifespan + 1) + eestat->lifespan;
     }
     thing->max_frames = keepersprite_frames(thing->anim_sprite);
 }
@@ -467,7 +467,10 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
       if (((elemtng->creation_turn - game.play_gameturn) % i) == 0)
       {
           struct Thing *subeff = create_effect_element(&elemtng->mappos, eestats->subeffect_model, elemtng->owner);
-          subeff->move_angle_xy = elemtng->move_angle_xy;
+          if (!thing_is_invalid(subeff))
+          {
+              subeff->move_angle_xy = elemtng->move_angle_xy;
+          }
       }
     }
     switch (eestats->move_type)
@@ -542,13 +545,13 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
 struct Thing *create_effect_generator(struct Coord3d *pos, ThingModel model, unsigned short range, unsigned short owner, long parent_idx)
 {
 
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
+    if (!i_can_allocate_free_thing_structure(TCls_EffectGen))
     {
         ERRORDBG(3,"Cannot create effect generator model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct Thing* effgentng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* effgentng = allocate_free_thing_structure(TCls_EffectGen);
     if (effgentng->index == 0) {
         ERRORDBG(3,"Should be able to allocate effect generator %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -688,23 +691,23 @@ void effect_generate_effect_elements(const struct Thing *thing)
         {
             if (effcst->kind_min <= 0)
                 continue;
-            long n = effcst->kind_min + EFFECT_RANDOM(thing, effcst->kind_max - effcst->kind_min + 1);
+            long n = effcst->kind_min + UNSYNC_RANDOM(effcst->kind_max - effcst->kind_min + 1);
             elemtng = create_effect_element(&thing->mappos, n, thing->owner);
             TRACE_THING(elemtng);
             if (thing_is_invalid(elemtng))
                 break;
-            arg = EFFECT_RANDOM(thing, DEGREES_360);
-            argZ = EFFECT_RANDOM(thing, DEGREES_180);
+            arg = UNSYNC_RANDOM(DEGREES_360);
+            argZ = UNSYNC_RANDOM(DEGREES_180);
             // Setting XY acceleration
             long k = abs(effcst->accel_xy_max - effcst->accel_xy_min);
             if (k <= 1) k = 1;
-            long mag = effcst->accel_xy_min + EFFECT_RANDOM(thing, k);
+            long mag = effcst->accel_xy_min + UNSYNC_RANDOM(k);
             elemtng->veloc_push_add.x.val += distance_with_angle_to_coord_x(mag,arg);
             elemtng->veloc_push_add.y.val += distance_with_angle_to_coord_y(mag,arg);
             // Setting Z acceleration
             k = abs(effcst->accel_z_max - effcst->accel_z_min);
             if (k <= 1) k = 1;
-            mag = effcst->accel_z_min + EFFECT_RANDOM(thing, k);
+            mag = effcst->accel_z_min + UNSYNC_RANDOM(k);
             elemtng->veloc_push_add.z.val += distance_with_angle_to_coord_z(mag,argZ);
             elemtng->state_flags |= TF1_PushAdd;
             elemtng->move_angle_xy = LbArcTanAngle(elemtng->veloc_push_add.x.val, elemtng->veloc_push_add.y.val) & ANGLE_MASK;
@@ -717,7 +720,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         struct Coord3d pos;
         for (long i=0; i < effcst->elements_count; i++)
         {
-            long n = effcst->kind_min + EFFECT_RANDOM(thing, effcst->kind_max - effcst->kind_min + 1);
+            long n = effcst->kind_min + UNSYNC_RANDOM(effcst->kind_max - effcst->kind_min + 1);
             HitPoints mag = effcst->start_health - thing->health;
             arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
@@ -735,7 +738,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         struct Coord3d pos;
         for (long i=0; i < effcst->elements_count; i++)
         {
-            long n = effcst->kind_min + EFFECT_RANDOM(thing, effcst->kind_max - effcst->kind_min + 1);
+            long n = effcst->kind_min + UNSYNC_RANDOM(effcst->kind_max - effcst->kind_min + 1);
             HitPoints mag = thing->health;
             arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, 16*mag, arg, 0);
@@ -807,8 +810,8 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
     struct EffectGeneratorConfigStats* egenstat = get_effectgenerator_model_stats(thing->model);
     for (long i = 0; i < egenstat->generation_amount; i++)
     {
-        long deviation_angle = EFFECT_RANDOM(thing, DEGREES_360);
-        long deviation_mag = EFFECT_RANDOM(thing, thing->effect_generator.range + 1);
+        long deviation_angle = UNSYNC_RANDOM(DEGREES_360);
+        long deviation_mag = UNSYNC_RANDOM(thing->effect_generator.range + 1);
         struct Coord3d pos;
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
         SYNCDBG(18,"The %s creates effect at (%d,%d,%d)",
@@ -840,9 +843,9 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         } else
         {
             SYNCDBG(18,"The %s created effect %d/%d, index %d",thing_model_name(thing),(int)i,(int)egenstat->generation_amount,(int)elemtng->index);
-            long acc_x = egenstat->acc_x_min + EFFECT_RANDOM(thing, egenstat->acc_x_max - egenstat->acc_x_min + 1);
-            long acc_y = egenstat->acc_y_min + EFFECT_RANDOM(thing, egenstat->acc_y_max - egenstat->acc_y_min + 1);
-            long acc_z = egenstat->acc_z_min + EFFECT_RANDOM(thing, egenstat->acc_z_max - egenstat->acc_z_min + 1);
+            long acc_x = egenstat->acc_x_min + UNSYNC_RANDOM(egenstat->acc_x_max - egenstat->acc_x_min + 1);
+            long acc_y = egenstat->acc_y_min + UNSYNC_RANDOM(egenstat->acc_y_max - egenstat->acc_y_min + 1);
+            long acc_z = egenstat->acc_z_min + UNSYNC_RANDOM(egenstat->acc_z_max - egenstat->acc_z_min + 1);
             elemtng->veloc_push_add.x.val += acc_x;
             elemtng->veloc_push_add.y.val += acc_y;
             elemtng->veloc_push_add.z.val += acc_z;
@@ -853,22 +856,23 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
                 struct Thing* sectng = create_effect(&elemtng->mappos, TngEff_Dummy, thing->owner);
                 TRACE_THING(sectng);
                 if (!thing_is_invalid(sectng)) {
-                    thing_play_sample(sectng, egenstat->sound_sample_idx + EFFECT_RANDOM(thing, egenstat->sound_sample_rng), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                    thing_play_sample(sectng, egenstat->sound_sample_idx + SOUND_RANDOM(egenstat->sound_sample_rng), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 }
             }
         }
     }
-    thing->effect_generator.generation_delay = egenstat->generation_delay_min + EFFECT_RANDOM(thing, egenstat->generation_delay_max - egenstat->generation_delay_min + 1);
+    thing->effect_generator.generation_delay = egenstat->generation_delay_min + UNSYNC_RANDOM(egenstat->generation_delay_max - egenstat->generation_delay_min + 1);
     return TUFRet_Modified;
 }
 
+
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner)
 {
-    struct EffectConfigStats* effcst = get_effect_model_stats(effmodel);
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+    if (!i_can_allocate_free_thing_structure(TCls_Effect)) {
         return INVALID_THING;
     }
-    struct Thing* thing = allocate_free_thing_structure(1);
+    struct EffectConfigStats* effcst = get_effect_model_stats(effmodel);
+    struct Thing* thing = allocate_free_thing_structure(TCls_Effect);
     if (thing->index == 0) {
         ERRORDBG(8,"Should be able to allocate effect %d (%s) for player %d, but failed.",(int)effmodel,effect_code_name(effmodel),(int)owner);
         return INVALID_THING;
@@ -926,7 +930,7 @@ struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrE
         efftng = create_effect_element(pos, ~(effect) + 1, plyr_idx);
     }
     TRACE_THING(efftng);
-    if (parent_idx > 0)
+    if (parent_idx > 0 && !thing_is_invalid(efftng))
     {
         efftng->parent_idx = parent_idx;
         struct Thing* parent = thing_get(parent_idx);

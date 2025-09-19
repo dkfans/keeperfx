@@ -186,7 +186,7 @@ void process_disease(struct Thing *creatng)
     {
         return;
     }
-    if (CREATURE_RANDOM(creatng, 100) < game.conf.rules.magic.disease_transfer_percentage)
+    if (THING_RANDOM(creatng, 100) < game.conf.rules.magic.disease_transfer_percentage)
     {
         SubtlCodedCoords stl_num = get_subtile_number(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         for (long n = 0; n < AROUND_MAP_LENGTH; n++)

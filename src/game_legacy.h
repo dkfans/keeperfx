@@ -126,6 +126,18 @@ struct Configs {
     struct LuaFuncsConf lua;
 };
 
+// Structure to store detailed thing information for desync analysis
+struct LogThingDesyncInfo {
+    ThingClass class_id;          // Type of thing (creature, object, etc.)
+    ThingModel model;             // Model within the class
+    TbBigChecksum random_seed;    // Thing's random seed
+    MapSubtlCoord pos_x;          // Position X coordinate
+    MapSubtlCoord pos_y;          // Position Y coordinate
+    MapSubtlCoord pos_z;          // Position Z coordinate
+    GameTurn creation_turn;       // Turn when thing was created
+    TbBigChecksum checksum;       // Thing's computed checksum
+};
+
 struct Game {
     LevelNumber continue_level_number;
     unsigned char system_flags;
@@ -198,12 +210,18 @@ struct Game {
     unsigned short free_things[THINGS_COUNT-1];
     /** Index of the first used element in free things array. All elements BEYOND this index are free. If all things are free, it is set to 0. */
     ThingIndex free_things_start_index;
+    /** Next index to try when allocating non-synchronized things (EffectElems, AmbientSnds). These don't use the free_things array. */
+    ThingIndex next_non_synced_thing_index;
     GameTurn play_gameturn;
     GameTurn pckt_gameturn;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
-    unsigned long action_rand_seed;
-    /** Unsynchronized random seed. Shouldn't affect game actions, because it's local - other clients have different value. */
-    unsigned long unsync_rand_seed;
+    unsigned long action_random_seed;
+    unsigned long ai_random_seed;
+    unsigned long player_random_seed;
+    /** Local (non-synced) random seed for visual effects that don't affect game state */
+    unsigned long unsync_random_seed;
+    /** Sound-specific random seed for audio effects and sound variations */
+    unsigned long sound_random_seed;
     int something_light_x;
     int something_light_y;
     unsigned long time_delta;
@@ -305,6 +323,34 @@ struct Game {
     short around_slab[AROUND_SLAB_LENGTH];
     short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
     short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
+
+    // Diagnostic checksums for desync analysis (sent by host during resync)
+    struct {
+        GameTurn desync_turn;                    // Turn when desync was detected
+        TbBigChecksum host_things_sum;           // Host's things checksum at desync
+        TbBigChecksum host_rooms_sum;            // Host's rooms checksum at desync
+
+        // Detailed thing category checksums for deeper analysis
+        TbBigChecksum host_creatures_sum;        // Host's creatures checksum
+        TbBigChecksum host_traps_sum;            // Host's traps checksum
+        TbBigChecksum host_shots_sum;            // Host's shots checksum
+        TbBigChecksum host_objects_sum;          // Host's objects checksum
+        TbBigChecksum host_effects_sum;          // Host's effects checksum
+        TbBigChecksum host_dead_creatures_sum;   // Host's dead creatures checksum
+        TbBigChecksum host_effect_gens_sum;      // Host's effect generators checksum
+        TbBigChecksum host_doors_sum;            // Host's doors checksum
+
+        // Individual player checksums for detailed player analysis
+        TbBigChecksum host_player_checksums[PLAYERS_COUNT];  // Host's individual player checksums
+        TbBigChecksum host_action_random_seed;     // Host's action random seed
+        TbBigChecksum host_ai_random_seed;         // Host's AI random seed
+        TbBigChecksum host_player_random_seed;     // Host's player random seed
+
+        // Individual Thing detailed info for per-Thing desync analysis
+        struct LogThingDesyncInfo host_thing_info[THINGS_COUNT];  // Host's detailed Thing information
+
+        TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
+    } desync_diagnostics;
 };
 
 #pragma pack()
