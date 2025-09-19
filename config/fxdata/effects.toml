@@ -1497,7 +1497,7 @@ ElementsCount = 2
 AlwaysGenerate = 0
 
 [effect82]
-Name = "EFFECT_SENTRY"
+Name = "EFFECT_SENTRY_SMOKE"
 Health = 1
 GenerationType = 1
 GenerationAccelXYRange = [3,3]
@@ -5276,7 +5276,7 @@ LightFlags = 0
 AffectedByWind = 0
 
 [effectElement123]
-Name = "EFFECTELEMENT_SENTRY"
+Name = "EFFECTELEMENT_SENTRY_SMOKE"
 DrawClass = 2
 MoveType = 1
 Unanimated = 0
