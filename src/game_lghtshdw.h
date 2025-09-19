@@ -60,7 +60,6 @@ struct LightsShadows {
     long global_ambient_light;
     TbBool light_enabled;
     TbBool lighting_tables_initialised;
-    unsigned long light_rand_seed;
     int lighting_tables_count; // number of entries in lighting_tables
     unsigned short subtile_lightness[MAX_SUBTILES_X*MAX_SUBTILES_Y];
 };

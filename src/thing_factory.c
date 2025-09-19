@@ -50,13 +50,13 @@
 /******************************************************************************/
 struct Thing *create_cave_in(struct Coord3d *pos, ThingModel cimodel, unsigned short owner)
 {
-    if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
+    if ( !i_can_allocate_free_thing_structure(TCls_CaveIn) )
     {
         ERRORDBG(3,"Cannot create cave in %d for player %d. There are too many things allocated.",(int)cimodel,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* thing = allocate_free_thing_structure(TCls_CaveIn);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate cave in %d for player %d, but failed.",(int)cimodel,(int)owner);
         erstat_inc(ESE_NoFreeThings);

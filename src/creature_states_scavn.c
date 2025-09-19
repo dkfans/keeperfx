@@ -101,7 +101,7 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
         SYNCDBG(19,"No other creatures");
         return INVALID_THING;
     }
-    int n = CREATURE_RANDOM(creatng, dungeon->num_active_creatrs - 1);
+    int n = THING_RANDOM(creatng, dungeon->num_active_creatrs - 1);
     unsigned long k = 0;
     int i = dungeon->creatr_list_start;
     while (i != 0)

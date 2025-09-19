@@ -679,7 +679,6 @@ void clear_stat_light_map(void)
 {
     game.lish.global_ambient_light = 32;
     game.lish.light_enabled = 0;
-    game.lish.light_rand_seed = 0;
     for (unsigned long y = 0; y < (game.map_subtiles_y + 1); y++)
     {
         for (unsigned long x = 0; x < (game.map_subtiles_x + 1); x++)
@@ -1994,7 +1993,7 @@ static char light_render_light(struct Light* lgt)
   {
     int rand_minimum = (lgt->intensity - 1) << 8;
     intensity = (lgt->intensity << 8) + 257;
-    render_intensity = rand_minimum + LIGHT_RANDOM(513);
+    render_intensity = rand_minimum + UNSYNC_RANDOM(513);
   }
   else
   {

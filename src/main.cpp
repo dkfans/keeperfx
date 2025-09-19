@@ -330,7 +330,7 @@ void process_keeper_spell_aura(struct Thing *thing)
     long delta_x;
     long delta_y;
     amp = 5 * thing->clipbox_size_xy / 8;
-    direction = CREATURE_RANDOM(thing, DEGREES_360);
+    direction = THING_RANDOM(thing, DEGREES_360);
     delta_x = (amp * LbSinL(direction) >> 8);
     delta_y = (amp * LbCosL(direction) >> 8);
     pos.x.val = thing->mappos.x.val + (delta_x >> 8);
@@ -420,7 +420,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   pos.x.val = move_coord_with_angle_x(thing->mappos.x.val,speed,thing->move_angle_xy);
   pos.y.val = move_coord_with_angle_y(thing->mappos.y.val,speed,thing->move_angle_xy);
   pos.z.val = thing->mappos.z.val;
-  if ( (ACTION_RANDOM(8) == 0) && (!thing->velocity.z.val ) )
+  if ( (GAME_RANDOM(8) == 0) && (!thing->velocity.z.val ) )
   {
     if ( thing_touching_floor(thing) )
     {
@@ -1645,6 +1645,15 @@ void clear_things_and_persons_data(void)
     {
       memset(&game.cctrl_data[i], 0, sizeof(struct CreatureControl));
     }
+
+    // Initialize free things list - exclude non-synced range
+    game.free_things_start_index = 0;
+    for (i = 1; i < THINGS_COUNT_SYNCED; i++)
+    {
+        game.free_things[i-1] = i;
+    }
+    // Initialize non-synchronized things allocation
+    game.next_non_synced_thing_index = THINGS_COUNT_SYNCED;
 }
 
 void clear_computer(void)
@@ -1719,10 +1728,12 @@ void delete_all_thing_structures(void)
           delete_thing_structure(thing, 1);
       }
     }
-    for (i=0; i < THINGS_COUNT-1; i++) {
+    for (i=0; i < THINGS_COUNT_SYNCED-1; i++) {
       game.free_things[i] = i+1;
     }
     game.free_things_start_index = 0;
+    // Reset non-synchronized things allocation
+    game.next_non_synced_thing_index = THINGS_COUNT_SYNCED;
 }
 
 void delete_all_structures(void)
@@ -1748,7 +1759,9 @@ void clear_game_for_summary(void)
     clear_stat_light_map();
     clear_mapwho();
     game.entrance_room_id = 0;
-    game.action_rand_seed = 0;
+    game.action_random_seed = 0;
+    game.ai_random_seed = 0;
+    game.player_random_seed = 0;
     game.operation_flags &= ~GOF_Paused;
     clear_columns();
     clear_action_points();
@@ -1778,7 +1791,9 @@ void clear_game_for_save(void)
     light_initialise();
     clear_mapwho();
     game.entrance_room_id = 0;
-    game.action_rand_seed = 0;
+    game.action_random_seed = 0;
+    game.ai_random_seed = 0;
+    game.player_random_seed = 0;
     clear_columns();
     clear_players_for_save();
     clear_dungeons();
@@ -2568,8 +2583,8 @@ long update_cave_in(struct Thing *thing)
     turns_alive = game.play_gameturn - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
-        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(128);
-        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(128);
+        pos.x.val = thing->mappos.x.val + THING_RANDOM(thing, 128);
+        pos.y.val = thing->mappos.y.val + THING_RANDOM(thing, 128);
         pos.z.val = get_floor_height_at(&pos) + 384;
         create_effect(&pos, TngEff_HarmlessGas4, owner);
     }
@@ -2596,7 +2611,7 @@ long update_cave_in(struct Thing *thing)
         if ((powerst->duration < 10) || ((thing->health % (powerst->duration / 10)) == 0))
         {
             int round_idx;
-            round_idx = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
+            round_idx = THING_RANDOM(thing, AROUND_TILES_COUNT);
             set_coords_to_slab_center(&pos, subtile_slab(thing->mappos.x.val + 3 * around[round_idx].delta_x), subtile_slab(thing->mappos.y.val + 3 * around[round_idx].delta_y));
             if (subtile_has_slab(coord_subtile(pos.x.val), coord_subtile(pos.y.val)) && valid_cave_in_position(thing->owner, coord_subtile(pos.x.val), coord_subtile(pos.y.val)))
             {

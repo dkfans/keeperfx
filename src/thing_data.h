@@ -25,9 +25,17 @@
 /** Max amount of creatures supported on any map. */
 #define CREATURES_COUNT       1024
 
+/** Range for synchronized and non-synchronized things */
+#define THINGS_COUNT_SYNCED          (int)(THINGS_COUNT*0.70)
+// Uses the highest 30% of indexes for non synced things so ~5734-8191
+#define NON_SYNCED_THING_INDEX_START THINGS_COUNT_SYNCED
+#define NON_SYNCED_THING_INDEX_END   (THINGS_COUNT-1)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+TbBool is_non_synchronized_thing_class(unsigned char class_id);
 
 typedef unsigned short Thingid;
 
@@ -87,11 +95,6 @@ enum ThingSizeChange {
   TSC_ChangeSizeContinuously = 0x02, /**< Used by TngEffElm_IceShard. */
 };
 
-enum FreeThingAllocFlags {
-    FTAF_Default             = 0x00,
-    FTAF_FreeEffectIfNoSlots = 0x01,
-    FTAF_LogFailures         = 0x80,
-};
 
 enum ThingMovementFlags {
     TMvF_Default            = 0x000, // Default.
@@ -312,6 +315,7 @@ struct Thing {
     long interp_minimap_pos_y;
     long previous_minimap_pos_x;
     long previous_minimap_pos_y;
+    unsigned long random_seed;
     long interp_minimap_update_turn;
     PlayerNumber holding_player;
 };
@@ -332,9 +336,13 @@ enum ThingAddFlags //named this way because they were part of the ThingAdd struc
 
 #pragma pack()
 /******************************************************************************/
-#define allocate_free_thing_structure(a1) allocate_free_thing_structure_f(a1, __func__)
-struct Thing *allocate_free_thing_structure_f(unsigned char a1, const char *func_name);
-TbBool i_can_allocate_free_thing_structure(unsigned char allocflags);
+#define allocate_free_thing_structure(class_id) allocate_free_thing_structure_f(class_id, __func__)
+struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char *func_name);
+#define allocate_synced_thing_structure(class_id) allocate_synced_thing_structure_f(class_id, __func__)
+struct Thing *allocate_synced_thing_structure_f(unsigned char class_id, const char *func_name);
+#define allocate_non_synced_thing_structure(class_id) allocate_non_synced_thing_structure_f(class_id, __func__)
+struct Thing *allocate_non_synced_thing_structure_f(unsigned char class_id, const char *func_name);
+TbBool i_can_allocate_free_thing_structure(unsigned char class_id);
 #define delete_thing_structure(thing, a2) delete_thing_structure_f(thing, a2, __func__)
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name);
 

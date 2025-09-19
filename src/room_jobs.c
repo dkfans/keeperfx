@@ -273,7 +273,7 @@ struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing
         WARNLOG("Room with no slabs detected!");
         return rettng;
     }
-    long selected = CREATURE_RANDOM(creatng, room->slabs_count);
+    long selected = THING_RANDOM(creatng, room->slabs_count);
     unsigned long k = 0;
     long i = room->slabs_list;
     while (i != 0)
