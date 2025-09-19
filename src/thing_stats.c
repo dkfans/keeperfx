@@ -513,7 +513,7 @@ long compute_creature_attack_melee_damage(long base_param, long luck, CrtrExpLev
     long max_param = base_param;
     if (luck > 0)
     {
-        if (CREATURE_RANDOM(thing, 100) < luck)
+        if (THING_RANDOM(thing, 100) < luck)
             max_param *= 2;
     }
     return max_param;
@@ -540,7 +540,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, CrtrExpLev
     }
     if (luck > 0)
     {
-        if (CREATURE_RANDOM(thing, 100) < luck)
+        if (THING_RANDOM(thing, 100) < luck)
             max_param *= 2;
     }
     return max_param;

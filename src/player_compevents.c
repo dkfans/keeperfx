@@ -825,7 +825,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
             if (!creature_is_being_unconscious(creatng) && !creature_under_spell_effect(creatng, CSAfF_Chicken))
             {
                 // Small chance to casting invisibility,on imp in battle.
-                if ((CREATURE_RANDOM(creatng, 150) == 1)
+                if ((THING_RANDOM(creatng, 150) == 1)
                 && computer_able_to_use_power(comp, PwrK_CONCEAL, 8, 1)
                 && !creature_under_spell_effect(creatng, CSAfF_Invisibility)
                 && !creature_is_immune_to_spell_effect(creatng, CSAfF_Invisibility))

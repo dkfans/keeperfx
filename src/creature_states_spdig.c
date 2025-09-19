@@ -483,7 +483,7 @@ static TbBool check_out_undug_drop_place(struct Thing *spdigtng)
     MapSubtlCoord dig_place_stl_y = 0;
     SubtlCodedCoords stl_num;
     int task_idx = 0;
-    int rand = CREATURE_RANDOM(spdigtng,3);
+    int rand = THING_RANDOM(spdigtng,3);
 
     for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
@@ -1244,7 +1244,7 @@ short imp_drops_gold(struct Thing *spdigtng)
     }
     if ( (gold_added > 0) || (gold_created) )
     {
-        thing_play_sample(spdigtng, UNSYNC_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        thing_play_sample(spdigtng, SOUND_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         if (game.conf.rules.workers.digger_work_experience != 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
@@ -1468,7 +1468,7 @@ short imp_toking(struct Thing *creatng)
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
-        if (CREATURE_RANDOM(creatng, 8))
+        if (THING_RANDOM(creatng, 8))
         {
             set_creature_instance(creatng, CrInst_RELAXING, 0, 0);
         }

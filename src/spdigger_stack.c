@@ -591,7 +591,7 @@ long check_out_unconverted_spiral(struct Thing *thing, long nslabs)
     slb_x = subtile_slab(thing->mappos.x.stl.num);
     slb_y = subtile_slab(thing->mappos.y.stl.num);
     imax = 2;
-    arndi = CREATURE_RANDOM(thing, 4);
+    arndi = THING_RANDOM(thing, 4);
     for (slabi = 0; slabi < nslabs; slabi++)
     {
         {
@@ -666,7 +666,7 @@ long check_out_unprettied_spiral(struct Thing *thing, long nslabs)
     slb_x = subtile_slab(thing->mappos.x.stl.num);
     slb_y = subtile_slab(thing->mappos.y.stl.num);
     imax = 2;
-    arndi = CREATURE_RANDOM(thing, 4);
+    arndi = THING_RANDOM(thing, 4);
     for (slabi = 0; slabi < nslabs; slabi++)
     {
         {
@@ -1090,7 +1090,7 @@ long check_out_undug_place(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     base_stl_x = stl_num_decode_x(cctrl->digger.task_stl);
     base_stl_y = stl_num_decode_y(cctrl->digger.task_stl);
-    n = CREATURE_RANDOM(creatng, 4);
+    n = THING_RANDOM(creatng, 4);
     for (i=0; i < 4; i++)
     {
         struct MapTask* mtask;
@@ -2724,7 +2724,7 @@ long check_out_available_imp_tasks(struct Thing *thing)
 long check_out_imp_tokes(struct Thing *thing)
 {
     SYNCDBG(19, "Starting");
-    long i = CREATURE_RANDOM(thing, 64);
+    long i = THING_RANDOM(thing, 64);
     // small chance of changing state
     if (i != 0)
       return 0;
@@ -2752,12 +2752,12 @@ long check_out_imp_last_did(struct Thing *creatng)
       {
         // If we were digging gems, after 5 repeats of this job, a 1 in 20 chance to select another dungeon job.
         // This allows to switch to other important tasks and not consuming all the diggers workforce forever
-        if (( CREATURE_RANDOM(creatng,20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
+        if (( THING_RANDOM(creatng,20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
         {
           // Set position in digger tasks list to a random place
           SYNCDBG(9,"Digger %s index %d reset due to neverending task",thing_model_name(creatng),(int)creatng->index);
           cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
-          cctrl->digger.task_stack_pos = CREATURE_RANDOM(creatng, dungeon->digger_stack_length);
+          cctrl->digger.task_stack_pos = THING_RANDOM(creatng, dungeon->digger_stack_length);
           break;
         }
       }

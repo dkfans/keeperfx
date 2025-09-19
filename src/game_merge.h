@@ -4,9 +4,10 @@
 /** @file game_merge.h
  *     Header file for game_merge.c.
  * @par Purpose:
- *     Saved games maintain functions.
+ *     Handles game state serialization, campaign progression, and random number generation systems.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
+ *     Defines data structures for persistent campaign data, random number generation macros,
+ *     and various game system flags used throughout the engine.
  * @author   Tomasz Lis
  * @date     21 Oct 2009 - 25 Nov 2009
  * @par  Copying and copyrights:
@@ -49,28 +50,20 @@ extern "C" {
 #define AROUND_SLAB_EIGHT_LENGTH 8
 #define SMALL_AROUND_SLAB_LENGTH 4
 
-// UNSYNC_RANDOM is not synced at all. For synced choices the more specific random is better.
-// So priority is  CREATURE_RANDOM >> PLAYER_RANDOM >> GAME_RANDOM
+// Random number generation system with synchronized and unsynchronized variants
 
-// Used only once. Maybe it is light-specific UNSYNC_RANDOM
-#define LIGHT_RANDOM(range) LbRandomSeries(range, &game.lish.light_rand_seed, __func__, __LINE__)
-// This RNG should not be used to affect anything related affecting game state
-#define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__)
-// This RNG should be used only for "whole game" events (i.e. from script)
-#define GAME_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
-// This RNG is for anything related to creatures or their shots. So creatures should act independent
-#define CREATURE_RANDOM(thing, range) \
-    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
-// This is messy. Used only for AI choices. Maybe it should be merged with PLAYER_RANDOM.
-#define AI_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
-// This RNG is about something related to specific player
-#define PLAYER_RANDOM(plyr, range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
-// RNG related to effects. I am unsure about its relationship with game state.
-// It should be replaced either with CREATURE_RANDOM or with UNSYNC_RANDOM on case by case basis.
-#define EFFECT_RANDOM(thing, range) \
-    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
-#define ACTION_RANDOM(range) \
-    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
+// Thing-specific random for deterministic per-thing behavior (creatures, objects, etc.)
+#define THING_RANDOM(thing, range) LbRandomSeries(range, &((struct Thing*)(thing))->random_seed, __func__, __LINE__)
+// Global game events requiring synchronization across network (scripts, AI decisions, player events)
+#define GAME_RANDOM(range) LbRandomSeries(range, &game.action_random_seed, __func__, __LINE__)
+// Unsynchronized random for visual/audio effects that don't affect game state (lighting, particles)
+#define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_random_seed, __func__, __LINE__)
+// Works like UNSYNC_RANDOM - sound-specific random for audio effects and sound variations
+#define SOUND_RANDOM(range) LbRandomSeries(range, &game.sound_random_seed, __func__, __LINE__)
+// AI-specific random seed for computer player decisions
+#define AI_RANDOM(range) LbRandomSeries(range, &game.ai_random_seed, __func__, __LINE__)
+// Player-specific random for actions tied to a particular player
+#define PLAYER_RANDOM(plyr, range) LbRandomSeries(range, &game.player_random_seed, __func__, __LINE__)
 
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,

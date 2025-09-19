@@ -1239,7 +1239,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     struct CreatureControl* cctrl;
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
     if (!i_can_allocate_free_control_structure()
-     || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+     || !i_can_allocate_free_thing_structure(TCls_Creature)) {
         return Lb_FAIL;
     }
     if (!creature_count_below_map_limit(0))
@@ -1281,8 +1281,8 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     {
         creature_change_multiple_levels(thing, powerst->strength[power_level]);
     }
-    thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
-    thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.x.val += THING_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.y.val += THING_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 160;
     thing->state_flags |= TF1_PushAdd;
     thing->move_angle_xy = ANGLE_NORTH;
@@ -1299,7 +1299,7 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
     struct Dungeon* dungeon;
     if (!i_can_allocate_free_control_structure()
-     || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+     || !i_can_allocate_free_thing_structure(TCls_Creature)) {
         return Lb_FAIL;
     }
     if (!creature_count_below_map_limit(0))

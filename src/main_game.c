@@ -488,13 +488,17 @@ void init_seeds()
     {
         // Initialize random seeds (the value may be different
         // on computers in MP, as it shouldn't affect game actions)
-        game.unsync_rand_seed = (unsigned long)LbTimeSec();
-        game.action_rand_seed = (game.packet_save_head.action_seed != 0) ? game.packet_save_head.action_seed : game.unsync_rand_seed;
+        game.unsync_random_seed = (unsigned long)LbTimeSec();
+        game.sound_random_seed = game.unsync_random_seed * 7919 + 7927; // Use prime multipliers for different seed
+        game.action_random_seed = (game.packet_save_head.action_seed != 0) ? game.packet_save_head.action_seed : game.unsync_random_seed;
+        // Initialize separate seeds for different systems using prime multipliers for good distribution
+        game.ai_random_seed = game.action_random_seed * 9377 + 9439 + game.play_gameturn;
+        game.player_random_seed = game.action_random_seed * 9439 + 9377 + game.play_gameturn;
         if ((game.system_flags & GSF_NetworkActive) != 0)
         {
             init_network_seed();
         }
-        start_seed = game.action_rand_seed;
-        lua_set_random_seed(game.action_rand_seed);
+        start_seed = game.action_random_seed;
+        lua_set_random_seed(game.action_random_seed);
     }
 }

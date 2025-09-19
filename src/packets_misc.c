@@ -189,7 +189,7 @@ TbBigChecksum compute_replay_integrity(void)
         {
             // It would be nice to completely ignore effects, but since
             // thing indices are used in packets, lack of effect may cause desync too.
-            if ((tng->class_id != TCls_AmbientSnd) && (tng->class_id != TCls_EffectElem))
+            if (!is_non_synchronized_thing_class(tng->class_id))
             {
                 sum += (ulong)tng->mappos.x.val + (ulong)tng->mappos.y.val + (ulong)tng->mappos.z.val
                      + (ulong)tng->move_angle_xy + (ulong)tng->owner;

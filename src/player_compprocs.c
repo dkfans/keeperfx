@@ -1183,7 +1183,7 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
         {
             return CProcRet_Wait;
         }
-        output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), MESSAGE_DURATION_KEEPR_TAUNT);
+        output_message(SMsg_EnemyHarassments + SOUND_RANDOM(8), MESSAGE_DURATION_KEEPR_TAUNT);
         return CProcRet_Continue;
     } else
     if (cproc->process_configuration_value_3 <= creatrs_num)
@@ -1194,7 +1194,7 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
             {
                 return CProcRet_Wait;
             }
-            output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), MESSAGE_DURATION_KEEPR_TAUNT);
+            output_message(SMsg_EnemyHarassments + SOUND_RANDOM(8), MESSAGE_DURATION_KEEPR_TAUNT);
             return CProcRet_Continue;
         }
     }
