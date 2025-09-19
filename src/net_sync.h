@@ -43,7 +43,7 @@ short checksums_different(void);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 
 void store_checksums_for_desync_analysis(void);
-void analyze_desync_diagnostics_from_host(void);
+void log_analyze_desync_diagnostics_from_host(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

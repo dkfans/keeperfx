@@ -61,7 +61,7 @@ struct Thing *allocate_synced_thing_structure_f(unsigned char class_id, const ch
     struct Thing *thing;
 
     long i = game.free_things_start_index;
-    if (i >= NON_SYNCED_THINGS_START-1)
+    if (i >= THINGS_COUNT_SYNCED-1)
     {
 #if (BFDEBUG_LEVEL > 0)
             ERRORMSG("%s: Cannot allocate new synced thing, no free slots!", func_name);
@@ -94,11 +94,11 @@ struct Thing *allocate_non_synced_thing_structure_f(unsigned char class_id, cons
     struct Thing *thing;
 
     ThingIndex start_idx = game.next_non_synced_thing_index;
-    if (start_idx > NON_SYNCED_THINGS_END) {
-        start_idx = NON_SYNCED_THINGS_START;
+    if (start_idx > NON_SYNCED_THING_INDEX_END) {
+        start_idx = NON_SYNCED_THING_INDEX_START;
     }
 
-    for (ThingIndex i = start_idx; i <= NON_SYNCED_THINGS_END; i++)
+    for (ThingIndex i = start_idx; i <= NON_SYNCED_THING_INDEX_END; i++)
     {
         thing = thing_get(i);
         if (!thing_is_invalid(thing) && (thing->alloc_flags & TAlF_Exists) == 0)
@@ -113,7 +113,7 @@ struct Thing *allocate_non_synced_thing_structure_f(unsigned char class_id, cons
         }
     }
 
-    for (ThingIndex i = NON_SYNCED_THINGS_START; i < start_idx; i++)
+    for (ThingIndex i = NON_SYNCED_THING_INDEX_START; i < start_idx; i++)
     {
         thing = thing_get(i);
         if (!thing_is_invalid(thing) && (thing->alloc_flags & TAlF_Exists) == 0)
@@ -135,7 +135,7 @@ struct Thing *allocate_non_synced_thing_structure_f(unsigned char class_id, cons
     }
 
     ERRORMSG("%s: Cannot allocate non-synchronized thing, no free slots in range %d-%d!",
-             func_name, NON_SYNCED_THINGS_START, NON_SYNCED_THINGS_END);
+             func_name, NON_SYNCED_THING_INDEX_START, NON_SYNCED_THING_INDEX_END);
     return INVALID_THING;
 }
 
@@ -144,7 +144,7 @@ TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
 {
     if (is_non_synchronized_thing_class(class_id)) {
         // For non-synchronized things, check the dedicated range
-        for (ThingIndex i = NON_SYNCED_THINGS_START; i <= NON_SYNCED_THINGS_END; i++) {
+        for (ThingIndex i = NON_SYNCED_THING_INDEX_START; i <= NON_SYNCED_THING_INDEX_END; i++) {
             struct Thing* thing = thing_get(i);
             if (!thing_is_invalid(thing) && (thing->alloc_flags & TAlF_Exists) == 0) {
                 return true;
@@ -158,12 +158,12 @@ TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
     }
 
     // For synchronized things, check the free_things array
-    if (game.free_things_start_index < NON_SYNCED_THINGS_START-1) {
+    if (game.free_things_start_index < THINGS_COUNT_SYNCED-1) {
         return true;
     }
 
     // For synchronized allocation, freeing effects won't help since they use separate ranges now
-    show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create synced thing, %d/%d synced slots used.", game.free_things_start_index + 1, NON_SYNCED_THINGS_START);
+    show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create synced thing, %d/%d synced slots used.", game.free_things_start_index + 1, THINGS_COUNT_SYNCED);
     return false;
 }
 
@@ -201,7 +201,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     remove_thing_from_its_class_list(thing);
     remove_thing_from_mapwho(thing);
     if (thing->index > 0) {
-        if (!(thing->index >= NON_SYNCED_THINGS_START && thing->index <= NON_SYNCED_THINGS_END)) {
+        if (!(thing->index >= NON_SYNCED_THING_INDEX_START && thing->index <= NON_SYNCED_THING_INDEX_END)) {
             game.free_things_start_index--;
             game.free_things[game.free_things_start_index] = thing->index;
         }

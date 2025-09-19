@@ -74,7 +74,8 @@ struct Boing boing;
 /**
  * Structure to hold detailed thing category checksums for analysis.
  */
-struct DetailedThingChecksums {
+struct LogDetailedThingChecksums {
+    TbBigChecksum creatures;
     TbBigChecksum traps;
     TbBigChecksum shots;
     TbBigChecksum objects;
@@ -87,46 +88,45 @@ struct DetailedThingChecksums {
 // Pre-resync checksum storage for desync analysis between host and clients
 // Host stores these before sending resync data, clients store before receiving
 static struct {
-    TbBigChecksum creatures_sum;
-    TbBigChecksum things_sum;
-    TbBigChecksum rooms_sum;
-    GameTurn gameturn;
-    TbBigChecksum action_random_seed;
-    TbBigChecksum ai_random_seed;
-    TbBigChecksum player_random_seed;
-    TbBigChecksum player_checksums[PLAYERS_COUNT];
-    struct DetailedThingChecksums things_detailed;
-    struct ThingDesyncInfo individual_thing_info[THINGS_COUNT];
-    TbBool is_stored;
-} pre_resync_checksums = {0};
+    TbBigChecksum log_things_sum;
+    TbBigChecksum log_rooms_sum;
+    GameTurn log_gameturn;
+    TbBigChecksum log_action_random_seed;
+    TbBigChecksum log_ai_random_seed;
+    TbBigChecksum log_player_random_seed;
+    TbBigChecksum log_player_checksums[PLAYERS_COUNT];
+    struct LogDetailedThingChecksums log_things_detailed;
+    struct LogThingDesyncInfo log_individual_thing_info[THINGS_COUNT];
+    TbBool log_is_stored;
+} log_pre_resync_checksums = {0};
 
 
 // Host populates game state with diagnostic checksums that clients receive during resync
 // This allows clients to compare their pre-resync state with host's pre-resync state
 static void populate_desync_diagnostics(void)
 {
-    game.desync_diagnostics.desync_turn = pre_resync_checksums.gameturn;
-    game.desync_diagnostics.host_creatures_sum = pre_resync_checksums.creatures_sum;
-    game.desync_diagnostics.host_things_sum = pre_resync_checksums.things_sum;
-    game.desync_diagnostics.host_rooms_sum = pre_resync_checksums.rooms_sum;
+    game.desync_diagnostics.desync_turn = log_pre_resync_checksums.log_gameturn;
+    game.desync_diagnostics.host_things_sum = log_pre_resync_checksums.log_things_sum;
+    game.desync_diagnostics.host_rooms_sum = log_pre_resync_checksums.log_rooms_sum;
 
-    game.desync_diagnostics.host_traps_sum = pre_resync_checksums.things_detailed.traps;
-    game.desync_diagnostics.host_shots_sum = pre_resync_checksums.things_detailed.shots;
-    game.desync_diagnostics.host_objects_sum = pre_resync_checksums.things_detailed.objects;
-    game.desync_diagnostics.host_effects_sum = pre_resync_checksums.things_detailed.effects;
-    game.desync_diagnostics.host_dead_creatures_sum = pre_resync_checksums.things_detailed.dead_creatures;
-    game.desync_diagnostics.host_effect_gens_sum = pre_resync_checksums.things_detailed.effect_gens;
-    game.desync_diagnostics.host_doors_sum = pre_resync_checksums.things_detailed.doors;
+    game.desync_diagnostics.host_creatures_sum = log_pre_resync_checksums.log_things_detailed.creatures;
+    game.desync_diagnostics.host_traps_sum = log_pre_resync_checksums.log_things_detailed.traps;
+    game.desync_diagnostics.host_shots_sum = log_pre_resync_checksums.log_things_detailed.shots;
+    game.desync_diagnostics.host_objects_sum = log_pre_resync_checksums.log_things_detailed.objects;
+    game.desync_diagnostics.host_effects_sum = log_pre_resync_checksums.log_things_detailed.effects;
+    game.desync_diagnostics.host_dead_creatures_sum = log_pre_resync_checksums.log_things_detailed.dead_creatures;
+    game.desync_diagnostics.host_effect_gens_sum = log_pre_resync_checksums.log_things_detailed.effect_gens;
+    game.desync_diagnostics.host_doors_sum = log_pre_resync_checksums.log_things_detailed.doors;
 
     for (int i = 0; i < PLAYERS_COUNT; i++) {
-        game.desync_diagnostics.host_player_checksums[i] = pre_resync_checksums.player_checksums[i];
+        game.desync_diagnostics.host_player_checksums[i] = log_pre_resync_checksums.log_player_checksums[i];
     }
-    game.desync_diagnostics.host_action_random_seed = pre_resync_checksums.action_random_seed;
-    game.desync_diagnostics.host_ai_random_seed = pre_resync_checksums.ai_random_seed;
-    game.desync_diagnostics.host_player_random_seed = pre_resync_checksums.player_random_seed;
+    game.desync_diagnostics.host_action_random_seed = log_pre_resync_checksums.log_action_random_seed;
+    game.desync_diagnostics.host_ai_random_seed = log_pre_resync_checksums.log_ai_random_seed;
+    game.desync_diagnostics.host_player_random_seed = log_pre_resync_checksums.log_player_random_seed;
 
     // Copy stored pre-resync individual Thing detailed info for detailed analysis
-    memcpy(game.desync_diagnostics.host_thing_info, pre_resync_checksums.individual_thing_info, sizeof(game.desync_diagnostics.host_thing_info));
+    memcpy(game.desync_diagnostics.host_thing_info, log_pre_resync_checksums.log_individual_thing_info, sizeof(game.desync_diagnostics.host_thing_info));
 
 
     game.desync_diagnostics.has_desync_diagnostics = true;
@@ -153,9 +153,9 @@ TbBool send_resync_game(void)
     return false;
   }
 
-  if (pre_resync_checksums.is_stored) {
+  if (log_pre_resync_checksums.log_is_stored) {
     populate_desync_diagnostics();
-    ERRORLOG("Host including desync diagnostics in resync: turn %ld", pre_resync_checksums.gameturn);
+    ERRORLOG("Host including desync diagnostics in resync: turn %ld", log_pre_resync_checksums.log_gameturn);
   } else {
     game.desync_diagnostics.has_desync_diagnostics = false;
   }
@@ -173,8 +173,8 @@ TbBool receive_resync_game(void)
     TbBool result = LbNetwork_Resync(&game, sizeof(game));
 
     // After receiving the resync, check if host included diagnostic data
-    if (result && game.desync_diagnostics.has_desync_diagnostics && pre_resync_checksums.is_stored) {
-        analyze_desync_diagnostics_from_host();
+    if (result && game.desync_diagnostics.has_desync_diagnostics && log_pre_resync_checksums.log_is_stored) {
+        log_analyze_desync_diagnostics_from_host();
     }
 
     return result;
@@ -351,21 +351,14 @@ static TbBigChecksum compute_things_list_checksum(struct StructureList *list)
     return sum;
 }
 
-/**
- * Computes checksum for all creatures in the game.
- * @return The creatures checksum value for multiplayer sync verification.
- */
-static TbBigChecksum compute_creatures_checksum(void)
-{
-    return compute_things_list_checksum(&game.thing_lists[TngList_Creatures]);
-}
 
 /**
  * Computes detailed checksums for all thing categories.
  * @param checksums Pointer to structure to store the individual checksums.
  */
-static void compute_detailed_things_checksums(struct DetailedThingChecksums *checksums)
+static void compute_detailed_things_checksums(struct LogDetailedThingChecksums *checksums)
 {
+    checksums->creatures = compute_things_list_checksum(&game.thing_lists[TngList_Creatures]);
     checksums->traps = compute_things_list_checksum(&game.thing_lists[TngList_Traps]);
     checksums->shots = compute_things_list_checksum(&game.thing_lists[TngList_Shots]);
     checksums->objects = compute_things_list_checksum(&game.thing_lists[TngList_Objects]);
@@ -376,12 +369,13 @@ static void compute_detailed_things_checksums(struct DetailedThingChecksums *che
 }
 
 /**
- * Computes checksum for all non-creature things (traps, shots, objects, effects, etc).
+ * Computes checksum for all things (creatures, traps, shots, objects, effects, etc).
  * @return The combined checksum value for multiplayer sync verification.
  */
 static TbBigChecksum compute_things_checksum(void)
 {
     TbBigChecksum sum = 0;
+    sum += compute_things_list_checksum(&game.thing_lists[TngList_Creatures]);
     sum += compute_things_list_checksum(&game.thing_lists[TngList_Traps]);
     sum += compute_things_list_checksum(&game.thing_lists[TngList_Shots]);
     sum += compute_things_list_checksum(&game.thing_lists[TngList_Objects]);
@@ -416,9 +410,6 @@ static TbBigChecksum compute_rooms_checksum(void)
  */
 void compute_multiplayer_checksum_sync(void)
 {
-    TbBigChecksum creatures_sum = compute_creatures_checksum();
-    player_packet_checksum_add(my_player_number, creatures_sum, "creatures");
-
     TbBigChecksum things_sum = compute_things_checksum();
     player_packet_checksum_add(my_player_number, things_sum, "things");
 
@@ -505,31 +496,30 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing)
 // Host uses these to send diagnostic data to clients, clients use for comparison analysis
 void store_checksums_for_desync_analysis(void)
 {
-    pre_resync_checksums.creatures_sum = compute_creatures_checksum();
-    compute_detailed_things_checksums(&pre_resync_checksums.things_detailed);
-    pre_resync_checksums.things_sum = compute_things_checksum();
-    pre_resync_checksums.rooms_sum = compute_rooms_checksum();
+    compute_detailed_things_checksums(&log_pre_resync_checksums.log_things_detailed);
+    log_pre_resync_checksums.log_things_sum = compute_things_checksum();
+    log_pre_resync_checksums.log_rooms_sum = compute_rooms_checksum();
 
     // Store random seeds for individual comparison
-    pre_resync_checksums.action_random_seed = game.action_random_seed;
-    pre_resync_checksums.ai_random_seed = game.ai_random_seed;
-    pre_resync_checksums.player_random_seed = game.player_random_seed;
+    log_pre_resync_checksums.log_action_random_seed = game.action_random_seed;
+    log_pre_resync_checksums.log_ai_random_seed = game.ai_random_seed;
+    log_pre_resync_checksums.log_player_random_seed = game.player_random_seed;
 
     for (int i = 0; i < PLAYERS_COUNT; i++) {
         struct PlayerInfo* player = get_player(i);
         if (player_exists(player)) {
-            pre_resync_checksums.player_checksums[i] = compute_player_checksum(player);
+            log_pre_resync_checksums.log_player_checksums[i] = compute_player_checksum(player);
         } else {
-            pre_resync_checksums.player_checksums[i] = 0;
+            log_pre_resync_checksums.log_player_checksums[i] = 0;
         }
     }
 
     // Store individual Thing detailed info for detailed desync analysis
-    memset(pre_resync_checksums.individual_thing_info, 0, sizeof(pre_resync_checksums.individual_thing_info));
+    memset(log_pre_resync_checksums.log_individual_thing_info, 0, sizeof(log_pre_resync_checksums.log_individual_thing_info));
     for (int i = 1; i < THINGS_COUNT; i++) {
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing) && !is_non_synchronized_thing_class(thing->class_id)) {
-            struct ThingDesyncInfo* info = &pre_resync_checksums.individual_thing_info[i];
+            struct LogThingDesyncInfo* info = &log_pre_resync_checksums.log_individual_thing_info[i];
             info->class_id = thing->class_id;
             info->model = thing->model;
             info->random_seed = thing->random_seed;
@@ -541,12 +531,11 @@ void store_checksums_for_desync_analysis(void)
         }
     }
 
-    pre_resync_checksums.gameturn = game.play_gameturn;
-    pre_resync_checksums.is_stored = true;
+    log_pre_resync_checksums.log_gameturn = game.play_gameturn;
+    log_pre_resync_checksums.log_is_stored = true;
 
-    ERRORLOG("Stored pre-resync checksums at turn %ld: creatures=%08lx things=%08lx rooms=%08lx",
-            pre_resync_checksums.gameturn, pre_resync_checksums.creatures_sum,
-            pre_resync_checksums.things_sum, pre_resync_checksums.rooms_sum);
+    ERRORLOG("Stored pre-resync checksums at turn %ld: things=%08lx rooms=%08lx",
+            log_pre_resync_checksums.log_gameturn, log_pre_resync_checksums.log_things_sum, log_pre_resync_checksums.log_rooms_sum);
 }
 
 
@@ -561,14 +550,15 @@ static void log_checksum_comparison(const char* category_name, TbBigChecksum cli
 
 // Client breaks down things checksum mismatch by category to identify desync source
 // Compares client's pre-resync thing lists with host's diagnostic data
-static void analyze_things_mismatch_details(void)
+static void log_analyze_things_mismatch_details(void)
 {
     ERRORLOG("  Breaking down THINGS MISMATCH by category:");
 
     // Use detailed checksums computed before resync to ensure consistent comparison
-    struct DetailedThingChecksums client_checksums = pre_resync_checksums.things_detailed;
+    struct LogDetailedThingChecksums client_checksums = log_pre_resync_checksums.log_things_detailed;
 
     // Compare each thing category between client and host pre-resync states
+    log_checksum_comparison("Creatures", client_checksums.creatures, game.desync_diagnostics.host_creatures_sum);
     log_checksum_comparison("Traps", client_checksums.traps, game.desync_diagnostics.host_traps_sum);
     log_checksum_comparison("Shots", client_checksums.shots, game.desync_diagnostics.host_shots_sum);
     log_checksum_comparison("Objects", client_checksums.objects, game.desync_diagnostics.host_objects_sum);
@@ -581,7 +571,7 @@ static void analyze_things_mismatch_details(void)
 
 // Compare individual Thing checksums between client pre-resync state and host's pre-resync state
 // Logs specific Things that have different checksums to pinpoint desync sources
-static void analyze_individual_thing_differences(void)
+static void log_analyze_individual_thing_differences(void)
 {
 
     int mismatched_count = 0;
@@ -589,15 +579,18 @@ static void analyze_individual_thing_differences(void)
     ERRORLOG("  Analyzing individual Thing checksums:");
 
     for (int i = 1; i < THINGS_COUNT; i++) {
-        struct Thing* thing = thing_get(i);
-        if (thing_exists(thing) && is_non_synchronized_thing_class(thing->class_id)) {
-            continue; // Skip non-synced things like effect elements
-        }
-
-        struct ThingDesyncInfo* host_info = &game.desync_diagnostics.host_thing_info[i];
-        struct ThingDesyncInfo* client_info = &pre_resync_checksums.individual_thing_info[i];
+        struct LogThingDesyncInfo* host_info = &game.desync_diagnostics.host_thing_info[i];
+        struct LogThingDesyncInfo* client_info = &log_pre_resync_checksums.log_individual_thing_info[i];
         TbBigChecksum host_checksum = host_info->checksum;
         TbBigChecksum client_checksum = client_info->checksum;
+
+        // Skip things that were non-synchronized based on stored pre-resync data
+        if (host_checksum != 0 && is_non_synchronized_thing_class(host_info->class_id)) {
+            continue;
+        }
+        if (client_checksum != 0 && is_non_synchronized_thing_class(client_info->class_id)) {
+            continue;
+        }
 
         if (host_checksum != 0 && client_checksum != 0) {
             if (client_checksum != host_checksum) {
@@ -639,30 +632,28 @@ static void analyze_individual_thing_differences(void)
 
 // Client compares local pre-resync checksums with host diagnostic data
 // This analysis helps identify which game systems diverged between host and client
-void analyze_desync_diagnostics_from_host(void)
+void log_analyze_desync_diagnostics_from_host(void)
 {
-    ERRORLOG("=== DESYNC ANALYSIS: Client (turn %ld) vs Host (turn %ld) ===", pre_resync_checksums.gameturn, game.desync_diagnostics.desync_turn);
+    ERRORLOG("=== DESYNC ANALYSIS: Client (turn %ld) vs Host (turn %ld) ===", log_pre_resync_checksums.log_gameturn, game.desync_diagnostics.desync_turn);
 
     // Compare client pre-resync state with host pre-resync state from diagnostic data
-    log_checksum_comparison("Creatures", pre_resync_checksums.creatures_sum, game.desync_diagnostics.host_creatures_sum);
-
-    log_checksum_comparison("Things", pre_resync_checksums.things_sum, game.desync_diagnostics.host_things_sum);
-    if (pre_resync_checksums.things_sum != game.desync_diagnostics.host_things_sum) {
-        analyze_things_mismatch_details();
-        analyze_individual_thing_differences();
+    log_checksum_comparison("Things", log_pre_resync_checksums.log_things_sum, game.desync_diagnostics.host_things_sum);
+    if (log_pre_resync_checksums.log_things_sum != game.desync_diagnostics.host_things_sum) {
+        log_analyze_things_mismatch_details();
+        log_analyze_individual_thing_differences();
     }
 
-    log_checksum_comparison("Rooms", pre_resync_checksums.rooms_sum, game.desync_diagnostics.host_rooms_sum);
+    log_checksum_comparison("Rooms", log_pre_resync_checksums.log_rooms_sum, game.desync_diagnostics.host_rooms_sum);
 
     // Check each random seed individually
-    log_checksum_comparison("GAME_RANDOM seed", pre_resync_checksums.action_random_seed, game.desync_diagnostics.host_action_random_seed);
-    log_checksum_comparison("AI_RANDOM seed", pre_resync_checksums.ai_random_seed, game.desync_diagnostics.host_ai_random_seed);
-    log_checksum_comparison("PLAYER_RANDOM seed", pre_resync_checksums.player_random_seed, game.desync_diagnostics.host_player_random_seed);
+    log_checksum_comparison("GAME_RANDOM seed", log_pre_resync_checksums.log_action_random_seed, game.desync_diagnostics.host_action_random_seed);
+    log_checksum_comparison("AI_RANDOM seed", log_pre_resync_checksums.log_ai_random_seed, game.desync_diagnostics.host_ai_random_seed);
+    log_checksum_comparison("PLAYER_RANDOM seed", log_pre_resync_checksums.log_player_random_seed, game.desync_diagnostics.host_player_random_seed);
 
     // Check each player individually
     for (int i = 0; i < PLAYERS_COUNT; i++) {
         struct PlayerInfo* player = get_player(i);
-        TbBigChecksum client_checksum = pre_resync_checksums.player_checksums[i];
+        TbBigChecksum client_checksum = log_pre_resync_checksums.log_player_checksums[i];
         TbBigChecksum host_checksum = game.desync_diagnostics.host_player_checksums[i];
 
         if (player_exists(player)) {

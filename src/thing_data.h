@@ -25,9 +25,11 @@
 /** Max amount of creatures supported on any map. */
 #define CREATURES_COUNT       1024
 
-/** Range for non-synchronized things (EffectElems, AmbientSnds) */
-#define NON_SYNCED_THINGS_START (int)(THINGS_COUNT*0.70) // Uses the highest 30% of indexes for non synced things so ~5734-8191
-#define NON_SYNCED_THINGS_END   (THINGS_COUNT-1)
+/** Range for synchronized and non-synchronized things */
+#define THINGS_COUNT_SYNCED          (int)(THINGS_COUNT*0.70)
+// Uses the highest 30% of indexes for non synced things so ~5734-8191
+#define NON_SYNCED_THING_INDEX_START THINGS_COUNT_SYNCED
+#define NON_SYNCED_THING_INDEX_END   (THINGS_COUNT-1)
 
 #ifdef __cplusplus
 extern "C" {

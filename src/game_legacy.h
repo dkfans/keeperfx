@@ -127,7 +127,7 @@ struct Configs {
 };
 
 // Structure to store detailed thing information for desync analysis
-struct ThingDesyncInfo {
+struct LogThingDesyncInfo {
     ThingClass class_id;          // Type of thing (creature, object, etc.)
     ThingModel model;             // Model within the class
     TbBigChecksum random_seed;    // Thing's random seed
@@ -327,11 +327,11 @@ struct Game {
     // Diagnostic checksums for desync analysis (sent by host during resync)
     struct {
         GameTurn desync_turn;                    // Turn when desync was detected
-        TbBigChecksum host_creatures_sum;        // Host's creatures checksum at desync
         TbBigChecksum host_things_sum;           // Host's things checksum at desync
         TbBigChecksum host_rooms_sum;            // Host's rooms checksum at desync
 
         // Detailed thing category checksums for deeper analysis
+        TbBigChecksum host_creatures_sum;        // Host's creatures checksum
         TbBigChecksum host_traps_sum;            // Host's traps checksum
         TbBigChecksum host_shots_sum;            // Host's shots checksum
         TbBigChecksum host_objects_sum;          // Host's objects checksum
@@ -347,7 +347,7 @@ struct Game {
         TbBigChecksum host_player_random_seed;     // Host's player random seed
 
         // Individual Thing detailed info for per-Thing desync analysis
-        struct ThingDesyncInfo host_thing_info[THINGS_COUNT];  // Host's detailed Thing information
+        struct LogThingDesyncInfo host_thing_info[THINGS_COUNT];  // Host's detailed Thing information
 
         TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
     } desync_diagnostics;
