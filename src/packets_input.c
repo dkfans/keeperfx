@@ -387,7 +387,15 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         } else
         if (player->cursor_button_down != 0)
         {
-            thing = thing_get(player->thing_under_hand);
+            thing = get_creature_near_for_controlling(player->id_number, x, y);
+            if (!thing_is_invalid(thing))
+            {
+                player->thing_under_hand = thing->index;
+            }
+            else
+            {
+                thing = thing_get(player->thing_under_hand);
+            }
             if ((player->thing_under_hand != 0) && (player->input_crtr_control != 0)
                 && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {

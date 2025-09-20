@@ -928,9 +928,21 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                     player->chosen_power_kind = pwkind;
                     draw_spell_cursor(0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
                     player->chosen_power_kind = 0;
-                } else {
-                    set_pointer_graphic(MousePG_Arrow);
                 }
+                else
+                {
+                    thing = get_creature_near_for_controlling(player->id_number, thing->mappos.x.val, thing->mappos.y.val);
+                    if (!thing_is_invalid(thing) && (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)))
+                    {
+                        player->chosen_power_kind = pwkind;
+                        draw_spell_cursor(0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                        player->chosen_power_kind = 0;
+                    }
+                    else {
+                        set_pointer_graphic(MousePG_Arrow);
+                    }
+                }
+
                 player->display_flags |= PlaF6_DisplayNeedsUpdate;
             } else
             if (((player->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
