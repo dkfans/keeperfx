@@ -238,7 +238,15 @@ static int thing_set_field(lua_State *L) {
         else if (strcmp(key, "creature_kills") == 0)
         {
             cctrl->kills_num = luaL_checkinteger(L, 3);
-        } else if (strcmp(key, "hunger_loss") == 0)
+        } else if (strcmp(key, "creature_kills_allies") == 0)
+        {
+            cctrl->kills_num_allied = luaL_checkinteger(L, 3);
+        }
+        else if (strcmp(key, "creature_kills_enemies") == 0)
+        {
+            cctrl->kills_num_enemy = luaL_checkinteger(L, 3);
+        }
+        else if (strcmp(key, "hunger_loss") == 0)
         {
             cctrl->hunger_loss = luaL_checkinteger(L, 3);
         }
