@@ -64,10 +64,9 @@ TbBool is_mouse_on_map(struct Packet* pckt)
     return true;
 }
 
-TbBool tag_between = false;
 void remember_cursor_subtile(struct PlayerInfo *player) {
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    if (tag_between == true) {
+    if (player->interpolated_tagging == true) {
         player->previous_cursor_subtile_x = player->cursor_subtile_x;
         player->previous_cursor_subtile_y = player->cursor_subtile_y;
         player->cursor_subtile_x = coord_subtile((pckt->pos_x));
@@ -78,7 +77,7 @@ void remember_cursor_subtile(struct PlayerInfo *player) {
         player->previous_cursor_subtile_x = player->cursor_subtile_x;
         player->previous_cursor_subtile_y = player->cursor_subtile_y;
     }
-    tag_between = player->mouse_on_map;
+    player->interpolated_tagging = player->mouse_on_map;
 }
 
 void set_tag_untag_mode(PlayerNumber plyr_idx)

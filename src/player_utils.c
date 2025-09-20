@@ -293,6 +293,51 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
     return amount_take-amount;
 }
 
+/**
+ * Resets dungeon->total_money_owned by taking the offmap gold and gold from all the treasure rooms it can find
+  */
+void recalculate_total_gold(struct Dungeon* dungeon, const char* func_name)
+{
+    GoldAmount gold_before = dungeon->total_money_owned;
+    dungeon->offmap_money_owned = max(0, dungeon->offmap_money_owned);
+    dungeon->total_money_owned = dungeon->offmap_money_owned;
+
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
+    {
+        if (room_role_matches(rkind, RoRoF_GoldStorage))
+        {
+            long i = dungeon->room_list_start[rkind];
+            unsigned long k = 0;
+            while (i != 0)
+            {
+                struct Room* room = room_get(i);
+                if (room_is_invalid(room))
+                {
+                    ERRORLOG("Jump to invalid room detected");
+                    break;
+                }
+                i = room->next_of_owner;
+                dungeon->total_money_owned += room->capacity_used_for_storage;
+                // Per-room code ends
+                k++;
+                if (k > ROOMS_COUNT)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping rooms list");
+                    break;
+                }
+            }
+        }
+    }
+    if (gold_before == dungeon->total_money_owned)
+    {
+        SYNCDBG(7, "%s: Dungeon %d did not need gold recalculation. Correct at %ld.", func_name, dungeon->owner, dungeon->total_money_owned);
+    }
+    else
+    {
+        ERRORLOG("%s: Gold recalculation found an error, Dungeon %d correct gold amount %ld not %ld.", func_name, dungeon->owner, dungeon->total_money_owned, gold_before);
+    }
+}
+
 long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -340,8 +385,8 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
                 struct Room* room = room_get(i);
                 if (room_is_invalid(room))
                 {
-                ERRORLOG("Jump to invalid room detected");
-                break;
+                    ERRORLOG("Jump to invalid room detected");
+                    break;
                 }
                 i = room->next_of_owner;
                 // Per-room code
@@ -352,9 +397,9 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
                     {
                         if (is_my_player_number(plyr_idx))
                         {
-                        if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
-                            output_message(SMsg_GoldLow, MESSAGE_DURATION_TREASURY);
-                        }
+                            if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
+                                output_message(SMsg_GoldLow, MESSAGE_DURATION_TREASURY);
+                            }
                         }
                         return amount_take;
                     }
@@ -363,16 +408,15 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
                 k++;
                 if (k > ROOMS_COUNT)
                 {
-                ERRORLOG("Infinite loop detected when sweeping rooms list");
-                break;
+                    ERRORLOG("Infinite loop detected when sweeping rooms list");
+                    break;
                 }
             }
         }
     }
 
-
-
     WARNLOG("%s: Player %d could not give %d gold, %d was missing; his total gold was %d",func_name,(int)plyr_idx,(int)amount_take,(int)take_remain,(int)total_money);
+    recalculate_total_gold(dungeon, func_name);
     return -1;
 }
 
