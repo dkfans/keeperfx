@@ -358,6 +358,7 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_Pickaxe:
   case MousePG_Query:
   case MousePG_DenyMark:
+  case MousePG_Pickaxe2:
     ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
       x = 12; y = 15;
       break;

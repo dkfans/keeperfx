@@ -101,6 +101,8 @@ TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
 static char path_string[178];
 MenuID vid_change_query_menu = GMnu_CREATURE_QUERY1;
+TbBool right_click_tag_mode_toggle = false;
+unsigned char default_tag_mode = 1;
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
   { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,  0, GUIStr_Empty,  0,       {1},            0, NULL },
@@ -506,6 +508,65 @@ void get_player_gui_clicks(void)
   case PVT_MapFadeOut:
       break;
   default:
+      if (right_button_clicked)
+      {
+          if (right_click_tag_mode_toggle)
+          {
+              if (player->work_state == PSt_CtrlDungeon)
+              {
+                  switch (player->primary_cursor_state)
+                  {
+                      case CSt_PickAxe:
+                      {
+                          if (!a_menu_window_is_active())
+                          {
+                              if (!left_button_held)
+                              {
+                                  long mode = settings.highlight_mode;
+                                  mode ^= 1;
+                                  set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 1, 0, 0);
+                              }
+                              else
+                              {
+                                  set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+                                  right_button_clicked = 0;
+                              }
+                          }
+                      break;
+                      }
+                      case CSt_PowerHand:
+                      {
+                         if (player->thing_under_hand == 0)
+                         {
+                             if (!a_menu_window_is_active())
+                             {
+                                struct Coord3d mappos;
+                                if (screen_to_map(player->acamera, right_button_clicked_x, right_button_clicked_y, &mappos))
+                                {
+                                    if (subtile_is_diggable_for_player(player->id_number, mappos.x.stl.num, mappos.y.stl.num, false))
+                                    {
+                                        if (!left_button_held)
+                                        {
+                                            long mode = settings.highlight_mode;
+                                            mode ^= 1;
+                                            set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 1, 0, 0);
+                                        }
+                                        else
+                                        {
+                                            set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+                                        }
+                                        right_button_clicked = 0;
+                                    }
+                                }
+                             }
+                          }
+                         break;
+                       } 
+                }
+              }
+          }
+        // do NOT do right_button_clicked = 0 here: it breaks dropping creatures!
+      }          
       if (right_button_released)
       {
         if ((player->work_state != PSt_HoldInHand) || power_hand_is_empty(player))
