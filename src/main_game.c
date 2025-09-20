@@ -487,24 +487,25 @@ void init_seeds()
     {
         // Unsynced seeds - these values will be different per-player in multiplayer
         unsigned long calender_time = (unsigned long)LbTimeSec();
-        game.unsync_random_seed = calender_time;
-        game.sound_random_seed = calender_time * 7919 + 7927; // Use prime multipliers for different seed
+        game.unsync_random_seed = calender_time * 9007 + 9011;  // Use prime multipliers for different seeds
+        game.sound_random_seed = calender_time * 7919 + 7927;
 
         // If doing -packetload then use the replay's stored seed
         if (game.packet_save_head.action_seed != 0) {
             game.action_random_seed = game.packet_save_head.action_seed;
         } else {
-            game.action_random_seed = game.unsync_random_seed;
+            game.action_random_seed = calender_time * 9311 + 9319;
         }
 
-        // Network seed must be synchronized before setting derived seeds
+        // Network seed must be synchronized for multiplayer before setting derived seeds
         if ((game.system_flags & GSF_NetworkActive) != 0) {
-            init_network_seed(); // Synchronize random seed across network for multiplayer
+            init_network_seed();
         }
 
-        // AI and player systems get their own derived seeds
-        game.ai_random_seed = game.action_random_seed * 9377 + 9439;
-        game.player_random_seed = game.action_random_seed * 9439 + 9377;
+        // AI and Player systems get their own derived seeds
+        game.ai_random_seed = game.action_random_seed * 9377 + 9391;
+        game.player_random_seed = game.action_random_seed * 9473 + 9479;
+        
         initial_replay_seed = game.action_random_seed;
         lua_set_random_seed(game.action_random_seed);
     }
