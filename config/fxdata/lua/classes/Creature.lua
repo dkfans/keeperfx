@@ -21,7 +21,9 @@
 ---@field force_health_flower_displayed boolean always displays health flower
 ---@field force_health_flower_hidden boolean always hides health flower
 ---@field hand_blocked_turns integer stops creature from being picked up, can be overwritten with SET_HAND_RULE. Set to -1 to be infinite.
----@field creature_kills integer how many creatires th creature has killed
+---@field creature_kills integer how many creatures the creature has killed
+---@field creature_kills_enemies integer how many enemy creatures the creature has killed
+---@field creature_kills_allies integer how many non-enemy creatures the creature has killed
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens
