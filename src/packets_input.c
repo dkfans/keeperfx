@@ -736,9 +736,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_CtrlPassngr:
         case PSt_FreeCtrlPassngr:
             if (player->work_state == PSt_CtrlPassngr)
-                thing = get_creature_near_and_owned_by(x, y, plyr_idx, -1);
+                thing = get_creature_near_and_owned_by(x, y, plyr_idx, CREATURE_ANY);
             else
-                thing = get_creature_near_and_owned_by(x, y, -1, -1);
+                thing = get_creature_near_and_owned_by(x, y, -1, CREATURE_ANY);
             if (thing_is_invalid(thing))
                 player->thing_under_hand = 0;
             else
