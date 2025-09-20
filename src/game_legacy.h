@@ -138,6 +138,18 @@ struct LogThingDesyncInfo {
     TbBigChecksum checksum;       // Thing's computed checksum
 };
 
+// Structure to store detailed room information for desync analysis
+struct LogRoomDesyncInfo {
+    RoomKind kind;                // Type of room (temple, lair, etc.)
+    PlayerNumber owner;           // Owner player of the room
+    MapSubtlCoord central_stl_x;  // Central position X coordinate
+    MapSubtlCoord central_stl_y;  // Central position Y coordinate
+    SlabCodedCoords slabs_count;  // Number of slabs in the room
+    long efficiency;              // Room efficiency value
+    long used_capacity;           // Current capacity usage
+    TbBigChecksum checksum;       // Room's computed checksum
+};
+
 struct Game {
     LevelNumber continue_level_number;
     unsigned char system_flags;
@@ -348,6 +360,9 @@ struct Game {
 
         // Individual Thing detailed info for per-Thing desync analysis
         struct LogThingDesyncInfo host_thing_info[THINGS_COUNT];  // Host's detailed Thing information
+
+        // Individual Room detailed info for per-Room desync analysis
+        struct LogRoomDesyncInfo host_room_info[ROOMS_COUNT + 1];     // Host's detailed Room information
 
         TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
     } desync_diagnostics;
