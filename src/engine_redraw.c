@@ -944,6 +944,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
                     player->chosen_power_kind = pwkind;
                     draw_spell_cursor(0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
                     player->chosen_power_kind = 0;
+                    player->thing_under_hand = thing->index;
                 } else {
                     set_pointer_graphic(MousePG_Arrow);
                 }
