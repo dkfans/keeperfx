@@ -51,6 +51,13 @@ TbBool thing_touching_floor(const struct Thing *thing)
     return (thing->floor_height == thing->mappos.z.val);
 }
 
+TbBool thing_is_immobile(const struct Thing* thing)
+{
+    if (!thing_exists(thing))
+        return false;
+    return flag_is_set(thing->movement_flags, TMvF_Immobile);
+}
+
 TbBool thing_touching_flight_altitude(const struct Thing *thing)
 {
     if (thing->veloc_push_add.z.val != 0) {
