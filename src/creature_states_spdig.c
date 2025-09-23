@@ -289,7 +289,8 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
         if (thing_is_spellbook(thing) || thing_is_special_box(thing))
         {
             if ((thing->owner != spdigtng->owner) && !thing_is_dragged_or_pulled(thing)
-              && (get_slab_owner_thing_is_on(thing) == spdigtng->owner) && thing_revealed(thing, spdigtng->owner))
+              && (get_slab_owner_thing_is_on(thing) == spdigtng->owner) && thing_revealed(thing, spdigtng->owner)
+                &! thing_is_immobile(thing))
             {
                 if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
                 {
