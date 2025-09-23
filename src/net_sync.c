@@ -729,12 +729,12 @@ static void log_analyze_individual_thing_differences(void)
         if (host_checksum != 0 && client_checksum != 0) {
             if (client_checksum != host_checksum) {
                 ERRORLOG("    Thing INDEX %d MISMATCH - Client: %08lx vs Host: %08lx", i, client_checksum, host_checksum);
-                ERRORLOG("      CLIENT Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%d seed:%08lx creation_turn:%ld",
+                ERRORLOG("      CLIENT Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%ld seed:%08lx creation_turn:%ld",
                          client_info->index, thing_class_code_name(client_info->class_id),
                          thing_class_and_model_name(client_info->class_id, client_info->model),
                          client_info->owner, client_info->pos_x, client_info->pos_y, client_info->pos_z,
                          client_info->health, client_info->random_seed, client_info->creation_turn);
-                ERRORLOG("      HOST Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%d seed:%08lx creation_turn:%ld",
+                ERRORLOG("      HOST Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%ld seed:%08lx creation_turn:%ld",
                          host_info->index, thing_class_code_name(host_info->class_id),
                          thing_class_and_model_name(host_info->class_id, host_info->model),
                          host_info->owner, host_info->pos_x, host_info->pos_y, host_info->pos_z,
@@ -743,7 +743,7 @@ static void log_analyze_individual_thing_differences(void)
             }
         } else if (host_checksum != 0 && client_checksum == 0) {
             ERRORLOG("    Thing INDEX %d MISSING on client - Host had checksum: %08lx", i, host_checksum);
-            ERRORLOG("      HOST Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%d seed:%08lx creation_turn:%ld",
+            ERRORLOG("      HOST Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%ld seed:%08lx creation_turn:%ld",
                      host_info->index, thing_class_code_name(host_info->class_id),
                      thing_class_and_model_name(host_info->class_id, host_info->model),
                      host_info->owner, host_info->pos_x, host_info->pos_y, host_info->pos_z,
@@ -751,7 +751,7 @@ static void log_analyze_individual_thing_differences(void)
             mismatched_count++;
         } else if (host_checksum == 0 && client_checksum != 0) {
             ERRORLOG("    Thing INDEX %d EXTRA on client (host has none) - Client checksum: %08lx", i, client_checksum);
-            ERRORLOG("      CLIENT Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%d seed:%08lx creation_turn:%ld",
+            ERRORLOG("      CLIENT Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%ld seed:%08lx creation_turn:%ld",
                      client_info->index, thing_class_code_name(client_info->class_id),
                      thing_class_and_model_name(client_info->class_id, client_info->model),
                      client_info->owner, client_info->pos_x, client_info->pos_y, client_info->pos_z,
