@@ -554,25 +554,51 @@ obj/cu/%.o: $(CU_DIR)/Sources/Framework/%.c
 obj/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
 	$(CPP) $(CXXFLAGS) $(CU_INC) -o"$@" "$<"
 
-obj/std/%.o obj/hvlog/%.o: src/%.cpp libexterns $(GENSRC)
-	-$(ECHO) 'Building file: $<'
+
+define BUILD_CPP_FILES_CMD
+	-$(ECHO) 'Building cpp file: $<'
 	@grep -E "#include \"(\.\./)?(\.\./)?pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
 	@grep -E "#include \"(\.\./)?(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
+endef
 
-obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
-	-$(ECHO) 'Building file: $<'
+obj/std/%.o: src/%.cpp libexterns $(GENSRC)
+	$(BUILD_CPP_FILES_CMD)
+
+obj/hvlog/%.o: src/%.cpp libexterns $(GENSRC)
+	$(BUILD_CPP_FILES_CMD)
+
+
+define BUILD_CC_FILES_CMD
+	-$(ECHO) 'Building cc file: $<'
 	@grep -E "#include \"(\.\./)?(\.\./)?pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
 	@grep -E "#include \"(\.\./)?(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
+endef
+
+obj/std/%.o: src/%.c libexterns $(GENSRC)
+	$(BUILD_CC_FILES_CMD)
+
+obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
+	$(BUILD_CC_FILES_CMD)
+
 
 # Windows resources compilation
-obj/std/%.res obj/hvlog/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
+
+define BUILD_RESOURCE_CMD
 	-$(ECHO) 'Building resource: $<'
 	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff -I"obj/"
 	-$(ECHO) ' '
+endef
+
+obj/std/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
+	$(BUILD_RESOURCE_CMD)
+
+obj/hvlog/%.res: res/%.rc res/keeperfx_icon.ico $(GENSRC)
+	$(BUILD_RESOURCE_CMD)
+
 
 # Creation of Windows icon files from PNG files
 res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08bpp.png res/%128-08bpp.png res/%128-24bpp.png res/%256-24bpp.png res/%512-24bpp.png $(PNGTOICO)
