@@ -3119,7 +3119,7 @@ TbBool update_thing(struct Thing *thing)
     if (thing_is_invalid(thing))
         return false;
 
-    if ((thing->movement_flags & TMvF_Immobile) == 0)
+    if (!thing_is_immobile(thing))
     {
         if ((thing->state_flags & TF1_PushAdd) != 0)
         {
@@ -3155,7 +3155,7 @@ TbBool update_thing(struct Thing *thing)
         return false;
     }
     SYNCDBG(18,"Class function end ok");
-    if ((thing->movement_flags & TMvF_Immobile) == 0)
+    if (!thing_is_immobile(thing))
     {
         if (thing->mappos.z.val > thing->floor_height)
         {
