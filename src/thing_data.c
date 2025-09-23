@@ -47,123 +47,81 @@ TbBool is_non_synchronized_thing_class(unsigned char class_id)
     return (class_id == TCls_EffectElem) || (class_id == TCls_AmbientSnd) || (class_id == TCls_Effect);
 }
 
-struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char *func_name)
+
+static struct Thing *allocate_thing(enum ThingAllocationPool pool_type, const char *func_name)
 {
-    if (is_non_synchronized_thing_class(class_id)) {
-        return allocate_non_synced_thing_structure_f(class_id, func_name);
+    unsigned short *free_list;
+    ThingIndex *start_index;
+    ThingIndex max_count;
+    const char *list_name;
+
+    if (pool_type == ThingAllocation_Unsynced) {
+        free_list = game.unsynced_free_things;
+        start_index = &game.unsynced_free_things_start_index;
+        max_count = UNSYNCED_THINGS_COUNT;
+        list_name = "unsynced";
     } else {
-        return allocate_synced_thing_structure_f(class_id, func_name);
+        free_list = game.synced_free_things;
+        start_index = &game.synced_free_things_start_index;
+        max_count = SYNCED_THINGS_COUNT;
+        list_name = "synced";
     }
-}
 
-struct Thing *allocate_synced_thing_structure_f(unsigned char class_id, const char *func_name)
-{
-    struct Thing *thing;
-
-    long i = game.free_things_start_index;
-    if (i >= THINGS_COUNT_SYNCED-1)
-    {
-#if (BFDEBUG_LEVEL > 0)
-            ERRORMSG("%s: Cannot allocate new synced thing, no free slots!", func_name);
-#endif
+    if (*start_index >= max_count) {
+        ERRORMSG("%s: Cannot allocate new %s thing, no free slots!", func_name, list_name);
         return INVALID_THING;
     }
 
-    thing = thing_get(game.free_things[i]);
-#if (BFDEBUG_LEVEL > 0)
-    if (thing_exists(thing)) {
-        ERRORMSG("%s: Found existing thing %d in free things list at pos %d!",func_name,(int)game.free_things[i],(int)i);
-    }
-#endif
+    struct Thing *thing = thing_get(free_list[*start_index]);
     memset(thing, 0, sizeof(struct Thing));
-    if (thing_is_invalid(thing)) {
-        ERRORMSG("%s: Got invalid thing slot instead of free one!",func_name);
-        return INVALID_THING;
-    }
     thing->alloc_flags |= TAlF_Exists;
-    thing->index = game.free_things[i];
+    thing->index = free_list[*start_index];
     thing->random_seed = thing->index * 9377 + 9439 + game.play_gameturn;
-    game.free_things[game.free_things_start_index] = 0;
-    game.free_things_start_index++;
     TRACE_THING(thing);
+
+    free_list[*start_index] = 0;
+    (*start_index)++;
     return thing;
 }
 
-struct Thing *allocate_non_synced_thing_structure_f(unsigned char class_id, const char *func_name)
+
+struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char *func_name)
 {
-    struct Thing *thing;
-
-    ThingIndex start_idx = game.next_non_synced_thing_index;
-    if (start_idx > NON_SYNCED_THING_INDEX_END) {
-        start_idx = NON_SYNCED_THING_INDEX_START;
-    }
-
-    for (ThingIndex i = start_idx; i <= NON_SYNCED_THING_INDEX_END; i++)
-    {
-        thing = thing_get(i);
-        if (!thing_is_invalid(thing) && (thing->alloc_flags & TAlF_Exists) == 0)
-        {
-            memset(thing, 0, sizeof(struct Thing));
-            thing->alloc_flags |= TAlF_Exists;
-            thing->index = i;
-            thing->random_seed = thing->index * 9377 + 9439 + game.play_gameturn;
-            game.next_non_synced_thing_index = i + 1;
-            TRACE_THING(thing);
-            return thing;
+    if (is_non_synchronized_thing_class(class_id)) {
+        if (game.unsynced_free_things_start_index >= UNSYNCED_THINGS_COUNT) {
+            // No free slots - try deleting old effect and search again
+            struct Thing *old_effect = thing_get(game.thing_lists[TngList_EffectElems].index);
+            if (!thing_is_invalid(old_effect)) {
+                delete_thing_structure(old_effect, 0);
+                return allocate_free_thing_structure_f(class_id, func_name);
+            }
+            show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create unsynced thing, no free slots.");
+            return INVALID_THING;
         }
+        return allocate_thing(ThingAllocation_Unsynced, func_name);
+    } else {
+        return allocate_thing(ThingAllocation_Synced, func_name);
     }
-
-    for (ThingIndex i = NON_SYNCED_THING_INDEX_START; i < start_idx; i++)
-    {
-        thing = thing_get(i);
-        if (!thing_is_invalid(thing) && (thing->alloc_flags & TAlF_Exists) == 0)
-        {
-            memset(thing, 0, sizeof(struct Thing));
-            thing->alloc_flags |= TAlF_Exists;
-            thing->index = i;
-            thing->random_seed = thing->index * 9377 + 9439 + game.play_gameturn;
-            game.next_non_synced_thing_index = i + 1;
-            TRACE_THING(thing);
-            return thing;
-        }
-    }
-
-    struct Thing *effect_thing = thing_get(game.thing_lists[TngList_EffectElems].index);
-    if (!thing_is_invalid(effect_thing)) {
-        delete_thing_structure(effect_thing, 0);
-        return allocate_non_synced_thing_structure_f(class_id, func_name);
-    }
-
-    ERRORMSG("%s: Cannot allocate non-synchronized thing, no free slots in range %d-%d!",
-             func_name, NON_SYNCED_THING_INDEX_START, NON_SYNCED_THING_INDEX_END);
-    return INVALID_THING;
 }
 
 
 TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
 {
     if (is_non_synchronized_thing_class(class_id)) {
-        // For non-synchronized things, check the dedicated range
-        for (ThingIndex i = NON_SYNCED_THING_INDEX_START; i <= NON_SYNCED_THING_INDEX_END; i++) {
-            struct Thing* thing = thing_get(i);
-            if (!thing_is_invalid(thing) && (thing->alloc_flags & TAlF_Exists) == 0) {
-                return true;
-            }
-        }
-        // Can still free effects if needed
-        if (game.thing_lists[TngList_EffectElems].index > 0) {
+        if (game.unsynced_free_things_start_index < UNSYNCED_THINGS_COUNT) {
             return true;
         }
-        return false;
+        // Can still allocate if we can delete effects
+        TbBool can_delete_effects = (game.thing_lists[TngList_EffectElems].index > 0);
+        return can_delete_effects;
     }
 
-    // For synchronized things, check the free_things array
-    if (game.free_things_start_index < THINGS_COUNT_SYNCED-1) {
+    // For synced things: check if free slots remain
+    if (game.synced_free_things_start_index < SYNCED_THINGS_COUNT) {
         return true;
     }
 
-    // For synchronized allocation, freeing effects won't help since they use separate ranges now
-    show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create synced thing, %d/%d synced slots used.", game.free_things_start_index + 1, THINGS_COUNT_SYNCED);
+    show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create thing, %d/%d slots used.", game.synced_free_things_start_index, SYNCED_THINGS_COUNT);
     return false;
 }
 
@@ -201,9 +159,20 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     remove_thing_from_its_class_list(thing);
     remove_thing_from_mapwho(thing);
     if (thing->index > 0) {
-        if (!(thing->index >= NON_SYNCED_THING_INDEX_START && thing->index <= NON_SYNCED_THING_INDEX_END)) {
-            game.free_things_start_index--;
-            game.free_things[game.free_things_start_index] = thing->index;
+        unsigned short *free_list;
+        ThingIndex *start_index;
+
+        if (thing->index <= SYNCED_THINGS_COUNT) {
+            free_list = game.synced_free_things;
+            start_index = &game.synced_free_things_start_index;
+        } else {
+            free_list = game.unsynced_free_things;
+            start_index = &game.unsynced_free_things_start_index;
+        }
+
+        if (*start_index > 0) {
+            (*start_index)--;
+            free_list[*start_index] = thing->index;
         }
     } else {
 #if (BFDEBUG_LEVEL > 0)
