@@ -291,16 +291,23 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     return CLS_CONTINUE;
 }
 
+// Add value to checksum using simple hash algorithm
+#define CHECKSUM_ADD(checksum, value) checksum = checksum * 31 + (ulong)(value)
+
 static TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
 {
-    TbBigChecksum sum = 0;
     if (((player->allocflags & PlaF_CompCtrl) == 0) && (player->acamera != NULL))
     {
         struct Coord3d* mappos = &(player->acamera->mappos);
-        sum += (TbBigChecksum)player->instance_remain_rurns + (TbBigChecksum)player->instance_num;
-        sum += (TbBigChecksum)mappos->x.val + (TbBigChecksum)mappos->z.val + (TbBigChecksum)mappos->y.val;
+        TbBigChecksum checksum = 0;
+        CHECKSUM_ADD(checksum, player->instance_remain_rurns);
+        CHECKSUM_ADD(checksum, player->instance_num);
+        CHECKSUM_ADD(checksum, mappos->x.val);
+        CHECKSUM_ADD(checksum, mappos->y.val);
+        CHECKSUM_ADD(checksum, mappos->z.val);
+        return checksum;
     }
-    return sum;
+    return 0;
 }
 
 /**
@@ -388,20 +395,37 @@ static TbBigChecksum compute_things_checksum(void)
 }
 
 /**
+ * Computes checksum for a single room based on core room properties.
+ * @param room The room to compute checksum for.
+ * @return The room checksum value.
+ */
+static TbBigChecksum get_room_checksum(const struct Room* room)
+{
+    TbBigChecksum checksum = 0;
+    CHECKSUM_ADD(checksum, room->slabs_count);
+    CHECKSUM_ADD(checksum, room->central_stl_x);
+    CHECKSUM_ADD(checksum, room->central_stl_y);
+    CHECKSUM_ADD(checksum, room->efficiency);
+    CHECKSUM_ADD(checksum, room->used_capacity);
+    CHECKSUM_ADD(checksum, room->index);
+    return checksum;
+}
+
+/**
  * Computes checksum for all rooms based on core room properties.
  * @return The rooms checksum value for multiplayer sync verification.
  */
 static TbBigChecksum compute_rooms_checksum(void)
 {
-    TbBigChecksum sum = 0;
+    TbBigChecksum checksum = 0;
     for (struct Room* room = start_rooms; room < end_rooms; room++)
     {
         if (!room_exists(room)) {
             continue;
         }
-        sum += room->slabs_count + room->central_stl_x + room->central_stl_y + room->efficiency + room->used_capacity;
+        CHECKSUM_ADD(checksum, get_room_checksum(room));
     }
-    return sum;
+    return checksum;
 }
 
 /**
@@ -426,11 +450,11 @@ static void log_analyze_room_mismatch_details(void)
             if (client_checksum != host_checksum) {
                 ERRORLOG("    Room INDEX %d MISMATCH - Client: %08lx vs Host: %08lx", i, client_checksum, host_checksum);
                 ERRORLOG("      CLIENT Room[%d]: Kind:%d Owner:%d Pos:(%d,%d) Slabs:%lu Eff:%ld UsedCap:%ld",
-                         i, client_info->kind, client_info->owner,
+                         client_info->index, client_info->kind, client_info->owner,
                          (int)client_info->central_stl_x, (int)client_info->central_stl_y,
                          client_info->slabs_count, client_info->efficiency, client_info->used_capacity);
                 ERRORLOG("      HOST Room[%d]: Kind:%d Owner:%d Pos:(%d,%d) Slabs:%lu Eff:%ld UsedCap:%ld",
-                         i, host_info->kind, host_info->owner,
+                         host_info->index, host_info->kind, host_info->owner,
                          (int)host_info->central_stl_x, (int)host_info->central_stl_y,
                          host_info->slabs_count, host_info->efficiency, host_info->used_capacity);
                 mismatched_count++;
@@ -438,14 +462,14 @@ static void log_analyze_room_mismatch_details(void)
         } else if (host_checksum != 0 && client_checksum == 0) {
             ERRORLOG("    Room INDEX %d MISSING on client - Host had checksum: %08lx", i, host_checksum);
             ERRORLOG("      HOST Room[%d]: Kind:%d Owner:%d Pos:(%d,%d) Slabs:%lu Eff:%ld UsedCap:%ld",
-                     i, host_info->kind, host_info->owner,
+                     host_info->index, host_info->kind, host_info->owner,
                      (int)host_info->central_stl_x, (int)host_info->central_stl_y,
                      host_info->slabs_count, host_info->efficiency, host_info->used_capacity);
             mismatched_count++;
         } else if (host_checksum == 0 && client_checksum != 0) {
             ERRORLOG("    Room INDEX %d EXTRA on client (host has none) - Client checksum: %08lx", i, client_checksum);
             ERRORLOG("      CLIENT Room[%d]: Kind:%d Owner:%d Pos:(%d,%d) Slabs:%lu Eff:%ld UsedCap:%ld",
-                     i, client_info->kind, client_info->owner,
+                     client_info->index, client_info->kind, client_info->owner,
                      (int)client_info->central_stl_x, (int)client_info->central_stl_y,
                      client_info->slabs_count, client_info->efficiency, client_info->used_capacity);
             mismatched_count++;
@@ -456,24 +480,25 @@ static void log_analyze_room_mismatch_details(void)
 }
 
 /**
- * Counts and logs Things in the game by category (for diagnostic purposes, not synchronized).
+ * Counts and logs Things from pre-resync data by category (for diagnostic purposes).
  */
 static void log_things_count_by_category(void)
 {
     int class_counts[THING_CLASSES_COUNT] = {0};
     int total_things = 0;
 
+    // Use pre-resync stored data instead of current game state
     for (int i = 1; i < THINGS_COUNT; i++) {
-        struct Thing* thing = thing_get(i);
-        if (thing_exists(thing)) {
+        struct LogThingDesyncInfo* client_info = &log_pre_resync_checksums.log_individual_thing_info[i];
+        if (client_info->checksum != 0) {
             total_things++;
-            if (thing->class_id < THING_CLASSES_COUNT) {
-                class_counts[thing->class_id]++;
+            if (client_info->class_id < THING_CLASSES_COUNT) {
+                class_counts[client_info->class_id]++;
             }
         }
     }
 
-    char log_buffer[512] = "Things count by category: ";
+    char log_buffer[512] = "Things count by category (pre-resync): ";
     for (int class_id = 0; class_id < THING_CLASSES_COUNT; class_id++) {
         if (class_counts[class_id] > 0) {
             char temp[64];
@@ -554,27 +579,32 @@ short checksums_different(void)
 TbBigChecksum get_thing_checksum(const struct Thing* thing)
 {
     SYNCDBG(18, "Starting");
-    if (!thing_exists(thing))
+    if (!thing_exists(thing)) {
         return 0;
-    TbBigChecksum csum = (ulong)thing->class_id + ((ulong)thing->model << 4) + (ulong)thing->owner;
-    if (thing->class_id == TCls_Creature)
-    {
+    }
+    if (is_non_synchronized_thing_class(thing->class_id)) {
+        return 0;
+    }
+
+    TbBigChecksum checksum = 0;
+    CHECKSUM_ADD(checksum, thing->index);
+    CHECKSUM_ADD(checksum, thing->class_id);
+    CHECKSUM_ADD(checksum, thing->model);
+    CHECKSUM_ADD(checksum, thing->owner);
+    CHECKSUM_ADD(checksum, thing->creation_turn);
+    CHECKSUM_ADD(checksum, thing->mappos.x.val);
+    CHECKSUM_ADD(checksum, thing->mappos.y.val);
+    CHECKSUM_ADD(checksum, thing->mappos.z.val);
+    CHECKSUM_ADD(checksum, thing->health);
+
+    if (thing->class_id == TCls_Creature) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id
-            + (ulong)thing->max_frames + (ulong)thing->current_frame;
+        CHECKSUM_ADD(checksum, cctrl->inst_turn);
+        CHECKSUM_ADD(checksum, cctrl->instance_id);
+        CHECKSUM_ADD(checksum, thing->max_frames);
+        CHECKSUM_ADD(checksum, thing->current_frame);
     }
-    else if (is_non_synchronized_thing_class(thing->class_id))
-    {
-        return 0; // No sync
-    }
-    else
-    {
-        csum += (ulong)thing->mappos.z.val +
-            (ulong)thing->mappos.x.val +
-            (ulong)thing->mappos.y.val +
-            (ulong)thing->health;
-    }
-    return csum * thing->index;
+    return checksum;
 }
 
 // Store current game state checksums before resync occurs
@@ -612,6 +642,7 @@ void store_checksums_for_desync_analysis(void)
             info->pos_y = thing->mappos.y.stl.num;
             info->pos_z = thing->mappos.z.stl.num;
             info->creation_turn = thing->creation_turn;
+            info->index = thing->index;
             info->checksum = get_thing_checksum(thing);
         }
     }
@@ -628,7 +659,8 @@ void store_checksums_for_desync_analysis(void)
             info->slabs_count = room->slabs_count;
             info->efficiency = room->efficiency;
             info->used_capacity = room->used_capacity;
-            info->checksum = room->slabs_count + room->central_stl_x + room->central_stl_y + room->efficiency + room->used_capacity;
+            info->index = room->index;
+            info->checksum = get_room_checksum(room);
         }
     }
 
@@ -696,12 +728,12 @@ static void log_analyze_individual_thing_differences(void)
             if (client_checksum != host_checksum) {
                 ERRORLOG("    Thing INDEX %d MISMATCH - Client: %08lx vs Host: %08lx", i, client_checksum, host_checksum);
                 ERRORLOG("      CLIENT Thing[%d]: %s/%s (%ld,%ld,%ld) seed:%08lx turn:%ld",
-                         i, thing_class_code_name(client_info->class_id),
+                         client_info->index, thing_class_code_name(client_info->class_id),
                          thing_class_and_model_name(client_info->class_id, client_info->model),
                          client_info->pos_x, client_info->pos_y, client_info->pos_z,
                          client_info->random_seed, client_info->creation_turn);
                 ERRORLOG("      HOST Thing[%d]: %s/%s (%ld,%ld,%ld) seed:%08lx turn:%ld",
-                         i, thing_class_code_name(host_info->class_id),
+                         host_info->index, thing_class_code_name(host_info->class_id),
                          thing_class_and_model_name(host_info->class_id, host_info->model),
                          host_info->pos_x, host_info->pos_y, host_info->pos_z,
                          host_info->random_seed, host_info->creation_turn);
@@ -710,7 +742,7 @@ static void log_analyze_individual_thing_differences(void)
         } else if (host_checksum != 0 && client_checksum == 0) {
             ERRORLOG("    Thing INDEX %d MISSING on client - Host had checksum: %08lx", i, host_checksum);
             ERRORLOG("      HOST Thing[%d]: %s/%s (%ld,%ld,%ld) seed:%08lx turn:%ld",
-                     i, thing_class_code_name(host_info->class_id),
+                     host_info->index, thing_class_code_name(host_info->class_id),
                      thing_class_and_model_name(host_info->class_id, host_info->model),
                      host_info->pos_x, host_info->pos_y, host_info->pos_z,
                      host_info->random_seed, host_info->creation_turn);
@@ -718,7 +750,7 @@ static void log_analyze_individual_thing_differences(void)
         } else if (host_checksum == 0 && client_checksum != 0) {
             ERRORLOG("    Thing INDEX %d EXTRA on client (host has none) - Client checksum: %08lx", i, client_checksum);
             ERRORLOG("      CLIENT Thing[%d]: %s/%s (%ld,%ld,%ld) seed:%08lx turn:%ld",
-                     i, thing_class_code_name(client_info->class_id),
+                     client_info->index, thing_class_code_name(client_info->class_id),
                      thing_class_and_model_name(client_info->class_id, client_info->model),
                      client_info->pos_x, client_info->pos_y, client_info->pos_z,
                      client_info->random_seed, client_info->creation_turn);

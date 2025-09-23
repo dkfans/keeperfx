@@ -135,6 +135,7 @@ struct LogThingDesyncInfo {
     MapSubtlCoord pos_y;          // Position Y coordinate
     MapSubtlCoord pos_z;          // Position Z coordinate
     GameTurn creation_turn;       // Turn when thing was created
+    ThingIndex index;             // Thing's index
     TbBigChecksum checksum;       // Thing's computed checksum
 };
 
@@ -147,6 +148,7 @@ struct LogRoomDesyncInfo {
     SlabCodedCoords slabs_count;  // Number of slabs in the room
     long efficiency;              // Room efficiency value
     long used_capacity;           // Current capacity usage
+    RoomIndex index;              // Room's index
     TbBigChecksum checksum;       // Room's computed checksum
 };
 
