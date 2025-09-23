@@ -448,7 +448,7 @@ static void log_analyze_room_mismatch_details(void)
         if (host_checksum != 0 && client_checksum != 0) {
             total_rooms_checked++;
             if (client_checksum != host_checksum) {
-                ERRORLOG("    Room INDEX %d MISMATCH - Client: %08lx vs Host: %08lx", i, client_checksum, host_checksum);
+                ERRORLOG("    Room INDEX %d MISMATCH - Client: %08lx vs Host: %08lx", client_info->index, client_checksum, host_checksum);
                 ERRORLOG("      CLIENT Room[%d]: Kind:%d Owner:%d Pos:(%d,%d) Slabs:%lu Eff:%ld UsedCap:%ld",
                          client_info->index, client_info->kind, client_info->owner,
                          (int)client_info->central_stl_x, (int)client_info->central_stl_y,
@@ -460,14 +460,14 @@ static void log_analyze_room_mismatch_details(void)
                 mismatched_count++;
             }
         } else if (host_checksum != 0 && client_checksum == 0) {
-            ERRORLOG("    Room INDEX %d MISSING on client - Host had checksum: %08lx", i, host_checksum);
+            ERRORLOG("    Room INDEX %d MISSING on client - Host had checksum: %08lx", host_info->index, host_checksum);
             ERRORLOG("      HOST Room[%d]: Kind:%d Owner:%d Pos:(%d,%d) Slabs:%lu Eff:%ld UsedCap:%ld",
                      host_info->index, host_info->kind, host_info->owner,
                      (int)host_info->central_stl_x, (int)host_info->central_stl_y,
                      host_info->slabs_count, host_info->efficiency, host_info->used_capacity);
             mismatched_count++;
         } else if (host_checksum == 0 && client_checksum != 0) {
-            ERRORLOG("    Room INDEX %d EXTRA on client (host has none) - Client checksum: %08lx", i, client_checksum);
+            ERRORLOG("    Room INDEX %d EXTRA on client (host has none) - Client checksum: %08lx", client_info->index, client_checksum);
             ERRORLOG("      CLIENT Room[%d]: Kind:%d Owner:%d Pos:(%d,%d) Slabs:%lu Eff:%ld UsedCap:%ld",
                      client_info->index, client_info->kind, client_info->owner,
                      (int)client_info->central_stl_x, (int)client_info->central_stl_y,
@@ -637,12 +637,14 @@ void store_checksums_for_desync_analysis(void)
             struct LogThingDesyncInfo* info = &log_pre_resync_checksums.log_individual_thing_info[i];
             info->class_id = thing->class_id;
             info->model = thing->model;
+            info->owner = thing->owner;
             info->random_seed = thing->random_seed;
             info->pos_x = thing->mappos.x.stl.num;
             info->pos_y = thing->mappos.y.stl.num;
             info->pos_z = thing->mappos.z.stl.num;
             info->creation_turn = thing->creation_turn;
             info->index = thing->index;
+            info->health = thing->health;
             info->checksum = get_thing_checksum(thing);
         }
     }
@@ -727,33 +729,33 @@ static void log_analyze_individual_thing_differences(void)
         if (host_checksum != 0 && client_checksum != 0) {
             if (client_checksum != host_checksum) {
                 ERRORLOG("    Thing INDEX %d MISMATCH - Client: %08lx vs Host: %08lx", i, client_checksum, host_checksum);
-                ERRORLOG("      CLIENT Thing[%d]: %s/%s (%ld,%ld,%ld) seed:%08lx creation_turn:%ld",
+                ERRORLOG("      CLIENT Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%d seed:%08lx creation_turn:%ld",
                          client_info->index, thing_class_code_name(client_info->class_id),
                          thing_class_and_model_name(client_info->class_id, client_info->model),
-                         client_info->pos_x, client_info->pos_y, client_info->pos_z,
-                         client_info->random_seed, client_info->creation_turn);
-                ERRORLOG("      HOST Thing[%d]: %s/%s (%ld,%ld,%ld) seed:%08lx creation_turn:%ld",
+                         client_info->owner, client_info->pos_x, client_info->pos_y, client_info->pos_z,
+                         client_info->health, client_info->random_seed, client_info->creation_turn);
+                ERRORLOG("      HOST Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%d seed:%08lx creation_turn:%ld",
                          host_info->index, thing_class_code_name(host_info->class_id),
                          thing_class_and_model_name(host_info->class_id, host_info->model),
-                         host_info->pos_x, host_info->pos_y, host_info->pos_z,
-                         host_info->random_seed, host_info->creation_turn);
+                         host_info->owner, host_info->pos_x, host_info->pos_y, host_info->pos_z,
+                         host_info->health, host_info->random_seed, host_info->creation_turn);
                 mismatched_count++;
             }
         } else if (host_checksum != 0 && client_checksum == 0) {
             ERRORLOG("    Thing INDEX %d MISSING on client - Host had checksum: %08lx", i, host_checksum);
-            ERRORLOG("      HOST Thing[%d]: %s/%s (%ld,%ld,%ld) seed:%08lx creation_turn:%ld",
+            ERRORLOG("      HOST Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%d seed:%08lx creation_turn:%ld",
                      host_info->index, thing_class_code_name(host_info->class_id),
                      thing_class_and_model_name(host_info->class_id, host_info->model),
-                     host_info->pos_x, host_info->pos_y, host_info->pos_z,
-                     host_info->random_seed, host_info->creation_turn);
+                     host_info->owner, host_info->pos_x, host_info->pos_y, host_info->pos_z,
+                     host_info->health, host_info->random_seed, host_info->creation_turn);
             mismatched_count++;
         } else if (host_checksum == 0 && client_checksum != 0) {
             ERRORLOG("    Thing INDEX %d EXTRA on client (host has none) - Client checksum: %08lx", i, client_checksum);
-            ERRORLOG("      CLIENT Thing[%d]: %s/%s (%ld,%ld,%ld) seed:%08lx creation_turn:%ld",
+            ERRORLOG("      CLIENT Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%d seed:%08lx creation_turn:%ld",
                      client_info->index, thing_class_code_name(client_info->class_id),
                      thing_class_and_model_name(client_info->class_id, client_info->model),
-                     client_info->pos_x, client_info->pos_y, client_info->pos_z,
-                     client_info->random_seed, client_info->creation_turn);
+                     client_info->owner, client_info->pos_x, client_info->pos_y, client_info->pos_z,
+                     client_info->health, client_info->random_seed, client_info->creation_turn);
             mismatched_count++;
         }
     }
