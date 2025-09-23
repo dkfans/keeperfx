@@ -47,7 +47,6 @@ TbBool is_non_synchronized_thing_class(unsigned char class_id)
     return (class_id == TCls_EffectElem) || (class_id == TCls_AmbientSnd) || (class_id == TCls_Effect);
 }
 
-
 static struct Thing *allocate_thing(enum ThingAllocationPool pool_type, const char *func_name)
 {
     unsigned short *free_list;
@@ -84,7 +83,6 @@ static struct Thing *allocate_thing(enum ThingAllocationPool pool_type, const ch
     return thing;
 }
 
-
 struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char *func_name)
 {
     if (is_non_synchronized_thing_class(class_id)) {
@@ -95,7 +93,6 @@ struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char
                 delete_thing_structure(old_effect, 0);
                 return allocate_free_thing_structure_f(class_id, func_name);
             }
-            show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create unsynced thing, no free slots.");
             return INVALID_THING;
         }
         return allocate_thing(ThingAllocation_Unsynced, func_name);
@@ -104,16 +101,20 @@ struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char
     }
 }
 
-
 TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
 {
     if (is_non_synchronized_thing_class(class_id)) {
+        // Check if we have free unsynced slots
         if (game.unsynced_free_things_start_index < UNSYNCED_THINGS_COUNT) {
             return true;
         }
-        // Can still allocate if we can delete effects
-        TbBool can_delete_effects = (game.thing_lists[TngList_EffectElems].index > 0);
-        return can_delete_effects;
+        // No free slots - check if we can delete an old effect to make room
+        if (game.thing_lists[TngList_EffectElems].index > 0) {
+            return true;
+        }
+        // No free allocation space at all
+        show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create unsynced thing, no free slots.");
+        return false;
     }
 
     // For synced things: check if free slots remain
