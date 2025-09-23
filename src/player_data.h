@@ -208,7 +208,7 @@ struct PlayerInfo {
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
     /** Player instance, from PlayerInstanceNum enum. */
     unsigned char instance_num;
-    unsigned long instance_remain_rurns;
+    unsigned long instance_remain_turns;
     /** If view mode is temporarily covered by another, the original mode which is to be restored later will be saved here.*/
     char view_mode_restore;
     long dungeon_camera_zoom;

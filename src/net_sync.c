@@ -300,7 +300,7 @@ static TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
     {
         struct Coord3d* mappos = &(player->acamera->mappos);
         TbBigChecksum checksum = 0;
-        CHECKSUM_ADD(checksum, player->instance_remain_rurns);
+        CHECKSUM_ADD(checksum, player->instance_remain_turns);
         CHECKSUM_ADD(checksum, player->instance_num);
         CHECKSUM_ADD(checksum, mappos->x.val);
         CHECKSUM_ADD(checksum, mappos->y.val);
