@@ -130,12 +130,28 @@ struct Configs {
 struct LogThingDesyncInfo {
     ThingClass class_id;          // Type of thing (creature, object, etc.)
     ThingModel model;             // Model within the class
+    PlayerNumber owner;           // Owner player of the thing
     TbBigChecksum random_seed;    // Thing's random seed
     MapSubtlCoord pos_x;          // Position X coordinate
     MapSubtlCoord pos_y;          // Position Y coordinate
     MapSubtlCoord pos_z;          // Position Z coordinate
     GameTurn creation_turn;       // Turn when thing was created
+    ThingIndex index;             // Thing's index
+    HitPoints health;             // Thing's health
     TbBigChecksum checksum;       // Thing's computed checksum
+};
+
+// Structure to store detailed room information for desync analysis
+struct LogRoomDesyncInfo {
+    RoomKind kind;                // Type of room (temple, lair, etc.)
+    PlayerNumber owner;           // Owner player of the room
+    MapSubtlCoord central_stl_x;  // Central position X coordinate
+    MapSubtlCoord central_stl_y;  // Central position Y coordinate
+    SlabCodedCoords slabs_count;  // Number of slabs in the room
+    long efficiency;              // Room efficiency value
+    long used_capacity;           // Current capacity usage
+    RoomIndex index;              // Room's index
+    TbBigChecksum checksum;       // Room's computed checksum
 };
 
 struct Game {
@@ -348,6 +364,9 @@ struct Game {
 
         // Individual Thing detailed info for per-Thing desync analysis
         struct LogThingDesyncInfo host_thing_info[THINGS_COUNT];  // Host's detailed Thing information
+
+        // Individual Room detailed info for per-Room desync analysis
+        struct LogRoomDesyncInfo host_room_info[ROOMS_COUNT + 1];     // Host's detailed Room information
 
         TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
     } desync_diagnostics;
