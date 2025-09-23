@@ -44,8 +44,6 @@
 extern "C" {
 #endif
 
-extern const char *thing_class_code_name(ThingClass class_id);
-extern const char *thing_class_and_model_name(ThingClass class_id, ThingModel model);
 /******************************************************************************/
 struct Boing {
   unsigned char active_panel_menu_index;
@@ -97,6 +95,7 @@ static struct {
     TbBigChecksum log_player_checksums[PLAYERS_COUNT];
     struct LogDetailedThingChecksums log_things_detailed;
     struct LogThingDesyncInfo log_individual_thing_info[THINGS_COUNT];
+    struct LogRoomDesyncInfo log_individual_room_info[ROOMS_COUNT + 1];
     TbBool log_is_stored;
 } log_pre_resync_checksums = {0};
 
@@ -128,6 +127,8 @@ static void populate_desync_diagnostics(void)
     // Copy stored pre-resync individual Thing detailed info for detailed analysis
     memcpy(game.desync_diagnostics.host_thing_info, log_pre_resync_checksums.log_individual_thing_info, sizeof(game.desync_diagnostics.host_thing_info));
 
+    // Copy stored pre-resync individual Room detailed info for detailed analysis
+    memcpy(game.desync_diagnostics.host_room_info, log_pre_resync_checksums.log_individual_room_info, sizeof(game.desync_diagnostics.host_room_info));
 
     game.desync_diagnostics.has_desync_diagnostics = true;
 }
@@ -290,16 +291,23 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     return CLS_CONTINUE;
 }
 
+// Add value to checksum using simple hash algorithm
+#define CHECKSUM_ADD(checksum, value) checksum = checksum * 31 + (ulong)(value)
+
 static TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
 {
-    TbBigChecksum sum = 0;
     if (((player->allocflags & PlaF_CompCtrl) == 0) && (player->acamera != NULL))
     {
         struct Coord3d* mappos = &(player->acamera->mappos);
-        sum += (TbBigChecksum)player->instance_remain_rurns + (TbBigChecksum)player->instance_num;
-        sum += (TbBigChecksum)mappos->x.val + (TbBigChecksum)mappos->z.val + (TbBigChecksum)mappos->y.val;
+        TbBigChecksum checksum = 0;
+        CHECKSUM_ADD(checksum, player->instance_remain_turns);
+        CHECKSUM_ADD(checksum, player->instance_num);
+        CHECKSUM_ADD(checksum, mappos->x.val);
+        CHECKSUM_ADD(checksum, mappos->y.val);
+        CHECKSUM_ADD(checksum, mappos->z.val);
+        return checksum;
     }
-    return sum;
+    return 0;
 }
 
 /**
@@ -387,20 +395,122 @@ static TbBigChecksum compute_things_checksum(void)
 }
 
 /**
+ * Computes checksum for a single room based on core room properties.
+ * @param room The room to compute checksum for.
+ * @return The room checksum value.
+ */
+static TbBigChecksum get_room_checksum(const struct Room* room)
+{
+    TbBigChecksum checksum = 0;
+    CHECKSUM_ADD(checksum, room->slabs_count);
+    CHECKSUM_ADD(checksum, room->central_stl_x);
+    CHECKSUM_ADD(checksum, room->central_stl_y);
+    CHECKSUM_ADD(checksum, room->efficiency);
+    CHECKSUM_ADD(checksum, room->used_capacity);
+    CHECKSUM_ADD(checksum, room->index);
+    return checksum;
+}
+
+/**
  * Computes checksum for all rooms based on core room properties.
  * @return The rooms checksum value for multiplayer sync verification.
  */
 static TbBigChecksum compute_rooms_checksum(void)
 {
-    TbBigChecksum sum = 0;
+    TbBigChecksum checksum = 0;
     for (struct Room* room = start_rooms; room < end_rooms; room++)
     {
         if (!room_exists(room)) {
             continue;
         }
-        sum += room->slabs_count + room->central_stl_x + room->central_stl_y + room->efficiency + room->used_capacity;
+        CHECKSUM_ADD(checksum, get_room_checksum(room));
     }
-    return sum;
+    return checksum;
+}
+
+/**
+ * Analyzes room mismatch by comparing client pre-resync rooms with host pre-resync rooms.
+ * Called when overall room checksum mismatch is detected.
+ */
+static void log_analyze_room_mismatch_details(void)
+{
+    ERRORLOG("  Breaking down ROOMS MISMATCH by individual room:");
+
+    int mismatched_count = 0;
+    int total_rooms_checked = 0;
+
+    for (int i = 0; i < ROOMS_COUNT; i++) {
+        struct LogRoomDesyncInfo* host_info = &game.desync_diagnostics.host_room_info[i];
+        struct LogRoomDesyncInfo* client_info = &log_pre_resync_checksums.log_individual_room_info[i];
+        TbBigChecksum host_checksum = host_info->checksum;
+        TbBigChecksum client_checksum = client_info->checksum;
+
+        if (host_checksum != 0 && client_checksum != 0) {
+            total_rooms_checked++;
+            if (client_checksum != host_checksum) {
+                ERRORLOG("    Room INDEX %d MISMATCH - Client: %08lx vs Host: %08lx", client_info->index, client_checksum, host_checksum);
+                ERRORLOG("      CLIENT Room[%d]: Kind:%d Owner:%d Pos:(%d,%d) Slabs:%lu Eff:%ld UsedCap:%ld",
+                         client_info->index, client_info->kind, client_info->owner,
+                         (int)client_info->central_stl_x, (int)client_info->central_stl_y,
+                         client_info->slabs_count, client_info->efficiency, client_info->used_capacity);
+                ERRORLOG("      HOST Room[%d]: Kind:%d Owner:%d Pos:(%d,%d) Slabs:%lu Eff:%ld UsedCap:%ld",
+                         host_info->index, host_info->kind, host_info->owner,
+                         (int)host_info->central_stl_x, (int)host_info->central_stl_y,
+                         host_info->slabs_count, host_info->efficiency, host_info->used_capacity);
+                mismatched_count++;
+            }
+        } else if (host_checksum != 0 && client_checksum == 0) {
+            ERRORLOG("    Room INDEX %d MISSING on client - Host had checksum: %08lx", host_info->index, host_checksum);
+            ERRORLOG("      HOST Room[%d]: Kind:%d Owner:%d Pos:(%d,%d) Slabs:%lu Eff:%ld UsedCap:%ld",
+                     host_info->index, host_info->kind, host_info->owner,
+                     (int)host_info->central_stl_x, (int)host_info->central_stl_y,
+                     host_info->slabs_count, host_info->efficiency, host_info->used_capacity);
+            mismatched_count++;
+        } else if (host_checksum == 0 && client_checksum != 0) {
+            ERRORLOG("    Room INDEX %d EXTRA on client (host has none) - Client checksum: %08lx", client_info->index, client_checksum);
+            ERRORLOG("      CLIENT Room[%d]: Kind:%d Owner:%d Pos:(%d,%d) Slabs:%lu Eff:%ld UsedCap:%ld",
+                     client_info->index, client_info->kind, client_info->owner,
+                     (int)client_info->central_stl_x, (int)client_info->central_stl_y,
+                     client_info->slabs_count, client_info->efficiency, client_info->used_capacity);
+            mismatched_count++;
+        }
+    }
+
+    ERRORLOG("  Room analysis: %d mismatches found out of %d total rooms", mismatched_count, total_rooms_checked);
+}
+
+/**
+ * Counts and logs Things from pre-resync data by category (for diagnostic purposes).
+ */
+static void log_things_count_by_category(void)
+{
+    int class_counts[THING_CLASSES_COUNT] = {0};
+    int total_things = 0;
+
+    // Use pre-resync stored data instead of current game state
+    for (int i = 1; i < THINGS_COUNT; i++) {
+        struct LogThingDesyncInfo* client_info = &log_pre_resync_checksums.log_individual_thing_info[i];
+        if (client_info->checksum != 0) {
+            total_things++;
+            if (client_info->class_id < THING_CLASSES_COUNT) {
+                class_counts[client_info->class_id]++;
+            }
+        }
+    }
+
+    char log_buffer[512] = "Things count by category (pre-resync): ";
+    for (int class_id = 0; class_id < THING_CLASSES_COUNT; class_id++) {
+        if (class_counts[class_id] > 0) {
+            char temp[64];
+            snprintf(temp, sizeof(temp), "%s:%d ", thing_class_code_name(class_id), class_counts[class_id]);
+            strcat(log_buffer, temp);
+        }
+    }
+    char temp[32];
+    snprintf(temp, sizeof(temp), "TOTAL:%d", total_things);
+    strcat(log_buffer, temp);
+
+    ERRORLOG("%s", log_buffer);
 }
 
 
@@ -469,27 +579,32 @@ short checksums_different(void)
 TbBigChecksum get_thing_checksum(const struct Thing* thing)
 {
     SYNCDBG(18, "Starting");
-    if (!thing_exists(thing))
+    if (!thing_exists(thing)) {
         return 0;
-    TbBigChecksum csum = (ulong)thing->class_id + ((ulong)thing->model << 4) + (ulong)thing->owner;
-    if (thing->class_id == TCls_Creature)
-    {
+    }
+    if (is_non_synchronized_thing_class(thing->class_id)) {
+        return 0;
+    }
+
+    TbBigChecksum checksum = 0;
+    CHECKSUM_ADD(checksum, thing->index);
+    CHECKSUM_ADD(checksum, thing->class_id);
+    CHECKSUM_ADD(checksum, thing->model);
+    CHECKSUM_ADD(checksum, thing->owner);
+    CHECKSUM_ADD(checksum, thing->creation_turn);
+    CHECKSUM_ADD(checksum, thing->mappos.x.val);
+    CHECKSUM_ADD(checksum, thing->mappos.y.val);
+    CHECKSUM_ADD(checksum, thing->mappos.z.val);
+    CHECKSUM_ADD(checksum, thing->health);
+
+    if (thing->class_id == TCls_Creature) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id
-            + (ulong)thing->max_frames + (ulong)thing->current_frame;
+        CHECKSUM_ADD(checksum, cctrl->inst_turn);
+        CHECKSUM_ADD(checksum, cctrl->instance_id);
+        CHECKSUM_ADD(checksum, thing->max_frames);
+        CHECKSUM_ADD(checksum, thing->current_frame);
     }
-    else if (is_non_synchronized_thing_class(thing->class_id))
-    {
-        return 0; // No sync
-    }
-    else
-    {
-        csum += (ulong)thing->mappos.z.val +
-            (ulong)thing->mappos.x.val +
-            (ulong)thing->mappos.y.val +
-            (ulong)thing->health;
-    }
-    return csum * thing->index;
+    return checksum;
 }
 
 // Store current game state checksums before resync occurs
@@ -522,12 +637,32 @@ void store_checksums_for_desync_analysis(void)
             struct LogThingDesyncInfo* info = &log_pre_resync_checksums.log_individual_thing_info[i];
             info->class_id = thing->class_id;
             info->model = thing->model;
+            info->owner = thing->owner;
             info->random_seed = thing->random_seed;
             info->pos_x = thing->mappos.x.stl.num;
             info->pos_y = thing->mappos.y.stl.num;
             info->pos_z = thing->mappos.z.stl.num;
             info->creation_turn = thing->creation_turn;
+            info->index = thing->index;
+            info->health = thing->health;
             info->checksum = get_thing_checksum(thing);
+        }
+    }
+
+    // Store individual Room detailed info for detailed desync analysis
+    memset(log_pre_resync_checksums.log_individual_room_info, 0, sizeof(log_pre_resync_checksums.log_individual_room_info));
+    for (struct Room* room = start_rooms; room < end_rooms; room++) {
+        if (room_exists(room)) {
+            struct LogRoomDesyncInfo* info = &log_pre_resync_checksums.log_individual_room_info[room->index];
+            info->kind = room->kind;
+            info->owner = room->owner;
+            info->central_stl_x = room->central_stl_x;
+            info->central_stl_y = room->central_stl_y;
+            info->slabs_count = room->slabs_count;
+            info->efficiency = room->efficiency;
+            info->used_capacity = room->used_capacity;
+            info->index = room->index;
+            info->checksum = get_room_checksum(room);
         }
     }
 
@@ -573,7 +708,6 @@ static void log_analyze_things_mismatch_details(void)
 // Logs specific Things that have different checksums to pinpoint desync sources
 static void log_analyze_individual_thing_differences(void)
 {
-
     int mismatched_count = 0;
 
     ERRORLOG("  Analyzing individual Thing checksums:");
@@ -594,34 +728,34 @@ static void log_analyze_individual_thing_differences(void)
 
         if (host_checksum != 0 && client_checksum != 0) {
             if (client_checksum != host_checksum) {
-                ERRORLOG("    Thing[%d] MISMATCH - Client: %08lx vs Host: %08lx", i, client_checksum, host_checksum);
-                ERRORLOG("      CLIENT: %s/%s (%ld,%ld,%ld) seed:%08lx turn:%ld",
-                         thing_class_code_name(client_info->class_id),
+                ERRORLOG("    Thing INDEX %d MISMATCH - Client: %08lx vs Host: %08lx", i, client_checksum, host_checksum);
+                ERRORLOG("      CLIENT Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%ld seed:%08lx creation_turn:%ld",
+                         client_info->index, thing_class_code_name(client_info->class_id),
                          thing_class_and_model_name(client_info->class_id, client_info->model),
-                         client_info->pos_x, client_info->pos_y, client_info->pos_z,
-                         client_info->random_seed, client_info->creation_turn);
-                ERRORLOG("      HOST: %s/%s (%ld,%ld,%ld) seed:%08lx turn:%ld",
-                         thing_class_code_name(host_info->class_id),
+                         client_info->owner, client_info->pos_x, client_info->pos_y, client_info->pos_z,
+                         client_info->health, client_info->random_seed, client_info->creation_turn);
+                ERRORLOG("      HOST Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%ld seed:%08lx creation_turn:%ld",
+                         host_info->index, thing_class_code_name(host_info->class_id),
                          thing_class_and_model_name(host_info->class_id, host_info->model),
-                         host_info->pos_x, host_info->pos_y, host_info->pos_z,
-                         host_info->random_seed, host_info->creation_turn);
+                         host_info->owner, host_info->pos_x, host_info->pos_y, host_info->pos_z,
+                         host_info->health, host_info->random_seed, host_info->creation_turn);
                 mismatched_count++;
             }
         } else if (host_checksum != 0 && client_checksum == 0) {
-            ERRORLOG("    Thing[%d] MISSING on client - Host had checksum: %08lx", i, host_checksum);
-            ERRORLOG("      HOST had: %s/%s (%ld,%ld,%ld) seed:%08lx turn:%ld",
-                     thing_class_code_name(host_info->class_id),
+            ERRORLOG("    Thing INDEX %d MISSING on client - Host had checksum: %08lx", i, host_checksum);
+            ERRORLOG("      HOST Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%ld seed:%08lx creation_turn:%ld",
+                     host_info->index, thing_class_code_name(host_info->class_id),
                      thing_class_and_model_name(host_info->class_id, host_info->model),
-                     host_info->pos_x, host_info->pos_y, host_info->pos_z,
-                     host_info->random_seed, host_info->creation_turn);
+                     host_info->owner, host_info->pos_x, host_info->pos_y, host_info->pos_z,
+                     host_info->health, host_info->random_seed, host_info->creation_turn);
             mismatched_count++;
         } else if (host_checksum == 0 && client_checksum != 0) {
-            ERRORLOG("    Thing[%d] EXTRA on client (host has none) - Client checksum: %08lx", i, client_checksum);
-            ERRORLOG("      CLIENT had: %s/%s (%ld,%ld,%ld) seed:%08lx turn:%ld",
-                     thing_class_code_name(client_info->class_id),
+            ERRORLOG("    Thing INDEX %d EXTRA on client (host has none) - Client checksum: %08lx", i, client_checksum);
+            ERRORLOG("      CLIENT Thing[%d]: %s/%s owner:%d (%ld,%ld,%ld) health:%ld seed:%08lx creation_turn:%ld",
+                     client_info->index, thing_class_code_name(client_info->class_id),
                      thing_class_and_model_name(client_info->class_id, client_info->model),
-                     client_info->pos_x, client_info->pos_y, client_info->pos_z,
-                     client_info->random_seed, client_info->creation_turn);
+                     client_info->owner, client_info->pos_x, client_info->pos_y, client_info->pos_z,
+                     client_info->health, client_info->random_seed, client_info->creation_turn);
             mismatched_count++;
         }
     }
@@ -636,6 +770,9 @@ void log_analyze_desync_diagnostics_from_host(void)
 {
     ERRORLOG("=== DESYNC ANALYSIS: Client (turn %ld) vs Host (turn %ld) ===", log_pre_resync_checksums.log_gameturn, game.desync_diagnostics.desync_turn);
 
+    // Log Things count by category
+    log_things_count_by_category();
+
     // Compare client pre-resync state with host pre-resync state from diagnostic data
     log_checksum_comparison("Things", log_pre_resync_checksums.log_things_sum, game.desync_diagnostics.host_things_sum);
     if (log_pre_resync_checksums.log_things_sum != game.desync_diagnostics.host_things_sum) {
@@ -644,6 +781,9 @@ void log_analyze_desync_diagnostics_from_host(void)
     }
 
     log_checksum_comparison("Rooms", log_pre_resync_checksums.log_rooms_sum, game.desync_diagnostics.host_rooms_sum);
+    if (log_pre_resync_checksums.log_rooms_sum != game.desync_diagnostics.host_rooms_sum) {
+        log_analyze_room_mismatch_details();
+    }
 
     // Check each random seed individually
     log_checksum_comparison("GAME_RANDOM seed", log_pre_resync_checksums.log_action_random_seed, game.desync_diagnostics.host_action_random_seed);
