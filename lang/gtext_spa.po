@@ -6019,19 +6019,19 @@ msgstr ""
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr ""
+msgstr "Trampa Demolición"
 
 #: guitext:1037
 msgctxt "Trap description"
 msgid ""
 "Demolition Trap: An explosive with unrivaled destructive power."
-msgstr ""
+msgstr "Trampa Demolición: Un explosivo con un poder destructivo inigualable."
 
 #: guitext:1038
 msgctxt "Trap description"
 msgid ""
 "Sentry Trap: Stands guard and shoots at enemies in sight."
-msgstr ""
+msgstr "Trampa Centinela: Vigila y dispara a los enemigos que ve."
 
 #: guitext:1039
 msgctxt "Trap names"
@@ -6041,27 +6041,27 @@ msgstr "Trampa de Balista"
 #: guitext:1040
 msgctxt "Trap description"
 msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
-msgstr "Trampa de Balista: vigila y dispara a los enemigos que vea."
+msgstr "Trampa de Balista: Vigila y dispara a los enemigos que ve."
 
 #: guitext:1041
 msgctxt "Creature name"
 msgid "Spirit"
-msgstr ""
+msgstr "Espíritu"
 
 #: guitext:1042
 msgctxt "Creature name"
 msgid "Druid"
-msgstr ""
+msgstr "Druida"
 
 #: guitext:1043
 msgctxt "Creature name"
 msgid "Time Mage"
-msgstr ""
+msgstr "Mago del Tiempo"
 
 #: guitext:1044
 msgctxt "Creature name"
 msgid "Bird"
-msgstr ""
+msgstr "Pájaro"
 
 #: guitext:1045
 msgctxt "Creature name"
@@ -6071,7 +6071,7 @@ msgstr "Dama"
 #: guitext:1046
 msgctxt "Creature name"
 msgid "Spiderling"
-msgstr ""
+msgstr "Arachnecito"
 
 #: guitext:1047
 msgctxt "Creature name"

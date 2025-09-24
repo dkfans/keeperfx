@@ -6850,7 +6850,7 @@ msgstr ""
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr ""
+msgstr "Sloop-val"
 
 #: guitext:1037
 msgctxt "Trap description"

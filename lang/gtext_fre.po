@@ -5562,12 +5562,12 @@ msgstr "Baril Explosif"
 
 #: guitext:1037
 msgctxt "Trap description"
-msgid "Description du piègeDemolition Trap: An explosive with unrivaled destructive power."
+msgid "Demolition Trap: An explosive with unrivaled destructive power."
 msgstr "Baril Explosif: Un explosif d'une puissance destructrice sans égale."
 
 #: guitext:1038
 msgctxt "Trap description"
-msgid "Description du piègeSentry Trap: Stands guard and shoots at enemies in sight."
+msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "Piège Sentinelle: Monte la garde et tire sur les ennemies à vue."
 
 #: guitext:1039
