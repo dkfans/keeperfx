@@ -172,7 +172,7 @@ enum CreatureAttackType {
 
 enum CreatureSpawnType {
     SpwnT_None = 0,
-    SpwnT_Default, 
+    SpwnT_Default,
     SpwnT_Jump,
     SpwnT_Fall,
     SpwnT_Initialize
@@ -477,8 +477,6 @@ CreatureJob get_job_which_qualify_for_room(RoomKind rkind, unsigned long qualify
 CreatureJob get_job_which_qualify_for_room_role(RoomRole rrole, unsigned long qualify_flags, unsigned long prevent_flags);
 const char *creature_job_code_name(CreatureJob job_flag);
 struct Thing* thing_death_flesh_explosion(struct Thing* thing);
-/******************************************************************************/
-const char *attack_type_job_code_name(CrAttackType attack_type);
 /******************************************************************************/
 #ifdef __cplusplus
 }

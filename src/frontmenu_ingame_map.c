@@ -50,6 +50,10 @@
 #include "gui_draw.h"
 #include "post_inc.h"
 
+// Local constants
+#define ANGLE_MASK_4 8188    // Angle mask rounded to multiples of 4 (0x1FFC)
+#define MAP_ARROW_DISTANCE -1536    // Distance/scale factor for map arrow drawing
+
 /******************************************************************************/
 struct InterpMinimap
 {
@@ -290,8 +294,8 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
                 // Now rotate the coordinates to receive minimap points
                 long mapos_x;
                 long mapos_y;
-                mapos_x = (zmpos_x * LbCosL(interpolated_cam_orient_a) + zmpos_y * LbSinL(interpolated_cam_orient_a)) >> 16;
-                mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
+                mapos_x = (zmpos_x * LbCosL(interpolated_cam_rotation_angle_x) + zmpos_y * LbSinL(interpolated_cam_rotation_angle_x)) >> 16;
+                mapos_y = (zmpos_y * LbCosL(interpolated_cam_rotation_angle_x) - zmpos_x * LbSinL(interpolated_cam_rotation_angle_x)) >> 16;
                 draw_call_to_arms_circle(thing->owner, 0, 0, mapos_x, mapos_y, zoom);
                 n++;
             }
@@ -343,12 +347,12 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
             interpolate_minimap_thing(thing, cam);
             long zmpos_x = thing->interp_minimap_pos_x / scaled_zoom;
             long zmpos_y = thing->interp_minimap_pos_y / scaled_zoom;
-            
+
             // Now rotate the coordinates to receive minimap points
             RealScreenCoord mapos_x;
             RealScreenCoord mapos_y;
-            mapos_x = (zmpos_x * LbCosL(interpolated_cam_orient_a) + zmpos_y * LbSinL(interpolated_cam_orient_a)) >> 16;
-            mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
+            mapos_x = (zmpos_x * LbCosL(interpolated_cam_rotation_angle_x) + zmpos_y * LbSinL(interpolated_cam_rotation_angle_x)) >> 16;
+            mapos_y = (zmpos_y * LbCosL(interpolated_cam_rotation_angle_x) - zmpos_x * LbSinL(interpolated_cam_rotation_angle_x)) >> 16;
             RealScreenCoord basepos;
             basepos = MapDiagonalLength/2;
             // Do the drawing
@@ -423,15 +427,15 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 interpolate_minimap_thing(thing, cam);
                 long zmpos_x = thing->interp_minimap_pos_x / scaled_zoom;
                 long zmpos_y = thing->interp_minimap_pos_y / scaled_zoom;
-                
+
                 long mapos_x;
                 long mapos_y;
                 // Now rotate the coordinates to receive minimap points
-                mapos_x = (zmpos_x * LbCosL(interpolated_cam_orient_a) + zmpos_y * LbSinL(interpolated_cam_orient_a)) >> 16;
-                mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
+                mapos_x = (zmpos_x * LbCosL(interpolated_cam_rotation_angle_x) + zmpos_y * LbSinL(interpolated_cam_rotation_angle_x)) >> 16;
+                mapos_y = (zmpos_y * LbCosL(interpolated_cam_rotation_angle_x) - zmpos_x * LbSinL(interpolated_cam_rotation_angle_x)) >> 16;
                 RealScreenCoord basepos;
                 basepos = MapDiagonalLength/2;
-                
+
                 // Do the drawing
                 if (((game.play_gameturn % (4 * gui_blink_rate)) / gui_blink_rate) == 1) {
                     if (thing_is_special_box(thing) || thing_is_spellbook(thing))
@@ -476,7 +480,7 @@ void panel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord bas
         panel_map_draw_pixel(mapos_x + basepos, mapos_y + basepos, col);
         return;
     }
-    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);     
+    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
     for (int i = 0; i < pixel_end; i++)
     {
         panel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
@@ -566,8 +570,8 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 // Now rotate the coordinates to receive minimap points
                 long mapos_x;
                 long mapos_y;
-                mapos_x = (zmpos_x * LbCosL(interpolated_cam_orient_a) + zmpos_y * LbSinL(interpolated_cam_orient_a)) >> 16;
-                mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
+                mapos_x = (zmpos_x * LbCosL(interpolated_cam_rotation_angle_x) + zmpos_y * LbSinL(interpolated_cam_rotation_angle_x)) >> 16;
+                mapos_y = (zmpos_y * LbCosL(interpolated_cam_rotation_angle_x) - zmpos_x * LbSinL(interpolated_cam_rotation_angle_x)) >> 16;
                 RealScreenCoord basepos;
                 basepos = MapDiagonalLength/2;
                 // Do the drawing
@@ -628,8 +632,8 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
 
                     long mapos_x;
                     long mapos_y;
-                    mapos_x = (zmpos_x * LbCosL(interpolated_cam_orient_a) + zmpos_y * LbSinL(interpolated_cam_orient_a)) >> 16;
-                    mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
+                    mapos_x = (zmpos_x * LbCosL(interpolated_cam_rotation_angle_x) + zmpos_y * LbSinL(interpolated_cam_rotation_angle_x)) >> 16;
+                    mapos_y = (zmpos_y * LbCosL(interpolated_cam_rotation_angle_x) - zmpos_x * LbSinL(interpolated_cam_rotation_angle_x)) >> 16;
                     RealScreenCoord basepos;
                     basepos = MapDiagonalLength/2;
                     // Do the drawing
@@ -679,19 +683,19 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     // Now rotate the coordinates to receive minimap points
     RealScreenCoord mapos_x;
     RealScreenCoord mapos_y;
-    mapos_x = (zmpos_x * LbCosL(interpolated_cam_orient_a) + zmpos_y * LbSinL(interpolated_cam_orient_a)) >> 16;
-    mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
+    mapos_x = (zmpos_x * LbCosL(interpolated_cam_rotation_angle_x) + zmpos_y * LbSinL(interpolated_cam_rotation_angle_x)) >> 16;
+    mapos_y = (zmpos_y * LbCosL(interpolated_cam_rotation_angle_x) - zmpos_x * LbSinL(interpolated_cam_rotation_angle_x)) >> 16;
     RealScreenCoord basepos;
     basepos = MapDiagonalLength/2;
     // Do the drawing
     long dist;
     long angle;
     dist = get_distance_xy(basepos, basepos, mapos_x + basepos, mapos_y + basepos);
-    angle = -(LbArcTanAngle(mapos_x, mapos_y) & LbFPMath_AngleMask) & 0x1FFC;
+    angle = -(LbArcTanAngle(mapos_x, mapos_y) & ANGLE_MASK) & ANGLE_MASK_4;
     int delta_x;
     int delta_y;
-    delta_x = scale_ui_value(-1536) * LbSinL(angle) >> 16;
-    delta_y = scale_ui_value(-1536) * LbCosL(angle) >> 16;
+    delta_x = scale_ui_value(MAP_ARROW_DISTANCE) * LbSinL(angle) >> 16;
+    delta_y = scale_ui_value(MAP_ARROW_DISTANCE) * LbCosL(angle) >> 16;
     long frame;
     frame = (game.play_gameturn & 3) + 1;
     int draw_x;
@@ -846,7 +850,7 @@ static void do_map_rotate_stuff(long relpos_x, long relpos_y, long *stl_x, long 
     const struct Camera *cam;
     cam = player->acamera;
     int angle;
-    angle = interpolated_cam_orient_a & 0x1FFC;
+    angle = interpolated_cam_rotation_angle_x & ANGLE_MASK_4;
     int shift_x;
     int shift_y;
     shift_x = -LbSinL(angle);
@@ -994,6 +998,8 @@ void setup_background(long units_per_px)
     {
         for (w = MapShapeStart[h]; w < MapShapeEnd[h]; w++)
         {
+            if (w < 0) continue;
+
             TbPixel orig;
             orig = out[w];
             out[w] = 255;
@@ -1184,7 +1190,7 @@ void update_panel_colors(void)
                 n += PnC_End;
             }
         }
-        
+
         if ((highlight >= 0) && (NumBackColours > 0))
         {
             int i;
@@ -1204,7 +1210,7 @@ void update_panel_colors(void)
                 n += PnC_End;
             }
         }
-        
+
         PrevRoomHighlight = highlight;
     }
 
@@ -1267,18 +1273,18 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     update_panel_colors();
     struct PlayerInfo *player = get_my_player();
     struct Camera *cam = player->acamera;
-    
+
     if ((cam == NULL) || (MapDiagonalLength < 1))
         return;
     if (game.play_gameturn <= 1) {reset_all_minimap_interpolation = true;} //Fixes initial minimap frame being purple
-    
+
     long shift_x;
     long shift_y;
     long shift_stl_x;
     long shift_stl_y;
     {
         int angle;
-        angle = interpolated_cam_orient_a & 0x1FFC; //cam->orient_a
+        angle = interpolated_cam_rotation_angle_x & ANGLE_MASK_4; //cam->rotation_angle_x
         shift_x = -LbSinL(angle) * zoom / 256;
         shift_y = LbCosL(angle) * zoom / 256;
         long current_minimap_x = (cam->mappos.x.stl.num << 16);

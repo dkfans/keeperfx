@@ -1239,7 +1239,7 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
     struct CreatureControl* cctrl;
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
     if (!i_can_allocate_free_control_structure()
-     || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+     || !i_can_allocate_free_thing_structure(TCls_Creature)) {
         return Lb_FAIL;
     }
     if (!creature_count_below_map_limit(0))
@@ -1275,17 +1275,17 @@ static TbResult magic_use_power_imp(PowerKind power_kind, PlayerNumber plyr_idx,
         cctrl->summon_spl_idx = 0;
         remove_first_creature(thing); //temporary units are not real creatures
         cctrl->unsummon_turn = game.play_gameturn + powerst->duration;
-        set_flag(cctrl->flgfield_2, TF2_SummonedCreature);
+        set_flag(cctrl->creature_state_flags, TF2_SummonedCreature);
     }
     if (powerst->strength[power_level] != 0)
     {
         creature_change_multiple_levels(thing, powerst->strength[power_level]);
     }
-    thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
-    thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.x.val += THING_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.y.val += THING_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 160;
     thing->state_flags |= TF1_PushAdd;
-    thing->move_angle_xy = 0;
+    thing->move_angle_xy = ANGLE_NORTH;
     initialise_thing_state(thing, CrSt_ImpBirth);
 
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -1299,7 +1299,7 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
     struct PowerConfigStats *powerst = get_power_model_stats(power_kind);
     struct Dungeon* dungeon;
     if (!i_can_allocate_free_control_structure()
-     || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+     || !i_can_allocate_free_thing_structure(TCls_Creature)) {
         return Lb_FAIL;
     }
     if (!creature_count_below_map_limit(0))
@@ -1334,7 +1334,7 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
         cctrl->summon_spl_idx = 0;
         remove_first_creature(thing); //temporary units are not real creatures
         cctrl->unsummon_turn = game.play_gameturn + powerst->duration;
-        set_flag(cctrl->flgfield_2, TF2_SummonedCreature);
+        set_flag(cctrl->creature_state_flags, TF2_SummonedCreature);
     }
     initialise_thing_state(thing, CrSt_CreatureHeroEntering);
     thing->rendering_flags |= TRF_Invisible;
@@ -1343,7 +1343,7 @@ static TbResult magic_use_power_tunneller(PowerKind power_kind, PlayerNumber ply
     {
         creature_change_multiple_levels(thing, powerst->strength[power_level]);
     }
-    
+
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     play_creature_sound(thing, CrSnd_Happy, 2, 0);
     return Lb_SUCCESS;
@@ -1397,7 +1397,7 @@ static TbResult magic_use_power_apply_spell(PowerKind power_kind, PlayerNumber p
     if (flag_is_set(spconf->spell_flags, CSAfF_Timebomb))
     { // Only initialise state if spell_idx has 'CSAfF_Timebomb'.
         initialise_thing_state(thing, CrSt_Timebomb);
-    } 
+    }
     return Lb_SUCCESS;
 }
 
@@ -1622,10 +1622,10 @@ TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, 
     setup_person_move_to_coord(creatng, cta_pos, NavRtF_Default);
     creatng->continue_state = CrSt_ArriveAtCallToArms;
     cctrl->called_to_arms = true;
-    if (flag_is_set(cctrl->flgfield_1, CCFlg_NoCompControl))
+    if (flag_is_set(cctrl->creature_control_flags, CCFlg_NoCompControl))
     {
         WARNLOG("The %s index %d is called to arms with no comp control, fixing", thing_model_name(creatng), (int)creatng->index);
-        clear_flag(cctrl->flgfield_1, CCFlg_NoCompControl);
+        clear_flag(cctrl->creature_control_flags, CCFlg_NoCompControl);
     }
     return true;
 }
@@ -1833,7 +1833,7 @@ TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, 
         if (stati->react_to_cta
           && (creature_affected_by_call_to_arms(creatng) || get_chessboard_distance(&creatng->mappos, cta_pos) < range))
         {
-            if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos)) 
+            if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos))
             {
                 creature_mark_if_woken_up(creatng);
                 return true;
@@ -2008,7 +2008,7 @@ TbResult magic_use_power_direct(PlayerNumber plyr_idx, PowerKind pwkind,
     KeepPwrLevel power_level, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
 {
     lua_on_power_cast(plyr_idx, pwkind, power_level, stl_x, stl_y, thing);
-    
+
     const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
     if(powerst->magic_use_func_idx > 0 && magic_use_func_list[powerst->magic_use_func_idx] != NULL)
     {
@@ -2136,7 +2136,7 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
     {
         ret = magic_use_power_direct(plyr_idx,pwkind,power_level,stl_x, stl_y,INVALID_THING, mod_flags);
     }
-        
+
     if (ret == Lb_SUCCESS)
     {
         const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
@@ -2223,6 +2223,9 @@ int get_power_overcharge_level(struct PlayerInfo *player)
     return i;
 }
 
+/**
+ * @return Is it necessary to continue trying the operation of increasing spell level
+ */
 TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
 {
   struct Dungeon *dungeon;
@@ -2238,7 +2241,14 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
   if (powerst->cost[i] <= dungeon->total_money_owned)
   {
     // If we have more money, increase overcharge
-    player->cast_expand_level++;
+    if (((player->cast_expand_level+1) >> 2) <= POWER_MAX_LEVEL)
+    {
+      player->cast_expand_level++;
+    }
+    if (((player->cast_expand_level+1) >> 2) <= POWER_MAX_LEVEL)
+    {
+      return true;
+    }
   } else
   {
     // If we don't have money, decrease the charge
@@ -2252,7 +2262,7 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
     else
       player->cast_expand_level = 0;
   }
-  return (i < POWER_MAX_LEVEL);
+  return false;
 }
 
 /**

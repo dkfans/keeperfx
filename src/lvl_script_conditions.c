@@ -328,9 +328,9 @@ TbBool condition_inactive(long cond_idx)
   return false;
 }
 
-TbBool get_condition_status(unsigned char opkind, long val1, long val2)
+TbBool get_condition_status(unsigned char opkind, long left_value, long right_value)
 {
-  return LbMathOperation(opkind, val1, val2) != 0;
+  return LbMathOperation(opkind, left_value, right_value) != 0;
 }
 
 static void process_condition(struct Condition *condt, int idx)
@@ -407,7 +407,7 @@ static void process_condition(struct Condition *condt, int idx)
             }
         }
     }
-    
+
     SYNCDBG(19,"Condition type %d status %d",(int)condt->variabl_type,(int)new_status);
     set_flag_value(condt->status, 0x01, new_status);
     if (((condt->status & 0x01) == 0) || ((condt->status & 0x02) != 0))

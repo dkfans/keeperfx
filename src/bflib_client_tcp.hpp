@@ -36,7 +36,6 @@ public:
 	virtual ~TCP_NetClient() override;
 
 	virtual void update() override;
-	virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen) override;
 };
 
 #endif //!BFLIB_CLIENT_TCP_HPP

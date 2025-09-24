@@ -41,9 +41,9 @@ Installation of KeeperFX CCP:
 Available languages:
 
   The following languages are currently functional:
-    ENG ITA FRE SPA DUT GER POL SWE JPN RUS CZE KOR
+    ENG ITA FRE SPA DUT GER POL SWE JPN RUS CZE KOR CHI
   The following languages are partially functional:
-    CHI CHT LAT
+    CHT LAT UKR POR
   Note that some campaigns may not support your language.
   In this case, default language will be used inside this
   campaign.
@@ -142,14 +142,14 @@ New in-game commands:
 New and modified level script commands:
 
   The commands list has been moved to Wiki, to make it easier to maintain:
-  https://github.com/dkfans/keeperfx/wiki/New-and-Modified-Level-Script-Commands
+  https://github.com/dkfans/keeperfx/wiki/New-Game-Controls-and-Commands
 
 Changelog:
 
   The full changelog can be found here:
   https://github.com/dkfans/keeperfx/commits/master
   
-  A summary can be read on keeperklan:
-  https://keeperklan.com/threads/627-Releases-and-news
+  A summary can be read here:
+  https://github.com/dkfans/keeperfx/wiki/History-of-KeeperFX-releases
 
 Some data files are copyrighted by Bullfrog Productions.

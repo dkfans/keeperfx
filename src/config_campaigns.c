@@ -392,15 +392,6 @@ TbBool grow_level_info_entries(struct GameCampaign *campgn, long add_entries)
   return true;
 }
 
-TbBool free_level_info_entries(struct GameCampaign *campgn)
-{
-  if (campgn->lvinfos != NULL)
-    free(campgn->lvinfos);
-  campgn->lvinfos = NULL;
-  campgn->lvinfos_count = 0;
-  return true;
-}
-
 short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long len, const char* config_textname)
 {
   // Initialize block data in campaign
@@ -1226,18 +1217,6 @@ TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries
     return true;
 }
 
-/**
- * Frees memory allocated for list of campaigns.
- */
-TbBool free_campaigns_list_entries(struct CampaignsList *clist)
-{
-  if (clist->items != NULL)
-    free(clist->items);
-  clist->items = NULL;
-  clist->items_count = 0;
-  return true;
-}
-
 TbBool load_campaign_to_list(const char *cmpgn_fname,struct CampaignsList *clist, short fgroup)
 {
     if (clist->items_num >= clist->items_count)
@@ -1323,7 +1302,7 @@ void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
 
     char line[DISKPATH_SIZE];
     while(fgets(line, DISKPATH_SIZE, fp)) {
-       
+
         //cut off trailing \n
         line[strlen(line)-1] = 0;
 

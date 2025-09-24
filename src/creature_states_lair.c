@@ -186,7 +186,7 @@ short creature_drop_unconscious_in_lair(struct Thing *thing)
     {
         initialise_thing_state(dragtng, CrSt_CreatureAtNewLair);
     }
-    set_flag(dragctrl->flgfield_1,CCFlg_NoCompControl);
+    set_flag(dragctrl->creature_control_flags,CCFlg_NoCompControl);
     set_start_state(thing);
     return 1;
 
@@ -256,7 +256,7 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
         place_thing_in_mapwho(creatng);
         return CrStRet_Modified; // Return that so we won't try to redo the action over and over
     }
-    lairtng->move_angle_xy = CREATURE_RANDOM(creatng, 2048);
+    lairtng->move_angle_xy = THING_RANDOM(creatng, DEGREES_360);
     lairtng->mappos.z.val = get_thing_height_at(lairtng, &lairtng->mappos);
     // Associate creature with the lair
     cctrl->lairtng_idx = lairtng->index;
@@ -264,7 +264,7 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     lairtng->lair.cssize = 1;
     // Lair size depends on creature level
     lairtng->lair.spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->exp_level) / 100;
-    lairtng->move_angle_xy = CREATURE_RANDOM(creatng, 2*LbFPMath_PI);
+    lairtng->move_angle_xy = THING_RANDOM(creatng, DEGREES_360);
     struct ObjectConfigStats* objst = get_object_model_stats(lairtng->model);
     unsigned long i = convert_td_iso(objst->sprite_anim_idx);
     set_thing_draw(lairtng, i, objst->anim_speed, lairtng->lair.cssize, 0, -1, objst->draw_class);
@@ -330,7 +330,7 @@ CrStateRet creature_at_new_lair(struct Thing *creatng)
 TbBool setup_head_for_random_unused_lair_subtile(struct Thing *creatng, struct Room *room)
 {
     unsigned long k;
-    long n = CREATURE_RANDOM(creatng, room->slabs_count);
+    long n = THING_RANDOM(creatng, room->slabs_count);
     SlabCodedCoords start_slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
@@ -546,7 +546,7 @@ short creature_sleep(struct Thing *thing)
     }
     if (((game.play_gameturn + thing->index) & 0x3F) == 0)
     {
-        if (CREATURE_RANDOM(thing, 100) < 5)
+        if (THING_RANDOM(thing, 100) < 5)
         {
             struct Dungeon *dungeon = get_dungeon(thing->owner);
             dungeon->lvstats.backs_stabbed++;

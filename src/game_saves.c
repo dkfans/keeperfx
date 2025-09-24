@@ -23,7 +23,6 @@
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
-#include "bflib_bufrw.h"
 
 #include "config.h"
 #include "config_campaigns.h"
@@ -195,6 +194,7 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
                 struct GameCampaign *campgn = &campaign;
                 load_map_string_data(campgn, centry->level_num, get_level_fgroup(centry->level_num));
                 // Load configs which may have per-campaign part, and even be modified within a level
+                recheck_all_mod_exist();
                 init_custom_sprites(centry->level_num);
                 load_stats_files();
                 check_and_auto_fix_stats();
@@ -304,6 +304,11 @@ int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry)
  */
 TbBool save_game(long slot_num)
 {
+    if ((slot_num < 0) || (slot_num >= TOTAL_SAVE_SLOTS_COUNT))
+    {
+        ERRORLOG("Outranged slot index %d",(int)slot_num);
+        return false;
+    }
     char* fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
     if (!handle)
@@ -343,6 +348,11 @@ TbBool is_save_game_loadable(long slot_num)
 
 TbBool load_game(long slot_num)
 {
+    if ((slot_num < 0) || (slot_num >= TOTAL_SAVE_SLOTS_COUNT))
+    {
+        ERRORLOG("Outranged slot index %d",(int)slot_num);
+        return false;
+    }
     TbFileHandle fh;
 //  unsigned char buf[14];
 //  char cmpgn_fname[CAMPAIGN_FNAME_LEN];
@@ -371,12 +381,12 @@ TbBool load_game(long slot_num)
     struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
 
         // Check if the game version is compatible
-    if ((centry->game_ver_major != VER_MAJOR) || (centry->game_ver_minor != VER_MINOR) || 
+    if ((centry->game_ver_major != VER_MAJOR) || (centry->game_ver_minor != VER_MINOR) ||
         (centry->game_ver_release != VER_RELEASE) || (centry->game_ver_build != VER_BUILD))
     {
-        WARNLOG("loading savegame made in different version %d.%d.%d.%d current %d.%d.%d.%d", 
+        WARNLOG("loading savegame made in different version %d.%d.%d.%d current %d.%d.%d.%d",
             (int)centry->game_ver_major, (int)centry->game_ver_minor,
-            (int)centry->game_ver_release, (int)centry->game_ver_build, 
+            (int)centry->game_ver_release, (int)centry->game_ver_build,
             VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
     }
 
@@ -408,7 +418,7 @@ TbBool load_game(long slot_num)
     player->palette_fade_step_possession = 0;
     player->lens_palette = 0;
     PaletteSetPlayerPalette(player, engine_palette);
-    reinitialise_eye_lens(game.numfield_1B);
+    reinitialise_eye_lens(game.applied_lens_type);
     // Update the lights system state
     light_import_system_state(&game.lightst);
     // Victory state
@@ -673,7 +683,7 @@ LevelNumber move_campaign_to_next_level(void)
     SYNCDBG(15,"Campaign move %ld to %ld",(long)curr_lvnum,(long)lvnum);
     {
         struct PlayerInfo* player = get_my_player();
-        player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+        player->display_flags &= ~PlaF6_PlyrHasQuit;
     }
     if (lvnum != LEVELNUMBER_ERROR)
     {

@@ -54,7 +54,7 @@ static void powerful_magic_breaking_sparks(struct Thing* breaktng)
     pos.z.val = get_floor_height_at(&pos);
     draw_lightning(&breaktng->mappos, &pos, objst->effect.spacing, objst->effect.beam);
     if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, objst->effect.sound_idx, 0)) {
-        thing_play_sample(breaktng, objst->effect.sound_idx + UNSYNC_RANDOM(objst->effect.sound_range), NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
+        thing_play_sample(breaktng, objst->effect.sound_idx + SOUND_RANDOM(objst->effect.sound_range), NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
     }
 }
 
@@ -121,7 +121,7 @@ void process_dungeon_destroy(struct Thing* heartng)
                     dungeon->num_active_creatrs--;
                     dungeon->owned_creatures_of_model[soultng->model]--;
                     sctrl = creature_control_get_from_thing(soultng);
-                    set_flag(sctrl->flgfield_2,TF2_Spectator);
+                    set_flag(sctrl->creature_state_flags,TF2_Spectator);
                     dungeon->free_soul_idx = soultng->index;
                     short xplevel = 0;
                     if (dungeon->lvstats.player_score > 1000)

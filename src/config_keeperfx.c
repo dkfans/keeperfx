@@ -57,6 +57,8 @@ short api_enabled = false;
 uint16_t api_port = 5599;
 unsigned long features_enabled = 0;
 TbBool exit_on_lua_error = false;
+TbBool FLEE_BUTTON_DEFAULT = false;
+TbBool IMPRISON_BUTTON_DEFAULT = false;
 
 /**
  * Language 3-char abbreviations.
@@ -147,6 +149,9 @@ const struct NamedCommand conf_commands[] = {
   {"API_PORT"                      , 34},
   {"EXIT_ON_LUA_ERROR"             , 35},
   {"TURNS_PER_SECOND"              , 36},
+  {"FLEE_BUTTON_DEFAULT"           , 37},
+  {"IMPRISON_BUTTON_DEFAULT"       , 38},
+  {"FRAMES_PER_SECOND"             , 39},
   {NULL,                   0},
   };
 
@@ -169,7 +174,7 @@ const struct NamedCommand conf_commands[] = {
   {"4BY3PP",       SMK_FullscreenFit | SMK_FullscreenStretch | SMK_FullscreenCrop}, // integer multiple scale only (4BY3)
   {NULL,           0},
   };
-  
+
   const struct NamedCommand startup_parameters[] = {
   {"LEGAL",                   1},
   {"FX",                      2},
@@ -263,12 +268,17 @@ TbBool is_feature_on(unsigned long feature)
   return ((features_enabled & feature) != 0);
 }
 
-/**
- * Returns current language string.
- */
-const char *get_current_language_str(void)
+void set_skip_heart_zoom_feature(TbBool enable)
 {
-  return get_conf_parameter_text(lang_type,install_info.lang_id);
+  if (enable)
+    features_enabled |= Ft_SkipHeartZoom;
+  else
+    features_enabled &= ~Ft_SkipHeartZoom;
+}
+
+TbBool get_skip_heart_zoom_feature(void)
+{
+  return ((features_enabled & Ft_SkipHeartZoom) != 0);
 }
 
 /**
@@ -305,56 +315,23 @@ TbBool prepare_diskpath(char *buf,long buflen)
   return true;
 }
 
-short load_configuration(void)
+static void load_file_configuration(const char *fname, const char *sname, const char *config_textname, unsigned short flags)
 {
-  static const char config_textname[] = "Config";
-  // Variables to use when recognizing parameters
-  SYNCDBG(4,"Starting");
-  // Preparing config file name and checking the file
-  strcpy(install_info.inst_path,"");
-  // Set default runtime directory and load the config file
-  strcpy(keeper_runtime_directory,".");
-  // Config file variables
-  const char* sname; // Filename
-  const char* fname; // Filepath
-  // Check if custom config file is set '-config <file>'
-  if (start_params.overrides[Clo_ConfigFile])
-  {
-    // Check if config override contains either '\\' or '/'
-    // This means we'll use the absolute path to the config file
-    if (strchr(start_params.config_file, '\\') != NULL || strchr(start_params.config_file, '/') != NULL) {
-        // Get filename
-        const char *backslash = strrchr(start_params.config_file, '\\');
-        const char *slash = strrchr(start_params.config_file, '/');
-        const char *last_separator = backslash > slash ? backslash : slash;
-        sname = last_separator ? last_separator + 1 : start_params.config_file;
-        // Get filepath
-        fname = start_params.config_file; // Absolute path
-    } else {
-        sname = start_params.config_file;
-        fname = prepare_file_path(FGrp_Main, sname);
-    }
-  }
-  else
-  {
-    sname = keeper_config_file;
-    fname = prepare_file_path(FGrp_Main, sname);
-  }
-
   long len = LbFileLengthRnc(fname);
   if (len < 2)
   {
-    WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,sname);
-    return false;
+    if ((flags & CnfLd_IgnoreErrors) == 0)
+      WARNMSG("%s file \"%s\" doesn't exist or is too small.", config_textname,sname);
+    return;
   }
   if (len > 65536)
   {
     WARNMSG("%s file \"%s\" is too large.",config_textname,sname);
-    return false;
+    return;
   }
   char* buf = (char*)calloc(len + 256, 1);
   if (buf == NULL)
-    return false;
+    return;
   // Loading file data
   len = LbFileLoadAt(fname, buf);
   if (len>0)
@@ -859,6 +836,50 @@ short load_configuration(void)
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
           }
           break;
+      case 37: // FLEE_BUTTON_DEFAULT
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1) {
+              FLEE_BUTTON_DEFAULT = true;
+          } else {
+              FLEE_BUTTON_DEFAULT = false;
+          }
+          break;
+      case 38: // IMPRISON_BUTTON_DEFAULT
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1) {
+              IMPRISON_BUTTON_DEFAULT = true;
+          } else {
+              IMPRISON_BUTTON_DEFAULT = false;
+          }
+          break;
+      case 39: // FRAMES_PER_SECOND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i < ULONG_MAX))
+          {
+              if (!start_params.overrides[Clo_FramesPerSecond])
+              {
+                  start_params.num_fps_draw = i;
+              }
+          }
+          else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.", COMMAND_TEXT(cmd_num), config_textname);
+          }
+          break;
       case ccr_comment:
           break;
       case ccr_endOfFile:
@@ -871,9 +892,96 @@ short load_configuration(void)
     }
 #undef COMMAND_TEXT
   }
-  SYNCDBG(7,"Config loaded");
+  SYNCDBG(7,"%s loaded", config_textname);
   // Freeing
   free(buf);
+
+}
+
+static void load_configuration_for_mod_one(const struct ModConfigItem *mod_item)
+{
+    char mod_dir[256] = {0}, config_textname[256] = {0};
+    sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
+    sprintf(config_textname, "Mod config '%s'", mod_item->name);
+
+    char *fname = prepare_file_fmtpath_mod(mod_dir, FGrp_Main, keeper_config_file);
+    load_file_configuration(fname, keeper_config_file, config_textname, CnfLd_IgnoreErrors);
+}
+
+static void load_configuration_for_mod_list(const struct ModConfigItem *mod_items, long mod_cnt)
+{
+    for (long i=0; i<mod_cnt; i++)
+    {
+        const struct ModConfigItem *mod_item = mod_items + i;
+        if (mod_item->state.mod_dir == 0)
+            continue;
+
+        load_configuration_for_mod_one(mod_item);
+    }
+}
+
+void load_configuration_for_mod_all(void)
+{
+    if (mods_conf.after_base_cnt > 0)
+    {
+        load_configuration_for_mod_list(mods_conf.after_base_item, mods_conf.after_base_cnt);
+    }
+
+    if (mods_conf.after_campaign_cnt > 0)
+    {
+        load_configuration_for_mod_list(mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
+    }
+
+    if (mods_conf.after_map_cnt > 0)
+    {
+        load_configuration_for_mod_list(mods_conf.after_map_item, mods_conf.after_map_cnt);
+    }
+}
+
+short load_configuration(void)
+{
+  // Variables to use when recognizing parameters
+  SYNCDBG(4,"Starting");
+  // Preparing config file name and checking the file
+  strcpy(install_info.inst_path,"");
+  // Set default runtime directory and load the config file
+  strcpy(keeper_runtime_directory,".");
+  // Config file variables
+  const char* sname; // Filename
+  const char* fname; // Filepath
+
+  load_mods_order_config_file();
+  recheck_all_mod_exist();
+
+  // Check if custom config file is set '-config <file>'
+  if (start_params.overrides[Clo_ConfigFile])
+  {
+    // Check if config override contains either '\\' or '/'
+    // This means we'll use the absolute path to the config file
+    if (strchr(start_params.config_file, '\\') != NULL || strchr(start_params.config_file, '/') != NULL) {
+        // Get filename
+        const char *backslash = strrchr(start_params.config_file, '\\');
+        const char *slash = strrchr(start_params.config_file, '/');
+        const char *last_separator = backslash > slash ? backslash : slash;
+        sname = last_separator ? last_separator + 1 : start_params.config_file;
+        // Get filepath
+        fname = start_params.config_file; // Absolute path
+    } else {
+        sname = start_params.config_file;
+        fname = prepare_file_path(FGrp_Main, sname);
+    }
+  }
+  else
+  {
+    sname = keeper_config_file;
+    fname = prepare_file_path(FGrp_Main, sname);
+  }
+
+  const char *config_textname = "Base config";
+  load_file_configuration(fname, sname, config_textname, 0);
+
+  load_configuration_for_mod_all();
+
   // Updating game according to loaded settings
   switch (install_info.lang_id)
   {
@@ -904,6 +1012,7 @@ short load_configuration(void)
   default:
       break;
   }
+
   // Returning if the setting are valid
   return (install_info.lang_id > 0) && (install_info.inst_path[0] != '\0');
 }

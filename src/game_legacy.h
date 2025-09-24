@@ -28,6 +28,7 @@
 #include "config_magic.h"
 #include "config_trapdoor.h"
 #include "config_objects.h"
+#include "config_mods.h"
 #include "config_cubes.h"
 #include "config_powerhands.h"
 #include "config_cubes.h"
@@ -72,11 +73,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 enum GameKinds {
-    GKind_Unknown0 = 0,
-    GKind_Unknown1,
+    GKind_Unset = 0,
+    GKind_NonInteractiveState,
     GKind_LocalGame,
-    GKind_Unknown3,
-    GKind_Unknown4,
+    GKind_LimitedState,
+    GKind_UnusedSlot,
     GKind_MultiGame,
 };
 
@@ -89,14 +90,14 @@ enum GameOperationFlags {
 };
 
 enum GameNumfieldDFlags {
-    GNFldD_Unkn01 = 0x01,
-    GNFldD_Unkn02 = 0x02,
-    GNFldD_Unkn04 = 0x04,
+    GNFldD_CreatureViewMode = 0x01,
+    GNFldD_unusedparam02 = 0x02,
+    GNFldD_ComputerPlayerProcessing = 0x04,
     GNFldD_CreaturePasngr = 0x08, // Possessing a creature as a passenger (no direct control)
-    GNFldD_Unkn10 = 0x10,
-    GNFldD_Unkn20 = 0x20,
-    GNFldD_Unkn40 = 0x40,
-    GNFldD_Unkn80 = 0x80,
+    GNFldD_WaitSleepMode = 0x10,
+    GNFldD_StatusPanelDisplay = 0x20,
+    GNFldD_RoomFlameProcessing = 0x40,
+    GNFldD_unusedparam80 = 0x80,
 };
 /******************************************************************************/
 #pragma pack(1)
@@ -125,23 +126,51 @@ struct Configs {
     struct LuaFuncsConf lua;
 };
 
+// Structure to store detailed thing information for desync analysis
+struct LogThingDesyncInfo {
+    ThingClass class_id;          // Type of thing (creature, object, etc.)
+    ThingModel model;             // Model within the class
+    PlayerNumber owner;           // Owner player of the thing
+    TbBigChecksum random_seed;    // Thing's random seed
+    MapSubtlCoord pos_x;          // Position X coordinate
+    MapSubtlCoord pos_y;          // Position Y coordinate
+    MapSubtlCoord pos_z;          // Position Z coordinate
+    GameTurn creation_turn;       // Turn when thing was created
+    ThingIndex index;             // Thing's index
+    HitPoints health;             // Thing's health
+    TbBigChecksum checksum;       // Thing's computed checksum
+};
+
+// Structure to store detailed room information for desync analysis
+struct LogRoomDesyncInfo {
+    RoomKind kind;                // Type of room (temple, lair, etc.)
+    PlayerNumber owner;           // Owner player of the room
+    MapSubtlCoord central_stl_x;  // Central position X coordinate
+    MapSubtlCoord central_stl_y;  // Central position Y coordinate
+    SlabCodedCoords slabs_count;  // Number of slabs in the room
+    long efficiency;              // Room efficiency value
+    long used_capacity;           // Current capacity usage
+    RoomIndex index;              // Room's index
+    TbBigChecksum checksum;       // Room's computed checksum
+};
+
 struct Game {
     LevelNumber continue_level_number;
     unsigned char system_flags;
     /** Flags which control how the game operates, mostly defined by command line. */
     unsigned char operation_flags;
-    unsigned char numfield_D; //flags in enum GameNumfieldDFlags
+    unsigned char view_mode_flags; //flags in enum GameNumfieldDFlags
     unsigned char flags_font;
     unsigned char flags_gui;
     unsigned char eastegg01_cntr;
-    unsigned char flags_cd;
+    unsigned char mode_flags;
     unsigned char eastegg02_cntr;
     char music_track; // cdrom / default music track to resume after load
     char music_fname[DISKPATH_SIZE]; // custom music file to resume after load
-    char numfield_15;
+    char save_game_slot;
     LevelNumber selected_level_number;
-    char numfield_1A;
-    unsigned char numfield_1B;
+    char active_lens_type;
+    unsigned char applied_lens_type;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
     struct Things things;
@@ -174,13 +203,13 @@ struct Game {
     struct PacketSaveHead packet_save_head;
     unsigned long turns_stored;
     unsigned long turns_fastforward;
-    unsigned char numfield_149F38;
+    unsigned char packet_loading_in_progress;
     unsigned char packet_checksum_verify;
     unsigned long log_things_start_turn;
     unsigned long log_things_end_turn;
     unsigned long turns_packetoff;
     PlayerNumber local_plyr_idx;
-    unsigned char numfield_149F47; // something with packetload
+    unsigned char packet_load_initialized; // something with packetload
     // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     struct Event event[EVENTS_COUNT];
@@ -194,15 +223,23 @@ struct Game {
     short loaded_level_number;
     short texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*TEXTURE_BLOCKS_ANIM_COUNT];
     unsigned char texture_id;
-    unsigned short free_things[THINGS_COUNT-1];
-    /** Index of the first used element in free things array. All elements BEYOND this index are free. If all things are free, it is set to 0. */
-    ThingIndex free_things_start_index;
+    unsigned short synced_free_things[SYNCED_THINGS_COUNT];
+    /** Index of the first used element in synced free things array. All elements BEYOND this index are free. If all synced things are free, it is set to 0. */
+    ThingIndex synced_free_things_start_index;
+    /** Free list for unsynced things (EffectElems, AmbientSnds, etc.) */
+    unsigned short unsynced_free_things[UNSYNCED_THINGS_COUNT];
+    /** Index of the first used element in unsynced free things array. All elements BEYOND this index are free. */
+    ThingIndex unsynced_free_things_start_index;
     GameTurn play_gameturn;
     GameTurn pckt_gameturn;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
-    unsigned long action_rand_seed;
-    /** Unsynchronized random seed. Shouldn't affect game actions, because it's local - other clients have different value. */
-    unsigned long unsync_rand_seed;
+    unsigned long action_random_seed;
+    unsigned long ai_random_seed;
+    unsigned long player_random_seed;
+    /** Local (unsynced) random seed for visual effects that don't affect game state */
+    unsigned long unsync_random_seed;
+    /** Sound-specific random seed for audio effects and sound variations */
+    unsigned long sound_random_seed;
     int something_light_x;
     int something_light_y;
     unsigned long time_delta;
@@ -304,12 +341,44 @@ struct Game {
     short around_slab[AROUND_SLAB_LENGTH];
     short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
     short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
+
+    // Diagnostic checksums for desync analysis (sent by host during resync)
+    struct {
+        GameTurn desync_turn;                    // Turn when desync was detected
+        TbBigChecksum host_things_sum;           // Host's things checksum at desync
+        TbBigChecksum host_rooms_sum;            // Host's rooms checksum at desync
+
+        // Detailed thing category checksums for deeper analysis
+        TbBigChecksum host_creatures_sum;        // Host's creatures checksum
+        TbBigChecksum host_traps_sum;            // Host's traps checksum
+        TbBigChecksum host_shots_sum;            // Host's shots checksum
+        TbBigChecksum host_objects_sum;          // Host's objects checksum
+        TbBigChecksum host_effects_sum;          // Host's effects checksum
+        TbBigChecksum host_dead_creatures_sum;   // Host's dead creatures checksum
+        TbBigChecksum host_effect_gens_sum;      // Host's effect generators checksum
+        TbBigChecksum host_doors_sum;            // Host's doors checksum
+
+        // Individual player checksums for detailed player analysis
+        TbBigChecksum host_player_checksums[PLAYERS_COUNT];  // Host's individual player checksums
+        TbBigChecksum host_action_random_seed;     // Host's action random seed
+        TbBigChecksum host_ai_random_seed;         // Host's AI random seed
+        TbBigChecksum host_player_random_seed;     // Host's player random seed
+
+        // Individual Thing detailed info for per-Thing desync analysis
+        struct LogThingDesyncInfo host_thing_info[THINGS_COUNT];  // Host's detailed Thing information
+
+        // Individual Room detailed info for per-Room desync analysis
+        struct LogRoomDesyncInfo host_room_info[ROOMS_COUNT + 1];     // Host's detailed Room information
+
+        TbBool has_desync_diagnostics;           // Whether diagnostic data is valid
+    } desync_diagnostics;
 };
 
 #pragma pack()
 /******************************************************************************/
 extern struct Game game;
 extern long game_num_fps;
+extern long game_num_fps_draw;
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -193,22 +193,6 @@ unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
     return LvSt_Hidden;
 }
 
-/**
- * Returns if the given extra level is visible in land view screen.
- */
-short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum)
-{
-    int i = array_index_for_extra_level(ex_lvnum);
-    switch (i + 1)
-    {
-    case ExLv_FullMoon:
-        return is_full_moon;
-    case ExLv_NewMoon:
-        return is_new_moon;
-    }
-    return false;
-}
-
 void update_extra_levels_visibility(void)
 {
 }

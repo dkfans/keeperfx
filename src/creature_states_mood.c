@@ -125,7 +125,7 @@ short creature_piss(struct Thing *thing)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Piss);
-    unsigned short sound_idx = crsound->index + CREATURE_RANDOM(thing, crsound->count);
+    unsigned short sound_idx = crsound->index + THING_RANDOM(thing, crsound->count);
     if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, sound_idx, 0)) {
         thing_play_sample(thing, sound_idx, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
     }
@@ -148,7 +148,7 @@ short mad_killing_psycho(struct Thing *creatng)
     // Find a position for killing - use random dungeon
     struct Coord3d pos;
     int i;
-    int n = CREATURE_RANDOM(creatng, PLAYERS_COUNT);
+    int n = THING_RANDOM(creatng, PLAYERS_COUNT);
     for (i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(n);
@@ -258,11 +258,11 @@ void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotiv
     {
         annoy_lv = 0;
     } else
-    if (annoy_lv > (3 * crconf->annoy_level)) 
+    if (annoy_lv > (3 * crconf->annoy_level))
     {
         annoy_lv = (3 * crconf->annoy_level);
     } else
-    if (annoy_lv > 65534) 
+    if (annoy_lv > 65534)
     {
         annoy_lv = 65534;
     }
@@ -513,9 +513,9 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
     if (find_combat_target_passing_by_room_but_having_unrelated_job(creatng, going_postal_job, room, &combt_dist, &combt_thing))
     {
         SYNCDBG(8,"The %s index %d goes postal on %s index %d during %s",thing_model_name(creatng),(int)creatng->index,thing_model_name(combt_thing),(int)combt_thing->index,creature_job_code_name(going_postal_job));
-        
+
         CrInstance inst_use = get_postal_instance_to_use(creatng, combt_dist);
-        if (inst_use <= 0) 
+        if (inst_use <= 0)
         {
         SYNCDBG(8,"The %s index %d cannot go postal during %s; no ranged instance",thing_model_name(creatng),(int)creatng->index,creature_job_code_name(going_postal_job));
         return false;

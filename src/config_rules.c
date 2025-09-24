@@ -77,38 +77,38 @@ const struct NamedCommand rules_game_classicbugs_commands[] = {
 
 static const struct NamedField rules_game_named_fields[] = {
     //name                    //param  //field                                             //default  //min               //max   //namedCommand                    //valueFunc
-  {"POTOFGOLDHOLDS",            0, field(game.conf.rules[0].game.pot_of_gold_holds         ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"CHESTGOLDHOLD",             0, field(game.conf.rules[0].game.chest_gold_hold           ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"GOLDPILEVALUE",             0, field(game.conf.rules[0].game.gold_pile_value           ),         500, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"GOLDPILEMAXIMUM",           0, field(game.conf.rules[0].game.gold_pile_maximum         ),        5000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"GOLDPERHOARD",              0, field(game.conf.rules[0].game.gold_per_hoard            ),        2000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"FOODLIFEOUTOFHATCHERY",     0, field(game.conf.rules[0].game.food_life_out_of_hatchery ),         100,        0,          USHRT_MAX,NULL,                           value_default, assign_default},
-  {"BOULDERREDUCEHEALTHSLAP",   0, field(game.conf.rules[0].game.boulder_reduce_health_wall),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"BOULDERREDUCEHEALTHWALL",   0, field(game.conf.rules[0].game.boulder_reduce_health_slap),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"BOULDERREDUCEHEALTHROOM",   0, field(game.conf.rules[0].game.boulder_reduce_health_room),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"PAYDAYGAP",                 0, field(game.conf.rules[0].game.pay_day_gap               ),        5000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"PAYDAYSPEED",               0, field(game.conf.rules[0].game.pay_day_speed             ),         100,        0,          ULONG_MAX,NULL,                           value_default, assign_default},
-  {"DUNGEONHEARTHEALTIME",      0, field(game.conf.rules[0].game.dungeon_heart_heal_time   ),          10,        0,          ULONG_MAX,NULL,                           value_default, assign_default},
-  {"DUNGEONHEARTHEALHEALTH",    0, field(game.conf.rules[0].game.dungeon_heart_heal_health ),           1, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"HERODOORWAITTIME",          0, field(game.conf.rules[0].game.hero_door_wait_time       ),         100,        0,          ULONG_MAX,NULL,                           value_default, assign_default},
-  {"ROOMSELLGOLDBACKPERCENT",   0, field(game.conf.rules[0].game.room_sale_percent         ),          50,        0,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"DOORSELLVALUEPERCENT",      0, field(game.conf.rules[0].game.door_sale_percent         ),         100,        0,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"TRAPSELLVALUEPERCENT",      0, field(game.conf.rules[0].game.trap_sale_percent         ),         100,        0,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"BAGGOLDHOLD",               0, field(game.conf.rules[0].game.bag_gold_hold             ),         200, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"ALLIESSHAREVISION",         0, field(game.conf.rules[0].game.allies_share_vision       ),           0,        0,                  1,NULL,                           value_default, assign_AlliesShareVision_script},
-  {"ALLIESSHAREDROP",           0, field(game.conf.rules[0].game.allies_share_drop         ),           0,        0,                  1,NULL,                           value_default, assign_default},
-  {"ALLIESSHARECTA",            0, field(game.conf.rules[0].game.allies_share_cta          ),           0,        0,                  1,NULL,                           value_default, assign_default},
-  {"DISPLAYPORTALLIMIT",        0, field(game.conf.rules[0].game.display_portal_limit      ),           0,        0,                  1,NULL,                           value_default, assign_default},
-  {"MAXTHINGSINHAND",           0, field(game.conf.rules[0].game.max_things_in_hand        ),           8,        0, MAX_THINGS_IN_HAND,NULL,                           value_default, assign_default},
-  {"TORTUREPAYDAY",             0, field(game.conf.rules[0].game.torture_payday            ),          50,        0,          USHRT_MAX,NULL,                           value_default, assign_default},
-  {"TORTURETRAININGCOST",       0, field(game.conf.rules[0].game.torture_training_cost     ),         100, SHRT_MIN,           SHRT_MAX,NULL,                           value_default, assign_default},
-  {"TORTURESCAVENGINGCOST",     0, field(game.conf.rules[0].game.torture_scavenging_cost   ),         100, SHRT_MIN,           SHRT_MAX,NULL,                           value_default, assign_default},
-  {"EASTEREGGSPEECHCHANCE",     0, field(game.conf.rules[0].game.easter_egg_speech_chance  ),        2000,        0,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"EASTEREGGSPEECHINTERVAL",   0, field(game.conf.rules[0].game.easter_egg_speech_interval),       20000,        0,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"GLOBALAMBIENTLIGHT",        0, field(game.conf.rules[0].game.global_ambient_light      ),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
-  {"LIGHTENABLED",              0, field(game.conf.rules[0].game.light_enabled             ),           1,        0,                  1,NULL,                           value_default, assign_default},
-  {"MAPCREATURELIMIT",          0, field(game.conf.rules[0].game.creatures_count           ),         255,        0,  CREATURES_COUNT-2,NULL,                           value_default, assign_MapCreatureLimit_script},
-  {"PRESERVECLASSICBUGS",      -1, field(game.conf.rules[0].game.classic_bugs_flags        ),ClscBug_None,ClscBug_None, ClscBug_ListEnd,rules_game_classicbugs_commands,value_flagsfield, assign_default},
+  {"POTOFGOLDHOLDS",            0, field(game.conf.rules.game[0].pot_of_gold_holds         ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"CHESTGOLDHOLD",             0, field(game.conf.rules.game[0].chest_gold_hold           ),        1000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"GOLDPILEVALUE",             0, field(game.conf.rules.game[0].gold_pile_value           ),         500, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"GOLDPILEMAXIMUM",           0, field(game.conf.rules.game[0].gold_pile_maximum         ),        5000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"GOLDPERHOARD",              0, field(game.conf.rules.game[0].gold_per_hoard            ),        2000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"FOODLIFEOUTOFHATCHERY",     0, field(game.conf.rules.game[0].food_life_out_of_hatchery ),         100,        0,          USHRT_MAX,NULL,                           value_default, assign_default},
+  {"BOULDERREDUCEHEALTHSLAP",   0, field(game.conf.rules.game[0].boulder_reduce_health_slap),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"BOULDERREDUCEHEALTHWALL",   0, field(game.conf.rules.game[0].boulder_reduce_health_wall),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"BOULDERREDUCEHEALTHROOM",   0, field(game.conf.rules.game[0].boulder_reduce_health_room),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"PAYDAYGAP",                 0, field(game.conf.rules.game[0].pay_day_gap               ),        5000, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"PAYDAYSPEED",               0, field(game.conf.rules.game[0].pay_day_speed             ),         100,        0,          ULONG_MAX,NULL,                           value_default, assign_default},
+  {"DUNGEONHEARTHEALTIME",      0, field(game.conf.rules.game[0].dungeon_heart_heal_time   ),          10,        0,          ULONG_MAX,NULL,                           value_default, assign_default},
+  {"DUNGEONHEARTHEALHEALTH",    0, field(game.conf.rules.game[0].dungeon_heart_heal_health ),           1, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"HERODOORWAITTIME",          0, field(game.conf.rules.game[0].hero_door_wait_time       ),         100,        0,          ULONG_MAX,NULL,                           value_default, assign_default},
+  {"ROOMSELLGOLDBACKPERCENT",   0, field(game.conf.rules.game[0].room_sale_percent         ),          50,        0,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"DOORSELLVALUEPERCENT",      0, field(game.conf.rules.game[0].door_sale_percent         ),         100,        0,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"TRAPSELLVALUEPERCENT",      0, field(game.conf.rules.game[0].trap_sale_percent         ),         100,        0,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"BAGGOLDHOLD",               0, field(game.conf.rules.game[0].bag_gold_hold             ),         200, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"ALLIESSHAREVISION",         0, field(game.conf.rules.game[0].allies_share_vision       ),           0,        0,                  1,NULL,                           value_default, assign_AlliesShareVision_script},
+  {"ALLIESSHAREDROP",           0, field(game.conf.rules.game[0].allies_share_drop         ),           0,        0,                  1,NULL,                           value_default, assign_default},
+  {"ALLIESSHARECTA",            0, field(game.conf.rules.game[0].allies_share_cta          ),           0,        0,                  1,NULL,                           value_default, assign_default},
+  {"DISPLAYPORTALLIMIT",        0, field(game.conf.rules.game[0].display_portal_limit      ),           0,        0,                  1,NULL,                           value_default, assign_default},
+  {"MAXTHINGSINHAND",           0, field(game.conf.rules.game[0].max_things_in_hand        ),           8,        0, MAX_THINGS_IN_HAND,NULL,                           value_default, assign_default},
+  {"TORTUREPAYDAY",             0, field(game.conf.rules.game[0].torture_payday            ),          50,        0,          USHRT_MAX,NULL,                           value_default, assign_default},
+  {"TORTURETRAININGCOST",       0, field(game.conf.rules.game[0].torture_training_cost     ),         100, SHRT_MIN,           SHRT_MAX,NULL,                           value_default, assign_default},
+  {"TORTURESCAVENGINGCOST",     0, field(game.conf.rules.game[0].torture_scavenging_cost   ),         100, SHRT_MIN,           SHRT_MAX,NULL,                           value_default, assign_default},
+  {"EASTEREGGSPEECHCHANCE",     0, field(game.conf.rules.game[0].easter_egg_speech_chance  ),        2000,        0,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"EASTEREGGSPEECHINTERVAL",   0, field(game.conf.rules.game[0].easter_egg_speech_interval),       20000,        0,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"GLOBALAMBIENTLIGHT",        0, field(game.conf.rules.game[0].global_ambient_light      ),          10, LONG_MIN,           LONG_MAX,NULL,                           value_default, assign_default},
+  {"LIGHTENABLED",              0, field(game.conf.rules.game[0].light_enabled             ),           1,        0,                  1,NULL,                           value_default, assign_default},
+  {"MAPCREATURELIMIT",          0, field(game.conf.rules.game[0].creatures_count           ),         255,        0,  CREATURES_COUNT-2,NULL,                           value_default, assign_MapCreatureLimit_script},
+  {"PRESERVECLASSICBUGS",      -1, field(game.conf.rules.game[0].classic_bugs_flags        ),ClscBug_None,ClscBug_None, ClscBug_ListEnd,rules_game_classicbugs_commands,value_flagsfield, assign_default},
   {NULL},
 };
 
@@ -122,11 +122,7 @@ static const struct NamedField rules_computer_named_fields[] = {
 static const struct NamedField rules_creatures_named_fields[] = {
     //name                    //param  //field                                           //default   //min     //max  //namedCommand //valueFunc
   {"RECOVERYFREQUENCY",          0, field(game.conf.rules[0].creature.recovery_frequency    ),  10,        0, UCHAR_MAX,NULL,value_default, assign_default},
-  {"FIGHTMAXHATE",               0, field(game.conf.rules[0].creature.fight_max_hate        ), 200, SHRT_MIN,  SHRT_MAX,NULL,value_default, assign_default},
-  {"FIGHTBORDERLINE",            0, field(game.conf.rules[0].creature.fight_borderline      ),   0, SHRT_MIN,  SHRT_MAX,NULL,value_default, assign_default},
-  {"FIGHTMAXLOVE",               0, field(game.conf.rules[0].creature.fight_max_love        ),-100, SHRT_MIN,  SHRT_MAX,NULL,value_default, assign_default},
   {"BODYREMAINSFOR",             0, field(game.conf.rules[0].creature.body_remains_for      ),1000,        0, USHRT_MAX,NULL,value_default, assign_default},
-  {"FIGHTHATEKILLVALUE",         0, field(game.conf.rules[0].creature.fight_hate_kill_value ),  -5, SHRT_MIN,  SHRT_MAX,NULL,value_default, assign_default},
   {"FLEEZONERADIUS",             0, field(game.conf.rules[0].creature.flee_zone_radius      ),2048,        0, ULONG_MAX,NULL,value_default, assign_default},
   {"GAMETURNSINFLEE",            0, field(game.conf.rules[0].creature.game_turns_in_flee    ), 200,        0,  LONG_MAX,NULL,value_default, assign_default},
   {"GAMETURNSUNCONSCIOUS",       0, field(game.conf.rules[0].creature.game_turns_unconscious),2000,        0, USHRT_MAX,NULL,value_default, assign_default},
@@ -153,6 +149,7 @@ static const struct NamedField rules_magic_named_fields[] = {
   {"FRIENDLYFIGHTAREARANGEPERCENT",  0, field(game.conf.rules[0].magic.friendly_fight_area_range_percent ),   0, LONG_MIN, LONG_MAX,NULL,value_default, assign_default},
   {"FRIENDLYFIGHTAREADAMAGEPERCENT", 0, field(game.conf.rules[0].magic.friendly_fight_area_damage_percent),   0, LONG_MIN, LONG_MAX,NULL,value_default, assign_default},
   {"WEIGHTCALCULATEPUSH",            0, field(game.conf.rules[0].magic.weight_calculate_push             ),   0,        0, SHRT_MAX,NULL,value_default, assign_default},
+  {"ALLOWINSTANTCHARGEUP",           0, field(game.conf.rules[0].magic.allow_instant_charge_up           ),   0,        0,        1,NULL,value_default, assign_default},
   {NULL},
 };
 
@@ -287,7 +284,7 @@ static void assign_AlliesShareVision_script(const struct NamedField* named_field
 
 static int64_t value_x10(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
 {
-    
+
     if (parameter_is_number(value_text))
     {
         return 10 * atoll(value_text);
@@ -326,11 +323,11 @@ void clear_sacrifice_recipes(void)
   }
 }
 
-static int long_compare_fn(const void *ptr_a, const void *ptr_b)
+int sac_compare_fn(const void* ptr_a, const void* ptr_b)
 {
-    long *a = (long*)ptr_a;
-    long *b = (long*)ptr_b;
-    return *a < *b;
+    ThingModel a = *(const ThingModel*)ptr_a;
+    ThingModel b = *(const ThingModel*)ptr_b;
+    return a < b;
 }
 
 static void set_rules_defaults()
@@ -344,18 +341,18 @@ static void set_rules_defaults()
     }
 }
 
-TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
+TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, ThingModel crtr_idx)
 {
     // If all slots are taken, then just drop it.
     if (sac->victims[MAX_SACRIFICE_VICTIMS - 1] != 0)
         return false;
     // Otherwise, find place for our item (array is sorted).
-    for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
+    for (int i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
         if (sac->victims[i] == 0)
         {
             sac->victims[i] = crtr_idx;
-            qsort(sac->victims, MAX_SACRIFICE_VICTIMS, sizeof(sac->victims[0]), &long_compare_fn);
+            qsort(sac->victims, MAX_SACRIFICE_VICTIMS, sizeof(sac->victims[0]), &sac_compare_fn);
             return true;
         }
   }
@@ -491,7 +488,7 @@ static void mark_cheaper_diggers_sacrifice(void)
         struct SacrificeRecipe* sac = &game.conf.rules[TODO_SO_ATM_0].sacrifices.sacrifice_recipes[i];
         if (sac->action == SacA_None)
             continue;
-        if (((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp)) 
+        if (((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp))
             || ((sac->action == SacA_NegUniqFunc) && (sac->param == UnqF_CostlierImp)))
         {
             if ((sac->victims[1] == 0) && (game.conf.rules[TODO_SO_ATM_0].sacrifices.cheaper_diggers_sacrifice_model == 0)) {

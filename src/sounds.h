@@ -46,13 +46,13 @@ struct SoundSettings {
   unsigned short flags;
   unsigned char max_number_of_samples;
   unsigned char stereo;
-  unsigned char field_12;
+  unsigned char sound_buffer_enable;
   unsigned char danger_music;
   unsigned char no_load_sounds;
   unsigned char no_load_music;
-  unsigned char field_16;
+  unsigned char sound_debug_mode;
   unsigned char sound_system;
-  unsigned char field_18;
+  unsigned char audio_device_enable;
   unsigned char redbook_enable;
 };
 

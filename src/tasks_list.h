@@ -46,7 +46,6 @@ extern struct MapTask bad_map_task;
 struct MapTask *get_task_list_entry(long plyr_idx, long task_idx);
 struct MapTask *get_dungeon_task_list_entry(struct Dungeon *dungeon, long task_idx);
 void add_task_list_entry(PlayerNumber plyr_idx, unsigned char kind, SubtlCodedCoords stl_num);
-TbBool task_list_entry_invalid(struct MapTask *task);
 
 long find_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk);
 long find_from_task_list_by_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);

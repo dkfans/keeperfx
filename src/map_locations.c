@@ -59,7 +59,7 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location, TbBoo
 
     case MLoc_PLAYERSHEART:
         return get_coords_at_dungeon_heart(pos, i);
-        
+
     case MLoc_METALOCATION:
         return get_coords_at_meta_action(pos, 0, i);
 
@@ -68,7 +68,7 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location, TbBoo
         pos->y.val = subtile_coord_center(((location >> 8) & 0xFFF));
         pos->z.val = get_floor_height_at(pos);
       return true;
-        
+
     case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
     case MLoc_ROOMKIND:
@@ -81,12 +81,12 @@ TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location, TbBoo
     default:
         return false;
     }
-    
+
 }
 
 TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_idx, long i)
 {
-    
+
     SYNCDBG(7,"Starting with loc:%ld", i);
     struct Coord3d *src;
     struct Coord3d targetpos = {0};
@@ -116,7 +116,7 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
         targetpos.x.val = subtile_coord_center(dungeon->cta_stl_x);
         targetpos.y.val = subtile_coord_center(dungeon->cta_stl_y);
         targetpos.z.val = get_floor_height_at(pos);
-        src = &targetpos; 
+        src = &targetpos;
         break;
     default:
         return false;
@@ -126,7 +126,7 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
     pos->y.val = src->y.val + PLAYER_RANDOM(target_plyr_idx, 33) - 16;
     pos->z.val = src->z.val;
     return true;
-    
+
 }
 
 TbBool get_coords_at_hero_door(struct Coord3d *pos, long gate_num, unsigned char random_factor)
@@ -189,7 +189,7 @@ TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned ch
     } else
     {
         long distance = GAME_RANDOM(apt->range);
-        long direction = GAME_RANDOM(2 * LbFPMath_PI);
+        long direction = GAME_RANDOM(DEGREES_360);
         long delta_x = (distance * LbSinL(direction) >> 8);
         long delta_y = (distance * LbCosL(direction) >> 8);
         pos->x.val = apt->mappos.x.val + (delta_x >> 8);
@@ -212,11 +212,6 @@ unsigned long get_map_location_longval(TbMapLocation location)
 unsigned long get_map_location_plyrval(TbMapLocation location)
 {
   return (location >> 12);
-}
-
-unsigned short get_map_location_plyridx(TbMapLocation location)
-{
-  return (location >> 4) & 0xFF;
 }
 
 /**

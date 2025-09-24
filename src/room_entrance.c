@@ -18,7 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "room_entrance.h"
-
+#include "keeperfx.hpp"
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
@@ -431,7 +431,7 @@ TbBool update_creature_pool_state(void)
 void add_creature_to_pool(ThingModel kind, long amount)
 {
     kind %= game.conf.crtr_conf.model_count;
-    
+
     if (amount > 0 && game.pool.crtr_kind[kind] > LONG_MAX - amount)
     {
         game.pool.crtr_kind[kind] = LONG_MAX;
