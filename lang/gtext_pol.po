@@ -6976,10 +6976,15 @@ msgid ""
 "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr ""
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr ""
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "Pułapka Ballista"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "Pułapka Ballista: pilnuje i strzela do widocznych wrogów."
 
 #: guitext:1041
 msgctxt "Creature name"

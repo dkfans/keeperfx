@@ -5570,10 +5570,15 @@ msgctxt "Trap description"
 msgid "Description du piègeSentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "Piège Sentinelle: Monte la garde et tire sur les ennemies à vue."
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr ""
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "Piège Baliste"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "Piège Baliste : Monte la garde et tire sur les ennemies à vue."
 
 #: guitext:1041
 msgctxt "Creature name"
