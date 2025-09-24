@@ -223,18 +223,20 @@ struct Game {
     short loaded_level_number;
     short texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*TEXTURE_BLOCKS_ANIM_COUNT];
     unsigned char texture_id;
-    unsigned short free_things[THINGS_COUNT-1];
-    /** Index of the first used element in free things array. All elements BEYOND this index are free. If all things are free, it is set to 0. */
-    ThingIndex free_things_start_index;
-    /** Next index to try when allocating non-synchronized things (EffectElems, AmbientSnds). These don't use the free_things array. */
-    ThingIndex next_non_synced_thing_index;
+    unsigned short synced_free_things[SYNCED_THINGS_COUNT];
+    /** Index of the first used element in synced free things array. All elements BEYOND this index are free. If all synced things are free, it is set to 0. */
+    ThingIndex synced_free_things_start_index;
+    /** Free list for unsynced things (EffectElems, AmbientSnds, etc.) */
+    unsigned short unsynced_free_things[UNSYNCED_THINGS_COUNT];
+    /** Index of the first used element in unsynced free things array. All elements BEYOND this index are free. */
+    ThingIndex unsynced_free_things_start_index;
     GameTurn play_gameturn;
     GameTurn pckt_gameturn;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
     unsigned long action_random_seed;
     unsigned long ai_random_seed;
     unsigned long player_random_seed;
-    /** Local (non-synced) random seed for visual effects that don't affect game state */
+    /** Local (unsynced) random seed for visual effects that don't affect game state */
     unsigned long unsync_random_seed;
     /** Sound-specific random seed for audio effects and sound variations */
     unsigned long sound_random_seed;
