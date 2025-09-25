@@ -7489,7 +7489,7 @@ static unsigned short get_thing_shade(struct Thing* thing)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    long minimum_lightness = game.conf.rules.game.minimum_illumination << 8;
+    long minimum_lightness = game.conf.rules.game.thing_minimum_illumination << 8;
     long lgh[2][2]; // the dimensions are lgh[y][x]
     long shval;
     long fract_x;
@@ -7835,7 +7835,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     long shade;
     long shade_factor;
     long fade;
-    long minimum_lightness = game.conf.rules.game.minimum_illumination << 8;
+    long minimum_lightness = game.conf.rules.game.thing_minimum_illumination << 8;
     thing = jspr->thing;
     if (lens_mode == 0)
     {

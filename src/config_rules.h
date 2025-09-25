@@ -100,7 +100,7 @@ struct GameRulesConfig {
     unsigned long easter_egg_speech_chance;
     unsigned long easter_egg_speech_interval;
     long global_ambient_light;
-    long minimum_illumination;
+    long thing_minimum_illumination;
     TbBool light_enabled;
     unsigned short creatures_count;
 };
