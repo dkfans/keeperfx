@@ -1367,9 +1367,9 @@ short creature_combat_flee(struct Thing *creatng)
             }
             cctrl->flee_start_turn = game.play_gameturn;
         } else
-        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_under_spell_effect(creatng, CSAfF_Fear))
+        if ((turns_in_flee <= game.conf.rules[creatng->owner].creature.game_turns_in_flee) || creature_under_spell_effect(creatng, CSAfF_Fear))
         {
-            GameTurnDelta escape_turns = (game.conf.rules.creature.game_turns_in_flee >> 2);
+            GameTurnDelta escape_turns = (game.conf.rules[creatng->owner].creature.game_turns_in_flee >> 2);
             if (escape_turns <= 50)
                 escape_turns = 50;
             if (turns_in_flee <= escape_turns)
@@ -1402,7 +1402,7 @@ short creature_combat_flee(struct Thing *creatng)
                 return 1;
             }
         }
-        if ((turns_in_flee <= game.conf.rules.creature.game_turns_in_flee) || creature_under_spell_effect(creatng, CSAfF_Fear))
+        if ((turns_in_flee <= game.conf.rules[creatng->owner].creature.game_turns_in_flee) || creature_under_spell_effect(creatng, CSAfF_Fear))
         {
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
                 creatng->continue_state = CrSt_CreatureCombatFlee;
@@ -2428,7 +2428,7 @@ TbBool creature_in_flee_zone(struct Thing *thing)
         return false;
     }
     unsigned long dist = get_chessboard_distance(&thing->mappos, &cctrl->flee_pos);
-    return (dist < game.conf.rules.creature.flee_zone_radius);
+    return (dist < game.conf.rules[thing->owner].creature.flee_zone_radius);
 }
 
 TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enmtng)
