@@ -1646,14 +1646,18 @@ void clear_things_and_persons_data(void)
       memset(&game.cctrl_data[i], 0, sizeof(struct CreatureControl));
     }
 
-    // Initialize free things list - exclude non-synced range
-    game.free_things_start_index = 0;
-    for (i = 1; i < THINGS_COUNT_SYNCED; i++)
+    // Initialize synced free things list
+    game.synced_free_things_start_index = 0;
+    for (i = 1; i <= SYNCED_THINGS_COUNT; i++)
     {
-        game.free_things[i-1] = i;
+        game.synced_free_things[i-1] = i;
     }
-    // Initialize non-synchronized things allocation
-    game.next_non_synced_thing_index = THINGS_COUNT_SYNCED;
+    // Initialize unsynced free things list
+    game.unsynced_free_things_start_index = 0;
+    for (i = SYNCED_THINGS_COUNT + 1; i < SYNCED_THINGS_COUNT + UNSYNCED_THINGS_COUNT; i++)
+    {
+        game.unsynced_free_things[i - SYNCED_THINGS_COUNT - 1] = i;
+    }
 }
 
 void clear_computer(void)
@@ -1728,12 +1732,16 @@ void delete_all_thing_structures(void)
           delete_thing_structure(thing, 1);
       }
     }
-    for (i=0; i < THINGS_COUNT_SYNCED-1; i++) {
-      game.free_things[i] = i+1;
+    for (i=0; i < SYNCED_THINGS_COUNT; i++) {
+      game.synced_free_things[i] = i+1;
     }
-    game.free_things_start_index = 0;
-    // Reset non-synchronized things allocation
-    game.next_non_synced_thing_index = THINGS_COUNT_SYNCED;
+    game.synced_free_things_start_index = 0;
+    // Reset unsynced free things list
+    for (i = SYNCED_THINGS_COUNT + 1; i < SYNCED_THINGS_COUNT + UNSYNCED_THINGS_COUNT; i++)
+    {
+        game.unsynced_free_things[i - SYNCED_THINGS_COUNT - 1] = i;
+    }
+    game.unsynced_free_things_start_index = 0;
 }
 
 void delete_all_structures(void)

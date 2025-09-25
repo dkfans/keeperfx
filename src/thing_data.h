@@ -25,11 +25,6 @@
 /** Max amount of creatures supported on any map. */
 #define CREATURES_COUNT       1024
 
-/** Range for synchronized and non-synchronized things */
-#define THINGS_COUNT_SYNCED          (int)(THINGS_COUNT*0.70)
-// Uses the highest 30% of indexes for non synced things so ~5734-8191
-#define NON_SYNCED_THING_INDEX_START THINGS_COUNT_SYNCED
-#define NON_SYNCED_THING_INDEX_END   (THINGS_COUNT-1)
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,6 +45,12 @@ enum ThingAllocFlags {
     TAlF_IsControlled      = 0x20,
     TAlF_IsFollowingLeader = 0x40,
     TAlF_IsDragged         = 0x80,
+};
+
+/** Enum for specifying thing allocation pool type. */
+enum ThingAllocationPool {
+    ThingAllocation_Synced = 0,    /**< Allocate from synced thing pool */
+    ThingAllocation_Unsynced = 1   /**< Allocate from unsynced thing pool */
 };
 
 /** Enums for thing->state_flags bit fields. */
@@ -338,10 +339,6 @@ enum ThingAddFlags //named this way because they were part of the ThingAdd struc
 /******************************************************************************/
 #define allocate_free_thing_structure(class_id) allocate_free_thing_structure_f(class_id, __func__)
 struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char *func_name);
-#define allocate_synced_thing_structure(class_id) allocate_synced_thing_structure_f(class_id, __func__)
-struct Thing *allocate_synced_thing_structure_f(unsigned char class_id, const char *func_name);
-#define allocate_non_synced_thing_structure(class_id) allocate_non_synced_thing_structure_f(class_id, __func__)
-struct Thing *allocate_non_synced_thing_structure_f(unsigned char class_id, const char *func_name);
 TbBool i_can_allocate_free_thing_structure(unsigned char class_id);
 #define delete_thing_structure(thing, a2) delete_thing_structure_f(thing, a2, __func__)
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name);

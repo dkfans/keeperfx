@@ -326,6 +326,8 @@ struct CreatureControl {
     struct CoordDelta3d moveaccel;
     unsigned char bloody_footsteps_turns;
     short kills_num;
+    short kills_num_allied;
+    short kills_num_enemy;
     short max_speed;
     HitPoints max_health;
     short move_speed;

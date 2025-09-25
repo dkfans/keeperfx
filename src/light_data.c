@@ -1698,7 +1698,7 @@ static char light_render_light_dynamic_uncached(struct Light *lgt, int radius, i
                                 int distance_x = min((lgt->mappos.x.val - subtile_center_x), (subtile_center_x - lgt->mappos.x.val));
                                 int distance_y = min((lgt->mappos.y.val - subtile_center_y), (subtile_center_y - lgt->mappos.y.val));
                                 int diagonal_length2 = LbDiagonalLength(distance_x, distance_y);
-                                lighting_tables_idx = intensity * (radius - diagonal_length2) / radius;
+                                lighting_tables_idx = intensity * max(0, radius - diagonal_length2) / radius;
                                 if ( lighting_tables_idx <= game.lish.global_ambient_light )
                                     return lighting_tables_idx;
                                 unsigned short *stl_lightness_ptr2 = &game.lish.subtile_lightness[get_subtile_number(stl_x,stl_y)];

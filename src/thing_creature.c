@@ -3357,6 +3357,14 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     if (!creature_control_invalid(cctrlgrp))
     {
         cctrlgrp->kills_num++;
+        if (players_are_enemies(killertng->owner, creatng->owner))
+        {
+            cctrlgrp->kills_num_enemy++;
+        }
+        else
+        {
+            cctrlgrp->kills_num_allied++;
+        }
         struct CreatureModelConfig *crconf = creature_stats_get_from_thing(killertng);
         anger_apply_anger_to_creature(killertng, crconf->annoy_win_battle, AngR_Other, 1);
     }
@@ -6171,6 +6179,8 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     strcpy(newcctrl->creature_name, oldcctrl->creature_name);
     newcctrl->blood_type = oldcctrl->blood_type;
     newcctrl->kills_num = oldcctrl->kills_num;
+    newcctrl->kills_num_allied = oldcctrl->kills_num_allied;
+    newcctrl->kills_num_enemy = oldcctrl->kills_num_enemy;
     newcctrl->joining_age = oldcctrl->joining_age;
     newtng->creation_turn = oldtng->creation_turn;
 

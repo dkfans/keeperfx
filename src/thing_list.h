@@ -31,7 +31,9 @@ extern "C" {
 
 /******************************************************************************/
 #define THING_CLASSES_COUNT    14
-#define THINGS_COUNT         8192
+#define SYNCED_THINGS_COUNT    8192
+#define UNSYNCED_THINGS_COUNT   2048
+#define THINGS_COUNT           SYNCED_THINGS_COUNT+UNSYNCED_THINGS_COUNT
 
 enum ThingClassIndex {
     TCls_Empty        =  0,

@@ -599,7 +599,7 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, long *n)
         pos.z.val = thing->mappos.z.val + (thing->solid_size_z / 2);
         move_thing_in_map(thing, &pos);
   }
-  if (player->instance_remain_rurns <= 8)
+  if (player->instance_remain_turns <= 8)
     LbPaletteFade(zoom_to_heart_palette, 8, Lb_PALETTE_FADE_OPEN);
   return 0;
 }
@@ -678,7 +678,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         dstcam->mappos.x.val = thing->mappos.x.val + deltax;
         dstcam->mappos.y.val = thing->mappos.y.val + deltay;
     }
-    if (player->instance_remain_rurns >= 8)
+    if (player->instance_remain_turns >= 8)
       LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
     return 0;
 }
@@ -859,7 +859,7 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
     else
       y = player->zoom_to_pos_y;
     if ((player->zoom_to_pos_x == x) && (player->zoom_to_pos_y == y))
-        player->instance_remain_rurns = 0;
+        player->instance_remain_turns = 0;
     cam->mappos.x.val = x;
     cam->mappos.y.val = y;
     return 0;
@@ -885,7 +885,7 @@ void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force)
     {
         player->instance_num = ninum%PLAYER_INSTANCES_COUNT;
         struct PlayerInstanceInfo* inst_info = &player_instance_info[player->instance_num];
-        player->instance_remain_rurns = inst_info->length_turns;
+        player->instance_remain_turns = inst_info->length_turns;
         InstncInfo_Func callback = inst_info->start_cb;
         if (callback != NULL) {
             callback(player, &inst_info->start_callback_parameters[0]);
@@ -901,16 +901,16 @@ void process_player_instance(struct PlayerInfo *player)
     if (player->instance_num <= 0) {
         return;
     }
-    if (player->instance_remain_rurns > 0)
+    if (player->instance_remain_turns > 0)
     {
-        player->instance_remain_rurns--;
+        player->instance_remain_turns--;
         inst_info = &player_instance_info[player->instance_num%PLAYER_INSTANCES_COUNT];
         callback = inst_info->maintain_cb;
         if (callback != NULL) {
             callback(player, &inst_info->maintain_end_callback_parameter);
         }
     }
-    if (player->instance_remain_rurns == 0)
+    if (player->instance_remain_turns == 0)
     {
         inst_info = &player_instance_info[player->instance_num%PLAYER_INSTANCES_COUNT];
         player->instance_num = PI_Unset;

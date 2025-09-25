@@ -251,7 +251,7 @@ enum ChecksumKind {
 struct PlayerInfo;
 struct CatalogueEntry;
 
-extern unsigned long start_seed;
+extern unsigned long initial_replay_seed;
 
 /**
  * Stores data exchanged between players each turn and used to re-create their input.
