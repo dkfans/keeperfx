@@ -271,6 +271,14 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "revealed") == 0)
         {
             thing->trap.revealed = luaL_checkinteger(L, 3);
+        }
+        else if (strcmp(key, "rearm_turn") == 0)
+        {
+            thing->trap.rearm_turn = luaL_checkinteger(L, 3);
+        }
+        else if (strcmp(key, "shooting_finished_turn") == 0)
+        {
+            thing->trap.shooting_finished_turn = luaL_checkinteger(L, 3);
         } else
         {
             return luaL_error(L, "Field '%s' is not writable on Trap thing", key);
@@ -377,6 +385,10 @@ static int thing_get_field(lua_State *L) {
             lua_pushinteger(L, thing->trap.num_shots);
         } else if (strcmp(key, "revealed") == 0) {
             lua_pushinteger(L, thing->trap.revealed);
+        } else if (strcmp(key, "rearm_turn") == 0) {
+            lua_pushinteger(L, thing->trap.rearm_turn);
+        } else if (strcmp(key, "shooting_finished_turn") == 0) {
+            lua_pushinteger(L, thing->trap.shooting_finished_turn);
         } else {
             return luaL_error(L, "Unknown field or method '%s' for Trap thing", key);
         }
