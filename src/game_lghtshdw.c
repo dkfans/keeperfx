@@ -36,6 +36,7 @@ long get_subtile_lightness(const struct LightsShadows * lish, MapSubtlCoord stl_
     return lish->subtile_lightness[get_subtile_number(stl_x,stl_y)];
 }
 
+#define MINIMUM_LIGHTNESS 8192;
 void clear_subtiles_lightness(struct LightsShadows * lish)
 {
     for (MapSubtlCoord y = 0; y < (game.map_subtiles_y + 1); y++)
@@ -43,7 +44,7 @@ void clear_subtiles_lightness(struct LightsShadows * lish)
         for (MapSubtlCoord x = 0; x < (game.map_subtiles_x + 1); x++)
         {
             unsigned short* wptr = &lish->subtile_lightness[get_subtile_number(x, y)];
-            *wptr = game.conf.rules.game.minimum_illumination << 8;
+            *wptr = MINIMUM_LIGHTNESS; //Unsure if this value ends up being used.
         }
     }
 }
