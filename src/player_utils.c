@@ -785,12 +785,22 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->isometric_tilt = settings.isometric_tilt;
     if (is_my_player(player))
     {
+        if (default_tag_mode != 3)
+        {
+            settings.highlight_mode = default_tag_mode - 1;
+        }
+        player->roomspace_highlight_mode = settings.highlight_mode;
+        player->roomspace_mode = settings.highlight_mode;
         set_flag(game.operation_flags, GOF_ShowPanel);
         set_gui_visible(true);
         init_gui();
         turn_on_menu(GMnu_MAIN);
         turn_on_menu(GMnu_ROOM);
     }
+    player->roomspace_width = 1;
+    player->roomspace_height = 1;
+    player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+    player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
     switch (game.game_kind)
     {
     case GKind_LocalGame:
