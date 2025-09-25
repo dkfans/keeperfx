@@ -1654,7 +1654,7 @@ void clear_things_and_persons_data(void)
     }
     // Initialize unsynced free things list
     game.unsynced_free_things_start_index = 0;
-    for (i = SYNCED_THINGS_COUNT + 1; i <= SYNCED_THINGS_COUNT + UNSYNCED_THINGS_COUNT; i++)
+    for (i = SYNCED_THINGS_COUNT + 1; i < SYNCED_THINGS_COUNT + UNSYNCED_THINGS_COUNT; i++)
     {
         game.unsynced_free_things[i - SYNCED_THINGS_COUNT - 1] = i;
     }
@@ -1737,7 +1737,7 @@ void delete_all_thing_structures(void)
     }
     game.synced_free_things_start_index = 0;
     // Reset unsynced free things list
-    for (i = SYNCED_THINGS_COUNT + 1; i <= SYNCED_THINGS_COUNT + UNSYNCED_THINGS_COUNT; i++)
+    for (i = SYNCED_THINGS_COUNT + 1; i < SYNCED_THINGS_COUNT + UNSYNCED_THINGS_COUNT; i++)
     {
         game.unsynced_free_things[i - SYNCED_THINGS_COUNT - 1] = i;
     }
