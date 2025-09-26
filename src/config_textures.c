@@ -52,9 +52,9 @@ static TbBool load_textureanim_config_file(const char *fname, unsigned short fla
     VALUE *section;
     for (int tex_no = 0; tex_no < TEXTURE_BLOCKS_ANIM_COUNT; tex_no++)
     {
-       
+
         {
-            sprintf(key, "texture%d", tex_no + TEXTURE_BLOCKS_STAT_COUNT_A);
+            snprintf(key, sizeof(key), "texture%d", tex_no + TEXTURE_BLOCKS_STAT_COUNT_A);
             section = value_dict_get(&file_root, key);
         }
         if (value_type(section) == VALUE_DICT)
@@ -71,7 +71,7 @@ static TbBool load_textureanim_config_file(const char *fname, unsigned short fla
         }
     }
     value_fini(&file_root);
-    
+
     return true;
 }
 

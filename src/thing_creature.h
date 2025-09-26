@@ -87,8 +87,6 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
 
-TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_level);
-TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_level);
 struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner);
 
 TbBool creature_increase_level(struct Thing *thing);
@@ -120,6 +118,7 @@ void creature_cast_spell(struct Thing *caster, SpellKind spl_idx, CrtrExpLevel s
 
 void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration, long spl_idx);
 void level_up_familiar(struct Thing* famlrtng);
+void teleport_familiar_to_summoner(struct Thing* famlrtng, struct Thing* creatng);
 void add_creature_to_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng);
 void remove_creature_from_summon_list(struct Dungeon* dungeon, ThingIndex famlrtng);
 
@@ -128,7 +127,6 @@ unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *
 struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *thing);
 TbBool thing_can_be_eaten(struct Thing *thing);
 void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng);
-short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing);
 void anger_apply_anger_to_creature_f(struct Thing *thing, long anger, AnnoyMotive reason, long a3, const char *func_name);
 #define anger_apply_anger_to_creature(thing, anger, reason, a3) anger_apply_anger_to_creature_f(thing, anger, reason, a3, __func__)
 HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx);
@@ -169,7 +167,6 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrE
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_level, PlayerNumber plyr_idx);
 void reapply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel spell_level, PlayerNumber plyr_idx, int slot_idx);
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spell_idx);
-void terminate_all_actives_spell_effects(struct Thing *thing);
 void process_thing_spell_damage_or_heal_effects(struct Thing *thing, SpellKind spell_idx, CrtrExpLevel caster_level, PlayerNumber caster_owner);
 void process_thing_spell_effects(struct Thing *thing);
 void process_thing_spell_effects_while_blocked(struct Thing *thing);
@@ -200,7 +197,6 @@ TbBool remove_creature_score_from_owner(struct Thing *thing);
 long calculate_melee_damage(struct Thing *thing, short damage_percent);
 long project_melee_damage(const struct Thing *thing);
 long calculate_shot_damage(struct Thing *thing, ThingModel shot_model);
-long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_model);
 
 long update_creature_levels(struct Thing *thing);
 TngUpdateRet update_creature(struct Thing *thing);

@@ -42,7 +42,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "frontend.h"
-#include "math.h"
+#include <math.h>
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -79,10 +79,10 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
     curoom = subtile_room_get(x,y);
     if (curoom->index != room->index)
     {
-        room->flame_slb += gameadd.small_around_slab[i];
+        room->flame_slb += game.small_around_slab[i];
         return;
     }
-    room->flame_slb += gameadd.small_around_slab[i] + gameadd.small_around_slab[k];
+    room->flame_slb += game.small_around_slab[i] + game.small_around_slab[k];
     room->flames_around_idx = k;
 }
 
@@ -137,7 +137,6 @@ void recompute_rooms_count_in_dungeons(void)
 void process_rooms(void)
 {
   SYNCDBG(7,"Starting");
-  TbBigChecksum sum = 0;
   for (struct Room* room = start_rooms; room < end_rooms; room++)
   {
       if (!room_exists(room))
@@ -145,12 +144,10 @@ void process_rooms(void)
       if (room_role_matches(room->kind, RoRoF_FoodSpawn)) {
           room_grow_food(room);
       }
-      sum += room->slabs_count + room->central_stl_x + room->central_stl_y + room->efficiency + room->used_capacity;
-      if (room_has_surrounding_flames(room->kind) && ((game.numfield_D & GNFldD_Unkn40) != 0)) {
+      if (room_has_surrounding_flames(room->kind) && ((game.view_mode_flags & GNFldD_RoomFlameProcessing) != 0)) {
           process_room_surrounding_flames(room);
       }
   }
-  player_packet_checksum_add(my_player_number, sum, "rooms");
   recompute_rooms_count_in_dungeons();
   SYNCDBG(9,"Finished");
 }
@@ -311,7 +308,7 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
         {
             if (slab_kind_is_animated(slabkind))
             {
-                place_animating_slab_type_on_map(slabkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);  
+                place_animating_slab_type_on_map(slabkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
             }
             else
             {
@@ -556,8 +553,8 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
         case RoRoF_CrHealSleep:
             // Find room with lair capacity
             {
-                struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-                room = find_room_of_role_with_spare_capacity(plyr_idx, rrole, crstat->lair_size);
+                struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+                room = find_room_of_role_with_spare_capacity(plyr_idx, rrole, crconf->lair_size);
                 break;
             }
         // For Treasure rooms, the item capacity is the amount of gold, not the number of gold hoardes.
@@ -630,19 +627,19 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
 
 void query_room(struct Room *room)
 {
-    const char title[26];
+    char title[26] = "";
     const char* name = room_code_name(room->kind);
-    const char owner[26]; 
-    const char health[26];
-    const char capacity[26];
-    const char efficiency[26] = "\0";
-    sprintf((char*)title, "Room ID: %d", room->index);
-    sprintf((char*)owner, "Owner: %d", room->owner);
-    sprintf((char*)health, "Health: %d", (int)room->health);
-    sprintf((char*)capacity, "Capacity: %d/%d", room->used_capacity, room->total_capacity);
+    char owner[26] = "";
+    char health[26] = "";
+    char capacity[26] = "";
+    char efficiency[26] = "";
+    snprintf(title, sizeof(title), "Room ID: %d", room->index);
+    snprintf(owner, sizeof(owner), "Owner: %d", room->owner);
+    snprintf(health, sizeof(health), "Health: %d", (int)room->health);
+    snprintf(capacity, sizeof(capacity), "Capacity: %d/%d", room->used_capacity, room->total_capacity);
     float room_efficiency_percent = ((float)room->efficiency / (float)ROOM_EFFICIENCY_MAX) * 100;
-    sprintf((char*)efficiency, "Efficiency: %d", (unsigned char)round(room_efficiency_percent));
-    create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&capacity, (const char*)&efficiency);    
+    snprintf(efficiency, sizeof(efficiency), "Efficiency: %d", (unsigned char)round(room_efficiency_percent));
+    create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&capacity, (const char*)&efficiency);
 }
 
 /******************************************************************************/

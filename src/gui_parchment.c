@@ -139,12 +139,12 @@ long get_parchment_map_area_rect(struct TbRect *map_area)
     get_parchment_background_area_rect(&bkgnd_area);
     long bkgnd_width = bkgnd_area.right - bkgnd_area.left;
     long bkgnd_height = bkgnd_area.bottom - bkgnd_area.top;
-    long block_size = min((bkgnd_width - bkgnd_width / 3) / gameadd.map_tiles_x, (bkgnd_height - bkgnd_height / 8) / gameadd.map_tiles_y);
+    long block_size = min((bkgnd_width - bkgnd_width / 3) / game.map_tiles_x, (bkgnd_height - bkgnd_height / 8) / game.map_tiles_y);
     if (block_size < 1) block_size = 1;
-    map_area->left = bkgnd_area.left + (bkgnd_width - block_size*gameadd.map_tiles_x) / 2;
-    map_area->top = bkgnd_area.top + 3 * (bkgnd_height - block_size*gameadd.map_tiles_y) / 4;
-    map_area->right = map_area->left + block_size*gameadd.map_tiles_x;
-    map_area->bottom = map_area->top + block_size*gameadd.map_tiles_y;
+    map_area->left = bkgnd_area.left + (bkgnd_width - block_size*game.map_tiles_x) / 2;
+    map_area->top = bkgnd_area.top + 3 * (bkgnd_height - block_size*game.map_tiles_y) / 4;
+    map_area->right = map_area->left + block_size*game.map_tiles_x;
+    map_area->bottom = map_area->top + block_size*game.map_tiles_y;
     return block_size;
 }
 
@@ -161,7 +161,7 @@ TbBool point_to_overhead_map(const struct Camera *camera, const long screen_x, c
     {
         *map_x = COORD_PER_STL * STL_PER_SLB * (screen_x-map_area.left) / block_size + COORD_PER_STL/2;
         *map_y = COORD_PER_STL * STL_PER_SLB * (screen_y-map_area.top)  / block_size + COORD_PER_STL/2;
-        return ((*map_x >= 0) && (*map_x < (gameadd.map_subtiles_x+1)<<8) && (*map_y >= 0) && (*map_y < (gameadd.map_subtiles_y+1)<<8));
+        return ((*map_x >= 0) && (*map_x < (game.map_subtiles_x+1)<<8) && (*map_y >= 0) && (*map_y < (game.map_subtiles_y+1)<<8));
     }
     return false;
 }
@@ -219,7 +219,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     long owner = slabmap_owner(slb);
     if ((((mapblk->flags & SlbAtFlg_Unexplored) != 0) || ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0))
-        && ((game.play_gameturn & 4) != 0))
+        && ((game.play_gameturn % (8 * gui_blink_rate)) >= 4 * gui_blink_rate))
     {
         pixval = pixmap.ghost[background + 0x1A00];
         if (slb->kind == SlbT_GEMS)
@@ -242,7 +242,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
     else if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
     {
         struct Room* room = subtile_room_get(stl_x, stl_y);
-        if (((game.play_gameturn & 1) != 0) && (room->kind == gui_room_type_highlighted))
+        if (((game.play_gameturn % (2 * gui_blink_rate)) >= gui_blink_rate) && (room->kind == gui_room_type_highlighted))
         {
             pixval = player_highlight_colours[owner];
       } else
@@ -250,7 +250,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
         unsigned char color_idx = get_player_color_idx(owner);
         if (color_idx == PLAYER_NEUTRAL)
         {
-            pixval = player_room_colours[game.play_gameturn & 3];
+            pixval = player_room_colours[(game.play_gameturn % (4 * neutral_flash_rate)) / neutral_flash_rate];
         } else
         {
             pixval = player_room_colours[color_idx];
@@ -265,7 +265,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
       } else
       if (slb->kind == SlbT_ROCK_FLOOR)
       {
-          pixval = 0; //todo make it distinct from rock, preferably by showing a pattern like on walls
+          pixval = pixmap.ghost[3];
       }
       else
       if ((mapblk->flags & SlbAtFlg_Filled) != 0)
@@ -279,7 +279,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
           {
             pixval = 60;
           } else
-          if ((game.play_gameturn & 1) && (thing->model == gui_door_type_highlighted))
+          if (((game.play_gameturn % (2 * gui_blink_rate)) >= gui_blink_rate) && (thing->model == gui_door_type_highlighted))
           {
             pixval = player_highlight_colours[owner];
           } else
@@ -326,7 +326,7 @@ void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNum
     long line = 0;
     long stl_y = 1;
     unsigned char* dstline = &lbDisplay.WScreen[map_area->left + lbDisplay.GraphicsScreenWidth * map_area->top];
-    for (long cntr_h = gameadd.map_tiles_y * block_size; cntr_h > 0; cntr_h--)
+    for (long cntr_h = game.map_tiles_y * block_size; cntr_h > 0; cntr_h--)
     {
         if ((line > 0) && ((line % block_size) == 0))
         {
@@ -334,7 +334,7 @@ void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNum
         }
         unsigned char* dstbuf = dstline;
         long stl_x = 1;
-        for (long cntr_w = gameadd.map_tiles_x; cntr_w > 0; cntr_w--)
+        for (long cntr_w = game.map_tiles_x; cntr_w > 0; cntr_w--)
         {
             for (long k = block_size; k > 0; k--)
             {
@@ -435,9 +435,9 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
             {
                 if (color_idx == game.neutral_player_num)
                 {
-                    col1 = player_room_colours[(game.play_gameturn + 1) & 3];
+                    col1 = player_room_colours[(((game.play_gameturn + neutral_flash_rate) % (4 * neutral_flash_rate)) / neutral_flash_rate)];
                 } else
-                if ((game.play_gameturn & 4) == 0)
+                if ((game.play_gameturn % (8 * gui_blink_rate)) < 4 * gui_blink_rate)
                 {
                     col2 = player_room_colours[color_idx];
                     col1 = player_room_colours[color_idx];
@@ -464,7 +464,7 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
             if (is_hero_tunnelling_to_attack(thing))
             {
                 struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-                if ((game.play_gameturn & 4) == 0)
+                if ((game.play_gameturn % (8 * gui_blink_rate)) < 4 * gui_blink_rate)
                 {
                     col1 = player_room_colours[get_player_color_idx((int)(cctrl->party.target_plyr_idx>=0?cctrl->party.target_plyr_idx:0))];
                     col2 = player_room_colours[get_player_color_idx(thing->owner)];
@@ -585,6 +585,16 @@ int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerN
                       LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colours[15][0][15]);
                   }
               }
+              else if ( thing_is_workshop_crate(thing) )
+              {
+                  long pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB  + ((block_size + 1)/5);
+                  long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB + ((block_size + 1)/5);
+                  short pixel_end = get_pixels_scaled_and_zoomed(TWO_PIXELS);
+                  for (int p = 0; p < pixel_end; p++)
+                  {
+                      LbDrawPixel(pos_x + draw_square[p].delta_x, pos_y + draw_square[p].delta_y, colours[7][6][7]);
+                  }
+              }
             }
         }
         // Per-thing code ends
@@ -602,7 +612,7 @@ void draw_overhead_things(const struct TbRect *map_area, long block_size, Player
 {
     draw_overhead_creatures(map_area, block_size, plyr_idx);
     draw_overhead_call_to_arms(map_area, block_size, plyr_idx);
-    if ((game.play_gameturn & 3) == 1) {
+    if ((((game.play_gameturn) % (4 * gui_blink_rate)) / gui_blink_rate) == 1) {
         draw_overhead_spells(map_area, block_size, plyr_idx);
     }
     draw_overhead_traps(map_area, block_size, plyr_idx);
@@ -693,7 +703,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
             case TCls_Creature:
             {
                 spridx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
-                if ((game.play_gameturn & 4) != 0)
+                if ((game.play_gameturn % (8 * gui_blink_rate)) >= 4 * gui_blink_rate)
                 {
                     TbPixel color = get_player_path_colour(thing->owner);
                     draw_gui_panel_sprite_occentered(scr_x + spos_x, scr_y + spos_y - 13*units_per_pixel/16, ps_units_per_px, spridx, color);
@@ -706,7 +716,8 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
             }
             case TCls_Trap:
             {
-                if ((!thing->trap.revealed) && (player->id_number != thing->owner))
+                struct TrapConfigStats* trapst = get_trap_model_stats(thing->model);
+                if ((!thing->trap.revealed) && (player->id_number != thing->owner) && (trapst->hidden != 0))
                     break;
                 struct ManufactureData* manufctr = get_manufacture_data(get_manufacture_data_index_for_thing(thing->class_id, thing->model));
                 spridx = manufctr->medsym_sprite_idx;
@@ -863,8 +874,8 @@ void draw_zoom_box(void)
     int stl_x = STL_PER_SLB * (mouse_x / pixel_size - map_area.left) / block_size - draw_tiles_x / 2;
     int stl_y = STL_PER_SLB * (mouse_y / pixel_size - map_area.top) / block_size - draw_tiles_y / 2;
     // Draw only on map area (do not allow zoom box to be empty)
-    if ((stl_x < -draw_tiles_x/2) || (stl_x >= gameadd.map_subtiles_x+1-draw_tiles_x/2)
-     || (stl_y < -draw_tiles_y/2) || (stl_y >= gameadd.map_subtiles_y+1-draw_tiles_y/2))
+    if ((stl_x < -draw_tiles_x/2) || (stl_x >= game.map_subtiles_x+1-draw_tiles_x/2)
+     || (stl_y < -draw_tiles_y/2) || (stl_y >= game.map_subtiles_y+1-draw_tiles_y/2))
       return;
 
     draw_zoom_box_terrain(scrtop_x, scrtop_y, stl_x, stl_y, player->id_number, draw_tiles_x, draw_tiles_y, subtile_size);

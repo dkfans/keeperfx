@@ -95,12 +95,12 @@ struct NamedCommand effectelem_desc[EFFECTSELLEMENTS_TYPES_MAX];
 
 static void load_effects(VALUE *value, unsigned short flags)
 {
-    char key[64];
+    char key[64] = "";
     VALUE *section;
     for (int id = 0; id < EFFECTS_TYPES_MAX; id++)
     {
         {
-            sprintf(key, "effect%d", id);
+            snprintf(key, sizeof(key), "effect%d", id);
             section = value_dict_get(value, key);
         }
         if (value_type(section) == VALUE_DICT)
@@ -109,9 +109,9 @@ static void load_effects(VALUE *value, unsigned short flags)
 
             SET_NAME(section,effect_desc,effcst->code_name);
 
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"GenerationAccelXYRange",effcst->accel_xy_min,effcst->accel_xy_max);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"GenerationAccelZRange", effcst->accel_z_min, effcst->accel_z_max);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"GenerationKindRange",   effcst->kind_min,    effcst->kind_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"GenerationAccelXYRange",effcst->accel_xy_min,effcst->accel_xy_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"GenerationAccelZRange", effcst->accel_z_min, effcst->accel_z_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"GenerationKindRange",   effcst->kind_min,    effcst->kind_max);
             CONDITIONAL_ASSIGN_INT(section,"Health",        effcst->start_health);
             CONDITIONAL_ASSIGN_INT(section,"GenerationType",effcst->generation_type);
             CONDITIONAL_ASSIGN_INT(section,"AreaAffectType",effcst->area_affect_type);
@@ -180,10 +180,10 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"Unanimated",effelcst->unanimated);
             CONDITIONAL_ASSIGN_ARR2_INT(section,"Lifespan",effelcst->lifespan,effelcst->lifespan_random);
             CONDITIONAL_ASSIGN_ANIMID(section,"AnimationId",effelcst->sprite_idx);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"SpriteSize",effelcst->sprite_size_min,effelcst->sprite_size_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"SpriteSize",effelcst->sprite_size_min,effelcst->sprite_size_max);
             CONDITIONAL_ASSIGN_INT(section,"RenderFlags",effelcst->animate_once); //todo Remove after people have had time to handle the rename
             CONDITIONAL_ASSIGN_INT(section, "AnimateOnce", effelcst->animate_once);
-            CONDITIONAL_ASSIGN_ARR2_INT(section,"SpriteSpeed",effelcst->sprite_speed_min,effelcst->sprite_speed_max);
+            CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,"SpriteSpeed",effelcst->sprite_speed_min,effelcst->sprite_speed_max);
 
             CONDITIONAL_ASSIGN_BOOL(section,"AnimateOnFloor",  effelcst->animate_on_floor);
             CONDITIONAL_ASSIGN_BOOL(section,"Unshaded",        effelcst->unshaded);

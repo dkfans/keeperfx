@@ -20,6 +20,7 @@
 #include "thing_data.h"
 
 #include "globals.h"
+#include "thing_list.h"
 #include "bflib_keybrd.h"
 #include "bflib_basics.h"
 #include "bflib_sound.h"
@@ -34,155 +35,147 @@
 #include "game_legacy.h"
 #include "engine_arrays.h"
 #include "kjm_input.h"
-#include "gui_topmsg.h" 
+#include "gui_topmsg.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const char *func_name)
+TbBool is_non_synchronized_thing_class(unsigned char class_id)
 {
-    struct Thing *thing;
-    // Get a thing from "free things list"
-    long i = game.free_things_start_index;
-    // If there is no free thing, try to free an effect
-    if (i >= THINGS_COUNT-1)
-    {
-        if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0)
-        {
-            thing = thing_get(game.thing_lists[TngList_EffectElems].index);
-            if (!thing_is_invalid(thing))
-            {
-                delete_thing_structure(thing, 0);
-            } else
-            {
-#if (BFDEBUG_LEVEL > 0)
-                ERRORMSG("%s: Cannot free up effect element to allocate new thing!",func_name);
-#endif
-            }
-        }
-        i = game.free_things_start_index;
+    return (class_id == TCls_EffectElem) || (class_id == TCls_AmbientSnd) || (class_id == TCls_Effect);
+}
+
+static struct Thing *allocate_thing(enum ThingAllocationPool pool_type, const char *func_name)
+{
+    unsigned short *free_list;
+    ThingIndex *start_index;
+    ThingIndex max_count;
+    const char *list_name;
+
+    if (pool_type == ThingAllocation_Unsynced) {
+        free_list = game.unsynced_free_things;
+        start_index = &game.unsynced_free_things_start_index;
+        max_count = UNSYNCED_THINGS_COUNT;
+        list_name = "unsynced";
+    } else {
+        free_list = game.synced_free_things;
+        start_index = &game.synced_free_things_start_index;
+        max_count = SYNCED_THINGS_COUNT;
+        list_name = "synced";
     }
-    // Now, if there is still no free thing (we couldn't free any)
-    if (i >= THINGS_COUNT-1)
-    {
-#if (BFDEBUG_LEVEL > 0)
-        ERRORMSG("%s: Cannot allocate new thing, no free slots!",func_name);
-#endif
+
+    if (*start_index >= max_count) {
+        ERRORMSG("%s: Cannot allocate new %s thing, no free slots!", func_name, list_name);
         return INVALID_THING;
     }
-    // And if there is free one, allocate it
-    thing = thing_get(game.free_things[i]);
-#if (BFDEBUG_LEVEL > 0)
-    if (thing_exists(thing)) {
-        ERRORMSG("%s: Found existing thing %d in free things list at pos %d!",func_name,(int)game.free_things[i],(int)i);
-    }
-#endif
+
+    struct Thing *thing = thing_get(free_list[*start_index]);
     memset(thing, 0, sizeof(struct Thing));
-    if (thing_is_invalid(thing)) {
-        ERRORMSG("%s: Got invalid thing slot instead of free one!",func_name);
-        return INVALID_THING;
-    }
     thing->alloc_flags |= TAlF_Exists;
-    thing->index = game.free_things[i];
-    game.free_things[game.free_things_start_index] = 0;
-    game.free_things_start_index++;
+    thing->index = free_list[*start_index];
+    thing->random_seed = thing->index * 9377 + 9439 + game.play_gameturn;
     TRACE_THING(thing);
 
+    free_list[*start_index] = 0;
+    (*start_index)++;
     return thing;
 }
 
-TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
+struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char *func_name)
 {
-    // Check if there are free slots
-    if (game.free_things_start_index < THINGS_COUNT-1)
-        return true;
-    // Check if there are effect slots that could be freed
-    if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0)
-    {
-        if (game.thing_lists[TngList_EffectElems].index > 0)
-        {
-            return true;
+    if (is_non_synchronized_thing_class(class_id)) {
+        if (game.unsynced_free_things_start_index >= UNSYNCED_THINGS_COUNT) {
+            // No free slots - try deleting old effect and search again
+            struct Thing *old_effect = thing_get(game.thing_lists[TngList_EffectElems].index);
+            if (!thing_is_invalid(old_effect)) {
+                delete_thing_structure(old_effect, 0);
+                return allocate_free_thing_structure_f(class_id, func_name);
+            }
+            return INVALID_THING;
         }
+        return allocate_thing(ThingAllocation_Unsynced, func_name);
+    } else {
+        return allocate_thing(ThingAllocation_Synced, func_name);
     }
-    // Couldn't find free slot - fail
-    if ((allocflags & FTAF_LogFailures) != 0)
-    {
-        ERRORLOG("Cannot allocate thing structure.");
-        things_stats_debug_dump();
-    }
-    if ((game.free_things_start_index > THINGS_COUNT - 2) && ((allocflags & FTAF_FreeEffectIfNoSlots) != 0))
-    {
-        show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create thing, %d/%d thing slots used.", game.free_things_start_index + 1, THINGS_COUNT);
-    }
-    return false;
 }
 
-/**
- * Returns if a thing of given index is in free things list.
- * @param tng_idx Index of the thing to be checked.
- * @return
- */
-TbBool is_in_free_things_list(long tng_idx)
+TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
 {
-    for (int i = game.free_things_start_index; i < THINGS_COUNT - 1; i++)
-    {
-        if (game.free_things[i] == tng_idx)
+    if (is_non_synchronized_thing_class(class_id)) {
+        // Check if we have free unsynced slots
+        if (game.unsynced_free_things_start_index < UNSYNCED_THINGS_COUNT) {
             return true;
+        }
+        // No free slots - check if we can delete an old effect to make room
+        if (game.thing_lists[TngList_EffectElems].index > 0) {
+            return true;
+        }
+        // No free allocation space at all
+        show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create unsynced thing, no free slots.");
+        return false;
     }
+
+    // For synced things: check if free slots remain
+    if (game.synced_free_things_start_index < SYNCED_THINGS_COUNT) {
+        return true;
+    }
+
+    show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create thing, %d/%d slots used.", game.synced_free_things_start_index, SYNCED_THINGS_COUNT);
     return false;
 }
 
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name)
 {
     TRACE_THING(thing);
-    if ((thing->alloc_flags & TAlF_InDungeonList) != 0)
-    {
+    if ((thing->alloc_flags & TAlF_InDungeonList) != 0) {
         remove_first_creature(thing);
     }
-    if (!a2)
-    {
+    if (!a2) {
         struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-        if (!creature_control_invalid(cctrl))
-        {
-            // Use the correct function to clear them properly. Terminating the spells also removes the attached effects.
-            if (creature_under_spell_effect(thing, CSAfF_Armour))
-            {
+        if (!creature_control_invalid(cctrl)) {
+            if (creature_under_spell_effect(thing, CSAfF_Armour)) {
                 clean_spell_effect(thing, CSAfF_Armour);
             }
-            if (creature_under_spell_effect(thing, CSAfF_Disease))
-            {
+            if (creature_under_spell_effect(thing, CSAfF_Disease)) {
                 clean_spell_effect(thing, CSAfF_Disease);
             }
             delete_familiars_attached_to_creature(thing);
             remove_creature_lair(thing);
-            if (creature_is_group_member(thing))
-            {
+            if (creature_is_group_member(thing)) {
                 remove_creature_from_group(thing);
             }
             delete_control_structure(cctrl);
         }
-        if (thing->light_id != 0)
-        {
+        if (thing->light_id != 0) {
             light_delete_light(thing->light_id);
             thing->light_id = 0;
         }
     }
-    if (thing->snd_emitter_id != 0)
-    {
+    if (thing->snd_emitter_id != 0) {
         S3DDestroySoundEmitterAndSamples(thing->snd_emitter_id);
         thing->snd_emitter_id = 0;
     }
     remove_thing_from_its_class_list(thing);
     remove_thing_from_mapwho(thing);
-    if (thing->index > 0)
-    {
-        game.free_things_start_index--;
-        game.free_things[game.free_things_start_index] = thing->index;
-    }
-    else
-    {
+    if (thing->index > 0) {
+        unsigned short *free_list;
+        ThingIndex *start_index;
+
+        if (thing->index <= SYNCED_THINGS_COUNT) {
+            free_list = game.synced_free_things;
+            start_index = &game.synced_free_things_start_index;
+        } else {
+            free_list = game.unsynced_free_things;
+            start_index = &game.unsynced_free_things_start_index;
+        }
+
+        if (*start_index > 0) {
+            (*start_index)--;
+            free_list[*start_index] = thing->index;
+        }
+    } else {
 #if (BFDEBUG_LEVEL > 0)
         ERRORMSG("%s: Performed deleting of thing with bad index %d!", func_name, (int)thing->index);
 #endif
@@ -206,22 +199,9 @@ struct Thing *thing_get_f(long tng_idx, const char *func_name)
     return INVALID_THING;
 }
 
-long thing_get_index(const struct Thing *thing)
-{
-    long tng_idx = (thing - game.things.lookup[0]);
-    if ((tng_idx > 0) && (tng_idx < THINGS_COUNT))
-        return tng_idx;
-    return 0;
-}
-
 short thing_is_invalid(const struct Thing *thing)
 {
     return (thing <= game.things.lookup[0]) || (thing > game.things.lookup[THINGS_COUNT-1]) || (thing == NULL);
-}
-
-TbBool thing_exists_idx(long tng_idx)
-{
-    return thing_exists(thing_get(tng_idx));
 }
 
 TbBool thing_exists(const struct Thing *thing)
@@ -287,7 +267,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     } else
     if (start_frame == -1)
     {
-      i = CREATURE_RANDOM(thing, thing->max_frames);
+      i = THING_RANDOM(thing, thing->max_frames);
       thing->current_frame = i;
       thing->anim_time = i << 8;
     } else
@@ -304,27 +284,27 @@ void query_thing(struct Thing *thing)
     if ( (thing->class_id == TCls_Object) && (thing->model == ObjMdl_SpinningKey) && (!is_key_pressed(KC_LALT, KMod_DONTCARE)) )
     {
         querytng = get_door_for_position(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    }   
+    }
     else
     {
         querytng = thing;
     }
     if (!thing_is_invalid(querytng))
     {
-        const char title[24];
+        char title[24] = "";
         const char* name = thing_model_name(querytng);
-        const char owner[24]; 
-        const char health[24];
-        const char position[40];
-        const char amount[40] = "\0";
-        sprintf((char*)title, "Thing ID: %d", querytng->index);
-        sprintf((char*)owner, "Owner: %d", querytng->owner);
-        sprintf((char*)position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
+        char owner[24] = "";
+        char health[24] = "";
+        char position[40] = "";
+        char amount[40] = "";
+        snprintf(title, sizeof(title), "Thing ID: %d", querytng->index);
+        snprintf(owner, sizeof(owner), "Owner: %d", querytng->owner);
+        snprintf(position, sizeof(position), "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
         if (querytng->class_id == TCls_Trap)
         {
             struct TrapConfigStats *trapst = get_trap_model_stats(querytng->model);
-            sprintf((char*)health, "Health: %ld", querytng->health);
-            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, trapst->shots);
+            snprintf(health, sizeof(health), "Health: %ld", querytng->health);
+            snprintf(amount, sizeof(amount), "Shots: %d/%d", querytng->trap.num_shots, trapst->shots);
         }
         else
         {
@@ -333,27 +313,27 @@ void query_thing(struct Thing *thing)
                 struct ObjectConfigStats* objst = get_object_model_stats(querytng->model);
                 if (object_is_gold(querytng))
                 {
-                    sprintf((char*)amount, "Amount: %ld", querytng->valuable.gold_stored);   
+                    snprintf(amount, sizeof(amount), "Amount: %ld", querytng->valuable.gold_stored);
                 }
-                sprintf((char*)health, "Health: %ld/%ld", querytng->health, objst->health);
-            }  
-            else 
+                snprintf(health, sizeof(health), "Health: %ld/%ld", querytng->health, objst->health);
+            }
+            else
             if (querytng->class_id == TCls_Door)
             {
                 struct DoorConfigStats *doorst = get_door_model_stats(querytng->model);
-                sprintf((char*)health, "Health: %ld/%ld", querytng->health, doorst->health);
+                snprintf(health, sizeof(health), "Health: %ld/%ld", querytng->health, doorst->health);
             }
             else
             if (querytng->class_id == TCls_Creature)
             {
                 struct CreatureControl* cctrl = creature_control_get_from_thing(querytng);
-                sprintf((char*)health, "Health: %ld/%ld", querytng->health, cctrl->max_health);
-                sprintf((char*)position, "State: %s", creature_state_code_name(querytng->active_state));
-                sprintf((char*)amount, "Continue: %s", creature_state_code_name(querytng->continue_state));
+                snprintf(health, sizeof(health), "Health: %ld/%ld", querytng->health, cctrl->max_health);
+                snprintf(position, sizeof(position), "State: %s", creature_state_code_name(querytng->active_state));
+                snprintf(amount, sizeof(amount), "Continue: %s", creature_state_code_name(querytng->continue_state));
             }
             else
             {
-                sprintf((char*)health, "Health: %ld", querytng->health);
+                snprintf(health, sizeof(health), "Health: %ld", querytng->health);
             }
         }
         create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&position, (const char*)&amount);

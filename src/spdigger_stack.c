@@ -553,10 +553,10 @@ TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, Map
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    if ((slb_x < 0) || (slb_x >= gameadd.map_tiles_x)) {
+    if ((slb_x < 0) || (slb_x >= game.map_tiles_x)) {
         return false;
     }
-    if ((slb_y < 0) || (slb_y >= gameadd.map_tiles_y)) {
+    if ((slb_y < 0) || (slb_y >= game.map_tiles_y)) {
         return false;
     }
     if (!check_place_to_convert_excluding(creatng, slb_x, slb_y))
@@ -591,7 +591,7 @@ long check_out_unconverted_spiral(struct Thing *thing, long nslabs)
     slb_x = subtile_slab(thing->mappos.x.stl.num);
     slb_y = subtile_slab(thing->mappos.y.stl.num);
     imax = 2;
-    arndi = CREATURE_RANDOM(thing, 4);
+    arndi = THING_RANDOM(thing, 4);
     for (slabi = 0; slabi < nslabs; slabi++)
     {
         {
@@ -629,10 +629,10 @@ TbBool check_out_unprettied_spot(struct Thing *creatng, long slb_x, long slb_y)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    if ((slb_x < 0) || (slb_x >= gameadd.map_tiles_x)) {
+    if ((slb_x < 0) || (slb_x >= game.map_tiles_x)) {
         return false;
     }
-    if ((slb_y < 0) || (slb_y >= gameadd.map_tiles_y)) {
+    if ((slb_y < 0) || (slb_y >= game.map_tiles_y)) {
         return false;
     }
     if (!check_place_to_pretty_excluding(creatng, slb_x, slb_y)) {
@@ -666,7 +666,7 @@ long check_out_unprettied_spiral(struct Thing *thing, long nslabs)
     slb_x = subtile_slab(thing->mappos.x.stl.num);
     slb_y = subtile_slab(thing->mappos.y.stl.num);
     imax = 2;
-    arndi = CREATURE_RANDOM(thing, 4);
+    arndi = THING_RANDOM(thing, 4);
     for (slabi = 0; slabi < nslabs; slabi++)
     {
         {
@@ -816,9 +816,9 @@ long check_place_to_pretty_excluding(struct Thing *creatng, MapSlabCoord slb_x, 
 
 static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iterations)
 {
-    int v4;
-    int v8;
-    int v9;
+    int spiral_direction;
+    int direction_step_count;
+    int next_direction;
     int current_iteration;
     const struct Around *ar;
     long stl_y;
@@ -828,25 +828,25 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
     current_iteration = 0;
     MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
-    int v7 = 2;
+    int steps_per_direction = 2;
 
     while (number_of_iterations > current_iteration)
     {
         --slb_x;
         --slb_y;
-        v4 = 0;
+        spiral_direction = 0;
         do
         {
-            v8 = 0;
-            v9 = v4 + 1;
-            ar = &small_around[(v4 + 1) & 3];
-            if (v7 > 0)
+            direction_step_count = 0;
+            next_direction = spiral_direction + 1;
+            ar = &small_around[(spiral_direction + 1) & 3];
+            if (steps_per_direction > 0)
             {
                 while (1)
                 {
                     slb_x += ar->delta_x;
                     slb_y += ar->delta_y;
-                    if (slb_x >= 0 && slb_x < gameadd.map_tiles_x && slb_y >= 0 && slb_y < gameadd.map_tiles_y && check_place_to_reinforce(thing, slb_x, slb_y) > 0)
+                    if (slb_x >= 0 && slb_x < game.map_tiles_x && slb_y >= 0 && slb_y < game.map_tiles_y && check_place_to_reinforce(thing, slb_x, slb_y) > 0)
                     {
                         SubtlCodedCoords stl_num = get_subtile_number_at_slab_center(slb_x,slb_y);
                         if (check_out_uncrowded_reinforce_position(thing, stl_num, &stl_x, &stl_y))
@@ -860,14 +860,14 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
                             }
                         }
                     }
-                    if (v7 <= ++v8)
+                    if (steps_per_direction <= ++direction_step_count)
                         break;
                 }
             }
-            v4 = v9;
-        } while (v9 < 4);
+            spiral_direction = next_direction;
+        } while (next_direction < 4);
         ++current_iteration;
-        v7 += 2;
+        steps_per_direction += 2;
     }
 
     return 0;
@@ -878,7 +878,7 @@ static long check_out_unreinforced_place(struct Thing *thing)
     SubtlCodedCoords working_stl;
     SubtlCodedCoords stl_num;
     struct CreatureControl *cctrl;
-    int v17;
+    int direction_attempt_count;
     long stl_y;
     long stl_x;
 
@@ -912,7 +912,7 @@ static long check_out_unreinforced_place(struct Thing *thing)
         unsigned int ar_idx_x = thing->mappos.x.stl.num % 3u;
         unsigned int ar_idx_y = 3 * (thing->mappos.y.stl.num % 3u);
 
-        v17 = 0;
+        direction_attempt_count = 0;
         int around_idx = around_indexes[ar_idx_y + ar_idx_x];
         while (1)
         {
@@ -928,9 +928,9 @@ static long check_out_unreinforced_place(struct Thing *thing)
                         break;
                 }
             }
-            v17 += 2;
+            direction_attempt_count += 2;
             around_idx = (around_idx + 2) % SMALL_AROUND_LENGTH;
-            if (v17 >= 4)
+            if (direction_attempt_count >= 4)
             {
                 cctrl->digger.working_stl = 0;
                 return check_out_unreinforced_spiral(thing, 1) != 0;
@@ -1090,7 +1090,7 @@ long check_out_undug_place(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     base_stl_x = stl_num_decode_x(cctrl->digger.task_stl);
     base_stl_y = stl_num_decode_y(cctrl->digger.task_stl);
-    n = CREATURE_RANDOM(creatng, 4);
+    n = THING_RANDOM(creatng, 4);
     for (i=0; i < 4; i++)
     {
         struct MapTask* mtask;
@@ -1440,9 +1440,9 @@ void add_pretty_and_convert_to_imp_stack_prepare(struct Dungeon *dungeon, unsign
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     // Clear our slab options array and mark tall slabs with SlbCAOpt_Border
-    for (slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+    for (slb_y=0; slb_y < game.map_tiles_y; slb_y++)
     {
-        for (slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+        for (slb_x=0; slb_x < game.map_tiles_x; slb_x++)
         {
             SlabCodedCoords slb_num;
             struct SlabMap *slb;
@@ -1598,7 +1598,7 @@ int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     unsigned char *slbopt;
     struct SlabCoord *slblist;
     slbopt = big_scratch;
-    slblist = (struct SlabCoord *)(big_scratch + gameadd.map_tiles_x*gameadd.map_tiles_y);
+    slblist = (struct SlabCoord *)(big_scratch + game.map_tiles_x*game.map_tiles_y);
     add_pretty_and_convert_to_imp_stack_prepare(dungeon, slbopt);
     add_pretty_and_convert_to_imp_stack_starting_from_pos(dungeon, slbopt, slblist, &heartng->mappos, &remain_num);
     SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
@@ -1716,7 +1716,7 @@ struct Thing *get_next_unclaimed_gold_thing_pickable_by_digger(PlayerNumber owne
                       slb_owner = get_slab_owner_thing_is_on(thing);
                       if ((slb_owner == owner) || (slb_owner == game.neutral_player_num)) {
                           struct Room *room;
-                          room = find_any_navigable_room_for_thing_closer_than(thing, owner, RoRoF_GoldStorage, NavRtF_Default, gameadd.map_subtiles_x/2 + gameadd.map_subtiles_y/2);
+                          room = find_any_navigable_room_for_thing_closer_than(thing, owner, RoRoF_GoldStorage, NavRtF_Default, game.map_subtiles_x/2 + game.map_subtiles_y/2);
                           if (!room_is_invalid(room)) {
                               return thing;
                           }
@@ -2724,7 +2724,7 @@ long check_out_available_imp_tasks(struct Thing *thing)
 long check_out_imp_tokes(struct Thing *thing)
 {
     SYNCDBG(19, "Starting");
-    long i = CREATURE_RANDOM(thing, 64);
+    long i = THING_RANDOM(thing, 64);
     // small chance of changing state
     if (i != 0)
       return 0;
@@ -2752,12 +2752,12 @@ long check_out_imp_last_did(struct Thing *creatng)
       {
         // If we were digging gems, after 5 repeats of this job, a 1 in 20 chance to select another dungeon job.
         // This allows to switch to other important tasks and not consuming all the diggers workforce forever
-        if (( CREATURE_RANDOM(creatng,20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
+        if (( THING_RANDOM(creatng,20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
         {
           // Set position in digger tasks list to a random place
           SYNCDBG(9,"Digger %s index %d reset due to neverending task",thing_model_name(creatng),(int)creatng->index);
           cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
-          cctrl->digger.task_stack_pos = CREATURE_RANDOM(creatng, dungeon->digger_stack_length);
+          cctrl->digger.task_stack_pos = THING_RANDOM(creatng, dungeon->digger_stack_length);
           break;
         }
       }
@@ -3372,11 +3372,11 @@ long check_out_worker_dig_or_mine(struct Thing *thing, struct DiggerStack *dstac
 
 long check_out_worker_pickup_gold_pile(struct Thing *thing, struct DiggerStack *dstack)
 {
-    struct CreatureStats *crstat;
+    struct CreatureModelConfig *crconf;
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
-    if (crstat->gold_hold <= thing->creature.gold_carried)
+    crconf = creature_stats_get_from_thing(thing);
+    if (crconf->gold_hold <= thing->creature.gold_carried)
     {
         if (game.play_gameturn - cctrl->tasks_check_turn > 128)
         {

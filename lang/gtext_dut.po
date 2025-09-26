@@ -459,7 +459,7 @@ msgid ""
 msgstr ""
 "Je hebt al aardig wat oorkonden en boeken verzameld. De meeste wezens kunnen "
 "onderzoek doen, maar Tovenaars zijn verreweg de beste. Die stomzinnige "
-"Kwelgeesten hebben zelfs moeite de boeken niet ondersteboven te houden. Soms "
+"Trollen hebben zelfs moeite de boeken niet ondersteboven te houden. Soms "
 "eten ze zelfs de pagina's op."
 
 #. Level Waterdream Warm objective after attracting warlock
@@ -619,7 +619,7 @@ msgid ""
 "best employed doing dark deeds in your Workshop. They don't complain about "
 "the hours, because their labours keep them away from combat."
 msgstr ""
-"Een Kwelgeest sluit zich bij jou aan. Kwelgeesten zijn goede ambachtslieden "
+"Een Trol sluit zich bij jou aan. Trollen zijn goede ambachtslieden "
 "die je het beste in de Werkplaats hun duistere werk kunt laten doen. Ze "
 "klagen niet over werktijden. Ze besteden hun tijd niet aan knokken maar aan "
 "werken."
@@ -2358,7 +2358,7 @@ msgstr "Tor"
 #: guitext:261
 msgctxt "Creature name"
 msgid "Troll"
-msgstr "Kwelgeest"
+msgstr "Trol"
 
 #: guitext:262
 msgctxt "Creature name"
@@ -4810,7 +4810,7 @@ msgstr "Kist met deuren gevonden"
 #: guitext:689
 msgctxt "Game event name"
 msgid "Dungeon Special found"
-msgstr "Speciale Dungeon gevonden"
+msgstr "Mysterieuze doos gevonden"
 
 #: guitext:690
 msgctxt "Game event description"
@@ -4940,7 +4940,7 @@ msgstr "Kist met deuren gevonden: LMK: bladeren. RMK: wissen."
 #: guitext:715
 msgctxt "Game event description"
 msgid "Dungeon special found: LMB toggle. RMB delete."
-msgstr "Speciale kerker gevonden: LMK: bladeren. RMK: wissen."
+msgstr "Mysterieuze doos gevonden: LMK: bladeren. RMK: wissen."
 
 #: guitext:716
 msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
@@ -5885,18 +5885,18 @@ msgstr "Nieuwe Levels"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Please insert Data Disk CD-ROM"
-msgstr "Plaats de Data Disk CD-ROM in het station"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "Produceerbaar: Wezens kunnen dit voorwerp in de werkplaats vervaardigen."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "Plaats de Dungeon Keeper CD-ROM in het station"
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "Werkplaats te klein: Breid de werkplaats uit om dit voorwerp te vervaardigen."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "Plaats The Deeper Dungeons CD-ROM in het station"
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "Niet produceerbaar: Dit voorwerp kan niet worden vervaardigd."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -6739,12 +6739,12 @@ msgstr ""
 
 #: guitext:1013
 msgctxt "Menu interface item"
-msgid "Ancient Keeper campaign"
+msgid "Ancient Keeper"
 msgstr ""
 
 #: guitext:1014
 msgctxt "Menu interface item"
-msgid "Burdened Imps' Level Pack"
+msgid "Burdened Imps"
 msgstr ""
 
 #: guitext:1015
@@ -6759,7 +6759,7 @@ msgstr "The Legende van de Ninja"
 
 #: guitext:1017
 msgctxt "Menu interface item"
-msgid "DzjeeAr's  6-level campaign"
+msgid "DzjeeAr's 6-level campaign"
 msgstr "DzjeeAr's campagne met  6 levels"
 
 #: guitext:1018
@@ -6774,7 +6774,7 @@ msgstr "DzjeeAr's campagne met 25 levels"
 
 #: guitext:1020
 msgctxt "Menu interface item"
-msgid "Evil Keeper campaign"
+msgid "Evil Keeper"
 msgstr ""
 
 #: guitext:1021
@@ -6799,12 +6799,12 @@ msgstr "Helden Campagne"
 
 #: guitext:1025
 msgctxt "Menu interface item"
-msgid "Lord Vexer campaign"
+msgid "Lord Vexer"
 msgstr ""
 
 #: guitext:1026
 msgctxt "Menu interface item"
-msgid "Nikolai's Castles campaign"
+msgid "Nikolai's Castles"
 msgstr "Nikolais Kasteel"
 
 #: guitext:1027
@@ -6814,17 +6814,17 @@ msgstr ""
 
 #: guitext:1028
 msgctxt "Menu interface item"
-msgid "Post Ancient Keeper campaign"
+msgid "Post Ancient Keeper"
 msgstr ""
 
 #: guitext:1029
 msgctxt "Menu interface item"
-msgid "Post Undead Keeper campaign"
+msgid "Post Undead Keeper"
 msgstr ""
 
 #: guitext:1030
 msgctxt "Menu interface item"
-msgid "Quest for the Hero campaign"
+msgid "Quest for the Hero"
 msgstr ""
 
 #: guitext:1031
@@ -6834,12 +6834,12 @@ msgstr ""
 
 #: guitext:1032
 msgctxt "Menu interface item"
-msgid "Twin Keepers Campaign"
+msgid "Twin Keepers"
 msgstr ""
 
 #: guitext:1033
 msgctxt "Menu interface item"
-msgid "Undead Keeper campaign"
+msgid "Undead Keeper"
 msgstr ""
 
 #: guitext:1034 guitext:1035

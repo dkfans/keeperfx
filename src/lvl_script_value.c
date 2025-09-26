@@ -123,9 +123,8 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
  * This processes given script command. It is used to process VALUEs at start when they have
  * no conditions, or during the gameplay when conditions are met.
  */
-void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value)
+void script_process_value(unsigned long var_index, unsigned long plr_range_id, long param1, long param2, long param3, struct ScriptValue *value)
 {
-  struct CreatureStats *crstat;
   struct CreatureModelConfig *crconf;
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
@@ -163,54 +162,41 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
 
   switch (var_index)
   {
-  case Cmd_SET_HATE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-        dungeon = get_dungeon(i);
-        if (dungeon_invalid(dungeon))
-            continue;
-        dungeon->hates_player[val2%DUNGEONS_COUNT] = val3;
-      }
-      break;
-  case Cmd_SET_GENERATE_SPEED:
-      game.generate_speed = saturate_set_unsigned(val2, 16);
-      update_dungeon_generation_speeds();
-      break;
   case Cmd_ROOM_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-        set_room_available(i, val2, val3, val4);
+        set_room_available(i, param1, param2, param3);
       }
       break;
   case Cmd_CREATURE_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-          if (!set_creature_available(i,val2,val3,val4)) {
-              WARNLOG("Setting creature %s availability for player %d failed.",creature_code_name(val2),(int)i);
+          if (!set_creature_available(i,param1,param2,param3)) {
+              WARNLOG("Setting creature %s availability for player %d failed.",creature_code_name(param1),(int)i);
           }
       }
       break;
   case Cmd_MAGIC_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-          if (!set_power_available(i,val2,val3,val4)) {
-              WARNLOG("Setting power %s availability for player %d failed.",power_code_name(val2),(int)i);
+          if (!set_power_available(i,param1,param2,param3)) {
+              WARNLOG("Setting power %s availability for player %d failed.",power_code_name(param1),(int)i);
           }
       }
       break;
   case Cmd_TRAP_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-          if (!set_trap_buildable_and_add_to_amount(i, val2, val3, val4)) {
-              WARNLOG("Setting trap %s availability for player %d failed.",trap_code_name(val2),(int)i);
+          if (!set_trap_buildable_and_add_to_amount(i, param1, param2, param3)) {
+              WARNLOG("Setting trap %s availability for player %d failed.",trap_code_name(param1),(int)i);
           }
       }
       break;
   case Cmd_RESEARCH:
       for (i=plr_start; i < plr_end; i++)
       {
-          if (!update_or_add_players_research_amount(i, val2, val3, val4)) {
-              WARNLOG("Updating research points for type %d kind %d of player %d failed.",(int)val2,(int)val3,(int)i);
+          if (!update_or_add_players_research_amount(i, param1, param2, param3)) {
+              WARNLOG("Updating research points for type %d kind %d of player %d failed.",(int)param1,(int)param2,(int)i);
           }
       }
       break;
@@ -219,131 +205,128 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       {
         if (!research_overriden_for_player(i))
           remove_all_research_from_player(i);
-        add_research_to_player(i, val2, val3, val4);
+        add_research_to_player(i, param1, param2, param3);
       }
       break;
   case Cmd_SET_TIMER:
       for (i=plr_start; i < plr_end; i++)
       {
-          restart_script_timer(i,val2);
+          restart_script_timer(i,param1);
       }
       break;
   case Cmd_SET_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_variable(i, val4, val2, val3);
+          set_variable(i, param3, param1, param2);
       }
       break;
   case Cmd_ADD_TO_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_variable(i, val4, val2, get_condition_value(i, val4, val2) + val3);
+          set_variable(i, param3, param1, get_condition_value(i, param3, param1) + param2);
       }
       break;
   case Cmd_MAX_CREATURES:
       for (i=plr_start; i < plr_end; i++)
       {
-          SYNCDBG(4,"Setting player %d max attracted creatures to %d.",(int)i,(int)val2);
+          SYNCDBG(4,"Setting player %d max attracted creatures to %d.",(int)i,(int)param1);
           dungeon = get_dungeon(i);
           if (dungeon_invalid(dungeon))
               continue;
-          dungeon->max_creatures_attracted = val2;
+          dungeon->max_creatures_attracted = param1;
       }
       break;
   case Cmd_DOOR_AVAILABLE:
       for (i=plr_start; i < plr_end; i++) {
-          set_door_buildable_and_add_to_amount(i, val2, val3, val4);
+          set_door_buildable_and_add_to_amount(i, param1, param2, param3);
       }
       break;
   case Cmd_DISPLAY_INFORMATION:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end)) {
-          set_general_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+          set_general_information(param1, param2, stl_num_decode_x(param3), stl_num_decode_y(param3));
       }
       break;
   case Cmd_ADD_CREATURE_TO_POOL:
-      add_creature_to_pool(val2, val3);
-      break;
-  case Cmd_TUTORIAL_FLASH_BUTTON:
-      gui_set_button_flashing(val2, val3);
+      add_creature_to_pool(param1, param2);
       break;
   case Cmd_SET_CREATURE_HEALTH:
-      change_max_health_of_creature_kind(val2, val3);
+      change_max_health_of_creature_kind(param1, param2);
       break;
   case Cmd_SET_CREATURE_STRENGTH:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
+      crconf = creature_stats_get(param1);
+      if (creature_stats_invalid(crconf))
           break;
-      crstat->strength = saturate_set_unsigned(val3, 16);
+      crconf->strength = saturate_set_unsigned(param2, 16);
       break;
   case Cmd_SET_CREATURE_ARMOUR:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
+      crconf = creature_stats_get(param1);
+      if (creature_stats_invalid(crconf))
           break;
-      crstat->armour = saturate_set_unsigned(val3, 8);
+      crconf->armour = saturate_set_unsigned(param2, 8);
       break;
   case Cmd_SET_CREATURE_FEAR_WOUNDED:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
+      crconf = creature_stats_get(param1);
+      if (creature_stats_invalid(crconf))
           break;
-      crstat->fear_wounded = saturate_set_unsigned(val3, 8);
+      crconf->fear_wounded = saturate_set_unsigned(param2, 8);
       break;
   case Cmd_SET_CREATURE_FEAR_STRONGER:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
+      crconf = creature_stats_get(param1);
+      if (creature_stats_invalid(crconf))
           break;
-      crstat->fear_stronger = saturate_set_unsigned(val3, 16);
+      crconf->fear_stronger = saturate_set_unsigned(param2, 16);
       break;
   case Cmd_SET_CREATURE_FEARSOME_FACTOR:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
+      crconf = creature_stats_get(param1);
+      if (creature_stats_invalid(crconf))
           break;
-      crstat->fearsome_factor = saturate_set_unsigned(val3, 16);
+      crconf->fearsome_factor = saturate_set_unsigned(param2, 16);
       break;
   case Cmd_SET_CREATURE_PROPERTY:
-      crconf = &game.conf.crtr_conf.model[val2];
-      crstat = creature_stats_get(val2);
-      switch (val3)
+      crconf = &game.conf.crtr_conf.model[param1];
+      crconf = creature_stats_get(param1);
+      switch (param2)
       {
       case 1: // BLEEDS
-          crstat->bleeds = val4;
+          crconf->bleeds = param3;
           break;
       case 2: // UNAFFECTED_BY_WIND
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
-              set_flag(crstat->immunity_flags, CSAfF_Wind);
+              set_flag(crconf->immunity_flags, CSAfF_Wind);
           }
           else
           {
-              clear_flag(crstat->immunity_flags, CSAfF_Wind);
+              clear_flag(crconf->immunity_flags, CSAfF_Wind);
           }
           break;
       case 3: // IMMUNE_TO_GAS
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
-              set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+              set_flag(crconf->immunity_flags, CSAfF_PoisonCloud);
           }
           else
           {
-              clear_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+              clear_flag(crconf->immunity_flags, CSAfF_PoisonCloud);
           }
           break;
       case 4: // HUMANOID_SKELETON
-          crstat->humanoid_creature = val4;
+          crconf->humanoid_creature = param3;
           break;
       case 5: // PISS_ON_DEAD
-          crstat->piss_on_dead = val4;
+          crconf->piss_on_dead = param3;
           break;
       case 7: // FLYING
-          crstat->flying = val4;
+          crconf->flying = param3;
           break;
       case 8: // SEE_INVISIBLE
-          crstat->can_see_invisible = val4;
+          crconf->can_see_invisible = param3;
           break;
       case 9: // PASS_LOCKED_DOORS
-          crstat->can_go_locked_doors = val4;
+          crconf->can_go_locked_doors = param3;
           break;
       case 10: // SPECIAL_DIGGER
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_IsSpecDigger);
           }
@@ -355,7 +338,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           update_creatr_model_activities_list(1);
           break;
       case 11: // ARACHNID
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_IsArachnid);
           }
@@ -365,7 +348,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 12: // DIPTERA
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_IsDiptera);
           }
@@ -375,7 +358,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 13: // LORD
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_IsLordOfLand);
           }
@@ -385,7 +368,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 14: // SPECTATOR
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_IsSpectator);
           }
@@ -395,7 +378,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 15: // EVIL
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_IsEvil);
           }
@@ -405,17 +388,17 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 16: // NEVER_CHICKENS
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
-              set_flag(crstat->immunity_flags, CSAfF_Chicken);
+              set_flag(crconf->immunity_flags, CSAfF_Chicken);
           }
           else
           {
-              clear_flag(crstat->immunity_flags, CSAfF_Chicken);
+              clear_flag(crconf->immunity_flags, CSAfF_Chicken);
           }
           break;
       case 17: // IMMUNE_TO_BOULDER
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_ImmuneToBoulder);
           }
@@ -425,7 +408,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 18: // NO_CORPSE_ROTTING
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_NoCorpseRotting);
           }
@@ -435,7 +418,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 19: // NO_ENMHEART_ATTCK
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_NoEnmHeartAttack);
           }
@@ -445,7 +428,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 20: // TREMBLING_FAT
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_Trembling);
               set_flag(crconf->model_flags,CMF_Fat);
@@ -457,7 +440,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 21: // FEMALE
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_Female);
           }
@@ -467,7 +450,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 22: // INSECT
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_Insect);
           }
@@ -477,7 +460,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 23: // ONE_OF_KIND
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_OneOfKind);
           }
@@ -487,7 +470,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 24: // NO_IMPRISONMENT
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_NoImprisonment);
           }
@@ -497,23 +480,23 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 25: // NEVER_SICK
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
-              set_flag(crstat->immunity_flags, CSAfF_Disease);
+              set_flag(crconf->immunity_flags, CSAfF_Disease);
           }
           else
           {
-              clear_flag(crstat->immunity_flags, CSAfF_Disease);
+              clear_flag(crconf->immunity_flags, CSAfF_Disease);
           }
           break;
       case 26: // ILLUMINATED
-          crstat->illuminated = val4;
+          crconf->illuminated = param3;
           break;
       case 27: // ALLURING_SCVNGR
-          crstat->entrance_force = val4;
+          crconf->entrance_force = param3;
           break;
       case 28: // NO_RESURRECT
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags, CMF_NoResurrect);
           }
@@ -523,7 +506,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 29: // NO_TRANSFER
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags, CMF_NoTransfer);
           }
@@ -533,7 +516,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 30: // TREMBLING
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_Trembling);
           }
@@ -543,7 +526,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 31: // FAT
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_Fat);
           }
@@ -553,7 +536,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 32: // NO_STEAL_HERO
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_NoStealHero);
           }
@@ -563,7 +546,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 33: // PREFER_STEAL
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags,CMF_PreferSteal);
           }
@@ -573,7 +556,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 34: // EVENTFUL_DEATH
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags, CMF_EventfulDeath);
           }
@@ -583,7 +566,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 35: // DIGGING_CREATURE
-          if (val4 >= 1)
+          if (param3 >= 1)
           {
               set_flag(crconf->model_flags, CMF_IsDiggingCreature);
           }
@@ -595,25 +578,25 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           update_creatr_model_activities_list(1);
           break;
       default:
-          SCRPTERRLOG("Unknown creature property '%ld'", val3);
+          SCRPTERRLOG("Unknown creature property '%ld'", param2);
           break;
       }
       break;
   case Cmd_ALLY_PLAYERS:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_ally_with_player(i, val2, (val3 & 1) ? true : false);
-          set_ally_with_player(val2, i, (val3 & 1) ? true : false);
-          set_player_ally_locked(i, val2, (val3 & 2) ? true : false);
-          set_player_ally_locked(val2, i, (val3 & 2) ? true : false);
+          set_ally_with_player(i, param1, (param2 & 1) ? true : false);
+          set_ally_with_player(param1, i, (param2 & 1) ? true : false);
+          set_player_ally_locked(i, param1, (param2 & 2) ? true : false);
+          set_player_ally_locked(param1, i, (param2 & 2) ? true : false);
       }
       break;
   case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
-      set_flag_value(game.flags_cd, MFlg_DeadBackToPool, val2);
+      set_flag_value(game.mode_flags, MFlg_DeadBackToPool, param1);
       break;
   case Cmd_BONUS_LEVEL_TIME:
-      if (val2 > 0) {
-          game.bonus_time = game.play_gameturn + val2;
+      if (param1 > 0) {
+          game.bonus_time = game.play_gameturn + param1;
           set_flag(game.flags_gui,GGUI_CountdownTimer);
       } else {
           game.bonus_time = 0;
@@ -621,36 +604,36 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       }
       if (level_file_version > 0)
       {
-          gameadd.timer_real = (TbBool)val3;
+          game.timer_real = (TbBool)param2;
       }
       else
       {
-          gameadd.timer_real = false;
+          game.timer_real = false;
       }
       break;
   case Cmd_QUICK_OBJECTIVE:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-          process_objective(gameadd.quick_messages[val2%QUICK_MESSAGES_COUNT], val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+          process_objective(game.quick_messages[param1%QUICK_MESSAGES_COUNT], param2, stl_num_decode_x(param3), stl_num_decode_y(param3));
       break;
   case Cmd_QUICK_INFORMATION:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-          set_quick_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+          set_quick_information(param1, param2, stl_num_decode_x(param3), stl_num_decode_y(param3));
       break;
   case Cmd_ADD_GOLD_TO_PLAYER:
       for (i=plr_start; i < plr_end; i++)
       {
-          if (val2 > SENSIBLE_GOLD)
+          if (param1 > SENSIBLE_GOLD)
           {
-              val2 = SENSIBLE_GOLD;
+              param1 = SENSIBLE_GOLD;
               SCRPTWRNLOG("Gold added to player %d reduced to %d", (int)plr_range_id, SENSIBLE_GOLD);
           }
-          if (val2 >= 0)
+          if (param1 >= 0)
           {
-              player_add_offmap_gold(i, val2);
+              player_add_offmap_gold(i, param1);
           }
           else
           {
-              take_money_from_dungeon(i, -val2, 0);
+              take_money_from_dungeon(i, -param1, 0);
           }
       }
       break;
@@ -658,7 +641,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           player = get_player(i);
-          set_creature_tendencies(player, val2, val3);
+          set_creature_tendencies(player, param1, param2);
           if (is_my_player(player)) {
               dungeon = get_players_dungeon(player);
               game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
@@ -669,64 +652,64 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_REVEAL_MAP_RECT:
       for (i=plr_start; i < plr_end; i++)
       {
-          player_reveal_map_area(i, val2, val3, (val4)&0xffff, (val4>>16)&0xffff);
+          player_reveal_map_area(i, param1, param2, (param3)&0xffff, (param3>>16)&0xffff);
       }
       break;
   case Cmd_KILL_CREATURE:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_kill_creatures(i, val2, val3, val4);
+          script_kill_creatures(i, param1, param2, param3);
       }
       break;
     case Cmd_LEVEL_UP_CREATURE:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_level_up_creature(i, val2, val3, val4);
+          script_level_up_creature(i, param1, param2, param3);
       }
       break;
     case Cmd_USE_POWER_ON_CREATURE:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_use_power_on_creature_matching_criterion(i, val2, val3, val4);
+          script_use_power_on_creature_matching_criterion(i, param1, param2, param3);
       }
       break;
     case Cmd_USE_SPELL_ON_CREATURE:
-      script_use_spell_on_creature_with_criteria(plr_range_id, val2, val3, val4);
+      script_use_spell_on_creature_with_criteria(plr_range_id, param1, param2, param3);
       break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         for (i = plr_start; i < plr_end; i++)
         {
-            script_computer_dig_to_location(i, val2, val3);
+            script_computer_dig_to_location(i, param1, param2);
         }
         break;
     case Cmd_USE_POWER_AT_POS:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_use_power_at_pos(i, val2, val3, val4);
+          script_use_power_at_pos(i, param1, param2, param3);
       }
       break;
     case Cmd_USE_POWER_AT_LOCATION:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_use_power_at_location(i, val2, val3);
+          script_use_power_at_location(i, param1, param2);
       }
       break;
     case Cmd_USE_POWER:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_use_power(i, val2, val3);
+          script_use_power(i, param1, param2);
       }
       break;
     case Cmd_USE_SPECIAL_INCREASE_LEVEL:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_use_special_increase_level(i, val2);
+          script_use_special_increase_level(i, param1);
       }
       break;
     case Cmd_USE_SPECIAL_MULTIPLY_CREATURES:
       for (i=plr_start; i < plr_end; i++)
       {
-          for (int count = 0; count < val2; count++)
+          for (int count = 0; count < param1; count++)
           {
             script_use_special_multiply_creatures(i);
           }
@@ -744,7 +727,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_CHANGE_CREATURE_OWNER:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_change_creature_owner_with_criteria(i, val2, val3, val4);
+          script_change_creature_owner_with_criteria(i, param1, param2, param3);
       }
       break;
     case Cmd_MAKE_UNSAFE:
@@ -756,26 +739,26 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_SET_CAMPAIGN_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
-          intralvl.campaign_flags[i][val2] = saturate_set_signed(val3, 32);
+          intralvl.campaign_flags[i][param1] = saturate_set_signed(param2, 32);
       }
       break;
   case Cmd_ADD_TO_CAMPAIGN_FLAG:
 
       for (i=plr_start; i < plr_end; i++)
       {
-          intralvl.campaign_flags[i][val2] = saturate_set_signed(intralvl.campaign_flags[i][val2] + val3, 32);
+          intralvl.campaign_flags[i][param1] = saturate_set_signed(intralvl.campaign_flags[i][param1] + param2, 32);
       }
       break;
   case Cmd_EXPORT_VARIABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-          SYNCDBG(8, "Setting campaign flag[%ld][%ld] to %ld.", i, val4, get_condition_value(i, val2, val3));
-          intralvl.campaign_flags[i][val4] = get_condition_value(i, val2, val3);
+          SYNCDBG(8, "Setting campaign flag[%ld][%ld] to %ld.", i, param3, get_condition_value(i, param1, param2));
+          intralvl.campaign_flags[i][param3] = get_condition_value(i, param1, param2);
       }
       break;
   case Cmd_CREATURE_ENTRANCE_LEVEL:
   {
-    if (val2 > 0)
+    if (param1 > 0)
     {
         if (plr_range_id == ALL_PLAYERS)
         {
@@ -784,7 +767,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
                 dungeon = get_dungeon(i);
                 if (!dungeon_invalid(dungeon))
                 {
-                    dungeon->creature_entrance_level = (val2 - 1);
+                    dungeon->creature_entrance_level = (param1 - 1);
                 }
             }
         }
@@ -793,7 +776,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
             dungeon = get_dungeon(plr_range_id);
             if (!dungeon_invalid(dungeon))
             {
-                dungeon->creature_entrance_level = (val2 - 1);
+                dungeon->creature_entrance_level = (param1 - 1);
             }
         }
     }
@@ -802,23 +785,23 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_RANDOMISE_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
-          if (val3 == 0)
+          if (param2 == 0)
           {
-              long current_flag_val = get_condition_value(i, val4, val2);
-              set_variable(i, val4, val2, GAME_RANDOM(current_flag_val) + 1);
+              long current_flag_val = get_condition_value(i, param3, param1);
+              set_variable(i, param3, param1, GAME_RANDOM(current_flag_val) + 1);
           }
           else
           {
-              set_variable(i, val4, val2, GAME_RANDOM(val3) + 1);
+              set_variable(i, param3, param1, GAME_RANDOM(param2) + 1);
           }
       }
       break;
   case Cmd_COMPUTE_FLAG:
       {
-        long src_plr_range = (val2 >> 24) & 255;
-        long operation = (val2 >> 16) & 255;
-        unsigned char flag_type = (val2 >> 8) & 255;
-        unsigned char src_flag_type = val2 & 255;
+        long src_plr_range = (param1 >> 24) & 255;
+        long operation = (param1 >> 16) & 255;
+        unsigned char flag_type = (param1 >> 8) & 255;
+        unsigned char src_flag_type = param1 & 255;
         int src_plr_start, src_plr_end;
         if (get_players_range(src_plr_range, &src_plr_start, &src_plr_end) < 0)
         {
@@ -828,18 +811,18 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
         long sum = 0;
         for (i=src_plr_start; i < src_plr_end; i++)
         {
-            sum += get_condition_value(i, src_flag_type, val4);
+            sum += get_condition_value(i, src_flag_type, param3);
         }
         for (i=plr_start; i < plr_end; i++)
         {
-            long current_flag_val = get_condition_value(i, flag_type, val3);
+            long current_flag_val = get_condition_value(i, flag_type, param2);
             long computed = sum;
             if (operation == SOpr_INCREASE) computed = current_flag_val + sum;
             if (operation == SOpr_DECREASE) computed = current_flag_val - sum;
             if (operation == SOpr_MULTIPLY) computed = current_flag_val * sum;
             SCRIPTDBG(7,"Changing player%ld's %ld flag from %ld to %ld based on flag of type %u.",
-                i, val3, current_flag_val, computed, src_flag_type);
-            set_variable(i, flag_type, val3, computed);
+                i, param2, current_flag_val, computed, src_flag_type);
+            set_variable(i, flag_type, param2, computed);
         }
       }
       break;

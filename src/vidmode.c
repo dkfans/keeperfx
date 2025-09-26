@@ -177,9 +177,6 @@ short LoadMcgaData(void)
     int ferror = 0;
     int i = 0;
     struct TbLoadFiles* t_lfile = &gui_load_files_320[i];
-    // Allocate some low memory, only to be sure that
-    // it will be free when this function ends
-    void* mem = calloc(0x10000u, 1);
     while (t_lfile->Start != NULL)
     {
         // Don't allow loading flags
@@ -198,7 +195,6 @@ short LoadMcgaData(void)
         i++;
         t_lfile = &gui_load_files_320[i];
   }
-  free(mem);
   button_sprites = load_spritesheet("data/gui1-32.dat", "data/gui1-32.tab");
   winfont = load_font("data/font2-32.dat", "data/font2-32.tab");
   font_sprites = load_font("data/font1-32.dat", "data/font1-32.tab");
@@ -353,7 +349,7 @@ TbBool set_pointer_graphic(long ptr_idx)
         LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
         return false;
     }
-    
+
 
   switch (ptr_idx)
   {
@@ -586,10 +582,10 @@ char *get_vidmode_name(TbScreenMode mode)
 
 /**
  * Set up a new screen mode suitable for playing the game.
- * 
+ *
  * @param nmode The mode (index number) that we want to change to.
  * @param falisafe If TRUE the the failsafe resolution will be used if nmode is not available
- * @return Returns the mode that the screen was setup successfully with (or Lb_SCREEN_MODE_INVALID/false when the screen was not setup successfully). 
+ * @return Returns the mode that the screen was setup successfully with (or Lb_SCREEN_MODE_INVALID/false when the screen was not setup successfully).
  */
 TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
 {
@@ -631,7 +627,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     }
   }
   TbBool hi_res = ((LbGraphicsScreenHeight() < 400) ? false : true);
-  long lens_mem = game.numfield_1B;
+  long lens_mem = game.applied_lens_type;
   unsigned int flg_mem = lbDisplay.DrawFlags;
   TbBool was_minimal_res = (MinimalResolutionSetup || force_video_mode_reset);
   set_pointer_graphic_none();
@@ -714,7 +710,6 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     return Lb_SCREEN_MODE_INVALID;
   }
   setup_heap_manager();
-  game.operation_flags &= ~GOF_Unkn04;
   force_video_mode_reset = false;
   SYNCDBG(8,"Finished");
   return nmode;
@@ -747,7 +742,7 @@ TbBool update_screen_mode_data(long width, long height)
   units_per_pixel_width = width/40; // 8 for low res, 16 is "kfx default"
   units_per_pixel_height = height/25; // 8 for low res, 16 is "kfx default"
   units_per_pixel_best = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width); // If the screen is wider than 16:10 the height is used; if the screen is narrower than 16:10 the width is used.
-  
+
   // In-game scaling: UI (for the side bar menu and escape menu)
   long ui_scale = UI_NORMAL_SIZE; // UI_NORMAL_SIZE, UI_HALF_SIZE, or UI_DOUBLE_SIZE (not fully implemented yet)
   units_per_pixel_ui = resize_ui(units_per_pixel_best, ui_scale);
@@ -760,7 +755,7 @@ TbBool update_screen_mode_data(long width, long height)
   // Main menu scaling (DK original: 640x480)
   units_per_pixel_menu_height = height/30; // 16 is "kfx default" (640x480)
   units_per_pixel_menu = ((is_menu_ar_wider_than_original(width, height)) ? units_per_pixel_menu_height : units_per_pixel_width); // If the screen is wider than 4:3 the height is used; if the screen is narrower than 4:3 the width is used.
-  
+
   // Main menu scaling: Campaign map "land view" screen (including the window frame)
   calculate_landview_upp(width, height, LANDVIEW_MAP_WIDTH, LANDVIEW_MAP_HEIGHT); // 16 is "kfx default" for 640x480 game window (1x), a 960x720 frame (1.5x), and a 1280x960 landview (2x)
 
@@ -774,9 +769,9 @@ TbBool update_screen_mode_data(long width, long height)
 
 /**
  * Set up a new screen mode suitable for the frontend or movie playback.
- * 
+ *
  * @param nmode The mode (index number) that we want to change to.
- * @return Returns the mode that the screen was setup successfully with (or Lb_SCREEN_MODE_INVALID/false when the screen was not setup successfully). 
+ * @return Returns the mode that the screen was setup successfully with (or Lb_SCREEN_MODE_INVALID/false when the screen was not setup successfully).
  */
 TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
 {
@@ -882,9 +877,9 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
 
 /**
  * Set up a new screen mode with a blank black screen.
- * 
+ *
  * @param nmode The mode (index number) that we want to change to.
- * @return Returns the mode that the screen was setup successfully with (or Lb_SCREEN_MODE_INVALID/false when the screen was not setup successfully). 
+ * @return Returns the mode that the screen was setup successfully with (or Lb_SCREEN_MODE_INVALID/false when the screen was not setup successfully).
  */
 TbScreenMode setup_screen_mode_zero(TbScreenMode nmode)
 {
@@ -921,8 +916,8 @@ TbScreenMode setup_screen_mode_zero(TbScreenMode nmode)
 
 /**
  * Set up a the screen using the mode saved in settings (video_scrnmode).
- * 
- * @return Returns the mode that the screen was setup successfully with (or Lb_SCREEN_MODE_INVALID/false when the screen was not setup successfully). 
+ *
+ * @return Returns the mode that the screen was setup successfully with (or Lb_SCREEN_MODE_INVALID/false when the screen was not setup successfully).
  */
 TbScreenMode reenter_video_mode(void)
 {
@@ -945,8 +940,8 @@ TbScreenMode reenter_video_mode(void)
 
 /**
  * Switch to the next mode in the list set by the INGAME_RES config setting (these are stored in switching_vidmodes[]).
- * 
- * @return Returns the mode that the screen was setup successfully with (or Lb_SCREEN_MODE_INVALID/false when the screen was not setup successfully). 
+ *
+ * @return Returns the mode that the screen was setup successfully with (or Lb_SCREEN_MODE_INVALID/false when the screen was not setup successfully).
  */
 TbBool switch_to_next_video_mode(void)
 {

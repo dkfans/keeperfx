@@ -33,10 +33,10 @@ extern "C" {
 #endif
 struct ScriptValue *allocate_script_value(void)
 {
-    if (gameadd.script.values_num >= SCRIPT_VALUES_COUNT)
+    if (game.script.values_num >= SCRIPT_VALUES_COUNT)
         return NULL;
-    struct ScriptValue* value = &gameadd.script.values[gameadd.script.values_num];
-    gameadd.script.values_num++;
+    struct ScriptValue* value = &game.script.values[game.script.values_num];
+    game.script.values_num++;
     return value;
 }
 
@@ -54,25 +54,25 @@ long script_strdup(const char *src)
 {
     // TODO: add string deduplication to save space
 
-    const long offset = gameadd.script.next_string_offset;
-    const long remaining_size = sizeof(gameadd.script.strings) - offset;
+    const long offset = game.script.next_string_offset;
+    const long remaining_size = sizeof(game.script.strings) - offset;
     const long string_size = strlen(src) + 1;
     if (string_size >= remaining_size)
     {
         return -1;
     }
-    memcpy(&gameadd.script.strings[offset], src, string_size);
-    gameadd.script.next_string_offset += string_size;
+    memcpy(&game.script.strings[offset], src, string_size);
+    game.script.next_string_offset += string_size;
     return offset;
 }
 
 const char * script_strval(long offset)
 {
-    if (offset >= sizeof(gameadd.script.strings))
+    if (offset >= sizeof(game.script.strings))
     {
         return NULL;
     }
-    return &gameadd.script.strings[offset];
+    return &game.script.strings[offset];
 }
 
 struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx, short move_angle)
@@ -139,7 +139,7 @@ struct Thing* script_process_new_effectgen(ThingModel tngmodel, TbMapLocation lo
     }
     thing->effect_generator.range = range;
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-    
+
     // Try to move thing out of the solid wall if it's inside one
     if (thing_in_wall_at(thing, &thing->mappos))
     {

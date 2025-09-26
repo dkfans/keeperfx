@@ -4,9 +4,10 @@
 /** @file game_merge.h
  *     Header file for game_merge.c.
  * @par Purpose:
- *     Saved games maintain functions.
+ *     Handles game state serialization, campaign progression, and random number generation systems.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
+ *     Defines data structures for persistent campaign data, random number generation macros,
+ *     and various game system flags used throughout the engine.
  * @author   Tomasz Lis
  * @date     21 Oct 2009 - 25 Nov 2009
  * @par  Copying and copyrights:
@@ -49,28 +50,20 @@ extern "C" {
 #define AROUND_SLAB_EIGHT_LENGTH 8
 #define SMALL_AROUND_SLAB_LENGTH 4
 
-// UNSYNC_RANDOM is not synced at all. For synced choices the more specific random is better.
-// So priority is  CREATURE_RANDOM >> PLAYER_RANDOM >> GAME_RANDOM
+// Random number generation system with synchronized and unsynchronized variants
 
-// Used only once. Maybe it is light-specific UNSYNC_RANDOM
-#define LIGHT_RANDOM(range) LbRandomSeries(range, &game.lish.light_rand_seed, __func__, __LINE__)
-// This RNG should not be used to affect anything related affecting game state
-#define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__)
-// This RNG should be used only for "whole game" events (i.e. from script)
-#define GAME_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
-// This RNG is for anything related to creatures or their shots. So creatures should act independent
-#define CREATURE_RANDOM(thing, range) \
-    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
-// This is messy. Used only for AI choices. Maybe it should be merged with PLAYER_RANDOM.
-#define AI_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
-// This RNG is about something related to specific player
-#define PLAYER_RANDOM(plyr, range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
-// RNG related to effects. I am unsure about its relationship with game state.
-// It should be replaced either with CREATURE_RANDOM or with UNSYNC_RANDOM on case by case basis.
-#define EFFECT_RANDOM(thing, range) \
-    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
-#define ACTION_RANDOM(range) \
-    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
+// Thing-specific random for deterministic per-thing behavior (creatures, objects, etc.)
+#define THING_RANDOM(thing, range) LbRandomSeries(range, &((struct Thing*)(thing))->random_seed, __func__, __LINE__)
+// Global game events requiring synchronization across network (scripts, AI decisions, player events)
+#define GAME_RANDOM(range) LbRandomSeries(range, &game.action_random_seed, __func__, __LINE__)
+// Unsynchronized random for visual/audio effects that don't affect game state (lighting, particles)
+#define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_random_seed, __func__, __LINE__)
+// Works like UNSYNC_RANDOM - sound-specific random for audio effects and sound variations
+#define SOUND_RANDOM(range) LbRandomSeries(range, &game.sound_random_seed, __func__, __LINE__)
+// AI-specific random seed for computer player decisions
+#define AI_RANDOM(range) LbRandomSeries(range, &game.ai_random_seed, __func__, __LINE__)
+// Player-specific random for actions tied to a particular player
+#define PLAYER_RANDOM(plyr, range) LbRandomSeries(range, &game.player_random_seed, __func__, __LINE__)
 
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,
@@ -139,65 +132,15 @@ struct IntralevelData {
     unsigned char bonuses_found[BONUS_LEVEL_STORAGE_COUNT];
     struct CreatureStorage transferred_creatures[PLAYERS_COUNT][TRANSFER_CREATURE_STORAGE_COUNT];
     long campaign_flags[PLAYERS_FOR_CAMPAIGN_FLAGS][CAMPAIGN_FLAGS_PER_PLAYER];
+    char next_level;
 };
 
-/**
- * Defines additional elements, which are not stored in main 'Game' struct.
- */
-struct GameAdd {
-    unsigned long turn_last_checked_for_gold;
-    long scavenge_effectiveness_evil; //unused
-    long scavenge_effectiveness_good; //unused
-    unsigned short computer_chat_flags;
-    char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
-    struct GuiMessage messages[GUI_MESSAGES_COUNT];
-    struct LightSystemState lightst;
-    uint8_t               max_custom_box_kind;
-    unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
-    int                   script_current_player;
-    struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
-    char                  box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
-    struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
-    int                   active_fx_lines;
-    struct ActionPoint action_points[ACTN_POINTS_COUNT];
-    LevelNumber last_level; // Used to restore custom sprites
-    struct LevelScript script;
-    PlayerNumber script_timer_player;
-    unsigned char script_timer_id;
-    unsigned long script_timer_limit;
-    TbBool timer_real;
-    unsigned char script_value_type;
-    unsigned char script_value_id;
-    PlayerNumber script_variable_player;
-    long script_variable_target;
-    unsigned char script_variable_target_type;
-    TbBool heart_lost_display_message;
-    TbBool heart_lost_quick_message;
-    unsigned long heart_lost_message_id;
-    long heart_lost_message_target;
-    unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
-    unsigned char slab_ext_data_initial[MAX_TILES_X*MAX_TILES_Y];
-    float delta_time;
-    long double process_turn_time;
-    float flash_button_time;
-    MapSubtlCoord map_subtiles_x;
-    MapSubtlCoord map_subtiles_y;
-    MapSlabCoord map_tiles_x;
-    MapSlabCoord map_tiles_y;
-    long navigation_map_size_x;
-    long navigation_map_size_y;
-    short around_map[AROUND_MAP_LENGTH];
-    short around_slab[AROUND_SLAB_LENGTH];
-    short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
-    short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
-};
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
 
 #pragma pack()
 
 /******************************************************************************/
-extern struct GameAdd gameadd;
 extern struct IntralevelData intralvl;
 /******************************************************************************/
 LevelNumber get_loaded_level_number(void);
@@ -210,9 +153,9 @@ TbBool activate_bonus_level(struct PlayerInfo *player);
 TbBool is_bonus_level_visible(struct PlayerInfo *player, long bn_lvnum);
 void hide_all_bonus_levels(struct PlayerInfo *player);
 unsigned short get_extra_level_kind_visibility(unsigned short elv_kind);
-short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
 void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
+TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible);
 TbBool emulate_integer_overflow(unsigned short nbits);
 /******************************************************************************/
 

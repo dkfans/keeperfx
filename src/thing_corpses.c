@@ -187,12 +187,12 @@ long move_dead_creature(struct Thing *thing)
     if ( (thing->velocity.x.val != 0) || (thing->velocity.y.val != 0) || (thing->velocity.z.val != 0) )
     {
         long i = (long)thing->mappos.x.val + (long)thing->velocity.x.val;
-        if (i >= subtile_coord(gameadd.map_subtiles_x,0)) i = subtile_coord(gameadd.map_subtiles_x,0)-1;
+        if (i >= subtile_coord(game.map_subtiles_x,0)) i = subtile_coord(game.map_subtiles_x,0)-1;
         if (i < 0) i = 0;
         struct Coord3d pos;
         pos.x.val = i;
         i = (long)thing->mappos.y.val + (long)thing->velocity.y.val;
-        if (i >= subtile_coord(gameadd.map_subtiles_y,0)) i = subtile_coord(gameadd.map_subtiles_y,0)-1;
+        if (i >= subtile_coord(game.map_subtiles_y,0)) i = subtile_coord(game.map_subtiles_y,0)-1;
         if (i < 0) i = 0;
         pos.y.val = i;
         i = (long)thing->mappos.z.val + (long)thing->velocity.z.val;
@@ -210,7 +210,7 @@ long move_dead_creature(struct Thing *thing)
         move_thing_in_map(thing, &pos);
     } else
     {
-        // Even if no velocity, update field_60
+        // Even if no velocity, update floor_height
         thing->floor_height = get_thing_height_at(thing, &thing->mappos);
     }
     return TUFRet_Modified;
@@ -424,13 +424,13 @@ TbBool update_dead_creatures_list_for_owner(const struct Thing *thing)
 
 struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short crpscondition, unsigned short owner, CrtrExpLevel exp_level)
 {
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
+    if (!i_can_allocate_free_thing_structure(TCls_DeadCreature))
     {
         ERRORDBG(3,"Cannot create dead creature model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* thing = allocate_free_thing_structure(TCls_DeadCreature);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate dead creature %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -453,12 +453,12 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->inertia_floor = 204;
     thing->inertia_air = 51;
     thing->bounce_angle = 0;
-    thing->movement_flags |= TMvF_Unknown08;
+    thing->movement_flags |= TMvF_ZeroVerticalVelocity;
     thing->creation_turn = game.play_gameturn;
-    struct CreatureStats* crstat = creature_stats_get(model);
-    if (crstat->transparency_flags != 0)
+    struct CreatureModelConfig* crconf = creature_stats_get(model);
+    if (crconf->transparency_flags != 0)
     {
-        set_flag(thing->rendering_flags, crstat->transparency_flags);
+        set_flag(thing->rendering_flags, crconf->transparency_flags);
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
@@ -527,10 +527,10 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
 
 void delete_corpse(struct Thing *deadtng)
 {
-    struct CreatureStats* crstat = creature_stats_get(deadtng->model);
-    if (crstat->corpse_vanish_effect != 0)
+    struct CreatureModelConfig* crconf = creature_stats_get(deadtng->model);
+    if (crconf->corpse_vanish_effect != 0)
     {
-        create_used_effect_or_element(&deadtng->mappos, crstat->corpse_vanish_effect, deadtng->owner, deadtng->index);
+        create_used_effect_or_element(&deadtng->mappos, crconf->corpse_vanish_effect, deadtng->owner, deadtng->index);
     }
     delete_thing_structure(deadtng, 0);
 }

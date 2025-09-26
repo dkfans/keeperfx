@@ -50,6 +50,7 @@ struct DoorConfigStats {
     GoldAmount selling_value;
     TbBool unsellable;
     short place_sound_idx;
+    FuncIdx updatefn_idx;
 };
 
 /* Contains properties of a door model, to be stored in DoorConfigStats. */
@@ -97,6 +98,8 @@ struct TrapConfigStats {
     unsigned long recharge_sprite_anim_idx;
     unsigned long sprite_size_max;
     unsigned long anim_speed;
+    unsigned long attack_anim_speed;
+    unsigned long recharge_anim_speed;
     unsigned char unanimated;
     unsigned char unshaded;
     unsigned char random_start_frame;
@@ -114,6 +117,7 @@ struct TrapConfigStats {
     TbBool unsellable;
     short place_sound_idx;
     short trigger_sound_idx;
+    FuncIdx updatefn_idx;
 };
 
 /* Manufacture types data. Originally was named TrapData, but stores both traps and doors, now no longer matches original. */

@@ -228,7 +228,7 @@ const struct NamedCommand creatmodel_jobs_commands[] = {
   {"PARTNERTRAINING",     11},
   {NULL,                   0},
   };
-  
+
 const struct NamedCommand creatmodel_sounds_commands[] = {
   {"HURT",                 CrSnd_Hurt},
   {"HIT",                  CrSnd_Hit},
@@ -256,17 +256,15 @@ void strtolower(char * str) {
 TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
   // Block name and parameter word store variables
-  struct CreatureStats* crstat = creature_stats_get(crtr_model);
-  struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
+  struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
   // Find the block
-  char block_buf[COMMAND_WORD_LEN];
-  sprintf(block_buf, "attributes");
+  const char * block_name = "attributes";
   long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
+  int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+          WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
       return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_attributes_commands,cmd_num)
@@ -287,240 +285,240 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->health = k;
+            crconf->health = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 3: // HEALREQUIREMENT
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->heal_requirement = k;
+            crconf->heal_requirement = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 4: // HEALTHRESHOLD
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->heal_threshold = k;
+            crconf->heal_threshold = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 5: // STRENGTH
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->strength = k;
+            crconf->strength = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 6: // ARMOUR
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->armour = k;
+            crconf->armour = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 7: // DEXTERITY
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->dexterity = k;
+            crconf->dexterity = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 8: // FEARWOUNDED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->fear_wounded = k;
+            crconf->fear_wounded = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 9: // FEARSTRONGER
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->fear_stronger = k;
+            crconf->fear_stronger = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 10: // DEFENCE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->defense = k;
+            crconf->defense = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 11: // LUCK
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->luck = k;
+            crconf->luck = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 12: // RECOVERY
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->sleep_recovery = k;
+            crconf->sleep_recovery = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 13: // HUNGERRATE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->hunger_rate = k;
+            crconf->hunger_rate = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 14: // HUNGERFILL
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->hunger_fill = k;
+            crconf->hunger_fill = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 15: // LAIRSIZE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->lair_size = k;
+            crconf->lair_size = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 16: // HURTBYLAVA
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->hurt_by_lava = k;
+            crconf->hurt_by_lava = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 17: // BASESPEED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->base_speed = k;
+            crconf->base_speed = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 18: // GOLDHOLD
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->gold_hold = k;
+            crconf->gold_hold = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 19: // SIZE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->size_xy = k;
+            crconf->size_xy = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->size_z = k;
+            crconf->size_z = k;
             n++;
           }
           if (n < 2)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 20: // ATTACKPREFERENCE
@@ -529,27 +527,27 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
             k = get_id(attackpref_desc, word_buf);
             if (k > 0)
             {
-              crstat->attack_preference = k;
+              crconf->attack_preference = k;
               n++;
             }
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 21: // PAY
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->pay = k;
+            crconf->pay = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 22: // HEROVSKEEPERCOST
@@ -558,13 +556,13 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->slaps_to_kill = k;
+            crconf->slaps_to_kill = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 24: // CREATURELOYALTY
@@ -577,41 +575,41 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->damage_to_boulder = k;
+            crconf->damage_to_boulder = k;
             n++;
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 27: // THINGSIZE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->thing_size_xy = k;
+            crconf->thing_size_xy = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->thing_size_z = k;
+            crconf->thing_size_z = k;
             n++;
           }
           if (n < 2)
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                COMMAND_TEXT(cmd_num),block_buf, creature_code_name(crtr_model), config_textname);
+                COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 28: // PROPERTIES
-          crstat->bleeds = false;
-          crstat->humanoid_creature = false;
-          crstat->piss_on_dead = false;
-          crstat->flying = false;
-          crstat->can_see_invisible = false;
-          crstat->can_go_locked_doors = false;
+          crconf->bleeds = false;
+          crconf->humanoid_creature = false;
+          crconf->piss_on_dead = false;
+          crconf->flying = false;
+          crconf->can_see_invisible = false;
+          crconf->can_go_locked_doors = false;
           crconf->model_flags = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
@@ -619,35 +617,35 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
             switch (k)
             {
             case 1: // BLEEDS
-              crstat->bleeds = true;
+              crconf->bleeds = true;
               n++;
               break;
             case 2: // UNAFFECTED_BY_WIND
-              set_flag(crstat->immunity_flags, CSAfF_Wind);
+              set_flag(crconf->immunity_flags, CSAfF_Wind);
               n++;
               break;
             case 3: // IMMUNE_TO_GAS
-              set_flag(crstat->immunity_flags, CSAfF_PoisonCloud);
+              set_flag(crconf->immunity_flags, CSAfF_PoisonCloud);
               n++;
               break;
             case 4: // HUMANOID_SKELETON
-              crstat->humanoid_creature = true;
+              crconf->humanoid_creature = true;
               n++;
               break;
             case 5: // PISS_ON_DEAD
-              crstat->piss_on_dead = true;
+              crconf->piss_on_dead = true;
               n++;
               break;
             case 7: // FLYING
-              crstat->flying = true;
+              crconf->flying = true;
               n++;
               break;
             case 8: // SEE_INVISIBLE
-              crstat->can_see_invisible = true;
+              crconf->can_see_invisible = true;
               n++;
               break;
             case 9: // PASS_LOCKED_DOORS
-              crstat->can_go_locked_doors = true;
+              crconf->can_go_locked_doors = true;
               n++;
               break;
             case 10: // SPECIAL_DIGGER
@@ -675,7 +673,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 16: // NEVER_CHICKENS
-              set_flag(crstat->immunity_flags, CSAfF_Chicken);
+              set_flag(crconf->immunity_flags, CSAfF_Chicken);
               n++;
               break;
             case 17: // IMMUNE_TO_BOULDER
@@ -712,15 +710,15 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 n++;
                 break;
             case 25: // IMMUNE_TO_DISEASE
-                set_flag(crstat->immunity_flags, CSAfF_Disease);
+                set_flag(crconf->immunity_flags, CSAfF_Disease);
                 n++;
                 break;
             case 26: // ILLUMINATED
-                crstat->illuminated = true;
+                crconf->illuminated = true;
                 n++;
                 break;
             case 27: // ALLURING_SCVNGR
-                crstat->entrance_force = true;
+                crconf->entrance_force = true;
                 n++;
                 break;
             case 28: // NO_RESURRECT
@@ -757,7 +755,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             default:
               CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num),word_buf,block_buf, creature_code_name(crtr_model), config_textname);
+                  COMMAND_TEXT(cmd_num),word_buf, block_name, creature_code_name(crtr_model), config_textname);
               break;
             }
           }
@@ -775,33 +773,33 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (n < 1)
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 30: // FEARSOMEFACTOR
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->fearsome_factor = k;
+            crconf->fearsome_factor = k;
             n++;
           }
           if (n < 1)
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 31: // TOKINGRECOVERY
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->toking_recovery = k;
+            crconf->toking_recovery = k;
             n++;
           }
           if (n < 1)
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 34: // LAIROBJECT
@@ -810,14 +808,14 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               k = get_id(object_desc, word_buf);
               if (k > 0)
               {
-                  crstat->lair_object = k;
+                  crconf->lair_object = k;
                   n++;
               }
           }
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 35: // PRISONKIND
@@ -826,7 +824,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               k = get_id(creature_desc, word_buf);
               if (k > 0)
               {
-                  crstat->prison_kind = k;
+                  crconf->prison_kind = k;
                   n++;
               }
               else if (strcasecmp(word_buf,"NULL") == 0)
@@ -837,7 +835,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 36: // TORTUREKIND
@@ -846,7 +844,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               k = get_id(creature_desc, word_buf);
               if (k > 0)
               {
-                  crstat->torture_kind = k;
+                  crconf->torture_kind = k;
                   n++;
               }
               else if (strcasecmp(word_buf,"NULL") == 0)
@@ -857,28 +855,28 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (n < 1)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
         case 37: // SPELLIMMUNITY
         {
             // Backward compatibility check.
-            TbBool unaffected_by_wind = flag_is_set(crstat->immunity_flags, CSAfF_Wind);
-            TbBool immune_to_gas = flag_is_set(crstat->immunity_flags, CSAfF_PoisonCloud);
-            TbBool never_chickens = flag_is_set(crstat->immunity_flags, CSAfF_Chicken);
-            TbBool immune_to_disease = flag_is_set(crstat->immunity_flags, CSAfF_Disease);
-            crstat->immunity_flags = 0; // Clear flags, this is necessary for partial config if modder wants to remove all flags.
+            TbBool unaffected_by_wind = flag_is_set(crconf->immunity_flags, CSAfF_Wind);
+            TbBool immune_to_gas = flag_is_set(crconf->immunity_flags, CSAfF_PoisonCloud);
+            TbBool never_chickens = flag_is_set(crconf->immunity_flags, CSAfF_Chicken);
+            TbBool immune_to_disease = flag_is_set(crconf->immunity_flags, CSAfF_Disease);
+            crconf->immunity_flags = 0; // Clear flags, this is necessary for partial config if modder wants to remove all flags.
             // Backward compatibility fix.
-            if (unaffected_by_wind) { set_flag(crstat->immunity_flags, CSAfF_Wind); }
-            if (immune_to_gas) { set_flag(crstat->immunity_flags, CSAfF_PoisonCloud); }
-            if (never_chickens) { set_flag(crstat->immunity_flags, CSAfF_Chicken); }
-            if (immune_to_disease) { set_flag(crstat->immunity_flags, CSAfF_Disease); }
+            if (unaffected_by_wind) { set_flag(crconf->immunity_flags, CSAfF_Wind); }
+            if (immune_to_gas) { set_flag(crconf->immunity_flags, CSAfF_PoisonCloud); }
+            if (never_chickens) { set_flag(crconf->immunity_flags, CSAfF_Chicken); }
+            if (immune_to_disease) { set_flag(crconf->immunity_flags, CSAfF_Disease); }
             while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 if (parameter_is_number(word_buf))
                 {
                     k = atoi(word_buf);
-                    crstat->immunity_flags = k;
+                    crconf->immunity_flags = k;
                     n++;
                 }
                 else
@@ -886,7 +884,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                     k = get_id(spell_effect_flags, word_buf);
                     if (k > 0)
                     {
-                        set_flag(crstat->immunity_flags, k);
+                        set_flag(crconf->immunity_flags, k);
                         n++;
                     }
                 }
@@ -894,7 +892,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, creature_code_name(crtr_model), config_textname);
             }
             break;
         }
@@ -906,17 +904,17 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                     k = get_id(creature_desc, word_buf);
                     if (k >= 0)
                     {
-                        crstat->hostile_towards[i] = k;
+                        crconf->hostile_towards[i] = k;
                         n++;
                     }
                     else if (0 == strcmp(word_buf, "ANY_CREATURE"))
                     {
-                        crstat->hostile_towards[i] = CREATURE_ANY;
+                        crconf->hostile_towards[i] = CREATURE_ANY;
                         n++;
                     }
                     else
                     {
-                        crstat->hostile_towards[i] = 0;
+                        crconf->hostile_towards[i] = 0;
                         if (strcasecmp(word_buf, "NULL") == 0)
                         {
                             n++;
@@ -927,7 +925,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
       case ccr_comment:
@@ -936,7 +934,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
+              cmd_num, block_name, config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -958,12 +956,12 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   // Set creature start states based on the flags
   if ((crconf->model_flags & (CMF_IsSpecDigger|CMF_IsDiggingCreature)) != 0)
   {
-      crstat->evil_start_state = CrSt_ImpDoingNothing;
-      crstat->good_start_state = CrSt_TunnellerDoingNothing;
+      crconf->evil_start_state = CrSt_ImpDoingNothing;
+      crconf->good_start_state = CrSt_TunnellerDoingNothing;
   } else
   {
-      crstat->evil_start_state = CrSt_CreatureDoingNothing;
-      crstat->good_start_state = CrSt_GoodDoingNothing;
+      crconf->evil_start_state = CrSt_CreatureDoingNothing;
+      crconf->good_start_state = CrSt_GoodDoingNothing;
   }
   return true;
 }
@@ -971,17 +969,15 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
 TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
   int n;
-  // Block name and parameter word store variables
-  struct CreatureStats* crstat = creature_stats_get(crtr_model);
+  struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
   // Find the block
-  char block_buf[COMMAND_WORD_LEN];
-  sprintf(block_buf, "attraction");
+  const char * block_name = "attraction";
   long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
+  int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+          WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
       return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_attraction_commands,cmd_num)
@@ -997,35 +993,35 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
       {
       case 1: // ENTRANCEROOM
           for (k=0; k < ENTRANCE_ROOMS_COUNT; k++)
-            crstat->entrance_rooms[k] = 0;
+            crconf->entrance_rooms[k] = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = get_id(room_desc, word_buf);
             if ((k >= 0) && (n < ENTRANCE_ROOMS_COUNT))
             {
-              crstat->entrance_rooms[n] = k;
+              crconf->entrance_rooms[n] = k;
               n++;
             } else
             {
               CONFWRNLOG("Too many params, or incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), word_buf, block_name, config_textname);
             }
           }
           break;
       case 2: // ROOMSLABSREQUIRED
           for (k=0; k < ENTRANCE_ROOMS_COUNT; k++)
-            crstat->entrance_slabs_req[k] = 0;
+            crconf->entrance_slabs_req[k] = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
             if (n < ENTRANCE_ROOMS_COUNT)
             {
-              crstat->entrance_slabs_req[n] = k;
+              crconf->entrance_slabs_req[n] = k;
               n++;
             } else
             {
               CONFWRNLOG("Too many parameters of \"%s\" in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
           }
           break;
@@ -1033,39 +1029,39 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->entrance_score = k;
+            crconf->entrance_score = k;
             n++;
           }
           if (n < 1)
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 4: // SCAVENGEREQUIREMENT
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->scavenge_require = k;
+            crconf->scavenge_require = k;
             n++;
           }
           if (n < 1)
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 5: // TORTURETIME
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->torture_break_time = k;
+            crconf->torture_break_time = k;
             n++;
           }
           if (n < 1)
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case ccr_comment:
@@ -1074,7 +1070,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
+              cmd_num, block_name, config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -1085,17 +1081,15 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
 
 TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
-    // Block name and parameter word store variables
-    struct CreatureStats* crstat = creature_stats_get(crtr_model);
+    struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "annoyance");
+    const char * block_name = "annoyance";
     long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
+    int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
         return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_annoyance_commands,cmd_num)
@@ -1113,266 +1107,266 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_eat_food = k;
+              crconf->annoy_eat_food = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 2: // WILLNOTDOJOB
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_will_not_do_job = k;
+              crconf->annoy_will_not_do_job = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 3: // INHAND
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_in_hand = k;
+              crconf->annoy_in_hand = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 4: // NOLAIR
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_no_lair = k;
+              crconf->annoy_no_lair = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 5: // NOHATCHERY
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_no_hatchery = k;
+              crconf->annoy_no_hatchery = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 6: // WOKENUP
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_woken_up = k;
+              crconf->annoy_woken_up = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 7: // STANDINGONDEADENEMY
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_on_dead_enemy = k;
+              crconf->annoy_on_dead_enemy = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 8: // SULKING
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_sulking = k;
+              crconf->annoy_sulking = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 9: // NOSALARY
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_no_salary = k;
+              crconf->annoy_no_salary = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 10: // SLAPPED
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_slapped = k;
+              crconf->annoy_slapped = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 11: // STANDINGONDEADFRIEND
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_on_dead_friend = k;
+              crconf->annoy_on_dead_friend = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 12: // INTORTURE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_in_torture = k;
+              crconf->annoy_in_torture = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 13: // INTEMPLE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_in_temple = k;
+              crconf->annoy_in_temple = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 14: // SLEEPING
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_sleeping = k;
+              crconf->annoy_sleeping = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 15: // GOTWAGE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_got_wage = k;
+              crconf->annoy_got_wage = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 16: // WINBATTLE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_win_battle = k;
+              crconf->annoy_win_battle = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 17: // UNTRAINED
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_untrained_time = k;
+              crconf->annoy_untrained_time = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_untrained = k;
+              crconf->annoy_untrained = k;
               n++;
             }
             if (n < 2)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 18: // OTHERSLEAVING
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_others_leaving = k;
+              crconf->annoy_others_leaving = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 19: // JOBSTRESS
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_job_stress = k;
+              crconf->annoy_job_stress = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 20: // QUEUE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_queue = k;
+              crconf->annoy_queue = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 21: // LAIRENEMY
@@ -1383,17 +1377,17 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
                     k = get_id(creature_desc, word_buf);
                     if (k >= 0)
                     {
-                        crstat->lair_enemy[i] = k;
+                        crconf->lair_enemy[i] = k;
                         n++;
                     }
                     else if (0 == strcmp(word_buf, "ANY_CREATURE"))
                     {
-                        crstat->lair_enemy[i] = CREATURE_ANY;
+                        crconf->lair_enemy[i] = CREATURE_ANY;
                         n++;
                     }
                     else
                     {
-                        crstat->lair_enemy[i] = 0;
+                        crconf->lair_enemy[i] = 0;
                         if (strcasecmp(word_buf, "NULL") == 0)
                             n++;
                     }
@@ -1402,35 +1396,35 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 22: // ANNOYLEVEL
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_level = k;
+              crconf->annoy_level = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case 23: // ANGERJOBS
-            crstat->jobs_anger = 0;
+            crconf->jobs_anger = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(angerjob_desc, word_buf);
               if (k > 0)
               {
-                crstat->jobs_anger |= k;
+                crconf->jobs_anger |= k;
                 n++;
               } else
               {
                   CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                      COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                      COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
               }
             }
             break;
@@ -1438,13 +1432,13 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->annoy_going_postal = k;
+              crconf->annoy_going_postal = k;
               n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                    COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             }
             break;
         case ccr_comment:
@@ -1453,7 +1447,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             break;
         default:
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file of creature %s.",
-                COMMAND_TEXT(cmd_num), block_buf, config_textname, creature_code_name(crtr_model));
+                COMMAND_TEXT(cmd_num), block_name, config_textname, creature_code_name(crtr_model));
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -1464,17 +1458,15 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
 
 TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
-    // Block name and parameter word store variables
-    struct CreatureStats* crstat = creature_stats_get(crtr_model);
+    struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "senses");
+    const char * block_name = "senses";
     long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
+    int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
         return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_senses_commands,cmd_num)
@@ -1492,39 +1484,39 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->hearing = k;
+              crconf->hearing = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 2: // EYEHEIGHT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->base_eye_height = k;
+              crconf->base_eye_height = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 3: // FIELDOFVIEW
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->field_of_view = k;
+              crconf->field_of_view = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 4: // EYEEFFECT
@@ -1533,14 +1525,14 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
               k = get_id(lenses_desc, word_buf);
               if (k >= 0)
               {
-                  crstat->eye_effect = k;
+                  crconf->eye_effect = k;
                   n++;
               }
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 5: // MAXANGLECHANGE
@@ -1549,14 +1541,14 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
               k = atoi(word_buf);
               if (k > 0)
               {
-                  crstat->max_turning_speed = (k * LbFPMath_PI) / 180;
+                  crconf->max_turning_speed = (k * DEGREES_180) / 180;
                   n++;
               }
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case ccr_comment:
@@ -1565,7 +1557,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+                cmd_num, block_name, config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -1577,16 +1569,15 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
 TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    struct CreatureStats* crstat = creature_stats_get(crtr_model);
+    struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "appearance");
+    const char * block_name = "appearance";
     long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
+    int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
         return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_appearance_commands,cmd_num)
@@ -1604,26 +1595,26 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->walking_anim_speed = k;
+              crconf->walking_anim_speed = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 2: // VISUALRANGE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->visual_range = k;
+              crconf->visual_range = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 3: // SWIPEINDEX
@@ -1632,14 +1623,14 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    crstat->swipe_idx = k;
+                    crconf->swipe_idx = k;
                     n++;
                 }
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 4: // NATURALDEATHKIND
@@ -1648,46 +1639,46 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = get_id(creature_deathkind_desc, word_buf);
                 if (k > 0)
                 {
-                    crstat->natural_death_kind = k;
+                    crconf->natural_death_kind = k;
                 }
                 n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 5: // SHOTORIGIN
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->shot_shift_x = k;
+                crconf->shot_shift_x = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->shot_shift_y = k;
+                crconf->shot_shift_y = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->shot_shift_z = k;
+                crconf->shot_shift_z = k;
                 n++;
             }
             if (n < 3)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 6: // CORPSEVANISHEFFECT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->corpse_vanish_effect = k;
+                crconf->corpse_vanish_effect = k;
                 n++;
             }
             break;
@@ -1695,7 +1686,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->footstep_pitch = k;
+                crconf->footstep_pitch = k;
                 n++;
             }
             break;
@@ -1703,32 +1694,32 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->creature_picked_up_offset.delta_x = k;
+                crconf->creature_picked_up_offset.delta_x = k;
                 n++;
             }
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->creature_picked_up_offset.delta_y = k;
+                crconf->creature_picked_up_offset.delta_y = k;
                 n++;
             }
             if (n < 2)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 9: // STATUSOFFSET
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                crstat->status_offset = k;
+                crconf->status_offset = k;
                 n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 10: // TRANSPARENCYFLAGS
@@ -1737,14 +1728,14 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = atoi(word_buf);
                 if (k > 0)
                 {
-                    crstat->transparency_flags = k<<4; // Bitshift to get the transparancy bit in the render flag
+                    crconf->transparency_flags = k<<4; // Bitshift to get the transparancy bit in the render flag
                 }
                 n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 11: // FIXEDANIMSPEED
@@ -1753,14 +1744,14 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
-                    crstat->fixed_anim_speed = k;
+                    crconf->fixed_anim_speed = k;
                 }
                 n++;
             }
             if (n < 1)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case ccr_comment:
@@ -1769,7 +1760,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+                cmd_num, block_name, config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -1782,16 +1773,15 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
 {
     int n;
     // Block name and parameter word store variables
-    struct CreatureStats* crstat = creature_stats_get(crtr_model);
+    struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "experience");
+    const char * block_name = "experience";
     long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
+    int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
         return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_experience_commands,cmd_num)
@@ -1811,12 +1801,12 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
               k = get_id(instance_desc, word_buf);
               if ((k >= 0) && (n < LEARNED_INSTANCES_COUNT))
               {
-                crstat->learned_instance_id[n] = k;
+                crconf->learned_instance_id[n] = k;
                 n++;
               } else
               {
                 CONFWRNLOG("Too many params, or incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num),word_buf, block_name, config_textname);
               }
             }
             break;
@@ -1826,12 +1816,12 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
               k = atoi(word_buf);
               if ((k >= 0) && (n < LEARNED_INSTANCES_COUNT))
               {
-                crstat->learned_instance_level[n] = k;
+                crconf->learned_instance_level[n] = k;
                 n++;
               } else
               {
                 CONFWRNLOG("Too many params, or incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num),word_buf, block_name, config_textname);
               }
             }
             break;
@@ -1841,12 +1831,12 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
               k = atoi(word_buf);
               if ((k >= 0) && (n < CREATURE_MAX_LEVEL-1))
               {
-                crstat->to_level[n] = k;
+                crconf->to_level[n] = k;
                 n++;
               } else
               {
                 CONFWRNLOG("Too many params, or incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num),word_buf, block_name, config_textname);
               }
             }
             break;
@@ -1854,7 +1844,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->to_level[CREATURE_MAX_LEVEL-1] = k;
+              crconf->to_level[CREATURE_MAX_LEVEL-1] = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -1862,11 +1852,11 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
               k = parse_creature_name(word_buf);
               if (k >= 0)
               {
-                crstat->grow_up = k;
+                crconf->grow_up = k;
                 n++;
               } else
               {
-                crstat->grow_up = 0;
+                crconf->grow_up = 0;
                 if (strcasecmp(word_buf,"NULL") == 0)
                   n++;
               }
@@ -1874,13 +1864,13 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->grow_up_level = k;
+              crconf->grow_up_level = k;
               n++;
             }
             if (n < 3)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 5: // SLEEPEXPERIENCE
@@ -1889,49 +1879,49 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
               k = get_id(slab_desc, word_buf);
               if (k >= 0)
               {
-                crstat->sleep_exp_slab = k;
+                crconf->sleep_exp_slab = k;
                 n++;
               } else
               {
-                crstat->sleep_exp_slab = 0;
+                crconf->sleep_exp_slab = 0;
               }
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->sleep_experience = k;
+              crconf->sleep_experience = k;
               n++;
             }
             if (n < 2)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 6: // EXPERIENCEFORHITTING
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->exp_for_hitting = k;
+              crconf->exp_for_hitting = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 7: // REBIRTH
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->rebirth = k;
+              crconf->rebirth = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case ccr_comment:
@@ -1940,7 +1930,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+                cmd_num, block_name, config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -1952,16 +1942,15 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
 TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Block name and parameter word store variables
-    struct CreatureStats* crstat = creature_stats_get(crtr_model);
+    struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "jobs");
+    const char * block_name = "jobs";
     long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
+    int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
         return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_jobs_commands,cmd_num)
@@ -1976,66 +1965,66 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
         switch (cmd_num)
         {
         case 1: // PRIMARYJOBS
-            crstat->job_primary = 0;
+            crconf->job_primary = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(creaturejob_desc, word_buf);
               if (k > 0)
               {
-                crstat->job_primary |= k;
+                crconf->job_primary |= k;
                 n++;
               } else
               {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num),word_buf, block_name, config_textname);
               }
             }
             break;
         case 2: // SECONDARYJOBS
-            crstat->job_secondary = 0;
+            crconf->job_secondary = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(creaturejob_desc, word_buf);
               if (k > 0)
               {
-                crstat->job_secondary |= k;
+                crconf->job_secondary |= k;
                 n++;
               } else
               {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num),word_buf, block_name, config_textname);
               }
             }
             break;
         case 3: // NOTDOJOBS
-            crstat->jobs_not_do = 0;
+            crconf->jobs_not_do = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(creaturejob_desc, word_buf);
               if (k > 0)
               {
-                crstat->jobs_not_do |= k;
+                crconf->jobs_not_do |= k;
                 n++;
               } else
               {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num),word_buf, block_name, config_textname);
               }
             }
             break;
         case 4: // STRESSFULJOBS
-            crstat->job_stress = 0;
+            crconf->job_stress = 0;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(creaturejob_desc, word_buf);
               if (k > 0)
               {
-                crstat->job_stress |= k;
+                crconf->job_stress |= k;
                 n++;
               } else
               {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\", in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                    COMMAND_TEXT(cmd_num),word_buf, block_name, config_textname);
               }
             }
             break;
@@ -2043,91 +2032,91 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->training_value = k;
+              crconf->training_value = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 6: // TRAININGCOST
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->training_cost = k;
+              crconf->training_cost = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 7: // SCAVENGEVALUE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->scavenge_value = k;
+              crconf->scavenge_value = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 8: // SCAVENGERCOST
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->scavenger_cost = k;
+              crconf->scavenger_cost = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 9: // RESEARCHVALUE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->research_value = k;
+              crconf->research_value = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 10: // MANUFACTUREVALUE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->manufacture_value = k;
+              crconf->manufacture_value = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case 11: // PARTNERTRAINING
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              crstat->partner_training = k;
+              crconf->partner_training = k;
               n++;
             }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case ccr_comment:
@@ -2136,7 +2125,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+                cmd_num, block_name, config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -2149,14 +2138,13 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
 {
   int n;
   // Find the block
-  char block_buf[COMMAND_WORD_LEN];
-  sprintf(block_buf, "sprites");
+  const char * block_name = "sprites";
   long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
+  int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+          WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
       return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creature_graphics_desc,cmd_num)
@@ -2181,7 +2169,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
               {
                   set_creature_model_graphics(crtr_model, cmd_num-1, bad_icon_id);
                   CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                             COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                             COMMAND_TEXT(cmd_num), block_name, config_textname);
               }
           }
       }
@@ -2197,7 +2185,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
           if (n < 1)
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
       } else
       switch (cmd_num)
@@ -2208,7 +2196,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
+              cmd_num, block_name, config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -2220,14 +2208,13 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
 TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,const char *config_textname,unsigned short flags)
 {
     // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "sounds");
+    const char * block_name = "sounds";
     long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
+    int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
         return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatmodel_sounds_commands,cmd_num)
@@ -2253,11 +2240,11 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 k = atoi(word_buf);
                 game.conf.crtr_conf.creature_sounds[crtr_model].hurt.count = k;
                 n++;
-            }            
+            }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case CrSnd_Hit:
@@ -2276,7 +2263,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case CrSnd_Happy:
@@ -2291,11 +2278,11 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 k = atoi(word_buf);
                 game.conf.crtr_conf.creature_sounds[crtr_model].happy.count = k;
                 n++;
-            }            
+            }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case CrSnd_Sad:
@@ -2310,11 +2297,11 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
                 k = atoi(word_buf);
                 game.conf.crtr_conf.creature_sounds[crtr_model].sad.count = k;
                 n++;
-            }            
+            }
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case CrSnd_Hang:
@@ -2333,7 +2320,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case CrSnd_Drop:
@@ -2352,7 +2339,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case CrSnd_Torture:
@@ -2371,7 +2358,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case CrSnd_Slap:
@@ -2390,7 +2377,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case CrSnd_Die:
@@ -2409,7 +2396,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case CrSnd_Foot:
@@ -2428,7 +2415,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case CrSnd_Fight:
@@ -2447,7 +2434,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case CrSnd_Piss:
@@ -2466,7 +2453,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (n < 1)
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                  COMMAND_TEXT(cmd_num), block_name, config_textname);
             }
             break;
         case ccr_comment:
@@ -2475,7 +2462,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+                cmd_num, block_name, config_textname);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -2484,7 +2471,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
     return true;
 }
 
-static TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const char *fname,unsigned short flags)
+static TbBool load_creaturemodel_config_file(long crtr_model, const char *fname, unsigned short flags)
 {
     SYNCDBG(0,"%s model %ld from file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",crtr_model,fname);
     long len = LbFileLengthRnc(fname);
@@ -2498,11 +2485,6 @@ static TbBool load_creaturemodel_config_file(long crtr_model,const char *textnam
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
-    if (!flag_is_set(flags,CnfLd_AcceptPartial))
-    {
-        struct CreatureStats* crstat = creature_stats_get(crtr_model);
-        memset(crstat, '\0', sizeof(struct CreatureStats));
-    }
     // Parse blocks of the config file
     if (result)
     {
@@ -2521,11 +2503,70 @@ static TbBool load_creaturemodel_config_file(long crtr_model,const char *textnam
     return result;
 }
 
+/* @comment
+ *     The loading items of load_creaturemodel_config and load_creaturemodel_config_for_mod_one need to be consistent.
+ */
+static TbBool load_creaturemodel_config_for_mod_one(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_item)
+{
+    set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+
+    TbBool result = false;
+    const struct ModExistState *mod_state = &mod_item->state;
+    char* fname = NULL;
+    char mod_dir[256] = {0};
+    sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
+
+    if (mod_state->crtr_data)
+    {
+        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CrtrData, "%s.cfg", conf_fnstr);
+        if (strlen(fname) > 0)
+        {
+            result |= load_creaturemodel_config_file(crmodel, fname, flags);
+        }
+    }
+
+    if (mod_state->cmpg_crtrs)
+    {
+        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
+        if (strlen(fname) > 0)
+        {
+            result |= load_creaturemodel_config_file(crmodel, fname, flags);
+        }
+    }
+
+    if (mod_state->cmpg_lvls)
+    {
+        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
+        if (strlen(fname) > 0)
+        {
+            result |= load_creaturemodel_config_file(crmodel, fname, flags);
+        }
+    }
+
+    return result;
+}
+
+static TbBool load_creaturemodel_config_for_mod_list(ThingModel crmodel, unsigned short flags, const char *conf_fnstr, const struct ModConfigItem *mod_items, long mod_cnt)
+{
+    TbBool result = false;
+
+    for (long i=0; i<mod_cnt; i++)
+    {
+        const struct ModConfigItem *mod_item = mod_items + i;
+        if (mod_item->state.mod_dir == 0)
+            continue;
+
+        result |= load_creaturemodel_config_for_mod_one(crmodel, flags, conf_fnstr, mod_item);
+    }
+
+    return result;
+}
+
+/* @comment
+ *     The loading items of load_creaturemodel_config and load_creaturemodel_config_for_mod_one need to be consistent.
+ */
 TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
 {
-    static const char config_global_textname[] = "global creature model config";
-    static const char config_campgn_textname[] = "campaign creature model config";
-    static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
     snprintf(conf_fnstr, COMMAND_WORD_LEN, "%s", get_conf_parameter_text(creature_desc,crmodel));
     strtolower(conf_fnstr);
@@ -2534,26 +2575,57 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
         WARNMSG("Cannot get config file name for creature %d.",crmodel);
         return false;
     }
+
     char* fname = prepare_file_fmtpath(FGrp_CrtrData, "%s.cfg", conf_fnstr);
-    TbBool result = load_creaturemodel_config_file(crmodel, config_global_textname, fname, flags);
+    TbBool result = load_creaturemodel_config_file(crmodel, fname, flags);
     if (result)
     {
         set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
     }
-    fname = prepare_file_fmtpath(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
-    if (strlen(fname) > 0)
+
+    if (mods_conf.after_base_cnt > 0)
     {
-        result |= load_creaturemodel_config_file(crmodel,config_campgn_textname,fname,flags);
+        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_base_item, mods_conf.after_base_cnt);
         if (result)
         {
             set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
         }
     }
+
+    fname = prepare_file_fmtpath(FGrp_CmpgCrtrs,"%s.cfg",conf_fnstr);
+    if (strlen(fname) > 0)
+    {
+        result |= load_creaturemodel_config_file(crmodel, fname, flags);
+        if (result)
+        {
+            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+        }
+    }
+
+    if (mods_conf.after_campaign_cnt > 0)
+    {
+        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
+        if (result)
+        {
+            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+        }
+    }
+
     fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
     if (strlen(fname) > 0)
     {
-        result |= load_creaturemodel_config_file(crmodel,config_level_textname,fname,flags);
+        result |= load_creaturemodel_config_file(crmodel, fname, flags);
     }
+
+    if (mods_conf.after_map_cnt > 0)
+    {
+        result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_map_item, mods_conf.after_map_cnt);
+        if (result)
+        {
+            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+        }
+    }
+
     if (!result)
     {
         ERRORLOG("Unable to load a complete '%s' creature model config file.", creature_code_name(crmodel));
@@ -2563,9 +2635,6 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
 
 TbBool swap_creaturemodel_config(ThingModel nwcrmodel, ThingModel crmodel, unsigned short flags)
 {
-    static const char config_global_textname[] = "global creature model config";
-    static const char config_campgn_textname[] = "campaing creature model config";
-    static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
     snprintf(conf_fnstr, COMMAND_WORD_LEN, "%s", get_conf_parameter_text(creature_desc, nwcrmodel));
     strtolower(conf_fnstr);
@@ -2575,16 +2644,16 @@ TbBool swap_creaturemodel_config(ThingModel nwcrmodel, ThingModel crmodel, unsig
         return false;
     }
     char* fname = prepare_file_fmtpath(FGrp_CrtrData, "%s.cfg", conf_fnstr);
-    TbBool result = load_creaturemodel_config_file(crmodel, config_global_textname, fname, flags);
+    TbBool result = load_creaturemodel_config_file(crmodel, fname, flags);
     fname = prepare_file_fmtpath(FGrp_CmpgCrtrs, "%s.cfg", conf_fnstr);
     if (strlen(fname) > 0)
     {
-        load_creaturemodel_config_file(crmodel, config_campgn_textname, fname, flags | CnfLd_AcceptPartial | CnfLd_IgnoreErrors);
+        load_creaturemodel_config_file(crmodel, fname, flags | CnfLd_AcceptPartial | CnfLd_IgnoreErrors);
     }
     fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
     if (strlen(fname) > 0)
     {
-        load_creaturemodel_config_file(crmodel, config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        load_creaturemodel_config_file(crmodel, fname, flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;
@@ -2608,11 +2677,11 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
         ERRORLOG("Creature index %d is invalid", ncrt_id);
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get(crtr_id);
-    ThingModel oldlair = crstat->lair_object;
+    struct CreatureModelConfig* crconf = creature_stats_get(crtr_id);
+    ThingModel oldlair = crconf->lair_object;
     do_creature_swap(ncrt_id, crtr_id);
-    struct CreatureStats* ncrstat = creature_stats_get(crtr_id);
-    ThingModel newlair = ncrstat->lair_object;
+    struct CreatureModelConfig* ncrconf = creature_stats_get(crtr_id);
+    ThingModel newlair = ncrconf->lair_object;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         do_to_players_all_creatures_of_model(plyr_idx, crtr_id, update_relative_creature_health);
@@ -2623,7 +2692,7 @@ TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id)
         }
         do_to_players_all_creatures_of_model(plyr_idx, crtr_id, process_job_stress_and_going_postal);
     }
-    
+
     recalculate_all_creature_digger_lists();
     update_creatr_model_activities_list(1);
 
@@ -2637,10 +2706,10 @@ TbBool make_all_creatures_free(void)
 {
     for (long i = 0; i < game.conf.crtr_conf.model_count; i++)
     {
-        struct CreatureStats* crstat = creature_stats_get(i);
-        crstat->training_cost = 0;
-        crstat->scavenger_cost = 0;
-        crstat->pay = 0;
+        struct CreatureModelConfig* crconf = creature_stats_get(i);
+        crconf->training_cost = 0;
+        crconf->scavenger_cost = 0;
+        crconf->pay = 0;
     }
     return true;
 }
@@ -2650,21 +2719,14 @@ TbBool make_all_creatures_free(void)
  */
 TbBool change_max_health_of_creature_kind(ThingModel crmodel, HitPoints new_max)
 {
-    struct CreatureStats* crstat = creature_stats_get(crmodel);
-    if (creature_stats_invalid(crstat)) {
+    struct CreatureModelConfig* crconf = creature_stats_get(crmodel);
+    if (creature_stats_invalid(crconf)) {
         ERRORLOG("Invalid creature model %d",(int)crmodel);
         return false;
     }
-    SYNCDBG(3,"Changing all %s health from %d to %d.",creature_code_name(crmodel),(int)crstat->health,(int)new_max);
-    crstat->health = saturate_set_signed(new_max, 16);
+    SYNCDBG(3,"Changing all %s health from %d to %d.",creature_code_name(crmodel),(int)crconf->health,(int)new_max);
+    crconf->health = saturate_set_signed(new_max, 16);
     int n = do_to_all_things_of_class_and_model(TCls_Creature, crmodel, update_creature_health_to_max);
-    return (n > 0);
-}
-
-TbBool heal_completely_all_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel)
-{
-    SYNCDBG(3,"Healing all player %d creatures of model %s",(int)plyr_idx,creature_code_name(crmodel));
-    int n = do_to_players_all_creatures_of_model(plyr_idx, crmodel, update_creature_health_to_max);
     return (n > 0);
 }
 

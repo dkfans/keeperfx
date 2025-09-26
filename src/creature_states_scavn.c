@@ -59,8 +59,8 @@ TbBool creature_can_do_scavenging(const struct Thing *creatng)
     if (is_neutral_thing(creatng)) {
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return (crstat->scavenge_value > 0);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    return (crconf->scavenge_value > 0);
 }
 
 short at_scavenger_room(struct Thing *thing)
@@ -101,7 +101,7 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
         SYNCDBG(19,"No other creatures");
         return INVALID_THING;
     }
-    int n = CREATURE_RANDOM(creatng, dungeon->num_active_creatrs - 1);
+    int n = THING_RANDOM(creatng, dungeon->num_active_creatrs - 1);
     unsigned long k = 0;
     int i = dungeon->creatr_list_start;
     while (i != 0)
@@ -118,8 +118,8 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
         // Thing list loop body
         if ((n <= 0) && (thing->index != creatng->index))
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            if (!creature_model_is_lair_enemy(crstat->lair_enemy, creatng->model))
+            struct CreatureModelConfig* crconf = creature_stats_get_from_thing(thing);
+            if (!creature_model_is_lair_enemy(crconf->lair_enemy, creatng->model))
             {
                 return thing;
             }
@@ -152,7 +152,7 @@ short creature_being_scavenged(struct Thing *creatng)
     locpos.y.val = fellowtng->mappos.y.val;
     locpos.z.val = fellowtng->mappos.z.val;
     {
-        int angle = (((game.play_gameturn - creatng->creation_turn) >> 6) & 7) * LbFPMath_PI / 4;
+        int angle = (((game.play_gameturn - creatng->creation_turn) >> 6) & 7) * DEGREES_45;
         locpos.x.val += -LbSinL(angle)/128;
         locpos.y.val += LbCosL(angle)/128;
     }
@@ -175,7 +175,7 @@ short creature_scavenged_disappear(struct Thing *thing)
     cctrl->scavenge.job_stage--;
     if (cctrl->scavenge.job_stage > 0)
     {
-      if ((cctrl->scavenge.job_stage == 7) && (cctrl->scavenge.effect_id < PLAYERS_COUNT))
+      if ((cctrl->scavenge.job_stage == JobStage_ScavengedDisappearing) && (cctrl->scavenge.effect_id < PLAYERS_COUNT))
       {
           //TODO EFFECTS Verify what is wrong here - we want either effect or effect element
           create_effect(&thing->mappos, get_scavenge_effect(cctrl->scavenge.effect_id), thing->owner);
@@ -374,7 +374,7 @@ long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
     }
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(scavtng);
-        cctrl->scavenge.job_stage = 8;
+        cctrl->scavenge.job_stage = JobStage_BeingScavenged;
         cctrl->scavenge.effect_id = calltng->owner;
         cctrl->scavenge.stl_9D_x = pos.x.stl.num;
         cctrl->scavenge.stl_9D_y = pos.y.stl.num;
@@ -519,7 +519,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
         set_start_state(calltng);
         return CrCkRet_Continue;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(calltng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(calltng);
     if (!player_can_afford_to_scavenge_creature(calltng))
     {
         if (is_my_player_number(calltng->owner))
@@ -543,7 +543,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
         process_scavenge_creature_from_pool(calltng, work_value);
     } else
     {
-        if (crstat->entrance_force) {
+        if (crconf->entrance_force) {
           calldngn->portal_scavenge_boost++;
         }
         return 0;

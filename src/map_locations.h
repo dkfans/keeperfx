@@ -60,7 +60,6 @@ extern const struct NamedCommand head_for_desc[];
 unsigned short get_map_location_type(TbMapLocation location);
 unsigned long get_map_location_longval(TbMapLocation location);
 unsigned long get_map_location_plyrval(TbMapLocation location);
-unsigned short get_map_location_plyridx(TbMapLocation location);
 TbBool get_map_location_code_name(TbMapLocation location, char *name);
 
 TbBool get_coords_at_location(struct Coord3d *pos, TbMapLocation location, TbBool random_factor);
