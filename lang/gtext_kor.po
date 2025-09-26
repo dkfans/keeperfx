@@ -6899,10 +6899,15 @@ msgctxt "Trap description"
 msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "감시 함정: 경비병을 세워 눈에 보이는 적을 쏘세요."
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr "Moo6"
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "발리스타 함정"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "발리스타 함정: 경비병을 세워 눈에 보이는 적을 쏘세요."
 
 #: guitext:1041
 msgctxt "Creature name"

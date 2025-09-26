@@ -7017,10 +7017,15 @@ msgctxt "Trap description"
 msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "Wachpostenfalle: Steht Wache und schießt auf Feinde in Sichtweite."
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr "Moo6"
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "Ballistenfalle"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "Ballistenfalle: Steht Wache und schießt auf Feinde in Sichtweite."
 
 #: guitext:1041
 msgctxt "Creature name"

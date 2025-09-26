@@ -5562,18 +5562,23 @@ msgstr "Baril Explosif"
 
 #: guitext:1037
 msgctxt "Trap description"
-msgid "Description du piègeDemolition Trap: An explosive with unrivaled destructive power."
+msgid "Demolition Trap: An explosive with unrivaled destructive power."
 msgstr "Baril Explosif: Un explosif d'une puissance destructrice sans égale."
 
 #: guitext:1038
 msgctxt "Trap description"
-msgid "Description du piègeSentry Trap: Stands guard and shoots at enemies in sight."
+msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "Piège Sentinelle: Monte la garde et tire sur les ennemies à vue."
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr ""
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "Piège Baliste"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "Piège Baliste : Monte la garde et tire sur les ennemies à vue."
 
 #: guitext:1041
 msgctxt "Creature name"

@@ -5750,10 +5750,15 @@ msgctxt "Trap description"
 msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "岗哨陷井: 守卫在原地并向视野范围内的敌人开火。"
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr ""
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "弩炮陷阱"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "弩炮陷阱： 守卫在原地并向视野范围内的敌人开火。"
 
 #: guitext:1041
 msgctxt "Creature name"
