@@ -1756,8 +1756,10 @@ TngUpdateRet update_shot(struct Thing *thing)
                 }
                 break;
         default:
+            if (shotst->update_logic < 0)
+                luafunc_thing_update_func(shotst->update_logic, thing);
+
             // All shots that do not require special processing
-            luafunc_thing_update_func(shotst->update_logic, thing);
             break;
         }
     }
