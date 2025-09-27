@@ -3342,7 +3342,7 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
     if (!creature_control_invalid(cctrlgrp))
     {
         cctrlgrp->kills_num++;
-        if (players_are_enemies(killertng->owner, creatng->owner))
+        if (!players_creatures_tolerate_each_other(killertng->owner, creatng->owner))
         {
             cctrlgrp->kills_num_enemy++;
         }
