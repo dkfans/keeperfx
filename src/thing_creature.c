@@ -3336,6 +3336,24 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         }
     }
     update_kills_counters(creatng, killertng, killer_plyr_idx, flags);
+
+    // 'killertng' could be a trap, so verify if it has valid creature control before increasing the kill count and adjusting its anger.
+    struct CreatureControl* cctrlgrp = creature_control_get_from_thing(killertng);
+    if (!creature_control_invalid(cctrlgrp))
+    {
+        cctrlgrp->kills_num++;
+        if (!players_creatures_tolerate_each_other(killertng->owner, creatng->owner))
+        {
+            cctrlgrp->kills_num_enemy++;
+        }
+        else
+        {
+            cctrlgrp->kills_num_allied++;
+        }
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(killertng);
+        anger_apply_anger_to_creature(killertng, crconf->annoy_win_battle, AngR_Other, 1);
+    }
+
     if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || dungeon_invalid(dungeon))
     {
         if (flag_is_set(flags, CrDed_NoEffects) && flag_is_set(creatng->alloc_flags, TAlF_IsControlled))
@@ -3351,22 +3369,6 @@ struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng, Play
         {
             dungeon->lvstats.flies_killed_by_spiders++;
         }
-    }
-    // 'killertng' could be a trap, so verify if it has valid creature control before increasing the kill count and adjusting its anger.
-    struct CreatureControl *cctrlgrp = creature_control_get_from_thing(killertng);
-    if (!creature_control_invalid(cctrlgrp))
-    {
-        cctrlgrp->kills_num++;
-        if (players_are_enemies(killertng->owner, creatng->owner))
-        {
-            cctrlgrp->kills_num_enemy++;
-        }
-        else
-        {
-            cctrlgrp->kills_num_allied++;
-        }
-        struct CreatureModelConfig *crconf = creature_stats_get_from_thing(killertng);
-        anger_apply_anger_to_creature(killertng, crconf->annoy_win_battle, AngR_Other, 1);
     }
     if (is_my_player_number(creatng->owner))
     {
