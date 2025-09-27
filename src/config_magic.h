@@ -305,7 +305,7 @@ struct ShotConfigStats {
     EffectOrEffElModel effect_bleeding;
     EffectOrEffElModel effect_frozen;
     unsigned char fire_logic; // see enum ShotFireLogics
-    unsigned char update_logic; // see enum ShotUpdateLogics
+    short update_logic; // see enum ShotUpdateLogics
     unsigned short effect_spacing;
     unsigned char effect_amount;
     unsigned short periodical;
