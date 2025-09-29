@@ -46,6 +46,7 @@ struct ErrorStatistics erstat[] = {
     {0, 0, "Path heap failure"},
     {0, 0, "Route tree failure"},
     {0, 0, "Cannot read packet from file"},
+    {0, 0, "Cannot create unsynced thing, no free slots - likely too many particles being created"},
 };
 int last_checked_stat_num = 0;
 /******************************************************************************/
