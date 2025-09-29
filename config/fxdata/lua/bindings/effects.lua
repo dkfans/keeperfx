@@ -1,6 +1,5 @@
 ---@meta
--- effects.lua
-
+-- bindings/effects.lua
 
 ---Create an Effect at a location.
 ---@param effect effect_or_effelem_type
@@ -13,9 +12,17 @@ function CreateEffect(effect,location,height) local ef return ef end
 ---@param effect effect_or_effelem_type
 ---@param stl_x integer
 ---@param stl_y integer
----@param height integer The z-position of the effect. However, when using EFFECTELEMENT_PRICE as the 'effect' parameter, this is the gold amount displayed instead.
+---@param height integer The z-position of the effect, on top of floor-height. However, when using EFFECTELEMENT_PRICE as the 'effect' parameter, this is the gold amount displayed instead.
 ---@return Thing effect the created effect or effect element
 function CreateEffectAtPos(effect,stl_x,stl_y,height) local ef return ef end
+
+---Create an Effect at a location.
+---@param effect effect_or_effelem_type
+---@param val_x integer
+---@param val_y integer
+---@param val_z integer The height. Do not forget the floor might have a height too. However, when using EFFECTELEMENT_PRICE as the 'effect' parameter, this is the gold amount displayed instead.
+---@return Thing effect the created effect or effect element
+function CreateEffectAtCoords(effect,val_x,val_y,val_z) local ef return ef end
 
 ---Spawns an effect multiple times, forming a line.
 ---@param origin location The origin location, where the first effect spawns. E.g. PLAYER1 or 1 to go from an action point.

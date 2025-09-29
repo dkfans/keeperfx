@@ -5522,9 +5522,14 @@ msgctxt "Trap description"
 msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr ""
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr ""
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
 msgstr ""
 
 #: guitext:1041

@@ -47,6 +47,17 @@ TbBool is_non_synchronized_thing_class(unsigned char class_id)
     return (class_id == TCls_EffectElem) || (class_id == TCls_AmbientSnd) || (class_id == TCls_Effect);
 }
 
+static struct Thing *get_oldest_replaceable_effect(void)
+{
+    if (game.thing_lists[TngList_EffectElems].index > 0) {
+        struct Thing *old_effect = thing_get(game.thing_lists[TngList_EffectElems].index);
+        if (!thing_is_invalid(old_effect)) {
+            return old_effect;
+        }
+    }
+    return INVALID_THING;
+}
+
 static struct Thing *allocate_thing(enum ThingAllocationPool pool_type, const char *func_name)
 {
     unsigned short *free_list;
@@ -88,8 +99,8 @@ struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char
     if (is_non_synchronized_thing_class(class_id)) {
         if (game.unsynced_free_things_start_index >= UNSYNCED_THINGS_COUNT) {
             // No free slots - try deleting old effect and search again
-            struct Thing *old_effect = thing_get(game.thing_lists[TngList_EffectElems].index);
-            if (!thing_is_invalid(old_effect)) {
+            struct Thing *old_effect = get_oldest_replaceable_effect();
+            if (old_effect != INVALID_THING) {
                 delete_thing_structure(old_effect, 0);
                 return allocate_free_thing_structure_f(class_id, func_name);
             }
@@ -109,11 +120,11 @@ TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
             return true;
         }
         // No free slots - check if we can delete an old effect to make room
-        if (game.thing_lists[TngList_EffectElems].index > 0) {
+        if (get_oldest_replaceable_effect() != INVALID_THING) {
             return true;
         }
         // No free allocation space at all
-        show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create unsynced thing, no free slots.");
+        erstat_inc(ESE_NoFreeUnsyncedThings);
         return false;
     }
 

@@ -1502,6 +1502,17 @@ static int lua_Create_effect_at_pos(lua_State *L)
     lua_pushThing(L,script_create_effect(&pos, effect_id, height));
     return 1;
 }
+static int lua_Create_effect_at_coords(lua_State* L)
+{
+    EffectOrEffElModel effect_id = luaL_checkEffectOrEffElModel(L, 1);
+
+    struct Coord3d pos;
+    pos.x.val = luaL_checkinteger(L, 2);
+    pos.y.val = luaL_checkinteger(L, 3);
+    pos.z.val = luaL_checkinteger(L, 4);
+    lua_pushThing(L, script_create_effect(&pos, effect_id, 0));
+    return 1;
+}
 
 static int lua_Create_effects_line(lua_State *L)
 {
@@ -2158,6 +2169,7 @@ static const luaL_Reg global_methods[] = {
 //Effects
     {"CreateEffect"                 ,lua_Create_effect                   },
     {"CreateEffectAtPos"            ,lua_Create_effect_at_pos            },
+   { "CreateEffectAtCoords"         ,lua_Create_effect_at_coords         },
     {"CreateEffectsLine"            ,lua_Create_effects_line             },
 
 //Other
