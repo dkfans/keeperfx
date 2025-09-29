@@ -124,11 +124,7 @@ TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
             return true;
         }
         // No free allocation space at all
-        static GameTurn last_warning_turn = 0;
-        if (game.play_gameturn != last_warning_turn) { // Prevent log spam
-            WARNLOG("Cannot create unsynced thing, no free slots - likely too many particles being created");
-            last_warning_turn = game.play_gameturn;
-        }
+        erstat_inc(ESE_NoFreeUnsyncedThings);
         return false;
     }
 
