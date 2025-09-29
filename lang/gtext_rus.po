@@ -7044,10 +7044,15 @@ msgid ""
 "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "Ловушка-Страж: Отстреливает врагов"
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr ""
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "Баллиста-ловушка"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "Баллиста-ловушка: Отстреливает врагов"
 
 #: guitext:1041
 msgctxt "Creature name"

@@ -6037,10 +6037,15 @@ msgctxt "Trap description"
 msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "Vakts Fälla: Står vakt och skjuter mot fiender som syns."
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr "Oanvänd6"
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "Ballistafälla"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "Ballista Fälla: Står vakt och skjuter mot fiender som syns."
 
 #: guitext:1041
 msgctxt "Creature name"

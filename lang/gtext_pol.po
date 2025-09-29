@@ -6962,44 +6962,49 @@ msgstr ""
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr ""
+msgstr "Pułapka Demolująca"
 
 #: guitext:1037
 msgctxt "Trap description"
 msgid ""
 "Demolition Trap: An explosive with unrivaled destructive power."
-msgstr ""
+msgstr "Pułapka Demolująca: Ładunek wybuchowy o niezrównanej sile niszczącej."
 
 #: guitext:1038
 msgctxt "Trap description"
 msgid ""
 "Sentry Trap: Stands guard and shoots at enemies in sight."
-msgstr ""
+msgstr "Pułapka Strażnicza: Pilnuje i strzela do widocznych wrogów."
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr ""
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "Pułapka Ballista"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "Pułapka Ballista: Pilnuje i strzela do widocznych wrogów."
 
 #: guitext:1041
 msgctxt "Creature name"
 msgid "Spirit"
-msgstr ""
+msgstr "Duch"
 
 #: guitext:1042
 msgctxt "Creature name"
 msgid "Druid"
-msgstr ""
+msgstr "Druid"
 
 #: guitext:1043
 msgctxt "Creature name"
 msgid "Time Mage"
-msgstr ""
+msgstr "Mag Czasu"
 
 #: guitext:1044
 msgctxt "Creature name"
 msgid "Bird"
-msgstr ""
+msgstr "Ptak"
 
 #: guitext:1045
 msgctxt "Creature name"
@@ -7009,7 +7014,7 @@ msgstr "Pajęczarka"
 #: guitext:1046
 msgctxt "Creature name"
 msgid "Spiderling"
-msgstr ""
+msgstr "Pajęczątko"
 
 #: guitext:1047
 msgctxt "Creature name"

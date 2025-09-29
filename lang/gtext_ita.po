@@ -6964,10 +6964,15 @@ msgid ""
 "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "Trappola sentinella: Si erge a guardia e spara ai nemici in vista."
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr ""
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "Trappola Balista"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "Trappola Balista: Si erge a guardia e spara ai nemici in vista."
 
 #: guitext:1041
 msgctxt "Creature name"
