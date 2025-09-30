@@ -5523,10 +5523,15 @@ msgctxt "Trap description"
 msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "Armadilha Sentinela: Fica de guarda e atira nos inimigos à vista."
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr "Muu6"
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "Armadilha Balista"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "Armadilha Balista: Fica de guarda e atira nos inimigos à vista."
 
 #: guitext:1041
 msgctxt "Creature name"

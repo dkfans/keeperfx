@@ -1683,79 +1683,82 @@ TngUpdateRet update_shot(struct Thing *thing)
         }
         switch (shotst->update_logic)
         {
-        case ShUL_Lightning:
-        {
-            struct PlayerInfo* player;
-            if (lightning_is_close_to_player(myplyr, &thing->mappos))
+            case ShUL_Lightning:
             {
-              if (is_my_player_number(thing->owner))
-              {
-                  player = get_player(thing->owner);
-                  if ((thing->parent_idx != 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
+                struct PlayerInfo* player;
+                if (lightning_is_close_to_player(myplyr, &thing->mappos))
+                {
+                  if (is_my_player_number(thing->owner))
                   {
-                      PaletteSetPlayerPalette(player, lightning_palette);
-                      myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
+                      player = get_player(thing->owner);
+                      if ((thing->parent_idx != 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
+                      {
+                          PaletteSetPlayerPalette(player, lightning_palette);
+                          myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
+                      }
                   }
-              }
+                }
+                break;
             }
-            break;
-        }
-        case ShUL_Wind:
-            affect_nearby_enemy_creatures_with_wind(thing);
-            break;
-        case ShUL_Grenade:
-            thing->move_angle_xy = (thing->move_angle_xy + DEGREES_20) & ANGLE_MASK;
-            break;
-        case ShUL_GodLightning:
-            draw_god_lightning(thing);
-            lightning_modify_palette(thing);
-            break;
-        /**case ShUL_Vortex:
-            //Not implemented, due to limited amount of shots, replaced by Lizard
-            affect_nearby_stuff_with_vortex(thing);
-            break;
-            **/
-        case ShUL_Lizard:
-            thing->move_angle_xy = (thing->move_angle_xy + DEGREES_20) & ANGLE_MASK;
-            int skill = thing->shot_lizard2.range;
-            target = thing_get(thing->shot_lizard.target_idx);
-            if (thing_is_invalid(target)) break;
-            MapCoordDelta dist;
-            if (skill <= 35)
-            {
-                dist = get_2d_distance(&thing->mappos, &target->mappos);
-                if (dist <= 260) hit = true;
-            }
-            else
-            {
-                struct Coord3d target_pos;
-                target_pos.x.val = thing->shot_lizard.x;
-                target_pos.y.val = thing->shot_lizard.posint * game.conf.crtr_conf.sprite_size;
-                target_pos.z.val = target->mappos.z.val;
-                dist = get_2d_distance(&thing->mappos, &target_pos);
-                if (dist <= 260) hit = true;
-            }
-            break;
-        case ShUL_GodLightBall:
-            update_god_lightning_ball(thing);
-            break;
-        case ShUL_TrapTNT:
-            thing->mappos.z.val = 0;
-            break;
-        case ShUL_TrapLightning:
-            if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
-            {
-              god_lightning_choose_next_creature(thing);
-              target = thing_get(thing->shot.target_idx);
-              if (thing_exists(target))
-              {
-                  shotst = get_shot_model_stats(ShM_GodLightBall);
-                  draw_lightning(&thing->mappos,&target->mappos, shotst->effect_spacing, shotst->effect_id);
-                  apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner);
-              }
-            }
-            break;
+            case ShUL_Wind:
+                affect_nearby_enemy_creatures_with_wind(thing);
+                break;
+            case ShUL_Grenade:
+                thing->move_angle_xy = (thing->move_angle_xy + DEGREES_20) & ANGLE_MASK;
+                break;
+            case ShUL_GodLightning:
+                draw_god_lightning(thing);
+                lightning_modify_palette(thing);
+                break;
+            /**case ShUL_Vortex:
+                //Not implemented, due to limited amount of shots, replaced by Lizard
+                affect_nearby_stuff_with_vortex(thing);
+                break;
+                **/
+            case ShUL_Lizard:
+                thing->move_angle_xy = (thing->move_angle_xy + DEGREES_20) & ANGLE_MASK;
+                int skill = thing->shot_lizard2.range;
+                target = thing_get(thing->shot_lizard.target_idx);
+                if (thing_is_invalid(target)) break;
+                MapCoordDelta dist;
+                if (skill <= 35)
+                {
+                    dist = get_2d_distance(&thing->mappos, &target->mappos);
+                    if (dist <= 260) hit = true;
+                }
+                else
+                {
+                    struct Coord3d target_pos;
+                    target_pos.x.val = thing->shot_lizard.x;
+                    target_pos.y.val = thing->shot_lizard.posint * game.conf.crtr_conf.sprite_size;
+                    target_pos.z.val = target->mappos.z.val;
+                    dist = get_2d_distance(&thing->mappos, &target_pos);
+                    if (dist <= 260) hit = true;
+                }
+                break;
+            case ShUL_GodLightBall:
+                update_god_lightning_ball(thing);
+                break;
+            case ShUL_TrapTNT:
+                thing->mappos.z.val = 0;
+                break;
+            case ShUL_TrapLightning:
+                if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
+                {
+                  god_lightning_choose_next_creature(thing);
+                  target = thing_get(thing->shot.target_idx);
+                  if (thing_exists(target))
+                  {
+                      shotst = get_shot_model_stats(ShM_GodLightBall);
+                      draw_lightning(&thing->mappos,&target->mappos, shotst->effect_spacing, shotst->effect_id);
+                      apply_damage_to_thing_and_display_health(target, shotst->damage, thing->owner);
+                  }
+                }
+                break;
         default:
+            if (shotst->update_logic < 0)
+                luafunc_thing_update_func(shotst->update_logic, thing);
+
             // All shots that do not require special processing
             break;
         }
