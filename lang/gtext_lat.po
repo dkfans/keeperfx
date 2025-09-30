@@ -2793,222 +2793,222 @@ msgstr "Preme clavem"
 
 #: guitext:471
 msgctxt "Game controls"
-msgid "UP"
-msgstr "SURSUM"
+msgid "Up"
+msgstr "Sursum"
 
 #: guitext:472
 msgctxt "Game controls"
-msgid "DOWN"
-msgstr "DEORSUM"
+msgid "Down"
+msgstr "Deorsum"
 
 #: guitext:473
 msgctxt "Game controls"
-msgid "LEFT"
-msgstr "SINISTRA"
+msgid "Left"
+msgstr "Sinistra"
 
 #: guitext:474
 msgctxt "Game controls"
-msgid "RIGHT"
-msgstr "DEXTRA"
+msgid "Right"
+msgstr "Dextra"
 
 #: guitext:475
 msgctxt "Game controls"
-msgid "ROTATE"
-msgstr "ROTA"
+msgid "Rotate"
+msgstr "Rota"
 
 #: guitext:476
 msgctxt "Game controls"
-msgid "SPEED"
-msgstr "CELERITAS"
+msgid "Speed"
+msgstr "Celeritas"
 
 #: guitext:477
 msgctxt "Game controls"
-msgid "ROTATE LEFT"
-msgstr "ROTA AD SINISTRAM"
+msgid "Rotate Left"
+msgstr "Rota ad Sinistram"
 
 #: guitext:478
 msgctxt "Game controls"
-msgid "ROTATE RIGHT"
-msgstr "ROTA AD DEXTRAM"
+msgid "Rotate Right"
+msgstr "Rota ad Dextram"
 
 #: guitext:479
 msgctxt "Game controls"
-msgid "ZOOM IN"
-msgstr "AMPLIFICA"
+msgid "Zoom In"
+msgstr "Ampliica"
 
 #: guitext:480
 msgctxt "Game controls"
-msgid "ZOOM OUT"
-msgstr "DEMINUE"
+msgid "Zoom Out"
+msgstr "Deminue"
 
 #: guitext:481
 msgctxt "Keyboard"
-msgid "LEFT CONTROL"
-msgstr "IMPERIUM SINISTRUM"
+msgid "Left Control"
+msgstr "Imperium Sinistrum"
 
 #: guitext:482
 msgctxt "Keyboard"
-msgid "RIGHT CONTROL"
-msgstr "IMPERIUM DEXTRUM"
+msgid "Right Control"
+msgstr "Imperium Dextrum"
 
 #: guitext:483
 msgctxt "Keyboard"
-msgid "LEFT SHIFT"
-msgstr "MAIUSCULA SINISTRA"
+msgid "Left Shift"
+msgstr "Maiuscula Sinistra"
 
 #: guitext:484
 msgctxt "Keyboard"
-msgid "RIGHT SHIFT"
-msgstr "MAIUSCULA DEXTRA"
+msgid "Right Shift"
+msgstr "Maiuscula Dextra"
 
 #: guitext:485
 msgctxt "Keyboard"
-msgid "LEFT ALT"
-msgstr "ALT SINISTRA"
+msgid "Left Alt"
+msgstr "Alt Sinistra"
 
 #: guitext:486
 msgctxt "Keyboard"
-msgid "RIGHT ALT"
-msgstr "ALT DEXTRA"
+msgid "Right Alt"
+msgstr "Alt Dextra"
 
 #: guitext:487
 msgctxt "Keyboard"
-msgid "SPACE"
-msgstr "SPATIUM"
+msgid "Space"
+msgstr "Spatium"
 
 #: guitext:488
 msgctxt "Keyboard"
-msgid "RETURN"
-msgstr "INTRARE"
+msgid "Return"
+msgstr "Intrare"
 
 #: guitext:489
 msgctxt "Keyboard"
-msgid "TAB"
-msgstr "TABULATOR"
+msgid "Tab"
+msgstr "Tabulator"
 
 #: guitext:490
 msgctxt "Keyboard"
-msgid "CAPS LOCK"
-msgstr "MAIUS CLAUDE"
+msgid "Caps Lock"
+msgstr "Maius Claude"
 
 #: guitext:491
 msgctxt "Keyboard"
-msgid "BACKSPACE"
-msgstr "RETROCESSUS"
+msgid "Backspace"
+msgstr "Retrocessus"
 
 #: guitext:492
 msgctxt "Keyboard"
-msgid "INSERT"
-msgstr "INSERERE"
+msgid "Insert"
+msgstr "Inserere"
 
 #: guitext:493
 msgctxt "Keyboard"
-msgid "DELETE"
-msgstr "DELERE"
+msgid "Delete"
+msgstr "Delere"
 
 #: guitext:494
 msgctxt "Keyboard"
-msgid "HOME"
-msgstr "INITIUM"
+msgid "Home"
+msgstr "Initium"
 
 #: guitext:495
 msgctxt "Keyboard"
-msgid "END"
-msgstr "FINIS"
+msgid "End"
+msgstr "Finis"
 
 #: guitext:496
 msgctxt "Keyboard"
-msgid "PAGE UP"
-msgstr "PAGINA SURSUM"
+msgid "Page Up"
+msgstr "Pagina Sursum"
 
 #: guitext:497
 msgctxt "Keyboard"
-msgid "PAGE DOWN"
-msgstr "PAGINA DEORSUM"
+msgid "Page Down"
+msgstr "Pagina Deorsum"
 
 #: guitext:498
 msgctxt "Keyboard"
-msgid "NUM LOCK"
-msgstr "NUM CLAUDE"
+msgid "Num Lock"
+msgstr "Num Claude"
 
 #: guitext:499
 msgctxt "Keyboard"
-msgid "NUM /"
+msgid "Num /"
 msgstr ""
 
 #: guitext:500
 msgctxt "Keyboard"
-msgid "NUM *"
+msgid "Num *"
 msgstr ""
 
 #: guitext:501
 msgctxt "Keyboard"
-msgid "NUM -"
+msgid "Num -"
 msgstr ""
 
 #: guitext:502
 msgctxt "Keyboard"
-msgid "NUM +"
+msgid "Num +"
 msgstr ""
 
 #: guitext:503
 msgctxt "Keyboard"
-msgid "NUM ENTER"
-msgstr "NUM INTRARE"
+msgid "Num Enter"
+msgstr "Num Intrare"
 
 #: guitext:504
 msgctxt "Keyboard"
-msgid "NUM DELETE"
-msgstr "NUM DELERE"
+msgid "Num Delete"
+msgstr "Num Delere"
 
 #: guitext:505
 msgctxt "Keyboard"
-msgid "NUM 1"
+msgid "Num 1"
 msgstr ""
 
 #: guitext:506
 msgctxt "Keyboard"
-msgid "NUM 2"
+msgid "Num 2"
 msgstr ""
 
 #: guitext:507
 msgctxt "Keyboard"
-msgid "NUM 3"
+msgid "Num 3"
 msgstr ""
 
 #: guitext:508
 msgctxt "Keyboard"
-msgid "NUM 4"
+msgid "Num 4"
 msgstr ""
 
 #: guitext:509
 msgctxt "Keyboard"
-msgid "NUM 5"
+msgid "Num 5"
 msgstr ""
 
 #: guitext:510
 msgctxt "Keyboard"
-msgid "NUM 6"
+msgid "Num 6"
 msgstr ""
 
 #: guitext:511
 msgctxt "Keyboard"
-msgid "NUM 7"
+msgid "Num 7"
 msgstr ""
 
 #: guitext:512
 msgctxt "Keyboard"
-msgid "NUM 8"
+msgid "Num 8"
 msgstr ""
 
 #: guitext:513
 msgctxt "Keyboard"
-msgid "NUM 9"
+msgid "Num 9"
 msgstr ""
 
 #: guitext:514
 msgctxt "Keyboard"
-msgid "NUM 0"
+msgid "Num 0"
 msgstr ""
 
 #: guitext:515
@@ -3073,23 +3073,23 @@ msgstr ""
 
 #: guitext:527
 msgctxt "Keyboard"
-msgid "UP"
-msgstr "SURSUM"
+msgid "Up"
+msgstr "Sursum"
 
 #: guitext:528
 msgctxt "Keyboard"
-msgid "DOWN"
-msgstr "DEORSUM"
+msgid "Down"
+msgstr "Deorsum"
 
 #: guitext:529
 msgctxt "Keyboard"
-msgid "LEFT"
-msgstr "SINISTRA"
+msgid "Left"
+msgstr "Sinistra"
 
 #: guitext:530
 msgctxt "Keyboard"
-msgid "RIGHT"
-msgstr "DEXTRA"
+msgid "Right"
+msgstr "Dextra"
 
 #: guitext:531
 msgctxt "Network game message"

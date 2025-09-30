@@ -3656,222 +3656,222 @@ msgstr "Naciśnij jakiś klawisz"
 
 #: guitext:471
 msgctxt "Game controls"
-msgid "UP"
-msgstr "GÓRA"
+msgid "Up"
+msgstr "Góra"
 
 #: guitext:472
 msgctxt "Game controls"
-msgid "DOWN"
-msgstr "DÓŁ"
+msgid "Down"
+msgstr "Dół"
 
 #: guitext:473
 msgctxt "Game controls"
-msgid "LEFT"
-msgstr "W LEWO"
+msgid "Left"
+msgstr "W Lewo"
 
 #: guitext:474
 msgctxt "Game controls"
-msgid "RIGHT"
-msgstr "W PRAWO"
+msgid "Right"
+msgstr "W Prawo"
 
 #: guitext:475
 msgctxt "Game controls"
-msgid "ROTATE"
-msgstr "OBRÓT"
+msgid "Rotate"
+msgstr "Obrót"
 
 #: guitext:476
 msgctxt "Game controls"
-msgid "SPEED"
-msgstr "SZYBKOŚĆ"
+msgid "Speed"
+msgstr "Szybkość"
 
 #: guitext:477
 msgctxt "Game controls"
-msgid "ROTATE LEFT"
-msgstr "OBRÓT W LEWO"
+msgid "Rotate Left"
+msgstr "Obrót w Lewo"
 
 #: guitext:478
 msgctxt "Game controls"
-msgid "ROTATE RIGHT"
-msgstr "OBRÓT W PRAWO"
+msgid "Rotate Right"
+msgstr "Obrót w Prawo"
 
 #: guitext:479
 msgctxt "Game controls"
-msgid "ZOOM IN"
-msgstr "PRZYBLIŻENIE"
+msgid "Zoom In"
+msgstr "Przybliżenie"
 
 #: guitext:480
 msgctxt "Game controls"
-msgid "ZOOM OUT"
-msgstr "ODDALENIE"
+msgid "Zoom Out"
+msgstr "Oddalenie"
 
 #: guitext:481
 msgctxt "Keyboard"
-msgid "LEFT CONTROL"
-msgstr "LEWY <CTRL>"
+msgid "Left Control"
+msgstr "Lewy <Ctrl>"
 
 #: guitext:482
 msgctxt "Keyboard"
-msgid "RIGHT CONTROL"
-msgstr "PRAWY <CTRL>"
+msgid "Right Control"
+msgstr "Prawy <Ctrl>"
 
 #: guitext:483
 msgctxt "Keyboard"
-msgid "LEFT SHIFT"
-msgstr "LEWY <SHIFT>"
+msgid "Left Shift"
+msgstr "Lewy <Shift>"
 
 #: guitext:484
 msgctxt "Keyboard"
-msgid "RIGHT SHIFT"
-msgstr "PRAWY <SHIFT>"
+msgid "Right Shift"
+msgstr "Prawy <Shift>"
 
 #: guitext:485
 msgctxt "Keyboard"
-msgid "LEFT ALT"
-msgstr "LEWY <ALT>"
+msgid "Left Alt"
+msgstr "Lewy <Alt>"
 
 #: guitext:486
 msgctxt "Keyboard"
-msgid "RIGHT ALT"
-msgstr "PRAWY <ALT>"
+msgid "Right Alt"
+msgstr "Prawy <Alt>"
 
 #: guitext:487
 msgctxt "Keyboard"
-msgid "SPACE"
-msgstr "SPACJA"
+msgid "Space"
+msgstr "Spacja"
 
 #: guitext:488
 msgctxt "Keyboard"
-msgid "RETURN"
-msgstr "ENTER"
+msgid "Return"
+msgstr "Enter"
 
 #: guitext:489
 msgctxt "Keyboard"
-msgid "TAB"
-msgstr "TAB"
+msgid "Tab"
+msgstr "Tab"
 
 #: guitext:490
 msgctxt "Keyboard"
-msgid "CAPS LOCK"
-msgstr "CAPS LOCK"
+msgid "Caps Lock"
+msgstr "Caps Lock"
 
 #: guitext:491
 msgctxt "Keyboard"
-msgid "BACKSPACE"
-msgstr "BACKSPACE"
+msgid "Backspace"
+msgstr "Backspace"
 
 #: guitext:492
 msgctxt "Keyboard"
-msgid "INSERT"
-msgstr "INSERT"
+msgid "Insert"
+msgstr "Insert"
 
 #: guitext:493
 msgctxt "Keyboard"
-msgid "DELETE"
-msgstr "DELETE"
+msgid "Delete"
+msgstr "Delete"
 
 #: guitext:494
 msgctxt "Keyboard"
-msgid "HOME"
-msgstr "HOME"
+msgid "Home"
+msgstr "Home"
 
 #: guitext:495
 msgctxt "Keyboard"
-msgid "END"
-msgstr "END"
+msgid "End"
+msgstr "End"
 
 #: guitext:496
 msgctxt "Keyboard"
-msgid "PAGE UP"
-msgstr "PAGE UP"
+msgid "Page Up"
+msgstr "Page Up"
 
 #: guitext:497
 msgctxt "Keyboard"
-msgid "PAGE DOWN"
-msgstr "PAGE DOWN"
+msgid "Page Down"
+msgstr "Page Down"
 
 #: guitext:498
 msgctxt "Keyboard"
-msgid "NUM LOCK"
-msgstr "NUM LOCK"
+msgid "Num Lock"
+msgstr "Num Lock"
 
 #: guitext:499
 msgctxt "Keyboard"
-msgid "NUM /"
+msgid "Num /"
 msgstr "/ (klawiatura numeryczna)"
 
 #: guitext:500
 msgctxt "Keyboard"
-msgid "NUM *"
+msgid "Num *"
 msgstr "* (klawiatura numeryczna)"
 
 #: guitext:501
 msgctxt "Keyboard"
-msgid "NUM -"
+msgid "Num -"
 msgstr "- (klawiatura numeryczna)"
 
 #: guitext:502
 msgctxt "Keyboard"
-msgid "NUM +"
+msgid "Num +"
 msgstr "+ (klawiatura numeryczna)"
 
 #: guitext:503
 msgctxt "Keyboard"
-msgid "NUM ENTER"
-msgstr "ENTER (klawiatura numeryczna)"
+msgid "Num Enter"
+msgstr "Enter (klawiatura numeryczna)"
 
 #: guitext:504
 msgctxt "Keyboard"
-msgid "NUM DELETE"
-msgstr "DELETE (klawiatura numeryczna)"
+msgid "Num Delete"
+msgstr "Delete (klawiatura numeryczna)"
 
 #: guitext:505
 msgctxt "Keyboard"
-msgid "NUM 1"
+msgid "Num 1"
 msgstr "1 (klawiatura numeryczna)"
 
 #: guitext:506
 msgctxt "Keyboard"
-msgid "NUM 2"
+msgid "Num 2"
 msgstr "2 (klawiatura numeryczna)"
 
 #: guitext:507
 msgctxt "Keyboard"
-msgid "NUM 3"
+msgid "Num 3"
 msgstr "3 (klawiatura numeryczna)"
 
 #: guitext:508
 msgctxt "Keyboard"
-msgid "NUM 4"
+msgid "Num 4"
 msgstr "4 (klawiatura numeryczna)"
 
 #: guitext:509
 msgctxt "Keyboard"
-msgid "NUM 5"
+msgid "Num 5"
 msgstr "5 (klawiatura numeryczna)"
 
 #: guitext:510
 msgctxt "Keyboard"
-msgid "NUM 6"
+msgid "Num 6"
 msgstr "6 (klawiatura numeryczna)"
 
 #: guitext:511
 msgctxt "Keyboard"
-msgid "NUM 7"
+msgid "Num 7"
 msgstr "7 (klawiatura numeryczna)"
 
 #: guitext:512
 msgctxt "Keyboard"
-msgid "NUM 8"
+msgid "Num 8"
 msgstr "8 (klawiatura numeryczna)"
 
 #: guitext:513
 msgctxt "Keyboard"
-msgid "NUM 9"
+msgid "Num 9"
 msgstr "9 (klawiatura numeryczna)"
 
 #: guitext:514
 msgctxt "Keyboard"
-msgid "NUM 0"
+msgid "Num 0"
 msgstr "0 (klawiatura numeryczna)"
 
 #: guitext:515
@@ -3936,23 +3936,23 @@ msgstr "F12"
 
 #: guitext:527
 msgctxt "Keyboard"
-msgid "UP"
-msgstr "GÓRA"
+msgid "Up"
+msgstr "Góra"
 
 #: guitext:528
 msgctxt "Keyboard"
-msgid "DOWN"
-msgstr "DÓŁ"
+msgid "Down"
+msgstr "Dół"
 
 #: guitext:529
 msgctxt "Keyboard"
-msgid "LEFT"
-msgstr "W LEWO"
+msgid "Left"
+msgstr "W Lewo"
 
 #: guitext:530
 msgctxt "Keyboard"
-msgid "RIGHT"
-msgstr "W PRAWO"
+msgid "Right"
+msgstr "W Prawo"
 
 #: guitext:531
 msgctxt "Network game message"
