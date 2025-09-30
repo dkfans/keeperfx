@@ -57,6 +57,7 @@ struct GameSettings { // KFX settings
     unsigned long frontview_zoom_level;
     long mentor_volume;
     int isometric_tilt;
+    TbBool highlight_mode;
     };
 #pragma pack()
 /******************************************************************************/

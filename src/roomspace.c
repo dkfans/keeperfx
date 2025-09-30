@@ -37,6 +37,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+TbBool reset_roomspace = false;
 /******************************************************************************/
 TbBool can_afford_roomspace(PlayerNumber plyr_idx, RoomKind rkind, int slab_count)
 {
@@ -516,7 +517,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
     }
     if (player->roomspace_highlight_mode == 1)
     {
-        if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
+        if (((pckt->control_flags & PCtr_LBtnHeld) != 0) || ((pckt->control_flags & PCtr_LBtnRelease) != 0))
         {
             player->one_click_lock_cursor = true; // Allow click and drag over low slabs (if clicked on high slab)
             untag_mode = player->render_roomspace.untag_mode; // get tag/untag mode from the slab that was clicked (before the user started holding mouse button)
@@ -953,12 +954,11 @@ static void find_next_point(struct RoomSpace *roomspace, unsigned char mode)
     }
 }
 
-void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction)
+void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     TbBool tag_for_digging = ((player->allocflags & PlaF_ChosenSlabHasActiveTask) == 0);
-    int task_allowance = MAPTASKS_COUNT - task_allowance_reduction;
     int blocks_tagged = 0;
     int current_x, current_y;
     MapSubtlCoord stl_cx, stl_cy;
@@ -982,7 +982,7 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
                         // untag the slab for digging
                         blocks_tagged += untag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
                     }
-                    else if (dungeon->task_count < task_allowance)
+                    else if (dungeon->task_count < MAPTASKS_COUNT)
                     {
                         // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
                         blocks_tagged += tag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
@@ -1064,7 +1064,7 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
                 // untag the slab for digging
                 blocks_tagged += untag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
             }
-            else if (dungeon->task_count < task_allowance)
+            else if (dungeon->task_count < MAPTASKS_COUNT)
             {
                 // tag the slab for digging (add_task_list_entry is run by this which will increase dungeon->task_count by 1)
                 blocks_tagged += tag_blocks_for_digging_in_area(stl_cx & ((stl_cx < 0) - 1), stl_cy & ((stl_cy < 0) - 1), plyr_idx);
@@ -1499,24 +1499,16 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
 {
     long keycode = 0;
-    unsigned short par1, par2;
+    unsigned long par2;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if (!is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true))
-    {
-        par2 = 1;
-    }
-    else
-    {
-        par2 = 0;
-    }
     if ( (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) ) // Use "modern" click and drag method
     {
-        par1 = 1;
-        par2 = 0;
+        set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode ^ 1, settings.highlight_mode, 0, 0);
+        reset_roomspace = true;
+        return;
     }
     else if ( (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))  ) // Use "modern" click and drag method
     {
-        par1 = 2;
         par2 = (player->roomspace_no_default) ? player->user_defined_roomspace_width : DEFAULT_USER_ROOMSPACE_WIDTH;
         if (is_game_key_pressed(Gkey_RoomSpaceIncSize, &keycode, true))
         {
@@ -1532,6 +1524,9 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
                 par2--;
             }
         }
+        set_players_packet_action(player, PckA_SetRoomspaceHighlight, 2, par2, 0, 0);
+        reset_roomspace = true;
+        return;
     }
     else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true) )
     {
@@ -1542,16 +1537,26 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
             {
                 struct Packet* pckt = get_packet(my_player_number);
                 set_packet_action(pckt, PckA_SetRoomspaceSubtile, 0, 0, 0, 0);
+                reset_roomspace = true;
             }
         }
         return;
     }
     else
     {
-        par1 = 0;
         par2 = numpad_to_value(false);
+        if (par2 > 1)
+        {
+            set_players_packet_action(player, PckA_SetRoomspaceHighlight, 0, par2, 0, 0);
+            reset_roomspace = true;
+            return;
+        }
     }
-    set_players_packet_action(player, PckA_SetRoomspaceHighlight, par1, par2, 0, 0);
+    if (reset_roomspace)
+    {
+        set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+        reset_roomspace = false; // don't constantly send packets we don't need to
+    }
 }
 
 void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool sell)

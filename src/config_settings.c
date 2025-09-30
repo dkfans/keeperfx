@@ -113,6 +113,7 @@ void setup_default_settings(void)
      FRONTVIEW_CAMERA_ZOOM_MAX, // frontview_zoom_level
      127,                       // mentor_volume
      CAMERA_TILT_DEFAULT,       // isometric_tilt
+     false,                     // highlight_mode
     };
     memcpy(&settings, &default_settings, sizeof(struct GameSettings));
     settings.switching_vidmodes_index = 0;
@@ -143,6 +144,7 @@ TbBool load_settings(void)
           settings.frontview_zoom_level = clamp(settings.frontview_zoom_level, FRONTVIEW_CAMERA_ZOOM_MIN, FRONTVIEW_CAMERA_ZOOM_MAX);
           settings.mentor_volume = clamp(settings.mentor_volume, 0, 127);
           settings.isometric_tilt = clamp(settings.isometric_tilt, CAMERA_TILT_MIN, CAMERA_TILT_MAX);
+          settings.highlight_mode = clamp(settings.highlight_mode, false, true);
           return true;
       }
     }
