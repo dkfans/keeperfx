@@ -3534,223 +3534,223 @@ msgstr "Stiskni klávesu"
 
 #: guitext:471
 msgctxt "Game controls"
-msgid "UP"
-msgstr "NAHORU"
+msgid "Up"
+msgstr "Nahoru"
 
 #: guitext:472
 msgctxt "Game controls"
-msgid "DOWN"
-msgstr "DOLŮ"
+msgid "Down"
+msgstr "Dolů"
 
 #: guitext:473
 msgctxt "Game controls"
-msgid "LEFT"
-msgstr "DOLEVA"
+msgid "Left"
+msgstr "Doleva"
 
 #: guitext:474
 msgctxt "Game controls"
-msgid "RIGHT"
-msgstr "DOPRAVA"
+msgid "Right"
+msgstr "Doprava"
 
 #: guitext:475
 msgctxt "Game controls"
-msgid "ROTATE"
-msgstr "OTOČIT"
+msgid "Rotate"
+msgstr "Otočit"
 
 #: guitext:476
 msgctxt "Game controls"
-msgid "SPEED"
-msgstr "RYCHLOST"
+msgid "Speed"
+msgstr "Rychlost"
 
 #: guitext:477
 msgctxt "Game controls"
-msgid "ROTATE LEFT"
-msgstr "OTOČENÍ DOLEVA"
+msgid "Rotate Left"
+msgstr "Otočení Doleva"
 
 #: guitext:478
 msgctxt "Game controls"
-msgid "ROTATE RIGHT"
-msgstr "OTOČENÍ DOPRAVA"
+msgid "Rotate Right"
+msgstr "Otočení Doprava"
 
 #: guitext:479
 msgctxt "Game controls"
-msgid "ZOOM IN"
-msgstr "ZVĚTŠIT"
+msgid "Zoom In"
+msgstr "Zvětšit"
 
 #: guitext:480
 msgctxt "Game controls"
-msgid "ZOOM OUT"
-msgstr "ZMENŠIT"
+msgid "Zoom Out"
+msgstr "Zmenšit"
 
 #: guitext:481
 msgctxt "Keyboard"
-msgid "LEFT CONTROL"
-msgstr "LEVÝ CTRL"
+msgid "Left Control"
+msgstr "Levý Ctrl"
 
 #: guitext:482
 msgctxt "Keyboard"
-msgid "RIGHT CONTROL"
-msgstr "PRAVÝ CTRL"
+msgid "Right Control"
+msgstr "Pravý Ctrl"
 
 #: guitext:483
 msgctxt "Keyboard"
-msgid "LEFT SHIFT"
-msgstr "LEVÝ SHIFT"
+msgid "Left Shift"
+msgstr "Levý Shift"
 
 #: guitext:484
 msgctxt "Keyboard"
-msgid "RIGHT SHIFT"
-msgstr "PRAVÝ SHIFT"
+msgid "Right Shift"
+msgstr "Pravý Shift"
 
 #: guitext:485
 msgctxt "Keyboard"
-msgid "LEFT ALT"
-msgstr "LEVÝ ALT"
+msgid "Left Alt"
+msgstr "Levý Alt"
 
 #: guitext:486
 msgctxt "Keyboard"
-msgid "RIGHT ALT"
-msgstr "PRAVÝ ALT"
+msgid "Right Alt"
+msgstr "Pravý Alt"
 
 #: guitext:487
 msgctxt "Keyboard"
-msgid "SPACE"
-msgstr "MEZERNÍK"
+msgid "Space"
+msgstr "Mezerník"
 
 #: guitext:488
 msgctxt "Keyboard"
-msgid "RETURN"
-msgstr "ENTER"
+msgid "Return"
+msgstr "Enter"
 
 #: guitext:489
 msgctxt "Keyboard"
-msgid "TAB"
-msgstr "TABULÁTOR"
+msgid "Tab"
+msgstr "Tabulátor"
 
 #: guitext:490
 msgctxt "Keyboard"
-msgid "CAPS LOCK"
-msgstr "CAPS LOCK"
+msgid "Caps Lock"
+msgstr "Caps Lock"
 
 #: guitext:491
 msgctxt "Keyboard"
-msgid "BACKSPACE"
-msgstr "BACKSPACE"
+msgid "Backspace"
+msgstr "Backspace"
 
 #: guitext:492
 msgctxt "Keyboard"
-msgid "INSERT"
-msgstr "INSERT"
+msgid "Insert"
+msgstr "Insert"
 
 #: guitext:493
 msgctxt "Keyboard"
-msgid "DELETE"
-msgstr "DELETE"
+msgid "Delete"
+msgstr "Delete"
 
 #: guitext:494
 msgctxt "Keyboard"
-msgid "HOME"
-msgstr "HOME"
+msgid "Home"
+msgstr "Home"
 
 #: guitext:495
 msgctxt "Keyboard"
-msgid "END"
-msgstr "END"
+msgid "End"
+msgstr "End"
 
 #: guitext:496
 msgctxt "Keyboard"
-msgid "PAGE UP"
-msgstr "PAGE UP"
+msgid "Page Up"
+msgstr "Page Up"
 
 #: guitext:497
 msgctxt "Keyboard"
-msgid "PAGE DOWN"
-msgstr "PAGE DOWN"
+msgid "Page Down"
+msgstr "Page Down"
 
 #: guitext:498
 msgctxt "Keyboard"
-msgid "NUM LOCK"
-msgstr "NUM LOCK"
+msgid "Num Lock"
+msgstr "Num Lock"
 
 #: guitext:499
 msgctxt "Keyboard"
-msgid "NUM /"
-msgstr "NUM /"
+msgid "Num /"
+msgstr "Num /"
 
 #: guitext:500
 msgctxt "Keyboard"
-msgid "NUM *"
-msgstr "NUM *"
+msgid "Num *"
+msgstr "Num *"
 
 #: guitext:501
 msgctxt "Keyboard"
-msgid "NUM -"
-msgstr "NUM -"
+msgid "Num -"
+msgstr "Num -"
 
 #: guitext:502
 msgctxt "Keyboard"
-msgid "NUM +"
-msgstr "NUM +"
+msgid "Num +"
+msgstr "Num +"
 
 #: guitext:503
 msgctxt "Keyboard"
-msgid "NUM ENTER"
-msgstr "NUM ENTER"
+msgid "Num Enter"
+msgstr "Num Enter"
 
 #: guitext:504
 msgctxt "Keyboard"
-msgid "NUM DELETE"
-msgstr "NUM DELETE"
+msgid "Num Delete"
+msgstr "Num Delete"
 
 #: guitext:505
 msgctxt "Keyboard"
-msgid "NUM 1"
-msgstr "NUM 1"
+msgid "Num 1"
+msgstr "Num 1"
 
 #: guitext:506
 msgctxt "Keyboard"
-msgid "NUM 2"
-msgstr "NUM 2"
+msgid "Num 2"
+msgstr "Num 2"
 
 #: guitext:507
 msgctxt "Keyboard"
-msgid "NUM 3"
-msgstr "NUM 3"
+msgid "Num 3"
+msgstr "Num 3"
 
 #: guitext:508
 msgctxt "Keyboard"
-msgid "NUM 4"
-msgstr "NUM 4"
+msgid "Num 4"
+msgstr "Num 4"
 
 #: guitext:509
 msgctxt "Keyboard"
-msgid "NUM 5"
-msgstr "NUM 5"
+msgid "Num 5"
+msgstr "Num 5"
 
 #: guitext:510
 msgctxt "Keyboard"
-msgid "NUM 6"
-msgstr "NUM 6"
+msgid "Num 6"
+msgstr "Num 6"
 
 #: guitext:511
 msgctxt "Keyboard"
-msgid "NUM 7"
-msgstr "NUM 7"
+msgid "Num 7"
+msgstr "Num 7"
 
 #: guitext:512
 msgctxt "Keyboard"
-msgid "NUM 8"
-msgstr "NUM 8"
+msgid "Num 8"
+msgstr "Num 8"
 
 #: guitext:513
 msgctxt "Keyboard"
-msgid "NUM 9"
-msgstr "NUM 9"
+msgid "Num 9"
+msgstr "Num 9"
 
 #: guitext:514
 msgctxt "Keyboard"
-msgid "NUM 0"
-msgstr "NUM 0"
+msgid "Num 0"
+msgstr "Num 0"
 
 #: guitext:515
 msgctxt "Keyboard"
@@ -3814,23 +3814,23 @@ msgstr "F12"
 
 #: guitext:527
 msgctxt "Keyboard"
-msgid "UP"
-msgstr "ŠIPKA NAHORU"
+msgid "Up"
+msgstr "Šipka Nahoru"
 
 #: guitext:528
 msgctxt "Keyboard"
-msgid "DOWN"
-msgstr "ŠIPKA DOLŮ"
+msgid "Down"
+msgstr "Šipka Dolů"
 
 #: guitext:529
 msgctxt "Keyboard"
-msgid "LEFT"
-msgstr "ŠIPKA DOLEVA"
+msgid "Left"
+msgstr "Šipka Doleva"
 
 #: guitext:530
 msgctxt "Keyboard"
-msgid "RIGHT"
-msgstr "ŠIPKA DOPRAVA"
+msgid "Right"
+msgstr "Šipka Doprava"
 
 #: guitext:531
 msgctxt "Network game message"
