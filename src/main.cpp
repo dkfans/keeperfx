@@ -2539,6 +2539,11 @@ TngUpdateRet damage_creatures_with_physical_force(struct Thing *thing, ModTngFil
             return TUFRet_Deleted;
         }
     }
+    else if (thing_is_destructible_trap(thing))
+    {
+        apply_damage_to_thing(thing, param->secondary_number, param->primary_number);
+        return TUFRet_Modified;
+    }
     return TUFRet_Unchanged;
 }
 
