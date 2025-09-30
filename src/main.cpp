@@ -1647,13 +1647,13 @@ void clear_things_and_persons_data(void)
     }
 
     // Initialize synced free things list
-    game.synced_free_things_start_index = 0;
+    game.synced_free_things_count = SYNCED_THINGS_COUNT;
     for (i = 1; i <= SYNCED_THINGS_COUNT; i++)
     {
         game.synced_free_things[i-1] = i;
     }
     // Initialize unsynced free things list
-    game.unsynced_free_things_start_index = 0;
+    game.unsynced_free_things_count = UNSYNCED_THINGS_COUNT;
     for (i = SYNCED_THINGS_COUNT + 1; i < SYNCED_THINGS_COUNT + UNSYNCED_THINGS_COUNT; i++)
     {
         game.unsynced_free_things[i - SYNCED_THINGS_COUNT - 1] = i;
@@ -1735,13 +1735,11 @@ void delete_all_thing_structures(void)
     for (i=0; i < SYNCED_THINGS_COUNT; i++) {
       game.synced_free_things[i] = i+1;
     }
-    game.synced_free_things_start_index = 0;
-    // Reset unsynced free things list
-    for (i = SYNCED_THINGS_COUNT + 1; i < SYNCED_THINGS_COUNT + UNSYNCED_THINGS_COUNT; i++)
-    {
-        game.unsynced_free_things[i - SYNCED_THINGS_COUNT - 1] = i;
+    for (i=SYNCED_THINGS_COUNT+1; i < SYNCED_THINGS_COUNT+UNSYNCED_THINGS_COUNT; i++) {
+        game.unsynced_free_things[i-SYNCED_THINGS_COUNT-1] = i;
     }
-    game.unsynced_free_things_start_index = 0;
+    game.synced_free_things_count = SYNCED_THINGS_COUNT;
+    game.unsynced_free_things_count = UNSYNCED_THINGS_COUNT;
 }
 
 void delete_all_structures(void)
