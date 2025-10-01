@@ -1650,7 +1650,7 @@ void clear_things_and_persons_data(void)
             }
         }
     }
-    game.synced_free_things_count = SYNCED_THINGS_COUNT-1; // 1 to 8191. Note: COUNTS aren't real representations of how many things there should be.
+    game.synced_free_things_count = SYNCED_THINGS_COUNT-1; // 1 to 8191. Note: COUNT macros aren't real representations of how many things there should be, all of them are off by 1.
     game.unsynced_free_things_count = UNSYNCED_THINGS_COUNT-1; // 8192 to 12287
 
     for (i=0; i < CREATURES_COUNT; i++)
