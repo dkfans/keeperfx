@@ -1850,7 +1850,7 @@ msgstr "Belysning: Används inte"
 
 #: guitext:243
 msgctxt "Creature spell"
-msgid "Flight: Causes the creature to take off from the ground and attack creatures from the air."
+msgid "Flight: Causes the creature to take off from the ground and attack creatures from the air or cross lava unharmed."
 msgstr "Sväva: Gör så att varelsen kan lätta ifrån marken och attackera ifrån ovan. "
 
 #: guitext:244
@@ -4359,8 +4359,9 @@ msgid "Move Only Computer Assistant: Moves and slaps your creatures. LMB select.
 msgstr "Endast flyttande datorhjälp: Flyttar och slår dina varelser. VMK väljer. [3.2.4]"
 
 #: guitext:733
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+msgid "Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB Zoom. [22.2.1]"
 msgstr "Mest erfarna varelser av denna typ: VMK plockar upp varelser. HMK zoomar. [22.2.1]"
 
 #: guitext:734
