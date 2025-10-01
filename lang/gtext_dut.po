@@ -2232,8 +2232,7 @@ msgstr "Verlichting"
 #: guitext:243
 msgctxt "Creature spell"
 msgid ""
-"Flight: Causes the creature to take off from the ground and attack creatures "
-"from the air."
+"Flight: Causes the creature to take off from the ground and attack creatures from the air or cross lava unharmed."
 msgstr "Vliegen: Zorgt dat het wezen van de grond komt en vanuit de lucht kan aanvallen."
 
 #: guitext:244
@@ -5046,7 +5045,7 @@ msgstr ""
 #: guitext:733
 msgctxt "In-game interface description"
 msgid ""
-"Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+"Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB Zoom. [22.2.1]"
 msgstr ""
 "De meest ervaren wezens oppakken: LMK: oppikken. RMK: inzoomen. [22.2.1]"
 

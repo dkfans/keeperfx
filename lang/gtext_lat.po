@@ -4110,8 +4110,9 @@ msgid "Move Only Computer Assistant: Moves and slaps your creatures. LMB select.
 msgstr "Adiumentum computarii ad tantum motum: Creaturas tuas movet et eis alapas da. BSM delige. [3.2.4]"
 
 #: guitext:733
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+msgid "Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB Zoom. [22.2.1]"
 msgstr "Cape creaturas peritissimas: BSM cape creaturam. BDM i. [22.2.1]"
 
 #: guitext:734

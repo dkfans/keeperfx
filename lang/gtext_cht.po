@@ -2091,8 +2091,7 @@ msgstr "照明术: 未使用"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Flight: Causes the creature to take off from the ground and attack creatures "
-"from the air or cross lava unharmed."
+"Flight: Causes the creature to take off from the ground and attack creatures from the air or cross lava unharmed."
 msgstr "飞行术: [26.7]"
 
 #: guitext:244
@@ -2129,8 +2128,7 @@ msgstr "真言术: [26.23]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Heal: When this is cast, the creature is massively healed. Also, any nearby "
-"creatures are healed by a quarter."
+"Heal: When this is cast, the creature is massively healed."
 msgstr "复原术: [26.11]"
 
 #: guitext:249
