@@ -209,7 +209,7 @@ struct Thing *thing_get_f(long tng_idx, const char *func_name)
     if ((tng_idx > 0) && (tng_idx < THINGS_COUNT)) {
         return game.things.lookup[tng_idx];
     }
-    if ((tng_idx < -1) || (tng_idx >= THINGS_COUNT)) {
+    if ((tng_idx < 0) || (tng_idx >= THINGS_COUNT)) {
         ERRORMSG("%s: Request of invalid thing (no %d) intercepted",func_name,(int)tng_idx);
     }
     return INVALID_THING;
