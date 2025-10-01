@@ -1640,23 +1640,22 @@ void clear_things_and_persons_data(void)
         thing->owner = PLAYERS_COUNT;
         thing->mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
         thing->mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
+
+        // Create the list of free indices (skip index 0 since that's INVALID_THING
+        if (i > 0) {
+            if (i < SYNCED_THINGS_COUNT) {
+                game.synced_free_things[i-1] = i;
+            } else {
+                game.unsynced_free_things[i-1-SYNCED_THINGS_COUNT] = i;
+            }
+        }
     }
+    game.synced_free_things_count = SYNCED_THINGS_COUNT-1; // 1 to 8191. Note: COUNT macros aren't real representations of how many things there should be, all of them are off by 1.
+    game.unsynced_free_things_count = UNSYNCED_THINGS_COUNT-1; // 8192 to 12287
+
     for (i=0; i < CREATURES_COUNT; i++)
     {
       memset(&game.cctrl_data[i], 0, sizeof(struct CreatureControl));
-    }
-
-    // Initialize synced free things list
-    game.synced_free_things_start_index = 0;
-    for (i = 1; i <= SYNCED_THINGS_COUNT; i++)
-    {
-        game.synced_free_things[i-1] = i;
-    }
-    // Initialize unsynced free things list
-    game.unsynced_free_things_start_index = 0;
-    for (i = SYNCED_THINGS_COUNT + 1; i < SYNCED_THINGS_COUNT + UNSYNCED_THINGS_COUNT; i++)
-    {
-        game.unsynced_free_things[i - SYNCED_THINGS_COUNT - 1] = i;
     }
 }
 
@@ -1731,17 +1730,14 @@ void delete_all_thing_structures(void)
       if (thing_exists(thing)) {
           delete_thing_structure(thing, 1);
       }
+        if (i < SYNCED_THINGS_COUNT) {
+            game.synced_free_things[i-1] = i;
+        } else {
+            game.unsynced_free_things[i-1-SYNCED_THINGS_COUNT] = i;
+        }
     }
-    for (i=0; i < SYNCED_THINGS_COUNT; i++) {
-      game.synced_free_things[i] = i+1;
-    }
-    game.synced_free_things_start_index = 0;
-    // Reset unsynced free things list
-    for (i = SYNCED_THINGS_COUNT + 1; i < SYNCED_THINGS_COUNT + UNSYNCED_THINGS_COUNT; i++)
-    {
-        game.unsynced_free_things[i - SYNCED_THINGS_COUNT - 1] = i;
-    }
-    game.unsynced_free_things_start_index = 0;
+    game.synced_free_things_count = SYNCED_THINGS_COUNT-1;
+    game.unsynced_free_things_count = UNSYNCED_THINGS_COUNT-1;
 }
 
 void delete_all_structures(void)

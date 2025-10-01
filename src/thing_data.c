@@ -58,46 +58,61 @@ static struct Thing *get_oldest_replaceable_effect(void)
     return INVALID_THING;
 }
 
+// Remove a thing index from the free list stack and return it so it can be used right now
+static ThingIndex pop_free_thing_index(unsigned short *free_list, ThingIndex *count)
+{
+    if (*count == 0) {
+        return 0; // No free slots available
+    }
+    (*count)--;
+    return free_list[*count];
+}
+
+// Add a freed thing index back onto the free list stack, so it can be used by others in the future
+static void push_free_thing_index(unsigned short *free_list, ThingIndex *count, ThingIndex max_count, ThingIndex thing_idx)
+{
+    if (*count < max_count) {
+        free_list[*count] = thing_idx;
+        (*count)++;
+    }
+}
+
 static struct Thing *allocate_thing(enum ThingAllocationPool pool_type, const char *func_name)
 {
     unsigned short *free_list;
-    ThingIndex *start_index;
-    ThingIndex max_count;
+    ThingIndex *count;
     const char *list_name;
 
     if (pool_type == ThingAllocation_Unsynced) {
         free_list = game.unsynced_free_things;
-        start_index = &game.unsynced_free_things_start_index;
-        max_count = UNSYNCED_THINGS_COUNT;
+        count = &game.unsynced_free_things_count;
         list_name = "unsynced";
     } else {
         free_list = game.synced_free_things;
-        start_index = &game.synced_free_things_start_index;
-        max_count = SYNCED_THINGS_COUNT;
+        count = &game.synced_free_things_count;
         list_name = "synced";
     }
 
-    if (*start_index >= max_count) {
+    ThingIndex thing_idx = pop_free_thing_index(free_list, count);
+    if (thing_idx == 0) {
         ERRORMSG("%s: Cannot allocate new %s thing, no free slots!", func_name, list_name);
         return INVALID_THING;
     }
 
-    struct Thing *thing = thing_get(free_list[*start_index]);
+    struct Thing *thing = thing_get(thing_idx);
     memset(thing, 0, sizeof(struct Thing));
     thing->alloc_flags |= TAlF_Exists;
-    thing->index = free_list[*start_index];
+    thing->index = thing_idx;
     thing->random_seed = thing->index * 9377 + 9439 + game.play_gameturn;
     TRACE_THING(thing);
 
-    free_list[*start_index] = 0;
-    (*start_index)++;
     return thing;
 }
 
 struct Thing *allocate_free_thing_structure_f(unsigned char class_id, const char *func_name)
 {
     if (is_non_synchronized_thing_class(class_id)) {
-        if (game.unsynced_free_things_start_index >= UNSYNCED_THINGS_COUNT) {
+        if (game.unsynced_free_things_count == 0) {
             // No free slots - try deleting old effect and search again
             struct Thing *old_effect = get_oldest_replaceable_effect();
             if (old_effect != INVALID_THING) {
@@ -116,7 +131,7 @@ TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
 {
     if (is_non_synchronized_thing_class(class_id)) {
         // Check if we have free unsynced slots
-        if (game.unsynced_free_things_start_index < UNSYNCED_THINGS_COUNT) {
+        if (game.unsynced_free_things_count > 0) {
             return true;
         }
         // No free slots - check if we can delete an old effect to make room
@@ -129,11 +144,11 @@ TbBool i_can_allocate_free_thing_structure(unsigned char class_id)
     }
 
     // For synced things: check if free slots remain
-    if (game.synced_free_things_start_index < SYNCED_THINGS_COUNT) {
+    if (game.synced_free_things_count > 0) {
         return true;
     }
 
-    show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create thing, %d/%d slots used.", game.synced_free_things_start_index, SYNCED_THINGS_COUNT);
+    show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create thing, %d/%d slots used.", SYNCED_THINGS_COUNT - game.synced_free_things_count, SYNCED_THINGS_COUNT);
     return false;
 }
 
@@ -171,20 +186,10 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     remove_thing_from_its_class_list(thing);
     remove_thing_from_mapwho(thing);
     if (thing->index > 0) {
-        unsigned short *free_list;
-        ThingIndex *start_index;
-
         if (thing->index <= SYNCED_THINGS_COUNT) {
-            free_list = game.synced_free_things;
-            start_index = &game.synced_free_things_start_index;
+            push_free_thing_index(game.synced_free_things, &game.synced_free_things_count, SYNCED_THINGS_COUNT, thing->index);
         } else {
-            free_list = game.unsynced_free_things;
-            start_index = &game.unsynced_free_things_start_index;
-        }
-
-        if (*start_index > 0) {
-            (*start_index)--;
-            free_list[*start_index] = thing->index;
+            push_free_thing_index(game.unsynced_free_things, &game.unsynced_free_things_count, UNSYNCED_THINGS_COUNT, thing->index);
         }
     } else {
 #if (BFDEBUG_LEVEL > 0)
@@ -204,7 +209,7 @@ struct Thing *thing_get_f(long tng_idx, const char *func_name)
     if ((tng_idx > 0) && (tng_idx < THINGS_COUNT)) {
         return game.things.lookup[tng_idx];
     }
-    if ((tng_idx < -1) || (tng_idx >= THINGS_COUNT)) {
+    if ((tng_idx < 0) || (tng_idx >= THINGS_COUNT)) {
         ERRORMSG("%s: Request of invalid thing (no %d) intercepted",func_name,(int)tng_idx);
     }
     return INVALID_THING;
