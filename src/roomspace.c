@@ -574,7 +574,7 @@ void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNum
     }
     else
     {
-        current_roomspace = create_box_roomspace(player->render_roomspace, player->roomspace_width, player->roomspace_height, slb_x, slb_y);
+        current_roomspace = create_box_roomspace(player->render_roomspace, 1, 1, slb_x, slb_y);
     }
     current_roomspace.highlight_mode = highlight_mode;
     current_roomspace.untag_mode = untag_mode;
@@ -1547,7 +1547,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
         par2 = numpad_to_value(false);
         if (par2 > 1)
         {
-            set_players_packet_action(player, PckA_SetRoomspaceHighlight, 0, par2, 0, 0);
+            set_players_packet_action(player, PckA_SetRoomspaceHighlight, 2, par2, 0, 0);
             reset_roomspace = true;
             return;
         }

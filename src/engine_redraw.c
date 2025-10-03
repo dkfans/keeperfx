@@ -912,7 +912,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         {
         case CSt_PickAxe:
         {
-            set_pointer_graphic((player->render_roomspace.highlight_mode == 1) ? MousePG_Pickaxe2 : MousePG_Pickaxe);
+            set_pointer_graphic((player->roomspace_highlight_mode == 1) ? MousePG_Pickaxe2 : MousePG_Pickaxe);
             break;
         }
         case CSt_DoorKey:
@@ -961,7 +961,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
             } else
             {
                 if ((player->additional_flags & PlaAF_ChosenSubTileIsHigh) != 0) {
-                  set_pointer_graphic((player->render_roomspace.highlight_mode == 1) ? MousePG_Pickaxe2 : MousePG_Pickaxe);
+                  set_pointer_graphic((player->roomspace_highlight_mode == 1) ? MousePG_Pickaxe2 : MousePG_Pickaxe);
                 } else {
                   set_pointer_graphic(MousePG_Invisible);
                 }
