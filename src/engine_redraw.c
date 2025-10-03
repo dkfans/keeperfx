@@ -921,18 +921,36 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         case CSt_PowerHand:
             thing = thing_get(player->thing_under_hand);
             TRACE_THING(thing);
+            TbBool can_cast = false;
             if ((player->input_crtr_control) && (!thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {
                 PowerKind pwkind = PwrK_POSSESS;
                 if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
                 {
                     // The condition above makes can_cast_spell() within draw_spell_cursor() to never fail; this is intentional
+                    can_cast = true;
+                }
+                else
+                {
+                    thing = get_creature_near_for_controlling(player->id_number, thing->mappos.x.val, thing->mappos.y.val);
+                    if (!thing_is_invalid(thing))
+                    {
+                        if (can_cast_spell(player->id_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
+                        {
+                            can_cast = true;
+                        }
+                    }
+                }
+                if (can_cast)
+                {
                     player->chosen_power_kind = pwkind;
                     draw_spell_cursor(0, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
                     player->chosen_power_kind = 0;
+                    player->thing_under_hand = thing->index;
                 } else {
                     set_pointer_graphic(MousePG_Arrow);
                 }
+
                 player->display_flags |= PlaF6_DisplayNeedsUpdate;
             } else
             if (((player->input_crtr_query) && !thing_is_invalid(thing)) && (dungeon->things_in_hand[0] != player->thing_under_hand)
