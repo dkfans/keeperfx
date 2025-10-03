@@ -10,7 +10,8 @@
 
 FuncIdx get_function_idx(const char *func_name, const struct NamedCommand *Cfuncs) {
 
-    if (strcasecmp(func_name, "none") == 0) {
+    if ((strcasecmp(func_name, "none") == 0) || (strcasecmp(func_name, "0") == 0))
+    {
         return 0;
     }
 
