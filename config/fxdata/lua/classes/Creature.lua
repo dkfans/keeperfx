@@ -12,6 +12,7 @@
 ---@field continue_state string
 ---@field moveto_pos Pos3d should be combined with assigning a state that makes use of it
 ---@field patrol_pos Pos3d should be combined with assigning a hero state that makes use of it
+---@field patrol_countdown integer when this value reaches 0 the hero will look for new patrol position on its own
 ---@field gold_held integer gold carried by the creature
 ---@field opponents_count integer number of creatures it is in battle with, combined ranged and melee
 ---@field opponents_melee_count integer number of creatures it is in melee battle with

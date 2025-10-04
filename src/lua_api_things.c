@@ -226,6 +226,10 @@ static int thing_set_field(lua_State *L) {
         else if (strcmp(key, "patrol_pos") == 0)
         {
             luaL_checkCoord3d(L, 3, &cctrl->patrol.pos);
+        }
+        else if (strcmp(key, "patrol_countdown") == 0)
+        {
+            cctrl->patrol.countdown = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "state") == 0)
         {
             internal_set_thing_state(thing, luaL_checkNamedCommand(L, 3, creatrstate_desc));
@@ -335,11 +339,14 @@ static int thing_get_field(lua_State *L) {
         cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
             lua_pushPos(L, &cctrl->moveto_pos);
-    }
-    else if (strcmp(key, "patrol_pos") == 0) {
+    } else if (strcmp(key, "patrol_pos") == 0) {
         cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
             lua_pushPos(L, &cctrl->patrol.pos);
+    } else if (strcmp(key, "patrol_countdown") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            lua_pushinteger(L, cctrl->patrol.countdown);
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     }
