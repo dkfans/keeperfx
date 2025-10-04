@@ -11,8 +11,6 @@
 ---@field state string
 ---@field continue_state string
 ---@field moveto_pos Pos3d should be combined with assigning a state that makes use of it
----@field patrol_pos Pos3d should be combined with assigning a hero state that makes use of it
----@field patrol_countdown integer when this value reaches 0 the hero will look for new patrol position on its own
 ---@field gold_held integer gold carried by the creature
 ---@field opponents_count integer number of creatures it is in battle with, combined ranged and melee
 ---@field opponents_melee_count integer number of creatures it is in melee battle with
@@ -26,6 +24,11 @@
 ---@field creature_kills integer how many creatures the creature has killed
 ---@field creature_kills_enemies integer how many enemy creatures the creature has killed
 ---@field creature_kills_allies integer how many non-enemy creatures the creature has killed
+---@field party_objective string The current Hero party objective
+---@field party_original_objective string The originally assigned Hero party objective
+---@field party_target_player integer The player the hero party is targetting
+---@field patrol_pos Pos3d should be combined with assigning a hero state that makes use of it
+---@field patrol_countdown integer when this value reaches 0 the hero will look for new patrol position on its own
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens

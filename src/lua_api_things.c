@@ -228,6 +228,15 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "patrol_countdown") == 0)
         {
             cctrl->patrol.countdown = luaL_checkinteger(L, 3);
+        } else if (strcmp(key, "party_objective") == 0)
+        {
+            internal_set_thing_state(thing, luaL_checkNamedCommand(L, 3, hero_objective_desc));
+        } else if (strcmp(key, "party_original_objective") == 0)
+        {
+            internal_set_thing_state(thing, luaL_checkNamedCommand(L, 3, hero_objective_desc));
+        } else if (strcmp(key, "party_target_player") == 0)
+        {
+            cctrl->party.target_plyr_idx = luaL_checkPlayerSingle(L, 3);
         } else if (strcmp(key, "state") == 0)
         {
             internal_set_thing_state(thing, luaL_checkNamedCommand(L, 3, creatrstate_desc));
@@ -336,11 +345,28 @@ static int thing_get_field(lua_State *L) {
     } else if (strcmp(key, "patrol_pos") == 0) {
         cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
-            lua_pushPos(L, &cctrl->patrol.pos);
+            return luaL_error(L, "Attempt to access patrol pos of non-creature thing");
+        lua_pushPos(L, &cctrl->patrol.pos);
     } else if (strcmp(key, "patrol_countdown") == 0) {
         cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
-            lua_pushinteger(L, cctrl->patrol.countdown);
+            return luaL_error(L, "Attempt to access patrol countdown of non-creature thing");
+        lua_pushinteger(L, cctrl->patrol.countdown);
+    } else if (strcmp(key, "party_objective") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access party objective of non-creature thing");
+        lua_pushstring(L, get_conf_parameter_text(hero_objective_desc, cctrl->party.objective));
+    } else if (strcmp(key, "party_original_objective") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access original party objective of non-creature thing");
+        lua_pushstring(L, get_conf_parameter_text(hero_objective_desc, cctrl->party.original_objective));
+    } else if (strcmp(key, "party_target_player") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access party target player of non-creature thing");
+        lua_pushPlayer(L, cctrl->party.target_plyr_idx);
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     }
