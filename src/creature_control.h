@@ -217,8 +217,7 @@ struct CreatureControl {
   } digger;
   struct {
     short countdown;
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
+    struct Coord3d pos;
   } patrol;
   struct {
     char hero_state;

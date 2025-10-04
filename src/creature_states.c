@@ -4006,8 +4006,7 @@ short patrol_here(struct Thing *creatng)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->patrol.countdown = 10;
-    cctrl->patrol.stl_x = cctrl->moveto_pos.x.stl.num;
-    cctrl->patrol.stl_y = cctrl->moveto_pos.y.stl.num;
+    cctrl->patrol.pos = cctrl->moveto_pos;
     creatng->continue_state = CrSt_Patrolling;
     return 1;
 }
@@ -4022,8 +4021,8 @@ short patrolling(struct Thing *creatng)
     }
     cctrl->patrol.countdown--;
     // Try random positions near the patrolling point
-    MapSubtlCoord stl_x = cctrl->patrol.stl_x;
-    MapSubtlCoord stl_y = cctrl->patrol.stl_y;
+    MapSubtlCoord stl_x = cctrl->patrol.pos.x.stl.num;
+    MapSubtlCoord stl_y = cctrl->patrol.pos.y.stl.num;
     if (go_to_random_area_near_xy(creatng, stl_x, stl_y))
     {
         creatng->continue_state = CrSt_Patrolling;
