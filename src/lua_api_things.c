@@ -339,7 +339,7 @@ static int thing_get_field(lua_State *L) {
     else if (strcmp(key, "patrol_pos") == 0) {
         cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
-            lua_pushPos(L, &cctrl->patrol_pos);
+            lua_pushPos(L, &cctrl->patrol.pos);
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     }
@@ -347,7 +347,7 @@ static int thing_get_field(lua_State *L) {
     //build in fields specific to one thing class
     else if (thing_is_creature(thing))
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
             return luaL_error(L, "Invalid creature control block");
 
