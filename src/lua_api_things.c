@@ -222,12 +222,10 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "moveto_pos") == 0)
         {
             luaL_checkCoord3d(L, 3, &cctrl->moveto_pos);
-        }
-        else if (strcmp(key, "patrol_pos") == 0)
+        } else if (strcmp(key, "patrol_pos") == 0)
         {
             luaL_checkCoord3d(L, 3, &cctrl->patrol.pos);
-        }
-        else if (strcmp(key, "patrol_countdown") == 0)
+        } else if (strcmp(key, "patrol_countdown") == 0)
         {
             cctrl->patrol.countdown = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "state") == 0)
@@ -242,23 +240,19 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "hunger_level") == 0)
         {
             cctrl->hunger_level = luaL_checkinteger(L, 3);
-        }
-        else if (strcmp(key, "creature_kills") == 0)
+        } else if (strcmp(key, "creature_kills") == 0)
         {
             cctrl->kills_num = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "creature_kills_allies") == 0)
         {
             cctrl->kills_num_allied = luaL_checkinteger(L, 3);
-        }
-        else if (strcmp(key, "creature_kills_enemies") == 0)
+        } else if (strcmp(key, "creature_kills_enemies") == 0)
         {
             cctrl->kills_num_enemy = luaL_checkinteger(L, 3);
-        }
-        else if (strcmp(key, "hunger_loss") == 0)
+        } else if (strcmp(key, "hunger_loss") == 0)
         {
             cctrl->hunger_loss = luaL_checkinteger(L, 3);
-        }
-        else if (strcmp(key, "hand_blocked_turns") == 0)
+        } else if (strcmp(key, "hand_blocked_turns") == 0)
         {
             cctrl->hand_blocked_turns = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "force_health_flower_displayed") == 0)

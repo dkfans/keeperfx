@@ -254,7 +254,7 @@ TbBool good_setup_attack_rooms(struct Thing *creatng, long dngn_id)
     return true;
 }
 
-TbBool good_setup_sabotage_rooms(struct Thing* creatng, long dngn_id)
+TbBool good_setup_sabotage_rooms(struct Thing* creatng, short dngn_id)
 {
     struct Room* room = find_nearest_room_to_vandalise(creatng, dngn_id, NavRtF_NoOwner);
     if (room_is_invalid(room))
