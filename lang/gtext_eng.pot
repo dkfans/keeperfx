@@ -3428,7 +3428,7 @@ msgstr ""
 
 #: guitext:628
 msgctxt "Room description"
-msgid "Temple: Worshipping the dark gods makes creatures happier. Sacrifice creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
+msgid "Temple: Worshipping the dark gods makes creatures happier. Sacrifice creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgstr ""
 
 #: guitext:629
@@ -3539,7 +3539,7 @@ msgstr ""
 #: guitext:650
 msgctxt "Keeper spell description"
 msgid "Call To Arms: Calls creatures in range to any destination. LMB Select. Cast in range of creatures to gather, cast again for destination."
-"RMB zoom. LMB Cancel. [18.6]"
+" RMB zoom. LMB Cancel. [18.6]"
 msgstr ""
 
 #: guitext:651
@@ -3564,7 +3564,7 @@ msgstr ""
 
 #: guitext:655
 msgctxt "Keeper spell description"
-msgid "Protect Monster: Shields your creatures from attack. LBM select."
+msgid "Protect Monster: Shields your creatures from attack. LMB select."
 msgstr ""
 
 #: guitext:656
