@@ -206,7 +206,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
     }
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->party_objective == CHeroTsk_StealGold) && (creatng->creature.gold_carried > 0))
+    if ((cctrl->party.objective == CHeroTsk_StealGold) && (creatng->creature.gold_carried > 0))
     {
         if (check_out_hero_has_money_for_treasure_room(creatng))
         {
@@ -731,22 +731,22 @@ TbBool good_setup_wander_to_own_heart(struct Thing* creatng)
 TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber target_plyr_idx)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    SYNCDBG(8,"The %s index %d performing task %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->party_objective);
-    switch (cctrl->party_objective)
+    SYNCDBG(8,"The %s index %d performing task %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->party.objective);
+    switch (cctrl->party.objective)
     {
     case CHeroTsk_AttackRooms:
         if (good_setup_attack_rooms(creatng, target_plyr_idx)) {
             return true;
         }
         SYNCDBG(8,"Can't attack player %d rooms, switching to attack heart", (int)target_plyr_idx);
-        cctrl->party_objective = CHeroTsk_AttackDnHeart;
+        cctrl->party.objective = CHeroTsk_AttackDnHeart;
         return false;
     case CHeroTsk_SabotageRooms:
         if (good_setup_sabotage_rooms(creatng, target_plyr_idx)) {
             return true;
         }
         SYNCDBG(8,"Can't attack player %d rooms, switching to attack heart", (int)target_plyr_idx);
-        cctrl->party_objective = CHeroTsk_AttackDnHeart;
+        cctrl->party.objective = CHeroTsk_AttackDnHeart;
         return false;
     case CHeroTsk_AttackDnHeart:
         if (good_setup_wander_to_dungeon_heart(creatng, target_plyr_idx))
@@ -771,14 +771,14 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
                 return true;
             }
             SYNCDBG(8,"Can't loot player %d treasury, switching to attack heart", (int)target_plyr_idx);
-            cctrl->party_objective = CHeroTsk_AttackDnHeart;
+            cctrl->party.objective = CHeroTsk_AttackDnHeart;
         } else
         {
             if (good_setup_wander_to_exit(creatng)) {
                 return true;
             }
             SYNCDBG(8, "Can't wander to exit after looting player %d treasury, switching to attack heart", (int)target_plyr_idx);
-            cctrl->party_objective = CHeroTsk_AttackDnHeart;
+            cctrl->party.objective = CHeroTsk_AttackDnHeart;
         }
         return false;
     }
@@ -789,14 +789,14 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
                 return true;
             }
             SYNCDBG(8,"Can't loot player %d spells, switching to attack heart", (int)target_plyr_idx);
-            cctrl->party_objective = CHeroTsk_AttackDnHeart;
+            cctrl->party.objective = CHeroTsk_AttackDnHeart;
         } else
         {
             if (good_setup_wander_to_exit(creatng)) {
                 return true;
             }
             SYNCDBG(8,"Can't wander to exit after looting player %d spells, switching to attack heart", (int)target_plyr_idx);
-            cctrl->party_objective = CHeroTsk_AttackDnHeart;
+            cctrl->party.objective = CHeroTsk_AttackDnHeart;
         }
         return false;
     case CHeroTsk_AttackEnemies:
@@ -831,7 +831,7 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
             }
         }
         SYNCDBG(8,"Can't attack player %d creature, switching to attack heart", (int)cctrl->party.target_plyr_idx);
-        cctrl->party_objective = CHeroTsk_AttackDnHeart;
+        cctrl->party.objective = CHeroTsk_AttackDnHeart;
         return false;
     case CHeroTsk_DefendSpawn:
         if (patrol_here(creatng))
@@ -843,7 +843,7 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
             return true;
         }
         SYNCDBG(8,"Can't patrol location, switching to defending rooms");
-        cctrl->party_objective = CHeroTsk_DefendRooms;
+        cctrl->party.objective = CHeroTsk_DefendRooms;
         return false;
     case CHeroTsk_DefendHeart:
         if (good_setup_wander_to_own_heart(creatng))
@@ -851,7 +851,7 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
             return true;
         }
         SYNCDBG(8,"Can't defend own heart, switching to attack player %d heart", (int)cctrl->party.target_plyr_idx);
-        cctrl->party_objective = CHeroTsk_AttackEnemies;
+        cctrl->party.objective = CHeroTsk_AttackEnemies;
         return false;
     case CHeroTsk_DefendRooms:
         if (good_setup_defend_rooms(creatng))
@@ -859,12 +859,12 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
             return true;
         }
         SYNCDBG(8,"Can't defend rooms, switching to defending heart");
-        cctrl->party_objective = CHeroTsk_AttackEnemies;
+        cctrl->party.objective = CHeroTsk_AttackEnemies;
         return false;
     case CHeroTsk_Default:
     default:
         SYNCDBG(4,"Wrong task, switching to attack enemies");
-        cctrl->party_objective = CHeroTsk_AttackEnemies;
+        cctrl->party.objective = CHeroTsk_AttackEnemies;
         return false;
     }
 }
@@ -930,7 +930,7 @@ short good_doing_nothing(struct Thing *creatng)
                 // Go to the previously chosen dungeon
                 if (!creature_can_get_to_dungeon_heart(creatng,target_plyr_idx))
                 {
-                    if (!creature_can_get_to_any_of_players_rooms(creatng, target_plyr_idx) || (cctrl->party_objective != CHeroTsk_AttackRooms))
+                    if (!creature_can_get_to_any_of_players_rooms(creatng, target_plyr_idx) || (cctrl->party.objective != CHeroTsk_AttackRooms))
                     {
                         // Cannot get to the originally selected dungeon - reset it
                         cctrl->party.target_plyr_idx = -1;
@@ -957,7 +957,7 @@ short good_doing_nothing(struct Thing *creatng)
             cctrl->party.target_plyr_idx = -1;
         }
     }
-    if (cctrl->party_objective > CHeroTsk_DefendParty) // Defensive objectives don't need a target
+    if (cctrl->party.objective > CHeroTsk_DefendParty) // Defensive objectives don't need a target
     {
         if (good_creature_setup_task_in_dungeon(creatng, target_plyr_idx)) {
             return 1;
@@ -986,9 +986,9 @@ short good_doing_nothing(struct Thing *creatng)
         {
             SYNCDBG(4,"No enemy dungeon to perform %s index %d task",
                 thing_model_name(creatng),(int)creatng->index);
-            if (cctrl->original_party_objective > CHeroTsk_Default)
+            if (cctrl->party.original_objective > CHeroTsk_Default)
             {
-                cctrl->party_objective = cctrl->original_party_objective;
+                cctrl->party.objective = cctrl->party.original_objective;
             }
             cctrl->wait_to_turn = game.play_gameturn + 16;
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
