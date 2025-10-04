@@ -43,13 +43,6 @@ msgstr "这是一道讯息。按滑鼠右键予以删除。"
 
 #. Level Eversmile first objective
 #: guitext:2
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "The first thing a Keeper needs is somewhere to keep gold, when it's been "
-#| "mined out of the rock by his imps. To create a Treasure Room, select the "
-#| "Treasure Room icon from the Rooms Panel and fill the empty area to the "
-#| "west with Treasure Room tiles."
 msgctxt "In-game message"
 msgid ""
 "The first thing a Keeper needs is somewhere to keep gold, when it's been "
@@ -107,13 +100,6 @@ msgstr ""
 
 #. Level Eversmile objective after digging gold
 #: guitext:7
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
-#| "Lair. Lairs are where creatures rest and recover. The area your imps just "
-#| "mined out would be an ideal spot for some creatures to lurk. Select the "
-#| "Lair icon from the Rooms Panel."
 msgctxt "In-game message"
 msgid ""
 "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
@@ -127,13 +113,6 @@ msgstr ""
 
 #. Level Eversmile objective after Lair built
 #: guitext:8
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Dig a tunnel that connects to the Portal to the north. Portals appear on "
-#| "the map as flashing squares, until they are claimed. Creatures only use "
-#| "Portals claimed by a Keeper. Your imps claim a Portal as soon as it "
-#| "connects to your dungeon."
 msgctxt "In-game message"
 msgid ""
 "Dig a tunnel that connects to the Portal to the north. Portals appear on the "
@@ -179,12 +158,6 @@ msgstr ""
 
 #. Level Eversmile objective after digging gold w/o Treasure Room
 #: guitext:12
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "You have not yet built a Treasure Room. Until you build this room, you "
-#| "will be unable to pay any creatures. Only imps give their loyalty freely. "
-#| "No other creatures will serve you unpaid."
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
@@ -220,13 +193,6 @@ msgstr ""
 
 #. Level Eversmile objective after Hatchery built
 #: guitext:15
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Imps fortify your walls to prevent intruders tunnelling in. If you want "
-#| "to create more imps, go to the Research Panel, select the Imp icon and "
-#| "left click anywhere in your dungeon. Each Imp you create costs more than "
-#| "the previous one."
 msgctxt "In-game message"
 msgid ""
 "Imps fortify your walls to prevent intruders tunnelling in. If you want to "
@@ -645,13 +611,6 @@ msgstr ""
 
 #. Level Flowerhat information
 #: guitext:56
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "You have researched the Call to Arms spell. The first time you cast it, "
-#| "your creatures gather around a banner created by the spell. Cast it again "
-#| "in a target area. Call to Arms only costs gold when it's targetted beyond "
-#| "your territory."
 msgctxt "In-game message"
 msgid ""
 "You have researched the Call to Arms spell. The first time you cast it, your "
@@ -707,13 +666,6 @@ msgstr ""
 
 #. Level Lushmeadow-on-Down information
 #: guitext:61
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "You have claimed a Prison. Select imprison from the Information Panel and "
-#| "your creatures subdue their foe, at which point your imps drag the bodies "
-#| "off to a cell. Prisoners who die of starvation may rise again as Skeleton "
-#| "warriors for you to command."
 msgctxt "In-game message"
 msgid ""
 "You have claimed a Prison. Select imprison from the Information Panel and "
@@ -1268,11 +1220,6 @@ msgstr "你看得出来你的对手之一已经变得多么软弱了吗？那么
 
 #. Level Woodly Rhyme information
 #: guitext:115
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "I spy a keeper with hardly any creatures left under his control. I spy a "
-#| "Keeper who's about to die."
 msgctxt "In-game message"
 msgid ""
 "I spy a Keeper with hardly any creatures left under his control. I spy a "
@@ -1381,10 +1328,6 @@ msgstr ""
 
 #. Level Tulipscent information
 #: guitext:126
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "This ancient realm is rich in magical artifacts. Go forth and plunder."
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artefacts. Go forth and plunder."
 msgstr "这个古老的王国拥有丰富的魔法物品。勇敢地去掠夺吧。"
@@ -3172,30 +3115,17 @@ msgid "Ok"
 msgstr "好"
 
 #: guitext:420
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Reveal Map: Reveals the entire underground realm to you."
 msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "显示地图: 将整个地底世界显示给你看。"
 
 #: guitext:421
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Resurrect Creature: You may raise one of your fallen minions from the "
-#| "dead."
 msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr "使怪物复活: 你可以让一名死去的手下死而复活。"
 
 #: guitext:422
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Transfer Creature: Pick one of your creatures to accompany you to the "
-#| "next realm."
 msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
@@ -3203,43 +3133,26 @@ msgid ""
 msgstr "转移怪物: 选择一只怪物，让它陪著你进入下一个王国。"
 
 #: guitext:423
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Steal Hero: Subvert a hero to your cause."
 msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "偷取英雄: 败坏一名英雄，让他投入你的阵营。"
 
 #: guitext:424
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Multiply Creatures: Create a double of each of your creatures."
 msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr "复制怪物: 为你的怪物创造复本。"
 
 #: guitext:425
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Increase Level: Bestows greater skill on all your creatures."
 msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "提高等级: 让你所有的怪物都获得较高的技巧。"
 
 #: guitext:426
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Make Safe: Reinforces your entire dungeon."
 msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "保全: 加强整个地下城。"
 
 #: guitext:427
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Locate Hidden World: You will get access to a secret realm after you have "
-#| "conquered this one."
 msgctxt "Dungeon special description"
 msgid ""
 "Locate Hidden World: You will get access to a secret realm after you have "
@@ -4497,12 +4410,6 @@ msgstr ""
 "恶魔之眼: 在有限时间内，显示地图上的一处隐藏区域。按滑鼠左键选择。[18.3]"
 
 #: guitext:650
-#, fuzzy
-#| msgctxt "Keeper spell description"
-#| msgid ""
-#| "Call To Arms: Calls creatures in range to any destination. LMB Select. "
-#| "Cast in range of creatures to gather, cast again for destination. RMB "
-#| "zoom. LMB Cancel. [18.6]"
 msgctxt "Keeper spell description"
 msgid ""
 "Call To Arms: Calls creatures in range to any destination. LMB Select. Cast "
@@ -5695,25 +5602,16 @@ msgid "4 Players"
 msgstr "四名玩者"
 
 #: guitext:874
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "Serial"
 msgctxt "Menu interface, Network service item"
 msgid "Serial"
 msgstr "串列"
 
 #: guitext:875
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "Modem"
 msgctxt "Menu interface, Network service item"
 msgid "Modem"
 msgstr "数据机"
 
 #: guitext:876
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "IPX"
 msgctxt "Menu interface, Network service item"
 msgid "IPX"
 msgstr "IPX"

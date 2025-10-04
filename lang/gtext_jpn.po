@@ -45,14 +45,6 @@ msgid "This is a message. Right click to delete it."
 msgstr "これはメッセージだ。 右クリックで削除できる。"
 
 #. Level Eversmile first objective
-#: guitext:2
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "The first thing a Keeper needs is somewhere to keep gold, when it's been "
-#| "mined out of the rock by his imps. To create a Treasure Room, select the "
-#| "Treasure Room icon from the Rooms Panel and fill the empty area to the "
-#| "west with Treasure Room tiles."
 msgctxt "In-game message"
 msgid ""
 "The first thing a Keeper needs is somewhere to keep gold, when it's been "
@@ -173,13 +165,6 @@ msgstr ""
 "ろう。"
 
 #. Level Eversmile objective after digging gold w/o Treasure Room
-#: guitext:12
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "You have not yet built a Treasure Room. Until you build this room, you "
-#| "will be unable to pay any creatures. Only imps give their loyalty freely. "
-#| "No other creatures will serve you unpaid."
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
@@ -217,13 +202,6 @@ msgstr ""
 
 #. Level Eversmile objective after Hatchery built
 #: guitext:15
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Imps fortify your walls to prevent intruders tunnelling in. If you want "
-#| "to create more imps, go to the Research Panel, select the Imp icon and "
-#| "left click anywhere in your dungeon. Each Imp you create costs more than "
-#| "the previous one."
 msgctxt "In-game message"
 msgid ""
 "Imps fortify your walls to prevent intruders tunnelling in. If you want to "
@@ -1404,11 +1382,6 @@ msgstr ""
 
 #. Level Tulipscent information
 #: guitext:126
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "This ancient realm is rich in magical artifacts. Go forth and plunder."
-msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artefacts. Go forth and plunder."
 msgstr "この古代王国には魅力的な工芸品が豊富にある。 略奪せよ。"
 
@@ -2199,9 +2172,6 @@ msgid ""
 msgstr "テレポート: クリーチャーは色々地点にテレポート出来る。[26.22]"
 
 #: guitext:241
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid "Flame Breath: The devasting constant stream of searing fire."
 msgctxt "Creature spell"
 msgid "Flame Breath: The devastating constant stream of searing fire."
 msgstr "炎の息: 灼熱の火の絶え間なく続く流れ。[26.6]"
@@ -2224,9 +2194,6 @@ msgstr ""
 "飛行: クリーチャーは地面から離陸させ、空から攻撃する事が可能にする。[26.7]"
 
 #: guitext:244
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
 msgctxt "Creature spell"
 msgid "Hail Storm: Creates a fury of hailstones."
 msgstr "ひょう: 雹を作成する。[26.10]"
@@ -2266,11 +2233,6 @@ msgid "Heal: When this is cast, the creature is massively healed."
 msgstr "自然治癒: クリーチャーを大分治す。[26.11]"
 
 #: guitext:249
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-#| "away from you."
 msgctxt "Creature spell"
 msgid ""
 "Wind: Creates a force twelve gale in your dungeon blowing every creature "
@@ -2278,11 +2240,6 @@ msgid ""
 msgstr "突風: 強風を起こし、有らゆるクリーチャーを吹き飛ばす。[26.23]"
 
 #: guitext:250
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Meteor: More powerful that the fireball, this spell throws out a solid "
-#| "ball of fire which does a lot of damage to an enemy."
 msgctxt "Creature spell"
 msgid ""
 "Meteor: More powerful than the fireball, this spell throws out a solid ball "
@@ -2290,11 +2247,6 @@ msgid ""
 msgstr "隕石: 火の玉よりも強力な、大きな損傷を加える固い火の岩を放つ。[26.14]"
 
 #: guitext:251
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Fireball: Fires a single fireball which homes in on the nearest enemy. "
-#| "Also inflicts minor damage to a Dungeon's walls and doors."
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
@@ -3278,30 +3230,17 @@ msgid "Ok"
 msgstr "ＯＫ"
 
 #: guitext:420
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Reveal Map: Reveals the entire underground realm to you."
 msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "神々の邪眼: 地底王国全体が見える。"
 
 #: guitext:421
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Resurrect Creature: You may raise one of your fallen minions from the "
-#| "dead."
 msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr "復活: 死んだ手下のうち１人を生き返らせられる。"
 
 #: guitext:422
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Transfer Creature: Pick one of your creatures to accompany you to the "
-#| "next realm."
 msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
@@ -3309,43 +3248,26 @@ msgid ""
 msgstr "転送: 次の王国へ連れて行く手下のクリーチャーを１人選べる。"
 
 #: guitext:423
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Steal Hero: Subvert a hero to your cause."
 msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "勇者獲得: 勇者を堕落させ悪の道へ引き入れる。"
 
 #: guitext:424
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Multiply Creatures: Create a double of each of your creatures."
 msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr "増殖: 手下クリーチャーそれぞれの生き写しを作る。"
 
 #: guitext:425
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Increase Level: Bestows greater skill on all your creatures."
 msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "レベルアップ: 手下の全クリーチャーの能力を高める。"
 
 #: guitext:426
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Make Safe: Reinforces your entire dungeon."
 msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "安全化: ダンジョンの壁全体を強化する。"
 
 #: guitext:427
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Locate Hidden World: You will be transported to a secret realm after you "
-#| "have conquered this one."
 msgctxt "Dungeon special description"
 msgid ""
 "Locate Hidden World: You will get access to a secret realm after you have "

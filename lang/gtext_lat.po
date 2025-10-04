@@ -5040,9 +5040,6 @@ msgid "Door crate found: LMB toggle. RMB delete."
 msgstr "Capsa ostii reperta: BSM alterna. BDM delere."
 
 #: guitext:715
-#, fuzzy
-#| msgctxt "Game event description"
-#| msgid "Dungeon special found: LMB toggle. RMB delete."
 msgctxt "Game event description"
 msgid "Dungeon Special found: LMB toggle. RMB delete."
 msgstr "Robur occultum repertum: BSM alterna. BDM delere."
@@ -5113,11 +5110,6 @@ msgid "Computer Assistance Menu: Customise the Computer Assistant. [3.2.4]"
 msgstr "Tabula adiumenti computarii: Adapta adiumentum computarii. [3.2.4]"
 
 #: guitext:729
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Aggressive Computer Assistant: Constructs your dungeon and always trys to "
-#| "attack the enemy. LMB select. [3.2.4]"
 msgctxt "In-game interface description"
 msgid ""
 "Aggressive Computer Assistant: Constructs your dungeon and always tries to "
@@ -5918,25 +5910,16 @@ msgid "4 Players"
 msgstr "4 ludii"
 
 #: guitext:874
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "Serial"
 msgctxt "Menu interface, Network service item"
 msgid "Serial"
 msgstr "Serialis"
 
 #: guitext:875
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "Modem"
 msgctxt "Menu interface, Network service item"
 msgid "Modem"
 msgstr "Modisum"
 
 #: guitext:876
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "IPX"
 msgctxt "Menu interface, Network service item"
 msgid "IPX"
 msgstr "EFI"
@@ -6604,11 +6587,6 @@ msgid "Scavenge Cost: Gold used for scavenging by the creature."
 msgstr "Pretium attractionis: Aurum usum ad creaturam attrahere conandum."
 
 #: guitext:958
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Best Damage: How much harm can be made by the strongest attack the "
-#| "creature has."
 msgctxt "In-game interface description"
 msgid ""
 "Best Damage: How much harm can be done by the strongest attack the creature "
@@ -6844,9 +6822,6 @@ msgid "Snap Camera"
 msgstr "Camera instantanea"
 
 #: guitext:1005
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Mysterious Box: There's no telling what this will do."
 msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Capsa arcana: Quod aget nescis."

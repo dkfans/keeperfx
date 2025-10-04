@@ -2032,12 +2032,6 @@ msgstr ""
 
 #. Level Tulipscent information
 #: guitext:178
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "A Tentacle has joined your dungeon. These rare little creatures enjoy to "
-#| "be in water and their spine can even pierce the most solid armors and "
-#| "paralyze your enemies! Marvellous!"
 msgctxt "In-game message"
 msgid ""
 "A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
@@ -2331,11 +2325,6 @@ msgstr ""
 "Flammenatem: Ein verheerender, konstanter Strahl sengenden Feuers. [26.6]"
 
 #: guitext:242
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Illuminate: Brings light onto darkness, allowing the creature to see but "
-#| "also be seen by others."
 msgctxt "Creature spell"
 msgid ""
 "Illumination: Brings light onto darkness, allowing the creature to see but "
@@ -2393,11 +2382,6 @@ msgid "Heal: When this is cast, the creature is massively healed."
 msgstr "Heilung: Heilt die Kreatur stark. [26.11]"
 
 #: guitext:249
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-#| "away from you. And nasty smells of course."
 msgctxt "Creature spell"
 msgid ""
 "Wind: Creates a force twelve gale in your dungeon blowing every creature "
@@ -2416,11 +2400,6 @@ msgstr ""
 "Ball aus Feuer auf den Gegner und schadet diesem erheblich. [26.14]"
 
 #: guitext:251
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Fireball: Fires a single fireball which homes in on the nearest enemy. "
-#| "Also inflicts minor damage to a Dungeon's walls and doors."
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
@@ -2455,12 +2434,6 @@ msgstr ""
 "[25.2]"
 
 #: guitext:255
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Disease: Fired at a foe, gives them a Disease which is then spread to "
-#| "other creatures. The infected are slowly dying and can only be healed in "
-#| "the Temple."
 msgctxt "Creature spell"
 msgid ""
 "Disease: Fired at a foe, gives them a disease which is then spread to other "
@@ -3430,19 +3403,11 @@ msgid "Ok"
 msgstr "Ok"
 
 #: guitext:420
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Reveal Map: Reveals the entire underground realm to you."
 msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "Karte offenbahren: Offenbahrt Euer gesamtes unterirdisches Reich."
 
 #: guitext:421
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Resurrect Creature: You may raise one of your fallen minions from the "
-#| "dead."
 msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
@@ -3451,11 +3416,6 @@ msgstr ""
 "wiederbeleben."
 
 #: guitext:422
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Transfer Creature: Pick one of your creatures to accompany you to the "
-#| "next realm."
 msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
@@ -3465,43 +3425,26 @@ msgstr ""
 "nächste Königreich begleitet."
 
 #: guitext:423
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Steal Hero: Subvert a hero to your cause."
 msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "Helden-Raub: Bekehrt einen Helden zu Eurer Seite."
 
 #: guitext:424
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Multiply Creatures: Create a double of each of your creatures."
 msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr "Kreaturen klonen: Klont jede Eurer Kreaturen einmal."
 
 #: guitext:425
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Increase Level: Bestows greater skill on all your creatures."
 msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "Level steigern: Verleiht allen Euren Kreaturen mehr Fähigkeiten."
 
 #: guitext:426
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Make Safe: Reinforces your entire dungeon."
 msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Sichern: Verstärkt Euren gesamten Dungeon."
 
 #: guitext:427
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Locate Hidden World: You will get access to a secret realm after you have "
-#| "conquered this one."
 msgctxt "Dungeon special description"
 msgid ""
 "Locate Hidden World: You will get access to a secret realm after you have "
@@ -3616,11 +3559,6 @@ msgstr ""
 "'Einsperren' zu ändern. [5.0]"
 
 #: guitext:448
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Room Panel: The rooms available for you to build. Here you can center map "
-#| "on rooms or build new ones."
 msgctxt "In-game interface description"
 msgid ""
 "Room Panel: The rooms available for you to build. Here you can centre the "
@@ -4908,10 +4846,6 @@ msgstr ""
 "Maustaste wählen. [18.14]"
 
 #: guitext:660
-#, fuzzy
-#| msgctxt "Keeper spell description"
-#| msgid ""
-#| "Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
 msgctxt "Keeper spell description"
 msgid ""
 "Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
@@ -5246,9 +5180,6 @@ msgstr ""
 "Maustaste löschen."
 
 #: guitext:715
-#, fuzzy
-#| msgctxt "Game event description"
-#| msgid "Dungeon special found: LMB toggle. RMB delete."
 msgctxt "Game event description"
 msgid "Dungeon Special found: LMB toggle. RMB delete."
 msgstr ""
@@ -6142,25 +6073,16 @@ msgid "4 Players"
 msgstr "4 Spieler"
 
 #: guitext:874
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "Serial"
 msgctxt "Menu interface, Network service item"
 msgid "Serial"
 msgstr "Seriell"
 
 #: guitext:875
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "Modem"
 msgctxt "Menu interface, Network service item"
 msgid "Modem"
 msgstr "Modem"
 
 #: guitext:876
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "IPX"
 msgctxt "Menu interface, Network service item"
 msgid "IPX"
 msgstr "IPX"
@@ -7119,9 +7041,6 @@ msgid "Snap Camera"
 msgstr "Kamera einrasten"
 
 #: guitext:1005
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Mysterious Box: There's no telling what this will do."
 msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Mysteriöse Box: Es ist nicht abzusehen, was dies bewirken wird."

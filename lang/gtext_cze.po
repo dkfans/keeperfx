@@ -43,13 +43,6 @@ msgstr "Toto je zpráva. Stisknutím pravého tlačítka myši ji smažeš."
 
 #. Level Eversmile first objective
 #: guitext:2
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "The first thing a Keeper needs is somewhere to keep gold, when it's been "
-#| "mined out of the rock by his imps. To create a Treasure Room, select the "
-#| "Treasure Room icon from the Rooms Panel and fill the empty area to the "
-#| "west with Treasure Room tiles."
 msgctxt "In-game message"
 msgid ""
 "The first thing a Keeper needs is somewhere to keep gold, when it's been "
@@ -112,13 +105,6 @@ msgstr ""
 
 #. Level Eversmile objective after digging gold
 #: guitext:7
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
-#| "Lair. Lairs are where creatures rest and recover. The area your imps just "
-#| "mined out would be an ideal spot for some creatures to lurk. Select the "
-#| "Lair icon from the Rooms Panel."
 msgctxt "In-game message"
 msgid ""
 "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
@@ -133,13 +119,6 @@ msgstr ""
 
 #. Level Eversmile objective after Lair built
 #: guitext:8
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Dig a tunnel that connects to the Portal to the north. Portals appear on "
-#| "the map as flashing squares, until they are claimed. Creatures only use "
-#| "Portals claimed by a Keeper. Your imps claim a Portal as soon as it "
-#| "connects to your dungeon."
 msgctxt "In-game message"
 msgid ""
 "Dig a tunnel that connects to the Portal to the north. Portals appear on the "
@@ -188,12 +167,6 @@ msgstr ""
 
 #. Level Eversmile objective after digging gold w/o Treasure Room
 #: guitext:12
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "You have not yet built a Treasure Room. Until you build this room, you "
-#| "will be unable to pay any creatures. Only imps give their loyalty freely. "
-#| "No other creatures will serve you unpaid."
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
@@ -232,13 +205,6 @@ msgstr ""
 
 #. Level Eversmile objective after Hatchery built
 #: guitext:15
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Imps fortify your walls to prevent intruders tunnelling in. If you want "
-#| "to create more imps, go to the Research Panel, select the Imp icon and "
-#| "left click anywhere in your dungeon. Each Imp you create costs more than "
-#| "the previous one."
 msgctxt "In-game message"
 msgid ""
 "Imps fortify your walls to prevent intruders tunnelling in. If you want to "
@@ -685,13 +651,6 @@ msgstr ""
 
 #. Level Flowerhat information
 #: guitext:56
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "You have researched the Call to Arms spell. The first time you cast it, "
-#| "your creatures gather around a banner created by the spell. Cast it again "
-#| "in a target area. Call to Arms only costs gold when it's targetted beyond "
-#| "your territory."
 msgctxt "In-game message"
 msgid ""
 "You have researched the Call to Arms spell. The first time you cast it, your "
@@ -750,13 +709,6 @@ msgstr ""
 
 #. Level Lushmeadow-on-Down information
 #: guitext:61
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "You have claimed a Prison. Select imprison from the Information Panel and "
-#| "your creatures subdue their foe, at which point your imps drag the bodies "
-#| "off to a cell. Prisoners who die of starvation may rise again as Skeleton "
-#| "warriors for you to command."
 msgctxt "In-game message"
 msgid ""
 "You have claimed a Prison. Select imprison from the Information Panel and "
@@ -1346,11 +1298,6 @@ msgstr "Vsiml sis, jak je jeden z tvych souperu zranitelny? Zab ho!"
 
 #. Level Woodly Rhyme information
 #: guitext:115
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "I spy a keeper with hardly any creatures left under his control. I spy a "
-#| "Keeper who's about to die."
 msgctxt "In-game message"
 msgid ""
 "I spy a Keeper with hardly any creatures left under his control. I spy a "
@@ -1470,10 +1417,6 @@ msgstr ""
 
 #. Level Tulipscent information
 #: guitext:126
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "This ancient realm is rich in magical artifacts. Go forth and plunder."
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artefacts. Go forth and plunder."
 msgstr ""
@@ -1953,11 +1896,6 @@ msgstr ""
 
 #. Levels Moonbrush Wood and Bonus 1 information
 #: guitext:174
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Did you see? Your Demon Spawn has evolved to become a powerful Dragon "
-#| "ready to reduces your enemies into ashes!"
 msgctxt "In-game message"
 msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
@@ -1968,11 +1906,6 @@ msgstr ""
 
 #. Level Bonus 6 objective
 #: guitext:175
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Well done! Your immense wealth has drew the attention of a Thief. He will "
-#| "serve you well in the next realm!"
 msgctxt "In-game message"
 msgid ""
 "Well done! Your immense wealth has drawn the attention of a Thief. He will "
@@ -2378,11 +2311,6 @@ msgid ""
 msgstr "Meteor:"
 
 #: guitext:251
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Fireball: Fires a single fireball which homes in on the nearest enemy. "
-#| "Also inflicts minor damage to a Dungeon's walls and doors."
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
@@ -2410,12 +2338,6 @@ msgid ""
 msgstr "Dolovat:"
 
 #: guitext:255
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Disease: Fired at a foe, gives them a Disease which is then spread to "
-#| "other creatures. The infected are slowly dying and can only be healed in "
-#| "the Temple."
 msgctxt "Creature spell"
 msgid ""
 "Disease: Fired at a foe, gives them a disease which is then spread to other "
@@ -2626,11 +2548,6 @@ msgid "Creature Kills: The total number of enemies the creature has slain."
 msgstr "Pocet zabitych: Zobrazi pocet nepratel, kolik obluda zabila."
 
 #: guitext:293
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Strength: The amount of damage the creature inflicts upon it's enemies "
-#| "with each hit."
 msgctxt "In-game interface description"
 msgid ""
 "Strength: The amount of damage the creature inflicts upon its enemies with "
@@ -2715,10 +2632,6 @@ msgstr ""
 "pohled. [9.3] a [22.2.1]"
 
 #: guitext:305
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Fight: Your creatures always attack and not avoid any combat. LMB select."
 msgctxt "In-game interface description"
 msgid ""
 "Fight: Your creatures always attack and will not avoid any combat. LMB "
@@ -3350,30 +3263,17 @@ msgid "Ok"
 msgstr "Ok"
 
 #: guitext:420
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Reveal Map: Reveals the entire underground realm to you."
 msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "Odhalit mapu: Odhali ti celou mapu podzemi."
 
 #: guitext:421
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Resurrect Creature: You may raise one of your fallen minions from the "
-#| "dead."
 msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr "Ozivit obludu: Muzes ozivit jednu ze svych padlych oblud."
 
 #: guitext:422
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Transfer Creature: Pick one of your creatures to accompany you to the "
-#| "next realm."
 msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
@@ -3382,43 +3282,26 @@ msgstr ""
 "Prenest obludu: Umozni ti prenest jednu obludu s sebou do dalsiho kola."
 
 #: guitext:423
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Steal Hero: Subvert a hero to your cause."
 msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "Ukrast hrdinu: Prevede vybraneho hrdinu na tvou stranu."
 
 #: guitext:424
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Multiply Creatures: Create a double of each of your creatures."
 msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr "Rozmnozit obludy: Vytvori kopii od kazde tve obludy."
 
 #: guitext:425
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Increase Level: Bestows greater skill on all your creatures."
 msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "Zvysit uroven: Zvysi uroven vsech tvych oblud na maximum."
 
 #: guitext:426
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Make Safe: Reinforces your entire dungeon."
 msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Zabezpečit: Zpevni steny celeho tveho sklepeni."
 
 #: guitext:427
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Locate Hidden World: You will be transported to a secret realm after you "
-#| "have conquered this one."
 msgctxt "Dungeon special description"
 msgid ""
 "Locate Hidden World: You will get access to a secret realm after you have "
@@ -5974,25 +5857,16 @@ msgid "4 Players"
 msgstr "4 hráči"
 
 #: guitext:874
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "Serial"
 msgctxt "Menu interface, Network service item"
 msgid "Serial"
 msgstr "Sériový port"
 
 #: guitext:875
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "Modem"
 msgctxt "Menu interface, Network service item"
 msgid "Modem"
 msgstr "Modem"
 
 #: guitext:876
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "IPX"
 msgctxt "Menu interface, Network service item"
 msgid "IPX"
 msgstr "IPX"
@@ -6900,9 +6774,6 @@ msgid "Snap Camera"
 msgstr "Připnout kameru"
 
 #: guitext:1005
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Mysterious Box: There's no telling what this will do."
 msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Tajemná truhla: Nelze předvídat, co to udělá."

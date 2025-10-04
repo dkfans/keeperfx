@@ -47,13 +47,6 @@ msgstr "이건 메시지입니다. 마우스 오른쪽 단추 클릭으로 삭�
 
 #. Level Eversmile first objective
 #: guitext:2
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "The first thing a Keeper needs is somewhere to keep gold, when it's been "
-#| "mined out of the rock by his imps. To create a Treasure Room, select the "
-#| "Treasure Room icon from the Rooms Panel and fill the empty area to the "
-#| "west with Treasure Room tiles."
 msgctxt "In-game message"
 msgid ""
 "The first thing a Keeper needs is somewhere to keep gold, when it's been "
@@ -113,13 +106,6 @@ msgstr ""
 
 #. Level Eversmile objective after digging gold
 #: guitext:7
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
-#| "Lair. Lairs are where creatures rest and recover. The area your imps just "
-#| "mined out would be an ideal spot for some creatures to lurk. Select the "
-#| "Lair icon from the Rooms Panel."
 msgctxt "In-game message"
 msgid ""
 "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
@@ -134,13 +120,6 @@ msgstr ""
 
 #. Level Eversmile objective after Lair built
 #: guitext:8
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Dig a tunnel that connects to the Portal to the north. Portals appear on "
-#| "the map as flashing squares, until they are claimed. Creatures only use "
-#| "Portals claimed by a Keeper. Your imps claim a Portal as soon as it "
-#| "connects to your dungeon."
 msgctxt "In-game message"
 msgid ""
 "Dig a tunnel that connects to the Portal to the north. Portals appear on the "
@@ -187,12 +166,6 @@ msgstr ""
 
 #. Level Eversmile objective after digging gold w/o Treasure Room
 #: guitext:12
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "You have not yet built a Treasure Room. Until you build this room, you "
-#| "will be unable to pay any creatures. Only imps give their loyalty freely. "
-#| "No other creatures will serve you unpaid."
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
@@ -231,13 +204,6 @@ msgstr ""
 
 #. Level Eversmile objective after Hatchery built
 #: guitext:15
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Imps fortify your walls to prevent intruders tunneling in. If you want to "
-#| "create more imps, go to the Research Panel, select the Imp icon and left "
-#| "click anywhere in your dungeon. Each Imp you create costs more than the "
-#| "previous one."
 msgctxt "In-game message"
 msgid ""
 "Imps fortify your walls to prevent intruders tunnelling in. If you want to "
@@ -736,13 +702,6 @@ msgstr ""
 
 #. Level Lushmeadow-on-Down information
 #: guitext:61
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "You have claimed a Prison. Select imprison from the Information Panel and "
-#| "your creatures subdue their foe, at which point your imps drag the bodies "
-#| "off to a cell. Prisoners who die of starvation may rise again as Skeleton "
-#| "warriors for you to command."
 msgctxt "In-game message"
 msgid ""
 "You have claimed a Prison. Select imprison from the Information Panel and "
@@ -1322,11 +1281,6 @@ msgstr "적 중 하나가 얼마나 취약해졌는지 보이나요? 그럼 죽�
 
 #. Level Woodly Rhyme information
 #: guitext:115
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "I spy a keeper with hardly any creatures left under his control. I spy a "
-#| "Keeper who's about to die."
 msgctxt "In-game message"
 msgid ""
 "I spy a Keeper with hardly any creatures left under his control. I spy a "
@@ -1445,10 +1399,6 @@ msgstr ""
 
 #. Level Tulipscent information
 #: guitext:126
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "This ancient realm is rich in magical artifacts. Go forth and plunder."
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artefacts. Go forth and plunder."
 msgstr "이 고대 왕국에는 마법의 유물이 풍부합니다. 어서 가서 약탈하세요."
@@ -1918,11 +1868,6 @@ msgstr ""
 
 #. Levels Moonbrush Wood and Bonus 1 information
 #: guitext:174
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Did you see? Your Demon Spawn has evolved to become a powerful Dragon "
-#| "ready to reduces your enemies into ashes!"
 msgctxt "In-game message"
 msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
@@ -1933,11 +1878,6 @@ msgstr ""
 
 #. Level Bonus 6 objective
 #: guitext:175
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Well done! Your immense wealth has drew the attention of a Thief. He will "
-#| "serve you well in the next realm!"
 msgctxt "In-game message"
 msgid ""
 "Well done! Your immense wealth has drawn the attention of a Thief. He will "
@@ -1973,12 +1913,6 @@ msgstr ""
 
 #. Level Tulipscent information
 #: guitext:178
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "A Tentacle has joined your dungeon. These rare little creatures enjoy to "
-#| "be in water and their spine can even pierce the most solid armors and "
-#| "paralyze your enemies! Marvellous!"
 msgctxt "In-game message"
 msgid ""
 "A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
@@ -2319,11 +2253,6 @@ msgid "Heal: When this is cast, the creature is massively healed."
 msgstr "치유: 마법이 시전되면, 대상 피조물물은 대량으로 치유됩니다."
 
 #: guitext:249
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-#| "away from you. And nasty smells of course."
 msgctxt "Creature spell"
 msgid ""
 "Wind: Creates a force twelve gale in your dungeon blowing every creature "
@@ -2342,11 +2271,6 @@ msgstr ""
 "를 던집니다."
 
 #: guitext:251
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Fireball: Fires a single fireball which homes in on the nearest enemy. "
-#| "Also inflicts minor damage to a Dungeon's walls and doors."
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
@@ -2379,12 +2303,6 @@ msgid ""
 msgstr "구멍파기: 임프의 기본 능력이고 그것이 지구를 관통할 수 있게 해줍니다."
 
 #: guitext:255
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Disease: Fired at a foe, gives them a Disease which is then spread to "
-#| "other creatures. The infected are slowly dying and can only be healed in "
-#| "the Temple."
 msgctxt "Creature spell"
 msgid ""
 "Disease: Fired at a foe, gives them a disease which is then spread to other "
@@ -2687,10 +2605,6 @@ msgstr ""
 "오른쪽 마우스 단추로 대상을 주목합니다."
 
 #: guitext:305
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Fight: Your creatures always attack and not avoid any combat. LMB select."
 msgctxt "In-game interface description"
 msgid ""
 "Fight: Your creatures always attack and will not avoid any combat. LMB "
@@ -3341,30 +3255,17 @@ msgid "Ok"
 msgstr "확인"
 
 #: guitext:420
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Reveal Map: Reveals the entire underground realm to you."
 msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "지도 공개: 지하의 전체 영역을 표시합니다."
 
 #: guitext:421
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Resurrect Creature: You may raise one of your fallen minions from the "
-#| "dead."
 msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr "피조물 부활 : 죽음에 떨어진 하수인 하나를 소생 시킬수 있습니다."
 
 #: guitext:422
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Transfer Creature: Pick one of your creatures to accompany you to the "
-#| "next realm."
 msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
@@ -3372,43 +3273,26 @@ msgid ""
 msgstr "피조물 전송 : 다음 영역으로 동행할 피조물 중 하나를 선택하세요."
 
 #: guitext:423
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Steal Hero: Subvert a hero to your cause."
 msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "영웅 훔치기: 영웅을 당신의 대의를 위해 타락시키세요."
 
 #: guitext:424
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Multiply Creatures: Create a double of each of your creatures."
 msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr "피조물 불리기 : 각 피조물을 두 배로 만듭니다."
 
 #: guitext:425
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Increase Level: Bestows greater skill on all your creatures."
 msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "레벨 향상: 모든 피조물에게 더 큰 기술을 부여합니다."
 
 #: guitext:426
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Make Safe: Reinforces your entire dungeon."
 msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "안전하게 만들기: 던전 전체를 강화합니다."
 
 #: guitext:427
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Locate Hidden World: You will get access to a secret realm after you have "
-#| "conquered this one."
 msgctxt "Dungeon special description"
 msgid ""
 "Locate Hidden World: You will get access to a secret realm after you have "
@@ -3522,11 +3406,6 @@ msgstr ""
 "의 변화가 가능합니다."
 
 #: guitext:448
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Room Panel: The rooms available for you to build. Here you can center map "
-#| "on rooms or build new ones."
 msgctxt "In-game interface description"
 msgid ""
 "Room Panel: The rooms available for you to build. Here you can centre the "
@@ -4704,12 +4583,6 @@ msgstr ""
 "추로 선택합니다. 오른쪽 마우스 단추로 대상을 주목합니다. [18.3]"
 
 #: guitext:650
-#, fuzzy
-#| msgctxt "Keeper spell description"
-#| msgid ""
-#| "Call To Arms: Calls creatures in range to any destination. LMB Select. "
-#| "Cast in range of creatures to gather, cast again for destination. RMB "
-#| "zoom. LMB Cancel. [18.6]"
 msgctxt "Keeper spell description"
 msgid ""
 "Call To Arms: Calls creatures in range to any destination. LMB Select. Cast "
@@ -6885,9 +6758,6 @@ msgid "Snap Camera"
 msgstr "스넵 카메라"
 
 #: guitext:1005
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Mysterious Box: There's no telling what this will do."
 msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "신비한 상자: 이게 뭘 할지 알 수 없어요."

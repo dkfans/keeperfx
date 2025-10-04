@@ -47,13 +47,6 @@ msgstr "这是一条信息。鼠标右键单击可以删除它。"
 
 #. Level Eversmile first objective
 #: guitext:2
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "The first thing a Keeper needs is somewhere to keep gold, when it's been "
-#| "mined out of the rock by his imps. To create a Treasure Room, select the "
-#| "Treasure Room icon from the Rooms Panel and fill the empty area to the "
-#| "west with Treasure Room tiles."
 msgctxt "In-game message"
 msgid ""
 "The first thing a Keeper needs is somewhere to keep gold, when it's been "
@@ -110,13 +103,6 @@ msgstr ""
 
 #. Level Eversmile objective after digging gold
 #: guitext:7
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
-#| "Lair. Lairs are where creatures rest and recover. The area your imps just "
-#| "mined out would be an ideal spot for some creatures to lurk. Select the "
-#| "Lair icon from the Rooms Panel."
 msgctxt "In-game message"
 msgid ""
 "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
@@ -129,13 +115,6 @@ msgstr ""
 
 #. Level Eversmile objective after Lair built
 #: guitext:8
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Dig a tunnel that connects to the Portal to the north. Portals appear on "
-#| "the map as flashing squares, until they are claimed. Creatures only use "
-#| "Portals claimed by a Keeper. Your imps claim a Portal as soon as it "
-#| "connects to your dungeon."
 msgctxt "In-game message"
 msgid ""
 "Dig a tunnel that connects to the Portal to the north. Portals appear on the "
@@ -181,12 +160,6 @@ msgstr ""
 
 #. Level Eversmile objective after digging gold w/o Treasure Room
 #: guitext:12
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "You have not yet built a Treasure Room. Until you build this room, you "
-#| "will be unable to pay any creatures. Only imps give their loyalty freely. "
-#| "No other creatures will serve you unpaid."
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
@@ -222,13 +195,6 @@ msgstr ""
 
 #. Level Eversmile objective after Hatchery built
 #: guitext:15
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Imps fortify your walls to prevent intruders tunnelling in. If you want "
-#| "to create more imps, go to the Research Panel, select the Imp icon and "
-#| "left click anywhere in your dungeon. Each Imp you create costs more than "
-#| "the previous one."
 msgctxt "In-game message"
 msgid ""
 "Imps fortify your walls to prevent intruders tunnelling in. If you want to "
@@ -646,13 +612,6 @@ msgstr ""
 
 #. Level Flowerhat information
 #: guitext:56
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "You have researched the Call to Arms spell. The first time you cast it, "
-#| "your creatures gather around a banner created by the spell. Cast it again "
-#| "in a target area. Call to Arms only costs gold when it's targetted beyond "
-#| "your territory."
 msgctxt "In-game message"
 msgid ""
 "You have researched the Call to Arms spell. The first time you cast it, your "
@@ -708,13 +667,6 @@ msgstr ""
 
 #. Level Lushmeadow-on-Down information
 #: guitext:61
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "You have claimed a Prison. Select imprison from the Information Panel and "
-#| "your creatures subdue their foe, at which point your imps drag the bodies "
-#| "off to a cell. Prisoners who die of starvation may rise again as Skeleton "
-#| "warriors for you to command."
 msgctxt "In-game message"
 msgid ""
 "You have claimed a Prison. Select imprison from the Information Panel and "
@@ -1258,11 +1210,6 @@ msgstr "你能看到你的对手变得多么脆弱吗？如果这样，杀死他
 
 #. Level Woodly Rhyme information
 #: guitext:115
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "I spy a keeper with hardly any creatures left under his control. I spy a "
-#| "Keeper who's about to die."
 msgctxt "In-game message"
 msgid ""
 "I spy a Keeper with hardly any creatures left under his control. I spy a "
@@ -1374,10 +1321,6 @@ msgstr ""
 
 #. Level Tulipscent information
 #: guitext:126
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "This ancient realm is rich in magical artifacts. Go forth and plunder."
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artefacts. Go forth and plunder."
 msgstr "这个古代的王国有丰富的魔法物品。前进并且掠夺。"
@@ -1812,11 +1755,6 @@ msgstr ""
 
 #. Levels Moonbrush Wood and Bonus 1 information
 #: guitext:174
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Did you see? Your Demon Spawn has evolved to become a powerful Dragon "
-#| "ready to reduces your enemies into ashes!"
 msgctxt "In-game message"
 msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
@@ -1824,12 +1762,6 @@ msgid ""
 msgstr "你看见了吗？你的恶鬼进化成了一头强大的巨龙，时刻准备着将敌人化为灰烬！"
 
 #. Level Bonus 6 objective
-#: guitext:175
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "Well done! Your immense wealth has drew the attention of a Thief. He will "
-#| "serve you well in the next realm!"
 msgctxt "In-game message"
 msgid ""
 "Well done! Your immense wealth has drawn the attention of a Thief. He will "
@@ -2204,11 +2136,6 @@ msgstr ""
 "流星术: 比火球术更强大，这个魔法能发射一颗固体的火球，并对敌人造成大量伤害。"
 
 #: guitext:251
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Fireball: Fires a single fireball which homes in on the nearest enemy. "
-#| "Also inflicts minor damage to a Dungeon's walls and doors."
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
@@ -2235,12 +2162,6 @@ msgid ""
 msgstr "挖掘: 小鬼的基本能力，使其可以在地底挖掘隧道。"
 
 #: guitext:255
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Disease: Fired at a foe, gives them a Disease which is then spread to "
-#| "other creatures. The infected are slowly dying and can only be healed in "
-#| "the Temple."
 msgctxt "Creature spell"
 msgid ""
 "Disease: Fired at a foe, gives them a disease which is then spread to other "
@@ -2530,10 +2451,6 @@ msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom."
 msgstr "战斗中: 怪物正在进行战斗。左键拿起怪物。右键缩放。 "
 
 #: guitext:305
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Fight: Your creatures always attack and not avoid any combat. LMB select."
 msgctxt "In-game interface description"
 msgid ""
 "Fight: Your creatures always attack and will not avoid any combat. LMB "
@@ -3156,30 +3073,17 @@ msgid "Ok"
 msgstr "确定"
 
 #: guitext:420
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Reveal Map: Reveals the entire underground realm to you."
 msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "显示地图: 为你揭示整个地下城的地图。"
 
 #: guitext:421
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Resurrect Creature: You may raise one of your fallen minions from the "
-#| "dead."
 msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr "复活怪物: 你可以将一个已经死亡的你的怪物复活。"
 
 #: guitext:422
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Transfer Creature: Pick one of your creatures to accompany you to the "
-#| "next realm."
 msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
@@ -3187,43 +3091,26 @@ msgid ""
 msgstr "传送怪物: 选择一个你的怪物带入下一个王国。"
 
 #: guitext:423
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Steal Hero: Subvert a hero to your cause."
 msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "偷英雄: 使一个英雄倒戈到你的阵营。"
 
 #: guitext:424
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Multiply Creatures: Create a double of each of your creatures."
 msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr "繁殖怪物: 加倍你的每一个怪物。"
 
 #: guitext:425
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Increase Level: Bestows greater skill on all your creatures."
 msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "提高等级: 提高你所有怪物的等级。"
 
 #: guitext:426
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Make Safe: Reinforces your entire dungeon."
 msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "安全强化: 强化你的整个地下城。"
 
 #: guitext:427
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Locate Hidden World: You will get access to a secret realm after you have "
-#| "conquered this one."
 msgctxt "Dungeon special description"
 msgid ""
 "Locate Hidden World: You will get access to a secret realm after you have "
@@ -3333,11 +3220,6 @@ msgid ""
 msgstr "信息面板:提供不同的信息。在此查看敌军的实力或者改变己方怪物的策略。"
 
 #: guitext:448
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Room Panel: The rooms available for you to build. Here you can center map "
-#| "on rooms or build new ones."
 msgctxt "In-game interface description"
 msgid ""
 "Room Panel: The rooms available for you to build. Here you can centre the "
@@ -4459,12 +4341,6 @@ msgstr ""
 "邪恶之眼: 在有限时间内揭示地图上的一个隐藏区域。左键选择。右键缩放。[18.3]"
 
 #: guitext:650
-#, fuzzy
-#| msgctxt "Keeper spell description"
-#| msgid ""
-#| "Call To Arms: Calls creatures in range to any destination. LMB Select. "
-#| "Cast in range of creatures to gather, cast again for destination. RMB "
-#| "zoom. LMB Cancel. [18.6]"
 msgctxt "Keeper spell description"
 msgid ""
 "Call To Arms: Calls creatures in range to any destination. LMB Select. Cast "
@@ -5643,25 +5519,16 @@ msgid "4 Players"
 msgstr "４个玩家"
 
 #: guitext:874
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "Serial"
 msgctxt "Menu interface, Network service item"
 msgid "Serial"
 msgstr "串口线"
 
 #: guitext:875
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "Modem"
 msgctxt "Menu interface, Network service item"
 msgid "Modem"
 msgstr "调制解调器"
 
 #: guitext:876
-#, fuzzy
-#| msgctxt "Menu interface item"
-#| msgid "IPX"
 msgctxt "Menu interface, Network service item"
 msgid "IPX"
 msgstr "IPX"
@@ -6502,9 +6369,6 @@ msgid "Snap Camera"
 msgstr "快照相机"
 
 #: guitext:1005
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Mysterious Box: There's no telling what this will do."
 msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "神秘物品: 没有说明它是干什么用的。"
@@ -6538,113 +6402,71 @@ msgid "Moo4"
 msgstr ""
 
 #: guitext:1011
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Dungeon Keeper - Original Campaign"
 msgctxt "Menu interface item"
 msgid "Dungeon Keeper - Original Campaign"
 msgstr "地下城守护者原版战役"
 
 #: guitext:1012
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Assmist Isle"
 msgctxt "Menu interface item"
 msgid "Assmist Isle"
 msgstr "亚米斯特岛战役"
 
 #: guitext:1013
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Ancient Keeper"
 msgctxt "Menu interface item"
 msgid "Ancient Keeper"
 msgstr "远古守护者战役"
 
 #: guitext:1014
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Burdened Imps"
 msgctxt "Menu interface item"
 msgid "Burdened Imps"
 msgstr "不堪重负的小鬼战役"
 
 #: guitext:1015
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Conquest of the Arctic"
 msgctxt "Menu interface item"
 msgid "Conquest of the Arctic"
 msgstr "征服北极战役"
 
 #: guitext:1016
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "The Destiny of Ninja"
 msgctxt "Menu interface item"
 msgid "The Destiny of Ninja"
 msgstr "忍者的命运战役"
 
 #: guitext:1017
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "DzjeeAr's 6-level campaign"
 msgctxt "Menu interface item"
 msgid "DzjeeAr's 6-level campaign"
 msgstr "德吉尔的6关战役"
 
 #: guitext:1018
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "DzjeeAr's 10-level campaign"
 msgctxt "Menu interface item"
 msgid "DzjeeAr's 10-level campaign"
 msgstr "德吉尔的10关战役"
 
 #: guitext:1019
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "DzjeeAr's 25-level campaign"
 msgctxt "Menu interface item"
 msgid "DzjeeAr's 25-level campaign"
 msgstr "德吉尔的25关战役"
 
 #: guitext:1020
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Evil Keeper"
 msgctxt "Menu interface item"
 msgid "Evil Keeper"
 msgstr "邪恶守护者战役"
 
 #: guitext:1021
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Grinics' KReign campaign"
 msgctxt "Menu interface item"
 msgid "Grinics' KReign campaign"
 msgstr "格林尼斯的统治战役"
 
 #: guitext:1022
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Japanese DKMaps8 pack"
 msgctxt "Menu interface item"
 msgid "Japanese DKMaps8 pack"
 msgstr "日本人的地下城战役"
 
 #: guitext:1023
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "KDK Levels"
 msgctxt "Menu interface item"
 msgid "KDK Levels"
 msgstr "KDK战役"
 
 #: guitext:1024
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Good Campaign"
 msgctxt "Menu interface item"
 msgid "Good Campaign"
 msgstr "人类英雄战役"
@@ -6658,65 +6480,41 @@ msgid "Lord Vexer"
 msgstr "瓦瑟之主战役"
 
 #: guitext:1026
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Nikolai's Castles"
 msgctxt "Menu interface item"
 msgid "Nikolai's Castles"
 msgstr "尼古莱的城堡战役"
 
 #: guitext:1027
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Dungeon Keeper - NG+"
 msgctxt "Menu interface item"
 msgid "Dungeon Keeper - NG+"
 msgstr "原版增强战役"
 
 #: guitext:1028
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Post Ancient Keeper"
 msgctxt "Menu interface item"
 msgid "Post Ancient Keeper"
 msgstr "后远古守护者战役"
 
 #: guitext:1029
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Post Undead Keeper"
 msgctxt "Menu interface item"
 msgid "Post Undead Keeper"
 msgstr "后亡灵守护者战役"
 
 #: guitext:1030
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Quest for the Hero"
 msgctxt "Menu interface item"
 msgid "Quest for the Hero"
 msgstr "追寻英雄战役"
 
 #: guitext:1031
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Revenge of the Lord"
 msgctxt "Menu interface item"
 msgid "Revenge of the Lord"
 msgstr "领主的复仇战役"
 
 #: guitext:1032
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Twin Keepers"
 msgctxt "Menu interface item"
 msgid "Twin Keepers"
 msgstr "双子守护者战役"
 
 #: guitext:1033
-#, fuzzy
-#| msgctxt "Menu interface item\""
-#| msgid "Undead Keeper"
 msgctxt "Menu interface item"
 msgid "Undead Keeper"
 msgstr "亡灵守护者战役"
