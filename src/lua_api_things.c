@@ -230,10 +230,10 @@ static int thing_set_field(lua_State *L) {
             cctrl->patrol.countdown = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "party_objective") == 0)
         {
-            internal_set_thing_state(thing, luaL_checkNamedCommand(L, 3, hero_objective_desc));
+            cctrl->party.objective = luaL_checkNamedCommand(L, 3, hero_objective_desc);
         } else if (strcmp(key, "party_original_objective") == 0)
         {
-            internal_set_thing_state(thing, luaL_checkNamedCommand(L, 3, hero_objective_desc));
+            cctrl->party.original_objective = luaL_checkNamedCommand(L, 3, hero_objective_desc);
         } else if (strcmp(key, "party_target_player") == 0)
         {
             cctrl->party.target_plyr_idx = luaL_checkPlayerSingle(L, 3);
