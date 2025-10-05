@@ -290,7 +290,7 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
         {
             if ((thing->owner != spdigtng->owner) && !thing_is_dragged_or_pulled(thing)
               && (get_slab_owner_thing_is_on(thing) == spdigtng->owner) && thing_revealed(thing, spdigtng->owner)
-                &! thing_is_immobile(thing))
+                &! object_ignored_by_imps(thing))
             {
                 if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
                 {

@@ -1647,7 +1647,7 @@ TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* t
     if (thing_is_dragged_or_pulled(thing)) {
         return false;
     }
-    if (thing_is_immobile(thing)) {
+    if (object_ignored_by_imps(thing)) {
         return false;
     }
     struct SlabMap *slb;

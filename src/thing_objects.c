@@ -1784,7 +1784,7 @@ TngUpdateRet update_object(struct Thing *thing)
     SYNCDBG(18,"Updating position");
     thing->movement_flags &= ~TMvF_IsOnWater;
     thing->movement_flags &= ~TMvF_IsOnLava;
-    if ( (!thing_is_immobile(thing)) && thing_touching_floor(thing) )
+    if (((thing->movement_flags & TMvF_Immobile) == 0) && thing_touching_floor(thing))
     {
         if (subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
         {
@@ -1800,7 +1800,7 @@ TngUpdateRet update_object(struct Thing *thing)
             thing->movement_flags |= TMvF_IsOnWater;
         }
     }
-    if (thing_is_immobile(thing))
+    if ((thing->movement_flags & TMvF_Immobile) == 0)
         return TUFRet_Modified;
     return move_object(thing);
 }
