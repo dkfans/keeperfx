@@ -282,7 +282,6 @@ struct Thing {
     long anim_time; // animation time (measured in 1/256 of a frame)
     unsigned short anim_sprite;
     unsigned short sprite_size;
-
     unsigned char current_frame;
     unsigned char max_frames;
     char transformation_speed;
