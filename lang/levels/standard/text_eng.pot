@@ -463,13 +463,13 @@ msgstr ""
 #. Frozen Legion (lv455)
 #: guitext:72
 msgctxt "In-game message"
-msgid "You have a fighting chance. Don't let the Heroes whittle you down. "
+msgid "To have a fighting chance, get a bigger army. Don't let the heroes whittle you down."
 msgstr ""
 
 #. Frozen Legion (lv455)
 #: guitext:73
 msgctxt "In-game message"
-msgid "Your magic generator will feed off your Vampires to give you a healthy number of imps. However, keep enough imps alive and you'll have an undead army to kill the heroes with. "
+msgid "Your magic generator will feed off your Vampires to give you a healthy number of imps. However, keep enough imps alive and you'll have an undead army to kill the heroes with. You need a big army. "
 msgstr ""
 
 #. Shores of Battle (lv456)
