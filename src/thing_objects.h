@@ -195,7 +195,7 @@ TbBool object_can_be_damaged(const struct Thing* thing);
 TbBool object_is_buoyant(const struct Thing* thing);
 TbBool thing_is_hardcoded_special_box(const struct Thing* thing);
 TbBool thing_is_custom_special_box(const struct Thing* thing);
-TbBool object_ignored_by_imps(const struct Thing* thing);
+TbBool object_is_ignored_by_imps(const struct Thing* thing);
 
 TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room);
 TbBool delete_lair_totem(struct Thing *lairtng);

@@ -597,7 +597,7 @@ TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole)
 /**
  * Checks if thing is an object with the OMF_IgnoredByImps flag.
  */
-TbBool object_ignored_by_imps(const struct Thing* thing)
+TbBool object_is_ignored_by_imps(const struct Thing* thing)
 {
     if (!thing_is_object(thing))
         return false;
@@ -1794,7 +1794,7 @@ TngUpdateRet update_object(struct Thing *thing)
     SYNCDBG(18,"Updating position");
     thing->movement_flags &= ~TMvF_IsOnWater;
     thing->movement_flags &= ~TMvF_IsOnLava;
-    if (((thing->movement_flags & TMvF_Immobile) == 0) && thing_touching_floor(thing) )
+    if ( ((thing->movement_flags & TMvF_Immobile) == 0) && thing_touching_floor(thing) )
     {
         if (subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
         {
