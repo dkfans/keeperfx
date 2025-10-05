@@ -254,7 +254,7 @@ void update_research(void)
     int i;
     struct PlayerInfo *player;
     SYNCDBG(6,"Starting");
-    for (i=0; i<PLAYERS_COUNT; i++)
+    for (i = 0; i < PLAYERS_COUNT; i++)
     {
         player = get_player(i);
         if (player_exists(player) && (player->is_active == 1))

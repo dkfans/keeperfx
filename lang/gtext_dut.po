@@ -2232,8 +2232,7 @@ msgstr "Verlichting"
 #: guitext:243
 msgctxt "Creature spell"
 msgid ""
-"Flight: Causes the creature to take off from the ground and attack creatures "
-"from the air."
+"Flight: Causes the creature to take off from the ground and attack creatures from the air or cross lava unharmed."
 msgstr "Vliegen: Zorgt dat het wezen van de grond komt en vanuit de lucht kan aanvallen."
 
 #: guitext:244
@@ -3566,223 +3565,223 @@ msgstr "Druk op een toets"
 
 #: guitext:471
 msgctxt "Game controls"
-msgid "UP"
-msgstr "OMHOOG"
+msgid "Up"
+msgstr "Omhoog"
 
 #: guitext:472
 msgctxt "Game controls"
-msgid "DOWN"
-msgstr "OMLAAG"
+msgid "Down"
+msgstr "Omlaag"
 
 #: guitext:473
 msgctxt "Game controls"
-msgid "LEFT"
-msgstr "LINKS"
+msgid "Left"
+msgstr "Links"
 
 #: guitext:474
 msgctxt "Game controls"
-msgid "RIGHT"
-msgstr "RECHTS"
+msgid "Right"
+msgstr "Rechts"
 
 #: guitext:475
 msgctxt "Game controls"
-msgid "ROTATE"
-msgstr "DRAAIEN"
+msgid "Rotate"
+msgstr "Draaien"
 
 #: guitext:476
 msgctxt "Game controls"
-msgid "SPEED"
-msgstr "VERSNELLEN"
+msgid "Speed"
+msgstr "Versnellen"
 
 #: guitext:477
 msgctxt "Game controls"
-msgid "ROTATE LEFT"
-msgstr "LINKSOM DRAAIEN"
+msgid "Rotate Left"
+msgstr "Linksom Draaien"
 
 #: guitext:478
 msgctxt "Game controls"
-msgid "ROTATE RIGHT"
-msgstr "RECHTSOM DRAAIEN"
+msgid "Rotate Right"
+msgstr "Rechtsom Draaien"
 
 #: guitext:479
 msgctxt "Game controls"
-msgid "ZOOM IN"
-msgstr "VERGROTEN"
+msgid "Zoom In"
+msgstr "Vergroten"
 
 #: guitext:480
 msgctxt "Game controls"
-msgid "ZOOM OUT"
-msgstr "VERKLEINEN"
+msgid "Zoom Out"
+msgstr "Verkleinen"
 
 #: guitext:481
 msgctxt "Keyboard"
-msgid "LEFT CONTROL"
-msgstr "LINKER CTRL"
+msgid "Left Control"
+msgstr "Linker Ctrl"
 
 #: guitext:482
 msgctxt "Keyboard"
-msgid "RIGHT CONTROL"
-msgstr "RECHTER CTRL"
+msgid "Right Control"
+msgstr "Rechter Ctrl"
 
 #: guitext:483
 msgctxt "Keyboard"
-msgid "LEFT SHIFT"
-msgstr "LINKER SHIFT"
+msgid "Left Shift"
+msgstr "Linker Shift"
 
 #: guitext:484
 msgctxt "Keyboard"
-msgid "RIGHT SHIFT"
-msgstr "RECHTER SHIFT"
+msgid "Right Shift"
+msgstr "Rechter Shift"
 
 #: guitext:485
 msgctxt "Keyboard"
-msgid "LEFT ALT"
-msgstr "LINKER ALT"
+msgid "Left Alt"
+msgstr "Linker Alt"
 
 #: guitext:486
 msgctxt "Keyboard"
-msgid "RIGHT ALT"
-msgstr "RECHTER ALT"
+msgid "Right Alt"
+msgstr "Rechter Alt"
 
 #: guitext:487
 msgctxt "Keyboard"
-msgid "SPACE"
-msgstr "SPATIEBALK"
+msgid "Space"
+msgstr "Spaitebalk"
 
 #: guitext:488
 msgctxt "Keyboard"
-msgid "RETURN"
-msgstr "ENTER"
+msgid "Return"
+msgstr "Enter"
 
 #: guitext:489
 msgctxt "Keyboard"
-msgid "TAB"
-msgstr "TAB"
+msgid "Tab"
+msgstr "Tab"
 
 #: guitext:490
 msgctxt "Keyboard"
-msgid "CAPS LOCK"
-msgstr "CAPS LOCK"
+msgid "Caps Lock"
+msgstr "Caps Lock"
 
 #: guitext:491
 msgctxt "Keyboard"
-msgid "BACKSPACE"
-msgstr "BACKSPACE"
+msgid "Backspace"
+msgstr "Backspace"
 
 #: guitext:492
 msgctxt "Keyboard"
-msgid "INSERT"
-msgstr "INSERT"
+msgid "Insert"
+msgstr "Insert"
 
 #: guitext:493
 msgctxt "Keyboard"
-msgid "DELETE"
-msgstr "DELETE"
+msgid "Delete"
+msgstr "Delete"
 
 #: guitext:494
 msgctxt "Keyboard"
-msgid "HOME"
-msgstr "HOME"
+msgid "Home"
+msgstr "Home"
 
 #: guitext:495
 msgctxt "Keyboard"
-msgid "END"
-msgstr "END"
+msgid "End"
+msgstr "End"
 
 #: guitext:496
 msgctxt "Keyboard"
-msgid "PAGE UP"
-msgstr "PAGE UP"
+msgid "Page Up"
+msgstr "Page Up"
 
 #: guitext:497
 msgctxt "Keyboard"
-msgid "PAGE DOWN"
-msgstr "PAGE DOWN"
+msgid "Page Down"
+msgstr "Page Down"
 
 #: guitext:498
 msgctxt "Keyboard"
-msgid "NUM LOCK"
-msgstr "NUM LOCK"
+msgid "Num Lock"
+msgstr "Num Lock"
 
 #: guitext:499
 msgctxt "Keyboard"
-msgid "NUM /"
-msgstr "NUM /"
+msgid "Num /"
+msgstr "Num /"
 
 #: guitext:500
 msgctxt "Keyboard"
-msgid "NUM *"
-msgstr "NUM *"
+msgid "Num *"
+msgstr "Num *"
 
 #: guitext:501
 msgctxt "Keyboard"
-msgid "NUM -"
-msgstr "NUM -"
+msgid "Num -"
+msgstr "Num -"
 
 #: guitext:502
 msgctxt "Keyboard"
-msgid "NUM +"
-msgstr "NUM +"
+msgid "Num +"
+msgstr "Num +"
 
 #: guitext:503
 msgctxt "Keyboard"
-msgid "NUM ENTER"
-msgstr "NUM ENTER"
+msgid "Num Enter"
+msgstr "Num Enter"
 
 #: guitext:504
 msgctxt "Keyboard"
-msgid "NUM DELETE"
-msgstr "NUM DEL"
+msgid "Num Delete"
+msgstr "Num Del"
 
 #: guitext:505
 msgctxt "Keyboard"
-msgid "NUM 1"
-msgstr "NUM 1"
+msgid "Num 1"
+msgstr "Num 1"
 
 #: guitext:506
 msgctxt "Keyboard"
-msgid "NUM 2"
-msgstr "NUM 2"
+msgid "Num 2"
+msgstr "Num 2"
 
 #: guitext:507
 msgctxt "Keyboard"
-msgid "NUM 3"
-msgstr "NUM 3"
+msgid "Num 3"
+msgstr "Num 3"
 
 #: guitext:508
 msgctxt "Keyboard"
-msgid "NUM 4"
-msgstr "NUM 4"
+msgid "Num 4"
+msgstr "Num 4"
 
 #: guitext:509
 msgctxt "Keyboard"
-msgid "NUM 5"
-msgstr "NUM 5"
+msgid "Num 5"
+msgstr "Num 5"
 
 #: guitext:510
 msgctxt "Keyboard"
-msgid "NUM 6"
-msgstr "NUM 6"
+msgid "Num 6"
+msgstr "Num 6"
 
 #: guitext:511
 msgctxt "Keyboard"
-msgid "NUM 7"
-msgstr "NUM 7"
+msgid "Num 7"
+msgstr "Num 7"
 
 #: guitext:512
 msgctxt "Keyboard"
-msgid "NUM 8"
-msgstr "NUM 8"
+msgid "Num 8"
+msgstr "Num 8"
 
 #: guitext:513
 msgctxt "Keyboard"
-msgid "NUM 9"
-msgstr "NUM 9"
+msgid "Num 9"
+msgstr "Num 9"
 
 #: guitext:514
 msgctxt "Keyboard"
-msgid "NUM 0"
-msgstr "NUM 0"
+msgid "Num 0"
+msgstr "Num 0"
 
 #: guitext:515
 msgctxt "Keyboard"
@@ -3846,23 +3845,23 @@ msgstr "F12"
 
 #: guitext:527
 msgctxt "Keyboard"
-msgid "UP"
-msgstr "OMHOOG"
+msgid "Up"
+msgstr "Omhoog"
 
 #: guitext:528
 msgctxt "Keyboard"
-msgid "DOWN"
-msgstr "OMLAAG"
+msgid "Down"
+msgstr "Omlaag"
 
 #: guitext:529
 msgctxt "Keyboard"
-msgid "LEFT"
-msgstr "LINKS"
+msgid "Left"
+msgstr "Links"
 
 #: guitext:530
 msgctxt "Keyboard"
-msgid "RIGHT"
-msgstr "RECHTS"
+msgid "Right"
+msgstr "Rechts"
 
 #: guitext:531
 msgctxt "Network game message"
@@ -5044,9 +5043,10 @@ msgstr ""
 "selecteren. [3.2.4]"
 
 #: guitext:733
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+"Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB Zoom. [22.2.1]"
 msgstr ""
 "De meest ervaren wezens oppakken: LMK: oppikken. RMK: inzoomen. [22.2.1]"
 

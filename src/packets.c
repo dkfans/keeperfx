@@ -1066,9 +1066,21 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         player->roomspace_mode = single_subtile_mode;
         return false;
     }
+    case PckA_RoomspaceHighlightToggle:
+    {
+        if (is_my_player(player))
+        {
+            settings.highlight_mode = pckt->actn_par1;
+            if (default_tag_mode == 3)
+            {
+                save_settings();
+            }
+        }
+    }
+    // fall through
     case PckA_SetRoomspaceHighlight:
     {
-        player->roomspace_mode = box_placement_mode;
+        player->roomspace_mode = pckt->actn_par1;
         if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == 2) )
         {
             // exit out of click and drag mode
@@ -1084,16 +1096,30 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
             player->render_roomspace.drag_mode = false;
         }
         player->roomspace_highlight_mode = pckt->actn_par1;
-        if (pckt->actn_par1 == 2)
+        switch (pckt->actn_par1)
         {
-            player->user_defined_roomspace_width = pckt->actn_par2;
-            player->roomspace_width = pckt->actn_par2;
-            player->roomspace_height = pckt->actn_par2;
-        }
-        else if (pckt->actn_par1 == 0)
-        {
-            reset_dungeon_build_room_ui_variables(plyr_idx);
-            player->roomspace_width = player->roomspace_height = pckt->actn_par2;
+            case 0:
+            {
+                reset_dungeon_build_room_ui_variables(plyr_idx);
+                player->roomspace_width = player->roomspace_height = pckt->actn_par2;
+                break;
+            }
+            case 1: // drag
+            {
+                if (pckt->actn_par2 == 1)
+                {
+                    player->roomspace_width = 1;
+                    player->roomspace_height = 1;
+                }
+                break;
+            }
+            case 2:
+            {
+                player->user_defined_roomspace_width = pckt->actn_par2;
+                player->roomspace_width = pckt->actn_par2;
+                player->roomspace_height = pckt->actn_par2;
+                break;
+            }
         }
         player->roomspace_no_default = true;
         return false;

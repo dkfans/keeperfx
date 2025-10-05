@@ -6516,8 +6516,10 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
 
 TbBool change_creature_owner_if_near_dungeon_heart(struct Thing *creatng)
 {
-    for (PlayerNumber plyr_idx = 0; plyr_idx < game.neutral_player_num; plyr_idx++)
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
+        if (player_is_neutral(plyr_idx))
+            continue;
         struct PlayerInfo* player = get_player(plyr_idx);
         if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->is_active == 1) && (player->victory_state != VicS_LostLevel) )
         {

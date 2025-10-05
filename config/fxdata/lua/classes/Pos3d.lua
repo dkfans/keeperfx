@@ -24,6 +24,12 @@ function Pos3d.new(x, y, z)
     return self
 end
 
+---Gives height val_z for given stl_x,stl_y
+---@param stl_x integer
+---@param stl_y integer
+---@nodiscard
+function GetFloorHeight(stl_x,stl_y) return 0 end
+
 function Pos3d:__index(key)
     if key == "stl_x" then
         return math.floor(self.val_x / COORD_PER_STL)

@@ -1850,7 +1850,7 @@ msgstr "Belysning: Används inte"
 
 #: guitext:243
 msgctxt "Creature spell"
-msgid "Flight: Causes the creature to take off from the ground and attack creatures from the air."
+msgid "Flight: Causes the creature to take off from the ground and attack creatures from the air or cross lava unharmed."
 msgstr "Sväva: Gör så att varelsen kan lätta ifrån marken och attackera ifrån ovan. "
 
 #: guitext:244
@@ -3194,53 +3194,53 @@ msgstr "Num Delete"
 
 #: guitext:505
 msgctxt "Keyboard"
-msgid "NUM 1"
-msgstr "NUM 1"
+msgid "Num 1"
+msgstr "Num 1"
 
 #: guitext:506
 msgctxt "Keyboard"
-msgid "NUM 2"
-msgstr "NUM 2"
+msgid "Num 2"
+msgstr "Num 2"
 
 #: guitext:507
 msgctxt "Keyboard"
-msgid "NUM 3"
-msgstr "NUM 3"
+msgid "Num 3"
+msgstr "Num 3"
 
 #: guitext:508
 msgctxt "Keyboard"
-msgid "NUM 4"
-msgstr "NUM 4"
+msgid "Num 4"
+msgstr "Num 4"
 
 #: guitext:509
 msgctxt "Keyboard"
-msgid "NUM 5"
-msgstr "NUM 5"
+msgid "Num 5"
+msgstr "Num 5"
 
 #: guitext:510
 msgctxt "Keyboard"
-msgid "NUM 6"
-msgstr "NUM 6"
+msgid "Num 6"
+msgstr "Num 6"
 
 #: guitext:511
 msgctxt "Keyboard"
-msgid "NUM 7"
-msgstr "NUM 7"
+msgid "Num 7"
+msgstr "Num 7"
 
 #: guitext:512
 msgctxt "Keyboard"
-msgid "NUM 8"
-msgstr "NUM 8"
+msgid "Num 8"
+msgstr "Num 8"
 
 #: guitext:513
 msgctxt "Keyboard"
-msgid "NUM 9"
-msgstr "NUM 9"
+msgid "Num 9"
+msgstr "Num 9"
 
 #: guitext:514
 msgctxt "Keyboard"
-msgid "NUM 0"
-msgstr "NUM 0"
+msgid "Num 0"
+msgstr "Num 0"
 
 #: guitext:515
 msgctxt "Keyboard"
@@ -4359,8 +4359,9 @@ msgid "Move Only Computer Assistant: Moves and slaps your creatures. LMB select.
 msgstr "Endast flyttande datorhjälp: Flyttar och slår dina varelser. VMK väljer. [3.2.4]"
 
 #: guitext:733
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+msgid "Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB Zoom. [22.2.1]"
 msgstr "Mest erfarna varelser av denna typ: VMK plockar upp varelser. HMK zoomar. [22.2.1]"
 
 #: guitext:734

@@ -130,7 +130,7 @@ struct Wander
   unsigned long max_found_per_check;
   unsigned char search_limiting_enabled;
   unsigned char wandr_slot;
-  unsigned char plyr_idx;
+  PlayerNumber plyr_idx;
   PlayerBitFlags plyr_bit; // unused?
   /** Array of points where the creatures could go wander. */
   struct SubtileXY points[WANDER_POINTS_COUNT];
