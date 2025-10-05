@@ -97,9 +97,6 @@ extern "C" {
 //    these are defined in errno.h
 #define ERR_BASE_RNC      -90
 
-//remove
-#define TODO_SO_ATM_0       0
-
 // Debug fuction-like macros - for free messages
 #define ERRORMSG(format, ...) LbErrorLog(format "\n", ##__VA_ARGS__)
 #define WARNMSG(format, ...) LbWarnLog(format "\n", ##__VA_ARGS__)

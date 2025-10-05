@@ -874,7 +874,7 @@ void script_set_sacrifice_recipe(const int action, const int param, ThingModel* 
     qsort(victims, MAX_SACRIFICE_VICTIMS, sizeof(ThingModel), &sac_compare_fn);
     for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        struct SacrificeRecipe* sac = &game.conf.rules[TODO_SO_ATM_0].sacrifices.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &game.conf.rules[0].sacrifices.sacrifice_recipes[i];
         if (sac->action == (long)SacA_None)
         {
             break;
@@ -886,7 +886,7 @@ void script_set_sacrifice_recipe(const int action, const int param, ThingModel* 
             if (action == (long)SacA_None)
             {
                 // Remove empty slot and shift remaining elements
-                int index = sac - game.conf.rules[TODO_SO_ATM_0].sacrifices.sacrifice_recipes;
+                int index = sac - game.conf.rules[0].sacrifices.sacrifice_recipes;
                 int remaining = MAX_SACRIFICE_RECIPES - index - 1;
                 if (remaining > 0)
                 {

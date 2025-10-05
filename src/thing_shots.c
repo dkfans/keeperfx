@@ -1024,7 +1024,7 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 int weight_calculated_push_strenght(int weight, int push_strength)
 {
     const int min_weight = 6; // Minimum weight threshold for the creature.
-    const int max_weight = game.conf.rules[TODO_SO_ATM_0].magic.weight_calculate_push; // Maximum weight threshold for the creature.
+    const int max_weight = game.conf.rules[0].magic.weight_calculate_push; // Maximum weight threshold for the creature.
     const int percent_factor = 1000; // Factor used to scale the weight factor to a percentage.
 
     // Ensure that the weight is within the valid range of min_weight to max_weight.

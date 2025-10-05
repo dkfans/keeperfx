@@ -304,11 +304,11 @@ struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void)
 {
     for (long i = 1; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        struct SacrificeRecipe* sac = &game.conf.rules[TODO_SO_ATM_0].sacrifices.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &game.conf.rules[0].sacrifices.sacrifice_recipes[i];
         if (sac->action == SacA_None)
             return sac;
   }
-  return &game.conf.rules[TODO_SO_ATM_0].sacrifices.sacrifice_recipes[0];
+  return &game.conf.rules[0].sacrifices.sacrifice_recipes[0];
 }
 
 /**
@@ -318,7 +318,7 @@ void clear_sacrifice_recipes(void)
 {
     for (long i = 0; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        struct SacrificeRecipe* sac = &game.conf.rules[TODO_SO_ATM_0].sacrifices.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &game.conf.rules[0].sacrifices.sacrifice_recipes[i];
         memset(sac, '\0', sizeof(struct SacrificeRecipe));
         sac->action = SacA_None;
   }
@@ -483,24 +483,24 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
  */
 static void mark_cheaper_diggers_sacrifice(void)
 {
-    game.conf.rules[TODO_SO_ATM_0].sacrifices.cheaper_diggers_sacrifice_model = 0;
+    game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model = 0;
     for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        struct SacrificeRecipe* sac = &game.conf.rules[TODO_SO_ATM_0].sacrifices.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &game.conf.rules[0].sacrifices.sacrifice_recipes[i];
         if (sac->action == SacA_None)
             continue;
         if (((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp))
             || ((sac->action == SacA_NegUniqFunc) && (sac->param == UnqF_CostlierImp)))
         {
-            if ((sac->victims[1] == 0) && (game.conf.rules[TODO_SO_ATM_0].sacrifices.cheaper_diggers_sacrifice_model == 0)) {
-                game.conf.rules[TODO_SO_ATM_0].sacrifices.cheaper_diggers_sacrifice_model = sac->victims[0];
+            if ((sac->victims[1] == 0) && (game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model == 0)) {
+                game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model = sac->victims[0];
             } else {
                 WARNLOG("Found unsupported %s sacrifice; either there's more than one, or has one than more victim.",
                     get_conf_parameter_text(sacrifice_unique_desc,UnqF_CheaperImp));
             }
         }
     }
-    SYNCDBG(4,"Marked sacrifice of %s",thing_class_and_model_name(TCls_Creature, game.conf.rules[TODO_SO_ATM_0].sacrifices.cheaper_diggers_sacrifice_model));
+    SYNCDBG(4,"Marked sacrifice of %s",thing_class_and_model_name(TCls_Creature, game.conf.rules[0].sacrifices.cheaper_diggers_sacrifice_model));
 }
 
 TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -544,7 +544,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
               break;
             }
             sac = get_unused_sacrifice_recipe_slot();
-            if (sac <= &game.conf.rules[TODO_SO_ATM_0].sacrifices.sacrifice_recipes[0])
+            if (sac <= &game.conf.rules[0].sacrifices.sacrifice_recipes[0])
             {
               CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
                   word_buf, block_name, config_textname);
@@ -590,7 +590,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
               break;
             }
             sac = get_unused_sacrifice_recipe_slot();
-            if (sac <= &game.conf.rules[TODO_SO_ATM_0].sacrifices.sacrifice_recipes[0])
+            if (sac <= &game.conf.rules[0].sacrifices.sacrifice_recipes[0])
             {
               CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
                   word_buf, block_name, config_textname);
@@ -636,7 +636,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
               break;
             }
             sac = get_unused_sacrifice_recipe_slot();
-            if (sac <= &game.conf.rules[TODO_SO_ATM_0].sacrifices.sacrifice_recipes[0])
+            if (sac <= &game.conf.rules[0].sacrifices.sacrifice_recipes[0])
             {
               CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
                   word_buf, block_name, config_textname);

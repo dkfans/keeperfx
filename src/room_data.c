@@ -1240,7 +1240,7 @@ long calculate_room_efficiency(const struct Room *room)
  */
 unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency)
 {
-  HitPoints max_health = game.conf.rules[TODO_SO_ATM_0].workers.hits_per_slab * slabs_count;
+  HitPoints max_health = game.conf.rules[0].workers.hits_per_slab * slabs_count;
   return saturate_set_unsigned(max_health, 16);
 }
 

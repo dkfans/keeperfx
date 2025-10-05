@@ -378,7 +378,7 @@ long compute_creature_max_strength(long base_param, CrtrExpLevel exp_level)
         exp_level = CREATURE_MAX_LEVEL-1;
     }
     long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)exp_level) / 100;
-    if (flag_is_set(game.conf.rules[TODO_SO_ATM_0].game.classic_bugs_flags, ClscBug_Overflow8bitVal))
+    if (flag_is_set(game.conf.rules[0].game.classic_bugs_flags, ClscBug_Overflow8bitVal))
     {
         return min(max_param, UCHAR_MAX+1); // DK1 limited shot damage to 256, not 255.
     }
