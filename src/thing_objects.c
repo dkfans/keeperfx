@@ -592,7 +592,17 @@ TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole)
         return true;
 
     return false;
+}
 
+/**
+ * Checks if thing is an object with the OMF_IgnoredByImps flag.
+ */
+TbBool object_ignored_by_imps(const struct Thing* thing)
+{
+    if (!thing_is_object(thing))
+        return false;
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return flag_is_set(objst->model_flags, OMF_IgnoredByImps);
 }
 
 TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room)

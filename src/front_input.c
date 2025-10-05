@@ -54,7 +54,6 @@
 #include "gui_parchment.h"
 #include "power_hand.h"
 #include "thing_creature.h"
-#include "thing_physics.h"
 #include "thing_shots.h"
 #include "thing_traps.h"
 #include "room_workshop.h"

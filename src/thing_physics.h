@@ -37,7 +37,6 @@ struct ComponentVector;
 #pragma pack()
 /******************************************************************************/
 TbBool thing_touching_floor(const struct Thing *thing);
-TbBool object_ignored_by_imps(const struct Thing* thing);
 TbBool thing_touching_flight_altitude(const struct Thing *thing);
 TbBool thing_above_flight_altitude(const struct Thing* thing);
 

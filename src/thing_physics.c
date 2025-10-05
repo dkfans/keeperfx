@@ -51,14 +51,6 @@ TbBool thing_touching_floor(const struct Thing *thing)
     return (thing->floor_height == thing->mappos.z.val);
 }
 
-TbBool object_ignored_by_imps(const struct Thing* thing)
-{
-    if (!thing_is_object(thing))
-        return false;
-    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    return flag_is_set(objst->model_flags,OMF_IgnoredByImps);
-}
-
 TbBool thing_touching_flight_altitude(const struct Thing *thing)
 {
     if (thing->veloc_push_add.z.val != 0) {
