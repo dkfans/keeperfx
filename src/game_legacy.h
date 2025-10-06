@@ -138,6 +138,8 @@ struct LogThingDesyncInfo {
     GameTurn creation_turn;       // Turn when thing was created
     ThingIndex index;             // Thing's index
     HitPoints health;             // Thing's health
+    unsigned short max_frames;    // Maximum frames in animation
+    unsigned short current_frame; // Current animation frame
     TbBigChecksum checksum;       // Thing's computed checksum
 };
 
