@@ -2192,11 +2192,6 @@ msgstr ""
 "Odbicie: Powoduje że wystrzelone wrogie zaklęcia odbijają się na atakującego"
 
 #: guitext:231
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Fear: Causes the opponent to be terrified and wanting to skip engageing "
-#| "into combat."
 msgctxt "Creature spell"
 msgid ""
 "Fear: Causes the opponent to be terrified and wanting to skip engaging into "
@@ -2206,11 +2201,6 @@ msgstr ""
 "konfrontacji."
 
 #: guitext:232
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Sight: Allows the creature to temporarely increase its awareness and "
-#| "notice the invisible."
 msgctxt "Creature spell"
 msgid ""
 "Sight: Allows the creature to temporarily increase its awareness and notice "
@@ -3571,12 +3561,6 @@ msgstr ""
 "postępami pracowników Warsztatu."
 
 #: guitext:454
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Time: The time until the next Creature Payday. This bar increases over "
-#| "time and, when it reaches its peak, all of your creatures receive their "
-#| "wages."
 msgctxt "In-game interface description"
 msgid ""
 "Payday Time: The time until the next Creature Payday. This bar increases "
@@ -4785,10 +4769,6 @@ msgid ""
 msgstr "Choroba: zaraża wrogiego śmiertelną chorobą. LPM uaktywnia. [18.14]"
 
 #: guitext:660
-#, fuzzy
-#| msgctxt "Keeper spell description"
-#| msgid ""
-#| "Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
 msgctxt "Keeper spell description"
 msgid ""
 "Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
@@ -5080,9 +5060,6 @@ msgid "Door crate found: LMB toggle. RMB delete."
 msgstr "Znaleziono skrzynię z drzwiami: LPM przełącza, PPM likwiduje."
 
 #: guitext:715
-#, fuzzy
-#| msgctxt "Game event description"
-#| msgid "Dungeon special found: LMB toggle. RMB delete."
 msgctxt "Game event description"
 msgid "Dungeon Special found: LMB toggle. RMB delete."
 msgstr "Znaleziono coś specjalnego: LPM przełącza, PPM likwiduje."
@@ -5155,11 +5132,6 @@ msgstr ""
 "pomocnika. [3.2.4]"
 
 #: guitext:729
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Aggressive Computer Assistant: Constructs your dungeon and always trys to "
-#| "attack the enemy. LMB select. [3.2.4]"
 msgctxt "In-game interface description"
 msgid ""
 "Aggressive Computer Assistant: Constructs your dungeon and always tries to "
@@ -6191,11 +6163,6 @@ msgstr ""
 
 #. DD Level Netzcaro first objective
 #: guitext:904
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "The once strong hero fortress of this realm has grown rotten and weak. "
-#| "Tear down it's walls and let your creatures feast on the heroes within."
 msgctxt "In-game message"
 msgid ""
 "The once strong hero fortress of this realm has grown rotten and weak. Tear "
@@ -7114,9 +7081,6 @@ msgstr ""
 "nim budować."
 
 #: guitext:1052
-#, fuzzy
-#| msgctxt "Slab description"
-#| msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
 msgstr ""

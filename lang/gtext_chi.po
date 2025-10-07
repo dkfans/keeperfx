@@ -6605,9 +6605,6 @@ msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
 msgstr "基岩: 未占领的岩石地板。你不能占领它或在上面建造房间。"
 
 #: guitext:1052
-#, fuzzy
-#| msgctxt "Slab description"
-#| msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
 msgstr "密集的金矿: 为你的小鬼提供丰富的财富。"

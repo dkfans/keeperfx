@@ -2812,17 +2812,12 @@ msgstr ""
 "den till din skattkammare. [12.2]"
 
 #: guitext:327
-#, fuzzy
-#| msgctxt "Slab description"
-#| msgid ""
-#| "Lava: Burns any creature that step on it. Get over lava by building a "
-#| "Bridge.or building a Bridge."
 msgctxt "Slab description"
 msgid ""
 "Lava: Burns any creature that step on it. Get over lava by building a Bridge."
 msgstr ""
 "Lava: Bränner alla varelser som kliver i den. Du kan korsa lava genom att "
-"bygga en bro över den. "
+"bygga en bro över den."
 
 #: guitext:328
 msgctxt "Slab description"
@@ -4676,10 +4671,6 @@ msgstr ""
 "Sjukdom: Vållar en dödlig pest på en fiendevarelse. VMK väljer. [18.14]"
 
 #: guitext:660
-#, fuzzy
-#| msgctxt "Keeper spell description"
-#| msgid ""
-#| "Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
 msgctxt "Keeper spell description"
 msgid ""
 "Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
@@ -4966,9 +4957,6 @@ msgid "Door crate found: LMB toggle. RMB delete."
 msgstr "Dörr hittad: VMK växlar. HMK raderar."
 
 #: guitext:715
-#, fuzzy
-#| msgctxt "Game event description"
-#| msgid "Dungeon special found: LMB toggle. RMB delete."
 msgctxt "Game event description"
 msgid "Dungeon Special found: LMB toggle. RMB delete."
 msgstr "Grottspecial hittad: VMK växlar. HMK raderar."
@@ -5039,11 +5027,6 @@ msgid "Computer Assistance Menu: Customise the Computer Assistant. [3.2.4]"
 msgstr "Datorhjälpsmeny: Anpassa datorhjälpen. [3.2.4]"
 
 #: guitext:729
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Aggressive Computer Assistant: Constructs your dungeon and always trys to "
-#| "attack the enemy. LMB select. [3.2.4]"
 msgctxt "In-game interface description"
 msgid ""
 "Aggressive Computer Assistant: Constructs your dungeon and always tries to "
@@ -6541,11 +6524,6 @@ msgid "Scavenge Cost: Gold used for scavenging by the creature."
 msgstr "Asätarkostnad: Guldkostnad vid asätande."
 
 #: guitext:958
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Best Damage: How much harm can be done by the strongest attack the "
-#| "creature has.has."
 msgctxt "In-game interface description"
 msgid ""
 "Best Damage: How much harm can be done by the strongest attack the creature "
@@ -7023,9 +7001,6 @@ msgstr ""
 "Grundberg: Oöverklagad stenig mark. Du kan inte kräva den eller bygga på den."
 
 #: guitext:1052
-#, fuzzy
-#| msgctxt "Slab description"
-#| msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
 msgstr ""

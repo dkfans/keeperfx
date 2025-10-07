@@ -45,6 +45,7 @@ msgid "This is a message. Right click to delete it."
 msgstr "これはメッセージだ。 右クリックで削除できる。"
 
 #. Level Eversmile first objective
+#: guitext:2
 msgctxt "In-game message"
 msgid ""
 "The first thing a Keeper needs is somewhere to keep gold, when it's been "
@@ -165,6 +166,7 @@ msgstr ""
 "ろう。"
 
 #. Level Eversmile objective after digging gold w/o Treasure Room
+#: guitext:12
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "

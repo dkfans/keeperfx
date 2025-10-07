@@ -1429,10 +1429,6 @@ msgstr ""
 
 #. Level Tulipscent information
 #: guitext:126
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "This ancient realm is rich in magical artifacts. Go forth and plunder."
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artefacts. Go forth and plunder."
 msgstr "Hoc regnum antiquum dives artefactis magicis est. Prodi et expila."
@@ -2153,11 +2149,6 @@ msgid ""
 msgstr "Timor: Adversarium terreri et se pugnam evitare volere efficit."
 
 #: guitext:232
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid ""
-#| "Sight: Allows the creature to temporarely increase its awareness and "
-#| "notice the invisible."
 msgctxt "Creature spell"
 msgid ""
 "Sight: Allows the creature to temporarily increase its awareness and notice "
@@ -2238,9 +2229,6 @@ msgstr ""
 "teleportat."
 
 #: guitext:241
-#, fuzzy
-#| msgctxt "Creature spell"
-#| msgid "Flame Breath: The devasting constant stream of searing fire."
 msgctxt "Creature spell"
 msgid "Flame Breath: The devastating constant stream of searing fire."
 msgstr "Anhelitus Flammifer: Fluxus vastificus constans ignis calidissimi."
@@ -3309,19 +3297,11 @@ msgid "Ok"
 msgstr "Bene"
 
 #: guitext:420
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Reveal Map: Reveals the entire underground realm to you."
 msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "Chartam revelare: Regnum subterraneum integrum tibi revelat."
 
 #: guitext:421
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Resurrect Creature: You may raise one of your fallen minions from the "
-#| "dead."
 msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
@@ -3330,11 +3310,6 @@ msgstr ""
 "revivescere potes."
 
 #: guitext:422
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Transfer Creature: Pick one of your creatures to accompany you to the "
-#| "next realm."
 msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
@@ -3344,44 +3319,27 @@ msgstr ""
 "comitandum."
 
 #: guitext:423
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Steal Hero: Subvert a hero to your cause."
 msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "Heroem furare: Heroem ad causam tuam subverte."
 
 #: guitext:424
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Multiply Creatures: Create a double of each of your creatures."
 msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr ""
 "Creaturas multiplicare: Numerum uniuscuiusque creaturarum tuarum dupla."
 
 #: guitext:425
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Increase Level: Bestows greater skill on all your creatures."
 msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "Libellam augere: Habilitatem grandiorem omnibus creaturis tuis donat."
 
 #: guitext:426
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid "Make Safe: Reinforces your entire dungeon."
 msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Securum facere: Robur tuum integrum corroborat."
 
 #: guitext:427
-#, fuzzy
-#| msgctxt "Dungeon special decription"
-#| msgid ""
-#| "Locate Hidden World: You will be transported to a secret realm after you "
-#| "have conquered this one."
 msgctxt "Dungeon special description"
 msgid ""
 "Locate Hidden World: You will get access to a secret realm after you have "
@@ -3495,11 +3453,6 @@ msgstr ""
 "et propensiones creaturae mutare te sinit."
 
 #: guitext:448
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Room Panel: The rooms available for you to build. Here you can center map "
-#| "on rooms or build new ones."
 msgctxt "In-game interface description"
 msgid ""
 "Room Panel: The rooms available for you to build. Here you can centre the "
@@ -3518,11 +3471,6 @@ msgstr ""
 "iacere aut rescindere potes."
 
 #: guitext:450
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Workshop Panel: The traps and doors available to you. You can center the "
-#| "map on them, place new ones or sell existing."
 msgctxt "In-game interface description"
 msgid ""
 "Workshop Panel: The traps and doors available to you. You can centre the map "
@@ -4749,10 +4697,6 @@ msgstr ""
 "Morbus: Pestem mortiferam creaturae inimicae infligit. BSM delige. [18.14]"
 
 #: guitext:660
-#, fuzzy
-#| msgctxt "Keeper spell description"
-#| msgid ""
-#| "Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
 msgctxt "Keeper spell description"
 msgid ""
 "Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
@@ -7062,9 +7006,6 @@ msgstr ""
 "construere non potest."
 
 #: guitext:1052
-#, fuzzy
-#| msgctxt "Slab description"
-#| msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
 msgstr "Vena auri densa: Multae opes continet ut diabolulli tui eas fodiant."

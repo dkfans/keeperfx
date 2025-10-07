@@ -6638,11 +6638,6 @@ msgid "Secret Door"
 msgstr "Geheime Tür"
 
 #: guitext:936
-#, fuzzy
-#| msgctxt "Door description"
-#| msgid ""
-#| "Secret Door: This door remains hidden to enemies unless they observe it "
-#| "closely or see it.opening. RMB zoom."
 msgctxt "Door description"
 msgid ""
 "Secret Door: This door remains hidden to enemies unless they observe it "
@@ -6660,12 +6655,9 @@ msgstr ""
 "Maustaste löschen."
 
 #: guitext:938
-#, fuzzy
-#| msgctxt "Game event name"
-#| msgid "Secret Door discovered!"
 msgctxt "Game event name"
 msgid "Secret Door discovered"
-msgstr "Geheime Tür entdeckt!"
+msgstr "Geheime Tür entdeckt"
 
 #: guitext:939
 msgctxt "Game event description"
@@ -6675,12 +6667,9 @@ msgstr ""
 "Mit der rechten Maustaste löschen."
 
 #: guitext:940
-#, fuzzy
-#| msgctxt "Game event name"
-#| msgid "Enemy spotted your secret door!"
 msgctxt "Game event name"
 msgid "Enemy spotted your secret door"
-msgstr "Der Feind hat Eure Geheimtür entdeckt!"
+msgstr "Der Feind hat Eure Geheimtür entdeckt"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
@@ -6703,12 +6692,9 @@ msgid "Add computer"
 msgstr "Computer hinzufügen"
 
 #: guitext:945
-#, fuzzy
-#| msgctxt "Game event name"
-#| msgid "Your creature cannot reach the room it needs."
 msgctxt "Game event name"
 msgid "Your creature cannot reach the room it needs"
-msgstr "Eure Kreatur kann den Raum, den sie benötigt, nicht erreichen."
+msgstr "Eure Kreatur kann den Raum, den sie benötigt, nicht erreichen"
 
 #: guitext:946
 msgctxt "Game event description"
@@ -6718,12 +6704,9 @@ msgstr ""
 "rechten Maustaste löschen."
 
 #: guitext:947
-#, fuzzy
-#| msgctxt "Game event name"
-#| msgid "Your Imp cannot reach a room to drag something into."
 msgctxt "Game event name"
 msgid "Your Imp cannot reach a room to drag something into"
-msgstr "Euer Imp kann keinen Raum erreichen, in den er etwas bringen kann."
+msgstr "Euer Imp kann keinen Raum erreichen, in den er etwas bringen kann"
 
 #: guitext:948
 msgctxt "Game event description"
@@ -7277,9 +7260,6 @@ msgstr ""
 "oder darauf bauen."
 
 #: guitext:1052
-#, fuzzy
-#| msgctxt "Slab description"
-#| msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
 msgstr "Dichte Goldader: Enthält viel Reichtum, den Eure Imps abbauen können."

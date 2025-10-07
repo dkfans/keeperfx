@@ -5075,9 +5075,6 @@ msgid "Door crate found: LMB toggle. RMB delete."
 msgstr "Найден ящик с дверью: ЛКМ - развернуть, ПКМ - удалить."
 
 #: guitext:715
-#, fuzzy
-#| msgctxt "Game event description"
-#| msgid "Dungeon special found: LMB toggle. RMB delete."
 msgctxt "Game event description"
 msgid "Dungeon Special found: LMB toggle. RMB delete."
 msgstr "Обнаружен таинственный ящик: ЛКМ - развернуть, ПКМ - удалить."
@@ -5151,11 +5148,6 @@ msgstr ""
 "помощника. [3.2.4]"
 
 #: guitext:729
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Aggressive Computer Assistant: Constructs your dungeon and always trys to "
-#| "attack the enemy. LMB select. [3.2.4]"
 msgctxt "In-game interface description"
 msgid ""
 "Aggressive Computer Assistant: Constructs your dungeon and always tries to "
@@ -6204,11 +6196,6 @@ msgstr ""
 
 #. DD Level Netzcaro first objective
 #: guitext:904
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "The once strong hero fortress of this realm has grown rotten and weak. "
-#| "Tear down it's walls and let your creatures feast on the heroes within."
 msgctxt "In-game message"
 msgid ""
 "The once strong hero fortress of this realm has grown rotten and weak. Tear "
@@ -7137,9 +7124,6 @@ msgstr ""
 "его или построить на нем."
 
 #: guitext:1052
-#, fuzzy
-#| msgctxt "Slab description"
-#| msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
 msgstr "Плотная золотая жила: Содержит много богатства для добычи ваших бесов."

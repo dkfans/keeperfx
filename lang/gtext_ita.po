@@ -4741,10 +4741,6 @@ msgstr ""
 "[18.14]"
 
 #: guitext:660
-#, fuzzy
-#| msgctxt "Keeper spell description"
-#| msgid ""
-#| "Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
 msgctxt "Keeper spell description"
 msgid ""
 "Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
@@ -5036,9 +5032,6 @@ msgid "Door crate found: LMB toggle. RMB delete."
 msgstr "Trovata cassa-porta. TSM: attiva - disattiva. TDM: cancella."
 
 #: guitext:715
-#, fuzzy
-#| msgctxt "Game event description"
-#| msgid "Dungeon special found: LMB toggle. RMB delete."
 msgctxt "Game event description"
 msgid "Dungeon Special found: LMB toggle. RMB delete."
 msgstr "Trovato Dungeon speciale. TSM: attiva - disattiva. TDM: cancella."
@@ -5110,11 +5103,6 @@ msgstr ""
 "Menù Assistenza del Computer: Personalizza l'Assitenza del Computer. [3.2.4]"
 
 #: guitext:729
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Aggressive Computer Assistant: Constructs your dungeon and always trys to "
-#| "attack the enemy. LMB select. [3.2.4]"
 msgctxt "In-game interface description"
 msgid ""
 "Aggressive Computer Assistant: Constructs your dungeon and always tries to "
@@ -6147,11 +6135,6 @@ msgstr ""
 
 #. DD Level Netzcaro first objective
 #: guitext:904
-#, fuzzy
-#| msgctxt "In-game message"
-#| msgid ""
-#| "The once strong hero fortress of this realm has grown rotten and weak. "
-#| "Tear down it's walls and let your creatures feast on the heroes within."
 msgctxt "In-game message"
 msgid ""
 "The once strong hero fortress of this realm has grown rotten and weak. Tear "
@@ -6624,11 +6607,6 @@ msgid "Scavenge Cost: Gold used for scavenging by the creature."
 msgstr "Costo di Scavenge: Oro usato per la scavenging dalla creatura."
 
 #: guitext:958
-#, fuzzy
-#| msgctxt "In-game interface description"
-#| msgid ""
-#| "Best Damage: How much harm can be made by the strongest attack the "
-#| "creature has."
 msgctxt "In-game interface description"
 msgid ""
 "Best Damage: How much harm can be done by the strongest attack the creature "
@@ -7098,9 +7076,6 @@ msgstr ""
 "costruire sopra."
 
 #: guitext:1052
-#, fuzzy
-#| msgctxt "Slab description"
-#| msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
 msgstr ""
