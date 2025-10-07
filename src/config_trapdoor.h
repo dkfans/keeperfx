@@ -117,6 +117,7 @@ struct TrapConfigStats {
     TbBool unsellable;
     short place_sound_idx;
     short trigger_sound_idx;
+    short recharge_sound_idx;
     FuncIdx updatefn_idx;
 };
 
