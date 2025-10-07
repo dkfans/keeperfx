@@ -135,13 +135,7 @@ static void populate_desync_diagnostics(void)
 /******************************************************************************/
 long get_resync_sender(void)
 {
-    for (int i = 0; i < NET_PLAYERS_COUNT; i++) {
-        struct PlayerInfo* player = get_player(i);
-        if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0)) {
-            return i;
-        }
-    }
-    return -1;
+    return get_host_player_id();
 }
 
 TbBool send_resync_game(void)

@@ -87,6 +87,8 @@ static int num_added_sprite = 0;
 static int num_added_icons = 0;
 unsigned char base_pal[PALETTE_SIZE];
 
+int total_sprite_zip_count = 0;
+
 static unsigned char big_scratch_data[1024*1024*16] = {0};
 unsigned char *big_scratch = big_scratch_data;
 
@@ -234,6 +236,7 @@ static int load_file_sprites(const char *path, const char *file_desc)
         {
             SYNCDBG(0, "Unable to load per-map icons from %s", file_desc);
         }
+        total_sprite_zip_count++;
     }
 
     return add_flag;
@@ -263,6 +266,7 @@ static void load_dir_sprites(const char *dir_path, const char *dir_desc)
 
         if (dir_desc != NULL)
             LbJustLog("Found %d sprite zip file(s) from %s, loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt_zip, dir_desc, cnt_sprite, cnt_icon, next_free_sprite, KEEPERSPRITE_ADD_NUM);
+        total_sprite_zip_count += cnt_zip;
     }
 }
 
@@ -328,6 +332,7 @@ void init_custom_sprites(LevelNumber lvnum)
     SYNCDBG(8, "Starting");
     free_spritesheet(&custom_sprites);
     custom_sprites = create_spritesheet();
+    total_sprite_zip_count = 0;
     // This is a workaround because get_selected_level_number is zeroed on res change
     if (lvnum == SPRITE_LAST_LEVEL)
     {

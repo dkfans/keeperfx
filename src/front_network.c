@@ -383,7 +383,7 @@ void handle_autostart_multiplayer_messaging(void)
     static int message_length = 0;
 
     if (previous_player_count == 1 && net_number_of_enum_players == 2) {
-        if (my_player_number == 0 && message_char_index == -1 &&
+        if (my_player_number == get_host_player_id() && message_char_index == -1 &&
             (autostart_multiplayer_campaign[0] != '\0' || autostart_multiplayer_level > 0)) {
           // Prepare the campaign:level message
           if (!message_prepared) {
@@ -409,7 +409,7 @@ void handle_autostart_multiplayer_messaging(void)
       }
 
       // Send message one character per frame
-      if (message_char_index >= 0 && my_player_number == 0) {
+      if (message_char_index >= 0 && my_player_number == get_host_player_id()) {
         struct ScreenPacket *nspck;
         nspck = &net_screen_packet[my_player_number];
         if ((nspck->networkstatus_flags & 0xF8) == 0) {
