@@ -2758,6 +2758,7 @@ void update(void)
 void first_gameturn_actions() {
     if (game.play_gameturn == 1) {
         apply_default_flee_and_imprison_setting();
+        send_sprite_zip_count_to_other_players();
     }
 }
 

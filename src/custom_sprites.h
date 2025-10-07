@@ -30,6 +30,8 @@ struct ObjectConfigStats;
 #define SPRITE_LAST_LEVEL -1
 void init_custom_sprites(LevelNumber level_no);
 
+extern int total_sprite_zip_count;
+
 short get_anim_id(const char *name, struct ObjectConfigStats* objst);
 short get_anim_id_(const char* name);
 short get_icon_id(const char *name);
