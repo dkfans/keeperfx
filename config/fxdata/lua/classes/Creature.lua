@@ -24,11 +24,11 @@
 ---@field creature_kills integer how many creatures the creature has killed
 ---@field creature_kills_enemies integer how many enemy creatures the creature has killed
 ---@field creature_kills_allies integer how many non-enemy creatures the creature has killed
----@field party_objective string The current Hero party objective
----@field party_original_objective string The originally assigned Hero party objective
+---@field party_objective string The current Hero party objective, which is will act upon on state GoodDoingNothing
+---@field party_original_objective string The originally assigned Hero party objective, returns to this when failing an alternative objective.
 ---@field party_target_player integer The player the hero party is targetting
 ---@field patrol_pos Pos3d should be combined with assigning a hero state that makes use of it
----@field patrol_countdown integer when this value reaches 0 the hero will look for new patrol position on its own
+---@field patrol_countdown integer when this value reaches 0 the hero will look for new patrol position on its own. Used for brief pauses between movements.
 if not Creature then Creature = {} end
 
 --- @param action function|string the function to call when the event happens
