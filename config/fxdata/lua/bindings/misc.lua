@@ -1,7 +1,7 @@
 ---@meta
 
 ---Once an Action Point has been triggered, it cannot be triggered again unless it has been reset by this command.
----@param action_point integer Action Point number
+---@param action_point actionpoint Action Point number
 ---@param player playerrange
 function ResetActionPoint(action_point,player) end
 
@@ -57,7 +57,7 @@ function GetSlab(slb_x,slb_y) end
 function PayForPower(player, power_kind, power_level, is_free) end
 
 ---returns the amount of creatures at the ap
----@param action_point integer
+---@param action_point actionpoint
 ---@param player playerrange
 ---@param creature_type creature_type|"ANY_CREATURE"
 ---@return integer amount amount of creatures matching the conditions

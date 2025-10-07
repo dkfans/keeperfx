@@ -284,7 +284,7 @@ static short creature_could_be_lead_digger(struct Thing* creatng, struct Creatur
     short potential_leader = 0;
     if (thing_is_creature_digger(creatng))
     {
-        if (cctrl->party_objective != CHeroTsk_DefendParty)
+        if (cctrl->party.objective != CHeroTsk_DefendParty)
         {
             potential_leader = 2;
         }
@@ -381,12 +381,12 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
         // Per-thing code
         long score = get_creature_thing_score(ctng);
         // Units who are supposed to defend the party, are considered for party leadership last.
-        if (cctrl->party_objective != CHeroTsk_DefendParty)
+        if (cctrl->party.objective != CHeroTsk_DefendParty)
         {
             if (has_digger < 2 || is_digger) // if we want a digger, do not consider non-diggers
             {
                 // If the current unit does not defend party, overwrite any unit that does.
-                if (bcctrl->party_objective == CHeroTsk_DefendParty)
+                if (bcctrl->party.objective == CHeroTsk_DefendParty)
                 {
                     best_exp_level = cctrl->exp_level;
                     best_score = score;
@@ -411,7 +411,7 @@ struct Thing* get_best_creature_to_lead_group(struct Thing* grptng)
         else // so party_objective == CHeroTsk_DefendParty)
         {
             // Only look to overwrite other defending unit, or noexisting unit, with this defending unit
-            if ((bcctrl->party_objective == CHeroTsk_DefendParty) || (best_creatng == INVALID_THING))
+            if ((bcctrl->party.objective == CHeroTsk_DefendParty) || (best_creatng == INVALID_THING))
             {
                 if (has_digger < 1 || is_digger) // if we want a digger, do not consider non-diggers
                 {
@@ -865,8 +865,8 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
           if (!thing_is_invalid(thing))
           {
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-              cctrl->party_objective = member->objectv;
-              cctrl->original_party_objective = cctrl->party_objective;
+              cctrl->party.objective = member->objectv;
+              cctrl->party.original_objective = cctrl->party.objective;
               cctrl->wait_to_turn = game.play_gameturn + member->countdown;
               cctrl->hero.wait_time = game.play_gameturn + member->countdown;
               if (thing_is_invalid(grptng))
@@ -881,13 +881,13 @@ struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_id
                   struct Thing* bestng = get_best_creature_to_lead_group(grptng);
                   struct CreatureControl* bestctrl = creature_control_get_from_thing(bestng);
                   // If current leader wants to defend, and current unit has an objective, new unit will be group leader.
-                  if ((cctrl->party_objective != CHeroTsk_DefendParty) && (bestctrl->party_objective == CHeroTsk_DefendParty))
+                  if ((cctrl->party.objective != CHeroTsk_DefendParty) && (bestctrl->party.objective == CHeroTsk_DefendParty))
                   {
                       add_creature_to_group_as_leader(thing, grptng);
                       leadtng = thing;
                   } else
                   // if best and current unit want to defend party, or neither do, the strongest will be leader
-                  if (((cctrl->party_objective == CHeroTsk_DefendParty) && (bestctrl->party_objective == CHeroTsk_DefendParty)) || ((cctrl->party_objective != CHeroTsk_DefendParty) && (bestctrl->party_objective != CHeroTsk_DefendParty)))
+                  if (((cctrl->party.objective == CHeroTsk_DefendParty) && (bestctrl->party.objective == CHeroTsk_DefendParty)) || ((cctrl->party.objective != CHeroTsk_DefendParty) && (bestctrl->party.objective != CHeroTsk_DefendParty)))
                   {
                       if ((cctrl->exp_level > bestctrl->exp_level) || ((cctrl->exp_level == bestctrl->exp_level) && (get_creature_thing_score(thing) > get_creature_thing_score(bestng))))
                       {
