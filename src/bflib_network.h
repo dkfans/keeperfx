@@ -235,6 +235,7 @@ TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *user_d
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
+unsigned long get_host_player_id(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

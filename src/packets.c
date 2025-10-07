@@ -1923,7 +1923,7 @@ void process_sprite_zip_count_sync(long plyr_idx, long zip_count)
 {
     if (zip_count != total_sprite_zip_count)
     {
-        if (my_player_number == 0)
+        if (my_player_number == get_host_player_id())
         {
             message_add_fmt(MsgType_Player, 0,
                 "Verify /fxdata/ is the same across both PCs.");
