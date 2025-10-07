@@ -1541,10 +1541,8 @@ short zoom_to_next_annoyed_creature(void)
 
 TbBool toggle_computer_player(PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *player;
-    player = get_player(plyr_idx);
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
+    struct PlayerInfo *player = get_player(plyr_idx);
+    struct Dungeon *dungeon = get_players_dungeon(player);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Player %d has no dungeon",(int)plyr_idx);
         return false;
@@ -1644,9 +1642,9 @@ void clear_things_and_persons_data(void)
         // Create the list of free indices (skip index 0 since that's INVALID_THING
         if (i > 0) {
             if (i < SYNCED_THINGS_COUNT) {
-                game.synced_free_things[i-1] = i;
+                game.synced_free_things[SYNCED_THINGS_COUNT-i] = i;
             } else {
-                game.unsynced_free_things[i-1-SYNCED_THINGS_COUNT] = i;
+                game.unsynced_free_things[THINGS_COUNT-i] = i;
             }
         }
     }
@@ -1731,9 +1729,9 @@ void delete_all_thing_structures(void)
           delete_thing_structure(thing, 1);
       }
         if (i < SYNCED_THINGS_COUNT) {
-            game.synced_free_things[i-1] = i;
+            game.synced_free_things[SYNCED_THINGS_COUNT-i] = i;
         } else {
-            game.unsynced_free_things[i-1-SYNCED_THINGS_COUNT] = i;
+            game.unsynced_free_things[THINGS_COUNT-i] = i;
         }
     }
     game.synced_free_things_count = SYNCED_THINGS_COUNT-1;
@@ -2118,17 +2116,18 @@ void check_players_won(void)
 {
   SYNCDBG(8,"Starting");
 
-    if (!(game.system_flags & GSF_NetworkActive))
+    if (!flag_is_set(game.system_flags,GSF_NetworkActive))
         return;
 
     struct PlayerInfo* curPlayer;
     for (PlayerNumber playerIdx = 0; playerIdx < PLAYERS_COUNT; ++playerIdx)
     {
         curPlayer = get_player(playerIdx);
-        if (!player_exists(curPlayer) || curPlayer->is_active != 1 || curPlayer->victory_state != VicS_Undecided)
+        if (!player_exists(curPlayer) || (curPlayer->is_active != 1) || (curPlayer->victory_state != VicS_Undecided))
             continue;
 
         // check if any other player is still alive
+        TbBool LivingOpponent = false;
         for (PlayerNumber secondPlayerIdx = 0; secondPlayerIdx < PLAYERS_COUNT; ++secondPlayerIdx)
         {
             if (secondPlayerIdx == playerIdx)
@@ -2139,14 +2138,18 @@ void check_players_won(void)
             {
                 struct Thing* heartng = get_player_soul_container(secondPlayerIdx);
                 if (heartng->active_state != ObSt_BeingDestroyed)
-                    goto continueouterloop;
+                {
+                    LivingOpponent = true;
+                    break;
+                }
             }
         }
-        break;
-    continueouterloop:
-        ;
-    }
-    set_player_as_won_level(curPlayer);
+        if (LivingOpponent == false)
+        {
+            set_player_as_won_level(curPlayer);
+            return;
+        }
+    }  
 }
 
 void check_players_lost(void)
