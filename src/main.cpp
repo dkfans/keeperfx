@@ -2303,10 +2303,10 @@ void count_players_creatures_being_paid(int *creatures_count)
 
 void process_payday(void)
 {
-    game.pay_day_progress = game.pay_day_progress + (game.conf.rules[0].game.pay_day_speed / 100); //todo change game.pay_day_progress
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
+        game.pay_day_progress[plyr_idx] = game.pay_day_progress[plyr_idx] + (game.conf.rules[plyr_idx].game.pay_day_speed / 100);
         if (player_is_roaming(plyr_idx) || (plyr_idx == game.neutral_player_num)) {
             continue;
         }
@@ -2321,10 +2321,11 @@ void process_payday(void)
     int player_paid_creatures_count[PLAYERS_COUNT];
     for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        if (game.conf.rules[plyr_idx].game.pay_day_gap <= game.pay_day_progress)
+        if (game.conf.rules[plyr_idx].game.pay_day_gap <= game.pay_day_progress[plyr_idx])
         {
-            output_message(SMsg_Payday, 0);
-            game.pay_day_progress = 0;
+            if (is_my_player_number(plyr_idx))
+                output_message(SMsg_Payday, 0);
+            game.pay_day_progress[plyr_idx] = 0;
             // Prepare a list which counts how many creatures of each owner needs pay
             player_paid_creatures_count[plyr_idx] = 0;
             count_players_creatures_being_paid(player_paid_creatures_count);
