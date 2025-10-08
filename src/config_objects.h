@@ -57,6 +57,7 @@ enum ObjectModelFlags {
     OMF_Beating              = 0x0020, // If the object is a heart, do the flashing, beating, back and forth animation that imitates a heartbeat
     OMF_Heart                = 0x0040, // Functions as the heart of the dungeon
     OMF_HoldInHand           = 0x0080, // Object can be picked up to hold
+    OMF_IgnoredByImps        = 0x0100, // Specialdiggers don't dragging this object
 };
 
 

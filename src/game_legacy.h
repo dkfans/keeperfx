@@ -132,12 +132,14 @@ struct LogThingDesyncInfo {
     ThingModel model;             // Model within the class
     PlayerNumber owner;           // Owner player of the thing
     TbBigChecksum random_seed;    // Thing's random seed
-    MapSubtlCoord pos_x;          // Position X coordinate
-    MapSubtlCoord pos_y;          // Position Y coordinate
-    MapSubtlCoord pos_z;          // Position Z coordinate
+    long pos_x;                   // Position X coordinate (full .val)
+    long pos_y;                   // Position Y coordinate (full .val)
+    long pos_z;                   // Position Z coordinate (full .val)
     GameTurn creation_turn;       // Turn when thing was created
     ThingIndex index;             // Thing's index
     HitPoints health;             // Thing's health
+    unsigned short max_frames;    // Maximum frames in animation
+    unsigned short current_frame; // Current animation frame
     TbBigChecksum checksum;       // Thing's computed checksum
 };
 

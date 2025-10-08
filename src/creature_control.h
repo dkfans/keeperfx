@@ -140,8 +140,6 @@ struct CreatureControl {
     unsigned short creature_control_flags;
     unsigned char creature_state_flags;
     unsigned char combat_flags;
-    unsigned char party_objective;
-    unsigned char original_party_objective;
     unsigned long wait_to_turn;
     short distance_to_destination;
     ThingIndex opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
@@ -196,120 +194,123 @@ struct CreatureControl {
     long turns_at_job;
     short blocking_door_id;
     unsigned char move_flags;
-// Hard to tell where exactly, but somewhere here a kind-specific, job-specific or owner-specific data starts
-  union {
+
+  union // Union on diggers, heroes and normal creatures
+  {
+      struct {
+        long stack_update_turn;
+        SubtlCodedCoords working_stl;
+        SubtlCodedCoords task_stl;
+        unsigned short task_idx;
+        unsigned char consecutive_reinforcements;
+        unsigned char last_did_job;
+        unsigned char task_stack_pos;
+        unsigned short task_repeats;
+      } digger;
+      struct {
+        char hero_state;
+        unsigned char hero_gate_creation_turn;
+        TbBool hero_state_reset_flag;
+        TbBool ready_for_attack_flag;
+        long look_for_enemy_dungeon_turn;
+        long wait_time;
+      } hero;
+      struct {
+        char unusedparam;
+        unsigned char unused;
+        TbBool navigation_map_changed;
+        TbBool unusedparam2;
+      } regular_creature;
+  };
   struct {
-    char target_plyr_idx;
-    PlayerBitFlags player_broken_into_flags;
-    long tunnel_steps_counter;
-    unsigned char tunnel_dig_direction;
-    SubtlCodedCoords member_pos_stl[5];
+      unsigned char objective;
+      unsigned char original_objective;
+      char target_plyr_idx;
+      PlayerBitFlags player_broken_into_flags;
+      long tunnel_steps_counter;
+      unsigned char tunnel_dig_direction;
+      SubtlCodedCoords member_pos_stl[5];
   } party;
   struct {
-    long stack_update_turn;
-    SubtlCodedCoords working_stl;
-    SubtlCodedCoords task_stl;
-    unsigned short task_idx;
-    unsigned char consecutive_reinforcements;
-    unsigned char last_did_job;
-    unsigned char task_stack_pos;
-    unsigned short task_repeats;
-  } digger;
-  struct {
-    short countdown;
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
+      short countdown;
+      struct Coord3d pos;
   } patrol;
-  struct {
-    char hero_state;
-    unsigned char hero_gate_creation_turn;
-    TbBool hero_state_reset_flag;
-    TbBool ready_for_attack_flag;
-    long look_for_enemy_dungeon_turn;
-    long wait_time;
-  } hero;
-  struct {
-    char unusedparam;
-    unsigned char unused;
-    TbBool navigation_map_changed;
-    TbBool unusedparam2;
-  } regular_creature;
+
+  union // Jobs union
+  {
+      struct {
+        GameTurn start_gameturn;
+        GameTurn state_start_turn;
+        GameTurn torturer_start_turn;
+        ThingIndex assigned_torturer;
+        unsigned char vis_state;
+      } tortured;
+      struct {
+        GameTurn start_gameturn;
+      } idle;
+      struct {
+        unsigned char job_stage;
+        unsigned char effect_id;
+        PlayerNumber previous_owner;
+        MapSubtlCoord stl_9D_x;
+        MapSubtlCoord stl_9D_y;
+      } scavenge;
+      struct {
+        unsigned char mode;// offset 9A
+        unsigned char train_timeout;
+        MapSubtlCoord pole_stl_x;
+        MapSubtlCoord pole_stl_y;
+        unsigned char search_timeout;
+        short partner_idx;
+        long partner_creation;
+      } training;
+      struct {
+        GameTurn seen_enemy_turn;
+        long battle_enemy_crtn;
+        ThingIndex battle_enemy_idx;
+        ThingIndex seen_enemy_idx;
+        unsigned char state_id;
+        unsigned char attack_type;
+        unsigned char seen_enemy_los;
+      } combat;
+      struct {
+        GameTurn start_gameturn;
+        GameTurn last_mood_sound_turn;
+      } imprison;
+      struct {
+        unsigned char job_stage;
+        unsigned char swing_weapon_counter;
+        MapSubtlCoord stl_x;
+        MapSubtlCoord stl_y;
+        unsigned char work_timer;
+      } workshop;
+      struct {
+        ThingIndex foodtng_idx;
+      } eating;
+      struct {
+        unsigned char job_stage;
+        long random_thinking_angle;
+      } research;
+      struct {
+        short enemy_idx;
+        GameTurn enemy_creation_turn;
+        GameTurn turn_looked_for_enemy;
+      } seek_enemy;
+      struct {
+        GameTurn last_mood_sound_turn;
+      }mood;
+      struct {
+        unsigned char persuade_count;
+      }persuade;
+      struct {
+        RoomIndex room_idx;
+      }evacuate;
+      struct {
+        short animation_counter;
+        short animation_duration;
+      }sacrifice;
   };
 
-  union {
-  struct {
-    GameTurn start_gameturn;
-    GameTurn state_start_turn;
-    GameTurn torturer_start_turn;
-    ThingIndex assigned_torturer;
-    unsigned char vis_state;
-  } tortured;
-  struct {
-    GameTurn start_gameturn;
-  } idle;
-  struct {
-    unsigned char job_stage;
-    unsigned char effect_id;
-    PlayerNumber previous_owner;
-    MapSubtlCoord stl_9D_x;
-    MapSubtlCoord stl_9D_y;
-  } scavenge;
-  struct {
-    unsigned char mode;// offset 9A
-    unsigned char train_timeout;
-    MapSubtlCoord pole_stl_x;
-    MapSubtlCoord pole_stl_y;
-    unsigned char search_timeout;
-    short partner_idx;
-    long partner_creation;
-  } training;
-  struct {
-    GameTurn seen_enemy_turn;
-    long battle_enemy_crtn;
-    ThingIndex battle_enemy_idx;
-    ThingIndex seen_enemy_idx;
-    unsigned char state_id;
-    unsigned char attack_type;
-    unsigned char seen_enemy_los;
-  } combat;
-  struct {
-    GameTurn start_gameturn;
-    GameTurn last_mood_sound_turn;
-  } imprison;
-  struct {
-    unsigned char job_stage;
-    unsigned char swing_weapon_counter;
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
-    unsigned char work_timer;
-  } workshop;
-  struct {
-    ThingIndex foodtng_idx;
-  } eating;
-  struct {
-    unsigned char job_stage;
-    long random_thinking_angle;
-  } research;
-  struct {
-    short enemy_idx;
-    GameTurn enemy_creation_turn;
-    GameTurn turn_looked_for_enemy;
-  } seek_enemy;
-  struct {
-    GameTurn last_mood_sound_turn;
-  }mood;
-  struct {
-    unsigned char persuade_count;
-  }persuade;
-  struct {
-    RoomIndex room_idx;
-  }evacuate;
-  struct {
-    short animation_counter;
-    short animation_duration;
-  }sacrifice;
-
-  };
     unsigned char fight_til_death;
     TbBool fighting_at_same_position;
     TbBool called_to_arms;

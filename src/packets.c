@@ -106,6 +106,7 @@ extern "C" {
 extern TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 extern TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_idx, struct Packet* pckt);
 extern TbBool change_campaign(const char *cmpgn_fname);
+extern int total_sprite_zip_count;
 /******************************************************************************/
 void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4)
 {
@@ -1129,6 +1130,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         query_creature(player, pckt->actn_par1, pckt->actn_par2, pckt->actn_par3);
         return false;
     }
+    case PckA_SpriteZipCountSync:
+    {
+        process_sprite_zip_count_sync(plyr_idx, pckt->actn_par1);
+        return true;
+    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
@@ -1901,6 +1907,33 @@ void force_application_close()
     {
         // We're in the frontend, just exit directly
         exit_keeper = 1;
+    }
+}
+
+void send_sprite_zip_count_to_other_players(void)
+{
+    struct PlayerInfo* my_player = get_my_player();
+    if (my_player != INVALID_PLAYER)
+    {
+        set_players_packet_action(my_player, PckA_SpriteZipCountSync, total_sprite_zip_count, 0, 0, 0);
+    }
+}
+
+void process_sprite_zip_count_sync(long plyr_idx, long zip_count)
+{
+    if (zip_count != total_sprite_zip_count)
+    {
+        if (my_player_number == get_host_player_id())
+        {
+            message_add_fmt(MsgType_Player, 0,
+                "Verify /fxdata/ is the same across both PCs.");
+            message_add_fmt(MsgType_Player, 0,
+                "%s has %ld .zip files, %s has %d .zip files.",
+                network_player_name(plyr_idx), zip_count,
+                network_player_name(my_player_number), total_sprite_zip_count);
+            message_add_fmt(MsgType_Player, 0,
+                "WARNING: Custom sprite files mismatch detected!");
+        }
     }
 }
 

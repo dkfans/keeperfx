@@ -2269,6 +2269,11 @@ void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msg
   PlayerMapMsgHandler(plr_id, msg->client_data_table, msglen-1);
 }
 
+unsigned long get_host_player_id(void)
+{
+  return hostId;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

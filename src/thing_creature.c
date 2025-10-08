@@ -7020,7 +7020,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
             {
                 if ( (room_role_matches(room->kind, RoRoF_CratesStorage)) && (room->owner == creatng->owner) )
                 {
-                    if (thing_is_workshop_crate(picktng))
+                    if (thing_is_workshop_crate(picktng) &! object_is_ignored_by_imps(picktng))
                     {
                         if (picktng->owner == creatng->owner)
                         {
