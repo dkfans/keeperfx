@@ -676,11 +676,6 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
     return Lb_OK;
 }
 
-void LbNetwork_ChangeExchangeTimeout(unsigned long tmout)
-{
-  // No-op: This function is kept for backwards compatibility but is not used by the new network implementation
-}
-
 TbError LbNetwork_Stop(void)
 {
     NetFrame* frame;
