@@ -66,13 +66,6 @@ static int ServerPort = 0;
 #define WAIT_FOR_CLIENT_TIMEOUT_IN_MS   10000
 #define WAIT_FOR_SERVER_TIMEOUT_IN_MS   WAIT_FOR_CLIENT_TIMEOUT_IN_MS
 
-/**
- * If queued frames on client exceed > SCHEDULED_LAG_IN_FRAMES/2 game speed should
- * be faster, if queued frames < SCHEDULED_LAG_IN_FRAMES/2 game speed should be slower.
- * Server also expects there to be SCHEDULED_LAG_IN_FRAMES in TCP stream.
- */
-#define SCHEDULED_LAG_IN_FRAMES 12
-
 #define SESSION_COUNT 32 //not arbitrary, it's what code calling EnumerateSessions expects
 
 enum NetUserProgress
