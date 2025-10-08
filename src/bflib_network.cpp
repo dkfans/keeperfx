@@ -19,7 +19,6 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "bflib_network.h"
-
 #include "bflib_basics.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
@@ -73,7 +72,6 @@ enum NetUserProgress
 	USER_UNUSED = 0,		//array slot unused
     USER_CONNECTED,			//connected user on slot
     USER_LOGGEDIN,          //sent name and password and was accepted
-
     USER_SERVER             //none of the above states are applicable because this is server
 };
 
@@ -580,39 +578,6 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
 
   localPlayerInfoPtr = locplayr; //TODO NET try to get rid of dependency on external player list, makes things 2x more complicated
 
-  /*
-  exchangeSize = exchng_size;
-  maximumPlayers = maxplayrs;
-  //thread_data_mem = _wint_thread_data;
-  basicTimeout = 250;
-  localDataPtr = 0;
-  compositeBuffer = 0;
-  sequenceNumber = 0;
-  timeCount = 0;
-  maxTime = 0;
-  runningTwoPlayerModel = 0;
-  waitingForPlayerMapResponse = 0;
-  compositeBufferSize = 0;
-  //_wint_thread_data = &thread_data_mem;
-  receiveCallbacks.multiPlayer = MultiPlayerCallback;
-  receiveCallbacks.unknownMessageTypeCallback = NULL;
-  exchangeBuffer = exchng_buf;
-  receiveCallbacks.mpReqExDataMsg = MultiPlayerReqExDataMsgCallback;
-  localPlayerInfoPtr = locplayr;
-  compositeBufferSize = exchng_size * maxplayrs;
-  if (compositeBufferSize > 0)
-  {
-    compositeBuffer = calloc(compositeBufferSize, 1);
-  }
-  if ((compositeBufferSize <= 0) || (compositeBuffer == NULL))
-  {
-    WARNLOG("Failure on buffer allocation");
-    //_wint_thread_data = thread_data_mem;
-    return Lb_FAIL;
-  }
-  ClearClientData();
-  GetPlayerInfo();*/
-
   //clear network object and init it to neutral config
   memset(&netstate, 0, sizeof(netstate));
   for (usr = 0; usr < MAX_N_USERS; ++usr) {
@@ -626,14 +591,6 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   {
   case NS_TCP_IP:
       NETMSG("Selecting TCP/IP SP");
-      /*if (GenericTCPInit(init_data) == Lb_OK) {
-          res = Lb_OK;
-      }
-      else {
-          WARNLOG("Failure on TCP/IP Initialization");
-          res = Lb_FAIL;
-      }*/
-
       netstate.sp = &tcpSP;
 
       break;
@@ -656,64 +613,6 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
 
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, long *plyr_num, void *optns)
 {
-  /*TbError ret;
-  TbClockMSec tmStart;
-  ret = Lb_FAIL;
-  tmStart = LbTimerClock();
-  if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  if (runningTwoPlayerModel)
-  {
-    remotePlayerId = 0;
-    remotePlayerIndex = 0;
-    localPlayerId = 1;
-    localPlayerIndex = 1;
-  } else
-  {
-    localPlayerId = (unsigned) -1;
-  }
-  sequenceNumber = 15;
-  if (spPtr->Start(nsname, plyr_name, optns))
-  {
-    WARNLOG("Failure on Join");
-    return Lb_FAIL;
-  }
-  if (!runningTwoPlayerModel)
-  {
-    spPtr->EncodeMessageStub(&systemUserBuffer, 1, 4, runningTwoPlayerModel);
-    systemUserBuffer[4] = 0;
-    spPtr->Send(0,systemUserBuffer);
-    waitingForPlayerMapResponse = 1;
-    while (waitingForPlayerMapResponse)
-    {
-      spPtr->Receive(8);
-      if ( waitingForPlayerMapResponse )
-      {
-        if (LbTimerClock()-tmStart > 10000)
-        {
-          waitingForPlayerMapResponse = 0;
-          return ret;
-        }
-      }
-    }
-  }
-  ret = GetCurrentPlayers();
-  if (ret != Lb_OK)
-  {
-    WARNLOG("Cannot get current players");
-    return ret;
-  }
-  *plyr_num = localPlayerIndex;
-  ret = GetPlayerInfo();
-  if (ret != Lb_OK)
-  {
-    WARNLOG("Cannot get player info");
-    return ret;
-  }*/
-
     if (!netstate.sp) {
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
@@ -745,40 +644,6 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
-  /*if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  if ( runningTwoPlayerModel )
-  {
-    localPlayerId = 0;
-    localPlayerIndex = 0;
-    remotePlayerId = 1;
-    remotePlayerIndex = 1;
-  } else
-  {
-    localPlayerId = 0;
-    localPlayerIndex = 0;
-    hostId = 0;
-  }
-  if (spPtr->Start(nsname_str, plyr_name, maximumPlayers, optns) != Lb_OK)
-  {
-    WARNLOG("Failure on SP::Start()");
-    return Lb_FAIL;
-  }
-  *plyr_num = localPlayerIndex;
-  if (GetCurrentPlayers() != Lb_OK)
-  {
-    WARNLOG("Cannot get current players");
-    return Lb_FAIL;
-  }
-  if (GetPlayerInfo() != Lb_OK)
-  {
-    WARNLOG("Cannot get player info");
-    return Lb_FAIL;
-  }*/
-
     if (!netstate.sp) {
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
@@ -820,41 +685,6 @@ TbError LbNetwork_Stop(void)
 {
     NetFrame* frame;
     NetFrame* nextframe;
-
-    /*
-  if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  if (spPtr->Release())
-    WARNLOG("Failure on Release");
-  if (spPtr != NULL)
-    delete spPtr;
-  spPtr = NULL;
-  if (compositeBuffer != NULL)
-    free(compositeBuffer);
-  actualTimeout = 0;
-  localDataPtr = 0;
-  compositeBuffer = NULL;
-  maxTime = 0;
-  startTime = 0;
-  waitingForPlayerMapResponse = 0;
-  compositeBufferSize = 0;
-  maximumPlayers = 0;
-  localPlayerIndex = 0;
-  localPlayerId = 0;
-  gotCompositeData = 0;
-  exchangeBuffer = NULL;
-  exchangeSize = 0;
-  sequenceNumber = 0;
-  spPtr = 0;
-  basicTimeout = 250;
-  timeCount = 0;
-  hostId = 0;
-  runningTwoPlayerModel = 0;
-  ClearClientData();
-  exchangeTimeout = 0;*/
 
     if (netstate.sp) {
         netstate.sp->exit();
@@ -1334,21 +1164,6 @@ TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length)
 
 TbError LbNetwork_EnableNewPlayers(TbBool allow)
 {
-  /*if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  if (allow)
-  {
-    NETMSG("New players ARE allowed to join");
-    return spPtr->EnableNewPlayers(true);
-  } else
-  {
-    NETMSG("New players are NOT allowed to join");
-    return spPtr->EnableNewPlayers(false);
-  }*/
-
     int i;
 
     if (!netstate.locked && !allow) {
@@ -1396,19 +1211,6 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
 
     SYNCDBG(9, "Starting");
 
-  /*char ret;
-  if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  ret = spPtr->Enumerate(sesn, callback, buf);
-  if (ret != Lb_OK)
-  {
-    WARNLOG("Failure on Enumerate");
-    return ret;
-  }*/
-
     //for now assume this our session.
 
     for (id = 0; id < MAX_N_USERS; ++id) {
@@ -1428,19 +1230,6 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
     unsigned i;
 
     SYNCDBG(9, "Starting");
-
-  //char ret;
-  /*if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  ret = spPtr->Enumerate(callback, ptr);
-  if (ret != Lb_OK)
-  {
-    WARNLOG("Failure on Enumerate");
-    return ret;
-  }*/
 
     for (i = 0; i < SESSION_COUNT; ++i) {
         if (!sessions[i].in_use) {
