@@ -3395,9 +3395,6 @@ void gameplay_loop_logic()
     if (frametime_enabled())
         framerate_measurement_capture(Framerate_Logic);
 
-    if ((game.flags_font & FFlg_NetworkTimeout) != 0)
-    {
-    }
 #ifdef FUNCTESTING
     if(flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
