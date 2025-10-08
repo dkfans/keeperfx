@@ -19,17 +19,13 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "bflib_network.h"
-#include "bflib_basics.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
 #include "bflib_netsession.h"
 #include "bflib_netsp.hpp"
-#include "bflib_netsp_ipx.hpp"
 #include "bflib_sound.h"
 #include <zlib.h>
 #include "globals.h"
-#include <assert.h>
-#include <ctype.h>
 
 //TODO: get rid of the following headers later by refactoring, they're here for testing primarily
 #include "frontend.h"
@@ -731,14 +727,12 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
         return;
     }
 
-    //return;
     if (reason == NETDROP_ERROR) {
         NETMSG("Connection error with user %i %s", id, netstate.users[id].name);
     }
     else if (reason == NETDROP_MANUAL) {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
     }
-
 
     if (netstate.my_id == SERVER_ID) {
         memset(&netstate.users[id], 0, sizeof(netstate.users[id]));
