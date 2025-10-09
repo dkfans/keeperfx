@@ -16,19 +16,18 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
-"Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2016-01-03 21:07+0100\n"
-"Last-Translator: Ing. Jiří Vejda <jiri.vejda@gmail.com>\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
-"Language: cs_CZ\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.4\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Poedit-SourceCharset: UTF-8\n"
+"X-Generator: Poedit 3.7\n"
 
 #. Generic victory message
 #: guitext:0
@@ -47,7 +46,7 @@ msgstr "Toto je zpráva. Stisknutím pravého tlačítka myši ji smažeš."
 msgctxt "In-game message"
 msgid ""
 "The first thing a Keeper needs is somewhere to keep gold, when it's been "
-"mined out of the rock by his imps. To create a Treasure Room, select the "
+"mined out of the rock by his Imps. To create a Treasure Room, select the "
 "Treasure Room icon from the Rooms Panel and fill the empty area to the west "
 "with Treasure Room tiles."
 msgstr ""
@@ -109,7 +108,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
-"Lair. Lairs are where creatures rest and recover. The area your imps just "
+"Lair. Lairs are where creatures rest and recover. The area your Imps just "
 "mined out would be an ideal spot for some creatures to lurk. Select the Lair "
 "icon from the Rooms Panel."
 msgstr ""
@@ -124,7 +123,7 @@ msgctxt "In-game message"
 msgid ""
 "Dig a tunnel that connects to the Portal to the north. Portals appear on the "
 "map as flashing squares, until they are claimed. Creatures only use Portals "
-"claimed by a Keeper. Your imps claim a Portal as soon as it connects to your "
+"claimed by a Keeper. Your Imps claim a Portal as soon as it connects to your "
 "dungeon."
 msgstr ""
 "Vykopej tunel k Portalu v severni casti sklepeni. Neobsazeny portal je na "
@@ -171,7 +170,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
-"be unable to pay any creatures. Only imps give their loyalty freely. No "
+"be unable to pay any creatures. Only Imps give their loyalty freely. No "
 "other creatures will serve you unpaid."
 msgstr ""
 "Stale jsi nepostavil Pokladnici. Dokud nepostavis pokladnici, tak nemuzes "
@@ -209,7 +208,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Imps fortify your walls to prevent intruders tunnelling in. If you want to "
-"create more imps, go to the Research Panel, select the Imp icon and left "
+"create more Imps, go to the Research Panel, select the Imp icon and left "
 "click anywhere in your dungeon. Each Imp you create costs more than the "
 "previous one."
 msgstr ""
@@ -656,7 +655,7 @@ msgctxt "In-game message"
 msgid ""
 "You have researched the Call to Arms spell. The first time you cast it, your "
 "creatures gather around a banner created by the spell. Cast it again in a "
-"target area. Call to Arms only costs gold when it's targetted beyond your "
+"target area. Call to Arms only costs gold when it's targeted beyond your "
 "territory."
 msgstr ""
 "V knihovne vyvinuli nove kouzlo Mobilizace. Prvni pouziti tohoto kouzla "
@@ -713,7 +712,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have claimed a Prison. Select imprison from the Information Panel and "
-"your creatures subdue their foe, at which point your imps drag the bodies "
+"your creatures subdue their foe, at which point your Imps drag the bodies "
 "off to a cell. Prisoners who die of starvation may rise again as Skeleton "
 "warriors for you to command."
 msgstr ""
@@ -1301,7 +1300,7 @@ msgstr "Vsiml sis, jak je jeden z tvych souperu zranitelny? Zab ho!"
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
-"I spy a keeper with hardly any creatures left under his control. I spy a "
+"I spy a Keeper with hardly any creatures left under his control. I spy a "
 "Keeper who's about to die."
 msgstr ""
 "Zda se, ze tento strazce ma pomerne malo oblud. A strazce bez oblud je "
@@ -1419,7 +1418,7 @@ msgstr ""
 #. Level Tulipscent information
 #: guitext:126
 msgctxt "In-game message"
-msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
+msgid "This ancient realm is rich in magical artefacts. Go forth and plunder."
 msgstr ""
 "Tato starobyla rise je bohata na magicke artefakty. Musis rychle vyrazit a "
 "rabovat."
@@ -1604,10 +1603,9 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game message"
 msgid ""
-"You are indeed a twisted soul, master. You made the Imps extinct with "
-"panache which certain females find very attractive. A Dark Mistress has "
-"devoted herself to helping you achieve your next goal. You may proceed to "
-"your next conquest."
+"You are indeed a twisted soul, master. You made the Imps extinct with such "
+"panache that not one but two Dark Mistresses have devoted themselves to "
+"helping you achieve your next goal. You may proceed to your next conquest."
 msgstr ""
 "Zvladl jsi to skvele, muj pane. Zabil jsi skrety s takovou zrucnosti, ze "
 "hned dve Temne pani se rozhodly vstoupit do tvych sluzeb a pomohou dosahnout "
@@ -1901,7 +1899,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
-"to reduces your enemies into ashes!"
+"to reduce your enemies into ashes!"
 msgstr ""
 "Viděl jsi? Tvůj Dábelský zplozenec se vyvinul, a stal se mocným Drakem, "
 "který je připraven zredudovat tvé nepřátele na popel!"
@@ -1910,7 +1908,7 @@ msgstr ""
 #: guitext:175
 msgctxt "In-game message"
 msgid ""
-"Well done! Your immense wealth has drew the attention of a Thief. He will "
+"Well done! Your immense wealth has drawn the attention of a Thief. He will "
 "serve you well in the next realm!"
 msgstr ""
 "Výborně! Tvé nesmírné bohatství přilákalo Zloděje. Bude ti dobře sloužit v "
@@ -1946,7 +1944,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
-"in water and their spine can even pierce the most solid armors and paralyze "
+"in water and their spine can even pierce the most solid armours and paralyse "
 "your enemies! Marvellous!"
 msgstr ""
 "Chapadlo přišlo do tvé kobky. Tyto vzácné malé stvoření si lebedí ve vodě a "
@@ -2144,7 +2142,7 @@ msgstr "Odražení: "
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"Fear: Causes the opponent to be terrified and wanting to skip engaging into "
 "combat."
 msgstr "Strach:"
 
@@ -2152,7 +2150,7 @@ msgstr "Strach:"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Sight: Allows the creature to temporarely increase its awareness and notice "
+"Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
 msgstr "Pohled:"
 
@@ -2172,10 +2170,15 @@ msgid ""
 msgstr "Granat:"
 
 #: guitext:235
+#, fuzzy
+#| msgctxt "Creature spell"
+#| msgid ""
+#| "Navigating Missile: This homes in on the nearest hero or enemy creature "
+#| "and explodes with devastating force."
 msgctxt "Creature spell"
 msgid ""
-"Navigating Missile: This homes in on the nearest hero or enemy creature and "
-"explodes with devastating force."
+"Navigating Missile: A spell that sends a screaming magic reptile homing in "
+"on the nearest hero or enemy creature for double damage. Nice."
 msgstr "Samonavadeci raketa:"
 
 #: guitext:236
@@ -2202,7 +2205,8 @@ msgstr "Skupina: Nepoužito"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
+"Invisibility: Makes the creature invisible to all enemies. Unless they "
+"possess a subnatural Sight."
 msgstr "Neviditelnost:"
 
 #: guitext:240
@@ -2215,7 +2219,7 @@ msgstr "Teleport:"
 
 #: guitext:241
 msgctxt "Creature spell"
-msgid "Flame Breath: The devasting constant stream of searing fire."
+msgid "Flame Breath: The devastating constant stream of searing fire."
 msgstr "Ohnivy dech:"
 
 #: guitext:242
@@ -2228,25 +2232,29 @@ msgstr "Svetelkovani:"
 #: guitext:243
 msgctxt "Creature spell"
 msgid ""
-"Flight: Causes the creature to take off from the ground and attack creatures from the air or cross lava unharmed."
+"Flight: Causes the creature to take off from the ground and attack creatures "
+"from the air or cross lava unharmed."
 msgstr "Letani:"
 
 #: guitext:244
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
+msgid "Hail Storm: Creates a fury of hailstones."
 msgstr "Krupobiti:"
 
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making its attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement "
+"delayed."
 msgstr "Zpomaleni:"
 
 #: guitext:246
+#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Drain: This spell drains the target creature a fair part of its health and "
-"magical abilities."
+"Drain: This spell drains the target creature a part of its health and gives "
+"it to the caster."
 msgstr "Vycerpani:"
 
 #: guitext:247
@@ -2260,21 +2268,22 @@ msgstr "Slovo moci:"
 
 #: guitext:248
 msgctxt "Creature spell"
-msgid ""
-"Heal: When this is cast, the creature is massively healed."
+msgid "Heal: When this is cast, the creature is massively healed."
 msgstr "Uzdraveni:"
 
 #: guitext:249
+#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-"away from you."
+"Wind: Creates a force twelve gale in your dungeon blowing every creature "
+"away from you. And nasty smells of course."
 msgstr "Vitr:"
 
 #: guitext:250
+#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Meteor: More powerful that the fireball, this spell throws out a solid ball "
+"Meteor: More powerful than the fireball, this spell throws out a solid ball "
 "of fire which does a lot of damage to an enemy."
 msgstr "Meteor:"
 
@@ -2282,7 +2291,7 @@ msgstr "Meteor:"
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
-"inflicts minor damage to a Dungeon's walls and doors."
+"inflicts minor damage to a dungeon's walls and doors."
 msgstr "Fireball:"
 
 #: guitext:252
@@ -2295,8 +2304,7 @@ msgstr "Boj zblizka:"
 #: guitext:253
 #, fuzzy
 msgctxt "Creature spell"
-msgid ""
-"Fart: A close range gas attack that only damages enemy creatures."
+msgid "Fart: A close range gas attack that only damages enemy creatures."
 msgstr "Jedovaty mrak:"
 
 #: guitext:254
@@ -2309,7 +2317,7 @@ msgstr "Dolovat:"
 #: guitext:255
 msgctxt "Creature spell"
 msgid ""
-"Disease: Fired at a foe, gives them a Disease which is then spread to other "
+"Disease: Fired at a foe, gives them a disease which is then spread to other "
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
 msgstr "Nemoc:"
@@ -2519,7 +2527,7 @@ msgstr "Pocet zabitych: Zobrazi pocet nepratel, kolik obluda zabila."
 #: guitext:293
 msgctxt "In-game interface description"
 msgid ""
-"Strength: The amount of damage the creature inflicts upon it's enemies with "
+"Strength: The amount of damage the creature inflicts upon its enemies with "
 "each hit."
 msgstr "Sila: Ukaze jake poskozeni zpusobi obluda nepriteli jednim uderem."
 
@@ -2603,7 +2611,8 @@ msgstr ""
 #: guitext:305
 msgctxt "In-game interface description"
 msgid ""
-"Fight: Your creatures always attack and not avoid any combat. LMB select."
+"Fight: Your creatures always attack and will not avoid any combat. LMB "
+"select."
 msgstr "Bojovat: Tve obludy budou vyhledavat boj. Voli se LTM. [6.5.1]"
 
 #: guitext:306
@@ -2658,8 +2667,8 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"View Type: Swap between perspective views. Default view has warped walls "
-"and can be rotated. Disable the warp effect for clean lines. Forced perspective "
+"View Type: Swap between perspective views. Default view has warped walls and "
+"can be rotated. Disable the warp effect for clean lines. Forced perspective "
 "can only be rotated 90 degrees and changes the viewing angle. LMB toggle."
 msgstr ""
 "Typ pohledu: Prepina mezi zakladnim a nastavitelnym pohledem. Prepina se "
@@ -2759,8 +2768,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Slab description"
 msgid ""
-"Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
-"or building a Bridge."
+"Lava: Burns any creature that step on it. Get over lava by building a Bridge."
 msgstr "Lava: Spali vsechna stvoreni, ktera do ni vstoupi. [14.2]"
 
 #: guitext:328
@@ -3232,18 +3240,18 @@ msgid "Ok"
 msgstr "Ok"
 
 #: guitext:420
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "Odhalit mapu: Odhali ti celou mapu podzemi."
 
 #: guitext:421
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr "Ozivit obludu: Muzes ozivit jednu ze svych padlych oblud."
 
 #: guitext:422
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
 "realm."
@@ -3251,30 +3259,30 @@ msgstr ""
 "Prenest obludu: Umozni ti prenest jednu obludu s sebou do dalsiho kola."
 
 #: guitext:423
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "Ukrast hrdinu: Prevede vybraneho hrdinu na tvou stranu."
 
 #: guitext:424
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr "Rozmnozit obludy: Vytvori kopii od kazde tve obludy."
 
 #: guitext:425
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "Zvysit uroven: Zvysi uroven vsech tvych oblud na maximum."
 
 #: guitext:426
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Zabezpečit: Zpevni steny celeho tveho sklepeni."
 
 #: guitext:427
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
-"Locate Hidden World: You will be transported to a secret realm after you "
-"have conquered this one."
+"Locate Hidden World: You will get access to a secret realm after you have "
+"conquered this one."
 msgstr ""
 "Najit tajny svet: Po dobiti tohoto kralovstvi budes prenesen do tajne rise."
 
@@ -3385,8 +3393,8 @@ msgstr "Informační panel: Různé informace. [5.0]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Room Panel: The rooms available for you to build. Here you can center map on "
-"rooms or build new ones."
+"Room Panel: The rooms available for you to build. Here you can centre the "
+"map on rooms or build new ones."
 msgstr ""
 "Panel místností: Typy místností, které jsou ti dispozici ke stavbě. [6.0]"
 
@@ -3402,8 +3410,8 @@ msgstr "Menu Vyzkum: Nabidne kouzla ke zkoumani. [7.0]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Workshop Panel: The traps and doors available to you. You can center the map "
-"on them, place new ones or sell existing."
+"Workshop Panel: The traps and doors available to you. You can centre the map "
+"on them, place new ones, or sell existing ones."
 msgstr "Menu Dilna: Zde muzes vyrabet ruzne dvere a pasti. [8.0]"
 
 #: guitext:451
@@ -3434,8 +3442,9 @@ msgstr "Doba vyroby: Kolik casu je potreba na vyrobu nove pasti. [5.5]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Time: The time until the next Creature Payday. This bar increases over time "
-"and, when it reaches its peak, all of your creatures receive their wages."
+"Payday Time: The time until the next Creature Payday. This bar increases "
+"over time and, when it reaches its peak, all of your creatures will want "
+"their wages."
 msgstr ""
 "Zbyva dni: Za kolik dni budes muset svym obludam muset vyplatit zold. [5.3]"
 
@@ -3493,7 +3502,9 @@ msgctxt "In-game interface description"
 msgid ""
 "Sell Item: Sell a Trap or Door. Allows you to earn gold on manufacturing. "
 "LMB select."
-msgstr "Prodat předmět: Prodá dveře nebo past. Výrobou předmětů získáš zlato. Položku vybereš LTM."
+msgstr ""
+"Prodat předmět: Prodá dveře nebo past. Výrobou předmětů získáš zlato. "
+"Položku vybereš LTM."
 
 #: guitext:464
 msgctxt "In-game interface description"
@@ -4403,9 +4414,14 @@ msgstr ""
 "zvetsi oblast. [17.3]"
 
 #: guitext:625
+#, fuzzy
+#| msgctxt "Room description"
+#| msgid ""
+#| "Lair: Where your creatures sleep and replenish their energy. LMB select. "
+#| "RMB zoom. [17.2]"
 msgctxt "Room description"
 msgid ""
-"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"Lair: Where your creatures sleep and replenish their health. LMB select. RMB "
 "zoom. [17.2]"
 msgstr ""
 "Doupe: V doupeti tve obludy odpocivaji a nabiraji novych sil. Zvoli se LTM, "
@@ -4430,10 +4446,15 @@ msgstr ""
 "sklepeni. Zvoli se LTM, PTM zvetsi oblast. [17.7]"
 
 #: guitext:628
+#, fuzzy
+#| msgctxt "Room description"
+#| msgid ""
+#| "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
+#| "creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+"creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
 msgstr ""
 "Chram: Obeti temnym bohum zvysuji moralku tvych oblud. Obludu obetujes v "
 "nadrzi. Zvoli se LTM, PTM zvetsi oblast. [17.12]"
@@ -4541,10 +4562,8 @@ msgstr ""
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid ""
-"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
-msgstr ""
-"Vytvorit skreta: Vyvola kdekoliv na tvem uzemi skreta. Zvoli se LTM."
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
+msgstr "Vytvorit skreta: Vyvola kdekoliv na tvem uzemi skreta. Zvoli se LTM."
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -4556,10 +4575,17 @@ msgstr ""
 "zvetsi oblast. [18.3]"
 
 #: guitext:650
+#, fuzzy
+#| msgctxt "Keeper spell description"
+#| msgid ""
+#| "Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
+#| "select, LMB again to reselect, LMB a third time to cancel. RMB zoom. "
+#| "[18.6]"
 msgctxt "Keeper spell description"
 msgid ""
-"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
-"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+"Call To Arms: Calls creatures in range to any destination. LMB Select. Cast "
+"in range of creatures to gather, cast again for destination.RMB zoom. LMB "
+"Cancel. [18.6]"
 msgstr ""
 "Mobilizace: Svola vsechny volne obludy do urcene oblasti tvych sklepeni. "
 "Kouzlo vybiras stisknutim LTM, dalsim stisknutim LTM obnovis vyber a tretim "
@@ -4591,22 +4617,20 @@ msgstr ""
 #: guitext:654
 msgctxt "Keeper spell description"
 msgid "Speed Monster: Increases the speed of your monsters."
-msgstr ""
-"Urychlit obludu: Zvysi rychlost tvych vybranych oblud."
+msgstr "Urychlit obludu: Zvysi rychlost tvych vybranych oblud."
 
 #: guitext:655
+#, fuzzy
+#| msgctxt "Keeper spell description"
+#| msgid "Protect Monster: Shields your creatures from attack."
 msgctxt "Keeper spell description"
-msgid ""
-"Protect Monster: Shields your creatures from attack."
-msgstr ""
-"Ochránit obludu: Ochrání tvé příšeny před útokem."
+msgid "Protect Monster: Shields your creatures from attack. LBM select."
+msgstr "Ochránit obludu: Ochrání tvé příšeny před útokem."
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy."
-msgstr ""
-"Skryj obludu: Zneviditelní tvé obludy pro nepřátele."
+msgid "Conceal Monster: Makes your creatures invisible to the enemy."
+msgstr "Skryj obludu: Zneviditelní tvé obludy pro nepřátele."
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -4633,14 +4657,17 @@ msgstr ""
 #: guitext:660
 msgctxt "Keeper spell description"
 msgid ""
-"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+"Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
 msgstr "Zničit zdi: Zbourá nepřátelské zpevněné zdi. LTM pro zvolení.  [18.16]"
 
 #: guitext:661
+#, fuzzy
+#| msgctxt "Keeper spell description"
+#| msgid ""
+#| "Heal: Cast on an area of the dungeon to improve the health of your "
+#| "creatures. LMB select. [18.9]"
 msgctxt "Keeper spell description"
-msgid ""
-"Heal: Cast on an area of the dungeon to improve the health of your "
-"creatures. LMB select. [18.9]"
+msgid "Heal: Cast on a creature to improve its health. LMB select. [18.9]"
 msgstr ""
 "Uzdravení: Vyčaruj toto kouzlo na určitou oblast sklepení pro přidání zivota "
 "svým obludám. LTM pro zvolení. [18.9]"
@@ -4916,7 +4943,7 @@ msgstr "Byla nalezena bedna s dveřmi: LTM přepnout, PTM smazat."
 
 #: guitext:715
 msgctxt "Game event description"
-msgid "Dungeon special found: LMB toggle. RMB delete."
+msgid "Dungeon Special found: LMB toggle. RMB delete."
 msgstr "Byl nalezen zvláštní bonus: LTM přepnout, PTM smazat."
 
 #: guitext:716
@@ -4986,9 +5013,14 @@ msgstr ""
 "Menu počítačové asistence: Přizpůsobení počítačového asistenta. [3.2.4]"
 
 #: guitext:729
+#, fuzzy
+#| msgctxt "In-game interface description"
+#| msgid ""
+#| "Aggressive Computer Assistant: Constructs your dungeon and always trys to "
+#| "attack the enemy. LMB select. [3.2.4]"
 msgctxt "In-game interface description"
 msgid ""
-"Aggressive Computer Assistant: Constructs your dungeon and always trys to "
+"Aggressive Computer Assistant: Constructs your dungeon and always tries to "
 "attack the enemy. LMB select. [3.2.4]"
 msgstr ""
 "Agresivní počítacový asistent: Staví tvou kobku a vždy se snaží zaútočit na "
@@ -5025,7 +5057,8 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB Zoom. [22.2.1]"
+"Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB "
+"Zoom. [22.2.1]"
 msgstr ""
 "Vybrat nejzkušenější obludu: LTM vybere obludu, PTM zobrazí detail. [22.2.1]"
 
@@ -5794,17 +5827,17 @@ msgid "4 Players"
 msgstr "4 hráči"
 
 #: guitext:874
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "Serial"
 msgstr "Sériový port"
 
 #: guitext:875
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "Modem"
 msgstr "Modem"
 
 #: guitext:876
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "IPX"
 msgstr "IPX"
 
@@ -5876,7 +5909,8 @@ msgstr "Vyrobitelné: Příšery mohou tento předmět vyrobit v dílně."
 #: guitext:890
 msgctxt "Menu interface message"
 msgid "Workshop too small: Expand the Workshop to manufacture this item."
-msgstr "Dílna je příliš malá: Pro výrobu tohoto předmětu je třeba dílnu rozšířit."
+msgstr ""
+"Dílna je příliš malá: Pro výrobu tohoto předmětu je třeba dílnu rozšířit."
 
 #: guitext:891
 msgctxt "Menu interface message"
@@ -6022,7 +6056,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The once strong hero fortress of this realm has grown rotten and weak. Tear "
-"down it's walls and let your creatures feast on the heroes within."
+"down its walls and let your creatures feast on the heroes within."
 msgstr ""
 "Kdysi silná hrdinská pevnost této oblasti shnila a zeslábla. Strhni její zdi "
 "a nechtej své bytosti pohostit se na hrdinech uvnitř."
@@ -6322,7 +6356,7 @@ msgstr ""
 "Strážce, Tvé úspěchy jsou legendární. Povídky o tvém zlu a mazanosti se "
 "stanou děsivými příběhy po generace."
 
-#: guitext:935 
+#: guitext:935
 msgctxt "Door name"
 msgid "Secret Door"
 msgstr "Tajné dveře"
@@ -6330,9 +6364,11 @@ msgstr "Tajné dveře"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
-"opening. RMB zoom."
-msgstr "Tajné dveře: Tyto dveře zůstávají nepřátelům skryté, pokud je nepozorují zblízka nebo nevidí, jak se otevírají. Zvoli se LTM, PTM zvetsi"
+"Secret Door: This door remains hidden to enemies unless they observe it "
+"closely or see it opening. RMB zoom."
+msgstr ""
+"Tajné dveře: Tyto dveře zůstávají nepřátelům skryté, pokud je nepozorují "
+"zblízka nebo nevidí, jak se otevírají. Zvoli se LTM, PTM zvetsi"
 
 #: guitext:937
 msgctxt "Game event description"
@@ -6415,9 +6451,18 @@ msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
 msgstr "Loajalita: Odolnost je příšery proti přiklonění k nepříteli."
 
 #: guitext:952
+#, fuzzy
+#| msgctxt "In-game interface description"
+#| msgid ""
+#| "Training Skill: How fast the creature works on training. The higher the "
+#| "Skill level, the better the creature's performance."
 msgctxt "In-game interface description"
-msgid "Research Skill: unused."
-msgstr "Schopnost výzkum: nepoužito."
+msgid ""
+"Research Skill: How fast the creature works in Library. The higher the Skill "
+"level, the better the creature's performance."
+msgstr ""
+"Schopnost trénování: Rychlost tréninku příšery. Čím vyšší zkušenost, tím "
+"lepší výkonnost příšery."
 
 #: guitext:953
 msgctxt "In-game interface description"
@@ -6459,7 +6504,7 @@ msgstr "Cena přilákání: Zlato, které je potřeba, k přilákání příšer
 #: guitext:958
 msgctxt "In-game interface description"
 msgid ""
-"Best Damage: How much harm can be made by the strongest attack the creature "
+"Best Damage: How much harm can be done by the strongest attack the creature "
 "has."
 msgstr ""
 "Největší poškození: Jaké zranění může příšera způsobil svým nejsilnějším "
@@ -6470,19 +6515,27 @@ msgctxt "In-game interface description"
 msgid ""
 "Weight: Mass of the creature. Some people say overweight can lead to heart "
 "attack."
-msgstr "Váha: Hmotnost příšery. Někteří říkají, že nadváha může vést k infarktu."
+msgstr ""
+"Váha: Hmotnost příšery. Někteří říkají, že nadváha může vést k infarktu."
 
 #: guitext:960
+msgctxt "In-game interface description"
+msgid ""
+"Score: Estimate of an overall creature value. Added to player score when "
+"finishing the level."
+msgstr ""
+
+#: guitext:961
 msgctxt "Keeper spell name"
 msgid "Hand Of Evil"
 msgstr "Ruka zla"
 
-#: guitext:961
+#: guitext:962
 msgctxt "Keeper spell name"
 msgid "Slap"
 msgstr "Proplesknutí"
 
-#: guitext:962
+#: guitext:963
 msgctxt "Keeper spell description"
 msgid ""
 "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
@@ -6490,11 +6543,6 @@ msgid ""
 msgstr ""
 "Ruka zla: Schopnost zvednout příšeru a držet ji ve své ruce. Jen to nedělej "
 "příliš dlouho, může se naštvat."
-
-#: guitext:963
-msgctxt "Keeper spell description"
-msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. Just don't hold them forever or they may get irritated."
-msgstr ""
 
 #: guitext:964
 msgctxt "Keeper spell description"
@@ -6686,7 +6734,7 @@ msgid "Snap Camera"
 msgstr "Připnout kameru"
 
 #: guitext:1005
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Tajemná truhla: Nelze předvídat, co to udělá."
 
@@ -6697,8 +6745,12 @@ msgstr "Připojený hráč má jinou verzi mapy než hostitel."
 
 #: guitext:1007
 msgctxt "In-game interface description"
-msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
-msgstr "Rozlišení zobrazení: Přepne na další nastavené rozlišení. Levé tlačítko – přepnutí, pravé tlačítko – zobraz aktuální."
+msgid ""
+"Display Resolution: Switch to the next configured display resolution. LMB "
+"toggle. RMB display current resolution."
+msgstr ""
+"Rozlišení zobrazení: Přepne na další nastavené rozlišení. Levé tlačítko – "
+"přepnutí, pravé tlačítko – zobraz aktuální."
 
 #: guitext:1008
 #, fuzzy
@@ -6915,12 +6967,15 @@ msgstr "Skalní útvar."
 #: guitext:1051
 msgctxt "Slab description"
 msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
-msgstr "Základní skála: Neupravená kamenitá podlaha. Nemůžete ji zabrat ani na ni stavět."
+msgstr ""
+"Základní skála: Neupravená kamenitá podlaha. Nemůžete ji zabrat ani na ni "
+"stavět."
 
 #: guitext:1052
 msgctxt "Slab description"
-msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
-msgstr "Hustý zlatý základ: Obsahuje mnoho bohatství, které mohou tví Skřeti těžit."
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
+msgstr ""
+"Hustý zlatý základ: Obsahuje mnoho bohatství, které mohou tví Skřeti těžit."
 
 #: guitext:1053
 #, fuzzy
@@ -6972,6 +7027,7 @@ msgstr "Rozlít nespokojenost: Všechna stvoření nepřítele jsou rozčílená
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Oslabí zdi: Ničí opevnění nepřátelských zdí."
+
 #: guitext:1063
 msgctxt "Game controls"
 msgid "Tilt Up"
@@ -6999,22 +7055,31 @@ msgstr "Čištění: Vyléčí všechny negativní účinky postihující bytost
 
 #: guitext:1068
 msgctxt "Creature spell"
-msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
+msgid ""
+"Cleanse Monster: Cures all negative effects inflicted on target creature."
 msgstr "Čištění nestvůry: Vyléčí všechny negativní účinky u cílové bytosti."
 
 #: guitext:1069
 msgctxt "Keeper spell description"
-msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgid ""
+"Magic Shield: Causes spells fired at the target to bounce back at the "
+"attacker."
 msgstr "Magický štít: Odrazí seslaná kouzla zpět na útočníka."
 
 #: guitext:1070
 msgctxt "Keeper spell description"
-msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
-msgstr "Levitace: Umožní bytosti vznášet se nad zemí, útočit ze vzduchu nebo přejít lávu bez újmy."
+msgid ""
+"Levitate: Causes the target creature to take off from the ground and attack "
+"creatures from the air or cross lava unharmed."
+msgstr ""
+"Levitace: Umožní bytosti vznášet se nad zemí, útočit ze vzduchu nebo přejít "
+"lávu bez újmy."
 
 #: guitext:1071
 msgctxt "Keeper spell description"
-msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
+msgid ""
+"Sight: Allows the target creature to temporarily increase its awareness and "
+"notice the invisible."
 msgstr "Zrak: Dočasně zvýší vnímavost bytosti a odhalí neviditelné."
 
 #: guitext:1072
@@ -7039,8 +7104,12 @@ msgstr "Midova brána"
 
 #: guitext:1077
 msgctxt "Door description"
-msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
-msgstr "Midova brána: Tato brána spotřebovává zlato majitele, aby zůstala zcela nezničitelná. Pravé tlačítko myši – přiblížení."
+msgid ""
+"Midas Door: This door consumes gold from the owner to stay completely "
+"indestructible. RMB zoom."
+msgstr ""
+"Midova brána: Tato brána spotřebovává zlato majitele, aby zůstala zcela "
+"nezničitelná. Pravé tlačítko myši – přiblížení."
 
 #: guitext:1078
 msgctxt "Game controls"
