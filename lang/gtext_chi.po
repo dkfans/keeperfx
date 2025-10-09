@@ -2084,7 +2084,7 @@ msgstr ""
 
 #: guitext:244
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a fury of hailstones."
+msgid "Hail Storm: Creates a flurry of hailstones."
 msgstr "冰雹术: 发射密集的冰雹块。"
 
 #: guitext:245

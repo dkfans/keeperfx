@@ -2074,7 +2074,7 @@ msgstr "飞行术: [26.7]"
 
 #: guitext:244
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a fury of hailstones."
+msgid "Hail Storm: Creates a flurry of hailstones."
 msgstr "冰雹术: [26.10]"
 
 #: guitext:245

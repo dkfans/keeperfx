@@ -2310,7 +2310,7 @@ msgstr ""
 
 #: guitext:244
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a fury of hailstones."
+msgid "Hail Storm: Creates a flurry of hailstones."
 msgstr "Burza gradowa: Tworzy opad wielkiego gradu w miejscu rzucenia czaru."
 
 #: guitext:245

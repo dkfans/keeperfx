@@ -2344,7 +2344,7 @@ msgstr ""
 
 #: guitext:244
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a fury of hailstones."
+msgid "Hail Storm: Creates a flurry of hailstones."
 msgstr "Hagelsturm: Entfesselt einen Sturm aus Hagelkörnern. [26.10]"
 
 #: guitext:245

@@ -2239,7 +2239,7 @@ msgstr "Letani:"
 #: guitext:244
 #, fuzzy
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a fury of hailstones."
+msgid "Hail Storm: Creates a flurry of hailstones."
 msgstr "Krupobiti:"
 
 #: guitext:245

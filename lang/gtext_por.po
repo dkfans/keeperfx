@@ -2315,8 +2315,12 @@ msgstr ""
 "lava sem sofrer danos."
 
 #: guitext:244
+#, fuzzy
+#| msgctxt "Creature spell"
+#| msgid ""
+#| "Hail Storm: Creates a fury of hailstones."
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a fury of hailstones."
+msgid "Hail Storm: Creates a flurry of hailstones."
 msgstr "Tempestade de Granizo: Cria uma fúria de pedras de granizo."
 
 #: guitext:245

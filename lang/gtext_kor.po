@@ -2218,8 +2218,12 @@ msgstr ""
 "비행: 피조물이 땅에서 날아올라 공중에 있거나 용암을 건너는 생물을 공격합니다."
 
 #: guitext:244
+#, fuzzy
+#| msgctxt "Creature spell"
+#| msgid ""
+#| "Hail Storm: Creates a fury of hailstones."
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a fury of hailstones."
+msgid "Hail Storm: Creates a flurry of hailstones."
 msgstr "우박 폭풍: 우박이 맹위를 떨칩니다."
 
 #: guitext:245
