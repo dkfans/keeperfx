@@ -4837,19 +4837,31 @@ static void set_player_colour_process(struct ScriptContext *context)
 
 static void set_game_rule_check(const struct ScriptLine* scline)
 {
-    PlayerNumber plr_idx;
+    char* rulevalue_str = strdup(scline->tp[1]);
+    PlayerNumber plyr_idx;
     if (scline->tp[2][0] == '\0')
     {
-        plr_idx = ALL_PLAYERS;
+        plyr_idx = ALL_PLAYERS;
     }
     else
     {
-        plr_idx = scline->np[2];
+        plyr_idx = get_id(player_desc, scline->tp[2]);
+        if (plyr_idx == -1)
+        {
+            if (!parameter_is_number(scline->tp[2]))
+            {
+                SCRPTERRLOG("Invalid player: %s", scline->tp[1]);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            plyr_idx = ALL_PLAYERS;
+            snprintf(rulevalue_str, MAX_TEXT_LENGTH, "%s %s", scline->tp[1], scline->tp[2]);
+        }
     }
-    ALLOCATE_SCRIPT_VALUE(scline->command, plr_idx);
+    ALLOCATE_SCRIPT_VALUE(scline->command, plyr_idx);
 
     const char* rulename = scline->tp[0];
-    const char* rulevalue_str = scline->tp[1];
+    
 
     long rulegroup = 0;
     long ruleval = 0;
@@ -4865,7 +4877,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
             break;
         }
     }
-
+    free(rulevalue_str);
     if (ruledesc == -1)
     {
         SCRPTERRLOG("Unknown Game Rule '%s'.", rulename);
@@ -6262,7 +6274,7 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"LEVEL_UP_PLAYERS_CREATURES",        "PC!n    ", Cmd_LEVEL_UP_PLAYERS_CREATURES, &level_up_players_creatures_check, level_up_players_creatures_process},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
-  {"SET_GAME_RULE",                     "AAp     ", Cmd_SET_GAME_RULE, &set_game_rule_check, &set_game_rule_process},
+  {"SET_GAME_RULE",                     "AAa     ", Cmd_SET_GAME_RULE, &set_game_rule_check, &set_game_rule_process},
   {"SET_ROOM_CONFIGURATION",            "AAAan   ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
   {"SET_TRAP_CONFIGURATION",            "AAAnnn  ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn    ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
