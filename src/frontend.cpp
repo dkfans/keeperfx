@@ -2838,8 +2838,6 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           fade_palette_in = 0;
           break;
       case FeSt_START_MPLEVEL:
-          if ((game.flags_font & FFlg_NetworkTimeout) != 0)
-              LbNetwork_ChangeExchangeTimeout(30);
           fade_palette_in = 0;
           break;
       case FeSt_STORY_POEM:

@@ -146,10 +146,10 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         return;
     }
 
-    SYNCLOG("Player %d lost",(int)player->id_number);
+    SYNCLOG("%s lost",player_code_name(player->id_number));
     if (is_my_player(player))
     {
-      api_event("LOSE_GAME");
+        api_event("LOSE_GAME");
         frontstats_initialise();
     }
     player->victory_state = VicS_LostLevel;

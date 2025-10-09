@@ -229,12 +229,12 @@ TbError LbNetwork_ExchangeServer(void *server_buf, size_t buf_size);
 TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t buf_size);
 TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
 TbBool  LbNetwork_Resync(void * buf, size_t len);
-void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *user_data);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_Stop(void);
+unsigned long get_host_player_id(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

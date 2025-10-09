@@ -396,10 +396,18 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         } else
         if (player->cursor_button_down != 0)
         {
-            thing = thing_get(player->thing_under_hand);
             if ((player->thing_under_hand != 0) && (player->input_crtr_control != 0)
                 && (dungeon->things_in_hand[0] != player->thing_under_hand))
             {
+                thing = get_creature_near_for_controlling(player->id_number, x, y);
+                if (!thing_is_invalid(thing))
+                {
+                    player->thing_under_hand = thing->index;
+                }
+                else
+                {
+                    thing = thing_get(player->thing_under_hand);
+                }
                 set_player_state(player, PSt_CtrlDirect, PwrK_POSSESS);
                 if (magic_use_available_power_on_thing(plyr_idx, PwrK_POSSESS, 0, stl_x, stl_y, thing, PwMod_Default) == Lb_FAIL) {
                     set_player_state(player, player->continue_work_state, 0);
@@ -757,9 +765,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_CtrlPassngr:
         case PSt_FreeCtrlPassngr:
             if (player->work_state == PSt_CtrlPassngr)
-                thing = get_creature_near_and_owned_by(x, y, plyr_idx, -1);
+                thing = get_creature_near_and_owned_by(x, y, plyr_idx, CREATURE_ANY);
             else
-                thing = get_creature_near_and_owned_by(x, y, -1, -1);
+                thing = get_creature_near_and_owned_by(x, y, -1, CREATURE_ANY);
             if (thing_is_invalid(thing))
                 player->thing_under_hand = 0;
             else

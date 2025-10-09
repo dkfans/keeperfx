@@ -1,7 +1,7 @@
 -- Debug.lua
 -- Debugging utilities for logging, assertions, and development-time tools.
 
-local inspect = require 'lib.inspect'
+local inspect = require 'external.inspect'
 
 
 --- dump the Game table to a human readable format in the log file,

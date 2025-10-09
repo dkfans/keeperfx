@@ -103,7 +103,6 @@ static TbBool load_spritecolors_config_file(const char *fname, unsigned short fl
     load_array(&file_root,"gui_panel_sprites",gui_panel_sprites_eq,flags,get_icon_id);
     load_array(&file_root,"pointer_sprites",pointer_sprites_eq,flags,get_icon_id);
     load_array(&file_root,"button_sprite",button_sprite_eq,flags,get_icon_id);
-    load_array(&file_root,"button_sprite",button_sprite_eq,flags,get_icon_id);
     load_array(&file_root,"animationIds",animationIds_eq,flags,get_anim_id_);
     load_array(&file_root,"objects",objects_eq,flags,get_anim_id_);
 

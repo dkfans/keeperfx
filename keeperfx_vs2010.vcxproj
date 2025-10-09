@@ -47,7 +47,6 @@
     <ClCompile Include="src\bflib_netlisten_udp.cpp" />
     <ClCompile Include="src\bflib_netsession.c" />
     <ClCompile Include="src\bflib_netsp.cpp" />
-    <ClCompile Include="src\bflib_netsp_ipx.cpp" />
     <ClCompile Include="src\bflib_netsp_tcp.cpp" />
     <ClCompile Include="src\bflib_network.cpp" />
     <ClCompile Include="src\bflib_planar.c" />
@@ -300,7 +299,6 @@
     <ClInclude Include="src\bflib_netlisten_udp.hpp" />
     <ClInclude Include="src\bflib_netsession.h" />
     <ClInclude Include="src\bflib_netsp.hpp" />
-    <ClInclude Include="src\bflib_netsp_ipx.hpp" />
     <ClInclude Include="src\bflib_netsp_tcp.hpp" />
     <ClInclude Include="src\bflib_network.h" />
     <ClInclude Include="src\bflib_planar.h" />

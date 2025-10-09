@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2024-09-02 22:31+0100\n"
+"PO-Revision-Date: 2025-10-01 18:10+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: ja_JP\n"
@@ -29,7 +29,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.7\n"
 
 #. Generic victory message
 #: guitext:0
@@ -49,7 +49,7 @@ msgstr "これはメッセージだ。 右クリックで削除できる。"
 msgctxt "In-game message"
 msgid ""
 "The first thing a Keeper needs is somewhere to keep gold, when it's been "
-"mined out of the rock by his imps. To create a Treasure Room, select the "
+"mined out of the rock by his Imps. To create a Treasure Room, select the "
 "Treasure Room icon from the Rooms Panel and fill the empty area to the west "
 "with Treasure Room tiles."
 msgstr ""
@@ -109,7 +109,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
-"Lair. Lairs are where creatures rest and recover. The area your imps just "
+"Lair. Lairs are where creatures rest and recover. The area your Imps just "
 "mined out would be an ideal spot for some creatures to lurk. Select the Lair "
 "icon from the Rooms Panel."
 msgstr ""
@@ -124,7 +124,7 @@ msgctxt "In-game message"
 msgid ""
 "Dig a tunnel that connects to the Portal to the north. Portals appear on the "
 "map as flashing squares, until they are claimed. Creatures only use Portals "
-"claimed by a Keeper. Your imps claim a Portal as soon as it connects to your "
+"claimed by a Keeper. Your Imps claim a Portal as soon as it connects to your "
 "dungeon."
 msgstr ""
 "北のゲートへつながるトンネルを掘れ。 マップ上の光っている四角形が占領されてい"
@@ -170,7 +170,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
-"be unable to pay any creatures. Only imps give their loyalty freely. No "
+"be unable to pay any creatures. Only Imps give their loyalty freely. No "
 "other creatures will serve you unpaid."
 msgstr ""
 "まだ宝物庫を作っていないな。 宝物庫を作るまではクリーチャーに給料が支払えな"
@@ -207,7 +207,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Imps fortify your walls to prevent intruders tunnelling in. If you want to "
-"create more imps, go to the Research Panel, select the Imp icon and left "
+"create more Imps, go to the Research Panel, select the Imp icon and left "
 "click anywhere in your dungeon. Each Imp you create costs more than the "
 "previous one."
 msgstr ""
@@ -649,7 +649,7 @@ msgctxt "In-game message"
 msgid ""
 "You have researched the Call to Arms spell. The first time you cast it, your "
 "creatures gather around a banner created by the spell. Cast it again in a "
-"target area. Call to Arms only costs gold when it's targetted beyond your "
+"target area. Call to Arms only costs gold when it's targeted beyond your "
 "territory."
 msgstr ""
 "出陣の魔法の研究が終わった。 初めてこの魔法をかけると、 手下どもが魔法によっ"
@@ -704,7 +704,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have claimed a Prison. Select imprison from the Information Panel and "
-"your creatures subdue their foe, at which point your imps drag the bodies "
+"your creatures subdue their foe, at which point your Imps drag the bodies "
 "off to a cell. Prisoners who die of starvation may rise again as Skeleton "
 "warriors for you to command."
 msgstr ""
@@ -1273,7 +1273,7 @@ msgstr "敵の１人が無防備になっているのがわかるか？  さあ�
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
-"I spy a keeper with hardly any creatures left under his control. I spy a "
+"I spy a Keeper with hardly any creatures left under his control. I spy a "
 "Keeper who's about to die."
 msgstr ""
 "配下のクリーチャーがほとんど残っていないキーパーがいる。 もう死んだも同然だ。"
@@ -1384,8 +1384,7 @@ msgstr ""
 
 #. Level Tulipscent information
 #: guitext:126
-msgctxt "In-game message"
-msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
+msgid "This ancient realm is rich in magical artefacts. Go forth and plunder."
 msgstr "この古代王国には魅力的な工芸品が豊富にある。 略奪せよ。"
 
 #. Level Blaise End objective
@@ -1564,10 +1563,9 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game message"
 msgid ""
-"You are indeed a twisted soul, master. You made the Imps extinct with "
-"panache which certain females find very attractive. A Dark Mistress has "
-"devoted herself to helping you achieve your next goal. You may proceed to "
-"your next conquest."
+"You are indeed a twisted soul, master. You made the Imps extinct with such "
+"panache that not one but two Dark Mistresses have devoted themselves to "
+"helping you achieve your next goal. You may proceed to your next conquest."
 msgstr ""
 "すばらしい支配者よ、 お前の心はみごとなまでにねじ曲がっている。 インプを絶滅"
 "させたお前のその堂々たる態度を見て、 バンパイアがお前の次なる野望に身を捧げる"
@@ -2123,10 +2121,15 @@ msgstr ""
 "的な遅延導火線が有る。[26.9]"
 
 #: guitext:235
+#, fuzzy
+#| msgctxt "Creature spell"
+#| msgid ""
+#| "Navigating Missile: This homes in on the nearest hero or enemy creature "
+#| "and explodes with devastating force."
 msgctxt "Creature spell"
 msgid ""
-"Navigating Missile: This homes in on the nearest hero or enemy creature and "
-"explodes with devastating force."
+"Navigating Missile: A spell that sends a screaming magic reptile homing in "
+"on the nearest hero or enemy creature for double damage. Nice."
 msgstr "誘導ミサイル: 最も近い敵を狙う、壊滅的な力で爆発する。[16.16]"
 
 #: guitext:236
@@ -2155,8 +2158,12 @@ msgstr "グループ化: 未使用だ。"
 #: guitext:239
 #, fuzzy
 msgctxt "Creature spell"
-msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
-msgstr "透明化: 敵が超自然的な視力を持っていない限り、クリーチャーが彼らから見えなく成る。"
+msgid ""
+"Invisibility: Makes the creature invisible to all enemies. Unless they "
+"possess a subnatural Sight."
+msgstr ""
+"透明化: 敵が超自然的な視力を持っていない限り、クリーチャーが彼らから見えなく"
+"成る。"
 
 #: guitext:240
 msgctxt "Creature spell"
@@ -2168,7 +2175,7 @@ msgstr "テレポート: クリーチャーは色々地点にテレポート出�
 
 #: guitext:241
 msgctxt "Creature spell"
-msgid "Flame Breath: The devasting constant stream of searing fire."
+msgid "Flame Breath: The devastating constant stream of searing fire."
 msgstr "炎の息: 灼熱の火の絶え間なく続く流れ。[26.6]"
 
 #: guitext:242
@@ -2184,13 +2191,13 @@ msgstr ""
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
-"from the air."
+"from the air or cross lava unharmed."
 msgstr ""
 "飛行: クリーチャーは地面から離陸させ、空から攻撃する事が可能にする。[26.7]"
 
 #: guitext:244
 msgctxt "Creature spell"
-msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
+msgid "Hail Storm: Creates a fury of hailstones."
 msgstr "ひょう: 雹を作成する。[26.10]"
 
 #: guitext:245
@@ -2201,10 +2208,15 @@ msgid ""
 msgstr "減速: 対象の速力を下げる、其の攻撃と移動を遅らせる。[26.20]"
 
 #: guitext:246
+#, fuzzy
+#| msgctxt "Creature spell"
+#| msgid ""
+#| "Drain: This spell drains the target creature a fair part of its health "
+#| "and magical abilities."
 msgctxt "Creature spell"
 msgid ""
-"Drain: This spell drains the target creature a fair part of its health and "
-"magical abilities."
+"Drain: This spell drains the target creature a part of its health and gives "
+"it to the caster."
 msgstr "消耗: 対象のクリーチャーの体力を吸い取ってしまいる。[26.4]"
 
 #: guitext:247
@@ -2219,22 +2231,20 @@ msgstr ""
 
 #: guitext:248
 msgctxt "Creature spell"
-msgid ""
-"Heal: When this is cast, the creature is massively healed. Also, any nearby "
-"creatures are healed by a quarter."
+msgid "Heal: When this is cast, the creature is massively healed."
 msgstr "自然治癒: クリーチャーを大分治す。[26.11]"
 
 #: guitext:249
 msgctxt "Creature spell"
 msgid ""
-"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-"away from you."
+"Wind: Creates a force twelve gale in your dungeon blowing every creature "
+"away from you. And nasty smells of course."
 msgstr "突風: 強風を起こし、有らゆるクリーチャーを吹き飛ばす。[26.23]"
 
 #: guitext:250
 msgctxt "Creature spell"
 msgid ""
-"Meteor: More powerful that the fireball, this spell throws out a solid ball "
+"Meteor: More powerful than the fireball, this spell throws out a solid ball "
 "of fire which does a lot of damage to an enemy."
 msgstr "隕石: 火の玉よりも強力な、大きな損傷を加える固い火の岩を放つ。[26.14]"
 
@@ -2242,7 +2252,7 @@ msgstr "隕石: 火の玉よりも強力な、大きな損傷を加える固い�
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
-"inflicts minor damage to a Dungeon's walls and doors."
+"inflicts minor damage to a dungeon's walls and doors."
 msgstr "火の玉: 少量の損傷を加える火の玉を一個放つ。[26.5]"
 
 #: guitext:252
@@ -2268,7 +2278,7 @@ msgstr "掘る: インプの基本的な能力、土を掘る事が可能にす�
 #: guitext:255
 msgctxt "Creature spell"
 msgid ""
-"Disease: Fired at a foe, gives them a Disease which is then spread to other "
+"Disease: Fired at a foe, gives them a disease which is then spread to other "
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
 msgstr ""
@@ -2484,7 +2494,7 @@ msgstr "殺害数: このクリーチャーがこれまでに殺した敵の数�
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Strength: The amount of damage the creature inflicts upon it's enemies with "
+"Strength: The amount of damage the creature inflicts upon its enemies with "
 "each hit."
 msgstr "力: このクリーチャーが敵に負わせるダメージの量。 [23.12]"
 
@@ -2579,7 +2589,8 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Fight: Your creatures always attack and not avoid any combat. LMB select."
+"Fight: Your creatures always attack and will not avoid any combat. LMB "
+"select."
 msgstr "戦闘: 手下クリーチャーは攻撃を続ける。左クリックで選択。 [6.5.1]"
 
 #: guitext:306
@@ -2714,7 +2725,9 @@ msgctxt "Slab description"
 msgid ""
 "Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
 "to go round. It is visible even if far from your territory."
-msgstr "貫通不可能な岩: 手下インプはこれを掘り進むことができない。迂回が唯一の解決方法だ。遠くからでも見える。 [12.4]"
+msgstr ""
+"貫通不可能な岩: 手下インプはこれを掘り進むことができない。迂回が唯一の解決方"
+"法だ。遠くからでも見える。 [12.4]"
 
 #: guitext:325
 #, fuzzy
@@ -2731,15 +2744,18 @@ msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
 "your Treasure Room. You can also pick up the lumps of treasure left on the "
 "ground."
-msgstr "金鉱: 富の源だ。採掘すれば手下インプが宝物庫へと運ぶ。床に置いた財宝の塊を拾うこともできる。 [12.2]"
+msgstr ""
+"金鉱: 富の源だ。採掘すれば手下インプが宝物庫へと運ぶ。床に置いた財宝の塊を拾"
+"うこともできる。 [12.2]"
 
 #: guitext:327
 #, fuzzy
 msgctxt "Slab description"
 msgid ""
-"Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
-"or building a Bridge."
-msgstr "溶岩: ここを踏むとクリーチャーは焼けてしまう。渡るには、橋を架けなければならない。 [14.2]"
+"Lava: Burns any creature that step on it. Get over lava by building a Bridge."
+msgstr ""
+"溶岩: ここを踏むとクリーチャーは焼けてしまう。渡るには、橋を架けなければなら"
+"ない。 [14.2]"
 
 #: guitext:328
 #, fuzzy
@@ -2747,7 +2763,9 @@ msgctxt "Slab description"
 msgid ""
 "Water: Creatures move more slowly through water. Build the Bridge to make "
 "new land on the water."
-msgstr "水: 水の中ではクリーチャーの動きは遅くなる。水上に新しい陸地を作るために橋を建てる。 [14.1]"
+msgstr ""
+"水: 水の中ではクリーチャーの動きは遅くなる。水上に新しい陸地を作るために橋を"
+"建てる。 [14.1]"
 
 #: guitext:329
 #, fuzzy
@@ -2768,7 +2786,9 @@ msgctxt "Slab description"
 msgid ""
 "Path: Unclaimed earth floor. You can claim it if it is connected to already "
 "claimed territory."
-msgstr "通路: 誰の所有でもない土の地面。占有した領土に隣接している場合は、占有することができる。 [12.1]"
+msgstr ""
+"通路: 誰の所有でもない土の地面。占有した領土に隣接している場合は、占有するこ"
+"とができる。 [12.1]"
 
 #: guitext:332
 #, fuzzy
@@ -2776,7 +2796,9 @@ msgctxt "Slab description"
 msgid ""
 "Claimed area: Your dungeon territory. You can build rooms and drop your "
 "creatures on it."
-msgstr "占有地: ダンジョン領地。ここに部屋を建てたり、クリーチャーを落としたりできる。 [12.1]"
+msgstr ""
+"占有地: ダンジョン領地。ここに部屋を建てたり、クリーチャーを落としたりでき"
+"る。 [12.1]"
 
 #: guitext:333
 msgctxt "In-game interface item"
@@ -3210,48 +3232,48 @@ msgid "Ok"
 msgstr "ＯＫ"
 
 #: guitext:420
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "神々の邪眼: 地底王国全体が見える。"
 
 #: guitext:421
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr "復活: 死んだ手下のうち１人を生き返らせられる。"
 
 #: guitext:422
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
 "realm."
 msgstr "転送: 次の王国へ連れて行く手下のクリーチャーを１人選べる。"
 
 #: guitext:423
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "勇者獲得: 勇者を堕落させ悪の道へ引き入れる。"
 
 #: guitext:424
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr "増殖: 手下クリーチャーそれぞれの生き写しを作る。"
 
 #: guitext:425
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "レベルアップ: 手下の全クリーチャーの能力を高める。"
 
 #: guitext:426
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "安全化: ダンジョンの壁全体を強化する。"
 
 #: guitext:427
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
-"Locate Hidden World: You will be transported to a secret realm after you "
-"have conquered this one."
+"Locate Hidden World: You will get access to a secret realm after you have "
+"conquered this one."
 msgstr "隠された王国: この王国を征服後、秘密の王国への道が開かれるであろう。"
 
 #: guitext:428
@@ -3361,8 +3383,8 @@ msgstr "情報パネル: 多方面にわたる情報。 [5.0]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Room Panel: The rooms available for you to build. Here you can center map on "
-"rooms or build new ones."
+"Room Panel: The rooms available for you to build. Here you can centre the "
+"map on rooms or build new ones."
 msgstr "部屋パネル: 作成可能な部屋。 [6.0]"
 
 #: guitext:449
@@ -3377,8 +3399,8 @@ msgstr "研究パネル: 使用可能な魔法。 [7.0]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Workshop Panel: The traps and doors available to you. You can center the map "
-"on them, place new ones or sell existing."
+"Workshop Panel: The traps and doors available to you. You can centre the map "
+"on them, place new ones, or sell existing ones."
 msgstr "工房パネル: 使用可能な罠とドア。 [8.0]"
 
 #: guitext:451
@@ -3409,8 +3431,9 @@ msgstr "工房時間バー: 新しい罠ができるまでの時間。 [5.5]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Time: The time until the next Creature Payday. This bar increases over time "
-"and, when it reaches its peak, all of your creatures receive their wages."
+"Payday Time: The time until the next Creature Payday. This bar increases "
+"over time and, when it reaches its peak, all of your creatures will want "
+"their wages."
 msgstr "給料日バー: クリーチャーの次の給料日までの時間と支払額。 [5.3]"
 
 #: guitext:455
@@ -3507,222 +3530,222 @@ msgstr "キーをどれか押してください。"
 
 #: guitext:471
 msgctxt "Game controls"
-msgid "UP"
+msgid "Up"
 msgstr "上へ"
 
 #: guitext:472
 msgctxt "Game controls"
-msgid "DOWN"
+msgid "Down"
 msgstr "下へ"
 
 #: guitext:473
 msgctxt "Game controls"
-msgid "LEFT"
+msgid "Left"
 msgstr "左へ"
 
 #: guitext:474
 msgctxt "Game controls"
-msgid "RIGHT"
+msgid "Right"
 msgstr "右へ"
 
 #: guitext:475
 msgctxt "Game controls"
-msgid "ROTATE"
+msgid "Rotate"
 msgstr "回転"
 
 #: guitext:476
 msgctxt "Game controls"
-msgid "SPEED"
+msgid "Speed"
 msgstr "スピードスクロール"
 
 #: guitext:477
 msgctxt "Game controls"
-msgid "ROTATE LEFT"
+msgid "Rotate Left"
 msgstr "左へ回転"
 
 #: guitext:478
 msgctxt "Game controls"
-msgid "ROTATE RIGHT"
+msgid "Rotate Right"
 msgstr "右へ回転"
 
 #: guitext:479
 msgctxt "Game controls"
-msgid "ZOOM IN"
+msgid "Zoom In"
 msgstr "ズームイン"
 
 #: guitext:480
 msgctxt "Game controls"
-msgid "ZOOM OUT"
+msgid "Zoom Out"
 msgstr "ズームアウト"
 
 #: guitext:481
 msgctxt "Keyboard"
-msgid "LEFT CONTROL"
+msgid "Left Control"
 msgstr "左Ctrl"
 
 #: guitext:482
 msgctxt "Keyboard"
-msgid "RIGHT CONTROL"
+msgid "Right Control"
 msgstr "右Ctrl"
 
 #: guitext:483
 msgctxt "Keyboard"
-msgid "LEFT SHIFT"
+msgid "Left Shift"
 msgstr "左Shift"
 
 #: guitext:484
 msgctxt "Keyboard"
-msgid "RIGHT SHIFT"
+msgid "Right Shift"
 msgstr "右Shift"
 
 #: guitext:485
 msgctxt "Keyboard"
-msgid "LEFT ALT"
+msgid "Left Alt"
 msgstr "左Alt"
 
 #: guitext:486
 msgctxt "Keyboard"
-msgid "RIGHT ALT"
+msgid "Right Alt"
 msgstr "右Alt"
 
 #: guitext:487
 msgctxt "Keyboard"
-msgid "SPACE"
+msgid "Space"
 msgstr "Space"
 
 #: guitext:488
 msgctxt "Keyboard"
-msgid "RETURN"
+msgid "Return"
 msgstr "Return"
 
 #: guitext:489
 msgctxt "Keyboard"
-msgid "TAB"
+msgid "Tab"
 msgstr "Tab"
 
 #: guitext:490
 msgctxt "Keyboard"
-msgid "CAPS LOCK"
+msgid "Caps Lock"
 msgstr "Caps Lock"
 
 #: guitext:491
 msgctxt "Keyboard"
-msgid "BACKSPACE"
+msgid "Backspace"
 msgstr "Backspace"
 
 #: guitext:492
 msgctxt "Keyboard"
-msgid "INSERT"
+msgid "Insert"
 msgstr "Insert"
 
 #: guitext:493
 msgctxt "Keyboard"
-msgid "DELETE"
+msgid "Delete"
 msgstr "Delete"
 
 #: guitext:494
 msgctxt "Keyboard"
-msgid "HOME"
+msgid "Home"
 msgstr "Home"
 
 #: guitext:495
 msgctxt "Keyboard"
-msgid "END"
+msgid "End"
 msgstr "End"
 
 #: guitext:496
 msgctxt "Keyboard"
-msgid "PAGE UP"
+msgid "Page Up"
 msgstr "Page Up"
 
 #: guitext:497
 msgctxt "Keyboard"
-msgid "PAGE DOWN"
+msgid "Page Down"
 msgstr "Page Down"
 
 #: guitext:498
 msgctxt "Keyboard"
-msgid "NUM LOCK"
+msgid "Num Lock"
 msgstr "Num Lock"
 
 #: guitext:499
 msgctxt "Keyboard"
-msgid "NUM /"
+msgid "Num /"
 msgstr "テンキー /"
 
 #: guitext:500
 msgctxt "Keyboard"
-msgid "NUM *"
+msgid "Num *"
 msgstr "テンキー *"
 
 #: guitext:501
 msgctxt "Keyboard"
-msgid "NUM -"
+msgid "Num -"
 msgstr "テンキー -"
 
 #: guitext:502
 msgctxt "Keyboard"
-msgid "NUM +"
+msgid "Num +"
 msgstr "テンキー +"
 
 #: guitext:503
 msgctxt "Keyboard"
-msgid "NUM ENTER"
+msgid "Num Enter"
 msgstr "テンキー Enter"
 
 #: guitext:504
 msgctxt "Keyboard"
-msgid "NUM DELETE"
+msgid "Num Delete"
 msgstr "テンキー Delete"
 
 #: guitext:505
 msgctxt "Keyboard"
-msgid "NUM 1"
+msgid "Num 1"
 msgstr "テンキー 1"
 
 #: guitext:506
 msgctxt "Keyboard"
-msgid "NUM 2"
+msgid "Num 2"
 msgstr "テンキー 2"
 
 #: guitext:507
 msgctxt "Keyboard"
-msgid "NUM 3"
+msgid "Num 3"
 msgstr "テンキー 3"
 
 #: guitext:508
 msgctxt "Keyboard"
-msgid "NUM 4"
+msgid "Num 4"
 msgstr "テンキー 4"
 
 #: guitext:509
 msgctxt "Keyboard"
-msgid "NUM 5"
+msgid "Num 5"
 msgstr "テンキー 5"
 
 #: guitext:510
 msgctxt "Keyboard"
-msgid "NUM 6"
+msgid "Num 6"
 msgstr "テンキー 6"
 
 #: guitext:511
 msgctxt "Keyboard"
-msgid "NUM 7"
+msgid "Num 7"
 msgstr "テンキー 7"
 
 #: guitext:512
 msgctxt "Keyboard"
-msgid "NUM 8"
+msgid "Num 8"
 msgstr "テンキー 8"
 
 #: guitext:513
 msgctxt "Keyboard"
-msgid "NUM 9"
+msgid "Num 9"
 msgstr "テンキー 9"
 
 #: guitext:514
 msgctxt "Keyboard"
-msgid "NUM 0"
+msgid "Num 0"
 msgstr "テンキー 0"
 
 #: guitext:515
@@ -3787,22 +3810,22 @@ msgstr "F12"
 
 #: guitext:527
 msgctxt "Keyboard"
-msgid "UP"
+msgid "Up"
 msgstr "矢印キー上"
 
 #: guitext:528
 msgctxt "Keyboard"
-msgid "DOWN"
+msgid "Down"
 msgstr "矢印キー下"
 
 #: guitext:529
 msgctxt "Keyboard"
-msgid "LEFT"
+msgid "Left"
 msgstr "矢印キー右"
 
 #: guitext:530
 msgctxt "Keyboard"
-msgid "RIGHT"
+msgid "Right"
 msgstr "矢印キー左"
 
 #: guitext:531
@@ -3876,7 +3899,9 @@ msgctxt "Slab description"
 msgid ""
 "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
 "takes longer to mine than Gold."
-msgstr "宝石: 手下インプが採掘する無限な富。崩されることはないが、金鉱よりも掘り出すまでに長い時間がかかる。 [12.3]"
+msgstr ""
+"宝石: 手下インプが採掘する無限な富。崩されることはないが、金鉱よりも掘り出す"
+"までに長い時間がかかる。 [12.3]"
 
 #: guitext:545
 #, fuzzy
@@ -3884,7 +3909,9 @@ msgctxt "Object description"
 msgid ""
 "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be "
 "closed on your side."
-msgstr "勇者の門: 勇者はこの門を通ってお前のダンジョンに侵入する。閉められることがない。 [15.4]"
+msgstr ""
+"勇者の門: 勇者はこの門を通ってお前のダンジョンに侵入する。閉められることがな"
+"い。 [15.4]"
 
 #: guitext:546
 msgctxt "Creature name"
@@ -4375,9 +4402,14 @@ msgstr ""
 "で選択。右クリックで表示。 [17.3]"
 
 #: guitext:625
+#, fuzzy
+#| msgctxt "Room description"
+#| msgid ""
+#| "Lair: Where your creatures sleep and replenish their energy. LMB select. "
+#| "RMB zoom. [17.2]"
 msgctxt "Room description"
 msgid ""
-"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"Lair: Where your creatures sleep and replenish their health. LMB select. RMB "
 "zoom. [17.2]"
 msgstr ""
 "ねぐら: 手下クリーチャーが眠って体力回復をする場所。左クリックで選択。右ク"
@@ -4402,10 +4434,15 @@ msgstr ""
 "左クリックで選択。右クリックで表示。 [17.7]"
 
 #: guitext:628
+#, fuzzy
+#| msgctxt "Room description"
+#| msgid ""
+#| "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
+#| "creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+"creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
 msgstr ""
 "神殿: 暗黒の神々を拝むとクリーチャーは幸せになる。生け贄を捧げるには泉にク"
 "リーチャーを落とす。左クリックで選択。右クリックで表示。 [17.12]"
@@ -4511,10 +4548,8 @@ msgstr "支配: クリーチャーを直接操作できる。左クリックで�
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid ""
-"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
-msgstr ""
-"インプ製造: ダンジョン内に新しいインプを作り出す。左クリックで選択。"
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
+msgstr "インプ製造: ダンジョン内に新しいインプを作り出す。左クリックで選択。"
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -4526,10 +4561,17 @@ msgstr ""
 "クリックで表示。 [18.3]"
 
 #: guitext:650
+#, fuzzy
+#| msgctxt "Keeper spell description"
+#| msgid ""
+#| "Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
+#| "select, LMB again to reselect, LMB a third time to cancel. RMB zoom. "
+#| "[18.6]"
 msgctxt "Keeper spell description"
 msgid ""
-"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
-"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+"Call To Arms: Calls creatures in range to any destination. LMB Select. Cast "
+"in range of creatures to gather, cast again for destination.RMB zoom. LMB "
+"Cancel. [18.6]"
 msgstr ""
 "出陣: 手下の全クリーチャーをダンジョン内の魔法をかけた地点に招集させる。左ク"
 "リックで選択。もう一度左クリックすると再選択。魔法アイコンを左ダブルクリック"
@@ -4565,16 +4607,13 @@ msgstr "加速: 手下クリーチャーのスピードを速める。"
 
 #: guitext:655
 msgctxt "Keeper spell description"
-msgid ""
-"Protect Monster: Shields your creatures from attack."
-msgstr "防御: 手下クリーチャーを攻撃から守る。"
+msgid "Protect Monster: Shields your creatures from attack. LBM select."
+msgstr "防御: 手下クリーチャーを攻撃から守る。左クリックで選択。"
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy."
-msgstr ""
-"透明化: 手下クリーチャーを敵から見えなくする。"
+msgid "Conceal Monster: Makes your creatures invisible to the enemy."
+msgstr "透明化: 手下クリーチャーを敵から見えなくする。"
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -4599,15 +4638,17 @@ msgstr ""
 
 #: guitext:660
 msgctxt "Keeper spell description"
-msgid ""
-"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+msgid "Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
 msgstr "粉砕: 補強された敵の壁を破壊する。左クリックで選択。 [18.16]"
 
 #: guitext:661
+#, fuzzy
+#| msgctxt "Keeper spell description"
+#| msgid ""
+#| "Heal: Cast on an area of the dungeon to improve the health of your "
+#| "creatures. LMB select. [18.9]"
 msgctxt "Keeper spell description"
-msgid ""
-"Heal: Cast on an area of the dungeon to improve the health of your "
-"creatures. LMB select. [18.9]"
+msgid "Heal: Cast on a creature to improve its health. LMB select. [18.9]"
 msgstr ""
 "治癒: ダンジョン内の地面にかけると周囲にいる手下クリーチャーの体力が回復す"
 "る。左クリックで選択。 [18.9]"
@@ -4883,7 +4924,7 @@ msgstr "ドアが見つかった: 左クリックで切り替え。右クリッ�
 
 #: guitext:715
 msgctxt "Game event description"
-msgid "Dungeon special found: LMB toggle. RMB delete."
+msgid "Dungeon Special found: LMB toggle. RMB delete."
 msgstr ""
 "スペシャルアイテムが見つかった: 左クリックで切り替え。右クリックで削除。"
 
@@ -4955,7 +4996,7 @@ msgstr "コンピュータ補助メニュー: コンピュータ補助の設定�
 #: guitext:729
 msgctxt "In-game interface description"
 msgid ""
-"Aggressive Computer Assistant: Constructs your dungeon and always trys to "
+"Aggressive Computer Assistant: Constructs your dungeon and always tries to "
 "attack the enemy. LMB select. [3.2.4]"
 msgstr ""
 "攻撃的補助: ダンジョンを築き、常に敵を攻撃しようとする。左クリックで選択。 "
@@ -4990,7 +5031,8 @@ msgstr ""
 #: guitext:733
 msgctxt "In-game interface description"
 msgid ""
-"Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+"Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB "
+"Zoom. [22.2.1]"
 msgstr ""
 "最も経験レベルが高いクリーチャーを選択: 左クリックでクリーチャーをピックアッ"
 "プ。右クリックで表示。 [22.2.1]"
@@ -5360,7 +5402,8 @@ msgid ""
 "When night does not give way to day, And children are too scared to play, "
 "Abandon hope, embrace despair, You're destined for my Dragon's lair"
 msgstr ""
-"夜が昼に道を譲らぬ時、子どもらが怖くて遊べぬ時、希望を捨て絶望を胸に抱いた時、お前は我がドラゴンのねぐらへと向かう運命なのだ。"
+"夜が昼に道を譲らぬ時、子どもらが怖くて遊べぬ時、希望を捨て絶望を胸に抱いた"
+"時、お前は我がドラゴンのねぐらへと向かう運命なのだ。"
 
 #: guitext:804
 msgctxt "Easter egg"
@@ -5381,7 +5424,8 @@ msgstr "すべてを失くしたその時は、シンジケートウォーズで
 msgctxt "Easter egg"
 msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
 msgstr ""
-"鎧を着けたナイトには真の勇気が宿っている。つばを吐きかけいつも以上の早業で串刺しにしてあぶるがよい。"
+"鎧を着けたナイトには真の勇気が宿っている。つばを吐きかけいつも以上の早業で串"
+"刺しにしてあぶるがよい。"
 
 #: guitext:808
 msgctxt "Easter egg"
@@ -5434,7 +5478,8 @@ msgid ""
 "Your tunnels will be dark and cold, And no place for a Knight of old, Even "
 "if he claims he's bold."
 msgstr ""
-"お前のダンジョンは暗く冷たく、老ナイトのいるような場所ではない。いかに大胆不敵を自称していようとも。"
+"お前のダンジョンは暗く冷たく、老ナイトのいるような場所ではない。いかに大胆不"
+"敵を自称していようとも。"
 
 #: guitext:818
 msgctxt "Easter egg"
@@ -5458,7 +5503,8 @@ msgctxt "Easter egg"
 msgid ""
 "Protect your gold and Dungeon Heart, And slap your minions till they fart."
 msgstr ""
-"財宝とダンジョンハートを守り抜け。そして手下に活を入れよ、奴らが思わず屁をこくまで。"
+"財宝とダンジョンハートを守り抜け。そして手下に活を入れよ、奴らが思わず屁をこ"
+"くまで。"
 
 #: guitext:822
 msgctxt "Easter egg"
@@ -5501,7 +5547,8 @@ msgid ""
 "Imps are the lifeblood of your dungeon. Like blood, they must be allowed to "
 "circulate."
 msgstr ""
-"インプはお前のダンジョンの命の源なり。それは血のごとく、循環しているに違いない。"
+"インプはお前のダンジョンの命の源なり。それは血のごとく、循環しているに違いな"
+"い。"
 
 #: guitext:830
 msgctxt "In-game hint message"
@@ -5509,7 +5556,8 @@ msgid ""
 "Feeling mean? Set your minions to imprison and when your cells are full, "
 "spend some time torturing..."
 msgstr ""
-"気分が悪い？ 手下どもを投獄するがよい。牢が満員の時は、しばらく拷問して過ごせ。"
+"気分が悪い？ 手下どもを投獄するがよい。牢が満員の時は、しばらく拷問して過ご"
+"せ。"
 
 #: guitext:831
 msgctxt "In-game hint message"
@@ -5517,7 +5565,8 @@ msgid ""
 "If your creatures get unhappy, slap some sense into them. They'll soon "
 "realise how lucky they are."
 msgstr ""
-"手下クリーチャーが不幸を感じていたら、活を入れてやれ。じきに連中は自分たちの幸運に気づくであろう。"
+"手下クリーチャーが不幸を感じていたら、活を入れてやれ。じきに連中は自分たちの"
+"幸運に気づくであろう。"
 
 #: guitext:832
 msgctxt "In-game hint message"
@@ -5525,7 +5574,8 @@ msgid ""
 "The underworld is your domain and the adventurers come to steal it. Never "
 "show pity, even when the intruders are defenceless and pathetic."
 msgstr ""
-"お前の領地たる地底世界を、冒険者どもは奪いにやってくる。決して同情するな、たとえ侵入者どもが身を守る力もなく哀れを誘おうとも。"
+"お前の領地たる地底世界を、冒険者どもは奪いにやってくる。決して同情するな、た"
+"とえ侵入者どもが身を守る力もなく哀れを誘おうとも。"
 
 #: guitext:833
 msgctxt "In-game hint message"
@@ -5533,7 +5583,8 @@ msgid ""
 "Compassion is the hallmark of the good Keeper. But good Keepers never win. "
 "Only evil ones."
 msgstr ""
-"哀れみは良きキーパーの証明なり。しかし良きキーパーが勝利することはない。勝利するには邪悪であらねば。"
+"哀れみは良きキーパーの証明なり。しかし良きキーパーが勝利することはない。勝利"
+"するには邪悪であらねば。"
 
 #: guitext:834
 msgctxt "In-game hint message"
@@ -5541,7 +5592,8 @@ msgid ""
 "There's never a moment to waste. Already the bravest of the brave are "
 "queuing up to enter your dungeon. So stop reading this and get going."
 msgstr ""
-"一瞬たりとも無駄にはできぬ。すでに勇者の中の勇者がお前のダンジョンへ入ろうと列をなしている。こんなものを読んでいないで、早く行け。"
+"一瞬たりとも無駄にはできぬ。すでに勇者の中の勇者がお前のダンジョンへ入ろうと"
+"列をなしている。こんなものを読んでいないで、早く行け。"
 
 #: guitext:835
 msgctxt "In-game hint message"
@@ -5549,7 +5601,8 @@ msgid ""
 "Build fast. You'll want the biggest possible welcoming committee ready for "
 "the intruders."
 msgstr ""
-"建築を急げ。できるだけ大きな歓迎委員会を組織して、侵入者どもを迎えたいであろう？"
+"建築を急げ。できるだけ大きな歓迎委員会を組織して、侵入者どもを迎えたいであろ"
+"う？"
 
 #: guitext:836
 msgctxt "In-game hint message"
@@ -5742,17 +5795,17 @@ msgid "4 Players"
 msgstr "４人プレイ"
 
 #: guitext:874
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "Serial"
 msgstr "シリアル"
 
 #: guitext:875
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "Modem"
 msgstr "モデム"
 
 #: guitext:876
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "IPX"
 msgstr "ＩＰＸ"
 
@@ -5824,7 +5877,9 @@ msgstr "製造可能: クリーチャーがこのアイテムを工房で製造�
 #: guitext:890
 msgctxt "Menu interface message"
 msgid "Workshop too small: Expand the Workshop to manufacture this item."
-msgstr "工房の拡張が必要: このアイテムを製造するには、もっと広い工房を用意する必要がある。"
+msgstr ""
+"工房の拡張が必要: このアイテムを製造するには、もっと広い工房を用意する必要が"
+"ある。"
 
 #: guitext:891
 msgctxt "Menu interface message"
@@ -5967,7 +6022,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The once strong hero fortress of this realm has grown rotten and weak. Tear "
-"down it's walls and let your creatures feast on the heroes within."
+"down its walls and let your creatures feast on the heroes within."
 msgstr ""
 "この王国の勇者の要塞は、 かつて強大であった。 だが今は朽ち果て弱っている。 さ"
 "あ、このチャンスに壁を打ち砕き、 中の勇者どもにおまえのクリーチャーをくれてや"
@@ -6262,12 +6317,8 @@ msgstr ""
 #. DD Level Belial information after winning
 #: guitext:934
 msgctxt "In-game message"
-msgid ""
-"Your achievements are legendary Keeper. Tales of your evil and cunning will "
-"become the horror stories of generations."
-msgstr ""
-"おまえの業績は伝説的だ。 おまえの悪徳とずる賢さこそは、 世代を越えた恐怖の物"
-"語となるであろう。"
+msgid "Your achievements are legendary Keeper. Tales of your evil and cunning will become the horror stories of generations."
+msgstr "おまえの業績は伝説的だ。 おまえの悪徳とずる賢さこそは、 世代を越えた恐怖の物語となるであろう。"
 
 #: guitext:935
 msgctxt "Door name"
@@ -6276,12 +6327,8 @@ msgstr "秘密のドア"
 
 #: guitext:936
 msgctxt "Door description"
-msgid ""
-"Secret Door: This door remains hidden to enemies unless they observe it "
-"closely or see it opening. RMB zoom."
-msgstr ""
-"秘密のドア: このドアは、敵がよく観察するか、ドアが開くのを見ない限り、敵には"
-"見えない。 右クリックで表示する。"
+msgid "Secret Door: This door remains hidden to enemies unless they observe it closely or see it opening. RMB zoom."
+msgstr "秘密のドア: このドアは、敵がよく観察するか、ドアが開くのを見ない限り、敵には見えない。 右クリックで表示する。"
 
 #: guitext:937
 msgctxt "Game event description"
@@ -6348,12 +6395,8 @@ msgstr "貯蔵室に到達され不能: 左クリックで切り替え。右ク�
 
 #: guitext:949
 msgctxt "In-game interface description"
-msgid ""
-"Armour: Part of the damage which won't affect creature health. The higher "
-"the number, the larger part of damage is discarded."
-msgstr ""
-"鎧: クリーチャーの体力に障る無い損傷の一部。 数値が高い程、損傷のもっと部分を"
-"相殺されます。"
+msgid "Armour: Part of the damage which won't affect creature health. The higher the number, the larger part of damage is discarded."
+msgstr "鎧: クリーチャーの体力に障る無い損傷の一部。 数値が高い程、損傷のもっと部分を相殺されます。"
 
 #: guitext:950
 msgctxt "In-game interface description"
@@ -6367,33 +6410,25 @@ msgstr "忠誠: 敵に因る洗脳に対して抵抗。"
 
 #: guitext:952
 msgctxt "In-game interface description"
-msgid ""
-"Research Skill: How fast the creature works in Library. The higher the Skill "
-"level, the better the creature's performance."
+msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, the better the creature's performance."
 msgstr "研究技能: このクリーチャーが研究をこなす能力。"
 
 #: guitext:953
 #, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Manufacture Skill: How fast the creature works in Workshop. The higher the "
-"Skill level, the better the creature's performance."
+msgid "Manufacture Skill: How fast the creature works in Workshop. The higher the Skill level, the better the creature's performance."
 msgstr "製造技能: このクリーチャーが製造をこなす能力。 [23.14]"
 
 #: guitext:954
 #, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Training Skill: How fast the creature works on training. The higher the "
-"Skill level, the better the creature's performance."
+msgid "Training Skill: How fast the creature works on training. The higher the Skill level, the better the creature's performance."
 msgstr "訓練技能: このクリーチャーが訓練をこなす能力。 [23.14]"
 
 #: guitext:955
 #, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Scavenge Skill: How fast the creature works on scavenging. The higher the "
-"Skill level, the better the creature's performance."
+msgid "Scavenge Skill: How fast the creature works on scavenging. The higher the Skill level, the better the creature's performance."
 msgstr "洗脳技能: このクリーチャーが洗脳をこなす能力。 [23.14]"
 
 #: guitext:956
@@ -6408,48 +6443,39 @@ msgstr "洗脳費: 洗脳為に掛ける金。"
 
 #: guitext:958
 msgctxt "In-game interface description"
-msgid ""
-"Best Damage: How much harm can be made by the strongest attack the creature "
-"has."
+msgid "Best Damage: How much harm can be done by the strongest attack the creature has."
 msgstr "最高な損傷: このクリーチャーの最も強い攻撃が加える損傷の量。"
 
 #: guitext:959
 msgctxt "In-game interface description"
-msgid ""
-"Weight: Mass of the creature. Some people say overweight can lead to heart "
-"attack."
-msgstr ""
-"体量: クリーチャーの質量。 幾つかの人々は、太りすぎが心臓発作に繋がる可能性の"
-"有ると言います。"
+msgid "Weight: Mass of the creature. Some people say overweight can lead to heart attack."
+msgstr "体量: クリーチャーの質量。 幾つかの人々は、太りすぎが心臓発作に繋がる可能性の有ると言います。"
 
 #: guitext:960
+msgctxt "In-game interface description"
+msgid "Score: Estimate of an overall creature value. Added to player score when finishing the level."
+msgstr ""
+
+#: guitext:961
 msgctxt "Keeper spell name"
 msgid "Hand Of Evil"
 msgstr "悪魔の手"
 
-#: guitext:961
+#: guitext:962
 #, fuzzy
 msgctxt "Keeper spell name"
 msgid "Slap"
 msgstr "活を入れた回数"
 
-#: guitext:962
+#: guitext:963
 msgctxt "Keeper spell description"
-msgid ""
-"Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
-"Just don't hold them forever or they may get irritated."
-msgstr ""
-"悪魔の手: 貴方のクリーチャーを手持ち為れ能力。 余りにも長くそれ等を保持しない"
-"で。然うした場合、彼らは怒る可能性が有ります。"
+msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. Just don't hold them forever or they may get irritated."
+msgstr "悪魔の手: 貴方のクリーチャーを手持ち為れ能力。 余りにも長くそれ等を保持しないで。然うした場合、彼らは怒る可能性が有ります。"
 
 #: guitext:964
 msgctxt "Keeper spell description"
-msgid ""
-"Slap: Makes your creatures work harder, for some time. Your creatures take "
-"some damage from each slap they receive."
-msgstr ""
-"平手打ち: 貴方のクリーチャーをしばらくの間、もっと頑張らせます。 貴方のクリー"
-"チャーは、受け取った平手打ちから其々損傷を受けます。"
+msgid "Slap: Makes your creatures work harder, for some time. Your creatures take some damage from each slap they receive."
+msgstr "平手打ち: 貴方のクリーチャーをしばらくの間、もっと頑張らせます。 貴方のクリーチャーは、受け取った平手打ちから其々損傷を受けます。"
 
 #: guitext:965
 msgctxt "In-game interface description"
@@ -6632,7 +6658,7 @@ msgid "Snap Camera"
 msgstr "観点を90度間隔で又はに廻る"
 
 #: guitext:1005
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "不思議な箱: 此れの作用は不明だ。"
 
@@ -6644,11 +6670,8 @@ msgstr "参加しているプレイヤーのマップ版はホストの版とは
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid ""
-"Display Resolution: Switch to the next configured display resolution. LMB "
-"toggle. RMB display current resolution."
-msgstr ""
-"画面解像度: 次の設定された画面解像度に切り替わる。左クリックで切り替え。右ク"
-"リックで現行の設定を示す。"
+"Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
+msgstr "画面解像度: 次の設定された画面解像度に切り替わる。左クリックで切り替え。右クリックで現行の設定を示す。"
 
 #: guitext:1008
 msgctxt "In-game interface item"
@@ -6863,8 +6886,7 @@ msgstr "岩の形成。"
 #: guitext:1051
 msgctxt "Slab description"
 msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
-msgstr ""
-"基盤岩： 誰の所有でもない岩石の地面。それを占領できられない、それ上に建てられない。"
+msgstr "基盤岩： 誰の所有でもない岩石の地面。それを占領できられない、それ上に建てられない。"
 
 #: guitext:1052
 msgctxt "Slab description"

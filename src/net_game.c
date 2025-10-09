@@ -62,8 +62,6 @@ short setup_network_service(int srvidx)
     return 0;
   }
   net_service_index_selected = srvidx;
-  if ((game.flags_font & FFlg_NetworkTimeout) != 0)
-    LbNetwork_ChangeExchangeTimeout(10);
   frontend_set_state(FeSt_NET_SESSION);
   return 1;
 }

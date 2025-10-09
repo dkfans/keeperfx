@@ -132,12 +132,14 @@ struct LogThingDesyncInfo {
     ThingModel model;             // Model within the class
     PlayerNumber owner;           // Owner player of the thing
     TbBigChecksum random_seed;    // Thing's random seed
-    MapSubtlCoord pos_x;          // Position X coordinate
-    MapSubtlCoord pos_y;          // Position Y coordinate
-    MapSubtlCoord pos_z;          // Position Z coordinate
+    long pos_x;                   // Position X coordinate (full .val)
+    long pos_y;                   // Position Y coordinate (full .val)
+    long pos_z;                   // Position Z coordinate (full .val)
     GameTurn creation_turn;       // Turn when thing was created
     ThingIndex index;             // Thing's index
     HitPoints health;             // Thing's health
+    unsigned short max_frames;    // Maximum frames in animation
+    unsigned short current_frame; // Current animation frame
     TbBigChecksum checksum;       // Thing's computed checksum
 };
 
@@ -224,12 +226,12 @@ struct Game {
     short texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*TEXTURE_BLOCKS_ANIM_COUNT];
     unsigned char texture_id;
     unsigned short synced_free_things[SYNCED_THINGS_COUNT];
-    /** Index of the first used element in synced free things array. All elements BEYOND this index are free. If all synced things are free, it is set to 0. */
-    ThingIndex synced_free_things_start_index;
+    /** Number of available thing indices stored in synced_free_things array. When count is 0, no free things available. */
+    ThingIndex synced_free_things_count;
     /** Free list for unsynced things (EffectElems, AmbientSnds, etc.) */
     unsigned short unsynced_free_things[UNSYNCED_THINGS_COUNT];
-    /** Index of the first used element in unsynced free things array. All elements BEYOND this index are free. */
-    ThingIndex unsynced_free_things_start_index;
+    /** Number of available thing indices stored in unsynced_free_things array. When count is 0, no free things available. */
+    ThingIndex unsynced_free_things_count;
     GameTurn play_gameturn;
     GameTurn pckt_gameturn;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
