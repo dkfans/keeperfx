@@ -2254,10 +2254,15 @@ static void process_dungeon_devastation_effects(void)
     }
 }
 
-void count_players_creatures_being_paid(int *creatures_count)
+/**
+ * Increments paydays_owed for all players creatures
+ * returns amount of creatures needing payday for player
+ */
+int set_players_creatures_to_get_paid(PlayerNumber plyr_idx)
 {
     unsigned long k;
     long i;
+    int count = 0;
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_Creature);
     i = slist->index;
@@ -2273,7 +2278,7 @@ void count_players_creatures_being_paid(int *creatures_count)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if (!player_is_roaming(thing->owner) && (thing->owner != game.neutral_player_num))
+        if (thing->owner == plyr_idx)
         {
             struct CreatureModelConfig *crconf;
             crconf = creature_stats_get_from_thing(thing);
@@ -2287,7 +2292,7 @@ void count_players_creatures_being_paid(int *creatures_count)
                 } else
                 {
                     cctrl->paydays_owed++;
-                    creatures_count[thing->owner]++;
+                    count++;
                 }
             }
         }
@@ -2299,6 +2304,7 @@ void count_players_creatures_being_paid(int *creatures_count)
             break;
         }
     }
+    return count;
 }
 
 void process_payday(void)
@@ -2318,7 +2324,7 @@ void process_payday(void)
             compute_and_update_player_backpay_total(plyr_idx);
         }
     }
-    int player_paid_creatures_count[PLAYERS_COUNT];
+    int player_paid_creatures_count;
     for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if (game.conf.rules[plyr_idx].game.pay_day_gap <= game.pay_day_progress[plyr_idx])
@@ -2326,16 +2332,11 @@ void process_payday(void)
             if (is_my_player_number(plyr_idx))
                 output_message(SMsg_Payday, 0);
             game.pay_day_progress[plyr_idx] = 0;
-            // Prepare a list which counts how many creatures of each owner needs pay
-            player_paid_creatures_count[plyr_idx] = 0;
-            count_players_creatures_being_paid(player_paid_creatures_count);
-            // Players which have creatures being paid, should get payday notification
-            if (player_paid_creatures_count[plyr_idx] > 0)
+            player_paid_creatures_count = set_players_creatures_to_get_paid(plyr_idx);
+            if (player_paid_creatures_count > 0)
             {
-                struct Dungeon *dungeon;
-                dungeon = get_players_num_dungeon(plyr_idx);
-                event_create_event_or_update_nearby_existing_event(0, 0,
-                    EvKind_CreaturePayday, plyr_idx, dungeon->creatures_total_pay);
+                struct Dungeon *dungeon = get_players_num_dungeon(plyr_idx);
+                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreaturePayday, plyr_idx, dungeon->creatures_total_pay);
             }
         }
     }
