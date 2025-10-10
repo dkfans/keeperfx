@@ -2746,6 +2746,7 @@ void update(void)
         things_stats_debug_dump();
         creature_stats_debug_dump();
 #endif
+        game.play_gameturn++;
     }
 
     message_update();
