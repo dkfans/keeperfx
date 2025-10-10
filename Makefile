@@ -433,6 +433,11 @@ include version.mk
 
 VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(BUILD_NUMBER) $(PACKAGE_SUFFIX)
 
+# Enable parallel compilation by default. Users can still override with: make -j8, make -j1, etc.
+ifndef MAKEFLAGS
+  MAKEFLAGS = -j
+endif
+
 # load depenency packages
 include prebuilds.mk
 
