@@ -247,7 +247,7 @@ long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind)
         k++;
         if (k > ROOMS_COUNT)
         {
-            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            ERRORLOG("Infinite loop detected when sweeping %s rooms list.", player_code_name(plyr_idx));
             break;
         }
     }

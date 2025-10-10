@@ -327,17 +327,11 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
         }
         return false;
     }
-    //Otherwise the old room needs modification too.
-    SYNCDBG(7, "Room on (%d,%d) had %d slabs", (int)slb_x, (int)slb_y, (int)room->slabs_count);
-    decrease_room_area(room->owner, 1);
-    kill_room_slab_and_contents(room->owner, slb_x, slb_y);
-    remove_slab_from_room_tiles_list(room, slb_x, slb_y);
-    if (room->slabs_count <= 1)
+    else
     {
-        delete_room_flag(room);
-        // If we're looking to place a non-room slab, simply place it.
         if (rkind == 0)
         {
+            delete_room_slab(slb_x, slb_y, 0);
             if (slab_kind_is_animated(slabkind))
             {
                 place_animating_slab_type_on_map(slabkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
@@ -352,33 +346,6 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
             // Create a new one-slab room
             place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
         }
-        if (count_slabs_of_room_type(room->owner, room->kind) <= 1)
-        {
-            event_create_event_or_update_nearby_existing_event(slb_x, slb_y, EvKind_RoomLost, room->owner, room->kind);
-        }
-        //Clean up old room
-        kill_all_room_slabs_and_contents(room);
-        free_room_structure(room);
-        do_slab_efficiency_alteration(slb_x, slb_y);
-        return true;
-    }
-    else
-    {
-        // Remove the slab from room tiles list
-        remove_slab_from_room_tiles_list(room, slb_x, slb_y);
-        // check again if it's a room or other slab
-        if (rkind == 0)
-        {
-            place_slab_type_on_map(slabkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
-        }
-        else
-        {
-            place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
-        }
-        // Create a new room from slabs left in old one
-        recreate_rooms_from_room_slabs(room, 0);
-        reset_creatures_rooms(room);
-        free_room_structure(room);
     }
     return true;
 }
