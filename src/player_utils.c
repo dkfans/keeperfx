@@ -1317,7 +1317,7 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
                     break;
                 }
             }
-            // Refresh GUI panel button sprites for local player. Necessary for multiplayer.
+            // Refresh GUI panel button sprites for local player. Workaround for multiplayer.
             if (plyr_idx == my_player_number) {
                 for (int btn_idx = 0; btn_idx < ACTIVE_BUTTONS_COUNT; btn_idx++) {
                     struct GuiButton *gbtn = &active_buttons[btn_idx];
