@@ -52,6 +52,7 @@
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"
+#include "gui_frontbtns.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
 #include "post_inc.h"
@@ -146,10 +147,10 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         return;
     }
 
-    SYNCLOG("Player %d lost",(int)player->id_number);
+    SYNCLOG("%s lost",player_code_name(player->id_number));
     if (is_my_player(player))
     {
-      api_event("LOSE_GAME");
+        api_event("LOSE_GAME");
         frontstats_initialise();
     }
     player->victory_state = VicS_LostLevel;
@@ -1314,6 +1315,19 @@ void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
                 {
                     ERRORLOG("Infinite loop detected when sweeping things list");
                     break;
+                }
+            }
+            // Refresh GUI panel button sprites for local player. Workaround for multiplayer.
+            if (plyr_idx == my_player_number) {
+                for (int btn_idx = 0; btn_idx < ACTIVE_BUTTONS_COUNT; btn_idx++) {
+                    struct GuiButton *gbtn = &active_buttons[btn_idx];
+                    if ((gbtn->flags & LbBtnF_Active) == 0) {continue;}
+                    struct GuiMenu *gmnu = get_active_menu(gbtn->gmenu_idx);
+                    if (gmnu == NULL) {continue;}
+                    struct GuiButtonInit *gbinit = get_gui_button_init(gmnu, gbtn->id_num);
+                    if (gbinit != NULL && gbinit->sprite_idx != 0) {
+                        gbtn->sprite_idx = get_player_colored_icon_idx(gbinit->sprite_idx, my_player_number);
+                    }
                 }
             }
         }

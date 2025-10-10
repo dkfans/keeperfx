@@ -185,6 +185,7 @@ enum TbPacketAction {
         PckA_PlyrQueryCreature,
         PckA_CheatGiveDoorTrap,
         PckA_RoomspaceHighlightToggle,
+        PckA_SpriteZipCountSync,
 };
 
 /** Packet flags for non-action player operation. */
@@ -338,6 +339,8 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
 void set_tag_untag_mode(PlayerNumber plyr_idx);
 TbBool packets_process_cheats(PlayerNumber plyr_idx, MapCoord x, MapCoord y,
     struct Packet* pckt, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSlabCoord slb_x, MapSlabCoord slb_y);
+void send_sprite_zip_count_to_other_players(void);
+void process_sprite_zip_count_sync(long plyr_idx, long zip_count);
 /******************************************************************************/
 #ifdef __cplusplus
 }

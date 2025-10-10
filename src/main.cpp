@@ -1541,10 +1541,8 @@ short zoom_to_next_annoyed_creature(void)
 
 TbBool toggle_computer_player(PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *player;
-    player = get_player(plyr_idx);
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
+    struct PlayerInfo *player = get_player(plyr_idx);
+    struct Dungeon *dungeon = get_players_dungeon(player);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Player %d has no dungeon",(int)plyr_idx);
         return false;
@@ -1640,23 +1638,22 @@ void clear_things_and_persons_data(void)
         thing->owner = PLAYERS_COUNT;
         thing->mappos.x.val = subtile_coord_center(game.map_subtiles_x/2);
         thing->mappos.y.val = subtile_coord_center(game.map_subtiles_y/2);
+
+        // Create the list of free indices (skip index 0 since that's INVALID_THING
+        if (i > 0) {
+            if (i < SYNCED_THINGS_COUNT) {
+                game.synced_free_things[SYNCED_THINGS_COUNT-i] = i;
+            } else {
+                game.unsynced_free_things[THINGS_COUNT-i] = i;
+            }
+        }
     }
+    game.synced_free_things_count = SYNCED_THINGS_COUNT-1; // 1 to 8191. Note: COUNT macros aren't real representations of how many things there should be, all of them are off by 1.
+    game.unsynced_free_things_count = UNSYNCED_THINGS_COUNT-1; // 8192 to 12287
+
     for (i=0; i < CREATURES_COUNT; i++)
     {
       memset(&game.cctrl_data[i], 0, sizeof(struct CreatureControl));
-    }
-
-    // Initialize synced free things list
-    game.synced_free_things_start_index = 0;
-    for (i = 1; i <= SYNCED_THINGS_COUNT; i++)
-    {
-        game.synced_free_things[i-1] = i;
-    }
-    // Initialize unsynced free things list
-    game.unsynced_free_things_start_index = 0;
-    for (i = SYNCED_THINGS_COUNT + 1; i < SYNCED_THINGS_COUNT + UNSYNCED_THINGS_COUNT; i++)
-    {
-        game.unsynced_free_things[i - SYNCED_THINGS_COUNT - 1] = i;
     }
 }
 
@@ -1731,17 +1728,14 @@ void delete_all_thing_structures(void)
       if (thing_exists(thing)) {
           delete_thing_structure(thing, 1);
       }
+        if (i < SYNCED_THINGS_COUNT) {
+            game.synced_free_things[SYNCED_THINGS_COUNT-i] = i;
+        } else {
+            game.unsynced_free_things[THINGS_COUNT-i] = i;
+        }
     }
-    for (i=0; i < SYNCED_THINGS_COUNT; i++) {
-      game.synced_free_things[i] = i+1;
-    }
-    game.synced_free_things_start_index = 0;
-    // Reset unsynced free things list
-    for (i = SYNCED_THINGS_COUNT + 1; i < SYNCED_THINGS_COUNT + UNSYNCED_THINGS_COUNT; i++)
-    {
-        game.unsynced_free_things[i - SYNCED_THINGS_COUNT - 1] = i;
-    }
-    game.unsynced_free_things_start_index = 0;
+    game.synced_free_things_count = SYNCED_THINGS_COUNT-1;
+    game.unsynced_free_things_count = UNSYNCED_THINGS_COUNT-1;
 }
 
 void delete_all_structures(void)
@@ -2122,17 +2116,18 @@ void check_players_won(void)
 {
   SYNCDBG(8,"Starting");
 
-    if (!(game.system_flags & GSF_NetworkActive))
+    if (!flag_is_set(game.system_flags,GSF_NetworkActive))
         return;
 
     struct PlayerInfo* curPlayer;
     for (PlayerNumber playerIdx = 0; playerIdx < PLAYERS_COUNT; ++playerIdx)
     {
         curPlayer = get_player(playerIdx);
-        if (!player_exists(curPlayer) || curPlayer->is_active != 1 || curPlayer->victory_state != VicS_Undecided)
+        if (!player_exists(curPlayer) || (curPlayer->is_active != 1) || (curPlayer->victory_state != VicS_Undecided))
             continue;
 
         // check if any other player is still alive
+        TbBool LivingOpponent = false;
         for (PlayerNumber secondPlayerIdx = 0; secondPlayerIdx < PLAYERS_COUNT; ++secondPlayerIdx)
         {
             if (secondPlayerIdx == playerIdx)
@@ -2143,14 +2138,18 @@ void check_players_won(void)
             {
                 struct Thing* heartng = get_player_soul_container(secondPlayerIdx);
                 if (heartng->active_state != ObSt_BeingDestroyed)
-                    goto continueouterloop;
+                {
+                    LivingOpponent = true;
+                    break;
+                }
             }
         }
-        break;
-    continueouterloop:
-        ;
-    }
-    set_player_as_won_level(curPlayer);
+        if (LivingOpponent == false)
+        {
+            set_player_as_won_level(curPlayer);
+            return;
+        }
+    }  
 }
 
 void check_players_lost(void)
@@ -2747,6 +2746,7 @@ void update(void)
         things_stats_debug_dump();
         creature_stats_debug_dump();
 #endif
+        game.play_gameturn++;
     }
 
     message_update();
@@ -2759,6 +2759,7 @@ void update(void)
 void first_gameturn_actions() {
     if (game.play_gameturn == 1) {
         apply_default_flee_and_imprison_setting();
+        send_sprite_zip_count_to_other_players();
     }
 }
 
@@ -3395,11 +3396,6 @@ void gameplay_loop_logic()
     if (frametime_enabled())
         framerate_measurement_capture(Framerate_Logic);
 
-    if ((game.flags_font & FFlg_NetworkTimeout) != 0)
-    {
-        if (game.play_gameturn == 4)
-            LbNetwork_ChangeExchangeTimeout(0);
-    }
 #ifdef FUNCTESTING
     if(flag_is_set(start_params.functest_flags, FTF_Enabled))
     {

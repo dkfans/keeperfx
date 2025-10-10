@@ -222,6 +222,21 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "moveto_pos") == 0)
         {
             luaL_checkCoord3d(L, 3, &cctrl->moveto_pos);
+        } else if (strcmp(key, "patrol_pos") == 0)
+        {
+            luaL_checkCoord3d(L, 3, &cctrl->patrol.pos);
+        } else if (strcmp(key, "patrol_countdown") == 0)
+        {
+            cctrl->patrol.countdown = luaL_checkinteger(L, 3);
+        } else if (strcmp(key, "party_objective") == 0)
+        {
+            cctrl->party.objective = luaL_checkNamedCommand(L, 3, hero_objective_desc);
+        } else if (strcmp(key, "party_original_objective") == 0)
+        {
+            cctrl->party.original_objective = luaL_checkNamedCommand(L, 3, hero_objective_desc);
+        } else if (strcmp(key, "party_target_player") == 0)
+        {
+            cctrl->party.target_plyr_idx = luaL_checkPlayerSingle(L, 3);
         } else if (strcmp(key, "state") == 0)
         {
             internal_set_thing_state(thing, luaL_checkNamedCommand(L, 3, creatrstate_desc));
@@ -234,23 +249,19 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "hunger_level") == 0)
         {
             cctrl->hunger_level = luaL_checkinteger(L, 3);
-        }
-        else if (strcmp(key, "creature_kills") == 0)
+        } else if (strcmp(key, "creature_kills") == 0)
         {
             cctrl->kills_num = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "creature_kills_allies") == 0)
         {
             cctrl->kills_num_allied = luaL_checkinteger(L, 3);
-        }
-        else if (strcmp(key, "creature_kills_enemies") == 0)
+        } else if (strcmp(key, "creature_kills_enemies") == 0)
         {
             cctrl->kills_num_enemy = luaL_checkinteger(L, 3);
-        }
-        else if (strcmp(key, "hunger_loss") == 0)
+        } else if (strcmp(key, "hunger_loss") == 0)
         {
             cctrl->hunger_loss = luaL_checkinteger(L, 3);
-        }
-        else if (strcmp(key, "hand_blocked_turns") == 0)
+        } else if (strcmp(key, "hand_blocked_turns") == 0)
         {
             cctrl->hand_blocked_turns = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "force_health_flower_displayed") == 0)
@@ -298,7 +309,7 @@ static int thing_get_field(lua_State *L) {
         return 1;
     }
     struct Thing* thing = luaL_checkThing(L, 1);
-
+    struct CreatureControl* cctrl;
     // Built-in fields shared by all thing classes
     if (strcmp(key, "ThingIndex") == 0) {
         lua_pushinteger(L, thing->index);
@@ -323,14 +334,39 @@ static int thing_get_field(lua_State *L) {
     } else if (strcmp(key, "continue_state") == 0) {
         lua_pushstring(L, get_conf_parameter_text(creatrstate_desc,thing->continue_state));
     } else if (strcmp(key, "workroom") == 0) {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
             return luaL_error(L, "Attempt to access 'workroom' of non-creature thing");
         lua_pushRoom(L, room_get(cctrl->work_room_id));
     } else if (strcmp(key, "moveto_pos") == 0) {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
-        lua_pushPos(L, &cctrl->moveto_pos);
+            lua_pushPos(L, &cctrl->moveto_pos);
+    } else if (strcmp(key, "patrol_pos") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access patrol pos of non-creature thing");
+        lua_pushPos(L, &cctrl->patrol.pos);
+    } else if (strcmp(key, "patrol_countdown") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access patrol countdown of non-creature thing");
+        lua_pushinteger(L, cctrl->patrol.countdown);
+    } else if (strcmp(key, "party_objective") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access party objective of non-creature thing");
+        lua_pushstring(L, get_conf_parameter_text(hero_objective_desc, cctrl->party.objective));
+    } else if (strcmp(key, "party_original_objective") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access original party objective of non-creature thing");
+        lua_pushstring(L, get_conf_parameter_text(hero_objective_desc, cctrl->party.original_objective));
+    } else if (strcmp(key, "party_target_player") == 0) {
+        cctrl = creature_control_get_from_thing(thing);
+        if (creature_control_invalid(cctrl))
+            return luaL_error(L, "Attempt to access party target player of non-creature thing");
+        lua_pushPlayer(L, cctrl->party.target_plyr_idx);
     } else if (try_get_from_methods(L, 1, key)) {
         return 1;
     }
@@ -338,7 +374,7 @@ static int thing_get_field(lua_State *L) {
     //build in fields specific to one thing class
     else if (thing_is_creature(thing))
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
             return luaL_error(L, "Invalid creature control block");
 
