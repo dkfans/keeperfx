@@ -589,7 +589,7 @@ void clear_mapmap(void)
  * @param slb_y Slab Y coord.
  * @param plyr_idx Player index whose dig tag shall be cleared.
  */
-void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
+void clear_slab_dig(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
 {
     const struct SlabMap *slb = get_slabmap_block(slb_x,slb_y);
     if ( get_slab_stats(slb)->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable) )

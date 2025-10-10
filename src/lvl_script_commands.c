@@ -4851,7 +4851,6 @@ static void set_game_rule_check(const struct ScriptLine* scline)
             if (!parameter_is_number(scline->tp[2]))
             {
                 SCRPTERRLOG("Invalid player: %s", scline->tp[1]);
-                DEALLOCATE_SCRIPT_VALUE
                 free(rulevalue_str);
                 return;
             }
