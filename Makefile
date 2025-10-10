@@ -435,7 +435,7 @@ VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(BUILD_NUMBER) $(PACKAGE_
 
 # Enable parallel compilation by default. Users can still override with: make -j8, make -j1, etc.
 ifndef MAKEFLAGS
-  MAKEFLAGS = -j
+  MAKEFLAGS = -j$(shell nproc)
 endif
 
 # load depenency packages
