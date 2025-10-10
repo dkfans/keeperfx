@@ -203,7 +203,7 @@ void message_update(void)
     while (i >= 0)
     {
         struct GuiMessage* gmsg = &game.messages[i];
-        if (gmsg->expiration_turn <= game.play_gameturn)
+        if (game.play_gameturn > gmsg->expiration_turn)
         {
             game.active_messages_count--;
             game.messages[game.active_messages_count].text[0] = 0;
