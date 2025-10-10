@@ -297,7 +297,6 @@ void update_player_sounds(void)
         {
             update_3d_sound_receiver(player);
         }
-        game.play_gameturn++;
     }
     find_nearest_rooms_for_ambient_sound();
     process_3d_sounds();

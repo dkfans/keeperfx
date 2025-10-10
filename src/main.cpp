@@ -2744,6 +2744,7 @@ void update(void)
         things_stats_debug_dump();
         creature_stats_debug_dump();
 #endif
+        game.play_gameturn++;
     }
 
     message_update();
@@ -3393,11 +3394,6 @@ void gameplay_loop_logic()
     if (frametime_enabled())
         framerate_measurement_capture(Framerate_Logic);
 
-    if ((game.flags_font & FFlg_NetworkTimeout) != 0)
-    {
-        if (game.play_gameturn == 4)
-            LbNetwork_ChangeExchangeTimeout(0);
-    }
 #ifdef FUNCTESTING
     if(flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
