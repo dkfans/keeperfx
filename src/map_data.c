@@ -606,7 +606,7 @@ void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
     }
     else if ( !subtile_revealed(slab_subtile(slb_x, 0) , slab_subtile(slb_y, 0), plyr_idx) )          //    if (map_block_revealed(mapblk, plyr_idx))
     {
-        if (game.conf.rules.game.allies_share_vision)
+        if (game.conf.rules[plyr_idx].game.allies_share_vision)
         {
             for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
             {
