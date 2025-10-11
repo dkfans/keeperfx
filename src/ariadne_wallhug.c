@@ -2000,17 +2000,17 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
 
 TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 {
-    const struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ( ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
+    const struct SlabConfigStats* slabst = get_slab_stats(slb);
+    if ( ((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
         return true;
     return false;
 }
 
-static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned short digflags)
+TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned short digflags)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    const struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ((slbattr->is_diggable) && !slab_kind_is_indestructible(slb->kind))
+    const struct SlabConfigStats* slabst = get_slab_stats(slb);
+    if ((slabst->is_diggable) && !slab_kind_is_indestructible(slb->kind))
     {
         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
         if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == plyr_idx)) {
@@ -2029,7 +2029,7 @@ static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pla
     return true;
 }
 
-SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, SmallAroundIndex direction_around, TbBool revside)
+SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, SmallAroundIndex direction_around, TbBool revside, unsigned short digflags)
 {
     SubtlCodedCoords stl_num;
     long round_change;
