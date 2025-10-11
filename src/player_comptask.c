@@ -2279,7 +2279,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
             }
         }
     }
-    ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_BasicOnly);
+    ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_AllowLiquidWBridge);
     switch(dig_result)
     {
         case TDR_ReachedDestination:

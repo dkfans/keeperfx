@@ -2000,7 +2000,6 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
 
 SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, SmallAroundIndex direction_around, TbBool revside, unsigned short digflags)
 {
-    SubtlCodedCoords stl_num;
     long round_change;
     SYNCDBG(14,"Starting for subtile (%d,%d)",(int)basestl_x,(int)basestl_y);
     if (revside) {
@@ -2015,8 +2014,8 @@ SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x,
         MapSubtlCoord stl_y = basestl_y + STL_PER_SLB * (int)small_around[round_idx].delta_y;
         if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx, digflags))
         {
-            stl_num = get_subtile_number(stl_x, stl_y);
             SYNCDBG(7,"Subtile (%d,%d) accepted",(int)stl_x,(int)stl_y);
+            SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
             return stl_num;
         }
         round_idx = (round_idx + round_change) % SMALL_AROUND_LENGTH;
