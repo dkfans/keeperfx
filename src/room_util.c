@@ -374,18 +374,12 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
                 struct Thing* doortng = get_door_for_position(stl_x, stl_y);
                 if (!thing_is_invalid(doortng))
                 {
-                    if (!is_neutral_thing(doortng))
-                    {
-                        game.dungeon[doortng->owner].total_doors--;
-                    }
+                    game.dungeon[doortng->owner].total_doors--;
                     remove_key_on_door(doortng);
                     set_slab_owner(slb_x, slb_y, plyr_idx);
                     place_animating_slab_type_on_map(slbkind, doortng->door.closing_counter / 256, stl_x, stl_y, plyr_idx);
                     doortng->owner = plyr_idx;
-                    if (!is_neutral_thing(doortng))
-                    {
-                        game.dungeon[doortng->owner].total_doors++;
-                    }
+                    game.dungeon[doortng->owner].total_doors++;
                     if (doortng->door.is_locked)
                     {
                         add_key_on_door(doortng);
