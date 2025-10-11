@@ -107,7 +107,7 @@ long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
     return 1;
 }
 
-struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long area, long a6)
+struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long max_distance, long perfect)
 {
     long i = comp->task_idx;
     unsigned long k = 0;
@@ -126,7 +126,7 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
             unsigned short max_radius = ctask->create_room.width / 2;
             if (max_radius <= ctask->create_room.height / 2)
               max_radius = ctask->create_room.height / 2;
-            struct ComputerTask* roomtask = able_to_build_room(comp, &ctask->new_room_pos, rkind, width_slabs, height_slabs, area + max_radius + 1, a6);
+            struct ComputerTask* roomtask = able_to_build_room(comp, &ctask->new_room_pos, rkind, width_slabs, height_slabs, max_distance + max_radius + 1, perfect);
             if (!computer_task_invalid(roomtask)) {
                 return roomtask;
             }
@@ -153,7 +153,7 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
  * @param a6
  * @return
  */
-struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long area, long require_perfect)
+struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long max_slabs_dist, long perfect)
 {
     struct Dungeon* dungeon = comp->dungeon;
     long i = dungeon->room_list_start[look_kind];
@@ -172,7 +172,7 @@ struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomK
         pos.x.val = subtile_coord_center(room->central_stl_x);
         pos.y.val = subtile_coord_center(room->central_stl_y);
         pos.z.val = subtile_coord(1,0);
-        struct ComputerTask* roomtask = able_to_build_room(comp, &pos, rkind, width_slabs, height_slabs, area, require_perfect);
+        struct ComputerTask* roomtask = able_to_build_room(comp, &pos, rkind, width_slabs, height_slabs, max_slabs_dist, perfect);
         if (!computer_task_invalid(roomtask)) {
             return roomtask;
         }
@@ -209,12 +209,12 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
     long max_slabs = height_slabs;
     if (max_slabs < width_slabs)
         max_slabs = width_slabs;
-    long area_min = (max_slabs + 1) / 2 + 1;
-    long area_max = area_min / 3 + 2 * area_min;
+    long dist_min = (max_slabs + 1) / 2 + 1;
+    long dist_max = dist_min / 3 + 2 * dist_min;
     const long arr_length = sizeof(look_through_rooms)/sizeof(look_through_rooms[0]);
-    for (long area = area_min; area < area_max; area++)
+    for (long distance_in_slabs = dist_min; distance_in_slabs < dist_max; distance_in_slabs++)
     {
-        for (long aparam = 1; aparam >= 0; aparam--)
+        for (long perfect = 1; perfect >= 0; perfect--)
         {
             unsigned int look_kind = look_randstart;
             if (look_randstart < 0)
@@ -226,10 +226,10 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
                 struct ComputerTask *roomtask;
                 if (look_kind == RoK_TYPES_COUNT)
                 {
-                    roomtask = able_to_build_room_at_task(comp, rkind, width_slabs, height_slabs, area, aparam);
+                    roomtask = able_to_build_room_at_task(comp, rkind, width_slabs, height_slabs, distance_in_slabs, perfect);
                 } else
                 {
-                    roomtask = able_to_build_room_from_room(comp, rkind, look_kind, width_slabs, height_slabs, area, aparam);
+                    roomtask = able_to_build_room_from_room(comp, rkind, look_kind, width_slabs, height_slabs, distance_in_slabs, perfect);
                 }
                 if (!computer_task_invalid(roomtask)) {
                     return roomtask;

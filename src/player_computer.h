@@ -491,9 +491,8 @@ struct ComputerProcess *get_computer_process(struct Computer2 *comp, int cproc_i
 /******************************************************************************/
 TbBool computer_player_in_emergency_state(const struct Computer2 *comp);
 TbBool is_there_an_attack_task(const struct Computer2 *comp);
-struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long a5);
-struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind,
-    long width_slabs, long height_slabs, long a6, long a7);
+struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long look_randstart);
+struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind, long width_slabs, long height_slabs, long max_slabs_dist, long perfect);
 long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref);
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos);
 long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount);
