@@ -119,7 +119,7 @@ msgstr ""
 #: guitext:12
 msgctxt "In-game message"
 msgid ""
-"You have not yet built a Treasure Room. Until you build this room, you will be unable to pay any creatures. Only Imps give their loyalty free of charge. No other "
+"You have not yet built a Treasure Room. Until you build this room, you will be unable to pay any creatures. Only Imps give their loyalty freely. No other "
 "creatures will serve you unpaid."
 msgstr ""
 
