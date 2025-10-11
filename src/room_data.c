@@ -3862,17 +3862,6 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
     // Mark that player 'knows' about such room
     research_found_room(newowner, room->kind);
 
-    if (oldowner == game.neutral_player_num)
-    {
-        room->owner = newowner;
-        room->health = compute_room_max_health(room->slabs_count, room->efficiency);
-        add_room_to_players_list(room, newowner);
-        change_room_map_element_ownership(room, newowner);
-        redraw_room_map_elements(room);
-        do_room_unprettying(room, newowner);
-        do_room_integration(room);
-        return 1;
-    } else
     if (oldowner != newowner)
     {
         reset_state_of_creatures_working_in_room(room);
