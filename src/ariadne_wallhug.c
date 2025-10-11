@@ -1998,37 +1998,6 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
     return 1;
 }
 
-TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
-{
-    const struct SlabConfigStats* slabst = get_slab_stats(slb);
-    if ( ((slabst->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
-        return true;
-    return false;
-}
-
-TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned short digflags)
-{
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    const struct SlabConfigStats* slabst = get_slab_stats(slb);
-    if ((slabst->is_diggable) && !slab_kind_is_indestructible(slb->kind))
-    {
-        struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-        if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == plyr_idx)) {
-            SYNCDBG(17,"Subtile (%d,%d) rejected based on attrs",(int)stl_x,(int)stl_y);
-            return false;
-        }
-    }
-    if ((digflags & ToolDig_AllowLiquidWBridge) && slab_kind_is_liquid(slb->kind))
-    {
-        return false;
-    }
-    if (!slab_good_for_computer_dig_path(slb)) {
-        SYNCDBG(17,"Subtile (%d,%d) rejected as not good for dig",(int)stl_x,(int)stl_y);
-        return false;
-    }
-    return true;
-}
-
 SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, SmallAroundIndex direction_around, TbBool revside, unsigned short digflags)
 {
     SubtlCodedCoords stl_num;
