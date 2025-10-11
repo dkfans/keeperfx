@@ -3410,7 +3410,7 @@ static void change_slab_owner_check(const struct ScriptLine *scline)
         SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
     }
 
-    command_add_value(Cmd_CHANGE_SLAB_OWNER, scline->np[2], scline->np[0], scline->np[1], get_id(fill_desc, scline->tp[3]));
+    command_add_value(Cmd_CHANGE_SLAB_OWNER, scline->np[2], scline->np[0], scline->np[1], filltype);
 }
 
 static void change_slab_owner_process(struct ScriptContext *context)
