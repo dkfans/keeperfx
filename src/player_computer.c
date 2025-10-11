@@ -211,7 +211,7 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
         max_slabs = width_slabs;
     long dist_min = (max_slabs + 1) / 2 + 1;
     long dist_max = dist_min / 3 + 2 * dist_min;
-    const long arr_length = sizeof(look_through_rooms)/sizeof(look_through_rooms[0]);
+    const long arr_length = game.conf.slab_conf.room_types_count;
     for (long distance_in_slabs = dist_min; distance_in_slabs < dist_max; distance_in_slabs++)
     {
         for (long perfect = 1; perfect >= 0; perfect--)
