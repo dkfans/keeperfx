@@ -353,10 +353,15 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
 void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
 {
     struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    if (slabmap_owner(slb) == plyr_idx)
+        return;
     if (slb->room_index)
     {
         struct Room* room = room_get(slb->room_index);
-        take_over_room(room, plyr_idx);
+        if (room_exists(room))
+        {
+            take_over_room(room, plyr_idx);
+        }
     } else
     {
         SlabKind slbkind = (slb->kind == SlbT_PATH) ? SlbT_CLAIMED : slb->kind;
