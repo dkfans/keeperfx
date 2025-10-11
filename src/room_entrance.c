@@ -341,7 +341,6 @@ TbBool generate_creature_at_random_entrance(struct Dungeon * dungeon, ThingModel
 void generate_creature_for_dungeon(struct Dungeon * dungeon)
 {
     SYNCDBG(9,"Starting");
-
     ThingModel crmodel = calculate_creature_to_generate_for_dungeon(dungeon);
 
     if (crmodel > 0)
@@ -354,34 +353,38 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
             if (is_my_player_number(dungeon->owner)) {
                 output_message(SMsg_GoldLow, MESSAGE_DURATION_TREASURY);
             }
-        } else
-        if (lair_space > 0)
+        }
+        else if (lair_space >= 0)
         {
-            SYNCDBG(8,"The %s will come to player %d",creature_code_name(crmodel),(int)dungeon->owner);
-            generate_creature_at_random_entrance(dungeon, crmodel);
-        } else
-        if (lair_space == 0)
-        {
-            SYNCDBG(8,"The %s will come to player %d even though lair is full",creature_code_name(crmodel),(int)dungeon->owner);
-            generate_creature_at_random_entrance(dungeon, crmodel);
-            RoomKind rkind = find_first_available_roomkind_with_role(dungeon->owner,RoRoF_LairStorage);
-            if (rkind == RoK_NONE)
-            {
-                rkind = find_first_roomkind_with_role(RoRoF_LairStorage);
+            // Creatures can only enter the dungeon if your Lair has space for them. But one homeless creature is also allowed.
+            if (lair_space > 0) {
+                SYNCDBG(8,"The %s will come to player %d",creature_code_name(crmodel),(int)dungeon->owner);
+            } else {
+                SYNCDBG(8,"The %s will come to player %d even though lair is full",creature_code_name(crmodel),(int)dungeon->owner);
             }
-            if (dungeon_has_room_of_role(dungeon, RoRoF_LairStorage))
-            {
-                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NoMoreLivingSet, dungeon->owner, 0);
-                output_room_message(dungeon->owner, rkind, OMsg_RoomTooSmall);
-            } else
-            {
-                output_room_message(dungeon->owner, rkind, OMsg_RoomNeeded);
-            }
-        } else
+            generate_creature_at_random_entrance(dungeon, crmodel);
+        }
+        else
         {
+            // Lair is over capacity
             SYNCDBG(8,"The %s will not come as player %d has lair capacity exceeded",creature_code_name(crmodel),(int)dungeon->owner);
         }
-    } else
+        // Notify player they're out of lair space and play important EvKind_NoMoreLivingSet event for Computer Player.
+        if (lair_space <= 0)
+        {
+            RoomKind rkind = find_first_available_roomkind_with_role(dungeon->owner, RoRoF_LairStorage);
+            if (rkind == RoK_NONE) {
+                rkind = find_first_roomkind_with_role(RoRoF_LairStorage);
+            }
+            if (dungeon_has_room_of_role(dungeon, RoRoF_LairStorage)) {
+                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NoMoreLivingSet, dungeon->owner, 0);
+                output_room_message(dungeon->owner, rkind, OMsg_RoomTooSmall);
+            } else {
+                output_room_message(dungeon->owner, rkind, OMsg_RoomNeeded);
+            }
+        }
+    }
+    else
     {
         SYNCDBG(9,"There is no creature for player %d",(int)dungeon->owner);
     }

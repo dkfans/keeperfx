@@ -33,39 +33,39 @@ extern "C" {
 
 enum EventKinds {
     EvKind_Nothing = 0,
-    EvKind_HeartAttacked,
-    EvKind_EnemyFight,
+    EvKind_HeartAttacked,                  // ComputerKeeper: AttkHrt1 [event4] --> sends 99% of creatures to defend heart
+    EvKind_EnemyFight,                     // ComputerKeeper: Fight1/Fight2 [event7/8] --> engages in battle
     EvKind_Objective,
-    EvKind_Breach,
-    EvKind_NewRoomResrch, //5
+    EvKind_Breach,                         // ComputerKeeper: DnBreach [event1] --> sends 75% of creatures to defend against breach
+    EvKind_NewRoomResrch,
     EvKind_NewCreature,
     EvKind_NewSpellResrch,
     EvKind_NewTrap,
     EvKind_NewDoor,
-    EvKind_CreatrScavenged, //10
-    EvKind_TreasureRoomFull,
-    EvKind_CreaturePayday,
+    EvKind_CreatrScavenged,
+    EvKind_TreasureRoomFull,               // ComputerKeeper: RomFTrsr [event5] --> builds treasury room
+    EvKind_CreaturePayday,                 // ComputerKeeper: PayDay1 [event14] --> prepares gold for payday
     EvKind_AreaDiscovered,
     EvKind_SpellPickedUp,
-    EvKind_RoomTakenOver, //15
+    EvKind_RoomTakenOver,
     EvKind_CreatrIsAnnoyed,
-    EvKind_NoMoreLivingSet,
+    EvKind_NoMoreLivingSet,                // ComputerKeeper: RomFLair [event6] --> builds lair room
     EvKind_AlarmTriggered,
-    EvKind_RoomUnderAttack,
-    EvKind_NeedTreasureRoom,//20
+    EvKind_RoomUnderAttack,                // ComputerKeeper: AttkRom1/2 [event2/3] --> sends 75% of creatures to defend room
+    EvKind_NeedTreasureRoom,
     EvKind_Information,
-    EvKind_RoomLost,
+    EvKind_RoomLost,                       // ComputerKeeper: RoomLost [event15] --> rebuilds lost room
     EvKind_CreatrHungry,
     EvKind_TrapCrateFound,
-    EvKind_DoorCrateFound, //25
+    EvKind_DoorCrateFound,
     EvKind_DnSpecialFound,
     EvKind_QuickInformation,
     EvKind_FriendlyFight,
     EvKind_WorkRoomUnreachable,
-    EvKind_StorageRoomUnreachable, //30
-    EvKind_PrisonerStarving,
-    EvKind_TorturedHurt,
-    EvKind_EnemyDoor,
+    EvKind_StorageRoomUnreachable,
+    EvKind_PrisonerStarving,               // ComputerKeeper: MoanPris1/2/3 [event16/17/18] --> heals/tortures prisoners
+    EvKind_TorturedHurt,                   // ComputerKeeper: SaveTort1 [event19] --> saves low-health tortured creatures
+    EvKind_EnemyDoor,                      // ComputerKeeper: DoorAtck1 [event20] --> attacks enemy doors
     EvKind_SecretDoorDiscovered,
     EvKind_SecretDoorSpotted,
 };
