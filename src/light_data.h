@@ -23,8 +23,7 @@
 #include "bflib_basics.h"
 
 #define LIGHT_MAX_RANGE       256 // Large enough to cover the whole map
-#define LIGHTS_COUNT          400
-#define MINIMUM_LIGHTNESS    8192
+#define LIGHTS_COUNT         2048
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,37 +40,37 @@ enum ShadowCacheFlags {
 
 enum LightFlags {
     LgtF_Allocated    = 0x01,
-    LgtF_Unkn02       = 0x02,
+    LgtF_NeedRemoval  = 0x02,
     LgtF_Dynamic      = 0x04,
-    LgtF_Unkn08       = 0x08,
-    LgtF_Unkn10       = 0x10,
-    LgtF_Unkn20       = 0x20,
+    LgtF_NeedUpdate   = 0x08,
+    LgtF_RadiusOscillation = 0x10,
+    LgtF_IntensityAnimation = 0x20,
     LgtF_NeverCached  = 0x40,
-    LgtF_Unkn80       = 0x80,
+    LgtF_OutOfDate    = 0x80,
+};
+
+enum LightFlags2 {
+    LgtF2_InList    = 0x01,
 };
 
 struct Light {
   unsigned char flags;
   unsigned char flags2;
   unsigned char intensity;
-  unsigned char field_3;
-  unsigned char field_4;
+  unsigned char intensity_toggling_field;//toggles between 1 and 2 when flags has LgtF_IntensityAnimation
+  unsigned char intensity_delta;//seems never assigned
   unsigned char range;
-  unsigned char field_6;
-  unsigned char field_7;
-  unsigned char field_8_unused;
+  unsigned char radius_oscillation_direction;
+  unsigned char max_intensity;//seems never assigned
   unsigned char min_radius;
-  unsigned char field_A_unused[4];
   unsigned short index;
   unsigned short shadow_index;
   long attached_slb;
   unsigned short radius;
-  short field_18_unused;
-  short field_1A_unused;
-  unsigned short field_1C;
-  unsigned short field_1E;
-  unsigned short field_20;
-  unsigned short field_22;
+  unsigned short force_render_update;
+  unsigned short radius_delta;//seems never assigned
+  unsigned short max_radius;//seems never assigned
+  unsigned short min_radius2;//seems never assigned
   unsigned short min_intensity;
   unsigned short next_in_list;
   struct Coord3d mappos;
@@ -85,7 +84,7 @@ struct Light {
 struct InitLight { // sizeof=0x14
     short radius;
     unsigned char intensity;
-    unsigned char field_3;
+    unsigned char flags;
     struct Coord3d mappos;
     unsigned char is_dynamic;
     SlabCodedCoords attached_slb;
@@ -123,10 +122,10 @@ void light_set_light_never_cache(long lgt_id);
 TbBool light_is_invalid(const struct Light *lgt);
 long light_is_light_allocated(long lgt_id);
 void light_set_light_position(long lgt_id, struct Coord3d *pos);
+void light_stat_refresh();
 void light_set_lights_on(char state);
 void light_set_light_minimum_size_to_cache(long lgt_id, long a2, long a3);
 void light_signal_update_in_area(long sx, long sy, long ex, long ey);
-long light_get_total_dynamic_lights(void);
 void light_export_system_state(struct LightSystemState *lightst);
 void light_import_system_state(const struct LightSystemState *lightst);
 TbBool lights_stats_debug_dump(void);

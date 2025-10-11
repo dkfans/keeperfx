@@ -9,6 +9,9 @@ REM ********************************************
 
 LEVEL_VERSION(1)
 
+SET_PLAYER_COLOR(PLAYER0,WHITE)
+SET_PLAYER_COLOR(PLAYER_GOOD,RED)
+
 START_MONEY(PLAYER0,0)
 
     MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,0,0)
@@ -34,13 +37,13 @@ SET_CREATURE_STRENGTH(FAIRY,60)
 SET_CREATURE_STRENGTH(WITCH,60)
 
 IF(PLAYER_GOOD,WIZARD == 0)
-REM	QUICK_OBJECTIVE(2,"The wizard is dead, and it is time to leave this dungeon.", PLAYER0)
-	DISPLAY_OBJECTIVE(95,PLAYER0)
+REM	QUICK_OBJECTIVE(2,"The wizard is dead, and it is time to leave this dungeon.")
+	DISPLAY_OBJECTIVE(95)
 	WIN_GAME
 ENDIF
 
-REM	QUICK_OBJECTIVE(1,"An evil wizard rules this frozen underground realm. He has imprisoned two heroes somewhere in this dungeon; once rescued, they will gladly accompany you in future conquest if you help them slay the renegade wizard. Make haste, for the way back will not remain open for much longer.", PLAYER0)
-DISPLAY_OBJECTIVE(96,PLAYER0)
+REM	QUICK_OBJECTIVE(1,"An evil wizard rules this frozen underground realm. He has imprisoned two heroes somewhere in this dungeon; once rescued, they will gladly accompany you in future conquest if you help them slay the renegade wizard. Make haste, for the way back will not remain open for much longer.")
+DISPLAY_OBJECTIVE(96)
 
 REM Blue
 REM Upon startup, run random boulders ;)
@@ -83,14 +86,14 @@ REM Eastern route will be toned down, it's CTA for all.
 SET_TIMER(PLAYER0,TIMER0)
 BONUS_LEVEL_TIME(14000)
 IF(PLAYER0,TIMER0 >= 14000)
-REM	QUICK_OBJECTIVE(3,"The evil wizard has finished his sinister spell and the way back is barred.", PLAYER0)
-	DISPLAY_OBJECTIVE(97,PLAYER0)
+REM	QUICK_OBJECTIVE(3,"The evil wizard has finished his sinister spell and the way back is barred.")
+	DISPLAY_OBJECTIVE(97)
 	LOSE_GAME
 ENDIF
 REM Losing all creatures = defeat.
 IF(PLAYER0,TOTAL_CREATURES == 0)
-REM	QUICK_OBJECTIVE(4,"All of your heroes are dead, while the evil wizard survives.", PLAYER0)
-	DISPLAY_OBJECTIVE(98,PLAYER0)
+REM	QUICK_OBJECTIVE(4,"All of your heroes are dead, while the evil wizard survives.")
+	DISPLAY_OBJECTIVE(98)
 	LOSE_GAME
 ENDIF
 

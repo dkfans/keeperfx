@@ -22,7 +22,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/POT-Creation-"
 "Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2019-06-30 23:34+0500\n"
+"PO-Revision-Date: 2025-10-01 19:35+0100\n"
 "Last-Translator: Мегалинский Максим <kammerer001@yandex.ru>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: ru_RU\n"
@@ -30,7 +30,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 2.2.3\n"
+"X-Generator: Poedit 3.7\n"
 
 #. Generic victory message
 #: guitext:0
@@ -52,7 +52,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The first thing a Keeper needs is somewhere to keep gold, when it's been "
-"mined out of the rock by his imps. To create a Treasure Room, select the "
+"mined out of the rock by his Imps. To create a Treasure Room, select the "
 "Treasure Room icon from the Rooms Panel and fill the empty area to the west "
 "with Treasure Room tiles."
 msgstr ""
@@ -115,7 +115,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
-"Lair. Lairs are where creatures rest and recover. The area your imps just "
+"Lair. Lairs are where creatures rest and recover. The area your Imps just "
 "mined out would be an ideal spot for some creatures to lurk. Select the Lair "
 "icon from the Rooms Panel."
 msgstr ""
@@ -130,7 +130,7 @@ msgctxt "In-game message"
 msgid ""
 "Dig a tunnel that connects to the Portal to the north. Portals appear on the "
 "map as flashing squares, until they are claimed. Creatures only use Portals "
-"claimed by a Keeper. Your imps claim a Portal as soon as it connects to your "
+"claimed by a Keeper. Your Imps claim a Portal as soon as it connects to your "
 "dungeon."
 msgstr ""
 "Проложите туннель к порталу, лежащему на севере. Порталы помечаются на карте "
@@ -178,7 +178,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
-"be unable to pay any creatures. Only imps give their loyalty freely. No "
+"be unable to pay any creatures. Only Imps give their loyalty freely. No "
 "other creatures will serve you unpaid."
 msgstr ""
 "Вы до сих пор не построили сокровищницу. Пока не построено это помещение, Вы "
@@ -216,8 +216,8 @@ msgstr ""
 #: guitext:15
 msgctxt "In-game message"
 msgid ""
-"Imps fortify your walls to prevent intruders tunneling in. If you want to "
-"create more imps, go to the Research Panel, select the Imp icon and left "
+"Imps fortify your walls to prevent intruders tunnelling in. If you want to "
+"create more Imps, go to the Research Panel, select the Imp icon and left "
 "click anywhere in your dungeon. Each Imp you create costs more than the "
 "previous one."
 msgstr ""
@@ -745,7 +745,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have claimed a Prison. Select imprison from the Information Panel and "
-"your creatures subdue their foe, at which point your imps drag the bodies "
+"your creatures subdue their foe, at which point your Imps drag the bodies "
 "off to a cell. Prisoners who die of starvation may rise again as Skeleton "
 "warriors for you to command."
 msgstr ""
@@ -1293,9 +1293,9 @@ msgid ""
 "any creature to instantly transform the target into poultry. It's a fowl "
 "weapon."
 msgstr ""
-"Ваши исследователи открыли сокрушительное заклинание \"Превращение в цыпленка"
-"\". Используйте его на любом создании, и оно тут же превратится в птичкy. "
-"Поохотимся на дичь?"
+"Ваши исследователи открыли сокрушительное заклинание \"Превращение в "
+"цыпленка\". Используйте его на любом создании, и оно тут же превратится в "
+"птичкy. Поохотимся на дичь?"
 
 #. Level Sleepiburgh information
 #: guitext:110
@@ -1349,7 +1349,7 @@ msgstr "Видите, сколь yязвимым стал один из Ваши
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
-"I spy a keeper with hardly any creatures left under his control. I spy a "
+"I spy a Keeper with hardly any creatures left under his control. I spy a "
 "Keeper who's about to die."
 msgstr ""
 "Я вижу Хранителя, у которого почти не осталось созданий. Я вижу Хранителя, "
@@ -1470,7 +1470,7 @@ msgstr ""
 #. Level Tulipscent information
 #: guitext:126
 msgctxt "In-game message"
-msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
+msgid "This ancient realm is rich in magical artefacts. Go forth and plunder."
 msgstr ""
 "В этом древнем королевстве полно магических артефактов. Вперед! На "
 "разграбление!"
@@ -1967,7 +1967,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
-"to reduces your enemies into ashes!"
+"to reduce your enemies into ashes!"
 msgstr ""
 "Вы это видели?! Ваше отродье демона вышло на новую ступень развития, "
 "превратившись в могущественного дракона, способного испепелить Ваших врагов!"
@@ -1976,7 +1976,7 @@ msgstr ""
 #: guitext:175
 msgctxt "In-game message"
 msgid ""
-"Well done! Your immense wealth has drew the attention of a Thief. He will "
+"Well done! Your immense wealth has drawn the attention of a Thief. He will "
 "serve you well in the next realm!"
 msgstr ""
 "Отличная работа! Ваше огромное состояние поразило вора. Он будет верно "
@@ -2012,7 +2012,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
-"in water and their spine can even pierce the most solid armors and paralyze "
+"in water and their spine can even pierce the most solid armours and paralyse "
 "your enemies! Marvellous!"
 msgstr ""
 "Щупальце пришло к Вам в подземелье. Эти редкие крошки обожают воду. Жало, "
@@ -2279,10 +2279,11 @@ msgid "Group: Not used"
 msgstr "Объединение: Не используется"
 
 #: guitext:239
+#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
+"Invisibility: Makes the creature invisible to all enemies. Unless they "
+"possess a subnatural Sight."
 msgstr ""
 "Hевидимость: Создание, на котором было применено это заклинание, становится "
 "невидимым для всех врагов. Если, конечно, у них нет сверхъестественного "
@@ -2330,7 +2331,8 @@ msgstr "Сильный град: Вызывает бурю с градом."
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement "
+"delayed."
 msgstr ""
 "Замедление: Замедляет создание, что снижает скорость его атак и перемещения."
 
@@ -2364,7 +2366,7 @@ msgstr ""
 #: guitext:249
 msgctxt "Creature spell"
 msgid ""
-"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
+"Wind: Creates a force twelve gale in your dungeon blowing every creature "
 "away from you. And nasty smells of course."
 msgstr ""
 "Ветер: Вызывает в подземелье 12-балльный ураган, что позволяет сдуть любое "
@@ -2383,7 +2385,7 @@ msgstr ""
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
-"inflicts minor damage to a Dungeon's walls and doors."
+"inflicts minor damage to a dungeon's walls and doors."
 msgstr ""
 "Огненный шаp: Создает одиночный огненный шар, летящий в ближайшего врага. "
 "Шар наносит незначительный урон стенам и дверям подземелья."
@@ -2399,10 +2401,10 @@ msgstr ""
 
 #: guitext:253
 msgctxt "Creature spell"
-msgid ""
-"Fart: A close range gas attack that only damages enemy creatures."
+msgid "Fart: A close range gas attack that only damages enemy creatures."
 msgstr ""
-Пердеж: Газовая атака, которая наносит урон врагам поблизости. Союзники привыкли.
+"Пердеж: Газовая атака, которая наносит урон врагам поблизости. Союзники "
+"привыкли."
 
 #: guitext:254
 msgctxt "Creature spell"
@@ -2416,7 +2418,7 @@ msgstr ""
 #: guitext:255
 msgctxt "Creature spell"
 msgid ""
-"Disease: Fired at a foe, gives them a Disease which is then spread to other "
+"Disease: Fired at a foe, gives them a disease which is then spread to other "
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
 msgstr ""
@@ -2727,7 +2729,8 @@ msgstr ""
 #: guitext:305
 msgctxt "In-game interface description"
 msgid ""
-"Fight: Your creatures always attack and not avoid any combat. LMB select."
+"Fight: Your creatures always attack and will not avoid any combat. LMB "
+"select."
 msgstr ""
 "Сражаться: Ваши создания будут всегда нападать и не будут уклоняться от боя. "
 "ЛКМ - выбор."
@@ -2786,14 +2789,15 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"View Type: Swap between perspective views. Default view has warped walls "
-"and can be rotated. Disable the warp effect for clean lines. Forced perspective "
+"View Type: Swap between perspective views. Default view has warped walls and "
+"can be rotated. Disable the warp effect for clean lines. Forced perspective "
 "can only be rotated 90 degrees and changes the viewing angle. LMB toggle."
 msgstr ""
-"Переключение режимов отображения. В режиме по умолчанию геометрия стен искажена, "
-"но камеру можно вращать свободно. В следующем режиме искажение отключено. В режиме "
-"принудительной перспективы в кадре отображается больше объектов, но камеру можно "
-"вращать только с шагом 90 градусов. ЛКМ - переключение."
+"Переключение режимов отображения. В режиме по умолчанию геометрия стен "
+"искажена, но камеру можно вращать свободно. В следующем режиме искажение "
+"отключено. В режиме принудительной перспективы в кадре отображается больше "
+"объектов, но камеру можно вращать только с шагом 90 градусов. ЛКМ - "
+"переключение."
 
 #: guitext:315
 msgctxt "In-game interface description"
@@ -2895,10 +2899,14 @@ msgstr ""
 "на земле."
 
 #: guitext:327
+#, fuzzy
+#| msgctxt "Slab description"
+#| msgid ""
+#| "Lava: Burns any creature that step on it. Get over lava by casting Cave-"
+#| "In or building a Bridge."
 msgctxt "Slab description"
 msgid ""
-"Lava: Burns any creature that step on it. Get over lava by casting Cave-In "
-"or building a Bridge."
+"Lava: Burns any creature that step on it. Get over lava by building a Bridge."
 msgstr ""
 "Лава: Причиняет ожоги любым ступившим на нее созданиям. Чтобы перебраться "
 "через лаву, используйте заклинание \"Обвал\" или постройте мост."
@@ -3377,12 +3385,12 @@ msgid "Ok"
 msgstr "Ok"
 
 #: guitext:420
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "Открыть карту: Отображает все подземное королевство."
 
 #: guitext:421
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr ""
@@ -3390,7 +3398,7 @@ msgstr ""
 "прислужников."
 
 #: guitext:422
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
 "realm."
@@ -3399,27 +3407,27 @@ msgstr ""
 "Вами в следующем королевстве."
 
 #: guitext:423
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "Украсть героя: Обратить героя в Вашу веру."
 
 #: guitext:424
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr "Размножить созданий: Создает копию всех Ваших созданий."
 
 #: guitext:425
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "Увеличить уровень: Улучшает навыки всех Ваших созданий."
 
 #: guitext:426
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "Обеспечить безопасность: Укрепляет стены Вашего подземелья."
 
 #: guitext:427
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Locate Hidden World: You will get access to a secret realm after you have "
 "conquered this one."
@@ -3535,8 +3543,8 @@ msgstr ""
 #: guitext:448
 msgctxt "In-game interface description"
 msgid ""
-"Room Panel: The rooms available for you to build. Here you can center map on "
-"rooms or build new ones."
+"Room Panel: The rooms available for you to build. Here you can centre the "
+"map on rooms or build new ones."
 msgstr ""
 "Панель помещений: Отображает список помещений, доступных для постройки. "
 "Отсюда Вы можете переходить к уже построенным помещениям или строить новые."
@@ -3553,8 +3561,8 @@ msgstr ""
 #: guitext:450
 msgctxt "In-game interface description"
 msgid ""
-"Workshop Panel: The traps and doors available to you. You can center the map "
-"on them, place new ones or sell existing."
+"Workshop Panel: The traps and doors available to you. You can centre the map "
+"on them, place new ones, or sell existing ones."
 msgstr ""
 "Панель мастерской: Ловушки и двери, имеющиеся в наличии. Позволяет "
 "переходить к ним на карте, строить новые или продавать имеющиеся."
@@ -3654,7 +3662,7 @@ msgid ""
 "LMB select."
 msgstr ""
 "Продать предмет: Позволяет продать ловушку или дверь, что дает возможность "
-"зарабатывать на производимых предметах. ЛКМ - выбор. [8.1.2]"
+"зарабатывать на производимых предметах. ЛКМ - выбор."
 
 #: guitext:464
 msgctxt "In-game interface description"
@@ -3693,222 +3701,222 @@ msgstr "Нажмите клавишу"
 
 #: guitext:471
 msgctxt "Game controls"
-msgid "UP"
+msgid "Up"
 msgstr "ВВЕРХ"
 
 #: guitext:472
 msgctxt "Game controls"
-msgid "DOWN"
+msgid "Down"
 msgstr "ВНИЗ"
 
 #: guitext:473
 msgctxt "Game controls"
-msgid "LEFT"
+msgid "Left"
 msgstr "ВЛЕВО"
 
 #: guitext:474
 msgctxt "Game controls"
-msgid "RIGHT"
+msgid "Right"
 msgstr "ВПРАВО"
 
 #: guitext:475
 msgctxt "Game controls"
-msgid "ROTATE"
+msgid "Rotate"
 msgstr "ВРАЩЕНИЕ"
 
 #: guitext:476
 msgctxt "Game controls"
-msgid "SPEED"
+msgid "Speed"
 msgstr "СКОРОСТЬ"
 
 #: guitext:477
 msgctxt "Game controls"
-msgid "ROTATE LEFT"
+msgid "Rotate Left"
 msgstr "ВРАЩЕНИЕ ВЛЕВО"
 
 #: guitext:478
 msgctxt "Game controls"
-msgid "ROTATE RIGHT"
+msgid "Rotate Right"
 msgstr "ВРАЩЕНИЕ ВПРАВО"
 
 #: guitext:479
 msgctxt "Game controls"
-msgid "ZOOM IN"
+msgid "Zoom In"
 msgstr "ПРИБЛИЖЕНИЕ"
 
 #: guitext:480
 msgctxt "Game controls"
-msgid "ZOOM OUT"
+msgid "Zoom Out"
 msgstr "ОТДАЛЕНИЕ"
 
 #: guitext:481
 msgctxt "Keyboard"
-msgid "LEFT CONTROL"
+msgid "Left Control"
 msgstr "ЛЕВЫЙ CTRL"
 
 #: guitext:482
 msgctxt "Keyboard"
-msgid "RIGHT CONTROL"
+msgid "Right Control"
 msgstr "ПРАВЫЙ CTRL"
 
 #: guitext:483
 msgctxt "Keyboard"
-msgid "LEFT SHIFT"
+msgid "Left Shift"
 msgstr "ЛЕВЫЙ SHIFT"
 
 #: guitext:484
 msgctxt "Keyboard"
-msgid "RIGHT SHIFT"
+msgid "Right Shift"
 msgstr "ПРАВЫЙ SHIFT"
 
 #: guitext:485
 msgctxt "Keyboard"
-msgid "LEFT ALT"
+msgid "Left Alt"
 msgstr "ЛЕВЫЙ ALT"
 
 #: guitext:486
 msgctxt "Keyboard"
-msgid "RIGHT ALT"
+msgid "Right Alt"
 msgstr "ПРАВЫЙ ALT"
 
 #: guitext:487
 msgctxt "Keyboard"
-msgid "SPACE"
+msgid "Space"
 msgstr "ПРОБЕЛ"
 
 #: guitext:488
 msgctxt "Keyboard"
-msgid "RETURN"
+msgid "Return"
 msgstr "ВВОД"
 
 #: guitext:489
 msgctxt "Keyboard"
-msgid "TAB"
+msgid "Tab"
 msgstr "TAB"
 
 #: guitext:490
 msgctxt "Keyboard"
-msgid "CAPS LOCK"
+msgid "Caps Lock"
 msgstr "CAPS LOCK"
 
 #: guitext:491
 msgctxt "Keyboard"
-msgid "BACKSPACE"
+msgid "Backspace"
 msgstr "BACKSPACE"
 
 #: guitext:492
 msgctxt "Keyboard"
-msgid "INSERT"
+msgid "Insert"
 msgstr "INSERT"
 
 #: guitext:493
 msgctxt "Keyboard"
-msgid "DELETE"
+msgid "Delete"
 msgstr "DELETE"
 
 #: guitext:494
 msgctxt "Keyboard"
-msgid "HOME"
+msgid "Home"
 msgstr "HOME"
 
 #: guitext:495
 msgctxt "Keyboard"
-msgid "END"
+msgid "End"
 msgstr "END"
 
 #: guitext:496
 msgctxt "Keyboard"
-msgid "PAGE UP"
+msgid "Page Up"
 msgstr "PAGE UP"
 
 #: guitext:497
 msgctxt "Keyboard"
-msgid "PAGE DOWN"
+msgid "Page Down"
 msgstr "PAGE DOWN"
 
 #: guitext:498
 msgctxt "Keyboard"
-msgid "NUM LOCK"
+msgid "Num Lock"
 msgstr "NUM LOCK"
 
 #: guitext:499
 msgctxt "Keyboard"
-msgid "NUM /"
+msgid "Num /"
 msgstr "NUM /"
 
 #: guitext:500
 msgctxt "Keyboard"
-msgid "NUM *"
+msgid "Num *"
 msgstr "NUM *"
 
 #: guitext:501
 msgctxt "Keyboard"
-msgid "NUM -"
+msgid "Num -"
 msgstr "NUM -"
 
 #: guitext:502
 msgctxt "Keyboard"
-msgid "NUM +"
+msgid "Num +"
 msgstr "NUM +"
 
 #: guitext:503
 msgctxt "Keyboard"
-msgid "NUM ENTER"
+msgid "Num Enter"
 msgstr "NUM ENTER"
 
 #: guitext:504
 msgctxt "Keyboard"
-msgid "NUM DELETE"
+msgid "Num Delete"
 msgstr "NUM DELETE"
 
 #: guitext:505
 msgctxt "Keyboard"
-msgid "NUM 1"
+msgid "Num 1"
 msgstr "NUM 1"
 
 #: guitext:506
 msgctxt "Keyboard"
-msgid "NUM 2"
+msgid "Num 2"
 msgstr "NUM 2"
 
 #: guitext:507
 msgctxt "Keyboard"
-msgid "NUM 3"
+msgid "Num 3"
 msgstr "NUM 3"
 
 #: guitext:508
 msgctxt "Keyboard"
-msgid "NUM 4"
+msgid "Num 4"
 msgstr "NUM 4"
 
 #: guitext:509
 msgctxt "Keyboard"
-msgid "NUM 5"
+msgid "Num 5"
 msgstr "NUM 5"
 
 #: guitext:510
 msgctxt "Keyboard"
-msgid "NUM 6"
+msgid "Num 6"
 msgstr "NUM 6"
 
 #: guitext:511
 msgctxt "Keyboard"
-msgid "NUM 7"
+msgid "Num 7"
 msgstr "NUM 7"
 
 #: guitext:512
 msgctxt "Keyboard"
-msgid "NUM 8"
+msgid "Num 8"
 msgstr "NUM 8"
 
 #: guitext:513
 msgctxt "Keyboard"
-msgid "NUM 9"
+msgid "Num 9"
 msgstr "NUM 9"
 
 #: guitext:514
 msgctxt "Keyboard"
-msgid "NUM 0"
+msgid "Num 0"
 msgstr "NUM 0"
 
 #: guitext:515
@@ -3973,22 +3981,22 @@ msgstr "F12"
 
 #: guitext:527
 msgctxt "Keyboard"
-msgid "UP"
+msgid "Up"
 msgstr "ВВЕРХ"
 
 #: guitext:528
 msgctxt "Keyboard"
-msgid "DOWN"
+msgid "Down"
 msgstr "ВНИЗ"
 
 #: guitext:529
 msgctxt "Keyboard"
-msgid "LEFT"
+msgid "Left"
 msgstr "ВЛЕВО"
 
 #: guitext:530
 msgctxt "Keyboard"
-msgid "RIGHT"
+msgid "Right"
 msgstr "ВПРАВО"
 
 #: guitext:531
@@ -4687,12 +4695,9 @@ msgstr ""
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
-"Создать беса: Создает беса в любой части Вашего подземелья. ЛКМ - выбор. "
-"[18.2]"
+"Создать беса: Создает беса в любой части Вашего подземелья. ЛКМ - выбор."
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -4704,10 +4709,16 @@ msgstr ""
 "выбор, ПКМ - отображение. [18.3]"
 
 #: guitext:650
+#, fuzzy
+#| msgctxt "Keeper spell description"
+#| msgid ""
+#| "Call To Arms: Calls creatures in range to any destination. LMB Select. "
+#| "Cast in range of creatures to gather, cast again for destination. RMB "
+#| "zoom. LMB Cancel. [18.6]"
 msgctxt "Keeper spell description"
 msgid ""
 "Call To Arms: Calls creatures in range to any destination. LMB Select. Cast "
-"in range of creatures to gather, cast again for destination. RMB zoom. LMB "
+"in range of creatures to gather, cast again for destination.RMB zoom. LMB "
 "Cancel. [18.6]"
 msgstr ""
 "К оружию!: Призывает всех созданий в зоне действия в выбранное место. ЛКМ - "
@@ -4740,24 +4751,21 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
-msgstr ""
-"Ускорить чудище: Увеличивает скорость Ваших созданий. ЛКМ - выбор. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
+msgstr "Ускорить чудище: Увеличивает скорость Ваших созданий."
 
 #: guitext:655
+#, fuzzy
+#| msgctxt "Keeper spell description"
+#| msgid "Protect Monster: Shields your creatures from attack."
 msgctxt "Keeper spell description"
-msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
-msgstr "Защищать чудище: Защищает Ваших созданий от атак. ЛКМ - выбор. [18.11]"
+msgid "Protect Monster: Shields your creatures from attack. LBM select."
+msgstr "Защищать чудище: Защищает Ваших созданий от атак."
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
-msgstr ""
-"Скрыть чудище: Делает Ваших созданий невидимыми для врага. ЛКМ - выбор. "
-"[18.7]"
+msgid "Conceal Monster: Makes your creatures invisible to the enemy."
+msgstr "Скрыть чудище: Делает Ваших созданий невидимыми для врага. "
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -5068,7 +5076,7 @@ msgstr "Найден ящик с дверью: ЛКМ - развернуть, П
 
 #: guitext:715
 msgctxt "Game event description"
-msgid "Dungeon special found: LMB toggle. RMB delete."
+msgid "Dungeon Special found: LMB toggle. RMB delete."
 msgstr "Обнаружен таинственный ящик: ЛКМ - развернуть, ПКМ - удалить."
 
 #: guitext:716
@@ -5142,7 +5150,7 @@ msgstr ""
 #: guitext:729
 msgctxt "In-game interface description"
 msgid ""
-"Aggressive Computer Assistant: Constructs your dungeon and always trys to "
+"Aggressive Computer Assistant: Constructs your dungeon and always tries to "
 "attack the enemy. LMB select. [3.2.4]"
 msgstr ""
 "ИИ-помощник - агрессор: Занимается строительством Вашего подземелья и при "
@@ -6032,18 +6040,18 @@ msgstr "Hовые ypовни"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Please insert Data Disk CD-ROM"
-msgstr "Вставьте компакт-диск с данными"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "Можно произвести: создания могут изготовить этот предмет в мастерской."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "Вставьте диск с игрой \"Хpанитель подземелья\""
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr "Мастерская слишком мала: расширьте её, чтобы изготовить этот предмет."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "Вставьте диск с дополнением \"Глyбокие подземелья\""
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "Изготовление невозможно: этот предмет нельзя произвести."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -6191,7 +6199,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The once strong hero fortress of this realm has grown rotten and weak. Tear "
-"down it's walls and let your creatures feast on the heroes within."
+"down its walls and let your creatures feast on the heroes within."
 msgstr ""
 "Перекрытия когда-то неприступной кpепости геpоев, возведенной в этом "
 "коpолевстве, сгнили, и она уже не так надежна, как раньше. Разpyшьте ее "
@@ -6502,10 +6510,39 @@ msgstr ""
 "О Ваших достижениях слагают легенды, Хpанитель. Предания о Ваших злодеяниях "
 "и кознях будут передаваться из уст в уста многие столетия."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Mу 2"
+#: guitext:935
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Секретная дверь"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it "
+"closely or see it opening. RMB zoom."
+msgstr ""
+"Секретная дверь: Эта дверь остается скрытой для врагов, если они не "
+"наблюдают за ней или не видят, как она открывается, ПКМ - показать."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Секрет по обнаруженному: ЛКМ - развернуть, ПКМ - удалить."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr ""
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "Враг заметил вашу потайную дверь: ЛКМ - развернуть, ПКМ - удалить."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Враг заметил вашу потайную дверь"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
@@ -6853,7 +6890,7 @@ msgid "Snap Camera"
 msgstr ""
 
 #: guitext:1005
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr ""
 
@@ -6864,17 +6901,17 @@ msgstr "Версии карты у игроков различаются"
 
 #: guitext:1007
 msgctxt "In-game interface description"
-msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
+msgid ""
+"Display Resolution: Switch to the next configured display resolution. LMB "
+"toggle. RMB display current resolution."
 msgstr ""
 
 #: guitext:1008
-#, fuzzy
 msgctxt "In-game interface item"
 msgid "Voice"
 msgstr ""
 
 #: guitext:1009
-#, fuzzy
 msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr ""
@@ -6885,118 +6922,118 @@ msgid "Moo4"
 msgstr ""
 
 #: guitext:1011
-msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
+msgctxt "Menu interface item"
+msgid "Dungeon Keeper - Original Campaign"
 msgstr ""
 
 #: guitext:1012
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Assmist Isle"
 msgstr ""
 
 #: guitext:1013
-msgctxt "Menu interface item""
-msgid "Ancient Keeper campaign"
+msgctxt "Menu interface item"
+msgid "Ancient Keeper"
 msgstr ""
 
 #: guitext:1014
-msgctxt "Menu interface item""
-msgid "Burdened Imps' Level Pack"
+msgctxt "Menu interface item"
+msgid "Burdened Imps"
 msgstr ""
 
 #: guitext:1015
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Conquest of the Arctic"
 msgstr ""
 
 #: guitext:1016
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "The Destiny of Ninja"
 msgstr ""
 
 #: guitext:1017
-msgctxt "Menu interface item""
-msgid "DzjeeAr's  6-level campaign"
+msgctxt "Menu interface item"
+msgid "DzjeeAr's 6-level campaign"
 msgstr ""
 
 #: guitext:1018
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 10-level campaign"
 msgstr ""
 
 #: guitext:1019
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 25-level campaign"
 msgstr ""
 
 #: guitext:1020
-msgctxt "Menu interface item""
-msgid "Evil Keeper campaign"
+msgctxt "Menu interface item"
+msgid "Evil Keeper"
 msgstr ""
 
 #: guitext:1021
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Grinics' KReign campaign"
 msgstr ""
 
 #: guitext:1022
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Japanese DKMaps8 pack"
 msgstr ""
 
 #: guitext:1023
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "KDK Levels"
 msgstr ""
 
 #: guitext:1024
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Good Campaign"
 msgstr ""
 
 #: guitext:1025
-msgctxt "Menu interface item""
-msgid "Lord Vexer campaign"
+msgctxt "Menu interface item"
+msgid "Lord Vexer"
 msgstr ""
 
 #: guitext:1026
-msgctxt "Menu interface item""
-msgid "Nikolai's Castles campaign"
+msgctxt "Menu interface item"
+msgid "Nikolai's Castles"
 msgstr ""
 
 #: guitext:1027
-msgctxt "Menu interface item""
-msgid "Dungeon Keeper - New Game+"
+msgctxt "Menu interface item"
+msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028
-msgctxt "Menu interface item""
-msgid "Post Ancient Keeper campaign"
+msgctxt "Menu interface item"
+msgid "Post Ancient Keeper"
 msgstr ""
 
 #: guitext:1029
-msgctxt "Menu interface item""
-msgid "Post Undead Keeper campaign"
+msgctxt "Menu interface item"
+msgid "Post Undead Keeper"
 msgstr ""
 
 #: guitext:1030
-msgctxt "Menu interface item""
-msgid "Quest for the Hero campaign"
+msgctxt "Menu interface item"
+msgid "Quest for the Hero"
 msgstr ""
 
 #: guitext:1031
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Revenge of the Lord"
 msgstr ""
 
 #: guitext:1032
-msgctxt "Menu interface item""
-msgid "Twin Keepers Campaign"
+msgctxt "Menu interface item"
+msgid "Twin Keepers"
 msgstr ""
 
 #: guitext:1033
-msgctxt "Menu interface item""
-msgid "Undead Keeper campaign"
+msgctxt "Menu interface item"
+msgid "Undead Keeper"
 msgstr ""
 
 #: guitext:1034 guitext:1035
@@ -7011,20 +7048,23 @@ msgstr "Подрывной заряд"
 
 #: guitext:1037
 msgctxt "Trap description"
-msgid ""
-"Demolition Trap: An explosive with unrivaled destructive power."
+msgid "Demolition Trap: An explosive with unrivaled destructive power."
 msgstr "Подрывной заряд: Заряд невероятной разрушительной силы."
 
 #: guitext:1038
 msgctxt "Trap description"
-msgid ""
-"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "Ловушка-Страж: Отстреливает врагов"
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr ""
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "Баллиста-ловушка"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "Баллиста-ловушка: Отстреливает врагов"
 
 #: guitext:1041
 msgctxt "Creature name"
@@ -7040,3 +7080,202 @@ msgstr "Друид"
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "Маг времени"
+
+#: guitext:1044
+msgctxt "Creature name"
+msgid "Bird"
+msgstr ""
+
+#: guitext:1045
+msgctxt "Creature name"
+msgid "Maiden"
+msgstr ""
+
+#: guitext:1046
+msgctxt "Creature name"
+msgid "Spiderling"
+msgstr ""
+
+#: guitext:1047
+msgctxt "Creature name"
+msgid "Goblin"
+msgstr ""
+
+#: guitext:1048
+msgctxt "Creature name"
+msgid "Fallen Angel"
+msgstr ""
+
+#: guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Скальное образование."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr ""
+"Основная порода: Не принадлежащий вам каменный пол. Вы не можете присвоить "
+"его или построить на нем."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
+msgstr "Плотная золотая жила: Содержит много богатства для добычи ваших бесов."
+
+#: guitext:1053
+#, fuzzy
+msgctxt "Keeper spell name"
+msgid "Magic Shield"
+msgstr "Отражение"
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr "Заморозка"
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr "Замедление"
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Levitate"
+msgstr "Полет"
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr "Освещение"
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr "Видение"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: Restore full health to all your creatures."
+msgstr "Исцеление всех: Все ваши существа исцеляются."
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury."
+msgstr "Увеличение золота: Генерирует золото в вашем сокровищнице."
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "Сделать несчастными: Все существа врага расстраиваются."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Ослабление стен: Разрушает укрепления вражеских стен."
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr ""
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr ""
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr ""
+
+#: guitext:1066
+msgctxt "Creature spell"
+msgid "Heal Monster: The target creature is massively healed."
+msgstr ""
+
+#: guitext:1067
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Очищение: Излечивает все негативные эффекты, наложенные на существо."
+
+#: guitext:1068
+msgctxt "Creature spell"
+msgid ""
+"Cleanse Monster: Cures all negative effects inflicted on target creature."
+msgstr ""
+
+#: guitext:1069
+msgctxt "Keeper spell description"
+msgid ""
+"Magic Shield: Causes spells fired at the target to bounce back at the "
+"attacker."
+msgstr ""
+
+#: guitext:1070
+msgctxt "Keeper spell description"
+msgid ""
+"Levitate: Causes the target creature to take off from the ground and attack "
+"creatures from the air or cross lava unharmed."
+msgstr ""
+
+#: guitext:1071
+msgctxt "Keeper spell description"
+msgid ""
+"Sight: Allows the target creature to temporarily increase its awareness and "
+"notice the invisible."
+msgstr ""
+
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr "Наймите проходчика"
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr ""
+"Наймите проходчика: Вызовите нового проходчика в любом месте вашего "
+"подземелья."
+
+#: guitext:1074 guitext:1075
+msgctxt "Unused"
+msgid "Moo8"
+msgstr ""
+
+#: guitext:1076
+msgctxt "Door name"
+msgid "Midas Door"
+msgstr ""
+
+#: guitext:1077
+msgctxt "Door description"
+msgid ""
+"Midas Door: This door consumes gold from the owner to stay completely "
+"indestructible. RMB zoom."
+msgstr ""
+
+#: guitext:1078
+msgctxt "Game controls"
+msgid "Ascend"
+msgstr ""
+
+#: guitext:1079
+msgctxt "Game controls"
+msgid "Descend"
+msgstr ""
+
+#: guitext:1080
+msgctxt "Creature spell"
+msgid "Familiar: Summons a companion to guard and assist the creature."
+msgstr ""
+
+#: guitext:1081
+msgctxt "Creature spell"
+msgid "Summon: Call upon temporary guardians to assist the creature in combat."
+msgstr ""

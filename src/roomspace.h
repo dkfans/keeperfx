@@ -83,10 +83,9 @@ struct RoomSpace {
     int invalid_slabs_count;
     PlayerNumber plyr_idx;
     RoomKind rkind;
-	  TbBool is_roomspace_a_single_subtile;
-
-	  MapSlabCoord buildx, buildy;
-	  TbBool is_active;
+    TbBool is_roomspace_a_single_subtile;
+    MapSlabCoord buildx, buildy;
+    TbBool is_active;
     TbBool render_roomspace_as_box;
     TbBool tag_for_dig;
     TbBool highlight_mode;
@@ -132,7 +131,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
 
 void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char mode);
 
-void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace, int task_allowance_reduction);
+void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 void keeper_sell_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 void keeper_build_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspace);
 

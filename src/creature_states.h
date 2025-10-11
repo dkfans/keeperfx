@@ -21,12 +21,13 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
-#include "dungeon_data.h"
+#include "config.h"
 
 /** Count of creature states, originally 147. */
 #define CREATURE_STATES_COUNT CrSt_ListEnd
 
 #define FIGHT_FEAR_DELAY 160
+#define STATE_TYPES_COUNT CrStTyp_ListEnd
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,7 +40,7 @@ enum CreatureStates {
     CrSt_ImpArrivesAtMineGold,
     CrSt_ImpDigsDirt,
     CrSt_ImpMinesGold,
-    CrSt_Null6,
+    CrSt_CreatureCastingPreparation,
     CrSt_ImpDropsGold,
     CrSt_ImpLastDidJob,
     CrSt_ImpArrivesAtImproveDungeon,
@@ -93,7 +94,7 @@ enum CreatureStates {
     CrSt_Null57,
     CrSt_Null58,
     CrSt_CreatureKillCreatures,
-    CrSt_Null60,//[60]
+    CrSt_CreatureKillDiggers,//[60]
     CrSt_PersonSulking,
     CrSt_Null62,
     CrSt_Null63,
@@ -182,6 +183,11 @@ enum CreatureStates {
     CrSt_CreatureStealSpell,
     CrSt_GoodArrivedAtAttackRoom,
     CrSt_CreatureGoingToSafetyForToking,
+    CrSt_Timebomb,
+    CrSt_GoodWanderToCreatureCombat,//[150]
+    CrSt_GoodWanderToObjectCombat,
+    CrSt_CreatureDropBodyInLair,
+    CrSt_CreatureSaveUnconsciousCreature,
     CrSt_ListEnd,
 };
 
@@ -214,6 +220,18 @@ enum CreatureStateTypes {
     CrStTyp_ListEnd,
 };
 
+enum JobStage {
+    JobStage_Unused = 0,          // Initial job stage (unused in current implementation)
+    JobStage_SearchingForWork = 1,// Workshop: Finding an available work position in the room
+    JobStage_PreparingToWork = 2, // Workshop: Setting up equipment and work timer before starting
+    JobStage_MovingToPosition = 3,// Workshop/Research: Moving to or staying at work position
+    JobStage_TurningToFace = 4,   // Workshop/Research: Turning to face work direction or random thinking
+    JobStage_Manufacturing = 5,   // Workshop: Actively manufacturing items (swinging weapon animation)
+    JobStage_JobFailed = 6,       // Unused
+    JobStage_ScavengedDisappearing = 7, // Scavenging: This creature was successfully scavenged and is disappearing
+    JobStage_BeingScavenged = 8   // Scavenging: This creature is currently being scavenged by an enemy creature
+};
+
 /** Defines return values of creature state functions. */
 enum CreatureStateReturns {
     CrStRet_Deleted       = -1, /**< Returned if the creature being updated no longer exists. */
@@ -240,38 +258,16 @@ typedef short (*CreatureStateFunc1)(struct Thing *);
 typedef char (*CreatureStateFunc2)(struct Thing *);
 typedef CrCheckRet (*CreatureStateCheck)(struct Thing *);
 
-struct StateInfo { // sizeof = 41
-    CreatureStateFunc1 process_state;
-    CreatureStateFunc1 cleanup_state;
-    CreatureStateFunc2 move_from_slab;
-    CreatureStateCheck move_check; /**< Check function to be used when the creature is in moving sub-state during that state. */
-    unsigned char override_feed;
-    unsigned char override_own_needs;
-    unsigned char override_sleep;
-    unsigned char override_fight_crtr;
-    unsigned char override_gets_salary;
-    unsigned char override_captive;
-    unsigned char override_transition;
-    unsigned char override_escape;
-    unsigned char override_unconscious;
-    unsigned char override_anger_job;
-    unsigned char override_fight_object;
-    unsigned char override_fight_door;
-    unsigned char override_call2arms;
-    unsigned char override_follow;
-    unsigned char state_type;
-  unsigned char captive;
-  unsigned char transition;
-  unsigned short follow_behavior;
-  unsigned char blocks_all_state_changes;
-    unsigned short sprite_idx;
-  unsigned char display_thought_bubble;
-  unsigned char sneaky;
-  unsigned char react_to_cta;
-};
 
 /******************************************************************************/
-extern struct StateInfo states[CREATURE_STATES_COUNT];
+extern const struct NamedCommand process_func_commands[];
+extern const struct NamedCommand cleanup_func_commands[];
+extern const struct NamedCommand move_from_slab_func_commands[];
+extern const struct NamedCommand move_check_func_commands[];
+
+extern const CreatureStateFunc1 process_func_list[];
+extern const CreatureStateFunc2 move_from_slab_func_list[];
+extern const CreatureStateCheck move_check_func_list[];
 
 #pragma pack()
 /******************************************************************************/
@@ -279,15 +275,14 @@ extern struct StateInfo states[CREATURE_STATES_COUNT];
 extern long const state_type_to_gui_state[];
 /******************************************************************************/
 CrtrStateId get_creature_state_besides_move(const struct Thing *thing);
-CrtrStateId get_creature_state_besides_drag(const struct Thing *thing);
 CrtrStateId get_creature_state_besides_interruptions(const struct Thing *thing);
 long get_creature_state_type_f(const struct Thing *thing, const char *func_name);
 #define get_creature_state_type(thing) get_creature_state_type_f(thing,__func__)
 
-struct StateInfo *get_thing_active_state_info(struct Thing *thing);
-struct StateInfo *get_thing_continue_state_info(struct Thing *thing);
-struct StateInfo *get_thing_state_info_num(CrtrStateId state_id);
-struct StateInfo *get_creature_state_with_task_completion(struct Thing *thing);
+struct CreatureStateConfig *get_thing_active_state_info(struct Thing *thing);
+struct CreatureStateConfig *get_thing_continue_state_info(struct Thing *thing);
+struct CreatureStateConfig *get_thing_state_info_num(CrtrStateId state_id);
+struct CreatureStateConfig *get_creature_state_with_task_completion(struct Thing *thing);
 
 struct TunnelDistance{
     unsigned int creatid;
@@ -295,7 +290,7 @@ struct TunnelDistance{
     unsigned long newdist;
 };
 
-TbBool state_info_invalid(struct StateInfo *stati);
+TbBool state_info_invalid(struct CreatureStateConfig *stati);
 TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_state, CrtrStateId next_state);
 TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState);
 TbBool external_set_thing_state_f(struct Thing *thing, CrtrStateId state, const char *func_name);
@@ -335,7 +330,7 @@ void set_creature_size_stuff(struct Thing *creatng);
 long process_work_speed_on_work_value(const struct Thing *thing, long base_val);
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind, struct Thing *thing);
-void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
+void remove_health_from_thing_and_display_health(struct Thing *thing, HitPoints delta);
 
 TbBool process_creature_hunger(struct Thing *thing);
 void process_person_moods_and_needs(struct Thing *thing);
@@ -358,13 +353,17 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thin
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
 TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsigned char wandr_select, struct Thing *thing, struct Coord3d *pos);
+
+struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char *navtype);
 /******************************************************************************/
 TbBool creature_is_dying(const struct Thing *thing);
 TbBool creature_is_being_dropped(const struct Thing *thing);
 TbBool creature_is_being_unconscious(const struct Thing *thing);
+TbBool creature_can_be_set_unconscious(const struct Thing *creatng, const struct Thing *killertng, CrDeathFlags flags);
 TbBool creature_is_celebrating(const struct Thing *thing);
 TbBool creature_is_being_tortured(const struct Thing *thing);
 TbBool creature_is_being_sacrificed(const struct Thing *thing);
+TbBool creature_is_leaving_and_cannot_be_stopped(const struct Thing* thing);
 TbBool creature_is_kept_in_prison(const struct Thing *thing);
 TbBool creature_is_being_summoned(const struct Thing *thing);
 TbBool creature_is_doing_anger_job(const struct Thing *thing);
@@ -384,7 +383,10 @@ TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing);
 TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 short player_keeping_creature_in_custody(const struct Thing* thing);
 TbBool creature_state_is_unset(const struct Thing *thing);
+TbBool creature_is_hostile_towards(const struct Thing *tng1, const struct Thing *tng2);
+TbBool creature_is_hostile_to_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
+TbBool trap_is_valid_combat_target_for_creature(const struct Thing* fightng, const struct Thing* enmtng); //todo move
 TbBool creature_will_attack_creature_incl_til_death(const struct Thing *tng1, const struct Thing *tng2);
 // Compound checks for specific cases
 TbBool creature_is_kept_in_custody_by_enemy_or_dying(const struct Thing *thing);

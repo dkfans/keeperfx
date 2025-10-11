@@ -47,9 +47,9 @@ TbBool creature_can_do_research(const struct Thing *creatng)
     if (is_neutral_thing(creatng)) {
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
-    return (crstat->research_value > 0) && (dungeon->current_research_idx >= 0);
+    return (crconf->research_value > 0) && (dungeon->current_research_idx >= 0);
 }
 
 short at_research_room(struct Thing *thing)
@@ -62,7 +62,7 @@ short at_research_room(struct Thing *thing)
         if (!is_neutral_thing(thing) && (dungeon->current_research_idx < 0))
         {
             if (is_my_player_number(dungeon->owner))
-                output_message(SMsg_NoMoreReseach, 500, true);
+                output_message(SMsg_NoMoreReseach, 500);
         }
         set_start_state(thing);
         return 0;
@@ -88,7 +88,7 @@ short at_research_room(struct Thing *thing)
     }
     thing->continue_state = get_continue_state_for_job(Job_RESEARCH);
     cctrl->turns_at_job = 0;
-    cctrl->research.job_stage = 3;
+    cctrl->research.job_stage = JobStage_MovingToPosition;
     return 1;
 }
 
@@ -99,7 +99,6 @@ short at_research_room(struct Thing *thing)
  */
 int get_next_research_item(const struct Dungeon *dungeon)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     if (dungeon->research_num == 0)
         return -1;
     for (long resnum = 0; resnum < dungeon->research_num; resnum++)
@@ -114,17 +113,17 @@ int get_next_research_item(const struct Dungeon *dungeon)
             }
             break;
         case RsCat_Room:
-            if ((dungeonadd->room_buildable[rsrchval->rkind] & 1) == 0)
+            if ((dungeon->room_buildable[rsrchval->rkind] & 1) == 0)
             {
                 /// Need research
-                if (dungeonadd->room_resrchable[rsrchval->rkind] == 1)
+                if (dungeon->room_resrchable[rsrchval->rkind] == 1)
                     return resnum;
                 /// Need research but may find room instantly
-                else if (dungeonadd->room_resrchable[rsrchval->rkind] == 2)
+                else if (dungeon->room_resrchable[rsrchval->rkind] == 2)
                     return resnum;
                 /// Need research AND already captured
-                else if ((dungeonadd->room_resrchable[rsrchval->rkind] == 4) &&
-                    (dungeonadd->room_buildable[rsrchval->rkind] & 2))
+                else if ((dungeon->room_resrchable[rsrchval->rkind] == 4) &&
+                    (dungeon->room_buildable[rsrchval->rkind] & 2))
                 {
                     return resnum;
                 }
@@ -147,19 +146,17 @@ int get_next_research_item(const struct Dungeon *dungeon)
 }
 
 TbBool has_new_rooms_to_research(const struct Dungeon *dungeon)
-{
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
-    
+{    
     for (long resnum = 0; resnum < dungeon->research_num; resnum++)
     {
         const struct ResearchVal* rsrchval = &dungeon->research[resnum];
         if (rsrchval->rtyp == RsCat_Room)
         {
-            if ((dungeonadd->room_buildable[rsrchval->rkind] & 1) == 0)
+            if ((dungeon->room_buildable[rsrchval->rkind] & 1) == 0)
             {
-                if ((dungeonadd->room_resrchable[rsrchval->rkind] == 1)
-                    || (dungeonadd->room_resrchable[rsrchval->rkind] == 2)
-                    || ((dungeonadd->room_resrchable[rsrchval->rkind] == 4) && (dungeonadd->room_buildable[rsrchval->rkind] & 2))
+                if ((dungeon->room_resrchable[rsrchval->rkind] == 1)
+                    || (dungeon->room_resrchable[rsrchval->rkind] == 2)
+                    || ((dungeon->room_resrchable[rsrchval->rkind] == 4) && (dungeon->room_buildable[rsrchval->rkind] & 2))
                     )
                 {
                     return true;
@@ -247,7 +244,7 @@ short researching(struct Thing *thing)
         if (!is_neutral_thing(thing) && (dungeon->current_research_idx < 0))
         {
             if (is_my_player_number(dungeon->owner))
-                output_message(SMsg_NoMoreReseach, 500, true);
+                output_message(SMsg_NoMoreReseach, 500);
         }
         remove_creature_from_work_room(thing);
         set_start_state(thing);
@@ -264,7 +261,7 @@ short researching(struct Thing *thing)
 
     if (room->used_capacity > room->total_capacity)
     {
-        output_message_room_related_from_computer_or_player_action(room->owner, room->kind, OMsg_RoomTooSmall);
+        output_room_message(room->owner, room->kind, OMsg_RoomTooSmall);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return CrStRet_ResetOk;
@@ -275,7 +272,7 @@ short researching(struct Thing *thing)
       && ((game.play_gameturn + thing->index) & 0x03) == 0)
     {
         external_set_thing_state(thing, CrSt_CreatureBeHappy);
-        cctrl->countdown_282 = 50;
+        cctrl->countdown = 50;
         cctrl->mood.last_mood_sound_turn = 0;
         return CrStRet_Modified;
     }
@@ -285,21 +282,21 @@ short researching(struct Thing *thing)
     // Shall we do some "Standing and thinking"
     if (cctrl->turns_at_job <= 128)
     {
-      if (cctrl->research.job_stage == 3)
+      if (cctrl->research.job_stage == JobStage_MovingToPosition)
       {
           // Do some random thinking
           if ((cctrl->turns_at_job % 16) == 0)
           {
-              long i = CREATURE_RANDOM(thing, LbFPMath_PI) - LbFPMath_PI / 2;
-              cctrl->research.random_thinking_angle = ((long)thing->move_angle_xy + i) & LbFPMath_AngleMask;
-              cctrl->research.job_stage = 4;
+              long i = THING_RANDOM(thing, DEGREES_180) - DEGREES_90;
+              cctrl->research.random_thinking_angle = ((long)thing->move_angle_xy + i) & ANGLE_MASK;
+              cctrl->research.job_stage = JobStage_TurningToFace;
           }
       } else
       {
           // Look at different direction while thinking
-          if (creature_turn_to_face_angle(thing, cctrl->research.random_thinking_angle) < LbFPMath_PI/18)
+          if (creature_turn_to_face_angle(thing, cctrl->research.random_thinking_angle) < DEGREES_10)
           {
-              cctrl->research.job_stage = 3;
+              cctrl->research.job_stage = JobStage_MovingToPosition;
           }
       }
       return 1;
@@ -313,12 +310,12 @@ short researching(struct Thing *thing)
     }
     thing->continue_state = get_continue_state_for_job(Job_RESEARCH);
     cctrl->turns_at_job = 0;
-    cctrl->research.job_stage = 3;
-    if (cctrl->explevel < 3)
+    cctrl->research.job_stage = JobStage_MovingToPosition;
+    if (cctrl->exp_level < 3)
     {
         create_effect(&thing->mappos, TngEff_RoomSparkeSmall, thing->owner);
     } else
-    if (cctrl->explevel < 6)
+    if (cctrl->exp_level < 6)
     {
         create_effect(&thing->mappos, TngEff_RoomSparkeMedium, thing->owner);
     } else

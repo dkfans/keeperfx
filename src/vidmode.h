@@ -31,6 +31,8 @@
 extern "C" {
 #endif
 
+#define MAX_GAME_VIDMODE_COUNT 6 /**< the size of the switching_vidmodes array. */
+
 enum MousePointerGraphics {
     MousePG_Invisible = 0,
     MousePG_Arrow,
@@ -104,6 +106,7 @@ enum MousePointerGraphics {
     MousePG_PlaceTrap13  = 163,
     MousePG_PlaceTrap14  = 164,
     MousePG_PlaceRoom15  = 165,
+    MousePG_Pickaxe2     = 473,
 };
 /******************************************************************************/
 
@@ -118,22 +121,23 @@ struct TbColorTables {
 };
 
 struct TbAlphaTables {
-    unsigned char black[256];
-    unsigned char grey[8*256];
-    unsigned char orange[8*256];
+    unsigned char void_black[256];
+    unsigned char white[8*256];
+    unsigned char yellow[8*256];
     unsigned char red[8*256];
     unsigned char blue[8*256];
     unsigned char green[8*256];
+    unsigned char purple[8*256];
+    unsigned char black[8*256];
+    unsigned char orange[8*256];
     // This is to force the array to have 256x256 size
-    //unsigned char unused[215*256];
+    //unsigned char unused[191*256];
 };
 
 /******************************************************************************/
-extern struct TbSprite *pointer_sprites;
+extern struct TbSpriteSheet *pointer_sprites;
 extern struct TbLoadFiles legal_load_files[];
-extern struct TbLoadFiles map_flag_load_files[];
-extern struct TbLoadFiles netmap_flag_load_files[];
-extern struct TbLoadFiles game_load_files[];
+extern struct TbLoadFilesV2 game_load_files[];
 extern unsigned short units_per_pixel_min;
 extern long base_mouse_sensitivity;
 
@@ -142,29 +146,26 @@ extern struct TbAlphaTables alpha_sprite_table;
 extern unsigned char white_pal[256];
 extern unsigned char red_pal[256];
 
-extern int MinimalResolutionSetup;
+extern TbBool MinimalResolutionSetup;
 /******************************************************************************/
-TbScreenMode switch_to_next_video_mode(void);
-void set_game_vidmode(unsigned short i,unsigned short nmode);
-unsigned short max_game_vidmode_count(void);
+void switch_to_next_video_mode_wrapper(void);
+TbBool switch_to_next_video_mode(void);
+void set_game_vidmode(uint i, TbScreenMode nmode);
+TbScreenMode get_game_vidmode(uint i);
 TbScreenMode reenter_video_mode(void);
-TbScreenMode get_next_vidmode(TbScreenMode mode);
-TbScreenMode get_higher_vidmode(TbScreenMode curr_mode);
-TbScreenMode validate_vidmode(TbScreenMode mode);
 TbScreenMode get_failsafe_vidmode(void);
 TbScreenMode get_movies_vidmode(void);
 TbScreenMode get_frontend_vidmode(void);
-void set_failsafe_vidmode(unsigned short nmode);
-void set_movies_vidmode(unsigned short nmode);
-void set_frontend_vidmode(unsigned short nmode);
-char *get_vidmode_name(unsigned short mode);
+void set_failsafe_vidmode(TbScreenMode nmode);
+void set_movies_vidmode(TbScreenMode nmode);
+void set_frontend_vidmode(TbScreenMode nmode);
+char *get_vidmode_name(TbScreenMode mode);
 
-TbBool setup_screen_mode(unsigned short nmode);
-short setup_screen_mode_minimal(unsigned short nmode);
-TbBool setup_screen_mode_zero(unsigned short nmode);
+TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe);
+TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode);
+TbScreenMode setup_screen_mode_zero(TbScreenMode nmode);
 
 short LoadMcgaData(void);
-short LoadMcgaDataMinimal(void);
 TbBool update_screen_mode_data(long width, long height);
 void load_pointer_file(short hi_res);
 TbBool load_testfont_fonts(void);
@@ -176,7 +177,7 @@ void init_colours(void);
 
 TbBool set_pointer_graphic_none(void);
 TbBool set_pointer_graphic_menu(void);
-TbBool set_pointer_graphic_spell(long group_idx, long frame);
+TbBool set_pointer_graphic_spell(long spridx, long frame);
 TbBool set_pointer_graphic(long ptr_idx);
 
 /******************************************************************************/

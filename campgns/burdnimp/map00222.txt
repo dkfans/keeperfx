@@ -144,7 +144,7 @@ CREATE_PARTY(CHECKUP)
 REM ----------------------- Win/Lose conditions/Objectives
 
 DISPLAY_OBJECTIVE(38,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(0,"A portal is absent on this island. Without minions you have no hope of defeating the enemy Keeper here. However, visiting the nearby hero fortress might open some recruitment options. Starving heroes make fine skeletons and you might even be able to attract a vampire or two. Or, if you feel particularly evil today, why not convert them all to your cause and create a legion of heroes?",PLAYER0)
+REM QUICK_OBJECTIVE(0,"A portal is absent from this island. Without minions you have no hope of defeating the enemy Keeper here. However, visiting the nearby hero fortress might open some recruitment options. Starving heroes make fine skeletons and you might even be able to attract a vampire or two. Or, if you feel particularly evil today, why not convert them all to your cause and create a legion of heroes?",PLAYER0)
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
     DISPLAY_OBJECTIVE(39,ALL_PLAYERS)
@@ -166,7 +166,7 @@ ENDIF
 
 IF(PLAYER0,TOTAL_CREATURES >= 30)
     DISPLAY_OBJECTIVE(41,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(3,"You are well on your way, Keeper. Thirty or more minions might do to overthrow your adversary. But it will be wise to gather more. Remember, you cannot replace fallen minions easily without a portal.",PLAYER0)
+REM QUICK_OBJECTIVE(3,"You are well on your way, Keeper. Thirty or more minions might do to overthrow your adversary, but it will be wise to gather more. Remember, you cannot replace fallen minions easily without a portal.",PLAYER0)
 ENDIF
 
 IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
@@ -176,13 +176,13 @@ ENDIF
 IF(PLAYER_GOOD,TIMER0 >= 5000)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,CHECKUP,-1,1)
     DISPLAY_INFORMATION(42,ALL_PLAYERS)
-REM QUICK_INFORMATION(4,"An assortment of heroes have arrived. They will undoubtly attack your dungeon after seeing the grief you have caused to their friends. Potential future servants?")
+REM QUICK_INFORMATION(4,"An assortment of heroes have arrived. They will undoubtedly attack your dungeon after seeing the grief you have caused to their friends. Potential future servants?")
 ENDIF
 
 IF(PLAYER_GOOD,TIMER0 >= 15000)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,REVENGE,-1,1)
     DISPLAY_INFORMATION(44,ALL_PLAYERS)
-    REM QUICK_INFORMATION(5,"The lord of this land has come to revenge his comrades. What he doesn't know is that he'll soon be fighting them. One has got to love the irony in that.")
+    REM QUICK_INFORMATION(5,"The lord of this land has come to avenge his comrades. What he doesn't know is that he'll soon be fighting them. One has got to love the irony in that.")
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,REVENGE,-1,1)
 ENDIF
 
@@ -227,5 +227,5 @@ ENDIF
 
 IF(PLAYER0,DRAGON == 1)
     DISPLAY_INFORMATION(47,ALL_PLAYERS)
-REM QUICK_INFORMATION(8,"A dragon has joined your cause. There may be others around. Be advised, Keeper, if you seek to imprison and torture your enemy, a dragon's flames can burn any victim beyond unconsciousness. It would be best to find other minions to subdue your enemy.")
+REM QUICK_INFORMATION(8,"A dragon has joined your cause. There may be others around. Be advised, Keeper; if you seek to imprison and torture your enemy, a dragon's flames can burn any victim beyond unconsciousness. It would be best to find other minions to subdue your enemy.")
 ENDIF

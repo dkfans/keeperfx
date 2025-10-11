@@ -26,10 +26,12 @@
 #include "bflib_mouse.h"
 #include "bflib_video.h"
 #include "bflib_planar.h"
+#include "bflib_sndlib.h"
 #include "bflib_mshandler.hpp"
-#include "config.h"
+#include "config_keeperfx.h"
 #include "sounds.h"
 #include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
+#include "keeperfx.hpp" // for start_params
 #include <SDL2/SDL.h>
 #include "post_inc.h"
 
@@ -171,6 +173,7 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_CARET, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDERSCORE, KC_UNDERLINE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_BACKQUOTE, KC_GRAVE));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(178, KC_GRAVE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_DELETE, KC_DELETE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_0, KC_NUMPAD0));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_1, KC_NUMPAD1));
@@ -336,48 +339,59 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_WINDOWEVENT:
-        if (ev->window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+        switch (ev->window.event)
         {
-            lbAppActive = true;
-            isMouseActive = true;
-            isMouseActivated = true;
-            LbGrabMouseCheck(MG_OnFocusGained);
-            if (freeze_game_on_focus_lost() && !LbIsFrozenOrPaused())
+            case SDL_WINDOWEVENT_FOCUS_GAINED:
             {
-                pause_music(false);
-            }
-            if (mute_audio_on_focus_lost() && !LbIsFrozenOrPaused())
-            {
-                mute_audio(false);
-            }
-        }
-        else if (ev->window.event == SDL_WINDOWEVENT_FOCUS_LOST)
-        {
-            lbAppActive = false;
-            isMouseActive = false;
-            isMouseActivated = false;
-            LbGrabMouseCheck(MG_OnFocusLost);
-            if (freeze_game_on_focus_lost())
-            {
-                pause_music(true);
-            }
-            if (mute_audio_on_focus_lost())
-            {
-                mute_audio(true);
-            }
-        }
-        else if (ev->window.event == SDL_WINDOWEVENT_ENTER)
-        {
-            if (lbAppActive)
-            {
+                lbAppActive = true;
                 isMouseActive = true;
                 isMouseActivated = true;
+                LbGrabMouseCheck(MG_OnFocusGained);
+                if (freeze_game_on_focus_lost() && !LbIsFrozenOrPaused())
+                {
+                    resume_music();
+                }
+                if (mute_audio_on_focus_lost() && !LbIsFrozenOrPaused())
+                {
+                    mute_audio(false);
+                }
+                break;
             }
+            case SDL_WINDOWEVENT_FOCUS_LOST:
+            {
+                lbAppActive = false;
+                isMouseActive = false;
+                isMouseActivated = false;
+                LbGrabMouseCheck(MG_OnFocusLost);
+                if (freeze_game_on_focus_lost())
+                {
+                    pause_music();
+                }
+                if (mute_audio_on_focus_lost())
+                {
+                    mute_audio(true);
+                }
+                break;
+            }
+            case SDL_WINDOWEVENT_ENTER:
+            {
+                if (lbAppActive)
+                {
+                    isMouseActive = true;
+                    isMouseActivated = true;
+                }
+                break;
+            }
+            case SDL_WINDOWEVENT_LEAVE:
+            {
+                isMouseActive = false;
+                break;
+            }
+            default: break;
         }
-        else if (ev->window.event == SDL_WINDOWEVENT_LEAVE)
-        {
-            isMouseActive = false;
-        }
+        /* else if (ev->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+             // todo (allow window to be freely scaled): add window resize function that does what is needed, and call this new function from window init function too
+        } */
         break;
     case SDL_JOYAXISMOTION:
     case SDL_JOYBALLMOTION:
@@ -508,7 +522,7 @@ void LbGrabMouseCheck(long grab_event)
 {
     TbBool window_has_focus = lbAppActive;
     TbBool paused = ((game.operation_flags & GOF_Paused) != 0);
-    TbBool possession_mode = (get_my_player()->view_type == PVT_CreatureContrl) && ((game.numfield_D & GNFldD_CreaturePasngr) == 0);
+    TbBool possession_mode = (get_my_player()->view_type == PVT_CreatureContrl) && ((game.view_mode_flags & GNFldD_CreaturePasngr) == 0);
     TbBool grab_cursor = lbMouseGrabbed;
     if (!window_has_focus)
     {
@@ -545,7 +559,7 @@ void LbGrabMouseCheck(long grab_event)
                 }
                 break;
             case MG_InitMouse:
-                grab_cursor = true;
+                    grab_cursor = true;
                 break;
             case MG_OnFocusGained:
                 grab_cursor = lbMouseGrab;

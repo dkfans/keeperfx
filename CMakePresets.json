@@ -1,0 +1,221 @@
+﻿{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "base",
+            "displayName": "Basic Config",
+            "description": "Basic build using Ninja generator",
+            "generator": "Ninja",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "installDir": "${sourceDir}/out/install/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+            }
+        },
+
+        {
+            "name": "x86",
+            "hidden": true,
+            "architecture": {
+                "value": "x86",
+                "strategy": "external"
+            }
+        },
+
+        {
+            "name": "Debug",
+            "displayName": "Config Debug",
+            "hidden": true,
+            "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+        },
+        {
+            "name": "Release",
+            "displayName": "Config Release",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+
+        {
+            "name": "MSVC",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe"
+            }
+        },
+        {
+            "name": "Clang",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang-cl.exe",
+                "CMAKE_CXX_COMPILER": "clang-cl.exe"
+            },
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "intelliSenseMode": "windows-clang-x86"
+                }
+            }
+        },
+
+        {
+            "name": "Debug-Clang",
+            "displayName": "Debug Clang",
+            "inherits": [ "base", "x86", "Debug", "Clang" ],
+            "hidden": true
+        },
+        {
+            "name": "Release-Clang",
+            "displayName": "Release Clang",
+            "inherits": [ "base", "x86", "Release", "Clang" ],
+            "hidden": true
+        },
+        {
+            "name": "Debug-MSVC",
+            "displayName": "Debug MSVC",
+            "inherits": [ "base", "x86", "Debug", "MSVC" ],
+            "hidden": true
+        },
+        {
+            "name": "Release-MSVC",
+            "displayName": "Release MSVC",
+            "inherits": [ "base", "x86", "Release", "MSVC" ],
+            "hidden": true
+        },
+
+        {
+            "name": "MingGW32-Base",
+            "hidden": true,
+            "inherits": "base",
+            "environment": {
+                "PATH": "C:/msys64/mingw32/bin;$penv{PATH}"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc.exe",
+                "CMAKE_CXX_COMPILER": "g++.exe",
+                "VCPKG_TARGET_TRIPLET": "x86-mingw-dynamic"
+            },
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "intelliSenseMode": "windows-clang-x86"
+                }
+            }
+        },
+
+        {
+            "name": "x86-MinGW32-Debug",
+            "displayName": "x86-MinGW32-Debug",
+            "inherits": [ "MingGW32-Base", "x86", "Debug" ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
+            }
+        },
+        {
+            "name": "x86-MinGW32-Release",
+            "displayName": "x86-MinGW32-Release",
+            "inherits": [ "MingGW32-Base", "x86", "Release" ],
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "on"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "Base",
+            "hidden": true,
+            "jobs": 8,
+            "verbose": true,
+            "configurePreset": "Debug"
+        },
+
+        {
+            "name": "StandardLog",
+            "hidden": true,
+            "inherits": "Base",
+            "targets": "keeperfx"
+        },
+        {
+            "name": "HeavyLog",
+            "hidden": true,
+            "inherits": "Base",
+            "targets": "keeperfx_hvlog"
+        },
+
+        {
+            "name": "Debug-Clang-Standard",
+            "displayName": "Debug Clang Standard",
+            "inherits": "StandardLog",
+            "configurePreset": "Debug-Clang"
+        },
+        {
+            "name": "Release-Clang-Standard",
+            "displayName": "Release Clang Standard",
+            "inherits": "StandardLog",
+            "configurePreset": "Release-Clang"
+        },
+        {
+            "name": "Debug-MSVC-Standard",
+            "displayName": "Debug MSVC Standard",
+            "inherits": "StandardLog",
+            "configurePreset": "Debug-MSVC"
+        },
+        {
+            "name": "Release-MSVC-Standard",
+            "displayName": "Release MSVC Standard",
+            "inherits": "StandardLog",
+            "configurePreset": "Release-MSVC"
+        },
+        {
+            "name": "Debug-Clang-HeavyLog",
+            "displayName": "Debug Clang HeavyLog",
+            "inherits": "HeavyLog",
+            "configurePreset": "Debug-Clang"
+        },
+        {
+            "name": "Release-Clang-HeavyLog",
+            "displayName": "Release Clang HeavyLog",
+            "inherits": "HeavyLog",
+            "configurePreset": "Release-Clang"
+        },
+        {
+            "name": "Debug-MSVC-HeavyLog",
+            "displayName": "Debug MSVC HeavyLog",
+            "inherits": "HeavyLog",
+            "configurePreset": "Debug-MSVC"
+        },
+        {
+            "name": "Release-MSVC-HeavyLog",
+            "displayName": "Release MSVC HeavyLog",
+            "inherits": "HeavyLog",
+            "configurePreset": "Release-MSVC"
+        },
+
+        {
+            "name": "Debug-MinGW32-Standard",
+            "displayName": "Debug MinGW32 Standard",
+            "inherits": "StandardLog",
+            "configurePreset": "x86-MinGW32-Debug"
+        },
+        {
+            "name": "Release-MinGW32-Standard",
+            "displayName": "Release MinGW32 Standard",
+            "inherits": "StandardLog",
+            "configurePreset": "x86-MinGW32-Release"
+        },
+        {
+            "name": "Debug-MinGW32-HeavyLog",
+            "displayName": "Debug MinGW32 HeavyLog",
+            "inherits": "HeavyLog",
+            "configurePreset": "x86-MinGW32-Debug"
+        },
+        {
+            "name": "Release-MinGW32-HeavyLog",
+            "displayName": "Release MinGW32 HeavyLog",
+            "inherits": "HeavyLog",
+            "configurePreset": "x86-MinGW32-Release"
+        }
+    ]
+}

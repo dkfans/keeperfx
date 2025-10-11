@@ -22,7 +22,6 @@
 #include <math.h>
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
@@ -31,6 +30,7 @@
 #include "lens_flyeye.h"
 #include "vidmode.h"
 #include "game_legacy.h"
+#include "config_keeperfx.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -150,7 +150,7 @@ TbBool clear_lens_palette(void)
     SYNCDBG(7,"Staring");
     struct PlayerInfo* player = get_my_player();
     // Get lens config and check if it has palette entry
-    struct LensConfig* lenscfg = get_lens_config(game.numfield_1B);
+    struct LensConfig* lenscfg = get_lens_config(game.applied_lens_type);
     if ((lenscfg->flags & LCF_HasPalette) != 0)
     {
         // If there is a palette entry, then clear it
@@ -176,17 +176,17 @@ void reset_eye_lenses(void)
     clear_lens_palette();
     if (eye_lens_memory != NULL)
     {
-        LbMemoryFree(eye_lens_memory);
+        free(eye_lens_memory);
         eye_lens_memory = NULL;
     }
     if (eye_lens_spare_screen_memory != NULL)
     {
-        LbMemoryFree(eye_lens_spare_screen_memory);
+        free(eye_lens_spare_screen_memory);
         eye_lens_spare_screen_memory = NULL;
     }
-    set_flag_byte(&game.flags_cd, MFlg_EyeLensReady, false);
-    game.numfield_1A = 0;
-    game.numfield_1B = 0;
+    clear_flag(game.mode_flags, MFlg_EyeLensReady);
+    game.active_lens_type = 0;
+    game.applied_lens_type = 0;
     SYNCDBG(9,"Done");
 }
 
@@ -200,7 +200,7 @@ void initialise_eye_lenses(void)
   }
   if ((features_enabled & Ft_EyeLens) == 0)
   {
-    set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,false);
+    clear_flag(game.mode_flags, MFlg_EyeLensReady);
     return;
   }
 
@@ -208,8 +208,8 @@ void initialise_eye_lenses(void)
   eye_lens_width = lbDisplay.GraphicsScreenWidth;
   unsigned long screen_size = eye_lens_width * eye_lens_height + 2;
   if (screen_size < 256*256) screen_size = 256*256 + 2;
-  eye_lens_memory = (unsigned long *)LbMemoryAlloc(screen_size*sizeof(unsigned long));
-  eye_lens_spare_screen_memory = (unsigned char *)LbMemoryAlloc(screen_size*sizeof(TbPixel));
+  eye_lens_memory = (unsigned long *)calloc(screen_size, sizeof(unsigned long));
+  eye_lens_spare_screen_memory = (unsigned char *)calloc(screen_size, sizeof(TbPixel));
   if ((eye_lens_memory == NULL) || (eye_lens_spare_screen_memory == NULL))
   {
     reset_eye_lenses();
@@ -217,29 +217,29 @@ void initialise_eye_lenses(void)
     return;
   }
   SYNCDBG(9,"Buffer dimensions (%d,%d)",eye_lens_width,eye_lens_height);
-  set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,true);
+  set_flag(game.mode_flags, MFlg_EyeLensReady);
 }
 
 void setup_eye_lens(long nlens)
 {
-    if ((game.flags_cd & MFlg_EyeLensReady) == 0)
+    if ((game.mode_flags & MFlg_EyeLensReady) == 0)
     {
         WARNLOG("Can't setup lens - not initialized");
         return;
     }
     SYNCDBG(7,"Starting for lens %ld",nlens);
     if (clear_lens_palette()) {
-        game.numfield_1A = 0;
+        game.active_lens_type = 0;
     }
     if (nlens == 0)
     {
-        game.numfield_1A = 0;
-        game.numfield_1B = 0;
+        game.active_lens_type = 0;
+        game.applied_lens_type = 0;
         return;
     }
-    if (game.numfield_1A == nlens)
+    if (game.active_lens_type == nlens)
     {
-        game.numfield_1B = nlens;
+        game.applied_lens_type = nlens;
         return;
     }
     struct LensConfig* lenscfg = get_lens_config(nlens);
@@ -275,16 +275,16 @@ void setup_eye_lens(long nlens)
         SYNCDBG(9,"Palette config entered");
         set_lens_palette(lenscfg->palette);
     }
-    game.numfield_1B = nlens;
-    game.numfield_1A = nlens;
+    game.applied_lens_type = nlens;
+    game.active_lens_type = nlens;
 }
 
 void reinitialise_eye_lens(long nlens)
 {
   initialise_eye_lenses();
-  if ((game.flags_cd & MFlg_EyeLensReady) && (nlens>0))
+  if ((game.mode_flags & MFlg_EyeLensReady) && (nlens>0))
   {
-      game.numfield_1B = 0;
+      game.applied_lens_type = 0;
       setup_eye_lens(nlens);
   }
   SYNCDBG(18,"Finished");
@@ -313,7 +313,7 @@ void draw_copy(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long
     unsigned char* src = srcbuf;
     for (long i = 0; i < height; i++)
     {
-        LbMemoryCopy(dst,src,width*sizeof(TbPixel));
+        memcpy(dst,src,width*sizeof(TbPixel));
         dst += dstpitch;
         src += srcpitch;
     }
@@ -325,7 +325,7 @@ void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbu
     if ((effect < 1) || (effect > lenses_conf.lenses_count))
     {
         if (effect != 0)
-            ERRORLOG("Invalid lens effect %d",effect);
+            ERRORLOG("Invalid lens effect %ld",effect);
         effect = 0;
     }
     struct LensConfig* lenscfg = &lenses_conf.lenses[effect];

@@ -19,22 +19,26 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/"
-
-"Language-Team: KeeperFX Team <github.com/dkfans>\n"
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/Language-"
+"Team: KeeperFX Team <github.com/dkfans>\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "Language: sv_SE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 3.7\n"
 
 #. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
 msgid "Success! The land is yours. Press Space to proceed to the next realm."
 msgstr ""
-"Framgång! Landet är ditt. Tryck på mellanslag för att fortsätta till nästa land."
+"Framgång! Landet är ditt. Tryck på mellanslag för att fortsätta till nästa "
+"land."
 
 #. Level Eversmile information soon after start
 #: guitext:1
@@ -47,14 +51,14 @@ msgstr "Detta är ett meddelande. Högerklicka för att ta bort det."
 msgctxt "In-game message"
 msgid ""
 "The first thing a Keeper needs is somewhere to keep gold, when it's been "
-"mined out of the rock by his imps. To create a Treasure Room, select the "
+"mined out of the rock by his Imps. To create a Treasure Room, select the "
 "Treasure Room icon from the Rooms Panel and fill the empty area to the west "
 "with Treasure Room tiles."
 msgstr ""
 "Det första en väktare behöver är någonstans att förvara sitt guld efter att "
-"det har brutits ur klippan av hans smådjävlar. För att skapa en skattkammare, "
-"välj skattkammarikonen från rumspanelen och fyll det tomma området i väster "
-"med skattkammarplattor."
+"det har brutits ur klippan av hans smådjävlar. För att skapa en "
+"skattkammare, välj skattkammarikonen från rumspanelen och fyll det tomma "
+"området i väster med skattkammarplattor."
 
 #. Level Eversmile information when started building Treasure Room
 #: guitext:3
@@ -88,8 +92,8 @@ msgid ""
 "the Hand of Evil on them. Slapping will harm your creatures."
 msgstr ""
 "Om du vill få dina varelser att arbeta hårdare, daska till dem litet genom "
-"att högerklicka på dem med ondskans hand. Men tänk på att du skadar "
-"dina varelser om du slår dem."
+"att högerklicka på dem med ondskans hand. Men tänk på att du skadar dina "
+"varelser om du slår dem."
 
 #. Level Eversmile information while digging gold
 #: guitext:6
@@ -100,24 +104,24 @@ msgid ""
 "dungeon. Creatures perform the task most relevant to the situation they're "
 "dropped into."
 msgstr ""
-"Använd vänster musknapp för att plocka upp dina varelser. Använd höger"
-"musknapp för att släppa dem över ett rum eller område tillhörande din "
-"grotta. Varelser utför den uppgift som är mest relevant för den situation "
-"de hamnar i."
+"Använd vänster musknapp för att plocka upp dina varelser. Använd "
+"högermusknapp för att släppa dem över ett rum eller område tillhörande din "
+"grotta. Varelser utför den uppgift som är mest relevant för den situation de "
+"hamnar i."
 
 #. Level Eversmile objective after digging gold
 #: guitext:7
 msgctxt "In-game message"
 msgid ""
 "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
-"Lair. Lairs are where creatures rest and recover. The area your imps just "
+"Lair. Lairs are where creatures rest and recover. The area your Imps just "
 "mined out would be an ideal spot for some creatures to lurk. Select the Lair "
 "icon from the Rooms Panel."
 msgstr ""
-"Lystet gjort, väktare. Nu behöver du bygga om en del av din grotta till lyor. "
-"Lyor är där varelser vilar och återhämtar sig. Det område dina smådjävlar just "
-"grävt ut skulle vara ett superbt område för en del av dina varelser. Välj "
-"lya-ikonen från rumspanelen."
+"Lystet gjort, väktare. Nu behöver du bygga om en del av din grotta till "
+"lyor. Lyor är där varelser vilar och återhämtar sig. Det område dina "
+"smådjävlar just grävt ut skulle vara ett superbt område för en del av dina "
+"varelser. Välj lya-ikonen från rumspanelen."
 
 #. Level Eversmile objective after Lair built
 #: guitext:8
@@ -125,7 +129,7 @@ msgctxt "In-game message"
 msgid ""
 "Dig a tunnel that connects to the Portal to the north. Portals appear on the "
 "map as flashing squares, until they are claimed. Creatures only use Portals "
-"claimed by a Keeper. Your imps claim a Portal as soon as it connects to your "
+"claimed by a Keeper. Your Imps claim a Portal as soon as it connects to your "
 "dungeon."
 msgstr ""
 "Gräv en tunnel som ansluter till portalen i norr. Portaler visas på kartan "
@@ -173,11 +177,11 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
-"be unable to pay any creatures. Only imps give their loyalty freely. No "
+"be unable to pay any creatures. Only Imps give their loyalty freely. No "
 "other creatures will serve you unpaid."
 msgstr ""
-"Du har ännu inte byggt någon skattkammare. Innan du byggt en sådan kommer "
-"du inte kunna avlöna några varelser. Endast smådjävlar ger bort sin lojalitet "
+"Du har ännu inte byggt någon skattkammare. Innan du byggt en sådan kommer du "
+"inte kunna avlöna några varelser. Endast smådjävlar ger bort sin lojalitet "
 "utan ersättning. Inga andra varelser kommer tjäna dig utan betalning."
 
 #. Level Eversmile objective after getting first creature
@@ -211,14 +215,14 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Imps fortify your walls to prevent intruders tunnelling in. If you want to "
-"create more imps, go to the Research Panel, select the Imp icon and left "
+"create more Imps, go to the Research Panel, select the Imp icon and left "
 "click anywhere in your dungeon. Each Imp you create costs more than the "
 "previous one."
 msgstr ""
 "smådjävlar förstärker dina väggar för att förhindra inkräktare från att "
-"gräva sig in. Om du vill skapa fler smådjävlar, gå till forskningspanelen, välj "
-"Smådjävuls-ikonen och vänsterklicka någonstans i din grotta. Varje Smådjävul "
-"du skapar kostar mer än den föregående."
+"gräva sig in. Om du vill skapa fler smådjävlar, gå till forskningspanelen, "
+"välj Smådjävuls-ikonen och vänsterklicka någonstans i din grotta. Varje "
+"Smådjävul du skapar kostar mer än den föregående."
 
 #. Level Eversmile information after having few creatures
 #: guitext:16
@@ -240,9 +244,9 @@ msgid ""
 "entry to your dungeon. A white trail on the map indicates their progress. "
 "Click the icon at the top of the Control Panel to see a bigger map."
 msgstr ""
-"Inkräktare närmar sig. De letar efter hål i dina förstärkningar för att kunna "
-"ta sig in i din grotta. Ett vitt spår på kartan visar deras framfart. Klicka på "
-"ikonen överst på kontrollpanelen för att öppna en större karta."
+"Inkräktare närmar sig. De letar efter hål i dina förstärkningar för att "
+"kunna ta sig in i din grotta. Ett vitt spår på kartan visar deras framfart. "
+"Klicka på ikonen överst på kontrollpanelen för att öppna en större karta."
 
 #. Level Eversmile objective after first wave defeat
 #: guitext:18
@@ -251,8 +255,8 @@ msgid ""
 "Savour your first victory while you can. You have attracted the wrath of the "
 "Lord of this realm. His party will soon be here."
 msgstr ""
-"Njut av din första seger medan du kan. Du har dragit på dig vreden från detta "
-"lands härskare. Han och hans hejdukar kommer snart vara här."
+"Njut av din första seger medan du kan. Du har dragit på dig vreden från "
+"detta lands härskare. Han och hans hejdukar kommer snart vara här."
 
 #. Levels Eversmile and Tickle objective, when LOTL comes
 #: guitext:19
@@ -295,9 +299,10 @@ msgid ""
 "Fortified walls keep out intruders. Rooms with reinforced walls make your "
 "creatures feel more at home and heroes more terrified."
 msgstr ""
-"När smådjävlar inte har någon annan order springer de runt och förstärker din "
-"grotta. Förstärkta väggar håller inkräktare borta. Rum med förstärkta väggar "
-"får dina varelser att känna sig mer hemmastadda och hjältar mer förskräckta."
+"När smådjävlar inte har någon annan order springer de runt och förstärker "
+"din grotta. Förstärkta väggar håller inkräktare borta. Rum med förstärkta "
+"väggar får dina varelser att känna sig mer hemmastadda och hjältar mer "
+"förskräckta."
 
 #. Level Cosyton information soon after start
 #: guitext:23
@@ -307,9 +312,9 @@ msgid ""
 "left-clicking on the creature you want to control. Right-click to leave the "
 "creature again."
 msgstr ""
-"Besätt varelser genom att välja besätt-trollformeln från "
-"forskningspanelen och vänsterklicka på den varelse du vill besätta. "
-"Högerklicka för att lämna varelsen igen."
+"Besätt varelser genom att välja besätt-trollformeln från forskningspanelen "
+"och vänsterklicka på den varelse du vill besätta. Högerklicka för att lämna "
+"varelsen igen."
 
 #. Level Cosyton first objective
 #: guitext:24
@@ -450,9 +455,9 @@ msgid ""
 "researching magic and dungeon designs. These evil mages are real bookworms, "
 "as well as being magically proficient themselves."
 msgstr ""
-"Ditt nya bibliotek kommer dra till sig nya varelser, bland annat magiker, som är "
-"intresserade av magisk forskning och grottdesigner. Dessa onda trollkarlar "
-"är riktiga bokmalar och är dessutom själva magiska experter."
+"Ditt nya bibliotek kommer dra till sig nya varelser, bland annat magiker, "
+"som är intresserade av magisk forskning och grottdesigner. Dessa onda "
+"trollkarlar är riktiga bokmalar och är dessutom själva magiska experter."
 
 #. Level Waterdream Warm objective after finished building library
 #: guitext:37
@@ -463,8 +468,8 @@ msgid ""
 "researchers. Stupid Trolls have trouble holding books the right way up and "
 "sometimes even chew the pages."
 msgstr ""
-"Det är en fin samling pergament och skrifter du samlat. De flesta varelser kan "
-"engageras i forskning men magiker blir de bästa och skarpaste forskarna. "
+"Det är en fin samling pergament och skrifter du samlat. De flesta varelser "
+"kan engageras i forskning men magiker blir de bästa och skarpaste forskarna. "
 "Dumma troll har problem med att hålla rätt sida upp och tuggar ibland även i "
 "sig sidorna."
 
@@ -520,8 +525,8 @@ msgctxt "In-game message"
 msgid ""
 "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
 msgstr ""
-"Spelar den där smådjävulen fotboll med ett halshugget huvud? Du måste "
-"vara mer uppmärksam, väktare."
+"Spelar den där smådjävulen fotboll med ett halshugget huvud? Du måste vara "
+"mer uppmärksam, väktare."
 
 #. Level Waterdream Warm objective
 #: guitext:43
@@ -560,9 +565,9 @@ msgid ""
 "Clever research has given your Imps the engineering skill to build Bridges. "
 "You will need Bridges to cross some of the more hazardous underworld terrain."
 msgstr ""
-"Smart forskning har gett dina smådjävlar den kunskap som behövs för att bygga "
-"broar. Du behöver broar för att kunna ta dig över en del av den farligare "
-"underjordiska terrängen."
+"Smart forskning har gett dina smådjävlar den kunskap som behövs för att "
+"bygga broar. Du behöver broar för att kunna ta dig över en del av den "
+"farligare underjordiska terrängen."
 
 #. Level Flowerhat objective
 #: guitext:47
@@ -575,8 +580,8 @@ msgid ""
 msgstr ""
 "En studie av grottdesign avslöjar att verkstäder tillverkar viktiga möbler, "
 "som dörrar och fällor. Om din verkstad upptar minst nio rutor, kommer dess "
-"blotta existens att locka ned underjordens bästa hantverkare till dina växande "
-"domäner."
+"blotta existens att locka ned underjordens bästa hantverkare till dina "
+"växande domäner."
 
 #. Level Flowerhat information
 #: guitext:48
@@ -626,9 +631,9 @@ msgid ""
 "best employed doing dark deeds in your Workshop. They don't complain about "
 "the hours, because their labours keep them away from combat."
 msgstr ""
-"Ett troll har anslutit sig till dig. Då troll är formidabla hantverkare passar de "
-"bäst för svarta handlingar i din verkstad. De klagar heller inte på arbetstiden, "
-"eftersom deras arbete håller dem borta från stridens hetta."
+"Ett troll har anslutit sig till dig. Då troll är formidabla hantverkare "
+"passar de bäst för svarta handlingar i din verkstad. De klagar heller inte "
+"på arbetstiden, eftersom deras arbete håller dem borta från stridens hetta."
 
 #. Level Flowerhat objective
 #: guitext:53
@@ -637,8 +642,9 @@ msgid ""
 "With the enemy Dungeon Heart in ruins, you have trounced the once proud "
 "opposition. Rule your new domain with terror and loathing, for a laugh."
 msgstr ""
-"Med fiendens grotthjärta i spillror har du gått hårt åt det en gång så stolta "
-"motståndet. Regera din nya domän med terror och avsky, för skojs skull. "
+"Med fiendens grotthjärta i spillror har du gått hårt åt det en gång så "
+"stolta motståndet. Regera din nya domän med terror och avsky, för skojs "
+"skull. "
 
 #. Level Flowerhat information
 #: guitext:54
@@ -648,9 +654,9 @@ msgid ""
 "access to the enemy. Your creatures may pass freely. Lock or unlock Doors by "
 "clicking over them with the left mouse button."
 msgstr ""
-"Din verkstad har producerat en trädörr. Placerad i en korridor förhindrar den "
-"att fienden klampar in. Dina varelser kan passera fritt. Lås eller lås upp "
-"dörrar genom att klicka över dem med vänster musknapp."
+"Din verkstad har producerat en trädörr. Placerad i en korridor förhindrar "
+"den att fienden klampar in. Dina varelser kan passera fritt. Lås eller lås "
+"upp dörrar genom att klicka över dem med vänster musknapp."
 
 #. Level Flowerhat information
 #: guitext:55
@@ -695,8 +701,9 @@ msgid ""
 "You have slain your rival. His defeat is a testimony to your clever dungeon "
 "design. You have the makings of a Dungeon Keeper worthy of the name."
 msgstr ""
-"Du har dräpt din rival. Hans nederlag är ett bevis på din överlägsna"
-"grottdesign. Du har goda förutsättningar att bli en väktare värd sin titel."
+"Du har dräpt din rival. Hans nederlag är ett bevis på din "
+"överlägsnagrottdesign. Du har goda förutsättningar att bli en väktare värd "
+"sin titel."
 
 #. Level Lushmeadow-on-Down information
 #: guitext:59
@@ -706,8 +713,8 @@ msgid ""
 "ample Hatcheries. These corpulent monstrosities attack somewhat "
 "unconventionally."
 msgstr ""
-"En gallgasdemon väljer att stå vid din sida. Gallgasdemoner kräver stora lyor "
-"och stora odlingsanstalter. Dessa korpulenta monster attackerar dock en "
+"En gallgasdemon väljer att stå vid din sida. Gallgasdemoner kräver stora "
+"lyor och stora odlingsanstalter. Dessa korpulenta monster attackerar dock en "
 "aning okonventionellt."
 
 #. Level Lushmeadow-on-Down information
@@ -725,14 +732,14 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have claimed a Prison. Select imprison from the Information Panel and "
-"your creatures subdue their foe, at which point your imps drag the bodies "
+"your creatures subdue their foe, at which point your Imps drag the bodies "
 "off to a cell. Prisoners who die of starvation may rise again as Skeleton "
 "warriors for you to command."
 msgstr ""
 "Du har intagit ett fängelse. Välj fängsla från informationspanelen och dina "
-"varelser slår fienderna medvetslösa, varvid dina smådjävlar drar kropparna till "
-"en cell. Fångar som dör av svält kan uppstå igen som skelettkrigare under ditt "
-"kommando."
+"varelser slår fienderna medvetslösa, varvid dina smådjävlar drar kropparna "
+"till en cell. Fångar som dör av svält kan uppstå igen som skelettkrigare "
+"under ditt kommando."
 
 #. Level Lushmeadow-on-Down information
 #: guitext:62
@@ -907,8 +914,8 @@ msgid ""
 "him up. It's in the only language he understands."
 msgstr ""
 "Sök upp den som skulle vara din rival i denna del av underjorden. Förklara "
-"konceptet med förtidspensionering för honom. Å andra sidan, häng honom. "
-"Det är det enda språk han förstår."
+"konceptet med förtidspensionering för honom. Å andra sidan, häng honom. Det "
+"är det enda språk han förstår."
 
 #. Level Tickle information
 #: guitext:77
@@ -988,8 +995,8 @@ msgid ""
 "ballistic."
 msgstr ""
 "Skåda, du har kallat på en dödsängel. Försök att inte irritera den. Du "
-"kommer dock att misslyckas - allting gör den arg. Se i alla fall till att det "
-"enda som finns nära när den exploderar är en fiendevarelse."
+"kommer dock att misslyckas - allting gör den arg. Se i alla fall till att "
+"det enda som finns nära när den exploderar är en fiendevarelse."
 
 #. Level Moonbrush Wood information
 #: guitext:84
@@ -998,8 +1005,8 @@ msgid ""
 "Your researchers have concocted a Disease spell. Cast it on enemy creatures "
 "and watch the affliction spread like the plague."
 msgstr ""
-"Dina forskare har kokat ihop en trollformel som orsakar sjukdom. Kasta den på "
-"fiendevarelser och se sjukdomen sprida sig som pesten."
+"Dina forskare har kokat ihop en trollformel som orsakar sjukdom. Kasta den "
+"på fiendevarelser och se sjukdomen sprida sig som pesten."
 
 #. Level Moonbrush Wood information
 #: guitext:85
@@ -1022,9 +1029,9 @@ msgid ""
 "rot... And possibly to rise again as Vampires, ready to do your bidding. "
 "That's style."
 msgstr ""
-"Du har forskat fram kyrkogården. Dina smådjävlar kommer dra lik hit för "
-"att ruttna... och möjligtvis uppstå som vampyrer, redo att uppfylla "
-"dina önskemål. Stilfullt."
+"Du har forskat fram kyrkogården. Dina smådjävlar kommer dra lik hit för att "
+"ruttna... och möjligtvis uppstå som vampyrer, redo att uppfylla dina "
+"önskemål. Stilfullt."
 
 #. Levels Tickle and Moonbrush Wood information
 #: guitext:87
@@ -1230,8 +1237,8 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Your latest discovery is the Word of Power Trap. When activated, the trap "
-"triggers an expanding ring of demonic energy that incinerates anything caught in its "
-"area of effect. What a scream that should be."
+"triggers an expanding ring of demonic energy that incinerates anything "
+"caught in its area of effect. What a scream that should be."
 msgstr ""
 "Din senaste upptäckt är ordets makt-fällan. När den aktiverats utlöser "
 "fällan en expanderande eldring som kremerar allt som fångas i mitten. Vilket "
@@ -1268,7 +1275,8 @@ msgid ""
 "weapon."
 msgstr ""
 "Dina forskare har upptäckt en förödande kycklingtrollformel. Kasta den på en "
-"varelse för att genast förvandla målet till en fågel. Ett rejält fjäderfävapen."
+"varelse för att genast förvandla målet till en fågel. Ett rejält "
+"fjäderfävapen."
 
 #. Level Sleepiburgh information
 #: guitext:110
@@ -1323,7 +1331,7 @@ msgstr ""
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
-"I spy a keeper with hardly any creatures left under his control. I spy a "
+"I spy a Keeper with hardly any creatures left under his control. I spy a "
 "Keeper who's about to die."
 msgstr ""
 "Jag ser en väktare som knappt har några varelser kvar i tjänst. Jag ser en "
@@ -1391,9 +1399,10 @@ msgid ""
 "Your manufacturers have crafted the Lava Trap. After enemy creature steps on "
 "it, the area around changes into molten lava, which most creatures won't "
 "even try to pass."
-msgstr "" 
+msgstr ""
 "Din verkstad har producerat en lavafälla. Efter att fienden trampar på den, "
-"förvandlas plattan till lava, något som de flesta varelser inte gärna vadar i. "
+"förvandlas plattan till lava, något som de flesta varelser inte gärna vadar "
+"i. "
 
 #. Level Mirthshire objective
 #: guitext:122
@@ -1404,8 +1413,8 @@ msgid ""
 "have their heads impaled on lances for such impudence."
 msgstr ""
 "Din närvaro är redan upptäckt av hjältarna i detta land. De har arbetat "
-"snabbt för att mobilisera sina styrkor mot dig. Patetiskt. De förtjänar "
-"att få sina huvuden spetsade på lansar för sådan oförskämdhet."
+"snabbt för att mobilisera sina styrkor mot dig. Patetiskt. De förtjänar att "
+"få sina huvuden spetsade på lansar för sådan oförskämdhet."
 
 #. Level Mirthshire objective
 #: guitext:123
@@ -1527,8 +1536,8 @@ msgid ""
 "This realm is begging to be plunged into darkness. The Avatar himself has a "
 "castle here. Another Keeper also seeks his soul. This could get messy."
 msgstr ""
-"Detta rike ber om att få bli nedslungat i mörker. Avataren själv har ett slott "
-"här. En annan väktare söker också hans själ. Detta kan bli kladdigt."
+"Detta rike ber om att få bli nedslungat i mörker. Avataren själv har ett "
+"slott här. En annan väktare söker också hans själ. Detta kan bli kladdigt."
 
 #. Level Skybird Trill objective
 #: guitext:135
@@ -1598,9 +1607,9 @@ msgid ""
 "which you accomplish their destruction will determine your fitness for "
 "greater tasks ahead."
 msgstr ""
-"Alla dessa smådjävlar har blivit riktiga lymlar och måste därför dö. "
-"Den hastighet med vilken du klarar av denna utrensning kommer avgöra "
-"din förmåga att hanteras större uppgifter framöver."
+"Alla dessa smådjävlar har blivit riktiga lymlar och måste därför dö. Den "
+"hastighet med vilken du klarar av denna utrensning kommer avgöra din förmåga "
+"att hanteras större uppgifter framöver."
 
 #. Level Bonus 2 information
 #: guitext:141
@@ -1627,8 +1636,9 @@ msgid ""
 "helping you achieve your next goal. You may proceed to your next conquest."
 msgstr ""
 "Du är sannerligen en förvriden själ, mästare. Du utrotade smådjävlarna med "
-"sådan elegans att inte bara en, utan två av mörkrets älskarinnor har vigt sig "
-"till att bistå dig i dina kommande mål. Du kan fortsätta till din nästa erövring. "
+"sådan elegans att inte bara en, utan två av mörkrets älskarinnor har vigt "
+"sig till att bistå dig i dina kommande mål. Du kan fortsätta till din nästa "
+"erövring. "
 
 #. Level Bonus 3 objective
 #: guitext:144
@@ -1660,9 +1670,10 @@ msgid ""
 "certainly had your finger on the pulse this time. The dark gods will send "
 "you a vicious creature to help you conquer the next realm."
 msgstr ""
-"Det är avklarat. Små högar med förkolnat kött ryker där smådjävlarna tidigare "
-"stod. Du hade verkligen fingret på avtryckaren denna gång. De svarta gudarna "
-"kommer sända dig en ondskefull varelse för att hjälpa dig erövra nästa rike."
+"Det är avklarat. Små högar med förkolnat kött ryker där smådjävlarna "
+"tidigare stod. Du hade verkligen fingret på avtryckaren denna gång. De "
+"svarta gudarna kommer sända dig en ondskefull varelse för att hjälpa dig "
+"erövra nästa rike."
 
 #. Level Bonus 3 objective
 #: guitext:148
@@ -1804,8 +1815,8 @@ msgid ""
 "These Boulder Traps are ideal for crushing the foe but there are only three "
 "of them at your disposal, so use them wisely."
 msgstr ""
-"Dessa stenfällor är idealiska för att krossa fienden, men det finns bara "
-"tre av dem till ditt förfogande. Så använd dem klokt."
+"Dessa stenfällor är idealiska för att krossa fienden, men det finns bara tre "
+"av dem till ditt förfogande. Så använd dem klokt."
 
 #: guitext:161
 msgctxt "In-game message"
@@ -1914,8 +1925,8 @@ msgid ""
 "There's only one Keeper to get rid of before becoming the absolute master! "
 "So, what are you waiting for?"
 msgstr ""
-"Storartat, väktare! Avataren och hans patetiska armé är äntligen döda!"
-"Det är bara en annan väktare att göra sig av med för att bli den oemotsagda "
+"Storartat, väktare! Avataren och hans patetiska armé är äntligen döda!Det är "
+"bara en annan väktare att göra sig av med för att bli den oemotsagda "
 "mästaren! Nå, vad väntar du på? "
 
 #. Levels Moonbrush Wood and Bonus 1 information
@@ -1925,8 +1936,8 @@ msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
 "to reduce your enemies into ashes!"
 msgstr ""
-"Såg du? Din drakdemon utvecklades till en kraftfull drake som är redo att förvandla "
-"dina fiender till aska. "
+"Såg du? Din drakdemon utvecklades till en kraftfull drake som är redo att "
+"förvandla dina fiender till aska. "
 
 #. Level Bonus 6 objective
 #: guitext:175
@@ -1946,8 +1957,8 @@ msgid ""
 "replenish the health of your creatures and keep them from dying for a while "
 "longer."
 msgstr ""
-"Dina forskare har upptäckt en trollformel som kan återge liv till dina varelser "
-"och därav förhindra dem från att dö. "
+"Dina forskare har upptäckt en trollformel som kan återge liv till dina "
+"varelser och därav förhindra dem från att dö. "
 
 #. Level Tulipscent information
 #: guitext:177
@@ -1958,9 +1969,10 @@ msgid ""
 "possibility for them to take a nap. Be sure to have plenty of money so that "
 "the spell will stay activated."
 msgstr ""
-"Prova tvingad lydnad-trollformlen. När den aktiveras, tvingar den dina varelser "
-"att lyda din order och får dem att arbeta snabbare utan möjligheten att gå och "
-"sova. Se till att ha mycket pengar så att trollformeln fortsätter vara aktiverad. "
+"Prova tvingad lydnad-trollformlen. När den aktiveras, tvingar den dina "
+"varelser att lyda din order och får dem att arbeta snabbare utan möjligheten "
+"att gå och sova. Se till att ha mycket pengar så att trollformeln fortsätter "
+"vara aktiverad. "
 
 #. Level Tulipscent information
 #: guitext:178
@@ -1970,9 +1982,9 @@ msgid ""
 "in water and their spine can even pierce the most solid armours and paralyse "
 "your enemies! Marvellous!"
 msgstr ""
-"En tentakel har anslutit sig till din grotta. Dessa söta små varelser gillar att "
-"gå omkring i vatten och deras näbb kan penetrera de stärkaste av rustningar "
-" och paralysera dina fiender! Utmärkt! "
+"En tentakel har anslutit sig till din grotta. Dessa söta små varelser gillar "
+"att gå omkring i vatten och deras näbb kan penetrera de stärkaste av "
+"rustningar  och paralysera dina fiender! Utmärkt! "
 
 #. Level Bonus 1 objective
 #: guitext:179
@@ -1983,8 +1995,9 @@ msgid ""
 "to make this place safe is to kill every hero in the realm."
 msgstr ""
 "Du har gett dig in i denna domän för att få en varelse till dina framtida "
-"eskapader. Du fick en varelse ifrån början, så du måste vara försiktig med den. "
-"Det enda sätt att göra området säkert är att mörda alla hjältar häromkring. "
+"eskapader. Du fick en varelse ifrån början, så du måste vara försiktig med "
+"den. Det enda sätt att göra området säkert är att mörda alla hjältar "
+"häromkring. "
 
 #: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
 #: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
@@ -2099,18 +2112,14 @@ msgctxt "In-game interface description"
 msgid ""
 "Name and Health: Each creature has its own name. Behind is the creature "
 "health bar. The higher the red bar, the better health the creature is in."
-msgstr 
-"Namn och hälsa: Varje varelse har sitt eget namn. Under det är varelsens "
-"hälsomätare. Ju högre den röda mätare, i desto bättre skick är varelsen. "
+msgstr ""
 
 #: guitext:223
 msgctxt "In-game interface description"
 msgid ""
 "Experience: The creature's experience level. Behind the level number is a "
 "bar indicating the creatures progress towards attaining more experience."
-msgstr 
-"Erfarenhet: Varelsens erfarenhetsnivå. Under nivåsiffran är en mätare "
-"som indikerar varelsens utveckling mot att få mer erfarenhet. "
+msgstr ""
 
 #: guitext:224
 msgctxt "In-game interface description"
@@ -2134,8 +2143,8 @@ msgid ""
 "Freeze: Changes the target creature to ice. It is then in suspended "
 "animation and can be shattered with a well-aimed blow."
 msgstr ""
-"Frys: Fryser en motståndare till is. I sitt frusna tillstånd kan "
-"den krossas med ett välriktat slag. "
+"Frys: Fryser en motståndare till is. I sitt frusna tillstånd kan den krossas "
+"med ett välriktat slag. "
 
 #: guitext:228
 msgctxt "Creature spell"
@@ -2143,8 +2152,8 @@ msgid ""
 "Armour: This lowers the amount of damage a creature takes each time it is "
 "hit, and provides complete immunity to electric shocks."
 msgstr ""
-"Skydda: Denna trollformel reducerar mängden skada en varelse tar varje "
-"gång den blir skadad och ger ett hundraprocentigt skydd mot blixt-trollformeln. "
+"Skydda: Denna trollformel reducerar mängden skada en varelse tar varje gång "
+"den blir skadad och ger ett hundraprocentigt skydd mot blixt-trollformeln. "
 
 #: guitext:229
 msgctxt "Creature spell"
@@ -2152,17 +2161,15 @@ msgid ""
 "Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
 "lighting from the creature."
 msgstr ""
-"Blixtnedslag: Ett kraftfullt magiskt vapen med en elektrisk attack. Frammanar "
-"en blixt som skadar fiendevarelser. "
+"Blixtnedslag: Ett kraftfullt magiskt vapen med en elektrisk attack. "
+"Frammanar en blixt som skadar fiendevarelser. "
 
 #: guitext:230
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
-msgstr ""
-"Retur: Gör så att varje magi studsar tillbaka på anfallaren. "
+msgstr "Retur: Gör så att varje magi studsar tillbaka på anfallaren. "
 
 #: guitext:231
-
 msgctxt "Creature spell"
 msgid ""
 "Fear: Causes the opponent to be terrified and wanting to skip engaging into "
@@ -2183,8 +2190,8 @@ msgid ""
 "Missile: A simple spell that sends a screaming magic reptile at the "
 "invaders. Very disconcerting."
 msgstr ""
-"Missil: En enkel trollformel som kastar iväg en magisk skrikande reptil "
-"på de som invarderar. Mycket oroväckande. "
+"Missil: En enkel trollformel som kastar iväg en magisk skrikande reptil på "
+"de som invarderar. Mycket oroväckande. "
 
 #: guitext:234
 msgctxt "Creature spell"
@@ -2192,17 +2199,18 @@ msgid ""
 "Grenade: Throws a powerful explosive at the approaching enemy. It can also "
 "bounce off walls and has the traditional delayed fuse."
 msgstr ""
-"Granat: Kastar ett kraftfullt sprängämne mot fienden. Den studsar också "
-"emot väggar och har den traditionella fördröjda antändningen. "
+"Granat: Kastar ett kraftfullt sprängämne mot fienden. Den studsar också emot "
+"väggar och har den traditionella fördröjda antändningen. "
 
 #: guitext:235
 msgctxt "Creature spell"
 msgid ""
-"Navigating Missile: A spell that sends a screaming magic reptile homing "
-"in on the nearest hero or enemy creature for double damage. Nice."
+"Navigating Missile: A spell that sends a screaming magic reptile homing in "
+"on the nearest hero or enemy creature for double damage. Nice."
 msgstr ""
 "Navigerande missil: En trollformel som slungar en vrålande målsökande magisk "
-"reptil mot den närmaste hjälte eller fientliga varelse och orsakar dubbel skada. Trevligt "
+"reptil mot den närmaste hjälte eller fientliga varelse och orsakar dubbel "
+"skada. Trevligt "
 
 #: guitext:236
 msgctxt "Creature spell"
@@ -2219,8 +2227,8 @@ msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
 msgstr ""
-"Giftmoln: Skapar ett moln av kvävande gas som är kapabel att skada "
-"både fiender och dina egna varelser. Gasen påverkar alla som inandas den. "
+"Giftmoln: Skapar ett moln av kvävande gas som är kapabel att skada både "
+"fiender och dina egna varelser. Gasen påverkar alla som inandas den. "
 
 #: guitext:238
 msgctxt "Creature spell"
@@ -2228,10 +2236,11 @@ msgid "Group: Not used"
 msgstr "Grupp: Används inte"
 
 #: guitext:239
+#, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Invisibility: Cast on one of your minions, it makes the host creature "
-"invisible to all enemies. Unless they possess a subnatural Sight."
+"Invisibility: Makes the creature invisible to all enemies. Unless they "
+"possess a subnatural Sight."
 msgstr ""
 "Osynlighet: Förtrolla en av dina varelser och gör den osynlig till alla "
 "fiender - såvida de inte har en övernaturlig syn. "
@@ -2243,9 +2252,9 @@ msgid ""
 "you are Possessing a creature, then it teleports to its Lair or to the "
 "Dungeon Heart."
 msgstr ""
-"Teleportering: Med denna kraft kan en varelse teleportera till "
-"till vartsomhelst i domänen. Om du besätter en varelse, så teleporterar "
-"den till sin lya eller till grotthjärtat. "
+"Teleportering: Med denna kraft kan en varelse teleportera till till "
+"vartsomhelst i domänen. Om du besätter en varelse, så teleporterar den till "
+"sin lya eller till grotthjärtat. "
 
 #: guitext:241
 msgctxt "Creature spell"
@@ -2263,31 +2272,30 @@ msgstr "Belysning: Används inte"
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
-"from the air."
+"from the air or cross lava unharmed."
 msgstr ""
-"Sväva: Gör så att varelsen kan lätta ifrån marken och attackera ifrån "
-"ovan. "
+"Sväva: Gör så att varelsen kan lätta ifrån marken och attackera ifrån ovan. "
 
 #: guitext:244
 msgctxt "Creature spell"
 msgid "Hail Storm: Creates a fury of hailstones."
-msgstr ""
-"Hagelstorm: Frammanar en skur av hagel."
+msgstr "Hagelstorm: Frammanar en skur av hagel."
 
 #: guitext:245
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making it attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement "
+"delayed."
 msgstr ""
-"Långsam: Gör fienden långsam så att dess attacker och rörelse blir fördröjda. "
+"Långsam: Gör fienden långsam så att dess attacker och rörelse blir "
+"fördröjda. "
 
 #: guitext:246
 msgctxt "Creature spell"
 msgid ""
-"Drain: This spell drains the target creature a part of its health and gives it "
-"to the caster."
-msgstr ""
-"Blodsugning: Denna trollformel suger en andel av sin fiendes hälsa. "
+"Drain: This spell drains the target creature a part of its health and gives "
+"it to the caster."
+msgstr "Blodsugning: Denna trollformel suger en andel av sin fiendes hälsa. "
 
 #: guitext:247
 msgctxt "Creature spell"
@@ -2297,21 +2305,19 @@ msgid ""
 "crowded hordes of enemies, also pushes them back."
 msgstr ""
 "Ordets makt: Frammanar ringar av demonisk energi ifrån varelsens kropp som "
-"orsakar massiv skada i omgivningen. Mycket effektiv mot grupper av fiender och "
-"trycker dessutom undan dem. "
+"orsakar massiv skada i omgivningen. Mycket effektiv mot grupper av fiender "
+"och trycker dessutom undan dem. "
 
 #: guitext:248
 msgctxt "Creature spell"
-msgid ""
-"Heal: When this is cast, the creature is massively healed."
-msgstr ""
-"Hela: När denna trollformel används, blir varelsen kraftfullt helad. "
+msgid "Heal: When this is cast, the creature is massively healed."
+msgstr "Hela: När denna trollformel används, blir varelsen kraftfullt helad. "
 
 #: guitext:249
 msgctxt "Creature spell"
 msgid ""
-"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
-"away from you."
+"Wind: Creates a force twelve gale in your dungeon blowing every creature "
+"away from you. And nasty smells of course."
 msgstr ""
 "Vind: Frammanar en kraftfull blåst i din grotta som blåser bort alla "
 "varelser ifrån dig."
@@ -2322,17 +2328,16 @@ msgid ""
 "Meteor: More powerful than the fireball, this spell throws out a solid ball "
 "of fire which does a lot of damage to an enemy."
 msgstr ""
-"Meteorit: Mycket kraftfullare än eldklotet. Denna trollformel frammanar "
-"en solid eldboll som orsakar svåra sår på en fiende och sin omgivning där "
-"den slår ned. "
+"Meteorit: Mycket kraftfullare än eldklotet. Denna trollformel frammanar en "
+"solid eldboll som orsakar svåra sår på en fiende och sin omgivning där den "
+"slår ned. "
 
 #: guitext:251
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
-"inflicts minor damage to a Dungeon's walls and doors."
-msgstr ""
-"Eldklot: Avfyrar ett eldklot mot den närmaste fienden. "
+"inflicts minor damage to a dungeon's walls and doors."
+msgstr "Eldklot: Avfyrar ett eldklot mot den närmaste fienden. "
 
 #: guitext:252
 msgctxt "Creature spell"
@@ -2345,10 +2350,8 @@ msgstr ""
 
 #: guitext:253
 msgctxt "Creature spell"
-msgid ""
-"Fart: A close range gas attack that only damages enemy creatures."
-msgstr ""
-"Prutt: En närkampsgasattack som endast skadar fiendevarelser."
+msgid "Fart: A close range gas attack that only damages enemy creatures."
+msgstr "Prutt: En närkampsgasattack som endast skadar fiendevarelser."
 
 #: guitext:254
 msgctxt "Creature spell"
@@ -2356,18 +2359,18 @@ msgid ""
 "Dig: This is the basic ability of the Imp and allows it to tunnel through "
 "earth."
 msgstr ""
-"Gräva: Detta är den grundläggande förmågan som smådjävlar besitter så "
-"att de kan gräva tunnlar. "
+"Gräva: Detta är den grundläggande förmågan som smådjävlar besitter så att de "
+"kan gräva tunnlar. "
 
 #: guitext:255
 msgctxt "Creature spell"
 msgid ""
-"Disease: Fired at a foe, gives them a Disease which is then spread to other "
+"Disease: Fired at a foe, gives them a disease which is then spread to other "
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
 msgstr ""
-"Sjukdom: Avfyras mot en fiende, gör så att de blir sjuka vilket i sin tur kan "
-"sprida sig emellan andra varelser. De infekterade dör långsamt och kann "
+"Sjukdom: Avfyras mot en fiende, gör så att de blir sjuka vilket i sin tur "
+"kan sprida sig emellan andra varelser. De infekterade dör långsamt och kann "
 "endast botas i ett tempel. "
 
 #: guitext:256
@@ -2378,8 +2381,8 @@ msgid ""
 "normal chicken."
 msgstr ""
 "Kyckling: Förvandlar fienden till en kyckling en kort stund. Fienden kan "
-"inte attackera i denna form, men har samma styrka som förut och "
-"kommer därav vara -något- svårare att döda än en vanlig kyckling. "
+"inte attackera i denna form, men har samma styrka som förut och kommer därav "
+"vara -något- svårare att döda än en vanlig kyckling. "
 
 #: guitext:257
 msgctxt "Creature spell"
@@ -2566,8 +2569,7 @@ msgid ""
 "Anger: How angry the creature is. The higher the bar is, the angrier the "
 "creature is."
 msgstr ""
-"Ilska: Hur arg en varelse är. Ju högre mätaren är, desto argare "
-"är varelsen. "
+"Ilska: Hur arg en varelse är. Ju högre mätaren är, desto argare är varelsen. "
 
 #: guitext:292
 msgctxt "In-game interface description"
@@ -2577,7 +2579,7 @@ msgstr "Antal dödade: Antal fiender varelsen har slagit ihjäl. [23.7]"
 #: guitext:293
 msgctxt "In-game interface description"
 msgid ""
-"Strength: The amount of damage the creature inflicts upon it's enemies with "
+"Strength: The amount of damage the creature inflicts upon its enemies with "
 "each hit."
 msgstr "Styrka: Den skada varelsen åstadkommer på sina fiender. [23.12]"
 
@@ -2663,7 +2665,8 @@ msgstr ""
 #: guitext:305
 msgctxt "In-game interface description"
 msgid ""
-"Fight: Your creatures always attack and not avoid any combat. LMB select."
+"Fight: Your creatures always attack and will not avoid any combat. LMB "
+"select."
 msgstr "Slåss: Dina varelser anfaller alltid. VMK väljer. [6.5.1]"
 
 #: guitext:306
@@ -2716,11 +2719,11 @@ msgid "Shadows: The number of shadows cast by each creature. LMB toggle."
 msgstr "Skuggor: Det antal skuggor varje varelse kastar. VMK växlar. [3.2.2]"
 
 #: guitext:314
-msgctxt "In-game interface description"
 #, fuzzy
+msgctxt "In-game interface description"
 msgid ""
-"View Type: Swap between perspective views. Default view has warped walls "
-"and can be rotated. Disable the warp effect for clean lines. Forced perspective "
+"View Type: Swap between perspective views. Default view has warped walls and "
+"can be rotated. Disable the warp effect for clean lines. Forced perspective "
 "can only be rotated 90 degrees and changes the viewing angle. LMB toggle."
 msgstr ""
 "Visningstyp: Växla mellan standard och tvingade perspektivvisningar. VMK "
@@ -2788,7 +2791,8 @@ msgctxt "Slab description"
 msgid ""
 "Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
 "to go round. It is visible even if far from your territory."
-msgstr "Ogenomtränglig klippa: Dina smådjävlar kan inte gräva sig igenom denna."
+msgstr ""
+"Ogenomtränglig klippa: Dina smådjävlar kan inte gräva sig igenom denna."
 
 #: guitext:325
 msgctxt "Slab description"
@@ -2809,11 +2813,11 @@ msgstr ""
 
 #: guitext:327
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. Get over lava by building a Bridge."
-"or building a Bridge."
+msgid ""
+"Lava: Burns any creature that step on it. Get over lava by building a Bridge."
 msgstr ""
-"Lava: Bränner alla varelser som kliver i den. Du kan korsa lava genom att bygga "
-"en bro över den. "
+"Lava: Bränner alla varelser som kliver i den. Du kan korsa lava genom att "
+"bygga en bro över den."
 
 #: guitext:328
 msgctxt "Slab description"
@@ -3300,7 +3304,8 @@ msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
 "realm."
 msgstr ""
-"Överför varelse: Välj en av dina varelser som får följa med dig till nästa rike. "
+"Överför varelse: Välj en av dina varelser som får följa med dig till nästa "
+"rike. "
 
 #: guitext:423
 msgctxt "Dungeon special description"
@@ -3325,8 +3330,8 @@ msgstr "Gör säker: Förstärker hela din grotta."
 #: guitext:427
 msgctxt "Dungeon special description"
 msgid ""
-"Locate Hidden World: You will get access to a secret realm after you "
-"have conquered this one."
+"Locate Hidden World: You will get access to a secret realm after you have "
+"conquered this one."
 msgstr ""
 "Lokalisera en gömd värld: Du kommer att transporteras till en hemlig domän "
 "efter att du har erövrat denna. "
@@ -3429,14 +3434,15 @@ msgstr "Typ"
 #: guitext:447
 msgctxt "In-game interface description"
 msgid ""
-msgid "Information Panel: Miscellaneous information. Shows your and enemy progress and allows changing creature tendencies."
-"Informationspanel: Blandad information. Visar din och din fiendes tillstånd och möjliggör förändring av varelsers tendenser."
+"Information Panel: Miscellaneous information. Shows your and enemy progress "
+"and allows changing creature tendencies."
+msgstr ""
 
 #: guitext:448
 msgctxt "In-game interface description"
 msgid ""
-"Room Panel: The rooms available for you to build. Here you can center map on "
-"rooms or build new ones."
+"Room Panel: The rooms available for you to build. Here you can centre the "
+"map on rooms or build new ones."
 msgstr "Rumspanel: De rum som finns tillgängliga för dig att bygga. [6.0]"
 
 #: guitext:449
@@ -3449,8 +3455,8 @@ msgstr "Forskningspanel: De trollformler som finns tillgängliga för dig. [7.0]
 #: guitext:450
 msgctxt "In-game interface description"
 msgid ""
-"Workshop Panel: The traps and doors available to you. You can center the map "
-"on them, place new ones or sell existing."
+"Workshop Panel: The traps and doors available to you. You can centre the map "
+"on them, place new ones, or sell existing ones."
 msgstr ""
 "Verkstadspanel: De fällor och dörrar som finns tillgängliga för dig. [8.0]"
 
@@ -3482,11 +3488,13 @@ msgstr ""
 #: guitext:454
 msgctxt "In-game interface description"
 msgid ""
-msgid "Payday Time: The time until the next Creature Payday. This bar increases over time and, when it reaches its "
-"peak, all of your creatures will want their wages."
+"Payday Time: The time until the next Creature Payday. This bar increases "
+"over time and, when it reaches its peak, all of your creatures will want "
+"their wages."
 msgstr ""
-"Tid till löning:  Den tid som återstår innan nästa löneutbetalning till dina varelser. Denna mätare ökar i takt med tiden och "
-"när den når sitt slut så kommer alla dina varelser att vilja ha sin lön. "
+"Tid till löning:  Den tid som återstår innan nästa löneutbetalning till dina "
+"varelser. Denna mätare ökar i takt med tiden och när den når sitt slut så "
+"kommer alla dina varelser att vilja ha sin lön. "
 
 #: guitext:455
 msgctxt "In-game interface description"
@@ -3747,53 +3755,53 @@ msgstr "Num Delete"
 
 #: guitext:505
 msgctxt "Keyboard"
-msgid "NUM 1"
-msgstr "NUM 1"
+msgid "Num 1"
+msgstr "Num 1"
 
 #: guitext:506
 msgctxt "Keyboard"
-msgid "NUM 2"
-msgstr "NUM 2"
+msgid "Num 2"
+msgstr "Num 2"
 
 #: guitext:507
 msgctxt "Keyboard"
-msgid "NUM 3"
-msgstr "NUM 3"
+msgid "Num 3"
+msgstr "Num 3"
 
 #: guitext:508
 msgctxt "Keyboard"
-msgid "NUM 4"
-msgstr "NUM 4"
+msgid "Num 4"
+msgstr "Num 4"
 
 #: guitext:509
 msgctxt "Keyboard"
-msgid "NUM 5"
-msgstr "NUM 5"
+msgid "Num 5"
+msgstr "Num 5"
 
 #: guitext:510
 msgctxt "Keyboard"
-msgid "NUM 6"
-msgstr "NUM 6"
+msgid "Num 6"
+msgstr "Num 6"
 
 #: guitext:511
 msgctxt "Keyboard"
-msgid "NUM 7"
-msgstr "NUM 7"
+msgid "Num 7"
+msgstr "Num 7"
 
 #: guitext:512
 msgctxt "Keyboard"
-msgid "NUM 8"
-msgstr "NUM 8"
+msgid "Num 8"
+msgstr "Num 8"
 
 #: guitext:513
 msgctxt "Keyboard"
-msgid "NUM 9"
-msgstr "NUM 9"
+msgid "Num 9"
+msgstr "Num 9"
 
 #: guitext:514
 msgctxt "Keyboard"
-msgid "NUM 0"
-msgstr "NUM 0"
+msgid "Num 0"
+msgstr "Num 0"
 
 #: guitext:515
 msgctxt "Keyboard"
@@ -4421,9 +4429,14 @@ msgstr ""
 "väljer. HMK zoomar. [17.3]"
 
 #: guitext:625
+#, fuzzy
+#| msgctxt "Room description"
+#| msgid ""
+#| "Lair: Where your creatures sleep and replenish their energy. LMB select. "
+#| "RMB zoom. [17.2]"
 msgctxt "Room description"
 msgid ""
-"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"Lair: Where your creatures sleep and replenish their health. LMB select. RMB "
 "zoom. [17.2]"
 msgstr ""
 "Lya: Här sover dina varelser och återhämtar sin energi. VMK väljer. HMK "
@@ -4448,10 +4461,15 @@ msgstr ""
 "rum. VMK väljer. HMK zoomar. [17.7]"
 
 #: guitext:628
+#, fuzzy
+#| msgctxt "Room description"
+#| msgid ""
+#| "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
+#| "creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+"creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
 msgstr ""
 "Tempel: Att dyrka de svarta gudarna får varelserna på bättre humör. Offra "
 "varelser genom att släppa dem i dopfunten. VMK väljer. HMK zoomar. [17.12]"
@@ -4557,12 +4575,10 @@ msgstr "Besätt varelse: Kontrollera en varelse direkt. VMK väljer. [18.1]"
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid ""
-"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
-"[18.2]"
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr ""
 "Skapa smådjävul: Kallar på en ny smådjävul var som helst i din grotta. VMK "
-"väljer. [18.2]"
+"väljer."
 
 #: guitext:649
 msgctxt "Keeper spell description"
@@ -4574,10 +4590,17 @@ msgstr ""
 "väljer. HMK zoomar. [18.3]"
 
 #: guitext:650
+#, fuzzy
+#| msgctxt "Keeper spell description"
+#| msgid ""
+#| "Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
+#| "select, LMB again to reselect, LMB a third time to cancel. RMB zoom. "
+#| "[18.6]"
 msgctxt "Keeper spell description"
 msgid ""
-"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
-"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+"Call To Arms: Calls creatures in range to any destination. LMB Select. Cast "
+"in range of creatures to gather, cast again for destination.RMB zoom. LMB "
+"Cancel. [18.6]"
 msgstr ""
 "Till vapen: Sammankallar alla dina varelser till ett område i grottan. VMK "
 "väljer, VMK igen för att ångra, VMK en tredje gång för att avbryta. HMK "
@@ -4608,23 +4631,21 @@ msgstr ""
 
 #: guitext:654
 msgctxt "Keeper spell description"
-msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
-msgstr "Hastighet: Ökar hastigheten på dina monster. VMK väljer. [18.4]"
+msgid "Speed Monster: Increases the speed of your monsters."
+msgstr "Hastighet: Ökar hastigheten på dina monster."
 
 #: guitext:655
+#, fuzzy
+#| msgctxt "Keeper spell description"
+#| msgid "Protect Monster: Shields your creatures from attack."
 msgctxt "Keeper spell description"
-msgid ""
-"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
-msgstr ""
-"Skydda monster: Skyddar dina varelser från attacker. VMK väljer. [18.11]"
+msgid "Protect Monster: Shields your creatures from attack. LBM select."
+msgstr "Skydda monster: Skyddar dina varelser från attacker."
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
-"[18.7]"
-msgstr ""
-"Dölj monster: Gör dina varelser osynliga för fienden. VMK väljer. [18.7]"
+msgid "Conceal Monster: Makes your creatures invisible to the enemy."
+msgstr "Dölj monster: Gör dina varelser osynliga för fienden."
 
 #: guitext:657
 msgctxt "Keeper spell description"
@@ -4652,17 +4673,19 @@ msgstr ""
 #: guitext:660
 msgctxt "Keeper spell description"
 msgid ""
-"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+"Destroy Walls: Breaks down reinforced enemy's walls. LMB select. [18.16]"
 msgstr ""
 "Förstör väggar: Bryter ned förstärkta fiendeväggar. VMK väljer. [18.16]"
 
 #: guitext:661
+#, fuzzy
+#| msgctxt "Keeper spell description"
+#| msgid ""
+#| "Heal: Cast on an area of the dungeon to improve the health of your "
+#| "creatures. LMB select. [18.9]"
 msgctxt "Keeper spell description"
-msgid ""
-"Heal: Cast on an area of the dungeon to improve the health of your "
-"creatures. LMB select. [18.9]"
-msgstr ""
-"Hela: På en varelsen för att förbättra dess hälsa. VMK väljer. [18.9]"
+msgid "Heal: Cast on a creature to improve its health. LMB select. [18.9]"
+msgstr "Hela: På en varelsen för att förbättra dess hälsa. VMK väljer. [18.9]"
 
 #: guitext:662
 msgctxt "Keeper spell description"
@@ -4935,7 +4958,7 @@ msgstr "Dörr hittad: VMK växlar. HMK raderar."
 
 #: guitext:715
 msgctxt "Game event description"
-msgid "Dungeon special found: LMB toggle. RMB delete."
+msgid "Dungeon Special found: LMB toggle. RMB delete."
 msgstr "Grottspecial hittad: VMK växlar. HMK raderar."
 
 #: guitext:716
@@ -5006,7 +5029,7 @@ msgstr "Datorhjälpsmeny: Anpassa datorhjälpen. [3.2.4]"
 #: guitext:729
 msgctxt "In-game interface description"
 msgid ""
-"Aggressive Computer Assistant: Constructs your dungeon and always trys to "
+"Aggressive Computer Assistant: Constructs your dungeon and always tries to "
 "attack the enemy. LMB select. [3.2.4]"
 msgstr ""
 "Aggressiv datorhjälp: Bygger din grotta och försöker alltid attackera "
@@ -5040,9 +5063,11 @@ msgstr ""
 "[3.2.4]"
 
 #: guitext:733
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+"Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB "
+"Zoom. [22.2.1]"
 msgstr ""
 "Mest erfarna varelser av denna typ: VMK plockar upp varelser. HMK zoomar. "
 "[22.2.1]"
@@ -5816,17 +5841,17 @@ msgid "4 Players"
 msgstr "4 spelare"
 
 #: guitext:874
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "Serial"
 msgstr "Seriell"
 
 #: guitext:875
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "Modem"
 msgstr "Modem"
 
 #: guitext:876
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "IPX"
 msgstr "IPX"
 
@@ -5892,18 +5917,20 @@ msgstr "Nya nivåer"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Please insert Data Disk CD-ROM"
-msgstr "Lägg i Data Disk-cd:n"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr "Tillverkbar: Varelser kan tillverka detta föremål i verkstaden."
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "Lägg i Dungeon Keeper-cd:n"
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr ""
+"Verkstadsutbyggnad krävs: En större verkstad behövs för att tillverka detta "
+"föremål."
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "Lägg i The Deeper Dungeons-cd:n"
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr "Ej tillverkbar: Det går inte att tillverka detta föremål."
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -5997,8 +6024,8 @@ msgid ""
 "Beware Keeper. This realm is infested with the sickly goodness of heroes and "
 "fairies. Hunt them down and feed them their own entrails."
 msgstr ""
-"Akta dig Väktare. Detta rike är översvämmat av hjältars och älvors "
-"kväljande godhet. Hitta dem och mata dem med deras egna inälvor."
+"Akta dig Väktare. Detta rike är översvämmat av hjältars och älvors kväljande "
+"godhet. Hitta dem och mata dem med deras egna inälvor."
 
 #. DD Level Morkardar first objective
 #: guitext:900
@@ -6060,8 +6087,8 @@ msgid ""
 "This realm will be a test of your cunning and deviousness. Your dungeon has "
 "been fortified with seven steel doors to aid you in your conquest."
 msgstr ""
-"Detta rike kommer att testa din list och uppfinningsrikedom. Din grotta "
-"har förstärkts med sju ståldörrar för att bistå dig i din erövring."
+"Detta rike kommer att testa din list och uppfinningsrikedom. Din grotta har "
+"förstärkts med sju ståldörrar för att bistå dig i din erövring."
 
 #. DD Level Netzcaro objective after AP reached
 #: guitext:906
@@ -6135,8 +6162,8 @@ msgid ""
 "Only one Dungeon Keeper can reign victorious over this land. Do not suffer a "
 "humiliating defeat Keeper, the penalty for such failure is torture and death."
 msgstr ""
-"Endast en Väktare kan härska segrande över detta land. Undvik att lida ett"
-"förnedrande nederlag Väktare, straffet för sådana misslyckanden är tortyr "
+"Endast en Väktare kan härska segrande över detta land. Undvik att lida "
+"ettförnedrande nederlag Väktare, straffet för sådana misslyckanden är tortyr "
 "och död."
 
 #. DD Level Caddis Fell first objective
@@ -6145,8 +6172,7 @@ msgctxt "In-game message"
 msgid ""
 "Choices, choices Keeper. Choose your path wisely. Some routes are more "
 "perilous than others ..."
-msgstr ""
-"Olika val Väktare. Välj vist dina. Vissa är mer riskabla än andra..."
+msgstr "Olika val Väktare. Välj vist dina. Vissa är mer riskabla än andra..."
 
 #. DD Level Caddis Fell objective after good destroyed
 #: guitext:914
@@ -6211,8 +6237,8 @@ msgid ""
 "The Avatar has massed an army of heroic Lords to confront you. Prepare to be "
 "attacked!"
 msgstr ""
-"Avataren har dragit samman en armé av hjältemodiga Landshärskare för "
-"att konfrontera dig. Förbered dig på attack!"
+"Avataren har dragit samman en armé av hjältemodiga Landshärskare för att "
+"konfrontera dig. Förbered dig på attack!"
 
 #. DD Level Belial objective after AP reached
 #: guitext:920
@@ -6343,9 +6369,10 @@ msgid ""
 "control of your Vampire and use him to find and kill the Lord of the Land. "
 "If you succeed, the Vampire will join you in the next realm."
 msgstr ""
-"En svart skugga drar in över detta land. Det är dags att gå till handling. Ta "
-"kontroll över din Vampyr och använd honom för att söka upp och döda Landets "
-"härskare. Om du lyckas, kommer Vampyren att följa dig till nästa värld."
+"En svart skugga drar in över detta land. Det är dags att gå till handling. "
+"Ta kontroll över din Vampyr och använd honom för att söka upp och döda "
+"Landets härskare. Om du lyckas, kommer Vampyren att följa dig till nästa "
+"värld."
 
 #. DD Level Belial information after winning
 #: guitext:934
@@ -6357,10 +6384,39 @@ msgstr ""
 "Det du åstadkommit är legendariskt, Väktare. Berättelser om din ondska och "
 "slughet kommer att bli skräckhistorier för generationer framöver."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:935
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Hemlig dörr"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it "
+"closely or see it opening. RMB zoom."
+msgstr ""
+"Hemlig dörr: Denna dörr förblir dold för fiender om de inte observerar den "
+"noga eller ser den öppnas. HMK zoomar."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Hemlig dörr upptäckt: VMK växlar. HMK raderar."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Hemlig dörr upptäckt"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "Fienden har upptäckt din hemliga dörr: VMK växlar. HMK raderar."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Fienden har upptäckt din hemliga dörr"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
@@ -6407,8 +6463,9 @@ msgctxt "In-game interface description"
 msgid ""
 "Armour: Part of the damage which won't affect creature health. The higher "
 "the number, the larger part of damage is discarded."
-msgstr "Pansar: Blockerar en andel av skada som orsakats till varelsen. Ju "
-"högre värde desto större andel blockeras."
+msgstr ""
+"Pansar: Blockerar en andel av skada som orsakats till varelsen. Ju högre "
+"värde desto större andel blockeras."
 
 #: guitext:950
 msgctxt "In-game interface description"
@@ -6422,35 +6479,39 @@ msgstr "Lojalitet: Varelsens motståndskraft mot fientligt asätande."
 
 #: guitext:952
 msgctxt "In-game interface description"
-msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
-"the better the creature's performance."
+msgid ""
+"Research Skill: How fast the creature works in Library. The higher the Skill "
+"level, the better the creature's performance."
 msgstr ""
-"Forskningsskicklighet: Hur effektivt varelsen arbetar i biblioteket. Ju högre "
-"skicklighetsnivå, desto bättre är varelsens prestation. "
+"Forskningsskicklighet: Hur effektivt varelsen arbetar i biblioteket. Ju "
+"högre skicklighetsnivå, desto bättre är varelsens prestation. "
 
 #: guitext:953
 msgctxt "In-game interface description"
 msgid ""
 "Manufacture Skill: How fast the creature works in Workshop. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "Hantverksförmåga: Varelsens förmåga arbeta i verkstad. Ju högre värde "
-"desto bättre är varelsens prestation."
+msgstr ""
+"Hantverksförmåga: Varelsens förmåga arbeta i verkstad. Ju högre värde desto "
+"bättre är varelsens prestation."
 
 #: guitext:954
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "Träningsskicklighet: Varelsens förmåga att träna. Ju högre värde "
-"desto bättre är varelsens prestation."
+msgstr ""
+"Träningsskicklighet: Varelsens förmåga att träna. Ju högre värde desto "
+"bättre är varelsens prestation."
 
 #: guitext:955
 msgctxt "In-game interface description"
 msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "Asätarskicklighet: Varelsens förmåga att asäta. Ju högre värde desto "
-"bättre är varelsens prestation."
+msgstr ""
+"Asätarskicklighet: Varelsens förmåga att asäta. Ju högre värde desto bättre "
+"är varelsens prestation."
 
 #: guitext:956
 msgctxt "In-game interface description"
@@ -6464,7 +6525,8 @@ msgstr "Asätarkostnad: Guldkostnad vid asätande."
 
 #: guitext:958
 msgctxt "In-game interface description"
-msgid "Best Damage: How much harm can be done by the strongest attack the creature has."
+msgid ""
+"Best Damage: How much harm can be done by the strongest attack the creature "
 "has."
 msgstr "Hur mycket skada varelsens starkaste attack kan orsaka."
 
@@ -6477,9 +6539,12 @@ msgstr "Vikt: Varelsens massa. Vissa påstår att övervikt leder till infarkter
 
 #: guitext:960
 msgctxt "In-game interface description"
-msgid "Score: Estimate of an overall creature value. Added to player score when finishing the level."
+msgid ""
+"Score: Estimate of an overall creature value. Added to player score when "
+"finishing the level."
 msgstr ""
-"Resultat: En uppskattning av ett genomsnittligt varelsevärde. Den lägga till till ditt resultat när du fullföljer domänen."
+"Resultat: En uppskattning av ett genomsnittligt varelsevärde. Den lägga till "
+"till ditt resultat när du fullföljer domänen."
 
 #: guitext:961
 msgctxt "Keeper spell name"
@@ -6493,28 +6558,31 @@ msgstr "Dask"
 
 #: guitext:963
 msgctxt "Keeper spell description"
-msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
+msgid ""
+"Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
-msgstr "Den onda handen: Förmågan att plocka upp dina varelser och att hålla "
-"dem i din hand. Men håll inte i dem för alltid, annars blir de irriterade."
+msgstr ""
+"Den onda handen: Förmågan att plocka upp dina varelser och att hålla dem i "
+"din hand. Men håll inte i dem för alltid, annars blir de irriterade."
 
 #: guitext:964
 msgctxt "Keeper spell description"
-msgid "Slap: Makes your creatures work harder, for some time. "
-"Your creatures take some damage from each slap they receive."
-msgstr "Dask: Går så att dina varelser arbetar hårdare, kortsiktigt."
-"Dina varelser tar skada från varje dask de mottar."
+msgid ""
+"Slap: Makes your creatures work harder, for some time. Your creatures take "
+"some damage from each slap they receive."
+msgstr ""
+"Dask: Går så att dina varelser arbetar hårdare, kortsiktigt.Dina varelser "
+"tar skada från varje dask de mottar."
 
 #: guitext:965
 msgctxt "In-game interface description"
-msgid ""
-"Health: How much health points the creature has left to lose."
-msgstr "Hälsa: Hur många hälsopoäng denna varelse har kvar att förlora innan den dör."
+msgid "Health: How much health points the creature has left to lose."
+msgstr ""
+"Hälsa: Hur många hälsopoäng denna varelse har kvar att förlora innan den dör."
 
 #: guitext:966
 msgctxt "In-game interface description"
-msgid ""
-"Health: The maximum amount of health points for this creature."
+msgid "Health: The maximum amount of health points for this creature."
 msgstr "Hälsa: Den maximala mängden hälsopoäng för denna varelse."
 
 #: guitext:967
@@ -6688,7 +6756,7 @@ msgid "Snap Camera"
 msgstr "Upprätad kamera"
 
 #: guitext:1005
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr "Mystisk Låda: Det är omöjligt att säga vad den åstadkommer."
 
@@ -6699,17 +6767,17 @@ msgstr ""
 
 #: guitext:1007
 msgctxt "In-game interface description"
-msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
+msgid ""
+"Display Resolution: Switch to the next configured display resolution. LMB "
+"toggle. RMB display current resolution."
 msgstr ""
 
 #: guitext:1008
-#, fuzzy
 msgctxt "In-game interface item"
 msgid "Voice"
 msgstr ""
 
 #: guitext:1009
-#, fuzzy
 msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr ""
@@ -6720,118 +6788,130 @@ msgid "Moo4"
 msgstr ""
 
 #: guitext:1011
-msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
+msgctxt "Menu interface item"
+msgid "Dungeon Keeper - Original Campaign"
 msgstr ""
 
 #: guitext:1012
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Assmist Isle"
 msgstr ""
 
 #: guitext:1013
-msgctxt "Menu interface item""
-msgid "Ancient Keeper campaign"
+msgctxt "Menu interface item"
+msgid "Ancient Keeper"
 msgstr ""
 
 #: guitext:1014
-msgctxt "Menu interface item""
-msgid "Burdened Imps' Level Pack"
-msgstr ""
+#, fuzzy
+#| msgctxt "Keeper spell name"
+#| msgid "Create Imp"
+msgctxt "Menu interface item"
+msgid "Burdened Imps"
+msgstr "Skapa smådjävul"
 
 #: guitext:1015
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Conquest of the Arctic"
 msgstr ""
 
 #: guitext:1016
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "The Destiny of Ninja"
 msgstr ""
 
 #: guitext:1017
-msgctxt "Menu interface item""
-msgid "DzjeeAr's  6-level campaign"
+msgctxt "Menu interface item"
+msgid "DzjeeAr's 6-level campaign"
 msgstr ""
 
 #: guitext:1018
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 10-level campaign"
 msgstr ""
 
 #: guitext:1019
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "DzjeeAr's 25-level campaign"
 msgstr ""
 
 #: guitext:1020
-msgctxt "Menu interface item""
-msgid "Evil Keeper campaign"
+msgctxt "Menu interface item"
+msgid "Evil Keeper"
 msgstr ""
 
 #: guitext:1021
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Grinics' KReign campaign"
 msgstr ""
 
 #: guitext:1022
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Japanese DKMaps8 pack"
 msgstr ""
 
 #: guitext:1023
-msgctxt "Menu interface item""
+#, fuzzy
+#| msgctxt "Menu interface item"
+#| msgid "Levels"
+msgctxt "Menu interface item"
 msgid "KDK Levels"
-msgstr ""
+msgstr "Nivåer"
 
 #: guitext:1024
-msgctxt "Menu interface item""
+#, fuzzy
+#| msgctxt "Menu interface item"
+#| msgid "Campaigns"
+msgctxt "Menu interface item"
 msgid "Good Campaign"
-msgstr ""
+msgstr "Kampanjer"
 
 #: guitext:1025
-msgctxt "Menu interface item""
-msgid "Lord Vexer campaign"
+msgctxt "Menu interface item"
+msgid "Lord Vexer"
 msgstr ""
 
 #: guitext:1026
-msgctxt "Menu interface item""
-msgid "Nikolai's Castles campaign"
+msgctxt "Menu interface item"
+msgid "Nikolai's Castles"
 msgstr ""
 
 #: guitext:1027
-msgctxt "Menu interface item""
-msgid "Dungeon Keeper - New Game+"
-msgstr ""
+#, fuzzy
+#| msgctxt "In-game tab with rooms"
+#| msgid "Dungeon Heart"
+msgctxt "Menu interface item"
+msgid "Dungeon Keeper - NG+"
+msgstr "Grotthjärta"
 
 #: guitext:1028
-msgctxt "Menu interface item""
-msgid "Post Ancient Keeper campaign"
+msgctxt "Menu interface item"
+msgid "Post Ancient Keeper"
 msgstr ""
 
 #: guitext:1029
-msgctxt "Menu interface item""
-msgid "Post Undead Keeper campaign"
+msgctxt "Menu interface item"
+msgid "Post Undead Keeper"
 msgstr ""
 
 #: guitext:1030
-msgctxt "Menu interface item""
-msgid "Quest for the Hero campaign"
+msgctxt "Menu interface item"
+msgid "Quest for the Hero"
 msgstr ""
 
 #: guitext:1031
-msgctxt "Menu interface item""
+msgctxt "Menu interface item"
 msgid "Revenge of the Lord"
 msgstr ""
 
 #: guitext:1032
-msgctxt "Menu interface item""
-msgid "Twin Keepers Campaign"
+msgctxt "Menu interface item"
+msgid "Twin Keepers"
 msgstr ""
 
 #: guitext:1033
-msgctxt "Menu interface item""
-msgid "Undead Keeper campaign"
+msgctxt "Menu interface item"
+msgid "Undead Keeper"
 msgstr ""
 
 #: guitext:1034 guitext:1035
@@ -6846,20 +6926,23 @@ msgstr "Bomb Fälla"
 
 #: guitext:1037
 msgctxt "Trap description"
-msgid ""
-"Demolition Trap: An explosive with unrivaled destructive power."
+msgid "Demolition Trap: An explosive with unrivaled destructive power."
 msgstr "Bomb Fälla: En explosion med makalös kraft."
 
 #: guitext:1038
 msgctxt "Trap description"
-msgid ""
-"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr "Vakts Fälla: Står vakt och skjuter mot fiender som syns."
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
-msgstr "Oanvänd6"
+#: guitext:1039
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "Ballistafälla"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
+msgstr "Ballista Fälla: Står vakt och skjuter mot fiender som syns."
 
 #: guitext:1041
 msgctxt "Creature name"
@@ -6875,3 +6958,200 @@ msgstr "Druid"
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "Tids Magiker"
+
+#: guitext:1044
+msgctxt "Creature name"
+msgid "Bird"
+msgstr ""
+
+#: guitext:1045
+msgctxt "Creature name"
+msgid "Maiden"
+msgstr "Jungfru"
+
+#: guitext:1046
+msgctxt "Creature name"
+msgid "Spiderling"
+msgstr ""
+
+#: guitext:1047
+msgctxt "Creature name"
+msgid "Goblin"
+msgstr "Svartalf"
+
+#: guitext:1048
+msgctxt "Creature name"
+msgid "Fallen Angel"
+msgstr ""
+
+#: guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Stenformation."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr ""
+"Grundberg: Oöverklagad stenig mark. Du kan inte kräva den eller bygga på den."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
+msgstr ""
+"Tät guldåder: Innehåller mycket rikedom för dina Smådjävlar att utvinna."
+
+#: guitext:1053
+#, fuzzy
+msgctxt "Keeper spell name"
+msgid "Magic Shield"
+msgstr "Retur"
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr "Frys"
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr "Långsam"
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Levitate"
+msgstr "Sväva"
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr "Belysning"
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr "Syn"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: Restore full health to all your creatures."
+msgstr "Hela Alla: Alla dina varelser läks."
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury."
+msgstr "Öka Guld: Genererar guld i din skattkammare."
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "Göra Olyckliga: Alla varelser av fienden blir upprörda."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Försvaga väggarna: Förstör befästningarna på fiendens murar."
+
+#: guitext:1063
+msgctxt "Game controls"
+msgid "Tilt Up"
+msgstr ""
+
+#: guitext:1064
+msgctxt "Game controls"
+msgid "Tilt Down"
+msgstr ""
+
+#: guitext:1065
+msgctxt "Game controls"
+msgid "Reset Tilt"
+msgstr ""
+
+#: guitext:1066
+msgctxt "Creature spell"
+msgid "Heal Monster: The target creature is massively healed."
+msgstr ""
+
+#: guitext:1067
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Rengöring: Botar alla negativa effekter som påverkar varelsen."
+
+#: guitext:1068
+msgctxt "Creature spell"
+msgid ""
+"Cleanse Monster: Cures all negative effects inflicted on target creature."
+msgstr ""
+
+#: guitext:1069
+msgctxt "Keeper spell description"
+msgid ""
+"Magic Shield: Causes spells fired at the target to bounce back at the "
+"attacker."
+msgstr ""
+
+#: guitext:1070
+msgctxt "Keeper spell description"
+msgid ""
+"Levitate: Causes the target creature to take off from the ground and attack "
+"creatures from the air or cross lava unharmed."
+msgstr ""
+
+#: guitext:1071
+msgctxt "Keeper spell description"
+msgid ""
+"Sight: Allows the target creature to temporarily increase its awareness and "
+"notice the invisible."
+msgstr ""
+
+#: guitext:1072
+msgctxt "Keeper spell name"
+msgid "Recruit Tunneller"
+msgstr ""
+
+#: guitext:1073
+msgctxt "Keeper spell description"
+msgid "Recruit Tunneller: Summon a new Tunneller anywhere in your dungeon."
+msgstr ""
+
+#: guitext:1074 guitext:1075
+msgctxt "Unused"
+msgid "Moo8"
+msgstr ""
+
+#: guitext:1076
+msgctxt "Door name"
+msgid "Midas Door"
+msgstr ""
+
+#: guitext:1077
+msgctxt "Door description"
+msgid ""
+"Midas Door: This door consumes gold from the owner to stay completely "
+"indestructible. RMB zoom."
+msgstr ""
+
+#: guitext:1078
+msgctxt "Game controls"
+msgid "Ascend"
+msgstr ""
+
+#: guitext:1079
+msgctxt "Game controls"
+msgid "Descend"
+msgstr ""
+
+#: guitext:1080
+msgctxt "Creature spell"
+msgid "Familiar: Summons a companion to guard and assist the creature."
+msgstr ""
+
+#: guitext:1081
+msgctxt "Creature spell"
+msgid "Summon: Call upon temporary guardians to assist the creature in combat."
+msgstr ""

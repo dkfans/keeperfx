@@ -23,7 +23,7 @@
 #include "bflib_basics.h"
 
 #define DK_GAME_KEYS_COUNT     32
-#define GAME_KEYS_COUNT        40
+#define GAME_KEYS_COUNT        45
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,25 +37,27 @@ struct GameKey { // sizeof = 2
 };
 
 struct GameSettings { // KFX settings
-    unsigned char field_0;
+    unsigned char video_detail_level;
     unsigned char video_shadows;
     unsigned char view_distance;
     unsigned char video_rotate_mode;
     unsigned char video_textures;
     unsigned char video_cluedo_mode;
     unsigned char sound_volume;
-    unsigned char redbook_volume;
+    unsigned char music_volume;
     unsigned char roomflags_on;
     unsigned short gamma_correction;
-    int video_scrnmode;
+    int switching_vidmodes_index; /**< The current position in the list of video modes to switch between with Alt+R (-1 means the index is unset). */
     struct GameKey kbkeys[GAME_KEYS_COUNT];
-    unsigned char tooltips_on;
+    TbBool tooltips_on;
     unsigned char first_person_move_invert;
     unsigned char first_person_move_sensitivity;
     unsigned int minimap_zoom;
     unsigned long isometric_view_zoom_level;
     unsigned long frontview_zoom_level;
     long mentor_volume;
+    int isometric_tilt;
+    TbBool highlight_mode;
     };
 #pragma pack()
 /******************************************************************************/

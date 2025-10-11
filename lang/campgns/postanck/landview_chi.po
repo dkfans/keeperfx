@@ -1,0 +1,102 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file postanck/landview_chi.po
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Contains translation of the national land descriptions in the game.
+#  @author   KeeperFX Team
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Post Ancient Keeper campaign for KeeperFX\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "Post Ancient Keeper"
+msgstr ""
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Armageddon. This land is heavily devastated by lava, yet the people are still happy. The time to change has come, my dark Master!"
+msgstr "末日审判。在这片被岩浆严重破坏的土地上，人们却依然安居乐业。是时候改变这一切了，邪恶的主人！"
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Bloody Harvest. The Horned Reaper had much joy cutting the heads and bodies of the inhabitants of this settlement! A perfect view, isn't it?"
+msgstr "血腥收获。冥界使者非常喜欢砍断这里的居民的头和身体作乐！优美的景象，不是吗？"
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Collect. The land is less flooded with lava compared to the previous one, but it is also much more honest. People are kind and peaceful here. It's time to start a war!"
+msgstr "收集。与上一个王国相比，这里的岩浆没有那么泛滥，但也更加纯净。这里的人们善良、爱好和平。是时候发动战争了！"
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Dark and Bloody. Now the land is no longer so peaceful; volcanic eruptions occur at least once every hour. The inhabitants did their best to save themselves, but fortunately did not succeed. Excellent work, my lord."
+msgstr "黑暗与血腥。现在，这片土地不再那么平静；火山每小时至少喷发一次。居民们尽力自救，但往往难逃一死。干得好，主人。"
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Sacrifice. This land has a rich history, with many murders but also many sacrifices. Now it's our turn to sacrifice the population in our demonic pursuit to ravage this land!"
+msgstr "献祭。这片土地有着悠久的历史，有许多人被杀害，也有许多人被献祭到寺庙。现在轮到我们了，在恶魔蹂躏这片土地的过程中，我们要把这里的居民献祭给死亡之神！"
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Thievery. The land has returned to its roots, showing the inhabitants to be corrupt. Even children steal. Excellent work, my Lord!"
+msgstr "偷盗。这片土地已经回归本性，人民的道德变得堕落。连小孩都学会了偷东西。干得好，主人。"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Transformation. A land of love and peace; I abhor such places. We had better deal with this quickly, my Lord."
+msgstr "叛变。一个充满爱与和平的国度；我憎恶这样的地方。我们最好尽快解决这个问题，主人。"
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Pain. A new name hangs over this land, Pain. The inhabitants are slowly perishing, of course with our help. Our dark arts will torture them well and slowly. A splendid sight, isn't it, sir?"
+msgstr "痛苦。一个新的名字笼罩着这片土地，痛苦。这里的居民正在慢慢消亡，当然是在我们的帮助下。我们的黑暗魔法会慢慢折磨他们。多么壮观的景象，不是吗，先生？"
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Imps. In the mines of this land, there are Imps that hinder conquest. Many guards have tried, but none have succeeded. You must be the first!"
+msgstr "小鬼。在这片土地的矿井中，有一群小鬼阻碍着你征服这里。许多守护者都曾尝试过，但都没有成功。你必须成为第一个成功者！"
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Ravine of Death. Our Imps built a gigantic ravine around this land. Lava flowed through the ravine, and we began to lower the lively inhabitants of the settlement into it. A splendid pleasure to watch such an unparalleled spectacle, isn't it?"
+msgstr "死亡峡谷。我们的小鬼在这片土地周围建造了一个巨大的峡谷。岩浆流过峡谷的时候，我们开始把当地里活生生的居民扔进去。观看这种无与伦比的壮观场面，是不是很惬意？"
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Cloning. This land is ruled by a good and honest lord. It's time to teach him some manners. Of course, our manners!"
+msgstr "克隆。统治这片土地的是一位正直善良的国王。是时候教会他一些礼仪了，当然，是我们的邪恶礼仪。"
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Bloody Garden. We named this land so because we spread the remains of human bodies around the ruler's gardens after the mass slaughter by our favorite Horned Reaper. Excellent job, sir!"
+msgstr "血腥花园。我们将这里命名为血腥花园，是因为我们最爱的冥界使者在国王的花园里大肆屠杀后，人类尸体的残骸随处可见。干得好，先生。"
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Dig. We have yet another good land for destruction. The last remnants of the human, elf, and dwarf races hide in this land. We will track them down and kill them to rule over the entire world!"
+msgstr "挖掘。我们又找到了一块可以摧毁的好地方。人类、精灵和矮人最后的残兵败将都躲在这片土地上。我们要找到他们，杀了他们，然后统治整个世界！"
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Favorite Spot. This is certainly my favorite place. I love going outside and watching the red sky, the blood, and the flowing lava across this land. Excellent work, my Lord!"
+msgstr "最爱的地方。这里就是我最爱的地方。我喜欢走出去，看着红色的天空、遍地的鲜血和流淌在这片土地上的岩浆。干得好，我的主人！"

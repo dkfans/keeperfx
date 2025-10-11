@@ -165,7 +165,7 @@ IF(PLAYER_GOOD,KNIGHT == 0)
     ROOM_AVAILABLE(PLAYER0,PRISON,1,1)
     SET_TIMER(PLAYER0,TIMER1)
     DISPLAY_OBJECTIVE(70,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(1,"Well done, Keeper. All knights have been dealt with. The river seems to have calmed down a bit too. You can now build a bridge to the other side. But beware, I sense something is coming for you.",PLAYER0)
+REM QUICK_OBJECTIVE(1,"Well done, Keeper. All knights have been dealt with. The river seems to have calmed down a bit too. You can now build a bridge to the other side, but beware, I sense something is coming for you.",PLAYER0)
 ENDIF
 
 IF(PLAYER0,TIMER1 >= 10000)
@@ -181,7 +181,7 @@ IF(PLAYER_GOOD,FLAG1 == 1)
         IF(PLAYER0,AVATAR == 0)
             IF(PLAYER0,TIMER1 >= 11500)
                 DISPLAY_OBJECTIVE(71,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(2,"Well done. Let's hope the Avatar will not be resurrected this time, although I fear that it will be the case. But for today You are done here.",PLAYER0)
+REM QUICK_OBJECTIVE(2,"Well done. Let's hope the Avatar will not be resurrected this time, although I fear that it will be the case. For today you are done here.",PLAYER0)
                 WIN_GAME
             ENDIF
         ENDIF
@@ -193,7 +193,7 @@ IF(PLAYER_GOOD,FLAG1 == 1)
         IF(PLAYER0,AVATAR == 1)
             IF(PLAYER0,TIMER1 >= 3500)
                 DISPLAY_OBJECTIVE(72,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(3,"Well done. Let's hope the Avatar will not escape from your grasp this time, although I fear that it will be the case. But for today you are done here.",PLAYER0)
+REM QUICK_OBJECTIVE(3,"Well done. Let's hope the Avatar will not escape from your grasp this time, although I fear that it will be the case. For today you are done here.",PLAYER0)
                 WIN_GAME
             ENDIF
         ENDIF
@@ -208,7 +208,7 @@ DISPLAY_INFORMATION(74,ALL_PLAYERS)
 REM QUICK_INFORMATION(4,"The shallow river running through this area has a strong current at the moment. Building bridges would result in failure. You will have to do without for now.")
 
 DISPLAY_OBJECTIVE(75,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(0,"Six knights occupy this realm, but they are no ordinary knights. These knights have abandoned their virtues. Lord Angelus the Unjust, Lord Donahan the Greedy, Lord Espardio the Cowardly, Lord Vladavir the Betrayer, Lord Demunus the Vile and Lord Gustavo the Unliving all hide here from their brethren's vengeance. Spineless cowards. Flush them out.",PLAYER0)
+REM QUICK_OBJECTIVE(0,"Six knights occupy this realm, but they are no ordinary knights. These knights have abandoned their virtues. Lord Angelus the Unjust, Lord Donahan the Greedy, Lord Espardio the Cowardly, Lord Vladavir the Betrayer, Lord Demunus the Vile, and Lord Gustavo the Unliving all hide here from their brethren's vengeance. Spineless cowards. Flush them out.",PLAYER0)
 
 IF(PLAYER0,TIMER0 >= 1000)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ATTACK_ONE,-1,1)

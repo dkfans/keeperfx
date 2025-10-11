@@ -54,16 +54,16 @@ struct CompoundCoordFilterParam {
      long plyr_idx;
      long slab_kind;
      union {
-     long num1;
-     void *ptr1;
+     long primary_number;
+     void *primary_pointer;
      };
      union {
-     long num2;
-     void *ptr2;
+     long secondary_number;
+     void *secondary_pointer;
      };
      union {
-     long num3;
-     void *ptr3;
+     long tertiary_number;
+     void *tertiary_pointer;
      };
 };
 
@@ -98,7 +98,8 @@ void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubt
 
 void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab_y, SlabsFillIterAction f_action, MaxCoordFilterParam param);
 
-unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long dest_x,long dest_y);
+SmallAroundIndex small_around_index_towards_destination(long curr_x, long curr_y, long dest_x, long dest_y);
+SmallAroundIndex small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y);
 
 long pos_move_in_direction_to_last_allowing_drop(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist);
 long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist);

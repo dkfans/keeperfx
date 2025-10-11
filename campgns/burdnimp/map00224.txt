@@ -208,7 +208,7 @@ ENDIF
 IF(PLAYER0,TIMER0 >= 20000)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SEARCH_TWO,-4,1)
     DISPLAY_INFORMATION(65,ALL_PLAYERS)
-    REM QUICK_INFORMATION(5,"Another try has been initiated to invade and destroy your dungeon. Just that you know.")
+    REM QUICK_INFORMATION(5,"Another try has been initiated to invade and destroy your dungeon. So you know.")
 ENDIF
 
 IF(PLAYER_GOOD,KNIGHT == 1)

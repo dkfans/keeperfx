@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
@@ -33,6 +32,7 @@
 #include "player_data.h"
 #include "player_instances.h"
 #include "keeperfx.hpp"
+#include "config_keeperfx.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -124,12 +124,19 @@ void compute_alpha_table(unsigned char *alphtbl, unsigned char *spal, unsigned c
             int valR = blendR + baseCol[0];
             if (valR >= 63)
               valR = 63;
+            else if (valR < 0)
+              valR = 0;
             int valG = blendG + baseCol[1];
             if (valG >= 63)
               valG = 63;
+            else if (valG < 0)
+              valG = 0;
             int valB = blendB + baseCol[2];
             if (valB >= 63)
               valB = 63;
+            else if (valB < 0)
+              valB = 0;
+
             TbPixel c = LbPaletteFindColour(dpal, valR, valG, valB);
             alphtbl[nrow*256 + n] = c;
         }
@@ -148,16 +155,22 @@ void compute_alpha_tables(struct TbAlphaTables *alphtbls,unsigned char *spal,uns
             alphtbls->black[n] = 144;
         }
     }
-    // Every color alpha-blended with shade of grey
-    compute_alpha_table(alphtbls->grey, spal, dpal, 4, 4, 4);
-    // Every color alpha-blended with brown/orange
-    compute_alpha_table(alphtbls->orange, spal, dpal, 7, 4, 0);
-    // Every color alpha-blended with intense red
-    compute_alpha_table(alphtbls->red, spal, dpal, 6, 1, 1);
+    // Every color alpha-blended with shade of white
+    compute_alpha_table(alphtbls->white,  spal, dpal, 4, 4, 4);
+    // Every color alpha-blended with yellow
+    compute_alpha_table(alphtbls->yellow, spal, dpal, 6, 4, 0);
+    // Every color alpha-blended with red
+    compute_alpha_table(alphtbls->red,    spal, dpal, 6, 1, 1);
     // Every color alpha-blended with blue
-    compute_alpha_table(alphtbls->blue, spal, dpal, 2, 2, 6);
+    compute_alpha_table(alphtbls->blue,   spal, dpal, 2, 2, 6);
     // Every color alpha-blended with green
-    compute_alpha_table(alphtbls->green, spal, dpal, 2, 6, 2);
+    compute_alpha_table(alphtbls->green,  spal, dpal, 2, 6, 2);
+    // Every color alpha-blended with purple
+    compute_alpha_table(alphtbls->purple, spal, dpal, 3, 0, 3);
+    // Every color alpha-blended with black
+    compute_alpha_table(alphtbls->black,  spal, dpal,-2,-2,-2);
+    // Every color alpha-blended with orange
+    compute_alpha_table(alphtbls->orange, spal, dpal, 6, 3, 1);
 }
 
 void compute_rgb2idx_table(TbRGBColorTable ctab,unsigned char *spal)
@@ -249,8 +262,8 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
           latest_loop_time += lbFadeDelay;
-          
-          if (is_feature_on(Ft_SkipSplashScreens) == false) {
+
+          if (flag_is_set(start_params.startup_flags, (SFlg_Legal|SFlg_FX))) {
               LbSleepUntil(latest_loop_time);
           }
         }
@@ -260,7 +273,7 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
         LbPaletteSet(pal);
     } else
     {
-        LbMemorySet(palette_buf, 0, sizeof(palette_buf));
+        memset(palette_buf, 0, sizeof(palette_buf));
         LbPaletteSet(palette_buf);
     }
 }
@@ -312,7 +325,7 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   // Update the fade step
   if (player->palette_fade_step_pain > 0)
     player->palette_fade_step_pain--;
-  if ((player->palette_fade_step_possession == 0) || (player->instance_num == PI_Unknown18) || (player->instance_num == PI_Unknown17))
+  if ((player->palette_fade_step_possession == 0) || (player->instance_num == PI_UnusedSlot18) || (player->instance_num == PI_UnusedSlot17))
   {
   } else
   if ((player->instance_num == PI_DirctCtrl) || (player->instance_num == PI_PsngrCtrl))
@@ -339,11 +352,6 @@ void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense)
     if (i > 10)
         i = 10;
     player->palette_fade_step_pain = i;
-}
-
-void PaletteClearPainFromPlayer(struct PlayerInfo *player)
-{
-    player->palette_fade_step_pain = 0;
 }
 
 

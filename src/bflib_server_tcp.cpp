@@ -85,7 +85,7 @@ void TCP_NetServer::recvThreadFunc(RecvThreadArg * arg)
 
 			if (SDLNet_TCP_Send(sendSock, buffer, bufferLen) < bufferLen) {
 				svr->removeRemoteSocket(sendSock);
-				NETMSG("TCP send error, will drop remote client with ID %d", playerId);
+				NETMSG("TCP send error, will drop remote client with ID %lu", playerId);
 				break;
 			}
 		}
@@ -115,63 +115,6 @@ void TCP_NetServer::haltRecvThreads()
 
 void TCP_NetServer::update()
 {
-	//TODO NET deal with this, needs data presently in TCPServiceProvider
-	/*TCPsocket newSocket;
-	while ((newSocket = SDLNet_TCP_Accept(mySocket)) != NULL) { //does not block
-		if (joinable) {
-			bool notFound = true;
-			for (int i = 0; i < maxPlayers - 1; ++i) {
-				if (remote[i].socket == NULL) { //sockets will never be created by receive thread so no lock required
-					addRemoteSocket(i, newSocket);
-					notFound = false;
-					break;
-					//TODO NET see if we should add player here or if protocol does this
-				}
-			}
-
-			if (notFound) {
-				SDLNet_TCP_Close(newSocket);
-				NETMSG("Socket dropped because server is full");
-			}
-		}
-		else {
-			SDLNet_TCP_Close(newSocket);
-		}
-	}*/
-}
-
-bool TCP_NetServer::sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen)
-{
-	bool retval = true;
-
-	TCPsocket socket = getRemoteSocketByPlayer(playerId);
-	if (socket == NULL) {
-		NETLOG("No socket to player with ID %d", playerId);
-		retval = false;
-	}
-	else {
-		size_t len = bufferLen;
-		char * msg = buildTCPMessageBuffer(playerId, buffer, len);
-
-		if (SDLNet_TCP_Send(socket, msg, len) < len) {
-			removeRemoteSocket(socket);
-			NETMSG("Remote client with ID %d closed", playerId);
-			retval = false;
-		}
-
-		free(msg);
-	}
-
-	return retval;
-}
-
-void TCP_NetServer::addRemoteSocket(int index, TCPsocket socket)
-{
-	SDL_LockMutex(remoteMutex);
-
-	remote[index].socket = socket;
-
-	SDL_UnlockMutex(remoteMutex);
 }
 
 TCPsocket TCP_NetServer::getRemoteSocketByIndex(int index, ulong & playerId)
@@ -223,4 +166,3 @@ void TCP_NetServer::removeRemoteSocket(TCPsocket sock)
 		remote[removedIndex].recvThread = NULL;
 	}
 }
-

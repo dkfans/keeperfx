@@ -4,6 +4,11 @@ REM Script for Level 214
 REM
 REM ********************************************
 
+LEVEL_VERSION(1)
+
+SET_PLAYER_COLOR(PLAYER0,WHITE)
+SET_PLAYER_COLOR(PLAYER_GOOD,RED)
+
 IF(PLAYER0,GAME_TURN > 20)
     REM "This is it, do or die. Use the Avatar to kill the evil at it's source. Killing this will wipe out all evil! YOU CAN DO IT!"
     DISPLAY_OBJECTIVE(100,ALL_PLAYERS)

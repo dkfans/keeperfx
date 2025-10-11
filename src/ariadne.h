@@ -45,8 +45,66 @@ typedef unsigned char AriadneRouteFlags;
 enum AriadneReturnValues {
     AridRet_OK    = 0,
     AridRet_FinalOK,
-    AridRet_Val2,
+    AridRet_Failed,
     AridRet_PartOK,
+};
+
+// Current wall-hugging activity state - "What wall-hugging am I currently doing?"
+enum WallhugCurrentState {
+    WallhugCurrentState_None = 0,        // Not wall-hugging
+    WallhugCurrentState_Right = 1,       // Keep wall on creature's right side
+    WallhugCurrentState_Left = 2         // Keep wall on creature's left side
+};
+
+// Wall-hugging side preference configuration - "Which side should I prefer to hug?"
+enum WallhugPreference {
+    WallhugPreference_None = 0,       // No wall-hugging preference
+    WallhugPreference_Right = 1,      // Prefer to keep wall on right side
+    WallhugPreference_Left = 2        // Prefer to keep wall on left side
+};
+
+// Pathfinding direction states for gates
+enum PathfindingDirection {
+    PathDir_Reverse = -1,           // Direction from end to start
+    PathDir_StartToEnd = 0,         // Direction from start to end
+    PathDir_EndToStart = 1,         // Direction from end to start
+    PathDir_BestPoint = 2           // Direction to best point
+};
+
+// Wall-hugging activity state
+enum WallhugActive {
+    WallhugActive_Off = 0,          // Wall-hugging disabled
+    WallhugActive_On = 1            // Wall-hugging enabled
+};
+
+// Triangle navigation corner flags for pathfinding
+enum TriangleNavigationFlags {
+    TriangleFlag_TopLeft = 0x01,         // Top-left corner flag
+    TriangleFlag_TopRight = 0x02,        // Top-right corner flag
+    TriangleFlag_BottomLeft = 0x04,      // Bottom-left corner flag
+    TriangleFlag_BottomRight = 0x08,     // Bottom-right corner flag
+    TriangleFlag_All = 0x0F              // All corners flag
+};
+
+// Field of view region test results
+enum FieldOfViewRegion {
+    FieldOfViewRegion_OutsideLeft = -1,  // Point is outside FOV on left side
+    FieldOfViewRegion_WithinBounds = 0,  // Point is within FOV bounds
+    FieldOfViewRegion_OutsideRight = 1   // Point is outside FOV on right side
+};
+
+// Navigation rule results for pathfinding
+enum NavigationRule {
+    NavigationRule_Blocked = 0,          // Cannot navigate through this area
+    NavigationRule_Normal = 1,           // Normal navigation allowed
+    NavigationRule_Special = 2           // Special navigation (higher cost)
+};
+
+// Creature navigation radius sizes for pathfinding
+enum CreatureNavigationRadius {
+    CreatureRadius_Small = 1,            // Small creature navigation radius
+    CreatureRadius_Medium = 2,           // Medium creature navigation radius
+    CreatureRadius_Large = 3             // Large creature navigation radius
 };
 
 enum AriadneRouteFlagValues {
@@ -63,8 +121,19 @@ enum AriadneUpdateStateValues {
 
 enum AriadneUpdateSubStateManoeuvreValues {
     AridUpSStM_Unset   = 0,
-    AridUpSStM_Unkn1,
-    AridUpSStM_Unkn2,
+    AridUpSStM_StartWallhug,
+    AridUpSStM_ContinueWallhug,
+};
+
+enum NavigationStateValues {
+    NavS_NavigationDisabled   = 0,
+    NavS_WallhugInProgress,
+    NavS_InitialWallhugSetup,
+    NavS_WallhugDirectionCheck,
+    NavS_WallhugPositionAdjust,
+    NavS_WallhugAngleCorrection,
+    NavS_WallhugGapDetected,
+    NavS_WallhugRestartSetup,
 };
 
 #define NAVMAP_FLOORHEIGHT_BIT  0
@@ -72,10 +141,7 @@ enum AriadneUpdateSubStateManoeuvreValues {
 #define NAVMAP_FLOORHEIGHT_MASK 0x0f
 #define NAVMAP_UNSAFE_SURFACE   0x10
 #define NAVMAP_OWNERSELECT_BIT  5
-#define NAVMAP_OWNERSELECT_MAX  0x06
-#define NAVMAP_OWNERSELECT_MASK 0x07
-#define NAVMAP_OWNER_HERO    5
-#define NAVMAP_OWNER_NEUTRAL 6
+#define NAVMAP_OWNERSELECT_MASK 0x3FE0
 
 struct Ariadne { // sizeof = 102
     /** Position where the journey stated. */
@@ -84,15 +150,14 @@ struct Ariadne { // sizeof = 102
     struct Coord3d endpos;
     /** Position of the last reached waypoint. */
     struct Coord3d current_waypoint_pos;
-  struct Coord3d pos_12;
-  struct Coord3d pos_18;
+  struct Coord3d next_position;
+  struct Coord3d previous_position;
   unsigned char route_flags;
-  unsigned char field_1F;
-  unsigned char field_20;
+  unsigned char hug_side;
   unsigned char update_state;
-  unsigned char field_22;
-  unsigned char field_23;
-  short field_24;
+  unsigned char wallhug_active;
+  unsigned char may_need_reroute;
+  short wallhug_stored_angle;
   unsigned short move_speed;
     /** Index of the current waypoint in list of nearest waypoints stored. */
     unsigned char current_waypoint;
@@ -102,11 +167,11 @@ struct Ariadne { // sizeof = 102
     unsigned char stored_waypoints; // offs = 0x51
     /** Total amount of waypoints planned on the way towards endpos. */
     unsigned int total_waypoints;
-  struct Coord3d pos_53;
-  struct Coord3d pos_59;
+  struct Coord3d manoeuvre_fixed_position;
+  struct Coord3d manoeuvre_requested_position;
   unsigned char manoeuvre_state;
   short wallhug_angle;
-  long field_62;
+  long straight_dist_to_next_waypoint;
 };
 
 struct PathWayPoint { // sizeof = 8
@@ -122,46 +187,44 @@ struct Path { // sizeof = 2068
 };
 
 struct Gate { // sizeof = 28
-  long field_0;
-  long field_4;
-  long field_8;
-  long field_C;
-  long field_10;
-  long field_14;
-  long field_18;
+  long start_coordinate_x;
+  long start_coordinate_y;
+  long end_coordinate_x;
+  long end_coordinate_y;
+  long intersection_coordinate_x;
+  long intersection_coordinate_y;
+  long pathfinding_direction;
 };
 
-struct Pathway { // sizeof = 7192
-  long field_0;
-  long field_4;
-  long field_8;
-  long field_C;
+struct Pathway {
+  long start_coordinate_x;
+  long start_coordinate_y;
+  long finish_coordinate_x;
+  long finish_coordinate_y;
   struct Gate points[256];
   long points_num;
-  long field_1C14;
 };
 
 struct WayPoints {
-  long wpfield_0;
-  long wpfield_4;
-  long wpfield_8;
-  long wpfield_C;
-  long wpfield_10[ARID_PATH_WAYPOINTS_COUNT];
+  long edge1_start_index;
+  long edge2_start_index;
+  long edge1_current_index;
+  long edge2_current_index;
+  long waypoint_index_array[ARID_PATH_WAYPOINTS_COUNT];
 };
 
-struct Navigation { // sizeof = 0x27
+struct Navigation {
   unsigned char navstate;
   unsigned char side;
-  unsigned char field_2;
-  unsigned char field_3;
-  unsigned char field_4;
+  unsigned char wallhug_retry_counter;
+  unsigned char wallhug_state;
+  unsigned char push_counter;
   long dist_to_final_pos;
   long distance_to_next_pos;
   long angle;
-  unsigned char field_11[4];
   SubtlCodedCoords first_colliding_block;
-  SubtlCodedCoords field_17;
-  unsigned char field_19[2];
+  SubtlCodedCoords second_colliding_block;
+  PlayerBitFlags owner_flags[2];
   struct Coord3d pos_next;
   struct Coord3d pos_final;
 };
@@ -173,8 +236,8 @@ struct FOV { // sizeof=0x18
 };
 
 struct HugStart {
-    short angle;
-    unsigned char flag;
+    short wh_angle;
+    unsigned char wh_side;
 };
 
 /******************************************************************************/
@@ -190,7 +253,7 @@ extern const struct HugStart blocked_xy_hug_start[][2][2];
 /******************************************************************************/
 long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
-TbBool triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey);
+TbBool triangulate_area(NavColour *imap, long sx, long sy, long ex, long ey);
 
 AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, AriadneRouteFlags flags, const char *func_name);
 #define ariadne_initialise_creature_route(thing, pos, speed, flags) ariadne_initialise_creature_route_f(thing, pos, speed, flags, __func__)
@@ -203,22 +266,22 @@ long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *t
 AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing);
 
 TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2);
-void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size, const char *func_name);
+void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y, long subroute, unsigned char nav_size, const char *func_name);
 void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name);
 #define nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py) nearest_search_f(sizexy, srcx, srcy, dstx, dsty, px, py, __func__)
-long get_navigation_colour(long stl_x, long stl_y);
-TbBool border_clip_horizontal(const unsigned char *imap, long a1, long a2, long a3, long a4);
-TbBool border_clip_vertical(const unsigned char *imap, long a1, long a2, long a3, long a4);
+NavColour get_navigation_colour(long stl_x, long stl_y);
+TbBool border_clip_horizontal(const NavColour *imap, long start_x, long end_x, long start_y, long end_y);
+TbBool border_clip_vertical(const NavColour *imap, long start_x, long end_x, long start_y, long end_y);
 #define edge_lock(fin_x, fin_y, bgn_x, bgn_y) edge_lock_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
 TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name);
 #define edge_unlock_record_and_regions(fin_x, fin_y, bgn_x, bgn_y) edge_unlock_record_and_regions_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
 TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name);
-void border_internal_points_delete(long a1, long a2, long a3, long a4);
-TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char nav_colour);
-long fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, unsigned char *a5);
-long delaunay_seeded(long a1, long a2, long a3, long a4);
-void border_unlock(long a1, long a2, long a3, long a4);
-TbBool triangulation_border_start(long *a1, long *a2);
+void border_internal_points_delete(long start_x, long start_y, long end_x, long end_y);
+TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour);
+long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, long *outfri_y2, NavColour *oval);
+long delaunay_seeded(long start_x, long start_y, long end_x, long end_y);
+void border_unlock(long start_x, long start_y, long end_x, long end_y);
+TbBool triangulation_border_start(long *border_a, long *border_b);
 void triangulation_init(void);
 void triangulation_initxy(long sx, long sy, long ex, long ey);
 long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt);
@@ -227,7 +290,6 @@ long angle_to_quadrant(long angle);
 long thing_nav_block_sizexy(const struct Thing *thing);
 long thing_nav_sizexy(const struct Thing *thing);
 
-void clear_wallhugging_path(struct Navigation *navi);
 void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend);
 
 /******************************************************************************/

@@ -19,16 +19,15 @@
 #include "pre_inc.h"
 #include "config_settings.h"
 #include "globals.h"
-
+#include "sounds.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_keybrd.h"
 #include "bflib_video.h"
-#include "bflib_cpu.h"
-
+#include "frontmenu_options.h"
 #include "config.h"
+#include "engine_camera.h"
 #include "game_merge.h"
 #include "vidmode.h"
 #include "post_inc.h"
@@ -48,15 +47,15 @@ void setup_default_settings(void)
 {
     // CPU status variable
     const struct GameSettings default_settings = {
-     0,                         // field_0
+     0,                         // unusedfield_0
      4,                         // video_shadows
      3,                         // view_distance
      0,                         // video_rotate_mode
      1,                         // video_textures
      0,                         // video_cluedo_mode
      127,                       // sound_volume
-     90,                        // redbook_volume
-     1,                         // field_8
+     90,                        // music_volume
+     1,                         // unusedfield_8
      0,                         // gamma_correction
      Lb_SCREEN_MODE_INVALID,    // Screen mode, set to correct value below
      {
@@ -70,22 +69,22 @@ void setup_default_settings(void)
           {KC_PGDOWN, KMod_NONE},            // Gkey_RotateCCW
           {KC_HOME, KMod_NONE},              // Gkey_ZoomIn
           {KC_END, KMod_NONE},               // Gkey_ZoomOut
-          {KC_T, KMod_NONE},                 // Gkey_ZoomRoom00
-          {KC_L, KMod_NONE},                 // Gkey_ZoomRoom01
-          {KC_L, KMod_SHIFT},                // Gkey_ZoomRoom02
-          {KC_P, KMod_SHIFT},                // Gkey_ZoomRoom03
-          {KC_T, KMod_ALT},                  // Gkey_ZoomRoom04
-          {KC_T, KMod_SHIFT},                // Gkey_ZoomRoom05
-          {KC_H, KMod_NONE},                 // Gkey_ZoomRoom06
-          {KC_W, KMod_ALT},                  // Gkey_ZoomRoom07
-          {KC_S, KMod_ALT},                  // Gkey_ZoomRoom08
-          {KC_T, KMod_CONTROL},              // Gkey_ZoomRoom09
-          {KC_G, KMod_NONE},                 // Gkey_ZoomRoom10
-          {KC_B, KMod_NONE},                 // Gkey_ZoomRoom11
-          {KC_H, KMod_SHIFT},                // Gkey_ZoomRoom12
-          {KC_G, KMod_SHIFT},                // Gkey_ZoomRoom13
-          {KC_B, KMod_SHIFT},                // Gkey_ZoomRoom14
-          {KC_P, KMod_CONTROL},              // Gkey_ZoomRoom15
+          {KC_T, KMod_NONE},                 // Gkey_ZoomRoomTreasure
+          {KC_L, KMod_NONE},                 // Gkey_ZoomRoomLibrary
+          {KC_L, KMod_SHIFT},                // Gkey_ZoomRoomLair
+          {KC_P, KMod_SHIFT},                // Gkey_ZoomRoomPrison
+          {KC_T, KMod_ALT},                  // Gkey_ZoomRoomTorture
+          {KC_T, KMod_SHIFT},                // Gkey_ZoomRoomTraining
+          {KC_H, KMod_NONE},                 // Gkey_ZoomRoomHeart
+          {KC_W, KMod_ALT},                  // Gkey_ZoomRoomWorkshop
+          {KC_S, KMod_ALT},                  // Gkey_ZoomRoomScavenger
+          {KC_T, KMod_CONTROL},              // Gkey_ZoomRoomTemple
+          {KC_G, KMod_NONE},                 // Gkey_ZoomRoomGraveyard
+          {KC_B, KMod_NONE},                 // Gkey_ZoomRoomBarracks
+          {KC_H, KMod_SHIFT},                // Gkey_ZoomRoomHatchery
+          {KC_G, KMod_SHIFT},                // Gkey_ZoomRoomGuardPost
+          {KC_B, KMod_SHIFT},                // Gkey_ZoomRoomBridge
+          {KC_P, KMod_CONTROL},              // Gkey_ZoomRoomPortal
           {KC_F, KMod_NONE},                 // Gkey_ZoomToFight
           {KC_A, KMod_ALT},                  // Gkey_ZoomCrAnnoyed
           {KC_LSHIFT, KMod_NONE},            // Gkey_CrtrContrlMod
@@ -100,24 +99,24 @@ void setup_default_settings(void)
           {KC_MOUSEWHEEL_DOWN, KMod_NONE},   // Gkey_RoomSpaceIncSize
           {KC_MOUSEWHEEL_UP, KMod_NONE},     // Gkey_RoomSpaceDecSize
           {KC_LALT, KMod_NONE},              // Gkey_SellTrapOnSubtile
+          {KC_PGUP, KMod_SHIFT},             // Gkey_TiltUp
+          {KC_PGDOWN, KMod_SHIFT},           // Gkey_TiltDown
+          {KC_INSERT, KMod_SHIFT},           // Gkey_TiltReset
+          {KC_X, KMod_NONE},                 // Gkey_Ascend
+          {KC_Z, KMod_NONE},                 // Gkey_Descend
      },                         // kbkeys
-     1,                         // tooltips_on
+     true,                      // tooltips_on
      0,                         // first_person_move_invert
      6,                         // first_person_move_sensitivity
      256,                       // minimap_zoom
      8192,                      // isometric_view_zoom_level
-     65536,                     // frontview_zoom_level
+     FRONTVIEW_CAMERA_ZOOM_MAX, // frontview_zoom_level
      127,                       // mentor_volume
+     CAMERA_TILT_DEFAULT,       // isometric_tilt
+     false,                     // highlight_mode
     };
-    LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
-    struct CPU_INFO cpu_info;
-    cpu_detect(&cpu_info);
-    settings.video_scrnmode = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
-    if ((cpu_get_family(&cpu_info) > CPUID_FAMILY_PENTIUM) && (is_feature_on(Ft_HiResVideo)))
-    {
-        SYNCDBG(6,"Updating to hires video mode");
-        settings.video_scrnmode = get_higher_vidmode(settings.video_scrnmode);
-    }
+    memcpy(&settings, &default_settings, sizeof(struct GameSettings));
+    settings.switching_vidmodes_index = 0;
 }
 
 TbBool load_settings(void)
@@ -129,6 +128,23 @@ TbBool load_settings(void)
     {
       if (LbFileLoadAt(fname, &settings) == sizeof(struct GameSettings))
       {
+          // sanity checks
+          settings.video_shadows = clamp(settings.video_shadows, 0, 3);
+          settings.view_distance = clamp(settings.view_distance, 0, 3);
+          settings.video_rotate_mode = clamp(settings.video_rotate_mode, 0, 2);
+          settings.video_textures = clamp(settings.video_textures, 0, 1);
+          settings.video_cluedo_mode = clamp(settings.video_cluedo_mode, 0, 1);
+          settings.sound_volume = clamp(settings.sound_volume, 0, FULL_LOUDNESS);
+          settings.music_volume = clamp(settings.music_volume, 0, FULL_LOUDNESS);
+          settings.gamma_correction = clamp(settings.gamma_correction, 0, GAMMA_LEVELS_COUNT);
+          settings.switching_vidmodes_index = clamp(settings.switching_vidmodes_index, 0, MAX_GAME_VIDMODE_COUNT);
+          settings.first_person_move_sensitivity = clamp(settings.first_person_move_sensitivity, 0, 1000);
+          settings.minimap_zoom = clamp(settings.minimap_zoom, 256, 2048);
+          settings.isometric_view_zoom_level = clamp(settings.isometric_view_zoom_level, CAMERA_ZOOM_MIN, CAMERA_ZOOM_MAX);
+          settings.frontview_zoom_level = clamp(settings.frontview_zoom_level, FRONTVIEW_CAMERA_ZOOM_MIN, FRONTVIEW_CAMERA_ZOOM_MAX);
+          settings.mentor_volume = clamp(settings.mentor_volume, 0, 127);
+          settings.isometric_tilt = clamp(settings.isometric_tilt, CAMERA_TILT_MIN, CAMERA_TILT_MAX);
+          settings.highlight_mode = clamp(settings.highlight_mode, false, true);
           return true;
       }
     }

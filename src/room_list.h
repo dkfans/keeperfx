@@ -21,6 +21,8 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "room_data.h"
+#include "thing_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,8 +31,6 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct Room;
-struct Thing;
 struct CompoundRoomFilterParam;
 
 typedef struct CompoundRoomFilterParam * MaxRoomFilterParam;
@@ -46,16 +46,16 @@ struct CompoundRoomFilterParam {
      long plyr_idx;
      long kind_id;
      union {
-     long num1;
-     void *ptr1;
+     long primary_number;
+     void *primary_pointer;
      };
      union {
-     long num2;
-     void *ptr2;
+     long secondary_number;
+     void *secondary_pointer;
      };
      union {
-     long num3;
-     void *ptr3;
+     long tertiary_number;
+     void *tertiary_pointer;
      };
 };
 

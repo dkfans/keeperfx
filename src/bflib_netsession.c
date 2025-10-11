@@ -19,15 +19,14 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "bflib_netsession.h"
-
 #include "bflib_basics.h"
-#include "bflib_memory.h"
+#include <string.h>
 #include "post_inc.h"
 
 /******************************************************************************/
 void net_copy_name_string(char *dst,const char *src,long max_len)
 {
-  LbMemorySet(dst, 0, max_len);
+  memset(dst, 0, max_len);
   if (dst != NULL)
   {
     if (src != NULL)

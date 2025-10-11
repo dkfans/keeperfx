@@ -19,9 +19,11 @@
 #ifndef KEEPFX_GLOBALS_H
 #define KEEPFX_GLOBALS_H
 
+#include "bflib_basics.h"
+#include <stdbool.h> // Introduced in C99. Provides true/false.
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
+#include <stdlib.h> // Provides NULL.
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
@@ -46,12 +48,8 @@
 #endif
 
 #ifdef _MSC_VER
-// static_assert is not defined in C standard
-#ifndef __cplusplus
-#define static_assert(a, b)
-#endif
-#define strcasecmp strcmp
-#define strncasecmp strncmp
+    #define strcasecmp _stricmp
+    #define strncasecmp _strnicmp
 #endif
 
 #include "version.h"
@@ -76,22 +74,15 @@ extern "C" {
 #define SEPARATOR "\\"
 #endif
 
-#ifndef false
-#define false 0
-#endif
-#ifndef true
-#define true 1
-#endif
-#ifndef NULL
-#define NULL 0
-#endif
-
 #ifndef __cplusplus
 #ifndef max
 #define max(a,b) ((a)>(b)?(a):(b))
 #endif
 #ifndef min
 #define min(a,b) ((a)<(b)?(a):(b))
+#endif
+#ifndef clamp
+#define clamp(v,lo,hi) (max(lo, min(v, hi)))
 #endif
 #endif
 
@@ -116,17 +107,17 @@ extern "C" {
 #define NOMSG(format, ...)
 
 // Debug function-like macros - for code logging (with function name)
-#define ERRORLOG(format, ...) LbErrorLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
-#define WARNLOG(format, ...) LbWarnLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
-#define SYNCLOG(format, ...) LbSyncLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
-#define JUSTLOG(format, ...) LbJustLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
+#define ERRORLOG(format, ...) LbErrorLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
+#define WARNLOG(format, ...) LbWarnLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
+#define SYNCLOG(format, ...) LbSyncLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
+#define JUSTLOG(format, ...) LbJustLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define SCRPTLOG(format, ...) LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__)
 #define SCRPTERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
 #define SCRPTWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
 #define CONFLOG(format, ...) LbConfigLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__)
 #define CONFERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
 #define CONFWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
-#define NETLOG(format, ...) LbNetLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
+#define NETLOG(format, ...) LbNetLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define NOLOG(format, ...)
 
 // Debug function-like macros - for debug code logging
@@ -149,9 +140,6 @@ extern "C" {
   #define SCRIPTDBG(dblv,format, ...) {\
     if (BFDEBUG_LEVEL > dblv)\
       LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define AIDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbAiLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
 #else
   #define SYNCDBG(dblv,format, ...)
   #define WARNDBG(dblv,format, ...)
@@ -159,30 +147,47 @@ extern "C" {
   #define NAVIDBG(dblv,format, ...)
   #define NETDBG(dblv,format, ...)
   #define SCRIPTDBG(dblv,format, ...)
-  #define AIDBG(dblv,format, ...)
-#endif
-
-#if AUTOTESTING
-  #include "event_monitoring.h"
-  #define EVM_CREATURE_EVENT(event_name, plyr_id, thing) \
-    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id)
-  #define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val) \
-    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1,targ=%d", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id, targ_val)
-  #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt) \
-    evm_stat(0, "map.%s,x=%d,y=%d,plyr=%d,opt=%s cnt=1,x=%d,y=%d", event_name, x, y, plyr_idx, opt, x,y)
-  #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val) \
-    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d %s=%d", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id, stat_name, stat_val)
-#else
-  #define EVM_CREATURE_EVENT(event_name, plyr_id, thing)
-  #define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val)
-  #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val)
-  #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
 #endif
 
 #define MAX_TILES_X 170
 #define MAX_TILES_Y 170
 #define MAX_SUBTILES_X 511
 #define MAX_SUBTILES_Y 511
+
+enum AnglesAndDegrees {
+    // Cardinal directions (clockwise from North)
+    ANGLE_NORTH = 0,        // 0° - North direction (up)
+    ANGLE_NORTHEAST = 256,  // 45° - Northeast direction (up-right)
+    ANGLE_EAST = 512,       // 90° - East direction (right)
+    ANGLE_SOUTHEAST = 768,  // 135° - Southeast direction (down-right)
+    ANGLE_SOUTH = 1024,     // 180° - South direction (down)
+    ANGLE_SOUTHWEST = 1280, // 225° - Southwest direction (down-left)
+    ANGLE_WEST = 1536,      // 270° - West direction (left)
+    ANGLE_NORTHWEST = 1792, // 315° - Northwest direction (up-left)
+    ANGLE_MASK = 2047,      // Bitmask for angle/degrees values (0x7FF)
+    // Degrees
+    DEGREES_2_8125 = 16,    // 2.8125° - DEGREES_180 / 64
+    DEGREES_8_18 = 46,      // 8.18° - DEGREES_180 / 22
+    DEGREES_10 = 56,        // 10° - DEGREES_180 / 18
+    DEGREES_11_25 = 64,     // 11.25° - DEGREES_180 / 16
+    DEGREES_15 = 85,        // 15° - DEGREES_180 / 12
+    DEGREES_20 = 113,       // 20° - DEGREES_180 / 9
+    DEGREES_22_5 = 128,     // 22.5° - DEGREES_180 / 8
+    DEGREES_30 = 170,       // 30° - DEGREES_180 / 6
+    DEGREES_45 = 256,       // 45° - DEGREES_180 / 4
+    DEGREES_50 = 284,       // 50°
+    DEGREES_60 = 341,       // 60° - DEGREES_180 / 3
+    DEGREES_90 = 512,       // 90° - DEGREES_180 / 2
+    DEGREES_120 = 682,      // 120° - 2 * DEGREES_180 / 3
+    DEGREES_135 = 768,      // 135°
+    DEGREES_180 = 1024,     // 180° - Half a circle
+    DEGREES_202_5 = 1151,   // 202.5° - Sprite flip threshold
+    DEGREES_225 = 1280,     // 225°
+    DEGREES_270 = 1536,     // 270°
+    DEGREES_315 = 1792,     // 315°
+    DEGREES_337_5 = 1919,   // 337.5° - Sprite flip threshold
+    DEGREES_360 = 2048,     // 360° - Full circle
+};
 
 #pragma pack(1)
 
@@ -191,19 +196,23 @@ typedef int ScreenCoord;
 /** Screen coordinate in scale of the real screen. */
 typedef int RealScreenCoord;
 /** Player identification number, or owner of in-game thing/room/slab. */
-typedef signed char PlayerNumber;
-/** bitflag where each bit represents a player */
-typedef unsigned char PlayerBitFlag;
+typedef int8_t PlayerNumber;
+/** bitflags where each bit represents a player (e.g. player id 0 = 0b000001, player id 1 = 0b000010, player id 2 = 0b000100). */
+typedef unsigned short PlayerBitFlags;
 /** Type which stores thing class. */
 typedef unsigned char ThingClass;
 /** Type which stores thing model. */
-typedef unsigned char ThingModel;
+typedef short ThingModel;
 /** Type which stores thing index. */
 typedef unsigned short ThingIndex;
+/** Type which stores effectModels on positive or EffectElements on Negative. Should be as big as ThingModel */
+typedef short EffectOrEffElModel;
 /** Type which stores creature state index. */
 typedef unsigned short CrtrStateId;
 /** Type which stores creature experience level. */
 typedef unsigned char CrtrExpLevel;
+/** Type which stores keeper power level. */
+typedef unsigned char KeepPwrLevel;
 /** Type which stores creature annoyance reason, from CreatureAngerReasons enumeration. */
 typedef unsigned char AnnoyMotive;
 /** Type which stores room kind index. */
@@ -214,7 +223,7 @@ typedef unsigned long RoomRole;
 typedef unsigned short RoomIndex;
 /** Type which stores slab kind index. */
 typedef unsigned char SlabKind;
-/** Type which stores SplK_* values. */
+/** Type which stores spell kind index. */
 typedef unsigned short SpellKind;
 /** Type which stores PwrK_* values. */
 typedef unsigned short PowerKind;
@@ -266,8 +275,6 @@ typedef long SubtlCodedCoords;
 typedef unsigned long SlabCodedCoords;
 /** Index in the columns array. */
 typedef short ColumnIndex;
-/** A variable which bits store bool value for each player. */
-typedef unsigned char PerPlayerFlags;
 /** Movement speed on objects in the game. */
 typedef short MoveSpeed;
 /** Parameter for storing gold sum or price. */
@@ -280,8 +287,6 @@ typedef long ActionPointId;
 typedef long FilterParam;
 /** Type which stores IAvail_* values. */
 typedef char ItemAvailability;
-/** Type which stores types of damage as DmgT_* values. */
-typedef unsigned char DamageType;
 /** Type which stores hit filters for things as THit_* values. */
 typedef unsigned char ThingHitType;
 /** Type which stores hit filters for things as HitTF_* flags. */
@@ -294,58 +299,71 @@ typedef short FrontendMenuState;
 typedef unsigned short SpDiggerTaskType;
 /** Flags for tracing route for creature movement. */
 typedef unsigned char NaviRouteFlags;
+/** data used for navigating contains floor height, locked doors per player, unsafe surfaces */
+typedef unsigned short NavColour;
+/** Either North (0), East (1), South (2), or West (3). */
+typedef int8_t SmallAroundIndex;
+/** a player state as defined in config_players*/
+typedef unsigned char PlayerState;
+typedef unsigned short CctrlIndex;
+/** index to a function, positive for C functions, negative for lua functions*/
+typedef short FuncIdx;
+typedef unsigned long TbMapLocation;
 
-/* Stores a 2d coordinate (x,y).
 
-Members:
-.val - coord position (relative to whole map)
-.stl.pos - coord position (relative to subtile)
-.stl.num - subtile position (relative to whole map)
-*/
+/**
+ * Stores a 2d coordinate (x,y).
+ *
+ * Members:
+ * .val - coord position (relative to whole map)
+ * .stl.pos - coord position (relative to subtile)
+ * .stl.num - subtile position (relative to whole map)
+ */
 struct Coord2d {
     union { // x position
-      unsigned long val; // x.val - coord x position (relative to whole map)
+      unsigned long val; /**< x.val - coord x position (relative to whole map) */
       struct { // subtile
-        unsigned char pos; // x.stl.pos - coord x position (relative to subtile)
-        unsigned short num; // x.stl.num - subtile x position (relative to whole map)
+        unsigned char pos; /**< x.stl.pos - coord x position (relative to subtile) */
+        unsigned short num; /**< x.stl.num - subtile x position (relative to whole map) */
         } stl;
-    } x; 
+    } x;
     union { // y position
-      unsigned long val; // y.val - coord y position (relative to whole map)
+      unsigned long val; /**< y.val - coord y position (relative to whole map) */
       struct { // subtile
-        unsigned char pos; // y.stl.pos - coord y position (relative to subtile)
-        unsigned short num; // y.stl.num - subtile y position (relative to whole map)
+        unsigned char pos; /**< y.stl.pos - coord y position (relative to subtile) */
+        unsigned short num; /**< y.stl.num - subtile y position (relative to whole map) */
         } stl;
     } y;
 };
 
-/* Stores a 3d coordinate (x,y,z).
-
-Members:
-.val - coord position (relative to whole map)
-.stl.pos - coord position (relative to subtile)
-.stl.num - subtile position (relative to whole map)
-*/
+/**
+ * Stores a 3d coordinate (x,y).
+ *
+ * Members:
+ * .val - coord position (relative to whole map)
+ * .stl.pos - coord position (relative to subtile)
+ * .stl.num - subtile position (relative to whole map)
+ */
 struct Coord3d {
     union { // x position
-      long val; // x.val - coord x position (relative to whole map)
+      long val; /**< x.val - coord x position (relative to whole map) */
       struct { // subtile
-        unsigned char pos; // x.stl.pos - coord x position (relative to subtile)
-        unsigned short num; // x.stl.num - subtile x position (relative to whole map)
+        unsigned char pos; /**< x.stl.pos - coord x position (relative to subtile) */
+        unsigned short num; /**< x.stl.num - subtile x position (relative to whole map) */
         } stl;
     } x;
     union { // y position
-      long val; // y.val - coord y position (relative to whole map)
+      long val; /**< y.val - coord y position (relative to whole map) */
       struct { // subtile
-        unsigned char pos; // y.stl.pos - coord y position (relative to subtile)
-        unsigned short num; // y.stl.num - subtile y position (relative to whole map)
+        unsigned char pos; // y.stl.pos - coord y position (relative to subtile) */
+        unsigned short num; // y.stl.num - subtile y position (relative to whole map) */
         } stl;
     } y;
     union { // z position
-      long val; // z.val - coord z position (relative to whole map)
+      long val; /**< z.val - coord z position (relative to whole map) */
       struct { // subtile
-        unsigned char pos; // z.stl.pos - coord z position (relative to subtile)
-        unsigned short num; // z.stl.num - subtile z position (relative to whole map)
+        unsigned char pos; /**< z.stl.pos - coord z position (relative to subtile) */
+        unsigned short num; /**< z.stl.num - subtile z position (relative to whole map) */
         } stl;
     } z;
 };
@@ -418,6 +436,12 @@ struct IRECT_2D {
     int r;
     int t;
     int b;
+};
+
+struct PickedUpOffset
+{
+    short delta_x;
+    short delta_y;
 };
 
 extern GameTurn get_gameturn();

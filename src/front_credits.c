@@ -20,9 +20,6 @@
 #include "front_credits.h"
 #include "globals.h"
 #include "bflib_basics.h"
-#if AUTOTESTING
-#include "keeperfx.hpp"
-#endif
 
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
@@ -38,47 +35,46 @@
 #include "vidfade.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
+
+#if FUNCTESTING
+#include "ftests/ftest.h"
+#endif
+
 #include "post_inc.h"
 
 /******************************************************************************/
-extern struct TbLoadFiles frontstory_load_files_640[];
-extern struct TbSprite *frontstory_end_font;
-extern unsigned char * frontstory_font_data;
-
 static long frontstory_text_no;
-static struct TbSetupSprite frontstory_setup_sprites[2] = {{  &frontstory_font, &frontstory_end_font, &frontstory_font_data },
-                                                           { NULL, NULL, NULL}};
 static long credits_scroll_speed;
-
-struct TbSprite *frontstory_font;
+struct TbSpriteSheet * frontstory_font = NULL;
 long credits_offset;
 int credits_end;
 /******************************************************************************/
 void frontstory_load(void)
 {
-    wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
-    if (LbDataLoadAll(frontstory_load_files_640))
+#ifdef SPRITE_FORMAT_V2
+    frontstory_font = load_font("ldata/frontft1-64.dat", "ldata/frontft1-64.tab");
+#else
+    frontstory_font = load_font("ldata/frontft1.dat", "ldata/frontft1.tab");
+#endif
+    if (!frontstory_font)
     {
-        ERRORLOG("Unable to Load FRONT STORY FILES");
+        ERRORLOG("Unable to load front story font");
     } else
     {
-        LbDataLoadSetModifyFilenameFunction(mdlf_default);
-        LbSpriteSetupAll(frontstory_setup_sprites);
+        LbDataLoadSetModifyFilenameFunction(defaultModifyDataLoadFilename);
         LbPaletteSet(frontend_palette);
-#if AUTOTESTING
-        if (start_params.autotest_flags & ATF_FixedSeed)
-          srand(1);
-        else
-#endif
         srand(LbTimerClock());
+#if FUNCTESTING
+        ftest_srand();
+#endif // FUNCTESTING
         frontstory_text_no = GUIStr_EasterPoems + rand() % 26;
     }
 }
 
 void frontstory_unload(void)
 {
-    LbDataFreeAll(frontstory_load_files_640);
+    free_font(&frontstory_font);
 }
 
 void frontstory_draw(void)

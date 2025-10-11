@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_planar.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
@@ -37,7 +36,7 @@
 #include "room_workshop.h"
 #include "power_hand.h"
 #include "game_legacy.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_instances.h"
 #include "post_inc.h"
 
@@ -204,8 +203,7 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
         return INVALID_EVENT;
     }
     struct Dungeon* dungeon = get_dungeon(dngn_id);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(dngn_id);
-    i = dungeonadd->event_last_run_turn[evkind];
+    i = dungeon->event_last_run_turn[evkind];
     if (i != 0)
     {
         long k = event_button_info[evkind].turns_between_events;
@@ -251,13 +249,13 @@ void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y,
 
 void event_delete_event_structure(long ev_idx)
 {
-    LbMemorySet(&game.event[ev_idx], 0, sizeof(struct Event));
+    memset(&game.event[ev_idx], 0, sizeof(struct Event));
 }
 
 void event_update_last_use(struct Event *event)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(event->owner);
-    if (dungeonadd_invalid(dungeonadd)) {
+    struct Dungeon* dungeon = get_dungeon(event->owner);
+    if (dungeon_invalid(dungeon)) {
         ERRORLOG("Player %d dungeon doesn't exist",(int)event->owner);
         return;
     }
@@ -265,7 +263,7 @@ void event_update_last_use(struct Event *event)
         ERRORLOG("Illegal Event kind %d to be updated",(int)event->kind);
         return;
     }
-    dungeonadd->event_last_run_turn[event->kind] = game.play_gameturn;
+    dungeon->event_last_run_turn[event->kind] = game.play_gameturn;
 }
 
 void event_delete_event(long plyr_idx, EventIndex evidx)
@@ -298,23 +296,6 @@ void event_update_on_battle_removal(void)
             event->mappos_y = 0;
         }
     }
-}
-
-/**
- * Returns event button index associated to given event.
- * @param event The event which associated button is to be found.
- * @param dungeon
- * @return Event button index, or -1 if the event doesn't have any button associated.
- */
-int event_get_button_index(const struct Dungeon *dungeon, EventIndex evidx)
-{
-    for (int i = 0; i <= EVENT_BUTTONS_COUNT; i++)
-    {
-        if (dungeon->event_button_index[i] == evidx) {
-            return i;
-        }
-    }
-    return -1;
 }
 
 void event_add_to_event_buttons_list_or_replace_button(struct Event *event, struct Dungeon *dungeon)
@@ -354,7 +335,7 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
                 if (is_my_player_number(dungeon->owner))
                 {
                     struct PlayerInfo* player = get_player(dungeon->owner);
-                    if ( (game.play_gameturn > 10) && (player->view_type == PVT_DungeonTop) && ((game.operation_flags & GOF_ShowGui)) )
+                    if ( (game.play_gameturn > 10) && (player->view_type != PVT_DungeonTop || (game.operation_flags & GOF_ShowGui)) )
                     {
                         play_non_3d_sample(947);
                     }
@@ -366,28 +347,6 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
         }
     }
     if (i < 0)
-    {
-        kill_oldest_my_event(dungeon);
-        dungeon->event_button_index[EVENT_BUTTONS_COUNT] = event->index;
-    }
-}
-
-void event_add_to_event_buttons_list(struct Event *event, struct Dungeon *dungeon)
-{
-    if (dungeon->owner != event->owner) {
-      ERRORLOG("Illegal my_event player allocation");
-    }
-    long i;
-    for (i=EVENT_BUTTONS_COUNT; i > 0; i--)
-    {
-        long ev_idx = dungeon->event_button_index[i];
-        if (ev_idx == 0)
-        {
-            dungeon->event_button_index[i] = event->index;
-            break;
-        }
-    }
-    if (i == 0)
     {
         kill_oldest_my_event(dungeon);
         dungeon->event_button_index[EVENT_BUTTONS_COUNT] = event->index;
@@ -424,7 +383,6 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
     if (is_my_player_number(plyr_idx))
     {
         short other_off = 0;
-        char* text;
         switch (event->kind)
         {
         case EvKind_HeartAttacked:
@@ -459,8 +417,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             other_off = 1;
             const struct RoomConfigStats* roomst = get_room_kind_stats(event->target);
             i = roomst->name_stridx;
-            text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text, get_string(i));
-            snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
+            str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         }
@@ -471,34 +428,30 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (!thing_is_invalid(thing))
             {
-                crconf = &gameadd.crtr_conf.model[thing->model];
+                crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
-                text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
-                snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
+                str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             }
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         case EvKind_NewSpellResrch:
             other_off = 1;
             i = get_power_name_strindex(event->target);
-            text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
-            snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
+            str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         case EvKind_NewTrap:
             other_off = 1;
             trapst = get_trap_model_stats(event->target);
             i = trapst->name_stridx;
-            text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
-            snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
+            str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         case EvKind_NewDoor:
             other_off = 1;
             doorst = get_door_model_stats(event->target);
             i = doorst->name_stridx;
-            text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
-            snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
+            str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         case EvKind_CreatrScavenged: // Scavenge detected
@@ -508,10 +461,9 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (!thing_is_invalid(thing))
             {
-                crconf = &gameadd.crtr_conf.model[thing->model];
+                crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
-                text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
-                snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
+                str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             }
             turn_on_menu(GMnu_TEXT_INFO);
             break;
@@ -522,8 +474,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             break;
         case EvKind_CreaturePayday:
             other_off = 1;
-            text = buf_sprintf("%s:\n %d", game.evntbox_scroll_window.text, event->target);
-            snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
+            str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%ld", event->target);
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         case EvKind_SpellPickedUp:
@@ -532,8 +483,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             if (thing_is_invalid(thing))
                 break;
             i = get_power_name_strindex(book_thing_to_power_kind(thing));
-            text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
-            snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
+            str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         case EvKind_RoomTakenOver:
@@ -543,8 +493,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             other_off = 1;
             const struct RoomConfigStats* roomst = get_room_kind_stats(event->target);
             i = roomst->name_stridx;
-            text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text,get_string(i));
-            snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
+            str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         }
@@ -555,10 +504,9 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             // Otherwise, put creature type in it.
             if (!thing_is_invalid(thing))
             {
-                crconf = &gameadd.crtr_conf.model[thing->model];
+                crconf = &game.conf.crtr_conf.model[thing->model];
                 i = crconf->namestr_idx;
-                text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
-                snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
+                str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             }
             turn_on_menu(GMnu_TEXT_INFO);
             break;
@@ -568,6 +516,8 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_NeedTreasureRoom:
         case EvKind_RoomLost:
         case EvKind_CreatrHungry:
+        case EvKind_SecretDoorDiscovered:
+        case EvKind_SecretDoorSpotted:
             other_off = 1;
             turn_on_menu(GMnu_TEXT_INFO);
             break;
@@ -578,8 +528,8 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
                 i = -i;
                 event->target = i;
             }
-            snprintf(game.evntbox_text_buffer, MESSAGE_TEXT_LEN, "%s", get_string(i));
-            snprintf(game.evntbox_scroll_window.text, MESSAGE_TEXT_LEN, "%s", game.evntbox_text_buffer);
+            snprintf(game.evntbox_text_buffer, sizeof(game.evntbox_text_buffer), "%s", get_string(i));
+            snprintf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), "%s", game.evntbox_text_buffer);
             other_off = 1;
             turn_on_menu(GMnu_TEXT_INFO);
             break;
@@ -590,8 +540,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
                 break;
             trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(thing));
             i = trapst->name_stridx;
-            text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
-            snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
+            str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         case EvKind_DoorCrateFound:
@@ -601,8 +550,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
               break;
             doorst = get_door_model_stats(crate_thing_to_workshop_item_model(thing));
             i = doorst->name_stridx;
-            text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
-            snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
+            str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         case EvKind_DnSpecialFound:
@@ -611,8 +559,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
             if (thing_is_invalid(thing))
               break;
             i = get_special_description_strindex(box_thing_to_special(thing));
-            text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, get_string(i));
-            snprintf(game.evntbox_scroll_window.text,MESSAGE_TEXT_LEN, "%s", text);
+            str_appendf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), ":\n%s", get_string(i));
             turn_on_menu(GMnu_TEXT_INFO);
             break;
         case EvKind_QuickInformation:
@@ -622,8 +569,8 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
               i = -i;
               event->target = i;
             }
-            snprintf(game.evntbox_text_buffer, MESSAGE_TEXT_LEN, "%s", gameadd.quick_messages[i % QUICK_MESSAGES_COUNT]);
-            snprintf(game.evntbox_scroll_window.text, MESSAGE_TEXT_LEN, "%s", game.evntbox_text_buffer);
+            snprintf(game.evntbox_text_buffer, sizeof(game.evntbox_text_buffer), "%s", game.quick_messages[i % QUICK_MESSAGES_COUNT]);
+            snprintf(game.evntbox_scroll_window.text, sizeof(game.evntbox_scroll_window.text), "%s", game.evntbox_text_buffer);
             other_off = 1;
             turn_on_menu(GMnu_TEXT_INFO);
             break;
@@ -655,19 +602,18 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                 dungeon->event_button_index[i-1] = curr_ev_idx;
                 dungeon->event_button_index[i] = 0;
                 struct Event* event = &game.event[curr_ev_idx];
-                if (((event->flags & EvF_BtnFirstFall) != 0) || event->falling_button)
+                if (flag_is_set(event->flags,EvF_BtnFirstFall))
                 {
                     if ((i == 1) || ((i >= 2) && dungeon->event_button_index[i-2] != 0))
                     {
                         if (is_my_player_number(dungeon->owner)) {
                             struct SoundEmitter* emit = S3DGetSoundEmitter(Non3DEmitter);
-                            StopSample(get_emitter_id(emit), 947);
+                            stop_sample(get_emitter_id(emit), 947, 0);
                             play_non_3d_sample(175);
                         }
                         unsigned char prev_ev_idx = dungeon->event_button_index[i - 1];
                         event = &game.event[prev_ev_idx];
                         event->flags &= ~EvF_BtnFirstFall;
-                        event->falling_button = 0;
                     }
                 }
             }
@@ -734,7 +680,11 @@ ThingIndex get_thing_index_event_is_attached_to(const struct Event *event)
 struct Thing *event_is_attached_to_thing(EventIndex evidx)
 {
     struct Event* event = &game.event[evidx];
-    long i = get_thing_index_event_is_attached_to(event);
+    if ((event->flags & EvF_Exists) == 0)
+    {
+        return INVALID_THING;
+    }
+    ThingIndex i = get_thing_index_event_is_attached_to(event);
     return thing_get(i);
 }
 
@@ -746,8 +696,12 @@ void event_process_events(void)
         if ((event->flags & EvF_Exists) == 0) {
             continue;
         }
-        if (event->lifespan_turns > 0) {
-            event->lifespan_turns--;
+        struct PlayerInfo*player = get_player(event->owner);
+        if (player->view_type <= PVT_DungeonTop) //Freeze lifespan of events of human player on map or possession
+        {
+            if (event->lifespan_turns > 0) {
+                event->lifespan_turns--;
+            }
         }
         if (event->lifespan_turns <= 0)
         {
@@ -774,7 +728,7 @@ void event_process_events(void)
 
 void update_all_events(void)
 {
-    for (long i = EVENT_BUTTONS_COUNT; i > 0; i--)
+    for (long i = EVENTS_COUNT; i > 0; i--)
     {
         struct Thing* thing = event_is_attached_to_thing(i);
         if (!thing_is_invalid(thing))
@@ -797,7 +751,7 @@ void update_all_events(void)
 void event_kill_all_players_events(long plyr_idx)
 {
     SYNCDBG(8,"Starting");
-    TbBool keep_objective = gameadd.heart_lost_display_message;
+    TbBool keep_objective = game.heart_lost_display_message;
     for (int i = 1; i < EVENTS_COUNT; i++)
     {
         struct Event* event = &game.event[i];

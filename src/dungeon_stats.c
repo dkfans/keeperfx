@@ -25,10 +25,16 @@
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_objects.h"
+#include "config_mods.h"
 #include "config_lenses.h"
 #include "config_trapdoor.h"
 #include "config_effects.h"
 #include "config_terrain.h"
+#include "config_slabsets.h"
+#include "config_textures.h"
+#include "config_powerhands.h"
+#include "config_spritecolors.h"
+#include "config_players.h"
 #include "room_library.h"
 #include "game_legacy.h"
 #include "post_inc.h"
@@ -36,47 +42,47 @@
 /******************************************************************************/
 TbBool load_stats_files(void)
 {
+    SYNCDBG(8, "Starting");
     TbBool result = true;
+
     clear_research_for_all_players();
-    if (!load_creaturetypes_config(keeper_creaturetp_file,CnfLd_ListOnly))
-      result = false;
-    if (!load_terrain_config(keeper_terrain_file,CnfLd_ListOnly))
-      result = false;
-    if (!load_objects_config(keeper_objects_file,CnfLd_ListOnly))
-      result = false;
-    if (!load_trapdoor_config(keeper_trapdoor_file,CnfLd_ListOnly))
-      result = false;
-    if (!load_effects_config(keeper_effects_file,CnfLd_ListOnly))
-      result = false;
-    if (!load_lenses_config(keeper_lenses_file,CnfLd_ListOnly))
-      result = false;
-    if (!load_magic_config(keeper_magic_file,CnfLd_ListOnly))
-      result = false;
-    if (!load_creaturestates_config(creature_states_file,CnfLd_ListOnly))
-      result = false;
-    if (!load_terrain_config(keeper_terrain_file,CnfLd_Standard))
-      result = false;
-    if (!load_objects_config(keeper_objects_file,CnfLd_Standard))
-      result = false;
-    if (!load_trapdoor_config(keeper_trapdoor_file,CnfLd_Standard))
-      result = false;
-    if (!load_effects_config(keeper_effects_file,CnfLd_Standard))
-      result = false;
-    if (!load_lenses_config(keeper_lenses_file,CnfLd_Standard))
-      result = false;
-    if (!load_magic_config(keeper_magic_file,CnfLd_Standard))
-      result = false;
-    if (!load_creaturetypes_config(keeper_creaturetp_file,CnfLd_Standard))
-      result = false;
-    if (!load_creaturestates_config(creature_states_file,CnfLd_Standard))
-      result = false;
-    // note that rules file requires definitions of magic and creature types
-    if (!load_rules_config(keeper_rules_file,CnfLd_Standard))
-      result = false;
-    for (int i = 1; i < gameadd.crtr_conf.model_count; i++)
+    init_creature_model_stats();
+    init_creature_model_graphics();
+
+    //first preload some configs which contain names that are used in other cfgs in ListOnly mode
+    load_config(&keeper_creaturetp_file_data,   CnfLd_ListOnly);
+    load_config(&keeper_terrain_file_data,      CnfLd_ListOnly);
+    load_config(&keeper_objects_file_data,      CnfLd_ListOnly);
+    load_config(&keeper_trapdoor_file_data,     CnfLd_ListOnly);
+    load_config(&keeper_effects_file_data,      CnfLd_ListOnly);
+    load_config(&keeper_lenses_file_data,       CnfLd_ListOnly);
+    load_config(&keeper_magic_file_data,        CnfLd_ListOnly);
+    load_config(&creature_states_file_data,     CnfLd_ListOnly);
+    load_config(&keeper_playerstates_file_data, CnfLd_ListOnly);
+
+    //then load everything for real
+    load_config(&keeper_terrain_file_data,      CnfLd_Standard);
+    load_config(&keeper_objects_file_data,      CnfLd_Standard);
+    load_config(&keeper_trapdoor_file_data,     CnfLd_Standard);
+    load_config(&keeper_effects_file_data,      CnfLd_Standard);
+    load_config(&keeper_lenses_file_data,       CnfLd_Standard);
+    load_config(&keeper_magic_file_data,        CnfLd_Standard);
+    load_config(&keeper_creaturetp_file_data,   CnfLd_Standard);
+    load_config(&creature_states_file_data,     CnfLd_Standard);
+    load_config(&keeper_rules_file_data,        CnfLd_Standard);
+    load_config(&keeper_textureanim_file_data,  CnfLd_Standard);
+    load_config(&keeper_powerhands_file_data,   CnfLd_Standard);
+    load_config(&keeper_spritecolors_file_data, CnfLd_Standard);
+    load_config(&keeper_cubes_file_data,        CnfLd_Standard);  
+    load_config(&keeper_playerstates_file_data, CnfLd_Standard);
+    load_config(&keeper_keepcomp_file_data,     CnfLd_Standard);
+    load_config(&keeper_slabset_file_data,      CnfLd_Standard);
+    load_config(&keeper_columns_file_data,      CnfLd_Standard);
+
+    for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
     {
-      if (!load_creaturemodel_config(i,0))
-        result = false;
+        if (!load_creaturemodel_config(i,0))
+            result = false;
     }
     SYNCDBG(3,"Finished");
     return result;
@@ -138,8 +144,8 @@ unsigned long compute_dungeon_rooms_variety_score(long room_types, long total_ar
 {
     if (room_types < 0)
         room_types = 0;
-    if (room_types > game.slab_conf.room_types_count)
-        room_types = game.slab_conf.room_types_count;
+    if (room_types > game.conf.slab_conf.room_types_count)
+        room_types = game.conf.slab_conf.room_types_count;
     if (total_area < 0)
         total_area = 0;
     if (total_area >= 512)
@@ -206,14 +212,13 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     int i;
     int k;
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct DungeonAdd* dungeonadd = get_players_dungeonadd(player);
     if (dungeon_invalid(dungeon)) {
         return false;
     }
     unsigned long manage_efficiency = 0;
     unsigned long max_manage_efficiency = 0;
     {
-        manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(dungeonadd->room_slabs_count[RoK_ENTRANCE],
+        manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(dungeon->room_discrete_count[RoK_ENTRANCE],
             dungeon->room_manage_area, dungeon->portal_scavenge_boost);
         max_manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(LONG_MAX, LONG_MAX, LONG_MAX);
     }
@@ -225,13 +230,13 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     {
         // Compute amount of different types of rooms built
         unsigned long room_types = 0;
-        for (i=0; i < game.slab_conf.room_types_count; i++)
+        for (i=0; i < game.conf.slab_conf.room_types_count; i++)
         {
-            if (dungeonadd->room_slabs_count[i] > 0)
+            if (dungeon->room_discrete_count[i] > 0)
                 room_types++;
         }
         manage_efficiency += 40 * compute_dungeon_rooms_variety_score(room_types, dungeon->total_area);
-        max_manage_efficiency += 40 * compute_dungeon_rooms_variety_score(game.slab_conf.room_types_count, LONG_MAX);
+        max_manage_efficiency += 40 * compute_dungeon_rooms_variety_score(game.conf.slab_conf.room_types_count, LONG_MAX);
     }
     {
         manage_efficiency += compute_dungeon_train_research_manufctr_wealth_score(dungeon->total_experience_creatures_gained,

@@ -35,8 +35,8 @@ struct Dungeon;
 
 enum DeadCreatureStates {
     DCrSt_Unused = 0,
-    DCrSt_DramaticDying,
-    DCrSt_RigorMortis,
+    DCrSt_Dying,
+    DCrSt_Dead,
 };
 
 #pragma pack()
@@ -47,10 +47,10 @@ TbBool corpse_ready_for_collection(const struct Thing* thing);
 TbBool dead_creature_is_room_inventory(const struct Thing *thing, RoomRole rrole);
 TbBool update_dead_creatures_list(struct Dungeon *dungeon, const struct Thing *thing);
 TbBool update_dead_creatures_list_for_owner(const struct Thing *thing);
-TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel);
-TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel);
+TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, CrtrExpLevel exp_level);
+TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, CrtrExpLevel exp_level);
 TngUpdateRet update_dead_creature(struct Thing *thing);
-struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short a1, unsigned short owner, long explevel);
+struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short crpscondition, unsigned short owner, CrtrExpLevel exp_level);
 struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpscondition);
 void delete_corpse(struct Thing *thing);
 /******************************************************************************/

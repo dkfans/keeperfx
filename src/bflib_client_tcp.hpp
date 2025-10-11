@@ -33,10 +33,9 @@ class TCP_NetClient : public TCP_NetBase
 	void haltRecvThread();
 public:
 	TCP_NetClient(const char hostname[], ushort port);
-	virtual ~TCP_NetClient();
+	virtual ~TCP_NetClient() override;
 
-	virtual void update();
-	virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen);
+	virtual void update() override;
 };
 
 #endif //!BFLIB_CLIENT_TCP_HPP

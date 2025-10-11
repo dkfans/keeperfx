@@ -33,17 +33,18 @@ extern "C" {
 #define POLY_POOL_SIZE 16777216 // Originally 262144, adjusted for view distance
 #define Z_DRAW_DISTANCE_MAX 65536 // Originally 11232, adjusted for view distance
 #define BUCKETS_COUNT 4098 // Originally 704, adjusted for view distance. (65536/16)+2
+#define BUCKETS_STEP 16 // Bucket size in Z steps
 
 #define KEEPSPRITE_LENGTH 9149
 #define KEEPERSPRITE_ADD_OFFSET 16384
-#define KEEPERSPRITE_ADD_NUM 8192
+#define KEEPERSPRITE_ADD_NUM 16383
 
 struct EngineCoord { // sizeof = 28
   long view_width; // X screen position, probably not a width
   long view_height; // Y screen position, probably not a height
-  unsigned short field_8; // Affects the drawing of offscreen triangles and something to do with Splittypes
-  unsigned short field_A; // Lightness
-  long field_C; // Distance to camera
+  unsigned short clip_flags; // Clipping and culling flags for frustum culling
+  unsigned short shade_intensity; // Shading intensity for vertex lighting
+  long render_distance; // Distance used for rendering calculations
   long x;
   long y;
   long z;
@@ -83,6 +84,9 @@ enum stripey_line_colors {
     SLC_BLUE,
     SLC_ORANGE,
     SLC_WHITE,
+    SLC_GREEN2,
+    SLC_DARKGREEN,
+    SLC_MIXEDGREEN,
     STRIPEY_LINE_COLOR_COUNT // Must always be the last entry (add new colours above this line)
 };
 
@@ -97,11 +101,12 @@ extern unsigned char *poly_pool_end;
 extern long cells_away;
 extern float hud_scale;
 extern int creature_status_size;
+extern int line_box_size;
 
 extern struct MapVolumeBox map_volume_box;
 extern long view_height_over_2;
 extern long view_width_over_2;
-extern long split_1;
+extern long z_threshold_near;
 extern long split_2;
 extern long fade_max;
 
@@ -114,8 +119,6 @@ extern long floor_pointed_at_y;
 extern Offset vert_offset[3];
 extern Offset hori_offset[3];
 extern Offset high_offset[3];
-
-extern unsigned char player_bit;
 
 extern TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];
 extern TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];

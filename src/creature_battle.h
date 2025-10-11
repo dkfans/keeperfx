@@ -27,17 +27,16 @@ extern "C" {
 #endif
 
 /** Max amount of battles supported on any map. */
-#define BATTLES_COUNT          48
-#define MESSAGE_BATTLERS_COUNT  8
+#define BATTLES_COUNT          192
+#define MESSAGE_BATTLERS_COUNT   8
 /******************************************************************************/
 #pragma pack(1)
 
 struct Thing;
 struct PlayerInfo;
 
-struct CreatureBattle { // sizeof = 17
+struct CreatureBattle {
   unsigned long fighters_num;
-  unsigned char field_4[9];
   unsigned short first_creatr;
   unsigned short last_creatr;
 };

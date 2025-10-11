@@ -22,13 +22,14 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "config_campaigns.h"
+#include "config_strings.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 #define MAX_LIF_SIZE 65535
-#define ANY_MAP_FILE_MAX_SIZE 1048576
 #define DEFAULT_LEVEL_VERSION 0
 
 enum LoadMapFileFlags {
@@ -37,6 +38,7 @@ enum LoadMapFileFlags {
 };
 /******************************************************************************/
 extern long level_file_version;
+extern char *level_strings[];
 /******************************************************************************/
 unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext,long *ldsize,unsigned short flags);
 TbBool find_and_load_lif_files(void);
@@ -44,6 +46,9 @@ TbBool find_and_load_lof_files(void);
 long convert_old_column_file(LevelNumber lv_num);
 
 TbBool load_map_file(LevelNumber lvnum);
+
+void load_map_string_data(struct GameCampaign *campgn, LevelNumber lvnum, short fgroup);
+void free_level_strings_data();
 /******************************************************************************/
 #ifdef __cplusplus
 }

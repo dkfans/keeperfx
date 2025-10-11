@@ -32,8 +32,6 @@ extern "C" {
 /******************************************************************************/
 #define FRONTMAP_ZOOM_LENGTH 240
 #define FRONTMAP_ZOOM_STEP 4
-
-#define DESCRIPTION_CHANNEL 0
 /******************************************************************************/
 #pragma pack(1)
 
@@ -64,14 +62,12 @@ struct MapLevelInfo { // sizeof = 56
   long screen_shift_aimed_y;
 };
 
-struct ScreenPacket { // sizeof = 12
-  unsigned char field_0[4];
-  unsigned char field_4;
-  char field_5;
-  short field_6;
-  short field_8;
-  //TODO LANDVIEW This is unacceptable - level number won't fit in 8 bits; this causes zoom area to be invalid. Change to int when possible.
-  char param1;
+struct ScreenPacket {
+  unsigned char networkstatus_flags;
+  char frontend_alliances;
+  short stored_data1; // Can contain: VersionRelease (networking) or hand_position_x (landview)
+  short stored_data2; // Can contain: VersionBuild (networking) or hand_position_y (landview)
+  short param1;
   unsigned char param2;
 };
 
@@ -79,12 +75,9 @@ struct ScreenPacket { // sizeof = 12
 extern TbClockMSec play_desc_speech_time;
 extern unsigned long played_bad_descriptive_speech;
 extern unsigned long played_good_descriptive_speech;
-extern TbSpriteData map_flag_data;
-extern unsigned long end_map_flag_data;
-extern struct TbSprite *map_flag;
-extern struct TbSprite *end_map_flag;
-extern struct TbSprite *map_font;
-extern struct TbSprite *map_hand;
+extern struct TbSpriteSheet *map_flag;
+extern struct TbSpriteSheet *map_font;
+extern struct TbSpriteSheet *map_hand;
 extern long map_sound_fade;
 extern unsigned char *map_screen;
 extern long fe_net_level_selected;
@@ -94,12 +87,6 @@ extern long players_currently_in_session;
 
 #pragma pack()
 /******************************************************************************/
-extern struct TbSprite *end_map_font;
-extern struct TbSprite *end_map_hand;
-extern TbSpriteData map_font_data;
-extern TbSpriteData end_map_font_data;
-extern TbSpriteData map_hand_data;
-extern TbSpriteData end_map_hand_data;
 extern struct MapLevelInfo map_info;
 
 extern long map_window_len;

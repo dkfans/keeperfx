@@ -129,16 +129,16 @@ TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass
         destroy_object(cratetng);
         return false;
     }
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     switch (tngclass)
     {
     case TCls_Trap:
-        if ((dungeonadd->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Built) == 0) {
+        if ((dungeon->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Built) == 0) {
             event_create_event(cratetng->mappos.x.val, cratetng->mappos.y.val, EvKind_NewTrap, plyr_idx, tngmodel);
         }
         break;
     case TCls_Door:
-        if ((dungeonadd->mnfct_info.door_build_flags[tngmodel] & MnfBldF_Built) == 0) {
+        if ((dungeon->mnfct_info.door_build_flags[tngmodel] & MnfBldF_Built) == 0) {
           event_create_event(cratetng->mappos.x.val, cratetng->mappos.y.val, EvKind_NewDoor, plyr_idx, tngmodel);
         }
         break;
@@ -166,25 +166,21 @@ TbBool remove_workshop_object_from_workshop(struct Room *room, struct Thing *cra
     return remove_item_from_room_capacity(room);
 }
 
-TbBool set_manufacture_level(struct Dungeon *dungeon)
+long calculate_manufacture_level(struct Dungeon* dungeon)
 {
     int mnfctr_slabs = get_room_of_role_slabs_count(dungeon->owner, RoRoF_CratesManufctr);
-    if (mnfctr_slabs <= 3*3) {
-        dungeon->manufacture_level = 0;
-    } else
-    if (mnfctr_slabs <= 4*4) {
-        dungeon->manufacture_level = 1;
-    } else
-    if (mnfctr_slabs <= 5*5) {
-        dungeon->manufacture_level = 2;
-    } else
-    if (mnfctr_slabs <= 6*6) {
-        dungeon->manufacture_level = 3;
-    } else
+    int level = 0;
+    while (mnfctr_slabs > (level + 3) * (level + 3))
     {
-        dungeon->manufacture_level = 4;
+        level++;
     }
-    return true;
+    return level;
+}
+
+void set_manufacture_level(struct Dungeon *dungeon)
+{
+    dungeon->manufacture_level = calculate_manufacture_level(dungeon);
+    SYNCDBG(19, "Dungeon %d manufacture level set to %ld",dungeon->owner, dungeon->manufacture_level);
 }
 
 struct Thing *get_workshop_box_thing(PlayerNumber owner, ThingModel objmodel)
@@ -230,42 +226,41 @@ TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass
         ERRORLOG("%s: Can't add item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;
     }
-    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
     switch (tngclass)
     {
     case TCls_Trap:
         SYNCDBG(8,"%s: Adding Trap %s",func_name,trap_code_name(tngmodel));
-        dungeonadd->mnfct_info.trap_amount_stored[tngmodel]++;
-        dungeonadd->mnfct_info.trap_amount_placeable[tngmodel]++;
-        dungeonadd->mnfct_info.trap_build_flags[tngmodel] |= MnfBldF_Built;
+        dungeon->mnfct_info.trap_amount_stored[tngmodel]++;
+        dungeon->mnfct_info.trap_amount_placeable[tngmodel]++;
+        dungeon->mnfct_info.trap_build_flags[tngmodel] |= MnfBldF_Built;
         // In case the placeable amount lost it, do a fix
-        if (dungeonadd->mnfct_info.trap_amount_placeable[tngmodel]
-            > dungeonadd->mnfct_info.trap_amount_stored[tngmodel]+dungeonadd->mnfct_info.trap_amount_offmap[tngmodel]) {
+        if (dungeon->mnfct_info.trap_amount_placeable[tngmodel]
+            > dungeon->mnfct_info.trap_amount_stored[tngmodel]+dungeon->mnfct_info.trap_amount_offmap[tngmodel]) {
             WARNLOG("%s: Placeable %s traps amount for player %d was too large; fixed",func_name,trap_code_name(tngmodel),(int)plyr_idx);
-            dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] = dungeonadd->mnfct_info.trap_amount_stored[tngmodel]
-                + dungeonadd->mnfct_info.trap_amount_offmap[tngmodel];
+            dungeon->mnfct_info.trap_amount_placeable[tngmodel] = dungeon->mnfct_info.trap_amount_stored[tngmodel]
+                + dungeon->mnfct_info.trap_amount_offmap[tngmodel];
         }
-        if (dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] < dungeonadd->mnfct_info.trap_amount_offmap[tngmodel]) {
+        if (dungeon->mnfct_info.trap_amount_placeable[tngmodel] < dungeon->mnfct_info.trap_amount_offmap[tngmodel]) {
             WARNLOG("%s: Placeable %s traps amount for player %d was too small; fixed",func_name,trap_code_name(tngmodel),(int)plyr_idx);
-            dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] = dungeonadd->mnfct_info.trap_amount_offmap[tngmodel];
+            dungeon->mnfct_info.trap_amount_placeable[tngmodel] = dungeon->mnfct_info.trap_amount_offmap[tngmodel];
         }
         break;
     case TCls_Door:
         SYNCDBG(8,"%s: Adding Door %s",func_name,door_code_name(tngmodel));
-        dungeonadd->mnfct_info.door_amount_stored[tngmodel]++;
-        dungeonadd->mnfct_info.door_amount_placeable[tngmodel]++;
-        dungeonadd->mnfct_info.door_build_flags[tngmodel] |= MnfBldF_Built;
+        dungeon->mnfct_info.door_amount_stored[tngmodel]++;
+        dungeon->mnfct_info.door_amount_placeable[tngmodel]++;
+        dungeon->mnfct_info.door_build_flags[tngmodel] |= MnfBldF_Built;
         // In case the placeable amount lost it, do a fix
-        if (dungeonadd->mnfct_info.door_amount_placeable[tngmodel]
-                > dungeonadd->mnfct_info.door_amount_stored[tngmodel] + dungeonadd->mnfct_info.door_amount_offmap[tngmodel]) {
+        if (dungeon->mnfct_info.door_amount_placeable[tngmodel]
+                > dungeon->mnfct_info.door_amount_stored[tngmodel] + dungeon->mnfct_info.door_amount_offmap[tngmodel]) {
             WARNLOG("%s: Placeable %s doors amount for player %d was too large; fixed",func_name,door_code_name(tngmodel),(int)plyr_idx);
-            dungeonadd->mnfct_info.door_amount_placeable[tngmodel] = dungeonadd->mnfct_info.door_amount_stored[tngmodel]
-                    + dungeonadd->mnfct_info.door_amount_offmap[tngmodel];
+            dungeon->mnfct_info.door_amount_placeable[tngmodel] = dungeon->mnfct_info.door_amount_stored[tngmodel]
+                    + dungeon->mnfct_info.door_amount_offmap[tngmodel];
         }
-        if (dungeonadd->mnfct_info.door_amount_placeable[tngmodel]
-                < dungeonadd->mnfct_info.door_amount_offmap[tngmodel]) {
+        if (dungeon->mnfct_info.door_amount_placeable[tngmodel]
+                < dungeon->mnfct_info.door_amount_offmap[tngmodel]) {
             WARNLOG("%s: Placeable %s doors amount for player %d was too small; fixed",func_name,door_code_name(tngmodel),(int)plyr_idx);
-            dungeonadd->mnfct_info.door_amount_placeable[tngmodel] = dungeonadd->mnfct_info.door_amount_offmap[tngmodel];
+            dungeon->mnfct_info.door_amount_placeable[tngmodel] = dungeon->mnfct_info.door_amount_offmap[tngmodel];
         }
         break;
     default:
@@ -286,7 +281,6 @@ TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass
 TbBool readd_workshop_item_to_amount_placeable_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name)
 {
     struct Dungeon* dungeon = get_players_num_dungeon_f(plyr_idx, func_name);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("%s: Can't add item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;
@@ -295,27 +289,27 @@ TbBool readd_workshop_item_to_amount_placeable_f(PlayerNumber plyr_idx, ThingCla
     {
     case TCls_Trap:
         SYNCDBG(8,"%s: Adding Trap %s",func_name,trap_code_name(tngmodel));
-        dungeonadd->mnfct_info.trap_amount_placeable[tngmodel]++;
-        if (dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] > dungeonadd->mnfct_info.trap_amount_stored[tngmodel]+dungeonadd->mnfct_info.trap_amount_offmap[tngmodel]) {
+        dungeon->mnfct_info.trap_amount_placeable[tngmodel]++;
+        if (dungeon->mnfct_info.trap_amount_placeable[tngmodel] > dungeon->mnfct_info.trap_amount_stored[tngmodel]+dungeon->mnfct_info.trap_amount_offmap[tngmodel]) {
             SYNCLOG("%s: Placeable %s traps amount for player %d was too large; fixed",func_name,trap_code_name(tngmodel),(int)plyr_idx);
-            dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] = dungeonadd->mnfct_info.trap_amount_stored[tngmodel]+dungeonadd->mnfct_info.trap_amount_offmap[tngmodel];
+            dungeon->mnfct_info.trap_amount_placeable[tngmodel] = dungeon->mnfct_info.trap_amount_stored[tngmodel]+dungeon->mnfct_info.trap_amount_offmap[tngmodel];
         }
-        if (dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] < dungeonadd->mnfct_info.trap_amount_offmap[tngmodel]) {
+        if (dungeon->mnfct_info.trap_amount_placeable[tngmodel] < dungeon->mnfct_info.trap_amount_offmap[tngmodel]) {
             WARNLOG("%s: Placeable %s traps amount for player %d was too small; fixed",func_name,trap_code_name(tngmodel),(int)plyr_idx);
-            dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] = dungeonadd->mnfct_info.trap_amount_offmap[tngmodel];
+            dungeon->mnfct_info.trap_amount_placeable[tngmodel] = dungeon->mnfct_info.trap_amount_offmap[tngmodel];
         }
         break;
     case TCls_Door:
         SYNCDBG(8,"%s: Adding Door %s",func_name,door_code_name(tngmodel));
-        dungeonadd->mnfct_info.door_amount_placeable[tngmodel]++;
+        dungeon->mnfct_info.door_amount_placeable[tngmodel]++;
         // In case the placeable amount lost it, do a fix
-        if (dungeonadd->mnfct_info.door_amount_placeable[tngmodel] > dungeonadd->mnfct_info.door_amount_stored[tngmodel]+dungeonadd->mnfct_info.door_amount_offmap[tngmodel]) {
+        if (dungeon->mnfct_info.door_amount_placeable[tngmodel] > dungeon->mnfct_info.door_amount_stored[tngmodel]+dungeon->mnfct_info.door_amount_offmap[tngmodel]) {
             SYNCLOG("%s: Placeable %s doors amount for player %d was too large; fixed",func_name,door_code_name(tngmodel),(int)plyr_idx);
-            dungeonadd->mnfct_info.door_amount_placeable[tngmodel] = dungeonadd->mnfct_info.door_amount_stored[tngmodel]+dungeonadd->mnfct_info.door_amount_offmap[tngmodel];
+            dungeon->mnfct_info.door_amount_placeable[tngmodel] = dungeon->mnfct_info.door_amount_stored[tngmodel]+dungeon->mnfct_info.door_amount_offmap[tngmodel];
         }
-        if (dungeonadd->mnfct_info.door_amount_placeable[tngmodel] < dungeonadd->mnfct_info.door_amount_offmap[tngmodel]) {
+        if (dungeon->mnfct_info.door_amount_placeable[tngmodel] < dungeon->mnfct_info.door_amount_offmap[tngmodel]) {
             WARNLOG("%s: Placeable %s doors amount for player %d was too small; fixed",func_name,door_code_name(tngmodel),(int)plyr_idx);
-            dungeonadd->mnfct_info.door_amount_placeable[tngmodel] = dungeonadd->mnfct_info.door_amount_offmap[tngmodel];
+            dungeon->mnfct_info.door_amount_placeable[tngmodel] = dungeon->mnfct_info.door_amount_offmap[tngmodel];
         }
         break;
     default:
@@ -337,7 +331,6 @@ int remove_workshop_item_from_amount_stored_f(PlayerNumber plyr_idx, ThingClass 
 {
     SYNCDBG(18,"%s: Starting",func_name);
     struct Dungeon* dungeon = get_players_num_dungeon_f(plyr_idx, func_name);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("%s: Can't remove item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return WrkCrtS_None;
@@ -347,38 +340,38 @@ int remove_workshop_item_from_amount_stored_f(PlayerNumber plyr_idx, ThingClass 
     {
     case TCls_Trap:
         if ((flags & WrkCrtF_NoStored) == 0) {
-            amount = dungeonadd->mnfct_info.trap_amount_stored[tngmodel];
+            amount = dungeon->mnfct_info.trap_amount_stored[tngmodel];
         }
         if (amount > 0) {
             SYNCDBG(8,"%s: Removing stored trap %s",func_name,trap_code_name(tngmodel));
-            dungeonadd->mnfct_info.trap_amount_stored[tngmodel] = amount - 1;
+            dungeon->mnfct_info.trap_amount_stored[tngmodel] = amount - 1;
             return WrkCrtS_Stored;
         }
         if ((flags & WrkCrtF_NoOffmap) == 0) {
-            amount = dungeonadd->mnfct_info.trap_amount_offmap[tngmodel];
+            amount = dungeon->mnfct_info.trap_amount_offmap[tngmodel];
         }
         if (amount > 0) {
             SYNCDBG(8,"%s: Removing offmap trap %s",func_name,trap_code_name(tngmodel));
-            dungeonadd->mnfct_info.trap_amount_offmap[tngmodel] = amount - 1;
+            dungeon->mnfct_info.trap_amount_offmap[tngmodel] = amount - 1;
             return WrkCrtS_Offmap;
         }
         ERRORLOG("%s: Trap %s not available",func_name,trap_code_name(tngmodel));
         break;
     case TCls_Door:
         if ((flags & WrkCrtF_NoStored) == 0) {
-            amount = dungeonadd->mnfct_info.door_amount_stored[tngmodel];
+            amount = dungeon->mnfct_info.door_amount_stored[tngmodel];
         }
         if (amount > 0) {
             SYNCDBG(8,"%s: Removing stored door %s",func_name,door_code_name(tngmodel));
-            dungeonadd->mnfct_info.door_amount_stored[tngmodel] = amount - 1;
+            dungeon->mnfct_info.door_amount_stored[tngmodel] = amount - 1;
             return WrkCrtS_Stored;
         }
         if ((flags & WrkCrtF_NoOffmap) == 0) {
-            amount = dungeonadd->mnfct_info.door_amount_offmap[tngmodel];
+            amount = dungeon->mnfct_info.door_amount_offmap[tngmodel];
         }
         if (amount > 0) {
             SYNCDBG(8,"%s: Removing offmap door %s",func_name,door_code_name(tngmodel));
-            dungeonadd->mnfct_info.door_amount_offmap[tngmodel] = amount - 1;
+            dungeon->mnfct_info.door_amount_offmap[tngmodel] = amount - 1;
             return WrkCrtS_Offmap;
         }
         ERRORLOG("%s: Door %s not available",func_name,door_code_name(tngmodel));
@@ -401,7 +394,6 @@ TbBool remove_workshop_item_from_amount_placeable_f(PlayerNumber plyr_idx, Thing
 {
     SYNCDBG(18,"%s: Starting",func_name);
     struct Dungeon* dungeon = get_players_num_dungeon_f(plyr_idx, func_name);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("%s: Can't remove item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;
@@ -410,25 +402,25 @@ TbBool remove_workshop_item_from_amount_placeable_f(PlayerNumber plyr_idx, Thing
     switch (tngclass)
     {
     case TCls_Trap:
-        amount = dungeonadd->mnfct_info.trap_amount_placeable[tngmodel];
+        amount = dungeon->mnfct_info.trap_amount_placeable[tngmodel];
         if (amount <= 0) {
             ERRORLOG("%s: Trap %s not available",func_name,trap_code_name(tngmodel));
             break;
         }
         SYNCDBG(8,"%s: Removing Trap %s",func_name,trap_code_name(tngmodel));
-        dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] = amount - 1;
-        dungeonadd->mnfct_info.trap_build_flags[tngmodel] |= MnfBldF_Used;
+        dungeon->mnfct_info.trap_amount_placeable[tngmodel] = amount - 1;
+        dungeon->mnfct_info.trap_build_flags[tngmodel] |= MnfBldF_Used;
         dungeon->lvstats.traps_used++;
         return true;
     case TCls_Door:
-        amount = dungeonadd->mnfct_info.door_amount_placeable[tngmodel];
+        amount = dungeon->mnfct_info.door_amount_placeable[tngmodel];
         if (amount <= 0) {
             ERRORLOG("%s: Door %s not available",func_name,door_code_name(tngmodel));
             break;
         }
         SYNCDBG(8,"%s: Removing Door %s",func_name,door_code_name(tngmodel));
-        dungeonadd->mnfct_info.door_amount_placeable[tngmodel] = amount - 1;
-        dungeonadd->mnfct_info.door_build_flags[tngmodel] |= MnfBldF_Used;
+        dungeon->mnfct_info.door_amount_placeable[tngmodel] = amount - 1;
+        dungeon->mnfct_info.door_build_flags[tngmodel] |= MnfBldF_Used;
         dungeon->lvstats.doors_used++;
         return true;
     default:
@@ -442,7 +434,6 @@ TbBool placing_offmap_workshop_item(PlayerNumber plyr_idx, ThingClass tngclass, 
 {
     SYNCDBG(18,"Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         // Player with no dungeon has only on-map items
         // But this shouldn't really happen
@@ -451,18 +442,18 @@ TbBool placing_offmap_workshop_item(PlayerNumber plyr_idx, ThingClass tngclass, 
     switch (tngclass)
     {
     case TCls_Trap:
-        if (dungeonadd->mnfct_info.trap_amount_stored[tngmodel] > 0) {
+        if (dungeon->mnfct_info.trap_amount_stored[tngmodel] > 0) {
             return false;
         }
-        if (dungeonadd->mnfct_info.trap_amount_offmap[tngmodel] > 0) {
+        if (dungeon->mnfct_info.trap_amount_offmap[tngmodel] > 0) {
             return true;
         }
         break;
     case TCls_Door:
-        if (dungeonadd->mnfct_info.door_amount_stored[tngmodel] > 0) {
+        if (dungeon->mnfct_info.door_amount_stored[tngmodel] > 0) {
             return false;
         }
-        if (dungeonadd->mnfct_info.door_amount_offmap[tngmodel] > 0) {
+        if (dungeon->mnfct_info.door_amount_offmap[tngmodel] > 0) {
             return true;
         }
         break;
@@ -473,15 +464,14 @@ TbBool placing_offmap_workshop_item(PlayerNumber plyr_idx, ThingClass tngclass, 
 TbBool check_workshop_item_limit_reached(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon))
         return true;
     switch (tngclass)
     {
     case TCls_Trap:
-        return (dungeonadd->mnfct_info.trap_amount_stored[tngmodel] >= MANUFACTURED_ITEMS_LIMIT);
+        return (dungeon->mnfct_info.trap_amount_stored[tngmodel] >= MANUFACTURED_ITEMS_LIMIT);
     case TCls_Door:
-        return (dungeonadd->mnfct_info.door_amount_stored[tngmodel] >= MANUFACTURED_ITEMS_LIMIT);
+        return (dungeon->mnfct_info.door_amount_stored[tngmodel] >= MANUFACTURED_ITEMS_LIMIT);
     }
     return true;
 }
@@ -499,7 +489,7 @@ TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmode
     } else {
         WARNLOG("Crate thing index %d isn't placed existing room; removing anyway",(int)cratetng->index);
     }
-    create_effect(&cratetng->mappos, imp_spangle_effects[cratetng->owner], cratetng->owner);
+    create_effect(&cratetng->mappos, imp_spangle_effects[get_player_color_idx(cratetng->owner)], cratetng->owner);
     destroy_object(cratetng);
     return true;
 }
@@ -514,46 +504,46 @@ TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmode
  */
 long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind)
 {
-    struct ManfctrConfig *mconf;
+    struct DoorConfigStats *doorst;
+    struct TrapConfigStats *trapst;
     int tngmodel;
     long amount;
     int chosen_class = TCls_Empty;
     int chosen_kind = 0;
     int chosen_amount = INT_MAX;
     int chosen_level = INT_MAX;
-    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
 
     // Try getting door kind for manufacture
-    for (tngmodel = 1; tngmodel < gameadd.trapdoor_conf.door_types_count; tngmodel++)
+    for (tngmodel = 1; tngmodel < game.conf.trapdoor_conf.door_types_count; tngmodel++)
     {
-        mconf = &gameadd.doors_config[tngmodel];
-        if (((dungeonadd->mnfct_info.door_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level))
+        doorst = get_door_model_stats(tngmodel);
+        if (((dungeon->mnfct_info.door_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= doorst->manufct_level))
         {
-            amount = dungeonadd->mnfct_info.door_amount_stored[tngmodel];
+            amount = dungeon->mnfct_info.door_amount_stored[tngmodel];
             if ( (chosen_amount > amount) ||
-                ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
+                ((chosen_amount == amount) && (chosen_level > doorst->manufct_level)) )
             {
                 chosen_class = TCls_Door;
-                chosen_amount = dungeonadd->mnfct_info.door_amount_stored[tngmodel];
+                chosen_amount = dungeon->mnfct_info.door_amount_stored[tngmodel];
                 chosen_kind = tngmodel;
-                chosen_level = mconf->manufct_level;
+                chosen_level = doorst->manufct_level;
             }
         }
     }
     // Try getting trap kind for manufacture
-    for (tngmodel = 1; tngmodel < gameadd.trapdoor_conf.trap_types_count; tngmodel++)
+    for (tngmodel = 1; tngmodel < game.conf.trapdoor_conf.trap_types_count; tngmodel++)
     {
-        mconf = &gameadd.traps_config[tngmodel];
-        if (((dungeonadd->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level))
+        trapst = get_trap_model_stats(tngmodel);
+        if (((dungeon->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= trapst->manufct_level))
         {
-            amount = dungeonadd->mnfct_info.trap_amount_stored[tngmodel];
+            amount = dungeon->mnfct_info.trap_amount_stored[tngmodel];
             if ( (chosen_amount > amount) ||
-                ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
+                ((chosen_amount == amount) && (chosen_level > trapst->manufct_level)) )
             {
                 chosen_class = TCls_Trap;
-                chosen_amount = dungeonadd->mnfct_info.trap_amount_stored[tngmodel];
+                chosen_amount = dungeon->mnfct_info.trap_amount_stored[tngmodel];
                 chosen_kind = tngmodel;
-                chosen_level = mconf->manufct_level;
+                chosen_level = trapst->manufct_level;
             }
         }
     }
@@ -575,7 +565,7 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
     int chosen_amount = get_doable_manufacture_with_minimal_amount_available(dungeon, &chosen_class, &chosen_kind);
     if (chosen_amount >= MANUFACTURED_ITEMS_LIMIT)
     {
-        if (chosen_amount == LONG_MAX) {
+        if (chosen_amount == INT_MAX) {
             WARNDBG(7,"Player %d has %s but no doable manufacture",(int)dungeon->owner,room_role_code_name(RoRoF_CratesStorage));
         } else {
             WARNDBG(6,"Player %d reached manufacture limit for all items",(int)dungeon->owner);
@@ -595,15 +585,16 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
 
 long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, const char *func_name)
 {
-    const struct ManfctrConfig *mconf;
+    const struct DoorConfigStats *doorst;
+    const struct TrapConfigStats *trapst;
     switch (mfcr_type)
     {
     case TCls_Trap:
-        mconf = &gameadd.traps_config[mfcr_kind%gameadd.trapdoor_conf.trap_types_count ];
-        return mconf->manufct_required;
+        trapst = get_trap_model_stats(mfcr_kind%game.conf.trapdoor_conf.trap_types_count);
+        return trapst->manufct_required;
     case TCls_Door:
-        mconf = &gameadd.doors_config[mfcr_kind%gameadd.trapdoor_conf.door_types_count];
-        return mconf->manufct_required;
+        doorst = get_door_model_stats(mfcr_kind%game.conf.trapdoor_conf.door_types_count);
+        return doorst->manufct_required;
     default:
         ERRORMSG("%s: Invalid type of manufacture: %d",func_name,(int)mfcr_type);
         return 0;
@@ -657,13 +648,13 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
         dungeon->lvstats.manufactured_traps++;
         // If that's local player - make a message
         if (is_my_player_number(plyr_idx))
-            output_message(SMsg_ManufacturedTrap, 0, true);
+            output_message(SMsg_ManufacturedTrap, 0);
         break;
     case TCls_Door:
         dungeon->lvstats.manufactured_doors++;
         // If that's local player - make a message
         if (is_my_player_number(plyr_idx))
-            output_message(SMsg_ManufacturedDoor, 0, true);
+            output_message(SMsg_ManufacturedDoor, 0);
         break;
     default:
         ERRORLOG("Invalid type of new manufacture: %d (%s)",(int)dungeon->manufacture_class, thing_class_code_name(dungeon->manufacture_class));
@@ -693,8 +684,8 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
             EvKind_TrapCrateFound, creatng->owner, picktng->index);
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
             {
-                output_message(SMsg_TrapStolen, 0, true);
-            } 
+                output_message(SMsg_TrapStolen, 0);
+            }
             else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
             {
                 if (picktng->owner != game.neutral_player_num)
@@ -702,7 +693,7 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
                     player = get_my_player();
                     if (creatng->index != player->influenced_thing_idx)
                     {
-                        output_message(SMsg_TrapTaken, 0, true);
+                        output_message(SMsg_TrapTaken, 0);
                     }
                 }
             }
@@ -713,8 +704,8 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
             EvKind_DoorCrateFound, creatng->owner, picktng->index);
             if ( (is_my_player_number(picktng->owner)) && (!is_my_player_number(creatng->owner)) )
             {
-                output_message(SMsg_DoorStolen, 0, true);
-            } 
+                output_message(SMsg_DoorStolen, 0);
+            }
             else if ( (is_my_player_number(creatng->owner)) && (!is_my_player_number(picktng->owner)) )
             {
                 if (picktng->owner != game.neutral_player_num)
@@ -722,7 +713,7 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
                     player = get_my_player();
                     if (creatng->index != player->influenced_thing_idx)
                     {
-                        output_message(SMsg_DoorTaken, 0, true);
+                        output_message(SMsg_DoorTaken, 0);
                     }
                 }
             }
@@ -732,5 +723,204 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
         evidx = 0;
     }
     return evidx;
+}
+
+TbBool recreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+{
+    if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity)) {
+        return false;
+    }
+    for (int ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
+    {
+        if (rrepos->models[ri] != 0)
+        {
+            struct Thing* objtng = create_crate_in_workshop(room, rrepos->models[ri], stl_x, stl_y);
+            if (!thing_is_invalid(objtng))
+            {
+                rrepos->used--;
+                rrepos->models[ri] = 0;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+        return -2; // do nothing
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    if ((roomst->storage_height >= 0) && (get_map_floor_filled_subtiles(mapblk) != roomst->storage_height)) {
+        return -1; // re-create all
+    }
+    int matching_things_at_subtile = 0;
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code
+        if (thing_is_workshop_crate(thing) && !thing_is_dragged_or_pulled(thing) && (thing->owner == room->owner))
+        {
+            // If exceeded capacity of the library
+            if (room->used_capacity >= room->total_capacity)
+            {
+                WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
+                return -1; // re-create all (this could save the object if there are duplicates)
+            } else
+            // If the thing is in wall, remove it but store to re-create later
+            if (thing_in_wall_at(thing, &thing->mappos))
+            {
+                if (position_over_floor_level(thing, &thing->mappos)) //If it's inside the floors, simply move it up and count it.
+                {
+                    matching_things_at_subtile++;
+                }
+                else
+                {
+                    return -1; // If it's inside the wall or cannot be moved up, recreate all items.
+                }
+            } else
+            {
+                matching_things_at_subtile++;
+            }
+        }
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    return matching_things_at_subtile; // Increase used capacity
+}
+
+void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+{
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+        return;
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code
+        if (thing_is_workshop_crate(thing) && !thing_is_dragged_or_pulled(thing) && (thing->owner == room->owner))
+        {
+            ThingModel objkind = thing->model;
+            ThingClass tngclass = crate_thing_to_workshop_item_class(thing);
+            ThingModel tngmodel = crate_thing_to_workshop_item_model(thing);
+            if (!store_reposition_entry(rrepos, objkind)) {
+                WARNLOG("Too many things to reposition in %s index %d",room_code_name(room->kind),(int)room->index);
+            }
+            if (!is_neutral_thing(thing) && player_exists(get_player(thing->owner)))
+            {
+                if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap) > WrkCrtS_None) {
+                    remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);
+                }
+            }
+            delete_thing_structure(thing, 0);
+        }
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+}
+
+void count_and_reposition_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+{
+    int matching_things_at_subtile = check_crates_on_subtile_for_reposition_in_room(room, stl_x, stl_y);
+    if (matching_things_at_subtile > 0) {
+        // This subtile contains matching things
+        SYNCDBG(19,"Got %d matching things at (%d,%d)",(int)matching_things_at_subtile,(int)stl_x,(int)stl_y);
+        room->used_capacity += matching_things_at_subtile;
+    } else
+    {
+        switch (matching_things_at_subtile)
+        {
+        case -2:
+            // No matching things, but also cannot recreate anything on this subtile
+            break;
+        case -1:
+            // All matching things are to be removed from the subtile and stored for re-creation
+            reposition_all_crates_in_room_on_subtile(room, stl_x, stl_y, rrepos);
+            break;
+        case 0:
+            // There are no matching things there, something can be re-created
+            recreate_repositioned_crate_in_room_on_subtile(room, stl_x, stl_y, rrepos);
+            break;
+        default:
+            WARNLOG("Invalid value returned by reposition check");
+            break;
+        }
+    }
+}
+
+/**
+ * Updates count of crates (used capacity) in a workshop.
+ * Also repositions crates which are in solid columns.
+ * @param room The room to be recomputed and repositioned.
+ */
+void count_crates_in_room(struct Room *room)
+{
+    SYNCDBG(17,"Starting for %s",room_code_name(room->kind));
+    struct RoomReposition rrepos;
+    init_reposition_struct(&rrepos);
+    // Making two loops guarantees that no rrepos things will be lost
+    for (long n = 0; n < 2; n++)
+    {
+        // The correct count should be taken from last sweep
+        room->used_capacity = 0;
+        room->capacity_used_for_storage = 0;
+        unsigned long k = 0;
+        unsigned long i = room->slabs_list;
+        while (i > 0)
+        {
+            MapSubtlCoord slb_x = slb_num_decode_x(i);
+            MapSubtlCoord slb_y = slb_num_decode_y(i);
+            // Per-slab code
+            for (long dy = 0; dy < STL_PER_SLB; dy++)
+            {
+                for (long dx = 0; dx < STL_PER_SLB; dx++)
+                {
+                    count_and_reposition_crates_in_room_on_subtile(room, STL_PER_SLB*slb_x+dx, STL_PER_SLB*slb_y+dy, &rrepos);
+                }
+            }
+            // Per-slab code ends
+            i = get_next_slab_number_in_room(i);
+            k++;
+            if (k > room->slabs_count)
+            {
+                ERRORLOG("Infinite loop detected when sweeping room slabs");
+                break;
+            }
+        }
+    }
+    if (rrepos.used > 0) {
+        ERRORLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
+          room_code_name(room->kind),(int)room->index,(int)room->total_capacity,(int)rrepos.used,(int)room->owner);
+    }
+    room->capacity_used_for_storage = room->used_capacity;
 }
 /******************************************************************************/

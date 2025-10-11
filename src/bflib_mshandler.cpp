@@ -64,17 +64,13 @@ bool MouseStateHandler::Install(void)
 
 bool MouseStateHandler::IsInstalled(void)
 {
-    LbSemaLock semlock(&semaphore,0);
-    if (!semlock.Lock(true))
-      return false;
-    return true;
+    std::lock_guard<std::mutex> guard(lock);
+    return this->installed;
 }
 
 bool MouseStateHandler::Release(void)
 {
-    LbSemaLock semlock(&semaphore,0);
-    if (!semlock.Lock(true))
-      return false;
+    std::lock_guard<std::mutex> guard(lock);
     lbMouseInstalled = false;
     lbDisplay.MouseSprite = NULL;
     this->installed = false;
@@ -87,20 +83,11 @@ bool MouseStateHandler::Release(void)
     return true;
 }
 
-struct TbPoint *MouseStateHandler::GetPosition(void)
-{
-    if (!this->installed)
-      return NULL;
-    return &mspos;
-}
-
 bool MouseStateHandler::SetMousePosition(long x, long y)
 {
     long mx;
     long my;
-    LbSemaLock semlock(&semaphore,0);
-    if (!semlock.Lock(true))
-      return false;
+    std::lock_guard<std::mutex> guard(lock);
     if (!this->SetPosition(x, y))
       return false;
     if ( this->installed )
@@ -167,9 +154,7 @@ bool MouseStateHandler::SetPosition(long x, long y)
 
 bool MouseStateHandler::SetMouseWindow(long x, long y,long width, long height)
 {
-    LbSemaLock semlock(&semaphore,0);
-    if (!semlock.Lock(true))
-      return false;
+    std::lock_guard<std::mutex> guard(lock);
     lbDisplay.MouseWindowX = x;
     lbDisplay.MouseWindowY = y;
     lbDisplay.MouseWindowWidth = width;
@@ -177,25 +162,6 @@ bool MouseStateHandler::SetMouseWindow(long x, long y,long width, long height)
     adjust_point(&lbDisplay.MMouseX, &lbDisplay.MMouseY);
     adjust_point(&lbDisplay.MouseX, &lbDisplay.MouseY);
     return true;
-}
-
-bool MouseStateHandler::GetMouseWindow(struct TbRect *windowRect)
-{
-    LbSemaLock semlock(&semaphore,0);
-    if (!semlock.Lock(true))
-      return false;
-    windowRect->left = lbDisplay.MouseWindowX;
-    windowRect->top = lbDisplay.MouseWindowY;
-    windowRect->right = lbDisplay.MouseWindowX+lbDisplay.MouseWindowWidth;
-    windowRect->bottom = lbDisplay.MouseWindowY+lbDisplay.MouseWindowHeight;
-    return true;
-}
-
-const struct TbSprite *MouseStateHandler::GetPointer(void)
-{
-    if (!this->installed)
-      return NULL;
-    return mssprite;
 }
 
 bool MouseStateHandler::SetPointer(const struct TbSprite *spr, struct TbPoint *point)
@@ -228,9 +194,7 @@ bool MouseStateHandler::SetPointer(const struct TbSprite *spr, struct TbPoint *p
 bool MouseStateHandler::SetMousePointerAndOffset(const struct TbSprite *mouseSprite, long x, long y)
 {
     struct TbPoint point;
-    LbSemaLock semlock(&semaphore,0);
-    if (!semlock.Lock(true))
-      return false;
+    std::lock_guard<std::mutex> guard(lock);
     if (mouseSprite == lbDisplay.MouseSprite)
       return true;
     if (mouseSprite != NULL)
@@ -249,9 +213,7 @@ bool MouseStateHandler::SetMousePointerAndOffset(const struct TbSprite *mouseSpr
 
 bool MouseStateHandler::SetMousePointer(const struct TbSprite *mouseSprite)
 {
-    LbSemaLock semlock(&semaphore,0);
-    if (!semlock.Lock(true))
-      return false;
+    std::lock_guard<std::mutex> guard(lock);
     if (mouseSprite == lbDisplay.MouseSprite)
       return true;
     if (mouseSprite != NULL)
@@ -267,9 +229,7 @@ bool MouseStateHandler::SetMousePointer(const struct TbSprite *mouseSprite)
 
 bool MouseStateHandler::SetPointerOffset(long x, long y)
 {
-    LbSemaLock semlock(&semaphore,0);
-    if (!semlock.Lock(true))
-      return false;
+    std::lock_guard<std::mutex> guard(lock);
     if (this->installed)
       pointer.SetHotspot(x, y);
     return true;
@@ -282,9 +242,7 @@ struct TbPoint *MouseStateHandler::GetPointerOffset(void)
 
 bool MouseStateHandler::PointerBeginSwap(void)
 {
-    LbSemaLock semlock(&semaphore,0);
-    if (!semlock.Lock(true))
-      return false;
+    std::lock_guard<std::mutex> guard(lock);
     if ((!lbMouseInstalled) || (lbMouseOffline))
       return true;
     if ((mssprite != NULL) && (this->installed))
@@ -297,9 +255,7 @@ bool MouseStateHandler::PointerBeginSwap(void)
 
 bool MouseStateHandler::PointerEndSwap(void)
 {
-    LbSemaLock semlock(&semaphore,1);
-    if (!lbMouseInstalled)
-      return true;
+    std::lock_guard<std::mutex> guard(lock);
     if ((mssprite != NULL) && (this->installed))
     {
       if (swap)
@@ -308,7 +264,6 @@ bool MouseStateHandler::PointerEndSwap(void)
         pointer.OnEndSwap();
       }
     }
-    semlock.Release();
     return true;
 }
 /******************************************************************************/

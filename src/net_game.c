@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
-#include "bflib_memory.h"
 #include "bflib_network.h"
 
 #include "player_data.h"
@@ -53,9 +52,9 @@ char net_player_name[20];
 short setup_network_service(int srvidx)
 {
   struct ServiceInitData *init_data = NULL;
-  set_flag_byte(&game.flags_font,FFlg_unk10,false);
+  clear_flag(game.flags_font, FFlg_NetworkTimeout);
   SYNCMSG("Initializing 4-players type %d network",srvidx);
-  LbMemorySet(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
+  memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
   if ( LbNetwork_Init(srvidx, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )
   {
     if (srvidx > NS_ENET_UDP)
@@ -63,8 +62,6 @@ short setup_network_service(int srvidx)
     return 0;
   }
   net_service_index_selected = srvidx;
-  if ((game.flags_font & FFlg_unk10) != 0)
-    LbNetwork_ChangeExchangeTimeout(10);
   frontend_set_state(FeSt_NET_SESSION);
   return 1;
 }
@@ -177,15 +174,6 @@ const char *network_player_name(int plyr_idx)
     return net_player[plyr_idx].name;
 }
 
-void set_network_player_name(int plyr_idx, const char *name)
-{
-    if ((plyr_idx < 0) || (plyr_idx >= NET_PLAYERS_COUNT)) {
-        ERRORLOG("Outranged network player %d",plyr_idx);
-        return;
-    }
-    snprintf(net_player[plyr_idx].name, sizeof(net_player[0].name), "%s", name);
-}
-
 long network_session_join(void)
 {
     long plyr_num;
@@ -200,8 +188,8 @@ long network_session_join(void)
 
 void init_network_seed()
 {
-   if (!LbNetwork_Resync(&game.action_rand_seed, 4))
-      ERRORLOG("Action seed initialisation failed"); 
+   if (!LbNetwork_Resync(&game.action_random_seed, 4))
+      ERRORLOG("Action seed initialisation failed");
 }
 /******************************************************************************/
 #ifdef __cplusplus

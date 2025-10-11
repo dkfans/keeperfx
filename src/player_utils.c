@@ -21,13 +21,13 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
-
+#include "bflib_sndlib.h"
+#include "api.h"
 #include "player_data.h"
 #include "player_instances.h"
-#include "player_states.h"
+#include "config_players.h"
 #include "player_computer.h"
 #include "dungeon_data.h"
 #include "power_hand.h"
@@ -40,6 +40,7 @@
 #include "gui_soundmsgs.h"
 #include "gui_frontmenu.h"
 #include "config_settings.h"
+#include "config_spritecolors.h"
 #include "config_terrain.h"
 #include "map_blocks.h"
 #include "map_utils.h"
@@ -47,23 +48,16 @@
 #include "game_saves.h"
 #include "game_legacy.h"
 #include "frontend.h"
-#include "magic.h"
+#include "magic_powers.h"
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"
+#include "gui_frontbtns.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
-#include "music_player.h"
 #include "post_inc.h"
 
 /******************************************************************************/
-TbBool player_has_won(PlayerNumber plyr_idx)
-{
-    struct PlayerInfo* player = get_player(plyr_idx);
-    if (player_invalid(player))
-        return false;
-    return (player->victory_state == VicS_WonLevel);
-}
 
 TbBool player_has_lost(PlayerNumber plyr_idx)
 {
@@ -104,6 +98,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   struct Dungeon* dungeon = get_dungeon(player->id_number);
   if (my_player)
   {
+      api_event("WIN_GAME");
       frontstats_initialise();
       if ( timer_enabled() )
       {
@@ -116,8 +111,11 @@ void set_player_as_won_level(struct PlayerInfo *player)
         {
             show_real_time_taken();
         }
-        struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game.num_fps);
-        SYNCMSG("Won level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.", game.loaded_level_number, dungeon->lvstats.hopes_dashed, GameT.Hours, GameT.Minutes, GameT.Seconds, game.num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+        struct GameTime GameT = get_game_time(dungeon->lvstats.hopes_dashed, game_num_fps);
+        SYNCMSG("Won level %u. Total turns taken: %lu (%02u:%02u:%02u at %ld fps). Real time elapsed: %02u:%02u:%02u:%03u.",
+            game.loaded_level_number, dungeon->lvstats.hopes_dashed,
+            GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps,
+            Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
       }
   }
   player->victory_state = VicS_WonLevel;
@@ -133,7 +131,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
         SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
         player->additional_flags |= PlaAF_UnlockedLordTorture;
     }
-    output_message(SMsg_LevelWon, 0, true);
+    output_message(SMsg_LevelWon, 0);
   }
 }
 
@@ -148,9 +146,11 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         }
         return;
     }
-    SYNCLOG("Player %d lost",(int)player->id_number);
+
+    SYNCLOG("%s lost",player_code_name(player->id_number));
     if (is_my_player(player))
     {
+        api_event("LOSE_GAME");
         frontstats_initialise();
     }
     player->victory_state = VicS_LostLevel;
@@ -159,11 +159,11 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
     if (is_my_player(player))
     {
-        output_message(SMsg_LevelFailed, 0, true);
+        output_message(SMsg_LevelFailed, 0);
         turn_off_all_menus();
         clear_transfered_creatures();
     }
-    if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
+    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
         clear_things_in_hand(player);
         dungeon->num_things_in_hand = 0;
     }
@@ -177,7 +177,23 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     }
     if (is_my_player(player))
         gui_set_button_flashing(0, 0);
-    set_player_mode(player, PVT_DungeonTop);
+    if (player->view_type == PVT_CreatureContrl)
+    {
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        leave_creature_as_controller(player, thing);
+    }
+    else if (player->view_type == PVT_CreaturePasngr)
+    {
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
+        leave_creature_as_passenger(player, thing);
+    }
+    else
+    {
+        if (!flag_is_set(player->allocflags, PlaF_CompCtrl))
+        {
+            set_player_mode(player, PVT_DungeonTop);
+        }
+    }
     set_player_state(player, PSt_CtrlDungeon, 0);
     if ((game.system_flags & GSF_NetworkActive) == 0)
         player->display_objective_turn = game.play_gameturn + 300;
@@ -237,7 +253,7 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
         // Per-slab code ends
         slbnum = get_next_slab_number_in_room(slbnum);
         k++;
-        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
+        if (k > game.map_tiles_x * game.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -269,7 +285,7 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
         // Per-slab code ends
         slbnum = get_next_slab_number_in_room(slbnum);
         k++;
-        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
+        if (k > game.map_tiles_x * game.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -278,10 +294,54 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
     return amount_take-amount;
 }
 
+/**
+ * Resets dungeon->total_money_owned by taking the offmap gold and gold from all the treasure rooms it can find
+  */
+void recalculate_total_gold(struct Dungeon* dungeon, const char* func_name)
+{
+    GoldAmount gold_before = dungeon->total_money_owned;
+    dungeon->offmap_money_owned = max(0, dungeon->offmap_money_owned);
+    dungeon->total_money_owned = dungeon->offmap_money_owned;
+
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
+    {
+        if (room_role_matches(rkind, RoRoF_GoldStorage))
+        {
+            long i = dungeon->room_list_start[rkind];
+            unsigned long k = 0;
+            while (i != 0)
+            {
+                struct Room* room = room_get(i);
+                if (room_is_invalid(room))
+                {
+                    ERRORLOG("Jump to invalid room detected");
+                    break;
+                }
+                i = room->next_of_owner;
+                dungeon->total_money_owned += room->capacity_used_for_storage;
+                // Per-room code ends
+                k++;
+                if (k > ROOMS_COUNT)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping rooms list");
+                    break;
+                }
+            }
+        }
+    }
+    if (gold_before == dungeon->total_money_owned)
+    {
+        SYNCDBG(7, "%s: Dungeon %d did not need gold recalculation. Correct at %ld.", func_name, dungeon->owner, dungeon->total_money_owned);
+    }
+    else
+    {
+        ERRORLOG("%s: Gold recalculation found an error, Dungeon %d correct gold amount %ld not %ld.", func_name, dungeon->owner, dungeon->total_money_owned, gold_before);
+    }
+}
+
 long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         WARNLOG("%s: Cannot take gold from player %d with no dungeon",func_name,(int)plyr_idx);
         return -1;
@@ -315,19 +375,19 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         dungeon->offmap_money_owned = 0;
     }
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_GoldStorage))
         {
-            long i = dungeonadd->room_kind[rkind];
+            long i = dungeon->room_list_start[rkind];
             unsigned long k = 0;
             while (i != 0)
             {
                 struct Room* room = room_get(i);
                 if (room_is_invalid(room))
                 {
-                ERRORLOG("Jump to invalid room detected");
-                break;
+                    ERRORLOG("Jump to invalid room detected");
+                    break;
                 }
                 i = room->next_of_owner;
                 // Per-room code
@@ -338,9 +398,9 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
                     {
                         if (is_my_player_number(plyr_idx))
                         {
-                        if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
-                            output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);
-                        }
+                            if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
+                                output_message(SMsg_GoldLow, MESSAGE_DURATION_TREASURY);
+                            }
                         }
                         return amount_take;
                     }
@@ -349,16 +409,15 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
                 k++;
                 if (k > ROOMS_COUNT)
                 {
-                ERRORLOG("Infinite loop detected when sweeping rooms list");
-                break;
+                    ERRORLOG("Infinite loop detected when sweeping rooms list");
+                    break;
                 }
             }
         }
     }
 
-
-
     WARNLOG("%s: Player %d could not give %d gold, %d was missing; his total gold was %d",func_name,(int)plyr_idx,(int)amount_take,(int)take_remain,(int)total_money);
+    recalculate_total_gold(dungeon, func_name);
     return -1;
 }
 
@@ -370,7 +429,7 @@ long update_dungeon_generation_speeds(void)
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
-        if (player_exists(player) && (player->is_active == 1))
+        if (player_exists(player) && (player->is_active))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->total_score > max_manage_score)
@@ -381,16 +440,15 @@ long update_dungeon_generation_speeds(void)
     for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
-        if (player_exists(player) && (player->is_active == 1))
+        if (!player_invalid(player))
         {
             struct Dungeon* dungeon = get_players_dungeon(player);
             if (dungeon->manage_score > 0)
-                dungeon->turns_between_entrance_generation = max_manage_score * game.generate_speed / dungeon->manage_score;
+                dungeon->turns_between_entrance_generation = max_manage_score * player->generate_speed / dungeon->manage_score;
             else
-                dungeon->turns_between_entrance_generation = game.generate_speed;
+                dungeon->turns_between_entrance_generation = player->generate_speed;
         }
     }
-
     return 1;
 }
 
@@ -407,14 +465,14 @@ void calculate_dungeon_area_scores(void)
         }
     }
     // Compute new values for dungeon areas
-    for (MapSlabCoord slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
+    for (MapSlabCoord slb_y = 0; slb_y < game.map_tiles_y; slb_y++)
     {
-        for (MapSlabCoord slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
+        for (MapSlabCoord slb_x = 0; slb_x < game.map_tiles_x; slb_x++)
         {
             SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
             struct SlabMap* slb = get_slabmap_direct(slb_num);
-            const struct SlabAttr* slbattr = get_slab_attrs(slb);
-            if (slbattr->category == SlbAtCtg_RoomInterior)
+            const struct SlabConfigStats* slabst = get_slab_stats(slb);
+            if (slabst->category == SlbAtCtg_RoomInterior)
             {
                 struct Dungeon *dungeon;
                 if (slabmap_owner(slb) != game.neutral_player_num) {
@@ -428,7 +486,7 @@ void calculate_dungeon_area_scores(void)
                     dungeon->room_manage_area++;
                 }
             } else
-            if (slbattr->category == SlbAtCtg_FortifiedGround)
+            if (slabst->category == SlbAtCtg_FortifiedGround)
             {
                 struct Dungeon *dungeon;
                 if (slabmap_owner(slb) != game.neutral_player_num) {
@@ -443,13 +501,6 @@ void calculate_dungeon_area_scores(void)
             }
         }
     }
-}
-
-void init_player_music(struct PlayerInfo *player)
-{
-    LevelNumber lvnum = get_loaded_level_number();
-    game.audiotrack = 3 + ((lvnum - 1) % 4);
-    game.last_audiotrack = max_track;
 }
 
 TbBool map_position_has_sibling_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind, PlayerNumber plyr_idx)
@@ -496,22 +547,22 @@ TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlab
 
 void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    
+
     int block_flags;
-    int v13;
+    int direction_flags;
     char *fs_par_slab;
-    char v15;
-    char v16;
-    char v17;
-    char v18;
+    char west_slab_state;
+    char east_slab_state;
+    char north_slab_state;
+    char south_slab_state;
     const char *i;
-    char *v20;
+    char *scratch_slab_ptr;
     MapSlabCoord slb_y;
     MapSlabCoord slb_x;
-    unsigned int v24;
-    unsigned int v30;
+    unsigned int queue_write_index;
+    unsigned int queue_read_index;
 
-    static const char byte_522148[80] =
+    static const char exploration_direction_lookup_table[80] =
     {
     0,0,0,0,0,
     0,0,0,0,0,
@@ -536,28 +587,27 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         MapSlabCoord y;
     };
 
-    static const struct XY byte_522199[6] =
+    static const struct XY exploration_direction_offsets[6] =
     {
         { 0, 0},
         { 1,-1},
-        { 1, 1},
-        {-1, 1},
         {-1,-1},
+        {-1, 1},
+        { 1, 1},
         { 0, 0}
     };
 
-    char *first_scratch = (char*) big_scratch;
-    
-    struct XY *second_scratch = (struct XY *)big_scratch + gameadd.map_tiles_x * gameadd.map_tiles_y;
-    memset((void *)big_scratch, 0, gameadd.map_tiles_x * gameadd.map_tiles_y);
+    char *first_scratch = (char*) &big_scratch[game.map_tiles_x];
+    struct XY *second_scratch = (struct XY *)big_scratch + game.map_tiles_x * (game.map_tiles_y + 1);
+    memset((void *)&big_scratch[game.map_tiles_x], 0, game.map_tiles_x * game.map_tiles_y);
 
-    for(MapSlabCoord slb_y_2 = 0;slb_y_2 < gameadd.map_tiles_y;slb_y_2++)
+    for(MapSlabCoord slb_y_2 = 0;slb_y_2 < game.map_tiles_y;slb_y_2++)
     {
-        for(MapSlabCoord slb_x_2 = 0;slb_x_2 < gameadd.map_tiles_x;slb_x_2++)
+        for(MapSlabCoord slb_x_2 = 0;slb_x_2 < game.map_tiles_x;slb_x_2++)
         {
             struct SlabMap *slb = get_slabmap_block(slb_x_2,slb_y_2);
-            struct SlabAttr *slbattr = get_slab_attrs(slb);
-            block_flags = slbattr->block_flags;
+            struct SlabConfigStats *slabst = get_slab_stats(slb);
+            block_flags = slabst->block_flags;
 
             if ((block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0 || ((block_flags & SlbAtFlg_IsDoor) != 0 && slabmap_owner(slb) != plyr_idx))
             {
@@ -566,103 +616,103 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         }
     }
 
-    for(MapSubtlCoord lpstl_y = 0;lpstl_y < gameadd.map_subtiles_y;lpstl_y++)
+    for(MapSubtlCoord lpstl_y = 0;lpstl_y < game.map_subtiles_y;lpstl_y++)
     {
-        for(MapSubtlCoord lpstl_x = 0;lpstl_x < gameadd.map_subtiles_x;lpstl_x++)
+        for(MapSubtlCoord lpstl_x = 0;lpstl_x < game.map_subtiles_x;lpstl_x++)
         {
             struct Map *mapblk = get_map_block_at(lpstl_x,lpstl_y);
-            mapblk->revealed &= (~(1 << plyr_idx));
+            conceal_map_block(mapblk, plyr_idx);
         }
     }
 
-    v30 = 0;
-    v24 = 0;
+    queue_read_index = 0;
+    queue_write_index = 0;
     slb_x = stl_x / 3;
     slb_y = stl_y / 3;
     first_scratch[get_slab_number(slb_x,slb_y)] |= 2u;
     do
     {
-        v13 = 0;
+        direction_flags = 0;
         fs_par_slab = &first_scratch[get_slab_number(slb_x,slb_y)];
-        v15 = *(fs_par_slab - 1);
-        if ((v15 & 1) != 0)
+        west_slab_state = *(fs_par_slab - 1);
+        if ((west_slab_state & 1) != 0)
         {
-            v13 = 8;
-            *(fs_par_slab - 1) = v15 | 2;
+            direction_flags = 8;
+            *(fs_par_slab - 1) = west_slab_state | 2;
         }
-        else if ((v15 & 2) == 0)
+        else if ((west_slab_state & 2) == 0)
         {
-            *(fs_par_slab - 1) = v15 | 2;
-           
-            second_scratch[v24].x = slb_x - 1;
-            second_scratch[v24].y = slb_y;
-            v24++;
+            *(fs_par_slab - 1) = west_slab_state | 2;
+
+            second_scratch[queue_write_index].x = slb_x - 1;
+            second_scratch[queue_write_index].y = slb_y;
+            queue_write_index++;
         }
-        v16 = fs_par_slab[1];
-        if ((v16 & 1) != 0)
+        east_slab_state = fs_par_slab[1];
+        if ((east_slab_state & 1) != 0)
         {
-            v13 |= 2u;
-            fs_par_slab[1] = v16 | 2;
+            direction_flags |= 2u;
+            fs_par_slab[1] = east_slab_state | 2;
         }
-        else if ((v16 & 2) == 0)
+        else if ((east_slab_state & 2) == 0)
         {
-            fs_par_slab[1] = v16 | 2;
-            second_scratch[v24].x = slb_x + 1;
-            second_scratch[v24].y = slb_y;
-            v24++;
+            fs_par_slab[1] = east_slab_state | 2;
+            second_scratch[queue_write_index].x = slb_x + 1;
+            second_scratch[queue_write_index].y = slb_y;
+            queue_write_index++;
         }
-        v17 = *(fs_par_slab - gameadd.map_tiles_x);
-        if ((v17 & 1) != 0)
+        north_slab_state = *(fs_par_slab - game.map_tiles_x);
+        if ((north_slab_state & 1) != 0)
         {
-            v13 |= 1u;
-            *(fs_par_slab - gameadd.map_tiles_x) = v17 | 2;
+            direction_flags |= 1u;
+            *(fs_par_slab - game.map_tiles_x) = north_slab_state | 2;
         }
-        else if ((v17 & 2) == 0)
+        else if ((north_slab_state & 2) == 0)
         {
-            *(fs_par_slab - gameadd.map_tiles_x) = v17 | 2;
-            second_scratch[v24].x = slb_x;
-            second_scratch[v24].y = slb_y - 1;
-            v24++;
+            *(fs_par_slab - game.map_tiles_x) = north_slab_state | 2;
+            second_scratch[queue_write_index].x = slb_x;
+            second_scratch[queue_write_index].y = slb_y - 1;
+            queue_write_index++;
         }
-        v18 = fs_par_slab[gameadd.map_tiles_x];
-        if ((v18 & 1) != 0)
+        south_slab_state = fs_par_slab[game.map_tiles_x];
+        if ((south_slab_state & 1) != 0)
         {
-            v13 |= 4u;
-            fs_par_slab[gameadd.map_tiles_x] = v18 | 2;
+            direction_flags |= 4u;
+            fs_par_slab[game.map_tiles_x] = south_slab_state | 2;
         }
-        else if ((v18 & 2) == 0)
+        else if ((south_slab_state & 2) == 0)
         {
-            fs_par_slab[gameadd.map_tiles_x] = v18 | 2;
-            second_scratch[v24].x = slb_x;
-            second_scratch[v24].y = slb_y + 1;
-            v24++;
+            fs_par_slab[game.map_tiles_x] = south_slab_state | 2;
+            second_scratch[queue_write_index].x = slb_x;
+            second_scratch[queue_write_index].y = slb_y + 1;
+            queue_write_index++;
         }
-        for (i = &byte_522148[5 * v13]; *i; i = &byte_522148[5 * v13])
+        for (i = &exploration_direction_lookup_table[5 * direction_flags]; *i; i = &exploration_direction_lookup_table[5 * direction_flags])
         {
-            if (v13 == 15)
+            if (direction_flags == 15)
             {
-                v13 = 0;
-                *(fs_par_slab - gameadd.map_tiles_x - 1) |= 2u;
-                fs_par_slab[gameadd.map_tiles_x + 1] |= 2u;
-                fs_par_slab[gameadd.map_tiles_x -1] |= 2u;
-                *(fs_par_slab - gameadd.map_tiles_x + 1) |= 2u;
+                direction_flags = 0;
+                *(fs_par_slab - game.map_tiles_x - 1) |= 2u;
+                fs_par_slab[game.map_tiles_x + 1] |= 2u;
+                fs_par_slab[game.map_tiles_x -1] |= 2u;
+                *(fs_par_slab - game.map_tiles_x + 1) |= 2u;
             }
             else
             {
-                v20 = &first_scratch[get_slab_number(byte_522199[*(int *)i].x,byte_522199[*(int *)i].y) + gameadd.map_tiles_x * slb_y];
-                v20[slb_x] |= 2u;
-                v13 &= i[4];
+                scratch_slab_ptr = &first_scratch[get_slab_number(exploration_direction_offsets[*(int *)i].x,exploration_direction_offsets[*(int *)i].y) + game.map_tiles_x * slb_y];
+                scratch_slab_ptr[slb_x] |= 2u;
+                direction_flags &= i[4];
             }
         }
-        slb_x = second_scratch[v30].x;
-        slb_y = second_scratch[v30].y;
-        v30++;
-    } while (v24 >= v30);
+        slb_x = second_scratch[queue_read_index].x;
+        slb_y = second_scratch[queue_read_index].y;
+        queue_read_index++;
+    } while (queue_write_index >= queue_read_index);
 
 
-    for (slb_y = 0; slb_y < gameadd.map_tiles_y; ++slb_y)
+    for (slb_y = 0; slb_y < game.map_tiles_y; ++slb_y)
     {
-        for (slb_x = 0; slb_x < gameadd.map_tiles_x; ++slb_x)
+        for (slb_x = 0; slb_x < game.map_tiles_x; ++slb_x)
         {
             if ((first_scratch[get_slab_number(slb_x,slb_y) ] & 2) != 0)
             {
@@ -671,8 +721,8 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
             }
         }
     }
-    pannel_map_update(0, 0, 256, 256);
-    
+    panel_map_update(0, 0, 256, 256);
+
 }
 
 void init_keeper_map_exploration_by_terrain(struct PlayerInfo *player)
@@ -681,9 +731,9 @@ void init_keeper_map_exploration_by_terrain(struct PlayerInfo *player)
     if (thing_exists(heartng)) {
         fill_in_explored_area(player->id_number, heartng->mappos.x.stl.num, heartng->mappos.y.stl.num);
     }
-    for (MapSlabCoord slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
+    for (MapSlabCoord slb_y = 0; slb_y < game.map_tiles_y; slb_y++)
     {
-        for (MapSlabCoord slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
+        for (MapSlabCoord slb_x = 0; slb_x < game.map_tiles_x; slb_x++)
         {
             if (map_position_initially_explored_for_player(player->id_number, slb_x, slb_y)) {
                 set_slab_explored(player->id_number, slb_x, slb_y);
@@ -707,10 +757,9 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
 {
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
-    player->field_4CD = 0;
     ilght.radius = 2560;
     ilght.intensity = 48;
-    ilght.field_3 = 5;
+    ilght.flags = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);
     player->cursor_light_idx = idx;
@@ -727,23 +776,32 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->minimap_pos_x = 11;
     player->minimap_pos_y = 11;
     player->minimap_zoom = settings.minimap_zoom;
-    player->field_4D1 = player->id_number;
     setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
-    player->field_14 = 2;
     player->main_palette = engine_palette;
     player->minimap_zoom = settings.minimap_zoom;
     player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
     player->frontview_zoom_level = settings.frontview_zoom_level;
+    player->isometric_tilt = settings.isometric_tilt;
     if (is_my_player(player))
     {
-        set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
+        if (default_tag_mode != 3)
+        {
+            settings.highlight_mode = default_tag_mode - 1;
+        }
+        player->roomspace_highlight_mode = settings.highlight_mode;
+        player->roomspace_mode = settings.highlight_mode;
+        set_flag(game.operation_flags, GOF_ShowPanel);
         set_gui_visible(true);
         init_gui();
         turn_on_menu(GMnu_MAIN);
         turn_on_menu(GMnu_ROOM);
     }
+    player->roomspace_width = 1;
+    player->roomspace_height = 1;
+    player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+    player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
     switch (game.game_kind)
     {
     case GKind_LocalGame:
@@ -783,13 +841,16 @@ void init_player(struct PlayerInfo *player, short no_explore)
     }
     init_player_cameras(player);
     player->mp_message_text[0] = '\0';
-    if (is_my_player(player))
-    {
-        init_player_music(player);
-    }
     // By default, player is his own ally
-    player->allied_players = (1 << player->id_number);
+    player->allied_players = to_flag(player->id_number);
     player->hand_busy_until_turn = 0;
+    if (player->generate_speed == 0)
+      player->generate_speed = game.conf.rules.rooms.default_generate_speed;
+    if (is_my_player(player)) {
+        // new game, play one of the default tracks
+        LevelNumber lvnum = get_loaded_level_number();
+        play_music_track(3 + ((lvnum - 1) % 4)); // tracks 3..6
+    }
 }
 
 void init_players(void)
@@ -797,14 +858,14 @@ void init_players(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if ((game.packet_save_head.players_exist & (1 << i)) != 0)
+        if (flag_is_set(game.packet_save_head.players_exist, to_flag(i)))
             player->allocflags |= PlaF_Allocated;
         else
             player->allocflags &= ~PlaF_Allocated;
         if (player_exists(player))
         {
             player->id_number = i;
-            if ((game.packet_save_head.players_comp & (1 << i)) != 0)
+            if (flag_is_set(game.packet_save_head.players_comp, to_flag(i)))
                 player->allocflags |= PlaF_CompCtrl;
             else
                 player->allocflags &= ~PlaF_CompCtrl;
@@ -822,38 +883,54 @@ void init_players(void)
 TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
 {
     SYNCDBG(16,"Starting");
+    struct Thing* heartng;
+    struct Map* mapblk;
+    struct Coord3d dstpos;
+    struct SlabMap* slb;
     MapSubtlCoord stl_x = stl_num_decode_x(stl_num);
     MapSubtlCoord stl_y = stl_num_decode_y(stl_num);
     if (wandr->wandr_slot == CrWaS_WithinDungeon)
     {
-        struct Map* mapblk = get_map_block_at_pos(stl_num);
+        mapblk = get_map_block_at_pos(stl_num);
         // Add only tiles which are revealed to the wandering player, unless it's heroes - for them, add all
-        if ((wandr->plyr_idx == game.hero_player_num) || map_block_revealed(mapblk, wandr->plyr_idx))
+        if ((player_is_roaming(wandr->plyr_idx)) || map_block_revealed(mapblk, wandr->plyr_idx))
         {
-            struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+            slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0)
              && players_creatures_tolerate_each_other(wandr->plyr_idx,slabmap_owner(slb)))
             {
-                return true;
+                heartng = get_player_soul_container(wandr->plyr_idx);
+                if (!thing_is_invalid(heartng))
+                {
+
+                    dstpos.x.val = subtile_coord_center(stl_x);
+                    dstpos.y.val = subtile_coord_center(stl_y);
+                    dstpos.z.val = subtile_coord(1, 0);
+                    if (navigation_points_connected(&heartng->mappos, &dstpos))
+                    {
+                        return true;
+                    }
+                }
             }
         }
     } else
     {
-        struct Map* mapblk = get_map_block_at_pos(stl_num);
+        mapblk = get_map_block_at_pos(stl_num);
         // Add only tiles which are not revealed to the wandering player, unless it's heroes - for them, do nothing
-        if ((wandr->plyr_idx != game.hero_player_num) && !map_block_revealed(mapblk, wandr->plyr_idx))
+        if (!player_is_roaming(wandr->plyr_idx) && !map_block_revealed(mapblk, wandr->plyr_idx))
         {
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
             {
-                struct Thing* heartng = get_player_soul_container(wandr->plyr_idx);
+                heartng = get_player_soul_container(wandr->plyr_idx);
                 if (!thing_is_invalid(heartng))
                 {
-                    struct Coord3d dstpos;
                     dstpos.x.val = subtile_coord_center(stl_x);
                     dstpos.y.val = subtile_coord_center(stl_y);
                     dstpos.z.val = subtile_coord(1,0);
                     if (navigation_points_connected(&heartng->mappos, &dstpos))
-                      return true;
+                    {
+                        return true;
+                    }
                 }
             }
         }
@@ -913,10 +990,10 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
     wandr->plyr_idx = plyr_idx;
     wandr->point_insert_idx = 0;
     wandr->last_checked_slb_num = 0;
-    wandr->plyr_bit = (1 << plyr_idx);
+    wandr->plyr_bit = to_flag(plyr_idx);
     wandr->num_check_per_run = 20;
     wandr->max_found_per_check = 4;
-    wandr->wdrfield_14 = 0;
+    wandr->search_limiting_enabled = 0;
 
     long stl_num_list_count = 0;
     SubtlCodedCoords* stl_num_list = (SubtlCodedCoords*)big_scratch;
@@ -934,7 +1011,7 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
             stl_num_list_count++;
         }
         slb_num++;
-        if (slb_num >= gameadd.map_tiles_x*gameadd.map_tiles_y) {
+        if (slb_num >= game.map_tiles_x*game.map_tiles_y) {
             break;
         }
     }
@@ -965,14 +1042,14 @@ long wander_point_update(struct Wander *wandr)
                 break;
             stl_num_list[stl_num_list_count] = stl_num;
             stl_num_list_count++;
-            if ((wandr->wdrfield_14 != 0) && (stl_num_list_count == wandr->max_found_per_check))
+            if ((wandr->search_limiting_enabled != 0) && (stl_num_list_count == wandr->max_found_per_check))
             {
-                slb_num = (wandr->num_check_per_run + wandr->last_checked_slb_num) % (gameadd.map_tiles_x*gameadd.map_tiles_y);
+                slb_num = (wandr->num_check_per_run + wandr->last_checked_slb_num) % (game.map_tiles_x*game.map_tiles_y);
                 break;
             }
         }
         slb_num++;
-        if (slb_num >= gameadd.map_tiles_x*gameadd.map_tiles_y) {
+        if (slb_num >= game.map_tiles_x*game.map_tiles_y) {
             slb_num = 0;
         }
     }
@@ -990,7 +1067,7 @@ void post_init_player(struct PlayerInfo *player)
 {
     switch (game.game_kind)
     {
-    case GKind_Unknown3:
+    case GKind_LimitedState:
         break;
     case GKind_LocalGame:
     case GKind_MultiGame:
@@ -1003,7 +1080,7 @@ void post_init_player(struct PlayerInfo *player)
         }
         break;
     }
-    pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+    panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
 }
 
 void post_init_players(void)
@@ -1024,6 +1101,13 @@ void init_players_local_game(void)
     struct PlayerInfo* player = get_my_player();
     player->id_number = my_player_number;
     player->allocflags |= PlaF_Allocated;
+
+    if( player->id_number == PLAYER_GOOD)
+    {
+        player->allocflags &= ~PlaF_CompCtrl;
+        player->player_type = PT_Keeper;
+    }
+
     switch (settings.video_rotate_mode) {
         case 0: player->view_mode_restore = PVM_IsoWibbleView; break;
         case 1: player->view_mode_restore = PVM_IsoStraightView; break;
@@ -1072,10 +1156,6 @@ void process_players(void)
             update_player_objectives(i);
         }
     }
-    TbBigChecksum sum = 0;
-    sum += compute_players_checksum();
-    sum += game.action_rand_seed;
-    player_packet_checksum_add(my_player_number,sum,"players");
     SYNCDBG(17,"Finished");
 }
 
@@ -1109,11 +1189,10 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         traps_sold = remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
     }
 
-	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
-	dungeonadd->traps_sold += traps_sold;
-	dungeonadd->manufacture_gold += sell_value;
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    dungeon->traps_sold += traps_sold;
+    dungeon->manufacture_gold += sell_value;
 
-    struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
     if (is_my_player_number(plyr_idx))
     {
         play_non_3d_sample(115);
@@ -1131,7 +1210,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct Computer2* comp = get_computer_player(plyr_idx);
     if (!computer_player_invalid(comp))
     {
-        add_to_trap_location(comp, &pos);
+        add_to_trap_locations(comp, &pos);
     }
     return true;
 }
@@ -1141,22 +1220,21 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     MapSubtlCoord cstl_x = stl_slab_center_subtile(stl_x);
     MapSubtlCoord cstl_y = stl_slab_center_subtile(stl_y);
     struct Thing* thing = get_door_for_position(cstl_x, cstl_y);
-    if (thing_is_invalid(thing))
+    if (!thing_is_sellable_door(thing))
     {
         return false;
     }
-
-	struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
-	dungeon->camera_deviate_jump = 192;
-    long sell_value = compute_value_percentage(gameadd.doors_config[thing->model].selling_value, gameadd.door_sale_percent);
-
-	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
-	dungeonadd->doors_sold++;
-	dungeonadd->manufacture_gold += sell_value;
-
+    struct DoorConfigStats *doorst = get_door_model_stats(thing->model);
+    struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
+    dungeon->camera_deviate_jump = 192;
+    GoldAmount sell_value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
+    dungeon->doors_sold++;
+    dungeon->manufacture_gold += sell_value;
     destroy_door(thing);
     if (is_my_player_number(plyr_idx))
-        play_non_3d_sample(115);
+    {
+        play_non_3d_sample(115); // TODO config make this sound configurable?
+    }
     struct Coord3d pos;
     set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     if (sell_value != 0)
@@ -1164,10 +1242,11 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         create_price_effect(&pos, plyr_idx, sell_value);
         player_add_offmap_gold(plyr_idx, sell_value);
     }
-    { // Add the trap location to related computer player, in case we'll want to place a trap again
+    { // Add the trap location to related computer player, in case we'll want to place a trap again.
         struct Computer2* comp = get_computer_player(plyr_idx);
-        if (!computer_player_invalid(comp)) {
-            add_to_trap_location(comp, &pos);
+        if (!computer_player_invalid(comp))
+        {
+            add_to_trap_locations(comp, &pos);
         }
     }
     return true;
@@ -1179,12 +1258,80 @@ void compute_and_update_player_payday_total(PlayerNumber plyr_idx)
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     dungeon->creatures_total_pay = compute_player_payday_total(dungeon);
 }
+
 void compute_and_update_player_backpay_total(PlayerNumber plyr_idx)
 {
     SYNCDBG(15, "Starting for player %d", (int)plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    dungeonadd->creatures_total_backpay = compute_player_payday_total(dungeon);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    dungeon->creatures_total_backpay = compute_player_payday_total(dungeon);
+}
+
+void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx)
+{
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    if (!dungeon_invalid(dungeon))
+    {
+        if (dungeon->color_idx != colour_idx)
+        {
+            dungeon->color_idx = colour_idx;
+            update_panel_color_player_color(plyr_idx,colour_idx);
+            for (MapSlabCoord slb_y=0; slb_y < game.map_tiles_y; slb_y++)
+            {
+                for (MapSlabCoord slb_x=0; slb_x < game.map_tiles_x; slb_x++)
+                {
+                    struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+                    if (slabmap_owner(slb) == plyr_idx)
+                    {
+                        redraw_slab_map_elements(slb_x,slb_y);
+                    }
+
+                }
+            }
+            const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
+            int k = 0;
+            unsigned long i = slist->index;
+            while (i > 0)
+            {
+                struct Thing *thing = thing_get(i);
+                TRACE_THING(thing);
+                if (thing_is_invalid(thing)) {
+                    ERRORLOG("Jump to invalid thing detected");
+                    break;
+                }
+                i = thing->next_of_class;
+                // Per-thing code
+                if (thing->owner == plyr_idx)
+                {
+                    ThingModel base_model = get_coloured_object_base_model(thing->model);
+                    if(base_model != 0)
+                    {
+                        create_coloured_object(&thing->mappos, plyr_idx, thing->parent_idx,base_model);
+                        delete_thing_structure(thing, 0);
+                    }
+                }
+                // Per-thing code ends
+                k++;
+                if (k > slist->count)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping things list");
+                    break;
+                }
+            }
+            // Refresh GUI panel button sprites for local player. Workaround for multiplayer.
+            if (plyr_idx == my_player_number) {
+                for (int btn_idx = 0; btn_idx < ACTIVE_BUTTONS_COUNT; btn_idx++) {
+                    struct GuiButton *gbtn = &active_buttons[btn_idx];
+                    if ((gbtn->flags & LbBtnF_Active) == 0) {continue;}
+                    struct GuiMenu *gmnu = get_active_menu(gbtn->gmenu_idx);
+                    if (gmnu == NULL) {continue;}
+                    struct GuiButtonInit *gbinit = get_gui_button_init(gmnu, gbtn->id_num);
+                    if (gbinit != NULL && gbinit->sprite_idx != 0) {
+                        gbtn->sprite_idx = get_player_colored_icon_idx(gbinit->sprite_idx, my_player_number);
+                    }
+                }
+            }
+        }
+    }
 }
 
 /******************************************************************************/

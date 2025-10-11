@@ -1,0 +1,70 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+    "configurations": [
+        {
+            "type": "cppdbg",
+            "project": "CMakeLists.txt",
+            "projectTarget": "keeperfx.exe",
+            "name": "keeperfx.exe (gdb)",
+            "currentDir": "E:\\Games\\keeperfx_1_2_0_complete",
+            "cwd": "E:\\Games\\keeperfx_1_2_0_complete",
+            "args": [
+                "-level",
+                "00001",
+                "-campaign",
+                "personal",
+                "-nointro",
+                "-alex"
+            ],
+            "program": "${debugInfo.target}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:\\msys64\\mingw32\\bin\\gdb.exe",
+            "externalConsole": true,
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "type": "cppdbg",
+            "project": "CMakeLists.txt",
+            "projectTarget": "keeperfx_hvlog.exe",
+            "name": "keeperfx_hvlog.exe (gdb)",
+            "currentDir": "E:\\Games\\keeperfx_1_2_0_complete",
+            "cwd": "E:\\Games\\keeperfx_1_2_0_complete",
+            "args": [
+                "-level",
+                "00001",
+                "-campaign",
+                "personal",
+                "-nointro",
+                "-alex"
+            ],
+            "program": "${debugInfo.target}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:\\msys64\\mingw32\\bin\\gdb.exe",
+            "externalConsole": true,
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}

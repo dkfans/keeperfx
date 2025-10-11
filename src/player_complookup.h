@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "player_data.h"
 
 #define GOLD_LOOKUP_COUNT      40
 
@@ -35,15 +36,11 @@ extern "C" {
 struct GoldLookup { // sizeof = 28
     unsigned char flags;
     /* Informs whether players are interested in that gold vein. */
-    unsigned char player_interested[5];
+    unsigned char player_interested[PLAYERS_COUNT];
 MapSubtlCoord stl_x;
 MapSubtlCoord stl_y;
-unsigned short field_A;
-unsigned short field_C;
 unsigned short num_gold_slabs;
 unsigned long num_gem_slabs;
-unsigned char field_14[6];
-unsigned short field_1A;
 };
 
 #pragma pack()

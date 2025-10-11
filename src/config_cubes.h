@@ -19,50 +19,48 @@
 #ifndef DK_CFGCUBES_H
 #define DK_CFGCUBES_H
 
-#include "globals.h"
 #include "bflib_basics.h"
-
+#include "globals.h"
+#include "player_data.h"
 #include "config.h"
-#include "light_data.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-#define CUBE_ITEMS_MAX_OLD 512
 #define CUBE_ITEMS_MAX 1024
-
 #define CUBE_TEXTURES 6
-
+#define CUBE_OWNERSHIP_GROUPS 20
 /******************************************************************************/
-#pragma pack(1)
-
-struct CubeAttribs { // sizeof=0x12
-    unsigned short texture_id[CUBE_TEXTURES];
-    unsigned char field_C[CUBE_TEXTURES];
+enum CubePropertiesFlags {
+    CPF_None =                0x00,
+    CPF_IsLava =              0x01,
+    CPF_IsWater =             0x02,
+    CPF_IsSacrificial =       0x04,
+    CPF_IsUnclaimedPath =     0x08,
 };
 
-#pragma pack()
-/******************************************************************************/
 struct CubeConfigStats {
     char code_name[COMMAND_WORD_LEN];
+    unsigned short texture_id[CUBE_TEXTURES];
+    unsigned char ownershipGroup;
+    PlayerNumber owner;
+    unsigned char properties_flags;
 };
 
 struct CubesConfig {
     long cube_types_count;
     struct CubeConfigStats cube_cfgstats[CUBE_ITEMS_MAX];
+    unsigned short cube_bits[CUBE_OWNERSHIP_GROUPS][COLOURS_COUNT];
 };
+
 /******************************************************************************/
-extern const char keeper_cubes_file[];
+extern const struct ConfigFileData keeper_cubes_file_data;
 extern struct NamedCommand cubes_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
-TbBool load_cubes_config(unsigned short flags);
 struct CubeConfigStats *get_cube_model_stats(long model);
 const char *cube_code_name(long model);
-ThingModel cube_model_id(const char * code_name);
-
-long load_cube_file(void);
-
+ThingModel cube_model_id(const char *code_name);
 /******************************************************************************/
 #ifdef __cplusplus
 }

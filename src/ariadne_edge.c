@@ -42,8 +42,8 @@ long edge_point_add(long pt_x, long pt_y)
     long ept_id = ix_EdgePoints;
     if (ept_id >= EDGE_POINTS_COUNT)
         return -1;
-    EdgePoints[ept_id].field_0 = pt_x;
-    EdgePoints[ept_id].field_4 = pt_y;
+    EdgePoints[ept_id].pt_x = pt_x;
+    EdgePoints[ept_id].pt_y = pt_y;
     ix_EdgePoints = ept_id+1;
     return ept_id;
 }

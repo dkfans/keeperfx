@@ -20,7 +20,6 @@
 #include "map_columns.h"
 #include "globals.h"
 
-#include "bflib_memory.h"
 #include "config_terrain.h"
 #include "slab_data.h"
 #include "game_legacy.h"
@@ -110,21 +109,6 @@ void set_column_floor_filled_subtiles(struct Column *col, MapSubtlCoord n)
 }
 
 /**
- * Sets amount of filled subtiles at bottom of a column at given map block.
- * @param mapblk The map block for which filled height should be set.
- * @param n Amount of subtiles.
- */
-void set_map_floor_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
-{
-    struct Column *col;
-    col = get_map_column(mapblk);
-    if (column_invalid(col))
-        return;
-    col->bitfields &= ~0xF0;
-    col->bitfields |= (n<<4) & 0xF0;
-}
-
-/**
  * Returns amount of filled subtiles at top of given column.
  * @param col The column which filled height should be returned.
  */
@@ -144,46 +128,6 @@ long get_map_ceiling_filled_subtiles(const struct Map *mapblk)
     if (column_invalid(col))
         return 0;
     return (col->bitfields & CLF_CEILING_MASK) >> 1;
-}
-
-/**
- * Returns amount of filled subtiles at top of column at given coords.
- * @param stl_x Subtile for which column height should be returned, X coord.
- * @param stl_y Subtile for which column height should be returned, Y coord.
- */
-long get_ceiling_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    const struct Column *colmn;
-    colmn = get_column_at(stl_x, stl_y);
-    if (column_invalid(colmn))
-        return 0;
-    return (colmn->bitfields & CLF_CEILING_MASK) >> 1;
-}
-
-/**
- * Sets amount of filled subtiles at top of given column.
- * @param col The column which filled height should be set.
- * @param n Amount of subtiles.
- */
-void set_column_ceiling_filled_subtiles(struct Column *col, MapSubtlCoord n)
-{
-    col->bitfields &= ~CLF_CEILING_MASK;
-    col->bitfields |= (n<<1) & CLF_CEILING_MASK;
-}
-
-/**
- * Sets amount of filled subtiles at top of a column at given map block.
- * @param mapblk The map block for which filled height should be set.
- * @param n Amount of subtiles.
- */
-void set_map_ceiling_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
-{
-    struct Column *col;
-    col = get_map_column(mapblk);
-    if (column_invalid(col))
-        return;
-    col->bitfields &= ~CLF_CEILING_MASK;
-    col->bitfields |= (n<<1) & CLF_CEILING_MASK;
 }
 
 TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -207,7 +151,7 @@ long get_top_cube_at_pos(SubtlCodedCoords stl_num)
     if (top_pos > 0)
         tcube = col->cubes[top_pos-1];
     else
-        tcube = game.top_cube[col->baseblock];
+        tcube = game.top_cube[col->floor_texture];
     return tcube;
 }
 
@@ -221,7 +165,7 @@ long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *cube_pos)
     if (top_pos > 0)
         tcube = col->cubes[top_pos-1];
     else
-        tcube = game.top_cube[col->baseblock];
+        tcube = game.top_cube[col->floor_texture];
     if (cube_pos != NULL)
         *cube_pos = top_pos;
     return tcube;
@@ -321,7 +265,7 @@ long get_ceiling_height_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 
 static TbBool column_is_equivalent(struct Column * const src, struct Column *dst)
 {
-    if ((src->baseblock != dst->baseblock) ||
+    if ((src->floor_texture != dst->floor_texture) ||
         (src->solidmask != dst->solidmask) ||
         (src->orient != dst->orient))
         return 0;
@@ -345,7 +289,7 @@ long create_column(struct Column *col)
 {
     long result;
     struct Column *dst;
-    unsigned char v6;
+    unsigned char cube_index;
     unsigned char top_of_floor;
 
     // Find an empty column
@@ -367,12 +311,12 @@ long create_column(struct Column *col)
     make_solidmask(dst);
 
     // Find lowest cube
-    for (v6 = 0; v6 < COLUMN_STACK_HEIGHT;v6++)
+    for (cube_index = 0; cube_index < COLUMN_STACK_HEIGHT;cube_index++)
     {
-        if ( dst->cubes[v6] == 0)
+        if ( dst->cubes[cube_index] == 0)
             break;
     }
-    top_of_floor = v6;
+    top_of_floor = cube_index;
     // set lowest cube info
     dst->bitfields &= ~CLF_FLOOR_MASK;
     dst->bitfields |= (top_of_floor << 4);
@@ -397,15 +341,15 @@ long create_column(struct Column *col)
         }
         else
         {
-            unsigned short *v13 = &dst->cubes[7];
-            unsigned char v12 = 0;
+            unsigned short *ceiling_cube_ptr = &dst->cubes[7];
+            unsigned char ceiling_bit_shift = 0;
             // Counting ceiling height
             for (int i = 0; i < COLUMN_STACK_HEIGHT-1; i++)
             {
-                if (*v13)
-                    dst->bitfields ^= (v12 ^ dst->bitfields) & CLF_CEILING_MASK;
-                --v13;
-                v12 += 2;
+                if (*ceiling_cube_ptr)
+                    dst->bitfields ^= (ceiling_bit_shift ^ dst->bitfields) & CLF_CEILING_MASK;
+                --ceiling_cube_ptr;
+                ceiling_bit_shift += 2;
             }
         }
     }
@@ -419,8 +363,8 @@ void clear_columns(void)
   for (i=0; i < COLUMNS_COUNT; i++)
   {
     colmn = &game.columns_data[i];
-    LbMemorySet(colmn, 0, sizeof(struct Column));
-    colmn->baseblock = 1;
+    memset(colmn, 0, sizeof(struct Column));
+    colmn->floor_texture = 1;
     make_solidmask(colmn);
   }
   game.unrevealed_column_idx = 0;
@@ -493,9 +437,9 @@ void init_whole_blocks(void)
     struct Column *colmn;
     struct Column lcolmn;
     long i;
-    LbMemorySet(&lcolmn, 0, sizeof(struct Column));
+    memset(&lcolmn, 0, sizeof(struct Column));
     // Prepare the local column
-    lcolmn.baseblock = 22;
+    lcolmn.floor_texture = 22;
     lcolmn.cubes[0] = 10;
     lcolmn.cubes[1] = 1;
     lcolmn.cubes[2] = 1;
@@ -514,15 +458,15 @@ void init_whole_blocks(void)
 
 void init_top_texture_to_cube_table(void)
 {
-    LbMemorySet(game.top_cube, 0, sizeof(game.top_cube));
+    memset(game.top_cube, 0, sizeof(game.top_cube));
     int n;
-    for (n=1; n < 592; n++)
+    for (n=1; n < TEXTURE_BLOCKS_COUNT; n++)
     {
         int i;
         for (i=1; i < CUBE_ITEMS_MAX; i++)
         {
-            struct CubeAttribs * cubed;
-            cubed = &gameadd.cubes_data[i];
+            struct CubeConfigStats * cubed;
+            cubed = get_cube_model_stats(i);
             if (cubed->texture_id[4] == n) {
                 game.top_cube[n] = i;
                 break;
@@ -531,42 +475,40 @@ void init_top_texture_to_cube_table(void)
     }
 }
 
-TbBool cube_is_water(long cube_id)
-{
-    return (cube_id == 39);
-}
-
+/* Returns if given cube is lava.
+ * @param cube_id
+ * @return */
 TbBool cube_is_lava(long cube_id)
 {
-    return (cube_id == 40) || (cube_id == 41);
+    struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
+    return flag_is_set(cubest->properties_flags, CPF_IsLava);
 }
 
-TbBool cube_is_unclaimed_path(long cube_id)
-{
-    return ( (cube_id == 0) || ( (cube_id >= 25) && (cube_id <= 29) ) );
-}
-
-/**
- * Returns if given cube is a sacrificial ground or magic door surface.
+/* Returns if given cube is water.
  * @param cube_id
- * @return
- */
+ * @return */
+TbBool cube_is_water(long cube_id)
+{
+    struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
+    return flag_is_set(cubest->properties_flags, CPF_IsWater);
+}
+
+/* Returns if given cube is a sacrificial ground or magic door surface.
+ * @param cube_id
+ * @return */
 TbBool cube_is_sacrificial(long cube_id)
 {
-    return (cube_id >= 294) && (cube_id <= 302);
+    struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
+    return flag_is_set(cubest->properties_flags, CPF_IsSacrificial);
 }
 
-/**
- * Returns if given subtile has water cube on its top.
- * @param stl_x Subtile X coordinate.
- * @param stl_y Subtile Y coordinate.
- * @return True if the top cube is water; false otherwise.
- */
-TbBool subtile_has_water_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+/* Returns if given cube is unclaimed path.
+ * @param cube_id
+ * @return */
+TbBool cube_is_unclaimed_path(long cube_id)
 {
-    long i;
-    i = get_top_cube_at(stl_x, stl_y, NULL);
-    return cube_is_water(i);
+    struct CubeConfigStats *cubest = get_cube_model_stats(cube_id);
+    return flag_is_set(cubest->properties_flags, CPF_IsUnclaimedPath);
 }
 
 /**
@@ -583,6 +525,19 @@ TbBool subtile_has_lava_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 }
 
 /**
+ * Returns if given subtile has water cube on its top.
+ * @param stl_x Subtile X coordinate.
+ * @param stl_y Subtile Y coordinate.
+ * @return True if the top cube is water; false otherwise.
+ */
+TbBool subtile_has_water_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    long i;
+    i = get_top_cube_at(stl_x, stl_y, NULL);
+    return cube_is_water(i);
+}
+
+/**
  * Returns if given subtile has sacrificial (temple) cube on its top.
  * @param stl_x Subtile X coordinate.
  * @param stl_y Subtile Y coordinate.
@@ -593,13 +548,13 @@ TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     long i;
     long cube_pos;
     i = get_top_cube_at(stl_x, stl_y, &cube_pos);
-    // Only low ground cubes are really sacrificial - high ground is most likely magic door
+    // Only low ground cubes are really sacrificial - high ground is most likely magic door.
     return cube_pos<4 && cube_is_sacrificial(i);
 }
 
 TbBool subtile_is_liquid(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    return ( (subtile_has_water_on_top(stl_x, stl_y)) || (subtile_has_lava_on_top(stl_x, stl_y)) );
+    return ((subtile_has_water_on_top(stl_x, stl_y)) || (subtile_has_lava_on_top(stl_x, stl_y)));
 }
 
 TbBool subtile_is_unclaimed_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y)

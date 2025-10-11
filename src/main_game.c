@@ -17,17 +17,18 @@
 #include "bflib_coroutine.h"
 #include "bflib_datetm.h"
 #include "bflib_math.h"
-#include "bflib_memory.h"
 #include "bflib_sound.h"
 
 #include "config_compp.h"
 #include "config_settings.h"
+#include "creature_states_combt.h"
 #include "dungeon_data.h"
 #include "engine_lenses.h"
 #include "engine_redraw.h"
 #include "engine_textures.h"
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
+#include "frontmenu_ingame_map.h"
 #include "game_heap.h"
 #include "game_legacy.h"
 #include "game_merge.h"
@@ -35,25 +36,38 @@
 #include "gui_soundmsgs.h"
 #include "kjm_input.h"
 #include "lvl_filesdk1.h"
+#include "lua_base.h"
+#include "lua_triggers.h"
 #include "net_sync.h"
 #include "room_library.h"
 #include "room_list.h"
 #include "power_specials.h"
 #include "player_data.h"
+#include "player_instances.h"
 #include "player_utils.h"
 #include "vidfade.h"
 #include "vidmode.h"
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
 #include "sounds.h"
+#include "api.h"
+
+#ifdef FUNCTESTING
+  #include "ftests/ftest.h"
+#endif
+
 #include "post_inc.h"
 
 extern TbBool force_player_num;
+extern TbBool IMPRISON_BUTTON_DEFAULT;
+extern TbBool FLEE_BUTTON_DEFAULT;
+extern unsigned long features_enabled;
 
 extern void setup_players_count();
+extern void set_skip_heart_zoom_feature(TbBool enable);
 
 CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
-
+TbBool luascript_loaded = false;
 /**
  * Resets timers and flags of all players into default (zeroed) state.
  * Also enables spells which are always enabled by default.
@@ -61,7 +75,6 @@ CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 void reset_script_timers_and_flags(void)
 {
     struct Dungeon *dungeon;
-    struct DungeonAdd *dungeonadd;
     int plyr_idx;
     int k;
     TbBool freeplay = is_map_pack();
@@ -71,7 +84,6 @@ void reset_script_timers_and_flags(void)
         add_power_to_player(PwrK_SLAP, plyr_idx);
         add_power_to_player(PwrK_POSSESS, plyr_idx);
         dungeon = get_dungeon(plyr_idx);
-        dungeonadd = get_dungeonadd(plyr_idx);
         for (k=0; k<TURN_TIMERS_COUNT; k++)
         {
             memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
@@ -79,7 +91,7 @@ void reset_script_timers_and_flags(void)
         }
         for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
         {
-            dungeonadd->script_flags[k] = 0;
+            dungeon->script_flags[k] = 0;
             if (freeplay)
             {
                 intralvl.campaign_flags[plyr_idx][k] = 0;
@@ -88,14 +100,28 @@ void reset_script_timers_and_flags(void)
     }
 }
 
-void init_good_player_as(PlayerNumber plr_idx)
+void init_player_types()
 {
-    struct PlayerInfo *player;
-    game.hero_player_num = plr_idx;
-    player = get_player(plr_idx);
-    player->allocflags |= PlaF_Allocated;
-    player->allocflags |= PlaF_CompCtrl;
-    player->id_number = game.hero_player_num;
+    for (size_t plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(plr_idx);
+        switch (plr_idx)
+        {
+        case PLAYER_GOOD:
+            player->allocflags |= PlaF_Allocated;
+            player->allocflags |= PlaF_CompCtrl;
+            player->player_type = PT_Roaming;
+            player->id_number = plr_idx;
+            break;
+        case PLAYER_NEUTRAL:
+            player->player_type = PT_Neutral;
+            break;
+        default:
+            player->player_type = PT_Keeper;
+            break;
+        }
+    }
 }
 
 /******************************************************************************/
@@ -127,21 +153,23 @@ static void init_level(void)
 {
     SYNCDBG(6,"Starting");
     struct IntralevelData transfer_mem;
-    //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
-    LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
+    //memcpy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
+    memcpy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
-    set_flag_byte(&game.system_flags, GSF_RunAfterVictory, false);
+    clear_flag(game.system_flags, GSF_RunAfterVictory);
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
+    game.paused_at_gameturn = false;
     game_flags2 &= (GF2_PERSISTENT_FLAGS | GF2_Timer);
     clear_game();
     reset_heap_manager();
     lens_mode = 0;
     setup_heap_manager();
 
+    luascript_loaded = open_lua_script(get_selected_level_number());
     // Load configs which may have per-campaign part, and can even be modified within a level
-    load_computer_player_config(CnfLd_Standard);
+    recheck_all_mod_exist();
     init_custom_sprites(get_selected_level_number());
     load_stats_files();
     check_and_auto_fix_stats();
@@ -153,51 +181,58 @@ static void init_level(void)
 
     init_creature_scores();
 
-    init_good_player_as(hero_player_number);
+    init_player_types();
     light_set_lights_on(1);
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
 
     erstats_clear();
     init_dungeons();
+    setup_panel_colors();
     init_map_size(get_selected_level_number());
     clear_messages();
     init_seeds();
     // Load the actual level files
+
     TbBool script_preloaded = preload_script(get_selected_level_number());
     if (!load_map_file(get_selected_level_number()))
     {
         // TODO: whine about missing file to screen
-        JUSTMSG("Unable to load level %d from %s", get_selected_level_number(), campaign.name);
+        JUSTMSG("Unable to load level %lu from %s", get_selected_level_number(), campaign.name);
         return;
     }
     else
     {
-        if (script_preloaded == false)
+        if (script_preloaded == false && luascript_loaded == false)
         {
-            show_onscreen_msg(200,"%s: No Script %d", get_string(GUIStr_Error), get_selected_level_number());
-            JUSTMSG("Unable to load script level %d from %s", get_selected_level_number(), campaign.name);
+            show_onscreen_msg(200,"%s: No Script %lu", get_string(GUIStr_Error), get_selected_level_number());
+            JUSTMSG("Unable to load script level %lu from %s", get_selected_level_number(), campaign.name);
         }
     }
-
     init_navigation();
-    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
+    snprintf(game.campaign_fname, sizeof(game.campaign_fname), "%s", campaign.fname);
     light_set_lights_on(1);
     {
-        struct PlayerInfo *player;
-        player = get_player(game.hero_player_num);
-        init_player_start(player, false);
+        for (size_t i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if(player_is_roaming(i))
+            {
+                struct PlayerInfo *player;
+                player = get_player(i);
+                init_player_start(player, false);
+            }
+        }
     }
-    game.numfield_D |= GNFldD_Unkn04;
-    //LbMemoryCopy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
-    LbMemoryCopy(&intralvl,&transfer_mem,sizeof(struct IntralevelData));
+    game.view_mode_flags |= GNFldD_ComputerPlayerProcessing;
+    //memcpy(&game.intralvl.transferred_creature,&transfer_mem,sizeof(struct CreatureStorage));
+    memcpy(&intralvl,&transfer_mem,sizeof(struct IntralevelData));
     event_initialise_all();
     battle_initialise();
     ambient_sound_prepare();
     zero_messages();
     game.armageddon_cast_turn = 0;
     game.armageddon_over_turn = 0;
-    init_messages();
+    clear_messages();
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
     game.pay_day_progress = 0;
@@ -208,7 +243,10 @@ static void init_level(void)
     game.manufactr_element = 0;
     game.manufactr_spridx = 0;
     game.manufactr_tooltip = 0;
-    JUSTMSG("Started level %d from %s", get_selected_level_number(), campaign.name);
+    reset_postal_instance_cache();
+    JUSTMSG("Started level %lu from %s", get_selected_level_number(), campaign.name);
+
+    api_event("GAME_STARTED");
 }
 
 static void post_init_level(void)
@@ -222,6 +260,7 @@ static void post_init_level(void)
     clear_creature_pool();
     setup_computer_players2();
     load_script(get_loaded_level_number());
+    lua_on_game_start();
     init_dungeons_research();
     init_dungeons_essential_position();
     if (!is_map_pack())
@@ -252,15 +291,15 @@ void startup_saved_packet_game(void)
     game.pckt_gameturn = 0;
 #if (BFDEBUG_LEVEL > 0)
     SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
-    SYNCMSG("Packet Loading Active (File contains %d turns)", game.turns_stored);
+    SYNCMSG("Packet Loading Active (File contains %lu turns)", game.turns_stored);
     SYNCMSG("Packet Checksum Verification %s",game.packet_checksum_verify ? "Enabled" : "Disabled");
-    SYNCMSG("Fast Forward through %d game turns", game.turns_fastforward);
+    SYNCMSG("Fast Forward through %lu game turns", game.turns_fastforward);
     if (game.turns_packetoff != -1)
-        SYNCMSG("Packet Quit at %d", game.turns_packetoff);
+        SYNCMSG("Packet Quit at %lu", game.turns_packetoff);
     if (game.packet_load_enable)
     {
       if (game.log_things_end_turn != game.log_things_start_turn)
-        SYNCMSG("Logging things, game turns %d -> %d", game.log_things_start_turn, game.log_things_end_turn);
+        SYNCMSG("Logging things, game turns %lu -> %lu", game.log_things_start_turn, game.log_things_end_turn);
     }
     SYNCMSG("Packet file prepared on KeeperFX %d.%d.%d.%d",(int)game.packet_save_head.game_ver_major,(int)game.packet_save_head.game_ver_minor,
         (int)game.packet_save_head.game_ver_release,(int)game.packet_save_head.game_ver_build);
@@ -270,13 +309,18 @@ void startup_saved_packet_game(void)
         WARNLOG("Packet file was created with different version of the game; this rarely works");
     }
     game.game_kind = GKind_LocalGame;
-    if (!(game.packet_save_head.players_exist & (1 << game.local_plyr_idx))
-        || (game.packet_save_head.players_comp & (1 << game.local_plyr_idx)))
+    if (!flag_is_set(game.packet_save_head.players_exist, to_flag(game.local_plyr_idx))
+        || flag_is_set(game.packet_save_head.players_comp, to_flag(game.local_plyr_idx)))
         my_player_number = 0;
     else
         my_player_number = game.local_plyr_idx;
     settings.isometric_view_zoom_level = game.packet_save_head.isometric_view_zoom_level;
     settings.frontview_zoom_level = game.packet_save_head.frontview_zoom_level;
+    settings.isometric_tilt = game.packet_save_head.isometric_tilt;
+    settings.highlight_mode = game.packet_save_head.highlight_mode;
+    IMPRISON_BUTTON_DEFAULT = game.packet_save_head.default_imprison_tendency;
+    FLEE_BUTTON_DEFAULT = game.packet_save_head.default_flee_tendency;
+    set_skip_heart_zoom_feature(game.packet_save_head.skip_heart_zoom);
     init_level();
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
@@ -296,7 +340,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
 void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
-    stop_streamed_sample();
+    stop_streamed_samples();
     unsigned int flgmem;
     struct PlayerInfo *player;
     setup_count_players();
@@ -328,8 +372,8 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
         // Fix desyncs when two players have a different zoom distance cfg setting
         // This temporary solution just disregards their cfg value and sets it here
         int max_zoom_in_multiplayer = 60;
-        zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
-        frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
+        zoom_distance_setting = LbLerp(4100, CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
+        frontview_zoom_distance_setting = LbLerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
     }
     setup_count_players(); // It is reset by init_level
     int args[COROUTINE_ARGS] = {ShouldAssignCpuKeepers, 0};
@@ -352,6 +396,11 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     post_init_players();
     post_init_packets();
     set_selected_level_number(0);
+
+#ifdef FUNCTESTING
+    set_flag(start_params.functest_flags, FTF_LevelLoaded);
+#endif
+
     return CLS_CONTINUE;
 }
 
@@ -377,7 +426,7 @@ void faststartup_network_game(CoroutineLoop *context)
 
 CoroutineLoopState set_not_has_quit(CoroutineLoop *context)
 {
-    get_my_player()->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+    get_my_player()->display_flags &= ~PlaF6_PlyrHasQuit;
     return CLS_CONTINUE;
 }
 
@@ -388,10 +437,10 @@ void faststartup_saved_packet_game(void)
     {
         struct PlayerInfo *player;
         player = get_my_player();
-        player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
+        player->display_flags &= ~PlaF6_PlyrHasQuit;
     }
     set_gui_visible(false);
-    set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+    clear_flag(game.operation_flags, GOF_ShowPanel);
 }
 
 /******************************************************************************/
@@ -403,24 +452,23 @@ void faststartup_saved_packet_game(void)
 void clear_complete_game(void)
 {
     memset(&game, 0, sizeof(struct Game));
-    memset(&gameadd, 0, sizeof(struct GameAdd));
     memset(&intralvl, 0, sizeof(struct IntralevelData));
     game.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;
     game.packet_checksum_verify = start_params.packet_checksum_verify;
     game.flags_font = start_params.flags_font;
-    game.numfield_149F47 = 0;
+    game.packet_load_initialized = 0;
     // Set levels to 0, as we may not have the campaign loaded yet
     set_continue_level_number(first_singleplayer_level());
     if ((start_params.operation_flags & GOF_SingleLevel) != 0)
         set_selected_level_number(start_params.selected_level_number);
     else
         set_selected_level_number(first_singleplayer_level());
-    game.num_fps = start_params.num_fps;
-    game.flags_cd = start_params.flags_cd;
-    game.no_intro = start_params.no_intro;
-    set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
-    gameadd.computer_chat_flags = start_params.computer_chat_flags;
+    game_num_fps = start_params.num_fps;
+    game_num_fps_draw = start_params.num_fps_draw;
+    game.mode_flags = start_params.mode_flags;
+    set_flag_value(game.system_flags, GSF_AllowOnePlayer, start_params.one_player);
+    game.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;
     snprintf(game.packet_fname,150, "%s", start_params.packet_fname);
     game.packet_save_enable = start_params.packet_save_enable;
@@ -430,24 +478,36 @@ void clear_complete_game(void)
 
 void init_seeds()
 {
-    #ifdef AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
+#if FUNCTESTING
+    if (flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
-      game.action_rand_seed = 1;
-      game.unsync_rand_seed = 1;
-      srand(1);
+        ftest_srand();
     }
     else
 #endif
     {
-        // Initialize random seeds (the value may be different
-        // on computers in MP, as it shouldn't affect game actions)
-        game.unsync_rand_seed = (unsigned long)LbTimeSec();
-        game.action_rand_seed = (game.packet_save_head.action_seed != 0) ? game.packet_save_head.action_seed : game.unsync_rand_seed;
-        if ((game.system_flags & GSF_NetworkActive) != 0)
-        {
+        // Unsynced seeds - these values will be different per-player in multiplayer
+        unsigned long calender_time = (unsigned long)LbTimeSec();
+        game.unsync_random_seed = calender_time * 9007 + 9011;  // Use prime multipliers for different seeds
+        game.sound_random_seed = calender_time * 7919 + 7927;
+
+        // If doing -packetload then use the replay's stored seed
+        if (game.packet_save_head.action_seed != 0) {
+            game.action_random_seed = game.packet_save_head.action_seed;
+        } else {
+            game.action_random_seed = calender_time * 9311 + 9319;
+        }
+
+        // Network seed must be synchronized for multiplayer before setting derived seeds
+        if ((game.system_flags & GSF_NetworkActive) != 0) {
             init_network_seed();
         }
-        start_seed = game.action_rand_seed;
+
+        // AI and Player systems get their own derived seeds
+        game.ai_random_seed = game.action_random_seed * 9377 + 9391;
+        game.player_random_seed = game.action_random_seed * 9473 + 9479;
+        
+        initial_replay_seed = game.action_random_seed;
+        lua_set_random_seed(game.action_random_seed);
     }
 }

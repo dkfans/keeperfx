@@ -29,7 +29,6 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define OBJECT_TYPES_COUNT_ORIGINAL  136
 #define OBJECT_TYPES_COUNT  255
 
 enum ObjectStates {
@@ -79,15 +78,18 @@ enum ObjectModels
     ObjMdl_PowerHand = 37,
     ObjMdl_PowerHandGrab = 38,
     ObjMdl_PowerHandWhip = 39,
+    ObjMdl_ChickenStb = 40,
+    ObjMdl_ChickenWob = 41,
+    ObjMdl_ChickenCrk = 42,
     ObjMdl_Goldl = 43,
     ObjMdl_SpinningKey = 44,
     ObjMdl_HeroGate = 49,
     ObjMdl_LightBall =  51,
-    ObjMdl_GoldPile = 52,
-    ObjMdl_GoldHorde1 = 53,
-    ObjMdl_GoldHorde2 = 54,
-    ObjMdl_GoldHorde3 = 55,
-    ObjMdl_GoldHorde4 = 56,
+    ObjMdl_GoldHoard1 = 52,
+    ObjMdl_GoldHoard2 = 53,
+    ObjMdl_GoldHoard3 = 54,
+    ObjMdl_GoldHoard4 = 55,
+    ObjMdl_GoldHoard5 = 56,
     ObjMdl_SpecboxRevealMap = 86,
     ObjMdl_SpecboxResurect = 87,
     ObjMdl_SpecboxTransfer = 88,
@@ -114,57 +116,56 @@ enum ObjectModels
     ObjMdl_PowerHandWithGold = 127,
     ObjMdl_SpinningCoin = 128,
     ObjMdl_SpecboxCustom = 133,
-    ObjMdl_GoldBag = 136
+    ObjMdl_GoldBag = 136,
+    ObjMdl_GuardFlagWhite = 161,
+    ObjMdl_HeartFlameWhite = 162,
+    ObjMdl_GuardFlagPurple = 164,
+    ObjMdl_HeartFlamePurple = 165,
+    ObjMdl_GuardFlagBlack = 166,
+    ObjMdl_HeartFlameBlack = 167,
+    ObjMdl_GuardFlagOrange = 168,
+    ObjMdl_HeartFlameOrange = 169,
+    ObjMdl_SpecboxHealAll = 170,
+    ObjMdl_SpecboxGetGold = 171,
+    ObjMdl_SpecboxMakeAngry = 172,
+    ObjMdl_SpecboxMakeUnsafe = 173,
+};
+
+/**
+ * Used for Objects->draw_class  EffectElementConfigStats->draw_class and Thing->draw_class.
+ *
+ * Used in in draw_frontview_thing_on_element() and do_map_who_for_thing().
+ *
+ * See also see set_object_configuration_process(), parse_objects_object_blocks(), objects_data_init[], effect_element_stats[] and objects.cfg for setting of draw_class.
+ */
+enum ObjectsDrawClasses {
+  ODC_None           = 0x00, /**< Used by POWER_SIGHT and POWER_LIGHTNG - do nothing in draw_frontview_thing_on_element() or do_map_who_for_thing(). */
+  ODC_Default        = 0x02, /**< Default behaviour in draw_frontview_thing_on_element() / do_map_who_for_thing(). */
+  ODC_DrawAtOrigin   = 0x03, /**< Draw object at world origin rather than its position. */
+  ODC_RoomPrice      = 0x04, /**< Used by TngEffElm_Price. */
+  ODC_RoomStatusFlag = 0x05, /**< Used by ROOM_FLAG. */
+  ODC_SpinningKey    = 0x06, /**< Used by SPINNING_KEY. */
 };
 /******************************************************************************/
-#pragma pack(1)
-
-struct Objects {
-    unsigned char initial_state;
-    unsigned char start_frame_to_minus1;
-    unsigned char not_drawn;
-    short sprite_anim_idx;
-    short anim_speed;
-    short size_xy;
-    short size_yz;
-    short sprite_size_max;
-    unsigned char field_F;      // Lower 2 bits are transparency flags
-    unsigned short fp_smpl_idx;
-    unsigned char draw_class;
-    unsigned char destroy_on_lava;
-    /** Creature model related to the object, ie for lairs - which creature lair it is. */
-    unsigned char related_creatr_model;
-    unsigned char persistence;
-    unsigned char destroy_on_liquid;
-    unsigned char rotation_flag;
-    unsigned char updatefn_idx;
-};
-
 struct CallToArmsGraphics {
     int birth_anim_idx;
     int alive_anim_idx;
     int leave_anim_idx;
 };
 
-#pragma pack()
 /******************************************************************************/
-extern unsigned short player_guardflag_objects[];
-extern unsigned short dungeon_flame_objects[];
 extern const struct NamedCommand object_update_functions_desc[];
 
 /******************************************************************************/
-struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx);
+struct Thing *create_object(const struct Coord3d *pos, ThingModel model, unsigned short owner, long parent_idx);
 void destroy_object(struct Thing *thing);
 TngUpdateRet update_object(struct Thing *thing);
 TbBool thing_is_object(const struct Thing *thing);
+TbBool thing_is_object_with_mandatory_tooltip(const struct Thing* thing);
+TbBool thing_is_object_with_optional_tooltip(const struct Thing* thing);
+TbBool thing_is_object_with_tooltip(const struct Thing* thing, TbBool is_optional);
 void change_object_owner(struct Thing *objtng, PlayerNumber nowner);
 void destroy_food(struct Thing *foodtng);
-
-struct Objects *get_objects_data_for_thing(struct Thing *thing);
-struct Objects *get_objects_data(unsigned int tmodel);
-struct Thing *get_spellbook_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-struct Thing *get_special_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 SpecialKind box_thing_to_special(const struct Thing *thing);
 PowerKind book_thing_to_power_kind(const struct Thing *thing);
@@ -190,16 +191,16 @@ TbBool thing_is_spellbook(const struct Thing *thing);
 TbBool thing_is_lair_totem(const struct Thing *thing);
 TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole);
-TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
 TbBool object_can_be_damaged(const struct Thing* thing);
 TbBool object_is_buoyant(const struct Thing* thing);
 TbBool thing_is_hardcoded_special_box(const struct Thing* thing);
 TbBool thing_is_custom_special_box(const struct Thing* thing);
+TbBool object_is_ignored_by_imps(const struct Thing* thing);
 
 TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room);
 TbBool delete_lair_totem(struct Thing *lairtng);
 
-struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx);
+struct Thing *create_coloured_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx, ThingModel base_model);
 
 int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng);
 int get_wealth_size_of_gold_hoard_model(ThingModel objmodel);
@@ -222,8 +223,7 @@ void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
 
-void define_custom_object(int obj_id, short anim_idx);
-void init_thing_objects();
+struct PickedUpOffset* get_object_picked_up_offset(struct Thing* thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

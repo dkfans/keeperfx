@@ -21,69 +21,82 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 
+#include <toml.h>
+#include "value_util.h"
 #include "config.h"
-#include "player_states.h"
+#include "config_players.h"
+#include "game_legacy.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-const struct NamedCommand player_state_commands[] = {
-    {"PLAYER_STATE_NONE",             PSt_None},
-    {"PLAYER_STATE_CTRLDUNGEON",      PSt_CtrlDungeon},
-    {"PLAYER_STATE_BUILDROOM",        PSt_BuildRoom},
-    {"PLAYER_STATE_MKGOODDIGGER",     PSt_MkDigger},
-    {"PLAYER_STATE_MKGOODCREATR",     PSt_MkGoodCreatr},
-    {"PLAYER_STATE_HOLDINHAND",       PSt_HoldInHand},
-    {"PLAYER_STATE_CALLTOARMS",       PSt_CallToArms},
-    {"PLAYER_STATE_CAVEIN",           PSt_CaveIn},
-    {"PLAYER_STATE_SIGHTOFEVIL",      PSt_SightOfEvil},
-    {"PLAYER_STATE_SLAP",             PSt_Slap},
-    {"PLAYER_STATE_CTRLPASSNGR",      PSt_CtrlPassngr},
-    {"PLAYER_STATE_CTRLDIRECT",       PSt_CtrlDirect},
-    {"PLAYER_STATE_CREATRQUERY",      PSt_CreatrQuery},
-    {"PLAYER_STATE_ORDERCREATR",      PSt_OrderCreatr},
-    {"PLAYER_STATE_MKBADCREATR",      PSt_MkBadCreatr},
-    {"PLAYER_STATE_CREATRINFO",       PSt_CreatrInfo},
-    {"PLAYER_STATE_PLACETRAP",        PSt_PlaceTrap},
-    {"PLAYER_STATE_LIGHTNING",        PSt_Lightning},
-    {"PLAYER_STATE_PLACEDOOR",        PSt_PlaceDoor},
-    {"PLAYER_STATE_SPEEDUP",          PSt_SpeedUp},
-    {"PLAYER_STATE_ARMOUR",           PSt_Armour},
-    {"PLAYER_STATE_CONCEAL",          PSt_Conceal},
-    {"PLAYER_STATE_HEAL",             PSt_Heal},
-    {"PLAYER_STATE_SELL",             PSt_Sell},
-    {"PLAYER_STATE_CREATEDIGGER",     PSt_CreateDigger},
-    {"PLAYER_STATE_DESTROYWALLS",     PSt_DestroyWalls},
-    {"PLAYER_STATE_CASTDISEASE",      PSt_CastDisease},
-    {"PLAYER_STATE_TURNCHICKEN",      PSt_TurnChicken},
-    {"PLAYER_STATE_MKGOLDPOT",        PSt_MkGoldPot},
-    {"PLAYER_STATE_TIMEBOMB",         PSt_TimeBomb},
-    {"PLAYER_STATE_FREEDESTROYWALLS", PSt_FreeDestroyWalls},
-    {"PLAYER_STATE_FREECASTDISEASE",  PSt_FreeCastDisease},
-    {"PLAYER_STATE_FREETURNCHICKEN",  PSt_FreeTurnChicken},
-    {"PLAYER_STATE_FREECTRLPASSNGR",  PSt_FreeCtrlPassngr},
-    {"PLAYER_STATE_FREECTRLDIRECT",   PSt_FreeCtrlDirect},
-    {"PLAYER_STATE_STEALROOM",        PSt_StealRoom},
-    {"PLAYER_STATE_DESTROYROOM",      PSt_DestroyRoom},
-    {"PLAYER_STATE_KILLCREATURE",     PSt_KillCreatr},
-    {"PLAYER_STATE_CONVERTCREATURE",  PSt_ConvertCreatr},
-    {"PLAYER_STATE_STEALSLAB",        PSt_StealSlab},
-    {"PLAYER_STATE_LEVELCREATUREUP",  PSt_LevelCreatureUp},
-    {"PLAYER_STATE_KILLPLAYER",       PSt_KillPlayer},
-    {"PLAYER_STATE_HEARTHEALTH",      PSt_HeartHealth},
-    {"PLAYER_STATE_CREATRQUERYALL",   PSt_QueryAll},
-    {"PLAYER_STATE_MAKEHAPPY",        PSt_MkHappy},
-    {"PLAYER_STATE_MAKEANGRY",        PSt_MkAngry},
-    {"PLAYER_STATE_PLACETERRAIN",     PSt_PlaceTerrain},
-    {NULL,                            0},  
+static TbBool load_playerstate_config_file(const char *fname, unsigned short flags);
+
+const struct ConfigFileData keeper_playerstates_file_data = {
+    .filename = "playerstates.toml",
+    .load_func = load_playerstate_config_file,
+    .pre_load_func = NULL,
+    .post_load_func = NULL,
 };
+
+struct NamedCommand player_state_commands[PLAYER_STATES_COUNT_MAX];
+
+static const struct NamedCommand pointer_group_commands[] = {
+    {"NONE"          ,PsPg_None        },
+    {"CTRLDUNGEON"   ,PsPg_CtrlDungeon },
+    {"BUILDROOM"     ,PsPg_BuildRoom   },
+    {"INVISIBLE"     ,PsPg_Invisible   },
+    {"SPELL"         ,PsPg_Spell       },
+    {"QUERY"         ,PsPg_Query       },
+    {"PLACETRAP"     ,PsPg_PlaceTrap   },
+    {"PLACEDOOR"     ,PsPg_PlaceDoor   },
+    {"SELL"          ,PsPg_Sell        },
+    {"PLACETERRAIN"  ,PsPg_PlaceTerrain},
+    {"MAKEDIGGER"    ,PsPg_MkDigger    },
+    {"MAKECREATURE"  ,PsPg_MkCreatr    },
+    {"ORDERCREATURE" ,PsPg_OrderCreatr }
+};
+
 /******************************************************************************/
 /******************************************************************************/
+
+static TbBool load_playerstate_config_file(const char *fname, unsigned short flags)
+{
+    VALUE file_root;
+    if (!load_toml_file(fname,&file_root,flags))
+        return false;
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        memset(player_state_commands,0,sizeof(player_state_commands));
+    }
+
+    char key[64] = "";
+    VALUE *section;
+    for (int id = 0; id < PLAYER_STATES_COUNT_MAX; id++)
+    {
+        {
+            snprintf(key, sizeof(key), "playerstate%d", id);
+            section = value_dict_get(&file_root, key);
+        }
+        if (value_type(section) == VALUE_DICT)
+        {
+            struct PlayerStateConfigStats *plrst_cfg_stat = &game.conf.plyr_conf.plrst_cfg_stats[id];
+            SET_NAME(section, player_state_commands, plrst_cfg_stat->code_name);
+            VALUE *pointer_group_val = value_dict_get(section, "PointerGroup");
+            plrst_cfg_stat->pointer_group = get_id(pointer_group_commands,value_string(pointer_group_val));
+
+            VALUE *stop_own_units_val = value_dict_get(section, "StopOwnUnits");
+            plrst_cfg_stat->stop_own_units = value_bool(stop_own_units_val);
+        }
+    }
+    value_fini(&file_root);
+    return true;
+}
+
 /**
  * Returns Code Name (name to use in script file) of given player state.
  */
@@ -93,6 +106,11 @@ const char *player_state_code_name(int wrkstate)
     if (name[0] != '\0')
         return name;
     return "INVALID";
+}
+
+struct PlayerStateConfigStats *get_player_state_stats(PlayerState plyr_state)
+{
+    return &game.conf.plyr_conf.plrst_cfg_stats[plyr_state];
 }
 
 /******************************************************************************/

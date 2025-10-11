@@ -51,7 +51,7 @@ rem *** objective count now: 14
 
 REM afterinit ******************************************************************************************************************
 
-REM	QUICK_OBJECTIVE(1,"After you find a way to fight the tunnellers off you will soon notice this land has been drained from most of gold. It is now in hands of heroes in control of the land and also a rival keeper to the south-east. Withstand heroes trying to finish you off and defeat the lord of land to win the scenario.",ALL_PLAYERS)
+REM "After you find a way to fight the tunnellers off you will soon notice this land has been drained from most of gold. It is now in hands of heroes in control of the land and also a rival keeper to the south-east. Withstand heroes trying to finish you off and defeat the lord of land to win the scenario."
 DISPLAY_OBJECTIVE(9,ALL_PLAYERS)
 
 
@@ -69,32 +69,30 @@ IF(PLAYER0,GAME_TURN>100)
 ENDIF
 
 IF(PLAYER0,GAME_TURN>10000)
-	REM	QUICK_INFORMATION(13,"Hint: you won't be able to claim portal in this land.",ALL_PLAYERS)
+	REM "Hint: you won't be able to claim portal in this land."
 	DISPLAY_INFORMATION(10,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER1,TIMER1>177)
-	REM	QUICK_INFORMATION(6,"Do I hear bones moving nearby? Think it's coming from north... Go have a look; one skeleton won't be able to fight off the tunnellers!",ALL_PLAYERS)
+	REM "Do I hear bones moving nearby? Think it's coming from north... Go have a look; one skeleton won't be able to fight off the tunnellers!"
 	DISPLAY_INFORMATION(11,ALL_PLAYERS)
 	IF(PLAYER0,GAME_TURN>6500)
 		SET_TIMER(PLAYER0,TIMER0)
-		REM	QUICK_INFORMATION(4,"Hint: the rival keeper is very wealthy. Do not expect him to run out of gold. Heroes are gathering their troops to the nort-east. Careful not to encounter them too early.",ALL_PLAYERS)
+		REM "Hint: the rival keeper is very wealthy. Do not expect him to run out of gold. Heroes are gathering their troops to the nort-east. Careful not to encounter them too early."
 		DISPLAY_INFORMATION(12,ALL_PLAYERS)
 	ENDIF
 ENDIF
 
 REM p1 spawn
 SET_TIMER(PLAYER1,TIMER1)
-
 REVEAL_MAP_RECT(PLAYER0,91,158,16,4)
-
 
 
 REM timers ******************************************************************************************************************
 
 IF(PLAYER0,TIMER0>2700)
 	IF(PLAYER0,HORNY<1)
-		REM	QUICK_OBJECTIVE(5,"Skeletons won't stand a chance against the hero troops. Find a way to get stronger units.",ALL_PLAYERS)
+		REM "Skeletons won't stand a chance against the hero troops. Find a way to get stronger units."
 		DISPLAY_OBJECTIVE(13,ALL_PLAYERS)
 	ENDIF
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DRAWFROM(ONE_DWIZ,ONE_THAR),DRAWFROM(-1,-2,-3,-4),1)
@@ -115,12 +113,12 @@ IF(PLAYER0,TIMER0>28500)
 ENDIF
 IF(PLAYER0,TIMER0>36000)
 	IF(PLAYER0,SKELETON>12)
-		REM	QUICK_INFORMATION(7,"Seeing how most of their troops end up in your army, they decided to change the strategy.",ALL_PLAYERS)
+		REM "Seeing how most of their troops end up in your army, they decided to change the strategy."
 		DISPLAY_INFORMATION(14,ALL_PLAYERS)
 	ENDIF
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,TWO_MONKS,DRAWFROM(-1,-2,-3,-4),1)
-    ADD_TUNNELLER_TO_LEVEL(PLAYER_GOOD,2,DUNGEON_HEART,0,10,10000)
-	REM	QUICK_INFORMATION(14,"Look! Your imprisoned vampire's got company!",ALL_PLAYERS)
+	ADD_TUNNELLER_TO_LEVEL(PLAYER_GOOD,2,DUNGEON_HEART,0,10,10000)
+	REM "Look! Your imprisoned vampire's got company!"
 	DISPLAY_INFORMATION(15,ALL_PLAYERS)
 ENDIF
 IF(PLAYER0,TIMER0>41000)
@@ -139,7 +137,7 @@ IF(PLAYER0,TIMER0>64000)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,TWO_MIX,DRAWFROM(-1,-2,-3,-4),1)
 ENDIF
 IF(PLAYER0,TIMER0>66000)
-	REM	QUICK_OBJECTIVE(9,"You hear keeper from the neighbouring dungeon trying to breach into heroes dungeon heart.",ALL_PLAYERS)
+	REM "You hear keeper from the neighbouring dungeon trying to breach into heroes dungeon heart."
 	DISPLAY_OBJECTIVE(16, ALL_PLAYERS)
 	BONUS_LEVEL_TIME(10000)
 ENDIF
@@ -152,7 +150,7 @@ IF(PLAYER0,TIMER0>76000)
 	ADD_CREATURE_TO_LEVEL(PLAYER2,GIANT,3,1,10,0)
 ENDIF
 IF(PLAYER_GOOD,DUNGEON_DESTROYED==1)
-	REM	QUICK_OBJECTIVE(10,"Seems like the heroes are losing. Dungeon heart is destroyed, you are still alive... Luckily, lord of the land is on his way to change this...",ALL_PLAYERS)
+	REM "Seems like the heroes are losing. Dungeon heart is destroyed, you are still alive... Luckily, lord of the land is on his way to change this..."
 	DISPLAY_OBJECTIVE(17, ALL_PLAYERS)
 	BONUS_LEVEL_TIME(5000)
 	SET_TIMER(PLAYER0,TIMER3)
@@ -160,11 +158,11 @@ ENDIF
 
 IF(PLAYER0,TIMER3>5000)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,FINAL,DRAWFROM(-1,-2,-3,-4),1)
-	REM	QUICK_OBJECTIVE(11,"Here they come, defeat the lord of land and his company and the land is yours forever.",ALL_PLAYERS)
+	REM "Here they come, defeat the lord of land and his company and the land is yours forever."
 	DISPLAY_OBJECTIVE(18,ALL_PLAYERS)
 	IF(PLAYER_GOOD,KNIGHT==0)
 	IF(PLAYER_GOOD,AVATAR==0)
-		REM	QUICK_OBJECTIVE(12,"The lord of land lies dead, congratulations.",ALL_PLAYERS)
+		REM "The lord of land lies dead, congratulations."
 		DISPLAY_OBJECTIVE(19, ALL_PLAYERS)
 		WIN_GAME
 	ENDIF
@@ -210,34 +208,34 @@ REM misc ***********************************************************************
 
 IF(PLAYER0,PRISON>0)
 	ROOM_AVAILABLE(PLAYER0,PRISON,1,1)
-	TUTORIAL_FLASH_BUTTON(​11,​250)
+	TUTORIAL_FLASH_BUTTON(11,250)
 ENDIF
 
 IF(PLAYER0,TEMPLE>0)
 	ROOM_AVAILABLE(PLAYER0,TEMPLE,1,1)
-	TUTORIAL_FLASH_BUTTON(​12,​250)
+	TUTORIAL_FLASH_BUTTON(12,250)
 ENDIF
 
 IF(PLAYER0,RESEARCH>0)
 	ROOM_AVAILABLE(PLAYER0,RESEARCH,1,1)
-	TUTORIAL_FLASH_BUTTON(​9,​250)
-	rem QUICK_INFORMATION(3,"Great job.",ALL_PLAYERS)
+	TUTORIAL_FLASH_BUTTON(9,250)
+	rem Great job."
 ENDIF
 
 IF(PLAYER0,BRIDGE>0)
 	SET_FLAG(PLAYER0,FLAG7,1)
-	REM	QUICK_INFORMATION(2,"Gold is not the only resource scarce in this land. You're limited to build only one tile of bridge at a time.",ALL_PLAYERS)
+	REM "Gold is not the only resource scarce in this land. You're limited to build only one tile of bridge at a time."
 	DISPLAY_INFORMATION(20, ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,HORNY>0)
-	QUICK_INFORMATION(8,"Smart move. But are you wealthy enough to afford them?",ALL_PLAYERS)
+	REM "Smart move. But are you wealthy enough to afford them?"
 	DISPLAY_INFORMATION(21, ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,GRAVEYARD>0)
 	ROOM_AVAILABLE(PLAYER0,GRAVEYARD,1,1)
-	TUTORIAL_FLASH_BUTTON(15,​250)
+	TUTORIAL_FLASH_BUTTON(15,250)
 ENDIF
 
 IF(PLAYER0,FLAG7>0)

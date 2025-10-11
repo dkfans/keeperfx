@@ -63,7 +63,7 @@ MenuNumber menu_id_to_number(MenuID menu_id)
     for (MenuNumber idx = 0; idx < ACTIVE_MENUS_COUNT; idx++)
     {
         struct GuiMenu* gmnu = &active_menus[idx];
-        //SYNCDBG(8,"ID %d use %d",(int)gmnu->ident,(int)gmnu->field_1);
+        //SYNCDBG(8,"ID %d use %d",(int)gmnu->ident,(int)gmnu->visual_state);
         if ((gmnu->visual_state != 0) && (gmnu->ident == menu_id))
             return idx;
     }
@@ -168,13 +168,25 @@ void turn_off_all_panel_menus(void)
   {
     turn_off_menu(GMnu_ROOM);
   }
+  if ( menu_is_active(GMnu_ROOM2) )
+  {
+    turn_off_menu(GMnu_ROOM2);
+  }
   if ( menu_is_active(GMnu_SPELL) )
   {
     turn_off_menu(GMnu_SPELL);
   }
+  if ( menu_is_active(GMnu_SPELL2) )
+  {
+    turn_off_menu(GMnu_SPELL2);
+  }
   if ( menu_is_active(GMnu_TRAP) )
   {
     turn_off_menu(GMnu_TRAP);
+  }
+  if ( menu_is_active(GMnu_TRAP2) )
+  {
+    turn_off_menu(GMnu_TRAP2);
   }
   if ( menu_is_active(GMnu_QUERY) )
   {
@@ -298,17 +310,29 @@ void turn_on_main_panel_menu(void)
   {
     turn_on_menu(GMnu_QUERY);
   } else
-  if (room_tag != 0)
+  if (room_tag == 1)
   {
     turn_on_menu(GMnu_ROOM);
   } else
-  if (spell_tag != 0)
+  if (room_tag == 2)
+  {
+    turn_on_menu(GMnu_ROOM2);
+  } else
+  if (spell_tag == 1)
   {
     turn_on_menu(GMnu_SPELL);
   } else
-  if (trap_tag != 0)
+  if (spell_tag == 2)
+  {
+    turn_on_menu(GMnu_SPELL2);
+  } else
+  if (trap_tag == 1)
   {
     turn_on_menu(GMnu_TRAP);
+  } else
+  if (trap_tag == 2)
+  {
+    turn_on_menu(GMnu_TRAP2);
   } else
   if (creature_tag != 0)
   {
@@ -350,7 +374,7 @@ void turn_on_menu(MenuID mnu_idx)
     struct GuiMenu* gmnu = menu_list[mnu_idx];
     if (create_menu(gmnu) >= 0)
     {
-      if (gmnu->field_1F)
+      if (gmnu->is_active_panel)
         game.active_panel_mnu_idx = mnu_idx;
     }
 }

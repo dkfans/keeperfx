@@ -78,8 +78,6 @@ extern TbBool wheel_scrolled_down;
 
 long GetMouseX(void);
 long GetMouseY(void);
-short is_mouse_pressed_leftbutton(void);
-short is_mouse_pressed_rightbutton(void);
 short is_mouse_pressed_lrbutton(void);
 void clear_mouse_pressed_lrbutton(void);
 void update_mouse(void);
@@ -92,7 +90,7 @@ void update_key_modifiers(void);
 void define_key_input(void);
 void init_key_to_strings(void);
 
-TbBool mouse_is_over_pannel_map(ScreenCoord x, ScreenCoord y);
+TbBool mouse_is_over_panel_map(ScreenCoord x, ScreenCoord y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

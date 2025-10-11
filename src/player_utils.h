@@ -37,8 +37,6 @@ struct PlayerInfo;
 
 #pragma pack()
 /******************************************************************************/
-/******************************************************************************/
-TbBool player_has_won(PlayerNumber plyr_idx);
 TbBool player_has_lost(PlayerNumber plyr_idx);
 TbBool player_cannot_win(PlayerNumber plyr_idx);
 void set_player_as_won_level(struct PlayerInfo *player);
@@ -59,10 +57,13 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 void init_players(void);
 void init_player(struct PlayerInfo *player, short no_explore);
 void post_init_players(void);
+void post_init_player(struct PlayerInfo* player);
 void init_players_local_game(void);
 void init_keeper_map_exploration_by_terrain(struct PlayerInfo *player);
 void init_keeper_map_exploration_by_creatures(struct PlayerInfo *player);
 void process_players(void);
+
+void set_player_colour(PlayerNumber plyr_idx, unsigned char colour_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

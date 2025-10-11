@@ -35,6 +35,7 @@ enum RawBitmaps {
     RBmp_WaitNoCD           =  0x02,
     RBmp_SplashLegal        =  0x03,
     RBmp_SplashFx           =  0x04,
+    RBmp_SplashLegalWide    =  0x05,
 };
 
 struct RawBitmap {
@@ -73,13 +74,11 @@ TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int 
 TbBool draw_clear_screen(void);
 TbBool init_actv_bitmap_screen(int stype);
 TbBool free_actv_bitmap_screen(void);
-TbBool draw_actv_bitmap_screen(void);
 TbBool show_actv_bitmap_screen(TbClockMSec tmdelay);
 /******************************************************************************/
 
 TbBool display_loading_screen(void);
-TbBool wait_for_cd_to_be_available(void);
-TbBool display_centered_message(long showTime, char *text);
+TbBool wait_for_installation_files(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

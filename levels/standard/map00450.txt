@@ -14,6 +14,7 @@ LEVEL_VERSION(1)
 SET_GENERATE_SPEED(400)
 START_MONEY(PLAYER0,800)
 MAX_CREATURES(PLAYER0,18)
+COMPUTER_PLAYER(PLAYER5,ROAMING)
 
 REM ****************************************************************************
 REM Flags used:
@@ -267,7 +268,7 @@ ENDIF
 
 REM: To limit creatures on map, only spawn tentacles when the player is near.
 IF_ACTION_POINT(3,PLAYER0)
-	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,TENTACLE,4,3,7,2500)
+	ADD_CREATURE_TO_LEVEL(PLAYER5,TENTACLE,4,3,7,2500)
 ENDIF
 
 REM: If close to the yellow dungeon, spawn the creatures there, and warn the player about having to fight heroes if he enters.

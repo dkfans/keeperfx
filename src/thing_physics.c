@@ -36,7 +36,7 @@
 #include "map_columns.h"
 #include "map_blocks.h"
 #include "map_utils.h"
-#include "game_merge.h"
+#include "game_legacy.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -199,15 +199,15 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
   {
     case SlbBloF_WalledX:
       pos->x.val = thing->mappos.x.val;
-      thing->veloc_base.x.val = -(x * thing->bounce_angle / 128);
-      i = 256 - thing->inertia_floor;
+      thing->veloc_base.x.val = -(x * thing->bounce_angle / DEGREES_22_5);
+      i = DEGREES_45 - thing->inertia_floor;
       thing->veloc_base.y.val = i * thing->veloc_base.y.val / COORD_PER_STL;
       thing->veloc_base.z.val = i * thing->veloc_base.z.val / COORD_PER_STL;
       break;
     case SlbBloF_WalledY:
       pos->y.val = thing->mappos.y.val;
-      thing->veloc_base.y.val = -(y * thing->bounce_angle / 128);
-      i = 256 - thing->inertia_floor;
+      thing->veloc_base.y.val = -(y * thing->bounce_angle / DEGREES_22_5);
+      i = DEGREES_45 - thing->inertia_floor;
       thing->veloc_base.x.val = i * thing->veloc_base.x.val / COORD_PER_STL;
       thing->veloc_base.z.val = i * thing->veloc_base.z.val / COORD_PER_STL;
       break;
@@ -215,13 +215,13 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       pos->x.val = thing->mappos.x.val;
       pos->y.val = thing->mappos.y.val;
       i = thing->bounce_angle;
-      thing->veloc_base.x.val = -(i * x / 128);
-      thing->veloc_base.y.val = -(i * y / 128);
+      thing->veloc_base.x.val = -(i * x / DEGREES_22_5);
+      thing->veloc_base.y.val = -(i * y / DEGREES_22_5);
       break;
     case SlbBloF_WalledZ:
       pos->z.val = thing->mappos.z.val;
-      thing->veloc_base.z.val = -(z * thing->bounce_angle / 128);
-      i = 256 - thing->inertia_floor;
+      thing->veloc_base.z.val = -(z * thing->bounce_angle / DEGREES_22_5);
+      i = DEGREES_45 - thing->inertia_floor;
       thing->veloc_base.x.val = i * thing->veloc_base.x.val / COORD_PER_STL;
       thing->veloc_base.y.val = i * thing->veloc_base.y.val / COORD_PER_STL;
       break;
@@ -229,28 +229,28 @@ void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long blo
       pos->z.val = thing->mappos.z.val;
       pos->x.val = thing->mappos.x.val;
       i = thing->bounce_angle;
-      thing->veloc_base.x.val = -(i * x / 128);
-      thing->veloc_base.z.val = -(i * z / 128);
+      thing->veloc_base.x.val = -(i * x / DEGREES_22_5);
+      thing->veloc_base.z.val = -(i * z / DEGREES_22_5);
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledY:
       pos->y.val = thing->mappos.y.val;
       pos->z.val = thing->mappos.z.val;
       i = thing->bounce_angle;
-      thing->veloc_base.y.val = -(i * y / 128);
+      thing->veloc_base.y.val = -(i * y / DEGREES_22_5);
       int n = i * y;
       int j = thing->inertia_floor;
       int k = thing->veloc_base.x.val;
-      thing->veloc_base.z.val = -(n / 128);
-      thing->veloc_base.x.val = k * (256 - j) / 256;
+      thing->veloc_base.z.val = -(n / DEGREES_22_5);
+      thing->veloc_base.x.val = k * (DEGREES_45 - j) / DEGREES_45;
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
       pos->x.val = thing->mappos.x.val;
       pos->y.val = thing->mappos.y.val;
       pos->z.val = thing->mappos.z.val;
       i = thing->bounce_angle;
-      thing->veloc_base.x.val = -(i * x / 128);
-      thing->veloc_base.y.val = -(i * y / 128);
-      thing->veloc_base.z.val = -(i * z / 128);
+      thing->veloc_base.x.val = -(i * x / DEGREES_22_5);
+      thing->veloc_base.y.val = -(i * y / DEGREES_22_5);
+      thing->veloc_base.z.val = -(i * z / DEGREES_22_5);
       break;
     default:
       return;
@@ -315,7 +315,7 @@ void creature_set_speed(struct Thing *thing, long speed)
     {
         cctrl->move_speed = speed;
     }
-    cctrl->flgfield_1 |= CCFlg_Unknown40;
+    cctrl->creature_control_flags |= CCFlg_MoveY;
 }
 
 TbBool cross_x_boundary_first(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -554,15 +554,15 @@ long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coo
 {
     MapCoord pos_x_beg = max((MapCoord)pos->x.val - radius, 0);
     MapCoord pos_y_beg = max((MapCoord)pos->y.val - radius, 0);
-    MapCoord pos_x_end = min((MapCoord)pos->x.val + radius, subtile_coord(gameadd.map_subtiles_x, COORD_PER_STL - 1));
-    MapCoord pos_y_end = min((MapCoord)pos->y.val + radius, subtile_coord(gameadd.map_subtiles_y, COORD_PER_STL - 1));
+    MapCoord pos_x_end = min((MapCoord)pos->x.val + radius, subtile_coord(game.map_subtiles_x, COORD_PER_STL - 1));
+    MapCoord pos_y_end = min((MapCoord)pos->y.val + radius, subtile_coord(game.map_subtiles_y, COORD_PER_STL - 1));
     MapSubtlCoord floor_height;
     MapSubtlCoord ceiling_height;
     get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
         coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
     MapCoord pos_z_ceiling = subtile_coord(ceiling_height, 0);
     MapCoord pos_z_floor = subtile_coord(floor_height, 0);
-    if (pos_z_floor + thing->clipbox_size_yz >= pos_z_ceiling)
+    if (pos_z_floor + thing->clipbox_size_z >= pos_z_ceiling)
         return  pos->z.val;
     else
         return pos_z_floor;
@@ -588,8 +588,8 @@ TbBool map_is_solid_at_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapCoord
 
 TbBool creature_can_pass_through_wall_at(const struct Thing *creatng, const struct Coord3d *pos)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if (crstat->can_go_locked_doors)
+    struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+    if (crconf->can_go_locked_doors)
     {
         long i;
         if (thing_is_creature(creatng)) {
@@ -600,7 +600,7 @@ TbBool creature_can_pass_through_wall_at(const struct Thing *creatng, const stru
         int radius = i / 2;
         // Base on the radius, determine bounds of the object
         MapCoord height_beg = pos->z.val;
-        MapCoord height_end = height_beg + creatng->clipbox_size_yz;
+        MapCoord height_end = height_beg + creatng->clipbox_size_z;
         MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - radius);
         MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + radius);
         MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - radius);
@@ -634,7 +634,7 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
     int radius = i / 2;
     // Base on the radius, determine bounds of the object
     MapCoord height_beg = pos->z.val;
-    MapCoord height_end = height_beg + thing->clipbox_size_yz;
+    MapCoord height_end = height_beg + thing->clipbox_size_z;
     MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - radius);
     MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + radius);
     MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - radius);
@@ -654,7 +654,7 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
 {
     MapCoord z_beg = pos->z.val;
-    MapCoord z_end = z_beg + thing->clipbox_size_yz;
+    MapCoord z_end = z_beg + thing->clipbox_size_z;
     MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - radius);
     MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + radius);
     MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - radius);
@@ -700,11 +700,11 @@ long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coo
     MapCoord pos_y_beg = (pos->y.val - radius);
     if (pos_y_beg < 0)
         pos_y_beg = 0;
-    if (pos_x_end >= subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1))
-        pos_x_end = subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1);
+    if (pos_x_end >= subtile_coord(game.map_subtiles_x,COORD_PER_STL-1))
+        pos_x_end = subtile_coord(game.map_subtiles_x,COORD_PER_STL-1);
     MapCoord pos_y_end = pos->y.val + radius;
-    if (pos_y_end >= subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1))
-        pos_y_end = subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1);
+    if (pos_y_end >= subtile_coord(game.map_subtiles_y,COORD_PER_STL-1))
+        pos_y_end = subtile_coord(game.map_subtiles_y,COORD_PER_STL-1);
     // Find correct floor and ceiling plane for the area
     MapSubtlCoord floor_height;
     MapSubtlCoord ceiling_height;
@@ -729,11 +729,11 @@ long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct C
     if (pos_y_beg < 0)
         pos_y_beg = 0;
     int pos_x_end = (int)pos->x.val + radius;
-    if (pos_x_end >= subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1))
-        pos_x_end = subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1);
+    if (pos_x_end >= subtile_coord(game.map_subtiles_x,COORD_PER_STL-1))
+        pos_x_end = subtile_coord(game.map_subtiles_x,COORD_PER_STL-1);
     int pos_y_end = (int)pos->y.val + radius;
-    if (pos_y_end >= subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1))
-        pos_y_end = subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1);
+    if (pos_y_end >= subtile_coord(game.map_subtiles_y,COORD_PER_STL-1))
+        pos_y_end = subtile_coord(game.map_subtiles_y,COORD_PER_STL-1);
     // Set initial values for computing floor and ceiling heights
     MapSubtlCoord floor_height;
     MapSubtlCoord ceiling_height;
@@ -763,11 +763,11 @@ void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
     MapCoord pos_y_beg = (pos->y.val - radius);
     if (pos_y_beg < 0)
         pos_y_beg = 0;
-    if (pos_x_end >= subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1))
-        pos_x_end = subtile_coord(gameadd.map_subtiles_x,COORD_PER_STL-1);
+    if (pos_x_end >= subtile_coord(game.map_subtiles_x,COORD_PER_STL-1))
+        pos_x_end = subtile_coord(game.map_subtiles_x,COORD_PER_STL-1);
     MapCoord pos_y_end = pos->y.val + radius;
-    if (pos_y_end >= subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1))
-        pos_y_end = subtile_coord(gameadd.map_subtiles_y,COORD_PER_STL-1);
+    if (pos_y_end >= subtile_coord(game.map_subtiles_y,COORD_PER_STL-1))
+        pos_y_end = subtile_coord(game.map_subtiles_y,COORD_PER_STL-1);
     // Find correct floor and ceiling plane for the area
     MapSubtlCoord floor_height;
     MapSubtlCoord ceiling_height;
@@ -785,6 +785,20 @@ void apply_transitive_velocity_to_thing(struct Thing *thing, struct ComponentVec
     thing->state_flags |= TF1_PushOnce;
 }
 
+void clear_thing_acceleration(struct Thing* thing)
+{
+    thing->veloc_push_add.x.val = 0;
+    thing->veloc_push_add.y.val = 0;
+    thing->veloc_push_add.z.val = 0;
+}
+
+void clear_thing_velocity(struct Thing* thing)
+{
+    thing->veloc_base.x.val = 0;
+    thing->veloc_base.y.val = 0;
+    thing->veloc_base.z.val = 0;
+}
+
 /**
  * Returns if things will collide if first moves to given position.
  * @param firstng
@@ -800,8 +814,8 @@ TbBool thing_on_thing_at(const struct Thing *firstng, const struct Coord3d *pos,
     if ((abs(dist_x) >= dist_collide) || (abs(dist_y) >= dist_collide)) {
         return false;
     }
-    dist_collide = (sectng->solid_size_yz + firstng->solid_size_yz) / 2;
-    MapCoordDelta dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->solid_size_yz >> 1) + (firstng->solid_size_yz >> 1);
+    dist_collide = (sectng->solid_size_z + firstng->solid_size_z) / 2;
+    MapCoordDelta dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->solid_size_z >> 1) + (firstng->solid_size_z >> 1);
     if (abs(dist_z) >= dist_collide) {
         return false;
     }
@@ -859,7 +873,7 @@ TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing)
 
 unsigned short push_thingz_against_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 {
-  unsigned short clipbox_size = thing->clipbox_size_yz;
+  unsigned short clipbox_size = thing->clipbox_size_z;
   long height = get_ceiling_height_above_thing_at(thing, pos);
   short z_thing = (short)thing->mappos.z.val;
   short z_pos = (short)pos->z.val;
@@ -880,6 +894,12 @@ unsigned short push_thingz_against_wall_at(const struct Thing *thing, const stru
 
 TbBool move_object_to_nearest_free_position(struct Thing *thing)
 {
+    TRACE_THING(thing)
+    if (!thing_exists(thing))
+    {
+        ERRORLOG("Attempt to move non-existing object out of wall.");
+        return false;
+    }
     struct Coord3d pos;
     MapCoordDelta nav_radius = thing_nav_sizexy(thing) / 2;
 

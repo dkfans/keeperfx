@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,44 +29,10 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct LevelStats { // sizeof = 392
+struct LevelStats {
   unsigned long things_researched;
   unsigned long creatures_attracted;
-  unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned long field_14;
-  unsigned long field_18;
-  unsigned long field_1C;
-  unsigned long field_20;
-  unsigned long field_24;
-  unsigned long field_28;
-  unsigned long field_2C;
-  unsigned long field_30;
-  unsigned long field_34;
-  unsigned long field_38;
-  unsigned long field_3C;
-  unsigned long field_40;
-  unsigned long field_44;
-  unsigned long field_48;
-  unsigned long field_4C;
-  unsigned long field_50;
-  unsigned long field_54;
-  unsigned long field_58;
-  unsigned long field_5C;
-  unsigned long field_60;
-  unsigned long field_64;
-  unsigned long field_68;
-  unsigned long field_6C;
-  unsigned long field_70;
-  unsigned long field_74;
-  unsigned long field_78;
-  unsigned long field_7C;
-  unsigned long field_80;
-  unsigned long field_84;
-  unsigned long field_88;
   unsigned long gold_mined;
-  unsigned long field_90;
   unsigned long manufactured_doors;
   unsigned long manufactured_traps;
   unsigned long manufactured_items;
@@ -127,11 +94,13 @@ struct LevelStats { // sizeof = 392
   unsigned long hopes_dashed;
   unsigned long allow_save_score;
   unsigned long player_score;
+  unsigned long keeper_destroyed[PLAYERS_COUNT];
 };
 
 #pragma pack()
 /******************************************************************************/
 long update_dungeons_scores(void);
+TbBool update_dungeon_scores_for_player(struct PlayerInfo *player);
 TbBool load_stats_files(void);
 
 /******************************************************************************/

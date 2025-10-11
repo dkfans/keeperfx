@@ -27,21 +27,22 @@
 extern "C" {
 #endif
 /******************************************************************************/
-/******************************************************************************/
+
 #pragma pack(1)
+#define INFINITE_CHARGES 255
 
 enum ThingTrapModels {
     TngTrp_None = 0,
     TngTrp_Boulder,
-    TngTrp_Unknown02,
-    TngTrp_Unknown03,
-    TngTrp_Unknown04,
-    TngTrp_Unknown05,
-    TngTrp_Unknown06,
-    TngTrp_Unknown07,
-    TngTrp_Unknown08,
-    TngTrp_Unknown09,
-    TngTrp_Unknown10,
+    TngTrp_Alarm,
+    TngTrp_PoisonGas,
+    TngTrp_Lightning,
+    TngTrp_WordOfPower,
+    TngTrp_Lava,
+    TngTrp_Tnt,
+    TngTrp_UnusedSlot08,
+    TngTrp_UnusedSlot09,
+    TngTrp_UnusedSlot10,
 };
 
 enum TrapTriggerTypes {
@@ -50,7 +51,9 @@ enum TrapTriggerTypes {
     TrpTrg_Pressure_Slab,
     TrpTrg_LineOfSight,
     TrpTrg_Pressure_Subtile,
+    TrpTrg_Always,
 };
+
 enum TrapActivationTypes {
     TrpAcT_None = 0,
     TrpAcT_HeadforTarget90,
@@ -64,30 +67,8 @@ enum TrapActivationTypes {
 
 struct Thing;
 
-struct TrapStats {
-  unsigned long health;
-  unsigned long sprite_anim_idx;
-  unsigned long sprite_size_max;
-  unsigned char unanimated;
-  unsigned long anim_speed;
-  unsigned char unshaded;
-  unsigned char transparency_flag; // transparency in lower 2 bits
-  unsigned char random_start_frame;
-  short size_xy;
-  short size_yz;
-  unsigned char trigger_type;
-  unsigned char activation_type;
-  unsigned char created_itm_model; // Shot model, effect model, slab kind
-  unsigned char hit_type;
-  short light_radius; // creates light if not null
-  unsigned char light_intensity;
-  unsigned char light_flag;
-  struct ComponentVector shotvector;
-};
-
-/******************************************************************************/
-
 #pragma pack()
+
 /******************************************************************************/
 TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_has_sellable_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
@@ -112,12 +93,17 @@ TbBool rearm_trap(struct Thing *traptng);
 TngUpdateRet update_trap(struct Thing *thing);
 void init_traps(void);
 void activate_trap(struct Thing *traptng, struct Thing *creatng);
+void activate_trap_by_slap(struct PlayerInfo* player, struct Thing* traptng);
+void process_trap_charge(struct Thing* traptng);
+void script_place_trap(PlayerNumber plyridx, ThingModel trapkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool free);
+void set_trap_shots(struct Thing *traptng, int shots);
 
 unsigned long remove_trap(struct Thing *traptng, long *sell_value);
 unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
 unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value);
 
-void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand);
+void external_activate_trap_shot_at_angle(struct Thing *thing, short angle, struct Thing *trgtng);
+void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, CrtrExpLevel shot_level, short angle_xy);
 
 /******************************************************************************/
 #ifdef __cplusplus

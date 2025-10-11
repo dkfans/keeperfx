@@ -28,11 +28,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-TbBool load_creaturemodel_config(long crmodel,unsigned short flags);
-TbBool swap_creature(long ncrt_id, long crtr_id);
-
-TbBool make_all_creatures_free(void);
-TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max);
+TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags);
+TbBool swap_creature(ThingModel ncrt_id, ThingModel crtr_id);
+TbBool make_all_creatures_free();
+TbBool change_max_health_of_creature_kind(ThingModel crmodel, HitPoints new_max);
 extern const struct NamedCommand creatmodel_properties_commands[];
 /******************************************************************************/
 #ifdef __cplusplus

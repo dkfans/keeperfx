@@ -108,6 +108,9 @@ enum TbVideoModeFlags {
     Lb_VF_TRUCOLOR    = 0x0002,
     Lb_VF_PALETTE     = 0x0004,
     Lb_VF_WINDOWED    = 0x0010,
+    Lb_VF_BORDERLESS  = 0x0020,
+    Lb_VF_DESKTOP     = 0x0040,
+    Lb_VF_FILLALL     = 0x0080,
 };
 
 struct GraphicsWindow {
@@ -130,6 +133,12 @@ struct ScreenModeInfo {
     int Available;
     /** Video mode flags. */
     unsigned long VideoFlags;
+     /** Window position X. */
+    int window_pos_x;
+     /** Window position Y. */
+    int window_pos_y;
+    /** SDL window flags. */
+    Uint32 sdlFlags;
     /** Text description of the mode. */
     char Desc[23];
 };
@@ -252,12 +261,18 @@ enum UIScaleSettings {
 
 extern unsigned short units_per_pixel_width;
 extern unsigned short units_per_pixel_height;
+extern unsigned short units_per_pixel_menu_height;
 extern unsigned short units_per_pixel_best;
+extern unsigned short units_per_pixel_menu;
+extern unsigned short units_per_pixel_landview;
+extern unsigned short units_per_pixel_landview_frame;
 extern unsigned short units_per_pixel_ui;
 extern unsigned long aspect_ratio_factor_HOR_PLUS;
 extern unsigned long aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
 extern unsigned long first_person_horizontal_fov;
 extern unsigned long first_person_vertical_fov;
+extern unsigned long landview_frame_movement_scale_x;
+extern unsigned long landview_frame_movement_scale_y;
 
 extern unsigned short MyScreenWidth;
 extern unsigned short MyScreenHeight;
@@ -265,18 +280,18 @@ extern unsigned short pixel_size;
 extern unsigned short pixels_per_block;
 extern unsigned short units_per_pixel;
 
+extern unsigned short display_id;
+
 extern TbDisplayStruct lbDisplay;
 extern SDL_Window *lbWindow;
 /******************************************************************************/
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
-TbBool LbScreenIsDoubleBufferred(void);
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid);
-TbResult LbScreenReset(void);
+TbResult LbScreenReset(TbBool exiting_application);
 
-TbResult LbScreenFindVideoModes(void);
-TbBool LbScreenIsModeAvailable(TbScreenMode mode);
+TbBool LbScreenIsModeAvailable(TbScreenMode mode, unsigned short display);
 TbScreenMode LbRecogniseVideoModeString(const char *desc);
 TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreenCoord height,
     unsigned short bpp, unsigned long flags);
@@ -297,6 +312,7 @@ TbBool LbScreenIsLocked(void);
 TbResult LbScreenSwap(void);
 TbResult LbScreenClear(TbPixel colour);
 TbResult LbScreenWaitVbi(void);
+unsigned short LbGetCurrentDisplayIndex();
 
 long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 TbResult LbPaletteStopOpenFade(void);
@@ -321,7 +337,11 @@ long scale_value_by_vertical_resolution(long base_value);
 long scale_ui_value_lofi(long base_value);
 long scale_ui_value(long base_value);
 long scale_fixed_DK_value(long base_value);
+long scale_value_menu(long base_value);
+long scale_value_landview(long base_value);
+void calculate_landview_upp(long width, long height, long landview_width, long landview_height);
 TbBool is_ar_wider_than_original(long width, long height);
+TbBool is_menu_ar_wider_than_original(long width, long height);
 long calculate_relative_upp(long base_length, long reference_upp, long reference_length);
 long resize_ui(long units_per_px, long ui_scale);
 void calculate_aspect_ratio_factor(long width, long height);

@@ -38,19 +38,20 @@ enum SpecialDiggerTask {
     DigTsk_PicksUpCrateForWorkshop,
     DigTsk_DigOrMine,
     DigTsk_PicksUpGoldPile, // 10
+    DigTsk_SaveUnconscious
 };
 
 enum SpecialLastJobKinds {
     SDLstJob_None = 0,
     SDLstJob_DigOrMine,
     SDLstJob_ConvImprDungeon,
-    SDLstJob_ReinforceWall3,
+    SDLstJob_ReinforceWallUnprompted,
     SDLstJob_NonDiggerTask,
     SDLstJob_Unkn5,
     SDLstJob_Unkn6,
     SDLstJob_Unkn7,
     SDLstJob_Unkn8,
-    SDLstJob_ReinforceWall9,
+    SDLstJob_ReinforceWallAssigned,
 };
 
 enum SpecialDiggerDigTaskKinds {
@@ -104,6 +105,7 @@ int add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
 int add_empty_traps_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
 int add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
 int add_reinforce_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
+int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int max_tasks);
 
 TbBool imp_will_soon_be_arming_trap(struct Thing *traptng);
 TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);

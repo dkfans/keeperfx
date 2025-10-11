@@ -24,6 +24,7 @@
 #include "bflib_video.h"
 #include "bflib_planar.h"
 #include "bflib_mspointer.hpp"
+#include <mutex>
 
 /******************************************************************************/
 
@@ -35,22 +36,19 @@ class MouseStateHandler {
     bool Install(void);
     bool IsInstalled(void);
     bool Release(void);
-    struct TbPoint *GetPosition(void);
     bool SetMousePosition(long x, long y);
     bool SetPosition(long x, long y);
-    const struct TbSprite *GetPointer(void);
     bool SetMousePointerAndOffset(const struct TbSprite *mouseSprite, long x, long y);
     bool SetMousePointer(const struct TbSprite *mouseSprite);
     bool SetPointerOffset(long x, long y);
     struct TbPoint *GetPointerOffset(void);
     bool SetMouseWindow(long x, long y,long width, long height);
-    bool GetMouseWindow(struct TbRect *windowRect);
     bool PointerBeginSwap(void);
     bool PointerEndSwap(void);
  protected:
     bool SetPointer(const struct TbSprite *spr, struct TbPoint *pt);
     // Properties
-    LbSemaphore semaphore;
+    std::mutex lock;
     bool installed;
     const struct TbSprite *mssprite;
     struct TbPoint mspos;

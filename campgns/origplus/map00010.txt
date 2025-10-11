@@ -72,7 +72,8 @@ ROOM_AVAILABLE(ALL_PLAYERS,PRISON,1,0)
 ROOM_AVAILABLE(ALL_PLAYERS,TORTURE,1,0)
 ROOM_AVAILABLE(ALL_PLAYERS,TEMPLE,1,0)
 ROOM_AVAILABLE(ALL_PLAYERS,GRAVEYARD,1,0)
-ROOM_AVAILABLE(ALL_PLAYERS,SCAVENGER,1,0)
+REM Allow building SCAVENGER when claimed on map
+ROOM_AVAILABLE(ALL_PLAYERS,SCAVENGER,2,0)
 
 REM	Spells availability
 MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
@@ -104,15 +105,6 @@ REM ****************************************************************************
 
 REM "Elsewhere in this fiery realm you have a rival Keeper to contend with. I advise extreme antisocial behaviour on your part."
 DISPLAY_OBJECTIVE(100,ALL_PLAYERS)
-
-REM Allow building SCAVENGER when claimed on map
-IF(PLAYER0,SCAVENGER > 0)
-	ROOM_AVAILABLE(PLAYER0,SCAVENGER,1,1)
-ENDIF
-
-IF(PLAYER1,PRISON >= 9)
-	SET_CREATURE_TENDENCIES(PLAYER1,IMPRISON,1)
-ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
 	REM "Notch up another victory, most malicious one. You have another land to add to your dismal collection."

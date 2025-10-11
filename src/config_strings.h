@@ -28,7 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define STRINGS_MAX       2000
 #define DK_STRINGS_MAX     941
-#define GUI_STRINGS_COUNT 1044
+#define GUI_STRINGS_COUNT 1082
 
 struct GameCampaign;
 
@@ -379,10 +379,14 @@ enum GUIStrings {
     GUIStr_Error,
     GUIStr_ErrorSaving,
     GUIStr_NewLevels = STRINGS_MAX+888,
-    GUIStr_InsertDataCD = STRINGS_MAX+889,
-    GUIStr_InsertKeeperCD,
-    GUIStr_InbsertDeeperCD,
+    GUIStr_TrapAvailable = STRINGS_MAX+889,
+    GUIStr_TrapWorkshopNeeded,
+    GUIStr_TrapUnavailable,
     GUIStr_LevelEventMessageDD = STRINGS_MAX+892, // range 892..940, Deeper Dungeons
+    GUIStr_EventSecretDoorDiscovDesc = STRINGS_MAX+937,
+    GUIStr_EventSecretDoorDiscovered,
+    GUIStr_EventSecretDoorSpottedDesc,
+    GUIStr_EventSecretDoorSpotted,
     GUIStr_MnuFreePlayLevels = STRINGS_MAX+941,
     GUIStr_MnuLandSelection = STRINGS_MAX+942,
     GUIStr_MnuCampaigns = STRINGS_MAX+943,
@@ -423,6 +427,11 @@ enum GUIStrings {
     GUIStr_NetUnsyncedMap = STRINGS_MAX + 1006,
     GUIStr_DisplayResolution = STRINGS_MAX + 1007,
     GUIStr_OptionVoice = STRINGS_MAX + 1008,
+    GUIStr_CtrlTiltUp = STRINGS_MAX + 1063,
+    GUIStr_CtrlTiltDown = STRINGS_MAX + 1064,
+    GUIStr_CtrlTiltReset = STRINGS_MAX + 1065,
+    GUIStr_CtrlAscend = STRINGS_MAX + 1078,
+    GUIStr_CtrlDescend = STRINGS_MAX + 1079,
 };
 
 enum CampaignStrings {
@@ -479,11 +488,15 @@ enum CampaignStrings {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 TbBool setup_gui_strings_data(void);
 TbBool free_gui_strings_data(void);
 TbBool reset_strings(char **strings, int max);
 const char * get_string(TextStringId stridx);
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
+TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_end, int max);
+unsigned long count_strings(char *strings, int size);
+const char * cmpgn_string(unsigned int index);
 /******************************************************************************/
 #ifdef __cplusplus
 }

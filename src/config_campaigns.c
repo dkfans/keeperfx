@@ -22,15 +22,16 @@
 #include "globals.h"
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
 #include "config.h"
 #include "config_strings.h"
+#include "config_keeperfx.h"
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
 #include "map_data.h"
+#include "highscores.h"
 
 #include "game_merge.h"
 #include "post_inc.h"
@@ -64,6 +65,7 @@ const struct NamedCommand cmpgn_common_commands[] = {
   {"HUMAN_PLAYER",       19},
   {"NAME_TEXT_ID",       20},
   {"ASSIGN_CPU_KEEPERS", 21},
+  {"SOUNDTRACK",         22},
   {NULL,                  0},
   };
 
@@ -73,7 +75,8 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {"ENSIGN_POS",          3},
   {"ENSIGN_ZOOM",         4},
   {"PLAYERS",             5},
-  {"OPTIONS",             6},
+  {"ENSIGN",              6},
+  {"OPTIONS",             6}, // legacy name
   {"SPEECH",              7},
   {"LAND_VIEW",           8},
   {"KIND",                9}, // for LOF files only
@@ -85,8 +88,13 @@ const struct NamedCommand cmpgn_map_commands[] = {
   {NULL,                  0},
   };
 
-const struct NamedCommand cmpgn_map_cmnds_options[] = {
-  {"TUTORIAL",        LvOp_Tutorial},
+const struct NamedCommand cmpgn_map_ensign_flag_options[] = {
+  {"DEFAULT",         EnsNone},
+  {"TUTORIAL",        EnsTutorial},
+  {"SINGLE",          EnsFullFlag},
+  {"BONUS",           EnsBonus},
+  {"FULL_MOON",       EnsFullMoon},
+  {"NEW_MOON",        EnsNewMoon},
   {NULL,              0},
   };
 
@@ -97,11 +105,11 @@ const struct NamedCommand cmpgn_level_markers_options[] = {
   };
 
 const struct NamedCommand cmpgn_map_cmnds_kind[] = {
-  {"SINGLE",          LvOp_IsSingle},
-  {"MULTI",           LvOp_IsMulti},
-  {"BONUS",           LvOp_IsBonus},
-  {"EXTRA",           LvOp_IsExtra},
-  {"FREE",            LvOp_IsFree},
+  {"SINGLE",          LvKind_IsSingle},
+  {"MULTI",           LvKind_IsMulti},
+  {"BONUS",           LvKind_IsBonus},
+  {"EXTRA",           LvKind_IsExtra},
+  {"FREE",            LvKind_IsFree},
   {NULL,              0},
   };
 
@@ -111,6 +119,10 @@ const struct NamedCommand cmpgn_human_player_options[] = {
   {"GREEN",      2},
   {"YELLOW",     3},
   {"WHITE",      4},
+  {"NEUTRAL",    5},
+  {"PURPLE",     6},
+  {"BLACK",      7},
+  {"ORANGE",     8},
   {NULL,         0},
   };
 
@@ -126,29 +138,29 @@ struct CampaignsList mappacks_list;
  */
 TbBool free_campaign(struct GameCampaign *campgn)
 {
-  LbMemoryFree(campgn->lvinfos);
-  LbMemoryFree(campgn->hiscore_table);
-  LbMemoryFree(campgn->strings_data);
-  LbMemoryFree(campgn->credits_data);
+  free(campgn->lvinfos);
+  free(campgn->hiscore_table);
+  free(campgn->strings_data);
+  free(campgn->credits_data);
   return true;
 }
 
 void clear_level_info(struct LevelInformation *lvinfo)
 {
-  LbMemorySet(lvinfo,0,sizeof(struct LevelInformation));
+  memset(lvinfo,0,sizeof(struct LevelInformation));
   lvinfo->lvnum = 0;
-  LbMemorySet(lvinfo->name, 0, LINEMSG_SIZE);
-  LbMemorySet(lvinfo->speech_before, 0, DISKPATH_SIZE);
-  LbMemorySet(lvinfo->speech_after, 0, DISKPATH_SIZE);
-  LbMemorySet(lvinfo->land_view, 0, DISKPATH_SIZE);
-  LbMemorySet(lvinfo->land_window, 0, DISKPATH_SIZE);
+  memset(lvinfo->name, 0, LINEMSG_SIZE);
+  memset(lvinfo->speech_before, 0, DISKPATH_SIZE);
+  memset(lvinfo->speech_after, 0, DISKPATH_SIZE);
+  memset(lvinfo->land_view, 0, DISKPATH_SIZE);
+  memset(lvinfo->land_window, 0, DISKPATH_SIZE);
   lvinfo->name_stridx = 0;
   lvinfo->players = 1;
   lvinfo->ensign_x = (LANDVIEW_MAP_WIDTH>>1);
   lvinfo->ensign_y = (LANDVIEW_MAP_HEIGHT>>1);
   lvinfo->ensign_zoom_x = (LANDVIEW_MAP_WIDTH>>1);
   lvinfo->ensign_zoom_y = (LANDVIEW_MAP_HEIGHT>>1);
-  lvinfo->options = LvOp_None;
+  lvinfo->level_type = LvKind_None;
   lvinfo->state = LvSt_Hidden;
   lvinfo->location = LvLc_VarLevels;
   lvinfo->mapsize_x = DEFAULT_MAP_SIZE;
@@ -162,14 +174,14 @@ TbBool clear_campaign(struct GameCampaign *campgn)
 {
   int i;
   SYNCDBG(10,"Starting");
-  LbMemorySet(campgn->name,0,LINEMSG_SIZE);
-  LbMemorySet(campgn->fname,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->levels_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->speech_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->land_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->creatures_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->configs_location,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->media_location,0,DISKPATH_SIZE);
+  memset(campgn->name,0,LINEMSG_SIZE);
+  memset(campgn->fname,0,DISKPATH_SIZE);
+  memset(campgn->levels_location,0,DISKPATH_SIZE);
+  memset(campgn->speech_location,0,DISKPATH_SIZE);
+  memset(campgn->land_location,0,DISKPATH_SIZE);
+  memset(campgn->creatures_location,0,DISKPATH_SIZE);
+  memset(campgn->configs_location,0,DISKPATH_SIZE);
+  memset(campgn->media_location,0,DISKPATH_SIZE);
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
     campgn->single_levels[i] = 0;
@@ -198,24 +210,25 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   campgn->lvinfos = NULL;
   campgn->ambient_good = 0;
   campgn->ambient_bad = 0;
-  LbMemorySet(campgn->land_view_start,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->land_window_start,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->land_view_end,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->land_window_end,0,DISKPATH_SIZE);
+  memset(campgn->land_view_start,0,DISKPATH_SIZE);
+  memset(campgn->land_window_start,0,DISKPATH_SIZE);
+  memset(campgn->land_view_end,0,DISKPATH_SIZE);
+  memset(campgn->land_window_end,0,DISKPATH_SIZE);
   campgn->land_markers = LndMk_ENSIGNS;
-  LbMemorySet(campgn->movie_intro_fname,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->movie_outro_fname,0,DISKPATH_SIZE);
-  LbMemorySet(campgn->strings_fname,0,DISKPATH_SIZE);
+  memset(campgn->movie_intro_fname,0,DISKPATH_SIZE);
+  memset(campgn->movie_outro_fname,0,DISKPATH_SIZE);
+  memset(campgn->strings_fname,0,DISKPATH_SIZE);
   campgn->strings_data = NULL;
   reset_strings(campgn->strings, STRINGS_MAX);
-  LbMemorySet(campgn->hiscore_fname,0,DISKPATH_SIZE);
+  memset(campgn->hiscore_fname,0,DISKPATH_SIZE);
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = 0;
-  LbMemorySet(campgn->credits_fname,0,DISKPATH_SIZE);
+  memset(campgn->credits_fname,0,DISKPATH_SIZE);
   campgn->credits_data = NULL;
   reset_credits(campgn->credits);
   campgn->human_player = -1;
   campgn->assignCpuKeepers = 0;
+  memset(campgn->soundtrack_fname,0,DISKPATH_SIZE);
   return true;
 }
 
@@ -343,8 +356,8 @@ struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, Level
 TbBool init_level_info_entries(struct GameCampaign *campgn, long num_entries)
 {
     if (campgn->lvinfos != NULL)
-      LbMemoryFree(campgn->lvinfos);
-    campgn->lvinfos = (struct LevelInformation *)LbMemoryAlloc(num_entries*sizeof(struct LevelInformation));
+      free(campgn->lvinfos);
+    campgn->lvinfos = (struct LevelInformation *)calloc(num_entries, sizeof(struct LevelInformation));
     if (campgn->lvinfos == NULL)
     {
       WARNMSG("Can't allocate memory for LevelInformation list.");
@@ -363,7 +376,7 @@ TbBool grow_level_info_entries(struct GameCampaign *campgn, long add_entries)
 {
     long i = campgn->lvinfos_count;
     long num_entries = campgn->lvinfos_count + add_entries;
-    campgn->lvinfos = (struct LevelInformation*)LbMemoryGrow(campgn->lvinfos, num_entries * sizeof(struct LevelInformation));
+    campgn->lvinfos = (struct LevelInformation*)realloc(campgn->lvinfos, num_entries * sizeof(struct LevelInformation));
     if (campgn->lvinfos == NULL)
     {
         WARNMSG("Can't enlarge memory for LevelInformation list.");
@@ -379,30 +392,20 @@ TbBool grow_level_info_entries(struct GameCampaign *campgn, long add_entries)
   return true;
 }
 
-TbBool free_level_info_entries(struct GameCampaign *campgn)
+short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long len, const char* config_textname)
 {
-  if (campgn->lvinfos != NULL)
-    LbMemoryFree(campgn->lvinfos);
-  campgn->lvinfos = NULL;
-  campgn->lvinfos_count = 0;
-  return true;
-}
-
-short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long len)
-{
-  static const char config_textname[] = "Campaign config";
   // Initialize block data in campaign
-  LbMemoryFree(campgn->hiscore_table);
+  free(campgn->hiscore_table);
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = VISIBLE_HIGH_SCORES_COUNT;
+  campgn->human_player = 0;
   // Find the block
-  char block_buf[32];
-  sprintf(block_buf, "common");
+  const char * block_name = "common";
   long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
+  int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
-      WARNMSG("Block [%s] not found in %s %s file.",block_buf, campgn->name, config_textname);
+      WARNMSG("Block [%s] not found in %s %s file.", block_name, campgn->name, config_textname);
       return 0;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cmpgn_common_commands,cmd_num)
@@ -411,7 +414,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, cmpgn_common_commands);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       int i = 0, n = 0;
       char word_buf[32];
       switch (cmd_num)
@@ -425,7 +428,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           }
           else
           {
-              LbStringCopy(campgn->display_name,campgn->name,LINEMSG_SIZE);
+              snprintf(campgn->display_name, LINEMSG_SIZE, "%s", campgn->name);
           }
           break;
       case 2: // SINGLE_LEVELS
@@ -521,8 +524,8 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't recognize \"%s\" parameters in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't recognize \"%s\" parameters in [%s] block of '%s' file.",
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 7: // LAND_VIEW_START
@@ -536,8 +539,8 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of '%s' file.",
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 8: // LAND_VIEW_END
@@ -551,8 +554,8 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of '%s' file.",
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 9: // LAND_AMBIENT
@@ -576,8 +579,8 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't recognize \"%s\" coordinates in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't recognize \"%s\" coordinates in [%s] block of '%s' file.",
+                COMMAND_TEXT(cmd_num), block_name, config_textname);
           }
           break;
       case 10: // LEVELS_LOCATION
@@ -659,7 +662,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
                 if (k > 0) {
                     const char* newname = get_string(STRINGS_MAX+k);
                     if (strcasecmp(newname,"") != 0) {
-                        LbStringCopy(campgn->display_name,newname,LINEMSG_SIZE); // use the index provided in the config file to get a specific UI string
+                        snprintf(campgn->display_name, LINEMSG_SIZE, "%s", newname); // use the index provided in the config file to get a specific UI string
                     }
                     else {
                     CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file. NAME_TEXT_ID is too high, NAME used instead.",
@@ -682,13 +685,21 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
               campgn->assignCpuKeepers = 1;
           }
           break;
-      case 0: // comment
+      case 22: // SOUNDTRACK
+          i = get_conf_parameter_whole(buf,&pos,len,campgn->soundtrack_fname,DISKPATH_SIZE);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file.",
+                COMMAND_TEXT(cmd_num), campgn->name, config_textname);
+          }
           break;
-      case -1: // end of buffer
+      case ccr_comment:
+          break;
+      case ccr_endOfFile:
           break;
       default:
           CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s %s file.",
-              cmd_num,block_buf,campgn->name,config_textname);
+              cmd_num, block_name, campgn->name,config_textname);
           break;
       }
       skip_conf_to_next_line(buf,&pos,len);
@@ -696,24 +707,21 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
 #undef COMMAND_TEXT
   if (campgn->single_levels_count != campgn->bonus_levels_index)
   {
-    WARNMSG("Amount of SP levels (%d) and bonuses (%d) do not match in [%s] block of %s %s file.",
-      campgn->single_levels_count, campgn->bonus_levels_count, block_buf, campgn->name, config_textname);
+    WARNMSG("Amount of SP levels (%lu) and bonuses (%lu) do not match in [%s] block of %s %s file.",
+      campgn->single_levels_count, campgn->bonus_levels_count, block_name, campgn->name, config_textname);
   }
   return 1;
 }
 
-short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long len)
+short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long len, const char* config_textname)
 {
-  static const char config_textname[] = "Campaign config";
-  // Block name and parameter word store variables
-  char block_buf[32];
   // Find the block
-  sprintf(block_buf,"strings");
+  const char * block_name = "strings";
   long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
+  int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      WARNMSG("Block [%s] not found in '%s' file.", block_name, config_textname);
       return 0;
   }
   int n = 0;
@@ -721,40 +729,42 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
   {
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, lang_type);
+      if (n == 0)
+      {
+          campgn->default_language = (cmd_num >= 0) ? cmd_num : 0;
+      }
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if (cmd_num <= 0)
       {
         if ((cmd_num != 0) && (cmd_num != -1))
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",cmd_num,block_buf,config_textname);
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of '%s' file.", cmd_num, block_name, config_textname);
       } else
       if ((cmd_num == install_info.lang_id) || (n == 0))
       {
           int i = get_conf_parameter_whole(buf, &pos, len, campgn->strings_fname, LINEMSG_SIZE);
           if (i <= 0)
-              CONFWRNLOG("Couldn't read file name in [%s] block parameter of %s file.",block_buf,config_textname);
+              CONFWRNLOG("Couldn't read file name in [%s] block parameter of %s file.", block_name, config_textname);
           else
             n++;
       }
       skip_conf_to_next_line(buf,&pos,len);
   }
-  if (campgn->strings_fname[0] == '\0')
-    WARNMSG("Strings file name not set after parsing [%s] block of %s file.", block_buf,config_textname);
+  if (campgn->strings_fname[0] == '\0') {
+    WARNMSG("Strings file name not set after parsing [%s] block of %s file.", block_name, config_textname);
+  }
   return 1;
 }
 
-short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long len)
+short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long len, const char *config_textname)
 {
-  static const char config_textname[] = "Campaign config";
-  // Block name and parameter word store variables
-  char block_buf[32];
+  const char * block_name = "speech";
   // Find the block
-  sprintf(block_buf,"speech");
   long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
+  int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      WARNMSG("Block [%s] not found in '%s' file.", block_name, config_textname);
       return 0;
   }
   int n = 0;
@@ -763,13 +773,13 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
       // Finding command number in this line
       int cmd_num = recognize_conf_command(buf, &pos, len, lang_type);
       // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
+      if (cmd_num == ccr_endOfBlock) break; // if next block starts
       if (cmd_num <= 0)
       {
         if ((cmd_num != 0) && (cmd_num != -1))
         {
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file, starting on byte %d.",
-              cmd_num,block_buf,config_textname,pos);
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file, starting on byte %ld.",
+              cmd_num, block_name, config_textname,pos);
         }
       } else
       if ((cmd_num == install_info.lang_id) || (n == 0))
@@ -778,7 +788,7 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
           if (i <= 0)
           {
               CONFWRNLOG("Couldn't read folder name in [%s] block parameter of %s file.",
-                block_buf,config_textname);
+                block_name, config_textname);
           } else
             n++;
       }
@@ -787,7 +797,7 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
   if (campgn->speech_location[0] == '\0')
   {
       WARNMSG("Speech folder name not set after parsing [%s] block of %s file.",
-          block_buf,config_textname);
+          block_name, config_textname);
   }
   return 1;
 }
@@ -796,9 +806,8 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
  * Parses campaign block for specific level number.
  * Stores data in lvinfo structure.
  */
-short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, long len)
+short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, long len, const char* config_textname)
 {
-    static const char config_textname[] = "Campaign config";
     // Block name and parameter word store variables
     SYNCDBG(18,"Starting for level %ld",lvnum);
     struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
@@ -810,12 +819,12 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
     }
     lvinfo->location = LvLc_Campaign;
     char block_buf[32];
-    sprintf(block_buf, "map%05lu", lvnum);
+    snprintf(block_buf, sizeof(block_buf), "map%05lu", lvnum);
     long pos = 0;
     int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {
-        WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        WARNMSG("Block [%s] not found in '%s' file.",block_buf,config_textname);
         return 0;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cmpgn_map_commands,cmd_num)
@@ -824,7 +833,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, cmpgn_map_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == ccr_endOfBlock) break; // if next block starts
         int n = 0;
         char word_buf[32];
         switch (cmd_num)
@@ -832,7 +841,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
         case 1: // NAME_TEXT
             if (get_conf_parameter_whole(buf,&pos,len,lvinfo->name,LINEMSG_SIZE) <= 0)
             {
-                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
@@ -848,7 +857,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't recognize \"%s\" number in [%s] block of %s file.",
+                CONFWRNLOG("Couldn't recognize \"%s\" number in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
@@ -873,7 +882,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             }
             if (n < 2)
             {
-                CONFWRNLOG("Couldn't recognize \"%s\" coordinates in [%s] block of %s file.",
+                CONFWRNLOG("Couldn't recognize \"%s\" coordinates in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
@@ -898,7 +907,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             }
             if (n < 2)
             {
-                CONFWRNLOG("Couldn't recognize \"%s\" coordinates in [%s] block of %s file.",
+                CONFWRNLOG("Couldn't recognize \"%s\" coordinates in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
@@ -914,20 +923,23 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             }
             if (n < 1)
             {
-                CONFWRNLOG("Couldn't recognize \"%s\" number in [%s] block of %s file.",
+                CONFWRNLOG("Couldn't recognize \"%s\" number in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 6: // OPTIONS
-            while ((k = recognize_conf_parameter(buf,&pos,len,cmpgn_map_cmnds_options)) > 0)
+        case 6: // ENSIGN
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
-              switch (k)
-              {
-              case LvOp_Tutorial:
-                lvinfo->options |= k;
-                break;
-              }
-              n++;
+                k = get_id(cmpgn_map_ensign_flag_options, word_buf);
+                if (k >= 0)
+                {
+                    lvinfo->ensign = k;
+                }
+                else
+                {
+                    CONFWRNLOG("Invalid value '%s' for \"%s\" in [%s] block of '%s' file.", word_buf,
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
             }
             break;
         case 7: // SPEECH
@@ -941,7 +953,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             }
             if (n < 2)
             {
-                CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of %s file.",
+                CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
@@ -956,7 +968,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             }
             if (n < 2)
             {
-                CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of %s file.",
+                CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
@@ -986,16 +998,16 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
             }
             if (n < 2)
             {
-              CONFWRNLOG("Couldn't recognize \"%s\" mapsize in [%s] block of %s file.",
+              CONFWRNLOG("Couldn't recognize \"%s\" mapsize in [%s] block of '%s' file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 0: // comment
+        case ccr_comment:
             break;
-        case -1: // end of buffer
+        case ccr_endOfFile:
             break;
         default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of '%s' file.",
                 cmd_num,block_buf,config_textname);
             break;
         }
@@ -1006,44 +1018,43 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
     return 1;
 }
 
-short parse_campaign_map_blocks(struct GameCampaign *campgn, char *buf, long len)
+short parse_campaign_map_blocks(struct GameCampaign *campgn, char *buf, long len, const char* config_textname)
 {
-    static const char config_textname[] = "Campaign config";
     SYNCDBG(8,"Starting");
     long i = campgn->single_levels_count + campgn->multi_levels_count + campgn->bonus_levels_count + campgn->extra_levels_count + campgn->freeplay_levels_count;
     if (i <= 0)
     {
-        WARNMSG("There's zero used levels - no [mapX] blocks to parse in %s file.",config_textname);
+        WARNMSG("There's zero used levels - no [mapX] blocks to parse in '%s' file.",config_textname);
         return 0;
     }
     // Initialize the lvinfos array
     if (!init_level_info_entries(campgn,i))
     if (campgn->lvinfos == NULL)
     {
-        WARNMSG("Can't allocate memory for LevelInformation list in %s file.",config_textname);
+        WARNMSG("Can't allocate memory for LevelInformation list in '%s' file.",config_textname);
         return 0;
     }
     long lvnum = first_singleplayer_level();
     while (lvnum > 0)
     {
-        parse_campaign_map_block(lvnum, LvOp_IsSingle, buf, len);
+        parse_campaign_map_block(lvnum, LvKind_IsSingle, buf, len, config_textname);
         long bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
         if (bn_lvnum > 0)
         {
-          parse_campaign_map_block(bn_lvnum, LvOp_IsBonus, buf, len);
+          parse_campaign_map_block(bn_lvnum, LvKind_IsBonus, buf, len, config_textname);
         }
-        lvnum = next_singleplayer_level(lvnum);
+        lvnum = next_singleplayer_level(lvnum, true);
     }
     lvnum = first_multiplayer_level();
     while (lvnum > 0)
     {
-        parse_campaign_map_block(lvnum, LvOp_IsMulti, buf, len);
+        parse_campaign_map_block(lvnum, LvKind_IsMulti, buf, len, config_textname);
         lvnum = next_multiplayer_level(lvnum);
     }
     lvnum = first_extra_level();
     while (lvnum > 0)
     {
-        parse_campaign_map_block(lvnum, LvOp_IsExtra, buf, len);
+        parse_campaign_map_block(lvnum, LvKind_IsExtra, buf, len, config_textname);
         lvnum = next_extra_level(lvnum);
     }
     return 1;
@@ -1053,8 +1064,8 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
 {
     // Preparing campaign file name and checking the file
     clear_campaign(campgn);
-    LbStringCopy(campgn->fname,cmpgn_fname,DISKPATH_SIZE);
-    LbStringCopy(campgn->name,cmpgn_fname,DISKPATH_SIZE);
+    snprintf(campgn->fname, DISKPATH_SIZE, "%s", cmpgn_fname);
+    snprintf(campgn->name, DISKPATH_SIZE, "%s", cmpgn_fname);
     SYNCDBG(0,"%s campaign file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
     char* fname = prepare_file_path(fgroup, cmpgn_fname);
     long len = LbFileLengthRnc(fname);
@@ -1068,7 +1079,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
         WARNMSG("Campaign file \"%s\" is too large.",cmpgn_fname);
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char* buf = (char*)calloc(len + 256, 1);
     if (buf == NULL)
       return false;
     // Loading file data
@@ -1076,30 +1087,30 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
     TbBool result = (len > 0);
     if (result)
     {
-        result = parse_campaign_common_blocks(campgn, buf, len);
+        result = parse_campaign_common_blocks(campgn, buf, len, fname);
         if (!result)
           WARNMSG("Parsing campaign file \"%s\" common blocks failed.",cmpgn_fname);
     }
     if ((result) && ((flags & CnfLd_ListOnly) == 0)) // This block doesn't have anything we'd like to parse in list mode
     {
-        result = parse_campaign_strings_blocks(campgn, buf, len);
+        result = parse_campaign_strings_blocks(campgn, buf, len, fname);
         if (!result)
           WARNMSG("Parsing campaign file \"%s\" strings block failed.",cmpgn_fname);
     }
     if ((result) && ((flags & CnfLd_ListOnly) == 0) && (fgroup == FGrp_Campgn))
     {
-        result = parse_campaign_speech_blocks(campgn, buf, len);
+        result = parse_campaign_speech_blocks(campgn, buf, len, fname);
         if (!result)
           WARNMSG("Parsing campaign file \"%s\" speech block failed.",cmpgn_fname);
     }
     if ((result) && ((flags & CnfLd_ListOnly) == 0) && (fgroup == FGrp_Campgn))
     {
-        result = parse_campaign_map_blocks(campgn, buf, len);
+        result = parse_campaign_map_blocks(campgn, buf, len, fname);
         if (!result)
           WARNMSG("Parsing campaign file \"%s\" map blocks failed.",cmpgn_fname);
     }
     //Freeing and exiting
-    LbMemoryFree(buf);
+    free(buf);
     if ((flags & CnfLd_ListOnly) == 0)
     {
         setup_campaign_strings_data(campgn);
@@ -1131,7 +1142,6 @@ TbBool change_campaign(const char *cmpgn_fname)
     else
         result = load_campaign(keeper_campaign_file,&campaign,CnfLd_Standard, FGrp_Campgn);
     // Configs which may change within a level should be initialized outside
-    //load_computer_player_config(CnfLd_Standard);
     //load_stats_files();
     //check_and_auto_fix_stats();
     // Make sure all additional levels are loaded
@@ -1168,8 +1178,8 @@ TbBool is_campaign_loaded(void)
 TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries)
 {
     if (clist->items != NULL)
-        LbMemoryFree(clist->items);
-    clist->items = (struct GameCampaign *)LbMemoryAlloc(num_entries*sizeof(struct GameCampaign));
+        free(clist->items);
+    clist->items = (struct GameCampaign *)calloc(num_entries, sizeof(struct GameCampaign));
     if (clist->items == NULL)
     {
         WARNMSG("Can't allocate memory for GameCampaigns list.");
@@ -1191,7 +1201,7 @@ TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries
 {
     long i = clist->items_count;
     long num_entries = clist->items_count + add_entries;
-    clist->items = (struct GameCampaign *)LbMemoryGrow(clist->items, num_entries*sizeof(struct GameCampaign));
+    clist->items = (struct GameCampaign *)realloc(clist->items, num_entries*sizeof(struct GameCampaign));
     if (clist->items == NULL)
     {
         WARNMSG("Can't enlarge memory for GameCampaigns list.");
@@ -1205,18 +1215,6 @@ TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries
         i++;
     }
     return true;
-}
-
-/**
- * Frees memory allocated for list of campaigns.
- */
-TbBool free_campaigns_list_entries(struct CampaignsList *clist)
-{
-  if (clist->items != NULL)
-    LbMemoryFree(clist->items);
-  clist->items = NULL;
-  clist->items_count = 0;
-  return true;
 }
 
 TbBool load_campaign_to_list(const char *cmpgn_fname,struct CampaignsList *clist, short fgroup)
@@ -1254,9 +1252,9 @@ TbBool swap_campaigns_in_list(struct CampaignsList *clist, int idx1, int idx2)
     if ((idx1 < 0) || (idx1 >= clist->items_num) || (idx2 < 0) || (idx2 >= clist->items_num))
       return false;
     struct GameCampaign campbuf;
-    LbMemoryCopy(&campbuf, &clist->items[idx1], sizeof(struct GameCampaign));
-    LbMemoryCopy(&clist->items[idx1],&clist->items[idx2],sizeof(struct GameCampaign));
-    LbMemoryCopy(&clist->items[idx2],&campbuf,sizeof(struct GameCampaign));
+    memcpy(&campbuf, &clist->items[idx1], sizeof(struct GameCampaign));
+    memcpy(&clist->items[idx1],&clist->items[idx2],sizeof(struct GameCampaign));
+    memcpy(&clist->items[idx2],&campbuf,sizeof(struct GameCampaign));
     return true;
 }
 
@@ -1304,7 +1302,7 @@ void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
 
     char line[DISKPATH_SIZE];
     while(fgets(line, DISKPATH_SIZE, fp)) {
-       
+
         //cut off trailing \n
         line[strlen(line)-1] = 0;
 
@@ -1332,21 +1330,21 @@ TbBool load_campaigns_list(void)
 {
     init_campaigns_list_entries(&campaigns_list, CAMPAIGNS_LIST_GROW_DELTA);
     char* fname = prepare_file_path(FGrp_Campgn, "*.cfg"); // add campaigns
-    struct TbFileFind fileinfo;
-    int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
+    struct TbFileEntry fe;
+    struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
     long cnum_all = 0;
     long cnum_ok = 0;
-    while (rc != -1)
-    {
-        if (load_campaign_to_list(fileinfo.Filename, &campaigns_list, FGrp_Campgn))
-        {
-            cnum_ok++;
-        }
-      rc = LbFileFindNext(&fileinfo);
-      cnum_all++;
+    if (ff) {
+        do {
+            if (load_campaign_to_list(fe.Filename, &campaigns_list, FGrp_Campgn))
+            {
+                cnum_ok++;
+            }
+            cnum_all++;
+        } while (LbFileFindNext(ff, &fe) >= 0);
+        LbFileFindEnd(ff);
     }
-    LbFileFindEnd(&fileinfo);
-    SYNCDBG(0,"Found %d campaign files, properly loaded %d.",cnum_all,cnum_ok);
+    SYNCDBG(0,"Found %ld campaign files, properly loaded %ld.",cnum_all,cnum_ok);
     const char* ordfname = prepare_file_path(FGrp_Campgn, "campgn_order.txt");
     sort_campaigns(&campaigns_list,ordfname);
     return (campaigns_list.items_num > 0);
@@ -1359,25 +1357,25 @@ TbBool load_mappacks_list(void)
 {
     init_campaigns_list_entries(&mappacks_list, CAMPAIGNS_LIST_GROW_DELTA);
     char* fname = prepare_file_path(FGrp_VarLevels, "*.cfg"); // add map packs
-    struct TbFileFind fileinfo;
-    int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
+    struct TbFileEntry fe;
+    struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
     long cnum_all = 0;
     long cnum_ok = 0;
-    while (rc != -1)
-    {
-        if (is_campaign_in_list(fileinfo.Filename, &campaigns_list))
-        {
-                WARNMSG("Couldn't load Map Pack \"%s\", as it is a duplicate of an existing Campaign.", fileinfo.Filename);
-        }
-        else if (load_campaign_to_list(fileinfo.Filename, &mappacks_list, FGrp_VarLevels))
-        {
-            cnum_ok++;
-        }
-      rc = LbFileFindNext(&fileinfo);
-      cnum_all++;
+    if (ff) {
+        do {
+            if (is_campaign_in_list(fe.Filename, &campaigns_list))
+            {
+                WARNMSG("Couldn't load Map Pack \"%s\", as it is a duplicate of an existing Campaign.", fe.Filename);
+            }
+            else if (load_campaign_to_list(fe.Filename, &mappacks_list, FGrp_VarLevels))
+            {
+                cnum_ok++;
+            }
+            cnum_all++;
+        } while (LbFileFindNext(ff, &fe) >= 0);
+        LbFileFindEnd(ff);
     }
-    LbFileFindEnd(&fileinfo);
-    SYNCDBG(0,"Found %d map pack files, properly loaded %d.",cnum_all,cnum_ok);
+    SYNCDBG(0,"Found %ld map pack files, properly loaded %ld.",cnum_all,cnum_ok);
     const char* ordfname = prepare_file_path(FGrp_VarLevels, "mappck_order.txt");
     sort_campaigns(&mappacks_list,ordfname);
     return (mappacks_list.items_num > 0);
@@ -1402,8 +1400,8 @@ TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
 TbBool check_lif_files_in_mappack(struct GameCampaign *campgn)
 {
     struct GameCampaign campbuf;
-    LbMemoryCopy(&campbuf, &campaign, sizeof(struct GameCampaign));
-    LbMemoryCopy(&campaign, campgn, sizeof(struct GameCampaign));
+    memcpy(&campbuf, &campaign, sizeof(struct GameCampaign));
+    memcpy(&campaign, campgn, sizeof(struct GameCampaign));
     find_and_load_lif_files();
     find_and_load_lof_files();
     TbBool result  = (campaign.freeplay_levels_count != 0);
@@ -1411,8 +1409,8 @@ TbBool check_lif_files_in_mappack(struct GameCampaign *campgn)
         // Could be either: no valid levels in LEVELS_LOCATION, no LEVELS_LOCATION specified, or LEVELS_LOCATION does not exist
         WARNMSG("Couldn't load Map Pack \"%s\", no .LIF files could be found.", campgn->fname);
     }
-    LbMemoryCopy(campgn, &campaign, sizeof(struct GameCampaign));
-    LbMemoryCopy(&campaign, &campbuf, sizeof(struct GameCampaign));
+    memcpy(campgn, &campaign, sizeof(struct GameCampaign));
+    memcpy(&campaign, &campbuf, sizeof(struct GameCampaign));
     return result;
 }
 

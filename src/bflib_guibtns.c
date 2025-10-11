@@ -24,7 +24,6 @@
 #include <stdio.h>
 
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "globals.h"
 #include "bflib_string.h"
 #include "bflib_sound.h"
@@ -77,8 +76,8 @@ void do_sound_button_click(struct GuiButton *gbtn)
 void setup_input_field(struct GuiButton *gbtn, const char * empty_text)
 {
     lbInkey = 0;
-    LbMemorySet(backup_input_field, 0, INPUT_FIELD_LEN);
-    char* content = (char*)gbtn->content;
+    memset(backup_input_field, 0, INPUT_FIELD_LEN);
+    char* content = gbtn->content.str;
     if (content == NULL)
     {
         ERRORLOG("Button has invalid content pointer");

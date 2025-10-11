@@ -1,0 +1,158 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file undedkpr/landview_chi.po
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Contains translation of the national land descriptions in the game.
+#  @author   KeeperFX Team
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Post Ancient Keeper campaign for KeeperFX\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+
+# Post Undead Campaign
+#: landview:10
+msgctxt "Level introduction"
+msgid "Ludim. A sickeningly cheerful town where even the most trivial of events is celebrated with great fanfare. The people here are so happy and carefree that it's almost nauseating. They sing and dance and frolic in the streets, completely unaware of the dangers that lurk just beyond their borders."
+msgstr "卢迪姆。 这是一个令人厌恶的欢乐小镇，即使是最微不足道的事情，人们也会大张旗鼓地庆祝。这里的人"
+
+#: landview:11
+msgctxt "Level summary"
+msgid "The once-cheerful town has been reduced to a smoldering ruin. The streets are littered with the bodies of the dead, and the survivors huddle in fear in whatever shelter they can find. The sound of weeping and wailing fills the air, and the stench of death is overpowering."
+msgstr "昔日欢快的小镇已变成一片燃烧的废墟。街道上到处都是人类的尸体，幸存者惊恐地蜷缩在他们能找到的任何角落里。空气中弥漫着哭泣和哀嚎声，死亡的恶臭扑面而来。"
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Havoth Dir. A serene and idyllic land where the sun always shines and the people are always smiling. The inhabitants of Havoth Dir are content and generous, sharing their wealth and resources with each other without complaint. The air is filled with the sweet scent of blooming flowers and the sound of laughter."
+msgstr "哈沃斯迪尔。这是一片宁静的田园，阳光普照，人们总是面带微笑。哈沃斯迪尔的居民知足而慷慨，他们毫无怨言地相互分享财富和资源。空气中弥漫着鲜花盛开的香气和欢声笑语。"
+
+#: landview:21
+msgctxt "Level summary"
+msgid "The once-beautiful Havoth Dir has been plunged into darkness and despair. The sun has been blocked out by thick clouds of ash and smoke, and the people now cower in fear of the Vampires that roam the land. The once-lush gardens and fields have been reduced to barren wastelands, and the screams of the tortured fill the air."
+msgstr "曾经美丽的哈沃斯迪尔已陷入黑暗和绝望。灰尘和浓烟遮住了阳光。人们现在因为害怕游荡在这片土地上的吸血鬼而踌躇不前，曾经郁郁葱葱的花园和田野已变成了贫瘠的荒地，空气中弥漫着遭受拷打的人们的惨叫声。"
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Ebenazer. A perfect little town, where the people are friendly and helpful. The streets are clean and tidy, and the houses are brightly painted and well-maintained. The town square is filled with colorful flowers, and the children play games in the park."
+msgstr "埃比尼泽。这是一个美好的小镇，人们热情好客而乐于助人。街道干净整洁，房屋油漆鲜亮，维护良好。小镇广场上开满了五颜六色的鲜花，孩子们在公园里做游戏。"
+
+#: landview:31
+msgctxt "Level summary"
+msgid ""
+"The once-pleasant town has become a nightmare. The streets are filled with twisted and corrupted creatures, the buildings are coated in black mold, and the park is now home to a massive mausoleum. The children and the rest of the townsfolk have been transformed into the walking dead. The air is thick with the stench of decay and the "
+"screams of the damned."
+msgstr "曾经令人愉快的小镇现在变得如同噩梦一般。街道上到处都是扭曲腐烂的怪物， 房屋被黑色的霉菌覆盖，公园变成了一座巨大的陵墓。孩子们和其他居民们都变成了行尸走肉。空气中弥漫着腐烂的恶臭和被诅咒者的尖叫声。"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid ""
+"Chaerith. An ancient castle, built centuries ago by a powerful Samurai. The castle is filled with treasures and secrets, and the surrounding lands are fertile and prosperous. The people are proud and loyal, serving their lord with honor and bravery. The castle is a symbol of strength and power, standing tall and proud against the passage "
+"of time."
+msgstr "奇尔瑞斯。这是一座古老的城堡，几百年前由一位强大的忍者建造。城堡里充满了宝藏和秘密， 周围的土地肥沃而繁荣。这里的人民骄傲而忠诚，以荣誉和勇敢为他们的领主服务。这座城堡是权力的象征，它巍然屹立，傲视时间的流逝。"
+
+#: landview:41
+msgctxt "Level summary"
+msgid ""
+"The once-mighty castle has been reduced to a pile of rubble and ruins. The treasures and secrets have been looted and destroyed, and the surrounding lands have been ravaged by war and chaos. The people have been scattered and enslaved, their loyalty replaced with fear and despair. The castle is now a symbol of ruin and defeat, a haunting "
+"reminder of what was lost."
+msgstr "曾经宏伟的城堡已然变成一堆瓦砾和废墟。宝藏和秘密被洗劫一空，周围的土地饱受战争和混乱的蹂躏。人民被驱散和奴役，他们的忠诚被恐惧和绝望所取代。城堡现在成了毁灭和失败的象征。萦绕在人们心头的是失去的一切。"
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Nazirite. A whimsical and fantastical realm, where the skies are filled with rainbows and the forests are home to unicorns and fairies. The people here are dreamers, with wild imaginations and a love of magic and mystery. The realm is a playground, and every day is an adventure."
+msgstr "拿撒勒。 一个异想天开的奇幻国度。这里的天空布满彩虹，森林是独角兽和仙女们的家园。 这里的人们都是梦想家，有着天马行空的想象力，热爱神秘的魔法。这里是一个游乐场，每一天的生活都犹如一场冒险。"
+
+#: landview:51
+msgctxt "Level summary"
+msgid ""
+"The once-enchanted realm has become a living nightmare. The skies are now filled with dark clouds and lightning, and the forests are twisted and corrupted. The unicorns and fairies have been replaced by skeletal creatures, and the dreamers have been turned into horrific abominations. This place is now a nightmare realm, where every "
+"moment is filled with terror and despair."
+msgstr "曾经充满魔法的王国已经变成了人间地狱。天空中现在布满了乌云和闪电，而 森林被扭曲和腐蚀。独角兽和仙女们变成了可怕的骷髅，梦境中的人也变成了可怕的憎恶。这里现在成了梦魇之地，每时每刻都充满了恐怖和绝望。"
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Elysium. A beautiful winter wonderland, where the snow-covered hills and trees sparkle in the sunlight. The residents are hearty and resilient, thriving in the cold weather. They enjoy ice skating, skiing, and sipping hot cocoa by the fireplace. The realm is peaceful and quiet, with only the sound of snowflakes falling from the sky."
+msgstr "极乐世界。这里是美丽的冬日仙境，白雪覆盖的山丘和树木在阳光下闪闪发光。这里的居民健壮而顽强，在寒冷的天气中茁壮成长。他们喜欢滑冰、滑雪，以及在壁炉边上喝热可可。这个王国是如此地宁静祥和，只能听到雪花从天上飘落的声音。"
+
+#: landview:61
+msgctxt "Level summary"
+msgid ""
+"The winter wonderland has been turned into a frozen wasteland. The snow is now hard as ice and the trees are twisted and gnarled. The residents have been transformed into ice zombies, their bodies frozen in place and their souls trapped in eternal torment. The world is now a frozen hell, where life is a struggle and death is a release."
+msgstr "冬日仙境已变成冰雪荒原。这里的积雪坚硬如冰，树木怪异扭曲。居民们都变成了冰冷的僵尸，他们的身体被冻结在原地，而他们的灵魂陷入了永世的折磨。这个世界已经变成了冰冷的地狱，在这里，活着是一种挣扎， 而死亡是一种解脱。"
+
+# Undead Campaign
+#: landview:100
+msgctxt "Level introduction"
+msgid "Winterrage - In the cold and icy mountains that are in the center of the country, is located a big city filled with pesky heroes. A real battlefield awaits you, where the white snow should be soaked of red!"
+msgstr "凛冬之怒-在这个王国中央的冰冷雪山上，有一座城市，充满了讨厌的英雄们。一个真正的战场等待着你，这里的白雪应该被鲜血染红！"
+
+#: landview:101
+msgctxt "Level introduction"
+msgid "Deathmoore - This place has been overwhelmed, Keeper! There are bits and pieces everywhere! Some of our minions even had fun making some bloody snowmen using the remains of the corpses, using them afterwards for training purposes! Marvellous!"
+msgstr "死囚之舞-这片土地已经被你击垮了，守护者！四处都是残破的废墟！你的爪牙们利用积雪和尸体堆起了血腥的雪人，并像击打训练木桩一样击打它们取乐！棒极了！"
+
+#: landview:110
+msgctxt "Level introduction"
+msgid "Rosefield Cathedral - This is a very holy place, which is not good for our undead armies. A lot of paladins and monks are visiting this place, filled with the disgusting smell of flowers. A real place to reduce to ashes!"
+msgstr "罗斯菲尔德大教堂-这是一个十分神圣的地方，但对我们的亡灵军团来说并不是好事。许多圣骑士和僧侣前来拜访，这里充斥着令人厌恶的玫瑰花香。是时候把这里夷为废墟了！"
+
+#: landview:111
+msgctxt "Level introduction"
+msgid "Sundew Ruins - The roses have been trampled and have been replaced with sundews; the kind of flower that entraps and devours insects. It fits perfectly with the scene of the now-desecrated cathedral, I must say!"
+msgstr "苔藓丛生-这里的玫瑰花已经遭到践踏，由食虫花取而代之；它们会困住并吞噬虫子。我不得不说，这些花与现在已经遭到亵渎的大教堂真是绝配！"
+
+#: landview:120
+msgctxt "Level introduction"
+msgid "Arbor Heights - This is an ancient bastion of everlasting happiness, carved into a mountain... bleh. I highly suggest to reduce this pathetic fortress to rumbles by flattening it."
+msgstr "阿勃海茨- 这是一座象征着永恒幸福的古老堡垒，坐落在半山腰......唉。我强烈建议把这座可怜的堡垒夷为平地。"
+
+#: landview:121
+msgctxt "Level introduction"
+msgid "The Low Lands - Nobody survived here. All of the pesky guards were bludgeoned, decapitated and burned! And the fortress has been reduced to a pile of shattered stones. A great victory for us, Master!"
+msgstr "洼地-这里无人生还。所有讨厌的卫兵都被打倒、斩首或烧死了！堡垒也已经变成了一堆碎石块。主人，我们大获全胜！"
+
+#: landview:130
+msgctxt "Level introduction"
+msgid "Drachenfeld - Dragons with a fiery temper rule this realm, stomping and burning everyone foolish enough that stands in their way. It's time someone teaches these overgrown lizards a lesson in humility."
+msgstr "德拉奇菲尔德-脾气暴躁的巨龙统治着这个王国，它们会将所有愚蠢的挑战者踩扁并烧成灰烬。是时候让这些狂妄自大的蜥蜴们明白谦逊是一种美德了。"
+
+#: landview:131
+msgctxt "Level introduction"
+msgid "Dragontooth Wasteland - The great dragons have been torn to bloody shreds. Currently, our minions are collecting what remains of them to collect bones and decorate your dungeon with it, how stylish!"
+msgstr "龙牙荒地-巨龙们已经被撕成了血腥的碎片。现在，我们的爪牙正在拔出它们的骨头和牙齿用来装饰我们的地下城，多么时尚啊！"
+
+#: landview:140
+msgctxt "Level introduction"
+msgid "Ashspire - Of all the places, the enemy make his stand inside a giant volcano with superior numbers and forces. Prepare to flush them all out, one way or another!"
+msgstr "灰烬尖塔-敌人已经在这座巨大的火山中央建立了根据地，而且人数和力量都占据优势。是时候不择手段地将他们一网打尽了！"
+
+#: landview:141
+msgctxt "Level introduction"
+msgid "Burntflesh - This realm has been filled with lava. There's a nice smell of rotten meat everywhere like if the volcano itself became a huge barbecue for all the remaining corpses lying all around!... Now, only one land remains before the total domination. Let's go, Keeper!"
+msgstr "人肉烧烤-这个王国现在被岩浆淹没了。这里随处能闻到一股烤焦的肉味，令人舒适。这座火山现在犹如一个巨大的烧烤架，正在烧烤着附近的所有生灵！现在，距离完全征服这个世界只剩下最后一个王国了。我们去吧，守护者！"
+
+#: landview:150
+msgctxt "Level introduction"
+msgid "Dawnterror - This is truly a forsaken land; you cannot see the sun from this place and the howling wind cuts to the bone, lovely. The only thing I nitpick about the realm is the presence of Keeper Bane, who still sits on a false throne while the realms around it burned down. Have your final vengeance here."
+msgstr "黎明恐惧- 这真是一片废弃的土地；在这里你见不到太阳，只有呼啸的刺骨寒风，令人愉悦。唯一令我不满意的是，守护者贝恩也在这里，正端坐在他虚假的王座上，而周围的王国都已经被他烧毁了。在这里进行你最后的复仇吧。"
+
+#: landview:151
+msgctxt "Level introduction"
+msgid "Deathterror - Finally! Bane is no more! All the surroundings are now piled with tons of bones and skulls into a dark atmosphere of death. The air is filled with ghost's evil screams and skeletons' laughter. After that intense battle, you are now the Keeper that rules the world... and the throne is now yours. Congratulations, Master!"
+msgstr "死亡恐惧-终于！守护者贝恩不复存在了！周围四处堆积着人类的骸骨，散发出一种死亡的邪恶气息。空气中弥漫着鬼魂的嚎叫和骷髅的欢笑。经历了这场苦战，你现在成为了统御这个世界的守护者…荣耀属于你。恭喜你，我的主人！"

@@ -4,8 +4,7 @@
 /** @file config.c
  *     Configuration and campaign files support.
  * @par Purpose:
- *     Support for multiple campaigns, switching between levels mechanisms,
-       and loading of CFG files.
+ *     loading of CFG files.
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
@@ -23,7 +22,6 @@
 #include <stdarg.h>
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
@@ -34,12 +32,15 @@
 #include "bflib_sound.h"
 #include "sounds.h"
 #include "engine_render.h"
+#include "bflib_fmvids.h"
+#include "custom_sprites.h"
+#include "lvl_script_lib.h"
 
 #include "config_campaigns.h"
+#include "config_keeperfx.h"
 #include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"
-#include "music_player.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -47,99 +48,15 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-static float phase_of_moon;
-static long net_number_of_levels;
-static struct NetLevelDesc net_level_desc[100];
-static const char keeper_config_file[]="keeperfx.cfg";
+/** Line number, used when loading text files. */
+unsigned long text_line_number;
 
-int max_track = 7;
-unsigned short AtmosRepeat = 1013;
-unsigned short AtmosStart = 1014;
-unsigned short AtmosEnd = 1034;
-TbBool AssignCpuKeepers = 0;
-struct InstallInfo install_info;
-char keeper_runtime_directory[152];
 
-/**
- * Language 3-char abbreviations.
- * These are selected from ISO 639-2/B naming standard.
- */
-const struct NamedCommand lang_type[] = {
-  {"ENG", Lang_English},
-  {"FRE", Lang_French},
-  {"GER", Lang_German},
-  {"ITA", Lang_Italian},
-  {"SPA", Lang_Spanish},
-  {"SWE", Lang_Swedish},
-  {"POL", Lang_Polish},
-  {"DUT", Lang_Dutch},
-  {"HUN", Lang_Hungarian},
-  {"KOR", Lang_Korean},
-  {"DAN", Lang_Danish},
-  {"NOR", Lang_Norwegian},
-  {"CZE", Lang_Czech},
-  {"ARA", Lang_Arabic},
-  {"RUS", Lang_Russian},
-  {"JPN", Lang_Japanese},
-  {"CHI", Lang_ChineseInt}, // Simplified Chinese
-  {"CHT", Lang_ChineseTra}, // Traditional Chinese (not from ISO 639-2/B)
-  {"POR", Lang_Portuguese},
-  {"HIN", Lang_Hindi},
-  {"BEN", Lang_Bengali},
-  {"JAV", Lang_Javanese},
-  {"LAT", Lang_Latin}, // Classic Latin
-  {NULL,  Lang_Unset},
-  };
-
-const struct NamedCommand scrshot_type[] = {
-  {"PNG", 1},
-  {"BMP", 2},
-  {NULL,  0},
-  };
-
-const struct NamedCommand atmos_volume[] = {
-  {"LOW",     64},
-  {"MEDIUM", 128},
-  {"HIGH",   255},
-  {NULL,  0},
-  };
-
-const struct NamedCommand atmos_freq[] = {
-  {"LOW",    3200},
-  {"MEDIUM",  800},
-  {"HIGH",    400},
-  {NULL,  0},
-  };
-
-const struct NamedCommand conf_commands[] = {
-  {"INSTALL_PATH",         1},
-  {"INSTALL_TYPE",         2},
-  {"LANGUAGE",             3},
-  {"KEYBOARD",             4},
-  {"SCREENSHOT",           5},
-  {"FRONTEND_RES",         6},
-  {"INGAME_RES",           7},
-  {"CENSORSHIP",           8},
-  {"POINTER_SENSITIVITY",  9},
-  {"ATMOSPHERIC_SOUNDS",  10},
-  {"ATMOS_VOLUME",        11},
-  {"ATMOS_FREQUENCY",     12},
-  {"ATMOS_SAMPLES",       13},
-  {"RESIZE_MOVIES",       14},
-  {"MUSIC_TRACKS",        15},
-  {"FREEZE_GAME_ON_FOCUS_LOST"     , 17},
-  {"UNLOCK_CURSOR_WHEN_GAME_PAUSED", 18},
-  {"LOCK_CURSOR_IN_POSSESSION"     , 19},
-  {"PAUSE_MUSIC_WHEN_GAME_PAUSED"  , 20},
-  {"MUTE_AUDIO_ON_FOCUS_LOST"      , 21},
-  {"DISABLE_SPLASH_SCREENS"        , 22},
-  {"SKIP_HEART_ZOOM"               , 23},
-  {"CURSOR_EDGE_CAMERA_PANNING"    , 24},
-  {"DELTA_TIME"                    , 25},
-  {"CREATURE_STATUS_SIZE"          , 26},
-  {"MAX_ZOOM_DISTANCE"             , 27},
-  {NULL,                   0},
-  };
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
+/******************************************************************************/
 
 const struct NamedCommand logicval_type[] = {
   {"ENABLED",  1},
@@ -153,141 +70,78 @@ const struct NamedCommand logicval_type[] = {
   {"1",        1},
   {"0",        2},
   {NULL,       0},
-  };
+};
 
-  const struct NamedCommand vidscale_type[] = {
-  {"OFF",          256}, // = 0x100 = No scaling of Smacker Video
-  {"DISABLED",     256},
-  {"FALSE",        256},
-  {"NO",           256},
-  {"0",            256},
-  {"FIT",           16}, // = 0x10 = SMK_FullscreenFit - fit to fullscreen, using letterbox and pillarbox as necessary
-  {"ON",            16}, // Duplicate of FIT, for legacy reasons
-  {"ENABLED",       16},
-  {"TRUE",          16},
-  {"YES",           16},
-  {"1",             16},
-  {"STRETCH",       32}, // = 0x20 = SMK_FullscreenStretch  - stretch to fullscreen - ignores aspect ratio difference between source and destination
-  {"CROP",          64}, // = 0x40 = SMK_FullscreenCrop - fill fullscreen and crop - no letterbox or pillarbox
-  {"4BY3",          48}, // = 0x10 & 0x20 = [Aspect Ratio correction mode] - stretch 320x200 to 4:3 (i.e. increase height by 1.2)
-  {"PIXELPERFECT",  80}, // = 0x10 & 0x40 = integer multiple scale only (FIT)
-  {"4BY3PP",       112}, // = 0x10 & 0x20 & 0x40 = integer multiple scale only (4BY3)
-  {NULL,             0},
-  };
-unsigned int vid_scale_flags = 0;
-
-unsigned long features_enabled = 0;
-/** Line number, used when loading text files. */
-unsigned long text_line_number;
-
-short is_full_moon = 0;
-short is_near_full_moon = 0;
-short is_new_moon = 0;
-short is_near_new_moon = 0;
-
-/******************************************************************************/
-#ifdef __cplusplus
-}
-#endif
-/******************************************************************************/
-/**
- * Updates enabled features flags. Returns true if ALL features are enabled.
- * @param mem_size Amount of memory available for the game.
- * @return
- */
-TbBool update_features(unsigned long uf_mem_size)
-{
-    short result = false;
-    if (uf_mem_size >= 32)
-    {
-        result = true;
-        features_enabled |= Ft_HiResCreatr;
-  }
-  if (uf_mem_size >= 16)
-  {
-    features_enabled |= Ft_EyeLens;
-    features_enabled |= Ft_HiResVideo;
-    features_enabled |= Ft_BigPointer;
-    features_enabled |= Ft_AdvAmbSound;
-  }
-  SYNCMSG("Memory-demanding features %s.",result?"enabled":"disabled");
-  return result;
-}
-
-/**
- * Returns if the censorship is on. This mostly affects blood.
- * Originally, censorship was on for german language.
- */
-TbBool censorship_enabled(void)
-{
-  return ((features_enabled & Ft_Censorship) != 0);
-}
-
-/**
- * Returns if Athmospheric sound is on.
- */
-TbBool atmos_sounds_enabled(void)
-{
-  return ((features_enabled & Ft_Atmossounds) != 0);
-}
-
-/**
- * Returns if Resize Movie is on.
- */
-TbBool resize_movies_enabled(void)
-{
-  return ((features_enabled & Ft_Resizemovies) != 0);
-}
-
-#include "game_legacy.h" // it would be nice to not have to include this
-/**
- * Returns if we should freeze the game, if the game window loses focus.
- */
-TbBool freeze_game_on_focus_lost(void)
-{
-    if ((game.system_flags & GSF_NetworkActive) != 0)
-    {
+TbBool parameter_is_number(const char* parstr) {
+    if (parstr == NULL) {
         return false;
     }
-  return ((features_enabled & Ft_FreezeOnLoseFocus) != 0);
+
+    // Trim leading spaces
+    while (*parstr == ' ') {
+        parstr++;
+    }
+
+    // Trim trailing spaces
+    int len = strlen(parstr);
+    while (len > 0 && parstr[len - 1] == ' ') {
+        len--;
+    }
+
+    if (len == 0) {
+        return false;
+    }
+
+    // Check if the first character is a valid start for a number
+    if (!(parstr[0] == '-' || isdigit(parstr[0]))) {
+        return false;
+    }
+
+    // Check the remaining characters
+    for (int i = 1; i < len; ++i) {
+        if (!isdigit(parstr[i])) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
-/**
- * Returns if we should unlock the mouse cursor from the window, if the user pauses the game.
- */
-TbBool unlock_cursor_when_game_paused(void)
+int get_conf_line(const char *buf, long *pos, long buflen, char *dst, long dstlen)
 {
-  return ((features_enabled & Ft_UnlockCursorOnPause) != 0);
+    SYNCDBG(19,"Starting");
+    if ((*pos) >= buflen) return ccr_endOfFile;
+    // Skipping starting spaces
+    while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
+    {
+        (*pos)++;
+        if ((*pos) >= buflen) return ccr_endOfFile;
+    }
+    // Checking if this line is a comment
+    if (buf[*pos] == ';')
+        return ccr_comment;
+    // Checking if this line is start of a block
+    if (buf[*pos] == '[')
+        return ccr_endOfBlock;
+    int i = 0;
+    for (i=0; i+1 < dstlen; i++)
+    {
+        if ((buf[*pos]=='\r') || (buf[*pos]=='\n') || ((unsigned char)buf[*pos] < 7))
+            break;
+        dst[i]=buf[*pos];
+        (*pos)++;
+        if ((*pos) > buflen) break;
+    }
+    // Trim ending spaces
+    for (; i>0; i--)
+    {
+        if ( (dst[i-1] != ' ') && (dst[i-1] != '\t') && (dst[i-1] != 26) )
+            break;
+    }
+    dst[i]='\0';
+    return i;
 }
 
-/**
- * Returns if we should lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked).
- */
-TbBool lock_cursor_in_possession(void)
-{
-  return ((features_enabled & Ft_LockCursorInPossession) != 0);
-}
-
-/**
- * Returns if we should pause the music, if the user pauses the game.
- */
-TbBool pause_music_when_game_paused(void)
-{
-  return ((features_enabled & Ft_PauseMusicOnGamePause) != 0);
-}
-
-/**
- * Returns if we should mute the game audio, if the game window loses focus.
- */
-TbBool mute_audio_on_focus_lost(void)
-{
-  return ((features_enabled & Ft_MuteAudioOnLoseFocus) != 0);
-}
-
-TbBool is_feature_on(unsigned long feature)
-{
-  return ((features_enabled & feature) != 0);
-}
 
 TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen)
 {
@@ -365,33 +219,109 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
 }
 
 /**
+ * Reads the block name from buf, starting at pos.
+ * Sets name and namelen to the block name and name length respectively.
+ * Returns true on success, false when the block name is zero.
+ */
+TbBool conf_get_block_name(const char * buf, long * pos, long buflen, const char ** name, int * namelen)
+{
+  const long start = *pos;
+  *name = NULL;
+  *namelen = 0;
+  while (true) {
+    if (*pos >= buflen) {
+      return false;
+    } else if (isalpha(buf[*pos])) {
+      (*pos)++;
+      continue;
+    } else if (isdigit(buf[*pos])) {
+      (*pos)++;
+      continue;
+    } else {
+      if (*pos - start > 0) {
+        *name = &buf[start];
+        *namelen = *pos - start;
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+}
+
+/**
+ * Searches for the next block in buf, starting at pos.
+ * Sets name and namelen to the block name and name length respectively.
+ * Returns true on success, false when no more blocks are found.
+ */
+TbBool iterate_conf_blocks(const char * buf, long * pos, long buflen, const char ** name, int * namelen)
+{
+  text_line_number = 1;
+  *name = NULL;
+  *namelen = 0;
+  while (true) {
+    // Skip whitespace before block start
+    if (!skip_conf_spaces(buf, pos, buflen)) {
+      return false;
+    }
+    // Check if this line is start of a block
+    if (*pos >= buflen) {
+      return false;
+    } else if (buf[*pos] != '[') {
+      skip_conf_to_next_line(buf, pos, buflen);
+      continue;
+    }
+    (*pos)++;
+    // Skip whitespace before block name
+    if (!skip_conf_spaces(buf, pos, buflen)) {
+      return false;
+    }
+    // Get block name
+    if (!conf_get_block_name(buf, pos, buflen, name, namelen)) {
+      skip_conf_to_next_line(buf, pos, buflen);
+      return false;
+    }
+    // Skip whitespace after block name
+    if (!skip_conf_spaces(buf, pos, buflen)) {
+      return false;
+    } else if (buf[*pos] != ']') {
+      skip_conf_to_next_line(buf, pos, buflen);
+      continue;
+    }
+    skip_conf_to_next_line(buf,pos,buflen);
+    return true;
+  }
+}
+
+/**
  * Recognizes config command and returns its number, or negative status code.
+ * The string comparison is done by case-insensitive.
  * @param buf
  * @param pos
  * @param buflen
  * @param commands
  * @return If positive integer is returned, it is the command number recognized in the line.
- * If 0 is returned, that means the current line did not contained any command and should be skipped.
- * If -1 is returned, that means we've reached end of file.
- * If -2 is returned, that means the command wasn't recognized.
- * If -3 is returned, that means we've reached end of the INI block.
+ * If ccr_comment      is returned, that means the current line did not contained any command and should be skipped.
+ * If ccr_endOfFile    is returned, that means we've reached end of file.
+ * If ccr_unrecognised is returned, that means the command wasn't recognized.
+ * If ccr_endOfBlock   is returned, that means we've reached end of the INI block.
  */
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand commands[])
 {
     SYNCDBG(19,"Starting");
-    if ((*pos) >= buflen) return -1;
+    if ((*pos) >= buflen) return ccr_endOfFile;
     // Skipping starting spaces
     while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
     {
         (*pos)++;
-        if ((*pos) >= buflen) return -1;
+        if ((*pos) >= buflen) return ccr_endOfFile;
     }
     // Checking if this line is a comment
     if (buf[*pos] == ';')
-        return 0;
+        return ccr_comment;
     // Checking if this line is start of a block
     if (buf[*pos] == '[')
-        return -3;
+        return ccr_endOfBlock;
     // Finding command number
     int i = 0;
     while (commands[i].num > 0)
@@ -428,7 +358,695 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
         }
         i++;
     }
-    return -2;
+    const int len = strcspn(&buf[(*pos)], " \n\r\t");
+    CONFWRNLOG("Unrecognized command '%.*s'", len, &buf[(*pos)]);
+    return ccr_unrecognised;
+}
+
+static int64_t get_datatype_min(uchar type)
+{
+    switch (type)
+    {
+        case dt_uchar:
+            return 0;
+        case dt_schar:
+            return SCHAR_MIN;
+        case dt_char:
+            return CHAR_MIN;
+        case dt_short:
+            return SHRT_MIN;
+        case dt_ushort:
+            return 0;
+        case dt_int:
+            return INT_MIN;
+        case dt_uint:
+            return 0;
+        case dt_long:
+            return LONG_MIN;
+        case dt_ulong:
+            return 0;
+        case dt_longlong:
+            return LLONG_MIN;
+        case dt_ulonglong:
+            return 0;
+        default:
+            ERRORLOG("unexpected datatype %d", type);
+            break;
+    }
+    return 0;
+}
+
+static int64_t get_datatype_max(uchar type)
+{
+    switch (type)
+    {
+        case dt_uchar:
+            return UCHAR_MAX;
+        case dt_schar:
+            return SCHAR_MAX;
+        case dt_char:
+            return CHAR_MAX;
+        case dt_short:
+            return SHRT_MAX;
+        case dt_ushort:
+            return USHRT_MAX;
+        case dt_int:
+            return INT_MAX;
+        case dt_uint:
+            return UINT_MAX;
+        case dt_long:
+            return LONG_MAX;
+        case dt_ulong:
+            return ULONG_MAX;
+        case dt_longlong:
+            return LLONG_MAX;
+        case dt_ulonglong:
+            return ULLONG_MAX;
+        default:
+            break;
+    }
+    return 0;
+}
+
+//if the parameter is a number return the number, if a value in the provided NamedCommand list return the value
+int64_t value_default(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    if (parameter_is_number(value_text))
+    {
+        int64_t value = atoll(value_text);
+        int64_t minimum = max(named_field->min, get_datatype_min(named_field->type));
+        int64_t maximum = min(named_field->max, get_datatype_max(named_field->type));
+        if( value < minimum)
+        {
+            NAMFIELDWRNLOG("field '%s' smaller than min value '%I64d', was '%I64d'",named_field->name,minimum,value);
+            value = minimum;
+        }
+        else if( value > maximum)
+        {
+            NAMFIELDWRNLOG("field '%s' greater than max value '%I64d', was '%I64d'",named_field->name,maximum,value);
+            value = maximum;
+        }
+        return value;
+
+    }
+    else if(named_field->namedCommand != NULL)
+    {
+        int64_t value = get_id(named_field->namedCommand, value_text);
+        if(value >= 0)
+        {
+            return value;
+        }
+        NAMFIELDWRNLOG("Unrecognized parameter for field '%s', got '%s'",named_field->name,value_text);
+    }
+    else
+    {
+        NAMFIELDWRNLOG("Expected number for field '%s', got '%s'",named_field->name,value_text);
+    }
+    return 0;
+}
+
+int64_t value_name(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    size_t offset = named_fields_set->struct_size * idx;
+    strncpy((char*)named_field->field + offset, value_text, COMMAND_WORD_LEN - 1);
+    ((char*)named_field->field + offset)[COMMAND_WORD_LEN - 1] = '\0';
+    return 0;
+}
+
+//same as value_flagsfield but treats the namedCommand field as a longnamedCommand
+int64_t value_longflagsfield(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    int64_t value = 0;
+    char word_buf[COMMAND_WORD_LEN];
+    if (parameter_is_number(value_text))
+    {
+        return atoll(value_text);
+    }
+    if(strcasecmp(value_text,"none") == 0)
+    {
+        return 0;
+    }
+
+    long pos = 0;
+    long len = strlen(value_text);
+    int i = 0;
+    while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
+    {
+        if (i == 1)
+        {
+            //if the second value is 0 or 1, treat it as a flag toggle
+            if(strcmp(word_buf, "0") == 0 || strcmp(word_buf, "1") == 0)
+            {
+                int64_t original_value = get_named_field_value(named_field, named_fields_set, idx);
+                set_flag_value(original_value,value, atoi(word_buf));
+                return original_value;
+            }
+        }
+
+        int64_t k = get_long_id((struct LongNamedCommand*)named_field->namedCommand, word_buf);
+        if(k >= 0)
+            value |= k;
+        else
+            NAMFIELDWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
+        i++;
+    }
+    return value;
+}
+
+
+//expects value_text to be a space seperated list of values in the named fields named command, wich can be combined with bitwise or
+int64_t value_flagsfield(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    int64_t value = 0;
+    char word_buf[COMMAND_WORD_LEN];
+    if (parameter_is_number(value_text))
+    {
+        return atoll(value_text);
+    }
+    if(strcasecmp(value_text,"none") == 0)
+    {
+        return 0;
+    }
+
+    long pos = 0;
+    long len = strlen(value_text);
+    int i = 0;
+    while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
+    {
+        if (i == 1)
+        {
+            //if the second value is 0 or 1, treat it as a flag toggle
+            if(strcmp(word_buf, "0") == 0 || strcmp(word_buf, "1") == 0)
+            {
+                int64_t original_value = get_named_field_value(named_field, named_fields_set, idx);
+                set_flag_value(original_value,value, atoi(word_buf));
+                return original_value;
+            }
+        }
+
+        int k = get_id(named_field->namedCommand, word_buf);
+        if(k >= 0)
+            value |= k;
+        else
+            NAMFIELDWRNLOG("Unexpected value for field '%s', got '%s'",named_field->name,word_buf);
+        i++;
+    }
+    return value;
+}
+
+int64_t value_icon(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    if (flag_is_set(flags,ccf_SplitExecution))
+    {
+        int64_t script_string_offset = script_strdup(value_text);
+        if (script_string_offset < 0)
+        {
+            NAMFIELDWRNLOG("Run out script strings space");
+            return -1;
+        }
+        return script_string_offset;
+    }
+    else
+    {
+        return get_icon_id(value_text);
+    }
+}
+
+int64_t value_animid(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+  if (flag_is_set(flags,ccf_SplitExecution))
+  {
+      int64_t script_string_offset = script_strdup(value_text);
+      if (script_string_offset < 0)
+      {
+          NAMFIELDWRNLOG("Run out script strings space");
+          return -1;
+      }
+      return script_string_offset;
+  }
+  else
+  {
+      return get_anim_id_(value_text);
+  }
+}
+
+int64_t value_effOrEffEl(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    return effect_or_effect_element_id(value_text);
+}
+
+int64_t value_function(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    return get_function_idx(value_text, named_field->namedCommand);
+}
+
+void assign_icon(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    if (flag_is_set(flags,ccf_SplitExecution))
+    {
+        short icon_id = get_icon_id(script_strval(value));
+        assign_default(named_field,icon_id,named_fields_set,idx,src_str,flags);
+    }
+    else
+    {
+        assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    }
+}
+
+void assign_animid(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    if (flag_is_set(flags,ccf_SplitExecution))
+    {
+        short anim_id = get_anim_id_(script_strval(value));
+        assign_default(named_field,anim_id,named_fields_set,idx,src_str,flags);
+    }
+    else
+    {
+        assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    }
+}
+
+int64_t value_transpflg(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+
+    if (parameter_is_number(value_text))
+    {
+        return atoll(value_text) << 4;
+    }
+    else
+    {
+        NAMFIELDWRNLOG("Expected number for field '%s', got '%s'",named_field->name,value_text);
+    }
+    return 0;
+}
+
+int64_t value_stltocoord(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+
+    if (parameter_is_number(value_text))
+    {
+        return atoll(value_text) * COORD_PER_STL;
+    }
+    else
+    {
+        NAMFIELDWRNLOG("Expected number for field '%s', got '%s'",named_field->name,value_text);
+    }
+    return 0;
+}
+
+int64_t parse_named_field_value(const struct NamedField* named_field, const char* value_text, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    if (named_field->parse_func != NULL)
+      return named_field->parse_func(named_field,value_text,named_fields_set,idx,src_str,flags);
+    else
+        NAMFIELDWRNLOG("No parse_func for field %s",named_field->name);
+    return 0;
+}
+
+int64_t get_named_field_value(const struct NamedField* named_field, const struct NamedFieldSet* named_fields_set, int idx)
+{
+    void* field = (char*)named_field->field + named_fields_set->struct_size * idx;
+    switch (named_field->type)
+    {
+    case dt_uchar:
+        return *(unsigned char*)field;
+    case dt_schar:
+        return *(signed char*)field;
+    case dt_char:
+        return *(char*)field;
+    case dt_short:
+        return *(signed short*)field;
+    case dt_ushort:
+        return *(unsigned short*)field;
+    case dt_int:
+        return *(signed int*)field;
+    case dt_uint:
+        return *(unsigned int*)field;
+    case dt_long:
+        return *(signed long*)field;
+    case dt_ulong:
+        return *(unsigned long*)field;
+    case dt_longlong:
+        return *(signed long long*)field;
+    case dt_ulonglong:
+        return *(unsigned long long*)field;
+    case dt_float:
+        return (int64_t)(*(float*)field);
+    case dt_double:
+        return (int64_t)(*(double*)field);
+    case dt_longdouble:
+        return (int64_t)(*(long double*)field);
+    case dt_charptr:
+    case dt_default:
+    case dt_void:
+    default:
+        ERRORLOG("unexpected datatype for field '%s', '%d'", named_field->name, named_field->type);
+        return -1;
+    }
+}
+
+//for fields that are fully handled in the parse function
+void assign_null(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+}
+
+void assign_default(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    void* field = (char*)named_field->field + named_fields_set->struct_size * idx;
+    switch (named_field->type)
+    {
+    case dt_uchar:
+        if (value < 0 || value > UCHAR_MAX)
+            NAMFIELDWRNLOG("Value out of range for unsigned char: %lld", value);
+        else
+            *(unsigned char*)field = (unsigned char)value;
+        break;
+    case dt_schar:
+            *(signed char*)field = (signed char)value;
+        break;
+    case dt_char:
+        if (value < CHAR_MIN || value > CHAR_MAX)
+            NAMFIELDWRNLOG("Value out of range for char: %lld", value);
+        else
+            *(char*)field = (char)value;
+        break;
+    case dt_short:
+        if (value < SHRT_MIN || value > SHRT_MAX)
+            NAMFIELDWRNLOG("Value out of range for signed short: %lld", value);
+        else
+            *(signed short*)field = (signed short)value;
+        break;
+    case dt_ushort:
+        if (value < 0 || value > USHRT_MAX)
+            NAMFIELDWRNLOG("Value out of range for unsigned short: %lld", value);
+        else
+            *(unsigned short*)field = (unsigned short)value;
+        break;
+    case dt_int:
+        if (value < INT_MIN || value > INT_MAX)
+            NAMFIELDWRNLOG("Value out of range for signed int: %lld", value);
+        else
+            *(signed int*)field = (signed int)value;
+        break;
+    case dt_uint:
+        if (value < 0 || value > UINT_MAX)
+            NAMFIELDWRNLOG("Value out of range for unsigned int: %lld", value);
+        else
+            *(unsigned int*)field = (unsigned int)value;
+        break;
+    case dt_long:
+        if (value < LONG_MIN || value > LONG_MAX)
+            NAMFIELDWRNLOG("Value out of range for signed long: %lld", value);
+        else
+            *(signed long*)field = (signed long)value;
+        break;
+    case dt_ulong:
+        if (value < 0 || value > ULONG_MAX)
+            NAMFIELDWRNLOG("Value out of range for unsigned long: %lld", value);
+        else
+            *(unsigned long*)field = (unsigned long)value;
+        break;
+    case dt_longlong:
+        if (value < LLONG_MIN || value > LLONG_MAX)
+            NAMFIELDWRNLOG("Value out of range for signed long long: %lld", value);
+        else
+            *(signed long long*)field = (signed long long)value;
+        break;
+    case dt_ulonglong:
+        if (value < 0 || value > ULLONG_MAX)
+            NAMFIELDWRNLOG("Value out of range for unsigned long long: %lld", value);
+        else
+            *(unsigned long long*)field = (unsigned long long)value;
+        break;
+    case dt_float:
+        *(float*)field = (float)value;
+        break;
+    case dt_double:
+        *(double*)field = (double)value;
+        break;
+    case dt_longdouble:
+        *(long double*)field = (long double)value;
+        break;
+    case dt_charptr:
+    case dt_default:
+    case dt_void:
+    default:
+        NAMFIELDWRNLOG("unexpected datatype for field '%s', '%d'", named_field->name, named_field->type);
+        break;
+    }
+}
+
+void assign_named_field_value(const struct NamedField* named_field, int64_t value, const struct NamedFieldSet* named_fields_set, int idx, const char* src_str, unsigned char flags)
+{
+    if(named_field->assign_func == NULL)
+    {
+        ERRORLOG("No assign_func for field %s",named_field->name);
+        assign_default(named_field,value,named_fields_set,idx,src_str,flags);
+    }
+    else
+    {
+        named_field->assign_func(named_field,value,named_fields_set,idx,src_str,flags);
+    }
+}
+
+/**
+ * Recognizes config command and returns its number, or negative status code.
+ * @param buf
+ * @param pos
+ * @param buflen
+ * @param commands
+ * @return If ccr_ok is returned the field has been correctly assigned
+ * If ccr_comment      is returned, that means the current line did not contained any command and should be skipped.
+ * If ccr_endOfFile    is returned, that means we've reached end of file.
+ * If ccr_unrecognised is returned, that means the command wasn't recognized.
+ * If ccr_endOfBlock   is returned, that means we've reached end of the INI block.
+ * If ccr_error        is returned, that means something went wrong.
+ */
+
+int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField commands[], const struct NamedFieldSet* named_fields_set, int idx, unsigned short flags, const char *config_textname)
+{
+    SYNCDBG(19,"Starting");
+    if ((*pos) >= buflen) return -1;
+    // Skipping starting spaces
+    while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
+    {
+        (*pos)++;
+        if ((*pos) >= buflen) return -1;
+    }
+    // Checking if this line is a comment
+    if (buf[*pos] == ';')
+        return ccr_comment;
+    // Checking if this line is start of a block
+    if (buf[*pos] == '[')
+        return ccr_endOfBlock;
+    // Finding command number
+    int i = 0;
+    while (commands[i].name != NULL)
+    {
+        if (flag_is_set(flags,CnfLd_ListOnly) && strcasecmp(commands[i].name,"Name") != 0)
+        {
+            i++;
+            continue;
+        }
+
+        if (commands[i].argnum > 0)
+        {
+            i++;
+            continue;
+        }
+
+        int cmdname_len = strlen(commands[i].name);
+        if ((*pos)+cmdname_len > buflen) {
+            i++;
+            continue;
+        }
+        // Find a matching command
+        if (strnicmp(buf+(*pos), commands[i].name, cmdname_len) == 0)
+        {
+            (*pos) += cmdname_len;
+            // if we're not at end of input buffer..
+            if ((*pos) < buflen)
+            {
+                // make sure it's whole command, not just start of different one
+               if ((buf[(*pos)] != ' ') && (buf[(*pos)] != '\t')
+                && (buf[(*pos)] != '=')  && ((unsigned char)buf[(*pos)] >= 7))
+               {
+                  (*pos) -= cmdname_len;
+                  i++;
+                  continue;
+               }
+               // Skipping spaces between command and parameters
+               while ((buf[*pos] == ' ') || (buf[*pos] == '\t')
+                || (buf[*pos] == '=')  || ((unsigned char)buf[*pos] < 7))
+               {
+                 (*pos)++;
+                 if ((*pos) >= buflen) break;
+               }
+            }
+
+
+            int64_t k = 0;
+            if (commands[i].argnum == -1)
+            {
+                #define MAX_LINE_LEN 1024
+                char line_buf[MAX_LINE_LEN];
+                int line_len = 0;
+
+                // Copy characters until newline or end of buffer
+                while ((*pos) + line_len < buflen &&
+                      buf[(*pos) + line_len] != '\n' &&
+                      buf[(*pos) + line_len] != '\r')
+                {
+                    line_buf[line_len] = buf[(*pos) + line_len];
+                    line_len++;
+
+                    // Prevent buffer overflow
+                    if (line_len >= MAX_LINE_LEN - 1)
+                    {
+                      ERRORLOG("preventing overflow for long conf line");
+                      break;
+                    }
+                }
+
+                #undef MAX_LINE_LEN
+                line_buf[line_len] = '\0'; // Null-terminate the string
+
+                // Move position to the next line
+                (*pos) += line_len;
+
+                // Pass extracted string
+              k = parse_named_field_value(&commands[i], line_buf,named_fields_set,idx,config_textname,ccf_None);
+              assign_named_field_value(&commands[i],k,named_fields_set,idx,config_textname,ccf_None);
+            }
+            else
+            {
+                char word_buf[COMMAND_WORD_LEN];
+                uchar n = 0;
+                while (get_conf_parameter_single(buf,pos,buflen,word_buf,sizeof(word_buf)) > 0)
+                {
+                    if(strcmp(commands[i + n].name, commands[i].name) != 0)
+                    {
+                        CONFWRNLOG("more params than expected for command '%s' '%s'",commands[i].name, word_buf);
+                    }
+                    else
+                    {
+                        k = parse_named_field_value(&commands[i + n],word_buf,named_fields_set,idx,config_textname,ccf_None);
+                        assign_named_field_value(&commands[i + n],k,named_fields_set,idx,config_textname,ccf_None);
+                        n++;
+                    }
+                }
+            }
+            return ccr_ok;
+        }
+        i++;
+    }
+    return ccr_unrecognised;
+}
+
+TbBool parse_named_field_block(const char *buf, long len, const char *config_textname, unsigned short flags,const char* blockname,
+                         const struct NamedField named_field[], const struct NamedFieldSet* named_fields_set, int idx)
+{
+    long pos = 0;
+    int k = find_conf_block(buf, &pos, len, blockname);
+    if (k < 0)
+    {
+        if ((flags & CnfLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",blockname,config_textname);
+        return false;
+    }
+
+    while (pos<len)
+    {
+        // Finding command number in this line.
+        int assignresult = assign_conf_command_field(buf, &pos, len, named_field,named_fields_set,idx,flags,config_textname);
+        if( assignresult == ccr_ok || assignresult == ccr_comment )
+        {
+            skip_conf_to_next_line(buf,&pos,len);
+            continue;
+        }
+        else if( assignresult == ccr_unrecognised)
+        {
+            skip_conf_to_next_line(buf,&pos,len);
+            continue;
+        }
+        else if( assignresult == ccr_endOfBlock || assignresult == ccr_error || assignresult == ccr_endOfFile)
+        {
+            break;
+        }
+    }
+    return true;
+}
+
+void set_defaults(const struct NamedFieldSet* named_fields_set, const char *config_textname)
+{
+  memset((void *)named_fields_set->struct_base, 0, named_fields_set->struct_size * named_fields_set->max_count);
+
+  const struct NamedField* name_NamedField = NULL;
+
+  for (long i = 0; named_fields_set->named_fields[i].name != NULL; i++)
+  {
+      if (named_fields_set->named_fields[i].default_value != 0)
+      {
+          for (long j = 0; j < named_fields_set->max_count; j++)
+          {
+              assign_default(&named_fields_set->named_fields[i], named_fields_set->named_fields[i].default_value, named_fields_set, j, config_textname, ccf_None);
+          }
+      }
+
+      if(strcmp(named_fields_set->named_fields[i].name, "NAME") == 0)
+      {
+          name_NamedField = &named_fields_set->named_fields[i];
+      }
+
+  }
+
+  if (name_NamedField != NULL && named_fields_set->names != NULL)
+  {
+      for (int i = 0; i < named_fields_set->max_count; i++)
+      {
+          named_fields_set->names[i].name = (char*)name_NamedField->field + i * named_fields_set->struct_size;
+          named_fields_set->names[i].num = i;
+      }
+      named_fields_set->names[named_fields_set->max_count - 1].name = NULL; // must be null for get_id
+  }
+}
+
+
+TbBool parse_named_field_blocks(char *buf, long len, const char *config_textname, unsigned short flags,
+                               const struct NamedFieldSet* named_fields_set)
+{
+    long pos = 0;
+    // Initialize the array
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        set_defaults(named_fields_set,config_textname);
+    }
+
+    const char * blockname = NULL;
+    int blocknamelen = 0;
+    const int basename_len = strlen(named_fields_set->block_basename);
+    while (iterate_conf_blocks(buf, &pos, len, &blockname, &blocknamelen))
+    {
+        // look for blocks starting with block_basename, followed by one or more digits
+        if (blocknamelen < basename_len + 1) {
+            continue;
+        } else if (memcmp(blockname, named_fields_set->block_basename, basename_len) != 0) {
+            continue;
+        }
+        const int i = natoi(&blockname[basename_len], blocknamelen - basename_len);
+        if (i < 0 || i >= named_fields_set->max_count) {
+            continue;
+        } else if (i >= *named_fields_set->count_field) {
+            *named_fields_set->count_field = i + 1;
+        }
+        char blockname_null[COMMAND_WORD_LEN];
+        strncpy(blockname_null, blockname, blocknamelen);
+        blockname_null[blocknamelen] = '\0';
+
+        parse_named_field_block(buf, len, config_textname, flags, blockname_null, named_fields_set->named_fields, named_fields_set, i);
+    }
+
+    return true;
 }
 
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen)
@@ -447,56 +1065,10 @@ int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,lon
       break;
     dst[i]=buf[*pos];
     (*pos)++;
-    if ((*pos) >= buflen) break;
+    if ((*pos) > buflen) break;
   }
   dst[i]='\0';
   return i;
-}
-
-int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,long dstlen)
-{
-    int i;
-    TbBool esc = false;
-    if ((*pos) >= buflen) return 0;
-    // Skipping spaces after previous parameter
-    while ((buf[*pos] == ' ') || (buf[*pos] == '\t'))
-    {
-        (*pos)++;
-        if ((*pos) >= buflen) return 0;
-    }
-    // first quote
-    if (buf[*pos] != '"')
-        return 0;
-    (*pos)++;
-
-    for (i=0; i+1 < dstlen;)
-    {
-        if ((*pos) >= buflen) {
-            return 0; // End before quote
-        }
-        if (!esc)
-        {
-            if (buf[*pos] == '\\')
-            {
-                esc = true;
-                (*pos)++;
-                continue;
-            }
-            else if (buf[*pos] == '"')
-            {
-                (*pos)++;
-                break;
-            }
-        }
-        else
-        {
-            esc = false;
-        }
-        dst[i++]=buf[*pos];
-        (*pos)++;
-    }
-    dst[i]='\0';
-    return i;
 }
 
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen)
@@ -525,28 +1097,6 @@ int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,lo
     return i;
 }
 
-int get_conf_list_int(const char *buf, const char **state, int *dst)
-{
-    int len = -1;
-    if (*state == NULL)
-    {
-        if (1 != sscanf(buf, " %d%n", dst, &len))
-        {
-            return 0;
-        }
-        *state = buf + len;
-        return 1;
-    }
-    else
-    {
-        if (1 != sscanf(*state, " , %d%n", dst, &len))
-        {
-            return 0;
-        }
-        *state = *state + len;
-        return 1;
-    }
-}
 /**
  * Returns parameter num from given NamedCommand array, or 0 if not found.
  */
@@ -597,31 +1147,23 @@ const char *get_conf_parameter_text(const struct NamedCommand commands[],int num
             return commands[i].name;
         i++;
   }
-  return lbEmptyString;
+  return "";
 }
 
 /**
- * Returns current language string.
+ * Returns ID of given item using NamedField list.
+ * If not found, returns -1.
  */
-const char *get_current_language_str(void)
+long get_named_field_id(const struct NamedField *desc, const char *itmname)
 {
-  return get_conf_parameter_text(lang_type,install_info.lang_id);
-}
-
-/**
- * Returns copy of the requested language string in lower case.
- */
-const char *get_language_lwrstr(int lang_id)
-{
-    const char* src = get_conf_parameter_text(lang_type, lang_id);
-#if (BFDEBUG_LEVEL > 0)
-  if (strlen(src) != 3)
-      WARNLOG("Bad text code for language index %d",(int)lang_id);
-#endif
-  static char lang_str[4];
-  snprintf(lang_str, 4, "%s", src);
-  make_lowercase(lang_str);
-  return lang_str;
+  if ((desc == NULL) || (itmname == NULL))
+    return -1;
+  for (long i = 0; desc[i].name != NULL; i++)
+  {
+    if (strcasecmp(desc[i].name, itmname) == 0)
+      return i;
+  }
+  return -1;
 }
 
 /**
@@ -684,464 +1226,18 @@ long get_rid(const struct NamedCommand *desc, const char *itmname)
   return -1;
 }
 
-TbBool prepare_diskpath(char *buf,long buflen)
+char *prepare_file_path_buf(char *dst, int dst_size, short fgroup, const char *fname)
 {
-    int i = strlen(buf) - 1;
-    if (i >= buflen)
-        i = buflen - 1;
-    if (i < 0)
-        return false;
-    while (i > 0)
-    {
-        if ((buf[i] != '\\') && (buf[i] != '/') &&
-            ((unsigned char)(buf[i]) > 32))
-            break;
-        i--;
-  }
-  buf[i+1]='\0';
-  return true;
+    return prepare_file_path_buf_mod(dst, dst_size, NULL, fgroup, fname);
 }
-
-short load_configuration(void)
+/*
+ * @mod_dir insert before fgroup related sdir, set NULL if no mod.
+ * @fname insert after fgroup related sdir.
+ */
+char *prepare_file_path_buf_mod(char *dst, int dst_size, const char *mod_dir, short fgroup, const char *fname)
 {
-  static const char config_textname[] = "Config";
-  // Variables to use when recognizing parameters
-  SYNCDBG(4,"Starting");
-  // Preparing config file name and checking the file
-  strcpy(install_info.inst_path,"");
-  install_info.field_9A = 0;
-  // Set default runtime directory and load the config file
-  strcpy(keeper_runtime_directory,".");
-  const char* fname = prepare_file_path(FGrp_Main, keeper_config_file);
-  long len = LbFileLengthRnc(fname);
-  if (len < 2)
-  {
-    WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,keeper_config_file);
-    return false;
-  }
-  if (len > 65536)
-  {
-    WARNMSG("%s file \"%s\" is too large.",config_textname,keeper_config_file);
-    return false;
-  }
-  char* buf = (char*)LbMemoryAlloc(len + 256);
-  if (buf == NULL)
-    return false;
-  // Loading file data
-  len = LbFileLoadAt(fname, buf);
-  if (len>0)
-  {
-    SYNCDBG(7,"Processing %s file, %d bytes",config_textname,len);
-    buf[len] = '\0';
-    // Set text line number - we don't have blocks so we need to initialize it manually
-    text_line_number = 1;
-    long pos = 0;
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(conf_commands,cmd_num)
-    while (pos<len)
-    {
-      // Finding command number in this line
-      int i = 0;
-      int cmd_num = recognize_conf_command(buf, &pos, len, conf_commands);
-      // Now store the config item in correct place
-      int k;
-      char word_buf[32];
-      switch (cmd_num)
-      {
-      case 1: // INSTALL_PATH
-          i = get_conf_parameter_whole(buf,&pos,len,install_info.inst_path,sizeof(install_info.inst_path));
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          prepare_diskpath(install_info.inst_path,sizeof(install_info.inst_path));
-          break;
-      case 2: // INSTALL_TYPE
-          // This command is just skipped...
-          break;
-      case 3: // LANGUAGE
-          i = recognize_conf_parameter(buf,&pos,len,lang_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          install_info.lang_id = i;
-          break;
-      case 4: // KEYBOARD
-          // Works only in DK Premium
-          break;
-      case 5: // SCREENSHOT
-          i = recognize_conf_parameter(buf,&pos,len,scrshot_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          screenshot_format = i;
-          break;
-      case 6: // FRONTEND_RES
-          for (i=0; i<3; i++)
-          {
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-              k = LbRegisterVideoModeString(word_buf);
-            else
-              k = -1;
-            if (k<=0)
-            {
-                CONFWRNLOG("Couldn't recognize video mode %d in \"%s\" command of %s file.",
-                   i+1,COMMAND_TEXT(cmd_num),config_textname);
-               continue;
-            }
-            switch (i)
-            {
-            case 0:
-                set_failsafe_vidmode(k);
-                break;
-            case 1:
-                set_movies_vidmode(k);
-                break;
-            case 2:
-                set_frontend_vidmode(k);
-                break;
-            }
-          }
-          break;
-      case 7: // INGAME_RES
-          for (i=0; i<max_game_vidmode_count(); i++)
-          {
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = LbRegisterVideoModeString(word_buf);
-              if (k > 0)
-                set_game_vidmode(i,k);
-              else
-                  CONFWRNLOG("Couldn't recognize video mode %d in \"%s\" command of %s file.",
-                    i+1,COMMAND_TEXT(cmd_num),config_textname);
-            } else
-            {
-              if (i > 0)
-                set_game_vidmode(i,Lb_SCREEN_MODE_INVALID);
-              else
-                  CONFWRNLOG("Video modes list empty in \"%s\" command of %s file.",
-                    COMMAND_TEXT(cmd_num),config_textname);
-              break;
-            }
-          }
-          break;
-      case 8: // CENSORSHIP
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled |= Ft_Censorship;
-          else
-              features_enabled &= ~Ft_Censorship;
-          break;
-      case 9: // POINTER_SENSITIVITY
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = atoi(word_buf);
-          }
-          if ((i >= 0) && (i <= 1000)) {
-              base_mouse_sensitivity = i*256/100;
-          } else {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-          }
-          break;
-      case 10: // Atmospheric sound
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled |= Ft_Atmossounds;
-          else
-              features_enabled &= ~Ft_Atmossounds;
-          break;
-      case 11: // Atmospheric Sound Volume
-          i = recognize_conf_parameter(buf,&pos,len,atmos_volume);
-          if (i <= 0)
-          {
-            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          else
-          {
-            atmos_sound_volume = i;
-            break;
-          }
-      case 12: // Atmospheric Sound Frequency - Chance of 1 in X
-          i = recognize_conf_parameter(buf,&pos,len,atmos_freq);
-          if (i <= 0)
-          {
-            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          else
-          {
-            atmos_sound_frequency = i;
-            break;
-          }
-      case 13: // Atmos_samples
-          for (i=0; i<3; i++)
-          {
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-              k = atoi(word_buf);
-            else
-              k = -1;
-            if (k<=0)
-            {
-                CONFWRNLOG("Couldn't recognize setting %d in \"%s\" command of %s file.",
-                   i+1,COMMAND_TEXT(cmd_num),config_textname);
-               continue;
-            }
-            switch (i)
-            {
-            case 0:
-                AtmosStart = k;
-                break;
-            case 1:
-                AtmosEnd = k;
-                break;
-            case 2:
-                AtmosRepeat = k;
-                break;
-            }
-          }
-          break;
-      case 14: // Resize Movies
-          i = recognize_conf_parameter(buf,&pos,len,vidscale_type);
-          if (i <= 0 || i > 256)
-          {
-            CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i < 256) {
-            features_enabled |= Ft_Resizemovies;
-            vid_scale_flags = i;
-          }
-          else {
-            features_enabled &= ~Ft_Resizemovies;
-          }
-          break;
-      case 15: // MUSIC_TRACKS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = atoi(word_buf);
-          }
-          if ((i > 0) && (i <= 50)) {
-              max_track = i;
-          } else {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-          }
-          break;
-      case 17: // FREEZE_GAME_ON_FOCUS_LOST
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled |= Ft_FreezeOnLoseFocus;
-          else
-              features_enabled &= ~Ft_FreezeOnLoseFocus;
-          break;
-      case 18: // UNLOCK_CURSOR_WHEN_GAME_PAUSED
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled |= Ft_UnlockCursorOnPause;
-          else
-              features_enabled &= ~Ft_UnlockCursorOnPause;
-          break;
-      case 19: // LOCK_CURSOR_IN_POSSESSION
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled |= Ft_LockCursorInPossession;
-          else
-              features_enabled &= ~Ft_LockCursorInPossession;
-          break;
-      case 20: // PAUSE_MUSIC_WHEN_GAME_PAUSED
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled |= Ft_PauseMusicOnGamePause;
-          else
-              features_enabled &= ~Ft_PauseMusicOnGamePause;
-          break;
-      case 21: // MUTE_AUDIO_ON_FOCUS_LOST
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled |= Ft_MuteAudioOnLoseFocus;
-          else
-              features_enabled &= ~Ft_MuteAudioOnLoseFocus;
-          break;
-        case 22: //DISABLE_SPLASH_SCREENS
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled |= Ft_SkipSplashScreens;
-          else
-              features_enabled &= ~Ft_SkipSplashScreens;
-          break;
-        case 23: //SKIP_HEART_ZOOM
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled |= Ft_SkipHeartZoom;
-          else
-              features_enabled &= ~Ft_SkipHeartZoom;
-          break;
-        case 24: //CURSOR_EDGE_CAMERA_PANNING
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled &= ~Ft_DisableCursorCameraPanning;
-          else
-              features_enabled |= Ft_DisableCursorCameraPanning;
-          break;
-        case 25: //DELTA_TIME
-          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1)
-              features_enabled |= Ft_DeltaTime;
-          else
-              features_enabled &= ~Ft_DeltaTime;
-          break;
-      case 26: // CREATURE_STATUS_SIZE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = atoi(word_buf);
-          }
-          if ((i >= 0) && (i <= 32768)) {
-              creature_status_size = i;
-          } else {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
-          }
-          break;
-      case 27: // MAX_ZOOM_DISTANCE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = atoi(word_buf);
-          }
-          if ((i >= 0) && (i <= 32768)) {
-              if (i > 100) {i = 100;}
-              zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
-              frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
-          } else {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command in %s file.",config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-  }
-  SYNCDBG(7,"Config loaded");
-  // Freeing
-  LbMemoryFree(buf);
-  // Updating game according to loaded settings
-  switch (install_info.lang_id)
-  {
-  case 1:
-      LbKeyboardSetLanguage(1);
-      break;
-  case 2:
-      LbKeyboardSetLanguage(2);
-      break;
-  case 3:
-      LbKeyboardSetLanguage(3);
-      break;
-  case 4:
-      LbKeyboardSetLanguage(4);
-      break;
-  case 5:
-      LbKeyboardSetLanguage(5);
-      break;
-  case 6:
-      LbKeyboardSetLanguage(6);
-      break;
-  case 7:
-      LbKeyboardSetLanguage(7);
-      break;
-  case 8:
-      LbKeyboardSetLanguage(8);
-      break;
-  default:
-      break;
-  }
-  // Returning if the setting are valid
-  return (install_info.lang_id > 0) && (install_info.inst_path[0] != '\0');
-}
-
-char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
-{
-  const char *mdir;
-  const char *sdir;
+  const char *mdir = NULL;
+  const char *sdir = NULL;
   switch (fgroup)
   {
   case FGrp_StdData:
@@ -1254,48 +1350,59 @@ char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)
       break;
   }
   if (mdir == NULL)
-      ffullpath[0] = '\0';
-  else
-  if (sdir == NULL)
-      sprintf(ffullpath,"%s/%s",mdir,fname);
-  else
-      sprintf(ffullpath,"%s/%s/%s",mdir,sdir,fname);
-  return ffullpath;
+      dst[0] = '\0';
+  else {
+      if (mod_dir == NULL)
+          mod_dir = "";
+      if (sdir == NULL)
+          sdir = "";
+      if (fname == NULL)
+          fname = "";
+
+      const char *mod_sep = mod_dir[0] ==0 ? "" : "/";
+      const char *dir_sep = sdir[0] == 0 ? "" : "/";
+      const char *file_sep = fname[0] ==0 ? "" : "/";
+      snprintf(dst, dst_size, "%s%s%s%s%s%s%s", mdir, mod_sep, mod_dir, dir_sep, sdir, file_sep, fname);
+  }
+  return dst;
 }
 
-char *prepare_file_path(short fgroup,const char *fname)
+char *prepare_file_path_mod(const char *mod_dir, short fgroup, const char *fname)
 {
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath,fgroup,fname);
+  return prepare_file_path_buf_mod(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
 }
 
-char *prepare_file_path_va(short fgroup, const char *fmt_str, va_list arg)
+char *prepare_file_path(short fgroup, const char *fname)
 {
-  char fname[255];
-  vsprintf(fname, fmt_str, arg);
   static char ffullpath[2048];
-  return prepare_file_path_buf(ffullpath, fgroup, fname);
+  return prepare_file_path_buf_mod(ffullpath, sizeof(ffullpath), NULL, fgroup, fname);
+}
+
+char *prepare_file_path_va_mod(const char *mod_dir, short fgroup, const char *fmt_str, va_list arg)
+{
+  char fname[255] = "";
+  vsnprintf(fname, sizeof(fname), fmt_str, arg);
+  static char ffullpath[2048];
+  return prepare_file_path_buf_mod(ffullpath, sizeof(ffullpath), mod_dir, fgroup, fname);
+}
+
+char *prepare_file_fmtpath_mod(const char *mod_dir, short fgroup, const char *fmt_str, ...)
+{
+  va_list val;
+  va_start(val, fmt_str);
+  char* result = prepare_file_path_va_mod(mod_dir, fgroup, fmt_str, val);
+  va_end(val);
+  return result;
 }
 
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...)
 {
   va_list val;
   va_start(val, fmt_str);
-  char* result = prepare_file_path_va(fgroup, fmt_str, val);
+  char* result = prepare_file_path_va_mod(NULL, fgroup, fmt_str, val);
   va_end(val);
   return result;
-}
-
-short file_group_needs_cd(short fgroup)
-{
-  switch (fgroup)
-  {
-  case FGrp_LoData:
-  case FGrp_VarLevels:
-      return true;
-  default:
-      return false;
-  }
 }
 
 /**
@@ -1317,24 +1424,19 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   // Prepare file name
   va_list arg;
   va_start(arg, fmt_str);
-  char fname[255];
-  vsprintf(fname, fmt_str, arg);
+  char fname[255] = "";
+  vsnprintf(fname, sizeof(fname), fmt_str, arg);
   char ffullpath[2048];
-  prepare_file_path_buf(ffullpath, fgroup, fname);
+  prepare_file_path_buf(ffullpath, sizeof(ffullpath), fgroup, fname);
   va_end(arg);
   // Load the file
-  if (file_group_needs_cd(fgroup))
-  {
-    if (!wait_for_cd_to_be_available())
-      return NULL;
-   }
    long fsize = LbFileLengthRnc(ffullpath);
    if (fsize < *ldsize)
    {
        WARNMSG("File \"%s\" doesn't exist or is too small.", fname);
        return NULL;
   }
-  unsigned char* buf = LbMemoryAlloc(fsize + 16);
+  unsigned char* buf = calloc(fsize + 16, 1);
   if (buf == NULL)
   {
     WARNMSG("Can't allocate %ld bytes to load \"%s\".",fsize,fname);
@@ -1344,241 +1446,18 @@ unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *
   if (fsize < *ldsize)
   {
     WARNMSG("Reading file \"%s\" failed.",fname);
-    LbMemoryFree(buf);
+    free(buf);
     return NULL;
   }
-  LbMemorySet(buf+fsize, '\0', 15);
+  memset(buf+fsize, '\0', 15);
   *ldsize = fsize;
   return buf;
 }
 
-short calculate_moon_phase(short do_calculate,short add_to_log)
-{
-  //Moon phase calculation
-  if (do_calculate)
-  {
-    phase_of_moon = (float)LbMoonPhase();
-  }
-  if ((phase_of_moon > -0.05) && (phase_of_moon < 0.05))
-  {
-    if (add_to_log)
-      SYNCMSG("Full moon %.4f", phase_of_moon);
-    is_full_moon = 1;
-    is_near_full_moon = 0;
-    is_new_moon = 0;
-    is_near_new_moon = 0;
-  } else
-  if ((phase_of_moon > -0.1) && (phase_of_moon < 0.1))
-  {
-    if (add_to_log)
-      SYNCMSG("Near Full moon %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 1;
-    is_new_moon = 0;
-    is_near_new_moon = 0;
-  } else
-  if ((phase_of_moon < -0.95) || (phase_of_moon > 0.95))
-  {
-    if (add_to_log)
-      SYNCMSG("New moon %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 0;
-    is_new_moon = 1;
-    is_near_new_moon = 0;
-  } else
-  if ((phase_of_moon < -0.9) || (phase_of_moon > 0.9))
-  {
-    if (add_to_log)
-      SYNCMSG("Near new moon %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 0;
-    is_new_moon = 0;
-    is_near_new_moon = 1;
-  } else
-  {
-    if (add_to_log)
-      SYNCMSG("Moon phase %.4f", phase_of_moon);
-    is_full_moon = 0;
-    is_near_full_moon = 0;
-    is_new_moon = 0;
-    is_near_new_moon = 0;
-  }
-//!CHEAT! always show extra levels
-//  is_full_moon = 1; is_new_moon = 1;
-  return is_full_moon;
-}
 
-void load_or_create_high_score_table(void)
-{
-  if (!load_high_score_table())
-  {
-     SYNCMSG("High scores table bad; creating new one.");
-     create_empty_high_score_table();
-     save_high_score_table();
-  }
-}
 
-TbBool load_high_score_table(void)
-{
-    char* fname = prepare_file_path(FGrp_Save, campaign.hiscore_fname);
-    long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
-    if (arr_size <= 0)
-    {
-        LbMemoryFree(campaign.hiscore_table);
-        campaign.hiscore_table = NULL;
-        return true;
-    }
-    if (campaign.hiscore_table == NULL)
-        campaign.hiscore_table = (struct HighScore *)LbMemoryAlloc(arr_size);
-    if (LbFileLengthRnc(fname) != arr_size)
-        return false;
-    if (campaign.hiscore_table == NULL)
-        return false;
-    if (LbFileLoadAt(fname, campaign.hiscore_table) == arr_size)
-        return true;
-    return false;
-}
 
-TbBool save_high_score_table(void)
-{
-    char* fname = prepare_file_path(FGrp_Save, campaign.hiscore_fname);
-    long fsize = campaign.hiscore_count * sizeof(struct HighScore);
-    if (fsize <= 0)
-        return true;
-    if (campaign.hiscore_table == NULL)
-        return false;
-    // Save the file
-    if (LbFileSaveAt(fname, campaign.hiscore_table, fsize) == fsize)
-        return true;
-    return false;
-}
 
-/**
- * Generates new high score table if previous can't be loaded.
- */
-TbBool create_empty_high_score_table(void)
-{
-  int i;
-  int npoints = 100 * VISIBLE_HIGH_SCORES_COUNT;
-  int nlevel = 1 * VISIBLE_HIGH_SCORES_COUNT;
-  long arr_size = campaign.hiscore_count * sizeof(struct HighScore);
-  if (campaign.hiscore_table == NULL)
-    campaign.hiscore_table = (struct HighScore *)LbMemoryAlloc(arr_size);
-  if (campaign.hiscore_table == NULL)
-    return false;
-  for (i=0; i < VISIBLE_HIGH_SCORES_COUNT; i++)
-  {
-    if (i >= campaign.hiscore_count) break;
-    sprintf(campaign.hiscore_table[i].name, "Bullfrog");
-    campaign.hiscore_table[i].score = npoints;
-    campaign.hiscore_table[i].lvnum = nlevel;
-    npoints -= 100;
-    nlevel -= 1;
-  }
-  while (i < campaign.hiscore_count)
-  {
-    campaign.hiscore_table[i].name[0] = '\0';
-    campaign.hiscore_table[i].score = 0;
-    campaign.hiscore_table[i].lvnum = 0;
-    i++;
-  }
-  return true;
-}
-
-/**
- * Adds new entry to high score table. Returns its index.
- */
-int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *name)
-{
-    int dest_idx;
-    // If the table is not initiated - return
-    if (campaign.hiscore_table == NULL)
-    {
-        WARNMSG("Can't add entry to uninitiated high score table");
-        return false;
-    }
-    // Determining position of the new entry to keep table sorted with decreasing scores
-    for (dest_idx=0; dest_idx < campaign.hiscore_count; dest_idx++)
-    {
-        if (campaign.hiscore_table[dest_idx].score < score)
-            break;
-        if (campaign.hiscore_table[dest_idx].lvnum <= 0)
-            break;
-    }
-    // Find different entry which has duplicates with higher score - the one we can overwrite with no consequence
-    // Don't allow replacing first 10 scores - they are visible to the player, and shouldn't be touched
-    int overwrite_idx;
-    for (overwrite_idx = campaign.hiscore_count-1; overwrite_idx >= 10; overwrite_idx--)
-    {
-        LevelNumber last_lvnum = campaign.hiscore_table[overwrite_idx].lvnum;
-        if (last_lvnum <= 0) {
-            // Found unused slot
-            break;
-        }
-        int k;
-        for (k=overwrite_idx-1; k >= 0; k--)
-        {
-            if (campaign.hiscore_table[k].lvnum == last_lvnum) {
-                // Found a duplicate entry for that level with higher score
-                break;
-            }
-        }
-        if (k >= 0)
-            break;
-    }
-    SYNCDBG(4,"New high score entry index %d, overwrite index %d",(int)dest_idx,(int)overwrite_idx);
-    // In case nothing was found to overwrite
-    if (overwrite_idx < 10) {
-        overwrite_idx = campaign.hiscore_count;
-    }
-    // If index from sorting is outside array, make it equal to index to overwrite
-    if (dest_idx >= campaign.hiscore_count)
-        dest_idx = overwrite_idx;
-    // And overwrite index - if not found, make it point to last entry in array
-    if (overwrite_idx >= campaign.hiscore_count)
-        overwrite_idx = campaign.hiscore_count-1;
-    // If the new score is too poor, and there's not enough space for it, and we couldn't find slot to overwrite, return
-    if (dest_idx >= campaign.hiscore_count) {
-        WARNMSG("Can't add entry to high score table - it's full and has no duplicating levels");
-        return -1;
-    }
-    // Now, we need to shift entries between destination position and position to overwrite
-    if (overwrite_idx > dest_idx)
-    {
-        // Moving entries down
-        for (int k = overwrite_idx - 1; k >= dest_idx; k--)
-        {
-            memcpy(&campaign.hiscore_table[k+1],&campaign.hiscore_table[k],sizeof(struct HighScore));
-        }
-    } else
-    {
-        // Moving entries up
-        for (int k = overwrite_idx; k < dest_idx; k++)
-        {
-            memcpy(&campaign.hiscore_table[k],&campaign.hiscore_table[k+1],sizeof(struct HighScore));
-        }
-    }
-    // Preparing the new entry
-    snprintf(campaign.hiscore_table[dest_idx].name, HISCORE_NAME_LENGTH, "%s", name);
-    campaign.hiscore_table[dest_idx].score = score;
-    campaign.hiscore_table[dest_idx].lvnum = lvnum;
-    return dest_idx;
-}
-
-/**
- * Returns highest score value for given level.
- */
-unsigned long get_level_highest_score(LevelNumber lvnum)
-{
-    for (int idx = 0; idx < campaign.hiscore_count; idx++)
-    {
-        if ((campaign.hiscore_table[idx].lvnum == lvnum) && (strcmp(campaign.hiscore_table[idx].name, "Bullfrog") != 0))
-        {
-            return campaign.hiscore_table[idx].score;
-        }
-    }
-    return 0;
-}
 
 struct LevelInformation *get_level_info(LevelNumber lvnum)
 {
@@ -1590,13 +1469,13 @@ struct LevelInformation *get_or_create_level_info(LevelNumber lvnum, unsigned lo
     struct LevelInformation* lvinfo = get_campaign_level_info(&campaign, lvnum);
     if (lvinfo != NULL)
     {
-        lvinfo->options |= lvoptions;
+        lvinfo->level_type |= lvoptions;
         return lvinfo;
   }
   lvinfo = new_level_info_entry(&campaign, lvnum);
   if (lvinfo != NULL)
   {
-    lvinfo->options |= lvoptions;
+    lvinfo->level_type |= lvoptions;
     return lvinfo;
   }
   return NULL;
@@ -1684,10 +1563,10 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
     if (lvinfo == NULL)
         return false;
     snprintf(lvinfo->name, LINEMSG_SIZE, "%s", name);
-    if ((lvoptions & LvOp_IsFree) != 0)
+    if ((lvoptions & LvKind_IsFree) != 0)
     {
-        lvinfo->ensign_x += ((LANDVIEW_MAP_WIDTH >> 4) * (LbSinL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;
-        lvinfo->ensign_y -= ((LANDVIEW_MAP_HEIGHT >> 4) * (LbCosL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;
+        lvinfo->ensign_x += ((LANDVIEW_MAP_WIDTH >> 4) * (LbSinL(lvnum * DEGREES_11_25) >> 6)) >> 10;
+        lvinfo->ensign_y -= ((LANDVIEW_MAP_HEIGHT >> 4) * (LbCosL(lvnum * DEGREES_11_25) >> 6)) >> 10;
   }
   return true;
 }
@@ -1696,24 +1575,22 @@ TbBool reset_credits(struct CreditsItem *credits)
 {
     for (long i = 0; i < CAMPAIGN_CREDITS_COUNT; i++)
     {
-        LbMemorySet(&credits[i], 0, sizeof(struct CreditsItem));
+        memset(&credits[i], 0, sizeof(struct CreditsItem));
         credits[i].kind = CIK_None;
   }
   return true;
 }
 
-TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
+TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buffer_end_pointer)
 {
-  // Block name and parameter word store variables
-  char block_buf[32];
+  const char * block_name = "credits";
   // Find the block
-  sprintf(block_buf,"credits");
-  long len = buf_end - buf;
+  long len = buffer_end_pointer - buf;
   long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
+  int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in Credits file.",block_buf);
+    WARNMSG("Block [%s] not found in Credits file.", block_name);
     return 0;
   }
   int n = 0;
@@ -1788,8 +1665,9 @@ TbBool parse_credits_block(struct CreditsItem *credits,char *buf,char *buf_end)
       pos++;
     }
   }
-  if (credits[0].kind == CIK_None)
-    WARNMSG("Credits list empty after parsing [%s] block of Credits file.", block_buf);
+  if (credits[0].kind == CIK_None) {
+    WARNMSG("Credits list empty after parsing [%s] block of Credits file.", block_name);
+  }
   return true;
 }
 
@@ -1806,7 +1684,7 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
     ERRORLOG("Campaign Credits file \"%s\" does not exist or can't be opened",campgn->credits_fname);
     return false;
   }
-  campgn->credits_data = (char *)LbMemoryAlloc(filelen + 256);
+  campgn->credits_data = (char *)calloc(filelen + 256, 1);
   if (campgn->credits_data == NULL)
   {
     ERRORLOG("Can't allocate memory for Campaign Credits file \"%s\"",campgn->credits_fname);
@@ -1883,36 +1761,6 @@ int storage_index_for_bonus_level(LevelNumber bn_lvnum)
 }
 
 /**
- * Returns index for Campaign->bonus_levels associated with given bonus level.
- * If the level is not found, returns -1.
- */
-int array_index_for_bonus_level(LevelNumber bn_lvnum)
-{
-  if (bn_lvnum < 1) return -1;
-  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
-  {
-    if (campaign.bonus_levels[i] == bn_lvnum)
-        return i;
-  }
-  return -1;
-}
-
-/**
- * Returns index for Campaign->extra_levels associated with given extra level.
- * If the level is not found, returns -1.
- */
-int array_index_for_extra_level(LevelNumber ex_lvnum)
-{
-  if (ex_lvnum < 1) return -1;
-  for (int i = 0; i < EXTRA_LEVELS_COUNT; i++)
-  {
-    if (campaign.extra_levels[i] == ex_lvnum)
-        return i;
-  }
-  return -1;
-}
-
-/**
  * Returns index for Campaign->single_levels associated with given singleplayer level.
  * If the level is not found, returns -1.
  */
@@ -1922,36 +1770,6 @@ int array_index_for_singleplayer_level(LevelNumber sp_lvnum)
   for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.single_levels[i] == sp_lvnum)
-        return i;
-  }
-  return -1;
-}
-
-/**
- * Returns index for Campaign->multi_levels associated with given multiplayer level.
- * If the level is not found, returns -1.
- */
-int array_index_for_multiplayer_level(LevelNumber mp_lvnum)
-{
-  if (mp_lvnum < 1) return -1;
-  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
-  {
-    if (campaign.multi_levels[i] == mp_lvnum)
-        return i;
-  }
-  return -1;
-}
-
-/**
- * Returns index for Campaign->freeplay_levels associated with given freeplay level.
- * If the level is not found, returns -1.
- */
-int array_index_for_freeplay_level(LevelNumber fp_lvnum)
-{
-  if (fp_lvnum < 1) return -1;
-  for (int i = 0; i < FREE_LEVELS_COUNT; i++)
-  {
-    if (campaign.freeplay_levels[i] == fp_lvnum)
         return i;
   }
   return -1;
@@ -2006,42 +1824,6 @@ LevelNumber first_multiplayer_level(void)
 }
 
 /**
- * Returns last multi player level number.
- * On error, returns SINGLEPLAYER_NOTSTARTED.
- */
-LevelNumber last_multiplayer_level(void)
-{
-    int i = campaign.multi_levels_count;
-    if ((i > 0) && (i <= CAMPAIGN_LEVELS_COUNT))
-        return campaign.multi_levels[i - 1];
-    return SINGLEPLAYER_NOTSTARTED;
-}
-
-/**
- * Returns first free play level number.
- * On error, returns SINGLEPLAYER_NOTSTARTED.
- */
-LevelNumber first_freeplay_level(void)
-{
-  long lvnum = campaign.freeplay_levels[0];
-  if (lvnum > 0)
-    return lvnum;
-  return SINGLEPLAYER_NOTSTARTED;
-}
-
-/**
- * Returns last free play level number.
- * On error, returns SINGLEPLAYER_NOTSTARTED.
- */
-LevelNumber last_freeplay_level(void)
-{
-    int i = campaign.freeplay_levels_count;
-    if ((i > 0) && (i <= FREE_LEVELS_COUNT))
-        return campaign.freeplay_levels[i - 1];
-    return SINGLEPLAYER_NOTSTARTED;
-}
-
-/**
  * Returns first extra level number.
  * On error, returns SINGLEPLAYER_NOTSTARTED.
  */
@@ -2079,11 +1861,31 @@ LevelNumber get_extra_level(unsigned short elv_kind)
  * Returns the next single player level. Gives SINGLEPLAYER_FINISHED if
  * last level was won, LEVELNUMBER_ERROR on error.
  */
-LevelNumber next_singleplayer_level(LevelNumber sp_lvnum)
+LevelNumber next_singleplayer_level(LevelNumber sp_lvnum, TbBool ignore)
 {
   if (sp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
   if (sp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_singleplayer_level();
   if (sp_lvnum < 1) return LEVELNUMBER_ERROR;
+  int next_level;
+
+  if ((intralvl.next_level > 0) && !ignore)
+  {
+      next_level = intralvl.next_level;
+      intralvl.next_level = 0;
+      if (next_level < 0)
+          return SINGLEPLAYER_FINISHED;
+
+      for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+      {
+          if (campaign.single_levels[i] == next_level)
+          {
+              return next_level;
+          }
+      }
+      WARNLOG("Trying to jump to level %d that does not exist.", next_level);
+      return LEVELNUMBER_ERROR;
+  }
+
   for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.single_levels[i] == sp_lvnum)
@@ -2145,29 +1947,6 @@ LevelNumber next_multiplayer_level(LevelNumber mp_lvnum)
 }
 
 /**
- * Returns the previous multi player level. Gives SINGLEPLAYER_NOTSTARTED if
- * first level was given, LEVELNUMBER_ERROR on error.
- */
-LevelNumber prev_multiplayer_level(LevelNumber mp_lvnum)
-{
-  if (mp_lvnum == SINGLEPLAYER_NOTSTARTED) return SINGLEPLAYER_NOTSTARTED;
-  if (mp_lvnum == SINGLEPLAYER_FINISHED) return last_multiplayer_level();
-  if (mp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
-  {
-    if (campaign.multi_levels[i] == mp_lvnum)
-    {
-      if (i < 1)
-        return SINGLEPLAYER_NOTSTARTED;
-      if (campaign.multi_levels[i-1] <= 0)
-        return SINGLEPLAYER_NOTSTARTED;
-      return campaign.multi_levels[i-1];
-    }
-  }
-  return LEVELNUMBER_ERROR;
-}
-
-/**
  * Returns the next extra level. Gives SINGLEPLAYER_FINISHED if
  * last level was given, LEVELNUMBER_ERROR on error.
  */
@@ -2188,52 +1967,6 @@ LevelNumber next_extra_level(LevelNumber ex_lvnum)
         i++;
       }
       return SINGLEPLAYER_FINISHED;
-    }
-  }
-  return LEVELNUMBER_ERROR;
-}
-
-/**
- * Returns the next freeplay level. Gives SINGLEPLAYER_FINISHED if
- * last level was given, LEVELNUMBER_ERROR on error.
- */
-LevelNumber next_freeplay_level(LevelNumber fp_lvnum)
-{
-  if (fp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
-  if (fp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_freeplay_level();
-  if (fp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (int i = 0; i < FREE_LEVELS_COUNT; i++)
-  {
-    if (campaign.freeplay_levels[i] == fp_lvnum)
-    {
-      if (i+1 >= FREE_LEVELS_COUNT)
-        return SINGLEPLAYER_FINISHED;
-      if (campaign.freeplay_levels[i+1] <= 0)
-        return SINGLEPLAYER_FINISHED;
-      return campaign.freeplay_levels[i+1];
-    }
-  }
-  return LEVELNUMBER_ERROR;
-}
-
-/**
- * Returns the previous freeplay level. Gives SINGLEPLAYER_NOTSTARTED if
- * first level was given, LEVELNUMBER_ERROR on error.
- */
-LevelNumber prev_freeplay_level(LevelNumber fp_lvnum)
-{
-  if (fp_lvnum == SINGLEPLAYER_NOTSTARTED) return SINGLEPLAYER_NOTSTARTED;
-  if (fp_lvnum == SINGLEPLAYER_FINISHED) return last_freeplay_level();
-  if (fp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (int i = 0; i < FREE_LEVELS_COUNT; i++)
-  {
-    if (campaign.freeplay_levels[i] == fp_lvnum)
-    {
-      if (i < 1)
-        return SINGLEPLAYER_NOTSTARTED;
-      if (campaign.freeplay_levels[i-1] <= 0)
-        return SINGLEPLAYER_NOTSTARTED;
-      return campaign.freeplay_levels[i-1];
     }
   }
   return LEVELNUMBER_ERROR;
@@ -2284,18 +2017,6 @@ short is_multiplayer_level(LevelNumber lvnum)
         return true;
     }
   }
-  // Original MP checking - remove when it's not needed anymore
-  if (net_number_of_levels <= 0)
-    return false;
-  for (i=0; i < net_number_of_levels; i++)
-  {
-      struct NetLevelDesc* lvdesc = &net_level_desc[i];
-      if (lvdesc->lvnum == lvnum)
-      {
-          SYNCDBG(17, "Level %ld identified as MP with old description", lvnum);
-          return true;
-    }
-  }
   SYNCDBG(17,"Level %ld not recognized as MP",lvnum);
   return false;
 }
@@ -2324,11 +2045,135 @@ short is_freeplay_level(LevelNumber lvnum)
   {
     if (campaign.freeplay_levels[i] == lvnum)
     {
-        SYNCDBG(18,"%d is freeplay",lvnum);
+        SYNCDBG(18,"%ld is freeplay",lvnum);
         return true;
     }
   }
-  SYNCDBG(18,"%d is NOT freeplay",lvnum);
+  SYNCDBG(18,"%ld is NOT freeplay",lvnum);
   return false;
 }
+
+/**
+  * checks if currently in a campaign, and if the provided level number is also part of it.
+ */
+TbBool is_level_in_current_campaign(LevelNumber lvnum)
+{
+    if (!is_campaign_level(game.loaded_level_number))
+    {
+        return false;
+    }
+    for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+    {
+        if (campaign.single_levels[i] == lvnum)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+/* @comment
+ *     The loading items of load_config and load_config_for_mod_one need to be consistent.
+ */
+static void load_config_for_mod_one(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_item)
+{
+    set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+
+    const char* conf_fname = file_data->filename;
+    const struct ModExistState *mod_state = &mod_item->state;
+    char* fname = NULL;
+    char mod_dir[256] = {0};
+    sprintf(mod_dir, "%s/%s", MODS_DIR_NAME, mod_item->name);
+
+    if (mod_state->fx_data)
+    {
+        fname = prepare_file_path_mod(mod_dir, FGrp_FxData, conf_fname);
+        if (strlen(fname) > 0)
+        {
+            file_data->load_func(fname, flags);
+        }
+    }
+
+    if (mod_state->cmpg_config)
+    {
+        fname = prepare_file_path_mod(mod_dir, FGrp_CmpgConfig,conf_fname);
+        if (strlen(fname) > 0)
+        {
+            file_data->load_func(fname,flags);
+        }
+    }
+
+    if (mod_state->cmpg_lvls)
+    {
+        fname = prepare_file_fmtpath_mod(mod_dir, FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+        if (strlen(fname) > 0)
+        {
+            file_data->load_func(fname,flags);
+        }
+    }
+}
+
+static void load_config_for_mod_list(const struct ConfigFileData* file_data, unsigned short flags, const struct ModConfigItem *mod_items, long mod_cnt)
+{
+    for (long i=0; i<mod_cnt; i++)
+    {
+        const struct ModConfigItem *mod_item = mod_items + i;
+        if (mod_item->state.mod_dir == 0)
+            continue;
+
+        load_config_for_mod_one(file_data, flags, mod_item);
+    }
+}
+
+/* @comment
+ *     The loading items of load_config and load_config_for_mod_one need to be consistent.
+ */
+TbBool load_config(const struct ConfigFileData* file_data, unsigned short flags)
+{
+    if (file_data->pre_load_func != NULL)
+    {
+        file_data->pre_load_func();
+    }
+
+    const char* conf_fname = file_data->filename;
+
+    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
+    TbBool result = file_data->load_func(fname, flags);
+
+    if (mods_conf.after_base_cnt > 0)
+    {
+        load_config_for_mod_list(file_data, flags, mods_conf.after_base_item, mods_conf.after_base_cnt);
+    }
+
+    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
+    if (strlen(fname) > 0)
+    {
+        file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+
+    if (mods_conf.after_campaign_cnt > 0)
+    {
+        load_config_for_mod_list(file_data, flags, mods_conf.after_campaign_item, mods_conf.after_campaign_cnt);
+    }
+
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        file_data->load_func(fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+
+    if (mods_conf.after_map_cnt > 0)
+    {
+        load_config_for_mod_list(file_data, flags, mods_conf.after_map_item, mods_conf.after_map_cnt);
+    }
+
+    if (file_data->post_load_func != NULL)
+    {
+        file_data->post_load_func();
+    }
+
+    return result;
+}
+
 /******************************************************************************/

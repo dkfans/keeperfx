@@ -21,28 +21,24 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_sound.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/******************************************************************************/
-#pragma pack(1)
-
-#define MESSAGE_QUEUE_COUNT     4
-
-#define MESSAGE_DELAY_ROOM_NEED     500
-#define MESSAGE_DELAY_ROOM_SMALL    500
-#define MESSAGE_DELAY_WORSHOP_FULL 1750
-#define MESSAGE_DELAY_TREASURY      500
-#define MESSAGE_DELAY_FIGHT         400
-#define MESSAGE_DELAY_BATTLE         40
-#define MESSAGE_DELAY_CRTR_MOOD     500
-#define MESSAGE_DELAY_SPECIAL       100
-#define MESSAGE_DELAY_LORD          100
-#define MESSAGE_DELAY_CRTR_JOINED   500
-#define MESSAGE_DELAY_STARVING      500
-#define MESSAGE_CHANNEL             0
+#define MESSAGE_DURATION_ROOM_NEED     500
+#define MESSAGE_DURATION_ROOM_SMALL    500
+#define MESSAGE_DURATION_WORSHOP_FULL 1750
+#define MESSAGE_DURATION_TREASURY      500
+#define MESSAGE_DURATION_FIGHT         400
+#define MESSAGE_DURATION_BATTLE         40
+#define MESSAGE_DURATION_CRTR_MOOD     500
+#define MESSAGE_DURATION_SPECIAL       100
+#define MESSAGE_DURATION_LORD          100
+#define MESSAGE_DURATION_KEEPR_TAUNT   500
+#define MESSAGE_DURATION_CRTR_JOINED   500
+#define MESSAGE_DURATION_STARVING      500
 
 enum TbSpeechMessages {
         SMsg_None = 0,
@@ -165,6 +161,8 @@ enum TbSpeechMessages {
         SMsg_NoMoreWorkerJobs   =  101,
         SMsg_GameLoaded         =  102,
         SMsg_ConqueredRealm     =  106,*/
+
+        SMsg_MAX = 126,
 };
 #define SMsg_FunnyMessages      SMsg_FullOfPies  // Starts a list of 10 funny quotes
 #define SMsg_EnemyHarassments  110  // Starts a list of harassments
@@ -173,8 +171,6 @@ enum TbSpeechMessages {
 // Define empty messages, which may be used later
 #define SMsg_NoRouteToPrison SMsg_None
 #define SMsg_NoRouteToGraveyard SMsg_None
-
-typedef unsigned long Phrase;
 
 enum OutputMessageKinds {
     OMsg_None = 0,
@@ -186,36 +182,15 @@ enum OutputMessageKinds {
 
 typedef unsigned int OutputMessageKind;
 
-struct SMessage {
-      long start_idx;
-      long count;
-      long end_time;
-};
-
-struct MessageQueueEntry { // sizeof = 9
-     unsigned char state;
-     unsigned long msg_idx;
-     long delay;
-};
-
 struct Thing;
 
-#pragma pack()
-/******************************************************************************/
-TbBool output_message(long msg_idx, long delay, TbBool queue);
-TbBool output_message_far_from_thing(struct Thing* thing, long msg_idx, long delay, TbBool queue);
-TbBool message_already_in_queue(long msg_idx);
-TbBool add_message_to_queue(long msg_idx, long delay);
-TbBool message_queue_empty(void);
-long get_phrase_for_message(long msg_idx);
-long get_phrase_sample(long phr_idx);
-TbBool message_can_be_played(long msg_idx);
+TbBool output_message(SoundSmplTblID, long duration);
+TbBool output_custom_message(const char * fname, long duration);
+TbBool output_message_far_from_thing(const struct Thing*, SoundSmplTblID, long duration);
 void clear_messages(void);
-void init_messages_turns(long delay);
-void init_messages(void);
 void process_messages(void);
-TbBool output_message_room_related_from_computer_or_player_action(PlayerNumber plyr_idx, RoomKind rkind, OutputMessageKind msg_kind);
-/******************************************************************************/
+TbBool output_room_message(PlayerNumber, RoomKind, OutputMessageKind);
+void script_play_message(TbBool param_is_string, const char msgtype_id, const short msg_id, const char *filename);
 #ifdef __cplusplus
 }
 #endif

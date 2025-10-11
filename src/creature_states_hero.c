@@ -71,29 +71,13 @@ TbBool has_available_enemy_dungeon_heart(struct Thing *thing, PlayerNumber plyr_
 {
     SYNCDBG(18,"Starting");
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->hero.byte_8C != 0) || (cctrl->hero.byte_8B != 0))
+    if ((cctrl->hero.ready_for_attack_flag != 0) || (cctrl->hero.hero_state_reset_flag != 0))
     {
-        cctrl->hero.byte_8C = 0;
-        cctrl->hero.byte_8B = 0;
+        cctrl->hero.ready_for_attack_flag = 0;
+        cctrl->hero.hero_state_reset_flag = 0;
     }
     // Try accessing dungeon heart of undefeated enemy players
     if (!player_is_friendly_or_defeated(plyr_idx, thing->owner) && (creature_can_get_to_dungeon_heart(thing, plyr_idx)))
-    {
-        return true;
-    }
-    return false;
-}
-
-TbBool has_available_rooms_to_attack(struct Thing* thing, PlayerNumber plyr_idx)
-{
-    SYNCDBG(18, "Starting");
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->hero.byte_8C != 0) || (cctrl->hero.byte_8B != 0))
-    {
-        cctrl->hero.byte_8C = 0;
-        cctrl->hero.byte_8B = 0;
-    }
-    if (players_are_enemies(thing->owner, plyr_idx) && creature_can_get_to_any_of_players_rooms(thing, plyr_idx))
     {
         return true;
     }
@@ -113,7 +97,7 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
             continue;
         }
         player = get_player(plyr_idx);
-        if (gameadd.classic_bugs_flags & ClscBug_AlwaysTunnelToRed)
+        if (flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_AlwaysTunnelToRed))
         {
             if (creature_can_get_to_dungeon_heart(creatng, plyr_idx))
             {
@@ -140,16 +124,6 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
                         best_plyr_idx = plyr_idx;
                     }
                 }
-                // Disabled for performance reasons
-                /*else if ((has_available_rooms_to_attack(creatng, plyr_idx)) && best_plyr_idx == -1)
-                {
-                    long best_backup_score = LONG_MIN;
-                    if (best_backup_score < score)
-                    {
-                        best_backup_score = score;
-                        backup_plyr_idx = plyr_idx;
-                    }
-                }*/
             }
         }
     }
@@ -163,7 +137,7 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
 /**
  * Checks if given hero has money that should be placed in treasure room.
  * If he does, he is ordered to return them into nearest treasure room
- * which has the proper capacity. 
+ * which has the proper capacity.
  * @param thing The hero.
  * @return Gives 1 if the hero was ordered to go into treasure room, 0 otherwise.
  */
@@ -206,7 +180,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
                     creature_drops_spell_object_in_library(creatng);
                     return true;
                 }
-                else 
+                else
                 {
                     if (creature_drop_thing_to_another_room(creatng, dstroom, RoRoF_PowersStorage))
                     {
@@ -232,7 +206,7 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
     }
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->party_objective == CHeroTsk_StealGold) && (creatng->creature.gold_carried > 0))
+    if ((cctrl->party.objective == CHeroTsk_StealGold) && (creatng->creature.gold_carried > 0))
     {
         if (check_out_hero_has_money_for_treasure_room(creatng))
         {
@@ -280,7 +254,7 @@ TbBool good_setup_attack_rooms(struct Thing *creatng, long dngn_id)
     return true;
 }
 
-TbBool good_setup_sabotage_rooms(struct Thing* creatng, long dngn_id)
+TbBool good_setup_sabotage_rooms(struct Thing* creatng, short dngn_id)
 {
     struct Room* room = find_nearest_room_to_vandalise(creatng, dngn_id, NavRtF_NoOwner);
     if (room_is_invalid(room))
@@ -306,18 +280,18 @@ TbBool good_setup_sabotage_rooms(struct Thing* creatng, long dngn_id)
 
 TbBool good_setup_defend_rooms(struct Thing* creatng)
 {
-    struct Room* room = find_nearest_room_to_vandalise(creatng, creatng->owner, NavRtF_NoOwner);
+    struct Room* room = find_nearest_room_to_vandalise(creatng, creatng->owner, NavRtF_Default);
     if (room_is_invalid(room))
     {
         return false;
     }
     struct Coord3d pos;
-    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos) || !creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_NoOwner))
+    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos) || !creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_Default))
     {
         ERRORLOG("The %s index %d cannot defend %s because it cannot reach position within it", thing_model_name(creatng), (int)creatng->index, room_code_name(room->kind));
         return false;
     }
-    if (!setup_random_head_for_room(creatng, room, NavRtF_NoOwner))
+    if (!setup_random_head_for_room(creatng, room, NavRtF_Default))
     {
         ERRORLOG("The %s index %d cannot defend %s because it cannot head for it", thing_model_name(creatng), (int)creatng->index, room_code_name(room->kind));
         return false;
@@ -399,7 +373,7 @@ long get_wanderer_possible_targets_count_in_list(long first_thing_idx, struct Th
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             // Don't check for being navigable - it's too CPU-expensive to check all creatures
             //if ( creature_can_navigate_to(wanderer, &thing->mappos, NavTF_Default) )
@@ -437,7 +411,7 @@ TbBool wander_to_specific_possible_target_in_list(long first_thing_idx, struct T
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_leaving_and_cannot_be_stopped(thing))
         {
             // If it's not the one we want, continue sweeping
             if (target_match > 0)
@@ -488,7 +462,7 @@ TbBool setup_wanderer_move_to_random_creature_from_list(long first_thing_idx, st
         SYNCDBG(4,"The %s index %d cannot wander to creature, there are no targets",thing_model_name(wanderer),(int)wanderer->index);
         return false;
     }
-    long target_match = CREATURE_RANDOM(wanderer, possible_targets);
+    long target_match = THING_RANDOM(wanderer, possible_targets);
     if ( wander_to_specific_possible_target_in_list(first_thing_idx, wanderer, target_match) )
     {
         return true;
@@ -504,7 +478,7 @@ TbBool good_setup_wander_to_creature(struct Thing *wanderer, long dngn_id)
     struct Dungeon* dungeon = get_dungeon(dngn_id);
     if ( setup_wanderer_move_to_random_creature_from_list(dungeon->creatr_list_start,wanderer) )
     {
-        wanderer->continue_state = CrSt_GoodDoingNothing;
+        wanderer->continue_state = CrSt_GoodWanderToCreatureCombat;
         return true;
     }
     SYNCDBG(4,"The %s index %d cannot wander to player %d creatures",thing_model_name(wanderer),
@@ -525,7 +499,7 @@ TbBool good_setup_wander_to_spdigger(struct Thing *wanderer, long dngn_id)
     struct Dungeon* dungeon = get_dungeon(dngn_id);
     if ( setup_wanderer_move_to_random_creature_from_list(dungeon->digger_list_start,wanderer) )
     {
-        wanderer->continue_state = CrSt_GoodDoingNothing;
+        wanderer->continue_state = CrSt_GoodWanderToCreatureCombat;
         return true;
     }
     SYNCDBG(4,"Cannot wander to player %d creatures",(int)dngn_id);
@@ -543,7 +517,7 @@ short good_arrived_at_attack_room(struct Thing *thing)
         MapCoord ev_coord_y = subtile_coord_center(room->central_stl_y);
         event_create_event_or_update_nearby_existing_event(ev_coord_x, ev_coord_y, EvKind_RoomUnderAttack, room->owner, 0);
         if (is_my_player_number(room->owner))
-          output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+          output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
         return 1;
     }
     set_start_state(thing);
@@ -573,12 +547,12 @@ short good_attack_room(struct Thing *thing)
             MapCoord ev_coord_y = subtile_coord_center(room->central_stl_y);
             event_create_event_or_update_nearby_existing_event(ev_coord_x, ev_coord_y, EvKind_RoomUnderAttack, room->owner, 0);
             if (is_my_player_number(room->owner))
-                output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+                output_message(SMsg_EnemyDestroyRooms, MESSAGE_DURATION_FIGHT);
         }
         return 1;
     }
     // Otherwise, search around for a tile to destroy
-    long m = CREATURE_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
+    long m = THING_RANDOM(thing, SMALL_AROUND_SLAB_LENGTH);
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         MapSlabCoord slb_x = base_slb_x + (long)small_around[m].delta_x;
@@ -613,15 +587,15 @@ short good_back_at_start(struct Thing *thing)
         return 1;
     }
     SubtlCodedCoords stl_num = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    long m = CREATURE_RANDOM(thing, AROUND_MAP_LENGTH);
+    long m = THING_RANDOM(thing, AROUND_MAP_LENGTH);
     for (long n = 0; n < AROUND_MAP_LENGTH; n++)
     {
-        struct Map* mapblk = get_map_block_at_pos(stl_num + gameadd.around_map[m]);
+        struct Map* mapblk = get_map_block_at_pos(stl_num + game.around_map[m]);
         // Per-block code
         if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
         {
-            MapSubtlCoord stl_x = stl_num_decode_x(stl_num + gameadd.around_map[m]);
-            MapSubtlCoord stl_y = stl_num_decode_y(stl_num + gameadd.around_map[m]);
+            MapSubtlCoord stl_x = stl_num_decode_x(stl_num + game.around_map[m]);
+            MapSubtlCoord stl_y = stl_num_decode_y(stl_num + game.around_map[m]);
             if (setup_person_move_to_position(thing, stl_x, stl_y, NavRtF_Default)) {
                 thing->continue_state = CrSt_GoodDropsGold;
                 return 1;
@@ -655,6 +629,26 @@ TbBool good_can_move_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_i
     return creature_can_navigate_to(creatng, &heartng->mappos, NavRtF_Default);
 }
 
+short good_arrived_at_attack_dungeon_heart(struct Thing* creatng)
+{
+    creatng->continue_state = CrSt_GoodDoingNothing;
+    if (creature_look_for_enemy_heart_combat(creatng))
+    {
+        return CrStRet_Modified;
+    }
+    return move_to_position(creatng);
+}
+
+short good_arrived_at_combat(struct Thing* creatng)
+{
+    creatng->continue_state = CrSt_GoodDoingNothing;
+    if (creature_look_for_combat(creatng))
+    {
+        return CrStRet_Modified;
+    }
+    return move_to_position(creatng);
+}
+
 TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx)
 {
     SYNCDBG(18,"Starting");
@@ -677,7 +671,13 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber pl
         WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
     }
-    set_creature_object_combat(creatng, heartng);
+    if (!setup_person_move_to_coord(creatng, &heartng->mappos, NavRtF_Default))
+    {
+        WARNLOG("Hero %s index %d can't move to heart %d at (%d,%d).", thing_model_name(creatng), (int)creatng->index,
+            (int)heartng->index, (int)heartng->mappos.x.stl.num, (int)heartng->mappos.y.stl.num);
+        return false;
+    }
+    creatng->continue_state = CrSt_GoodWanderToObjectCombat;
     return true;
 }
 
@@ -731,54 +731,54 @@ TbBool good_setup_wander_to_own_heart(struct Thing* creatng)
 TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber target_plyr_idx)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    SYNCDBG(8,"The %s index %d performing task %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->party_objective);
-    switch (cctrl->party_objective)
+    SYNCDBG(8,"The %s index %d performing task %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->party.objective);
+    switch (cctrl->party.objective)
     {
     case CHeroTsk_AttackRooms:
         if (good_setup_attack_rooms(creatng, target_plyr_idx)) {
             return true;
         }
-        WARNLOG("Can't attack player %d rooms, switching to attack heart", (int)target_plyr_idx);
-        cctrl->party_objective = CHeroTsk_AttackDnHeart;
+        SYNCDBG(8,"Can't attack player %d rooms, switching to attack heart", (int)target_plyr_idx);
+        cctrl->party.objective = CHeroTsk_AttackDnHeart;
         return false;
     case CHeroTsk_SabotageRooms:
         if (good_setup_sabotage_rooms(creatng, target_plyr_idx)) {
             return true;
         }
-        WARNLOG("Can't attack player %d rooms, switching to attack heart", (int)target_plyr_idx);
-        cctrl->party_objective = CHeroTsk_AttackDnHeart;
+        SYNCDBG(8,"Can't attack player %d rooms, switching to attack heart", (int)target_plyr_idx);
+        cctrl->party.objective = CHeroTsk_AttackDnHeart;
         return false;
     case CHeroTsk_AttackDnHeart:
-        if (good_setup_wander_to_dungeon_heart(creatng, target_plyr_idx)) 
+        if (good_setup_wander_to_dungeon_heart(creatng, target_plyr_idx))
         {
             return true;
         }
-        ERRORLOG("Cannot wander to player %d heart", (int)target_plyr_idx);
+        SYNCDBG(8,"Cannot wander to player %d heart", (int)target_plyr_idx);
         return false;
     case CHeroTsk_SnipeDnHeart:
         if (good_setup_rush_to_dungeon_heart(creatng, target_plyr_idx))
         {
             return true;
         }
-        ERRORLOG("Cannot rush to player %d heart", (int)target_plyr_idx);
+        SYNCDBG(8,"Cannot rush to player %d heart", (int)target_plyr_idx);
         return false;
     case CHeroTsk_StealGold:
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-        if (creatng->creature.gold_carried < crstat->gold_hold)
+        struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
+        if (creatng->creature.gold_carried < crconf->gold_hold)
         {
             if (good_setup_loot_treasure_room(creatng, target_plyr_idx)) {
                 return true;
             }
-            WARNLOG("Can't loot player %d treasury, switching to attack heart", (int)target_plyr_idx);
-            cctrl->party_objective = CHeroTsk_AttackDnHeart;
+            SYNCDBG(8,"Can't loot player %d treasury, switching to attack heart", (int)target_plyr_idx);
+            cctrl->party.objective = CHeroTsk_AttackDnHeart;
         } else
         {
             if (good_setup_wander_to_exit(creatng)) {
                 return true;
             }
-            WARNLOG("Can't wander to exit after looting player %d treasury, switching to attack heart", (int)target_plyr_idx);
-            cctrl->party_objective = CHeroTsk_AttackDnHeart;
+            SYNCDBG(8, "Can't wander to exit after looting player %d treasury, switching to attack heart", (int)target_plyr_idx);
+            cctrl->party.objective = CHeroTsk_AttackDnHeart;
         }
         return false;
     }
@@ -788,20 +788,20 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
             if (good_setup_loot_research_room(creatng, target_plyr_idx)) {
                 return true;
             }
-            WARNLOG("Can't loot player %d spells, switching to attack heart", (int)target_plyr_idx);
-            cctrl->party_objective = CHeroTsk_AttackDnHeart;
+            SYNCDBG(8,"Can't loot player %d spells, switching to attack heart", (int)target_plyr_idx);
+            cctrl->party.objective = CHeroTsk_AttackDnHeart;
         } else
         {
             if (good_setup_wander_to_exit(creatng)) {
                 return true;
             }
-            WARNLOG("Can't wander to exit after looting player %d spells, switching to attack heart", (int)target_plyr_idx);
-            cctrl->party_objective = CHeroTsk_AttackDnHeart;
+            SYNCDBG(8,"Can't wander to exit after looting player %d spells, switching to attack heart", (int)target_plyr_idx);
+            cctrl->party.objective = CHeroTsk_AttackDnHeart;
         }
         return false;
     case CHeroTsk_AttackEnemies:
         // Randomly select if we will first try to wander to creature, or to special digger
-        if (CREATURE_RANDOM(creatng, 2) == 1)
+        if (THING_RANDOM(creatng, 2) == 1)
         {
             // Try wander to creature
             if (good_setup_wander_to_creature(creatng, cctrl->party.target_plyr_idx))
@@ -830,8 +830,8 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
                 return true;
             }
         }
-        WARNLOG("Can't attack player %d creature, switching to attack heart", (int)cctrl->party.target_plyr_idx);
-        cctrl->party_objective = CHeroTsk_AttackDnHeart;
+        SYNCDBG(8,"Can't attack player %d creature, switching to attack heart", (int)cctrl->party.target_plyr_idx);
+        cctrl->party.objective = CHeroTsk_AttackDnHeart;
         return false;
     case CHeroTsk_DefendSpawn:
         if (patrol_here(creatng))
@@ -842,29 +842,29 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
         {
             return true;
         }
-        WARNLOG("Can't patrol location, switching to defending rooms");
-        cctrl->party_objective = CHeroTsk_DefendRooms;
+        SYNCDBG(8,"Can't patrol location, switching to defending rooms");
+        cctrl->party.objective = CHeroTsk_DefendRooms;
         return false;
     case CHeroTsk_DefendHeart:
         if (good_setup_wander_to_own_heart(creatng))
         {
             return true;
         }
-        WARNLOG("Can't defend own heart, switching to attack player %d heart", (int)cctrl->party.target_plyr_idx);
-        cctrl->party_objective = CHeroTsk_AttackDnHeart;
+        SYNCDBG(8,"Can't defend own heart, switching to attack player %d heart", (int)cctrl->party.target_plyr_idx);
+        cctrl->party.objective = CHeroTsk_AttackEnemies;
         return false;
     case CHeroTsk_DefendRooms:
         if (good_setup_defend_rooms(creatng))
         {
             return true;
         }
-        WARNLOG("Can't defend rooms, switching to defending heart");
-        cctrl->party_objective = CHeroTsk_DefendHeart;
+        SYNCDBG(8,"Can't defend rooms, switching to defending heart");
+        cctrl->party.objective = CHeroTsk_AttackEnemies;
         return false;
     case CHeroTsk_Default:
     default:
         SYNCDBG(4,"Wrong task, switching to attack enemies");
-        cctrl->party_objective = CHeroTsk_AttackEnemies;
+        cctrl->party.objective = CHeroTsk_AttackEnemies;
         return false;
     }
 }
@@ -893,7 +893,7 @@ short good_doing_nothing(struct Thing *creatng)
         return 1;
     }
     // Do some wandering also if can't find any task to do
-    if (cctrl->wait_to_turn > (long)game.play_gameturn)
+    if ((long)cctrl->wait_to_turn > (long)game.play_gameturn)
     {
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
             creatng->continue_state = CrSt_GoodDoingNothing;
@@ -930,7 +930,7 @@ short good_doing_nothing(struct Thing *creatng)
                 // Go to the previously chosen dungeon
                 if (!creature_can_get_to_dungeon_heart(creatng,target_plyr_idx))
                 {
-                    if (!creature_can_get_to_any_of_players_rooms(creatng, target_plyr_idx) || (cctrl->party_objective != CHeroTsk_AttackRooms))
+                    if (!creature_can_get_to_any_of_players_rooms(creatng, target_plyr_idx) || (cctrl->party.objective != CHeroTsk_AttackRooms))
                     {
                         // Cannot get to the originally selected dungeon - reset it
                         cctrl->party.target_plyr_idx = -1;
@@ -957,7 +957,7 @@ short good_doing_nothing(struct Thing *creatng)
             cctrl->party.target_plyr_idx = -1;
         }
     }
-    if (cctrl->party_objective > CHeroTsk_DefendParty) // Defensive objectives don't need a target
+    if (cctrl->party.objective > CHeroTsk_DefendParty) // Defensive objectives don't need a target
     {
         if (good_creature_setup_task_in_dungeon(creatng, target_plyr_idx)) {
             return 1;
@@ -970,10 +970,10 @@ short good_doing_nothing(struct Thing *creatng)
     if (target_plyr_idx == -1)
     {
         nturns = game.play_gameturn - cctrl->hero.wait_time;
-        if (nturns > 400)
+        if ((nturns > 400) && (cctrl->hero.look_for_enemy_dungeon_turn != 0))
         {
             cctrl->hero.wait_time = game.play_gameturn;
-            cctrl->hero.byte_8C = 1;
+            cctrl->hero.ready_for_attack_flag = 1;
         }
         nturns = game.play_gameturn - cctrl->hero.look_for_enemy_dungeon_turn;
         if (nturns > 64)
@@ -986,6 +986,10 @@ short good_doing_nothing(struct Thing *creatng)
         {
             SYNCDBG(4,"No enemy dungeon to perform %s index %d task",
                 thing_model_name(creatng),(int)creatng->index);
+            if (cctrl->party.original_objective > CHeroTsk_Default)
+            {
+                cctrl->party.objective = cctrl->party.original_objective;
+            }
             cctrl->wait_to_turn = game.play_gameturn + 16;
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
             {
@@ -1013,8 +1017,8 @@ short good_drops_gold(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return 0;
     }
-    GoldAmount amount = game.pot_of_gold_holds;
-    if (thing->creature.gold_carried <= game.pot_of_gold_holds)
+    GoldAmount amount = game.conf.rules.game.pot_of_gold_holds;
+    if (thing->creature.gold_carried <= game.conf.rules.game.pot_of_gold_holds)
         amount = thing->creature.gold_carried;
     struct Thing* gldtng = create_object(&thing->mappos, ObjMdl_GoldPot, thing->owner, -1);
     if (thing_is_invalid(gldtng)) {
@@ -1038,14 +1042,14 @@ short good_leave_through_exit_door(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return false;
     }
-    struct Thing* tmptng = find_base_thing_on_mapwho(TCls_Object, ObjMdl_HeroGate, thing->mappos.x.stl.num, thing->mappos.y.stl.num); //49 = hero gate
+    struct Thing* tmptng = find_object_of_genre_on_mapwho(OCtg_HeroGate, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (thing_is_invalid(tmptng))
     {
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     thing->creature.gold_carried = 0;
-    cctrl->countdown_282 = game.hero_door_wait_time;
+    cctrl->countdown = game.conf.rules.game.hero_door_wait_time;
     cctrl->hero.hero_gate_creation_turn = tmptng->creation_turn;
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
     if (cctrl->dragtng_idx != 0)
@@ -1092,12 +1096,12 @@ short good_wait_in_exit_door(struct Thing *thing)
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->countdown_282 <= 0)
+    if (cctrl->countdown <= 0)
         return 0;
-    cctrl->countdown_282--;
-    if (cctrl->countdown_282 == 0)
+    cctrl->countdown--;
+    if (cctrl->countdown == 0)
     {
-        struct Thing* tmptng = find_base_thing_on_mapwho(TCls_Object, ObjMdl_HeroGate, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        struct Thing* tmptng = find_object_of_genre_on_mapwho(OCtg_HeroGate, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         if (!thing_is_invalid(tmptng))
         {
             if (cctrl->hero.hero_gate_creation_turn == tmptng->creation_turn)
@@ -1123,15 +1127,15 @@ short creature_hero_entering(struct Thing *thing)
 {
     TRACE_THING(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->countdown_282 > 0)
+    if (cctrl->countdown > 0)
     {
-        cctrl->countdown_282--;
+        cctrl->countdown--;
         return CrStRet_Unchanged;
     }
-    if (cctrl->countdown_282 == 0)
+    if (cctrl->countdown == 0)
     {
-        thing->mappos.z.val = get_ceiling_height(&thing->mappos) - (long)thing->clipbox_size_yz - 1;
-        cctrl->countdown_282--;
+        thing->mappos.z.val = get_ceiling_height(&thing->mappos) - (long)thing->clipbox_size_z - 1;
+        cctrl->countdown--;
         return CrStRet_Modified;
     }
     if ( thing_touching_floor(thing) || (((thing->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(thing)))
@@ -1139,12 +1143,12 @@ short creature_hero_entering(struct Thing *thing)
         set_start_state(thing);
         return CrStRet_ResetOk;
     }
-    if (cctrl->countdown_282 < -500)
+    if (cctrl->countdown < -500)
     {
         set_start_state(thing);
         return CrStRet_ResetFail;
     }
-    cctrl->countdown_282--;
+    cctrl->countdown--;
     return CrStRet_Modified;
 }
 
@@ -1156,10 +1160,10 @@ long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
         struct Dungeon* dungeon = get_players_dungeon(player);
-        if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
+        if (player_exists(player) && !dungeon_invalid(dungeon) && players_are_enemies(creatng->owner,plyr_idx))
         {
             long score = dungeon->total_score; //Original code: = dungeon->total_score -20 * dungeon->total_score * dungeon->field_F7D / 100;
-            if ((score <= 0) || (gameadd.classic_bugs_flags & ClscBug_AlwaysTunnelToRed))
+            if ((score <= 0) || (game.conf.rules.game.classic_bugs_flags & ClscBug_AlwaysTunnelToRed))
             {
                 score = 0;
             }
@@ -1173,7 +1177,7 @@ long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
     return best_plyr_idx;
 }
 
-short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char a4)
+short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char unusedparam)
 {
     if ( internal_set_thing_state(creatng, CrSt_Tunnelling) )
     {
@@ -1204,8 +1208,8 @@ TbBool script_support_send_tunneller_to_action_point(struct Thing *thing, long a
         pos.y.val = apt->mappos.y.val;
     } else {
         ERRORLOG("Attempt to send to non-existing action point %d",(int)apt_idx);
-        pos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-        pos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
+        pos.x.val = subtile_coord_center(game.map_subtiles_x/2);
+        pos.y.val = subtile_coord_center(game.map_subtiles_y/2);
     }
     pos.z.val = subtile_coord(1,0);
     send_tunneller_to_point(thing, &pos);
@@ -1269,14 +1273,14 @@ TbBool script_support_send_tunneller_to_appropriate_dungeon(struct Thing *creatn
     return send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos);
 }
 
-struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold)
+struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, CrtrExpLevel exp_level, unsigned long carried_gold)
 {
-    ThingModel diggerkind = get_players_special_digger_model(game.hero_player_num);
-    struct Thing* creatng = script_create_creature_at_location(plyr_idx, diggerkind, location);
+    ThingModel diggerkind = get_players_special_digger_model(plyr_idx);
+    struct Thing* creatng = script_create_creature_at_location(plyr_idx, diggerkind, location, SpwnT_Default);
     if (thing_is_invalid(creatng))
         return INVALID_THING;
     creatng->creature.gold_carried = carried_gold;
-    init_creature_level(creatng, crtr_level);
+    init_creature_level(creatng, exp_level);
     switch (get_map_location_type(heading))
     {
     case MLoc_ACTIONPOINT:
@@ -1376,17 +1380,17 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(6,"Move %s index %d from (%d,%d) to (%d,%d) with speed %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->mappos.x.stl.num,(int)creatng->mappos.y.stl.num,(int)pos->x.stl.num,(int)pos->y.stl.num,(int)speed);
-    cctrl->navi.field_19[0] = 0;
-    if (get_2d_box_distance(&creatng->mappos, pos) <= 32)
+    cctrl->navi.owner_flags[0] = 0;
+    if (get_chessboard_distance(&creatng->mappos, pos) <= 32)
     {
         // We've reached the destination
         creature_set_speed(creatng, 0);
         return 1;
     }
-    long i = cctrl->party.long_8B;
+    long i = cctrl->party.tunnel_steps_counter;
     if ((i > 0) && (i < LONG_MAX))
     {
-        cctrl->party.long_8B++;
+        cctrl->party.tunnel_steps_counter++;
     }
     if ((pos->x.val != cctrl->navi.pos_final.x.val)
      || (pos->y.val != cctrl->navi.pos_final.y.val)
@@ -1395,13 +1399,13 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
         pos->z.val = get_thing_height_at(creatng, pos);
         initialise_wallhugging_path_from_to(&cctrl->navi, &creatng->mappos, pos);
     }
-    long tnlret = get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, cctrl->party.byte_8F);
+    long tnlret = get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, cctrl->party.tunnel_dig_direction);
     if (tnlret == 2)
     {
         i = cctrl->navi.first_colliding_block;
-        if (cctrl->navi.field_17 != i)
+        if (cctrl->navi.second_colliding_block != i)
         {
-            cctrl->navi.field_17 = i;
+            cctrl->navi.second_colliding_block = i;
         } else
         if (cctrl->instance_id == CrInst_NULL)
         {
@@ -1451,7 +1455,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
         {
             creatng->continue_state = CrSt_TunnellerDoingNothing;
-            ERRORLOG("%s index %d stuck - attempt %d to dislodge",thing_model_name(creatng),(int)creatng->index,identical[creatng->ccontrol_idx]-149);
+            ERRORLOG("%s index %d stuck - attempt %lu to dislodge",thing_model_name(creatng),(int)creatng->index,identical[creatng->ccontrol_idx]-149);
         }
         return 0;
     }
@@ -1463,7 +1467,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     cctrl->moveaccel.x.val = cctrl->navi.pos_next.x.val - (MapCoordDelta)creatng->mappos.x.val;
     cctrl->moveaccel.y.val = cctrl->navi.pos_next.y.val - (MapCoordDelta)creatng->mappos.y.val;
     cctrl->moveaccel.z.val = 0;
-    cctrl->flgfield_2 |= TF2_Unkn01;
+    cctrl->creature_state_flags |= TF2_CreatureIsMoving;
     creature_set_speed(creatng, min(speed,dist));
     return 0;
 }
@@ -1513,10 +1517,10 @@ short tunnelling(struct Thing *creatng)
  */
 TbBool is_hero_tunnelling_to_attack(struct Thing *creatng)
 {
-    if (creatng->model != get_players_special_digger_model(game.hero_player_num))
+    if (creatng->model != get_players_special_digger_model(creatng->owner))
         return false;
-    CrtrStateId crstat = get_creature_state_besides_move(creatng);
-    if ((crstat != CrSt_Tunnelling) && (crstat != CrSt_TunnellerDoingNothing))
+    CrtrStateId crstate = get_creature_state_besides_move(creatng);
+    if ((crstate != CrSt_Tunnelling) && (crstate != CrSt_TunnellerDoingNothing))
         return false;
     return true;
 }

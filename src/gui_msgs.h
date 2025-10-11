@@ -30,19 +30,31 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+enum MessageTypes {
+    MsgType_Player = 0,
+    MsgType_Creature,
+    MsgType_CreatureSpell,
+    MsgType_Room,
+    MsgType_KeeperSpell,
+    MsgType_Query, //5
+    MsgType_Blank,
+    MsgType_CreatureInstance,
+};
+/******************************************************************************/
 #pragma pack(1)
 
 struct GuiMessage_OLD { // sizeof = 0x45 (69)
     char text[64];
 PlayerNumber plyr_idx;
-unsigned long creation_turn;
+unsigned long expiration_turn;
 };
 
 struct GuiMessage {
     char text[64];
 PlayerNumber plyr_idx;
-unsigned long creation_turn;
+unsigned long expiration_turn;
 PlayerNumber target_idx;
+char type;
 };
 
 #pragma pack()
@@ -50,13 +62,13 @@ PlayerNumber target_idx;
 void message_update(void);
 void message_draw(void);
 void zero_messages(void);
-void message_add(PlayerNumber plyr_idx, const char *text);
-void message_add_fmt(PlayerNumber plyr_idx, const char *fmt_str, ...);
+void message_add(char type, PlayerNumber plyr_idx, const char *text);
+void message_add_fmt(char type, PlayerNumber plyr_idx, const char *fmt_str, ...);
 void show_game_time_taken(unsigned long fps, unsigned long turns);
 void show_real_time_taken(void);
-void clear_messages_from_player(char plyr_idx);
+void clear_messages_from_player(char type, PlayerNumber plyr_idx);
 void delete_message(unsigned char msg_idx);
-void targeted_message_add(PlayerNumber plyr_idx, PlayerNumber target_idx, unsigned long timeout, const char *fmt_str, ...);
+void targeted_message_add(char type, PlayerNumber plyr_idx, PlayerNumber target_idx, unsigned long timeout, const char *fmt_str, ...);
 /******************************************************************************/
 #ifdef __cplusplus
 }

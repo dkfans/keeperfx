@@ -75,6 +75,15 @@ unsigned short pixel_size;
 unsigned short pixels_per_block;
 unsigned short units_per_pixel;
 
+/**
+  * The id number of the current display that the game renders to, defaults to 0.
+  * id 0 is the first (or only) screen, id 1 is the second screen, etc.
+  *
+  * The display number can be set in cfg file (as DISPLAY_NUMBER), display number = display id + 1.
+  * Screen number 1 is the first (or only screen), etc.
+  */
+unsigned short display_id = 0;
+
 static unsigned char fade_started;
 static unsigned char from_pal[PALETTE_SIZE];
 static unsigned char to_pal[PALETTE_SIZE];
@@ -229,15 +238,15 @@ TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette
     unsigned char palette[PALETTE_SIZE];
     for (int i = 0; i < 3 * PALETTE_COLORS; i += 3)
     {
-        int c1 = to_palette[i + 0];
-        int c2 = from_palette[i + 0];
-        palette[i+0] = fade_count * (c1 - c2) / fade_steps + c2;
-        c1 =   to_palette[i+1];
-        c2 = from_palette[i+1];
-        palette[i+1] = fade_count * (c1 - c2) / fade_steps + c2;
-        c1 =   to_palette[i+2];
-        c2 = from_palette[i+2];
-        palette[i+2] = fade_count * (c1 - c2) / fade_steps + c2;
+        int target_color_component = to_palette[i + 0];
+        int source_color_component = from_palette[i + 0];
+        palette[i+0] = fade_count * (target_color_component - source_color_component) / fade_steps + source_color_component;
+        target_color_component =   to_palette[i+1];
+        source_color_component = from_palette[i+1];
+        palette[i+1] = fade_count * (target_color_component - source_color_component) / fade_steps + source_color_component;
+        target_color_component =   to_palette[i+2];
+        source_color_component = from_palette[i+2];
+        palette[i+2] = fade_count * (target_color_component - source_color_component) / fade_steps + source_color_component;
     }
     LbScreenWaitVbi();
     TbResult ret = LbPaletteSet(palette);
@@ -312,33 +321,117 @@ TbResult LbScreenWaitVbi(void)
   return Lb_SUCCESS;
 }
 
-static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode)
+/** Get the display id that the game is currently rendering to, or the default if there is no game window. Uses SDL2. */
+unsigned short LbGetCurrentDisplayIndex()
 {
-    TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
-    unsigned long sdlFlags = 0;
-  if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
-      sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-  }
-  return true;
+    unsigned short current_display_id = display_id; // default to the already set display_id
+    if (lbWindow != NULL)
+    {
+        int ret = SDL_GetWindowDisplayIndex(lbWindow); // Get the screen that the game is currently running on (if it is running)
+        if (ret >= 0)
+        {
+            current_display_id = (unsigned short)ret; // update the record of the current display that keeperfx is rendering to
+        }
+        else
+        {
+            ERRORLOG("SDL_GetWindowDisplayIndex failed: %s", SDL_GetError());
+        }
+    }
+    return current_display_id;
 }
 
-TbResult LbScreenFindVideoModes(void)
+/** Check if a given mode is available on the current display, and set its Available field to TRUE if it is. */
+static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode, unsigned short display)
 {
-    int avail_num = 0;
-    lbScreenModeInfo[0].Available = false;
-    for (int i = 1; i < lbScreenModeInfoNum; i++)
+    TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
+    mdinfo->Available = false;
+    mdinfo->window_pos_x = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
+    mdinfo->window_pos_y = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
+    // if this is window mode
+    if (mdinfo->VideoFlags & Lb_VF_WINDOWED)
     {
-        if (LbHwCheckIsModeAvailable(i))
+        if (mdinfo->VideoFlags & Lb_VF_BORDERLESS)
         {
-            lbScreenModeInfo[i].Available = true;
-            avail_num++;
-        } else {
-          lbScreenModeInfo[i].Available = false;
-      }
-  }
-  if (avail_num > 0)
-      return Lb_SUCCESS;
-  return Lb_FAIL;
+            // bordeless window - do nothing
+        }
+        else
+        {
+            // normal bordered window - do nothing
+        }
+    }
+    // else if this is fill all screens mode
+    else if (mdinfo->VideoFlags & Lb_VF_FILLALL)
+    {
+        // We actually need to setup this mode now, as it is flexible to the user's setup
+        int top = 0;
+        int left = 0;
+        int bottom = 0;
+        int right = 0;
+        //int screenArray[columnCount*rowCount] = {1, 0, 2};
+        mdinfo->Width = mdinfo->Height = mdinfo->window_pos_x = mdinfo->window_pos_y = 0;
+        // Get the total number of displays
+        int numDisplays = SDL_GetNumVideoDisplays();
+        if (numDisplays <= 0)
+        {
+            ERRORLOG("SDL_GetNumVideoDisplays failed: %s", SDL_GetError());
+            return false; // for some reason we can't get the number of displays!
+        }
+        for (int d = 0; d < numDisplays; d++)
+        {
+            SDL_Rect rect = {0, 0, 0, 0};
+            if (SDL_GetDisplayBounds(d, &rect) != 0)
+            {
+                ERRORLOG("SDL_GetDisplayBounds failed: %s", SDL_GetError());
+                return false; // for some reason we can't get the current display bounds!
+            }
+            left = min(left, rect.x);
+            top = min(top, rect.y);
+            right = max(right, rect.x + rect.w);
+            bottom = max(bottom, rect.y + rect.h);
+        }
+        mdinfo->Width = abs(left - right);
+        mdinfo->Height = abs(top - bottom);
+        if ((mdinfo->Width == 0) || (mdinfo->Height == 0))
+        {
+            ERRORLOG("no valid screens in FILLALL mode");
+            return false;
+        }
+        mdinfo->window_pos_x = left;
+        mdinfo->window_pos_y = top;
+    }
+    // else if this is the real or fake desktop fullscreen mode
+    else if (mdinfo->VideoFlags & Lb_VF_DESKTOP)
+    {
+        // We actually need to setup this mode now, as it is flexible to the user's setup
+        // Get current desktop display width and height (after DPI scaling)
+        SDL_DisplayMode desktop;
+        if (SDL_GetDesktopDisplayMode(display, &desktop) != 0)
+        {
+            ERRORLOG("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+            return false; // for some reason we can't get the current desktop resolution!
+        }
+        // update the mode's width and height to the desktop resolution of the current monitor
+        mdinfo->Width = desktop.w;
+        mdinfo->Height = desktop.h;
+    }
+    // else if this is a specific fullscreen mode
+    else
+    {
+        // See if the desired fullscreen mode is a valid mode for the current display
+        SDL_DisplayMode desired = {SDL_PIXELFORMAT_UNKNOWN, (int)mdinfo->Width, (int)mdinfo->Height, 0, 0}; // maybe there is a better/more accurate way to describe the display mode...
+        SDL_DisplayMode closest = desired;
+        if (SDL_GetClosestDisplayMode(display, &desired, &closest) == NULL)
+        {
+            return false; // all available fullscreen modes are too small for the desired mode to fit
+        }
+        if ((desired.w != closest.w) && (desired.h != closest.h))
+        {
+            return false; // desired fullscreen mode is not available (but a "close" match is)
+        }
+    }
+    // desired screen mode must be valid if we get here
+    mdinfo->Available = true; // redundant?
+    return true;
 }
 
 /**
@@ -381,6 +474,20 @@ static void LbRegisterStandardVideoModes(void)
     LbRegisterVideoMode("1600x1200x24",1600,1200, 24, Lb_VF_RGBCOLOR);
 }
 
+/**
+ * Registers special video modes that allow us to work in a modern environment (Uses SDL2).
+ *
+ * These are added to the end of list of VESA standard modes (see LbRegisterStandardVideoModes), as "custom modes".
+ */
+static void LbRegisterModernVideoModes(void)
+{
+    LbRegisterVideoMode("DESKTOP",      0, 0, 32, Lb_VF_RGBCOLOR|Lb_VF_BORDERLESS|Lb_VF_DESKTOP); // borderless fullscreen window mode
+    LbRegisterVideoMode("DESKTOP_FULL", 0, 0, 32, Lb_VF_RGBCOLOR|Lb_VF_DESKTOP); // normal fullscreen mode (at desktop resolution)
+    //LbRegisterVideoMode("WINDOW",       0, 0, 32, Lb_VF_RGBCOLOR|Lb_VF_WINDOWED); // normal bordered window at any resolution, remebers previous set size (defaults to 640x480?)
+    //LbRegisterVideoMode("BORDERLESS",   0, 0, 32, Lb_VF_RGBCOLOR|Lb_VF_BORDERLESS|Lb_VF_WINDOWED); // borderless window at any resolution
+    LbRegisterVideoMode("ALL",          0, 0, 32, Lb_VF_RGBCOLOR|Lb_VF_FILLALL); // span all displays with a borderless window
+}
+
 TbResult LbScreenInitialize(void)
 {
     // Clear global variables
@@ -394,6 +501,7 @@ TbResult LbScreenInitialize(void)
     // Register default video modes
     if (lbScreenModeInfoNum == 0) {
         LbRegisterStandardVideoModes();
+        LbRegisterModernVideoModes(); // register modern and flexible custom modes
     }
     // Initialize SDL library
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0) {
@@ -405,12 +513,12 @@ TbResult LbScreenInitialize(void)
     return Lb_SUCCESS;
 }
 
+/** Set up the window, render surface, etc. Called when we want to change the screen setup. Uses SDL2. */
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
     long hot_x;
     long hot_y;
-
     const struct TbSprite* msspr = NULL;
     LbExeReferenceNumber();
     if (lbDisplay.MouseSprite != NULL)
@@ -430,72 +538,62 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if (prevScreenSurf != NULL) {
     }
 
-    TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
-    if ( !LbScreenIsModeAvailable(mode) )
+    TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode); // The desired mode has already been checked
+    // Note:
+    // We set the window's fullscreen state (either Window, Fullscreen, or Fake Fullscreen)
+    // We set the DisplayMode for real fullscreen mode
+    // We set the window size, position, and border for a window
+    // The FILL ALL mode is a borderless window
+    if (lbWindow != NULL)
     {
-        ERRORLOG("%s resolution %dx%d (mode %d) not available",
-            (mdinfo->VideoFlags&Lb_VF_WINDOWED)?"Windowed":"Full screen",
-            (int)mdinfo->Width,(int)mdinfo->Height,(int)mode);
-        return Lb_FAIL;
-    }
-
-    // SDL video mode flags
-    unsigned long sdlFlags = 0;
-    if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
-        sdlFlags |= SDL_WINDOW_FULLSCREEN;
-    }
-    if (lbWindow != NULL) {
-        // We only need to create a new window if we now have a different resolution/mode to the existing window, so check new/old resolution and mode...
-        int cw, ch, cflags;
-        cflags = SDL_GetWindowFlags(lbWindow);
-        SDL_GetWindowSize(lbWindow, &cw, &ch);
-        TbBool sameResolution = ((mdinfo->Width == cw) && (mdinfo->Height == ch));
-        TbBool sameWindowMode = ((cflags & sdlFlags) != 0);
-        TbBool stillInWindowedMode = ((sdlFlags & 1) == 0) && ((cflags & 1) == 0); // it is hard to detect if windowed mode (flag = 0) is still the same (i.e. no change of mode, still in windowed mode)
-        if (stillInWindowedMode) {
-            sameWindowMode = (sameWindowMode || stillInWindowedMode);
-            if (!sameResolution)
-            {
-                // reset window
-                SDL_DestroyWindow(lbWindow);
-                lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mdinfo->Width, mdinfo->Height, sdlFlags);
-            }
-        }
-        int fullscreenMode = (((sdlFlags & SDL_WINDOW_FULLSCREEN) != 0) ? SDL_WINDOW_FULLSCREEN : 0);
-        if (!sameWindowMode && (fullscreenMode == 0))
+        Uint32 current_fullscreen_flags = SDL_GetWindowFlags(lbWindow) & SDL_WINDOW_FULLSCREEN_DESKTOP; // SDL_WINDOW_FULLSCREEN is already flagged in SDL_WINDOW_FULLSCREEN_DESKTOP
+        Uint32 new_fullscreen_flags = mdinfo->sdlFlags & SDL_WINDOW_FULLSCREEN_DESKTOP;
+        // If the new mode is a real fullscreen mode, then set the new mode
+        if (new_fullscreen_flags == SDL_WINDOW_FULLSCREEN)
         {
-            SDL_DestroyWindow(lbWindow); // destroy window on transition from fullscreen to window, as it is quicker than using SDL_SetWindowFullscreen
-            lbWindow = NULL;
+            SDL_DisplayMode dm = { SDL_PIXELFORMAT_UNKNOWN, (int)mdinfo->Width, (int)mdinfo->Height, 0, 0}; // this works in a modern setting (we get WxH at 32 bpp), but I'm not sure if this provides true 8-bit color mode (e.g. if we request 320x200x8 mode)
+            if (SDL_SetWindowDisplayMode(lbWindow, &dm) != 0) // set display mode for fullscreen
+            {
+                ERRORLOG("SDL_SetWindowDisplayMode failed for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
+                return Lb_FAIL;
+            }
+            // If we change to a fullscreen mode that is a higher res than the previous fullscreen mode (after having already changed
+            // to a normal window/fake fullscreen window at some point in the past), then the result is a small window in the
+            // top left of the screen, or potentially the buffer does not fill the whole mode's width/height (I don't know these things).
+            // The above seems to be this SDL issue: https://github.com/libsdl-org/SDL/issues/3869
+            // said issue was supposedly fixed in https://github.com/libsdl-org/SDL/pull/4392
+            // but that is either not the case, or said pull has been reverted (I cannot find evidence of it in the sdl2 codebase).
+            // The issue is fixed by running the following line (after SDL_SetWindowDisplayMode above):
+            SDL_SetWindowSize(lbWindow, mdinfo->Width, mdinfo->Height);
         }
-        else
+        // If mode has changed between fullscreen/windowed/fake fullscreen, set the new mode
+        if (current_fullscreen_flags != new_fullscreen_flags)
         {
-            if (!sameResolution)
+            if (SDL_SetWindowFullscreen(lbWindow, new_fullscreen_flags) != 0)
             {
-                if (fullscreenMode == SDL_WINDOW_FULLSCREEN)
-                {
-                    SDL_DisplayMode dm = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0}; // maybe there is a better/more accurate way to describe the display mode...
-                    dm.w=mdinfo->Width;
-                    dm.h=mdinfo->Height;
-                    SDL_SetWindowDisplayMode(lbWindow, &dm); // set display mode for fullscreen
-                }
-                SDL_SetWindowSize(lbWindow, mdinfo->Width, mdinfo->Height); // we want to set window size for both windowed mode, and fullscreen
+                ERRORLOG("SDL_SetWindowFullscreen failed for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
+                return Lb_FAIL;
             }
-            if (!sameWindowMode)
-            {
-                SDL_SetWindowFullscreen(lbWindow, fullscreenMode); // change to/from fullscreen if requested
-            }
+        }
+        SDL_SetWindowBordered(lbWindow, (mdinfo->sdlFlags & SDL_WINDOW_BORDERLESS) ? SDL_FALSE : SDL_TRUE);
+        // if the new mode is windowed mode (including the special FILL ALL mode)
+        if (new_fullscreen_flags == 0)
+        {
+            SDL_SetWindowSize(lbWindow, mdinfo->Width, mdinfo->Height);
+            SDL_SetWindowPosition(lbWindow, mdinfo->window_pos_x, mdinfo->window_pos_y);
         }
     }
-    if (lbWindow == NULL) { // Only create a new window if we don't have a valid one already
-        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mdinfo->Width, mdinfo->Height, sdlFlags);
+    // If the game window doesn't yet exists
+    if (lbWindow == NULL) {
+        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, mdinfo->window_pos_x, mdinfo->window_pos_y, mdinfo->Width, mdinfo->Height, mdinfo->sdlFlags);
     }
     if (lbWindow == NULL) {
-        ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
+        ERRORLOG("SDL_CreateWindow failed for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
         return Lb_FAIL;
     }
     lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface( lbWindow );
     if (lbScreenSurface == NULL) {
-        ERRORLOG("Failed to initialize mode %d: %s",(int)mode,SDL_GetError());
+        ERRORLOG("Failed to initialize mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
         return Lb_FAIL;
     }
 
@@ -504,8 +602,8 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     {
         lbDrawSurface = SDL_CreateRGBSurface(0, mdinfo->Width, mdinfo->Height, lbEngineBPP, 0, 0, 0, 0);
         if (lbDrawSurface == NULL) {
-            ERRORLOG("Can't create secondary surface: %s",SDL_GetError());
-            LbScreenReset();
+            ERRORLOG("Can't create secondary surface for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
+            LbScreenReset(false);
             return Lb_FAIL;
         }
         lbHasSecondSurface = true;
@@ -545,7 +643,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         }
     }
 
-    setup_bflib_render(lbDisplay.GraphicsScreenWidth, lbDisplay.GraphicsScreenHeight);
+    reset_bflib_render();
     SYNCDBG(8,"Finished");
     return Lb_SUCCESS;
 }
@@ -671,7 +769,7 @@ TbBool LbScreenIsLocked(void)
     return (lbDisplay.WScreen != NULL);
 }
 
-TbResult LbScreenReset(void)
+TbResult LbScreenReset(TbBool exiting_application)
 {
     if (!lbScreenInitialised)
       return Lb_FAIL;
@@ -680,12 +778,16 @@ TbResult LbScreenReset(void)
         SDL_FreeSurface(lbDrawSurface);
     }
     //do not free screen surface, it is freed automatically on SDL_Quit or next call to set video mode
-    finish_bflib_render();
     lbHasSecondSurface = false;
     lbDrawSurface = NULL;
     lbScreenSurface = NULL;
     // Mark as not initialized
     lbScreenInitialised = false;
+    if (exiting_application)
+    {
+        // we get here when we are actually closing the application
+        finish_bflib_render();
+    }
     return Lb_SUCCESS;
 }
 
@@ -730,40 +832,40 @@ TbResult LbScreenLoadGraphicsWindow(TbGraphicsWindow *grwnd)
 TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
 {
     long i;
-    long x2 = x + width;
-    long y2 = y + height;
-    if (x2 < x)  //Alarm! Voodoo magic detected!
+    long right_edge = x + width;
+    long bottom_edge = y + height;
+    if (right_edge < x)  //Alarm! Voodoo magic detected!
     {
-        i = (x ^ x2);
+        i = (x ^ right_edge);
         x = x ^ i;
-        x2 = x ^ i ^ i;
+        right_edge = x ^ i ^ i;
   }
-  if (y2 < y)
+  if (bottom_edge < y)
   {
-    i = (y^y2);
+    i = (y^bottom_edge);
     y = y^i;
-    y2 = y^i^i;
+    bottom_edge = y^i^i;
   }
   if (x < 0)
     x = 0;
-  if (x2 < 0)
-    x2 = 0;
+  if (right_edge < 0)
+    right_edge = 0;
   if (y < 0)
     y = 0;
-  if (y2 < 0)
-    y2 = 0;
+  if (bottom_edge < 0)
+    bottom_edge = 0;
   if (x > lbDisplay.GraphicsScreenWidth)
     x = lbDisplay.GraphicsScreenWidth;
-  if (x2 > lbDisplay.GraphicsScreenWidth)
-    x2 = lbDisplay.GraphicsScreenWidth;
+  if (right_edge > lbDisplay.GraphicsScreenWidth)
+    right_edge = lbDisplay.GraphicsScreenWidth;
   if (y > lbDisplay.GraphicsScreenHeight)
     y = lbDisplay.GraphicsScreenHeight;
-  if (y2 > lbDisplay.GraphicsScreenHeight)
-    y2 = lbDisplay.GraphicsScreenHeight;
+  if (bottom_edge > lbDisplay.GraphicsScreenHeight)
+    bottom_edge = lbDisplay.GraphicsScreenHeight;
   lbDisplay.GraphicsWindowX = x;
   lbDisplay.GraphicsWindowY = y;
-  lbDisplay.GraphicsWindowWidth = x2 - x;
-  lbDisplay.GraphicsWindowHeight = y2 - y;
+  lbDisplay.GraphicsWindowWidth = right_edge - x;
+  lbDisplay.GraphicsWindowHeight = bottom_edge - y;
   if (lbDisplay.WScreen != NULL)
   {
     lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth*y + x;
@@ -774,17 +876,21 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
   return Lb_SUCCESS;
 }
 
-TbBool LbScreenIsModeAvailable(TbScreenMode mode)
+TbBool LbScreenIsModeAvailable(TbScreenMode mode, unsigned short display)
 {
-  static TbBool setup = false;
-  if (!setup)
+  if (mode == Lb_SCREEN_MODE_INVALID)
   {
-    if (LbScreenFindVideoModes() != Lb_SUCCESS)
-      return false;
-    setup = true;
+    return false;
   }
-  TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
-  return mdinfo->Available;
+  if (!LbHwCheckIsModeAvailable(mode, display))
+  {
+    TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
+    ERRORLOG("%s resolution %dx%d (mode %d) not available",
+            (mdinfo->VideoFlags&Lb_VF_WINDOWED)?"Windowed":"Full screen",
+            (int)mdinfo->Width,(int)mdinfo->Height,(int)mode);
+    return false;
+  }
+  return true;
 }
 
 /** Allows to change recommended state of double buffering function.
@@ -802,17 +908,6 @@ TbResult LbScreenSetDoubleBuffering(TbBool state)
 {
     lbDoubleBufferingRequested = state;
     return Lb_SUCCESS;
-}
-
-/** Retrieves actual state of the Double Buffering function.
- *  Note that if the function was requested, it still doesn't necessarily
- *  mean it was activated.
- *
- * @return True if the function is currently active, false otherwise.
- */
-TbBool LbScreenIsDoubleBufferred(void)
-{
-    return lbHasSecondSurface;
 }
 
 TbScreenMode LbRecogniseVideoModeString(const char *desc)
@@ -860,6 +955,34 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
     mdinfo->BitsPerPixel = bpp;
     mdinfo->Available = false;
     mdinfo->VideoFlags = flags;
+    // SDL flags
+    mdinfo->sdlFlags = 0; // default to an normal window
+    if ((mdinfo->VideoFlags & Lb_VF_WINDOWED))
+    {
+        if (mdinfo->VideoFlags & Lb_VF_BORDERLESS)
+        {
+            mdinfo->sdlFlags |= SDL_WINDOW_BORDERLESS; // borderless window
+        }
+        /* else
+        {
+            sdlFlags |= SDL_WINDOW_RESIZABLE; // todo (allow window to be freely scaled) - needs window resize function triggered by SDL_WINDOWEVENT_SIZE_CHANGED
+        } */
+    }
+    else
+    {
+        if (mdinfo->VideoFlags & Lb_VF_FILLALL)
+        {
+            mdinfo->sdlFlags |= SDL_WINDOW_BORDERLESS; // fill all displays with fake fullscreen
+        }
+        else if (mdinfo->VideoFlags & Lb_VF_BORDERLESS)
+        {
+            mdinfo->sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP; // fake fullscreen
+        }
+        else
+        {
+            mdinfo->sdlFlags |= SDL_WINDOW_FULLSCREEN; // real fullscreen
+        }
+    }
     snprintf(mdinfo->Desc, sizeof(mdinfo->Desc), "%s", desc);
     return mode;
 }
@@ -876,11 +999,25 @@ TbScreenMode LbRegisterVideoModeString(const char *desc)
     int height;
     int bpp;
     unsigned long flags;
-    int ret;
+    int ret = 0;
+    // check for the special "span all displays" mode
+    if (strncasecmp(desc, "ALL", 3) == 0)
     {
-        width = 0; height = 0; bpp = 0; flags = Lb_VF_DEFAULT;
-        ret = sscanf(desc," %d x %d x %d", &width, &height, &bpp);
+        return LbRecogniseVideoModeString("ALL");
     }
+    // check for the special real fullscreen mode
+    if (strncasecmp(desc, "DESKTOP_FULL", 12) == 0)
+    {
+        return LbRecogniseVideoModeString("DESKTOP_FULL");
+    }
+    // check for the special fake fullscreen mode
+    if (strncasecmp(desc, "DESKTOP", 7) == 0)
+    {
+        return LbRecogniseVideoModeString("DESKTOP");
+    }
+    // modern patterns not matched - maybe it's fullscreen mode
+    width = 0; height = 0; bpp = 0; flags = Lb_VF_DEFAULT;
+    ret = sscanf(desc," %d x %d x %d", &width, &height, &bpp);
     if (ret != 3)
     {
         // pattern not matched - maybe it's windowed mode
@@ -1097,6 +1234,7 @@ long scale_ui_value_lofi(long base_value)
 
 /**
  * Takes a fixed value tuned for original DK at 640x400 and scales it for the game's current resolution.
+ * If the screen is wider than 16:10 the height is used; if the screen is narrower than 16:10 the width is used.
  * Uses units_per_pixel_best (which is 16 at 640x400)
  *
  * @param base_value The fixed value tuned for original DK 640x400 mode
@@ -1108,6 +1246,108 @@ long scale_fixed_DK_value(long base_value)
     return value;
 }
 
+// TODO: The menu is currently always scaled so that the graphics FILL the screen on wider ARs than 4/3.
+// make a config setting to choose FIT or FILL for the menu background/map background (etc)
+// (background image only really, buttons should always FIT the screen, but they currently FILL (so ultrawide is borked)).
+
+/**
+ * Takes a fixed value tuned for original DK main menu at 640x480 and scales it to FIT the game's current resolution.
+ * If the screen is wider than 16:10 the height is used; if the screen is narrower than 16:10 the width is used.
+ * Uses units_per_pixel_menu (which is 16 at 640x480)
+ *
+ * @param base_value The fixed value tuned for original DK menu in 640x480 mode
+ */
+long scale_value_menu(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_menu /16)
+    long value = ((((units_per_pixel_menu * base_value) >> 3) + (((units_per_pixel_menu * base_value) >> 3) & 1)) >> 1);
+    return value;
+}
+
+/** Scale the size and position of the landview background and banners. */
+long scale_value_landview(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_landview /16)
+    long value = ((((units_per_pixel_landview * base_value) >> 3) + (((units_per_pixel_landview * base_value) >> 3) & 1)) >> 1);
+    return value;
+}
+
+/**
+ * Calculate units_per_pixel_landview (DK 640x480 was upp = 16) based on the current window size and the relative aspect ratio compared to 640x480).
+ * The aim is for the landview background image to be twice the size of the game window, but wider and taller aspect ratios inhibit this.
+ * For example 1920x1080p is wider than 640x480, so the height is used. Which would lead to a upp of 36, and a background of 2880x2160 (which is twice as tall as the game window).
+
+ * Calculate units_per_pixel_landview_frame based on the current window size and the landview background (scaled) size.
+ * This is used to make the window frame on the landview the correct size.
+ * The aim is to be half-way between these the window size and the background size (where the landview background is up to 2x larger than the game window).
+ *
+ * Also calculates landview_frame_movement_scale_x, and landview_frame_movement_scale_y) for the landview window frame.
+ *
+ * @param width the current window width
+ * @param height the current window height
+ * @param landview_width the current landview background image width (passed LANDVIEW_MAP_WIDTH)
+ * @param landview_height the current landview background image height (passed LANDVIEW_MAP_HEIGHT)
+ */
+void calculate_landview_upp(long width, long height, long landview_width, long landview_height)
+{
+    // horizontal, and vertical, aspect ratios for the current game window
+    long h_ar = 1024 * width / height;
+    long v_ar = 1024 * height / width;
+    if (is_menu_ar_wider_than_original(width, height))  // Get FIT upp
+    {
+        // **HOR+ land view**
+
+        // Is the game window more than twice as wide as 4:3? i.e. is it wider than 24:9?
+        if  (1024 * 1024 / h_ar < 384)
+        {
+            units_per_pixel_landview = (((width / 2 * 1024 / 40 / 1024) + 1) / 2) * 2;
+
+            // setup the landview frame upp and movement speed
+            landview_frame_movement_scale_x = 1024;
+            landview_frame_movement_scale_y = 1024;
+            units_per_pixel_landview_frame = (((width * 1024 * 2 / 3 / 40 / 1024) + 1) / 2) * 2;
+            return;
+        }
+        units_per_pixel_landview = (((height * 1024 / 30 / 1024) + 1) / 2) * 2;
+
+        // setup window frame movement speed (in land view)
+        long temp_width = 480 * h_ar;
+        landview_frame_movement_scale_x = (1024 * (1024 * 640 - (temp_width - (1024 * 640))) / 640) / (h_ar / (640 / 480));
+        landview_frame_movement_scale_y = 1024;
+
+        // calculate the window frame units per pixel value
+        long landview_frame_width_ideal = width + (((((scale_value_landview(landview_width) - width) / 2)) + 1) / 2) * 2;
+        units_per_pixel_landview_frame = (((landview_frame_width_ideal * 1024 * 2 / 3 / 40 / 1024) + 1) / 2) * 2;
+    }
+    else
+    {
+        // **VERT+ land view**
+
+        // Is the game window more than twice as tall as 4:3? i.e. is it taller than 4:6?
+        if  (1024 * 1024 / v_ar < 682)
+        {
+            // Make the landview background (approximately) the same size as the height of the game window
+            units_per_pixel_landview = (((height / 2 * 1024 / 30 / 1024) + 1) / 2) * 2;
+
+            // setup the landview frame upp and movement speed
+            landview_frame_movement_scale_x = 1024;
+            landview_frame_movement_scale_y = 1024;
+            units_per_pixel_landview_frame = (((height * 1024 * 2 / 3 / 30 / 1024) + 1) / 2) * 2;
+            return;
+        }
+        units_per_pixel_landview = (((width * 1024 / 40 / 1024) + 1) / 2) * 2;
+
+        // setup window frame movement speed (in land view)
+        long temp_height = 640 * v_ar;
+        landview_frame_movement_scale_x = 1024;
+        landview_frame_movement_scale_y = (1024 * (1024 * 480 - (temp_height - (1024 * 480))) / 480) / (1024 * v_ar / (1024 * 480 / 640));
+
+        // calculate the window frame units per pixel value
+        long landview_frame_height_ideal = height + (((scale_value_landview(landview_height) - height) / 2 + 1) / 2) * 2;
+        units_per_pixel_landview_frame = (((landview_frame_height_ideal * 1024 * 2 / 3 / 30 / 1024) + 1) / 2) * 2;
+    }
+}
+
 /**
  * Determine whether the current window aspect ratio is wider than the original (16/10)
  *
@@ -1117,6 +1357,18 @@ long scale_fixed_DK_value(long base_value)
 TbBool is_ar_wider_than_original(long width, long height)
 {
     long original_aspect_ratio = (320 << 8) / 200;
+    long current_aspect_ratio = (width << 8) / height;
+    return (current_aspect_ratio > original_aspect_ratio);
+}
+/**
+ * Determine whether the current window aspect ratio is wider than the original main menu (4/3)
+ *
+ * @param width current window width
+ * @param height current window height
+ */
+TbBool is_menu_ar_wider_than_original(long width, long height)
+{
+    long original_aspect_ratio = (640 << 8) / 480;
     long current_aspect_ratio = (width << 8) / height;
     return (current_aspect_ratio > original_aspect_ratio);
 }

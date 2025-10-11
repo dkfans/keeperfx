@@ -31,7 +31,7 @@ extern "C" {
 #define NET_PLAYERS_COUNT       4
 #define NET_SERVICES_COUNT     16
 #define NET_SERVICE_LEN        64
-#define PACKETS_COUNT           5
+#define PACKETS_COUNT           9
 
 /******************************************************************************/
 #pragma pack(1)
@@ -59,7 +59,6 @@ long network_session_join(void);
 
 TbBool network_player_active(int plyr_idx);
 const char *network_player_name(int plyr_idx);
-void set_network_player_name(int plyr_idx, const char *name);
 void init_network_seed();
 /******************************************************************************/
 #ifdef __cplusplus

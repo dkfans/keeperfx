@@ -1,6 +1,6 @@
 # KeeperFX
 
-![KeeperFX Logo](https://keeperfx.net/img/top-banner.png)
+![KeeperFX Logo](/docs/assets/readme-banner.png)
 
 ![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)
 ![Release](https://img.shields.io/github/v/release/dkfans/keeperfx?style=flat-square)
@@ -39,7 +39,10 @@ Currently the whole codebase of Dungeon Keeper is remade and all code has been r
 
 Installation instructions and a FAQ can be found on the [Github Wiki](https://github.com/dkfans/keeperfx/wiki).
 
-You will need the original Dungeon Keeper files, either from an old CD or from the digital edition available on EA or GOG.
+You will need the original Dungeon Keeper files, either from an old CD or from the digital edition available on
+[EA](https://www.ea.com/games/dungeon-keeper/dungeon-keeper),
+[GOG](https://www.gog.com/game/dungeon_keeper)
+or [Steam](https://store.steampowered.com/app/1996630/Dungeon_Keeper_Gold/).
 
 
 ## Development
@@ -57,7 +60,7 @@ be added to the KeeperFX development channel.
 | [Launcher](https://github.com/dkfans/keeperfx-launcherwx) | C++ | Official Launcher to edit settings and start the game with run options. |
 | [FXGraphics](https://github.com/dkfans/FXGraphics) | - | Sources of KeeperFX graphics files. |
 | [FXSounds](https://github.com/dkfans/FXsounds) | - | Sources of KeeperFX audio files. |
-| [Masterserver](https://github.com/dkfans/keeperfx-masterserver) | PHP | Multiplayer masterserver. Allows players to easily find public lobbies of others. |
+| [Masterserver](https://github.com/dkfans/keeperfx-masterserver) | PHP (CLI) | Multiplayer masterserver. Allows players to easily find public lobbies of others. |
 | [Website](https://github.com/dkfans/keeperfx-website) | PHP | https://keeperfx.net |
 
 
@@ -90,6 +93,10 @@ We welcome contributions from the community to improve and expand KeeperFX.
 - Report bugs by opening [issues](https://github.com/dkfans/keeperfx/issues).
 - Submit feature requests and discuss potential improvements.
 - Contribute code by creating pull requests. 
+
+
+## Code Signing Policy
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
 
 
 ## License

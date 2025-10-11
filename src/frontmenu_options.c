@@ -31,7 +31,6 @@
 #include "gui_draw.h"
 #include "config_strings.h"
 #include "gui_frontbtns.h"
-#include "music_player.h"
 #include "frontend.h"
 #include "front_input.h"
 #include "kjm_input.h"
@@ -50,8 +49,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-
-long mentor_level_slider;
 
 const long definable_key_string[] = {
     GUIStr_CtrlUp,
@@ -94,11 +91,13 @@ const long definable_key_string[] = {
     GUIStr_RoomSpaceIncrease,
     GUIStr_RoomSpaceDecrease,
     GUIStr_SellTrapOnSubtile,
+    GUIStr_CtrlTiltUp,
+    GUIStr_CtrlTiltDown,
+    GUIStr_CtrlTiltReset,
+    GUIStr_CtrlAscend,
+    GUIStr_CtrlDescend,
 };
 
-long fe_mouse_sensitivity;
-long sound_level_slider;
-long music_level_slider;
 char video_cluedo_mode;
 char video_shadows;
 char video_textures;
@@ -111,24 +110,24 @@ char video_view_distance_level;
 void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset != 0)) & LbBtnF_Enabled;
-		if ((wheel_scrolled_up || is_key_pressed(KC_UP,KMod_NONE)) & (define_key_scroll_offset != 0))
-	{
-		define_key_scroll_offset--;
-	}
+        if ((wheel_scrolled_up || is_key_pressed(KC_UP,KMod_NONE)) & (define_key_scroll_offset != 0))
+    {
+        define_key_scroll_offset--;
+    }
 }
 
 void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & LbBtnF_Enabled;
-	if ((wheel_scrolled_down || is_key_pressed(KC_DOWN,KMod_NONE)) & (define_key_scroll_offset < GAME_KEYS_COUNT-(frontend_define_keys_menu_items_visible-1)))
-	{
-		define_key_scroll_offset++;
-	}
+    if ((wheel_scrolled_down || is_key_pressed(KC_DOWN,KMod_NONE)) & (define_key_scroll_offset < GAME_KEYS_COUNT-(frontend_define_keys_menu_items_visible-1)))
+    {
+        define_key_scroll_offset++;
+    }
 }
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)
 {
-    long key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
+    long key_id = define_key_scroll_offset - (gbtn->content.lval) - 1;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (key_id < GAME_KEYS_COUNT)) & LbBtnF_Enabled;
 }
 
@@ -153,7 +152,7 @@ void frontend_define_key_scroll(struct GuiButton *gbtn)
 
 void frontend_define_key(struct GuiButton *gbtn)
 {
-    long key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
+    long key_id = define_key_scroll_offset - (gbtn->content.lval) - 1;
     defining_a_key = 1;
     defining_a_key_id = key_id;
     lbInkey = 0;
@@ -166,7 +165,7 @@ void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)
 
 void frontend_draw_define_key(struct GuiButton *gbtn)
 {
-    long content = (long)gbtn->content;
+    long content = gbtn->content.lval;
     long key_id = define_key_scroll_offset - content - 1;
     if (key_id >= GAME_KEYS_COUNT) {
         return;
@@ -180,9 +179,9 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     // This text is a bit condensed - button size is smaller than text height
-    int tx_units_per_px = (gbtn->height * 13 / 11) * 16 / LbTextLineHeight();
+    int tx_units_per_px = ((MyScreenHeight < 400) && (dbc_language > 0)) ? scale_value_menu(32) : scale_value_menu(16);
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-    int height = LbTextLineHeight() * tx_units_per_px / 16;
+    int height = LbTextLineHeight() * tx_units_per_px / 14;
     LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, get_string(definable_key_string[key_id]));
     unsigned char mods = settings.kbkeys[key_id].mods;
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
@@ -191,23 +190,21 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
     text[0] = '\0';
     if (mods & KMod_CONTROL)
     {
-        strcat(text, get_string(GUIStr_KeyControl));
-        strcat(text, " + ");
+        str_appendf(text, sizeof(text), "%s + ", get_string(GUIStr_KeyControl));
     }
     if (mods & KMod_ALT)
     {
-        strcat(text, get_string(GUIStr_KeyAlt));
-        strcat(text, " + ");
+        str_appendf(text, sizeof(text), "%s + ", get_string(GUIStr_KeyAlt));
     }
     if (mods & KMod_SHIFT)
     {
-        strcat(text, get_string(GUIStr_KeyShift));
-        strcat(text, " + ");
+        str_appendf(text, sizeof(text), "%s + ", get_string(GUIStr_KeyShift));
     }
 
     unsigned char code = settings.kbkeys[key_id].code;
     const char* keytext;
     char chbuf[2];
+    char mouse_button_label[255] = "";
     switch (code)
     {
       case KC_LSHIFT:
@@ -232,14 +229,11 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
       case KC_MOUSE2:
       case KC_MOUSE1:
       {
-        char mouse_button_label[255] = "";
         const char* mouse_gui_string = get_string(key_to_string[(long)code]);
         int mouse_button_number = (KC_MOUSE1 + 1 - code);
         char mouse_button_number_string[8];
         snprintf(mouse_button_number_string, sizeof(mouse_button_number_string), "%d", mouse_button_number);
-        strcat(mouse_button_label, mouse_gui_string);
-        strcat(mouse_button_label, " ");
-        strcat(mouse_button_label, mouse_button_number_string);
+        str_appendf(mouse_button_label, sizeof(mouse_button_label), "%s %s", mouse_gui_string, mouse_button_number_string);
         keytext = mouse_button_label;
         break;
       }
@@ -257,8 +251,8 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         break;
       }
     }
-    strcat(text, keytext);
-    height = LbTextLineHeight() * tx_units_per_px / 16;
+    str_append(text, sizeof(text), keytext);
+    height = LbTextLineHeight() * tx_units_per_px / 14;
     LbTextDrawResized(0, (gbtn->height - height) / 2, tx_units_per_px, text);
 }
 
@@ -294,47 +288,43 @@ void gui_video_gamma_correction(struct GuiButton *gbtn)
 
 int make_audio_slider_linear(int a)
 {
-    float scaled = fastPow(a / 127.0, 0.5);
+    // slider has a range of 0..255
+    float scaled = fastPow(a / 255.0, 0.5);
     float clamped = max(min(scaled, 1.0), 0.0);
-    return CEILING(lerp(0, 127, clamped));
+    return CEILING(LbLerp(0, 255, clamped));
 }
 int make_audio_slider_nonlinear(int a)
 {
-    float scaled = fastPow(a / 127.0, 2.00);
+    // slider has a range of 0..255
+    float scaled = fastPow(a / 255.0, 2.00);
     float clamped = max(min(scaled, 1.0), 0.0);
-    return CEILING(lerp(0, 127, clamped));
+    return CEILING(LbLerp(0, 255, clamped));
 }
 
 void gui_set_sound_volume(struct GuiButton *gbtn)
 {
+    const int new_val = make_audio_slider_nonlinear(gbtn->slide_val);
     if (gbtn->id_num == BID_SOUND_VOL)
     {
-      if (settings.sound_volume != sound_level_slider)
-          do_sound_menu_click();
-    }
-    settings.sound_volume = make_audio_slider_nonlinear(sound_level_slider);
-    save_settings();
-    SetSoundMasterVolume(settings.sound_volume);
-    SetMusicMasterVolume(settings.sound_volume);
-    for (int i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
-    {
-        if (Ext_Sounds[i] != NULL)
-        {
-            Mix_VolumeChunk(Ext_Sounds[i], settings.sound_volume);
+        if (new_val != settings.sound_volume) {
+            do_sound_menu_click();
         }
     }
+    settings.sound_volume = new_val;
+    save_settings();
+    SetSoundMasterVolume(new_val);
 }
 
 void gui_set_music_volume(struct GuiButton *gbtn)
 {
-    settings.redbook_volume = make_audio_slider_nonlinear(music_level_slider);
+    settings.music_volume = make_audio_slider_nonlinear(gbtn->content.lval);
     save_settings();
-    SetMusicPlayerVolume(settings.redbook_volume);
+    set_music_volume(settings.music_volume);
 }
 
 void gui_set_mentor_volume(struct GuiButton *gbtn)
 {
-    settings.mentor_volume = make_audio_slider_nonlinear(mentor_level_slider);
+    settings.mentor_volume = make_audio_slider_nonlinear(gbtn->content.lval);
     save_settings();
 }
 
@@ -360,13 +350,13 @@ void gui_switch_video_mode(struct GuiButton *gbtn)
 
 void gui_display_current_resolution(struct GuiButton *gbtn)
 {
-    char* mode = get_vidmode_name(lbDisplay.ScreenMode);
+    char* mode = get_vidmode_name(LbScreenActiveMode());
     show_onscreen_msg(40, "%s", mode);
 }
 
 void frontend_set_mouse_sensitivity(struct GuiButton *gbtn)
 {
-    settings.first_person_move_sensitivity = fe_mouse_sensitivity;
+    settings.first_person_move_sensitivity = gbtn->content.lval;
     save_settings();
 }
 
@@ -410,8 +400,8 @@ void init_video_menu(struct GuiMenu *gmnu)
  */
 void init_audio_menu(struct GuiMenu *gmnu)
 {
-    music_level_slider = make_audio_slider_linear(settings.redbook_volume);
-    sound_level_slider = make_audio_slider_linear(settings.sound_volume);
-    mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
+    get_gui_button_init(gmnu, BID_MUSIC_VOL)->content.lval = make_audio_slider_linear(settings.music_volume);
+    get_gui_button_init(gmnu, BID_SOUND_VOL)->content.lval = make_audio_slider_linear(settings.sound_volume);
+    get_gui_button_init(gmnu, BID_MENTOR_VOL)->content.lval = make_audio_slider_linear(settings.mentor_volume);
 }
 /******************************************************************************/

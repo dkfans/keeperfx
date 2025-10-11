@@ -33,29 +33,21 @@ unsigned char *render_fade_tables = NULL;
 unsigned char *render_ghost = NULL;
 unsigned char *render_alpha = NULL;
 unsigned char *LOC_vec_screen;
-unsigned long LOC_vec_screen_width;
-unsigned long LOC_vec_window_width;
-unsigned long LOC_vec_window_height;
+long LOC_vec_screen_width;
+long LOC_vec_window_width;
+long LOC_vec_window_height;
 struct PolyPoint *polyscans = NULL;
 /******************************************************************************/
-void draw_triangle(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
+
+void setup_bflib_render()
 {
-    draw_gpoly(point_a, point_b, point_c);
+    polyscans = malloc(sizeof(struct PolyPoint) * 4096);
+    memset(polyscans, 0, sizeof(struct PolyPoint) * 4096);
 }
 
-void draw_quad(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c, struct PolyPoint *point_d)
+void reset_bflib_render()
 {
-    draw_gpoly(point_a, point_b, point_c);
-    draw_gpoly(point_a, point_b, point_d);
-}
-
-void setup_bflib_render(long width, long height)
-{
-    if (polyscans)
-    {
-        free(polyscans);
-    }
-    polyscans = malloc(sizeof(struct PolyPoint) * height);
+    memset(polyscans, 0, sizeof(struct PolyPoint) * 4096);
 }
 
 void finish_bflib_render()

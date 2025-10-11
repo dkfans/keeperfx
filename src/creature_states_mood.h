@@ -49,6 +49,7 @@ void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotiv
 void anger_apply_anger_to_creature_all_types_f(struct Thing *thing, long anger, const char *func_name);
 #define anger_apply_anger_to_creature_all_types(thing, anger) anger_apply_anger_to_creature_all_types_f(thing, anger, __func__)
 TbBool anger_make_creature_angry(struct Thing *thing, AnnoyMotive reason);
+TbBool anger_give_creatures_annoyance_percentage(struct Thing* creatng,short percentage, AnnoyMotive reason);
 TbBool creature_mark_if_woken_up(struct Thing *creatng);
 TbBool process_job_stress_and_going_postal(struct Thing *creatng);
 TbBool any_worker_will_go_postal_on_creature_in_room(const struct Room *room, const struct Thing *victng);

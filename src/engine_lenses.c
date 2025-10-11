@@ -21,7 +21,6 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "bflib_memory.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_math.h"
@@ -103,7 +102,7 @@ void flicker_fix(struct EngineCoord *epos) {
     int cull_must_have_distant_xy = 256*3;
 
     if (epos->z-cull_nearby_z < 0 && abs(epos->x)+abs(epos->y) >= cull_must_have_distant_xy) {
-        epos->field_8 = 65535;
+        epos->clip_flags = 65535;
     }
 }
 
@@ -111,10 +110,10 @@ void pers_set_view_width(struct EngineCoord *epos, long len)
 {
     epos->view_width = len;
     if (epos->view_width < 0) {
-        epos->field_8 |= 0x0008;
+        epos->clip_flags |= 0x0008;
     } else
     if (epos->view_width >= vec_window_width) {
-        epos->field_8 |= 0x0010;
+        epos->clip_flags |= 0x0010;
     }
 }
 
@@ -122,10 +121,10 @@ void pers_set_view_height(struct EngineCoord *epos, long len)
 {
     epos->view_height = len;
     if (epos->view_height < 0) {
-        epos->field_8 |= 0x0020;
+        epos->clip_flags |= 0x0020;
     } else
     if (epos->view_height >= vec_window_height) {
-        epos->field_8 |= 0x0040;
+        epos->clip_flags |= 0x0040;
     }
 }
 
@@ -136,6 +135,7 @@ void rotpers_parallel(struct EngineCoord *epos, const struct M33 *matx)
     long tx = view_width_over_2 + ((epos->x * zoom) >> 16);
     long ty = view_height_over_2 - ((epos->y * zoom) >> 16);
     long tz = (epos->z + (cells_away << 8)) / 2;
+    epos->render_distance = COORD_PER_STL * 10;
     if (tz < 32) {
         tz = 0;
     } else
@@ -146,16 +146,16 @@ void rotpers_parallel(struct EngineCoord *epos, const struct M33 *matx)
     epos->view_height = ty;
     epos->z = tz;
     if (tx < 0) {
-        epos->field_8 |= 0x08;
+        epos->clip_flags |= 0x08;
     } else
     if (tx >= vec_window_width) {
-        epos->field_8 |= 0x10;
+        epos->clip_flags |= 0x10;
     }
     if (ty < 0) {
-        epos->field_8 |= 0x20;
+        epos->clip_flags |= 0x20;
     } else
     if (ty >= vec_window_height) {
-        epos->field_8 |= 0x40;
+        epos->clip_flags |= 0x40;
     }
 }
 
@@ -165,34 +165,34 @@ void rotpers_standard(struct EngineCoord *epos, const struct M33 *matx)
     long tx = epos->x;
     long ty = epos->y;
     long tz = epos->z;
-    epos->field_C = tz;
+    epos->render_distance = tz;
     if (tz > fade_max) {
-      epos->field_8 |= 0x0080;
+      epos->clip_flags |= 0x0080;
     }
     long long wx;
     long long wy;
     if (tz < 32)
     {
-        epos->field_8 |= 0x0100;
+        epos->clip_flags |= 0x0100;
         wx = tx * (1 << 16);
         wy = ty * (1 << 16);
-        epos->field_8 |= 0x0001;
-        epos->field_8 |= 0x0002;
+        epos->clip_flags |= 0x0001;
+        epos->clip_flags |= 0x0002;
     } else
     {
         wx = tx * (lens << 16) / tz;
         wy = ty * (lens << 16) / tz;
-        if (tz < split_1)
+        if (tz < z_threshold_near)
         {
-            epos->field_8 |= 0x0001;
+            epos->clip_flags |= 0x0001;
             if (tz < split_2) {
-                epos->field_8 |= 0x0002;
+                epos->clip_flags |= 0x0002;
             }
         }
     }
     pers_set_view_width(epos, view_width_over_2 + (wx >> 16));
     pers_set_view_height(epos, view_height_over_2 - (wy >> 16));
-    epos->field_8 |= 0x0400;
+    epos->clip_flags |= 0x0400;
     flicker_fix(epos);
 }
 
@@ -202,27 +202,27 @@ void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx)
     long tx = epos->x;
     long ty = epos->y;
     long tz = epos->z;
-    epos->field_C = abs(tx) + abs(ty) + tz;
+    epos->render_distance = abs(tx) + abs(ty) + tz;
     if (tz > fade_max) {
-      epos->field_8 |= 0x0080;
+      epos->clip_flags |= 0x0080;
     }
     long long wx;
     long long wy;
     if (tz < 32)
     {
-        epos->field_8 |= 0x0100;
+        epos->clip_flags |= 0x0100;
         wx = tx * (8 << 16);
         wy = ty * (8 << 16);
-        epos->field_8 |= 0x0001;
-        epos->field_8 |= 0x0002;
+        epos->clip_flags |= 0x0001;
+        epos->clip_flags |= 0x0002;
     } else
     {
         long adheight = (lens << 16) / tz;
-        if (tz < split_1)
+        if (tz < z_threshold_near)
         {
-            epos->field_8 |= 0x0001;
+            epos->clip_flags |= 0x0001;
             if (tz < split_2) {
-              epos->field_8 |= 0x0002;
+              epos->clip_flags |= 0x0002;
             }
         }
         wx = tx * adheight;
@@ -230,7 +230,7 @@ void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx)
     }
     pers_set_view_width(epos, view_width_over_2 + (wx >> 16));
     pers_set_view_height(epos, view_height_over_2 - (wy >> 16));
-    epos->field_8 |= 0x0400;
+    epos->clip_flags |= 0x0400;
     flicker_fix(epos);
 }
 
@@ -241,31 +241,31 @@ void rotpers_fisheye(struct EngineCoord *epos, const struct M33 *matx)
     long ty = epos->y;
     long tz = epos->z;
     long txz = LbDiagonalLength(abs(tx), abs(tz));
-    epos->field_C = abs(LbDiagonalLength(abs(txz), abs(ty)));
-    if (epos->field_C > fade_max) {
-        epos->field_8 |= 0x0080;
+    epos->render_distance = abs(LbDiagonalLength(abs(txz), abs(ty)));
+    if (epos->render_distance > fade_max) {
+        epos->clip_flags |= 0x0080;
     }
     long long wx;
     long long wy;
-    if ((tz < 32) || (epos->field_C < 32))
+    if ((tz < 32) || (epos->render_distance < 32))
     {
-        epos->field_8 |= 0x0100;
+        epos->clip_flags |= 0x0100;
         wx = tx * (1 << 16);
         wy = ty * (1 << 16);
     } else
     {
-        wx = tx * (lens << 16) / epos->field_C;
-        wy = ty * (lens << 16) / epos->field_C;
+        wx = tx * (lens << 16) / epos->render_distance;
+        wy = ty * (lens << 16) / epos->render_distance;
     }
     pers_set_view_width(epos, view_width_over_2 + (wx >> 16));
     pers_set_view_height(epos, view_height_over_2 - (wy >> 16));
-    if (tz < split_1) {
-        epos->field_8 |= 0x0001;
+    if (tz < z_threshold_near) {
+        epos->clip_flags |= 0x0001;
         if (tz < split_2) {
-            epos->field_8 |= 0x0002;
+            epos->clip_flags |= 0x0002;
         }
     }
-    epos->field_8 |= 0x0400;
+    epos->clip_flags |= 0x0400;
     flicker_fix(epos);
 }
 /******************************************************************************/

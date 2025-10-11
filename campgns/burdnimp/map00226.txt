@@ -130,7 +130,7 @@ ENDIF
 IF(PLAYER0,IMP == 0)
     IF_AVAILABLE(PLAYER0,POWER_IMP == 0)
         DISPLAY_OBJECTIVE(82,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(5,"Although small and annoying, imps are the backbone of your existence. Without them you are nothing, and since you lost all your servants you are indeed... nothing.",PLAYER0)
+REM QUICK_OBJECTIVE(5,"Although small and annoying, imps are the backbone of your existence. Without them you are nothing, and since you lost all your servants, you are indeed... nothing.",PLAYER0)
         LOSE_GAME
     ENDIF
 ENDIF
@@ -142,11 +142,11 @@ IF(PLAYER1,DUNGEON_DESTROYED == 1)
 ENDIF
 
 DISPLAY_OBJECTIVE(84,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(0,"Here you are, with nothing but three little servants and an enemy keeper to kill. His magic has stripped away your spells and resources, but things are not so bad... yet. Unless, ofcourse, you pick the wrong door. Choose wisely, Keeper. Your life depends on it.",PLAYER0)
+REM QUICK_OBJECTIVE(0,"Here you are, with nothing but three little servants and an enemy Keeper to kill. His magic has stripped away your spells and resources, but things are not so bad... yet. Unless, ofcourse, you pick the wrong door. Choose wisely, Keeper. Your life depends on it.",PLAYER0)
 
 IF(PLAYER0,ENTRANCE == 1)
     DISPLAY_OBJECTIVE(85,ALL_PLAYERS)
-    REM QUICK_OBJECTIVE(1,"This old portal is a start, but you will have to find more ways to enlarge your power. Search around. There are many secrets to be found in this place.",PLAYER0)
+    REM QUICK_OBJECTIVE(1,"This old portal is a start, but you will have to find more ways to increase your power. Search around. There are many secrets to be found in this place.",PLAYER0)
 ENDIF
 
 IF(PLAYER0,TOTAL_CREATURES == 25)

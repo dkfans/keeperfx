@@ -1,0 +1,114 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file revlord/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @author   KeeperFX Team
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Post Ancient Keeper campaign for KeeperFX\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#: "Dwarfton"
+msgctxt "Level introduction"
+msgid "You are the last prince of Dominus, trapped at Dwarfton. The city of hard-working folk is under siege, and it seems all but impossible to repel the invaders. In desperation, you perform a mystical ritual, found in the moldy tome spirited from your ancestors' library during your flight from evil. At the price of your humanity, it bestows great powers of omniscience upon you, and allows you to direct your subjects with superb ease."
+msgstr ""
+
+#: "Dwarfton"
+msgctxt "Level summary"
+msgid "First victory in the long while, exhilarating. Empowered by an ancient ritual, you managed to turn the tide against the forces of evil. Yet soon comes the despair, for what are you now if not a monster yourself? There and now, you make a vow, to never let go of your origin as the human prince of Dominus."
+msgstr ""
+
+#: "Sparkleforest"
+msgctxt "Level introduction"
+msgid "For aoens, it was home to fairies and elves, mystical beings of goodness and ethereal beauty. Now the filthy orcs trudge the clearings, littered with hacked logs, and hunt the few survivors to roast them for fun. The kings Dominus has vowed to protect the Sparkleforest, and you now return to fulfill the obligation."
+msgstr ""
+
+#: "Sparkleforest"
+msgctxt "Level summary"
+msgid "Magic is a fickle thing. Just yesterday all the meadows of Sparkleforest were dead and stank of rotting caracasses, but since its protectors are now safe, the enchanted forest is reborn anew. Will similiar salvation await you in the end, you wonder?.."
+msgstr ""
+
+#: "Abbeystone"
+msgctxt "Level introduction"
+msgid "Unsightly banners and filthy markings desecrate the battlements of Abbeystone. The mighty monastery has fallen, and the survivors have fled underground, to the reinforced cellars. Your arrival post-haste left most of your forces behind, the time is still of the essence... but can you save the living if you are dead yourself?"
+msgstr ""
+
+#: "Abbeystone"
+msgctxt "Level summary"
+msgid "Halls of Abbeystone, are now a sight to behold. Peaceful gardens and shrines of the Pantokrator, restored by the hard-working fairies and dwarves, are marvelous. Hope spreads among the men, for what was nearly lost is regained once again. If only you were to rejoice alongside your subjects, it would be perfect."
+msgstr ""
+
+#: "Widerwilds"
+msgctxt "Level introduction"
+msgid "Once loosely attached to the kingdom of Dominus, with its fall the barbarian clans went completely independent. Horrible monsters roam the wilderness, and by this day only a single clan still endures, united under single chieftain. He does not recognize your authority, and challenges you for daring to trespass through his lands."
+msgstr ""
+
+#: "Widerwilds"
+msgctxt "Level summary"
+msgid "After the treacherous devil hiding under the guise of a barbarian chieftain is put down, your righteous anger simmers down. You shudder at the sick irony of brave warriors serving the whims of the vile monster, all unaware of its true nature. Now the wilderness is safe to travel at night."
+msgstr ""
+
+#: "Misty Bog"
+msgctxt "Level introduction"
+msgid "Filthy streams, bloody fog, sinister darkness and putrid mist - even weather died in presence of the worst necromancer in Dominus. His vampires were the instrument of destruction which brought down the Knightly Order of Dominus, and he went on to reanimate their bones and bind their spirits for his own sick amusement. The dead should rest, and you'll grant them their peace."
+msgstr ""
+
+#: "Misty Bog"
+msgctxt "Level summary"
+msgid "Murky waters, milky fog, blurry shadows and humid air. While still unpleasant, the weather is no longer tainted with unholy presence, and the wind is blowing eastwards. As the last vampire is staked in the bog, you wish you could've smiled grimly."
+msgstr ""
+
+#: "Knights' Castle"
+msgctxt "Level introduction"
+msgid "Ruins of your ancestral castle, abandoned by men and haunted by the ghosts. No monsters roam the land, as there are no villages to plunder anymore. As your subjects rebuild the worn battlements, you turn your attention to the dungeons where your sworn enemies made their foothold."
+msgstr ""
+
+#: "Knights' Castle"
+msgctxt "Level summary"
+msgid "Its white walls once again stand proud in the dawn, the defenders standing tall on the battlements. The people rejoice, for their kingdom is back. All the same, you aren't satisfied by enacting your vengeance. In short order, you march out against Wickedridge."
+msgstr ""
+
+#: "Hellspring"
+msgctxt "Level introduction"
+msgid "Fiery smoke and magmatic demons, wild and chaotic flow of molten sulfur - such are the lower levels of the Wickedridge. Across the lava, you can see the den of evil brimming with activity, and their sight drives you into frenzy."
+msgstr ""
+
+#: "Hellspring"
+msgctxt "Level summary"
+msgid "Exorcised of its inhabitants, the lava river is now serene and calm. You can't help but feel restless at the sight, for it means the evil is still lurking upwards the stream. There's no time to waste as you move onwards to Wickedridge."
+msgstr ""
+
+#: "Verminfeast"
+msgctxt "Level introduction"
+msgid "Haunted vale. Nothing grows here, and only monstrous vermin lurk in this land, littered with bones and shrouded with sickly smog blowing from the Wickedridge. Running out of supplies, half your forces turn back, yet you still press onward without care."
+msgstr ""
+
+#: "Verminfeast"
+msgctxt "Level summary"
+msgid "All is silent. With the vermin-master slain, the vale is frighteningly dull and monotone. One could say the living do not belong here."
+msgstr ""
+
+#: "Wickedridge"
+msgctxt "Level introduction"
+msgid "The hall of darkness, the stronghold of sin, the fortress of evil. You have gone far in your quest for revenge, and there is no turning back. Doubts aside, you cast your will outwards, the long-pursued goal finally within reach."
+msgstr ""
+
+#: "Wickedridge"
+msgctxt "Level summary"
+msgid "The light illuminates the light, as paragons of virtue and goodness celebrate their victory. But for you? It is hollow. No release from your torment forthcoming, you can only suffer from impotent rage, watching the world from your diamond prison, and wishing for death."
+msgstr ""

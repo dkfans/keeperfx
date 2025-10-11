@@ -22,7 +22,6 @@
 #include "lvl_script.h"
 
 #include "globals.h"
-#include "bflib_memory.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "player_utils.h"
@@ -41,164 +40,154 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+extern TbBool luascript_loaded;
 unsigned char next_command_reusable;
 /******************************************************************************/
-const struct CommandDesc *get_next_word(char **line, char *param, int *para_level, const struct CommandDesc *cmdlist_desc)
-{
-    char chr;
-    SCRIPTDBG(12,"Starting");
-    const struct CommandDesc* cmnd_desc = NULL;
-    // Find start of an item to read
-    unsigned int pos = 0;
-    param[pos] = '\0';
-    while (1)
-    {
-        chr = **line;
-        // letter or number
-        if ((isalnum(chr)) || (chr == '-'))
-            break;
-        // operator
-        if ((chr == '\"') || (chr == '=') || (chr == '!') || (chr == '<') || (chr == '>') || (chr == '~'))
-            break;
-        // end of line
-        if ((chr == '\r') || (chr == '\n') || (chr == '\0'))
-        {
-            (*para_level) = -1;
-            return NULL;
-        }
-        // paraenesis open
-        if (chr == '(') {
-            (*para_level)++;
-        } else
-        // paraenesis close
-        if (chr == ')') {
-            (*para_level)--;
-        }
-        (*line)++;
-    }
 
-    chr = **line;
-    // Text string
-    if (isalpha(chr))
+enum TokenType {
+    TkInvalid = 0,
+    TkCommand,
+    TkString,
+    TkOperator,
+    TkNumber,
+    TkOpen,
+    TkClose,
+    TkComma,
+    TkEnd,
+    TkRangeOperator, // ~ operator
+};
+
+struct CommandToken {
+    enum TokenType type;
+    char *start;
+    char *end;
+};
+
+char* get_next_token(char *data, struct CommandToken *token)
+{
+    char *p = data;
+    while (*p != 0)
     {
-        // Read the parameter
-        while (isalnum(chr) || (chr == '_') || (chr == '[') || (chr == ']') || (chr == ':'))
+        size_t step = strspn(p, "\n\r \t");
+        if (step == 0)
         {
-            param[pos] = chr;
-            pos++;
-            (*line)++;
-            chr = **line;
-            if (pos+1 >= MAX_TEXT_LENGTH) break;
-        }
-        param[pos] = '\0';
-        make_uppercase(param);
-        // Check if it's a command
-        int i = 0;
-        cmnd_desc = NULL;
-        while (cmdlist_desc[i].textptr != NULL)
-        {
-            if (strcmp(param, cmdlist_desc[i].textptr) == 0)
+            if (*p >= 0) // Erase non ASCII stuff from commands
             {
-                cmnd_desc = &cmdlist_desc[i];
                 break;
             }
-            i++;
+            step = 1;
         }
-    } else
-    // Number string
-    if (isdigit(chr) || (chr == '-'))
+        p += step;
+    }
+    token->start = p;
+    if (isalnum(*p))
     {
-        if (chr == '-')
+        for (;isalnum(*p) || (*p == '[') || (*p == ']') || (*p == '_'); p++)
         {
-          param[pos] = chr;
-          pos++;
-          (*line)++;
+            *p = (char)toupper(*p);
         }
-        chr = **line;
-        if (!isdigit(chr))
+        if (((p - token->start) == 3) && (strncmp(token->start, "REM", 3) == 0))
         {
-          SCRPTERRLOG("Unexpected '-' not followed by a number");
-          return NULL;
+            for (;*p; p++)
+            {
+                // empty
+            }
+            token->end = p;
+            token->type = TkEnd;
+            return p;
         }
-        while ( isdigit(chr) )
-        {
-          param[pos] = chr;
-          pos++;
-          (*line)++;
-          chr = **line;
-          if (pos+1 >= MAX_TEXT_LENGTH) break;
-        }
-    } else
-    // Multiword string taken into quotes
-    if (chr == '\"')
+        token->type = TkCommand;
+    }
+    else if (*p == '-') // Either operator or digit
     {
-        (*line)++;
-        chr = **line;
-        while ((chr != '\0') && (chr != '\n') && (chr != '\r'))
+        p++;
+        if (isdigit(*p))
         {
-          if (chr == '\"')
-          {
-            (*line)++;
-            break;
-          }
-          param[pos] = chr;
-          pos++;
-          (*line)++;
-          chr = **line;
-          if (pos+1 >= MAX_TEXT_LENGTH) break;
-      }
-    } else
-    // Other cases - only operators are left
+            for (;isdigit(*p); p++)
+            {
+                // empty
+            }
+
+            token->type = TkNumber;
+        }
+        else
+        {
+            token->type = TkOperator;
+        }
+    }
+    else if (*p == '"')
     {
-        param[pos] = chr;
-        pos++;
-        (*line)++;
-        switch (chr)
+        p++;
+        token->start = p;
+        for (; *p != '"'; p++)
         {
-        case '!':
-            chr = **line;
-            if (chr != '=')
+            if (*p == 0)
             {
-                SCRPTERRLOG("Expected '=' after '!'");
-                return NULL;
+                token->type = TkInvalid;
+                token->end = p;
+                return p;
             }
-            param[pos] = chr;
-            pos++;
-            (*line)++;
-            break;
-        case '>':
-        case '<':
-            chr = **line;
-            if (chr == '=')
-            {
-              param[pos] = chr;
-              pos++;
-              (*line)++;
-            }
-            break;
-        case '=':
-            chr = **line;
-            if (chr != '=')
-            {
-              SCRPTERRLOG("Expected '=' after '='");
-              return 0;
-            }
-            param[pos] = chr;
-            pos++;
-            (*line)++;
-            break;
-        default:
+        }
+        token->end = p;
+        p++;
+        token->type = TkString;
+        return p;
+    }
+    else if ( (*p == '=') || (*p == '!') || (*p == '<') || (*p == '>'))
+    {
+        p++;
+        if (*p == '=')
+        {
+            p++;
+        }
+        token->type = TkOperator;
+    }
+    else if (*p == '~')
+    {
+        p++;
+        token->type = TkRangeOperator;
+    }
+    else if (*p == '(')
+    {
+        p++;
+        token->type = TkOpen;
+    }
+    else if (*p == ')')
+    {
+        p++;
+        token->type = TkClose;
+    }
+    else if (*p == ',')
+    {
+        p++;
+        token->type = TkComma;
+    }
+    else if (*p == 0)
+    {
+        token->type = TkEnd;
+    }
+    else
+    {
+        token->type = TkInvalid;
+    }
+    token->end = p;
+    return p;
+}
+
+static struct CommandDesc const *find_command_desc(const struct CommandToken *token, const struct CommandDesc *cmdlist_desc)
+{
+    const struct CommandDesc* cmnd_desc = NULL;
+    int token_len = token->end - token->start;
+    for (int i = 0; cmdlist_desc[i].textptr != NULL; i++)
+    {
+        if ((cmdlist_desc[i].textptr[token_len] == 0) && (strncmp(cmdlist_desc[i].textptr, token->start, token_len) == 0))
+        {
+            cmnd_desc = &cmdlist_desc[i];
             break;
         }
     }
-    chr = **line;
-    if ((chr == '\0') || (chr == '\r')  || (chr == '\n'))
-        *para_level = -1;
-    param[pos] = '\0';
     return cmnd_desc;
 }
-
-
 
 /**
  * Returns if the command is 'preloaded'. Preloaded commands are initialized
@@ -206,23 +195,24 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
  */
 TbBool script_is_preloaded_command(long cmnd_index)
 {
-  switch (cmnd_index)
-  {
-  case Cmd_SWAP_CREATURE:
-  case Cmd_LEVEL_VERSION:
-  case Cmd_NEW_TRAP_TYPE:
-  case Cmd_NEW_OBJECT_TYPE:
-  case Cmd_NEW_ROOM_TYPE:
-  case Cmd_NEW_CREATURE_TYPE:
-      return true;
-  default:
-      return false;
-  }
+    switch (cmnd_index)
+    {
+        case Cmd_LEVEL_VERSION:
+        case Cmd_NEW_TRAP_TYPE:
+        case Cmd_NEW_OBJECT_TYPE:
+        case Cmd_NEW_ROOM_TYPE:
+        case Cmd_NEW_CREATURE_TYPE:
+            return true;
+        default:
+            return false;
+    }
 }
 
 #define get_players_range(plr_range_id, plr_start, plr_end) get_players_range_f(plr_range_id, plr_start, plr_end, __func__, text_line_number)
 long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const char *func_name, long ln_num)
 {
+    *plr_start = 0;
+    *plr_end = 0;
     if (plr_range_id < 0)
     {
         return -1;
@@ -231,18 +221,6 @@ long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const 
     {
         *plr_start = 0;
         *plr_end = PLAYERS_COUNT;
-        return plr_range_id;
-    } else
-    if (plr_range_id == PLAYER_GOOD)
-    {
-        *plr_start = game.hero_player_num;
-        *plr_end = game.hero_player_num+1;
-        return plr_range_id;
-    } else
-    if (plr_range_id == PLAYER_NEUTRAL)
-    {
-        *plr_start = game.neutral_player_num;
-        *plr_end = game.neutral_player_num+1;
         return plr_range_id;
     } else
     if (plr_range_id < PLAYERS_COUNT)
@@ -254,150 +232,125 @@ long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const 
     return -2;
 }
 
-static void process_fx_line(struct ScriptFxLine *fx_line)
-{
-    fx_line->partial_steps += fx_line->steps_per_turn;
-    for (;fx_line->partial_steps >= FX_LINE_TIME_PARTS; fx_line->partial_steps -= FX_LINE_TIME_PARTS)
-    {
-        fx_line->here.z.val = get_floor_height_at(&fx_line->here);
-        if (fx_line->here.z.val < FILLED_COLUMN_HEIGHT)
-        {
-            if (fx_line->effect != 0)
-            {
-                create_used_effect_or_element(&fx_line->here, fx_line->effect, PLAYER_NEUTRAL);
-            }
-        }
-
-        fx_line->step++;
-        if (fx_line->step >= fx_line->total_steps)
-        {
-          fx_line->used = false;
-          break;
-        }
-
-        int64_t remain_t = fx_line->total_steps - fx_line->step;
-
-        int64_t bx = fx_line->from.x.val * remain_t + fx_line->cx * fx_line->step;
-        int64_t by = fx_line->from.y.val * remain_t + fx_line->cy * fx_line->step;
-        int64_t dx = fx_line->cx * remain_t + fx_line->to.x.val * fx_line->step;
-        int64_t dy = fx_line->cy * remain_t + fx_line->to.y.val * fx_line->step;
-
-        fx_line->here.x.val = (bx * remain_t + dx * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
-        fx_line->here.y.val = (by * remain_t + dy * fx_line->step) / fx_line->total_steps / fx_line->total_steps;
-    }
-}
-
-#define get_players_range_from_str(plrname, plr_start, plr_end) get_players_range_from_str_f(plrname, plr_start, plr_end, __func__, text_line_number)
-long get_players_range_from_str_f(const char *plrname, int *plr_start, int *plr_end, const char *func_name, long ln_num)
-{
-    long plr_range_id = get_rid(player_desc, plrname);
-    if (plr_range_id == -1)
-    {
-        plr_range_id = get_rid(cmpgn_human_player_options, plrname);
-    }
-    switch (get_players_range_f(plr_range_id, plr_start, plr_end, func_name, ln_num))
-    {
-    case -1:
-        ERRORMSG("%s(line %lu): Invalid player name, '%s'",func_name,ln_num, plrname);
-        *plr_start = 0;
-        *plr_end = 0;
-        return -1;
-    case -2:
-        ERRORMSG("%s(line %lu): Player '%s' out of range",func_name,ln_num, plrname);
-        *plr_start = 0;
-        *plr_end = 0;
-        return -2;
-    default:
-        break;
-    }
-    return plr_range_id;
-}
-
 static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *scline, int idx, TbBool extended)
 {
     switch (toupper(type_chr))
     {
-    case 'N':
-    {
-        char* text;
-        scline->np[idx] = strtol(scline->tp[idx], &text, 0);
-        if (!extended)
+        case 'N': //Number
         {
-            if (text != &scline->tp[idx][strlen(scline->tp[idx])])
+            char* text;
+            scline->np[idx] = strtol(scline->tp[idx], &text, 0);
+            //Extended number allows for a custom sprite string
+            if (!extended)
             {
-                SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
-            }
-        }
-        break;
-    }
-    case 'P':
-    {
-        long plr_range_id;
-        if (!get_player_id(scline->tp[idx], &plr_range_id))
-        {
-            return false;
-        }
-        scline->np[idx] = plr_range_id;
-        break;
-    }
-    case 'C':{
-        long crtr_id = get_rid(creature_desc, scline->tp[idx]);
-        if (extended)
-        {
-            if (crtr_id == -1)
-            {
-                if (0 == strcmp(scline->tp[idx], "ANY_CREATURE"))
+                if (text != &scline->tp[idx][strlen(scline->tp[idx])])
                 {
-                    crtr_id = 0;
+                    SCRPTWRNLOG("Numerical value \"%s\" interpreted as %ld", scline->tp[idx], scline->np[idx]);
                 }
             }
+            break;
         }
-        if (crtr_id == -1)
+        case 'P': //Player
         {
-            SCRPTERRLOG("Unknown creature, \"%s\"", scline->tp[idx]);
-            return false;
+            long plr_range_id;
+            if (!get_player_id(scline->tp[idx], &plr_range_id))
+            {
+                return false;
+            }
+            scline->np[idx] = plr_range_id;
+            break;
         }
-        scline->np[idx] = crtr_id;
-        };break;
-    case 'R':{
-        long room_id = get_rid(room_desc, scline->tp[idx]);
-        if (room_id == -1)
+        case 'C': //Creature
         {
-            SCRPTERRLOG("Unknown room kind, \"%s\"", scline->tp[idx]);
-            return false;
+            long crtr_id = get_rid(creature_desc, scline->tp[idx]);
+            if (extended)
+            {
+                if (crtr_id == -1)
+                {
+                    if (0 == strcmp(scline->tp[idx], "ANY_CREATURE"))
+                    {
+                        crtr_id = CREATURE_ANY;
+                    }
+                }
+            }
+            if (crtr_id == -1)
+            {
+                SCRPTERRLOG("Unknown creature, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = crtr_id;
+            break;
         }
-        scline->np[idx] = room_id;
-        };break;
-    case 'S': {
-        long slab_id = get_rid(slab_desc, scline->tp[idx]);
-        if (slab_id == -1)
+        case 'R': //Room
         {
-            SCRPTERRLOG("Unknown slab kind, \"%s\"", scline->tp[idx]);
-            return false;
+            long room_id = get_rid(room_desc, scline->tp[idx]);
+            if (room_id == -1)
+            {
+                SCRPTERRLOG("Unknown room kind, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = room_id;
+            break;
         }
-        scline->np[idx] = slab_id;
-    }; break;
-    case 'L':{
-        TbMapLocation loc;
-        if (!get_map_location_id(scline->tp[idx], &loc)) {
-            return false;
+        case 'S': //Slab
+        {
+            long slab_id = get_rid(slab_desc, scline->tp[idx]);
+            if (slab_id == -1)
+            {
+                SCRPTERRLOG("Unknown slab kind, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = slab_id;
+            break;
+        };
+        case 'L': //Location
+        {
+            TbMapLocation loc;
+            if (!get_map_location_id(scline->tp[idx], &loc)) {
+                return false;
+            }
+            scline->np[idx] = loc;
+            break;
         }
-        scline->np[idx] = loc;
-        };break;
-    case 'O':{
-        long opertr_id = get_rid(comparison_desc, scline->tp[idx]);
-        if (opertr_id == -1) {
-            SCRPTERRLOG("Unknown operator, \"%s\"", scline->tp[idx]);
-            return false;
+        case 'O': //Operator
+        {
+            long opertr_id = get_rid(comparison_desc, scline->tp[idx]);
+            if (opertr_id == -1) {
+                SCRPTERRLOG("Unknown operator, \"%s\"", scline->tp[idx]);
+                return false;
+            }
+            scline->np[idx] = opertr_id;
+            break;
         }
-        scline->np[idx] = opertr_id;
-        };break;
-    case 'A':
-        break;
-    case '!': // extended sign
-        return true;
-    default:
-        return false;
+        case 'B': //Boolean
+        {
+            char boolean = get_rid(script_boolean_desc, scline->tp[idx]);
+            if (boolean == -1)
+            {
+                //Extended number allows for a custom sprite string
+                if (!extended)
+                {
+                    SCRPTERRLOG("Unknown boolean value, \"%s\"", scline->tp[idx]);
+                    return false;
+                }
+                else
+                {
+                    scline->np[idx] = -1;
+                    break;
+                }
+            }
+            scline->np[idx] = (boolean == true);
+            break;
+        }
+        case 'A': //String
+            break;
+        case '!': // extended sign
+            return true;
+        default:
+        {
+            SCRPTWRNLOG("Excessive parameter of command \"%s\", value \"%s\"; ignoring", scline->tcmnd, scline->tp[idx]);
+            return true;
+        }
     }
     return true;
 }
@@ -411,7 +364,7 @@ static TbBool is_condition_met(unsigned short cond_idx)
       else
           return false;
     }
-    unsigned long i = gameadd.script.conditions[cond_idx].status;
+    unsigned long i = game.script.conditions[cond_idx].status;
     return ((i & 0x01) != 0);
 }
 
@@ -467,14 +420,210 @@ static int count_required_parameters(const char *args)
     return required;
 }
 
-int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level)
+static int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level, long file_version);
+
+static TbBool process_subfunc(char **line, struct ScriptLine *scline, const struct CommandDesc *cmd_desc, const struct CommandDesc *funcmd_desc, int *para_level, int src, int dst, long file_version)
+{
+    struct CommandToken token;
+    struct ScriptLine* funscline = (struct ScriptLine*)calloc(sizeof(struct ScriptLine), 1);
+    if (funscline == NULL) {
+        SCRPTERRLOG("Can't allocate buffer to recognize line");
+        return false;
+    }
+    memset(funscline, 0, sizeof(struct ScriptLine));
+    memcpy(funscline->tcmnd, scline->tp[dst], MAX_TEXT_LENGTH);
+    char *nxt = get_next_token(*line, &token);
+    if (token.type != TkOpen)
+    {
+        SCRPTERRLOG("Expecting (");
+        free(funscline);
+        return false;
+    }
+    *line = nxt;
+    int args_count = script_recognize_params(line, funcmd_desc, funscline, para_level, *para_level, file_version);
+    if (args_count < 0)
+    {
+        free(funscline);
+        return false;
+    }
+    // Count valid args
+    if (args_count < COMMANDDESC_ARGS_COUNT)
+    {
+        int required = count_required_parameters(funcmd_desc->args);
+        if (args_count < required)
+        {
+            SCRPTERRLOG("Not enough parameters for \"%s\", got only %d", funcmd_desc->textptr,(int)args_count);
+            free(funscline);
+            return false;
+        }
+    }
+    switch (funcmd_desc->index)
+    {
+        case Cmd_RANDOM:
+        case Cmd_DRAWFROM:{
+            // Create array of value ranges
+            long range_total = 0;
+            int fi;
+            struct MinMax ranges[COMMANDDESC_ARGS_COUNT];
+            TbBool is_if_statement = ((scline->command == Cmd_IF) || (scline->command == Cmd_IF_AVAILABLE) || (scline->command == Cmd_IF_CONTROLS));
+            if (level_file_version > 0)
+            {
+                char chr = cmd_desc->args[src];
+                int ri;
+                for (fi = 0, ri = 0; fi < COMMANDDESC_ARGS_COUNT; fi++, ri++)
+                {
+                    if (funscline->tp[fi][0] == '\0') {
+                        break;
+                    }
+                    if ((toupper(chr) == 'A') && (!is_if_statement) ) //Strings don't have a range, but IF statements have 'Aa' to allow both variable compare and numbers. Numbers are allowed, 'a' is a string for sure.
+                    {
+                        // Values which do not support range
+                        if (strcmp(funscline->tp[fi],"~") == 0) {
+                            SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" does not support range", fi+1, funcmd_desc->textptr, scline->tcmnd);
+                            free(funscline);
+                            return false;
+                        }
+                        // Values of that type cannot define ranges, as we cannot interpret them
+                        ranges[ri].min = fi;
+                        ranges[ri].max = fi;
+                        range_total++;
+                    } else
+                    if ((ri > 0) && (strcmp(funscline->tp[fi],"~") == 0))
+                    {
+                        // Second step of defining range
+                        ri--;
+                        fi++;
+                        if (funscline->tp[fi][0] != '\0')
+                        {
+                            funscline->np[fi] = atol(funscline->tp[fi]);
+                        }
+                        if (!script_command_param_to_number(chr, funscline, fi, false)) {
+                            SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected range end value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
+                            free(funscline);
+                            return false;
+                        }
+                        ranges[ri].max = funscline->np[fi];
+                        if (ranges[ri].max < ranges[ri].min) {
+                            SCRPTWRNLOG("Range definition in argument of function \"%s\" within command \"%s\" should have lower value first", funcmd_desc->textptr, scline->tcmnd);
+                            ranges[ri].max = ranges[ri].min;
+                        }
+                        range_total += ranges[ri].max - ranges[ri].min; // +1 was already added
+                    } else
+                    {
+                        // Single value or first step of defining range
+                        if (!script_command_param_to_number(chr, funscline, fi, false)) {
+                            SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
+                            free(funscline);
+                            return false;
+                        }
+                        if (funscline->np[fi] == '\0')
+                        {
+                            funscline->np[fi] = atol(funscline->tp[fi]);
+                        }
+                        ranges[ri].min = funscline->np[fi];
+                        ranges[ri].max = funscline->np[fi];
+                        range_total++;
+                    }
+                }
+            } else
+            {
+                // Old RANDOM command accepts only one range, and gives only numbers
+                fi = 0;
+                {
+                    ranges[fi].min = atol(funscline->tp[0]);
+                    ranges[fi].max = atol(funscline->tp[1]);
+                }
+                if (ranges[fi].max < ranges[fi].min) {
+                    SCRPTWRNLOG("Range definition in argument of function \"%s\" within command \"%s\" should have lower value first", funcmd_desc->textptr, scline->tcmnd);
+                    ranges[fi].max = ranges[fi].min;
+                }
+                range_total += ranges[fi].max - ranges[fi].min + 1;
+                fi++;
+            }
+            if (range_total <= 0) {
+                SCRPTERRLOG("Arguments of function \"%s\" within command \"%s\" define no values to select from", funcmd_desc->textptr, scline->tcmnd);
+                break;
+            }
+            if ((funcmd_desc->index != Cmd_RANDOM) && (level_file_version == 0)) {
+                SCRPTERRLOG("The function \"%s\" used within command \"%s\" is not supported in old level format", funcmd_desc->textptr, scline->tcmnd);
+                break;
+            }
+            // The new RANDOM command stores values to allow selecting different one every turn during gameplay
+            if ((funcmd_desc->index == Cmd_RANDOM) && (level_file_version > 0))
+            {
+                //TODO RANDOM make implementation - store ranges as variable to be used for selecting random value during gameplay
+                SCRPTERRLOG("The function \"%s\" used within command \"%s\" is not supported yet", funcmd_desc->textptr, scline->tcmnd);
+                break;
+            }
+            // DRAWFROM support - select random index now
+            long range_index = GAME_RANDOM(range_total);
+            // Get value from ranges array
+            range_total = 0;
+            for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
+            {
+                if ((range_index >= range_total) && (range_index <= range_total + ranges[fi].max - ranges[fi].min))
+                {
+                    char chr = cmd_desc->args[src];
+                    if (toupper(chr) == 'A') {
+                        if (is_if_statement)
+                        {
+                            scline->np[dst] = ranges[fi].min + range_index - range_total;
+                            snprintf(scline->tp[dst], sizeof(scline->tp[dst]), "%ld", scline->np[dst]);
+                        }
+                        else
+                        {
+                            strcpy(scline->tp[dst], funscline->tp[ranges[fi].min]);
+                        }
+                    } else {
+                        scline->np[dst] = ranges[fi].min + range_index - range_total;
+                        // Set text value for that number
+                        script_command_param_to_text(chr, scline, dst);
+                    }
+                    break;
+                }
+                range_total += ranges[fi].max - ranges[fi].min + 1;
+            }
+            SCRPTLOG("Function \"%s\" returned value \"%s\"", funcmd_desc->textptr, scline->tp[dst]);
+        };break;
+        case Cmd_IMPORT:
+        {
+            long player_id = get_id(player_desc, funscline->tp[0]);
+            if (player_id >= PLAYERS_FOR_CAMPAIGN_FLAGS)
+            {
+                SCRPTERRLOG("Cannot fetch flag values for player, '%s'", funscline->tp[0]);
+                strcpy(scline->tp[dst], "0");
+                break;
+            }
+            long flag_id = get_id(campaign_flag_desc, funscline->tp[1]);
+            if (flag_id == -1)
+            {
+                SCRPTERRLOG("Unknown campaign flag name, '%s'", funscline->tp[1]);
+                strcpy(scline->tp[dst], "0");
+                break;
+            }
+            SCRPTLOG("Function \"%s\" returned value \"%ld\"", funcmd_desc->textptr,
+                     intralvl.campaign_flags[player_id][flag_id]);
+            snprintf(scline->tp[dst], MAX_TEXT_LENGTH, "%ld", intralvl.campaign_flags[player_id][flag_id]);
+            break;
+        }
+        default:
+            SCRPTWRNLOG("Parameter value \"%s\" is a command which isn't supported as function", scline->tp[dst]);
+            break;
+    }
+    free(funscline);
+    return true;
+}
+
+static int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level, long file_version)
 {
     int dst, src;
+    TbBool reparse = false;
+    struct CommandToken token = { 0 };
     for (dst = 0, src = 0; dst <= COMMANDDESC_ARGS_COUNT; dst++, src++)
     {
         TbBool extended = false;
         char chr = cmd_desc->args[src];
-        if (*para_level < expect_level)
+        if (token.type == TkClose)
             break;
         if (chr == '!')
         {
@@ -483,22 +632,30 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
         }
         // Read the next parameter
         const struct CommandDesc *funcmd_desc;
+        char* funline = *line;
+        char funcmd_buf[MAX_TEXT_LENGTH];
+        memset(funcmd_buf, 0, MAX_TEXT_LENGTH);
+
+        if (reparse)
         {
-            char* funline = *line;
-            int funpara_level = *para_level;
-            char funcmd_buf[MAX_TEXT_LENGTH];
-            LbMemorySet(funcmd_buf, 0, MAX_TEXT_LENGTH);
-            funcmd_desc = get_next_word(&funline, funcmd_buf, &funpara_level, subfunction_desc);
-            if (funpara_level < expect_level+1) {
-                // Break the loop keeping variables as if the parameter wasn't read
+            reparse = false;
+            // Access tp[dst] only if we're sure dst < COMMANDDESC_ARGS_COUNT
+            strncpy(scline->tp[dst], token.start, min(token.end - token.start, MAX_TEXT_LENGTH));
+        }
+        else
+        {
+            *line = get_next_token(funline, &token);
+            if ((token.type == TkInvalid) || (token.type == TkEnd) || (token.type == TkComma))
+            {
+                SCRPTERRLOG("Invalid token '%s'", **line? *line: "<newline>");
+                dst--;
+                return -1;
+            }
+            else if ((token.type == TkClose) && ((chr == ' ') || (chr == 0)))
+            {
                 break;
             }
-            if (funpara_level > (*para_level)+(dst > 0 ? 0 : 1)) {
-                SCRPTWRNLOG("Unexpected paraenesis in parameter %d of command \"%s\"", dst + 1, scline->tcmnd);
-            }
-            *line = funline;
-            *para_level = funpara_level;
-            if (!isalpha(chr))
+            else if ((token.type != TkNumber) && (token.type != TkCommand) && (token.type != TkString))
             {
                 // Don't show parameter index - it may be bad, as we're decreasing dst to not overflow cmd_desc->args
                 SCRPTWRNLOG("Excessive parameter of command \"%s\", value \"%s\"; ignoring", scline->tcmnd, funcmd_buf);
@@ -506,193 +663,39 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 continue;
             }
             // Access tp[dst] only if we're sure dst < COMMANDDESC_ARGS_COUNT
-            LbMemoryCopy(scline->tp[dst], funcmd_buf, MAX_TEXT_LENGTH);
-        }
-        if (funcmd_desc != NULL)
-        {
-            struct ScriptLine* funscline = (struct ScriptLine*)LbMemoryAlloc(sizeof(struct ScriptLine));
-            if (funscline == NULL) {
-                SCRPTERRLOG("Can't allocate buffer to recognize line");
-                return -1;
-            }
-            LbMemorySet(funscline, 0, sizeof(struct ScriptLine));
-            LbMemoryCopy(funscline->tcmnd, scline->tp[dst], MAX_TEXT_LENGTH);
-            int args_count = script_recognize_params(line, funcmd_desc, funscline, para_level, *para_level);
-            if (args_count < 0)
+            strncpy(scline->tp[dst], token.start, min(token.end - token.start, MAX_TEXT_LENGTH));
+
+            funcmd_desc = find_command_desc(&token, subfunction_desc);
+
+            if (funcmd_desc != NULL)
             {
-                LbMemoryFree(funscline);
-                return -1;
+                int r = process_subfunc(line, scline, cmd_desc, funcmd_desc, para_level, src, dst, file_version);
+                if (r == -1)
+                    return -1;
             }
-            // Count valid args
-            if (args_count < COMMANDDESC_ARGS_COUNT)
+            *line = get_next_token(*line, &token);
+
+            if (token.type == TkRangeOperator)
             {
-                int required = count_required_parameters(funcmd_desc->args);
-                if (args_count < required)
-                {
-                  SCRPTERRLOG("Not enough parameters for \"%s\", got only %d", funcmd_desc->textptr,(int)args_count);
-                  LbMemoryFree(funscline);
-                  return -1;
-                }
+                // Operator ~ goes to A/a chr
+                reparse = true;
             }
-            switch (funcmd_desc->index)
+            else if ((token.type != TkClose) && (token.type != TkComma))
             {
-            case Cmd_RANDOM:
-            case Cmd_DRAWFROM:{
-                // Create array of value ranges
-                long range_total = 0;
-                int fi;
-                struct MinMax ranges[COMMANDDESC_ARGS_COUNT];
-                TbBool is_if_statement = ((scline->command == Cmd_IF) || (scline->command == Cmd_IF_AVAILABLE) || (scline->command == Cmd_IF_CONTROLS));
-                if (level_file_version > 0)
+                if ((cmd_desc->args[src + 1] != 'O') || (token.type != TkOperator))
                 {
-                    chr = cmd_desc->args[src];
-                    int ri;
-                    for (fi = 0, ri = 0; fi < COMMANDDESC_ARGS_COUNT; fi++, ri++)
-                    {
-                        if (funscline->tp[fi][0] == '\0') {
-                            break;
-                        }
-                        if ((toupper(chr) == 'A') && (!is_if_statement) ) //Strings don't have a range, but IF statements have 'Aa' to allow both variable compare and numbers. Numbers are allowed, 'a' is a string for sure.
-                        {
-                            // Values which do not support range
-                            if (strcmp(funscline->tp[fi],"~") == 0) {
-                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" does not support range", fi+1, funcmd_desc->textptr, scline->tcmnd);
-                                LbMemoryFree(funscline);
-                                return -1;
-                            }
-                            // Values of that type cannot define ranges, as we cannot interpret them
-                            ranges[ri].min = fi;
-                            ranges[ri].max = fi;
-                            range_total++;
-                        } else
-                        if ((ri > 0) && (strcmp(funscline->tp[fi],"~") == 0))
-                        {
-                            // Second step of defining range
-                            ri--;
-                            fi++;
-                            if (funscline->tp[fi][0] != '\0')
-                            {
-                                funscline->np[fi] = atol(funscline->tp[fi]);
-                            }
-                            if (!script_command_param_to_number(chr, funscline, fi, false)) {
-                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected range end value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
-                                LbMemoryFree(funscline);
-                                return -1;
-                            }
-                            ranges[ri].max = funscline->np[fi];
-                            if (ranges[ri].max < ranges[ri].min) {
-                                SCRPTWRNLOG("Range definition in argument of function \"%s\" within command \"%s\" should have lower value first", funcmd_desc->textptr, scline->tcmnd);
-                                ranges[ri].max = ranges[ri].min;
-                            }
-                            range_total += ranges[ri].max - ranges[ri].min; // +1 was already added
-                        } else
-                        {
-                            // Single value or first step of defining range
-                            if (!script_command_param_to_number(chr, funscline, fi, false)) {
-                                SCRPTERRLOG("Parameter %d of function \"%s\" within command \"%s\" has unexpected value; discarding command", fi+1, funcmd_desc->textptr, scline->tcmnd);
-                                LbMemoryFree(funscline);
-                                return -1;
-                            }
-                            if (funscline->np[fi] == '\0')
-                            {
-                                funscline->np[fi] = atol(funscline->tp[fi]);
-                            }
-                            ranges[ri].min = funscline->np[fi];
-                            ranges[ri].max = funscline->np[fi];
-                            range_total++;
-                        }
-                    }
-                } else
+                    SCRPTERRLOG("Unexpected token after parameter %d of command \"%s\", discarding command", dst + 1,
+                                scline->tcmnd);
+                    return -1;
+                }
+                else if (token.type == TkOperator)
                 {
-                    // Old RANDOM command accepts only one range, and gives only numbers
-                    fi = 0;
-                    {
-                        ranges[fi].min = atol(funscline->tp[0]);
-                        ranges[fi].max = atol(funscline->tp[1]);
-                    }
-                    if (ranges[fi].max < ranges[fi].min) {
-                        SCRPTWRNLOG("Range definition in argument of function \"%s\" within command \"%s\" should have lower value first", funcmd_desc->textptr, scline->tcmnd);
-                        ranges[fi].max = ranges[fi].min;
-                    }
-                    range_total += ranges[fi].max - ranges[fi].min + 1;
-                    fi++;
+                    reparse = true;
                 }
-                if (range_total <= 0) {
-                    SCRPTERRLOG("Arguments of function \"%s\" within command \"%s\" define no values to select from", funcmd_desc->textptr, scline->tcmnd);
-                    break;
-                }
-                if ((funcmd_desc->index != Cmd_RANDOM) && (level_file_version == 0)) {
-                    SCRPTERRLOG("The function \"%s\" used within command \"%s\" is not supported in old level format", funcmd_desc->textptr, scline->tcmnd);
-                    break;
-                }
-                // The new RANDOM command stores values to allow selecting different one every turn during gameplay
-                if ((funcmd_desc->index == Cmd_RANDOM) && (level_file_version > 0))
-                {
-                    //TODO RANDOM make implementation - store ranges as variable to be used for selecting random value during gameplay
-                    SCRPTERRLOG("The function \"%s\" used within command \"%s\" is not supported yet", funcmd_desc->textptr, scline->tcmnd);
-                    break;
-                }
-                // DRAWFROM support - select random index now
-                long range_index = GAME_RANDOM(range_total);
-                // Get value from ranges array
-                range_total = 0;
-                for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
-                {
-                    if ((range_index >= range_total) && (range_index <= range_total + ranges[fi].max - ranges[fi].min)) {
-                        chr = cmd_desc->args[src];
-                        if (toupper(chr) == 'A') {
-                            if (is_if_statement)
-                            {
-                                scline->np[dst] = ranges[fi].min + range_index - range_total;
-                                snprintf(scline->tp[dst], sizeof(scline->tp[dst]), "%ld", scline->np[dst]);
-                            }
-                            else
-                            {
-                                strcpy(scline->tp[dst], funscline->tp[ranges[fi].min]);
-                            }
-                        } else {
-                            scline->np[dst] = ranges[fi].min + range_index - range_total;
-                            // Set text value for that number
-                            script_command_param_to_text(chr, scline, dst);
-                        }
-                        break;
-                    }
-                    range_total += ranges[fi].max - ranges[fi].min + 1;
-                }
-                SCRPTLOG("Function \"%s\" returned value \"%s\"", funcmd_desc->textptr, scline->tp[dst]);
-                };break;
-            case Cmd_IMPORT:
-            {
-                long player_id = get_id(player_desc, funscline->tp[0]);
-                if (player_id >= PLAYERS_FOR_CAMPAIGN_FLAGS)
-                {
-                    SCRPTERRLOG("Cannot fetch flag values for player, '%s'", funscline->tp[0]);
-                    strcpy(scline->tp[dst], "0");
-                    break;
-                }
-                long flag_id = get_id(campaign_flag_desc, funscline->tp[1]);
-                if (flag_id == -1)
-                {
-                    SCRPTERRLOG("Unknown campaign flag name, '%s'", funscline->tp[1]);
-                    strcpy(scline->tp[dst], "0");
-                    break;
-                }
-                SCRPTLOG("Function \"%s\" returned value \"%ld\"", funcmd_desc->textptr,
-                    intralvl.campaign_flags[player_id][flag_id]);
-                snprintf(scline->tp[dst], MAX_TEXT_LENGTH, "%ld", intralvl.campaign_flags[player_id][flag_id]);
-                break;
             }
-            default:
-                SCRPTWRNLOG("Parameter value \"%s\" is a command which isn't supported as function", scline->tp[dst]);
-                break;
-            }
-            LbMemoryFree(funscline);
         }
         if (scline->tp[dst][0] == '\0') {
           break;
-        }
-        if (*para_level > expect_level+2) {
-            SCRPTWRNLOG("Parameter %d of command \"%s\", value \"%s\", is at too high paraenesis level %d", dst + 1, scline->tcmnd, scline->tp[dst], (int)*para_level);
         }
         chr = cmd_desc->args[src];
         if (cmd_desc->args[src + 1] == '+')
@@ -712,55 +715,89 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
     return dst;
 }
 
-long script_scan_line(char *line,TbBool preloaded)
+TbBool script_scan_line(char *line, TbBool preloaded, long file_version)
 {
     const struct CommandDesc *cmd_desc;
+    const char *line_start = line;
+    struct CommandToken token = { 0 };
     SCRIPTDBG(12,"Starting");
-    struct ScriptLine* scline = (struct ScriptLine*)LbMemoryAlloc(sizeof(struct ScriptLine));
+    struct ScriptLine* scline = (struct ScriptLine*)calloc(sizeof(struct ScriptLine), 1);
     if (scline == NULL)
     {
       SCRPTERRLOG("Can't allocate buffer to recognize line");
-      return 0;
+      return false;
     }
     int para_level = 0;
-    LbMemorySet(scline, 0, sizeof(struct ScriptLine));
+    memset(scline, 0, sizeof(struct ScriptLine));
     if (next_command_reusable > 0)
         next_command_reusable--;
-    if (level_file_version > 0)
+
+    line = get_next_token(line, &token);
+    if (token.type == TkEnd)
     {
-        cmd_desc = get_next_word(&line, scline->tcmnd, &para_level, command_desc);
+        free(scline);
+        return false;
+    }
+    if (token.type != TkCommand)
+    {
+        SCRPTERRLOG("Syntax error: Script command expected");
+        free(scline);
+        return false;
+    }
+    memcpy(scline->tcmnd, token.start, min((token.end - token.start), MAX_TEXT_LENGTH));
+    if (file_version > 0)
+    {
+        cmd_desc = find_command_desc(&token, command_desc);
     } else
     {
-        cmd_desc = get_next_word(&line, scline->tcmnd, &para_level, dk1_command_desc);
+        cmd_desc = find_command_desc(&token, dk1_command_desc);
     }
     if (cmd_desc == NULL)
     {
         if (isalnum(scline->tcmnd[0])) {
-          SCRPTERRLOG("Invalid command, '%s' (lev ver %d)", scline->tcmnd,level_file_version);
+          SCRPTERRLOG("Invalid command, '%s' (lev ver %ld)", scline->tcmnd, file_version);
         }
-        LbMemoryFree(scline);
-        return 0;
+        free(scline);
+        return false;
     }
-    SCRIPTDBG(12,"Executing command %lu",cmd_desc->index);
+    SCRIPTDBG(12,"Executing command %u",cmd_desc->index);
     // Handling comments
     if (cmd_desc->index == Cmd_REM)
     {
-        LbMemoryFree(scline);
-        return 0;
+        free(scline);
+        return false;
     }
+    line = get_next_token(line, &token);
     scline->command = cmd_desc->index;
     // selecting only preloaded/not preloaded commands
     if (script_is_preloaded_command(cmd_desc->index) != preloaded)
     {
-        LbMemoryFree(scline);
-        return 0;
+        free(scline);
+        return true;
     }
-    // Recognizing parameters
-    int args_count = script_recognize_params(&line, cmd_desc, scline, &para_level, 0);
-    if (args_count < 0)
+    int args_count;
+    if (token.type == TkEnd)
     {
-        LbMemoryFree(scline);
-        return -1;
+        args_count = 0;
+    }
+    else if (token.type == TkOpen)
+    {
+        // Recognizing parameters
+        args_count = script_recognize_params(&line, cmd_desc, scline, &para_level, 0, file_version);
+        if (args_count < 0)
+        {
+            SCRPTERRLOG("Syntax error at \"%s\"", line_start);
+            SCRPTERRLOG("   near - -      %*c", (int) (line - line_start), '^');
+            free(scline);
+            return false;
+        }
+    }
+    else
+    {
+        SCRPTERRLOG("Syntax error: ( expected at \"%s\"", line_start);
+        SCRPTERRLOG("   near - - - - - - -        %*c", (int) (line - line_start), '^');
+        free(scline);
+        return false;
     }
     if (args_count < COMMANDDESC_ARGS_COUNT)
     {
@@ -768,20 +805,27 @@ long script_scan_line(char *line,TbBool preloaded)
         if (args_count < required) // Required arguments have upper-case type letters
         {
             SCRPTERRLOG("Not enough parameters for \"%s\", got only %d", cmd_desc->textptr,(int)args_count);
-            LbMemoryFree(scline);
-            return -1;
+            free(scline);
+            return false;
         }
     }
-    script_add_command(cmd_desc, scline);
-    LbMemoryFree(scline);
+    if (token.type != TkEnd)
+    {
+        line = get_next_token(line, &token);
+    }
+    if (token.type != TkEnd)
+    {
+        SCRPTERRLOG("Syntax error: Unexpected end of line");
+    }
+    script_add_command(cmd_desc, scline, file_version);
+    free(scline);
     SCRIPTDBG(13,"Finished");
-    return 0;
+    return true;
 }
 
 short clear_script(void)
 {
-    LbMemorySet(&gameadd.script, 0, sizeof(struct LevelScript));
-    gameadd.script.next_string = gameadd.script.strings;
+    memset(&game.script, 0, sizeof(struct LevelScript));
     set_script_current_condition(CONDITION_ALWAYS);
     text_line_number = 1;
     return true;
@@ -790,13 +834,13 @@ short clear_script(void)
 short clear_quick_messages(void)
 {
     for (long i = 0; i < QUICK_MESSAGES_COUNT; i++)
-        LbMemorySet(gameadd.quick_messages[i], 0, MESSAGE_TEXT_LEN);
+        memset(game.quick_messages[i], 0, MESSAGE_TEXT_LEN);
     return true;
 }
 
-static char* process_multiline_comment(char *buf, char *buf_end)
+static char* process_multiline_comment(char *buf, char *buffer_end_pointer)
 {
-    for (char *p = buf; p < buf_end - 1; p++)
+    for (char *p = buf; p < buffer_end_pointer - 1; p++)
     {
         if ((*p == ' ') || (*p == 9)) // Tabs or spaces
             continue;
@@ -805,7 +849,7 @@ static char* process_multiline_comment(char *buf, char *buf_end)
             if (p[1] != '*') // /*
                 break;
             p += 2;
-            for (; p < buf_end - 1; p++)
+            for (; p < buffer_end_pointer - 1; p++)
             {
                 if ((p[0] == '*') && (p[1] == '/'))
                 {
@@ -823,15 +867,16 @@ static char* process_multiline_comment(char *buf, char *buf_end)
 
 static void parse_txt_data(char *script_data, long script_len)
 {// Process the file lines
+    text_line_number = 1;
     char* buf = script_data;
-    char* buf_end = script_data + script_len;
-    while (buf < buf_end)
+    char* buffer_end_pointer = script_data + script_len;
+    while (buf < buffer_end_pointer)
     {
         // Check for long comment
-        buf = process_multiline_comment(buf, buf_end);
+        buf = process_multiline_comment(buf, buffer_end_pointer);
       // Find end of the line
       int lnlen = 0;
-      while (&buf[lnlen] < buf_end)
+      while (&buf[lnlen] < buffer_end_pointer)
       {
         if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
           break;
@@ -840,19 +885,19 @@ static void parse_txt_data(char *script_data, long script_len)
       // Get rid of the next line characters
       buf[lnlen] = 0;
       lnlen++;
-      if (&buf[lnlen] < buf_end)
+      if (&buf[lnlen] < buffer_end_pointer)
       {
         if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
           lnlen++;
       }
       //SCRPTLOG("Analyse");
       // Analyze the line
-      script_scan_line(buf, true);
+      script_scan_line(buf, true, level_file_version);
       // Set new line start
       text_line_number++;
       buf += lnlen;
     }
-    LbMemoryFree(script_data);
+    free(script_data);
 }
 
 TbBool preload_script(long lvnum)
@@ -860,7 +905,6 @@ TbBool preload_script(long lvnum)
   SYNCDBG(7,"Starting");
   set_script_current_condition(CONDITION_ALWAYS);
   next_command_reusable = 0;
-  text_line_number = 1;
   level_file_version = DEFAULT_LEVEL_VERSION;
   clear_quick_messages();
   // Load the file
@@ -888,15 +932,10 @@ short load_script(long lvnum)
     text_line_number = 1;
     game.bonus_time = 0;
     game.flags_gui &= ~GGUI_CountdownTimer;
-    game.flags_cd |= MFlg_DeadBackToPool;
+    game.mode_flags |= MFlg_DeadBackToPool;
     reset_creature_max_levels();
     reset_script_timers_and_flags();
     reset_hand_rules();
-    if ((game.operation_flags & GOF_ColumnConvert) != 0)
-    {
-        convert_old_column_file(lvnum);
-        game.operation_flags &= ~GOF_ColumnConvert;
-    }
     // Load the file
     long script_len = 1;
     char* script_data = (char*)load_single_map_file_to_buffer(lvnum, "txt", &script_len, LMFF_None);
@@ -904,75 +943,49 @@ short load_script(long lvnum)
       return false;
     // Process the file lines
     char* buf = script_data;
-    char* buf_end = script_data + script_len;
-    while (buf < buf_end)
+    char* buffer_end_pointer = script_data + script_len;
+    while (buf < buffer_end_pointer)
     {
-        buf = process_multiline_comment(buf, buf_end);
+        buf = process_multiline_comment(buf, buffer_end_pointer);
       // Find end of the line
-      int lnlen = 0;
-      while (&buf[lnlen] < buf_end)
+      char* p = buf;
+      for (;p < buffer_end_pointer; p++)
       {
-        if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
+        if (*p == '\n')
           break;
-        lnlen++;
       }
       // Get rid of the next line characters
-      buf[lnlen] = 0;
-      lnlen++;
-      if (&buf[lnlen] < buf_end)
+      *p = 0;
+      p++;
+      if (p > buf)
       {
-        if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
-          lnlen++;
+        if (p[-1] == '\r')
+          p[-1] = 0;
       }
       // Analyze the line
-      script_scan_line(buf, false);
+      script_scan_line(buf, false, level_file_version);
       // Set new line start
       text_line_number++;
-      buf += lnlen;
+      buf = p;
     }
-    LbMemoryFree(script_data);
-    if (gameadd.script.win_conditions_num == 0)
+    free(script_data);
+    if (game.script.win_conditions_num == 0 && luascript_loaded == false)
       WARNMSG("No WIN GAME conditions in script file.");
     if (get_script_current_condition() != CONDITION_ALWAYS)
       WARNMSG("Missing ENDIF's in script file.");
     JUSTLOG("Used script resources: %d/%d tunneller triggers, %d/%d party triggers, %d/%d script values, %d/%d IF conditions, %d/%d party definitions",
-        (int)gameadd.script.tunneller_triggers_num,TUNNELLER_TRIGGERS_COUNT,
-        (int)gameadd.script.party_triggers_num,PARTY_TRIGGERS_COUNT,
-        (int)gameadd.script.values_num,SCRIPT_VALUES_COUNT,
-        (int)gameadd.script.conditions_num,CONDITIONS_COUNT,
-        (int)gameadd.script.creature_partys_num,CREATURE_PARTYS_COUNT);
+        (int)game.script.tunneller_triggers_num,TUNNELLER_TRIGGERS_COUNT,
+        (int)game.script.party_triggers_num,PARTY_TRIGGERS_COUNT,
+        (int)game.script.values_num,SCRIPT_VALUES_COUNT,
+        (int)game.script.conditions_num,CONDITIONS_COUNT,
+        (int)game.script.creature_partys_num,CREATURE_PARTYS_COUNT);
     return true;
-}
-
-/**
- * Returns if the action point condition was activated.
- * Action point index and player to be activated should be stored inside condition.
- */
-TbBool process_activation_status(struct Condition *condt)
-{
-    TbBool new_status;
-    int plr_start;
-    int plr_end;
-    if (get_players_range(condt->plyr_range, &plr_start, &plr_end) < 0)
-    {
-        WARNLOG("Invalid player range %d in CONDITION command %d.",(int)condt->plyr_range,(int)condt->variabl_type);
-        return false;
-    }
-    {
-        new_status = false;
-        for (long i = plr_start; i < plr_end; i++)
-        {
-            new_status = action_point_activated_by_player(condt->variabl_idx,i);
-            if (new_status) break;
-        }
-    }
-    return new_status;
 }
 
 static void add_to_party_process(struct ScriptContext *context)
 {
     struct PartyTrigger* pr_trig = context->pr_trig;
-    add_member_to_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level, pr_trig->carried_gold, pr_trig->objectv, pr_trig->countdown);
+    add_member_to_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->exp_level, pr_trig->carried_gold, pr_trig->objectv, pr_trig->countdown);
 }
 
 static void process_party(struct PartyTrigger* pr_trig)
@@ -988,38 +1001,36 @@ static void process_party(struct PartyTrigger* pr_trig)
         add_to_party_process(&context);
         break;
     case TrgF_DELETE_FROM_PARTY:
-        delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->crtr_level);
+        delete_member_from_party(pr_trig->party_id, pr_trig->creatr_id, pr_trig->exp_level);
         break;
-    case TrgF_CREATE_OBJECT:
-        n |= ((pr_trig->crtr_level & 7) << 7);
-        SYNCDBG(6, "Adding object %d at location %d", (int)n, (int)pr_trig->location);
-        script_process_new_object(n, pr_trig->location, pr_trig->carried_gold, pr_trig->plyr_idx);
+    case TrgF_CREATE_EFFECT_GENERATOR:
+        SYNCDBG(6, "Adding effect generator %u at location %d", pr_trig->exp_level, (int)pr_trig->location);
+        script_process_new_effectgen(pr_trig->exp_level, pr_trig->location, pr_trig->carried_gold);
         break;
     case TrgF_CREATE_PARTY:
         SYNCDBG(6, "Adding player %d party %d at location %d", (int)pr_trig->plyr_idx, (int)n, (int)pr_trig->location);
-        script_process_new_party(&gameadd.script.creature_partys[n],
+        script_process_new_party(&game.script.creature_partys[n],
             pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
         break;
     case TrgF_CREATE_CREATURE:
-        SCRIPTDBG(6, "Adding creature %d", n);
-        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location,
-            pr_trig->ncopies, pr_trig->carried_gold, pr_trig->crtr_level);
+        SCRIPTDBG(6, "Adding creature %ld", n);
+        script_process_new_creatures(pr_trig->plyr_idx, n, pr_trig->location, pr_trig->ncopies, pr_trig->carried_gold, pr_trig->exp_level, pr_trig->spawn_type);
         break;
     }
 }
 
 void process_check_new_creature_partys(void)
 {
-    for (long i = 0; i < gameadd.script.party_triggers_num; i++)
+    for (long i = 0; i < game.script.party_triggers_num; i++)
     {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[i];
+        struct PartyTrigger* pr_trig = &game.script.party_triggers[i];
         if ((pr_trig->flags & TrgF_DISABLED) == 0)
         {
             if (is_condition_met(pr_trig->condit_idx))
             {
                 process_party(pr_trig);
                 if ((pr_trig->flags & TrgF_REUSABLE) == 0)
-                    set_flag_byte(&pr_trig->flags, TrgF_DISABLED, true);
+                    set_flag(pr_trig->flags, TrgF_DISABLED);
             }
       }
     }
@@ -1027,9 +1038,9 @@ void process_check_new_creature_partys(void)
 
 void process_check_new_tunneller_partys(void)
 {
-    for (long i = 0; i < gameadd.script.tunneller_triggers_num; i++)
+    for (long i = 0; i < game.script.tunneller_triggers_num; i++)
     {
-        struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[i];
+        struct TunnellerTrigger* tn_trig = &game.script.tunneller_triggers[i];
         if ((tn_trig->flags & TrgF_DISABLED) == 0)
         {
             if (is_condition_met(tn_trig->condit_idx))
@@ -1038,12 +1049,12 @@ void process_check_new_tunneller_partys(void)
                 if (k > 0)
                 {
                     long n = tn_trig->plyr_idx;
-                    SCRIPTDBG(6, "Adding tunneler party %d", k);
+                    SCRIPTDBG(6, "Adding tunneler party %ld", k);
                     struct Thing* thing = script_process_new_tunneler(n, tn_trig->location, tn_trig->heading,
-                        tn_trig->crtr_level, tn_trig->carried_gold);
+                        tn_trig->exp_level, tn_trig->carried_gold);
                     if (!thing_is_invalid(thing))
                     {
-                        struct Thing* grptng = script_process_new_party(&gameadd.script.creature_partys[k - 1], n, tn_trig->location, 1);
+                        struct Thing* grptng = script_process_new_party(&game.script.creature_partys[k - 1], n, tn_trig->location, 1);
                         if (!thing_is_invalid(grptng))
                         {
                             add_creature_to_group_as_leader(thing, grptng);
@@ -1056,9 +1067,9 @@ void process_check_new_tunneller_partys(void)
                 }
                 else
                 {
-                    SCRIPTDBG(6, "Adding tunneler, heading %d", tn_trig->heading);
+                    SCRIPTDBG(6, "Adding tunneler, heading %lu", tn_trig->heading);
                     script_process_new_tunneler(tn_trig->plyr_idx, tn_trig->location, tn_trig->heading,
-                        tn_trig->crtr_level, tn_trig->carried_gold);
+                        tn_trig->exp_level, tn_trig->carried_gold);
                 }
                 if ((tn_trig->flags & TrgF_REUSABLE) == 0)
                     tn_trig->flags |= TrgF_DISABLED;
@@ -1072,55 +1083,41 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
     long i;
     long k;
     struct PlayerInfo* player = get_player(plyr_idx);
-    for (i=0; i < gameadd.script.win_conditions_num; i++)
+    for (i=0; i < game.script.win_conditions_num; i++)
     {
-      k = gameadd.script.win_conditions[i];
-      if (is_condition_met(k)) {
-          SYNCDBG(8,"Win condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
-          set_player_as_won_level(player);
-      }
+        k = game.script.win_conditions[i];
+        if (is_condition_met(k)) {
+            SYNCDBG(8,"Win condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
+            set_player_as_won_level(player);
+        }
     }
-    for (i=0; i < gameadd.script.lose_conditions_num; i++)
+    for (i=0; i < game.script.lose_conditions_num; i++)
     {
-      k = gameadd.script.lose_conditions[i];
-      if (is_condition_met(k)) {
-          SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
-          set_player_as_lost_level(player);
-      }
+        k = game.script.lose_conditions[i];
+        if (is_condition_met(k))
+        {
+            SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
+            set_player_as_lost_level(player);
+            setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
+        }
     }
 }
 
 
 void process_values(void)
 {
-    for (long i = 0; i < gameadd.script.values_num; i++)
+    for (long i = 0; i < game.script.values_num; i++)
     {
-        struct ScriptValue* value = &gameadd.script.values[i];
+        struct ScriptValue* value = &game.script.values[i];
         if ((value->flags & TrgF_DISABLED) == 0)
         {
             if (is_condition_met(value->condit_idx))
             {
-                script_process_value(value->valtype, value->plyr_range, value->arg0, value->arg1, value->arg2, value);
+                script_process_value(value->valtype, value->plyr_range, value->longs[0], value->longs[1], value->longs[2], value);
                 if ((value->flags & TrgF_REUSABLE) == 0)
-                  set_flag_byte(&value->flags, TrgF_DISABLED, true);
+                  set_flag(value->flags, TrgF_DISABLED);
             }
         }
-    }
-
-    for (int i = 0; i < gameadd.active_fx_lines; i++)
-    {
-        if (gameadd.fx_lines[i].used)
-        {
-            process_fx_line(&gameadd.fx_lines[i]);
-        }
-    }
-    for (int i = gameadd.active_fx_lines; i > 0; i--)
-    {
-        if (gameadd.fx_lines[i-1].used)
-        {
-            break;
-        }
-        gameadd.active_fx_lines--;
     }
 }
 
