@@ -355,7 +355,7 @@ TbBool attempt_anger_job_persuade(struct Thing *creatng)
     if (persuade_count <= 0) {
         return false;
     }
-    persuade_count = CREATURE_RANDOM(creatng, persuade_count) + 1;
+    persuade_count = THING_RANDOM(creatng, persuade_count) + 1;
     if (!external_set_thing_state(creatng, CrSt_CreaturePersuade)) {
         return false;
     }
@@ -365,7 +365,7 @@ TbBool attempt_anger_job_persuade(struct Thing *creatng)
 
 TbBool attempt_anger_job_join_enemy(struct Thing *creatng)
 {
-    int n = CREATURE_RANDOM(creatng, PLAYERS_COUNT);
+    int n = THING_RANDOM(creatng, PLAYERS_COUNT);
     for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
     {
         if ((n == game.neutral_player_num) || (n == creatng->owner))
@@ -459,7 +459,7 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
         return false;
     }
     // Select a random job as a starting point
-    int n = CREATURE_RANDOM(creatng, i) + 1;
+    int n = THING_RANDOM(creatng, i) + 1;
     i = 0;
     for (k = 0; k < game.conf.crtr_conf.angerjobs_count; k++)
     {
@@ -758,9 +758,9 @@ TbBool send_creature_to_job_for_player(struct Thing *creatng, PlayerNumber plyr_
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             // Set computer control accordingly to job flags
             if ((get_flags_for_job(new_job) & JoKF_NoSelfControl) != 0) {
-                cctrl->flgfield_1 |= CCFlg_NoCompControl;
+                cctrl->creature_control_flags |= CCFlg_NoCompControl;
             } else {
-                cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+                cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
             }
             // If a new task isn't a work-in-group thing, remove the creature from group
             if ((get_flags_for_job(new_job) & JoKF_NoGroups) != 0)
@@ -932,9 +932,9 @@ TbBool send_creature_to_job_near_position(struct Thing *creatng, MapSubtlCoord s
             struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
             // Set computer control accordingly to job flags
             if ((get_flags_for_job(new_job) & JoKF_NoSelfControl) != 0) {
-                cctrl->flgfield_1 |= CCFlg_NoCompControl;
+                cctrl->creature_control_flags |= CCFlg_NoCompControl;
             } else {
-                cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+                cctrl->creature_control_flags &= ~CCFlg_NoCompControl;
             }
             // If a new task isn't a work-in-group thing, remove the creature from group
             if ((get_flags_for_job(new_job) & JoKF_NoGroups) != 0)
@@ -1136,7 +1136,7 @@ TbBool attempt_job_preference(struct Thing *creatng, long jobpref)
     if (game.conf.crtr_conf.jobs_count < 1) {
         return false;
     }
-    long n = CREATURE_RANDOM(creatng, game.conf.crtr_conf.jobs_count);
+    long n = THING_RANDOM(creatng, game.conf.crtr_conf.jobs_count);
     for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++, n = (n + 1) % game.conf.crtr_conf.jobs_count)
     {
         if (n == 0)
@@ -1169,7 +1169,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     if (i <= 0) {
         return false;
     }
-    unsigned long select_val = CREATURE_RANDOM(creatng, 512);
+    unsigned long select_val = THING_RANDOM(creatng, 512);
     unsigned long select_delta = 512 / i;
     unsigned long select_curr = select_delta;
     // For some reason, this is a bit different than attempt_job_preference().
@@ -1193,7 +1193,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
         }
     }
     // If no job, give 1% chance of going to temple
-    if (CREATURE_RANDOM(creatng, 100) == 0)
+    if (THING_RANDOM(creatng, 100) == 0)
     {
         CreatureJob new_job = Job_TEMPLE_PRAY;
         if (creature_can_do_job_for_player(creatng, creatng->owner, new_job, JobChk_None))

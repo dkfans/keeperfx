@@ -48,6 +48,56 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern char autostart_multiplayer_campaign[80];
+extern int autostart_multiplayer_level;
+
+// Convert ASCII character to key code for typing automatic messages
+TbKeyCode ascii_to_keycode(char c)
+{
+    switch (c) {
+        case 'A': case 'a': return KC_A;
+        case 'B': case 'b': return KC_B;
+        case 'C': case 'c': return KC_C;
+        case 'D': case 'd': return KC_D;
+        case 'E': case 'e': return KC_E;
+        case 'F': case 'f': return KC_F;
+        case 'G': case 'g': return KC_G;
+        case 'H': case 'h': return KC_H;
+        case 'I': case 'i': return KC_I;
+        case 'J': case 'j': return KC_J;
+        case 'K': case 'k': return KC_K;
+        case 'L': case 'l': return KC_L;
+        case 'M': case 'm': return KC_M;
+        case 'N': case 'n': return KC_N;
+        case 'O': case 'o': return KC_O;
+        case 'P': case 'p': return KC_P;
+        case 'Q': case 'q': return KC_Q;
+        case 'R': case 'r': return KC_R;
+        case 'S': case 's': return KC_S;
+        case 'T': case 't': return KC_T;
+        case 'U': case 'u': return KC_U;
+        case 'V': case 'v': return KC_V;
+        case 'W': case 'w': return KC_W;
+        case 'X': case 'x': return KC_X;
+        case 'Y': case 'y': return KC_Y;
+        case 'Z': case 'z': return KC_Z;
+        case '0': return KC_0;
+        case '1': return KC_1;
+        case '2': return KC_2;
+        case '3': return KC_3;
+        case '4': return KC_4;
+        case '5': return KC_5;
+        case '6': return KC_6;
+        case '7': return KC_7;
+        case '8': return KC_8;
+        case '9': return KC_9;
+        case ' ': return KC_SPACE;
+        case '!': return KC_1; // with shift
+        case ':': return KC_SEMICOLON; // with shift
+        default: return KC_UNASSIGNED;
+    }
+}
 /******************************************************************************/
 const char *keeper_netconf_file = "fxconfig.net";
 
@@ -100,7 +150,6 @@ void process_network_error(long errcode)
       ERRORLOG("Unknown modem error code %ld",errcode);
       return;
   }
-  //display_centered_message(3000, text);
   create_frontend_error_box(3000, text);
 }
 
@@ -325,6 +374,73 @@ void frontnet_rewite_net_messages(void)
       memcpy(&net_message[i], &lmsg[i], sizeof(struct NetMessage));
 }
 
+void handle_autostart_multiplayer_messaging(void)
+{
+    static int previous_player_count = 1;
+    static int message_char_index = -1;
+    static char host_message[64] = "";
+    static TbBool message_prepared = false;
+    static int message_length = 0;
+
+    if (previous_player_count == 1 && net_number_of_enum_players == 2) {
+        if (my_player_number == get_host_player_id() && message_char_index == -1 &&
+            (autostart_multiplayer_campaign[0] != '\0' || autostart_multiplayer_level > 0)) {
+          // Prepare the campaign:level message
+          if (!message_prepared) {
+            const char* camp_name;
+            if (autostart_multiplayer_campaign[0] != '\0') {
+              camp_name = autostart_multiplayer_campaign;
+            } else {
+              camp_name = "keeporig";
+            }
+            int level;
+            if (autostart_multiplayer_level > 0) {
+              level = autostart_multiplayer_level;
+            } else {
+              level = 1;
+            }
+            snprintf(host_message, sizeof(host_message), "%s:%d", camp_name, level);
+            message_length = strlen(host_message);
+            message_prepared = true;
+          }
+          // Start sending the message
+          message_char_index = 0;
+        }
+      }
+
+      // Send message one character per frame
+      if (message_char_index >= 0 && my_player_number == get_host_player_id()) {
+        struct ScreenPacket *nspck;
+        nspck = &net_screen_packet[my_player_number];
+        if ((nspck->networkstatus_flags & 0xF8) == 0) {
+          if (message_char_index < message_length) {
+            // Send next character as key code
+            char c = host_message[message_char_index];
+            TbKeyCode keycode = ascii_to_keycode(c);
+            if (keycode != KC_UNASSIGNED) {
+              nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x40;
+              nspck->param1 = keycode;
+              // Set shift modifier for uppercase letters and special chars
+              TbBool needs_shift = (c >= 'A' && c <= 'Z') || c == '!' || c == ':';
+              if (needs_shift) {
+                nspck->param2 = KMod_SHIFT;
+              } else {
+                nspck->param2 = KMod_NONE;
+              }
+            }
+            message_char_index++;
+          } else {
+            // Send KC_RETURN to finish the message
+            nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x40;
+            nspck->param1 = KC_RETURN;
+            nspck->param2 = 0;
+            message_char_index = -1; // Reset for next time
+          }
+        }
+      }
+      previous_player_count = net_number_of_enum_players;
+}
+
 void frontnet_start_update(void)
 {
     static TbClockMSec player_last_time = 0;
@@ -340,6 +456,9 @@ void frontnet_start_update(void)
       }
       player_last_time = LbTimerClock();
     }
+
+    handle_autostart_multiplayer_messaging();
+
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
     {
       net_message_scroll_offset = 0;

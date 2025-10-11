@@ -283,7 +283,7 @@ void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, CrAttac
         ERRORLOG("Failed to enter combat state for %s index %d",thing_model_name(fightng),(int)fightng->index);
         return;
     }
-    cctrl->field_AA = 0;
+    cctrl->fighting_at_same_position = 0;
     cctrl->fight_til_death = 0;
     if ( !set_creature_combat_state(fightng, enmtng, attack_type) ) {
         WARNLOG("Couldn't setup combat state for %s index %d and %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(enmtng),(int)enmtng->index);

@@ -210,7 +210,7 @@ long move_dead_creature(struct Thing *thing)
         move_thing_in_map(thing, &pos);
     } else
     {
-        // Even if no velocity, update field_60
+        // Even if no velocity, update floor_height
         thing->floor_height = get_thing_height_at(thing, &thing->mappos);
     }
     return TUFRet_Modified;
@@ -424,13 +424,13 @@ TbBool update_dead_creatures_list_for_owner(const struct Thing *thing)
 
 struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short crpscondition, unsigned short owner, CrtrExpLevel exp_level)
 {
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
+    if (!i_can_allocate_free_thing_structure(TCls_DeadCreature))
     {
         ERRORDBG(3,"Cannot create dead creature model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* thing = allocate_free_thing_structure(TCls_DeadCreature);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate dead creature %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -453,7 +453,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->inertia_floor = 204;
     thing->inertia_air = 51;
     thing->bounce_angle = 0;
-    thing->movement_flags |= TMvF_Unknown08;
+    thing->movement_flags |= TMvF_ZeroVerticalVelocity;
     thing->creation_turn = game.play_gameturn;
     struct CreatureModelConfig* crconf = creature_stats_get(model);
     if (crconf->transparency_flags != 0)

@@ -94,18 +94,18 @@ void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, 
     long vein_total = 0;
     MapSlabCoord slb_x = veinslb_x;
     MapSlabCoord slb_y = veinslb_y;
-    long gld_v1 = 0;
-    long gld_v2 = 0;
-    long gld_v3 = 0;
+    long accumulated_x_coordinate = 0;
+    long accumulated_y_coordinate = 0;
+    long coordinate_sample_count = 0;
     long gem_slabs = 0;
     long gold_slabs = 0;
     SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
     treasure_map[slb_num] |= 0x02;
     for (long vein_idx = 0; vein_idx <= vein_total; vein_idx++)
     {
-        gld_v1 += slb_x;
-        gld_v2 += slb_y;
-        gld_v3++;
+        accumulated_x_coordinate += slb_x;
+        accumulated_y_coordinate += slb_y;
+        coordinate_sample_count++;
         SlabCodedCoords slb_around = get_slab_number(slb_x, slb_y);
         struct SlabMap* slb = get_slabmap_direct(slb_around);
         if (slb->kind == SlbT_GEMS)
@@ -181,8 +181,8 @@ void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, 
         struct GoldLookup* gldlook = get_gold_lookup(gold_idx);
         memset(gldlook, 0, sizeof(struct GoldLookup));
         gldlook->flags |= 0x01;
-        gldlook->stl_x = slab_subtile_center(gld_v1 / gld_v3);
-        gldlook->stl_y = slab_subtile_center(gld_v2 / gld_v3);
+        gldlook->stl_x = slab_subtile_center(accumulated_x_coordinate / coordinate_sample_count);
+        gldlook->stl_y = slab_subtile_center(accumulated_y_coordinate / coordinate_sample_count);
         gldlook->num_gold_slabs = gold_slabs;
         gldlook->num_gem_slabs = gem_slabs;
         SYNCDBG(8,"Added vein %d at (%d,%d)",(int)gold_idx,(int)gldlook->stl_x,(int)gldlook->stl_y);

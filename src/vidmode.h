@@ -106,6 +106,7 @@ enum MousePointerGraphics {
     MousePG_PlaceTrap13  = 163,
     MousePG_PlaceTrap14  = 164,
     MousePG_PlaceRoom15  = 165,
+    MousePG_Pickaxe2     = 473,
 };
 /******************************************************************************/
 

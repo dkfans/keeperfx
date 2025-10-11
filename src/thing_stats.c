@@ -77,11 +77,11 @@ const char *thing_classes[] = {
     "EFFECTGEN",
     "TRAP",
     "DOOR",
-    "UNKNOWN10",
-    "UNKNOWN11",
+    "UNUSEDPARAM10",
+    "UNUSEDPARAM11",
     "AMBIENTSND",
     "CAVEIN",
-    "UNKNOWN14",
+    "UNUSEDPARAM14",
 };
 /******************************************************************************/
 const char *thing_class_code_name(ThingClass class_id)
@@ -503,35 +503,6 @@ long project_creature_attack_melee_damage(long base_param, short damage_percent,
 }
 
 /**
- * Projects expected damage of an attack shot, taking luck and creature level into account.
- * Uses no random factors - instead, projects a best estimate.
- * This function allows evaluating damage creature can make. It shouldn't be used to actually inflict the damage.
- * @param base_param Base damage.
- * @param luck Creature luck, scaled 0..100.
- * @param exp_level Creature level, 0..9.
- */
-long project_creature_attack_spell_damage(long base_param, long luck, CrtrExpLevel exp_level, const struct Thing* thing)
-{
-    struct Dungeon* dungeon;
-    if (exp_level >= CREATURE_MAX_LEVEL)
-        exp_level = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)exp_level) / 100;
-    // Apply modifier.
-    if (!is_neutral_thing(thing))
-    {
-        dungeon = get_dungeon(thing->owner);
-        unsigned short modifier = dungeon->modifier.spell_damage;
-        max_param = (max_param * modifier) / 100;
-    }
-    if (luck > 0)
-    {
-        if (luck > 100) luck = 100;
-            max_param += luck*max_param/100;
-    }
-    return max_param;
-}
-
-/**
  * Computes damage of a melee attack, taking luck and creature level into account.
  * @param base_param Base damage.
  * @param luck Creature luck, scaled 0..100.
@@ -542,7 +513,7 @@ long compute_creature_attack_melee_damage(long base_param, long luck, CrtrExpLev
     long max_param = base_param;
     if (luck > 0)
     {
-        if (CREATURE_RANDOM(thing, 100) < luck)
+        if (THING_RANDOM(thing, 100) < luck)
             max_param *= 2;
     }
     return max_param;
@@ -569,7 +540,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, CrtrExpLev
     }
     if (luck > 0)
     {
-        if (CREATURE_RANDOM(thing, 100) < luck)
+        if (THING_RANDOM(thing, 100) < luck)
             max_param *= 2;
     }
     return max_param;
@@ -640,20 +611,20 @@ long compute_creature_work_value_for_room_role(const struct Thing *creatng, Room
     long i = 256;
     if ((rrole & RoRoF_Research) != 0)
     {
-        i = compute_creature_work_value(crconf->research_value*256, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->research_value* game.conf.rules.rooms.research_efficiency, efficiency, cctrl->exp_level);
     }
     if ((rrole & RoRoF_CratesManufctr) != 0)
     {
-        i = compute_creature_work_value(crconf->manufacture_value*256, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->manufacture_value* game.conf.rules.rooms.work_efficiency, efficiency, cctrl->exp_level);
     }
     if ((rrole & RoRoF_CrTrainExp) != 0)
     {
         // Training speed does not grow with experience - otherwise it would be too fast.
-        i = compute_creature_work_value(crconf->training_value*256, efficiency, 0);
+        i = compute_creature_work_value(crconf->training_value* game.conf.rules.rooms.train_efficiency, efficiency, 0);
     }
     if ((rrole & RoRoF_CrScavenge) != 0)
     {
-        i = compute_creature_work_value(crconf->scavenge_value*256, efficiency, cctrl->exp_level);
+        i = compute_creature_work_value(crconf->scavenge_value* game.conf.rules.rooms.scavenge_efficiency, efficiency, cctrl->exp_level);
     }
     return process_work_speed_on_work_value(creatng, i);
 }
@@ -906,26 +877,6 @@ long compute_value_percentage(long base_val, short npercent)
     return (base_val*(long)npercent+49)/100;
 }
 
-/** Computes 8-bit percentage of given value.
- * @param base_val Value to compute percentage of.
- * @param npercent Percentage; 0..256, but may be higher too.
- * @return Gives npercent of base_val, with proper rounding.
- */
-long compute_value_8bpercentage(long base_val, short npercent)
-{
-    if (base_val > 0)
-    {
-        if (base_val > LONG_MAX/(abs(npercent)+1))
-            base_val = LONG_MAX/(abs(npercent)+1);
-    } else
-    if (base_val < 0)
-    {
-        if (base_val < LONG_MIN/(abs(npercent)+1))
-            base_val = LONG_MIN/(abs(npercent)+1);
-    }
-    return (base_val*(long)npercent+127)/256;
-}
-
 /**
  * Re-computes max health of a creature and changes it current health to max.
  * @param thing
@@ -1026,7 +977,7 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, HitPoints amo
 static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0) {
+    if ((cctrl->creature_control_flags & CCFlg_PreventDamage) != 0) {
         return 0;
     }
     // Get correct armour value.
@@ -1130,7 +1081,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber
     if (thing->health < 0)
         return 0;
     lua_on_apply_damage_to_thing(thing, dmg, dealing_plyr_idx);
-    
+
     HitPoints cdamage;
     switch (thing->class_id)
     {
@@ -1180,7 +1131,7 @@ GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_
         gold += (gold_per_block % gold);
     }
     else if (slb->health < 0)
-    // If the damage dealt is more than the remaining health, then health is not divisible by damage, 
+    // If the damage dealt is more than the remaining health, then health is not divisible by damage,
     // so this should return whatever is left, as this is less than the gold given for a full hit.
     {
         gold = gold_per_block - (game.block_health[slabst->block_health_index] / damage_did_to_slab) * gold;

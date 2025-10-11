@@ -120,13 +120,6 @@ extern "C" {
 #define NETLOG(format, ...) LbNetLog("[%lu] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define NOLOG(format, ...)
 
-// Debug function-like macros - for dialogs windows
-#define WARNING_DIALOG(out_result, format, ...) { \
-  char buffer[TEXT_BUFFER_LENGTH]; \
-  Lbvsprintf(buffer, format, ##__VA_ARGS__); \
-  (*(&out_result)) = warning_dialog(__func__, 0, buffer); \
-}
-
 // Debug function-like macros - for debug code logging
 #if (BFDEBUG_LEVEL > 0)
   #define SYNCDBG(dblv,format, ...) {\
@@ -147,9 +140,6 @@ extern "C" {
   #define SCRIPTDBG(dblv,format, ...) {\
     if (BFDEBUG_LEVEL > dblv)\
       LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define AIDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbAiLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
 #else
   #define SYNCDBG(dblv,format, ...)
   #define WARNDBG(dblv,format, ...)
@@ -157,13 +147,47 @@ extern "C" {
   #define NAVIDBG(dblv,format, ...)
   #define NETDBG(dblv,format, ...)
   #define SCRIPTDBG(dblv,format, ...)
-  #define AIDBG(dblv,format, ...)
 #endif
 
 #define MAX_TILES_X 170
 #define MAX_TILES_Y 170
 #define MAX_SUBTILES_X 511
 #define MAX_SUBTILES_Y 511
+
+enum AnglesAndDegrees {
+    // Cardinal directions (clockwise from North)
+    ANGLE_NORTH = 0,        // 0° - North direction (up)
+    ANGLE_NORTHEAST = 256,  // 45° - Northeast direction (up-right)
+    ANGLE_EAST = 512,       // 90° - East direction (right)
+    ANGLE_SOUTHEAST = 768,  // 135° - Southeast direction (down-right)
+    ANGLE_SOUTH = 1024,     // 180° - South direction (down)
+    ANGLE_SOUTHWEST = 1280, // 225° - Southwest direction (down-left)
+    ANGLE_WEST = 1536,      // 270° - West direction (left)
+    ANGLE_NORTHWEST = 1792, // 315° - Northwest direction (up-left)
+    ANGLE_MASK = 2047,      // Bitmask for angle/degrees values (0x7FF)
+    // Degrees
+    DEGREES_2_8125 = 16,    // 2.8125° - DEGREES_180 / 64
+    DEGREES_8_18 = 46,      // 8.18° - DEGREES_180 / 22
+    DEGREES_10 = 56,        // 10° - DEGREES_180 / 18
+    DEGREES_11_25 = 64,     // 11.25° - DEGREES_180 / 16
+    DEGREES_15 = 85,        // 15° - DEGREES_180 / 12
+    DEGREES_20 = 113,       // 20° - DEGREES_180 / 9
+    DEGREES_22_5 = 128,     // 22.5° - DEGREES_180 / 8
+    DEGREES_30 = 170,       // 30° - DEGREES_180 / 6
+    DEGREES_45 = 256,       // 45° - DEGREES_180 / 4
+    DEGREES_50 = 284,       // 50°
+    DEGREES_60 = 341,       // 60° - DEGREES_180 / 3
+    DEGREES_90 = 512,       // 90° - DEGREES_180 / 2
+    DEGREES_120 = 682,      // 120° - 2 * DEGREES_180 / 3
+    DEGREES_135 = 768,      // 135°
+    DEGREES_180 = 1024,     // 180° - Half a circle
+    DEGREES_202_5 = 1151,   // 202.5° - Sprite flip threshold
+    DEGREES_225 = 1280,     // 225°
+    DEGREES_270 = 1536,     // 270°
+    DEGREES_315 = 1792,     // 315°
+    DEGREES_337_5 = 1919,   // 337.5° - Sprite flip threshold
+    DEGREES_360 = 2048,     // 360° - Full circle
+};
 
 #pragma pack(1)
 
@@ -412,6 +436,12 @@ struct IRECT_2D {
     int r;
     int t;
     int b;
+};
+
+struct PickedUpOffset
+{
+    short delta_x;
+    short delta_y;
 };
 
 extern GameTurn get_gameturn();

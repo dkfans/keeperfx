@@ -41,17 +41,17 @@ extern "C" {
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
-void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
+void command_add_value(unsigned long var_index, unsigned long plr_range_id, long param1, long param2, long param3)
 {
     ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id);
 
-    value->longs[0] = val2;
-    value->longs[1] = val3;
-    value->longs[2] = val4;
+    value->longs[0] = param1;
+    value->longs[1] = param2;
+    value->longs[2] = param3;
 
     if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0))
     {
-        script_process_value(var_index, plr_range_id, val2, val3, val4, value);
+        script_process_value(var_index, plr_range_id, param1, param2, param3, value);
         return;
     }
 }
@@ -63,11 +63,6 @@ static void command_create_party(const char *prtname)
         SCRPTWRNLOG("Party '%s' defined inside conditional statement",prtname);
     }
     create_party(prtname);
-}
-
-static void command_tutorial_flash_button(long btn_id, long duration)
-{
-    command_add_value(Cmd_TUTORIAL_FLASH_BUTTON, ALL_PLAYERS, btn_id, duration, 0);
 }
 
 static void command_add_party_to_level(long plr_range_id, const char *prtname, const char *locname, long ncopies)
@@ -201,16 +196,6 @@ static void command_display_information(long msg_num, const char *where, long x,
     if (!get_map_location_id(where, &location))
       return;
     command_add_value(Cmd_DISPLAY_INFORMATION, ALL_PLAYERS, msg_num, location, get_subtile_number(x,y));
-}
-
-static void command_set_generate_speed(long game_turns)
-{
-    if (game_turns <= 0)
-    {
-      SCRPTERRLOG("Generation speed must be positive number");
-      return;
-    }
-    command_add_value(Cmd_SET_GENERATE_SPEED, ALL_PLAYERS, game_turns, 0, 0);
 }
 
 static void command_dead_creatures_return_to_pool(long val)
@@ -580,16 +565,6 @@ static void command_add_creature_to_pool(const char *crtr_name, long amount)
     command_add_value(Cmd_ADD_CREATURE_TO_POOL, ALL_PLAYERS, crtr_id, amount, 0);
 }
 
-static void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, long hate_val)
-{
-    // Verify enemy player
-    long enmy_plr_id = get_players_range_single(enmy_plr_range_id);
-    if (enmy_plr_id < 0) {
-        SCRPTERRLOG("Given enemy player is not supported in this command");
-        return;
-    }
-    command_add_value(Cmd_SET_HATE, trgt_plr_range_id, enmy_plr_id, hate_val, 0);
-}
 
 static void command_set_creature_health(const char *crtr_name, long val)
 {
@@ -1320,12 +1295,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_ENDIF:
         pop_condition();
         break;
-    case Cmd_SET_HATE:
-        command_set_hate(scline->np[0], scline->np[1], scline->np[2]);
-        break;
-    case Cmd_SET_GENERATE_SPEED:
-        command_set_generate_speed(scline->np[0]);
-        break;
     case Cmd_START_MONEY:
         command_set_start_money(scline->np[0], scline->np[1]);
         break;
@@ -1389,9 +1358,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_ADD_CREATURE_TO_POOL:
         command_add_creature_to_pool(scline->tp[0], scline->np[1]);
-        break;
-    case Cmd_TUTORIAL_FLASH_BUTTON:
-        command_tutorial_flash_button(scline->np[0], scline->np[1]);
         break;
     case Cmd_SET_CREATURE_HEALTH:
         command_set_creature_health(scline->tp[0], scline->np[1]);

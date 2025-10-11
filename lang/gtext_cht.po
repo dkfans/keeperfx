@@ -16,18 +16,18 @@
 #      (at your option) any later version.
 #
 # ******************************************************************************
-"Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-10-28 21:23+0100\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
-"Language: zh_CN\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 3.7\n"
 
 #. Generic victory message
 #: guitext:0
@@ -46,7 +46,7 @@ msgstr "这是一道讯息。按滑鼠右键予以删除。"
 msgctxt "In-game message"
 msgid ""
 "The first thing a Keeper needs is somewhere to keep gold, when it's been "
-"mined out of the rock by his imps. To create a Treasure Room, select the "
+"mined out of the rock by his Imps. To create a Treasure Room, select the "
 "Treasure Room icon from the Rooms Panel and fill the empty area to the west "
 "with Treasure Room tiles."
 msgstr ""
@@ -103,7 +103,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
-"Lair. Lairs are where creatures rest and recover. The area your imps just "
+"Lair. Lairs are where creatures rest and recover. The area your Imps just "
 "mined out would be an ideal spot for some creatures to lurk. Select the Lair "
 "icon from the Rooms Panel."
 msgstr ""
@@ -117,7 +117,7 @@ msgctxt "In-game message"
 msgid ""
 "Dig a tunnel that connects to the Portal to the north. Portals appear on the "
 "map as flashing squares, until they are claimed. Creatures only use Portals "
-"claimed by a Keeper. Your imps claim a Portal as soon as it connects to your "
+"claimed by a Keeper. Your Imps claim a Portal as soon as it connects to your "
 "dungeon."
 msgstr ""
 "挖一条连接北方传送门的隧道。传送门在未被占领之前，在地图上看起来像是闪动的方"
@@ -161,7 +161,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
-"be unable to pay any creatures. Only imps give their loyalty freely. No "
+"be unable to pay any creatures. Only Imps give their loyalty freely. No "
 "other creatures will serve you unpaid."
 msgstr ""
 "你还没有建造宝藏室。在你建造这个房间之前，将无法支薪给任何怪物。ぅ有小恶魔才"
@@ -196,7 +196,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Imps fortify your walls to prevent intruders tunnelling in. If you want to "
-"create more imps, go to the Research Panel, select the Imp icon and left "
+"create more Imps, go to the Research Panel, select the Imp icon and left "
 "click anywhere in your dungeon. Each Imp you create costs more than the "
 "previous one."
 msgstr ""
@@ -615,7 +615,7 @@ msgctxt "In-game message"
 msgid ""
 "You have researched the Call to Arms spell. The first time you cast it, your "
 "creatures gather around a banner created by the spell. Cast it again in a "
-"target area. Call to Arms only costs gold when it's targetted beyond your "
+"target area. Call to Arms only costs gold when it's targeted beyond your "
 "territory."
 msgstr ""
 "你已经研发了战斗呼叫法术。你第一次施展它的时候，你的怪物会聚集在由这个法术创"
@@ -669,7 +669,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have claimed a Prison. Select imprison from the Information Panel and "
-"your creatures subdue their foe, at which point your imps drag the bodies "
+"your creatures subdue their foe, at which point your Imps drag the bodies "
 "off to a cell. Prisoners who die of starvation may rise again as Skeleton "
 "warriors for you to command."
 msgstr ""
@@ -1222,7 +1222,7 @@ msgstr "你看得出来你的对手之一已经变得多么软弱了吗？那么
 #: guitext:115
 msgctxt "In-game message"
 msgid ""
-"I spy a keeper with hardly any creatures left under his control. I spy a "
+"I spy a Keeper with hardly any creatures left under his control. I spy a "
 "Keeper who's about to die."
 msgstr "我发现有一个守护者，几乎没有控あ任何怪物。我发现一个快要死亡的守护者。"
 
@@ -1329,7 +1329,7 @@ msgstr ""
 #. Level Tulipscent information
 #: guitext:126
 msgctxt "In-game message"
-msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
+msgid "This ancient realm is rich in magical artefacts. Go forth and plunder."
 msgstr "这个古老的王国拥有丰富的魔法物品。勇敢地去掠夺吧。"
 
 #. Level Blaise End objective
@@ -2033,8 +2033,8 @@ msgstr "爆炸术: [26.9]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Navigating Missile: A spell that sends a screaming magic reptile homing "
-"in on the nearest hero or enemy creature for double damage. Nice."
+"Navigating Missile: A spell that sends a screaming magic reptile homing in "
+"on the nearest hero or enemy creature for double damage. Nice."
 msgstr "导向魔法飞弹: [26.16]"
 
 #: guitext:236
@@ -2061,7 +2061,9 @@ msgstr "集结术: 未使用"
 #: guitext:239
 #, fuzzy
 msgctxt "Creature spell"
-msgid "Invisibility: Makes the creature invisible to all enemies. Unless they possess a subnatural Sight."
+msgid ""
+"Invisibility: Makes the creature invisible to all enemies. Unless they "
+"possess a subnatural Sight."
 msgstr "隐形术: [26.12]"
 
 #: guitext:240
@@ -2105,15 +2107,16 @@ msgstr "冰雹术: [26.10]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Slow: Slows down the target creature, making its attacks and movement delayed."
+"Slow: Slows down the target creature, making its attacks and movement "
+"delayed."
 msgstr "缓慢术: [26.19]"
 
 #: guitext:246
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Drain: This spell drains the target creature a part of its health and gives it "
-"to the caster."
+"Drain: This spell drains the target creature a part of its health and gives "
+"it to the caster."
 msgstr "榨乾术: [26.4]"
 
 #: guitext:247
@@ -2128,9 +2131,7 @@ msgstr "真言术: [26.23]"
 #: guitext:248
 #, fuzzy
 msgctxt "Creature spell"
-msgid ""
-"Heal: When this is cast, the creature is massively healed. Also, any nearby "
-"creatures are healed by a quarter."
+msgid "Heal: When this is cast, the creature is massively healed."
 msgstr "复原术: [26.11]"
 
 #: guitext:249
@@ -2154,7 +2155,7 @@ msgstr "殒石术: [26.14]"
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
-"inflicts minor damage to a Dungeon's walls and doors."
+"inflicts minor damage to a dungeon's walls and doors."
 msgstr "火球术: [26.5]"
 
 #: guitext:252
@@ -2168,8 +2169,7 @@ msgstr "肉搏术: [25.3]"
 #: guitext:253
 #, fuzzy
 msgctxt "Creature spell"
-msgid ""
-"Fart: A close range gas attack that only damages enemy creatures."
+msgid "Fart: A close range gas attack that only damages enemy creatures."
 msgstr "毒气云: [26.17]"
 
 #: guitext:254
@@ -2184,7 +2184,7 @@ msgstr "挖掘: [25.2]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid ""
-"Disease: Fired at a foe, gives them a Disease which is then spread to other "
+"Disease: Fired at a foe, gives them a disease which is then spread to other "
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
 msgstr "疾病: [26.3]"
@@ -2490,7 +2490,8 @@ msgstr ""
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Fight: Your creatures always attack and will not avoid any combat. LMB select."
+"Fight: Your creatures always attack and will not avoid any combat. LMB "
+"select."
 msgstr "战斗: 你的怪物必然会攻击。按滑鼠左键选择。[6.5.1]"
 
 #: guitext:306
@@ -2545,8 +2546,8 @@ msgstr "阴影: 每个怪物投射出来的阴影数量。按滑鼠左键切换�
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"View Type: Swap between perspective views. Default view has warped walls "
-"and can be rotated. Disable the warp effect for clean lines. Forced perspective "
+"View Type: Swap between perspective views. Default view has warped walls and "
+"can be rotated. Disable the warp effect for clean lines. Forced perspective "
 "can only be rotated 90 degrees and changes the viewing angle. LMB toggle."
 msgstr "视野型态: 切换预设视野及强迫透视观点。按滑鼠左键切换。[3.2.2]"
 
@@ -2641,7 +2642,8 @@ msgstr ""
 #: guitext:327
 #, fuzzy
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. Get over lava by building a Bridge."
+msgid ""
+"Lava: Burns any creature that step on it. Get over lava by building a Bridge."
 msgstr "岩浆: 可烧死任何踩上去的怪物。[14.2]"
 
 #: guitext:328
@@ -3113,48 +3115,48 @@ msgid "Ok"
 msgstr "好"
 
 #: guitext:420
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Reveal Map: Reveals the entire underground realm to you."
 msgstr "显示地图: 将整个地底世界显示给你看。"
 
 #: guitext:421
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr "使怪物复活: 你可以让一名死去的手下死而复活。"
 
 #: guitext:422
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
 "Transfer Creature: Pick one of your creatures to accompany you to the next "
 "realm."
 msgstr "转移怪物: 选择一只怪物，让它陪著你进入下一个王国。"
 
 #: guitext:423
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Steal Hero: Subvert a hero to your cause."
 msgstr "偷取英雄: 败坏一名英雄，让他投入你的阵营。"
 
 #: guitext:424
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Multiply Creatures: Create a double of each of your creatures."
 msgstr "复制怪物: 为你的怪物创造复本。"
 
 #: guitext:425
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Increase Level: Bestows greater skill on all your creatures."
 msgstr "提高等级: 让你所有的怪物都获得较高的技巧。"
 
 #: guitext:426
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Make Safe: Reinforces your entire dungeon."
 msgstr "保全: 加强整个地下城。"
 
 #: guitext:427
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid ""
-"Locate Hidden World: You will get access to a secret realm after you "
-"have conquered this one."
+"Locate Hidden World: You will get access to a secret realm after you have "
+"conquered this one."
 msgstr "找出隐藏的世界: 在你征服了这个王国之后，你会被传送到一个秘密王国。"
 
 #: guitext:428
@@ -3264,8 +3266,8 @@ msgstr "讯息面板: 杂项资料。[5.0]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Room Panel: The rooms available for you to build. Here you can center map on "
-"rooms or build new ones."
+"Room Panel: The rooms available for you to build. Here you can centre the "
+"map on rooms or build new ones."
 msgstr "房间面板: 你可以建造的房间。[6.0]"
 
 #: guitext:449
@@ -3279,7 +3281,9 @@ msgstr "研发面板: 你可以使用的法术。[7.0]"
 #: guitext:450
 #, fuzzy
 msgctxt "In-game interface description"
-msgid "Workshop Panel: The traps and doors available to you. You can centre the map on them, place new ones, or sell existing ones."
+msgid ""
+"Workshop Panel: The traps and doors available to you. You can centre the map "
+"on them, place new ones, or sell existing ones."
 msgstr "工作室面板: 你可以使用的陷阱和门。[8.0]"
 
 #: guitext:451
@@ -3310,8 +3314,9 @@ msgstr "工作室时间: 完成新陷阱制造的时间。[5.6]"
 #, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Payday Time: The time until the next Creature Payday. This bar increases over time "
-"and, when it reaches its peak, all of your creatures receive their wages."
+"Payday Time: The time until the next Creature Payday. This bar increases "
+"over time and, when it reaches its peak, all of your creatures will want "
+"their wages."
 msgstr "支薪时间: 距离下次怪物支薪的时间。[5.4]"
 
 #: guitext:455
@@ -3406,222 +3411,222 @@ msgstr "按任一键"
 
 #: guitext:471
 msgctxt "Game controls"
-msgid "UP"
+msgid "Up"
 msgstr "上"
 
 #: guitext:472
 msgctxt "Game controls"
-msgid "DOWN"
+msgid "Down"
 msgstr "下"
 
 #: guitext:473
 msgctxt "Game controls"
-msgid "LEFT"
+msgid "Left"
 msgstr "左"
 
 #: guitext:474
 msgctxt "Game controls"
-msgid "RIGHT"
+msgid "Right"
 msgstr "右"
 
 #: guitext:475
 msgctxt "Game controls"
-msgid "ROTATE"
+msgid "Rotate"
 msgstr "旋转"
 
 #: guitext:476
 msgctxt "Game controls"
-msgid "SPEED"
+msgid "Speed"
 msgstr "速度"
 
 #: guitext:477
 msgctxt "Game controls"
-msgid "ROTATE LEFT"
+msgid "Rotate Left"
 msgstr "向左旋转"
 
 #: guitext:478
 msgctxt "Game controls"
-msgid "ROTATE RIGHT"
+msgid "Rotate Right"
 msgstr "向右旋转"
 
 #: guitext:479
 msgctxt "Game controls"
-msgid "ZOOM IN"
+msgid "Zoom In"
 msgstr "放大视野"
 
 #: guitext:480
 msgctxt "Game controls"
-msgid "ZOOM OUT"
+msgid "Zoom Out"
 msgstr "缩小视野"
 
 #: guitext:481
 msgctxt "Keyboard"
-msgid "LEFT CONTROL"
-msgstr "左CONTROL"
+msgid "Left Control"
+msgstr "左Control"
 
 #: guitext:482
 msgctxt "Keyboard"
-msgid "RIGHT CONTROL"
-msgstr "右CONTROL"
+msgid "Right Control"
+msgstr "右Control"
 
 #: guitext:483
 msgctxt "Keyboard"
-msgid "LEFT SHIFT"
-msgstr "左SHIFT"
+msgid "Left Shift"
+msgstr "左Shift"
 
 #: guitext:484
 msgctxt "Keyboard"
-msgid "RIGHT SHIFT"
-msgstr "右SHIFT"
+msgid "Right Shift"
+msgstr "右Shift"
 
 #: guitext:485
 msgctxt "Keyboard"
-msgid "LEFT ALT"
-msgstr "左ALT"
+msgid "Left Alt"
+msgstr "左Alt"
 
 #: guitext:486
 msgctxt "Keyboard"
-msgid "RIGHT ALT"
-msgstr "右ALT"
+msgid "Right Alt"
+msgstr "右Alt"
 
 #: guitext:487
 msgctxt "Keyboard"
-msgid "SPACE"
+msgid "Space"
 msgstr "空白键 "
 
 #: guitext:488
 msgctxt "Keyboard"
-msgid "RETURN"
-msgstr "ENTER键"
+msgid "Return"
+msgstr "Enter键"
 
 #: guitext:489
 msgctxt "Keyboard"
-msgid "TAB"
-msgstr "TAB"
+msgid "Tab"
+msgstr "Tab"
 
 #: guitext:490
 msgctxt "Keyboard"
-msgid "CAPS LOCK"
-msgstr "CAPS LOCK"
+msgid "Caps Lock"
+msgstr "Caps Lock"
 
 #: guitext:491
 msgctxt "Keyboard"
-msgid "BACKSPACE"
+msgid "Backspace"
 msgstr "倒退键"
 
 #: guitext:492
 msgctxt "Keyboard"
-msgid "INSERT"
-msgstr "INSERT"
+msgid "Insert"
+msgstr "Insert"
 
 #: guitext:493
 msgctxt "Keyboard"
-msgid "DELETE"
-msgstr "DELETE"
+msgid "Delete"
+msgstr "Delete"
 
 #: guitext:494
 msgctxt "Keyboard"
-msgid "HOME"
-msgstr "HOME"
+msgid "Home"
+msgstr "Home"
 
 #: guitext:495
 msgctxt "Keyboard"
-msgid "END"
-msgstr "END"
+msgid "End"
+msgstr "End"
 
 #: guitext:496
 msgctxt "Keyboard"
-msgid "PAGE UP"
-msgstr "PAGE UP"
+msgid "Page Up"
+msgstr "Page Up"
 
 #: guitext:497
 msgctxt "Keyboard"
-msgid "PAGE DOWN"
-msgstr "PAGE DOWN"
+msgid "Page Down"
+msgstr "Page Down"
 
 #: guitext:498
 msgctxt "Keyboard"
-msgid "NUM LOCK"
-msgstr "NUM LOCK"
+msgid "Num Lock"
+msgstr "Num Lock"
 
 #: guitext:499
 msgctxt "Keyboard"
-msgid "NUM /"
+msgid "Num /"
 msgstr "数字键盘 /"
 
 #: guitext:500
 msgctxt "Keyboard"
-msgid "NUM *"
+msgid "Num *"
 msgstr "数字键 *"
 
 #: guitext:501
 msgctxt "Keyboard"
-msgid "NUM -"
+msgid "Num -"
 msgstr "数字键 -"
 
 #: guitext:502
 msgctxt "Keyboard"
-msgid "NUM +"
+msgid "Num +"
 msgstr "数字键 +"
 
 #: guitext:503
 msgctxt "Keyboard"
-msgid "NUM ENTER"
+msgid "Num Enter"
 msgstr "数字键 *"
 
 #: guitext:504
 msgctxt "Keyboard"
-msgid "NUM DELETE"
+msgid "Num Delete"
 msgstr "数字键 DELETE"
 
 #: guitext:505
 msgctxt "Keyboard"
-msgid "NUM 1"
+msgid "Num 1"
 msgstr "数字键 1"
 
 #: guitext:506
 msgctxt "Keyboard"
-msgid "NUM 2"
+msgid "Num 2"
 msgstr "数字键 2"
 
 #: guitext:507
 msgctxt "Keyboard"
-msgid "NUM 3"
+msgid "Num 3"
 msgstr "数字键 3"
 
 #: guitext:508
 msgctxt "Keyboard"
-msgid "NUM 4"
+msgid "Num 4"
 msgstr "数字键 4"
 
 #: guitext:509
 msgctxt "Keyboard"
-msgid "NUM 5"
+msgid "Num 5"
 msgstr "数字键 5"
 
 #: guitext:510
 msgctxt "Keyboard"
-msgid "NUM 6"
+msgid "Num 6"
 msgstr "数字键 6"
 
 #: guitext:511
 msgctxt "Keyboard"
-msgid "NUM 7"
+msgid "Num 7"
 msgstr "数字键 7"
 
 #: guitext:512
 msgctxt "Keyboard"
-msgid "NUM 8"
+msgid "Num 8"
 msgstr "数字键 8"
 
 #: guitext:513
 msgctxt "Keyboard"
-msgid "NUM 9"
+msgid "Num 9"
 msgstr "数字键 9"
 
 #: guitext:514
 msgctxt "Keyboard"
-msgid "NUM 0"
+msgid "Num 0"
 msgstr "数字键 0"
 
 #: guitext:515
@@ -3686,22 +3691,22 @@ msgstr "F12"
 
 #: guitext:527
 msgctxt "Keyboard"
-msgid "UP"
+msgid "Up"
 msgstr "上"
 
 #: guitext:528
 msgctxt "Keyboard"
-msgid "DOWN"
+msgid "Down"
 msgstr "下"
 
 #: guitext:529
 msgctxt "Keyboard"
-msgid "LEFT"
+msgid "Left"
 msgstr "左"
 
 #: guitext:530
 msgctxt "Keyboard"
-msgid "RIGHT"
+msgid "Right"
 msgstr "右"
 
 #: guitext:531
@@ -4393,8 +4398,7 @@ msgstr "怪物附体术: 直接控あ一只怪物。按滑鼠左键选择。[18.
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid ""
-"Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
+msgid "Create Imp: Summon a new Imp anywhere in your dungeon. LMB select."
 msgstr "创造小恶魔: 召唤新的小恶魔前来。按滑鼠左键选择。"
 
 #: guitext:649
@@ -4408,9 +4412,9 @@ msgstr ""
 #: guitext:650
 msgctxt "Keeper spell description"
 msgid ""
-"Call To Arms: Calls creatures in range to any destination. LMB Select. "
-"Cast in range of creatures to gather, cast again for destination. "
-"RMB zoom. LMB Cancel. [18.6]"
+"Call To Arms: Calls creatures in range to any destination. LMB Select. Cast "
+"in range of creatures to gather, cast again for destination.RMB zoom. LMB "
+"Cancel. [18.6]"
 msgstr ""
 "战斗呼叫: 将手下的所有怪物召集到地下城的某个地区。按滑鼠左键选择，再按一次滑"
 "鼠左键重新选择，按第三次滑鼠左键则取消。按滑鼠右键缩放视野。[18.6]"
@@ -4442,15 +4446,16 @@ msgid "Speed Monster: Increases the speed of your monsters."
 msgstr "加速术: 提高怪物的速度。"
 
 #: guitext:655
+#, fuzzy
+#| msgctxt "Keeper spell description"
+#| msgid "Protect Monster: Shields your creatures from attack."
 msgctxt "Keeper spell description"
-msgid ""
-"Protect Monster: Shields your creatures from attack."
+msgid "Protect Monster: Shields your creatures from attack. LBM select."
 msgstr "保护术: 保护你的怪物不受攻击。"
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid ""
-"Conceal Monster: Makes your creatures invisible to the enemy."
+msgid "Conceal Monster: Makes your creatures invisible to the enemy."
 msgstr "隐形术: 让敌人看不见你的怪物。"
 
 #: guitext:657
@@ -4479,8 +4484,7 @@ msgstr "破墙术: 击毁敌人的加强墙。按滑鼠左键选择。[18.16]"
 
 #: guitext:661
 msgctxt "Keeper spell description"
-msgid ""
-"Heal: Cast on a creature to improve its health. LMB select. [18.9]"
+msgid "Heal: Cast on a creature to improve its health. LMB select. [18.9]"
 msgstr "医疗术: 对地下城的一个区域施展，提高怪物的健康。按滑鼠左键选择。[18.9]"
 
 #: guitext:662
@@ -4857,7 +4861,8 @@ msgstr "仅负责移动之电脑辅助: 移动并拍打你的怪物。按滑鼠�
 #: guitext:733
 msgctxt "In-game interface description"
 msgid ""
-"Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB Zoom. [22.2.1]"
+"Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB "
+"Zoom. [22.2.1]"
 msgstr "抓取最具经验之怪物: 按滑鼠左键抓取怪物。按滑鼠右键缩放视野。[22.2.1]"
 
 #: guitext:734
@@ -5597,17 +5602,17 @@ msgid "4 Players"
 msgstr "四名玩者"
 
 #: guitext:874
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "Serial"
 msgstr "串列"
 
 #: guitext:875
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "Modem"
 msgstr "数据机"
 
 #: guitext:876
-msgctxt "Menu interface item"
+msgctxt "Menu interface, Network service item"
 msgid "IPX"
 msgstr "IPX"
 
@@ -5673,18 +5678,18 @@ msgstr "新关卡"
 
 #: guitext:889
 msgctxt "Menu interface message"
-msgid "Please insert Data Disk CD-ROM"
-msgstr "请放入地城守护者资料光碟片"
+msgid "Manufacturable: Creatures can manufacture this item in the Workshop."
+msgstr ""
 
 #: guitext:890
 msgctxt "Menu interface message"
-msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "请放入地城守护者光碟片"
+msgid "Workshop too small: Expand the Workshop to manufacture this item."
+msgstr ""
 
 #: guitext:891
 msgctxt "Menu interface message"
-msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "请放入地城守护者光碟片"
+msgid "Not manufacturable: This item cannot be manufactured."
+msgstr ""
 
 #. DD Level Korros Tor first objective
 #: guitext:892
@@ -6084,7 +6089,7 @@ msgstr ""
 "你的丰功伟业让你成为传奇地城守护者。你邪恶与狡猾的恐怖故事会流传在下一代的人"
 "们脑中。"
 
-#: guitext:935 
+#: guitext:935
 msgctxt "Door name"
 msgid "Secret Door"
 msgstr "秘密門"
@@ -6092,14 +6097,18 @@ msgstr "秘密門"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
-"opening. RMB zoom."
-msgstr "秘密門：一扇特殊的門，對敵人隱藏，但仔細觀察或當你自己的單位在敵人注視下打開它時可以發現。 人民幣變焦。"
+"Secret Door: This door remains hidden to enemies unless they observe it "
+"closely or see it opening. RMB zoom."
+msgstr ""
+"秘密門：一扇特殊的門，對敵人隱藏，但仔細觀察或當你自己的單位在敵人注視下打開"
+"它時可以發現。 人民幣變焦。"
 
 #: guitext:937
 msgctxt "Game event description"
 msgid "Secret Door discovered: LMB toggle. RMB delete."
-msgstr "秘密門被發現。按滑鼠左键切换。按滑鼠右键删除。: 按滑鼠左键切换。按滑鼠右键删除。""
+msgstr ""
+"秘密門被發現。按滑鼠左键切换。按滑鼠右键删除。: 按滑鼠左键切换。按滑鼠右键删"
+"除。\""
 
 #: guitext:938
 msgctxt "Game event name"
@@ -6109,7 +6118,9 @@ msgstr "秘密門被發現。"
 #: guitext:939
 msgctxt "Game event description"
 msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
-msgstr "敵人發現了你的秘密門 按滑鼠左键切换。按滑鼠右键删除。: 按滑鼠左键切换。按滑鼠右键删除。""
+msgstr ""
+"敵人發現了你的秘密門 按滑鼠左键切换。按滑鼠右键删除。: 按滑鼠左键切换。按滑鼠"
+"右键删除。\""
 
 #: guitext:940
 msgctxt "Game event name"
@@ -6178,8 +6189,9 @@ msgstr ""
 
 #: guitext:952
 msgctxt "In-game interface description"
-msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
-"the better the creature's performance."
+msgid ""
+"Research Skill: How fast the creature works in Library. The higher the Skill "
+"level, the better the creature's performance."
 msgstr ""
 
 #: guitext:953
@@ -6218,7 +6230,9 @@ msgstr ""
 
 #: guitext:958
 msgctxt "In-game interface description"
-msgid "Best Damage: How much harm can be done by the strongest attack the creature has."
+msgid ""
+"Best Damage: How much harm can be done by the strongest attack the creature "
+"has."
 msgstr ""
 
 #: guitext:959
@@ -6230,7 +6244,9 @@ msgstr ""
 
 #: guitext:960
 msgctxt "In-game interface description"
-msgid "Score: Estimate of an overall creature value. Added to player score when finishing the level."
+msgid ""
+"Score: Estimate of an overall creature value. Added to player score when "
+"finishing the level."
 msgstr ""
 
 #: guitext:961
@@ -6245,28 +6261,28 @@ msgstr "拍击次数"
 
 #: guitext:963
 msgctxt "Keeper spell description"
-msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
+msgid ""
+"Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
 msgstr ""
 
 #: guitext:964
 msgctxt "Keeper spell description"
-msgid "Slap: Makes your creatures work harder, for some time. "
-"Your creatures take some damage from each slap they receive."
+msgid ""
+"Slap: Makes your creatures work harder, for some time. Your creatures take "
+"some damage from each slap they receive."
 msgstr ""
 "如果你想让你的怪物工作得更努力一点，请用邪恶之手指著它们，然后按滑鼠右键拍打"
 "它们。拍打怪物会使它们受伤。"
 
 #: guitext:965
 msgctxt "In-game interface description"
-msgid ""
-"Health: How much health points the creature has left to lose."
+msgid "Health: How much health points the creature has left to lose."
 msgstr ""
 
 #: guitext:966
 msgctxt "In-game interface description"
-msgid ""
-"Health: The maximum amount of health points for this creature."
+msgid "Health: The maximum amount of health points for this creature."
 msgstr ""
 
 #: guitext:967
@@ -6440,7 +6456,7 @@ msgid "Snap Camera"
 msgstr ""
 
 #: guitext:1005
-msgctxt "Dungeon special decription"
+msgctxt "Dungeon special description"
 msgid "Mysterious Box: There's no telling what this will do."
 msgstr ""
 
@@ -6451,17 +6467,17 @@ msgstr ""
 
 #: guitext:1007
 msgctxt "In-game interface description"
-msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
+msgid ""
+"Display Resolution: Switch to the next configured display resolution. LMB "
+"toggle. RMB display current resolution."
 msgstr ""
 
 #: guitext:1008
-#, fuzzy
 msgctxt "In-game interface item"
 msgid "Voice"
 msgstr ""
 
 #: guitext:1009
-#, fuzzy
 msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr ""
@@ -6469,7 +6485,7 @@ msgstr ""
 #: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"
-msgstr ""s
+msgstr "\""
 
 #: guitext:1011
 msgctxt "Menu interface item"
@@ -6483,12 +6499,12 @@ msgstr ""
 
 #: guitext:1013
 msgctxt "Menu interface item"
-msgid "Ancient Keeper campaign"
+msgid "Ancient Keeper"
 msgstr ""
 
 #: guitext:1014
 msgctxt "Menu interface item"
-msgid "Burdened Imps' Level Pack"
+msgid "Burdened Imps"
 msgstr ""
 
 #: guitext:1015
@@ -6503,7 +6519,7 @@ msgstr ""
 
 #: guitext:1017
 msgctxt "Menu interface item"
-msgid "DzjeeAr's  6-level campaign"
+msgid "DzjeeAr's 6-level campaign"
 msgstr ""
 
 #: guitext:1018
@@ -6518,7 +6534,7 @@ msgstr ""
 
 #: guitext:1020
 msgctxt "Menu interface item"
-msgid "Evil Keeper campaign"
+msgid "Evil Keeper"
 msgstr ""
 
 #: guitext:1021
@@ -6543,12 +6559,12 @@ msgstr ""
 
 #: guitext:1025
 msgctxt "Menu interface item"
-msgid "Lord Vexer campaign"
+msgid "Lord Vexer"
 msgstr ""
 
 #: guitext:1026
 msgctxt "Menu interface item"
-msgid "Nikolai's Castles campaign"
+msgid "Nikolai's Castles"
 msgstr ""
 
 #: guitext:1027
@@ -6558,17 +6574,17 @@ msgstr ""
 
 #: guitext:1028
 msgctxt "Menu interface item"
-msgid "Post Ancient Keeper campaign"
+msgid "Post Ancient Keeper"
 msgstr ""
 
 #: guitext:1029
 msgctxt "Menu interface item"
-msgid "Post Undead Keeper campaign"
+msgid "Post Undead Keeper"
 msgstr ""
 
 #: guitext:1030
 msgctxt "Menu interface item"
-msgid "Quest for the Hero campaign"
+msgid "Quest for the Hero"
 msgstr ""
 
 #: guitext:1031
@@ -6578,12 +6594,12 @@ msgstr ""
 
 #: guitext:1032
 msgctxt "Menu interface item"
-msgid "Twin Keepers Campaign"
+msgid "Twin Keepers"
 msgstr ""
 
 #: guitext:1033
 msgctxt "Menu interface item"
-msgid "Undead Keeper campaign"
+msgid "Undead Keeper"
 msgstr ""
 
 #: guitext:1034 guitext:1035
@@ -6598,19 +6614,25 @@ msgstr ""
 
 #: guitext:1037
 msgctxt "Trap description"
-msgid ""
-"Demolition Trap: An explosive with unrivaled destructive power."
+msgid "Demolition Trap: An explosive with unrivaled destructive power."
 msgstr ""
 
 #: guitext:1038
 msgctxt "Trap description"
-msgid ""
-"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
 msgstr ""
 
-#: guitext:1039 guitext:1040
-msgctxt "Unused"
-msgid "Moo6"
+#: guitext:1039
+#, fuzzy
+#| msgctxt "Trap names"
+#| msgid "Lava Trap"
+msgctxt "Trap names"
+msgid "Ballista Trap"
+msgstr "岩浆陷阱"
+
+#: guitext:1040
+msgctxt "Trap description"
+msgid "Ballista Trap: Stands guard and shoots at enemies in sight."
 msgstr ""
 
 #: guitext:1041
@@ -6670,7 +6692,7 @@ msgstr "基岩：未声明的岩石地板。你不能声明它或在上面建造
 
 #: guitext:1052
 msgctxt "Slab description"
-msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract."
 msgstr "密集的金属矿层：为你的小鬼提供丰富的财富。"
 
 #: guitext:1053
@@ -6751,22 +6773,29 @@ msgstr "净化：治愈生物身上所有负面效果。"
 
 #: guitext:1068
 msgctxt "Creature spell"
-msgid "Cleanse Monster: Cures all negative effects inflicted on target creature."
+msgid ""
+"Cleanse Monster: Cures all negative effects inflicted on target creature."
 msgstr ""
 
 #: guitext:1069
 msgctxt "Keeper spell description"
-msgid "Magic Shield: Causes spells fired at the target to bounce back at the attacker."
+msgid ""
+"Magic Shield: Causes spells fired at the target to bounce back at the "
+"attacker."
 msgstr ""
 
 #: guitext:1070
 msgctxt "Keeper spell description"
-msgid "Levitate: Causes the target creature to take off from the ground and attack creatures from the air or cross lava unharmed."
+msgid ""
+"Levitate: Causes the target creature to take off from the ground and attack "
+"creatures from the air or cross lava unharmed."
 msgstr ""
 
 #: guitext:1071
 msgctxt "Keeper spell description"
-msgid "Sight: Allows the target creature to temporarily increase its awareness and notice the invisible."
+msgid ""
+"Sight: Allows the target creature to temporarily increase its awareness and "
+"notice the invisible."
 msgstr ""
 
 #: guitext:1072
@@ -6791,7 +6820,9 @@ msgstr ""
 
 #: guitext:1077
 msgctxt "Door description"
-msgid "Midas Door: This door consumes gold from the owner to stay completely indestructible. RMB zoom."
+msgid ""
+"Midas Door: This door consumes gold from the owner to stay completely "
+"indestructible. RMB zoom."
 msgstr ""
 
 #: guitext:1078

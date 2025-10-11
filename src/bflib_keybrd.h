@@ -214,9 +214,7 @@ extern unsigned char lbInkey;
 short LbIKeyboardOpen(void);
 short LbIKeyboardClose(void);
 void LbKeyboardSetLanguage(int lngnum);
-short LbKeyCodeValid(TbKeyCode key);
 void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers, int ScanCode);
-long KeyboardProc(int, unsigned int, long);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -412,13 +412,13 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapst->created_itm_model);
         return;
     }
-    traptng->move_angle_xy = (((get_angle_xy_to(&traptng->mappos, &creatng->mappos) + LbFPMath_PI / 4) & LbFPMath_AngleMask) / (LbFPMath_PI / 2)) * (LbFPMath_PI / 2);
+    traptng->move_angle_xy = (((get_angle_xy_to(&traptng->mappos, &creatng->mappos) + DEGREES_45) & ANGLE_MASK) / (DEGREES_90)) * (DEGREES_90);
     struct Coord3d shot_origin;
     shot_origin.x.val = traptng->mappos.x.val;
     shot_origin.y.val = traptng->mappos.y.val;
     shot_origin.z.val = traptng->mappos.z.val;
-    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
-    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
     shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.z.val += trapst->shot_shift_z;
@@ -433,15 +433,15 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
             if (abs(trpos_x - crpos_x) <= abs(trpos_y - crpos_y))
             {
                 if (crpos_y >= trpos_y)
-                    shotng->move_angle_xy = LbFPMath_PI;
+                    shotng->move_angle_xy = ANGLE_SOUTH;
                 else
-                    shotng->move_angle_xy = 0;
+                    shotng->move_angle_xy = ANGLE_NORTH;
             } else
             {
                 if (crpos_x >= trpos_x)
-                    shotng->move_angle_xy = LbFPMath_PI/2;
+                    shotng->move_angle_xy = ANGLE_EAST;
                 else
-                    shotng->move_angle_xy = 3*LbFPMath_PI/2;
+                    shotng->move_angle_xy = ANGLE_WEST;
             }
         }
         shotng->move_angle_z = 0;
@@ -454,7 +454,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         shotng->state_flags |= TF1_PushAdd;
         shotng->shot.hit_type = trapst->hit_type;
         if (shotst->firing_sound > 0) {
-            thing_play_sample(traptng, shotst->firing_sound+UNSYNC_RANDOM(shotst->firing_sound_variants),
+            thing_play_sample(traptng, shotst->firing_sound+SOUND_RANDOM(shotst->firing_sound_variants),
                 NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
         }
         if (shotst->shot_sound > 0) {
@@ -475,13 +475,13 @@ void activate_trap_effect_on_trap(struct Thing *traptng)
     shot_origin.x.val = traptng->mappos.x.val;
     shot_origin.y.val = traptng->mappos.y.val;
     shot_origin.z.val = traptng->mappos.z.val;
-    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
-    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
     shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.z.val += trapst->shot_shift_z;
     struct Thing* efftng = create_effect(&shot_origin, trapst->created_itm_model, traptng->owner);
-    if (!thing_is_invalid(efftng)) 
+    if (!thing_is_invalid(efftng))
     {
         efftng->shot_effect.hit_type = trapst->hit_type;
         efftng->shot_effect.parent_class_id = TCls_Trap;
@@ -503,8 +503,8 @@ void activate_trap_shot_on_trap(struct Thing *traptng)
     shot_origin.x.val = traptng->mappos.x.val;
     shot_origin.y.val = traptng->mappos.y.val;
     shot_origin.z.val = traptng->mappos.z.val;
-    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
-    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
     shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.z.val += trapst->shot_shift_z;
@@ -550,8 +550,8 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
     shot_origin.x.val = traptng->mappos.x.val;
     shot_origin.y.val = traptng->mappos.y.val;
     shot_origin.z.val = traptng->mappos.z.val;
-    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
-    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
+    shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, traptng->move_angle_xy + DEGREES_90);
     shot_origin.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_y, traptng->move_angle_xy);
     shot_origin.z.val += trapst->shot_shift_z;
@@ -561,7 +561,7 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
         return thing;
     }
     init_creature_level(thing, trapst->activation_level);
-    
+
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
     // Try to move thing out of the solid wall if it's inside one.
     if (thing_in_wall_at(thing, &thing->mappos))
@@ -570,12 +570,12 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
         delete_thing_structure(thing, 0);
         return INVALID_THING;
     }
-    thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
-    thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.x.val += THING_RANDOM(thing, 161) - 80;
+    thing->veloc_push_add.y.val += THING_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 0;
     set_flag(thing->state_flags, TF1_PushAdd);
     set_flag(thing->movement_flags, TMvF_MagicFall);
-    thing->move_angle_xy = 0;
+    thing->move_angle_xy = ANGLE_NORTH;
     return thing;
 }
 
@@ -663,7 +663,7 @@ void activate_trap_by_slap(struct PlayerInfo *player, struct Thing* traptng)
             {
             case TrpAcT_HeadforTarget90:
             case TrpAcT_CreatureShot:
-                external_activate_trap_shot_at_angle(traptng, player->acamera->orient_a, trgtng);
+                external_activate_trap_shot_at_angle(traptng, player->acamera->rotation_angle_x, trgtng);
                 break;
             default:
                 ERRORLOG("Illegal trap activation type %d (idx=%d)", (int)trapst->activation_type, traptng->index);
@@ -791,7 +791,7 @@ void process_trap_charge(struct Thing* traptng)
         }
         else
         {
-            trigger_duration = get_lifespan_of_animation(trapst->attack_sprite_anim_idx, trapst->anim_speed);
+            trigger_duration = get_lifespan_of_animation(trapst->attack_sprite_anim_idx, trapst->attack_anim_speed);
         }
         traptng->trap.shooting_finished_turn = (game.play_gameturn + trigger_duration);
         traptng->current_frame = 0;
@@ -911,12 +911,21 @@ TngUpdateRet update_trap(struct Thing *traptng)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(traptng);
+
+    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
+
+    if (trapst->updatefn_idx < 0)
+    {
+        if (luafunc_thing_update_func(trapst->updatefn_idx, traptng) <= 0) {
+            return TUFRet_Deleted;
+        }
+    }
+
     if (traptng->health < 0)
     {
         destroy_trap(traptng);
         return TUFRet_Deleted;
     }
-    struct TrapConfigStats *trapst = get_trap_model_stats(traptng->model);
     if (traptng->trap.wait_for_rearm == true) // Trap rearming, so either 'shooting' anim or 'recharge' anim.
     {
         if ((traptng->trap.rearm_turn <= game.play_gameturn)) // Recharge complete, rearm.
@@ -931,6 +940,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
             if (trapst->attack_sprite_anim_idx != 0)
             {
                 traptng->anim_sprite = convert_td_iso(trapst->attack_sprite_anim_idx);
+                traptng->anim_speed = trapst->attack_anim_speed;
                 traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
             }
         }
@@ -939,10 +949,12 @@ TngUpdateRet update_trap(struct Thing *traptng)
             if (trapst->recharge_sprite_anim_idx != 0)
             {
                 traptng->anim_sprite = convert_td_iso(trapst->recharge_sprite_anim_idx);
+                traptng->anim_speed = trapst->recharge_anim_speed;
             }
             else
             {
                 traptng->anim_sprite = convert_td_iso(trapst->sprite_anim_idx);
+                traptng->anim_speed = trapst->anim_speed;
             }
             traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
         }
@@ -976,14 +988,14 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
 {
     SYNCDBG(7,"Starting for %s owner %d",trap_code_name(trpkind),(int)plyr_idx);
     struct TrapConfigStats *trapst = get_trap_model_stats(trpkind);
-    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+    if (!i_can_allocate_free_thing_structure(TCls_Trap)) {
         ERRORDBG(3,"Cannot create trap %s for player %d. There are too many things allocated.",trap_code_name(trpkind),(int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     struct InitLight ilght;
     memset(&ilght, 0, sizeof(struct InitLight));
-    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    struct Thing* thing = allocate_free_thing_structure(TCls_Trap);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate trap %s for player %d, but failed.",trap_code_name(trpkind),(int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
@@ -1117,16 +1129,16 @@ unsigned long remove_trap(struct Thing *traptng, long *sell_value)
             destroy_trap(traptng);
         }
         total++;
-    } 
-    return total;        
+    }
+    return total;
 }
- 
+
 unsigned long remove_trap_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
 {
     struct Thing* traptng = get_trap_for_position(stl_x, stl_y);
     return remove_trap(traptng, sell_value);
 }
- 
+
 unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *sell_value)
 {
     unsigned long total = 0;
@@ -1254,7 +1266,7 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
         case ShFL_Beam:
         {
             struct Coord3d pos2;
-            long damage;      
+            long damage;
             // Prepare source position
             struct Coord3d pos1;
             pos1.x.val = firing->mappos.x.val;
@@ -1278,8 +1290,8 @@ void trap_fire_shot_without_target(struct Thing *firing, ThingModel shot_model, 
                 }
             }
             firing->move_angle_xy = angle_xy; //visually rotates the trap
-            pos1.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
-            pos1.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+            pos1.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_x, firing->move_angle_xy + DEGREES_90);
+            pos1.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_x, firing->move_angle_xy + DEGREES_90);
             pos1.x.val += distance_with_angle_to_coord_x(trapst->shot_shift_y, firing->move_angle_xy);
             pos1.y.val += distance_with_angle_to_coord_y(trapst->shot_shift_y, firing->move_angle_xy);
             pos1.z.val += trapst->shot_shift_z;

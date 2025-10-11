@@ -41,7 +41,6 @@ enum TbScriptCommands {
     Cmd_MESSAGE                            =  5, // from beta
     Cmd_IF                                 =  6,
     Cmd_ENDIF                              =  7,
-    Cmd_SET_HATE                           =  8,
     Cmd_SET_GENERATE_SPEED                 =  9,
     Cmd_REM                                = 10,
     Cmd_START_MONEY                        = 11,
@@ -192,6 +191,11 @@ enum TbScriptCommands {
     Cmd_LOCK_POSSESSION                    = 179,
     Cmd_SET_DIGGER                         = 180,
     Cmd_RUN_LUA_CODE                       = 181,
+    Cmd_TAG_MAP_RECT                       = 182,
+    Cmd_UNTAG_MAP_RECT                     = 183,
+    Cmd_SET_NEXT_LEVEL                     = 184,
+    Cmd_SHOW_BONUS_LEVEL                   = 185,
+    Cmd_HIDE_BONUS_LEVEL                   = 186,
 };
 
 struct ScriptLine {
@@ -326,7 +330,7 @@ struct ScriptValue *allocate_script_value(void);
 struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long arg, PlayerNumber plyr_idx, short move_angle);
 struct Thing* script_process_new_effectgen(ThingModel crmodel, TbMapLocation location, long range);
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
-void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4);
+void command_add_value(unsigned long var_index, unsigned long plr_range_id, long param1, long param2, long param3);
 void set_variable(int player_idx, long var_type, long var_idx, long new_val);
 #define get_players_range(plr_range_id, plr_start, plr_end) get_players_range_f(plr_range_id, plr_start, plr_end, __func__, text_line_number)
 long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const char *func_name, long ln_num);
@@ -368,7 +372,7 @@ long script_strdup(const char *src);
         game.script.values_num--; \
     }
 
-    void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value);
+    void script_process_value(unsigned long var_index, unsigned long plr_range_id, long param1, long param2, long param3, struct ScriptValue *value);
 
 #define PROCESS_SCRIPT_VALUE(cmd) \
     if ((get_script_current_condition() == CONDITION_ALWAYS) && (next_command_reusable == 0)) \

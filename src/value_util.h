@@ -94,6 +94,17 @@ TbBool load_toml_file(const char *fname,VALUE *value, unsigned short flags);
     }\
 }
 
+#define CONDITIONAL_ASSIGN_ARR2_INT_MINMAX(section,name,field1,field2) \
+{\
+    VALUE *val_arr = value_dict_get(section,name);\
+    if (value_type(val_arr) == VALUE_ARRAY)\
+    {\
+        int v1 = value_int32(value_array_get(val_arr, 0));\
+        int v2 = value_int32(value_array_get(val_arr, 1));\
+        if (v1 <= v2) { field1 = v1; field2 = v2; } else { field1 = v2; field2 = v1; }\
+    }\
+}
+
 #define CONDITIONAL_ASSIGN_ARR3_INT(section,name,field1,field2,field3) \
 {\
     VALUE *val_arr = value_dict_get(section,name);\

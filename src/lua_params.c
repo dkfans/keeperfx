@@ -256,7 +256,18 @@ PlayerNumber luaL_checkPlayerSingle(lua_State *L, int index)
     {
         luaL_argerror(L,index,"player range not supported for this command");
     }
+    if(playerId > PLAYERS_COUNT || playerId < 0)
+    {
+        luaL_argerror(L,index,"expected a valid player");
+    }
     return playerId;
+}
+
+PlayerNumber luaL_optPlayerSingle(lua_State *L, int index)
+{
+    if (lua_isnone(L,index))
+        return PLAYER_NEUTRAL;
+    return luaL_checkPlayerSingle(L,index);
 }
 
 MapSubtlCoord luaL_checkstl_x(lua_State *L, int index)
