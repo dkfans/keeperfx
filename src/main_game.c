@@ -490,9 +490,12 @@ void init_seeds()
         // Unsynced seeds - these values will be different per-player in multiplayer
         unsigned long calender_time = (unsigned long)LbTimeSec();
 
-        // Use override seed if specified via -seed argument
-        if (start_params.use_override_seed) {
+        
+        if (start_params.use_override_seed) { // Override seed if using -seed launch argument with a number
             calender_time = start_params.override_seed;
+        }
+        if (start_params.log_seed) { // Log seed if -seed launch argument was used, with or without number
+            JUSTLOG("Base seed: %lu", calender_time);
         }
 
         game.unsync_random_seed = calender_time * 9007 + 9011;  // Use prime multipliers for different seeds

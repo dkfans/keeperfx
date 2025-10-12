@@ -4164,9 +4164,13 @@ short process_command_line(unsigned short argc, char *argv[])
       }
       else if (strcasecmp(parstr,"seed") == 0)
       {
-         start_params.override_seed = atoi(pr2str);
-         start_params.use_override_seed = true;
-         narg++;
+         start_params.log_seed = true;
+         // Check if there's a valid number provided (not empty and not another flag)
+         if (pr2str[0] != '\0' && pr2str[0] != '-' && pr2str[0] != '/') {
+            start_params.override_seed = atoi(pr2str);
+            start_params.use_override_seed = true;
+            narg++;
+         }
       }
       else if (strcasecmp(parstr, "timer") == 0)
       {

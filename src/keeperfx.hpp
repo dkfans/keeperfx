@@ -152,6 +152,7 @@ struct StartupParameters {
     unsigned char startup_flags;
     GameTurn skip_to_turn;
     unsigned long override_seed;
+    TbBool log_seed;
     TbBool use_override_seed;
 #ifdef FUNCTESTING
     unsigned char functest_flags;
