@@ -116,7 +116,7 @@ void set_previous_camera_values(struct PlayerInfo* player) {
     previous_camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     if (game.fastforward_speed > 0)
     {
-        reset_interpolation_of_camera(player); // Stop camera from being laggy while frameskipping
+        reset_interpolation_of_camera(player); // Stop camera from being laggy while fast forwarding
     }
 }
 

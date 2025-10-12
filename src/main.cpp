@@ -1147,7 +1147,7 @@ short setup_game(void)
       }
   }
 
-  game.fastforward_speed = start_params.frame_skip;
+  game.fastforward_speed = start_params.fastforward_speed;
 
   // Intro problems shouldn't force the game to quit,
   // so we're re-setting the result flag
@@ -3320,7 +3320,7 @@ TbBool keeper_wait_for_next_turn(void)
 
 TbBool keeper_wait_for_next_draw(void)
 {
-    // fps.draw is currently unable to work properly with frame_skip
+    // fps.draw is currently unable to work properly with fast forward
     if (game_num_fps_draw > 0 && is_feature_on(Ft_DeltaTime) == true && game.fastforward_speed == 0)
     {
         const long double tick_ns_one_sec = 1000000000.0;
@@ -4148,9 +4148,9 @@ short process_command_line(unsigned short argc, char *argv[])
               narg++;
           }
       }
-      else if (strcasecmp(parstr,"frameskip") == 0)
+      else if (strcasecmp(parstr,"fastforward") == 0)
       {
-         start_params.frame_skip = atoi(pr2str);
+         start_params.fastforward_speed = atoi(pr2str);
          narg++;
       } else
       if (strcasecmp(parstr,"framestep") == 0)

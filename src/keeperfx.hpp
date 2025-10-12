@@ -144,7 +144,7 @@ struct StartupParameters {
     TbBool packet_load_enable;
     char packet_fname[150];
     unsigned char packet_checksum_verify;
-    int frame_skip;
+    int fastforward_speed;
     char selected_campaign[CMDLN_MAXLEN+1];
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
