@@ -3236,7 +3236,7 @@ short display_should_be_updated_this_turn(void)
 {
     if ((game.operation_flags & GOF_Paused) != 0)
       return true;
-    if ( (game.turns_fastforward == 0) && (!game.packet_loading_in_progress) )
+    if ( (game.turns_to_skip == 0) && (!game.packet_loading_in_progress) )
     {
       find_frame_rate();
       if ( (game.frame_skip == 0) || ((game.play_gameturn % game.frame_skip) == 0))
@@ -3467,7 +3467,7 @@ void gameplay_loop_timestep()
         game.delta_time = 1;
         game.process_turn_time = 1;
         // Make delay if the machine is too fast
-        if ( (!game.packet_load_enable) || (game.turns_fastforward == 0) ) {
+        if ( (!game.packet_load_enable) || (game.turns_to_skip == 0) ) {
             keeper_wait_for_next_turn();
         }
     }

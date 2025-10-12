@@ -2655,8 +2655,8 @@ TbBool active_menu_functions_while_paused()
  */
 short get_inputs(void)
 {
-    if (game.turns_fastforward > 0) {
-        game.turns_fastforward--;
+    if (game.turns_to_skip > 0) {
+        game.turns_to_skip--;
     }
     if ((game.mode_flags & MFlg_IsDemoMode) != 0)
     {
