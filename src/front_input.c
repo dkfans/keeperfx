@@ -332,10 +332,10 @@ TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn)
 
 void clip_frame_skip(void)
 {
-  if (game.frame_skip > 512)
-    game.frame_skip = 512;
-  if (game.frame_skip < 0)
-    game.frame_skip = 0;
+  if (game.fastforward_speed > 512)
+    game.fastforward_speed = 512;
+  if (game.fastforward_speed < 0)
+    game.fastforward_speed = 0;
 }
 
 void increaseFrameskip(void)
@@ -343,17 +343,17 @@ void increaseFrameskip(void)
     // Default no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
     int level = 16;
     for (int i=0; i<10; i++) {
-        if (game.frame_skip < level)
+        if (game.fastforward_speed < level)
             break;
         level <<= 1;
     }
     int adj = level/8;
-    game.frame_skip += adj;
+    game.fastforward_speed += adj;
     clip_frame_skip();
     char speed_txt[256] = "normal";
-    if (game.frame_skip > 0)
-        sprintf(speed_txt, "x%ld", game.frame_skip);
-    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Forward %s", speed_txt);
+    if (game.fastforward_speed > 0)
+        sprintf(speed_txt, "x%ld", game.fastforward_speed);
+    show_onscreen_msg(game_num_fps*(game.fastforward_speed+1), "Fast Forward %s", speed_txt);
 }
 
 void decreaseFrameskip(void)
@@ -361,17 +361,17 @@ void decreaseFrameskip(void)
     // Defaul no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
     int level = 16;
     for (int i=0; i<10; i++) {
-        if (game.frame_skip <= level)
+        if (game.fastforward_speed <= level)
             break;
         level <<= 1;
     }
     int adj = level/8;
-    game.frame_skip -= adj;
+    game.fastforward_speed -= adj;
     clip_frame_skip();
     char speed_txt[256] = "normal";
-    if (game.frame_skip > 0)
-        sprintf(speed_txt, "x%ld", game.frame_skip);
-    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Forward %s", speed_txt);
+    if (game.fastforward_speed > 0)
+        sprintf(speed_txt, "x%ld", game.fastforward_speed);
+    show_onscreen_msg(game_num_fps*(game.fastforward_speed+1), "Fast Forward %s", speed_txt);
 }
 
 /**
@@ -2005,32 +2005,32 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
         }
     }
     // Only pan the camera as often as normal despite frameskip
-    if (game.frame_skip > 0)
+    if (game.fastforward_speed > 0)
     {
         int frameskipMax = 1;
-        if (game.frame_skip < 4)
+        if (game.fastforward_speed < 4)
         {
-            frameskipMax = game.frame_skip;
+            frameskipMax = game.fastforward_speed;
         }
-        else if (game.frame_skip == 4)
+        else if (game.fastforward_speed == 4)
         {
             frameskipMax = 3;
         }
-        else if (game.frame_skip > 20 && game.frame_skip < 50)
+        else if (game.fastforward_speed > 20 && game.fastforward_speed < 50)
         {
-            frameskipMax = (game.frame_skip) / ( log(game.frame_skip) / log(17) );
+            frameskipMax = (game.fastforward_speed) / ( log(game.fastforward_speed) / log(17) );
         }
-        else if (game.frame_skip < 200)
+        else if (game.fastforward_speed < 200)
         {
-            frameskipMax = game.frame_skip / ( log(game.frame_skip) / log(10) );
+            frameskipMax = game.fastforward_speed / ( log(game.fastforward_speed) / log(10) );
         }
-        else if (game.frame_skip == 512) // max frameskip
+        else if (game.fastforward_speed == 512) // max frameskip
         {
             frameskipMax = 60;
         }
         else // more than 200 but less than 512
         {
-            frameskipMax = game.frame_skip / ( log(game.frame_skip) / log(4) );
+            frameskipMax = game.fastforward_speed / ( log(game.fastforward_speed) / log(4) );
         }
         TbBool moveTheCamera = (global_frameskipTurn == 0);
         //Checking for evenly distributed camera movement for the various frameskip amounts
