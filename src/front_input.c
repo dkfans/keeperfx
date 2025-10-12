@@ -2655,6 +2655,9 @@ TbBool active_menu_functions_while_paused()
  */
 short get_inputs(void)
 {
+    if (game.turns_fastforward > 0) {
+        game.turns_fastforward--;
+    }
     if ((game.mode_flags & MFlg_IsDemoMode) != 0)
     {
         SYNCDBG(5,"Starting for demo mode");

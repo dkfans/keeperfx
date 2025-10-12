@@ -150,6 +150,9 @@ struct StartupParameters {
     char config_file[CMDLN_MAXLEN+1];
     GameTurn pause_at_gameturn;
     unsigned char startup_flags;
+    GameTurn skip_to_turn;
+    unsigned long override_seed;
+    TbBool use_override_seed;
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];

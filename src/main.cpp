@@ -4157,6 +4157,17 @@ short process_command_line(unsigned short argc, char *argv[])
       {
          set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
       }
+      else if (strcasecmp(parstr,"skipturns") == 0)
+      {
+         start_params.skip_to_turn = atoi(pr2str);
+         narg++;
+      }
+      else if (strcasecmp(parstr,"seed") == 0)
+      {
+         start_params.override_seed = atoi(pr2str);
+         start_params.use_override_seed = true;
+         narg++;
+      }
       else if (strcasecmp(parstr, "timer") == 0)
       {
           game_flags2 |= GF2_Timer;

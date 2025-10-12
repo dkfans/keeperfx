@@ -473,6 +473,7 @@ void clear_complete_game(void)
     snprintf(game.packet_fname,150, "%s", start_params.packet_fname);
     game.packet_save_enable = start_params.packet_save_enable;
     game.packet_load_enable = start_params.packet_load_enable;
+    game.turns_fastforward = start_params.skip_to_turn;
     my_player_number = default_loc_player;
 }
 
@@ -488,6 +489,12 @@ void init_seeds()
     {
         // Unsynced seeds - these values will be different per-player in multiplayer
         unsigned long calender_time = (unsigned long)LbTimeSec();
+
+        // Use override seed if specified via -seed argument
+        if (start_params.use_override_seed) {
+            calender_time = start_params.override_seed;
+        }
+
         game.unsync_random_seed = calender_time * 9007 + 9011;  // Use prime multipliers for different seeds
         game.sound_random_seed = calender_time * 7919 + 7927;
 
