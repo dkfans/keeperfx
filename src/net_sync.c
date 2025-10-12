@@ -590,6 +590,7 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing)
     CHECKSUM_ADD(checksum, thing->mappos.y.val);
     CHECKSUM_ADD(checksum, thing->mappos.z.val);
     CHECKSUM_ADD(checksum, thing->health);
+    CHECKSUM_ADD(checksum, thing->random_seed);
     CHECKSUM_ADD(checksum, thing->max_frames);
     CHECKSUM_ADD(checksum, thing->current_frame);
 
