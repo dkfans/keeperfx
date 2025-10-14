@@ -586,12 +586,13 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing)
     CHECKSUM_ADD(checksum, thing->model);
     CHECKSUM_ADD(checksum, thing->owner);
     CHECKSUM_ADD(checksum, thing->creation_turn);
+    CHECKSUM_ADD(checksum, thing->random_seed);
     CHECKSUM_ADD(checksum, thing->mappos.x.val);
     CHECKSUM_ADD(checksum, thing->mappos.y.val);
     CHECKSUM_ADD(checksum, thing->mappos.z.val);
     CHECKSUM_ADD(checksum, thing->health);
-    CHECKSUM_ADD(checksum, thing->max_frames);
     CHECKSUM_ADD(checksum, thing->current_frame);
+    CHECKSUM_ADD(checksum, thing->max_frames);
 
     if (thing->class_id == TCls_Creature) {
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
@@ -629,18 +630,18 @@ void store_checksums_for_desync_analysis(void)
         struct Thing* thing = thing_get(i);
         if (thing_exists(thing) && !is_non_synchronized_thing_class(thing->class_id)) {
             struct LogThingDesyncInfo* info = &log_pre_resync_checksums.log_individual_thing_info[i];
+            info->index = thing->index;
             info->class_id = thing->class_id;
             info->model = thing->model;
             info->owner = thing->owner;
+            info->creation_turn = thing->creation_turn;
             info->random_seed = thing->random_seed;
             info->pos_x = thing->mappos.x.val;
             info->pos_y = thing->mappos.y.val;
             info->pos_z = thing->mappos.z.val;
-            info->creation_turn = thing->creation_turn;
-            info->index = thing->index;
             info->health = thing->health;
-            info->max_frames = thing->max_frames;
             info->current_frame = thing->current_frame;
+            info->max_frames = thing->max_frames;
             info->checksum = get_thing_checksum(thing);
         }
     }
