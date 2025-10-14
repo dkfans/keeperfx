@@ -176,8 +176,8 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
-"be unable to pay any creatures. Only Imps give their loyalty freely. "
-"No other creatures will serve you unpaid."
+"be unable to pay any creatures. Only Imps give their loyalty freely. No "
+"other creatures will serve you unpaid."
 msgstr ""
 "Todavía no has construido una sala del tesoro. Hasta que no construyas esa "
 "sala, no podrás pagarle a ninguna criatura. Solo los duendes dan su lealtad "
@@ -4646,7 +4646,8 @@ msgstr ""
 #| msgctxt "Room description"
 #| msgid ""
 #| "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-#| "creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
+#| "creatures by dropping them into the fountain. LMB select. RMB zoom. "
+#| "[17.12]"
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
@@ -5653,31 +5654,31 @@ msgstr "Vampiros creados"
 #: guitext:803
 msgctxt "Easter egg"
 msgid ""
-"When night does not give way to day, and children are too scared to play, "
-"abandon hope, embrace despair, you're destined for my Dragon's lair."
+"When night does not give way to day, And children are too scared to play, "
+"Abandon hope, embrace despair, You're destined for my Dragon's lair."
 msgstr ""
 "Cuando la noche al día mustia, y a los niños jugar les causa horror. Cambia "
 "la esperanza por la angustia, tu destino es la guarida de mi dragón."
 
 #: guitext:804
 msgctxt "Easter egg"
-msgid "If thou art bold and pure of heart, come down here, be torn apart."
+msgid "If thou art bold and pure of heart, Come down here, be torn apart."
 msgstr "Si eres inocente y puro de alma, ven a que te despedace en calma."
 
 #: guitext:805
 msgctxt "Easter egg"
-msgid "Through my dungeon you may tread, but rest assured, you'll end up dead."
+msgid "Through my dungeon you may tread, But rest assured, you'll end up dead."
 msgstr ""
 "Por mi mazmorra tú podrás avanzar. Pero es seguro que muerto has de quedar."
 
 #: guitext:806
 msgctxt "Easter egg"
-msgid "If you find you lose it all, why not play Theme Hospital?"
+msgid "If you find you lose it all, Why not play Theme Hospital?"
 msgstr "Si descubres que este es tu final. ¿Por qué no jugar a Theme Hospital?"
 
 #: guitext:807
 msgctxt "Easter egg"
-msgid "Armoured Knights who have true grit, roast more quickly on a spit."
+msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
 msgstr ""
 "Caballeros valientes, el valor los agita, y se asan mejor en una espita."
 
@@ -5689,53 +5690,53 @@ msgstr ""
 
 #: guitext:809
 msgctxt "Easter egg"
-msgid "Evil, malice, death, decay. Just another working day."
+msgid "Evil, malice, death, decay, Just another working day."
 msgstr "Muerte, malicia, podredumbre, maldad. Es sólo un día de trabajo más."
 
 #: guitext:810
 msgctxt "Easter egg"
-msgid "Evil, malice, death, decay. There really is no better way."
+msgid "Evil, malice, death, decay, There really is no better way."
 msgstr "Muerte, maldad, podredumbre, horror. En realidad, no hay nada mejor."
 
 #: guitext:811
 msgctxt "Easter egg"
-msgid "Giant, Dwarf, Thief and Fairy. None of you are very scary."
+msgid "Giant, Dwarf, Thief and Fairy, None of you are very scary."
 msgstr "Ladrón, Hada, Enano y Gigante, ninguno de vosotros asusta bastante."
 
 #: guitext:812
 msgctxt "Easter egg"
-msgid "The denizens of your domain just cannot wait to kill again."
+msgid "The denizens of your domain, Just cannot wait to kill again."
 msgstr "De tus dominios los ciudadanos, quieren volver a matar con sus manos."
 
 #: guitext:813
 msgctxt "Easter egg"
-msgid "The better creatures you employ, the greater carnage you enjoy."
+msgid "The better creatures you employ, The greater carnage you enjoy."
 msgstr ""
 "Con mejores criaturas a tu servicio. Más grande y más sangriento es el "
 "sacrificio."
 
 #: guitext:814
 msgctxt "Easter egg"
-msgid "Hark! The Avatar's abroad, and I can smell a frightened Lord."
+msgid "Hark! The Avatar's abroad, And I can smell a frightened Lord."
 msgstr ""
 "¡Ey! El avatar la frontera ha cruzado, y puedo olfatear un Señor asustado."
 
 #: guitext:815
 msgctxt "Easter egg"
-msgid "Trespassers will meet their doom, in your dungeon's Torture Room."
+msgid "Trespassers will meet their doom, In your dungeon's Torture Room."
 msgstr ""
 "Los infractores probarán la amargura, en tu excelente Cámara de Tortura."
 
 #: guitext:816
 msgctxt "Easter egg"
-msgid "Though intruders' hearts be pure, they'll end up on your dungeon floor."
+msgid "Though intruders' hearts be pure, They'll end up on your dungeon floor."
 msgstr ""
 "Aunque el intruso tenga buen corazón. Morirá en tu mazmorra, en un rincón."
 
 #: guitext:817
 msgctxt "Easter egg"
 msgid ""
-"Your tunnels will be dark and cold, and no place for a Knight of old, even "
+"Your tunnels will be dark and cold, And no place for a Knight of old, Even "
 "if he claims he's bold."
 msgstr ""
 "Tus túneles serán fríos y oscuros, mal sitio para el viejo Caballero. Aunque "
@@ -5743,14 +5744,14 @@ msgstr ""
 
 #: guitext:818
 msgctxt "Easter egg"
-msgid "The fools who enter your domain will never see the light again."
+msgid "The fools who enter your domain, Will never see the light again."
 msgstr ""
 "El tonto que en tus dominios se aventura, vivirá por siempre en una noche "
 "oscura."
 
 #: guitext:819
 msgctxt "Easter egg"
-msgid "Pain and anguish are your tools, to use upon intruding fools."
+msgid "Pain and anguish are your tools, To use upon intruding fools."
 msgstr ""
 "Tus herramientas son la angustia y el dolor, contra los intrusos funcionan "
 "mejor."
@@ -5758,14 +5759,14 @@ msgstr ""
 #: guitext:820
 msgctxt "Easter egg"
 msgid ""
-"When good guys head right for your treasure, hunt and kill them at your "
+"When good guys head right for your treasure, Hunt and kill them at your "
 "leisure."
 msgstr "Los buenos a por tu tesoro han ido, cázalos y mátalos, es divertido."
 
 #: guitext:821
 msgctxt "Easter egg"
 msgid ""
-"Protect your gold and Dungeon Heart, and slap your minions till they fart."
+"Protect your gold and Dungeon Heart, And slap your minions till they fart."
 msgstr ""
 "Protege el Corazón de la Mazmorra, y azota a tus sirvientes con la porra."
 
@@ -5782,24 +5783,24 @@ msgstr ""
 
 #: guitext:824
 msgctxt "Easter egg"
-msgid "When your creatures give you hell, stick them in your Prison cell."
+msgid "When your creatures give you hell, Stick them in your Prison Cell."
 msgstr ""
 "Cuando tus criaturas no cumplan con presteza, mételos en la Celda de cabeza."
 
 #: guitext:825
 msgctxt "Easter egg"
-msgid "Torture is the crowning glory, of your Dungeon Keeper story."
+msgid "Torture is the crowning glory, Of your Dungeon Keeper story."
 msgstr ""
 "La tortura es la suprema gloria, con la que tu guardián hace la historia."
 
 #: guitext:826
 msgctxt "Easter egg"
-msgid "You are the Keeper, chosen one. And being evil is great fun."
+msgid "You are the Keeper, chosen one, And being evil is great fun."
 msgstr "Tú eres el guardián, el elegido, y ser malvado es más que divertido."
 
 #: guitext:827
 msgctxt "Easter egg"
-msgid "When your troops are hunger-stricken, your Hatchery has yummy chicken."
+msgid "When your troops are hunger-stricken, Your Hatchery has yummy chicken."
 msgstr ""
 "Cuando tus tropas de hambre perecen, en tu Criadero ricos pollos crecen."
 

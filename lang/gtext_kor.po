@@ -22,7 +22,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/POT-Creation-"
 "Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2025-10-09 19:27+0100\n"
+"PO-Revision-Date: 2025-10-14 04:22+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: ko_KR\n"
@@ -169,8 +169,8 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
-"be unable to pay any creatures. Only Imps give their loyalty freely. "
-"No other creatures will serve you unpaid."
+"be unable to pay any creatures. Only Imps give their loyalty freely. No "
+"other creatures will serve you unpaid."
 msgstr ""
 "아직 보물 창고를 짓지 않았습니다. 이 방을 짓기 전에는 어떤 피조물에게도 봉급"
 "을 지급 할 수 없습니다. 오직 임프만이 공짜입니다. 다른 어떤 피조물도 봉급을 "
@@ -2220,8 +2220,7 @@ msgstr ""
 #: guitext:244
 #, fuzzy
 #| msgctxt "Creature spell"
-#| msgid ""
-#| "Hail Storm: Creates a fury of hailstones."
+#| msgid "Hail Storm: Creates a fury of hailstones."
 msgctxt "Creature spell"
 msgid "Hail Storm: Creates a flurry of hailstones."
 msgstr "우박 폭풍: 우박이 맹위를 떨칩니다."
@@ -4459,7 +4458,8 @@ msgstr ""
 #| msgctxt "Room description"
 #| msgid ""
 #| "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-#| "creatures by dropping them into the fountain. LMB select. RMB zoom. [17.12]"
+#| "creatures by dropping them into the fountain. LMB select. RMB zoom. "
+#| "[17.12]"
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
@@ -5429,34 +5429,34 @@ msgstr "생성된 뱀파이어"
 #: guitext:803
 msgctxt "Easter egg"
 msgid ""
-"When night does not give way to day, and children are too scared to play, "
-"abandon hope, embrace despair, you're destined for my Dragon's lair."
+"When night does not give way to day, And children are too scared to play, "
+"Abandon hope, embrace despair, You're destined for my Dragon's lair."
 msgstr ""
 "밤이 낮의 길을 양보하지 않고 아이들이 놀기엔 너무 무서울 때, 희망을 버리고 절"
 "망을 품을 때, 당신은 나의 드래곤의 은신처로 오게 운명지어진 것입니다"
 
 #: guitext:804
 msgctxt "Easter egg"
-msgid "If thou art bold and pure of heart, come down here, be torn apart."
+msgid "If thou art bold and pure of heart, Come down here, be torn apart."
 msgstr ""
 "만약 당신의 용맹하고 순수한 마음을 가지고 있다면, 이리로 내려오세요, 산산조"
 "각 내죠."
 
 #: guitext:805
 msgctxt "Easter egg"
-msgid "Through my dungeon you may tread, but rest assured, you'll end up dead."
+msgid "Through my dungeon you may tread, But rest assured, you'll end up dead."
 msgstr ""
 "내 던전을 디딤돌로 나아갈 수 있지만, 확신하는데. 당신은 결국 죽게 될 거예요."
 
 #: guitext:806
 msgctxt "Easter egg"
-msgid "If you find you lose it all, why not play Theme Hospital?"
+msgid "If you find you lose it all, Why not play Theme Hospital?"
 msgstr ""
 "만약 여러분이 모든 것을 잃는 것을 발견한다면, 테마 병원을 하는 것은 어떨까요?"
 
 #: guitext:807
 msgctxt "Easter egg"
-msgid "Armoured Knights who have true grit, roast more quickly on a spit."
+msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
 msgstr "진정한 용기를 가진 기갑 기사들, 침으로 더 빨리 구우세요."
 
 #: guitext:808
@@ -5468,50 +5468,50 @@ msgstr ""
 
 #: guitext:809
 msgctxt "Easter egg"
-msgid "Evil, malice, death, decay. Just another working day."
+msgid "Evil, malice, death, decay, Just another working day."
 msgstr "악, 악의, 죽음, 타락, 그저 다른 근무일일 뿐입니다."
 
 #: guitext:810
 msgctxt "Easter egg"
-msgid "Evil, malice, death, decay. There really is no better way."
+msgid "Evil, malice, death, decay, There really is no better way."
 msgstr "악, 악의, 죽음, 부패, 이보다 더 좋은 방법은 없습니다."
 
 #: guitext:811
 msgctxt "Easter egg"
-msgid "Giant, Dwarf, Thief and Fairy. None of you are very scary."
+msgid "Giant, Dwarf, Thief and Fairy, None of you are very scary."
 msgstr "자이언트, 드워프, 씨프, 페어리, 당신들 중 아무도 그렇게 무섭지 않아요."
 
 #: guitext:812
 msgctxt "Easter egg"
-msgid "The denizens of your domain just cannot wait to kill again."
+msgid "The denizens of your domain, Just cannot wait to kill again."
 msgstr "당신의 주민은 다시 살인을 할 때까지 기다릴 수 없습니다."
 
 #: guitext:813
 msgctxt "Easter egg"
-msgid "The better creatures you employ, the greater carnage you enjoy."
+msgid "The better creatures you employ, The greater carnage you enjoy."
 msgstr "더 나은 피조물을 고용할수록 더 큰 대학살을 즐길 수 있습니다."
 
 #: guitext:814
 msgctxt "Easter egg"
-msgid "Hark! The Avatar's abroad, and I can smell a frightened Lord."
+msgid "Hark! The Avatar's abroad, And I can smell a frightened Lord."
 msgstr "하크! 아바타가 없으니 겁먹은 군주의 냄새가 나요."
 
 #: guitext:815
 msgctxt "Easter egg"
-msgid "Trespassers will meet their doom, in your dungeon's Torture Room."
+msgid "Trespassers will meet their doom, In your dungeon's Torture Room."
 msgstr ""
 "무단침입자들은 그들의 파멸을 맞이할 것입니다, 당신의 던전의 고문실에서요."
 
 #: guitext:816
 msgctxt "Easter egg"
-msgid "Though intruders' hearts be pure, they'll end up on your dungeon floor."
+msgid "Though intruders' hearts be pure, They'll end up on your dungeon floor."
 msgstr ""
 "침입자의 마음은 순수하지만, 결국 당신의 던전 바닥으로 가게 될 것입니다."
 
 #: guitext:817
 msgctxt "Easter egg"
 msgid ""
-"Your tunnels will be dark and cold, and no place for a Knight of old, even "
+"Your tunnels will be dark and cold, And no place for a Knight of old, Even "
 "if he claims he's bold."
 msgstr ""
 "당신의 터널은 어둡고 차가울 거예요 그리고 그가 대담하다고 해도 나이든 기사가 "
@@ -5519,18 +5519,18 @@ msgstr ""
 
 #: guitext:818
 msgctxt "Easter egg"
-msgid "The fools who enter your domain will never see the light again."
+msgid "The fools who enter your domain, Will never see the light again."
 msgstr "당신의 영역에 들어온 바보들은 다시는 빛을 보지 못할 것입니다."
 
 #: guitext:819
 msgctxt "Easter egg"
-msgid "Pain and anguish are your tools, to use upon intruding fools."
+msgid "Pain and anguish are your tools, To use upon intruding fools."
 msgstr "고통과 번뇌는 당신의 도구입니다. 어리석은 자들을 방해할 때 사용합니다."
 
 #: guitext:820
 msgctxt "Easter egg"
 msgid ""
-"When good guys head right for your treasure, hunt and kill them at your "
+"When good guys head right for your treasure, Hunt and kill them at your "
 "leisure."
 msgstr ""
 "좋은 사람들이 당신의 보물로 바로 향하면, 심심풀이로 사냥을 해서 그들을 죽입니"
@@ -5539,7 +5539,7 @@ msgstr ""
 #: guitext:821
 msgctxt "Easter egg"
 msgid ""
-"Protect your gold and Dungeon Heart, and slap your minions till they fart."
+"Protect your gold and Dungeon Heart, And slap your minions till they fart."
 msgstr ""
 "여러분의 금과 던전 하트을 보호하고, 여러분의 하수인들이 방귀를 지리도록 패세"
 "요."
@@ -5559,24 +5559,24 @@ msgstr ""
 
 #: guitext:824
 msgctxt "Easter egg"
-msgid "When your creatures give you hell, stick them in your Prison cell."
+msgid "When your creatures give you hell, Stick them in your Prison Cell."
 msgstr ""
 "당신의 피조물들이 당신에게 지옥을 선사할 때, 그들을 당신의 감옥 감방에 가두세"
 "요."
 
 #: guitext:825
 msgctxt "Easter egg"
-msgid "Torture is the crowning glory, of your Dungeon Keeper story."
+msgid "Torture is the crowning glory, Of your Dungeon Keeper story."
 msgstr "고문은 던전 키퍼의 이야기 중 가장 큰 영광입니다."
 
 #: guitext:826
 msgctxt "Easter egg"
-msgid "You are the Keeper, chosen one. And being evil is great fun."
+msgid "You are the Keeper, chosen one, And being evil is great fun."
 msgstr "당신은 선택된 키퍼이고 악마가 되는 것은 매우 재미있습니다."
 
 #: guitext:827
 msgctxt "Easter egg"
-msgid "When your troops are hunger-stricken, your Hatchery has yummy chicken."
+msgid "When your troops are hunger-stricken, Your Hatchery has yummy chicken."
 msgstr "당신의 군대가 굶주릴 때, 당신의 부화장에는 맛있는 닭고기가 있었습니다."
 
 #: guitext:828

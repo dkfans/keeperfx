@@ -170,8 +170,8 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have not yet built a Treasure Room. Until you build this room, you will "
-"be unable to pay any creatures. Only Imps give their loyalty freely. "
-"No other creatures will serve you unpaid."
+"be unable to pay any creatures. Only Imps give their loyalty freely. No "
+"other creatures will serve you unpaid."
 msgstr ""
 "Je hebt nog geen Schatkamer gebouwd. Zolang je dat niet gedaan hebt, kun je "
 "je wezens niet betalen. Alleen de Dondersteentjes blijven je trouw. De "
@@ -5419,32 +5419,32 @@ msgstr "Vampiers gecreëerd"
 #: guitext:803
 msgctxt "Easter egg"
 msgid ""
-"When night does not give way to day, and children are too scared to play, "
-"abandon hope, embrace despair, you're destined for my Dragon's lair."
+"When night does not give way to day, And children are too scared to play, "
+"Abandon hope, embrace despair, You're destined for my Dragon's lair."
 msgstr ""
 "Wanneer de nacht de dag steelt, Het bange kind niet langer speelt, Maakt "
 "hoop plaats voor wanhoopsvlagen, In het Drakenhol slijt gij je dagen."
 
 #: guitext:804
 msgctxt "Easter egg"
-msgid "If thou art bold and pure of heart, come down here, be torn apart."
+msgid "If thou art bold and pure of heart, Come down here, be torn apart."
 msgstr ""
 "Zijt gij moedig met een hart van goud, Kom hierheen en jij wordt nooit oud."
 
 #: guitext:805
 msgctxt "Easter egg"
-msgid "Through my dungeon you may tread, but rest assured, you'll end up dead."
+msgid "Through my dungeon you may tread, But rest assured, you'll end up dead."
 msgstr "Door mijn kerker mag je dwalen, Wees gerust, de dood komt je halen."
 
 #: guitext:806
 msgctxt "Easter egg"
-msgid "If you find you lose it all, why not play Theme Hospital?"
+msgid "If you find you lose it all, Why not play Theme Hospital?"
 msgstr ""
 "Denk je alles te verliezen, Geen zorg je krijgt nog meer voor je kiezen."
 
 #: guitext:807
 msgctxt "Easter egg"
-msgid "Armoured Knights who have true grit, roast more quickly on a spit."
+msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
 msgstr "Ridders met lef en pit, Roosteren sneller aan het spit."
 
 #: guitext:808
@@ -5454,49 +5454,49 @@ msgstr "Dood, verval, onheil en verraad, Een eeuwig gegeven dat nooit vergaat."
 
 #: guitext:809
 msgctxt "Easter egg"
-msgid "Evil, malice, death, decay. Just another working day."
+msgid "Evil, malice, death, decay, Just another working day."
 msgstr "Dood, verval, onheil en verraad, De duivel is mijn maat."
 
 #: guitext:810
 msgctxt "Easter egg"
-msgid "Evil, malice, death, decay. There really is no better way."
+msgid "Evil, malice, death, decay, There really is no better way."
 msgstr "Dood, verval, onheil en verraad, Maken het leven de moeite waard."
 
 #: guitext:811
 msgctxt "Easter egg"
-msgid "Giant, Dwarf, Thief and Fairy. None of you are very scary."
+msgid "Giant, Dwarf, Thief and Fairy, None of you are very scary."
 msgstr "Reus, Dwerg, Dief en Elf, Vormen geen bedreiging dat spreekt vanzelf."
 
 #: guitext:812
 msgctxt "Easter egg"
-msgid "The denizens of your domain just cannot wait to kill again."
+msgid "The denizens of your domain, Just cannot wait to kill again."
 msgstr "Elke burger van jouw oord, Staat klaar voor een nieuwe moord."
 
 #: guitext:813
 msgctxt "Easter egg"
-msgid "The better creatures you employ, the greater carnage you enjoy."
+msgid "The better creatures you employ, The greater carnage you enjoy."
 msgstr "Ervaren wezens verdienen je achting, Des te groter is de slachting."
 
 #: guitext:814
 msgctxt "Easter egg"
-msgid "Hark! The Avatar's abroad, and I can smell a frightened Lord."
+msgid "Hark! The Avatar's abroad, And I can smell a frightened Lord."
 msgstr "Luister! Avatar is weg, De Landheer is alleen, wat een pech."
 
 #: guitext:815
 msgctxt "Easter egg"
-msgid "Trespassers will meet their doom, in your dungeon's Torture Room."
+msgid "Trespassers will meet their doom, In your dungeon's Torture Room."
 msgstr "Indringers zijn verdoemd, Want jouw Folterkamer wordt geroemd."
 
 #: guitext:816
 msgctxt "Easter egg"
-msgid "Though intruders' hearts be pure, they'll end up on your dungeon floor."
+msgid "Though intruders' hearts be pure, They'll end up on your dungeon floor."
 msgstr ""
 "Al zijn indringers moedig en stoer, Ze vinden hun einde op je kerkervloer."
 
 #: guitext:817
 msgctxt "Easter egg"
 msgid ""
-"Your tunnels will be dark and cold, and no place for a Knight of old, even "
+"Your tunnels will be dark and cold, And no place for a Knight of old, Even "
 "if he claims he's bold."
 msgstr ""
 "Je gangen zijn donker en koud, dit is geen plaats voor een oude ridder, ook "
@@ -5504,18 +5504,18 @@ msgstr ""
 
 #: guitext:818
 msgctxt "Easter egg"
-msgid "The fools who enter your domain will never see the light again."
+msgid "The fools who enter your domain, Will never see the light again."
 msgstr "Dwazen betreden je kerker keer op keer, Het licht zien ze nooit weer."
 
 #: guitext:819
 msgctxt "Easter egg"
-msgid "Pain and anguish are your tools, to use upon intruding fools."
+msgid "Pain and anguish are your tools, To use upon intruding fools."
 msgstr "Angst en pijn zijn wapens tegen dwazen, Dus neem ze te grazen."
 
 #: guitext:820
 msgctxt "Easter egg"
 msgid ""
-"When good guys head right for your treasure, hunt and kill them at your "
+"When good guys head right for your treasure, Hunt and kill them at your "
 "leisure."
 msgstr ""
 "Voor je het weet ben je de schat aan de goeden kwijt, zoek en dood ze voor "
@@ -5524,7 +5524,7 @@ msgstr ""
 #: guitext:821
 msgctxt "Easter egg"
 msgid ""
-"Protect your gold and Dungeon Heart, and slap your minions till they fart."
+"Protect your gold and Dungeon Heart, And slap your minions till they fart."
 msgstr ""
 "Bescherm je goud en bescherm je Hart, Sla je slaafjes maar niet te hard."
 
@@ -5541,22 +5541,22 @@ msgstr "Een Magiër in je kerker? Een val is verrassend sterker."
 
 #: guitext:824
 msgctxt "Easter egg"
-msgid "When your creatures give you hell, stick them in your Prison cell."
+msgid "When your creatures give you hell, Stick them in your Prison Cell."
 msgstr "Maken wezens je leven tot een hel, Stop ze in een gevangeniscel."
 
 #: guitext:825
 msgctxt "Easter egg"
-msgid "Torture is the crowning glory, of your Dungeon Keeper story."
+msgid "Torture is the crowning glory, Of your Dungeon Keeper story."
 msgstr "Foltering is de hoogste glorie, Van je Dungeon Keeper's story."
 
 #: guitext:826
 msgctxt "Easter egg"
-msgid "You are the Keeper, chosen one. And being evil is great fun."
+msgid "You are the Keeper, chosen one, And being evil is great fun."
 msgstr "Jij bent de Keeper, uitverkoren, De duivel zal je bekoren."
 
 #: guitext:827
 msgctxt "Easter egg"
-msgid "When your troops are hunger-stricken, your Hatchery has yummy chicken."
+msgid "When your troops are hunger-stricken, Your Hatchery has yummy chicken."
 msgstr ""
 "Knorren de magen van je troepen, De Broedplaats heeft kuikens om te snoepen."
 
