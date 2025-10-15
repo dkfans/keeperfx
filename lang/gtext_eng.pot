@@ -3205,7 +3205,7 @@ msgstr ""
 #: guitext:584
 msgctxt "Trap description"
 msgid ""
-"Boulder Trap: A rolling rock that crushes everything in its path. Triggered when enemy an creature is close and within line of sight, or when slapped by a Keeper. "
+"Boulder Trap: A rolling rock that crushes everything in its path. Triggered when an enemy creature is close and within line of sight, or when slapped by a Keeper. "
 "LMB select. RMB zoom."
 msgstr ""
 

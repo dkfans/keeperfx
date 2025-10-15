@@ -27,7 +27,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.7\n"
+"X-Generator: Poedit 3.8\n"
 
 #. Generic victory message
 #: guitext:0
@@ -4128,7 +4128,7 @@ msgstr "Past s lávou"
 msgctxt "Trap description"
 msgid ""
 "Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
-"when enemy an creature is close and within line of sight, or when slapped by "
+"when an enemy creature is close and within line of sight, or when slapped by "
 "a Keeper. LMB select. RMB zoom."
 msgstr ""
 "Past s balvanem: Valici se kamen, ktery rozdrti vse co mu stoji v ceste. "

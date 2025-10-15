@@ -30,7 +30,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 3.7\n"
+"X-Generator: Poedit 3.8\n"
 
 #. Generic victory message
 #: guitext:0
@@ -4156,7 +4156,7 @@ msgstr "Lavafälla"
 msgctxt "Trap description"
 msgid ""
 "Boulder Trap: A rolling rock that crushes everything in its path. Triggered "
-"when enemy an creature is close and within line of sight, or when slapped by "
+"when an enemy creature is close and within line of sight, or when slapped by "
 "a Keeper. LMB select. RMB zoom."
 msgstr ""
 "Indy-fälla: En rullande sten som krossar allt i sin väg. VMK väljer. HMK "
