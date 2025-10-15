@@ -1019,10 +1019,12 @@ static void process_party(struct PartyTrigger* pr_trig)
     }
 }
 
-void process_check_new_creature_partys(void)
+void process_check_new_creature_parties(void)
 {
     for (long i = 0; i < game.script.party_triggers_num; i++)
     {
+        if (i >= PARTY_TRIGGERS_COUNT)
+            break;
         struct PartyTrigger* pr_trig = &game.script.party_triggers[i];
         if ((pr_trig->flags & TrgF_DISABLED) == 0)
         {
@@ -1036,7 +1038,7 @@ void process_check_new_creature_partys(void)
     }
 }
 
-void process_check_new_tunneller_partys(void)
+void process_check_new_tunneller_parties(void)
 {
     for (long i = 0; i < game.script.tunneller_triggers_num; i++)
     {
@@ -1131,9 +1133,9 @@ void process_level_script(void)
   if ((player->victory_state == VicS_Undecided) || (game.system_flags & GSF_RunAfterVictory))
   {
       process_conditions();
-      process_check_new_creature_partys();
+      process_check_new_creature_parties();
     //script_process_messages(); is not here, but it is in beta - check why
-      process_check_new_tunneller_partys();
+      process_check_new_tunneller_parties();
       process_values();
       process_win_and_lose_conditions(my_player_number); //player->id_number may be uninitialized yet
     //  show_onscreen_msg(8, "Flags %d %d %d %d %d %d", game.dungeon[0].script_flags[0],game.dungeon[0].script_flags[1],
