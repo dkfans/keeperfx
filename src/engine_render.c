@@ -522,7 +522,7 @@ static void calculate_hud_scale(struct Camera *cam) {
 
 long interpolate(long variable_to_interpolate, long previous, long current)
 {
-    if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
+    if (is_feature_on(Ft_DeltaTime) == false || game.fastforward_speed > 0) {
         return current;
     }
     // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
@@ -4966,7 +4966,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
                 thing->time_spent_displaying_hurt_colour += game.delta_time;
-                if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
+                if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.fastforward_speed > 0)
                 {
                     thing->time_spent_displaying_hurt_colour = 0;
                     thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
@@ -7997,7 +7997,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
                 thing->time_spent_displaying_hurt_colour += game.delta_time;
-                if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
+                if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.fastforward_speed > 0)
                 {
                     thing->time_spent_displaying_hurt_colour = 0;
                     thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
