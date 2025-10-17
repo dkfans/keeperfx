@@ -465,7 +465,7 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4);
 void stop_creature_sound(struct Thing *thing, long snd_idx);
 void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long a2);
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx);
-void reset_creature_eye_lens(struct Thing *thing);
+void reset_creature_eye_lens(struct PlayerInfo *player);
 TbBool creature_can_gain_experience(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus

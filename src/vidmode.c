@@ -627,8 +627,9 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
       return nmode;
     }
   }
-  TbBool hi_res = ((LbGraphicsScreenHeight() < 400) ? false : true);
-  long lens_mem = game.applied_lens_type;
+  TbBool hi_res = (LbGraphicsScreenHeight() >= 400);
+  struct PlayerInfo* player = get_my_player();
+  long lens_mem = player->applied_lens_type;
   unsigned int flg_mem = lbDisplay.DrawFlags;
   TbBool was_minimal_res = (MinimalResolutionSetup || force_video_mode_reset);
   set_pointer_graphic_none();
@@ -639,7 +640,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
   {
     if (!MinimalResolutionSetup)
     {
-      reset_eye_lenses();
+      reset_eye_lenses(player);
       reset_heap_manager();
       reset_heap_memory();
       unload_pointer_file(hi_res);
@@ -703,7 +704,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
   update_screen_mode_data(new_mdinfo->Width, new_mdinfo->Height);
   if (parchment_loaded)
     reload_parchment_file(hi_res);
-  reinitialise_eye_lens(lens_mem);
+  reinitialise_eye_lens(player, lens_mem);
   lbDisplay.DrawFlags = flg_mem;
   if (!setup_heap_memory())
   {
@@ -814,7 +815,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
   {
     if (!MinimalResolutionSetup)
     {
-      reset_eye_lenses();
+      reset_eye_lenses(get_my_player());
       reset_heap_manager();
       reset_heap_memory();
     }

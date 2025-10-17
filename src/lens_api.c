@@ -145,12 +145,11 @@ void init_lens(unsigned long *lens_mem, int width, int height, int pitch, int nl
     }
 }
 
-TbBool clear_lens_palette(void)
+TbBool clear_lens_palette(struct PlayerInfo* player)
 {
     SYNCDBG(7,"Staring");
-    struct PlayerInfo* player = get_my_player();
     // Get lens config and check if it has palette entry
-    struct LensConfig* lenscfg = get_lens_config(game.applied_lens_type);
+    struct LensConfig* lenscfg = get_lens_config(player->applied_lens_type);
     if ((lenscfg->flags & LCF_HasPalette) != 0)
     {
         // If there is a palette entry, then clear it
@@ -162,18 +161,17 @@ TbBool clear_lens_palette(void)
     return false;
 }
 
-static void set_lens_palette(unsigned char *palette)
+static void set_lens_palette(struct PlayerInfo* player, unsigned char *palette)
 {
-    struct PlayerInfo* player = get_my_player();
     player->main_palette = palette;
     player->lens_palette = palette;
 }
 
-void reset_eye_lenses(void)
+void reset_eye_lenses(struct PlayerInfo* player)
 {
     SYNCDBG(7,"Starting");
     free_mist();
-    clear_lens_palette();
+    clear_lens_palette(player);
     if (eye_lens_memory != NULL)
     {
         free(eye_lens_memory);
@@ -185,18 +183,18 @@ void reset_eye_lenses(void)
         eye_lens_spare_screen_memory = NULL;
     }
     clear_flag(game.mode_flags, MFlg_EyeLensReady);
-    game.active_lens_type = 0;
-    game.applied_lens_type = 0;
+    player->active_lens_type = 0;
+    player->applied_lens_type = 0;
     SYNCDBG(9,"Done");
 }
 
-void initialise_eye_lenses(void)
+void initialise_eye_lenses(struct PlayerInfo* player)
 {
   SYNCDBG(7,"Starting");
   if ((eye_lens_memory != NULL) || (eye_lens_spare_screen_memory != NULL))
   {
     //ERRORLOG("EyeLens Memory already allocated");
-    reset_eye_lenses();
+    reset_eye_lenses(player);
   }
   if ((features_enabled & Ft_EyeLens) == 0)
   {
@@ -212,7 +210,7 @@ void initialise_eye_lenses(void)
   eye_lens_spare_screen_memory = (unsigned char *)calloc(screen_size, sizeof(TbPixel));
   if ((eye_lens_memory == NULL) || (eye_lens_spare_screen_memory == NULL))
   {
-    reset_eye_lenses();
+    reset_eye_lenses(player);
     ERRORLOG("Cannot allocate EyeLens memory");
     return;
   }
@@ -220,7 +218,7 @@ void initialise_eye_lenses(void)
   set_flag(game.mode_flags, MFlg_EyeLensReady);
 }
 
-void setup_eye_lens(long nlens)
+void setup_eye_lens(struct PlayerInfo* player, long nlens)
 {
     if ((game.mode_flags & MFlg_EyeLensReady) == 0)
     {
@@ -228,18 +226,18 @@ void setup_eye_lens(long nlens)
         return;
     }
     SYNCDBG(7,"Starting for lens %ld",nlens);
-    if (clear_lens_palette()) {
-        game.active_lens_type = 0;
+    if (clear_lens_palette(player)) {
+        player->active_lens_type = 0;
     }
     if (nlens == 0)
     {
-        game.active_lens_type = 0;
-        game.applied_lens_type = 0;
+        player->active_lens_type = 0;
+        player->applied_lens_type = 0;
         return;
     }
-    if (game.active_lens_type == nlens)
+    if (player->active_lens_type == nlens)
     {
-        game.applied_lens_type = nlens;
+        player->applied_lens_type = nlens;
         return;
     }
     struct LensConfig* lenscfg = get_lens_config(nlens);
@@ -273,19 +271,19 @@ void setup_eye_lens(long nlens)
     if ((lenscfg->flags & LCF_HasPalette) != 0)
     {
         SYNCDBG(9,"Palette config entered");
-        set_lens_palette(lenscfg->palette);
+        set_lens_palette(player, lenscfg->palette);
     }
-    game.applied_lens_type = nlens;
-    game.active_lens_type = nlens;
+    player->applied_lens_type = nlens;
+    player->active_lens_type = nlens;
 }
 
-void reinitialise_eye_lens(long nlens)
+void reinitialise_eye_lens(struct PlayerInfo* player, long nlens)
 {
-  initialise_eye_lenses();
+  initialise_eye_lenses(player);
   if ((game.mode_flags & MFlg_EyeLensReady) && (nlens>0))
   {
-      game.applied_lens_type = 0;
-      setup_eye_lens(nlens);
+      player->applied_lens_type = 0;
+      setup_eye_lens(player, nlens);
   }
   SYNCDBG(18,"Finished");
 }

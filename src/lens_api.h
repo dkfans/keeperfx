@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_video.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,10 +38,10 @@ extern TbPixel *eye_lens_spare_screen_memory;
 extern unsigned int eye_lens_width;
 extern unsigned int eye_lens_height;
 /******************************************************************************/
-void initialise_eye_lenses(void);
-void setup_eye_lens(long nlens);
-void reinitialise_eye_lens(long nlens);
-void reset_eye_lenses(void);
+void initialise_eye_lenses(struct PlayerInfo* player);
+void setup_eye_lens(struct PlayerInfo* player, long nlens);
+void reinitialise_eye_lens(struct PlayerInfo* player, long nlens);
+void reset_eye_lenses(struct PlayerInfo* player);
 void draw_lens_effect(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height, long effect);
 /******************************************************************************/
 #ifdef __cplusplus
