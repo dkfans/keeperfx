@@ -459,7 +459,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     {
       if ( (thing->model != ShM_SolidBoulder) && (collide == 0) )
       {
-        thing->health -= game.conf.rules.game.boulder_reduce_health_wall;
+        thing->health -= game.conf.rules[thing->owner].game.boulder_reduce_health_wall;
       }
       slide_thing_against_wall_at(thing, &pos, blocked_flags);
       if ( blocked_flags & SlbBloF_WalledX )
@@ -546,7 +546,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
             }
             if (boulder->model != ShM_SolidBoulder) // Solid Boulder (shot20) takes no damage when destroying guardposts
             {
-                boulder->health -= game.conf.rules.game.boulder_reduce_health_room; // decrease boulder health
+                boulder->health -= game.conf.rules[boulder->owner].game.boulder_reduce_health_room; // decrease boulder health
             }
             return 1; // guardpost destroyed
         }
@@ -2254,10 +2254,15 @@ static void process_dungeon_devastation_effects(void)
     }
 }
 
-void count_players_creatures_being_paid(int *creatures_count)
+/**
+ * Increments paydays_owed for all players creatures
+ * returns amount of creatures needing payday for player
+ */
+int set_players_creatures_to_get_paid(PlayerNumber plyr_idx)
 {
     unsigned long k;
     long i;
+    int count = 0;
     const struct StructureList *slist;
     slist = get_list_for_thing_class(TCls_Creature);
     i = slist->index;
@@ -2273,7 +2278,7 @@ void count_players_creatures_being_paid(int *creatures_count)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if (!player_is_roaming(thing->owner) && (thing->owner != game.neutral_player_num))
+        if (thing->owner == plyr_idx)
         {
             struct CreatureModelConfig *crconf;
             crconf = creature_stats_get_from_thing(thing);
@@ -2287,7 +2292,7 @@ void count_players_creatures_being_paid(int *creatures_count)
                 } else
                 {
                     cctrl->paydays_owed++;
-                    creatures_count[thing->owner]++;
+                    count++;
                 }
             }
         }
@@ -2299,14 +2304,15 @@ void count_players_creatures_being_paid(int *creatures_count)
             break;
         }
     }
+    return count;
 }
 
 void process_payday(void)
 {
-    game.pay_day_progress = game.pay_day_progress + (game.conf.rules.game.pay_day_speed / 100);
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
+        game.pay_day_progress[plyr_idx] = game.pay_day_progress[plyr_idx] + (game.conf.rules[plyr_idx].game.pay_day_speed / 100);
         if (player_is_roaming(plyr_idx) || (plyr_idx == game.neutral_player_num)) {
             continue;
         }
@@ -2318,27 +2324,19 @@ void process_payday(void)
             compute_and_update_player_backpay_total(plyr_idx);
         }
     }
-    if (game.conf.rules.game.pay_day_gap <= game.pay_day_progress)
+    int player_paid_creatures_count;
+    for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        output_message(SMsg_Payday, 0);
-        game.pay_day_progress = 0;
-        // Prepare a list which counts how many creatures of each owner needs pay
-        int player_paid_creatures_count[PLAYERS_COUNT];
-
-        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+        if (game.conf.rules[plyr_idx].game.pay_day_gap <= game.pay_day_progress[plyr_idx])
         {
-            player_paid_creatures_count[plyr_idx] = 0;
-        }
-        count_players_creatures_being_paid(player_paid_creatures_count);
-        // Players which have creatures being paid, should get payday notification
-        for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-        {
-            if (player_paid_creatures_count[plyr_idx] > 0)
+            if (is_my_player_number(plyr_idx))
+                output_message(SMsg_Payday, 0);
+            game.pay_day_progress[plyr_idx] = 0;
+            player_paid_creatures_count = set_players_creatures_to_get_paid(plyr_idx);
+            if (player_paid_creatures_count > 0)
             {
-                struct Dungeon *dungeon;
-                dungeon = get_players_num_dungeon(plyr_idx);
-                event_create_event_or_update_nearby_existing_event(0, 0,
-                    EvKind_CreaturePayday, plyr_idx, dungeon->creatures_total_pay);
+                struct Dungeon *dungeon = get_players_num_dungeon(plyr_idx);
+                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreaturePayday, plyr_idx, dungeon->creatures_total_pay);
             }
         }
     }
@@ -2601,7 +2599,7 @@ long update_cave_in(struct Thing *thing)
         create_effect(&pos, TngEff_HarmlessGas4, owner);
     }
 
-    if ((turns_alive % game.conf.rules.magic.turns_per_collapse_dngn_dmg) == 0)
+    if ((turns_alive % game.conf.rules[owner].magic.turns_per_collapse_dngn_dmg) == 0)
     {
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
@@ -2612,7 +2610,7 @@ long update_cave_in(struct Thing *thing)
         param.class_id = 0;
         param.model_id = 0;
         param.primary_number = thing->owner;
-        param.secondary_number = game.conf.rules.magic.collapse_dungeon_damage;
+        param.secondary_number = game.conf.rules[thing->owner].magic.collapse_dungeon_damage;
         param.tertiary_pointer = 0;
         do_cb = damage_creatures_with_physical_force;
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
@@ -2665,20 +2663,20 @@ void update_global_lighting()
 {
     // Check if any values have changed
     if (
-        game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light ||
-        game.conf.rules.game.light_enabled != game.lish.light_enabled
+        game.conf.rules[0].game.global_ambient_light != game.lish.global_ambient_light ||
+        game.conf.rules[0].game.light_enabled != game.lish.light_enabled
     ){
 
         // GlobalAmbientLight
-        if (game.conf.rules.game.global_ambient_light != game.lish.global_ambient_light)
+        if (game.conf.rules[0].game.global_ambient_light != game.lish.global_ambient_light)
         {
-            game.lish.global_ambient_light = game.conf.rules.game.global_ambient_light;
+            game.lish.global_ambient_light = game.conf.rules[0].game.global_ambient_light;
         }
 
         // LightEnabled
-        if (game.conf.rules.game.light_enabled != game.lish.light_enabled)
+        if (game.conf.rules[0].game.light_enabled != game.lish.light_enabled)
         {
-            game.lish.light_enabled = game.conf.rules.game.light_enabled;
+            game.lish.light_enabled = game.conf.rules[0].game.light_enabled;
         }
 
         // Refresh the lights

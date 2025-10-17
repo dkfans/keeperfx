@@ -717,11 +717,11 @@ TbBool creature_can_be_set_unconscious(const struct Thing *creatng, const struct
     {
         return false;
     }
-    if (flag_is_set(get_creature_model_flags(creatng), CMF_IsEvil) && (THING_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_evil))
+    if (flag_is_set(get_creature_model_flags(creatng), CMF_IsEvil) && (THING_RANDOM(creatng, 100) >= game.conf.rules[creatng->owner].creature.stun_enemy_chance_evil))
     {
         return false;
     }
-    if (!flag_is_set(get_creature_model_flags(creatng), CMF_IsEvil) && (THING_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_good))
+    if (!flag_is_set(get_creature_model_flags(creatng), CMF_IsEvil) && (THING_RANDOM(creatng, 100) >= game.conf.rules[creatng->owner].creature.stun_enemy_chance_good))
     {
         return false;
     }
@@ -2981,7 +2981,7 @@ TbBool init_creature_state(struct Thing *creatng)
     // Check job which we can do after dropping at these coordinates
     if (is_neutral_thing(creatng))
     {
-        if ((game.conf.rules.game.classic_bugs_flags & ClscBug_PassiveNeutrals))
+        if ((game.conf.rules[creatng->owner].game.classic_bugs_flags & ClscBug_PassiveNeutrals))
         {
             SYNCDBG(3,"Trying to assign initial job at (%ld,%ld) for neutral %s index %d owner %d",stl_x,stl_y,thing_model_name(creatng),creatng->index,creatng->owner);
             return false;
@@ -3162,7 +3162,7 @@ short creature_take_salary(struct Thing *creatng)
     set_start_state(creatng);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);
     struct Thing* efftng = create_price_effect(&creatng->mappos, creatng->owner, received);
-    if (!(game.conf.rules.game.classic_bugs_flags & ClscBug_FullyHappyWithGold))
+    if (!(game.conf.rules[creatng->owner].game.classic_bugs_flags & ClscBug_FullyHappyWithGold))
     {
         anger_apply_anger_to_creature_all_types(creatng, crconf->annoy_got_wage);
     }
@@ -3199,7 +3199,7 @@ void make_creature_unconscious(struct Thing *creatng)
     clear_creature_instance(creatng);
     set_creature_size_stuff(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectRemoved)
+    if (game.conf.rules[creatng->owner].game.classic_bugs_flags & ClscBug_ResurrectRemoved)
     {
         // If the classic bug is enabled, fainted units are also added to resurrect creature.
         update_dead_creatures_list_for_owner(creatng);
@@ -3207,7 +3207,7 @@ void make_creature_unconscious(struct Thing *creatng)
     creatng->active_state = CrSt_CreatureUnconscious;
     cctrl->creature_control_flags |= CCFlg_PreventDamage;
     cctrl->creature_control_flags |= CCFlg_NoCompControl;
-    cctrl->conscious_back_turns = game.conf.rules.creature.game_turns_unconscious;
+    cctrl->conscious_back_turns = game.conf.rules[creatng->owner].creature.game_turns_unconscious;
 }
 
 void make_creature_conscious_without_changing_state(struct Thing *creatng)
@@ -3525,7 +3525,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     struct Thing* gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
 
     // If the random slab has enough space to drop all gold, go there to drop it
-    long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = game.conf.rules[room->owner].game.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     if ((max_hoard_size_in_room - gldtng->valuable.gold_stored) >= thing->creature.gold_carried)
     {
@@ -4280,12 +4280,12 @@ TbBool process_creature_hunger(struct Thing *thing)
     if (!hunger_is_creature_hungry(thing))
         return false;
     // HungerHealthLoss is disabled if set to 0 on rules.cfg.
-    if (game.conf.rules.health.turns_per_hunger_health_loss > 0)
+    if (game.conf.rules[thing->owner].health.turns_per_hunger_health_loss > 0)
     {
         // Make sure every creature loses health on different turn.
-        if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0) {
-            SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
-            remove_health_from_thing_and_display_health(thing, game.conf.rules.health.hunger_health_loss);
+        if (((game.play_gameturn + thing->index) % game.conf.rules[thing->owner].health.turns_per_hunger_health_loss) == 0) {
+            SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules[thing->owner].health.hunger_health_loss);
+            remove_health_from_thing_and_display_health(thing, game.conf.rules[thing->owner].health.hunger_health_loss);
             return true;
         }
     }
@@ -5074,7 +5074,7 @@ long creature_free_for_toking(struct Thing* creatng)
 long process_creature_needs_to_heal_critical(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (get_creature_health_permil(creatng) >= game.conf.rules.creature.critical_health_permil) {
+    if (get_creature_health_permil(creatng) >= game.conf.rules[creatng->owner].creature.critical_health_permil) {
         return 0;
     }
     if (game.play_gameturn >= cctrl->healing_sleep_check_turn)

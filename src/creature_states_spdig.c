@@ -159,7 +159,7 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
  */
 long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
 {
-    if (!player_has_room_of_role(spdigtng->owner, RoRoF_LairStorage) || !game.conf.rules.workers.drag_to_lair)
+    if (!player_has_room_of_role(spdigtng->owner, RoRoF_LairStorage) || !game.conf.rules[spdigtng->owner].workers.drag_to_lair)
     {
         return 0;
     }
@@ -184,7 +184,7 @@ long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
                 if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
                 {
                     // only save creatures with lair
-                    if (game.conf.rules.workers.drag_to_lair == 1) {
+                    if (game.conf.rules[spdigtng->owner].workers.drag_to_lair == 1) {
                         struct Room * room = get_creature_lair_room(thing);
                         if (room_is_invalid(room))
                         {
@@ -192,7 +192,7 @@ long check_out_unsaved_unconscious_creature(struct Thing *spdigtng, long range)
                         }
                     }
                     //or creature who can have have and use a lair
-                    else if (game.conf.rules.workers.drag_to_lair == 2 && !creature_can_do_healing_sleep(thing))
+                    else if (game.conf.rules[spdigtng->owner].workers.drag_to_lair == 2 && !creature_can_do_healing_sleep(thing))
                     {
                         return 0;
                     }
@@ -1013,7 +1013,7 @@ long digger_work_experience(struct Thing* spdigtng)
 {
     if (creature_can_gain_experience(spdigtng))
     {
-        return game.conf.rules.workers.digger_work_experience;
+        return game.conf.rules[spdigtng->owner].workers.digger_work_experience;
     }
     return 0;
 }
@@ -1065,7 +1065,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
               }
           }
       }
-      if (game.conf.rules.workers.digger_work_experience != 0)
+      if (game.conf.rules[spdigtng->owner].workers.digger_work_experience != 0)
       {
           cctrl->exp_points += (digger_work_experience(spdigtng) / 6);
           check_experience_upgrade(spdigtng);
@@ -1095,7 +1095,7 @@ short imp_digs_mines(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[spdigtng->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(spdigtng);
         check_experience_upgrade(spdigtng);
@@ -1246,7 +1246,7 @@ short imp_drops_gold(struct Thing *spdigtng)
     if ( (gold_added > 0) || (gold_created) )
     {
         thing_play_sample(spdigtng, SOUND_RANDOM(3) + 32, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        if (game.conf.rules.workers.digger_work_experience != 0)
+        if (game.conf.rules[spdigtng->owner].workers.digger_work_experience != 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
             cctrl->exp_points += digger_work_experience(spdigtng);
@@ -1281,7 +1281,7 @@ short imp_improves_dungeon(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[spdigtng->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += (digger_work_experience(spdigtng) / 6);
         check_experience_upgrade(spdigtng);
@@ -1426,7 +1426,7 @@ short imp_reinforces(struct Thing *thing)
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 0;
     }
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[thing->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(thing);
         check_experience_upgrade(thing);
@@ -1643,7 +1643,7 @@ short creature_save_unconscious_creature(struct Thing *thing)
 
     struct Room* dstroom = get_creature_lair_room(picktng);
     //if creature doesn't have a lair but need one
-    if (room_is_invalid(dstroom) && creature_can_do_healing_sleep(picktng) && game.conf.rules.workers.drag_to_lair == 2)
+    if (room_is_invalid(dstroom) && creature_can_do_healing_sleep(picktng) && game.conf.rules[thing->owner].workers.drag_to_lair == 2)
     {
         dstroom = get_best_new_lair_for_creature(picktng);
         //send special digger directly at the right place for the lair-totem of the creature
@@ -1909,7 +1909,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
     add_body_to_graveyard(deadtng, room);
     // The action of moving object is now finished
     set_start_state(creatng);
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[creatng->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
@@ -1969,9 +1969,9 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     }
     // The action of moving object is now finished
     set_start_state(thing);
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[thing->owner].workers.digger_work_experience != 0)
     {
-        cctrl->exp_points += game.conf.rules.workers.digger_work_experience;
+        cctrl->exp_points += game.conf.rules[thing->owner].workers.digger_work_experience;
         check_experience_upgrade(thing);
     }
     return 1;
@@ -2037,7 +2037,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     }
     // The action of moving object is now finished
     set_start_state(creatng);
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[creatng->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
@@ -2088,7 +2088,7 @@ short creature_arms_trap(struct Thing *thing)
     {
         readd_workshop_item_to_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
     }
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[thing->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(thing);
         check_experience_upgrade(thing);
@@ -2107,7 +2107,7 @@ short creature_arms_trap_first_person(struct Thing *creatng)
     thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     dungeon->lvstats.traps_armed++;
-    if (game.conf.rules.workers.digger_work_experience != 0)
+    if (game.conf.rules[creatng->owner].workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
