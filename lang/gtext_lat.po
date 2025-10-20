@@ -4500,7 +4500,7 @@ msgid ""
 "creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgstr ""
 "Templum: Creaturae feliciores fiunt deis obscuris venerandis. Sacrifica "
-"creaturas in piscinam eis demittendis. BSM delige. BDM i. [17.12]"
+"creaturas in fontem eis demittendis. BSM delige. BDM i. [17.12]"
 
 #: guitext:629
 msgctxt "Room description"
