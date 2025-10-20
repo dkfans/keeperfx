@@ -37,6 +37,8 @@
 #include "frontmenu_ingame_map.h"
 #include "post_inc.h"
 
+extern void reset_mouse_light_interpolation(struct PlayerInfo *player);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -102,6 +104,8 @@ void reset_interpolation_of_camera(struct PlayerInfo* player)
     previous_cam_mappos_y = cam->mappos.y.val;
     previous_cam_mappos_z = cam->mappos.z.val;
     reset_all_minimap_interpolation = true;
+
+    reset_mouse_light_interpolation(player);
 }
 
 void set_previous_camera_values(struct PlayerInfo* player) {

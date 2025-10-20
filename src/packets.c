@@ -800,8 +800,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->cameras[CamIV_FrontView].rotation_angle_x = pckt->actn_par1;
       player->cameras[CamIV_Isometric].rotation_angle_x = pckt->actn_par1;
 
-      if ((is_my_player(player)) && (player->acamera->view_mode == PVM_FrontView)) {
-        // Fixes interpolated Things lagging for 1 turn when pressing middle mouse button to flip the camera in FrontView
+      if (is_my_player(player)) {
           reset_interpolation_of_camera(player);
       }
       return 0;
