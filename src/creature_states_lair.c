@@ -527,7 +527,7 @@ short creature_sleep(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    thing->movement_flags &= ~0x0020;
+    thing->movement_flags &= ~TMvF_Flying;
     struct CreatureModelConfig *crconf = creature_stats_get_from_thing(thing);
     // Recovery is disabled if frequency is set to 0 on rules.cfg.
     if (game.conf.rules.creature.recovery_frequency > 0)

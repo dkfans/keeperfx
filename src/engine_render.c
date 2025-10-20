@@ -539,7 +539,10 @@ long interpolate_angle(long variable_to_interpolate, long previous, long current
     }
     long future = current + (current - previous);
     long desired_value = lerp_angle(current, future, 0.5);
-    return lerp_angle(variable_to_interpolate, desired_value, game.delta_time);
+    long new_angle = lerp_angle(variable_to_interpolate, desired_value, game.delta_time);
+    if (new_angle == variable_to_interpolate)
+        new_angle = current;
+    return new_angle;
 }
 
 void interpolate_thing(struct Thing *thing)
