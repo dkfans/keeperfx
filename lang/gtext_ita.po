@@ -4532,7 +4532,7 @@ msgid ""
 "creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgstr ""
 "Tempio: Pregare gli dei oscuri rende felici le creature. Sacrifica le "
-"creature gettandole nella pila. TSM: seleziona. TDM: visiona. [17.12]"
+"creature gettandole nel fonte. TSM: seleziona. TDM: visiona. [17.12]"
 
 #: guitext:629
 msgctxt "Room description"

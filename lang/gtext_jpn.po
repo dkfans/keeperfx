@@ -4440,7 +4440,7 @@ msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
 "creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgstr ""
-"神殿: 暗黒の神々を拝むとクリーチャーは幸せになる。生け贄を捧げるには聖水盤にク"
+"神殿: 暗黒の神々を拝むとクリーチャーは幸せになる。生け贄を捧げるには洗礼盤にク"
 "リーチャーを落とす。左クリックで選択。右クリックで表示。 [17.12]"
 
 #: guitext:629
