@@ -4593,18 +4593,13 @@ msgstr ""
 
 #: guitext:628
 #, fuzzy
-#| msgctxt "Room description"
-#| msgid ""
-#| "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-#| "creatures by dropping them into the fountain. LMB select. RMB zoom. "
-#| "[17.12]"
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
 "creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgstr ""
 "Templo: Adorar os deuses sombrios torna as criaturas mais felizes. "
-"Sacrifique criaturas soltando-as na fonte. Selecionar com o botão esquerdo "
+"Sacrifique criaturas soltando-as na pila. Selecionar com o botão esquerdo "
 "do mouse. Aproximar com o botão direito do mouse."
 
 #: guitext:629

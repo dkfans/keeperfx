@@ -4455,18 +4455,13 @@ msgstr ""
 
 #: guitext:628
 #, fuzzy
-#| msgctxt "Room description"
-#| msgid ""
-#| "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-#| "creatures by dropping them into the fountain. LMB select. RMB zoom. "
-#| "[17.12]"
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
 "creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgstr ""
 "사원: 어두운 신들을 숭배하는 것은 피조물들을 더 행복하게 만듭니다. 피조물을 "
-"분수대에 떨어뜨려 희생시키세요. 왼쪽 마우스 단추로 선택합니다. 오른쪽 마우스 "
+"성수반에 떨어뜨려 희생시키세요. 왼쪽 마우스 단추로 선택합니다. 오른쪽 마우스 "
 "단추로 대상을 주목합니다. [17.12]"
 
 #: guitext:629
