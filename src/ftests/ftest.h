@@ -112,10 +112,10 @@ struct FTestConfig {
     LevelNumber level;
 
     /**
-     * @brief Override frameskip for your test (optional)
-     * 
+     * @brief Override fast forward speed for your test (optional)
+     *
      */
-    int frame_skip;
+    int fastforward_speed;
 
     /**
      * @brief Override seed for your test (optional)

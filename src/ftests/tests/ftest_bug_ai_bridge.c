@@ -174,7 +174,7 @@ FTestActionResult ftest_bug_ai_bridge_action002__end_test(struct FTestActionArgs
         ++vars->test_runs_with_bridges;
         FTESTLOG("Bridges were found at GameTurn %d, reporting and exiting test", game.play_gameturn);
         vars->take_screenshot = true;
-        game.frame_skip = 0;
+        game.fastforward_speed = 0;
         ftest_bug_ai_bridge__report_stats_and_increment_seed();
         return FTRs_Go_To_Next_Action; // exit test
     }

@@ -330,48 +330,48 @@ TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn)
     return check_if_pos_is_over_button(gbtn, GetMouseX(), GetMouseY());
 }
 
-void clip_frame_skip(void)
+void clip_fastforward_speed(void)
 {
-  if (game.frame_skip > 512)
-    game.frame_skip = 512;
-  if (game.frame_skip < 0)
-    game.frame_skip = 0;
+  if (game.fastforward_speed > 512)
+    game.fastforward_speed = 512;
+  if (game.fastforward_speed < 0)
+    game.fastforward_speed = 0;
 }
 
 void increaseFrameskip(void)
 {
-    // Default no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
+    // Default no longer using fastforward_speed=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
     int level = 16;
     for (int i=0; i<10; i++) {
-        if (game.frame_skip < level)
+        if (game.fastforward_speed < level)
             break;
         level <<= 1;
     }
     int adj = level/8;
-    game.frame_skip += adj;
-    clip_frame_skip();
+    game.fastforward_speed += adj;
+    clip_fastforward_speed();
     char speed_txt[256] = "normal";
-    if (game.frame_skip > 0)
-        sprintf(speed_txt, "x%ld", game.frame_skip);
-    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Forward %s", speed_txt);
+    if (game.fastforward_speed > 0)
+        sprintf(speed_txt, "x%ld", game.fastforward_speed);
+    show_onscreen_msg(game_num_fps*(game.fastforward_speed+1), "Fast Forward %s", speed_txt);
 }
 
 void decreaseFrameskip(void)
 {
-    // Defaul no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
+    // Defaul no longer using fastforward_speed=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
     int level = 16;
     for (int i=0; i<10; i++) {
-        if (game.frame_skip <= level)
+        if (game.fastforward_speed <= level)
             break;
         level <<= 1;
     }
     int adj = level/8;
-    game.frame_skip -= adj;
-    clip_frame_skip();
+    game.fastforward_speed -= adj;
+    clip_fastforward_speed();
     char speed_txt[256] = "normal";
-    if (game.frame_skip > 0)
-        sprintf(speed_txt, "x%ld", game.frame_skip);
-    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Forward %s", speed_txt);
+    if (game.fastforward_speed > 0)
+        sprintf(speed_txt, "x%ld", game.fastforward_speed);
+    show_onscreen_msg(game_num_fps*(game.fastforward_speed+1), "Fast Forward %s", speed_txt);
 }
 
 /**
@@ -1973,14 +1973,14 @@ short get_map_action_inputs(void)
 
 // TODO: Might want to initiate this in main() and pass a reference to it
 // rather than using this global variable. But this works.
-int global_frameskipTurn = 0;
+int global_fastforward_turn = 0;
 
 void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pressed,TbBool mods_used)
 {
     // Reserve the scroll wheel for the resurrect and transfer creature specials
     if ((menu_is_active(GMnu_RESURRECT_CREATURE) || menu_is_active(GMnu_TRANSFER_CREATURE) || rotate_pressed || mods_used) == 0)
     {
-        // mouse scroll zoom unaffected by frameskip
+        // mouse scroll zoom unaffected by fast forward
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
         {
             if (wheel_scrolled_up)
@@ -2004,39 +2004,39 @@ void get_isometric_or_front_view_mouse_inputs(struct Packet *pckt,int rotate_pre
             gui_next_battle(0);
         }
     }
-    // Only pan the camera as often as normal despite frameskip
-    if (game.frame_skip > 0)
+    // Only pan the camera as often as normal despite fast forward
+    if (game.fastforward_speed > 0)
     {
-        int frameskipMax = 1;
-        if (game.frame_skip < 4)
+        int fastforward_max = 1;
+        if (game.fastforward_speed < 4)
         {
-            frameskipMax = game.frame_skip;
+            fastforward_max = game.fastforward_speed;
         }
-        else if (game.frame_skip == 4)
+        else if (game.fastforward_speed == 4)
         {
-            frameskipMax = 3;
+            fastforward_max = 3;
         }
-        else if (game.frame_skip > 20 && game.frame_skip < 50)
+        else if (game.fastforward_speed > 20 && game.fastforward_speed < 50)
         {
-            frameskipMax = (game.frame_skip) / ( log(game.frame_skip) / log(17) );
+            fastforward_max = (game.fastforward_speed) / ( log(game.fastforward_speed) / log(17) );
         }
-        else if (game.frame_skip < 200)
+        else if (game.fastforward_speed < 200)
         {
-            frameskipMax = game.frame_skip / ( log(game.frame_skip) / log(10) );
+            fastforward_max = game.fastforward_speed / ( log(game.fastforward_speed) / log(10) );
         }
-        else if (game.frame_skip == 512) // max frameskip
+        else if (game.fastforward_speed == 512) // max fast forward
         {
-            frameskipMax = 60;
+            fastforward_max = 60;
         }
         else // more than 200 but less than 512
         {
-            frameskipMax = game.frame_skip / ( log(game.frame_skip) / log(4) );
+            fastforward_max = game.fastforward_speed / ( log(game.fastforward_speed) / log(4) );
         }
-        TbBool moveTheCamera = (global_frameskipTurn == 0);
-        //Checking for evenly distributed camera movement for the various frameskip amounts
+        TbBool moveTheCamera = (global_fastforward_turn == 0);
+        //Checking for evenly distributed camera movement for the various fast forward amounts
         //JUSTMSG("moveTheCamera: %d", moveTheCamera);
-        global_frameskipTurn++;
-        if (global_frameskipTurn > frameskipMax) global_frameskipTurn = 0;
+        global_fastforward_turn++;
+        if (global_fastforward_turn > fastforward_max) global_fastforward_turn = 0;
         if (!moveTheCamera) return;
     }
     // Camera Panning : mouse at window edge scrolling feature
@@ -2655,6 +2655,9 @@ TbBool active_menu_functions_while_paused()
  */
 short get_inputs(void)
 {
+    if (game.turns_to_skip > 0) {
+        game.turns_to_skip--;
+    }
     if ((game.mode_flags & MFlg_IsDemoMode) != 0)
     {
         SYNCDBG(5,"Starting for demo mode");

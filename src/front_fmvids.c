@@ -190,7 +190,7 @@ void demo(void)
         {
           strcpy(game.packet_fname, fname);
           game.packet_load_enable = 1;
-          game.turns_fastforward = 0;
+          game.turns_to_skip = 0;
           frontend_set_state(FeSt_PACKET_DEMO);
         }
         break;
