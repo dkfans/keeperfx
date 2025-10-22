@@ -823,8 +823,22 @@ float LbLerp(float low, float high, float interval)
     return (low * (1.0 - interval)) + (high * interval);
 }
 
-long lerp_angle(long from, long to, float weight) {
-    return (from + (long)((((to - from + (DEGREES_360 >> 1)) & (DEGREES_360 - 1)) - (DEGREES_360 >> 1)) * weight)) & (DEGREES_360 - 1);
+float fmodf(float x, float y)
+{
+    float result = x - ((int)(x / y)) * y;
+    if (result < 0) {
+        result += y;
+    }
+    return result;
+}
+
+float lerp_angle(float from, float to, float weight) {
+    float angle_difference = to - from;
+    float wrapped_difference = fmodf(angle_difference + DEGREES_180, DEGREES_360);
+    float shortest_distance = wrapped_difference - DEGREES_180;
+    float step = shortest_distance * weight;
+    float result = fmodf(from + step, DEGREES_360);
+    return result;
 }
 
 double fastPow(double a, double b)
