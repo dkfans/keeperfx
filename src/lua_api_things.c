@@ -191,7 +191,9 @@ static int thing_set_field(lua_State *L) {
         thing->health = luaL_checkinteger(L, 3);
     } else if (strcmp(key, "pos") == 0) 
     {
+        remove_thing_from_mapwho(thing);
         luaL_checkCoord3d(L, 3, &thing->mappos);
+        place_thing_in_mapwho(thing);
     }
 
     //Fields working for specific classes
