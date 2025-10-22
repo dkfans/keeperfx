@@ -191,7 +191,9 @@ static int thing_set_field(lua_State *L) {
         thing->health = luaL_checkinteger(L, 3);
     } else if (strcmp(key, "pos") == 0) 
     {
-        luaL_checkCoord3d(L, 3, &thing->mappos);
+        struct Coord3d pos;
+        luaL_checkCoord3d(L, 3, &pos);
+        move_thing_in_map(thing, &pos);
     }
 
     //Fields working for specific classes
