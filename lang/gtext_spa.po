@@ -4643,18 +4643,13 @@ msgstr ""
 
 #: guitext:628
 #, fuzzy
-#| msgctxt "Room description"
-#| msgid ""
-#| "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
-#| "creatures by dropping them into the fountain. LMB select. RMB zoom. "
-#| "[17.12]"
 msgctxt "Room description"
 msgid ""
 "Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
 "creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgstr ""
 "Templo: Adorar a los dioses oscuros hace más felices a tus criaturas. Para "
-"sacrificar criaturas, déjalas caer en la fuente. Selecciónalo con BIR. "
+"sacrificar criaturas, déjalas caer en la pila. Selecciónalo con BIR. "
 "Pulsando BDR, te desplazarás por los distintos templos que tengas colocados "
 "en tu mazmorra."
 
