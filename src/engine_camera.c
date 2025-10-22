@@ -49,17 +49,17 @@ long camera_zoom;
 long previous_cam_mappos_x;
 long previous_cam_mappos_y;
 long previous_cam_mappos_z;
-long interpolated_cam_mappos_x;
-long interpolated_cam_mappos_y;
-long interpolated_cam_mappos_z;
-long previous_cam_rotation_angle_x;
-long previous_cam_rotation_angle_y;
-long previous_cam_rotation_angle_z;
-long interpolated_cam_rotation_angle_x;
-long interpolated_cam_rotation_angle_y;
-long interpolated_cam_rotation_angle_z;
+float interpolated_cam_mappos_x;
+float interpolated_cam_mappos_y;
+float interpolated_cam_mappos_z;
+float previous_cam_rotation_angle_x;
+float previous_cam_rotation_angle_y;
+float previous_cam_rotation_angle_z;
+float interpolated_cam_rotation_angle_x;
+float interpolated_cam_rotation_angle_y;
+float interpolated_cam_rotation_angle_z;
 long previous_camera_zoom;
-long interpolated_camera_zoom;
+float interpolated_camera_zoom;
 /******************************************************************************/
 #ifdef __cplusplus
 }
