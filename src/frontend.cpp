@@ -1554,6 +1554,41 @@ void frontend_draw_computer_players(struct GuiButton *gbtn)
     lbDisplay.DrawFlags = 0;
 }
 
+void frontend_select_mp_mappack(struct GuiButton *gbtn)
+{
+    struct ScreenPacket *nspck;
+    nspck = &net_screen_packet[my_player_number];
+    if ((nspck->networkstatus_flags & 0xF8) == 0)
+    {
+        nspck->networkstatus_flags = (nspck->networkstatus_flags & 0x07) | 0x38;
+        nspck->param1 = (fe_computer_players == 0);
+    }
+}
+
+void frontend_draw_mp_mappack(struct GuiButton *gbtn)
+{
+    int font_idx;
+    font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
+    LbTextSetFont(frontend_font[font_idx]);
+    const char *text;
+
+
+    //TODO placeholder for mappack name
+    text = "TestPack";
+    int tx_units_per_px;
+    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
+    int ln_height;
+    ln_height = LbTextLineHeight() * tx_units_per_px / 16;
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, ln_height);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    //LbTextDrawResized(0, 0, tx_units_per_px, frontend_button_caption_text(gbtn));
+    //TODO needs translatable string
+    LbTextDrawResized(0, 0, tx_units_per_px, "Mappack:");
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    lbDisplay.DrawFlags = 0;
+}
+
 void set_packet_start(struct GuiButton *gbtn)
 {
     struct ScreenPacket *nspck;

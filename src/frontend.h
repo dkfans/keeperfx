@@ -361,6 +361,8 @@ void frontend_draw_enter_text(struct GuiButton *gbtn);
 void frontend_draw_small_menu_button(struct GuiButton *gbtn);
 void frontend_toggle_computer_players(struct GuiButton *gbtn);
 void frontend_draw_computer_players(struct GuiButton *gbtn);
+void frontend_select_mp_mappack(struct GuiButton *gbtn);
+void frontend_draw_mp_mappack(struct GuiButton *gbtn);
 void set_packet_start(struct GuiButton *gbtn);
 void gui_area_scroll_window(struct GuiButton *gbtn);
 void gui_go_to_event(struct GuiButton *gbtn);
