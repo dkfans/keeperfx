@@ -97,7 +97,7 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
             continue;
         }
         player = get_player(plyr_idx);
-        if (flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_AlwaysTunnelToRed))
+        if (flag_is_set(game.conf.rules[creatng->owner].game.classic_bugs_flags,ClscBug_AlwaysTunnelToRed))
         {
             if (creature_can_get_to_dungeon_heart(creatng, plyr_idx))
             {
@@ -1017,8 +1017,8 @@ short good_drops_gold(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return 0;
     }
-    GoldAmount amount = game.conf.rules.game.pot_of_gold_holds;
-    if (thing->creature.gold_carried <= game.conf.rules.game.pot_of_gold_holds)
+    GoldAmount amount = game.conf.rules[thing->owner].game.pot_of_gold_holds;
+    if (thing->creature.gold_carried <= game.conf.rules[thing->owner].game.pot_of_gold_holds)
         amount = thing->creature.gold_carried;
     struct Thing* gldtng = create_object(&thing->mappos, ObjMdl_GoldPot, thing->owner, -1);
     if (thing_is_invalid(gldtng)) {
@@ -1049,7 +1049,7 @@ short good_leave_through_exit_door(struct Thing *thing)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     thing->creature.gold_carried = 0;
-    cctrl->countdown = game.conf.rules.game.hero_door_wait_time;
+    cctrl->countdown = game.conf.rules[thing->owner].game.hero_door_wait_time;
     cctrl->hero.hero_gate_creation_turn = tmptng->creation_turn;
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
     if (cctrl->dragtng_idx != 0)
@@ -1163,7 +1163,7 @@ long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
         if (player_exists(player) && !dungeon_invalid(dungeon) && players_are_enemies(creatng->owner,plyr_idx))
         {
             long score = dungeon->total_score; //Original code: = dungeon->total_score -20 * dungeon->total_score * dungeon->field_F7D / 100;
-            if ((score <= 0) || (game.conf.rules.game.classic_bugs_flags & ClscBug_AlwaysTunnelToRed))
+            if ((score <= 0) || (game.conf.rules[creatng->owner].game.classic_bugs_flags & ClscBug_AlwaysTunnelToRed))
             {
                 score = 0;
             }

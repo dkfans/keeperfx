@@ -120,7 +120,7 @@ struct Configs {
     struct EffectsConfig effects_conf;
     struct CreatureConfig crtr_conf;
     struct ObjectsConfig object_conf;
-    struct RulesConfig rules;
+    struct RulesConfig rules[PLAYERS_COUNT];
     struct PlayerStateConfig plyr_conf;
     struct ColumnConfig column_conf;
     struct LuaFuncsConf lua;
@@ -265,7 +265,7 @@ struct Game {
     long frame_skip;
     TbBool frame_step;
     TbBool paused_at_gameturn;
-    GameTurnDelta pay_day_progress;
+    GameTurnDelta pay_day_progress[PLAYERS_COUNT];
     GameTurn armageddon_cast_turn;
     GameTurn armageddon_over_turn;
     PlayerNumber armageddon_caster_idx;

@@ -166,7 +166,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
     SYNCDBG(6,"Starting for player %d state %s",(int)plyr_idx,player_state_code_name(player->work_state));
     struct Packet* pckt = get_packet_direct(player->packet_num);
 
-    while (game.conf.rules.magic.allow_instant_charge_up && is_game_key_pressed(Gkey_SpeedMod, NULL, true))
+    while (game.conf.rules[plyr_idx].magic.allow_instant_charge_up && is_game_key_pressed(Gkey_SpeedMod, NULL, true))
     {
         struct PowerConfigStats *powerst = get_power_model_stats(player->chosen_power_kind);
 
@@ -226,7 +226,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         return false;
     }
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long revenue = compute_value_percentage(roomst->cost, game.conf.rules.game.room_sale_percent);
+    long revenue = compute_value_percentage(roomst->cost, game.conf.rules[plyr_idx].game.room_sale_percent);
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
@@ -994,7 +994,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       if (!is_player_ally_locked(plyr_idx, pckt->actn_par1))
       {
          toggle_ally_with_player(plyr_idx, pckt->actn_par1);
-         if (game.conf.rules.game.allies_share_vision)
+         if (game.conf.rules[plyr_idx].game.allies_share_vision)
          {
             panel_map_update(0, 0, game.map_subtiles_x+1, game.map_subtiles_y+1);
          }

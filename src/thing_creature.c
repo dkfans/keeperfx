@@ -211,7 +211,7 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
                 add_creature_to_group(thing, grthing);
             }
             n++;
-            if (n >= game.conf.rules.rooms.barrack_max_party_size || n >= GROUP_MEMBERS_COUNT)
+            if (n >= game.conf.rules[grthing->owner].rooms.barrack_max_party_size || n >= GROUP_MEMBERS_COUNT)
             {
                 break;
             }
@@ -622,7 +622,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
         if (cctrl->hunger_loss < 255) {
               cctrl->hunger_loss++;
         }
-        apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
+        apply_health_to_thing_and_display_health(creatng, game.conf.rules[creatng->owner].health.food_health_gain);
         cctrl->hunger_level = 0;
     }
     // Food is destroyed just below, so the sound must be made by creature
@@ -2875,7 +2875,7 @@ void throw_out_gold(struct Thing* thing, long amount)
     int num_pots_to_drop;
     // Compute if we want bags or pots
     int dropject = 6; //GOLD object
-    if ((game.conf.rules.game.pot_of_gold_holds > game.conf.rules.game.bag_gold_hold) && (amount <= game.conf.rules.game.bag_gold_hold))
+    if ((game.conf.rules[thing->owner].game.pot_of_gold_holds > game.conf.rules[thing->owner].game.bag_gold_hold) && (amount <= game.conf.rules[thing->owner].game.bag_gold_hold))
     {
             dropject = 136; //Drop GOLD_BAG object when we're dealing with small amounts
             num_pots_to_drop = 1;
@@ -2883,7 +2883,7 @@ void throw_out_gold(struct Thing* thing, long amount)
     else //drop pots
     {
         // Compute how many pots we want to drop
-        num_pots_to_drop = ((amount + game.conf.rules.game.pot_of_gold_holds - 1) / game.conf.rules.game.pot_of_gold_holds);
+        num_pots_to_drop = ((amount + game.conf.rules[thing->owner].game.pot_of_gold_holds - 1) / game.conf.rules[thing->owner].game.pot_of_gold_holds);
         if (num_pots_to_drop > 8)
         {
             num_pots_to_drop = 8;
@@ -3166,7 +3166,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 
     creature_throw_out_gold(thing);
     // Beyond this point, the creature thing is bound to be deleted
-    if ((!flag_is_set(flags,CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules.game.classic_bugs_flags,ClscBug_ResurrectRemoved)))
+    if ((!flag_is_set(flags,CrDed_NotReallyDying)) || (flag_is_set(game.conf.rules[thing->owner].game.classic_bugs_flags,ClscBug_ResurrectRemoved)))
     {
         // If the creature is leaving dungeon, or being transformed, then CrDed_NotReallyDying should be set
         update_dead_creatures_list_for_owner(thing);
@@ -4730,7 +4730,7 @@ TbBool creature_count_below_map_limit(TbBool temp_creature)
     if (game.thing_lists[TngList_Creatures].count >= CREATURES_COUNT-1)
         return false;
 
-    return ((game.thing_lists[TngList_Creatures].count - temp_creature) < game.conf.rules.game.creatures_count);
+    return ((game.thing_lists[TngList_Creatures].count - temp_creature) < game.conf.rules[0].game.creatures_count);
 }
 
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
@@ -5629,7 +5629,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
     HitPoints health_permil = get_creature_health_permil(thing);
     // If it's angry but not furious, or has lost health due to disease, then should be placed in temple.
     if ((anger_is_creature_angry(thing)
-    || (creature_under_spell_effect(thing, CSAfF_Disease) && (health_permil <= (game.conf.rules.computer.disease_to_temple_pct * 10))))
+    || (creature_under_spell_effect(thing, CSAfF_Disease) && (health_permil <= (game.conf.rules[thing->owner].computer.disease_to_temple_pct * 10))))
     && creature_can_do_job_for_player(thing, dungeon->owner, Job_TEMPLE_PRAY, JobChk_None))
     {
         // If already at temple, then don't do anything
@@ -6254,7 +6254,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        WARNLOG("Killing %s index %d with invalid control %d.(%d)",thing_model_name(thing),(int)thing->index, thing->ccontrol_idx, game.conf.rules.game.creatures_count);
+        WARNLOG("Killing %s index %d with invalid control %d.(%d)",thing_model_name(thing),(int)thing->index, thing->ccontrol_idx, game.conf.rules[thing->owner].game.creatures_count);
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
@@ -6496,7 +6496,7 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
                 // Unless the relevant classic bug is enabled,
                 // neutral creatures in custody (prison/torture) can only be claimed by the player who holds it captive
                 // and neutral creatures can not be claimed by creatures in custody.
-                if ((game.conf.rules.game.classic_bugs_flags & ClscBug_PassiveNeutrals)
+                if ((game.conf.rules[creatng->owner].game.classic_bugs_flags & ClscBug_PassiveNeutrals)
                     || (get_room_creature_works_in(thing)->owner == creatng->owner && !creature_is_kept_in_custody(creatng))
                     || !(creature_is_kept_in_custody(thing) || creature_is_kept_in_custody(creatng)))
                 {
@@ -6941,7 +6941,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
             }
              else if (room_role_matches(room->kind, RoRoF_LairStorage))
             {
-                if(game.conf.rules.workers.drag_to_lair)
+                if(game.conf.rules[creatng->owner].workers.drag_to_lair)
                 {
                     if (thing_is_creature(droptng) && (creatng->owner == droptng->owner))
                     {
@@ -6955,7 +6955,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                                 initialise_thing_state(droptng, CrSt_CreatureGoingHomeToSleep);
                             }
                             //creature doesn't have a lair room but it will and can sleep here
-                            if ((game.conf.rules.workers.drag_to_lair == 2)
+                            if ((game.conf.rules[creatng->owner].workers.drag_to_lair == 2)
                                 && (dropctrl->lair_room_id == 0)
                                 && (creature_can_do_healing_sleep(droptng))
                                 && (room_has_enough_free_capacity_for_creature_job(room, droptng, Job_TAKE_SLEEP)))
@@ -7234,7 +7234,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
     {
         if (creature_is_being_unconscious(picktng))
         {
-            if ((game.conf.rules.workers.drag_to_lair > 0) && (picktng->owner == creatng->owner))
+            if ((game.conf.rules[creatng->owner].workers.drag_to_lair > 0) && (picktng->owner == creatng->owner))
             {
                 return (picktng->owner == creatng->owner);
             }
