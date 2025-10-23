@@ -19,7 +19,7 @@
 ---@field CAMPAIGN_FLAG6 integer
 ---@field CAMPAIGN_FLAG7 integer
 
----@class Player: creaturefields,roomfields,flagfields
+---@class Player: creaturefields,roomfields,flagfields,trapfields,doorfields
 ---@field private name string
 ---
 ---@field CONTROLS creaturefields
