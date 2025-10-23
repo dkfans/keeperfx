@@ -172,15 +172,18 @@ void reset_eye_lenses(struct PlayerInfo* player)
     SYNCDBG(7,"Starting");
     free_mist();
     clear_lens_palette(player);
-    if (eye_lens_memory != NULL)
+    if (is_my_player(player))
     {
-        free(eye_lens_memory);
-        eye_lens_memory = NULL;
-    }
-    if (eye_lens_spare_screen_memory != NULL)
-    {
-        free(eye_lens_spare_screen_memory);
-        eye_lens_spare_screen_memory = NULL;
+        if (eye_lens_memory != NULL)
+        {
+            free(eye_lens_memory);
+            eye_lens_memory = NULL;
+        }
+        if (eye_lens_spare_screen_memory != NULL)
+        {
+            free(eye_lens_spare_screen_memory);
+            eye_lens_spare_screen_memory = NULL;
+        }
     }
     clear_flag(game.mode_flags, MFlg_EyeLensReady);
     player->active_lens_type = 0;
