@@ -4240,7 +4240,7 @@ void draw_creature_view(struct Thing *thing)
 {
   // If no eye lens required - just draw on the screen, directly
   struct PlayerInfo* player = get_my_player();
-  if (((game.mode_flags & MFlg_EyeLensReady) == 0) || (eye_lens_memory == NULL) || (player->applied_lens_type == 0))
+  if ((player->eye_lens_ready == false) || (eye_lens_memory == NULL) || (player->applied_lens_type == 0))
   {
       engine(player,&player->cameras[CamIV_FirstPerson]);
       return;
