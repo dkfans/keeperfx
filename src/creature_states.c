@@ -1173,7 +1173,10 @@ TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, cons
                     pos->x.val = subtile_coord_center(x);
                     pos->y.val = subtile_coord_center(y);
                     pos->z.val = get_thing_height_at_with_radius(thing, pos, block_radius);
-                    return true;
+                    if (!thing_in_wall_at_with_radius(thing, pos, block_radius))
+                    {
+                        return true;
+                    }
                 }
             }
         }
@@ -1252,16 +1255,9 @@ TbBool fill_moveable_small_around_slabs_array_in_room(TbBool *avail, const struc
 
 TbBool set_position_at_slab_for_thing(struct Coord3d *pos, const struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, long start_stl)
 {
-    long block_radius = subtile_coord(thing_nav_block_sizexy(thing), 0) / 2;
     struct Coord3d locpos;
     if (creature_find_safe_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
     {
-        if (thing_in_wall_at_with_radius(thing, &locpos, block_radius))
-        {
-            SYNCDBG(8,"The %s index %d can't fit to safe position (%d,%d)", thing_model_name(thing),
-                (int)thing->index, (int)locpos.x.stl.num, (int)locpos.y.stl.num);
-            return false;
-        }
         pos->x.val = locpos.x.val;
         pos->y.val = locpos.y.val;
         pos->z.val = locpos.z.val;
