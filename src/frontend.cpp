@@ -204,6 +204,7 @@ struct GuiMenu *menu_list[] = {
     &spell_menu2,
     &room_menu2,
     &trap_menu2,
+    &frontend_select_mp_mappack_menu,
     NULL,
 };
 
@@ -1554,16 +1555,6 @@ void frontend_draw_computer_players(struct GuiButton *gbtn)
     lbDisplay.DrawFlags = 0;
 }
 
-void frontend_select_mp_mappack(struct GuiButton *gbtn)
-{
-    struct ScreenPacket *nspck;
-    nspck = &net_screen_packet[my_player_number];
-    if ((nspck->networkstatus_flags & 0xF8) == 0)
-    {
-        nspck->networkstatus_flags = (nspck->networkstatus_flags & 0x07) | 0x38;
-        nspck->param1 = (fe_computer_players == 0);
-    }
-}
 
 void frontend_draw_mp_mappack(struct GuiButton *gbtn)
 {
@@ -1846,6 +1837,32 @@ void frontend_load_mappacks(struct GuiButton *gbtn)
     }
 }
 
+void frontend_load_mp_mappacks(struct GuiButton *gbtn)
+{
+    const char *cmpgn_fname;
+    SYNCDBG(6,"Clicked");
+    // Check if we can show some levels without showing the map pack selection screen
+    if (mappacks_list.items_num < 1)
+      cmpgn_fname = "";
+    else
+    if (mappacks_list.items_num == 1)
+      cmpgn_fname = mappacks_list.items[0].fname;
+    else
+      cmpgn_fname = NULL;
+    if (cmpgn_fname != NULL)
+    { // If there's only one map pack, then just show the levels
+      if (!change_campaign(cmpgn_fname))
+      {
+        ERRORLOG("Unable to load map pack list");
+        return;
+      }
+      frontend_set_state(FeSt_LEVEL_SELECT);
+    } else
+    { // If there's more map packs, go to selection screen
+      frontend_set_state(FeSt_MP_MAPPACK_SELECT);
+    }
+}
+
 /**
  * Writes the continue game file.
  * If allow_lvnum_grow is true and my_player has won the singleplayer level,
@@ -2100,6 +2117,7 @@ short is_toggleable_menu(short mnu_idx)
   case GMnu_MAPPACK_SELECT:
   case GMnu_FECAMPAIGN_SELECT:
   case GMnu_FEERROR_BOX:
+  case GMnu_MP_MAPPACK_SELECT:
       return false;
   default:
       return true;
@@ -2781,6 +2799,9 @@ void frontend_shutdown_state(FrontendMenuState pstate)
     case FeSt_CAMPAIGN_SELECT:
         turn_off_menu(GMnu_FECAMPAIGN_SELECT);
         break;
+    case FeSt_MP_MAPPACK_SELECT:
+        turn_off_menu(GMnu_MP_MAPPACK_SELECT);
+        break;
     case FeSt_START_KPRLEVEL:
     case FeSt_START_MPLEVEL:
     case FeSt_QUIT_GAME:
@@ -2932,6 +2953,11 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
         frontend_campaign_list_load();
         set_pointer_graphic_menu();
         break;
+    case FeSt_MP_MAPPACK_SELECT:
+        turn_on_menu(GMnu_MP_MAPPACK_SELECT);
+        frontend_mappack_list_load();
+        set_pointer_graphic_menu();
+        break;
   #if (BFDEBUG_LEVEL > 0)
     case FeSt_FONT_TEST:
         fade_palette_in = 0;
@@ -2984,6 +3010,7 @@ static const char * menu_state_str(FrontendMenuState state)
         case FeSt_DRAG: return "FeSt_DRAG";
         case FeSt_CAMPAIGN_INTRO: return "FeSt_CAMPAIGN_INTRO";
         case FeSt_MAPPACK_SELECT: return "FeSt_MAPPACK_SELECT";
+        case FeSt_MP_MAPPACK_SELECT: return "FeSt_MP_MAPPACK_SELECT";
         case FeSt_FONT_TEST: return "FeSt_FONT_TEST";
     }
     return "unknown";
@@ -3481,6 +3508,7 @@ short frontend_draw(void)
     case FeSt_LEVEL_SELECT:
     case FeSt_MAPPACK_SELECT:
     case FeSt_CAMPAIGN_SELECT:
+    case FeSt_MP_MAPPACK_SELECT:
         frontend_copy_background();
         draw_gui();
         break;
