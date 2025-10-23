@@ -188,10 +188,11 @@ const struct NamedCommand conf_commands[] = {
   };
   
   const struct NamedCommand tag_modes[] = {
-  {"SINGLE",  1},
-  {"DRAG",    2},
-  {"PRESET",  3},
-  {NULL,      0},
+  {"SINGLE",   1},
+  {"DRAG",     2},
+  {"PRESET",   3}, //legacy
+  {"REMEMBER", 3},
+  {NULL,       0},
   };
 
 unsigned int vid_scale_flags = SMK_FullscreenFit;

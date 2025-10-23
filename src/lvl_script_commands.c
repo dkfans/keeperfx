@@ -707,7 +707,7 @@ static void add_to_party_check(const struct ScriptLine *scline)
     int party_id = get_party_index_of_name(scline->tp[0]);
     if (party_id < 0)
     {
-        SCRPTERRLOG("Invalid Party:%s",scline->tp[1]);
+        SCRPTERRLOG("Invalid Party:%s",scline->tp[0]);
         return;
     }
     if ((scline->np[2] < 1) || (scline->np[2] > CREATURE_MAX_LEVEL))
@@ -734,17 +734,23 @@ static void add_to_party_check(const struct ScriptLine *scline)
         add_member_to_party(party_id, crtr_id, scline->np[2], scline->np[3], objective_id, scline->np[5]);
     } else
     {
-        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        pr_trig->flags = TrgF_ADD_TO_PARTY;
-        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
-        pr_trig->party_id = party_id;
-        pr_trig->creatr_id = crtr_id;
-        pr_trig->exp_level = scline->np[2];
-        pr_trig->carried_gold = scline->np[3];
-        pr_trig->objectv = objective_id;
-        pr_trig->countdown = scline->np[5];
-        pr_trig->condit_idx = get_script_current_condition();
-
+        if (game.script.party_triggers_num < PARTY_TRIGGERS_COUNT)
+        {
+            struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num];
+            pr_trig->flags = TrgF_ADD_TO_PARTY;
+            pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
+            pr_trig->party_id = party_id;
+            pr_trig->creatr_id = crtr_id;
+            pr_trig->exp_level = scline->np[2];
+            pr_trig->carried_gold = scline->np[3];
+            pr_trig->objectv = objective_id;
+            pr_trig->countdown = scline->np[5];
+            pr_trig->condit_idx = get_script_current_condition();
+        }
+        else
+        {
+            SCRPTERRLOG("Max party triggers reached, failed to update %s with %s", scline->tp[0], scline->tp[1]);
+        }
         game.script.party_triggers_num++;
     }
 }
@@ -768,14 +774,20 @@ static void delete_from_party_check(const struct ScriptLine *scline)
         delete_member_from_party(party_id, creature_id, scline->np[2]);
     } else
     {
-        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        pr_trig->flags = TrgF_DELETE_FROM_PARTY;
-        pr_trig->flags |= next_command_reusable?TrgF_REUSABLE:0;
-        pr_trig->party_id = party_id;
-        pr_trig->creatr_id = creature_id;
-        pr_trig->exp_level = scline->np[2];
-        pr_trig->condit_idx = get_script_current_condition();
-
+        if (game.script.party_triggers_num < PARTY_TRIGGERS_COUNT)
+        {
+            struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num];
+            pr_trig->flags = TrgF_DELETE_FROM_PARTY;
+            pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
+            pr_trig->party_id = party_id;
+            pr_trig->creatr_id = creature_id;
+            pr_trig->exp_level = scline->np[2];
+            pr_trig->condit_idx = get_script_current_condition();
+        }
+        else
+        {
+            SCRPTERRLOG("Max party triggers reached, failed to update %s with %s", scline->tp[0], scline->tp[1]);
+        }
         game.script.party_triggers_num++;
     }
 }
@@ -3410,7 +3422,7 @@ static void change_slab_owner_check(const struct ScriptLine *scline)
         SCRPTWRNLOG("Fill type %s not recognized", scline->tp[3]);
     }
 
-    command_add_value(Cmd_CHANGE_SLAB_OWNER, scline->np[2], scline->np[0], scline->np[1], get_id(fill_desc, scline->tp[3]));
+    command_add_value(Cmd_CHANGE_SLAB_OWNER, scline->np[2], scline->np[0], scline->np[1], filltype);
 }
 
 static void change_slab_owner_process(struct ScriptContext *context)
@@ -4355,7 +4367,7 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
     }
     if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
     {
-        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
+        SCRPTERRLOG("Too many ADD_CREATURE commands to spawn effect generator in script");
         DEALLOCATE_SCRIPT_VALUE;
         return;
     }
@@ -4383,16 +4395,23 @@ static void add_effectgen_to_level_process(struct ScriptContext* context)
     }
     else
     {
-        struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        pr_trig->flags = TrgF_CREATE_EFFECT_GENERATOR;
-        pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
-        pr_trig->plyr_idx = 0; //not needed
-        pr_trig->creatr_id = 0; //not needed
-        pr_trig->exp_level = gen_id;
-        pr_trig->carried_gold = range;
-        pr_trig->location = location;
-        pr_trig->ncopies = 1;
-        pr_trig->condit_idx = get_script_current_condition();
+        if (game.script.party_triggers_num < PARTY_TRIGGERS_COUNT)
+        {
+            struct PartyTrigger* pr_trig = &game.script.party_triggers[game.script.party_triggers_num];
+            pr_trig->flags = TrgF_CREATE_EFFECT_GENERATOR;
+            pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
+            pr_trig->plyr_idx = 0; //not needed
+            pr_trig->creatr_id = 0; //not needed
+            pr_trig->exp_level = gen_id;
+            pr_trig->carried_gold = range;
+            pr_trig->location = location;
+            pr_trig->ncopies = 1;
+            pr_trig->condit_idx = get_script_current_condition();
+        }
+        else
+        {
+            SCRPTERRLOG("Max party triggers reached, failed to spawn effect generator");
+        }
         game.script.party_triggers_num++;
     }
 }
@@ -5590,7 +5609,7 @@ static void add_object_to_level_check(const struct ScriptLine* scline)
     }
 
     value->chars[2] = plyr_idx;
-    value->shorts[6] = angle;
+    value->shorts[8] = angle;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -5599,7 +5618,7 @@ static void add_object_to_level_process(struct ScriptContext* context)
     struct Coord3d pos;
     if (get_coords_at_location(&pos,context->value->ulongs[1],true))
     {
-        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->longs[2], context->value->chars[2], context->value->shorts[6]);
+        script_process_new_object(context->value->shorts[0], pos.x.stl.num, pos.y.stl.num, context->value->longs[2], context->value->chars[2], context->value->shorts[8]);
     }
 }
 

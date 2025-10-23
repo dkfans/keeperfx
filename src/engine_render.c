@@ -520,7 +520,7 @@ static void calculate_hud_scale(struct Camera *cam) {
     hud_scale = ((range_input - range_min)) / (range_max - range_min);
 }
 
-long interpolate(long variable_to_interpolate, long previous, long current)
+float interpolate(float variable_to_interpolate, long previous, long current)
 {
     if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
         return current;
@@ -528,18 +528,23 @@ long interpolate(long variable_to_interpolate, long previous, long current)
     // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
     long future = current + (current - previous);
     // 0.5 is definitely accurate. Tested by rotating the camera while comparing the minimap's rotation with the camera's rotation in a video recording.
-    long desired_value = LbLerp(current, future, 0.5);
+    float desired_value = LbLerp(current, future, 0.5);
     return LbLerp(variable_to_interpolate, desired_value, game.delta_time);
 }
 
-long interpolate_angle(long variable_to_interpolate, long previous, long current)
+float interpolate_angle(float variable_to_interpolate, float previous, float current)
 {
     if (is_feature_on(Ft_DeltaTime) == false) {
         return current;
     }
-    long future = current + (current - previous);
-    long desired_value = lerp_angle(current, future, 0.5);
-    return lerp_angle(variable_to_interpolate, desired_value, game.delta_time);
+    float future = current + (current - previous);
+    float desired_value = lerp_angle(current, future, 0.5);
+    float result = lerp_angle(variable_to_interpolate, desired_value, game.delta_time);
+    float result_change = fmodf((result - current) + DEGREES_180, DEGREES_360) - DEGREES_180;
+    if (result_change > -0.5f && result_change < 0.5f) {
+        return current;
+    }
+    return result;
 }
 
 void interpolate_thing(struct Thing *thing)
@@ -578,9 +583,9 @@ void interpolate_camera(struct Camera *cam)
     // Smooth zoom
     interpolated_camera_zoom = interpolate(interpolated_camera_zoom, previous_camera_zoom, camera_zoom);
     // Smooth rotation, including possessed creature mouselook
-    interpolated_cam_rotation_angle_x = interpolate_angle(interpolated_cam_rotation_angle_x, previous_cam_rotation_angle_x, cam->rotation_angle_x);
-    interpolated_cam_rotation_angle_y = interpolate_angle(interpolated_cam_rotation_angle_y, previous_cam_rotation_angle_y, cam->rotation_angle_y);
-    interpolated_cam_rotation_angle_z = interpolate_angle(interpolated_cam_rotation_angle_z, previous_cam_rotation_angle_z, cam->rotation_angle_z);
+    interpolated_cam_rotation_angle_x = interpolate_angle(interpolated_cam_rotation_angle_x, previous_cam_rotation_angle_x, (float)cam->rotation_angle_x);
+    interpolated_cam_rotation_angle_y = interpolate_angle(interpolated_cam_rotation_angle_y, previous_cam_rotation_angle_y, (float)cam->rotation_angle_y);
+    interpolated_cam_rotation_angle_z = interpolate_angle(interpolated_cam_rotation_angle_z, previous_cam_rotation_angle_z, (float)cam->rotation_angle_z);
     // Smooth camera position, including possessed creature position
     interpolated_cam_mappos_x = interpolate(interpolated_cam_mappos_x, previous_cam_mappos_x, cam->mappos.x.val);
     interpolated_cam_mappos_y = interpolate(interpolated_cam_mappos_y, previous_cam_mappos_y, cam->mappos.y.val);
@@ -6837,10 +6842,10 @@ void draw_view(struct Camera *cam, unsigned char a2)
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     interpolate_camera(cam);
-    camera_zoom = interpolated_camera_zoom;
-    long x = interpolated_cam_mappos_x;
-    long y = interpolated_cam_mappos_y;
-    long z = interpolated_cam_mappos_z;
+    camera_zoom = (long)interpolated_camera_zoom;
+    long x = (long)interpolated_cam_mappos_x;
+    long y = (long)interpolated_cam_mappos_y;
+    long z = (long)interpolated_cam_mappos_z;
 
     getpoly = poly_pool;
     memset(buckets, 0, sizeof(buckets));
@@ -6863,13 +6868,13 @@ void draw_view(struct Camera *cam, unsigned char a2)
     rotpers = rotpers_routines[i];
     update_fade_limits(cells_away);
     init_coords_and_rotation(&object_origin,&camera_matrix);
-    rotate_base_axis(&camera_matrix, interpolated_cam_rotation_angle_x, 2);
+    rotate_base_axis(&camera_matrix, (long)interpolated_cam_rotation_angle_x, 2);
     update_normal_shade(&camera_matrix);
-    rotate_base_axis(&camera_matrix, -interpolated_cam_rotation_angle_y, 1);
-    rotate_base_axis(&camera_matrix, -interpolated_cam_rotation_angle_z, 3);
-    cam_map_angle = interpolated_cam_rotation_angle_x;
-    map_roll = interpolated_cam_rotation_angle_z;
-    map_tilt = -interpolated_cam_rotation_angle_y;
+    rotate_base_axis(&camera_matrix, -(long)interpolated_cam_rotation_angle_y, 1);
+    rotate_base_axis(&camera_matrix, -(long)interpolated_cam_rotation_angle_z, 3);
+    cam_map_angle = (long)interpolated_cam_rotation_angle_x;
+    map_roll = (long)interpolated_cam_rotation_angle_z;
+    map_tilt = -(long)interpolated_cam_rotation_angle_y;
 
     frame_wibble_generate();
     view_alt = z;
@@ -7086,31 +7091,31 @@ static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos
     struct PlayerInfo* player = get_my_player();
 
     zoom = 32 * camera_zoom / 256;
-    orientation = ((unsigned int)(interpolated_cam_rotation_angle_x + DEGREES_45) / DEGREES_90) & 3;
+    orientation = ((unsigned int)((long)interpolated_cam_rotation_angle_x + DEGREES_45) / DEGREES_90) & 3;
 
     switch ( orientation )
     {
         case 0:
-            vertical_delta = pos->y.val - interpolated_cam_mappos_y;
-            horizontal_delta = pos->x.val - interpolated_cam_mappos_x;
+            vertical_delta = pos->y.val - (long)interpolated_cam_mappos_y;
+            horizontal_delta = pos->x.val - (long)interpolated_cam_mappos_x;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 1:
-            vertical_delta = interpolated_cam_mappos_x - pos->x.val;
-            horizontal_delta = pos->y.val - interpolated_cam_mappos_y;
+            vertical_delta = (long)interpolated_cam_mappos_x - pos->x.val;
+            horizontal_delta = pos->y.val - (long)interpolated_cam_mappos_y;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 2:
-            vertical_delta = interpolated_cam_mappos_y - pos->y.val;
-            horizontal_delta = interpolated_cam_mappos_x - pos->x.val;
+            vertical_delta = (long)interpolated_cam_mappos_y - pos->y.val;
+            horizontal_delta = (long)interpolated_cam_mappos_x - pos->x.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
 
         case 3:
-            vertical_delta = pos->x.val - interpolated_cam_mappos_x;
-            horizontal_delta = interpolated_cam_mappos_y - pos->y.val;
+            vertical_delta = pos->x.val - (long)interpolated_cam_mappos_x;
+            horizontal_delta = (long)interpolated_cam_mappos_y - pos->y.val;
             result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
             break;
     }
@@ -8983,9 +8988,9 @@ void draw_frontview_engine(struct Camera *cam)
     zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     interpolate_camera(cam);
-    camera_zoom = interpolated_camera_zoom;
-    cam_x = interpolated_cam_mappos_x;
-    cam_y = interpolated_cam_mappos_y;
+    camera_zoom = (long)interpolated_camera_zoom;
+    cam_x = (long)interpolated_cam_mappos_x;
+    cam_y = (long)interpolated_cam_mappos_y;
     pointer_x = (GetMouseX() - player->engine_window_x) / pixel_size;
     pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
     LbScreenStoreGraphicsWindow(&grwnd);

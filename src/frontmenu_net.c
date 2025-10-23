@@ -41,6 +41,7 @@
 #include "sprites.h"
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
+#include "bflib_enet.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -372,8 +373,20 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         spr = get_frontend_sprite(GFS_bullfrog_red_med+netplyr_idx);
         i = height - spr->SHeight * fs_units_per_px / 16;
         LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y + shift_y + abs(i)/2, fs_units_per_px, spr);
+
+        char player_text[128];
+        unsigned long ping = 0;
+        if (netplyr_idx != my_player_number) {
+            ping = LbEnet_GetPing(netplyr_idx);
+        }
+        if (ping > 0) {
+            snprintf(player_text, sizeof(player_text), "%s - %lums", text, ping);
+        } else {
+            snprintf(player_text, sizeof(player_text), "%s", text);
+        }
+
         LbTextSetWindow(gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16, gbtn->scr_pos_y + shift_y, gbtn->width - spr->SWidth * fs_units_per_px / 16, height);
-        LbTextDrawResized(0, 0, tx_units_per_px, text);
+        LbTextDrawResized(0, 0, tx_units_per_px, player_text);
     }
 }
 

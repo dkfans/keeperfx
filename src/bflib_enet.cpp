@@ -359,3 +359,22 @@ struct NetSP *InitEnetSP()
     };
     return &ret;
 }
+
+unsigned long LbEnet_GetPing(NetUserId id) {
+    if (client_peer && client_peer->state == ENET_PEER_STATE_CONNECTED) {
+        return client_peer->roundTripTime;
+    }
+
+    if (host) {
+        for (ENetPeer *currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
+            if (currentPeer->state != ENET_PEER_STATE_CONNECTED) {
+                continue;
+            }
+            if (NetUserId(reinterpret_cast<ptrdiff_t>(currentPeer->data)) == id) {
+                return currentPeer->roundTripTime;
+            }
+        }
+    }
+
+    return 0;
+}

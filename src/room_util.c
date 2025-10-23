@@ -327,17 +327,11 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
         }
         return false;
     }
-    //Otherwise the old room needs modification too.
-    SYNCDBG(7, "Room on (%d,%d) had %d slabs", (int)slb_x, (int)slb_y, (int)room->slabs_count);
-    decrease_room_area(room->owner, 1);
-    kill_room_slab_and_contents(room->owner, slb_x, slb_y);
-    remove_slab_from_room_tiles_list(room, slb_x, slb_y);
-    if (room->slabs_count <= 1)
+    else
     {
-        delete_room_flag(room);
-        // If we're looking to place a non-room slab, simply place it.
         if (rkind == 0)
         {
+            delete_room_slab(slb_x, slb_y, 0);
             if (slab_kind_is_animated(slabkind))
             {
                 place_animating_slab_type_on_map(slabkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
@@ -352,33 +346,6 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
             // Create a new one-slab room
             place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
         }
-        if (count_slabs_of_room_type(room->owner, room->kind) <= 1)
-        {
-            event_create_event_or_update_nearby_existing_event(slb_x, slb_y, EvKind_RoomLost, room->owner, room->kind);
-        }
-        //Clean up old room
-        kill_all_room_slabs_and_contents(room);
-        free_room_structure(room);
-        do_slab_efficiency_alteration(slb_x, slb_y);
-        return true;
-    }
-    else
-    {
-        // Remove the slab from room tiles list
-        remove_slab_from_room_tiles_list(room, slb_x, slb_y);
-        // check again if it's a room or other slab
-        if (rkind == 0)
-        {
-            place_slab_type_on_map(slabkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
-        }
-        else
-        {
-            place_room(plyr_idx, rkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
-        }
-        // Create a new room from slabs left in old one
-        recreate_rooms_from_room_slabs(room, 0);
-        reset_creatures_rooms(room);
-        free_room_structure(room);
     }
     return true;
 }
@@ -386,10 +353,15 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
 void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
 {
     struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    if (slabmap_owner(slb) == plyr_idx)
+        return;
     if (slb->room_index)
     {
         struct Room* room = room_get(slb->room_index);
-        take_over_room(room, plyr_idx);
+        if (room_exists(room))
+        {
+            take_over_room(room, plyr_idx);
+        }
     } else
     {
         SlabKind slbkind = (slb->kind == SlbT_PATH) ? SlbT_CLAIMED : slb->kind;
@@ -402,18 +374,12 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
                 struct Thing* doortng = get_door_for_position(stl_x, stl_y);
                 if (!thing_is_invalid(doortng))
                 {
-                    if (!is_neutral_thing(doortng))
-                    {
-                        game.dungeon[doortng->owner].total_doors--;
-                    }
+                    game.dungeon[doortng->owner].total_doors--;
                     remove_key_on_door(doortng);
                     set_slab_owner(slb_x, slb_y, plyr_idx);
                     place_animating_slab_type_on_map(slbkind, doortng->door.closing_counter / 256, stl_x, stl_y, plyr_idx);
                     doortng->owner = plyr_idx;
-                    if (!is_neutral_thing(doortng))
-                    {
-                        game.dungeon[doortng->owner].total_doors++;
-                    }
+                    game.dungeon[doortng->owner].total_doors++;
                     if (doortng->door.is_locked)
                     {
                         add_key_on_door(doortng);
@@ -574,12 +540,10 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
             switch (rrole)
             {
             case RoRoF_LairStorage:
-                evidx = event_create_event_or_update_nearby_existing_event(
-                    creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index);
+                evidx = event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index);
                 break;
             case RoRoF_GoldStorage:
-                evidx = event_create_event_or_update_nearby_existing_event(
-                    0, 0, EvKind_TreasureRoomFull, plyr_idx, 0);
+                evidx = event_create_event_or_update_nearby_existing_event(0, 0, EvKind_TreasureRoomFull, plyr_idx, 0);
                 break;
             default:
                 evidx = 1;
@@ -606,12 +570,10 @@ EventIndex update_cannot_find_room_of_role_wth_spare_capacity_event(PlayerNumber
             switch (rrole)
             {
             case RoRoF_LairStorage:
-                evidx = event_create_event_or_update_nearby_existing_event(
-                    creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index);
+                evidx = event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, plyr_idx, creatng->index);
                 break;
             case RoRoF_GoldStorage:
-                evidx = event_create_event_or_update_nearby_existing_event(
-                    0, 0, EvKind_NeedTreasureRoom, plyr_idx, 0);
+                evidx = event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NeedTreasureRoom, plyr_idx, 0);
                 break;
             default:
                 evidx = 1;

@@ -2025,7 +2025,14 @@ void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, ch
     }
     if (duration == 0)
     {
-        famlrtng = activate_trap_spawn_creature(creatng, model);
+        for (int j = 0; j < sumcount; j++)
+        {
+            famlrtng = activate_trap_spawn_creature(creatng, model);
+            if (!thing_is_invalid(famlrtng))
+            {
+                creature_change_multiple_levels(famlrtng, sumxp);
+            }
+        }
     }
     else
     {

@@ -128,18 +128,18 @@ struct Configs {
 
 // Structure to store detailed thing information for desync analysis
 struct LogThingDesyncInfo {
+    ThingIndex index;             // Thing's index
     ThingClass class_id;          // Type of thing (creature, object, etc.)
     ThingModel model;             // Model within the class
     PlayerNumber owner;           // Owner player of the thing
+    GameTurn creation_turn;       // Turn when thing was created
     TbBigChecksum random_seed;    // Thing's random seed
     long pos_x;                   // Position X coordinate (full .val)
     long pos_y;                   // Position Y coordinate (full .val)
     long pos_z;                   // Position Z coordinate (full .val)
-    GameTurn creation_turn;       // Turn when thing was created
-    ThingIndex index;             // Thing's index
     HitPoints health;             // Thing's health
-    unsigned short max_frames;    // Maximum frames in animation
     unsigned short current_frame; // Current animation frame
+    unsigned short max_frames;    // Maximum frames in animation
     TbBigChecksum checksum;       // Thing's computed checksum
 };
 
