@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include <stdarg.h>
+#include <inttypes.h>
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
