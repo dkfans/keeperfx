@@ -171,3 +171,7 @@ extern "C" void LbFileFindEnd(TbFileFind * ff)
 	}
 	delete ff;
 }
+
+extern "C" int main(int argc, char *argv[]) {
+	return kfxmain(argc, argv);
+}

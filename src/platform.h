@@ -7,6 +7,7 @@
 extern "C" {
 #endif
 
+int kfxmain(int argc, char *argv[]);
 const char * get_os_version(void);
 const void * get_image_base(void);
 const char * get_wine_version(void);

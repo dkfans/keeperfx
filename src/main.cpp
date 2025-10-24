@@ -4345,7 +4345,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     return 0;
 }
 
-extern "C" int main(int argc, char *argv[])
+int kfxmain(int argc, char *argv[])
 {
   try {
   LbBullfrogMain(argc, argv);

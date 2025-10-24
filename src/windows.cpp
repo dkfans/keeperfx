@@ -102,8 +102,6 @@ LONG __stdcall Vex_handler(_EXCEPTION_POINTERS *ExceptionInfo)
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
-extern "C" int main(int argc, char **argv);
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow) {
     AddVectoredExceptionHandler(0, &Vex_handler);
     // Construct argc/argv from Unicode command line
@@ -122,8 +120,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
         argv[i] = args[i].data();
     }
     LocalFree(szArglist);
-    // Call regular main function
-    return main(argc, argv.data());
+    return kfxmain(argc, argv.data());
 }
 
 struct TbFileFind {
