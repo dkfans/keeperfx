@@ -939,7 +939,7 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
 #endif
         return Lb_SCREEN_MODE_INVALID;
     }
-    if (lbScreenModeInfoNum >= sizeof(lbScreenModeInfo)/sizeof(lbScreenModeInfo[0]))
+    if ((size_t) lbScreenModeInfoNum >= sizeof(lbScreenModeInfo)/sizeof(lbScreenModeInfo[0]))
     {
         // No free mode slots
         return Lb_SCREEN_MODE_INVALID;

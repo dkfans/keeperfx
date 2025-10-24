@@ -1513,7 +1513,7 @@ struct LevelInformation *get_next_level_info(struct LevelInformation *previnfo)
     return NULL;
   if (previnfo == NULL)
     return NULL;
-  int i = previnfo - &campaign.lvinfos[0];
+  unsigned long i = previnfo - &campaign.lvinfos[0];
   i++;
   if (i >= campaign.lvinfos_count)
     return NULL;
@@ -1829,7 +1829,7 @@ LevelNumber first_multiplayer_level(void)
  */
 LevelNumber first_extra_level(void)
 {
-    for (long lvidx = 0; lvidx < campaign.extra_levels_index; lvidx++)
+    for (unsigned long lvidx = 0; lvidx < campaign.extra_levels_index; lvidx++)
     {
         long lvnum = campaign.extra_levels[lvidx];
         if (lvnum > 0)

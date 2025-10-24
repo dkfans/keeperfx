@@ -1702,7 +1702,7 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
                 out_end -= xcurstep[0];
                 xcurstep += 2 * pxlen;
                 // In case we've exceeded sprite width, don't try to access xcurstep[] any more
-                if ((xcurstep - xstep)/2 >= sprite->SWidth)
+                if ((unsigned long) ((xcurstep - xstep) / 2) >= sprite->SWidth)
                     break;
                 out_end += xcurstep[0];
             }

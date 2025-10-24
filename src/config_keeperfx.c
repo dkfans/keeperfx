@@ -836,7 +836,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           {
               i = atoi(word_buf);
           }
-          if ((i >= 0) && (i < UINT32_MAX))
+          if ((i >= 0) && (i <= INT32_MAX))
           {
               if (!start_params.overrides[Clo_GameTurns])
               {
@@ -880,7 +880,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           {
               i = atoi(word_buf);
           }
-          if ((i >= 0) && (i < UINT32_MAX))
+          if ((i >= 0) && (i <= INT32_MAX))
           {
               if (!start_params.overrides[Clo_FramesPerSecond])
               {

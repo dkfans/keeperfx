@@ -567,7 +567,7 @@ short find_slot(long fild8, SoundBankID bank_id, struct SoundEmitter *emit, long
 {
     struct S3DSample *sample;
     long i;
-    long spcval = 2147483647;
+    int32_t spcval = INT32_MAX;
     short min_sample_id = SOUNDS_MAX_COUNT;
     if ((ctype == 2) || (ctype == 3))
     {
@@ -587,7 +587,7 @@ short find_slot(long fild8, SoundBankID bank_id, struct SoundEmitter *emit, long
         sample = &SampleList[i];
         if (sample->is_playing == 0)
             return i;
-        if (spcval > sample->priority)
+        if (spcval > (int32_t) sample->priority)
         {
             min_sample_id = i;
             spcval = sample->priority;

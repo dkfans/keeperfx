@@ -809,7 +809,7 @@ static void refresh_trap_anim(long trap_id)
         }
         // Per thing code ends.
         k++;
-        if (k > slist->index)
+        if (k > (int) slist->index)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;

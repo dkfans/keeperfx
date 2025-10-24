@@ -294,7 +294,7 @@ long add_freeplay_level_to_campaign(struct GameCampaign *campgn,LevelNumber lvnu
 {
   if (lvnum <= 0) return LEVELNUMBER_ERROR;
   // check if already in list
-  long i = 0;
+  unsigned long i = 0;
   while (i < campgn->freeplay_levels_count)
   {
     if (campgn->freeplay_levels[i] == lvnum)
@@ -319,7 +319,7 @@ struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, Le
   {
     init_level_info_entries(campgn,0);
   }
-  for (long i = 0; i < campgn->lvinfos_count; i++)
+  for (unsigned long i = 0; i < campgn->lvinfos_count; i++)
   {
       if (campgn->lvinfos[i].lvnum == lvnum)
       {
@@ -331,7 +331,7 @@ struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, Le
 
 struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, LevelNumber lvnum)
 {
-  long i;
+  unsigned long i;
   if (lvnum <= 0)
     return NULL;
   if (campgn->lvinfos == NULL)
@@ -1249,7 +1249,7 @@ TbBool load_campaign_to_list(const char *cmpgn_fname,struct CampaignsList *clist
 
 TbBool swap_campaigns_in_list(struct CampaignsList *clist, int idx1, int idx2)
 {
-    if ((idx1 < 0) || (idx1 >= clist->items_num) || (idx2 < 0) || (idx2 >= clist->items_num))
+    if ((idx1 < 0) || (idx1 >= (int) clist->items_num) || (idx2 < 0) || (idx2 >= (int) clist->items_num))
       return false;
     struct GameCampaign campbuf;
     memcpy(&campbuf, &clist->items[idx1], sizeof(struct GameCampaign));
@@ -1298,7 +1298,7 @@ void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
         ERRORLOG("failed to read %s",sort_fname);
         return;
     }
-    int beg = 0;
+    unsigned long beg = 0;
 
     char line[DISKPATH_SIZE];
     while(fgets(line, DISKPATH_SIZE, fp)) {
@@ -1306,7 +1306,7 @@ void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
         //cut off trailing \n
         line[strlen(line)-1] = 0;
 
-        for (int i = 0; i < clist->items_num; i++)
+        for (unsigned long i = 0; i < clist->items_num; i++)
         {
             if (strcasecmp(clist->items[i].fname,line) == 0)
             {
@@ -1387,7 +1387,7 @@ TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
     {
         return false;
     }
-    for (int i = 0; i < clist->items_num; i++)
+    for (unsigned long i = 0; i < clist->items_num; i++)
     {
         if (strcasecmp(clist->items[i].fname,cmpgn_fname) == 0)
         {
