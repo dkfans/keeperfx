@@ -473,19 +473,15 @@ int frontend_font_string_width(int fnt_idx, const char *str)
 
 void get_player_gui_clicks(void)
 {
-  struct PlayerInfo *player;
-  struct Thing *thing;
-  player = get_my_player();
-
   if ( ((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     return;
-
+  struct PlayerInfo *player = get_my_player();
   switch (player->view_type)
   {
   case PVT_CreaturePasngr:
       if (right_button_released)
       {
-        thing = thing_get(player->controlled_thing_idx);
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
         if (thing->class_id == TCls_Creature)
         {
           if (a_menu_window_is_active())
@@ -540,29 +536,25 @@ void get_player_gui_clicks(void)
                          {
                              if (!a_menu_window_is_active())
                              {
-                                struct Coord3d mappos;
-                                if (screen_to_map(player->acamera, right_button_clicked_x, right_button_clicked_y, &mappos))
+                                if (flag_is_set(player->additional_flags, PlaAF_ChosenSubTileIsHigh))
                                 {
-                                    if (subtile_is_diggable_for_player(player->id_number, mappos.x.stl.num, mappos.y.stl.num, false))
+                                    if (!left_button_held)
                                     {
-                                        if (!left_button_held)
-                                        {
-                                            long mode = settings.highlight_mode;
-                                            mode ^= 1;
-                                            set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 1, 0, 0);
-                                        }
-                                        else
-                                        {
-                                            set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
-                                        }
-                                        right_button_clicked = 0;
+                                        long mode = settings.highlight_mode;
+                                        mode ^= 1;
+                                        set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 1, 0, 0);
                                     }
+                                    else
+                                    {
+                                        set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+                                    }
+                                    right_button_clicked = 0;
                                 }
                              }
                           }
                          break;
                        } 
-                }
+                  }
               }
           }
         // do NOT do right_button_clicked = 0 here: it breaks dropping creatures!
