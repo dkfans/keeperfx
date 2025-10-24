@@ -186,7 +186,7 @@ int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
     if (chr >= 0xFF)
     {
         c = dbc_char_to_font_char(chr);
-        if ((c < 0) || (c >= active_dbcfont->chars_count))
+        if ((c < 0) || (c >= (long) active_dbcfont->chars_count))
           return 6;
         adraw->draw_char = chr;
         adraw->bits_width = active_dbcfont->bits_width;
@@ -348,7 +348,7 @@ int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const struct 
         x = -scr_x;
         scr_x = 0;
       } else
-      if (scr_x+adraw->bits_width > awind->width)
+      if ((long) (scr_x + adraw->bits_width) > awind->width)
       {
         if (scr_x >= awind->width)
           goto skip_sprite_draw;
@@ -1953,7 +1953,7 @@ short load_font_file(struct AsianFont * dbcfont, const char * fpath) {
     free(fname);
     return 1;
   }
-  if (LbFileRead(fhandle, dbcfont->data, dbcfont->data_length) != dbcfont->data_length)
+  if (LbFileRead(fhandle, dbcfont->data, dbcfont->data_length) != (long) dbcfont->data_length)
   {
       ERRORLOG("Error reading %ld bytes from \"%s\"", dbcfont->data_length, fname);
       free(fname);

@@ -216,7 +216,7 @@ void update_left_button_released(void)
     }
   } else
   {
-    if (left_button_click_space_count < LONG_MAX)
+    if (left_button_click_space_count < INT32_MAX)
       left_button_click_space_count++;
   }
 }
@@ -249,7 +249,7 @@ void update_right_button_released(void)
     }
   } else
   {
-    if (right_button_click_space_count < LONG_MAX)
+    if (right_button_click_space_count < INT32_MAX)
       right_button_click_space_count++;
   }
 }

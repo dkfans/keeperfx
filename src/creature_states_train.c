@@ -208,7 +208,7 @@ void setup_training_search_for_post(struct Thing *creatng)
     // Let's start from a random slab
     long slb_x = -1;
     long slb_y = -1;
-    long min_distance = LONG_MAX;
+    long min_distance = INT32_MAX;
     struct Thing* traintng = INVALID_THING;
     long start_slab = THING_RANDOM(creatng, room->slabs_count);
     long k = start_slab;

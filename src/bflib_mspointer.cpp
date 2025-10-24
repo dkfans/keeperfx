@@ -38,8 +38,8 @@ struct SSurface;
 /******************************************************************************/
 // Global variables
 volatile TbBool lbPointerAdvancedDraw;
-long cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
-long cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
+int32_t cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
+int32_t cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
 /******************************************************************************/
 
 void LbCursorSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
@@ -102,8 +102,8 @@ static long PointerDraw(long x, long y, const struct TbSprite *spr, TbPixel *out
     } else {
         LbCursorSpriteSetScalingHeightSimple(y, spr->SHeight, dheight);
     }
-    long *xstep;
-    long *ystep;
+    int32_t *xstep;
+    int32_t *ystep;
     {
         xstep = &cursor_xsteps_array[0];
         ystep = &cursor_ysteps_array[0];

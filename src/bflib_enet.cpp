@@ -16,8 +16,10 @@
 #include "bflib_enet.h"
 #include "bflib_network.h"
 
+#if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#endif
 #include <enet/enet.h>
 #include <cstddef>
 

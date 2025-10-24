@@ -29,7 +29,7 @@ extern "C" {
 #pragma pack(1)
 
 /******************************************************************************/
-extern unsigned long *eye_lens_memory;
+extern uint32_t *eye_lens_memory;
 extern TbPixel *eye_lens_spare_screen_memory;
 
 #pragma pack()

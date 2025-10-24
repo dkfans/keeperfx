@@ -413,7 +413,7 @@ void process_entrance_generation(void)
     }
     if (due)
     {
-        if (game.armageddon_cast_turn == 0) 
+        if (game.armageddon_cast_turn == 0)
         {
             update_dungeons_scores();
             update_dungeon_generation_speeds();
@@ -437,9 +437,9 @@ void add_creature_to_pool(ThingModel kind, long amount)
 {
     kind %= game.conf.crtr_conf.model_count;
 
-    if (amount > 0 && game.pool.crtr_kind[kind] > LONG_MAX - amount)
+    if (amount > 0 && game.pool.crtr_kind[kind] > INT32_MAX - amount)
     {
-        game.pool.crtr_kind[kind] = LONG_MAX;
+        game.pool.crtr_kind[kind] = INT32_MAX;
     }
     else if (amount < 0 && game.pool.crtr_kind[kind] < LONG_MIN - amount)
     {

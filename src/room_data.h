@@ -159,8 +159,8 @@ void do_room_recalculation(struct Room* room);
 long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind);
 long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole);
 long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind);
-void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind room_kind, long *total_cap, long *used_cap);
-void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, RoomKind room_kind, long *total_cap, long *used_cap, long *storaged_cap);
+void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind room_kind, int32_t *total_cap, int32_t *used_cap);
+void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, RoomKind room_kind, int32_t *total_cap, int32_t *used_cap, int32_t *storaged_cap);
 TbBool thing_is_on_any_room_tile(const struct Thing *thing);
 TbBool thing_is_on_own_room_tile(const struct Thing *thing);
 struct Room *get_room_thing_is_on(const struct Thing *thing);
@@ -179,8 +179,8 @@ struct Room *find_room_of_role_with_spare_room_item_capacity(PlayerNumber plyr_i
 struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long room_idx, long n, long spare);
 struct Room *find_room_of_role_with_spare_capacity(PlayerNumber owner, RoomRole rrole, long spare);
 struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_idx, long n, long spare);
-struct Room *find_room_of_role_with_most_spare_capacity(const struct Dungeon *dungeon,RoomRole rrole, long *total_spare_cap);
-struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind, const struct Coord3d *pos, long *room_distance);
+struct Room *find_room_of_role_with_most_spare_capacity(const struct Dungeon *dungeon,RoomRole rrole, int32_t *total_spare_cap);
+struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind, const struct Coord3d *pos, int32_t *room_distance);
 // Finding a navigable room for a thing
 struct Room *find_room_of_role_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags, long min_used_cap);
 struct Room *find_random_room_of_role_with_used_capacity_creature_can_navigate_to(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags);

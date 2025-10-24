@@ -330,7 +330,7 @@ TbBool init_bitmap_screen(struct ActiveBitmap *actv_bmp,int stype)
   actv_bmp->start_tm = LbTimerClock();
   SYNCDBG(18,"Starting; src %d,%d bpp %d",(int)actv_bmp->width,(int)actv_bmp->height,(int)actv_bmp->bpp);
   // Load PAL
-  long ldsize = PALETTE_SIZE;
+  int32_t ldsize = PALETTE_SIZE;
   unsigned char* buf = load_data_file_to_buffer(&ldsize, rbmp->fgroup, rbmp->pal_fname);
   if (buf == NULL)
   {

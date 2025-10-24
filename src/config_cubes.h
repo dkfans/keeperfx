@@ -49,7 +49,7 @@ struct CubeConfigStats {
 };
 
 struct CubesConfig {
-    long cube_types_count;
+    int32_t cube_types_count;
     struct CubeConfigStats cube_cfgstats[CUBE_ITEMS_MAX];
     unsigned short cube_bits[CUBE_OWNERSHIP_GROUPS][COLOURS_COUNT];
 };

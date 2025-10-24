@@ -186,7 +186,7 @@ const struct NamedCommand conf_commands[] = {
   {"INTRO",                   5},
   {NULL,                      0},
   };
-  
+
   const struct NamedCommand tag_modes[] = {
   {"SINGLE",   1},
   {"DRAG",     2},
@@ -351,7 +351,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
     buf[len] = '\0';
     // Set text line number - we don't have blocks so we need to initialize it manually
     text_line_number = 1;
-    long pos = 0;
+    int32_t pos = 0;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(conf_commands,cmd_num)
     while (pos<len)
     {
@@ -836,7 +836,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           {
               i = atoi(word_buf);
           }
-          if ((i >= 0) && (i < ULONG_MAX))
+          if ((i >= 0) && (i <= INT32_MAX))
           {
               if (!start_params.overrides[Clo_GameTurns])
               {
@@ -880,7 +880,7 @@ static void load_file_configuration(const char *fname, const char *sname, const 
           {
               i = atoi(word_buf);
           }
-          if ((i >= 0) && (i < ULONG_MAX))
+          if ((i >= 0) && (i <= INT32_MAX))
           {
               if (!start_params.overrides[Clo_FramesPerSecond])
               {

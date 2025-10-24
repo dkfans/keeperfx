@@ -55,9 +55,9 @@ struct ftest_bug_invisible_units_cant_select__variables ftest_bug_invisible_unit
 
     .unit = NULL,
 
-    .unit_spawned_at_turn = ULONG_MAX,
-    .unit_grabbed_at_turn = ULONG_MAX,
-    .unit_dropped_at_turn = ULONG_MAX
+    .unit_spawned_at_turn = UINT32_MAX,
+    .unit_grabbed_at_turn = UINT32_MAX,
+    .unit_dropped_at_turn = UINT32_MAX
 };
 
 // forward declarations - tests
@@ -78,12 +78,12 @@ TbBool ftest_bug_invisible_units_cant_select_init()
     // this test showcases how we can do initial map setup outside of the actions queue
     {
         ftest_util_reveal_map(PLAYER0); // we might want to see the entire map for testing purposes
-        
+
         // carve out area
         ftest_util_replace_slabs(vars->slb_x_arena_start-1, vars->slb_y_arena_start-1, vars->slb_x_arena_start + vars->arena_width+1, vars->slb_y_arena_start + vars->arena_height+1, SlbT_WALLDRAPE, PLAYER0);
         ftest_util_replace_slabs(vars->slb_x_arena_start, vars->slb_y_arena_start, vars->slb_x_arena_start + vars->arena_width, vars->slb_y_arena_start + vars->arena_height, SlbT_CLAIMED, PLAYER0);
 
-        // 
+        //
 
         // focus camera to center of arena
         ftest_util_move_camera_to_slab((vars->slb_x_arena_start + (vars->slb_x_arena_start+vars->arena_width)) / 2, (vars->slb_y_arena_start + (vars->slb_y_arena_start+vars->arena_height)) / 2, PLAYER0);
@@ -101,7 +101,7 @@ TbBool ftest_bug_invisible_units_cant_select_init()
         ftest_append_action(ftest_bug_invisible_units_cant_select_action005__kill_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
     }
 
-    
+
 
     //ftest_append_action(ftest_bug_invisible_units_cant_select_action005__restart_actions, 0, NULL);
 
@@ -126,7 +126,7 @@ FTestActionResult ftest_bug_invisible_units_cant_select_action001__spawn_unit(st
 
     struct Coord3d randPos;
     set_coords_to_slab_center(&randPos, slb_x_arena_random, slb_y_arena_random);
-    
+
     vars->unit = ftest_util_create_random_creature(randPos.x.val, randPos.y.val, PLAYER0, 1);
     if(thing_is_invalid(vars->unit))
     {
@@ -248,9 +248,9 @@ FTestActionResult ftest_bug_invisible_units_cant_select_action005__kill_unit(str
     vars->is_unit_spawned = false;
     vars->is_unit_in_hand = false;
     vars->was_unit_dropped = false;
-    vars->unit_spawned_at_turn = ULONG_MAX;
-    vars->unit_grabbed_at_turn = ULONG_MAX;
-    vars->unit_dropped_at_turn = ULONG_MAX;
+    vars->unit_spawned_at_turn = UINT32_MAX;
+    vars->unit_grabbed_at_turn = UINT32_MAX;
+    vars->unit_dropped_at_turn = UINT32_MAX;
 
     return FTRs_Go_To_Next_Action;
 }
