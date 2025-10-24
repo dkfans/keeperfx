@@ -19,17 +19,13 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "bflib_network.h"
-
-#include "bflib_basics.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
 #include "bflib_netsession.h"
 #include "bflib_netsp.hpp"
-#include "bflib_netsp_ipx.hpp"
 #include "bflib_sound.h"
+#include <zlib.h>
 #include "globals.h"
-#include <assert.h>
-#include <ctype.h>
 
 //TODO: get rid of the following headers later by refactoring, they're here for testing primarily
 #include "frontend.h"
@@ -42,70 +38,17 @@
 extern "C" {
 #endif
 /******************************************************************************/
+// External function declarations
+extern void draw_out_of_sync_box(long a1, long a2, long box_width);
+
+/******************************************************************************/
 // Local functions definition
-TbError ClearClientData(void);
-TbError GetPlayerInfo(void);
-TbError GetCurrentPlayers(void);
-TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname);
-TbError StartMultiPlayerExchange(void *buf);
-TbError CompleteTwoPlayerExchange(void *buf);
-TbError CompleteMultiPlayerExchange(void *buf);
-TbError HostDataCollection(void);
-TbError HostDataBroadcast(void);
-void GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2);
-void *MultiPlayerCallback(unsigned long a1, unsigned long a2, unsigned long a3, void *a4);
-void MultiPlayerReqExDataMsgCallback(unsigned long a1, unsigned long a2, void *a3);
-void AddMsgCallback(unsigned long, char *, void *);
-void DeleteMsgCallback(unsigned long, void *);
-void HostMsgCallback(unsigned long, void *);
-void RequestCompositeExchangeDataMsgCallback(unsigned long, unsigned long, void *);
-void *UnidirectionalMsgCallback(unsigned long, unsigned long, void *);
-void SystemUserMsgCallback(unsigned long, void *, unsigned long, void *);
-TbError LbNetwork_StartExchange(void *buf);
-TbError LbNetwork_CompleteExchange(void *buf);
 static void OnDroppedUser(NetUserId id, enum NetDropReason reason);
 static void ProcessMessagesUntilNextLoginReply(TbClockMSec timeout, void *server_buf, size_t client_frame_size);
 /******************************************************************************/
-struct ReceiveCallbacks receiveCallbacks = {
-  AddMsgCallback,
-  DeleteMsgCallback,
-  HostMsgCallback,
-  NULL,
-  MultiPlayerCallback,
-  MultiPlayerReqExDataMsgCallback,
-  RequestCompositeExchangeDataMsgCallback,
-  NULL,
-  SystemUserMsgCallback,
-  NULL,
-};
 
-unsigned long inside_sr;
 struct TbNetworkPlayerInfo *localPlayerInfoPtr;
-unsigned long actualTimeout;
-void *localDataPtr;
-void *compositeBuffer;
-unsigned long basicTimeout;
-unsigned long maxTime;
-unsigned long startTime;
-unsigned long waitingForPlayerMapResponse;
-unsigned long compositeBufferSize;
-unsigned long maximumPlayers;
-unsigned long localPlayerIndex;
-unsigned long localPlayerId;
-unsigned long gotCompositeData;
-void *exchangeBuffer;
-unsigned long exchangeSize;
-unsigned long sequenceNumber;
-unsigned long timeCount;
 unsigned long hostId;
-struct ClientDataEntry clientDataTable[CLIENT_TABLE_LEN];
-unsigned long exchangeTimeout;
-unsigned char deletePlayerBuffer[8];
-unsigned char requestExchangeDataBuffer[8];
-unsigned char requestCompositeExchangeDataBuffer[8];
-unsigned char systemUserBuffer[1028];
-unsigned long remotePlayerIndex;
-unsigned long remotePlayerId;
 
 static int ServerPort = 0;
 /******************************************************************************/
@@ -118,13 +61,6 @@ static int ServerPort = 0;
 #define WAIT_FOR_CLIENT_TIMEOUT_IN_MS   10000
 #define WAIT_FOR_SERVER_TIMEOUT_IN_MS   WAIT_FOR_CLIENT_TIMEOUT_IN_MS
 
-/**
- * If queued frames on client exceed > SCHEDULED_LAG_IN_FRAMES/2 game speed should
- * be faster, if queued frames < SCHEDULED_LAG_IN_FRAMES/2 game speed should be slower.
- * Server also expects there to be SCHEDULED_LAG_IN_FRAMES in TCP stream.
- */
-#define SCHEDULED_LAG_IN_FRAMES 12
-
 #define SESSION_COUNT 32 //not arbitrary, it's what code calling EnumerateSessions expects
 
 enum NetUserProgress
@@ -132,7 +68,6 @@ enum NetUserProgress
 	USER_UNUSED = 0,		//array slot unused
     USER_CONNECTED,			//connected user on slot
     USER_LOGGEDIN,          //sent name and password and was accepted
-
     USER_SERVER             //none of the above states are applicable because this is server
 };
 
@@ -639,39 +574,6 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
 
   localPlayerInfoPtr = locplayr; //TODO NET try to get rid of dependency on external player list, makes things 2x more complicated
 
-  /*
-  exchangeSize = exchng_size;
-  maximumPlayers = maxplayrs;
-  //thread_data_mem = _wint_thread_data;
-  basicTimeout = 250;
-  localDataPtr = 0;
-  compositeBuffer = 0;
-  sequenceNumber = 0;
-  timeCount = 0;
-  maxTime = 0;
-  runningTwoPlayerModel = 0;
-  waitingForPlayerMapResponse = 0;
-  compositeBufferSize = 0;
-  //_wint_thread_data = &thread_data_mem;
-  receiveCallbacks.multiPlayer = MultiPlayerCallback;
-  receiveCallbacks.field_24 = NULL;
-  exchangeBuffer = exchng_buf;
-  receiveCallbacks.mpReqExDataMsg = MultiPlayerReqExDataMsgCallback;
-  localPlayerInfoPtr = locplayr;
-  compositeBufferSize = exchng_size * maxplayrs;
-  if (compositeBufferSize > 0)
-  {
-    compositeBuffer = calloc(compositeBufferSize, 1);
-  }
-  if ((compositeBufferSize <= 0) || (compositeBuffer == NULL))
-  {
-    WARNLOG("Failure on buffer allocation");
-    //_wint_thread_data = thread_data_mem;
-    return Lb_FAIL;
-  }
-  ClearClientData();
-  GetPlayerInfo();*/
-
   //clear network object and init it to neutral config
   memset(&netstate, 0, sizeof(netstate));
   for (usr = 0; usr < MAX_N_USERS; ++usr) {
@@ -685,14 +587,6 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   {
   case NS_TCP_IP:
       NETMSG("Selecting TCP/IP SP");
-      /*if (GenericTCPInit(init_data) == Lb_OK) {
-          res = Lb_OK;
-      }
-      else {
-          WARNLOG("Failure on TCP/IP Initialization");
-          res = Lb_FAIL;
-      }*/
-
       netstate.sp = &tcpSP;
 
       break;
@@ -715,64 +609,6 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
 
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, long *plyr_num, void *optns)
 {
-  /*TbError ret;
-  TbClockMSec tmStart;
-  ret = Lb_FAIL;
-  tmStart = LbTimerClock();
-  if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  if (runningTwoPlayerModel)
-  {
-    remotePlayerId = 0;
-    remotePlayerIndex = 0;
-    localPlayerId = 1;
-    localPlayerIndex = 1;
-  } else
-  {
-    localPlayerId = (unsigned) -1;
-  }
-  sequenceNumber = 15;
-  if (spPtr->Start(nsname, plyr_name, optns))
-  {
-    WARNLOG("Failure on Join");
-    return Lb_FAIL;
-  }
-  if (!runningTwoPlayerModel)
-  {
-    spPtr->EncodeMessageStub(&systemUserBuffer, 1, 4, runningTwoPlayerModel);
-    systemUserBuffer[4] = 0;
-    spPtr->Send(0,systemUserBuffer);
-    waitingForPlayerMapResponse = 1;
-    while (waitingForPlayerMapResponse)
-    {
-      spPtr->Receive(8);
-      if ( waitingForPlayerMapResponse )
-      {
-        if (LbTimerClock()-tmStart > 10000)
-        {
-          waitingForPlayerMapResponse = 0;
-          return ret;
-        }
-      }
-    }
-  }
-  ret = GetCurrentPlayers();
-  if (ret != Lb_OK)
-  {
-    WARNLOG("Cannot get current players");
-    return ret;
-  }
-  *plyr_num = localPlayerIndex;
-  ret = GetPlayerInfo();
-  if (ret != Lb_OK)
-  {
-    WARNLOG("Cannot get player info");
-    return ret;
-  }*/
-
     if (!netstate.sp) {
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
@@ -804,40 +640,6 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
 {
-  /*if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  if ( runningTwoPlayerModel )
-  {
-    localPlayerId = 0;
-    localPlayerIndex = 0;
-    remotePlayerId = 1;
-    remotePlayerIndex = 1;
-  } else
-  {
-    localPlayerId = 0;
-    localPlayerIndex = 0;
-    hostId = 0;
-  }
-  if (spPtr->Start(nsname_str, plyr_name, maximumPlayers, optns) != Lb_OK)
-  {
-    WARNLOG("Failure on SP::Start()");
-    return Lb_FAIL;
-  }
-  *plyr_num = localPlayerIndex;
-  if (GetCurrentPlayers() != Lb_OK)
-  {
-    WARNLOG("Cannot get current players");
-    return Lb_FAIL;
-  }
-  if (GetPlayerInfo() != Lb_OK)
-  {
-    WARNLOG("Cannot get player info");
-    return Lb_FAIL;
-  }*/
-
     if (!netstate.sp) {
         ERRORLOG("No network SP selected");
         return Lb_FAIL;
@@ -870,50 +672,10 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
     return Lb_OK;
 }
 
-void LbNetwork_ChangeExchangeTimeout(unsigned long tmout)
-{
-  exchangeTimeout = 1000 * tmout;
-}
-
 TbError LbNetwork_Stop(void)
 {
     NetFrame* frame;
     NetFrame* nextframe;
-
-    /*
-  if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  if (spPtr->Release())
-    WARNLOG("Failure on Release");
-  if (spPtr != NULL)
-    delete spPtr;
-  spPtr = NULL;
-  if (compositeBuffer != NULL)
-    free(compositeBuffer);
-  actualTimeout = 0;
-  localDataPtr = 0;
-  compositeBuffer = NULL;
-  maxTime = 0;
-  startTime = 0;
-  waitingForPlayerMapResponse = 0;
-  compositeBufferSize = 0;
-  maximumPlayers = 0;
-  localPlayerIndex = 0;
-  localPlayerId = 0;
-  gotCompositeData = 0;
-  exchangeBuffer = NULL;
-  exchangeSize = 0;
-  sequenceNumber = 0;
-  spPtr = 0;
-  basicTimeout = 250;
-  timeCount = 0;
-  hostId = 0;
-  runningTwoPlayerModel = 0;
-  ClearClientData();
-  exchangeTimeout = 0;*/
 
     if (netstate.sp) {
         netstate.sp->exit();
@@ -965,14 +727,12 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
         return;
     }
 
-    //return;
     if (reason == NETDROP_ERROR) {
         NETMSG("Connection error with user %i %s", id, netstate.users[id].name);
     }
     else if (reason == NETDROP_MANUAL) {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
     }
-
 
     if (netstate.my_id == SERVER_ID) {
         memset(&netstate.users[id], 0, sizeof(netstate.users[id]));
@@ -1147,61 +907,252 @@ TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t client_frame
     }
 }
 
-TbBool LbNetwork_Resync(void * buf, size_t len)
+static const size_t CHUNK_SIZE = 1024 * 32; // Size of each data chunk in bytes (32KB) for both sending and receiving
+static const int RECEIVE_CHUNKS_PER_LOOP = 10; // Chunks to process per receive loop iteration
+static const int RECEIVE_TIMEOUT_ATTEMPTS = 10; // Number of timeout attempts before giving up on receiving resync
+static const int RECEIVE_CHUNK_TIMEOUT_MS = 1000; // Network timeout in milliseconds for waiting for incoming chunks
+
+struct ResyncHeader {
+    char message_type; // Message type identifier (NETMSG_RESYNC)
+    size_t chunk_index; // Index of this chunk (0-based)
+    size_t chunk_count; // Total number of chunks in the complete compressed data transmission
+    size_t chunk_length; // Length of compressed data in this specific chunk
+    size_t original_total_length; // Original uncompressed data length for verification
+};
+
+static size_t calculate_chunk_count(size_t len)
 {
-    char * full_buf;
-    int i;
+    return (len + CHUNK_SIZE - 1) / CHUNK_SIZE;
+}
 
-    NETLOG("Starting");
+static void draw_resync_progress(size_t bytes_processed, size_t total_bytes)
+{
+    if (game.play_gameturn == 0) { // Prevent resync bar from drawing on loading screen
+        return;
+    }
+    if (total_bytes == 0) {
+        return;
+    }
+    const long max_progress = (long)(32 * units_per_pixel / 16);
+    const long progress_pixels = (long)((double)max_progress * bytes_processed / total_bytes);
+    draw_out_of_sync_box(progress_pixels, max_progress, get_my_player()->engine_window_x);
+}
 
-    full_buf = (char *) calloc(len + 1, 1);
-
-    if (netstate.users[netstate.my_id].progress == USER_SERVER) {
-        full_buf[0] = NETMSG_RESYNC;
-        memcpy(full_buf + 1, buf, len);
-
-        for (i = 0; i < MAX_N_USERS; ++i) {
-            if (netstate.users[i].progress != USER_LOGGEDIN) {
+static TbBool send_chunked_resync_data(const void * buffer, size_t total_length)
+{
+    // Compress the entire buffer first
+    uLongf compressed_size = compressBound(total_length);
+    char * compressed_buffer = (char *) malloc(compressed_size);
+    if (!compressed_buffer) {
+        return false;
+    }
+    
+    int compress_result = compress((Bytef*)compressed_buffer, &compressed_size, (const Bytef*)buffer, total_length);
+    if (compress_result != Z_OK) {
+        free(compressed_buffer);
+        return false;
+    }
+    
+    // Now chunk the compressed data
+    const size_t total_chunk_count = calculate_chunk_count(compressed_size);
+    char * message_buffer = (char *) malloc(sizeof(ResyncHeader) + CHUNK_SIZE);
+    if (!message_buffer) {
+        free(compressed_buffer);
+        return false;
+    }
+    
+    for (size_t chunk_index = 0; chunk_index < total_chunk_count; chunk_index++) {
+        size_t chunk_start_offset = chunk_index * CHUNK_SIZE;
+        size_t remaining_bytes = compressed_size - chunk_start_offset;
+        size_t current_chunk_length = min(remaining_bytes, CHUNK_SIZE);
+        
+        ResyncHeader * message_header = (ResyncHeader*)message_buffer;
+        message_header->message_type = NETMSG_RESYNC;
+        message_header->chunk_index = chunk_index;
+        message_header->chunk_count = total_chunk_count;
+        message_header->chunk_length = current_chunk_length;
+        message_header->original_total_length = total_length;
+        
+        memcpy(message_buffer + sizeof(ResyncHeader), compressed_buffer + chunk_start_offset, current_chunk_length);
+        
+        for (size_t user_index = 0; user_index < MAX_N_USERS; ++user_index) {
+            if (netstate.users[user_index].progress != USER_LOGGEDIN) {
                 continue;
             }
-
-            netstate.sp->sendmsg_single(netstate.users[i].id, full_buf, len + 1);
+            netstate.sp->sendmsg_single(netstate.users[user_index].id, message_buffer, sizeof(ResyncHeader) + current_chunk_length);
         }
+        
+        // Progress based on compressed data sent
+        size_t bytes_sent_compressed = chunk_start_offset + current_chunk_length;
+        draw_resync_progress(bytes_sent_compressed, compressed_size);
     }
-    else {
-        //discard all frames until next resync frame
-        do {
-            if (netstate.sp->readmsg(SERVER_ID, full_buf, len + 1) < 1) {
-                NETLOG("Bad reception of resync message");
+    
+    free(compressed_buffer);
+    free(message_buffer);
+    return true;
+}
+
+static void cleanup_resync_buffers(char ** chunk_data_array, size_t total_chunk_count, TbBool * chunk_received_flags, size_t * chunk_lengths, char * message_buffer)
+{
+    if (chunk_data_array) {
+        for (size_t chunk_index = 0; chunk_index < total_chunk_count; chunk_index++) {
+            free(chunk_data_array[chunk_index]);
+        }
+        free(chunk_data_array);
+    }
+    free(chunk_received_flags);
+    free(chunk_lengths);
+    free(message_buffer);
+}
+
+static TbBool receive_chunked_resync_data(void * destination_buffer, size_t expected_total_length)
+{
+    // We don't know the compressed size yet, so we need to get it from the first chunk
+    size_t expected_chunk_count = 0;
+    TbBool first_chunk_received = false;
+    
+    char ** chunk_data_array = NULL;
+    TbBool * chunk_received_flags = NULL;
+    size_t * chunk_lengths = NULL;
+    char * message_buffer = (char *) malloc(sizeof(ResyncHeader) + CHUNK_SIZE);
+    
+    if (!message_buffer) {
+        return false;
+    }
+    
+    size_t chunks_received_count = 0;
+    int timeout_attempt_count = 0;
+    size_t total_compressed_bytes_received = 0;
+    
+    while (!first_chunk_received || chunks_received_count < expected_chunk_count) {
+        // Process multiple messages per iteration if available
+        int messages_processed_this_iteration = 0;
+        
+        while (messages_processed_this_iteration < RECEIVE_CHUNKS_PER_LOOP &&
+               (!first_chunk_received || chunks_received_count < expected_chunk_count)) {
+            size_t received_message_size = netstate.sp->readmsg(SERVER_ID, message_buffer, sizeof(ResyncHeader) + CHUNK_SIZE);
+            if (received_message_size == 0) {
+                break; // No more messages available
+            }
+            if (received_message_size < sizeof(ResyncHeader)) {
+                continue; // Skip invalid messages
+            }
+            messages_processed_this_iteration++;
+            
+            ResyncHeader * message_header = (ResyncHeader*)message_buffer;
+            if (message_header->message_type != NETMSG_RESYNC ||
+                message_header->chunk_length == 0 ||
+                message_header->chunk_length > CHUNK_SIZE ||
+                message_header->chunk_length + sizeof(ResyncHeader) != received_message_size ||
+                message_header->original_total_length != expected_total_length) {
+                continue;
+            }
+            
+            // Initialize arrays on first valid chunk
+            if (!first_chunk_received) {
+                expected_chunk_count = message_header->chunk_count;
+                
+                chunk_data_array = (char **) calloc(expected_chunk_count, sizeof(char*));
+                chunk_received_flags = (TbBool *) calloc(expected_chunk_count, sizeof(TbBool));
+                chunk_lengths = (size_t *) calloc(expected_chunk_count, sizeof(size_t));
+                
+                if (!chunk_data_array || !chunk_received_flags || !chunk_lengths) {
+                    cleanup_resync_buffers(chunk_data_array, expected_chunk_count, chunk_received_flags, chunk_lengths, message_buffer);
+                    return false;
+                }
+                first_chunk_received = true;
+            }
+            
+            if (message_header->chunk_index >= expected_chunk_count ||
+                chunk_received_flags[message_header->chunk_index] ||
+                message_header->chunk_count != expected_chunk_count) {
+                continue;
+            }
+            
+            chunk_data_array[message_header->chunk_index] = (char *) malloc(message_header->chunk_length);
+            if (!chunk_data_array[message_header->chunk_index]) {
+                cleanup_resync_buffers(chunk_data_array, expected_chunk_count, chunk_received_flags, chunk_lengths, message_buffer);
                 return false;
             }
-        } while (full_buf[0] != NETMSG_RESYNC);
-
-        memcpy(buf, full_buf + 1, len);
+            
+            memcpy(chunk_data_array[message_header->chunk_index], message_buffer + sizeof(ResyncHeader), message_header->chunk_length);
+            chunk_received_flags[message_header->chunk_index] = true;
+            chunk_lengths[message_header->chunk_index] = message_header->chunk_length;
+            chunks_received_count++;
+            total_compressed_bytes_received += message_header->chunk_length;
+            timeout_attempt_count = 0;
+        }
+        
+        // Update progress after processing messages
+        if (messages_processed_this_iteration > 0 && first_chunk_received && chunks_received_count > 0) {
+            size_t estimated_total_compressed_size = (total_compressed_bytes_received * expected_chunk_count) / chunks_received_count;
+            draw_resync_progress(total_compressed_bytes_received, estimated_total_compressed_size);
+        }
+        
+        // Only check timeout if no messages were processed
+        if (messages_processed_this_iteration == 0) {
+            if (netstate.sp->msgready(SERVER_ID, RECEIVE_CHUNK_TIMEOUT_MS) == 0) {
+                timeout_attempt_count++;
+                if (timeout_attempt_count >= RECEIVE_TIMEOUT_ATTEMPTS) {
+                    NETLOG("Timeout waiting for resync chunks after %d attempts", timeout_attempt_count);
+                    cleanup_resync_buffers(chunk_data_array, expected_chunk_count, chunk_received_flags, chunk_lengths, message_buffer);
+                    return false;
+                }
+            }
+        }
+    }
+    
+    // Reassemble compressed data
+    char * compressed_buffer = (char *) malloc(total_compressed_bytes_received);
+    if (!compressed_buffer) {
+        cleanup_resync_buffers(chunk_data_array, expected_chunk_count, chunk_received_flags, chunk_lengths, message_buffer);
+        return false;
     }
 
-    free(full_buf);
-
+    size_t reassembly_offset = 0;
+    for (size_t chunk_index = 0; chunk_index < expected_chunk_count; chunk_index++) {
+        if (!chunk_received_flags[chunk_index] || !chunk_data_array[chunk_index]) {
+            free(compressed_buffer);
+            cleanup_resync_buffers(chunk_data_array, expected_chunk_count, chunk_received_flags, chunk_lengths, message_buffer);
+            return false;
+        }
+        if (reassembly_offset + chunk_lengths[chunk_index] > total_compressed_bytes_received) {
+            free(compressed_buffer);
+            cleanup_resync_buffers(chunk_data_array, expected_chunk_count, chunk_received_flags, chunk_lengths, message_buffer);
+            return false;
+        }
+        memcpy(compressed_buffer + reassembly_offset, chunk_data_array[chunk_index], chunk_lengths[chunk_index]);
+        reassembly_offset += chunk_lengths[chunk_index];
+    }
+    
+    // Now decompress the reassembled data
+    uLongf dest_len = expected_total_length;
+    int uncompress_result = uncompress((Bytef*)destination_buffer, &dest_len, (const Bytef*)compressed_buffer, total_compressed_bytes_received);
+    
+    free(compressed_buffer);
+    cleanup_resync_buffers(chunk_data_array, expected_chunk_count, chunk_received_flags, chunk_lengths, message_buffer);
+    
+    if (uncompress_result != Z_OK || dest_len != expected_total_length) {
+        NETLOG("Decompression failed: zlib error %d, expected %lu bytes, got %lu bytes", 
+               uncompress_result, (unsigned long)expected_total_length, (unsigned long)dest_len);
+        return false;
+    }
+    
     return true;
+}
+
+TbBool LbNetwork_Resync(void * data_buffer, size_t buffer_length)
+{
+    NETLOG("Starting");
+
+    if (netstate.users[netstate.my_id].progress == USER_SERVER) {
+        return send_chunked_resync_data(data_buffer, buffer_length);
+    }
+    return receive_chunked_resync_data(data_buffer, buffer_length);
 }
 
 TbError LbNetwork_EnableNewPlayers(TbBool allow)
 {
-  /*if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  if (allow)
-  {
-    NETMSG("New players ARE allowed to join");
-    return spPtr->EnableNewPlayers(true);
-  } else
-  {
-    NETMSG("New players are NOT allowed to join");
-    return spPtr->EnableNewPlayers(false);
-  }*/
-
     int i;
 
     if (!netstate.locked && !allow) {
@@ -1249,19 +1200,6 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
 
     SYNCDBG(9, "Starting");
 
-  /*char ret;
-  if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  ret = spPtr->Enumerate(sesn, callback, buf);
-  if (ret != Lb_OK)
-  {
-    WARNLOG("Failure on Enumerate");
-    return ret;
-  }*/
-
     //for now assume this our session.
 
     for (id = 0; id < MAX_N_USERS; ++id) {
@@ -1282,19 +1220,6 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
 
     SYNCDBG(9, "Starting");
 
-  //char ret;
-  /*if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  ret = spPtr->Enumerate(callback, ptr);
-  if (ret != Lb_OK)
-  {
-    WARNLOG("Failure on Enumerate");
-    return ret;
-  }*/
-
     for (i = 0; i < SESSION_COUNT; ++i) {
         if (!sessions[i].in_use) {
             continue;
@@ -1306,755 +1231,9 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
     return Lb_OK;
 }
 
-TbError LbNetwork_StartExchange(void *buf)
+unsigned long get_host_player_id(void)
 {
-  if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-    return StartMultiPlayerExchange(buf);
-}
-
-TbError LbNetwork_CompleteExchange(void *buf)
-{
-  if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  return CompleteMultiPlayerExchange(buf);
-}
-
-TbError ClearClientData(void)
-{
-  long i;
-  memset(clientDataTable, 0, 32*sizeof(struct ClientDataEntry));
-  for (i=0; i < maximumPlayers; i++)
-  {
-    clientDataTable[i].isactive = 0;
-  }
-  return Lb_OK;
-}
-
-TbError GetCurrentPlayers(void)
-{
-  if (spPtr == NULL)
-  {
-    ERRORLOG("ServiceProvider ptr is NULL");
-    return Lb_FAIL;
-  }
-  NETLOG("Starting");
-  localPlayerIndex = maximumPlayers;
-  if (spPtr->Enumerate(0, GetCurrentPlayersCallback, 0))
-  {
-    WARNLOG("Failure on SP::Enumerate()");
-    return Lb_FAIL;
-  }
-  if (localPlayerIndex >= maximumPlayers)
-  {
-    WARNLOG("localPlayerIndex not updated, max players %lu",maximumPlayers);
-    return Lb_FAIL;
-  }
-  return Lb_OK;
-}
-
-void GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2)
-{
-  AddAPlayer((struct TbNetworkPlayerNameEntry *)netcdat);
-}
-
-TbError GetPlayerInfo(void)
-{
-  struct TbNetworkPlayerInfo *lpinfo;
-  long i;
-  NETLOG("Starting");
-  for (i=0; i < netstate.max_players; i++)
-  {
-    lpinfo = &localPlayerInfoPtr[i];
-    if ( netstate.users[i].progress == USER_SERVER ||
-            netstate.users[i].progress == USER_LOGGEDIN )
-    {
-      lpinfo->active = 1;
-      snprintf(lpinfo->name, sizeof(lpinfo->name), "%s", netstate.users[i].name);
-    } else
-    {
-      lpinfo->active = 0;
-    }
-  }
-  return Lb_OK;
-}
-
-TbError AddAPlayer(struct TbNetworkPlayerNameEntry *plyrname)
-{
-  TbBool found_id;
-  unsigned long plr_id;
-  long i;
-  if (plyrname == NULL)
-  {
-    return Lb_FAIL;
-  }
-  plr_id = 0;
-  found_id = false;
-  for (i=0; i < maximumPlayers; i++)
-  {
-    if ((clientDataTable[i].isactive) && (clientDataTable[i].plyrid == plyrname->islocal))
-    {
-      found_id = true;
-      plr_id = i;
-    }
-  }
-  if (!found_id)
-  {
-    found_id = false;
-    for (i=0; i < maximumPlayers; i++)
-    {
-      if (clientDataTable[i].isactive)
-      {
-        found_id = true;
-        plr_id = i;
-      }
-    }
-    if (found_id)
-    {
-      clientDataTable[plr_id].plyrid = plyrname->islocal;
-      clientDataTable[plr_id].isactive = 1;
-      strcpy(clientDataTable[plr_id].name,plyrname->name);
-      localPlayerInfoPtr[i].active = 1;
-      strcpy(localPlayerInfoPtr[i].name,plyrname->name);
-    }
-  }
-  if (!found_id)
-  {
-    return Lb_FAIL;
-  }
-  if (plyrname->field_9)
-    hostId = plyrname->islocal;
-  if (plyrname->ishost)
-  {
-    localPlayerId = plyrname->islocal;
-    localPlayerIndex = plr_id;
-  }
-  return Lb_OK;
-}
-
-TbError SendRequestCompositeExchangeDataMsg(const char *func_name)
-{
-  if (spPtr->GetRequestCompositeExchangeDataMsgSize() > sizeof(requestCompositeExchangeDataBuffer))
-  {
-    WARNMSG("%s: requestCompositeExchangeDataBuffer is too small",func_name);
-    return Lb_FAIL;
-  }
-  spPtr->EncodeRequestCompositeExchangeDataMsg(requestCompositeExchangeDataBuffer,localPlayerId,sequenceNumber);
-  if (spPtr->Send(hostId, requestCompositeExchangeDataBuffer) != 0)
-  {
-    WARNMSG("%s: Failure on SP::Send()",func_name);
-    return Lb_FAIL;
-  }
-  return Lb_OK;
-}
-
-TbError SendRequestToAllExchangeDataMsg(unsigned long src_id,unsigned long seq, const char *func_name)
-{
-  long i;
-  if (spPtr->GetRequestCompositeExchangeDataMsgSize() > sizeof(requestExchangeDataBuffer))
-  {
-    WARNMSG("%s: requestCompositeExchangeDataBuffer is too small",func_name);
-    return Lb_FAIL;
-  }
-  spPtr->EncodeRequestExchangeDataMsg(requestExchangeDataBuffer, src_id, seq);
-  for (i=0; i < maximumPlayers; i++)
-  {
-    if ((clientDataTable[i].isactive) && (!clientDataTable[i].field_8))
-    {
-      if (spPtr->Send(clientDataTable[i].plyrid,requestExchangeDataBuffer))
-        WARNMSG("%s: Failure on SP::Send()",func_name);
-    }
-  }
-  return Lb_OK;
-}
-
-TbError SendRequestExchangeDataMsg(unsigned long dst_id,unsigned long src_id,unsigned long seq, const char *func_name)
-{
-  if (spPtr->GetRequestCompositeExchangeDataMsgSize() > sizeof(requestExchangeDataBuffer))
-  {
-    WARNMSG("%s: requestCompositeExchangeDataBuffer is too small",func_name);
-    return Lb_FAIL;
-  }
-  spPtr->EncodeRequestExchangeDataMsg(requestExchangeDataBuffer, src_id, seq);
-  if (spPtr->Send(dst_id,requestExchangeDataBuffer))
-  {
-    WARNMSG("%s: Failure on SP::Send()",func_name);
-    return Lb_FAIL;
-  }
-  return Lb_OK;
-}
-
-TbError SendDeletePlayerMsg(unsigned long dst_id,unsigned long del_id,const char *func_name)
-{
-  if (spPtr->GetRequestCompositeExchangeDataMsgSize() > sizeof(deletePlayerBuffer))
-  {
-    WARNMSG("%s: deletePlayerBuffer is too small",func_name);
-    return Lb_FAIL;
-  }
-  spPtr->EncodeDeletePlayerMsg(deletePlayerBuffer, del_id);
-  if (spPtr->Send(dst_id, deletePlayerBuffer) != Lb_OK)
-  {
-    WARNLOG("Failure on SP::Send()");
-    return Lb_FAIL;
-  }
-  NETMSG("%s: Sent delete player message",func_name);
-  return Lb_OK;
-}
-
-TbError HostDataCollection(void)
-{
-  TbError ret;
-  TbClockMSec tmPassed;
-  int exchngNeeded;
-  TbBool keepExchng;
-  unsigned long nRetries;
-  long i;
-  long k;
-  ret = Lb_FAIL;
-
-  keepExchng = true;
-  nRetries = 0;
-  while ( keepExchng )
-  {
-    exchngNeeded = 1;
-    for (i=0; i < maximumPlayers; i++)
-    {
-      if ((clientDataTable[i].isactive) && (!clientDataTable[i].field_8))
-      {
-        exchngNeeded = clientDataTable[i].field_8;
-      }
-    }
-    if (exchngNeeded)
-    {
-      keepExchng = false;
-      if (nRetries == 0)
-      {
-        tmPassed = LbTimerClock()-startTime;
-        if ((timeCount == 0) || (tmPassed > maxTime))
-          maxTime = tmPassed;
-        timeCount++;
-        if (timeCount >= 50)
-        {
-          timeCount = 0;
-          basicTimeout = 4 * maxTime;
-          if (basicTimeout < 250)
-            basicTimeout = 250;
-        }
-      }
-      ret = Lb_OK;
-      continue;
-    }
-    tmPassed = LbTimerClock()-startTime;
-    if (tmPassed > actualTimeout)
-    {
-      NETMSG("Timed out waiting for client");
-      nRetries++;
-      if (nRetries <= 10)
-      {
-        SendRequestToAllExchangeDataMsg(hostId, sequenceNumber, __func__);
-      } else
-      {
-        if (spPtr->GetRequestCompositeExchangeDataMsgSize() <= sizeof(deletePlayerBuffer))
-        {
-          for (i=0; i < maximumPlayers; i++)
-          {
-            if ((clientDataTable[i].isactive) && (!clientDataTable[i].field_8))
-            {
-              spPtr->EncodeDeletePlayerMsg(deletePlayerBuffer, clientDataTable[i].plyrid);
-              for (k=0; k < maximumPlayers; k++)
-              {
-                if ((clientDataTable[k].isactive) && (clientDataTable[k].plyrid != clientDataTable[i].plyrid))
-                {
-                  if ( spPtr->Send(clientDataTable[i].plyrid,deletePlayerBuffer) )
-                    WARNLOG("failure on SP::Send()");
-                }
-              }
-            }
-          }
-        } else
-        {
-          WARNLOG("deletePlayerBuffer is too small");
-        }
-      }
-      startTime = LbTimerClock();
-      actualTimeout = (nRetries + 1) * basicTimeout;
-      basicTimeout += 100;
-    }
-    spPtr->Receive(8);
-  }
-  return ret;
-}
-
-TbError HostDataBroadcast(void)
-{
-  TbError ret;
-  long i;
-  ret = Lb_OK;
-  spPtr->EncodeMessageStub(exchangeBuffer, maximumPlayers*exchangeSize-4, 0, sequenceNumber);
-  memcpy(compositeBuffer, exchangeBuffer, maximumPlayers*exchangeSize);
-  for (i=0; i < maximumPlayers; i++)
-  {
-    if ((clientDataTable[i].isactive) && (clientDataTable[i].plyrid != hostId))
-    {
-      if ( spPtr->Send(clientDataTable[i].plyrid, exchangeBuffer) )
-      {
-        WARNLOG("Failure on SP::Send()");
-          ret = Lb_FAIL;
-      }
-    }
-  }
-  return ret;
-}
-
-TbError SendSequenceNumber(void *buf, const char *func_name)
-{
-  if (hostId == localPlayerId)
-  {
-    if (HostDataCollection() != Lb_OK)
-    {
-      WARNMSG("%s: Failure on HostDataCollection()",func_name);
-      return Lb_FAIL;
-    }
-    if (HostDataBroadcast() != Lb_OK)
-    {
-      WARNMSG("%s: Failure on HostDataBroadcast()",func_name);
-      return Lb_FAIL;
-    }
-  } else
-  {
-    spPtr->EncodeMessageStub(buf, exchangeSize-4, 0, sequenceNumber);
-    if (spPtr->Send(hostId, buf) != Lb_OK)
-    {
-      WARNMSG("%s: Failure on SP::Send()",func_name);
-      return Lb_FAIL;
-    }
-  }
-  return Lb_OK;
-}
-
-TbError StartMultiPlayerExchange(void *buf)
-{
-  struct ClientDataEntry  *clidat;
-  long i;
-  localDataPtr = buf;
-  spPtr->Receive(6);
-  for (i=0; i < maximumPlayers; i++)
-  {
-    clidat = &clientDataTable[i];
-    if (clidat->isactive)
-      clidat->field_8 = 0;
-  }
-  memcpy((uchar *)exchangeBuffer + exchangeSize * localPlayerIndex, buf, exchangeSize);
-  clientDataTable[localPlayerIndex].field_8 = 1;
-  startTime = LbTimerClock();
-  actualTimeout = basicTimeout;
-  if (hostId == localPlayerId)
-    return Lb_OK;
-  spPtr->EncodeMessageStub(buf, exchangeSize-4, 0, exchangeSize-4);
-  if (spPtr->Send(hostId, buf) != Lb_OK)
-  {
-    WARNLOG("Failure on SP::Send()");
-    return Lb_FAIL;
-  }
-  return Lb_OK;
-}
-
-TbError CompleteTwoPlayerExchange(void *buf)
-{
-  TbError ret;
-  TbBool keepExchng;
-  TbClockMSec tmPassed;
-  long nRetries;
-  ret = Lb_FAIL;
-  keepExchng = true;
-  if (!clientDataTable[remotePlayerIndex].isactive )
-    return 0;
-  nRetries = 0;
-  while ( keepExchng )
-  {
-    spPtr->Receive(8);
-    if (gotCompositeData)
-    {
-      keepExchng = false;
-      if (nRetries == 0)
-      {
-        tmPassed = LbTimerClock()-startTime;
-        if (tmPassed < 0)
-          tmPassed = -tmPassed;
-        if ((timeCount == 0) || (tmPassed > maxTime))
-          maxTime = tmPassed;
-        timeCount++;
-        if (timeCount >= 50)
-        {
-          timeCount = 0;
-          basicTimeout = 3 * maxTime;
-          if (basicTimeout < 250)
-            basicTimeout = 250;
-        }
-      }
-      ret = 0;
-    }
-    if (keepExchng)
-    {
-      tmPassed = LbTimerClock()-startTime;
-      if (tmPassed < 0)
-        tmPassed = -tmPassed;
-      if (tmPassed > actualTimeout)
-      {
-        NETMSG("Timed out (%ld) waiting for seq %lu - %lu ms", tmPassed, sequenceNumber, actualTimeout);
-        nRetries++;
-        if (nRetries <= 10)
-        {
-          NETMSG("Requesting %ld resend of packet (%lu)", nRetries, sequenceNumber);
-          SendRequestExchangeDataMsg(remotePlayerId, localPlayerId, sequenceNumber, __func__);
-        } else
-        {
-          NETMSG("Tried to resend %ld times, aborting", nRetries);
-          SendDeletePlayerMsg(localPlayerId, remotePlayerId, __func__);
-          return Lb_FAIL;
-        }
-        startTime = LbTimerClock();
-        actualTimeout = exchangeTimeout;
-        if (actualTimeout == 0)
-        {
-          if (nRetries < 3)
-            actualTimeout = basicTimeout;
-          else
-          if (nRetries == 3)
-            actualTimeout = 2 * basicTimeout;
-          else
-            actualTimeout = (nRetries-3) * 4 * basicTimeout;
-        }
-      }
-    }
-    if (!clientDataTable[remotePlayerIndex].isactive)
-    {
-      keepExchng = false;
-      ret = 0;
-    }
-  }
-  if (sequenceNumber != 15)
-  {
-    sequenceNumber++;
-    if (sequenceNumber >= 15)
-      sequenceNumber = 0;
-  }
-  return ret;
-}
-
-TbError CompleteMultiPlayerExchange(void *buf)
-{
-  TbError ret;
-  TbBool hostChange;
-  TbBool keepExchng;
-  TbClockMSec tmPassed;
-  long nRetries;
-  long i;
-  ret = Lb_FAIL;
-  if (hostId != localPlayerId)
-  {
-    gotCompositeData = 0;
-    keepExchng = true;
-    hostChange = false;
-    nRetries = 0;
-    while (keepExchng)
-    {
-      i = hostId;
-      spPtr->Receive(8);
-      if (i != hostId)
-        hostChange = true;
-      if (hostChange)
-      {
-        ret = SendSequenceNumber(buf,__func__);
-        if (hostId == localPlayerId)
-        {
-          keepExchng = 0;
-          break;
-        }
-      } else
-      if (gotCompositeData)
-      {
-        if (nRetries == 0)
-        {
-          tmPassed = LbTimerClock()-startTime;
-          if ((timeCount == 0) || (tmPassed > maxTime))
-            maxTime = tmPassed;
-          timeCount++;
-          if (timeCount >= 50)
-          {
-            timeCount = 0;
-            basicTimeout = 4 * maxTime;
-            if (basicTimeout < 250)
-              basicTimeout = 250;
-          }
-        }
-        keepExchng = 0;
-        ret = Lb_OK;
-      }
-      tmPassed = LbTimerClock()-startTime;
-      if (!keepExchng)
-        break;
-      // Now the time out code
-      if (tmPassed <= actualTimeout)
-        continue;
-      NETMSG("Timed out waiting for host");
-      nRetries++;
-      if (nRetries <= 10)
-      {
-        SendRequestCompositeExchangeDataMsg(__func__);
-      } else
-      {
-        SendDeletePlayerMsg(localPlayerId, hostId, __func__);
-      }
-      startTime = LbTimerClock();
-      actualTimeout = (nRetries+1) * basicTimeout;
-      basicTimeout += 100;
-    }
-  } else
-  {
-    HostDataCollection();
-    ret = HostDataBroadcast();
-  }
-  localDataPtr = 0;
-  if (sequenceNumber != 15)
-  {
-    sequenceNumber++;
-    if (sequenceNumber >= 15)
-      sequenceNumber = 0;
-  }
-  return ret;
-}
-
-TbError SendSystemUserMessage(unsigned long plr_id, int te, void *ibuf, unsigned long ibuf_len)
-{
-  if (ibuf_len+5 > sizeof(systemUserBuffer))
-  {
-    WARNLOG("systemUserBuffer is too small");
-    return Lb_FAIL;
-  }
-  spPtr->EncodeMessageStub(systemUserBuffer, ibuf_len+1, 4, 0);
-  systemUserBuffer[4] = te;
-  if ((ibuf != NULL) && (ibuf_len > 0))
-  {
-    memcpy(&systemUserBuffer[5], ibuf, ibuf_len);
-  }
-  return spPtr->Send(plr_id, systemUserBuffer);
-}
-
-void PlayerMapMsgHandler(unsigned long plr_id, void *msg, unsigned long msg_len)
-{
-  unsigned long len;
-  len = sizeof(struct ClientDataEntry)*maximumPlayers;
-  if (msg_len == 0)
-  {
-    SendSystemUserMessage(plr_id, 0, clientDataTable, len);
-    return;
-  }
-  if (!waitingForPlayerMapResponse)
-  {
-    WARNLOG("Received unexpected SU_PLAYER_MAP_MSG");
-    return;
-  }
-  if (msg_len != len)
-  {
-    WARNLOG("Invalid length, %lu",msg_len);
-    return;
-  }
-  memcpy(clientDataTable, msg, len);
-  waitingForPlayerMapResponse = 0;
-}
-
-void *MultiPlayerCallback(unsigned long plr_id, unsigned long xch_size, unsigned long seq, void *a4)
-{
-  TbBool found_id;
-  long i;
-  if (inside_sr)
-    NETLOG("Got a request");
-  if (localPlayerId == hostId)
-  {
-    if (xch_size != exchangeSize)
-    {
-      WARNLOG("Invalid length, %lu",xch_size);
-      return NULL;
-    }
-    if (plr_id == localPlayerId)
-    {
-      WARNLOG("host got data from itself");
-      return NULL;
-    }
-    found_id = false;
-    for (i=0; i < maximumPlayers; i++)
-    {
-      if ((clientDataTable[i].isactive) && (clientDataTable[i].plyrid == plr_id))
-      {
-        found_id = true;
-        plr_id = i;
-      }
-    }
-    if (!found_id)
-    {
-      WARNLOG("Invalid id: %lu",plr_id);
-      return NULL;
-    }
-    if ((seq != sequenceNumber) && (seq != 15))
-    {
-      WARNLOG("Unexpected sequence number, Got %lu, expected %lu",seq,sequenceNumber);
-      return NULL;
-    }
-    clientDataTable[plr_id].field_8 = 1;
-    return (uchar *)exchangeBuffer + plr_id * exchangeSize;
-  }
-  if (xch_size != maximumPlayers * exchangeSize)
-  {
-    if (xch_size != exchangeSize)
-    {
-      WARNLOG("Invalid length: %lu",xch_size);
-      return NULL;
-    }
-    if (plr_id == localPlayerId)
-    {
-      WARNLOG("Client acting as host got data from itself");
-      return NULL;
-    }
-    found_id = false;
-    for (i=0; i < maximumPlayers; i++)
-    {
-      if ((clientDataTable[i].isactive) && (clientDataTable[i].plyrid == plr_id))
-      {
-        found_id = true;
-        plr_id = i;
-      }
-    }
-    if (!found_id)
-    {
-      WARNLOG("Invalid id: %lu",plr_id);
-      return NULL;
-    }
-    clientDataTable[plr_id].field_8 = 1;
-    return (uchar *)exchangeBuffer + plr_id * exchangeSize;
-  }
-  if (hostId != plr_id)
-  {
-    WARNLOG("Data is not from host");
-    return NULL;
-  }
-  found_id = false;
-  for (i=0; i < maximumPlayers; i++)
-  {
-    if ((clientDataTable[i].isactive) && (clientDataTable[i].plyrid == plr_id))
-    {
-      found_id = true;
-      plr_id = i;
-    }
-  }
-  if (!found_id)
-  {
-    WARNLOG("Invalid id: %lu",plr_id);
-    return 0;
-  }
-  if (sequenceNumber == 15)
-  {
-    sequenceNumber = seq;
-  } else
-  if (sequenceNumber != seq)
-  {
-    WARNLOG("Unexpected sequence number, Got %lu, expected %lu", seq, sequenceNumber);
-    return NULL;
-  }
-  gotCompositeData = true;
-  return exchangeBuffer;
-}
-
-void MultiPlayerReqExDataMsgCallback(unsigned long plr_id, unsigned long seq, void *a3)
-{
-  if (inside_sr)
-    NETLOG("Got a request");
-  if (localDataPtr == NULL)
-  {
-    WARNLOG("NULL data pointer");
-    return;
-  }
-  if (sequenceNumber == 15)
-    sequenceNumber = seq;
-  if (seq != sequenceNumber)
-  {
-    WARNLOG("Unexpected sequence number, got %lu, expected %lu",seq,sequenceNumber);
-    return;
-  }
-  spPtr->EncodeMessageStub(localDataPtr, exchangeSize-4, 0, sequenceNumber);
-  if (spPtr->Send(plr_id, localDataPtr) != Lb_OK)
-  {
-    WARNLOG("Failure on SP::Send()");
-  }
-}
-
-void AddMsgCallback(unsigned long a1, char *nmstr, void *a3)
-{
-  struct TbNetworkPlayerNameEntry npname;
-  npname.islocal = a1;
-  strcpy(npname.name,nmstr);
-  npname.ishost = 0;
-  npname.field_9 = 0;
-  AddAPlayer(&npname);
-}
-
-void DeleteMsgCallback(unsigned long plr_id, void *a2)
-{
-  long i;
-  for (i=0; i < maximumPlayers; i++)
-  {
-    if ((clientDataTable[i].isactive) && (clientDataTable[i].plyrid == plr_id))
-    {
-      clientDataTable[i].isactive = 0;
-      if (localPlayerInfoPtr != NULL)
-      {
-        localPlayerInfoPtr[i].active = 0;
-      } else
-      {
-        WARNLOG("NULL localPlayerInfoPtr");
-      }
-    }
-  }
-}
-
-void HostMsgCallback(unsigned long plr_id, void *a2)
-{
-  hostId = plr_id;
-}
-
-void RequestCompositeExchangeDataMsgCallback(unsigned long plr_id, unsigned long seq, void *a3)
-{
-  if (inside_sr)
-    NETLOG("Got sequence %ld, expected %ld",seq,sequenceNumber);
-  if ((seq != sequenceNumber) && (seq != ((sequenceNumber - 1) & 0xF)))
-  {
-    WARNLOG("Unexpected sequence number, got %lu, expected %lu",seq,sequenceNumber);
-    return;
-  }
-  if (spPtr->Send(plr_id, compositeBuffer) != Lb_OK)
-  {
-    WARNLOG("Failure on SP::Send()");
-    return;
-  }
-}
-
-void SystemUserMsgCallback(unsigned long plr_id, void *msgbuf, unsigned long msglen, void *a4)
-{
-  struct SystemUserMsg *msg;
-  msg = (struct SystemUserMsg *)msgbuf;
-  if ((msgbuf = NULL) || (msglen <= 0))
-    return;
-  if (msg->type)
-  {
-    WARNLOG("Illegal sysMsgType %d",msg->type);
-  }
-  PlayerMapMsgHandler(plr_id, msg->client_data_table, msglen-1);
+  return hostId;
 }
 
 /******************************************************************************/

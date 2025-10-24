@@ -189,7 +189,7 @@ TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned ch
     } else
     {
         long distance = GAME_RANDOM(apt->range);
-        long direction = GAME_RANDOM(2 * LbFPMath_PI);
+        long direction = GAME_RANDOM(DEGREES_360);
         long delta_x = (distance * LbSinL(direction) >> 8);
         long delta_y = (distance * LbCosL(direction) >> 8);
         pos->x.val = apt->mappos.x.val + (delta_x >> 8);
@@ -212,11 +212,6 @@ unsigned long get_map_location_longval(TbMapLocation location)
 unsigned long get_map_location_plyrval(TbMapLocation location)
 {
   return (location >> 12);
-}
-
-unsigned short get_map_location_plyridx(TbMapLocation location)
-{
-  return (location >> 4) & 0xFF;
 }
 
 /**

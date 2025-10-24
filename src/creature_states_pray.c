@@ -208,7 +208,7 @@ TbBool summon_creature(long model, struct Coord3d *pos, long owner, CrtrExpLevel
     internal_set_thing_state(thing, CrSt_CreatureBeingSummoned);
     thing->movement_flags |= TMvF_BeingSacrificed;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->sacrifice.word_9C = 48;
+    cctrl->sacrifice.animation_duration = 48;
     return true;
 }
 
@@ -376,7 +376,7 @@ void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, ThingModel c
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
         if (creature_matches_model(thing,crmodel))
-        {      
+        {
             apply_spell_effect_to_thing(thing, spl_idx, overchrg, plyr_idx);
         }
         // Thing list loop body ends
@@ -445,24 +445,24 @@ short creature_being_summoned(struct Thing *thing)
     if (creature_control_invalid(cctrl)) {
         return 0;
     }
-    if (cctrl->sacrifice.word_9A <= 0)
+    if (cctrl->sacrifice.animation_counter <= 0)
     {
         get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->current_frame, &orig_w, &orig_h, &unsc_w, &unsc_h);
         create_effect(&thing->mappos, TngEff_Explosion4, thing->owner);
         thing->movement_flags |= TMvF_BeingSacrificed;
-        cctrl->sacrifice.word_9A = 1;
-        cctrl->sacrifice.word_9C = 48;//orig_h;
+        cctrl->sacrifice.animation_counter = 1;
+        cctrl->sacrifice.animation_duration = 48;//orig_h;
         return 0;
     }
-    cctrl->sacrifice.word_9A++;
-    if (cctrl->sacrifice.word_9A > cctrl->sacrifice.word_9C)
+    cctrl->sacrifice.animation_counter++;
+    if (cctrl->sacrifice.animation_counter > cctrl->sacrifice.animation_duration)
     {
         thing->movement_flags &= ~TMvF_BeingSacrificed;
         set_start_state(thing);
         return 0;
     }
     // Rotate the creature as it appears from temple
-    creature_turn_to_face_angle(thing, thing->move_angle_xy + LbFPMath_PI/4);
+    creature_turn_to_face_angle(thing, thing->move_angle_xy + DEGREES_45);
     return 0;
 }
 
@@ -589,7 +589,7 @@ long process_sacrifice_award(struct Coord3d *pos, ThingModel model, PlayerNumber
         return 0;
   }
   long ret = SacR_DontCare;
-  struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[0];
+  struct SacrificeRecipe* sac = &game.conf.rules[plyr_idx].sacrifices.sacrifice_recipes[0];
   do {
     // Check if the just sacrificed creature is in the sacrifice
     if (sacrifice_victim_model_count(sac,model) > 0)
@@ -609,11 +609,11 @@ long process_sacrifice_award(struct Coord3d *pos, ThingModel model, PlayerNumber
           break;
         }
       }
-      SYNCDBG(8,"Creature %d used in sacrifice %d",(int)model,(int)(sac-&game.conf.rules.sacrifices.sacrifice_recipes[0]));
+      SYNCDBG(8,"Creature %d used in sacrifice %d",(int)model,(int)(sac-&game.conf.rules[plyr_idx].sacrifices.sacrifice_recipes[0]));
       // Check if the complete sacrifice condition is met
       if (sacrifice_victim_conditions_met(dungeon, sac))
       {
-        SYNCDBG(6,"Sacrifice recipe %d condition met, action %d for player %d",(int)(sac-&game.conf.rules.sacrifices.sacrifice_recipes[0]),(int)sac->action,(int)plyr_idx);
+        SYNCDBG(6,"Sacrifice recipe %d condition met, action %d for player %d",(int)(sac-&game.conf.rules[plyr_idx].sacrifices.sacrifice_recipes[0]),(int)sac->action,(int)plyr_idx);
         CrtrExpLevel exp_level = creature_sacrifice_average_exp_level(dungeon, sac);
         switch (sac->action)
         {
@@ -719,11 +719,11 @@ short creature_being_sacrificed(struct Thing *thing)
     SYNCDBG(6,"Starting");
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->sacrifice.word_9A--;
-    if (cctrl->sacrifice.word_9A > 0)
+    cctrl->sacrifice.animation_counter--;
+    if (cctrl->sacrifice.animation_counter > 0)
     {
         // No flying while being sacrificed
-        creature_turn_to_face_angle(thing, thing->move_angle_xy + LbFPMath_PI/4);
+        creature_turn_to_face_angle(thing, thing->move_angle_xy + DEGREES_45);
         thing->movement_flags &= ~TMvF_Flying;
         return 0;
     }
@@ -766,8 +766,8 @@ short creature_sacrifice(struct Thing *thing)
     }
     if (thing_touching_floor(thing))
     {
-        cctrl->sacrifice.word_9A = 48;
-        cctrl->sacrifice.word_9C = 48;
+        cctrl->sacrifice.animation_counter = 48;
+        cctrl->sacrifice.animation_duration = 48;
         thing->movement_flags |= TMvF_BeingSacrificed;
         internal_set_thing_state(thing, CrSt_CreatureBeingSacrificed);
         thing->creature.gold_carried = 0;
@@ -874,7 +874,7 @@ void script_set_sacrifice_recipe(const int action, const int param, ThingModel* 
     qsort(victims, MAX_SACRIFICE_VICTIMS, sizeof(ThingModel), &sac_compare_fn);
     for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &game.conf.rules[0].sacrifices.sacrifice_recipes[i];
         if (sac->action == (long)SacA_None)
         {
             break;
@@ -886,7 +886,7 @@ void script_set_sacrifice_recipe(const int action, const int param, ThingModel* 
             if (action == (long)SacA_None)
             {
                 // Remove empty slot and shift remaining elements
-                int index = sac - game.conf.rules.sacrifices.sacrifice_recipes;
+                int index = sac - game.conf.rules[0].sacrifices.sacrifice_recipes;
                 int remaining = MAX_SACRIFICE_RECIPES - index - 1;
                 if (remaining > 0)
                 {
@@ -910,7 +910,7 @@ void script_set_sacrifice_recipe(const int action, const int param, ThingModel* 
         return;
     }
 
-    memcpy(sac->victims, victims, MAX_SACRIFICE_VICTIMS * sizeof(int));
+    memcpy(sac->victims, victims, MAX_SACRIFICE_VICTIMS * sizeof(ThingModel));
     sac->action = action;
     sac->param = param;
 

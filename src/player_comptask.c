@@ -873,20 +873,20 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
         return Job_NULL;
     }
     SYNCDBG(9,"Starting for player %d",(int)dungeon->owner);
-    param.ptr1 = (void *)comp;
-    param.num2 = Job_NULL; // Our filter function will update that
+    param.primary_pointer = (void *)comp;
+    param.secondary_number = Job_NULL; // Our filter function will update that
     filter = player_list_creature_filter_needs_to_be_placed_in_room_for_job;
     thing = get_player_list_random_creature_with_filter(dungeon->creatr_list_start, filter, &param, dungeon->owner);
     if (thing_is_invalid(thing)) {
         return Job_NULL;
     }
-    SYNCDBG(9,"Player %d wants to move %s index %d for job %s",(int)dungeon->owner,thing_model_name(thing),(int)thing->index,creature_job_code_name(param.num2));
+    SYNCDBG(9,"Player %d wants to move %s index %d for job %s",(int)dungeon->owner,thing_model_name(thing),(int)thing->index,creature_job_code_name(param.secondary_number));
     // We won't allow the creature to be picked if we want it to be placed in the same room it is now.
     // The filter function took care of most such situations, but it is still possible that the creature
     // won't be able or will not want to work in that room, and will be picked up and dropped over and over.
     // This will prevent such situation, at least to the moment when the creature leaves the room.
     room = get_room_thing_is_on(thing);
-    if (!room_is_invalid(room) && ((get_room_roles(room->kind) & get_room_role_for_job(param.num2)) != 0) && (room->owner == thing->owner)) {
+    if (!room_is_invalid(room) && ((get_room_roles(room->kind) & get_room_role_for_job(param.secondary_number)) != 0) && (room->owner == thing->owner)) {
         // Do not spam with warnings which we know to be expected
         if (!creature_is_called_to_arms(thing) && !creature_is_celebrating(thing)) {
             WARNDBG(4,"The %s index %d owner %d already is in %s, but goes for %s instead of work there",
@@ -894,12 +894,12 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
         }
         return Job_NULL;
     }
-    room = get_room_of_given_role_for_thing(thing, dungeon, get_room_role_for_job(param.num2), 1);
+    room = get_room_of_given_role_for_thing(thing, dungeon, get_room_role_for_job(param.secondary_number), 1);
     if (room_is_invalid(room))
         return Job_NULL;
     *roomp = room;
     *creatngp = thing;
-    return param.num2;
+    return param.secondary_number;
 }
 
 void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos, long room_area)
@@ -913,7 +913,7 @@ void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos
     cdig->room.spiral.forward_direction = 0; // start facing NORTH
     cdig->room.area = room_area;
     cdig->room.slabs_processed = 0;
-    cdig->subfield_2C = 1;
+    cdig->action_success_flag = 1;
 }
 
 /** Dig a passage, to connect a new roomspace to the dungeon. */
@@ -925,11 +925,11 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         case TDR_ReachedDestination:
             // now we move on to build the room
-            pos.x.val = ctask->pos_6A.x.val;
-            pos.y.val = ctask->pos_6A.y.val;
-            pos.z.val = ctask->pos_6A.z.val;
+            pos.x.val = ctask->starting_position.x.val;
+            pos.y.val = ctask->starting_position.y.val;
+            pos.z.val = ctask->starting_position.z.val;
             {
-                SmallAroundIndex round_directn = small_around_index_towards_destination(ctask->pos_6A.x.stl.num,ctask->pos_6A.y.stl.num,
+                SmallAroundIndex round_directn = small_around_index_towards_destination(ctask->starting_position.x.stl.num,ctask->starting_position.y.stl.num,
                     ctask->new_room_pos.x.stl.num,ctask->new_room_pos.y.stl.num);
                 pos_move_in_direction_to_last_allowing_drop(&pos, round_directn, comp->dungeon->owner, ctask->create_room.width+ctask->create_room.height);
             }
@@ -974,7 +974,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     MapSubtlCoord stl_x = stl_slab_center_subtile(ctask->dig.pos_begin.x.stl.num);
     MapSubtlCoord stl_y = stl_slab_center_subtile(ctask->dig.pos_begin.y.stl.num);
-    if (ctask->dig.subfield_2C == 1) // this check might be unneeded, can't see when subfield_2C != 1
+    if (ctask->dig.action_success_flag == 1) // this check might be unneeded, can't see when action_success_flag != 1
     {
         if (ctask->dig.room.spiral.steps_remaining_before_turn > 0)
         {
@@ -1160,7 +1160,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     MapSubtlCoord stl_x = ctask->dig.pos_begin.x.stl.num;
     MapSubtlCoord stl_y = ctask->dig.pos_begin.y.stl.num;
-    if (ctask->dig.subfield_2C == 1) // this check might be unneeded, can't see when subfield_2C != 1
+    if (ctask->dig.action_success_flag == 1) // this check might be unneeded, can't see when action_success_flag != 1
     {
         if (ctask->dig.room.spiral.steps_remaining_before_turn > 0)
         {
@@ -1549,9 +1549,9 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         ctask->new_room_pos.x.val = subtile_coord_center(stl_slab_center_subtile(stl_x));
         ctask->new_room_pos.y.val = subtile_coord_center(stl_slab_center_subtile(stl_y));
         ctask->new_room_pos.z.val = subtile_coord(1,0);
-        ctask->pos_6A.x.val = pos->x.val;
-        ctask->pos_6A.y.val = pos->y.val;
-        ctask->pos_6A.z.val = pos->z.val;
+        ctask->starting_position.x.val = pos->x.val;
+        ctask->starting_position.y.val = pos->y.val;
+        ctask->starting_position.z.val = pos->z.val;
         ctask->create_room.startpos.x.val = startpos.x.val;
         ctask->create_room.startpos.y.val = startpos.y.val;
         ctask->create_room.startpos.z.val = startpos.z.val;
@@ -1676,7 +1676,7 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
     MapSlabCoord nextslb_y;
     SmallAroundIndex around_index;
     ToolDigResult dig_result;
-    for (dig_result = TDR_DigSlab; dig_result < cdig->subfield_2C; dig_result++)
+    for (dig_result = TDR_DigSlab; dig_result < cdig->action_success_flag; dig_result++)
     {
         struct SlabConfigStats *slabst;
         struct SlabMap *slb;
@@ -1820,7 +1820,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
             SYNCDBG(5,"%s: Going through slab (%d,%d)",func_name,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
             return TDR_DigSlab;
         }
-        if (cdig->subfield_2C == comp->field_C)
+        if (cdig->action_success_flag == comp->action_status_flag)
         {
             gldstl_x -= STL_PER_SLB * small_around[around_index].delta_x;
             gldstl_y -= STL_PER_SLB * small_around[around_index].delta_y;
@@ -2276,7 +2276,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
             {
                 struct ComputerProcess *cproc;
                 cproc = get_computer_process(comp, ctask->cproc_idx);
-                cproc->param_5 = computer_task_index(ctask);
+                cproc->process_parameter_5 = computer_task_index(ctask);
                 computer_process_func_list[cproc->func_complete](comp, cproc);
             }
             suspend_task_process(comp, ctask);
@@ -2291,7 +2291,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
                     {
                         struct ComputerProcess *cproc;
                         cproc = get_computer_process(comp, ctask->cproc_idx);
-                        cproc->param_5 = computer_task_index(ctask);
+                        cproc->process_parameter_5 = computer_task_index(ctask);
                         computer_process_func_list[cproc->func_complete](comp, cproc);
                     }
                     suspend_task_process(comp, ctask);
@@ -2451,13 +2451,13 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
         if (count_creatures_at_call_to_arms(comp) < ctask->magic_cta.repeat_num - ctask->magic_cta.repeat_num / 4)
         {
             // For a minimum amount of time
-            if ((game.play_gameturn - ctask->lastrun_turn) < (ctask->delay / 10)) 
+            if ((game.play_gameturn - ctask->lastrun_turn) < (ctask->delay / 10))
             {
                 return CTaskRet_Unk1;
             }
         }
         // There's a time limit for how long CTA may run
-        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->delay) 
+        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->delay)
             {
                 return CTaskRet_Unk1;
             }
@@ -2585,7 +2585,6 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
 
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4)
 {
-    //TODO COMPUTER_EVENT_BREACH needs this function; may be also used somewhere else - not sure
     struct CreatureControl *cctrl;
     struct Thing *thing;
     unsigned long k;
@@ -3316,7 +3315,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         item_sold = true;
                         dungeon->doors_sold++;
-                        value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
+                        value = compute_value_percentage(doorst->selling_value, game.conf.rules[dungeon->owner].game.door_sale_percent);
                         dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Offmap door %s crate sold for %d gold",door_code_name(model),(int)value);
                         break;
@@ -3324,7 +3323,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         remove_workshop_object_from_player(dungeon->owner, door_crate_object_model(model));
                         item_sold = true;
-                        value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
+                        value = compute_value_percentage(doorst->selling_value, game.conf.rules[dungeon->owner].game.door_sale_percent);
                         dungeon->doors_sold++;
                         dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Stored door %s crate sold for %ld gold by player %d",door_code_name(model),(long)value,(int)dungeon->owner);
@@ -3352,7 +3351,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         item_sold = true;
-                        value = compute_value_percentage(trapst->selling_value, game.conf.rules.game.trap_sale_percent);
+                        value = compute_value_percentage(trapst->selling_value, game.conf.rules[dungeon->owner].game.trap_sale_percent);
                         dungeon->traps_sold++;
                         dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Offmap trap %s crate sold for %ld gold",trap_code_name(model),value);
@@ -3361,7 +3360,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
-                        value = compute_value_percentage(trapst->selling_value, game.conf.rules.game.trap_sale_percent);
+                        value = compute_value_percentage(trapst->selling_value, game.conf.rules[dungeon->owner].game.trap_sale_percent);
                         dungeon->traps_sold++;
                         dungeon->manufacture_gold += value;
                         SYNCDBG(9,"Stored trap %s crate sold for %ld gold by player %d",trap_code_name(model),(long)value,(int)dungeon->owner);
@@ -3391,7 +3390,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(doortng->mappos.x.stl.num);
                         stl_y = stl_slab_center_subtile(doortng->mappos.y.stl.num);
-                        value = compute_value_percentage(doorst->selling_value, game.conf.rules.game.door_sale_percent);
+                        value = compute_value_percentage(doorst->selling_value, game.conf.rules[doortng->owner].game.door_sale_percent);
                         dungeon->doors_sold++;
                         dungeon->manufacture_gold += value;
                         destroy_door(doortng);
@@ -3497,7 +3496,7 @@ void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const
     cdig->pos_next.y.val = 0;
     cdig->pos_next.z.val = 0;
     cdig->distance = LONG_MAX;
-    cdig->subfield_2C = 1;
+    cdig->action_success_flag = 1;
     cdig->calls_count = 0;
 }
 
@@ -3537,7 +3536,7 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
             message_add_fmt(MsgType_Player, comp->dungeon->owner, "This %s should stop doing that.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureSacrifice:
-            if (thing->model == game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model) {
+            if (thing->model == game.conf.rules[comp->dungeon->owner].sacrifices.cheaper_diggers_sacrifice_model) {
                 struct PowerConfigStats *powerst;
                 powerst = get_power_model_stats(PwrK_MKDIGGER);
                 message_add_fmt(MsgType_Player, comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crconf->namestr_idx),get_string(powerst->name_stridx));

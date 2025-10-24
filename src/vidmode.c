@@ -177,9 +177,6 @@ short LoadMcgaData(void)
     int ferror = 0;
     int i = 0;
     struct TbLoadFiles* t_lfile = &gui_load_files_320[i];
-    // Allocate some low memory, only to be sure that
-    // it will be free when this function ends
-    void* mem = calloc(0x10000u, 1);
     while (t_lfile->Start != NULL)
     {
         // Don't allow loading flags
@@ -198,7 +195,6 @@ short LoadMcgaData(void)
         i++;
         t_lfile = &gui_load_files_320[i];
   }
-  free(mem);
   button_sprites = load_spritesheet("data/gui1-32.dat", "data/gui1-32.tab");
   winfont = load_font("data/font2-32.dat", "data/font2-32.tab");
   font_sprites = load_font("data/font1-32.dat", "data/font1-32.tab");
@@ -362,6 +358,7 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_Pickaxe:
   case MousePG_Query:
   case MousePG_DenyMark:
+  case MousePG_Pickaxe2:
     ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
       x = 12; y = 15;
       break;
@@ -631,7 +628,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     }
   }
   TbBool hi_res = ((LbGraphicsScreenHeight() < 400) ? false : true);
-  long lens_mem = game.numfield_1B;
+  long lens_mem = game.applied_lens_type;
   unsigned int flg_mem = lbDisplay.DrawFlags;
   TbBool was_minimal_res = (MinimalResolutionSetup || force_video_mode_reset);
   set_pointer_graphic_none();

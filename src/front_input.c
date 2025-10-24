@@ -95,6 +95,10 @@ TbBool first_person_see_item_desc = false;
 long old_mx;
 long old_my;
 
+//arbitrary state machine, not deserving own enum
+int synthetic_left = 0;
+int synthetic_right = 0;
+
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
 void get_creature_control_nonaction_inputs(void);
@@ -183,12 +187,6 @@ void update_gui_layer()
 short game_is_busy_doing_gui_string_input(void)
 {
   return (input_button != NULL);
-}
-
-short current_view_supports_status_menu()
-{
-    struct PlayerInfo* player = get_my_player();
-    return (player->view_type != PVT_MapScreen);
 }
 
 int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
@@ -342,38 +340,38 @@ void clip_frame_skip(void)
 
 void increaseFrameskip(void)
 {
-    if (game.frame_skip < 2)
-    {
-        game.frame_skip ++;
+    // Default no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
+    int level = 16;
+    for (int i=0; i<10; i++) {
+        if (game.frame_skip < level)
+            break;
+        level <<= 1;
     }
-    else if (game.frame_skip < 16)
-    {
-        game.frame_skip += 2;
-    }
-    else
-    {
-        game.frame_skip += (game.frame_skip/3);
-    }
+    int adj = level/8;
+    game.frame_skip += adj;
     clip_frame_skip();
-    show_onscreen_msg(game_num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
+    char speed_txt[256] = "normal";
+    if (game.frame_skip > 0)
+        sprintf(speed_txt, "x%ld", game.frame_skip);
+    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Forward %s", speed_txt);
 }
 
 void decreaseFrameskip(void)
 {
-    if (game.frame_skip <= 2)
-    {
-        game.frame_skip --;
+    // Defaul no longer using frame_skip=1, which will not change the logic frame rate but the makes the game will less smooth. But it can still be passed in through parameters
+    int level = 16;
+    for (int i=0; i<10; i++) {
+        if (game.frame_skip <= level)
+            break;
+        level <<= 1;
     }
-    else if (game.frame_skip <= 16)
-    {
-        game.frame_skip -= 2;
-    }
-    else
-    {
-        game.frame_skip -= (game.frame_skip/4);
-    }
+    int adj = level/8;
+    game.frame_skip -= adj;
     clip_frame_skip();
-    show_onscreen_msg(game_num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
+    char speed_txt[256] = "normal";
+    if (game.frame_skip > 0)
+        sprintf(speed_txt, "x%ld", game.frame_skip);
+    show_onscreen_msg(game_num_fps*(game.frame_skip+1), "Fast Forward %s", speed_txt);
 }
 
 /**
@@ -590,7 +588,7 @@ short get_global_inputs(void)
       {
           if (menu_is_active(GMnu_QUIT))
           {
-              set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
+              set_players_packet_action(player, PckA_QuitToMainMenu, 0, 0, 0, 0);
               clear_key_pressed(KC_RETURN);
               return true;
           }
@@ -602,11 +600,7 @@ short get_global_inputs(void)
   // Code for debugging purposes
   if ( is_key_pressed(KC_D,KMod_ALT) )
   {
-    JUSTMSG("REPORT for gameturn %lu",game.play_gameturn);
-    // Timing report
-    JUSTMSG("Now time is %ld, last loop time was %ld, clock is %ld, requested fps is %ld",
-        LbTimerClock(),last_loop_time,clock(),game_num_fps);
-    test_variable = !test_variable;
+    JUSTMSG("REPORT. gameturn is %lu, requested fps is %ld",game.play_gameturn, game_num_fps);
   }
 
   for (int idx = KC_F1; idx <= KC_F8; idx++)
@@ -857,7 +851,7 @@ TbBool get_level_lost_inputs(void)
           if (thing->class_id == TCls_Creature)
           {
               struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-              if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+              if ((cctrl->creature_state_flags & TF2_Spectator) == 0)
               {
                   set_players_packet_action(player, PckA_DirectCtrlExit, player->controlled_thing_idx, 0, 0, 0);
                   inp_done = true;
@@ -1093,76 +1087,76 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
       {
           struct Camera* cam = &player->cameras[CamIV_Isometric];
           struct Packet* pckt = get_packet(my_player_number);
-          int angle = cam->orient_a;
+          int angle = cam->rotation_angle_x;
           if (key_modifiers & KMod_CONTROL)
           {
-              if ((angle >= 0 && angle < 256) || angle == 2048)
+              if ((angle >= ANGLE_NORTH && angle < ANGLE_NORTHEAST) || angle == DEGREES_360)
               {
-                  angle = 256;
+                  angle = ANGLE_NORTHEAST;
               }
-              else if (angle >= 256 && angle < 512)
+              else if (angle >= ANGLE_NORTHEAST && angle < ANGLE_EAST)
               {
-                  angle = 512;
+                  angle = ANGLE_EAST;
               }
-              else if (angle >= 512 && angle < 768)
+              else if (angle >= ANGLE_EAST && angle < ANGLE_SOUTHEAST)
               {
-                  angle = 768;
+                  angle = ANGLE_SOUTHEAST;
               }
-              else if (angle >= 768 && angle < 1024)
+              else if (angle >= ANGLE_SOUTHEAST && angle < ANGLE_SOUTH)
               {
-                  angle = 1024;
+                  angle = ANGLE_SOUTH;
               }
-              else if (angle >= 1024 && angle < 1280)
+              else if (angle >= ANGLE_SOUTH && angle < ANGLE_SOUTHWEST)
               {
-                  angle = 1280;
+                  angle = ANGLE_SOUTHWEST;
               }
-              else if (angle >= 1280 && angle < 1536)
+              else if (angle >= ANGLE_SOUTHWEST && angle < ANGLE_WEST)
               {
-                  angle = 1536;
+                  angle = ANGLE_WEST;
               }
-              else if (angle >= 1536 && angle < 1792)
+              else if (angle >= ANGLE_WEST && angle < ANGLE_NORTHWEST)
               {
-                  angle = 1792;
+                  angle = ANGLE_NORTHWEST;
               }
-              else if (angle >= 1792 && angle < 2048)
+              else if (angle >= ANGLE_NORTHWEST && angle < DEGREES_360)
               {
-                  angle = 0;
+                  angle = ANGLE_NORTH;
               }
         }
         else if (key_modifiers & KMod_SHIFT)
         {
-            if (angle > 0 && angle <= 256)
-            {angle = 2048;}
-            else if (angle > 256 && angle <= 512)
-            {angle = 256;}
-            else if (angle > 512 && angle <= 768)
-            {angle = 512;}
-            else if (angle > 768 && angle <= 1024)
-            {angle = 768;}
-            else if (angle > 1024 && angle <= 1280)
-            {angle = 1024;}
-            else if (angle > 1280 && angle <= 1536)
-            {angle = 1280;}
-            else if (angle > 1536 && angle <= 1792)
-            {angle = 1536;}
-            else if ((angle > 1792 && angle <= 2048) || angle == 0)
-            {angle = 1792;}
+            if (angle > ANGLE_NORTH && angle <= ANGLE_NORTHEAST)
+            {angle = DEGREES_360;}
+            else if (angle > ANGLE_NORTHEAST && angle <= ANGLE_EAST)
+            {angle = ANGLE_NORTHEAST;}
+            else if (angle > ANGLE_EAST && angle <= ANGLE_SOUTHEAST)
+            {angle = ANGLE_EAST;}
+            else if (angle > ANGLE_SOUTHEAST && angle <= ANGLE_SOUTH)
+            {angle = ANGLE_SOUTHEAST;}
+            else if (angle > ANGLE_SOUTH && angle <= ANGLE_SOUTHWEST)
+            {angle = ANGLE_SOUTH;}
+            else if (angle > ANGLE_SOUTHWEST && angle <= ANGLE_WEST)
+            {angle = ANGLE_SOUTHWEST;}
+            else if (angle > ANGLE_WEST && angle <= ANGLE_NORTHWEST)
+            {angle = ANGLE_WEST;}
+            else if ((angle > ANGLE_NORTHWEST && angle <= DEGREES_360) || angle == ANGLE_NORTH)
+            {angle = ANGLE_NORTHWEST;}
         }
-        else if (angle == 0 || angle == 2048)
+        else if (angle == ANGLE_NORTH || angle == DEGREES_360)
         {
-            (angle = 1024);
+            (angle = ANGLE_SOUTH);
         }
-        else if (angle == 512)
+        else if (angle == ANGLE_EAST)
         {
-            (angle = 1536);
+            (angle = ANGLE_WEST);
         }
-        else if (angle == 1536)
+        else if (angle == ANGLE_WEST)
         {
-            (angle = 512);
+            (angle = ANGLE_EAST);
         }
         else
         {
-            (angle = 0);
+            (angle = ANGLE_NORTH);
         }
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         clear_key_pressed(val);
@@ -1185,7 +1179,7 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
       {
           struct Camera* cam = &player->cameras[CamIV_FrontView];
           struct Packet* pckt = get_packet(my_player_number);
-          int angle = cam->orient_a;
+          int angle = cam->rotation_angle_x;
           if (key_modifiers & KMod_CONTROL)
           {
               set_packet_control(pckt, PCtr_ViewRotateCW);
@@ -1196,13 +1190,13 @@ TbBool get_dungeon_control_pausable_action_inputs(void)
         }
         else
         {
-            if (angle == 0 || angle == 2048)
+            if (angle == ANGLE_NORTH || angle == DEGREES_360)
             {
-                (angle = 1024);
+                (angle = ANGLE_SOUTH);
             }
             else
             {
-                (angle = 0);
+                (angle = ANGLE_NORTH);
             }
         set_packet_action(pckt,PckA_SetMapRotation,angle,0,0,0);
         }
@@ -1849,8 +1843,6 @@ short get_creature_control_action_inputs(void)
 
 void get_packet_control_mouse_clicks(void)
 {
-    static int synthetic_left = 0; //arbitrary state machine, not deserving own enum
-    static int synthetic_right = 0;
     SYNCDBG(8,"Starting");
 
     if (flag_is_set(game.operation_flags, GOF_Paused))
@@ -2447,7 +2439,7 @@ TbBool get_packet_load_demo_inputs(void)
 void get_creature_control_nonaction_inputs(void)
 {
     struct PlayerInfo* player = get_my_player();
-    if ((player->allocflags & PlaF_Unknown8) != 0)
+    if ((player->allocflags & PlaF_CreaturePassengerMode) != 0)
     {
         return;
     }
@@ -2663,7 +2655,7 @@ TbBool active_menu_functions_while_paused()
  */
 short get_inputs(void)
 {
-    if ((game.flags_cd & MFlg_IsDemoMode) != 0)
+    if ((game.mode_flags & MFlg_IsDemoMode) != 0)
     {
         SYNCDBG(5,"Starting for demo mode");
         load_packets_for_turn(game.pckt_gameturn);
@@ -2718,7 +2710,7 @@ short get_inputs(void)
             return true;
         }
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        if ((cctrl->creature_state_flags & TF2_Spectator) == 0)
         {
             get_level_lost_inputs();
             return true;
@@ -2843,8 +2835,8 @@ short get_gui_inputs(short gameplay_on)
       for (int idx = 0; idx < ACTIVE_BUTTONS_COUNT; idx++)
       {
         struct GuiButton *gbtn = &active_buttons[idx];
-        if ((gbtn->flags & LbBtnF_Active) && (gbtn->gbtype == LbBtnT_Unknown6))
-            gbtn->gbactn_1 = 0;
+        if ((gbtn->flags & LbBtnF_Active) && (gbtn->gbtype == LbBtnT_Hotspot))
+            gbtn->button_state_left_pressed = 0;
       }
   }
   update_busy_doing_gui_on_menu();
@@ -2870,7 +2862,7 @@ short get_gui_inputs(short gameplay_on)
       if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_panel_map(player->minimap_pos_x,player->minimap_pos_y))
           continue;
       if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
-        || ((gbtn->gbtype == LbBtnT_Unknown6) && (gbtn->gbactn_1 != 0)) )
+        || ((gbtn->gbtype == LbBtnT_Hotspot) && (gbtn->button_state_left_pressed != 0)) )
       {
           if ((fmmenu_idx == -1) || (gbtn->gmenu_idx == fmmenu_idx))
           {
@@ -2880,7 +2872,7 @@ short get_gui_inputs(short gameplay_on)
             callback = gbtn->ptover_event;
             if (callback != NULL)
                 callback(gbtn);
-            if (gbtn->gbtype == LbBtnT_Unknown6)
+            if (gbtn->gbtype == LbBtnT_Hotspot)
                 break;
             if (gbtn->gbtype == LbBtnT_HorizSlider)
                 nx_over_slider_button = gidx;
@@ -2923,7 +2915,7 @@ short get_gui_inputs(short gameplay_on)
       left_button_released = 0;
       if (gmbtn_idx != -1) {
           gbtn = &active_buttons[gmbtn_idx];
-          gbtn->gbactn_1 = 0;
+          gbtn->button_state_left_pressed = 0;
       }
       over_slider_button = -1;
       do_sound_menu_click();

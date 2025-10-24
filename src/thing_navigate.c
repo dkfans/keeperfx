@@ -88,7 +88,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         stl_y = sstep->v + pos->y.stl.num;
         if ( stl_x < 0 )
         {
-            stl_x = 0; 
+            stl_x = 0;
         }
         else if ( stl_x > game.map_subtiles_x )
         {
@@ -97,7 +97,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
 
         if ( stl_y < 0 )
         {
-            stl_y = 0; 
+            stl_y = 0;
         }
         else if ( stl_y > game.map_subtiles_y )
         {
@@ -105,7 +105,7 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         }
 
         mapblk = get_map_block_at(stl_x, stl_y);
-        
+
         if ( (mapblk->flags & SlbAtFlg_Blocking) == 0 )
         {
             spiral_pos.x.val = (stl_x << 8) + 128;
@@ -432,7 +432,7 @@ long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
         return -1;*/
 
     long angle = (get_angle_xy_to(&thing->mappos, pos)
-        + LbFPMath_PI) & LbFPMath_AngleMask;
+        + DEGREES_180) & ANGLE_MASK;
 
     return creature_turn_to_face_angle(thing,angle);
 }
@@ -452,7 +452,7 @@ long creature_turn_to_face_angle(struct Thing *thing, long angle)
         angle_delta = -angle_delta;
     }
 
-    thing->move_angle_xy = (thing->move_angle_xy + angle_delta) & LbFPMath_AngleMask;
+    thing->move_angle_xy = (thing->move_angle_xy + angle_delta) & ANGLE_MASK;
 
     return get_angle_difference(thing->move_angle_xy, angle);
 }
@@ -466,8 +466,8 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     if ( backward )
     {
         // Rotate the creature 180 degrees to trace route with forward move
-        i = (thing->move_angle_xy + LbFPMath_PI);
-        thing->move_angle_xy = i & LbFPMath_AngleMask;
+        i = (thing->move_angle_xy + DEGREES_180);
+        thing->move_angle_xy = i & ANGLE_MASK;
     }
     struct Coord3d nextpos;
     AriadneReturn follow_result = creature_follow_route_to_using_gates(thing, pos, &nextpos, speed, flags);
@@ -475,10 +475,10 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     if ( backward )
     {
         // Rotate the creature back
-        i = (thing->move_angle_xy + LbFPMath_PI);
-        thing->move_angle_xy = i & LbFPMath_AngleMask;
+        i = (thing->move_angle_xy + DEGREES_180);
+        thing->move_angle_xy = i & ANGLE_MASK;
     }
-    if ((follow_result == AridRet_PartOK) || (follow_result == AridRet_Val2))
+    if ((follow_result == AridRet_PartOK) || (follow_result == AridRet_Failed))
     {
         creature_set_speed(thing, 0);
         return -1;
@@ -497,7 +497,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         } else
         {
             creature_set_speed(thing, -speed);
-            cctrl->flgfield_2 |= TF2_Unkn01;
+            cctrl->creature_state_flags |= TF2_CreatureIsMoving;
             if (get_chessboard_distance(&thing->mappos, &nextpos) > -2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive backward speed",
@@ -523,7 +523,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         } else
         {
             creature_set_speed(thing, speed);
-            cctrl->flgfield_2 |= TF2_Unkn01;
+            cctrl->creature_state_flags |= TF2_CreatureIsMoving;
             if (get_chessboard_distance(&thing->mappos, &nextpos) > 2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive forward speed",
@@ -565,7 +565,7 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
         if (destination_valid)
          {
              // Use teleport only over large enough distances
-             if (get_chessboard_distance(&thing->mappos, pos) > COORD_PER_STL*game.conf.rules.magic.min_distance_for_teleport)
+             if (get_chessboard_distance(&thing->mappos, pos) > COORD_PER_STL*game.conf.rules[thing->owner].magic.min_distance_for_teleport)
              {
                  set_creature_instance(thing, CrInst_TELEPORT, 0, pos);
                  return true;
@@ -667,7 +667,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
              MapSubtlCoord floor_height = get_column_floor_filled_subtiles(col);
              if (floor_height < highest_floor_stl)
                  highest_floor_stl = floor_height;
-             
+
              if ((col->bitfields & CLF_CEILING_MASK) != 0)
              {
                  MapSubtlCoord ceiling_height = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
@@ -689,7 +689,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
         MapSubtlCoord floor_height = get_column_floor_filled_subtiles(col);
         if (floor_height <= highest_floor_stl)
             highest_floor_stl = floor_height;
-        
+
         if ((col->bitfields & CLF_CEILING_MASK) != 0)
         {
             MapSubtlCoord ceiling_height = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
@@ -710,7 +710,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
         MapSubtlCoord floor_height = get_column_floor_filled_subtiles(col);
         if (floor_height <= highest_floor_stl)
             highest_floor_stl = floor_height;
-        
+
         if ((col->bitfields & CLF_CEILING_MASK) != 0)
         {
             MapSubtlCoord ceiling_height = COLUMN_STACK_HEIGHT - get_column_ceiling_filled_subtiles(col);
@@ -741,7 +741,7 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
         if (filled_subtiles < lowest_ceiling_stl)
             lowest_ceiling_stl = filled_subtiles;
     }
-    
+
     update_floor_and_ceiling_heights_at(end_x / COORD_PER_STL, end_y / COORD_PER_STL, &highest_floor_stl, &lowest_ceiling_stl);
 
     MapCoord highest_floor = highest_floor_stl * COORD_PER_STL;
@@ -753,22 +753,6 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
         return pos->z.val;
     else
         return lowest_ceiling - 1 - thing->clipbox_size_z;
-}
-
-TbBool thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2)
-{
-    long nav_radius = thing_nav_sizexy(thing) /2;
-
-    if ((abs((pos2->x.val - nav_radius) - (pos1->x.val - nav_radius)) < COORD_PER_STL)
-     && (abs((pos2->x.val + nav_radius) - (pos1->x.val + nav_radius)) < COORD_PER_STL)
-     && (abs((pos2->y.val - nav_radius) - (pos1->y.val - nav_radius)) < COORD_PER_STL)
-     && (abs((pos2->y.val + nav_radius) - (pos1->y.val + nav_radius)) < COORD_PER_STL)
-     && (abs(pos2->z.val - pos1->z.val) < COORD_PER_STL)
-     && (abs((thing->clipbox_size_z + pos2->z.val) - (thing->clipbox_size_z + pos1->z.val)) < COORD_PER_STL) )
-    {
-        return true;
-    }
-    return false;
 }
 
 long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
@@ -826,8 +810,8 @@ long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
 
 /**
  * Whether the current slab is safe land, unsafe land that the creature can pass, or is a door that the creature can pass.
- * 
- * Used for wallhugging by creature_can_have_combat_with_object and creature_can_have_combat_with_creature. 
+ *
+ * Used for wallhugging by creature_can_have_combat_with_object and creature_can_have_combat_with_creature.
  */
 TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {

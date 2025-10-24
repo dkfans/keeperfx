@@ -464,14 +464,14 @@ msgstr "易如反掌。胜利了！"
 #. Frozen Legion (lv455)
 #: guitext:72
 msgctxt "In-game message"
-msgid "You have a fighting chance. Don't let the Heroes whittle you down. "
-msgstr "你获得了进攻的机会。不要让英雄把你打垮。"
+msgid "To have a fighting chance, get a bigger army. Don't let the heroes whittle you down."
+msgstr "想要有一线胜机，就组建一支更庞大的军队。别让英雄们逐步削减你的兵力。"
 
 #. Frozen Legion (lv455)
 #: guitext:73
 msgctxt "In-game message"
-msgid "Your magic generator will feed off your Vampires to give you a healthy number of imps. However, keep enough imps alive and you'll have an undead army to kill the heroes with. "
-msgstr "你的魔法发生器会牺牲你的吸血鬼，并为你提供足够数量的小鬼。然而，只有保持足够的小鬼存活，你才会拥有一支亡灵军团来消灭英雄。"
+msgid "Your magic generator will feed off your Vampires to give you a healthy number of imps. However, keep enough imps alive and you'll have an undead army to kill the heroes with. You need a big army. "
+sgstr "你的魔法发生器会吸取吸血鬼的力量来为你提供足够数量的小鬼。不过，只要让足够多的小鬼活下来，你就能组建一支亡灵军团来消灭英雄。你需要一支庞大的军队。"
 
 #. Shores of Battle (lv456)
 #: guitext:74

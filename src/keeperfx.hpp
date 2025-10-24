@@ -66,35 +66,36 @@ extern "C" {
 #define LENSES_COUNT           15
 #define SPELL_POINTER_GROUPS   14
 #define ZOOM_KEY_ROOMS_COUNT   15
-#define CMDLINE_OVERRIDES      3
 
+#define CMDLINE_OVERRIDES      4
 /** Command Line overrides for config settings. Checked after the config file is loaded. */
 enum CmdLineOverrides {
     Clo_ConfigFile = 0, /**< Special: handled before the config file is loaded. */
     Clo_CDMusic,
     Clo_GameTurns,
+    Clo_FramesPerSecond,
 };
 
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
     MFlg_EyeLensReady       =  0x02,
-    MFlg_unk04              =  0x04,
+    MFlg_Unusedparam04      =  0x04,
     MFlg_DeadBackToPool     =  0x08,
     MFlg_NoCdMusic          =  0x10, // unused
-    MFlg_unk20              =  0x20,
-    MFlg_unk40              =  0x40,
+    MFlg_Unusedparam20      =  0x20,
+    MFlg_DemoMode           =  0x40,
     MFlg_NoHeroHealthFlower =  0x80,
 };
 
 enum FFlags {
-    FFlg_unk01              =  0x01,
-    FFlg_unk02              =  0x02,
+    FFlg_Unusedparam01      =  0x01,
+    FFlg_ShowLevelIntroText =  0x02,
     FFlg_unk04              =  0x04, // unused, had something to do with Passenger Control
-    FFlg_unk08              =  0x08,
-    FFlg_unk10              =  0x10,
+    FFlg_HalfSizeRender     =  0x08,
+    FFlg_NetworkTimeout     =  0x10,
     FFlg_AlexCheat          =  0x20,
     FFlg_UsrSndFont         =  0x40, // now unused
-    FFlg_unk80              =  0x80,
+    FFlg_MainMenuReturn     =  0x80,
 };
 
 enum DebugFlags {
@@ -134,10 +135,11 @@ struct StartupParameters {
     TbBool one_player;
     unsigned char operation_flags;
     unsigned char flags_font;
-    unsigned char flags_cd;
+    unsigned char mode_flags;
     unsigned char debug_flags;
     unsigned short computer_chat_flags;
     long num_fps;
+    long num_fps_draw;
     TbBool packet_save_enable;
     TbBool packet_load_enable;
     char packet_fname[150];
@@ -207,12 +209,10 @@ extern unsigned char *lightning_palette;
 #pragma pack()
 /******************************************************************************/
 // Variables inside the main module
-extern TbClockMSec last_loop_time;
 extern short default_loc_player;
 extern struct GuiBox *gui_cheat_box_1;
 extern struct GuiBox *gui_cheat_box_2;
 extern struct GuiBox *gui_cheat_box_3;
-extern int test_variable;
 extern struct StartupParameters start_params;
 
 //Functions - reworked
@@ -299,7 +299,7 @@ void update_thing_animation(struct Thing *thing);
 long update_cave_in(struct Thing *thing);
 void initialise_map_collides(void);
 void initialise_map_health(void);
-void setup_3d(void);
+void setup_mesh_randomizers(void);
 void setup_stuff(void);
 void give_shooter_drained_health(struct Thing *shooter, HitPoints health_delta);
 long get_foot_creature_has_down(struct Thing *thing);

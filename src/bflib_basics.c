@@ -45,16 +45,6 @@ extern TbBool emulate_integer_overflow(unsigned short nbits);
 // Functions which were previously defined as Inline,
 // but redefined for compatibility with both Ansi-C and C++.
 
-/** Return the big-endian longword at p. */
-unsigned long blong (unsigned char *p)
-{
-    unsigned long n = p[0];
-    n = (n << 8) + p[1];
-    n = (n << 8) + p[2];
-    n = (n << 8) + p[3];
-    return n;
-}
-
 /** Return the little-endian longword at p. */
 unsigned long llong (unsigned char *p)
 {
@@ -62,14 +52,6 @@ unsigned long llong (unsigned char *p)
     n = (n << 8) + p[2];
     n = (n << 8) + p[1];
     n = (n << 8) + p[0];
-    return n;
-}
-
-/** Return the big-endian word at p. */
-unsigned long bword (unsigned char *p)
-{
-    unsigned long n = p[0];
-    n = (n << 8) + p[1];
     return n;
 }
 
@@ -89,11 +71,11 @@ unsigned long lword (unsigned char *p)
  */
 long saturate_set_signed(long long val,unsigned short nbits)
 {
-  long long max = (1 << (nbits-1)) - 1;
-  if (val >= max)
-    return max;
-  if (val <= -max)
-    return -max;
+  long long maximum_value = (1 << (nbits-1)) - 1;
+  if (val >= maximum_value)
+    return maximum_value;
+  if (val <= -maximum_value)
+    return -maximum_value;
   return val;
 }
 
@@ -105,11 +87,11 @@ long saturate_set_signed(long long val,unsigned short nbits)
  */
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits)
 {
-    unsigned long long max = (1 << (nbits)) - 1;
+    unsigned long long maximum_value = (1 << (nbits)) - 1;
     if (emulate_integer_overflow(nbits))
-        return (val & max);
-    if (val >= max)
-        return max;
+        return (val & maximum_value);
+    if (val >= maximum_value)
+        return maximum_value;
     return val;
 }
 
@@ -125,10 +107,10 @@ const char *log_file_name=DEFAULT_LOG_FILENAME;
  */
 int str_append(char * buffer, int size, const char * str)
 {
-    const int len = strlen(buffer);
-    const int available = size - len;
+    const int buffer_length = strlen(buffer);
+    const int available = size - buffer_length;
     if (available <= 0) {
-        return len;
+        return buffer_length;
     }
     strncat(buffer, str, available);
     return strlen(buffer);
@@ -144,21 +126,16 @@ int str_append(char * buffer, int size, const char * str)
  */
 int str_appendf(char * buffer, int size, const char * format, ...)
 {
-    const int len = strlen(buffer);
-    const int available = size - len;
+    const int buffer_length = strlen(buffer);
+    const int available = size - buffer_length;
     if (available <= 0) {
-        return len;
+        return buffer_length;
     }
     va_list args;
     va_start(args, format);
-    vsnprintf(&buffer[len], available, format, args);
+    vsnprintf(&buffer[buffer_length], available, format, args);
     va_end(args);
     return strlen(buffer);
-}
-
-void error(const char *codefile,const int ecode,const char *message)
-{
-  LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
 }
 
 short warning_dialog(const char *codefile,const int ecode,const char *message)
@@ -327,7 +304,7 @@ int LbJustLog(const char *format, ...)
 int LbErrorLogSetup(const char *directory, const char *filename, TbBool flag)
 {
   if ( error_log_initialised ) return -1;
-  if ((filename == NULL) && strlen(filename) == 0) {
+  if ((filename == NULL) || (strlen(filename) == 0)) {
     filename = "error.log";
   }
   char log_filename[DISKPATH_SIZE];
@@ -357,12 +334,6 @@ int LbErrorLogClose(void)
 
 FILE *file = NULL;
 
-void LbCloseLog()
-{
-    fclose(file);
-    file = NULL;
-}
-
 void write_log_to_array_for_live_viewing(const char* fmt_str, va_list args, const char* add_log_prefix) {
     if (consoleLogArraySize >= MAX_CONSOLE_LOG_COUNT) {
         // Array is full - so clear it. This is a bit of a stopgap solution, it will lose us the older entries.
@@ -371,7 +342,10 @@ void write_log_to_array_for_live_viewing(const char* fmt_str, va_list args, cons
     }
 
     char formattedString[MAX_TEXT_LENGTH];
-    vsnprintf(formattedString, sizeof(formattedString), fmt_str, args);
+    va_list copy;
+    va_copy(copy, args);
+    vsnprintf(formattedString, sizeof(formattedString), fmt_str, copy);
+    va_end(copy);
 
     char buffer[MAX_TEXT_LENGTH];
     snprintf(buffer, sizeof(buffer), "%s%s", add_log_prefix, formattedString); // merge prefix and formatted string
@@ -552,28 +526,6 @@ int LbLogClose(struct TbLog *log)
 
 struct DebugMessage * debug_messages_head = NULL;
 struct DebugMessage ** debug_messages_tail = &debug_messages_head;
-
-void LbPrint(const char * format, ...) {
-  va_list args;
-  va_start(args, format);
-  const int message_length = vsnprintf(NULL, 0, format, args);
-  va_end(args);
-  if (message_length <= 0) {
-    return;
-  }
-  const int message_size = message_length + 1;
-  const int block_size = sizeof(struct DebugMessage) + message_size;
-  struct DebugMessage * message = malloc(block_size);
-  if (message == NULL) {
-    return;
-  }
-  va_start(args, format);
-  vsnprintf(message->text, message_size, format, args);
-  va_end(args);
-  message->next = NULL;
-  *debug_messages_tail = message;
-  debug_messages_tail = &message->next;
-}
 
 void make_lowercase(char * string) {
   for (char * ptr = string; *ptr != 0; ++ptr) {

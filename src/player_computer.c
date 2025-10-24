@@ -107,7 +107,7 @@ long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
     return 1;
 }
 
-struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long area, long a6)
+struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long max_distance, long perfect)
 {
     long i = comp->task_idx;
     unsigned long k = 0;
@@ -126,7 +126,7 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
             unsigned short max_radius = ctask->create_room.width / 2;
             if (max_radius <= ctask->create_room.height / 2)
               max_radius = ctask->create_room.height / 2;
-            struct ComputerTask* roomtask = able_to_build_room(comp, &ctask->new_room_pos, rkind, width_slabs, height_slabs, area + max_radius + 1, a6);
+            struct ComputerTask* roomtask = able_to_build_room(comp, &ctask->new_room_pos, rkind, width_slabs, height_slabs, max_distance + max_radius + 1, perfect);
             if (!computer_task_invalid(roomtask)) {
                 return roomtask;
             }
@@ -153,7 +153,7 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
  * @param a6
  * @return
  */
-struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long area, long require_perfect)
+struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long max_slabs_dist, long perfect)
 {
     struct Dungeon* dungeon = comp->dungeon;
     long i = dungeon->room_list_start[look_kind];
@@ -172,7 +172,7 @@ struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomK
         pos.x.val = subtile_coord_center(room->central_stl_x);
         pos.y.val = subtile_coord_center(room->central_stl_y);
         pos.z.val = subtile_coord(1,0);
-        struct ComputerTask* roomtask = able_to_build_room(comp, &pos, rkind, width_slabs, height_slabs, area, require_perfect);
+        struct ComputerTask* roomtask = able_to_build_room(comp, &pos, rkind, width_slabs, height_slabs, max_slabs_dist, perfect);
         if (!computer_task_invalid(roomtask)) {
             return roomtask;
         }
@@ -209,12 +209,12 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
     long max_slabs = height_slabs;
     if (max_slabs < width_slabs)
         max_slabs = width_slabs;
-    long area_min = (max_slabs + 1) / 2 + 1;
-    long area_max = area_min / 3 + 2 * area_min;
-    const long arr_length = sizeof(look_through_rooms)/sizeof(look_through_rooms[0]);
-    for (long area = area_min; area < area_max; area++)
+    long dist_min = (max_slabs + 1) / 2 + 1;
+    long dist_max = dist_min / 3 + 2 * dist_min;
+    const long arr_length = game.conf.slab_conf.room_types_count;
+    for (long distance_in_slabs = dist_min; distance_in_slabs < dist_max; distance_in_slabs++)
     {
-        for (long aparam = 1; aparam >= 0; aparam--)
+        for (long perfect = 1; perfect >= 0; perfect--)
         {
             unsigned int look_kind = look_randstart;
             if (look_randstart < 0)
@@ -226,10 +226,10 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
                 struct ComputerTask *roomtask;
                 if (look_kind == RoK_TYPES_COUNT)
                 {
-                    roomtask = able_to_build_room_at_task(comp, rkind, width_slabs, height_slabs, area, aparam);
+                    roomtask = able_to_build_room_at_task(comp, rkind, width_slabs, height_slabs, distance_in_slabs, perfect);
                 } else
                 {
-                    roomtask = able_to_build_room_from_room(comp, rkind, look_kind, width_slabs, height_slabs, area, aparam);
+                    roomtask = able_to_build_room_from_room(comp, rkind, look_kind, width_slabs, height_slabs, distance_in_slabs, perfect);
                 }
                 if (!computer_task_invalid(roomtask)) {
                     return roomtask;
@@ -813,7 +813,7 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
-    long kind_chosen = computer_choose_best_trap_kind_to_place(dungeon, check->param1, check->param2);
+    long kind_chosen = computer_choose_best_trap_kind_to_place(dungeon, check->primary_parameter, check->secondary_parameter);
     if (kind_chosen <= 0)
         return CTaskRet_Unk4;
     struct Coord3d pos;
@@ -913,8 +913,8 @@ long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *c
  * Checks how much money the player lacks for next payday.
  * @param comp Computer player who controls the target dungeon.
  * @param check The check being executed; param1 is low gold value, param2 is critical gold value.
- * @note check->param1 is the gold surplus minimum below which we will take a standard action.
- * @note check->param2 is the gold surplus critical value below which we will take an aggressive action.
+ * @note check->primary_parameter is the gold surplus minimum below which we will take a standard action.
+ * @note check->secondary_parameter is the gold surplus critical value below which we will take an aggressive action.
  */
 
 long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check)
@@ -929,7 +929,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     // Check how much money we will have left after payday (or other expenses)
     GoldAmount money_left = get_computer_money_less_cost(comp);
     // Try increasing priority of digging for gold process
-    if ((money_left < check->param2) || (money_left < check->param1))
+    if ((money_left < check->secondary_parameter) || (money_left < check->primary_parameter))
     {
         SYNCDBG(8,"Increasing player %d gold dig process priority",(int)dungeon->owner);
         for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
@@ -948,7 +948,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Try selling traps and doors - aggressive way
-    if ((money_left < check->param2) && dungeon_has_room_of_role(dungeon, RoRoF_CratesManufctr))
+    if ((money_left < check->secondary_parameter) && dungeon_has_room_of_role(dungeon, RoRoF_CratesManufctr))
     {
         if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon) ||
             player_has_deployed_trap_of_model(dungeon->owner, -1) || player_has_deployed_door_of_model(dungeon->owner, -1, 0))
@@ -956,21 +956,21 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
             if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
             {
                 SYNCDBG(8,"Creating task to sell any player %d traps and doors",(int)dungeon->owner);
-                if (create_task_sell_traps_and_doors(comp, 6, max(check->param2-money_left,1),true)) {
+                if (create_task_sell_traps_and_doors(comp, 6, max(check->secondary_parameter-money_left,1),true)) {
                     ret = CTaskRet_Unk1;
                 }
             }
         }
     }
     // Try selling traps and doors - cautious way
-    if ((money_left < check->param1) && dungeon_has_room_of_role(dungeon, RoRoF_CratesManufctr))
+    if ((money_left < check->primary_parameter) && dungeon_has_room_of_role(dungeon, RoRoF_CratesManufctr))
     {
         if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon))
         {
             if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
             {
                 SYNCDBG(8,"Creating task to sell player %d trap and door boxes",(int)dungeon->owner);
-                if (create_task_sell_traps_and_doors(comp, 6, max(check->param1-money_left,1),false)) {
+                if (create_task_sell_traps_and_doors(comp, 6, max(check->primary_parameter-money_left,1),false)) {
                     ret = CTaskRet_Unk1;
                 }
             }
@@ -984,7 +984,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         pwhand_task_choose += 33;
     }
     // Move creatures away from rooms which cost a lot to use
-    if ((money_left < check->param1) && (pwhand_task_choose < 33))
+    if ((money_left < check->primary_parameter) && (pwhand_task_choose < 33))
     {
         int num_to_move = 3;
         if (!is_task_in_progress_using_hand(comp) && computer_able_to_use_power(comp, PwrK_HAND, 1, num_to_move))
@@ -996,7 +996,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Drop imps on gold/gems mining sites
-    if ((money_left < check->param1) && (pwhand_task_choose < 66) && dungeon_has_room_of_role(dungeon, RoRoF_GoldStorage))
+    if ((money_left < check->primary_parameter) && (pwhand_task_choose < 66) && dungeon_has_room_of_role(dungeon, RoRoF_GoldStorage))
     {
         int num_to_move = 3;
         // If there's already task in progress which uses hand, then don't add more
@@ -1021,7 +1021,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Move any gold laying around to treasure room
-    if ((money_left < check->param1) && dungeon_has_room_of_role(dungeon, RoRoF_GoldStorage))
+    if ((money_left < check->primary_parameter) && dungeon_has_room_of_role(dungeon, RoRoF_GoldStorage))
     {
         int num_to_move = 10;
         // If there's already task in progress which uses hand, then don't add more
@@ -1247,14 +1247,14 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     comp->max_room_build_tasks = cpt->max_room_build_tasks;
     comp->turn_begin = cpt->turn_begin;
     comp->sim_before_dig = cpt->sim_before_dig;
-    comp->field_C = 1;
+    comp->action_status_flag = 1;
     comp->task_delay = cpt->drop_delay;
     comp->task_state = CTaskSt_Select;
 
     for (i=0; i < PLAYERS_COUNT; i++)
     {
         struct OpponentRelation* oprel = &comp->opponent_relations[i];
-        oprel->field_0 = 0;
+        oprel->last_interaction_turn = 0;
         oprel->next_idx = 0;
         if (i == plyr_idx) {
             oprel->hate_amount = LONG_MIN;

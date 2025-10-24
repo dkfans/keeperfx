@@ -41,6 +41,7 @@
 #include "sprites.h"
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
+#include "bflib_enet.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -124,9 +125,9 @@ TbBool frontnet_start_input(void)
         {
             struct ScreenPacket *nspck;
             nspck = &net_screen_packet[my_player_number];
-            if ((nspck->field_4 & 0xF8) == 0)
+            if ((nspck->networkstatus_flags & 0xF8) == 0)
             {
-                nspck->field_4 = (nspck->field_4 & 7) | 0x40;
+                nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x40;
                 nspck->param1 = lbInkey;
                 nspck->param2 = key_modifiers;
                 if (key_modifiers)
@@ -372,8 +373,20 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
         spr = get_frontend_sprite(GFS_bullfrog_red_med+netplyr_idx);
         i = height - spr->SHeight * fs_units_per_px / 16;
         LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y + shift_y + abs(i)/2, fs_units_per_px, spr);
+
+        char player_text[128];
+        unsigned long ping = 0;
+        if (netplyr_idx != my_player_number) {
+            ping = LbEnet_GetPing(netplyr_idx);
+        }
+        if (ping > 0) {
+            snprintf(player_text, sizeof(player_text), "%s - %lums", text, ping);
+        } else {
+            snprintf(player_text, sizeof(player_text), "%s", text);
+        }
+
         LbTextSetWindow(gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16, gbtn->scr_pos_y + shift_y, gbtn->width - spr->SWidth * fs_units_per_px / 16, height);
-        LbTextDrawResized(0, 0, tx_units_per_px, text);
+        LbTextDrawResized(0, 0, tx_units_per_px, player_text);
     }
 }
 
@@ -389,9 +402,9 @@ void frontnet_select_alliance(struct GuiButton *gbtn)
     {
         struct ScreenPacket *nspck;
         nspck = &net_screen_packet[my_player_number];
-        if ((nspck->field_4 & 0xF8) == 0)
+        if ((nspck->networkstatus_flags & 0xF8) == 0)
         {
-            nspck->field_4 = (nspck->field_4 & 7) | 0x20;
+            nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x20;
             nspck->param1 = plyr1_idx;
             nspck->param2 = plyr2_idx;
         }
@@ -621,169 +634,6 @@ void frontnet_return_to_session_menu(struct GuiButton *gbtn)
         }
     }
     frontend_set_state(nstate);
-}
-
-void frontnet_draw_small_scroll_box_tab(struct GuiButton *gbtn)
-{
-    long pos_x;
-    long pos_y;
-    const struct TbSprite *spr;
-    pos_x = gbtn->scr_pos_x;
-    pos_y = gbtn->scr_pos_y;
-    spr = get_frontend_sprite(GFS_hugearea_thc_tx1_tc);
-    int fs_units_per_px;
-    fs_units_per_px = gbtn->height * 16 / spr->SHeight;
-    spr = get_frontend_sprite(GFS_hugearea_thc_cor_tl);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = get_frontend_sprite(GFS_hugearea_thc_tx1_tc);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = get_frontend_sprite(GFS_hugearea_thc_tx2_tc);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr = get_frontend_sprite(GFS_hugearea_thc_cor_tr);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-}
-
-int small_scroll_box_get_units_per_px(struct GuiButton *gbtn)
-{
-    const struct TbSprite *spr;
-    int width;
-    width = 0;
-    spr = get_frontend_sprite(GFS_hugearea_thc_cor_ml);
-    width += spr->SWidth;
-    spr++;
-    width += spr->SWidth;
-    spr++;
-    width += spr->SWidth;
-    spr+=3;
-    width += spr->SWidth;
-    spr++;
-    width += spr->SWidth;
-    return (gbtn->width * 16 + 8) / width;
-}
-
-void frontnet_draw_small_scroll_box(struct GuiButton *gbtn)
-{
-    long pos_x;
-    long pos_y;
-    const struct TbSprite *spr;
-    pos_x = gbtn->scr_pos_x;
-    pos_y = gbtn->scr_pos_y;
-    int fs_units_per_px;
-    fs_units_per_px = small_scroll_box_get_units_per_px(gbtn);
-    int btn_type;
-    int len;
-    btn_type = gbtn->content.lval;
-    if (btn_type == 24) {
-        len = 2;
-    } else
-    if (btn_type == 25) {
-        len = 3;
-    } else
-    if (btn_type == 26) {
-        len = 7;
-    } else {
-        ERRORLOG("Unknown button type %d",(int)btn_type);
-        return;
-    }
-    spr = get_frontend_sprite(GFS_hugearea_thn_cor_tl);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr++;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr++;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr += 3;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr++;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-
-    int dlen;
-    dlen = 3;
-    spr = get_frontend_sprite(GFS_hugearea_thn_cor_tl);
-    pos_y += spr->SHeight * fs_units_per_px / 16;
-    for ( ; len > 0; len -= dlen)
-    {
-      pos_x = gbtn->scr_pos_x;
-      int spr_idx;
-      if (len < 3)
-          spr_idx = GFS_hugearea_thn_cor_ml;
-      else
-          spr_idx = GFS_hugearea_thc_cor_ml;
-      spr = get_frontend_sprite(spr_idx);
-      LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-      pos_x += spr->SWidth * fs_units_per_px / 16;
-      spr++;
-      LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-      pos_x += spr->SWidth * fs_units_per_px / 16;
-      spr++;
-      LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-      pos_x += spr->SWidth * fs_units_per_px / 16;
-      spr += 3;
-      LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-      pos_x += spr->SWidth * fs_units_per_px / 16;
-      if (len < 3)
-          spr_idx = GFS_scrollbar_vert_ct_short;
-      else
-          spr_idx = GFS_scrollbar_vert_ct_long;
-      spr = get_frontend_sprite(spr_idx);
-      LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-      pos_y += spr->SHeight * fs_units_per_px / 16;
-      if (len < 3)
-          dlen = 1;
-      else
-          dlen = 3;
-    }
-
-    pos_x = gbtn->scr_pos_x;
-    spr = get_frontend_sprite(GFS_hugearea_thn_cor_bl);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr++;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr++;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr += 3;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth * fs_units_per_px / 16;
-    spr++;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-}
-
-void frontnet_draw_text_cont_bar(struct GuiButton *gbtn)
-{
-    int units_per_px;
-    units_per_px = (gbtn->width * 16 + 165/2) / 165;
-
-    int pos_x;
-    int pos_y;
-    pos_y = gbtn->scr_pos_y;
-    const struct TbSprite *spr;
-    int netplyr_idx;
-    pos_x = gbtn->scr_pos_x;
-
-    spr = get_frontend_sprite(GFS_largearea_nx2_cor_l);
-    int fs_units_per_px;
-    fs_units_per_px = spr->SHeight * units_per_px / 28;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth*fs_units_per_px/16;
-
-    spr = get_frontend_sprite(GFS_largearea_nx2_tx5_c);
-    for (netplyr_idx=0; netplyr_idx < NET_PLAYERS_COUNT; netplyr_idx++)
-    {
-        LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-        pos_x += spr->SWidth*fs_units_per_px/16;
-    }
-
-    spr = get_frontend_sprite(GFS_largearea_nx2_cor_r);
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
 }
 
 void frontnet_service_up_maintain(struct GuiButton *gbtn)

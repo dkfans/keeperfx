@@ -591,7 +591,7 @@ long check_out_unconverted_spiral(struct Thing *thing, long nslabs)
     slb_x = subtile_slab(thing->mappos.x.stl.num);
     slb_y = subtile_slab(thing->mappos.y.stl.num);
     imax = 2;
-    arndi = CREATURE_RANDOM(thing, 4);
+    arndi = THING_RANDOM(thing, 4);
     for (slabi = 0; slabi < nslabs; slabi++)
     {
         {
@@ -666,7 +666,7 @@ long check_out_unprettied_spiral(struct Thing *thing, long nslabs)
     slb_x = subtile_slab(thing->mappos.x.stl.num);
     slb_y = subtile_slab(thing->mappos.y.stl.num);
     imax = 2;
-    arndi = CREATURE_RANDOM(thing, 4);
+    arndi = THING_RANDOM(thing, 4);
     for (slabi = 0; slabi < nslabs; slabi++)
     {
         {
@@ -816,9 +816,9 @@ long check_place_to_pretty_excluding(struct Thing *creatng, MapSlabCoord slb_x, 
 
 static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iterations)
 {
-    int v4;
-    int v8;
-    int v9;
+    int spiral_direction;
+    int direction_step_count;
+    int next_direction;
     int current_iteration;
     const struct Around *ar;
     long stl_y;
@@ -828,19 +828,19 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
     current_iteration = 0;
     MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
-    int v7 = 2;
+    int steps_per_direction = 2;
 
     while (number_of_iterations > current_iteration)
     {
         --slb_x;
         --slb_y;
-        v4 = 0;
+        spiral_direction = 0;
         do
         {
-            v8 = 0;
-            v9 = v4 + 1;
-            ar = &small_around[(v4 + 1) & 3];
-            if (v7 > 0)
+            direction_step_count = 0;
+            next_direction = spiral_direction + 1;
+            ar = &small_around[(spiral_direction + 1) & 3];
+            if (steps_per_direction > 0)
             {
                 while (1)
                 {
@@ -860,14 +860,14 @@ static int check_out_unreinforced_spiral(struct Thing *thing, int number_of_iter
                             }
                         }
                     }
-                    if (v7 <= ++v8)
+                    if (steps_per_direction <= ++direction_step_count)
                         break;
                 }
             }
-            v4 = v9;
-        } while (v9 < 4);
+            spiral_direction = next_direction;
+        } while (next_direction < 4);
         ++current_iteration;
-        v7 += 2;
+        steps_per_direction += 2;
     }
 
     return 0;
@@ -878,7 +878,7 @@ static long check_out_unreinforced_place(struct Thing *thing)
     SubtlCodedCoords working_stl;
     SubtlCodedCoords stl_num;
     struct CreatureControl *cctrl;
-    int v17;
+    int direction_attempt_count;
     long stl_y;
     long stl_x;
 
@@ -912,7 +912,7 @@ static long check_out_unreinforced_place(struct Thing *thing)
         unsigned int ar_idx_x = thing->mappos.x.stl.num % 3u;
         unsigned int ar_idx_y = 3 * (thing->mappos.y.stl.num % 3u);
 
-        v17 = 0;
+        direction_attempt_count = 0;
         int around_idx = around_indexes[ar_idx_y + ar_idx_x];
         while (1)
         {
@@ -928,9 +928,9 @@ static long check_out_unreinforced_place(struct Thing *thing)
                         break;
                 }
             }
-            v17 += 2;
+            direction_attempt_count += 2;
             around_idx = (around_idx + 2) % SMALL_AROUND_LENGTH;
-            if (v17 >= 4)
+            if (direction_attempt_count >= 4)
             {
                 cctrl->digger.working_stl = 0;
                 return check_out_unreinforced_spiral(thing, 1) != 0;
@@ -1090,7 +1090,7 @@ long check_out_undug_place(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     base_stl_x = stl_num_decode_x(cctrl->digger.task_stl);
     base_stl_y = stl_num_decode_y(cctrl->digger.task_stl);
-    n = CREATURE_RANDOM(creatng, 4);
+    n = THING_RANDOM(creatng, 4);
     for (i=0; i < 4; i++)
     {
         struct MapTask* mtask;
@@ -1647,6 +1647,9 @@ TbBool thing_can_be_picked_to_place_in_player_room_of_role(const struct Thing* t
     if (thing_is_dragged_or_pulled(thing)) {
         return false;
     }
+    if (object_is_ignored_by_imps(thing)) {
+        return false;
+    }
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     // Neutral things on either neutral or owned ground should be always pickable
@@ -1857,7 +1860,7 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
     int remain_num;
     unsigned long k;
     int i;
-    if(!game.conf.rules.workers.drag_to_lair)
+    if(!game.conf.rules[dungeon->owner].workers.drag_to_lair)
     {
         return 0;
     }
@@ -1886,7 +1889,7 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
             {
                 room = get_creature_lair_room(thing);
 
-                if (game.conf.rules.workers.drag_to_lair == 1)
+                if (game.conf.rules[dungeon->owner].workers.drag_to_lair == 1)
                 {
                     // if the creature doesn't have a lair
                     if (room_is_invalid(room))
@@ -1895,7 +1898,7 @@ int add_unsaved_unconscious_creature_to_imp_stack(struct Dungeon *dungeon, int m
                         continue;
                     }
                 }
-                else if (game.conf.rules.workers.drag_to_lair == 2)
+                else if (game.conf.rules[dungeon->owner].workers.drag_to_lair == 2)
                 {
                     // if the creature doesn't have and doesn't need a lair
                     if (room_is_invalid(room) && !creature_can_do_healing_sleep(thing))
@@ -2724,7 +2727,7 @@ long check_out_available_imp_tasks(struct Thing *thing)
 long check_out_imp_tokes(struct Thing *thing)
 {
     SYNCDBG(19, "Starting");
-    long i = CREATURE_RANDOM(thing, 64);
+    long i = THING_RANDOM(thing, 64);
     // small chance of changing state
     if (i != 0)
       return 0;
@@ -2752,12 +2755,12 @@ long check_out_imp_last_did(struct Thing *creatng)
       {
         // If we were digging gems, after 5 repeats of this job, a 1 in 20 chance to select another dungeon job.
         // This allows to switch to other important tasks and not consuming all the diggers workforce forever
-        if (( CREATURE_RANDOM(creatng,20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
+        if (( THING_RANDOM(creatng,20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
         {
           // Set position in digger tasks list to a random place
           SYNCDBG(9,"Digger %s index %d reset due to neverending task",thing_model_name(creatng),(int)creatng->index);
           cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
-          cctrl->digger.task_stack_pos = CREATURE_RANDOM(creatng, dungeon->digger_stack_length);
+          cctrl->digger.task_stack_pos = THING_RANDOM(creatng, dungeon->digger_stack_length);
           break;
         }
       }
@@ -3049,7 +3052,7 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     SYNCDBG(18,"Starting");
     stl_x = stl_num_decode_x(dstack->stl_num);
     stl_y = stl_num_decode_y(dstack->stl_num);
-    if(!game.conf.rules.workers.drag_to_lair)
+    if(!game.conf.rules[thing->owner].workers.drag_to_lair)
     {
         return 0;
     }
@@ -3072,7 +3075,7 @@ long check_out_worker_save_unconscious(struct Thing *thing, struct DiggerStack *
     struct Room * room;
     room = get_creature_lair_room(sectng);
     // if no lair exist check if the creature can place one and look for best lair
-    if (room_is_invalid(room) && creature_can_do_healing_sleep(sectng) && game.conf.rules.workers.drag_to_lair == 2)
+    if (room_is_invalid(room) && creature_can_do_healing_sleep(sectng) && game.conf.rules[thing->owner].workers.drag_to_lair == 2)
     {
         room = get_best_new_lair_for_creature(thing);
         if (room_is_invalid(room)){

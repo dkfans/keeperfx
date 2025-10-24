@@ -64,9 +64,16 @@ static int player_get_controls(lua_State *L) {
     PlayerNumber plyr_idx = lua_tointeger(L, lua_upvalueindex(1));
 
     // Get the requested control key
-    ThingModel crt_id = luaL_checkNamedCommand(L, 2, creature_desc);
-
-    lua_pushinteger(L, get_condition_value(plyr_idx, SVar_CONTROLS_CREATURE, crt_id));
+    const char* text = lua_tostring(L, 2);
+    if (strcmp(text, "TOTAL_CREATURES") == 0)
+    {
+        lua_pushinteger(L, get_condition_value(plyr_idx, SVar_CONTROLS_TOTAL_CREATURES, -1));
+    }
+    else
+    {
+        ThingModel crt_id = luaL_checkNamedCommand(L, 2, creature_desc);
+        lua_pushinteger(L, get_condition_value(plyr_idx, SVar_CONTROLS_CREATURE, crt_id));
+    }
     return 1;
 }
 
@@ -81,7 +88,15 @@ static int player_get_available(lua_State *L) {
         //creature_type|room_type|power_kind|trap_type|door_type
         const char* text = lua_tostring(L, 2);
         long id = get_rid(creature_desc, text);
-        svartype = SVar_AVAILABLE_CREATURE;
+        if (strcmp(text, "TOTAL_CREATURES") == 0)
+        {
+            svartype = SVar_AVAILABLE_TOTAL_CREATURES;
+            id = 0;
+        }
+        else
+        {
+            svartype = SVar_AVAILABLE_CREATURE;
+        }      
         if(id == -1)
         {
             id = get_rid(room_desc, text);

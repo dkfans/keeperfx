@@ -329,7 +329,7 @@ void gui_area_autopilot_button(struct GuiButton *gbtn)
           if ((game.play_gameturn % (2 * gui_blink_rate)) >= gui_blink_rate)
             spr_idx += 2;
         }
-        if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0))
+        if ((gbtn->button_state_left_pressed == 0) && (gbtn->button_state_right_pressed == 0))
           spr_idx += 1;
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
     }
@@ -365,7 +365,7 @@ void gui_area_event_button(struct GuiButton *gbtn)
         int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_message_rpanel_msg_questn_act, 100);
         struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
         unsigned long i = gbtn->content.lval;
-        if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+        if ((gbtn->button_state_left_pressed) || (gbtn->button_state_right_pressed))
         {
             draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
         } else
@@ -654,7 +654,7 @@ void gui_area_spell_button(struct GuiButton *gbtn)
             if (dungeon->total_money_owned < price)
                 spr_idx++;
             TbBool drawn = false;
-            if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0))
+            if ((gbtn->button_state_left_pressed == 0) && (gbtn->button_state_right_pressed == 0))
             {
                 if ((((i != PSt_CallToArms) || !player_uses_power_call_to_arms(my_player_number))
                   && ((i != PSt_SightOfEvil) || !player_uses_power_sight(my_player_number)))
@@ -950,7 +950,7 @@ void gui_area_trap_button(struct GuiButton *gbtn)
      !is_trap_placeable(my_player_number, manufctr->tngmodel) &&
      !is_trap_built(my_player_number, manufctr->tngmodel)))
     {
-        if (gbtn->gbactn_1 || gbtn->gbactn_2)
+        if (gbtn->button_state_left_pressed || gbtn->button_state_right_pressed)
         {
             draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_portrt_qmark, 22);
         } else if (game.manufactr_element == manufctr_idx)
@@ -988,7 +988,7 @@ void gui_area_trap_button(struct GuiButton *gbtn)
         break;
     }
     int i = gbtn->sprite_idx + (amount < 1);
-    if (gbtn->gbactn_1 || gbtn->gbactn_2)
+    if (gbtn->button_state_left_pressed || gbtn->button_state_right_pressed)
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, i, 22);
     } else
@@ -1616,7 +1616,7 @@ void gui_area_room_button(struct GuiButton *gbtn)
             if (dungeon->room_list_start[rkind] > 0)
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_portrt_light);
             int spr_idx = (dungeon->total_money_owned < get_room_kind_stats(rkind)->cost) + gbtn->sprite_idx;
-            if ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) {
+            if ((gbtn->button_state_left_pressed == 0) && (gbtn->button_state_right_pressed == 0)) {
                 draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
             } else {
                 draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
@@ -1698,7 +1698,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
             spridx += 14 * i / cr_total;
           }
         }
-        if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+        if ((gbtn->button_state_left_pressed) || (gbtn->button_state_right_pressed))
         {
           draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y-2*units_per_px/16, ps_units_per_px, spridx, 12);
         } else
@@ -2078,7 +2078,7 @@ void gui_area_ally(struct GuiButton *gbtn)
             spr_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_std_b,plyr_idx);
         }
     }
-    if ( gbtn->gbactn_1 || gbtn->gbactn_2 )
+    if ( gbtn->button_state_left_pressed || gbtn->button_state_right_pressed )
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
     } else
@@ -2161,8 +2161,8 @@ void maintain_event_button(struct GuiButton *gbtn)
       gbtn->btype_value |= LbBFeF_NoMouseOver;
       gbtn->sprite_idx = 0;
       gbtn->flags &= ~LbBtnF_Enabled;
-      gbtn->gbactn_1 = 0;
-      gbtn->gbactn_2 = 0;
+      gbtn->button_state_left_pressed = 0;
+      gbtn->button_state_right_pressed = 0;
       gbtn->tooltip_stridx = GUIStr_Empty;
       return;
     }
@@ -2287,7 +2287,7 @@ void maintain_prison_bar(struct GuiButton *gbtn)
     {
         gbtn->sprite_idx = GPS_rpanel_tendency_prisnu_dis;
         gbtn->flags &= ~LbBtnF_Enabled;
-        /*if (gbtn->gbactn_1) - this does nothing, but was in original function
+        /*if (gbtn->button_state_left_pressed) - this does nothing, but was in original function
         {
             menu_id_to_number(7);
         }*/
@@ -2384,7 +2384,7 @@ void gui_area_payday_button(struct GuiButton *gbtn)
     int units_per_px = (gbtn->width * 16 + 132 / 2) / 132;
     int ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->sprite_idx, 100);
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
-    gui_area_progress_bar_wide(gbtn, units_per_px, game.pay_day_progress, game.conf.rules.game.pay_day_gap);
+    gui_area_progress_bar_wide(gbtn, units_per_px, game.pay_day_progress[my_player_number], game.conf.rules[my_player_number].game.pay_day_gap);
     struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
     char text[16];
     snprintf(text, sizeof(text), "%d", (int)dungeon->creatures_total_pay);
@@ -2456,7 +2456,7 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
             draw_gui_panel_sprite_rmleft_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44, plyr_idx);
         }
         char text[32];
-        if (game.conf.rules.game.display_portal_limit == true)
+        if (game.conf.rules[plyr_idx].game.display_portal_limit == true)
         {
             snprintf(text, sizeof(text), " %u/%ld", dungeon->num_active_creatrs, dungeon->max_creatures_attracted);
         } else {

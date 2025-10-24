@@ -98,6 +98,8 @@ struct TrapConfigStats {
     unsigned long recharge_sprite_anim_idx;
     unsigned long sprite_size_max;
     unsigned long anim_speed;
+    unsigned long attack_anim_speed;
+    unsigned long recharge_anim_speed;
     unsigned char unanimated;
     unsigned char unshaded;
     unsigned char random_start_frame;

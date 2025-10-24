@@ -1496,6 +1496,24 @@ LightFlags = 0
 ElementsCount = 2
 AlwaysGenerate = 0
 
+[effect82]
+Name = "EFFECT_SENTRY_SMOKE"
+Health = 1
+GenerationType = 1
+GenerationAccelXYRange = [3,3]
+GenerationAccelZRange = [8,8]
+GenerationKindRange = [123,123]
+AreaAffectType = 0
+HitType = 0
+SpellEffect = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 1
+ElementsCount = 3
+AlwaysGenerate = 0
+
 # EffectGenerators.
 
 [effectGenerator0]
@@ -5256,3 +5274,31 @@ LightRadius = 0
 LightIntensity = 0
 LightFlags = 0
 AffectedByWind = 0
+
+[effectElement123]
+Name = "EFFECTELEMENT_SENTRY_SMOKE"
+DrawClass = 2
+MoveType = 1
+Unanimated = 0
+Lifespan = [-1,-1]
+AnimationId = "SENTRY_SMOKE"
+SpriteSize = [100,120]
+AnimateOnce = 1
+SpriteSpeed = [160,160]
+AnimateOnFloor = true
+Unshaded = true
+Transparent = 2
+ThroughWalls = 0
+SizeChange = 1
+FallAcceleration = 0
+InertiaFloor = 0
+InertiaAir = 0
+SubeffectModel = 1
+SubeffectDelay = 0
+Movable = false
+Impacts = false
+TransformModel = 0
+LightRadius = 1
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 1

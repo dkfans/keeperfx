@@ -50,7 +50,6 @@
 #include "map_blocks.h"
 #include "map_columns.h"
 #include "map_utils.h"
-#include "math.h"
 #include "packets.h"
 #include "player_computer.h"
 #include "player_instances.h"
@@ -68,6 +67,7 @@
 #include "version.h"
 #include "frontmenu_ingame_map.h"
 #include <string.h>
+#include <math.h>
 #include "lua_base.h"
 #include "post_inc.h"
 
@@ -150,24 +150,6 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
     return 1;
 }
 
-long cmd_comp_checks_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *args)
-{
-    struct Computer2 *comp = get_computer_player(args[0]);
-    int i = 0;
-
-    for (; i < args[1]; i++)
-    {
-        struct ComputerCheck* check = &comp->checks[i];
-        if (check != NULL)
-        {
-            char *label = (char*)goptn[i].label; // this is probably referencing some element of cmd_comp_procs_label
-            snprintf(label, sizeof(cmd_comp_procs_label[0]), "%02lx", check->flags);
-            label[2] = ' ';
-        }
-    }
-    return 1;
-}
-
 int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
     struct GuiBoxOption *data_list, char label_list[][COMMAND_WORD_LEN + 8],
     const char *(*get_name)(struct Computer2 *, int),
@@ -191,15 +173,15 @@ int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
         }
         data_list[i].label = label_list[i];
 
-        data_list[i].numfield_4 = 1;
+        data_list[i].is_enabled = 1;
         data_list[i].callback = click_fn;
         data_list[i].acb_param1 = plyr_idx;
-        data_list[i].field_11 = max_count;
+        data_list[i].max_count = max_count;
         data_list[i].cb_param1 = plyr_idx;
-        data_list[i].field_1D = i;
+        data_list[i].option_index = i;
     }
     data_list[i].label = "!";
-    data_list[i].numfield_4 = 0;
+    data_list[i].is_enabled = 0;
     return i;
 }
 
@@ -308,19 +290,30 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char * args)
 
 TbBool cmd_stats(PlayerNumber plyr_idx, char * args)
 {
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "clock is %d, requested fps is %d",clock(),game_num_fps);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "turn fps is %ld, draw fps is %ld", game_num_fps, game_num_fps_draw);
     return true;
 }
 
-TbBool cmd_fps(PlayerNumber plyr_idx, char * args)
+TbBool cmd_fps_turn(PlayerNumber plyr_idx, char * args)
 {
     char * pr2str = strsep(&args, " ");
     if (pr2str == NULL) {
         game_num_fps = start_params.num_fps;
-        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate is %d fps", game_num_fps);
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate/Turn is %ld fps", game_num_fps);
     } else {
         game_num_fps = atoi(pr2str);
+    }
+    return true;
+}
+
+TbBool cmd_fps_draw(PlayerNumber plyr_idx, char * args)
+{
+    char * pr2str = strsep(&args, " ");
+    if (pr2str == NULL) {
+        game_num_fps_draw = start_params.num_fps_draw;
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Drawrate is %ld fps", game_num_fps_draw);
+    } else {
+        game_num_fps_draw = atoi(pr2str);
     }
     return true;
 }
@@ -561,13 +554,13 @@ TbBool cmd_comp_procs(PlayerNumber plyr_idx, char * args)
         &cmd_comp_procs_click);
     cmd_comp_procs_data[0].active_cb = &cmd_comp_procs_update;
     cmd_comp_procs_data[i].label = "======";
-    cmd_comp_procs_data[i].numfield_4 = 1;
+    cmd_comp_procs_data[i].is_enabled = 1;
     i++;
     cmd_comp_procs_data[i].label = cmd_comp_procs_label[COMPUTER_PROCESSES_COUNT];
-    cmd_comp_procs_data[i].numfield_4 = 1;
+    cmd_comp_procs_data[i].is_enabled = 1;
     i++;
     cmd_comp_procs_data[i].label = "!";
-    cmd_comp_procs_data[i].numfield_4 = 0;
+    cmd_comp_procs_data[i].is_enabled = 0;
     gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_procs_data);
     return true;
 }
@@ -633,18 +626,18 @@ TbBool cmd_reveal(PlayerNumber plyr_idx, char * args)
         r = atol(pr2str);
     }
     if (r > 0) {
-        int r2 = r / 2;
+        int radius_offset = r / 2;
         struct Packet * pckt = get_packet_direct(player->packet_num);
         MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
         MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
         clear_dig_for_map_rect(player->id_number,
-                                subtile_slab(stl_x - r2),
-                                subtile_slab(stl_x + r - r2),
-                                subtile_slab(stl_y - r2),
-                                subtile_slab(stl_y + r - r2)
+                                subtile_slab(stl_x - radius_offset),
+                                subtile_slab(stl_x + r - radius_offset),
+                                subtile_slab(stl_y - radius_offset),
+                                subtile_slab(stl_y + r - radius_offset)
         );
-        reveal_map_rect(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
-        panel_map_update(stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
+        reveal_map_rect(player->id_number, stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset);
+        panel_map_update(stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset);
     } else {
         reveal_whole_map(player);
     }
@@ -664,11 +657,11 @@ TbBool cmd_conceal(PlayerNumber plyr_idx, char * args)
         r = atol(pr2str);
     }
     if (r > 0) {
-        int r2 = r / 2;
+        int radius_offset = r / 2;
         struct Packet * pckt = get_packet_direct(player->packet_num);
         MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
         MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
-        conceal_map_area(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2, false);
+        conceal_map_area(player->id_number, stl_x - radius_offset, stl_x + r - radius_offset, stl_y - radius_offset, stl_y + r - radius_offset, false);
     } else {
         conceal_map_area(player->id_number, 0, game.map_subtiles_x - 1, 0, game.map_subtiles_y - 1, false);
     }
@@ -1924,8 +1917,8 @@ TbBool cmd_toggle_classic_bug(PlayerNumber plyr_idx, char * args)
         bug = atoi(pr2str);
     }
     unsigned long flg = (bug > 2) ? (1 << (bug - 1)) : bug;
-    toggle_flag(game.conf.rules.game.classic_bugs_flags, flg);
-    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((game.conf.rules.game.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
+    toggle_flag(game.conf.rules[plyr_idx].game.classic_bugs_flags, flg);
+    targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((game.conf.rules[plyr_idx].game.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
     return true;
 }
 
@@ -2137,6 +2130,50 @@ TbBool cmd_luatypedump(PlayerNumber plyr_idx, char * args)
     return true;
 }
 
+TbBool cmd_cheat_menu(PlayerNumber plyr_idx, char * args)
+{
+    if ((game.flags_font & FFlg_AlexCheat) == 0) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require 'cheat mode'");
+        return false;
+    }
+    char * pr2str = strsep(&args, " ");
+    if (pr2str == NULL) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "require parameter 1 as menu type");
+        return false;
+    }
+
+    int menu_type = -1;
+    if (strcmp(pr2str, "0") == 0 || strcasecmp(pr2str, "none") == 0)
+        menu_type = 0;
+    else if (strcmp(pr2str, "1") == 0 || strcasecmp(pr2str, "main") == 0)
+        menu_type = 1;
+    else if (strcmp(pr2str, "2") == 0 || strcasecmp(pr2str, "creature") == 0)
+        menu_type = 2;
+    else if (strcmp(pr2str, "3") == 0 || strcasecmp(pr2str, "instance") == 0)
+        menu_type = 3;
+
+    if (menu_type < 0) {
+        targeted_message_add(MsgType_Player, plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "menu type is invalid. possible values: 0/1/2/3, none/main/creature/instance");
+        return false;
+    }
+
+    if (menu_type != 1)
+        close_main_cheat_menu();
+    if (menu_type != 2)
+        close_creature_cheat_menu();
+    if (menu_type != 3)
+        close_instance_cheat_menu();
+
+    if (menu_type == 1)
+        toggle_main_cheat_menu();
+    if (menu_type == 2)
+        toggle_creature_cheat_menu();
+    if (menu_type == 3)
+        toggle_instance_cheat_menu();
+
+    return true;
+}
+
 
 struct ConsoleCommand {
     const char * name;
@@ -2146,7 +2183,8 @@ struct ConsoleCommand {
 // currently all are in lowercase.
 static const struct ConsoleCommand console_commands[] = {
     { "stats", cmd_stats },
-    { "fps", cmd_fps },
+    { "fps", cmd_fps_turn },
+    { "fps.draw", cmd_fps_draw },
     { "frametime", cmd_frametime },
     { "ft", cmd_frametime },
     { "frametime.max", cmd_frametime_max },
@@ -2245,6 +2283,7 @@ static const struct ConsoleCommand console_commands[] = {
     { "quick.show", cmd_quick_show},
     { "lua", cmd_lua},
     { "luatypedump", cmd_luatypedump},
+    { "cheat.menu", cmd_cheat_menu},
 };
 static const int console_command_count = sizeof(console_commands) / sizeof(*console_commands);
 

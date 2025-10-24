@@ -464,14 +464,14 @@ msgstr "Das war einfach? Sieg! "
 #. Frozen Legion (lv455)
 #: guitext:72
 msgctxt "In-game message"
-msgid "You have a fighting chance. Don't let the Heroes whittle you down. "
-msgstr "Ihr habt Aussicht auf Erfolg. Lasst Euch von den Helden nicht unterkriegen. "
+msgid "To have a fighting chance, get a bigger army. Don't let the heroes whittle you down."
+msgstr "Um eine Siegchance zu haben, stellt eine größere Armee auf. Lasst Euch von den Helden nicht zermürben."
 
 #. Frozen Legion (lv455)
 #: guitext:73
 msgctxt "In-game message"
-msgid "Your magic generator will feed off your Vampires to give you a healthy number of imps. However, keep enough imps alive and you'll have an undead army to kill the heroes with. "
-msgstr "Euer magischer Generator wird sich von Euren Vampiren nähren und Euch eine ordentliche Anzahl von Imps bescheren. Wenn Ihr genug Imps am Leben lässt, habt Ihr eine untote Armee, mit der Ihr die Helden vernichten kannst. "
+msgid "Your magic generator will feed off your Vampires to give you a healthy number of imps. However, keep enough imps alive and you'll have an undead army to kill the heroes with. You need a big army. "
+msgstr "Euer magischer Generator wird sich von Euren Vampiren nähren und Euch eine ordentliche Anzahl von Imps bescheren. Wenn Ihr genug Imps am Leben lasst, ermöglicht Euch das, eine ausreichend große Armee zu haben, um die Helden zu vernichten. "
 
 #. Shores of Battle (lv456)
 #: guitext:74

@@ -238,15 +238,15 @@ TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette
     unsigned char palette[PALETTE_SIZE];
     for (int i = 0; i < 3 * PALETTE_COLORS; i += 3)
     {
-        int c1 = to_palette[i + 0];
-        int c2 = from_palette[i + 0];
-        palette[i+0] = fade_count * (c1 - c2) / fade_steps + c2;
-        c1 =   to_palette[i+1];
-        c2 = from_palette[i+1];
-        palette[i+1] = fade_count * (c1 - c2) / fade_steps + c2;
-        c1 =   to_palette[i+2];
-        c2 = from_palette[i+2];
-        palette[i+2] = fade_count * (c1 - c2) / fade_steps + c2;
+        int target_color_component = to_palette[i + 0];
+        int source_color_component = from_palette[i + 0];
+        palette[i+0] = fade_count * (target_color_component - source_color_component) / fade_steps + source_color_component;
+        target_color_component =   to_palette[i+1];
+        source_color_component = from_palette[i+1];
+        palette[i+1] = fade_count * (target_color_component - source_color_component) / fade_steps + source_color_component;
+        target_color_component =   to_palette[i+2];
+        source_color_component = from_palette[i+2];
+        palette[i+2] = fade_count * (target_color_component - source_color_component) / fade_steps + source_color_component;
     }
     LbScreenWaitVbi();
     TbResult ret = LbPaletteSet(palette);
@@ -832,40 +832,40 @@ TbResult LbScreenLoadGraphicsWindow(TbGraphicsWindow *grwnd)
 TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
 {
     long i;
-    long x2 = x + width;
-    long y2 = y + height;
-    if (x2 < x)  //Alarm! Voodoo magic detected!
+    long right_edge = x + width;
+    long bottom_edge = y + height;
+    if (right_edge < x)  //Alarm! Voodoo magic detected!
     {
-        i = (x ^ x2);
+        i = (x ^ right_edge);
         x = x ^ i;
-        x2 = x ^ i ^ i;
+        right_edge = x ^ i ^ i;
   }
-  if (y2 < y)
+  if (bottom_edge < y)
   {
-    i = (y^y2);
+    i = (y^bottom_edge);
     y = y^i;
-    y2 = y^i^i;
+    bottom_edge = y^i^i;
   }
   if (x < 0)
     x = 0;
-  if (x2 < 0)
-    x2 = 0;
+  if (right_edge < 0)
+    right_edge = 0;
   if (y < 0)
     y = 0;
-  if (y2 < 0)
-    y2 = 0;
+  if (bottom_edge < 0)
+    bottom_edge = 0;
   if (x > lbDisplay.GraphicsScreenWidth)
     x = lbDisplay.GraphicsScreenWidth;
-  if (x2 > lbDisplay.GraphicsScreenWidth)
-    x2 = lbDisplay.GraphicsScreenWidth;
+  if (right_edge > lbDisplay.GraphicsScreenWidth)
+    right_edge = lbDisplay.GraphicsScreenWidth;
   if (y > lbDisplay.GraphicsScreenHeight)
     y = lbDisplay.GraphicsScreenHeight;
-  if (y2 > lbDisplay.GraphicsScreenHeight)
-    y2 = lbDisplay.GraphicsScreenHeight;
+  if (bottom_edge > lbDisplay.GraphicsScreenHeight)
+    bottom_edge = lbDisplay.GraphicsScreenHeight;
   lbDisplay.GraphicsWindowX = x;
   lbDisplay.GraphicsWindowY = y;
-  lbDisplay.GraphicsWindowWidth = x2 - x;
-  lbDisplay.GraphicsWindowHeight = y2 - y;
+  lbDisplay.GraphicsWindowWidth = right_edge - x;
+  lbDisplay.GraphicsWindowHeight = bottom_edge - y;
   if (lbDisplay.WScreen != NULL)
   {
     lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth*y + x;
@@ -908,17 +908,6 @@ TbResult LbScreenSetDoubleBuffering(TbBool state)
 {
     lbDoubleBufferingRequested = state;
     return Lb_SUCCESS;
-}
-
-/** Retrieves actual state of the Double Buffering function.
- *  Note that if the function was requested, it still doesn't necessarily
- *  mean it was activated.
- *
- * @return True if the function is currently active, false otherwise.
- */
-TbBool LbScreenIsDoubleBufferred(void)
-{
-    return lbHasSecondSurface;
 }
 
 TbScreenMode LbRecogniseVideoModeString(const char *desc)
