@@ -240,9 +240,9 @@ long count_no_room_build_tasks(const struct Computer2 *comp)
     return count;
 }
 
-struct ComputerTask *get_room_build_task_nearest_to(const struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *retdist)
+struct ComputerTask *get_room_build_task_nearest_to(const struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *retdist)
 {
-    long nearest_dist = LONG_MAX;
+    long nearest_dist = INT32_MAX;
     struct ComputerTask* nearest_ctask = INVALID_COMPUTER_TASK;
     long i = comp->task_idx;
     unsigned long k = 0;
@@ -489,7 +489,7 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
     struct Room* near_entroom = NULL;
     struct Coord3d* near_startpos = NULL;
     struct Coord3d locpos;
-    long near_dist = LONG_MAX;
+    long near_dist = INT32_MAX;
     *retroom = NULL;
     long i;
     unsigned long k = 0;
@@ -716,7 +716,7 @@ TbBool right_time_to_choose_target_entrance(struct ComputerProcess *cproc, long 
  * @param dig_distance Value which is increased by the amount of slabs travelled.
  * @param digflags Digging flags to be used.
  */
-TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const struct Coord3d *endpos, unsigned long *dig_distance, DigFlags digflags)
+TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const struct Coord3d *endpos, uint32_t *dig_distance, DigFlags digflags)
 {
     struct Dungeon* dungeon = comp->dungeon;
     struct ComputerDig cdig;
@@ -772,7 +772,7 @@ long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
     // Prepare for selecting entrance
     struct Coord3d startpos;
     struct Room* entroom = INVALID_ROOM;
-    MapCoordDelta entdist = LONG_MAX;
+    MapCoordDelta entdist = INT32_MAX;
     // Check if it's time to choose the entrance. That depends on how many entrances are claimed.
     if (right_time_to_choose_target_entrance(cproc, neutral_entrances, own_entrances, targplyr_entrances))
     {

@@ -72,13 +72,13 @@ enum GBoxFlags {
 
 union GuiVariant {
     long lval;
-    long *lptr;
+    int32_t *lptr;
     void *ptr;
     char *str;
 };
 
-typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, long *);
-typedef long (*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, long *);
+typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, int32_t *);
+typedef long (*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, int32_t *);
 typedef void (*Gf_Btn_Callback)(struct GuiButton *gbtn);
 typedef void (*Gf_Mnu_Callback)(struct GuiMenu *gmnu);
 

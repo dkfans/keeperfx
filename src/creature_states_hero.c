@@ -1388,7 +1388,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
         return 1;
     }
     long i = cctrl->party.tunnel_steps_counter;
-    if ((i > 0) && (i < LONG_MAX))
+    if ((i > 0) && (i < INT32_MAX))
     {
         cctrl->party.tunnel_steps_counter++;
     }

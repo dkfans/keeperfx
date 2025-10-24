@@ -998,7 +998,7 @@ void init_iso_3d_conversion_tables(void)
  */
 void setup_mesh_randomizers(void)
 {
-    unsigned long seed;
+    uint32_t seed;
     long i;
     long k;
     SYNCDBG(6,"Starting");

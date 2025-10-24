@@ -42,7 +42,7 @@ class MouseStateHandler pointerHandler;
   @param x,y Coorditates to adjust.
  * @return Returns true if the coordinates have changed.
  */
-int adjust_point(long *x, long *y)
+int adjust_point(int32_t *x, int32_t *y)
 {
     return false;
 }

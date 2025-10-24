@@ -1723,7 +1723,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     SYNCDBG(12,"Finished");
 }
 
-long anger_get_creature_highest_anger_type_and_byte_percentage(struct Thing *creatng, long *out_angr_typ, long *out_angr_prct)
+long anger_get_creature_highest_anger_type_and_byte_percentage(struct Thing *creatng, int32_t *out_angr_typ, int32_t *out_angr_prct)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct CreatureModelConfig* crconf = creature_stats_get_from_thing(creatng);

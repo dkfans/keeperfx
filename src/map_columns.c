@@ -155,7 +155,7 @@ long get_top_cube_at_pos(SubtlCodedCoords stl_num)
     return tcube;
 }
 
-long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *cube_pos)
+long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int32_t *cube_pos)
 {
     struct Column *col;
     unsigned long top_pos;

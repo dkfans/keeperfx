@@ -59,7 +59,7 @@ static void load_array(VALUE* file_root, const char *arr_name,short *arr, unsign
 {
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        memset(arr,0,sizeof(short) * MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT );
+        memset(arr,0,sizeof(int16_t) * MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT );
     }
     VALUE *toml_arr = value_dict_get(file_root, arr_name);
     if (value_array_size(toml_arr) > MAX_COLORED_SPRITES)

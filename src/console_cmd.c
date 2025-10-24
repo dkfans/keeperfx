@@ -115,7 +115,7 @@ static char get_door_number_for_command(char* msg);
 static char get_trap_number_for_command(char* msg);
 static long get_creature_model_for_command(char *msg);
 
-static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *args)
+static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *args)
 {
     struct Computer2 *comp;
     comp = get_computer_player(args[0]);
@@ -130,7 +130,7 @@ static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn
     return 1;
 }
 
-static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, long *args)
+static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *args)
 {
     struct Computer2 *comp = get_computer_player(args[0]);
     int i = 0;
@@ -203,7 +203,7 @@ static unsigned long  get_event_flags(struct Computer2 *comp, int i)
     return 0;
 }
 
-static long cmd_comp_checks_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *args)
+static long cmd_comp_checks_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *args)
 {
     struct Computer2 *comp;
     comp = get_computer_player(args[0]);

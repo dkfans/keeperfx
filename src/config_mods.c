@@ -19,9 +19,9 @@ extern "C" {
 
 struct ModsConfig mods_conf = {0};
 
-static TbBool parse_block_mods(char *buf, long len, const char *block_name, struct ModConfigItem* mod_items, long *mod_cnt, long mod_max)
+static TbBool parse_block_mods(char *buf, long len, const char *block_name, struct ModConfigItem* mod_items, int32_t *mod_cnt, long mod_max)
 {
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -199,4 +199,3 @@ TbBool load_mods_order_config_file()
 #ifdef __cplusplus
 }
 #endif
-

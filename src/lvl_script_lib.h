@@ -158,7 +158,7 @@ enum TbScriptCommands {
     Cmd_HEART_LOST_QUICK_OBJECTIVE         = 146,
     Cmd_HEART_LOST_OBJECTIVE               = 147,
     Cmd_SET_DOOR                           = 148,
-    Cmd_SET_CREATURE_INSTANCE              = 149,    
+    Cmd_SET_CREATURE_INSTANCE              = 149,
     Cmd_TRANSFER_CREATURE                  = 150,
     Cmd_SET_HAND_RULE                      = 151,
     Cmd_MOVE_CREATURE                      = 152,
@@ -334,14 +334,14 @@ void command_add_value(unsigned long var_index, unsigned long plr_range_id, long
 void set_variable(int player_idx, long var_type, long var_idx, long new_val);
 #define get_players_range(plr_range_id, plr_start, plr_end) get_players_range_f(plr_range_id, plr_start, plr_end, __func__, text_line_number)
 long get_players_range_f(long plr_range_id, int *plr_start, int *plr_end, const char *func_name, long ln_num);
-TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type);
+TbBool parse_set_varib(const char *varib_name, int32_t *varib_id, int32_t *varib_type);
 long parse_criteria(const char *criteria);
 #define get_players_range_single(plr_range_id) get_players_range_single_f(plr_range_id, __func__, text_line_number)
 long get_players_range_single_f(long plr_range_id, const char *func_name, long ln_num);
-TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type, long level_file_version);
+TbBool parse_get_varib(const char *varib_name, int32_t *varib_id, int32_t *varib_type, long level_file_version);
 void get_chat_icon_from_value(const char* txt, char* id, char* type);
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
-TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num);
+TbBool get_player_id_f(const char *plrname, int32_t *plr_range_id, const char *func_name, long ln_num);
 TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, KeepPwrLevel power_level, PlayerNumber caster, TbBool is_free);
 const char * script_strval(long offset);
 long script_strdup(const char *src);

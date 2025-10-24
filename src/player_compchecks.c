@@ -437,7 +437,7 @@ long player_list_creature_filter_best_for_sacrifice(const struct Thing *thing, M
         if (anger_is_creature_livid(thing))
             priority /= 3; // livid creatures have minimal value
          // Return maximizer based on our evaluated gold value
-        return LONG_MAX - priority;
+        return INT32_MAX - priority;
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;

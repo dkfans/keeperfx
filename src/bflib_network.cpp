@@ -607,7 +607,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   return res;
 }
 
-TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, long *plyr_num, void *optns)
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, int32_t *plyr_num, void *optns)
 {
     if (!netstate.sp) {
         ERRORLOG("No network SP selected");
@@ -638,7 +638,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     return Lb_OK;
 }
 
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
+TbError LbNetwork_Create(char *nsname_str, char *plyr_name, uint32_t *plyr_num, void *optns)
 {
     if (!netstate.sp) {
         ERRORLOG("No network SP selected");
@@ -946,13 +946,13 @@ static TbBool send_chunked_resync_data(const void * buffer, size_t total_length)
     if (!compressed_buffer) {
         return false;
     }
-    
+
     int compress_result = compress((Bytef*)compressed_buffer, &compressed_size, (const Bytef*)buffer, total_length);
     if (compress_result != Z_OK) {
         free(compressed_buffer);
         return false;
     }
-    
+
     // Now chunk the compressed data
     const size_t total_chunk_count = calculate_chunk_count(compressed_size);
     char * message_buffer = (char *) malloc(sizeof(ResyncHeader) + CHUNK_SIZE);
@@ -960,33 +960,33 @@ static TbBool send_chunked_resync_data(const void * buffer, size_t total_length)
         free(compressed_buffer);
         return false;
     }
-    
+
     for (size_t chunk_index = 0; chunk_index < total_chunk_count; chunk_index++) {
         size_t chunk_start_offset = chunk_index * CHUNK_SIZE;
         size_t remaining_bytes = compressed_size - chunk_start_offset;
         size_t current_chunk_length = min(remaining_bytes, CHUNK_SIZE);
-        
+
         ResyncHeader * message_header = (ResyncHeader*)message_buffer;
         message_header->message_type = NETMSG_RESYNC;
         message_header->chunk_index = chunk_index;
         message_header->chunk_count = total_chunk_count;
         message_header->chunk_length = current_chunk_length;
         message_header->original_total_length = total_length;
-        
+
         memcpy(message_buffer + sizeof(ResyncHeader), compressed_buffer + chunk_start_offset, current_chunk_length);
-        
+
         for (size_t user_index = 0; user_index < MAX_N_USERS; ++user_index) {
             if (netstate.users[user_index].progress != USER_LOGGEDIN) {
                 continue;
             }
             netstate.sp->sendmsg_single(netstate.users[user_index].id, message_buffer, sizeof(ResyncHeader) + current_chunk_length);
         }
-        
+
         // Progress based on compressed data sent
         size_t bytes_sent_compressed = chunk_start_offset + current_chunk_length;
         draw_resync_progress(bytes_sent_compressed, compressed_size);
     }
-    
+
     free(compressed_buffer);
     free(message_buffer);
     return true;
@@ -1010,24 +1010,24 @@ static TbBool receive_chunked_resync_data(void * destination_buffer, size_t expe
     // We don't know the compressed size yet, so we need to get it from the first chunk
     size_t expected_chunk_count = 0;
     TbBool first_chunk_received = false;
-    
+
     char ** chunk_data_array = NULL;
     TbBool * chunk_received_flags = NULL;
     size_t * chunk_lengths = NULL;
     char * message_buffer = (char *) malloc(sizeof(ResyncHeader) + CHUNK_SIZE);
-    
+
     if (!message_buffer) {
         return false;
     }
-    
+
     size_t chunks_received_count = 0;
     int timeout_attempt_count = 0;
     size_t total_compressed_bytes_received = 0;
-    
+
     while (!first_chunk_received || chunks_received_count < expected_chunk_count) {
         // Process multiple messages per iteration if available
         int messages_processed_this_iteration = 0;
-        
+
         while (messages_processed_this_iteration < RECEIVE_CHUNKS_PER_LOOP &&
                (!first_chunk_received || chunks_received_count < expected_chunk_count)) {
             size_t received_message_size = netstate.sp->readmsg(SERVER_ID, message_buffer, sizeof(ResyncHeader) + CHUNK_SIZE);
@@ -1038,7 +1038,7 @@ static TbBool receive_chunked_resync_data(void * destination_buffer, size_t expe
                 continue; // Skip invalid messages
             }
             messages_processed_this_iteration++;
-            
+
             ResyncHeader * message_header = (ResyncHeader*)message_buffer;
             if (message_header->message_type != NETMSG_RESYNC ||
                 message_header->chunk_length == 0 ||
@@ -1047,34 +1047,34 @@ static TbBool receive_chunked_resync_data(void * destination_buffer, size_t expe
                 message_header->original_total_length != expected_total_length) {
                 continue;
             }
-            
+
             // Initialize arrays on first valid chunk
             if (!first_chunk_received) {
                 expected_chunk_count = message_header->chunk_count;
-                
+
                 chunk_data_array = (char **) calloc(expected_chunk_count, sizeof(char*));
                 chunk_received_flags = (TbBool *) calloc(expected_chunk_count, sizeof(TbBool));
                 chunk_lengths = (size_t *) calloc(expected_chunk_count, sizeof(size_t));
-                
+
                 if (!chunk_data_array || !chunk_received_flags || !chunk_lengths) {
                     cleanup_resync_buffers(chunk_data_array, expected_chunk_count, chunk_received_flags, chunk_lengths, message_buffer);
                     return false;
                 }
                 first_chunk_received = true;
             }
-            
+
             if (message_header->chunk_index >= expected_chunk_count ||
                 chunk_received_flags[message_header->chunk_index] ||
                 message_header->chunk_count != expected_chunk_count) {
                 continue;
             }
-            
+
             chunk_data_array[message_header->chunk_index] = (char *) malloc(message_header->chunk_length);
             if (!chunk_data_array[message_header->chunk_index]) {
                 cleanup_resync_buffers(chunk_data_array, expected_chunk_count, chunk_received_flags, chunk_lengths, message_buffer);
                 return false;
             }
-            
+
             memcpy(chunk_data_array[message_header->chunk_index], message_buffer + sizeof(ResyncHeader), message_header->chunk_length);
             chunk_received_flags[message_header->chunk_index] = true;
             chunk_lengths[message_header->chunk_index] = message_header->chunk_length;
@@ -1082,13 +1082,13 @@ static TbBool receive_chunked_resync_data(void * destination_buffer, size_t expe
             total_compressed_bytes_received += message_header->chunk_length;
             timeout_attempt_count = 0;
         }
-        
+
         // Update progress after processing messages
         if (messages_processed_this_iteration > 0 && first_chunk_received && chunks_received_count > 0) {
             size_t estimated_total_compressed_size = (total_compressed_bytes_received * expected_chunk_count) / chunks_received_count;
             draw_resync_progress(total_compressed_bytes_received, estimated_total_compressed_size);
         }
-        
+
         // Only check timeout if no messages were processed
         if (messages_processed_this_iteration == 0) {
             if (netstate.sp->msgready(SERVER_ID, RECEIVE_CHUNK_TIMEOUT_MS) == 0) {
@@ -1101,7 +1101,7 @@ static TbBool receive_chunked_resync_data(void * destination_buffer, size_t expe
             }
         }
     }
-    
+
     // Reassemble compressed data
     char * compressed_buffer = (char *) malloc(total_compressed_bytes_received);
     if (!compressed_buffer) {
@@ -1124,20 +1124,20 @@ static TbBool receive_chunked_resync_data(void * destination_buffer, size_t expe
         memcpy(compressed_buffer + reassembly_offset, chunk_data_array[chunk_index], chunk_lengths[chunk_index]);
         reassembly_offset += chunk_lengths[chunk_index];
     }
-    
+
     // Now decompress the reassembled data
     uLongf dest_len = expected_total_length;
     int uncompress_result = uncompress((Bytef*)destination_buffer, &dest_len, (const Bytef*)compressed_buffer, total_compressed_bytes_received);
-    
+
     free(compressed_buffer);
     cleanup_resync_buffers(chunk_data_array, expected_chunk_count, chunk_received_flags, chunk_lengths, message_buffer);
-    
+
     if (uncompress_result != Z_OK || dest_len != expected_total_length) {
-        NETLOG("Decompression failed: zlib error %d, expected %lu bytes, got %lu bytes", 
+        NETLOG("Decompression failed: zlib error %d, expected %lu bytes, got %lu bytes",
                uncompress_result, (unsigned long)expected_total_length, (unsigned long)dest_len);
         return false;
     }
-    
+
     return true;
 }
 

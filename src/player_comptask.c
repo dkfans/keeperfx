@@ -1028,7 +1028,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
 /**
  * Counts the slabs which are supposed to be used for room building, and which cannot be used for the building.
  */
-void count_slabs_where_room_cannot_be_built(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, RoomKind rkind, long slabs_num, long *waiting_slabs, long *wrong_slabs)
+void count_slabs_where_room_cannot_be_built(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, RoomKind rkind, long slabs_num, int32_t *waiting_slabs, int32_t *wrong_slabs)
 {
     SlabKind room_slbkind;
     room_slbkind = room_corresponding_slab(rkind);
@@ -2075,7 +2075,7 @@ TbBool find_next_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     }
 
     memcpy(&ctask->dig.pos_begin, &ctask->dig.pos_next, sizeof(struct Coord3d));
-    ctask->dig.distance = LONG_MAX;
+    ctask->dig.distance = INT32_MAX;
     ctask->dig.calls_count = 0;
     // Make local copy of the dig structure
     struct ComputerDig cdig;
@@ -3495,7 +3495,7 @@ void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const
     cdig->pos_next.x.val = 0;
     cdig->pos_next.y.val = 0;
     cdig->pos_next.z.val = 0;
-    cdig->distance = LONG_MAX;
+    cdig->distance = INT32_MAX;
     cdig->action_success_flag = 1;
     cdig->calls_count = 0;
 }

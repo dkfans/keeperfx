@@ -185,7 +185,7 @@ long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilt
         if (!is_dangerous_drop_subtile(pos->x.stl.num, pos->y.stl.num))
         {
             // This function should return max value when the place is good for dropping.
-            return LONG_MAX;
+            return INT32_MAX;
         }
     }
     // If conditions are not met, return -1 to be sure the position will not be returned.
@@ -295,7 +295,7 @@ SmallAroundIndex small_around_index_in_direction(long srcpos_x, long srcpos_y, l
  * Uses "spiral" checking of surrounding subtiles, up to given number of subtiles.
  * The position which will return highest nonnegative value from given filter function
  * will be returned.
- * If the filter function will return LONG_MAX, the current position will be returned
+ * If the filter function will return INT32_MAX, the current position will be returned
  * immediately and no further subtiles will be checked.
  * @return Returns true if coordinates were found, false otherwise.
  */
@@ -323,7 +323,7 @@ TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, Ma
                 retpos->y.val = newpos.y.val;
                 retpos->z.val = newpos.z.val;
                 maximizer = n;
-                if (maximizer == LONG_MAX)
+                if (maximizer == INT32_MAX)
                     break;
             }
       }
@@ -354,7 +354,7 @@ TbBool get_position_next_to_map_block_with_filter(struct Coord3d* retpos, MapCoo
                 retpos->y.val = newpos.y.val;
                 retpos->z.val = newpos.z.val;
                 maximizer = n;
-                if (maximizer == LONG_MAX)
+                if (maximizer == INT32_MAX)
                 {
                     break;
                 }

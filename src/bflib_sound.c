@@ -331,7 +331,7 @@ long get_sound_distance(const struct SoundCoord3d *pos1, const struct SoundCoord
     long dist_x = max(pos1->val_x, pos2->val_x) - min(pos1->val_x, pos2->val_x);
     long dist_y = max(pos1->val_y, pos2->val_y) - min(pos1->val_y, pos2->val_y);
     long dist_z = max(pos1->val_z, pos2->val_z) - min(pos1->val_z, pos2->val_z);
-    // Make sure we're not exceeding sqrt(LONG_MAX/3), to fit the final result in long
+    // Make sure we're not exceeding sqrt(INT32_MAX/3), to fit the final result in long
     if (dist_x > 26754)
         dist_x = 26754;
     if (dist_y > 26754)
@@ -346,13 +346,13 @@ long get_sound_squareedge_distance(const struct SoundCoord3d *pos1, const struct
     long dist_x = max(pos1->val_x, pos2->val_x) - min(pos1->val_x, pos2->val_x);
     long dist_y = max(pos1->val_y, pos2->val_y) - min(pos1->val_y, pos2->val_y);
     long dist_z = max(pos1->val_z, pos2->val_z) - min(pos1->val_z, pos2->val_z);
-    // Make sure we're not exceeding LONG_MAX/3
-    if (dist_x > LONG_MAX/3)
-        dist_x = LONG_MAX/3;
-    if (dist_y > LONG_MAX/3)
-        dist_y = LONG_MAX/3;
-    if (dist_z > LONG_MAX/3)
-        dist_z = LONG_MAX/3;
+    // Make sure we're not exceeding INT32_MAX/3
+    if (dist_x > INT32_MAX/3)
+        dist_x = INT32_MAX/3;
+    if (dist_y > INT32_MAX/3)
+        dist_y = INT32_MAX/3;
+    if (dist_z > INT32_MAX/3)
+        dist_z = INT32_MAX/3;
     return dist_x + dist_y + dist_z;
 }
 
@@ -431,7 +431,7 @@ long get_emitter_pitch_from_doppler(const struct SoundReceiver *recv, struct Sou
     return emit->curr_pitch;
 }
 
-long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitter *emit, long *pan, long *volume, long *pitch)
+long get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitter *emit, int32_t *pan, int32_t *volume, int32_t *pitch)
 {
     TbBool on_sight;
     if ((emit->emitter_flags & 0x08) != 0)
@@ -490,9 +490,9 @@ long set_emitter_pan_volume_pitch(struct SoundEmitter *emit, long pan, long volu
 TbBool process_sound_emitters(void)
 {
     struct SoundEmitter *emit;
-    long pan;
-    long volume;
-    long pitch;
+    int32_t pan;
+    int32_t volume;
+    int32_t pitch;
     long i;
     for (i = 0; i < NoSoundEmitters; i++)
     {
@@ -859,9 +859,9 @@ long play_speech_sample(SoundSmplTblID smptbl_id)
 
 long start_emitter_playing(struct SoundEmitter *emit, SoundSmplTblID smptbl_id, SoundBankID bank_id, long smpitch, SoundVolume loudness, long fild1D, long ctype, unsigned char flags, long priority)
 {
-    long pan;
-    long volume;
-    long pitch;
+    int32_t pan;
+    int32_t volume;
+    int32_t pitch;
     get_emitter_pan_volume_pitch(&Receiver, emit, &pan, &volume, &pitch);
     long smpl_idx = find_slot(smptbl_id, bank_id, emit, ctype, priority);
     volume = (volume * loudness) / 256;

@@ -702,8 +702,8 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     long stl_num;
-    long pos_x;
-    long pos_y;
+    int32_t pos_x;
+    int32_t pos_y;
     long i;
     long n;
     stl_x = thing->mappos.x.stl.num;
@@ -902,8 +902,8 @@ short imp_arrives_at_convert_dungeon(struct Thing *thing)
 
 TbBool move_imp_to_uncrowded_dig_mine_access_point(struct Thing *spdigtng, SubtlCodedCoords stl_num)
 {
-    long pos_x;
-    long pos_y;
+    int32_t pos_x;
+    int32_t pos_y;
     TRACE_THING(spdigtng);
     if (!check_place_to_dig_and_get_position(spdigtng, stl_num, &pos_x, &pos_y))
         return false;

@@ -55,7 +55,7 @@ struct TbSetupSprite {
 
 struct TbHugeSprite {
     TbSpriteData Data;  //**< Raw sprite data, with RLE coded transparency.
-    long * Lines;  //**< Index of line starts in the sprite data.
+    int32_t * Lines;  //**< Index of line starts in the sprite data.
     unsigned long SWidth;
     unsigned long SHeight;
 };

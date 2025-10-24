@@ -317,7 +317,7 @@ void god_lightning_choose_next_creature(struct Thing *shotng)
 {
     SYNCDBG(16,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
 
-    long best_dist = LONG_MAX;
+    long best_dist = INT32_MAX;
     struct Thing* best_thing = INVALID_THING;
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);

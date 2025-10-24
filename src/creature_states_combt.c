@@ -316,7 +316,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
 long creature_can_move_to_combat(struct Thing *fightng, struct Thing *enmtng)
 {
     long result = get_thing_navigation_distance(fightng, &enmtng->mappos, 0);
-    if (result == -1 || result == LONG_MAX || result >= subtile_coord(21, 0))
+    if (result == -1 || result == INT32_MAX || result >= subtile_coord(21, 0))
     {
         return -1;
   }
@@ -1331,7 +1331,7 @@ short cleanup_object_combat(struct Thing *thing)
 CrAttackType check_for_possible_combat_within_distance(struct Thing *creatng, struct Thing **fightng, long dist)
 {
     SYNCDBG(9,"Starting");
-    unsigned long outscore = 0;
+    uint32_t outscore = 0;
     struct Thing* enmtng;
     CrAttackType attack_type = check_for_possible_combat_with_attacker_within_distance(creatng, &enmtng, dist, &outscore);
     if (attack_type <= AttckT_Unset)
@@ -1526,7 +1526,7 @@ long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, CrA
     return score_base + ((5376 - distance) << 8) / 5376;
 }
 
-CrAttackType check_for_possible_melee_combat_with_attacker_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist, unsigned long *outscore)
+CrAttackType check_for_possible_melee_combat_with_attacker_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist, uint32_t *outscore)
 {
     struct CreatureControl* figctrl = creature_control_get_from_thing(fightng);
     CrAttackType best = AttckT_Unset;
@@ -1562,7 +1562,7 @@ CrAttackType check_for_possible_melee_combat_with_attacker_within_distance(struc
     return best;
 }
 
-CrAttackType check_for_possible_ranged_combat_with_attacker_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist, unsigned long *outscore)
+CrAttackType check_for_possible_ranged_combat_with_attacker_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist, uint32_t *outscore)
 {
     struct CreatureControl* figctrl = creature_control_get_from_thing(fightng);
     CrAttackType best = AttckT_Unset;
@@ -1659,9 +1659,9 @@ CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struc
     return AttckT_Unset;
 }
 
-CrAttackType check_for_possible_combat_with_attacker_within_distance(struct Thing *figtng, struct Thing **outenmtng, long maxdist, unsigned long *outscore)
+CrAttackType check_for_possible_combat_with_attacker_within_distance(struct Thing *figtng, struct Thing **outenmtng, long maxdist, uint32_t *outscore)
 {
-    unsigned long max_score;
+    uint32_t max_score;
     struct Thing *enmtng;
     long best = AttckT_Unset;
     // Do the same code two times - for melee and ranged opponents
@@ -1690,9 +1690,9 @@ CrAttackType check_for_possible_combat_with_attacker_within_distance(struct Thin
     return AttckT_Unset;
 }
 
-CrAttackType check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing **outenmtng, unsigned long *outscore)
+CrAttackType check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing **outenmtng, uint32_t *outscore)
 {
-    return check_for_possible_combat_with_attacker_within_distance(figtng, outenmtng, LONG_MAX, outscore);
+    return check_for_possible_combat_with_attacker_within_distance(figtng, outenmtng, INT32_MAX, outscore);
 }
 
 long creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enmtng)
@@ -1713,7 +1713,7 @@ long creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enm
         curr_score = get_combat_score(thing, enmtng, cctrl->combat.attack_type, distance);
     }
     // Compute highest possible score from other battles
-    unsigned long other_score = curr_score;
+    uint32_t other_score = curr_score;
     struct Thing* other_enmtng = INVALID_THING;
     check_for_possible_combat_with_attacker(thing, &other_enmtng, &other_score);
     SYNCDBG(9,"Current fight score is %lu, fight with %s index %d might give %lu",curr_score,thing_model_name(other_enmtng),(int)other_enmtng->index,other_score);
@@ -2648,14 +2648,14 @@ CrAttackType check_for_possible_combat(struct Thing *creatng, struct Thing **fig
 {
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     TRACE_THING(creatng);
-    unsigned long outscore = 0;
+    uint32_t outscore = 0;
     // Check for combat with attacker - someone who already participates in a fight
     struct Thing* enmtng;
-    CrAttackType attack_type = check_for_possible_combat_with_attacker_within_distance(creatng, &enmtng, LONG_MAX, &outscore);
+    CrAttackType attack_type = check_for_possible_combat_with_attacker_within_distance(creatng, &enmtng, INT32_MAX, &outscore);
     if (attack_type <= AttckT_Unset)
     {
         // Look for a new fight - with creature we're not fighting yet
-        attack_type = check_for_possible_combat_with_enemy_creature_within_distance(creatng, &enmtng, LONG_MAX);
+        attack_type = check_for_possible_combat_with_enemy_creature_within_distance(creatng, &enmtng, INT32_MAX);
     }
     if (attack_type <= AttckT_Unset) {
         return AttckT_Unset;
@@ -2675,7 +2675,7 @@ TbBool creature_change_to_most_suitable_combat(struct Thing *figtng)
 {
     //set_start_state(thing); return true; -- this is how originally such situation was handled
     // Compute highest possible score from battles
-    unsigned long other_score = 0;
+    uint32_t other_score = 0;
     struct Thing* enmtng = INVALID_THING;
     CrAttackType attack_type = check_for_possible_combat_with_attacker(figtng, &enmtng, &other_score);
     if (thing_is_invalid(enmtng))
@@ -3289,7 +3289,7 @@ TbBool creature_look_for_enemy_object_combat(struct Thing* thing)
     objtng = check_for_object_to_fight(thing);
     if (thing_is_invalid(objtng))
     {
-        if (check_for_possible_combat_with_enemy_object_within_distance(thing, &objtng, LONG_MAX) == AttckT_Unset)
+        if (check_for_possible_combat_with_enemy_object_within_distance(thing, &objtng, INT32_MAX) == AttckT_Unset)
         {
             return false;
         }

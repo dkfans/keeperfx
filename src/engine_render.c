@@ -592,7 +592,7 @@ void interpolate_camera(struct Camera *cam)
     interpolated_cam_mappos_z = interpolate(interpolated_cam_mappos_z, previous_cam_mappos_z, cam->mappos.z.val);
 }
 
-static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
+static void get_floor_pointed_at(long x, long y, int32_t *floor_x, int32_t *floor_y)
 {
     long long ofs_x;
     long long ofs_y;
@@ -1267,7 +1267,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
         wibl = get_wibble_from_table(cam, 32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
-        long *randmis;
+        int32_t *randmis;
         randmis = &randomisors[(stl_x + 17 * (stl_y + 1)) & 0xff];
         eview_h = dview_h * hmin + hview_y;
         eview_z = dview_z * hmin + hview_z;
@@ -1425,7 +1425,7 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
     long eview_h;
     long eview_z;
     long hview_y;
-    long *randmis;
+    int32_t *randmis;
     int dview_w;
     int dview_h;
     int dview_z;
@@ -2098,7 +2098,7 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
     }
 }
 
-static void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth, long ewheight, long ewzoom)
+static void fiddle_gamut_find_limits(int32_t *floor_x, int32_t *floor_y, long ewwidth, long ewheight, long ewzoom)
 {
     long edge_length_01;
     long edge_length_02;
@@ -2184,7 +2184,7 @@ static void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth,
     }
 }
 
-static void fiddle_gamut_set_base(long *floor_x, long *floor_y, long pos_x, long pos_y)
+static void fiddle_gamut_set_base(int32_t *floor_x, int32_t *floor_y, long pos_x, long pos_y)
 {
     floor_x[0] -= pos_x;
     floor_x[1] -= pos_x;
@@ -2196,7 +2196,7 @@ static void fiddle_gamut_set_base(long *floor_x, long *floor_y, long pos_x, long
     floor_y[3] += (MINMAX_LENGTH/2) - pos_y;
 }
 
-static void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y, long max_tiles)
+static void fiddle_gamut_set_minmaxes(int32_t *floor_x, int32_t *floor_y, long max_tiles)
 {
     struct MinMax *mm;
     long mlimit;
@@ -3811,7 +3811,7 @@ static TbBool add_light_to_nearest_list(struct NearestLights* nlgt, long* nlgt_d
     return true;
 }
 
-static void find_closest_lights_on_list(struct NearestLights *nlgt, long *nlgt_dist, const struct Coord3d *pos, ThingIndex list_start_idx)
+static void find_closest_lights_on_list(struct NearestLights *nlgt, int32_t *nlgt_dist, const struct Coord3d *pos, ThingIndex list_start_idx)
 {
     long i;
     unsigned long k;
@@ -3851,7 +3851,7 @@ static long find_closest_lights(const struct Coord3d* pos, struct NearestLights*
     long nlgt_dist[SHADOW_SOURCES_MAX_COUNT];
     long i;
     for (i = 0; i < SHADOW_SOURCES_MAX_COUNT; i++) {
-        nlgt_dist[i] = LONG_MAX;
+        nlgt_dist[i] = INT32_MAX;
     }
     i = game.thing_lists[TngList_StaticLights].index;
     find_closest_lights_on_list(nlgt, nlgt_dist, pos, i);
@@ -3859,7 +3859,7 @@ static long find_closest_lights(const struct Coord3d* pos, struct NearestLights*
     find_closest_lights_on_list(nlgt, nlgt_dist, pos, i);
     count = 0;
     for (i = 0; i < SHADOW_SOURCES_MAX_COUNT; i++) {
-        if (nlgt_dist[i] == LONG_MAX)
+        if (nlgt_dist[i] == INT32_MAX)
             break;
         count++;
     }
@@ -5532,7 +5532,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     // A1 and A2, and B1 and B2, are swapped when the line is directed towards -1 X/Y.
     // A and B are incremented, apart from when the slope of the lines goes from 0 to -1 in A, where B will decrement instead
     long distance_a, distance_b, a, b, a1, b1, a2, b2, relative_window_a, relative_window_b, remainder, remainder_limit;
-    long *x_coord, *y_coord; // Maintain a reference to the actual X/Y coordinates, even after swapping A and B
+    int32_t *x_coord, *y_coord; // Maintain a reference to the actual X/Y coordinates, even after swapping A and B
 
     if (abs(y2 - y1) < abs(x2 - x1))
     {
@@ -7054,7 +7054,7 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
  */
 
 #define PPH_EVEN_ALIGN_MASK 0xFFFE
-static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoordDelta vertical_delta, MapCoordDelta horizontal_delta, MapCoord pos_z, long *x_out, long *y_out, long *z_out)
+static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoordDelta vertical_delta, MapCoordDelta horizontal_delta, MapCoord pos_z, int32_t *x_out, int32_t *y_out, int32_t *z_out)
 {
     int vertical_shift;
     int64_t new_zoom;
@@ -7308,7 +7308,7 @@ static void add_room_flag_top_to_polypool(long x, long y, long room_idx, long bc
     poly->lvl = room_idx;
 }
 
-static void prepare_lightness_intensity_array(long stl_x, long stl_y, long *arrp, long base_lightness)
+static void prepare_lightness_intensity_array(long stl_x, long stl_y, int32_t *arrp, long base_lightness)
 {
     long i;
     long n;
@@ -7331,7 +7331,7 @@ static void prepare_lightness_intensity_array(long stl_x, long stl_y, long *arrp
     }
 }
 
-static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long pos_x, long pos_y, long zoom, unsigned char qdrant, long *ymax)
+static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long pos_x, long pos_y, long zoom, unsigned char qdrant, int32_t *ymax)
 {
     struct PlayerInfo *myplyr;
     TbBool sibrevealed[3][3];
@@ -7833,7 +7833,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     }
 }
 
-static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJontySprite *jspr)
+static void prepare_jonty_remap_and_scale(int32_t *scale, const struct BucketKindJontySprite *jspr)
 {
     long i;
     struct Thing *thing;
@@ -8110,7 +8110,7 @@ static void sprite_to_sbuff(const TbSpriteData sprdata, unsigned char *outbuf, i
           // Now fill the area faster - by writing 32-bit values
           for (i = (cval >> 2); i > 0; i--)
           {
-              *(unsigned long *)out = 0xFFFFFFFF;
+              *(uint32_t *)out = 0xFFFFFFFF;
               out += 4;
           }
           // Fill the last unaligned bytes
@@ -8177,7 +8177,7 @@ static void sprite_to_sbuff_xflip(const TbSpriteData sprdata, unsigned char *out
           for (i = (cval >> 2); i > 0; i--)
           {
               out -= 4;
-              *(unsigned long *)out = 0xFFFFFFFF;
+              *(uint32_t *)out = 0xFFFFFFFF;
           }
           out--;
           // Fill the last unaligned bytes
@@ -8978,7 +8978,7 @@ void draw_frontview_engine(struct Camera *cam)
     long cam_y;
     long long zoom;
     long long lbbb;
-    long i;
+    int32_t i;
     SYNCDBG(9,"Starting");
     player = get_my_player();
     if (cam->zoom > FRONTVIEW_CAMERA_ZOOM_MAX)

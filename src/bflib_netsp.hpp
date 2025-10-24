@@ -56,12 +56,12 @@ protected:
      * modified to contain the actual length of the message (including header).
      * @return True if a message was read (which implies there may be more to read).
      */
-    virtual bool ReadMessage(unsigned long * playerId, void * msgBuffer, unsigned long * len) = 0;
+    virtual bool ReadMessage(uint32_t * playerId, void * msgBuffer, uint32_t * len) = 0;
 
     /**
      * Same as ReadMessage but does not remove the received message (if any), which means it can still be Read.
      */
-    virtual bool PeekMessage(unsigned long * playerId, void * msgBuffer, unsigned long * len) = 0;
+    virtual bool PeekMessage(uint32_t * playerId, void * msgBuffer, uint32_t * len) = 0;
 
     /**
      * Sends a message to a specific player.
@@ -79,7 +79,7 @@ public:
     static void EncodeDeletePlayerMsg(unsigned char *buf, unsigned long val);
     static void EncodeRequestExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2);
     static void EncodeRequestCompositeExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2);
-    static void DecodeMessageStub(const void *enc_msg, unsigned long *a2, unsigned char *a3, unsigned long *a4);
+    static void DecodeMessageStub(const void *enc_msg, uint32_t *a2, unsigned char *a3, uint32_t *a4);
     TbError Send(unsigned long a1, void *a2);
     TbError Receive(unsigned long a1);
     TbBool DecodeAddPlayerMsg(const unsigned char *enc_buf, unsigned long &id, char *msg_str);

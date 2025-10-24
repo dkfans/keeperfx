@@ -189,7 +189,7 @@ short game_is_busy_doing_gui_string_input(void)
   return (input_button != NULL);
 }
 
-int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods)
+int is_game_key_pressed(long key_id, int32_t *val, TbBool ignore_mods)
 {
   int result;
   int i;

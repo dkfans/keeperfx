@@ -2291,7 +2291,7 @@ int get_nearest_small_around_side_of_slab(MapCoord dstcor_x, MapCoord dstcor_y, 
     return 0;
 }
 
-long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retstl_x, long *retstl_y)
+long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, int32_t *retstl_x, int32_t *retstl_y)
 {
     MapSubtlCoord basestl_x;
     MapSubtlCoord basestl_y;

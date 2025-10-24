@@ -379,7 +379,7 @@ static int lua_Set_next_level(lua_State *L)
     {
         return luaL_argerror(L, 1, lua_pushfstring(L, "Level '%d' not part of current campaign", lvnum));
     }
-    
+
     intralvl.next_level = lvnum;
     return 0;
 }
@@ -681,7 +681,7 @@ static int lua_Play_message(lua_State *L)
 static int lua_Tutorial_flash_button(lua_State *L)
 {
     long button = -1;
-    
+
     if (lua_isnumber(L, 1))
     {
         button = luaL_checkinteger(L, 1);
@@ -1929,7 +1929,7 @@ static int lua_get_things_of_class(lua_State *L)
     return 1; // return value is the amount of args you push back
 }
 
-static void push_rooms_of_kind(lua_State *L, struct Dungeon* dungeon, RoomKind rkind, unsigned long *k)
+static void push_rooms_of_kind(lua_State *L, struct Dungeon* dungeon, RoomKind rkind, uint32_t *k)
 {
     int ri = dungeon->room_list_start[rkind];
 

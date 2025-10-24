@@ -471,7 +471,7 @@ ThingModel parse_creature_name(const char *creature_name)
 }
 
 // Variables that could be set
-TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
+TbBool parse_set_varib(const char *varib_name, int32_t *varib_id, int32_t *varib_type)
 {
     char c;
     int len = 0;
@@ -524,7 +524,7 @@ TbBool parse_set_varib(const char *varib_name, long *varib_id, long *varib_type)
     return true;
 }
 
-TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type, long lvl_file_version)
+TbBool parse_get_varib(const char *varib_name, int32_t *varib_id, int32_t *varib_type, long lvl_file_version)
 {
     char c;
     int len = 0;
@@ -4880,7 +4880,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, plyr_idx);
 
     const char* rulename = scline->tp[0];
-    
+
 
     long rulegroup = 0;
     long ruleval = 0;

@@ -235,13 +235,13 @@ struct Game {
     GameTurn play_gameturn;
     GameTurn pckt_gameturn;
     /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
-    unsigned long action_random_seed;
-    unsigned long ai_random_seed;
-    unsigned long player_random_seed;
+    uint32_t action_random_seed;
+    uint32_t ai_random_seed;
+    uint32_t player_random_seed;
     /** Local (unsynced) random seed for visual effects that don't affect game state */
-    unsigned long unsync_random_seed;
+    uint32_t unsync_random_seed;
     /** Sound-specific random seed for audio effects and sound variations */
-    unsigned long sound_random_seed;
+    uint32_t sound_random_seed;
     int something_light_x;
     int something_light_y;
     unsigned long time_delta;

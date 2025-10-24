@@ -359,7 +359,7 @@ void get_chat_icon_from_value(const char* txt, char* id, char* type)
 }
 
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
-TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num)
+TbBool get_player_id_f(const char *plrname, int32_t *plr_range_id, const char *func_name, long ln_num)
 {
     *plr_range_id = get_rid(player_desc, plrname);
     if (*plr_range_id == -1)

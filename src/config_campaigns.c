@@ -401,7 +401,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
   campgn->human_player = 0;
   // Find the block
   const char * block_name = "common";
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -717,7 +717,7 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
 {
   // Find the block
   const char * block_name = "strings";
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -760,7 +760,7 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
 {
   const char * block_name = "speech";
   // Find the block
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -778,7 +778,7 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
       {
         if ((cmd_num != 0) && (cmd_num != -1))
         {
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file, starting on byte %ld.",
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file, starting on byte %d.",
               cmd_num, block_name, config_textname,pos);
         }
       } else
@@ -820,7 +820,7 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
     lvinfo->location = LvLc_Campaign;
     char block_buf[32];
     snprintf(block_buf, sizeof(block_buf), "map%05lu", lvnum);
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_buf);
     if (k < 0)
     {

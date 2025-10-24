@@ -1524,8 +1524,8 @@ static long calculate_shadow_angle(
         int quadrant,
         MapSubtlCoord stl_x,
         MapSubtlCoord stl_y,
-        long *shadow_angle_limit_start_index,
-        long *shadow_angle_limit_end_index)
+        int32_t *shadow_angle_limit_start_index,
+        int32_t *shadow_angle_limit_end_index)
 {
     MapSubtlCoord x = coord_subtile(pos_x);
     MapSubtlCoord y = coord_subtile(pos_y);

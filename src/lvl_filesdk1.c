@@ -122,7 +122,7 @@ struct LegacyInitLight { // sizeof=0x14
  * on success, returns a buffer which should be freed after use,
  * and sets ldsize into its size.
  */
-unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext,long *ldsize,unsigned short flags)
+unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext,int32_t *ldsize,unsigned short flags)
 {
   short fgroup = get_level_fgroup(lvnum);
   char* fname = prepare_file_fmtpath(fgroup, "map%05lu.%s", lvnum, fext);

@@ -87,7 +87,7 @@ long smaller_gold_vein_lookup_idx(long higher_gold_slabs, long higher_gem_slabs)
     return gold_idx;
 }
 
-void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, long *gold_next_idx, MapSlabCoord veinslb_x, MapSlabCoord veinslb_y)
+void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, int32_t *gold_next_idx, MapSlabCoord veinslb_x, MapSlabCoord veinslb_y)
 {
     long gold_idx;
     // First, find a vein

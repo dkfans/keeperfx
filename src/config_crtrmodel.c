@@ -259,7 +259,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
   // Find the block
   const char * block_name = "attributes";
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -972,7 +972,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
   struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
   // Find the block
   const char * block_name = "attraction";
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -1084,7 +1084,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "annoyance";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1461,7 +1461,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "senses";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1572,7 +1572,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "appearance";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1776,7 +1776,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "experience";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -1945,7 +1945,7 @@ TbBool parse_creaturemodel_jobs_blocks(long crtr_model,char *buf,long len,const 
     struct CreatureModelConfig* crconf = creature_stats_get(crtr_model);
     // Find the block
     const char * block_name = "jobs";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {
@@ -2139,7 +2139,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
   int n;
   // Find the block
   const char * block_name = "sprites";
-  long pos = 0;
+  int32_t pos = 0;
   int k = find_conf_block(buf, &pos, len, block_name);
   if (k < 0)
   {
@@ -2209,7 +2209,7 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
 {
     // Find the block
     const char * block_name = "sounds";
-    long pos = 0;
+    int32_t pos = 0;
     int k = find_conf_block(buf, &pos, len, block_name);
     if (k < 0)
     {

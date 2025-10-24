@@ -1202,7 +1202,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
     return false;
 }
 
-TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
+TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, int32_t *map_x, int32_t *map_y)
 {
     struct PlayerInfo *player = get_my_player();
     *map_x = 0;
@@ -1949,7 +1949,7 @@ void process_objective(const char *msg_text, TbMapLocation target, long x, long 
     display_objectives(player->id_number, pos_x, pos_y);
 }
 
-short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
+short winning_player_quitting(struct PlayerInfo *player, int32_t *plyr_count)
 {
     struct PlayerInfo *swplyr;
     int i;
@@ -2121,7 +2121,7 @@ void check_players_won(void)
             set_player_as_won_level(curPlayer);
             return;
         }
-    }  
+    }
 }
 
 void check_players_lost(void)
@@ -2327,7 +2327,7 @@ void process_dungeons(void)
   SYNCDBG(9,"Finished");
 }
 
-void update_near_creatures_for_footsteps(long *near_creatures, const struct Coord3d *srcpos)
+void update_near_creatures_for_footsteps(int32_t *near_creatures, const struct Coord3d *srcpos)
 {
     long near_distance[3];
     // Don't allow creatures which are far by over 20 subtiles
@@ -2474,9 +2474,9 @@ int clear_active_dungeons_stats(void)
       dungeon = get_dungeon(i);
       if (dungeon_invalid(dungeon))
           break;
-      memset((char *)dungeon->crmodel_state_type_count, 0, game.conf.crtr_conf.model_count * STATE_TYPES_COUNT * sizeof(unsigned short));
-      memset((char *)dungeon->guijob_all_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
-      memset((char *)dungeon->guijob_angry_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
+      memset((char *)dungeon->crmodel_state_type_count, 0, game.conf.crtr_conf.model_count * STATE_TYPES_COUNT * sizeof(uint16_t));
+      memset((char *)dungeon->guijob_all_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(uint16_t));
+      memset((char *)dungeon->guijob_angry_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(uint16_t));
   }
   return i;
 }
@@ -2745,7 +2745,7 @@ long near_map_block_thing_filter_queryable_object(const struct Thing *thing, Max
           dist_x = param->primary_number-(MapCoord)thing->mappos.x.val;
           dist_y = param->secondary_number-(MapCoord)thing->mappos.y.val;
           // This function should return max value when the distance is minimal, so:
-          return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
+          return INT32_MAX-(dist_x*dist_x + dist_y*dist_y);
       }
     }
 */
@@ -2885,8 +2885,8 @@ void scale_tmap2(long texture_block_index, long flags, long fade_level, long scr
     int i;
     long hlimits[480];
     long wlimits[640];
-    long *xlim;
-    long *ylim;
+    int32_t *xlim;
+    int32_t *ylim;
     unsigned char *dbuf;
     unsigned char *block;
     if (!orient)
@@ -4253,11 +4253,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 {
     short retval;
     retval=0;
-    
+
     // Determine correct log file based on command line flags
     const char* selected_log_file_name = determine_log_filename(argc, argv);
     LbErrorLogSetup("/", selected_log_file_name, 5);
-    
+
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {
