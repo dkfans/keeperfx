@@ -473,19 +473,15 @@ int frontend_font_string_width(int fnt_idx, const char *str)
 
 void get_player_gui_clicks(void)
 {
-  struct PlayerInfo *player;
-  struct Thing *thing;
-  player = get_my_player();
-
   if ( ((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     return;
-
+  struct PlayerInfo *player = get_my_player();
   switch (player->view_type)
   {
   case PVT_CreaturePasngr:
       if (right_button_released)
       {
-        thing = thing_get(player->controlled_thing_idx);
+        struct Thing *thing = thing_get(player->controlled_thing_idx);
         if (thing->class_id == TCls_Creature)
         {
           if (a_menu_window_is_active())
