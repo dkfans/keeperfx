@@ -540,23 +540,19 @@ void get_player_gui_clicks(void)
                          {
                              if (!a_menu_window_is_active())
                              {
-                                struct Coord3d mappos;
-                                if (screen_to_map(player->acamera, right_button_clicked_x, right_button_clicked_y, &mappos))
+                                if (flag_is_set(player->additional_flags, PlaAF_ChosenSubTileIsHigh))
                                 {
-                                    if (flag_is_set(player->additional_flags, PlaAF_ChosenSubTileIsHigh))
+                                    if (!left_button_held)
                                     {
-                                        if (!left_button_held)
-                                        {
-                                            long mode = settings.highlight_mode;
-                                            mode ^= 1;
-                                            set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 1, 0, 0);
-                                        }
-                                        else
-                                        {
-                                            set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
-                                        }
-                                        right_button_clicked = 0;
+                                        long mode = settings.highlight_mode;
+                                        mode ^= 1;
+                                        set_players_packet_action(player, PckA_RoomspaceHighlightToggle, mode, 1, 0, 0);
                                     }
+                                    else
+                                    {
+                                        set_players_packet_action(player, PckA_SetRoomspaceHighlight, settings.highlight_mode, 1, 0, 0);
+                                    }
+                                    right_button_clicked = 0;
                                 }
                              }
                           }
