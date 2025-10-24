@@ -129,8 +129,8 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
 static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, NaviRouteFlags flags)
 {
     long nav_sizexy;
-    long px;
-    long py;
+    int32_t px;
+    int32_t py;
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;

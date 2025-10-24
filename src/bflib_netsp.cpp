@@ -476,7 +476,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           }
 
           if (recvCallbacks->systemUserMsg) {
-              recvCallbacks->systemUserMsg(playerId, msgBuffer, (*(ulong*) msgBuffer) & 0xFFFFF, callback_context);
+              recvCallbacks->systemUserMsg(playerId, msgBuffer, (*(uint32_t *) msgBuffer) & 0xFFFFF, callback_context);
           }
 
           break;

@@ -74,10 +74,10 @@ struct PlayerInstanceInfo { // sizeof = 44
   InstncInfo_Func start_cb;
   InstncInfo_Func maintain_cb;
   InstncInfo_Func end_cb;
-  long start_callback_parameters[2];
+  int32_t start_callback_parameters[2];
   unsigned char extra_callback_data[8];
-  long maintain_end_callback_parameter;
-  long reserved_callback_parameter;
+  int32_t maintain_end_callback_parameter;
+  int32_t reserved_callback_parameter;
 };
 
 #define PLAYER_INSTANCES_COUNT 19

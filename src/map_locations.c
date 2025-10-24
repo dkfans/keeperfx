@@ -649,7 +649,7 @@ void find_map_location_coords(TbMapLocation location, int32_t *x, int32_t *y, in
     long pos_x;
     long pos_y;
     long i;
-    SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, *x, *y);
+    SYNCDBG(15,"From %s; Location %ld, pos(%d,%d)",func_name, location, *x, *y);
     pos_y = 0;
     pos_x = 0;
     i = get_map_location_longval(location);

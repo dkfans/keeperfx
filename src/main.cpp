@@ -1239,8 +1239,8 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos)
 {
     TbBool result;
-    long x;
-    long y;
+    int32_t x;
+    int32_t y;
     SYNCDBG(19,"Starting");
     result = false;
     if (camera != NULL)
@@ -1897,7 +1897,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
     SYNCDBG(8,"Finished");
 }
 
-void set_general_information(long msg_id, TbMapLocation target, long x, long y)
+void set_general_information(long msg_id, TbMapLocation target, int32_t x, int32_t y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -1914,7 +1914,7 @@ void set_general_information(long msg_id, TbMapLocation target, long x, long y)
     event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
-void set_quick_information(long msg_id, TbMapLocation target, long x, long y)
+void set_quick_information(long msg_id, TbMapLocation target, int32_t x, int32_t y)
 {
     struct PlayerInfo *player;
     long pos_x;
@@ -1936,11 +1936,11 @@ void set_general_objective(long msg_id, TbMapLocation target, long x, long y)
     process_objective(get_string(msg_id), target, x, y);
 }
 
-void process_objective(const char *msg_text, TbMapLocation target, long x, long y)
+void process_objective(const char *msg_text, TbMapLocation target, int32_t x, int32_t y)
 {
     struct PlayerInfo *player;
-    long pos_x;
-    long pos_y;
+    int32_t pos_x;
+    int32_t pos_y;
     player = get_my_player();
     find_map_location_coords(target, &x, &y, my_player_number, __func__);
     pos_y = y;
@@ -2435,7 +2435,7 @@ long stop_playing_flight_sample_in_all_flying_creatures(void)
 void update_footsteps_nearest_camera(struct Camera *cam)
 {
     static long timeslice = 0;
-    static long near_creatures[3];
+    static int32_t near_creatures[3];
     struct Coord3d srcpos;
     SYNCDBG(6,"Starting");
     if (cam == NULL)
@@ -2883,8 +2883,8 @@ void scale_tmap2(long texture_block_index, long flags, long fade_level, long scr
         }
     }
     int i;
-    long hlimits[480];
-    long wlimits[640];
+    int32_t hlimits[480];
+    int32_t wlimits[640];
     int32_t *xlim;
     int32_t *ylim;
     unsigned char *dbuf;

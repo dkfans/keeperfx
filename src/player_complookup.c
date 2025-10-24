@@ -220,7 +220,7 @@ void check_map_for_gold(void)
         }
     }
     // Add treasures to lookup as gold veins
-    long gold_next_idx = 0;
+    int32_t gold_next_idx = 0;
     for (slb_y = 0; slb_y < game.map_tiles_y; slb_y++)
     {
         for (slb_x = 0; slb_x < game.map_tiles_x; slb_x++)
@@ -232,6 +232,6 @@ void check_map_for_gold(void)
             }
         }
     }
-    SYNCDBG(8,"Found %ld possible digging locations",gold_next_idx);
+    SYNCDBG(8,"Found %d possible digging locations",gold_next_idx);
 }
 /******************************************************************************/

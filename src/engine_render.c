@@ -639,12 +639,12 @@ static long compute_cells_away(void) // For overhead view, not for 1st person vi
 {
     long half_width;
     long half_height;
-    long xmin;
-    long ymin;
-    long xmax;
-    long ymax;
-    long xcell;
-    long ycell;
+    int32_t xmin;
+    int32_t ymin;
+    int32_t xmax;
+    int32_t ymax;
+    int32_t xcell;
+    int32_t ycell;
     struct PlayerInfo *player;
     long ncells_a;
     player = get_my_player();
@@ -2323,8 +2323,8 @@ static void fiddle_gamut(long pos_x, long pos_y)
     long ewwidth;
     long ewheight;
     long ewzoom;
-    long floor_x[4];
-    long floor_y[4];
+    int32_t floor_x[4];
+    int32_t floor_y[4];
     switch (player->view_mode)
     {
     case PVM_CreatureView:
@@ -3798,7 +3798,7 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
     }
 }
 
-static TbBool add_light_to_nearest_list(struct NearestLights* nlgt, long* nlgt_dist, const struct Light* lgt, long dist)
+static TbBool add_light_to_nearest_list(struct NearestLights* nlgt, int32_t * nlgt_dist, const struct Light* lgt, long dist)
 {
     int i;
     for (i = settings.video_shadows-1; i > 0; i--)
@@ -3848,7 +3848,7 @@ static void find_closest_lights_on_list(struct NearestLights *nlgt, int32_t *nlg
 static long find_closest_lights(const struct Coord3d* pos, struct NearestLights* nlgt)
 {
     long count;
-    long nlgt_dist[SHADOW_SOURCES_MAX_COUNT];
+    int32_t nlgt_dist[SHADOW_SOURCES_MAX_COUNT];
     long i;
     for (i = 0; i < SHADOW_SOURCES_MAX_COUNT; i++) {
         nlgt_dist[i] = INT32_MAX;
@@ -5531,7 +5531,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     // A and B are relative, and are set to be either X (shallow curves) or Y (steep curves).
     // A1 and A2, and B1 and B2, are swapped when the line is directed towards -1 X/Y.
     // A and B are incremented, apart from when the slope of the lines goes from 0 to -1 in A, where B will decrement instead
-    long distance_a, distance_b, a, b, a1, b1, a2, b2, relative_window_a, relative_window_b, remainder, remainder_limit;
+    int32_t distance_a, distance_b, a, b, a1, b1, a2, b2, relative_window_a, relative_window_b, remainder, remainder_limit;
     int32_t *x_coord, *y_coord; // Maintain a reference to the actual X/Y coordinates, even after swapping A and B
 
     if (abs(y2 - y1) < abs(x2 - x1))
@@ -7082,7 +7082,7 @@ static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoord
  * @param z_out The z position of the object relative to the camera
  * @return true if projected point is withing player's window, false otherwise
  */
-static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x_out, long* y_out, long* z_out)
+static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, int32_t * x_out, int32_t * y_out, int32_t * z_out)
 {
     int zoom;
     unsigned int orientation;
@@ -7337,7 +7337,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     TbBool sibrevealed[3][3];
     struct CubeConfigStats *cube_config_stats;
     struct Map *mapblk;
-    long lightness_arr[4][9];
+    int32_t lightness_arr[4][9];
     long bckt_idx;
     long cube_itm;
     long delta_y;
@@ -7933,7 +7933,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     struct PlayerInfo *player = get_my_player();
     struct Thing *thing = jspr->thing;
     long angle;
-    long scaled_size;
+    int32_t scaled_size;
     struct ObjectConfigStats* objst;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
@@ -8386,9 +8386,9 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     long depth = ((5 - map_volume_box.floor_height_z) * ((long)stl_width << 7) / 256);
     long breadth = depth / (single_subtile ? STL_PER_SLB : 1);
     struct Coord3d pos;
-    long coord_x;
-    long coord_y;
-    long coord_z;
+    int32_t coord_x;
+    int32_t coord_y;
+    int32_t coord_z;
     long box_width, box_height;
     pos.y.val = map_volume_box.end_y;
     pos.x.val = map_volume_box.end_x;
@@ -8442,9 +8442,9 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     int floor_height_z = (map_volume_box.floor_height_z == 0) ? 1 : map_volume_box.floor_height_z; // ignore "liquid height", and force it to "floor height". All fancy rooms are on the ground, and this ensures the boundboxes are drawn correctly. A different solution will be required if this function is used to draw fancy rooms over "liquid".
     long depth = ((5 - floor_height_z) * ((long)stl_width << 7) / 256);
     struct Coord3d pos;
-    long coord_x;
-    long coord_y;
-    long coord_z;
+    int32_t coord_x;
+    int32_t coord_y;
+    int32_t coord_z;
     long box_width, box_height;
     struct MapVolumeBox valid_slabs = map_volume_box;
     // get the 'accurate' roomspace shape instead of the outer box
@@ -8854,9 +8854,9 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     // The draw_frontview_thing_on_element() function is the FrontView equivalent of do_map_who_for_thing()
     interpolate_thing(thing);
 
-    long cx;
-    long cy;
-    long cz;
+    int32_t cx;
+    int32_t cy;
+    int32_t cz;
     if ((thing->rendering_flags & TRF_Invisible) != 0)
         return;
     switch (thing->draw_class)

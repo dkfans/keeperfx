@@ -306,8 +306,8 @@ long computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProce
 long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrole)
 {
     struct Dungeon* dungeon = comp->dungeon;
-    long used_capacity_kind;
-    long total_capacity_kind;
+    int32_t used_capacity_kind;
+    int32_t total_capacity_kind;
     long total_capacity = 0;
 
 
@@ -338,8 +338,8 @@ long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_
         }
         return calculate_free_lair_space(comp->dungeon);
     }
-    long used_capacity;
-    long total_capacity;
+    int32_t used_capacity;
+    int32_t total_capacity;
     get_room_kind_total_and_used_capacity(dungeon, room_kind, &total_capacity, &used_capacity);
     if (total_capacity <= 0) {
         return 9999;
@@ -364,8 +364,8 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
         SYNCDBG(19,"Not building \"%s\" because already doing %d build tasks",room_code_name(cproc->process_configuration_value_4),(int)num_build_tasks);
         return CProcRet_Wait;
     }
-    long used_capacity;
-    long total_capacity;
+    int32_t used_capacity;
+    int32_t total_capacity;
     get_room_kind_total_and_used_capacity(dungeon, cproc->process_configuration_value_4, &total_capacity, &used_capacity);
     if (total_capacity <= 0) {
         SYNCDBG(8,"Need \"%s\" because do not have any",room_code_name(cproc->process_configuration_value_4));
@@ -516,7 +516,7 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
         MapSubtlCoord from_stl_y = entroom->central_stl_y;
         if ((entroom->owner == from_plyr_idx) && ((entroom->player_interested[dungeon->owner] & 3) == 0))
         {
-            long dist;
+            int32_t dist;
             struct Room* nearoom = get_player_room_any_kind_nearest_to(dungeon->owner, from_stl_x, from_stl_y, &dist);
             if (!room_is_invalid(nearoom) && (dist < near_dist)) {
                 near_dist = dist;
@@ -533,7 +533,7 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
             struct ComputerTask* ctask = get_computer_task(n);
             n = ctask->next_task;
         }
-        long dist;
+        int32_t dist;
         struct ComputerTask* ctask = get_room_build_task_nearest_to(comp, from_stl_x, from_stl_y, &dist);
         if (!computer_task_invalid(ctask) && (dist < near_dist)) {
             near_dist = dist;
@@ -820,7 +820,7 @@ long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
     // If we are supposed to dig there, then do it
     if (comp->sim_before_dig)
     {
-        unsigned long dig_distance = 0;
+        uint32_t dig_distance = 0;
         if (!simulate_dig_to(comp, &startpos, &endpos, &dig_distance, ToolDig_BasicOnly))
         {
             entroom->player_interested[dungeon->owner] |= 0x02;
@@ -877,7 +877,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
     startpos.z.val = subtile_coord(1,0);
     if (comp->sim_before_dig)
     {
-        unsigned long dig_distance = 0;
+        uint32_t dig_distance = 0;
         if (!simulate_dig_to(comp, &startpos, &endpos, &dig_distance, ToolDig_AllowValuable))
         {
             SYNCDBG(8,"Dig evaluation didn't worked out");
@@ -886,10 +886,10 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         }
         if ((long) dig_distance > max_distance)
         {
-            SYNCDBG(8,"Gold is out of evaluation distance (%lu > %lu)",dig_distance,max_distance);
+            SYNCDBG(8,"Gold is out of evaluation distance (%u > %lu)",dig_distance,max_distance);
             return CProcRet_Fail;
         }
-        SYNCDBG(8,"Dig evaluation distance %lu, result %ld",dig_distance,digres);
+        SYNCDBG(8,"Dig evaluation distance %u, result %ld",dig_distance,digres);
     }
 
     long parent_cproc_idx = computer_process_index(comp, cproc);

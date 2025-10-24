@@ -339,7 +339,7 @@ TbBool find_and_load_lif_files(void)
 TbBool level_lof_file_parse(const char *fname, char *buf, long len)
 {
     struct LevelInformation *lvinfo;
-    long pos;
+    int32_t pos;
     char word_buf[32];
     long lvnum;
     int cmd_num;
@@ -602,7 +602,7 @@ TbBool level_lof_file_parse(const char *fname, char *buf, long len)
         case ccr_endOfFile:
             break;
         default:
-            WARNMSG("Unrecognized command (%d) in LOF file '%s', starting on byte %ld.",cmd_num,fname,pos);
+            WARNMSG("Unrecognized command (%d) in LOF file '%s', starting on byte %d.",cmd_num,fname,pos);
             break;
         }
         skip_conf_to_next_line(buf,&pos,len);
@@ -651,7 +651,7 @@ TbBool find_and_load_lof_files(void)
 
 TbBool load_column_file(LevelNumber lv_num)
 {
-    long fsize = 8;
+    int32_t fsize = 8;
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, "clm", &fsize, LMFF_None);
     if (buf == NULL)
       return false;
@@ -692,7 +692,7 @@ TbBool load_map_data_file(LevelNumber lv_num)
     unsigned long x;
     unsigned long y;
     clear_map();
-    long fsize = 2 * (game.map_subtiles_y + 1) * (game.map_subtiles_x + 1);
+    int32_t fsize = 2 * (game.map_subtiles_y + 1) * (game.map_subtiles_x + 1);
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, "dat", &fsize, LMFF_None);
     if (buf == NULL)
         return false;
@@ -726,7 +726,7 @@ TbBool load_map_data_file(LevelNumber lv_num)
 static TbBool load_thing_file(LevelNumber lv_num)
 {
     SYNCDBG(5,"Starting");
-    long fsize = 2;
+    int32_t fsize = 2;
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, "tng", &fsize, LMFF_None);
     if (buf == NULL)
       return false;
@@ -772,7 +772,7 @@ static TbBool load_kfx_toml_file(LevelNumber lv_num, const char *ext, const char
                                  int max_count, TbBool (*section_loader)(VALUE *arg))
 {
     SYNCDBG(5,"Starting");
-    long fsize = 0;
+    int32_t fsize = 0;
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, ext, &fsize, LMFF_None);
     if (buf == NULL)
         return false;
@@ -860,7 +860,7 @@ static TbBool load_tngfx_file(LevelNumber lv_num)
 TbBool load_action_point_file(LevelNumber lv_num)
 {
   SYNCDBG(5,"Starting");
-  long fsize = 4;
+  int32_t fsize = 4;
   unsigned char* buf = load_single_map_file_to_buffer(lv_num, "apt", &fsize, LMFF_None);
   if (buf == NULL)
     return false;
@@ -1040,7 +1040,7 @@ long load_map_wibble_file(unsigned long lv_num)
     unsigned char *buf;
     unsigned long i;
     unsigned long k;
-    long fsize;
+    int32_t fsize;
     fsize = (game.map_subtiles_y+1)*(game.map_subtiles_x+1);
     buf = load_single_map_file_to_buffer(lv_num,"wib",&fsize,LMFF_None);
     if (buf == NULL)
@@ -1064,7 +1064,7 @@ short load_map_ownership_file(LevelNumber lv_num)
     unsigned long y;
     unsigned char *buf;
     unsigned long i;
-    long fsize;
+    int32_t fsize;
     fsize = (game.map_subtiles_y+1)*(game.map_subtiles_x+1);
     buf = load_single_map_file_to_buffer(lv_num,"own",&fsize,LMFF_None);
     if (buf == NULL)
@@ -1128,7 +1128,7 @@ TbBool load_map_wlb_file(unsigned long lv_num)
     unsigned long i;
     unsigned long n;
     unsigned long nfixes;
-    long fsize;
+    int32_t fsize;
     SYNCDBG(7,"Starting");
     nfixes = 0;
     fsize = game.map_tiles_y*game.map_tiles_x;
@@ -1177,7 +1177,7 @@ short load_map_slab_file(unsigned long lv_num)
     unsigned char *buf;
     unsigned long i;
     unsigned long n;
-    long fsize;
+    int32_t fsize;
     fsize = 2*game.map_tiles_y*game.map_tiles_x;
     buf = load_single_map_file_to_buffer(lv_num,"slb",&fsize,LMFF_None);
     if (buf == NULL)
@@ -1191,7 +1191,7 @@ short load_map_slab_file(unsigned long lv_num)
             n = lword(&buf[i]);
             if (n > game.conf.slab_conf.slab_types_count)
             {
-                WARNMSG("Found invalid Slab Type %d at Tile %ld,%ld, exceeds limit of %ld", (int)n, x, y, game.conf.slab_conf.slab_types_count);
+                WARNMSG("Found invalid Slab Type %d at Tile %ld,%ld, exceeds limit of %d", (int)n, x, y, game.conf.slab_conf.slab_types_count);
                 n = SlbT_ROCK;
             }
             slb->kind = n;
@@ -1208,7 +1208,7 @@ short load_map_slab_file(unsigned long lv_num)
 short load_map_flag_file(unsigned long lv_num)
 {
     SYNCDBG(5,"Starting");
-    long fsize = 2 * (game.map_subtiles_y + 1) * (game.map_subtiles_x + 1);
+    int32_t fsize = 2 * (game.map_subtiles_y + 1) * (game.map_subtiles_x + 1);
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, "flg", &fsize, LMFF_Optional);
     if (buf == NULL)
         return false;
@@ -1228,7 +1228,7 @@ short load_map_flag_file(unsigned long lv_num)
 
 static TbBool load_static_light_file(unsigned long lv_num)
 {
-    long fsize = 4;
+    int32_t fsize = 4;
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, "lgt", &fsize, LMFF_Optional);
     if (buf == NULL)
         return false;
@@ -1290,7 +1290,7 @@ static TbBool load_lgtfx_file(unsigned long lv_num)
 
 short load_and_setup_map_info(unsigned long lv_num)
 {
-    long fsize = 1;
+    int32_t fsize = 1;
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, "inf", &fsize, LMFF_None);
     if (buf == NULL)
     {

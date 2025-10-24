@@ -861,7 +861,7 @@ static void do_map_rotate_stuff(long relpos_x, long relpos_y, int32_t *stl_x, in
     *stl_y = zoom * (*stl_y) / 256 + cam->mappos.y.stl.num;
 }
 
-short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom)
+short do_left_map_drag(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom)
 {
   SYNCDBG(17,"Starting");
   struct PlayerInfo *player;
@@ -893,7 +893,7 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
   return 1;
 }
 
-short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom)
+short do_left_map_click(long begin_x, long begin_y, int32_t curr_x, int32_t curr_y, long zoom)
 {
   SYNCDBG(17,"Starting");
   struct PlayerInfo *player;
@@ -926,8 +926,8 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
 
 short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my, long zoom)
 {
-    long x;
-    long y;
+    int32_t x;
+    int32_t y;
     SYNCDBG(17,"Starting");
     struct PlayerInfo *player;
     struct Thing *thing;

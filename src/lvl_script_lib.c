@@ -84,7 +84,7 @@ struct Thing *script_process_new_object(ThingModel tngmodel, MapSubtlCoord stl_x
     struct Thing* thing = create_object(&pos, tngmodel, plyr_idx, -1);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create %s at location %ld, %ld",thing_class_and_model_name(TCls_Object, tngmodel),stl_x, stl_y);
+        ERRORLOG("Couldn't create %s at location %d, %d",thing_class_and_model_name(TCls_Object, tngmodel),stl_x, stl_y);
         return INVALID_THING;
     }
     thing->move_angle_xy = move_angle;

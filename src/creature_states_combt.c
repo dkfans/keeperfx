@@ -1716,7 +1716,7 @@ long creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enm
     uint32_t other_score = curr_score;
     struct Thing* other_enmtng = INVALID_THING;
     check_for_possible_combat_with_attacker(thing, &other_enmtng, &other_score);
-    SYNCDBG(9,"Current fight score is %lu, fight with %s index %d might give %lu",curr_score,thing_model_name(other_enmtng),(int)other_enmtng->index,other_score);
+    SYNCDBG(9,"Current fight score is %lu, fight with %s index %d might give %u",curr_score,thing_model_name(other_enmtng),(int)other_enmtng->index,other_score);
     // If the benefit of changing fight is low, then inform that this is most suitable fight
     return (enmtng->index == other_enmtng->index) || (other_score <= curr_score + 258);
 }

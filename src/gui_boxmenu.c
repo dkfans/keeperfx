@@ -64,7 +64,7 @@ long gf_research_magic(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
 long gf_all_researchable(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
 long gfa_can_give_controlled_creature_spells(struct GuiBox *gbox, struct GuiBoxOption *goptn, int32_t *tag);
 long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
-long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, long* tag);
+long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, int32_t * tag);
 long gf_all_doors(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
 long gf_all_traps(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
 long gf_give_door_trap(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, int32_t *tag);
@@ -852,7 +852,7 @@ TbBool point_is_over_gui_box(ScreenCoord x, ScreenCoord y)
     return (gbox != NULL);
 }
 
-long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, long* tag)
+long gfa_single_player_mode(struct GuiBox* gbox, struct GuiBoxOption* goptn, int32_t * tag)
 {
     return ((game.system_flags & GSF_NetworkActive) == 0);
 }

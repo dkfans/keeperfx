@@ -1652,7 +1652,7 @@ static char light_render_light_dynamic_uncached(struct Light *lgt, int radius, i
                             quadrant = 2;
                         }
                     }
-                    long shadow_angle_limit_secondary_index, shadow_angle_limit_tertiary_index;
+                    int32_t shadow_angle_limit_secondary_index, shadow_angle_limit_tertiary_index;
                     unsigned char height = get_floor_filled_subtiles_at(stl_x, stl_y);
                     if ( game.lish.shadow_limits[shadow_angle_limit_primary_index] )
                     {
@@ -1763,8 +1763,8 @@ static char light_render_light_dynamic(struct Light *lgt, int radius, int render
                         quadrant = 2 - (stl_y < lgt->mappos.y.stl.num);
                     }
                     unsigned char shadow_limit = lish->shadow_limits[angle];
-                    long shadow_angle_limit_index;
-                    long shadow_angle_limit_secondary_index;
+                    int32_t shadow_angle_limit_index;
+                    int32_t shadow_angle_limit_secondary_index;
                     if (shadow_limit)
                     {
                         calculate_shadow_angle(lgt->mappos.x.val, lgt->mappos.y.val, quadrant, stl_x, stl_y, &shadow_angle_limit_index, &shadow_angle_limit_secondary_index);
@@ -1899,7 +1899,7 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
                 MapCoord coord_y = subtile_coord(stl_y, 0);
                 long angle = LbArcTanAngle(coord_x - lgt->mappos.x.val, coord_y - lgt->mappos.y.val) & ANGLE_MASK;
                 unsigned char shadow_limit = lish->shadow_limits[angle];
-                long shadow_start, shadow_end;
+                int32_t shadow_start, shadow_end;
                 col = get_column_at(stl_x, stl_y);
                 if (shadow_limit)
                 {

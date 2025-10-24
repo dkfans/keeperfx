@@ -557,7 +557,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
 {
     struct PlayerInfo *swplyr;
     struct PlayerInfo* myplyr = get_my_player();
-    long plyr_count;
+    int32_t plyr_count;
     plyr_count = 0;
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {

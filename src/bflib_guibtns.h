@@ -87,10 +87,10 @@ struct GuiBoxOption {
        unsigned char is_enabled;
        Gf_OptnBox_3Callback active_cb;
        Gf_OptnBox_4Callback callback;
-       long acb_param1;
+       int32_t acb_param1;
        long max_count;
        long unused_param1;
-       long cb_param1;
+       int32_t cb_param1;
        long option_index;
        long unused_param2;
        TbBool active;

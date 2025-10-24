@@ -1142,7 +1142,7 @@ void keeper_highlight_roomspace(PlayerNumber plyr_idx, struct RoomSpace *roomspa
                 {
                     return;
                 }
-            }    
+            }
         }
     }
     if (is_my_player(player))
@@ -1366,7 +1366,7 @@ void update_roomspaces()
 void process_build_roomspace_inputs(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    long keycode = 0;
+    int32_t keycode = 0;
     struct Packet* pckt = get_packet(plyr_idx);
     if (room_role_matches(player->chosen_room_kind,RoRoF_PassLava|RoRoF_PassWater))
     {
@@ -1448,7 +1448,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
 void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
 {
     struct Packet* pckt = get_packet(plyr_idx);
-    long keycode = 0;
+    int32_t keycode = 0;
     struct PlayerInfo* player = get_player(plyr_idx);
     if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
     {
@@ -1498,7 +1498,7 @@ void process_sell_roomspace_inputs(PlayerNumber plyr_idx)
 
 void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
 {
-    long keycode = 0;
+    int32_t keycode = 0;
     unsigned long par2;
     struct PlayerInfo* player = get_player(plyr_idx);
     if ( (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) ) // Use "modern" click and drag method

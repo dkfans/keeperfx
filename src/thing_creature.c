@@ -1603,7 +1603,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     struct SpellConfig* spconf = get_spell_config(cspell->spkind);
     struct Room* room = NULL;
     const struct Thing* desttng = NULL;
-    long distance = INT32_MAX;
+    int32_t distance = INT32_MAX;
     struct Dungeon *dungeon = get_players_num_dungeon(thing->owner);
     RoomKind rkind = 0;
     long i;
@@ -4117,8 +4117,8 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtn
           i = inst_inf->force_visibility;
         cctrl->force_visible = i;
     }
-    long itime;
-    long aitime;
+    int32_t itime;
+    int32_t aitime;
     get_creature_instance_times(thing, inst_idx, &itime, &aitime);
     if ((cctrl->instance_id != CrInst_NULL) && (cctrl->instance_id == inst_idx))
     {

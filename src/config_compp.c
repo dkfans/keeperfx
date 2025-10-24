@@ -211,7 +211,7 @@ int64_t value_processes(const struct NamedField* named_field, const char* value_
   struct ComputerType* cpt = get_computer_type_template(idx);
   computer_type_clear_processes(cpt);
 
-  long pos = 0;
+  int32_t pos = 0;
   long len = strlen(value_text);
   while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
   {
@@ -235,7 +235,7 @@ int64_t value_checks(const struct NamedField* named_field, const char* value_tex
     struct ComputerType* cpt = get_computer_type_template(idx);
     computer_type_clear_checks(cpt);
 
-    long pos = 0;
+    int32_t pos = 0;
     long len = strlen(value_text);
     while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
     {
@@ -259,7 +259,7 @@ int64_t value_events(const struct NamedField* named_field, const char* value_tex
   struct ComputerType* cpt = get_computer_type_template(idx);
   computer_type_clear_events(cpt);
 
-  long pos = 0;
+  int32_t pos = 0;
   long len = strlen(value_text);
   while (get_conf_parameter_single(value_text,&pos,len,word_buf,sizeof(word_buf)) > 0)
   {

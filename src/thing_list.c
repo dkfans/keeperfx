@@ -495,7 +495,7 @@ long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, M
                     if (dist > param->tertiary_number) // Too far away
                         return -1;
                     // It is not "correct" randomness (pick random N from list) but rolling a dice on each creature found
-                    unsigned long tmp = maximizer + dist + 1;
+                    uint32_t tmp = maximizer + dist + 1;
                     return (long)LbRandomSeries(INT32_MAX, &tmp, __func__, __LINE__);
                 }
             }
@@ -2817,7 +2817,7 @@ struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer
     return retng;
 }
 
-struct Thing* get_other_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param, long* maximizer)
+struct Thing* get_other_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param, int32_t * maximizer)
 {
     SYNCDBG(19, "Starting");
     struct Thing* retng = INVALID_THING;
@@ -2936,7 +2936,7 @@ struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord
             if ((param->plyr_idx == -1) || map_block_revealed(mapblk, param->plyr_idx))
             {
                 long i = get_mapwho_thing_index(mapblk);
-                long n = maximizer;
+                int32_t n = maximizer;
                 struct Thing* thing = get_thing_on_map_block_with_filter(i, filter, param, &n);
                 if (!thing_is_invalid(thing) && (n > maximizer))
                 {
@@ -2974,7 +2974,7 @@ struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y
         if (!map_block_invalid(mapblk))
         {
             long i = get_mapwho_thing_index(mapblk);
-            long n = maximizer;
+            int32_t n = maximizer;
             struct Thing* thing = get_thing_on_map_block_with_filter(i, filter, param, &n);
             if (!thing_is_invalid(thing) && (n >= maximizer))
             {
@@ -3008,7 +3008,7 @@ long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long
         if (!map_block_invalid(mapblk))
         {
             long i = get_mapwho_thing_index(mapblk);
-            long n = maximizer;
+            int32_t n = maximizer;
             struct Thing* thing = get_other_thing_on_map_block_with_filter(i, filter, param, &n);
             if (!thing_is_invalid(thing) && (n >= maximizer))
             {
@@ -3777,7 +3777,7 @@ struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, M
         return INVALID_THING;
     }
     long i = get_mapwho_thing_index(mapblk);
-    long n = 0;
+    int32_t n = 0;
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
@@ -3795,7 +3795,7 @@ struct Thing *get_cavein_at_subtile_owned_by(MapSubtlCoord stl_x, MapSubtlCoord 
         return INVALID_THING;
     }
     long i = get_mapwho_thing_index(mapblk);
-    long n = 0;
+    int32_t n = 0;
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
@@ -3813,7 +3813,7 @@ struct Thing *get_food_at_subtile_available_to_eat_and_owned_by(MapSubtlCoord st
         return INVALID_THING;
     }
     long i = get_mapwho_thing_index(mapblk);
-    long n = 0;
+    int32_t n = 0;
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
@@ -3831,7 +3831,7 @@ struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, Map
         return INVALID_THING;
     }
     long i = get_mapwho_thing_index(mapblk);
-    long n = 0;
+    int32_t n = 0;
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
@@ -3872,7 +3872,7 @@ struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         return INVALID_THING;
     }
     long i = get_mapwho_thing_index(mapblk);
-    long n = 0;
+    int32_t n = 0;
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
@@ -3890,7 +3890,7 @@ struct Thing *get_door_for_position_for_trap_placement(MapSubtlCoord stl_x, MapS
         return INVALID_THING;
     }
     long i = get_mapwho_thing_index(mapblk);
-    long n = 0;
+    int32_t n = 0;
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
@@ -3915,7 +3915,7 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
         return INVALID_THING;
     }
     long i = get_mapwho_thing_index(mapblk);
-    long n = 0;
+    int32_t n = 0;
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 

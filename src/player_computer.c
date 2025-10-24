@@ -260,7 +260,7 @@ long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, c
     gold_pos.x.stl.num = gldlook->stl_x;
     gold_pos.y.stl.num = gldlook->stl_y;
     long min_distance = INT32_MAX;
-    long distance = INT32_MAX;
+    int32_t distance = INT32_MAX;
     for (long rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         struct Room* room = find_room_nearest_to_position(dungeon->owner, rkind, &gold_pos, &distance);

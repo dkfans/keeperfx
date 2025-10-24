@@ -809,7 +809,7 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
     long chosen_priority;
     CreatureJob chosen_job;
     struct Room *room;
-    long total_spare_cap;
+    int32_t total_spare_cap;
     long k;
 
     const struct Dungeon *dungeon = comp->dungeon;
@@ -1094,8 +1094,8 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
         restart_task_process(comp, ctask);
         return CTaskRet_Unk0;
     }
-    long waiting_slabs;
-    long wrong_slabs;
+    int32_t waiting_slabs;
+    int32_t wrong_slabs;
     waiting_slabs = 0; wrong_slabs = 0;
     count_slabs_where_room_cannot_be_built(comp->dungeon->owner, ctask->new_room_pos.x.stl.num, ctask->new_room_pos.y.stl.num,
         ctask->create_room.kind, ctask->create_room.area, &waiting_slabs, &wrong_slabs);
@@ -1779,7 +1779,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
     }
     gldstl_x = stl_slab_center_subtile(cdig->pos_begin.x.stl.num);
     gldstl_y = stl_slab_center_subtile(cdig->pos_begin.y.stl.num);
-    SYNCDBG(4,"%s: Dig slabs from (%ld,%ld) to (%d,%d)",
+    SYNCDBG(4,"%s: Dig slabs from (%d,%d) to (%d,%d)",
         func_name,
         subtile_slab(gldstl_x),subtile_slab(gldstl_y),
         subtile_slab(cdig->pos_dest.x.stl.num),subtile_slab(cdig->pos_dest.y.stl.num));
@@ -3275,7 +3275,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     struct DoorConfigStats *doorst;
     struct TrapConfigStats *trapst;
     TbBool item_sold;
-    long value;
+    int32_t value;
     ThingModel model;
     long i;
 
@@ -3354,7 +3354,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         value = compute_value_percentage(trapst->selling_value, game.conf.rules[dungeon->owner].game.trap_sale_percent);
                         dungeon->traps_sold++;
                         dungeon->manufacture_gold += value;
-                        SYNCDBG(9,"Offmap trap %s crate sold for %ld gold",trap_code_name(model),value);
+                        SYNCDBG(9,"Offmap trap %s crate sold for %d gold",trap_code_name(model),value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
@@ -3972,8 +3972,8 @@ long process_tasks(struct Computer2 *comp)
 TbResult script_computer_dig_to_location(long plyr_idx, TbMapLocation origin, TbMapLocation destination)
 {
     struct Computer2* comp = get_computer_player(plyr_idx);
-    long orig_x = 0, orig_y = 0;
-    long dest_x = 0, dest_y = 0;
+    int32_t orig_x = 0, orig_y = 0;
+    int32_t dest_x = 0, dest_y = 0;
 
     //dig origin
     find_map_location_coords(origin, &orig_x, &orig_y, plyr_idx, __func__);

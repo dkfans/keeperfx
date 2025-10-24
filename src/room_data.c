@@ -313,8 +313,8 @@ void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, Room
 long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    long used_capacity;
-    long total_capacity;
+    int32_t used_capacity;
+    int32_t total_capacity;
     get_room_kind_total_and_used_capacity(dungeon, room_kind, &total_capacity, &used_capacity);
     if (total_capacity <= 0) {
         return 0;
@@ -705,8 +705,8 @@ void get_room_mass_centre_coords(int32_t *mass_x, int32_t *mass_y, const struct 
 
 void update_room_central_tile_position(struct Room *room)
 {
-    long mass_x;
-    long mass_y;
+    int32_t mass_x;
+    int32_t mass_y;
     get_room_mass_centre_coords(&mass_x, &mass_y, room);
     for (long i = 0; i < 16 * 16; i++)
     {
@@ -848,7 +848,7 @@ TbBool add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_n
         k++;
         if (k > (MAX_TILES_X * MAX_TILES_Y))
         {
-            ERRORLOG("Room slabs list length exceeded when sweeping Room (%d) '%s' at stl (%ld,%ld)",room->index,room_code_name(room->kind),room->central_stl_x,room->central_stl_y);
+            ERRORLOG("Room slabs list length exceeded when sweeping Room (%d) '%s' at stl (%d,%d)",room->index,room_code_name(room->kind),room->central_stl_x,room->central_stl_y);
             return false;
         }
     }

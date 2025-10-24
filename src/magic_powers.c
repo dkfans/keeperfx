@@ -2297,8 +2297,8 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
 TbResult script_use_power_at_location(PlayerNumber plyr_idx, TbMapLocation target, long fml_bytes)
 {
     SYNCDBG(0, "Using power at location of type %lu", target);
-    long x = 0;
-    long y = 0;
+    int32_t x = 0;
+    int32_t y = 0;
     find_map_location_coords(target, &x, &y, plyr_idx, __func__);
     if ((x == 0) && (y == 0))
     {
