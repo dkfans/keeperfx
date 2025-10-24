@@ -558,7 +558,7 @@ void get_player_gui_clicks(void)
                           }
                          break;
                        } 
-                }
+                  }
               }
           }
         // do NOT do right_button_clicked = 0 here: it breaks dropping creatures!
