@@ -392,7 +392,12 @@ struct CoordDelta3d {
     } z;
 };
 
-struct Around { // sizeof = 2
+/** 
+ * Stores a 2D distance relative to an arbritrary base position, i.e. the relative position around the base.
+ * 
+ * For example: if we are on a grid, our base position is the tile we are on, a.k.a. {0,0}, and we can use {1,0} to refer to the tile to our east (i.e. the tile that is distance 1 in the positive X direction).
+ */
+struct Around {
   signed char delta_x;
   signed char delta_y;
 };
