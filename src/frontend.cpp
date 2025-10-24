@@ -543,7 +543,7 @@ void get_player_gui_clicks(void)
                                 struct Coord3d mappos;
                                 if (screen_to_map(player->acamera, right_button_clicked_x, right_button_clicked_y, &mappos))
                                 {
-                                    if (subtile_is_diggable_for_player(player->id_number, mappos.x.stl.num, mappos.y.stl.num, false))
+                                    if (flag_is_set(player->additional_flags, PlaAF_ChosenSubTileIsHigh))
                                     {
                                         if (!left_button_held)
                                         {
