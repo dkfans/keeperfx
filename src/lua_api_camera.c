@@ -63,11 +63,11 @@ static const struct luaL_Reg slab_methods[] = {
     if (strcmp(key, "pos") == 0) {
         luaL_checkCoord3d(L, 3, &cam->mappos);
     } else if (strcmp(key, "yaw") == 0) {
-        cam->orient_a = luaL_checkinteger(L, 3);
+        cam->rotation_angle_x = luaL_checkinteger(L, 3);
     } else if (strcmp(key, "pitch") == 0) {
-        cam->orient_b = luaL_checkinteger(L, 3);
+        cam->rotation_angle_y = luaL_checkinteger(L, 3);
     } else if (strcmp(key, "roll") == 0) {
-        cam->orient_c = luaL_checkinteger(L, 3);
+        cam->rotation_angle_z = luaL_checkinteger(L, 3);
     } else if (strcmp(key, "horizontal_fov") == 0) {
         cam->horizontal_fov = luaL_checkinteger(L, 3);
     } else if (strcmp(key, "zoom") == 0) {
@@ -99,11 +99,11 @@ static const struct luaL_Reg slab_methods[] = {
     if (strcmp(key, "pos") == 0) {
         lua_pushPos(L, &cam->mappos);
     } else if (strcmp(key, "yaw") == 0) {
-        lua_pushinteger(L, cam->orient_a);
+        lua_pushinteger(L, cam->rotation_angle_x);
     } else if (strcmp(key, "pitch") == 0) {
-        lua_pushinteger(L, cam->orient_b);
+        lua_pushinteger(L, cam->rotation_angle_y);
     } else if (strcmp(key, "roll") == 0) {
-        lua_pushinteger(L, cam->orient_c);
+        lua_pushinteger(L, cam->rotation_angle_z);
     } else if (strcmp(key, "horizontal_fov") == 0) {
         lua_pushinteger(L, cam->horizontal_fov);
     } else if (strcmp(key, "zoom") == 0) {
