@@ -130,7 +130,10 @@ const struct NamedCommand cmpgn_human_player_options[] = {
 struct GameCampaign campaign;
 struct CampaignsList campaigns_list;
 struct CampaignsList mappacks_list;
+struct CampaignsList mp_mappacks_list;
 
+
+static TbBool check_lif_files_in_mappack(struct GameCampaign *campgn,unsigned long * out_count);
 /******************************************************************************/
 /*
  * Frees campaign sub-entries memory without NULLing invalid pointers.
@@ -1119,7 +1122,9 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
         }
     }
     if (result && fgroup == FGrp_Campgn)
-        return (campgn->single_levels_count > 0) || (campgn->multi_levels_count > 0);
+        return (campgn->single_levels_count > 0);
+    if (result && fgroup == FGrp_MpLevels)
+        return (campgn->multi_levels_count > 0);
     if (result && fgroup == FGrp_VarLevels){
         return (true);
     }
@@ -1226,10 +1231,19 @@ TbBool load_campaign_to_list(const char *cmpgn_fname,struct CampaignsList *clist
     struct GameCampaign* campgn = &clist->items[clist->items_num];
     if (load_campaign(cmpgn_fname,campgn,CnfLd_ListOnly, fgroup))
     {
+      JUSTLOG("Loaded campaign file: %s",campgn->fname);
         switch(fgroup)
         {
          case FGrp_VarLevels:
-                if (check_lif_files_in_mappack(campgn)) { // if this returns false, then the map pack is "empty"
+                if (check_lif_files_in_mappack(campgn,&campaign.freeplay_levels_count)) { // if this returns false, then the map pack is "empty"
+                    clist->items_num++;
+                    return true;
+                }
+            break;
+         case FGrp_MpLevels:
+                JUSTLOG("Checking MP Levels Pack: %s",campgn->fname);
+                if (check_lif_files_in_mappack(campgn,&campaign.multi_levels_count)) { // if this returns false, then the map pack is "empty"
+                  JUSTLOG("Valid Map MP Pack found: %s",campgn->fname);
                     clist->items_num++;
                     return true;
                 }
@@ -1323,20 +1337,22 @@ void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
     sort_campaigns_quicksort(clist, beg, clist->items_num);
 }
 
+
 /**
  * Searches for campaign files and creates a list of campaigns.
  */
-TbBool load_campaigns_list(void)
+TbBool load_campaigns_list(struct CampaignsList *clist, short fgroup, const char* list_name, const char* order_fname)
 {
-    init_campaigns_list_entries(&campaigns_list, CAMPAIGNS_LIST_GROW_DELTA);
-    char* fname = prepare_file_path(FGrp_Campgn, "*.cfg"); // add campaigns
+    init_campaigns_list_entries(clist, CAMPAIGNS_LIST_GROW_DELTA);
+    char* fname = prepare_file_path(fgroup, "*.cfg"); // add campaigns
     struct TbFileEntry fe;
     struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
     long cnum_all = 0;
     long cnum_ok = 0;
     if (ff) {
         do {
-            if (load_campaign_to_list(fe.Filename, &campaigns_list, FGrp_Campgn))
+          JUSTLOG("Found campaign file: %s",fe.Filename);
+            if (load_campaign_to_list(fe.Filename, clist, fgroup))
             {
                 cnum_ok++;
             }
@@ -1344,42 +1360,12 @@ TbBool load_campaigns_list(void)
         } while (LbFileFindNext(ff, &fe) >= 0);
         LbFileFindEnd(ff);
     }
-    SYNCDBG(0,"Found %ld campaign files, properly loaded %ld.",cnum_all,cnum_ok);
-    const char* ordfname = prepare_file_path(FGrp_Campgn, "campgn_order.txt");
-    sort_campaigns(&campaigns_list,ordfname);
-    return (campaigns_list.items_num > 0);
+    SYNCDBG(0,"Found %ld %s files, properly loaded %ld.",cnum_all,list_name,cnum_ok);
+    const char* ordfname = prepare_file_path(fgroup, order_fname);
+    sort_campaigns(clist,ordfname);
+    return (clist->items_num > 0);
 }
 
-/**
- * Searches for map pack files and creates a list of map packs.
- */
-TbBool load_mappacks_list(void)
-{
-    init_campaigns_list_entries(&mappacks_list, CAMPAIGNS_LIST_GROW_DELTA);
-    char* fname = prepare_file_path(FGrp_VarLevels, "*.cfg"); // add map packs
-    struct TbFileEntry fe;
-    struct TbFileFind * ff = LbFileFindFirst(fname, &fe);
-    long cnum_all = 0;
-    long cnum_ok = 0;
-    if (ff) {
-        do {
-            if (is_campaign_in_list(fe.Filename, &campaigns_list))
-            {
-                WARNMSG("Couldn't load Map Pack \"%s\", as it is a duplicate of an existing Campaign.", fe.Filename);
-            }
-            else if (load_campaign_to_list(fe.Filename, &mappacks_list, FGrp_VarLevels))
-            {
-                cnum_ok++;
-            }
-            cnum_all++;
-        } while (LbFileFindNext(ff, &fe) >= 0);
-        LbFileFindEnd(ff);
-    }
-    SYNCDBG(0,"Found %ld map pack files, properly loaded %ld.",cnum_all,cnum_ok);
-    const char* ordfname = prepare_file_path(FGrp_VarLevels, "mappck_order.txt");
-    sort_campaigns(&mappacks_list,ordfname);
-    return (mappacks_list.items_num > 0);
-}
 
 TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
 {
@@ -1397,14 +1383,14 @@ TbBool is_campaign_in_list(const char *cmpgn_fname, struct CampaignsList *clist)
     return false;
 }
 
-TbBool check_lif_files_in_mappack(struct GameCampaign *campgn)
+static TbBool check_lif_files_in_mappack(struct GameCampaign *campgn,unsigned long * out_count)
 {
     struct GameCampaign campbuf;
     memcpy(&campbuf, &campaign, sizeof(struct GameCampaign));
     memcpy(&campaign, campgn, sizeof(struct GameCampaign));
     find_and_load_lif_files();
     find_and_load_lof_files();
-    TbBool result  = (campaign.freeplay_levels_count != 0);
+    TbBool result  = (*out_count != 0);
     if (!result) {
         // Could be either: no valid levels in LEVELS_LOCATION, no LEVELS_LOCATION specified, or LEVELS_LOCATION does not exist
         WARNMSG("Couldn't load Map Pack \"%s\", no .LIF files could be found.", campgn->fname);

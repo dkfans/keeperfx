@@ -1,0 +1,14 @@
+#order of the campaigns, campaigns not in the list will be at the bottom alphabetically
+keeporig.cfg
+origplus.cfg
+burdnimp.cfg
+undedkpr.cfg
+pstunded.cfg
+lqizgood.cfg
+revlord.cfg
+ami2019.cfg
+twinkprs.cfg
+ancntkpr.cfg
+postanck.cfg
+dzjr06lv.cfg
+jdkmaps8.cfg

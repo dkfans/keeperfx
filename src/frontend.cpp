@@ -2955,7 +2955,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
         break;
     case FeSt_MP_MAPPACK_SELECT:
         turn_on_menu(GMnu_MP_MAPPACK_SELECT);
-        frontend_mappack_list_load();
+        frontend_mp_mappack_list_load();
         set_pointer_graphic_menu();
         break;
   #if (BFDEBUG_LEVEL > 0)

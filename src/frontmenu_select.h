@@ -78,11 +78,26 @@ void frontend_mappack_select_up_maintain(struct GuiButton *gbtn);
 void frontend_mappack_select_down_maintain(struct GuiButton *gbtn);
 void frontend_mappack_select_maintain(struct GuiButton *gbtn);
 void frontend_draw_mappack_select_button(struct GuiButton *gbtn);
+void frontend_draw_mp_mappack_select_button(struct GuiButton *gbtn);
 void frontend_mappack_select(struct GuiButton *gbtn);
 void frontend_mappack_select_update(void);
 void frontend_draw_mappack_scroll_tab(struct GuiButton *gbtn);
 void frontend_mappack_list_load(void);
 void frontend_draw_variable_mappack_exit_button(struct GuiButton *gbtn);
+
+// Multiplayer Map pack selection screen
+void frontend_mp_mappack_select_up(struct GuiButton *gbtn);
+void frontend_mp_mappack_select_down(struct GuiButton *gbtn);
+void frontend_mp_mappack_select_scroll(struct GuiButton *gbtn);
+void frontend_mp_mappack_select_up_maintain(struct GuiButton *gbtn);
+void frontend_mp_mappack_select_down_maintain(struct GuiButton *gbtn);
+void frontend_mp_mappack_select_maintain(struct GuiButton *gbtn);
+void frontend_mp_draw_mappack_select_button(struct GuiButton *gbtn);
+void frontend_mp_mappack_select(struct GuiButton *gbtn);
+void frontend_mp_mappack_select_update(void);
+void frontend_mp_draw_mappack_scroll_tab(struct GuiButton *gbtn);
+void frontend_mp_mappack_list_load(void);
+void frontend_mp_draw_variable_mappack_exit_button(struct GuiButton *gbtn);
 /******************************************************************************/
 #ifdef __cplusplus
 }

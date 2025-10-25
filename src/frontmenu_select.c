@@ -42,10 +42,12 @@
 int select_level_scroll_offset = 0;
 int select_campaign_scroll_offset = 0;
 int select_mappack_scroll_offset = 0;
+int select_mp_mappack_scroll_offset = 0;
 int number_of_freeplay_levels = 0;
 int frontend_select_level_items_visible = 0;
 int frontend_select_campaign_items_visible = 0;
 int frontend_select_mappack_items_visible = 0;
+int frontend_select_mp_mappack_items_visible = 0;
 /******************************************************************************/
 void frontend_level_select_up(struct GuiButton *gbtn)
 {
@@ -406,6 +408,117 @@ void frontend_mappack_select(struct GuiButton *gbtn)
     if (!change_campaign(campgn->fname))
         return;
     frontend_set_state(FeSt_LEVEL_SELECT);
+}
+
+
+
+
+
+
+
+
+
+void frontend_mp_mappack_list_load(void)
+{
+    select_level_scroll_offset = 0; // Reset the scroll of the level select screen here, as it should only be reset when user returns to map pack select screen (Not from exiting level etc).
+    frontend_select_mp_mappack_items_visible = (mp_mappacks_list.items_num < frontend_select_mp_mappack_items_max_visible)?mp_mappacks_list.items_num+1:frontend_select_mp_mappack_items_max_visible;
+}
+
+void frontend_mp_mappack_select_up(struct GuiButton *gbtn)
+{
+  if (select_mp_mappack_scroll_offset > 0)
+      select_mp_mappack_scroll_offset--;
+}
+
+void frontend_mp_mappack_select_down(struct GuiButton *gbtn)
+{
+  if (select_mp_mappack_scroll_offset < mp_mappacks_list.items_num-frontend_select_mp_mappack_items_visible+1)
+      select_mp_mappack_scroll_offset++;
+}
+
+void frontend_mp_mappack_select_scroll(struct GuiButton *gbtn)
+{
+    select_mp_mappack_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_select_mp_mappack_items_visible-2, mappacks_list.items_num);
+}
+
+void frontend_mp_mappack_select_up_maintain(struct GuiButton *gbtn)
+{
+    if (gbtn == NULL)
+        return;
+    if (select_mp_mappack_scroll_offset != 0)
+        gbtn->flags |= LbBtnF_Enabled;
+    else
+        gbtn->flags &=  ~LbBtnF_Enabled;
+}
+
+void frontend_mp_mappack_select_down_maintain(struct GuiButton *gbtn)
+{
+    if (gbtn == NULL)
+        return;
+    if (select_mp_mappack_scroll_offset < mp_mappacks_list.items_num-frontend_select_mp_mappack_items_visible+1)
+        gbtn->flags |= LbBtnF_Enabled;
+    else
+        gbtn->flags &=  ~LbBtnF_Enabled;
+}
+
+void frontend_mp_mappack_select_maintain(struct GuiButton *gbtn)
+{
+  if (gbtn == NULL)
+    return;
+  long btn_idx = gbtn->content.lval;
+  long i = select_mp_mappack_scroll_offset + btn_idx - 45;
+  if (i < mp_mappacks_list.items_num)
+      gbtn->flags |= LbBtnF_Enabled;
+  else
+      gbtn->flags &=  ~LbBtnF_Enabled;
+}
+
+void frontend_mp_mappack_select(struct GuiButton *gbtn)
+{
+    long i;
+    long btn_idx;
+    struct GameCampaign *campgn;
+    if (gbtn == NULL)
+        return;
+    btn_idx = gbtn->content.lval;
+    i = select_mp_mappack_scroll_offset + btn_idx-45;
+    campgn = NULL;
+    if ((i >= 0) && (i < mappacks_list.items_num))
+        campgn = &mappacks_list.items[i];
+    if (campgn == NULL)
+        return;
+    if (!change_campaign(campgn->fname))
+        return;
+    frontend_set_state(FeSt_LEVEL_SELECT);
+}
+
+void frontend_draw_mp_mappack_select_button(struct GuiButton *gbtn)
+{
+    struct GameCampaign *campgn;
+    long btn_idx;
+    long i;
+    if (gbtn == NULL)
+      return;
+    btn_idx = gbtn->content.lval;
+    i = select_mp_mappack_scroll_offset + btn_idx-45;
+    campgn = NULL;
+    if ((i >= 0) && (i < mp_mappacks_list.items_num))
+      campgn = &mp_mappacks_list.items[i];
+    if (campgn == NULL)
+      return;
+    if ((btn_idx > 0) && (frontend_mouse_over_button == btn_idx))
+      i = 2;
+    else
+      i = 1;
+
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    LbTextSetFont(frontend_font[i]);
+    int tx_units_per_px;
+    // This text is a bit condensed - button size is smaller than text height
+    tx_units_per_px = (gbtn->height*13/11) * 16 / LbTextLineHeight();
+    i = LbTextLineHeight() * tx_units_per_px / 16;
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
+    LbTextDrawResized(0, 0, tx_units_per_px, campgn->display_name);
 }
 
 void frontend_draw_mappack_select_button(struct GuiButton *gbtn)

@@ -61,6 +61,7 @@ enum TbFileGroups {
         FGrp_CmpgConfig,
         FGrp_CmpgMedia,
         FGrp_Music,
+        FGrp_MpLevels,
 };
 
 enum TbExtraLevels {
