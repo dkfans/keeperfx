@@ -2149,7 +2149,7 @@ void check_players_won(void)
             set_player_as_won_level(curPlayer);
             return;
         }
-    }  
+    }
 }
 
 void check_players_lost(void)
@@ -4281,11 +4281,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
 {
     short retval;
     retval=0;
-    
+
     // Determine correct log file based on command line flags
     const char* selected_log_file_name = determine_log_filename(argc, argv);
     LbErrorLogSetup("/", selected_log_file_name, 5);
-    
+
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {
