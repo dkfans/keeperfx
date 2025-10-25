@@ -1565,7 +1565,8 @@ void frontend_draw_mp_mappack(struct GuiButton *gbtn)
 
 
     //TODO placeholder for mappack name
-    text = "TestPack";
+    text = campaign.display_name;
+    
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     int ln_height;
@@ -1842,11 +1843,11 @@ void frontend_load_mp_mappacks(struct GuiButton *gbtn)
     const char *cmpgn_fname;
     SYNCDBG(6,"Clicked");
     // Check if we can show some levels without showing the map pack selection screen
-    if (mappacks_list.items_num < 1)
+    if (mp_mappacks_list.items_num < 1)
       cmpgn_fname = "";
     else
-    if (mappacks_list.items_num == 1)
-      cmpgn_fname = mappacks_list.items[0].fname;
+    if (mp_mappacks_list.items_num == 1)
+      cmpgn_fname = mp_mappacks_list.items[0].fname;
     else
       cmpgn_fname = NULL;
     if (cmpgn_fname != NULL)

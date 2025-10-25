@@ -1142,26 +1142,15 @@ TbBool change_campaign(const char *cmpgn_fname)
     short fgroup = FGrp_Campgn; //use this as a default
     if (is_campaign_in_list(cmpgn_fname, &mappacks_list)) // check if this is a map pack CFG file
         fgroup = FGrp_VarLevels;
+    else if (is_campaign_in_list(cmpgn_fname, &mp_mappacks_list)) // check if this is a map pack CFG file
+        fgroup = FGrp_MpLevels;
     if ((cmpgn_fname != NULL) && (cmpgn_fname[0] != '\0'))
         result = load_campaign(cmpgn_fname,&campaign,CnfLd_Standard, fgroup);
     else
         result = load_campaign(keeper_campaign_file,&campaign,CnfLd_Standard, FGrp_Campgn);
-    // Configs which may change within a level should be initialized outside
-    //load_stats_files();
-    //check_and_auto_fix_stats();
-    // Make sure all additional levels are loaded
-    //   Only the original campaign need to list the multiplayer levels
-    //   (until there are multiplayer mappacks) as all multi maps go on
-    //   the same "campaign" screen (and need to be in the same list to do so)
-    if (strcasecmp(campaign.fname,keeper_campaign_file) == 0)
-    {
-        find_and_load_lof_files();
-    }
-    if (fgroup == FGrp_VarLevels)
-    {
-        find_and_load_lof_files();
-        find_and_load_lif_files();
-    }
+
+    find_and_load_lof_files();
+    find_and_load_lif_files();
     load_or_create_high_score_table();
     // Update GUI arrays to new config
     update_room_tab_to_config();

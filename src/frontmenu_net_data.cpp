@@ -120,7 +120,7 @@ struct GuiButtonInit frontend_net_start_buttons[] = {
   
   
   { LbBtnT_HoldableBtn,BID_DEFAULT, 0, 0, NULL,               NULL,  NULL,                     0, 85,217,85,217, 220, 26, frontnet_draw_bottom_scroll_box_tab,0,GUIStr_Empty, 0,  {28},    0, NULL }, //pack select background
-  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_load_mp_mappacks,NULL,frontend_over_button,0, 95,214,95,214, 200, 26, frontend_draw_mp_mappack,           0,GUIStr_Empty, 0, {103},    0, NULL }, //pack select
+  { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_load_mp_mappacks,NULL,frontend_over_button,0, 95,214,95,214, 200, 26, frontend_draw_mp_mappack,           0,GUIStr_Empty, 0, {100},    0, NULL }, //pack select
  
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  82, 246,  82, 246, 220, 26, frontnet_draw_scroll_box_tab,      0, GUIStr_Empty, 0,  {28},    0, NULL },
   { LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, NULL,               NULL,   NULL,                    0,  82, 272,  82, 272, 450,111, frontnet_draw_scroll_box,          0, GUIStr_Empty, 0,  {91},    0, NULL },

@@ -438,7 +438,7 @@ void frontend_mp_mappack_select_down(struct GuiButton *gbtn)
 
 void frontend_mp_mappack_select_scroll(struct GuiButton *gbtn)
 {
-    select_mp_mappack_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_select_mp_mappack_items_visible-2, mappacks_list.items_num);
+    select_mp_mappack_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_select_mp_mappack_items_visible-2, mp_mappacks_list.items_num);
 }
 
 void frontend_mp_mappack_select_up_maintain(struct GuiButton *gbtn)
@@ -483,13 +483,13 @@ void frontend_mp_mappack_select(struct GuiButton *gbtn)
     btn_idx = gbtn->content.lval;
     i = select_mp_mappack_scroll_offset + btn_idx-45;
     campgn = NULL;
-    if ((i >= 0) && (i < mappacks_list.items_num))
-        campgn = &mappacks_list.items[i];
+    if ((i >= 0) && (i < mp_mappacks_list.items_num))
+        campgn = &mp_mappacks_list.items[i];
     if (campgn == NULL)
         return;
     if (!change_campaign(campgn->fname))
         return;
-    frontend_set_state(FeSt_LEVEL_SELECT);
+    frontend_set_state(FeSt_NET_START);
 }
 
 void frontend_draw_mp_mappack_select_button(struct GuiButton *gbtn)
