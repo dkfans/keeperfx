@@ -101,48 +101,6 @@ void NilSystemUserMsgCallback(unsigned long player_id, void *system_data, unsign
 /******************************************************************************/
 // methods of virtual class ServiceProvider
 
-void ServiceProvider::EncodeMessageStub(void *enc_msg, unsigned long dataLen,
-      unsigned char messageType, unsigned long seqNbr)
-{
-  if (enc_msg == NULL)
-  {
-    WARNLOG("NULL ptr");
-    return;
-  }
-  *(unsigned long *)enc_msg = (messageType << 24) | ((seqNbr & 0xF) << 20) | (dataLen & 0xFFFFF);
-}
-
-void ServiceProvider::EncodeDeletePlayerMsg(unsigned char *buf, unsigned long val)
-{
-  if (buf == NULL)
-    WARNLOG("NULL ptr");
-  else
-    *(unsigned long *)buf = 0x2000004;
-  memcpy(buf+4, &val, 4);
-}
-
-void ServiceProvider::EncodeRequestExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2)
-{
-  if (buf == NULL)
-  {
-    WARNLOG("NULL ptr");
-    return;
-  }
-  *(unsigned long *)buf = ((a2 & 0xF) << 20) | 0x5000004;
-  memcpy(buf+4, &a1, 4);
-}
-
-void ServiceProvider::EncodeRequestCompositeExchangeDataMsg(unsigned char *buf, unsigned long a1, unsigned long a2)
-{
-  if (buf == NULL)
-  {
-    WARNLOG("NULL ptr");
-    return;
-  }
-  *(unsigned long *)buf = ((a2 & 0xF) << 20) | 0x6000004;
-  memcpy(buf+4, &a1, 4);
-}
-
 void ServiceProvider::DecodeMessageStub(const void *msgHeader, unsigned long *dataLen,
       unsigned char *messageType, unsigned long *seqNbr)
 {
@@ -167,11 +125,6 @@ void ServiceProvider::DecodeMessageStub(const void *msgHeader, unsigned long *da
       k = *(unsigned long *)msgHeader;
       *messageType = (k >> 24)  & 0xFF;
   }
-}
-
-unsigned long ServiceProvider::GetRequestCompositeExchangeDataMsgSize(void)
-{
-  return 8;
 }
 
 ServiceProvider::ServiceProvider() :
