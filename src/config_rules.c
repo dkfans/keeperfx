@@ -333,12 +333,15 @@ int sac_compare_fn(const void* ptr_a, const void* ptr_b)
 
 static void set_rules_defaults()
 {
-    for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++) {
-      const struct NamedField* field = ruleblocks[i];
-      while (field->name != NULL) {
-        assign_default(field, field->default_value, &rules_named_fields_set, 0,"rules",ccf_SplitExecution|ccf_DuringLevel);
-        field++;
-      }
+    for (size_t i = 0; i < sizeof(ruleblocks) / sizeof(ruleblocks[0]); i++) {
+        const struct NamedField* field = ruleblocks[i];
+        while (field->name != NULL) {
+            for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+            {
+                assign_default(field, field->default_value, &rules_named_fields_set, plyr_idx, "rules", ccf_SplitExecution | ccf_DuringLevel);
+            }
+            field++;
+        }
     }
 }
 
