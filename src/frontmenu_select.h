@@ -38,6 +38,9 @@ extern struct GuiMenu frontend_select_level_menu;
 extern struct GuiMenu frontend_select_campaign_menu;
 #define frontend_select_mappack_items_max_visible  7
 extern struct GuiMenu frontend_select_mappack_menu;
+#define frontend_select_mp_mappack_items_max_visible  7
+extern struct GuiMenu frontend_select_mp_mappack_menu;
+
 /******************************************************************************/
 // Level list selection screen
 void frontend_draw_levels_scroll_tab(struct GuiButton *gbtn);
