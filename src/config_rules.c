@@ -177,8 +177,8 @@ static const struct NamedField rules_rooms_named_fields[] = {
   {"TRAININGROOMMAXLEVEL",                0, field(game.conf.rules[0].rooms.training_room_max_level         ),   0,        0,CREATURE_MAX_LEVEL+1,NULL,value_default, assign_default},
   {"TRAINEFFICIENCY",                     0, field(game.conf.rules[0].rooms.train_efficiency                ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
   {"WORKEFFICIENCY",                      0, field(game.conf.rules[0].rooms.work_efficiency                 ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
-  {"SCAVENGEEFFECIENCY",                  0, field(game.conf.rules[0].rooms.scavenge_efficiency             ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
-  {"RESEARCHEFFECIENCY",                  0, field(game.conf.rules[0].rooms.research_efficiency             ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
+  {"RESEARCHEFFICIENCY",                  0, field(game.conf.rules[0].rooms.research_efficiency             ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
+  {"SCAVENGEEFFICIENCY",                  0, field(game.conf.rules[0].rooms.scavenge_efficiency             ), 256,        0,            USHRT_MAX,NULL,value_default, assign_default},
   {NULL},
 };
 
