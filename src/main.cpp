@@ -1643,7 +1643,7 @@ void clear_things_and_persons_data(void)
         if (i > 0) {
             if (i < SYNCED_THINGS_COUNT) {
                 game.synced_free_things[SYNCED_THINGS_COUNT-i] = i;
-            } else {
+            } else if (i < THINGS_COUNT) {
                 game.unsynced_free_things[THINGS_COUNT-i] = i;
             }
         }
@@ -1730,7 +1730,7 @@ void delete_all_thing_structures(void)
       }
         if (i < SYNCED_THINGS_COUNT) {
             game.synced_free_things[SYNCED_THINGS_COUNT-i] = i;
-        } else {
+        } else if (i < THINGS_COUNT) {
             game.unsynced_free_things[THINGS_COUNT-i] = i;
         }
     }
