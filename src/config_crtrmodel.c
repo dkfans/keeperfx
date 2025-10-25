@@ -2615,15 +2615,15 @@ TbBool load_creaturemodel_config(ThingModel crmodel, unsigned short flags)
     if (strlen(fname) > 0)
     {
         result |= load_creaturemodel_config_file(crmodel, fname, flags);
+        if (result)
+        {
+            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
+        }
     }
 
     if (mods_conf.after_map_cnt > 0)
     {
         result |= load_creaturemodel_config_for_mod_list(crmodel, flags, conf_fnstr, mods_conf.after_map_item, mods_conf.after_map_cnt);
-        if (result)
-        {
-            set_flag(flags, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
-        }
     }
 
     if (!result)
