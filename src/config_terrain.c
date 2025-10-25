@@ -416,7 +416,7 @@ TbBool parse_block_health_block(char *buf, long len, const char *config_textname
       if (k < 0)
       {
           if ((flags & CnfLd_AcceptPartial) == 0)
-              WARNMSG("aaBlock [%s] not found in %s file.", block_name, config_textname);
+              WARNMSG("Block [%s] not found in %s file.", block_name, config_textname);
           return false;
       } else
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_health_commands,cmd_num)
