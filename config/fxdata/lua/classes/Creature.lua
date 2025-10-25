@@ -11,6 +11,7 @@
 ---@field state string
 ---@field continue_state string
 ---@field moveto_pos Pos3d should be combined with assigning a state that makes use of it
+---@field move_speed integer the movement speed of the creature after spell modifications
 ---@field gold_held integer gold carried by the creature
 ---@field opponents_count integer number of creatures it is in battle with, combined ranged and melee
 ---@field opponents_melee_count integer number of creatures it is in melee battle with

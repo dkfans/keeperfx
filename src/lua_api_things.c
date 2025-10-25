@@ -225,6 +225,10 @@ static int thing_set_field(lua_State *L) {
         } else if (strcmp(key, "moveto_pos") == 0)
         {
             luaL_checkCoord3d(L, 3, &cctrl->moveto_pos);
+        }
+        else if (strcmp(key, "move_speed") == 0)
+        {
+            cctrl->move_speed = luaL_checkinteger(L, 3);
         } else if (strcmp(key, "patrol_pos") == 0)
         {
             luaL_checkCoord3d(L, 3, &cctrl->patrol.pos);
@@ -389,6 +393,8 @@ static int thing_get_field(lua_State *L) {
             lua_pushPartyTable(L, get_group_leader(thing));
         } else if (strcmp(key, "level") == 0) {
             lua_pushinteger(L, cctrl->exp_level);
+        } else if (strcmp(key, "move_speed") == 0) {
+            lua_pushinteger(L, cctrl->move_speed);
         } else if (strcmp(key, "exp_points") == 0) {
             lua_pushinteger(L, cctrl->exp_points);
         } else if (strcmp(key, "creature_kills") == 0) {
