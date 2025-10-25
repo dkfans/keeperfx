@@ -6221,6 +6221,7 @@ long update_creature_levels(struct Thing *thing)
     {
         remove_creature_score_from_owner(thing); // the opposite is in set_creature_level()
         set_creature_level(thing, cctrl->exp_level+1);
+        check_experience_upgrade(thing);
         return 1;
     }
     // If it is highest level, check if the creature can grow up.
