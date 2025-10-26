@@ -102,6 +102,12 @@ long players_currently_in_session;
 /******************************************************************************/
 void draw_map_screen(void)
 {
+    if (map_screen == NULL)
+    {
+        ERRORLOG("Map screen buffer is not allocated");
+        return;
+    }
+
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
         scale_value_landview(LANDVIEW_MAP_WIDTH), scale_value_landview(LANDVIEW_MAP_HEIGHT),
         -scale_value_landview(map_info.screen_shift_x), -scale_value_landview(map_info.screen_shift_y),
@@ -215,12 +221,17 @@ void update_net_ensigns_visibility(void)
     SYNCDBG(18, "Starting");
     set_all_ensigns_state(LvSt_Hidden);
     long lvnum = first_multiplayer_level();
+    int16_t i = 0;
     while (lvnum > 0)
     {
         struct LevelInformation* lvinfo = get_level_info(lvnum);
         if (lvinfo != NULL)
             lvinfo->state = LvSt_Visible;
         lvnum = next_multiplayer_level(lvnum);
+        if (++i > MULTI_LEVELS_COUNT) {
+            ERRORLOG("Breaking infinite loop in update_net_ensigns_visibility");
+            break;
+        }
     }
 }
 
@@ -970,13 +981,7 @@ TbBool load_map_and_window(LevelNumber lvnum)
 
 void frontnet_init_level_descriptions(void)
 {
-    //TODO NETWORK Don't allow campaigns besides original - we don't have per-campaign MP yet
-    //if (!is_campaign_loaded())
-    {
-        if (!change_campaign("")) {
-            return;
-        }
-    }
+
 }
 
 void frontnetmap_unload(void)

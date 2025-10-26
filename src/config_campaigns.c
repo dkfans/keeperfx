@@ -1230,9 +1230,7 @@ TbBool load_campaign_to_list(const char *cmpgn_fname,struct CampaignsList *clist
                 }
             break;
          case FGrp_MpLevels:
-                JUSTLOG("Checking MP Levels Pack: %s",campgn->fname);
                 if (check_lif_files_in_mappack(campgn,&campaign.multi_levels_count)) { // if this returns false, then the map pack is "empty"
-                  JUSTLOG("Valid Map MP Pack found: %s",campgn->fname);
                     clist->items_num++;
                     return true;
                 }
@@ -1340,7 +1338,6 @@ TbBool load_campaigns_list(struct CampaignsList *clist, short fgroup, const char
     long cnum_ok = 0;
     if (ff) {
         do {
-          JUSTLOG("Found campaign file: %s",fe.Filename);
             if (load_campaign_to_list(fe.Filename, clist, fgroup))
             {
                 cnum_ok++;
