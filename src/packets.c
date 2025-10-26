@@ -1661,15 +1661,24 @@ static TbBool try_starting_level_from_chat(char* message, long player_id)
     }
     
     char *level_str = colon_pos + 1;
-    if (!isdigit(level_str[0])) {
+
+    if (level_str[0] != '_' && !isdigit(level_str[0])) {
         return false;
     }
     
-    LevelNumber level_num = atoi(level_str);
-    if (level_num <= 0) {
-        return false;
+    LevelNumber level_num;
+    if (level_str[0] == '_')
+    {
+        level_num = -1;
     }
-    
+    else
+    {
+        level_num = atoi(level_str);
+        if (level_num <= 0) {
+            return false;
+    }
+    }
+
     char campaign_filename[80];
     snprintf(campaign_filename, sizeof(campaign_filename), "%.*s.cfg", campaign_len, message);
     
@@ -1678,8 +1687,11 @@ static TbBool try_starting_level_from_chat(char* message, long player_id)
         return false;
     }
     
-    set_selected_level_number(level_num);
-    frontend_set_state(FeSt_START_MPLEVEL);
+    if (level_num != -1) {
+        set_selected_level_number(level_num);
+        frontend_set_state(FeSt_START_MPLEVEL);
+    }
+
     return true;
 }
 

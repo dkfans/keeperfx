@@ -32,6 +32,7 @@
 #include "player_data.h"
 #include "packets.h"
 #include "frontend.h"
+#include "front_network.h"
 #include "game_legacy.h"
 #include "kjm_input.h"
 #include "keeperfx.hpp"
@@ -487,6 +488,16 @@ void frontend_mp_mappack_select(struct GuiButton *gbtn)
         campgn = &mp_mappacks_list.items[i];
     if (campgn == NULL)
         return;
+
+    static char msg[64];
+    char base_name[64];
+    strncpy(base_name, campgn->fname, sizeof(base_name)-1);
+    base_name[sizeof(base_name)-1] = '\0';
+    char *dot = strrchr(base_name, '.');
+    if (dot != NULL) *dot = '\0';
+    snprintf(msg, sizeof(msg), "%s:_", base_name);
+    set_auto_message(msg);
+    
     if (!change_campaign(campgn->fname))
         return;
     frontend_set_state(FeSt_NET_START);

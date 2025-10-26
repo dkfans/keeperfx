@@ -95,6 +95,7 @@ TbKeyCode ascii_to_keycode(char c)
         case ' ': return KC_SPACE;
         case '!': return KC_1; // with shift
         case ':': return KC_SEMICOLON; // with shift
+        case '_': return KC_MINUS; // with shift
         default: return KC_UNASSIGNED;
     }
 }
@@ -374,13 +375,23 @@ void frontnet_rewite_net_messages(void)
       memcpy(&net_message[i], &lmsg[i], sizeof(struct NetMessage));
 }
 
-void handle_autostart_multiplayer_messaging(void)
+static int message_char_index = -1;
+static int message_length = 0;
+static char auto_message[64] = "";
+
+void set_auto_message(const char* msg)
+{
+    strncpy(auto_message, msg, sizeof(auto_message)-1);
+    auto_message[sizeof(auto_message)-1] = '\0';
+    message_length = strlen(auto_message);
+    message_char_index = 0;
+}
+
+// when starting game with the autostart multiplayer options, send the campaign:level
+static void handle_autostart_multiplayer_messaging(void)
 {
     static int previous_player_count = 1;
-    static int message_char_index = -1;
-    static char host_message[64] = "";
     static TbBool message_prepared = false;
-    static int message_length = 0;
 
     if (previous_player_count == 1 && net_number_of_enum_players == 2) {
         if (my_player_number == get_host_player_id() && message_char_index == -1 &&
@@ -399,46 +410,50 @@ void handle_autostart_multiplayer_messaging(void)
             } else {
               level = 1;
             }
-            snprintf(host_message, sizeof(host_message), "%s:%d", camp_name, level);
-            message_length = strlen(host_message);
+            snprintf(auto_message, sizeof(auto_message), "%s:%d", camp_name, level);
+            message_length = strlen(auto_message);
             message_prepared = true;
           }
           // Start sending the message
           message_char_index = 0;
         }
-      }
+    }
+    previous_player_count = net_number_of_enum_players;
+}
 
-      // Send message one character per frame
-      if (message_char_index >= 0 && my_player_number == get_host_player_id()) {
+
+static void send_stored_message()
+{
+    // Send message one character per frame
+    if (message_char_index >= 0) {
         struct ScreenPacket *nspck;
         nspck = &net_screen_packet[my_player_number];
         if ((nspck->networkstatus_flags & 0xF8) == 0) {
-          if (message_char_index < message_length) {
-            // Send next character as key code
-            char c = host_message[message_char_index];
-            TbKeyCode keycode = ascii_to_keycode(c);
-            if (keycode != KC_UNASSIGNED) {
-              nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x40;
-              nspck->param1 = keycode;
-              // Set shift modifier for uppercase letters and special chars
-              TbBool needs_shift = (c >= 'A' && c <= 'Z') || c == '!' || c == ':';
-              if (needs_shift) {
-                nspck->param2 = KMod_SHIFT;
-              } else {
-                nspck->param2 = KMod_NONE;
-              }
+            if (message_char_index < message_length) {
+                // Send next character as key code
+                char c = auto_message[message_char_index];
+                TbKeyCode keycode = ascii_to_keycode(c);
+                if (keycode != KC_UNASSIGNED) {
+                    nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x40;
+                    nspck->param1 = keycode;
+                    // Set shift modifier for uppercase letters and special chars
+                    TbBool needs_shift = (c >= 'A' && c <= 'Z') || c == '!' || c == ':' || c == '_';
+                    if (needs_shift) {
+                      nspck->param2 = KMod_SHIFT;
+                    } else {
+                      nspck->param2 = KMod_NONE;
+                    }
+                }
+                message_char_index++;
+            } else {
+                // Send KC_RETURN to finish the message
+                nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x40;
+                nspck->param1 = KC_RETURN;
+                nspck->param2 = 0;
+                message_char_index = -1; // Reset for next time
             }
-            message_char_index++;
-          } else {
-            // Send KC_RETURN to finish the message
-            nspck->networkstatus_flags = (nspck->networkstatus_flags & 7) | 0x40;
-            nspck->param1 = KC_RETURN;
-            nspck->param2 = 0;
-            message_char_index = -1; // Reset for next time
-          }
         }
-      }
-      previous_player_count = net_number_of_enum_players;
+    }
 }
 
 void frontnet_start_update(void)
@@ -458,6 +473,7 @@ void frontnet_start_update(void)
     }
 
     handle_autostart_multiplayer_messaging();
+    send_stored_message();
 
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
     {
